@@ -9,7 +9,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/remort.h"
 #include "feats.h"                              // issue.perk-action-patching
-#include "gameplay/magic/spells_info.h"         // issue.perk-action-patching: SpellInfo::perk_patches
+#include "gameplay/magic/spells_info.h"         // issue.perk-action-patching: SpellInfo::talent_patches
 #include <cstring>
 
 /* Служебные функции */
@@ -473,16 +473,16 @@ namespace feats {
 
 using ItemPtr = FeatInfoBuilder::ItemPtr;
 
-// issue.perk-action-patching: parse a feat spell_patches block into FeatInfo::spell_patches. Each
-// <spell_patch> carries the target spell + op + optional action/effect/anchor ids; its <action> child
+// issue.perk-action-patching: parse a feat talent_patches block into FeatInfo::talent_patches. Each
+// <talent_patch> carries the target spell + op + optional action/effect/anchor ids; its <action> child
 // block(s) are the perk-provided payload, parsed by the normal action parser (Actions::Build).
-static void ParseSpellPatches(FeatInfo &info, DataNode &node) {
-	if (!node.GoToChild("spell_patches")) {
+static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
+	if (!node.GoToChild("talent_patches")) {
 		return;
 	}
 	for (auto &pn : node.Children()) {
 		try {
-			SpellPatch sp;
+			TalentPatch sp;
 			if (const char *sv = pn.GetValue("spell"); sv && *sv) {
 				sp.target_spell = parse::ReadAsConstant<ESpell>(sv);
 			}
@@ -493,9 +493,9 @@ static void ParseSpellPatches(FeatInfo &info, DataNode &node) {
 			else if (op == "remove")      { sp.op = EPatchOp::kRemove; }
 			else if (op == "add_effect")  { sp.op = EPatchOp::kAddEffect; }
 			else if (op == "replace_all") { sp.op = EPatchOp::kReplaceAll; }
-			else { err_log("perk patch: unknown op [%s].", op.c_str()); continue; }
+			else { err_log("talent patch: unknown op [%s].", op.c_str()); continue; }
 			if (const char *bv = pn.GetValue("by"); bv && *bv && strcmp(bv, "target") == 0) {
-				sp.scope = SpellPatch::EScope::kTarget;
+				sp.scope = TalentPatch::EScope::kTarget;
 			}
 			if (const char *av = pn.GetValue("action"); av && *av) { sp.action_id = av; }
 			if (const char *ev = pn.GetValue("effect"); ev && *ev) { sp.effect_id = ev; }
@@ -505,9 +505,9 @@ static void ParseSpellPatches(FeatInfo &info, DataNode &node) {
 				sp.anchor_id = aft; sp.anchor_before = false;
 			}
 			sp.payload.Build(pn);
-			info.spell_patches.push_back(std::move(sp));
+			info.talent_patches.push_back(std::move(sp));
 		} catch (std::exception &e) {
-			err_log("Feat spell_patch parse error (%s).", e.what());
+			err_log("Feat talent_patch parse error (%s).", e.what());
 		}
 	}
 	node.GoToParent();
@@ -534,7 +534,7 @@ ItemPtr FeatInfoBuilder::ParseFeat(DataNode &node) {
 	auto info = ParseHeader(node);
 
 	ParseEffects(info, node);
-	ParseSpellPatches(*info, node);   // issue.perk-action-patching
+	ParseTalentPatches(*info, node);   // issue.perk-action-patching
 	return info;
 }
 
@@ -571,7 +571,7 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 }
 
 // issue.perk-action-patching: validate a patch target/anchor ids against the spell action blocks.
-static bool ValidatePatch(const spells::SpellInfo &spell, const SpellPatch &p, EFeat fid) {
+static bool ValidatePatch(const spells::SpellInfo &spell, const TalentPatch &p, EFeat fid) {
 	auto has_block = [&](const std::string &id) {
 		if (id.empty()) { return false; }
 		for (const auto &b : spell.actions.list()) {
@@ -584,14 +584,14 @@ static bool ValidatePatch(const spells::SpellInfo &spell, const SpellPatch &p, E
 		case EPatchOp::kRemove:
 		case EPatchOp::kAddEffect:
 			if (!has_block(p.action_id)) {
-				err_log("perk patch (feat [%s] -> spell [%s]): action id [%s] not found.",
+				err_log("talent patch (feat [%s] -> spell [%s]): action id [%s] not found.",
 						NAME_BY_ITEM<EFeat>(fid).c_str(), spell.GetEngCName(), p.action_id.c_str());
 				return false;
 			}
 			break;
 		case EPatchOp::kInsert:
 			if (!p.anchor_id.empty() && !has_block(p.anchor_id)) {
-				err_log("perk patch (feat [%s] -> spell [%s]): insert anchor [%s] not found.",
+				err_log("talent patch (feat [%s] -> spell [%s]): insert anchor [%s] not found.",
 						NAME_BY_ITEM<EFeat>(fid).c_str(), spell.GetEngCName(), p.anchor_id.c_str());
 				return false;
 			}
@@ -602,18 +602,18 @@ static bool ValidatePatch(const spells::SpellInfo &spell, const SpellPatch &p, E
 	return true;
 }
 
-void BuildSpellPatchIndex() {
+void BuildTalentPatchIndex() {
 	for (auto sid = ESpell::kFirst; sid <= ESpell::kLast; ++sid) {
 		if (MUD::Spells().IsKnown(sid)) {
-			MUD::Spell(sid).perk_patches.clear();
+			MUD::Spell(sid).talent_patches.clear();
 		}
 	}
 	size_t linked = 0, dropped = 0;
 	for (const auto &fi : MUD::Feats()) {
 		const EFeat fid = fi.GetId();
-		for (const auto &patch : fi.spell_patches) {
+		for (const auto &patch : fi.talent_patches) {
 			if (!MUD::Spells().IsKnown(patch.target_spell)) {
-				err_log("perk patch on feat [%s]: unknown target spell.", NAME_BY_ITEM<EFeat>(fid).c_str());
+				err_log("talent patch on feat [%s]: unknown target spell.", NAME_BY_ITEM<EFeat>(fid).c_str());
 				++dropped;
 				continue;
 			}
@@ -622,11 +622,11 @@ void BuildSpellPatchIndex() {
 				++dropped;
 				continue;
 			}
-			spell.perk_patches.push_back(spells::SpellPatchRef{fid, &patch});
+			spell.talent_patches.push_back(spells::TalentPatchRef{fid, &patch});
 			++linked;
 		}
 	}
-	log("issue.perk-action-patching: linked %zu perk spell-patch(es), dropped %zu.", linked, dropped);
+	log("issue.perk-action-patching: linked %zu talent patch(es), dropped %zu.", linked, dropped);
 }
 
 }

@@ -28,7 +28,7 @@
 class CharData;
 class ObjData;
 struct RoomData;
-namespace feats { struct SpellPatch; }   // issue.perk-action-patching
+namespace feats { struct TalentPatch; }   // issue.perk-action-patching
 template<typename> class Affect;   // issue.mob-flag-affect-materialization: BuildMaterializedAffect return
 
 // (issue.affect-migration) The old ESpell "first-aid removable" list + GetRemovableSpellId were
@@ -203,9 +203,9 @@ class ActionContext {
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// issue.perk-action-patching: build this cast's patched action chain from the caster's usable perks
-	// (SpellInfo::perk_patches). Fast no-op when the spell has no patches. Call once in CallMagic before
+	// (SpellInfo::talent_patches). Fast no-op when the spell has no patches. Call once in CallMagic before
 	// the action walk; every other cast (and everyone without the perk) walks the spell unchanged.
-	void ApplyPerkPatches();
+	void ApplyTalentPatches();
 	// The action the current stage should read its block from: the cursor's
 	// current action when the per-action loop is driving (CastToSingleTarget),
 	// or the spell's primary action otherwise (bypass callers / rooms that call
@@ -220,7 +220,7 @@ class ActionContext {
 
  private:
 	// issue.perk-action-patching: apply one resolved patch to action_view_/patch_scratch_.
-	void ApplyOnePatch(const feats::SpellPatch &p);
+	void ApplyOnePatch(const feats::TalentPatch &p);
 	CharData *caster_{nullptr};
 	ESpell spell_id_{ESpell::kUndefined};
 	int base_level_{0};

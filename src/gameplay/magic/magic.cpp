@@ -233,7 +233,7 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id) {
  *   - no skill / kUndefined: prob% chance of `max`, else 0;
  *   - skill + prob > 0:      prob% chance of `extra` (= min(skill,75)/divisor, capped at max), else 0;
  *   - skill + prob == 0:     random 0..extra (uniform spread of attack count).
- * (issue.perk-action-patching) kMagicArrows is now DATA-DRIVEN: the feat carries a <spell_patch> that
+ * (issue.perk-action-patching) kMagicArrows is now DATA-DRIVEN: the feat carries a <talent_patch> that
  * replaces kMagicMissile's <damage> with a boosted <hits> block (skill_divisor 12->6, max 2->6),
  * reproducing the old halve-divisor/triple-max at the skill cap. No spell-specific branch here anymore.
  */
@@ -644,7 +644,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 	}
 
 	// Multi-hit count: a damage spell with a <hits> child gets its extra-hit
-	// number from CalcExtraHits. (kMagicArrows is now a data <spell_patch> boosting kMagicMissile's
+	// number from CalcExtraHits. (kMagicArrows is now a data <talent_patch> boosting kMagicMissile's
 	// <hits>; no spell-specific branch remains in CalcExtraHits.)
 	// Absent <hits> -> count stays at the file-top default of 1 (single hit), which matches the
 	// current behaviour of every non-multi-hit damage spell.
@@ -3046,14 +3046,14 @@ bool ActionContext::HasPendingActions() const {
 }
 
 // issue.perk-action-patching: materialize this cast's patched action chain. Runs once per cast in
-// CallMagic. Fast path: a spell with no perk patches (nearly all of them) returns immediately and the
+// CallMagic. Fast path: a spell with no talent patches (nearly all of them) returns immediately and the
 // cast walks the spell's own const action list -- identical to before this feature. Only when the spell
 // carries patches AND the caster can use the corresponding perk do we build a per-cast view.
-void ActionContext::ApplyPerkPatches() {
+void ActionContext::ApplyTalentPatches() {
 	if (!caster_) {
 		return;
 	}
-	const auto &patches = MUD::Spell(spell_id_).perk_patches;
+	const auto &patches = MUD::Spell(spell_id_).talent_patches;
 	if (patches.empty()) {
 		return;   // fast path
 	}
@@ -3066,10 +3066,10 @@ void ActionContext::ApplyPerkPatches() {
 	patched_ = true;
 	// patches arrive in EFeat-enum order (MUD::Feats() is an ordered map), so application is deterministic.
 	for (const auto &ref : patches) {
-		const feats::SpellPatch &p = *ref.patch;
+		const feats::TalentPatch &p = *ref.patch;
 		// Only caster-held perks are materialized here (once per cast). Target-held perks must be resolved
 		// per victim inside the target loop -- not wired yet, so skip them to avoid misfiring.
-		if (p.scope != feats::SpellPatch::EScope::kCaster) {
+		if (p.scope != feats::TalentPatch::EScope::kCaster) {
 			continue;
 		}
 		if (!CanUseFeat(caster_, ref.feat)) {
@@ -3079,7 +3079,7 @@ void ActionContext::ApplyPerkPatches() {
 	}
 }
 
-void ActionContext::ApplyOnePatch(const feats::SpellPatch &p) {
+void ActionContext::ApplyOnePatch(const feats::TalentPatch &p) {
 	using talents_actions::Action;
 	using Diff = std::vector<const Action *>::difference_type;
 	const auto &payload = p.payload.list();

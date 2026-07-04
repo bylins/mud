@@ -498,7 +498,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	ctx.rvict = rvict;
 	// issue.perk-action-patching: if the caster holds a perk that patches this spell, build the per-cast
 	// modified action chain now, before dispatch. No-op for every other caster / every unpatched spell.
-	ctx.ApplyPerkPatches();
+	ctx.ApplyTalentPatches();
 
 	// issue.room-affect-trigger-improve: a cast aimed at a DIRECTION targets that passage/exit -- general,
 	// not tied to any spell id. CallMagicToExit runs only the passage-meaningful stages of the spell

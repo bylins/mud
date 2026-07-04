@@ -10,7 +10,7 @@
 #include "engine/structs/info_container.h"
 #include "gameplay/abilities/feats_constants.h"   // issue.perk-action-patching: EFeat
 
-namespace feats { struct SpellPatch; }   // issue.perk-action-patching (avoid feats.h<->spells_info.h cycle)
+namespace feats { struct TalentPatch; }   // issue.perk-action-patching (avoid feats.h<->spells_info.h cycle)
 
 class CharData;
 
@@ -49,10 +49,10 @@ class SpellsLoader : virtual public cfg_manager::IEditableCfgLoader {
 /**
  * Класс-описание конкретного заклинания.
  */
-// issue.perk-action-patching: one perk patch that targets a spell (which feat + the patch payload).
-struct SpellPatchRef {
+// issue.perk-action-patching: one talent patch that targets a spell (which feat + the patch payload).
+struct TalentPatchRef {
 	EFeat feat{EFeat::kUndefined};
-	const feats::SpellPatch *patch{nullptr};
+	const feats::TalentPatch *patch{nullptr};
 };
 
 class SpellInfo : public info_container::BaseItem<ESpell> {
@@ -98,10 +98,10 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 
 	talents_actions::Actions actions;
 
-	// issue.perk-action-patching: perk patches targeting this spell, filled once at boot by
-	// feats::BuildSpellPatchIndex(). Empty for nearly every spell -> the cast fast-path skips patching.
+	// issue.perk-action-patching: talent patches targeting this spell, filled once at boot by
+	// feats::BuildTalentPatchIndex(). Empty for nearly every spell -> the cast fast-path skips patching.
 	// mutable: a post-load index on an otherwise const-at-runtime object.
-	mutable std::vector<SpellPatchRef> perk_patches;
+	mutable std::vector<TalentPatchRef> talent_patches;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	/**

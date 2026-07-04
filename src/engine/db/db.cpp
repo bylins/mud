@@ -1,6 +1,6 @@
 #include <filesystem>
 #include "gameplay/affects/affect_messages.h"
-#include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildSpellPatchIndex
+#include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
 #include "utils/utils_encoding.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -672,9 +672,9 @@ void BootMudDataBase() {
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
 
-	// issue.perk-action-patching: feats + spells are both loaded now -- bucket every perk spell-patch
+	// issue.perk-action-patching: feats + spells are both loaded now -- bucket every talent patch
 	// onto its target SpellInfo and validate its action ids.
-	feats::BuildSpellPatchIndex();
+	feats::BuildTalentPatchIndex();
 
 	// issue.affect-migration: room-affect registry + messages (flags/triggers/actions and the
 	// per-room-affect display/lifecycle text). After spells, since room affects reference spell ids.

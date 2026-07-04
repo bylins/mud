@@ -50,7 +50,7 @@ using DataNode = parser_wrapper::DataNode;
 // lifetime, so the per-cast materializer can point at them (non-owning) without copying.
 enum class EPatchOp { kAppend, kInsert, kReplace, kRemove, kAddEffect, kReplaceAll };
 
-struct SpellPatch {
+struct TalentPatch {
 	enum class EScope { kCaster, kTarget };   // whose feat is tested (kTarget = future: the spell's victim)
 	ESpell target_spell{ESpell::kUndefined};
 	EPatchOp op{EPatchOp::kAppend};
@@ -81,7 +81,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	talents_effects::Effects effects;
 
 	// issue.perk-action-patching: this feat's spell-action patches (empty for most feats).
-	std::vector<SpellPatch> spell_patches;
+	std::vector<TalentPatch> talent_patches;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
@@ -101,8 +101,8 @@ class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {
 using FeatsInfo = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;
 
 // issue.perk-action-patching: after feats + spells load, bucket every feat's patches onto the target
-// SpellInfo (SpellInfo::perk_patches) and validate their target ids. Idempotent; called once from boot.
-void BuildSpellPatchIndex();
+// SpellInfo (SpellInfo::talent_patches) and validate their target ids. Idempotent; called once from boot.
+void BuildTalentPatchIndex();
 
 }
 
