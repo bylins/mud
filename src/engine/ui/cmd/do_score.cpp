@@ -48,7 +48,7 @@ int CalcHitroll(CharData *ch);
 
 /* extern */
 int CalcAntiSavings(CharData *ch);
-int calc_initiative(CharData *ch, bool mode);
+#include "gameplay/mechanics/initiative.h"
 void GetClassWeaponMod(ECharClass class_id, ESkill skill, int *damroll, int *hitroll);
 
 const char *ac_text[] =

@@ -15,7 +15,6 @@ inline void set_fighting(const CharData::shared_ptr &ch, CharData *victim) { Set
 
 void stop_fighting(CharData *ch, int switch_others);
 void perform_violence();
-int calc_initiative(CharData *ch, bool mode);
 
 int CalcBaseAc(CharData *ch);
 void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);

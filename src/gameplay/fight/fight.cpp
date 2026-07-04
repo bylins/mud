@@ -16,6 +16,7 @@
 #include "utils/logger.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/initiative.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/skills/bash.h"
@@ -1399,50 +1400,6 @@ void set_mob_skills_flags(CharData *ch) {
 	}
 }
 
-int calc_initiative(CharData *ch, bool mode) {
-	int initiative = SizeApp(GET_POS_SIZE(ch)).initiative;
-	if (mode) //Добавим булевую переменную, чтобы счет все выдавал постоянное значение, а не каждый раз рандом
-	{
-		int i = number(1, 10);
-		if (i == 10)
-			initiative -= 1;
-		else
-			initiative += i;
-	};
-
-	initiative += GET_INITIATIVE(ch);
-
-	if (!ch->IsNpc()) {
-		switch (ch->GetCarryingWeight() * 10 / MAX(1, CAN_CARRY_W(ch))) {
-			case 10:
-			case 9:
-			case 8: initiative -= 20;
-				break;
-			case 7:
-			case 6:
-			case 5: initiative -= 10;
-				break;
-		}
-	}
-
-	if (ch->battle_affects.get(kEafAwake))
-		initiative -= 20;
-	if (ch->battle_affects.get(kEafPunctual))
-		initiative -= 10;
-	if (ch->get_wait() > 0)
-		initiative -= 1;
-	if (CalcLeadership(ch))
-		initiative += 5;
-	if (ch->battle_affects.get(kEafSlow))
-		initiative = 1;
-
-// indra
-// рраскомменчу, посмотрим
-	initiative = std::max(initiative, 1);
-	//Почему инициатива не может быть отрицательной?
-	return initiative;
-}
-
 void using_charmice_skills(CharData *ch) {
 	// если чармис вооружен и может глушить - будем глушить
 	// если нет оружия но есть молот - будем молотить
@@ -1976,8 +1933,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			}
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}
-		if (ch->initiative > min_init) {
-			--(ch->initiative);
+		if (try_consume_extra_pass(ch, min_init)) {
 			return;
 		}
 	}
@@ -1990,8 +1946,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			&& ch->get_wait() <= 0 
 			&& using_extra_attack(ch)) {
 		ch->SetExtraAttack(kExtraAttackUnused, nullptr);
-		if (ch->initiative > min_init) {
-			--(ch->initiative);
+		if (try_consume_extra_pass(ch, min_init)) {
 			return;
 		}
 	}
@@ -2025,8 +1980,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 		ch->battle_affects.unset(kEafFirst);
 		ch->battle_affects.set(kEafSecond);
-		if (ch->initiative > min_init) {
-			--(ch->initiative);
+		if (try_consume_extra_pass(ch, min_init)) {
 			return;
 		}
 	}
@@ -2152,21 +2106,8 @@ void perform_violence() {
 			continue;
 		}
 
-		int initiative = calc_initiative(it.ch, true);
-		if (initiative > 100) { //откуда больше 100??????
-			log("initiative calc: %s (%d) == %d", GET_NAME(it.ch), GET_MOB_VNUM(it.ch), initiative);
-		}
-		initiative = std::clamp(initiative, -100, 100);
-		if (initiative == 0) {
-			it.ch->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
-			min_init = MIN(min_init, -100);
-		} else {
-			it.ch->initiative = initiative;
-		}
-
+		roll_round_initiative(it.ch, min_init, max_init);
 		it.ch->battle_affects.set(kEafFirst);
-		max_init = MAX(max_init, initiative);
-		min_init = MIN(min_init, initiative);
 	}
 	int size = 0;
 	//* обработка раунда по очередности инициативы

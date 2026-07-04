@@ -551,6 +551,7 @@ main_sources = files(
   'src/gameplay/ai/subcmd_resolver.cpp',
   'src/engine/network/descriptor_data.cpp',
   'src/gameplay/mechanics/stuff.cpp',
+  'src/gameplay/mechanics/initiative.cpp',
   'src/utils/id_converter.cpp',
   'src/utils/utils_time.cpp',
   'src/gameplay/mechanics/title.cpp',

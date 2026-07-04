@@ -21,6 +21,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/initiative.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/core/remort.h"

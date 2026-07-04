@@ -22,6 +22,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/initiative.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/illumination.h"
