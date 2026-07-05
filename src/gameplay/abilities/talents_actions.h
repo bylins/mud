@@ -629,6 +629,10 @@ class TalentAffect : public IAction {
 	[[nodiscard]] int GetDurationSkillDivisor() const { return dur_skill_divisor_; }
 	[[nodiscard]] int GetDurationMin() const { return dur_min_; }
 	[[nodiscard]] int GetDurationMax() const { return dur_max_; }
+	// issue.drunked-migration (Gap A): the skill whose novice-bonus scales this affect's duration. Normally
+	// kUndefined (the cast path uses the spell's potency base_skill); a TRIGGERED affect-action has no spell,
+	// so it can name the skill here (e.g. <duration skill="kHangovering"/>).
+	[[nodiscard]] ESkill GetDurationSkill() const { return dur_skill_; }
 	// issue.room-affect-trigger-improve: <charges max="N"/> -- trigger firings before the affect is
 	// removed. -1 = unlimited (default). Only meaningful for triggered (room/door) affects.
 	[[nodiscard]] int GetChargesMax() const { return charges_max_; }
@@ -658,6 +662,7 @@ class TalentAffect : public IAction {
 	int prob_{100};                         // percent chance the affect block fires (default always)
 	int dur_base_{0};
 	int dur_skill_divisor_{0};
+	ESkill dur_skill_{ESkill::kUndefined};
 	int dur_min_{0};
 	int dur_max_{0};
 	int charges_max_{-1};   // issue.room-affect-trigger-improve: trigger charges; -1 = unlimited

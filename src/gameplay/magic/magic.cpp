@@ -1044,7 +1044,12 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// skill-based duration. The bonus uses the caster's potency-roll base_skill (kUndefined for
 	// spells without a <potency_roll> -> flat duration). `victim` decides the unit (PC: hours ->
 	// ticks; NPC: raw), preserving today's tick-unit semantics.
-	const ESkill duration_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+	// issue.drunked-migration (Gap A): an affect-action may name its own duration-scaling skill (<duration
+	// skill=>); otherwise fall back to the casting spell's base_skill (kUndefined for a triggered action).
+	ESkill duration_skill = talent.GetDurationSkill();
+	if (duration_skill == ESkill::kUndefined) {
+		duration_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+	}
 	// issue.vampirism-haste: a battle-decrementing grant (battleflag="kAfBattledec") is measured in
 	// combat rounds, so its duration must NOT get the PC hours->ticks conversion.
 	const bool raw_rounds = (talent.GetBattleflags() & to_underlying(EAffFlag::kAfBattledec)) != 0;

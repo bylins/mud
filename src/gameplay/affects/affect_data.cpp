@@ -303,11 +303,12 @@ void player_affect_update() {
 			++profile.counters[static_cast<std::size_t>(Counter::kAffectedPlayers)];
 		}
 		bool was_purged = false;
-		bool set_abstinent = false;
 		bool need_recalc = false;
 		// issue.damage-over-time: an out-of-combat data-driven DoT (kPulse actions) ticks once per affect
 		// type per pass (multi-instance affects share one tick, like poison in battle_affect_update).
 		std::set<EAffect> ticked_types;
+		// issue.drunked-migration (Gap B): kExpired likewise fires at most once per affect TYPE per pass.
+		std::set<EAffect> expired_types;
 		auto affect_i = i->affected.begin();
 
 		while (affect_i != i->affected.end()) {
@@ -343,11 +344,13 @@ void player_affect_update() {
 						}
 					}
 				}
-				if (affect->affect_type == EAffect::kDrunked) {
-					set_abstinent = true;
-				}
 				// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout.
-				RunCharAffectTrigger(i.get(), affect->affect_type, talents_actions::EActionTrigger::kExpired);
+				// issue.drunked-migration (Gap B): once per affect TYPE per pass, so a multi-instance affect
+				// (e.g. the 3-apply kDrunked) runs its on-expire action a single time. kDrunked's hangover is
+				// now data: its <trigger val="kExpired"> action imposes kAbstinent (was hardcoded set_abstinent).
+				if (expired_types.insert(affect->affect_type).second) {
+					RunCharAffectTrigger(i.get(), affect->affect_type, talents_actions::EActionTrigger::kExpired);
+				}
 				affect_i = RemoveAffect(i.get(), affect_i);
 				need_recalc = true;
 			} else {
@@ -392,12 +395,6 @@ void player_affect_update() {
 				++affect_i;
 			}
 			profile.sections[static_cast<std::size_t>(Section::kAffectLoop)] += affect_timer.delta().count();
-		}
-		if (set_abstinent) {
-			utils::CExecutionTimer abstinent_timer;
-			condition::SetAbstinent(i.get());
-			profile.sections[static_cast<std::size_t>(Section::kSetAbstinent)] += abstinent_timer.delta().count();
-			++profile.counters[static_cast<std::size_t>(Counter::kAbstinentPlayers)];
 		}
 		if (!was_purged && need_recalc) {
 			{

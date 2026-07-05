@@ -703,6 +703,9 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			dur_max_ = parse::ReadAsInt(child.GetValue("max"));
 			dur_base_ = parse::ReadAsInt(child.GetValue("base"));
 			dur_skill_divisor_ = parse::ReadAsInt(child.GetValue("skill_divisor"));
+			// issue.drunked-migration (Gap A): optional skill whose novice-bonus scales the duration -- lets a
+			// triggered affect-action (no casting spell) scale like a real cast would.
+			if (const char *sk = child.GetValue("skill"); sk && *sk) { dur_skill_ = parse::ReadAsConstant<ESkill>(sk); }
 		} else if (strcmp(name, "charges") == 0) {
 			// issue.room-affect-trigger-improve: <charges max="N"/> -- how many times a TRIGGERED affect
 			// may fire before it is removed. -1 (or absent) = unlimited. Modelled on <hits max=>; the

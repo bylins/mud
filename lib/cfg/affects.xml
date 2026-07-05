@@ -156,9 +156,33 @@
 	<affect id="kDetectPoison" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</affect>
-	<affect id="kDrunked"/>
-	<affect id="kAbstinent">
+	<affect id="kDrunked">
+		<!-- issue.drunked-migration: applies (AC/HR/DR) stay dynamic in do_drink; here only the on-expire
+		     hangover. kDrunked has battleflag 0 -> expires only in the out-of-combat point-update, where
+		     kExpired fires. Duration scales with kHangovering (Gap A). NOTE: the kDrunkard-feat halving that
+		     condition::SetAbstinent used is intentionally dropped for now (Gap C, follow-up). -->
+		<actions>
+			<action target="kTarFightSelf">
+				<trigger val="kExpired"/>
+				<affects>
+					<duration base="2" skill_divisor="10" min="2" max="5" skill="kHangovering"/>
+					<affect id="kAbstinent"/>
+				</affects>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kAbstinent" buff="N">
 		<flags val="kAfCurable"/>
+		<!-- issue.drunked-migration: hangover applies (were hardcoded in condition::SetAbstinent). -->
+		<apply location="kAc">
+			<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+		</apply>
+		<apply location="kHitroll">
+			<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
+		</apply>
+		<apply location="kDamroll">
+			<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
+		</apply>
 	</affect>
 	<affect id="kStopRight">
 		<flags val="kAfBattledec|kAfPulsedec|kAfCurable"/>
