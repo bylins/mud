@@ -317,9 +317,14 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 						+ dmg_act.GetAmountBeta() * C);
 			}
 		} else {
-			// Legacy multiplicative model dice * (1 + skill + stat), for spells with no <damage>
-			// action (e.g. kWarcryOfChallenge).
-			dmg = base_dmg * (1.0f + skill_coeff + stat_coeff);
+			// issue.random-noise-rework: the legacy `dice * (1 + skill + stat)` model is abandoned --
+			// it was dice-dominated (skill barely mattered) and, with the rebalanced competence, both
+			// inflated and inconsistent with every <damage> spell. A kMagDamage spell with no <damage>
+			// manifestation now deals NO direct damage; it stays an aggressive act (CastDamage already
+			// ran pk_agro_action, and a 0-damage hit still sets the victim fighting via Damage::Process),
+			// which is exactly what a taunt like kWarcryOfChallenge wants. Real damage comes from a
+			// <damage> action or a <side_spell> (e.g. kDeadlyFogTick's kAcidArrow/kPoison/...).
+			dmg = 0.0f;
 		}
 
 		total_dmg = static_cast<int>(dmg * elem_coeff);
