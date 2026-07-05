@@ -47,19 +47,31 @@ public:
 
 	std::string GetName() const override;
 
-	// Reads: LoadZones() picks the index-freshness winner for zone_table,
-	// then resolves a per-zone content winner for everything else. If not
-	// every source supports per-zone loading (AllZonesSupportPerZoneLoad()
-	// is false), LoadTriggers/Rooms/Mobs/Objects fall back to whole-source
-	// delegation to the index winner -- the orchestrator (GameLoader::
-	// BootWorld) checks that flag and only drives the per-zone LoadZone*
-	// loop when every source can support it; otherwise it calls these
-	// fallback methods exactly like a single source would.
+	// Reads: LoadZones() picks the index-freshness winner for zone_table, then
+	// resolves a per-zone content winner for everything else. LoadTriggers/
+	// Rooms/Mobs/Objects fan out to each winning source with ITS OWN zone
+	// subset (via SourceForZone), gather the results, and return them
+	// concatenated -- no different from calling a single source, just with
+	// more than one contributor. The caller (GameLoader::BootWorld) does not
+	// need to know or care whether ds_ptr is a composite; it always does the
+	// same thing: call with a null filter, sort what comes back by vnum, place
+	// it in the global tables. If any child source can't honor a zone filter
+	// (SupportsZoneFilter() false -- e.g. the legacy backend), this instead
+	// delegates the whole call, unfiltered, to the index winner, matching
+	// what a single-source deployment would do.
 	void LoadZones() override;
-	void LoadTriggers() override;
-	void LoadRooms() override;
-	void LoadMobs() override;
-	void LoadObjects() override;
+	std::vector<LoadedTrigger> LoadTriggers(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedRoom> LoadRooms(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedMob> LoadMobs(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedObject> LoadObjects(const std::vector<int> *zone_filter = nullptr) override;
+
+	// The composite ITSELF always returns real, placeable results from
+	// LoadTriggers/Rooms/Mobs/Objects above (it discards nothing) -- whether
+	// any CHILD source can't filter is a separate, internal concern handled
+	// by AllSourcesSupportZoneFilter()/the unfiltered-delegation fallback.
+	// The boot orchestrator (db.cpp) must not treat the composite itself as
+	// a self-managing source (that's only true of the legacy backend).
+	bool SupportsZoneFilter() const override { return true; }
 
 	// Writes: fan out to every source so all backends stay in sync.
 	void SaveZone(int zone_rnum) override;
@@ -78,12 +90,6 @@ public:
 	std::vector<int> ListZoneVnums() const override;
 	Freshness GetZoneFreshness(int zone_vnum) const override;
 	Freshness GetIndexFreshness() const override;
-
-	// True if every child source supports per-zone loading. Gates whether
-	// the boot orchestrator uses the per-zone LoadZone* loop or falls back
-	// to whole-source LoadTriggers/Rooms/Mobs/Objects (e.g. a composite that
-	// includes the legacy backend, which never implemented LoadZone*).
-	bool AllZonesSupportPerZoneLoad() const;
 
 	// One-shot override for the -F <kind> CLI flag: skip the normal per-zone
 	// freshness comparison entirely and make the source whose GetKind() ==
@@ -119,6 +125,18 @@ private:
 	// looks across all sources (i.e. the just-written file mtime). Every source
 	// is stamped with this so none ends up spuriously newer than the others.
 	Freshness CanonicalZoneVersion(int zone_rnum) const;
+
+	// True if every child source can honor a zone filter. False means one of
+	// them (e.g. the legacy backend) can only load everything at once, so
+	// LoadTriggers/Rooms/Mobs/Objects fall back to unfiltered whole-source
+	// delegation to the index winner instead of fanning out per-zone.
+	bool AllSourcesSupportZoneFilter() const;
+
+	// Group m_zone_source by winning source (dungeon-instance vnums already
+	// excluded by SelectZoneSources), intersected with `filter` if non-null.
+	// Shared by LoadTriggers/Rooms/Mobs/Objects, which differ only in which
+	// IWorldDataSource method they call per source.
+	std::map<IWorldDataSource *, std::vector<int>> WinningZonesBySource(const std::vector<int> *filter) const;
 
 	std::vector<std::unique_ptr<IWorldDataSource>> m_sources;  // [0] = highest priority
 	IWorldDataSource *m_index_source = nullptr;                 // zone_table/index winner

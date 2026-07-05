@@ -79,10 +79,10 @@ public:
 	std::string GetKind() const override { return "yaml"; }
 
 	void LoadZones() override;
-	void LoadTriggers() override;
-	void LoadRooms() override;
-	void LoadMobs() override;
-	void LoadObjects() override;
+	std::vector<LoadedTrigger> LoadTriggers(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedRoom> LoadRooms(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedMob> LoadMobs(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedObject> LoadObjects(const std::vector<int> *zone_filter = nullptr) override;
 
 	// Save methods (YAML is read-only for now)
 	void SaveZone(int zone_rnum) override;
@@ -98,28 +98,7 @@ public:
 	Freshness GetZoneFreshness(int zone_vnum) const override;
 	Freshness GetIndexFreshness() const override;
 
-	// Per-zone load (for CompositeWorldDataSource's per-zone source
-	// selection). Unlike the whole-world Load* methods above, these append
-	// exactly one zone's entities to the already-in-progress global tables --
-	// they do NOT allocate world[]'s dummy room 0, mob_proto/mob_index/
-	// trig_index (the orchestrator in db.cpp does that once, up front, sized
-	// via CountZoneMobs/CountZoneTriggers), nor run any of the global
-	// post-passes (CalculateFirstAndLastRooms, ResolveZoneTableCmdVnumArgsToRnums,
-	// etc.) -- those still run once, globally, after every zone is loaded.
-	// Callers MUST invoke these in ascending zone-vnum order, with triggers
-	// loaded (across ALL zones) before any rooms/mobs/objects are loaded,
-	// matching today's whole-world LoadTriggers-then-Rooms-then-Mobs-then-
-	// Objects sequence -- both GetRoomRnum/GetMobRnum/GetTriggerRnum binary
-	// searches and the trigger-attachment calls inside these methods depend
-	// on it.
-	bool SupportsPerZoneLoad() const override { return true; }
-	void LoadZone(int zone_vnum) override;
-	void LoadZoneTriggers(int zone_vnum) override;
-	void LoadZoneRooms(int zone_vnum) override;
-	void LoadZoneMobs(int zone_vnum) override;
-	void LoadZoneObjects(int zone_vnum) override;
-	int CountZoneMobs(int zone_vnum) const override;
-	int CountZoneTriggers(int zone_vnum) const override;
+	bool SupportsZoneFilter() const override { return true; }
 
 	// Exposed for unit tests: parses a single mob YAML file into a CharData.
 	// Stateless aside from reading the global DictionaryManager singleton --
@@ -139,16 +118,14 @@ private:
 	std::vector<int> GetZoneList();
 
 	// Discover the entity files for one sub-type ("mobs"/"objects"/"rooms"/
-	// "triggers") across all zones, auto-detecting per (zone, sub) whether the
-	// data lives in a flat <sub>.yaml or a per-file <sub>/ directory. Runs
-	// sequentially in the main thread before tasks are distributed to workers.
-	std::vector<EntityFileTask> DiscoverEntityFiles(const std::string &sub);
-
-	// Same discovery, restricted to one zone -- used by the per-zone Load*
-	// methods (and, read-only, by CountZoneMobs/CountZoneTriggers). Identical
-	// layout-detection logic to DiscoverEntityFiles, just scoped to a single
-	// zone_vnum instead of looping GetZoneList().
-	std::vector<EntityFileTask> DiscoverEntityFilesForZone(int zone_vnum, const std::string &sub) const;
+	// "triggers"), auto-detecting per zone whether the data lives in a flat
+	// <sub>.yaml or a per-file <sub>/ directory. `zone_filter` null means every
+	// zone (GetZoneList()); this is the only discovery entry point -- a full
+	// zone list and no filter are the same request, so there is no separate
+	// single-zone variant. Distributed across the thread pool (each zone is
+	// independent work); see LoadTriggers/Rooms/Mobs/Objects for how the
+	// results get used.
+	std::vector<EntityFileTask> DiscoverEntityFiles(const std::string &sub, const std::vector<int> *zone_filter = nullptr);
 
 	// Zone loading helpers
 	void LoadZoneCommands(ZoneData &zone, const YAML::Node &commands_node);
@@ -208,12 +185,8 @@ private:
 	// drop the <sub>.yaml file.
 	void CleanupOtherLayout(int zone_vnum, const std::string &sub, YamlLayout written) const;
 
-	// Parallel loading methods (only used when m_num_threads > 1)
+	// Parallel zone-table loading (only used when m_num_threads > 1).
 	void LoadZonesParallel();
-	void LoadTriggersParallel();
-	void LoadRoomsParallel();
-	void LoadMobsParallel();
-	void LoadObjectsParallel();
 
 	// Worker functions (thread-safe, parse single file)
 	ZoneData ParseZoneFile(const std::string &file_path);

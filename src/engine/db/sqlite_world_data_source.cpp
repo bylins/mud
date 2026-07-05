@@ -795,17 +795,6 @@ void SqliteWorldDataSource::LoadZones()
 	log("Loaded %d zones from SQLite.", zone_idx - 1);
 }
 
-// Load one zone's triggers/rooms/mobs/objects, in the order required by the
-// cross-references inside each (triggers before anything that attaches
-// them). Does not run the child sub-loaders -- see FinalizeZoneLoad().
-void SqliteWorldDataSource::LoadZone(int zone_vnum)
-{
-	LoadZoneTriggers(zone_vnum);
-	LoadZoneRooms(zone_vnum);
-	LoadZoneMobs(zone_vnum);
-	LoadZoneObjects(zone_vnum);
-}
-
 // Runs the four room child sub-loaders (flags/exits/triggers/extra
 // descriptions) exactly once, scoped to the set of zones THIS source
 // actually loaded (m_processed_zone_vnums). MUST run before
@@ -1093,26 +1082,21 @@ void SqliteWorldDataSource::LoadZoneGroups(ZoneData &zone)
 // Trigger Loading
 // ============================================================================
 
-void SqliteWorldDataSource::LoadTriggers()
+// The only trigger-loading entry point: `zone_filter` null means every zone.
+// One unfiltered query (matches the old bulk behavior), filtered in memory if
+// `zone_filter` is given -- a single sqlite3 connection can't usefully run
+// concurrent statements anyway, so there's no parallelism to gain by turning
+// this into N per-zone queries, and the unfiltered scan is already fast.
+// Returns results WITHOUT touching trig_index/top_of_trigt -- the caller
+// (GameLoader::BootWorld's orchestrator in db.cpp) does that placement once,
+// after possibly combining results from other sources too (composite).
+std::vector<LoadedTrigger> SqliteWorldDataSource::LoadTriggers(const std::vector<int> *zone_filter)
 {
-	log("Loading triggers from SQLite database.");
-
 	if (!OpenDatabase())
 	{
 		log("SYSERR: Failed to open SQLite database for trigger loading.");
-		return;
+		return {};
 	}
-
-	int trig_count = GetCount("triggers");
-	if (trig_count == 0)
-	{
-		log("No triggers found in SQLite database.");
-		return;
-	}
-
-	// Allocate trig_index
-	CREATE(trig_index, trig_count);
-	log("   %d triggers.", trig_count);
 
 	const char *sql = "SELECT t.vnum, t.name, t.attach_type_id, GROUP_CONCAT(ttb.type_char, '') AS type_chars, t.narg, t.arglist, t.script "
 					  "FROM triggers t LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum WHERE t.enabled = 1 GROUP BY t.vnum ORDER BY t.vnum";
@@ -1121,13 +1105,23 @@ void SqliteWorldDataSource::LoadTriggers()
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
 		log("SYSERR: Failed to prepare trigger query: %s", sqlite3_errmsg(m_db));
-		return;
+		return {};
 	}
 
-	top_of_trigt = 0;
+	std::set<int> filter_set;
+	if (zone_filter)
+	{
+		filter_set.insert(zone_filter->begin(), zone_filter->end());
+	}
+
+	std::vector<LoadedTrigger> result;
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int vnum = sqlite3_column_int(stmt, 0);
+		if (zone_filter && !filter_set.count(vnum / 100))
+		{
+			continue;
+		}
 		std::string name = GetText(stmt, 1);
 		int attach_type_id = sqlite3_column_int(stmt, 2);
 		std::string type_chars = GetText(stmt, 3);
@@ -1139,86 +1133,6 @@ void SqliteWorldDataSource::LoadTriggers()
 
 		// Compute trigger_type bitmask from type_chars
 		long trigger_type = 0;
-		
-		for (char ch : type_chars)
-		{
-			if (ch >= 'a' && ch <= 'z')
-				trigger_type |= (1L << (ch - 'a'));
-			else if (ch >= 'A' && ch <= 'Z')
-				trigger_type |= (1L << (26 + ch - 'A'));
-		}
-		
-
-		// Create trigger with proper constructor (keep empty name same as Legacy)
-		auto trig = new Trigger(top_of_trigt, std::move(name), attach_type, trigger_type);
-		GET_TRIG_NARG(trig) = narg;
-		trig->arglist = arglist;
-
-
-		// Parse script into cmdlist (uses base class method)
-		ParseTriggerScript(trig, script);
-
-		// Create index entry (uses base class method)
-		CreateTriggerIndex(vnum, trig);
-
-	}
-	sqlite3_finalize(stmt);
-
-	log("Loaded %d triggers from SQLite.", top_of_trigt);
-}
-
-int SqliteWorldDataSource::CountZoneTriggers(int zone_vnum) const
-{
-	if (!m_db)
-	{
-		return 0;
-	}
-	const std::string sql = "SELECT COUNT(*) FROM triggers WHERE enabled = 1 AND vnum BETWEEN "
-		+ std::to_string(zone_vnum * 100) + " AND " + std::to_string(zone_vnum * 100 + 99);
-	sqlite3_stmt *stmt;
-	int count = 0;
-	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
-	{
-		if (sqlite3_step(stmt) == SQLITE_ROW)
-		{
-			count = sqlite3_column_int(stmt, 0);
-		}
-		sqlite3_finalize(stmt);
-	}
-	return count;
-}
-
-// Per-zone trigger load. Does NOT allocate trig_index or reset top_of_trigt --
-// the orchestrator pre-sizes it once via CountZoneTriggers before any zone is
-// loaded (see db.cpp).
-void SqliteWorldDataSource::LoadZoneTriggers(int zone_vnum)
-{
-	const std::string sql = "SELECT t.vnum, t.name, t.attach_type_id, GROUP_CONCAT(ttb.type_char, '') AS type_chars, "
-		"t.narg, t.arglist, t.script FROM triggers t "
-		"LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum "
-		"WHERE t.enabled = 1 AND t.vnum BETWEEN " + std::to_string(zone_vnum * 100)
-		+ " AND " + std::to_string(zone_vnum * 100 + 99) + " GROUP BY t.vnum ORDER BY t.vnum";
-
-	sqlite3_stmt *stmt;
-	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
-	{
-		log("SYSERR: Failed to prepare zone trigger query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
-		return;
-	}
-
-	while (sqlite3_step(stmt) == SQLITE_ROW)
-	{
-		int vnum = sqlite3_column_int(stmt, 0);
-		std::string name = GetText(stmt, 1);
-		int attach_type_id = sqlite3_column_int(stmt, 2);
-		std::string type_chars = GetText(stmt, 3);
-		int narg = sqlite3_column_int(stmt, 4);
-		std::string arglist = GetText(stmt, 5);
-		std::string script = GetText(stmt, 6);
-
-		byte attach_type = static_cast<byte>(attach_type_id);
-
-		long trigger_type = 0;
 		for (char ch : type_chars)
 		{
 			if (ch >= 'a' && ch <= 'z')
@@ -1227,42 +1141,44 @@ void SqliteWorldDataSource::LoadZoneTriggers(int zone_vnum)
 				trigger_type |= (1L << (26 + ch - 'A'));
 		}
 
-		auto trig = new Trigger(top_of_trigt, std::move(name), attach_type, trigger_type);
+		// rnum is set for real by the orchestrator once this trigger's final
+		// position in trig_index is known -- -1 here matches YamlWorldDataSource
+		// ::ParseTriggerNode's placeholder convention.
+		auto trig = new Trigger(-1, std::move(name), attach_type, trigger_type);
 		GET_TRIG_NARG(trig) = narg;
 		trig->arglist = arglist;
-
 		ParseTriggerScript(trig, script);
-		CreateTriggerIndex(vnum, trig);
+
+		result.push_back(LoadedTrigger{vnum, trig});
 	}
 	sqlite3_finalize(stmt);
+
+	log("Loaded %zu triggers from SQLite.", result.size());
+	return result;
 }
 
 // ============================================================================
 // Room Loading
 // ============================================================================
 
-void SqliteWorldDataSource::LoadRooms()
+// The only room-loading entry point: `zone_filter` null means every zone.
+// One unfiltered query (matches the old bulk behavior; `rooms` has a real
+// zone_vnum column, but filtering in memory keeps this consistent with
+// triggers/mobs/objects, which don't), filtered in memory if `zone_filter`
+// is given. Returns results WITHOUT touching world[]/top_of_world or
+// zone_table[].RnumRoomsLocation, and WITHOUT running the room_flags/exits/
+// triggers/extra-descriptions child sub-loaders -- the caller (GameLoader::
+// BootWorld's orchestrator in db.cpp) places rooms in world[] once (after
+// possibly combining results from other sources too), then calls
+// FinalizeZoneRooms() to run the child sub-loaders, scoped to
+// m_processed_zone_vnums (populated below).
+std::vector<LoadedRoom> SqliteWorldDataSource::LoadRooms(const std::vector<int> *zone_filter)
 {
-	log("Loading rooms from SQLite database.");
-
 	if (!OpenDatabase())
 	{
 		log("SYSERR: Failed to open SQLite database for room loading.");
-		return;
+		return {};
 	}
-
-	int room_count = GetCount("rooms");
-	if (room_count == 0)
-	{
-		log("No rooms found in SQLite database.");
-		return;
-	}
-
-	// Create kNowhere room first
-	world.push_back(new RoomData);
-	top_of_world = kNowhere;
-
-	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
 	const char *sql = "SELECT vnum, zone_vnum, name, description, sector_id FROM rooms WHERE enabled = 1 ORDER BY vnum";
 
@@ -1270,16 +1186,39 @@ void SqliteWorldDataSource::LoadRooms()
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
 		log("SYSERR: Failed to prepare room query: %s", sqlite3_errmsg(m_db));
-		return;
+		return {};
 	}
 
-	// Zone rnum - increments as we process rooms in vnum order (same as Legacy)
+	std::set<int> filter_set;
+	if (zone_filter)
+	{
+		filter_set.insert(zone_filter->begin(), zone_filter->end());
+	}
+
+	// Zone rnum - increments as we process rooms in vnum order (same as
+	// Legacy); walking forward monotonically stays correct even when some
+	// rows are skipped by the in-memory filter below, since rows are still
+	// visited in ascending vnum order.
 	ZoneRnum zone_rn = 0;
+	std::vector<LoadedRoom> result;
 
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int vnum = sqlite3_column_int(stmt, 0);
-		[[maybe_unused]] int zone_vnum = sqlite3_column_int(stmt, 1);
+		while (zone_rn < static_cast<ZoneRnum>(zone_table.size()) && vnum > zone_table[zone_rn].top)
+		{
+			if (++zone_rn >= static_cast<ZoneRnum>(zone_table.size()))
+			{
+				log("SYSERR: Room %d is outside of any zone.", vnum);
+				break;
+			}
+		}
+
+		if (zone_filter && !filter_set.count(vnum / 100))
+		{
+			continue;
+		}
+
 		std::string name = GetText(stmt, 2);
 		std::string description = GetText(stmt, 3);
 		int sector_id = sqlite3_column_int(stmt, 4);
@@ -1290,117 +1229,25 @@ void SqliteWorldDataSource::LoadRooms()
 		if (!name.empty()) { name[0] = UPPER(name[0]); }
 		room->set_name(name);
 
-		// Set description
 		if (!description.empty())
 		{
 			room->description_num = GlobalObjects::descriptions().add(description);
 		}
 
-		// Set zone_rn by finding zone that contains this vnum (same as Legacy)
-		while (vnum > zone_table[zone_rn].top)
-		{
-			if (++zone_rn >= static_cast<ZoneRnum>(zone_table.size()))
-			{
-				log("SYSERR: Room %d is outside of any zone.", vnum);
-				break;
-			}
-		}
 		if (zone_rn < static_cast<ZoneRnum>(zone_table.size()))
 		{
 			room->zone_rn = zone_rn;
-			if (zone_table[zone_rn].RnumRoomsLocation.first == -1)
-			{
-				zone_table[zone_rn].RnumRoomsLocation.first = top_of_world + 1;
-			}
-			zone_table[zone_rn].RnumRoomsLocation.second = top_of_world + 1;
 		}
 
 		room->sector_type = static_cast<ESector>(sector_id);
 
-		world.push_back(room);
-		top_of_world++;
+		result.push_back(LoadedRoom{vnum, room, {}});
+		m_processed_zone_vnums.insert(vnum / 100);
 	}
 	sqlite3_finalize(stmt);
 
-	// Build room vnum to rnum map for exits
-	std::map<int, int> room_vnum_to_rnum;
-	for (RoomRnum i = kFirstRoom; i <= top_of_world; i++)
-	{
-		room_vnum_to_rnum[world[i]->vnum] = i;
-	}
-
-	// Load room flags
-	LoadRoomFlags(room_vnum_to_rnum);
-
-	// Load room exits
-	LoadRoomExits(room_vnum_to_rnum);
-
-	// Load room triggers
-	LoadRoomTriggers(room_vnum_to_rnum);
-
-	// Load room extra descriptions
-	LoadRoomExtraDescriptions(room_vnum_to_rnum);
-
-
-}
-
-// Per-zone room load. `rooms` already has a real zone_vnum column, so this is
-// a plain WHERE filter on the primary query. Does NOT call the four child
-// sub-loaders (flags/exits/triggers/extra-descriptions) -- those run once,
-// for every processed zone at once, from FinalizeZoneLoad().
-void SqliteWorldDataSource::LoadZoneRooms(int zone_vnum)
-{
-	const std::string sql = "SELECT vnum, zone_vnum, name, description, sector_id FROM rooms "
-		"WHERE enabled = 1 AND zone_vnum = " + std::to_string(zone_vnum) + " ORDER BY vnum";
-
-	sqlite3_stmt *stmt;
-	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
-	{
-		log("SYSERR: Failed to prepare zone room query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
-		return;
-	}
-
-	const int zone_rn = GetZoneRnum(zone_vnum);
-
-	while (sqlite3_step(stmt) == SQLITE_ROW)
-	{
-		int vnum = sqlite3_column_int(stmt, 0);
-		std::string name = GetText(stmt, 2);
-		std::string description = GetText(stmt, 3);
-		int sector_id = sqlite3_column_int(stmt, 4);
-
-		auto room = new RoomData;
-		room->vnum = vnum;
-		if (!name.empty()) { name[0] = UPPER(name[0]); }
-		room->set_name(name);
-
-		if (!description.empty())
-		{
-			room->description_num = GlobalObjects::descriptions().add(description);
-		}
-
-		if (zone_rn >= 0 && zone_rn < static_cast<int>(zone_table.size()))
-		{
-			room->zone_rn = zone_rn;
-			if (zone_table[zone_rn].RnumRoomsLocation.first == -1)
-			{
-				zone_table[zone_rn].RnumRoomsLocation.first = top_of_world + 1;
-			}
-			zone_table[zone_rn].RnumRoomsLocation.second = top_of_world + 1;
-		}
-		else
-		{
-			log("SYSERR: Room %d is outside of any zone.", vnum);
-		}
-
-		room->sector_type = static_cast<ESector>(sector_id);
-
-		world.push_back(room);
-		top_of_world++;
-	}
-	sqlite3_finalize(stmt);
-
-	m_processed_zone_vnums.insert(zone_vnum);
+	log("Loaded %zu rooms from SQLite.", result.size());
+	return result;
 }
 
 void SqliteWorldDataSource::LoadRoomFlags(const std::map<int, int> &vnum_to_rnum)
@@ -1570,16 +1417,16 @@ void SqliteWorldDataSource::LoadRoomExtraDescriptions(const std::map<int, int> &
 // Mob Loading
 // ============================================================================
 
-// Parse one row of the primary mobs query into mob_proto[top_of_mobt]/
-// mob_index[top_of_mobt], then advance top_of_mobt. Shared by LoadMobs
-// (bulk) and LoadZoneMobs (per-zone) -- the SELECT's column order must match
-// between callers. zone_vnum_to_rnum may cover all zones (bulk) or just one
-// (per-zone); either way RnumMobsLocation bookkeeping only touches the zone
-// this row's vnum/100 maps to.
-void SqliteWorldDataSource::LoadMobRow(sqlite3_stmt *stmt, const std::map<int, int> &zone_vnum_to_rnum)
+// Parses one row of the primary `mobs` query into a freshly-allocated
+// CharData, WITHOUT touching mob_proto[]/mob_index[]/top_of_mobt/
+// zone_table[].RnumMobsLocation -- the caller (LoadMobs) collects these and
+// the orchestrator (db.cpp) does that placement once, after possibly
+// combining results from other sources too (composite).
+LoadedMob SqliteWorldDataSource::LoadMobRow(sqlite3_stmt *stmt)
 {
 	int vnum = sqlite3_column_int(stmt, 0);
-	CharData &mob = mob_proto[top_of_mobt];
+	auto *mob_ptr = new CharData;
+	CharData &mob = *mob_ptr;
 
 	// Initialize mob
 	mob.player_specials = player_special_data::s_for_mobiles;
@@ -1702,62 +1549,28 @@ void SqliteWorldDataSource::LoadMobRow(sqlite3_stmt *stmt, const std::map<int, i
 	mob.mob_specials.speed = (sqlite3_column_type(stmt, 57) == SQLITE_NULL)
 		? -1 : sqlite3_column_int(stmt, 57);
 
-	// Setup index
-	int zone_vnum = vnum / 100;
-	auto zone_it = zone_vnum_to_rnum.find(zone_vnum);
-	if (zone_it != zone_vnum_to_rnum.end())
-	{
-		if (zone_table[zone_it->second].RnumMobsLocation.first == -1)
-		{
-			zone_table[zone_it->second].RnumMobsLocation.first = top_of_mobt;
-		}
-		zone_table[zone_it->second].RnumMobsLocation.second = top_of_mobt;
-	}
-
-	mob_index[top_of_mobt].vnum = vnum;
-	mob_index[top_of_mobt].total_online = 0;
-	mob_index[top_of_mobt].stored = 0;
-	mob_index[top_of_mobt].func = nullptr;
-	mob_index[top_of_mobt].farg = nullptr;
-	mob_index[top_of_mobt].proto = nullptr;
-	mob_index[top_of_mobt].set_idx = -1;
-
 	// Initialize test data if needed
 	if (mob.GetLevel() == 0)
 		SetTestData(&mob);
-	mob.set_rnum(top_of_mobt);
 
-	top_of_mobt++;
+	return LoadedMob{vnum, mob_ptr, {}};
 }
 
-void SqliteWorldDataSource::LoadMobs()
+// The only mob-loading entry point: `zone_filter` null means every zone.
+// One unfiltered query (matches the old bulk behavior), filtered in memory
+// if `zone_filter` is given. Returns results WITHOUT touching mob_proto[]/
+// mob_index[]/top_of_mobt/zone_table[].RnumMobsLocation, and WITHOUT running
+// the ten child sub-loaders (flags/skills/triggers/resistances/...) -- the
+// caller (GameLoader::BootWorld's orchestrator in db.cpp) places mobs once
+// (after possibly combining results from other sources too), then calls
+// FinalizeZoneEntities() to run the child sub-loaders, scoped to
+// m_processed_zone_vnums (populated below).
+std::vector<LoadedMob> SqliteWorldDataSource::LoadMobs(const std::vector<int> *zone_filter)
 {
-	log("Loading mobs from SQLite database.");
-
 	if (!OpenDatabase())
 	{
 		log("SYSERR: Failed to open SQLite database for mob loading.");
-		return;
-	}
-
-	int mob_count = GetCount("mobs");
-	if (mob_count == 0)
-	{
-		log("No mobs found in SQLite database.");
-		return;
-	}
-
-	// Allocate like PrepareGlobalStructures
-	mob_proto = new CharData[mob_count];
-	CREATE(mob_index, mob_count);
-	log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.",
-		mob_count, sizeof(IndexData) * mob_count, sizeof(CharData) * mob_count);
-
-	// Build zone vnum to rnum map
-	std::map<int, int> zone_vnum_to_rnum;
-	for (size_t i = 0; i < zone_table.size(); i++)
-	{
-		zone_vnum_to_rnum[zone_table[i].vnum] = i;
+		return {};
 	}
 
 	const char *sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
@@ -1776,100 +1589,30 @@ void SqliteWorldDataSource::LoadMobs()
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
 		log("SYSERR: Failed to prepare mob query: %s", sqlite3_errmsg(m_db));
-		return;
+		return {};
 	}
 
-	top_of_mobt = 0;
+	std::set<int> filter_set;
+	if (zone_filter)
+	{
+		filter_set.insert(zone_filter->begin(), zone_filter->end());
+	}
+
+	std::vector<LoadedMob> result;
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
-		LoadMobRow(stmt, zone_vnum_to_rnum);
-	}
-	sqlite3_finalize(stmt);
-
-	// top_of_mobt should be last valid index, not count
-	if (top_of_mobt > 0)
-	{
-		top_of_mobt--;
-	}
-
-	// Load mob flags
-	LoadMobFlags();
-
-	// Load mob skills
-	LoadMobSkills();
-
-	// Load mob triggers
-	LoadMobTriggers();
-
-	// Load Enhanced mob fields (arrays)
-	LoadMobResistances();
-	LoadMobSaves();
-	LoadMobFeats();
-	LoadMobSpells();
-	LoadMobHelpers();
-	LoadMobDestinations();
-	LoadMobDeathLoad();
-
-	log("Loaded %d mobs from SQLite.", top_of_mobt + 1);
-}
-
-int SqliteWorldDataSource::CountZoneMobs(int zone_vnum) const
-{
-	if (!m_db)
-	{
-		return 0;
-	}
-	const std::string sql = "SELECT COUNT(*) FROM mobs WHERE enabled = 1 AND vnum BETWEEN "
-		+ std::to_string(zone_vnum * 100) + " AND " + std::to_string(zone_vnum * 100 + 99);
-	sqlite3_stmt *stmt;
-	int count = 0;
-	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
-	{
-		if (sqlite3_step(stmt) == SQLITE_ROW)
+		int vnum = sqlite3_column_int(stmt, 0);
+		if (zone_filter && !filter_set.count(vnum / 100))
 		{
-			count = sqlite3_column_int(stmt, 0);
+			continue;
 		}
-		sqlite3_finalize(stmt);
-	}
-	return count;
-}
-
-// Per-zone mob load. Does NOT allocate mob_proto[]/mob_index[] or touch the
-// "top_of_mobt: count -> last-valid-index" conversion -- the orchestrator
-// pre-sizes both once via CountZoneMobs and does that conversion once, after
-// every zone is loaded (see db.cpp). Does NOT call the ten child sub-loaders
-// (flags/skills/triggers/resistances/...) -- those run once, for every
-// processed zone at once, from FinalizeZoneLoad().
-void SqliteWorldDataSource::LoadZoneMobs(int zone_vnum)
-{
-	const std::map<int, int> zone_vnum_to_rnum = { { zone_vnum, GetZoneRnum(zone_vnum) } };
-
-	const std::string sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
-		"short_desc, long_desc, alignment, mob_type, level, hitroll_penalty, armor, "
-		"hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus, "
-		"gold_dice_count, gold_dice_size, gold_bonus, experience, default_pos, start_pos, "
-		"sex, size, height, weight, mob_class, race, "
-		"attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
-		"attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
-		"initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
-		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, "
-		"speed FROM mobs WHERE enabled = 1 AND vnum BETWEEN " + std::to_string(zone_vnum * 100)
-		+ " AND " + std::to_string(zone_vnum * 100 + 99) + " ORDER BY vnum";
-
-	sqlite3_stmt *stmt;
-	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
-	{
-		log("SYSERR: Failed to prepare zone mob query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
-		return;
-	}
-
-	while (sqlite3_step(stmt) == SQLITE_ROW)
-	{
-		LoadMobRow(stmt, zone_vnum_to_rnum);
+		result.push_back(LoadMobRow(stmt));
+		m_processed_zone_vnums.insert(vnum / 100);
 	}
 	sqlite3_finalize(stmt);
 
-	m_processed_zone_vnums.insert(zone_vnum);
+	log("Loaded %zu mobs from SQLite.", result.size());
+	return result;
 }
 
 void SqliteWorldDataSource::LoadMobFlags()
@@ -2324,10 +2067,11 @@ void SqliteWorldDataSource::LoadMobDeathLoad()
 // Object Loading
 // ============================================================================
 
-// Parse one row of the primary objects query and add it to obj_proto. Shared
-// by LoadObjects (bulk) and LoadZoneObjects (per-zone) -- the SELECT's column
-// order must match between callers.
-void SqliteWorldDataSource::LoadObjectRow(sqlite3_stmt *stmt)
+// Parses one row of the primary `objects` query into a freshly-built
+// CObjectPrototype, WITHOUT touching obj_proto -- the caller (LoadObjects)
+// collects these and the orchestrator (db.cpp) does that placement once,
+// after possibly combining results from other sources too (composite).
+LoadedObject SqliteWorldDataSource::LoadObjectRow(sqlite3_stmt *stmt)
 {
 	int vnum = sqlite3_column_int(stmt, 0);
 
@@ -2395,27 +2139,26 @@ void SqliteWorldDataSource::LoadObjectRow(sqlite3_stmt *stmt)
 	obj->set_max_in_world(sqlite3_column_type(stmt, 27) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 27));
 	obj->set_minimum_remorts(sqlite3_column_int(stmt, 28));
 
-	obj_proto.add(obj, vnum);
+	return LoadedObject{vnum, obj, {}};
 }
 
-void SqliteWorldDataSource::LoadObjects()
+// The only object-loading entry point: `zone_filter` null means every zone.
+// One unfiltered query (matches the old bulk behavior; `objects` has no
+// zone_vnum column, so this filters by the vnum/100 convention like the
+// others), filtered in memory if `zone_filter` is given. Returns results
+// WITHOUT touching obj_proto and WITHOUT running the six child sub-loaders
+// (flags/applies/skills/extra-values/triggers/extra-descriptions) -- the
+// caller (GameLoader::BootWorld's orchestrator in db.cpp) places objects once
+// (after possibly combining results from other sources too), then calls
+// FinalizeZoneEntities() to run the child sub-loaders, scoped to
+// m_processed_zone_vnums (populated below).
+std::vector<LoadedObject> SqliteWorldDataSource::LoadObjects(const std::vector<int> *zone_filter)
 {
-	log("Loading objects from SQLite database.");
-
 	if (!OpenDatabase())
 	{
 		log("SYSERR: Failed to open SQLite database for object loading.");
-		return;
+		return {};
 	}
-
-	int obj_count = GetCount("objects");
-	if (obj_count == 0)
-	{
-		log("No objects found in SQLite database.");
-		return;
-	}
-
-	log("   %d objs.", obj_count);
 
 	const char *sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
 					  "short_desc, action_desc, obj_type_id, material, value0, value1, value2, value3, "
@@ -2427,63 +2170,30 @@ void SqliteWorldDataSource::LoadObjects()
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
 		log("SYSERR: Failed to prepare object query: %s", sqlite3_errmsg(m_db));
-		return;
+		return {};
 	}
 
+	std::set<int> filter_set;
+	if (zone_filter)
+	{
+		filter_set.insert(zone_filter->begin(), zone_filter->end());
+	}
+
+	std::vector<LoadedObject> result;
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
-		LoadObjectRow(stmt);
+		int vnum = sqlite3_column_int(stmt, 0);
+		if (zone_filter && !filter_set.count(vnum / 100))
+		{
+			continue;
+		}
+		result.push_back(LoadObjectRow(stmt));
+		m_processed_zone_vnums.insert(vnum / 100);
 	}
 	sqlite3_finalize(stmt);
 
-	// Load object flags
-	LoadObjectFlags();
-
-	// Load object applies
-	LoadObjectApplies();
-
-	// Load object skills (legacy `S` lines, issue #3386)
-	LoadObjectSkills();
-
-	// Load object extra (V-line) values
-	LoadObjectExtraValues();
-
-	// Load object triggers
-	LoadObjectTriggers();
-
-	// Load object extra descriptions
-	LoadObjectExtraDescriptions();
-
-	log("Loaded %zu objects from SQLite.", obj_proto.size());
-}
-
-// Per-zone object load. objects has no zone_vnum column, so filter by the
-// vnum/100 convention. Does NOT call the six child sub-loaders (flags/
-// applies/skills/extra-values/triggers/extra-descriptions) -- those run
-// once, for every processed zone at once, from FinalizeZoneLoad().
-void SqliteWorldDataSource::LoadZoneObjects(int zone_vnum)
-{
-	const std::string sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
-		"short_desc, action_desc, obj_type_id, material, value0, value1, value2, value3, "
-		"weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
-		"timer, spell, level, sex, max_in_world, minimum_remorts "
-		"FROM objects WHERE enabled = 1 AND vnum BETWEEN " + std::to_string(zone_vnum * 100)
-		+ " AND " + std::to_string(zone_vnum * 100 + 99) + " ORDER BY vnum";
-
-	sqlite3_stmt *stmt;
-	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
-	{
-		log("SYSERR: Failed to prepare zone object query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
-		return;
-	}
-
-	while (sqlite3_step(stmt) == SQLITE_ROW)
-	{
-		LoadObjectRow(stmt);
-	}
-	sqlite3_finalize(stmt);
-
-	m_processed_zone_vnums.insert(zone_vnum);
+	log("Loaded %zu objects from SQLite.", result.size());
+	return result;
 }
 
 void SqliteWorldDataSource::LoadObjectFlags()

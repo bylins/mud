@@ -35,10 +35,10 @@ public:
 	std::string GetKind() const override { return "sqlite"; }
 
 	void LoadZones() override;
-	void LoadTriggers() override;
-	void LoadRooms() override;
-	void LoadMobs() override;
-	void LoadObjects() override;
+	std::vector<LoadedTrigger> LoadTriggers(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedRoom> LoadRooms(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedMob> LoadMobs(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedObject> LoadObjects(const std::vector<int> *zone_filter = nullptr) override;
 
 	// Save methods (SQLite is read-only for now)
 	void SaveZone(int zone_rnum) override;
@@ -59,30 +59,20 @@ public:
 	void MarkIndexSynced(Freshness version) override;
 	bool IsWritable() const override;
 
-	// Per-zone load (for CompositeWorldDataSource's per-zone source
-	// selection). LoadZoneRooms/Mobs/Objects/Triggers load ONLY each entity
-	// type's primary table, scoped to one zone -- they do NOT call the child
-	// sub-loaders (flags/skills/exits/applies/triggers/extra-descriptions/...)
-	// per zone, because those sub-loader queries have no zone filter (full
-	// table scan) and would be both slow (O(zones) full scans) and WRONG if
-	// run for a zone this source didn't actually load (it would overwrite a
-	// YAML-sourced zone's data with possibly-stale SQLite child rows).
-	// Instead each LoadZone* call records its zone_vnum in
-	// m_processed_zone_vnums, and the orchestrator (db.cpp) calls
-	// FinalizeZoneRooms()/FinalizeZoneEntities() to run all the child
-	// sub-loaders scoped to that processed-zone set, at the two points in
-	// the boot sequence documented on IWorldDataSource. Single-source
-	// (non-composite) boots never call LoadZone*, so m_processed_zone_vnums
-	// stays empty and every sub-loader's zone check is a no-op -- zero
-	// behavior change on that path.
-	bool SupportsPerZoneLoad() const override { return true; }
-	void LoadZone(int zone_vnum) override;
-	void LoadZoneTriggers(int zone_vnum) override;
-	void LoadZoneRooms(int zone_vnum) override;
-	void LoadZoneMobs(int zone_vnum) override;
-	void LoadZoneObjects(int zone_vnum) override;
-	int CountZoneMobs(int zone_vnum) const override;
-	int CountZoneTriggers(int zone_vnum) const override;
+	// LoadRooms/Mobs/Objects load ONLY each entity type's primary table --
+	// they do NOT call the child sub-loaders (flags/skills/exits/applies/
+	// triggers/extra-descriptions/...), because those sub-loader queries have
+	// no zone filter (full table scan) and would be WRONG if run against
+	// zones this source didn't actually supply this boot (it would overwrite
+	// a YAML-sourced zone's data with possibly-stale SQLite child rows).
+	// Instead every LoadRooms/Mobs/Objects call records the zone_vnums it
+	// actually returned in m_processed_zone_vnums (covering the whole zone
+	// list on an unfiltered call, same as a plain non-composite boot), and
+	// the orchestrator (db.cpp) calls FinalizeZoneRooms()/
+	// FinalizeZoneEntities() once to run all the child sub-loaders scoped to
+	// that processed-zone set, at the two points in the boot sequence
+	// documented on IWorldDataSource.
+	bool SupportsZoneFilter() const override { return true; }
 	void FinalizeZoneRooms() override;
 	void FinalizeZoneEntities() override;
 
@@ -125,11 +115,10 @@ private:
 	void LoadRoomExtraDescriptions(const std::map<int, int> &vnum_to_rnum);
 
 	// Mob loading helpers
-	// Parse one row of the primary `mobs` query (shared by LoadMobs and
-	// LoadZoneMobs) into mob_proto[top_of_mobt]/mob_index[top_of_mobt], then
-	// advance top_of_mobt. Caller owns the prepared statement's column order
-	// and lifetime.
-	void LoadMobRow(sqlite3_stmt *stmt, const std::map<int, int> &zone_vnum_to_rnum);
+	// Parse one row of the primary `mobs` query into a freshly-allocated
+	// CharData (not yet placed in mob_proto[]/mob_index[]). Caller (LoadMobs)
+	// owns the prepared statement's column order and lifetime.
+	LoadedMob LoadMobRow(sqlite3_stmt *stmt);
 	void LoadMobFlags();
 	void LoadMobSkills();
 	void LoadMobTriggers();
@@ -142,10 +131,10 @@ private:
 	void LoadMobDeathLoad();
 
 	// Object loading helpers
-	// Parse one row of the primary `objects` query (shared by LoadObjects and
-	// LoadZoneObjects) and add it to obj_proto. Caller owns the prepared
-	// statement's column order and lifetime.
-	void LoadObjectRow(sqlite3_stmt *stmt);
+	// Parse one row of the primary `objects` query into a freshly-built
+	// CObjectPrototype (not yet placed in obj_proto). Caller (LoadObjects)
+	// owns the prepared statement's column order and lifetime.
+	LoadedObject LoadObjectRow(sqlite3_stmt *stmt);
 	void LoadObjectFlags();
 	void LoadObjectApplies();
 	void LoadObjectSkills();

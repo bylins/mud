@@ -33,16 +33,41 @@ std::string CompositeWorldDataSource::GetName() const
 	return name;
 }
 
-bool CompositeWorldDataSource::AllZonesSupportPerZoneLoad() const
+bool CompositeWorldDataSource::AllSourcesSupportZoneFilter() const
 {
 	for (const auto &src : m_sources)
 	{
-		if (!src->SupportsPerZoneLoad())
+		if (!src->SupportsZoneFilter())
 		{
 			return false;
 		}
 	}
 	return true;
+}
+
+std::map<IWorldDataSource *, std::vector<int>> CompositeWorldDataSource::WinningZonesBySource(
+	const std::vector<int> *filter) const
+{
+	std::map<IWorldDataSource *, std::vector<int>> by_source;
+	if (filter)
+	{
+		for (int zone_vnum : *filter)
+		{
+			auto it = m_zone_source.find(zone_vnum);
+			if (it != m_zone_source.end())
+			{
+				by_source[it->second].push_back(zone_vnum);
+			}
+		}
+	}
+	else
+	{
+		for (const auto &[zone_vnum, source] : m_zone_source)
+		{
+			by_source[source].push_back(zone_vnum);
+		}
+	}
+	return by_source;
 }
 
 IWorldDataSource *CompositeWorldDataSource::SourceForZone(int zone_vnum) const
@@ -207,10 +232,69 @@ void CompositeWorldDataSource::LoadZones()
 	m_index_source->LoadZones();
 }
 
-void CompositeWorldDataSource::LoadTriggers() { m_index_source->LoadTriggers(); }
-void CompositeWorldDataSource::LoadRooms() { m_index_source->LoadRooms(); }
-void CompositeWorldDataSource::LoadMobs() { m_index_source->LoadMobs(); }
-void CompositeWorldDataSource::LoadObjects() { m_index_source->LoadObjects(); }
+std::vector<LoadedTrigger> CompositeWorldDataSource::LoadTriggers(const std::vector<int> *zone_filter)
+{
+	SelectZoneSources();
+	if (!AllSourcesSupportZoneFilter())
+	{
+		return m_index_source->LoadTriggers(nullptr);
+	}
+	std::vector<LoadedTrigger> all;
+	for (const auto &[source, zones] : WinningZonesBySource(zone_filter))
+	{
+		auto part = source->LoadTriggers(&zones);
+		all.insert(all.end(), std::make_move_iterator(part.begin()), std::make_move_iterator(part.end()));
+	}
+	return all;
+}
+
+std::vector<LoadedRoom> CompositeWorldDataSource::LoadRooms(const std::vector<int> *zone_filter)
+{
+	SelectZoneSources();
+	if (!AllSourcesSupportZoneFilter())
+	{
+		return m_index_source->LoadRooms(nullptr);
+	}
+	std::vector<LoadedRoom> all;
+	for (const auto &[source, zones] : WinningZonesBySource(zone_filter))
+	{
+		auto part = source->LoadRooms(&zones);
+		all.insert(all.end(), std::make_move_iterator(part.begin()), std::make_move_iterator(part.end()));
+	}
+	return all;
+}
+
+std::vector<LoadedMob> CompositeWorldDataSource::LoadMobs(const std::vector<int> *zone_filter)
+{
+	SelectZoneSources();
+	if (!AllSourcesSupportZoneFilter())
+	{
+		return m_index_source->LoadMobs(nullptr);
+	}
+	std::vector<LoadedMob> all;
+	for (const auto &[source, zones] : WinningZonesBySource(zone_filter))
+	{
+		auto part = source->LoadMobs(&zones);
+		all.insert(all.end(), std::make_move_iterator(part.begin()), std::make_move_iterator(part.end()));
+	}
+	return all;
+}
+
+std::vector<LoadedObject> CompositeWorldDataSource::LoadObjects(const std::vector<int> *zone_filter)
+{
+	SelectZoneSources();
+	if (!AllSourcesSupportZoneFilter())
+	{
+		return m_index_source->LoadObjects(nullptr);
+	}
+	std::vector<LoadedObject> all;
+	for (const auto &[source, zones] : WinningZonesBySource(zone_filter))
+	{
+		auto part = source->LoadObjects(&zones);
+		all.insert(all.end(), std::make_move_iterator(part.begin()), std::make_move_iterator(part.end()));
+	}
+	return all;
+}
 
 Freshness CompositeWorldDataSource::CanonicalZoneVersion(int zone_rnum) const
 {

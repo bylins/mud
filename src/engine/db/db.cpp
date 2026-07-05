@@ -416,85 +416,136 @@ int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver,
 	return errors;
 }
 
-// Per-zone entity loading, used by BootWorld when every source in a
-// composite supports it (CompositeWorldDataSource::AllZonesSupportPerZoneLoad).
-// Each helper visits zone_table in its existing (ascending-vnum) order and
-// asks the composite which source won that zone's freshness comparison, then
-// calls that source's LoadZone*(vnum) -- see composite_world_data_source.h
-// for the per-zone selection model and world_data_source.h for why mobs/
-// triggers need a two-pass count-then-allocate-then-fill (raw C arrays,
-// unlike the dynamic room/object containers).
-//
-// Dungeon-instance zones (vnum >= dungeons::kZoneStartDungeons) are skipped
-// here exactly like the bulk loaders skip them: they don't exist yet at this
-// point in boot (dungeons::CreateBlankZoneDungeon runs after LoadZones), so
-// zone_table doesn't contain them yet -- this filter is defensive, matching
-// SaveLoadedWorldTo's parallel guard.
-void LoadTriggersPerZone(world_loader::CompositeWorldDataSource *composite) {
-	int total = 0;
-	for (const auto &zone : zone_table) {
-		if (zone.vnum >= dungeons::kZoneStartDungeons) continue;
-		if (auto *src = composite->SourceForZone(zone.vnum)) {
-			total += src->CountZoneTriggers(zone.vnum);
-		}
+// Entity-loading orchestration: the ONE path for every scenario (plain
+// single-source boot, composite with one winning source per zone, flat or
+// per-file YAML underneath) -- ds_ptr->LoadX(nullptr) already fans out to
+// every source internally if ds_ptr is a composite (see
+// CompositeWorldDataSource::LoadTriggers/Rooms/Mobs/Objects), so there is
+// nothing left for BootWorld to branch on. These functions do the one thing
+// that must happen exactly once regardless of source count: sort the
+// (possibly multi-source) results by vnum and place them in the global
+// tables (trig_index/world/mob_proto+mob_index/obj_proto), then attach
+// triggers now that every entity has its final rnum.
+void LoadTriggersUnified(world_loader::IWorldDataSource *ds_ptr) {
+	auto loaded = ds_ptr->LoadTriggers(nullptr);
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): its LoadTriggers() call
+		// above already populated trig_index/top_of_trigt directly through
+		// its own internal boot path (GameLoader::BootIndex), exactly as it
+		// always has -- there's nothing left to place here.
+		return;
 	}
-	CREATE(trig_index, total);
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	CREATE(trig_index, loaded.size());
 	top_of_trigt = 0;
-	for (const auto &zone : zone_table) {
-		if (zone.vnum >= dungeons::kZoneStartDungeons) continue;
-		if (auto *src = composite->SourceForZone(zone.vnum)) {
-			src->LoadZoneTriggers(zone.vnum);
-		}
+	for (auto &lt : loaded) {
+		lt.trig->set_rnum(top_of_trigt);
+		world_loader::WorldDataSourceBase::CreateTriggerIndex(lt.vnum, lt.trig);
 	}
-	log("Loaded %d triggers from per-zone sources.", top_of_trigt);
+	log("Loaded %d triggers.", top_of_trigt);
 }
 
-void LoadRoomsPerZone(world_loader::CompositeWorldDataSource *composite) {
-	// Dummy room 0 (kNowhere), same as every bulk loader creates up front.
+void LoadRoomsUnified(world_loader::IWorldDataSource *ds_ptr) {
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): its own internal boot
+		// path (GameLoader::BootIndex) pushes the dummy room 0 and populates
+		// world[]/top_of_world itself, exactly as it always has -- doing it
+		// again here would leave two dummy rooms.
+		ds_ptr->LoadRooms(nullptr);
+		return;
+	}
+
+	// Dummy room 0 (kNowhere), same as every source used to create up front.
 	world.push_back(new RoomData);
 	top_of_world = kNowhere;
-	for (const auto &zone : zone_table) {
-		if (zone.vnum >= dungeons::kZoneStartDungeons) continue;
-		if (auto *src = composite->SourceForZone(zone.vnum)) {
-			src->LoadZoneRooms(zone.vnum);
+
+	auto loaded = ds_ptr->LoadRooms(nullptr);
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	for (auto &lr : loaded) {
+		world.push_back(lr.room);
+	}
+	top_of_world = static_cast<RoomRnum>(world.size() - 1);
+
+	// Attach room triggers (needs world[]/top_of_world updated above so
+	// GetRoomRnum can find the rooms just appended).
+	for (auto &lr : loaded) {
+		if (lr.triggers.empty()) continue;
+		const int room_rnum = GetRoomRnum(lr.vnum);
+		if (room_rnum < 0) continue;
+		for (int trigger_vnum : lr.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToRoom(room_rnum, trigger_vnum, lr.vnum);
 		}
 	}
-	log("Loaded %d rooms from per-zone sources.", top_of_world);
+	log("Loaded %d rooms.", top_of_world);
 }
 
-void LoadMobsPerZone(world_loader::CompositeWorldDataSource *composite) {
-	int total = 0;
-	for (const auto &zone : zone_table) {
-		if (zone.vnum >= dungeons::kZoneStartDungeons) continue;
-		if (auto *src = composite->SourceForZone(zone.vnum)) {
-			total += src->CountZoneMobs(zone.vnum);
-		}
+void LoadMobsUnified(world_loader::IWorldDataSource *ds_ptr) {
+	auto loaded = ds_ptr->LoadMobs(nullptr);
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): already populated
+		// mob_proto[]/mob_index[]/top_of_mobt/RnumMobsLocation itself.
+		return;
 	}
-	mob_proto = new CharData[total];
-	CREATE(mob_index, total);
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	mob_proto = new CharData[loaded.size()];
+	CREATE(mob_index, loaded.size());
 	top_of_mobt = 0;
-	for (const auto &zone : zone_table) {
-		if (zone.vnum >= dungeons::kZoneStartDungeons) continue;
-		if (auto *src = composite->SourceForZone(zone.vnum)) {
-			src->LoadZoneMobs(zone.vnum);
+	for (auto &lm : loaded) {
+		const MobRnum rnum = world_loader::WorldDataSourceBase::AppendMobIndex(lm.vnum);
+		mob_proto[rnum] = std::move(*lm.mob);
+		mob_proto[rnum].set_rnum(rnum);
+		delete lm.mob;
+
+		// CalculateFirstAndLastMobs() is a no-op stub (unlike rooms' real
+		// post-pass) -- this is the only place RnumMobsLocation gets set.
+		const int zone_rn = GetZoneRnum(lm.vnum / 100);
+		if (zone_rn >= 0) {
+			if (zone_table[zone_rn].RnumMobsLocation.first == -1) {
+				zone_table[zone_rn].RnumMobsLocation.first = rnum;
+			}
+			zone_table[zone_rn].RnumMobsLocation.second = rnum;
+		}
+
+		for (int trigger_vnum : lm.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToMob(rnum, trigger_vnum, lm.vnum);
 		}
 	}
 	// top_of_mobt should be last valid index, not count -- same one-time
-	// conversion the bulk loaders do after their own fill loop.
+	// conversion the bulk loaders always did after their own fill loop.
 	if (top_of_mobt > 0) {
 		top_of_mobt--;
 	}
-	log("Loaded %d mobs from per-zone sources.", top_of_mobt + 1);
+	log("Loaded %d mobs.", top_of_mobt + 1);
 }
 
-void LoadObjectsPerZone(world_loader::CompositeWorldDataSource *composite) {
-	for (const auto &zone : zone_table) {
-		if (zone.vnum >= dungeons::kZoneStartDungeons) continue;
-		if (auto *src = composite->SourceForZone(zone.vnum)) {
-			src->LoadZoneObjects(zone.vnum);
+void LoadObjectsUnified(world_loader::IWorldDataSource *ds_ptr) {
+	auto loaded = ds_ptr->LoadObjects(nullptr);
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): already populated
+		// obj_proto itself.
+		return;
+	}
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	for (auto &lo : loaded) {
+		obj_proto.add(lo.obj, lo.vnum);
+	}
+	for (const auto &lo : loaded) {
+		if (lo.triggers.empty()) continue;
+		const int rnum = obj_proto.get_rnum(lo.vnum);
+		if (rnum < 0) continue;
+		for (int trigger_vnum : lo.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToObject(rnum, trigger_vnum, lo.vnum);
 		}
 	}
-	log("Loaded objects from per-zone sources.");
+	log("Loaded %zu objects.", loaded.size());
 }
 
 } // namespace
@@ -602,41 +653,19 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	boot_profiler.next_step("Loading zone table");
 	ds_ptr->LoadZones();
 
-	// Per-zone loading: only when ds_ptr is a composite AND every child
-	// source supports it (world_data_source.h's LoadZone* hooks). A plain
-	// single-source boot (pure YAML or pure SQLite deployment) never takes
-	// this branch -- composite_per_zone stays null and every ds_ptr->LoadX()
-	// call below runs exactly as before. See composite_world_data_source.h
-	// for why this makes editing one zone live not fall back to reloading
-	// the whole world from whichever source is stale everywhere else.
-	world_loader::CompositeWorldDataSource *composite_per_zone =
-		dynamic_cast<world_loader::CompositeWorldDataSource *>(ds_ptr);
-	if (composite_per_zone && !composite_per_zone->AllZonesSupportPerZoneLoad()) {
-		composite_per_zone = nullptr;
-	}
-
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
 	dungeons::CreateBlankZoneDungeon();
 
 	boot_profiler.next_step("Loading triggers");
-	if (composite_per_zone) {
-		LoadTriggersPerZone(composite_per_zone);
-	} else {
-		ds_ptr->LoadTriggers();
-	}
+	LoadTriggersUnified(ds_ptr);
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
 	dungeons::CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Loading rooms");
-	if (composite_per_zone) {
-		LoadRoomsPerZone(composite_per_zone);
-	} else {
-		ds_ptr->LoadRooms();
-	}
-
+	LoadRoomsUnified(ds_ptr);
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -670,11 +699,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	CheckStartRooms();
 
 	boot_profiler.next_step("Loading mobs and regerating index");
-	if (composite_per_zone) {
-		LoadMobsPerZone(composite_per_zone);
-	} else {
-		ds_ptr->LoadMobs();
-	}
+	LoadMobsUnified(ds_ptr);
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -689,11 +714,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 //	CalculateFirstAndLastMobs();
 
 	boot_profiler.next_step("Loading objects");
-	if (composite_per_zone) {
-		LoadObjectsPerZone(composite_per_zone);
-	} else {
-		ds_ptr->LoadObjects();
-	}
+	LoadObjectsUnified(ds_ptr);
 
 	// Deferred mob/object child-table sub-loaders (flags/skills/applies/
 	// triggers/...) that per-zone backends postponed -- see

@@ -138,32 +138,36 @@ void LegacyWorldDataSource::LoadZones()
 	GameLoader::BootIndex(DB_BOOT_ZON);
 }
 
-void LegacyWorldDataSource::LoadTriggers()
+std::vector<LoadedTrigger> LegacyWorldDataSource::LoadTriggers(const std::vector<int> * /*zone_filter*/)
 {
 	log("Loading triggers and generating index.");
 	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_TRG);
+	return {};
 }
 
-void LegacyWorldDataSource::LoadRooms()
+std::vector<LoadedRoom> LegacyWorldDataSource::LoadRooms(const std::vector<int> * /*zone_filter*/)
 {
 	log("Loading rooms.");
 	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_WLD);
+	return {};
 }
 
-void LegacyWorldDataSource::LoadMobs()
+std::vector<LoadedMob> LegacyWorldDataSource::LoadMobs(const std::vector<int> * /*zone_filter*/)
 {
 	log("Loading mobs and generating index.");
 	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_MOB);
+	return {};
 }
 
-void LegacyWorldDataSource::LoadObjects()
+std::vector<LoadedObject> LegacyWorldDataSource::LoadObjects(const std::vector<int> * /*zone_filter*/)
 {
 	log("Loading objs and generating index.");
 	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_OBJ);
+	return {};
 }
 
 void LegacyWorldDataSource::SaveZone(int zone_rnum)

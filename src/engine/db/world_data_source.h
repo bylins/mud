@@ -9,6 +9,11 @@
 #include <string>
 #include <vector>
 
+class RoomData;
+class CharData;
+class CObjectPrototype;
+struct Trigger;
+
 namespace world_loader
 {
 
@@ -16,6 +21,38 @@ namespace world_loader
 // Encoded as a unix mtime in seconds; larger == more recently changed.
 // 0 means "unknown" or "this source does not hold the entity".
 using Freshness = std::uint64_t;
+
+// One freshly-parsed entity, not yet placed in the corresponding global table
+// (trig_index/world/mob_proto+mob_index/obj_proto). LoadTriggers/Rooms/Mobs/
+// Objects return these; the boot orchestrator (db.cpp) does the actual global
+// placement, once, after possibly combining results from several sources --
+// see the comment on those methods below for why this split exists.
+struct LoadedTrigger
+{
+	int vnum = 0;
+	Trigger *trig = nullptr;
+};
+
+struct LoadedRoom
+{
+	int vnum = 0;
+	RoomData *room = nullptr;
+	std::vector<int> triggers;  // this room's attached trigger vnums
+};
+
+struct LoadedMob
+{
+	int vnum = 0;
+	CharData *mob = nullptr;
+	std::vector<int> triggers;
+};
+
+struct LoadedObject
+{
+	int vnum = 0;
+	std::shared_ptr<CObjectPrototype> obj;
+	std::vector<int> triggers;
+};
 
 // Abstract interface for world data sources
 // Allows different implementations (legacy files, YAML, database, etc.)
@@ -34,13 +71,24 @@ public:
 	// (legacy, null) need not override this.
 	virtual std::string GetKind() const { return "unknown"; }
 
-	// Load world data in the correct order
-	// Each method populates the global data structures
 	virtual void LoadZones() = 0;
-	virtual void LoadTriggers() = 0;
-	virtual void LoadRooms() = 0;
-	virtual void LoadMobs() = 0;
-	virtual void LoadObjects() = 0;
+
+	// Load triggers/rooms/mobs/objects for `zone_filter` (nullptr = every zone
+	// this source holds). This is the ONLY entity-loading entry point -- there
+	// is deliberately no separate "whole world" vs "one zone" implementation:
+	// a full zone list and nullptr mean the same thing, and a composite reading
+	// a single changed zone calls the exact same code as a plain single-source
+	// boot loading all 604. Implementations parallelize internally across
+	// `zone_filter` however suits the backend (YAML: one task per zone, since
+	// each requires a real parse; SQLite: one batched query, since a single
+	// connection can't usefully run concurrent statements anyway) and return
+	// their results as plain data -- NOT written into trig_index/world/
+	// mob_proto/obj_proto, which the orchestrator does once after gathering
+	// every source's contribution (see GameLoader::BootWorld in db.cpp).
+	virtual std::vector<LoadedTrigger> LoadTriggers(const std::vector<int> *zone_filter = nullptr) = 0;
+	virtual std::vector<LoadedRoom> LoadRooms(const std::vector<int> *zone_filter = nullptr) = 0;
+	virtual std::vector<LoadedMob> LoadMobs(const std::vector<int> *zone_filter = nullptr) = 0;
+	virtual std::vector<LoadedObject> LoadObjects(const std::vector<int> *zone_filter = nullptr) = 0;
 
 	// Save world data per zone (used by OLC)
 	// zone_rnum is the runtime zone index
@@ -76,24 +124,13 @@ public:
 	// sources. 0 if unknown. Default: 0.
 	virtual Freshness GetIndexFreshness() const { return 0; }
 
-	// Load a single zone's entities of one kind into the global tables. Used by
-	// the composite to assemble a world per-zone from the freshest source.
-	// Default: not supported -- callers must check SupportsPerZoneLoad().
-	virtual bool SupportsPerZoneLoad() const { return false; }
-	virtual void LoadZone(int /*zone_vnum*/) {}
-	virtual void LoadZoneTriggers(int /*zone_vnum*/) {}
-	virtual void LoadZoneRooms(int /*zone_vnum*/) {}
-	virtual void LoadZoneMobs(int /*zone_vnum*/) {}
-	virtual void LoadZoneObjects(int /*zone_vnum*/) {}
-
-	// Count of mobs/triggers a zone holds in this source, WITHOUT fully
-	// parsing them. Used by the per-zone boot orchestrator to size the
-	// pre-allocated mob_index/mob_proto/trig_index arrays once, up front,
-	// before the per-zone LoadZoneMobs/LoadZoneTriggers fill pass (those
-	// arrays are raw C arrays elsewhere in the engine and cannot grow
-	// incrementally). Default: 0 -- callers must check SupportsPerZoneLoad().
-	virtual int CountZoneMobs(int /*zone_vnum*/) const { return 0; }
-	virtual int CountZoneTriggers(int /*zone_vnum*/) const { return 0; }
+	// Whether LoadTriggers/Rooms/Mobs/Objects honor a non-null zone_filter and
+	// return only those zones' entities. Default false -- backends that can't
+	// (e.g. the legacy whole-world-dump format) must not be mixed into a
+	// composite that relies on per-zone filtering; the composite checks this
+	// and falls back to whole-source loading (every source gets a null
+	// filter, i.e. everything) if any of its sources can't filter.
+	virtual bool SupportsZoneFilter() const { return false; }
 
 	// Called once by the orchestrator, letting a backend run any
 	// finalization step it deferred per-zone for cost or correctness reasons
