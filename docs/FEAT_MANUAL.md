@@ -290,3 +290,4 @@ manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
 ---
 
 *Companion documents: [Spell Manual](SPELL_MANUAL.md) · [Affect Manual](AFFECT_MANUAL.md).*
+See the **[Cookbook](COOKBOOK.md)** for complete worked examples.

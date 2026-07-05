@@ -402,3 +402,4 @@ Room/exit affects share the `<affect>`/`<flags>`/`<actions>` grammar but add:
 ---
 
 *Companion documents: [Spell Manual](SPELL_MANUAL.md) · [Feat Manual](FEAT_MANUAL.md).*
+See the **[Cookbook](COOKBOOK.md)** for complete worked examples.
