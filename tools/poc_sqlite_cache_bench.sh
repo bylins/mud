@@ -156,8 +156,12 @@ boot_once "warm" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 2))"
 echo ""
 
 # --- Stage 3: STALE (a YAML file was edited after the SQLite write) ---
+# Touch zone.yaml, not rooms.yaml -- rooms.yaml only exists in flat layout
+# (per-file layout has rooms/<n>.yaml + rooms/index.yaml instead). Freshness
+# is "newest mtime under the zone directory" (see GetZoneFreshness), so
+# zone.yaml -- present under both layouts -- staled the zone either way.
 echo "--- Stage 3: STALE (a YAML zone file touched -> falls back to YAML, re-resyncs) ---"
-touch "$BENCH_DIR/world/zones/"*/rooms.yaml 2>/dev/null | head -1
+touch "$BENCH_DIR/world/zones/"*/zone.yaml 2>/dev/null | head -1
 # Sleep isn't needed: freshness is compared as mtime, and touch always moves
 # it strictly forward from whatever the prior boot's resync stamped.
 boot_once "stale" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 3))"
@@ -174,13 +178,13 @@ echo ""
 # must NOT fall back to reloading the whole world -- only that one zone
 # should come from YAML, every other zone should still hit SQLite. Boot time
 # here should be close to WARM, not close to the full-STALE case above.
-echo "--- Stage 5: SINGLE-ZONE STALE (one zone's rooms.yaml touched -> only that zone re-read from YAML) ---"
+echo "--- Stage 5: SINGLE-ZONE STALE (one zone's zone.yaml touched -> only that zone re-read from YAML) ---"
 first_zone_dir=$(find "$BENCH_DIR/world/zones" -mindepth 1 -maxdepth 1 -type d | sort | head -1)
-if [ -n "$first_zone_dir" ] && [ -f "$first_zone_dir/rooms.yaml" ]; then
-    touch "$first_zone_dir/rooms.yaml"
+if [ -n "$first_zone_dir" ] && [ -f "$first_zone_dir/zone.yaml" ]; then
+    touch "$first_zone_dir/zone.yaml"
     boot_once "single_zone_stale" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 5))"
 else
-    echo "  X SKIPPED: could not find a zone directory with rooms.yaml under $BENCH_DIR/world/zones"
+    echo "  X SKIPPED: could not find a zone directory with zone.yaml under $BENCH_DIR/world/zones"
 fi
 echo ""
 
