@@ -202,8 +202,8 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("base_skill")) {
 		const char *skill_id = node.GetValue("id");
 		base_skill_ = (skill_id && *skill_id) ? parse::ReadAsConstant<ESkill>(skill_id) : ESkill::kUndefined;
-		low_skill_bonus_ = RollDoubleOr(node.GetValue("low_skill_bonus"), 0.0);
-		hi_skill_bonus_ = RollDoubleOr(node.GetValue("hi_skill_bonus"), 0.0);
+		low_skill_bonus_ = RollDoubleOr(node.GetValue("low_skill_bonus"), 1.0);
+		hi_skill_bonus_ = RollDoubleOr(node.GetValue("hi_skill_bonus"), 7.0);
 		node.GoToParent();
 	}
 
@@ -213,7 +213,7 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 			base_stat_ = parse::ReadAsConstant<EBaseStat>(stat_id);
 		}
 		base_stat_threshold_ = RollIntOr(node.GetValue("threshold"), 0);
-		base_stat_weight_ = RollDoubleOr(node.GetValue("weight"), 0.0);
+		base_stat_weight_ = RollDoubleOr(node.GetValue("weight"), 18.0);
 		node.GoToParent();
 	}
 }

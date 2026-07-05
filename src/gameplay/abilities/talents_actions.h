@@ -114,12 +114,16 @@ class Roll {
 	int dice_add_{0};
 
 	ESkill base_skill_{ESkill::kUndefined};
-	double low_skill_bonus_{0.0};
-	double hi_skill_bonus_{0.0};
+	// issue.random-noise-rework: competence-weight defaults are the hi-dominant rebalance scheme
+	// (a >75 skill point weighted ~7x a <=75 one; ~2.5 hi-skill-points per stat point). Weights are
+	// percentages (parser divides by 100). A spell omitting these attributes now scales with skill/
+	// stat by default instead of not at all. Threshold stays 10 (unchanged by the rebalance).
+	double low_skill_bonus_{1.0};
+	double hi_skill_bonus_{7.0};
 
 	EBaseStat base_stat_{EBaseStat::kFirst};
 	int base_stat_threshold_{10};
-	double base_stat_weight_{0.0};
+	double base_stat_weight_{18.0};
  public:
 	Roll() = default;
 	explicit Roll(parser_wrapper::DataNode &node);
