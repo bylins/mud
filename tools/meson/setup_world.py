@@ -13,6 +13,11 @@ full_world_path = sys.argv[3] if len(sys.argv) > 3 else ""
 
 small_world_dir = os.path.join(build_dir, "small")
 
+# Skip VCS metadata when copying world data: lib/world can be a git repo/submodule whose
+# read-only packed objects both break the copy (EACCES on .git/objects) and don't belong in
+# the build's runtime world. Matches any ".git" entry at any depth.
+_IGNORE = shutil.ignore_patterns(".git")
+
 print(f"Setting up world data in {build_dir}...")
 
 lib_src = os.path.join(source_root, "lib")
@@ -23,16 +28,18 @@ if not os.path.exists(lib_src):
     sys.exit(1)
 
 if not os.path.exists(small_world_dir):
-    shutil.copytree(lib_src, small_world_dir)
+    shutil.copytree(lib_src, small_world_dir, ignore=_IGNORE)
 else:
-    shutil.copytree(lib_src, small_world_dir, dirs_exist_ok=True)
+    shutil.copytree(lib_src, small_world_dir, dirs_exist_ok=True, ignore=_IGNORE)
 
 if os.path.exists(template_src):
     for item in os.listdir(template_src):
+        if item == ".git":
+            continue
         s = os.path.join(template_src, item)
         d = os.path.join(small_world_dir, item)
         if os.path.isdir(s):
-            shutil.copytree(s, d, dirs_exist_ok=True)
+            shutil.copytree(s, d, dirs_exist_ok=True, ignore=_IGNORE)
         else:
             shutil.copy2(s, d)
 else:
