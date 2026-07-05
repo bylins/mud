@@ -13,6 +13,11 @@
 ************************************************************************ */
 
 #include "magic_utils.h"
+#include "utils/random.h"   // issue.random-noise-rework: GaussIntNumber
+
+#include <algorithm>
+#include <cmath>
+#include <limits>
 #include "administration/privilege.h"
 
 #include "gameplay/mechanics/groups.h"
@@ -299,6 +304,14 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
 		}
 	}
 	return false;
+}
+
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap) {
+	const double mean = floor_val + scaled;
+	const double sd = sigma * scaled;
+	const int lo = std::max(0, static_cast<int>(std::floor(floor_val)));
+	const int hi = (cap > 0) ? cap : std::numeric_limits<int>::max();
+	return GaussIntNumber(mean, sd, lo, hi);
 }
 
 float CalcCastPotency(const RollResult &potency) {

@@ -306,9 +306,16 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
 			// Formula A. C = skill_coeff + stat_coeff.
 			const float C = static_cast<float>(competence);  // base override
-			dmg = dmg_act.GetAmountMin() + std::ceil(
-					base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
-					+ dmg_act.GetAmountBeta() * C);
+			if (dmg_act.GetAmountSigma() > 0.0) {
+				// issue.random-noise-rework (P1): multiplicative truncated-normal -- mean scales with
+				// competence (beta = per-competence scale k), relative spread stays ~sigma (constant CV).
+				dmg = static_cast<float>(CalcNoisyAmount(dmg_act.GetAmountMin(),
+						dmg_act.GetAmountBeta() * C, dmg_act.GetAmountSigma(), /*cap*/ 0));
+			} else {
+				dmg = dmg_act.GetAmountMin() + std::ceil(
+						base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
+						+ dmg_act.GetAmountBeta() * C);
+			}
 		} else {
 			// Legacy multiplicative model dice * (1 + skill + stat), for spells with no <damage>
 			// action (e.g. kWarcryOfChallenge).

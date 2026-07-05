@@ -260,6 +260,10 @@ class Damage : public IAction {
 	double amount_dices_weight_{1.0};        // base scale on the potency roll's dice
 	double amount_alpha_{0.0};               // dice-amplification: skill scales the dice (issue.potency-formula)
 	double amount_beta_{1.0};                // additive skill+stat coefficient (was competencies_weight)
+	// issue.random-noise-rework (P1): opt-in multiplicative truncated-normal noise. sigma>0 switches the
+	// amount to GaussIntNumber(min + beta*C, sigma*beta*C, ...) -- mean scales with competence, relative
+	// spread stays ~sigma (constant CV). 0 (default) keeps the legacy dice formula. beta is reused as k.
+	double amount_sigma_{0.0};
 	// Multi-hit support (issue.extra-hits): a <hits ...> child enables extra-hits computation via
 	// CalcExtraHits. Absent tag -> has_hits_=false -> the spell deals exactly one hit (count=1).
 	// When present, count = 1 + CalcExtraHits(caster, spell_id, base_skill, divisor, max, prob).
@@ -276,6 +280,7 @@ class Damage : public IAction {
 	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
 	[[nodiscard]] double GetAmountAlpha() const { return amount_alpha_; }
 	[[nodiscard]] double GetAmountBeta() const { return amount_beta_; }
+	[[nodiscard]] double GetAmountSigma() const { return amount_sigma_; }
 	[[nodiscard]] bool HasHits() const { return has_hits_; }
 	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
 	[[nodiscard]] int GetHitsMax() const { return hits_max_; }

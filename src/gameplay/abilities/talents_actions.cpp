@@ -415,6 +415,9 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		amount_alpha_ = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 		const char *ab = node.GetValue("beta");
 		amount_beta_ = (ab && *ab) ? parse::ReadAsDouble(ab) : 1.0;
+		// issue.random-noise-rework (P1): optional relative-spread (CV) knob for multiplicative noise.
+		const char *asg = node.GetValue("sigma");
+		amount_sigma_ = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
 		node.GoToParent();
 	}
 	// <hits> is optional; absent -> the spell deals one hit. Individual attrs
