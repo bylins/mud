@@ -188,6 +188,12 @@ private:
 	// Parallel zone-table loading (only used when m_num_threads > 1).
 	void LoadZonesParallel();
 
+	// Lazily create m_thread_pool/m_num_threads on first use. LoadZones() is
+	// not guaranteed to have run on this instance before LoadTriggers/Rooms/
+	// Mobs/Objects are called (a composite may have picked a different source
+	// for the zone index) -- idempotent, safe to call from every entry point.
+	void EnsureThreadPool();
+
 	// Worker functions (thread-safe, parse single file)
 	ZoneData ParseZoneFile(const std::string &file_path);
 	Trigger* ParseTriggerFile(const std::string &file_path);

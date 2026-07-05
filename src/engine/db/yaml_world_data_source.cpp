@@ -771,6 +771,21 @@ void YamlWorldDataSource::LoadZonesParallel()
 	log("Loaded %d zones from YAML (parallel).", zone_count);
 }
 
+void YamlWorldDataSource::EnsureThreadPool()
+{
+	// Same rationale as the LoadDictionaries() guard below: a composite may
+	// call LoadTriggers/Rooms/Mobs/Objects on this instance without its own
+	// LoadZones() ever having run (a different source won the index), so the
+	// pool can't be assumed to exist yet. Idempotent -- cheap no-op once set.
+	if (m_thread_pool)
+	{
+		return;
+	}
+
+	m_num_threads = GetConfiguredThreadCount();
+	m_thread_pool = std::make_unique<utils::ThreadPool>(m_num_threads);
+}
+
 void YamlWorldDataSource::LoadZones()
 {
 	log("Loading zones from YAML files.");
@@ -782,9 +797,8 @@ void YamlWorldDataSource::LoadZones()
 	}
 
 	// Get thread count and create thread pool
-	m_num_threads = GetConfiguredThreadCount();
+	EnsureThreadPool();
 	log("YAML loading with %zu threads", m_num_threads);
-	m_thread_pool = std::make_unique<utils::ThreadPool>(m_num_threads);
 
 	// Parallel load zones
 	LoadZonesParallel();
@@ -1066,6 +1080,7 @@ std::vector<LoadedTrigger> YamlWorldDataSource::LoadTriggers(const std::vector<i
 	{
 		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
+	EnsureThreadPool();
 
 	utils::CExecutionTimer t_total;
 	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("triggers", zone_filter);
@@ -1257,6 +1272,7 @@ std::vector<LoadedRoom> YamlWorldDataSource::LoadRooms(const std::vector<int> *z
 	{
 		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
+	EnsureThreadPool();
 
 	utils::CExecutionTimer t_total;
 	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("rooms", zone_filter);
@@ -1884,6 +1900,7 @@ std::vector<LoadedMob> YamlWorldDataSource::LoadMobs(const std::vector<int> *zon
 	{
 		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
+	EnsureThreadPool();
 
 	utils::CExecutionTimer t_total;
 	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("mobs", zone_filter);
@@ -2300,6 +2317,7 @@ std::vector<LoadedObject> YamlWorldDataSource::LoadObjects(const std::vector<int
 	{
 		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
+	EnsureThreadPool();
 
 	utils::CExecutionTimer t_total;
 	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("objects", zone_filter);
