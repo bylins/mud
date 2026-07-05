@@ -426,8 +426,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="47.4703" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="47.4703" sigma="0.15" />				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -453,8 +452,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="17.4481" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="17.4481" sigma="0.15" />				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -823,8 +821,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" sigma="0.15" />				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -1246,8 +1243,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="1" dices_weight="0" alpha="0" beta="48.9614" />
-				</points>
+					<heal npc_coeff="3" min="1" dices_weight="0" alpha="0" beta="48.9614" sigma="0.15" />				</points>
 				<affects type="kPatronage" saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="25" min="0" max="0" />
 					<flags val="kAfUpdateDuration|kAfUpdateMod" />
@@ -1449,8 +1445,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="82.908" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="82.908" sigma="0.15" />				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
@@ -1480,8 +1475,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" sigma="0.15" />				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
@@ -1597,8 +1591,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="26.595" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="26.595" sigma="0.15" />				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -2338,13 +2331,11 @@
 			</action>
 			<action target="kTarFightSelf" base="kDamage">
 				<points extra="300">
-					<heal min="0" dices_weight="0" alpha="0" beta="0.5171" npc_coeff="0" />
-				</points>
+					<heal min="0" dices_weight="0" alpha="0" beta="0.5171" npc_coeff="0" sigma="0.25" />				</points>
 			</action>
 			<action target="kTarMinions" base="kDamage">
 				<points extra="300">
-					<heal min="0" dices_weight="0" alpha="0" beta="0.5171" npc_coeff="0" />
-				</points>
+					<heal min="0" dices_weight="0" alpha="0" beta="0.5171" npc_coeff="0" sigma="0.25" />				</points>
 				<area>
 					<targets max="-1" />
 					<distribution type="kUniform" />
@@ -2588,8 +2579,7 @@
 		<talent_actions>
 			<action>
 				<points extra="33">
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="17.8635" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="17.8635" sigma="0.15" />				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -2961,8 +2951,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<moves min="20" dices_weight="0" alpha="0" beta="65.7678" />
-				</points>
+					<moves min="20" dices_weight="0" alpha="0" beta="65.7678" sigma="0.15" />				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -4136,8 +4125,7 @@
 					</required>
 				</target_conditions>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="1702.5223" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="1702.5223" sigma="0.25" />				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="1" max="-1" />
 					<distribution type="kUniform" />
@@ -4777,16 +4765,16 @@
 					<flags val="kAfDispellable|kAfCurable" />
 					<duration base="5" skill_divisor="0" min="0" max="0" />
 					<apply id="kCrying" location="kHp">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="65.2819" factor="-1" />
+						<modifier min="0.0" dices_weight="0" alpha="0" beta="51.3344" factor="-1" />
 					</apply>
 					<apply id="kCrying" location="kLikes">
-						<modifier min="3.0" dices_weight="0" alpha="0" beta="3.2641" factor="-1" />
+						<modifier min="3.0" dices_weight="0" alpha="0" beta="2.5667" factor="-1" />
 					</apply>
 					<apply id="kCrying" location="kCastSuccess">
-						<modifier min="3.0" dices_weight="0" alpha="0" beta="1.3056" factor="-1" />
+						<modifier min="3.0" dices_weight="0" alpha="0" beta="1.0267" factor="-1" />
 					</apply>
 					<apply id="kCrying" location="kMorale">
-						<modifier min="2.0" dices_weight="0" alpha="0" beta="0.6528" factor="-1" />
+						<modifier min="2.0" dices_weight="0" alpha="0" beta="0.5133" factor="-1" />
 					</apply>
 				</affects>
 			</action>
@@ -5655,8 +5643,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="1" dices_weight="0" alpha="0" beta="25.3709" />
-				</points>
+					<heal npc_coeff="3" min="1" dices_weight="0" alpha="0" beta="25.3709" sigma="0.15" />				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
@@ -6897,8 +6884,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<points prob="15">
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" />
-				</points>
+					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" sigma="0.15" />				</points>
 				<affects type="kPaladineInspiration" saving="kNone" resist="kImmunity">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
 					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable" />

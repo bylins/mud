@@ -192,7 +192,8 @@ def main():
                 line, ch = rescale(line, "modifier", add_sigma=False)
                 if ch: stats["modifiers"] += 1
             elif "<heal" in line or "<moves" in line:
-                line, ch = rescale(line, "points", add_sigma=False)
+                # heals/moves spread like damage (per-element sigma); modifiers stay deterministic.
+                line, ch = rescale(line, "points", add_sigma=True)
                 if ch: stats["heals"] += 1
 
         out.append(line)

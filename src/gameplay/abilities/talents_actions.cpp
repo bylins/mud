@@ -458,6 +458,8 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 	a.alpha = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 	const char *ab = node.GetValue("beta");
 	a.beta = (ab && *ab) ? parse::ReadAsDouble(ab) : 0.0;
+	const char *asg = node.GetValue("sigma");
+	a.sigma = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
 	if (with_npc) {
 		// 1.0 default mirrors the legacy <heal npc_coeff/> default: NPC casters
 		// get a *2 boost on heal points unless the tag overrides it.

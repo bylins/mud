@@ -1514,7 +1514,11 @@ auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, 
 	return [ch, dice, competencies, bonus_mod](const talents_actions::Points::Amount &a) -> int {
 		// Option-2 subquadratic: dice scaled multiplicatively by
 		// skill/stat (alpha) plus an additive term (beta). alpha=0 -> old Formula A.
-		int v = static_cast<int>(a.min + std::ceil(
+		// issue.random-noise-rework: sigma>0 -> multiplicative truncated-normal spread (heal/moves),
+		// mean = min + beta*competence (beta = per-competence scale k), CV ~ sigma. Else additive.
+		int v = (a.sigma > 0.0)
+				? CalcNoisyAmount(a.min, a.beta * competencies, a.sigma, /*cap*/ 0)
+				: static_cast<int>(a.min + std::ceil(
 						dice * a.dices_weight * (1.0 + a.alpha * competencies)
 						+ a.beta * competencies));
 		v += static_cast<int>(v * bonus_mod);

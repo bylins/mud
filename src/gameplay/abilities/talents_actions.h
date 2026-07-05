@@ -328,6 +328,7 @@ class Points : public IAction {
 		double alpha{0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0};           // additive skill/stat coefficient (was competencies_weight)
 		double npc_coeff{0};
+		double sigma{0};          // issue.random-noise-rework: >0 -> multiplicative truncated-normal spread (heal/moves)
 	};
  private:
 	int extra_{0};        // overheal cap as percent ABOVE max_hp
