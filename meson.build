@@ -439,7 +439,6 @@ main_sources = files(
   'src/engine/scripting/lua/lua_script_engine.cpp',
   'src/engine/scripting/lua/lua_trigger_context.cpp',
   'src/engine/scripting/lua/lua_utils.cpp',
-  'src/engine/ui/cmd_god/do_luatest.cpp',
   'src/gameplay/economics/dictionary.cpp',
   'src/utils/diskio.cpp',
   'src/gameplay/statistics/dps.cpp',
@@ -930,10 +929,6 @@ msdp_sources = files(
 
 if get_option('scripting')
     main_sources += files('src/engine/scripting/scripting.cpp')
-endif
-
-if luajit_opt != 'disabled'
-    main_sources += files('src/engine/scripting/lua_prototype.cpp')
 endif
 
 if admin_api_opt
