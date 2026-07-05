@@ -1,7 +1,7 @@
 # Objects for zone 3
 
+# Object #300
 0:
-  # Object #300
   names:
     aliases: шелепуга
     nominative: шелепуга
@@ -12,28 +12,30 @@
     prepositional: шелепуге
   short_desc: Шелепуга лежит здесь.
   type: kWeapon
-  wear_flags:
-  - kTake
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '6'
+    - 0
+    - 0
+    - 0
+    - 6
   weight: 0
   cost: 150
   rent_off: 100
   rent_on: 75
   spec_param: 141
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
 
+# Object #301
 1:
-  # Object #301
   names:
     aliases: меч
     nominative: меч
@@ -44,16 +46,12 @@
     prepositional: мече
   short_desc: Меч валяется здесь.
   type: kWeapon
-  wear_flags:
-  - kTake
-  - kWield
-  - kBoth
-  material: 3  # булат
+  material: 3  # ЖЕЛЕЗО
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '7'
+    - 0
+    - 0
+    - 0
+    - 7
   weight: 20
   cost: 100
   rent_off: 100
@@ -62,12 +60,16 @@
   max_durability: 100
   cur_durability: 100
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
 
+# Object #302
 2:
-  # Object #302
   names:
     aliases: сабля
     nominative: сабля
@@ -78,29 +80,29 @@
     prepositional: сабле
   short_desc: Сабля лежит здесь.
   type: kWeapon
-  wear_flags:
-  - kTake
-  - kHold
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '7'
+    - 0
+    - 0
+    - 0
+    - 7
   weight: 0
   cost: 1
   rent_off: 80
   rent_on: 60
   spec_param: 144
-  max_durability: -1
-  cur_durability: 0
+  max_durability: 2000
+  cur_durability: 2000
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold
 
+# Object #303
 3:
-  # Object #303
   names:
     aliases: нож
     nominative: нож
@@ -111,16 +113,12 @@
     prepositional: ноже
   short_desc: Нож брошен здесь за ненадобностью.
   type: kWeapon
-  wear_flags:
-  - kTake
-  - kWield
-  - kHold
-  material: 3  # булат
+  material: 3  # ЖЕЛЕЗО
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '7'
+    - 0
+    - 0
+    - 0
+    - 7
   weight: 1
   cost: 100
   rent_off: 75
@@ -129,12 +127,16 @@
   max_durability: 65000
   cur_durability: 0
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
 
+# Object #304
 4:
-  # Object #304
   names:
     aliases: топор
     nominative: топор
@@ -145,29 +147,29 @@
     prepositional: топоре
   short_desc: Брошенный топор ржавеет тут.
   type: kWeapon
-  wear_flags:
-  - kTake
-  - kWield
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '3'
+    - 0
+    - 0
+    - 0
+    - 3
   weight: 0
   cost: 150
   rent_off: 120
   rent_on: 100
   spec_param: 142
-  max_durability: -1
-  cur_durability: 0
+  max_durability: 2000
+  cur_durability: 2000
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
 
+# Object #305
 5:
-  # Object #305
   names:
     aliases: плеть
     nominative: плеть
@@ -178,30 +180,30 @@
     prepositional: плети
   short_desc: Плеть валяется на земле.
   type: kWeapon
-  wear_flags:
-  - kTake
-  - kWield
-  - kBoth
-  material: 16  # платина
+  material: 16  # ОРГАНИКА
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '2'
+    - 0
+    - 0
+    - 0
+    - 2
   weight: 0
   cost: 0
   rent_off: 0
   rent_on: 0
   spec_param: 145
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
 
+# Object #306
 6:
-  # Object #306
   names:
     aliases: дубина
     nominative: дубина
@@ -212,30 +214,30 @@
     prepositional: дубине
   short_desc: Дубина валяется на земле.
   type: kWeapon
-  wear_flags:
-  - kTake
-  - kWield
-  - kBoth
-  material: 9  # кожа
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '5'
+    - 0
+    - 0
+    - 0
+    - 5
   weight: 0
   cost: 0
   rent_off: 0
   rent_on: 0
   spec_param: 141
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
 
+# Object #307
 7:
-  # Object #307
   names:
     aliases: кольчуга
     nominative: кольчуга
@@ -246,29 +248,28 @@
     prepositional: кольчуге
   short_desc: Кольчуга валяется тут.
   type: kArmor
-  wear_flags:
-  - kTake
-  - kBody
-  material: 3  # булат
+  material: 3  # ЖЕЛЕЗО
   values:
-  - '10'
-  - '10'
-  - '0'
-  - '0'
+    - 10
+    - 10
+    - 0
+    - 0
   weight: 0
   cost: 150
   rent_off: 120
   rent_on: 100
-  spec_param: 0
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
+    - kBody
 
+# Object #308
 8:
-  # Object #308
   names:
     aliases: наручи
     nominative: наручи
@@ -279,29 +280,28 @@
     prepositional: наручах
   short_desc: Наручи лежат здесь.
   type: kArmor
-  wear_flags:
-  - kTake
-  - kArms
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 0
   cost: 100
   rent_off: 75
   rent_on: 40
-  spec_param: 0
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
 
+# Object #309
 9:
-  # Object #309
   names:
     aliases: поножи
     nominative: поножи
@@ -312,29 +312,28 @@
     prepositional: поножах
   short_desc: Поножи лежат здесь.
   type: kArmor
-  wear_flags:
-  - kTake
-  - kLegs
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 0
   cost: 100
   rent_off: 75
   rent_on: 40
-  spec_param: 0
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
 
+# Object #310
 10:
-  # Object #310
   names:
     aliases: шлем
     nominative: шлем
@@ -345,29 +344,28 @@
     prepositional: шлеме
   short_desc: Шлем лежит здесь.
   type: kArmor
-  wear_flags:
-  - kTake
-  - kHead
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 0
   cost: 150
   rent_off: 100
   rent_on: 50
-  spec_param: 0
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 30000
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
+    - kHead
 
+# Object #311
 11:
-  # Object #311
   names:
     aliases: каменный уголь
     nominative: уголь
@@ -378,29 +376,27 @@
     prepositional: угле
   short_desc: Кусок каменного угля лежит здесь.
   type: kMagicIngredient
-  wear_flags:
-  - kTake
-  material: 12  # драгоценный камень
+  material: 12  # КАМЕНЬ
   values:
-  - '0'
-  - '311'
-  - '0'
-  - '0'
+    - 0
+    - 311
+    - 0
+    - 0
   weight: 5
   cost: 10
   rent_off: 5
   rent_on: 5
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
   timer: 10080
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
-  max_in_world: 10000
+  wear_flags:
+    - kTake
 
+# Object #312
 12:
-  # Object #312
   names:
     aliases: составной лук
     nominative: составной лук
@@ -411,28 +407,28 @@
     prepositional: составном луке
   short_desc: Составной лук лежит здесь.
   type: kWeapon
-  wear_flags:
-  - kTake
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '9'
+    - 0
+    - 0
+    - 0
+    - 9
   weight: 0
   cost: 150
   rent_off: 100
   rent_on: 75
   spec_param: 154
   max_durability: -1
-  cur_durability: 0
+  cur_durability: -1
   timer: 43200
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
 
+# Object #313
 13:
-  # Object #313
   names:
     aliases: гибкая палка
     nominative: гибкая палка
@@ -443,28 +439,27 @@
     prepositional: гибкой палке
   short_desc: Гибкая палка лежит здесь.
   type: kMagicIngredient
-  wear_flags:
-  - kTake
-  material: 9  # кожа
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-  - '0'
-  - '313'
-  - '0'
-  - '0'
+    - 0
+    - 313
+    - 0
+    - 0
   weight: 15
   cost: 10
   rent_off: 5
   rent_on: 5
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
 
+# Object #314
 14:
-  # Object #314
   names:
     aliases: тетива
     nominative: тетива
@@ -475,28 +470,27 @@
     prepositional: тетиве
   short_desc: Тетива валяется здесь.
   type: kMagicIngredient
-  wear_flags:
-  - kTake
-  material: 9  # кожа
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-  - '0'
-  - '314'
-  - '0'
-  - '0'
+    - 0
+    - 314
+    - 0
+    - 0
   weight: 5
   cost: 10
   rent_off: 5
   rent_on: 5
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
 
+# Object #320
 20:
-  # Object #320
   names:
     aliases: маленький кусок мяса
     nominative: маленький кусок мяса
@@ -507,28 +501,27 @@
     prepositional: маленьком куске мяса
   short_desc: Маленький кусок мяса лежит здесь.
   type: kFood
-  wear_flags:
-  - kTake
-  material: 16  # платина
+  material: 16  # ОРГАНИКА
   values:
-  - '4'
-  - '0'
-  - '0'
-  - '0'
+    - 4
+    - 0
+    - 0
+    - 1440
   weight: 1
   cost: 2
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
-  timer: 1800
-  spell: -1
+  timer: 2160
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
 
+# Object #321
 21:
-  # Object #321
   names:
     aliases: небольшой кусок мяса
     nominative: небольшой кусок мяса
@@ -539,28 +532,27 @@
     prepositional: небольшом куске мяса
   short_desc: Небольшой кусок мяса лежит здесь.
   type: kFood
-  wear_flags:
-  - kTake
-  material: 16  # платина
+  material: 16  # ОРГАНИКА
   values:
-  - '8'
-  - '0'
-  - '0'
-  - '0'
+    - 8
+    - 0
+    - 0
+    - 1440
   weight: 1
   cost: 2
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
-  timer: 1800
-  spell: -1
+  timer: 2160
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
 
+# Object #322
 22:
-  # Object #322
   names:
     aliases: кусок мяса
     nominative: кусок мяса
@@ -571,28 +563,27 @@
     prepositional: куске мяса
   short_desc: Кусок мяса лежит здесь.
   type: kFood
-  wear_flags:
-  - kTake
-  material: 16  # платина
+  material: 16  # ОРГАНИКА
   values:
-  - '12'
-  - '0'
-  - '0'
-  - '0'
+    - 12
+    - 0
+    - 0
+    - 1440
   weight: 2
   cost: 4
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
-  timer: 1800
-  spell: -1
+  timer: 2160
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
 
+# Object #323
 23:
-  # Object #323
   names:
     aliases: большой кусок мяса
     nominative: большой кусок мяса
@@ -603,30 +594,65 @@
     prepositional: большом куске мяса
   short_desc: Большой кусок мяса лежит здесь.
   type: kFood
-  wear_flags:
-  - kTake
-  material: 16  # платина
+  material: 16  # ОРГАНИКА
   values:
-  - '16'
-  - '0'
-  - '0'
-  - '0'
+    - 16
+    - 0
+    - 0
+    - 1440
   weight: 1
   cost: 6
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
-  timer: 1800
-  spell: -1
+  timer: 2160
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
+  wear_flags:
+    - kTake
 
-30:
-  # Object #330
+# Object #324
+24:
   names:
-    aliases: волшебный сундук
+    aliases: кусок мяс вырезк
+    nominative: '&Rмясная вырезка&n'
+    genitive: '&Rмясной вырезки&n'
+    dative: '&Rмясной вырезке&n'
+    accusative: '&Rмясную вырезку&n'
+    instrumental: '&Rмясной вырезкой&n'
+    prepositional: '&Rмясной вырезке&n'
+  short_desc: Кусок вырезаного мяса лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 1440
+  weight: 2
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 40
+  cur_durability: 40
+  timer: 2160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 999
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+
+# Object #330
+30:
+  names:
+    aliases: волшебный сундук хранилище
     nominative: волшебный сундук
     genitive: волшебного сундука
     dative: волшебному сундуку
@@ -635,30 +661,30 @@
     prepositional: волшебном сундуке
   short_desc: Волшебный сундук так и манит к себе...
   type: kContainer
-  extra_flags:
-  - kNoinvis
-  - kNodecay
-  - kNolocate
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 0
   cost: 0
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 0
   cur_durability: 0
   timer: 10080
-  spell: 0
+  spell: 0  # !undefined!
   level: 0
-  sex: kNeutral
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kNoinvis
+    - kNodecay
+    - kNolocate
 
+# Object #331
 31:
-  # Object #331
   names:
     aliases: Ваш походный сундучок
     nominative: ваш походный сундучок
@@ -669,33 +695,32 @@
     prepositional: вашем походном сундучке
   short_desc: Ваш походный сундучок стоит здесь.
   type: kContainer
-  extra_flags:
-  - kNorent
-  - kNodonate
-  - kNoinvis
-  - kNosell
-  - kNodecay
-  - kNolocate
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 0
   cost: 0
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 0
   cur_durability: 0
   timer: 10000
-  spell: 0
+  spell: 0  # !undefined!
   level: 0
-  sex: kNeutral
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kNodecay
+    - kNolocate
 
+# Object #332
 32:
-  # Object #332
   names:
     aliases: короб склад снаряжения ватаги
     nominative: склад снаряжения вашей ватаги
@@ -706,33 +731,32 @@
     prepositional: склад снаряжения вашей ватаги
   short_desc: Короб для хранения снаряжения вашей ватаги пристроен в углу.
   type: kContainer
-  extra_flags:
-  - kNorent
-  - kNodonate
-  - kNoinvis
-  - kNosell
-  - kNodecay
-  - kNolocate
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 0
   cost: 0
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 0
   cur_durability: 0
   timer: 10000
-  spell: 0
+  spell: 0  # !undefined!
   level: 0
-  sex: kNeutral
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kNodecay
+    - kNolocate
 
+# Object #333
 33:
-  # Object #333
   names:
     aliases: короб хранения ингредиентов
     nominative: короб для хранения ингредиентов
@@ -743,24 +767,267 @@
     prepositional: коробе для хранения ингредиентов
   short_desc: Короб для хранения ингредиентов пристроен в углу.
   type: kContainer
-  extra_flags:
-  - kNoinvis
-  - kNodecay
-  - kNolocate
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 0
   cost: 0
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 0
   cur_durability: 0
   timer: 10080
-  spell: 0
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+    - kNolocate
+
+# Object #334
+34:
+  names:
+    aliases: недожар кусок мяс
+    nominative: недожаренный кусок мяса
+    genitive: недожаренного куска мяса
+    dative: недожаренному куску мяса
+    accusative: недожаренный кусок мяса
+    instrumental: недожаренным куском мяса
+    prepositional: недожаренном куске мяса
+  short_desc: Недожаренный кусок мяса брошен здесь
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 20
+    - 0
+    - 0
+    - 1440
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 40
+  cur_durability: 40
+  timer: 2160
+  spell: 0  # !undefined!
   level: 0
   sex: kNeutral
+  max_in_world: 999
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  applies:
+    - location: 26  # восст.энергии
+      modifier: 20
+    - location: 40  # успех.колдовства
+      modifier: -3
+    - location: 25  # восст.жизни
+      modifier: 20
+
+# Object #335
+35:
+  names:
+    aliases: жарен кусок мяс
+    nominative: жаренный кусок мяса
+    genitive: жаренного куска мяса
+    dative: жаренному куску мяса
+    accusative: жаренный кусок мяса
+    instrumental: жаренным куском мяса
+    prepositional: жаренном куске мяса
+  short_desc: Жаренный кусок мяса случайно оставлен здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 20
+    - 0
+    - 0
+    - 1440
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 40
+  cur_durability: 40
+  timer: 2160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 999
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 30
+    - location: 26  # восст.энергии
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: -5
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 5
+
+# Object #336
+36:
+  names:
+    aliases: кусок шашлык мясо
+    nominative: кусок шашлыка
+    genitive: кука шашлыка
+    dative: куску шашлыка
+    accusative: кусок шашлыка
+    instrumental: куском шашлыка
+    prepositional: куске шашлыка
+  short_desc: Шашлык выбросили на землю? водочки б..
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 20
+    - 0
+    - 0
+    - 1440
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 40
+  cur_durability: 40
+  timer: 2160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 999
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 50
+    - location: 26  # восст.энергии
+      modifier: 40
+    - location: 40  # успех.колдовства
+      modifier: -7
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 10
+
+# Object #337
+37:
+  names:
+    aliases: аппет стейк мясо
+    nominative: аппетитный стейк
+    genitive: аппетитного стейка
+    dative: аппетитному стейку
+    accusative: аппетитный стейк
+    instrumental: аппетитным стейком
+    prepositional: аппетитном стейке
+  short_desc: Жареный сочный кусок мяса, походу стейк выбросил какой-то гад.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 20
+    - 0
+    - 0
+    - 1440
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 40
+  cur_durability: 40
+  timer: 2160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 70
+    - location: 26  # восст.энергии
+      modifier: 50
+    - location: 40  # успех.колдовства
+      modifier: -10
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 15
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #338
+38:
+  names:
+    aliases: мясо кусок вырезка жареный
+    nominative: '&Rжареная мясная вырезка&n'
+    genitive: '&Rжареной мясной вырезки&n'
+    dative: '&Rжареной мясной вырезке&n'
+    accusative: '&Rжареную мясную вырезку&n'
+    instrumental: '&Rжареной мясной вырезкой&n'
+    prepositional: '&Rжареной мясной вырезке&n'
+  short_desc: 'Сочная, нежная, ароматная мясная вырезка выпала неудачнику из рук. '
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 20
+    - 0
+    - 0
+    - 1440
+  weight: 2
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 40
+  cur_durability: 40
+  timer: 2160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 999
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 59  # бонус.ко.всем.умениям
+      modifier: 20
+
+# Object #347
+47:
+  names:
+    aliases: 3
+    nominative: q
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake

@@ -1,0 +1,13 @@
+# Zone #34
+
+vnum: 34
+name: Шмот для сундуков
+top_room: 3499
+lifespan: 30
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 0  # level
+entrance: 3499
+under_construction: 0
+zone_group: 1  # solo

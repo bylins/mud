@@ -1,0 +1,69 @@
+# Triggers for zone 45
+
+# Trigger #4500
+0:
+  name: Бешеный пес воет
+  attach_type: kMobTrigger
+  narg: 18
+  trigger_types:
+    - kRandom
+  script: 'wzoneecho 4500 &YБешеный пес воет: ''У-у-у-ы-ы-у-у-у!!!''&n'
+
+# Trigger #4501
+1:
+  name: Убита душа
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    calcuid corpse 4500 obj
+    if %corpse%
+      calcuid qroom 4525 room
+      attach  4502 %qroom%
+    end
+    return 1
+    calcuid room 4525 room
+    echo   Душа со сдавленным стоном растворилась в пустоте...
+    attach  4503 %room%
+    run     4503 %room%
+
+# Trigger #4502
+2:
+  name: Оплата квеста
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: воткнуть вонзить
+  trigger_types:
+    - kCommand
+  script: |-2
+    halt
+    тут этого быть не должно
+
+# Trigger #4503
+3:
+  name: Исчезновение души
+  attach_type: kRoomTrigger
+  narg: 0
+  trigger_types:
+    - kAuto
+  script: |-2
+    return   1
+    calcuid spirit 4500 mob
+    wpurge  %spirit%
+
+# Trigger #4510
+10:
+  name: Обновление переменных
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: 0
+  trigger_types:
+    - kDeath
+  script: |-2
+    wdoor   4510 down purge
+    wdoor   4522 up   purge
+    calcuid qroom 4510 room
+    attach   4500 %qroom%
+    load   obj 4500
+    detach  4502 %self%

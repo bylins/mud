@@ -1,0 +1,512 @@
+# Objects for zone 67
+
+# Object #6700
+0:
+  names:
+    aliases: острая каменюка камень
+    nominative: острая каменюка
+    genitive: острой каменюки
+    dative: острой каменюке
+    accusative: острую каменюку
+    instrumental: острой каменюкой
+    prepositional: острой каменюке
+  short_desc: Камень с острыми краями валяется здесь.
+  type: kWeapon
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 2
+    - 2
+    - 5
+  weight: 12
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodonate
+    - kNosell
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #6701
+1:
+  names:
+    aliases: 'котомка дорожная '
+    nominative: дорожная котомка
+    genitive: дорожной котомки
+    dative: дорожной котомке
+    accusative: дорожную котомку
+    instrumental: дорожной котомкой
+    prepositional: дорожной котомке
+  short_desc: Дорожная котомка оставлена здесь нерадивым путником .
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 30
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 36000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+    - kWaist
+  applies:
+    - location: 17  # защита
+      modifier: 1
+
+# Object #6702
+2:
+  names:
+    aliases: рваный кафтан
+    nominative: рваный кафтан
+    genitive: рваного кафтана
+    dative: рваному кафтану
+    accusative: рваный кафтан
+    instrumental: рваным кафтаном
+    prepositional: рваном кафтане
+  short_desc: Старый рваный кафтан пылится у вас под ногами.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 50
+  cur_durability: 50
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #6703
+3:
+  names:
+    aliases: грязные лапти
+    nominative: грязные лапти
+    genitive: грязных лаптей
+    dative: грязным лаптям
+    accusative: грязные лапти
+    instrumental: грязными лаптями
+    prepositional: грязных лаптях
+  short_desc: Кто-то выкинул сюда за ненадобностью грязные поношенные лапти.
+  type: kArmor
+  material: 8  # ДЕРЕВО
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 50
+  cur_durability: 50
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 50
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #6704
+4:
+  names:
+    aliases: льняная веревка
+    nominative: льняная веревка
+    genitive: льняной веревки
+    dative: льняное веревке
+    accusative: льняную веревку
+    instrumental: льняной веревкой
+    prepositional: льняной веревке
+  short_desc: Льняная веревка валяется здесь в пыли.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 30
+  rent_off: 30
+  rent_on: 2
+  max_durability: 40
+  cur_durability: 40
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #6705
+5:
+  names:
+    aliases: спелая репа
+    nominative: спелая репа
+    genitive: спелой репы
+    dative: спелой репе
+    accusative: спелую репу
+    instrumental: спелой репой
+    prepositional: спелой репе
+  short_desc: Крупная репа доспевает здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 10
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: осмотреть репа
+      description: |2
+        Это спелое растение с зелеными вершками и съедобным корешком.
+        Если разрезать репу, то можно вершками накормить домашнюю 
+        скотину а самой репой полакомиться самому.
+  triggers:
+    - 6712  # репопим незимние тригера
+
+# Object #6706
+6:
+  names:
+    aliases: длинная оглобля
+    nominative: длинная оглобля
+    genitive: длинной оглобли
+    dative: длинной оглобле
+    accusative: длинную оглоблю
+    instrumental: длинною оглоблей
+    prepositional: длинной оглобле
+  short_desc: Длинная оглобля отвалилась от повозки и лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 5
+    - 2
+    - 5
+  weight: 29
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 146
+  max_durability: 125
+  cur_durability: 125
+  timer: 36000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+
+# Object #6707
+7:
+  names:
+    aliases: шмелиное жало
+    nominative: шмелиное жало
+    genitive: шмелиного жала
+    dative: шмелиному жалу
+    accusative: шмелиное жало
+    instrumental: шмелиным жалом
+    prepositional: шмелином жале
+  short_desc: Тонкое шмелиное жало валяется здесь.
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 3
+    - 2
+    - 11
+  weight: 2
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #6708
+8:
+  names:
+    aliases: шкура оленя
+    nominative: шкура оленя
+    genitive: шкуры оленя
+    dative: шкуре оленя
+    accusative: шкуру оленя
+    instrumental: шкурой оленя
+    prepositional: шкуре оленя
+  short_desc: Коричневая шкурка гниет здесь, привлекая мух.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 75
+  cur_durability: 75
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #6709
+9:
+  names:
+    aliases: 'легкая лодка маленькая '
+    nominative: легкая лодка
+    genitive: легкой лодки
+    dative: легкой лодке
+    accusative: легкую лодку
+    instrumental: легкой лодкой
+    prepositional: легкой лодке
+  short_desc: Маленькая лодка валяется здесь дном вверх.
+  type: kBoat
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 20
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 150
+  cur_durability: 150
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNodecay
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #6710
+10:
+  names:
+    aliases: вершки репы
+    nominative: вершки репы
+    genitive: вершков репы
+    dative: вершкам репы
+    accusative: вершки репы
+    instrumental: вершками репы
+    prepositional: вершках репы
+  short_desc: Батва репы брошена здесь.
+  type: kTrash
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kZonedecay
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #6711
+11:
+  names:
+    aliases: корешки репы
+    nominative: корешки репы
+    genitive: корешков репы
+    dative: корешкам репы
+    accusative: корешки репы
+    instrumental: корешками репы
+    prepositional: корешках репы
+  short_desc: Плод репы валяется здесь, готовый к употреблению.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 15
+  cur_durability: 15
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #6712
+12:
+  names:
+    aliases: спелая репа
+    nominative: спелая репа
+    genitive: спелой репы
+    dative: спелой репе
+    accusative: спелую репу
+    instrumental: спелой репой
+    prepositional: спелой репе
+  short_desc: Крупная репа хранится здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 10
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kAppearsWinter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: осмотреть репа
+      description: |2
+        Это спелое растение с зелеными вершками и съедобным корешком.
+        Если разрезать репу, то можно вершками накормить домашнюю 
+        скотину а самой репой полакомиться самому.
+
+# Object #6713
+13:
+  names:
+    aliases: шмелиное жало
+    nominative: шмелиное жало
+    genitive: шмелиного жала
+    dative: шмелиному жалу
+    accusative: шмелиное жало
+    instrumental: шмелиным жалом
+    prepositional: шмелином жале
+  short_desc: Тонкое блестящее шмелиное жало валяется здесь.
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 3
+    - 2
+    - 11
+  weight: 3
+  cost: 150
+  rent_off: 150
+  rent_on: 15
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  applies:
+    - location: 42  # инициатива
+      modifier: 1

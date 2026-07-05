@@ -1,0 +1,750 @@
+# Objects for zone 7
+
+# Object #700
+0:
+  names:
+    aliases: ингредиент @n0 гриб
+    nominative: гриб (@n0)
+    genitive: '@n1'
+    dative: '@n2'
+    accusative: '@n3'
+    instrumental: '@n4'
+    prepositional: '@n5'
+  short_desc: Гриб (@n0) растет здесь.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #701
+1:
+  names:
+    aliases: ингредиент шерсть @p1
+    nominative: шерсть @p1
+    genitive: шерсти @p1
+    dative: шерсти @p1
+    accusative: шерсть @p1
+    instrumental: шерстью @p1
+    prepositional: шерсти @p1
+  short_desc: Клочок шерсти @p1 лежит здесь.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #702
+2:
+  names:
+    aliases: ингредиент тварь маленький @n0
+    nominative: маленький @n0
+    genitive: маленького @n1
+    dative: маленькому @n2
+    accusative: маленького @n3
+    instrumental: маленьким @n4
+    prepositional: маленьком @n5
+  short_desc: Вы заметили @n3.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #705
+5:
+  names:
+    aliases: ингредиент @n0 ягода
+    nominative: ягода @n0
+    genitive: '@n1'
+    dative: '@n2'
+    accusative: '@n3'
+    instrumental: '@n4'
+    prepositional: '@n5'
+  short_desc: Приглядевшись, вы видите ягоду @n1.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #711
+11:
+  names:
+    aliases: ингредиент овощ @n0
+    nominative: овощ @n0
+    genitive: '@n1'
+    dative: '@n2'
+    accusative: '@n3'
+    instrumental: '@n4'
+    prepositional: '@n5'
+  short_desc: Здесь лежит @n0.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #712
+12:
+  names:
+    aliases: ингредиент @n0 крупа
+    nominative: крупа @n0
+    genitive: '@n1'
+    dative: '@n2'
+    accusative: '@n3'
+    instrumental: '@n4'
+    prepositional: '@n5'
+  short_desc: Немного @n1 просыпано здесь.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #713
+13:
+  names:
+    aliases: ингредиент ветка дерево @n0
+    nominative: ветка @n0
+    genitive: ветки @n1
+    dative: ветке @n1
+    accusative: ветку @n1
+    instrumental: веткой @n1
+    prepositional: ветке @n1
+  short_desc: Отломанная ветка @n1 сохнет здесь.
+  type: kMagicComponent
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #721
+21:
+  names:
+    aliases: ингредиент минерал осколок @n0 камень
+    nominative: осколок @n1
+    genitive: осколка @n1
+    dative: осколку @n1
+    accusative: осколок @n1
+    instrumental: осколком @n1
+    prepositional: осколке @n1
+  short_desc: Осколок @n1 наполовину утоплен в почву.
+  type: kMagicComponent
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 2
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #722
+22:
+  names:
+    aliases: ингредиент металл @n0 кусочек
+    nominative: кусочек @n1
+    genitive: кусочка @n1
+    dative: кусочку @n1
+    accusative: кусочек @n1
+    instrumental: кусочком @n1
+    prepositional: кусочке @n1
+  short_desc: Маленький кусочек @n1 валяется в пыли.
+  type: kMagicComponent
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 2
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #723
+23:
+  names:
+    aliases: ингредиент посуда @n0 резервуар
+    nominative: посуда @n0
+    genitive: '@n1'
+    dative: '@n2'
+    accusative: '@n3'
+    instrumental: '@n4'
+    prepositional: '@n5'
+  short_desc: У ваших ног лежит @n0.
+  type: kMagicComponent
+  material: 10  # КЕРАМИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 2
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #724
+24:
+  names:
+    aliases: ингредиент жидкость @n0
+    nominative: жидкость @n0
+    genitive: '@n0'
+    dative: '@n0'
+    accusative: '@n0'
+    instrumental: '@n0'
+    prepositional: '@n0'
+  short_desc: Лужица @n1 разлита у ваших ног.
+  type: kMagicComponent
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 2
+  weight: 1
+  cost: 3
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #730
+30:
+  names:
+    aliases: ингредиент @n0 трава
+    nominative: травы @n0
+    genitive: '@n1'
+    dative: '@n2'
+    accusative: '@n3'
+    instrumental: '@n4'
+    prepositional: '@n5'
+  short_desc: Среди разнотравья вы заметили @n3.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #750
+50:
+  names:
+    aliases: свиток возврата
+    nominative: свиток возврата
+    genitive: свитка возврата
+    dative: свитку возврата
+    accusative: свиток возврата
+    instrumental: свитком возврата
+    prepositional: свитке возврата
+  short_desc: Свиток возврата лежит тут.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 5
+    - 42
+    - -1
+    - -1
+  weight: 1
+  cost: 25
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kDecay
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток возврата
+      description: |2
+        Вы видите сероватый берестяной свиток,
+        полностью исписанный знакомыми буквами.
+
+# Object #751
+51:
+  names:
+    aliases: ингредиент зуб @p1
+    nominative: зуб @p1
+    genitive: зуба @p1
+    dative: зубу @p1
+    accusative: зуб @p1
+    instrumental: зубом @p1
+    prepositional: зубе @p1
+  short_desc: Вырванный из челюсти @p1 зуб валяется здесь.
+  type: kMagicComponent
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #752
+52:
+  names:
+    aliases: ингредиент коготь @p1
+    nominative: коготь @p1
+    genitive: когтя @p1
+    dative: когтю @p1
+    accusative: коготь @p1
+    instrumental: когтем @p1
+    prepositional: когте @p1
+  short_desc: С мясом вырванный коготь @p1 лежит у ваших ног.
+  type: kMagicComponent
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #753
+53:
+  names:
+    aliases: ингредиент глаз @p1
+    nominative: глаз @p1
+    genitive: глаза @p1
+    dative: глазу @p1
+    accusative: глаз @p1
+    instrumental: глазом @p1
+    prepositional: глазе @p1
+  short_desc: Чудом уцелевший глаз @p1 плавает в лужице слизи.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #754
+54:
+  names:
+    aliases: ингредиент печень @p1
+    nominative: печень @p1
+    genitive: печени @p1
+    dative: печени @p1
+    accusative: печень @p1
+    instrumental: печенью @p1
+    prepositional: печени @p1
+  short_desc: Вырванная печень @p1 сочится кровью.
+  type: kMagicComponent
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #755
+55:
+  names:
+    aliases: ингредиент прядь волос @p1
+    nominative: прядь волос @p1
+    genitive: пряди волос @p1
+    dative: пряди волос @p1
+    accusative: прядь волос @p1
+    instrumental: прядью волос @p1
+    prepositional: пряди волос @p1
+  short_desc: Срезанная прядь волос @p1 лежит здесь.
+  type: kMagicComponent
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #756
+56:
+  names:
+    aliases: ингредиент сердце @p1
+    nominative: сердце @p1
+    genitive: сердца @p1
+    dative: сердцем @p1
+    accusative: сердце @p1
+    instrumental: сердцем @p1
+    prepositional: сердце @p1
+  short_desc: Вырванное сердце @p1 слабо пульсирует в лужице крови.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #757
+57:
+  names:
+    aliases: ингредиент чешуйка @p1
+    nominative: чешуйка @p1
+    genitive: чешуйки @p1
+    dative: чешуйке @p1
+    accusative: чешуйку @p1
+    instrumental: чешуйкой @p1
+    prepositional: чешуйке @p1
+  short_desc: Чешуйка @p1 валяется здесь.
+  type: kMagicComponent
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #758
+58:
+  names:
+    aliases: ингредиент крыло @p1
+    nominative: крыло @p1
+    genitive: крыла @p1
+    dative: крылу @p1
+    accusative: крыло @p1
+    instrumental: крылом @p1
+    prepositional: крыле @p1
+  short_desc: Отрубленное крыло @p1 лежит здесь в луже крови.
+  type: kMagicComponent
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNolocate
+  wear_flags:
+    - kTake

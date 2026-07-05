@@ -1,0 +1,3365 @@
+# Objects for zone 20
+
+# Object #2000
+0:
+  names:
+    aliases: clan
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+
+# Object #2001
+1:
+  names:
+    aliases: ломоть хлеба
+    nominative: ломоть хлеба
+    genitive: ломтя хлеба
+    dative: ломтю хлеба
+    accusative: ломоть хлеба
+    instrumental: ломтем хлеба
+    prepositional: ломте хлеба
+  short_desc: Толстый ломоть хлеба лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 900
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2002
+2:
+  names:
+    aliases: небольшая краюха краюшка пшеничного хлеба
+    nominative: краюха пшеничного хлеба
+    genitive: краюхи пшеничного хлеба
+    dative: краюхе пшеничного хлеба
+    accusative: краюху пшеничного хлеба
+    instrumental: краюхой пшеничного хлеба
+    prepositional: краюхе пшеничного хлеба
+  short_desc: Небольшая краюшка пшеничного хлеба лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 900
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: ломоть хлеб
+      description: |2
+        Румяная четвертушка пшеничного каравая источает
+        упоительный аромат. Правда, маловата будет, вряд
+        ли ей можно наесться, но с мясом хороша будет.
+
+# Object #2003
+3:
+  names:
+    aliases: пшеничный каравай хлеб
+    nominative: пшеничный каравай
+    genitive: пшеничного каравая
+    dative: пшеничному караваю
+    accusative: пшеничный каравай
+    instrumental: пшеничным караваем
+    prepositional: пшеничном каравае
+  short_desc: Румяный хлебный каравай лежит здесь... Непотребство!
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 4
+  rent_on: 1
+  max_durability: 20
+  cur_durability: 20
+  timer: 900
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: каравай хлеб
+      description: |2
+        Вы видите румяный каравай из дорогой пшеничной муки.
+
+# Object #2004
+4:
+  names:
+    aliases: небольшая краюха краюшка ржаного хлеба
+    nominative: краюха ржаного хлеба
+    genitive: краюхи ржаного хлеба
+    dative: краюхе ржаного хлеба
+    accusative: краюху ржаного хлеба
+    instrumental: краюхой ржаного хлеба
+    prepositional: краюхе ржаного хлеба
+  short_desc: Небольшая краюшка ржаного хлеба лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 900
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: ломоть хлеб
+      description: |2
+        Вы видите небольшой кусок черного хлебушка.
+        Вряд ли им можно наесться, но вприкуску с
+        мясом будет очень даже ничего.
+
+# Object #2005
+5:
+  names:
+    aliases: ржаной каравай
+    nominative: ржаной каравай
+    genitive: ржаного каравая
+    dative: ржаному караваю
+    accusative: ржаной каравай
+    instrumental: ржаным караваем
+    prepositional: ржаном каравае
+  short_desc: Каравай черного хлеба лежит здесь... Непотребство!
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 4
+  rent_on: 1
+  max_durability: 20
+  cur_durability: 20
+  timer: 900
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: каравай хлеб
+      description: |2
+        Вы видите мягкий свежий каравай из ржаной муки.
+        Боярин может и побрезговал бы, а путнику в дорогу сойдет.
+
+# Object #2006
+6:
+  names:
+    aliases: сладкая сдобная булочка
+    nominative: сладкая сдобная булочка
+    genitive: сладкой сдобной булочки
+    dative: сладкой сдобной булочке
+    accusative: сладкую сдобную булочку
+    instrumental: сладкой сдобной булочкой
+    prepositional: сладкой сдобной булочке
+  short_desc: Сдобная булочка с медовой корочкой лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 900
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+
+# Object #2007
+7:
+  names:
+    aliases: калач
+    nominative: калач
+    genitive: калача
+    dative: калачу
+    accusative: калач
+    instrumental: калачом
+    prepositional: калаче
+  short_desc: Свежий калач брошен прямо под ноги.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 8
+  rent_off: 1
+  rent_on: 1
+  max_durability: 15
+  cur_durability: 15
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: калач
+      description: |2
+        Пышный калач из дорогой пшеничной муки.
+        Самое то к киселю, али сладкой медовухе
+        или чаю на лесных травах.
+
+# Object #2008
+8:
+  names:
+    aliases: связка баранок
+    nominative: связка баранок
+    genitive: связки баранок
+    dative: связке баранок
+    accusative: связку баранок
+    instrumental: связкой баранок
+    prepositional: связке баранок
+  short_desc: Связка баранок на конопляной веревке лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 8
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: связка баранок
+      description: |2
+        Щедрая связка баранок нанизана на конопляную веревочку.
+        Румяные бока так и просят запустить зубы и запить добрым
+        глотком травяного настоя или меда.
+
+# Object #2009
+9:
+  names:
+    aliases: бублик маком
+    nominative: бублик с маком
+    genitive: бублика с маком
+    dative: бублику с маком
+    accusative: бублик с маком
+    instrumental: бубликом с маком
+    prepositional: бублике с маком
+  short_desc: Осыпанный маком бублик валяется тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 2
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 25920
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: бублик маком
+      description: |2
+        Мягкий бублик с жменей маковых зерен пахнет свежим хлебом.
+
+# Object #2010
+10:
+  names:
+    aliases: пышные оладьи миска
+    nominative: пышные оладьи
+    genitive: пышных оладьев
+    dative: пышным оладьям
+    accusative: пышные оладьи
+    instrumental: пышными оладьями
+    prepositional: пышных оладьях
+  short_desc: Миска с горкой пышных пшеничных оладий стоит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пышные оладьи миска
+      description: |2
+        Солидная миска с щедрой горкой оладий,
+        замешаных на пшеничной муке и политых
+        топленым маслом.
+
+# Object #2011
+11:
+  names:
+    aliases: ватрушка творогом
+    nominative: ватрушка с творогом
+    genitive: ватрушки с творогом
+    dative: ватрушке с творогом
+    accusative: ватрушку с творогом
+    instrumental: ватрушкой с творогом
+    prepositional: ватрушке с творогом
+  short_desc: Небольшая краюшка пшеничного хлеба лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+
+# Object #2012
+12:
+  names:
+    aliases: ватрушка вареньем
+    nominative: ватрушка с вареньем
+    genitive: ватрушки с вареньем
+    dative: ватрушке с вареньем
+    accusative: ватрушку с вареньем
+    instrumental: ватрушкой с вареньем
+    prepositional: ватрушке с вареньем
+  short_desc: Ватрушка с брусничным вареньем валяется тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 11
+  rent_off: 2
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+
+# Object #2013
+13:
+  names:
+    aliases: медовый пряник
+    nominative: медовый пряник
+    genitive: медового пряника
+    dative: медовому прянику
+    accusative: медовый пряник
+    instrumental: медовым пряником
+    prepositional: медовом прянике
+  short_desc: Небольшой пряник испускает медовый аромат.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 2
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2014
+14:
+  names:
+    aliases: тульский пряник
+    nominative: тульский пряник
+    genitive: тульского пряника
+    dative: тульскому прянику
+    accusative: тульский рпряник
+    instrumental: тульским пряником
+    prepositional: тульском прянике
+  short_desc: Тульский длинный пряник с лепным узором лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 9
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 2
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kNeutral
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: 1
+      description: |+2
+        
+
+# Object #2015
+15:
+  names:
+    aliases: леденец виде жар птицы палочке
+    nominative: леденец в виде жар-птицы на палочке
+    genitive: леденца в виде жар-птицы на палочке
+    dative: леденцу в виде жар-птицы на палочке
+    accusative: леденец в виде жар-птицы на палочке
+    instrumental: леденцом в виде жар-птицы на палочке
+    prepositional: леденце в виде жар-птицы на палочке
+  short_desc: Леденец на палочке в виде жар-птицы с раскинутыми крыльями лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 9
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 45
+  rent_off: 10
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: леденец виде жар птицы палочке
+      description: |2
+        Леденец в виде диковинной птицы с раскинутыми крыльями.
+        Так и хочется его лизнуть.
+  triggers:
+    - 2000  # Лизать леденец
+
+# Object #2016
+16:
+  names:
+    aliases: сырники яблоками
+    nominative: сырники с яблоками
+    genitive: сырников с яблоками
+    dative: сырникам с яблоками
+    accusative: сырники с яблоками
+    instrumental: сырниками с яблоками
+    prepositional: сырниках с яблоками
+  short_desc: Миска с горкой сырников стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 9
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 2
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: миска сырники яблоками
+      description: |2
+        Глубокая миска с толстенькими сырниками,
+        пахнущими печеным яблоком.
+
+# Object #2017
+17:
+  names:
+    aliases: шаньга сметаной твердая лепешка
+    nominative: шаньга со сметаной
+    genitive: шаньги со сметаной
+    dative: шаньге со сметаной
+    accusative: шаньгу со сметаной
+    instrumental: шаньгой со сметаной
+    prepositional: шаньге со сметаной
+  short_desc: Твердая лепешка, намазанная сметаной, лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 25
+  rent_off: 2
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шаньга сметаной твердая лепешка
+      description: |2
+        Небольшая твердая лепешка, щедро
+        намазанная сметаной пополам с творогом.
+
+# Object #2018
+18:
+  names:
+    aliases: шанежка грибами луком
+    nominative: шанежка с грибами и луком
+    genitive: шанежки с грибами и луком
+    dative: шанежке с грибами и луком
+    accusative: шанежку с грибами и луком
+    instrumental: шанежкой с грибами и луком
+    prepositional: шанежке с грибами и луком
+  short_desc: Аппетитная шанежка выпала тут из руки какого-то распустехи.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 9
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 2
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+
+# Object #2019
+19:
+  names:
+    aliases: пирог вязигой
+    nominative: пирог с вязигой
+    genitive: пирога с вязигой
+    dative: пирогу с вязигой
+    accusative: пирог с вязигой
+    instrumental: пирогом с вязигой
+    prepositional: пироге с вязигой
+  short_desc: Румяный пирог с рыбной начинкой лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 24
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 55
+  rent_off: 10
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2020
+20:
+  names:
+    aliases: пирожки лесными ягодами
+    nominative: пирожки с лесными ягодами
+    genitive: пирожков с лесными ягодами
+    dative: пирожкам с лесными ягодами
+    accusative: пирожки с лесными ягодами
+    instrumental: пирожками с лесными ягодами
+    prepositional: пирожках с лесными ягодами
+  short_desc: Горка сладко пахнущих пирожков лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пирожки
+      description: |2
+        Несколько аппетитно пахнущих румяных пирожков
+        так и просятся к вам на зубок.
+
+# Object #2021
+21:
+  names:
+    aliases: пирожки капустой
+    nominative: пирожки с капустой
+    genitive: пирожков с капустой
+    dative: пирожкам с капустой
+    accusative: пирожки с капустой
+    instrumental: пирожками с капустой
+    prepositional: пирожках с капустой
+  short_desc: Горка вкусно пахнущих пирожков лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пирожки
+      description: |2
+        Несколько аппетитно пахнущих румяных пирожков
+        так и просятся к вам на зубок.
+
+# Object #2022
+22:
+  names:
+    aliases: пирожки рыбой
+    nominative: пирожки с рыбой
+    genitive: пирожков с рыбой
+    dative: пирожкам с рыбой
+    accusative: пирожки с рыбой
+    instrumental: пирожками с рыбой
+    prepositional: пирожках с рыбой
+  short_desc: Горка вкусно пахнущих пирожков лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пирожки
+      description: |2
+        Несколько аппетитно пахнущих румяных пирожков
+        так и просятся к вам на зубок.
+
+# Object #2023
+23:
+  names:
+    aliases: пирожки мясом луком
+    nominative: пирожки с мясом и луком
+    genitive: пирожков с мясом и луком
+    dative: пирожкам с мясом и луком
+    accusative: пирожки с мясом и луком
+    instrumental: пирожками с мясом и луком
+    prepositional: пирожках с мясом и луком
+  short_desc: Горка вкусно пахнущих пирожков лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пирожки
+      description: |2
+        Несколько аппетитно пахнущих румяных пирожков
+        так и просятся к вам на зубок.
+
+# Object #2024
+24:
+  names:
+    aliases: пирожки брусникой
+    nominative: пирожки с брусникой
+    genitive: пирожков с брусникой
+    dative: пирожкам с брусникой
+    accusative: пирожки с брусникой
+    instrumental: пирожками с брусникой
+    prepositional: пирожках с брусникой
+  short_desc: Горка сладко пахнущих пирожков лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пирожки
+      description: |2
+        Несколько аппетитно пахнущих румяных пирожков
+        так и просятся к вам на зубок.
+
+# Object #2025
+25:
+  names:
+    aliases: калитки малиной пирожки
+    nominative: калитки с малиной
+    genitive: калиткок с малиной
+    dative: калиткам с малиной
+    accusative: калитки с малиной
+    instrumental: калитками с малиной
+    prepositional: калитках с малиной
+  short_desc: Несколько маленьких пирожков валяется здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: калитки малиной пирожки
+      description: |2
+        Несколько небольших румяных пирожков, открытых сверху,
+        и плотно набитых начинкой из лесной малины.
+
+# Object #2026
+26:
+  names:
+    aliases: блины сметаной
+    nominative: блины со сметаной
+    genitive: блинов со сметаной
+    dative: блинам со сметаной
+    accusative: блины со сметаной
+    instrumental: блинами со сметаной
+    prepositional: блинах со сметаной
+  short_desc: Горшочек блинов со сметаной стоит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #2027
+27:
+  names:
+    aliases: блины рубленым мясом горшочек
+    nominative: блины с рубленым мясом
+    genitive: блинов с рубленым мясом
+    dative: блинам с рубленым мясом
+    accusative: блины с рубленым мясом
+    instrumental: блинами с рубленым мясом
+    prepositional: блинах с рубленым мясом
+  short_desc: Горшочек блинов с начинкой источает упоительный аромат жареного мяса.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 9
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #2028
+28:
+  names:
+    aliases: налистники ежевикой
+    nominative: налистники с ежевикой
+    genitive: налистников с ежевикой
+    dative: налистникам с ежевикой
+    accusative: налистники с ежевикой
+    instrumental: налистниками с ежевикой
+    prepositional: налистниках с ежевикой
+  short_desc: Горшочек блинов с начинкой умопомрачительно пахнет лесными ягодами.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #2029
+29:
+  names:
+    aliases: налистники грибами
+    nominative: налистники с грибами
+    genitive: налистников с грибами
+    dative: налистникам с грибами
+    accusative: налистники с грибами
+    instrumental: налистниками с грибами
+    prepositional: налистниках с грибами
+  short_desc: Горшочек блинов с начинкой приятно пахнет жареными грибами.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #2030
+30:
+  names:
+    aliases: крынка сметаны
+    nominative: крынка сметаны
+    genitive: крынки сметаны
+    dative: крынке сметаны
+    accusative: крынку сметаны
+    instrumental: крынкой сметаны
+    prepositional: крынке сметаны
+  short_desc: Завязанная чистой тряпицей крынка стоит здесь.
+  type: kFood
+  material: 10  # КЕРАМИКА
+  values:
+    - 20
+    - 0
+    - 10
+    - 0
+  weight: 17
+  cost: 30
+  rent_off: 10
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: крынка
+      description: |2
+        Небольшой кувшин с широким горлом для хранения съестного.
+        Он доверху наполнен плотной - ложка стоит - сметаной.
+
+# Object #2031
+31:
+  names:
+    aliases: кусок мясо жареный
+    nominative: кусок жареного мяса
+    genitive: куска жареного мяса
+    dative: куску жареного мяса
+    accusative: кусок жареного мяса
+    instrumental: куском жареного мяса
+    prepositional: куске жареного мяса
+  short_desc: Хорошо прожаренный кусок мяса лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кусок мясо жареный
+      description: |2
+        Вы видите ароматный, благоухающий кусок сочного мяса,
+        слегка посоленного и готового к употреблению.
+
+# Object #2032
+32:
+  names:
+    aliases: ломоть вареного мяса
+    nominative: ломоть вареного мяса
+    genitive: ломтя вареного мяса
+    dative: ломтю вареного мяса
+    accusative: ломоть вареного мяса
+    instrumental: ломтем вареного мяса
+    prepositional: ломте вареного мяса
+  short_desc: Ломоть вареного мяса валяется тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: ломоть вареного мяса
+      description: |2
+        Вы видите ароматный, благоухающий кусок сочного мяса,
+        слегка посоленного и готового к употреблению.
+
+# Object #2033
+33:
+  names:
+    aliases: вяленое мясо
+    nominative: вяленое мясо
+    genitive: вяленого мяса
+    dative: вяленому мясу
+    accusative: вяленое мясо
+    instrumental: вяленым мясом
+    prepositional: вяленом мясе
+  short_desc: Большой кусок вяленого мяса лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 2
+  rent_on: 2
+  max_durability: 25
+  cur_durability: 25
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 1
+  sex: kNeutral
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: вяленое мясо
+      description: |2
+        Вы видите кусок вяленого мяса, которое может
+        долго храниться и не потеряет своих
+        вкусовых качеств.
+
+# Object #2034
+34:
+  names:
+    aliases: полоска сушеного мяса мясо
+    nominative: полоска сушеного мяса
+    genitive: полоски сушеного мяса
+    dative: полоске сушеного мяса
+    accusative: полоску сушеного мяса
+    instrumental: полоской сушеного мяса
+    prepositional: полоске сушеного мяса
+  short_desc: Полоска сушеного по-походному мяса лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: полоска сушеного мяса
+      description: |2
+        Полоска жесткого как подметка мяса, просоленного и высушенного.
+        Не размочив и не съешь, пожалуй, но зато и не испортится в походе.
+
+# Object #2035
+35:
+  names:
+    aliases: копченый свиной окорок мясо
+    nominative: копченый свиной окорок
+    genitive: копченого свиного окорока
+    dative: копченому свиному окороку
+    accusative: копченый свиной окорок
+    instrumental: копченым свиным окороком
+    prepositional: копченом свином окороке
+  short_desc: 150 Грам нежирного свиного окорока неаккуратно лежат на полу.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 24
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 15
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 28800
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: окорок
+      description: |2
+        Нежный, нежирный окорок, чуть надрезанный острым ножом.
+
+# Object #2036
+36:
+  names:
+    aliases: вяленый лещ рыбина
+    nominative: вяленый лещ
+    genitive: вяленого леща
+    dative: вяленому лещу
+    accusative: вяленого леща
+    instrumental: вяленым лещем
+    prepositional: вяленом леще
+  short_desc: Вяленая рыбина лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 1
+  rent_on: 2
+  max_durability: 10
+  cur_durability: 10
+  timer: 14400
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2037
+37:
+  names:
+    aliases: копченый судак
+    nominative: копченый судак
+    genitive: копченого судака
+    dative: копченому судаку
+    accusative: копченого судака
+    instrumental: копченым судаком
+    prepositional: копченом судаке
+  short_desc: Здоровенный копченый судак лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 24
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 150
+  rent_off: 15
+  rent_on: 2
+  max_durability: 25
+  cur_durability: 25
+  timer: 14400
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2038
+38:
+  names:
+    aliases: сушеный елец рыбешка
+    nominative: сушеный елец
+    genitive: сушеного ельца
+    dative: сушеному ельцу
+    accusative: сушеного ельца
+    instrumental: сушеным ельцом
+    prepositional: сушеном ельце
+  short_desc: Мелкая сушеная рыбешка лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 2
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 14400
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2039
+39:
+  names:
+    aliases: жареный сазан рыбина
+    nominative: жареный сазан
+    genitive: жареного сазана
+    dative: жареному сазану
+    accusative: жареного сазана
+    instrumental: жареным сазаном
+    prepositional: жареном сазане
+  short_desc: Аппетитная жареная рыбина лежит злесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 16
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 50
+  rent_off: 5
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2040
+40:
+  names:
+    aliases: горсточка каленых лесных орехов
+    nominative: горсточка каленых лесных орехов
+    genitive: горсточки каленых лесных орехов
+    dative: горсточке каленых лесных орехов
+    accusative: горсточку каленых лесных орехов
+    instrumental: горсточкой каленых лесных орехов
+    prepositional: горсточке каленых лесных орехов
+  short_desc: Горсточка каленых лесных орехов рассыпана здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горсточка каленых лесных орехов
+      description: |2
+        Пригоршня лесных орехов, прокаленных в печи.
+
+# Object #2041
+41:
+  names:
+    aliases: пригоршня брусники
+    nominative: пригоршня брусники
+    genitive: пригоршни брусники
+    dative: пригоршне брусники
+    accusative: пригоршню брусники
+    instrumental: пригоршней брусники
+    prepositional: пригоршне брусники
+  short_desc: Горсть красных ягод рассыпана здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пригоршня брусники
+      description: |2
+        Горсть красных округлых ягод.
+
+# Object #2042
+42:
+  names:
+    aliases: горсть земляники
+    nominative: горсть земляники
+    genitive: горсти земляники
+    dative: горсти земляники
+    accusative: горсть земляники
+    instrumental: горстью земляники
+    prepositional: горсти земляники
+  short_desc: Пригоршня лесной земляники рассыпана распустехой.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горсть земляники
+      description: |2
+        Горсть красных зернистых ягод сладко пахнет и просится в рот.
+
+# Object #2043
+43:
+  names:
+    aliases: горсточка малины
+    nominative: горсточка малины
+    genitive: горсточки малины
+    dative: горсточке малины
+    accusative: горсточку малины
+    instrumental: горсточкой малины
+    prepositional: горсточке малины
+  short_desc: Горсть малины просыпана тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горсть малины
+      description: |2
+        Пригоршня нежных красных ягод.
+
+# Object #2044
+44:
+  names:
+    aliases: горсточка ежевики
+    nominative: горсточка ежевики
+    genitive: горсточки ежевики
+    dative: горсточке ежевики
+    accusative: горсточку ежевики
+    instrumental: горсточкой ежевики
+    prepositional: горсточке ежевики
+  short_desc: Пригоршня ежевики рассыпана здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горсточка ежевики
+      description: |2
+        Пригоршня иссиня-черных ягод.
+
+# Object #2045
+45:
+  names:
+    aliases: пригоршня вишни
+    nominative: пригоршня вишни
+    genitive: пригоршни вишни
+    dative: пригоршне вишни
+    accusative: пригоршню вишни
+    instrumental: пригоршней вишни
+    prepositional: пригоршне вишни
+  short_desc: Горсть спелой вишни рассыпана тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 14
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пригоршня вишни
+      description: |2
+        Горсть сочных красных ягод, мечта любого деревенского озорняка.
+
+# Object #2046
+46:
+  names:
+    aliases: горсточка черники
+    nominative: горсточка черники
+    genitive: горсточки черники
+    dative: горсточке черники
+    accusative: горсточку черники
+    instrumental: горсточкой черники
+    prepositional: горсточке черники
+  short_desc: Пригоршня ежевики рассыпана здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 14
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горсточка черники
+      description: |2
+        Горсть нежных черных ягод с белесой поволокой.
+
+# Object #2047
+47:
+  names:
+    aliases: пригоршня смородины
+    nominative: пригоршня смородины
+    genitive: пригоршни смородины
+    dative: пригоршне смородины
+    accusative: пригоршню смородины
+    instrumental: пригоршней смородины
+    prepositional: пригоршне смородины
+  short_desc: Горсть смородины рассыпана тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пригоршня смородины
+      description: |2
+        Несколько гроздей крупных терпких ягод.
+
+# Object #2048
+48:
+  names:
+    aliases: горсть крыжовника
+    nominative: горсть крыжовника
+    genitive: горсти крыжовника
+    dative: горсти крыжовника
+    accusative: горсть крыжовника
+    instrumental: горстью крыжовника
+    prepositional: горсти крыжовника
+  short_desc: Горсть крыжовника просыпана тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горсть крыжовника
+      description: |2
+        Пригоршня полупрозрачных, словно медом напоенных
+        зеленоватых ягод с полосками на боках.
+
+# Object #2049
+49:
+  names:
+    aliases: луковица
+    nominative: луковица
+    genitive: луковицы
+    dative: луковице
+    accusative: луковицу
+    instrumental: луковицой
+    prepositional: луковице
+  short_desc: Сладкая луковица валяется тут..
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 9
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: луковица
+      description: |2
+        Ну что вы - лука не видели?
+        Луковица как луковица, с несколькими
+        зелеными перышками-проростками.
+
+# Object #2050
+50:
+  names:
+    aliases: морковка
+    nominative: морковка
+    genitive: морковки
+    dative: морковке
+    accusative: морковку
+    instrumental: морковкой
+    prepositional: морковке
+  short_desc: Морковка валяется тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 9
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: морковка
+      description: |2
+        Крепенькая морковка - почистить слегка и схрупать.
+
+# Object #2051
+51:
+  names:
+    aliases: горсть сладкого гороха
+    nominative: горсть сладкого гороха
+    genitive: горсти сладкого гороха
+    dative: горсти сладкого гороха
+    accusative: горсть сладкого гороха
+    instrumental: горстью сладкого гороха
+    prepositional: горсти сладкого гороха
+  short_desc: Пригоршня гороха рассыпана тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 9
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горсть сладкого гороха
+      description: |2
+        Горсть зеленого вкусного гороха.
+
+# Object #2052
+52:
+  names:
+    aliases: красное яблоко
+    nominative: красное яблоко
+    genitive: красного яблока
+    dative: красному яблоку
+    accusative: красное яблоко
+    instrumental: красным яблоком
+    prepositional: красном яблоке
+  short_desc: Румяное красное яблоко лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 6
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kNeutral
+  max_in_world: 200
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: красное яблоко
+      description: |2
+        Яблоко в добрый кулак размером.
+
+# Object #2053
+53:
+  names:
+    aliases: сочная груша
+    nominative: сочная груша
+    genitive: сочной груши
+    dative: сочной груше
+    accusative: сочную грушу
+    instrumental: сочной грушой
+    prepositional: сочной груше
+  short_desc: Желтая сочная груша лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 7
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 960
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: сочная груша
+      description: |2
+        Нежная сочная груша просится скушать.
+
+# Object #2054
+54:
+  names:
+    aliases: полудюжина слив
+    nominative: полудюжина слив
+    genitive: полудюжины слив
+    dative: полудюжине слив
+    accusative: полудюжину слив
+    instrumental: полудюжиной слив
+    prepositional: полудюжине слив
+  short_desc: Несколько спелых слив валяется здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 960
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: полудюжина слив
+      description: |2
+        Пол-дюжины сладких спелых слив.
+
+# Object #2055
+55:
+  names:
+    aliases: соленые рыжики
+    nominative: соленые рыжики
+    genitive: соленых рыжиков
+    dative: соленым рыжикам
+    accusative: соленые рыжики
+    instrumental: солеными рыжиками
+    prepositional: соленых рыжиках
+  short_desc: Мисочка соленых рыжиков стоит прямо под ногами. Домового кормят, что ли?
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: соленые рыжики
+      description: |2
+        Небольшая миска соленых рыжиков. Закуска!
+
+# Object #2056
+56:
+  names:
+    aliases: маринованые грузди
+    nominative: маринованые грузди
+    genitive: маринованых груздей
+    dative: маринованым груздям
+    accusative: маринованые грузди
+    instrumental: мариноваными груздями
+    prepositional: маринованых груздях
+  short_desc: Миска маринованых груздей стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 1
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: маринованые грузди
+      description: |2
+        Большая миска маринованых груздей...
+        Где же вы видели подходящий штоф?
+
+# Object #2057
+57:
+  names:
+    aliases: связка сушеных белых грибов
+    nominative: связка сушеных белых грибов
+    genitive: связки сушеных белых грибов
+    dative: связке сушеных белых грибов
+    accusative: связку сушеных белых грибов
+    instrumental: связкой сушеных белых грибов
+    prepositional: связке сушеных белых грибов
+  short_desc: Связка сушеных белых грибов валяется тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 25
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: связка сушеных белых грибов
+      description: |2
+        Большая связка крупных белых грибов
+        искусно засушенных впрок.
+
+# Object #2058
+58:
+  names:
+    aliases: печеная репа
+    nominative: печеная репа
+    genitive: печеной репы
+    dative: печеной репе
+    accusative: печеную репу
+    instrumental: печеной репой
+    prepositional: печеной репе
+  short_desc: Печеная репа лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 5760
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: печеная репа
+      description: |2
+        Не очень изысканная, но сытная еда.
+
+# Object #2059
+59:
+  names:
+    aliases: пареная меду репа
+    nominative: пареная в меду репа
+    genitive: пареной в меду репы
+    dative: пареной в меду репе
+    accusative: пареную в меду репу
+    instrumental: пареной в меду репой
+    prepositional: пареной в меду репе
+  short_desc: Ломоть пареной репы валяется здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 14
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пареная меду репа
+      description: |2
+        Сладкий корень репы, запаренный с медом.
+
+# Object #2060
+60:
+  names:
+    aliases: моченые яблоки
+    nominative: моченые яблоки
+    genitive: моченых яблоков
+    dative: моченым яблокам
+    accusative: моченые яблоки
+    instrumental: мочеными яблоками
+    prepositional: моченых яблоках
+  short_desc: Бочонок с мочеными яблочками стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 9
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 14
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 5760
+  spell: 36  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: моченые яблоки
+      description: |2
+        Небольшой бочонок с замоченными в рассоле яблоками.
+
+# Object #2061
+61:
+  names:
+    aliases: запеканка тыквой тыквенная
+    nominative: запеканка с тыквой
+    genitive: запеканки с тыквой
+    dative: запеканке с тыквой
+    accusative: запеканку с тыквой
+    instrumental: запеканкой с тыквой
+    prepositional: запеканке с тыквой
+  short_desc: Горшок с тыквенной запеканкой стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 16
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 45
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 5760
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: запеканка тыквой
+      description: |2
+        Чуть подрумяненая запеканка с кусочками запареной тыквы.
+
+# Object #2062
+62:
+  names:
+    aliases: полбяная каша
+    nominative: полбяная каша
+    genitive: полбяной каши
+    dative: полбяной каше
+    accusative: полбяную кашу
+    instrumental: полбяной кашой
+    prepositional: полбяной каше
+  short_desc: Миска полбяной каши стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: полбяная каша
+      description: |2
+        Миска сдобреной маслом полбяной каши.
+
+# Object #2063
+63:
+  names:
+    aliases: пшеничная каша
+    nominative: пшеничная каша
+    genitive: пшеничной каши
+    dative: пшеничной каше
+    accusative: пшеничную кашу
+    instrumental: пшеничной кашой
+    prepositional: пшеничной каше
+  short_desc: Миска пшеничной каши стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пшеничной каша
+      description: |2
+        Миска сдобреной маслом и салом пшеничной каши.
+
+# Object #2064
+64:
+  names:
+    aliases: гороховая каша
+    nominative: гороховая каша
+    genitive: гороховой каши
+    dative: гороховой каше
+    accusative: гороховую кашу
+    instrumental: гороховой кашой
+    prepositional: гороховой каше
+  short_desc: Миска гороховой каши стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: гороховая каша
+      description: |2
+        Миска гороховой каши с грибами.
+
+# Object #2065
+65:
+  names:
+    aliases: ячневая каша
+    nominative: ячневая каша
+    genitive: ячневой каши
+    dative: ячневой каше
+    accusative: ячневую кашу
+    instrumental: ячневой кашой
+    prepositional: ячневой каше
+  short_desc: Миска ячневой каши стоит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 12
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: ячневая каша
+      description: |2
+        Миска сдобреной маслом каши из толченого ячменя.
+
+# Object #2066
+66:
+  names:
+    aliases: гречневая каша мясом
+    nominative: гречневая каша с мясом
+    genitive: гречневой каши с мясом
+    dative: гречневой каше с мясом
+    accusative: гречневую кашу с мясом
+    instrumental: гречневой кашей с мясом
+    prepositional: гречневой каше с мясом
+  short_desc: Котелок с гречневой кашей с мясом стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 36
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 150
+  rent_off: 15
+  rent_on: 15
+  max_durability: 15
+  cur_durability: 15
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: гречневая каша мясом
+      description: |2
+        Рассыпчатая греча, залитая аппетитным мясным соусом.
+
+# Object #2067
+67:
+  names:
+    aliases: кулеш покиевски
+    nominative: кулеш по-киевски
+    genitive: кулеша по-киевски
+    dative: кулешу по-киевски
+    accusative: кулеш по-киевски
+    instrumental: кулешом по-киевски
+    prepositional: кулеше по-киевски
+  short_desc: Небольшой котелок кулеша стоит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 18
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 75
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 5760
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кулеш по-киевски
+      description: |2
+        Котелок гречневой каши с мясом, обжареными грибами, луком и шкварками.
+
+# Object #2068
+68:
+  names:
+    aliases: зразы крупяные
+    nominative: зразы крупяные
+    genitive: зраз крупяных
+    dative: зразам крупяным
+    accusative: зразы крупяные
+    instrumental: зразами крупяными
+    prepositional: зразах крупяных
+  short_desc: Крупяные зразы лежат на тарелке.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 16
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 5760
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: зразы крупяные
+      description: |2
+        Зразы из гречневой крупы с творогом.
+
+# Object #2069
+69:
+  names:
+    aliases: тушеные грибы рыбой
+    nominative: тушеные грибы с рыбой
+    genitive: тушеных грибов с рыбой
+    dative: тушеным грибам с рыбой
+    accusative: тушеные грибы с рыбой
+    instrumental: тушеными грибами с рыбой
+    prepositional: тушеных грибах с рыбой
+  short_desc: Тушеные грибы с рыбой стоят здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 48
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 250
+  rent_off: 30
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: тушеные грибы рыбой
+      description: |2
+        Горшок с тушеными грибами. Сверху лежат несколько кусочков рыбы.
+
+# Object #2070
+70:
+  names:
+    aliases: караси сметане
+    nominative: караси в сметане
+    genitive: карасей в сметане
+    dative: карасям в сметане
+    accusative: караси в сметане
+    instrumental: карасями в сметане
+    prepositional: карасях в сметане
+  short_desc: Миска обжаренных в сметане карасей стоит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 16
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 40
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: караси сметане
+      description: |2
+        Большая плоская миска жирных крупных карасей, зажаренных в сметане.
+
+# Object #2071
+71:
+  names:
+    aliases: мясо с грибами в горшочке
+    nominative: мясо с грибами в горшочке
+    genitive: мяса с грибами в горшочке
+    dative: мясу с грибами в горшочке
+    accusative: мясо с грибами в горшочке
+    instrumental: мясом с грибами в горшочке
+    prepositional: мясе с грибами в горшочке
+  short_desc: Горшочек мяса с грибами стоит здесь.
+  type: kFood
+  material: 10  # КЕРАМИКА
+  values:
+    - 36
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 155
+  rent_off: 20
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: undefined
+      description: |2
+        Небольшой горшочек томленого в протопленой печи мяса с грибами. ___&GДревнее
+
+# Object #2072
+72:
+  names:
+    aliases: печеная дичина грибами
+    nominative: печеная дичина со смородиной
+    genitive: печеной дичины со смородиной
+    dative: печеной дичине со смородиной
+    accusative: печеную дичину со смородиной
+    instrumental: печеной дичиной со смородиной
+    prepositional: печеной дичине со смородиной
+  short_desc: Покрытый румяной поджаристой корочкой кусок дичины лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 24
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 20
+  rent_on: 2
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: печеная дичина смородиной
+      description: |2
+        Кусок запеченой со смородиной сочной дичины.
+
+# Object #2073
+73:
+  names:
+    aliases: вертел перепелами
+    nominative: вертел с перепелами
+    genitive: вертела с перепелами
+    dative: вертелу с перепелами
+    accusative: вертел с перепелами
+    instrumental: вертелом с перепелами
+    prepositional: вертеле с перепелами
+  short_desc: Вертел с целой стайкой жареных перепелов лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 18
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 70
+  rent_off: 10
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: вертел перепелами
+      description: |2
+        Длинный вертел с целой стайкой зажареных перепелов.
+
+# Object #2074
+74:
+  names:
+    aliases: икра черная
+    nominative: икра черная
+    genitive: икры черной
+    dative: икре черной
+    accusative: икру черную
+    instrumental: икре черной
+    prepositional: икрой черной
+  short_desc: Миска черной зернистой икры стоит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 500
+  rent_off: 80
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 960
+  spell: 36  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: икра черная
+      description: |2
+        Миска полная черной икры.
+
+# Object #2075
+75:
+  names:
+    aliases: печеная рулька медовой корочке
+    nominative: печеная рулька в медовой корочке
+    genitive: печеной рульки в медовой корочке
+    dative: печеной рульке в медовой корочке
+    accusative: печеную рульку в медовой корочке
+    instrumental: печеной рулькой в медовой корочке
+    prepositional: печеной рульке в медовой корочке
+  short_desc: Свиная рулька, запеченая в меду и пряных травах, лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 18
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 180
+  rent_off: 30
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 5760
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: печеная рулька медовой корочке
+      description: |2
+        Обмазанное медом с пряностями и запеченое до
+        хрустящей корочки свиное колено.
+
+# Object #2076
+76:
+  names:
+    aliases: печено вепрево колено свиная нога
+    nominative: печено вепрево колено
+    genitive: печена вепрева колена
+    dative: печену вепреву колену
+    accusative: печено вепрево колено
+    instrumental: печеном вепревом коленом
+    prepositional: печене вепреве колене
+  short_desc: Запеченая свиная нога с чесноком и зеленью лежит тут на доске.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 48
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 350
+  rent_off: 50
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: печено вепрево колено свиная нога
+      description: |2
+        Здоровенная свиная нога, запеченая с пряными травами и чесноком,
+        выложена на изрезанной ножом доске с зеленью и прочей закуской.
+
+# Object #2077
+77:
+  names:
+    aliases: жареный кабанчик яблоками
+    nominative: жареный кабанчик с яблоками
+    genitive: жареного кабанчика с яблоками
+    dative: жареному кабанчику с яблоками
+    accusative: жареный кабанчик с яблоками
+    instrumental: жареным кабанчиком с яблоками
+    prepositional: жареном кабанчике с яблоками
+  short_desc: Блюдо с цельным жареным кабанчиком лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 48
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 300
+  rent_off: 50
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: печеный кабанчик яблоками
+      description: |2
+        Зажареный целиком кабанчик с яблоками во рту
+        покрыт золотистой корочкой и умопомрачительно пахнет.
+
+# Object #2078
+78:
+  names:
+    aliases: гусь травами на вертеле
+    nominative: гусь с травами на вертеле
+    genitive: гуся с травами на вертеле
+    dative: гусю с травами на вертеле
+    accusative: гусь с травами на вертеле
+    instrumental: гусем с травами на вертеле
+    prepositional: гусе с травами на вертеле
+  short_desc: Цельный гусь на вертеле лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 40
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 250
+  rent_off: 45
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: гусь травами вертеле
+      description: |2
+        Цельный гусь набитый ароматными травами
+        и зажаренный на вертеле над углями.
+
+# Object #2079
+79:
+  names:
+    aliases: стерляжья уха
+    nominative: стерляжья уха
+    genitive: стерляжьи ухи
+    dative: стерляжье ухе
+    accusative: стерляжью уху
+    instrumental: стерляжьёй ухой
+    prepositional: стерляжье ухе
+  short_desc: Миска стерляжьей ухи стоит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 16
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 60
+  rent_off: 15
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: стерляжья уха
+      description: |2
+        Большая миска стерляжьей ухи с щедрым кусом рыбины.
+
+# Object #2080
+80:
+  names:
+    aliases: запеченый черникой сом
+    nominative: запеченый с черникой сом
+    genitive: запеченого с черникого сом
+    dative: запеченому с черникому сом
+    accusative: запеченый с черникой сом
+    instrumental: запеченым с черникым сом
+    prepositional: запеченом с черником сом
+  short_desc: Здоровенный сом на узорном блюде лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 24
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 20
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: запеченый черникой сом
+      description: |2
+        Набитая лесной ягодой и запеченая целиком огромная рыбина на блюде.
+
+# Object #2081
+81:
+  names:
+    aliases: печеный осетр грибами
+    nominative: печеный осетр с грибами
+    genitive: печеного осетра с грибами
+    dative: печеному осетру с грибами
+    accusative: печеного осетра с грибами
+    instrumental: печеным осетром с грибами
+    prepositional: печеном осетре с грибами
+  short_desc: Блюдо с огромным запеченым осетром лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 48
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 450
+  rent_off: 50
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: печеный осетр грибами
+      description: |2
+        Огромная рыбина нафарширована грибами
+        и запечена целиком, в обмазке из сметаны.
+
+# Object #2082
+82:
+  names:
+    aliases: жареный журавль пряностями
+    nominative: жареный журавль с пряностями
+    genitive: жареного журавля с пряностями
+    dative: жареному журавлю с пряностями
+    accusative: жареного журавля с пряностями
+    instrumental: жареным журавлем с пряностями
+    prepositional: жареном журавле с пряностями
+  short_desc: Жареный целиком с заморскими травами журавль красиво изогнул шею, возлежа на блюде.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 48
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 350
+  rent_off: 50
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 7200
+  spell: 36  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: жареный журавль пряностями
+      description: |2
+        Цельный журавль запечен с травами заморскими,
+        обложен яблоками, грушами и ягодами всех сортов.
+        Блюдо разве для бояр, али самого князя.
+
+# Object #2083
+83:
+  names:
+    aliases: крынка
+    nominative: крынка
+    genitive: крынки
+    dative: крынке
+    accusative: крынку
+    instrumental: крынкой
+    prepositional: крынке
+  short_desc: Завязанная чистой тряпицей крынка стоит здесь.
+  type: kLiquidContainer
+  material: 10  # КЕРАМИКА
+  values:
+    - 25
+    - 25
+    - 10
+    - 0
+  weight: 53
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: крынка
+      description: |2
+        Небольшой кувшин с широким горлом для хранения съестного.
+
+# Object #2084
+84:
+  names:
+    aliases: бутыль
+    nominative: бутыль
+    genitive: бутыли
+    dative: бутыли
+    accusative: бутыль
+    instrumental: бутылью
+    prepositional: бутыли
+  short_desc: Бутыль темного стекла перекатывается под ногами.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 12
+    - 2
+    - 0
+  weight: 30
+  cost: 20
+  rent_off: 3
+  rent_on: 3
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: штоф
+      description: |2
+        Вы видите большой кувшин для хранения жидкостей.
+
+# Object #2085
+85:
+  names:
+    aliases: бочонок
+    nominative: бочонок
+    genitive: бочонка
+    dative: бочонку
+    accusative: бочонок
+    instrumental: бочонком
+    prepositional: бочонке
+  short_desc: Пахнущий квасом бочонок лежит здесь.
+  type: kLiquidContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 100
+    - 100
+    - 4
+    - 0
+  weight: 105
+  cost: 60
+  rent_off: 5
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2086
+86:
+  names:
+    aliases: кувшин
+    nominative: кувшин
+    genitive: кувшина
+    dative: кувшину
+    accusative: кувшин
+    instrumental: кувшином
+    prepositional: кувшине
+  short_desc: Кувшин с высоким горлышком стоит здесь.
+  type: kLiquidContainer
+  material: 10  # КЕРАМИКА
+  values:
+    - 24
+    - 24
+    - 9
+    - 0
+  weight: 29
+  cost: 25
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2087
+87:
+  names:
+    aliases: кувшин
+    nominative: кувшин
+    genitive: кувшина
+    dative: кувшину
+    accusative: кувшин
+    instrumental: кувшином
+    prepositional: кувшине
+  short_desc: Кувшин с высоким горлышком стоит здесь.
+  type: kLiquidContainer
+  material: 10  # КЕРАМИКА
+  values:
+    - 24
+    - 24
+    - 1
+    - 0
+  weight: 29
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2088
+88:
+  names:
+    aliases: кувшин
+    nominative: кувшин
+    genitive: кувшина
+    dative: кувшину
+    accusative: кувшин
+    instrumental: кувшином
+    prepositional: кувшине
+  short_desc: Кувшин с высоким горлышком стоит здесь.
+  type: kLiquidContainer
+  material: 10  # КЕРАМИКА
+  values:
+    - 24
+    - 24
+    - 6
+    - 0
+  weight: 29
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #2089
+89:
+  names:
+    aliases: фляга
+    nominative: фляга
+    genitive: фляги
+    dative: фляге
+    accusative: флягу
+    instrumental: флягой
+    prepositional: фляге
+  short_desc: Кожаная фляга лежит тут.
+  type: kLiquidContainer
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 12
+    - 12
+    - 3
+    - 0
+  weight: 17
+  cost: 10
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+
+# Object #2090
+90:
+  names:
+    aliases: чекушка
+    nominative: чекушка
+    genitive: чекушки
+    dative: чекушке
+    accusative: чекушку
+    instrumental: чекушкой
+    prepositional: чекушке
+  short_desc: Чекушка водки валяется на земле.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 6
+    - 6
+    - 7
+    - 0
+  weight: 7
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: чекушка
+      description: |2
+        Это всего лишь чекушка...
+        А так хотелось бы побольше...
+
+# Object #2091
+91:
+  names:
+    aliases: штоф
+    nominative: штоф
+    genitive: штофа
+    dative: штофу
+    accusative: штоф
+    instrumental: штофом
+    prepositional: штофе
+  short_desc: 'Штоф самогона (скорее всего пустой :) лежит тут.'
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 36
+    - 36
+    - 7
+    - 0
+  weight: 41
+  cost: 20
+  rent_off: 3
+  rent_on: 3
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: штоф самогон
+      description: |2
+        Вы видите большую зеленоватую бутылку четырехгранной формы с коротким горлышком.
+        Дабы не расплескать ценную влагу, горлышко закрывается деревянной пробкой.
+
+# Object #2092
+92:
+  names:
+    aliases: четверть самогон
+    nominative: четверть
+    genitive: четверти
+    dative: четверти
+    accusative: четверть
+    instrumental: четвертью
+    prepositional: четверти
+  short_desc: 'Четверть самогона (скорее всего пустая :) лежит тут.'
+  type: kLiquidContainer
+  material: 8  # ДЕРЕВО
+  values:
+    - 72
+    - 72
+    - 7
+    - 0
+  weight: 77
+  cost: 80
+  rent_off: 10
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: четверть самогон
+      description: |2
+        Вы видите внушительную ёмкость для хранения жидкостей.
+
+# Object #2093
+93:
+  names:
+    aliases: ведерко
+    nominative: ведерко
+    genitive: ведерка
+    dative: ведерку
+    accusative: ведерко
+    instrumental: ведерком
+    prepositional: ведерке
+  short_desc: Маленькое замызганное ведерко лежит у вас под ногами.
+  type: kLiquidContainer
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 144
+    - 144
+    - 5
+    - 0
+  weight: 149
+  cost: 150
+  rent_off: 15
+  rent_on: 15
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: ведерко
+      description: |2
+        Небольшое ведерко с тоненькой ручкой и помятыми краями.
+
+# Object #2094
+94:
+  names:
+    aliases: чарка
+    nominative: чарка
+    genitive: чарки
+    dative: чарке
+    accusative: чарку
+    instrumental: чаркой
+    prepositional: чарке
+  short_desc: Украшенная чеканкой чарка лежит здесь.
+  type: kLiquidContainer
+  material: 2  # БРОНЗА
+  values:
+    - 3
+    - 3
+    - 7
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: чарка
+      description: |2
+        Небольшой черненый бронзовый сосуд для крепких напитков,
+        как раз удобен, что бы сообразить на троих.
+
+# Object #2095
+95:
+  names:
+    aliases: вареные раки
+    nominative: вареные раки
+    genitive: вареных раков
+    dative: вареным ракам
+    accusative: вареных раков
+    instrumental: вареными раками
+    prepositional: вареных раках
+  short_desc: Горка красных вареных раков исходит паром в миске.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 8
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: вареные раки
+      description: |2
+        Горка вареных раков исходит аппетитным запахом.
+
+# Object #2099
+99:
+  names:
+    aliases: палочка леденца
+    nominative: палочка от леденца
+    genitive: палочки от леденца
+    dative: палочке от леденца
+    accusative: палочку от леденца
+    instrumental: палочкой от леденца
+    prepositional: палочке от леденца
+  short_desc: Тщательно облизанная палочка от леденца лежит тут.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 5
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: палочка леденца
+      description: |2
+        Гладкая, тщательно вылизанная палочка, до половины
+        выкрашенная леденцом в золотистый цвет.

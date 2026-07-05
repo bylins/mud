@@ -1,0 +1,13 @@
+# Zone #6
+
+vnum: 6
+name: Системная зона 6 -- аренные руны (!OLC)
+top_room: 699
+lifespan: 30
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 699
+under_construction: 0
+zone_group: 1  # solo

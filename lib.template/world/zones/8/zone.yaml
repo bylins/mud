@@ -1,0 +1,13 @@
+# Zone #8
+
+vnum: 8
+name: Системная зона 8 -- стандартные зелья и прототипы для варки (!OLC)
+top_room: 899
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 899
+under_construction: 0
+zone_group: 1  # solo

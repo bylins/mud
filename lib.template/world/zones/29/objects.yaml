@@ -1,0 +1,402 @@
+# Objects for zone 29
+
+# Object #2900
+0:
+  names:
+    aliases: толстая книга записки ходока три моря
+    nominative: записки ходока за три моря
+    genitive: записок ходока за три моря
+    dative: запискам ходока за три моря
+    accusative: записки ходока за три моря
+    instrumental: записками ходока за три моря
+    prepositional: записках ходока за три моря
+  short_desc: Толстая книга с медными застежками лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 152
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: толстая книга записки ходока три моря
+      description: |2
+        Это толстая, основательно зачитанная книга в добротном
+        переплете из обтянутых кожей досок, снабженная увесистыми
+        медными застежками.
+
+# Object #2901
+1:
+  names:
+    aliases: пергаментный свиток наставление метании ножей
+    nominative: наставление о метании ножей
+    genitive: наставления о метании ножей
+    dative: наставлению о метании ножей
+    accusative: наставление о метании ножей
+    instrumental: наставлением о метании ножей
+    prepositional: наставлении о метании ножей
+  short_desc: Перетянутый красной тесьмой пергаментный свиток лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 149
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пергаментный свиток наставление метании ножей
+      description: |2
+        Это свиток дешевого пергамента толщиной в пару пальцев,
+        перевязаный потрёпанной красной тесьмой и изрядно обветшавший
+        по краям.
+
+# Object #2902
+2:
+  names:
+    aliases: книга смарагдовом переплете записки Дикероны
+    nominative: записки Дикероны
+    genitive: записок Дикероны
+    dative: запискам Дикероны
+    accusative: записки Дикероны
+    instrumental: записками Дикероны
+    prepositional: записках Дикероны
+  short_desc: Небольшая книга в потертом смарагдовом переплете лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 150
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: книга смарагдовом переплете записки Дикероны
+      description: |2
+        Средней толщины книга в потёртом переплете из бывшего когда-то
+        изумрудно-зеленым бархата. Это записки легендарного слепого
+        метателя ножей, не раз выступавшего на киевском и новгородском 
+        торгах.
+
+# Object #2903
+3:
+  names:
+    aliases: покрытая густой шерстью волохатая книга окованная чёрным металлом
+    nominative: волохатая книга, окованная чёрным металлом
+    genitive: волохатой книги, окованной чёрным металлом
+    dative: волохатой книге, окованной чёрным металлом
+    accusative: волохатую книгу, окованную чёрным металлом
+    instrumental: волохатой книгой, окованной чёрным металлом
+    prepositional: волохатой книге, окованной чёрным металлом
+  short_desc: Покрытая густой бурой шерстью книга, окованная по углам чёрным металлом, лежит тут
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 145
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: покрытая густой шерстью волохатая книга окованная чёрным металлом
+      description: |2
+        Это толстая, неприятно выглядящая книга, переплетенная в волосатую
+        шкуру и окованная уголками из маслянисто блестящего чёрного металла.
+        Шерсть непрестанно шевелится, а от самой книги ощутимо веет холодом.
+
+# Object #2904
+4:
+  names:
+    aliases: ветхий пергаментный свиток воспоминания примипила Тита Пулона
+    nominative: воспоминания примипила Тита Пулона
+    genitive: воспоминаний примипила Тита Пулона
+    dative: воспоминаниям примипила Тита Пулона
+    accusative: воспоминания примипила Тита Пулона
+    instrumental: воспоминаниями примипила Тита Пулона
+    prepositional: воспоминаниях примипила Тита Пулона
+  short_desc: Ветхий пергаментный свиток, обвязаный шнурком с орлиной печатью, лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 147
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 8
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: ветхий пергаментный свиток записки примипила Тита Пулона
+      description: |2
+        Это невероятно древний пергаментный свиток, едва не рассыпающийся
+        в руках. Судя по первым строкам - это записки легендарного примипила
+        Тита Пуллона.
+
+# Object #2905
+5:
+  names:
+    aliases: тяжелый увесистый трактат наставление метании палиц булав
+    nominative: наставление о метании палиц и булав
+    genitive: наставления о метании палиц и булав
+    dative: наставлению о метании палиц и булав
+    accusative: наставление о метании палиц и булав
+    instrumental: наставлением о метании палиц и булав
+    prepositional: наставлении о метании палиц и булав
+  short_desc: Тяжелыый, увесистый трактат в переплете из тиснёной кожи лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 148
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: тяжелый увесистый трактат наставление метании палиц булав
+      description: |2
+        Это толстая книга в переплете из тиснёноё кожи, написанная каким-то 
+        латинянином. В ней рассказывается о приемах метания палиц и булав,
+        первые строки гласят: "Вес - это хорошо. Вес - это надёжно!"
+
+# Object #2906
+6:
+  names:
+    aliases: пухлый трактат усекновении языков
+    nominative: трактат об усекновении языков
+    genitive: трактата об усекновении языков
+    dative: трактату об усекновении языков
+    accusative: трактат об усекновении языков
+    instrumental: трактатом об усекновении языков
+    prepositional: трактате об усекновении языков
+  short_desc: Пухлый трактат в потрёпанном переплёте лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 146
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пухлый трактат усекновении языков
+      description: |2
+        Это пухлый, сильно потрепанный трактат, обложку и страницы
+        которго пятнает множество бурых пятен. Автором произведения
+        является некий Жак Сансон.
+
+# Object #2907
+7:
+  names:
+    aliases: трактат тонкостях чародейского ремесла опаленная огнем книга
+    nominative: трактат о тонкостях чародейского ремесла
+    genitive: трактатв о тонкостях чародейского ремесла
+    dative: трактату о тонкостях чародейского ремесла
+    accusative: трактат о тонкостях чародейского ремесла
+    instrumental: трактатом о тонкостях чародейского ремесла
+    prepositional: трактате о тонкостях чародейского ремесла
+  short_desc: Изрядно опалённая огнем и неоднократно побывавшая в воде толстая книга лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 154
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат тонкостях чародейского ремесла опаленная огнем книга
+      description: |2
+        Это очень толстая книга, с которой обращались самым ужасным образом:
+        ее пятнает множество пятен копоти, страницы и обложка местами обуглены,
+        да и вся она покороблена, словно ее не раз мочили, а затем с немалым
+        трудом сушили. Вдобавок, обложку из крепких, обтянутых кожей досок,
+        пятнают многочисленные порезы и осипны, словно кто-то молотил по ней
+        шилом, а кожа изъязвлена, словно ее кто-то грыз.
+
+# Object #2908
+8:
+  names:
+    aliases: трактат один день жизни каторжника
+    nominative: 'трактат "Один день из жизни каторжника"'
+    genitive: 'трактата "Один день из жизни каторжника"'
+    dative: 'трактату "Один день из жизни каторжника"'
+    accusative: 'трактат "Один день из жизни каторжника"'
+    instrumental: 'трактатом "Один день из жизни каторжника"'
+    prepositional: 'трактате "Один день из жизни каторжника"'
+  short_desc: 'Пухлый, засаленый и сильно потрепанный трактат под заглавием "Один динь из жизни каторжника" лежит тут.'
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 139
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат один день жизни каторжника
+      description: |2
+        Это пухлая, сильно потрёпанная книга, повествующая о жизни в окружении
+        татей, воров, наемников и других лихих людишек земли русской.
+
+# Object #2909
+9:
+  names:
+    aliases: потрепанная тетрадка записки каретных дел мастера
+    nominative: записки каретных дел мастера
+    genitive: записок каретных дел мастера
+    dative: запискам каретных дел мастера
+    accusative: записки каретных дел мастера
+    instrumental: записками каретных дел мастера
+    prepositional: записках каретных дел мастера
+  short_desc: 'Потрепанная тетрадка с заглавием "Записки каретных дел мастера" лежит тут.'
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 137
+    - 0
+    - 0
+  weight: 10
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 30
+  cur_durability: 26
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: потрепанная тетрадка записки каретных дел мастера
+      description: |2
+        Это тонкая тетрадь, сшитая из пергаментных листов. Вопреки странному
+        заглавию, внутри обнаруживаются не описания колес и картеных осей,
+        а способы заточки ножей и кинжалов, один другого хитрей да неприятней.

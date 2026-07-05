@@ -1,0 +1,551 @@
+# Objects for zone 44
+
+# Object #4400
+0:
+  names:
+    aliases: родник ключ
+    nominative: родник
+    genitive: родника
+    dative: роднику
+    accusative: родник
+    instrumental: родником
+    prepositional: роднике
+  short_desc: Прозрачный ключ бьет из-под земли.
+  action_desc: |2
+    Вы можете набрать отсюда воды.
+  type: kFountain
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 999
+    - 999
+    - 15
+    - 0
+  weight: 1004
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+
+# Object #4401
+1:
+  names:
+    aliases: кистень
+    nominative: кистень
+    genitive: кистеня
+    dative: кистеню
+    accusative: кистень
+    instrumental: кистенем
+    prepositional: кистене
+  short_desc: Кистень лежит на земле.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 4
+    - 2
+  weight: 12
+  cost: 20
+  rent_off: 10
+  rent_on: 5
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+
+# Object #4402
+2:
+  names:
+    aliases: дубинка
+    nominative: дубинка
+    genitive: дубинки
+    dative: дубинке
+    accusative: дубинку
+    instrumental: дубинкой
+    prepositional: дубинке
+  short_desc: Дубинка, сделанная из ветви дуба, валяется на земле.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 3
+    - 6
+  weight: 16
+  cost: 25
+  rent_off: 15
+  rent_on: 10
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #4403
+3:
+  names:
+    aliases: кинжал бронзовый
+    nominative: бронзовый кинжал
+    genitive: бронзового кинжала
+    dative: бронзовому кинжалу
+    accusative: бронзовый кинжал
+    instrumental: бронзовым кинжалом
+    prepositional: бронзовом кинжале
+  short_desc: Бронзовый кинжал валяется на земле.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 2
+    - 5
+    - 11
+  weight: 12
+  cost: 30
+  rent_off: 20
+  rent_on: 15
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+
+# Object #4404
+4:
+  names:
+    aliases: кость медведь
+    nominative: кость медведя
+    genitive: кости медведя
+    dative: кости медведя
+    accusative: кость медведя
+    instrumental: костью медведя
+    prepositional: кости медведя
+  short_desc: Крупная, скорее всего медвежья, кость лежит тут.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 2
+    - 3
+    - 0
+  weight: 10
+  cost: 30
+  rent_off: 20
+  rent_on: 15
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #4405
+5:
+  names:
+    aliases: рогатина
+    nominative: рогатина
+    genitive: рогатины
+    dative: рогатине
+    accusative: рогатину
+    instrumental: рогатиной
+    prepositional: рогатине
+  short_desc: Рогатина лежит на земле.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 4
+    - 10
+  weight: 20
+  cost: 50
+  rent_off: 50
+  rent_on: 40
+  spec_param: 148
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kBoth
+  applies:
+    - location: 19  # повреждение
+      modifier: 1
+
+# Object #4406
+6:
+  names:
+    aliases: железный меч
+    nominative: железный меч
+    genitive: железного меча
+    dative: железному мечу
+    accusative: железный меч
+    instrumental: железным мечом
+    prepositional: железном мече
+  short_desc: Железный меч лежит на земле.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 20
+  cost: 50
+  rent_off: 50
+  rent_on: 40
+  spec_param: 143
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+
+# Object #4407
+7:
+  names:
+    aliases: тесак
+    nominative: тесак
+    genitive: тесака
+    dative: тесаку
+    accusative: тесак
+    instrumental: тесаком
+    prepositional: тесаке
+  short_desc: Тесак валяется на земле.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 5
+    - 7
+  weight: 12
+  cost: 100
+  rent_off: 100
+  rent_on: 80
+  spec_param: 142
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 30
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #4408
+8:
+  names:
+    aliases: куртка медвежьей шкуры
+    nominative: куртка из медвежьей кожи
+    genitive: куртки из медвежьей шкуры
+    dative: куртке из медвежьей шкуры
+    accusative: куртку из медвежьей шкуры
+    instrumental: курткой из медвежьей шкуры
+    prepositional: куртке из медвежьей шкуры
+  short_desc: Куртка из медвежьей шкуры лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 12
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kShoulders
+  applies:
+    - location: 14  # макс.энергия
+      modifier: 10
+
+# Object #4409
+9:
+  names:
+    aliases: медвежий малахай
+    nominative: медвежий малахай
+    genitive: медвежьего малахая
+    dative: медвежьему малахаю
+    accusative: медвежий малахай
+    instrumental: медвежьим малахаем
+    prepositional: медвежьем малахае
+  short_desc: Медвежий малахай лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 0
+    - 0
+    - 0
+  weight: 6
+  cost: 100
+  rent_off: 50
+  rent_on: 40
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #4410
+10:
+  names:
+    aliases: разбойничий пояс
+    nominative: разбойничий пояс
+    genitive: разбойничьего пояса
+    dative: разбойничьему поясу
+    accusative: разбойничий пояс
+    instrumental: разбойничим поясом
+    prepositional: разбойничьем поясе
+  short_desc: Разбойничий пояс лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 12
+  cost: 100
+  rent_off: 50
+  rent_on: 40
+  spec_param: 142
+  max_durability: 75
+  cur_durability: 75
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kWaist
+  applies:
+    - location: 42  # инициатива
+      modifier: 1
+
+# Object #4411
+11:
+  names:
+    aliases: береста старая
+    nominative: старая береста
+    genitive: старой бересты
+    dative: старой бересте
+    accusative: старую бересту
+    instrumental: старой берестой
+    prepositional: старой бересте
+  short_desc: Кусок старой бересты валяется на земле.
+  type: kBook
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 120
+    - 0
+    - 0
+  weight: 2
+  cost: 0
+  rent_off: 100
+  rent_on: 100
+  max_durability: 25
+  cur_durability: 25
+  timer: 20
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #4412
+12:
+  names:
+    aliases: мерцающий свиток
+    nominative: мерцающий свиток
+    genitive: мерцающего свитка
+    dative: мерцающему свитку
+    accusative: мерцающий свиток
+    instrumental: мерцающим свитком
+    prepositional: мерцающем свитке
+  short_desc: Мерцающий свиток неподвижно висит в воздухе.
+  type: kBook
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 72
+    - 0
+    - 0
+  weight: 2
+  cost: 0
+  rent_off: 100
+  rent_on: 100
+  max_durability: 25
+  cur_durability: 25
+  timer: 20
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #4413
+13:
+  names:
+    aliases: белый свиток
+    nominative: белый свиток
+    genitive: белого свитка
+    dative: белому свитку
+    accusative: белый свиток
+    instrumental: белым свитком
+    prepositional: белом свитке
+  short_desc: Свиток, источающий белое сияние, лежит тут.
+  type: kBook
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 5000
+  rent_off: 10000
+  rent_on: 100
+  max_durability: 25
+  cur_durability: 25
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #4414
+14:
+  names:
+    aliases: обломок зуба руна тела
+    nominative: обломок зуба
+    genitive: обломка зуба
+    dative: обломку зуба
+    accusative: обломок зуба
+    instrumental: обломком зуба
+    prepositional: обломке зуба
+  short_desc: Обломок зуба валяется на земле.
+  type: kMagicIngredient
+  material: 12  # КАМЕНЬ
+  values:
+    - 17932
+    - 215
+    - 400
+    - 0
+  weight: 1
+  cost: 200
+  rent_off: 25
+  rent_on: 20
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #4415
+15:
+  names:
+    aliases: осиновый лист руна души
+    nominative: осиновый лист
+    genitive: осинового листа
+    dative: осиновому листу
+    accusative: осиновый лист
+    instrumental: осиновым листом
+    prepositional: осиновом листе
+  short_desc: Осиновый лист лежит здесь.
+  type: kMagicIngredient
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 214
+    - 400
+    - 0
+  weight: 1
+  cost: 200
+  rent_off: 25
+  rent_on: 20
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake

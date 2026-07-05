@@ -1,0 +1,424 @@
+# Mobs for zone 38
+
+# Mob #3800
+0:
+  names:
+    aliases: богатый ромей
+    nominative: богатый ромей
+    genitive: богатого ромея
+    dative: богатому ромею
+    accusative: богатого ромея
+    instrumental: богатым ромеем
+    prepositional: богатом ромее
+  descriptions:
+    short_desc: |2
+      Богатый торговец из Царь-града нахваливает свой товар.
+    long_desc: |2
+      Можно ли как-то заткнуть этих ромеев? Ни единому слову его верить нельзя!
+  alignment: 600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 80
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+    special_bitvector: i3
+
+# Mob #3801
+1:
+  names:
+    aliases: толстый араб
+    nominative: толстый араб
+    genitive: толстого араба
+    dative: толстому арабу
+    accusative: толстого араба
+    instrumental: толстым арабом
+    prepositional: толстом арабе
+  descriptions:
+    short_desc: |2
+      Не в меру упитанный араб предлагает посмотреть его товар.
+    long_desc: |2
+      Торговля у него идет неплохо - такое пузо в долг не наешь.
+  alignment: 600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 90
+  race: 101
+  height: 175
+  weight: 170
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+    special_bitvector: i3
+
+# Mob #3802
+2:
+  names:
+    aliases: немолодой хитрый торговец
+    nominative: хитрый торговец
+    genitive: хитрого торговца
+    dative: хитрому торговцу
+    accusative: хитрого торговца
+    instrumental: хитрым торговцом
+    prepositional: хитром торговце
+  descriptions:
+    short_desc: |2
+      Немолодой торговец шепотом предлагает рассмотреть его товар.
+    long_desc: |2
+      Искуственная таинственность, создаваемая этим торговцем, способствует более высоким прибылям. По крайней мере он в это верит.
+  alignment: 600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+    special_bitvector: i3
+
+# Mob #3803
+3:
+  names:
+    aliases: жизнерадостный улыбчивый купчина купец
+    nominative: улыбчивый купчина
+    genitive: улыбчивого купчины
+    dative: улыбчивому купчине
+    accusative: улыбчивого купчины
+    instrumental: улыбчивым купчиной
+    prepositional: улыбчивом купчине
+  descriptions:
+    short_desc: |2
+      Жизнерадостный купец разложил свой товар под открытым небом.
+    long_desc: |2
+      Приветливый мужик, лишний раз не пристает, чего ни спросишь о товаре - расскажет, покажет.
+  alignment: 600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+    special_bitvector: i3
+
+# Mob #3804
+4:
+  names:
+    aliases: молодой парень
+    nominative: молодой парень
+    genitive: молодого парняе
+    dative: молодому парнюе
+    accusative: молодого парня
+    instrumental: молодым парнем
+    prepositional: молодом парне
+  descriptions:
+    short_desc: |2
+      Молодой парень натирает щеткой палубу до блеска.
+    long_desc: |2
+      Худой, высокий парень подрабатывает на торговом судне, не гнушаясь даже грязной работы.
+  alignment: 600
+  stats:
+    level: 15
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 165
+  weight: 120
+  action_flags:
+    - kNpc
+  enhanced:
+    max_factor: 2
+    special_bitvector: i3
+    destinations:
+      - 3800
+      - 3801
+      - 3802
+
+# Mob #3805
+5:
+  names:
+    aliases: громадный охранник
+    nominative: громадный охранник
+    genitive: громадного охранника
+    dative: громадному охраннику
+    accusative: громадного охранника
+    instrumental: громадным охранником
+    prepositional: громадном охраннике
+  descriptions:
+    short_desc: |2
+      Громадный охранник внимательно осматривает всех поднимающихся на корабль.
+    long_desc: |2
+      Глядя на эту детину Вам сразу расхотелось шалить на корабле. Как котенка ведь вышвырнет за борт, при чём не обязательно на берег.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: -5
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1200
+    damage:
+      dice_count: 12
+      dice_size: 8
+      bonus: 20
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 3
+    special_bitvector: i3
+
+# Mob #3806
+6:
+  names:
+    aliases: толстый корабельный кот котище
+    nominative: корабельный кот
+    genitive: корабельного кота
+    dative: корабельному коту
+    accusative: корабельного кота
+    instrumental: корабельным котом
+    prepositional: корабельном коте
+  descriptions:
+    short_desc: |2
+      Толстый котище лениво прохаживается между бочками.
+    long_desc: |2
+      Этот кот явно питается не только корабельными крысами.
+  alignment: 600
+  stats:
+    level: 10
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 25
+  race: 104
+  height: 80
+  weight: 70
+  action_flags:
+    - kNpc
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    bare_hand_attack: 8
+    max_factor: 1
+    special_bitvector: i3
+    destinations:
+      - 3805
+      - 3806
+      - 3803
+      - 3804
+
+# Mob #3898
+98:
+  names:
+    aliases: рулевой молодой человек
+    nominative: рулевой
+    genitive: рулевого
+    dative: рулевому
+    accusative: рулевого
+    instrumental: рулевым
+    prepositional: рулевом
+  descriptions:
+    short_desc: |2
+      Среднего роста молодой человек стоит за странным пультом.
+    long_desc: |2
+      Да вы не обращайте на него внимания.
+      Он тут исключительно в служебных целях.
+      Вам лучше вообще его не трогать, а то
+      вдруг чего...
+  alignment: 0
+  stats:
+    level: 40
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 500
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+    - kNoFight
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 3898  # Dummy trig
+  enhanced:
+    max_factor: 5

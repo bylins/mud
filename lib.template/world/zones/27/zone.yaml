@@ -1,0 +1,15 @@
+# Zone #27
+
+vnum: 27
+name: y
+metadata:
+  comment: Стрибог
+top_room: 2799
+lifespan: 0
+reset_mode: 0
+reset_idle: 1
+zone_type: 0
+mode: 1  # level
+entrance: 2700
+under_construction: 0
+zone_group: 1  # solo

@@ -1,0 +1,145 @@
+# Triggers for zone 5
+
+# Trigger #500
+0:
+  name: лоад буки !кислота!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.8%== 1 then
+      load obj 500
+    end
+
+# Trigger #501
+1:
+  name: лоад буки !сеть!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 501
+    end
+
+# Trigger #502
+2:
+  name: лоад буки !дышать водой!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 502
+    end
+
+# Trigger #503
+3:
+  name: лоад буки !оцепенение!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 503
+    end
+
+# Trigger #504
+4:
+  name: лоад буки !высосать жизнь!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 504
+    end
+
+# Trigger #505
+5:
+  name: лоад буки !цепь молний!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 505
+    end
+
+# Trigger #506
+6:
+  name: лоад буки !ледяной шторм!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 506
+    end
+
+# Trigger #507
+7:
+  name: лоад буки !гнев богов!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 507
+    end
+
+# Trigger #508
+8:
+  name: лоад буки !защита богов!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 508
+    end
+
+# Trigger #509
+9:
+  name: лоад буки !контроль погоды!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 509
+    end
+
+# Trigger #510
+10:
+  name: лоад буки !массовое оцепенение!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 510
+    end
+
+# Trigger #511
+11:
+  name: лоад буки !поднять труп!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 511
+    end

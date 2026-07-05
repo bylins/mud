@@ -1,0 +1,567 @@
+# Triggers for zone 38
+
+# Trigger #3800
+0:
+  name: Запуск движения кораблей
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    wait 5s
+    * список комнат кораблей
+    set ship1 3800
+    set ship2 3900
+    global ship1
+    global ship2
+    * отсчет точки маршрута
+    set point1 1
+    set point2 1
+    global point1
+    global point2
+    * Будье внимательны при добавлении новых точек!
+    * Количество параметров должно быть одинаково.
+    * записываем первый маршрут
+    set cities1 Корсунь Переяславль Любеч Путивль Тотьму Великий_Новгород Руссу Торжок Стольный_Киев
+    set shiprooms1 3801 3802 3802 3802 3800 3802 3802 3801 3800
+    set dirs1 north north east east west east east north west
+    set rdirs1 south south west west east west west south east
+    set whardes1 27141 25064 69098 64086 62079 60091 35046 24006 67601
+    set speaker1 27000 25000 69001 64000 62000 60000 35000 24000 49900
+    global cities1
+    global shiprooms1
+    global dirs1
+    global rdirs1
+    global whardes1
+    global speaker1
+    * записываем второй маршрут
+    set cities2 Торжок Руссу Псков Туров Минск Стольный_Киев Корсунь Переяславль Любеч Великий_Новгород
+    set shiprooms2 3900 3900 3900 3900 3900 3901 3900 3900 3900 3900
+    set dirs2 north north north north north west east north west north
+    set rdirs2 south south south south south east west south east south
+    set whardes2 24007 35046 75098 32473 77089 67602 27139 25063 69096 60091
+    set speaker2 24000 35000 75100 32400 77000 49900 27000 25000 69001 60000
+    global cities2
+    global shiprooms2
+    global dirs2
+    global rdirs2
+    global whardes2
+    global speaker2
+    * Собственно запуск движения кораблей
+    exec 3805 %self%
+    eval pause 20+%random.20%
+    wait %pause%s
+    exec 3806 %self%
+    * удаляем триг, чтоб не стартовал снова
+    detach 3800 %self%
+
+# Trigger #3801
+1:
+  name: Очистка первого корабля 3800-3808
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    foreach target %self.pc%
+      wsend %target% _Корабелы шустро выставили вас на пристань, и принялись вытаскивать корабль на берег.
+      wteleport %target% %wharf1%
+      echoaround %target% _Корабелы выставили %target.vname% с корабля.
+    done
+
+# Trigger #3802
+2:
+  name: Очистка второго корабля 3900-3908
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    foreach target %self.pc%
+      wsend %target% _Корабелы шустро выставили вас на пристань, и принялись вытаскивать корабль на берег.
+      wteleport %target% %wharf2%
+      echoaround %target% _Корабелы выставили %target.vname% с корабля.
+    done
+
+# Trigger #3803
+3:
+  name: Стоянка первого корабля
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    eval pause 500+%random.100%
+    wait %pause%s
+    while %stop%
+      wait 30s
+    done
+    exec 3805 %self%
+
+# Trigger #3804
+4:
+  name: Стоянка второго корабля
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    eval pause 500+%random.100%
+    wait %pause%s
+    while %stop%
+      wait 30s
+    done
+    exec 3806 %self%
+
+# Trigger #3805
+5:
+  name: Перемещение первого корабля по маршруту
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    *если счетчик точек равен числу точек, значит маршрут пройден, начинаем с начала
+    if %point1% > %array.item(%cities1%)%
+      set point1 1
+      global point1
+    end
+    *запоминаем следующий город
+    set city %array.item(%cities1%,%point1%)%
+    global city
+    *выдаем сообщение на корабле
+    wzoneecho %ship1%  Корабелы засуетились, поднимая сходню
+    wzoneecho %ship1%  "Шевелитесь!" - прикрикнул на них купец - "Отправляемся в %city%!"
+    set cond1 1
+    global cond1
+    wait 30s
+    wzoneecho %ship1%  Корабелы налегли на весла, и корабль, покачиваясь, отвалил от пристани.
+    *убираем сходню
+    eval ratchet %world.room(%whard%)%
+    if %ratchet%
+      attach 3808 %ratchet%
+      exec 3808 %ratchet%
+    end
+    *удаляем вход на корабль
+    if %dir% && %rdir%
+      wdoor %shiproom% %dir% purge
+      wdoor %whard% %rdir% purge
+    end
+    set cond1 2
+    global cond1
+    *запоминаем новую точку причаливания
+    set shiproom %array.item(%shiprooms1%,%point1%)%
+    set dir %array.item(%dirs1%,%point1%)%
+    set rdir %array.item(%rdirs1%,%point1%)%
+    set whard %array.item(%whardes1%,%point1%)%
+    global shiproom
+    global dir
+    global rdir
+    global whard
+    *выдаем антуражные сообщения в комнату и ждем.
+    set i 0
+    while (%i% < 24)
+      switch %random.20%
+        case 1
+          set msg Густой лес покрывает берега реки.
+        break
+        case 2
+          set msg Несколько всадников пронеслись по берегу, махая вам руками.
+        break
+        case 3
+          set msg Сгустились тучи, и холодные струи дождя заколотили по палубе.
+        break
+        case 4
+          set msg Густой туман поднялся над рекой.
+        break
+        case 5
+          set msg Чешуйчатая спина невиданного чудища поднялась из воды и снова скрылась.
+        break
+        case 6
+          set msg Ватага ушкуйников на челнах вылетела было из протоки, но, оценив размеры корабля, ретировалась.
+        break
+        case 7
+          set msg Несколько корабелов устроились на носу и громко горланят песни.
+        break
+        case 8
+          set msg Сильные порывы ветра поднимают тучи брызг и раскачивают корабль.
+        break
+        case 9
+          set msg Что-то проскребло по днищу корабля, заставив его качнуться.
+        break
+        case 10
+          set msg Усатый корабел закинул за борт кожаное ведро на веревке и окатил палубу водой.
+        break
+        case 11
+          set msg Кормчий качнул корабль, и палубу обдало веером брызг.
+        break
+        case 12
+          set msg Большое селение показалось на берегу.
+        break
+        case 13
+          set msg Берег гол и пустынен -- одни скалы и неприветливые холмы.
+        break
+        case 14
+          set msg Маковое поле простирается по левую руку на берегу.
+        break
+        case 15
+          set msg Низкие заболоченные берега переходят в трясину, из которой раздаются странные звуки.
+        break
+        case 16
+          set msg Парочка корабелов устроилась под навесом и играет в зернь.
+        break
+        case 17
+          set msg Грозовая туча закрыла небо, и кормчий то и дело озабоченно поглядывает вверх.
+        break
+        case 18
+          set msg На берегу показался разбитый и истлевший остов корабля.
+        break
+        case 19
+          set msg Крупный град заколотил по палубе, заставив всех укрыться под кожаными навесами.
+        break
+        case 20
+          set msg Протянувшиеся над водой ветви столетнего дерева скребнули по борту.
+        break
+      done
+      eval i %i%+1
+      wait 10s
+      wzoneecho %ship1% %msg%
+    done
+    *причаливаем
+    if %shiproom%
+      wdoor %shiproom% %dir% room %whard%
+    end
+    if %whard%
+      wdoor %whard% %rdir% room %shiproom%
+    end
+    eval ratchet %world.room(%whard%)%
+    attach 3807 %ratchet%
+    set speak %array.item(%speaker1%,%point1%)%
+    remote speak %ratchet%
+    exec 3807 %ratchet%
+    eval point1 %point1%+1
+    global point1
+    wzoneecho %ship1%  Наконец вы прибыли в %city%!
+    set cond1 3
+    global cond1
+    *запускаем таймер стоянки
+    exec 3803 %self%
+    halt
+
+# Trigger #3806
+6:
+  name: Перемещение второго корабля по маршруту
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    *если счетчик точек равен числу точек, значит маршрут пройден, начинаем с начала
+    if %point2% > %array.item(%cities2%)%
+      set point2 1
+      global point2
+    end
+    *запоминаем следующий город
+    set city2 %array.item(%cities2%,%point2%)%
+    global city2
+    *выдаем сообщение на корабле
+    wzoneecho %ship2%  Корабелы засуетились, поднимая сходню
+    wzoneecho %ship2%  "Шевелитесь!" - прикрикнул на них купец - "Отправляемся в %city2%!"
+    set cond2 1
+    global cond2
+    wait 30s
+    wzoneecho %ship2%  Корабелы налегли на весла, и корабль, покачиваясь, отвалил от пристани.
+    *убираем сходню
+    eval ratchet %world.room(%whard2%)%
+    if %ratchet%
+      attach 3808 %ratchet%
+      exec 3808 %ratchet%
+    end
+    *удаляем вход на корабль
+    if %dir2% && %rdir2%
+      wdoor %shiproom2% %dir2% purge
+      wdoor %whard2% %rdir2% purge
+    end
+    set cond2 2
+    global cond2
+    *запоминаем новую точку причаливания
+    set shiproom2 %array.item(%shiprooms2%,%point2%)%
+    set dir2 %array.item(%dirs2%,%point2%)%
+    set rdir2 %array.item(%rdirs2%,%point2%)%
+    set whard2 %array.item(%whardes2%,%point2%)%
+    global shiproom2
+    global dir2
+    global rdir2
+    global whard2
+    *выдаем антуражные сообщения в комнату и ждем.
+    set i 0
+    while (%i% < 24)
+      switch %random.20%
+        case 1
+          set msg Густой лес покрывает берега реки.
+        break
+        case 2
+          set msg Несколько всадников пронеслись по берегу, махая вам руками.
+        break
+        case 3
+          set msg Сгустились тучи, и холодные струи дождя заколотили по палубе.
+        break
+        case 4
+          set msg Густой туман поднялся над рекой.
+        break
+        case 5
+          set msg Чешуйчатая спина невиданного чудища поднялась из воды и снова скрылась.
+        break
+        case 6
+          set msg Ватага ушкуйников на челнах вылетела было из протоки, но, оценив размеры корабля, ретировалась.
+        break
+        case 7
+          set msg Несколько корабелов устроились на носу и громко горланят песни.
+        break
+        case 8
+          set msg Сильные порывы ветра поднимают тучи брызг и раскачивают корабль.
+        break
+        case 9
+          set msg Что-то проскребло по днищу корабля, заставив его качнуться.
+        break
+        case 10
+          set msg Усатый корабел закинул за борт кожаное ведро на веревке и окатил палубу водой.
+        break
+        case 11
+          set msg Кормчий качнул корабль, и палубу обдало веером брызг.
+        break
+        case 12
+          set msg Большое селение показалось на берегу.
+        break
+        case 13
+          set msg Берег гол и пустынен -- одни скалы и неприветливые холмы.
+        break
+        case 14
+          set msg Маковое поле простирается по левую руку на берегу.
+        break
+        case 15
+          set msg Низкие заболоченные берега переходят в трясину, из которой раздаются странные звуки.
+        break
+        case 16
+          set msg Парочка корабелов устроилась под навесом и играет в зернь.
+        break
+        case 17
+          set msg Грозовая туча закрыла небо, и кормчий то и дело озабоченно поглядывает вверх.
+        break
+        case 18
+          set msg На берегу показался разбитый и истлевший остов корабля.
+        break
+        case 19
+          set msg Крупный град заколотил по палубе, заставив всех укрыться под кожаными навесами.
+        break
+        case 20
+          set msg Протянувшиеся над водой ветви столетнего дерева скребнули по борту.
+        break
+      done
+      eval i %i%+1
+      wait 10s
+      wzoneecho %ship2% %msg%
+    done
+    *причаливаем
+    if %shiproom2%
+      wdoor %shiproom2% %dir2% room %whard2%
+    end
+    if %whard2%
+      wdoor %whard2% %rdir2% room %shiproom2%
+    end
+    eval ratchet %world.room(%whard2%)%
+    attach 3807 %ratchet%
+    set speak %array.item(%speaker2%,%point2%)%
+    remote speak %ratchet%
+    exec 3807 %ratchet%
+    eval point2 %point2%+1
+    global point2
+    wzoneecho %ship2%  Наконец вы прибыли в %city2%!
+    set cond2 3
+    global cond2
+    *запускаем таймер стоянки
+    exec 3804 %self%
+    halt
+
+# Trigger #3807
+7:
+  name: Сообщение о прибытии корабля и лоад сходни
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    eval one %speak%/100
+    eval two %self.vnum%/100
+    if (%one% != %two%)
+      wzoneecho %speak% _&Y"К пристани причалил купеческий корабль!" -- прокричал наблюдатель на стене.&n
+    end
+    wzoneecho %self.vnum% _&Y"К пристани причалил купеческий корабль!" -- прокричал наблюдатель на стене.&n
+    load obj 3899
+
+# Trigger #3808
+8:
+  name: Удаление сходни
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    foreach item %self.objects%
+      if (%item.vnum% == 3899)
+        wpurge %item%
+        echo &YНесколько крепких корабелов сноровисто втащили сходню на лодью.&n
+      break
+    end
+    done
+
+# Trigger #3809
+9:
+  name: Управление движением кораблей
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: управление
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if (%actor.level% < 32)
+      wsend %actor% _Ты еще кто такое?
+      halt
+    end
+    if %arg.contains(стоп)%
+      echo _&G * * * ОСТАНАВЛИВАЕМ ДВИЖЕНИЕ КОРАБЛЕЙ * * *&n
+      set stop 1
+      global stop
+      halt
+    end
+    if %arg.contains(старт)%
+      echo _&R * * * ЗАПУСКАЕМ ДВИЖЕНИЕ КОРАБЛЕЙ, В СТВОРЕ НЕ СТОЯТЬ! * * *&n
+      set stop 0
+      global stop
+      halt
+    end
+    if %arg.contains(перезапуск)%
+      echo _&Y * * * ПЕРЕЗАПУСК ДВИЖЕНИЯ КОРАБЛЕЙ * * *&n
+      echo _&Y __________* остановка кораблей *&n
+      set stop 1
+      global stop
+      detach 3800 %self%
+      detach 3805 %self%
+      detach 3806 %self%
+      echo _&Y __________* очистка выходов *&n
+      set m %shiprooms1.words%
+      set i 1
+      while (%i% <= %m%)
+        set shiproom %shiprooms1.words(%i%)%
+        set dir %dirs1.words(%i%)%
+        set rdir %rdirs1.words(%i%)%
+        set whard %whardes1.words(%i%)%
+        wdoor %shiproom% %dir% purge
+        wdoor %whard% %rdir% purge
+        eval i %i%+1
+      done
+      wait 1s
+      set m %shiprooms2.words%
+      set i 1
+      while (%i% <= %m%)
+        set shiproom %shiprooms2.words(%i%)%
+        set dir %dirs2.words(%i%)%
+        set rdir %rdirs2.words(%i%)%
+        set whard %whardes2.words(%i%)%
+        wdoor %shiproom% %dir% purge
+        wdoor %whard% %rdir% purge
+        eval i %i%+1
+      done
+      wait 1s
+      echo _&Y __________* подключение триггеров *&n
+      attach 3800 %self%
+      attach 3805 %self%
+      attach 3806 %self%
+      set stop 0
+      global stop
+      %world.zreset(38)%
+      echo _&Y __________* корабли перезапущены *&n
+      halt
+    end
+    wsend %actor% Возможные команды: "стоп", "старт" и "перезапуск".
+
+# Trigger #3810
+10:
+  name: Информация о местоположении кораблей
+  attach_type: kObjTrigger
+  narg: 4
+  arglist: рассмотреть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(записку)%
+      %send% %actor% Чего рассматривать будем?
+      halt
+    end
+    calcuid control 3898 room
+    attach 3811 %control%
+    exec 3811 %control%
+
+# Trigger #3811
+11:
+  name: Табличка сработала
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    %send% %actor% Вы внимательно присмотрелись к табличке, пытаясь разобрать текст на записке.
+    set message1 "Светлый" корабль артели
+    if (%cond1% <= 1)
+      set message1 %message1% вот-вот отправится в плавание:
+      %send% %actor% %message1%
+      eval temp %point1%-1
+      if (%temp% < 1)
+        set temp %array.item(%whardes1%)%
+      end
+      set message1 покидает %array.item(%cities1%,%temp%)%, направляется в
+    elseif (%cond1% == 2)
+      set message1 %message1% уже в пути, направляется в
+    else
+      set message1 %message1% пришвартован к пристани, обирает
+      eval point1 %point1%-1
+      if (%point1% < 1)
+        set point1 %array.item(%whardes1%)%
+      end
+    end
+    set message1 %message1% %array.item(%cities1%,%point1%)%.
+    %send% %actor% %message1%
+    set message2 "Тёмный" корабль артели
+    if (%cond2% <= 1)
+      set message2 %message2% вот-вот отправится в плавание:
+      %send% %actor% %message2%
+      eval temp %point2%-1
+      if (%temp% < 1)
+        set temp %array.item(%whardes2%)%
+      end
+      set message2 покидает %array.item(%cities2%,%temp%)%, направляется в
+    elseif (%cond2% == 2)
+      set message2 %message2% уже в пути, направляется в
+    else
+      set message2 %message2% пришвартован к пристани, обирает
+      eval point2 %point2%-1
+      if (%point2% < 1)
+        set point2 %array.item(%whardes2%)%
+      end
+    end
+    set message2 %message2% %array.item(%cities2%,%point2%)%.
+    %send% %actor% %message2%
+    *log &W%actor.iname% - %actor.realroom%&g
+    %actor.wait(1)%
+
+# Trigger #3898
+98:
+  name: Dummy trig
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    wait 1
+    say Что вы здесь делаете? Проваливайте пока не поздно!

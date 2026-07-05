@@ -1,0 +1,33 @@
+# Objects for zone 57
+
+# Object #5790
+90:
+  names:
+    aliases: Мягкие шелковистые руки
+    nominative: мягкие и шелковистые руки
+    genitive: мягких и шелковистых рук
+    dative: мягким и шелковистым рукам
+    accusative: мягкие и шелковистые руки
+    instrumental: мягкими и шелковистыми руками
+    prepositional: мягких шелковистых руках
+  short_desc: Руки сделанные из шелковистой ткани набитой мелкой и мягкой стружкой лежат на земле.
+  type: kPotion
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 30
+    - 133
+    - 127
+    - 58
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold

@@ -1,0 +1,578 @@
+# Mobs for zone 65
+
+# Mob #6500
+0:
+  names:
+    aliases: старый охотник
+    nominative: старый охотник
+    genitive: старого охотника
+    dative: старому охотнику
+    accusative: старого охотника
+    instrumental: старым охотником
+    prepositional: старом охотнике
+  descriptions:
+    short_desc: |2
+      Старый охотник оглядывает Вас внимательным взором.
+    long_desc: |2
+      Высок, худощав, явно силен. Вкупе с убранством его избушки,
+      можно точно сказать, что в прошлом этот человек был великим
+      охотником.
+  alignment: 0
+  stats:
+    level: 20
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 25
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 100
+  attributes:
+    strength: 50
+    dexterity: 15
+    intelligence: 13
+    wisdom: 13
+    constitution: 14
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kProtect
+    - kNoFight
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 60
+  triggers:
+    - 6520  # Вошли к охотнику
+    - 6502  # Старый охот появился
+    - 6503  # Говорим со старым охотом
+  enhanced:
+    bare_hand_attack: 9
+    max_factor: 2
+    extra_attack: 3
+
+# Mob #6501
+1:
+  names:
+    aliases: птичка невеличка
+    nominative: птичка-невеличка
+    genitive: птички-невелички
+    dative: птичке-невеличке
+    accusative: птичку-невеличку
+    instrumental: птичкой-невеличкой
+    prepositional: птичке-невеличке
+  descriptions:
+    short_desc: |2
+      Птичка-невеличка суетится вокруг Вас, поглядывая на дерево.
+    long_desc: |2
+      Маленькое крылатое создание так и вьется вокруг Вас.
+      Похоже, птичка чем-то обеспокоена - аж перья дыбом встали.
+      Даже если бы Вы знали птичий язык - вряд ли смогли бы
+      разобрать что-нибудь в этом непрерывном чирикании.
+  alignment: 0
+  stats:
+    level: 10
+    hitroll_penalty: 13
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 10
+    bonus: 0
+  experience: 8000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 103
+  height: 100
+  weight: 50
+  attributes:
+    strength: 9
+    dexterity: 8
+    intelligence: 7
+    wisdom: 7
+    constitution: 7
+    charisma: 6
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kFlying
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 60
+  triggers:
+    - 6506  # Птичка реагирует на перемещение гнезда
+  enhanced:
+    absorb: 10
+    bare_hand_attack: 15
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: l0
+
+# Mob #6502
+2:
+  names:
+    aliases: разозленный дух дерева
+    nominative: дух дерева
+    genitive: духа дерева
+    dative: духу дерева
+    accusative: духа дерева
+    instrumental: духом дерева
+    prepositional: духе дерева
+  descriptions:
+    short_desc: |2
+      Разозленный дух дерева явился сюда чтобы наказать обидчика.
+    long_desc: |2
+      На вид - обычный молодой человек с венком
+      из древесных веток на голове. Разве что немного
+      просвечивающий на солнце - дух, все таки.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 113
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kNoBash
+    - kCorpse
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kFly
+  triggers:
+    - 6507  # Дух дерева появился
+  enhanced:
+    absorb: 12
+    max_factor: 1
+
+# Mob #6503
+3:
+  names:
+    aliases: раненая олениха
+    nominative: раненая олениха
+    genitive: раненой оленихи
+    dative: раненой оленихе
+    accusative: раненую олениху
+    instrumental: раненой оленихой
+    prepositional: раненой оленихе
+  descriptions:
+    short_desc: |2
+      Раненая олениха затравленно топчется на одном месте.
+    long_desc: |2
+      Похоже, нашелся герой-охотник, решивший убить олениху,
+      у которой есть еще совсем молодой олененок.
+  alignment: 0
+  stats:
+    level: 15
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 104
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 6511  # Проверка миниквеста оленихи
+    - 6512  # Вошли к оленихе
+    - 6513  # Вытаскиваем стрелу из оленихи
+    - 6517  # Олени умирают
+  enhanced:
+    absorb: 15
+    bare_hand_attack: 13
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: n0
+
+# Mob #6504
+4:
+  names:
+    aliases: безрогий олененок
+    nominative: олененок
+    genitive: олененка
+    dative: олененку
+    accusative: олененка
+    instrumental: олененком
+    prepositional: олененке
+  descriptions:
+    short_desc: |2
+      Безрогий олененок прячется за матерью.
+    long_desc: |2
+      Совсем еще молодой олененок - даже маленьких рожек еще не видать.
+      Было бы неправильно отнимать у такого малыша мать.
+  alignment: 0
+  stats:
+    level: 10
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 104
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 6517  # Олени умирают
+  enhanced:
+    absorb: 10
+    bare_hand_attack: 14
+    max_factor: 1
+    helpers:
+      - 6503
+
+# Mob #6505
+5:
+  names:
+    aliases: голодный волк
+    nominative: голодный волк
+    genitive: голодного волка
+    dative: голодному волку
+    accusative: голодного волка
+    instrumental: голодным волком
+    prepositional: голодном волке
+  descriptions:
+    short_desc: |2
+      Голодный волк, зубами щелк, выжидает удобный момент для нападения.
+    long_desc: |2
+      Серый мохнатый санитар леса. Вечно голодный и готовый убивать.
+      Видимо он выследил оленей по запаху крови, исходящему от оленихи.
+  alignment: 0
+  stats:
+    level: 20
+    hitroll_penalty: 7
+    armor: 2
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 104
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 138  # подкрасться
+      value: 100
+  triggers:
+    - 6508  # Волк, зубами щелк
+    - 6509  # Волк ласты склеил
+  enhanced:
+    absorb: 20
+    bare_hand_attack: 4
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: i0
+
+# Mob #6506
+6:
+  names:
+    aliases: сбежавший смерд вороватого вида отрок
+    nominative: сбежавший смерд
+    genitive: сбежавшего смерда
+    dative: сбежавшему смерду
+    accusative: сбежавшего смерда
+    instrumental: сбежавшим смердом
+    prepositional: сбежавшем смерде
+  descriptions:
+    short_desc: |2
+      Вороватого вида отрок ждет здесь свою добычу.
+    long_desc: |2
+      Здоровенная детина.
+      Без мозгов.
+      В башке мякина.
+  alignment: 0
+  stats:
+    level: 15
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 400
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 134  # пнуть
+      value: 50
+    - skill_id: 160  # подножка
+      value: 50
+  triggers:
+    - 6516  # Холоп получил что-то
+    - 6526  # Дали кун смерду
+    - 6527  # Рипнули смерда
+  enhanced:
+    absorb: 15
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: a0c0b1c1
+
+# Mob #6507
+7:
+  names:
+    aliases: красивая девушка рыбьим хвостом мавка
+    nominative: мавка
+    genitive: мавки
+    dative: мавке
+    accusative: мавку
+    instrumental: мавкой
+    prepositional: мавке
+  descriptions:
+    short_desc: |2
+      Красивая девушка с рыбьим хвостом вместо ног показалась из воды.
+    long_desc: |2
+      Практически голая, прикрытая лишь длинными
+      зеленоватыми волосами девушка. 
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 8000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 102
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kMemory
+    - kNoBash
+    - kNoUndercut
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 6524  # Дали что-то мавке
+    - 6525  # Сказали что-то мавке
+  enhanced:
+    absorb: 18
+    bare_hand_attack: 2
+    max_factor: 2
+    spells:
+      - 38
+      - 52
+      - 52
+      - 64
+
+# Mob #6508
+8:
+  names:
+    aliases: туча гнуса
+    nominative: туча гнуса
+    genitive: тучи гнуса
+    dative: туче гнуса
+    accusative: тучу гнуса
+    instrumental: тучей гнуса
+    prepositional: туче гнуса
+  descriptions:
+    short_desc: |2
+      Туча гнуса зависла в сажени над землей. 
+    long_desc: |2
+      Довольно непросто рассмотреть что-то в кишащем мелкими
+      насекомыми облаке, висящем перед Вами. Можно с уверенностью
+      сказать, лишь что тварей в этом облаке не одна сотня.
+  alignment: 0
+  stats:
+    level: 10
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 107
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kCorpse
+    - kFlying
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  enhanced:
+    absorb: 10
+    bare_hand_attack: 16
+    max_factor: 1
+    extra_attack: 4
+    special_bitvector: l0

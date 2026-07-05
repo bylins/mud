@@ -687,7 +687,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 int perform_best_mob_attack(CharData *ch, int extmode) {
 	CharData *best;
-	int clone_number = 0;
+	int clone_quantity = 0;
 	best = find_best_mob_victim(ch, extmode);
 
 	if (best) {
@@ -716,24 +716,22 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 
 		if (!best->IsNpc()) {
 			// поиск клонов и отработка атаки в клона персонажа
-			for (auto *f : best->followers)
+			for (auto *f : best->followers) {
 				if (f->IsFlagged(EMobFlag::kClone))
-					clone_number++;
-			for (auto *f : best->followers)
-				if (f->IsNpc() && f->IsFlagged(EMobFlag::kClone)
-					&& f->in_room == best->in_room) {
-					if (number(0, clone_number) == 1)
+					clone_quantity++;
+			}
+			for (auto *f : best->followers) {
+				if (f->IsNpc() && f->IsFlagged(EMobFlag::kClone) && f->in_room == best->in_room) {
+					if (GetRealInt(ch) < kStupidMob && number(1, clone_quantity + 1) == 1)
 						break;
-					if ((GetRealInt(ch) < 20) && number(0, clone_number))
+					if ((GetRealInt(ch) < kMiddleAi) && number(1, (clone_quantity + 1) / 2) == 1)
 						break;
-					if (GetRealInt(ch) >= 30)
-						break;
-					if ((GetRealInt(ch) >= 20)
-						&& number(1, 10 + VPOSI((35 - GetRealInt(ch)), 0, 15) * clone_number) <= 10)
+					if (GetRealInt(ch) >= kHighAi&& number(1, (clone_quantity + 1) / 3) == 1)
 						break;
 					best = f;
 					break;
 				}
+			}
 		}
 		if (!start_fight_mtrigger(ch, best)) {
 			return false;

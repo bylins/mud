@@ -1,0 +1,8 @@
+# Rooms for zone 14
+
+# Room #1400
+0:
+  name: Кладовка
+  description: |2
+    ___Нечего вам тут делать...
+  sector: kInside

@@ -1,0 +1,551 @@
+# Objects for zone 47
+
+# Object #4700
+0:
+  names:
+    aliases: старинный меч
+    nominative: старинный меч
+    genitive: старинного меча
+    dative: старинному мечу
+    accusative: старинный меч
+    instrumental: старинным мечом
+    prepositional: старинном мече
+  short_desc: Старинный меч лежит здесь.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 5
+    - 1
+    - 7
+  weight: 5
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 143
+  max_durability: 100
+  cur_durability: 20
+  timer: 120
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+    - kWield
+  applies:
+    - location: 36  # размер
+      modifier: 5
+
+# Object #4701
+1:
+  names:
+    aliases: железный меч стальной оковкой
+    nominative: железный меч со стальной оковкой
+    genitive: железного меча со стальной оковкой
+    dative: железному мечу со стальной оковкой
+    accusative: железный меч со стальной оковкой
+    instrumental: железным мечом со стальной оковкой
+    prepositional: железном мече со стальной оковкой
+  short_desc: Железный меч длинной локтя в полтора лежит под ногами.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 4
+    - 3
+  weight: 13
+  cost: 180
+  rent_off: 100
+  rent_on: 20
+  spec_param: 143
+  max_durability: 110
+  cur_durability: 110
+  timer: 22000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kWield
+  applies:
+    - location: 19  # повреждение
+      modifier: 1
+  extra_descriptions:
+    - keywords: железный меч стальной оковкой
+      description: |2
+        Длинный меч хорошей работы, но выкованный из мягкого железа,
+        и лишь по лезвию окованный сталью.
+
+# Object #4702
+2:
+  names:
+    aliases: печь
+    nominative: печь
+    genitive: печи
+    dative: печи
+    accusative: печь
+    instrumental: печью
+    prepositional: печи
+  short_desc: Добротная печь расположилась у северной стены.
+  type: kOther
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 800
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 1000
+  cur_durability: 730
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  extra_descriptions:
+    - keywords: печь
+      description: |2
+        Крепкая круглая печь, сложенная из плоских речных камней и обмазанная поверх глиной.
+        Отверстие в своде закрыто крутобоким глиняным горшком с толстыми стенками.
+
+# Object #4703
+3:
+  names:
+    aliases: лук накладками рогов тура
+    nominative: лук с накладками из рогов тура
+    genitive: лука с накладками из рогов тура
+    dative: луку с накладками из рогов тура
+    accusative: лук с накладками из рогов тура
+    instrumental: луком с накладками из рогов тура
+    prepositional: луке с накладками из рогов тура
+  short_desc: Мощный охотничий лук с надетой тетивой лежит под ногами.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 1
+    - 7
+    - 4
+    - 9
+  weight: 16
+  cost: 400
+  rent_off: 150
+  rent_on: 50
+  spec_param: 154
+  max_durability: 110
+  cur_durability: 110
+  timer: 22000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 8
+  wear_flags:
+    - kTake
+    - kBoth
+  applies:
+    - location: 18  # попадание
+      modifier: 1
+  extra_descriptions:
+    - keywords: лук накладками рогов тура
+      description: |2
+        Мощный охотничий лук из можжевельника и березы, усиленый накладками
+        из рога тура. По накладкам вьется тонкий узор из сплетенных ветвей
+        листьев и трав.
+
+# Object #4704
+4:
+  names:
+    aliases: голова матерого волка
+    nominative: '&Kголова матерого волка&n'
+    genitive: головы матерого волка
+    dative: голове матерого волка
+    accusative: голову матерого волка
+    instrumental: головой матерого волка
+    prepositional: голове матерого волка
+  short_desc: Оскалившая клыки голова огромного волка валяется здесь.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 20
+  cur_durability: 20
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: голова матерого волка
+      description: |2
+        Отрубленная голова самого наигромадного волка, которого вам хоть раз доводилось видеть.
+        Страшные белые клыки ощерены в последнем предсмертном оскале, а в полуприкрытых глазах до сих пор светится ярость.
+
+# Object #4705
+5:
+  names:
+    aliases: кинжал черненым узором клинке
+    nominative: кинжал с черненым узором на клинке
+    genitive: кинжала с черненым узором на клинке
+    dative: кинжалу с черненым узором на клинке
+    accusative: кинжал с черненым узором на клинке
+    instrumental: кинжалом с черненым узором на клинке
+    prepositional: кинжале с черненым узором на клинке
+  short_desc: Длинный кинжал, с выгравированным на клинке узором лежит здесь.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 2
+    - 3
+    - 11
+  weight: 6
+  cost: 150
+  rent_off: 150
+  rent_on: 20
+  spec_param: 144
+  max_durability: 110
+  cur_durability: 110
+  timer: 22000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 8
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  applies:
+    - location: 18  # попадание
+      modifier: 1
+  extra_descriptions:
+    - keywords: кинжал черненым узором
+      description: |2
+        Длинный кинжал с треугольным клинком, шириной у основания в пол-ладони,
+        и плавно, словно вода из кувшина, стекающим к игольно-острому острию из
+        крепчайшей закаленной стали. На клинке вычернено с редким искусством клеймо:
+        разинувшая пасть змея обвивает черную розу.
+
+# Object #4706
+6:
+  names:
+    aliases: окованый сундук
+    nominative: окованый сундук
+    genitive: окованого сундука
+    dative: окованому сундуку
+    accusative: окованый сундук
+    instrumental: окованым сундуком
+    prepositional: окованом сундуке
+  short_desc: Большой, окованый железом сундук наполовину засыпан рыхлой землей и сухими листьями.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 13
+    - -1
+    - 8
+  weight: 10
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 200
+  cur_durability: 120
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+    - kNolocate
+  extra_descriptions:
+    - keywords: Окованый сундук
+      description: |2
+        Вместительный окованый сундук, который уже Велес ведает сколько лет покоится здесь.
+        Должно быть некогда его укрыл от сторонних взглядов хозяин, но так и не довелось ему
+        вернуться за своим добром.
+
+# Object #4707
+7:
+  names:
+    aliases: маленький ключик
+    nominative: маленький ключик
+    genitive: маленького ключика
+    dative: маленькому ключику
+    accusative: маленький ключик
+    instrumental: маленьким ключиком
+    prepositional: маленьком ключике
+  short_desc: Махонький ключик лежит тут.
+  type: kKey
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 40
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #4708
+8:
+  names:
+    aliases: ржавый ключ
+    nominative: ржавый ключ
+    genitive: ржавого ключа
+    dative: ржавому ключу
+    accusative: ржавый ключ
+    instrumental: ржавым ключом
+    prepositional: ржавом ключе
+  short_desc: Большой ржавый ключ лежит здесь.
+  type: kKey
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 60
+  timer: 120
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNolocate
+  wear_flags:
+    - kTake
+
+# Object #4709
+9:
+  names:
+    aliases: погнутый ключ
+    nominative: погнутый ключ
+    genitive: погнутого ключа
+    dative: погнутому ключу
+    accusative: погнутый ключ
+    instrumental: погнутым ключом
+    prepositional: погнутом ключе
+  short_desc: Длинный, сильно изогнутый ключ лежит тут.
+  type: kKey
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 180
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+
+# Object #4710
+10:
+  names:
+    aliases: длинный ключ
+    nominative: длинный ключ
+    genitive: длинного ключа
+    dative: длинному ключу
+    accusative: длинный ключ
+    instrumental: длинным ключом
+    prepositional: длинном ключе
+  short_desc: Длинный ключ лежит тут.
+  type: kKey
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 90
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #4711
+11:
+  names:
+    aliases: горстка старинных монет
+    nominative: горстка старинных монет
+    genitive: горстки старинных монет
+    dative: горстке старинных монет
+    accusative: горстку старинных монет
+    instrumental: горсткой старинных монет
+    prepositional: горстке старинных монет
+  short_desc: Горстка старых монет рассыпана тут.
+  type: kMoney
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 300
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1
+  cur_durability: 1
+  timer: 600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kGlow
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #4712
+12:
+  names:
+    aliases: перчатки сокольничего
+    nominative: перчатки сокольничего
+    genitive: перчаток сокольничего
+    dative: перчаткам сокольничего
+    accusative: перчатки сокольничего
+    instrumental: перчатками сокольничего
+    prepositional: перчатках сокольничего
+  short_desc: Большие перчатки из толстой кожи лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 150
+  rent_off: 50
+  rent_on: 11
+  max_durability: 80
+  cur_durability: 80
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 8
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kGuard
+    - kPaladine
+    - kVigilant
+    - kMerchant
+    - kMagus
+  applies:
+    - location: 42  # инициатива
+      modifier: 2
+  extra_descriptions:
+    - keywords: перчатки сокольничего
+      description: |2
+        Длинные перчатки из толстой кожи, на которые можно
+        без опаски сажать охотничьих соколов.
+
+# Object #4713
+13:
+  names:
+    aliases: уши старого лиса
+    nominative: уши старого лиса
+    genitive: ушей старого лиса
+    dative: ушам старого лиса
+    accusative: уши старого лиса
+    instrumental: ушами старого лиса
+    prepositional: ушах старого лиса
+  short_desc: Отрезанные уши лисицы валяются тут.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 23
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 5
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: уши старого лиса
+      description: |2
+        Обычные лисьи уши, покрытые клочьями
+        бледно-рыжей шерсти.

@@ -1,0 +1,94 @@
+# Rooms for zone 25
+
+# Room #2500
+0:
+  name: Гараж Деда Мороза
+  description: |2
+    Чувак, да ты читер! ваааали отседова, пока батька Свент не пришел!
+  sector: kInside
+  flags:
+    - kNoTeleportIn
+
+# Room #2501
+1:
+  name: На палубе летучего корабля
+  description: |2
+    ___Вы стоите на чисто выскобленной дощатой палубе. Над головой покачивается
+    высокая мачта со спущенным парусом. На корме виднеется небольшая надстройка.
+    Далеко внизу маячит земля, туда спускается веревочная лестница.
+  sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNohorse
+    - kNoWeather
+  exits:
+    - direction: south
+      to_room: 2502  # В каюте
+      key: 0
+    - direction: down
+      to_room: 49974  # Торговище
+      key: 0
+
+# Room #2502
+2:
+  name: В каюте
+  description: |2
+       Небольшая каюта завалена снегом. В ярко-белых сугробах с трудом угадываются
+    волшебные снежинки. Посередине каюты стоит обширный стол. Под потолком висит
+    дивная гирлянда из нетающих цветных льдинок.
+  sector: kInside
+  flags:
+    - kNoEntryMob
+    - kPeaceful
+    - kNoTeleportIn
+    - kNohorse
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 2501  # На палубе летучего корабля
+      key: 0
+    - direction: down
+      to_room: 2503  # В трюме летучего корабля
+      key: 0
+
+# Room #2503
+3:
+  name: В трюме летучего корабля
+  description: |2
+    ___Против обыкновения, в трюме летучего корабля светло: из окошка, забранного 
+    цветными стеклами падают переливающиеся лучи света. Вдоль стен расставлены
+    сундуки и короба с диковинами, в воздухе висят светящиеся ледяные шарики --
+    и даже не думают таять.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTrack
+    - kNoTeleportIn
+  exits:
+    - direction: north
+      to_room: 2504  # В трюме у носа летучего корабля
+      key: 0
+    - direction: up
+      to_room: 2502  # В каюте
+      key: 0
+
+# Room #2504
+4:
+  name: В трюме у носа летучего корабля
+  description: |2
+    ___Здесь кругом расставлены короба с товаром, развешены светящиеся, юужжащие,
+    щелкающие и булькающие диковины, светятся огоньками магические шары и зеркала.
+    Посреди всего этого стоит огромный стол, заваленный свитками.
+  sector: kInside
+  flags:
+    - kPeaceful
+    - kNoTrack
+    - kNoTeleportIn
+  exits:
+    - direction: south
+      to_room: 2503  # В трюме летучего корабля
+      key: 0

@@ -1,0 +1,785 @@
+# Mobs for zone 54
+
+# Mob #5400
+0:
+  names:
+    aliases: глухарь
+    nominative: глухарь
+    genitive: глухаря
+    dative: глухарю
+    accusative: глухаря
+    instrumental: глухарем
+    prepositional: глухаре
+  descriptions:
+    short_desc: |2
+      Глухарь сидит на ветке.
+    long_desc: |2
+         Под тяжестью глухаря качается зеленый сук.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 6
+    armor: 6
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 5
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 103
+  height: 3
+  weight: 3
+  attributes:
+    strength: 11
+    dexterity: 6
+    intelligence: 3
+    wisdom: 3
+    constitution: 11
+    charisma: 5
+  action_flags:
+    - kNpc
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 70
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 15
+    like_work: 100
+    extra_attack: 1
+
+# Mob #5401
+1:
+  names:
+    aliases: тетерев косач
+    nominative: тетерев-косач
+    genitive: тетерева-косача
+    dative: тетереву-косачу
+    accusative: тетерева-косача
+    instrumental: тетеревом-косачом
+    prepositional: тетереве-косаче
+  descriptions:
+    short_desc: |2
+      Тетерев-косач сидит на ветке здесь.
+    long_desc: |2
+         Черно-бронзовый с зеленоватым отливом с алого 
+      цвета бровями тетерев-косач сидит на ветке здесь.
+  alignment: 0
+  stats:
+    level: 11
+    hitroll_penalty: 6
+    armor: 5
+    hp:
+      dice_count: 2
+      dice_size: 10
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 7500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 103
+  height: 3
+  weight: 3
+  attributes:
+    strength: 11
+    dexterity: 11
+    intelligence: 4
+    wisdom: 4
+    constitution: 11
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSummon
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 11
+    bare_hand_attack: 4
+    like_work: 100
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: l0
+
+# Mob #5402
+2:
+  names:
+    aliases: рябчик
+    nominative: рябчик
+    genitive: рябчика
+    dative: рябчику
+    accusative: рябчика
+    instrumental: рябчиком
+    prepositional: рябчике
+  descriptions:
+    short_desc: |2
+      Рябчик прыгает среди веток.
+    long_desc: |2
+         Среди веток прячется юркий рябчик.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 13
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 10
+      bonus: 80
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 2
+  race: 103
+  height: 3
+  weight: 1
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 3
+    wisdom: 3
+    constitution: 4
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+    - skill_id: 157  # уклониться
+      value: 30
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    special_bitvector: l0
+
+# Mob #5403
+3:
+  names:
+    aliases: перепел
+    nominative: перепел
+    genitive: перепела
+    dative: перепелу
+    accusative: перепела
+    instrumental: перепелом
+    prepositional: перепеле
+  descriptions:
+    short_desc: |2
+      Перепел прячется здесь.
+    long_desc: |2
+      Перепел птица такая, это не перепИл, как многим покажется.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 8
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 5
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 6
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 2
+  race: 103
+  height: 2
+  weight: 2
+  attributes:
+    strength: 4
+    dexterity: 11
+    intelligence: 4
+    wisdom: 4
+    constitution: 4
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 4
+    special_bitvector: l0
+  dead_load:
+    - obj_vnum: 5414
+      load_prob: 75
+      load_type: 0
+      spec_param: 0
+
+# Mob #5404
+4:
+  names:
+    aliases: утка
+    nominative: утка
+    genitive: утки
+    dative: утке
+    accusative: утку
+    instrumental: уткой
+    prepositional: утке
+  descriptions:
+    short_desc: |2
+      Утка плавает здесь, мерно крякая.
+    long_desc: |2
+         Утка плавает у берега маленького пруда среди леса.
+  alignment: 0
+  stats:
+    level: 7
+    hitroll_penalty: 13
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 10
+      bonus: 80
+    damage:
+      dice_count: 1
+      dice_size: 5
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2500
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 2
+  race: 103
+  height: 2
+  weight: 2
+  attributes:
+    strength: 4
+    dexterity: 10
+    intelligence: 4
+    wisdom: 4
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 7
+    bare_hand_attack: 4
+    max_factor: 1
+
+# Mob #5405
+5:
+  names:
+    aliases: дупель
+    nominative: дупель
+    genitive: дупеля
+    dative: дупелю
+    accusative: дупеля
+    instrumental: дупелем
+    prepositional: дупеле
+  descriptions:
+    short_desc: |2
+      Дупель прячется среди веток здесь.
+    long_desc: |2
+      Одна из самых шустрых птиц русского леса.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 1
+      dice_size: 10
+      bonus: 80
+    damage:
+      dice_count: 1
+      dice_size: 7
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 2
+  race: 103
+  height: 2
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 11
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSummon
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 15
+    special_bitvector: l0
+
+# Mob #5406
+6:
+  names:
+    aliases: охотник
+    nominative: охотник
+    genitive: охотника
+    dative: охотнику
+    accusative: охотника
+    instrumental: охотником
+    prepositional: охотнике
+  descriptions:
+    short_desc: |2
+      Охотник высматривает добычу здесь.
+    long_desc: |2
+      Суровый охотник высматривает следы птиц. Лучше ему не мешать.
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 2
+      dice_size: 5
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 30000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 101
+  height: 150
+  weight: 60
+  attributes:
+    strength: 11
+    dexterity: 20
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 132  # сбить
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 45
+    - skill_id: 150  # обезоружить
+      value: 90
+    - skill_id: 154  # луки
+      value: 90
+  triggers:
+    - 5401  # охотник1 
+    - 5400  # охотник2 
+  enhanced:
+    absorb: 18
+    bare_hand_attack: 6
+    like_work: 90
+    max_factor: 2
+    extra_attack: 1
+    spells:
+      - 5
+    helpers:
+      - 5410
+
+# Mob #5407
+7:
+  names:
+    aliases: хорек
+    nominative: хорек
+    genitive: хорька
+    dative: хорьку
+    accusative: хорька
+    instrumental: хорьком
+    prepositional: хорьке
+  descriptions:
+    short_desc: |2
+      Хорек вынюхивает добычу.
+    long_desc: |2
+         Быстрый юркий хорек бегает в поисках пищи.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 5
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 104
+  height: 2
+  weight: 11
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+    - kHelper
+    - kNoSummon
+    - kNoSkillTrain
+  affect_flags:
+    - kSneak
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 12
+    special_bitvector: m0
+
+# Mob #5408
+8:
+  names:
+    aliases: кукушка
+    nominative: кукушка
+    genitive: кукушки
+    dative: кукушке
+    accusative: кукушку
+    instrumental: кукушкой
+    prepositional: кукушке
+  descriptions:
+    short_desc: |2
+      Кукушка сидит высоко на ветке здесь.
+    long_desc: |2
+         Кукушка заняла самую высокую ветку на 
+      дереве, откуда и раздается периодически КУ-КУ, КУ-КУ.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 1
+      dice_size: 20
+      bonus: 250
+    damage:
+      dice_count: 1
+      dice_size: 9
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 4
+  race: 103
+  height: 3
+  weight: 2
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSummon
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 40
+    - skill_id: 136  # кулачный бой
+      value: 36
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 12
+    max_factor: 1
+    special_bitvector: l0
+
+# Mob #5409
+9:
+  names:
+    aliases: заяц-русак
+    nominative: заяц-русак
+    genitive: зайца-русака
+    dative: зайцу-русаку
+    accusative: зайца-русака
+    instrumental: зайцем-русаком
+    prepositional: зайце-русаке
+  descriptions:
+    short_desc: |2
+      Заяц-русак сиганул через полянку.
+    long_desc: |2
+      Заяц-русак трусливо перебегает полянку.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 16
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 2
+      bonus: 75
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 750
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 104
+  height: 2
+  weight: 11
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 12
+    special_bitvector: n0
+
+# Mob #5410
+10:
+  names:
+    aliases: охотничий пес
+    nominative: охотничий пес
+    genitive: охотничьего пса
+    dative: охотничьему псу
+    accusative: охотничьего пса
+    instrumental: охотничьим псом
+    prepositional: охотничьем псе
+  descriptions:
+    short_desc: |2
+      Охотничий пес выслеживает добычу.
+    long_desc: |2
+      Охотничий небольшой пес рыскает в поисках следов животных.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 7
+    armor: 7
+    hp:
+      dice_count: 20
+      dice_size: 5
+      bonus: 200
+    damage:
+      dice_count: 5
+      dice_size: 2
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 104
+  height: 50
+  weight: 10
+  attributes:
+    strength: 14
+    dexterity: 20
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 132  # сбить
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 36
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 150  # обезоружить
+      value: 80
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 4
+    max_factor: 1
+    special_bitvector: p0
+    helpers:
+      - 5406
+
+# Mob #5411
+11:
+  names:
+    aliases: куропатка
+    nominative: куропатка
+    genitive: куропатки
+    dative: куропатке
+    accusative: куропатку
+    instrumental: куропаткой
+    prepositional: куропатке
+  descriptions:
+    short_desc: |2
+      Куропатка спряталась здесь.
+    long_desc: |2
+         Куропатка спряталась в траве здесь, ждет что вы будете дальше делать,
+      если подойти близко птица явно спорхнет и постарается улететь.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 7
+    armor: 6
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 103
+  height: 198
+  weight: 5
+  attributes:
+    strength: 6
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 5
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSkillTrain
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 21
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 15
+    extra_attack: 1
+    special_bitvector: l0

@@ -1,0 +1,56 @@
+# Mobs for zone 31
+
+# Mob #3101
+1:
+  names:
+    aliases: кастер моб
+    nominative: моб
+    genitive: моб
+    dative: моб
+    accusative: моб
+    instrumental: моб
+    prepositional: моб
+  descriptions:
+    short_desc: Неопределен
+    long_desc: неопределен
+  alignment: 0
+  stats:
+    level: 31
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 9999999
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 0
+  race: 100
+  height: 198
+  weight: 200
+  attributes:
+    strength: 36
+    dexterity: 36
+    intelligence: 36
+    wisdom: 36
+    constitution: 36
+    charisma: 36
+  action_flags:
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+  enhanced:
+    max_factor: 4
+    spells:
+      - 103

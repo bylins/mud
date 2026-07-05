@@ -1,0 +1,558 @@
+# Objects for zone 54
+
+# Object #5400
+0:
+  names:
+    aliases: кривая палка
+    nominative: кривая палка
+    genitive: кривой палки
+    dative: кривой палке
+    accusative: кривую палку
+    instrumental: кривой палкой
+    prepositional: кривой палке
+  short_desc: Кривая палка лежит здесь
+  action_desc: |2
+       Кривая крепкая палка.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 3
+    - 0
+  weight: 12
+  cost: 75
+  rent_off: 75
+  rent_on: 8
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  anti_flags:
+    - kPoly
+    - kSorcerer
+    - kAssasine
+
+# Object #5401
+1:
+  names:
+    aliases: охотничий лук
+    nominative: охотничий лук
+    genitive: охотничьего лука
+    dative: охотничьему луку
+    accusative: охотничий лук
+    instrumental: охотничьему луку
+    prepositional: охотничьем луке
+  short_desc: Охотничий лук лежит здесь.
+  action_desc: |2
+       Крепкий лук небольшого размера, но сильного боя.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 5
+    - 3
+    - 9
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 30
+  spec_param: 154
+  max_durability: 150
+  cur_durability: 140
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 4
+  extra_flags:
+    - kNoinvis
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #5402
+2:
+  names:
+    aliases: глухариное перо
+    nominative: глухариное перо
+    genitive: глухариного пера
+    dative: глухариному перу
+    accusative: глухариное перо
+    instrumental: глухариным пером
+    prepositional: глухарином пере
+  short_desc: Глухариное перо лежит здесь.
+  action_desc: |2
+    Глухариное перо.
+  type: kWorm
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 20
+  rent_off: 10
+  rent_on: 20
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+
+# Object #5403
+3:
+  names:
+    aliases: подберезовик
+    nominative: подберезовик
+    genitive: подберезовика
+    dative: подберезовику
+    accusative: подберезовик
+    instrumental: подберезовику
+    prepositional: подберезовике
+  short_desc: Подберезовик растет здесь.
+  action_desc: |2
+       Крепкий лесной гриб так и просится в корзину.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  extra_flags:
+    - kNodecay
+    - kAppearsNight
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #5404
+4:
+  names:
+    aliases: тетеревиный хвост
+    nominative: тетеревиный хвост
+    genitive: тетеревиного хвоста
+    dative: тетеревиному хвосту
+    accusative: тетеревиный хвост
+    instrumental: тетеревиным хвостом
+    prepositional: тетеревином хвосте
+  short_desc: Тетеревиный хвост лежит здесь.
+  action_desc: |2
+       Вот и все что осталось от тетерева.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 24
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 50
+  rent_on: 20
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5405
+5:
+  names:
+    aliases: дубовый щит
+    nominative: дубовый щит
+    genitive: дубового щита
+    dative: дубовому щиту
+    accusative: дубовый щит
+    instrumental: дубовым щитом
+    prepositional: дубовом щите
+  short_desc: Дубовый щит лежит здесь.
+  action_desc: |2
+    Небольшой щит из крепкого моченого дуба.
+  type: kArmor
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kShield
+
+# Object #5406
+6:
+  names:
+    aliases: кучка монет
+    nominative: кучка монет
+    genitive: кучку монет
+    dative: кучке монет
+    accusative: кучку монет
+    instrumental: кучкой монет
+    prepositional: кучке монет
+  short_desc: Лежит кучка монет.
+  type: kMoney
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 100
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 300
+  cur_durability: 300
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5407
+7:
+  names:
+    aliases: птичье мясо
+    nominative: птичье мясо
+    genitive: птичьего мяса
+    dative: птичьему мясу
+    accusative: птичье мясо
+    instrumental: птичьим мясом
+    prepositional: птичьем мясе
+  short_desc: Птичье мясо лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 4
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 5
+  rent_on: 20
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 10000
+  wear_flags:
+    - kTake
+
+# Object #5408
+8:
+  names:
+    aliases: старый ошейник
+    nominative: старый ошейник
+    genitive: старого ошейника
+    dative: старому ошейнику
+    accusative: старый ошейник
+    instrumental: старым ошейником
+    prepositional: старом ошейнике
+  short_desc: Старый ошейник лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kGlow
+  wear_flags:
+    - kTake
+    - kNeck
+  anti_flags:
+    - kPoly
+    - kMage
+    - kSorcerer
+    - kThief
+    - kMerchant
+    - kMagus
+  affect_flags:
+    - kInfravision
+
+# Object #5409
+9:
+  names:
+    aliases: маленький лесной ручей
+    nominative: маленький ручей
+    genitive: маленького ручья
+    dative: маленькому ручью
+    accusative: маленький ручей
+    instrumental: маленьким ручьем
+    prepositional: маленькому ручью
+  short_desc: Маленький лесной ручей протекает здесь.
+  type: kFountain
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 999
+    - 999
+    - 0
+    - 0
+  weight: 1004
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 300
+  cur_durability: 300
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kHum
+    - kNodecay
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+
+# Object #5410
+10:
+  names:
+    aliases: мутная черная вода
+    nominative: мутная черная вода
+    genitive: мутной черной воды
+    dative: мутной черной воде
+    accusative: мутную черную воду
+    instrumental: мутной черной водой
+    prepositional: мутной черной воде
+  short_desc: Мутная черная вода лесного пруда.
+  type: kFountain
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 999
+    - 999
+    - 0
+    - 2
+  weight: 1004
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 300
+  cur_durability: 300
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+
+# Object #5411
+11:
+  names:
+    aliases: утиное перо
+    nominative: утиное перо
+    genitive: утиного пера
+    dative: утиному перу
+    accusative: утиное перо
+    instrumental: утиным пером
+    prepositional: утином пере
+  short_desc: Утиное перо лежит здесь.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 2
+    - 4
+    - 11
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  anti_flags:
+    - kWarrior
+    - kGuard
+    - kPaladine
+    - kVigilant
+    - kMerchant
+
+# Object #5412
+12:
+  names:
+    aliases: меховые рукавицы
+    nominative: меховые рукавицы
+    genitive: меховых рукавиц
+    dative: меховым рукавицам
+    accusative: меховые рукавицы
+    instrumental: меховыми рукавицами
+    prepositional: меховых рукавицах
+  short_desc: Меховые рукавицы лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #5413
+13:
+  names:
+    aliases: хохолок кукушки
+    nominative: хохолок кукушки
+    genitive: хохолка кукушки
+    dative: хохолку кукушки
+    accusative: хохолок кукушки
+    instrumental: хохолком кукушки
+    prepositional: хохолке кукушки
+  short_desc: Хохолок кукушки лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 25
+  cur_durability: 25
+  timer: 2880
+  spell: 103  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 4
+  wear_flags:
+    - kTake
+    - kWrist
+
+# Object #5414
+14:
+  names:
+    aliases: перепелиные перья
+    nominative: перепелиные перья
+    genitive: перепелиных перьев
+    dative: перепелиным перьям
+    accusative: перепелиные перья
+    instrumental: перепелиными перьями
+    prepositional: перепелиных перьях
+  short_desc: Горстка пестрых птичьих перьев лежит тут.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 15
+  cur_durability: 8
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 20
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake

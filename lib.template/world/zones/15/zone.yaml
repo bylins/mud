@@ -1,0 +1,13 @@
+# Zone #15
+
+vnum: 15
+name: 'Системная зона 15 -- прототипы луков для "смастерить лук" (!OLC)'
+top_room: 1599
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 1500
+under_construction: 0
+zone_group: 1  # solo

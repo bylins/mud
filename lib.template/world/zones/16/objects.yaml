@@ -1,0 +1,4193 @@
+# Objects for zone 16
+
+# Object #1600
+0:
+  names:
+    aliases: учебная нить материал
+    nominative: учебная нить
+    genitive: учебной нити
+    dative: учебной нити
+    accusative: учебную нить
+    instrumental: учебной нитью
+    prepositional: учебной нити
+  short_desc: Учебная нить клубком лежит здесь
+  type: kCraftMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 1600
+    - 100
+    - 0
+  weight: 7
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 10
+  extra_descriptions:
+    - keywords: нитка нить
+      description: |2
+        Обыкновенная нитка. К чему она Вам? Разве Вы умеете шить?
+
+# Object #1601
+1:
+  names:
+    aliases: крепкая льняная нить материал
+    nominative: крепкая льняная нить
+    genitive: крепкой льняной нити
+    dative: крепкой льняной нити
+    accusative: крепкую льняную нить
+    instrumental: крепкой льняной нитью
+    prepositional: крепкой льняной нити
+  short_desc: На вид весьма прочная суровая нитка лежит здесь
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 3840
+    - 1601
+    - 50
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromMind
+  applies:
+    - location: 37  # броня
+      modifier: 1
+    - location: 17  # защита
+      modifier: 1
+  extra_descriptions:
+    - keywords: нить
+      description: |2
+        Хорошая прочная нить. Такой можно шить даже кожу.
+
+# Object #1602
+2:
+  names:
+    aliases: шерстяная нить материал
+    nominative: шерстяная нить
+    genitive: шерстяной нити
+    dative: шерстяной нити
+    accusative: шерстяную нить
+    instrumental: шерстяной нитью
+    prepositional: шерстяной нити
+  short_desc: Спутанная в невообразимый клубок шерстяная нитка лежит перед Вами
+  type: kCraftMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 1
+    - 1600
+    - 50
+    - 0
+  weight: 7
+  cost: 30
+  rent_off: 30
+  rent_on: 30
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInvisibility
+    - kWaterWalk
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 5  # телосложение
+      modifier: 1
+    - location: 6  # обаяние
+      modifier: 1
+  extra_descriptions:
+    - keywords: нить
+      description: |2
+        Вполне пригодная для шитья нитка из шерсти животного.
+
+# Object #1603
+3:
+  names:
+    aliases: плотная шерстяная нить материал
+    nominative: плотная шерстяная нить
+    genitive: плотной шерстяной нити
+    dative: плотной шерстяной нити
+    accusative: плотную шерстяную нить
+    instrumental: плотной шерстяной нитью
+    prepositional: плотной шерстяной нити
+  short_desc: Хорошая шерстяная нитка брошена здесь
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 4096
+    - 1603
+    - 50
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kWaterBreath
+  applies:
+    - location: 44  # поглощение
+      modifier: 2
+  extra_descriptions:
+    - keywords: нить
+      description: |2
+        Шерстяная нитка хорошего качества.
+        Вполне годится для шитья.
+
+# Object #1604
+4:
+  names:
+    aliases: шелковая нить материал
+    nominative: шелковая нить
+    genitive: шелковой нити
+    dative: шелковой нити
+    accusative: шелковую нить
+    instrumental: шелковой нитью
+    prepositional: шелковой нити
+  short_desc: Тонкая шелковая нить вот-вот будет унесена ветром
+  type: kCraftMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 40
+    - 1600
+    - 30
+    - 2
+  weight: 7
+  cost: 40
+  rent_off: 40
+  rent_on: 40
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 25
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInfravision
+    - kProtectFromDark
+    - kFly
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 6  # обаяние
+      modifier: 2
+  extra_descriptions:
+    - keywords: нить шелк
+      description: |2
+        Шелковые нити очень ценятся мастерами.
+        Они не только очень крепкие, но и очень красивые.
+
+# Object #1605
+5:
+  names:
+    aliases: шелковая нить двойного кручения материал
+    nominative: шелковая нить двойного кручения
+    genitive: шелковой нити двойного кручения
+    dative: шелковой нити двойного кручения
+    accusative: шелковую нить двойного кручения
+    instrumental: шелковой нитью двойного кручения
+    prepositional: шелковой нити двойного кручения
+  short_desc: Лежащая под ногами шелковая нить кажется Вам особенно прочной
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 5632
+    - 1605
+    - 90
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBlink
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 3
+  extra_descriptions:
+    - keywords: нить нитка шелк
+      description: |2
+        Необычайно прочная нить из шелка.
+        Она изготовлена уникальным способом -
+        скручиванием двух волокон.
+
+# Object #1606
+6:
+  names:
+    aliases: тонкая металлическая нить материал
+    nominative: тонкая металлическая нить
+    genitive: тонкой металлической нити
+    dative: тонкой металлической нити
+    accusative: тонкую металлическую нить
+    instrumental: тонкой металлической нитью
+    prepositional: тонкой металлической нити
+  short_desc: Свитая в колечко нить светлого металла уютно расположилась тут
+  type: kMagicIngredient
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 6144
+    - 1606
+    - 80
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 20
+  cur_durability: 20
+  timer: 20160
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kAwareness
+  applies:
+    - location: 37  # броня
+      modifier: 2
+    - location: 17  # защита
+      modifier: 2
+  extra_descriptions:
+    - keywords: нить нитка металл
+      description: |2
+        Полоска светлого металла, настолько тонкая,
+        что сразу же приходит в голову использовать ее для шитья
+
+# Object #1607
+7:
+  names:
+    aliases: серебряная нить материал
+    nominative: серебряная нить
+    genitive: серебряной нити
+    dative: серебряной нити
+    accusative: серебряную нить
+    instrumental: серебряной нитью
+    prepositional: серебряной нити
+  short_desc: Нить сверкающего серебра радует глаз
+  type: kCraftMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 52
+    - 1600
+    - 30
+    - 3
+  weight: 7
+  cost: 200
+  rent_off: 200
+  rent_on: 200
+  max_durability: 20
+  cur_durability: 20
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 15
+  minimum_remorts: 12
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kFireAura
+  applies:
+    - location: 1  # сила
+      modifier: 3
+    - location: 2  # ловкость
+      modifier: 3
+    - location: 3  # интеллект
+      modifier: 3
+    - location: 4  # мудрость
+      modifier: 3
+    - location: 6  # обаяние
+      modifier: 3
+    - location: 5  # телосложение
+      modifier: 3
+  extra_descriptions:
+    - keywords: нить нитка серебро
+      description: |2
+        Глядя на то, как удивительно красиво блестит
+        в Ваших руках эта нить, Вы представляете себе
+        как бы она смотрелась на одежде.
+
+# Object #1608
+8:
+  names:
+    aliases: золото волоченое материал
+    nominative: золото волоченое
+    genitive: золота волоченого
+    dative: золоту волоченому
+    accusative: золото волоченое
+    instrumental: золотом волоченым
+    prepositional: золоте волоченом
+  short_desc: Что это? Вам показалось или это действительно золотая нитка?
+  type: kMagicIngredient
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 7168
+    - 1608
+    - 95
+    - 0
+  weight: 2
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 20
+  cur_durability: 20
+  timer: 30240
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSanctuary
+  applies:
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 10
+  extra_descriptions:
+    - keywords: нить золото волоченое
+      description: |2
+        Редко можно увидеть такое чудо - 
+        позолоченная нить из чистого серебра.
+        Мастера золотого шитья дорого за нее дадут.
+
+# Object #1609
+9:
+  names:
+    aliases: золото пряденое материал
+    nominative: золото пряденое
+    genitive: золота пряденого
+    dative: золоту пряденому
+    accusative: золото пряденое
+    instrumental: золотом пряденым
+    prepositional: золоте пряденом
+  short_desc: Удивительно преливающаяся в лучах света нить заметна издалека
+  type: kMagicIngredient
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 7168
+    - 1609
+    - 95
+    - 0
+  weight: 2
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 20
+  cur_durability: 20
+  timer: 30240
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kMagicGlass
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+  extra_descriptions:
+    - keywords: нить золото
+      description: |2
+        Шелковая или льняная нить, перевитая тончайшей серебряной 
+        позолоченной проволокой. Очень ценится мастерами золотого шитья.
+
+# Object #1610
+10:
+  names:
+    aliases: деревянная пуговица материал
+    nominative: деревянная пуговица
+    genitive: деревянной пуговицы
+    dative: деревянной пуговице
+    accusative: деревянную пуговицу
+    instrumental: деревянной пуговицей
+    prepositional: деревянной пуговице
+  short_desc: Маленькая кругленькая пуговка едва видна тут
+  type: kCraftMaterial
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1
+    - 1612
+    - 50
+    - 1
+  weight: 7
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 25
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 2
+    - location: 12  # запоминание
+      modifier: 20
+    - location: 41  # удача
+      modifier: 4
+    - location: 13  # макс.жизнь
+      modifier: 25
+  extra_descriptions:
+    - keywords: пуговка пуговица дерево
+      description: |2
+        Маленькая круглая деревянная пластинка вполне
+        может пригодиться швейным мастерам.
+
+# Object #1611
+11:
+  names:
+    aliases: костяная пуговица материал
+    nominative: костяная пуговица
+    genitive: костяной пуговицы
+    dative: костяной пуговице
+    accusative: костяную пуговицу
+    instrumental: костяной пуговицей
+    prepositional: костяной пуговице
+  short_desc: Белая пуговка из кости брошена тут
+  type: kCraftMaterial
+  material: 13  # КОСТЬ
+  values:
+    - 15
+    - 1612
+    - 30
+    - 2
+  weight: 7
+  cost: 20
+  rent_off: 20
+  rent_on: 20
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 25
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kAirAura
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 12  # запоминание
+      modifier: 35
+    - location: 41  # удача
+      modifier: 6
+    - location: 13  # макс.жизнь
+      modifier: 40
+  extra_descriptions:
+    - keywords: пуговка пуговица кость
+      description: |2
+        Пуговица из белой кости может быть
+        использована для украшения одежды.
+
+# Object #1612
+12:
+  names:
+    aliases: учебная пуговица материал
+    nominative: учебная пуговица
+    genitive: учебной пуговицы
+    dative: учебной пуговице
+    accusative: учебную пуговицу
+    instrumental: учебной пуговицей
+    prepositional: учебной пуговице
+  short_desc: Пуговица из темного металла обронена кем-то на дорогу
+  type: kCraftMaterial
+  material: 2  # БРОНЗА
+  values:
+    - 1
+    - 1612
+    - 100
+    - 0
+  weight: 7
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  applies:
+    - location: 14  # макс.энергия
+      modifier: 20
+  extra_descriptions:
+    - keywords: пуговка пуговица бронза
+      description: |2
+        Бронзовая с узором пуговица достойно
+        украсит одежду славного воина.
+
+# Object #1613
+13:
+  names:
+    aliases: толстина лен материал
+    nominative: толстина
+    genitive: толстины
+    dative: толстине
+    accusative: толстину
+    instrumental: толстиной
+    prepositional: толстине
+  short_desc: Сверток толстого льняного полотна лежит тут
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 5120
+    - 1613
+    - 70
+    - 0
+  weight: 30
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kWaist
+  affect_flags:
+    - kIceAura
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 10
+  extra_descriptions:
+    - keywords: ткань полотно лен
+      description: |2
+        Грубо сработанное полотно из лена годится только на одежду для бедняков.
+
+# Object #1614
+14:
+  names:
+    aliases: сермяга материал
+    nominative: сермяга
+    genitive: сермяги
+    dative: сермяге
+    accusative: сермягу
+    instrumental: сермягой
+    prepositional: сермяге
+  short_desc: Кусок толстого полотна неизвестного происхождения лежит здесь.
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 5120
+    - 1614
+    - 50
+    - 0
+  weight: 20
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kWaist
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 26  # восст.энергии
+      modifier: 10
+  extra_descriptions:
+    - keywords: ткань полотно сермяга
+      description: |2
+        Грубая ткань непонятного происхождения. Вещь, сшитая из такой
+        ткани едва ли будет красива, но прослужит долго.
+
+# Object #1615
+15:
+  names:
+    aliases: частина материал
+    nominative: частина
+    genitive: частины
+    dative: частине
+    accusative: частину
+    instrumental: частиной
+    prepositional: частине
+  short_desc: Тонкое, отбеленное льняное полотно бережно свернутое лежит здесь
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6144
+    - 1615
+    - 80
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 42  # инициатива
+      modifier: 2
+  extra_descriptions:
+    - keywords: частина лен ткань полотно
+      description: |2
+        Тонкая белая ткань, из которой умелый мастер может
+        сшить красивую и дорогую вещь.
+
+# Object #1616
+16:
+  names:
+    aliases: понява материал
+    nominative: понява
+    genitive: понявы
+    dative: поняве
+    accusative: поняву
+    instrumental: понявой
+    prepositional: поняве
+  short_desc: Аккуратно свернутый отрез белого тонкого полотна лежит тут
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6144
+    - 1616
+    - 80
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kNoFlee
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+  extra_descriptions:
+    - keywords: ткань лен полотно
+      description: |2
+        Тонкое беленое льняное полотно, подходящий
+        материал для шитья.
+
+# Object #1617
+17:
+  names:
+    aliases: цатра материал
+    nominative: цатра
+    genitive: цатры
+    dative: цатре
+    accusative: цатру
+    instrumental: цатрой
+    prepositional: цатре
+  short_desc: Сделанный из пуха козьего материал валяется под ногами
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6144
+    - 1617
+    - 80
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSingleLight
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+  extra_descriptions:
+    - keywords: ткань пух полотно
+      description: |2
+        Тонкая, однако очень теплая ткань из козьего пуха.
+        Из нее можно сшить хорошую одежду, которая согреет
+        в суровую русскую зиму.
+
+# Object #1618
+18:
+  names:
+    aliases: ярига материал
+    nominative: ярига
+    genitive: яриги
+    dative: яриге
+    accusative: яригу
+    instrumental: яригой
+    prepositional: яриге
+  short_desc: Шерстяное полотно кажется еше не успело испачкаться в грязи
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6144
+    - 1618
+    - 80
+    - 0
+  weight: 50
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInvisibility
+  applies:
+    - location: 12  # запоминание
+      modifier: 10
+  extra_descriptions:
+    - keywords: ярига шерсть ткань
+      description: |2
+        Кусок шерстяной ткани. Вещи из шерсти дают не только тепло, 
+        прикосновение ее энергии, говорят, лечит и оберегает организм человека.
+
+# Object #1619
+19:
+  names:
+    aliases: опона материал
+    nominative: опона
+    genitive: опоны
+    dative: опоне
+    accusative: опону
+    instrumental: опоной
+    prepositional: опоне
+  short_desc: Толстая и теплая даже на вид шерстяная ткань лежит перед Вами
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6144
+    - 1619
+    - 80
+    - 0
+  weight: 50
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kNoTrack
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 5
+  extra_descriptions:
+    - keywords: опона шерсть ткань
+      description: |2
+        Разновидность шерстяной ткани, пригодная для шитья теплых и
+        красивых вещей.
+
+# Object #1620
+20:
+  names:
+    aliases: аксамит материал
+    nominative: аксамит
+    genitive: аксамита
+    dative: аксамиту
+    accusative: аксамит
+    instrumental: аксамитом
+    prepositional: аксамите
+  short_desc: Кому пришло в голову выбросить такую красоту? А может обронил...
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 7168
+    - 1620
+    - 90
+    - 0
+  weight: 20
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 1
+  cur_durability: 1
+  timer: 30240
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kStoneHand
+  applies:
+    - location: 41  # удача
+      modifier: 5
+  extra_descriptions:
+    - keywords: аксамит бархат ткань
+      description: |2
+        Наволок с золотыми узорами, из которого можно пошить нарядную одежду, 
+        или даже какое-нибудь украшение для украшений.
+
+# Object #1621
+21:
+  names:
+    aliases: атлас материал
+    nominative: атлас
+    genitive: атласа
+    dative: атласу
+    accusative: атлас
+    instrumental: атласом
+    prepositional: атласе
+  short_desc: Великолепная ткань из блестящей пряжи, надо срочно подобрать
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 7168
+    - 1621
+    - 90
+    - 0
+  weight: 20
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 1
+  cur_durability: 1
+  timer: 30240
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kNoTrack
+  applies:
+    - location: 1  # сила
+      modifier: 2
+  extra_descriptions:
+    - keywords: атлас пряжа ткань
+      description: |2
+        Шелковая, шерстяная или льняная ткань из блестящей пряжи, 
+        тканая атласовым переплетением, делающим возможным сложный образец. 
+        В местах, где утковые нити свободно лежат над основными, 
+        возникают блестящие поверхности, там, где они сплетаются, 
+        возникают матовые поверхности.
+        Можно легко использовать для парадных церемониальных туалетов.
+
+# Object #1622
+22:
+  names:
+    aliases: бархат материал
+    nominative: бархат
+    genitive: бархата
+    dative: бархату
+    accusative: бархат
+    instrumental: бархатом
+    prepositional: бархате
+  short_desc: Мягкая пушистая тряпочка привлекает Ваш взгляд
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 7168
+    - 1622
+    - 90
+    - 0
+  weight: 20
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 1
+  cur_durability: 1
+  timer: 30240
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+    - kWaterBreath
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+  extra_descriptions:
+    - keywords: бархат ткань
+      description: |2
+        Ворсовая ткань с мягкой пушистой лицевой поверхностью, 
+        полученной введением кроме основы и утка специальной ворсовой ткани.
+        Красивые из нее могут получиться вещи.
+
+# Object #1623
+23:
+  names:
+    aliases: тафта материал
+    nominative: тафта
+    genitive: тафты
+    dative: тафте
+    accusative: тафту
+    instrumental: тафтой
+    prepositional: тафте
+  short_desc: Гладкая блестящая ткань так и просится в суму
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6656
+    - 1623
+    - 85
+    - 0
+  weight: 20
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 30240
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectMagic
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+  extra_descriptions:
+    - keywords: тафта шелк ткань
+      description: |2
+        Эту ткань можно применять для пошива мужской или женской одежды.
+        За счет тугой закрутки пряжи тафта является достаточно жесткой, 
+        несмотря на тонкость, и при пошиве топорщится, 
+        создавая характерные складки драпировок. 
+
+# Object #1624
+24:
+  names:
+    aliases: шелк материал
+    nominative: шелк
+    genitive: шелка
+    dative: шелку
+    accusative: шелк
+    instrumental: шелком
+    prepositional: шелке
+  short_desc: Тонкая, почти невесомая ткань переливается на солнце
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6656
+    - 1624
+    - 85
+    - 0
+  weight: 15
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 30240
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kInfravision
+  applies:
+    - location: 20  # воля
+      modifier: 5
+    - location: 39  # реакция
+      modifier: 5
+    - location: 2  # ловкость
+      modifier: 1
+  extra_descriptions:
+    - keywords: шекл ткань
+      description: |2
+        Из тонкого, легкого полотна при достаточном умении и везении можно сшить
+        удивительную одежду, попробуйте, а вдруг получится.
+
+# Object #1625
+25:
+  names:
+    aliases: маленькая шкурка материал
+    nominative: маленькая шкурка @p1
+    genitive: маленькой шкурки @p1
+    dative: маленькой шкурке @p1
+    accusative: маленькую шкурку @p1
+    instrumental: маленькой шкуркой @p1
+    prepositional: маленькой шкурке @p1
+  short_desc: Маленькая звериная шкурка едва видна под ногами
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 3584
+    - 1625
+    - 30
+    - 0
+  weight: 5
+  cost: 60
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 900
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  applies:
+    - location: 44  # поглощение
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура шкурка
+      description: |2
+        Маленькая шкурка животного. Можно попробовать сшить из нее
+        хоть что-нибудь полезное.
+
+# Object #1626
+26:
+  names:
+    aliases: дубленая кожа материал
+    nominative: дубленая кожа
+    genitive: дубленой кожи
+    dative: дубленой коже
+    accusative: дубленую кожу
+    instrumental: дубленой кожей
+    prepositional: дубленой коже
+  short_desc: Вы видите практически затоптанный грязными ногами кусок неплохой кожи
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5376
+    - 1626
+    - 60
+    - 0
+  weight: 25
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kNoFlee
+  applies:
+    - location: 5  # телосложение
+      modifier: 1
+  extra_descriptions:
+    - keywords: кожа
+      description: |2
+        Добротная выделанная кожа. Можно хорошую обувь из нее пошить.
+
+# Object #1627
+27:
+  names:
+    aliases: юфть материал
+    nominative: юфть
+    genitive: юфти
+    dative: юфти
+    accusative: юфть
+    instrumental: юфтью
+    prepositional: юфти
+  short_desc: Толстая хорошая кожа лежит под ногами. Надо бы поднять
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5376
+    - 1627
+    - 70
+    - 0
+  weight: 40
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kNoTrack
+  applies:
+    - location: 21  # защита.от.стихии.огня
+      modifier: 2
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 2
+    - location: 23  # здоровье
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: 2
+  extra_descriptions:
+    - keywords: кожа юфть
+      description: |2
+        Добротная выделанная толстая кожа. Можно хорошую обувь из нее пошить.
+
+# Object #1628
+28:
+  names:
+    aliases: сыромятная кожа материал
+    nominative: сыромятная  кожа
+    genitive: сыромятной кожи
+    dative: сыромятной коже
+    accusative: сыромятную кожу
+    instrumental: сыромятной кожей
+    prepositional: сыромятной коже
+  short_desc: Вы видите практически затоптанный грязными ногами кусок неплохой кожи
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5376
+    - 1628
+    - 70
+    - 0
+  weight: 25
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kStoneHand
+  applies:
+    - location: 36  # размер
+      modifier: 10
+  extra_descriptions:
+    - keywords: кожа
+      description: |2
+        Добротная выделанная кожа. Можно хорошую обувь из нее пошить.
+
+# Object #1629
+29:
+  names:
+    aliases: опойка материал
+    nominative: опойка
+    genitive: опойки
+    dative: опойке
+    accusative: опойку
+    instrumental: опойкой
+    prepositional: опойке
+  short_desc: Довольно тонкая кожа лежит здесь, кто-то потерял наверное
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 6144
+    - 1629
+    - 70
+    - 0
+  weight: 20
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kFireAura
+  applies:
+    - location: 12  # запоминание
+      modifier: 10
+  extra_descriptions:
+    - keywords: опойка кожа
+      description: |2
+        Тонкая телячья кожа. Обувь из нее получится всем на загляденье,
+        был бы шнец умелый.
+
+# Object #1630
+30:
+  names:
+    aliases: сафьян материал
+    nominative: сафьян
+    genitive: сафьяна
+    dative: сафьяну
+    accusative: сафьян
+    instrumental: сафьяном
+    prepositional: сафьяне
+  short_desc: Выделанная кожа явно плохо лежит. Надо чтобы лежала хорошо
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 6144
+    - 1630
+    - 70
+    - 0
+  weight: 20
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 30240
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kAirAura
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+  extra_descriptions:
+    - keywords: сафьян кожа
+      description: |2
+        Хорошо выделанная кожа коз. Годится как на сапоги для воина,
+        так и на ладные тапочки для красивой девушки.
+
+# Object #1631
+31:
+  names:
+    aliases: небольшая шкурка материал
+    nominative: небольшая шкурка @p1
+    genitive: небольшей шкурки @p1
+    dative: небольшей шкурке @p1
+    accusative: небольшую шкурку @p1
+    instrumental: небольшей шкуркой @p1
+    prepositional: небольшей шкурке @p1
+  short_desc: Шкурка некрупного зверя лежит под ногами
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 3584
+    - 1631
+    - 30
+    - 0
+  weight: 5
+  cost: 60
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  applies:
+    - location: 37  # броня
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкурка шкура
+      description: |2
+        Шкурка, содранная с мелкого зверя. Можно попробовать сшить из нее
+        какую-либо вещь, вдруг получится.
+
+# Object #1632
+32:
+  names:
+    aliases: грязная шкурка материал
+    nominative: грязная шкурка @p1
+    genitive: грязной шкурки @p1
+    dative: грязной шкурке @p1
+    accusative: грязную шкурку @p1
+    instrumental: грязной шкуркой @p1
+    prepositional: грязной шкурке @p1
+  short_desc: Грязная звериная шкурка едва видна под ногами
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 3584
+    - 1632
+    - 30
+    - 0
+  weight: 5
+  cost: 60
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 4320
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  applies:
+    - location: 17  # защита
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура шкурка
+      description: |2
+        Маленькая шкурка животного. Можно попробовать сшить из нее
+        хоть что-нибудь полезное.
+
+# Object #1633
+33:
+  names:
+    aliases: гладкая шкурка @p1 материал
+    nominative: гладкая шкурка @p1
+    genitive: гладкой шкурки @p1
+    dative: гладкой шкурке @p1
+    accusative: гладкую шкурку @p1
+    instrumental: гладкой шкуркой @p1
+    prepositional: гладкой шкурке @p1
+  short_desc: Покрытая гладкой шерсть небольшая шкурка лежит тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 3584
+    - 1633
+    - 30
+    - 0
+  weight: 5
+  cost: 60
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 4320
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  applies:
+    - location: 42  # инициатива
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура шкурка
+      description: |2
+        Маленькая шкурка животного. Можно попробовать сшить из нее
+        хоть что-нибудь полезное.
+
+# Object #1634
+34:
+  names:
+    aliases: пестрая шкурка материал
+    nominative: пестрая шкурка @p1
+    genitive: пестрой шкурки @p1
+    dative: пестрой шкурке @p1
+    accusative: пеструю шкурку @p1
+    instrumental: пестрой шкуркой @p1
+    prepositional: пестрой шкурке @p1
+  short_desc: Пестро расцвеченая звериная шкурка лежит тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 3584
+    - 1634
+    - 30
+    - 0
+  weight: 5
+  cost: 60
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  applies:
+    - location: 14  # макс.энергия
+      modifier: 10
+  extra_descriptions:
+    - keywords: шкура шкурка
+      description: |2
+        Маленькая шкурка животного. Можно попробовать сшить из нее
+        хоть что-нибудь полезное.
+
+# Object #1635
+35:
+  names:
+    aliases: небольшая шкура материал
+    nominative: небольшая шкура @p1
+    genitive: небольшей шкуры @p1
+    dative: небольшей шкуре @p1
+    accusative: небольшую шкуру @p1
+    instrumental: небольшей шкурой @p1
+    prepositional: небольшей шкуре @p1
+  short_desc: Шкура, содранная с некрупного зверя, брошена на землю
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 4608
+    - 1635
+    - 40
+    - 0
+  weight: 10
+  cost: 140
+  rent_off: 20
+  rent_on: 20
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 18  # попадание
+      modifier: 2
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Шкура небольшого животного, ее вполне можно
+        применить для шитья.
+
+# Object #1636
+36:
+  names:
+    aliases: маленькая шкура материал
+    nominative: маленькая шкура @p1
+    genitive: маленькой шкуры @p1
+    dative: маленькой шкуре @p1
+    accusative: маленькую шкуру @p1
+    instrumental: маленькой шкурой @p1
+    prepositional: маленькой шкуре @p1
+  short_desc: Шкура, содранная с мелкого зверя, брошена на землю
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 4608
+    - 1636
+    - 40
+    - 0
+  weight: 10
+  cost: 140
+  rent_off: 20
+  rent_on: 20
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 19  # повреждение
+      modifier: 2
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Шкура небольшого животного, ее вполне можно
+        применить для шитья.
+
+# Object #1637
+37:
+  names:
+    aliases: потрепанная шкура материал
+    nominative: потрепанная шкура @p1
+    genitive: потрепанной шкуры @p1
+    dative: потрепанной шкуре @p1
+    accusative: потрепанную шкуру @p1
+    instrumental: потрепанной шкурой @p1
+    prepositional: потрепанной шкуре @p1
+  short_desc: Весьма небрежно содранная с мелкого зверя шкура лежит тут
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 4608
+    - 1637
+    - 40
+    - 0
+  weight: 10
+  cost: 140
+  rent_off: 20
+  rent_on: 20
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 36  # размер
+      modifier: 2
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Шкура небольшого животного, ее вполне можно
+        применить для шитья.
+
+# Object #1638
+38:
+  names:
+    aliases: невзрачная шкура материал
+    nominative: невзрачная шкура @p1
+    genitive: невзрачной шкуры @p1
+    dative: невзрачной шкуре @p1
+    accusative: невзрачную шкуру @p1
+    instrumental: невзрачной шкурой @p1
+    prepositional: невзрачной шкуре @p1
+  short_desc: Шкура небольшого зверя практически не привлекает внимания
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5120
+    - 1638
+    - 50
+    - 0
+  weight: 15
+  cost: 140
+  rent_off: 30
+  rent_on: 30
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kAwareness
+  applies:
+    - location: 20  # воля
+      modifier: 5
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Ничем не примечательная шкура, что-то из нее 
+        определенно можно сшить, но за качество вряд ли
+        можно будет поручиться.
+
+# Object #1639
+39:
+  names:
+    aliases: хорошая шкура материал
+    nominative: хорошая шкура @p1
+    genitive: хорошей шкуры @p1
+    dative: хорошей шкуре @p1
+    accusative: хорошую шкуру @p1
+    instrumental: хорошей шкурой @p1
+    prepositional: хорошей шкуре @p1
+  short_desc: Хорошо выделанная звериная шкура лежит тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5632
+    - 1641
+    - 60
+    - 0
+  weight: 20
+  cost: 220
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBlink
+  applies:
+    - location: 1  # сила
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Добротная шкура среднего размера.
+        Сшитая из нее вещь вполне может 
+        пригодиться в хозяйстве.
+
+# Object #1640
+40:
+  names:
+    aliases: шпора материал
+    nominative: шпора
+    genitive: шпоры
+    dative: шпоре
+    accusative: шпору
+    instrumental: шпорой
+    prepositional: шпоре
+  short_desc: Шпора всадника на половину влезла в землю.
+  type: kCraftMaterial
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 40
+    - 1677
+    - 30
+    - 3
+  weight: 7
+  cost: 30
+  rent_off: 100
+  rent_on: 150
+  max_durability: 150
+  cur_durability: 150
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kHaste
+    - kStoneHand
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 41  # удача
+      modifier: 15
+    - location: 19  # повреждение
+      modifier: 6
+    - location: 13  # макс.жизнь
+      modifier: 60
+    - location: 23  # здоровье
+      modifier: -20
+    - location: 42  # инициатива
+      modifier: 20
+  skills:
+    - skill_id: 8  # сражение верхом
+      value: 20
+
+# Object #1641
+41:
+  names:
+    aliases: шпора материал
+    nominative: шпора
+    genitive: шпоры
+    dative: шпоре
+    accusative: шпору
+    instrumental: шпорой
+    prepositional: шпоре
+  short_desc: Шпора всадника на половину влезла в землю.
+  type: kCraftMaterial
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 40
+    - 1677
+    - 30
+    - 3
+  weight: 7
+  cost: 30
+  rent_off: 100
+  rent_on: 150
+  max_durability: 150
+  cur_durability: 150
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSanctuary
+    - kAwareness
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 41  # удача
+      modifier: 15
+    - location: 19  # повреждение
+      modifier: 6
+    - location: 13  # макс.жизнь
+      modifier: 60
+    - location: 23  # здоровье
+      modifier: -20
+    - location: 42  # инициатива
+      modifier: 20
+  skills:
+    - skill_id: 8  # сражение верхом
+      value: 20
+
+# Object #1642
+42:
+  names:
+    aliases: Стальная подкова материал
+    nominative: стальная подкова
+    genitive: стальной подковы
+    dative: стальной подкове
+    accusative: стальную подкову
+    instrumental: стальной подковой
+    prepositional: стальной подкове
+  short_desc: Чья-то лошадь потеряла тут свою подкову.
+  type: kCraftMaterial
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 40
+    - 1678
+    - 30
+    - 3
+  weight: 7
+  cost: 40
+  rent_off: 100
+  rent_on: 100
+  max_durability: 130
+  cur_durability: 130
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kAirAura
+    - kFireAura
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 5
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 30
+    - location: 47  # защита.от.стихии.земли
+      modifier: 30
+    - location: 21  # защита.от.стихии.огня
+      modifier: 30
+
+# Object #1643
+43:
+  names:
+    aliases: Стальная подкова материал
+    nominative: стальная подкова
+    genitive: стальной подковы
+    dative: стальной подкове
+    accusative: стальную подкову
+    instrumental: стальной подковой
+    prepositional: стальной подкове
+  short_desc: Чья-то лошадь потеряла тут свою подкову.
+  type: kCraftMaterial
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 40
+    - 1678
+    - 30
+    - 3
+  weight: 7
+  cost: 40
+  rent_off: 100
+  rent_on: 100
+  max_durability: 130
+  cur_durability: 130
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kIceAura
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 5
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 30
+    - location: 47  # защита.от.стихии.земли
+      modifier: 30
+    - location: 21  # защита.от.стихии.огня
+      modifier: 30
+
+# Object #1644
+44:
+  names:
+    aliases: материал серебряная цепочка
+    nominative: серебряная цепочка
+    genitive: серебряной цепочки
+    dative: серебряной цепочке
+    accusative: серебряную цепочку
+    instrumental: серебряной цепочкой
+    prepositional: серебряной цепочке
+  short_desc: Серебряная цепочка брошена кем-то лежит здесь.
+  type: kCraftMaterial
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 40
+    - 1674
+    - 30
+    - 3
+  weight: 7
+  cost: 100
+  rent_off: 500
+  rent_on: 500
+  max_durability: 25
+  cur_durability: 25
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInfravision
+    - kBlink
+    - kHaste
+  applies:
+    - location: 39  # реакция
+      modifier: -20
+    - location: 24  # стойкость
+      modifier: -20
+    - location: 42  # инициатива
+      modifier: 20
+    - location: 23  # здоровье
+      modifier: -20
+    - location: 49  # защита.от.магии.разума
+      modifier: 20
+    - location: 20  # воля
+      modifier: -20
+
+# Object #1645
+45:
+  names:
+    aliases: золотая цепочка материал
+    nominative: золотая цепочка
+    genitive: золотой цепочки
+    dative: золотой цепочке
+    accusative: золотую цепочку
+    instrumental: золотой цепочкой
+    prepositional: золотой цепочке
+  short_desc: Золотая цепочка, утеренная пьяным путником лежит здесь.
+  type: kCraftMaterial
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 52
+    - 1674
+    - 30
+    - 3
+  weight: 7
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 35
+  cur_durability: 35
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInvisibility
+    - kHolyDark
+  applies:
+    - location: 51  # защита.от.чар
+      modifier: 5
+    - location: 12  # запоминание
+      modifier: 50
+    - location: 44  # поглощение
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 11
+    - location: 19  # повреждение
+      modifier: 7
+    - location: 13  # макс.жизнь
+      modifier: 55
+
+# Object #1646
+46:
+  names:
+    aliases: шелковистая шкура материал
+    nominative: шелковистая шкура @p1
+    genitive: шелковистой шкуры @p1
+    dative: шелковистой шкуре @p1
+    accusative: шелковистую шкуру @p1
+    instrumental: шелковистой шкурой @p1
+    prepositional: шелковистой шкуре @p1
+  short_desc: Вы видите шкуру весьма хорошего качества у себя под ногами
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 6144
+    - 1646
+    - 70
+    - 0
+  weight: 30
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSingleLight
+  applies:
+    - location: 5  # телосложение
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Хорошая довольно большая шкура, умело содранная со зверя.
+        Из такой шкуры можно сшить вполне приличные вещи.
+
+# Object #1647
+47:
+  names:
+    aliases: нарядная шкура материал
+    nominative: нарядная шкура @p1
+    genitive: нарядной шкуры @p1
+    dative: нарядной шкуре @p1
+    accusative: нарядную шкуру @p1
+    instrumental: нарядной шкурой @p1
+    prepositional: нарядной шкуре @p1
+  short_desc: Вы видите шкуру весьма хорошего качества у себя под ногами
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 6144
+    - 1647
+    - 70
+    - 0
+  weight: 30
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSingleLight
+  applies:
+    - location: 12  # запоминание
+      modifier: 10
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Хорошая довольно большая шкура, умело содранная со зверя.
+        Из такой шкуры можно сшить вполне приличные вещи.
+
+# Object #1648
+48:
+  names:
+    aliases: гладкая шкура материал
+    nominative: гладкая шкура @p1
+    genitive: гладкой шкуры @p1
+    dative: гладкой шкуре @p1
+    accusative: гладкую шкуру @p1
+    instrumental: гладкой шкурой @p1
+    prepositional: гладкой шкуре @p1
+  short_desc: Вы видите шкуру весьма хорошего качества у себя под ногами
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6144
+    - 1648
+    - 70
+    - 0
+  weight: 30
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSingleLight
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 10
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Хорошая довольно большая шкура, умело содранная со зверя.
+        Из такой шкуры можно сшить вполне приличные вещи.
+
+# Object #1649
+49:
+  names:
+    aliases: чудная шкура материал
+    nominative: чудная шкура @p1
+    genitive: чудной шкуры @p1
+    dative: чудной шкуре @p1
+    accusative: чудную шкуру @p1
+    instrumental: чудной шкурой @p1
+    prepositional: чудной шкуре @p1
+  short_desc: Такую великолепную шкуру Вы вряд ли сможете оставить там, где она сейчас.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6656
+    - 1649
+    - 80
+    - 0
+  weight: 35
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 44  # поглощение
+      modifier: 10
+    - location: 20  # воля
+      modifier: 5
+    - location: 39  # реакция
+      modifier: 5
+    - location: 3  # интеллект
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Прекрасная большая шкура, качественная, красивая, просто загляденье.
+        Сработать из нее вещь сможет далеко не любой мастер шитья.
+
+# Object #1650
+50:
+  names:
+    aliases: прекрасная шкура материал
+    nominative: прекрасная шкура @p1
+    genitive: прекрасной шкуры @p1
+    dative: прекрасной шкуре @p1
+    accusative: прекрасную шкуру @p1
+    instrumental: прекрасной шкурой @p1
+    prepositional: прекрасной шкуре @p1
+  short_desc: Такую великолепную шкуру Вы вряд ли сможете оставить там, где она сейчас.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6656
+    - 1650
+    - 80
+    - 0
+  weight: 35
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 37  # броня
+      modifier: 5
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 10
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Прекрасная большая шкура, качественная, красивая, просто загляденье.
+        Сработать из нее вещь сможет далеко не любой мастер шитья.
+
+# Object #1651
+51:
+  names:
+    aliases: замечательная шкура материал
+    nominative: замечательная шкура @p1
+    genitive: замечательной шкуры @p1
+    dative: замечательной шкуре @p1
+    accusative: замечательную шкуру @p1
+    instrumental: замечательной шкурой @p1
+    prepositional: замечательной шкуре @p1
+  short_desc: Такую великолепную шкуру Вы вряд ли сможете оставить там, где она сейчас.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6656
+    - 1651
+    - 80
+    - 0
+  weight: 35
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+    - location: 13  # макс.жизнь
+      modifier: 10
+    - location: 23  # здоровье
+      modifier: 5
+    - location: 32  # слот.6
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Прекрасная большая шкура, качественная, красивая, просто загляденье.
+        Сработать из нее вещь сможет далеко не любой мастер шитья.
+
+# Object #1652
+52:
+  names:
+    aliases: удивительная шкура материал
+    nominative: удивительная шкура @p1
+    genitive: удивительной шкуры @p1
+    dative: удивительной шкуре @p1
+    accusative: удивительную шкуру @p1
+    instrumental: удивительной шкурой @p1
+    prepositional: удивительной шкуре @p1
+  short_desc: Такую великолепную шкуру Вы вряд ли сможете оставить там, где она сейчас.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6656
+    - 1652
+    - 80
+    - 0
+  weight: 35
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 1
+  cur_durability: 1
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 17  # защита
+      modifier: 1
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Прекрасная большая шкура, качественная, красивая, просто загляденье.
+        Сработать из нее вещь сможет далеко не любой мастер шитья.
+
+# Object #1653
+53:
+  names:
+    aliases: большая шкура материал
+    nominative: большая шкура @p1
+    genitive: большей шкуры @p1
+    dative: большей шкуре @p1
+    accusative: большую шкуру @p1
+    instrumental: большей шкурой @p1
+    prepositional: большей шкуре @p1
+  short_desc: Громадная шкура свернута здесь.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 7168
+    - 1653
+    - 90
+    - 0
+  weight: 50
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 17280
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSanctuary
+  applies:
+    - location: 44  # поглощение
+      modifier: 10
+    - location: 37  # броня
+      modifier: 10
+    - location: 17  # защита
+      modifier: 2
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Громадная шкура принадлежала ранее опасному зверю.
+        Эта шкура сгодится на пошив быть может нескольких
+        прочных и удобных вещей.
+
+# Object #1654
+54:
+  names:
+    aliases: огромная шкура материал
+    nominative: огромная шкура @p1
+    genitive: огромной шкуры @p1
+    dative: огромной шкуре @p1
+    accusative: огромную шкуру @p1
+    instrumental: огромной шкурой @p1
+    prepositional: огромной шкуре @p1
+  short_desc: Огромная шкура грудой возвышается тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 7168
+    - 1654
+    - 90
+    - 0
+  weight: 50
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 17280
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSanctuary
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 5  # телосложение
+      modifier: 1
+    - location: 41  # удача
+      modifier: 5
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Громадная шкура принадлежала ранее опасному зверю.
+        Эта шкура сгодится на пошив быть может нескольких
+        прочных и удобных вещей.
+
+# Object #1655
+55:
+  names:
+    aliases: громадная шкура материал
+    nominative: громадная шкура @p1
+    genitive: громадной шкуры @p1
+    dative: громадной шкуре @p1
+    accusative: громадную шкуру @p1
+    instrumental: громадной шкурой @p1
+    prepositional: громадной шкуре @p1
+  short_desc: Огромная шкура грудой возвышается тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 7168
+    - 1655
+    - 90
+    - 0
+  weight: 50
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 17280
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSanctuary
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 20
+    - location: 14  # макс.энергия
+      modifier: 20
+    - location: 36  # размер
+      modifier: 5
+    - location: 25  # восст.жизни
+      modifier: 10
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Громадная шкура принадлежала ранее опасному зверю.
+        Эта шкура сгодится на пошив быть может нескольких
+        прочных и удобных вещей.
+
+# Object #1656
+56:
+  names:
+    aliases: белый зуб материал
+    nominative: белый зуб @p1
+    genitive: белого зуба @p1
+    dative: белому зубу @p1
+    accusative: белый зуб @p1
+    instrumental: белым зубом @p1
+    prepositional: белом зубе @p1
+  short_desc: Вырванный с мясом зуб может Вам пригодиться
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 5120
+    - 1656
+    - 50
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectMagic
+  applies:
+    - location: 1  # сила
+      modifier: 1
+  extra_descriptions:
+    - keywords: зуб
+      description: |2
+        Зуб этот принадлежал ранее свирепому животному.
+        Сейчас его можно приспособить к какой-нибудь одежде.
+
+# Object #1657
+57:
+  names:
+    aliases: большой зуб материал
+    nominative: большой зуб @p1
+    genitive: большого зуба @p1
+    dative: большому зубу @p1
+    accusative: большой зуб @p1
+    instrumental: большим зубом @p1
+    prepositional: большом зубе @p1
+  short_desc: Вырванный с мясом зуб может Вам пригодиться
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 5120
+    - 1657
+    - 50
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectAlign
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+  extra_descriptions:
+    - keywords: зуб
+      description: |2
+        Зуб этот принадлежал ранее свирепому животному.
+        Сейчас его можно приспособить к какой-нибудь одежде.
+
+# Object #1658
+58:
+  names:
+    aliases: крепкий зуб материал
+    nominative: крепкий зуб @p1
+    genitive: крепкого зуба @p1
+    dative: крепкому зубу @p1
+    accusative: крепкий зуб @p1
+    instrumental: крепким зубом @p1
+    prepositional: крепком зубе @p1
+  short_desc: Вырванный с мясом зуб может Вам пригодиться
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 5120
+    - 1658
+    - 50
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+  extra_descriptions:
+    - keywords: зуб
+      description: |2
+        Зуб этот принадлежал ранее свирепому животному.
+        Сейчас его можно приспособить к какой-нибудь одежде.
+
+# Object #1659
+59:
+  names:
+    aliases: белая кость материал
+    nominative: белая кость @p1
+    genitive: белой кости @p1
+    dative: белой кости @p1
+    accusative: белую кость @p1
+    instrumental: белой костью @p1
+    prepositional: белой кости @p1
+  short_desc: Кость @p1 наверное пригодилась бы еще ее прежнему владельцу
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 5120
+    - 1659
+    - 50
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 20160
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectMagic
+  applies:
+    - location: 3  # интеллект
+      modifier: 1
+  extra_descriptions:
+    - keywords: кость
+      description: |2
+        Эту косточку умелый скорняк знает как применить.
+
+# Object #1660
+60:
+  names:
+    aliases: потрепанная шкура @p1 материал
+    nominative: потрепанная шкура @p1
+    genitive: потрепанной шкуры @p1
+    dative: потрепанной шкуре @p1
+    accusative: потрепанную шкуру @p1
+    instrumental: потрепанной шкурой @p1
+    prepositional: потрепанной шкуре @p1
+  short_desc: Изрядно потрепанная шкура лежит тут.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 1661
+    - 0
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кость
+      description: |2
+        Эту косточку умелый скорняк знает как применить.
+
+# Object #1661
+61:
+  names:
+    aliases: дырявая шкура @p1 материал
+    nominative: дырявая шкура @p1
+    genitive: дырявой шкуры @p1
+    dative: дырявой шкуре @p1
+    accusative: дырявую шкуру @p1
+    instrumental: дырявой шкурой @p1
+    prepositional: дырявой шкуре @p1
+  short_desc: Продырявленная в нескольких местах шкура лежит тут.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 1661
+    - 100
+    - 1
+  weight: 7
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кость
+      description: |2
+        Эту косточку умелый скорняк знает как применить.
+
+# Object #1662
+62:
+  names:
+    aliases: изрезанная шкура @p1 материал
+    nominative: изрезанная шкура @p1
+    genitive: изрезанной шкуры @p1
+    dative: изрезанной шкуре @p1
+    accusative: изрезанную шкуру @p1
+    instrumental: изрезанной шкурой @p1
+    prepositional: изрезанной шкуре @p1
+  short_desc: Порезанная в нескольких местах шкура лежит тут.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 1661
+    - 100
+    - 0
+  weight: 7
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 600
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кость
+      description: |2
+        Эту косточку умелый скорняк знает как применить.
+
+# Object #1663
+63:
+  names:
+    aliases: невзрачная шкура @p1 материал
+    nominative: невзрачная шкура @p1
+    genitive: невзрачной шкуры @p1
+    dative: невзрачной шкуре @p1
+    accusative: невзрачную шкуру @p1
+    instrumental: невзрачной шкурой @p1
+    prepositional: невзрачной шкуре @p1
+  short_desc: Невзрачная плохонькая шкура лежит тут.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 10
+    - 1661
+    - 95
+    - 1
+  weight: 7
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: бисер
+      description: |2
+        Забавная вещица. Она так красиво переливается на солнце.
+        Узор из бисера, вышитый на одежде, говорят, приносит
+        удачу ее владельцу.
+
+# Object #1664
+64:
+  names:
+    aliases: хорошая шкура @p1 материал
+    nominative: хорошая шкура @p1
+    genitive: хорошей шкуры @p1
+    dative: хорошей шкуре @p1
+    accusative: хорошую шкуру @p1
+    instrumental: хорошей шкурой @p1
+    prepositional: хорошей шкуре @p1
+  short_desc: Хорошая звериная шкура лежит тут.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 18
+    - 1661
+    - 95
+    - 0
+  weight: 7
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 800
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Обыкновенная звериная шкура.
+
+# Object #1665
+65:
+  names:
+    aliases: крепкая шкура @p1 материал
+    nominative: крепкая шкура @p1
+    genitive: крепкой шкуры @p1
+    dative: крепкой шкуре @p1
+    accusative: крепкую шкуру @p1
+    instrumental: крепкой шкурой @p1
+    prepositional: крепкой шкуре @p1
+  short_desc: Звериная шкура пылится под ногами.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 20
+    - 1661
+    - 95
+    - 1
+  weight: 7
+  cost: 35
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 700
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шкурка шкура
+      description: |2
+        Обыкновенная звериная шкура.
+        Можно попробовать сшить из нее
+        какую-либо вещь, вдруг получится.
+
+# Object #1666
+66:
+  names:
+    aliases: добротная шкура @p1 материал
+    nominative: добротная шкура @p1
+    genitive: добротной шкуры @p1
+    dative: добротной шкуре @p1
+    accusative: добротную шкуру @p1
+    instrumental: добротной шкурой @p1
+    prepositional: добротной шкуре @p1
+  short_desc: Звериная шкура пылится под ногами.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 21
+    - 1661
+    - 95
+    - 1
+  weight: 7
+  cost: 60
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 500
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шкурка шкура
+      description: |2
+        Обыкновенная звериная шкура.
+        Можно попробовать сшить из нее
+        какую-либо вещь, вдруг получится.
+
+# Object #1667
+67:
+  names:
+    aliases: прекрасная шкура @p1 материал
+    nominative: прекрасная шкура @p1
+    genitive: прекрасной шкуры @p1
+    dative: прекрасной шкуре @p1
+    accusative: прекрасную шкуру @p1
+    instrumental: прекрасной шкурой @p1
+    prepositional: прекрасной шкуре @p1
+  short_desc: Звериная шкура пылится под ногами.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 30
+    - 1661
+    - 95
+    - 1
+  weight: 7
+  cost: 90
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 700
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Обыкновенная звериная шкура.
+        Можно попробовать сшить из нее
+        какую-либо вещь, вдруг получится.
+
+# Object #1668
+68:
+  names:
+    aliases: красивая шкура @p1 материал
+    nominative: красивая шкура @p1
+    genitive: красивой шкуры @p1
+    dative: красивой шкуре @p1
+    accusative: красивую шкуру @p1
+    instrumental: красивой шкурой @p1
+    prepositional: красивой шкуре @p1
+  short_desc: Звериная шкура пылится под ногами.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 40
+    - 1661
+    - 95
+    - 1
+  weight: 7
+  cost: 120
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 700
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Обыкновенная звериная шкура.
+        Можно попробовать сшить из нее
+        какую-либо вещь, вдруг получится.
+
+# Object #1669
+69:
+  names:
+    aliases: роскошная шкура @p1 материал
+    nominative: роскошная шкура @p1
+    genitive: роскошной шкуры @p1
+    dative: роскошной шкуре @p1
+    accusative: роскошную шкуру @p1
+    instrumental: роскошной шкурой @p1
+    prepositional: роскошной шкуре @p1
+  short_desc: Роскошная звериная шкура пылится под ногами.
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 54
+    - 1661
+    - 95
+    - 1
+  weight: 7
+  cost: 180
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 300
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kAwareness
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Обыкновенная звериная шкура.
+        Можно попробовать сшить из нее
+        какую-либо вещь, вдруг получится.
+
+# Object #1670
+70:
+  names:
+    aliases: роскошная шкура @p1 материал
+    nominative: роскошная шкура @p1
+    genitive: роскошной шкуры @p1
+    dative: роскошной шкуре @p1
+    accusative: роскошную шкуру @p1
+    instrumental: роскошной шкурой @p1
+    prepositional: роскошной шкуре @p1
+  short_desc: Роскошная звериная шкура пылится под ногами.
+  type: kWorm
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 1000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 17280
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  applies:
+    - location: 37  # броня
+      modifier: 1
+  extra_descriptions:
+    - keywords: шкура
+      description: |2
+        Обыкновенная звериная шкура.
+        Можно попробовать сшить из нее
+        какую-либо вещь, вдруг получится.
+
+# Object #1671
+71:
+  names:
+    aliases: пряжка тигр материал
+    nominative: пряжка в виде тигра
+    genitive: пряжки в виде тигра
+    dative: пряжке в виде тигра
+    accusative: пряжку в виде тигра
+    instrumental: пряжкой в виде тигра
+    prepositional: пряжке в виде тигра
+  short_desc: Пряжка к ремню в виде животного брошена кем-то.
+  type: kCraftMaterial
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 52
+    - 1612
+    - 30
+    - 3
+  weight: 7
+  cost: 7000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 25
+  cur_durability: 25
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 8
+    - location: 18  # попадание
+      modifier: 5
+    - location: 41  # удача
+      modifier: 10
+    - location: 13  # макс.жизнь
+      modifier: 55
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 12  # запоминание
+      modifier: 50
+
+# Object #1672
+72:
+  names:
+    aliases: Золотая пуговица материал
+    nominative: золотая пуговица
+    genitive: золотой пуговицы
+    dative: золотой пуговице
+    accusative: золотую пуговицу
+    instrumental: золотой пуговицей
+    prepositional: золотой пуговице
+  short_desc: Золотая пуговица лежит здесь
+  type: kCraftMaterial
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 52
+    - 1612
+    - 30
+    - 3
+  weight: 7
+  cost: 7000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 25
+  cur_durability: 25
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 8
+    - location: 18  # попадание
+      modifier: 5
+    - location: 41  # удача
+      modifier: 10
+    - location: 13  # макс.жизнь
+      modifier: 55
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 12  # запоминание
+      modifier: 50
+
+# Object #1673
+73:
+  names:
+    aliases: Нефритовая пуговица материал
+    nominative: нефритовая пуговица
+    genitive: нефритовой пуговицы
+    dative: нефритовой пуговицы
+    accusative: нефритовую пуговицу
+    instrumental: нефритовой пуговицей
+    prepositional: нефритовой пуговице
+  short_desc: Нефритовая пуговица потеряна владельцем лежит здесь.
+  type: kCraftMaterial
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 52
+    - 1612
+    - 30
+    - 4
+  weight: 7
+  cost: 8000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 25
+  cur_durability: 25
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  applies:
+    - location: 24  # стойкость
+      modifier: -30
+    - location: 20  # воля
+      modifier: -30
+    - location: 39  # реакция
+      modifier: -30
+    - location: 42  # инициатива
+      modifier: 30
+    - location: 23  # здоровье
+      modifier: -30
+    - location: 49  # защита.от.магии.разума
+      modifier: 30
+
+# Object #1674
+74:
+  names:
+    aliases: материал серебряная цепочка
+    nominative: серебряная цепочка
+    genitive: серебряной цепочки
+    dative: серебряной цепочке
+    accusative: серебряную цепочку
+    instrumental: серебряной цепочкой
+    prepositional: серебряной цепочке
+  short_desc: Серебряная цепочка брошена кем-то лежит здесь.
+  type: kCraftMaterial
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 40
+    - 1674
+    - 30
+    - 3
+  weight: 7
+  cost: 100
+  rent_off: 500
+  rent_on: 500
+  max_durability: 25
+  cur_durability: 25
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  extra_flags:
+    - kFire
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kInvisibility
+    - kAirAura
+  applies:
+    - location: 39  # реакция
+      modifier: -20
+    - location: 24  # стойкость
+      modifier: -20
+    - location: 42  # инициатива
+      modifier: 20
+    - location: 23  # здоровье
+      modifier: -20
+    - location: 49  # защита.от.магии.разума
+      modifier: 20
+    - location: 20  # воля
+      modifier: -20
+
+# Object #1675
+75:
+  names:
+    aliases: золотая цепочка материал
+    nominative: золотая цепочка
+    genitive: золотой цепочки
+    dative: золотой цепочке
+    accusative: золотую цепочку
+    instrumental: золотой цепочкой
+    prepositional: золотой цепочке
+  short_desc: Золотая цепочка, утеренная пьяным путником лежит здесь.
+  type: kCraftMaterial
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 52
+    - 1674
+    - 30
+    - 4
+  weight: 7
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 35
+  cur_durability: 35
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  extra_flags:
+    - kGlow
+    - kFire
+  wear_flags:
+    - kTake
+  applies:
+    - location: 51  # защита.от.чар
+      modifier: 5
+    - location: 12  # запоминание
+      modifier: 50
+    - location: 44  # поглощение
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 11
+    - location: 19  # повреждение
+      modifier: 7
+    - location: 13  # макс.жизнь
+      modifier: 55
+
+# Object #1676
+76:
+  names:
+    aliases: Железная накладка материал
+    nominative: железная накладка
+    genitive: железной накладки
+    dative: железной накладке
+    accusative: железную накладку
+    instrumental: железной накладкой
+    prepositional: железной накладке
+  short_desc: Железная накладка брошена кем-то валяется у ваших ног.
+  type: kCraftMaterial
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 15
+  wear_flags:
+    - kTake
+
+# Object #1677
+77:
+  names:
+    aliases: шпора материал
+    nominative: шпора
+    genitive: шпоры
+    dative: шпоре
+    accusative: шпору
+    instrumental: шпорой
+    prepositional: шпоре
+  short_desc: Шпора всадника на половину влезла в землю.
+  type: kCraftMaterial
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 40
+    - 1677
+    - 30
+    - 3
+  weight: 7
+  cost: 30
+  rent_off: 100
+  rent_on: 150
+  max_durability: 150
+  cur_durability: 150
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectAlign
+    - kBless
+    - kStoneHand
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 41  # удача
+      modifier: 15
+    - location: 19  # повреждение
+      modifier: 6
+    - location: 13  # макс.жизнь
+      modifier: 60
+    - location: 23  # здоровье
+      modifier: -20
+    - location: 42  # инициатива
+      modifier: 20
+  skills:
+    - skill_id: 8  # сражение верхом
+      value: 20
+
+# Object #1678
+78:
+  names:
+    aliases: Стальная подкова материал
+    nominative: стальная подкова
+    genitive: стальной подковы
+    dative: стальной подкове
+    accusative: стальную подкову
+    instrumental: стальной подковой
+    prepositional: стальной подкове
+  short_desc: Чья-то лошадь потеряла тут свою подкову.
+  type: kCraftMaterial
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 40
+    - 1678
+    - 30
+    - 3
+  weight: 7
+  cost: 40
+  rent_off: 100
+  rent_on: 100
+  max_durability: 130
+  cur_durability: 130
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromMind
+    - kFly
+    - kWaterBreath
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 5
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 30
+    - location: 47  # защита.от.стихии.земли
+      modifier: 30
+    - location: 21  # защита.от.стихии.огня
+      modifier: 30
+
+# Object #1679
+79:
+  names:
+    aliases: золотые заклепки материал
+    nominative: золотые заклепки
+    genitive: золотых заклепок
+    dative: золотым заклепкам
+    accusative: золотые заклепки
+    instrumental: золотыми заклепками
+    prepositional: золотых заклепках
+  short_desc: Заклепки из чистого золота кто-то рассыпал на земле.
+  type: kCraftMaterial
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 40
+    - 1679
+    - 30
+    - 3
+  weight: 7
+  cost: 150
+  rent_off: 50
+  rent_on: 50
+  max_durability: 14
+  cur_durability: 14
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  skills:
+    - skill_id: 182  # магия воздуха
+      value: 20
+    - skill_id: 183  # магия огня
+      value: 20
+    - skill_id: 184  # магия воды
+      value: 20
+    - skill_id: 185  # магия земли
+      value: 20
+    - skill_id: 186  # магия света
+      value: 20
+    - skill_id: 187  # магия тьмы
+      value: 20
+    - skill_id: 188  # магия разума
+      value: 20
+    - skill_id: 189  # магия жизни
+      value: 20
+
+# Object #1680
+80:
+  names:
+    aliases: пряжка ворон материал
+    nominative: пряжка в виде ворона
+    genitive: пряжки в виде ворона
+    dative: пряжке в виде ворона
+    accusative: пряжку в виде ворона
+    instrumental: пряжкой в виде ворона
+    prepositional: пряжке в виде ворона
+  short_desc: Пряжка в виде птицы воткнута в землю.
+  type: kCraftMaterial
+  material: 13  # КОСТЬ
+  values:
+    - 15
+    - 1612
+    - 30
+    - 2
+  weight: 7
+  cost: 20
+  rent_off: 20
+  rent_on: 20
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 25
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kAirAura
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 12  # запоминание
+      modifier: 35
+    - location: 41  # удача
+      modifier: 6
+    - location: 13  # макс.жизнь
+      modifier: 40
+  extra_descriptions:
+    - keywords: пуговка пуговица кость
+      description: |2
+        Пуговица из белой кости может быть
+        использована для украшения одежды.
+
+# Object #1681
+81:
+  names:
+    aliases: перо материал
+    nominative: перо
+    genitive: пера
+    dative: перу
+    accusative: перо
+    instrumental: пером
+    prepositional: пере
+  short_desc: Перо птицы лежит здесь.
+  type: kCraftMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 40
+    - 1681
+    - 30
+    - 3
+  weight: 7
+  cost: 50
+  rent_off: 50
+  rent_on: 60
+  max_durability: 40
+  cur_durability: 40
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  applies:
+    - location: 35  # слот.9
+      modifier: 3
+    - location: 12  # запоминание
+      modifier: 50
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 7
+    - location: 13  # макс.жизнь
+      modifier: 55
+
+# Object #1682
+82:
+  names:
+    aliases: куртка
+    nominative: куртка
+    genitive: куртки
+    dative: куртке
+    accusative: куртку
+    instrumental: курткой
+    prepositional: куртке
+  short_desc: Брошенная куртка пылиться на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 20
+  cost: 500
+  rent_off: 300
+  rent_on: 500
+  max_durability: 250
+  cur_durability: 250
+  timer: 50000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #1683
+83:
+  names:
+    aliases: штаны
+    nominative: штаны
+    genitive: штанов
+    dative: штанам
+    accusative: штаны
+    instrumental: штанами
+    prepositional: штанах
+  short_desc: Потерянные кем-то штаны валяются здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 15
+  cost: 500
+  rent_off: 300
+  rent_on: 500
+  max_durability: 200
+  cur_durability: 200
+  timer: 55000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #1684
+84:
+  names:
+    aliases: капюшон
+    nominative: капюшон
+    genitive: капюшона
+    dative: капюшону
+    accusative: капюшон
+    instrumental: капюшоном
+    prepositional: капюшоне
+  short_desc: Рукодельный капюшон брошеный путником лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 300
+  rent_on: 500
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #1685
+85:
+  names:
+    aliases: наручи
+    nominative: наручи
+    genitive: наручей
+    dative: наручам
+    accusative: наручи
+    instrumental: наручами
+    prepositional: наручах
+  short_desc: Рукодельные наручи брошеные путником лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 300
+  rent_on: 500
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #1686
+86:
+  names:
+    aliases: сапоги
+    nominative: сапоги
+    genitive: сапог
+    dative: сапогам
+    accusative: сапоги
+    instrumental: сапогами
+    prepositional: сапогах
+  short_desc: Почти новые сапоги пылятся тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 25
+  cost: 500
+  rent_off: 300
+  rent_on: 500
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 999
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #1687
+87:
+  names:
+    aliases: накидка
+    nominative: накидка
+    genitive: накидки
+    dative: накидке
+    accusative: накидку
+    instrumental: накидкой
+    prepositional: накидке
+  short_desc: Отличная накидка выброшена здесь за ненадобностю.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 5
+    - 0
+    - 0
+  weight: 6
+  cost: 500
+  rent_off: 300
+  rent_on: 500
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #1688
+88:
+  names:
+    aliases: тяжелые сапоги
+    nominative: тяжелые сапоги
+    genitive: тяжелых сапог
+    dative: тяжелым сапогам
+    accusative: тяжелые сапоги
+    instrumental: тяжелыми сапогами
+    prepositional: тяжелых сапогах
+  short_desc: Весьма увесистые сапоги брошены охотником пылятся на земле.
+  action_desc: |2
+    Тяжелые сапоги с подковой и шпорой. Для всадника самое что есть нужное!
+    А что если ее &Wпотереть&n? Шпору всмысле...
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 30
+  cost: 600
+  rent_off: 150
+  rent_on: 100
+  max_durability: 250
+  cur_durability: 250
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 30
+  minimum_remorts: 9
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kFeet
+  skills:
+    - skill_id: 8  # сражение верхом
+      value: 20
+  extra_descriptions:
+    - keywords: сапоги подков шпор тяжел
+      description: |2
+        Тяжелые сапоги с подковой и шпорой. Для всадника самое что есть нужное!
+        А что если ее &Wпотереть?&n Шпору всмысле...
+  triggers:
+    - 1600  # терем шпору, вызываем жеребца
+    - 1601  # отпускаем жеребца 
+
+# Object #1689
+89:
+  names:
+    aliases: плащ
+    nominative: плащ
+    genitive: плаща
+    dative: плащу
+    accusative: плащ
+    instrumental: плащом
+    prepositional: плаще
+  short_desc: Плащ пылиться на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 5
+    - 0
+    - 0
+  weight: 7
+  cost: 100
+  rent_off: 80
+  rent_on: 100
+  max_durability: 250
+  cur_durability: 250
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 40
+  minimum_remorts: 9
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #1690
+90:
+  names:
+    aliases: шляпа
+    nominative: шляпа
+    genitive: шляпы
+    dative: шляпе
+    accusative: шляпу
+    instrumental: шляпой
+    prepositional: шляпе
+  short_desc: Шляпа из плотной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 400
+  rent_off: 200
+  rent_on: 300
+  max_durability: 250
+  cur_durability: 250
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 30
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #1691
+91:
+  names:
+    aliases: перчатки
+    nominative: перчатки
+    genitive: перчаток
+    dative: перчаткам
+    accusative: перчатки
+    instrumental: перчатками
+    prepositional: перчатках
+  short_desc: Перчатки заблудшего мага брошены в грязь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 4
+  cost: 1400
+  rent_off: 800
+  rent_on: 700
+  max_durability: 250
+  cur_durability: 250
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 999
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kWarrior
+
+# Object #1692
+92:
+  names:
+    aliases: рукавицы
+    nominative: рукавицы
+    genitive: рукавиц
+    dative: рукавицам
+    accusative: рукавицы
+    instrumental: рукавицами
+    prepositional: рукавицах
+  short_desc: Рукавицы брошены кем-то на земле.
+  type: kHeavyArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1693
+93:
+  names:
+    aliases: пояс
+    nominative: пояс
+    genitive: пояса
+    dative: поясу
+    accusative: пояс
+    instrumental: поясом
+    prepositional: поясе
+  short_desc: Пояс потерянный владельцем лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 5
+    - 0
+    - 0
+  weight: 7
+  cost: 100
+  rent_off: 80
+  rent_on: 100
+  max_durability: 250
+  cur_durability: 250
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 40
+  minimum_remorts: 9
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #1694
+94:
+  names:
+    aliases: пряжка дракон материал
+    nominative: пряжка в виде дракона
+    genitive: пряжки в виде дракона
+    dative: пряжке в виде дракона
+    accusative: пряжку в виде дракона
+    instrumental: пряжкой в виде дракона
+    prepositional: пряжке в виде дракона
+  short_desc: Пряжка в виде дракона лежит здесь.
+  type: kCraftMaterial
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 52
+    - 1612
+    - 30
+    - 4
+  weight: 7
+  cost: 8000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 25
+  cur_durability: 25
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  applies:
+    - location: 24  # стойкость
+      modifier: -30
+    - location: 20  # воля
+      modifier: -30
+    - location: 39  # реакция
+      modifier: -30
+    - location: 42  # инициатива
+      modifier: 30
+    - location: 23  # здоровье
+      modifier: -30
+    - location: 49  # защита.от.магии.разума
+      modifier: 30
+
+# Object #1695
+95:
+  names:
+    aliases: материал медные шипы
+    nominative: медные шипы
+    genitive: медных шипов
+    dative: медным шипам
+    accusative: медные шипы
+    instrumental: медными шипами
+    prepositional: медных шипах
+  short_desc: Шипы, кажеться их можно пришить к рукавицам
+  type: kCraftMaterial
+  material: 2  # БРОНЗА
+  values:
+    - 5
+    - 1695
+    - 50
+    - 3
+  weight: 7
+  cost: 150
+  rent_off: 50
+  rent_on: 50
+  max_durability: 14
+  cur_durability: 14
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  applies:
+    - location: 10  # вес
+      modifier: 1
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 41  # удача
+      modifier: 10
+    - location: 13  # макс.жизнь
+      modifier: 55
+    - location: 39  # реакция
+      modifier: -15
+    - location: 24  # стойкость
+      modifier: -15

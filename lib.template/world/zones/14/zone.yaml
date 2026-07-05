@@ -1,0 +1,13 @@
+# Zone #14
+
+vnum: 14
+name: 'Системная зона 14 -- Ингридиенты "смастерить лук" (!OLC)'
+top_room: 1499
+lifespan: 10
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 1400
+under_construction: 0
+zone_group: 1  # solo

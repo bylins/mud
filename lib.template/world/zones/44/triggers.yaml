@@ -1,0 +1,256 @@
+# Triggers for zone 44
+
+# Trigger #4400
+0:
+  name: приветствие 1
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    if !(%exist.mob(4420)%)
+      halt
+    end
+    wait 1
+    *if %actor.quested(4401)%
+    *    msend %actor% - Здраве тебе, %actor.iname%!
+    *    msend %actor% - Вот жду не дождусь, когда ты мне поможешь!
+    *  halt
+    *end
+    msend %actor% - Здраве тебе, %actor.iname%!
+    msend %actor% - Нечасто бывают у меня здесь гости.
+    msend %actor% Старик тяжело вздохнул.
+    if !%questor44%
+      msend %actor% - Но коль уж забрел%actor.g% ты сюда - не откажи в помощи старику.
+      attach 4401 %self%
+      *   attach 4405 %self%
+      *   detach 4400 %self%
+    end
+
+# Trigger #4401
+1:
+  name: Выдача самого квеста
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: конечно помогу слушаю
+  trigger_types:
+    - kSpeech
+  script: |-2
+    if %actor.vnum% != -1 || !(%exist.mob(4420)%)
+      *|| (%questor44%) || !(%exist.mob(4420)%)
+      halt
+    end
+    wait 1
+    if %questor44%
+      if %questor44sex% == 1
+        say Я уже просил тут помочь одного молодца, %questor44tname% кличут, так вот найди его, передай, что нехорошо старых обманывать.
+        wait 1
+        say Обещал помочь и сгинул, бахвалился, что разбойничков не боится, а ишь как, струсил наверно.
+        halt
+      else
+        say Я уже просил тут помочь одну браву девицу, %questor44tname% кличут, так вот найди ее, передай, что нехорошо старых обманывать.
+        wait 1
+        say Обещала помочь и сгинула, бахвалилась, что разбойничков не боится, а ишь как, струсила наверно. Пусть детей рожает, а не подвиги ратные совершает.
+        halt
+      end
+    end
+    *if %actor.quested(4401)%
+    *  msend %actor%  Я тебя уже просил о помощи, и вот жду до сих пор.
+    *  вздох
+    *  halt
+    *end
+    makeuid questor44 %actor%
+    global  questor44
+    eval questor44tname %actor.tname%
+    global  questor44tname
+    eval questor44sex %actor.sex%
+    global  questor44sex
+    msend %actor% - Есть в лесу святое место, там, - старик махнул рукой на север.
+    msend %actor% Предки наши ходили туда поклониться Богам, принести свои дары им.
+    msend %actor% Нет-нет, и теперь ходят.
+    msend %actor% - Но осквернили погост лихие люди, теперь уж и тропинка туда заросла.
+    msend %actor% Разбойничают, честному люду проходу не дают. Душегубы проклятые.
+    msend %actor% Старик разгневанно помахал кулаком...
+    wait 2s
+    msend %actor% - А недавно приходил один, большой такой, одноглазый, совета просил,
+    msend %actor%   золото предлагал. Только ведаю я - нечистое это золото, ох, нечистое.
+    msend %actor%   Кровь и беды лежат на нем.
+    msend %actor% - Прогнал я его, а он посмотрел так зло, но ничего не сказал, ушел восвояси.
+    msend %actor% - Я уже старик, мне бояться нечего, а вот других - жалко.
+    msend %actor% - Негоже мне вмешиваться в дела мирские, а ты еще молод, да и есть в тебе
+    msend %actor%   что-то такое, вижу, что найдешь в себе силы справиться с этим злом.
+    if (%actor.sex% == 1)
+      msend %actor% - Ступай, сынок, очисти святое место от этого недостойного человека...
+    elseif
+      (%actor.sex% == 2)
+      msend %actor% - Ступай, дочка, освободи землю от сей непосильной ноши...
+    elseif
+      msend %actor% - Ступай, принеси мне его труп.
+    end
+    if (%actor.realroom% == %self.realroom%)
+      msend %actor% - Старик воздел глаза к небу и что-то прошептал...
+      dgcast 'освящение' .%actor.iname%
+    end
+    *%actor.setquest(4401)%
+    attach 4402 %self%
+    *detach 4401 %self%
+
+# Trigger #4402
+2:
+  name: Оплата квеста
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    return 0
+    set itemname %object.iname%
+    msend %actor% Вы показали %self.dname% %itemname%.
+    if (!%questor44% || !(%questor44% == %actor%))
+      msend %actor% - Спасибо, но зачем мне это ?
+      msend Старик ласково улыбнулся.
+      брос %object.name%
+      halt
+    end
+    if (!%itemname.contains(главаря разбойников)%)
+      msend %actor% - Нет у меня в этом нужды, %actor.iname%.
+      msend %actor% Старик беспомощно пожал плечами.
+      halt
+    end
+    return 1
+    wait 1
+    if !%killer44% || !(%killer44% == %questor44%)
+      msend %actor% - Не к лицу тебе, %actor.iname%, присваивать чужие дела !
+      msend %actor% Старик гневно посмотрел на Вас и топнул ногой.
+      брос %object.name%
+      halt
+    end
+    mpurge %object%
+    wait 2s
+    if (%actor.sex% == 1)
+      msend %actor% - Спасибо, сынок, что не отказал в моей просьбе.
+      msend %actor% Старик пожал Вам руку.
+    elseif
+      (%actor.sex% == 2)
+      msend %actor% - Спасибо тебе, дочка, уважила старика.
+      msend %actor% Старик ласково погладил Вас по волосам.
+    else
+      msend %actor% - Спасибо тебе, %actor.iname%, помог ты всем своим делом.
+      msend %actor% Старик низко поклонился Вам.
+    end
+    unset questor44
+    unset questor44tname
+    unset questor44sex
+    unset killer44
+    switch %actor.class%
+      case 0
+        if (%actor.CanGetSpell(освящение)%)
+          mspellturn %actor% освящение set
+        end
+      break
+      case 1
+        if (%actor.CanGetSpell(шаров молн)%)
+          mspellturn %actor% шаров.молн set
+        end
+      break
+      case 6
+        if (%actor.CanGetSpell(длит молч)%)
+          mspellturn %actor% длит.молч set
+        end
+      break
+      case 7
+        if (%actor.CanGetSpell(оцепенение)%)
+          mspellturn %actor% оцепенение set
+        end
+      break
+      case 8
+        if (%actor.CanGetSpell(сеть)%)
+          mspellturn %actor% сеть set
+        end
+      break
+      case 9
+        if (%actor.CanGetSkill(лидерство)%)
+          mskillturn %actor% лидерство set
+        end
+      break
+      case 12
+        if (%actor.CanGetSpell(насыщение)%)
+          mspellturn %actor% насыщение set
+        end
+      break
+      case 13
+        if ((%random.100% < 51) && (%world.curobjs(214)% < %world.maxobj(214)%))
+          load obj 214
+          дать рун .%actor.iname%
+        end
+      break
+      default
+      break
+    done
+    eval rnd %random.100%
+    if %rnd% < 4
+      load obj 4413
+      дать свиток .%actor.iname%
+    elseif %rnd% < 7
+      load obj 4411
+      дать береста .%actor.iname%
+    elseif %rnd% < 10
+      load obj 4412
+      дать свиток .%actor.iname%
+    elseif (%rnd% < 30) && (%world.curobjs(4407)% < 30)
+      load obj 4407
+      дать тесак .%actor.iname%
+    else
+      msend %actor% Старик дал Вам немного денег.
+      %actor.gold(+500)%
+    end
+    %actor.setquest(4400)%
+    detach 4402 %self%
+
+# Trigger #4403
+3:
+  name: Убит главарь
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: 0
+  trigger_types:
+    - kDeath
+  script: |-2
+    if (%actor.vnum% == -1)
+      set killer44 %actor%
+    else
+      set killer44 %actor.leader%
+    end
+    calcuid questor 4417 mob
+    remote killer44 %questor%
+
+# Trigger #4404
+4:
+  name: Обновление переменных
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    calcuid questor 4417 mob
+    if %questor%
+      attach  4400      %questor%
+      detach  4401      %questor%
+      detach  4402      %questor%
+      detach  4405      %questor%
+      rdelete questor44 %questor%
+      rdelete questor44tname %questor%
+      rdelete questor44sex %questor%
+      rdelete killer44  %questor%
+    end
+
+# Trigger #4405
+5:
+  name: приветствие 2
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    wait  1
+    echo Старик одарил Вас приветливой улыбкой.

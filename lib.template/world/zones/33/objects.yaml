@@ -1,0 +1,4174 @@
+# Objects for zone 33
+
+# Object #3300
+0:
+  names:
+    aliases: наручи Валькирии
+    nominative: '&Wнаручи Валькирии&n'
+    genitive: '&Wнаручей Валькирии&n'
+    dative: '&Wнаручам Валькирии&n'
+    accusative: '&Wнаручи Валькирии&n'
+    instrumental: '&Wнаручами Валькирии&n'
+    prepositional: '&Wнаручах Валькирии&n'
+  short_desc: Окруженные светлой аурой наручи лежат тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3301
+1:
+  names:
+    aliases: латные рукавицы Валькирии
+    nominative: '&Wлатные рукавицы Валькирии&n'
+    genitive: '&Wлатных рукавиц Валькирии&n'
+    dative: '&Wлатным рукавицам Валькирии&n'
+    accusative: '&Wлатные рукавицы Валькирии&n'
+    instrumental: '&Wлатными рукавицами Валькирии&n'
+    prepositional: '&Wлатных рукавицах Валькирии&n'
+  short_desc: Окруженные сиянием латные рукавицы лежат тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 4
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 7  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3302
+2:
+  names:
+    aliases: поножи Валькирии
+    nominative: '&Wпоножи Валькирии&n'
+    genitive: '&Wпоножей Валькирии&n'
+    dative: '&Wпоножам Валькирии&n'
+    accusative: '&Wпоножи Валькирии&n'
+    instrumental: '&Wпоножами Валькирии&n'
+    prepositional: '&Wпоножах Валькирии&n'
+  short_desc: Окруженные светлой аурой поножи лежат тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 6
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3303
+3:
+  names:
+    aliases: сапоги Валькирии
+    nominative: '&Wсапоги Валькирии&n'
+    genitive: '&Wсапог Валькирии&n'
+    dative: '&Wсапогам Валькирии&n'
+    accusative: '&Wсапоги Валькирии&n'
+    instrumental: '&Wсапогами Валькирии&n'
+    prepositional: '&Wсапогах Валькирии&n'
+  short_desc: Окруженные светлой аурой сапоги стоят тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3304
+4:
+  names:
+    aliases: пояс Валькирии
+    nominative: '&Wпояс Валькирии&n'
+    genitive: '&Wпояса Валькирии&n'
+    dative: '&Wпоясу Валькирии&n'
+    accusative: '&Wпояс Валькирии&n'
+    instrumental: '&Wпоясом Валькирии&n'
+    prepositional: '&Wпоясе Валькирии&n'
+  short_desc: Окруженный светлой аурой пояс лежит тут.
+  type: kContainer
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 700
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3305
+5:
+  names:
+    aliases: перстень Валькирии
+    nominative: '&Wперстень Валькирии&n'
+    genitive: '&Wперстня Валькирии&n'
+    dative: '&Wперстню Валькирии&n'
+    accusative: '&Wперстень Валькирии&n'
+    instrumental: '&Wперстнем Валькирии&n'
+    prepositional: '&Wперстне Валькирии&n'
+  short_desc: Окруженный светлой аурой перстень лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3306
+6:
+  names:
+    aliases: амулет Валькирии
+    nominative: '&Wамулет Валькирии&n'
+    genitive: '&Wамулета Валькирии&n'
+    dative: '&Wамулету Валькирии&n'
+    accusative: '&Wамулет Валькирии&n'
+    instrumental: '&Wамулетом Валькирии&n'
+    prepositional: '&Wамулете Валькирии&n'
+  short_desc: Окруженный светлой аурой амулет лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3307
+7:
+  names:
+    aliases: браслет Валькирии
+    nominative: '&Wбраслет Валькирии&n'
+    genitive: '&Wбраслета Валькирии&n'
+    dative: '&Wбраслету Валькирии&n'
+    accusative: '&Wбраслет Валькирии&n'
+    instrumental: '&Wбраслетом Валькирии&n'
+    prepositional: '&Wбраслете Валькирии&n'
+  short_desc: Окруженный светлой аурой браслет лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3308
+8:
+  names:
+    aliases: доспех Валькирии
+    nominative: '&Wдоспех Валькирии&n'
+    genitive: '&Wдоспеха Валькирии&n'
+    dative: '&Wдоспеху Валькирии&n'
+    accusative: '&Wдоспех Валькирии&n'
+    instrumental: '&Wдоспехом Валькирии&n'
+    prepositional: '&Wдоспехе Валькирии&n'
+  short_desc: Окруженный светлой аурой доспех лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 6
+    - 7
+    - 0
+    - 0
+  weight: 15
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3309
+9:
+  names:
+    aliases: шлем Валькирии
+    nominative: '&Wшлем Валькирии&n'
+    genitive: '&Wшлема Валькирии&n'
+    dative: '&Wшлему Валькирии&n'
+    accusative: '&Wшлем Валькирии&n'
+    instrumental: '&Wшлемом Валькирии&n'
+    prepositional: '&Wшлеме Валькирии&n'
+  short_desc: Окруженный светлой аурой шлем лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 7  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3310
+10:
+  names:
+    aliases: посох Валькирии
+    nominative: '&Wпосох Валькирии&n'
+    genitive: '&Wпосоха Валькирии&n'
+    dative: '&Wпосоху Валькирии&n'
+    accusative: '&Wпосох Валькирии&n'
+    instrumental: '&Wпосохом Валькирии&n'
+    prepositional: '&Wпосохе Валькирии&n'
+  short_desc: Окруженный светлой аурой посох лежит тут.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 8
+    - 13
+    - 6
+  weight: 15
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 141
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3311
+11:
+  names:
+    aliases: меч Валькирии
+    nominative: '&Wмеч Валькирии&n'
+    genitive: '&Wмеча Валькирии&n'
+    dative: '&Wмечу Валькирии&n'
+    accusative: '&Wмеч Валькирии&n'
+    instrumental: '&Wмечом Валькирии&n'
+    prepositional: '&Wмече Валькирии&n'
+  short_desc: Окруженный светлой аурой меч лежит тут.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 2
+    - 4
+    - 6
+    - 3
+  weight: 21
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3312
+12:
+  names:
+    aliases: щит Валькирии
+    nominative: '&Wщит Валькирии&n'
+    genitive: '&Wщита Валькирии&n'
+    dative: '&Wщиту Валькирии&n'
+    accusative: '&Wщит Валькирии&n'
+    instrumental: '&Wщитом Валькирии&n'
+    prepositional: '&Wщите Валькирии&n'
+  short_desc: Окруженный светлой аурой щит лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 6
+    - 5
+  weight: 30
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShield
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3313
+13:
+  names:
+    aliases: плащ Валькирии
+    nominative: '&Wплащ Валькирии&n'
+    genitive: '&Wплаща Валькирии&n'
+    dative: '&Wплащу Валькирии&n'
+    accusative: '&Wплащ Валькирии&n'
+    instrumental: '&Wплащом Валькирии&n'
+    prepositional: '&Wплаще Валькирии&n'
+  short_desc: Окруженный светлой аурой плащ лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 8
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3314
+14:
+  names:
+    aliases: кольчужный воротник Валькирии
+    nominative: '&Wкольчужный воротник Валькирии&n'
+    genitive: '&Wкольчужного воротника Валькирии&n'
+    dative: '&Wкольчужному воротнику Валькирии&n'
+    accusative: '&Wкольчужный воротник Валькирии&n'
+    instrumental: '&Wкольчужным воротником Валькирии&n'
+    prepositional: '&Wкольчужном воротнике Валькирии&n'
+  short_desc: Окруженный светлой аурой кольчужный воротник лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3315
+15:
+  names:
+    aliases: наручи великого воина
+    nominative: наручи &CВеликого Воина&n
+    genitive: наручей &CВеликого Воина&n
+    dative: наручам &CВеликого Воина&n
+    accusative: наручи &CВеликого Воина&n
+    instrumental: наручами &CВеликого Воина&n
+    prepositional: наручах &CВеликого Воина&n
+  short_desc: Добротные булатные наручи лежат тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+
+# Object #3316
+16:
+  names:
+    aliases: сапоги великого воина
+    nominative: сапоги &CВеликого Воина&n
+    genitive: сапог &CВеликого Воина&n
+    dative: сапогам &CВеликого Воина&n
+    accusative: сапоги &CВеликого Воина&n
+    instrumental: сапогами &CВеликого Воина&n
+    prepositional: сапогах &CВеликого Воина&n
+  short_desc: Добротные булатные сапоги лежат тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 30
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+
+# Object #3317
+17:
+  names:
+    aliases: поножи великого воина
+    nominative: поножи &CВеликого Воина&n
+    genitive: поножей &CВеликого Воина&n
+    dative: поножам &CВеликого Воина&n
+    accusative: поножи &CВеликого Воина&n
+    instrumental: поножами &CВеликого Воина&n
+    prepositional: поножах &CВеликого Воина&n
+  short_desc: Добротные булатные поножи лежат тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+
+# Object #3318
+18:
+  names:
+    aliases: воротник великого воина
+    nominative: воротник &CВеликого Воина&n
+    genitive: воротника &CВеликого Воина&n
+    dative: воротнику &CВеликого Воина&n
+    accusative: воротник &CВеликого Воина&n
+    instrumental: воротником &CВеликого Воина&n
+    prepositional: воротнике &CВеликого Воина&n
+  short_desc: Добротный воротник из булатных колец лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #3319
+19:
+  names:
+    aliases: плащ великого воина
+    nominative: плащ &CВеликого Воина&n
+    genitive: плаща &CВеликого Воина&n
+    dative: плащу &CВеликого Воина&n
+    accusative: плащ &CВеликого Воина&n
+    instrumental: плащом &CВеликого Воина&n
+    prepositional: плаще &CВеликого Воина&n
+  short_desc: Добротный плащ, из шкуры змея, лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+
+# Object #3320
+20:
+  names:
+    aliases: браслет великого воина
+    nominative: браслет &CВеликого Воина&n
+    genitive: браслета &CВеликого Воина&n
+    dative: браслету &CВеликого Воина&n
+    accusative: браслет &CВеликого Воина&n
+    instrumental: браслетом &CВеликого Воина&n
+    prepositional: браслете &CВеликого Воина&n
+  short_desc: Широкий кожаный браслет лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+
+# Object #3321
+21:
+  names:
+    aliases: кольцо великого воина
+    nominative: кольцо &CВеликого Воина&n
+    genitive: кольца &CВеликого Воина&n
+    dative: кольцу &CВеликого Воина&n
+    accusative: кольцо &CВеликого Воина&n
+    instrumental: кольцом &CВеликого Воина&n
+    prepositional: кольце &CВеликого Воина&n
+  short_desc: Темное железное колечко лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+
+# Object #3322
+22:
+  names:
+    aliases: рукавицы великого воина
+    nominative: рукавицы &CВеликого Воина&n
+    genitive: рукавиц &CВеликого Воина&n
+    dative: рукавицам &CВеликого Воина&n
+    accusative: рукавицы &CВеликого Воина&n
+    instrumental: рукавицами &CВеликого Воина&n
+    prepositional: рукавицах &CВеликого Воина&n
+  short_desc: Добротные булатные рукавицы лежат тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 2
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+
+# Object #3323
+23:
+  names:
+    aliases: шишак великого воина
+    nominative: шишак &CВеликого Воина&n
+    genitive: шишака &CВеликого Воина&n
+    dative: шишаку &CВеликого Воина&n
+    accusative: шишак &CВеликого Воина&n
+    instrumental: шишаком &CВеликого Воина&n
+    prepositional: шишаке &CВеликого Воина&n
+  short_desc: Добротный булатный шишак лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+
+# Object #3324
+24:
+  names:
+    aliases: пояс великого воина
+    nominative: пояс &CВеликого Воина&n
+    genitive: пояса &CВеликого Воина&n
+    dative: поясу &CВеликого Воина&n
+    accusative: пояс &CВеликого Воина&n
+    instrumental: поясом &CВеликого Воина&n
+    prepositional: поясе &CВеликого Воина&n
+  short_desc: Тяжелый кожаный пояс, с стальными бляхами, лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+
+# Object #3325
+25:
+  names:
+    aliases: кольчуга великого воина
+    nominative: кольчуга &CВеликого Воина&n
+    genitive: кольчуги &CВеликого Воина&n
+    dative: кольчуге &CВеликого Воина&n
+    accusative: кольчугу &CВеликого Воина&n
+    instrumental: кольчугой &CВеликого Воина&n
+    prepositional: кольчуге &CВеликого Воина&n
+  short_desc: Кольчуга тройного плетения, сотканная из булатных колец, лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 9
+    - 5
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+
+# Object #3326
+26:
+  names:
+    aliases: двуручник великого воина
+    nominative: двуручник &CВеликого Воина&n
+    genitive: двуручника &CВеликого Воина&n
+    dative: двуручнику &CВеликого Воина&n
+    accusative: двуручник &CВеликого Воина&n
+    instrumental: двуручником &CВеликого Воина&n
+    prepositional: двуручнике &CВеликого Воина&n
+  short_desc: Тяжелый двуручный меч, с волнистым узором на булатном лезвии, лежит здесь.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 8
+    - 7
+    - 6
+  weight: 36
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 146
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+
+# Object #3327
+27:
+  names:
+    aliases: секира великого воина
+    nominative: секира &CВеликого Воина&n
+    genitive: секиры &CВеликого Воина&n
+    dative: секире &CВеликого Воина&n
+    accusative: секиру &CВеликого Воина&n
+    instrumental: секирой &CВеликого Воина&n
+    prepositional: секире &CВеликого Воина&n
+  short_desc: Тяжелая обюдоострая секира лежит здесь.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 8
+    - 5
+    - 3
+  weight: 24
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 142
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+
+# Object #3328
+28:
+  names:
+    aliases: сабля великого воина
+    nominative: сабля &CВеликого Воина&n
+    genitive: сабли &CВеликого Воина&n
+    dative: сабле &CВеликого Воина&n
+    accusative: саблю &CВеликого Воина&n
+    instrumental: саблей &CВеликого Воина&n
+    prepositional: сабле &CВеликого Воина&n
+  short_desc: Красивая сабля, с волнистым узором на булатном лезвии, лежит здесь.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 7
+    - 3
+    - 3
+  weight: 14
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 144
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+
+# Object #3329
+29:
+  names:
+    aliases: наручи георгия победоносца
+    nominative: наручи &WГеоргия Победоносца&n
+    genitive: наручей &WГеоргия Победоносца&n
+    dative: наручам &WГеоргия Победоносца&n
+    accusative: наручи &WГеоргия Победоносца&n
+    instrumental: наручами &WГеоргия Победоносца&n
+    prepositional: наручах &WГеоргия Победоносца&n
+  short_desc: Окруженные мягким белым светом наручи привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3330
+30:
+  names:
+    aliases: сапоги георгия победоносца
+    nominative: сапоги &WГеоргия Победоносца&n
+    genitive: сапог &WГеоргия Победоносца&n
+    dative: сапогам &WГеоргия Победоносца&n
+    accusative: сапоги &WГеоргия Победоносца&n
+    instrumental: сапогами &WГеоргия Победоносца&n
+    prepositional: сапогах &WГеоргия Победоносца&n
+  short_desc: Окруженные мягким белым светом сапоги привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3331
+31:
+  names:
+    aliases: поножи георгия победоносца
+    nominative: поножи &WГеоргия Победоносца&n
+    genitive: поножей &WГеоргия Победоносца&n
+    dative: поножам &WГеоргия Победоносца&n
+    accusative: поножи &WГеоргия Победоносца&n
+    instrumental: поножами &WГеоргия Победоносца&n
+    prepositional: поножах &WГеоргия Победоносца&n
+  short_desc: Окруженные мягким белым светом поножи привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3332
+32:
+  names:
+    aliases: кольчуга георгия победоносца
+    nominative: кольчуга &WГеоргия Победоносца&n
+    genitive: кольчуги &WГеоргия Победоносца&n
+    dative: кольчуге &WГеоргия Победоносца&n
+    accusative: кольчугу &WГеоргия Победоносца&n
+    instrumental: кольчугой &WГеоргия Победоносца&n
+    prepositional: кольчуге &WГеоргия Победоносца&n
+  short_desc: Окруженная мягким белым светом кольчуга, сотканная из булатных колец, лежит тут.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 10
+    - 6
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3333
+33:
+  names:
+    aliases: авентайл георгия победоносца
+    nominative: авентайл &WГеоргия Победоносца&n
+    genitive: авентайла &WГеоргия Победоносца&n
+    dative: авентайлу &WГеоргия Победоносца&n
+    accusative: авентайл &WГеоргия Победоносца&n
+    instrumental: авентайлом &WГеоргия Победоносца&n
+    prepositional: авентайл &WГеоргия Победоносца&n
+  short_desc: Окруженный мягким белым светом авентайл привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3334
+34:
+  names:
+    aliases: кольцо георгия победоносца
+    nominative: кольцо &WГеоргия Победоносца&n
+    genitive: кольца &WГеоргия Победоносца&n
+    dative: кольцу &WГеоргия Победоносца&n
+    accusative: кольцо &WГеоргия Победоносца&n
+    instrumental: кольцом &WГеоргия Победоносца&n
+    prepositional: кольце &WГеоргия Победоносца&n
+  short_desc: Окруженное мягким белым светом кольцо привлекает взгляд.
+  type: kArmor
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3335
+35:
+  names:
+    aliases: браслет георгия победоносца
+    nominative: браслет &WГеоргия Победоносца&n
+    genitive: браслета &WГеоргия Победоносца&n
+    dative: браслету &WГеоргия Победоносца&n
+    accusative: браслет &WГеоргия Победоносца&n
+    instrumental: браслетом &WГеоргия Победоносца&n
+    prepositional: браслете &WГеоргия Победоносца&n
+  short_desc: Окруженный мягким белым светом браслет привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3336
+36:
+  names:
+    aliases: перчатки георгия победоносца
+    nominative: перчатки &WГеоргия Победоносца&n
+    genitive: перчаток &WГеоргия Победоносца&n
+    dative: перчаткам &WГеоргия Победоносца&n
+    accusative: перчатки &WГеоргия Победоносца&n
+    instrumental: перчатками &WГеоргия Победоносца&n
+    prepositional: перчатках &WГеоргия Победоносца&n
+  short_desc: Окруженные мягким белым светом перчатки привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 5
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3337
+37:
+  names:
+    aliases: плащ георгия победоносца
+    nominative: плащ &WГеоргия Победоносца&n
+    genitive: плаща &WГеоргия Победоносца&n
+    dative: плащу &WГеоргия Победоносца&n
+    accusative: плащ &WГеоргия Победоносца&n
+    instrumental: плащом &WГеоргия Победоносца&n
+    prepositional: плаще &WГеоргия Победоносца&n
+  short_desc: Окруженный мягким белым светом плащ привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 8
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3338
+38:
+  names:
+    aliases: пояс георгия победоносца
+    nominative: пояс &WГеоргия Победоносца&n
+    genitive: пояса  &WГеоргия Победоносца&n
+    dative: поясу &WГеоргия Победоносца&n
+    accusative: пояс &WГеоргия Победоносца&n
+    instrumental: поясом &WГеоргия Победоносца&n
+    prepositional: поясе &WГеоргия Победоносца&n
+  short_desc: Окруженный мягким белым светом пояс привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3339
+39:
+  names:
+    aliases: шлем георгия победоносца
+    nominative: шлем &WГеоргия Победоносца&n
+    genitive: шлема &WГеоргия Победоносца&n
+    dative: шлему &WГеоргия Победоносца&n
+    accusative: шлем &WГеоргия Победоносца&n
+    instrumental: шлемом &WГеоргия Победоносца&n
+    prepositional: шлеме &WГеоргия Победоносца&n
+  short_desc: Окруженный мягким белым светом шлем привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3340
+40:
+  names:
+    aliases: лук георгия победоносца
+    nominative: лук &WГеоргия Победоносца&n
+    genitive: лука &WГеоргия Победоносца&n
+    dative: луку &WГеоргия Победоносца&n
+    accusative: лук &WГеоргия Победоносца&n
+    instrumental: луком &WГеоргия Победоносца&n
+    prepositional: луке &WГеоргия Победоносца&n
+  short_desc: Окруженный мягким белым светом лук привлекает взгляд.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 1
+    - 1
+    - 9
+  weight: 30
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 154
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3341
+41:
+  names:
+    aliases: сабля георгия победоносца
+    nominative: сабля &WГеоргия Победоносца&n
+    genitive: сабли &WГеоргия Победоносца&n
+    dative: сабле &WГеоргия Победоносца&n
+    accusative: саблю &WГеоргия Победоносца&n
+    instrumental: саблей &WГеоргия Победоносца&n
+    prepositional: сабле &WГеоргия Победоносца&n
+  short_desc: Красивая сабля, с клетчатым узором на булатном лезвии, светится мягким белым светом.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 6
+    - 7
+    - 7
+  weight: 20
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3342
+42:
+  names:
+    aliases: кинжал георгия победоносца
+    nominative: кинжал &WГеоргия Победоносца&n
+    genitive: кинжала &WГеоргия Победоносца&n
+    dative: кинжалу &WГеоргия Победоносца&n
+    accusative: кинжал &WГеоргия Победоносца&n
+    instrumental: кинжалом &WГеоргия Победоносца&n
+    prepositional: кинжале &WГеоргия Победоносца&n
+  short_desc: Красивый кинжал, с клетчатым узором на булатном лезвии, светится мягким белым светом.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 6
+    - 4
+    - 10
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3343
+43:
+  names:
+    aliases: наручи дальних странствий
+    nominative: наручи &YДальних Странствий&n
+    genitive: наручей &YДальних Странствий&n
+    dative: наручам &YДальних Странствий&n
+    accusative: наручи &YДальних Странствий&n
+    instrumental: наручами &YДальних Странствий&n
+    prepositional: наручах &YДальних Странствий&n
+  short_desc: Потемневшие от дорожной пыли наручи лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+
+# Object #3344
+44:
+  names:
+    aliases: сапоги дальних странствий
+    nominative: сапоги &YДальних Странствий&n
+    genitive: сапог &YДальних Странствий&n
+    dative: сапогам &YДальних Странствий&n
+    accusative: сапоги &YДальних Странствий&n
+    instrumental: сапогами &YДальних Странствий&n
+    prepositional: сапогах &YДальних Странствий&n
+  short_desc: Стоптанные от долгого пути, но все еще крепкие сапоги, стоят тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+
+# Object #3345
+45:
+  names:
+    aliases: штаны дальних странствий
+    nominative: штаны &YДальних Странствий&n
+    genitive: штанов &YДальних Странствий&n
+    dative: штанам &YДальних Странствий&n
+    accusative: штаны &YДальних Странствий&n
+    instrumental: штанами &YДальних Странствий&n
+    prepositional: штанах &YДальних Странствий&n
+  short_desc: Потемневшие от дорожной пыли поножи лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+
+# Object #3346
+46:
+  names:
+    aliases: куртка дальних странствий
+    nominative: куртка &YДальних Странствий&n
+    genitive: куртки &YДальних Странствий&n
+    dative: куртке &YДальних Странствий&n
+    accusative: куртку &YДальних Странствий&n
+    instrumental: курткой &YДальних Странствий&n
+    prepositional: куртке &YДальних Странствий&n
+  short_desc: Потертая дорожная куртка лежит тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 10
+    - 7
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+
+# Object #3347
+47:
+  names:
+    aliases: амулет дальних странствий
+    nominative: амулет &YДальних Странствий&n
+    genitive: амулета &YДальних Странствий&n
+    dative: амулету &YДальних Странствий&n
+    accusative: амулет &YДальних Странствий&n
+    instrumental: амулетом &YДальних Странствий&n
+    prepositional: амулете &YДальних Странствий&n
+  short_desc: Маленький амулетик лежит тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #3348
+48:
+  names:
+    aliases: четки дальних странствий
+    nominative: четки &YДальних Странствий&n
+    genitive: четок &YДальних Странствий&n
+    dative: четкам &YДальних Странствий&n
+    accusative: четки &YДальних Странствий&n
+    instrumental: четками &YДальних Странствий&n
+    prepositional: четках &YДальних Странствий&n
+  short_desc: Потемневший от дорожной пыли браслет лежит тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+
+# Object #3349
+49:
+  names:
+    aliases: перчатки дальних странствий
+    nominative: перчатки &YДальних Странствий&n
+    genitive: перчаток &YДальних Странствий&n
+    dative: перчаткам &YДальних Странствий&n
+    accusative: перчатки &YДальних Странствий&n
+    instrumental: перчатками &YДальних Странствий&n
+    prepositional: перчатках &YДальних Странствий&n
+  short_desc: Потемневшие от дорожной пыли перчатки лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 2
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+
+# Object #3350
+50:
+  names:
+    aliases: плащ дальних странствий
+    nominative: плащ &YДальних Странствий&n
+    genitive: плаща &YДальних Странствий&n
+    dative: плащу &YДальних Странствий&n
+    accusative: плащ &YДальних Странствий&n
+    instrumental: плащом &YДальних Странствий&n
+    prepositional: плаще &YДальних Странствий&n
+  short_desc: Выцвевший на солнце плащ лежит тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+
+# Object #3351
+51:
+  names:
+    aliases: пояс дальних странствий
+    nominative: пояс &YДальних Странствий&n
+    genitive: пояса &YДальних Странствий&n
+    dative: поясу &YДальних Странствий&n
+    accusative: пояс &YДальних Странствий&n
+    instrumental: поясом &YДальних Странствий&n
+    prepositional: поясе &YДальних Странствий&n
+  short_desc: Потемневший от дорожной пыли пояс лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 5
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+
+# Object #3352
+52:
+  names:
+    aliases: обруч дальних странствий
+    nominative: обруч &YДальних Странствий&n
+    genitive: обруча &YДальних Странствий&n
+    dative: обручу &YДальних Странствий&n
+    accusative: обруч &YДальних Странствий&n
+    instrumental: обручем &YДальних Странствий&n
+    prepositional: обруче &YДальних Странствий&n
+  short_desc: Потемневший серебряный обруч лежит тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+
+# Object #3353
+53:
+  names:
+    aliases: посох дальних странствий
+    nominative: посох &YДальних Странствий&n
+    genitive: посоха &YДальних Странствий&n
+    dative: посоху &YДальних Странствий&n
+    accusative: посох &YДальних Странствий&n
+    instrumental: посохом &YДальних Странствий&n
+    prepositional: посохе &YДальних Странствий&n
+  short_desc: Невзрачный затертый посох лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 8
+    - 7
+    - 5
+  weight: 16
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 141
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+
+# Object #3354
+54:
+  names:
+    aliases: кольцо дальних странствий
+    nominative: кольцо &YДальних Странствий&n
+    genitive: кольца &YДальних Странствий&n
+    dative: кольцу &YДальних Странствий&n
+    accusative: кольцо &YДальних Странствий&n
+    instrumental: кольцом &YДальних Странствий&n
+    prepositional: кольце &YДальних Странствий&n
+  short_desc: Темное железное колечко лежит тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+
+# Object #3355
+55:
+  names:
+    aliases: кинжал торговца-путешественника
+    nominative: кинжал &YТорговца-путешественника&n
+    genitive: кинжала &YТорговца-путешественника&n
+    dative: кинжалу &YТорговца-путешественника&n
+    accusative: кинжал &YТорговца-путешественника&n
+    instrumental: кинжалом &YТорговца-путешественника&n
+    prepositional: кинжале &YТорговца-путешественника&n
+  short_desc: Кинжал, с лезвием из дамасской стали, лежит тут.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 7
+    - 3
+    - 11
+  weight: 14
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 144
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+
+# Object #3356
+56:
+  names:
+    aliases: нож торговца-путешественника
+    nominative: нож &YТорговца-путешественника&n
+    genitive: ножа &YТорговца-путешественника&n
+    dative: ножу &YТорговца-путешественника&n
+    accusative: нож &YТорговца-путешественника&n
+    instrumental: ножом &YТорговца-путешественника&n
+    prepositional: ноже &YТорговца-путешественника&n
+  short_desc: Широкий походный нож лежит тут.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 8
+    - 2
+    - 11
+  weight: 14
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 144
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+
+# Object #3357
+57:
+  names:
+    aliases: копье георгия победоносца
+    nominative: копье &WГеоргия Победоносца&n
+    genitive: копья &WГеоргия Победоносца&n
+    dative: копью &WГеоргия Победоносца&n
+    accusative: копье &WГеоргия Победоносца&n
+    instrumental: копьем &WГеоргия Победоносца&n
+    prepositional: копье &WГеоргия Победоносца&n
+  short_desc: Красивое копье, с клетчатым узором на булатном наконечнике, светится мягким белым светом.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 1
+    - 1
+    - 1
+    - 12
+  weight: 18
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 148
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3358
+58:
+  names:
+    aliases: щит георгия победоносца
+    nominative: щит &WГеоргия Победоносца&n
+    genitive: щита &WГеоргия Победоносца&n
+    dative: щиту &WГеоргия Победоносца&n
+    accusative: щит &WГеоргия Победоносца&n
+    instrumental: щитом &WГеоргия Победоносца&n
+    prepositional: щите &WГеоргия Победоносца&n
+  short_desc: Красивый щит, светится мягким белым светом.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 6
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNolocate
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShield
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3359
+59:
+  names:
+    aliases: щит великого воина
+    nominative: щит &CВеликого Воина&n
+    genitive: щита &CВеликого Воина&n
+    dative: щиту &CВеликого Воина&n
+    accusative: щит &CВеликого Воина&n
+    instrumental: щитом &CВеликого Воина&n
+    prepositional: щите &CВеликого Воина&n
+  short_desc: Добротный щит, из неведомой стали, лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 10
+    - 10
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShield
+  no_flags:
+    - kBattle
+
+# Object #3360
+60:
+  names:
+    aliases: наручи Велесова Ратания
+    nominative: '&Wнаручи Велесова Ратания&n'
+    genitive: '&Wнаручей Велесова Ратания&n'
+    dative: '&Wнаручам Велесова Ратания&n'
+    accusative: '&Wнаручи Велесова Ратания&n'
+    instrumental: '&Wнаручами Велесова Ратания&n'
+    prepositional: '&Wнаручах Велесова Ратания&n'
+  short_desc: Окруженные светлой аурой наручи лежат тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3361
+61:
+  names:
+    aliases: боевые рукавицы Велесова Ратания
+    nominative: '&Wбоевые рукавицы Велесова Ратания&n'
+    genitive: '&Wбоевых рукавиц Велесова Ратания&n'
+    dative: '&Wбоевым рукавицам Велесова Ратания&n'
+    accusative: '&Wбоевые рукавицы Велесова Ратания&n'
+    instrumental: '&Wбоевыми рукавицами Велесова Ратания&n'
+    prepositional: '&Wбоевых рукавицах Велесова Ратания&n'
+  short_desc: Окруженные сиянием боевые рукавицы лежат тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 4
+    - 2
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 7  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3362
+62:
+  names:
+    aliases: поножи Велесова Ратания
+    nominative: '&Wпоножи Велесова Ратания&n'
+    genitive: '&Wпоножей Велесова Ратания&n'
+    dative: '&Wпоножам Велесова Ратания&n'
+    accusative: '&Wпоножи Велесова Ратания&n'
+    instrumental: '&Wпоножами Велесова Ратания&n'
+    prepositional: '&Wпоножах Велесова Ратания&n'
+  short_desc: Окруженные светлой аурой поножи лежат тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 6
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3363
+63:
+  names:
+    aliases: сапоги Велесова Ратания
+    nominative: '&Wсапоги Велесова Ратания&n'
+    genitive: '&Wсапог Велесова Ратания&n'
+    dative: '&Wсапогам Велесова Ратания&n'
+    accusative: '&Wсапоги Велесова Ратания&n'
+    instrumental: '&Wсапогами Велесова Ратания&n'
+    prepositional: '&Wсапогах Велесова Ратания&n'
+  short_desc: Окруженные светлой аурой сапоги стоят тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3364
+64:
+  names:
+    aliases: пояс Велесова Ратания
+    nominative: '&Wпояс Велесова Ратания&n'
+    genitive: '&Wпояса Велесова Ратания&n'
+    dative: '&Wпоясу Велесова Ратания&n'
+    accusative: '&Wпояс Велесова Ратания&n'
+    instrumental: '&Wпоясом Велесова Ратания&n'
+    prepositional: '&Wпоясе Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой пояс лежит тут.
+  type: kContainer
+  material: 1  # БУЛАТ
+  values:
+    - 700
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3365
+65:
+  names:
+    aliases: перстень Велесова Ратания
+    nominative: '&Wперстень Велесова Ратания&n'
+    genitive: '&Wперстня Велесова Ратания&n'
+    dative: '&Wперстню Велесова Ратания&n'
+    accusative: '&Wперстень Велесова Ратания&n'
+    instrumental: '&Wперстнем Велесова Ратания&n'
+    prepositional: '&Wперстне Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой перстень лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3366
+66:
+  names:
+    aliases: амулет Велесова Ратания
+    nominative: '&Wамулет Велесова Ратания&n'
+    genitive: '&Wамулета Велесова Ратания&n'
+    dative: '&Wамулету Велесова Ратания&n'
+    accusative: '&Wамулет Велесова Ратания&n'
+    instrumental: '&Wамулетом Велесова Ратания&n'
+    prepositional: '&Wамулете Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой амулет лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3367
+67:
+  names:
+    aliases: браслет Велесова Ратания
+    nominative: '&Wбраслет Велесова Ратания&n'
+    genitive: '&Wбраслета Велесова Ратания&n'
+    dative: '&Wбраслету Велесова Ратания&n'
+    accusative: '&Wбраслет Велесова Ратания&n'
+    instrumental: '&Wбраслетом Велесова Ратания&n'
+    prepositional: '&Wбраслете Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой браслет лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3368
+68:
+  names:
+    aliases: доспех Велесова Ратания
+    nominative: '&Wдоспех Велесова Ратания&n'
+    genitive: '&Wдоспеха Велесова Ратания&n'
+    dative: '&Wдоспеху Велесова Ратания&n'
+    accusative: '&Wдоспех Велесова Ратания&n'
+    instrumental: '&Wдоспехом Велесова Ратания&n'
+    prepositional: '&Wдоспехе Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой доспех лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 6
+    - 7
+    - 0
+    - 0
+  weight: 15
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3369
+69:
+  names:
+    aliases: шлем Велесова Ратания
+    nominative: '&Wшлем Велесова Ратания&n'
+    genitive: '&Wшлема Велесова Ратания&n'
+    dative: '&Wшлему Велесова Ратания&n'
+    accusative: '&Wшлем Велесова Ратания&n'
+    instrumental: '&Wшлемом Велесова Ратания&n'
+    prepositional: '&Wшлеме Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой шлем лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 7  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3370
+70:
+  names:
+    aliases: посох Велесова Ратания
+    nominative: '&Wпосох Велесова Ратания&n'
+    genitive: '&Wпосоха Велесова Ратания&n'
+    dative: '&Wпосоху Велесова Ратания&n'
+    accusative: '&Wпосох Велесова Ратания&n'
+    instrumental: '&Wпосохом Велесова Ратания&n'
+    prepositional: '&Wпосохе Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой посох лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1
+    - 1
+    - 1
+    - 6
+  weight: 15
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 141
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3371
+71:
+  names:
+    aliases: меч Велесова Ратания
+    nominative: '&Wмеч Велесова Ратания&n'
+    genitive: '&Wмеча Велесова Ратания&n'
+    dative: '&Wмечу Велесова Ратания&n'
+    accusative: '&Wмеч Велесова Ратания&n'
+    instrumental: '&Wмечом Велесова Ратания&n'
+    prepositional: '&Wмече Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой меч лежит тут.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 2
+    - 4
+    - 6
+    - 3
+  weight: 21
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3372
+72:
+  names:
+    aliases: щит Велесова Ратания
+    nominative: '&Wщит Велесова Ратания&n'
+    genitive: '&Wщита Велесова Ратания&n'
+    dative: '&Wщиту Велесова Ратания&n'
+    accusative: '&Wщит Велесова Ратания&n'
+    instrumental: '&Wщитом Велесова Ратания&n'
+    prepositional: '&Wщите Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой щит лежит тут.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 6
+    - 5
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShield
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3373
+73:
+  names:
+    aliases: плащ Велесова Ратания
+    nominative: '&Wплащ Велесова Ратания&n'
+    genitive: '&Wплаща Велесова Ратания&n'
+    dative: '&Wплащу Велесова Ратания&n'
+    accusative: '&Wплащ Велесова Ратания&n'
+    instrumental: '&Wплащом Велесова Ратания&n'
+    prepositional: '&Wплаще Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой плащ лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 8
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3374
+74:
+  names:
+    aliases: кольчужный воротник Велесова Ратания
+    nominative: '&Wкольчужный воротник Велесова Ратания&n'
+    genitive: '&Wкольчужного воротника Велесова Ратания&n'
+    dative: '&Wкольчужному воротнику Велесова Ратания&n'
+    accusative: '&Wкольчужный воротник Велесова Ратания&n'
+    instrumental: '&Wкольчужным воротником Велесова Ратания&n'
+    prepositional: '&Wкольчужном воротнике Велесова Ратания&n'
+  short_desc: Окруженный светлой аурой кольчужный воротник лежит тут.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3375
+75:
+  names:
+    aliases: наручи юной Дзеваны
+    nominative: наручи &Wюной Дзеваны&n
+    genitive: наручей &Wюной Дзеваны&n
+    dative: наручам &Wюной Дзеваны&n
+    accusative: наручи &Wюной Дзеваны&n
+    instrumental: наручами &Wюной Дзеваны&n
+    prepositional: наручах &Wюной Дзеваны&n
+  short_desc: Окруженные мягким белым светом наручи привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3376
+76:
+  names:
+    aliases: сапоги юной Дзеваны
+    nominative: сапоги &Wюной Дзеваны&n
+    genitive: сапог &Wюной Дзеваны&n
+    dative: сапогам &Wюной Дзеваны&n
+    accusative: сапоги &Wюной Дзеваны&n
+    instrumental: сапогами &Wюной Дзеваны&n
+    prepositional: сапогах &Wюной Дзеваны&n
+  short_desc: Окруженные мягким белым светом сапоги привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3377
+77:
+  names:
+    aliases: поножи юной Дзеваны
+    nominative: поножи &Wюной Дзеваны&n
+    genitive: поножей &Wюной Дзеваны&n
+    dative: поножам &Wюной Дзеваны&n
+    accusative: поножи &Wюной Дзеваны&n
+    instrumental: поножами &Wюной Дзеваны&n
+    prepositional: поножах &Wюной Дзеваны&n
+  short_desc: Окруженные мягким белым светом поножи привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3378
+78:
+  names:
+    aliases: кольчуга юной Дзеваны
+    nominative: кольчуга &Wюной Дзеваны&n
+    genitive: кольчуги &Wюной Дзеваны&n
+    dative: кольчуге &Wюной Дзеваны&n
+    accusative: кольчугу &Wюной Дзеваны&n
+    instrumental: кольчугой &Wюной Дзеваны&n
+    prepositional: кольчуге &Wюной Дзеваны&n
+  short_desc: Окруженная мягким белым светом кольчуга, сотканная из булатных колец, лежит тут.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 10
+    - 6
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3379
+79:
+  names:
+    aliases: горжет юной Дзеваны
+    nominative: горжет &Wюной Дзеваны&n
+    genitive: горжета &Wюной Дзеваны&n
+    dative: горжету &Wюной Дзеваны&n
+    accusative: горжет &Wюной Дзеваны&n
+    instrumental: горжетом &Wюной Дзеваны&n
+    prepositional: горжете &Wюной Дзеваны&n
+  short_desc: Окруженный мягким белым светом горжет привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3380
+80:
+  names:
+    aliases: кольцо юной Дзеваны
+    nominative: кольцо &Wюной Дзеваны&n
+    genitive: кольца &Wюной Дзеваны&n
+    dative: кольцу &Wюной Дзеваны&n
+    accusative: кольцо &Wюной Дзеваны&n
+    instrumental: кольцом &Wюной Дзеваны&n
+    prepositional: кольце &Wюной Дзеваны&n
+  short_desc: Окруженное мягким белым светом кольцо привлекает взгляд.
+  type: kArmor
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3381
+81:
+  names:
+    aliases: браслет юной Дзеваны
+    nominative: браслет &Wюной Дзеваны&n
+    genitive: браслета &Wюной Дзеваны&n
+    dative: браслету &Wюной Дзеваны&n
+    accusative: браслет &Wюной Дзеваны&n
+    instrumental: браслетом &Wюной Дзеваны&n
+    prepositional: браслете &Wюной Дзеваны&n
+  short_desc: Окруженный мягким белым светом браслет привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3382
+82:
+  names:
+    aliases: перчатки юной Дзеваны
+    nominative: перчатки &Wюной Дзеваны&n
+    genitive: перчаток &Wюной Дзеваны&n
+    dative: перчаткам &Wюной Дзеваны&n
+    accusative: перчатки &Wюной Дзеваны&n
+    instrumental: перчатками &Wюной Дзеваны&n
+    prepositional: перчатках &Wюной Дзеваны&n
+  short_desc: Окруженные мягким белым светом перчатки привлекают взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 5
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3383
+83:
+  names:
+    aliases: плащ юной Дзеваны
+    nominative: плащ &Wюной Дзеваны&n
+    genitive: плаща &Wюной Дзеваны&n
+    dative: плащу &Wюной Дзеваны&n
+    accusative: плащ &Wюной Дзеваны&n
+    instrumental: плащом &Wюной Дзеваны&n
+    prepositional: плаще &Wюной Дзеваны&n
+  short_desc: Окруженный мягким белым светом плащ привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 8
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3384
+84:
+  names:
+    aliases: пояс юной Дзеваны
+    nominative: пояс &Wюной Дзеваны&n
+    genitive: пояса  &Wюной Дзеваны&n
+    dative: поясу &Wюной Дзеваны&n
+    accusative: пояс &Wюной Дзеваны&n
+    instrumental: поясом &Wюной Дзеваны&n
+    prepositional: поясе &Wюной Дзеваны&n
+  short_desc: Окруженный мягким белым светом пояс привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3385
+85:
+  names:
+    aliases: шелом юной Дзеваны
+    nominative: шелом &Wюной Дзеваны&n
+    genitive: шелома &Wюной Дзеваны&n
+    dative: шелому &Wюной Дзеваны&n
+    accusative: шелом &Wюной Дзеваны&n
+    instrumental: шеломом &Wюной Дзеваны&n
+    prepositional: шеломе &Wюной Дзеваны&n
+  short_desc: Окруженный мягким белым светом шелом привлекает взгляд.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3386
+86:
+  names:
+    aliases: лук юной Дзеваны
+    nominative: лук &Wюной Дзеваны&n
+    genitive: лука &Wюной Дзеваны&n
+    dative: луку &Wюной Дзеваны&n
+    accusative: лук &Wюной Дзеваны&n
+    instrumental: луком &Wюной Дзеваны&n
+    prepositional: луке &Wюной Дзеваны&n
+  short_desc: Окруженный мягким белым светом лук привлекает взгляд.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 6
+    - 3
+    - 9
+  weight: 30
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 154
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3387
+87:
+  names:
+    aliases: сабля юной Дзеваны
+    nominative: сабля &Wюной Дзеваны&n
+    genitive: сабли &Wюной Дзеваны&n
+    dative: сабле &Wюной Дзеваны&n
+    accusative: саблю &Wюной Дзеваны&n
+    instrumental: саблей &Wюной Дзеваны&n
+    prepositional: сабле &Wюной Дзеваны&n
+  short_desc: Красивая сабля, с клетчатым узором на булатном лезвии, светится мягким белым светом.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 1
+    - 1
+    - 7
+  weight: 20
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3388
+88:
+  names:
+    aliases: кинжал юной Дзеваны
+    nominative: кинжал &Wюной Дзеваны&n
+    genitive: кинжала &Wюной Дзеваны&n
+    dative: кинжалу &Wюной Дзеваны&n
+    accusative: кинжал &Wюной Дзеваны&n
+    instrumental: кинжалом &Wюной Дзеваны&n
+    prepositional: кинжале &Wюной Дзеваны&n
+  short_desc: Красивый кинжал, с клетчатым узором на булатном лезвии, светится мягким белым светом.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 1
+    - 1
+    - 10
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3389
+89:
+  names:
+    aliases: копье юной Дзеваны
+    nominative: копье &Wюной Дзеваны&n
+    genitive: копья &Wюной Дзеваны&n
+    dative: копью &Wюной Дзеваны&n
+    accusative: копье &Wюной Дзеваны&n
+    instrumental: копьем &Wюной Дзеваны&n
+    prepositional: копье &Wюной Дзеваны&n
+  short_desc: Красивое копье, с клетчатым узором на булатном наконечнике, светится мягким белым светом.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 1
+    - 1
+    - 1
+    - 12
+  weight: 18
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 148
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3390
+90:
+  names:
+    aliases: щит юной Дзеваны
+    nominative: щит &Wюной Дзеваны&n
+    genitive: щита &Wюной Дзеваны&n
+    dative: щиту &Wюной Дзеваны&n
+    accusative: щит &Wюной Дзеваны&n
+    instrumental: щитом &Wюной Дзеваны&n
+    prepositional: щите &Wюной Дзеваны&n
+  short_desc: Красивый щит светится мягким белым светом.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 6
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNolocate
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShield
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3391
+91:
+  names:
+    aliases: сабля Велесова Ратания
+    nominative: '&Wсабля Велесова Ратания&n'
+    genitive: '&Wсабли Велесова Ратания&n'
+    dative: '&Wсабле Велесова Ратания&n'
+    accusative: '&Wсаблю Велесова Ратания&n'
+    instrumental: '&Wсаблей Велесова Ратания&n'
+    prepositional: '&Wсабле Велесова Ратания&n'
+  short_desc: Окруженная светлой аурой сабля лежит тут.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 1
+    - 1
+    - 3
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 75000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+    - kFemale
+
+# Object #3392
+92:
+  names:
+    aliases: клинок Валькирии
+    nominative: '&Wклинок Валькирии&n'
+    genitive: '&Wклинка Валькирии&n'
+    dative: '&Wклинку Валькирии&n'
+    accusative: '&Wклинок Валькирии&n'
+    instrumental: '&Wклинком Валькирии&n'
+    prepositional: '&Wклинке Валькирии&n'
+  short_desc: Окруженный светлой аурой клинок лежит тут.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 1
+    - 1
+    - 1
+    - 3
+  weight: 20
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 143
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+    - kMale
+
+# Object #3393
+93:
+  names:
+    aliases: новый предмет
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+  no_flags:
+    - kBattle
+
+# Object #3394
+94:
+  names:
+    aliases: новый предмет
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+  no_flags:
+    - kBattle

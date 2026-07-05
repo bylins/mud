@@ -1,0 +1,81 @@
+# Mobs for zone 16
+
+# Mob #1600
+0:
+  names:
+    aliases: жеребец
+    nominative: жеребец
+    genitive: жеребца
+    dative: жеребцу
+    accusative: жеребца
+    instrumental: жеребцом
+    prepositional: жеребце
+  descriptions:
+    short_desc: |2
+      Иссине-черный жеребец с прелестной блестящей гривой пасется здесь.
+    long_desc: |2
+      Иссыне-черный жеребец с прелестной блестящей гривой ждет своего хозяина.
+      Достаточно просто &Wтопнуть&n ногой чтобы выпустить на волю своего боевого друга где бы он небыл
+  alignment: 600
+  stats:
+    level: 30
+    hitroll_penalty: 12
+    armor: 0
+    hp:
+      dice_count: 20
+      dice_size: 20
+      bonus: 3390
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 114
+  height: 50
+  weight: 200
+  attributes:
+    strength: 40
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 40
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoSleep
+    - kMounting
+    - kNoHold
+    - kSwimming
+    - kNoOverwhelm
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kWaterWalk
+    - kInfravision
+    - kFly
+  skills:
+    - skill_id: 5  # оглушить
+      value: 50
+  triggers:
+    - 1602  # дикей лошадки
+  enhanced:
+    bare_hand_attack: 14
+    like_work: 100
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: n0
+    saves:
+      kWill: -100
+      kCritical: -100
+      kStability: -100
+      kReflex: -100

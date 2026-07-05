@@ -1,0 +1,195 @@
+# Objects for zone 66
+
+# Object #6600
+0:
+  names:
+    aliases: маленькая тяпка
+    nominative: маленькая тяпка
+    genitive: маленькой тяпки
+    dative: маленькой тяпке
+    accusative: маленькую тяпку
+    instrumental: маленькой тяпкой
+    prepositional: маленькой тяпке
+  short_desc: Маленькая тяпка лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 3
+    - 5
+  weight: 5
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 75
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 20
+  extra_flags:
+    - kNodonate
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #6601
+1:
+  names:
+    aliases: грабли
+    nominative: грабли
+    genitive: граблей
+    dative: граблям
+    accusative: грабли
+    instrumental: граблями
+    prepositional: граблях
+  short_desc: Старые грабли лежат здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 4
+    - 4
+    - 5
+  weight: 20
+  cost: 140
+  rent_off: 140
+  rent_on: 14
+  spec_param: 146
+  max_durability: 100
+  cur_durability: 75
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 20
+  extra_flags:
+    - kNodonate
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kMage
+  anti_flags:
+    - kMage
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 10
+
+# Object #6602
+2:
+  names:
+    aliases: затупленный топор
+    nominative: затупленный топор
+    genitive: затупленного топора
+    dative: затупленному топору
+    accusative: затупленный топор
+    instrumental: затупленным топором
+    prepositional: затупленном топоре
+  short_desc: Затупленный топор лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 4
+    - 10
+  weight: 18
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 142
+  max_durability: 100
+  cur_durability: 80
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kMage
+  anti_flags:
+    - kMage
+  applies:
+    - location: 18  # попадание
+      modifier: 1
+
+# Object #6603
+3:
+  names:
+    aliases: палка крепкая
+    nominative: крепкая палка
+    genitive: крепкой палки
+    dative: крепкой палке
+    accusative: крепкую палку
+    instrumental: крепкой палкой
+    prepositional: крепкой палке
+  short_desc: Большая дубинка лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 4
+    - 6
+  weight: 13
+  cost: 60
+  rent_off: 25
+  rent_on: 10
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #6604
+4:
+  names:
+    aliases: узкий ошейник
+    nominative: узкий ошейник
+    genitive: узкого ошейника
+    dative: узкому ошейнику
+    accusative: узкий ошейник
+    instrumental: узким ошейником
+    prepositional: узком ошейнике
+  short_desc: Узкий ошейник лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 25
+  cur_durability: 20
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kNeck
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 5
+    - location: 25  # восст.жизни
+      modifier: 5

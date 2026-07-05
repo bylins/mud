@@ -1,0 +1,62 @@
+# Triggers for zone 43
+
+# Trigger #4300
+0:
+  name: старик
+  attach_type: kMobTrigger
+  narg: 30
+  trigger_types:
+    - kGreet
+  script: |-2
+    if %actor%!=-1
+      exit
+    end
+    wait 1
+    say Приветствую тебя странник, мои старческие кости ослабли, силы покинули меня.
+    вздох
+    wait 1
+    say Я пытался найти недостающий компонент лечебного зелья, оранжевый цветок, но устал. Не мог бы ты помочь мне в этом? Он растет где-то на гнилом болоте.
+
+# Trigger #4301
+1:
+  name: отдача цветка
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if %object.vnum% != 4300
+      wait 1
+      say Зачем мне это???
+      drop all
+      halt
+    end
+    wait 1
+    mpurge %object%
+    say Благодарствую, ты очень помог%actor.q% мне.
+    wait 2
+    %actor.questbodrich(1)%
+    say Возьми за это скромную плату от меня.
+    switch %random.8%
+      case 1
+        load obj 202
+        дать рун %actor.iname%
+      break
+      case 2
+        load obj 225
+        дать рун %actor.iname%
+      break
+      case 3
+      case 4
+        load obj 527
+        дать книга %actor.iname%
+      break
+      case 5
+        load obj 1703
+        дать все .%actor.iname%
+      break
+      default
+        %self.gold(+20)%
+        дать 20 кун %actor.iname%
+      break
+    done

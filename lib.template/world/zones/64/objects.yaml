@@ -1,0 +1,409 @@
+# Objects for zone 64
+
+# Object #6400
+0:
+  names:
+    aliases: замшелый камень
+    nominative: замшелый камень
+    genitive: замшелый камень
+    dative: замшелый камень
+    accusative: замшелый камень
+    instrumental: замшелый камень
+    prepositional: замшелый камень
+  short_desc: Поросший мхом валун с еле заметной надписью.
+  type: kOther
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 200
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: -1
+  cur_durability: -1
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+    - kNodecay
+  no_flags:
+    - kMono
+    - kPoly
+  extra_descriptions:
+    - keywords: камень
+      description: |2
+        Если ты еще мал, не ищи здесь ничего хорошего, плохое это место
+        (от 10 уровня).
+
+# Object #6401
+1:
+  names:
+    aliases: кошачья шкура
+    nominative: кошачья шкура
+    genitive: кошачьей шкуры
+    dative: кошачье шкуре
+    accusative: кошачью шкуру
+    instrumental: кошачьей шкурой
+    prepositional: кошачьей шкуре
+  short_desc: Кошачья шкура - предмет вожделения любого чучельника.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 140
+  rent_off: 140
+  rent_on: 14
+  max_durability: 25
+  cur_durability: 25
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kAwareness
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 5
+
+# Object #6402
+2:
+  names:
+    aliases: гланды жабаглота
+    nominative: гланды жабаглота
+    genitive: гланд жабаглота
+    dative: гландам жабаглота
+    accusative: гланды жабаглота
+    instrumental: гландами жабаглота
+    prepositional: гландах жабаглота
+  short_desc: Гланды жабаглота лучший подарок знахарям и прочим алхимикам.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 20
+  cur_durability: 20
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kZonedecay
+  wear_flags:
+    - kTake
+
+# Object #6403
+3:
+  names:
+    aliases: мышиная лапка
+    nominative: мышиная лапка
+    genitive: мышиной лапки
+    dative: мышиной лапке
+    accusative: мышиную лапку
+    instrumental: мышиной лапкой
+    prepositional: мышиной лапке
+  short_desc: Мышиная лапка лежит здесь.
+  type: kWand
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 15
+    - 1
+    - 1
+    - 1
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 20
+  max_durability: 25
+  cur_durability: 25
+  timer: 15
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 100
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #6404
+4:
+  names:
+    aliases: стрела с каленым наконечником
+    nominative: стрела с каленым наконечником
+    genitive: стрелы с каленым наконечником
+    dative: стрелу с каленым наконечником
+    accusative: стрелу с каленым наконечником
+    instrumental: стрелой с каленым наконечником
+    prepositional: стреле с каленым наконечником
+  short_desc: Стрела с каленым наконечником лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 1
+  cost: 150
+  rent_off: 150
+  rent_on: 150
+  spec_param: 145
+  max_durability: 150
+  cur_durability: 150
+  timer: 20
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNoinvis
+    - kDecay
+    - kZonedecay
+  wear_flags:
+    - kTake
+
+# Object #6405
+5:
+  names:
+    aliases: перстень с киноварью
+    nominative: перстень с киноварью
+    genitive: перстня с киноварью
+    dative: перстню с киноварью
+    accusative: перстень с киноварью
+    instrumental: перстнем с киноварью
+    prepositional: перстне с киноварью
+  short_desc: Перстень с камушком красного цвета лежит тут.
+  type: kWorm
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 300
+  rent_off: 300
+  rent_on: 30
+  max_durability: 30
+  cur_durability: 30
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+  wear_flags:
+    - kTake
+    - kFinger
+  affect_flags:
+    - kBless
+    - kNoFlee
+  applies:
+    - location: 4  # мудрость
+      modifier: -2
+
+# Object #6406
+6:
+  names:
+    aliases: шкура ондатры
+    nominative: шкура ондатры
+    genitive: шкуры ондатры
+    dative: шкуре ондатры
+    accusative: шкуру ондатры
+    instrumental: шкурой ондатры
+    prepositional: шкуре ондатры
+  short_desc: Шкура ондатры лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 340
+  rent_off: 340
+  rent_on: 34
+  max_durability: 75
+  cur_durability: 75
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 4
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 26  # восст.энергии
+      modifier: 10
+
+# Object #6407
+7:
+  names:
+    aliases: кривое копье
+    nominative: кривое копье
+    genitive: кривого копья
+    dative: кривому копью
+    accusative: кривое копье
+    instrumental: кривым копьем
+    prepositional: кривом копье
+  short_desc: Кривое копье брошено в панике хозяйкой.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 4
+    - 4
+    - 10
+  weight: 12
+  cost: 150
+  rent_off: 150
+  rent_on: 10
+  spec_param: 148
+  max_durability: 150
+  cur_durability: 150
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+
+# Object #6408
+8:
+  names:
+    aliases: короткая записка
+    nominative: короткая записка
+    genitive: короткой записки
+    dative: короткой записке
+    accusative: короткую записку
+    instrumental: короткой запиской
+    prepositional: короткой запиской
+  short_desc: Короткая записка лежит здесь.
+  type: kWorm
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 30
+  cur_durability: 30
+  timer: 15
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoinvis
+    - kNosell
+    - kDecay
+    - kZonedecay
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectInvisibility
+  extra_descriptions:
+    - keywords: записка
+      description: |2
+        За идею со стрелами: вернусь - зашибу.
+
+# Object #6409
+9:
+  names:
+    aliases: зубы буккена челюсть
+    nominative: зубы буккена
+    genitive: зубов буккена
+    dative: зубам буккена
+    accusative: зубы буккена
+    instrumental: зубами буккена
+    prepositional: зубах буккена
+  short_desc: Челюсть лесного недомерка валяется здесь.
+  action_desc: |2
+    Челюсть клацнула и жутко заскрипела.
+  type: kWand
+  material: 13  # КОСТЬ
+  values:
+    - 15
+    - 5
+    - 5
+    - 52
+  weight: 4
+  cost: 300
+  rent_off: 200
+  rent_on: 40
+  max_durability: 5
+  cur_durability: 5
+  timer: 15
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kNoFlee
+
+# Object #6410
+10:
+  names:
+    aliases: легкая обортка
+    nominative: легкая обортка
+    genitive: легкой обортки
+    dative: легкой обортке
+    accusative: легкую обортку
+    instrumental: легкой оборткой
+    prepositional: легкой обортке
+  short_desc: Легкая обортка истрепалась от долго ношения.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 6
+  cost: 240
+  rent_off: 240
+  rent_on: 24
+  max_durability: 75
+  cur_durability: 75
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kFeet
+  applies:
+    - location: 27  # слот.1
+      modifier: 2

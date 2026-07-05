@@ -1,0 +1,556 @@
+# Mobs for zone 25
+
+# Mob #2500
+0:
+  names:
+    aliases: дед мороз
+    nominative: Дед Мороз
+    genitive: Деда Мороза
+    dative: Деду Морозу
+    accusative: Деда Мороза
+    instrumental: Дедом Морозом
+    prepositional: Деде Морозе
+  descriptions:
+    short_desc: |2
+      Краснощекий &WДед Мороз&n весело покрикивает на оленей.
+    long_desc: |2
+      ___Небольшого роста толстячок с длинной белоснежной бородой вальяжно развалился на санях, 
+      ведомых тройкой грациозных оленей. Левой рукой он слегка придерживает громадный красный
+      мешок, с виду полностью забитым какими-то вещами. Хм...
+      ___&RПопросить&n у него &Rподарочек&n, чтоли? Новый Год, как никак - авось да по доброте
+      душевной вам что-нибудь и перепадет.
+  alignment: 0
+  stats:
+    level: 30
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 10000
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  attributes:
+    strength: 11
+    dexterity: 1
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoBlind
+    - kNoHold
+    - kNoFight
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 2526  # [m00] Дед мороз раскладывает снежинки
+    - 2527  # [m00] попросить подарочек у Деда мороза
+  enhanced:
+    max_factor: 4
+
+# Mob #2501
+1:
+  names:
+    aliases: снегурка снегурочка
+    nominative: Снегурка
+    genitive: Снегурки
+    dative: Снегурке
+    accusative: Снегурку
+    instrumental: Снегуркой
+    prepositional: Снегурке
+  descriptions:
+    short_desc: |2
+      Снегурка стоит здесь, не спроста это, видать к Новому Году.
+    long_desc: |2
+      Чего вы ожидаете увидеть глядя на Снегурку? 
+      Короткой юбки, большой груди? чего-то еще? -- чего
+      хотите -- то и получите -- под Новый Год возможно все!
+      Одетая в нарядный белый кружевной полушубок, короткие белые сапожки, белые колготочки, белую шапочку с синим кантом, она выглядет
+      истинной красавицей посреди сугробов, зеленых елок и нарядных деревенских баб.
+  alignment: 0
+  stats:
+    level: 30
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 30000
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 114
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAware
+    - kNoCharm
+    - kNoSleep
+    - kNoBash
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+    - kNoFight
+  enhanced:
+    max_factor: 4
+
+# Mob #2502
+2:
+  names:
+    aliases: новогодняя елка елочка ёлка ёлочка
+    nominative: '&Gгромадная новогодняя ёлочка&n'
+    genitive: '&Gгромадной новогодней ёлочки&n'
+    dative: '&Gгромадной новогодней ёлочке&n'
+    accusative: '&Gгромадную новогоднюю ёлочку&n'
+    instrumental: '&Gгромадной новогодней ёлочкой&n'
+    prepositional: '&Gгромадной новогодней ёлочке&n'
+  descriptions:
+    short_desc: |2
+      &GВысоченная новогодняя ёлка&Y, украшенная &Rкрасными&Y, &Cголубыми&Y и &Wбелыми&Y гирляндами, стоит здесь.&R
+    long_desc: |2
+         Красивая высокая стройная ёлочка весело перемигивается мириадами огоньков.
+  alignment: 0
+  stats:
+    level: 50
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 10000
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 50
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 109
+  height: 198
+  weight: 200
+  attributes:
+    strength: 30
+    dexterity: 30
+    intelligence: 30
+    wisdom: 30
+    constitution: 30
+    charisma: 30
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAware
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBash
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kNoGroup
+    - kCorpse
+    - kSwimming
+    - kFlying
+    - kNotKillPunctual
+    - kNoUndercut
+    - kNoSkillTrain
+    - kNoRest
+    - kNoOverwhelm
+    - kNoHelp
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 1183  # Елка мигает огоньками
+  enhanced:
+    max_factor: 7
+    special_bitvector: m0
+
+# Mob #2503
+3:
+  names:
+    aliases: громадный белый медведь
+    nominative: громадный белый медведь
+    genitive: громадного белого медведя
+    dative: громадному белому медведю
+    accusative: громадного белого медведя
+    instrumental: громадным белым медведем
+    prepositional: громадном белом медведе
+  descriptions:
+    short_desc: |2
+      Громадный белый медведь работает над снежинками.
+    long_desc: |2
+      Без устали трудится этот странный белый медведь.
+      Стоит только дать ему десяток одинаковых снежинок,
+      как он сразу слепит из них более красивую и крупную
+      снежинку.
+      Вот только, говорят, назад свои снежинки лучше потом
+      не просить. Злится мишка от одной мысли искать их
+      среди всех этих сугробов.
+  alignment: 200
+  stats:
+    level: 30
+    hitroll_penalty: -1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 600
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 100
+  height: 168
+  weight: 150
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 23
+    wisdom: 24
+    constitution: 23
+    charisma: 17
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 2524  # [m03] медведь трансформирует снежинки
+  enhanced:
+    like_work: 1
+    max_factor: 4
+    extra_attack: 1
+
+# Mob #2504
+4:
+  names:
+    aliases: белобородый купчина
+    nominative: белобородый купчина
+    genitive: белобородого купчины
+    dative: белобородому купчине
+    accusative: белобородого купчину
+    instrumental: белобородым купчиной
+    prepositional: белобородом купчине
+  descriptions:
+    short_desc: |2
+      Купчина белобородый в алом кафтане тут суетится на людей своих покрикивает.
+    long_desc: |2
+      Дородный мужичина с белой бородищей лопатой в алом кафтане.
+  alignment: 200
+  stats:
+    level: 30
+    hitroll_penalty: -1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 600
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 100
+  height: 168
+  weight: 150
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 23
+    wisdom: 24
+    constitution: 23
+    charisma: 17
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 2507  # Полет летучего корабля
+    - 2523  # [m04] снятие персональности с предметов
+  enhanced:
+    like_work: 1
+    max_factor: 4
+    extra_attack: 1
+
+# Mob #2505
+5:
+  names:
+    aliases: молодой купчина Василь Иванович
+    nominative: Василь Иванович
+    genitive: Василя Ивановича
+    dative: Василю Ивановичу
+    accusative: Василя Ивановича
+    instrumental: Василем Ивановичем
+    prepositional: Василе Ивановиче
+  descriptions:
+    short_desc: |2
+      Молодой купчина Василь Иваныч скрипит пером по пергаменту.
+    long_desc: |2
+      Молодой купчина с роскошными усами принимает осколки волшебного льда,
+      да старательно записывает гусиным перышком в толстую книгу.
+  alignment: 200
+  stats:
+    level: 30
+    hitroll_penalty: -1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 600
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 168
+  weight: 150
+  attributes:
+    strength: 504
+    dexterity: 50
+    intelligence: 23
+    wisdom: 24
+    constitution: 23
+    charisma: 17
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 2515  # [m05] дали волшебный лед Василю
+    - 2516  # [m05] озвучиваем счет
+    - 2517  # [m05] выдаем обратно лед по требованию
+    - 2518  # [m05] антуражные сообщения Василя
+  enhanced:
+    like_work: 1
+    max_factor: 4
+    extra_attack: 1
+
+# Mob #2506
+6:
+  names:
+    aliases: старый купец Иван Васильевич
+    nominative: Иван Васильевич
+    genitive: Ивана Васильевича
+    dative: Ивану Васильевичу
+    accusative: Ивана Васильевича
+    instrumental: Иваном Васильевичем
+    prepositional: Иване Васильевиче
+  descriptions:
+    short_desc: |2
+      Старый купец Иван Васильевич степенно водит носом над свитками.
+    long_desc: |2
+      Мощный горбоносый купчина с длинной, но редковатой бородой.
+  alignment: 200
+  stats:
+    level: 30
+    hitroll_penalty: -1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 600
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 100
+  height: 168
+  weight: 150
+  attributes:
+    strength: 504
+    dexterity: 50
+    intelligence: 23
+    wisdom: 24
+    constitution: 23
+    charisma: 17
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 2519  # [m06] антуражные сообщения Ивана
+    - 2520  # [m06] выдача призов за лед
+    - 2521  # [m06] не берем вещей в инвентарь
+  enhanced:
+    like_work: 1
+    max_factor: 4
+    extra_attack: 1
+
+# Mob #2510
+10:
+  names:
+    aliases: снежный вихрь
+    nominative: снежный вихрь
+    genitive: снежного вихря
+    dative: снежному вихрю
+    accusative: снежного вихря
+    instrumental: снежным вихрем
+    prepositional: снежном вихре
+  descriptions:
+    short_desc: |2
+      Чудо-создание из ветра и снега предстало пред вашим взором.
+    long_desc: |2
+      Новогоднее создание. Снег, льдинки, иней и много-много ветра.
+  alignment: 0
+  stats:
+    level: 30
+    hitroll_penalty: 10
+    armor: -1
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1100
+    damage:
+      dice_count: 10
+      dice_size: 10
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 113
+  height: 198
+  weight: 200
+  attributes:
+    strength: 30
+    dexterity: 30
+    intelligence: 30
+    wisdom: 30
+    constitution: 30
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kAware
+    - kNoSleep
+    - kNoBash
+    - kNoFear
+    - kFrostBreath
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kFly
+    - kBlink
+    - kIceShield
+    - kIceAura
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 100
+  enhanced:
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: l0y0

@@ -1,0 +1,2855 @@
+# Objects for zone 27
+
+# Object #2700
+0:
+  names:
+    aliases: медовый пирог
+    nominative: медовый пирог
+    genitive: медового пирога
+    dative: медовому пирогу
+    accusative: медовый пирог
+    instrumental: медовым пирогом
+    prepositional: медовом пироге
+  short_desc: Медовый пирог манит обалденным ароматом
+  action_desc: |2
+    Применить пирог, применить пирог. Как можно применять пирог?
+    По прямому назначению!
+    Вы откусили кусочек. Ммм... Вкуснотища!
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 53
+  weight: 10
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 15
+  cur_durability: 13
+  timer: 9000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kThrowing
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 7
+    - location: 39  # реакция
+      modifier: -5
+  skills:
+    - skill_id: 20  # лидерство
+      value: 100
+  extra_descriptions:
+    - keywords: медовый пирог
+      description: |2
+        Его размеры поражают. Впрочем, оно и понятно, такие пироги выпекались на всю
+        деревню в день празднования осенин.  
+
+# Object #2701
+1:
+  names:
+    aliases: братина доброго вина
+    nominative: братина доброго вина
+    genitive: братины доброго вина
+    dative: братине доброго вина
+    accusative: братину доброго вина
+    instrumental: братиной доброго вина
+    prepositional: братине доброго вина
+  short_desc: Братина доброго вина стоит у ваших ног
+  type: kLiquidContainer
+  material: 10  # КЕРАМИКА
+  values:
+    - 10
+    - 10
+    - 2
+    - 0
+  weight: 15
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodisarm
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kShield
+    - kWield
+    - kHold
+    - kBoth
+  affect_flags:
+    - kBlink
+    - kHaste
+    - kStoneHand
+    - kFireAura
+  applies:
+    - location: 24  # стойкость
+      modifier: 10
+    - location: 23  # здоровье
+      modifier: 35
+    - location: 20  # воля
+      modifier: 10
+    - location: 39  # реакция
+      modifier: 10
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 10
+    - location: 21  # защита.от.стихии.огня
+      modifier: -30
+  skills:
+    - skill_id: 1  # прикрыть
+      value: 100
+    - skill_id: 30  # опохмелиться
+      value: 100
+  extra_descriptions:
+    - keywords: братина доброго вина
+      description: |2
+        Какой ж праздник без доброго вина? Тем более осенью! Но, конечно ж,
+        напивались не просто так. Перед наступлением темноты разжигают огонь и прыгают
+        через него, очищаясь. Жрецы ходят босыми ногами по раскаленным углям,
+        припевая: +Яже, Яже, потоптаже! +
+  extra_values:
+    POTION_PROTO_VNUM: 0
+    POTION_SPELL1_LVL: 50
+    POTION_SPELL1_NUM: 175
+    POTION_SPELL2_LVL: 50
+    POTION_SPELL2_NUM: 28
+    POTION_SPELL3_LVL: 50
+    POTION_SPELL3_NUM: 84
+
+# Object #2702
+2:
+  names:
+    aliases: румяное яблочко
+    nominative: румяное яблочко
+    genitive: румяного яблочка
+    dative: румяному яблочку
+    accusative: румяное яблочко
+    instrumental: румяным яблочком
+    prepositional: румяном яблочке
+  short_desc: Румяное яблочко валяется под ногами
+  action_desc: |2
+    Вы укусили яблочко. Вкус так себе. Но эффект!
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 3
+    - 3
+    - 113
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  max_durability: 3
+  cur_durability: 2
+  timer: 7000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 3
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kInfravision
+    - kNoTrack
+    - kDetectPoison
+  applies:
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 6
+    - location: 35  # слот.9
+      modifier: 1
+    - location: 34  # слот.8
+      modifier: 2
+    - location: 20  # воля
+      modifier: -5
+  skills:
+    - skill_id: 140  # выследить
+      value: 100
+  extra_descriptions:
+    - keywords: румяное яблочко
+      description: |2
+        Вид у него не слишком аппетитный - явно паданка, но во время осенин славили
+        любые продукты. Осень всегда торопила сбор урожая. 17 августа + +Авдотья,
+        кривые огурцы+. К этому времени увядают плети, пора думать о засолке. 18
+        августа повсюду, где росли яблоки, надкусывали их в первый раз и загадывали
+        заветное желание, повторяя: +Что задумано - сбудется, что сбудется - не
+        минуется+.  
+
+# Object #2703
+3:
+  names:
+    aliases: Никому ненужная щепка
+    nominative: никому ненужная щепка
+    genitive: никому ненужной щепки
+    dative: никому ненужной щепке
+    accusative: никому ненужную щепку
+    instrumental: никому ненужной щепкой
+    prepositional: никому ненужной щепке
+  short_desc: Никому ненужная щепка валяется в пыли
+  action_desc: |2
+    Что за ерундовина?
+    Щепка заелозила у вас в руках. Живая она что ли?
+  type: kWand
+  material: 8  # ДЕРЕВО
+  values:
+    - 30
+    - 1
+    - 1
+    - 193
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 3
+  cur_durability: 2
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kInfravision
+    - kSneak
+    - kFly
+    - kHaemorrhage
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 4
+    - location: 12  # запоминание
+      modifier: 20
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: -40
+  skills:
+    - skill_id: 166  # сглазить
+      value: 5
+  extra_descriptions:
+    - keywords: никому ненужная щепка
+      description: |2
+        Осень - пора жатвы. Хорошее начало, как говорят, половина дела. Чтобы сбор
+        урожая и жатва была скорой, а труд без усталости, зажин поручали вдове
+        достойного поведения или пожилой женщине, хорошей работнице, имевшей +легкую
+        руку+. Поздно вечером, чтоб никто не видел и не перешел дороги, пробиралась
+        она к своей полоске, связывала три снопика и складывала их крестом. Наутро
+        собирались в поле все жницы. Закончив свой сбор урожая и жать свою делянку,
+        шли помогать одиноким, слабосильным, многодетным. Ради этого отказывались даже
+        от воскресного отдыха. +На вдовий двор хоть щепку кинь+ -поучала молва.  
+
+# Object #2704
+4:
+  names:
+    aliases: маленький горбатенький серп
+    nominative: маленький горбатенький серп
+    genitive: маленького горбатенького серпа
+    dative: маленькому горбатенькому серпу
+    accusative: маленький горбатенький серп
+    instrumental: маленьким горбатеньким серпом
+    prepositional: маленьком горбатеньком серпе
+  short_desc: Маленький горбатенький серп просится погулять по полям
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 5
+    - 5
+    - 6
+    - 7
+  weight: 8
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 95
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodisarm
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  affect_flags:
+    - kBless
+    - kAwareness
+    - kBlink
+    - kNoFlee
+    - kHaste
+  applies:
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 5
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 39  # реакция
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: 5
+    - location: 23  # здоровье
+      modifier: 5
+  skills:
+    - skill_id: 31  # лечить
+      value: 50
+  extra_descriptions:
+    - keywords: маленький горбатенький серп
+      description: |2
+        Август на Руси исстари назывался +жнивнем+. И поскольку с ним приходила
+        главная забота земледельца - сбор урожая и уборка хлебов, с него и начинался
+        отсчет осенних дней. +До Ильина дня дождь + в закрома, после Ильина - из
+        закрома+ - торопила ухудшающаяся погода. Маленький горбатенький серп гулял по
+        полям. Низко склонившись, шли с ним женщины одной рукой захватывали горсть
+        колосьев, другой + подрезали их серпом, потом связывали в снопы. +Хлеб в
+        колоске, не валяйся в холодке+.  
+
+# Object #2705
+5:
+  names:
+    aliases: саламата
+    nominative: саламата
+    genitive: саламаты
+    dative: саламате
+    accusative: саламату
+    instrumental: саламатой
+    prepositional: саламате
+  short_desc: Какая-то снедь валяется на полу
+  action_desc: |2
+    Чего не сделаешь с голодухи?
+    Вы укусили кусочек. Вкус теста.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 48
+  weight: 2
+  cost: 100
+  rent_off: 50
+  rent_on: 5
+  max_durability: 3
+  cur_durability: 3
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kAwareness
+    - kWaterBreath
+    - kIceAura
+  applies:
+    - location: 41  # удача
+      modifier: 10
+    - location: 17  # защита
+      modifier: 10
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: -2
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 80
+  extra_descriptions:
+    - keywords: саламат
+      description: |2
+        Коль работа сообща, то и радость общая. Хлеб нового урожая подавали на
+        +дожинки+. В деревнях собирали +братчину+ + общий праздник сбора урожая. 
+        Все, что было на полях, появлялось на столах, где хлеб был +всему голова+. На
+        +дожинки+ готовили любимое и очень сытное блюдо - саламату из первой муки с
+        салом, варили сообща хлебное пиво и квас, пекли множество пирогов.  
+
+# Object #2706
+6:
+  names:
+    aliases: соты с медом
+    nominative: соты с медом
+    genitive: сот с медом
+    dative: сотам с медом
+    accusative: соты с медом
+    instrumental: сотами с медом
+    prepositional: сотах с медом
+  short_desc: Планка сот с медом прилипла к полу
+  action_desc: |2
+    Откуда ни возьмись налетели пчелы.
+  type: kWand
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 50
+    - 20
+    - 20
+    - 126
+  weight: 5
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 15
+  cur_durability: 14
+  timer: 7000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWaist
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kSanctuary
+    - kBlink
+    - kFireAura
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 7
+    - location: 20  # воля
+      modifier: -10
+    - location: 46  # защита.от.стихии.воды
+      modifier: 20
+    - location: 49  # защита.от.магии.разума
+      modifier: -10
+  skills:
+    - skill_id: 183  # магия огня
+      value: 100
+    - skill_id: 188  # магия разума
+      value: 100
+  extra_descriptions:
+    - keywords: соты медом
+      description: |2
+        Осенью завсегда начиналось и время сбора меда - любимейшее славянское
+        лакомство. Подрезались медовые планки, убирались ульи на зиму, пелись песни.
+        Ой ли мед, медунок, ой ли любо сладко.  
+
+# Object #2707
+7:
+  names:
+    aliases: солоха овсей
+    nominative: солоха и Овсей
+    genitive: солохи и Овсея
+    dative: солохе и Овсею
+    accusative: солоху и Овсея
+    instrumental: солохой и Овсеем
+    prepositional: солохе и Овсее
+  short_desc: Два небольших разодетых снопа стоят рядышком
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 9000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 3
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kBody
+    - kHead
+    - kShoulders
+  affect_flags:
+    - kInvisibility
+    - kNoTrack
+    - kFly
+    - kDisguising
+    - kDeafness
+  applies:
+    - location: 49  # защита.от.магии.разума
+      modifier: 10
+    - location: 39  # реакция
+      modifier: 10
+    - location: 24  # стойкость
+      modifier: 10
+    - location: 13  # макс.жизнь
+      modifier: 30
+  skills:
+    - skill_id: 179  # изгнать нежить
+      value: 100
+  extra_descriptions:
+    - keywords: солоха овсей
+      description: |2
+        Ай, да потеха, нарядили рожь, да овёс в мужика, да бабу. На руси ясно
+        проступало противопоставление озимой ржи и ярового овса как женского и мужского
+        начала. Из ржаных колосьев часто плелась коса, а из метелок овса делалась
+        борода. Ржаной и овсяный сноп
+
+# Object #2708
+8:
+  names:
+    aliases: заморский овощ
+    nominative: заморский овощ со свечкой внутри
+    genitive: заморского овоща со свечкой внутри
+    dative: заморскому овощу со свечкой внутри
+    accusative: заморский овощ со свечкой внутри
+    instrumental: заморским овощем со свечкой внутри
+    prepositional: заморском овоще со свечкой внутри
+  short_desc: Заморский овощ со свечкой внутри валяется у ног
+  action_desc: |2
+    Свеча внутри колыхнулась.
+    Вам почудились чьи-то голоса.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 85
+  weight: 7
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 9
+  timer: 7600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kFire
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kArms
+    - kHold
+  affect_flags:
+    - kBless
+    - kBlink
+    - kHolyLight
+    - kFireAura
+  applies:
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 24  # стойкость
+      modifier: 15
+    - location: 20  # воля
+      modifier: -20
+  skills:
+    - skill_id: 32  # разжечь костер
+      value: 100
+  extra_descriptions:
+    - keywords: заморский овощ
+      description: |2
+        Это что ещё за чудо чудное? Есть явно нельзя. Но, ничего, вместо лучины
+        сойдет. Во время жатвы непреложным было требование заканчивать работу до
+        захода солнца, что связано с представлениями о том, что в темное время суток на
+        поле среди колосьев гуляют души умерших предков. Поздна не пажинайтеся! Тада
+        лучше брасайтя да завтра... Штоб радителям гулять, штоб им там гулять бы было
+        весело.  
+
+# Object #2709
+9:
+  names:
+    aliases: кривое веретено
+    nominative: кривое веретено
+    genitive: кривого веретена
+    dative: кривому веретену
+    accusative: кривое веретено
+    instrumental: кривым веретеном
+    prepositional: кривом веретене
+  short_desc: Кривое веретено вертится словно живое
+  action_desc: |2
+    Веретено завертелось-закружилось.
+  type: kWand
+  material: 14  # ТКАНЬ
+  values:
+    - 30
+    - 20
+    - 20
+    - 95
+  weight: 8
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 30
+  cur_durability: 10
+  timer: 8000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 3
+  extra_flags:
+    - kHum
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHands
+    - kHold
+  affect_flags:
+    - kFly
+    - kAirAura
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 26  # восст.энергии
+      modifier: 100
+    - location: 14  # макс.энергия
+      modifier: 40
+    - location: 24  # стойкость
+      modifier: -10
+  skills:
+    - skill_id: 174  # сшить одежду
+      value: 100
+  extra_descriptions:
+    - keywords: кривое веретено
+      description: |2
+        Вот ж какое неказистое. Но опосля уборки хлебов - ткачество первое дело. По
+        окончании уборки, когда закончился сбор урожая. Веселая эта пора, когда хлеб
+        заполнял закрома, не обходилась без плясок, праздников. Счастливые жницы
+        катались по полю, кувыркались, подпевая: +Жнивка, жнивка, отдай мою силку на
+        пест, на колотило, на молотило, на кривое веретено+. Буде, чем во стужу
+        занятися.  
+
+# Object #2710
+10:
+  names:
+    aliases: пареная репа
+    nominative: пареная репа
+    genitive: пареной репы
+    dative: пареной репе
+    accusative: пареную репу
+    instrumental: пареной репой
+    prepositional: пареной репе
+  short_desc: Пареная репа скукожилась на полу
+  action_desc: |2
+    Вы укусили репу. Ничего особенного.
+    Пареной репы что ли никогда не едали?
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 10
+    - 10
+    - 58
+  weight: 4
+  cost: 100
+  rent_off: 10
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 8
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodisarm
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kNoFlee
+    - kDetectPoison
+    - kWaterBreath
+    - kIceAura
+  applies:
+    - location: 39  # реакция
+      modifier: 20
+    - location: 47  # защита.от.стихии.земли
+      modifier: 30
+    - location: 51  # защита.от.чар
+      modifier: 15
+    - location: 52  # защита.от.магических.повреждений
+      modifier: -5
+  skills:
+    - skill_id: 11  # освежевать
+      value: 100
+  extra_descriptions:
+    - keywords: пареная репа
+      description: |2
+        Вы не видите ничего особенного. Осенью хоть и холодно, да не голодно -
+        радовалась пословица, и одна за другой появлялась на столах новая снедь. 
+        Порядок ее появления зависел от погоды и традиций. Так, 9 августа, в день,
+        который называли +кочанник+, когда заканчивался сбор урожая, начинали варить
+        капустные щи. А капуста, да репа - любимейшие овощи на Руси.  
+
+# Object #2711
+11:
+  names:
+    aliases: букет пожухших цветов
+    nominative: букет пожухших цветов
+    genitive: букета пожухших цветов
+    dative: букету пожухших цветов
+    accusative: букет пожухших цветов
+    instrumental: букетом пожухших цветов
+    prepositional: букете пожухших цветов
+  short_desc: Букетик пожухших цветов рассыпан по земле
+  action_desc: |2
+    Легкий чарующий аромат повис в воздухе.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 13
+    - 13
+    - 7
+  weight: 3
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 7
+  cur_durability: 6
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kInvisible
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kBless
+    - kAirAura
+  applies:
+    - location: 6  # обаяние
+      modifier: 3
+    - location: 12  # запоминание
+      modifier: 20
+    - location: 13  # макс.жизнь
+      modifier: 20
+    - location: 40  # успех.колдовства
+      modifier: -5
+  skills:
+    - skill_id: 140  # выследить
+      value: 100
+  extra_descriptions:
+    - keywords: букет пожухших цветов
+      description: |2
+        Печальное зрелище. Но милая и таким буде рада! Когда заканчивался сбор
+        урожая, в дни Спасов нарядно одетые крестьяне несли в церковь и часовни, а
+        ранее на капища букеты цветов и первые плоды для освящения. Только после этого
+        подавали их к столу. Здесь же у храмов устраивали общие трапезы, выстраивая
+        ряды лавок и столов. В праздник урожая все должны были быть сыты и счастливы.
+        +Милости просим+, + приглашали прохожих, одаривали плодами бедных и неимущих.
+        Обычай этот соблюдался настолько строго, что, если кто-то отказывался
+        поделиться, знаться с ним считалось зазорным.  
+
+# Object #2712
+12:
+  names:
+    aliases: калинка малинка
+    nominative: калинка-малинка
+    genitive: калинки-малинки
+    dative: калинке-малинке
+    accusative: калинку-малинку
+    instrumental: калинкой-малинкой
+    prepositional: калинке-малинке
+  short_desc: Калинка-малинка красной россыпью лежит на полу
+  action_desc: |2
+    Ягода в ваших руках заалела ярче.
+    Да на такое не только медведя сбегаются!
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 10
+    - 10
+    - 40
+  weight: 1
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 4
+  cur_durability: 4
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kGlow
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kDetectLife
+    - kInfravision
+    - kSingleLight
+  applies:
+    - location: 21  # защита.от.стихии.огня
+      modifier: 20
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 20
+    - location: 46  # защита.от.стихии.воды
+      modifier: 20
+    - location: 47  # защита.от.стихии.земли
+      modifier: 20
+  skills:
+    - skill_id: 7  # найти
+      value: 40
+  extra_descriptions:
+    - keywords: калинка малинка
+      description: |2
+        Сладенькая! Сбор урожая был таков что по крупинкам приходилось заготавливать
+        припасы на зиму. +Что в августе соберешь, с тем и зиму проживешь+. Когда
+        ягоды полностью созревали, наливались сладким соком, начинались +калинники+,
+        +малинники+, +брусничники+, +рябинники+. День, в который можно было выходить
+        на их сбор, определяли на общем сельском сходе. Срок этот никто не нарушал. 
+        За порядком следили и специально назначенные люди, и все жители. Сбор урожая
+        этот поручали детворе и молодежи. Наставляли при этом: веток не ломать, всю
+        ягоду не обирать, оставлять птичкам и зверушкам.  
+
+# Object #2713
+13:
+  names:
+    aliases: надоедливый комарик
+    nominative: надоедливый комарик
+    genitive: надоедливого комарика
+    dative: надоедливому комарику
+    accusative: надоедливого комарика
+    instrumental: надоедливым комариком
+    prepositional: надоедливом комарике
+  short_desc: Надоедливый комарик летает прямо у вашего уха
+  action_desc: |2
+    Комарик в руках истошно запищал.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 76
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 3
+  cur_durability: 2
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kHum
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+    - kHaemorrhage
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: -30
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 41  # удача
+      modifier: 10
+    - location: 39  # реакция
+      modifier: 10
+  skills:
+    - skill_id: 21  # точный стиль
+      value: 50
+  extra_descriptions:
+    - keywords: надоедливый комарик
+      description: |2
+        Брысь, противный! Жатва - хоть и сладкая работа, да нелегкая, одолевают к тому
+        же насекомые. Народ примечал: +много комаров + много ягод+, +много мошек +
+        припасай для грибов лукошко+. Заодно и прогнозы о погоде делали. 
+        Краткосрочные: +появились опята + лету конец+ + и долгосрочные: +уродилось
+        много рябины + к морозной зиме+, +пчелы плотно леток закрывают+ + этому
+        подтверждение а если +летают комары поздней осенью, то +к мягкой зиме+, +птицы
+        долго не улетают+, о том же оповещают.  
+
+# Object #2714
+14:
+  names:
+    aliases: луковый пук
+    nominative: луковый пук
+    genitive: лукового пука
+    dative: луковому пуку
+    accusative: луковый пук
+    instrumental: луковым пуком
+    prepositional: луковом пуке
+  short_desc: Стрелки перезрелого лука валяются под ногами
+  action_desc: |2
+    Вы укусили луковицу. В глазах заслезилось.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 10
+    - 10
+    - 133
+  weight: 3
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 5
+  cur_durability: 5
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWrist
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kInfravision
+    - kProtectFromDark
+    - kBlink
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 49  # защита.от.магии.разума
+      modifier: -5
+    - location: 6  # обаяние
+      modifier: -4
+  skills:
+    - skill_id: 155  # дополнительный выстрел
+      value: 100
+  extra_descriptions:
+    - keywords: луковый пук
+      description: |2
+        Ой, слёзы наворачиваются на глаза только при одном его виде. Но народ очень
+        полюблял сей сквернохарактерный овощ. 20 сентября + луков день. Запасали
+        этого овоща помногу, так как шел он не только в пищу, но и на лечение: +Лук -
+        от семи недуг+, +Лук да баня - все правят+. С +осенин+ основная хозяйственная
+        деятельность переносилась с поля в огород или в дом: начинался сбор овощей
+        (прежде всего заготавливали лук). Обычно в Осенины устраивались угощение, на
+        которое собиралась вся семья.  
+
+# Object #2715
+15:
+  names:
+    aliases: межевой колышек
+    nominative: межевой колышек
+    genitive: межевого колышка
+    dative: межевому колышку
+    accusative: межевой колышек
+    instrumental: межевым колышком
+    prepositional: межевом колышке
+  short_desc: Межевой колышек воткнут в землю
+  action_desc: |2
+    Царап, каряб, ширк-ширк. Эх, скукотища...
+  type: kWand
+  material: 8  # ДЕРЕВО
+  values:
+    - 30
+    - 20
+    - 20
+    - 188
+  weight: 5
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 20
+  cur_durability: 13
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+    - kHasOneSlot
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kInfravision
+    - kAwareness
+    - kSlow
+    - kStoneHand
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 8
+    - location: 12  # запоминание
+      modifier: 20
+    - location: 49  # защита.от.магии.разума
+      modifier: 20
+    - location: 42  # инициатива
+      modifier: -10
+  skills:
+    - skill_id: 168  # врата
+      value: 100
+  extra_descriptions:
+    - keywords: межевой колышек
+      description: |2
+        И чего с ним делать? Разве, что имя свое по земле накорябать, потешиться. 
+        Благо бояться некого уж. С 25 сентября + +змеи прячутся в вертепы+ + земля
+        становится холодной. К этому времени полагалось заканчивать уборку огородных
+        овощей, так как +всяк корешок не растет, только зябнет+. Самое время домой
+        прыгать.  
+
+# Object #2716
+16:
+  names:
+    aliases: капустная кочерыжка
+    nominative: капустная кочерыжка
+    genitive: капустной кочерыжки
+    dative: капустной кочерыжке
+    accusative: капустную кочерыжку
+    instrumental: капустной кочерыжкой
+    prepositional: капустной кочерыжке
+  short_desc: Обгрызанная капустная кочерыжка валяется в дорожной пыли
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 7
+    - 4
+    - 12
+  weight: 2
+  cost: 10
+  rent_off: 5
+  rent_on: 1
+  spec_param: 145
+  max_durability: 10
+  cur_durability: 4
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodisarm
+    - kNodecay
+    - kThrowing
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kWaterWalk
+    - kInfravision
+    - kBless
+  applies:
+    - location: 18  # попадание
+      modifier: 4
+    - location: 41  # удача
+      modifier: 15
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: -5
+  skills:
+    - skill_id: 140  # выследить
+      value: 100
+  extra_descriptions:
+    - keywords: капустная кочерыжка
+      description: |2
+        Эко обгрыз кто-то. Со второй половины сентября начинали сбор урожая на зиму
+        капусты. Самый любимый овощ на Руси, недаром шутливо прозвали ее +огородная
+        барыня+ и снабдили свитой пословиц, прибауток, загадок. +Хлеб да капуста
+        лихого не пустят+. Рубили и солили капусту женщины сообща для всей деревни,
+        переходя из одного дома в другой. По всем дворам слышался в эти дни дробный
+        перестук сечек, поблескивали их острые лезвия. Управлялись за неделю-две. 
+        +Чей, чей праздник, а у капусты + дольше всех+.  
+
+# Object #2717
+17:
+  names:
+    aliases: кочан капусты
+    nominative: кочан капусты
+    genitive: кочана капусты
+    dative: кочану капусты
+    accusative: кочан капусты
+    instrumental: кочаном капусты
+    prepositional: кочане капусты
+  short_desc: Кочан свежей капусты перекатывается по земле
+  action_desc: |2
+    Вы подбросили кочан и хорошенько пнули его.
+    Нехорошо так со снедью, но не удержаться ж!
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 2
+  weight: 10
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 8
+  cur_durability: 8
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kProtectFromMind
+    - kHide
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 4
+    - location: 41  # удача
+      modifier: -5
+    - location: 39  # реакция
+      modifier: 5
+  skills:
+    - skill_id: 134  # пнуть
+      value: 100
+  extra_descriptions:
+    - keywords: кочан капусты
+      description: |2
+        Хорошая, крепкая, хрустящая. В середине сентября обязательно проходил праздник
+        капусты. Молодежь ожидала капустницы с нетерпением. Весело они проходили, с
+        разговорами и переборами, с шутками, прибаутками. Девушки принаряжались и
+        старались показать свое трудолюбие, а хозяйки присматр На +капустных вечерках+
+        и с хозяйским сыном знакомство могло завязаться, а там + и свадебка. Спросит
+        подрастающий ребенок у молодой матери: +Где меня взяли? + Вспомнит она веселые
+        заготовки, улыбнется в ответ: +В капусте нашли+.  
+
+# Object #2718
+18:
+  names:
+    aliases: бочонок квашеной капусты
+    nominative: бочонок квашеной капусты
+    genitive: бочонка квашеной капусты
+    dative: бочонку квашеной капусты
+    accusative: бочонок квашеной капусты
+    instrumental: бочонком квашеной капусты
+    prepositional: бочонке квашеной капусты
+  short_desc: Бочонок квашеной капусты прибоченился рядышком
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 500
+    - 13
+    - -1
+    - 80
+  weight: 10
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kLegs
+    - kShield
+  affect_flags:
+    - kInvisibility
+    - kFly
+    - kNoFlee
+    - kSlow
+    - kWaterBreath
+  applies:
+    - location: 5  # телосложение
+      modifier: 3
+    - location: 2  # ловкость
+      modifier: -1
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 14  # макс.энергия
+      modifier: -50
+  skills:
+    - skill_id: 132  # сбить
+      value: 50
+  extra_descriptions:
+    - keywords: бочонок квашеной капусты
+      description: |2
+        Зимние запасы считали не фунтами и килограммами, а ведрами, бочками и
+        бочонками. Прежде чем приступить к рубке, хозяйки разбирали кочаны на части,
+        так как квашеная капуста разделялась на 3 сорта, серую, полубелую и белую. 
+        Серой называли ту, которую рубили из верхних зеленоватых листьев. Если в дело
+        шел весь кочан целиком, получалась полубелая, а лучшей считалась белая, из
+        одних только туго свернутых внутренних листочков. Смотря по урожаю и
+        состоятельности, отдавали предпочтение той или другой. Капуста серая, вкус
+        которой погрубее, использовалась для щей (серые щи), полубелая и белая + в
+        любом блюде. Квашеная капуста с хлебным квасом составляла обычную пищу
+        крестьянства.  
+
+# Object #2719
+19:
+  names:
+    aliases: бронзовая сечка
+    nominative: бронзовая сечка
+    genitive: бронзовой сечки
+    dative: бронзовой сечке
+    accusative: бронзовую сечку
+    instrumental: бронзовой сечкой
+    prepositional: бронзовой сечке
+  short_desc: Бронзовая сечка воткнута в землю острием
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 2
+    - 15
+    - 2
+    - 3
+  weight: 22
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  spec_param: 142
+  max_durability: 125
+  cur_durability: 125
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodisarm
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  affect_flags:
+    - kBless
+    - kDetectPoison
+    - kWaterBreath
+    - kStoneHand
+    - kIceAura
+  applies:
+    - location: 41  # удача
+      modifier: 10
+    - location: 20  # воля
+      modifier: 15
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: -5
+  skills:
+    - skill_id: 5  # оглушить
+      value: 50
+  extra_descriptions:
+    - keywords: бронзовая сечка
+      description: |2
+        Ух, острая какая! Для рубки капусты в каждом хозяйстве имелись деревянные
+        корытца, выдолбленные из дуба или липы, а также металлические сечки в виде
+        подковок с ручкой или в виде лопатки. Мастера кузнецы украшали сечки узорочьем
+        завитков, похожих на свернувшиеся капустные листья: один другого меньше. 
+        Хозяйки же соревновались в разнообразии рецептуры. Имелись общие правила,
+        обычаи и приметы, были и свои +секреты+. Например, капуста, собранная в
+        октябре, сахаристее той, что убрана в сентябре, а рубить капусту лучше +на
+        молодой месяц+, тогда она крепче и вкуснее.  
+
+# Object #2720
+20:
+  names:
+    aliases: нитие тенетника
+    nominative: нитие тенетника
+    genitive: нития тенетника
+    dative: нитию тенетника
+    accusative: нитие тенетника
+    instrumental: нитием тенетника
+    prepositional: нитие тенетника
+  short_desc: Нитие тенетника витает в воздухе
+  action_desc: |2
+    Противная липкая паутина окутала все вокруг.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 7
+    - 7
+    - 56
+  weight: 1
+  cost: 1
+  rent_off: 1000
+  rent_on: 100
+  max_durability: 3
+  cur_durability: 2
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kWrist
+    - kHold
+  affect_flags:
+    - kFly
+    - kNoFlee
+    - kAirShield
+    - kMagicGlass
+    - kPrismaticAura
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 7
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -20
+    - location: 42  # инициатива
+      modifier: -20
+  skills:
+    - skill_id: 6  # отравить
+      value: 100
+  extra_descriptions:
+    - keywords: нитие тенетника
+      description: |2
+        Так и липнет к рукам. Фиг избавишься! Одаривает осень сбором урожая, не
+        только плодами и овощами, но и светлыми теплыми днями +бабьего лета+. В народе
+        различали их два: +молодое+ (с 28 августа по 11 сентября), когда после жатвы
+        можно было распрямить спину, и +старое+ (с 15 по 29 сентября), в это время
+        выполнялась нетрудная работа по заготовкам. Замечали, что если на +бабье лето+
+        появлялось много тенетника, сиречь летающих паутинок, то это предвещало ясную
+        осень и холодную зиму.  
+
+# Object #2721
+21:
+  names:
+    aliases: пожелтевший березовый листик
+    nominative: пожелтевший березовый листик
+    genitive: пожелтевшего березового листика
+    dative: пожелтевшему березовому листику
+    accusative: пожелтевший березовый листик
+    instrumental: пожелтевшим березовым листиком
+    prepositional: пожелтевшем березовом листике
+  short_desc: Пожелтевший березовый листик наводит грусть
+  type: kWand
+  material: 17  # БЕРЕСТА
+  values:
+    - 30
+    - 15
+    - 15
+    - 155
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  max_durability: 3
+  cur_durability: 2
+  timer: 9000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kNoTrack
+    - kFly
+  applies:
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: -5
+    - location: 12  # запоминание
+      modifier: 20
+  skills:
+    - skill_id: 140  # выследить
+      value: 100
+  extra_descriptions:
+    - keywords: пожелтевший березовый листик
+      description: |2
+        И куда его? Печку не растопишь, к ране не приложишь. Эка невидаль! 1 октября
+        + +Арина + журавлиный лет+. Дети провожали улетающих птиц, крича вслед:
+        +Колесом дорога! Колесом дорога! + + может быть, повернут назад, а с ними
+        возвратятся и тепло, и ясное солнышко. Да нет, морозы подступали. Приходил
+        Покров день, который +Землю кроет, где листком, а где снежком+.  
+
+# Object #2722
+22:
+  names:
+    aliases: покрывало козьей шерсти
+    nominative: покрывало из козьей шерсти
+    genitive: покрывала из козьей шерсти
+    dative: покрывалу из козьей шерсти
+    accusative: покрывало из козьей шерсти
+    instrumental: покрывалом из козьей шерсти
+    prepositional: покрывале из козьей шерсти
+  short_desc: Теплое покрывало из козьей шерсти расстелено на земле
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 6
+    - 4
+    - 0
+    - 0
+  weight: 9
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 30
+  cur_durability: 30
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kShoulders
+    - kWaist
+  affect_flags:
+    - kProtectFromDark
+    - kAwareness
+    - kDisguising
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 100
+    - location: 24  # стойкость
+      modifier: 20
+    - location: 41  # удача
+      modifier: 10
+    - location: 39  # реакция
+      modifier: -10
+  skills:
+    - skill_id: 159  # приглядеться
+      value: 100
+  extra_descriptions:
+    - keywords: покрывало козьей шерсти
+      description: |2
+        Теплое, мягонькое. Границей осени и зимы в народе завсегда считался Покров
+        день, который землю кроет. На Покров +до обеда осень, после обеда + зима+. В
+        этот день подкармливали скотину пожинальным снопом и ставили до весны во дворы.
+        Всё, закончился сбор урожая, закончились крестьянские заботы, подходит к концу
+        осень светлая.  
+
+# Object #2723
+23:
+  names:
+    aliases: пирожок яблочным вареньем
+    nominative: пирожок с яблочным вареньем
+    genitive: пирожка с яблочным вареньем
+    dative: пирожку с яблочным вареньем
+    accusative: пирожок с яблочным вареньем
+    instrumental: пирожком с яблочным вареньем
+    prepositional: пирожке с яблочным вареньем
+  short_desc: Пирожок с яблочным вареньем так и просится на зубок
+  action_desc: |2
+    Вкус какой-то странноватый...
+    Но, ничего, есть можно!
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 17
+    - 17
+    - 71
+  weight: 5
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 4
+  cur_durability: 4
+  timer: 8000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodrop
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectMagic
+    - kBless
+    - kStoneHand
+  applies:
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 1  # сила
+      modifier: 1
+    - location: 20  # воля
+      modifier: -10
+  skills:
+    - skill_id: 167  # скрытый удар
+      value: 50
+  extra_descriptions:
+    - keywords: пирожок яблочным вареньем
+      description: |2
+        Липнет к ладоням. Осень в народном календаре имеет образ женщины, прошедшей
+        свой путь и спокойно собирающей урожай жизни. Это время подведения итогов,
+        время сбора урожая. Символом осени нередко выступал яблочный пирог. Запах
+        яблочного пирога олицетворял уютную домашнюю атмосферу, где родственники
+        собирались за вечерним чаем и наслаждались дивным вкусом выпечки только из
+        печи.  
+
+# Object #2724
+24:
+  names:
+    aliases: сочная поддулька
+    nominative: сочная поддулька
+    genitive: сочной поддульки
+    dative: сочной поддульке
+    accusative: сочную поддульку
+    instrumental: сочной поддулькой
+    prepositional: сочной поддульке
+  short_desc: Сочная поддулька лежит у ног
+  action_desc: |2
+    Поддулька замигала и немного нагрелась.
+    Странно ж, ей богу.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 50
+    - 8
+    - 8
+    - 175
+  weight: 3
+  cost: 300
+  rent_off: 30
+  rent_on: 3
+  max_durability: 5
+  cur_durability: 5
+  timer: 9000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kAwareness
+    - kBlink
+    - kStoneHand
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: -2
+    - location: 49  # защита.от.магии.разума
+      modifier: -5
+  skills:
+    - skill_id: 165  # ярость
+      value: 100
+  extra_descriptions:
+    - keywords: сочная поддулька
+      description: |2
+        Желтенькая! Славянские народы считали грушу чистым и святым плодом,
+        символизирующим долгую жизнь и крепкое здоровье. На Руси груша долгое время
+        оставалась дикой, и, что интересно, именно грушами называли только плоды
+        дичков, а то, что вырастало на привитых грушевых деревьях, именовали весело и
+        +увесисто+ + дули и поддульки.  
+
+# Object #2725
+25:
+  names:
+    aliases: ржаной колосок
+    nominative: ржаной колосок
+    genitive: ржаного колоска
+    dative: ржаному колоску
+    accusative: ржаной колосок
+    instrumental: ржаным колоском
+    prepositional: ржаном колоске
+  short_desc: Ржаной колосок валяется никому не нужный
+  action_desc: |2
+    Колосок выпрямился, задрожал. Чудеса!
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 50
+    - 20
+    - 20
+    - 176
+  weight: 1
+  cost: 100
+  rent_off: 20
+  rent_on: 2
+  max_durability: 4
+  cur_durability: 4
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodisarm
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWrist
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kInfravision
+    - kStoneHand
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 6
+    - location: 13  # макс.жизнь
+      modifier: -20
+  skills:
+    - skill_id: 140  # выследить
+      value: 100
+  extra_descriptions:
+    - keywords: ржаной колосок
+      description: |2
+        Страда - дело не легкое и многодневное. Поэтому уборку зерновых начинали не
+        спеша. Рожь обычно поспевает в первой половине августа. На юге это происходит
+        еще раньше, поэтому начало жатвы не имеет календарной даты. Первый день страды
+        называется зажинки. Деревня выходила в поле с хлебом-солью, только что
+        давленым сыром и пивом. Идти надо было легко - тогда не будет болеть спина на
+        предстоящей работе. Ниве кланяются в пояс. Добрый день, нива, ядреное жито!
+         
+
+# Object #2726
+26:
+  names:
+    aliases: тряпичнаякуколка мокоши
+    nominative: тряпичная куколка Мокоши
+    genitive: тряпичной куколки Мокоши
+    dative: тряпичной куколке Мокоши
+    accusative: тряпичную куколку Мокоши
+    instrumental: тряпичной куколкой Мокоши
+    prepositional: тряпичной куколке Мокоши
+  short_desc: Тряпичная куколка Мокоши словно живая смотрит на вас
+  action_desc: |2
+    Вы сдавили куколку. Мокоши кивнула.
+  type: kWand
+  material: 14  # ТКАНЬ
+  values:
+    - 50
+    - 20
+    - 20
+    - 177
+  weight: 2
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 7
+  cur_durability: 7
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectMagic
+    - kSanctuary
+    - kBless
+  applies:
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 6
+    - location: 12  # запоминание
+      modifier: 20
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: -20
+  skills:
+    - skill_id: 31  # лечить
+      value: 80
+  extra_descriptions:
+    - keywords: тряпичная куколка мокоши
+      description: |2
+        Сбор урожая всегда начинался с праздников первых плодов, которые справлялись в
+        течение десятков тысяч лет. Этих праздников было много, поскольку яблоки,
+        груши, ягоды, различные овощи поспевают к разным срокам. В дни, когда плоды
+        созревали, их готовили особым образом и устраивали ритуальную трапезу, очевидно
+        посвященную Мокоши. До этого праздника запрещалось есть яблоки, собирать в
+        лесу ягоды или брать другие дары Природы с полей.  
+
+# Object #2727
+27:
+  names:
+    aliases: первый пшеничный снопок
+    nominative: первый пшеничный снопок
+    genitive: первого пшеничного снопка
+    dative: первому пшеничному снопку
+    accusative: первый пшеничный снопок
+    instrumental: первым пшеничным снопком
+    prepositional: первом пшеничном снопке
+  short_desc: Первый сжатый снопок золотой пшеницы свален у ног
+  action_desc: |2
+    Снопок потемнел вбирая в себя силу матушки земли.
+  type: kWand
+  material: 17  # БЕРЕСТА
+  values:
+    - 30
+    - 7
+    - 7
+    - 152
+  weight: 6
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kInfravision
+    - kProtectFromDark
+    - kNoTrack
+    - kAwareness
+    - kStoneHand
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 8
+    - location: 13  # макс.жизнь
+      modifier: 25
+    - location: 2  # ловкость
+      modifier: -2
+  skills:
+    - skill_id: 185  # магия земли
+      value: 100
+    - skill_id: 186  # магия света
+      value: 100
+  extra_descriptions:
+    - keywords: первый пшеничный снопок
+      description: |2
+        Первый сноп относили на край поля, где была расставлена легкая трапеза. Там же
+        устанавливали первый сноп и окропляли его хмельным пивом. Остатки еды
+        закапывались на сжатой части поля. Дома большой сноп ставили на лавку под
+        красный угол, после чего устраивалась основная трапеза. Сноп как бы сидел за
+        столом вместе со всем остальным народом, под него клали монеты. Зерна этого
+        снопа шли на озимый засев поля.  
+
+# Object #2728
+28:
+  names:
+    aliases: бестолковая каменюка
+    nominative: бестолковая каменюка
+    genitive: бестолковой каменюки
+    dative: бестолковой каменюке
+    accusative: бестолковую каменюку
+    instrumental: бестолковой каменюкой
+    prepositional: бестолковой каменюке
+  short_desc: Глупый ни на что не годный камень валяется под ногами
+  action_desc: |2
+    Камень в руках зловеще вспыхнул черным златом.
+    На его поверхности проступили непонятные письмена и чья-то жуткая... Морда?
+  type: kWand
+  material: 12  # КАМЕНЬ
+  values:
+    - 30
+    - 7
+    - 7
+    - 98
+  weight: 3
+  cost: 100
+  rent_off: 20
+  rent_on: 2
+  max_durability: 15
+  cur_durability: 12
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+    - kNoTrack
+    - kHolyDark
+    - kStoneHand
+  applies:
+    - location: 4  # мудрость
+      modifier: 3
+    - location: 13  # макс.жизнь
+      modifier: -20
+    - location: 42  # инициатива
+      modifier: -5
+  skills:
+    - skill_id: 185  # магия земли
+      value: 100
+    - skill_id: 187  # магия тьмы
+      value: 100
+  extra_descriptions:
+    - keywords: бестолковая каменюка
+      description: |2
+        И чего с ним делать? Запустить что ли в кого? Наконец, когда нива сжата,
+        начинались обряды дожинок. Узкую полоску у края поля всегда оставляли не
+        сжатой. Ее последние колосья затаптывали, прижимали к земле камнем и клали
+        поверх маленький кусочек хлеба. Это жертва мышам, чтобы они не ходили в гумно.
+         
+
+# Object #2729
+29:
+  names:
+    aliases: тлеющая головня
+    nominative: тлеющая головня
+    genitive: тлеющей головни
+    dative: тлеющей головне
+    accusative: тлеющую головню
+    instrumental: тлеющей головней
+    prepositional: тлеющей головне
+  short_desc: Тлеющая головня слабо дымится на земле
+  type: kLightSource
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - -1
+    - 0
+  weight: 3
+  cost: 100
+  rent_off: 10
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 4
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kFire
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kProtectFromDark
+    - kHolyLight
+    - kHaemorrhage
+    - kFireShield
+    - kFireAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 40  # успех.колдовства
+      modifier: 6
+    - location: 21  # защита.от.стихии.огня
+      modifier: 30
+    - location: 46  # защита.от.стихии.воды
+      modifier: -30
+    - location: 25  # восст.жизни
+      modifier: -30
+  skills:
+    - skill_id: 183  # магия огня
+      value: 100
+    - skill_id: 186  # магия света
+      value: 100
+  extra_descriptions:
+    - keywords: тлеющая головня
+      description: |2
+        Ух, до чего горячая. 14 сентября должен был быть закончен сев озимых. После
+        этого дня сев уже бессмысленен. Начинается мытье льна, трепание пеньки. В
+        этот день начинаются и бабьи посиделки, избяные беседы. Потому этот день
+        считается началом бабьего лета. Продолжается это лето до равноденствия. В
+        этот день добывают живой огонь, который будет храниться в печах всю зиму до
+        весны. С тлеющей головней от живого огня обходят засеянные поля, и так
+        оберегают их от "лиха, притки и призора". Происходит при этом обходе и
+        ритуальное опахивание поля, так, что вокруг полей движется целая процессия с
+        огнем и плугом.  
+
+# Object #2730
+30:
+  names:
+    aliases: дохлая муха
+    nominative: дохлая муха
+    genitive: дохлой мухи
+    dative: дохлой мухе
+    accusative: дохлую муху
+    instrumental: дохлой мухой
+    prepositional: дохлой мухе
+  short_desc: Мерзкая дохлая муха валяется тут
+  action_desc: |2
+    Неожиданно муха взмахнула крылышками.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 50
+    - 20
+    - 20
+    - 45
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 3
+  cur_durability: 2
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kHold
+  affect_flags:
+    - kDetectMagic
+    - kDetectLife
+    - kFly
+    - kAirAura
+  applies:
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 39  # реакция
+      modifier: 10
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: -5
+  skills:
+    - skill_id: 188  # магия разума
+      value: 100
+    - skill_id: 189  # магия жизни
+      value: 100
+  extra_descriptions:
+    - keywords: дохлая муха
+      description: |2
+        Фу, что за мерзость? В середине сентября традиционно проходил забавный ритуал
+        похорон мух. Ловилась муха, и под похоронные песни, причитания и плачи, эта
+        муха торжественно хоронилась. По окончанию люди веселились - еще б, больше не
+        будет этих докучливых и кусючих!  
+
+# Object #2731
+31:
+  names:
+    aliases: пестрый венок осенины
+    nominative: пестрый венок матушки Осенины
+    genitive: пестрого венка матушки Осенины
+    dative: пестрому венку матушки Осенины
+    accusative: пестрый венок матушки Осенины
+    instrumental: пестрым венком матушки Осенины
+    prepositional: пестром венке матушки Осенины
+  short_desc: Красивый пестрый венок из подвявших цветов лежит на земле
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kFly
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 10
+    - location: 39  # реакция
+      modifier: -10
+  skills:
+    - skill_id: 23  # опознание
+      value: 100
+  extra_descriptions:
+    - keywords: пестрый венок осенины
+      description: |2
+        Приходяше на Землю наше мати Осенина, пребываше у нашеи зело не доле. Да время
+        ея прохладно, но краше и сытно. У Зимы поповско брюхо, а осенью же, после
+        летних трудов, поесть вдоволь, без оглядки на запасы. Матушку Осенину не
+        только подпирает Зима, но и люди упорно не хотят признавать ее приход, называя
+        время с 14 по 24 сентября пусть бабьим, но все ж летом. Осенина это терпит, но
+        ждет к себе внимания. Ой осень моя, осень студеная, что ты рано захолодела? 
+        - я не ранняя, я не поздняя, уж моя пора пришла+
+  triggers:
+    - 2700  # Осенние песни 1
+
+# Object #2732
+32:
+  names:
+    aliases: овсяная лепешка
+    nominative: овсяная лепешка
+    genitive: овсяной лепешки
+    dative: овсяной лепешке
+    accusative: овсяную лепешку
+    instrumental: овсяной лепешкой
+    prepositional: овсяной лепешке
+  short_desc: Овсяная лепешка лежит на полу
+  action_desc: |2
+    Вы укусили лепешку.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 84
+  weight: 2
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 4
+  cur_durability: 4
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+    - kHold
+  affect_flags:
+    - kAwareness
+    - kNoFlee
+    - kDetectPoison
+    - kWaterBreath
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 24  # стойкость
+      modifier: 10
+    - location: 40  # успех.колдовства
+      modifier: -5
+  skills:
+    - skill_id: 31  # лечить
+      value: 80
+  extra_descriptions:
+    - keywords: овсяная лепешка
+      description: |2
+        Выглядит не очень аппетитно. Но первый осенний хлеб имел очень важное
+        значение. На следующий день после равноденствия чествовали Осень. Чествуют ее
+        играми и песнями, но конечно не так пышно как Весну, и никто ее не закликает,
+        сама приходит. Рано утром женщины выходят к берегам рек, озер и прудов
+        встречать "матушку Осенину" с овсяным хлебом. Старшая женщина стоит с хлебом,
+        а молодые поют вокруг нее. После чего, разламывают хлеб на куски и кормят им
+        домашний скот.  
+
+# Object #2733
+33:
+  names:
+    aliases: горящий багач
+    nominative: горящий багач
+    genitive: горящего багача
+    dative: горящему багачу
+    accusative: горящий багач
+    instrumental: горящим багачом
+    prepositional: горящем багаче
+  short_desc: Плошка с зерном с воткнутой в нее свечей лежит на земле
+  action_desc: |2
+    Пламя багача вспыхнуло ярче и обдало всех теплом.
+  type: kWand
+  material: 10  # КЕРАМИКА
+  values:
+    - 30
+    - 15
+    - 15
+    - 146
+  weight: 3
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 9
+  cur_durability: 9
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kFire
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kDetectMagic
+    - kProtectFromDark
+    - kSingleLight
+    - kMagicGlass
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 8
+    - location: 12  # запоминание
+      modifier: 20
+    - location: 44  # поглощение
+      modifier: -10
+  skills:
+    - skill_id: 32  # разжечь костер
+      value: 100
+  extra_descriptions:
+    - keywords: горящий багач
+      description: |2
+        Это лубок с зерном, в середину которого ставилась свеча. Жито для Багача
+        сносили со всей деревни. В дом, где находился Багач, приглашали священника. 
+        После молебна лубок с зерном и зажжённой свечой в сопровождении всех жителей
+        обносили по всей деревне. Затем участники шли к следующему дому, в котором на
+        целый год находился Багач. Обряд был направлен на сохранение благосостояния,
+        урожайности, плодовитости скота, семейного благополучия
+
+# Object #2734
+34:
+  names:
+    aliases: тяжеленный кузнечный молот
+    nominative: тяжеленный кузнечный молот
+    genitive: тяжеленного кузнечного молота
+    dative: тяжеленному кузнечному молоту
+    accusative: тяжеленный кузнечный молот
+    instrumental: тяжеленным кузнечным молотом
+    prepositional: тяжеленном кузнечном молоте
+  short_desc: Забытый каким-то кузнецом огроменный молот лежит здесь
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 10
+    - 6
+    - 6
+  weight: 40
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  spec_param: 141
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+    - kHasThreeSlots
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  affect_flags:
+    - kBlink
+    - kNoFlee
+    - kSlow
+  applies:
+    - location: 1  # сила
+      modifier: 3
+    - location: 41  # удача
+      modifier: 10
+    - location: 14  # макс.энергия
+      modifier: -50
+  skills:
+    - skill_id: 13  # перековать
+      value: 60
+  extra_descriptions:
+    - keywords: тяжеленный кузнечный молот
+      description: |2
+        От это громадина! Этакий и двумя ручищами не подымешь. Осенью у древних
+        славян наступает праздник Небесного Кузнеца + Сварога. К этому времени уже
+        прошли обряды закрытия Сварги, прерывание живой связи между Небом и Землей. 
+        Землю постепенно сковывает от хляби мороз, влияние светлых Богов ослабевает. 
+        Жива обращается Мореной. Зима грядет.  
+
+# Object #2735
+35:
+  names:
+    aliases: сварожье топорище
+    nominative: сварожье топорище
+    genitive: сварожья топорища
+    dative: сварожью топорищу
+    accusative: сварожье топорище
+    instrumental: сварожьим топорищем
+    prepositional: сварожьем топорище
+  short_desc: Острое топорище без рукояти забыто каким-то мастеровым
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 3
+    - 8
+    - 8
+    - 3
+  weight: 23
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  spec_param: 142
+  max_durability: 50
+  cur_durability: 50
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kDetectInvisibility
+    - kInfravision
+    - kNoFlee
+    - kWaterBreath
+  applies:
+    - location: 51  # защита.от.чар
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: -2
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 18  # попадание
+      modifier: 2
+  skills:
+    - skill_id: 177  # ювелир
+      value: 50
+
+# Object #2736
+36:
+  names:
+    aliases: косынка багни
+    nominative: косынка Багни
+    genitive: косынки Багни
+    dative: косынке Багни
+    accusative: косынку Багни
+    instrumental: косынкой Багни
+    prepositional: косынке Багни
+  short_desc: Чья-то косынка лежит у ног
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kFly
+    - kWaterBreath
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 2
+    - location: 39  # реакция
+      modifier: 10
+    - location: 41  # удача
+      modifier: -5
+  skills:
+    - skill_id: 138  # подкрасться
+      value: 80
+    - skill_id: 157  # уклониться
+      value: 80
+  extra_descriptions:
+    - keywords: косынка багни
+      description: |2
+        Льняной приятный на ощупь платок. Девушки выбирали в своей среде +Баг╕ню+. 
+        Возглавляемые +Баг╕ней+ с дожиночным снопом в руках все вместе отправлялись к
+        дому хозяина. Хозяева, заслышав песни жней, выходили встречать их с
+        хлебом-солью. Войдя в дом, хозяева ставили дожиночный сноп под образами вместе
+        с зажиночным. Начинались танцы и песни. Обязательно исполнялся обрядовый
+        танец +Талакуха+.  
+
+# Object #2737
+37:
+  names:
+    aliases: большущая грибная шляпка
+    nominative: большущая грибная шляпка
+    genitive: большущей грибной шляпки
+    dative: большущей грибной шляпке
+    accusative: большущую грибную шляпку
+    instrumental: большущей грибной шляпкой
+    prepositional: большущей грибной шляпке
+  short_desc: Очень большая шляпка от какого-то гриба лежит здесь
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 7
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 8
+  cur_durability: 7
+  timer: 13000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+  applies:
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 10
+    - location: 44  # поглощение
+      modifier: 10
+    - location: 39  # реакция
+      modifier: 10
+    - location: 49  # защита.от.магии.разума
+      modifier: -10
+    - location: 1  # сила
+      modifier: 1
+  skills:
+    - skill_id: 165  # ярость
+      value: 100
+  extra_descriptions:
+    - keywords: большущая грибная шляпка
+      description: |2
+        Ранняя осень - лучшее время сбора всевозможных грибов. Все еще теплая, но уже
+        дождливая погода прекрасно способствует росту этих вкуснейших даров матушки
+        Осенины. Воины ж загатавливали особые грибы, из которых делались бодрящие
+        настойки, придающие ярости в бою
+
+# Object #2738
+38:
+  names:
+    aliases: кучка лесных орешков россыпь
+    nominative: россыпь лесных орешков
+    genitive: россипи лесных орешков
+    dative: россыпи лесных орешков
+    accusative: россыпь лесных орешков
+    instrumental: россыпью лесных орешков
+    prepositional: россыпи лесных орешков
+  short_desc: Кучка лесных орешков рассыпана у ваших ног
+  action_desc: |2
+    Вы сунули один орешек в рот. Щелк!
+    Зубы-то не жалко?
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 86
+  weight: 2
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 8
+  cur_durability: 8
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kWaterWalk
+    - kNoTrack
+    - kAwareness
+  applies:
+    - location: 41  # удача
+      modifier: 7
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 42  # инициатива
+      modifier: -5
+  skills:
+    - skill_id: 140  # выследить
+      value: 100
+  extra_descriptions:
+    - keywords: россыпь лесных орешков
+      description: |2
+        Осень - время созревания всевозможных плодов. Это не только ягоды, яблоки, да
+        груши, это еще и орехи. Что может быть краше - сидя хладной зимою на теплой
+        печке щелкать вкуснейшие орешки? Искать их только морока - созревшие попадали
+        и укрылись в траве. Приходится во все глаза глядеть.  
+
+# Object #2739
+39:
+  names:
+    aliases: большой перезрелый подсолнух
+    nominative: большой перезрелый подсолнух
+    genitive: большого перезрелого подсолнуха
+    dative: большому перезрелому подсолнуху
+    accusative: большой перезрелый подсолнух
+    instrumental: большим перезрелым подсолнухом
+    prepositional: большом перезрелом подсолнухе
+  short_desc: Большущий перезрелый подсолнух лежит у ног
+  action_desc: |2
+    Подсолнух завибрировал у вас в руках.
+    Откуда ни возьмись налетели птицы, и защебетали на разные лады, выпрашивая горстку семечек.
+  type: kWand
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 20
+    - 20
+    - 149
+  weight: 5
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 5
+  cur_durability: 4
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kWaterBreath
+    - kAirAura
+    - kFireAura
+    - kIceAura
+  applies:
+    - location: 18  # попадание
+      modifier: 5
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 5
+    - location: 20  # воля
+      modifier: -20
+  skills:
+    - skill_id: 28  # подсмотреть
+      value: 100
+  extra_descriptions:
+    - keywords: большой перезрелый подсолнух
+      description: |2
+        Осенью, наконец, начинается пора всевозможных забав. Повседневной работы,
+        конечно, хватает, но страда позади, и можно потешить себя. Так самое милое
+        дело - сорвать зрелый подсолнух, пока птицы не склевали весь урожай, и усевшись
+        на заваленку лузгать семечки глядя на закат. Красота!  
+
+# Object #2740
+40:
+  names:
+    aliases: Огромная куча дерьма
+    nominative: куча дерьма
+    genitive: кучи дерьма
+    dative: куче дерьма
+    accusative: кучу дерьма
+    instrumental: кучей дерьма
+    prepositional: куче дерьма
+  short_desc: Огромная куча беличьего навоза высится на земле.
+  type: kContainer
+  material: 16  # ОРГАНИКА
+  values:
+    - 999
+    - 4
+    - -1
+    - 0
+  weight: 5
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: -1
+  cur_durability: -1
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 50
+  extra_descriptions:
+    - keywords: куча
+      description: |2
+        Огромная куча беличьего навоза высится на земле.
+        интересно, а что там может быть внутри?
+        а что если покопаться?
+  triggers:
+    - 2717  # навоз
+
+# Object #2741
+41:
+  names:
+    aliases: изумрудный орешко
+    nominative: изумрудный орешко
+    genitive: изумрудного орешка
+    dative: изумрудному орешку
+    accusative: изумрудный орешко
+    instrumental: изумрудным орешком
+    prepositional: изумрудном орешке
+  short_desc: Изумрудный орешко лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 26
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 200
+  rent_off: 200
+  rent_on: 200
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 10
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: изумрудный орешко
+      description: |2
+        Видимо белочка не смогла расколоть орешко, вот потому и проглотила.
+        А может вы попробуете?
+  triggers:
+    - 2718  # орешко
+
+# Object #2742
+42:
+  names:
+    aliases: жестяная коробка с конфетами
+    nominative: жестяная коробка с конфетами
+    genitive: жестяной коробки с конфетами
+    dative: жестяной коробке с конфетами
+    accusative: жестяную коробку с конфетами
+    instrumental: жестяной коробкой с конфетами
+    prepositional: жестяной коробке с конфетами
+  short_desc: Жестяная коробка с конфетами лежит здесь.
+  type: kContainer
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  triggers:
+    - 2720  # load конфет
+
+# Object #2743
+43:
+  names:
+    aliases: заморская конфета из фиников и миндаля
+    nominative: заморская конфета
+    genitive: заморской конфеты
+    dative: заморской конфете
+    accusative: заморскую конфету
+    instrumental: заморской конфетой
+    prepositional: заморской конфете
+  short_desc: Заморская конфета из фиников и миндаля в бумажной обертке лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: конфета
+      description: |2
+        конфета в бумажной обертке.
+        с обратной стороны обертки написано: "мсъеж меня".
+  triggers:
+    - 2719  # конфета
+
+# Object #2799
+99:
+  names:
+    aliases: глаз Пилатия
+    nominative: глаз Пилатия
+    genitive: глаза Пилатия
+    dative: глазу Пилатия
+    accusative: глаз Пилатия
+    instrumental: глазом Пилатия
+    prepositional: глазе Пилатия
+  short_desc: Вырваный глаз Пилатия лежит здесь.
+  type: kTrap
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake

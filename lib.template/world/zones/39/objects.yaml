@@ -1,0 +1,5224 @@
+# Objects for zone 39
+
+# Object #3900
+0:
+  names:
+    aliases: темная кожаная шапка
+    nominative: темная кожаная шапка
+    genitive: темной кожаной шапки
+    dative: темной кожаной шапке
+    accusative: темную кожаную шапку
+    instrumental: темной кожаной шапкой
+    prepositional: темной кожаной шапке
+  short_desc: Искусной работы шапка из темной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3901
+1:
+  names:
+    aliases: темная кожаная куртка
+    nominative: темная кожаная куртка
+    genitive: темной кожаной куртки
+    dative: темной кожаной куртке
+    accusative: темную кожаную куртку
+    instrumental: темной кожаной курткой
+    prepositional: темной кожаной куртке
+  short_desc: Искусной работы куртка из темной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 10
+    - 5
+    - 0
+    - 0
+  weight: 7
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 40
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3902
+2:
+  names:
+    aliases: темный кожаный плащ
+    nominative: темный кожаный плащ
+    genitive: темного кожаного плаща
+    dative: темному кожаному плащу
+    accusative: темный кожаный плащ
+    instrumental: темным кожаным плащом
+    prepositional: темном кожаном плаще
+  short_desc: Искусной работы плащ из темной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 4
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 35
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3903
+3:
+  names:
+    aliases: темный кожаный пояс
+    nominative: темный кожаный пояс
+    genitive: темного кожаного пояса
+    dative: темному кожаному поясу
+    accusative: темный кожаный пояс
+    instrumental: темным кожаным поясом
+    prepositional: темном кожаном поясе
+  short_desc: Искусной работы пояс из темной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 1
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3904
+4:
+  names:
+    aliases: темные кожаные наручи
+    nominative: темные кожаные наручи
+    genitive: темных кожаных наручей
+    dative: темным кожаным наручам
+    accusative: темные кожаные наручи
+    instrumental: темными кожаными наручами
+    prepositional: темных кожаных наручах
+  short_desc: Искусной работы наручи из темной кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kFly
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3905
+5:
+  names:
+    aliases: темные кожаные перчатки
+    nominative: темные кожаные перчатки
+    genitive: темных кожаных перчаток
+    dative: темным кожаным перчаткам
+    accusative: темные кожаные перчатки
+    instrumental: темными кожаными перчатками
+    prepositional: темных кожаных перчатках
+  short_desc: Искусной работы перчатки из темной кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBlink
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 25
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3906
+6:
+  names:
+    aliases: темные кожаные штаны
+    nominative: темные кожаные штаны
+    genitive: темных кожаных штанов
+    dative: темным кожаным штанам
+    accusative: темные кожаные штаны
+    instrumental: темными кожаными штанами
+    prepositional: темных кожаных штанах
+  short_desc: Искусной работы штаны из темной кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 32
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3907
+7:
+  names:
+    aliases: темные кожаные сапоги
+    nominative: темные кожаные сапоги
+    genitive: темных кожаных сапог
+    dative: темным кожаным сапогам
+    accusative: темные кожаные сапоги
+    instrumental: темными кожаными сапогами
+    prepositional: темных кожаных сапогах
+  short_desc: Искусной работы сапоги из темной кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kWaterBreath
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3908
+8:
+  names:
+    aliases: светлая кожаная шапка
+    nominative: светлая кожаная шапка
+    genitive: светлой кожаной шапки
+    dative: светлой кожаной шапке
+    accusative: светлую кожаную шапку
+    instrumental: светлой кожаной шапкой
+    prepositional: светлой кожаной шапке
+  short_desc: Искусной работы шапка из светлой кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3909
+9:
+  names:
+    aliases: светлая кожаная куртка
+    nominative: светлая кожаная куртка
+    genitive: светлой кожаной куртки
+    dative: светлой кожаной куртке
+    accusative: светлую кожаную куртку
+    instrumental: светлой кожаной курткой
+    prepositional: светлой кожаной куртке
+  short_desc: Искусной работы куртка из светлой кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 10
+    - 5
+    - 0
+    - 0
+  weight: 7
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 40
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -8
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3910
+10:
+  names:
+    aliases: светлый кожаный плащ
+    nominative: светлый кожаный плащ
+    genitive: светлого кожаного плаща
+    dative: светлому кожаному плащу
+    accusative: светлый кожаный плащ
+    instrumental: светлым кожаным плащом
+    prepositional: светлом кожаном плаще
+  short_desc: Искусной работы плащ из светлой кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3911
+11:
+  names:
+    aliases: светлый кожаный пояс
+    nominative: светлый кожаный пояс
+    genitive: светлого кожаного пояса
+    dative: светлому кожаному поясу
+    accusative: светлый кожаный пояс
+    instrumental: светлым кожаным поясом
+    prepositional: светлом кожаном поясе
+  short_desc: Искусной работы пояс из светлой кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 1
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kFly
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3912
+12:
+  names:
+    aliases: светлые кожаные наручи
+    nominative: светлые кожаные наручи
+    genitive: светлых кожаных наручей
+    dative: светлым кожаным наручам
+    accusative: светлые кожаные наручи
+    instrumental: светлыми кожаными наручами
+    prepositional: светлых кожаных наручах
+  short_desc: Искусной работы наручи из светлой кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBlink
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3913
+13:
+  names:
+    aliases: светлые кожаные перчатки
+    nominative: светлые кожаные перчатки
+    genitive: светлых кожаных перчаток
+    dative: светлым кожаным перчаткам
+    accusative: светлые кожаные наручи
+    instrumental: светлыми кожаными перчатками
+    prepositional: светлых кожаных перчатках
+  short_desc: Искусной работы перчатки из светлой кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 2
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3914
+14:
+  names:
+    aliases: светлые кожаные штаны
+    nominative: светлые кожаные штаны
+    genitive: светлых кожаных штанов
+    dative: светлым кожаным штанам
+    accusative: светлые кожаные штаны
+    instrumental: светлыми кожаными штанами
+    prepositional: светлых кожаных штанах
+  short_desc: Искусной работы штаны из светлой кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kWaterBreath
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 10
+    - location: 4  # мудрость
+      modifier: 2
+
+# Object #3915
+15:
+  names:
+    aliases: светлые кожаные сапоги
+    nominative: светлые кожаные сапоги
+    genitive: светлых кожаных сапог
+    dative: светлым кожаным сапогам
+    accusative: светлые кожаные сапоги
+    instrumental: светлыми кожаными сапогами
+    prepositional: светлых кожаных сапогах
+  short_desc: Искусной работы сапоги из светлой кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 4
+    - 0
+    - 0
+  weight: 4
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3916
+16:
+  names:
+    aliases: шапка волчьего меха
+    nominative: шапка из волчьего меха
+    genitive: шапки из волчьего меха
+    dative: шапке из волчьего меха
+    accusative: шапку из волчьего меха
+    instrumental: шапкой из волчьего меха
+    prepositional: шапке из волчьего меха
+  short_desc: Мягкая теплая шапка из волчьего меха лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3917
+17:
+  names:
+    aliases: куртка волчьего меха
+    nominative: куртка из волчьего меха
+    genitive: куртки из волчьего меха
+    dative: куртке из волчьего меха
+    accusative: куртку из волчьего меха
+    instrumental: курткой из волчьего меха
+    prepositional: куртке из волчьего меха
+  short_desc: Мягкая теплая куртка из волчьего меха лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 7
+    - 7
+    - 0
+    - 0
+  weight: 7
+  cost: 8500
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 40
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -8
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3918
+18:
+  names:
+    aliases: плащ волчьего меха
+    nominative: плащ из волчьего меха
+    genitive: плаща из волчьего меха
+    dative: плащу из волчьего меха
+    accusative: плащ из волчьего меха
+    instrumental: плащом из волчьего меха
+    prepositional: плаще из волчьего меха
+  short_desc: Мягкий теплый плащ из волчьего меха лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 7
+    - 7
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 39  # реакция
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 5
+
+# Object #3919
+19:
+  names:
+    aliases: пояс волчьего меха
+    nominative: пояс из волчьего меха
+    genitive: пояса из волчьего меха
+    dative: поясу из волчьего меха
+    accusative: пояс из волчьего меха
+    instrumental: поясом из волчьего меха
+    prepositional: поясе из волчьего меха
+  short_desc: Мягкий пояс из волчьего меха лежит здесь
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 7
+    - 7
+    - 0
+    - 0
+  weight: 7
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3920
+20:
+  names:
+    aliases: наручи волчьего меха
+    nominative: наручи из волчьего меха
+    genitive: наручей из волчьего меха
+    dative: наручам из волчьего меха
+    accusative: наручи из волчьего меха
+    instrumental: наручиами из волчьего меха
+    prepositional: наручах из волчьего меха
+  short_desc: Мягкие теплые наручи из волчьего меха лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kFly
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: 9
+
+# Object #3921
+21:
+  names:
+    aliases: рукавицы из волчьего меха
+    nominative: рукавицы из волчьего меха
+    genitive: рукавиц из волчьего меха
+    dative: рукавицам из волчьего меха
+    accusative: рукавицы из волчьего меха
+    instrumental: рукавицами из волчьего меха
+    prepositional: рукавицах из волчьего меха
+  short_desc: Мягкие теплые рукавицы из волчьего меха лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBlink
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 25
+    - location: 40  # успех.колдовства
+      modifier: 8
+
+# Object #3922
+22:
+  names:
+    aliases: штаны из волчьего меха
+    nominative: штаны из волчьего меха
+    genitive: штанов из волчьего меха
+    dative: штанам из волчьего меха
+    accusative: штаны из волчьего меха
+    instrumental: штанами из волчьего меха
+    prepositional: штанах из волчьего меха
+  short_desc: Мягкие теплые штаны из волчьего меха лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: 9
+
+# Object #3923
+23:
+  names:
+    aliases: сапоги из волчьего меха
+    nominative: сапоги из волчьего меха
+    genitive: сапог из волчьего меха
+    dative: сапогам из волчьего меха
+    accusative: сапоги из волчьего меха
+    instrumental: сапогами из волчьего меха
+    prepositional: сапогах из волчьего меха
+  short_desc: Мягкие теплые сапоги из светлой кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 4
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kWaterBreath
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -7
+    - location: 12  # запоминание
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: 10
+
+# Object #3924
+24:
+  names:
+    aliases: легкая прочная шапка
+    nominative: легкая прочная шапка
+    genitive: легкой прочной шапки
+    dative: легкой прочной шапке
+    accusative: легкую прочную шапку
+    instrumental: легкой прочной шапкой
+    prepositional: легкой прочной шапке
+  short_desc: Легкая шапка из прочной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: -10
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3925
+25:
+  names:
+    aliases: легкая прочная куртка
+    nominative: легкая прочная куртка
+    genitive: легкой прочной куртки
+    dative: легкой прочной куртке
+    accusative: легкую прочную куртку
+    instrumental: легкой прочной курткой
+    prepositional: легкой прочной куртке
+  short_desc: Легкая куртка из прочной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 7
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 7
+    - location: 39  # реакция
+      modifier: -10
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3926
+26:
+  names:
+    aliases: легкий прочный плащ
+    nominative: легкий прочный плащ
+    genitive: легкого прочного плаща
+    dative: легкому прочному плащу
+    accusative: легкий прочный плащ
+    instrumental: легким прочным плащом
+    prepositional: легком прочном плащей
+  short_desc: Легкий плащ из прочной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: -8
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3927
+27:
+  names:
+    aliases: легкий прочный пояс
+    nominative: легкий прочный пояс
+    genitive: легкого прочного пояса
+    dative: легкому прочному поясу
+    accusative: легкий прочный пояс
+    instrumental: легким прочным поясом
+    prepositional: легком прочном поясе
+  short_desc: Легкий пояс из прочной кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3928
+28:
+  names:
+    aliases: легкие прочные наручи
+    nominative: легкие прочные наручи
+    genitive: легких прочных наручей
+    dative: легким прочным наручам
+    accusative: легкие прочные наручи
+    instrumental: легкими прочными наручами
+    prepositional: легких прочных наручах
+  short_desc: Легкие прочные наручи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kFly
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3929
+29:
+  names:
+    aliases: легкие прочные перчатки
+    nominative: легкие прочные перчатки
+    genitive: легких прочных перчаток
+    dative: легким прочным перчаткам
+    accusative: легкие прочные перчатки
+    instrumental: '-чем-то'
+    prepositional: легких прочных перчатках
+  short_desc: Легкие перчатки из прочной кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 7
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBlink
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 20  # воля
+      modifier: -7
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3930
+30:
+  names:
+    aliases: легкие прочные штаны
+    nominative: легкие прочные штаны
+    genitive: легких прочных штанов
+    dative: легким прочным штанам
+    accusative: легкие прочные штаны
+    instrumental: легкими прочными штанами
+    prepositional: легких прочных штанах
+  short_desc: Легкие штаны из прочной кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 39  # реакция
+      modifier: -7
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3931
+31:
+  names:
+    aliases: легкие прочные сапоги
+    nominative: легкие прочные сапоги
+    genitive: легких прочных сапог
+    dative: легким прочным сапогам
+    accusative: легкие прочные сапоги
+    instrumental: легкими прочными сапогами
+    prepositional: легких прочных сапогах
+  short_desc: Легкие сапоги из прочной кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 20
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kAwareness
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 20  # воля
+      modifier: -7
+    - location: 1  # сила
+      modifier: 2
+
+# Object #3932
+32:
+  names:
+    aliases: шапка тигровой шкуры
+    nominative: шапка из тигровой шкуры
+    genitive: шапки из тигровой шкуры
+    dative: шапке из тигровой шкуры
+    accusative: шапку из тигровой шкуры
+    instrumental: шапкой из тигровой шкуры
+    prepositional: шапке из тигровой шкуры
+  short_desc: Шапка из шкуры саблезубого тигра лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 20  # воля
+      modifier: -7
+
+# Object #3933
+33:
+  names:
+    aliases: куртка тигровой шкуры
+    nominative: куртка из тигровой шкуры
+    genitive: куртки из тигровой шкуры
+    dative: куртке из тигровой шкуры
+    accusative: куртку из тигровой шкуры
+    instrumental: курткой из тигровой шкуры
+    prepositional: куртке из тигровой шкуры
+  short_desc: Куртка из шкуры саблезубого тигра лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 9
+    - 6
+    - 0
+    - 0
+  weight: 25
+  cost: 8500
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: -8
+
+# Object #3934
+34:
+  names:
+    aliases: плащ тигровой шкуры
+    nominative: плащ из тигровой шкуры
+    genitive: плаща из тигровой шкуры
+    dative: плащу из тигровой шкуры
+    accusative: плащ из тигровой шкуры
+    instrumental: плащом из тигровой шкуры
+    prepositional: плаще из тигровой шкуры
+  short_desc: Плащ из шкуры саблезубого тигра лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 15
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 39  # реакция
+      modifier: -7
+
+# Object #3935
+35:
+  names:
+    aliases: пояс тигровой шкуры
+    nominative: пояс из тигровой шкуры
+    genitive: пояса из тигровой шкуры
+    dative: поясу из тигровой шкуры
+    accusative: пояс из тигровой шкуры
+    instrumental: поясом из тигровой шкуры
+    prepositional: поясе из тигровой шкуры
+  short_desc: Пояс из шкуры саблезубого тигра лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 9
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 20  # воля
+      modifier: -7
+
+# Object #3936
+36:
+  names:
+    aliases: наручи тигровой шкуры
+    nominative: наручи из тигровой шкуры
+    genitive: наручей из тигровой шкуры
+    dative: наручам из тигровой шкуры
+    accusative: наручи из тигровой шкуры
+    instrumental: наручиами из тигровой шкуры
+    prepositional: наручах из тигровой шкуры
+  short_desc: Наручи из шкуры саблезубого тигра лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 5
+    - 0
+    - 0
+  weight: 12
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kFly
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 39  # реакция
+      modifier: -7
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+
+# Object #3937
+37:
+  names:
+    aliases: рукавицы из тигровой шкуры
+    nominative: рукавицы из тигровой шкуры
+    genitive: рукавиц из тигровой шкуры
+    dative: рукавицам из тигровой шкуры
+    accusative: рукавицы из тигровой шкуры
+    instrumental: рукавицами из тигровой шкуры
+    prepositional: рукавицах из тигровой шкуры
+  short_desc: Рукавицы из шкуры саблезубого тигра лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kStoneHand
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 20  # воля
+      modifier: -7
+
+# Object #3938
+38:
+  names:
+    aliases: штаны тигровой шкуры
+    nominative: штаны из тигровой шкуры
+    genitive: штанов из тигровой шкуры
+    dative: штанам из тигровой шкуры
+    accusative: штаны из тигровой шкуры
+    instrumental: штанами из тигровой шкуры
+    prepositional: штанах из тигровой шкуры
+  short_desc: Штаны из шкуры саблезубого тигра лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 4
+    - 0
+    - 0
+  weight: 8
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 24  # стойкость
+      modifier: -7
+
+# Object #3939
+39:
+  names:
+    aliases: сапоги тигровой шкуры
+    nominative: сапоги из тигровой шкуры
+    genitive: сапог из тигровой шкуры
+    dative: сапогам из тигровой шкуры
+    accusative: сапоги из тигровой шкуры
+    instrumental: сапогами из тигровой шкуры
+    prepositional: сапогах из тигровой шкуры
+  short_desc: Сапоги из шкуры саблезубого тигра стоят тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 25
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kWaterBreath
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 3
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 39  # реакция
+      modifier: -7
+
+# Object #3940
+40:
+  names:
+    aliases: шапка кожи вепря
+    nominative: шапка из кожи вепря
+    genitive: шапки из кожи вепря
+    dative: шапке из кожи вепря
+    accusative: шапку из кожи вепря
+    instrumental: шапкой из кожи вепря
+    prepositional: шапке из кожи вепря
+  short_desc: Большая шапка из кожи вепря лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 6
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 39  # реакция
+      modifier: -7
+    - location: 23  # здоровье
+      modifier: -7
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+
+# Object #3941
+41:
+  names:
+    aliases: куртка кожи вепря
+    nominative: куртка из кожи вепря
+    genitive: куртки из кожи вепря
+    dative: куртке из кожи вепря
+    accusative: куртку из кожи вепря
+    instrumental: курткой из кожи вепря
+    prepositional: куртке из кожи вепря
+  short_desc: Большая куртка из кожи вепря лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 9
+    - 0
+    - 0
+  weight: 25
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -8
+    - location: 24  # стойкость
+      modifier: -8
+    - location: 39  # реакция
+      modifier: -8
+    - location: 23  # здоровье
+      modifier: -8
+    - location: 44  # поглощение
+      modifier: 7
+    - location: 13  # макс.жизнь
+      modifier: 40
+
+# Object #3942
+42:
+  names:
+    aliases: плащ кожи вепря
+    nominative: плащ из кожи вепря
+    genitive: плаща из кожи вепря
+    dative: плащу из кожи вепря
+    accusative: плащ из кожи вепря
+    instrumental: плащом из кожи вепря
+    prepositional: плаще из кожи вепря
+  short_desc: Большой плащ из кожи вепря лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 8
+    - 0
+    - 0
+  weight: 15
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kKiller
+    - kBattle
+    - UNUSED_55
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 39  # реакция
+      modifier: -7
+    - location: 23  # здоровье
+      modifier: -7
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+
+# Object #3943
+43:
+  names:
+    aliases: пояс кожи вепря
+    nominative: пояс из кожи вепря
+    genitive: пояса из кожи вепря
+    dative: поясу из кожи вепря
+    accusative: пояс из кожи вепря
+    instrumental: поясом из кожи вепря
+    prepositional: поясе из кожи вепря
+  short_desc: Тяжелый пояс из кожи вепря лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 9
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kKiller
+    - kBattle
+    - UNUSED_55
+  affect_flags:
+    - kBless
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 39  # реакция
+      modifier: -7
+    - location: 23  # здоровье
+      modifier: -7
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+
+# Object #3944
+44:
+  names:
+    aliases: наручи кожи вепря
+    nominative: наручи из кожи вепря
+    genitive: наручей из кожи вепря
+    dative: наручам из кожи вепря
+    accusative: наручи из кожи вепря
+    instrumental: наручиами из кожи вепря
+    prepositional: наручах из кожи вепря
+  short_desc: Большие наручи из кожи вепря лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 5
+    - 0
+    - 0
+  weight: 12
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kAwareness
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 39  # реакция
+      modifier: -7
+    - location: 23  # здоровье
+      modifier: -7
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+
+# Object #3945
+45:
+  names:
+    aliases: рукавицы кожи вепря
+    nominative: рукавицы из кожи вепря
+    genitive: рукавиц из кожи вепря
+    dative: рукавицам из кожи вепря
+    accusative: рукавицы из кожи вепря
+    instrumental: рукавицами из кожи вепря
+    prepositional: рукавицах из кожи вепря
+  short_desc: Тяжелые рукавицы из кожи вепря лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 4
+    - 0
+    - 0
+  weight: 13
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kWaterBreath
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 39  # реакция
+      modifier: -7
+    - location: 23  # здоровье
+      modifier: -7
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+
+# Object #3946
+46:
+  names:
+    aliases: штаны кожи вепря
+    nominative: штаны из кожи вепря
+    genitive: штанов из кожи вепря
+    dative: штанам из кожи вепря
+    accusative: штаны из кожи вепря
+    instrumental: штанами из кожи вепря
+    prepositional: штанах из кожи вепря
+  short_desc: Тяжелые штаны из кожи вепря лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 5
+    - 0
+    - 0
+  weight: 18
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBlink
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 39  # реакция
+      modifier: -7
+    - location: 23  # здоровье
+      modifier: -7
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+
+# Object #3947
+47:
+  names:
+    aliases: сапоги кожи вепря
+    nominative: сапоги из кожи вепря
+    genitive: сапог из кожи вепря
+    dative: сапогам из кожи вепря
+    accusative: сапоги из кожи вепря
+    instrumental: сапогами из кожи вепря
+    prepositional: сапогах из кожи вепря
+  short_desc: Тяжелые сапоги из кожи вепря лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 7
+    - 0
+    - 0
+  weight: 32
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kFly
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 20  # воля
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 39  # реакция
+      modifier: -7
+    - location: 23  # здоровье
+      modifier: -7
+    - location: 44  # поглощение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+
+# Object #3948
+48:
+  names:
+    aliases: кожаный шлем с шипами
+    nominative: кожаный шлем с шипами
+    genitive: кожаного шлема с шипами
+    dative: кожаному шлему с шипами
+    accusative: кожаный шлем с шипами
+    instrumental: кожаным шлемом с шипами
+    prepositional: кожаном шлеме с шипами
+  short_desc: Прочный кожаный шлем с костяными шипами лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 4
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+    - kWaterBreath
+    - kStoneHand
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3949
+49:
+  names:
+    aliases: кожаный доспех шипами
+    nominative: кожаный доспех с шипами
+    genitive: кожаного доспеха с шипами
+    dative: кожаному доспеху с шипами
+    accusative: кожаный доспех с шипами
+    instrumental: кожаным доспехом с шипами
+    prepositional: кожаном доспехе с шипами
+  short_desc: Прочный кожаный доспех с костяными шипами лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 7
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectLife
+    - kAirAura
+    - kFireAura
+    - kIceAura
+    - kEarthAura
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3950
+50:
+  names:
+    aliases: кожаный плащ шипами
+    nominative: кожаный плащ с шипами
+    genitive: кожаного плаща с шипами
+    dative: кожаному плащу с шипами
+    accusative: кожаный плащ с шипами
+    instrumental: кожаным плащом с шипами
+    prepositional: кожаном плаще с шипами
+  short_desc: Прочный кожаный плащ, украшенный костяными шипами, лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBlink
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3951
+51:
+  names:
+    aliases: кожаный пояс шипами
+    nominative: кожаный пояс с шипами
+    genitive: кожаного пояса с шипами
+    dative: кожаному поясу с шипами
+    accusative: кожаный пояс с шипами
+    instrumental: кожаным поясом с шипами
+    prepositional: кожаном поясе с шипами
+  short_desc: Кожаный пояс украшенный костяными шипами лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3952
+52:
+  names:
+    aliases: кожаные наручи шипами
+    nominative: кожаные наручи с шипами
+    genitive: кожаных наручей с шипами
+    dative: кожаным наручам с шипами
+    accusative: кожаный наручи с шипами
+    instrumental: кожаными наручами с шипами
+    prepositional: кожаных наручах с шипами
+  short_desc: Прочные кожаные наручи с костяными шипами лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3953
+53:
+  names:
+    aliases: кожаные перчатки шипами
+    nominative: кожаные перчатки с шипами
+    genitive: кожаных перчаток с шипами
+    dative: кожаным перчаткам с шипами
+    accusative: кожаные перчатки с шипами
+    instrumental: кожаными перчатками с шипами
+    prepositional: кожаных перчатках с шипами
+  short_desc: Прочные кожаные перчатки с костяными шипами лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kWaterWalk
+    - kStoneHand
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3954
+54:
+  names:
+    aliases: кожаные поножи шипами
+    nominative: кожаные поножи с шипами
+    genitive: кожаных поножей с шипами
+    dative: кожаным поножам с шипами
+    accusative: кожаные поножи с шипами
+    instrumental: кожаными поножами с шипами
+    prepositional: кожаных поножах с шипами
+  short_desc: Прочные кожаные поножи с костяными шипами лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3955
+55:
+  names:
+    aliases: кожаные сапоги шипами
+    nominative: кожаные сапоги с шипами
+    genitive: кожаных сапог с шипами
+    dative: кожаным сапогам с шипами
+    accusative: кожаные сапоги с шипами
+    instrumental: кожаными сапогами с шипами
+    prepositional: кожаных сапогах с шипами
+  short_desc: Прочные кожаные сапоги с костяными шипами стоят здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 15
+  cost: 6250
+  rent_off: 1000
+  rent_on: 600
+  max_durability: 400
+  cur_durability: 400
+  timer: 30240
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+    - kFly
+    - kAwareness
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+
+# Object #3956
+56:
+  names:
+    aliases: золотой чеканный обруч
+    nominative: золотой чеканный обруч
+    genitive: золотого чеканного обруча
+    dative: золотому чеканному обручу
+    accusative: золотой чеканный обруч
+    instrumental: золотым чеканным обручем
+    prepositional: золотом чеканном обруче
+  short_desc: Золотой обруч с чеканкой лежит здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 3000
+  rent_on: 300
+  max_durability: 275
+  cur_durability: 275
+  timer: 30240
+  spell: 19  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kGlow
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBless
+    - kDetectPoison
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 10
+    - location: 12  # запоминание
+      modifier: 50
+
+# Object #3957
+57:
+  names:
+    aliases: серого просторный балахон
+    nominative: простой просторный балахон
+    genitive: простого просторного балахона
+    dative: простому просторному балахону
+    accusative: простой просторный балахон
+    instrumental: простым просторным балахоном
+    prepositional: простом просторном балахоне
+  short_desc: Пыльный балахон серого цвета лежит здесь
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 1000
+    - 0
+    - -1
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 7000
+  rent_on: 300
+  max_durability: 250
+  cur_durability: 250
+  timer: 30240
+  spell: 19  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBless
+    - kFly
+  applies:
+    - location: 21  # защита.от.стихии.огня
+      modifier: 25
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 25
+    - location: 46  # защита.от.стихии.воды
+      modifier: 25
+    - location: 47  # защита.от.стихии.земли
+      modifier: 25
+
+# Object #3958
+58:
+  names:
+    aliases: мезирикордия узкий граненый кинжал
+    nominative: мезирикордия
+    genitive: мезирикордии
+    dative: мезирикордии
+    accusative: мезирикордию
+    instrumental: мезирикордией
+    prepositional: мезирикордии
+  short_desc: Узкий граненый кинжал воткнут в землю.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 8
+    - 11
+  weight: 5
+  cost: 750
+  rent_off: 3000
+  rent_on: 500
+  spec_param: 147
+  max_durability: 700
+  cur_durability: 700
+  timer: 30240
+  spell: 19  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kInfravision
+    - kAwareness
+    - kHaste
+  applies:
+    - location: 2  # ловкость
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 4
+    - location: 19  # повреждение
+      modifier: 4
+    - location: 13  # макс.жизнь
+      modifier: 50
+
+# Object #3959
+59:
+  names:
+    aliases: шерстяной ромейский плащ
+    nominative: шерстяной ромейский плащ
+    genitive: шерстяного ромейского плаща
+    dative: шерстяному ромейскому плащу
+    accusative: шерстяной ромейский плащ
+    instrumental: шерстяным ромейским плащем
+    prepositional: шерстяном ромейском плаще
+  short_desc: Свернутый шерстяной плащ лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 7
+    - 7
+    - 0
+    - 0
+  weight: 8
+  cost: 6250
+  rent_off: 1000
+  rent_on: 300
+  max_durability: 275
+  cur_durability: 275
+  timer: 30240
+  spell: 19  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kFly
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 10
+    - location: 12  # запоминание
+      modifier: 30
+    - location: 13  # макс.жизнь
+      modifier: 30
+
+# Object #3960
+60:
+  names:
+    aliases: утренняя звезда посеребренной рукоятью
+    nominative: утренняя звезда с посеребренной рукоятью
+    genitive: утренней звезды с посеребренной рукоятью
+    dative: утренней звезде с посеребренной рукоятью
+    accusative: утреннюю звезду с посеребренной рукоятью
+    instrumental: утренней звездой с посеребренной рукоятью
+    prepositional: утренней звезде с посеребренной рукоятью
+  short_desc: Тяжелый железный шар с шипами прикрепленный цепью к посеребренной рукояти лежит здесь.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 7
+    - 8
+    - 5
+  weight: 20
+  cost: 6250
+  rent_off: 3000
+  rent_on: 300
+  spec_param: 141
+  max_durability: 375
+  cur_durability: 375
+  timer: 30240
+  spell: 19  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBless
+    - kHaste
+    - kWaterBreath
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 10
+    - location: 12  # запоминание
+      modifier: 60
+    - location: 13  # макс.жизнь
+      modifier: 45
+
+# Object #3961
+61:
+  names:
+    aliases: ромейские сандалии
+    nominative: ромейские сандалии
+    genitive: ромейских сандалий
+    dative: ромейским сандалиям
+    accusative: ромейские сандалии
+    instrumental: ромейскими сандалиями
+    prepositional: ромейских сандалиях
+  short_desc: Ромейские сандалии из тесненой узорами тонкой кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 1000
+  rent_on: 350
+  max_durability: 275
+  cur_durability: 275
+  timer: 30240
+  spell: 16  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBless
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 8
+    - location: 12  # запоминание
+      modifier: 40
+    - location: 13  # макс.жизнь
+      modifier: 40
+
+# Object #3962
+62:
+  names:
+    aliases: легкий шлем персидского бессмертного
+    nominative: легкий шлем персидского бессмертного
+    genitive: легкого шлема персидского бессмертного
+    dative: легкому шлему персидского бессмертного
+    accusative: легкий шлем персидского бессмертного
+    instrumental: легким шлемом персидского бессмертного
+    prepositional: легком шлеме персидского бессмертного
+  short_desc: Легкий шлем странного вида лежит у Вас под ногами.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 7
+    - 4
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 2000
+  rent_on: 500
+  max_durability: 375
+  cur_durability: 375
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kWaterWalk
+    - kInfravision
+    - kFly
+    - kAwareness
+    - kDetectPoison
+    - kHaste
+    - kWaterBreath
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 7
+    - location: 19  # повреждение
+      modifier: 7
+
+# Object #3963
+63:
+  names:
+    aliases: тяжелые поножи катафрактария
+    nominative: тяжелые поножи катафрактария
+    genitive: тяжелых поножей катафрактария
+    dative: тяжелым поножам катафрактария
+    accusative: тяжелые поножи катафрактария
+    instrumental: тяжелыми поножами катафрактария
+    prepositional: тяжелых поножах катафрактария
+  short_desc: Тяжелые поножи ромейского конного воина лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 12
+  cost: 6250
+  rent_off: 1000
+  rent_on: 400
+  max_durability: 475
+  cur_durability: 475
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kAwareness
+    - kWaterBreath
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 40
+    - location: 20  # воля
+      modifier: -15
+    - location: 44  # поглощение
+      modifier: 25
+    - location: 41  # удача
+      modifier: 10
+    - location: 2  # ловкость
+      modifier: 2
+
+# Object #3964
+64:
+  names:
+    aliases: тяжелый щит гвардейца скутум преторианца
+    nominative: скутум преторианца
+    genitive: скутума преторианца
+    dative: скутуму преторианца
+    accusative: скутум преторианца
+    instrumental: скутумом преторианца
+    prepositional: скутуме преторианца
+  short_desc: Тяжелый щит ромейского гвардейца лежит здесь.
+  type: kArmor
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 32
+  cost: 6250
+  rent_off: 3000
+  rent_on: 500
+  max_durability: 1500
+  cur_durability: 1500
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShield
+    - kShoulders
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kInfravision
+    - kAwareness
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 39  # реакция
+      modifier: -15
+    - location: 24  # стойкость
+      modifier: -15
+    - location: 36  # размер
+      modifier: 15
+    - location: 42  # инициатива
+      modifier: 5
+
+# Object #3965
+65:
+  names:
+    aliases: тяжелый кожаный пояс метательными ножами
+    nominative: пояс с метательными ножами
+    genitive: пояса с метательными ножами
+    dative: поясу с метательными ножами
+    accusative: пояс с метательными ножами
+    instrumental: поясом с метательными ножами
+    prepositional: поясе с метательными ножами
+  short_desc: Широкий кожаный пояс с метательными ножами лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 12
+  cost: 1000
+  rent_off: 3000
+  rent_on: 300
+  max_durability: 250
+  cur_durability: 250
+  timer: 30240
+  spell: 16  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWaist
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+  applies:
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 1  # сила
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 44  # поглощение
+      modifier: 10
+  extra_descriptions:
+    - keywords: тяжелый кожаный пояс метательными ножами
+      description: |2
+        В таком поясе может храниться не одна сотня
+        добротных метательных кинжалов. Стоит только
+        &Wдостать&n один или несколько ножей - и Вы
+        готовы к бою!
+  triggers:
+    - 3901  # лоад метательного ножа
+    - 3903  # Достаем нож из пояса (не одет)
+
+# Object #3966
+66:
+  names:
+    aliases: метательный нож утяжеленным концом
+    nominative: метательный нож с утяжеленным концом
+    genitive: метательного ножа с утяжеленным концом
+    dative: метательному ножу с утяжеленным концом
+    accusative: метательный нож с утяжеленным концом
+    instrumental: метательным ножом с утяжеленным концом
+    prepositional: метательном ноже с утяжеленным концом
+  short_desc: Очень тонкий метательный нож с тяжелым лезвием воткнут в землю.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 6
+    - 11
+  weight: 15
+  cost: 0
+  rent_off: 100
+  rent_on: 100
+  spec_param: 147
+  max_durability: 200
+  cur_durability: 200
+  timer: 30
+  spell: 16  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kDecay
+    - kNodisarm
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3967
+67:
+  names:
+    aliases: рыцарский клевец молоток
+    nominative: рыцарский клевец
+    genitive: рыцарского клевца
+    dative: рыцарскому клевцу
+    accusative: рыцарский клевец
+    instrumental: рыцарским клевцом
+    prepositional: рыцарском клевце
+  short_desc: Молоток с длинным заостренным жалом лежит здесь.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 8
+    - 6
+  weight: 22
+  cost: 800
+  rent_off: 1000
+  rent_on: 150
+  spec_param: 141
+  max_durability: 375
+  cur_durability: 375
+  timer: 30240
+  spell: 16  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+    - kThrowing
+    - kLimitedTimer
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBless
+    - kAwareness
+    - kDetectPoison
+  applies:
+    - location: 5  # телосложение
+      modifier: 3
+    - location: 39  # реакция
+      modifier: -15
+    - location: 20  # воля
+      modifier: -15
+    - location: 24  # стойкость
+      modifier: -15
+    - location: 13  # макс.жизнь
+      modifier: 45
+
+# Object #3968
+68:
+  names:
+    aliases: яловые сапоги железными чешуйками
+    nominative: яловые сапоги с железными чешуйками
+    genitive: яловых сапог с железными чешуйками
+    dative: яловым сапогам с железными чешуйками
+    accusative: яловые сапоги с железными чешуйками
+    instrumental: яловыми сапогами с железными чешуйками
+    prepositional: яловых сапогах с железными чешуйками
+  short_desc: Удобные яловые сапоги с наклепанными чешуйками брони стоят здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 8
+    - 0
+    - 0
+  weight: 38
+  cost: 6250
+  rent_off: 3000
+  rent_on: 500
+  max_durability: 475
+  cur_durability: 475
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kLimitedTimer
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kProtectFromDark
+    - kProtectFromMind
+    - kAirAura
+    - kFireAura
+    - kIceAura
+    - kEarthAura
+  applies:
+    - location: 46  # защита.от.стихии.воды
+      modifier: 20
+    - location: 47  # защита.от.стихии.земли
+      modifier: 20
+    - location: 21  # защита.от.стихии.огня
+      modifier: 20
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 20
+    - location: 63  # защита.от.магии.тьмы
+      modifier: 20
+    - location: 51  # защита.от.чар
+      modifier: 5
+
+# Object #3969
+69:
+  names:
+    aliases: кожаные наручи железными чешуйками
+    nominative: наручи с железными чешуйками
+    genitive: наручей с железными чешуйками
+    dative: наручам с железными чешуйками
+    accusative: наручи с железными чешуйками
+    instrumental: наручами с железными чешуйками
+    prepositional: наручах с железными чешуйками
+  short_desc: Кожаные наручи покрытые чешуйками из железа лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 15
+  cost: 6250
+  rent_off: 3000
+  rent_on: 500
+  max_durability: 475
+  cur_durability: 475
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kProtectFromDark
+    - kProtectFromMind
+    - kAirAura
+    - kFireAura
+    - kIceAura
+    - kEarthAura
+  applies:
+    - location: 21  # защита.от.стихии.огня
+      modifier: 20
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 20
+    - location: 46  # защита.от.стихии.воды
+      modifier: 20
+    - location: 47  # защита.от.стихии.земли
+      modifier: 20
+    - location: 63  # защита.от.магии.тьмы
+      modifier: 20
+    - location: 51  # защита.от.чар
+      modifier: 5
+
+# Object #3970
+70:
+  names:
+    aliases: рукавицы железными заклепками
+    nominative: рукавицы с железными заклепками
+    genitive: рукавиц с железными заклепками
+    dative: рукавицам с железными заклепками
+    accusative: рукавицы с железными заклепками
+    instrumental: рукавицами с железными заклепками
+    prepositional: рукавицах с железными заклепками
+  short_desc: Кожаные рукавицы железными заклепками лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 7
+    - 7
+    - 0
+    - 0
+  weight: 14
+  cost: 6250
+  rent_off: 3000
+  rent_on: 500
+  max_durability: 375
+  cur_durability: 375
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBless
+    - kAwareness
+    - kHaste
+    - kStoneHand
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 39  # реакция
+      modifier: -15
+    - location: 2  # ловкость
+      modifier: 2
+
+# Object #3971
+71:
+  names:
+    aliases: легкая каленая кольчуга с зерцалом
+    nominative: легкая каленая кольчуга с зерцалом
+    genitive: легкой каленой кольчуги с зерцалом
+    dative: легкой каленой кольчуге с зерцалом
+    accusative: легкую каленую кольчугу с зерцалом
+    instrumental: легкой каленой кольчугой с зерцалом
+    prepositional: легкой каленой кольчуге с зерцалом
+  short_desc: Кольчуга с наклепанным на груди зерцалом лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 10
+    - 10
+    - 0
+    - 0
+  weight: 5
+  cost: 6250
+  rent_off: 3000
+  rent_on: 500
+  max_durability: 475
+  cur_durability: 475
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBless
+    - kFly
+    - kAwareness
+    - kBlink
+    - kDetectPoison
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 3
+    - location: 20  # воля
+      modifier: -15
+    - location: 24  # стойкость
+      modifier: -15
+    - location: 39  # реакция
+      modifier: -15
+    - location: 23  # здоровье
+      modifier: -15
+
+# Object #3972
+72:
+  names:
+    aliases: массивный тяжелый пластинчатый доспех
+    nominative: тяжелый пластинчатый доспех
+    genitive: тяжелого пластинчатого доспеха
+    dative: тяжелому пластинчатому доспеху
+    accusative: тяжелый пластинчатый доспех
+    instrumental: тяжелым пластинчатым доспехом
+    prepositional: тяжелом пластинчатом доспехе
+  short_desc: Массивыный пластинчатый доспех брошен здесь.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 10
+    - 10
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 3000
+  rent_on: 500
+  max_durability: 475
+  cur_durability: 475
+  timer: 30240
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kBody
+    - kShoulders
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+    - kFly
+    - kAirAura
+    - kFireAura
+    - kIceAura
+    - kEarthAura
+  applies:
+    - location: 5  # телосложение
+      modifier: 3
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 75
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 51  # защита.от.чар
+      modifier: 5
+
+# Object #3973
+73:
+  names:
+    aliases: золоченый лук хузарского вельможи
+    nominative: золоченый лук хузарского вельможи
+    genitive: золоченого лука хузарского вельможи
+    dative: золоченому луку хузарского вельможи
+    accusative: золоченый лук хузарского вельможи
+    instrumental: золоченым луком хузарского вельможи
+    prepositional: золоченом луке хузарского вельможи
+  short_desc: Богато украшенный хузарский лук лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 7
+    - 9
+    - 9
+  weight: 30
+  cost: 6250
+  rent_off: 3000
+  rent_on: 300
+  spec_param: 154
+  max_durability: 375
+  cur_durability: 375
+  timer: 30240
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectAlign
+    - kBless
+    - kAwareness
+    - kWaterBreath
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 55
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 18  # попадание
+      modifier: 5
+
+# Object #3974
+74:
+  names:
+    aliases: перстень черным алмазом
+    nominative: перстень с черным алмазом
+    genitive: перстня с черным алмазом
+    dative: перстню с черным алмазом
+    accusative: перстень с черным алмазом
+    instrumental: перстнем с черным алмазом
+    prepositional: перстне с черным алмазом
+  short_desc: Перстень с редким черным алмазом лежит здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 6250
+  rent_off: 3000
+  rent_on: 300
+  max_durability: 375
+  cur_durability: 375
+  timer: 30240
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBlink
+    - kWaterBreath
+    - kMagicGlass
+  applies:
+    - location: 1  # сила
+      modifier: 3
+    - location: 24  # стойкость
+      modifier: -15
+    - location: 20  # воля
+      modifier: -15
+    - location: 39  # реакция
+      modifier: -15
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 44  # поглощение
+      modifier: 20
+
+# Object #3975
+75:
+  names:
+    aliases: рыцарский медальон
+    nominative: рыцарский медальон
+    genitive: рыцарского медальона
+    dative: рыцарскому медальону
+    accusative: рыцарский медальон
+    instrumental: рыцарским медальоном
+    prepositional: рыцарском медальоне
+  short_desc: Медальон с изображением чьей-то дамы сердца лежит здесь
+  type: kArmor
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 3
+  cost: 10000
+  rent_off: 50000
+  rent_on: 25000
+  max_durability: 445
+  cur_durability: 445
+  timer: 43200
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectLife
+    - kInfravision
+    - kIceShield
+  applies:
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 39  # реакция
+      modifier: -10
+    - location: 20  # воля
+      modifier: -10
+    - location: 42  # инициатива
+      modifier: 10
+    - location: 24  # стойкость
+      modifier: -10
+
+# Object #3976
+76:
+  names:
+    aliases: кольчуга дамасской стали
+    nominative: кольчуга дамасской стали
+    genitive: кольчуги дамасской стали
+    dative: кольчуге дамасской стали
+    accusative: кольчугу дамасской стали
+    instrumental: кольчугой дамасской стали
+    prepositional: кольчуге дамасской стали
+  short_desc: Кольчуга дамасской стали лежит здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 15
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 300
+  timer: 65800
+  spell: 37  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+    - kBattle
+    - kCharmice
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kIceAura
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: кольчуга дамасской стали
+      description: |2
+        Харалужная сталь лучшая защита в бою!
+
+# Object #3977
+77:
+  names:
+    aliases: шлем дамасской стали
+    nominative: шлем дамасской стали
+    genitive: шлема дамасской стали
+    dative: шлему дамасской стали
+    accusative: шлем дамасской стали
+    instrumental: шлемом дамасской стали
+    prepositional: шлеме дамасской стали
+  short_desc: Шлем дамасской стали лежит здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 7
+    - 4
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 350
+  timer: 65800
+  spell: 37  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+    - kBattle
+    - kCharmice
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kFireAura
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+
+# Object #3978
+78:
+  names:
+    aliases: поножи дамасской стали
+    nominative: поножи дамасской стали
+    genitive: поножей дамасской стали
+    dative: поножам дамасской стали
+    accusative: поножи дамасской стали
+    instrumental: поножами дамасской стали
+    prepositional: поножах дамасской стали
+  short_desc: Поножи дамасской стали лежат здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 7
+    - 5
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 350
+  timer: 65800
+  spell: 37  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+    - kBattle
+    - kCharmice
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kAirAura
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: поножи дамасской стали
+      description: |2
+        Харалужная сталь лучшая защита в бою!
+
+# Object #3979
+79:
+  names:
+    aliases: рукавицы дамасской стали
+    nominative: рукавицы дамасской стали
+    genitive: рукавиц дамасской стали
+    dative: рукавицам дамасской стали
+    accusative: рукавицы дамасской стали
+    instrumental: рукавицами дамасской стали
+    prepositional: рукавицах дамасской стали
+  short_desc: Рукавицы дамасской стали лежат здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 9
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 350
+  timer: 78000
+  spell: 37  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+    - kCharmice
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: рукавицы дамасской стали
+      description: |2
+        Харалужная сталь лучшая защита в бою!
+
+# Object #3980
+80:
+  names:
+    aliases: сапоги дамасской стали
+    nominative: сапоги дамасской стали
+    genitive: сапогов дамасской стали
+    dative: сапогам дамасской стали
+    accusative: сапоги дамасской стали
+    instrumental: сапогами дамасской стали
+    prepositional: сапогах дамасской стали
+  short_desc: Сапоги дамасской стали стоят здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 35
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 350
+  timer: 78000
+  spell: 37  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+  affect_flags:
+    - kFly
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: сапоги дамасской стали
+      description: |2
+        Харалужная сталь лучшая защита в бою!
+
+# Object #3981
+81:
+  names:
+    aliases: нарукавники дамасской стали
+    nominative: нарукавники дамасской стали
+    genitive: нарукавников дамасской стали
+    dative: нарукавникам дамасской стали
+    accusative: нарукавники дамасской стали
+    instrumental: нарукавниками дамасской стали
+    prepositional: нарукавниках дамасской стали
+  short_desc: Нарукавники дамасской стали лежат здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 350
+  timer: 65800
+  spell: 37  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+    - kBattle
+    - kCharmice
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: нарукавники дамасской стали
+      description: |2
+        Харалужная сталь лучшая защита в бою!
+
+# Object #3982
+82:
+  names:
+    aliases: пояс из колец дамасской стали
+    nominative: пояс из колец дамасской стали
+    genitive: пояса из колец дамасской стали
+    dative: поясу из колец дамасской стали
+    accusative: пояс из колец дамасской стали
+    instrumental: поясом из колец дамасской стали
+    prepositional: поясе из колец дамасской стали
+  short_desc: Пояс из колец дамасской стали лежит здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 10
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 300
+  timer: 65800
+  spell: 37  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+    - kBattle
+    - kCharmice
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kFly
+    - kHaste
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: пояс из колец дамасской стали
+      description: |2
+        Харалужная сталь лучшая защита в бою!
+
+# Object #3983
+83:
+  names:
+    aliases: плащ с подбойками из дамасской стали
+    nominative: плащ с подбойками из дамасской стали
+    genitive: плаща с подбойками из дамасской стали
+    dative: плащу с подбойками из дамасской стали
+    accusative: плащ с подбойками из дамасской стали
+    instrumental: плащем с подбойками из дамасской стали
+    prepositional: плаще с подбойками из дамасской стали
+  short_desc: Плащ с подбоем из дамасской стали лежит здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 11
+  cost: 6250
+  rent_off: 1000
+  rent_on: 500
+  max_durability: 350
+  cur_durability: 300
+  timer: 78000
+  spell: 37  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kHasTwoSlots
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kMage
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+    - kCharmice
+  affect_flags:
+    - kInfravision
+    - kFly
+    - kBlink
+    - kWaterBreath
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+  extra_descriptions:
+    - keywords: плащ с подбойками из дамасской стали
+      description: |2
+        Харалужная сталь лучшая защита в бою!
+
+# Object #3984
+84:
+  names:
+    aliases: доспех благородной стали
+    nominative: доспех благородной стали
+    genitive: доспеха благородной стали
+    dative: доспеху благородной стали
+    accusative: доспех благородной стали
+    instrumental: доспехом благородной стали
+    prepositional: доспехе благородной стали
+  short_desc: Доспех сделанный из широких стальных пластин лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 5
+    - 4
+    - 0
+    - 0
+  weight: 6
+  cost: 250
+  rent_off: 450
+  rent_on: 100
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kBless
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3985
+85:
+  names:
+    aliases: шлем благородной стали
+    nominative: шлем благородной стали
+    genitive: шлема благородной стали
+    dative: шлему благородной стали
+    accusative: шлем благородной стали
+    instrumental: шлемом благородной стали
+    prepositional: шлеме благородной стали
+  short_desc: Шлем сделанный из широких стальных пластин лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 2
+  cost: 250
+  rent_off: 400
+  rent_on: 65
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kInfravision
+
+# Object #3986
+86:
+  names:
+    aliases: наручи благородной стали
+    nominative: наручи благородной стали
+    genitive: наручей благородной стали
+    dative: наручам благородной стали
+    accusative: наручи благородной стали
+    instrumental: наручами благородной стали
+    prepositional: наручах благородной стали
+  short_desc: Наручи сделанные из широких стальных пластин лежат здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 110
+  rent_off: 410
+  rent_on: 35
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kArms
+  affect_flags:
+    - kNoFlee
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3987
+87:
+  names:
+    aliases: поножи благородной стали
+    nominative: поножи благородной стали
+    genitive: поножей благородной стали
+    dative: поножам благородной стали
+    accusative: поножи благородной стали
+    instrumental: поножами благородной стали
+    prepositional: поножах благородной стали
+  short_desc: Поножи сделанные из широких стальных пластин лежат здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 115
+  rent_off: 415
+  rent_on: 61
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kLegs
+  affect_flags:
+    - kProtectFromMind
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3988
+88:
+  names:
+    aliases: рукавицы благородной стали
+    nominative: рукавицы благородной стали
+    genitive: рукавиц благородной стали
+    dative: рукавицам благородной стали
+    accusative: рукавицы благородной стали
+    instrumental: рукавицами благородной стали
+    prepositional: рукавицах благородной стали
+  short_desc: Перчатки сделанные из широких стальных пластин лежат здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 7
+  cost: 150
+  rent_off: 350
+  rent_on: 25
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kHands
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3989
+89:
+  names:
+    aliases: сапоги благородной стали
+    nominative: сапоги благородной стали
+    genitive: сапогов благородной стали
+    dative: сапогам благородной стали
+    accusative: сапоги благородной стали
+    instrumental: сапогами благородной стали
+    prepositional: сапогам благородной стали
+  short_desc: Сапоги сделанные из широких стальных пластин лежат здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 32
+  cost: 185
+  rent_off: 385
+  rent_on: 50
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kFeet
+  affect_flags:
+    - kDetectAlign
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3990
+90:
+  names:
+    aliases: ремень благородной стали
+    nominative: ремень благородной стали
+    genitive: ремня благородной стали
+    dative: ремню благородной стали
+    accusative: ремень благородной стали
+    instrumental: ремнем благородной стали
+    prepositional: ремне благородной стали
+  short_desc: Ремень сделанный из широких стальных пластин лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 150
+  rent_off: 750
+  rent_on: 85
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWaist
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3991
+91:
+  names:
+    aliases: воротник благородной стали
+    nominative: воротник благородной стали
+    genitive: воротника благородной стали
+    dative: воротнику благородной стали
+    accusative: воротник благородной стали
+    instrumental: воротником благородной стали
+    prepositional: воротнике благородной стали
+  short_desc: Сделанный из широких стальных пластин воротник лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 145
+  rent_off: 455
+  rent_on: 62
+  max_durability: 350
+  cur_durability: 350
+  timer: 14400
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kNeck
+  applies:
+    - location: 37  # броня
+      modifier: 1
+
+# Object #3992
+92:
+  names:
+    aliases: перстень благородной стали
+    nominative: перстень благородной стали
+    genitive: перстня благородной стали
+    dative: перстню благородной стали
+    accusative: перстень благородной стали
+    instrumental: перстнем благородной стали
+    prepositional: перстне благородной стали
+  short_desc: Сделанный из толстой стальной пластины перстень лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 135
+  rent_off: 354
+  rent_on: 46
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3993
+93:
+  names:
+    aliases: щит благородной стали
+    nominative: щит благородной стали
+    genitive: щита благородной стали
+    dative: щиту благородной стали
+    accusative: щит благородной стали
+    instrumental: щитом благородной стали
+    prepositional: щите благородной стали
+  short_desc: Сделанный из толстой стальной пластины щит лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 3
+    - 4
+    - 0
+    - 0
+  weight: 22
+  cost: 250
+  rent_off: 845
+  rent_on: 110
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kShield
+  affect_flags:
+    - kInfravision
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3994
+94:
+  names:
+    aliases: клинок благородной стали длинный
+    nominative: клинок благородной стали
+    genitive: клинка благородной стали
+    dative: клинку благородной стали
+    accusative: клинок благородной стали
+    instrumental: клинком благородной стали
+    prepositional: клинке благородной стали
+  short_desc: Длинный стальной клинок лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 8
+    - 10
+  weight: 17
+  cost: 140
+  rent_off: 400
+  rent_on: 73
+  spec_param: 147
+  max_durability: 500
+  cur_durability: 500
+  timer: 60480
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+    - kNodecay
+    - kThrowing
+    - kLimitedTimer
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kDetectInvisibility
+    - kInfravision
+  applies:
+    - location: 5  # телосложение
+      modifier: 3
+    - location: 20  # воля
+      modifier: -15
+    - location: 24  # стойкость
+      modifier: -15
+    - location: 39  # реакция
+      modifier: -15
+    - location: 13  # макс.жизнь
+      modifier: 45
+
+# Object #3995
+95:
+  names:
+    aliases: топор благородной стали
+    nominative: топор благородной стали
+    genitive: топора благородной стали
+    dative: топору благородной стали
+    accusative: топор благородной стали
+    instrumental: топором благородной стали
+    prepositional: топоре благородной стали
+  short_desc: Сделанный из стали широкий топор лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 6
+    - 3
+  weight: 26
+  cost: 180
+  rent_off: 793
+  rent_on: 91
+  spec_param: 142
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+  affect_flags:
+    - kBless
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3996
+96:
+  names:
+    aliases: булава благородной стали
+    nominative: булава благородной стали
+    genitive: булавы благородной стали
+    dative: булаве благородной стали
+    accusative: булаву благородной стали
+    instrumental: булавой благородной стали
+    prepositional: булаве благородной стали
+  short_desc: Сделанная из стали большая булава лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 7
+    - 5
+  weight: 20
+  cost: 125
+  rent_off: 450
+  rent_on: 65
+  spec_param: 141
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  affect_flags:
+    - kNoFlee
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3997
+97:
+  names:
+    aliases: кривой кинжал благородной стали
+    nominative: кривой кинжал благородной стали
+    genitive: кривого кинжала благородной стали
+    dative: кривому кинжалу благородной стали
+    accusative: кривой кинжал благородной стали
+    instrumental: кривым кинжалом благородной стали
+    prepositional: кривом кинжале благородной стали
+  short_desc: Сделанный из стали кривой кинжал валяется здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 7
+    - 11
+  weight: 6
+  cost: 160
+  rent_off: 612
+  rent_on: 41
+  spec_param: 147
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3998
+98:
+  names:
+    aliases: лук благородной стали
+    nominative: лук благородной стали
+    genitive: лука благородной стали
+    dative: луку благородной стали
+    accusative: лук благородной стали
+    instrumental: луком благородной стали
+    prepositional: луке благородной стали
+  short_desc: Составленный из упругих стальных пластин лук лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 6
+    - 7
+    - 9
+  weight: 30
+  cost: 165
+  rent_off: 633
+  rent_on: 142
+  spec_param: 154
+  max_durability: 350
+  cur_durability: 350
+  timer: 30240
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kBoth
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #3999
+99:
+  names:
+    aliases: метательный нож небольшой
+    nominative: метательный нож
+    genitive: метательного ножа
+    dative: метательному ножу
+    accusative: метательный нож
+    instrumental: метательным ножом
+    prepositional: метательном ноже
+  short_desc: Небольшой нож предназначенный для метания лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 2
+    - 6
+    - 10
+  weight: 4
+  cost: 0
+  rent_off: 100
+  rent_on: 25
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 100
+  timer: 14400
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  applies:
+    - location: 41  # удача
+      modifier: 1

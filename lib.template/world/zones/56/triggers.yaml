@@ -1,0 +1,125 @@
+# Triggers for zone 56
+
+# Trigger #5600
+0:
+  name: зашел к рыбаку
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    if %world.curmobs(5611)% > 0
+      wait 5
+      say Здраве тебе, %actor.iname%!
+      say Не поможешь ли ты мне в одном деле?
+    else
+      attach 5606 %self%
+      detach 5601 %self%
+      detach 5603 %self%
+      detach 5600 %self%
+    end
+
+# Trigger #5601
+1:
+  name: сказал хорошо
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: помогу
+  trigger_types:
+    - kSpeech
+  script: |-2
+    detach 5600 %self%
+    wait 5
+    say Вот и хорошо!
+    say Теперь я не хожу на рыбалку, старым стал..
+    say А кушать хотца!
+    say А вот мелкую рыбу я не ем, привык к большой, к щуке например!
+    say Принеси мне кусочек, и я тебе за это заплачу!
+
+# Trigger #5602
+2:
+  name: убил щуку
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: load obj 5600
+
+# Trigger #5603
+3:
+  name: дал филе рыбаку
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if  %object.vnum% == 5600
+      mpurge %object%
+      echo Рыбак съел филе.
+      wait 3
+      облиз
+      say Вот спасибо тебе %actor.iname%!
+      wait 3
+      say Спас%actor.q% ты меня от голода!
+      say Вот возьми денег в награду!
+      %self.gold(+50)%
+      дать 50 кун %actor.iname%
+      detach 5601 %self%
+      detach 5603 %self%
+    else
+      say Мне это не нужно!
+      drop all
+    end
+
+# Trigger #5604
+4:
+  name: резет зоны
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kLoad
+  script: |-2
+    attach 5600 %self%
+    attach 5601 %self%
+    attach 5603 %self%
+    detach 5606 %self%
+
+# Trigger #5605
+5:
+  name: reset 56
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    wpurge %world.mob(5612)%
+    load mob 5612
+
+# Trigger #5606
+6:
+  name: дал что-нить рыбаку
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if  %object.vnum% == 5600
+      say  Ну это может и пригодиться..
+      wait 1
+      mpurge %object%
+    else
+      say Зачем мне это?
+    end
+
+# Trigger #5607
+7:
+  name: убилокуня
+  attach_type: kMobTrigger
+  narg: 10
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(5601)% < 100
+      load obj 5601
+    end

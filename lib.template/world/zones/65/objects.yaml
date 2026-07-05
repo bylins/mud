@@ -1,0 +1,622 @@
+# Objects for zone 65
+
+# Object #6500
+0:
+  names:
+    aliases: удобная охотничья сумка
+    nominative: охотничья сумка
+    genitive: охотничьей сумки
+    dative: охотничьей сумке
+    accusative: охотничью сумку
+    instrumental: охотничьей сумкой
+    prepositional: охотничьей сумке
+  short_desc: Удобная охотничья сумка валяется здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 600
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: удобная охотничья сумка
+      description: |2
+        Чрезвычайно удобная для охотника вещь - вместительная кожаная сумка.
+        Не звякает, не блестит, закрепляется на различных частях тела с помощью
+        множества ремешков.
+
+# Object #6501
+1:
+  names:
+    aliases: небольшой короткий топорик
+    nominative: короткий топорик
+    genitive: короткого топорика
+    dative: короткому топорику
+    accusative: короткий топорик
+    instrumental: коротким топориком
+    prepositional: коротком топорике
+  short_desc: Небольшой топор с коротким древком воткнут здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 5
+    - 4
+    - 3
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  spec_param: 142
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  extra_descriptions:
+    - keywords: небольшой короткий топорик
+      description: |2
+        Для профессионального лесоруба, конечно, такой топорик не годится. 
+        Однако охотнику, который часто заходит далеко в лес, большой топор 
+        показался бы слишком тяжелой ношей. Этим же небольшим топориком хоть 
+        и приходится побольше работать, все же лямку сумки не растянешь. 
+  triggers:
+    - 6523  # Топорик рожает птичку
+
+# Object #6502
+2:
+  names:
+    aliases: горка щепотка соли
+    nominative: щепотка соли
+    genitive: щепотки соли
+    dative: щепотке соли
+    accusative: щепотку соли
+    instrumental: щепоткой соли
+    prepositional: щепотке соли
+  short_desc: Маленькая горка соли насыпана кем-то здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 10
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: горка щепотка соли
+      description: |2
+        Лакомство для многих лесных жителей.
+        Также традиционно подается с хлебом,
+        чтобы не пресно было кушать.
+  triggers:
+    - 6519  # Хлеб-соль кладем
+
+# Object #6503
+3:
+  names:
+    aliases: высокое сухое дерево
+    nominative: сухое дерево
+    genitive: сухого дерева
+    dative: сухому дереву
+    accusative: сухое дерево
+    instrumental: сухим деревом
+    prepositional: сухом дереве
+  short_desc: Высокое сухое дерево, кажется, готово вот-вот упасть.
+  type: kContainer
+  material: 8  # ДЕРЕВО
+  values:
+    - 100
+    - 0
+    - -1
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: высокое сухое дерево
+      description: |2
+        Давно погибшее, но еще не упавшее дерево, испещренное 
+        многочисленными гусеницами и личинками, а так же, видимо, 
+        дятлом. На высоте около сажени виднеется крупное дупло.
+  triggers:
+    - 6504  # Рубим деревья
+
+# Object #6504
+4:
+  names:
+    aliases: высокое молодое дерево
+    nominative: молодое дерево
+    genitive: молодого дерева
+    dative: молодому дереву
+    accusative: молодое дерево
+    instrumental: молодым деревом
+    prepositional: молодом дереве
+  short_desc: Высокое молодое дерево растет здесь, крепко держась корнями за землю.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1000
+    - 0
+    - -1
+    - 0
+  weight: 20
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: высокое молодое дерево
+      description: |2
+        Молодое и сильное дерево, крепко вцепившееся в почву. 
+        Идеальный фундамент для создания уютного гнездышка, 
+        особенно с восточной стороны, в небольшом дупле. 
+  triggers:
+    - 6504  # Рубим деревья
+
+# Object #6505
+5:
+  names:
+    aliases: хрупкое гнездо птенцами
+    nominative: хрупкое гнездо с птенцами
+    genitive: хрупкого гнезда с птенцами
+    dative: хрупкому гнезду с птенцами
+    accusative: хрупкое гнездо с птенцами
+    instrumental: хрупким гнездом с птенцами
+    prepositional: хрупком гнезде с птенцами
+  short_desc: Хрупкое гнездо с малюсенькими птенцами лежит здесь.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  minimum_remorts: -1
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: хрупкое гнездо птенцами
+      description: |2
+        Аккуратнее! Птенчики то совсем малюсенькие еще, перьев даже не видать. 
+        Вообще вся конструкция гнезда рассчитана на лежание внутри дупла, а не на 
+        таскание в руках. Видимо, свившая это гнездо птичка совсем не из крупных. 
+  triggers:
+    - 6505  # Гнездо упало или положено
+    - 6514  # Взяли гнездо
+
+# Object #6506
+6:
+  names:
+    aliases: охапка сухих дрова
+    nominative: дрова
+    genitive: дров
+    dative: дровам
+    accusative: дрова
+    instrumental: дровами
+    prepositional: дровах
+  short_desc: Охапка сухих дров лежит здесь.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: охапка сухих дрова
+      description: |2
+        Довольно нехилая охапка дров. Замечательных, сухих дров, 
+        годных и для бездымного костра, и для быстрой растопки 
+        печи. 
+
+# Object #6507
+7:
+  names:
+    aliases: охапка дрова
+    nominative: дрова
+    genitive: дров
+    dative: дровам
+    accusative: дрова
+    instrumental: дровами
+    prepositional: дровах
+  short_desc: Охапка дров лежит здесь.
+  type: kOther
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: охапка дрова
+      description: |2
+        Довольно нехилая охапка дров. Правда вот сыроваты дровишки. 
+        Пожалуй сгодятся для разведения сигнального дымового огня. 
+
+# Object #6508
+8:
+  names:
+    aliases: небольшой пенек пень
+    nominative: пенек
+    genitive: пенька
+    dative: пеньку
+    accusative: пенек
+    instrumental: пеньком
+    prepositional: пеньке
+  short_desc: Небольшой пень торчит здесь из земли.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: небольшой пенек пень
+      description: |2
+        Обычный пенек от свежесрубленного Вами дерева. 
+        Не очень то широк, даже сидеть на таком, пожалуй, 
+        было бы неудобно. Хорошо было бы найти большой 
+        плоский пень - на нем можно было бы и требу 
+        хозяину леса оставить. 
+
+# Object #6509
+9:
+  names:
+    aliases: широкий чистый ручей
+    nominative: чистый ручей
+    genitive: чистого ручья
+    dative: чистому ручью
+    accusative: чистый ручей
+    instrumental: чистым ручьем
+    prepositional: чистом ручье
+  short_desc: Широкий ручей бежит здесь, лаская прозрачными водами камни своего русла.
+  type: kFountain
+  material: 16  # ОРГАНИКА
+  values:
+    - 1000
+    - 1000
+    - 15
+    - 0
+  weight: 1005
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kHum
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: широкий чистый ручей
+      description: |2
+        Широкий, местами даже глубокий лесной ручей. 
+        Редкие листики проплывают вниз по течению, 
+        кружась и отскакивая от торчащих из воды 
+        камней. Вода прозрачна как воздух - отражает. 
+
+# Object #6510
+10:
+  names:
+    aliases: охотничья фляжка
+    nominative: охотничья фляжка
+    genitive: охотничьей фляжки
+    dative: охотничьей фляжке
+    accusative: охотничью фляжку
+    instrumental: охотничьей фляжкой
+    prepositional: охотничьей фляжке
+  short_desc: Охотничья фляжка валяется здесь.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 0
+  rent_on: 0
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: охотничья фляжка
+      description: |2
+        Небольшая кожаная фляжка со вшитым костяным горлышком. 
+        В такой лучше не хранить ничего кроме воды, не то вкус 
+        впитается в кожу и будет преследовать охотника в будущем. 
+        Зато в любом, даже неглубоком ручье, можно &Wнабрать воды&n. 
+  triggers:
+    - 6515  # Наполнить фляжку
+
+# Object #6511
+11:
+  names:
+    aliases: ломоть хлеба
+    nominative: ломоть хлеба
+    genitive: ломтя хлеба
+    dative: ломтю хлеба
+    accusative: ломоть хлеба
+    instrumental: ломтем хлеба
+    prepositional: ломте хлеба
+  short_desc: Ломоть хлеба валяется здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 5
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: ломоть хлеба
+      description: |2
+        Небольшой кусок черного хлебушка. Вряд ли им 
+        можно наесться, но в качестве требы для лесного 
+        хозяина вполне сойдет... если соли добавить 
+        немного. 
+  triggers:
+    - 6519  # Хлеб-соль кладем
+
+# Object #6512
+12:
+  names:
+    aliases: кусок мяса мясо
+    nominative: мясо
+    genitive: мяса
+    dative: мясу
+    accusative: мясо
+    instrumental: мясом
+    prepositional: мясе
+  short_desc: Кусок мяса валяется здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 10
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кусок мяса мясо
+      description: |2
+        Большой кусок свежего мяса. При правильном хранении 
+        и экономном употреблении в пищу, способен прокормить 
+        охотника не одну неделю. Главное, чтобы совесть не 
+        мешала трапезе. 
+
+# Object #6513
+13:
+  names:
+    aliases: большой пень
+    nominative: большой пень
+    genitive: большого пня
+    dative: большому пню
+    accusative: большой пень
+    instrumental: большим пнем
+    prepositional: большом пне
+  short_desc: Большой пень торчит здесь из земли.
+  type: kOther
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 100
+    - 0
+    - -1
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: большой пень
+      description: |2
+        Широкий и гладкий пень срубленного давным-давно дерева.
+        Пожалуй, идеально подойдет для того, чтобы оставить на нем
+        требу для лесного хозяина.
+  triggers:
+    - 6518  # На пень кладут всякое
+
+# Object #6514
+14:
+  names:
+    aliases: серебристый гребешок
+    nominative: серебристый гребешок
+    genitive: серебристого гребешка
+    dative: серебристому гребешку
+    accusative: серебристый гребешок
+    instrumental: серебристым гребешком
+    prepositional: серебристом гребешке
+  short_desc: Серебристый гребешок оставлен кем-то здесь.
+  type: kWorm
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 200
+  cur_durability: 200
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHead

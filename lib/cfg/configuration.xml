@@ -163,8 +163,8 @@
 	-->
 	<!--
 	<thread_pools>
-		<loader>0</loader>
-		<savers>0</savers>
+		<loader>6</loader>
+		<savers>6</savers>
 	</thread_pools>
 	-->
 </configuration>

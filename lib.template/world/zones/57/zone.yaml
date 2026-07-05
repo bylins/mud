@@ -1,0 +1,13 @@
+# Zone #57
+
+vnum: 57
+name: Стартовые квесты для новых игроков в родовых.
+top_room: 5799
+lifespan: 50
+reset_mode: 2
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 5799
+under_construction: 0
+zone_group: 1  # solo

@@ -1,0 +1,325 @@
+# Objects for zone 59
+
+# Object #5900
+0:
+  names:
+    aliases: груда белых костей
+    nominative: груда костей
+    genitive: груды костей
+    dative: груде костей
+    accusative: груду костей
+    instrumental: грудой костей
+    prepositional: груде костей
+  short_desc: 'Груда белых костей на дне пруда силится выбраться наверх. '
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: груда белых костей
+      description: |2
+        Сильный же маг заколдовал эти кости, раз они
+        так рьяно пытаются выбраться из этого пруда.
+        Однако без чьей-нибудь помощи им явно оттуда
+        не вылезти.
+
+# Object #5901
+1:
+  names:
+    aliases: стеклянный шарик землей
+    nominative: шарик с землей
+    genitive: шарика с землей
+    dative: шарику с землей
+    accusative: шарик с землей
+    instrumental: шариком с землей
+    prepositional: шарике с землей
+  short_desc: 'Стеклянный шарик с горстью черной земли внутри катается здесь по полу. '
+  type: kMagicIngredient
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: стеклянный шарик землей
+      description: |2
+        Интересно, как внутрь этого шарика могла попасть земля?
+        Никаких швов, следов спайки или чего-то подобного.
+        Наверняка дело тут не обошлось без магии.
+  triggers:
+    - 5905  # Шарики работают
+
+# Object #5902
+2:
+  names:
+    aliases: сундук черного дерева
+    nominative: сундук из черного дерева
+    genitive: сундука из черного дерева
+    dative: сундуку из черного дерева
+    accusative: сундук из черного дерева
+    instrumental: сундуком из черного дерева
+    prepositional: сундуке из черного дерева
+  short_desc: 'Сундук из черного дерева завален книгами в углу. '
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 600
+    - 15
+    - -1
+    - 255
+  weight: 100
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: сундук черного дерева
+      description: |2
+        Темного цвета крепкий сундук, окованный металлическими пластинами.
+        Даже умелый тать вряд ли смог бы взломать такой. Разве что сбросив
+        его с обрыва на прибрежные скалы.
+
+# Object #5903
+3:
+  names:
+    aliases: стеклянный шарик огнем
+    nominative: шарик с огнем
+    genitive: шарика с огнем
+    dative: шарику с огнем
+    accusative: шарик с огнем
+    instrumental: шариком с огнем
+    prepositional: шарике с огнем
+  short_desc: 'Стеклянный шарик с пылающим в нем красным пламенем катается здесь по полу. '
+  type: kMagicIngredient
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: стеклянный шарик огнем
+      description: |2
+        Такие вещи и в руки то страшно брать.
+        Хотя при ближайшем рассмотрении оказывается,
+        что обжечься об это штуку невозможно - шарик
+        ничем не отличается на ощупь от всех остальных.
+  triggers:
+    - 5905  # Шарики работают
+
+# Object #5904
+4:
+  names:
+    aliases: стеклянный шарик тьмой
+    nominative: шарик с тьмой
+    genitive: шарика с тьмой
+    dative: шарику с тьмой
+    accusative: шарик с тьмой
+    instrumental: шариком с тьмой
+    prepositional: шарике с тьмой
+  short_desc: 'Стеклянный шарик с заключенной к нем тьмой катается здесь по полу. '
+  type: kMagicIngredient
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: стеклянный шарик тьмой
+      description: |2
+        Поначалу Вам показалось, что шарик просто окрашен
+        в черный цвет, но приглядевшись, Вы замечаете
+        какое-то странное движение внутри него. Тьма
+        клубится и ворочается внутри стеклянного сосуда,
+        ожидая момента, когда сможет вырваться на свободу.
+  triggers:
+    - 5905  # Шарики работают
+
+# Object #5905
+5:
+  names:
+    aliases: стеклянный пустой шарик
+    nominative: пустой шарик
+    genitive: пустого шарика
+    dative: пустому шарику
+    accusative: пустой шарик
+    instrumental: пустым шариком
+    prepositional: пустом шарике
+  short_desc: Стеклянный шарик катается здесь по полу.
+  type: kMagicIngredient
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: стеклянный пустой шарик
+      description: |2
+        Просто пустой шарик. Кому вообще в голову пришло взять
+        и запаять его, ничего внутрь не положив? Абсолютно
+        ненужная, на Ваш взгляд, вещь - воздух в стеклянном
+        сосуде.
+  triggers:
+    - 5905  # Шарики работают
+
+# Object #5906
+6:
+  names:
+    aliases: деревянная мышеловка
+    nominative: деревянная мышеловка
+    genitive: деревянной мышеловки
+    dative: деревянной мышеловке
+    accusative: деревянную мышеловку
+    instrumental: деревянной мышеловкой
+    prepositional: деревянной мышеловке
+  short_desc: 'Небольшая деревянная мышеловка ждет здесь свою добычу. '
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: деревянная мышеловка
+      description: |2
+        Простенькая по конструкции мышеловка - задел приманку,
+        умер. Взведена и готова убивать. Неужели здесь кто-то
+        живет и потому борется с мышами?
+
+# Object #5907
+7:
+  names:
+    aliases: захлопнувшаяся деревянная мышеловка
+    nominative: деревянная мышеловка
+    genitive: деревянной мышеловки
+    dative: деревянной мышеловке
+    accusative: деревянную мышеловку
+    instrumental: деревянной мышеловкой
+    prepositional: деревянной мышеловке
+  short_desc: 'Захлопнувшаяся деревянная мышеловка лежит здесь. '
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: захлопнувшаяся деревянная мышеловка
+      description: |2
+        Простенькая по конструкции мышеловка - задел приманку,
+        умер... Ну, или... очень больно получил рычагом по ноге!

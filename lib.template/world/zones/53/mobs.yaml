@@ -1,0 +1,684 @@
+# Mobs for zone 53
+
+# Mob #5300
+0:
+  names:
+    aliases: маленький муравей
+    nominative: маленький муравей
+    genitive: маленького муравья
+    dative: маленькому муравью
+    accusative: маленького муравья
+    instrumental: маленьким муравьем
+    prepositional: маленьком муравье
+  descriptions:
+    short_desc: |2
+      Маленький муравей что-то несет.
+    long_desc: |2
+         Обычный лесной муравей, самый трудолюбивый и аккуратный житель леса. Все время в работе, за что
+      люб поселянам.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 19
+    armor: 9
+    hp:
+      dice_count: 2
+      dice_size: 2
+      bonus: 15
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 40
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 2
+  race: 107
+  height: 10
+  weight: 200
+  attributes:
+    strength: 3
+    dexterity: 5
+    intelligence: 5
+    wisdom: 3
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  triggers:
+    - 5302  # умер муравей
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+
+# Mob #5301
+1:
+  names:
+    aliases: дятел
+    nominative: дятел
+    genitive: дятла
+    dative: дятлу
+    accusative: дятла
+    instrumental: дятлом
+    prepositional: дятле
+  descriptions:
+    short_desc: |2
+      Дятел сидит на дереве и долбит своим клювом по коре.
+    long_desc: |2
+         Черно-красный дятел сидит на дереве, крепко вцепившись когтями, и ищет в коре насекомых.
+      Иногда он начинает долбить по дереву, чтобы вытащить глубоко упрятавшегося жука или гусеницу.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 12
+    armor: 9
+    hp:
+      dice_count: 1
+      dice_size: 2
+      bonus: 110
+    damage:
+      dice_count: 1
+      dice_size: 5
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 103
+  height: 20
+  weight: 2
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 3
+    wisdom: 3
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 11
+    max_factor: 1
+
+# Mob #5302
+2:
+  names:
+    aliases: стрекоза
+    nominative: стрекоза
+    genitive: стрекозы
+    dative: стрекозе
+    accusative: стрекозу
+    instrumental: стрекозой
+    prepositional: стрекозе
+  descriptions:
+    short_desc: |2
+      Стрекоза летает тут, громка жужжа крыльями.
+    long_desc: |2
+         Стрекоза, будто застыв в воздухе, летает над землей. Вдруг резкий рывок, и стрекоза уже застыла в новом
+      положении.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 15
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 40
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 100
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 107
+  height: 10
+  weight: 200
+  attributes:
+    strength: 5
+    dexterity: 16
+    intelligence: 3
+    wisdom: 3
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 2
+
+# Mob #5303
+3:
+  names:
+    aliases: капустница белая
+    nominative: капустница
+    genitive: капустницы
+    dative: капустнице
+    accusative: капустницу
+    instrumental: капустницей
+    prepositional: капустнице
+  descriptions:
+    short_desc: |2
+      Белая капустница летает тут.
+    long_desc: |2
+         Бабочка капустница с белыми крылышками и черными пятнами в углах летает от цветка к цветку.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 15
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 20
+    damage:
+      dice_count: 1
+      dice_size: 5
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 60
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 104
+  height: 3
+  weight: 200
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsSpring
+    - kAppearsSummer
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 12
+
+# Mob #5304
+4:
+  names:
+    aliases: майский жук
+    nominative: майский жук
+    genitive: майского жука
+    dative: майскому жуку
+    accusative: майского жука
+    instrumental: майским жуком
+    prepositional: майском жуке
+  descriptions:
+    short_desc: |2
+      Майский жук сидит тут.
+    long_desc: |2
+         Большой жук сидит на травинке. Прозван майским так 
+      как первый извещает о начале теплой погоды в мае.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 18
+    armor: 7
+    hp:
+      dice_count: 2
+      dice_size: 8
+      bonus: 120
+    damage:
+      dice_count: 1
+      dice_size: 5
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 800
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 107
+  height: 2
+  weight: 200
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 12
+
+# Mob #5305
+5:
+  names:
+    aliases: гусеница
+    nominative: гусеница
+    genitive: гусеницы
+    dative: гусенице
+    accusative: гусеницу
+    instrumental: гусеницей
+    prepositional: гусенице
+  descriptions:
+    short_desc: |2
+      Гусеница ползет здесь, изгибаясь.
+    long_desc: |2
+         Небольшая мохнатая гусеница ползет в поисках свежей и вкусной листвы.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 15
+    armor: 7
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 50
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 75
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 104
+  height: 2
+  weight: 200
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 12
+
+# Mob #5306
+6:
+  names:
+    aliases: шмель
+    nominative: шмель
+    genitive: шмеля
+    dative: шмелю
+    accusative: шмеля
+    instrumental: шмелем
+    prepositional: шмеле
+  descriptions:
+    short_desc: |2
+      Шмель летает тут, грозно жужжа.
+    long_desc: |2
+      Толстый шмель летает в поисках цветов.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 10
+      bonus: 50
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 400
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 107
+  height: 1
+  weight: 200
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 4
+
+# Mob #5307
+7:
+  names:
+    aliases: лесной паук
+    nominative: лесной паук
+    genitive: лесного паука
+    dative: лесному пауку
+    accusative: лесного паука
+    instrumental: лесным пауком
+    prepositional: лесном пауке
+  descriptions:
+    short_desc: |2
+      Лесной паук плетет паутину здесь.
+    long_desc: |2
+      Лесной паук плетет паутину и ловит насекомых.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 150
+    damage:
+      dice_count: 1
+      dice_size: 7
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 4000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 107
+  height: 10
+  weight: 200
+  attributes:
+    strength: 11
+    dexterity: 10
+    intelligence: 15
+    wisdom: 3
+    constitution: 11
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kHide
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+    - skill_id: 137  # спасти
+      value: 50
+  triggers:
+    - 5300  # умерпаук
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 12
+    like_work: 95
+    max_factor: 1
+    extra_attack: 1
+    spells:
+      - 37
+      - 37
+      - 37
+      - 37
+      - 37
+      - 76
+
+# Mob #5308
+8:
+  names:
+    aliases: паучок
+    nominative: паучок
+    genitive: паучка
+    dative: паучку
+    accusative: паучка
+    instrumental: паучком
+    prepositional: паучке
+  descriptions:
+    short_desc: |2
+      Паучок ползает здесь.
+    long_desc: |2
+         Маленький паучок ползает по паутине.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 15
+    armor: 10
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 40
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 2
+  race: 107
+  height: 2
+  weight: 200
+  attributes:
+    strength: 4
+    dexterity: 8
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 12
+
+# Mob #5309
+9:
+  names:
+    aliases: медведь-шатун
+    nominative: медведь-шатун
+    genitive: медведя-шатуна
+    dative: медведю-шатуну
+    accusative: медведя-шатуна
+    instrumental: медведем-шатуном
+    prepositional: медведе-шатуне
+  descriptions:
+    short_desc: |2
+      Рассерженный медведь-шатун бродит здесь.
+    long_desc: |2
+      Обычный медведь, только вот какой-то рассерженный.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 1
+      dice_size: 10
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 198
+  weight: 100
+  attributes:
+    strength: 15
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 15
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsWinter
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 132  # сбить
+      value: 20
+    - skill_id: 136  # кулачный бой
+      value: 36
+  triggers:
+    - 5301  # умершатун
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 6
+    like_work: 60
+    max_factor: 1

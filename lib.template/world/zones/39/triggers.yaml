@@ -1,0 +1,148 @@
+# Triggers for zone 39
+
+# Trigger #3900
+0:
+  name: загрузка стаффа в магазины - пока так
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    switch %self.vnum%
+      case 62007
+        set vnum 3932
+      break
+      default
+        halt
+      break
+    done
+    echo %self.name% достал из загашника какие-то вещи и принялся развешивать их на прилавке.
+    set i 0
+    while %i% < 8
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      load obj %vnum%
+      eval i %i%+1
+      eval vnum %vnum%+1
+    done
+    detach 3900 %self%
+
+# Trigger #3901
+1:
+  name: лоад метательного ножа
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: достать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    eval first %arg.words(1)%
+    eval secnd %arg.words(2)%
+    if (%secnd.contains(нож)% && (%first% > 1))
+      if (%world.curobjs(3966)% >= 500)
+        osend %actor% Вы пошарили рукой в поясе, но ножи кончились!
+        halt
+      end
+      if (%first% > 10)
+        eval first 10
+        osend %actor% Столько ножей сразу Вам не вытащить.
+      end
+      while (%first% > 0)
+        load obj 3966
+        calcuid knife 3966 obj
+        eval temp %knife.put(%actor%)%
+        eval temp %knife.owner(%actor.uniq%)%
+        eval first %first%-1
+      done
+      osend %actor% Вы достали несколько метательных ножей из пояса с метательными ножами.
+      echoaround %actor% %actor.iname% достал%actor.g% несколько метательных ножей из пояса.
+      halt
+    end
+    if (%first% == нож)
+      if %world.curobjs(3966)% >= 500
+        osend %actor% Вы пошарили рукой в поясе, но ножи кончились!
+        halt
+      end
+      load obj 3966
+      calcuid knife 3966 obj
+      osend %actor% Вы достали метательный нож из пояса с метательными ножами.
+      echoaround %actor% %actor.iname% достал%actor.g% метательный нож из пояса.
+      eval temp %knife.put(%actor%)%
+      eval temp %knife.owner(%actor.uniq%)%
+    else
+      osend %actor% Что вы хотите достать?
+    end
+
+# Trigger #3902
+2:
+  name: Пуржим ножи при метании
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: ме
+  trigger_types:
+    - kCommand
+  script: |-2
+    return 0
+    halt
+    if (%cmd.mudcommand% == метнуть)
+      wait 2s
+      eval carrier %self.carriedby%
+      if (%carrier.vnum% != -1)
+        %purge% %self%
+      end
+    end
+
+# Trigger #3903
+3:
+  name: Достаем нож из пояса (не одет)
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: достать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    eval first %arg.words(1)%
+    eval secnd %arg.words(2)%
+    if (%secnd.contains(нож)% && (%first% > 1))
+      if (%world.curobjs(3966)% >= 500)
+        osend %actor% Вы пошарили рукой в поясе, но ножи кончились!
+        halt
+      end
+      if (%first% > 10)
+        eval first 10
+        osend %actor% Столько ножей сразу Вам не вытащить.
+      end
+      while (%first% > 0)
+        load obj 3966
+        calcuid knife 3966 obj
+        eval temp %knife.put(%actor%)%
+        eval temp %knife.owner(%actor.uniq%)%
+        eval first %first%-1
+      done
+      osend %actor% Вы достали несколько метательных ножей из пояса с метательными ножами.
+      echoaround %actor% %actor.iname% достал%actor.g% несколько метательных ножей из пояса.
+      halt
+    end
+    if (%first% == нож)
+      if %world.curobjs(3966)% >= 500
+        osend %actor% Вы пошарили рукой в поясе, но ножи кончились!
+        halt
+      end
+      load obj 3966
+      calcuid knife 3966 obj
+      osend %actor% Вы достали метательный нож из пояса с метательными ножами.
+      echoaround %actor% %actor.iname% достал%actor.g% метательный нож из пояса.
+      eval temp %knife.put(%actor%)%
+      eval temp %knife.owner(%actor.uniq%)%
+    else
+      osend %actor% Что вы хотите достать?
+    end

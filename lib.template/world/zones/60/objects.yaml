@@ -1,0 +1,253 @@
+# Objects for zone 60
+
+# Object #6000
+0:
+  names:
+    aliases: идол изваяние деревянный
+    nominative: идол
+    genitive: идола
+    dative: идолу
+    accusative: идол
+    instrumental: идолом
+    prepositional: идоле
+  short_desc: Деревянное изваяние языческого бога стоит здесь посередине капища.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 50
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: -1
+  cur_durability: -1
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+
+# Object #6001
+1:
+  names:
+    aliases: колодец
+    nominative: колодец
+    genitive: колодца
+    dative: колодцу
+    accusative: колодец
+    instrumental: колодцем
+    prepositional: колодце
+  short_desc: Колодец выкопан здесь.
+  action_desc: |2
+    Вы можете набрать воды отсюда.
+  type: kFountain
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 999
+    - 999
+    - 0
+    - 0
+  weight: 1004
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kMagic
+    - kNodecay
+
+# Object #6002
+2:
+  names:
+    aliases: объявление доска
+    nominative: объявление
+    genitive: объявления
+    dative: объявлению
+    accusative: объявление
+    instrumental: объявлением
+    prepositional: объявлении
+  short_desc: Вы видите прибитое к доске  около прилавка объявление.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  affect_flags:
+    - kDetectMagic
+  extra_descriptions:
+    - keywords: объявление
+      description: |2
+           Приветствую тебя путник, я умею выделывать шкурки животных, и я заплачу,
+        если ты принесешь мне труп ценного пушного зверя. Кстати, в деревне развелось
+        много мышей, они портят мои товары, я буду платить за каждый принесенный 
+        мне труп.
+
+# Object #6003
+3:
+  names:
+    aliases: тяжелая решетка с замком
+    nominative: тяжелая решетка с замком
+    genitive: тяжелой решетки с замком
+    dative: тяжелой решетке с замком
+    accusative: тяжелую решетку с замком
+    instrumental: тяжелой решеткой с замком
+    prepositional: тяжелое решетке с замком
+  short_desc: Тяжелая решетка с замком закрывает что-то здесь.
+  type: kOther
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 1
+    - 5
+    - 11
+  weight: 200
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kZonedecay
+    - kNodecay
+
+# Object #6004
+4:
+  names:
+    aliases: карта окрестностей степной деревни
+    nominative: карта окрестностей степной деревни
+    genitive: карты окрестностей степной деревни
+    dative: карте окрестностей степной деревни
+    accusative: карту окрестностей степной деревни
+    instrumental: картой окрестностей степной деревни
+    prepositional: карте окрестностей степной деревни
+  short_desc: Карта окрестностей степной деревни лежит здесь.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 240
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 100000
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kDecay
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: карта
+      description: |2
+        Достаточно_грубая,_но_понятная_схема_деревни_и_прилегающей_местности.
+        _______________________________(пустырь)---|
+        ___________________________________________|
+        ___________________________|-----------(в_степи)
+        ____________________крепкие_ворота
+        ___________________________|
+        _____(разрушенная_башня)_-_|
+        ___________________________|
+        _____________________воин--|-охотник_____капище
+        ___________________________|____(огороды)__|__(колодец)__восточные
+        ___________________________|-----------+---------------__ворота
+        _______________________________________|___|
+        ______умелец___________________________|___знахарка
+        _скорняк-|-кузнец______________________|-травница
+        _________|_____________________________|
+        ___ведун-|---------+------------+------+-------------
+        _________|_________|-кладовщик__|____гридня_________|
+        _____отшельник__староста________|\_______________трактир
+        ________________________________|_(баня)______комнаты_отдыха
+        ________________________________|___________________________
+        ________________________________|___следопыт
+        ________________________________|------+
+        ____________________________грязный_проулок
+        Обозначения:_в_скобках_направления_или_названия_местностей-зон
+
+# Object #6005
+5:
+  names:
+    aliases: деревянная табличка
+    nominative: табличка
+    genitive: таблички
+    dative: табличке
+    accusative: табличку
+    instrumental: табличкой
+    prepositional: табличке
+  short_desc: Деревянная табличка закреплена на видном месте.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: деревянная табличка
+      description: |2
+        +--------------------------------------------------------------------+
+        |     По наказу головы деревни помогать молодым воинам экипировкой,  |
+        |  обязуюсь выдавать набор вещей каждому нуждающемуся. Обращайтесь,  |
+        |  не стесняйтесь.  Найдется у нас и наготу чем прикрыть, и тварей   |
+        |  богопротивных чем порубить, и пиршество чем устроить за победу.   |
+        |                                                        Кладовщик   |
+        +--------------------------------------------------------------------+

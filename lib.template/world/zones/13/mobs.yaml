@@ -1,0 +1,688 @@
+# Mobs for zone 13
+
+# Mob #1300
+0:
+  names:
+    aliases: пакость кузнец
+    nominative: молодой подмастерье
+    genitive: молодого подмастерья
+    dative: молодому подмастерью
+    accusative: молодого подмастерья
+    instrumental: молодым подмастерьем
+    prepositional: молодом подмастерье
+  descriptions:
+    short_desc: |2
+      Деревенский парнишка - подмастерье местного кузнеца что-то разыскивает здесь.
+    long_desc: |2
+      Молодой парнишка в простой одежде, подпоясанной узким ремешком
+      несет на плече вместительную торбу.
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 250
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 21
+  experience: 13005
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 23
+    dexterity: 16
+    intelligence: 13
+    wisdom: 12
+    constitution: 18
+    charisma: 12
+  action_flags:
+    - kNpc
+    - kWimpy
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 5  # оглушить
+      value: 5
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 18
+    like_work: 30
+    max_factor: 2
+    extra_attack: 1
+
+# Mob #1301
+1:
+  names:
+    aliases: пакость кузнец
+    nominative: кузнец
+    genitive: кузнеца
+    dative: кузнецу
+    accusative: кузнец
+    instrumental: кузнецом
+    prepositional: кузнеце
+  descriptions:
+    short_desc: |2
+      Крепкий плечистый мужик с кожаным мешком за плечами торопится по своим делам.
+    long_desc: |2
+      Широкоплечий мужик, с опаленной местами черной бородищей
+      и мозолистыми руками, по которым из-за пятен ожогов
+      и въевшейся черноты от постоянной возни с железом
+      безошибочно узнается кузнец.
+  alignment: 0
+  stats:
+    level: 22
+    hitroll_penalty: 12
+    armor: -2
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 450
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 6
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 200
+  experience: 83957
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 15
+    intelligence: 13
+    wisdom: 12
+    constitution: 15
+    charisma: 12
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoGroup
+    - kLooter
+  affect_flags:
+    - kBless
+  skills:
+    - skill_id: 5  # оглушить
+      value: 59
+    - skill_id: 136  # кулачный бой
+      value: 40
+    - skill_id: 142  # секиры
+      value: 40
+  triggers:
+    - 1306  # лоад железных предметов ╧1
+  enhanced:
+    absorb: 22
+    like_work: 40
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1
+    spells:
+      - 15
+      - 15
+      - 23
+
+# Mob #1302
+2:
+  names:
+    aliases: пакость кузнец
+    nominative: кузнец
+    genitive: кузнеца
+    dative: кузнецу
+    accusative: кузнец
+    instrumental: кузнецом
+    prepositional: кузнеце
+  descriptions:
+    short_desc: |2
+      Кузнец из ближайшей деревни торопится куда-то по делу.
+    long_desc: |2
+      Широкоплечий мужик, с опаленной местами черной бородищей
+      и мозолистыми руками, по которым из-за пятен ожогов
+      и въевшейся черноты от постоянной возни с железом
+      безошибочно узнается кузнец.
+  alignment: 0
+  stats:
+    level: 29
+    hitroll_penalty: 12
+    armor: -2
+    hp:
+      dice_count: 10
+      dice_size: 20
+      bonus: 850
+    damage:
+      dice_count: 5
+      dice_size: 7
+      bonus: 12
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 250
+  experience: 120000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 28
+    dexterity: 23
+    intelligence: 16
+    wisdom: 15
+    constitution: 20
+    charisma: 16
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoGroup
+    - kLooter
+  affect_flags:
+    - kBless
+  skills:
+    - skill_id: 5  # оглушить
+      value: 90
+    - skill_id: 12  # веерная защита
+      value: 50
+    - skill_id: 22  # осторожный стиль
+      value: 40
+    - skill_id: 132  # сбить
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 40
+    - skill_id: 142  # секиры
+      value: 40
+  triggers:
+    - 1302  # лоад булатных предметов ╧1
+  enhanced:
+    absorb: 29
+    like_work: 80
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+    spells:
+      - 15
+      - 15
+      - 15
+      - 15
+      - 23
+      - 55
+      - 55
+
+# Mob #1303
+3:
+  names:
+    aliases: пакость кузнец
+    nominative: молодой подмастерье
+    genitive: молодого подмастерья
+    dative: молодому подмастерью
+    accusative: молодого подмастерья
+    instrumental: молодым подмастерьем
+    prepositional: молодом подмастерье
+  descriptions:
+    short_desc: |2
+      Деревенский парнишка - подмастерье местного кузнеца что-то разыскивает здесь.
+    long_desc: |2
+      Молодой парнишка в простой одежде, подпоясанной узким ремешком
+      несет на плече вместительную торбу.
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 250
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 21
+  experience: 13005
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 23
+    dexterity: 16
+    intelligence: 13
+    wisdom: 12
+    constitution: 18
+    charisma: 12
+  action_flags:
+    - kNpc
+    - kWimpy
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 5  # оглушить
+      value: 5
+    - skill_id: 136  # кулачный бой
+      value: 15
+  triggers:
+    - 1301  # лоад бронзовых предметов ╧2
+  enhanced:
+    absorb: 18
+    like_work: 30
+    max_factor: 2
+    extra_attack: 1
+
+# Mob #1304
+4:
+  names:
+    aliases: пакость кузнец
+    nominative: кузнец
+    genitive: кузнеца
+    dative: кузнецу
+    accusative: кузнец
+    instrumental: кузнецом
+    prepositional: кузнеце
+  descriptions:
+    short_desc: |2
+      Крепкий плечистый мужик с кожаным мешком за плечами торопится по своим делам.
+    long_desc: |2
+      Широкоплечий мужик, с опаленной местами черной бородищей
+      и мозолистыми руками, по которым из-за пятен ожогов
+      и въевшейся черноты от постоянной возни с железом
+      безошибочно узнается кузнец.
+  alignment: 0
+  stats:
+    level: 22
+    hitroll_penalty: 12
+    armor: -2
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 450
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 6
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 200
+  experience: 83957
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 15
+    intelligence: 13
+    wisdom: 12
+    constitution: 15
+    charisma: 12
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoGroup
+    - kLooter
+  affect_flags:
+    - kBless
+  skills:
+    - skill_id: 5  # оглушить
+      value: 59
+    - skill_id: 136  # кулачный бой
+      value: 40
+    - skill_id: 142  # секиры
+      value: 40
+  triggers:
+    - 1307  # лоад железных предметов ╧2
+  enhanced:
+    absorb: 22
+    like_work: 40
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1
+    spells:
+      - 15
+      - 15
+      - 23
+
+# Mob #1305
+5:
+  names:
+    aliases: пакость кузнец
+    nominative: кузнец
+    genitive: кузнеца
+    dative: кузнецу
+    accusative: кузнец
+    instrumental: кузнецом
+    prepositional: кузнеце
+  descriptions:
+    short_desc: |2
+      Крепкий плечистый мужик с кожаным мешком за плечами торопится по своим делам.
+    long_desc: |2
+      Широкоплечий мужик, с опаленной местами черной бородищей
+      и мозолистыми руками, по которым из-за пятен ожогов
+      и въевшейся черноты от постоянной возни с железом
+      безошибочно узнается кузнец.
+  alignment: 0
+  stats:
+    level: 22
+    hitroll_penalty: 12
+    armor: -2
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 450
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 6
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 200
+  experience: 83957
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 15
+    intelligence: 13
+    wisdom: 12
+    constitution: 15
+    charisma: 12
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoGroup
+    - kLooter
+  affect_flags:
+    - kBless
+  skills:
+    - skill_id: 5  # оглушить
+      value: 59
+    - skill_id: 136  # кулачный бой
+      value: 40
+    - skill_id: 142  # секиры
+      value: 40
+  triggers:
+    - 1304  # лоад стальных предметов ╧1
+  enhanced:
+    absorb: 22
+    like_work: 40
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1
+    spells:
+      - 15
+      - 15
+      - 23
+
+# Mob #1306
+6:
+  names:
+    aliases: пакость кузнец
+    nominative: кузнец
+    genitive: кузнеца
+    dative: кузнецу
+    accusative: кузнеца
+    instrumental: кузнецом
+    prepositional: кузнеце
+  descriptions:
+    short_desc: |2
+      Кузнец из ближайшей деревни торопится куда-то по делу.
+    long_desc: |2
+      Широкоплечий мужик, с опаленной местами черной бородищей
+      и мозолистыми руками, по которым из-за пятен ожогов
+      и въевшейся черноты от постоянной возни с железом
+      безошибочно узнается кузнец.
+  alignment: 0
+  stats:
+    level: 29
+    hitroll_penalty: 12
+    armor: -2
+    hp:
+      dice_count: 10
+      dice_size: 20
+      bonus: 850
+    damage:
+      dice_count: 5
+      dice_size: 7
+      bonus: 12
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 250
+  experience: 120000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 28
+    dexterity: 23
+    intelligence: 16
+    wisdom: 15
+    constitution: 20
+    charisma: 16
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoGroup
+    - kLooter
+  affect_flags:
+    - kBless
+  skills:
+    - skill_id: 5  # оглушить
+      value: 90
+    - skill_id: 12  # веерная защита
+      value: 50
+    - skill_id: 22  # осторожный стиль
+      value: 40
+    - skill_id: 132  # сбить
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 40
+    - skill_id: 142  # секиры
+      value: 40
+  triggers:
+    - 1303  # лоад булатных предметов ╧2
+  enhanced:
+    absorb: 29
+    like_work: 80
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+    spells:
+      - 15
+      - 15
+      - 15
+      - 15
+      - 23
+      - 55
+      - 55
+
+# Mob #1307
+7:
+  names:
+    aliases: пакость кузнец
+    nominative: кузнец
+    genitive: кузнеца
+    dative: кузнецу
+    accusative: кузнец
+    instrumental: кузнецом
+    prepositional: кузнеце
+  descriptions:
+    short_desc: |2
+      Кузнец из ближайшей деревни торопится куда-то по делу.
+    long_desc: |2
+      Широкоплечий мужик, с опаленной местами черной бородищей
+      и мозолистыми руками, по которым из-за пятен ожогов
+      и въевшейся черноты от постоянной возни с железом
+      безошибочно узнается кузнец.
+  alignment: 0
+  stats:
+    level: 29
+    hitroll_penalty: 12
+    armor: -2
+    hp:
+      dice_count: 10
+      dice_size: 20
+      bonus: 850
+    damage:
+      dice_count: 5
+      dice_size: 7
+      bonus: 12
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 250
+  experience: 120000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 28
+    dexterity: 23
+    intelligence: 16
+    wisdom: 15
+    constitution: 20
+    charisma: 16
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoGroup
+    - kLooter
+  affect_flags:
+    - kBless
+  skills:
+    - skill_id: 5  # оглушить
+      value: 90
+    - skill_id: 12  # веерная защита
+      value: 50
+    - skill_id: 22  # осторожный стиль
+      value: 40
+    - skill_id: 132  # сбить
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 40
+    - skill_id: 142  # секиры
+      value: 40
+  triggers:
+    - 1305  # лоад стальных предметов ╧2
+  enhanced:
+    absorb: 29
+    like_work: 80
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+    spells:
+      - 15
+      - 15
+      - 15
+      - 15
+      - 23
+      - 55
+      - 55

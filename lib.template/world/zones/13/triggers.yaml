@@ -1,0 +1,81 @@
+# Triggers for zone 13
+
+# Trigger #1300
+0:
+  name: лоад бронзовых предметов ╧1
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1300 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'
+
+# Trigger #1301
+1:
+  name: лоад бронзовых предметов ╧2
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1301 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'
+
+# Trigger #1302
+2:
+  name: лоад булатных предметов ╧1
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1302 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'
+
+# Trigger #1303
+3:
+  name: лоад булатных предметов ╧2
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1302 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'
+
+# Trigger #1304
+4:
+  name: лоад стальных предметов ╧1
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1302 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'
+
+# Trigger #1305
+5:
+  name: лоад стальных предметов ╧2
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1302 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'
+
+# Trigger #1306
+6:
+  name: лоад железных предметов ╧1
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1302 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'
+
+# Trigger #1307
+7:
+  name: лоад железных предметов ╧2
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kLoad
+  script: 'log &GСработал триггер 1302 на мобе %self.iname% (%self.vnum%)! Убрать с него эту гадость!!!&n'

@@ -1,0 +1,764 @@
+# Objects for zone 31
+
+# Object #3100
+0:
+  names:
+    aliases: шаблон оружия крафта дубина
+    nominative: шаблон оружия для крафта -- дубина
+    genitive: шаблона оружия для крафта -- дубина
+    dative: шаблону оружия для крафта -- дубина
+    accusative: шаблон оружия для крафта -- дубина
+    instrumental: шаблоном оружия для крафта -- дубина
+    prepositional: шаблоне оружия для крафта -- дубина
+  short_desc: Совершенно недоделанный шаблон дубины кувыркается в воздухе! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 141
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3101
+1:
+  names:
+    aliases: шаблон оружия крафта секира
+    nominative: шаблон оружия для крафта -- секира
+    genitive: шаблона оружия для крафта -- секира
+    dative: шаблону оружия для крафта -- секира
+    accusative: шаблон оружия для крафта -- секира
+    instrumental: шаблоном оружия для крафта -- секира
+    prepositional: шаблоне оружия для крафта -- секира
+  short_desc: Совершенно недоделанный шаблон секиры воткнут тут в воздух! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 142
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3102
+2:
+  names:
+    aliases: шаблон оружия крафта длинные лезвия
+    nominative: шаблон оружия для крафта -- длинные лезвия
+    genitive: шаблона оружия для крафта -- длинные лезвия
+    dative: шаблону оружия для крафта -- длинные лезвия
+    accusative: шаблон оружия для крафта -- длинные лезвия
+    instrumental: шаблоном оружия для крафта -- длинные лезвия
+    prepositional: шаблоне оружия для крафта -- длинные лезвия
+  short_desc: Совершенно недоделанный шаблон длинного лезвия воткнут тут! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 143
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3103
+3:
+  names:
+    aliases: шаблон оружия крафта короткие лезвия
+    nominative: шаблон оружия для крафта -- короткие лезвия
+    genitive: шаблона оружия для крафта -- короткие лезвия
+    dative: шаблону оружия для крафта -- короткие лезвия
+    accusative: шаблон оружия для крафта -- короткие лезвия
+    instrumental: шаблоном оружия для крафта -- короткие лезвия
+    prepositional: шаблоне оружия для крафта -- короткие лезвия
+  short_desc: Совершенно недоделанный шаблон короткого лезвиря норовит кольнуть вас пониже спины! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 144
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3104
+4:
+  names:
+    aliases: шаблон оружия крафта иное
+    nominative: шаблон оружия для крафта -- иное
+    genitive: шаблона оружия для крафта -- иное
+    dative: шаблону оружия для крафта -- иное
+    accusative: шаблон оружия для крафта -- иное
+    instrumental: шаблоном оружия для крафта -- иное
+    prepositional: шаблоне оружия для крафта -- иное
+  short_desc: Совершенно недоделанный шаблон иного оружия пытается совершить над вами нетчо противоестественное! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 145
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3105
+5:
+  names:
+    aliases: шаблон оружия крафта двуручник
+    nominative: шаблон оружия для крафта -- двуручник
+    genitive: шаблона оружия для крафта -- двуручник
+    dative: шаблону оружия для крафта -- двуручник
+    accusative: шаблон оружия для крафта -- двуручник
+    instrumental: шаблоном оружия для крафта -- двуручник
+    prepositional: шаблоне оружия для крафта -- двуручник
+  short_desc: Совершенно недоделанный шаблон двуручника грозит порвать ткань Мироздания! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 146
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+
+# Object #3106
+6:
+  names:
+    aliases: шаблон оружия крафта проникающее
+    nominative: шаблон оружия для крафта -- проникающее
+    genitive: шаблона оружия для крафта -- проникающее
+    dative: шаблону оружия для крафта -- проникающее
+    accusative: шаблон оружия для крафта -- проникающее
+    instrumental: шаблоном оружия для крафта -- проникающее
+    prepositional: шаблоне оружия для крафта -- проникающее
+  short_desc: Совершенно недоделанный шаблон проникающего оружия пытается куда-то проникнуть! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 147
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3107
+7:
+  names:
+    aliases: шаблон оружия крафта копье
+    nominative: шаблон оружия для крафта -- копье
+    genitive: шаблона оружия для крафта -- копье
+    dative: шаблону оружия для крафта -- копье
+    accusative: шаблон оружия для крафта -- копье
+    instrumental: шаблоном оружия для крафта -- копье
+    prepositional: шаблоне оружия для крафта -- копье
+  short_desc: Совершенно недоделанный шаблон копья выглядит крайне угрожающе! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 148
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #3108
+8:
+  names:
+    aliases: шаблон оружия крафта лук
+    nominative: шаблон оружия для крафта -- лук
+    genitive: шаблона оружия для крафта -- лук
+    dative: шаблону оружия для крафта -- лук
+    accusative: шаблон оружия для крафта -- лук
+    instrumental: шаблоном оружия для крафта -- лук
+    prepositional: шаблоне оружия для крафта -- лук
+  short_desc: Совершенно недоделанный шаблон лук выгнут крайне противоестественно! СООБЩИТЕ БОГАМ!
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 10
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  spec_param: 154
+  max_durability: 150
+  cur_durability: 150
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #3109
+9:
+  names:
+    aliases: шаблон предмета экипировки крафта пальцы
+    nominative: шаблон предмета экипировки для крафта -- пальцы
+    genitive: шаблона предмета экипировки для крафта -- пальцы
+    dative: шаблону предмета экипировки для крафта -- пальцы
+    accusative: шаблон предмета экипировки для крафта -- пальцы
+    instrumental: шаблоном предмета экипировки для крафта -- пальцы
+    prepositional: шаблоне предмета экипировки для крафта -- пальцы
+  short_desc: Совершенно недоделанный шаблон жуковинья лежит тут. СООБЩИТЕ БОГАМ!
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kFinger
+
+# Object #3110
+10:
+  names:
+    aliases: шаблон предмета экипировки крафта шея
+    nominative: шаблон предмета экипировки для крафта -- шея
+    genitive: шаблона предмета экипировки для крафта -- шея
+    dative: шаблону предмета экипировки для крафта -- шея
+    accusative: шаблон предмета экипировки для крафта -- шея
+    instrumental: шаблоном предмета экипировки для крафта -- шея
+    prepositional: шаблоне предмета экипировки для крафта -- шея
+  short_desc: Совершенно недоделанный шаблон ожерелья лежит тут. СООБЩИТЕ БОГАМ!
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kNeck
+
+# Object #3111
+11:
+  names:
+    aliases: шаблон предмета экипировки крафта тело
+    nominative: шаблон предмета экипировки для крафта -- тело
+    genitive: шаблонв предмета экипировки для крафта -- тело
+    dative: шаблону предмета экипировки для крафта -- тело
+    accusative: шаблон предмета экипировки для крафта -- тело
+    instrumental: шаблоном предмета экипировки для крафта -- тело
+    prepositional: шаблоне предмета экипировки для крафта -- тело
+  short_desc: Совершенно недоделанный шаблон доспеха ползает тут. СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 30
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #3112
+12:
+  names:
+    aliases: шаблон предмета экипировки крафта голова
+    nominative: шаблон предмета экипировки для крафта -- голова
+    genitive: шаблона предмета экипировки для крафта -- голова
+    dative: шаблону предмета экипировки для крафта -- голова
+    accusative: шаблон предмета экипировки для крафта -- голова
+    instrumental: шаблоном предмета экипировки для крафта -- голова
+    prepositional: шаблономе предмета экипировки для крафта -- голова
+  short_desc: Совершенно недоделанный шаблон шлема сам норовить нахлобучиться на голову! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 3
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #3113
+13:
+  names:
+    aliases: шаблон предмета экипировки крафта ноги
+    nominative: шаблон предмета экипировки для крафта -- ноги
+    genitive: шаблона предмета экипировки для крафта -- ноги
+    dative: шаблону предмета экипировки для крафта -- ноги
+    accusative: шаблон предмета экипировки для крафта -- ноги
+    instrumental: шаблоном предмета экипировки для крафта -- ноги
+    prepositional: шаблоне предмета экипировки для крафта -- ноги
+  short_desc: Совершенно недоделанный шаблон поножей едва ковыляет тут! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 15
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #3114
+14:
+  names:
+    aliases: шаблоне предмета экипировки крафта ступни
+    nominative: шаблон предмета экипировки для крафта -- ступни
+    genitive: шаблона предмета экипировки для крафта -- ступни
+    dative: шаблону предмета экипировки для крафта -- ступни
+    accusative: шаблон предмета экипировки для крафта -- ступни
+    instrumental: шаблоном предмета экипировки для крафта -- ступни
+    prepositional: шаблоне предмета экипировки для крафта -- ступни
+  short_desc: Совершенно недоделанный шаблон латных сапог пытается дать вам пинка! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 4
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #3115
+15:
+  names:
+    aliases: шаблоне предмета экипировки крафта кисти
+    nominative: шаблон предмета экипировки для крафта -- кисти
+    genitive: шаблона предмета экипировки для крафта -- кисти
+    dative: шаблону предмета экипировки для крафта -- кисти
+    accusative: шаблон предмета экипировки для крафта -- кисти
+    instrumental: шаблоном предмета экипировки для крафта -- кисти
+    prepositional: шаблоне предмета экипировки для крафта -- кисти
+  short_desc: Совершенно недоделанный шаблон рукавицы пытается ухватить вас за чувствительное место! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #3116
+16:
+  names:
+    aliases: шаблон предмета экипировки крафта руки
+    nominative: шаблон предмета экипировки для крафта -- руки
+    genitive: шаблона предмета экипировки для крафта -- руки
+    dative: шаблону предмета экипировки для крафта -- руки
+    accusative: шаблон предмета экипировки для крафта -- руки
+    instrumental: шаблоном предмета экипировки для крафта -- руки
+    prepositional: шаблоне предмета экипировки для крафта -- руки
+  short_desc: Совершенно недоделанный шаблон наручей крутится волчком! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 8
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #3117
+17:
+  names:
+    aliases: шаблон предмета экипировки крафта плечи
+    nominative: шаблон предмета экипировки для крафта -- плечи
+    genitive: шаблона предмета экипировки для крафта -- плечи
+    dative: шаблону предмета экипировки для крафта -- плечи
+    accusative: шаблон предмета экипировки для крафта -- плечи
+    instrumental: шаблоном предмета экипировки для крафта -- плечи
+    prepositional: шаблоне предмета экипировки для крафта -- плечи
+  short_desc: Совершенно недоделанный шаблон плаща пытается сгрести вас в охапку! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #3118
+18:
+  names:
+    aliases: шаблон предмета экипировки крафта пояс
+    nominative: шаблон предмета экипировки для крафта -- пояс
+    genitive: шаблона предмета экипировки для крафта -- пояс
+    dative: шаблону предмета экипировки для крафта -- пояс
+    accusative: шаблон предмета экипировки для крафта -- пояс
+    instrumental: шаблоном предмета экипировки для крафта -- пояс
+    prepositional: шаблоне предмета экипировки для крафта -- пояс
+  short_desc: Совершенно недоделанный шаблон латного пояса пытается удавить вас! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 4
+  cost: 100
+  rent_off: 0
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #3119
+19:
+  names:
+    aliases: шаблон предмета экипировки крафта запястье
+    nominative: шаблон предмета экипировки для крафта -- запястье
+    genitive: шаблона предмета экипировки для крафта -- запястье
+    dative: шаблону предмета экипировки для крафта -- запястье
+    accusative: шаблон предмета экипировки для крафта -- запястье
+    instrumental: шаблоном предмета экипировки для крафта -- запястье
+    prepositional: шаблоне предмета экипировки для крафта -- запястье
+  short_desc: Совершенно недоделанный шаблон запястья катается тут кругами! СООБЩИТЕ БОГАМ!
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kWrist
+
+# Object #3120
+20:
+  names:
+    aliases: шаблон предмета экипировки крафта щит
+    nominative: шаблон предмета экипировки для крафта -- щит
+    genitive: шаблона предмета экипировки для крафта -- щит
+    dative: шаблону предмета экипировки для крафта -- щит
+    accusative: шаблон предмета экипировки для крафта -- щит
+    instrumental: шаблоном предмета экипировки для крафта -- щит
+    prepositional: шаблоне предмета экипировки для крафта -- щит
+  short_desc: Совершенно недоделанный шаблон щита громко лязгает и дребезжит! СООБЩИТЕ БОГАМ!
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 8
+    - 0
+    - 0
+  weight: 20
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kShield
+
+# Object #3151
+51:
+  names:
+    aliases: шаблон материала крафта шкура
+    nominative: шаблон материала крафта -- шкура
+    genitive: шаблона материала крафта -- шкура
+    dative: шаблону материала крафта -- шкура
+    accusative: шаблон материала крафта -- шкура
+    instrumental: шаблоном материала крафта -- шкура
+    prepositional: шаблоне материала крафта -- шкура
+  short_desc: Совершенное недоделанный шаблом материала лежит тут. СООБЩИТЕ БОГАМ!
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 10
+    - 61500
+    - 30
+    - 30
+  weight: 2
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #3152
+52:
+  names:
+    aliases: шаблон материала крафта кожа
+    nominative: шаблон материала крафта -- кожа
+    genitive: шаблона материала крафта -- кожа
+    dative: шаблону материала крафта -- кожа
+    accusative: шаблон материала крафта -- кожа
+    instrumental: шаблоном материала крафта -- кожа
+    prepositional: шаблоне материала крафта -- кожа
+  short_desc: Совершенное недоделанный шаблом материала лежит тут. СООБЩИТЕ БОГАМ!
+  type: kCraftMaterial
+  material: 15  # КОЖА
+  values:
+    - 10
+    - 61500
+    - 30
+    - 30
+  weight: 2
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake

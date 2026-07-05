@@ -1,0 +1,346 @@
+# Triggers for zone 55
+
+# Trigger #5500
+0:
+  name: хозяйка-встреча
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    if %actor.vnum% != -1
+      halt
+    end
+    if %world.curmobs(5500)% > 0
+      msend %actor% Хозяйка заметила ваше присутствие и повернулась к вам.
+      tell %actor.iname% Добрый день!
+      tell %actor.iname% Как занесло тебя в наши богом забытые края? Здесь обитаем только мы.
+      tell %actor.iname% Раз ты прошел через окружающий лес, ты достаточно силен и опытен.
+      tell %actor.iname% У меня есть к тебе просьба, спаси нас от напасти.
+      tell %actor.iname% Коршуны повадились похищать наших кур и цыплят, бестии.
+      tell %actor.iname% Убей их, и принеси доказательство их смерти.
+      tell %actor.iname% Я отблагодарю тебя за это.
+      msend %actor% Хозяйка продолжила заниматься своими делами.
+    end
+
+# Trigger #5501
+1:
+  name: смерть коршуна
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curmobs(5500)%==1 && %world.curobjs(5500)%==0
+      load obj 5500
+      calcuid ovar 5500 obj
+      attach 5503 %ovar%
+    end
+
+# Trigger #5502
+2:
+  name: дали крыло хозяйке
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if ((%object.vnum% == 5500) && !%self.fighting%)
+      wait 1
+      mpurge %object%
+      echo Хозяйка осмотрела окровавленное крыло.
+      say Ух ты, ты убил%actor.g% окаянных!
+      if (%actor.canbeseen%)
+    dgcast 'насыщение' %actor%
+    dgcast 'восстановление' %actor%
+    dgcast 'исцеление' %actor%
+    dgcast 'освящение' %actor%
+      end
+      if (%exist.mob(5514)%)
+        calcuid hostr 5514 mob
+        attach 5504 %hostr%
+        attach 5507 %hostr%
+      end
+      if ((%random.1000% <= 200) && (%world.curobjs(516)% < %world.maxobj(516)%))
+        load obj 516
+        дать all %actor.iname%
+      end
+      if (%world.curobjs(234)% < %world.maxobj(234)%) && (%random.1000% <= 400)
+        load obj 234
+        дать all %actor.iname%
+      end
+      if (%world.curobjs(1731)% < 1) && (%random.1000% <= 50)
+        load obj 1731
+        дать all %actor.iname%
+      end
+      say Благодарю, ты выручаешь нас.
+    end
+
+# Trigger #5503
+3:
+  name: подняли крыло
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    if %actor.realroom% == 5548 || %actor.realroom%  == 5549
+      oforce %actor.iname% сесть
+      osend %actor.iname% Наклонившись за крылом, вы наступили на залитое кровью место и поскользнулись.
+      osend %actor.iname% Ну что, будем считать, сколько тут веток до земли встретится: раз, два, три...
+      wait 5
+      if %actor.sex% == 1
+        echoaround %actor% %actor.iname% полетел вниз с дерева.
+      else
+        echoaround %actor% %actor.iname% полетела вниз с дерева.
+      end
+      osend %actor.iname% Вы полетели вниз с дерева.
+      wait 1
+      oteleport %actor.iname% 5528
+      if %actor.sex% == 1
+        echoaround %actor% %actor.iname% упал с дерева.
+      else
+        echoaround %actor% %actor.iname% упала с дерева.
+      end
+      osend %actor.iname% ООО, БОЛЬНО!
+      osend %actor.iname% Земля распростерла перед вами свои объятья.
+      osend %actor.iname% Вокруг примятости в земле, похожие на оставленную вмятину от вас.
+      oforce %actor.iname% смотреть
+      odamage %actor.iname% 50
+    end
+
+# Trigger #5504
+4:
+  name: хозяин-встреча
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    if (( %world.curmobs(5503)% > 0 ) && ( %world.curobjs(5508)% == 0 ))
+      echo Хозяин поднял голову и посмотрел в вашу сторону.
+      say Добрый день, путник!
+      echo _- Ты помог избавится нам от коршунов, спасибо тебе!
+      echo _- Если ты смог их победить может ты и мне сделаешь услугу.
+      echo _- Я нанимаю на работу окрестных мужиков, они в принципе хорошо работают.
+      echo _- Но вот в последний раз взял на работу троих и очень пожалел.
+      echo _- Работать не хотят совсем, все спят на полатях и есть требуют.
+      echo _- Я уже стар и не в состоянии выгнать их.
+      echo _- Одолей их, и я отблагодарю тебя.
+      echo _- Да, самое главное - отбери у них ключ от моего сундука, украли они, точно.
+      if (!%self.haveobj(5514)% && (%world.curobjs(5514)% < 6))
+        load obj 5514
+        calcuid vobj 5514 obj
+        взять %vobj.name%
+        воор %vobj.name%
+      end
+      wait 3
+      say А я если что, встречу их здесь!
+      echo _- Хозяин встал из-за стола и прошел по комнате.
+      echo _- Только здесь вы заметили что он хромает и с трудом передвигает левую ногу.
+      echo _- Да, сейчас из него вояка совсем никакой.
+      detach 5504 %self%
+    end
+
+# Trigger #5505
+5:
+  name: смерть лентяя
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curmobs(5503)% == 1
+      echo  Лентяй вдруг громко закричал:
+      echo  - Мужики, помогите, наших бьют!
+      echo В дом быстро вбежали непонятно откуда взявшиеся сердитые мужики и принялись БОЛЬНО Вас бить.
+      echo  Лентяй дал ключ сердитому мужику.
+      load mob 5504
+      load mob 5504
+    end
+
+# Trigger #5506
+6:
+  name: смерть мужика
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curmobs(5504)% == 1
+      load obj 5508
+    end
+
+# Trigger #5507
+7:
+  name: дали хозяину
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    switch %object.vnum%
+      case 5051
+        wait 1
+        mpurge %object%
+        %actor.setquest(5000)%
+        emot взглянул на вас и принялся внимательно читать письмо.
+        wait 1s
+        say Спасибо, что принес весточку от родича. Давно я к ним не хаживал.
+        взд
+        echo  - Тогда буду считать твою службу исполненной!
+        say Что-то ноги отниматься стали. Знахарь наш какое-то зелье готовит, оно вроде и помогает...
+        echo _- Да только он сам признается - не будет в зелье силы без нужных добавок.
+        echo _- А найти их он не может, стар уже по лесам да полям бегать.
+        wait 2
+        say Вот что, родич пишет, что ты работу подрядился выполнить?
+        echo _- Значит и найди их.
+        echo _- Принеси мне уши старой лисы, перепелиные перья, да сало барсучье.
+        echo _- Тогда буду считать твою службу исполненой!
+      break
+      *перья
+      case 5414
+        wait 1
+        mpurge %object%
+        say Хм... как раз та вещь, которую знахарь просил...
+        if !%actor.quested(5000)%
+          say Я тебе не поручал ее искать, но все равно благодарствую
+          halt
+        end
+        %actor.setquest(5001)%
+        if %actor.quested(5001)% && %actor.quested(5002)% && %actor.quested(5003)%
+          set questor5501 %actor%
+          global questor5501
+          exec 5508 %self%
+          halt
+        end
+        say ну что же, благодарствую... Но еще кой-чего не хватает - сходи поищи.
+      break
+      *уши
+      case 4713
+        wait 1
+        mpurge %object%
+        say Хм... как раз та вещь, которую знахарь просил...
+        if !%actor.quested(5000)%
+          say Я тебе не поручал ее искать, но все равно благодарствую
+          halt
+        end
+        %actor.setquest(5002)%
+        if %actor.quested(5001)% && %actor.quested(5002)% && %actor.quested(5003)%
+          set questor5501 %actor%
+          global questor5501
+          exec 5508 %self%
+          halt
+        end
+        say ну что же, благодарствую... Но еще кой-чего не хватает - сходи поищи.
+      break
+      *сало
+      case 5517
+        wait 1
+        mpurge %object%
+        say Хм... как раз та вещь, которую знахарь просил...
+        if !%actor.quested(5000)%
+          say Я тебе не поручал ее искать, но все равно благодарствую
+          halt
+        end
+        %actor.setquest(5003)%
+        if %actor.quested(5001)% && %actor.quested(5002)% && %actor.quested(5003)%
+          set questor5501 %actor%
+          global questor5501
+          exec 5508 %self%
+          halt
+        end
+        say ну что же, благодарствую... Но еще кой-чего не хватает - сходи поищи.
+      break
+      case 5508
+        wait 1
+        mpurge %object%
+        if %exist.obj(5514)%
+          calcuid vobj 5514 obj
+          снять %vobj.name%
+        end
+        *mpurge %vobj%
+        wait 1s
+        say Молодец! Наконец-то нашлась на них управа.
+        say Надеюсь они не вернутся?
+        echo Хозяин глубокомысленно посмотрел на вашу одежду, всю в пятнах крови.
+        say Спасибо, ты выручил нас.
+        echo Хозяин отошел к сундуку, открыл его.
+        switch %random.6%
+          case 1
+            if %world.curobjs(5503)% < 4
+              load obj 5503
+              дать меч %actor.iname%
+            else
+              %self.gold(+300)%
+              дать 300 кун %actor.iname%
+            end
+          break
+          case 2
+            if %world.curobjs(5504)% < 2
+              load obj 5504
+              дать доспехи %actor.iname%
+            else
+              %self.gold(+300)%
+              дать 300 кун %actor.iname%
+            end
+          break
+          case 3
+            if %world.curobjs(512)% < %world.maxobj(512)%
+              load obj 512
+              дать книга %actor.iname%
+            else
+              %self.gold(+300)%
+              дать 300 кун %actor.iname%
+            end
+          break
+          case 4
+            if %world.curobjs(500)% < %world.maxobj(500)%
+              load obj 500
+              дать книга %actor.iname%
+            else
+              %self.gold(+300)%
+              дать 300 кун %actor.iname%
+            end
+          break
+          case 5
+            if %world.curobjs(200)% < %world.maxobj(200)%
+              load obj 200
+              дать рун %actor.iname%
+            else
+              %self.gold(+300)%
+              дать 300 кун %actor.iname%
+            end
+          break
+          default
+            load obj 16023
+            дать чекушк %actor.iname%
+          break
+        done
+        %actor.questbodrich(5)%
+        say Это все, чем я смогу тебя отблагодарить, так что извини.
+      break
+      default
+        eval getobject %object.name%
+        drop %getobject.car%.%getobject.cdr%
+      break
+    done
+
+# Trigger #5508
+8:
+  name: Хозяин дает письмо
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    wait 1
+    say Вот, теперь знахарь сварит сильное зелье, авось скоро сам племяшку увижу!
+    echo _- А пока на вот, отнеси им.
+    emot потянулся к сундуку и достал из него маленький клочок бересты
+    load obj 5518
+    дать вест .%questor5501.name%
+    drop вест

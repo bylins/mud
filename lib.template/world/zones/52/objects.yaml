@@ -1,0 +1,340 @@
+# Objects for zone 52
+
+# Object #5200
+0:
+  names:
+    aliases: клюква
+    nominative: клюква
+    genitive: клюквы
+    dative: клюкве
+    accusative: клюкву
+    instrumental: клюквой
+    prepositional: клюкве
+  short_desc: Клюква спряталась среди мха.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 2
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 5
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #5201
+1:
+  names:
+    aliases: поваленное дерево
+    nominative: поваленное дерево
+    genitive: поваленное дерево
+    dative: поваленному дереву
+    accusative: поваленное дерево
+    instrumental: поваленным деревом
+    prepositional: поваленном дереве
+  short_desc: Поваленное дерево перегородило тропу.
+  action_desc: |2
+       Поваленная сильным ветром или ударом грозы осина.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 100
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+
+# Object #5202
+2:
+  names:
+    aliases: подорожник
+    nominative: подорожник
+    genitive: подорожник
+    dative: подорожнику
+    accusative: подорожник
+    instrumental: подорожником
+    prepositional: подорожнике
+  short_desc: Подорожник лежит здесь.
+  type: kScroll
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 30
+    - 28
+    - -1
+    - -1
+  weight: 0
+  cost: 1000
+  rent_off: 500
+  rent_on: 2000
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 20
+  sex: kMale
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5203
+3:
+  names:
+    aliases: зверобой
+    nominative: зверобой
+    genitive: зверобой
+    dative: зверобою
+    accusative: зверобой
+    instrumental: зверобоем
+    prepositional: зверобое
+  short_desc: Высушенный лист зверобоя лежит здесь.
+  type: kScroll
+  material: 16  # ОРГАНИКА
+  values:
+    - 30
+    - 29
+    - -1
+    - -1
+  weight: 1
+  cost: 25
+  rent_off: 10
+  rent_on: 25
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5204
+4:
+  names:
+    aliases: осиновая шишка
+    nominative: осиновая шишка
+    genitive: осиновая шишка
+    dative: осиновой шишке
+    accusative: осиновую шишку
+    instrumental: осиновой шишкой
+    prepositional: осиновой шишке
+  short_desc: Осиновая шишка лежит здесь.
+  type: kScroll
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 30
+    - 43
+    - -1
+    - -1
+  weight: 2
+  cost: 25
+  rent_off: 20
+  rent_on: 50
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5205
+5:
+  names:
+    aliases: береста
+    nominative: береста
+    genitive: береста
+    dative: бересте
+    accusative: бересту
+    instrumental: берестой
+    prepositional: бересте
+  short_desc: Кусок бересты лежит здесь.
+  type: kScroll
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 30
+    - 57
+    - -1
+    - -1
+  weight: 1
+  cost: 100
+  rent_off: 200
+  rent_on: 300
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5206
+6:
+  names:
+    aliases: белена
+    nominative: белена
+    genitive: белена
+    dative: белене
+    accusative: белену
+    instrumental: беленой
+    prepositional: белене
+  short_desc: Белена лежит здесь.
+  type: kScroll
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 30
+    - 3
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 100
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5207
+7:
+  names:
+    aliases: череда
+    nominative: череда
+    genitive: череда
+    dative: череде
+    accusative: череду
+    instrumental: чередой
+    prepositional: череде
+  short_desc: Череда лежит здесь.
+  type: kScroll
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 30
+    - 19
+    - -1
+    - -1
+  weight: 1
+  cost: 20
+  rent_off: 20
+  rent_on: 20
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5208
+8:
+  names:
+    aliases: одуванчик
+    nominative: одуванчик
+    genitive: одуванчик
+    dative: одуванчику
+    accusative: одуванчик
+    instrumental: одуванчиком
+    prepositional: одуванчике
+  short_desc: Одуванчик лежит здесь.
+  type: kScroll
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 30
+    - 201
+    - -1
+    - -1
+  weight: 1
+  cost: 150
+  rent_off: 150
+  rent_on: 150
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+    - kBoth
+
+# Object #5209
+9:
+  names:
+    aliases: ежовая иголка
+    nominative: ежовая иголка
+    genitive: ежовой иголки
+    dative: ежовой иголке
+    accusative: ежовую иголку
+    instrumental: ежовой иголкой
+    prepositional: ежовой иголке
+  short_desc: Ежовая иголка лежит здесь.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 2
+    - 4
+    - 11
+  weight: 5
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 147
+  max_durability: 50
+  cur_durability: 50
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 4
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
