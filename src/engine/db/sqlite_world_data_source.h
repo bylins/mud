@@ -76,6 +76,14 @@ public:
 	void FinalizeZoneRooms() override;
 	void FinalizeZoneEntities() override;
 
+	// Wrap the whole resync/resave in one transaction (see IWorldDataSource
+	// for why) -- BeginTransaction()/CommitTransaction() are already
+	// savepoint-nesting-safe, so this just brackets the outermost level; the
+	// per-zone SaveZone/SaveRooms/... calls in between nest inside it instead
+	// of each opening/closing their own top-level transaction.
+	void BeginBulkWrite() override { BeginTransaction(); }
+	void EndBulkWrite() override { CommitTransaction(); }
+
 private:
 	// True if `vnum`'s zone (vnum/100) was loaded via LoadZoneRooms/Mobs/
 	// Objects this boot, or if no per-zone load happened at all (bulk path --
@@ -159,6 +167,13 @@ private:
 
 	std::string m_db_path;
 	sqlite3 *m_db;
+	// Nesting depth of Begin/CommitTransaction: 0 = no active transaction.
+	// Depth 0->1 opens the real BEGIN/COMMIT; deeper levels use SAVEPOINT/
+	// RELEASE so an outer BeginBulkWrite() and the per-zone Save* calls
+	// nested inside it collapse into one real transaction (see BeginBulkWrite
+	// above), while each SAVEPOINT can still be independently rolled back if
+	// a single Save* fails without undoing already-committed sibling zones.
+	int m_transaction_depth = 0;
 };
 
 // Bind a runtime KOI8-R string as UTF-8 (the on-disk text encoding, matching

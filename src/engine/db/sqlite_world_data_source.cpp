@@ -2513,23 +2513,42 @@ void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 // Transaction helpers
 // ============================================================================
 
+// Depth 0->1 opens a real transaction; deeper calls open a named SAVEPOINT
+// instead, so a BeginBulkWrite() wrapping many per-zone Save* calls collapses
+// into a single real BEGIN/COMMIT (avoiding one fsync per zone per entity
+// type), while a single nested Save* can still be rolled back on its own via
+// RollbackTransaction() without undoing sibling zones already committed
+// into the same outer transaction.
 bool SqliteWorldDataSource::BeginTransaction()
 {
 	char *err_msg = nullptr;
-	int rc = sqlite3_exec(m_db, "BEGIN TRANSACTION", nullptr, nullptr, &err_msg);
+	const std::string sql = (m_transaction_depth == 0)
+		? "BEGIN TRANSACTION"
+		: "SAVEPOINT sp" + std::to_string(m_transaction_depth);
+	int rc = sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &err_msg);
 	if (rc != SQLITE_OK)
 	{
 		log("SYSERR: Failed to begin transaction: %s", err_msg);
 		sqlite3_free(err_msg);
 		return false;
 	}
+	++m_transaction_depth;
 	return true;
 }
 
 bool SqliteWorldDataSource::CommitTransaction()
 {
+	if (m_transaction_depth == 0)
+	{
+		log("SYSERR: CommitTransaction called with no active transaction");
+		return false;
+	}
+	--m_transaction_depth;
 	char *err_msg = nullptr;
-	int rc = sqlite3_exec(m_db, "COMMIT", nullptr, nullptr, &err_msg);
+	const std::string sql = (m_transaction_depth == 0)
+		? "COMMIT"
+		: "RELEASE sp" + std::to_string(m_transaction_depth);
+	int rc = sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &err_msg);
 	if (rc != SQLITE_OK)
 	{
 		log("SYSERR: Failed to commit transaction: %s", err_msg);
@@ -2541,11 +2560,39 @@ bool SqliteWorldDataSource::CommitTransaction()
 
 bool SqliteWorldDataSource::RollbackTransaction()
 {
+	if (m_transaction_depth == 0)
+	{
+		log("SYSERR: RollbackTransaction called with no active transaction");
+		return false;
+	}
+	--m_transaction_depth;
 	char *err_msg = nullptr;
-	int rc = sqlite3_exec(m_db, "ROLLBACK", nullptr, nullptr, &err_msg);
+	if (m_transaction_depth == 0)
+	{
+		int rc = sqlite3_exec(m_db, "ROLLBACK", nullptr, nullptr, &err_msg);
+		if (rc != SQLITE_OK)
+		{
+			log("SYSERR: Failed to rollback transaction: %s", err_msg);
+			sqlite3_free(err_msg);
+			return false;
+		}
+		return true;
+	}
+
+	// Nested: undo only this savepoint's writes, keep the outer transaction
+	// (and any earlier sibling savepoints already released into it) intact.
+	const std::string sp = "sp" + std::to_string(m_transaction_depth);
+	int rc = sqlite3_exec(m_db, ("ROLLBACK TO " + sp).c_str(), nullptr, nullptr, &err_msg);
 	if (rc != SQLITE_OK)
 	{
-		log("SYSERR: Failed to rollback transaction: %s", err_msg);
+		log("SYSERR: Failed to roll back to savepoint: %s", err_msg);
+		sqlite3_free(err_msg);
+		return false;
+	}
+	rc = sqlite3_exec(m_db, ("RELEASE " + sp).c_str(), nullptr, nullptr, &err_msg);
+	if (rc != SQLITE_OK)
+	{
+		log("SYSERR: Failed to release savepoint: %s", err_msg);
 		sqlite3_free(err_msg);
 		return false;
 	}

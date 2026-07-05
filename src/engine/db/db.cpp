@@ -383,6 +383,7 @@ int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver,
 					  const world_loader::IWorldDataSource *version_src,
 					  const std::vector<int> &zone_vnums_to_resync) {
 	int errors = 0;
+	saver.BeginBulkWrite();
 	for (int vnum : zone_vnums_to_resync) {
 		const int z = GetZoneRnum(vnum);
 		if (z < 0) {
@@ -404,6 +405,7 @@ int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver,
 			++errors;
 		}
 	}
+	saver.EndBulkWrite();
 	if (version_src) {
 		saver.MarkIndexSynced(version_src->GetIndexFreshness());
 	}
@@ -1468,6 +1470,7 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 		target_dir.c_str(), fmt.c_str(), zone_table.size());
 	int errors = 0;
 	int skipped = 0;
+	saver->BeginBulkWrite();
 	for (size_t z = 0; z < zone_table.size(); ++z) {
 		// Dungeon zones (CreateBlankZoneDungeon, vnum >= kZoneStartDungeons)
 		// are generated in-memory and never persisted -- matches legacy's
@@ -1490,6 +1493,7 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 			++errors;
 		}
 	}
+	saver->EndBulkWrite();
 
 	// Let the backend finalize after the full resave: legacy rebuilds its
 	// boot indexes here (YAML/SQLite already maintain them inside Save*).

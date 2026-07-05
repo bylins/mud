@@ -169,6 +169,20 @@ public:
 	// inside Save* and need nothing here; the legacy backend regenerates its
 	// per-subdir boot "index" files. Default: no-op.
 	virtual void FinalizeResave() {}
+
+	// Bracket a run of per-zone Save* calls (resync after boot, or a full
+	// ResaveWorld) in a single transaction where the backend has one to
+	// batch. Both callers already save zone-by-zone in a plain for loop;
+	// wrapping each zone's five Save* calls in its own transaction (SQLite's
+	// prior behavior) meant up to zone_count*5 fsyncs for what is otherwise
+	// one logical operation. Must always be called in pairs, even if some
+	// zones failed in between -- EndBulkWrite() commits whatever succeeded,
+	// it does not roll back on a per-zone error (matching the old per-zone
+	// behavior, where an earlier zone's already-committed transaction was
+	// never undone by a later zone's failure). Default: no-op (file backends
+	// write each entity as its own file, nothing to batch).
+	virtual void BeginBulkWrite() {}
+	virtual void EndBulkWrite() {}
 };
 
 // Factory function type for creating data sources
