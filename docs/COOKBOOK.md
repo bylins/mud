@@ -225,12 +225,10 @@ characters without them.
 Shorter single-purpose examples (relocated from the Spell Manual).
 
 
-> **Grammar note.** Several examples below predate the spells.xml → affects.xml
-> split and show an affect's `<flags>`/`<apply>` **inline** with a `type="…"`
-> attribute. In current content those belong on the affect (`affects.xml`), and the
-> spell block names it with a `<affect id="…"/>` child (§8); inline `<apply>` still
-> works as a fallback. The pipeline behaviour the examples illustrate is unchanged —
-> only where the affect's data lives has moved. See the [Affect Manual](AFFECT_MANUAL.md).
+> **Two files.** Examples that impose an affect show *both* the spell block (which
+> names the affect via `<affect id="…"/>` and owns duration/save) **and** the affect
+> block in `affects.xml` (which owns the flags/applies/actions). See §8 and the
+> [Affect Manual](AFFECT_MANUAL.md).
 
 ### 3.1 A simple damage spell with extra hits
 
@@ -283,17 +281,21 @@ Shorter single-purpose examples (relocated from the Spell Manual).
                 <affect_flags val="kHold"/>
                 <room_flags val="kNoMagic"/>
             </blocking>
-            <affects type="kSleep" saving="kWill" resist="kMind">
+            <affects saving="kWill" resist="kMind">
                 <reposition pos="kSleep"/>
                 <duration base="1" skill_divisor="15" min="1" max="6"/>
-                <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-                <apply id="kSleep" location="kNone">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                </apply>
+                <affect id="kSleep"/>
             </affects>
         </action>
     </talent_actions>
 </spell>
+```
+
+```xml
+<!-- affects.xml: kSleep is a pure status flag (no numeric apply) -->
+<affect id="kSleep" buff="N">
+    <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+</affect>
 ```
 
 * Targets are NPCs flagged `kNoSleep` or anyone holding the `kHold` affect
@@ -363,16 +365,23 @@ Shorter single-purpose examples (relocated from the Spell Manual).
             <unaffect>
                 <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
             </unaffect>
-            <affects type="kGlitterDust" saving="kReflex" resist="kEarth">
-                <flags val="kAfDispellable|kAfCurable"/>
+            <affects saving="kReflex" resist="kEarth">
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
-                <apply id="kGlitterDust" location="kSavingReflex">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
-                </apply>
+                <affect id="kGlitterDust"/>
             </affects>
         </action>
     </talent_actions>
 </spell>
+```
+
+```xml
+<!-- affects.xml: the affect owns its flags and the saving-throw penalty -->
+<affect id="kGlitterDust" buff="N">
+    <flags val="kAfDispellable|kAfCurable"/>
+    <apply location="kSavingReflex">
+        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
+    </apply>
+</affect>
 ```
 
 * `<unaffect>` runs first (chain order): tries to strip
@@ -472,21 +481,32 @@ how a stacking variant would be authored.
     <!-- … usual fields … -->
     <talent_actions>
         <action>
-            <blocking affect_flags="kGodsShield"/>
-            <affects type="kPoison" saving="kCritical" resist="kDark">
+            <blocking><affect_flags val="kGodsShield"/></blocking>
+            <affects saving="kCritical" resist="kDark">
                 <duration base="0" skill_divisor="3" min="0" max="0"/>
-                <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
-                <apply id="kPoisoned" location="kStr">
-                    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
-                </apply>
-                <apply id="kPoisoned" location="kPoison">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
-                </apply>
+                <affect id="kPoison"/>
             </affects>
         </action>
     </talent_actions>
 </spell>
 ```
+
+```xml
+<!-- affects.xml: the affect owns the stacking applies (str penalty + poison tick) -->
+<affect id="kPoison" buff="N">
+    <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
+    <apply location="kStr">
+        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
+    </apply>
+    <apply location="kPoison">
+        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
+    </apply>
+</affect>
+```
+
+*(A real poison DoT would drive its damage from a `kPulse` `<damage>` action — see
+the [Affect Manual](AFFECT_MANUAL.md) §5; this apply-based form illustrates
+stacking.)*
 
 * Re-casting on the same victim **stacks up to 3 times**: the strength
   penalty scales `-2`, `-4`, `-6` (flat per stack) and the

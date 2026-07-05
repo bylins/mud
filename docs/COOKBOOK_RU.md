@@ -278,17 +278,21 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
                 <affect_flags val="kHold"/>
                 <room_flags val="kNoMagic"/>
             </blocking>
-            <affects type="kSleep" saving="kWill" resist="kMind">
+            <affects saving="kWill" resist="kMind">
                 <reposition pos="kSleep"/>
                 <duration base="1" skill_divisor="15" min="1" max="6"/>
-                <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-                <apply id="kSleep" location="kNone">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.0" factor="1"/>
-                </apply>
+                <affect id="kSleep"/>
             </affects>
         </action>
     </talent_actions>
 </spell>
+```
+
+```xml
+<!-- affects.xml: kSleep — чистый статусный флаг (без числового apply) -->
+<affect id="kSleep" buff="N">
+    <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+</affect>
 ```
 
 * NPC с флагом `kNoSleep` или цели с эффектом `kHold` невосприимчивы.
@@ -342,16 +346,23 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
             <unaffect>
                 <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
             </unaffect>
-            <affects type="kGlitterDust" saving="kReflex" resist="kEarth">
-                <flags val="kAfDispellable|kAfCurable"/>
+            <affects saving="kReflex" resist="kEarth">
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
-                <apply id="kGlitterDust" location="kSavingReflex">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
-                </apply>
+                <affect id="kGlitterDust"/>
             </affects>
         </action>
     </talent_actions>
 </spell>
+```
+
+```xml
+<!-- affects.xml: эффект владеет своими флагами и штрафом к спасброску -->
+<affect id="kGlitterDust" buff="N">
+    <flags val="kAfDispellable|kAfCurable"/>
+    <apply location="kSavingReflex">
+        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
+    </apply>
+</affect>
 ```
 
 * `<unaffect>` выполняется первым: пытается снять `kInvisible|kCamouflage|kHide`.
@@ -423,21 +434,32 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
     <!-- … обычные поля … -->
     <talent_actions>
         <action>
-            <blocking affect_flags="kGodsShield"/>
-            <affects type="kPoison" saving="kCritical" resist="kDark">
+            <blocking><affect_flags val="kGodsShield"/></blocking>
+            <affects saving="kCritical" resist="kDark">
                 <duration base="0" skill_divisor="3" min="0" max="0"/>
-                <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
-                <apply id="kPoisoned" location="kStr">
-                    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0.0" factor="-1" stack="3"/>
-                </apply>
-                <apply id="kPoisoned" location="kPoison">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
-                </apply>
+                <affect id="kPoison"/>
             </affects>
         </action>
     </talent_actions>
 </spell>
 ```
+
+```xml
+<!-- affects.xml: эффект владеет стакающимися apply (штраф к силе + тик яда) -->
+<affect id="kPoison" buff="N">
+    <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
+    <apply location="kStr">
+        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0.0" factor="-1" stack="3"/>
+    </apply>
+    <apply location="kPoison">
+        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
+    </apply>
+</affect>
+```
+
+*(Реальный DoT яда брал бы урон из действия `kPulse` `<damage>` — см.
+[Руководство по эффектам](AFFECT_MANUAL_RU.md) §5; форма на apply иллюстрирует
+стакирование.)*
 
 * Повторное применение на той же жертве **стакируется до 3 раз**.
 * `kAfCurable` без `kAfDispellable` — работает `kRemovePoison`, но не `kDispellMagic`.
