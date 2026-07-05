@@ -101,5 +101,10 @@ int GaussIntNumber(double mean, double sigma, int min_val, int max_val) {
 	return MAX(MIN(iresult, max_val), min_val);
 }
 
+// Raw normal-distribution double on the same seeded global stream as GaussIntNumber.
+double GaussNumber(double mean, double sigma) {
+	return Random::rnd.NormalDistributionNumber(mean, sigma);
+}
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

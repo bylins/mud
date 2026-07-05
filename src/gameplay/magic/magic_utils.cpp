@@ -315,7 +315,11 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap) {
 }
 
 float CalcCastPotency(const RollResult &potency) {
-	return static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
+	// issue.random-noise-rework (P3): stored potency is DETERMINISTIC competence (skill+stat),
+	// NOT the rolled dice. The affect's recorded strength (used by dispel contests, first-aid
+	// cure priority, and re-apply "keep stronger") must reflect the caster's skill/stat, not the
+	// randomness of the delivered amount. Equals CastContext::CompetenceBase() for the entry action.
+	return static_cast<float>(potency.skill_coeff + potency.stat_coeff);
 }
 
 int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
@@ -435,10 +439,13 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
 	// issue.potion-potency: a brewed-in fixed potency (>=0) from an item/potion bypasses the
-	// caster's skill/stat roll. Put it in `dices` so CalcCastPotency == the stored potency and the
-	// affect modifier scales with it (competence 0). Negative -> roll from the caster as usual.
+	// caster's skill/stat roll. issue.random-noise-rework (P3): put it in `skill_coeff` (not `dices`)
+	// so it flows as COMPETENCE -- both CalcCastPotency (skill+stat, deterministic) and
+	// CompetenceBase() equal it, so the stored potency AND the beta*C effect amounts scale with the
+	// fixed potency. (Under P2 all effect dices_weight=0, so a dices-only value no longer scaled the
+	// amount.) Negative -> roll from the caster as usual.
 	const RollResult bcc_roll = (fixed_potency >= 0.0f)
-		? RollResult{static_cast<int>(fixed_potency + 0.5f), 0.0, 0.0, 0.0}
+		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0}
 		: eval(spell.GetPotencyRoll());
 	CastContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard

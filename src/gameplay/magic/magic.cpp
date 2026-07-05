@@ -1897,13 +1897,18 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 //   2. a non-violent dispel of a debuff -> check;
 //   3. a non-violent dispel of a buff -> no check, always removed.
 // The check itself: a flat 5% chance to remove regardless of strength, otherwise the dispel's
-// potency -- (RollSkillDices + skill_coeff + stat_coeff) * potency_weight -- must exceed the
+// potency -- competence (skill+stat) * a truncated-normal noise factor * potency_weight -- must exceed the
 // affect's recorded potency (the strength of the cast that imposed it).
 // issue.debuff-decay: ceiling on an affect's potency. A negative <unaffect decay> RAISES an affect's
 // strength on a failed removal; the cap stops repeated failures from growing it without bound (and
 // guards against overflow once the float feeds integer modifiers). Generous vs normal cast potencies
 // (tens) yet finite and well within int range.
 constexpr float kMaxAffectPotency = 30000.0f;
+
+// issue.random-noise-rework (P3): relative spread (CV) of the dispel-contest noise on the
+// dispeller's effective potency. Small -> skill dominates: a dispeller must roughly match the
+// affect's competence to have a chance, with a modest band of uncertainty only near parity.
+constexpr double kDispelSigma = 0.15;
 
 // issue.debuff-decay: on a FAILED removal, shift the surviving affect's potency by `decay` percent of
 // THIS dispel's rolled potency -- positive decay weakens the affect, negative strengthens it. Floored
@@ -1947,9 +1952,13 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	// dispel from an enemy hand -> potency contest as for any violent dispel.
 	// Compute the dispel's potency up front so even the free passes (buff/luck) report
 	// the real rolled power instead of 0 (issue.dispellbug).
-	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
+	// issue.random-noise-rework (P3): a DETERMINISTIC competence contest with a bounded
+	// multiplicative noise overlay -- the dispeller's competence (skill+stat) times a
+	// truncated-normal factor -- vs the affect's stored (deterministic) potency. No dice: a
+	// higher-skill dispeller reliably beats a weaker affect; uncertainty only near parity
+	// (plus the flat 5% luck below).
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + competence)  // competence base override
+			competence * std::max(0.0, GaussNumber(1.0, kDispelSigma)))
 			* potency_weight * static_cast<float>(area_coeff);
 	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
 		emit_debug(spell_potency, "buff", true);
@@ -2096,9 +2105,13 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 	// ally dispels for free; anyone else must win a strength contest, and a player vs a
 	// live author commits an aggressive PK act. (Dispellability is filtered upstream by
 	// the <unaffect affect_flags=> mask, so kAfDispellable is already enforced.)
-	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
+	// issue.random-noise-rework (P3): a DETERMINISTIC competence contest with a bounded
+	// multiplicative noise overlay -- the dispeller's competence (skill+stat) times a
+	// truncated-normal factor -- vs the affect's stored (deterministic) potency. No dice: a
+	// higher-skill dispeller reliably beats a weaker affect; uncertainty only near parity
+	// (plus the flat 5% luck below).
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + competence)  // competence base override
+			competence * std::max(0.0, GaussNumber(1.0, kDispelSigma)))
 			* potency_weight * static_cast<float>(area_coeff);
 	const auto access = room_spells::ClassifyRoomAffectAccess(ch, author_uid);
 	if (access.free) {

@@ -96,4 +96,40 @@ TEST(RebalanceModel, SkillDominatesAndAnchorHolds) {
 			new_mean(75), new_mean(140), new_mean(200), new_mean(200) / new_mean(75));
 }
 
+// issue.random-noise-rework P3: stored potency (dispel strength / cure priority / re-apply
+// "keep stronger") is DETERMINISTIC competence -- the rolled dice must not leak in.
+TEST(RebalanceModel, PotencyIsDeterministicCompetence) {
+	const RollResult with_dice{/*dices*/999, /*skill*/3.0, /*stat*/2.0, /*low*/0.0};
+	const RollResult no_dice{/*dices*/0, /*skill*/3.0, /*stat*/2.0, /*low*/0.0};
+	EXPECT_FLOAT_EQ(CalcCastPotency(with_dice), 5.0f);            // skill+stat only
+	EXPECT_FLOAT_EQ(CalcCastPotency(with_dice), CalcCastPotency(no_dice));  // dice irrelevant
+}
+
+// P3: the dispel contest is a competence comparison with a bounded multiplicative-noise overlay
+// (dispeller's competence * TruncNormal(1, sigma) vs the affect's deterministic potency). Skill
+// dominates: a clearly stronger dispeller almost always wins, a clearly weaker one almost never,
+// and only near parity is it a coin flip -- unlike the old dice-dominated roll.
+TEST(RebalanceModel, DispelContestIsSkillDrivenWithBoundedNoise) {
+	SetRandomSeed(4242);
+	const double sigma = 0.15;  // == kDispelSigma
+	auto win_rate = [&](double c_dispel, double affect_potency) {
+		int wins = 0;
+		for (int i = 0; i < kN; ++i) {
+			const double sp = c_dispel * std::max(0.0, GaussNumber(1.0, sigma));
+			if (sp > affect_potency) {
+				++wins;
+			}
+		}
+		return static_cast<double>(wins) / kN;
+	};
+	EXPECT_GT(win_rate(20.0, 10.0), 0.99);   // 2x competence -> nearly always removes
+	EXPECT_LT(win_rate(7.0, 10.0), 0.05);    // 30% weaker -> almost never
+	const double parity = win_rate(10.0, 10.0);
+	EXPECT_GT(parity, 0.30);                 // near parity -> coin-flip-ish (strict >, so <50%)
+	EXPECT_LT(parity, 0.55);
+	// the noise factor itself has CV ~ sigma
+	const Stats st = Sample([&] { return static_cast<int>(1000 * std::max(0.0, GaussNumber(1.0, sigma))); }, kN);
+	EXPECT_NEAR(st.cv, sigma, 0.03);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
