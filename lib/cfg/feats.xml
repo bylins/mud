@@ -499,7 +499,7 @@
     </feat>
     <feat id="kMagicArrows" mode="kEnabled">
         <!-- issue.perk-action-patching Phase 3: migrated from the hardcoded CalcExtraHits branch.
-             Replaces Magic Missile's <damage> with a boosted <hits> (divisor 12->6, max 2->6) -- the
+             Replaces Magic Missile's <damage> with a boosted <hits> (divisor 12->6, max 2->6) - the
              exact halve-divisor/triple-max the C++ used to do. -->
         <talent_patches>
             <talent_patch spell="kMagicMissile" op="replace" action="Main" effect="Bolt">
@@ -612,7 +612,7 @@
         </talent_patches>
     </feat>
     <!-- issue.perk-action-patching Phase 2: prove (b) manifestation-level <damage> replace (copy-into-
-         scratch; the <area> sibling in the same block survives) -- doubles Burning Hands damage. -->
+         scratch; the <area> sibling in the same block survives) - doubles Burning Hands damage. -->
     <feat id="kEmberFury" mode="kTesting">
         <talent_patches>
             <talent_patch spell="kBurningHands" op="replace" action="Main" effect="MainDamage">
@@ -624,7 +624,7 @@
             </talent_patch>
         </talent_patches>
     </feat>
-    <!-- issue.perk-action-patching Phase 2: prove (a) whole-block replace (pointer swap) -- swaps the
+    <!-- issue.perk-action-patching Phase 2: prove (a) whole-block replace (pointer swap) - swaps the
          entire Main block for a x3-damage variant (keeps area). -->
     <feat id="kCinderburst" mode="kTesting">
         <talent_patches>

@@ -110,11 +110,11 @@
 				<trigger val="kOpen|kEnter|kPick|kUnlock|kClose|kLock" return="0"/>
 				<side_spell id="kFireball"/>
 			</action>
-			<!-- issue.damage-over-time: dispel sting. Whoever dispels the trap catches fire -- the kBurning
+			<!-- issue.damage-over-time: dispel sting. Whoever dispels the trap catches fire - the kBurning
 			     buff ITSELF is imposed (not a kFireBlast/kFireball cast). target=kTarFightSelf resolves to the
 			     dispeller (RunRoomAffectTrigger runs the kDispell action with them as caster), so it is
 			     self-inflicted (no PvP). kBurning inherits the trap's stored potency (dispel_potency), and
-			     -- with issue.damage-over-time out-of-combat ticking -- it burns even if the dispeller is not
+			     - with issue.damage-over-time out-of-combat ticking - it burns even if the dispeller is not
 			     fighting. potency_weight/duration below are placeholder tuning; balance to taste. -->
 			<action target="kTarFightSelf">
 				<trigger val="kDispell"/>

@@ -78,7 +78,7 @@
 			     ticks in AND out of combat (RunCharAffectTick fires kPulse regardless of combat state).
 			     target=kTarFightSelf = the bearer (self-inflicted). <damage source="poison"> reproduces
 			     ProcessPoisonDmg's kPoison branch exactly: GET_POISON amount, kPoisonDmg, no-flee, poisoner
-			     as author. saving="kNone" -- poison has no per-tick save (and a bare <damage> needs one). -->
+			     as author. saving="kNone" - poison has no per-tick save (and a bare <damage> needs one). -->
 			<action target="kTarFightSelf">
 				<trigger val="kPulse"/>
 				<damage source="poison" saving="kNone"/>
@@ -473,7 +473,7 @@
 	<affect id="kBelenaPoison" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
-	<!-- issue.damage-over-time: the aconite DoT is NOT here -- aconite contributes to GET_POISON (see
+	<!-- issue.damage-over-time: the aconite DoT is NOT here - aconite contributes to GET_POISON (see
 	     PoisonVictWithWeapon af[0], a kPoisoned affect), so the single kPoisoned <damage source="poison">
 	     tick deals it. This affect is aconite's identity ("отравление аконитом") + its magic-resist debuff
 	     (the af[2] cluster member); no tick action of its own. -->
@@ -886,7 +886,7 @@
 	     via RunCharAffectTick. The kBattlePulse action deals a self-<damage> tick (default target kTarSame
 	     = the bearer) scaled by the affect's stored potency: with a tick's fixed-potency roll competence
 	     is 0, so per-tick damage = amount.min + ceil(stored_potency * dices_weight). No C++ handler and no
-	     stat <apply> -- the damage lives entirely in data. kAfDispellable so it can be removed by dispel. -->
+	     stat <apply> - the damage lives entirely in data. kAfDispellable so it can be removed by dispel. -->
 	<affect id="kBurning" buff="N">
 		<flags val="kAfSameTime|kAfDispellable"/>
 		<actions>
@@ -894,7 +894,7 @@
 			     to the PREVIOUS action's targets (empty here) -> no victim -> no damage. kTarFightSelf
 			     returns {caster}=the bearer, so the DoT damages the burning char. -->
 			<!-- kPulse (not kBattlePulse) so the burn ticks BOTH in combat (battle_affect_update) and out of
-			     combat (player_/mobile_affect_update) -- e.g. a fire-trap dispel sting on a char who is not
+			     combat (player_/mobile_affect_update) - e.g. a fire-trap dispel sting on a char who is not
 			     fighting. RunCharAffectTick fires kPulse regardless of combat state. -->
 			<action target="kTarFightSelf">
 				<trigger val="kPulse"/>
