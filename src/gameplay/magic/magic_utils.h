@@ -79,6 +79,12 @@ int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResul
 	return static_cast<int>(apply.factor * raw);
 }
 
+// issue.random-noise-rework (P1): multiplicative truncated-normal amount. mean = floor + scaled,
+// std = sigma*scaled, so the coefficient of variation is ~sigma -- CONSTANT as `scaled` (= k*competence)
+// grows, unlike additive dice noise (whose relative spread shrinks). Truncated to [floor, cap]; cap<=0 =
+// no upper bound. Uses the seeded global RNG (GaussIntNumber), so simulator runs stay reproducible.
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap);
+
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 
 // Resistance calculate //

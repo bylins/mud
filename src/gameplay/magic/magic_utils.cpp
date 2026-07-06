@@ -13,6 +13,11 @@
 ************************************************************************ */
 
 #include "magic_utils.h"
+#include "utils/random.h"   // issue.random-noise-rework: GaussIntNumber
+
+#include <algorithm>
+#include <cmath>
+#include <limits>
 #include "administration/privilege.h"
 
 #include "gameplay/mechanics/groups.h"
@@ -301,8 +306,20 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
 	return false;
 }
 
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap) {
+	const double mean = floor_val + scaled;
+	const double sd = sigma * scaled;
+	const int lo = std::max(0, static_cast<int>(std::floor(floor_val)));
+	const int hi = (cap > 0) ? cap : std::numeric_limits<int>::max();
+	return GaussIntNumber(mean, sd, lo, hi);
+}
+
 float CalcCastPotency(const RollResult &potency) {
-	return static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
+	// issue.random-noise-rework (P3): stored potency is DETERMINISTIC competence (skill+stat),
+	// NOT the rolled dice. The affect's recorded strength (used by dispel contests, first-aid
+	// cure priority, and re-apply "keep stronger") must reflect the caster's skill/stat, not the
+	// randomness of the delivered amount. Equals CastContext::CompetenceBase() for the entry action.
+	return static_cast<float>(potency.skill_coeff + potency.stat_coeff);
 }
 
 bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
@@ -405,15 +422,16 @@ ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, f
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
 	// issue.vampirism-haste: an affect-action grant (e.g. kVampirism's on-kill kHaste) has no skill roll,
-	// so it scales with the FIRING affect's stored potency, fed here as competence (skill_coeff) -- then a
-	// competence-based apply's beta*C scales exactly as a real spell cast would.
-	// issue.potion-potency: a brewed-in fixed potency (>=0) bypasses the caster's skill/stat roll (put in
-	// `dices` so CalcCastPotency == the stored potency; competence 0). Negative -> roll from the caster.
+	// so it scales with the FIRING affect's stored potency, fed here as competence (skill_coeff).
+	// issue.potion-potency + issue.random-noise-rework (P3): a brewed-in fixed potency (>=0) from an
+	// item/potion ALSO flows as COMPETENCE (skill_coeff, not dices), so CalcCastPotency (skill+stat,
+	// deterministic) and the beta*C effect amounts scale with it (under P2 dices_weight=0, a dices-only
+	// value would no longer scale the amount). Negative -> roll from the caster as usual.
 	RollResult bcc_roll;
 	if (fixed_competence >= 0.0f) {
 		bcc_roll = RollResult{0, static_cast<double>(fixed_competence), 0.0, 0.0};
 	} else if (fixed_potency >= 0.0f) {
-		bcc_roll = RollResult{static_cast<int>(fixed_potency + 0.5f), 0.0, 0.0, 0.0};
+		bcc_roll = RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0};
 	} else {
 		bcc_roll = eval(spell.GetPotencyRoll());
 	}

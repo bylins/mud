@@ -659,6 +659,9 @@ std::array<talents_actions::Actions, kAffectFlagTableSize> g_affect_actions{};
 // affect as one of the mutually-exclusive elemental shields; a hit passes through exactly one, picked
 // weighted-random by these values. 0 = not a shield.
 std::array<int, kAffectFlagTableSize> g_affect_shield_weight{};
+// issue.random-noise-rework: per-affect additive dispel modifier (<affect dispel_mod="N"/>), in dispel-
+// contest threshold percentage points. Negative -> harder to remove (critical buffs). 0 = neutral.
+std::array<int, kAffectFlagTableSize> g_affect_dispel_mod{};
 // issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize, collected once at load so
 // the zone-wake materializer can walk a short list instead of scanning every EAffect per mob.
 std::vector<EAffect> g_materializable_affects{};
@@ -680,6 +683,7 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	g_affect_flags.fill(0);
 	g_affect_buff.fill(affects::EBuff::kAmbiguous);
 	g_affect_shield_weight.fill(0);
+	g_affect_dispel_mod.fill(0);
 	for (auto &v : g_affect_applies) { v.clear(); }
 	for (auto &a : g_affect_actions) { a = talents_actions::Actions{}; }
 	for (auto &node : data.Children("affect")) {
@@ -707,6 +711,10 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 		}
 		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
 		g_affect_buff[idx] = ParseAffectBuff(node.GetValue("buff"));
+		// issue.random-noise-rework: additive dispel-threshold modifier (percentage points), default 0.
+		if (const char *dm = node.GetValue("dispel_mod"); dm && *dm) {
+			g_affect_dispel_mod[idx] = parse::ReadAsInt(dm);
+		}
 		// issue.damage-change: <shield weight="N"/> -- marks a mutually-exclusive elemental shield and its
 		// weighted-random selection weight (read off a COPY of the node, the obj_sets pattern).
 		{
@@ -876,6 +884,12 @@ EBuff AffectBuffKind(EAffect affect_type) {
 int AffectShieldWeight(EAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kAffectFlagTableSize ? g_affect_shield_weight[idx] : 0;
+}
+
+// issue.random-noise-rework: the affect's additive dispel modifier (0 = neutral).
+int AffectDispelMod(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_dispel_mod[idx] : 0;
 }
 
 // issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize (buffs to realize as real

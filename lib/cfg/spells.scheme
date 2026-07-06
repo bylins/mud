@@ -229,6 +229,7 @@
 		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
 		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="sigma" type="double" min="0" desc="issue.random-noise-rework: >0 -> multiplicative truncated-normal spread; value is the coefficient of variation (e.g. 0.15)"/>
 	</tag>
 
 	<tag name="hits" desc="Multi-hit: 1 + extra hits scaled by skill">
@@ -251,6 +252,7 @@
 		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
 		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="sigma" type="double" min="0" desc="issue.random-noise-rework: >0 -> multiplicative truncated-normal spread; value is the coefficient of variation (e.g. 0.15)"/>
 	</tag>
 	<tag name="moves" desc="Movement-point amount" parent="points">
 		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
@@ -258,6 +260,7 @@
 		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
 		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="sigma" type="double" min="0" desc="issue.random-noise-rework: >0 -> multiplicative truncated-normal spread; value is the coefficient of variation (e.g. 0.15)"/>
 	</tag>
 	<tag name="thirst" desc="Thirst condition amount" parent="points">
 		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
@@ -330,7 +333,7 @@
 
 	<tag name="unaffect" desc="Strip affects from the target">
 		<attr name="affect_flags" type="flagset" enum="EAffFlag" desc="Only affects carrying these flags are eligible"/>
-		<attr name="potency_weight" type="double" min="0" desc="Caster potency multiplier for the dispel contest"/>
+		<attr name="dispel_bonus" type="int" min="0" max="100" desc="Base dispel win chance in percent at competence parity (default 50); the dispeller's competence gap shifts it up/down"/>
 		<attr name="prob" type="int" min="0" max="100" desc="Chance to apply (percent)"/>
 		<attr name="decay" type="int" desc="On a FAILED removal, shift the surviving affect potency by this percent of the dispel potency (negative = strengthen, 0 = none); default 0"/>
 		<child tag="remove"/>

@@ -108,6 +108,8 @@ enum class EBuff { kNo, kYes, kAmbiguous };
 // > 0 marks a mutually-exclusive elemental shield; 0 = not a shield. Used to weighted-randomly pick the
 // one shield that reduces a given hit.
 [[nodiscard]] int AffectShieldWeight(EAffect affect_type);
+// issue.random-noise-rework: additive dispel-threshold modifier (percentage points, 0 = neutral).
+[[nodiscard]] int AffectDispelMod(EAffect affect_type);
 
 // issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize, cached at load. These are
 // the buffs realized as real (dispellable, duration=-1) affects on a flag-only NPC when its zone wakes.

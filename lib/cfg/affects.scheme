@@ -19,6 +19,7 @@
 	<tag name="affect" desc="One affect: the flag it sets + the stat changes it imposes">
 		<attr name="id" type="enum" enum="EAffect" readonly="Y" desc="Affect identity (immutable)"/>
 		<attr name="buff" type="bool" desc="Y = buff, N = debuff (drives dispel/cure classification)"/>
+		<attr name="dispel_mod" type="int" desc="issue.random-noise-rework: additive per-affect modifier to the dispel-contest threshold (percentage points); negative = harder to remove (critical buffs), default 0"/>
 		<child tag="flags"/>
 		<child tag="apply" multiple="Y"/>
 	</tag>

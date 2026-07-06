@@ -266,6 +266,10 @@ class Roll {
 	int dice_add_{0};
 
 	ESkill base_skill_{ESkill::kUndefined};
+	// Member defaults are 0 (no competence) so a wholly-absent <base_skill>/<base_stat> node -- e.g. a
+	// spell with no <potency_roll> -- contributes nothing, as before. The hi-dominant rebalance default
+	// (low=1, hi=7, stat weight=18; issue.random-noise-rework, weights are percentages /100) is applied
+	// in the PARSER (Roll::Roll RollDoubleOr fallbacks) when a PRESENT node omits the attribute.
 	double low_skill_bonus_{0.0};
 	double hi_skill_bonus_{0.0};
 
@@ -418,6 +422,10 @@ class Damage : public IAction {
 	double amount_dices_weight_{1.0};        // base scale on the potency roll's dice
 	double amount_alpha_{0.0};               // dice-amplification: skill scales the dice (issue.potency-formula)
 	double amount_beta_{1.0};                // additive skill+stat coefficient (was competencies_weight)
+	// issue.random-noise-rework (P1): opt-in multiplicative truncated-normal noise. sigma>0 switches the
+	// amount to GaussIntNumber(min + beta*C, sigma*beta*C, ...) -- mean scales with competence, relative
+	// spread stays ~sigma (constant CV). 0 (default) keeps the legacy dice formula. beta is reused as k.
+	double amount_sigma_{0.0};
 	// Multi-hit support (issue.extra-hits): a <hits ...> child enables extra-hits computation via
 	// CalcExtraHits. Absent tag -> has_hits_=false -> the spell deals exactly one hit (count=1).
 	// When present, count = 1 + CalcExtraHits(caster, spell_id, base_skill, divisor, max, prob).
@@ -435,6 +443,7 @@ class Damage : public IAction {
 	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
 	[[nodiscard]] double GetAmountAlpha() const { return amount_alpha_; }
 	[[nodiscard]] double GetAmountBeta() const { return amount_beta_; }
+	[[nodiscard]] double GetAmountSigma() const { return amount_sigma_; }
 	[[nodiscard]] bool HasHits() const { return has_hits_; }
 	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
 	[[nodiscard]] int GetHitsMax() const { return hits_max_; }
@@ -484,6 +493,7 @@ class Points : public IAction {
 		double alpha{0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0};           // additive skill/stat coefficient (was competencies_weight)
 		double npc_coeff{0};
+		double sigma{0};          // issue.random-noise-rework: >0 -> multiplicative truncated-normal spread (heal/moves)
 	};
  private:
 	int extra_{0};        // overheal cap as percent ABOVE max_hp
@@ -727,9 +737,10 @@ class TalentUnaffect : public IAction {
 	[[nodiscard]] const Set &GetBreaking() const { return breaking_; }
 	[[nodiscard]] const Set &GetRemoveAnyway() const { return remove_anyway_; }
 	[[nodiscard]] const Set &GetRemove() const { return remove_; }
-	// Weight applied to this dispel's potency roll when checked against an affect's recorded
-	// potency (issue: potency-gated dispel). Default 1.0 (the <unaffect potency_weight=> attr).
-	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
+	// Base dispel win chance in percent at competence parity (the <unaffect dispel_bonus=> attr,
+	// default 50). The dispeller's competence advantage over the affect shifts it up/down; see the
+	// d100 contest in DispelSucceeds. issue.random-noise-rework: replaced the potency_weight multiplier.
+	[[nodiscard]] int GetDispelBonus() const { return dispel_bonus_; }
 	// Which affects this unaffect may remove: an affect is eligible only if it carries at least one
 	// of these EAffFlag bits (issue.affect-dispell-flags). Default kAfCurable|kAfDispellable -- a
 	// generic unaffect removes anything curable or dispellable. kRemovePoison narrows it to
@@ -745,7 +756,7 @@ class TalentUnaffect : public IAction {
 	Set breaking_;       // present -> the cast chain breaks (EStageResult::kBreak)
 	Set remove_anyway_;  // dispelled even when blocking is true
 	Set remove_;         // dispelled only when blocking is false
-	float potency_weight_{1.0f};
+	int dispel_bonus_{50};  // issue.random-noise-rework: % win at competence parity (was potency_weight multiplier)
 	Bitvector affect_flags_{kAfCurable | kAfDispellable};
 	int prob_{100};      // percent chance the unaffect block fires at all (default always)
 	int decay_{0};       // issue.debuff-decay: % of dispel potency to shift a surviving affect on a failed removal
