@@ -314,11 +314,59 @@ int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	return 0;
 }
 
+// issue.potion-hotfix P2: migrate a kPotion's legacy m_vals payload into the ObjVal
+// EValueKey map so it no longer relies on the old array. val[1..3] were the three spells;
+// the pre-P1 brew overwrote val[3] with the potency, so an INSTANCE whose val[3] differs
+// from its prototype's is treated as brewed (val[3] -> kPotionPotency; its 3rd spell was
+// already lost -- the rare old 3-spell brew is a hand-fix). Prototypes always keep val[3]
+// as the real 3rd spell. Idempotent: a potion that already has any potion key is skipped
+// (P1 brews and prior converter runs). m_vals is left in place for the fallback until P3.
+int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
+	if (obj->get_type() != EObjType::kPotion) {
+		return 0;
+	}
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency) >= 0) {
+		return 0;  // already migrated
+	}
+	const int v1 = obj->get_val(1);
+	const int v2 = obj->get_val(2);
+	const int v3 = obj->get_val(3);
+	// A potion spell is any positive value; -1/0 is the "no spell" sentinel. We must NOT call
+	// MUD::Spell().IsValid() here -- ConvertObjValues runs before the spell registry is populated, so
+	// it would reject every spell. It isn't needed either: an out-of-range/undefined spell number is
+	// silently ignored at cast, exactly as the m_vals path already does.
+	const auto set_spell = [obj](ObjVal::EValueKey key, int num) {
+		if (num > 0) {
+			obj->SetPotionValueKey(key, num);
+		}
+	};
+	set_spell(ObjVal::EValueKey::kPotionSpell1Num, v1);
+	set_spell(ObjVal::EValueKey::kPotionSpell2Num, v2);
+
+	bool brewed = false;
+	if (!proto && v3 > 0) {
+		const auto rnum = obj->get_rnum();
+		if (rnum >= 0 && static_cast<size_t>(rnum) < obj_proto.size()) {
+			brewed = (v3 != obj_proto[rnum]->get_val(3));  // differs from proto -> brewed potency
+		}
+	}
+	if (brewed) {
+		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, v3);
+	} else {
+		set_spell(ObjVal::EValueKey::kPotionSpell3Num, v3);
+	}
+	return 1;
+}
+
 /// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
 void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
+		save = std::max(save, ConvertPotionToEValueKey(i.get(), true));
 		if (i->has_flag(EObjFlag::k2inlaid)) {
 			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;

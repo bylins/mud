@@ -200,6 +200,7 @@ void ShowMainMenu(DescriptorData *d);
 extern TimeInfoData time_info;
 
 extern int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto);
+extern int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto);
 
 void PasteMobiles();
 
