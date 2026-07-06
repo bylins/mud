@@ -2,14 +2,28 @@
 #
 # PoC: demonstrate and measure the SQLite world-cache speedup.
 #
-# Boots the SAME world three times with the composite (yaml+sqlite) binary
-# and prints boot times side by side:
-#   1. COLD   - no world.db yet: engine reads YAML, writes world.db (resync)
-#   2. WARM   - world.db is fresher than the YAML files: engine reads SQLite
-#   3. STALE  - a YAML file was touched (edited) after the SQLite write:
-#               engine falls back to YAML again and re-resyncs SQLite
-# A plain YAML-only boot (no cache in the picture at all) is also measured
-# as the "no cache" reference point.
+# Boots the SAME world with the composite (yaml+sqlite) binary through 6
+# stages and prints boot times + a summary table:
+#   0. YAML-ONLY        - plain YAML binary, no cache in the picture at all
+#                          (the "no cache" reference point)
+#   1. COLD              - no world.db yet: engine reads YAML, writes
+#                           world.db for every zone (full resync)
+#   2. WARM               - world.db is fresher than the YAML files for
+#                           every zone: engine reads SQLite only
+#   3. STALE              - every zone's YAML was touched (edited) after
+#                           the SQLite write: engine falls back to YAML for
+#                           the whole world and re-resyncs all of world.db
+#                           (worst case -- everything invalidated at once)
+#   4. WARM again          - re-confirms the post-resync state is back on
+#                           the fast SQLite path
+#   5. SINGLE-ZONE STALE   - only ONE zone's YAML was touched: the scenario
+#                           that actually matters in production (a builder
+#                           edits one zone live). Engine should re-read only
+#                           that zone from YAML and resync only it in
+#                           world.db -- boot time here should sit close to
+#                           WARM, not close to full STALE; the summary
+#                           prints the single-zone/full-stale time ratio as
+#                           a sanity check (should be well under 1.0).
 #
 # PREREQUISITES:
 #   - build_yaml/circle and build_multi/circle already built, e.g. via:
@@ -22,10 +36,30 @@
 #   e.g.
 #   ./tools/poc_sqlite_cache_bench.sh small
 #   ./tools/poc_sqlite_cache_bench.sh full
+#   ./tools/poc_sqlite_cache_bench.sh full_perfile   # per-file YAML layout
+#                                                     # (same stages, same
+#                                                     # comparison, just a
+#                                                     # different on-disk
+#                                                     # world_config.yaml
+#                                                     # "layout: per_file")
+#
+# ENV VARS (optional):
+#   POC_BASE_PORT=<port>   - first of 6 consecutive ports used, one per
+#                            stage (default 4010). Override on a shared/prod
+#                            box where the default range might collide with
+#                            something already running.
+#   BOOT_TIMEOUT=<seconds> - per-stage boot wait timeout (default 900). Bump
+#                            this for a large/slow world or a loaded host --
+#                            a stage that never reaches "Boot db -- DONE" in
+#                            time is reported as "X TIMEOUT booting" and its
+#                            summary row is left blank ("?s").
 #
 # The named world (already set up under build_yaml/<name>) is copied fresh
 # into build_multi/poc_<name> for this benchmark; build_yaml/<name> itself
-# is only read, never modified.
+# is only read, never modified. Each stage's full server output lands in
+# build_multi/poc_<name>/stdout_poc_<label>.log (label = yaml_only/cold/
+# warm/stale/warm2/single_zone_stale) for post-mortem if a stage times out
+# or a checksum looks wrong.
 #
 
 set -u
