@@ -362,6 +362,13 @@ int PotionCastSkill(const ObjData *potion) {
 	return (stored > 0) ? stored : kAuthoredPotionSkill;
 }
 
+// issue.potion-hotfix: the maker's key stat (crafted: brewer Intelligence; else the authored default).
+// Needed alongside PotionCastSkill to blend two potions' stats when they are poured together.
+int PotionCastStat(const ObjData *potion) {
+	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+	return (stored > 0) ? stored : kAuthoredPotionKeyStat;
+}
+
 float CalcCastPotency(const RollResult &potency) {
 	// issue.random-noise-rework (P3): stored potency is DETERMINISTIC competence (skill+stat),
 	// NOT the rolled dice. The affect's recorded strength (used by dispel contests, first-aid

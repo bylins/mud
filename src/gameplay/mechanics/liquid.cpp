@@ -465,6 +465,27 @@ void drinkcon::spells_to_drinkcon(ObjData *from_obj, ObjData *to_obj) {
 						   ? from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum)
 						   : GET_OBJ_VNUM(from_obj);
 	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, proto_vnum);
+	// issue.potion-hotfix: carry the FULL brewed stats, not just the spells + proto vnum. A brewed
+	// potion's strength is its maker skill/stat (+ the frozen roll); the vnum alone can't recover it.
+	for (const auto key : {ObjVal::EValueKey::kPotionSkill, ObjVal::EValueKey::kPotionStat,
+						   ObjVal::EValueKey::kPotionPotency, ObjVal::EValueKey::kPotionBrewRoll}) {
+		to_obj->SetPotionValueKey(key, from_obj->GetPotionValueKey(key));
+	}
+}
+
+// issue.potion-hotfix: pouring one potion (n_from units) into another (n_to units) blends the two
+// makers' inputs by quantity -- e.g. 18 units at skill 100 mixed with 2 at skill 80 gives
+// (18*100 + 2*80)/20 = 98; the key stat blends the same way, and the re-derived potency follows.
+// The spells must already match (the caller checks). Uses each side's EFFECTIVE value so an authored
+// potion (no stored skill/stat) contributes its authored maker (80/25), not zero.
+void drinkcon::mix_potion_values(ObjData *to_obj, const ObjData *from_obj, int n_to, int n_from) {
+	if (n_to + n_from <= 0) {
+		return;
+	}
+	const int skill = (n_to * PotionCastSkill(to_obj) + n_from * PotionCastSkill(from_obj)) / (n_to + n_from);
+	const int stat  = (n_to * PotionCastStat(to_obj)  + n_from * PotionCastStat(from_obj))  / (n_to + n_from);
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, std::max(1, skill));
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, std::max(1, stat));
 }
 
 size_t find_liquid_name(const char *name) {

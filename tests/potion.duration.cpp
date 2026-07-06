@@ -1,8 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <memory>
+
 #include "gameplay/skills/skills.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/classes/classes_constants.h"
+#include "gameplay/mechanics/liquid.h"
+#include "engine/entities/obj_data.h"
 #include "simulator/character_builder.h"
 
 // issue.potion-hotfix: a potion buff's DURATION scales off the potion MAKER's skill (stored on the
@@ -29,6 +33,26 @@ TEST(PotionBuffDuration, MakerSkillOverrideGivesDurationWhereZeroGivesNone) {
 
 	EXPECT_EQ(no_skill, 0);             // a 0-skill maker -> no bonus -> buff would not stick
 	EXPECT_GT(with_maker, no_skill);    // an 80-skill maker -> a real duration
+}
+
+// issue.potion-hotfix: pouring blends two potions' maker skill/stat by quantity, so the mixed
+// container casts at the weighted-average strength -- not the container's original nor the poured one's.
+TEST(PotionMix, WeightedBlendOfSkillAndStat) {
+	auto to = std::make_shared<ObjData>(CObjectPrototype(42));
+	to->set_type(EObjType::kPotion);
+	to->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, 100);
+	to->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, 30);
+
+	auto from = std::make_shared<ObjData>(CObjectPrototype(42));
+	from->set_type(EObjType::kPotion);
+	from->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, 80);
+	from->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, 20);
+
+	// 18 units at skill 100 mixed with 2 at skill 80 -> (18*100 + 2*80) / 20 = 98 (kvirund's example).
+	drinkcon::mix_potion_values(to.get(), from.get(), /*n_to*/ 18, /*n_from*/ 2);
+
+	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill), 98);
+	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 29);  // (18*30 + 2*20) / 20 = 29
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

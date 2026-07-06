@@ -82,6 +82,7 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 // issue.potion-hotfix: the maker's skill for a potion's buff DURATION (brew skill for crafted, the
 // authored maker skill otherwise). The drinker's own skill never matters.
 [[nodiscard]] int PotionCastSkill(const ObjData *potion);
+[[nodiscard]] int PotionCastStat(const ObjData *potion);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 

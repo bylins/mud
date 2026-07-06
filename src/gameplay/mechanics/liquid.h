@@ -73,6 +73,8 @@ int check_equal_potions(ObjData *from_obj, ObjData *to_obj);
 void generate_drinkcon_name(ObjData *to_obj, ESpell spell_id);
 int check_equal_drinkcon(ObjData *from_obj, ObjData *to_obj);
 void spells_to_drinkcon(ObjData *from_obj, ObjData *to_obj);
+// issue.potion-hotfix: quantity-weighted blend of two potions' maker skill/stat when they are mixed.
+void mix_potion_values(ObjData *to_obj, const ObjData *from_obj, int n_to, int n_from);
 
 } // namespace drinkcon
 

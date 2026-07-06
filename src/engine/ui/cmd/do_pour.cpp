@@ -128,13 +128,14 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		int result = drinkcon::check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
 			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, grammar::ECase::kAcc));
-			int n1 = GET_OBJ_VAL(from_obj, 1);
+			// issue.potion-hotfix: a potion bottle is ONE unit, and its spoilage timer is its own
+			// object timer -- NOT val[1]/val[3], which on a kPotion are SPELL ids (the old bug that
+			// let a fresh pour reset the container's timer). Blend the timer weighted by quantity.
+			int n1 = 1;
 			int n2 = GET_OBJ_VAL(to_obj, 1);
-			int t1 = GET_OBJ_VAL(from_obj, 3);
+			int t1 = from_obj->get_timer();
 			int t2 = GET_OBJ_VAL(to_obj, 3);
-			to_obj->set_val(3,
-							(n1 * t1 + n2 * t2)
-								/ (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
+			to_obj->set_val(3, (n1 * t1 + n2 * t2) / (n1 + n2));
 //				SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 //				sprintf(buf, "Игрок %s наполняет емкость. Первая емкость: %s (%d) Вторая емкость %s (%d). SCMD %d",
 //						GET_NAME(ch), from_obj->get_PName(ECase::kGen).c_str(), GET_OBJ_VNUM(from_obj), to_obj->get_PName(ECase::kGen).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
@@ -145,6 +146,10 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				drinkcon::copy_potion_values(from_obj, to_obj);
 				// определение названия зелья по содержащемуся заклинанию //
 				drinkcon::generate_drinkcon_name(to_obj, static_cast<ESpell>(GET_OBJ_VAL(from_obj, 1)));
+			} else {
+				// issue.potion-hotfix: mixing into a non-empty container blends the maker skill/stat by
+				// quantity (n2 units already there + this one poured-in unit).
+				drinkcon::mix_potion_values(to_obj, from_obj, n2, n1);
 			}
 			weight_change_object(to_obj, 1);
 			to_obj->inc_val(1);
@@ -207,6 +212,11 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
 	// Then how much to pour //
 	amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1));
+	// issue.potion-hotfix: mixing a potion into a non-empty container blends the maker skill/stat by
+	// quantity -- the n2 units already there plus the `amount` poured in. Spells match (checked above).
+	if (n2 > 0 && is_potion(from_obj)) {
+		drinkcon::mix_potion_values(to_obj, from_obj, n2, amount);
+	}
 	if (from_obj->get_type() != EObjType::kFountain
 		|| GET_OBJ_VAL(from_obj, 1) != 999) {
 		from_obj->sub_val(1, amount);
