@@ -74,6 +74,11 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, doub
 int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 		double fixed_z = std::numeric_limits<double>::quiet_NaN());
 
+// issue.potion-hotfix P3: a potion's casting potency (competence C). The brewed-in kPotionPotency if
+// present (crafted); otherwise the potency a fixed-skill potion-maker would brew, from the potion's
+// FIRST spell. Returns <=0 if the potion has no castable first spell.
+[[nodiscard]] float PotionPotency(const ObjData *potion);
+
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 
 // Resistance calculate //

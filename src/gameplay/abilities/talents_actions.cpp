@@ -178,6 +178,12 @@ double Roll::CalcBaseStatCoeff(const CharData *const ch) const {
 	return std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_ / 100.0;
 }
 
+// As CalcBaseStatCoeff, but with an explicit key-stat value instead of GetRealBaseStat(ch).
+// issue.potion-hotfix P3: gives a non-crafted potion a potency as if brewed at a fixed key-stat.
+double Roll::CalcBaseStatCoeffForValue(int stat) const {
+	return std::max(0, stat - base_stat_threshold_) * base_stat_weight_ / 100.0;
+}
+
 // Editor-friendly reads: a <potency_roll>/<success_roll> built in the Vedun editor may leave some
 // dice/skill/stat attributes unset; treat a missing/empty attribute as its neutral default (0 /
 // kUndefined) rather than throwing "incorrect value ''" on save.

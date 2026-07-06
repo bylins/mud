@@ -187,11 +187,12 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			SetBattleLag(ch, 1);
 			{
-				// issue.potion-hotfix: a potion's strength is BREWED IN. Prefer the dedicated keys --
-				// kPotionPotency (cast competence C) + kPotionBrewRoll (frozen noise, decoded to the
-				// 1+eps factor) + the three spell numbers. A legacy/un-migrated potion with no stored
-				// potency falls back to its old m_vals spells cast at the item level.
-				const int potency = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
+				// issue.potion-hotfix P3: strength is BREWED IN -- the crafted kPotionPotency, or (non-
+				// crafted) the value a fixed-skill potion-maker would brew (PotionPotency). Spells,
+				// potency and the frozen noise roll all live in the ObjVal keys (the boot/load converter
+				// migrated every potion off m_vals), so we read keys ONLY. brew_roll absent (non-crafted)
+				// -> NaN -> the noise is drawn at cast, like a fresh cast.
+				const float potency = PotionPotency(obj);
 				const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
 				const double noise_z = (brew_roll > 0)
 					? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
@@ -199,16 +200,12 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				for (i = 1; i <= 3; i++) {
 					const ObjVal::EValueKey spell_key = (i == 1) ? ObjVal::EValueKey::kPotionSpell1Num
 						: (i == 2) ? ObjVal::EValueKey::kPotionSpell2Num : ObjVal::EValueKey::kPotionSpell3Num;
-					int spell_num = obj->GetPotionValueKey(spell_key);
+					const int spell_num = obj->GetPotionValueKey(spell_key);
 					if (spell_num <= 0) {
-						spell_num = GET_OBJ_VAL(obj, i);  // legacy m_vals fallback
+						continue;
 					}
-					const ECastResult r = (potency > 0)
-						? CallMagic(ch, ch, nullptr, world[ch->in_room],
-									static_cast<ESpell>(spell_num), 0, static_cast<float>(potency), noise_z)
-						: CallMagic(ch, ch, nullptr, world[ch->in_room],
-									static_cast<ESpell>(spell_num), level);
-					if (r != ECastResult::kSuccess) {
+					if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(spell_num), 0,
+								  potency, noise_z) != ECastResult::kSuccess) {
 						break;
 					}
 				}

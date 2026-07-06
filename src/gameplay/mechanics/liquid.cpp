@@ -23,6 +23,8 @@
 #include <cmath>
 #include <limits>
 
+#include "gameplay/magic/magic_utils.h"
+
 
 const char *drinks[] = {"воды",
 						"пива",
@@ -251,21 +253,16 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	if (spell_id <= ESpell::kUndefined) {
 		return ECastResult::kSuccess;
 	}
-	// issue.potion-hotfix: a potion's strength is BREWED IN, not taken from the drinker. kPotionPotency
-	// is the casting potency (competence); kPotionBrewRoll is the frozen noise realization, decoded to
-	// the (1+eps) factor that CalcNoisyAmount replays. One potency + roll is shared by all three spells.
-	const int potency = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
-	if (potency > 0) {
-		const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
-		const double noise_z = (brew_roll > 0)
-			? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
-			: std::numeric_limits<double>::quiet_NaN();
-		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0,
-						 static_cast<float>(potency), noise_z);
-	}
-	// legacy potion without a brewed potency: keep the old level-based item-cast path
-	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
-	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
+	// issue.potion-hotfix P3: strength is brewed in, not taken from the drinker -- the crafted
+	// kPotionPotency, or (non-crafted) the value a fixed-skill potion-maker would brew (PotionPotency).
+	// kPotionBrewRoll is the frozen brew-luck z replayed by CalcNoisyAmount; absent (non-crafted) ->
+	// NaN -> drawn at cast. One potency + roll for the whole potion.
+	const float potency = PotionPotency(obj);
+	const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
+	const double noise_z = (brew_roll > 0)
+		? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
+		: std::numeric_limits<double>::quiet_NaN();
+	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, potency, noise_z);
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {

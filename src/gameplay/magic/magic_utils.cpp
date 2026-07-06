@@ -317,7 +317,34 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, doub
 	if (!std::isnan(fixed_z)) {
 		return std::clamp(static_cast<int>(std::lround(mean + fixed_z * sd)), lo, hi);
 	}
+	// GaussIntNumber's std::normal_distribution requires stddev > 0. A zero spread (scaled==0 --
+	// e.g. a spell with no competence scaling, or a 0-competence caster) is deterministic: return
+	// the mean rather than crashing on the assertion.
+	if (sd <= 0.0) {
+		return std::clamp(static_cast<int>(std::lround(mean)), lo, hi);
+	}
 	return GaussIntNumber(mean, sd, lo, hi);
+}
+
+// issue.potion-hotfix P3: a non-crafted potion casts as if brewed by a potion-maker with this skill
+// and key-stat (kvirund's decision). A crafted potion carries its own brewed kPotionPotency instead.
+constexpr int kAuthoredPotionSkill = 80;
+constexpr int kAuthoredPotionKeyStat = 25;
+
+float PotionPotency(const ObjData *potion) {
+	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
+	if (stored > 0) {
+		return static_cast<float>(stored);  // crafted: use the brewed-in potency
+	}
+	// Non-crafted: as if a potion-maker of skill kAuthoredPotionSkill / key-stat kAuthoredPotionKeyStat
+	// brewed it, from the FIRST spell's potency roll. One potency for the whole potion, like brewing.
+	const auto spell1 = static_cast<ESpell>(potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num));
+	if (spell1 <= ESpell::kUndefined) {
+		return -1.0f;
+	}
+	const auto &roll = MUD::Spell(spell1).GetPotencyRoll();
+	return static_cast<float>(roll.CalcSkillCoeffForValue(kAuthoredPotionSkill)
+			+ roll.CalcBaseStatCoeffForValue(kAuthoredPotionKeyStat));
 }
 
 float CalcCastPotency(const RollResult &potency) {
