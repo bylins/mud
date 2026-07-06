@@ -202,8 +202,8 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("base_skill")) {
 		const char *skill_id = node.GetValue("id");
 		base_skill_ = (skill_id && *skill_id) ? parse::ReadAsConstant<ESkill>(skill_id) : ESkill::kUndefined;
-		low_skill_bonus_ = RollDoubleOr(node.GetValue("low_skill_bonus"), 0.0);
-		hi_skill_bonus_ = RollDoubleOr(node.GetValue("hi_skill_bonus"), 0.0);
+		low_skill_bonus_ = RollDoubleOr(node.GetValue("low_skill_bonus"), 1.0);
+		hi_skill_bonus_ = RollDoubleOr(node.GetValue("hi_skill_bonus"), 7.0);
 		node.GoToParent();
 	}
 
@@ -213,7 +213,7 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 			base_stat_ = parse::ReadAsConstant<EBaseStat>(stat_id);
 		}
 		base_stat_threshold_ = RollIntOr(node.GetValue("threshold"), 0);
-		base_stat_weight_ = RollDoubleOr(node.GetValue("weight"), 0.0);
+		base_stat_weight_ = RollDoubleOr(node.GetValue("weight"), 18.0);
 		node.GoToParent();
 	}
 }
@@ -415,6 +415,9 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		amount_alpha_ = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 		const char *ab = node.GetValue("beta");
 		amount_beta_ = (ab && *ab) ? parse::ReadAsDouble(ab) : 1.0;
+		// issue.random-noise-rework (P1): optional relative-spread (CV) knob for multiplicative noise.
+		const char *asg = node.GetValue("sigma");
+		amount_sigma_ = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
 		node.GoToParent();
 	}
 	// <hits> is optional; absent -> the spell deals one hit. Individual attrs
@@ -455,6 +458,8 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 	a.alpha = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 	const char *ab = node.GetValue("beta");
 	a.beta = (ab && *ab) ? parse::ReadAsDouble(ab) : 0.0;
+	const char *asg = node.GetValue("sigma");
+	a.sigma = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
 	if (with_npc) {
 		// 1.0 default mirrors the legacy <heal npc_coeff/> default: NPC casters
 		// get a *2 boost on heal points unless the tag overrides it.
@@ -568,6 +573,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// in the opposite direction.
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
+	// dispel_mod: additive per-affect modifier to the dispel-contest threshold (percentage points);
+	// negative makes the affect harder to remove (critical buffs). Default 0.
+	const char *dm = node.GetValue("dispel_mod");
+	dispel_mod_ = (dm && *dm) ? parse::ReadAsInt(dm) : 0;
 	// tick_spell (room affects): the kService spell whose actions the room-affect handler runs
 	// each tick. Optional; absent -> kUndefined (no per-tick effect / handled in code).
 	const char *tick = node.GetValue("tick_spell");
@@ -642,6 +651,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
 		   << " Flags: " << kColorGrn << flags_ << kColorNrm
 		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
+		   << " dispel_mod=" << kColorGrn << dispel_mod_ << kColorNrm
 		   << (tick_spell_ != ESpell::kUndefined ? " tick_spell=" : "") << kColorGrn
 		   << (tick_spell_ != ESpell::kUndefined ? NAME_BY_ITEM<ESpell>(tick_spell_) : "") << kColorNrm
 		   << (tick_handler_.empty() ? "" : " tick_handler=") << kColorGrn << tick_handler_ << kColorNrm << "\r\n"
@@ -669,8 +679,8 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 }
 
 TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
-	const char *pw = node.GetValue("potency_weight");
-	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
+	const char *db = node.GetValue("dispel_bonus");
+	dispel_bonus_ = (db && *db) ? parse::ReadAsInt(db) : 50;
 	const char *af = node.GetValue("affect_flags");
 	affect_flags_ = (af && *af) ? parse::ReadAsConstantsBitvector<EAffFlag>(af)
 								 : (kAfCurable | kAfDispellable);
@@ -724,7 +734,7 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		}
 		buffer << "\r\n";
 	};
-	buffer << " Unaffect:" << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
+	buffer << " Unaffect:" << " dispel_bonus=" << kColorGrn << dispel_bonus_ << kColorNrm
 		   << " affect_flags=" << kColorGrn << affect_flags_ << kColorNrm
 		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
 	print_set("blocking", blocking_);
