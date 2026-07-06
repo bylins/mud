@@ -657,6 +657,14 @@ void ObjData::process_periodic_effects() {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, 1);
 	}
+}
+
+// issue.potion-hotfix: the CONTENTS freshness (val[3]) of a food/liquid container decays one step per
+// tick until it spoils (val[3] == 1). This is the potion/food spoilage; it is separate from the
+// container item's OWN decay (get_timer(), via the decay-manager deadline). Driven by the decay
+// manager's perishable set so it runs for EVERY food/liquid, not just the rare item that also carries
+// a timed spell -- the old code gated it behind the timed-spell set, so containers never spoiled.
+void ObjData::decrement_freshness() {
 	if ((get_type() == EObjType::kLiquidContainer || get_type() == EObjType::kFood)
 		&& GET_OBJ_VAL(this, 3) > 1) {
 		dec_val(3);

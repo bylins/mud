@@ -12,6 +12,8 @@ void ObjDecayManager::insert(ObjData *obj) {
 	if (!obj) {
 		return;
 	}
+	// issue.potion-hotfix: a food/liquid's contents freshness spoils regardless of decay tracking.
+	register_perishable(obj);
 	auto it = m_obj_to_deadline.find(obj);
 	if (it != m_obj_to_deadline.end()) {
 		// Уже трекается. Сохраняем существующий дедлайн, чтобы
@@ -121,9 +123,17 @@ void ObjDecayManager::remove_timed_spell_obj(ObjData *obj) {
 	m_timed_spell_objs.erase(obj);
 }
 
+void ObjDecayManager::register_perishable(ObjData *obj) {
+	if (obj && obj->get_val(3) > 1
+		&& (obj->get_type() == EObjType::kLiquidContainer || obj->get_type() == EObjType::kFood)) {
+		m_perishable_objs.insert(obj);
+	}
+}
+
 void ObjDecayManager::drop_obj_from_indices(ObjData *obj) {
 	m_env_check_objs.erase(obj);
 	m_timed_spell_objs.erase(obj);
+	m_perishable_objs.erase(obj);
 	m_zonedecay_objs.erase(obj);
 	remove_queue_entry(obj);
 	m_obj_to_deadline.erase(obj);
@@ -197,7 +207,7 @@ TickResult ObjDecayManager::process_tick() {
 		}
 	}
 
-	// 3. Process timed spell and food/liquid periodic effects
+	// 3. Process on-item timed-spell periodic effects (food/liquid freshness handled in 3b below)
 	{
 		auto ts_copy = m_timed_spell_objs;
 		for (auto *obj : ts_copy) {
@@ -208,6 +218,20 @@ TickResult ObjDecayManager::process_tick() {
 			obj->process_periodic_effects();
 			if (!obj->has_timed_spell()) {
 				m_timed_spell_objs.erase(obj);
+			}
+		}
+	}
+
+	// 3b. Food/liquid CONTENTS freshness (val[3]): decays one step per tick until spoiled (== 1).
+	// issue.potion-hotfix: runs for EVERY registered food/liquid regardless of timed spells or carry
+	// state. The old val[3] decay lived inside process_periodic_effects, which the tick calls only for
+	// the timed-spell set -- so food and poured potions never actually spoiled.
+	{
+		auto copy = m_perishable_objs;
+		for (auto *obj : copy) {
+			obj->decrement_freshness();
+			if (obj->get_val(3) <= 1) {
+				m_perishable_objs.erase(obj);
 			}
 		}
 	}

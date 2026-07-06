@@ -11,6 +11,7 @@
 
 #include "engine/entities/obj_data.h"
 #include "engine/entities/char_data.h"
+#include "engine/db/world_objects.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/liquid.h"
 
@@ -153,6 +154,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 			weight_change_object(to_obj, 1);
 			to_obj->inc_val(1);
+			// issue.potion-hotfix: the container now holds spoiling potion -- track its contents' freshness.
+			world_objects.decay_manager().register_perishable(to_obj);
 			ExtractObjFromWorld(from_obj);
 			return;
 		} else if (result < 0) {
@@ -222,6 +225,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		from_obj->sub_val(1, amount);
 	}
 	to_obj->set_val(1, GET_OBJ_VAL(to_obj, 0));
+	// issue.potion-hotfix: a freshly filled liquid container's contents spoil over time -- track it.
+	world_objects.decay_manager().register_perishable(to_obj);
 
 	// Then the poison boogie //
 

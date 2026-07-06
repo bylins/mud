@@ -55,4 +55,32 @@ TEST(PotionMix, WeightedBlendOfSkillAndStat) {
 	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 29);  // (18*30 + 2*20) / 20 = 29
 }
 
+// issue.potion-hotfix: the CONTENTS freshness (val[3]) of a food/liquid spoils one step per tick down
+// to a floor of 1, and only for perishable types. This is what the decay manager drives every tick for
+// every registered food/liquid (the old code only decayed the rare item that also carried a timed spell).
+TEST(PotionFreshness, DecrementsToSpoiledFloorForPerishableTypesOnly) {
+	auto o = std::make_shared<ObjData>(CObjectPrototype(42));
+
+	o->set_type(EObjType::kLiquidContainer);
+	o->set_val(3, 3);
+	o->decrement_freshness();
+	EXPECT_EQ(o->get_val(3), 2);
+	o->decrement_freshness();
+	EXPECT_EQ(o->get_val(3), 1);
+	o->decrement_freshness();
+	EXPECT_EQ(o->get_val(3), 1);  // floored: spoiled contents never drop below 1
+
+	o->set_type(EObjType::kFood);
+	o->set_val(3, 2);
+	o->decrement_freshness();
+	EXPECT_EQ(o->get_val(3), 1);
+
+	// A non-perishable type (e.g. the standalone potion bottle) is left untouched -- its own decay is the
+	// object timer, not val[3] (which on a kPotion holds a spell id).
+	o->set_type(EObjType::kPotion);
+	o->set_val(3, 5);
+	o->decrement_freshness();
+	EXPECT_EQ(o->get_val(3), 5);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -704,6 +704,7 @@ class ObjData : public CObjectPrototype {
 	int get_timer() const override;
 	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
 	void process_periodic_effects();
+	void decrement_freshness();  // issue.potion-hotfix: food/liquid contents spoilage (val[3])
 
 	static id_to_set_info_map set_table;
 
