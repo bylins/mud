@@ -901,7 +901,8 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	int duration = ApplyResist(victim, talent.GetResist(),
 		CalcDuration(ch, victim, duration_skill,
 					 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
-					 talent.GetDurationMin(), talent.GetDurationMax()));
+					 talent.GetDurationMin(), talent.GetDurationMax(),
+					 potency.cast_skill));  // potion (>=0): the maker's skill; live cast (-1): the caster
 	duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
 	const bool tc = spell_trace::Active(ch, victim);
 	if (tc) {

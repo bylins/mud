@@ -1230,7 +1230,8 @@ bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 		case ObjVal::EValueKey::kPotionSpell3Lvl:
 		case ObjVal::EValueKey::kPotionProtoVnum:
 		case ObjVal::EValueKey::kPotionPotency:
-		case ObjVal::EValueKey::kPotionBrewRoll: return true;
+		case ObjVal::EValueKey::kPotionBrewRoll:
+		case ObjVal::EValueKey::kPotionSkill: return true;
 	}
 	return false;
 }

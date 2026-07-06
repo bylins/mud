@@ -48,6 +48,7 @@ void InitObjVals() {
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionProtoVnum), "POTION_PROTO_VNUM");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionPotency), "POTION_POTENCY");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionBrewRoll), "POTION_BREW_ROLL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSkill), "POTION_SKILL");
 }
 
 ///

@@ -1461,6 +1461,9 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								proll.CalcSkillCoeffForValue(rs->perc) + proll.CalcBaseStatCoeff(ch);
 							result->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency,
 													  std::max(1, static_cast<int>(competence + 0.5)));
+							// issue.potion-hotfix: preserve the MAKER's skill (the recipe/brew skill). A
+							// potion buff's duration scales off this, never off the drinker's own skill.
+							result->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, rs->perc);
 							// One standard-normal draw (mean z=0, sd z=1), encoded with the bias so it
 							// stores positive. sigma-independent: every spell scales it by its own sigma.
 							const int brew_roll = GaussIntNumber(

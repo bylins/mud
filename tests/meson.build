@@ -28,6 +28,7 @@ test_sources = files(
     'msdp.builder.cpp',
     'char.affects.cpp',
     'random.noise.cpp',
+    'potion.duration.cpp',
     'char.leaders.cpp',
     'char.morph.copy.cpp',
     'obj.copy.cpp',

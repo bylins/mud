@@ -205,7 +205,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 						continue;
 					}
 					if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(spell_num), 0,
-								  potency, noise_z) != ECastResult::kSuccess) {
+								  potency, noise_z, PotionCastSkill(obj)) != ECastResult::kSuccess) {
 						break;
 					}
 				}

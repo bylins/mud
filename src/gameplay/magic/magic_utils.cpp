@@ -347,6 +347,14 @@ float PotionPotency(const ObjData *potion) {
 			+ roll.CalcBaseStatCoeffForValue(kAuthoredPotionKeyStat));
 }
 
+// issue.potion-hotfix: the MAKER's skill, used to scale a potion buff's DURATION (the drinker's own
+// skill is irrelevant). A crafted potion carries its brew skill (kPotionSkill); a non-crafted one has
+// none, so it falls back to the authored maker's skill.
+int PotionCastSkill(const ObjData *potion) {
+	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+	return (stored > 0) ? stored : kAuthoredPotionSkill;
+}
+
 float CalcCastPotency(const RollResult &potency) {
 	// issue.random-noise-rework (P3): stored potency is DETERMINISTIC competence (skill+stat),
 	// NOT the rolled dice. The affect's recorded strength (used by dispel contests, first-aid
@@ -465,7 +473,7 @@ private:
 // Evaluates the spell's potency roll against the caster once, so the result can be
 // threaded to the cast-dispatch functions. The roll values do not depend on level;
 // level is carried only to replace that parameter.
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z) {
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
@@ -478,14 +486,14 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float
 	// fixed potency. (Under P2 all effect dices_weight=0, so a dices-only value no longer scaled the
 	// amount.) Negative -> roll from the caster as usual.
 	const RollResult bcc_roll = (fixed_potency >= 0.0f)
-		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z}
+		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z, fixed_skill}
 		: eval(spell.GetPotencyRoll());
 	CastContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -563,7 +571,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency, fixed_noise_z);
+	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency, fixed_noise_z, fixed_skill);
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;

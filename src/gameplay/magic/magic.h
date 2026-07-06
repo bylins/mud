@@ -76,6 +76,9 @@ struct RollResult {
 	// same amount -- and each of the potion's spells applies its OWN sigma (via sd) to the one shared z.
 	// NaN (the default) means "no fixed noise -- draw randomly", i.e. an ordinary live cast.
 	double noise_z{std::numeric_limits<double>::quiet_NaN()};
+	// issue.potion-hotfix: a potion buff's DURATION scales off its MAKER's skill (stored on the potion),
+	// never the drinker's. >=0 = a fixed maker skill (potion); <0 (default) = live cast, use the caster.
+	int cast_skill{-1};
 };
 
 // CastContext (issue.spell-pipeline): the single object threaded through the whole
@@ -222,7 +225,8 @@ enum class ECastResult {
 
 ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level,
 		float fixed_potency = -1.0f,   // fixed_potency>=0 (item/potion): use it as the whole cast potency, skip caster roll
-		double fixed_noise_z = std::numeric_limits<double>::quiet_NaN());  // not-NaN (brewed potion): frozen brew-luck z replayed at cast
+		double fixed_noise_z = std::numeric_limits<double>::quiet_NaN(),  // not-NaN (brewed potion): frozen brew-luck z replayed at cast
+		int fixed_skill = -1);  // >=0 (potion): the MAKER skill used for buff DURATION
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop

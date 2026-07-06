@@ -210,6 +210,7 @@ void reset_potion_values(CObjectPrototype *obj) {
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, -1);
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
@@ -241,6 +242,8 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency));
 		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll,
 								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill));
 	}
 }
 
@@ -262,7 +265,7 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	const double noise_z = (brew_roll > 0)
 		? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
 		: std::numeric_limits<double>::quiet_NaN();
-	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, potency, noise_z);
+	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, potency, noise_z, PotionCastSkill(obj));
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
