@@ -211,6 +211,7 @@ void reset_potion_values(CObjectPrototype *obj) {
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, -1);
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
@@ -244,6 +245,8 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll));
 		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
 								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat));
 	}
 }
 
@@ -260,7 +263,7 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	// kPotionPotency, or (non-crafted) the value a fixed-skill potion-maker would brew (PotionPotency).
 	// kPotionBrewRoll is the frozen brew-luck z replayed by CalcNoisyAmount; absent (non-crafted) ->
 	// NaN -> drawn at cast. One potency + roll for the whole potion.
-	const float potency = PotionPotency(obj);
+	const float potency = PotionPotency(obj, spell_id);
 	const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
 	const double noise_z = (brew_roll > 0)
 		? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias

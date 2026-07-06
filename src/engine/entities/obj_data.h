@@ -47,8 +47,10 @@ class ObjVal {
 		kPotionProtoVnum = 6,   // vnum of the source potion poured into a container (0 = set via OLC)
 		kPotionPotency = 7,     // the potion's single casting potency (competence C), replayed at cast
 		kPotionBrewRoll = 8,    // the brew-success roll: the noise realization, replayed at cast
-		kPotionSkill = 9        // the MAKER's skill (brew skill for crafted, authored default else),
-		                        // used for buff DURATION -- the drinker's own skill is irrelevant
+		kPotionSkill = 9,       // the MAKER's skill (brew skill for crafted, authored default else) --
+		                        // stands in for the magic skill (non-mages brew too); drives DURATION
+		                        // and, with kPotionStat, the competence (AMOUNT). Drinker never matters.
+		kPotionStat = 10        // the MAKER's key stat (Intelligence when brewing / authored default)
 	};
 
 	// issue.potion-hotfix: fixed-point scale for kPotionBrewRoll. The stored int is

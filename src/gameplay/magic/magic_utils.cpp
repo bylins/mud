@@ -331,20 +331,27 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, doub
 constexpr int kAuthoredPotionSkill = 80;
 constexpr int kAuthoredPotionKeyStat = 25;
 
-float PotionPotency(const ObjData *potion) {
-	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
-	if (stored > 0) {
-		return static_cast<float>(stored);  // crafted: use the brewed-in potency
+float PotionPotency(const ObjData *potion, ESpell spell_id) {
+	const int skill = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+	if (skill <= 0) {
+		// Legacy: a pre-P3b migrated instance carries a pre-computed potency but no maker skill/stat.
+		const int legacy = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
+		if (legacy > 0) {
+			return static_cast<float>(legacy);
+		}
 	}
-	// Non-crafted: as if a potion-maker of skill kAuthoredPotionSkill / key-stat kAuthoredPotionKeyStat
-	// brewed it, from the FIRST spell's potency roll. One potency for the whole potion, like brewing.
-	const auto spell1 = static_cast<ESpell>(potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num));
-	if (spell1 <= ESpell::kUndefined) {
+	if (spell_id <= ESpell::kUndefined) {
 		return -1.0f;
 	}
-	const auto &roll = MUD::Spell(spell1).GetPotencyRoll();
-	return static_cast<float>(roll.CalcSkillCoeffForValue(kAuthoredPotionSkill)
-			+ roll.CalcBaseStatCoeffForValue(kAuthoredPotionKeyStat));
+	// Competence = skill_coeff + stat_coeff from the MAKER's inputs (crafted: brew skill + brewer Int;
+	// non-crafted: the authored maker), through THIS spell's own potency-roll weights. The drinker's
+	// own skill/stat are never consulted -- a potion acts on its own.
+	const int use_skill = (skill > 0) ? skill : kAuthoredPotionSkill;
+	const int stat = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+	const int use_stat = (stat > 0) ? stat : kAuthoredPotionKeyStat;
+	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
+	return static_cast<float>(roll.CalcSkillCoeffForValue(use_skill)
+			+ roll.CalcBaseStatCoeffForValue(use_stat));
 }
 
 // issue.potion-hotfix: the MAKER's skill, used to scale a potion buff's DURATION (the drinker's own

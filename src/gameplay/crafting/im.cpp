@@ -1455,15 +1455,13 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (result->get_type() == EObjType::kPotion) {
 						const auto potion_spell = static_cast<ESpell>(result->get_val(1));
 						if (potion_spell > ESpell::kUndefined) {
-							const auto &spell = MUD::Spell(potion_spell);
-							const auto &proll = spell.GetPotencyRoll();
-							const double competence =
-								proll.CalcSkillCoeffForValue(rs->perc) + proll.CalcBaseStatCoeff(ch);
-							result->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency,
-													  std::max(1, static_cast<int>(competence + 0.5)));
-							// issue.potion-hotfix: preserve the MAKER's skill (the recipe/brew skill). A
-							// potion buff's duration scales off this, never off the drinker's own skill.
+							// issue.potion-hotfix: preserve the maker's INPUTS, not the (non-obvious)
+							// computed potency: the brewing skill (rs->perc -- it stands in for the magic
+							// skill, since non-mages brew too) and the key stat (Intelligence). The
+							// competence is derived from these at cast, per spell.
 							result->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, rs->perc);
+							result->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+													  GetRealBaseStat(ch, EBaseStat::kInt));
 							// One standard-normal draw (mean z=0, sd z=1), encoded with the bias so it
 							// stores positive. sigma-independent: every spell scales it by its own sigma.
 							const int brew_roll = GaussIntNumber(

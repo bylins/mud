@@ -77,7 +77,7 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 // issue.potion-hotfix P3: a potion's casting potency (competence C). The brewed-in kPotionPotency if
 // present (crafted); otherwise the potency a fixed-skill potion-maker would brew, from the potion's
 // FIRST spell. Returns <=0 if the potion has no castable first spell.
-[[nodiscard]] float PotionPotency(const ObjData *potion);
+[[nodiscard]] float PotionPotency(const ObjData *potion, ESpell spell_id);
 
 // issue.potion-hotfix: the maker's skill for a potion's buff DURATION (brew skill for crafted, the
 // authored maker skill otherwise). The drinker's own skill never matters.

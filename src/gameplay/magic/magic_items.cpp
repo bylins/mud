@@ -192,7 +192,6 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				// potency and the frozen noise roll all live in the ObjVal keys (the boot/load converter
 				// migrated every potion off m_vals), so we read keys ONLY. brew_roll absent (non-crafted)
 				// -> NaN -> the noise is drawn at cast, like a fresh cast.
-				const float potency = PotionPotency(obj);
 				const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
 				const double noise_z = (brew_roll > 0)
 					? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
@@ -204,6 +203,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 					if (spell_num <= 0) {
 						continue;
 					}
+					const float potency = PotionPotency(obj, static_cast<ESpell>(spell_num));
 					if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(spell_num), 0,
 								  potency, noise_z, PotionCastSkill(obj)) != ECastResult::kSuccess) {
 						break;

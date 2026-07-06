@@ -1045,14 +1045,14 @@ void oedit_disp_magic_container_menu(DescriptorData *d) {
 	SendMsgToChar(buf, d->character.get());
 }
 
-std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1, const ObjVal::EValueKey key2) {
+std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1,
+							  [[maybe_unused]] const ObjVal::EValueKey key2) {
 	if (obj->GetPotionValueKey(key1) < 0) {
 		return "нет";
 	}
-	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "%s:%d",
-			 MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(key1))).GetCName(), obj->GetPotionValueKey(key2));
-	return buf_;
+	// issue.potion-hotfix: per-spell level (key2) is retired -- show only the spell. A potion's power
+	// is its maker-derived potency, not an authored level.
+	return MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(key1))).GetCName();
 }
 
 void drinkcon_values_menu(DescriptorData *d) {
@@ -1271,9 +1271,12 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 		return false;
 	}
 	OLC_OBJ(d)->SetPotionValueKey(key, val);
-	SendMsgToChar(d->character.get(), "Выбранное заклинание: %s\r\n"
-									  "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
-				  MUD::Spell(spell_id).GetCName());
+	// issue.potion-hotfix: per-spell level is retired (a potion's power is its maker-derived potency),
+	// so setting the spell finishes the step -- return to the potion menu instead of asking for a level.
+	check_potion_proto(OLC_OBJ(d));
+	SendMsgToChar(d->character.get(), "Установлено заклинание: %s\r\n", MUD::Spell(spell_id).GetCName());
+	OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+	drinkcon_values_menu(d);
 	return true;
 }
 
@@ -2122,20 +2125,16 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					return;
 			}
 			break;
+		// issue.potion-hotfix: the retired per-spell level step (OEDIT_POTION_SPELL*_LVL) is skipped --
+		// parse_val_spell_num sets the spell and returns to the potion menu on both success and failure.
 		case OEDIT_POTION_SPELL1_NUM: number = atoi(arg);
-			if (parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell1Num, number)) {
-				OLC_MODE(d) = OEDIT_POTION_SPELL1_LVL;
-			}
+			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell1Num, number);
 			return;
 		case OEDIT_POTION_SPELL2_NUM: number = atoi(arg);
-			if (parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell2Num, number)) {
-				OLC_MODE(d) = OEDIT_POTION_SPELL2_LVL;
-			}
+			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell2Num, number);
 			return;
 		case OEDIT_POTION_SPELL3_NUM: number = atoi(arg);
-			if (parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell3Num, number)) {
-				OLC_MODE(d) = OEDIT_POTION_SPELL3_LVL;
-			}
+			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell3Num, number);
 			return;
 		case OEDIT_POTION_SPELL1_LVL: number = atoi(arg);
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell1Lvl, number);
