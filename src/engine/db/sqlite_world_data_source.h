@@ -85,9 +85,12 @@ public:
 	void EndBulkWrite() override { CommitTransaction(); }
 
 private:
-	// True if `vnum`'s zone (vnum/100) was loaded via LoadZoneRooms/Mobs/
-	// Objects this boot, or if no per-zone load happened at all (bulk path --
-	// m_processed_zone_vnums stays empty, so every vnum passes).
+	// True if `vnum`'s zone (vnum/100) was returned by this boot's LoadRooms/
+	// Mobs/Objects call (filtered or not -- every returned row's zone is
+	// recorded in m_processed_zone_vnums as it's parsed). The `.empty()`
+	// fallback only matters if that call never populated anything at all
+	// (e.g. OpenDatabase() failed before the query ran) -- default to
+	// permissive rather than silently skipping every child sub-loader.
 	bool IsZoneProcessed(int vnum) const;
 	std::set<int> m_processed_zone_vnums;
 	// Create the zone_sync / world_meta bookkeeping tables if absent, so an
