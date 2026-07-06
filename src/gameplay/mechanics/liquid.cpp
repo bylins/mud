@@ -21,6 +21,7 @@
 #include "poison.h"
 
 #include <cmath>
+#include <limits>
 
 
 const char *drinks[] = {"воды",
@@ -183,28 +184,30 @@ namespace drinkcon {
 
 ObjVal::EValueKey init_spell_num(int num) {
 	return num == 1
-		   ? ObjVal::EValueKey::POTION_SPELL1_NUM
+		   ? ObjVal::EValueKey::kPotionSpell1Num
 		   : (num == 2
-			  ? ObjVal::EValueKey::POTION_SPELL2_NUM
-			  : ObjVal::EValueKey::POTION_SPELL3_NUM);
+			  ? ObjVal::EValueKey::kPotionSpell2Num
+			  : ObjVal::EValueKey::kPotionSpell3Num);
 }
 
 ObjVal::EValueKey init_spell_lvl(int num) {
 	return num == 1
-		   ? ObjVal::EValueKey::POTION_SPELL1_LVL
+		   ? ObjVal::EValueKey::kPotionSpell1Lvl
 		   : (num == 2
-			  ? ObjVal::EValueKey::POTION_SPELL2_LVL
-			  : ObjVal::EValueKey::POTION_SPELL3_LVL);
+			  ? ObjVal::EValueKey::kPotionSpell2Lvl
+			  : ObjVal::EValueKey::kPotionSpell3Lvl);
 }
 
 void reset_potion_values(CObjectPrototype *obj) {
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_LVL, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_LVL, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_LVL, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Lvl, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Lvl, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Lvl, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, -1);
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
@@ -229,7 +232,13 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 	}
 
 	if (copied) {
-		to_obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, GET_OBJ_VNUM(from_obj));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, GET_OBJ_VNUM(from_obj));
+		// issue.potion-hotfix: the brewed-in strength is one per potion (not per spell), so carry the
+		// potency + frozen noise roll once, letting a poured container cast exactly like the source.
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll));
 	}
 }
 
@@ -242,12 +251,17 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	if (spell_id <= ESpell::kUndefined) {
 		return ECastResult::kSuccess;
 	}
-	// issue.potion-potency: the 3rd spell slot (val3 -> POTION_SPELL3_NUM) now carries the brewed-in
-	// fixed potency, not a third spell. If present (>0), cast with that potency instead of the legacy
-	// negative-level item hack -- a potion's strength is brewed in, not taken from the drinker's stats.
-	const int potency = obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM);
+	// issue.potion-hotfix: a potion's strength is BREWED IN, not taken from the drinker. kPotionPotency
+	// is the casting potency (competence); kPotionBrewRoll is the frozen noise realization, decoded to
+	// the (1+eps) factor that CalcNoisyAmount replays. One potency + roll is shared by all three spells.
+	const int potency = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
 	if (potency > 0) {
-		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, static_cast<float>(potency));
+		const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
+		const double noise_z = (brew_roll > 0)
+			? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
+			: std::numeric_limits<double>::quiet_NaN();
+		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0,
+						 static_cast<float>(potency), noise_z);
 	}
 	// legacy potion without a brewed potency: keep the old level-based item-cast path
 	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
@@ -255,13 +269,13 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
-	if (is_potion(jar) && jar->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
+	if (is_potion(jar) && jar->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) >= 0) {
 		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, kToRoom);
 		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, grammar::ECase::kGen));
 
 		//не очень понятно, но так было
-		// slots 1-2 are spells; slot 3 (val3) now holds the brewed potency (issue.potion-potency)
-		for (int i = 1; i <= 2; ++i)
+		// issue.potion-hotfix: all three slots are spells again (potency/roll live in their own keys)
+		for (int i = 1; i <= 3; ++i)
 			if (cast_potion_spell(ch, jar, i) != ECastResult::kSuccess)
 				break;
 
@@ -384,8 +398,8 @@ int check_potion_spell(ObjData *from_obj, ObjData *to_obj, int num) {
 ///        -1 - попытка перелить зелье с меньшим уровнем закла
 int drinkcon::check_equal_potions(ObjData *from_obj, ObjData *to_obj) {
 	// емкость с уже перелитым ранее зельем
-	if (to_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-		&& GET_OBJ_VNUM(from_obj) != to_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM)) {
+	if (to_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) > 0
+		&& GET_OBJ_VNUM(from_obj) != to_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum)) {
 		return 0;
 	}
 	// совпадение заклов и не меньшего уровня
@@ -444,10 +458,10 @@ void drinkcon::spells_to_drinkcon(ObjData *from_obj, ObjData *to_obj) {
 		to_obj->SetPotionValueKey(level, from_obj->GetPotionValueKey(level));
 	}
 	// сохранение инфы о первоначальном источнике зелья
-	const int proto_vnum = from_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-						   ? from_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM)
+	const int proto_vnum = from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) > 0
+						   ? from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum)
 						   : GET_OBJ_VNUM(from_obj);
-	to_obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, proto_vnum);
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, proto_vnum);
 }
 
 size_t find_liquid_name(const char *name) {
@@ -567,13 +581,13 @@ void identify(CharData *ch, const ObjData *obj) {
 	// емкость не пуста
 	if (amount > 0) {
 		// есть какие-то заклы
-		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
+		if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) >= 0) {
 			if (privilege::IsImmortal(ch)) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
 						 grammar::GetDeclensionInNumber(amount, grammar::EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)],
-						 obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM));
+						 obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum));
 			} else {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
 						 amount,

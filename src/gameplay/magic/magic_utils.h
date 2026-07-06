@@ -1,6 +1,8 @@
 #ifndef SPELL_PARSER_HPP_
 #define SPELL_PARSER_HPP_
 
+#include <limits>
+
 #include "gameplay/abilities/feats.h"
 #include "engine/entities/entities_constants.h"
 #include "spells.h"
@@ -69,7 +71,8 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, doub
 // std = sigma*scaled, so the coefficient of variation is ~sigma -- CONSTANT as `scaled` (= k*competence)
 // grows, unlike additive dice noise (whose relative spread shrinks). Truncated to [floor, cap]; cap<=0 =
 // no upper bound. Uses the seeded global RNG (GaussIntNumber), so simulator runs stay reproducible.
-int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap);
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
+		double fixed_z = std::numeric_limits<double>::quiet_NaN());
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 

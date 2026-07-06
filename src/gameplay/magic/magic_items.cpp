@@ -1,5 +1,7 @@
 #include "magic_items.h"
 
+#include <limits>
+
 #include "engine/entities/char_data.h"
 #include "engine/core/obj_handler.h"
 #include "engine/db/obj_prototypes.h"
@@ -184,9 +186,31 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			}
 
 			SetBattleLag(ch, 1);
-			for (i = 1; i <= 3; i++) {
-				if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) != ECastResult::kSuccess) {
-					break;
+			{
+				// issue.potion-hotfix: a potion's strength is BREWED IN. Prefer the dedicated keys --
+				// kPotionPotency (cast competence C) + kPotionBrewRoll (frozen noise, decoded to the
+				// 1+eps factor) + the three spell numbers. A legacy/un-migrated potion with no stored
+				// potency falls back to its old m_vals spells cast at the item level.
+				const int potency = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
+				const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
+				const double noise_z = (brew_roll > 0)
+					? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
+					: std::numeric_limits<double>::quiet_NaN();
+				for (i = 1; i <= 3; i++) {
+					const ObjVal::EValueKey spell_key = (i == 1) ? ObjVal::EValueKey::kPotionSpell1Num
+						: (i == 2) ? ObjVal::EValueKey::kPotionSpell2Num : ObjVal::EValueKey::kPotionSpell3Num;
+					int spell_num = obj->GetPotionValueKey(spell_key);
+					if (spell_num <= 0) {
+						spell_num = GET_OBJ_VAL(obj, i);  // legacy m_vals fallback
+					}
+					const ECastResult r = (potency > 0)
+						? CallMagic(ch, ch, nullptr, world[ch->in_room],
+									static_cast<ESpell>(spell_num), 0, static_cast<float>(potency), noise_z)
+						: CallMagic(ch, ch, nullptr, world[ch->in_room],
+									static_cast<ESpell>(spell_num), level);
+					if (r != ECastResult::kSuccess) {
+						break;
+					}
 				}
 			}
 

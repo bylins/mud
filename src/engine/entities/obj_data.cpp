@@ -1222,13 +1222,15 @@ void ObjVal::init_from_zone(const char *str) {
 
 bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 	switch (key) {
-		case ObjVal::EValueKey::POTION_SPELL1_NUM:
-		case ObjVal::EValueKey::POTION_SPELL1_LVL:
-		case ObjVal::EValueKey::POTION_SPELL2_NUM:
-		case ObjVal::EValueKey::POTION_SPELL2_LVL:
-		case ObjVal::EValueKey::POTION_SPELL3_NUM:
-		case ObjVal::EValueKey::POTION_SPELL3_LVL:
-		case ObjVal::EValueKey::POTION_PROTO_VNUM: return true;
+		case ObjVal::EValueKey::kPotionSpell1Num:
+		case ObjVal::EValueKey::kPotionSpell1Lvl:
+		case ObjVal::EValueKey::kPotionSpell2Num:
+		case ObjVal::EValueKey::kPotionSpell2Lvl:
+		case ObjVal::EValueKey::kPotionSpell3Num:
+		case ObjVal::EValueKey::kPotionSpell3Lvl:
+		case ObjVal::EValueKey::kPotionProtoVnum:
+		case ObjVal::EValueKey::kPotionPotency:
+		case ObjVal::EValueKey::kPotionBrewRoll: return true;
 	}
 	return false;
 }
@@ -1237,6 +1239,7 @@ void ObjVal::remove_incorrect_keys(int type) {
 	for (auto i = m_values.begin(); i != m_values.end(); /* empty */) {
 		bool erased = false;
 		switch (type) {
+			case EObjType::kPotion:
 			case EObjType::kLiquidContainer:
 			case EObjType::kFountain:
 				if (!is_valid_drinkcon(i->first)) {

@@ -39,13 +39,15 @@ std::array<TextIdNode, kTextIdCount> text_id_list;
 /// Инит текстовых ИД параметров предметов для сохранения в файл.
 ///
 void InitObjVals() {
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::POTION_SPELL1_NUM), "POTION_SPELL1_NUM");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::POTION_SPELL1_LVL), "POTION_SPELL1_LVL");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::POTION_SPELL2_NUM), "POTION_SPELL2_NUM");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::POTION_SPELL2_LVL), "POTION_SPELL2_LVL");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::POTION_SPELL3_NUM), "POTION_SPELL3_NUM");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::POTION_SPELL3_LVL), "POTION_SPELL3_LVL");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::POTION_PROTO_VNUM), "POTION_PROTO_VNUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell1Num), "POTION_SPELL1_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell1Lvl), "POTION_SPELL1_LVL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell2Num), "POTION_SPELL2_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell2Lvl), "POTION_SPELL2_LVL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell3Num), "POTION_SPELL3_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell3Lvl), "POTION_SPELL3_LVL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionProtoVnum), "POTION_PROTO_VNUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionPotency), "POTION_POTENCY");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionBrewRoll), "POTION_BREW_ROLL");
 }
 
 ///

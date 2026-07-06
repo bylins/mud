@@ -306,11 +306,17 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
 	return false;
 }
 
-int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap) {
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, double fixed_z) {
 	const double mean = floor_val + scaled;
 	const double sd = sigma * scaled;
 	const int lo = std::max(0, static_cast<int>(std::floor(floor_val)));
 	const int hi = (cap > 0) ? cap : std::numeric_limits<int>::max();
+	// issue.potion-hotfix: a brewed potion replays its FROZEN brew-luck z (a standard normal) instead
+	// of drawing -- amount = mean + z*sd -- so every quaff of the potion is identical, yet each of its
+	// spells still applies its OWN sigma (via sd) to the one z. NaN = no fixed noise, draw as usual.
+	if (!std::isnan(fixed_z)) {
+		return std::clamp(static_cast<int>(std::lround(mean + fixed_z * sd)), lo, hi);
+	}
 	return GaussIntNumber(mean, sd, lo, hi);
 }
 
@@ -432,7 +438,7 @@ private:
 // Evaluates the spell's potency roll against the caster once, so the result can be
 // threaded to the cast-dispatch functions. The roll values do not depend on level;
 // level is carried only to replace that parameter.
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency) {
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
@@ -445,14 +451,14 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float
 	// fixed potency. (Under P2 all effect dices_weight=0, so a dices-only value no longer scaled the
 	// amount.) Negative -> roll from the caster as usual.
 	const RollResult bcc_roll = (fixed_potency >= 0.0f)
-		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0}
+		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z}
 		: eval(spell.GetPotencyRoll());
 	CastContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -530,7 +536,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency);
+	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency, fixed_noise_z);
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;

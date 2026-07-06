@@ -1444,16 +1444,29 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (val[2] > 0) {
 						result->set_timer(val[2]);
 					}
-					// issue.potion-potency: store the brewed potency in val3, from the potion's first
-					// spell's <potency_roll> but with the recipe (brewing) skill (rs->perc) as base skill.
+					// issue.potion-hotfix: brew the potion's strength into its OWN keys, never val3
+					// (which is the 3rd spell). Two values, used separately at cast:
+					//   kPotionPotency  = the brewer's COMPETENCE (recipe skill rs->perc + stat),
+					//                     deterministic (no dice) -- the cast potency C.
+					//   kPotionBrewRoll = ONE standard-normal "brew luck" draw (issue.random-noise-rework),
+					//                     FROZEN so every quaff is identical; sigma-INDEPENDENT, so each of
+					//                     the potion's spells applies its OWN sigma to it at cast. Encoded
+					//                     (z + kBrewRollBias)*kBrewRollScale, always > 0.
 					if (result->get_type() == EObjType::kPotion) {
 						const auto potion_spell = static_cast<ESpell>(result->get_val(1));
 						if (potion_spell > ESpell::kUndefined) {
-							const auto &proll = MUD::Spell(potion_spell).GetPotencyRoll();
-							const double pot = proll.RollSkillDices()
-								+ proll.CalcSkillCoeffForValue(rs->perc)
-								+ proll.CalcBaseStatCoeff(ch);
-							result->set_val(3, std::max(1, static_cast<int>(pot + 0.5)));
+							const auto &spell = MUD::Spell(potion_spell);
+							const auto &proll = spell.GetPotencyRoll();
+							const double competence =
+								proll.CalcSkillCoeffForValue(rs->perc) + proll.CalcBaseStatCoeff(ch);
+							result->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency,
+													  std::max(1, static_cast<int>(competence + 0.5)));
+							// One standard-normal draw (mean z=0, sd z=1), encoded with the bias so it
+							// stores positive. sigma-independent: every spell scales it by its own sigma.
+							const int brew_roll = GaussIntNumber(
+									ObjVal::kBrewRollBias * ObjVal::kBrewRollScale, ObjVal::kBrewRollScale,
+									1, 2 * ObjVal::kBrewRollBias * ObjVal::kBrewRollScale);
+							result->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, brew_roll);
 						}
 					}
 					break;

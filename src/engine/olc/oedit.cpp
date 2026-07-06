@@ -196,7 +196,7 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		}
 		// сохранение в случае перелитых заклов
 		// пока там ничего кроме заклов и нет - копируем весь values
-		if (tmp.GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0) {
+		if (tmp.GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) > 0) {
 			obj->SetPotionValues(tmp.get_all_values());
 		}
 	}
@@ -1068,16 +1068,16 @@ void drinkcon_values_menu(DescriptorData *d) {
 			 "%s",
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::POTION_SPELL1_NUM,
-							   ObjVal::EValueKey::POTION_SPELL1_LVL).c_str(),
+							   ObjVal::EValueKey::kPotionSpell1Num,
+							   ObjVal::EValueKey::kPotionSpell1Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::POTION_SPELL2_NUM,
-							   ObjVal::EValueKey::POTION_SPELL2_LVL).c_str(),
+							   ObjVal::EValueKey::kPotionSpell2Num,
+							   ObjVal::EValueKey::kPotionSpell2Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::POTION_SPELL3_NUM,
-							   ObjVal::EValueKey::POTION_SPELL3_LVL).c_str(),
+							   ObjVal::EValueKey::kPotionSpell3Num,
+							   ObjVal::EValueKey::kPotionSpell3Lvl).c_str(),
 			 nrm);
 
 	SendMsgToChar(buf_, d->character.get());
@@ -1249,12 +1249,12 @@ int planebit(const char *str, int *plane, int *bit) {
 }
 
 void check_potion_proto(ObjData *obj) {
-	if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_NUM) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM) > 0) {
-		obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num) > 0) {
+		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, 0);
 	} else {
-		obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
+		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
 	}
 }
 
@@ -1284,13 +1284,13 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 		}
 
 		switch (key) {
-			case ObjVal::EValueKey::POTION_SPELL1_LVL: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
+			case ObjVal::EValueKey::kPotionSpell1Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, -1);
 				break;
 
-			case ObjVal::EValueKey::POTION_SPELL2_LVL: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
+			case ObjVal::EValueKey::kPotionSpell2Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num, -1);
 				break;
 
-			case ObjVal::EValueKey::POTION_SPELL3_LVL: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
+			case ObjVal::EValueKey::kPotionSpell3Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num, -1);
 				break;
 
 			default: break;
@@ -2123,28 +2123,28 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			}
 			break;
 		case OEDIT_POTION_SPELL1_NUM: number = atoi(arg);
-			if (parse_val_spell_num(d, ObjVal::EValueKey::POTION_SPELL1_NUM, number)) {
+			if (parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell1Num, number)) {
 				OLC_MODE(d) = OEDIT_POTION_SPELL1_LVL;
 			}
 			return;
 		case OEDIT_POTION_SPELL2_NUM: number = atoi(arg);
-			if (parse_val_spell_num(d, ObjVal::EValueKey::POTION_SPELL2_NUM, number)) {
+			if (parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell2Num, number)) {
 				OLC_MODE(d) = OEDIT_POTION_SPELL2_LVL;
 			}
 			return;
 		case OEDIT_POTION_SPELL3_NUM: number = atoi(arg);
-			if (parse_val_spell_num(d, ObjVal::EValueKey::POTION_SPELL3_NUM, number)) {
+			if (parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell3Num, number)) {
 				OLC_MODE(d) = OEDIT_POTION_SPELL3_LVL;
 			}
 			return;
 		case OEDIT_POTION_SPELL1_LVL: number = atoi(arg);
-			parse_val_spell_lvl(d, ObjVal::EValueKey::POTION_SPELL1_LVL, number);
+			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell1Lvl, number);
 			return;
 		case OEDIT_POTION_SPELL2_LVL: number = atoi(arg);
-			parse_val_spell_lvl(d, ObjVal::EValueKey::POTION_SPELL2_LVL, number);
+			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell2Lvl, number);
 			return;
 		case OEDIT_POTION_SPELL3_LVL: number = atoi(arg);
-			parse_val_spell_lvl(d, ObjVal::EValueKey::POTION_SPELL3_LVL, number);
+			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell3Lvl, number);
 			return;
 		case OEDIT_CLONE:
 			switch (*arg) {
