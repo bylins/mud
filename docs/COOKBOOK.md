@@ -338,9 +338,10 @@ Shorter single-purpose examples (relocated from the Spell Manual).
 * `<alter_obj handler="AlterRemovePoison"/>` — the same spell cast on a poisoned
   food/drink cleans the object instead (§3.8.7); both manifestations live in the
   one action.
-* Each removal is a potency contest. A novice priest's `remove poison`
-  may fail against a master assassin's `poison` (high recorded potency),
-  but always has the 5 % free chance.
+* Each removal is a d100 skill contest (Spell Manual §9.3). A cure ships
+  `dispel_bonus="80"`, so a priest reliably clears a same-skill poison; a master
+  assassin's stronger `poison` (higher recorded competence) lowers the threshold —
+  a much weaker priest falls toward the 5 % floor, a stronger one reaches the 95 % ceiling.
 
 ### 3.4 Reveal with chain-break
 

@@ -78,6 +78,7 @@ strengths, but the affect's **behaviour** is defined once, in `affects.xml`.
 |---|---|
 | `id` | the `EAffect` (char) or `ERoomAffect` (room) enum name. Required. |
 | `buff` | `Y` = beneficial, `N` = harmful. Drives dispel/cure classification (a "dispel magic" strips debuffs, a "cancellation" strips buffs) and the violent/friendly nature of anything that re-applies it. Default: treated as harmful. |
+| `dispel_mod` *(issue.random-noise-rework)* | Additive per-affect modifier to the **dispel-contest threshold**, in percentage points (Spell Manual §9.3). Negative = **harder** to remove, positive = easier. Default `0`. Critical buffs (fire/ice/air shield, sanctuary, prismatic aura, fly, water-breath) ship `dispel_mod="-35"` → ~15 % to dispel at competence parity, vs the ~50 % of an ordinary buff. |
 
 An affect id may exist with an **empty body** (`<affect id="kCommander"/>`) — a
 pure marker flag other code tests for. Adding data to it never breaks that.

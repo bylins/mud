@@ -168,7 +168,7 @@ constant" SYSERRs from old values.
 |---|---|
 | `N` | Pure-helpful spell. Never triggers PK, retaliation, AR resist, magic-mirror / sonic-barrier reflection, or potency-gated dispel. |
 | `Y` | Always violent. PK rules + retaliation + saving-shields + dispel contest + GET_AR check all apply. |
-| `A` | **Ambiguous.** Resolves per-target: helpful on self / charmed pet (walking up the master chain) / groupmate / NPC-vs-NPC, fully violent (with full PK liability) on an outsider. `kDispellMagic` is the current carrier — dispel from an ally hand passes without a contest; dispel from an outsider triggers the strength check. |
+| `A` | **Ambiguous.** Resolves per-target: helpful on self / charmed pet (walking up the master chain) / groupmate / NPC-vs-NPC, fully violent (with full PK liability) on an outsider. `kDispellMagic` is the current carrier — dispel from an ally hand passes without a contest; dispel from an outsider triggers the d100 dispel contest (§9.3). |
 
 The runtime helper that decides per-target is
 `SpellInfo::IsViolentAgainst(caster, target)`. The static `IsViolent()`
@@ -302,24 +302,24 @@ point of the option-2 rework: a purely additive `roll + C` would make the roll
 meaningless at high skill/stat — option-2 avoids that. (Set `alpha=0` only when you
 deliberately want the legacy flat behaviour, e.g. flat affect modifiers.)
 
-**`cast_potency`** is a *separate* scalar, and it **is** the plain additive sum:
+**`cast_potency`** is a *separate* scalar — the caster's **deterministic competence**
+(`CalcCastPotency`, issue.random-noise-rework):
 
 ```
-cast_potency = RollSkillDices + skill_coeff + stat_coeff
+cast_potency = skill_coeff + stat_coeff        (no dice)
 ```
 
-It is used **only as a relative-strength number**, never as an effect's magnitude:
-the potency stored on an affect (`cast_potency × <affects potency_weight>`) and the
-dispel contest that later tries to remove it (§9.3). Additivity is harmless here
-because the contest compares two casts that both scale the same way — the random
-term being a small share of a strong cast is fine when it's measured against another
-strong cast. Extra-hit counts are a third, separate thing: they scale on
-`min(skill, 75) / skill_divisor`, not on `cast_potency` (§5).
+It is used **only as a relative-strength number**, never as an effect's magnitude: the
+potency stored on an affect (`cast_potency × <affects potency_weight>`) and the dispel
+contest that later tries to remove it (§9.3). Dropping the dice makes the stored strength
+reflect the caster's **skill**, not the randomness of the delivered amount — so the dispel
+contest is a clean skill comparison (§9.3). Extra-hit counts are a third, separate thing:
+they scale on `min(skill, 75) / skill_divisor`, not on `cast_potency` (§5).
 
-A spell that omits a sub-block contributes 0 from that side. A spell with an
-empty `<potency_roll>` rolls a flat 0 — its affects land at potency 0, its
-dispel always loses the contest (5 % luck floor still applies), and any
-magnitude reduces to its `min`.
+A spell that omits a sub-block contributes 0 from that side. A spell with an empty
+`<potency_roll>` yields competence 0 — its affects land at potency 0, so any dispel removes
+them trivially (the §9.3 threshold hits its 95 % ceiling), and any magnitude reduces to its
+`min`.
 
 ### 3.8 `<talent_actions>` — the ordered action list *(multi-action)*
 
@@ -935,7 +935,7 @@ contributes only the imposition fields below plus the cast's stored potency
 | `saving` | `kReflex` | The save the victim makes to avoid the affect. `kNone` = no save. |
 | `resist` | `kFire` | `EResist` — the resist channel applied to the affect's duration. |
 | `prob` | `100` | Percent chance the block fires at all (silent miss otherwise). `<lag>`/`<reposition>` are gated by this same prob. |
-| `potency_weight` | `1.0` | Scale on the stored `Affect::potency` (not the modifier). Lets a big-modifier affect stay dispellable: keep the modifier strong, scale only the stored potency (which `DispelSucceeds` reads) down. Symmetric with `<unaffect potency_weight=>` (§9.1). |
+| `potency_weight` | `1.0` | *Multiplier* on the stored `Affect::potency` (not the modifier) that `DispelSucceeds` reads as `affect_potency`. Lets a big-modifier affect stay dispellable: keep the modifier strong, scale only the stored potency down. Complements the **additive** dispel knobs — `<unaffect dispel_bonus=>` and the affect's own `<affect dispel_mod=>` (§9.3). |
 | `tick_spell` | *(none)* | *Room affects only.* `ESpell` of a `kService` spell whose actions the room-affect tick handler runs each pulse (see the Affect Manual §7). |
 | `tick_handler` | *(none)* | *Room affects only.* Name of a C++ tick handler for ticks the data can't express (e.g. `kThunderstorm` weather). Takes precedence over `tick_spell`. |
 
@@ -979,7 +979,7 @@ stacking, random apply pools, and the affect's trigger-driven `<actions>`
 ## 9. `<unaffect>` — dispels / cures *(new mechanics)*
 
 ```xml
-<unaffect affect_flags="kAfCurable" potency_weight="1.0" prob="100" decay="0">
+<unaffect affect_flags="kAfCurable" dispel_bonus="50" prob="100" decay="0">
     <blocking      any_of="kGodsShield" all_of=""/>
     <breaking      any_of="kSanctuary"/>
     <remove_anyway any_of="kQuestMark"/>
@@ -992,9 +992,9 @@ stacking, random apply pools, and the affect's trigger-driven `<actions>`
 | Attribute | Default | Description |
 |---|---|---|
 | `affect_flags` | `kAfCurable\|kAfDispellable` | **Which affects this dispel may touch.** An affect is eligible only if it carries at least one of these `EAffFlag` bits. Narrow to `kAfCurable` for cures (cures don't dispel), `kAfDispellable` for `kDispellMagic` (doesn't cure poisons), etc. |
-| `potency_weight` | `1.0` | Multiplier on the dispel spell's potency when contested against an affect's recorded potency. See §9.3. |
+| `dispel_bonus` *(issue.random-noise-rework)* | `50` | **Base dispel win-chance, in percentage points, at competence parity** — a flat, level-independent probability offset (replaces the old `potency_weight` multiplier). The dispeller's competence advantage and the affect's own `dispel_mod` shift it from there. See §9.3. Debuff cures set ~80; leave 50 for a neutral dispel. |
 | `prob` | `100` | Percent chance the unaffect block fires at all (silent skip otherwise). |
-| `decay` *(new mechanic, issue.debuff-decay)* | `0` | On a **failed** removal, shift the surviving affect's potency by this percent of **the dispel's** rolled potency (not the affect's): positive **weakens** the affect, negative **strengthens** it. Result is clamped to `[0, 30000]` (floor 0 per design; the cap guards a negative `decay` from growing potency without bound / overflowing). `0` = no change. Applied only on the contest-fail path in `DispelSucceeds`. |
+| `decay` *(issue.debuff-decay)* | `0` | On a **failed** removal, shift the surviving affect's potency by this percent of **the dispeller's competence contribution** (`kDispelSkillWeight · competence`): positive **weakens** the affect (easier next time), negative **strengthens** it. Result is clamped to `[0, 30000]` (floor 0 per design; the cap guards a negative `decay` from growing potency without bound / overflowing). `0` = no change. Applied only on the contest-fail path in `DispelSucceeds`. |
 
 ### 9.2 The four sub-blocks
 
@@ -1019,53 +1019,60 @@ Mixing `"*"` with explicit names (e.g. `any_of="*\|kPoison"`) is rejected
 at parse time with a warning — the explicit names are redundant when the
 wildcard is present, and the semantic is ambiguous. Use one or the other.
 
-### 9.3 Potency-gated dispel *(new mechanic)*
+### 9.3 The dispel contest *(reworked — issue.random-noise-rework)*
 
-Each affect imposed by `CastAffect` **records the cast's potency** (the
-roll value at the moment of imposition) and a debuff flag (matches the
-spell's `violent`). When `CastUnaffects` tries to remove an affect, the
-removal is gated by a strength contest.
-
-**The math**, side by side. Both sides use the same `cast_potency` formula
-(§3.7); the only knob is each side's `potency_weight`:
+Each affect imposed by `CastAffect` **records the cast's competence** — the caster's
+**deterministic** skill+stat potency at the moment of imposition (`CalcCastPotency`, §3.7;
+no dice roll leaks in). When `CastUnaffects` tries to remove it, the removal is a **d100
+skill check**, not the old dice-vs-dice roll:
 
 ```
-stored_potency = cast_potency(affect_spell, caster_at_impose) · <affects potency_weight>     (impose-time, §8.1)
-dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect potency_weight>    (contest-time, §9.1)
+threshold = clamp( k·(area_coeff·C_dispel − affect_potency) + dispel_bonus + dispel_mod,  5,  95 )
+removed   = number(1,100) ≤ threshold
 ```
 
-The dispel succeeds when `dispel_potency > stored_potency`. The full ruleset:
+| Term | Meaning |
+|---|---|
+| `C_dispel` | the dispeller's competence (skill+stat) for the dispel spell |
+| `affect_potency` | the affect's stored competence (`stored_potency` below) |
+| `dispel_bonus` | the `<unaffect dispel_bonus=>` knob (§9.1) — the **win-% at competence parity**, a flat, level-independent offset. Default 50. |
+| `dispel_mod` | the affect's own `<affect dispel_mod=>` additive modifier (**Affect Manual** — it lives on the affect in `affects.xml`). Negative = harder to remove. Default 0. |
+| `k` | `kDispelSkillWeight` (global, `4.0`). Turns one point of competence advantage into `k` percentage points; with the rebalanced range (~2..12) a ±10 gap ≈ ±40 points. |
+| `clamp(5,95)` | symmetric **5 % upset floor and 5 % save ceiling** — nothing is ever a guaranteed strip or a guaranteed save. (Subsumes the old flat 5 % luck roll.) |
 
-1. **Non-violent dispel + non-debuff affect** (a buff being purified by a
-   non-violent cure) — **no check**, the affect is always removed. This is
-   the path that lets a benign `kRemovePoison` strip a player's own
-   accidental buffs without a contest. For an ambiguous (`A`) dispel like
-   `kDispellMagic`, the "non-violent" predicate resolves per-target
-   (§3.3): from an ally hand the dispel passes; from an outsider it goes
-   to the contest below.
-2. **Flat 5 % luck floor** — regardless of strength, the dispel always has
-   a 5 % chance to succeed. Keeps even a novice cure relevant against a
-   strong affect.
-3. **Strength contest** — otherwise `dispel_potency > stored_potency`.
+`stored_potency = cast_potency(affect_spell, caster_at_impose) · <affects potency_weight>`
+(impose-time, §8.1). The affect-side `potency_weight` still scales the recorded competence —
+a secondary *multiplicative* "hard/easy to out-muscle" knob that complements the additive
+`dispel_mod`.
 
-So a high-level necromancer's poison resists a weak novice's cure, but the
-cure may still win on the 5 % free chance. The two `potency_weight` knobs
-are independent — the affect-side knob (issue.affects-potency-weight) lets
-big-modifier spells stay dispellable by recording a deliberately weaker
-stored potency than the raw roll would suggest; the dispel-side knob
-(issue.#3342) lets a designer make a specific cure stronger or weaker
-against the affects it targets.
+**Ruleset:**
 
-**Worked example.** A kFireball with `<affects potency_weight="0.4">` and a
-`<potency_roll>` rolling 60 lands its burning affect at `stored = 60 × 0.4 = 24`.
-A kDispellMagic with `<unaffect potency_weight="0.5">` rolling 50 contests at
-`dispel = 50 × 0.5 = 25`. Dispel wins (25 > 24) — but only just; a slightly
-lower roll on the dispel side would fail the contest and rely on the 5 %
-floor.
+1. **Non-violent dispel of a buff** (an ally cleansing a friendly buff) — **no contest**, the
+   affect is removed. For an ambiguous (`A`) dispel like `kDispellMagic`, "non-violent"
+   resolves per-target (§3.3): from an ally hand it passes; from an outsider it rolls.
+2. **The d100 contest** otherwise — `number(1,100) ≤ threshold`.
 
-A failed potency check emits `kNoeffect` to the caster (for a pure dispel
-spell — a `kMagAffects` spell that also dispels remains silent on failure
-and still applies its own affect).
+Because the bonus is **additive**, it is a probability knob a designer can read off directly:
+`dispel_bonus=50` → 50 % at parity, `80` → 80 %, `85`+ → near-certain. The competence gap then
+shifts each contest up or down by `k` points, so a clearly stronger dispeller reliably beats a
+weaker affect and vice-versa, with genuine uncertainty only near parity. (Unlike the old
+*multiplier*, whose probability effect depended on the absolute potency level.)
+
+**Category tuning — the shipped defaults:**
+
+| Affect kind | Knob | Chance at parity |
+|---|---|---|
+| Debuff (curse, blind, hold, poison…) | its cure's `<unaffect dispel_bonus="80">` | **~80 %** (≈1.25 casts) |
+| Ordinary buff (strength, armor, magic shield…) | none — the default | **~50 %** |
+| Critical buff (fire/ice/air shield, sanctuary, prismatic aura, fly, water-breath) | `<affect dispel_mod="-35">` | **~15 %** |
+
+**Worked example.** `kDispellMagic` (bonus 50) at competence parity vs a plain buff rolls a
+threshold of `50` → 50 %. Vs sanctuary (`dispel_mod=-35`) the threshold is `50 − 35 = 15`
+→ ~15 %. A dedicated `kRemoveCurse` (bonus 80) on a curse from an equal-skill enemy rolls
+`80` → ~80 %, and a curer 10 competence points stronger hits the 95 % ceiling.
+
+A failed contest emits `kNoeffect` to the caster (for a pure dispel spell — a `kMagAffects`
+spell that also dispels remains silent on failure and still applies its own affect).
 
 ### 9.4 The chain-break path *(new mechanic)*
 
