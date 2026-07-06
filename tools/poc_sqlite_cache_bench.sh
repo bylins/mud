@@ -254,4 +254,26 @@ if [ "$t_single" != "?" ] && [ "$t_stale" != "?" ] && [ "$(echo "$t_stale > 0" |
     echo "  Single-zone-stale / full-stale time ratio: ${ratio} (should be well under 1.0 -- if"
     echo "  it's close to 1.0, per-zone selection isn't actually saving anything)"
 fi
+# The raw ratio above is diluted by the shared warm-boot baseline that's
+# present in BOTH numerator and denominator (engine init, everything that
+# came from the cache, etc.) -- it doesn't isolate the actual per-zone-resync
+# cost. Subtracting the WARM baseline from each side first gives the
+# resync-only overhead of 1 zone vs. all zones, which should track roughly
+# 1/<zone count> if the per-zone selection is truly proportional (resyncing
+# N zones costs about N times what resyncing 1 zone costs).
+if [ "$t_single" != "?" ] && [ "$t_stale" != "?" ] && [ "$t_warm" != "?" ]; then
+    single_overhead=$(echo "scale=4; $t_single - $t_warm" | bc)
+    full_overhead=$(echo "scale=4; $t_stale - $t_warm" | bc)
+    zone_count=$(find "$BENCH_DIR/world/zones" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+    if [ "$(echo "$full_overhead > 0" | bc)" = "1" ] && [ "$zone_count" -gt 0 ]; then
+        overhead_ratio=$(echo "scale=4; $single_overhead / $full_overhead" | bc)
+        ideal_ratio=$(echo "scale=4; 1 / $zone_count" | bc)
+        echo "  Per-zone resync overhead ratio: ${overhead_ratio} (ideal ~= 1/${zone_count} = ${ideal_ratio}"
+        echo "  if resync cost scales linearly per zone; single_overhead=${single_overhead}s,"
+        echo "  full_overhead=${full_overhead}s, both relative to the WARM baseline)"
+    else
+        echo "  Per-zone resync overhead ratio: skipped (full_overhead=${full_overhead}s <= 0 or"
+        echo "  zone_count=${zone_count} -- can't compute a meaningful ratio)"
+    fi
+fi
 echo "=============================================="
