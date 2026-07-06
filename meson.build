@@ -439,6 +439,7 @@ main_sources = files(
   'src/engine/scripting/lua/lua_script_engine.cpp',
   'src/engine/scripting/lua/lua_trigger_context.cpp',
   'src/engine/scripting/lua/lua_utils.cpp',
+  'src/engine/ui/cmd_god/do_luainfo.cpp',
   'src/gameplay/economics/dictionary.cpp',
   'src/utils/diskio.cpp',
   'src/gameplay/statistics/dps.cpp',

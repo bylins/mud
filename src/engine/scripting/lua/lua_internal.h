@@ -51,6 +51,25 @@ constexpr int kLuaInstructionBudget = 200000;
 constexpr int kLuaInstructionHookStep = 1000;
 constexpr int kLuaGcPause = 110;
 constexpr int kLuaGcStepMul = 200;
+inline constexpr const char *kLuaDisabledGlobals[] = {
+	"os",
+	"io",
+	"debug",
+	"ffi",
+	"jit",
+	"bit",
+	"package",
+	"require",
+	"module",
+	"load",
+	"dofile",
+	"loadfile",
+	"loadstring",
+	"collectgarbage",
+	"setfenv",
+	"getfenv",
+	"newproxy",
+};
 
 LuaEntityHandle MakeCharHandle(CharData *ch, RoomRnum required_room = kNowhere);
 LuaEntityHandle MakeObjHandle(ObjData *obj);

@@ -177,23 +177,9 @@ void HardenLuaState(sol::state &lua)
 	lua_pushcclosure(state, LuaIpairs, 1);
 	lua_setglobal(state, "ipairs");
 
-	lua["io"] = sol::lua_nil;
-	lua["os"] = sol::lua_nil;
-	lua["debug"] = sol::lua_nil;
-	lua["ffi"] = sol::lua_nil;
-	lua["jit"] = sol::lua_nil;
-	lua["bit"] = sol::lua_nil;
-	lua["package"] = sol::lua_nil;
-	lua["require"] = sol::lua_nil;
-	lua["module"] = sol::lua_nil;
-	lua["load"] = sol::lua_nil;
-	lua["dofile"] = sol::lua_nil;
-	lua["loadfile"] = sol::lua_nil;
-	lua["loadstring"] = sol::lua_nil;
-	lua["collectgarbage"] = sol::lua_nil;
-	lua["setfenv"] = sol::lua_nil;
-	lua["getfenv"] = sol::lua_nil;
-	lua["newproxy"] = sol::lua_nil;
+	for (const auto *name : kLuaDisabledGlobals) {
+		lua[name] = sol::lua_nil;
+	}
 }
 
 void ConfigureLuaGc(sol::state &lua)
