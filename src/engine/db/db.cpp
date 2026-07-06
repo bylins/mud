@@ -367,18 +367,38 @@ std::unique_ptr<world_loader::IWorldDataSource> CreateWorldSourceByName(const st
 	return nullptr;
 }
 
-// Write the fully-loaded in-memory world into one data source. Used to resync a
-// stale backend after boot; mirrors GameLoader::ResaveWorld's per-zone loop.
-// Write the in-memory world into `saver`, stamping each zone (and the index)
-// with the content version reported by `version_src` -- the source we read
-// from -- so the rewritten backend ends up EQUAL in freshness to it, not newer.
-// That equality is what stops the two backends trading "stale" roles each boot.
+// Save one zone's zone-record/rooms/objects/mobs/triggers to `saver`, in the
+// fixed order the loaders expect on the way back in. Logs and reports failure
+// instead of letting an exception escape -- both call sites (SaveLoadedWorldTo
+// below, and GameLoader::ResaveWorld) need to keep saving the remaining zones
+// after one zone fails, they just differ in what a failure means for their own
+// bookkeeping (resync error count + skip vs. a full converter dump's error
+// count). `context` is only used for the log line's prefix.
+bool SaveZoneAllEntities(world_loader::IWorldDataSource &saver, int zone_rnum,
+						  int zone_vnum, const char *context) {
+	try {
+		saver.SaveZone(zone_rnum);
+		saver.SaveRooms(zone_rnum);
+		saver.SaveObjects(zone_rnum);
+		saver.SaveMobs(zone_rnum);
+		saver.SaveTriggers(zone_rnum, -1, 0);
+		return true;
+	} catch (const std::exception &e) {
+		log("SYSERR: %s failed on zone %d (vnum=%d): %s", context, zone_rnum, zone_vnum, e.what());
+		return false;
+	}
+}
+
 // Write the fully-loaded in-memory world into one data source, scoped to
 // `zone_vnums_to_resync` -- the composite's per-source dirty-zone list (see
 // CompositeWorldDataSource::StaleZonesBySource()), already excluding
 // dungeon-instance vnums. Not all zone_table -- resyncing only the zones a
 // source actually lost the freshness comparison for is the whole point of
-// per-zone selection (see composite_world_data_source.h for why).
+// per-zone selection (see composite_world_data_source.h for why). Stamps
+// each zone (and the index) with the content version reported by
+// `version_src` -- the source we read from -- so the rewritten backend ends
+// up EQUAL in freshness to it, not newer; that equality is what stops the
+// two backends trading "stale" roles each boot.
 int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver,
 					  const world_loader::IWorldDataSource *version_src,
 					  const std::vector<int> &zone_vnums_to_resync) {
@@ -391,17 +411,11 @@ int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver,
 			++errors;
 			continue;
 		}
-		try {
-			saver.SaveZone(z);
-			saver.SaveRooms(z);
-			saver.SaveObjects(z);
-			saver.SaveMobs(z);
-			saver.SaveTriggers(z, -1, 0);
+		if (SaveZoneAllEntities(saver, z, vnum, "resync")) {
 			const world_loader::Freshness ver =
 				version_src ? version_src->GetZoneFreshness(vnum) : 0;
 			saver.MarkZoneSynced(z, ver);
-		} catch (const std::exception &e) {
-			log("SYSERR: resync failed on zone %d (vnum=%d): %s", z, vnum, e.what());
+		} else {
 			++errors;
 		}
 	}
@@ -1481,15 +1495,7 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 			++skipped;
 			continue;
 		}
-		try {
-			saver->SaveZone(static_cast<int>(z));
-			saver->SaveRooms(static_cast<int>(z));
-			saver->SaveObjects(static_cast<int>(z));
-			saver->SaveMobs(static_cast<int>(z));
-			saver->SaveTriggers(static_cast<int>(z), -1, 0);
-		} catch (const std::exception &e) {
-			log("SYSERR: ResaveWorld failed on zone %d (vnum=%d): %s",
-				static_cast<int>(z), zone_table[z].vnum, e.what());
+		if (!SaveZoneAllEntities(*saver, static_cast<int>(z), zone_table[z].vnum, "ResaveWorld")) {
 			++errors;
 		}
 	}
