@@ -2862,14 +2862,20 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 		return;
 	}
 
-	// Delete existing trigger and bindings (CASCADE will handle trigger_type_bindings)
-	std::string delete_sql = "DELETE FROM triggers WHERE vnum = " + std::to_string(trig_vnum);
-	ExecuteStatement(delete_sql, "delete trigger");
+	// trigger_type_bindings' schema declares ON DELETE CASCADE from triggers,
+	// but PRAGMA foreign_keys is never turned on anywhere in this engine (SQLite
+	// defaults FK enforcement to off), so that CASCADE never actually fires --
+	// delete it explicitly instead of relying on a constraint that's inert.
+	// The primary row itself uses REPLACE (below) instead of DELETE+INSERT, so
+	// it needs no separate delete.
+	ExecuteStatement("DELETE FROM trigger_type_bindings WHERE trigger_vnum = " + std::to_string(trig_vnum),
+					  "del trigger_type_bindings");
 
-	// Insert trigger record
+	// Insert trigger record. REPLACE, not a separate DELETE+INSERT -- vnum is
+	// the primary key, so this atomically overwrites any existing row.
 	sqlite3_stmt *stmt = nullptr;
-	const char *insert_sql = 
-		"INSERT INTO triggers (vnum, name, attach_type_id, narg, arglist, script, enabled) "
+	const char *insert_sql =
+		"INSERT OR REPLACE INTO triggers (vnum, name, attach_type_id, narg, arglist, script, enabled) "
 		"VALUES (?, ?, ?, ?, ?, ?, 1)";
 
 	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -3018,18 +3024,23 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	int room_vnum = room->vnum;
 	int zone_vnum = room->vnum / 100;  // Integer division gives zone vnum
 
-	// Delete existing room data (CASCADE will handle related tables)
+	// Child tables have variable cardinality (0..N rows per room), so they
+	// still need an explicit delete before re-inserting the new set -- unlike
+	// the primary row (below), a row count mismatch between saves (e.g. an
+	// exit removed) can't be expressed as a single REPLACE. FK ON DELETE
+	// CASCADE isn't relied on here either way -- PRAGMA foreign_keys is never
+	// turned on in this engine, so it wouldn't fire even if it were needed.
 	const std::string rvd = std::to_string(room_vnum);
-	ExecuteStatement("DELETE FROM rooms WHERE vnum = " + rvd, "delete room");
 	ExecuteStatement("DELETE FROM room_exits WHERE room_vnum = " + rvd, "del room_exits");
 	ExecuteStatement("DELETE FROM room_flags WHERE room_vnum = " + rvd, "del room_flags");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'room' AND entity_vnum = " + rvd, "del room trigs");
 	ExecuteStatement("DELETE FROM extra_descriptions WHERE entity_type = 'room' AND entity_vnum = " + rvd, "del room extra descs");
 
-	// Insert room record
+	// Insert room record. REPLACE, not a separate DELETE+INSERT -- vnum is the
+	// primary key, so this atomically overwrites any existing row.
 	sqlite3_stmt *stmt = nullptr;
-	const char *insert_sql = 
-		"INSERT INTO rooms (vnum, zone_vnum, name, description, sector_id, enabled) "
+	const char *insert_sql =
+		"INSERT OR REPLACE INTO rooms (vnum, zone_vnum, name, description, sector_id, enabled) "
 		"VALUES (?, ?, ?, ?, ?, 1)";
 
 	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -3226,21 +3237,40 @@ void SqliteWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 
 void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 {
-	// Delete existing mob data (CASCADE will handle related tables)
+	// Child tables have variable cardinality (0..N rows per mob), so they
+	// still need an explicit delete before re-inserting the new set -- unlike
+	// the primary row (below), a row count mismatch between saves can't be
+	// expressed as a single REPLACE. FK ON DELETE CASCADE isn't relied on
+	// either way -- PRAGMA foreign_keys is never turned on in this engine, so
+	// declared CASCADEs never actually fire.
+	//
+	// mob_feats/mob_helpers/mob_destinations are keyed (mob_vnum, feat_id) /
+	// (mob_vnum, helper_order) / (mob_vnum, dest_order) -- previously NOT
+	// deleted here at all, so re-saving a mob whose helper/destination list
+	// shrank, or whose value at a given order changed, hit a PRIMARY KEY
+	// conflict on the unchecked INSERT below and silently kept the OLD row
+	// (see SaveMobHelpers/SaveMobDestinations further down -- sqlite3_step's
+	// return value there isn't checked). Checksums never caught this because
+	// every resync this session re-saved identical content -- the bug only
+	// bites when a mob's actual data changes between saves, e.g. via
+	// medit/API.
 	const std::string mvd = std::to_string(mob_vnum);
-	ExecuteStatement("DELETE FROM mobs WHERE vnum = " + mvd, "delete mob");
 	ExecuteStatement("DELETE FROM mob_flags WHERE mob_vnum = " + mvd, "del mob_flags");
 	ExecuteStatement("DELETE FROM mob_spells WHERE mob_vnum = " + mvd, "del mob_spells");
 	ExecuteStatement("DELETE FROM mob_skills WHERE mob_vnum = " + mvd, "del mob_skills");
 	ExecuteStatement("DELETE FROM mob_resistances WHERE mob_vnum = " + mvd, "del mob_resistances");
 	ExecuteStatement("DELETE FROM mob_saves WHERE mob_vnum = " + mvd, "del mob_saves");
 	ExecuteStatement("DELETE FROM mob_death_load WHERE mob_vnum = " + mvd, "del mob_death_load");
+	ExecuteStatement("DELETE FROM mob_feats WHERE mob_vnum = " + mvd, "del mob_feats");
+	ExecuteStatement("DELETE FROM mob_helpers WHERE mob_vnum = " + mvd, "del mob_helpers");
+	ExecuteStatement("DELETE FROM mob_destinations WHERE mob_vnum = " + mvd, "del mob_destinations");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'mob' AND entity_vnum = " + mvd, "del mob trigs");
 
-	// Insert mob main record
+	// Insert mob main record. REPLACE, not a separate DELETE+INSERT -- vnum is
+	// the primary key, so this atomically overwrites any existing row.
 	sqlite3_stmt *stmt = nullptr;
-	const char *insert_sql = 
-		"INSERT INTO mobs (vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+	const char *insert_sql =
+		"INSERT OR REPLACE INTO mobs (vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
 		"short_desc, long_desc, alignment, mob_type, level, hitroll_penalty, armor, "
 		"hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus, "
 		"gold_dice_count, gold_dice_size, gold_bonus, experience, default_pos, start_pos, "
@@ -3651,9 +3681,13 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 		return;
 	}
 
-	// Delete existing object data (CASCADE will handle related tables)
+	// Child tables have variable cardinality (0..N rows per object), so they
+	// still need an explicit delete before re-inserting the new set -- unlike
+	// the primary row (below), a row count mismatch between saves can't be
+	// expressed as a single REPLACE. FK ON DELETE CASCADE isn't relied on
+	// either way -- PRAGMA foreign_keys is never turned on in this engine, so
+	// declared CASCADEs never actually fire.
 	const std::string ov = std::to_string(obj_vnum);
-	ExecuteStatement("DELETE FROM objects WHERE vnum = " + ov, "delete object");
 	ExecuteStatement("DELETE FROM obj_applies WHERE obj_vnum = " + ov, "del obj_applies");
 	ExecuteStatement("DELETE FROM obj_skills WHERE obj_vnum = " + ov, "del obj_skills");
 	ExecuteStatement("DELETE FROM obj_flags WHERE obj_vnum = " + ov, "del obj_flags");
@@ -3661,10 +3695,11 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj trigs");
 	ExecuteStatement("DELETE FROM extra_descriptions WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj extra descs");
 
-	// Insert object main record
+	// Insert object main record. REPLACE, not a separate DELETE+INSERT -- vnum
+	// is the primary key, so this atomically overwrites any existing row.
 	sqlite3_stmt *stmt = nullptr;
-	const char *insert_sql = 
-		"INSERT INTO objects (vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+	const char *insert_sql =
+		"INSERT OR REPLACE INTO objects (vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
 		"short_desc, action_desc, obj_type_id, material, value0, value1, value2, value3, "
 		"weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
 		"timer, spell, level, sex, max_in_world, minimum_remorts, enabled) "
