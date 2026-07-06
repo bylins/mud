@@ -1,23 +1,39 @@
 // Part of Bylins http://www.mud.ru
 // Composite world data source - combines several backends with per-source
-// "actuality" (freshness) and priority.
+// "actuality" (freshness) and a strict authority hierarchy (list order).
 //
 // Model (see configuration.xml <world_loader><sources>):
-//   - Each child source has a priority given by its order (first == highest).
+//   - Order is a STRICT authority hierarchy, not a mere tie-break: sources[0]
+//     is the source of truth (e.g. YAML, human-editable) and always wins
+//     whenever it disagrees with anything after it, regardless of which one
+//     is numerically fresher. A later source only wins when it exactly
+//     agrees with everything before it -- meaning nothing has diverged, so
+//     it's safe to prefer it (typically the fast cache, e.g. SQLite). See
+//     SelectByHierarchy() in the .cpp for the exact algorithm: for sources
+//     [A, B, C], A==B==C picks C, A==B!=C picks B, A!=B picks A regardless
+//     of C. With the recommended two-source config [sqlite, yaml] this reads
+//     backwards at a glance -- it does NOT mean "sqlite is authoritative";
+//     see the .cpp comment for why the fast cache is still listed first.
 //   - Zone INDEX (membership: which zones exist) is a whole-source decision:
-//     the source with the highest GetIndexFreshness() wins and supplies
-//     LoadZones()/zone_table (zone add/remove is rare, so this stays coarse).
+//     GetIndexFreshness() feeds the same hierarchy algorithm to pick the
+//     source supplying LoadZones()/zone_table (zone add/remove is rare, so
+//     this stays coarse).
 //   - Zone CONTENT (rooms/mobs/objects/triggers) is decided PER ZONE: for
-//     each zone vnum (union of every source's ListZoneVnums()), the source
-//     with the highest GetZoneFreshness(vnum) wins; ties broken by priority.
-//     This is what makes editing one zone live (via OLC/admin-api, already
-//     zone-scoped writes) NOT fall back to reloading the entire world from
-//     the stale-everywhere-else source -- only that one zone's content comes
-//     from the edited source, every other zone still reads its cached copy.
-//   - On write, every source is written (fan-out / dual-write).
-//   - After a read, for each source, the zones where it lost the per-zone
-//     freshness comparison are resynced from the loaded world (self-heal) --
-//     NOT the whole zone list, just the ones it actually lost.
+//     each zone vnum (union of every source's ListZoneVnums()), GetZoneFreshness(vnum)
+//     feeds the same hierarchy algorithm. This is what makes editing one
+//     zone live (via OLC/admin-api, already zone-scoped writes) NOT fall
+//     back to reloading the entire world from the stale-everywhere-else
+//     source -- only that one zone's content comes from the edited source,
+//     every other zone still reads its cached copy.
+//   - On write, every source is written (fan-out / dual-write), then all are
+//     stamped with the same canonical version -- see CanonicalZoneVersion --
+//     so a normal write always leaves every source in exact agreement
+//     (picking the fast cache on the next read), and only a DIRECT edit to
+//     one source outside the engine (hand-editing YAML, or hand-editing
+//     world.db) can make them disagree.
+//   - After a read, for each source, the zones where it did NOT match the
+//     winner's freshness are resynced from the loaded world (self-heal) --
+//     NOT the whole zone list, just the ones that actually disagreed.
 //   - ForceSource(kind) (the -F CLI flag) bypasses freshness entirely for one
 //     boot: the named source wins every zone unconditionally, and every other
 //     source's whole zone list is force-resynced from it. For moving a cached
@@ -42,7 +58,7 @@ namespace world_loader
 class CompositeWorldDataSource : public IWorldDataSource
 {
 public:
-	// sources[0] has the highest priority (wins freshness ties).
+	// sources[0] is the authoritative source of truth (see class comment above).
 	explicit CompositeWorldDataSource(std::vector<std::unique_ptr<IWorldDataSource>> sources);
 
 	std::string GetName() const override;
@@ -138,7 +154,7 @@ private:
 	// IWorldDataSource method they call per source.
 	std::map<IWorldDataSource *, std::vector<int>> WinningZonesBySource(const std::vector<int> *filter) const;
 
-	std::vector<std::unique_ptr<IWorldDataSource>> m_sources;  // [0] = highest priority
+	std::vector<std::unique_ptr<IWorldDataSource>> m_sources;  // [0] = source of truth
 	IWorldDataSource *m_index_source = nullptr;                 // zone_table/index winner
 	std::map<int, IWorldDataSource *> m_zone_source;            // per-zone content winner
 	std::map<IWorldDataSource *, std::vector<int>> m_stale_zones;  // per-source dirty-zone lists

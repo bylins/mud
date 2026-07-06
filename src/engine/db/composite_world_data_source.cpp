@@ -12,6 +12,36 @@
 namespace world_loader
 {
 
+namespace
+{
+// Pick a winner from `fresh`, in source-list order (index 0 = sources[0] =
+// the authoritative source of truth). Order is a STRICT hierarchy, not a
+// tie-break: the moment two adjacent entries disagree, the run stops and the
+// earlier (higher-authority) entry wins -- regardless of which one is
+// numerically fresher. A later entry only wins by extending an unbroken run
+// of exact agreement all the way from index 0, which is the "nothing has
+// diverged, safe to prefer the fast cache" case.
+//   fresh = [A, B, C]:
+//     A==B==C  -> 2 (C: full agreement, prefer the last/cheapest)
+//     A==B!=C  -> 1 (B: agrees with A, C has diverged)
+//     A!=B     -> 0 (A: authoritative; C is never even examined)
+// Shared by index-freshness and per-zone-freshness selection below -- same
+// algorithm, different freshness vector.
+size_t SelectByHierarchy(const std::vector<Freshness> &fresh)
+{
+	size_t winner = 0;
+	for (size_t i = 1; i < fresh.size(); ++i)
+	{
+		if (fresh[i] != fresh[winner])
+		{
+			break;
+		}
+		winner = i;
+	}
+	return winner;
+}
+} // namespace
+
 CompositeWorldDataSource::CompositeWorldDataSource(
 	std::vector<std::unique_ptr<IWorldDataSource>> sources)
 	: m_sources(std::move(sources))
@@ -157,23 +187,19 @@ void CompositeWorldDataSource::SelectZoneSources()
 
 	// Index winner: whole-source, decides zone_table membership/order.
 	std::vector<Freshness> index_fresh(m_sources.size(), 0);
-	size_t index_winner = 0;
 	for (size_t i = 0; i < m_sources.size(); ++i)
 	{
 		index_fresh[i] = m_sources[i]->GetIndexFreshness();
-		if (index_fresh[i] > index_fresh[index_winner])
-		{
-			index_winner = i;
-		}
 	}
+	const size_t index_winner = SelectByHierarchy(index_fresh);
 	m_index_source = m_sources[index_winner].get();
-	log("World index source: '%s' (priority %zu, freshness=%llu)",
+	log("World index source: '%s' (authority rank %zu, freshness=%llu)",
 		m_index_source->GetName().c_str(), index_winner,
 		static_cast<unsigned long long>(index_fresh[index_winner]));
 
-	// Content winner: per zone, strictly-greater freshness wins; ties keep
-	// the earlier (higher-priority) source. Union of every source's zone
-	// list, so a zone can be picked even if it's not in the index winner.
+	// Content winner: per zone, same hierarchy algorithm on GetZoneFreshness.
+	// Union of every source's zone list, so a zone can be picked even if
+	// it's not in the index winner.
 	std::vector<int> all_zones = ListZoneVnums();
 	m_zone_source.clear();
 	m_stale_zones.clear();
@@ -190,27 +216,29 @@ void CompositeWorldDataSource::SelectZoneSources()
 		}
 
 		std::vector<Freshness> fresh(m_sources.size(), 0);
-		size_t winner = 0;
 		for (size_t i = 0; i < m_sources.size(); ++i)
 		{
 			fresh[i] = m_sources[i]->GetZoneFreshness(zone_vnum);
-			if (fresh[i] > fresh[winner])
-			{
-				winner = i;
-			}
 		}
+		const size_t winner = SelectByHierarchy(fresh);
 
 		IWorldDataSource *winner_src = m_sources[winner].get();
 		m_zone_source[zone_vnum] = winner_src;
 		++won_count[winner_src];
 
+		// Any source that doesn't match the winner's freshness is out of
+		// sync and needs resyncing FROM the winner -- not just the ones
+		// numerically behind it. Under the hierarchy model a non-winner can
+		// even be numerically fresher (e.g. sqlite raced ahead of yaml) and
+		// still needs to be overwritten, since yaml (listed first) is the
+		// source of truth on any disagreement, full stop.
 		for (size_t i = 0; i < m_sources.size(); ++i)
 		{
 			if (i == winner)
 			{
 				continue;
 			}
-			if (fresh[i] < fresh[winner])
+			if (fresh[i] != fresh[winner])
 			{
 				m_stale_zones[m_sources[i].get()].push_back(zone_vnum);
 			}

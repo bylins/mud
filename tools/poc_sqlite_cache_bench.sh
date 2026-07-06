@@ -96,11 +96,16 @@ enable_composite_loader() {
     if grep -q "<world_loader>" "$cfg"; then
         return 0
     fi
+    # yaml first = source of truth (see composite_world_data_source.h): order
+    # is a strict authority hierarchy, not a priority tie-break -- yaml always
+    # wins on disagreement, sqlite only wins when it exactly agrees (the
+    # normal case right after any write, which is when this benchmark's WARM/
+    # single-zone-stale stages actually want the fast cache to be read).
     sed -i '/<\/configuration>/i\
 \t<world_loader>\
 \t\t<sources>\
-\t\t\t<sqlite/>\
 \t\t\t<yaml/>\
+\t\t\t<sqlite/>\
 \t\t</sources>\
 \t</world_loader>' "$cfg"
 }
