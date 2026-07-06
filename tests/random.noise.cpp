@@ -105,31 +105,41 @@ TEST(RebalanceModel, PotencyIsDeterministicCompetence) {
 	EXPECT_FLOAT_EQ(CalcCastPotency(with_dice), CalcCastPotency(no_dice));  // dice irrelevant
 }
 
-// P3: the dispel contest is a competence comparison with a bounded multiplicative-noise overlay
-// (dispeller's competence * TruncNormal(1, sigma) vs the affect's deterministic potency). Skill
-// dominates: a clearly stronger dispeller almost always wins, a clearly weaker one almost never,
-// and only near parity is it a coin flip -- unlike the old dice-dominated roll.
-TEST(RebalanceModel, DispelContestIsSkillDrivenWithBoundedNoise) {
+// The dispel contest (issue.random-noise-rework): a d100 skill check. The win threshold is
+// clamp(k*(C_dispel - affect_potency) + dispel_bonus, 5, 95). The additive bonus is a flat
+// win-% at competence parity (level-independent), the competence gap shifts it by k points each,
+// and the clamp gives a 5% upset floor/ceiling. Mirrors DispelSucceeds' arithmetic.
+TEST(RebalanceModel, DispelContestIsSkillDrivenWithAdditiveBonus) {
 	SetRandomSeed(4242);
-	const double sigma = 0.15;  // == kDispelSigma
-	auto win_rate = [&](double c_dispel, double affect_potency) {
+	const double k = 4.0;  // == kDispelSkillWeight
+	auto threshold = [&](double c_dispel, double affect_pot, int bonus) {
+		const double raw = k * (c_dispel - affect_pot) + bonus;
+		return std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
+	};
+	auto win_rate = [&](double c_dispel, double affect_pot, int bonus) {
+		const int t = threshold(c_dispel, affect_pot, bonus);
 		int wins = 0;
 		for (int i = 0; i < kN; ++i) {
-			const double sp = c_dispel * std::max(0.0, GaussNumber(1.0, sigma));
-			if (sp > affect_potency) {
+			if (number(1, 100) <= t) {
 				++wins;
 			}
 		}
 		return static_cast<double>(wins) / kN;
 	};
-	EXPECT_GT(win_rate(20.0, 10.0), 0.99);   // 2x competence -> nearly always removes
-	EXPECT_LT(win_rate(7.0, 10.0), 0.05);    // 30% weaker -> almost never
-	const double parity = win_rate(10.0, 10.0);
-	EXPECT_GT(parity, 0.30);                 // near parity -> coin-flip-ish (strict >, so <50%)
-	EXPECT_LT(parity, 0.55);
-	// the noise factor itself has CV ~ sigma
-	const Stats st = Sample([&] { return static_cast<int>(1000 * std::max(0.0, GaussNumber(1.0, sigma))); }, kN);
-	EXPECT_NEAR(st.cv, sigma, 0.03);
+	// At competence parity the bonus IS the win rate -- a flat knob, independent of absolute potency.
+	EXPECT_NEAR(win_rate(8.0, 8.0, 50), 0.50, 0.02);
+	EXPECT_NEAR(win_rate(2.0, 2.0, 50), 0.50, 0.02);   // same bonus, tiny potencies -> same rate
+	EXPECT_NEAR(win_rate(8.0, 8.0, 40), 0.40, 0.02);   // bonus 40 -> ~40%
+	EXPECT_NEAR(win_rate(8.0, 8.0, 85), 0.85, 0.02);   // bonus 85 -> ~85%
+	// Skill dominates: a competence advantage shifts the rate by k points per competence point.
+	EXPECT_GT(win_rate(12.0, 2.0, 50), 0.88);          // +10 gap -> ~90%
+	EXPECT_LT(win_rate(2.0, 12.0, 50), 0.12);          // -10 gap -> ~10%
+	// Clamp floor/ceiling: nothing is ever guaranteed.
+	EXPECT_NEAR(win_rate(50.0, 0.0, 100), 0.95, 0.02); // overwhelming -> capped at 95%
+	EXPECT_NEAR(win_rate(0.0, 50.0, 0), 0.05, 0.02);   // hopeless -> floored at 5%
+	// The bonus is a flat percentage-point offset: the SAME competence gap gives the SAME rate
+	// regardless of the absolute competence level (unlike the old multiplier).
+	EXPECT_NEAR(win_rate(9.0, 8.0, 50) - win_rate(3.0, 2.0, 50), 0.0, 0.03);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

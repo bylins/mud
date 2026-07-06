@@ -8,9 +8,6 @@
 int number(int from, int to);
 int RollDices(int number, int size);
 int GaussIntNumber(double mean, double sigma, int min_val, int max_val);
-// Raw normal-distribution double (mean/sigma). Unclamped; caller clamps as needed.
-// issue.random-noise-rework: used for the multiplicative dispel-contest noise factor.
-double GaussNumber(double mean, double sigma);
 bool BernoulliTrial(double p);
 
 // Sets the seed of the global RNG used by number()/RollDices()/etc.

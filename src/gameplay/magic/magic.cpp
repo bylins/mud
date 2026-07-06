@@ -1914,24 +1914,24 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 // (tens) yet finite and well within int range.
 constexpr float kMaxAffectPotency = 30000.0f;
 
-// issue.random-noise-rework (P3): relative spread (CV) of the dispel-contest noise on the
-// dispeller's effective potency. Small -> skill dominates: a dispeller must roughly match the
-// affect's competence to have a chance, with a modest band of uncertainty only near parity.
-constexpr double kDispelSigma = 0.15;
+// issue.random-noise-rework: weight turning a competence gap (dispeller - affect, in skill+stat
+// points) into dispel win-probability points in the d100 contest below. Larger -> skill matters
+// more; with the rebalanced competence range (~2..12), 4 gives roughly a +/-40-point swing.
+constexpr double kDispelSkillWeight = 4.0;
 
 // issue.debuff-decay: on a FAILED removal, shift the surviving affect's potency by `decay` percent of
-// THIS dispel's rolled potency -- positive decay weakens the affect, negative strengthens it. Floored
-// at 0 (per spec), capped at kMaxAffectPotency.
-void ApplyDispelDecay(float &affect_potency, float spell_potency, int decay) {
+// the dispeller's competence contribution (kDispelSkillWeight * competence) -- positive decay weakens
+// the affect, negative strengthens it. Floored at 0, capped at kMaxAffectPotency.
+void ApplyDispelDecay(float &affect_potency, float dispel_strength, int decay) {
 	if (decay == 0) {
 		return;
 	}
-	const float delta = spell_potency * static_cast<float>(decay) / 100.0f;
+	const float delta = dispel_strength * static_cast<float>(decay) / 100.0f;
 	affect_potency = std::clamp(affect_potency - delta, 0.0f, kMaxAffectPotency);
 }
 
 bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight, double competence, double area_coeff = 1.0, int decay = 0) {
+					int dispel_bonus, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
 	bool affect_is_debuff = false;
 	float *matched_potency = nullptr;
@@ -1943,45 +1943,31 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 			break;
 		}
 	}
-	// Tester / immortal debug line: trace the dispel-potency contest one line per
-	// affect-vs-dispel pair. Reason codes for the spell-potency value:
-	//   buff  -- a non-violent dispel of a buff auto-passes (no contest rolled).
-	//   luck  -- the flat 5% auto-success bypassed the contest.
-	//   roll  -- a normal weighted potency contest was rolled.
-	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
+	// Tester / immortal debug line: one per affect-vs-dispel pair. Reason codes:
+	//   buff -- a non-violent dispel of a buff auto-passes (no contest rolled).
+	//   roll -- the d100 contest was rolled against the threshold.
+	auto emit_debug = [&](int threshold, const char *kind, bool ok) {
 		spell_trace::Line(ch, nullptr,
-				 "Unaffect: %s [p: %.1f]. Target: %s [p: %.1f]. %s (%s).\r\n",
-				 MUD::Spell(dispel_spell).GetCName(), spell_pot,
+				 "Unaffect: %s [C: %.1f]. Target: %s [p: %.1f]. threshold %d%%. %s (%s).\r\n",
+				 MUD::Spell(dispel_spell).GetCName(), competence,
 				 MUD::Spell(affect_spell).GetCName(), affect_potency,
-				 ok ? "Success" : "Fail", kind);
+				 threshold, ok ? "Success" : "Fail", kind);
 	};
-	// Case 3: a non-violent (per-target) dispel removing a buff needs no check.
-	// For an A dispel, the question is whether THIS cast on THIS
-	// victim is aggressive: dispel from an ally hand on an ally buff -> no contest;
-	// dispel from an enemy hand -> potency contest as for any violent dispel.
-	// Compute the dispel's potency up front so even the free passes (buff/luck) report
-	// the real rolled power instead of 0 (issue.dispellbug).
-	// issue.random-noise-rework (P3): a DETERMINISTIC competence contest with a bounded
-	// multiplicative noise overlay -- the dispeller's competence (skill+stat) times a
-	// truncated-normal factor -- vs the affect's stored (deterministic) potency. No dice: a
-	// higher-skill dispeller reliably beats a weaker affect; uncertainty only near parity
-	// (plus the flat 5% luck below).
-	const float spell_potency = static_cast<float>(
-			competence * std::max(0.0, GaussNumber(1.0, kDispelSigma)))
-			* potency_weight * static_cast<float>(area_coeff);
+	// issue.random-noise-rework: a d100 skill contest. The dispeller's competence advantage over the
+	// affect (scaled by kDispelSkillWeight) plus the per-spell dispel_bonus set the win threshold; the
+	// clamp gives a symmetric 5% upset floor and 5% save ceiling (subsumes the old flat luck roll).
+	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency) + dispel_bonus;
+	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
+	// A non-violent (per-target) dispel of a buff needs no contest (ally cleansing); an enemy-hand
+	// dispel of a buff, or any dispel of a debuff, rolls.
 	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
-		emit_debug(spell_potency, "buff", true);
+		emit_debug(threshold, "buff", true);
 		return true;
 	}
-	// Always a 5% chance to remove regardless of potency.
-	if (number(1, 100) <= 5) {
-		emit_debug(spell_potency, "luck", true);
-		return true;
-	}
-	const bool ok = spell_potency > affect_potency;
-	emit_debug(spell_potency, "roll", ok);
+	const bool ok = number(1, 100) <= threshold;
+	emit_debug(threshold, "roll", ok);
 	if (!ok && matched_potency) {
-		ApplyDispelDecay(*matched_potency, spell_potency, decay);
+		ApplyDispelDecay(*matched_potency, static_cast<float>(kDispelSkillWeight * competence), decay);
 	}
 	return ok;
 }
@@ -2091,7 +2077,7 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 }
 
 bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight, double competence, double area_coeff = 1.0, int decay = 0) {
+					int dispel_bonus, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
 	long author_uid = 0;
 	float *matched_potency = nullptr;
@@ -2103,42 +2089,34 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 			break;
 		}
 	}
-	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
+	auto emit_debug = [&](int threshold, const char *kind, bool ok) {
 		spell_trace::Line(ch, nullptr,
-				 "Unaffect: %s [p: %.1f]. Target room: %s [p: %.1f]. %s (%s).\r\n",
-				 MUD::Spell(dispel_spell).GetCName(), spell_pot,
+				 "Unaffect: %s [C: %.1f]. Target room: %s [p: %.1f]. threshold %d%%. %s (%s).\r\n",
+				 MUD::Spell(dispel_spell).GetCName(), competence,
 				 MUD::Spell(affect_spell).GetCName(), affect_potency,
-				 ok ? "Success" : "Fail", kind);
+				 threshold, ok ? "Success" : "Fail", kind);
 	};
 	// issue.dispellbug: author/ally-aware room dispel. The affect's author or a live
 	// ally dispels for free; anyone else must win a strength contest, and a player vs a
 	// live author commits an aggressive PK act. (Dispellability is filtered upstream by
 	// the <unaffect affect_flags=> mask, so kAfDispellable is already enforced.)
-	// issue.random-noise-rework (P3): a DETERMINISTIC competence contest with a bounded
-	// multiplicative noise overlay -- the dispeller's competence (skill+stat) times a
-	// truncated-normal factor -- vs the affect's stored (deterministic) potency. No dice: a
-	// higher-skill dispeller reliably beats a weaker affect; uncertainty only near parity
-	// (plus the flat 5% luck below).
-	const float spell_potency = static_cast<float>(
-			competence * std::max(0.0, GaussNumber(1.0, kDispelSigma)))
-			* potency_weight * static_cast<float>(area_coeff);
+	// issue.random-noise-rework: d100 skill contest (see the char overload). kDispelSkillWeight scales
+	// the competence gap, dispel_bonus sets the parity win-rate, clamp gives the 5% floor/ceiling.
+	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency) + dispel_bonus;
+	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
 	const auto access = room_spells::ClassifyRoomAffectAccess(ch, author_uid);
 	if (access.free) {
-		emit_debug(spell_potency, "ally", true);
+		emit_debug(threshold, "ally", true);
 		return true;
 	}
 	if (!ch->IsNpc() && access.author && !pk_agro_action(ch, access.author)) {
-		emit_debug(spell_potency, "pk", false);
+		emit_debug(threshold, "pk", false);
 		return false;
 	}
-	if (number(1, 100) <= 5) {
-		emit_debug(spell_potency, "luck", true);
-		return true;
-	}
-	const bool ok = spell_potency > affect_potency;
-	emit_debug(spell_potency, "roll", ok);
+	const bool ok = number(1, 100) <= threshold;
+	emit_debug(threshold, "roll", ok);
 	if (!ok && matched_potency) {
-		ApplyDispelDecay(*matched_potency, spell_potency, decay);
+		ApplyDispelDecay(*matched_potency, static_cast<float>(kDispelSkillWeight * competence), decay);
 	}
 	return ok;
 }
@@ -2199,7 +2177,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool removed_any = false;
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
-			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), competence, area_coeff,
+			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetDispelBonus(), competence, area_coeff,
 							  unaffect.GetDecay())) {
 				// capture the removed affect's potency BEFORE it is stripped.
 				double removed_pot = 0.0;

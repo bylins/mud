@@ -558,9 +558,10 @@ class TalentUnaffect : public IAction {
 	[[nodiscard]] const Set &GetBreaking() const { return breaking_; }
 	[[nodiscard]] const Set &GetRemoveAnyway() const { return remove_anyway_; }
 	[[nodiscard]] const Set &GetRemove() const { return remove_; }
-	// Weight applied to this dispel's potency roll when checked against an affect's recorded
-	// potency (issue: potency-gated dispel). Default 1.0 (the <unaffect potency_weight=> attr).
-	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
+	// Base dispel win chance in percent at competence parity (the <unaffect dispel_bonus=> attr,
+	// default 50). The dispeller's competence advantage over the affect shifts it up/down; see the
+	// d100 contest in DispelSucceeds. issue.random-noise-rework: replaced the potency_weight multiplier.
+	[[nodiscard]] int GetDispelBonus() const { return dispel_bonus_; }
 	// Which affects this unaffect may remove: an affect is eligible only if it carries at least one
 	// of these EAffFlag bits (issue.affect-dispell-flags). Default kAfCurable|kAfDispellable -- a
 	// generic unaffect removes anything curable or dispellable. kRemovePoison narrows it to
@@ -576,7 +577,7 @@ class TalentUnaffect : public IAction {
 	Set breaking_;       // present -> the cast chain breaks (EStageResult::kBreak)
 	Set remove_anyway_;  // dispelled even when blocking is true
 	Set remove_;         // dispelled only when blocking is false
-	float potency_weight_{1.0f};
+	int dispel_bonus_{50};  // issue.random-noise-rework: % win at competence parity (was potency_weight multiplier)
 	Bitvector affect_flags_{kAfCurable | kAfDispellable};
 	int prob_{100};      // percent chance the unaffect block fires at all (default always)
 	int decay_{0};       // issue.debuff-decay: % of dispel potency to shift a surviving affect on a failed removal
