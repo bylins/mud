@@ -398,7 +398,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="50">
+				<unaffect dispel_bonus="80" decay="50">
 					<remove any_of="kBlindness" />
 				</unaffect>
 			</action>
@@ -1061,7 +1061,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="25">
+				<unaffect dispel_bonus="80" decay="25">
 					<remove any_of="kCurse" />
 				</unaffect>
 				<alter_obj handler="AlterRemoveCurse" />
@@ -1089,7 +1089,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kSanctuary" saving="kNone" resist="kVitality">
+				<affects dispel_mod="-35" type="kSanctuary" saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
 					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kSanctuary" location="kNone">
@@ -1300,7 +1300,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect affect_flags="kAfCurable" decay="25">
+				<unaffect dispel_bonus="80" affect_flags="kAfCurable" decay="25">
 					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
@@ -1748,7 +1748,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFly" saving="kNone" resist="kAir">
+				<affects dispel_mod="-35" type="kFly" saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
 					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kFly" location="kNone">
@@ -2439,7 +2439,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="25">
+				<unaffect dispel_bonus="80" decay="25">
 					<remove any_of="kHold" />
 				</unaffect>
 			</action>
@@ -2720,7 +2720,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="25">
+				<unaffect dispel_bonus="80" decay="25">
 					<remove any_of="kSilence" />
 				</unaffect>
 			</action>
@@ -3123,7 +3123,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kWaterbreath" saving="kNone" resist="kWater">
+				<affects dispel_mod="-35" type="kWaterbreath" saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
 					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kWaterBreath" location="kNone">
@@ -3383,7 +3383,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect affect_flags="kAfCurable" decay="25">
+				<unaffect dispel_bonus="80" affect_flags="kAfCurable" decay="25">
 					<remove any_of="kFever" />
 				</unaffect>
 			</action>
@@ -3451,7 +3451,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kAirShield" saving="kNone" resist="kAir">
+				<affects dispel_mod="-35" type="kAirShield" saving="kNone" resist="kAir">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
 					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kAirShield" location="kNone">
@@ -3641,7 +3641,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFireShield" saving="kNone" resist="kFire">
+				<affects dispel_mod="-35" type="kFireShield" saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
 					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kFireShield" location="kNone">
@@ -3723,7 +3723,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kIceShield" saving="kNone" resist="kWater">
+				<affects dispel_mod="-35" type="kIceShield" saving="kNone" resist="kWater">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
 					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kIceShield" location="kNone">
@@ -4084,7 +4084,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kPrismaticAura" saving="kNone" resist="kVitality">
+				<affects dispel_mod="-35" type="kPrismaticAura" saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
 					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kPrismaticAura" location="kNone">
@@ -4461,7 +4461,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="50">
+				<unaffect dispel_bonus="80" decay="50">
 					<remove any_of="kDeafness" />
 				</unaffect>
 			</action>

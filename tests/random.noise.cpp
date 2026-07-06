@@ -131,6 +131,9 @@ TEST(RebalanceModel, DispelContestIsSkillDrivenWithAdditiveBonus) {
 	EXPECT_NEAR(win_rate(2.0, 2.0, 50), 0.50, 0.02);   // same bonus, tiny potencies -> same rate
 	EXPECT_NEAR(win_rate(8.0, 8.0, 40), 0.40, 0.02);   // bonus 40 -> ~40%
 	EXPECT_NEAR(win_rate(8.0, 8.0, 85), 0.85, 0.02);   // bonus 85 -> ~85%
+	// Dispel-tuning category targets at parity (threshold = dispel_bonus + affect dispel_mod):
+	EXPECT_NEAR(win_rate(8.0, 8.0, 80), 0.80, 0.02);       // debuff via a remover (bonus 80) -> ~1.25 attempts
+	EXPECT_NEAR(win_rate(8.0, 8.0, 50 - 35), 0.15, 0.02);  // critical buff via dispel magic (bonus 50, mod -35)
 	// Skill dominates: a competence advantage shifts the rate by k points per competence point.
 	EXPECT_GT(win_rate(12.0, 2.0, 50), 0.88);          // +10 gap -> ~90%
 	EXPECT_LT(win_rate(2.0, 12.0, 50), 0.12);          // -10 gap -> ~10%

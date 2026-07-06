@@ -573,6 +573,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// in the opposite direction.
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
+	// dispel_mod: additive per-affect modifier to the dispel-contest threshold (percentage points);
+	// negative makes the affect harder to remove (critical buffs). Default 0.
+	const char *dm = node.GetValue("dispel_mod");
+	dispel_mod_ = (dm && *dm) ? parse::ReadAsInt(dm) : 0;
 	// tick_spell (room affects): the kService spell whose actions the room-affect handler runs
 	// each tick. Optional; absent -> kUndefined (no per-tick effect / handled in code).
 	const char *tick = node.GetValue("tick_spell");
@@ -647,6 +651,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
 		   << " Flags: " << kColorGrn << flags_ << kColorNrm
 		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
+		   << " dispel_mod=" << kColorGrn << dispel_mod_ << kColorNrm
 		   << (tick_spell_ != ESpell::kUndefined ? " tick_spell=" : "") << kColorGrn
 		   << (tick_spell_ != ESpell::kUndefined ? NAME_BY_ITEM<ESpell>(tick_spell_) : "") << kColorNrm
 		   << (tick_handler_.empty() ? "" : " tick_handler=") << kColorGrn << tick_handler_ << kColorNrm << "\r\n"

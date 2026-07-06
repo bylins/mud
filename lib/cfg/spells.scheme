@@ -283,6 +283,7 @@
 		<attr name="resist" type="enum" enum="EResist" desc="Resistance type that mitigates it"/>
 		<attr name="prob" type="int" min="0" max="100" desc="Chance to impose (percent)"/>
 		<attr name="potency_weight" type="double" min="0" desc="Caster potency multiplier"/>
+		<attr name="dispel_mod" type="int" desc="Additive per-affect modifier to the dispel-contest threshold in percentage points; negative = harder to remove (critical buffs), default 0"/>
 		<attr name="tick_spell" type="enum" enum="ESpell" desc="Per-tick spell effect for a room affect (optional)"/>
 		<attr name="tick_handler" type="string" desc="Per-tick code handler name for a room affect (optional)"/>
 		<child tag="duration"/>

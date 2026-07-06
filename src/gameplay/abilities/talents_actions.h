@@ -495,6 +495,10 @@ class TalentAffect : public IAction {
 	// both modifier and stored potency. Symmetric in spirit with
 	// TalentUnaffect::potency_weight_ on the dispel side.
 	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
+	// issue.random-noise-rework: additive per-affect dispel modifier (threshold percentage points) in
+	// the dispel contest -- negative = harder to remove (critical buffs), positive = easier. Default 0;
+	// the data-driven <affects dispel_mod=> attr (no code constants).
+	[[nodiscard]] int GetDispelMod() const { return dispel_mod_; }
 
  private:
 	ESpell spell_{static_cast<ESpell>(0)};
@@ -523,6 +527,7 @@ class TalentAffect : public IAction {
 	bool reposition_stop_fight_{false};
 	// Stored-potency scale (issue.affects-potency-weight); see GetPotencyWeight().
 	float potency_weight_{1.0f};
+	int dispel_mod_{0};  // issue.random-noise-rework: additive dispel-threshold modifier (<affects dispel_mod=>)
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or

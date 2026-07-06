@@ -1930,6 +1930,14 @@ void ApplyDispelDecay(float &affect_potency, float dispel_strength, int decay) {
 	affect_potency = std::clamp(affect_potency - delta, 0.0f, kMaxAffectPotency);
 }
 
+// issue.random-noise-rework: the affect's own additive dispel modifier (<affects dispel_mod=>), in
+// threshold percentage points. Negative -> harder to remove (critical buffs like shields/sanctuary).
+// 0 when the affect's spell has no <affects> manifest.
+int AffectDispelMod(ESpell affect_spell) {
+	const auto &acts = MUD::Spell(affect_spell).actions;
+	return acts.Contains(talents_actions::EAction::kAffect) ? acts.GetAffect().GetDispelMod() : 0;
+}
+
 bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell affect_spell,
 					int dispel_bonus, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
@@ -1956,7 +1964,8 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	// issue.random-noise-rework: a d100 skill contest. The dispeller's competence advantage over the
 	// affect (scaled by kDispelSkillWeight) plus the per-spell dispel_bonus set the win threshold; the
 	// clamp gives a symmetric 5% upset floor and 5% save ceiling (subsumes the old flat luck roll).
-	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency) + dispel_bonus;
+	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency)
+			+ dispel_bonus + AffectDispelMod(affect_spell);
 	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
 	// A non-violent (per-target) dispel of a buff needs no contest (ally cleansing); an enemy-hand
 	// dispel of a buff, or any dispel of a debuff, rolls.
@@ -2102,7 +2111,8 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 	// the <unaffect affect_flags=> mask, so kAfDispellable is already enforced.)
 	// issue.random-noise-rework: d100 skill contest (see the char overload). kDispelSkillWeight scales
 	// the competence gap, dispel_bonus sets the parity win-rate, clamp gives the 5% floor/ceiling.
-	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency) + dispel_bonus;
+	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency)
+			+ dispel_bonus + AffectDispelMod(affect_spell);
 	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
 	const auto access = room_spells::ClassifyRoomAffectAccess(ch, author_uid);
 	if (access.free) {
