@@ -874,6 +874,7 @@ main_sources = files(
   'src/engine/db/world_data_source_manager.cpp',
   'src/engine/db/legacy_world_data_source.cpp',
   'src/engine/db/world_data_source_base.cpp',
+  'src/engine/db/composite_world_data_source.cpp',
   # Crafting
   'src/gameplay/crafting/craft_commands.cpp',
   'src/gameplay/crafting/craft.cpp',
@@ -905,12 +906,16 @@ if admin_api_opt
 endif
 
 if sqlite_opt != 'disabled'
-    main_sources += files('src/engine/db/sqlite_world_data_source.cpp')
+    main_sources += files(
+        'src/engine/db/sqlite_world_data_source.cpp',
+        'src/engine/db/sqlite_world_data_source_freshness.cpp'
+    )
 endif
 
 if yaml_opt != 'disabled'
     main_sources += files(
         'src/engine/db/yaml_world_data_source.cpp',
+        'src/engine/db/yaml_world_data_source_freshness.cpp',
         'src/engine/db/dictionary_loader.cpp'
     )
 endif

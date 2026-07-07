@@ -18,6 +18,8 @@
 extern IndexData **trig_index;
 extern int top_of_trigt;
 extern CharData *mob_proto;
+extern IndexData *mob_index;
+extern MobRnum top_of_mobt;
 
 namespace world_loader
 
@@ -114,6 +116,28 @@ IndexData* WorldDataSourceBase::CreateTriggerIndex(int vnum, Trigger *trig)
 
 	trig_index[top_of_trigt++] = index;
 	return index;
+}
+
+// Append one mob_index[] entry at rnum=top_of_mobt and advance top_of_mobt.
+// Extracted from the identical inline bookkeeping in the YAML/SQLite bulk mob
+// loaders (mob_proto[]'s content-specific fields are filled by the caller
+// before/after this call -- too backend-specific to share here). Callers must
+// not rely on top_of_mobt being "last valid index" while filling -- it acts
+// as a running count during the fill pass; converting it to a last-index
+// value (the `if (top_of_mobt > 0) top_of_mobt--;` step) happens exactly once,
+// after ALL mobs (across every zone, in the per-zone boot path) are loaded.
+MobRnum WorldDataSourceBase::AppendMobIndex(MobVnum vnum)
+{
+	const MobRnum rnum = top_of_mobt;
+	mob_index[rnum].vnum = vnum;
+	mob_index[rnum].total_online = 0;
+	mob_index[rnum].stored = 0;
+	mob_index[rnum].func = nullptr;
+	mob_index[rnum].farg = nullptr;
+	mob_index[rnum].proto = nullptr;
+	mob_index[rnum].set_idx = -1;
+	++top_of_mobt;
+	return rnum;
 }
 
 // Attach trigger to room

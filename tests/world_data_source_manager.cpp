@@ -14,10 +14,10 @@ struct MockDataSource : public IWorldDataSource {
 
 	std::string GetName() const override { return name_; }
 	void LoadZones() override {}
-	void LoadTriggers() override {}
-	void LoadRooms() override {}
-	void LoadMobs() override {}
-	void LoadObjects() override {}
+	std::vector<LoadedTrigger> LoadTriggers(const std::vector<int>* = nullptr) override { return {}; }
+	std::vector<LoadedRoom> LoadRooms(const std::vector<int>* = nullptr) override { return {}; }
+	std::vector<LoadedMob> LoadMobs(const std::vector<int>* = nullptr) override { return {}; }
+	std::vector<LoadedObject> LoadObjects(const std::vector<int>* = nullptr) override { return {}; }
 	void SaveZone(int) override {}
 	bool SaveTriggers(int, int, int) override { return true; }
 	void SaveRooms(int, int) override {}

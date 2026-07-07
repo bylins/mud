@@ -1,95 +1,124 @@
--- SQLite schema for MUD world data
--- Normalized tables (3NF) with convenient views
+// Part of Bylins http://www.mud.ru
+// Freshness / membership bookkeeping for the SQLite world data source.
+// Kept in a separate (ASCII-only) translation unit so the KOI8-R
+// sqlite_world_data_source.cpp does not need touching.
 
--- Note: Foreign keys disabled during import to allow any insertion order
--- Enable with: PRAGMA foreign_keys = ON; after import is complete
+#include "sqlite_world_data_source.h"
 
--- ============================================================================
--- Reference tables (Enums)
--- ============================================================================
+#ifdef HAVE_SQLITE
 
--- Object types
+#include "engine/entities/zone.h"
+#include "utils/logger.h"
+#include "utils/utils_encoding.h"
+
+#include <ctime>
+#include <string>
+#include <vector>
+
+namespace world_loader
+{
+
+void BindTextKoi(sqlite3_stmt *stmt, int col, const char *koi8)
+{
+	if (!koi8)
+	{
+		sqlite3_bind_null(stmt, col);
+		return;
+	}
+	const std::string in(koi8);
+	// koi_to_utf8 can roughly double the byte count; size generously.
+	std::vector<char> out(in.size() * 2 + 4, '\0');
+	codepages::koi_to_utf8(const_cast<char *>(in.c_str()), out.data());
+	sqlite3_bind_text(stmt, col, out.data(), -1, SQLITE_TRANSIENT);
+}
+
+void SqliteWorldDataSource::EnsureSyncTables()
+{
+	if (!OpenDatabase())
+	{
+		return;
+	}
+	// IF NOT EXISTS so an older world.db (built before this feature, or by the
+	// Python converter) keeps working -- it simply reports freshness 0 until the
+	// first sync repopulates these tables.
+	const char *ddl =
+		"CREATE TABLE IF NOT EXISTS zone_sync ("
+		"  zone_vnum INTEGER PRIMARY KEY,"
+		"  sync_mtime INTEGER NOT NULL);"
+		"CREATE TABLE IF NOT EXISTS world_meta ("
+		"  key TEXT PRIMARY KEY,"
+		"  value INTEGER NOT NULL);";
+	char *err = nullptr;
+	if (sqlite3_exec(m_db, ddl, nullptr, nullptr, &err) != SQLITE_OK)
+	{
+		log("SYSERR: SQLite EnsureSyncTables failed: %s", err ? err : "?");
+		sqlite3_free(err);
+	}
+}
+
+namespace
+{
+// Verbatim copy of tools/converter/world_schema.sql (minus the introductory
+// comments) -- the same schema the Python converter builds, so an
+// engine-bootstrapped world.db is identical in shape to a converter-built
+// one. Kept as a single literal (rather than reading the .sql file at
+// runtime) so a production binary can create its own SQLite cache with no
+// external file and no converter step.
+const char *kCoreSchemaDdl = R"SQL(
 CREATE TABLE obj_types (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     description TEXT
 );
-
--- Sector types
 CREATE TABLE sectors (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     description TEXT
 );
-
--- Position types
 CREATE TABLE positions (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE
 );
-
--- Gender types
 CREATE TABLE genders (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE
 );
-
--- Direction types
 CREATE TABLE directions (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE  -- kNorth, kEast, kSouth, kWest, kUp, kDown
+    name TEXT NOT NULL UNIQUE
 );
-
--- Skills
 CREATE TABLE skills (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     description TEXT
 );
-
--- Apply locations
 CREATE TABLE apply_locations (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     description TEXT
 );
-
--- Wear positions
 CREATE TABLE wear_positions (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE
 );
-
--- Trigger attach types
 CREATE TABLE trigger_attach_types (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE  -- kMob, kObj, kRoom
+    name TEXT NOT NULL UNIQUE
 );
-
--- Trigger type definitions (predefined set)
--- char_code is the original file character, bit_value is 1 << bit_position
 CREATE TABLE trigger_type_defs (
-    char_code TEXT PRIMARY KEY,  -- 'c', 'g', 'A', etc.
-    name TEXT NOT NULL UNIQUE,   -- 'kCommand', 'kGreet', etc.
-    bit_value INTEGER NOT NULL,  -- 4, 64, etc.
+    char_code TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    bit_value INTEGER NOT NULL,
     description TEXT
 );
-
--- ============================================================================
--- Main entity tables
--- ============================================================================
-
--- Zones
 CREATE TABLE zones (
     vnum INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    -- Metadata
     comment TEXT,
     location TEXT,
     author TEXT,
     description TEXT,
     builders TEXT,
-    -- Parameters
     first_room INTEGER,
     top_room INTEGER,
     mode INTEGER DEFAULT 0,
@@ -102,8 +131,6 @@ CREATE TABLE zones (
     under_construction INTEGER DEFAULT 0,
     enabled INTEGER DEFAULT 1
 );
-
--- Zone grouping (typeA/typeB)
 CREATE TABLE zone_groups (
     zone_vnum INTEGER NOT NULL,
     linked_zone_vnum INTEGER NOT NULL,
@@ -111,63 +138,47 @@ CREATE TABLE zone_groups (
     PRIMARY KEY (zone_vnum, linked_zone_vnum, group_type),
     FOREIGN KEY (zone_vnum) REFERENCES zones(vnum) ON DELETE CASCADE
 );
-
--- Mobs
 CREATE TABLE mobs (
     vnum INTEGER PRIMARY KEY,
-    -- Names (6 Russian cases)
     aliases TEXT,
-    name_nom TEXT,      -- nominative
-    name_gen TEXT,      -- genitive
-    name_dat TEXT,      -- dative
-    name_acc TEXT,      -- accusative
-    name_ins TEXT,      -- instrumental
-    name_pre TEXT,      -- prepositional
-    -- Descriptions
+    name_nom TEXT,
+    name_gen TEXT,
+    name_dat TEXT,
+    name_acc TEXT,
+    name_ins TEXT,
+    name_pre TEXT,
     short_desc TEXT,
     long_desc TEXT,
-    -- Base parameters
     alignment INTEGER DEFAULT 0,
-    mob_type TEXT DEFAULT 'S',  -- 'S' or 'E'
-    -- Stats
+    mob_type TEXT DEFAULT 'S',
     level INTEGER DEFAULT 1,
     hitroll_penalty INTEGER DEFAULT 0,
     armor INTEGER DEFAULT 100,
-    -- HP dice
     hp_dice_count INTEGER DEFAULT 1,
     hp_dice_size INTEGER DEFAULT 1,
     hp_bonus INTEGER DEFAULT 0,
-    -- Damage dice
     dam_dice_count INTEGER DEFAULT 1,
     dam_dice_size INTEGER DEFAULT 1,
     dam_bonus INTEGER DEFAULT 0,
-    -- Gold dice
     gold_dice_count INTEGER DEFAULT 0,
     gold_dice_size INTEGER DEFAULT 0,
     gold_bonus INTEGER DEFAULT 0,
-    -- Experience
     experience INTEGER DEFAULT 0,
-    -- Position
     default_pos INTEGER REFERENCES positions(id),
     start_pos INTEGER REFERENCES positions(id),
-    -- Appearance
     sex INTEGER REFERENCES genders(id),
-    -- Movement speed: -1 == default cadence (3-field position line). Issue #3384 class.
     speed INTEGER DEFAULT -1,
     size INTEGER DEFAULT 50,
     height INTEGER DEFAULT 170,
     weight INTEGER DEFAULT 70,
-    -- Class/Race
     mob_class INTEGER,
     race INTEGER,
-    -- Attributes (E-spec)
     attr_str INTEGER DEFAULT 11,
     attr_dex INTEGER DEFAULT 11,
     attr_int INTEGER DEFAULT 11,
     attr_wis INTEGER DEFAULT 11,
     attr_con INTEGER DEFAULT 11,
     attr_cha INTEGER DEFAULT 11,
-    -- Enhanced E-spec fields (COMPLETE support)
     attr_str_add INTEGER DEFAULT 0,
     hp_regen INTEGER DEFAULT 0,
     armour_bonus INTEGER DEFAULT 0,
@@ -188,17 +199,13 @@ CREATE TABLE mobs (
     role TEXT,
     enabled INTEGER DEFAULT 1
 );
-
--- Mob flags (action_flags, affect_flags)
 CREATE TABLE mob_flags (
     mob_vnum INTEGER NOT NULL,
-    flag_category TEXT NOT NULL,  -- 'action' or 'affect'
+    flag_category TEXT NOT NULL,
     flag_name TEXT NOT NULL,
     PRIMARY KEY (mob_vnum, flag_category, flag_name),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
-
--- Mob skills
 CREATE TABLE mob_skills (
     mob_vnum INTEGER NOT NULL,
     skill_id INTEGER NOT NULL,
@@ -207,37 +214,26 @@ CREATE TABLE mob_skills (
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE,
     FOREIGN KEY (skill_id) REFERENCES skills(id)
 );
-
-
--- Enhanced mob array fields (separate tables)
-
--- Mob resistances (Resistances: # # # # # # # #)
 CREATE TABLE mob_resistances (
     mob_vnum INTEGER NOT NULL,
-    resist_type INTEGER NOT NULL,  -- 0-7+ index
+    resist_type INTEGER NOT NULL,
     value INTEGER NOT NULL,
     PRIMARY KEY (mob_vnum, resist_type),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
-
--- Mob saves (Saves: # # # #)
 CREATE TABLE mob_saves (
     mob_vnum INTEGER NOT NULL,
-    save_type INTEGER NOT NULL,  -- 0-3 (ESaving)
+    save_type INTEGER NOT NULL,
     value INTEGER NOT NULL,
     PRIMARY KEY (mob_vnum, save_type),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
-
--- Mob feats (Feat: #)
 CREATE TABLE mob_feats (
     mob_vnum INTEGER NOT NULL,
     feat_id INTEGER NOT NULL,
     PRIMARY KEY (mob_vnum, feat_id),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
-
--- Mob spells (Spell: #)
 CREATE TABLE mob_spells (
     mob_vnum INTEGER NOT NULL,
     spell_id INTEGER NOT NULL,
@@ -245,10 +241,6 @@ CREATE TABLE mob_spells (
     PRIMARY KEY (mob_vnum, spell_id),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
-
--- Mob helpers (Helper: #). helper_order (not helper_vnum) is the primary key
--- component so the same helper vnum can legitimately appear more than once
--- (weighted random helper selection) without colliding.
 CREATE TABLE mob_helpers (
     mob_vnum INTEGER NOT NULL,
     helper_order INTEGER NOT NULL,
@@ -256,8 +248,6 @@ CREATE TABLE mob_helpers (
     PRIMARY KEY (mob_vnum, helper_order),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
-
--- Mob patrol destinations (Destination: #)
 CREATE TABLE mob_destinations (
     mob_vnum INTEGER NOT NULL,
     dest_order INTEGER NOT NULL,
@@ -265,11 +255,8 @@ CREATE TABLE mob_destinations (
     PRIMARY KEY (mob_vnum, dest_order),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
-
--- Objects
 CREATE TABLE objects (
     vnum INTEGER PRIMARY KEY,
-    -- Names (6 Russian cases)
     aliases TEXT,
     name_nom TEXT,
     name_gen TEXT,
@@ -277,18 +264,14 @@ CREATE TABLE objects (
     name_acc TEXT,
     name_ins TEXT,
     name_pre TEXT,
-    -- Descriptions
     short_desc TEXT,
     action_desc TEXT,
-    -- Type and material
     obj_type_id INTEGER REFERENCES obj_types(id),
     material INTEGER,
-    -- Values (interpretation depends on type)
     value0 TEXT,
     value1 TEXT,
     value2 TEXT,
     value3 TEXT,
-    -- Physical properties
     weight INTEGER DEFAULT 0,
     cost INTEGER DEFAULT 0,
     rent_off INTEGER DEFAULT 0,
@@ -304,17 +287,13 @@ CREATE TABLE objects (
     minimum_remorts INTEGER DEFAULT 0,
     enabled INTEGER DEFAULT 1
 );
-
--- Object flags
 CREATE TABLE obj_flags (
     obj_vnum INTEGER NOT NULL,
-    flag_category TEXT NOT NULL,  -- 'extra' or 'wear'
+    flag_category TEXT NOT NULL,
     flag_name TEXT NOT NULL,
     PRIMARY KEY (obj_vnum, flag_category, flag_name),
     FOREIGN KEY (obj_vnum) REFERENCES objects(vnum) ON DELETE CASCADE
 );
-
--- Object applies
 CREATE TABLE obj_applies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     obj_vnum INTEGER NOT NULL,
@@ -322,8 +301,6 @@ CREATE TABLE obj_applies (
     modifier INTEGER NOT NULL,
     FOREIGN KEY (obj_vnum) REFERENCES objects(vnum) ON DELETE CASCADE
 );
-
--- Skills granted by an object (legacy `S` line: skill_id value). Issue #3386.
 CREATE TABLE obj_skills (
     obj_vnum INTEGER NOT NULL,
     skill_id INTEGER NOT NULL,
@@ -332,8 +309,6 @@ CREATE TABLE obj_skills (
     FOREIGN KEY (obj_vnum) REFERENCES objects(vnum) ON DELETE CASCADE,
     FOREIGN KEY (skill_id) REFERENCES skills(id)
 );
-
--- Rooms
 CREATE TABLE rooms (
     vnum INTEGER PRIMARY KEY,
     zone_vnum INTEGER REFERENCES zones(vnum),
@@ -342,16 +317,12 @@ CREATE TABLE rooms (
     sector_id INTEGER REFERENCES sectors(id),
     enabled INTEGER DEFAULT 1
 );
-
--- Room flags
 CREATE TABLE room_flags (
     room_vnum INTEGER NOT NULL,
     flag_name TEXT NOT NULL,
     PRIMARY KEY (room_vnum, flag_name),
     FOREIGN KEY (room_vnum) REFERENCES rooms(vnum) ON DELETE CASCADE
 );
-
--- Room exits
 CREATE TABLE room_exits (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     room_vnum INTEGER NOT NULL,
@@ -365,8 +336,6 @@ CREATE TABLE room_exits (
     UNIQUE(room_vnum, direction_id),
     FOREIGN KEY (room_vnum) REFERENCES rooms(vnum) ON DELETE CASCADE
 );
-
--- Triggers
 CREATE TABLE triggers (
     vnum INTEGER PRIMARY KEY,
     name TEXT,
@@ -376,8 +345,6 @@ CREATE TABLE triggers (
     script TEXT,
     enabled INTEGER DEFAULT 1
 );
-
--- Trigger type bindings (many-to-many: trigger can have multiple types)
 CREATE TABLE trigger_type_bindings (
     trigger_vnum INTEGER NOT NULL,
     type_char TEXT NOT NULL,
@@ -385,34 +352,27 @@ CREATE TABLE trigger_type_bindings (
     FOREIGN KEY (trigger_vnum) REFERENCES triggers(vnum) ON DELETE CASCADE,
     FOREIGN KEY (type_char) REFERENCES trigger_type_defs(char_code)
 );
-
--- Extra descriptions (shared for objects and rooms)
 CREATE TABLE extra_descriptions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    entity_type TEXT NOT NULL,  -- 'obj' or 'room'
+    entity_type TEXT NOT NULL,
     entity_vnum INTEGER NOT NULL,
     keywords TEXT NOT NULL,
     description TEXT
 );
-
--- Trigger bindings to entities
 CREATE TABLE entity_triggers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    entity_type TEXT NOT NULL,  -- 'mob', 'obj', 'room'
+    entity_type TEXT NOT NULL,
     entity_vnum INTEGER NOT NULL,
     trigger_vnum INTEGER NOT NULL,
     trigger_order INTEGER DEFAULT 0,
     FOREIGN KEY (trigger_vnum) REFERENCES triggers(vnum)
 );
-
--- Zone commands
 CREATE TABLE zone_commands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     zone_vnum INTEGER NOT NULL,
-    cmd_order INTEGER NOT NULL,  -- execution order
-    cmd_type TEXT NOT NULL,      -- LOAD_MOB, LOAD_OBJ, GIVE_OBJ, EQUIP_MOB, PUT_OBJ, DOOR, REMOVE_OBJ, FOLLOW, TRIGGER, VARIABLE, EXTRACT_MOB
+    cmd_order INTEGER NOT NULL,
+    cmd_type TEXT NOT NULL,
     if_flag INTEGER DEFAULT 0,
-    -- Universal fields (used depending on cmd_type)
     arg_mob_vnum INTEGER,
     arg_obj_vnum INTEGER,
     arg_room_vnum INTEGER,
@@ -433,11 +393,6 @@ CREATE TABLE zone_commands (
     arg_follower_mob_vnum INTEGER,
     FOREIGN KEY (zone_vnum) REFERENCES zones(vnum) ON DELETE CASCADE
 );
-
--- ============================================================================
--- Indexes for performance
--- ============================================================================
-
 CREATE INDEX idx_mob_flags_vnum ON mob_flags(mob_vnum);
 CREATE INDEX idx_mob_skills_vnum ON mob_skills(mob_vnum);
 CREATE INDEX idx_obj_flags_vnum ON obj_flags(obj_vnum);
@@ -451,12 +406,6 @@ CREATE INDEX idx_entity_triggers ON entity_triggers(entity_type, entity_vnum);
 CREATE INDEX idx_zone_commands_zone ON zone_commands(zone_vnum, cmd_order);
 CREATE INDEX idx_rooms_zone ON rooms(zone_vnum);
 CREATE INDEX idx_trigger_type_bindings ON trigger_type_bindings(trigger_vnum);
-
--- ============================================================================
--- Views for convenient browsing
--- ============================================================================
-
--- Full mob information
 CREATE VIEW v_mobs AS
 SELECT
     m.vnum,
@@ -478,8 +427,6 @@ SELECT
 FROM mobs m
 LEFT JOIN mob_flags mf ON m.vnum = mf.mob_vnum
 GROUP BY m.vnum;
-
--- Mob skills
 CREATE VIEW v_mob_skills AS
 SELECT
     ms.mob_vnum,
@@ -490,8 +437,6 @@ FROM mob_skills ms
 JOIN mobs m ON ms.mob_vnum = m.vnum
 JOIN skills s ON ms.skill_id = s.id
 ORDER BY ms.mob_vnum, s.name;
-
--- Full object information
 CREATE VIEW v_objects AS
 SELECT
     o.vnum,
@@ -511,8 +456,6 @@ FROM objects o
 LEFT JOIN obj_types ot ON o.obj_type_id = ot.id
 LEFT JOIN obj_flags of ON o.vnum = of.obj_vnum
 GROUP BY o.vnum;
-
--- Object applies
 CREATE VIEW v_obj_applies AS
 SELECT
     oa.obj_vnum,
@@ -523,8 +466,6 @@ FROM obj_applies oa
 JOIN objects o ON oa.obj_vnum = o.vnum
 JOIN apply_locations al ON oa.location_id = al.id
 ORDER BY oa.obj_vnum, al.name;
-
--- Object skills (legacy `S` lines)
 CREATE VIEW v_obj_skills AS
 SELECT
     os.obj_vnum,
@@ -535,8 +476,6 @@ FROM obj_skills os
 JOIN objects o ON os.obj_vnum = o.vnum
 JOIN skills s ON os.skill_id = s.id
 ORDER BY os.obj_vnum, s.name;
-
--- Full room information
 CREATE VIEW v_rooms AS
 SELECT
     r.vnum,
@@ -551,8 +490,6 @@ LEFT JOIN zones z ON r.zone_vnum = z.vnum
 LEFT JOIN sectors s ON r.sector_id = s.id
 LEFT JOIN room_flags rf ON r.vnum = rf.room_vnum
 GROUP BY r.vnum;
-
--- Room exits
 CREATE VIEW v_room_exits AS
 SELECT
     re.room_vnum,
@@ -568,8 +505,6 @@ JOIN rooms r ON re.room_vnum = r.vnum
 JOIN directions d ON re.direction_id = d.id
 LEFT JOIN rooms r2 ON re.to_room = r2.vnum
 ORDER BY re.room_vnum, d.id;
-
--- Zone information
 CREATE VIEW v_zones AS
 SELECT
     z.vnum,
@@ -586,8 +521,6 @@ SELECT
 FROM zones z
 LEFT JOIN zone_groups zg ON z.vnum = zg.zone_vnum
 GROUP BY z.vnum;
-
--- Zone commands (human-readable format)
 CREATE VIEW v_zone_commands AS
 SELECT
     zc.zone_vnum,
@@ -611,8 +544,6 @@ JOIN zones z ON zc.zone_vnum = z.vnum
 LEFT JOIN wear_positions wp ON zc.arg_wear_pos_id = wp.id
 LEFT JOIN directions dir ON zc.arg_direction_id = dir.id
 ORDER BY zc.zone_vnum, zc.cmd_order;
-
--- Triggers
 CREATE VIEW v_triggers AS
 SELECT
     t.vnum,
@@ -628,8 +559,6 @@ LEFT JOIN trigger_attach_types tat ON t.attach_type_id = tat.id
 LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum
 LEFT JOIN trigger_type_defs ttd ON ttb.type_char = ttd.char_code
 GROUP BY t.vnum;
-
--- Triggers attached to entities
 CREATE VIEW v_entity_triggers AS
 SELECT
     et.entity_type,
@@ -647,8 +576,6 @@ LEFT JOIN objects o ON et.entity_type = 'obj' AND et.entity_vnum = o.vnum
 LEFT JOIN rooms r ON et.entity_type = 'room' AND et.entity_vnum = r.vnum
 JOIN triggers t ON et.trigger_vnum = t.vnum
 ORDER BY et.entity_type, et.entity_vnum;
-
--- World statistics
 CREATE VIEW v_world_stats AS
 SELECT
     (SELECT COUNT(*) FROM zones) AS total_zones,
@@ -657,4 +584,202 @@ SELECT
     (SELECT COUNT(*) FROM objects) AS total_objects,
     (SELECT COUNT(*) FROM triggers) AS total_triggers,
     (SELECT COUNT(*) FROM zone_commands) AS total_zone_commands;
+)SQL";
+} // namespace
 
+void SqliteWorldDataSource::EnsureCoreSchema()
+{
+	if (!OpenDatabase())
+	{
+		return;
+	}
+	sqlite3_stmt *stmt = nullptr;
+	if (sqlite3_prepare_v2(m_db,
+			"SELECT 1 FROM sqlite_master WHERE type='table' AND name='zones'", -1, &stmt, nullptr)
+		!= SQLITE_OK)
+	{
+		return;
+	}
+	const bool has_schema = (sqlite3_step(stmt) == SQLITE_ROW);
+	sqlite3_finalize(stmt);
+	if (has_schema)
+	{
+		return;
+	}
+
+	log("SQLite world.db has no schema yet -- bootstrapping it from the built-in DDL.");
+	char *err = nullptr;
+	if (sqlite3_exec(m_db, kCoreSchemaDdl, nullptr, nullptr, &err) != SQLITE_OK)
+	{
+		log("SYSERR: SQLite EnsureCoreSchema failed: %s", err ? err : "?");
+		sqlite3_free(err);
+	}
+}
+
+Freshness SqliteWorldDataSource::GetMetaFreshness(const char *key) const
+{
+	const_cast<SqliteWorldDataSource *>(this)->EnsureSyncTables();
+	if (!m_db)
+	{
+		return 0;
+	}
+	sqlite3_stmt *stmt = nullptr;
+	if (sqlite3_prepare_v2(m_db, "SELECT value FROM world_meta WHERE key = ?", -1, &stmt, nullptr)
+		!= SQLITE_OK)
+	{
+		return 0;
+	}
+	sqlite3_bind_text(stmt, 1, key, -1, SQLITE_TRANSIENT);
+	Freshness value = 0;
+	if (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		value = static_cast<Freshness>(sqlite3_column_int64(stmt, 0));
+	}
+	sqlite3_finalize(stmt);
+	return value;
+}
+
+std::vector<int> SqliteWorldDataSource::ListZoneVnums() const
+{
+	const_cast<SqliteWorldDataSource *>(this)->EnsureSyncTables();
+	std::vector<int> zones;
+	if (!m_db)
+	{
+		return zones;
+	}
+	sqlite3_stmt *stmt = nullptr;
+	if (sqlite3_prepare_v2(m_db, "SELECT vnum FROM zones", -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return zones;
+	}
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		zones.push_back(sqlite3_column_int(stmt, 0));
+	}
+	sqlite3_finalize(stmt);
+	return zones;
+}
+
+Freshness SqliteWorldDataSource::GetZoneFreshness(int zone_vnum) const
+{
+	const_cast<SqliteWorldDataSource *>(this)->EnsureSyncTables();
+	if (!m_db)
+	{
+		return 0;
+	}
+	sqlite3_stmt *stmt = nullptr;
+	if (sqlite3_prepare_v2(m_db, "SELECT sync_mtime FROM zone_sync WHERE zone_vnum = ?", -1, &stmt,
+			nullptr) != SQLITE_OK)
+	{
+		return 0;
+	}
+	sqlite3_bind_int(stmt, 1, zone_vnum);
+	Freshness value = 0;
+	if (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		value = static_cast<Freshness>(sqlite3_column_int64(stmt, 0));
+	}
+	sqlite3_finalize(stmt);
+	return value;
+}
+
+Freshness SqliteWorldDataSource::GetIndexFreshness() const
+{
+	// Membership stamp: bumped whenever a previously-unknown zone is first
+	// written (see TouchZoneSync). Arbitrates zone add/remove between sources.
+	return GetMetaFreshness("zone_index_mtime");
+}
+
+void SqliteWorldDataSource::TouchZoneSync(int zone_vnum, Freshness version)
+{
+	EnsureSyncTables();
+	if (!m_db)
+	{
+		return;
+	}
+
+	// Is this zone already tracked? A first-time insert is a membership change
+	// and bumps the index stamp too (to the same content version).
+	bool existed = false;
+	{
+		sqlite3_stmt *q = nullptr;
+		if (sqlite3_prepare_v2(m_db, "SELECT 1 FROM zone_sync WHERE zone_vnum = ?", -1, &q, nullptr)
+			== SQLITE_OK)
+		{
+			sqlite3_bind_int(q, 1, zone_vnum);
+			existed = (sqlite3_step(q) == SQLITE_ROW);
+			sqlite3_finalize(q);
+		}
+	}
+
+	{
+		sqlite3_stmt *up = nullptr;
+		if (sqlite3_prepare_v2(m_db,
+				"REPLACE INTO zone_sync (zone_vnum, sync_mtime) VALUES (?, ?)", -1, &up, nullptr)
+			== SQLITE_OK)
+		{
+			sqlite3_bind_int(up, 1, zone_vnum);
+			sqlite3_bind_int64(up, 2, static_cast<sqlite3_int64>(version));
+			sqlite3_step(up);
+			sqlite3_finalize(up);
+		}
+	}
+
+	if (!existed)
+	{
+		MarkIndexSynced(version);
+	}
+}
+
+bool SqliteWorldDataSource::IsWritable() const
+{
+	const_cast<SqliteWorldDataSource *>(this)->EnsureSyncTables();
+	const_cast<SqliteWorldDataSource *>(this)->EnsureCoreSchema();
+	if (!m_db)
+	{
+		return false;
+	}
+	sqlite3_stmt *stmt = nullptr;
+	if (sqlite3_prepare_v2(m_db,
+			"SELECT 1 FROM sqlite_master WHERE type='table' AND name='zones'", -1, &stmt, nullptr)
+		!= SQLITE_OK)
+	{
+		return false;
+	}
+	const bool has_schema = (sqlite3_step(stmt) == SQLITE_ROW);
+	sqlite3_finalize(stmt);
+	return has_schema;
+}
+
+void SqliteWorldDataSource::MarkZoneSynced(int zone_rnum, Freshness version)
+{
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		return;
+	}
+	TouchZoneSync(zone_table[zone_rnum].vnum, version);
+}
+
+void SqliteWorldDataSource::MarkIndexSynced(Freshness version)
+{
+	EnsureSyncTables();
+	if (!m_db)
+	{
+		return;
+	}
+	sqlite3_stmt *mi = nullptr;
+	if (sqlite3_prepare_v2(m_db,
+			"REPLACE INTO world_meta (key, value) VALUES ('zone_index_mtime', ?)", -1, &mi, nullptr)
+		== SQLITE_OK)
+	{
+		sqlite3_bind_int64(mi, 1, static_cast<sqlite3_int64>(version));
+		sqlite3_step(mi);
+		sqlite3_finalize(mi);
+	}
+}
+
+} // namespace world_loader
+
+#endif // HAVE_SQLITE
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

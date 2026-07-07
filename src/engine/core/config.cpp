@@ -573,6 +573,34 @@ void RuntimeConfiguration::load_thread_pools_configuration(const pugi::xml_node 
 	}
 }
 
+void RuntimeConfiguration::load_world_sources_configuration(const pugi::xml_node *root) {
+	// <world_loader>
+	//   <sources>          -- order defines priority (first == highest)
+	//     <yaml/>
+	//     <sqlite/>
+	//   </sources>
+	// </world_loader>
+	// Each child element names a backend ("yaml"/"sqlite"/"legacy"). When the
+	// block is absent or empty the engine keeps the compile-time default single
+	// source, so existing single-format setups are unaffected.
+	m_world_sources.clear();
+
+	const auto world_loader = root->child("world_loader");
+	if (!world_loader) {
+		return;
+	}
+	const auto sources = world_loader.child("sources");
+	if (!sources) {
+		return;
+	}
+	for (pugi::xml_node child = sources.first_child(); child; child = child.next_sibling()) {
+		if (child.type() != pugi::node_element) {
+			continue;
+		}
+		m_world_sources.emplace_back(child.name());
+	}
+}
+
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
 typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
 EOutputStream_name_by_value_t EOutputStream_name_by_value;
@@ -729,6 +757,7 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_telemetry_configuration_impl(&root);
 		load_telemetry_configuration(&root);
 		load_thread_pools_configuration(&root);
+		load_world_sources_configuration(&root);
 #ifdef ENABLE_ADMIN_API
 		load_admin_api_configuration(&root);
 #endif
