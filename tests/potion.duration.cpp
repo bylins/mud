@@ -4,11 +4,14 @@
 
 #include "gameplay/skills/skills.h"
 #include "gameplay/affects/affect_data.h"
-#include "engine/db/db.h"
 #include "gameplay/classes/classes_constants.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/entities/obj_data.h"
 #include "simulator/character_builder.h"
+
+// issue.potion-hotfix: forward-declared rather than pulling the heavy engine/db/db.h into this
+// unity-built test TU (it drags in descriptor_data.h / player_i.h / weather.h ...). Defined in db.cpp.
+extern int ConvertDrinkPoisonField(CObjectPrototype *obj, bool proto);
 
 // issue.potion-hotfix: a potion buff's DURATION scales off the potion MAKER's skill (stored on the
 // potion, brew skill or the authored default), NEVER the drinker's -- a potion acts on its own.
