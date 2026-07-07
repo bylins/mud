@@ -570,6 +570,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 		object->cleanup_script();
 	}
 	ConvertDrinkconSkillField(object.get(), false);
+	ConvertDrinkPoisonField(object.get(), false);   // issue.potion-hotfix: migrate player-held drink val[3]
 	ConvertPotionToEValueKey(object.get(), false);
 	object->remove_incorrect_values_keys(object->get_type());
 	object->set_extra_flag(EObjFlag::kTicktimer);

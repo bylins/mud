@@ -4,6 +4,7 @@
 
 #include "gameplay/skills/skills.h"
 #include "gameplay/affects/affect_data.h"
+#include "engine/db/db.h"
 #include "gameplay/classes/classes_constants.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/entities/obj_data.h"
@@ -100,6 +101,38 @@ TEST(PotionSpoilage, TimerZeroHalvesPowerInputsDownToZero) {
 	}
 	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill), 0);            // reaches inert
 	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 0);
+}
+
+// issue.potion-hotfix: the boot/load converter that migrates the historically overloaded drink/food
+// val[3] into the named keys, for BOTH prototype objects (ConvertObjValues at boot) and player-held
+// items (read_one_object_new on load from inventory/depot/mail/auction/clan house). val[3]==1 was
+// "poisoned"; a value > 1 was a freshness countdown; a kPotion's val[3] is a spell id and must be left
+// alone.
+TEST(DrinkPoisonMigration, Val3SplitsIntoNamedKeys) {
+	// poisoned drink (val[3]==1) -> kLiquidPoison=1, val[3] cleared
+	auto poisoned = std::make_shared<ObjData>(CObjectPrototype(42));
+	poisoned->set_type(EObjType::kLiquidContainer);
+	poisoned->set_val(3, 1);
+	EXPECT_EQ(ConvertDrinkPoisonField(poisoned.get(), false), 1);
+	EXPECT_EQ(poisoned->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison), 1);
+	EXPECT_EQ(poisoned->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer), -1);  // absent
+	EXPECT_EQ(poisoned->get_val(3), 0);
+	EXPECT_EQ(ConvertDrinkPoisonField(poisoned.get(), false), 0);                 // idempotent
+
+	// a freshness countdown (val[3] > 1) -> kLiquidTimer, val[3] cleared
+	auto fresh = std::make_shared<ObjData>(CObjectPrototype(42));
+	fresh->set_type(EObjType::kFood);
+	fresh->set_val(3, 500);
+	EXPECT_EQ(ConvertDrinkPoisonField(fresh.get(), false), 1);
+	EXPECT_EQ(fresh->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer), 500);
+	EXPECT_EQ(fresh->get_val(3), 0);
+
+	// a kPotion's val[3] is a spell id, NOT poison -- the drink converter must leave it alone
+	auto potion = std::make_shared<ObjData>(CObjectPrototype(42));
+	potion->set_type(EObjType::kPotion);
+	potion->set_val(3, 1);
+	EXPECT_EQ(ConvertDrinkPoisonField(potion.get(), false), 0);
+	EXPECT_EQ(potion->get_val(3), 1);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
