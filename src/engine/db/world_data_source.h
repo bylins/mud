@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-class RoomData;
+struct RoomData;
 class CharData;
 class CObjectPrototype;
 struct Trigger;

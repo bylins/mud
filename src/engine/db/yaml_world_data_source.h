@@ -20,7 +20,7 @@
 #include <iosfwd>
 
 class ZoneData;
-class RoomData;
+struct RoomData;
 class CharData;
 struct Trigger;
 class CObjectPrototype;

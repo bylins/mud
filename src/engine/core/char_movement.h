@@ -11,7 +11,7 @@ enum EMoveType : int {
 };
 
 class CharData;
-class RoomData;
+struct RoomData;
 bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master);
 bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EMoveType move_type);
 bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_msg);

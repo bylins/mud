@@ -12,7 +12,7 @@
 #include <memory>
 
 class CharData;
-class RoomData;
+struct RoomData;
 class CObjectPrototype;
 
 namespace WorldChecksum
