@@ -916,7 +916,11 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	}
 	auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
 		Affect<EApply> taf;
-		taf.type = talent.GetSpell();
+		// issue.buff-affect-fix: type the affect by the CASTING spell when the <affects> block names no
+		// spell of its own (the new <affect id=> grammar has no type= -> talent.GetSpell() is kUndefined).
+		// master's message/display keys off the affect's spell, so without this the affect shows
+		// "!undefined!" in the state list and no cast/effect message is emitted.
+		taf.type = (talent.GetSpell() != ESpell::kUndefined) ? talent.GetSpell() : spell_id;
 		taf.affect_type = apply.id;
 		taf.location = apply.location;
 		taf.duration = duration;
