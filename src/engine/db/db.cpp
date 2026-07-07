@@ -85,6 +85,8 @@
 #include "yaml_world_data_source.h"
 #endif
 #include "world_data_source_manager.h"
+#include "composite_world_data_source.h"
+#include "engine/core/config.h"
 
 
 #include <fmt/format.h>
@@ -138,6 +140,7 @@ long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
 bool enable_world_checksum = false;	// enable world checksum calculation
+const char *g_force_world_source = nullptr;	// -F <kind>: force one-shot source, see CompositeWorldDataSource::ForceSource
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -408,6 +411,234 @@ void ConvertObjValues() {
 	}
 }
 
+namespace {
+
+// Build a single world data source from a backend name used in
+// <world_loader><sources>. Returns nullptr (with a logged error) for an
+// unknown name or a backend not compiled in.
+std::unique_ptr<world_loader::IWorldDataSource> CreateWorldSourceByName(const std::string &name) {
+	if (name == "yaml") {
+#ifdef HAVE_YAML
+		return world_loader::CreateYamlDataSource("world");
+#else
+		log("SYSERR: world source 'yaml' configured but YAML backend is not compiled in");
+		return nullptr;
+#endif
+	}
+	if (name == "sqlite") {
+#ifdef HAVE_SQLITE
+		return world_loader::CreateSqliteDataSource("world.db");
+#else
+		log("SYSERR: world source 'sqlite' configured but SQLite backend is not compiled in");
+		return nullptr;
+#endif
+	}
+	if (name == "legacy") {
+		return world_loader::CreateLegacyDataSource();
+	}
+	log("SYSERR: unknown world source '%s' in <world_loader><sources>", name.c_str());
+	return nullptr;
+}
+
+// Save one zone's zone-record/rooms/objects/mobs/triggers to `saver`, in the
+// fixed order the loaders expect on the way back in. Logs and reports failure
+// instead of letting an exception escape -- both call sites (SaveLoadedWorldTo
+// below, and GameLoader::ResaveWorld) need to keep saving the remaining zones
+// after one zone fails, they just differ in what a failure means for their own
+// bookkeeping (resync error count + skip vs. a full converter dump's error
+// count). `context` is only used for the log line's prefix.
+bool SaveZoneAllEntities(world_loader::IWorldDataSource &saver, int zone_rnum,
+						  int zone_vnum, const char *context) {
+	try {
+		saver.SaveZone(zone_rnum);
+		saver.SaveRooms(zone_rnum);
+		saver.SaveObjects(zone_rnum);
+		saver.SaveMobs(zone_rnum);
+		saver.SaveTriggers(zone_rnum, -1, 0);
+		return true;
+	} catch (const std::exception &e) {
+		log("SYSERR: %s failed on zone %d (vnum=%d): %s", context, zone_rnum, zone_vnum, e.what());
+		return false;
+	}
+}
+
+// Write the fully-loaded in-memory world into one data source, scoped to
+// `zone_vnums_to_resync` -- the composite's per-source dirty-zone list (see
+// CompositeWorldDataSource::StaleZonesBySource()), already excluding
+// dungeon-instance vnums. Not all zone_table -- resyncing only the zones a
+// source actually lost the freshness comparison for is the whole point of
+// per-zone selection (see composite_world_data_source.h for why). Stamps
+// each zone (and the index) with the content version reported by
+// `version_src` -- the source we read from -- so the rewritten backend ends
+// up EQUAL in freshness to it, not newer; that equality is what stops the
+// two backends trading "stale" roles each boot.
+int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver,
+					  const world_loader::IWorldDataSource *version_src,
+					  const std::vector<int> &zone_vnums_to_resync) {
+	int errors = 0;
+	saver.BeginBulkWrite();
+	for (int vnum : zone_vnums_to_resync) {
+		const int z = GetZoneRnum(vnum);
+		if (z < 0) {
+			log("SYSERR: resync: zone vnum %d not found in zone_table", vnum);
+			++errors;
+			continue;
+		}
+		if (SaveZoneAllEntities(saver, z, vnum, "resync")) {
+			const world_loader::Freshness ver =
+				version_src ? version_src->GetZoneFreshness(vnum) : 0;
+			saver.MarkZoneSynced(z, ver);
+		} else {
+			++errors;
+		}
+	}
+	saver.EndBulkWrite();
+	if (version_src) {
+		saver.MarkIndexSynced(version_src->GetIndexFreshness());
+	}
+	try {
+		saver.FinalizeResave();
+	} catch (const std::exception &e) {
+		log("SYSERR: resync finalize failed: %s", e.what());
+		++errors;
+	}
+	return errors;
+}
+
+// Entity-loading orchestration: the ONE path for every scenario (plain
+// single-source boot, composite with one winning source per zone, flat or
+// per-file YAML underneath) -- ds_ptr->LoadX(nullptr) already fans out to
+// every source internally if ds_ptr is a composite (see
+// CompositeWorldDataSource::LoadTriggers/Rooms/Mobs/Objects), so there is
+// nothing left for BootWorld to branch on. These functions do the one thing
+// that must happen exactly once regardless of source count: sort the
+// (possibly multi-source) results by vnum and place them in the global
+// tables (trig_index/world/mob_proto+mob_index/obj_proto), then attach
+// triggers now that every entity has its final rnum.
+void LoadTriggersUnified(world_loader::IWorldDataSource *ds_ptr) {
+	auto loaded = ds_ptr->LoadTriggers(nullptr);
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): its LoadTriggers() call
+		// above already populated trig_index/top_of_trigt directly through
+		// its own internal boot path (GameLoader::BootIndex), exactly as it
+		// always has -- there's nothing left to place here.
+		return;
+	}
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	CREATE(trig_index, loaded.size());
+	top_of_trigt = 0;
+	for (auto &lt : loaded) {
+		lt.trig->set_rnum(top_of_trigt);
+		world_loader::WorldDataSourceBase::CreateTriggerIndex(lt.vnum, lt.trig);
+	}
+	log("Loaded %d triggers.", top_of_trigt);
+}
+
+void LoadRoomsUnified(world_loader::IWorldDataSource *ds_ptr) {
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): its own internal boot
+		// path (GameLoader::BootIndex) pushes the dummy room 0 and populates
+		// world[]/top_of_world itself, exactly as it always has -- doing it
+		// again here would leave two dummy rooms.
+		ds_ptr->LoadRooms(nullptr);
+		return;
+	}
+
+	// Dummy room 0 (kNowhere), same as every source used to create up front.
+	world.push_back(new RoomData);
+	top_of_world = kNowhere;
+
+	auto loaded = ds_ptr->LoadRooms(nullptr);
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	for (auto &lr : loaded) {
+		world.push_back(lr.room);
+	}
+	top_of_world = static_cast<RoomRnum>(world.size() - 1);
+
+	// Attach room triggers (needs world[]/top_of_world updated above so
+	// GetRoomRnum can find the rooms just appended).
+	for (auto &lr : loaded) {
+		if (lr.triggers.empty()) continue;
+		const int room_rnum = GetRoomRnum(lr.vnum);
+		if (room_rnum < 0) continue;
+		for (int trigger_vnum : lr.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToRoom(room_rnum, trigger_vnum, lr.vnum);
+		}
+	}
+	log("Loaded %d rooms.", top_of_world);
+}
+
+void LoadMobsUnified(world_loader::IWorldDataSource *ds_ptr) {
+	auto loaded = ds_ptr->LoadMobs(nullptr);
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): already populated
+		// mob_proto[]/mob_index[]/top_of_mobt/RnumMobsLocation itself.
+		return;
+	}
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	mob_proto = new CharData[loaded.size()];
+	CREATE(mob_index, loaded.size());
+	top_of_mobt = 0;
+	for (auto &lm : loaded) {
+		const MobRnum rnum = world_loader::WorldDataSourceBase::AppendMobIndex(lm.vnum);
+		mob_proto[rnum] = std::move(*lm.mob);
+		mob_proto[rnum].set_rnum(rnum);
+		delete lm.mob;
+
+		// CalculateFirstAndLastMobs() is a no-op stub (unlike rooms' real
+		// post-pass) -- this is the only place RnumMobsLocation gets set.
+		const int zone_rn = GetZoneRnum(lm.vnum / 100);
+		if (zone_rn >= 0) {
+			if (zone_table[zone_rn].RnumMobsLocation.first == -1) {
+				zone_table[zone_rn].RnumMobsLocation.first = rnum;
+			}
+			zone_table[zone_rn].RnumMobsLocation.second = rnum;
+		}
+
+		for (int trigger_vnum : lm.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToMob(rnum, trigger_vnum, lm.vnum);
+		}
+	}
+	// top_of_mobt should be last valid index, not count -- same one-time
+	// conversion the bulk loaders always did after their own fill loop.
+	if (top_of_mobt > 0) {
+		top_of_mobt--;
+	}
+	log("Loaded %d mobs.", top_of_mobt + 1);
+}
+
+void LoadObjectsUnified(world_loader::IWorldDataSource *ds_ptr) {
+	auto loaded = ds_ptr->LoadObjects(nullptr);
+	if (!ds_ptr->SupportsZoneFilter()) {
+		// Self-managing source (the legacy backend): already populated
+		// obj_proto itself.
+		return;
+	}
+	std::sort(loaded.begin(), loaded.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	for (auto &lo : loaded) {
+		obj_proto.add(lo.obj, lo.vnum);
+	}
+	for (const auto &lo : loaded) {
+		if (lo.triggers.empty()) continue;
+		const int rnum = obj_proto.get_rnum(lo.vnum);
+		if (rnum < 0) continue;
+		for (int trigger_vnum : lo.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToObject(rnum, trigger_vnum, lo.vnum);
+		}
+	}
+	log("Loaded %zu objects.", loaded.size());
+}
+
+} // namespace
+
 void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source) {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
@@ -445,7 +676,34 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		MUD::CfgManager().LoadCfg("skills");
 	}
 
-	// Create default data source if none provided
+	// Create data source if none provided. Runtime selection comes from
+	// <world_loader><sources> (ordered = priority); several sources combine into
+	// a CompositeWorldDataSource. An empty/absent block falls back to the
+	// compile-time default single source, so existing setups are unaffected.
+	if (!data_source)
+	{
+		const auto &source_names = runtime_config.world_sources();
+		if (!source_names.empty())
+		{
+			std::vector<std::unique_ptr<world_loader::IWorldDataSource>> sources;
+			for (const auto &name : source_names)
+			{
+				auto src = CreateWorldSourceByName(name);
+				if (src)
+				{
+					sources.push_back(std::move(src));
+				}
+			}
+			if (sources.size() == 1)
+			{
+				data_source = std::move(sources.front());
+			}
+			else if (sources.size() > 1)
+			{
+				data_source = world_loader::CreateCompositeDataSource(std::move(sources));
+			}
+		}
+	}
 	if (!data_source)
 	{
 #ifdef HAVE_YAML
@@ -462,6 +720,25 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	auto* ds_ptr = data_source.get();
 	world_loader::WorldDataSourceManager::Instance().SetDataSource(std::move(data_source));
 
+	// -F <kind>: one-shot override, e.g. rebuilding a YAML tree from a
+	// SQLite world.db that was copied in from another machine, where mtime-
+	// based freshness comparison isn't meaningful. Must fail loudly (not
+	// silently boot in normal cache mode) if the request can't be honored --
+	// see CompositeWorldDataSource::ForceSource.
+	if (g_force_world_source)
+	{
+		auto *composite_for_force = dynamic_cast<world_loader::CompositeWorldDataSource *>(ds_ptr);
+		if (!composite_for_force)
+		{
+			fatal_log("FATAL: -F %s requires a composite <world_loader><sources> with 2+ entries "
+				"(single-source config has nothing to force/rebuild).", g_force_world_source);
+		}
+		if (!composite_for_force->ForceSource(g_force_world_source))
+		{
+			fatal_log("FATAL: -F %s: no configured world source has that kind.", g_force_world_source);
+		}
+	}
+
 	boot_profiler.next_step("Loading zone table");
 	ds_ptr->LoadZones();
 
@@ -470,15 +747,14 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	dungeons::CreateBlankZoneDungeon();
 
 	boot_profiler.next_step("Loading triggers");
-	ds_ptr->LoadTriggers();
+	LoadTriggersUnified(ds_ptr);
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
 	dungeons::CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Loading rooms");
-	ds_ptr->LoadRooms();
-
+	LoadRoomsUnified(ds_ptr);
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -492,6 +768,17 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	log("Calculate first and last room into zones.");
 	CalculateFirstAndLastRooms();
 
+	// Deferred room child-table sub-loaders (flags/exits/triggers/extra
+	// descriptions) that per-zone backends postponed -- see
+	// SqliteWorldDataSource::FinalizeZoneRooms. MUST run before the door-rnum
+	// resolution pass just below, which needs every room's exits already
+	// populated. No-op for a plain single-source boot and for YAML (which
+	// does everything inline per zone already). AddVirtualRoomsToAllZones()
+	// has already run (it inserts into world[], shifting rnums), and rooms
+	// are otherwise stable by this point, so vnum->rnum lookups done inside
+	// FinalizeZoneRooms() stay valid through RosolveWorldDoorToRoomVnumsToRnums.
+	ds_ptr->FinalizeZoneRooms();
+
 	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
 	RosolveWorldDoorToRoomVnumsToRnums();
@@ -501,7 +788,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	CheckStartRooms();
 
 	boot_profiler.next_step("Loading mobs and regerating index");
-	ds_ptr->LoadMobs();
+	LoadMobsUnified(ds_ptr);
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -516,7 +803,15 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 //	CalculateFirstAndLastMobs();
 
 	boot_profiler.next_step("Loading objects");
-	ds_ptr->LoadObjects();
+	LoadObjectsUnified(ds_ptr);
+
+	// Deferred mob/object child-table sub-loaders (flags/skills/applies/
+	// triggers/...) that per-zone backends postponed -- see
+	// SqliteWorldDataSource::FinalizeZoneEntities. Room sub-loaders already
+	// ran earlier via FinalizeZoneRooms(), before door-rnum resolution.
+	// No-op for a plain single-source boot and for YAML (which does
+	// everything inline per zone already).
+	ds_ptr->FinalizeZoneEntities();
 
 	boot_profiler.next_step("Create blank obj for dungeons");
 	log("Create blank obj for dungeons.");
@@ -551,6 +846,33 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	system_obj::init();
 
 	log("Init global_drop_obj.");
+
+	// Self-heal: after loading, rewrite each source's LOST zones (not the
+	// whole zone_table) so every backend converges to the loaded world. Per
+	// composite_world_data_source.h, the per-zone freshness comparison
+	// already excluded dungeon-instance vnums, so zone_vnums here needs no
+	// further filtering.
+	if (auto *composite = dynamic_cast<world_loader::CompositeWorldDataSource *>(ds_ptr))
+	{
+		for (const auto &[src, zone_vnums] : composite->StaleZonesBySource())
+		{
+			if (zone_vnums.empty())
+			{
+				continue;
+			}
+			if (!src->IsWritable())
+			{
+				log("World source '%s' has %zu stale zone(s) but is not writable; skipping resync",
+					src->GetName().c_str(), zone_vnums.size());
+				continue;
+			}
+			boot_profiler.next_step("Resyncing stale world source");
+			log("Resyncing %zu stale zone(s) into world source '%s' from loaded world...",
+				zone_vnums.size(), src->GetName().c_str());
+			const int errs = SaveLoadedWorldTo(*src, composite, zone_vnums);
+			log("Resync of '%s' done, errors=%d", src->GetName().c_str(), errs);
+		}
+	}
 
 	if (enable_world_checksum)
 	{
@@ -1235,6 +1557,7 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 		target_dir.c_str(), fmt.c_str(), zone_table.size());
 	int errors = 0;
 	int skipped = 0;
+	saver->BeginBulkWrite();
 	for (size_t z = 0; z < zone_table.size(); ++z) {
 		// Dungeon zones (CreateBlankZoneDungeon, vnum >= kZoneStartDungeons)
 		// are generated in-memory and never persisted -- matches legacy's
@@ -1245,18 +1568,11 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 			++skipped;
 			continue;
 		}
-		try {
-			saver->SaveZone(static_cast<int>(z));
-			saver->SaveRooms(static_cast<int>(z));
-			saver->SaveObjects(static_cast<int>(z));
-			saver->SaveMobs(static_cast<int>(z));
-			saver->SaveTriggers(static_cast<int>(z), -1, 0);
-		} catch (const std::exception &e) {
-			log("SYSERR: ResaveWorld failed on zone %d (vnum=%d): %s",
-				static_cast<int>(z), zone_table[z].vnum, e.what());
+		if (!SaveZoneAllEntities(*saver, static_cast<int>(z), zone_table[z].vnum, "ResaveWorld")) {
 			++errors;
 		}
 	}
+	saver->EndBulkWrite();
 
 	// Let the backend finalize after the full resave: legacy rebuilds its
 	// boot indexes here (YAML/SQLite already maintain them inside Save*).
