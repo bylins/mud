@@ -7,6 +7,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/mechanics/liquid.h"
 
 void ObjDecayManager::insert(ObjData *obj) {
 	if (!obj) {
@@ -124,8 +125,9 @@ void ObjDecayManager::remove_timed_spell_obj(ObjData *obj) {
 }
 
 void ObjDecayManager::register_perishable(ObjData *obj) {
-	if (obj && obj->get_val(3) > 1
-		&& (obj->get_type() == EObjType::kLiquidContainer || obj->get_type() == EObjType::kFood)) {
+	if (obj
+		&& (obj->get_type() == EObjType::kLiquidContainer || obj->get_type() == EObjType::kFood)
+		&& obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer) > 0) {
 		m_perishable_objs.insert(obj);
 	}
 }
@@ -222,15 +224,16 @@ TickResult ObjDecayManager::process_tick() {
 		}
 	}
 
-	// 3b. Food/liquid CONTENTS freshness (val[3]): decays one step per tick until spoiled (== 1).
-	// issue.potion-hotfix: runs for EVERY registered food/liquid regardless of timed spells or carry
-	// state. The old val[3] decay lived inside process_periodic_effects, which the tick calls only for
-	// the timed-spell set -- so food and poured potions never actually spoiled.
+	// 3b. Food/liquid CONTENTS freshness (kLiquidTimer): ages one step per tick; at 0 the potion spoils
+	// (drinkcon::age_contents -> spoil_potion: halve power + set poison). Runs for EVERY registered
+	// food/liquid regardless of timed spells or carry state -- the freshness clock is independent of the
+	// container item's OWN decay timer (get_timer()).
 	{
 		auto copy = m_perishable_objs;
 		for (auto *obj : copy) {
-			obj->decrement_freshness();
-			if (obj->get_val(3) <= 1) {
+			// age one freshness tick; drinkcon::age_contents spoils the potion when it hits 0.
+			const int freshness_left = drinkcon::age_contents(obj);
+			if (freshness_left <= 0) {   // spoiled (or no longer perishable) -> stop tracking
 				m_perishable_objs.erase(obj);
 			}
 		}

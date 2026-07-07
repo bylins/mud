@@ -55,32 +55,51 @@ TEST(PotionMix, WeightedBlendOfSkillAndStat) {
 	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 29);  // (18*30 + 2*20) / 20 = 29
 }
 
-// issue.potion-hotfix: the CONTENTS freshness (val[3]) of a food/liquid spoils one step per tick down
-// to a floor of 1, and only for perishable types. This is what the decay manager drives every tick for
-// every registered food/liquid (the old code only decayed the rare item that also carried a timed spell).
-TEST(PotionFreshness, DecrementsToSpoiledFloorForPerishableTypesOnly) {
+// issue.potion-hotfix: contents freshness lives in the named kLiquidTimer key (no longer the overloaded
+// val[3]). drinkcon::age_contents ages it one tick per call, only for perishable types, and spoils the
+// potion when it reaches 0. This is what the decay manager drives every tick for every registered
+// food/liquid.
+TEST(PotionFreshness, AgeContentsDecrementsTimerForPerishableTypesOnly) {
 	auto o = std::make_shared<ObjData>(CObjectPrototype(42));
 
 	o->set_type(EObjType::kLiquidContainer);
-	o->set_val(3, 3);
-	o->decrement_freshness();
-	EXPECT_EQ(o->get_val(3), 2);
-	o->decrement_freshness();
-	EXPECT_EQ(o->get_val(3), 1);
-	o->decrement_freshness();
-	EXPECT_EQ(o->get_val(3), 1);  // floored: spoiled contents never drop below 1
+	o->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, 3);
+	EXPECT_EQ(drinkcon::age_contents(o.get()), 2);
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer), 2);
+	EXPECT_EQ(drinkcon::age_contents(o.get()), 1);
+	EXPECT_EQ(drinkcon::age_contents(o.get()), 0);   // reaches 0 -> spoiled
+	EXPECT_EQ(drinkcon::age_contents(o.get()), 0);   // stays 0 (no freshness clock running)
 
-	o->set_type(EObjType::kFood);
-	o->set_val(3, 2);
-	o->decrement_freshness();
-	EXPECT_EQ(o->get_val(3), 1);
+	// A non-perishable type (a standalone potion bottle) is never aged via kLiquidTimer -- its own decay
+	// is the object timer -- so age_contents is a no-op and leaves the key untouched.
+	auto p = std::make_shared<ObjData>(CObjectPrototype(43));
+	p->set_type(EObjType::kPotion);
+	p->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, 5);
+	EXPECT_EQ(drinkcon::age_contents(p.get()), 0);
+	EXPECT_EQ(p->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer), 5);
+}
 
-	// A non-perishable type (e.g. the standalone potion bottle) is left untouched -- its own decay is the
-	// object timer, not val[3] (which on a kPotion holds a spell id).
-	o->set_type(EObjType::kPotion);
-	o->set_val(3, 5);
-	o->decrement_freshness();
-	EXPECT_EQ(o->get_val(3), 5);
+// issue.potion-hotfix: when the freshness timer hits 0 the potion SPOILS -- its power inputs
+// (kPotionSkill/kPotionStat) are halved. (The poison level is a % of the spell potency, which needs the
+// spell registry, so it is exercised at runtime; here we pin the registry-independent halving, incl.
+// that repeated spoilage drives the power all the way to zero -- a stored 0 is honored, not re-defaulted.)
+TEST(PotionSpoilage, TimerZeroHalvesPowerInputsDownToZero) {
+	auto o = std::make_shared<ObjData>(CObjectPrototype(42));
+	o->set_type(EObjType::kLiquidContainer);
+	o->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, 100);
+	o->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, 40);
+
+	o->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, 1);
+	EXPECT_EQ(drinkcon::age_contents(o.get()), 0);                                  // spoils
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill), 50);           // halved
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 20);
+
+	for (int i = 0; i < 12; ++i) {   // each remove-poison/respoil cycle halves again
+		o->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, 1);
+		drinkcon::age_contents(o.get());
+	}
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill), 0);            // reaches inert
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 0);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

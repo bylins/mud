@@ -212,6 +212,8 @@ void reset_potion_values(CObjectPrototype *obj) {
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, -1);
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
@@ -488,6 +490,50 @@ void drinkcon::mix_potion_values(ObjData *to_obj, const ObjData *from_obj, int n
 	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, std::max(1, stat));
 }
 
+int drinkcon::age_contents(ObjData *obj) {
+	if (!obj) {
+		return 0;
+	}
+	const auto type = obj->get_type();
+	if (type != EObjType::kLiquidContainer && type != EObjType::kFood) {
+		return 0;
+	}
+	int timer = obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer);
+	if (timer <= 0) {
+		return 0;    // 0 / unset -> no freshness clock (never spoils, or already spoiled)
+	}
+	timer -= 1;
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, timer);
+	if (timer == 0) {
+		spoil_potion(obj);
+	}
+	return timer;
+}
+
+void drinkcon::spoil_potion(ObjData *obj) {
+	if (!obj) {
+		return;
+	}
+	// Poison level = a fixed percentage of the power the potion has RIGHT NOW (before it is weakened),
+	// read from its primary spell's potency. Compute it first, then halve the power inputs so the next
+	// spoilage cycle leaves an even weaker -- eventually inert -- potion.
+	const auto spell = static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num));
+	float power = 0.0f;
+	if (spell > ESpell::kUndefined) {
+		power = PotionPotency(obj, spell);
+	}
+	int poison = 0;
+	if (power > 0.0f) {
+		poison = std::max(1, static_cast<int>(std::lround(power * kSpoiledPoisonPercent / 100.0)));
+	}
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, poison);
+
+	// Halve the effective maker skill/stat and store them EXPLICITLY. PotionCastSkill/Stat fall back to
+	// the authored default only when the key is ABSENT, so once stored a value keeps halving toward 0.
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, PotionCastSkill(obj) / 2);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,  PotionCastStat(obj)  / 2);
+}
+
 size_t find_liquid_name(const char *name) {
 	std::string tmp = std::string(name);
 	size_t pos, result = std::string::npos;
@@ -652,7 +698,8 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 			return buf1;
 		}
 		else {
-			const char *msg = AFF_FLAGGED(ch, EAffect::kDetectPoison) && obj->get_val(3) == 1 ? " *отравленной*" : "";
+			const char *msg = AFF_FLAGGED(ch, EAffect::kDetectPoison)
+				&& obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison) > 0 ? " *отравленной*" : "";
 			int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 			sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
 			snprintf(buf1, kMaxStringLength,
@@ -663,12 +710,12 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 }
 
 const char *diag_liquid_timer(const ObjData *obj) {
-	int tm;
-	if (GET_OBJ_VAL(obj, 3) == 1)
+	// issue.potion-hotfix: freshness now lives in kLiquidTimer (a countdown), spoilage in kLiquidPoison.
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison) > 0)
 		return "испортилось!";
-	if (GET_OBJ_VAL(obj, 3) == 0)
+	const int tm = obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer);
+	if (tm <= 0)   // 0 / absent -> no spoilage clock running
 		return "идеальное.";
-	tm = (GET_OBJ_VAL(obj, 3));
 	if (tm < 1440) // сутки
 		return "скоро испортится!";
 	else if (tm < 10080) //неделя

@@ -362,10 +362,35 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 }
 
 /// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
+// issue.potion-hotfix: split the historically overloaded drink/food val[3] into named keys. val[3]
+// classically meant "poisoned" at exactly 1; the (revived) freshness code also counted it DOWN, so a
+// value > 1 was a freshness countdown. Move poison -> kLiquidPoison, any countdown -> kLiquidTimer, and
+// zero val[3] (now unused for drinks). Idempotent: once val[3] is 0 there is nothing left to migrate.
+// Runs AFTER ConvertDrinkconSkillField (which may reset the liquid keys while planting a potion).
+int ConvertDrinkPoisonField(CObjectPrototype *obj, bool /*proto*/) {
+	const auto type = obj->get_type();
+	if (type != EObjType::kLiquidContainer && type != EObjType::kFountain && type != EObjType::kFood) {
+		return 0;
+	}
+	const int v3 = obj->get_val(3);
+	if (v3 == 1) {
+		obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, 1);
+		obj->set_val(3, 0);
+		return 1;
+	}
+	if (v3 > 1) {
+		obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, v3);
+		obj->set_val(3, 0);
+		return 1;
+	}
+	return 0;
+}
+
 void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
+		save = std::max(save, ConvertDrinkPoisonField(i.get(), true));
 		save = std::max(save, ConvertPotionToEValueKey(i.get(), true));
 		if (i->has_flag(EObjFlag::k2inlaid)) {
 			i->unset_extraflag(EObjFlag::k2inlaid);

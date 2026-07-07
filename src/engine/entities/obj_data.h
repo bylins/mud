@@ -50,7 +50,12 @@ class ObjVal {
 		kPotionSkill = 9,       // the MAKER's skill (brew skill for crafted, authored default else) --
 		                        // stands in for the magic skill (non-mages brew too); drives DURATION
 		                        // and, with kPotionStat, the competence (AMOUNT). Drinker never matters.
-		kPotionStat = 10        // the MAKER's key stat (Intelligence when brewing / authored default)
+		kPotionStat = 10,       // the MAKER's key stat (Intelligence when brewing / authored default)
+		// issue.potion-hotfix: drink/food CONTENTS state, split out of the historically overloaded
+		// val[3] (which meant BOTH a freshness countdown AND, at exactly 1, "poisoned"). Persisted by
+		// name via the kObjVals text_id table, like the potion keys above.
+		kLiquidTimer = 11,      // contents freshness: counts down 1/mud-hour; reaching 0 spoils the potion
+		kLiquidPoison = 12      // poison level applied on drinking (0 = harmless); set when it spoils
 	};
 
 	// issue.potion-hotfix: fixed-point scale for kPotionBrewRoll. The stored int is
@@ -704,7 +709,6 @@ class ObjData : public CObjectPrototype {
 	int get_timer() const override;
 	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
 	void process_periodic_effects();
-	void decrement_freshness();  // issue.potion-hotfix: food/liquid contents spoilage (val[3])
 
 	static id_to_set_info_map set_table;
 

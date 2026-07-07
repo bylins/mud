@@ -9,6 +9,8 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/world_objects.h"
+#include "gameplay/mechanics/liquid.h"
 #include "utils/logger.h"
 #include <cstdio>
 
@@ -22,12 +24,18 @@ EStageResult AlterRemovePoison(CastContext &ctx) {
 		mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
 		return AlterMsg(ctx, ESpellMsg::kRemovePoisonUnknown);
 	}
-	if (obj_proto[obj->get_rnum()]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
-		return AlterMsg(ctx, ESpellMsg::kRemovePoisonRotten);
-	}
-	if ((GET_OBJ_VAL(obj, 3) == 1) && (obj->get_type() == EObjType::kLiquidContainer
-			|| obj->get_type() == EObjType::kFountain || obj->get_type() == EObjType::kFood)) {
-		obj->set_val(3, 0);
+	// issue.potion-hotfix: remove-poison on a drink/food clears its poison LEVEL (kLiquidPoison) and
+	// RESTARTS the contents freshness timer, so a spoiled potion can be salvaged and drunk again. It
+	// will spoil once more after the timer runs out -- each cycle leaves it weaker (spoil_potion halves
+	// the power), until it is inert. (The old "rotten/uncurable" case, keyed off the overloaded val[3],
+	// is gone: spoilage poison is always curable now, by design.)
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison) > 0
+			&& (obj->get_type() == EObjType::kLiquidContainer
+				|| obj->get_type() == EObjType::kFountain
+				|| obj->get_type() == EObjType::kFood)) {
+		obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, -1);   // -1 removes the key (no poison)
+		obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, drinkcon::kSpoiledResetTimerMinutes);
+		world_objects.decay_manager().register_perishable(obj);         // resume the spoilage countdown
 		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 	}
 	return EStageResult::kFail;

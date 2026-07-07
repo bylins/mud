@@ -333,7 +333,7 @@ constexpr int kAuthoredPotionKeyStat = 25;
 
 float PotionPotency(const ObjData *potion, ESpell spell_id) {
 	const int skill = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-	if (skill <= 0) {
+	if (skill < 0) {   // < 0 == key ABSENT; a stored 0 is a spoiled-to-nothing potion, not legacy
 		// Legacy: a pre-P3b migrated instance carries a pre-computed potency but no maker skill/stat.
 		const int legacy = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
 		if (legacy > 0) {
@@ -346,9 +346,9 @@ float PotionPotency(const ObjData *potion, ESpell spell_id) {
 	// Competence = skill_coeff + stat_coeff from the MAKER's inputs (crafted: brew skill + brewer Int;
 	// non-crafted: the authored maker), through THIS spell's own potency-roll weights. The drinker's
 	// own skill/stat are never consulted -- a potion acts on its own.
-	const int use_skill = (skill > 0) ? skill : kAuthoredPotionSkill;
+	const int use_skill = (skill >= 0) ? skill : kAuthoredPotionSkill;   // present (incl. 0) wins; absent -> authored
 	const int stat = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
-	const int use_stat = (stat > 0) ? stat : kAuthoredPotionKeyStat;
+	const int use_stat = (stat >= 0) ? stat : kAuthoredPotionKeyStat;
 	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
 	return static_cast<float>(roll.CalcSkillCoeffForValue(use_skill)
 			+ roll.CalcBaseStatCoeffForValue(use_stat));
@@ -359,14 +359,14 @@ float PotionPotency(const ObjData *potion, ESpell spell_id) {
 // none, so it falls back to the authored maker's skill.
 int PotionCastSkill(const ObjData *potion) {
 	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-	return (stored > 0) ? stored : kAuthoredPotionSkill;
+	return (stored >= 0) ? stored : kAuthoredPotionSkill;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
 // issue.potion-hotfix: the maker's key stat (crafted: brewer Intelligence; else the authored default).
 // Needed alongside PotionCastSkill to blend two potions' stats when they are poured together.
 int PotionCastStat(const ObjData *potion) {
 	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
-	return (stored > 0) ? stored : kAuthoredPotionKeyStat;
+	return (stored >= 0) ? stored : kAuthoredPotionKeyStat;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
 float CalcCastPotency(const RollResult &potency) {
