@@ -562,9 +562,13 @@ double Area::DistributionCoeff(const int j, const int n, const double decay_eff)
 }
 
 TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
-	spell_ = parse::ReadAsConstant<ESpell>(node.GetValue("type"));
-	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
-	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
+	// issue.buff-affect-fix: guard these against an empty/missing attribute. The world data uses the
+	// newer <affects saving= resist=> grammar (no "type="; the affect is named by an <affect id=> child),
+	// but an unguarded ReadAsConstant("") THROWS, and Actions::Build catches it and drops the WHOLE
+	// <affects> payload -- so every affect spell silently loses its effect. (Matches origin/unstable.)
+	if (const char *t = node.GetValue("type"); t && *t) { spell_ = parse::ReadAsConstant<ESpell>(t); }
+	if (const char *s = node.GetValue("saving"); s && *s) { saving_ = parse::ReadAsConstant<ESaving>(s); }
+	if (const char *r = node.GetValue("resist"); r && *r) { resist_ = parse::ReadAsConstant<EResist>(r); }
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	// potency_weight: optional scale on the cast
@@ -625,6 +629,25 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 				child.GoToParent();
 			}
 			applies_.push_back(apply);
+		} else if (strcmp(name, "affect") == 0) {
+			// issue.buff-affect-fix: a bare affect reference -- the canonical grammar for a pure affect
+			// flag (the affect owns its data in affects.xml; the spell only names which affect to impose,
+			// with no stat modifier). Ported from origin/unstable, whose parser has this branch that
+			// master lacked: without it EVERY <affect id="..."/> in a spell (armor/bless/invisibility/
+			// sanctuary/waterwalk/fly/blind/curse/sleep/...) is silently dropped, so the affect never
+			// lands even though the cast otherwise "succeeds". (Room-affect and <charges> variants stay
+			// unstable-only.)
+			const char *idv = child.GetValue("id");
+			if (!idv || !*idv) {
+				err_log("talent_actions <affect>: missing id attribute.");
+			} else {
+				Apply apply;
+				apply.id = parse::ReadAsConstant<EAffect>(idv);
+				apply.location = EApply::kNone;   // pure flag: carries no stat modifier here
+				const char *r = child.GetValue("random");
+				apply.random = (r && *r) && parse::ReadAsBool(r);
+				applies_.push_back(apply);
+			}
 		} else if (strcmp(name, "lag") == 0) {
 			has_lag_ = true;
 			lag_base_ = parse::ReadAsInt(child.GetValue("base"));
