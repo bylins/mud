@@ -307,18 +307,6 @@ double RollDoubleOr(const char *v, double def) { return (v && *v) ? parse::ReadA
 }  // namespace
 
 Roll::Roll(parser_wrapper::DataNode &node) {
-	if (node.GoToChild("dices")) {
-		// no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
-		// <dices ndice="0" sdice="0" adice="N"/> reliably returns N. The previous std::max(1, ...)
-		// silently added one to every all-zero spec, which violated the principle of least
-		// surprise. RollDices(0, *) and RollDices(*, 0) already short-circuit to 0, so the
-		// arithmetic stays correct without any extra guard here.
-		dice_num_ = RollIntOr(node.GetValue("ndice"), 0);
-		dice_size_ = RollIntOr(node.GetValue("sdice"), 0);
-		dice_add_ = RollIntOr(node.GetValue("adice"), 0);
-		node.GoToParent();
-	}
-
 	if (node.GoToChild("noise")) {
 		// issue.potency-noise: the spell's random-draw parameters (replaces <dices>). sigma = base
 		// relative spread of the shared z; trunc = clamp of z in sd units. Absent <noise> -> sigma 0,
