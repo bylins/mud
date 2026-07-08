@@ -261,9 +261,6 @@ class Roll {
 	// dice contribution". The previous defaults of 1/1/1 silently added a constant +2 to every
 	// spell missing a <dices> block, which broke the principle of least surprise. See the
 	// parser (Roll::Roll) for the matching change to drop the std::max(1, ...) clamps.
-	int dice_num_{0};
-	int dice_size_{0};
-	int dice_add_{0};
 	// issue.potency-noise (stage 1, additive): the spell's ONE shared random draw. At cast a single
 	// z ~ TruncNormal(0,1) clamped to +/-noise_trunc_ is drawn; the realized relative deviation
 	// d = noise_sigma_ * z is shared by every manifestation, each scaling it by its own weight.
@@ -286,7 +283,6 @@ class Roll {
 	Roll() = default;
 	explicit Roll(parser_wrapper::DataNode &node);
 
-	[[nodiscard]] int RollSkillDices() const;
 	[[nodiscard]] double GetNoiseSigma() const { return noise_sigma_; }  // issue.potency-noise
 	[[nodiscard]] double GetNoiseTrunc() const { return noise_trunc_; }  // issue.potency-noise
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;

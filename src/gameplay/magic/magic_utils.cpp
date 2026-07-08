@@ -473,7 +473,7 @@ ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, f
 								 float fixed_competence, double fixed_noise_z, int fixed_skill) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
-		RollResult rr{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
+		RollResult rr{roll.CalcSkillCoeff(caster),
 					  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 		// issue.potency-noise: draw the spell's ONE shared truncated-normal z; realize d = sigma*z once,
 		// shared by every manifestation (each scales it by its own weight).
@@ -492,9 +492,9 @@ ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, f
 	// MAKER's skill (fixed_skill) for deterministic amount + maker-driven buff duration.
 	RollResult bcc_roll;
 	if (fixed_competence >= 0.0f) {
-		bcc_roll = RollResult{0, static_cast<double>(fixed_competence), 0.0, 0.0};
+		bcc_roll = RollResult{static_cast<double>(fixed_competence), 0.0, 0.0};
 	} else if (fixed_potency >= 0.0f) {
-		bcc_roll = RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z, fixed_skill};
+		bcc_roll = RollResult{static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z, fixed_skill};
 		// issue.potency-noise: a brewed potion replays its frozen z; realize d with THIS spell's sigma.
 		if (!std::isnan(fixed_noise_z)) {
 			bcc_roll.noise_dev = spell.GetPotencyRoll().GetNoiseSigma() * fixed_noise_z;

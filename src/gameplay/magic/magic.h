@@ -38,7 +38,6 @@ template<typename> class Affect;   // issue.mob-flag-affect-materialization: Bui
 
 // One evaluation of a talents_actions::Roll for a specific caster (issue #3333).
 struct RollResult {
-	int dices{0};              // talents_actions::Roll::RollSkillDices()
 	double skill_coeff{0.0};   // talents_actions::Roll::CalcSkillCoeff(caster)
 	double stat_coeff{0.0};    // talents_actions::Roll::CalcBaseStatCoeff(caster)
 	double low_skill_coeff{0.0};  // talents_actions::Roll::CalcLowSkillCoeff(caster): the

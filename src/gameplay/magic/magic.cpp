@@ -290,7 +290,6 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 	try {
 		const ESpell spell_id = ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<EAffect>(affect_type));
 		const auto &pr = MUD::Spell(spell_id).GetPotencyRoll();
-		roll.dices = pr.RollSkillDices();
 		roll.skill_coeff = pr.CalcSkillCoeff(mob);
 		roll.stat_coeff = pr.CalcBaseStatCoeff(mob);
 	} catch (const std::out_of_range &) {
@@ -1080,12 +1079,12 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		ApplyTalentAffect(victim, taf, apply.stack, talent.GetBattleflags());
 		if (tc) {
 			spell_trace::Line(ch, victim,
-				"&C  apply %s%s: min %.1f beta %.1f dice %d C %.2f "
+				"&C  apply %s%s: min %.1f beta %.1f C %.2f "
 				"cap %d factor %d -> raw %d x area %.2f = %d (stack<=%d).&n\r\n",
 				NAME_BY_ITEM<EApply>(apply.location).c_str(),
 				apply.random ? " [random pick]" : "",
 				apply.min, apply.beta,
-				potency.dices, competence, apply.cap, apply.factor,
+				competence, apply.cap, apply.factor,
 				raw_mod, area_coeff, taf.modifier, apply.stack);
 		}
 	};
@@ -4434,7 +4433,7 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 				++it;
 				continue;
 			}
-			const float spell_potency = static_cast<float>(roll.RollSkillDices() + ctx.CompetenceBase());
+			const float spell_potency = static_cast<float>(ctx.CompetenceBase());
 			const auto access = room_spells::ClassifyRoomAffectAccess(caster, af->caster_id);
 			bool ok;
 			if (access.free) {

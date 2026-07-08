@@ -246,7 +246,6 @@ void ParseRemovalAttr(const char *value, TalentUnaffect::AffectRefs &out_refs, b
 
 void Roll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Potency roll: " << "\r\n"
-		   << kColorGrn << "  " << dice_num_ << "d" << dice_size_ << "+" << dice_add_ << kColorNrm
 		   << " Skill: " << kColorGrn << NAME_BY_ITEM<ESkill>(base_skill_) << kColorNrm
 		   << " (low " << low_skill_bonus_ << " / hi " << hi_skill_bonus_ << ")"
 		   << " Stat: " << kColorGrn << NAME_BY_ITEM<EBaseStat>(base_stat_) << kColorNrm
@@ -262,10 +261,6 @@ void SuccessRoll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " bonus[roll " << bonus_roll_ << " pvp " << bonus_pvp_ << " pve " << bonus_pve_
 		   << " evp " << bonus_evp_ << " eve " << bonus_eve_ << "]"
 		   << " crit[" << critsuccess_ << "/" << critfail_ << "]\r\n";
-}
-
-int Roll::RollSkillDices() const {
-	return RollDices(dice_num_, dice_size_) + dice_add_;
 }
 
 double Roll::CalcSkillCoeff(const CharData *const ch) const {

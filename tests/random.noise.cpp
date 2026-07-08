@@ -99,10 +99,9 @@ TEST(RebalanceModel, SkillDominatesAndAnchorHolds) {
 // issue.random-noise-rework P3: stored potency (dispel strength / cure priority / re-apply
 // "keep stronger") is DETERMINISTIC competence -- the rolled dice must not leak in.
 TEST(RebalanceModel, PotencyIsDeterministicCompetence) {
-	const RollResult with_dice{/*dices*/999, /*skill*/3.0, /*stat*/2.0, /*low*/0.0};
-	const RollResult no_dice{/*dices*/0, /*skill*/3.0, /*stat*/2.0, /*low*/0.0};
-	EXPECT_FLOAT_EQ(CalcCastPotency(with_dice), 5.0f);            // skill+stat only
-	EXPECT_FLOAT_EQ(CalcCastPotency(with_dice), CalcCastPotency(no_dice));  // dice irrelevant
+	// issue.potency-noise: dice retired -- CalcCastPotency = skill_coeff + stat_coeff only.
+	const RollResult r{/*skill*/3.0, /*stat*/2.0, /*low*/0.0};
+	EXPECT_FLOAT_EQ(CalcCastPotency(r), 5.0f);
 }
 
 // The dispel contest (issue.random-noise-rework): a d100 skill check. The win threshold is
