@@ -786,9 +786,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			apply.random = (r && *r) && parse::ReadAsBool(r);
 			if (child.GoToChild("modifier")) {
 				apply.min = parse::ReadAsDouble(child.GetValue("min"));
-				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
 				{ const char *w = child.GetValue("weight"); apply.weight = (w && *w) ? parse::ReadAsDouble(w) : 0.0; }  // issue.potency-noise (stage 1, additive): weight on the shared draw
-				apply.alpha = parse::ReadAsDouble(child.GetValue("alpha"));
 				apply.beta = parse::ReadAsDouble(child.GetValue("beta"));
 				apply.factor = parse::ReadAsInt(child.GetValue("factor"));
 				// stack: optional max stack count, default 1, clamped to a minimum of 1.
