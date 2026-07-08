@@ -33,8 +33,7 @@
 
 	<tag name="seal_strength" desc="Per-cast block-strength formula. Doubles as an entry trigger's block chance (percent) and the strength shown by the sight stars.">
 		<attr name="min" type="double" desc="Floor strength"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency dice"/>
-		<attr name="alpha" type="double" desc="Dice-amplification coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
 		<attr name="factor" type="int" desc="Sign/scale factor"/>
 		<attr name="cap" type="int" min="0" desc="Upper bound (e.g. 100 for a percent block chance)"/>
@@ -113,8 +112,7 @@
 	</tag>
 	<tag name="modifier" desc="Modifier magnitude formula">
 		<attr name="min" type="double" desc="Floor modifier"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
-		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="factor" type="int" desc="Sign/scale factor"/>
 		<attr name="cap" type="int" desc="Stacking cap"/>

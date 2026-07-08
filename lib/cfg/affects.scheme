@@ -34,10 +34,9 @@
 		<child tag="modifier"/>
 	</tag>
 
-	<tag name="modifier" desc="Modifier magnitude formula: factor*cap(min + ceil(dice*dw*(1+alpha*C) + beta*C))">
+	<tag name="modifier" desc="Modifier magnitude: factor*cap(min + beta*C*(1 + weight*d))">
 		<attr name="min" type="double" desc="Floor magnitude"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency dice"/>
-		<attr name="alpha" type="double" desc="Dice-amplification coefficient (skill scales the dice)"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
 		<attr name="factor" type="int" desc="Sign/scale factor (-1 makes it a penalty)"/>
 		<attr name="cap" type="int" min="0" desc="Upper bound on raw magnitude before factor (0 = no cap)"/>
