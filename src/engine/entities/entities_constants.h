@@ -781,6 +781,17 @@ template<>
 const std::string &NAME_BY_ITEM<EObjFlag>(EObjFlag item);
 template<>
 EObjFlag ITEM_BY_NAME<EObjFlag>(const std::string &name);
+// issue.flags-migration P1b: transitional packed storage (see ERoomFlag above).
+template<>
+struct flag_traits<EObjFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EObjFlag> {
+	static constexpr std::size_t to_index(EObjFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Object no flags - who can't use this object.

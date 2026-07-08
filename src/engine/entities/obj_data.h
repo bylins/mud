@@ -255,7 +255,7 @@ class CObjectPrototype {
 	void add_affect_flags(const FlagData &flags) { m_waffect_flags += flags; }
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
 	void add_anti_flags(const FlagData &flags) { m_anti_flags += flags; }
-	void add_extra_flags(const FlagData &flags) { m_extra_flags += flags; }
+	void add_extra_flags(const BitsetFlags<EObjFlag> &flags) { m_extra_flags += flags; }
 	void add_maximum(const int amount) { m_maximum_durability += amount; }
 	void add_no_flags(const FlagData &flags) { m_no_flags += flags; }
 	void add_proto_script(const ObjVnum vnum) { m_proto_script->push_back(vnum); }
@@ -299,7 +299,7 @@ class CObjectPrototype {
 	void set_ex_description(ExtraDescription *_) { m_ex_description.reset(_); }
 	void set_extra_flag(const EObjFlag packed_flag) { m_extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const Bitvector flag) { m_extra_flags.set_flag(plane, flag); }
-	void set_extra_flags(const FlagData &flags) { m_extra_flags = flags; }
+	void set_extra_flags(const BitsetFlags<EObjFlag> &flags) { m_extra_flags = flags; }
 	void set_level(const int _) { m_level = _; }
 	void set_material(const EObjMaterial _) { m_material = _; }
 	void set_max_in_world(const int _) { m_max_in_world = _; }
@@ -422,7 +422,7 @@ class CObjectPrototype {
 	EObjMaterial m_material;
 	EGender m_sex;
 
-	FlagData m_extra_flags;    // If it hums, glows, etc.      //
+	BitsetFlags<EObjFlag> m_extra_flags;    // If it hums, glows, etc.      //
 	FlagData m_waffect_flags;
 	FlagData m_anti_flags;
 	FlagData m_no_flags;

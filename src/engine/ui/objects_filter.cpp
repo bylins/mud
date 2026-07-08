@@ -6,6 +6,7 @@
 */
 
 #include "objects_filter.h"
+#include "engine/structs/flag_transition.h"
 #include "gameplay/mechanics/sight.h"
 
 #include "gameplay/economics/exchange.h"
@@ -717,7 +718,7 @@ bool ParseFilter::check_affect_apply(const CObjectPrototype *obj) const {
 bool ParseFilter::check_affect_extra(const CObjectPrototype *obj) const {
 	if (!affect_extra.empty()) {
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it) {
-			if (!CompareBits(obj->get_extra_flags(), extra_bits, *it)) {
+			if (!CompareBits(ToFlagData(obj->get_extra_flags()), extra_bits, *it)) {
 				return false;
 			}
 		}

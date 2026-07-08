@@ -187,6 +187,15 @@ class BitsetFlags {
 			}
 		}
 	}
+	// OR the masked bits of `flag` into `plane` (FlagData::set_flag parity -- additive, unlike
+	// set_plane which replaces the whole plane).
+	void set_flag(std::size_t plane, std::uint32_t flag) {
+		for (std::size_t b = 0; b < bitset_flags_detail::kPlaneSize; ++b) {
+			if (flag & (1u << b)) {
+				set_index(plane * bitset_flags_detail::kPlaneSize + b);
+			}
+		}
+	}
 	// Legacy plane+mask test/toggle (OLC menus edit flags by plane index + bit). `flag` is a 30-bit
 	// mask within the plane. get_flag: any masked bit set. toggle_flag: flip the masked bits and
 	// return whether they are set afterwards -- byte-for-byte the FlagData semantics.

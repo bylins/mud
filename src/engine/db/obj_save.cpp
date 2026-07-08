@@ -299,7 +299,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->load_no_flags(buffer);
 			} else if (!strcmp(read_line, "Extr")) {
 				*error = 26;
-				object->set_extra_flags(clear_flags);
+				object->set_extra_flags(BitsetFlags<EObjFlag>{});
 				object->load_extra_flags(buffer);
 			} else if (!strcmp(read_line, "Wear")) {
 				*error = 27;
@@ -739,7 +739,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// в файл не пишем. Снимаем их на копии FlagData без мутации самого
 		// объекта -- иначе save-путь был бы не thread-safe и менял видимое
 		// состояние предмета для игроков на момент сериализации.
-		FlagData extra_to_save = object->get_extra_flags();
+		auto extra_to_save = object->get_extra_flags();
 		extra_to_save.unset(EObjFlag::kBloody);
 		if (object->has_flag(EObjFlag::kNosell)
 			&& !p->has_flag(EObjFlag::kNosell)) {

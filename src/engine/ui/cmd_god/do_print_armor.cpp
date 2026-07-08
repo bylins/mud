@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "engine/structs/flag_transition.h"
 #include "administration/privilege.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
@@ -285,7 +286,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!filter.affect3.empty()) {
 			for (auto it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it) {
 				//find = true;
-				if (!CompareBits(i->get_extra_flags(), extra_bits, *it)) {
+				if (!CompareBits(ToFlagData(i->get_extra_flags()), extra_bits, *it)) {
 					find = false;
 					break;
 				}

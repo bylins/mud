@@ -553,7 +553,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	// Extra flags (array of 4 plane values)
 	if (data.contains("extra_flags") && data["extra_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<EObjFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["extra_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["extra_flags"][i].get<Bitvector>());

@@ -10,6 +10,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
 #include "scripting.h"
+#include "engine/structs/flag_transition.h"  // issue.flags-migration: FlagData<->BitsetFlags bridge
 #include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
@@ -1033,12 +1034,12 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 
 	FLAG_DATA get_extra_flags() const {
 		Ensurer obj(*this);
-		return obj->get_extra_flags();
+		return ToFlagData(obj->get_extra_flags());
 	}
 
 	void set_extra_flags(const FLAG_DATA &f) {
 		Ensurer obj(*this);
-		obj->set_extra_flags(f);
+		obj->set_extra_flags(ToBitset<EObjFlag>(f));
 	}
 
 	const affected_t &get_affected() {

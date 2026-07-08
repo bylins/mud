@@ -6,6 +6,8 @@
 
 #include "gameplay/affects/affect_data.h"
 #include "engine/structs/flag_data.h"
+#include "engine/structs/bitset_flags.h"
+#include "engine/entities/entities_constants.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
 
@@ -46,7 +48,7 @@ struct enchant {
 	// аффекты обкаста (obj_flags.affects)
 	FlagData affects_flags_;
 	// экстра аффекты (obj_flags.extra_flags)
-	FlagData extra_flags_;
+	BitsetFlags<EObjFlag> extra_flags_;
 	// запреты на ношение (obj_flags.no_flag)
 	FlagData no_flags_;
 	// изменение веса (+-)

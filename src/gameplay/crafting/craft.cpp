@@ -5,6 +5,7 @@
  */
 
 #include "craft.h"
+#include "engine/structs/flag_transition.h"
 #include "gameplay/mechanics/magic_item.h"
 
 #include "engine/db/obj_prototypes.h"
@@ -637,7 +638,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 		CHelper::save_string(*node, "spell", NAME_BY_ITEM(get_spell()).c_str(),
 							 [&]() { throw std::runtime_error("WARNING: Failed to save object spell"); });
 
-		CHelper::save_list<EObjFlag>(*node, "extraflags", "extraflag", get_extra_flags(),
+		CHelper::save_list<EObjFlag>(*node, "extraflags", "extraflag", ToFlagData(get_extra_flags()),
 									 [&]() {
 										   throw std::runtime_error("WARNING: Failed to create node \"extraflags\".\n");
 									   },

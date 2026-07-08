@@ -7,6 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item_creation.h"
+#include "engine/structs/flag_transition.h"  // issue.flags-migration: FlagData<->BitsetFlags bridge
 #include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "administration/privilege.h"
@@ -1899,9 +1900,10 @@ void MakeRecept::merge_extra_flags(CharData *ch, ObjData *obj, ObjData *ingr, in
 	for (std::size_t i = 0; i < std::size(kNotTransferable); ++i) {
 		had[i] = obj->has_flag(kNotTransferable[i]);
 	}
-	auto temp = obj->get_extra_flags();
-	add_flags(ch, &temp, &ingr->get_extra_flags(), pow);
-	obj->set_extra_flags(temp);
+	FlagData temp = ToFlagData(obj->get_extra_flags());
+	FlagData ingr_extra = ToFlagData(ingr->get_extra_flags());
+	add_flags(ch, &temp, &ingr_extra, pow);
+	obj->set_extra_flags(ToBitset<EObjFlag>(temp));
 	// откатываем только те служебные флаги, которых у предмета не было (т.е. их добавил ингредиент)
 	for (std::size_t i = 0; i < std::size(kNotTransferable); ++i) {
 		if (!had[i] && obj->has_flag(kNotTransferable[i])) {
