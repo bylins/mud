@@ -647,7 +647,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 											   "WARNING: Could not save extraflag " + NAME_BY_ITEM(value));
 									   });
 
-		CHelper::save_list<EWeaponAffect>(*node, "weapon_affects", "weapon_affect", get_affect_flags(),
+		CHelper::save_list<EWeaponAffect>(*node, "weapon_affects", "weapon_affect", ToFlagData(get_affect_flags()),
 										  [&]() {
 												  throw std::runtime_error(
 													  "WARNING: Failed to create node \"weapon_affects\".\n");

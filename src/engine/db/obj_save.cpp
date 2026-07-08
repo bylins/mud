@@ -287,7 +287,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_level(atoi(buffer));
 			} else if (!strcmp(read_line, "Affs")) {
 				*error = 23;
-				object->SetWeaponAffectFlags(clear_flags);
+				object->SetWeaponAffectFlags(BitsetFlags<EWeaponAffect>{});
 				object->load_affect_flags(buffer);
 			} else if (!strcmp(read_line, "Anti")) {
 				*error = 24;

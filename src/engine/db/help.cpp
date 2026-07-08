@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "help.h"
+#include "engine/structs/flag_transition.h"
 
 #include <algorithm>
 #include <fmt/format.h>
@@ -177,7 +178,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	}*/
 	out << "\r\n";
 
-	FlagData affects = activ->second.get_affects();
+	FlagData affects = ToFlagData(activ->second.get_affects());
 	if (affects.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}
@@ -263,7 +264,7 @@ void activators_obj::fill_node(const set_info &set) {
 				for (const auto & q : m->second) {
 					if (check_num_in_unique_bit_flag_data(q.first, w.first)) {
 						// суммирование активаторов для данной профы
-						w.second.total_affects += q.second.get_affects();
+						w.second.total_affects += ToFlagData(q.second.get_affects());
 						sum_apply(w.second.affected, q.second.get_affected());
 						// скилы
 						CObjectPrototype::skills_t tmp_skills;
@@ -356,7 +357,7 @@ std::string print_fullset_stats(const set_info &set) {
 
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += obj->get_no_flags();
-		activ.native_affects += obj->get_affect_flags();
+		activ.native_affects += ToFlagData(obj->get_affect_flags());
 		sum_apply(activ.native_affected, obj->get_all_affected());
 		sum_skills(activ.native_skills, obj.get());
 

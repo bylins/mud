@@ -666,7 +666,7 @@ bool ParseFilter::check_remorts(const CObjectPrototype *obj) const {
 bool ParseFilter::check_affect_weap(const CObjectPrototype *obj) const {
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
-			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it)) {
+			if (!CompareBits(ToFlagData(obj->get_affect_flags()), weapon_affects, *it)) {
 				return false;
 			}
 		}

@@ -1004,7 +1004,7 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 
 	FLAG_DATA get_affects() const {
 		Ensurer obj(*this);
-		return obj->get_affect_flags();
+		return ToFlagData(obj->get_affect_flags());
 	}
 
 	void set_affects(const FLAG_DATA &f) {

@@ -295,6 +295,17 @@ constexpr size_t kWeaponAffectCount = 47;
 
 template<>
 EWeaponAffect ITEM_BY_NAME<EWeaponAffect>(const std::string &name);
+// issue.flags-migration P1b: transitional packed storage.
+template<>
+struct flag_traits<EWeaponAffect> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EWeaponAffect> {
+	static constexpr std::size_t to_index(EWeaponAffect f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 template<>
 const std::string &NAME_BY_ITEM(EWeaponAffect item);
 

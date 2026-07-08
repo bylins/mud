@@ -1255,9 +1255,10 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	obj->set_is_rename(true); // ставим флаг что объект переименован
 
 
-	auto temp_flags = obj->get_affect_flags();
-	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
-	obj->SetWeaponAffectFlags(temp_flags);
+	FlagData temp_flags = ToFlagData(obj->get_affect_flags());
+	const FlagData add_aff = ToFlagData(ingrs[0]->get_affect_flags());
+	add_flags(ch, &temp_flags, &add_aff, get_ingr_pow(ingrs[0]));
+	obj->SetWeaponAffectFlags(ToBitset<EWeaponAffect>(temp_flags));
 	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 	merge_extra_flags(ch, obj, ingrs[0], get_ingr_pow(ingrs[0]));
 	auto temp_affected = obj->get_all_affected();
@@ -1301,9 +1302,10 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 			}
 		}
 		// переносим аффекты ... c ингров на прототип.
-		auto temp_flags = obj->get_affect_flags();
-		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
-		obj->SetWeaponAffectFlags(temp_flags);
+		FlagData temp_flags = ToFlagData(obj->get_affect_flags());
+		const FlagData add_aff = ToFlagData(ingrs[j]->get_affect_flags());
+		add_flags(ch, &temp_flags, &add_aff, get_ingr_pow(ingrs[j]));
+		obj->SetWeaponAffectFlags(ToBitset<EWeaponAffect>(temp_flags));
 		// перносим эффекты ... с ингров на прототип.
 		merge_extra_flags(ch, obj, ingrs[j], get_ingr_pow(ingrs[j]));
 		// переносим 1 рандом аффект
@@ -1756,9 +1758,10 @@ int MakeRecept::make(CharData *ch) {
 				ingr_pow = 20;
 			}
 			// переносим аффекты ... c ингров на прототип.
-			auto temp_flags = obj->get_affect_flags();
-			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
-			obj->SetWeaponAffectFlags(temp_flags);
+			FlagData temp_flags = ToFlagData(obj->get_affect_flags());
+			const FlagData add_aff = ToFlagData(ingrs[j]->get_affect_flags());
+			add_flags(ch, &temp_flags, &add_aff, ingr_pow);
+			obj->SetWeaponAffectFlags(ToBitset<EWeaponAffect>(temp_flags));
 			// перносим эффекты ... с ингров на прототип.
 			merge_extra_flags(ch, obj.get(), ingrs[j], ingr_pow);
 			auto temp_affected = obj->get_all_affected();

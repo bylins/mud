@@ -257,7 +257,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		bool find = true;
 		if (!filter.affect.empty()) {
 			for (int it : filter.affect) {
-				if (!CompareBits(i->get_affect_flags(), weapon_affects, it)) {
+				if (!CompareBits(ToFlagData(i->get_affect_flags()), weapon_affects, it)) {
 					find = false;
 					break;
 				}
