@@ -507,8 +507,6 @@ void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm << "\r\n"
 		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
-		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
-		   << " alpha: " << kColorGrn << amount_alpha_ << kColorNrm
 		   << " beta: " << kColorGrn << amount_beta_ << kColorNrm << "\r\n";
 	if (has_hits_) {
 		buffer << " Hits: skill_divisor=" << kColorGrn << hits_skill_divisor_ << kColorNrm
@@ -529,15 +527,8 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("amount")) {
 		const char *amin = node.GetValue("min");
 		amount_min_ = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
-		const char *adw = node.GetValue("dices_weight");
-		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 1.0;
-		const char *aa = node.GetValue("alpha");
-		amount_alpha_ = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 		const char *ab = node.GetValue("beta");
 		amount_beta_ = (ab && *ab) ? parse::ReadAsDouble(ab) : 1.0;
-		// issue.random-noise-rework (P1): optional relative-spread (CV) knob for multiplicative noise.
-		const char *asg = node.GetValue("sigma");
-		amount_sigma_ = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
 		const char *awt = node.GetValue("weight");
 		amount_weight_ = (awt && *awt) ? parse::ReadAsDouble(awt) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 		node.GoToParent();
@@ -1465,10 +1456,8 @@ void Area::ApplyFieldMod(const std::string &field, EFieldModOp op, double value)
 }
 
 void Damage::ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
-	if (field == "dices_weight") { amount_dices_weight_ = ApplyModOp(amount_dices_weight_, op, value); }
-	else if (field == "beta") { amount_beta_ = ApplyModOp(amount_beta_, op, value); }
+	if (field == "beta") { amount_beta_ = ApplyModOp(amount_beta_, op, value); }
 	else if (field == "min") { amount_min_ = ApplyModOp(amount_min_, op, value); }
-	else if (field == "alpha") { amount_alpha_ = ApplyModOp(amount_alpha_, op, value); }
 	else if (field == "prob") { prob_ = static_cast<int>(ApplyModOp(prob_, op, value)); }
 	else if (field == "hits_max") { hits_max_ = static_cast<int>(ApplyModOp(hits_max_, op, value)); }
 	else { err_log("ApplyFieldMod: unknown Damage field [%s].", field.c_str()); }

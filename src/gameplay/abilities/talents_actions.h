@@ -428,13 +428,7 @@ class Damage : public IAction {
 	ESaving saving_{ESaving::kReflex};
 	int prob_{100};                          // percent chance the damage actually happens
 	double amount_min_{0};                   // flat minimum damage
-	double amount_dices_weight_{1.0};        // base scale on the potency roll's dice
-	double amount_alpha_{0.0};               // dice-amplification: skill scales the dice (issue.potency-formula)
 	double amount_beta_{1.0};                // additive skill+stat coefficient (was competencies_weight)
-	// issue.random-noise-rework (P1): opt-in multiplicative truncated-normal noise. sigma>0 switches the
-	// amount to GaussIntNumber(min + beta*C, sigma*beta*C, ...) -- mean scales with competence, relative
-	// spread stays ~sigma (constant CV). 0 (default) keeps the legacy dice formula. beta is reused as k.
-	double amount_sigma_{0.0};
 	double amount_weight_{0.0};  // issue.potency-noise (stage 1): weight on the spell's shared noise draw (0 = deterministic)
 	// Multi-hit support (issue.extra-hits): a <hits ...> child enables extra-hits computation via
 	// CalcExtraHits. Absent tag -> has_hits_=false -> the spell deals exactly one hit (count=1).
@@ -450,10 +444,7 @@ class Damage : public IAction {
 	explicit Damage(parser_wrapper::DataNode &node);
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
-	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
-	[[nodiscard]] double GetAmountAlpha() const { return amount_alpha_; }
 	[[nodiscard]] double GetAmountBeta() const { return amount_beta_; }
-	[[nodiscard]] double GetAmountSigma() const { return amount_sigma_; }
 	[[nodiscard]] double GetAmountWeight() const { return amount_weight_; }  // issue.potency-noise
 	[[nodiscard]] bool HasHits() const { return has_hits_; }
 	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
