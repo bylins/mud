@@ -2185,7 +2185,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	{
 		const auto &race_info = MUD::MobRaces()[GET_RACE(mob)];
 		mob->char_specials.saved.act += race_info.GetMobFlags();
-		mob->mob_specials.npc_flags += ToBitset<ENpcFlag>(race_info.GetNpcFlags());
+		mob->mob_specials.npc_flags += race_info.GetNpcFlags();
 	}
 
 	if (!mob->points.max_hit) {

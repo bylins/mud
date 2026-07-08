@@ -58,6 +58,8 @@ const std::map<ENpcRace, std::string> &NAMES_OF<ENpcRace>();
 
 // --- mob-race data container -----------------------------------------------------------------
 #include "engine/structs/flag_data.h"
+#include "engine/structs/bitset_flags.h"
+#include "engine/entities/entities_constants.h"
 #include "engine/structs/info_container.h"
 #include "engine/boot/cfg_manager.h"
 
@@ -79,7 +81,7 @@ class MobRace : public info_container::BaseItem<int> {
 	std::string race_name_{"!undefined!"};
 	std::vector<ingredient> ingrlist_;
 	FlagData mob_flags_;	// EMobFlag set OR'd onto a freshly loaded instance (issue.npc-races item 8)
-	FlagData npc_flags_;	// ENpcFlag set OR'd onto a freshly loaded instance (the <npc_flags> tag)
+	BitsetFlags<ENpcFlag> npc_flags_;	// ENpcFlag set OR'd onto a freshly loaded instance (the <npc_flags> tag)
 	bool vocal_{false};			// race can speak/incant (replaces the old per-race speech switch)
 	bool respiration_{false};	// race breathes (drives the can-breathe / strangle check)
 	bool skinnable_{false};		// corpses of this race can be skinned
@@ -92,7 +94,7 @@ class MobRace : public info_container::BaseItem<int> {
 	[[nodiscard]] const std::string &GetName() const { return race_name_; }
 	[[nodiscard]] const std::vector<ingredient> &GetIngredients() const { return ingrlist_; }
 	[[nodiscard]] const FlagData &GetMobFlags() const { return mob_flags_; }
-	[[nodiscard]] const FlagData &GetNpcFlags() const { return npc_flags_; }
+	[[nodiscard]] const BitsetFlags<ENpcFlag> &GetNpcFlags() const { return npc_flags_; }
 	[[nodiscard]] bool IsVocal() const { return vocal_; }
 	[[nodiscard]] bool CanBreathe() const { return respiration_; }
 	[[nodiscard]] bool IsSkinnable() const { return skinnable_; }

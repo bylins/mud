@@ -785,7 +785,7 @@ void do_slist(CharData *ch) {
 }
 
 /// распечатка аффектов активатора для справки с форматирование по 80 символов
-std::string print_activ_affects(const FlagData &aff) {
+std::string print_activ_affects(const BitsetFlags<EWeaponAffect> &aff) {
 	char buf_[2048];
 	if (aff.sprintbits(weapon_affects, buf_, sizeof(buf_), ",")) {
 		// весь этот изврат, чтобы вывести аффекты с разбивкой на строки
@@ -1182,7 +1182,7 @@ bool activ_sum::IsEmpty() const {
 }
 
 void activ_sum::DoClear() {
-	affects = clear_flags;
+	affects.clear();
 	apply.clear();
 	skills.clear();
 	bonus.phys_dmg = 0;
@@ -1220,7 +1220,7 @@ void activ_sum::update(CharData *ch) {
 void activ_sum::apply_affects(CharData *ch) const {
 	for (const auto &j : weapon_affect) {
 		if (j.aff_bitvector != 0
-			&& affects.get(j.aff_pos)) {
+			&& affects.get(static_cast<EWeaponAffect>(j.aff_pos))) {
 			affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
 		}
 	}

@@ -48,10 +48,10 @@ namespace PrintActivators {
 
 // суммарные активы для одной профы
 struct clss_activ_node {
-	clss_activ_node() { total_affects = clear_flags; };
+	clss_activ_node() { total_affects.clear(); };
 
 	// аффекты
-	FlagData total_affects;
+	BitsetFlags<EWeaponAffect> total_affects;
 	// свойства
 	std::vector<obj_affected_type> affected;
 	// скилы

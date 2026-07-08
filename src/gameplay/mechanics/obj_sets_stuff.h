@@ -48,7 +48,7 @@ struct SetMsgNode {
 /// сетовый активатор с аффектами и прочими бонусами
 struct ActivNode {
 	ActivNode() : skill(ESkill::kUndefined, 0) {
-		affects = clear_flags;
+		affects.clear();
 		prof.set();
 		enchant.first = 0;
 		npc = false;
@@ -56,7 +56,7 @@ struct ActivNode {
 	// активится ли миник на мобах
 	bool npc;
 	// аффекты (obj_flags.affects)
-	FlagData affects;
+	BitsetFlags<EWeaponAffect> affects;
 	// APPLY_XXX аффекты (affected[kMaxObjAffect])
 	std::array<obj_affected_type, kMaxObjAffect> apply;
 	// изменение умения. идет в bonus, но в активаторах юзается это поле

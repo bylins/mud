@@ -76,7 +76,7 @@ struct ActivNode;
 
 struct activ_sum {
 	activ_sum() {
-		affects = clear_flags;
+		affects.clear();
 	};
 
 	// суммирование активаторов
@@ -93,7 +93,7 @@ struct activ_sum {
 	int get_skill(const ESkill num) const;
 
 	// аффекты (obj_flags.affects)
-	FlagData affects;
+	BitsetFlags<EWeaponAffect> affects;
 	// APPLY_XXX аффекты (affected[kMaxObjAffect])
 	std::vector<obj_affected_type> apply;
 	// +скилы в обход текущего обхода шмоток

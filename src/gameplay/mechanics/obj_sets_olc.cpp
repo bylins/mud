@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_sets.h"
+#include "engine/structs/flag_transition.h"
 #include "utils/grammar/declensions.h"
 
 #include <string>
@@ -1176,7 +1177,7 @@ void sedit::parse_obj_edit(CharData *ch, const char *arg) {
 void sedit::show_activ_affects(CharData *ch) {
 	state = STATE_ACTIV_AFFECTS;
 	show_weapon_affects_olc(ch->desc,
-							olc_set.activ_list.at(activ_edit).affects);
+							ToFlagData(olc_set.activ_list.at(activ_edit).affects));
 }
 
 void sedit::show_activ_apply(CharData *ch) {
