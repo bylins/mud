@@ -162,7 +162,7 @@ struct mob_special_data {
 	int dest_pos;
 	int dest_count;
 	int activity;
-	FlagData npc_flags;
+	BitsetFlags<ENpcFlag> npc_flags;
 	byte extra_attack;
 	byte like_work;
 	int MaxFactor;
@@ -197,7 +197,7 @@ struct player_special_data_saved {
 	int wimp_level;        // Below this # of hit points, flee!
 	int invis_level;        // level of invisibility
 	RoomVnum load_room;    // Which room to place char in
-	FlagData pref;        // preference flags for PC's.
+	BitsetFlags<EPrf> pref;        // preference flags for PC's.
 	int bad_pws;        // number of bad password attemps
 	std::array<int, 3> conditions{};        // Drunk, full, thirsty
 

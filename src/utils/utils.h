@@ -280,7 +280,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 
-#define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(flag))
+#define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(static_cast<ENpcFlag>(flag)))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 

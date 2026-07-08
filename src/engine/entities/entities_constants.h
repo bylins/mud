@@ -246,6 +246,17 @@ enum EPrf : Bitvector {
 	kPerformSerratedBlade = kIntTwo | 1 << 19 // Активирована "воровская заточка".
 };
 
+template<>
+struct flag_traits<EPrf> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EPrf> {
+	static constexpr std::size_t to_index(EPrf f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 // при добавлении не забываем про preference_bits[]
 
 /**
@@ -433,6 +444,17 @@ enum ENpcFlag : Bitvector {
 	kNoTakeItems = kIntOne | (1 << 4),
 	kIgnoreRareKill = kIntOne | (1 << 5),
 	kUsingMagicItems = kIntOne | (1 << 6)	// issue.npc-races: NPC casts from wands/staves/potions
+};
+
+template<>
+struct flag_traits<ENpcFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<ENpcFlag> {
+	static constexpr std::size_t to_index(ENpcFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
 };
 
 template<>

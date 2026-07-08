@@ -68,7 +68,7 @@ TEST(SerializeMob, IncludesAffectFlagPlanes) {
 TEST(SerializeMob, IncludesNpcFlagPlanes) {
 	CharData mob;
 	mob.SetNpcAttribute(true);
-	mob.mob_specials.npc_flags.set(static_cast<Bitvector>(1u << 5));
+	mob.mob_specials.npc_flags.set(static_cast<ENpcFlag>(1u << 5));
 
 	const std::string out = WorldChecksum::SerializeMob(42, mob);
 
