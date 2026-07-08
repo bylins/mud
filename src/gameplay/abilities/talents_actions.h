@@ -261,9 +261,12 @@ class Roll {
 	// dice contribution". The previous defaults of 1/1/1 silently added a constant +2 to every
 	// spell missing a <dices> block, which broke the principle of least surprise. See the
 	// parser (Roll::Roll) for the matching change to drop the std::max(1, ...) clamps.
-	int dice_num_{0};
-	int dice_size_{0};
-	int dice_add_{0};
+	// issue.potency-noise (stage 1, additive): the spell's ONE shared random draw. At cast a single
+	// z ~ TruncNormal(0,1) clamped to +/-noise_trunc_ is drawn; the realized relative deviation
+	// d = noise_sigma_ * z is shared by every manifestation, each scaling it by its own weight.
+	// Replaces <dices>; dice fields above stay until the formula switch + data migration land.
+	double noise_sigma_{0.0};
+	double noise_trunc_{2.0};
 
 	ESkill base_skill_{ESkill::kUndefined};
 	// Member defaults are 0 (no competence) so a wholly-absent <base_skill>/<base_stat> node -- e.g. a
@@ -280,7 +283,8 @@ class Roll {
 	Roll() = default;
 	explicit Roll(parser_wrapper::DataNode &node);
 
-	[[nodiscard]] int RollSkillDices() const;
+	[[nodiscard]] double GetNoiseSigma() const { return noise_sigma_; }  // issue.potency-noise
+	[[nodiscard]] double GetNoiseTrunc() const { return noise_trunc_; }  // issue.potency-noise
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcSkillCoeffForValue(int skill) const;  // CalcSkillCoeff with an explicit skill value (item brewing)
 	// The low-skill part of the skill coefficient only (no hi-skill term, no /100): used
@@ -420,13 +424,8 @@ class Damage : public IAction {
 	ESaving saving_{ESaving::kReflex};
 	int prob_{100};                          // percent chance the damage actually happens
 	double amount_min_{0};                   // flat minimum damage
-	double amount_dices_weight_{1.0};        // base scale on the potency roll's dice
-	double amount_alpha_{0.0};               // dice-amplification: skill scales the dice (issue.potency-formula)
 	double amount_beta_{1.0};                // additive skill+stat coefficient (was competencies_weight)
-	// issue.random-noise-rework (P1): opt-in multiplicative truncated-normal noise. sigma>0 switches the
-	// amount to GaussIntNumber(min + beta*C, sigma*beta*C, ...) -- mean scales with competence, relative
-	// spread stays ~sigma (constant CV). 0 (default) keeps the legacy dice formula. beta is reused as k.
-	double amount_sigma_{0.0};
+	double amount_weight_{0.0};  // issue.potency-noise (stage 1): weight on the spell's shared noise draw (0 = deterministic)
 	// Multi-hit support (issue.extra-hits): a <hits ...> child enables extra-hits computation via
 	// CalcExtraHits. Absent tag -> has_hits_=false -> the spell deals exactly one hit (count=1).
 	// When present, count = 1 + CalcExtraHits(caster, spell_id, base_skill, divisor, max, prob).
@@ -441,10 +440,8 @@ class Damage : public IAction {
 	explicit Damage(parser_wrapper::DataNode &node);
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
-	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
-	[[nodiscard]] double GetAmountAlpha() const { return amount_alpha_; }
 	[[nodiscard]] double GetAmountBeta() const { return amount_beta_; }
-	[[nodiscard]] double GetAmountSigma() const { return amount_sigma_; }
+	[[nodiscard]] double GetAmountWeight() const { return amount_weight_; }  // issue.potency-noise
 	[[nodiscard]] bool HasHits() const { return has_hits_; }
 	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
 	[[nodiscard]] int GetHitsMax() const { return hits_max_; }
@@ -490,11 +487,9 @@ class Points : public IAction {
 	struct Amount {
 		bool present{false};
 		double min{0};
-		double dices_weight{0};   // base scale on the potency dice
-		double alpha{0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0};           // additive skill/stat coefficient (was competencies_weight)
 		double npc_coeff{0};
-		double sigma{0};          // issue.random-noise-rework: >0 -> multiplicative truncated-normal spread (heal/moves)
+		double weight{0};  // issue.potency-noise (stage 1): weight on the spell's shared noise draw (0 = deterministic)
 	};
  private:
 	int extra_{0};        // overheal cap as percent ABOVE max_hp
@@ -604,9 +599,8 @@ class TalentAffect : public IAction {
 		// The cap (see below) is applied to the raw magnitude BEFORE the factor, so factor=-1
 		// debuffs are bounded by [-cap, -min] when cap > 0.
 		double min{0.0};
-		double dices_weight{0.0};   // base scale on the potency dice
-		double alpha{0.0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0.0};           // additive skill/stat coefficient (was competencies_weight)
+		double weight{0.0};         // issue.potency-noise (stage 1): weight on the spell's shared noise draw
 		int factor{1};
 		// Optional upper bound on the raw magnitude (i.e. on (min + ceil(comp*cw + dice*dw)))
 		// before factor is applied. 0 (default) means "no cap" -- the modifier scales without

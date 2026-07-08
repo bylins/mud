@@ -15,7 +15,7 @@
 	<room_affect id="kNoPortalExit"/>
 	<room_affect id="kForbidden">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<seal_strength min="0" dices_weight="0" alpha="0" beta="1" factor="1" cap="100"/>
+		<seal_strength min="0" beta="1" factor="1" cap="100"/>
 		<actions>
 			<action target="kTarActor">
 				<trigger val="kEnterNPC" return="0"/>

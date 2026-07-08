@@ -21,8 +21,8 @@ void WriteAffects() {
 	// kSilence: flags only, no <apply> -> AffectApplies must be empty.
 	f << R"(<affects>)"
 	     R"(<affect id="kBlind" buff="N"><flags val="kAfBattledec"/>)"
-	     R"(<apply location="kHitroll" random="Y"><modifier min="2.0" dices_weight="0.5" alpha="0.1" beta="1.5" factor="-1" cap="20" stack="3"/></apply>)"
-	     R"(<apply location="kAc"><modifier min="10.0" dices_weight="0" alpha="0" beta="0" factor="1"/></apply>)"
+	     R"(<apply location="kHitroll" random="Y"><modifier min="2.0" beta="1.5" weight="0.3" factor="-1" cap="20" stack="3"/></apply>)"
+	     R"(<apply location="kAc"><modifier min="10.0" beta="0" factor="1"/></apply>)"
 	     R"(</affect>)"
 	     R"(<affect id="kSilence" buff="N"><flags val="kAfBattledec"/></affect>)"
 	     R"(</affects>)";
@@ -40,9 +40,8 @@ TEST(AffectsLoader_Applies, ParsesPerAffectApplyListAndFormula) {
 
 	EXPECT_EQ(blind[0].location, EApply::kHitroll);
 	EXPECT_DOUBLE_EQ(blind[0].min, 2.0);
-	EXPECT_DOUBLE_EQ(blind[0].dices_weight, 0.5);
-	EXPECT_DOUBLE_EQ(blind[0].alpha, 0.1);
 	EXPECT_DOUBLE_EQ(blind[0].beta, 1.5);
+	EXPECT_DOUBLE_EQ(blind[0].weight, 0.3);  // issue.potency-noise: replaces dices_weight/alpha
 	EXPECT_EQ(blind[0].factor, -1);
 	EXPECT_EQ(blind[0].cap, 20);
 	EXPECT_EQ(blind[0].stack, 3);

@@ -38,7 +38,6 @@ template<typename> class Affect;   // issue.mob-flag-affect-materialization: Bui
 
 // One evaluation of a talents_actions::Roll for a specific caster (issue #3333).
 struct RollResult {
-	int dices{0};              // talents_actions::Roll::RollSkillDices()
 	double skill_coeff{0.0};   // talents_actions::Roll::CalcSkillCoeff(caster)
 	double stat_coeff{0.0};    // talents_actions::Roll::CalcBaseStatCoeff(caster)
 	double low_skill_coeff{0.0};  // talents_actions::Roll::CalcLowSkillCoeff(caster): the
@@ -51,6 +50,11 @@ struct RollResult {
 	// issue.potion-hotfix: a potion buff's DURATION scales off its MAKER's skill (stored on the potion),
 	// never the drinker's. >=0 = a fixed maker skill (potion); <0 (default) = live cast, use the caster.
 	int cast_skill{-1};
+	// issue.potency-noise: the spell's ONE realized relative noise deviation d = sigma*z for THIS cast
+	// (sigma from potency_roll, z the shared truncated-normal draw). Every manifestation scales it by its
+	// own weight: value = min + beta*C*(1 + weight*noise_dev). 0 = deterministic. Potions freeze z, so d
+	// is realized per spell with that spell's sigma.
+	double noise_dev{0.0};
 };
 
 // issue.mob-flag-affect-materialization: build the real affect node(s) that realize an intrinsic mob

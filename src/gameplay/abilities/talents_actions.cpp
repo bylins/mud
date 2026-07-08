@@ -246,7 +246,6 @@ void ParseRemovalAttr(const char *value, TalentUnaffect::AffectRefs &out_refs, b
 
 void Roll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Potency roll: " << "\r\n"
-		   << kColorGrn << "  " << dice_num_ << "d" << dice_size_ << "+" << dice_add_ << kColorNrm
 		   << " Skill: " << kColorGrn << NAME_BY_ITEM<ESkill>(base_skill_) << kColorNrm
 		   << " (low " << low_skill_bonus_ << " / hi " << hi_skill_bonus_ << ")"
 		   << " Stat: " << kColorGrn << NAME_BY_ITEM<EBaseStat>(base_stat_) << kColorNrm
@@ -262,10 +261,6 @@ void SuccessRoll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " bonus[roll " << bonus_roll_ << " pvp " << bonus_pvp_ << " pve " << bonus_pve_
 		   << " evp " << bonus_evp_ << " eve " << bonus_eve_ << "]"
 		   << " crit[" << critsuccess_ << "/" << critfail_ << "]\r\n";
-}
-
-int Roll::RollSkillDices() const {
-	return RollDices(dice_num_, dice_size_) + dice_add_;
 }
 
 double Roll::CalcSkillCoeff(const CharData *const ch) const {
@@ -307,15 +302,12 @@ double RollDoubleOr(const char *v, double def) { return (v && *v) ? parse::ReadA
 }  // namespace
 
 Roll::Roll(parser_wrapper::DataNode &node) {
-	if (node.GoToChild("dices")) {
-		// no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
-		// <dices ndice="0" sdice="0" adice="N"/> reliably returns N. The previous std::max(1, ...)
-		// silently added one to every all-zero spec, which violated the principle of least
-		// surprise. RollDices(0, *) and RollDices(*, 0) already short-circuit to 0, so the
-		// arithmetic stays correct without any extra guard here.
-		dice_num_ = RollIntOr(node.GetValue("ndice"), 0);
-		dice_size_ = RollIntOr(node.GetValue("sdice"), 0);
-		dice_add_ = RollIntOr(node.GetValue("adice"), 0);
+	if (node.GoToChild("noise")) {
+		// issue.potency-noise: the spell's random-draw parameters (replaces <dices>). sigma = base
+		// relative spread of the shared z; trunc = clamp of z in sd units. Absent <noise> -> sigma 0,
+		// i.e. a deterministic spell unless a manifestation opts into noise via its own weight.
+		noise_sigma_ = RollDoubleOr(node.GetValue("sigma"), 0.0);
+		noise_trunc_ = RollDoubleOr(node.GetValue("trunc"), 2.0);
 		node.GoToParent();
 	}
 
@@ -510,8 +502,6 @@ void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm << "\r\n"
 		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
-		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
-		   << " alpha: " << kColorGrn << amount_alpha_ << kColorNrm
 		   << " beta: " << kColorGrn << amount_beta_ << kColorNrm << "\r\n";
 	if (has_hits_) {
 		buffer << " Hits: skill_divisor=" << kColorGrn << hits_skill_divisor_ << kColorNrm
@@ -532,15 +522,10 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("amount")) {
 		const char *amin = node.GetValue("min");
 		amount_min_ = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
-		const char *adw = node.GetValue("dices_weight");
-		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 1.0;
-		const char *aa = node.GetValue("alpha");
-		amount_alpha_ = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 		const char *ab = node.GetValue("beta");
 		amount_beta_ = (ab && *ab) ? parse::ReadAsDouble(ab) : 1.0;
-		// issue.random-noise-rework (P1): optional relative-spread (CV) knob for multiplicative noise.
-		const char *asg = node.GetValue("sigma");
-		amount_sigma_ = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
+		const char *awt = node.GetValue("weight");
+		amount_weight_ = (awt && *awt) ? parse::ReadAsDouble(awt) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 		node.GoToParent();
 	}
 	// <hits> is optional; absent -> the spell deals one hit. Individual attrs
@@ -575,14 +560,10 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 	a.present = true;
 	const char *amin = node.GetValue("min");
 	a.min = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
-	const char *adw = node.GetValue("dices_weight");
-	a.dices_weight = (adw && *adw) ? parse::ReadAsDouble(adw) : 0.0;
-	const char *aa = node.GetValue("alpha");
-	a.alpha = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 	const char *ab = node.GetValue("beta");
 	a.beta = (ab && *ab) ? parse::ReadAsDouble(ab) : 0.0;
-	const char *asg = node.GetValue("sigma");
-	a.sigma = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
+	const char *awt2 = node.GetValue("weight");
+	a.weight = (awt2 && *awt2) ? parse::ReadAsDouble(awt2) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 	if (with_npc) {
 		// 1.0 default mirrors the legacy <heal npc_coeff/> default: NPC casters
 		// get a *2 boost on heal points unless the tag overrides it.
@@ -607,8 +588,6 @@ static void PrintAmount(std::ostringstream &buffer, const char *label,
 						const Points::Amount &a, bool with_npc) {
 	if (!a.present) return;
 	buffer << "  " << label << ": min=" << kColorGrn << a.min << kColorNrm
-		   << " dices_weight=" << kColorGrn << a.dices_weight << kColorNrm
-		   << " alpha=" << kColorGrn << a.alpha << kColorNrm
 		   << " beta=" << kColorGrn << a.beta << kColorNrm;
 	if (with_npc) {
 		buffer << " npc_coeff=" << kColorGrn << a.npc_coeff << kColorNrm;
@@ -773,8 +752,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			apply.random = (r && *r) && parse::ReadAsBool(r);
 			if (child.GoToChild("modifier")) {
 				apply.min = parse::ReadAsDouble(child.GetValue("min"));
-				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
-				apply.alpha = parse::ReadAsDouble(child.GetValue("alpha"));
+				{ const char *w = child.GetValue("weight"); apply.weight = (w && *w) ? parse::ReadAsDouble(w) : 0.0; }  // issue.potency-noise (stage 1, additive): weight on the shared draw
 				apply.beta = parse::ReadAsDouble(child.GetValue("beta"));
 				apply.factor = parse::ReadAsInt(child.GetValue("factor"));
 				// stack: optional max stack count, default 1, clamped to a minimum of 1.
@@ -819,8 +797,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		buffer << "  Apply: " << kColorGrn << NAME_BY_ITEM<EAffect>(apply.id) << kColorNrm
 			   << " -> " << kColorGrn << NAME_BY_ITEM<EApply>(apply.location) << kColorNrm
 			   << (apply.random ? " [random]" : "")
-			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
-			   << " alpha=" << apply.alpha << " beta=" << apply.beta
+			   << " (min=" << apply.min << " beta=" << apply.beta
 			   << " factor=" << apply.factor << " stack=" << apply.stack
 			   << " cap=" << apply.cap << ")\r\n";
 	}
@@ -1465,10 +1442,8 @@ void Area::ApplyFieldMod(const std::string &field, EFieldModOp op, double value)
 }
 
 void Damage::ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
-	if (field == "dices_weight") { amount_dices_weight_ = ApplyModOp(amount_dices_weight_, op, value); }
-	else if (field == "beta") { amount_beta_ = ApplyModOp(amount_beta_, op, value); }
+	if (field == "beta") { amount_beta_ = ApplyModOp(amount_beta_, op, value); }
 	else if (field == "min") { amount_min_ = ApplyModOp(amount_min_, op, value); }
-	else if (field == "alpha") { amount_alpha_ = ApplyModOp(amount_alpha_, op, value); }
 	else if (field == "prob") { prob_ = static_cast<int>(ApplyModOp(prob_, op, value)); }
 	else if (field == "hits_max") { hits_max_ = static_cast<int>(ApplyModOp(hits_max_, op, value)); }
 	else { err_log("ApplyFieldMod: unknown Damage field [%s].", field.c_str()); }

@@ -232,9 +232,8 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 					return (v && *v) ? parse::ReadAsDouble(v) : def;
 				};
 				seal.min = dbl("min", 0.0);
-				seal.dices_weight = dbl("dices_weight", 0.0);
-				seal.alpha = dbl("alpha", 0.0);
 				seal.beta = dbl("beta", 0.0);
+				seal.weight = dbl("weight", 0.0);
 				if (const char *f = cnode.GetValue("factor"); f && *f) { seal.factor = parse::ReadAsInt(f); }
 				if (const char *cap = cnode.GetValue("cap"); cap && *cap) {
 					seal.cap = parse::ReadAsInt(cap);
