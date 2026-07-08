@@ -491,11 +491,8 @@ class Points : public IAction {
 	struct Amount {
 		bool present{false};
 		double min{0};
-		double dices_weight{0};   // base scale on the potency dice
-		double alpha{0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0};           // additive skill/stat coefficient (was competencies_weight)
 		double npc_coeff{0};
-		double sigma{0};          // issue.random-noise-rework: >0 -> multiplicative truncated-normal spread (heal/moves)
 		double weight{0};  // issue.potency-noise (stage 1): weight on the spell's shared noise draw (0 = deterministic)
 	};
  private:
@@ -606,8 +603,6 @@ class TalentAffect : public IAction {
 		// The cap (see below) is applied to the raw magnitude BEFORE the factor, so factor=-1
 		// debuffs are bounded by [-cap, -min] when cap > 0.
 		double min{0.0};
-		double dices_weight{0.0};   // base scale on the potency dice
-		double alpha{0.0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0.0};           // additive skill/stat coefficient (was competencies_weight)
 		double weight{0.0};         // issue.potency-noise (stage 1): weight on the spell's shared noise draw
 		int factor{1};

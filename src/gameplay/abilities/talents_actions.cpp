@@ -565,14 +565,8 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 	a.present = true;
 	const char *amin = node.GetValue("min");
 	a.min = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
-	const char *adw = node.GetValue("dices_weight");
-	a.dices_weight = (adw && *adw) ? parse::ReadAsDouble(adw) : 0.0;
-	const char *aa = node.GetValue("alpha");
-	a.alpha = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 	const char *ab = node.GetValue("beta");
 	a.beta = (ab && *ab) ? parse::ReadAsDouble(ab) : 0.0;
-	const char *asg = node.GetValue("sigma");
-	a.sigma = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
 	const char *awt2 = node.GetValue("weight");
 	a.weight = (awt2 && *awt2) ? parse::ReadAsDouble(awt2) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 	if (with_npc) {
@@ -599,8 +593,6 @@ static void PrintAmount(std::ostringstream &buffer, const char *label,
 						const Points::Amount &a, bool with_npc) {
 	if (!a.present) return;
 	buffer << "  " << label << ": min=" << kColorGrn << a.min << kColorNrm
-		   << " dices_weight=" << kColorGrn << a.dices_weight << kColorNrm
-		   << " alpha=" << kColorGrn << a.alpha << kColorNrm
 		   << " beta=" << kColorGrn << a.beta << kColorNrm;
 	if (with_npc) {
 		buffer << " npc_coeff=" << kColorGrn << a.npc_coeff << kColorNrm;
@@ -810,8 +802,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		buffer << "  Apply: " << kColorGrn << NAME_BY_ITEM<EAffect>(apply.id) << kColorNrm
 			   << " -> " << kColorGrn << NAME_BY_ITEM<EApply>(apply.location) << kColorNrm
 			   << (apply.random ? " [random]" : "")
-			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
-			   << " alpha=" << apply.alpha << " beta=" << apply.beta
+			   << " (min=" << apply.min << " beta=" << apply.beta
 			   << " factor=" << apply.factor << " stack=" << apply.stack
 			   << " cap=" << apply.cap << ")\r\n";
 	}

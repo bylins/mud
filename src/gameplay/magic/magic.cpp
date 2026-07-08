@@ -1103,11 +1103,11 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		ApplyTalentAffect(victim, taf, apply.stack, talent.GetBattleflags());
 		if (tc) {
 			spell_trace::Line(ch, victim,
-				"&C  apply %s%s: min %.1f dw %.1f alpha %.1f beta %.1f dice %d C %.2f "
+				"&C  apply %s%s: min %.1f beta %.1f dice %d C %.2f "
 				"cap %d factor %d -> raw %d x area %.2f = %d (stack<=%d).&n\r\n",
 				NAME_BY_ITEM<EApply>(apply.location).c_str(),
 				apply.random ? " [random pick]" : "",
-				apply.min, apply.dices_weight, apply.alpha, apply.beta,
+				apply.min, apply.beta,
 				potency.dices, competence, apply.cap, apply.factor,
 				raw_mod, area_coeff, taf.modifier, apply.stack);
 		}
@@ -1949,8 +1949,8 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		amounts[i] = amt;
 		if (amt != 0) any_amount = true;
 		if (tc) {
-			spell_trace::Line(ch, victim, "&C  %s: min %.1f dw %.1f alpha %.1f beta %.1f npc_coeff %.2f -> %d.&n\r\n",
-				PointsCatName(c.cat), c.amount.min, c.amount.dices_weight, c.amount.alpha,
+			spell_trace::Line(ch, victim, "&C  %s: min %.1f beta %.1f npc_coeff %.2f -> %d.&n\r\n",
+				PointsCatName(c.cat), c.amount.min,
 				c.amount.beta, c.amount.npc_coeff, amt);
 		}
 	}

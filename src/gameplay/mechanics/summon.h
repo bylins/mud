@@ -15,7 +15,7 @@ enum class ESpell;
 
 // Scale a summoned-minion stat off the cast competence C via the standard option-2 modifier
 // formula (the same ComputeApplyModifier the affect modifiers use).
-int SummonScaledStat(const ActionContext &ctx, double min, double dices_weight, double beta, int cap = 0);
+int SummonScaledStat(const ActionContext &ctx, double min, double weight, double beta, int cap = 0);
 
 // Charm a freshly-read summoned mob to `ch`, place it in the caster's room, return the charm
 // duration (callers reuse it for follow-on affects).
