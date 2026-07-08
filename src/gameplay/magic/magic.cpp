@@ -367,16 +367,12 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
 			// Formula A. C = skill_coeff + stat_coeff.
 			const float C = static_cast<float>(competence);  // base override
-			if (dmg_act.GetAmountSigma() > 0.0) {
-				// issue.random-noise-rework (P1): multiplicative truncated-normal -- mean scales with
-				// competence (beta = per-competence scale k), relative spread stays ~sigma (constant CV).
+			// issue.potency-noise: one formula -- min + beta*scale_base*(1 + weight*d). The scale base is
+				// the affect's stored potency for a DoT tick (base_override>=0), else the cast competence C.
+				// noise_z carries the cast's realized deviation d; weight=0 -> deterministic.
+				const float scale_base = (base_override >= 0) ? static_cast<float>(base_override) : C;
 				dmg = static_cast<float>(CalcNoisyAmount(dmg_act.GetAmountMin(),
-						dmg_act.GetAmountBeta() * C, dmg_act.GetAmountSigma(), /*cap*/ 0, noise_z));
-			} else {
-				dmg = dmg_act.GetAmountMin() + std::ceil(
-						base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
-						+ dmg_act.GetAmountBeta() * C);
-			}
+						dmg_act.GetAmountBeta() * scale_base, dmg_act.GetAmountWeight(), /*cap*/ 0, noise_z));
 		} else {
 			// issue.random-noise-rework: the legacy `dice * (1 + skill + stat)` model is abandoned --
 			// it was dice-dominated (skill barely mattered) and, with the rebalanced competence, both
@@ -683,7 +679,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 		: -1;
 	try {
 		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
-													   ctx.CompetenceBase(), base_override, ctx.potency().noise_z) * ctx.area_coeff);
+													   ctx.CompetenceBase(), base_override, ctx.potency().noise_dev) * ctx.area_coeff);
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
@@ -1760,17 +1756,15 @@ const char *PointsCatName(points_intensity::ECategory cat) {
 // using the shared (dice, competencies, bonus_mod) trio captured by reference.
 // Heal carries an npc_coeff multiplier (legacy default 1.0 ~ +100% for mobs);
 // non-heal categories default to 0 (no NPC boost).
-auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, double bonus_mod, double noise_z) {
-	return [ch, dice, competencies, bonus_mod, noise_z](const talents_actions::Points::Amount &a) -> int {
+auto MakeAmountCalculator(const CharData *ch, double competencies, double bonus_mod, double noise_z) {  // issue.potency-noise: dice dropped
+	return [ch, competencies, bonus_mod, noise_z](const talents_actions::Points::Amount &a) -> int {
 		// Option-2 subquadratic: dice scaled multiplicatively by
 		// skill/stat (alpha) plus an additive term (beta). alpha=0 -> old Formula A.
 		// issue.random-noise-rework: sigma>0 -> multiplicative truncated-normal spread (heal/moves),
 		// mean = min + beta*competence (beta = per-competence scale k), CV ~ sigma. Else additive.
-		int v = (a.sigma > 0.0)
-				? CalcNoisyAmount(a.min, a.beta * competencies, a.sigma, /*cap*/ 0, noise_z)
-				: static_cast<int>(a.min + std::ceil(
-						dice * a.dices_weight * (1.0 + a.alpha * competencies)
-						+ a.beta * competencies));
+		// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d). noise_z carries the cast's
+		// realized deviation d; weight=0 -> deterministic.
+		int v = CalcNoisyAmount(a.min, a.beta * competencies, a.weight, /*cap*/ 0, noise_z);
 		v += static_cast<int>(v * bonus_mod);
 		if (ch->IsNpc()) {
 			v += static_cast<int>(v * a.npc_coeff);
@@ -1922,14 +1916,13 @@ EStageResult CastToPoints(ActionContext &ctx) {
 	// Shared roll: dice + competencies are rolled once per cast (not per
 	// category), so heal and moves restored on the same cast scale together
 	// with the same skill check.
-	const double dice = potency_roll.RollSkillDices();
 	const double competencies = ctx.CompetenceBase();  // base override
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
-	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod, ctx.potency().noise_z);
+	auto calc_amount = MakeAmountCalculator(ch, competencies, bonus_mod, ctx.potency().noise_dev);
 	const bool tc = spell_trace::Active(ch, victim);
 	if (tc) {
-		spell_trace::Line(ch, victim, "&CPoints %s -> %s: dice %.1f C %.2f bonus_mod %.2f area %.2f.&n\r\n",
-			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), dice, competencies, bonus_mod, ctx.area_coeff);
+		spell_trace::Line(ch, victim, "&CPoints %s -> %s: C %.2f bonus_mod %.2f area %.2f.&n\r\n",
+			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), competencies, bonus_mod, ctx.area_coeff);
 	}
 
 	// Per-category dispatch: only present categories run

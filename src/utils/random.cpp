@@ -101,5 +101,15 @@ int GaussIntNumber(double mean, double sigma, int min_val, int max_val) {
 	return MAX(MIN(iresult, max_val), min_val);
 }
 
+// issue.potency-noise: standard-normal draw as a double, clamped to [min_val, max_val] (truncation).
+// Mirrors GaussIntNumber's clamp approach. sigma<=0 -> the mean, clamped (deterministic).
+double GaussDoubleNumber(double mean, double sigma, double min_val, double max_val) {
+	if (sigma <= 0.0) {
+		return MAX(min_val, MIN(mean, max_val));
+	}
+	const double d = Random::rnd.NormalDistributionNumber(mean, sigma);
+	return MAX(min_val, MIN(d, max_val));
+}
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -130,6 +130,7 @@ struct AffectApply {
 	double dices_weight{0.0};
 	double alpha{0.0};
 	double beta{0.0};
+	double weight{0.0};  // issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)
 	int factor{1};
 	int cap{0};
 	int stack{1};

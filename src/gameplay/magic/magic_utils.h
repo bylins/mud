@@ -72,9 +72,9 @@ float CalcCastPotency(const RollResult &potency);
 template<class ApplyT>
 int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResult &potency) {
 	const double competencies = competence;
+	// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d), d = the cast's shared noise_dev.
 	double raw = apply.min + std::ceil(
-			potency.dices * apply.dices_weight * (1.0 + apply.alpha * competencies)
-			+ apply.beta * competencies);
+			apply.beta * competencies * (1.0 + apply.weight * potency.noise_dev));
 	if (apply.cap > 0) {
 		raw = std::min(raw, static_cast<double>(apply.cap));
 	}

@@ -738,6 +738,7 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 				a.dices_weight = parse::ReadAsDouble(mn.GetValue("dices_weight"));
 				a.alpha = parse::ReadAsDouble(mn.GetValue("alpha"));
 				a.beta = parse::ReadAsDouble(mn.GetValue("beta"));
+				{ const char *w = mn.GetValue("weight"); a.weight = (w && *w) ? parse::ReadAsDouble(w) : 0.0; }  // issue.potency-noise
 				a.factor = parse::ReadAsInt(mn.GetValue("factor"));
 				const char *st = mn.GetValue("stack");
 				a.stack = (st && *st) ? std::max(1, parse::ReadAsInt(st)) : 1;
