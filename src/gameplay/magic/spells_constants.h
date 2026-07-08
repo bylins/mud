@@ -292,8 +292,15 @@ enum class ESpell {
 	kTestFive = 363,
 //	kDeadlyFogTick = 364,	// UNUSED (issue.affect-migration): the deadly-fog tick is now the kDeadlyFog room affect's own <actions> in room_affects.xml; value 364 retired.
 	kCreateArmor = 365,  // issue.obj-casting: new data-driven <obj_creation> spell (plumbing)
+	// issue.new-unaffect-spells: skill-based dispels (see spells.xml <unaffect>).
+	kUnweave = 366,      // "unweave" -- peaceful: strip dispellable debuffs from a char
+	kSuppress = 367,     // "suppress" -- strip the kAfBoon buff class from an enemy
+	kErode = 368,        // "erode" -- strip the kAfWarding buff class from an enemy
+	kAegisRift = 369,    // "aegis rift" -- strip the kAfAegis buff class from an enemy
+	kToils = 370,        // "toils" -- strip fly/waterwalk/waterbreath from an enemy
+	kCleanseArea = 371,  // "cleanse area" -- strip dispellable room affects
 	kFirst = kArmor,
-	kLast = 365	// Не забываем менять
+	kLast = 371	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);

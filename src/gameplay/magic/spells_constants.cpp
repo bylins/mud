@@ -280,6 +280,13 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kTestFour] = "kTestFour";
 	ESpell_name_by_value[ESpell::kTestFive] = "kTestFive";
 	ESpell_name_by_value[ESpell::kCreateArmor] = "kCreateArmor";
+	// issue.new-unaffect-spells
+	ESpell_name_by_value[ESpell::kUnweave] = "kUnweave";
+	ESpell_name_by_value[ESpell::kSuppress] = "kSuppress";
+	ESpell_name_by_value[ESpell::kErode] = "kErode";
+	ESpell_name_by_value[ESpell::kAegisRift] = "kAegisRift";
+	ESpell_name_by_value[ESpell::kToils] = "kToils";
+	ESpell_name_by_value[ESpell::kCleanseArea] = "kCleanseArea";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;

@@ -745,6 +745,9 @@ class TalentUnaffect : public IAction {
 	// issue.debuff-decay: percent of THIS dispel's potency by which a SURVIVING affect's potency
 	// shifts when a removal attempt fails (positive weakens it, negative strengthens it; 0 = none).
 	[[nodiscard]] int GetDecay() const { return decay_; }
+	// issue.new-unaffect-spells: true if a wildcard <remove any_of="*"> is restricted to
+	// debuffs (buffs on the target are left untouched). Set by <unaffect debuff_only="Y">.
+	[[nodiscard]] bool GetDebuffOnly() const { return debuff_only_; }
 
  private:
 	Set blocking_;       // present -> removal is blocked (chain not affected)
@@ -755,6 +758,7 @@ class TalentUnaffect : public IAction {
 	Bitvector affect_flags_{kAfCurable | kAfDispellable};
 	int prob_{100};      // percent chance the unaffect block fires at all (default always)
 	int decay_{0};       // issue.debuff-decay: % of dispel potency to shift a surviving affect on a failed removal
+	bool debuff_only_{false};  // issue.new-unaffect-spells: wildcard removal restricted to debuffs
 };
 
 using ActionPtr = std::shared_ptr<IAction>;

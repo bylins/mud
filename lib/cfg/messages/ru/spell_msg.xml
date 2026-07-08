@@ -2450,4 +2450,34 @@
 	<msg_sheaf id="kTestFive">
 		<name val="тест 5" />
 	</msg_sheaf>
+	<msg_sheaf id="kUnweave">
+		<name val="расплести чары" />
+		<message type="kCastPhraseHeathen" val="распустися узел чар наложенный" />
+		<message type="kCastPhraseChristian" val="... разреши узы, наложенные врагом." />
+	</msg_sheaf>
+	<msg_sheaf id="kSuppress">
+		<name val="подавление" />
+		<message type="kCastPhraseHeathen" val="потухни око зрящее" />
+		<message type="kCastPhraseChristian" val="... да померкнет взор чужой." />
+	</msg_sheaf>
+	<msg_sheaf id="kErode">
+		<name val="разъедание" />
+		<message type="kCastPhraseHeathen" val="изъедься броня вражия" />
+		<message type="kCastPhraseChristian" val="... да истлеет крепость недруга." />
+	</msg_sheaf>
+	<msg_sheaf id="kAegisRift">
+		<name val="разлом" />
+		<message type="kCastPhraseHeathen" val="раздайся щит нерушимый" />
+		<message type="kCastPhraseChristian" val="... да падет твердыня защиты." />
+	</msg_sheaf>
+	<msg_sheaf id="kToils">
+		<name val="силки" />
+		<message type="kCastPhraseHeathen" val="опутайся стопа бегущего" />
+		<message type="kCastPhraseChristian" val="... да падут крыла и стопы его." />
+	</msg_sheaf>
+	<msg_sheaf id="kCleanseArea">
+		<name val="очищение" />
+		<message type="kCastPhraseHeathen" val="очистися место сие" />
+		<message type="kCastPhraseChristian" val="... да сгинет скверна с места сего." />
+	</msg_sheaf>
 </msg_container>

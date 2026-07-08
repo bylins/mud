@@ -10,28 +10,28 @@
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
 	</affect>
 	<affect id="kInvisible" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kAc">
 			<modifier min="40" beta="0" factor="-1" />
 		</apply>
 	</affect>
 	<affect id="kDetectAlign" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kDetectInvisible" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kDetectMagic" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kDetectLife" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kWaterWalk" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</affect>
 	<affect id="kSanctuary" buff="Y" dispel_mod="-35">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
 		<actions>
 			<action>
 				<trigger val="kWardDamage"/>
@@ -69,7 +69,7 @@
 		</apply>
 	</affect>
 	<affect id="kInfravision" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kPoisoned" buff="N">
 		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
@@ -85,8 +85,8 @@
 			</action>
 		</actions>
 	</affect>
-	<affect id="kProtectFromDark" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<affect id="kProtectFromDark" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
 		<apply location="kResistDark">
 			<modifier min="5" beta="0" factor="1" />
 		</apply>
@@ -98,7 +98,7 @@
 	<affect id="kNoTrack"/>
 	<affect id="kTethered"/>
 	<affect id="kBless" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kSavingStability">
 			<modifier min="0" beta="1.2889" factor="-1" />
 		</apply>
@@ -131,13 +131,13 @@
 		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
 	</affect>
 	<affect id="kAwarness" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 		<apply location="kSavingReflex">
 			<modifier min="0" beta="0.5524" factor="-1" />
 		</apply>
 	</affect>
 	<affect id="kBlink" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
 		<apply location="kSpelledBlinkPhys">
 			<modifier min="0" beta="3.2222" factor="1" />
 		</apply>
@@ -148,13 +148,13 @@
 	</affect>
 	<affect id="kSingleLight"/>
 	<affect id="kHolyLight" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kHolyDark" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kDetectPoison" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 	</affect>
 	<affect id="kDrunked">
 		<!-- issue.drunked-migration: applies (AC/HR/DR) stay dynamic in do_drink; here only the on-expire
@@ -204,7 +204,7 @@
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
 	</affect>
 	<affect id="kHaste" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kInitiative">
 			<modifier min="0" beta="0.4143" factor="1" />
 		</apply>
@@ -222,7 +222,7 @@
 		</apply>
 	</affect>
 	<affect id="kAirShield" buff="Y" dispel_mod="-35">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoPositionBonus|kAfMaterialize"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoPositionBonus|kAfMaterialize|kAfAegis"/>
 		<shield weight="10"/>
 		<actions>
 			<action>
@@ -238,7 +238,7 @@
 		</actions>
 	</affect>
 	<affect id="kFireShield" buff="Y" dispel_mod="-35">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
 		<shield weight="10"/>
 		<actions>
 			<!-- Retaliation: a physical hit (not ignoring the shield, not a crit) reflects 15% back
@@ -282,7 +282,7 @@
 		</actions>
 	</affect>
 	<affect id="kIceShield" buff="Y" dispel_mod="-35">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize|kAfAegis"/>
 		<shield weight="10"/>
 		<actions>
 			<!-- Crit-absorb: a crit (not precise-style, not poison) has a 94% chance to be neutralized:
@@ -311,8 +311,8 @@
 			</action>
 		</actions>
 	</affect>
-	<affect id="kMagicGlass" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+	<affect id="kMagicGlass" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
 		<actions>
 			<action>
 				<trigger val="kWardAttack"/>
@@ -333,10 +333,10 @@
 	</affect>
 	<affect id="kStairs"/>
 	<affect id="kStoneHands" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 	</affect>
 	<affect id="kPrismaticAura" buff="Y" dispel_mod="-35">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize|kAfAegis"/>
 		<actions>
 			<action>
 				<trigger val="kWardDamage"/>
@@ -370,20 +370,20 @@
 			<modifier min="11" beta="0" factor="1" />
 		</apply>
 	</affect>
-	<affect id="kAirAura" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<affect id="kAirAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
 		<apply location="kResistAir">
 			<modifier min="1" beta="4.1428" factor="1" cap="30" />
 		</apply>
 	</affect>
-	<affect id="kFireAura" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<affect id="kFireAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
 		<apply location="kResistWater">
 			<modifier min="1" beta="4.1428" factor="1" cap="30" />
 		</apply>
 	</affect>
-	<affect id="kIceAura" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<affect id="kIceAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
 		<apply location="kResistFire">
 			<modifier min="1" beta="4.1428" factor="1" cap="30" />
 		</apply>
@@ -414,11 +414,11 @@
 	</affect>
 	<affect id="kBerserk"/>
 	<affect id="kLightWalk"/>
-	<affect id="kBrokenChains" buff="Y">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<affect id="kBrokenChains" buff="Y" dispel_mod="-35">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
 	</affect>
 	<affect id="kCloudOfArrows" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kHitroll">
 			<modifier min="5" beta="0" factor="1" />
 		</apply>
@@ -429,8 +429,8 @@
 			</action>
 		</actions>
 	</affect>
-	<affect id="kShadowCloak" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<affect id="kShadowCloak" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
 		<apply location="kSavingStability">
 			<modifier min="0" beta="0.7365" factor="-1" />
 		</apply>
@@ -521,14 +521,14 @@
 		<flags val="kAfBattledec|kAfCurable"/>
 	</affect>
 	<affect id="kCommander"/>
-	<affect id="kEarthAura" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<affect id="kEarthAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
 		<apply location="kResistEarth">
 			<modifier min="1" beta="4.1428" factor="1" cap="30" />
 		</apply>
 	</affect>
 	<affect id="kCloudly" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
 		<apply location="kSpelledBlinkMag">
 			<modifier min="10" beta="0" factor="1" />
 		</apply>
@@ -547,7 +547,7 @@
 		<flags val="kAfPulsedec"/>
 	</affect>
 	<affect id="kMagicArmor" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kAc">
 			<modifier min="20" beta="0" factor="-1" />
 		</apply>
@@ -571,7 +571,7 @@
 		</apply>
 	</affect>
 	<affect id="kMagicStrength" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kStr">
 			<modifier min="5" beta="0" factor="1" />
 		</apply>
@@ -583,7 +583,7 @@
 		</apply>
 	</affect>
 	<affect id="kStoneSkin" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kAbsorbe">
 			<modifier min="20" beta="0" factor="1" />
 		</apply>
@@ -595,13 +595,13 @@
 		</apply>
 	</affect>
 	<affect id="kEnlarge">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable|kAfBoon"/>
 		<apply location="kSize">
 			<modifier min="0" beta="3.4984" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kMagicShield" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
 		<apply location="kAc">
 			<modifier min="50" beta="0" factor="-1" />
 		</apply>
@@ -658,7 +658,7 @@
 		</apply>
 	</affect>
 	<affect id="kFastRegeneration" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
 		<apply location="kHpRegen">
 			<modifier min="0" beta="9.1142" factor="1" />
 		</apply>
@@ -667,7 +667,7 @@
 		</apply>
 	</affect>
 	<affect id="kLessening">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable|kAfBoon"/>
 		<apply location="kSize">
 			<modifier min="15" beta="0" factor="-1" />
 		</apply>

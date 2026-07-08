@@ -6589,4 +6589,160 @@
 	<spell id="kTestFive" mode="kTesting">
 		<name val="test 5" />
 	</spell>
+	<spell id="kUnweave" element="kLight" mode="kEnabled">
+		<name val="unweave" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="70" min="55" change="1" />
+		<targets val="kTarCharRoom|kTarSelf" />
+		<flags val="kMagUnaffects" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfDispellable" dispel_bonus="50" debuff_only="Y">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kSuppress" element="kLight" mode="kEnabled">
+		<name val="suppress" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="75" min="60" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfBoon" dispel_bonus="40">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kErode" element="kLight" mode="kEnabled">
+		<name val="erode" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="85" min="70" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfWarding" dispel_bonus="30">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kAegisRift" element="kLight" mode="kEnabled">
+		<name val="aegis rift" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="100" min="85" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfAegis" dispel_bonus="55">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kToils" element="kLight" mode="kEnabled">
+		<name val="toils" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="80" min="65" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfDispellable" dispel_bonus="15">
+					<remove any_of="kFly|kWaterWalk|kWaterBreath" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kCleanseArea" element="kLight" mode="kEnabled">
+		<name val="cleanse area" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="90" min="75" change="1" />
+		<targets val="kTarRoomThis" />
+		<flags val="kMagRoom" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfDispellable" dispel_bonus="30">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
 </spells>

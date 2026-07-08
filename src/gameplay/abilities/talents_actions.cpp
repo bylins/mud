@@ -821,6 +821,10 @@ TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	const char *dec = node.GetValue("decay");
 	decay_ = (dec && *dec) ? parse::ReadAsInt(dec) : 0;
+	// issue.new-unaffect-spells: restrict a wildcard <remove any_of="*"> to DEBUFFS only
+	// (so a friendly cleanse like "unweave" never strips the target's own buffs).
+	const char *donly = node.GetValue("debuff_only");
+	debuff_only_ = (donly && *donly) && parse::ReadAsBool(donly);
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		Set *set = nullptr;
@@ -871,6 +875,8 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	};
 	buffer << " Unaffect:" << " dispel_bonus=" << kColorGrn << dispel_bonus_ << kColorNrm
 		   << " affect_flags=" << kColorGrn << affect_flags_ << kColorNrm
+		   << " decay=" << kColorGrn << decay_ << kColorNrm
+		   << " debuff_only=" << kColorGrn << (debuff_only_ ? "yes" : "no") << kColorNrm
 		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
 	print_set("blocking", blocking_);
 	print_set("breaking", breaking_);

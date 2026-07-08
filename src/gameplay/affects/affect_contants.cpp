@@ -546,6 +546,9 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfNoCritBonus] = "kAfNoCritBonus";
 	EAffFlag_name_by_value[EAffFlag::kAfFullAbsorb] = "kAfFullAbsorb";
 	EAffFlag_name_by_value[EAffFlag::kAfMaterialize] = "kAfMaterialize";
+	EAffFlag_name_by_value[EAffFlag::kAfBoon] = "kAfBoon";
+	EAffFlag_name_by_value[EAffFlag::kAfWarding] = "kAfWarding";
+	EAffFlag_name_by_value[EAffFlag::kAfAegis] = "kAfAegis";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;

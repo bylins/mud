@@ -2085,15 +2085,21 @@ struct RemovalCandidate {
 // kDispellMagic code path and enable generic "strip-by-flag" dispels (e.g.
 // future sphere-specific dispels added by tagging affects with kAfXSphere flags).
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<RemovalCandidate> &out, Bitvector flags) {
+					 std::vector<RemovalCandidate> &out, Bitvector flags, bool debuff_only = false) {
 	// issue.affect-migration: candidates are keyed by affect_type (no spell read at all -- the dispel
 	// downstream and the PK classification both work off the affect's own identity/flags).
+	// issue.new-unaffect-spells: debuff_only skips affects that are clearly buffs (EBuff::kYes) so a
+	// friendly wildcard cleanse ("unweave") removes debuffs/ambiguous without stripping real buffs.
+	const auto eligible = [&](const Affect<EApply>::shared_ptr &aff) {
+		return AffectMatchesFlags(aff, flags)
+			&& !(debuff_only && affects::AffectBuffKind(aff->affect_type) == affects::EBuff::kYes);
+	};
 	if (set.wildcard_any) {
 		// Reservoir sample one eligible affect uniformly.
 		EAffect pick_at = EAffect::kUndefined;
 		int seen = 0;
 		for (const auto &aff : victim->affected) {
-			if (AffectMatchesFlags(aff, flags) && number(1, ++seen) == 1) {
+			if (eligible(aff) && number(1, ++seen) == 1) {
 				pick_at = aff->affect_type;
 			}
 		}
@@ -2110,7 +2116,7 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 	}
 	if (set.wildcard_all) {
 		for (const auto &aff : victim->affected) {
-			if (AffectMatchesFlags(aff, flags)) {
+			if (eligible(aff)) {
 				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = aff->affect_type});
 			}
 		}
@@ -2304,7 +2310,9 @@ bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect:
 }
 
 void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<RemovalCandidate> &out, Bitvector flags) {
+					 std::vector<RemovalCandidate> &out, Bitvector flags, bool /*debuff_only*/ = false) {
+	// issue.new-unaffect-spells: debuff_only is a no-op for room affects (no buff/debuff notion);
+	// the parameter exists only so RunCastUnaffects can call this from the shared template.
 	if (set.wildcard_any) {
 		room_spells::ERoomAffect pick = room_spells::ERoomAffect::kUndefined;
 		int seen = 0;
@@ -2433,9 +2441,9 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 
 	const Bitvector flags = unaffect.GetAffectFlags();
 	std::vector<RemovalCandidate> to_remove;
-	CollectRemovals(target, unaffect.GetRemoveAnyway(), to_remove, flags);
+	CollectRemovals(target, unaffect.GetRemoveAnyway(), to_remove, flags, unaffect.GetDebuffOnly());
 	if (!blocking) {
-		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags);
+		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags, unaffect.GetDebuffOnly());
 	}
 	// issue.spells-hotfix: an affect with several instances (e.g. kPoisoned on several locations) must
 	// be removed and announced ONCE. RemoveAffectAndAnnounce strips ALL instances, so dedup the queue

@@ -56,7 +56,13 @@ enum EAffFlag : Bitvector {
   // issue.damage-change: affect CATEGORY -- fully absorbs incoming damage (the "magic cocoon",
   // kGodsShield). The engine's total-immunity block tests "victim has any affect flag whose type
   // declares this" instead of the specific affect id, so item/flag-only/cast holders all qualify.
-  kAfFullAbsorb			= 1u << 23
+  kAfFullAbsorb			= 1u << 23,
+  // affect CATEGORY (issue.new-unaffect-spells): buff "classes" for the class-targeted
+  // dispels. Set in affects.xml on the member affects so a dispel strips a whole class via
+  // <unaffect affect_flags="kAfBoon">, mirroring kAfPoison/kAfEntanglement.
+  kAfBoon				= 1u << 24,	// detects + minor utility buffs (suppress)
+  kAfWarding			= 1u << 25,	// ordinary combat/defense buffs (erode)
+  kAfAegis				= 1u << 26	// strong defensive magic: shields/auras/sanctuary (aegis rift)
 };
 
 /**
