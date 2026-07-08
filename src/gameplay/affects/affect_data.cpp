@@ -1294,12 +1294,16 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 // skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
 // a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max) {
+				 unsigned base, unsigned skill_divisor, int min, int max, int skill_override) {
 	if (skill_divisor == 0 && min == 0 && max == 0) {
 		return (victim->IsNpc() ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}
-	int skill_bonus = (skill_id == ESkill::kUndefined)
-		? 0
+	// issue.potion-hotfix: skill_override >= 0 (a potion) scales the duration off the potion MAKER's
+	// stored skill instead of the caster/drinker's -- a potion acts on its own. A spell with no
+	// duration skill (kUndefined) is flat either way; a live cast (override < 0) uses the caster.
+	int skill_bonus =
+		(skill_id == ESkill::kUndefined) ? 0
+		: (skill_override >= 0) ? CalcNoviceSkillBonusForValue(skill_override, skill_divisor)
 		: CalcNoviceSkillBonus(caster, skill_id, skill_divisor);
 	if (min > 0) skill_bonus = std::max(skill_bonus, min);
 	if (max > 0) skill_bonus = std::min(skill_bonus, max);

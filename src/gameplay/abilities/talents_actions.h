@@ -135,6 +135,7 @@ class Roll {
 	// as the skill bonus for the battle-lag formula (issue.cast-spell-lag).
 	[[nodiscard]] double CalcLowSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
+	[[nodiscard]] double CalcBaseStatCoeffForValue(int stat) const;  // explicit key-stat value (authored potion)
 	// The roll's key skill: also used as the affect's duration scaling skill (issue.calc-duration)
 	// and the multi-hit count scaling skill (issue.extra-hits).
 	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; }

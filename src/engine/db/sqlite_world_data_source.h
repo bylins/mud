@@ -15,7 +15,7 @@
 #include <set>
 
 class ZoneData;
-class RoomData;
+struct RoomData;
 class CharData;
 class CObjectPrototype;
 class Trigger;

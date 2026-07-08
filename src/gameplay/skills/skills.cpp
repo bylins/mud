@@ -2102,6 +2102,16 @@ int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) 
 	return low_skill/skill_divisor;
 }
 
+// As CalcNoviceSkillBonus, but from an explicit skill VALUE (a potion's stored MAKER skill) rather
+// than a caster's GetSkill. issue.potion-hotfix: a potion buff scales off its maker, not the drinker.
+int CalcNoviceSkillBonusForValue(int skill, unsigned skill_divisor) {
+	if (skill_divisor <= 0) {
+		return 0;
+	}
+	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
+	return low_skill/skill_divisor;
+}
+
 const ESkill &operator++(ESkill &s) {
 	s = static_cast<ESkill>(to_underlying(s) + 1);
 	return s;

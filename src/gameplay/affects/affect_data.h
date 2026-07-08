@@ -128,6 +128,6 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result);
 // "no clamp on that side", a positive value clamps the bonus accordingly. The previous level-based
 // overload was removed once every caller migrated to this one.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max);
+				 unsigned base, unsigned skill_divisor, int min, int max, int skill_override = -1);
 
 #endif //BYLINS_AFFECT_DATA_H

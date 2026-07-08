@@ -8,6 +8,7 @@
 
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/magic/spells.h"
+#include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/liquid.h"
@@ -75,14 +76,36 @@ static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
 	long int li;
 	(void) i; (void) j; (void) li;  // some branches do not touch all of them
 switch (obj->get_type()) {
-	case EObjType::kScroll:
-	case EObjType::kPotion: {
+	case EObjType::kScroll: {
 		std::ostringstream out;
 		out << "Содержит заклинание:";
 		for (auto val = 1; val < 4; ++val) {
 			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
 			if (MUD::Spell(spell_id).IsValid()) {
 				out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
+			}
+		}
+		if (out.str().back() == ',') {
+			out.seekp(-1, out.end);
+		}
+		out << "\r\n";
+		SendMsgToChar(out.str(), ch);
+		break;
+	}
+	// issue.potion-hotfix: a potion reads its spells from the ObjVal keys and shows its maker-derived
+	// POTENCY (Сила), never a per-spell level -- the drinker's own skill/stats are irrelevant.
+	case EObjType::kPotion: {
+		std::ostringstream out;
+		out << "Содержит заклинание:";
+		const ObjVal::EValueKey spell_keys[3] = {
+			ObjVal::EValueKey::kPotionSpell1Num,
+			ObjVal::EValueKey::kPotionSpell2Num,
+			ObjVal::EValueKey::kPotionSpell3Num};
+		for (const auto key : spell_keys) {
+			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
+			if (MUD::Spell(spell_id).IsValid()) {
+				const int potency = static_cast<int>(PotionPotency(obj, spell_id) + 0.5f);
+				out << " Сила [" << potency << "] " << MUD::Spell(spell_id).GetName() << ",";
 			}
 		}
 		if (out.str().back() == ',') {

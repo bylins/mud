@@ -7,11 +7,14 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/mechanics/liquid.h"
 
 void ObjDecayManager::insert(ObjData *obj) {
 	if (!obj) {
 		return;
 	}
+	// issue.potion-hotfix: a food/liquid's contents freshness spoils regardless of decay tracking.
+	register_perishable(obj);
 	auto it = m_obj_to_deadline.find(obj);
 	if (it != m_obj_to_deadline.end()) {
 		// Уже трекается. Сохраняем существующий дедлайн, чтобы
@@ -121,9 +124,18 @@ void ObjDecayManager::remove_timed_spell_obj(ObjData *obj) {
 	m_timed_spell_objs.erase(obj);
 }
 
+void ObjDecayManager::register_perishable(ObjData *obj) {
+	if (obj
+		&& (obj->get_type() == EObjType::kLiquidContainer || obj->get_type() == EObjType::kFood)
+		&& obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer) > 0) {
+		m_perishable_objs.insert(obj);
+	}
+}
+
 void ObjDecayManager::drop_obj_from_indices(ObjData *obj) {
 	m_env_check_objs.erase(obj);
 	m_timed_spell_objs.erase(obj);
+	m_perishable_objs.erase(obj);
 	m_zonedecay_objs.erase(obj);
 	remove_queue_entry(obj);
 	m_obj_to_deadline.erase(obj);
@@ -197,7 +209,7 @@ TickResult ObjDecayManager::process_tick() {
 		}
 	}
 
-	// 3. Process timed spell and food/liquid periodic effects
+	// 3. Process on-item timed-spell periodic effects (food/liquid freshness handled in 3b below)
 	{
 		auto ts_copy = m_timed_spell_objs;
 		for (auto *obj : ts_copy) {
@@ -208,6 +220,21 @@ TickResult ObjDecayManager::process_tick() {
 			obj->process_periodic_effects();
 			if (!obj->has_timed_spell()) {
 				m_timed_spell_objs.erase(obj);
+			}
+		}
+	}
+
+	// 3b. Food/liquid CONTENTS freshness (kLiquidTimer): ages one step per tick; at 0 the potion spoils
+	// (drinkcon::age_contents -> spoil_potion: halve power + set poison). Runs for EVERY registered
+	// food/liquid regardless of timed spells or carry state -- the freshness clock is independent of the
+	// container item's OWN decay timer (get_timer()).
+	{
+		auto copy = m_perishable_objs;
+		for (auto *obj : copy) {
+			// age one freshness tick; drinkcon::age_contents spoils the potion when it hits 0.
+			const int freshness_left = drinkcon::age_contents(obj);
+			if (freshness_left <= 0) {   // spoiled (or no longer perishable) -> stop tracking
+				m_perishable_objs.erase(obj);
 			}
 		}
 	}

@@ -1,6 +1,8 @@
 #ifndef SPELL_PARSER_HPP_
 #define SPELL_PARSER_HPP_
 
+#include <limits>
+
 #include "gameplay/abilities/feats.h"
 #include "engine/entities/entities_constants.h"
 #include "spells.h"
@@ -69,7 +71,18 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, doub
 // std = sigma*scaled, so the coefficient of variation is ~sigma -- CONSTANT as `scaled` (= k*competence)
 // grows, unlike additive dice noise (whose relative spread shrinks). Truncated to [floor, cap]; cap<=0 =
 // no upper bound. Uses the seeded global RNG (GaussIntNumber), so simulator runs stay reproducible.
-int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap);
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
+		double fixed_z = std::numeric_limits<double>::quiet_NaN());
+
+// issue.potion-hotfix P3: a potion's casting potency (competence C). The brewed-in kPotionPotency if
+// present (crafted); otherwise the potency a fixed-skill potion-maker would brew, from the potion's
+// FIRST spell. Returns <=0 if the potion has no castable first spell.
+[[nodiscard]] float PotionPotency(const ObjData *potion, ESpell spell_id);
+
+// issue.potion-hotfix: the maker's skill for a potion's buff DURATION (brew skill for crafted, the
+// authored maker skill otherwise). The drinker's own skill never matters.
+[[nodiscard]] int PotionCastSkill(const ObjData *potion);
+[[nodiscard]] int PotionCastStat(const ObjData *potion);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 

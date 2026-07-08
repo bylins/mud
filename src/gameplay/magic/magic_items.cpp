@@ -1,5 +1,7 @@
 #include "magic_items.h"
 
+#include <limits>
+
 #include "engine/entities/char_data.h"
 #include "engine/core/obj_handler.h"
 #include "engine/db/obj_prototypes.h"
@@ -184,9 +186,28 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			}
 
 			SetBattleLag(ch, 1);
-			for (i = 1; i <= 3; i++) {
-				if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) != ECastResult::kSuccess) {
-					break;
+			{
+				// issue.potion-hotfix P3: strength is BREWED IN -- the crafted kPotionPotency, or (non-
+				// crafted) the value a fixed-skill potion-maker would brew (PotionPotency). Spells,
+				// potency and the frozen noise roll all live in the ObjVal keys (the boot/load converter
+				// migrated every potion off m_vals), so we read keys ONLY. brew_roll absent (non-crafted)
+				// -> NaN -> the noise is drawn at cast, like a fresh cast.
+				const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
+				const double noise_z = (brew_roll > 0)
+					? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
+					: std::numeric_limits<double>::quiet_NaN();
+				for (i = 1; i <= 3; i++) {
+					const ObjVal::EValueKey spell_key = (i == 1) ? ObjVal::EValueKey::kPotionSpell1Num
+						: (i == 2) ? ObjVal::EValueKey::kPotionSpell2Num : ObjVal::EValueKey::kPotionSpell3Num;
+					const int spell_num = obj->GetPotionValueKey(spell_key);
+					if (spell_num <= 0) {
+						continue;
+					}
+					const float potency = PotionPotency(obj, static_cast<ESpell>(spell_num));
+					if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(spell_num), 0,
+								  potency, noise_z, PotionCastSkill(obj)) != ECastResult::kSuccess) {
+						break;
+					}
 				}
 			}
 

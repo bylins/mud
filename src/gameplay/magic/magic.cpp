@@ -275,7 +275,7 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 }
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
-							const talents_actions::Action &action, double competence) {
+							const talents_actions::Action &action, double competence, double noise_z) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
 	// prob: a <damage prob=> spell may simply not fire (default 100).
@@ -310,7 +310,7 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 				// issue.random-noise-rework (P1): multiplicative truncated-normal -- mean scales with
 				// competence (beta = per-competence scale k), relative spread stays ~sigma (constant CV).
 				dmg = static_cast<float>(CalcNoisyAmount(dmg_act.GetAmountMin(),
-						dmg_act.GetAmountBeta() * C, dmg_act.GetAmountSigma(), /*cap*/ 0));
+						dmg_act.GetAmountBeta() * C, dmg_act.GetAmountSigma(), /*cap*/ 0, noise_z));
 			} else {
 				dmg = dmg_act.GetAmountMin() + std::ceil(
 						base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
@@ -539,7 +539,7 @@ EStageResult CastDamage(CastContext &ctx) {
 
 	try {
 		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
-													   ctx.CompetenceBase()) * ctx.area_coeff);
+													   ctx.CompetenceBase(), ctx.potency().noise_z) * ctx.area_coeff);
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
@@ -901,7 +901,8 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	int duration = ApplyResist(victim, talent.GetResist(),
 		CalcDuration(ch, victim, duration_skill,
 					 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
-					 talent.GetDurationMin(), talent.GetDurationMax()));
+					 talent.GetDurationMin(), talent.GetDurationMax(),
+					 potency.cast_skill));  // potion (>=0): the maker's skill; live cast (-1): the caster
 	duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
 	const bool tc = spell_trace::Active(ch, victim);
 	if (tc) {
@@ -1515,14 +1516,14 @@ const char *PointsCatName(points_intensity::ECategory cat) {
 // using the shared (dice, competencies, bonus_mod) trio captured by reference.
 // Heal carries an npc_coeff multiplier (legacy default 1.0 ~ +100% for mobs);
 // non-heal categories default to 0 (no NPC boost).
-auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, double bonus_mod) {
-	return [ch, dice, competencies, bonus_mod](const talents_actions::Points::Amount &a) -> int {
+auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, double bonus_mod, double noise_z) {
+	return [ch, dice, competencies, bonus_mod, noise_z](const talents_actions::Points::Amount &a) -> int {
 		// Option-2 subquadratic: dice scaled multiplicatively by
 		// skill/stat (alpha) plus an additive term (beta). alpha=0 -> old Formula A.
 		// issue.random-noise-rework: sigma>0 -> multiplicative truncated-normal spread (heal/moves),
 		// mean = min + beta*competence (beta = per-competence scale k), CV ~ sigma. Else additive.
 		int v = (a.sigma > 0.0)
-				? CalcNoisyAmount(a.min, a.beta * competencies, a.sigma, /*cap*/ 0)
+				? CalcNoisyAmount(a.min, a.beta * competencies, a.sigma, /*cap*/ 0, noise_z)
 				: static_cast<int>(a.min + std::ceil(
 						dice * a.dices_weight * (1.0 + a.alpha * competencies)
 						+ a.beta * competencies));
@@ -1653,7 +1654,7 @@ EStageResult CastToPoints(CastContext &ctx) {
 	const double dice = potency_roll.RollSkillDices();
 	const double competencies = ctx.CompetenceBase();  // base override
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
-	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod);
+	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod, ctx.potency().noise_z);
 	const bool tc = spell_trace::Active(ch, victim);
 	if (tc) {
 		spell_trace::Line(ch, victim, "&CPoints %s -> %s: dice %.1f C %.2f bonus_mod %.2f area %.2f.&n\r\n",

@@ -4,6 +4,8 @@
 
 #include "poison.h"
 #include "administration/privilege.h"
+
+#include <algorithm>
 #include "gameplay/affects/affect_handler.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
@@ -503,13 +505,17 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 }
 
 void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
-	if ((GET_OBJ_VAL(jar, 3) == 1) && !privilege::IsGod(ch)) {
+	// issue.potion-hotfix: a drink poisons when its stored poison LEVEL (kLiquidPoison) is positive --
+	// set either by a builder or when the contents spoil (drinkcon::spoil_potion). val[3] no longer
+	// carries this. The applied poison scales with both that level and the dose actually drunk.
+	const int poison_level = jar->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison);
+	if (poison_level > 0 && !privilege::IsGod(ch)) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
+		const int dose = std::max(1, amount);   // объем 0 трактуем как один глоток
 		Affect<EApply> af;
 		af.type = ESpell::kPoison;
-		//если объем 0 -
-		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, dose * 3, 0, 0, 0);
 		af.modifier = -2;
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;
@@ -517,7 +523,7 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		af.debuff = true;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
-		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
+		af.modifier = poison_level * dose;   // poison intensity = potion poison level x dose drunk
 		af.location = EApply::kPoison;
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime | kAfCurable;

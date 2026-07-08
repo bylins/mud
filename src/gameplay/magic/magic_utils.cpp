@@ -306,12 +306,67 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
 	return false;
 }
 
-int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap) {
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, double fixed_z) {
 	const double mean = floor_val + scaled;
 	const double sd = sigma * scaled;
 	const int lo = std::max(0, static_cast<int>(std::floor(floor_val)));
 	const int hi = (cap > 0) ? cap : std::numeric_limits<int>::max();
+	// issue.potion-hotfix: a brewed potion replays its FROZEN brew-luck z (a standard normal) instead
+	// of drawing -- amount = mean + z*sd -- so every quaff of the potion is identical, yet each of its
+	// spells still applies its OWN sigma (via sd) to the one z. NaN = no fixed noise, draw as usual.
+	if (!std::isnan(fixed_z)) {
+		return std::clamp(static_cast<int>(std::lround(mean + fixed_z * sd)), lo, hi);
+	}
+	// GaussIntNumber's std::normal_distribution requires stddev > 0. A zero spread (scaled==0 --
+	// e.g. a spell with no competence scaling, or a 0-competence caster) is deterministic: return
+	// the mean rather than crashing on the assertion.
+	if (sd <= 0.0) {
+		return std::clamp(static_cast<int>(std::lround(mean)), lo, hi);
+	}
 	return GaussIntNumber(mean, sd, lo, hi);
+}
+
+// issue.potion-hotfix P3: a non-crafted potion casts as if brewed by a potion-maker with this skill
+// and key-stat (kvirund's decision). A crafted potion carries its own brewed kPotionPotency instead.
+constexpr int kAuthoredPotionSkill = 80;
+constexpr int kAuthoredPotionKeyStat = 25;
+
+float PotionPotency(const ObjData *potion, ESpell spell_id) {
+	const int skill = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+	if (skill < 0) {   // < 0 == key ABSENT; a stored 0 is a spoiled-to-nothing potion, not legacy
+		// Legacy: a pre-P3b migrated instance carries a pre-computed potency but no maker skill/stat.
+		const int legacy = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
+		if (legacy > 0) {
+			return static_cast<float>(legacy);
+		}
+	}
+	if (spell_id <= ESpell::kUndefined) {
+		return -1.0f;
+	}
+	// Competence = skill_coeff + stat_coeff from the MAKER's inputs (crafted: brew skill + brewer Int;
+	// non-crafted: the authored maker), through THIS spell's own potency-roll weights. The drinker's
+	// own skill/stat are never consulted -- a potion acts on its own.
+	const int use_skill = (skill >= 0) ? skill : kAuthoredPotionSkill;   // present (incl. 0) wins; absent -> authored
+	const int stat = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+	const int use_stat = (stat >= 0) ? stat : kAuthoredPotionKeyStat;
+	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
+	return static_cast<float>(roll.CalcSkillCoeffForValue(use_skill)
+			+ roll.CalcBaseStatCoeffForValue(use_stat));
+}
+
+// issue.potion-hotfix: the MAKER's skill, used to scale a potion buff's DURATION (the drinker's own
+// skill is irrelevant). A crafted potion carries its brew skill (kPotionSkill); a non-crafted one has
+// none, so it falls back to the authored maker's skill.
+int PotionCastSkill(const ObjData *potion) {
+	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+	return (stored >= 0) ? stored : kAuthoredPotionSkill;   // absent (-1) -> authored; a stored 0 stays 0
+}
+
+// issue.potion-hotfix: the maker's key stat (crafted: brewer Intelligence; else the authored default).
+// Needed alongside PotionCastSkill to blend two potions' stats when they are poured together.
+int PotionCastStat(const ObjData *potion) {
+	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+	return (stored >= 0) ? stored : kAuthoredPotionKeyStat;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
 float CalcCastPotency(const RollResult &potency) {
@@ -432,7 +487,7 @@ private:
 // Evaluates the spell's potency roll against the caster once, so the result can be
 // threaded to the cast-dispatch functions. The roll values do not depend on level;
 // level is carried only to replace that parameter.
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency) {
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
@@ -445,14 +500,14 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float
 	// fixed potency. (Under P2 all effect dices_weight=0, so a dices-only value no longer scaled the
 	// amount.) Negative -> roll from the caster as usual.
 	const RollResult bcc_roll = (fixed_potency >= 0.0f)
-		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0}
+		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z, fixed_skill}
 		: eval(spell.GetPotencyRoll());
 	CastContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -530,7 +585,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency);
+	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency, fixed_noise_z, fixed_skill);
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
