@@ -699,7 +699,7 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 	}
 	if (data.contains("room_flags") && data["room_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<ERoomFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["room_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["room_flags"][i].get<Bitvector>());

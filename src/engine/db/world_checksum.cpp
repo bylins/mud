@@ -152,7 +152,7 @@ std::string SerializeRoom(const RoomData *room)
 	// silently masked loader regressions where extra/missing bits would only
 	// show up as UNDEF labels. Comparing raw plane bitmasks catches them.
 	{
-		FlagData room_flags = room->read_flags();
+		auto room_flags = room->read_flags();  // BitsetFlags<ERoomFlag> (issue.flags-migration)
 		oss << room_flags.get_plane(0) << "," << room_flags.get_plane(1) << ","
 		    << room_flags.get_plane(2) << "," << room_flags.get_plane(3);
 	}

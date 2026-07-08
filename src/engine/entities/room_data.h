@@ -112,11 +112,11 @@ struct RoomData {
 	// (Affect::pk_unique). Read via room_spells::FindRoomPkPortalUid.
 	int holes;        // Дырки для камне - копателей //
 	int poison;        // Степень заражения территории в SPELL_DEADLY_FOG //
-	bool get_flag(const Bitvector flag) const { return m_room_flags.get(flag); }
-	void set_flag(const Bitvector flag) { m_room_flags.set(flag); }
-	FlagData read_flags() const { return m_room_flags; }
-	void write_flags(FlagData fl) {m_room_flags = fl; }
-	void unset_flag(const Bitvector flag) { m_room_flags.unset(flag); }
+	bool get_flag(const Bitvector flag) const { return m_room_flags.get(static_cast<ERoomFlag>(flag)); }
+	void set_flag(const Bitvector flag) { m_room_flags.set(static_cast<ERoomFlag>(flag)); }
+	BitsetFlags<ERoomFlag> read_flags() const { return m_room_flags; }
+	void write_flags(BitsetFlags<ERoomFlag> fl) {m_room_flags = fl; }
+	void unset_flag(const Bitvector flag) { m_room_flags.unset(static_cast<ERoomFlag>(flag)); }
 	bool toggle_flag(const size_t plane, const Bitvector flag) { return m_room_flags.toggle_flag(plane, flag); }
 	void clear_flags() { m_room_flags.clear(); }
 
@@ -141,7 +141,7 @@ struct RoomData {
 	void set_name(std::string const &name);
 
  private:
-	FlagData m_room_flags;    // DEATH,DARK ... etc //
+	BitsetFlags<ERoomFlag> m_room_flags;    // DEATH,DARK ... etc //
 };
 
 #endif // ROOM_HPP_INCLUDED

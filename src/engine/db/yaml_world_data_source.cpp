@@ -3209,7 +3209,7 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 	yaml.Value(ReverseLookupEnum("sectors", static_cast<int>(room->sector_type)));
 
 	// Flags
-	FlagData room_flags = room->read_flags();
+	auto room_flags = room->read_flags();
 	auto flag_names = ConvertFlagsToNames(room_flags, "room_flags");
 	if (!flag_names.empty())
 	{

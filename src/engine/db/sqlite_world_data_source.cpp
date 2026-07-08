@@ -3092,7 +3092,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	sqlite3_finalize(stmt);
 
 	// Save room flags
-	FlagData room_flags = room->read_flags();
+	auto room_flags = room->read_flags();
 	SaveFlagsToTable(m_db, "room_flags", "room_vnum", room_vnum, room_flags, room_flag_map);
 
 	// Save room exits

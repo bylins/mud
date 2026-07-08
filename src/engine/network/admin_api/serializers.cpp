@@ -327,7 +327,7 @@ json SerializeRoom(RoomData& room, int vnum)
 
 	// Room flags (4 planes)
 	{
-		FlagData fl = room.read_flags();
+		auto fl = room.read_flags();
 		room_data["room_flags"] = json::array();
 		for (size_t i = 0; i < 4; ++i)
 		{

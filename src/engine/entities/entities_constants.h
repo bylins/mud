@@ -9,6 +9,7 @@
 #define BYLINS_SRC_ENTITY_ROOMS_ROOM_CONSTANTS_H_
 
 #include "engine/structs/structs.h"
+#include "engine/structs/bitset_flags.h"
 #include "engine/structs/meta_enum.h"
 
 #include <string>
@@ -527,6 +528,21 @@ EDirection &operator++(EDirection &d);
 	kNoItem = kIntTwo | (1 << 0),    // Передача вещей в комнате запрещена
 	kDominationArena = kIntTwo | (1 << 1) // комната арены доминирования
  };
+
+// issue.flags-migration P1a: store RoomData::m_room_flags in BitsetFlags<ERoomFlag> while ERoomFlag
+// stays packed-bitmask (kIntOne|bit ...). flag_index_mapping decodes the packed value to its flat
+// bit index via packed_to_index, so on-disk bytes are byte-identical to the old FlagData. count is
+// the legacy 4-plane space (120 bits) so any round-tripping high bit is preserved, not dropped.
+template<>
+struct flag_traits<ERoomFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<ERoomFlag> {
+	static constexpr std::size_t to_index(ERoomFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Exit info: used in room_data.dir_option.exit_info
