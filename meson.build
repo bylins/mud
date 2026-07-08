@@ -1,5 +1,7 @@
 project('bylins', 'cpp',
-    version: run_command('git', 'rev-parse', '--short', 'HEAD', check: false).stdout().strip(),
+    # issue.versioning: major.minor.patch from the explicit repo-root VERSION file (single
+    # source of truth). The runtime string appends the commit count (see generate_version.py).
+    version: run_command('cat', files('VERSION'), check: false).stdout().strip(),
     default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2', 'unity=on']
 )
 
