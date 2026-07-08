@@ -319,6 +319,15 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 		node.GoToParent();
 	}
 
+	if (node.GoToChild("noise")) {
+		// issue.potency-noise: the spell's random-draw parameters (replaces <dices>). sigma = base
+		// relative spread of the shared z; trunc = clamp of z in sd units. Absent <noise> -> sigma 0,
+		// i.e. a deterministic spell unless a manifestation opts into noise via its own weight.
+		noise_sigma_ = RollDoubleOr(node.GetValue("sigma"), 0.0);
+		noise_trunc_ = RollDoubleOr(node.GetValue("trunc"), 2.0);
+		node.GoToParent();
+	}
+
 	if (node.GoToChild("base_skill")) {
 		const char *skill_id = node.GetValue("id");
 		base_skill_ = (skill_id && *skill_id) ? parse::ReadAsConstant<ESkill>(skill_id) : ESkill::kUndefined;
@@ -541,6 +550,8 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		// issue.random-noise-rework (P1): optional relative-spread (CV) knob for multiplicative noise.
 		const char *asg = node.GetValue("sigma");
 		amount_sigma_ = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
+		const char *awt = node.GetValue("weight");
+		amount_weight_ = (awt && *awt) ? parse::ReadAsDouble(awt) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 		node.GoToParent();
 	}
 	// <hits> is optional; absent -> the spell deals one hit. Individual attrs
@@ -583,6 +594,8 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 	a.beta = (ab && *ab) ? parse::ReadAsDouble(ab) : 0.0;
 	const char *asg = node.GetValue("sigma");
 	a.sigma = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
+	const char *awt2 = node.GetValue("weight");
+	a.weight = (awt2 && *awt2) ? parse::ReadAsDouble(awt2) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 	if (with_npc) {
 		// 1.0 default mirrors the legacy <heal npc_coeff/> default: NPC casters
 		// get a *2 boost on heal points unless the tag overrides it.
@@ -774,6 +787,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			if (child.GoToChild("modifier")) {
 				apply.min = parse::ReadAsDouble(child.GetValue("min"));
 				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
+				{ const char *w = child.GetValue("weight"); apply.weight = (w && *w) ? parse::ReadAsDouble(w) : 0.0; }  // issue.potency-noise (stage 1, additive): weight on the shared draw
 				apply.alpha = parse::ReadAsDouble(child.GetValue("alpha"));
 				apply.beta = parse::ReadAsDouble(child.GetValue("beta"));
 				apply.factor = parse::ReadAsInt(child.GetValue("factor"));
