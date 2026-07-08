@@ -844,6 +844,16 @@ template<>
 const std::string &NAME_BY_ITEM<ENoFlag>(ENoFlag item);
 template<>
 ENoFlag ITEM_BY_NAME<ENoFlag>(const std::string &name);
+template<>
+struct flag_traits<ENoFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<ENoFlag> {
+	static constexpr std::size_t to_index(ENoFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Object anti flags - who can't take or use this object.
@@ -902,6 +912,16 @@ template<>
 const std::string &NAME_BY_ITEM<EAntiFlag>(EAntiFlag item);
 template<>
 EAntiFlag ITEM_BY_NAME<EAntiFlag>(const std::string &name);
+template<>
+struct flag_traits<EAntiFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EAntiFlag> {
+	static constexpr std::size_t to_index(EAntiFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Container flags - value[1]

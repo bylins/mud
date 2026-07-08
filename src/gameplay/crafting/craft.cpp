@@ -657,14 +657,14 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 													  "WARNING: Could not save weapon affect " + NAME_BY_ITEM(value));
 											  });
 
-		CHelper::save_list<EAntiFlag>(*node, "antiflags", "antiflag", get_anti_flags(),
+		CHelper::save_list<EAntiFlag>(*node, "antiflags", "antiflag", ToFlagData(get_anti_flags()),
 									  [&]() { throw std::runtime_error("WARNING: Failed to create node \"antiflags\".\n"); },
 									  [&](const auto value) {
 										  throw std::runtime_error(
 											  "WARNING: Could not save antiflag " + NAME_BY_ITEM(value));
 									  });
 
-		CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", get_no_flags(),
+		CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", ToFlagData(get_no_flags()),
 									[&]() { throw std::runtime_error("WARNING: Failed to create node \"noflags\".\n"); },
 									[&](const auto value) {
 										logger("%s",

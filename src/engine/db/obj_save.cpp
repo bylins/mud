@@ -291,11 +291,11 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->load_affect_flags(buffer);
 			} else if (!strcmp(read_line, "Anti")) {
 				*error = 24;
-				object->set_anti_flags(clear_flags);
+				object->set_anti_flags(BitsetFlags<EAntiFlag>{});
 				object->load_anti_flags(buffer);
 			} else if (!strcmp(read_line, "Nofl")) {
 				*error = 25;
-				object->set_no_flags(clear_flags);
+				object->set_no_flags(BitsetFlags<ENoFlag>{});
 				object->load_no_flags(buffer);
 			} else if (!strcmp(read_line, "Extr")) {
 				*error = 26;

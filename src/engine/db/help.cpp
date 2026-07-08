@@ -356,7 +356,7 @@ std::string print_fullset_stats(const set_info &set) {
 		const auto &obj = obj_proto[rnum];
 
 		// суммируем родные статы со шмоток
-		activ.native_no_flag += obj->get_no_flags();
+		activ.native_no_flag += ToFlagData(obj->get_no_flags());
 		activ.native_affects += ToFlagData(obj->get_affect_flags());
 		sum_apply(activ.native_affected, obj->get_all_affected());
 		sum_skills(activ.native_skills, obj.get());

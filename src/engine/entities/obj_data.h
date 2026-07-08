@@ -254,10 +254,10 @@ class CObjectPrototype {
 	const std::string &get_short_description() const { return m_short_description; }
 	void add_affect_flags(const BitsetFlags<EWeaponAffect> &flags) { m_waffect_flags += flags; }
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
-	void add_anti_flags(const FlagData &flags) { m_anti_flags += flags; }
+	void add_anti_flags(const BitsetFlags<EAntiFlag> &flags) { m_anti_flags += flags; }
 	void add_extra_flags(const BitsetFlags<EObjFlag> &flags) { m_extra_flags += flags; }
 	void add_maximum(const int amount) { m_maximum_durability += amount; }
-	void add_no_flags(const FlagData &flags) { m_no_flags += flags; }
+	void add_no_flags(const BitsetFlags<ENoFlag> &flags) { m_no_flags += flags; }
 	void add_proto_script(const ObjVnum vnum) { m_proto_script->push_back(vnum); }
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
 	void add_weight(const int _) { m_weight += _; }
@@ -291,7 +291,7 @@ class CObjectPrototype {
 	void set_aliases(const std::string &_) { m_aliases = _; }
 	void set_all_affected(const affected_t &_) { m_affected = _; }
 	void set_anti_flag(const EAntiFlag packed_flag) { m_anti_flags.set(packed_flag); }
-	void set_anti_flags(const FlagData &flags) { m_anti_flags = flags; }
+	void set_anti_flags(const BitsetFlags<EAntiFlag> &flags) { m_anti_flags = flags; }
 	void set_current_durability(const int _) { m_current_durability = _; }
 	void set_description(const std::string &_) { m_description = _; }
 	void set_destroyer(const int _) { m_destroyer = _; }
@@ -305,7 +305,7 @@ class CObjectPrototype {
 	void set_max_in_world(const int _) { m_max_in_world = _; }
 	void set_maximum_durability(const int _) { m_maximum_durability = _; }
 	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
-	void set_no_flags(const FlagData &flags) { m_no_flags = flags; }
+	void set_no_flags(const BitsetFlags<ENoFlag> &flags) { m_no_flags = flags; }
 	void set_obj_aff(const Bitvector packed_flag) { m_waffect_flags.set(static_cast<EWeaponAffect>(packed_flag)); }
 	void set_PName(const grammar::ECase index, const char *_) { m_pnames[index] = _; }
 	void set_PName(const grammar::ECase index, const std::string &_) { m_pnames[index] = _; }
@@ -424,8 +424,8 @@ class CObjectPrototype {
 
 	BitsetFlags<EObjFlag> m_extra_flags;    // If it hums, glows, etc.      //
 	BitsetFlags<EWeaponAffect> m_waffect_flags;
-	FlagData m_anti_flags;
-	FlagData m_no_flags;
+	BitsetFlags<EAntiFlag> m_anti_flags;
+	BitsetFlags<ENoFlag> m_no_flags;
 
 	wear_flags_t m_wear_flags;        // Where you can wear it     //
 

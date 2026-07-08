@@ -1014,22 +1014,22 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 
 	FLAG_DATA get_anti_flag() const {
 		Ensurer obj(*this);
-		return obj->get_anti_flags();
+		return ToFlagData(obj->get_anti_flags());
 	}
 
 	void set_anti_flag(const FLAG_DATA &f) {
 		Ensurer obj(*this);
-		obj->set_anti_flags(f);
+		obj->set_anti_flags(ToBitset<EAntiFlag>(f));
 	}
 
 	FLAG_DATA get_no_flag() const {
 		Ensurer obj(*this);
-		return obj->get_no_flags();
+		return ToFlagData(obj->get_no_flags());
 	}
 
 	void set_no_flag(const FLAG_DATA &f) {
 		Ensurer obj(*this);
-		obj->set_no_flags(f);
+		obj->set_no_flags(ToBitset<ENoFlag>(f));
 	}
 
 	FLAG_DATA get_extra_flags() const {

@@ -12,7 +12,7 @@ enchant::enchant()
 	: type_(-1), weight_(0), ndice_(0), sdice_(0) {
 	affects_flags_.clear();
 	extra_flags_.clear();
-	no_flags_ = clear_flags;
+	no_flags_.clear();
 }
 
 enchant::enchant(ObjData *obj) {

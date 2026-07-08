@@ -50,7 +50,7 @@ struct enchant {
 	// экстра аффекты (obj_flags.extra_flags)
 	BitsetFlags<EObjFlag> extra_flags_;
 	// запреты на ношение (obj_flags.no_flag)
-	FlagData no_flags_;
+	BitsetFlags<ENoFlag> no_flags_;
 	// изменение веса (+-)
 	int weight_;
 	// кубики на пушки (пока вешаются только с сетовых энчантов)

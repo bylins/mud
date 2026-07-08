@@ -570,7 +570,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	// Anti flags (array of 4 plane values)
 	if (data.contains("anti_flags") && data["anti_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<EAntiFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["anti_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["anti_flags"][i].get<Bitvector>());
@@ -581,7 +581,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	// No flags (array of 4 plane values)
 	if (data.contains("no_flags") && data["no_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<ENoFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["no_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["no_flags"][i].get<Bitvector>());
