@@ -35,17 +35,37 @@ void set_obj_aff(ObjData *itemobj, EAffect bitv);
 class ObjVal {
  public:
 	enum class EValueKey : uint32_t {
-		// номер и уровень заклинаний в зелье/емкости с зельем
-		POTION_SPELL1_NUM = 0,
-		POTION_SPELL1_LVL = 1,
-		POTION_SPELL2_NUM = 2,
-		POTION_SPELL2_LVL = 3,
-		POTION_SPELL3_NUM = 4,
-		POTION_SPELL3_LVL = 5,
-		// внум прототипа зелья, перелитого в емкость
-		// 0 - если зелье в емкости проставлено через олц
-		POTION_PROTO_VNUM = 6
+		// issue.potion-hotfix: magic-potion (kPotion) payload, also carried by a drink container.
+		// Persisted BY NAME via the text_id kObjVals table (utils_parse.cpp), so the on-disk
+		// strings stay stable even though the C++ identifiers follow the Google style.
+		kPotionSpell1Num = 0,
+		kPotionSpell1Lvl = 1,   // retired: no per-spell power (misnamed "level"). Kept only so old
+		kPotionSpell2Num = 2,   // saves still load; strength is kPotionPotency, one per potion.
+		kPotionSpell2Lvl = 3,   // retired
+		kPotionSpell3Num = 4,   // the REAL 3rd spell again (had been hijacked to store the potency)
+		kPotionSpell3Lvl = 5,   // retired
+		kPotionProtoVnum = 6,   // vnum of the source potion poured into a container (0 = set via OLC)
+		kPotionPotency = 7,     // the potion's single casting potency (competence C), replayed at cast
+		kPotionBrewRoll = 8,    // the brew-success roll: the noise realization, replayed at cast
+		kPotionSkill = 9,       // the MAKER's skill (brew skill for crafted, authored default else) --
+		                        // stands in for the magic skill (non-mages brew too); drives DURATION
+		                        // and, with kPotionStat, the competence (AMOUNT). Drinker never matters.
+		kPotionStat = 10,       // the MAKER's key stat (Intelligence when brewing / authored default)
+		// issue.potion-hotfix: drink/food CONTENTS state, split out of the historically overloaded
+		// val[3] (which meant BOTH a freshness countdown AND, at exactly 1, "poisoned"). Persisted by
+		// name via the kObjVals text_id table, like the potion keys above.
+		kLiquidTimer = 11,      // contents freshness: counts down 1/mud-hour; reaching 0 spoils the potion
+		kLiquidPoison = 12      // poison level applied on drinking (0 = harmless); set when it spoils
 	};
+
+	// issue.potion-hotfix: fixed-point scale for kPotionBrewRoll. The stored int is
+	// lround((1 + eps) * kBrewRollScale), so the brewed noise factor (always > 0) equals
+	// kPotionBrewRoll / kBrewRollScale -- a fractional noise realization living in the int store.
+	static constexpr int kBrewRollScale = 1000;
+	// issue.potion-hotfix: bias so a NEGATIVE brew-luck z still stores as a POSITIVE int (the value map
+	// drops negatives). Stored = lround((z + kBrewRollBias) * kBrewRollScale); z = stored/scale - bias.
+	// Draw range clamps |z| to <= kBrewRollBias (a standard normal essentially never exceeds it).
+	static constexpr int kBrewRollBias = 5;
 
 	class EValueKeyHash {
 	 public:

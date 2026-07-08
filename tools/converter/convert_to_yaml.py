@@ -1493,12 +1493,14 @@ class SqliteSaver(BaseSaver):
                 ON CONFLICT(mob_vnum, spell_id) DO UPDATE SET count = count + 1
             ''', (vnum, spell_id))
         
-        # Helpers
-        for helper_vnum in enhanced.get('helpers', []):
+        # Helpers. helper_order keys the primary key (not helper_vnum) so a
+        # repeated vnum (weighted random helper selection) is preserved
+        # instead of being silently collapsed into one row.
+        for idx, helper_vnum in enumerate(enhanced.get('helpers', [])):
             cursor.execute('''
-                INSERT OR IGNORE INTO mob_helpers (mob_vnum, helper_vnum)
-                VALUES (?, ?)
-            ''', (vnum, helper_vnum))
+                INSERT OR REPLACE INTO mob_helpers (mob_vnum, helper_order, helper_vnum)
+                VALUES (?, ?, ?)
+            ''', (vnum, idx, helper_vnum))
         
         # Destinations
         for idx, room_vnum in enumerate(enhanced.get('destinations', [])):

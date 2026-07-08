@@ -25,7 +25,7 @@
 
 class CharData;
 class ObjData;
-class RoomData;
+struct RoomData;
 
 namespace target_resolver {
 

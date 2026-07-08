@@ -25,11 +25,18 @@ public:
 
 	std::string GetName() const override { return "Legacy file-based loader"; }
 
+	// Legacy's BootIndex() is the original CircleMUD loader: it parses and
+	// places entities directly into trig_index/world/mob_proto+mob_index/
+	// obj_proto itself (and attaches triggers), so these always return an
+	// empty vector -- SupportsZoneFilter() being false tells the boot
+	// orchestrator (db.cpp) not to expect anything to place and to leave
+	// what BootIndex just built alone. Never mixed into a composite in
+	// practice (full-world-archive-only), so zone_filter is ignored.
 	void LoadZones() override;
-	void LoadTriggers() override;
-	void LoadRooms() override;
-	void LoadMobs() override;
-	void LoadObjects() override;
+	std::vector<LoadedTrigger> LoadTriggers(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedRoom> LoadRooms(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedMob> LoadMobs(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedObject> LoadObjects(const std::vector<int> *zone_filter = nullptr) override;
 
 	void SaveZone(int zone_rnum) override;
 	bool SaveTriggers(int zone_rnum, int specific_vnum, int notify_level) override;

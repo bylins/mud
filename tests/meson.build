@@ -29,6 +29,7 @@ test_sources = files(
     'char.affects.cpp',
     'affects.loader.cpp',
     'random.noise.cpp',
+    'potion.duration.cpp',
     'char.leaders.cpp',
     'char.morph.copy.cpp',
     'obj.copy.cpp',

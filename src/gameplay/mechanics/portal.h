@@ -10,7 +10,7 @@
 #include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
 
 class CharData;
-class RoomData;
+struct RoomData;
 
 // Impose a kPortalTimer room affect on `from_room` pointing at `to_room` (the "pentagram gate"
 // endpoint). pk_unique stamps the imposing caster for PK; affect_type=kNoPortalExit marks a

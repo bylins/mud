@@ -19,6 +19,7 @@
 #include "gameplay/abilities/talents_actions.h"   // issue.character-affect-triggers: EActionTrigger (EventContext)
 
 #include <cstdlib>
+#include <limits>
 #include <optional>
 #include <set>
 #include <string_view>   // issue.character-affect-triggers: EventContext::GetTag
@@ -42,6 +43,14 @@ struct RollResult {
 	double stat_coeff{0.0};    // talents_actions::Roll::CalcBaseStatCoeff(caster)
 	double low_skill_coeff{0.0};  // talents_actions::Roll::CalcLowSkillCoeff(caster): the
 	                              // low-skill bonus only, fed to SetBattleLag as skill_bonus.
+	// issue.potion-hotfix: a brewed potion's FROZEN brew-luck as a standard-normal z. When not NaN,
+	// CalcNoisyAmount uses `mean + z*sd` instead of drawing, so every quaff of THIS potion delivers the
+	// same amount -- and each of the potion's spells applies its OWN sigma (via sd) to the one shared z.
+	// NaN (the default) means "no fixed noise -- draw randomly", i.e. an ordinary live cast.
+	double noise_z{std::numeric_limits<double>::quiet_NaN()};
+	// issue.potion-hotfix: a potion buff's DURATION scales off its MAKER's skill (stored on the potion),
+	// never the drinker's. >=0 = a fixed maker skill (potion); <0 (default) = live cast, use the caster.
+	int cast_skill{-1};
 };
 
 // issue.mob-flag-affect-materialization: build the real affect node(s) that realize an intrinsic mob
@@ -297,7 +306,9 @@ enum class ECastResult {
 [[nodiscard]] inline bool CastTargetDied(ECastResult r) { return r == ECastResult::kTargetDied; }
 
 ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level,
-		float fixed_potency = -1.0f,  // fixed_potency>=0 (item/potion): use it as the whole cast potency, skip caster roll
+		float fixed_potency = -1.0f,   // fixed_potency>=0 (item/potion): use it as the whole cast potency, skip caster roll
+		double fixed_noise_z = std::numeric_limits<double>::quiet_NaN(),  // not-NaN (brewed potion): frozen brew-luck z replayed at cast
+		int fixed_skill = -1,  // >=0 (potion): the MAKER skill used for buff DURATION
 		int dir = -1);  // issue.room-affect-trigger-improve: dir>=0 + kMagRoom -> cast on EXIT(caster,dir) (door affect)
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst,
 		int dir = -1);  // dir>=0: kTarDirection cast on the exit in that direction
