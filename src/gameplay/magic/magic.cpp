@@ -216,13 +216,6 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 	return element_coeff;
 }
 
-int CalcBaseDmg(CharData *ch, ESpell spell_id) {
-	auto base_dmg = MUD::Spell(spell_id).GetPotencyRoll().RollSkillDices();
-	if (!ch->IsNpc()) {
-		base_dmg *= condition::GetCondPenalty(ch, condition::kDamroll);
-	}
-	return base_dmg;
-}
 
 // as a local lambda that handles every category (heal / moves / thirst /
 // cond) uniformly.
@@ -328,7 +321,7 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 }
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
-							const talents_actions::Action &action, double competence, int base_override = -1,
+							const talents_actions::Action &action, double competence,
 							double noise_z = std::numeric_limits<double>::quiet_NaN()) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
@@ -344,14 +337,6 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 	}
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
-		// issue.damage-over-time: a spell-free affect tick (spell_id kUndefined) has no spell dice to roll,
-		// so base_dmg would be 0 and the whole <amount> formula would collapse to amount.min. base_override
-		// (>=0) supplies the affect's STORED POTENCY as the damage base instead, so a DoT's per-tick damage
-		// = amount.min + ceil(potency * dices_weight ...): dices_weight scales the damage while the potency
-		// (dispel strength) is set separately by the imposing spell's <affects potency_weight>.
-		const float base_dmg = (base_override >= 0)
-			? static_cast<float>(base_override)
-			: CalcBaseDmg(ch, spell_id);
 		const float skill_coeff = potency_roll.CalcSkillCoeff(ch);
 		const float stat_coeff = potency_roll.CalcBaseStatCoeff(ch);
 		const float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
@@ -367,12 +352,10 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
 			// Formula A. C = skill_coeff + stat_coeff.
 			const float C = static_cast<float>(competence);  // base override
-			// issue.potency-noise: one formula -- min + beta*scale_base*(1 + weight*d). The scale base is
-				// the affect's stored potency for a DoT tick (base_override>=0), else the cast competence C.
-				// noise_z carries the cast's realized deviation d; weight=0 -> deterministic.
-				const float scale_base = (base_override >= 0) ? static_cast<float>(base_override) : C;
+			// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d). For a DoT tick C is the
+				// affect's stored potency (fed as fixed_potency -> skill_coeff); noise_z = realized d.
 				dmg = static_cast<float>(CalcNoisyAmount(dmg_act.GetAmountMin(),
-						dmg_act.GetAmountBeta() * scale_base, dmg_act.GetAmountWeight(), /*cap*/ 0, noise_z));
+						dmg_act.GetAmountBeta() * C, dmg_act.GetAmountWeight(), /*cap*/ 0, noise_z));
 		} else {
 			// issue.random-noise-rework: the legacy `dice * (1 + skill + stat)` model is abandoned --
 			// it was dice-dominated (skill barely mattered) and, with the rebalanced competence, both
@@ -390,8 +373,8 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 		total_dmg = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, total_dmg);
 		complex_mod = total_dmg - complex_mod;
 		spell_trace::Line(ch, victim,
-				"&CMag.dmg (%s -> %s). Base: %2.2f, Skill: %2.2f, Stat: %2.2f, Amount: %2.2f, Bonus: %1.2f, Cmplx: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
-				GET_NAME(ch), GET_NAME(victim), base_dmg, skill_coeff, stat_coeff, dmg, 1 + bonus_mod, complex_mod, elem_coeff, total_dmg);
+				"&CMag.dmg (%s -> %s). Skill: %2.2f, Stat: %2.2f, Amount: %2.2f, Bonus: %1.2f, Cmplx: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+				GET_NAME(ch), GET_NAME(victim), skill_coeff, stat_coeff, dmg, 1 + bonus_mod, complex_mod, elem_coeff, total_dmg);
 	}
 
 	return total_dmg;
@@ -671,15 +654,9 @@ EStageResult CastDamage(ActionContext &ctx) {
 
 	int total_dmg{0};
 
-	// issue.damage-over-time: for a spell-free tick (affect/room DoT, spell_id kUndefined) the fixed
-	// potency lives in ctx.potency().dices; feed it as the damage base so the DoT scales off its stored
-	// potency (see CalcTotalSpellDmg). Real spells (spell_id set) keep base_override = -1 (roll the dice).
-	const int base_override = (spell_id == ESpell::kUndefined)
-		? std::max(0, ctx.potency().dices)
-		: -1;
 	try {
 		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
-													   ctx.CompetenceBase(), base_override, ctx.potency().noise_dev) * ctx.area_coeff);
+													   ctx.CompetenceBase(), ctx.potency().noise_dev) * ctx.area_coeff);
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
