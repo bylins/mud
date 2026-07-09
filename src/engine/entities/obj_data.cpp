@@ -840,7 +840,7 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 
 void set_obj_aff(ObjData *itemobj, const EAffect bitv) {
 	for (const auto &i : equipment_affect) {
-		if (i.aff_bitvector == static_cast<Bitvector>(bitv)) {
+		if (i.aff_affect == bitv) {
 			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
 		}
 	}
@@ -1616,7 +1616,7 @@ double CalcRemortRequirements(const CObjectPrototype *obj) {
 	// аффекты AFF_x через equipment_affect
 	for (const auto &m : equipment_affect) {
 		if (obj->GetEEquipmentAffect(m.aff_pos)) {
-			auto obj_affects = static_cast<EAffect>(m.aff_bitvector);
+			auto obj_affects = m.aff_affect;
 			if (obj_affects == EAffect::kAirShield ||
 				obj_affects == EAffect::kFireShield ||
 				obj_affects == EAffect::kIceShield) {

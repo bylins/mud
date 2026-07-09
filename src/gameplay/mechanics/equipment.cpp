@@ -326,7 +326,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 				} else {
 					affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first,
 								  GetApplyByEquipmentAffect(j.aff_pos, ch).second,
-								  static_cast<EAffect>(j.aff_bitvector), true);
+								  j.aff_affect, true);
 				}
 			}
 		}
@@ -389,14 +389,14 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 
 		if (ch->in_room != kNowhere) {
 			for (const auto &j : equipment_affect) {
-				if (j.aff_bitvector == 0 || !obj->GetEEquipmentAffect(j.aff_pos)) {
+				if (j.aff_affect == EAffect::kUndefined || !obj->GetEEquipmentAffect(j.aff_pos)) {
 					continue;
 				}
 				if (ch->IsNpc()
-					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], static_cast<EAffect>(j.aff_bitvector))) {
+					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], j.aff_affect)) {
 					continue;
 				}
-				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), false);
+				affect_modify(ch, EApply::kNone, 0, j.aff_affect, false);
 			}
 		}
 

@@ -1146,17 +1146,17 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 	// аффекты AFF_x через equipment_affect
 	for (const auto &m : equipment_affect) {
 		if (obj->GetEEquipmentAffect(m.aff_pos)) {
-			if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kAirShield) {
+			if (m.aff_affect == EAffect::kAirShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kFireShield) {
+			} else if (m.aff_affect == EAffect::kFireShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kIceShield) {
+			} else if (m.aff_affect == EAffect::kIceShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kMagicGlass) {
+			} else if (m.aff_affect == EAffect::kMagicGlass) {
 				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kBlink) {
+			} else if (m.aff_affect == EAffect::kBlink) {
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kCloudly) {
+			} else if (m.aff_affect == EAffect::kCloudly) {
 				total_weight += pow(AFF_CLOUDLY_MOD, SQRT_MOD);
 			}
 		}

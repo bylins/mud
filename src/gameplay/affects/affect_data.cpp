@@ -804,10 +804,10 @@ void affect_total(CharData *ch) {
 			// Update weapon bitvectors
 			for (const auto &j : equipment_affect) {
 				// То же самое, но переформулировал
-				if (j.aff_bitvector == 0 || !obj->GetEEquipmentAffect(j.aff_pos)) {
+				if (j.aff_affect == EAffect::kUndefined || !obj->GetEEquipmentAffect(j.aff_pos)) {
 					continue;
 				}
-				affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first, GetApplyByEquipmentAffect(j.aff_pos, ch).second, static_cast<EAffect>(j.aff_bitvector), true);
+				affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first, GetApplyByEquipmentAffect(j.aff_pos, ch).second, j.aff_affect, true);
 			}
 		}
 	}

@@ -84,9 +84,10 @@ struct flag_index_mapping<EEquipmentAffect> {
 template<>
 const std::string &NAME_BY_ITEM(EEquipmentAffect item);
 
+enum class EAffect : Bitvector;   // forward decl (full def in affect_contants.h, which includes this header)
 struct EquipmentAffect {
 	EEquipmentAffect aff_pos;
-	Bitvector aff_bitvector;
+	EAffect aff_affect;   // the affect this equipment flag confers (kUndefined = none, spell-driven)
 	ESpell aff_spell;
 };
 

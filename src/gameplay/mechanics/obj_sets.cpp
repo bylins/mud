@@ -1219,9 +1219,9 @@ void activ_sum::update(CharData *ch) {
 
 void activ_sum::apply_affects(CharData *ch) const {
 	for (const auto &j : equipment_affect) {
-		if (j.aff_bitvector != 0
+		if (j.aff_affect != EAffect::kUndefined
 			&& affects.get(static_cast<EEquipmentAffect>(j.aff_pos))) {
-			affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
+			affect_modify(ch, EApply::kNone, 0, j.aff_affect, true);
 		}
 	}
 	for (auto &&i : apply) {
@@ -1299,11 +1299,11 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 
 						if (ch->in_room != kNowhere) {
 							for (const auto &i : equipment_affect) {
-								if (i.aff_bitvector == 0
+								if (i.aff_affect == EAffect::kUndefined
 									|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+								affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 							}
 						}
 					}
@@ -1340,7 +1340,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 							} else {
 								affect_modify(ch, GetApplyByEquipmentAffect(i.aff_pos, ch).first,
 											  GetApplyByEquipmentAffect(i.aff_pos, ch).second,
-											  static_cast<EAffect>(i.aff_bitvector), true);
+											  i.aff_affect, true);
 							}
 						}
 					}
@@ -1375,7 +1375,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 						} else {
 							affect_modify(ch, GetApplyByEquipmentAffect(i.aff_pos, ch).first,
 										  GetApplyByEquipmentAffect(i.aff_pos, ch).second,
-										  static_cast<EAffect>(i.aff_bitvector), true);
+										  i.aff_affect, true);
 						}
 					}
 				}
@@ -1432,11 +1432,11 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 
 							if (ch->in_room != kNowhere) {
 								for (const auto &i : equipment_affect) {
-									if (i.aff_bitvector == 0
+									if (i.aff_affect == EAffect::kUndefined
 										|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+									affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 								}
 							}
 
@@ -1460,11 +1460,11 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 
 							if (ch->in_room != kNowhere) {
 								for (const auto &i : equipment_affect) {
-									if (i.aff_bitvector == 0
+									if (i.aff_affect == EAffect::kUndefined
 										|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
+									affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 								}
 							}
 
@@ -1479,11 +1479,11 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 
 					if (ch->in_room != kNowhere) {
 						for (const auto &i : equipment_affect) {
-							if (i.aff_bitvector == 0
+							if (i.aff_affect == EAffect::kUndefined
 								|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 								continue;
 							}
-							affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+							affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 						}
 					}
 
@@ -1508,11 +1508,11 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 
 						if (ch->in_room != kNowhere) {
 							for (const auto &i : equipment_affect) {
-								if (i.aff_bitvector == 0 ||
+								if (i.aff_affect == EAffect::kUndefined ||
 									!GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
+								affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 							}
 						}
 					}
@@ -1532,11 +1532,11 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 
 				if (ch->in_room != kNowhere) {
 					for (const auto &i : equipment_affect) {
-						if (i.aff_bitvector == 0
+						if (i.aff_affect == EAffect::kUndefined
 							|| !obj->GetEEquipmentAffect(i.aff_pos)) {
 							continue;
 						}
-						affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+						affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 					}
 				}
 
