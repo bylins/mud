@@ -1,0 +1,97 @@
+/**
+ \brief Affects conferred by equipped items (the "weapon affect" flag set).
+ NOTE: "weapon" is a historical DikuMUD misnomer -- these affects are applied by ANY worn
+ equipment, not just weapons. Extracted from affect_contants.h (issue.equipment-affects):
+ the EWeaponAffect flag enum, the value->EAffect/spell table (weapon_affect) and the flag name maps.
+*/
+
+#ifndef BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
+#define BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
+
+#include "gameplay/magic/spells_constants.h"
+
+#include <array>
+#include <map>
+#include <string>
+
+enum class EWeaponAffect : Bitvector {
+	kBlindness = (1 << 0),			//0
+	kInvisibility = (1 << 1),
+	kDetectAlign = (1 << 2),
+	kDetectInvisibility = (1 << 3),
+	kDetectMagic = (1 << 4),
+	kDetectLife = (1 << 5),
+	kWaterWalk = (1 << 6),
+	kSanctuary = (1 << 7),
+	kCurse = (1 << 8),
+	kInfravision = (1 << 9),
+	kPoison = (1 << 10),			//10
+	kProtectFromDark = (1 << 11),
+	kProtectFromMind = (1 << 12),
+	kSleep = (1 << 13),
+	kNoTrack = (1 << 14),
+	kBless = (1 << 15),
+	kSneak = (1 << 16),
+	kHide = (1 << 17),
+	kHold = (1 << 18),
+	kFly = (1 << 19),
+	kSilence = (1 << 20),			//20
+	kAwareness = (1 << 21),
+	kBlink = (1 << 22),
+	kNoFlee = (1 << 23),
+	kSingleLight = (1 << 24),
+	kHolyLight = (1 << 25),
+	kHolyDark = (1 << 26),
+	kDetectPoison = (1 << 27),
+	kSlow = (1 << 28),
+	kHaste = (1 << 29),
+	kWaterBreath = kIntOne | (1 << 0),//30
+	kHaemorrhage = kIntOne | (1 << 1),
+	kDisguising = kIntOne | (1 << 2),
+	kShield = kIntOne | (1 << 3),
+	kAirShield = kIntOne | (1 << 4),
+	kFireShield = kIntOne | (1 << 5),
+	kIceShield = kIntOne | (1 << 6),
+	kMagicGlass = kIntOne | (1 << 7),
+	kStoneHand = kIntOne | (1 << 8),
+	kPrismaticAura = kIntOne | (1 << 9),
+	kAirAura = kIntOne | (1 << 10),		//40
+	kFireAura = kIntOne | (1 << 11),
+	kIceAura = kIntOne | (1 << 12),
+	kDeafness = kIntOne | (1 << 13),
+	kComamnder = kIntOne | (1 << 14),
+	kEarthAura = kIntOne | (1 << 15),	//45
+	kCloudly = kIntOne | (1 << 16)
+// не забудьте поправить kWeaponAffectCount
+};
+
+constexpr size_t kWeaponAffectCount = 47;
+
+template<>
+EWeaponAffect ITEM_BY_NAME<EWeaponAffect>(const std::string &name);
+// issue.flags-migration P1b: transitional packed storage.
+template<>
+struct flag_traits<EWeaponAffect> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EWeaponAffect> {
+	static constexpr std::size_t to_index(EWeaponAffect f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+template<>
+const std::string &NAME_BY_ITEM(EWeaponAffect item);
+
+struct WeaponAffect {
+	EWeaponAffect aff_pos;
+	Bitvector aff_bitvector;
+	ESpell aff_spell;
+};
+
+using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
+extern WeaponAffectArray weapon_affect;
+
+#endif //BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

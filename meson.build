@@ -642,6 +642,7 @@ main_sources = files(
   'src/utils/parser_wrapper.cpp',
   'src/engine/boot/cfg_manager.cpp',
   'src/gameplay/affects/affect_contants.cpp',
+  'src/gameplay/affects/equipment_affects.cpp',
   'src/engine/ui/cmd_god/do_users.cpp',
   'src/engine/ui/table_wrapper.cpp',
   'src/engine/ui/cmd/do_score.cpp',
