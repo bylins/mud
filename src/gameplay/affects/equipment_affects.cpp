@@ -136,4 +136,98 @@ EquipmentAffectArray equipment_affect = {
 	EquipmentAffect{EEquipmentAffect::kCloudly, to_underlying(EAffect::kCloudly), ESpell::kUndefined}
 };
 
+// issue.equipment-affects-improve: apply bridge moved verbatim from affect_data.cpp.
+std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch) {
+	int value;
+	if (ch) //чтоб не было варнинга, ch передаю на будущее
+		value = 2;
+	switch (element) {
+		case EEquipmentAffect::kFireAura:
+			return std::pair<EApply, int>(EApply::kResistFire, value);
+			break;
+		case EEquipmentAffect::kAirAura:
+			return std::pair<EApply, int>(EApply::kResistAir, value);
+			break;
+		case EEquipmentAffect::kIceAura:
+			return std::pair<EApply, int>(EApply::kResistWater, value);
+			break;
+		case EEquipmentAffect::kEarthAura:
+			return std::pair<EApply, int>(EApply::kResistEarth, value);
+			break;
+		case EEquipmentAffect::kProtectFromDark:
+			return std::pair<EApply, int>(EApply::kResistDark, value);
+			break;
+		case EEquipmentAffect::kProtectFromMind:
+			return std::pair<EApply, int>(EApply::kResistMind, value);
+			break;
+		// issue.mob-flag-affect-materialization: worn cloudly/blink must grant the miss-chance APPLY,
+		// not just the flag -- ProcessBlink now gates on the apply, not AFF_FLAGGED. Flat 10 preserves
+		// the pre-change PC value (the old hardcoded flag path defaulted a flagged PC to blink 10); NPC
+		// bearers still take level+remort from ProcessBlink regardless of magnitude.
+		case EEquipmentAffect::kCloudly:
+			return std::pair<EApply, int>(EApply::kSpelledBlinkMag, 10);
+			break;
+		case EEquipmentAffect::kBlink:
+			return std::pair<EApply, int>(EApply::kSpelledBlinkPhys, 10);
+			break;
+		default:
+			return std::pair<EApply, int>(EApply::kNone, 0);
+			break;
+	}
+}
+
+// issue.equipment-affects-improve: flag display names moved from constants.cpp.
+const char *equipment_affects[] = {"слепота",
+								"невидимость",
+								"опр.наклонностей",
+								"опр.невидимости",
+								"опр.магии",
+								"опр.жизни",
+								"водохождение",
+								"освящение",
+								"проклятие",
+								"инфравидение",
+								"яд",
+								"сопротивление.магии.тьмы",
+								"сопротивление.магии.разума",
+								"сон",
+								"не.выследить",
+								"доблесть",
+								"подкрадывание",
+								"спрятаться",
+								"оцепенение",
+								"полет",
+								"молчание",
+								"настороженность",
+								"мигание",
+								"не.сбежать",
+								"свет",
+								"освещение",
+								"тьма",
+								"опр.яда",
+								"медлительность",
+								"ускорение",
+								"\n",
+								"дыхание.водой",
+								"кровотечение",
+								"маскировка",
+								"защита.богов",
+								"воздушный.щит",
+								"огненный.щит",
+								"ледяной.щит",
+								"зеркало.магии",
+								"каменная.рука",
+								"призматическая.аура",
+								"воздушная.аура",
+								"огненная.аура",
+								"ледяная.аура",
+								"глухота",
+								"полководец",
+								"земной.поклон",
+								"затуманивание",
+								"\n",
+								"\n",
+								"\n"
+};
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

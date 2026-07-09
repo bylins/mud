@@ -134,7 +134,6 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
-std::pair<EApply, int> GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch);
 void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);

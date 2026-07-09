@@ -11,6 +11,7 @@
 #include "gameplay/magic/spells_constants.h"
 
 #include <array>
+#include <utility>
 #include <map>
 #include <string>
 
@@ -91,6 +92,16 @@ struct EquipmentAffect {
 
 using EquipmentAffectArray = std::array<EquipmentAffect, kEquipmentAffectCount>;
 extern EquipmentAffectArray equipment_affect;
+
+// issue.equipment-affects-improve: the apply bridge (EEquipmentAffect -> {EApply, magnitude}) and
+// the flag display names, moved here to complete the module. EApply is forward-declared -- it lives
+// in affect_contants.h, which includes THIS header, so we cannot include it back.
+enum EApply : int;
+class CharData;
+std::pair<EApply, int> GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch);
+
+// Russian display names for the flags (sprintbits labels), indexed by bit position.
+extern const char *equipment_affects[];
 
 #endif //BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
 

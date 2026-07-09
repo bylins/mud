@@ -261,7 +261,7 @@ typedef std::list<EAffect> affects_list_t;
  * Modifier constants used with obj affects ('A' fields) and character affects
  */
 
-enum EApply {
+enum EApply : int {
 	kNone = 0,    // No effect         //
 	kStr = 1,    // Apply to strength    //
 	kDex = 2,    // Apply to dexterity      //

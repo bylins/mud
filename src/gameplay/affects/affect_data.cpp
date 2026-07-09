@@ -726,44 +726,6 @@ void RemoveCurableAffects(CharData *ch) {
 	}
 }
 
-std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch) {
-	int value;
-	if (ch) //чтоб не было варнинга, ch передаю на будущее
-		value = 2;
-	switch (element) {
-		case EEquipmentAffect::kFireAura:
-			return std::pair<EApply, int>(EApply::kResistFire, value);
-			break;
-		case EEquipmentAffect::kAirAura:
-			return std::pair<EApply, int>(EApply::kResistAir, value);
-			break;
-		case EEquipmentAffect::kIceAura:
-			return std::pair<EApply, int>(EApply::kResistWater, value);
-			break;
-		case EEquipmentAffect::kEarthAura:
-			return std::pair<EApply, int>(EApply::kResistEarth, value);
-			break;
-		case EEquipmentAffect::kProtectFromDark:
-			return std::pair<EApply, int>(EApply::kResistDark, value);
-			break;
-		case EEquipmentAffect::kProtectFromMind:
-			return std::pair<EApply, int>(EApply::kResistMind, value);
-			break;
-		// issue.mob-flag-affect-materialization: worn cloudly/blink must grant the miss-chance APPLY,
-		// not just the flag -- ProcessBlink now gates on the apply, not AFF_FLAGGED. Flat 10 preserves
-		// the pre-change PC value (the old hardcoded flag path defaulted a flagged PC to blink 10); NPC
-		// bearers still take level+remort from ProcessBlink regardless of magnitude.
-		case EEquipmentAffect::kCloudly:
-			return std::pair<EApply, int>(EApply::kSpelledBlinkMag, 10);
-			break;
-		case EEquipmentAffect::kBlink:
-			return std::pair<EApply, int>(EApply::kSpelledBlinkPhys, 10);
-			break;
-		default:
-			return std::pair<EApply, int>(EApply::kNone, 0);
-			break;
-	}
-}
 
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
