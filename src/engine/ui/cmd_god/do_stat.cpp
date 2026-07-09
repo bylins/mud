@@ -1226,7 +1226,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			else
 				snprintf(smallBuf, sizeof(smallBuf), "%s%5d%s", kColorCyn,
 						GET_ROOM_VNUM(rm->dir_option[i]->to_room()), kColorNrm);
-			sprintbit(rm->dir_option[i]->exit_info, exit_bits, tmpBuf, sizeof(tmpBuf));
+			sprintbit(rm->dir_option[i]->exit_info.get_plane(0), exit_bits, tmpBuf, sizeof(tmpBuf));
 			snprintf(buf, sizeof(buf),
 					"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
 					kColorCyn, dirs[i], kColorNrm, smallBuf,

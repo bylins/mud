@@ -227,6 +227,9 @@ class BitsetFlags {
 	// --- serialization (byte-compatible with FlagData) ---
 	void from_string(const char *flag) {
 		clear();
+		if (!flag) {
+			return;  // issue.flags-migration: tolerate a null (e.g. a legacy `field(0)` init)
+		}
 		const std::vector<std::uint32_t> planes = bitset_flags_detail::parse_string(flag);
 		for (std::size_t p = 0; p < planes.size(); ++p) {
 			const std::uint32_t v = planes[p] & 0x3FFFFFFFu;

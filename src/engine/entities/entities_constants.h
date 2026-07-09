@@ -579,6 +579,19 @@ struct flag_index_mapping<ERoomFlag> {
 	kDungeonEntry = 1 << 6	// When character goes through this door then he will get into a copy of the zone behind the door.
  };
 
+// issue.flags-migration P1e: exit_info was a byte (single plane, serialized as a plain int via
+// get_plane(0)); packed mapping keeps flag identity. count=30 (one plane).
+template<>
+struct flag_traits<EExitFlag> {
+	static constexpr std::size_t count = 30;
+};
+template<>
+struct flag_index_mapping<EExitFlag> {
+	static constexpr std::size_t to_index(EExitFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 /**
  * Sector types: used in room_data.sector_type
  */

@@ -776,7 +776,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 			else {
 				if (number == 1) {
 					if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor)) {
-						OLC_EXIT(d)->exit_info = 0;
+						OLC_EXIT(d)->exit_info.clear();
 						OLC_EXIT(d)->lock_complexity = 0;
 					} else
 						SET_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor);

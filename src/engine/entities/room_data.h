@@ -35,7 +35,7 @@ class ExitData {
 	char *keyword;        // for open/close       //
 	char *vkeyword;        // алиас двери в винительном падеже для открывания/закрывания
 
-	byte exit_info;    // Exit info             //
+	BitsetFlags<EExitFlag> exit_info;    // Exit info (issue.flags-migration)             //
 	ubyte lock_complexity;
 	ObjVnum key;        // Key's number (-1 for no key) //
 	// issue.room-affect-trigger-improve (door affects): a room affect (Affect<ERoomApply>) may be hosted

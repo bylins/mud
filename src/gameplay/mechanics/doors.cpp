@@ -279,8 +279,8 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 		back = world[other_room]->dir_option[rev_dir[door]];
 		if (back) {
 			if ((back->to_room() != ch->in_room)
-				|| ((EXITDATA(ch->in_room, door)->exit_info
-					^ EXITDATA(other_room, rev_dir[door])->exit_info)
+				|| ((EXITDATA(ch->in_room, door)->exit_info.get_plane(0)
+					^ EXITDATA(other_room, rev_dir[door])->exit_info.get_plane(0))
 					& (EExitFlag::kHasDoor | EExitFlag::kClosed | EExitFlag::kLocked))) {
 				back.reset();
 			}

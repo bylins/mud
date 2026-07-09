@@ -1457,7 +1457,7 @@ void YamlWorldDataSource::LoadRoomExits(RoomData *room, const YAML::Node &exits_
 		std::string keywords = GetText(exit_node, "keywords", "");
 		if (!keywords.empty()) exit_data->set_keywords(keywords);
 
-		exit_data->exit_info = GetInt(exit_node, "exit_flags", 0);
+		exit_data->exit_info.set_plane(0, GetInt(exit_node, "exit_flags", 0));
 
 		// Дропаем полностью пустые D-блоки (симметрично с legacy/sqlite),
 		// см. issue #3272.
@@ -3312,10 +3312,10 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 			}
 
 			// Exit flags (optional)
-			if (room->dir_option_proto[dir]->exit_info != 0)
+			if (room->dir_option_proto[dir]->exit_info.any())
 			{
 				out << yaml.GetIndent() << "  exit_flags: ";
-				out << static_cast<int>(room->dir_option_proto[dir]->exit_info) << std::endl;
+				out << room->dir_option_proto[dir]->exit_info.get_plane(0) << std::endl;
 			}
 
 			// Key (optional)

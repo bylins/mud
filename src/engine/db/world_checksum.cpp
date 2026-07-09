@@ -181,7 +181,7 @@ std::string SerializeRoom(const RoomData *room)
 				oss << exit->vkeyword;
 			}
 			oss << ":";
-			oss << static_cast<int>(exit->exit_info) << ":";
+			oss << exit->exit_info.get_plane(0) << ":";
 			oss << static_cast<int>(exit->lock_complexity) << ":";
 			oss << exit->key << ";";
 		}

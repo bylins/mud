@@ -1361,7 +1361,7 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 		if (!keywords.empty()) exit_data->set_keywords(keywords);
 
 		// Set exit flags (stored as string in database, parse as integer)
-		exit_data->exit_info = exit_flags;
+		exit_data->exit_info.set_plane(0, exit_flags);
 
 		// Дропаем полностью пустые D-блоки (симметрично с legacy/yaml),
 		// см. issue #3272.
@@ -3141,7 +3141,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 			}
 
 			// Save exit flags as string (numeric value)
-			std::string exit_flags_str = std::to_string(room->dir_option_proto[dir]->exit_info);
+			std::string exit_flags_str = std::to_string(room->dir_option_proto[dir]->exit_info.get_plane(0));
 			if (!exit_flags_str.empty() && exit_flags_str != "0")
 			{
 				BindTextKoi(stmt, 5, exit_flags_str.c_str());
