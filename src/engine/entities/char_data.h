@@ -14,6 +14,7 @@
 #include "engine/db/db.h"
 #include "entities_constants.h"
 #include "engine/structs/bitset_flags.h"
+#include "gameplay/magic/spells_constants.h"  // issue.flags-migration: EExtraAttackFlag for battle_affects
 #include "room_data.h"
 #include "obj_data.h"
 #include "engine/scripting/dg_scripts.h"
@@ -708,7 +709,7 @@ class CharData : public ProtectedCharData {
 	int battle_counter;
 	int round_counter;
 
-	FlagData battle_affects;
+	BitsetFlags<EExtraAttackFlag> battle_affects;
 
 	dead_load::OnDeadLoadList dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет

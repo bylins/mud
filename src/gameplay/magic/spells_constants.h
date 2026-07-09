@@ -8,6 +8,7 @@
 #define BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 
 #include "engine/structs/structs.h"
+#include "engine/structs/bitset_flags.h"
 #include "gameplay/mechanics/condition.h"
 #include "engine/structs/meta_enum.h"
 
@@ -452,6 +453,19 @@ enum EExtraAttackFlag : Bitvector {
 	kEafPoisoned = 1 << 20,		// отравление с пушек раз в раунд
 	kEafFirstPoison = 1 << 21,	// отравление цели первый раз за бой
 	kEafInvisible = 1 << 22,	// одет автоинвиз
+};
+
+// issue.flags-migration P2/battle_affects: transient combat flags -> BitsetFlags<EExtraAttackFlag>
+// (single plane, max kEafInvisible=1<<22; not persisted). Packed mapping.
+template<>
+struct flag_traits<EExtraAttackFlag> {
+	static constexpr std::size_t count = 30;
+};
+template<>
+struct flag_index_mapping<EExtraAttackFlag> {
+	static constexpr std::size_t to_index(EExtraAttackFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
 };
 
 // Spell-flag mask: the "NPC casting calculation" bits -- the contiguous NPC block (16-23)

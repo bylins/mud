@@ -147,7 +147,7 @@ void CharData::reset() {
 		remove_protecting();
 	}
 	set_touching(nullptr);
-	battle_affects = clear_flags;
+	battle_affects.clear();
 	SetEnemy(nullptr);
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
