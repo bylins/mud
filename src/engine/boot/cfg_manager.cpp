@@ -61,6 +61,7 @@
 #include "gameplay/mechanics/pc_race_messages.h"
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/affects/affects_loader.h"
+#include "gameplay/affects/equipment_affects_loader.h"
 #include "gameplay/magic/room_affects_loader.h"
 #include "gameplay/magic/room_affect_messages.h"
 #include "gameplay/affects/affect_messages.h"
@@ -148,6 +149,8 @@ CfgManager::CfgManager() {
 		{"board_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
 		{"specials", CfgDir::kRoot, [] { return MakeLoader<SpecialsLoader>(); }},
 		{"affects", CfgDir::kRoot, [] { return MakeLoader<affects::AffectsLoader>(); }},
+		{"equipment_affects", CfgDir::kRoot, [] { return MakeLoader<EquipmentAffectsLoader>(); }},
+		{"equipment_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<EquipmentAffectMsgLoader>(); }},
 		{"room_affects", CfgDir::kRoot, [] { return MakeLoader<room_spells::RoomAffectsLoader>(); }},
 		{"affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
 		{"room_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<room_spells::RoomAffectMessagesLoader>(); }},

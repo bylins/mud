@@ -11,6 +11,7 @@
 #include "gameplay/magic/spells_constants.h"
 
 #include <array>
+#include <vector>
 #include <utility>
 #include <map>
 #include <string>
@@ -91,8 +92,8 @@ struct EquipmentAffect {
 	ESpell aff_spell;
 };
 
-using EquipmentAffectArray = std::array<EquipmentAffect, kEquipmentAffectCount>;
-extern EquipmentAffectArray equipment_affect;
+// issue.equipment-affects-cfg: loaded from cfg/equipment_affects.xml at boot (was a hardcoded table).
+extern std::vector<EquipmentAffect> equipment_affect;
 
 // issue.equipment-affects-improve: the apply bridge (EEquipmentAffect -> {EApply, magnitude}) and
 // the flag display names, moved here to complete the module. EApply is forward-declared -- it lives
@@ -102,7 +103,9 @@ class CharData;
 std::pair<EApply, int> GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch);
 
 // Russian display names for the flags (sprintbits labels), indexed by bit position.
-extern const char *equipment_affects[];
+// issue.equipment-affects-cfg: rebuilt at boot from cfg/messages/ru/equipment_affect_msg.xml
+// (plane-padded, '\n'-separated -- the layout sprintbits still expects).
+extern const char **equipment_affects;
 
 #endif //BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
 

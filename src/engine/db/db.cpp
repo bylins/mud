@@ -657,6 +657,8 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Guarded like the skills load just below; the normal running-server boot reaches here too.
 	if (!affects::MessagesLoaded()) {
 		MUD::CfgManager().LoadCfg("affects");
+		MUD::CfgManager().LoadCfg("equipment_affects");   // issue.equipment-affects-cfg
+		MUD::CfgManager().LoadCfg("equipment_affect_msg");
 		MUD::CfgManager().LoadCfg("affect_msg");
 		// issue.common-msg: nothing_string (CommonMsg(kNothing)) is used by sprintbits during the
 		// object/mob load below, so common_messages must be ready before the world parses.

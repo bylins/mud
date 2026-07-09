@@ -8,6 +8,8 @@
 
 #include "gameplay/affects/affect_contants.h"   // EAffect (for the equipment_affect table)
 #include "utils/utils.h"                         // to_underlying
+#include "gameplay/affects/equipment_affects_loader.h"
+#include "utils/utils_parse.h"
 
 typedef std::map<EEquipmentAffect, std::string> EEquipmentAffectFlag_name_by_value_t;
 typedef std::map<const std::string, EEquipmentAffect> EEquipmentAffectFlag_value_by_name_t;
@@ -86,55 +88,8 @@ const std::string &NAME_BY_ITEM(const EEquipmentAffect item) {
 	return EEquipmentAffectFlag_name_by_value.at(item);
 }
 
-EquipmentAffectArray equipment_affect = {
-	EquipmentAffect{EEquipmentAffect::kBlindness, EAffect::kUndefined, ESpell::kBlindness},
-	EquipmentAffect{EEquipmentAffect::kInvisibility, EAffect::kInvisible, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kDetectAlign, EAffect::kDetectAlign, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kDetectInvisibility, EAffect::kDetectInvisible, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kDetectMagic, EAffect::kDetectMagic, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kDetectLife, EAffect::kDetectLife, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kWaterWalk, EAffect::kWaterWalk, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kSanctuary, EAffect::kSanctuary, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kCurse, EAffect::kCurse, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kInfravision, EAffect::kInfravision, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kPoison, EAffect::kUndefined, ESpell::kPoison},
-	EquipmentAffect{EEquipmentAffect::kProtectFromDark, EAffect::kProtectFromDark, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kProtectFromMind, EAffect::kProtectFromMind, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kSleep, EAffect::kUndefined, ESpell::kSleep},
-	EquipmentAffect{EEquipmentAffect::kNoTrack, EAffect::kNoTrack, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kBless, EAffect::kBless, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kSneak, EAffect::kSneak, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kHide, EAffect::kHide, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kHold, EAffect::kUndefined, ESpell::kHold},
-	EquipmentAffect{EEquipmentAffect::kFly, EAffect::kFly, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kSilence, EAffect::kSilence, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kAwareness, EAffect::kAwarness, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kBlink, EAffect::kBlink, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kNoFlee, EAffect::kNoFlee, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kSingleLight, EAffect::kSingleLight, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kHolyLight, EAffect::kHolyLight, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kHolyDark, EAffect::kHolyDark, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kDetectPoison, EAffect::kDetectPoison, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kSlow, EAffect::kSlow, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kHaste, EAffect::kHaste, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kWaterBreath, EAffect::kWaterBreath, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kHaemorrhage, EAffect::kHaemorrhage, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kDisguising, EAffect::kDisguise, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kShield, EAffect::kGodsShield, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kAirShield, EAffect::kAirShield, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kFireShield, EAffect::kFireShield, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kIceShield, EAffect::kIceShield, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kMagicGlass, EAffect::kMagicGlass, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kStoneHand, EAffect::kStoneHands, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kPrismaticAura, EAffect::kPrismaticAura, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kAirAura, EAffect::kAirAura, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kFireAura, EAffect::kFireAura, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kIceAura, EAffect::kIceAura, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kDeafness, EAffect::kDeafness, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kComamnder, EAffect::kCommander, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kEarthAura, EAffect::kEarthAura, ESpell::kUndefined},
-	EquipmentAffect{EEquipmentAffect::kCloudly, EAffect::kCloudly, ESpell::kUndefined}
-};
+// issue.equipment-affects-cfg: populated by EquipmentAffectsLoader from cfg/equipment_affects.xml.
+std::vector<EquipmentAffect> equipment_affect;
 
 // issue.equipment-affects-improve: apply bridge moved verbatim from affect_data.cpp.
 std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch) {
@@ -177,57 +132,76 @@ std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, Char
 }
 
 // issue.equipment-affects-improve: flag display names moved from constants.cpp.
-const char *equipment_affects[] = {"слепота",
-								"невидимость",
-								"опр.наклонностей",
-								"опр.невидимости",
-								"опр.магии",
-								"опр.жизни",
-								"водохождение",
-								"освящение",
-								"проклятие",
-								"инфравидение",
-								"яд",
-								"сопротивление.магии.тьмы",
-								"сопротивление.магии.разума",
-								"сон",
-								"не.выследить",
-								"доблесть",
-								"подкрадывание",
-								"спрятаться",
-								"оцепенение",
-								"полет",
-								"молчание",
-								"настороженность",
-								"мигание",
-								"не.сбежать",
-								"свет",
-								"освещение",
-								"тьма",
-								"опр.яда",
-								"медлительность",
-								"ускорение",
-								"\n",
-								"дыхание.водой",
-								"кровотечение",
-								"маскировка",
-								"защита.богов",
-								"воздушный.щит",
-								"огненный.щит",
-								"ледяной.щит",
-								"зеркало.магии",
-								"каменная.рука",
-								"призматическая.аура",
-								"воздушная.аура",
-								"огненная.аура",
-								"ледяная.аура",
-								"глухота",
-								"полководец",
-								"земной.поклон",
-								"затуманивание",
-								"\n",
-								"\n",
-								"\n"
-};
+// issue.equipment-affects-cfg: display names, loaded from equipment_affect_msg.xml (was hardcoded).
+static std::vector<std::string> g_equipment_affect_names;
+static std::vector<const char *> g_equipment_affect_name_ptrs;
+const char **equipment_affects = nullptr;
+
+// issue.equipment-affects-cfg: build the equipment_affect table from cfg/equipment_affects.xml.
+void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
+	std::vector<EquipmentAffect> table;
+	for (auto &node : data.Children()) {
+		if (std::string(node.GetName()) != "affect") {
+			continue;
+		}
+		const EEquipmentAffect pos = ITEM_BY_NAME<EEquipmentAffect>(node.GetValue("id"));
+		EAffect flag = EAffect::kUndefined;
+		ESpell spell = ESpell::kUndefined;
+		for (auto &imp : node.Children()) {
+			if (std::string(imp.GetName()) != "impose") {
+				continue;
+			}
+			flag = parse::ReadAsConstant<EAffect>(imp.GetValue("flag"));
+			spell = parse::ReadAsConstant<ESpell>(imp.GetValue("spell"));
+		}
+		table.push_back(EquipmentAffect{pos, flag, spell});
+	}
+	equipment_affect = std::move(table);
+}
+
+void EquipmentAffectsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+
+// issue.equipment-affects-cfg: rebuild the plane-padded equipment_affects[] name array from the flat
+// message file. Per plane (4x30 legacy bits) append each present affect's name in bit order, then a
+// '\n' plane terminator -- byte-identical to the old hardcoded array (verified).
+void EquipmentAffectMsgLoader::Load(parser_wrapper::DataNode data) {
+	std::map<EEquipmentAffect, std::string> names;
+	for (auto &node : data.Children()) {
+		if (std::string(node.GetName()) != "affect") {
+			continue;
+		}
+		const EEquipmentAffect id = ITEM_BY_NAME<EEquipmentAffect>(node.GetValue("id"));
+		for (auto &nm : node.Children()) {
+			if (std::string(nm.GetName()) == "name") {
+				names[id] = nm.GetValue("val");
+			}
+		}
+	}
+	std::vector<std::string> arr;
+	for (int plane = 0; plane < 4; ++plane) {
+		for (int bit = 0; bit < 30; ++bit) {
+			const auto af = static_cast<EEquipmentAffect>(
+					(static_cast<Bitvector>(plane) << 30) | (static_cast<Bitvector>(1) << bit));
+			const auto it = names.find(af);
+			if (it != names.end()) {
+				arr.push_back(it->second);
+			}
+		}
+		arr.push_back("\n");
+	}
+	g_equipment_affect_names = std::move(arr);
+	g_equipment_affect_name_ptrs.clear();
+	g_equipment_affect_name_ptrs.reserve(g_equipment_affect_names.size());
+	for (const auto &nm : g_equipment_affect_names) {
+		g_equipment_affect_name_ptrs.push_back(nm.c_str());
+	}
+	equipment_affects = g_equipment_affect_name_ptrs.data();
+}
+
+void EquipmentAffectMsgLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
