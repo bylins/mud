@@ -197,7 +197,7 @@ class CObjectPrototype {
 										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
 										   m_material(DEFAULT_MATERIAL),
 										   m_sex(EGender::kMale),
-										   m_wear_flags(to_underlying(EWearFlag::kUndefined)),
+										   m_wear_flags(),
 										   m_timer(DEFAULT_TIMER),
 										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
 											m_cost(DEFAULT_COST),
@@ -224,10 +224,10 @@ class CObjectPrototype {
 	auto get_type() const { return m_type; }
 	auto get_val(size_t index) const { return m_vals[index]; }
 	auto GetPotionValueKey(const ObjVal::EValueKey key) const { return m_values.get(key); }
-	auto get_wear_flags() const { return m_wear_flags; }
+	wear_flags_t get_wear_flags() const { return m_wear_flags.get_plane(0); }
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
-	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::kTake); }
+	bool can_wear_any() const { return m_wear_flags.any() && m_wear_flags.get_plane(0) != to_underlying(EWearFlag::kTake); }
 	bool GetEWeaponAffect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
 	bool GetWeaponAffect(const Bitvector weapon_affect) const { return m_waffect_flags.get(static_cast<EWeaponAffect>(weapon_affect)); }
 	bool has_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
@@ -320,7 +320,7 @@ class CObjectPrototype {
 	void SetPotionValueKey(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
 	void SetPotionValues(const ObjVal &_) { m_values = _; }
 	void set_wear_flag(const EWearFlag flag);
-	void set_wear_flags(const wear_flags_t _) { m_wear_flags = _; }
+	void set_wear_flags(const wear_flags_t _) { m_wear_flags.clear(); m_wear_flags.set_plane(0, _); }
 	void set_weight(const int _) { m_weight = _; }
 	void set_val(size_t index, int value) { m_vals[index] = value; }
 	void sub_current(const int _) { m_current_durability -= _; }
@@ -427,7 +427,7 @@ class CObjectPrototype {
 	BitsetFlags<EAntiFlag> m_anti_flags;
 	BitsetFlags<ENoFlag> m_no_flags;
 
-	wear_flags_t m_wear_flags;        // Where you can wear it     //
+	BitsetFlags<EWearFlag> m_wear_flags;        // Where you can wear it     //
 
 	int m_timer;    ///< таймер (в минутах рл)
 

@@ -230,7 +230,7 @@ void CObjectPrototype::toggle_val_bit(const size_t index, const Bitvector bit) {
 }
 
 void CObjectPrototype::toggle_wear_flag(const Bitvector flag) {
-	TOGGLE_BIT(m_wear_flags, flag);
+	m_wear_flags.toggle(static_cast<EWearFlag>(flag));
 }
 
 void CObjectPrototype::set_skill(ESkill skill_num, int percent) {
@@ -373,11 +373,11 @@ int CObjectPrototype::get_skill(ESkill skill_num) const {
 }
 
 bool CObjectPrototype::has_wear_flag(const EWearFlag part) const {
-	return IS_SET(m_wear_flags, to_underlying(part));
+	return m_wear_flags.get(part);
 }
 
 bool CObjectPrototype::get_wear_mask(const wear_flags_t part) const {
-	return IS_SET(m_wear_flags, part);
+	return (m_wear_flags.get_plane(0) & part) != 0;
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.

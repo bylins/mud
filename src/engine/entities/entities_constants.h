@@ -740,6 +740,19 @@ enum class EWearFlag : Bitvector {
 	kQuiver = 1 << 16
 };
 
+// issue.flags-migration P1e: m_wear_flags was a bare int (single plane, serialized as a plain
+// int via get_plane(0)); packed mapping keeps identity. count=30 (one plane; max flag 1<<16).
+template<>
+struct flag_traits<EWearFlag> {
+	static constexpr std::size_t count = 30;
+};
+template<>
+struct flag_index_mapping<EWearFlag> {
+	static constexpr std::size_t to_index(EWearFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 template<>
 const std::string &NAME_BY_ITEM<EWearFlag>(EWearFlag item);
 template<>
