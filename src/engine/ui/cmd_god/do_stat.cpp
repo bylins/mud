@@ -606,8 +606,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		for (const auto &aff : k->affected) {
 			std::string sline = fmt::sprintf("Заклинания: (%3d%s|%s) %s%-21s%s ",
 					aff->duration + 1,
-					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
-					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
+					(aff->battleflag.get(kAfPulsedec)) || (aff->battleflag.get(kAfSameTime)) ? "плс" : "мин",
+					(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин",
 					kColorCyn,
 					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
 					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(),

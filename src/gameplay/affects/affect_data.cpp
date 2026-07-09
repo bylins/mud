@@ -1077,9 +1077,9 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_batt
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond))
-				| extra_battleflag;   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
+		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond))
+				| extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
@@ -1106,8 +1106,8 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
+		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond)));
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.

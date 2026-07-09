@@ -20,7 +20,7 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 	af.affect_type = affect_type;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
-	af.battleflag = 0;
+	af.battleflag.clear();
 	af.location = room_spells::ERoomApply::kNone;
 	af.caster_id = ch? ch->get_uid() : 0;
 	af.apply_time = 0;

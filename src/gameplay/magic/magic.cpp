@@ -1501,7 +1501,7 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kIceShield;
-		af.battleflag = 0;
+		af.battleflag.clear();
 		affect_to_char(mob, af);
 	}
 }
@@ -2032,7 +2032,7 @@ namespace {
 // CheckNodispel blacklist). An affect with no matching flag -- charm/quest effects, or anything
 // applied outside <affects> in code -- is irremovable.
 bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flags) {
-	return affect && IS_SET(affect->battleflag, flags);
+	return affect && (affect->battleflag.get_plane(0) & flags) != 0;
 }
 
 // True if the victim carries a removable affect of the given spell type (one matching `flags`).
@@ -2268,7 +2268,7 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect
 // NOT replicated here -- concurrency rules for room dispel are deferred (no clear policy yet).
 
 bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, Bitvector flags) {
-	return affect && IS_SET(affect->battleflag, flags);
+	return affect && (affect->battleflag.get_plane(0) & flags) != 0;
 }
 
 bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, Bitvector flags) {

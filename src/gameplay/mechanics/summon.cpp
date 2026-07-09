@@ -46,7 +46,7 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kCharmed;
-	af.battleflag = kAfCharmBond;
+	af.battleflag = {kAfCharmBond};
 	affect_to_char(mob, af);
 	if (keeper) {
 		af.affect_type = EAffect::kHelper;

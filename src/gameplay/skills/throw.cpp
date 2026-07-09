@@ -66,7 +66,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.affect_type = EAffect::kSilence;
 				af.duration = CalcDuration(technique.GetActor(), technique.GetRival(), ESkill::kDarkMagic, 2, 23, 2, 6);
-				af.battleflag = kAfBattledec | kAfPulsedec;
+				af.battleflag = {kAfBattledec, kAfPulsedec};
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 			});
 			break;
@@ -80,7 +80,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.affect_type = EAffect::kStopFight;
 				af.duration = CalcDuration(technique.GetRival(), technique.GetRival(), ESkill::kUndefined, 3, 0, 0, 0);
-				af.battleflag = kAfBattledec | kAfPulsedec;
+				af.battleflag = {kAfBattledec, kAfPulsedec};
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 				SetWait(technique.GetRival(), 3, false);
 			});

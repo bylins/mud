@@ -684,7 +684,7 @@ void Player::save_char() {
 		for (auto &aff : tmp_aff) {
 			if (aff->affect_type != EAffect::kUndefined) {
 				saved.printf("%d %d %d %d %d %f %d %s\n", static_cast<int>(aff->affect_type),
-						aff->duration, aff->modifier, aff->location, static_cast<int>(aff->battleflag),
+						aff->duration, aff->modifier, aff->location, aff->battleflag.get_plane(0),
 						aff->potency, aff->stacks,
 						NAME_BY_ITEM<EAffect>(aff->affect_type).c_str());
 			}
@@ -1215,7 +1215,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
-							af.battleflag = num6;
+							af.battleflag.set_plane(0, num6);
 							if (parsed >= 6) {
 								af.potency = af_potency;
 							}

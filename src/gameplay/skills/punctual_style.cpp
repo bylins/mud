@@ -41,7 +41,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 		i.location = EApply::kNone;
 		i.affect_type = EAffect::kSevereWound;
 		i.modifier = 0;
-		i.battleflag = 0;
+		i.battleflag.clear();
 		i.duration = CalcDuration(victim, victim, ESkill::kUndefined, 2, 0, 0, 0);
 	}
 
@@ -124,7 +124,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "раздробило вам бедро";
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					af[1].location = EApply::kBind;
 					af[1].modifier = 1;
 					af[1].affect_type = EAffect::kInsidiousWound;
@@ -140,7 +140,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "изуродовало вам ногу";
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					af[1].location = EApply::kBind;
 					af[1].modifier = 1;
 					af[1].affect_type = EAffect::kInsidiousWound;
@@ -211,7 +211,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "повредило вам живот";
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					af[1].location = EApply::kBind;
 					af[1].modifier = 1;
 					af[1].affect_type = EAffect::kInsidiousWound;
@@ -224,7 +224,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "разорвало вам живот";
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					af[1].location = EApply::kBind;
 					af[1].modifier = 1;
 					af[1].affect_type = EAffect::kInsidiousWound;
@@ -295,7 +295,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "повредило вам туловище";
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					af[1].location = EApply::kBind;
 					af[1].modifier = 1;
 					af[1].affect_type = EAffect::kInsidiousWound;
@@ -320,7 +320,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "сломало вам ребра";
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					af[1].location = EApply::kBind;
 					af[1].modifier = 1;
 					af[1].affect_type = EAffect::kInsidiousWound;
@@ -330,7 +330,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 				case 11:    // chest crushed, hits 0
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					hit_data.dam *= std::min(GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					ImposeHaemorrhage(victim, 50);
 					to_char = "вывело $N3 из строя";
@@ -339,7 +339,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 				default:    // chest crushed, killing
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					hit_data.dam *= std::min(GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					ImposeHaemorrhage(victim, 60);
 					to_char = "вывело $N3 из строя";
@@ -421,19 +421,19 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 						to_vict = "изуродовало вам правую руку";
 						af[0].affect_type = EAffect::kStopRight;
 						af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-						af[0].battleflag = kAfBattledec | kAfPulsedec;
+						af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					} else if (!AFF_FLAGGED(victim, EAffect::kStopLeft)) {
 						to_char = "ослабило атаку $N1";
 						to_vict = "изуродовало вам левую руку";
 						af[0].affect_type = EAffect::kStopLeft;
 						af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-						af[0].battleflag = kAfBattledec | kAfPulsedec;
+						af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					} else {
 						to_char = "вывело $N3 из строя";
 						to_vict = "вывело вас из строя";
 						af[0].affect_type = EAffect::kStopFight;
 						af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-						af[0].battleflag = kAfBattledec | kAfPulsedec;
+						af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					}
 					ImposeHaemorrhage(victim, 20);
 					break;
@@ -443,19 +443,19 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 						to_vict = "изуродовало вам правую руку";
 						af[0].affect_type = EAffect::kStopRight;
 						af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-						af[0].battleflag = kAfBattledec | kAfPulsedec;
+						af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					} else if (!AFF_FLAGGED(victim, EAffect::kStopLeft)) {
 						to_char = "ослабило натиск $N1";
 						to_vict = "изуродовало вам левую руку";
 						af[0].affect_type = EAffect::kStopLeft;
 						af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-						af[0].battleflag = kAfBattledec | kAfPulsedec;
+						af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					} else {
 						to_char = "вывело $N3 из строя";
 						to_vict = "вывело вас из строя";
 						af[0].affect_type = EAffect::kStopFight;
 						af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-						af[0].battleflag = kAfBattledec | kAfPulsedec;
+						af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					}
 					af[1].location = EApply::kBind;
 					af[1].modifier = 1;
@@ -523,7 +523,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 				case 9:    // head damaged, no speed, no attack
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].battleflag = {kAfBattledec, kAfPulsedec};
 					ImposeHaemorrhage(victim, 30);
 					hit_data.dam *= std::min(GetSkill(ch, ESkill::kPunctual) / 3, 67);
 					to_char = "повергло $N3 в оцепенение";
@@ -534,21 +534,21 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[0].location = EApply::kInt;
 					af[0].modifier = -1;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[0].battleflag = kAfDeadkeep;
+					af[0].battleflag = {kAfDeadkeep};
 					af[0].affect_type = EAffect::kContusion;
 					af[1].location = EApply::kWis;
 					af[1].modifier = -1;
 					af[1].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[1].battleflag = kAfDeadkeep;
+					af[1].battleflag = {kAfDeadkeep};
 					af[1].affect_type = EAffect::kContusion;
 					af[2].location = EApply::kCha;
 					af[2].modifier = -1;
 					af[2].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[2].battleflag = kAfDeadkeep;
+					af[2].battleflag = {kAfDeadkeep};
 					af[2].affect_type = EAffect::kContusion;
 					af[3].affect_type = EAffect::kStopFight;
 					af[3].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
-					af[3].battleflag = kAfBattledec | kAfPulsedec;
+					af[3].battleflag = {kAfBattledec, kAfPulsedec};
 					ImposeHaemorrhage(victim, 50);
 					to_char = "сорвало у $N1 крышу";
 					to_vict = "сорвало у вас крышу";
@@ -558,17 +558,17 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[0].location = EApply::kInt;
 					af[0].modifier = -victim->get_int() / 2;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[0].battleflag = kAfDeadkeep;
+					af[0].battleflag = {kAfDeadkeep};
 					af[0].affect_type = EAffect::kContusion;
 					af[1].location = EApply::kWis;
 					af[1].modifier = -victim->get_wis() / 2;
 					af[1].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[1].battleflag = kAfDeadkeep;
+					af[1].battleflag = {kAfDeadkeep};
 					af[1].affect_type = EAffect::kContusion;
 					af[2].location = EApply::kCha;
 					af[2].modifier = -victim->get_cha() / 2;
 					af[2].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[2].battleflag = kAfDeadkeep;
+					af[2].battleflag = {kAfDeadkeep};
 					af[2].affect_type = EAffect::kContusion;
 					ImposeHaemorrhage(victim, 60);
 					to_char = "сорвало у $N1 крышу";
@@ -578,17 +578,17 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[0].location = EApply::kInt;
 					af[0].modifier = -victim->get_int() / 2;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[0].battleflag = kAfDeadkeep;
+					af[0].battleflag = {kAfDeadkeep};
 					af[0].affect_type = EAffect::kContusion;
 					af[1].location = EApply::kWis;
 					af[1].modifier = -victim->get_wis() / 2;
 					af[1].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[1].battleflag = kAfDeadkeep;
+					af[1].battleflag = {kAfDeadkeep};
 					af[1].affect_type = EAffect::kContusion;
 					af[2].location = EApply::kCha;
 					af[2].modifier = -victim->get_cha() / 2;
 					af[2].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
-					af[2].battleflag = kAfDeadkeep;
+					af[2].battleflag = {kAfDeadkeep};
 					af[2].affect_type = EAffect::kContusion;
 					hit_data.dam *= std::min(GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					to_char = "размозжило $N2 голову";
@@ -673,17 +673,17 @@ void ImposeHaemorrhage(CharData *ch, int percent) {
 	//TODO: Отрицательное время, если тело больше 31?
 	af[0].duration = CalcDuration(ch, ch, ESkill::kUndefined, number(1, 31 - GetRealCon(ch)), 0, 0, 0);
 	af[0].affect_type = EAffect::kHaemorrhage;
-	af[0].battleflag = kAfCurable;
+	af[0].battleflag = {kAfCurable};
 	af[1].location = EApply::kMoveRegen;
 	af[1].modifier = -percent;
 	af[1].duration = af[0].duration;
 	af[1].affect_type = EAffect::kHaemorrhage;
-	af[1].battleflag = kAfCurable;
+	af[1].battleflag = {kAfCurable};
 	af[2].location = EApply::kManaRegen;
 	af[2].modifier = -percent;
 	af[2].duration = af[0].duration;
 	af[2].affect_type = EAffect::kHaemorrhage;
-	af[2].battleflag = kAfCurable;
+	af[2].battleflag = {kAfCurable};
 
 	for (auto &i : af) {
 		ImposeAffectNoRecalc(ch, i, true, false, true, false);

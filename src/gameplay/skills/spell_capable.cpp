@@ -152,7 +152,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.modifier = 0;
 		af.location = EApply::kNone;
 	}
-	af.battleflag = 0;
+	af.battleflag.clear();
 	af.affect_type = EAffect::kCapable;
 	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spell_id;

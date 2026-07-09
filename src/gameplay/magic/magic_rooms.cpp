@@ -916,7 +916,7 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 	for (int i = 0; i < kMaxSpellAffects; i++) {
 		af[i].affect_type = static_cast<ERoomAffect>(0);
 		af[i].modifier = 0;
-		af[i].battleflag = 0;
+		af[i].battleflag.clear();
 		af[i].location = kNone;
 		af[i].caster_id = 0;
 		af[i].apply_time = 0;
@@ -934,7 +934,7 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 		af[0].caster_id = ch->get_uid();
 		// issue.affect-migration: flags come from room_affects.xml by affect_type (so the update-gate
 		// below reads the right kAfUpdateDuration/kAfUpdateMod).
-		af[0].battleflag = RoomAffectFlagsByType(af[0].affect_type);
+		af[0].battleflag.set_plane(0, RoomAffectFlagsByType(af[0].affect_type));
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
 			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
@@ -1132,8 +1132,8 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll) {
 void affect_to_exit(const RoomData::exit_data_ptr &exit, const Affect<ERoomApply> &af) {
 	Affect<ERoomApply>::shared_ptr new_affect(new Affect<ERoomApply>(af));
 	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
-		new_affect->battleflag = RoomAffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed));
+		new_affect->battleflag.set_plane(0, RoomAffectFlagsByType(af.affect_type)
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed)));
 	}
 	exit->affected.push_front(new_affect);
 }
@@ -1176,7 +1176,7 @@ ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll) {
 		af.affect_type = talent.GetRoomAffect();
 		af.caster_id = ch->get_uid();
 		af.location = kNone;
-		af.battleflag = RoomAffectFlagsByType(af.affect_type);
+		af.battleflag.set_plane(0, RoomAffectFlagsByType(af.affect_type));
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
 			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
@@ -1294,8 +1294,8 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	// affect_type; the caller contributes only the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (pre-cfg boot keeps caller flags); kUndefined room affects (no row) keep theirs.
 	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
-		new_affect->battleflag = RoomAffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed));
+		new_affect->battleflag.set_plane(0, RoomAffectFlagsByType(af.affect_type)
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed)));
 	}
 
 	room->affected.push_front(new_affect);

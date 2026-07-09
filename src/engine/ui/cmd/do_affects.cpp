@@ -54,7 +54,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			snprintf(sp_name, sizeof(sp_name), "%s",
 					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 			int mod = 0;
-			if (aff->battleflag == kAfPulsedec) {
+			if (aff->battleflag.get_plane(0) == static_cast<Bitvector>(kAfPulsedec)) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
 			} else {
 				mod = aff->duration;

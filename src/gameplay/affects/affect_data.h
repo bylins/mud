@@ -4,6 +4,7 @@
 #include "affect_contants.h"
 #include "gameplay/skills/skills.h"
 #include "engine/structs/flag_data.h"
+#include "engine/structs/bitset_flags.h"
 #include "engine/structs/structs.h"
 
 #include <vector>
@@ -36,14 +37,14 @@ class Affect {
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
 	Affect() : duration(0), modifier(0), location(static_cast<TLocation>(0)),
-			   battleflag(0), caster_id(0),
+			   battleflag(), caster_id(0),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
 	int duration;    // For how long its effects will last      //
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
-	Bitvector battleflag;       //*** SUCH AS HOLD,SIELENCE etc
+	BitsetFlags<EAffFlag> battleflag;       //*** SUCH AS HOLD,SIELENCE etc
 	// The single flag this affect sets while active (AFF_XXX). Its enum type
 	// follows the affect's location kind via AffectFlagType (EAffect for chars,
 	// ERoomAffect for rooms). kUndefined/0 means the affect sets no flag.

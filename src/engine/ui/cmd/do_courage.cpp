@@ -37,28 +37,28 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[0].modifier = 40;
 	af[0].location = EApply::kAc;
 	af[0].affect_type = EAffect::kCourage;
-	af[0].battleflag = 0;
+	af[0].battleflag.clear();
 	af[1].duration = CalcDuration(ch, ch, ESkill::kUndefined, dur, 0, 0, 0);
 	af[1].modifier = std::max(1, prob);
 	af[1].location = EApply::kDamroll;
 	af[1].affect_type = EAffect::kCourage;
-	af[1].battleflag = 0;
+	af[1].battleflag.clear();
 	af[2].duration = CalcDuration(ch, ch, ESkill::kUndefined, dur, 0, 0, 0);
 	af[2].modifier = std::max(1, prob * 7);
 	af[2].location = EApply::kAbsorbe;
 	af[2].affect_type = EAffect::kCourage;
-	af[2].battleflag = 0;
+	af[2].battleflag.clear();
 	af[3].duration = CalcDuration(ch, ch, ESkill::kUndefined, dur, 0, 0, 0);
 	af[3].modifier = 50;
 	af[3].location = EApply::kHpRegen;
 	af[3].affect_type = EAffect::kCourage;
-	af[3].battleflag = 0;
+	af[3].battleflag.clear();
 	// issue.affects-improve: courage steels you against fleeing (EApply::kBind), replacing the old kNoFlee affect.
 	af[4].duration = CalcDuration(ch, ch, ESkill::kUndefined, dur, 0, 0, 0);
 	af[4].modifier = 1;
 	af[4].location = EApply::kBind;
 	af[4].affect_type = EAffect::kCourage;
-	af[4].battleflag = 0;
+	af[4].battleflag.clear();
 
 	for (auto & i : af) {
 		ImposeAffect(ch, i, false, false, false, false);

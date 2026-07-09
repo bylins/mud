@@ -65,6 +65,19 @@ enum EAffFlag : Bitvector {
   kAfAegis				= 1u << 26	// strong defensive magic: shields/auras/sanctuary (aegis rift)
 };
 
+// issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags; single plane
+// (max kAfAegis=1<<26), serialized in player files as a plain int via get_plane(0)/set_plane(0).
+template<>
+struct flag_traits<EAffFlag> {
+	static constexpr std::size_t count = 30;
+};
+template<>
+struct flag_index_mapping<EAffFlag> {
+	static constexpr std::size_t to_index(EAffFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 /**
  * Affect bits: used in char_data.char_specials.saved.affected_by //
  */

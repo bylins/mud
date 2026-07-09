@@ -49,13 +49,13 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10, 0, 0, 0);
 	af.affect_type = EAffect::kBandage;
-	af.battleflag = kAfPulsedec;
+	af.battleflag = {kAfPulsedec};
 	ImposeAffect(ch, af, false, false, false, false);
 
 	af.location = EApply::kNone;
 	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 60, 0, 0, 0);
 	af.affect_type = EAffect::kCannotBeBandaged;
-	af.battleflag = kAfPulsedec;
+	af.battleflag = {kAfPulsedec};
 	ImposeAffect(ch, af, false, false, false, false);
 	// issue.affect-migration: imposition narration on the kBandage affect (self).
 	EmitAffectImpose(ch, nullptr, EAffect::kBandage, false);

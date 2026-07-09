@@ -131,7 +131,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			//Описание аффекта "ошарашен" для умения "удар щитом":
 			Affect<EApply> af;
 			af.duration = 2;
-			af.battleflag = kAfSameTime;
+			af.battleflag = {kAfSameTime};
 			af.affect_type = EAffect::kConfused;
 			if (!vict->IsNpc()) {
 				af.duration *= 30;

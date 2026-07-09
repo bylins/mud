@@ -35,10 +35,10 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.duration = CalcDuration(ch, ch, ESkill::kSneak, 0, 20, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.battleflag.clear();
 	if (percent > prob) {
 		af.affect_type = EAffect::kSneak;
-		af.battleflag = kAfFailed;
+		af.battleflag = {kAfFailed};
 	} else {
 		af.affect_type = EAffect::kSneak;
 	}
