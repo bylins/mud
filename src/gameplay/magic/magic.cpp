@@ -37,6 +37,7 @@
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
+#include "gameplay/affects/equipment_affects.h"  // equipment_affect table (suppression)
 #include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage for <damage source="poison">
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
@@ -2431,6 +2432,46 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, room_spel
 // (UnaffectConditionMet / CollectRemovals / DispelSucceeds / RemoveAffectAndAnnounce) are all
 // overloaded on the target type, so overload resolution picks the right one at instantiation.
 // PK aggro gating is char-only; for a RoomData target the `if constexpr` branch is dropped.
+// issue.equipment-affect-suppression: an equipment-conferred affect is re-derived from the item on
+// every affect_total, so an unaffect can't strip it -- instead temporarily SUPPRESS it on the worn
+// item(s), using the same affect-flag/debuff_only match as the real-affect strip. Dedups the announce
+// across items and adds a nominal potency to removed_out so the cast registers as effective.
+static constexpr int kEquipSuppressMinutes = 10;   // constant for now; later f(affect_pot - unaffect_pot)
+static bool SuppressEquipmentAffects(CharData *ch, CharData *victim, Bitvector flags, bool debuff_only,
+									double &removed_out) {
+	(void) ch;
+	std::set<EAffect> announced;
+	bool any = false;
+	for (int pos = 0; pos < EEquipPos::kNumEquipPos; ++pos) {
+		ObjData *obj = GET_EQ(victim, pos);
+		if (!obj) {
+			continue;
+		}
+		for (const auto &j : equipment_affect) {
+			if (j.aff_affect == EAffect::kUndefined || !obj->GetEEquipmentAffect(j.aff_pos)
+					|| obj->is_affect_suppressed(j.aff_affect)) {
+				continue;
+			}
+			if (!(affects::AffectFlagsByType(j.aff_affect) & flags)) {
+				continue;
+			}
+			if (debuff_only && affects::AffectBuffKind(j.aff_affect) == affects::EBuff::kYes) {
+				continue;
+			}
+			obj->suppress_affect(j.aff_affect, kEquipSuppressMinutes);
+			any = true;
+			removed_out += 1.0;   // equipment affects carry no stored potency; nominal effect marker
+			if (announced.insert(j.aff_affect).second) {
+				const std::string &msg = affects::AffectMsg(j.aff_affect, affects::EAffectMsgType::kAffDispelledToChar);
+				if (!msg.empty()) {
+					act(msg.c_str(), false, victim, nullptr, nullptr, kToChar);
+				}
+			}
+		}
+	}
+	return any;
+}
+
 template<typename TTarget>
 EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 							  const talents_actions::TalentUnaffect &unaffect, double area_coeff,
@@ -2460,6 +2501,22 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 			if (!dup) { deduped.push_back(c); }
 		}
 		to_remove.swap(deduped);
+	}
+
+	bool suppressed_any = false;
+	if constexpr (std::is_same_v<TTarget, CharData>) {
+		if (!blocking) {
+			bool pk_ok = true;
+			if (ch != target && MUD::Spell(spell_id).IsViolentAgainst(ch, target)) {
+				pk_ok = pk_agro_action(ch, target);   // suppressing an enemy's item buff is aggression
+			}
+			if (pk_ok) {
+				suppressed_any = SuppressEquipmentAffects(ch, target, flags, unaffect.GetDebuffOnly(), removed_out);
+				if (suppressed_any) {
+					affect_total(target);   // drop the now-suppressed equipment affects immediately
+				}
+			}
+		}
 	}
 
 	if (!to_remove.empty()) {
@@ -2528,12 +2585,12 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 				}
 			}
 		}
-		if (!removed_any && resisted_any && !MUD::Spell(spell_id).IsFlagged(kMagAffects)) {
+		if (!removed_any && resisted_any && !suppressed_any && !MUD::Spell(spell_id).IsFlagged(kMagAffects)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		}
-	} else if (breaking
+	} else if (!suppressed_any && (breaking
 			|| (!MUD::Spell(spell_id).IsFlagged(kMagAffects)
-				&& (!unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()))) {
+				&& (!unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty())))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 	}
 

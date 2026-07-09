@@ -412,6 +412,20 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
+	if (obj->has_suppressed_affects()) {
+		SendMsgToChar("Временно подавлены     : ", ch);
+		SendMsgToChar(kColorCyn, ch);
+		std::string sup;
+		for (const auto &pr : obj->suppressed_affects()) {
+			if (!sup.empty()) {
+				sup += ", ";
+			}
+			sup += affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc);
+		}
+		sup += "\r\n";
+		SendMsgToChar(sup.c_str(), ch);
+		SendMsgToChar(kColorNrm, ch);
+	}
 
 	if (fullness < 100) {
 		return;

@@ -218,7 +218,7 @@ TickResult ObjDecayManager::process_tick() {
 				continue;
 			}
 			obj->process_periodic_effects();
-			if (!obj->has_timed_spell()) {
+			if (!obj->has_timed_spell() && !obj->has_suppressed_affects()) {
 				m_timed_spell_objs.erase(obj);
 			}
 		}

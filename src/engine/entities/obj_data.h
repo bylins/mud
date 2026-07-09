@@ -724,6 +724,13 @@ class ObjData : public CObjectPrototype {
 	void add_timed_spell(const ESpell spell_id, const int time);
 	void del_timed_spell(const ESpell spell_id, const bool message);
 
+	// issue.equipment-affect-suppression: equipment affects this item confers but that are temporarily
+	// suppressed by an unaffect spell (affect_total skips them while suppressed). Runtime-only.
+	bool is_affect_suppressed(EAffect aff) const { return m_suppressed_affects.find(aff) != m_suppressed_affects.end(); }
+	bool has_suppressed_affects() const { return !m_suppressed_affects.empty(); }
+	const std::map<EAffect, int> &suppressed_affects() const { return m_suppressed_affects; }
+	void suppress_affect(EAffect aff, int time);
+
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
 	auto get_craft_timer() const { return m_craft_timer; }
@@ -827,6 +834,9 @@ class ObjData : public CObjectPrototype {
 	int m_craft_timer;
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
+	// issue.equipment-affect-suppression: EAffect -> remaining suppression timer (minutes,
+	// TimedSpell cadence). Runtime-only, never serialized.
+	std::map<EAffect, int> m_suppressed_affects;
 
 	long  m_id;            // used by DG triggers              //
 	std::shared_ptr<Script> m_script;    // script info for the object       //

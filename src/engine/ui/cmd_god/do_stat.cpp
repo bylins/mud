@@ -781,6 +781,17 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar("Устанавливает аффекты : ", ch);
 	j->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", 4);
 	SendMsgToChar(ch, "%s\r\n", buf);
+	if (j->has_suppressed_affects()) {
+		SendMsgToChar("Подавленные аффекты   : ", ch);
+		std::string sup;
+		for (const auto &pr : j->suppressed_affects()) {
+			char one[128];
+			snprintf(one, sizeof(one), "%s%s (%d)", sup.empty() ? "" : ", ",
+					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second);
+			sup += one;
+		}
+		SendMsgToChar(ch, "%s\r\n", sup.c_str());
+	}
 
 	SendMsgToChar("Дополнительные флаги  : ", ch);
 	j->get_extra_flags().sprintbits(extra_bits, buf, sizeof(buf), ",", 4);

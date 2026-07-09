@@ -653,9 +653,27 @@ int ObjData::get_timer() const {
 	return static_cast<int>(deadline - now);
 }
 
+// issue.equipment-affect-suppression: affect_total isn't run for a char with no ticking affects,
+// so restore a suppressed equipment affect on its wearer directly when the suppression expires.
+void affect_total(CharData *ch);
+
 void ObjData::process_periodic_effects() {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, 1);
+	}
+	if (!m_suppressed_affects.empty()) {
+		bool expired = false;
+		for (auto it = m_suppressed_affects.begin(); it != m_suppressed_affects.end();) {
+			if (--(it->second) <= 0) {
+				it = m_suppressed_affects.erase(it);
+				expired = true;
+			} else {
+				++it;
+			}
+		}
+		if (expired && m_worn_by) {
+			affect_total(m_worn_by);
+		}
 	}
 }
 
@@ -829,6 +847,14 @@ void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
 
 void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
 	m_timed_spell.del(this, spell_id, message);
+}
+
+void ObjData::suppress_affect(const EAffect aff, const int time) {
+	if (time <= 0) {
+		return;
+	}
+	m_suppressed_affects[aff] = time;
+	world_objects.decay_manager().add_timed_spell_obj(this);   // tick in the periodic-effects loop
 }
 
 void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {
