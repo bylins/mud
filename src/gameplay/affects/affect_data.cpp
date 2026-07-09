@@ -695,23 +695,47 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 // equipment materialization helpers below can add persistent (-1) affects without recalculating.
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);
 
+// Build the real Affect that a worn item's equipment-affect entry confers: permanent (-1) or timed,
+// tagged kAfFromEquipment with caster_id = the item id so it can be dispelled and stripped on unequip.
+static Affect<EApply> BuildEquipmentAffect(const EquipmentAffect &j, CharData *ch, ObjData *obj) {
+	Affect<EApply> af;
+	af.affect_type = j.aff_affect;
+	af.duration = j.timer;
+	const auto apply = GetApplyByEquipmentAffect(j.aff_pos, ch);
+	af.location = apply.first;
+	af.modifier = apply.second;
+	af.caster_id = obj->get_id();
+	af.battleflag.set_plane(0, affects::AffectFlagsByType(j.aff_affect) | EAffFlag::kAfFromEquipment);
+	return af;
+}
+
 void MaterializeItemAffects(CharData *ch, ObjData *obj) {
 	if (!ch || !obj) {
 		return;
 	}
 	for (const auto &j : equipment_affect) {
-		if (j.timer == kEquipmentAffectNoTimer || !obj->GetEEquipmentAffect(j.aff_pos)) {
+		// A currently-suppressed affect (dispelled while worn) stays down until its timer expires,
+		// even across a re-equip -- do not re-materialize it here.
+		if (j.timer == kEquipmentAffectNoTimer || !obj->GetEEquipmentAffect(j.aff_pos)
+				|| obj->is_affect_suppressed(j.aff_affect)) {
 			continue;
 		}
-		Affect<EApply> af;
-		af.affect_type = j.aff_affect;
-		af.duration = j.timer;
-		const auto apply = GetApplyByEquipmentAffect(j.aff_pos, ch);
-		af.location = apply.first;
-		af.modifier = apply.second;
-		af.caster_id = obj->get_id();
-		af.battleflag.set_plane(0, affects::AffectFlagsByType(j.aff_affect) | EAffFlag::kAfFromEquipment);
-		affect_to_char_no_recalc(ch, af);
+		affect_to_char_no_recalc(ch, BuildEquipmentAffect(j, ch, obj));
+	}
+}
+
+// issue.equipment-affects-improve (Phase 3): re-materialize ONE equipment affect on the wearer -- the
+// auto-return when an item's suppression timer expires. Recalculates (standalone event, not the equip path).
+void MaterializeItemAffect(CharData *ch, ObjData *obj, EAffect affect_type) {
+	if (!ch || !obj) {
+		return;
+	}
+	for (const auto &j : equipment_affect) {
+		if (j.aff_affect != affect_type || j.timer == kEquipmentAffectNoTimer
+				|| !obj->GetEEquipmentAffect(j.aff_pos)) {
+			continue;
+		}
+		affect_to_char(ch, BuildEquipmentAffect(j, ch, obj));
 	}
 }
 

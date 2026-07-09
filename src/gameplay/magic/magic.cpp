@@ -2168,6 +2168,32 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 // fires when authored (kBlindness, kPoison, kCurse, ...) and the kDefault generic
 // (kAffDispelledTo{Char,Room}) fires for every other affect -- no more silent stripping of
 // common buffs.
+// issue.equipment-affects-improve (Phase 3): a dispelled affect that a worn item materialized
+// (kAfFromEquipment) is not lost until re-equip -- it is SUPPRESSED on the source item for a fixed
+// time, and the item re-materializes it when the suppression expires (auto-return). Constant duration
+// for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
+constexpr int kEquipmentAffectSuppressMinutes = 10;
+
+void SuppressSourceItemAffect(CharData *victim, EAffect affect_type) {
+	long src_id = -1;
+	for (const auto &aff : victim->affected) {
+		if (aff && aff->affect_type == affect_type && IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
+			src_id = aff->caster_id;
+			break;
+		}
+	}
+	if (src_id < 0) {
+		return;
+	}
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *obj = GET_EQ(victim, i);
+		if (obj && obj->get_id() == src_id) {
+			obj->suppress_affect(affect_type, kEquipmentAffectSuppressMinutes);
+			return;
+		}
+	}
+}
+
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type) {
 	// issue.character-affect-triggers: kDispell -- fire the affect's own kDispell <actions> BEFORE it is
 	// stripped, run with the DISPELLER (ch) as BOTH the caster and the actor. This makes the retaliation
@@ -2178,6 +2204,9 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	RunCharAffectTrigger(ch, affect_type, talents_actions::EActionTrigger::kDispell, ch);
 	// issue.affect-migration: a char affect is identified by affect_type; dispel narration belongs to
 	// the AFFECT (its sheaf, with the kDefault generic fallback).
+	// issue.equipment-affects-improve (Phase 3): if a worn item conferred this affect, suppress it on
+	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
+	SuppressSourceItemAffect(victim, affect_type);
 	ReduceStackOrRemove(victim, affect_type);
 	const std::string &to_vict = affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffDispelledToChar);
 	if (!to_vict.empty()) {

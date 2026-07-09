@@ -139,6 +139,7 @@ class ObjData;
 // issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as
 // real Affects (kAfFromEquipment, caster_id = item id); and strip an item's materialized affects.
 void MaterializeItemAffects(CharData *ch, ObjData *obj);
+void MaterializeItemAffect(CharData *ch, ObjData *obj, EAffect affect_type);
 void RemoveEquipmentAffects(CharData *ch, long source_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);

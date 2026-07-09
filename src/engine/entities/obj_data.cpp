@@ -653,26 +653,30 @@ int ObjData::get_timer() const {
 	return static_cast<int>(deadline - now);
 }
 
-// issue.equipment-affect-suppression: affect_total isn't run for a char with no ticking affects,
-// so restore a suppressed equipment affect on its wearer directly when the suppression expires.
-void affect_total(CharData *ch);
+// issue.equipment-affects-improve (Phase 3): a dispel suppresses an item-materialized equipment affect
+// on the source item; the item counts the suppression down here and re-materializes the affect on its
+// wearer when it expires (auto-return).
+void MaterializeItemAffect(CharData *ch, ObjData *obj, EAffect affect_type);
 
 void ObjData::process_periodic_effects() {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, 1);
 	}
 	if (!m_suppressed_affects.empty()) {
-		bool expired = false;
+		std::vector<EAffect> expired;
 		for (auto it = m_suppressed_affects.begin(); it != m_suppressed_affects.end();) {
 			if (--(it->second) <= 0) {
+				expired.push_back(it->first);
 				it = m_suppressed_affects.erase(it);
-				expired = true;
 			} else {
 				++it;
 			}
 		}
-		if (expired && m_worn_by) {
-			affect_total(m_worn_by);
+		// Auto-return: re-materialize each expired affect on the wearer (only if still worn).
+		if (m_worn_by) {
+			for (const auto aff : expired) {
+				MaterializeItemAffect(m_worn_by, this, aff);
+			}
 		}
 	}
 }
