@@ -971,7 +971,7 @@ void oedit_disp_no_menu(DescriptorData *d) {
 	SendMsgToChar(buf, d->character.get());
 }
 
-void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags) {
+void show_weapon_affects_olc(DescriptorData *d, const BitsetFlags<EWeaponAffect> &flags) {
 	disp_planes_values(d, weapon_affects, 2);
 	flags.sprintbits(weapon_affects, buf1, sizeof(buf1), ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nНакладываемые аффекты : %s%s%s\r\n"
@@ -980,7 +980,7 @@ void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags) {
 }
 
 void oedit_disp_affects_menu(DescriptorData *d) {
-	show_weapon_affects_olc(d, ToFlagData(OLC_OBJ(d)->get_affect_flags()));
+	show_weapon_affects_olc(d, OLC_OBJ(d)->get_affect_flags());
 }
 
 // * Object wear flags.

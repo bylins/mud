@@ -29,7 +29,7 @@
 #include "gameplay/skills/skills_info.h"
 #include "engine/db/global_objects.h"
 
-void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags);
+void show_weapon_affects_olc(DescriptorData *d, const BitsetFlags<EWeaponAffect> &flags);
 void show_apply_olc(DescriptorData *d);
 int planebit(const char *str, int *plane, int *bit);
 
@@ -1177,7 +1177,7 @@ void sedit::parse_obj_edit(CharData *ch, const char *arg) {
 void sedit::show_activ_affects(CharData *ch) {
 	state = STATE_ACTIV_AFFECTS;
 	show_weapon_affects_olc(ch->desc,
-							ToFlagData(olc_set.activ_list.at(activ_edit).affects));
+							olc_set.activ_list.at(activ_edit).affects);
 }
 
 void sedit::show_activ_apply(CharData *ch) {

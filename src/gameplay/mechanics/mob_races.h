@@ -80,7 +80,7 @@ class MobRace : public info_container::BaseItem<int> {
 
 	std::string race_name_{"!undefined!"};
 	std::vector<ingredient> ingrlist_;
-	FlagData mob_flags_;	// EMobFlag set OR'd onto a freshly loaded instance (issue.npc-races item 8)
+	BitsetFlags<EMobFlag> mob_flags_;	// EMobFlag set OR'd onto a freshly loaded instance (issue.npc-races item 8)
 	BitsetFlags<ENpcFlag> npc_flags_;	// ENpcFlag set OR'd onto a freshly loaded instance (the <npc_flags> tag)
 	bool vocal_{false};			// race can speak/incant (replaces the old per-race speech switch)
 	bool respiration_{false};	// race breathes (drives the can-breathe / strangle check)
@@ -93,7 +93,7 @@ class MobRace : public info_container::BaseItem<int> {
 
 	[[nodiscard]] const std::string &GetName() const { return race_name_; }
 	[[nodiscard]] const std::vector<ingredient> &GetIngredients() const { return ingrlist_; }
-	[[nodiscard]] const FlagData &GetMobFlags() const { return mob_flags_; }
+	[[nodiscard]] const BitsetFlags<EMobFlag> &GetMobFlags() const { return mob_flags_; }
 	[[nodiscard]] const BitsetFlags<ENpcFlag> &GetNpcFlags() const { return npc_flags_; }
 	[[nodiscard]] bool IsVocal() const { return vocal_; }
 	[[nodiscard]] bool CanBreathe() const { return respiration_; }
