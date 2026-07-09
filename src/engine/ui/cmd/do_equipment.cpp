@@ -9,6 +9,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/utils_char_obj.inl"
+#include "gameplay/affects/affect_messages.h"
 
 void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, found = 0;
@@ -20,6 +21,17 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (sight::CanSeeObj(ch, GET_EQ(ch, i))) {
 				SendMsgToChar(where[i], ch);
 				sight::show_obj_to_char(GET_EQ(ch, i), ch, 1, true, 1);
+				if (GET_EQ(ch, i)->has_suppressed_affects()) {
+					std::string note = "        &G(волшебство подавлено: ";
+					bool first = true;
+					for (const auto &pr : GET_EQ(ch, i)->suppressed_affects()) {
+						if (!first) { note += ", "; }
+						first = false;
+						note += affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc);
+					}
+					note += ")&n\r\n";
+					SendMsgToChar(note, ch);
+				}
 				found = true;
 			} else {
 				SendMsgToChar(where[i], ch);
