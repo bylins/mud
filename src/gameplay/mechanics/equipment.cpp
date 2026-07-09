@@ -332,6 +332,9 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		}
 	}
 
+	// issue.equipment-affects-improve: materialize this item's equipment affects as real Affects.
+	MaterializeItemAffects(ch, obj);
+
 	if (!skip_total) {
 		if (obj_sets::is_set_item(obj)) {
 			ch->obj_bonus().update(ch);
@@ -387,18 +390,8 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 						  false);
 		}
 
-		if (ch->in_room != kNowhere) {
-			for (const auto &j : equipment_affect) {
-				if (j.aff_affect == EAffect::kUndefined || !obj->GetEEquipmentAffect(j.aff_pos)) {
-					continue;
-				}
-				if (ch->IsNpc()
-					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], j.aff_affect)) {
-					continue;
-				}
-				affect_modify(ch, EApply::kNone, 0, j.aff_affect, false);
-			}
-		}
+		// issue.equipment-affects-improve: strip this item's materialized equipment affects.
+		RemoveEquipmentAffects(ch, obj->get_id());
 
 		if ((obj->has_flag(EObjFlag::kSetItem)) && (SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());

@@ -135,6 +135,11 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
+class ObjData;
+// issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as
+// real Affects (kAfFromEquipment, caster_id = item id); and strip an item's materialized affects.
+void MaterializeItemAffects(CharData *ch, ObjData *obj);
+void RemoveEquipmentAffects(CharData *ch, long source_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,

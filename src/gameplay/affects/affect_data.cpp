@@ -688,6 +688,49 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 	affect_total(ch);
 }
 
+// issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as real
+// Affects (permanent -1 or timed), tagged kAfFromEquipment with caster_id = the item id so they can
+// be dispelled naturally and stripped on unequip. No recalc here -- the equip path calls affect_total.
+// affect_to_char_no_recalc is defined further down in this TU; forward-declare it so the
+// equipment materialization helpers below can add persistent (-1) affects without recalculating.
+void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);
+
+void MaterializeItemAffects(CharData *ch, ObjData *obj) {
+	if (!ch || !obj) {
+		return;
+	}
+	for (const auto &j : equipment_affect) {
+		if (j.timer == kEquipmentAffectNoTimer || !obj->GetEEquipmentAffect(j.aff_pos)) {
+			continue;
+		}
+		Affect<EApply> af;
+		af.affect_type = j.aff_affect;
+		af.duration = j.timer;
+		const auto apply = GetApplyByEquipmentAffect(j.aff_pos, ch);
+		af.location = apply.first;
+		af.modifier = apply.second;
+		af.caster_id = obj->get_id();
+		af.battleflag.set_plane(0, affects::AffectFlagsByType(j.aff_affect) | EAffFlag::kAfFromEquipment);
+		affect_to_char_no_recalc(ch, af);
+	}
+}
+
+// issue.equipment-affects-improve: strip every affect this item materialized (caster_id match).
+void RemoveEquipmentAffects(CharData *ch, long source_id) {
+	if (!ch) {
+		return;
+	}
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		const auto &aff = *it;
+		if (aff && aff->caster_id == source_id && IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
+		}
+	}
+}
+
 // issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
 // companion buffs that share the per-instance kAfCharmBond flag) and, for an NPC, schedules its
 // extraction and clears the hire price -- the behavior the old RemoveAffectFromChar(ESpell::kCharm)
@@ -801,14 +844,17 @@ void affect_total(CharData *ch) {
 				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location,
 							  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffect>(0), true);
 			}
-			// Update weapon bitvectors
+			// issue.equipment-affects-improve: timer-bearing equipment affects (persistent -1 buffs)
+			// are now real Affects materialized on equip and re-derived by the ch->affected loop above.
+			// The timer-less entries (blind/sleep/hold/poison) stay temporary while worn: re-derive them
+			// here every recalc so the flag drops automatically once the item is removed.
 			for (const auto &j : equipment_affect) {
-				// То же самое, но переформулировал
-				if (j.aff_affect == EAffect::kUndefined || !obj->GetEEquipmentAffect(j.aff_pos)
-						|| obj->is_affect_suppressed(j.aff_affect)) {
+				if (j.timer != kEquipmentAffectNoTimer || j.aff_affect == EAffect::kUndefined
+						|| !obj->GetEEquipmentAffect(j.aff_pos) || obj->is_affect_suppressed(j.aff_affect)) {
 					continue;
 				}
-				affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first, GetApplyByEquipmentAffect(j.aff_pos, ch).second, j.aff_affect, true);
+				affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first,
+							  GetApplyByEquipmentAffect(j.aff_pos, ch).second, j.aff_affect, true);
 			}
 		}
 	}

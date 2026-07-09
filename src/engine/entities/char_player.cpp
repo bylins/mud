@@ -682,7 +682,8 @@ void Player::save_char() {
 		// the spell-keyed Aff2 block; old Aff2 blocks are dropped on load -- active buffs recast in game.
 		saved.printf("Aff3:\n");
 		for (auto &aff : tmp_aff) {
-			if (aff->affect_type != EAffect::kUndefined) {
+			// issue.equipment-affects-improve: item-materialized affects are re-created on equip, never saved.
+			if (aff->affect_type != EAffect::kUndefined && !IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
 				saved.printf("%d %d %d %d %d %f %d %s\n", static_cast<int>(aff->affect_type),
 						aff->duration, aff->modifier, aff->location, aff->battleflag.get_plane(0),
 						aff->potency, aff->stacks,
