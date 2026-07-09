@@ -135,7 +135,13 @@ std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, Char
 // issue.equipment-affects-cfg: display names, loaded from equipment_affect_msg.xml (was hardcoded).
 static std::vector<std::string> g_equipment_affect_names;
 static std::vector<const char *> g_equipment_affect_name_ptrs;
-const char **equipment_affects = nullptr;
+// issue.equipment-affects-improve: a valid, empty, plane-padded fallback so the name array is never
+// null when cfg/messages/ru/equipment_affect_msg.xml is missing/unparsed. disp_planes_values and
+// sprintbitwd dereference names[] directly (no null guard), so oedit/stat/identify on a world without
+// the message file would segfault. NUM_PLANES (4) '\n' terminators match the built array's shape; a
+// set bit against it renders as "UNDEF" instead of crashing. The message loader overwrites this on load.
+static const char *g_empty_equipment_affect_names[] = {"\n", "\n", "\n", "\n"};
+const char **equipment_affects = g_empty_equipment_affect_names;
 
 // issue.equipment-affects-cfg: build the equipment_affect table from cfg/equipment_affects.xml.
 void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
