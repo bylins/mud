@@ -2,7 +2,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_sets.h"
-#include "engine/structs/flag_transition.h"
 #include "utils/grammar/declensions.h"
 
 #include <string>

@@ -337,6 +337,29 @@ class BitsetFlags {
 	}
 };
 
+// issue.flags-migration: name-matching flag comparator (relocated from the deleted flag_data.h),
+// templated on any flag container exposing get_plane(). Returns true if the `affect`-th named
+// flag is set. Mirrors the old FlagData CompareBits byte-for-byte.
+template<class FlagsContainer>
+inline bool CompareBits(const FlagsContainer &flags, const char *names[], int affect) {
+	for (int i = 0; i < 4; i++) {
+		int nr = 0;
+		int fail = i;
+		std::uint32_t bitvector = flags.get_plane(i);
+		while (fail) {
+			if (*names[nr] == '\n') fail--;
+			nr++;
+		}
+		for (; bitvector; bitvector >>= 1) {
+			if (bitvector & 1u)
+				if (*names[nr] != '\n')
+					if (nr == affect) return true;
+			if (*names[nr] != '\n') nr++;
+		}
+	}
+	return false;
+}
+
 #endif  // BYLINS_SRC_ENGINE_STRUCTS_BITSET_FLAGS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

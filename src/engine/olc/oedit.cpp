@@ -9,7 +9,6 @@
  ************************************************************************/
 
 #include "engine/db/world_objects.h"
-#include "engine/structs/flag_transition.h"
 #include "gameplay/fight/fight_messages.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/conf.h"

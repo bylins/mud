@@ -7,7 +7,6 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item_creation.h"
-#include "engine/structs/flag_transition.h"  // issue.flags-migration: FlagData<->BitsetFlags bridge
 #include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "administration/privilege.h"
@@ -1255,10 +1254,9 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	obj->set_is_rename(true); // ставим флаг что объект переименован
 
 
-	FlagData temp_flags = ToFlagData(obj->get_affect_flags());
-	const FlagData add_aff = ToFlagData(ingrs[0]->get_affect_flags());
-	add_flags(ch, &temp_flags, &add_aff, get_ingr_pow(ingrs[0]));
-	obj->SetWeaponAffectFlags(ToBitset<EWeaponAffect>(temp_flags));
+	auto temp_flags = obj->get_affect_flags();
+	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
+	obj->SetWeaponAffectFlags(temp_flags);
 	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 	merge_extra_flags(ch, obj, ingrs[0], get_ingr_pow(ingrs[0]));
 	auto temp_affected = obj->get_all_affected();
@@ -1302,10 +1300,9 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 			}
 		}
 		// переносим аффекты ... c ингров на прототип.
-		FlagData temp_flags = ToFlagData(obj->get_affect_flags());
-		const FlagData add_aff = ToFlagData(ingrs[j]->get_affect_flags());
-		add_flags(ch, &temp_flags, &add_aff, get_ingr_pow(ingrs[j]));
-		obj->SetWeaponAffectFlags(ToBitset<EWeaponAffect>(temp_flags));
+		auto temp_flags = obj->get_affect_flags();
+		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
+		obj->SetWeaponAffectFlags(temp_flags);
 		// перносим эффекты ... с ингров на прототип.
 		merge_extra_flags(ch, obj, ingrs[j], get_ingr_pow(ingrs[j]));
 		// переносим 1 рандом аффект
@@ -1758,10 +1755,9 @@ int MakeRecept::make(CharData *ch) {
 				ingr_pow = 20;
 			}
 			// переносим аффекты ... c ингров на прототип.
-			FlagData temp_flags = ToFlagData(obj->get_affect_flags());
-			const FlagData add_aff = ToFlagData(ingrs[j]->get_affect_flags());
-			add_flags(ch, &temp_flags, &add_aff, ingr_pow);
-			obj->SetWeaponAffectFlags(ToBitset<EWeaponAffect>(temp_flags));
+			auto temp_flags = obj->get_affect_flags();
+			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
+			obj->SetWeaponAffectFlags(temp_flags);
 			// перносим эффекты ... с ингров на прототип.
 			merge_extra_flags(ch, obj.get(), ingrs[j], ingr_pow);
 			auto temp_affected = obj->get_all_affected();
@@ -1873,7 +1869,8 @@ void MakeRecept::add_rnd_skills(CharData * /*ch*/, ObjData *obj_from, ObjData *o
 		}
 	}
 }
-int MakeRecept::add_flags(CharData *ch, FlagData *base_flag, const FlagData *add_flag, int/* delta*/) {
+template<class F>
+int MakeRecept::add_flags(CharData *ch, F *base_flag, const F *add_flag, int/* delta*/) {
 // БЕз вариантов вообще :(
 	int tmpprob, skl = CalcCurrentSkill(ch, skill, 0);
 	for (int i = 0; i < 3; i++) {
@@ -1886,6 +1883,8 @@ int MakeRecept::add_flags(CharData *ch, FlagData *base_flag, const FlagData *add
 	}
 	return (true);
 }
+template int MakeRecept::add_flags(CharData *, BitsetFlags<EWeaponAffect> *, const BitsetFlags<EWeaponAffect> *, int);
+template int MakeRecept::add_flags(CharData *, BitsetFlags<EObjFlag> *, const BitsetFlags<EObjFlag> *, int);
 
 // Переносит extra-флаги ингредиента на предмет (как add_flags), но НЕ даёт ингредиенту
 // навешивать служебные/привязочные/распадные флаги (issue #3459: крафт плодил "!бросить" и т.п.).
@@ -1903,10 +1902,9 @@ void MakeRecept::merge_extra_flags(CharData *ch, ObjData *obj, ObjData *ingr, in
 	for (std::size_t i = 0; i < std::size(kNotTransferable); ++i) {
 		had[i] = obj->has_flag(kNotTransferable[i]);
 	}
-	FlagData temp = ToFlagData(obj->get_extra_flags());
-	FlagData ingr_extra = ToFlagData(ingr->get_extra_flags());
-	add_flags(ch, &temp, &ingr_extra, pow);
-	obj->set_extra_flags(ToBitset<EObjFlag>(temp));
+	auto temp = obj->get_extra_flags();
+	add_flags(ch, &temp, &ingr->get_extra_flags(), pow);
+	obj->set_extra_flags(temp);
 	// откатываем только те служебные флаги, которых у предмета не было (т.е. их добавил ингредиент)
 	for (std::size_t i = 0; i < std::size(kNotTransferable); ++i) {
 		if (!had[i] && obj->has_flag(kNotTransferable[i])) {

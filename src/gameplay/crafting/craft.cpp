@@ -5,7 +5,6 @@
  */
 
 #include "craft.h"
-#include "engine/structs/flag_transition.h"
 #include "gameplay/mechanics/magic_item.h"
 
 #include "engine/db/obj_prototypes.h"
@@ -638,7 +637,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 		CHelper::save_string(*node, "spell", NAME_BY_ITEM(get_spell()).c_str(),
 							 [&]() { throw std::runtime_error("WARNING: Failed to save object spell"); });
 
-		CHelper::save_list<EObjFlag>(*node, "extraflags", "extraflag", ToFlagData(get_extra_flags()),
+		CHelper::save_list<EObjFlag>(*node, "extraflags", "extraflag", get_extra_flags(),
 									 [&]() {
 										   throw std::runtime_error("WARNING: Failed to create node \"extraflags\".\n");
 									   },
@@ -647,7 +646,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 											   "WARNING: Could not save extraflag " + NAME_BY_ITEM(value));
 									   });
 
-		CHelper::save_list<EWeaponAffect>(*node, "weapon_affects", "weapon_affect", ToFlagData(get_affect_flags()),
+		CHelper::save_list<EWeaponAffect>(*node, "weapon_affects", "weapon_affect", get_affect_flags(),
 										  [&]() {
 												  throw std::runtime_error(
 													  "WARNING: Failed to create node \"weapon_affects\".\n");
@@ -657,14 +656,14 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 													  "WARNING: Could not save weapon affect " + NAME_BY_ITEM(value));
 											  });
 
-		CHelper::save_list<EAntiFlag>(*node, "antiflags", "antiflag", ToFlagData(get_anti_flags()),
+		CHelper::save_list<EAntiFlag>(*node, "antiflags", "antiflag", get_anti_flags(),
 									  [&]() { throw std::runtime_error("WARNING: Failed to create node \"antiflags\".\n"); },
 									  [&](const auto value) {
 										  throw std::runtime_error(
 											  "WARNING: Could not save antiflag " + NAME_BY_ITEM(value));
 									  });
 
-		CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", ToFlagData(get_no_flags()),
+		CHelper::save_list<ENoFlag>(*node, "noflags", "noflag", get_no_flags(),
 									[&]() { throw std::runtime_error("WARNING: Failed to create node \"noflags\".\n"); },
 									[&](const auto value) {
 										logger("%s",

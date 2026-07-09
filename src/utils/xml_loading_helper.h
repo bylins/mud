@@ -2,6 +2,7 @@
 #define __XML_LOADING_HELPER_HPP__
 
 #include "logger.h"
+#include "engine/structs/bitset_flags.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "engine/structs/flag_data.h"
 #include "utils/utils.h"
@@ -104,7 +105,7 @@ class CHelper {
 		pugi::xml_node &node,
 		const char *node_name,
 		const char *item_name,
-		const FlagData &flags,
+		const BitsetFlags<FlagType> &flags,
 		const TListNodeFailHandler list_node_fail_handler,
 		const TItemNodeFailHandler item_node_fail_handler);
 
@@ -390,13 +391,13 @@ template<typename FlagType, typename TListNodeFailHandler, typename TItemNodeFai
 void CHelper::save_list(pugi::xml_node &node,
 						const char *node_name,
 						const char *item_name,
-						const FlagData &flags,
+						const BitsetFlags<FlagType> &flags,
 						const TListNodeFailHandler list_node_fail_handler,
 						const TItemNodeFailHandler item_node_fail_handler) {
 	std::list<FlagType> list;
-	for (Bitvector i = 0; i < FlagData::kPlanesNumber; ++i) {
+	for (Bitvector i = 0; i < 4; ++i) {
 		const auto plane = flags.get_plane(i);
-		for (Bitvector j = 0; j < FlagData::PLANE_SIZE; ++j) {
+		for (Bitvector j = 0; j < 30; ++j) {
 			if (IS_SET(plane, 1 << j)) {
 				const Bitvector flag_bit = (i << 30) | (1 << j);
 				list.push_back(static_cast<FlagType>(flag_bit));

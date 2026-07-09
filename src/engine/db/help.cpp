@@ -3,7 +3,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "help.h"
-#include "engine/structs/flag_transition.h"
 
 #include <algorithm>
 #include <fmt/format.h>
@@ -178,7 +177,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	}*/
 	out << "\r\n";
 
-	FlagData affects = ToFlagData(activ->second.get_affects());
+	auto affects = activ->second.get_affects();
 	if (affects.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}

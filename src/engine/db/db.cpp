@@ -1,5 +1,4 @@
 #include <filesystem>
-#include "engine/structs/flag_transition.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
 #include "utils/utils_encoding.h"

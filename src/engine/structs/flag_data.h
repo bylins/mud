@@ -160,7 +160,6 @@ inline int flag_data_by_num(const int &num) {
 		   num < 120 ? (kIntThree | (1 << (num - 90))) : 0;
 }
 
-bool CompareBits(const FlagData &flags, const char *names[], int affect);
 
 #endif //BYLINS_SRC_STRUCTS_FLAG_DATA_H_
 
