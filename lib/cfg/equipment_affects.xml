@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- issue.equipment-affects-cfg: the equipment_affect table (EEquipmentAffect -> imposed EAffect flag + on-equip ESpell).
+     "weapon"/"equipment" affect = an affect a worn item confers. GetApplyByEquipmentAffect (the EApply magnitudes)
+     stays in C++ for now. -->
+<equipment_affects>
+	<affect id="kBlindness">
+		<impose flag="kUndefined" spell="kBlindness"/>
+	</affect>
+	<affect id="kInvisibility">
+		<impose flag="kInvisible" spell="kUndefined"/>
+	</affect>
+	<affect id="kDetectAlign">
+		<impose flag="kDetectAlign" spell="kUndefined"/>
+	</affect>
+	<affect id="kDetectInvisibility">
+		<impose flag="kDetectInvisible" spell="kUndefined"/>
+	</affect>
+	<affect id="kDetectMagic">
+		<impose flag="kDetectMagic" spell="kUndefined"/>
+	</affect>
+	<affect id="kDetectLife">
+		<impose flag="kDetectLife" spell="kUndefined"/>
+	</affect>
+	<affect id="kWaterWalk">
+		<impose flag="kWaterWalk" spell="kUndefined"/>
+	</affect>
+	<affect id="kSanctuary">
+		<impose flag="kSanctuary" spell="kUndefined"/>
+	</affect>
+	<affect id="kCurse">
+		<impose flag="kCurse" spell="kUndefined"/>
+	</affect>
+	<affect id="kInfravision">
+		<impose flag="kInfravision" spell="kUndefined"/>
+	</affect>
+	<affect id="kPoison">
+		<impose flag="kUndefined" spell="kPoison"/>
+	</affect>
+	<affect id="kProtectFromDark">
+		<impose flag="kProtectFromDark" spell="kUndefined"/>
+	</affect>
+	<affect id="kProtectFromMind">
+		<impose flag="kProtectFromMind" spell="kUndefined"/>
+	</affect>
+	<affect id="kSleep">
+		<impose flag="kUndefined" spell="kSleep"/>
+	</affect>
+	<affect id="kNoTrack">
+		<impose flag="kNoTrack" spell="kUndefined"/>
+	</affect>
+	<affect id="kBless">
+		<impose flag="kBless" spell="kUndefined"/>
+	</affect>
+	<affect id="kSneak">
+		<impose flag="kSneak" spell="kUndefined"/>
+	</affect>
+	<affect id="kHide">
+		<impose flag="kHide" spell="kUndefined"/>
+	</affect>
+	<affect id="kHold">
+		<impose flag="kUndefined" spell="kHold"/>
+	</affect>
+	<affect id="kFly">
+		<impose flag="kFly" spell="kUndefined"/>
+	</affect>
+	<affect id="kSilence">
+		<impose flag="kSilence" spell="kUndefined"/>
+	</affect>
+	<affect id="kAwareness">
+		<impose flag="kAwarness" spell="kUndefined"/>
+	</affect>
+	<affect id="kBlink">
+		<impose flag="kBlink" spell="kUndefined"/>
+	</affect>
+	<affect id="kNoFlee">
+		<impose flag="kNoFlee" spell="kUndefined"/>
+	</affect>
+	<affect id="kSingleLight">
+		<impose flag="kSingleLight" spell="kUndefined"/>
+	</affect>
+	<affect id="kHolyLight">
+		<impose flag="kHolyLight" spell="kUndefined"/>
+	</affect>
+	<affect id="kHolyDark">
+		<impose flag="kHolyDark" spell="kUndefined"/>
+	</affect>
+	<affect id="kDetectPoison">
+		<impose flag="kDetectPoison" spell="kUndefined"/>
+	</affect>
+	<affect id="kSlow">
+		<impose flag="kSlow" spell="kUndefined"/>
+	</affect>
+	<affect id="kHaste">
+		<impose flag="kHaste" spell="kUndefined"/>
+	</affect>
+	<affect id="kWaterBreath">
+		<impose flag="kWaterBreath" spell="kUndefined"/>
+	</affect>
+	<affect id="kHaemorrhage">
+		<impose flag="kHaemorrhage" spell="kUndefined"/>
+	</affect>
+	<affect id="kDisguising">
+		<impose flag="kDisguise" spell="kUndefined"/>
+	</affect>
+	<affect id="kShield">
+		<impose flag="kGodsShield" spell="kUndefined"/>
+	</affect>
+	<affect id="kAirShield">
+		<impose flag="kAirShield" spell="kUndefined"/>
+	</affect>
+	<affect id="kFireShield">
+		<impose flag="kFireShield" spell="kUndefined"/>
+	</affect>
+	<affect id="kIceShield">
+		<impose flag="kIceShield" spell="kUndefined"/>
+	</affect>
+	<affect id="kMagicGlass">
+		<impose flag="kMagicGlass" spell="kUndefined"/>
+	</affect>
+	<affect id="kStoneHand">
+		<impose flag="kStoneHands" spell="kUndefined"/>
+	</affect>
+	<affect id="kPrismaticAura">
+		<impose flag="kPrismaticAura" spell="kUndefined"/>
+	</affect>
+	<affect id="kAirAura">
+		<impose flag="kAirAura" spell="kUndefined"/>
+	</affect>
+	<affect id="kFireAura">
+		<impose flag="kFireAura" spell="kUndefined"/>
+	</affect>
+	<affect id="kIceAura">
+		<impose flag="kIceAura" spell="kUndefined"/>
+	</affect>
+	<affect id="kDeafness">
+		<impose flag="kDeafness" spell="kUndefined"/>
+	</affect>
+	<affect id="kComamnder">
+		<impose flag="kCommander" spell="kUndefined"/>
+	</affect>
+	<affect id="kEarthAura">
+		<impose flag="kEarthAura" spell="kUndefined"/>
+	</affect>
+	<affect id="kCloudly">
+		<impose flag="kCloudly" spell="kUndefined"/>
+	</affect>
+</equipment_affects>
