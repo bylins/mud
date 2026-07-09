@@ -147,14 +147,19 @@ void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 		const EEquipmentAffect pos = ITEM_BY_NAME<EEquipmentAffect>(node.GetValue("id"));
 		EAffect flag = EAffect::kUndefined;
 		ESpell spell = ESpell::kUndefined;
+		int timer = kEquipmentAffectNoTimer;
 		for (auto &imp : node.Children()) {
 			if (std::string(imp.GetName()) != "impose") {
 				continue;
 			}
 			flag = parse::ReadAsConstant<EAffect>(imp.GetValue("flag"));
 			spell = parse::ReadAsConstant<ESpell>(imp.GetValue("spell"));
+			const char *t = imp.GetValue("timer");
+			if (t && *t) {
+				timer = parse::ReadAsInt(t);
+			}
 		}
-		table.push_back(EquipmentAffect{pos, flag, spell});
+		table.push_back(EquipmentAffect{pos, flag, spell, timer});
 	}
 	equipment_affect = std::move(table);
 }

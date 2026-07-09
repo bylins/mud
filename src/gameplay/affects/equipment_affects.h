@@ -12,6 +12,7 @@
 
 #include <array>
 #include <vector>
+#include <limits>
 #include <utility>
 #include <map>
 #include <string>
@@ -86,10 +87,14 @@ template<>
 const std::string &NAME_BY_ITEM(EEquipmentAffect item);
 
 enum class EAffect : Bitvector;   // forward decl (full def in affect_contants.h, which includes this header)
+// issue.equipment-affects-improve: <impose timer=>. Absent = spell-driven (standard duration);
+// an explicit value materializes a real Affect with that duration (-1 = permanent).
+constexpr int kEquipmentAffectNoTimer = std::numeric_limits<int>::min();
 struct EquipmentAffect {
 	EEquipmentAffect aff_pos;
 	EAffect aff_affect;   // the affect this equipment flag confers (kUndefined = none, spell-driven)
 	ESpell aff_spell;
+	int timer{kEquipmentAffectNoTimer};   // <impose timer=>; kEquipmentAffectNoTimer = unspecified
 };
 
 // issue.equipment-affects-cfg: loaded from cfg/equipment_affects.xml at boot (was a hardcoded table).

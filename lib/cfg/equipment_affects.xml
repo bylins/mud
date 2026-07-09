@@ -7,141 +7,141 @@
 		<impose flag="kUndefined" spell="kBlindness"/>
 	</affect>
 	<affect id="kInvisibility">
-		<impose flag="kInvisible" spell="kUndefined"/>
+		<impose flag="kInvisible" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kDetectAlign">
-		<impose flag="kDetectAlign" spell="kUndefined"/>
+		<impose flag="kDetectAlign" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kDetectInvisibility">
-		<impose flag="kDetectInvisible" spell="kUndefined"/>
+		<impose flag="kDetectInvisible" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kDetectMagic">
-		<impose flag="kDetectMagic" spell="kUndefined"/>
+		<impose flag="kDetectMagic" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kDetectLife">
-		<impose flag="kDetectLife" spell="kUndefined"/>
+		<impose flag="kDetectLife" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kWaterWalk">
-		<impose flag="kWaterWalk" spell="kUndefined"/>
+		<impose flag="kWaterWalk" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kSanctuary">
-		<impose flag="kSanctuary" spell="kUndefined"/>
+		<impose flag="kSanctuary" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kCurse">
-		<impose flag="kCurse" spell="kUndefined"/>
+		<impose flag="kCurse" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kInfravision">
-		<impose flag="kInfravision" spell="kUndefined"/>
+		<impose flag="kInfravision" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kPoison">
 		<impose flag="kUndefined" spell="kPoison"/>
 	</affect>
 	<affect id="kProtectFromDark">
-		<impose flag="kProtectFromDark" spell="kUndefined"/>
+		<impose flag="kProtectFromDark" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kProtectFromMind">
-		<impose flag="kProtectFromMind" spell="kUndefined"/>
+		<impose flag="kProtectFromMind" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kSleep">
 		<impose flag="kUndefined" spell="kSleep"/>
 	</affect>
 	<affect id="kNoTrack">
-		<impose flag="kNoTrack" spell="kUndefined"/>
+		<impose flag="kNoTrack" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kBless">
-		<impose flag="kBless" spell="kUndefined"/>
+		<impose flag="kBless" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kSneak">
-		<impose flag="kSneak" spell="kUndefined"/>
+		<impose flag="kSneak" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kHide">
-		<impose flag="kHide" spell="kUndefined"/>
+		<impose flag="kHide" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kHold">
 		<impose flag="kUndefined" spell="kHold"/>
 	</affect>
 	<affect id="kFly">
-		<impose flag="kFly" spell="kUndefined"/>
+		<impose flag="kFly" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kSilence">
-		<impose flag="kSilence" spell="kUndefined"/>
+		<impose flag="kSilence" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kAwareness">
-		<impose flag="kAwarness" spell="kUndefined"/>
+		<impose flag="kAwarness" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kBlink">
-		<impose flag="kBlink" spell="kUndefined"/>
+		<impose flag="kBlink" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kNoFlee">
-		<impose flag="kNoFlee" spell="kUndefined"/>
+		<impose flag="kNoFlee" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kSingleLight">
-		<impose flag="kSingleLight" spell="kUndefined"/>
+		<impose flag="kSingleLight" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kHolyLight">
-		<impose flag="kHolyLight" spell="kUndefined"/>
+		<impose flag="kHolyLight" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kHolyDark">
-		<impose flag="kHolyDark" spell="kUndefined"/>
+		<impose flag="kHolyDark" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kDetectPoison">
-		<impose flag="kDetectPoison" spell="kUndefined"/>
+		<impose flag="kDetectPoison" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kSlow">
-		<impose flag="kSlow" spell="kUndefined"/>
+		<impose flag="kSlow" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kHaste">
-		<impose flag="kHaste" spell="kUndefined"/>
+		<impose flag="kHaste" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kWaterBreath">
-		<impose flag="kWaterBreath" spell="kUndefined"/>
+		<impose flag="kWaterBreath" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kHaemorrhage">
-		<impose flag="kHaemorrhage" spell="kUndefined"/>
+		<impose flag="kHaemorrhage" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kDisguising">
-		<impose flag="kDisguise" spell="kUndefined"/>
+		<impose flag="kDisguise" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kShield">
-		<impose flag="kGodsShield" spell="kUndefined"/>
+		<impose flag="kGodsShield" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kAirShield">
-		<impose flag="kAirShield" spell="kUndefined"/>
+		<impose flag="kAirShield" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kFireShield">
-		<impose flag="kFireShield" spell="kUndefined"/>
+		<impose flag="kFireShield" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kIceShield">
-		<impose flag="kIceShield" spell="kUndefined"/>
+		<impose flag="kIceShield" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kMagicGlass">
-		<impose flag="kMagicGlass" spell="kUndefined"/>
+		<impose flag="kMagicGlass" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kStoneHand">
-		<impose flag="kStoneHands" spell="kUndefined"/>
+		<impose flag="kStoneHands" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kPrismaticAura">
-		<impose flag="kPrismaticAura" spell="kUndefined"/>
+		<impose flag="kPrismaticAura" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kAirAura">
-		<impose flag="kAirAura" spell="kUndefined"/>
+		<impose flag="kAirAura" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kFireAura">
-		<impose flag="kFireAura" spell="kUndefined"/>
+		<impose flag="kFireAura" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kIceAura">
-		<impose flag="kIceAura" spell="kUndefined"/>
+		<impose flag="kIceAura" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kDeafness">
-		<impose flag="kDeafness" spell="kUndefined"/>
+		<impose flag="kDeafness" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kComamnder">
-		<impose flag="kCommander" spell="kUndefined"/>
+		<impose flag="kCommander" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kEarthAura">
-		<impose flag="kEarthAura" spell="kUndefined"/>
+		<impose flag="kEarthAura" spell="kUndefined" timer="-1"/>
 	</affect>
 	<affect id="kCloudly">
-		<impose flag="kCloudly" spell="kUndefined"/>
+		<impose flag="kCloudly" spell="kUndefined" timer="-1"/>
 	</affect>
 </equipment_affects>
