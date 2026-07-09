@@ -21,7 +21,7 @@
 				<trigger val="kEnterNPC" return="0"/>
 				<target_conditions>
 					<blocking>
-						<mob_flags val="kIgnoreForbidden"/>
+						<mob_flags val="kIgnoreForbidden|kCompanion"/>
 					</blocking>
 				</target_conditions>
 			</action>

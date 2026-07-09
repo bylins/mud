@@ -76,6 +76,7 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kHelper", EMobFlag::kHelper},
 	{"kClone", EMobFlag::kClone},
 	{"kIgnoreForbidden", EMobFlag::kIgnoreForbidden},   // issue.room-affect-trigger-improve: kForbidden seal exempts these
+	{"kCompanion", EMobFlag::kCompanion},   // any NPC ally (charm/summon/clone/keeper); kForbidden lets minions follow
 };
 
 // issue.room-affect-trigger-improve: <trigger val=...> token -> event flag. Single source of truth for
