@@ -13,8 +13,6 @@ namespace loading {
 class CHelper {
  private:
 	template<typename EnumType>
-	static void set_bit(FlagData &flags, const EnumType flag) { flags.set(flag); }
-	template<typename EnumType>
 	static void set_bit(Bitvector &flags, const EnumType flag) { SET_BIT(flags, flag); }
 
  public:

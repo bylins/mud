@@ -584,7 +584,7 @@ void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::str
 		sql = "INSERT INTO " + table_name + " (" + vnum_col + ", flag_category, flag_name) VALUES (?, ?, ?)";
 	}
 	
-	for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+	for (size_t plane = 0; plane < kFlagPlanes; ++plane)
 	{
 		Bitvector plane_bits = flags.get_plane(plane);
 		if (plane_bits == 0) continue;
@@ -3412,7 +3412,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	// backend does the same init.
 	char special_buf[kMaxStringLength];
 	special_buf[0] = '\0';
-	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
+	mob.mob_specials.npc_flags.tascii(kFlagPlanes, special_buf, sizeof(special_buf));
 	if (special_buf[0] != '0' || special_buf[1] != 'a')
 	{
 		BindTextKoi(stmt, col++, special_buf);

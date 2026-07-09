@@ -429,7 +429,7 @@ void Player::save_char() {
 	// структуры
 	saved.printf("Alin: %d\n", alignment::GetAlignment(this));
 	*buf = '\0';
-	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	AFF_FLAGS(this).tascii(kFlagPlanes, buf, sizeof(buf));
 	saved.printf("Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -587,7 +587,7 @@ void Player::save_char() {
 	saved.printf("DrSt: %d\n", GET_DRUNK_STATE(this));
 	saved.printf("Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
-	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	this->player_specials->saved.pref.tascii(kFlagPlanes, buf, sizeof(buf));
 	saved.printf("Pref: %s\n", buf);
 	saved.printf("MgSh: %d\n", static_cast<int>(GetBriefShieldsMode()));
 

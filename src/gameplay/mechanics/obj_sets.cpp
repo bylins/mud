@@ -507,7 +507,7 @@ void ObjSetsLoader::Save(parser_wrapper::DataNode &doc) const {
 			// issue.obj-sets: аффекты - атрибут (tascii добавляет хвостовой пробел - срезаем)
 			if (!k.second.affects.empty()) {
 				*buf_ = '\0';
-				k.second.affects.tascii(FlagData::kPlanesNumber, buf_, sizeof(buf_));
+				k.second.affects.tascii(kFlagPlanes, buf_, sizeof(buf_));
 				for (char *p = buf_ + strlen(buf_); p > buf_ && *(p - 1) == ' '; --p) {
 					*(p - 1) = '\0';
 				}

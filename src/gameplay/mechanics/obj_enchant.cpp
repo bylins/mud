@@ -88,15 +88,15 @@ std::string enchant::print_to_file() const {
 	}
 
 	*buf = '\0';
-	affects_flags_.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	affects_flags_.tascii(kFlagPlanes, buf, sizeof(buf));
 	out << " F " << buf << "\n";
 
 	*buf = '\0';
-	extra_flags_.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	extra_flags_.tascii(kFlagPlanes, buf, sizeof(buf));
 	out << " E " << buf << "\n";
 
 	*buf = '\0';
-	no_flags_.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	no_flags_.tascii(kFlagPlanes, buf, sizeof(buf));
 	out << " N " << buf << "\n";
 
 	out << " W " << weight_ << "\n";

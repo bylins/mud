@@ -576,7 +576,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		strip_string(buf1);
 		*buf2 = 0;
 		mob->PrintFlagsToAscii(buf2, sizeof(buf2));
-		AFF_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
+		AFF_FLAGS(mob).tascii(kFlagPlanes, buf2, sizeof(buf2));
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 				buf2, alignment::GetAlignment(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
@@ -651,7 +651,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		if (GET_WEIGHT(mob))
 			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 		snprintf(buf1, sizeof(buf1), "Special_Bitvector: ");
-		mob->mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, buf1, sizeof(buf1));
+		mob->mob_specials.npc_flags.tascii(kFlagPlanes, buf1, sizeof(buf1));
 		fprintf(mob_file, "%s\n", buf1);
 		for (const auto &feat : MUD::Feats()) {
 			if (mob->HaveFeat(feat.GetId())) {

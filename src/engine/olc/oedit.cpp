@@ -311,12 +311,12 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 				*buf1 = '\0';
 			}
 			*buf2 = '\0';
-			obj->get_affect_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
-			obj->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
-			obj->get_no_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
+			obj->get_affect_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
+			obj->get_anti_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
+			obj->get_no_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
 			size_t buf2_len = strlen(buf2);
 			snprintf(buf2 + buf2_len, sizeof(buf2) - buf2_len, "\n%d ", obj->get_type());
-			obj->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
+			obj->get_extra_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
 			const auto wear_flags = obj->get_wear_flags();
 			tascii(&wear_flags, 1, buf2, sizeof(buf2));
 			strncat(buf2, "\n", sizeof(buf2) - strlen(buf2) - 1);

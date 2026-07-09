@@ -532,42 +532,6 @@ long YamlWorldDataSource::GetLong(const YAML::Node &node, const std::string &key
 	return default_val;
 }
 
-FlagData YamlWorldDataSource::ParseFlags(const YAML::Node &node, const std::string &dict_name) const
-{
-	FlagData flags;
-
-	if (!node || !node.IsSequence())
-	{
-		return flags;
-	}
-
-	auto &dm = DictionaryManager::Instance();
-
-	for (const auto &flag_node : node)
-	{
-		std::string flag_name = flag_node.as<std::string>();
-
-		// Handle UNUSED_XX flags directly
-		if (flag_name.rfind("UNUSED_", 0) == 0)
-		{
-			int bit = std::stoi(flag_name.substr(7));
-			size_t plane = bit / 30;
-			int bit_in_plane = bit % 30;
-			flags.set_flag(plane, 1 << bit_in_plane);
-			continue;
-		}
-
-		long bit_pos = dm.Lookup(dict_name, flag_name, -1);
-		if (bit_pos >= 0)
-		{
-			size_t plane = bit_pos / 30;
-			int bit = bit_pos % 30;
-			flags.set_flag(plane, 1 << bit);
-		}
-	}
-
-	return flags;
-}
 
 int YamlWorldDataSource::ParseEnum(const YAML::Node &node, const std::string &dict_name, int default_val) const
 {
@@ -2448,7 +2412,7 @@ std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagsT &
 
 	const auto &entries = dict->GetEntries();
 
-	for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+	for (size_t plane = 0; plane < kFlagPlanes; ++plane)
 	{
 		Bitvector plane_bits = flags.get_plane(plane);
 		if (plane_bits == 0) continue;
@@ -3774,7 +3738,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	// across mobs" diff: 'f1 0' on mob 1, 'f1 0 0 0' on mob 2, etc.
 	char special_buf[kMaxStringLength];
 	special_buf[0] = '\0';
-	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
+	mob.mob_specials.npc_flags.tascii(kFlagPlanes, special_buf, sizeof(special_buf));
 	std::string role_str = mob.get_role().to_string();
 	{
 		{
@@ -4355,7 +4319,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	std::vector<std::string> affect_flags;
 	{
 		const auto &fld = obj->get_affect_flags();
-		for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+		for (size_t plane = 0; plane < kFlagPlanes; ++plane)
 		{
 			Bitvector plane_bits = fld.get_plane(plane);
 			if (plane_bits == 0) continue;

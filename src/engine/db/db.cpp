@@ -156,7 +156,6 @@ char *help{nullptr};        // help screen
 TimeInfoData time_info;
 ResetQueue reset_q;
 
-const FlagData clear_flags;
 
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
