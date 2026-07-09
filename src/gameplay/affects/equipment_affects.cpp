@@ -132,58 +132,10 @@ std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, Char
 }
 
 // issue.equipment-affects-improve: flag display names moved from constants.cpp.
-const char *equipment_affects[] = {"слепота",
-								"невидимость",
-								"опр.наклонностей",
-								"опр.невидимости",
-								"опр.магии",
-								"опр.жизни",
-								"водохождение",
-								"освящение",
-								"проклятие",
-								"инфравидение",
-								"яд",
-								"сопротивление.магии.тьмы",
-								"сопротивление.магии.разума",
-								"сон",
-								"не.выследить",
-								"доблесть",
-								"подкрадывание",
-								"спрятаться",
-								"оцепенение",
-								"полет",
-								"молчание",
-								"настороженность",
-								"мигание",
-								"не.сбежать",
-								"свет",
-								"освещение",
-								"тьма",
-								"опр.яда",
-								"медлительность",
-								"ускорение",
-								"\n",
-								"дыхание.водой",
-								"кровотечение",
-								"маскировка",
-								"защита.богов",
-								"воздушный.щит",
-								"огненный.щит",
-								"ледяной.щит",
-								"зеркало.магии",
-								"каменная.рука",
-								"призматическая.аура",
-								"воздушная.аура",
-								"огненная.аура",
-								"ледяная.аура",
-								"глухота",
-								"полководец",
-								"земной.поклон",
-								"затуманивание",
-								"\n",
-								"\n",
-								"\n"
-};
+// issue.equipment-affects-cfg: display names, loaded from equipment_affect_msg.xml (was hardcoded).
+static std::vector<std::string> g_equipment_affect_names;
+static std::vector<const char *> g_equipment_affect_name_ptrs;
+const char **equipment_affects = nullptr;
 
 // issue.equipment-affects-cfg: build the equipment_affect table from cfg/equipment_affects.xml.
 void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
@@ -208,6 +160,47 @@ void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 }
 
 void EquipmentAffectsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+
+// issue.equipment-affects-cfg: rebuild the plane-padded equipment_affects[] name array from the flat
+// message file. Per plane (4x30 legacy bits) append each present affect's name in bit order, then a
+// '\n' plane terminator -- byte-identical to the old hardcoded array (verified).
+void EquipmentAffectMsgLoader::Load(parser_wrapper::DataNode data) {
+	std::map<EEquipmentAffect, std::string> names;
+	for (auto &node : data.Children()) {
+		if (std::string(node.GetName()) != "affect") {
+			continue;
+		}
+		const EEquipmentAffect id = ITEM_BY_NAME<EEquipmentAffect>(node.GetValue("id"));
+		for (auto &nm : node.Children()) {
+			if (std::string(nm.GetName()) == "name") {
+				names[id] = nm.GetValue("val");
+			}
+		}
+	}
+	std::vector<std::string> arr;
+	for (int plane = 0; plane < 4; ++plane) {
+		for (int bit = 0; bit < 30; ++bit) {
+			const auto af = static_cast<EEquipmentAffect>(
+					(static_cast<Bitvector>(plane) << 30) | (static_cast<Bitvector>(1) << bit));
+			const auto it = names.find(af);
+			if (it != names.end()) {
+				arr.push_back(it->second);
+			}
+		}
+		arr.push_back("\n");
+	}
+	g_equipment_affect_names = std::move(arr);
+	g_equipment_affect_name_ptrs.clear();
+	g_equipment_affect_name_ptrs.reserve(g_equipment_affect_names.size());
+	for (const auto &nm : g_equipment_affect_names) {
+		g_equipment_affect_name_ptrs.push_back(nm.c_str());
+	}
+	equipment_affects = g_equipment_affect_name_ptrs.data();
+}
+
+void EquipmentAffectMsgLoader::Reload(parser_wrapper::DataNode data) {
 	Load(std::move(data));
 }
 

@@ -103,7 +103,9 @@ class CharData;
 std::pair<EApply, int> GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch);
 
 // Russian display names for the flags (sprintbits labels), indexed by bit position.
-extern const char *equipment_affects[];
+// issue.equipment-affects-cfg: rebuilt at boot from cfg/messages/ru/equipment_affect_msg.xml
+// (plane-padded, '\n'-separated -- the layout sprintbits still expects).
+extern const char **equipment_affects;
 
 #endif //BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
 

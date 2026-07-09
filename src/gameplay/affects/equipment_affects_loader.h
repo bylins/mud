@@ -15,6 +15,14 @@ class EquipmentAffectsLoader : public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
+// Loads cfg/messages/ru/equipment_affect_msg.xml (flat, keyed by affect id) and rebuilds the
+// legacy plane-padded equipment_affects[] name array that sprintbits still consumes.
+class EquipmentAffectMsgLoader : public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
 #endif  // BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_LOADER_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

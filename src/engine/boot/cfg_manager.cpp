@@ -150,6 +150,7 @@ CfgManager::CfgManager() {
 		{"specials", CfgDir::kRoot, [] { return MakeLoader<SpecialsLoader>(); }},
 		{"affects", CfgDir::kRoot, [] { return MakeLoader<affects::AffectsLoader>(); }},
 		{"equipment_affects", CfgDir::kRoot, [] { return MakeLoader<EquipmentAffectsLoader>(); }},
+		{"equipment_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<EquipmentAffectMsgLoader>(); }},
 		{"room_affects", CfgDir::kRoot, [] { return MakeLoader<room_spells::RoomAffectsLoader>(); }},
 		{"affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
 		{"room_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<room_spells::RoomAffectMessagesLoader>(); }},
