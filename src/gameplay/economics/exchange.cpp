@@ -1133,7 +1133,7 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 			|| utils::IsAbbr("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(grammar::ECase::kNom).c_str())
 			|| utils::IsAbbr("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(grammar::ECase::kNom).c_str())) {
 			char affbuf[kMaxStringLength];
-			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, affbuf, sizeof(affbuf), ",");
+			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(equipment_affects, affbuf, sizeof(affbuf), ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
 			aff.assign(affbuf);
 			if (aff == "ничего") {

@@ -51,7 +51,7 @@ struct clss_activ_node {
 	clss_activ_node() { total_affects.clear(); };
 
 	// аффекты
-	BitsetFlags<EWeaponAffect> total_affects;
+	BitsetFlags<EEquipmentAffect> total_affects;
 	// свойства
 	std::vector<obj_affected_type> affected;
 	// скилы

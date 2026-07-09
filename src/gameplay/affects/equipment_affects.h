@@ -2,7 +2,7 @@
  \brief Affects conferred by equipped items (the "weapon affect" flag set).
  NOTE: "weapon" is a historical DikuMUD misnomer -- these affects are applied by ANY worn
  equipment, not just weapons. Extracted from affect_contants.h (issue.equipment-affects):
- the EWeaponAffect flag enum, the value->EAffect/spell table (weapon_affect) and the flag name maps.
+ the EEquipmentAffect flag enum, the value->EAffect/spell table (equipment_affect) and the flag name maps.
 */
 
 #ifndef BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
@@ -14,7 +14,7 @@
 #include <map>
 #include <string>
 
-enum class EWeaponAffect : Bitvector {
+enum class EEquipmentAffect : Bitvector {
 	kBlindness = (1 << 0),			//0
 	kInvisibility = (1 << 1),
 	kDetectAlign = (1 << 2),
@@ -62,35 +62,35 @@ enum class EWeaponAffect : Bitvector {
 	kComamnder = kIntOne | (1 << 14),
 	kEarthAura = kIntOne | (1 << 15),	//45
 	kCloudly = kIntOne | (1 << 16)
-// не забудьте поправить kWeaponAffectCount
+// не забудьте поправить kEquipmentAffectCount
 };
 
-constexpr size_t kWeaponAffectCount = 47;
+constexpr size_t kEquipmentAffectCount = 47;
 
 template<>
-EWeaponAffect ITEM_BY_NAME<EWeaponAffect>(const std::string &name);
+EEquipmentAffect ITEM_BY_NAME<EEquipmentAffect>(const std::string &name);
 // issue.flags-migration P1b: transitional packed storage.
 template<>
-struct flag_traits<EWeaponAffect> {
+struct flag_traits<EEquipmentAffect> {
 	static constexpr std::size_t count = 120;
 };
 template<>
-struct flag_index_mapping<EWeaponAffect> {
-	static constexpr std::size_t to_index(EWeaponAffect f) {
+struct flag_index_mapping<EEquipmentAffect> {
+	static constexpr std::size_t to_index(EEquipmentAffect f) {
 		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
 	}
 };
 template<>
-const std::string &NAME_BY_ITEM(EWeaponAffect item);
+const std::string &NAME_BY_ITEM(EEquipmentAffect item);
 
-struct WeaponAffect {
-	EWeaponAffect aff_pos;
+struct EquipmentAffect {
+	EEquipmentAffect aff_pos;
 	Bitvector aff_bitvector;
 	ESpell aff_spell;
 };
 
-using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
-extern WeaponAffectArray weapon_affect;
+using EquipmentAffectArray = std::array<EquipmentAffect, kEquipmentAffectCount>;
+extern EquipmentAffectArray equipment_affect;
 
 #endif //BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
 

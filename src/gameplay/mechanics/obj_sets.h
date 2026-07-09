@@ -93,7 +93,7 @@ struct activ_sum {
 	int get_skill(const ESkill num) const;
 
 	// аффекты (obj_flags.affects)
-	BitsetFlags<EWeaponAffect> affects;
+	BitsetFlags<EEquipmentAffect> affects;
 	// APPLY_XXX аффекты (affected[kMaxObjAffect])
 	std::vector<obj_affected_type> apply;
 	// +скилы в обход текущего обхода шмоток

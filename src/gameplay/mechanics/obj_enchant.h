@@ -46,7 +46,7 @@ struct enchant {
 	// список APPLY аффектов (affected[kMaxObjAffect])
 	std::vector<obj_affected_type> affected_;
 	// аффекты обкаста (obj_flags.affects)
-	BitsetFlags<EWeaponAffect> affects_flags_;
+	BitsetFlags<EEquipmentAffect> affects_flags_;
 	// экстра аффекты (obj_flags.extra_flags)
 	BitsetFlags<EObjFlag> extra_flags_;
 	// запреты на ношение (obj_flags.no_flag)

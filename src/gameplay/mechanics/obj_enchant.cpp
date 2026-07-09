@@ -43,7 +43,7 @@ void enchant::print(CharData *ch) const {
 		print_obj_affects(ch, *i);
 	}
 
-	if (affects_flags_.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
+	if (affects_flags_.sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
 		SendMsgToChar(ch, "%s   аффекты: %s%s\r\n",
 					  kColorCyn, buf2, kColorNrm);
 	}

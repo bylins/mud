@@ -991,7 +991,7 @@ const char *month_name_o[] = {"месяц Зимы",
 							  "месяц Великого Зла"
 };
 
-const char *weapon_affects[] = {"слепота",
+const char *equipment_affects[] = {"слепота",
 								"невидимость",
 								"опр.наклонностей",
 								"опр.невидимости",

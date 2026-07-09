@@ -83,18 +83,18 @@ extern std::array<EAffect, 2> char_saved_aff;
 extern std::array<EAffect, 3> char_stealth_aff;
 
 bool no_bad_affects(ObjData *obj) {
-	static std::list<EWeaponAffect> bad_waffects =
+	static std::list<EEquipmentAffect> bad_waffects =
 		{
-			EWeaponAffect::kHold,
-			EWeaponAffect::kSanctuary,
-			EWeaponAffect::kPrismaticAura,
-			EWeaponAffect::kPoison,
-			EWeaponAffect::kSilence,
-			EWeaponAffect::kDeafness,
-			EWeaponAffect::kHaemorrhage,
-			EWeaponAffect::kBlindness,
-			EWeaponAffect::kSleep,
-			EWeaponAffect::kHolyDark
+			EEquipmentAffect::kHold,
+			EEquipmentAffect::kSanctuary,
+			EEquipmentAffect::kPrismaticAura,
+			EEquipmentAffect::kPoison,
+			EEquipmentAffect::kSilence,
+			EEquipmentAffect::kDeafness,
+			EEquipmentAffect::kHaemorrhage,
+			EEquipmentAffect::kBlindness,
+			EEquipmentAffect::kSleep,
+			EEquipmentAffect::kHolyDark
 		};
 	for (const auto wa : bad_waffects) {
 		if (OBJ_AFFECT(obj, wa)) {
@@ -726,37 +726,37 @@ void RemoveCurableAffects(CharData *ch) {
 	}
 }
 
-std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch) {
+std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch) {
 	int value;
 	if (ch) //чтоб не было варнинга, ch передаю на будущее
 		value = 2;
 	switch (element) {
-		case EWeaponAffect::kFireAura:
+		case EEquipmentAffect::kFireAura:
 			return std::pair<EApply, int>(EApply::kResistFire, value);
 			break;
-		case EWeaponAffect::kAirAura:
+		case EEquipmentAffect::kAirAura:
 			return std::pair<EApply, int>(EApply::kResistAir, value);
 			break;
-		case EWeaponAffect::kIceAura:
+		case EEquipmentAffect::kIceAura:
 			return std::pair<EApply, int>(EApply::kResistWater, value);
 			break;
-		case EWeaponAffect::kEarthAura:
+		case EEquipmentAffect::kEarthAura:
 			return std::pair<EApply, int>(EApply::kResistEarth, value);
 			break;
-		case EWeaponAffect::kProtectFromDark:
+		case EEquipmentAffect::kProtectFromDark:
 			return std::pair<EApply, int>(EApply::kResistDark, value);
 			break;
-		case EWeaponAffect::kProtectFromMind:
+		case EEquipmentAffect::kProtectFromMind:
 			return std::pair<EApply, int>(EApply::kResistMind, value);
 			break;
 		// issue.mob-flag-affect-materialization: worn cloudly/blink must grant the miss-chance APPLY,
 		// not just the flag -- ProcessBlink now gates on the apply, not AFF_FLAGGED. Flat 10 preserves
 		// the pre-change PC value (the old hardcoded flag path defaulted a flagged PC to blink 10); NPC
 		// bearers still take level+remort from ProcessBlink regardless of magnitude.
-		case EWeaponAffect::kCloudly:
+		case EEquipmentAffect::kCloudly:
 			return std::pair<EApply, int>(EApply::kSpelledBlinkMag, 10);
 			break;
-		case EWeaponAffect::kBlink:
+		case EEquipmentAffect::kBlink:
 			return std::pair<EApply, int>(EApply::kSpelledBlinkPhys, 10);
 			break;
 		default:
@@ -840,12 +840,12 @@ void affect_total(CharData *ch) {
 							  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffect>(0), true);
 			}
 			// Update weapon bitvectors
-			for (const auto &j : weapon_affect) {
+			for (const auto &j : equipment_affect) {
 				// То же самое, но переформулировал
-				if (j.aff_bitvector == 0 || !obj->GetEWeaponAffect(j.aff_pos)) {
+				if (j.aff_bitvector == 0 || !obj->GetEEquipmentAffect(j.aff_pos)) {
 					continue;
 				}
-				affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first, GetApplyByWeaponAffect(j.aff_pos, ch).second, static_cast<EAffect>(j.aff_bitvector), true);
+				affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first, GetApplyByEquipmentAffect(j.aff_pos, ch).second, static_cast<EAffect>(j.aff_bitvector), true);
 			}
 		}
 	}

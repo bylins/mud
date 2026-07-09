@@ -56,7 +56,7 @@ struct ActivNode {
 	// активится ли миник на мобах
 	bool npc;
 	// аффекты (obj_flags.affects)
-	BitsetFlags<EWeaponAffect> affects;
+	BitsetFlags<EEquipmentAffect> affects;
 	// APPLY_XXX аффекты (affected[kMaxObjAffect])
 	std::array<obj_affected_type, kMaxObjAffect> apply;
 	// изменение умения. идет в bonus, но в активаторах юзается это поле

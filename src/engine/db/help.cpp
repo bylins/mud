@@ -126,7 +126,7 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 		out << "Вес : " << obj->get_weight() << "\r\n";
 	}
 
-	if (obj->get_affect_flags().sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
+	if (obj->get_affect_flags().sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
 		out << "Аффекты : " << buf2 << "\r\n";
 	}
 
@@ -178,7 +178,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	out << "\r\n";
 
 	auto affects = activ->second.get_affects();
-	if (affects.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
+	if (affects.sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}
 
@@ -227,7 +227,7 @@ struct activators_obj {
 	std::map<int, clss_activ_node> clss_list;
 	// суммарные статы шмоток
 	BitsetFlags<ENoFlag> native_no_flag;
-	BitsetFlags<EWeaponAffect> native_affects;
+	BitsetFlags<EEquipmentAffect> native_affects;
 	std::vector<obj_affected_type> native_affected;
 	CObjectPrototype::skills_t native_skills;
 
@@ -298,7 +298,7 @@ std::string activators_obj::print() {
 
 		// affects
 		cls_it.second.total_affects += native_affects;
-		if (cls_it.second.total_affects.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
+		if (cls_it.second.total_affects.sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
 			node.afct += " + Аффекты : " + std::string(buf2) + "\r\n";
 		}
 		// affected

@@ -779,7 +779,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "%s\r\n", buf);
 
 	SendMsgToChar("Устанавливает аффекты : ", ch);
-	j->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",", 4);
+	j->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", 4);
 	SendMsgToChar(ch, "%s\r\n", buf);
 
 	SendMsgToChar("Дополнительные флаги  : ", ch);

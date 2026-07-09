@@ -2160,17 +2160,17 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 
 			if (root["affect_flags"] && root["affect_flags"].IsSequence())
 			{
-				// affect_flags на предмете -- бит EWeaponAffect (хранится в
+				// affect_flags на предмете -- бит EEquipmentAffect (хранится в
 				// m_waffect_flags), не EAffect. Раньше lookup шёл через dm
 				// "affect_flags" (EAffect-нумерация), и kDetectPoison из
-				// YAML попадал в бит 32, который в EWeaponAffect равен
+				// YAML попадал в бит 32, который в EEquipmentAffect равен
 				// kDisguising -- носитель получал маскировку вместо
-				// определения яда. ITEM_BY_NAME<EWeaponAffect>(name) даёт
-				// корректный EWeaponAffect-бит без посредника.
+				// определения яда. ITEM_BY_NAME<EEquipmentAffect>(name) даёт
+				// корректный EEquipmentAffect-бит без посредника.
 				//
 				// Старые YAML, конвертированные ранее через AFFECT_FLAGS-
 				// таблицу, могут содержать имена, которых нет в
-				// EWeaponAffect (kDetectInvisible вместо kDetectInvisibility).
+				// EEquipmentAffect (kDetectInvisible вместо kDetectInvisibility).
 				// ITEM_BY_NAME .at() бросает out_of_range -- ловим, пишем
 				// syslog, продолжаем. Лучше потерять один сомнительный
 				// флаг, чем уронить boot всего мира.
@@ -2187,12 +2187,12 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 					}
 					try
 					{
-						const auto wa = ITEM_BY_NAME<EWeaponAffect>(flag_name);
-						obj_ptr->SetEWeaponAffectFlag(wa);
+						const auto wa = ITEM_BY_NAME<EEquipmentAffect>(flag_name);
+						obj_ptr->SetEEquipmentAffectFlag(wa);
 					}
 					catch (const std::out_of_range &)
 					{
-						log("SYSERR: unknown EWeaponAffect '%s' on obj vnum %d, skipped",
+						log("SYSERR: unknown EEquipmentAffect '%s' on obj vnum %d, skipped",
 							flag_name.c_str(), obj_ptr->get_vnum());
 					}
 				}
@@ -4311,11 +4311,11 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 		yaml.DecreaseIndent();
 	}
 
-	// Affect flags. m_waffect_flags хранит биты EWeaponAffect, имена
-	// берём из EWeaponAffect-таблицы (не EAffect), иначе round-trip
+	// Affect flags. m_waffect_flags хранит биты EEquipmentAffect, имена
+	// берём из EEquipmentAffect-таблицы (не EAffect), иначе round-trip
 	// конвертера сломает item-affects: загружено как kDetectPoison,
 	// сохранено как kHorse (бит 27 в EAffect-словаре). Идём по битам
-	// сами и берём имена через NAME_BY_ITEM<EWeaponAffect>.
+	// сами и берём имена через NAME_BY_ITEM<EEquipmentAffect>.
 	std::vector<std::string> affect_flags;
 	{
 		const auto &fld = obj->get_affect_flags();
@@ -4332,7 +4332,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 					(kIntThree | (1u << bit)));
 				try
 				{
-					const auto &name = NAME_BY_ITEM<EWeaponAffect>(static_cast<EWeaponAffect>(v));
+					const auto &name = NAME_BY_ITEM<EEquipmentAffect>(static_cast<EEquipmentAffect>(v));
 					if (!name.empty()) affect_flags.push_back(name);
 				}
 				catch (const std::out_of_range &)

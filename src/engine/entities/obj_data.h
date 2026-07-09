@@ -228,8 +228,8 @@ class CObjectPrototype {
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
 	bool can_wear_any() const { return m_wear_flags.any() && m_wear_flags.get_plane(0) != to_underlying(EWearFlag::kTake); }
-	bool GetEWeaponAffect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
-	bool GetWeaponAffect(const Bitvector weapon_affect) const { return m_waffect_flags.get(static_cast<EWeaponAffect>(weapon_affect)); }
+	bool GetEEquipmentAffect(const EEquipmentAffect equipment_affect) const { return m_waffect_flags.get(equipment_affect); }
+	bool GetEquipmentAffect(const Bitvector equipment_affect) const { return m_waffect_flags.get(static_cast<EEquipmentAffect>(equipment_affect)); }
 	bool has_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
 	bool has_flag(const EObjFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
 	bool has_flag(const size_t plane, const Bitvector flag) const { return m_extra_flags.get_flag(plane, flag); }
@@ -252,7 +252,7 @@ class CObjectPrototype {
 	const auto &get_proto_script_ptr() const { return m_proto_script; }
 	const std::string &get_PName(const grammar::ECase name_case = grammar::ECase::kNom) const { return m_pnames[name_case]; }
 	const std::string &get_short_description() const { return m_short_description; }
-	void add_affect_flags(const BitsetFlags<EWeaponAffect> &flags) { m_waffect_flags += flags; }
+	void add_affect_flags(const BitsetFlags<EEquipmentAffect> &flags) { m_waffect_flags += flags; }
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
 	void add_anti_flags(const BitsetFlags<EAntiFlag> &flags) { m_anti_flags += flags; }
 	void add_extra_flags(const BitsetFlags<EObjFlag> &flags) { m_extra_flags += flags; }
@@ -282,8 +282,8 @@ class CObjectPrototype {
 	void load_no_flags(const char *string) { m_no_flags.from_string(string); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void set_action_description(const std::string &_) { m_action_description = _; }
-	void SetEWeaponAffectFlag(const EWeaponAffect packed_flag) { m_waffect_flags.set(packed_flag); }
-	void SetWeaponAffectFlags(const BitsetFlags<EWeaponAffect> &flags) { m_waffect_flags = flags; }
+	void SetEEquipmentAffectFlag(const EEquipmentAffect packed_flag) { m_waffect_flags.set(packed_flag); }
+	void SetEquipmentAffectFlags(const BitsetFlags<EEquipmentAffect> &flags) { m_waffect_flags = flags; }
 	void set_affected(const size_t index, const EApply location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type &affect) { m_affected[index] = affect; }
 	void set_affected_location(const size_t index, const EApply _) { m_affected[index].location = _; }
@@ -306,7 +306,7 @@ class CObjectPrototype {
 	void set_maximum_durability(const int _) { m_maximum_durability = _; }
 	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
 	void set_no_flags(const BitsetFlags<ENoFlag> &flags) { m_no_flags = flags; }
-	void set_obj_aff(const Bitvector packed_flag) { m_waffect_flags.set(static_cast<EWeaponAffect>(packed_flag)); }
+	void set_obj_aff(const Bitvector packed_flag) { m_waffect_flags.set(static_cast<EEquipmentAffect>(packed_flag)); }
 	void set_PName(const grammar::ECase index, const char *_) { m_pnames[index] = _; }
 	void set_PName(const grammar::ECase index, const std::string &_) { m_pnames[index] = _; }
 	void set_PNames(const pnames_t &_) { m_pnames = _; }
@@ -423,7 +423,7 @@ class CObjectPrototype {
 	EGender m_sex;
 
 	BitsetFlags<EObjFlag> m_extra_flags;    // If it hums, glows, etc.      //
-	BitsetFlags<EWeaponAffect> m_waffect_flags;
+	BitsetFlags<EEquipmentAffect> m_waffect_flags;
 	BitsetFlags<EAntiFlag> m_anti_flags;
 	BitsetFlags<ENoFlag> m_no_flags;
 
@@ -460,7 +460,7 @@ inline auto GET_OBJ_VAL(const CObjectPrototype::shared_ptr &obj, size_t index) {
 
 class activation {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
-	BitsetFlags<EWeaponAffect> affects;
+	BitsetFlags<EEquipmentAffect> affects;
 	std::array<obj_affected_type, kMaxObjAffect> affected;
 	int weight, ndices, nsides;
 	CObjectPrototype::skills_t skills;
@@ -470,7 +470,7 @@ class activation {
 
 	activation(const std::string &__actmsg, const std::string &__deactmsg,
 			   const std::string &__room_actmsg, const std::string &__room_deactmsg,
-			   const BitsetFlags<EWeaponAffect> &__affects, const obj_affected_type *__affected,
+			   const BitsetFlags<EEquipmentAffect> &__affects, const obj_affected_type *__affected,
 			   int __weight, int __ndices, int __nsides) :
 		actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg),
 		room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight),
@@ -569,13 +569,13 @@ class activation {
 		return *this;
 	}
 
-	const BitsetFlags<EWeaponAffect> &
+	const BitsetFlags<EEquipmentAffect> &
 	get_affects() const {
 		return affects;
 	}
 
 	activation &
-	set_affects(const BitsetFlags<EWeaponAffect> &__affects) {
+	set_affects(const BitsetFlags<EEquipmentAffect> &__affects) {
 		affects = __affects;
 		return *this;
 	}
@@ -851,10 +851,10 @@ inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return
 inline bool CAN_WEAR_ANY(const CObjectPrototype *obj) { return obj->can_wear_any(); }
 inline void SET_OBJ_AFF(CObjectPrototype *obj, const Bitvector packed_flag) { return obj->set_obj_aff(packed_flag); }
 inline bool OBJ_AFFECT(const CObjectPrototype *obj,
-					   const Bitvector weapon_affect) { return obj->GetWeaponAffect(weapon_affect); }
+					   const Bitvector equipment_affect) { return obj->GetEquipmentAffect(equipment_affect); }
 
-inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
-	return OBJ_AFFECT(obj, static_cast<Bitvector>(weapon_affect));
+inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EEquipmentAffect equipment_affect) {
+	return OBJ_AFFECT(obj, static_cast<Bitvector>(equipment_affect));
 }
 int GetObjMIW(ObjRnum rnum);
 

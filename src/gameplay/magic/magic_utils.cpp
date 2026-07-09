@@ -1010,7 +1010,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 
 // issue.handler-cleaning (Bucket 3): weapon cast-affect helper (was file-local in handler).
-void CastWeaponAffect(CharData *ch, ESpell spell_id) {
+void CastEquipmentAffect(CharData *ch, ESpell spell_id) {
 	ActionContext ctx(ch, spell_id, GetRealLevel(ch), {});
 	ctx.cvict = ch;
 	CastAffect(ctx);

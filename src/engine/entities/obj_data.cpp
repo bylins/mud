@@ -118,7 +118,7 @@ void ObjData::set_serial_num(int num) {
 
 const std::string ObjData::activate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
-		SetWeaponAffectFlags(__act.get_affects());
+		SetEquipmentAffectFlags(__act.get_affects());
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, __act.get_affected_i(i));
 		}
@@ -157,7 +157,7 @@ const std::string ObjData::activate_obj(const activation &__act) {
 
 const std::string ObjData::deactivate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
-		SetWeaponAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
+		SetEquipmentAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, obj_proto[get_rnum()]->get_affected(i));
 		}
@@ -491,7 +491,7 @@ void ObjData::unset_enchant() {
 		}
 	}
 	// Возврат эфектов
-	SetWeaponAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
+	SetEquipmentAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
 	if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasThreeSlots)) {
 		set_extra_flag(EObjFlag::kHasThreeSlots);
@@ -839,7 +839,7 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 }
 
 void set_obj_aff(ObjData *itemobj, const EAffect bitv) {
-	for (const auto &i : weapon_affect) {
+	for (const auto &i : equipment_affect) {
 		if (i.aff_bitvector == static_cast<Bitvector>(bitv)) {
 			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
 		}
@@ -1613,9 +1613,9 @@ double CalcRemortRequirements(const CObjectPrototype *obj) {
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto &m : weapon_affect) {
-		if (obj->GetEWeaponAffect(m.aff_pos)) {
+	// аффекты AFF_x через equipment_affect
+	for (const auto &m : equipment_affect) {
+		if (obj->GetEEquipmentAffect(m.aff_pos)) {
 			auto obj_affects = static_cast<EAffect>(m.aff_bitvector);
 			if (obj_affects == EAffect::kAirShield ||
 				obj_affects == EAffect::kFireShield ||

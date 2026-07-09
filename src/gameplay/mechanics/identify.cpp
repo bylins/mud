@@ -408,7 +408,7 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Накладывает на вас аффекты: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
+	obj->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
 	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);

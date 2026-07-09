@@ -134,7 +134,7 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
-std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);
+std::pair<EApply, int> GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch);
 void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
@@ -145,7 +145,7 @@ void RemoveCurableAffects(CharData *ch);
 // True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
 bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
 // True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE
-// itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EWeaponAffect) and a mob's
+// itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EEquipmentAffect) and a mob's
 // innate proto flags. EAffect-keyed (decoupled from the casting spell); the successor to
 // IsAffectedBySpell for "does ch currently have this effect" queries.
 bool IsAffected(CharData *ch, EAffect affect_type);

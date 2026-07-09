@@ -310,8 +310,8 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		}
 
 		if (ch->in_room != kNowhere) {
-			for (const auto &j : weapon_affect) {
-				if (j.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(j.aff_pos)) {
+			for (const auto &j : equipment_affect) {
+				if (j.aff_spell == ESpell::kUndefined || !obj->GetEEquipmentAffect(j.aff_pos)) {
 					continue;
 				}
 				if (!no_cast) {
@@ -321,11 +321,11 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						CastWeaponAffect(ch, j.aff_spell);
+						CastEquipmentAffect(ch, j.aff_spell);
 					}
 				} else {
-					affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first,
-								  GetApplyByWeaponAffect(j.aff_pos, ch).second,
+					affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first,
+								  GetApplyByEquipmentAffect(j.aff_pos, ch).second,
 								  static_cast<EAffect>(j.aff_bitvector), true);
 				}
 			}
@@ -388,8 +388,8 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 		}
 
 		if (ch->in_room != kNowhere) {
-			for (const auto &j : weapon_affect) {
-				if (j.aff_bitvector == 0 || !obj->GetEWeaponAffect(j.aff_pos)) {
+			for (const auto &j : equipment_affect) {
+				if (j.aff_bitvector == 0 || !obj->GetEEquipmentAffect(j.aff_pos)) {
 					continue;
 				}
 				if (ch->IsNpc()

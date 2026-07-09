@@ -79,7 +79,7 @@ extern const char *where[];
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
-extern const char *weapon_affects[];
+extern const char *equipment_affects[];
 extern const char *anti_bits[];
 extern const char *no_bits[];
 extern const char *material_type[];

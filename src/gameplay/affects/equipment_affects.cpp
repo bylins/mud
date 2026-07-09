@@ -1,139 +1,139 @@
 /**
- \brief Equipment-affect flag maps and the weapon_affect value->EAffect/spell table.
+ \brief Equipment-affect flag maps and the equipment_affect value->EAffect/spell table.
  Extracted verbatim from affect_contants.cpp (issue.equipment-affects). The name maps and lazy
  init are TU-local; ITEM_BY_NAME/NAME_BY_ITEM are the public lookups declared in the header.
 */
 
 #include "gameplay/affects/equipment_affects.h"
 
-#include "gameplay/affects/affect_contants.h"   // EAffect (for the weapon_affect table)
+#include "gameplay/affects/affect_contants.h"   // EAffect (for the equipment_affect table)
 #include "utils/utils.h"                         // to_underlying
 
-typedef std::map<EWeaponAffect, std::string> EWeaponAffectFlag_name_by_value_t;
-typedef std::map<const std::string, EWeaponAffect> EWeaponAffectFlag_value_by_name_t;
-EWeaponAffectFlag_name_by_value_t EWeaponAffectFlag_name_by_value;
-EWeaponAffectFlag_value_by_name_t EWeaponAffectFlag_value_by_name;
+typedef std::map<EEquipmentAffect, std::string> EEquipmentAffectFlag_name_by_value_t;
+typedef std::map<const std::string, EEquipmentAffect> EEquipmentAffectFlag_value_by_name_t;
+EEquipmentAffectFlag_name_by_value_t EEquipmentAffectFlag_name_by_value;
+EEquipmentAffectFlag_value_by_name_t EEquipmentAffectFlag_value_by_name;
 
-void init_EWeaponAffectFlag_ITEM_NAMES() {
-	EWeaponAffectFlag_name_by_value.clear();
-	EWeaponAffectFlag_value_by_name.clear();
+void init_EEquipmentAffectFlag_ITEM_NAMES() {
+	EEquipmentAffectFlag_name_by_value.clear();
+	EEquipmentAffectFlag_value_by_name.clear();
 
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBlindness] = "kBlindness";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kInvisibility] = "kInvisibility";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectAlign] = "kDetectAlign";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectInvisibility] = "kDetectInvisibility";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectMagic] = "kDetectMagic";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectLife] = "kDetectLife";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kWaterWalk] = "kWaterWalk";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSanctuary] = "kSanctuary";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kCurse] = "kCurse";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kInfravision] = "kInfravision";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kPoison] = "kPoison";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectFromDark] = "kProtectFromDark";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectFromMind] = "kProtectFromMind";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSleep] = "kSleep";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kNoTrack] = "kNoTrack";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBless] = "kBless";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSneak] = "kSneak";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHide] = "kHide";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHold] = "kHold";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kFly] = "kFly";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSilence] = "kSilence";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kAwareness] = "kAwareness";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBlink] = "kBlink";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kNoFlee] = "kNoFlee";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSingleLight] = "kSingleLight";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHolyLight] = "kHolyLight";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHolyDark] = "kHolyDark";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDetectPoison] = "kDetectPoison";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSlow] = "kSlow";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHaste] = "kHaste";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kWaterBreath] = "kWaterBreath";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kHaemorrhage] = "kHaemorrhage";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDisguising] = "kDisguising";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kShield] = "kShield";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kAirShield] = "kAirShield";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kFireShield] = "kFireShield";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kIceShield] = "kIceShield";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kMagicGlass] = "kMagicGlass";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kStoneHand] = "kStoneHand";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kPrismaticAura] = "kPrismaticAura";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kAirAura] = "kAirAura";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kFireAura] = "kFireAura";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kIceAura] = "kIceAura";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDeafness] = "kDeafness";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kComamnder] = "kComamnder";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kEarthAura] = "kEarthAura";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kCloudly] = "kCloudly";
-	for (const auto &i : EWeaponAffectFlag_name_by_value) {
-		EWeaponAffectFlag_value_by_name[i.second] = i.first;
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kBlindness] = "kBlindness";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kInvisibility] = "kInvisibility";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kDetectAlign] = "kDetectAlign";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kDetectInvisibility] = "kDetectInvisibility";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kDetectMagic] = "kDetectMagic";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kDetectLife] = "kDetectLife";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kWaterWalk] = "kWaterWalk";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kSanctuary] = "kSanctuary";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kCurse] = "kCurse";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kInfravision] = "kInfravision";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kPoison] = "kPoison";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kProtectFromDark] = "kProtectFromDark";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kProtectFromMind] = "kProtectFromMind";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kSleep] = "kSleep";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kNoTrack] = "kNoTrack";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kBless] = "kBless";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kSneak] = "kSneak";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kHide] = "kHide";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kHold] = "kHold";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kFly] = "kFly";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kSilence] = "kSilence";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kAwareness] = "kAwareness";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kBlink] = "kBlink";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kNoFlee] = "kNoFlee";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kSingleLight] = "kSingleLight";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kHolyLight] = "kHolyLight";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kHolyDark] = "kHolyDark";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kDetectPoison] = "kDetectPoison";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kSlow] = "kSlow";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kHaste] = "kHaste";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kWaterBreath] = "kWaterBreath";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kHaemorrhage] = "kHaemorrhage";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kDisguising] = "kDisguising";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kShield] = "kShield";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kAirShield] = "kAirShield";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kFireShield] = "kFireShield";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kIceShield] = "kIceShield";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kMagicGlass] = "kMagicGlass";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kStoneHand] = "kStoneHand";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kPrismaticAura] = "kPrismaticAura";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kAirAura] = "kAirAura";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kFireAura] = "kFireAura";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kIceAura] = "kIceAura";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kDeafness] = "kDeafness";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kComamnder] = "kComamnder";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kEarthAura] = "kEarthAura";
+	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kCloudly] = "kCloudly";
+	for (const auto &i : EEquipmentAffectFlag_name_by_value) {
+		EEquipmentAffectFlag_value_by_name[i.second] = i.first;
 	}
 }
 
 template<>
-EWeaponAffect ITEM_BY_NAME(const std::string &name) {
-	if (EWeaponAffectFlag_name_by_value.empty()) {
-		init_EWeaponAffectFlag_ITEM_NAMES();
+EEquipmentAffect ITEM_BY_NAME(const std::string &name) {
+	if (EEquipmentAffectFlag_name_by_value.empty()) {
+		init_EEquipmentAffectFlag_ITEM_NAMES();
 	}
-	return EWeaponAffectFlag_value_by_name.at(name);
+	return EEquipmentAffectFlag_value_by_name.at(name);
 }
 
 template<>
-const std::string &NAME_BY_ITEM(const EWeaponAffect item) {
-	if (EWeaponAffectFlag_name_by_value.empty()) {
-		init_EWeaponAffectFlag_ITEM_NAMES();
+const std::string &NAME_BY_ITEM(const EEquipmentAffect item) {
+	if (EEquipmentAffectFlag_name_by_value.empty()) {
+		init_EEquipmentAffectFlag_ITEM_NAMES();
 	}
-	return EWeaponAffectFlag_name_by_value.at(item);
+	return EEquipmentAffectFlag_name_by_value.at(item);
 }
 
-WeaponAffectArray weapon_affect = {
-	WeaponAffect{EWeaponAffect::kBlindness, 0, ESpell::kBlindness},
-	WeaponAffect{EWeaponAffect::kInvisibility, to_underlying(EAffect::kInvisible), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kDetectAlign, to_underlying(EAffect::kDetectAlign), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kDetectInvisibility, to_underlying(EAffect::kDetectInvisible), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kDetectMagic, to_underlying(EAffect::kDetectMagic), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kDetectLife, to_underlying(EAffect::kDetectLife), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kWaterWalk, to_underlying(EAffect::kWaterWalk), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kSanctuary, to_underlying(EAffect::kSanctuary), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kCurse, to_underlying(EAffect::kCurse), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kInfravision, to_underlying(EAffect::kInfravision), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kPoison, 0, ESpell::kPoison},
-	WeaponAffect{EWeaponAffect::kProtectFromDark, to_underlying(EAffect::kProtectFromDark), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kProtectFromMind, to_underlying(EAffect::kProtectFromMind), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kSleep, 0, ESpell::kSleep},
-	WeaponAffect{EWeaponAffect::kNoTrack, to_underlying(EAffect::kNoTrack), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kBless, to_underlying(EAffect::kBless), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kSneak, to_underlying(EAffect::kSneak), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kHide, to_underlying(EAffect::kHide), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kHold, 0, ESpell::kHold},
-	WeaponAffect{EWeaponAffect::kFly, to_underlying(EAffect::kFly), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kSilence, to_underlying(EAffect::kSilence), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kAwareness, to_underlying(EAffect::kAwarness), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kBlink, to_underlying(EAffect::kBlink), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kNoFlee, to_underlying(EAffect::kNoFlee), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kSingleLight, to_underlying(EAffect::kSingleLight), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kHolyLight, to_underlying(EAffect::kHolyLight), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kHolyDark, to_underlying(EAffect::kHolyDark), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kDetectPoison, to_underlying(EAffect::kDetectPoison), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kSlow, to_underlying(EAffect::kSlow), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kHaste, to_underlying(EAffect::kHaste), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kWaterBreath, to_underlying(EAffect::kWaterBreath), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kHaemorrhage, to_underlying(EAffect::kHaemorrhage), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kDisguising, to_underlying(EAffect::kDisguise), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kShield, to_underlying(EAffect::kGodsShield), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kAirShield, to_underlying(EAffect::kAirShield), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kFireShield, to_underlying(EAffect::kFireShield), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kIceShield, to_underlying(EAffect::kIceShield), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kMagicGlass, to_underlying(EAffect::kMagicGlass), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kStoneHand, to_underlying(EAffect::kStoneHands), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kPrismaticAura, to_underlying(EAffect::kPrismaticAura), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kAirAura, to_underlying(EAffect::kAirAura), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kFireAura, to_underlying(EAffect::kFireAura), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kIceAura, to_underlying(EAffect::kIceAura), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kDeafness, to_underlying(EAffect::kDeafness), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kComamnder, to_underlying(EAffect::kCommander), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kEarthAura, to_underlying(EAffect::kEarthAura), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kCloudly, to_underlying(EAffect::kCloudly), ESpell::kUndefined}
+EquipmentAffectArray equipment_affect = {
+	EquipmentAffect{EEquipmentAffect::kBlindness, 0, ESpell::kBlindness},
+	EquipmentAffect{EEquipmentAffect::kInvisibility, to_underlying(EAffect::kInvisible), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kDetectAlign, to_underlying(EAffect::kDetectAlign), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kDetectInvisibility, to_underlying(EAffect::kDetectInvisible), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kDetectMagic, to_underlying(EAffect::kDetectMagic), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kDetectLife, to_underlying(EAffect::kDetectLife), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kWaterWalk, to_underlying(EAffect::kWaterWalk), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kSanctuary, to_underlying(EAffect::kSanctuary), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kCurse, to_underlying(EAffect::kCurse), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kInfravision, to_underlying(EAffect::kInfravision), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kPoison, 0, ESpell::kPoison},
+	EquipmentAffect{EEquipmentAffect::kProtectFromDark, to_underlying(EAffect::kProtectFromDark), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kProtectFromMind, to_underlying(EAffect::kProtectFromMind), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kSleep, 0, ESpell::kSleep},
+	EquipmentAffect{EEquipmentAffect::kNoTrack, to_underlying(EAffect::kNoTrack), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kBless, to_underlying(EAffect::kBless), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kSneak, to_underlying(EAffect::kSneak), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kHide, to_underlying(EAffect::kHide), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kHold, 0, ESpell::kHold},
+	EquipmentAffect{EEquipmentAffect::kFly, to_underlying(EAffect::kFly), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kSilence, to_underlying(EAffect::kSilence), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kAwareness, to_underlying(EAffect::kAwarness), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kBlink, to_underlying(EAffect::kBlink), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kNoFlee, to_underlying(EAffect::kNoFlee), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kSingleLight, to_underlying(EAffect::kSingleLight), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kHolyLight, to_underlying(EAffect::kHolyLight), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kHolyDark, to_underlying(EAffect::kHolyDark), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kDetectPoison, to_underlying(EAffect::kDetectPoison), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kSlow, to_underlying(EAffect::kSlow), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kHaste, to_underlying(EAffect::kHaste), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kWaterBreath, to_underlying(EAffect::kWaterBreath), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kHaemorrhage, to_underlying(EAffect::kHaemorrhage), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kDisguising, to_underlying(EAffect::kDisguise), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kShield, to_underlying(EAffect::kGodsShield), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kAirShield, to_underlying(EAffect::kAirShield), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kFireShield, to_underlying(EAffect::kFireShield), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kIceShield, to_underlying(EAffect::kIceShield), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kMagicGlass, to_underlying(EAffect::kMagicGlass), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kStoneHand, to_underlying(EAffect::kStoneHands), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kPrismaticAura, to_underlying(EAffect::kPrismaticAura), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kAirAura, to_underlying(EAffect::kAirAura), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kFireAura, to_underlying(EAffect::kFireAura), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kIceAura, to_underlying(EAffect::kIceAura), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kDeafness, to_underlying(EAffect::kDeafness), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kComamnder, to_underlying(EAffect::kCommander), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kEarthAura, to_underlying(EAffect::kEarthAura), ESpell::kUndefined},
+	EquipmentAffect{EEquipmentAffect::kCloudly, to_underlying(EAffect::kCloudly), ESpell::kUndefined}
 };
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
