@@ -3137,13 +3137,19 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "affectedby")) {
 				char *p = strchr(subfield, ',');
 				// issue.affect-migration: an applied affect is disconnected from the cause that triggered
-				// it, so "affectedby" tests for a specific AFFECT TYPE (by its text-id), not the casting
-				// spell. Builders pass the affect's text-id (e.g. kPoisoned), optionally with an apply type.
+				// it, so "affectedby" tests for a specific AFFECT TYPE, not the casting spell. Builders
+				// pass the affect's Russian short name (e.g. "мантия теней", "волшебный.щит") -- dots and
+				// underscores read as spaces, mirroring the old FixName -- or its enum text-id (kPoisoned).
+				auto resolve_affect = [](const char *name, EAffect &out) -> bool {
+					std::string fixed(name ? name : "");
+					for (auto &c : fixed) { if (c == '.' || c == '_') { c = ' '; } }
+					if (affects::FindByShortDesc(fixed, out)) { return true; }
+					try { out = ITEM_BY_NAME<EAffect>(fixed); return true; }
+					catch (const std::out_of_range &) { return false; }
+				};
 				if (!p) {
 					EAffect aff_id;
-					try {
-						aff_id = ITEM_BY_NAME<EAffect>(subfield);
-					} catch (const std::out_of_range &) {
+					if (!resolve_affect(subfield, aff_id)) {
 						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
 						trig_log(trig, buf);
 						return;
@@ -3159,9 +3165,7 @@ void find_replacement(void *go,
 					int num;
 					*(p++) = '\0';
 					EAffect aff_id;
-					try {
-						aff_id = ITEM_BY_NAME<EAffect>(subfield);
-					} catch (const std::out_of_range &) {
+					if (!resolve_affect(subfield, aff_id)) {
 						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
 						trig_log(trig, buf);
 						return;
