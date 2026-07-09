@@ -46,7 +46,7 @@ TEST(SerializeMob, IncludesActionFlagPlanes) {
 
 	const std::string out = WorldChecksum::SerializeMob(42, mob);
 
-	const std::string expected_planes = PlanesString(mob.char_specials.saved.act);
+	const std::string expected_planes = PlanesString(mob.char_specials.saved.mob_flags);
 	EXPECT_NE(std::string::npos, out.find(expected_planes))
 		<< "SerializeMob must embed action_flags planes; got: " << out;
 }

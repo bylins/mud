@@ -418,7 +418,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	}
 
 	if (k->IsNpc()) {
-		k->char_specials.saved.act.sprintbits(action_bits, smallBuf, sizeof(smallBuf), ",", 4);
+		k->char_specials.saved.mob_flags.sprintbits(action_bits, smallBuf, sizeof(smallBuf), ",", 4);
 		snprintf(buf, sizeof(buf), "MOB флаги: %s%s%s\r\n", kColorCyn, smallBuf, kColorNrm);
 		SendMsgToChar(buf, ch);
 		k->mob_specials.npc_flags.sprintbits(function_bits, smallBuf, sizeof(smallBuf), ",", 4);
@@ -524,7 +524,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			}
 		}
 	} else {
-		k->char_specials.saved.act.sprintbits(player_bits, smallBuf, sizeof(smallBuf), ", ", 4);
+		k->char_specials.saved.plr_flags.sprintbits(player_bits, smallBuf, sizeof(smallBuf), ", ", 4);
 		std::vector<std::string> out_str = utils::Split(smallBuf, ',');
 		snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "PLR: ").c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);

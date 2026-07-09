@@ -358,7 +358,7 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		const auto& flags = data["flags"];
 
 		// mob_flags array
-		ParseFlags<EMobFlag>(flags, "mob_flags", mob->char_specials.saved.act);
+		ParseFlags<EMobFlag>(flags, "mob_flags", mob->char_specials.saved.mob_flags);
 
 		// npc_flags array
 		ParseFlags<ENpcFlag>(flags, "npc_flags", mob->mob_specials.npc_flags);
@@ -378,7 +378,7 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 	// Legacy flat flags array (backward compatibility)
 	else if (HasArray(data, "flags"))
 	{
-		ParseFlags<EMobFlag>(data, "flags", mob->char_specials.saved.act);
+		ParseFlags<EMobFlag>(data, "flags", mob->char_specials.saved.mob_flags);
 	}
 
 	// Legacy npc_flags array at root level

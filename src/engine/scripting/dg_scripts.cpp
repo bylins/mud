@@ -3186,7 +3186,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "mobflag")) {
 				if (mob->IsNpc()) {
 	//				mudlog(fmt::format("mob flag {}", subfield));
-					bool val = mob->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+					bool val = mob->char_specials.saved.mob_flags.gm_flag(subfield, action_bits, str);
 					if (!val) {
 						trig_log(trig, fmt::format("mobflag: неправильный параметр в скобках - ({})", subfield));
 						return;

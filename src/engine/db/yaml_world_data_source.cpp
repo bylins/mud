@@ -3685,7 +3685,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	}
 
 	// Action flags
-	auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.act, "action_flags");
+	auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.mob_flags, "action_flags");
 	if (!act_flags.empty())
 	{
 		yaml.Key("action_flags");

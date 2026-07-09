@@ -269,7 +269,7 @@ std::string SerializeMob(int vnum, const CharData &mob)
 
 	// Action flags (all 4 planes) -- required to detect loader regressions
 	// like wrong bit packing in YAML/SQLite paths.
-	const auto &act = mob.char_specials.saved.act;
+	const auto &act = mob.char_specials.saved.mob_flags;
 	oss << act.get_plane(0) << "," << act.get_plane(1) << ","
 	    << act.get_plane(2) << "," << act.get_plane(3) << "|";
 

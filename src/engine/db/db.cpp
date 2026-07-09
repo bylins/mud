@@ -2184,7 +2184,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	// added (OR) to the mob's own flags -- they never live on the prototype, only on the loaded mob.
 	{
 		const auto &race_info = MUD::MobRaces()[GET_RACE(mob)];
-		mob->char_specials.saved.act += race_info.GetMobFlags();
+		mob->char_specials.saved.mob_flags += ToBitset<EMobFlag>(race_info.GetMobFlags());
 		mob->mob_specials.npc_flags += race_info.GetNpcFlags();
 	}
 

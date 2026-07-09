@@ -301,6 +301,17 @@ extern const religion_names_t religion_name;
 	kFree = 1 << 29,            // RESERVED - ONLY INTERBALLY (MOB_FREE)//
 };
 
+template<>
+struct flag_traits<EPlrFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EPlrFlag> {
+	static constexpr std::size_t to_index(EPlrFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 /**
  *	Gods flags.
  */
@@ -408,6 +419,17 @@ enum EMobFlag : Bitvector {
 	kNoResurrection = kIntTwo | (1 << 20),
 	kMobAwake = kIntTwo | (1 << 21),
 	kIgnoresFormation = kIntTwo | (1 << 22)
+};
+
+template<>
+struct flag_traits<EMobFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EMobFlag> {
+	static constexpr std::size_t to_index(EMobFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
 };
 
 /**

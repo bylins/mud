@@ -3446,7 +3446,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 
 
 	// Save mob action flags
-	FlagData act_flags = mob.char_specials.saved.act;
+	auto act_flags = mob.char_specials.saved.mob_flags;
 	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, act_flags, mob_action_flag_map, "action");
 
 	// Save mob affect flags

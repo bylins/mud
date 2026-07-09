@@ -117,7 +117,7 @@ inline bool HasNumber(const json& j, const char* key)
  * Flags are encoded as: (plane << 30) | (1 << bit)
  *
  * Usage:
- *   ParseFlags<EMobFlag>(data, "mob_flags", mob->char_specials.saved.act);
+ *   ParseFlags<EMobFlag>(data, "mob_flags", mob->char_specials.saved.mob_flags);
  */
 template<typename FlagType, typename FlagsetType>
 void ParseFlags(const json& j, const char* key, FlagsetType& flagset)
@@ -145,7 +145,7 @@ void ParseFlags(const json& j, const char* key, FlagsetType& flagset)
  * Flags are encoded as: (plane << 30) | (1 << bit)
  *
  * Usage:
- *   json arr = SerializeFlags(mob.char_specials.saved.act);
+ *   json arr = SerializeFlags(mob.char_specials.saved.mob_flags);
  */
 template<class FlagsT>
 inline json SerializeFlags(const FlagsT& flagset)

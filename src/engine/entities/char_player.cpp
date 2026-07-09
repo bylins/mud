@@ -385,7 +385,7 @@ void Player::save_char() {
 	saved.printf("Rmrt: %d\n", this->get_remort());
 	// флаги
 	*buf = '\0';
-	char_specials.saved.act.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	char_specials.saved.plr_flags.tascii(4, buf, sizeof(buf));
 	saved.printf("Act : %s\n", buf);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
@@ -927,7 +927,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_remort(0);
 	this->player_specials->saved.LastIP[0] = 0;
 	GET_EMAIL(this)[0] = 0;
-	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
+	char_specials.saved.plr_flags.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
 //	log("plrname %s bool %d", get_name().c_str(), get_extracted_list());
@@ -954,7 +954,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		switch (*tag) {
 			case 'A':
 				if (!strcmp(tag, "Act ")) {
-					char_specials.saved.act.from_string(line);
+					char_specials.saved.plr_flags.from_string(line);
 				}
 				break;
 			case 'C':

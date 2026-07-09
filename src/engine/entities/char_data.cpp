@@ -1163,7 +1163,7 @@ void CharData::restore_npc() {
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
 	this->mob_specials.extra_attack = proto->mob_specials.extra_attack;
 	//флаги
-	this->char_specials.saved.act = proto->char_specials.saved.act;
+	this->char_specials.saved.mob_flags = proto->char_specials.saved.mob_flags;
 	this->set_touching(nullptr);
 	if (this->get_protecting()) {
 		this->remove_protecting();
