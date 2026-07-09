@@ -10,7 +10,7 @@
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
 	</affect>
 	<affect id="kInvisible" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
 		<apply location="kAc">
 			<modifier min="40" beta="0" factor="-1" />
 		</apply>
@@ -204,7 +204,7 @@
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
 	</affect>
 	<affect id="kHaste" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
 		<apply location="kInitiative">
 			<modifier min="0" beta="0.4143" factor="1" />
 		</apply>
