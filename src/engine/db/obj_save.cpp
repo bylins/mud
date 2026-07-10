@@ -10,6 +10,7 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "engine/core/char_handler.h"
+#include "gameplay/affects/obj_affects.h"
 #include "gameplay/mechanics/equipment.h"
 #include "obj_save.h"
 #include "gameplay/mechanics/groups.h"
@@ -392,6 +393,8 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				*error = 48;
 				object->set_unique_id(atoi(buffer));
 			} else if (!strcmp(read_line, "TSpl")) {
+				// issue.obj-affects: legacy on-disk format stored an obj affect as its ESpell. Map each to
+				// its EObjAffect identity (the 4 poisons -> kPoisoned, the ESpell kept as subtype modifier).
 				*error = 49;
 				std::stringstream text(buffer);
 				std::string tmp_buf;
@@ -405,7 +408,38 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 						*error = 50;
 						return object;
 					}
-					object->add_timed_spell(static_cast<ESpell>(t[0]), t[1]);
+					const auto sp = static_cast<ESpell>(t[0]);
+					const auto oa = obj_affects::BySpell(sp);
+					if (oa != obj_affects::EObjAffect::kUndefined) {
+						const int mod = obj_affects::IsPoisonSpell(sp) ? t[0] : 0;
+						obj_affects::Impose(object.get(), oa, t[1], mod);
+					}
+				}
+			} else if (!strcmp(read_line, "OAff")) {
+				// issue.obj-affects: current format -- "<EObjAffect token> <timer> <modifier>" per line.
+				*error = 49;
+				std::stringstream text(buffer);
+				std::string tmp_buf;
+
+				while (std::getline(text, tmp_buf)) {
+					utils::Trim(tmp_buf);
+					if (tmp_buf.empty() || tmp_buf[0] == '~') {
+						break;
+					}
+					char token[64] = {0};
+					int dur = 0;
+					int mod = 0;
+					if (sscanf(tmp_buf.c_str(), "%63s %d %d", token, &dur, &mod) < 2) {
+						*error = 50;
+						return object;
+					}
+					obj_affects::EObjAffect a;
+					try {
+						a = ITEM_BY_NAME<obj_affects::EObjAffect>(token);
+					} catch (const std::out_of_range &) {
+						continue;   // unknown token (e.g. a retired affect): skip
+					}
+					obj_affects::Impose(object.get(), a, dur, mod);
 				}
 			} else if (!strcmp(read_line, "Mort")) {
 				*error = 51;
@@ -805,8 +839,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << object->serialize_values();
 		}
 	}
-	if (object->has_timed_spell()) {
-		out << object->timed_spell().print();
+	if (object->has_obj_affects()) {
+		out << obj_affects::Serialize(object);
 	}
 	if (!object->get_enchants().empty()) {
 		out << object->serialize_enchants();

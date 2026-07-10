@@ -6,6 +6,7 @@
 */
 
 #include "engine/core/char_movement.h"
+#include "gameplay/affects/obj_affects.h"
 #include "engine/core/target_resolver.h"
 #include "sight.h"
 #include "gameplay/mechanics/hide.h"
@@ -1327,7 +1328,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " (%d %s)",
 							GET_OBJ_VAL(object, 2), grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 			} else {
-				if (object->timed_spell().IsSpellPoisoned() != ESpell::kUndefined) {
+				if (obj_affects::PoisonSpell(object) != ESpell::kUndefined) {
 					sprintf(buf2, " %s*%s%s", kColorGrn,
 							kColorNrm, diag_obj_to_char(object, 1));
 				} else {
@@ -1426,7 +1427,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		strcat(buf, diag_timer_to_char(object));
 		strcat(buf, "\r\n");
 		//strcat(buf, diag_uses_to_char(object, ch)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
-		strcat(buf, object->diag_ts_to_char().c_str());
+		strcat(buf, obj_affects::Diag(object).c_str());
 	}
 	page_string(ch->desc, buf, true);
 	return nullptr;

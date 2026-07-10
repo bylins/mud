@@ -11,6 +11,7 @@
 #include "engine/db/id.h"
 #include "gameplay/mechanics/obj_enchant.h"
 #include "gameplay/magic/spells.h"
+#include "gameplay/affects/obj_affects.h"   // obj_affects::ObjAffects (affects that live ON the item)
 #include "gameplay/skills/skills.h"
 #include "engine/structs/extra_description.h"
 #include "engine/structs/flag_data.h"
@@ -643,21 +644,10 @@ class set_info : public std::map<ObjVnum, qty_to_camap_map> {
 
 typedef std::map<int, set_info> id_to_set_info_map;
 
-// * Временное заклинание на предмете (одно).
-class TimedSpell {
- public:
-	[[nodiscard]] bool check_spell(ESpell spell_id) const;
-	[[nodiscard]] ESpell IsSpellPoisoned() const;
-	[[nodiscard]] bool empty() const;
-	[[nodiscard]] std::string print() const;
-	void dec_timer(ObjData *obj, int time = 1);
-	void add(ObjData *obj, ESpell spell_id, int time);
-	void del(ObjData *obj, ESpell spell_id, bool message);
-	std::string diag_to_char();
+// issue.obj-affects: the former "TimedSpell on objects" mechanic is now the ObjAffect subsystem
+// (gameplay/affects/obj_affects.h) -- affects that live ON an item, keyed by obj_affects::EObjAffect.
+// ObjData stores them as obj_affects::ObjAffects (see m_obj_affects); runtime lives in obj_affects.cpp.
 
- private:
-	std::map<ESpell /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
-};
 
 // метки для команды "нацарапать"
 struct custom_label {
@@ -717,12 +707,11 @@ class ObjData : public CObjectPrototype {
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
 
-	// wrappers to access to timed_spell
-	const TimedSpell &timed_spell() const { return m_timed_spell; }
-	std::string diag_ts_to_char() { return m_timed_spell.diag_to_char(); }
-	bool has_timed_spell() const { return !m_timed_spell.empty(); }
-	void add_timed_spell(const ESpell spell_id, const int time);
-	void del_timed_spell(const ESpell spell_id, const bool message);
+	// issue.obj-affects: affects that live ON this item (obj_affects::EObjAffect). Runtime helpers
+	// (impose/remove/tick/query) are free functions in gameplay/affects/obj_affects.h.
+	const obj_affects::ObjAffects &get_obj_affects() const { return m_obj_affects; }
+	obj_affects::ObjAffects &get_obj_affects() { return m_obj_affects; }
+	bool has_obj_affects() const { return !m_obj_affects.empty(); }
 
 	// issue.equipment-affect-suppression: equipment affects this item confers but that are temporarily
 	// suppressed by an unaffect spell (affect_total skips them while suppressed). Runtime-only.
@@ -833,7 +822,7 @@ class ObjData : public CObjectPrototype {
 
 	int m_craft_timer;
 
-	TimedSpell m_timed_spell;    ///< временный обкаст
+	obj_affects::ObjAffects m_obj_affects;    ///< issue.obj-affects: affects on this item
 	// issue.equipment-affect-suppression: EAffect -> remaining suppression timer (minutes,
 	// TimedSpell cadence). Runtime-only, never serialized.
 	std::map<EAffect, int> m_suppressed_affects;

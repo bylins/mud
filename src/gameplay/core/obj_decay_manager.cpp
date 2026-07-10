@@ -47,7 +47,7 @@ void ObjDecayManager::remove(ObjData *obj) {
 	remove_queue_entry(obj);
 	m_obj_to_deadline.erase(obj);
 	m_env_check_objs.erase(obj);
-	m_timed_spell_objs.erase(obj);
+	m_periodic_objs.erase(obj);
 	m_zonedecay_objs.erase(obj);
 }
 
@@ -114,14 +114,14 @@ void ObjDecayManager::remove_env_check(ObjData *obj) {
 	m_env_check_objs.erase(obj);
 }
 
-void ObjDecayManager::add_timed_spell_obj(ObjData *obj) {
+void ObjDecayManager::add_periodic_obj(ObjData *obj) {
 	if (obj) {
-		m_timed_spell_objs.insert(obj);
+		m_periodic_objs.insert(obj);
 	}
 }
 
-void ObjDecayManager::remove_timed_spell_obj(ObjData *obj) {
-	m_timed_spell_objs.erase(obj);
+void ObjDecayManager::remove_periodic_obj(ObjData *obj) {
+	m_periodic_objs.erase(obj);
 }
 
 void ObjDecayManager::register_perishable(ObjData *obj) {
@@ -134,7 +134,7 @@ void ObjDecayManager::register_perishable(ObjData *obj) {
 
 void ObjDecayManager::drop_obj_from_indices(ObjData *obj) {
 	m_env_check_objs.erase(obj);
-	m_timed_spell_objs.erase(obj);
+	m_periodic_objs.erase(obj);
 	m_perishable_objs.erase(obj);
 	m_zonedecay_objs.erase(obj);
 	remove_queue_entry(obj);
@@ -175,7 +175,7 @@ TickResult ObjDecayManager::process_tick() {
 		}
 
 		m_env_check_objs.erase(obj);
-		m_timed_spell_objs.erase(obj);
+		m_periodic_objs.erase(obj);
 		m_zonedecay_objs.erase(obj);
 		result.decay_timer.push_back(obj);
 	}
@@ -211,15 +211,15 @@ TickResult ObjDecayManager::process_tick() {
 
 	// 3. Process on-item timed-spell periodic effects (food/liquid freshness handled in 3b below)
 	{
-		auto ts_copy = m_timed_spell_objs;
+		auto ts_copy = m_periodic_objs;
 		for (auto *obj : ts_copy) {
 			if (!m_obj_to_deadline.count(obj)) {
-				m_timed_spell_objs.erase(obj);
+				m_periodic_objs.erase(obj);
 				continue;
 			}
 			obj->process_periodic_effects();
-			if (!obj->has_timed_spell() && !obj->has_suppressed_affects()) {
-				m_timed_spell_objs.erase(obj);
+			if (!obj->has_obj_affects() && !obj->has_suppressed_affects()) {
+				m_periodic_objs.erase(obj);
 			}
 		}
 	}

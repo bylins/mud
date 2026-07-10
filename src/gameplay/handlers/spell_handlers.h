@@ -61,6 +61,10 @@ void CloneCascade(CharData *ch, CharData *mob, const ActionContext &ctx, int dur
 // via ActionContext (SetTickDuration/GetTickDuration).
 EStageResult HandleThunderstormTick(ActionContext &ctx);
 
+// issue.obj-affects: kWeaponHit obj-affect manual handler -- a poisoned weapon poisons its strike
+// victim. Reads ch = ctx.caster() (wielder), victim = ctx.Event().actor, weapon = ctx.Event().weapon.
+EStageResult WeaponPoisonHit(ActionContext &ctx);
+
 // --- Manual spell-cast handlers (issue.spellhandlers, extracted from spells.cpp) ------------
 EStageResult SpellCreateWater(ActionContext &ctx);
 EStageResult SpellRecall(ActionContext &ctx);

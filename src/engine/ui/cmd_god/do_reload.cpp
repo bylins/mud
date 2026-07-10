@@ -82,6 +82,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("basic");
 		Bonus::bonus_log_load();
 		MUD::CfgManager().ReloadCfg("daily_quest");   // issue.daily-quest
+		MUD::CfgManager().ReloadCfg("obj_affects");   // issue.obj-affects
 	} else if (!str_cmp(arg, "portals")) {
 		MUD::CfgManager().ReloadCfg("rune_stone_msg");
 		MUD::CfgManager().ReloadCfg("rune_stones");
@@ -96,6 +97,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("spells");
 	} else if (!str_cmp(arg, "spellmsg")) {
 		MUD::CfgManager().ReloadCfg("spell_msg");
+	} else if (!str_cmp(arg, "objaffects")) {
+		MUD::CfgManager().ReloadCfg("obj_affects");   // issue.obj-affects
 	} else if (!str_cmp(arg, "skillmsg")) {
 		MUD::CfgManager().ReloadCfg("skill_msg");
     } else if (!str_cmp(arg, "hitmsg")) {

@@ -63,7 +63,9 @@
 #include "gameplay/affects/affects_loader.h"
 #include "gameplay/affects/equipment_affects_loader.h"
 #include "gameplay/magic/room_affects_loader.h"
+#include "gameplay/affects/obj_affects_loader.h"
 #include "gameplay/magic/room_affect_messages.h"
+#include "gameplay/affects/obj_affect_messages.h"
 #include "gameplay/affects/affect_messages.h"
 #include "engine/core/common_messages.h"
 #include "gameplay/mechanics/rune_stones_loaders.h"
@@ -152,8 +154,10 @@ CfgManager::CfgManager() {
 		{"equipment_affects", CfgDir::kRoot, [] { return MakeLoader<EquipmentAffectsLoader>(); }},
 		{"equipment_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<EquipmentAffectMsgLoader>(); }},
 		{"room_affects", CfgDir::kRoot, [] { return MakeLoader<room_spells::RoomAffectsLoader>(); }},
+		{"obj_affects", CfgDir::kRoot, [] { return MakeLoader<obj_affects::ObjAffectsLoader>(); }},
 		{"affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
 		{"room_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<room_spells::RoomAffectMessagesLoader>(); }},
+		{"obj_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<obj_affects::ObjAffectMessagesLoader>(); }},
 		{"common_msg", CfgDir::kMessagesRu, [] { return MakeLoader<CommonMessagesLoader>(); }},
 		{"social_msg", CfgDir::kMessagesRu, [] { return MakeLoader<communication::social::SocialsLoader>(); }},
 		{"cities_msg", CfgDir::kMessagesRu, [] { return MakeLoader<cities::CityMessagesLoader>(); }},

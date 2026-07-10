@@ -1079,6 +1079,13 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("room_affect_msg");
 	MUD::CfgManager().LoadCfg("room_affects");
 
+	// issue.obj-affects: obj-affect registry (flag/dispellable/msg_case + <actions> trigger table) and
+	// its messages. After spells, since obj-affect actions reference spell ids / manual handlers.
+	boot_profiler.next_step("Loading obj affects cfg.");
+	log("Loading obj affects cfg.");
+	MUD::CfgManager().LoadCfg("obj_affect_msg");
+	MUD::CfgManager().LoadCfg("obj_affects");
+
 	boot_profiler.next_step("Linting editor schemes.");
 	vedun::LintSchemes();
 

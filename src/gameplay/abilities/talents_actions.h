@@ -104,6 +104,10 @@ enum class EActionTrigger {
 	               // raw_kill). event.actor = the killer. <trigger return="0"/> PREVENTS the death (like
 	               // an entry trigger's block) -- but the action must also heal (a <points><heal> on
 	               // kTarFightSelf), or the char is still at <=0 HP and dies again next tick.
+	kWeaponHit,    // issue.obj-affects: an obj affect on a WEAPON fires because that weapon landed a
+	               // blow. Dispatched per hit from HitData::ProcessExtradamage over the weapon's obj
+	               // affects (not the wielder's char affects). event.actor = victim, event.weapon =
+	               // the weapon, event.amount = damage dealt.
 	kCount
 };
 

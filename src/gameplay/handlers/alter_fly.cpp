@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/affects/obj_affects.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
@@ -13,8 +14,7 @@ namespace handlers {
 
 EStageResult AlterFly(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
-	obj->add_timed_spell(ESpell::kFly, -1);
-	obj->set_extra_flag(EObjFlag::kFlying);
+	obj_affects::Impose(obj, obj_affects::EObjAffect::kFly, -1);
 	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 }
 

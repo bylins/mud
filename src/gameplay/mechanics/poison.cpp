@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.h"
+#include "gameplay/affects/obj_affects.h"
 #include "administration/privilege.h"
 
 #include <algorithm>
@@ -370,15 +371,28 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	act(buf, false, ch, nullptr, vict, kToVict);
 }
 
-void ProcessPoisonedWeapom(CharData *ch, CharData *victim, HitData &hit_data) {
-	if (!victim->IsFlagged(EMobFlag::kProtect)
-		&& hit_data.dam
-		&& hit_data.wielded
-		&& hit_data.wielded->has_timed_spell()
-		&& GetSkill(ch, ESkill::kPoisoning)) {
-		PerformPoisonedWeapom(ch, victim, hit_data.wielded->timed_spell().IsSpellPoisoned());
+// issue.obj-affects: weapon-poison is now the first obj-affect trigger. The kPoisoned affect on the
+// weapon declares a <trigger val="kWeaponHit"> action pointing here (obj_affects.xml); the dispatcher
+// (RunObjAffectWeaponHit) fires it per landed blow with ch = wielder, event.actor = victim, event.weapon
+// = the weapon. Subtype rides in the affect modifier (PoisonSpell reads it). Replaces the old hardcoded
+// ProcessPoisonedWeapom check in HitData::ProcessExtradamage.
+namespace handlers {
+EStageResult WeaponPoisonHit(ActionContext &ctx) {
+	CharData *ch = ctx.caster();
+	const EventContext &e = ctx.Event();
+	CharData *victim = e.actor;
+	ObjData *weapon = e.weapon;
+	if (!ch || !victim || !weapon) {
+		return EStageResult::kSuccess;
 	}
+	// poison-specific gates (the general "weapon landed damage" gate is the dispatcher's job)
+	if (victim->IsFlagged(EMobFlag::kProtect) || !GetSkill(ch, ESkill::kPoisoning)) {
+		return EStageResult::kSuccess;
+	}
+	PerformPoisonedWeapom(ch, victim, obj_affects::PoisonSpell(weapon));
+	return EStageResult::kSuccess;
 }
+}  // namespace handlers
 
 // * Попытка травануть с пушки при ударе.
 void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
@@ -437,13 +451,13 @@ bool poison_in_vessel(int liquid_num) {
 void set_weap_poison(ObjData *weapon, int liquid_num) {
 	const int poison_timer = 30;
 	if (liquid_num == LIQ_POISON_ACONITUM)
-		weapon->add_timed_spell(ESpell::kAconitumPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kAconitumPoison));
 	else if (liquid_num == LIQ_POISON_SCOPOLIA)
-		weapon->add_timed_spell(ESpell::kScopolaPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kScopolaPoison));
 	else if (liquid_num == LIQ_POISON_BELENA)
-		weapon->add_timed_spell(ESpell::kBelenaPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kBelenaPoison));
 	else if (liquid_num == LIQ_POISON_DATURA)
-		weapon->add_timed_spell(ESpell::kDaturaPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kDaturaPoison));
 	else
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }

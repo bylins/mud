@@ -327,6 +327,13 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 // fire-sites (the per-hit kPreHit / post-damage kPostHit points in fight_hit.cpp). True if any ran.
 bool RunCharEventTriggers(CharData *ch, const EventContext &event);
 
+// issue.obj-affects: run a WEAPON's obj-affect actions whose trigger is kWeaponHit -- the obj-affect
+// analog of RunCharEventTriggers, dispatched per landed blow from HitData::ProcessExtradamage. Iterates
+// the weapon's obj affects (not the wielder's char affects); `ch` = wielder, `victim` = struck, `dam` =
+// damage dealt. No-op (false) unless `weapon` is a weapon that landed damage and carries a kWeaponHit
+// action. This is where a poisoned/flaming/vampiric weapon's on-hit effect fires.
+bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int dam);
+
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop
 // (issue.spell-pipeline) the dispatcher walks each spell action and runs its stages:
 //   kBreak    -- stop the whole cast: skip this action's remaining stages AND all

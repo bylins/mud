@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/affects/obj_affects.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
@@ -16,7 +17,6 @@ EStageResult AlterBless(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	ObjData *obj = ctx.ovict;
 	if (!obj->has_flag(EObjFlag::kBless) && (obj->get_weight() <= 5 * GetRealLevel(ch))) {
-		obj->set_extra_flag(EObjFlag::kBless);
 		if (obj->has_flag(EObjFlag::kNodrop)) {
 			obj->unset_extraflag(EObjFlag::kNodrop);
 			if (obj->get_type() == EObjType::kWeapon) {
@@ -25,7 +25,7 @@ EStageResult AlterBless(ActionContext &ctx) {
 		}
 		obj->add_maximum(std::max(obj->get_maximum_durability() >> 2, 1));
 		obj->set_current_durability(obj->get_maximum_durability());
-		obj->add_timed_spell(ESpell::kBless, -1);
+		obj_affects::Impose(obj, obj_affects::EObjAffect::kBless, -1);
 		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 	}
 	return EStageResult::kFail;

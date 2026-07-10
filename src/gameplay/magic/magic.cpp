@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "gameplay/affects/obj_affects.h"   // issue.obj-affects: RunObjAffectWeaponHit
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -2887,6 +2888,8 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"SpellResurrection",   SpellResurrection},
 	// issue.affect-migration: room-affect per-tick manual handler (was the room_affects tick_handler).
 	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
+	// issue.obj-affects: kWeaponHit obj-affect handler -- a poisoned weapon poisons its strike victim.
+	{"WeaponPoisonHit", handlers::WeaponPoisonHit},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).
@@ -4315,6 +4318,69 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 		SpendCharAffectCharge(ch, t);
 	}
 	return true;
+}
+
+// issue.obj-affects: the obj-affect analog of RunCharEventTriggers -- run a WEAPON's obj-affect actions
+// on kWeaponHit. Iterates the weapon's obj affects (a small list) and mirrors the char dispatcher:
+// snapshot the affect types with a matching action, then per type build a context (cvict = victim so a
+// kTarActor/kTarFightVict action hits the struck char, ovict = the weapon) and run the actions.
+bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int dam) {
+	if (!weapon || !ch || !victim || dam <= 0 || ch->in_room == kNowhere) {
+		return false;
+	}
+	if (weapon->get_type() != EObjType::kWeapon || weapon->get_obj_affects().empty()) {
+		return false;
+	}
+	using talents_actions::EActionTrigger;
+	std::vector<obj_affects::EObjAffect> types;   // affect types carrying a kWeaponHit action (linear dedup)
+	for (const auto &aff : weapon->get_obj_affects()) {
+		if (!aff || std::find(types.begin(), types.end(), aff->affect_type) != types.end()) {
+			continue;
+		}
+		for (const auto &a : obj_affects::ObjAffectActions(aff->affect_type).list()) {
+			if (a.GetTrigger().test(EActionTrigger::kWeaponHit)) {
+				types.push_back(aff->affect_type);
+				break;
+			}
+		}
+	}
+	if (types.empty()) {
+		return false;
+	}
+	EventContext event;
+	event.trigger = EActionTrigger::kWeaponHit;
+	event.amount = dam;
+	event.weapon = weapon;
+	event.actor = victim;
+	const int level = GetRealLevel(ch);
+	bool any = false;
+	for (const obj_affects::EObjAffect t : types) {
+		std::vector<talents_actions::Action> fired;
+		for (const auto &a : obj_affects::ObjAffectActions(t).list()) {
+			if (a.GetTrigger().test(EActionTrigger::kWeaponHit)) {
+				fired.push_back(a);
+			}
+		}
+		if (fired.empty()) {
+			continue;
+		}
+		float aff_potency = 0.0f;
+		for (const auto &a : weapon->get_obj_affects()) {
+			if (a && a->affect_type == t) { aff_potency = a->potency; break; }
+		}
+		ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level, -1.0f, aff_potency);
+		ctx.cvict = victim;   // <action target="kTarActor"> resolves off cvict (see RunCharAffectTrigger)
+		ctx.ovict = weapon;
+		ctx.UseExternalActions(&fired);
+		ctx.SetEvent(event);
+		RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
+		any = true;
+		if (ch->purged() || victim->purged()) {
+			return true;
+		}
+		obj_affects::SpendCharge(weapon, t);   // no-op unless the affect has limited charges
+	}
+	return any;
 }
 
 // issue.room-affect-trigger-improve: on-entry trigger return values. 0 = block the action that fired

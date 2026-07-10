@@ -660,8 +660,8 @@ void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type)
 void affect_total(CharData *ch);   // set-affect auto-return recompute
 
 void ObjData::process_periodic_effects() {
-	if (!m_timed_spell.empty()) {
-		m_timed_spell.dec_timer(this, 1);
+	if (has_obj_affects()) {
+		obj_affects::Tick(this, 1);
 	}
 	if (!m_suppressed_affects.empty()) {
 		std::vector<EAffect> expired;
@@ -706,8 +706,8 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 */
 void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	*buf2 = '\0';
-	if (!m_timed_spell.empty()) {
-		m_timed_spell.dec_timer(this, time);
+	if (has_obj_affects()) {
+		obj_affects::Tick(this, time);
 	}
 	if (!ignore_utimer && stable_objs::IsTimerUnlimited(this)) {
 		return;
@@ -843,27 +843,12 @@ std::pair<bool, int> ObjData::get_activator() const {
 	return m_activator;
 }
 
-void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
-	if (spell_id < ESpell::kFirst) {
-		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, to_underlying(spell_id), time);
-		return;
-	}
-	m_timed_spell.add(this, spell_id, time);
-	if (time > 0) {
-		world_objects.decay_manager().add_timed_spell_obj(this);
-	}
-}
-
-void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
-	m_timed_spell.del(this, spell_id, message);
-}
-
 void ObjData::suppress_affect(const EAffect aff, const int time) {
 	if (time <= 0) {
 		return;
 	}
 	m_suppressed_affects[aff] = time;
-	world_objects.decay_manager().add_timed_spell_obj(this);   // tick in the periodic-effects loop
+	world_objects.decay_manager().add_periodic_obj(this);   // tick in the periodic-effects loop
 }
 
 void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {
