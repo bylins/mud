@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/equipment.h"
+#include "gameplay/affects/obj_affects.h"   // issue.obj-affects: Diag
 #include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
@@ -1110,6 +1111,15 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 	if (!found) {
 		SendMsgToChar(" Нет", ch);
+	}
+
+	// issue.obj-affects: obj affects on the item (gods see everything -> nullptr viewer).
+	{
+		const std::string oaff = obj_affects::Diag(j, nullptr);
+		if (!oaff.empty()) {
+			SendMsgToChar("\r\nОбъектные аффекты:\r\n", ch);
+			SendMsgToChar(oaff, ch);
+		}
 	}
 
 	if (j->has_skills()) {

@@ -5,6 +5,7 @@
 #include "utils/parser_wrapper.h"
 #include "utils/utils_parse.h"        // parse::ReadAsInt
 #include "utils/logger.h"
+#include "administration/privilege.h"   // issue.obj-affects: IsImmortal (examine visibility)
 #include "engine/structs/msg_container.h"
 #include "gameplay/abilities/talents_actions.h"   // talents_actions::Actions (per-affect trigger actions)
 
@@ -54,6 +55,7 @@ struct ObjAffectMeta {
 	EObjFlag flag{EObjFlag::kGlow};   // meaningful only when has_flag
 	bool dispellable{true};
 	grammar::ECase msg_case{grammar::ECase::kGen};   // case for "%s" (item name) in lifecycle messages
+	EAffect see_affect{EAffect::kDetectMagic};   // affect the viewer needs to SEE it (kUndefined = always)
 };
 
 std::array<ObjAffectMeta, to_underlying(EObjAffect::kCount)> g_meta;
@@ -69,20 +71,21 @@ void ensure_meta() {
 	}
 	// Built-in defaults (cfg/obj_affects.xml overrides these via BuildRegistry).
 	using grammar::ECase;
-	auto set = [](EObjAffect a, bool has_flag, EObjFlag flag, bool dispellable, ECase c) {
+	auto set = [](EObjAffect a, bool has_flag, EObjFlag flag, bool dispellable, ECase c, EAffect see) {
 		auto &m = g_meta[to_underlying(a)];
 		m.has_flag = has_flag;
 		m.flag = flag;
 		m.dispellable = dispellable;
 		m.msg_case = c;
+		m.see_affect = see;
 	};
-	set(EObjAffect::kInvisible, true, EObjFlag::kInvisible, true, ECase::kGen);
-	set(EObjAffect::kCurse, true, EObjFlag::kNodrop, true, ECase::kGen);
-	set(EObjAffect::kPoisoned, false, EObjFlag::kPoisoned, true, ECase::kGen);
-	set(EObjAffect::kBless, true, EObjFlag::kBless, true, ECase::kAcc);
-	set(EObjAffect::kFly, true, EObjFlag::kFlying, true, ECase::kGen);
-	set(EObjAffect::kLight, true, EObjFlag::kGlow, true, ECase::kGen);
-	set(EObjAffect::kDartTrap, false, EObjFlag::kGlow, true, ECase::kGen);
+	set(EObjAffect::kInvisible, true, EObjFlag::kInvisible, true, ECase::kGen, EAffect::kDetectInvisible);
+	set(EObjAffect::kCurse, true, EObjFlag::kNodrop, true, ECase::kGen, EAffect::kDetectMagic);
+	set(EObjAffect::kPoisoned, false, EObjFlag::kPoisoned, true, ECase::kGen, EAffect::kDetectMagic);
+	set(EObjAffect::kBless, true, EObjFlag::kBless, true, ECase::kAcc, EAffect::kDetectMagic);
+	set(EObjAffect::kFly, true, EObjFlag::kFlying, true, ECase::kGen, EAffect::kUndefined);
+	set(EObjAffect::kLight, true, EObjFlag::kGlow, true, ECase::kGen, EAffect::kUndefined);
+	set(EObjAffect::kDartTrap, false, EObjFlag::kGlow, true, ECase::kGen, EAffect::kDetectMagic);
 	g_meta_loaded = true;
 }
 
@@ -96,6 +99,7 @@ bool HasFlag(EObjAffect affect) { return meta(affect).has_flag; }
 EObjFlag Flag(EObjAffect affect) { return meta(affect).flag; }
 bool Dispellable(EObjAffect affect) { return meta(affect).dispellable; }
 grammar::ECase MsgCase(EObjAffect affect) { return meta(affect).msg_case; }
+EAffect SeeAffect(EObjAffect affect) { return meta(affect).see_affect; }
 
 // --- legacy on-disk migration ------------------------------------------------------------------------
 bool IsPoisonSpell(ESpell spell) {
@@ -187,6 +191,13 @@ void BuildRegistry(parser_wrapper::DataNode data) {
 				m.msg_case = it->second;
 			} else {
 				log("SYSERROR: obj_affects.xml: unknown msg_case '%s' for obj-affect '%s'.", mc, id);
+			}
+		}
+		if (const char *sa = node.GetValue("see_affect"); sa && *sa) {
+			try {
+				m.see_affect = ITEM_BY_NAME<EAffect>(std::string(sa));
+			} catch (const std::out_of_range &) {
+				log("SYSERROR: obj_affects.xml: unknown see_affect '%s' for obj-affect '%s'.", sa, id);
 			}
 		}
 		// <actions> block (mirrors room_affects.xml): each <action> carries its own <trigger>, parsed
@@ -396,10 +407,17 @@ ESpell PoisonSpell(const ObjData *obj) {
 	return ESpell::kUndefined;
 }
 
-std::string Diag(const ObjData *obj) {
+std::string Diag(const ObjData *obj, const CharData *viewer) {
 	std::string out;
 	for (const auto &aff : obj->get_obj_affects()) {
 		const EObjAffect type = aff->affect_type;
+		// visibility: a normal inspector sees the affect only if they carry SeeAffect(type) (kUndefined =
+		// always, e.g. fly/light). A null viewer (god `stat`) or an immortal sees every affect.
+		const EAffect need = SeeAffect(type);
+		if (viewer && need != EAffect::kUndefined
+				&& !privilege::IsImmortal(viewer) && !AFF_FLAGGED(viewer, need)) {
+			continue;
+		}
 		std::string line = ObjAffectMsgRaw(type, EObjAffectMsgType::kDiagToChar);
 		if (line.empty()) {
 			const std::string &sd = ObjAffectMsgRaw(type, EObjAffectMsgType::kShortDesc);

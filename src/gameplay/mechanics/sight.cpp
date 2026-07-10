@@ -1427,7 +1427,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		strcat(buf, diag_timer_to_char(object));
 		strcat(buf, "\r\n");
 		//strcat(buf, diag_uses_to_char(object, ch)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
-		strcat(buf, obj_affects::Diag(object).c_str());
+		strcat(buf, obj_affects::Diag(object, ch).c_str());
 	}
 	page_string(ch->desc, buf, true);
 	return nullptr;

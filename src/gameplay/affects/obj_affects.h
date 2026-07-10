@@ -28,6 +28,7 @@
 #include <string>
 
 class ObjData;
+class CharData;
 namespace parser_wrapper { class DataNode; }
 namespace talents_actions { class Actions; }
 
@@ -78,6 +79,9 @@ using ObjAffectIt = ObjAffects::iterator;
 [[nodiscard]] bool Dispellable(EObjAffect affect);
 // Grammatical case the affect's lifecycle messages expect the item name ("%s") to be in.
 [[nodiscard]] grammar::ECase MsgCase(EObjAffect affect);
+// The affect the inspecting character must carry to SEE this affect on a normal examine (kUndefined =
+// always visible, e.g. fly/light). Immortals and the god `stat` command bypass the gate.
+[[nodiscard]] EAffect SeeAffect(EObjAffect affect);
 // The affect's own <actions> (each gated by its <trigger>), parsed from cfg/obj_affects.xml; empty when
 // the affect declares none. Mirrors room_spells::RoomAffectActions. Fired by the trigger dispatchers.
 [[nodiscard]] const talents_actions::Actions &ObjAffectActions(EObjAffect affect);
@@ -118,7 +122,8 @@ void SpendCharge(ObjData *obj, EObjAffect type);
 [[nodiscard]] ESpell PoisonSpell(const ObjData *obj);
 
 // Examine/identify diagnostic text for all affects on the item (one line per affect, timer appended).
-[[nodiscard]] std::string Diag(const ObjData *obj);
+// `viewer` gates which affects are shown (see SeeAffect); pass nullptr to show them all (god stat).
+[[nodiscard]] std::string Diag(const ObjData *obj, const CharData *viewer);
 
 // Serialization: one "OAff: <EObjAffect token> <timer> <modifier>" line per affect (+ a legacy "TSpl:
 // <ESpell> <timer>" reader in obj_save.cpp maps old saves via BySpell). Empty string if none.
