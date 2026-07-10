@@ -7,6 +7,7 @@
 #include "engine/structs/structs.h"
 
 #include <vector>
+#include <utility>
 #include <list>
 #include <bitset>
 #include <string>
@@ -168,6 +169,14 @@ void reset_affects_no_recalc(CharData *ch);
 // carries (with no matching Affect yet) as a real duration=-1 (permanent, dispellable) affect, so the
 // data-driven affect system works for that mob. One affect_total() at the end if anything was added.
 void MaterializeMobFlagAffects(CharData *mob);
+// issue.autoaffects-hotfix: shield/ward affects from PC equipment are flag-only in this branch (not
+// materialized like NPC buffs), so ward handlers that iterate ch->affected miss them. Returns the
+// affect types active for ward purposes: real affects (with potency) + flagged kAfMaterialize (potency 0).
+// TEMPORARY: a stopgap for the `unstable` line only. On unstable.next equipment affects are fully
+// materialized as real Affects (like NPC buffs), so ch->affected already holds them and every ward
+// handler can iterate ch->affected directly again -- at that point delete this helper and revert the
+// call sites (damage.cpp shield paths, magic.cpp RunAttackWards) back to `for (aff : victim->affected)`.
+std::vector<std::pair<EAffect, float>> VictimWardAffects(CharData *ch);
 // Materialize every NPC in the given zone (walks the zone's room rnum range).
 void MaterializeZoneMobAffects(ZoneRnum zrn);
 // (MarkZoneUsed -- the zone-wake hook that calls the above -- is declared in engine/entities/zone.h so

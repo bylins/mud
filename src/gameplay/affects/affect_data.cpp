@@ -1330,6 +1330,34 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 // flag-carrier for actions-only buffs (sanct/shields/prism/glass), or one node per <apply> (kCloudly ->
 // blink+AC, kBlink -> blink) with a mob-scaled modifier and potency -- are built by
 // BuildMaterializedAffect (magic), which rolls the buff's same-named spell for this mob.
+// issue.autoaffects-hotfix: see affect_data.h. Real affects first (their potency wins on dedup),
+// then any flagged kAfMaterialize affect not already present (equipment shields on a PC), potency 0.
+// TEMPORARY bridge -- superseded by full equipment-affect materialization on unstable.next (then remove).
+std::vector<std::pair<EAffect, float>> VictimWardAffects(CharData *ch) {
+	std::vector<std::pair<EAffect, float>> out;
+	for (const auto &aff : ch->affected) {
+		if (aff) {
+			out.emplace_back(aff->affect_type, aff->potency);
+		}
+	}
+	for (const EAffect at : affects::MaterializableAffects()) {
+		if (!AFF_FLAGGED(ch, at)) {
+			continue;
+		}
+		bool present = false;
+		for (const auto &p : out) {
+			if (p.first == at) {
+				present = true;
+				break;
+			}
+		}
+		if (!present) {
+			out.emplace_back(at, 0.0f);
+		}
+	}
+	return out;
+}
+
 void MaterializeMobFlagAffects(CharData *mob) {
 	if (!mob || !mob->IsNpc() || !affects::AffectFlagsLoaded() || mob->get_rnum() < 0) {
 		return;

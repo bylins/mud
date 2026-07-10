@@ -473,13 +473,11 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 	// fizzles at CastOnTarget's IsGod gate, like any spell.
 	if (!privilege::IsGod(caster) && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
 			&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
-		std::vector<EAffect> seen;
-		for (const auto &aff : victim->affected) {
-			if (!aff || std::find(seen.begin(), seen.end(), aff->affect_type) != seen.end()) {
-				continue;
-			}
-			seen.push_back(aff->affect_type);
-			for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
+		// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
+		// also yields flag-only equipment shields (e.g. magic glass) this branch does not materialize.
+		for (const auto &ward : VictimWardAffects(victim)) {
+			const EAffect at = ward.first;
+			for (const auto &action : affects::AffectActions(at).list()) {
 				if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardAttack)) {
 					continue;
 				}
@@ -492,7 +490,7 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 					// potency contest (max>0): clamp(mirror potency - incoming spell potency, min, max);
 					// otherwise the fixed prob (spell-side <reflection> / flat-prob reflect).
 					chance = (refl.max > 0)
-						? std::clamp(static_cast<int>(aff->potency - CalcCastPotency(ctx.potency())),
+						? std::clamp(static_cast<int>(ward.second - CalcCastPotency(ctx.potency())),
 									 refl.min, refl.max)
 						: refl.prob;
 				} else if (absb.present) {
@@ -509,7 +507,6 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 				if (number(1, 100) > chance) {
 					continue;
 				}
-				const EAffect at = aff->affect_type;
 				const std::string &mc = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToChar);
 				const std::string &mv = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToVict);
 				const std::string &mr = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToRoom);
