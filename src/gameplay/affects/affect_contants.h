@@ -64,7 +64,8 @@ enum EAffFlag : Bitvector {
   kAfBoon				= 1u << 24,	// detects + minor utility buffs (suppress)
   kAfWarding			= 1u << 25,	// ordinary combat/defense buffs (erode)
   kAfAegis				= 1u << 26,	// strong defensive magic: shields/auras/sanctuary (aegis rift)
-  kAfFromEquipment		= 1u << 27	// issue.equipment-affects-improve: materialized from a worn item (never saved)
+  kAfFromEquipment		= 1u << 27,	// issue.equipment-affects-improve: materialized from a worn item (never saved)
+  kAfFromSet			= 1u << 28	// issue.equipment-affects-improve: materialized from an object SET (broadcast suppress)
 };
 
 // issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags; single plane

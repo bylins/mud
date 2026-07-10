@@ -39,6 +39,7 @@
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/affects/equipment_affects.h"  // kEquipmentAffectBaseStat + power-percent materialization
 #include "utils/grammar/declensions.h"  // GetDeclensionInNumber (suppress-restore hours)
+#include "gameplay/mechanics/obj_sets.h"  // is_set_item (broadcast set-affect suppression)
 #include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage for <damage source="poison">
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
@@ -2219,14 +2220,40 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 constexpr int kEquipmentAffectSuppressHours = 10;
 
 void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
+	// A set-conferred affect (kAfFromSet) has no single owning item, so the suppression is BROADCAST to
+	// every worn set piece (one shared timer, survives anchor swaps); a single-item affect suppresses on
+	// its own source item.
 	long src_id = -1;
+	bool is_set = false;
+	bool found = false;
 	for (const auto &aff : victim->affected) {
 		if (aff && aff->affect_type == affect_type && IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
 			src_id = aff->caster_id;
+			is_set = IS_SET(aff->battleflag, EAffFlag::kAfFromSet);
+			found = true;
 			break;
 		}
 	}
-	if (src_id < 0) {
+	if (!found) {
+		return;
+	}
+	char msg[kMaxStringLength];
+	if (is_set) {
+		bool any = false;
+		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+			ObjData *obj = GET_EQ(victim, i);
+			if (obj && obj_sets::is_set_item(obj)) {
+				obj->suppress_affect(affect_type, kEquipmentAffectSuppressHours);
+				any = true;
+			}
+		}
+		if (any) {
+			snprintf(msg, sizeof(msg), "Магия набора предметов рассеяна и восстановится через %d %s.",
+					 kEquipmentAffectSuppressHours,
+					 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));
+			SendMsgToChar(msg, victim);
+			SendMsgToChar("\r\n", victim);
+		}
 		return;
 	}
 	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
@@ -2234,7 +2261,6 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 		if (obj && obj->get_id() == src_id) {
 			obj->suppress_affect(affect_type, kEquipmentAffectSuppressHours);
 			// The affect's own dispel narration already fired; tell the wearer when the item magic returns.
-			char msg[kMaxStringLength];
 			snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
 					 kEquipmentAffectSuppressHours,
 					 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));

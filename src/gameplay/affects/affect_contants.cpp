@@ -398,6 +398,7 @@ void init_EAffFlag_ITEM_NAMES() {
 
 	EAffFlag_name_by_value[EAffFlag::kAfBattledec] = "kAfBattledec";
 	EAffFlag_name_by_value[EAffFlag::kAfFromEquipment] = "kAfFromEquipment";
+	EAffFlag_name_by_value[EAffFlag::kAfFromSet] = "kAfFromSet";
 	EAffFlag_name_by_value[EAffFlag::kAfDeadkeep] = "kAfDeadkeep";
 	EAffFlag_name_by_value[EAffFlag::kAfPulsedec] = "kAfPulsedec";
 	EAffFlag_name_by_value[EAffFlag::kAfSameTime] = "kAfSameTime";

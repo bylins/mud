@@ -657,6 +657,7 @@ int ObjData::get_timer() const {
 // on the source item; the item counts the suppression down here and re-materializes the affect on its
 // wearer when it expires (auto-return).
 void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type);
+void affect_total(CharData *ch);   // set-affect auto-return recompute
 
 void ObjData::process_periodic_effects() {
 	if (!m_timed_spell.empty()) {
@@ -675,8 +676,12 @@ void ObjData::process_periodic_effects() {
 		// Auto-return: re-materialize each expired affect on the wearer (only if still worn).
 		if (m_worn_by) {
 			for (const auto aff : expired) {
-				MaterializeEquipmentAffect(m_worn_by, this, aff);
+				MaterializeEquipmentAffect(m_worn_by, this, aff);   // item-own affect (no-op for a set affect)
 			}
+			// Set affects have no single owner: re-run the set reconcile so a now-unsuppressed set affect
+			// re-materializes (it stays down while still suppressed on another worn set piece).
+			m_worn_by->obj_bonus().update(m_worn_by);
+			affect_total(m_worn_by);
 		}
 	}
 }

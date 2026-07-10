@@ -135,6 +135,7 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
+void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);   // caller MUST affect_total after
 class ObjData;
 // issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as
 // real Affects (kAfFromEquipment, caster_id = item id); and strip an item's materialized affects.

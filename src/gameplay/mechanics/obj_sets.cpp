@@ -18,6 +18,8 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"          // BuildEquipmentMaterializedAffect + EmitAffectImpose (set-affect materialization)
+#include "gameplay/affects/affect_handler.h"  // RemoveAffect (iterator)
 #include "utils/utils.h"
 #include "engine/structs/flag_data.h"
 
@@ -1207,6 +1209,81 @@ void check_enchants(CharData *ch) {
 	}
 }
 
+// issue.equipment-affects-improve: materialize the active set's equipment affects as real Affects
+// (kAfFromSet) instead of re-deriving flags every affect_total, so they can be dispelled/suppressed
+// like worn-item affects. Reconciles desired (the set's affects) vs actual (kAfFromSet affects on ch):
+// add the missing ones (skipping any suppressed on a worn set piece -- broadcast suppression), strip
+// ones no longer conferred. One recalc if anything changed. caster_id/ilvl come from a representative
+// worn set piece; the affect is owned by this reconcile, not by that piece's unequip.
+static void reconcile_set_affects(CharData *ch, const BitsetFlags<EEquipmentAffect> &set_affects) {
+	std::vector<ObjData *> pieces;
+	ObjData *rep = nullptr;
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *o = GET_EQ(ch, i);
+		if (o && is_set_item(o)) {
+			pieces.push_back(o);
+			if (!rep || o->get_ilevel() > rep->get_ilevel()) {
+				rep = o;
+			}
+		}
+	}
+	std::map<EAffect, const EquipmentAffect *> desired;
+	for (const auto &j : equipment_affect) {
+		if (j.aff_affect != EAffect::kUndefined
+				&& set_affects.get(static_cast<EEquipmentAffect>(j.aff_pos))) {
+			desired.emplace(j.aff_affect, &j);
+		}
+	}
+	bool changed = false;
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		if (*it && (*it)->battleflag.get(EAffFlag::kAfFromSet)
+				&& desired.find((*it)->affect_type) == desired.end()) {
+			it = RemoveAffect(ch, it);
+			changed = true;
+		} else {
+			++it;
+		}
+	}
+	for (const auto &[at, entry] : desired) {
+		bool actual = false;
+		bool was_present = false;
+		for (const auto &a : ch->affected) {
+			if (a && a->affect_type == at) {
+				was_present = true;
+				if (a->battleflag.get(EAffFlag::kAfFromSet)) {
+					actual = true;
+					break;
+				}
+			}
+		}
+		if (actual || !rep) {
+			continue;
+		}
+		bool suppressed = false;
+		for (ObjData *o : pieces) {
+			if (o->is_affect_suppressed(at)) {
+				suppressed = true;
+				break;
+			}
+		}
+		if (suppressed) {
+			continue;
+		}
+		for (auto &af : BuildEquipmentMaterializedAffect(rep, at, entry->timer, entry->power_percent)) {
+			af.battleflag.set(EAffFlag::kAfFromSet);
+			affect_to_char_no_recalc(ch, af);
+		}
+		changed = true;
+		if (!was_present) {
+			EmitAffectImpose(ch, nullptr, at, false);
+		}
+	}
+	if (changed) {
+		affect_total(ch);
+	}
+}
+
 void activ_sum::update(CharData *ch) {
 	this->DoClear();
 	worn_sets.clear();
@@ -1215,15 +1292,13 @@ void activ_sum::update(CharData *ch) {
 	}
 	worn_sets.check(ch);
 	check_enchants(ch);
+	reconcile_set_affects(ch, affects);
 }
 
 void activ_sum::apply_affects(CharData *ch) const {
-	for (const auto &j : equipment_affect) {
-		if (j.aff_affect != EAffect::kUndefined
-			&& affects.get(static_cast<EEquipmentAffect>(j.aff_pos))) {
-			affect_modify(ch, EApply::kNone, 0, j.aff_affect, true);
-		}
-	}
+	// issue.equipment-affects-improve: the set's equipment AFFECTS are now materialized as real
+	// Affects by reconcile_set_affects (called from update); only the stat applies + damage
+	// bonuses are re-derived here.
 	for (auto &&i : apply) {
 		affect_modify(ch, i.location, i.modifier, static_cast<EAffect>(0), true);
 	}
