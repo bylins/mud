@@ -724,11 +724,11 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 				if (f->IsNpc() && clone_quantity > 0 && f->IsFlagged(EMobFlag::kClone) && f->in_room == best->in_room) {
 					if (GetRealInt(ch) < kStupidMob && number(0, clone_quantity * 2) > 0) {
 						best = f;
-					} else  if (GetRealInt(ch) < kMiddleAi && number(0, clone_quantity)  > 0) {
+					} else if (GetRealInt(ch) < kMiddleAi && number(0, clone_quantity) > 0) {
 						best = f;
-					} else  if (GetRealInt(ch) < kHighAi && number(0, clone_quantity)  > 1) {
+					} else if (GetRealInt(ch) < kHighAi && number(0, clone_quantity) > 1) {
 						best = f;
-					} else  if (GetRealInt(ch) >= kHighAi && number(0, clone_quantity) > 2) {
+					} else if (GetRealInt(ch) >= kHighAi && number(0, clone_quantity) > 2) {
 						best = f;
 					}
 					break;
