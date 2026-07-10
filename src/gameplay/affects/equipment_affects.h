@@ -29,8 +29,9 @@ enum class EEquipmentAffect : Bitvector {
 	kCurse = (1 << 8),
 	kInfravision = (1 << 9),
 	kPoison = (1 << 10),			//10
-	kProtectFromDark = (1 << 11),
-	kProtectFromMind = (1 << 12),
+	// bits 11-12 retired: kProtectFromDark/kProtectFromMind were EApply resist parameters
+	// (set via the item's apply menu, EApply::kResistDark/kResistMind), not on/off affects.
+	// Do NOT reuse these bit positions -- old object data may still carry them.
 	kSleep = (1 << 13),
 	kNoTrack = (1 << 14),
 	kBless = (1 << 15),
@@ -68,7 +69,7 @@ enum class EEquipmentAffect : Bitvector {
 // не забудьте поправить kEquipmentAffectCount
 };
 
-constexpr size_t kEquipmentAffectCount = 47;
+constexpr size_t kEquipmentAffectCount = 45;
 
 template<>
 EEquipmentAffect ITEM_BY_NAME<EEquipmentAffect>(const std::string &name);

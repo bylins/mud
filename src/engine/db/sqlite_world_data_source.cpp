@@ -378,8 +378,6 @@ static std::unordered_map<std::string, EEquipmentAffect> obj_affect_flag_map = {
 	{"kCurse", EEquipmentAffect::kCurse},
 	{"kInfravision", EEquipmentAffect::kInfravision},
 	{"kPoison", EEquipmentAffect::kPoison},
-	{"kProtectFromDark", EEquipmentAffect::kProtectFromDark},
-	{"kProtectFromMind", EEquipmentAffect::kProtectFromMind},
 	{"kSleep", EEquipmentAffect::kSleep},
 	{"kNoTrack", EEquipmentAffect::kNoTrack},
 	{"kBless", EEquipmentAffect::kBless},

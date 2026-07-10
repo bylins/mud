@@ -36,12 +36,6 @@
 	<affect id="kPoison">
 		<impose flag="kUndefined" spell="kPoison"/>
 	</affect>
-	<affect id="kProtectFromDark">
-		<impose flag="kProtectFromDark" spell="kUndefined" timer="-1"/>
-	</affect>
-	<affect id="kProtectFromMind">
-		<impose flag="kProtectFromMind" spell="kUndefined" timer="-1"/>
-	</affect>
 	<affect id="kSleep">
 		<impose flag="kUndefined" spell="kSleep"/>
 	</affect>

@@ -13,8 +13,6 @@
 	<affect id="kCurse"><name val="проклятие"/></affect>
 	<affect id="kInfravision"><name val="инфравидение"/></affect>
 	<affect id="kPoison"><name val="яд"/></affect>
-	<affect id="kProtectFromDark"><name val="сопротивление.магии.тьмы"/></affect>
-	<affect id="kProtectFromMind"><name val="сопротивление.магии.разума"/></affect>
 	<affect id="kSleep"><name val="сон"/></affect>
 	<affect id="kNoTrack"><name val="не.выследить"/></affect>
 	<affect id="kBless"><name val="доблесть"/></affect>

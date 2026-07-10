@@ -31,8 +31,6 @@ void init_EEquipmentAffectFlag_ITEM_NAMES() {
 	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kCurse] = "kCurse";
 	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kInfravision] = "kInfravision";
 	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kPoison] = "kPoison";
-	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kProtectFromDark] = "kProtectFromDark";
-	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kProtectFromMind] = "kProtectFromMind";
 	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kSleep] = "kSleep";
 	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kNoTrack] = "kNoTrack";
 	EEquipmentAffectFlag_name_by_value[EEquipmentAffect::kBless] = "kBless";
@@ -108,12 +106,6 @@ std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, Char
 			break;
 		case EEquipmentAffect::kEarthAura:
 			return std::pair<EApply, int>(EApply::kResistEarth, value);
-			break;
-		case EEquipmentAffect::kProtectFromDark:
-			return std::pair<EApply, int>(EApply::kResistDark, value);
-			break;
-		case EEquipmentAffect::kProtectFromMind:
-			return std::pair<EApply, int>(EApply::kResistMind, value);
 			break;
 		// issue.mob-flag-affect-materialization: worn cloudly/blink must grant the miss-chance APPLY,
 		// not just the flag -- ProcessBlink now gates on the apply, not AFF_FLAGGED. Flat 10 preserves
@@ -192,13 +184,22 @@ void EquipmentAffectMsgLoader::Load(parser_wrapper::DataNode data) {
 	}
 	std::vector<std::string> arr;
 	for (int plane = 0; plane < 4; ++plane) {
+		// Pad interior gaps (retired bits, e.g. the removed kProtectFrom* resist params) with a
+		// placeholder up to the highest named bit in the plane, so the array stays bit-aligned --
+		// sprintbitwd/disp_planes_values advance one array slot per bit position. Trailing unused
+		// bits are left off; the '\n' terminates the plane.
+		int max_bit = -1;
 		for (int bit = 0; bit < 30; ++bit) {
+			if (names.count(static_cast<EEquipmentAffect>(
+					(static_cast<Bitvector>(plane) << 30) | (static_cast<Bitvector>(1) << bit)))) {
+				max_bit = bit;
+			}
+		}
+		for (int bit = 0; bit <= max_bit; ++bit) {
 			const auto af = static_cast<EEquipmentAffect>(
 					(static_cast<Bitvector>(plane) << 30) | (static_cast<Bitvector>(1) << bit));
 			const auto it = names.find(af);
-			if (it != names.end()) {
-				arr.push_back(it->second);
-			}
+			arr.push_back(it != names.end() ? it->second : "UNUSED");
 		}
 		arr.push_back("\n");
 	}
