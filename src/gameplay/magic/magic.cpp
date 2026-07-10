@@ -2216,7 +2216,7 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 // for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
 constexpr int kEquipmentAffectSuppressMinutes = 10;
 
-void SuppressSourceItemAffect(CharData *victim, EAffect affect_type) {
+void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 	long src_id = -1;
 	for (const auto &aff : victim->affected) {
 		if (aff && aff->affect_type == affect_type && IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
@@ -2248,7 +2248,7 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	// the AFFECT (its sheaf, with the kDefault generic fallback).
 	// issue.equipment-affects-improve (Phase 3): if a worn item conferred this affect, suppress it on
 	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
-	SuppressSourceItemAffect(victim, affect_type);
+	SuppressSourceEquipmentAffect(victim, affect_type);
 	ReduceStackOrRemove(victim, affect_type);
 	const std::string &to_vict = affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffDispelledToChar);
 	if (!to_vict.empty()) {

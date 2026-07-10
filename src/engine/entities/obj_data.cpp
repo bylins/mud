@@ -656,7 +656,7 @@ int ObjData::get_timer() const {
 // issue.equipment-affects-improve (Phase 3): a dispel suppresses an item-materialized equipment affect
 // on the source item; the item counts the suppression down here and re-materializes the affect on its
 // wearer when it expires (auto-return).
-void MaterializeItemAffect(CharData *ch, ObjData *obj, EAffect affect_type);
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type);
 
 void ObjData::process_periodic_effects() {
 	if (!m_timed_spell.empty()) {
@@ -675,7 +675,7 @@ void ObjData::process_periodic_effects() {
 		// Auto-return: re-materialize each expired affect on the wearer (only if still worn).
 		if (m_worn_by) {
 			for (const auto aff : expired) {
-				MaterializeItemAffect(m_worn_by, this, aff);
+				MaterializeEquipmentAffect(m_worn_by, this, aff);
 			}
 		}
 	}

@@ -692,10 +692,10 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 // Affects (permanent -1 or timed), tagged kAfFromEquipment with caster_id = the item id so they can
 // be dispelled naturally and stripped on unequip. No recalc here -- the equip path calls affect_total.
 // affect_to_char_no_recalc is defined further down in this TU; forward-declare it so
-// MaterializeItemAffects below can add the pipeline-built nodes without recalculating per node.
+// MaterializeEquipmentAffects below can add the pipeline-built nodes without recalculating per node.
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);
 
-void MaterializeItemAffects(CharData *ch, ObjData *obj) {
+void MaterializeEquipmentAffects(CharData *ch, ObjData *obj) {
 	if (!ch || !obj) {
 		return;
 	}
@@ -714,7 +714,7 @@ void MaterializeItemAffects(CharData *ch, ObjData *obj) {
 
 // issue.equipment-affects-improve (Phase 3): re-materialize ONE equipment affect on the wearer -- the
 // auto-return when an item's suppression timer expires. Recalculates (standalone event, not the equip path).
-void MaterializeItemAffect(CharData *ch, ObjData *obj, EAffect affect_type) {
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type) {
 	if (!ch || !obj) {
 		return;
 	}
