@@ -15,6 +15,9 @@
 void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, found = 0;
 	skip_spaces(&argument);
+	// issue.equipment-affects-improve: "экипировка кратко" (brief) hides the suppressed-affect list.
+	const bool brief = *argument
+			&& (utils::IsAbbr(argument, "кратко") || utils::IsAbbr(argument, "brief"));
 
 	SendMsgToChar("На вас надето:\r\n", ch);
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -22,20 +25,15 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (sight::CanSeeObj(ch, GET_EQ(ch, i))) {
 				SendMsgToChar(where[i], ch);
 				sight::show_obj_to_char(GET_EQ(ch, i), ch, 1, true, 1);
-				if (GET_EQ(ch, i)->has_suppressed_affects()) {
-					std::string note = "        &G(волшебство подавлено: ";
-					bool first = true;
+				if (!brief && GET_EQ(ch, i)->has_suppressed_affects()) {
+					SendMsgToChar("        &Gволшебство подавлено:&n\r\n", ch);
 					for (const auto &pr : GET_EQ(ch, i)->suppressed_affects()) {
-						if (!first) { note += ", "; }
-						first = false;
-						char hbuf[96];
-					snprintf(hbuf, sizeof(hbuf), "%s (%d %s)",
-							affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
-							grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
-					note += hbuf;
+						char line[128];
+						snprintf(line, sizeof(line), "            &G%s (%d %s)&n\r\n",
+								affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+								grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
+						SendMsgToChar(line, ch);
 					}
-					note += ")&n\r\n";
-					SendMsgToChar(note, ch);
 				}
 				found = true;
 			} else {
