@@ -182,7 +182,10 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Вы наелись.\r\n", ch);
 	}
 
-	for (int i = 0; i < kMaxObjAffect; i++) {
+	// Immortals use "eat" to destroy any object (the non-food guard above is skipped for gods). Only a
+	// real food item confers the well-fed buff -- otherwise eating an item to delete it would graft its
+	// apply modifiers onto the eater as kWellFed affects (which then persist across saves).
+	for (int i = 0; food->get_type() == EObjType::kFood && i < kMaxObjAffect; i++) {
 		if (food->get_affected(i).modifier) {
 			Affect<EApply> af;
 			af.location = food->get_affected(i).location;
