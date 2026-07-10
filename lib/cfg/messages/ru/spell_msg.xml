@@ -9,7 +9,7 @@
 	type сообщения (message) - значение ESpellMsg; текст в атрибуте val.
 
 -->
-<msg_container>
+<spell_msg>
 	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
 	     заклинаний (проверки позиции каста и т.п. из magic_utils.cpp). -->
 	<msg_sheaf id="kDefault">
@@ -2480,4 +2480,4 @@
 		<message type="kCastPhraseHeathen" val="очистися место сие" />
 		<message type="kCastPhraseChristian" val="... да сгинет скверна с места сего." />
 	</msg_sheaf>
-</msg_container>
+</spell_msg>
