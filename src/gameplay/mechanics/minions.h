@@ -22,7 +22,7 @@ float CalcDamagePerRound(CharData *victim);
 int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id);
 // Can `ch` take on `victim` as another charmed follower for `spell_id`? (was mechanics/charm.)
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
-int  MaxCloneCharmices(CharData *ch);
+int  MaxCharmices(CharData *ch);
 
 // issue.chardata-cleaning: minion-identity predicates (moved off CharData).
 bool IsCharmice(const CharData *ch);                                       // charmed/helper NPC minion
