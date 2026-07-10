@@ -474,7 +474,8 @@ void battle_affect_update(CharData *ch) {
 						RunCharAffectTick(ch, affect);
 					}
 					if (ch->purged()) {
-						mudlog("Некому обновлять аффект, чар уже спуржен.",   BRF, kLvlImplementator, SYSLOG, true);
+						// issue #3544: the bearer can be killed/purged by its own affect tick this round --
+						// that is normal, so just stop (the implementor-log message here was pure spam).
 						return;
 					}
 				}
