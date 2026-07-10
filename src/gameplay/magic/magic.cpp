@@ -2491,6 +2491,29 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		to_remove.swap(deduped);
 	}
 
+	// issue.equipment-affects-improve: a non-violent unaffect (ally cleanse or self-cast) must not
+	// touch item-conferred affects -- cleansing a friend's debuffs must not strip the buffs their gear
+	// grants. Only a violent (aggressive) dispel may suppress an equipment affect. Char target only.
+	if constexpr (std::is_same_v<TTarget, CharData>) {
+		if (!MUD::Spell(spell_id).IsViolentAgainst(ch, target)) {
+			std::vector<RemovalCandidate> kept;
+			for (const auto &c : to_remove) {
+				bool from_equipment = false;
+				for (const auto &aff : target->affected) {
+					if (aff && aff->affect_type == c.affect_type
+							&& IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
+						from_equipment = true;
+						break;
+					}
+				}
+				if (!from_equipment) {
+					kept.push_back(c);
+				}
+			}
+			to_remove.swap(kept);
+		}
+	}
+
 	if (!to_remove.empty()) {
 		if constexpr (std::is_same_v<TTarget, CharData>) {
 			// PK-action check: keyed on the first dispelled affect; a disallowed action aborts the
