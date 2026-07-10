@@ -78,7 +78,7 @@ void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*dur
 			++already;
 		}
 	}
-	int remaining = MaxCloneCharmices(ch) - already;
+	int remaining = MaxCharmices(ch) - already;
 	while (remaining-- > 0) {
 		CharData *extra = ReadMobile(-kMobDouble, kVirtual);
 		if (!extra) {
