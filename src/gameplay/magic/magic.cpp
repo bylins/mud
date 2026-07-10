@@ -38,6 +38,7 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/affects/equipment_affects.h"  // kEquipmentAffectBaseStat + power-percent materialization
+#include "utils/grammar/declensions.h"  // GetDeclensionInNumber (suppress-restore hours)
 #include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage for <damage source="poison">
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
@@ -2212,9 +2213,10 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 // common buffs.
 // issue.equipment-affects-improve (Phase 3): a dispelled affect that a worn item materialized
 // (kAfFromEquipment) is not lost until re-equip -- it is SUPPRESSED on the source item for a fixed
-// time, and the item re-materializes it when the suppression expires (auto-return). Constant duration
-// for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
-constexpr int kEquipmentAffectSuppressMinutes = 10;
+// time, and the item re-materializes it when the suppression expires (auto-return). The counter is
+// decremented once per MUD hour (obj_point_update), so this is a duration in GAME HOURS, not minutes.
+// Constant for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
+constexpr int kEquipmentAffectSuppressHours = 10;
 
 void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 	long src_id = -1;
@@ -2230,7 +2232,13 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
 		ObjData *obj = GET_EQ(victim, i);
 		if (obj && obj->get_id() == src_id) {
-			obj->suppress_affect(affect_type, kEquipmentAffectSuppressMinutes);
+			obj->suppress_affect(affect_type, kEquipmentAffectSuppressHours);
+			// The affect's own dispel narration already fired; tell the wearer when the item magic returns.
+			char msg[kMaxStringLength];
+			snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
+					 kEquipmentAffectSuppressHours,
+					 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));
+			act(msg, false, victim, obj, nullptr, kToChar);
 			return;
 		}
 	}

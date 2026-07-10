@@ -706,8 +706,21 @@ void MaterializeEquipmentAffects(CharData *ch, ObjData *obj) {
 				|| obj->is_affect_suppressed(j.aff_affect)) {
 			continue;
 		}
+		// Show the affect's own impose narration the FIRST time it lands (not when another source
+		// already grants it, and never on a plain affect_total refresh -- materialization only
+		// happens here on equip).
+		bool was_present = false;
+		for (const auto &a : ch->affected) {
+			if (a && a->affect_type == j.aff_affect) {
+				was_present = true;
+				break;
+			}
+		}
 		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
 			affect_to_char_no_recalc(ch, af);
+		}
+		if (!was_present) {
+			EmitAffectImpose(ch, nullptr, j.aff_affect, false);
 		}
 	}
 }
@@ -723,8 +736,18 @@ void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type)
 				|| !obj->GetEEquipmentAffect(j.aff_pos)) {
 			continue;
 		}
+		bool was_present = false;
+		for (const auto &a : ch->affected) {
+			if (a && a->affect_type == j.aff_affect) {
+				was_present = true;
+				break;
+			}
+		}
 		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
 			affect_to_char_no_recalc(ch, af);
+		}
+		if (!was_present) {
+			EmitAffectImpose(ch, nullptr, j.aff_affect, false);   // "your magic returns" on auto-return
 		}
 	}
 	affect_total(ch);   // auto-return: recalc once after all of the affect's nodes are re-added

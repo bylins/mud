@@ -420,7 +420,11 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 			if (!sup.empty()) {
 				sup += ", ";
 			}
-			sup += affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc);
+			char hbuf[96];
+			snprintf(hbuf, sizeof(hbuf), "%s (%d %s)",
+					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+					grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
+			sup += hbuf;
 		}
 		sup += "\r\n";
 		SendMsgToChar(sup.c_str(), ch);

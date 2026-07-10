@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/utils_char_obj.inl"
@@ -27,7 +28,11 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					for (const auto &pr : GET_EQ(ch, i)->suppressed_affects()) {
 						if (!first) { note += ", "; }
 						first = false;
-						note += affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc);
+						char hbuf[96];
+					snprintf(hbuf, sizeof(hbuf), "%s (%d %s)",
+							affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+							grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
+					note += hbuf;
 					}
 					note += ")&n\r\n";
 					SendMsgToChar(note, ch);

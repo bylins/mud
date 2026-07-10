@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
@@ -53,7 +54,11 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			for (const auto &pr : supp_obj->suppressed_affects()) {
 				if (!first) { note += ", "; }
 				first = false;
-				note += affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc);
+				char hbuf[96];
+				snprintf(hbuf, sizeof(hbuf), "%s (%d %s)",
+						affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+						grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
+				note += hbuf;
 			}
 			note += "\r\n";
 			SendMsgToChar(note, ch);

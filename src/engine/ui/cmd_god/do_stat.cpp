@@ -786,8 +786,9 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		std::string sup;
 		for (const auto &pr : j->suppressed_affects()) {
 			char one[128];
-			snprintf(one, sizeof(one), "%s%s (%d)", sup.empty() ? "" : ", ",
-					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second);
+			snprintf(one, sizeof(one), "%s%s (%d %s)", sup.empty() ? "" : ", ",
+					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+					grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
 			sup += one;
 		}
 		SendMsgToChar(ch, "%s\r\n", sup.c_str());
