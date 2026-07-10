@@ -324,9 +324,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						CastEquipmentAffect(ch, j.aff_spell);
 					}
 				} else {
-					affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first,
-								  GetApplyByEquipmentAffect(j.aff_pos, ch).second,
-								  j.aff_affect, true);
+					affect_modify(ch, EApply::kNone, 0, j.aff_affect, true);
 				}
 			}
 		}

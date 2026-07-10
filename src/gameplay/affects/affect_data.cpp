@@ -691,23 +691,9 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 // issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as real
 // Affects (permanent -1 or timed), tagged kAfFromEquipment with caster_id = the item id so they can
 // be dispelled naturally and stripped on unequip. No recalc here -- the equip path calls affect_total.
-// affect_to_char_no_recalc is defined further down in this TU; forward-declare it so the
-// equipment materialization helpers below can add persistent (-1) affects without recalculating.
+// affect_to_char_no_recalc is defined further down in this TU; forward-declare it so
+// MaterializeItemAffects below can add the pipeline-built nodes without recalculating per node.
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);
-
-// Build the real Affect that a worn item's equipment-affect entry confers: permanent (-1) or timed,
-// tagged kAfFromEquipment with caster_id = the item id so it can be dispelled and stripped on unequip.
-static Affect<EApply> BuildEquipmentAffect(const EquipmentAffect &j, CharData *ch, ObjData *obj) {
-	Affect<EApply> af;
-	af.affect_type = j.aff_affect;
-	af.duration = j.timer;
-	const auto apply = GetApplyByEquipmentAffect(j.aff_pos, ch);
-	af.location = apply.first;
-	af.modifier = apply.second;
-	af.caster_id = obj->get_id();
-	af.battleflag.set_plane(0, affects::AffectFlagsByType(j.aff_affect) | EAffFlag::kAfFromEquipment);
-	return af;
-}
 
 void MaterializeItemAffects(CharData *ch, ObjData *obj) {
 	if (!ch || !obj) {
@@ -720,7 +706,9 @@ void MaterializeItemAffects(CharData *ch, ObjData *obj) {
 				|| obj->is_affect_suppressed(j.aff_affect)) {
 			continue;
 		}
-		affect_to_char_no_recalc(ch, BuildEquipmentAffect(j, ch, obj));
+		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+			affect_to_char_no_recalc(ch, af);
+		}
 	}
 }
 
@@ -735,8 +723,11 @@ void MaterializeItemAffect(CharData *ch, ObjData *obj, EAffect affect_type) {
 				|| !obj->GetEEquipmentAffect(j.aff_pos)) {
 			continue;
 		}
-		affect_to_char(ch, BuildEquipmentAffect(j, ch, obj));
+		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+			affect_to_char_no_recalc(ch, af);
+		}
 	}
+	affect_total(ch);   // auto-return: recalc once after all of the affect's nodes are re-added
 }
 
 // issue.equipment-affects-improve: strip every affect this item materialized (caster_id match).
@@ -877,8 +868,7 @@ void affect_total(CharData *ch) {
 						|| !obj->GetEEquipmentAffect(j.aff_pos) || obj->is_affect_suppressed(j.aff_affect)) {
 					continue;
 				}
-				affect_modify(ch, GetApplyByEquipmentAffect(j.aff_pos, ch).first,
-							  GetApplyByEquipmentAffect(j.aff_pos, ch).second, j.aff_affect, true);
+				affect_modify(ch, EApply::kNone, 0, j.aff_affect, true);
 			}
 		}
 	}

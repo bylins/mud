@@ -1338,9 +1338,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 									CastEquipmentAffect(ch, i.aff_spell);
 								}
 							} else {
-								affect_modify(ch, GetApplyByEquipmentAffect(i.aff_pos, ch).first,
-											  GetApplyByEquipmentAffect(i.aff_pos, ch).second,
-											  i.aff_affect, true);
+								affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 							}
 						}
 					}
@@ -1373,9 +1371,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								CastEquipmentAffect(ch, i.aff_spell);
 							}
 						} else {
-							affect_modify(ch, GetApplyByEquipmentAffect(i.aff_pos, ch).first,
-										  GetApplyByEquipmentAffect(i.aff_pos, ch).second,
-										  i.aff_affect, true);
+							affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 						}
 					}
 				}

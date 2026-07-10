@@ -67,6 +67,12 @@ struct RollResult {
 // duration is -1 (permanent) on every node. If no same-named spell exists the roll is zero (flat mins,
 // potency 0).
 [[nodiscard]] std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type);
+// issue.equipment-affects-improve: like BuildMaterializedAffect but for a worn item -- strength comes
+// from the item ilvl (skill = CalcSkillCap(ilvl), stat = kEquipmentAffectBaseStat + ilvl) scaled by
+// power_percent, run through the affect's same-named spell potency_roll (deterministic, no noise draw).
+// Nodes carry duration=timer, caster_id = item id, potency, and kAfFromEquipment.
+[[nodiscard]] std::vector<Affect<EApply>> BuildEquipmentMaterializedAffect(const ObjData *obj,
+		EAffect affect_type, int timer, int power_percent);
 
 // ActionContext (issue.spell-pipeline): the single object threaded through the whole
 // cast handler chain (CallMagic -> CastToSingleTarget -> the per-stage Cast* fns).

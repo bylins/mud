@@ -37,6 +37,7 @@
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
+#include "gameplay/affects/equipment_affects.h"  // kEquipmentAffectBaseStat + power-percent materialization
 #include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage for <damage source="poison">
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
@@ -318,6 +319,47 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 	}
 	return nodes;
 }
+
+std::vector<Affect<EApply>> BuildEquipmentMaterializedAffect(const ObjData *obj, EAffect affect_type,
+																	 int timer, int power_percent) {
+	RollResult roll;   // noise_dev stays 0 -> deterministic: an item bonus is fixed, no cast-noise draw
+	try {
+		const ESpell spell_id = ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<EAffect>(affect_type));
+		const auto &pr = MUD::Spell(spell_id).GetPotencyRoll();
+		const int ilvl = static_cast<int>(obj->get_ilevel());
+		const double pct = power_percent / 100.0;
+		const int skill = static_cast<int>(remort::CalcSkillCap(ilvl) * pct);
+		const int stat = static_cast<int>((kEquipmentAffectBaseStat + ilvl) * pct);
+		roll.skill_coeff = pr.CalcSkillCoeffForValue(skill);
+		roll.stat_coeff = pr.CalcBaseStatCoeffForValue(stat);
+	} catch (const std::out_of_range &) {
+		// no same-named spell: zero roll -> flag-only carrier / flat apply mins, potency 0
+	}
+	const float cast_potency = CalcCastPotency(roll);
+	const double competence = roll.skill_coeff + roll.stat_coeff;
+	std::vector<Affect<EApply>> nodes;
+	auto make = [&](EApply loc, int mod) {
+		Affect<EApply> af;
+		af.affect_type = affect_type;
+		af.duration = timer;
+		af.location = loc;
+		af.modifier = mod;
+		af.caster_id = obj->get_id();
+		af.potency = cast_potency;
+		af.battleflag.set_plane(0, affects::AffectFlagsByType(affect_type) | EAffFlag::kAfFromEquipment);
+		nodes.push_back(af);
+	};
+	const auto &applies = affects::AffectApplies(affect_type);
+	if (applies.empty()) {
+		make(EApply::kNone, 0);       // flag-only buff: bare carrier (potency still gates the dispel)
+	} else {
+		for (const auto &ap : applies) {
+			make(ap.location, ComputeApplyModifier(ap, competence, roll));
+		}
+	}
+	return nodes;
+}
+
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 							const talents_actions::Action &action, double competence,

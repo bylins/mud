@@ -90,39 +90,6 @@ const std::string &NAME_BY_ITEM(const EEquipmentAffect item) {
 std::vector<EquipmentAffect> equipment_affect;
 
 // issue.equipment-affects-improve: apply bridge moved verbatim from affect_data.cpp.
-std::pair<EApply, int>  GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch) {
-	int value;
-	if (ch) //чтоб не было варнинга, ch передаю на будущее
-		value = 2;
-	switch (element) {
-		case EEquipmentAffect::kFireAura:
-			return std::pair<EApply, int>(EApply::kResistFire, value);
-			break;
-		case EEquipmentAffect::kAirAura:
-			return std::pair<EApply, int>(EApply::kResistAir, value);
-			break;
-		case EEquipmentAffect::kIceAura:
-			return std::pair<EApply, int>(EApply::kResistWater, value);
-			break;
-		case EEquipmentAffect::kEarthAura:
-			return std::pair<EApply, int>(EApply::kResistEarth, value);
-			break;
-		// issue.mob-flag-affect-materialization: worn cloudly/blink must grant the miss-chance APPLY,
-		// not just the flag -- ProcessBlink now gates on the apply, not AFF_FLAGGED. Flat 10 preserves
-		// the pre-change PC value (the old hardcoded flag path defaulted a flagged PC to blink 10); NPC
-		// bearers still take level+remort from ProcessBlink regardless of magnitude.
-		case EEquipmentAffect::kCloudly:
-			return std::pair<EApply, int>(EApply::kSpelledBlinkMag, 10);
-			break;
-		case EEquipmentAffect::kBlink:
-			return std::pair<EApply, int>(EApply::kSpelledBlinkPhys, 10);
-			break;
-		default:
-			return std::pair<EApply, int>(EApply::kNone, 0);
-			break;
-	}
-}
-
 // issue.equipment-affects-improve: flag display names moved from constants.cpp.
 // issue.equipment-affects-cfg: display names, loaded from equipment_affect_msg.xml (was hardcoded).
 static std::vector<std::string> g_equipment_affect_names;
@@ -146,6 +113,7 @@ void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 		EAffect flag = EAffect::kUndefined;
 		ESpell spell = ESpell::kUndefined;
 		int timer = kEquipmentAffectNoTimer;
+		int power_percent = 100;
 		for (auto &imp : node.Children()) {
 			if (std::string(imp.GetName()) != "impose") {
 				continue;
@@ -156,8 +124,12 @@ void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 			if (t && *t) {
 				timer = parse::ReadAsInt(t);
 			}
+			const char *pp = imp.GetValue("power_percent");
+			if (pp && *pp) {
+				power_percent = parse::ReadAsInt(pp);
+			}
 		}
-		table.push_back(EquipmentAffect{pos, flag, spell, timer});
+		table.push_back(EquipmentAffect{pos, flag, spell, timer, power_percent});
 	}
 	equipment_affect = std::move(table);
 }

@@ -91,11 +91,15 @@ enum class EAffect : Bitvector;   // forward decl (full def in affect_contants.h
 // issue.equipment-affects-improve: <impose timer=>. Absent = spell-driven (standard duration);
 // an explicit value materializes a real Affect with that duration (-1 = permanent).
 constexpr int kEquipmentAffectNoTimer = std::numeric_limits<int>::min();
+// issue.equipment-affects-improve: base key-stat fed to the potency pipeline for an item affect;
+// the effective stat is (kEquipmentAffectBaseStat + item ilvl) scaled by the impose power_percent.
+constexpr int kEquipmentAffectBaseStat = 20;
 struct EquipmentAffect {
 	EEquipmentAffect aff_pos;
 	EAffect aff_affect;   // the affect this equipment flag confers (kUndefined = none, spell-driven)
 	ESpell aff_spell;
 	int timer{kEquipmentAffectNoTimer};   // <impose timer=>; kEquipmentAffectNoTimer = unspecified
+	int power_percent{100};   // <impose power_percent=>; scales pipeline skill/stat (=> modifier + potency)
 };
 
 // issue.equipment-affects-cfg: loaded from cfg/equipment_affects.xml at boot (was a hardcoded table).
@@ -106,7 +110,6 @@ extern std::vector<EquipmentAffect> equipment_affect;
 // in affect_contants.h, which includes THIS header, so we cannot include it back.
 enum EApply : int;
 class CharData;
-std::pair<EApply, int> GetApplyByEquipmentAffect(EEquipmentAffect element, CharData *ch);
 
 // Russian display names for the flags (sprintbits labels), indexed by bit position.
 // issue.equipment-affects-cfg: rebuilt at boot from cfg/messages/ru/equipment_affect_msg.xml
