@@ -32,4 +32,13 @@
 	<obj_affect id="kBless" flag="kBless" msg_case="kAcc"/>
 	<obj_affect id="kFly" flag="kFlying" msg_case="kGen"/>
 	<obj_affect id="kLight" flag="kGlow" msg_case="kGen"/>
+	<obj_affect id="kDartTrap">
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kPick|kOpen" return="0"/>
+				<side_spell id="kColdWind"/>
+				<side_spell id="kPoison"/>
+			</action>
+		</actions>
+	</obj_affect>
 </obj_affects>

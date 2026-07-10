@@ -102,6 +102,11 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kPoints", EActionTrigger::kPoints},
 	{"kDeath", EActionTrigger::kDeath},
 	{"kWeaponHit", EActionTrigger::kWeaponHit},
+	{"kDecay", EActionTrigger::kDecay},
+	{"kGet", EActionTrigger::kGet},
+	{"kDrop", EActionTrigger::kDrop},
+	{"kEquip", EActionTrigger::kEquip},
+	{"kUnequip", EActionTrigger::kUnequip},
 	{"kWardDamage", EActionTrigger::kWardDamage},
 };
 

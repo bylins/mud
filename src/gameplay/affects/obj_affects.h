@@ -43,7 +43,8 @@ enum class EObjAffect : Bitvector {
 	kBless = 4,			// item is blessed             (flag kBless)
 	kFly = 5,			// item floats / does not sink (flag kFlying)
 	kLight = 6,			// item glows                  (flag kGlow)
-	kCount = 7,
+	kDartTrap = 7,		// a trap: on pick/open it blocks the action, damages + poisons the actor (no flag)
+	kCount = 8,
 };
 
 // Apply-location placeholder for Affect<EObjApply>. Obj affects do not use EApply-style stat
@@ -97,7 +98,7 @@ void BuildRegistry(parser_wrapper::DataNode data);
 // registers a timed affect for ticking. Re-imposing an existing affect refreshes it; imposing any
 // poison first clears an existing poison (one poison per weapon).
 void Impose(ObjData *obj, EObjAffect type, int duration, int modifier = 0,
-			long caster_id = 0, float potency = 0.0f);
+			long caster_id = 0, float potency = 0.0f, int charges = -1);
 
 // Remove a specific obj affect. message = emit the wear-off / dispel line to the holder. Clears the
 // affect's owned flag ONLY if the item prototype lacks it (an innate prototype flag survives).

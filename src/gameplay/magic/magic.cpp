@@ -14,6 +14,7 @@
 
 #include "magic.h"
 #include "gameplay/affects/obj_affects.h"   // issue.obj-affects: RunObjAffectWeaponHit
+#include "gameplay/affects/obj_affect_messages.h"   // issue.obj-affects: obj-affect trigger flavor
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -4381,6 +4382,73 @@ bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int 
 		obj_affects::SpendCharge(weapon, t);   // no-op unless the affect has limited charges
 	}
 	return any;
+}
+
+// issue.obj-affects: run one obj-affect trigger action with the actor as the (self-inflicting) caster.
+// Emits the affect's trigger flavor, runs the action (side_spell / manual / affect) via the shared
+// cycled-action runner, and returns the <trigger return=> verdict (0 = block the actor's action).
+static int CastObjTriggerAction(CharData *caster, ObjData *obj, CharData *actor,
+		obj_affects::EObjAffect affect_type, const talents_actions::Action &action, float potency) {
+	if (actor) {
+		const std::string &to_char = obj_affects::ObjAffectMsgRaw(affect_type,
+				obj_affects::EObjAffectMsgType::kTriggerToChar);
+		if (!to_char.empty()) { act(to_char.c_str(), false, actor, obj, nullptr, kToChar); }
+		const std::string &to_room = obj_affects::ObjAffectMsgRaw(affect_type,
+				obj_affects::EObjAffectMsgType::kTriggerToRoom);
+		if (!to_room.empty()) { act(to_room.c_str(), true, actor, obj, actor, kToRoom | kToArenaListen); }
+	}
+	const std::vector<talents_actions::Action> single{action};
+	ActionContext ctx = BuildActionContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
+	ctx.cvict = actor;   // <action target="kTarActor"> -> the actor (the trap's victim)
+	ctx.ovict = obj;
+	ctx.UseExternalActions(&single);
+	RunRoomCycledAction(ctx, world[caster->in_room], single, 0);
+	if (const auto h = ctx.GetTriggerReturn()) { return *h; }
+	if (const auto t = action.GetTriggerReturn()) { return *t; }
+	return 1;   // allow
+}
+
+// issue.obj-affects: fire an object's obj-affect actions matching `trig` (a lifecycle/container event).
+// The obj-affect analog of RunDoorTriggers: the actor is the (self-inflicting) caster, so a trap harms
+// whoever triggers it regardless of who set it. Returns true to allow the actor's action, false to
+// refuse it (a <trigger return="0"> action, e.g. kDartTrap blocking pick/open). Spends trigger charges.
+bool RunObjAffectTrigger(ObjData *obj, CharData *actor, talents_actions::EActionTrigger trig) {
+	if (!obj || obj->get_obj_affects().empty()) {
+		return true;
+	}
+	// Snapshot so an action that consumes a charge (removing the affect) cannot invalidate iteration.
+	struct Pending { obj_affects::EObjAffect type; long caster_id; float potency; };
+	std::vector<Pending> pending;
+	for (const auto &aff : obj->get_obj_affects()) {
+		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency}); }
+	}
+	bool allowed = true;
+	for (const auto &p : pending) {
+		for (const auto &action : obj_affects::ObjAffectActions(p.type).list()) {
+			if (!action.GetTrigger().test(trig)) {
+				continue;
+			}
+			// The trap's SETTER sources the effect (fixed strength, like kFireTrap), so the damage does
+			// not scale with the victim's own skill; fall back to the actor (self-inflicted) if the setter
+			// is gone, so an object trap still fires (degraded) when its creator is offline.
+			CharData *caster = find_char(p.caster_id);
+			if (!caster) {
+				caster = actor;
+			}
+			if (!caster || caster->in_room == kNowhere) {
+				continue;
+			}
+			const int ret = CastObjTriggerAction(caster, obj, actor, p.type, action, p.potency);
+			obj_affects::SpendCharge(obj, p.type);   // spend one trigger charge (removes the affect at 0)
+			if (ret == 0) {
+				allowed = false;   // refuse the actor's action, but keep firing the rest
+			}
+			if (actor && actor->purged()) {
+				return allowed;   // the actor died from the trap
+			}
+		}
+	}
+	return allowed;
 }
 
 // issue.room-affect-trigger-improve: on-entry trigger return values. 0 = block the action that fired

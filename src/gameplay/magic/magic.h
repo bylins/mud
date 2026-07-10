@@ -334,6 +334,12 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event);
 // action. This is where a poisoned/flaming/vampiric weapon's on-hit effect fires.
 bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int dam);
 
+// issue.obj-affects: fire an object's obj-affect actions matching a lifecycle/container event
+// (kGet/kDrop/kEquip/kUnequip/kDecay + the container verbs kPick/kOpen/kClose/kLock/kUnlock).
+// The actor is the self-inflicting caster (a trap harms whoever triggers it). Returns true to
+// allow the actor's action, false to refuse it (a <trigger return="0"> affect, e.g. kDartTrap).
+bool RunObjAffectTrigger(ObjData *obj, CharData *actor, talents_actions::EActionTrigger trig);
+
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop
 // (issue.spell-pipeline) the dispatcher walks each spell action and runs its stages:
 //   kBreak    -- stop the whole cast: skip this action's remaining stages AND all

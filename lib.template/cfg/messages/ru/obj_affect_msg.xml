@@ -49,4 +49,10 @@
 		<message type="kAffExpiredToChar" val="Невидимость %s рассеялась.&#13;&#10;"/>
 		<message type="kAffDispelledToChar" val="Невидимость %s рассеялась.&#13;&#10;"/>
 	</msg_sheaf>
+	<msg_sheaf id="kDartTrap">
+		<message type="kShortDesc" val="ловушка с дротиками"/>
+		<message type="kDiagToChar" val="  На предмете установлена ловушка с дротиками.&#13;&#10;"/>
+		<message type="kTriggerToChar" val="Сработала ловушка! В вас вонзились ядовитые дротики.&#13;&#10;"/>
+		<message type="kTriggerToRoom" val="$n потревожил$g ловушку с дротиками."/>
+	</msg_sheaf>
 </obj_affect_msg>

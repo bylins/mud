@@ -10,6 +10,7 @@
 */
 
 #include "engine/entities/obj_data.h"
+#include "gameplay/magic/magic.h"
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/doors.h"
@@ -312,6 +313,11 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			if (scmd == kScmdClose && !obj
 				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kClose))
 				return;
+			// issue.obj-affects: a container affect may react to open/close and refuse it via <trigger return="0">.
+			if (scmd == kScmdOpen && obj && !RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kOpen))
+				return;
+			if (scmd == kScmdClose && obj && !RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kClose))
+				return;
 			OPEN_DOOR(ch->in_room, obj, door);
 			if (back) {
 				OPEN_DOOR(other_room, obj, rev_dir[door]);
@@ -354,6 +360,10 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			if (scmd == kScmdLock && !obj
 				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kLock))
 				return;
+			if (scmd == kScmdUnlock && obj && !RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kUnlock))
+				return;
+			if (scmd == kScmdLock && obj && !RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kLock))
+				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)
 				LOCK_DOOR(other_room, obj, rev_dir[door]);
@@ -374,6 +384,8 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			// issue.room-affect-trigger-improve (door affects): an affect may react to the pick and
 			// refuse it via <trigger val="kPick" return="0">.
 			if (!obj && !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kPick))
+				return;
+			if (obj && !RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kPick))
 				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)

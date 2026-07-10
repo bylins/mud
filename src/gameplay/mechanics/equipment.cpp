@@ -278,6 +278,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	GET_EQ(ch, pos) = obj;
 	obj->set_worn_by(ch);
 	obj->set_worn_on(pos);
+	RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kEquip);   // issue.obj-affects
 	obj->set_next_content(nullptr);
 	ch->check_aggressive = true;
 
@@ -398,6 +399,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 	GET_EQ(ch, pos) = nullptr;
 	obj->set_worn_by(nullptr);
 	obj->set_worn_on(kNowhere);
+	RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kUnequip);   // issue.obj-affects
 	obj->set_next_content(nullptr);
 
 	if (!skip_total) {

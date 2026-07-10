@@ -108,6 +108,13 @@ enum class EActionTrigger {
 	               // blow. Dispatched per hit from HitData::ProcessExtradamage over the weapon's obj
 	               // affects (not the wielder's char affects). event.actor = victim, event.weapon =
 	               // the weapon, event.amount = damage dealt.
+	// issue.obj-affects: object-lifecycle triggers for affects that live ON an item (RunObjAffectTrigger).
+	// The container verbs (pick/unlock/open/close/lock) reuse the door-trigger values above.
+	kDecay,        // the item is being destroyed / extracted from the world (no actor)
+	kGet,          // picked up from the ground into inventory
+	kDrop,         // dropped from inventory to the ground
+	kEquip,        // worn / wielded
+	kUnequip,      // removed from an equipment slot
 	kCount
 };
 

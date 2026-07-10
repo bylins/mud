@@ -39,6 +39,7 @@ void init_obj_affect_names() {
 		{EObjAffect::kBless, "kBless"},
 		{EObjAffect::kFly, "kFly"},
 		{EObjAffect::kLight, "kLight"},
+		{EObjAffect::kDartTrap, "kDartTrap"},
 	};
 	for (const auto &[value, token] : g_obj_affect_name_by_value) {
 		g_obj_affect_value_by_name.emplace(token, value);
@@ -81,6 +82,7 @@ void ensure_meta() {
 	set(EObjAffect::kBless, true, EObjFlag::kBless, true, ECase::kAcc);
 	set(EObjAffect::kFly, true, EObjFlag::kFlying, true, ECase::kGen);
 	set(EObjAffect::kLight, true, EObjFlag::kGlow, true, ECase::kGen);
+	set(EObjAffect::kDartTrap, false, EObjFlag::kGlow, true, ECase::kGen);
 	g_meta_loaded = true;
 }
 
@@ -291,7 +293,7 @@ void remove_at(ObjData *obj, ObjAffectIt it, bool message, EObjAffectMsgType slo
 }
 }  // namespace
 
-void Impose(ObjData *obj, EObjAffect type, int duration, int modifier, long caster_id, float potency) {
+void Impose(ObjData *obj, EObjAffect type, int duration, int modifier, long caster_id, float potency, int charges) {
 	if (type == EObjAffect::kUndefined || type == EObjAffect::kCount) {
 		log("SYSERROR: obj_affects::Impose bad type=%d on obj vnum=%d",
 			to_underlying(type), GET_OBJ_VNUM(obj));
@@ -317,6 +319,7 @@ void Impose(ObjData *obj, EObjAffect type, int duration, int modifier, long cast
 	aff->modifier = modifier;
 	aff->caster_id = caster_id;
 	aff->potency = potency;
+	aff->charges = charges;
 	if (HasFlag(type)) {
 		obj->set_extra_flag(Flag(type));
 	}
@@ -480,6 +483,8 @@ const std::map<obj_affects::EObjAffectMsgType, std::string> kObjAffectMsgTypeNam
 	{obj_affects::EObjAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
 	{obj_affects::EObjAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
 	{obj_affects::EObjAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
+	{obj_affects::EObjAffectMsgType::kTriggerToChar, "kTriggerToChar"},
+	{obj_affects::EObjAffectMsgType::kTriggerToRoom, "kTriggerToRoom"},
 };
 }  // namespace
 

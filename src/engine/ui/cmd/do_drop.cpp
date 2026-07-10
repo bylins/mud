@@ -1,4 +1,5 @@
 //#include "drop.h"
+#include "gameplay/magic/magic.h"   // issue.obj-affects: RunObjAffectTrigger
 
 #include "engine/entities/char_data.h"
 #include "utils/grammar/declensions.h"
@@ -137,6 +138,7 @@ void PerformDrop(CharData *ch, ObjData *obj) {
 	act(buf, true, ch, obj, nullptr, kToRoom | kToArenaListen);
 	RemoveObjFromChar(obj);
 	PlaceObjToRoom(obj, ch->in_room);
+	RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kDrop);   // issue.obj-affects
 	CheckObjDecay(obj);
 }
 

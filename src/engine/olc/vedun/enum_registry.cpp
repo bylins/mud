@@ -106,7 +106,7 @@ void RegisterEditorEnums() {
 	registry.RegisterNames("EActionTrigger",
 		{"kPulse", "kBattlePulse", "kEnter", "kEnterPC", "kEnterNPC", "kPick", "kUnlock", "kOpen",
 		 "kClose", "kLock", "kPreHit", "kPostHit", "kWardAttack", "kKill", "kExpired", "kDispell", "kPoints",
-		 "kWardDamage", "kDeath", "kWeaponHit"});
+		 "kWardDamage", "kDeath", "kWeaponHit", "kDecay", "kGet", "kDrop", "kEquip", "kUnequip"});
 	registry.RegisterNames("EActionBase", {"kDamage", "kPoints", "kAffects", "kDispelled", "kCompetence"});
 	registry.RegisterNames("EAlign", {"kGood", "kEvil", "kNeutral"});
 	// <misc violent> is stored as the literal Y/N/A the spell loader parses into EViolent.
