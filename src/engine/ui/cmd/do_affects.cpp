@@ -59,12 +59,18 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				mod = aff->duration;
 			}
-			(mod + 1) / kSecsPerMudHour
-			? sprintf(buf2,
-					  "(%d %s)",
-					  (mod + 1) / kSecsPerMudHour + 1,
-					  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
-			: sprintf(buf2, "(менее часа)");
+			// A permanent affect (duration -1, e.g. a materialized equipment affect) is not "less than
+			// an hour" -- label it as unlimited so its persistence reads correctly.
+			if (mod < 0) {
+				sprintf(buf2, "(постоянно)");
+			} else if ((mod + 1) / kSecsPerMudHour) {
+				sprintf(buf2,
+						"(%d %s)",
+						(mod + 1) / kSecsPerMudHour + 1,
+						grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour));
+			} else {
+				sprintf(buf2, "(менее часа)");
+			}
 			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					 kColorBoldCyn, sp_name, buf2, kColorNrm);
