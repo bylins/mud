@@ -4401,6 +4401,12 @@ static int CastObjTriggerAction(CharData *caster, ObjData *obj, CharData *actor,
 	ActionContext ctx = BuildActionContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
 	ctx.cvict = actor;   // <action target="kTarActor"> -> the actor (the trap's victim)
 	ctx.ovict = obj;
+	// Give a triggered <damage> the affect's own flavor (kDamageTo*) instead of the generic melee-hit line
+	// ("X painfully hit you") -- a trap deals impersonal damage, it is not a character attacking.
+	ctx.SetAffectDamageMsg(
+			obj_affects::ObjAffectMsgRaw(affect_type, obj_affects::EObjAffectMsgType::kDamageToChar),
+			obj_affects::ObjAffectMsgRaw(affect_type, obj_affects::EObjAffectMsgType::kDamageToVict),
+			obj_affects::ObjAffectMsgRaw(affect_type, obj_affects::EObjAffectMsgType::kDamageToRoom));
 	ctx.UseExternalActions(&single);
 	RunRoomCycledAction(ctx, world[caster->in_room], single, 0);
 	if (const auto h = ctx.GetTriggerReturn()) { return *h; }
@@ -4428,13 +4434,11 @@ bool RunObjAffectTrigger(ObjData *obj, CharData *actor, talents_actions::EAction
 			if (!action.GetTrigger().test(trig)) {
 				continue;
 			}
-			// The trap's SETTER sources the effect (fixed strength, like kFireTrap), so the damage does
-			// not scale with the victim's own skill; fall back to the actor (self-inflicted) if the setter
-			// is gone, so an object trap still fires (degraded) when its creator is offline.
-			CharData *caster = find_char(p.caster_id);
-			if (!caster) {
-				caster = actor;
-			}
+			// The affect is SELF-INFLICTING: the actor who triggered it is the caster AND the victim, so
+			// the effect (trap damage, poison) never engages combat with whoever SET the affect. With
+			// fixed-strength actions (<amount beta="0">) self-sourcing does not weaken it. For an actorless
+			// trigger (kDecay) fall back to the setter so the action can still fire. caster_id = provenance.
+			CharData *caster = actor ? actor : find_char(p.caster_id);
 			if (!caster || caster->in_room == kNowhere) {
 				continue;
 			}

@@ -29,6 +29,9 @@ enum class EObjAffectMsgType {
 	kAffDispelledToChar,    // affect stripped by a player effect (remove curse / darkness / dispel)
 	kTriggerToChar,         // a lifecycle/container trigger fired: flavor to the actor ($o = item)
 	kTriggerToRoom,         // ... to onlookers ($n = the actor, $o = item)
+	kDamageToChar,          // a triggered <damage> action deals damage: to the victim (2nd person)
+	kDamageToVict,          // ... to the victim when the dealer differs (weapon-style; unused for traps)
+	kDamageToRoom,          // ... to onlookers ($n = the victim)
 };
 
 // Message lookup keyed by the obj affect. ObjAffectMsg falls back to the shared kDefault sheaf;

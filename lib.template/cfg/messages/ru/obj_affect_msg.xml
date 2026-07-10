@@ -52,7 +52,10 @@
 	<msg_sheaf id="kDartTrap">
 		<message type="kShortDesc" val="ловушка с дротиками"/>
 		<message type="kDiagToChar" val="  На предмете установлена ловушка с дротиками.&#13;&#10;"/>
-		<message type="kTriggerToChar" val="Сработала ловушка! В вас вонзились ядовитые дротики.&#13;&#10;"/>
+		<message type="kTriggerToChar" val="Сработала ловушка с дротиками!&#13;&#10;"/>
+		<message type="kDamageToChar" val="Ядовитые дротики впиваются в ваше тело!&#13;&#10;"/>
+		<message type="kDamageToVict" val="Ядовитые дротики впиваются в ваше тело!&#13;&#10;"/>
+		<message type="kDamageToRoom" val="$n вздрогнул$g от впившихся ядовитых дротиков."/>
 		<message type="kTriggerToRoom" val="$n потревожил$g ловушку с дротиками."/>
 	</msg_sheaf>
 </obj_affect_msg>

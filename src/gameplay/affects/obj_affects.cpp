@@ -503,6 +503,9 @@ const std::map<obj_affects::EObjAffectMsgType, std::string> kObjAffectMsgTypeNam
 	{obj_affects::EObjAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
 	{obj_affects::EObjAffectMsgType::kTriggerToChar, "kTriggerToChar"},
 	{obj_affects::EObjAffectMsgType::kTriggerToRoom, "kTriggerToRoom"},
+	{obj_affects::EObjAffectMsgType::kDamageToChar, "kDamageToChar"},
+	{obj_affects::EObjAffectMsgType::kDamageToVict, "kDamageToVict"},
+	{obj_affects::EObjAffectMsgType::kDamageToRoom, "kDamageToRoom"},
 };
 }  // namespace
 
