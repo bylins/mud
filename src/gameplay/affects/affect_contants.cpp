@@ -704,6 +704,22 @@ const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot) {
 	return c.IsKnown(affect) ? c[affect].GetMessage(slot) : kEmpty;
 }
 
+const std::string &AffectDispelMsg(EAffect affect, bool to_room) {
+	// Prefer the affect's own dispel line; if it defines none (most buffs don't), use its own expiry
+	// line so the wearer sees the affect-specific "faded" narration instead of the generic kDefault.
+	const EAffectMsgType dispel = to_room ? EAffectMsgType::kAffDispelledToRoom : EAffectMsgType::kAffDispelledToChar;
+	const EAffectMsgType expire = to_room ? EAffectMsgType::kAffExpiredToRoom : EAffectMsgType::kAffExpiredToChar;
+	const std::string &own_dispel = AffectMsgRaw(affect, dispel);
+	if (!own_dispel.empty()) {
+		return own_dispel;
+	}
+	const std::string &own_expire = AffectMsgRaw(affect, expire);
+	if (!own_expire.empty()) {
+		return own_expire;
+	}
+	return AffectMsg(affect, dispel);   // shared kDefault fallback
+}
+
 const std::string &AffectMsgWeapon(EAffect affect, EAffectMsgType slot, bool has_weapon) {
 	static const std::string kEmpty;
 	auto &c = AffectMsgContainer();

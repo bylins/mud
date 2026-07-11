@@ -2286,11 +2286,11 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
 	SuppressSourceEquipmentAffect(victim, affect_type);
 	ReduceStackOrRemove(victim, affect_type);
-	const std::string &to_vict = affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffDispelledToChar);
+	const std::string &to_vict = affects::AffectDispelMsg(affect_type, /*to_room=*/false);
 	if (!to_vict.empty()) {
 		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
 	}
-	const std::string &to_room = affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffDispelledToRoom);
+	const std::string &to_room = affects::AffectDispelMsg(affect_type, /*to_room=*/true);
 	if (!to_room.empty()) {
 		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 	}
