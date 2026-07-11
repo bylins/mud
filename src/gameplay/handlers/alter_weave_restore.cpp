@@ -26,7 +26,7 @@ EStageResult AlterWeaveRestore(ActionContext &ctx) {
 	// Same d100 contest as a normal dispel: caster competence vs the suppression's stored potency (the
 	// suppressing dispel's competence) + this spell's dispel_bonus. A failed roll erodes the stored
 	// potency in place (decay), so repeated attempts wear the suppression down.
-	if (DispelContest(sup->potency, ctx.CompetenceBase(), a.dispel_bonus, a.decay)) {
+	if (DispelContest(sup->potency, ctx.CompetenceBase(), a.dispel_bonus, a.decay, ctx.caster(), ctx.spell_id(), aff)) {
 		obj->release_suppression(aff);   // erase the kSuppressed + re-materialize the affect if worn
 		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 	}

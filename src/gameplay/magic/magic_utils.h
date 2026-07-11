@@ -2,6 +2,7 @@
 #define SPELL_PARSER_HPP_
 
 #include <limits>
+#include <vector>
 
 #include "gameplay/abilities/feats.h"
 #include "engine/entities/entities_constants.h"
@@ -103,5 +104,10 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 // Resistance calculate //
 
 void CastEquipmentAffect(CharData *ch, ESpell spell_id);
+
+// issue.affect-suppression-dispell: the worn items (equipment slots) that carry any obj-affect
+// suppression, in slot order. Used by the weave-restoration cast to choose a target item (it picks one
+// at random). Never contains null; may be empty.
+[[nodiscard]] std::vector<ObjData *> SuppressedWornItems(CharData *ch);
 
 #endif // SPELL_PARSER_HPP_

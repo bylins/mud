@@ -2676,10 +2676,20 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 // (obj-affect suppressions are not on a char's ->affected). Same math as DispelSucceeds but no per-affect
 // dispel_mod and no buff auto-pass -- it always rolls. On failure, erodes `target_potency` in place by
 // `decay`% of the caster's dispel strength (repeated attempts wear a suppression down). Returns success.
-bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay) {
+bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay,
+				   CharData *trace_ch, ESpell trace_spell, EAffect trace_affect) {
 	const double raw = kDispelSkillWeight * (competence - target_potency) + dispel_bonus;
 	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
-	const bool ok = number(1, 100) <= threshold;
+	const int roll = number(1, 100);
+	const bool ok = roll <= threshold;
+	// issue.affect-suppression-dispell: tester/immortal debug, mirrors the DispelSucceeds "Unaffect:" line.
+	if (trace_ch) {
+		spell_trace::Line(trace_ch, nullptr,
+				"Weave restore: %s [C: %.1f]. Suppressed: %s [p: %.1f]. threshold %d%%. %s (roll %d).\r\n",
+				MUD::Spell(trace_spell).GetCName(), competence,
+				affects::AffectMsg(trace_affect, affects::EAffectMsgType::kShortDesc).c_str(),
+				static_cast<double>(target_potency), threshold, ok ? "Success" : "Fail", roll);
+	}
 	if (!ok) {
 		ApplyDispelDecay(target_potency, static_cast<float>(kDispelSkillWeight * competence), decay);
 	}
@@ -2793,12 +2803,11 @@ EStageResult CastToAlterObjs(ActionContext &ctx) {
 	// issue.affect-suppression-dispell: <alter_obj collateral="first_suppressed"> on a CHAR cast (no
 	// explicit object) resolves to the victim's first worn item that carries any suppression (slot order).
 	if (obj == nullptr && victim != nullptr && ctx.action_or_default().GetAlterObj().find_suppressed) {
-		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
-			ObjData *eq = GET_EQ(victim, i);
-			if (eq && eq->has_suppressed_affects()) {
-				obj = eq;
-				break;
-			}
+		// issue.affect-suppression-dispell: pick a RANDOM worn item that carries a suppression (like acid's
+		// random-item collateral), not the first -- the list builder lives in magic_utils.
+		std::vector<ObjData *> suppressed = SuppressedWornItems(victim);
+		if (!suppressed.empty()) {
+			obj = suppressed[number(0, static_cast<int>(suppressed.size()) - 1)];
 		}
 	}
 	if (obj == nullptr) {

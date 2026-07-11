@@ -301,7 +301,9 @@ void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, 
 // issue.affect-suppression-dispell: the d100 dispel contest against a directly-supplied potency (for
 // obj-affect suppressions, which aren't on a char's ->affected). Always rolls; on failure decays
 // `target_potency` in place by `decay`% of the caster's dispel strength. Returns success.
-bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay);
+bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay,
+				   CharData *trace_ch = nullptr, ESpell trace_spell = ESpell::kUndefined,
+				   EAffect trace_affect = EAffect::kUndefined);
 // issue.npc-races: true if `ch` can speak/incant (players always; NPCs iff their race is <vocal/>).
 bool IsAbleToSay(CharData *ch);
 
