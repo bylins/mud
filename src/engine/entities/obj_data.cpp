@@ -710,7 +710,10 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	*buf2 = '\0';
 	if (has_obj_affects()) {
-		obj_affects::Tick(this, time);
+		// issue.obj-suppressor-affect: dec_timer's obj-affect tick is the OFFLINE catch-up on rent-load
+		// (time = rented mud-hours). Suppressions pause offline ("N hours of play"), so exclude them here;
+		// the online periodic tick (process_periodic_effects) counts them down during actual play.
+		obj_affects::Tick(this, time, /*tick_suppressions=*/false);
 	}
 	if (!ignore_utimer && stable_objs::IsTimerUnlimited(this)) {
 		return;

@@ -113,7 +113,9 @@ void Impose(ObjData *obj, EObjAffect type, int duration, int modifier = 0,
 void Remove(ObjData *obj, EObjAffect type, bool message);
 
 // Tick every timed obj affect down by `minutes`, expiring (with message) any that reach <= 0.
-void Tick(ObjData *obj, int minutes = 1);
+// tick_suppressions=false skips kSuppressed affects (they pause while offline -- "N hours of PLAY");
+// the offline catch-up in ObjData::dec_timer passes false, the online periodic tick passes true.
+void Tick(ObjData *obj, int minutes = 1, bool tick_suppressions = true);
 
 // Spend one trigger charge on an affect after its triggered action ran. charges == -1 (the default) is
 // unlimited -> no-op; at 0 the affect is consumed (removed like an expiry). Used by the trigger dispatch.

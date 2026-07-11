@@ -348,11 +348,18 @@ void Remove(ObjData *obj, EObjAffect type, bool message) {
 	}
 }
 
-void Tick(ObjData *obj, int minutes) {
+void Tick(ObjData *obj, int minutes, bool tick_suppressions) {
 	auto &list = obj->get_obj_affects();
 	for (auto it = list.begin(); it != list.end(); /* advanced in body */) {
 		auto &aff = *it;
 		if (aff->duration == -1) {   // permanent affect: never ticks down
+			++it;
+			continue;
+		}
+		if (!tick_suppressions && aff->affect_type == EObjAffect::kSuppressed) {
+			// issue.obj-suppressor-affect: equipment-affect suppression counts PLAY time only, so the
+			// offline catch-up (dec_timer with the rented hours) must not decrement or expire it. Ticked
+			// online by process_periodic_effects instead.
 			++it;
 			continue;
 		}
