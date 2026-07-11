@@ -1376,6 +1376,11 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 	if (how > 1) {
 		sprintf(buf + strlen(buf), " [%d]", how);
 	}
+	// issue.obj-suppressor-affect: brief marker when a worn item's conferred magic is currently
+	// suppressed (dispelled + auto-returning); the full list with timers shows on examine/identify.
+	if (mode != 3 && how <= 1 && object->has_suppressed_affects()) {
+		strcat(buf, " <магия подавлена>");
+	}
 	if (mode != 3 && how <= 1) {
 		if (object->has_flag(EObjFlag::kInvisible)) {
 			sprintf(buf2, " (невидим%s)", grammar::ObjSexEnding((object)->get_sex(), 6));
