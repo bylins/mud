@@ -300,8 +300,9 @@ enum class ESpell {
 	kAegisRift = 369,    // "aegis rift" -- strip the kAfAegis buff class from an enemy
 	kToils = 370,        // "toils" -- strip fly/waterwalk/waterbreath from an enemy
 	kCleanseArea = 371,  // "cleanse area" -- strip dispellable room affects
+	kWeaveRestoration = 372,  // "weave restoration" -- lift a magic-suppression from an item (or a char's first suppressed worn item)
 	kFirst = kArmor,
-	kLast = 371	// Не забываем менять
+	kLast = 372	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);

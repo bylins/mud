@@ -466,6 +466,7 @@ main_sources = files(
   'src/gameplay/handlers/alter_restoration.cpp',
   'src/gameplay/handlers/alter_light.cpp',
   'src/gameplay/handlers/alter_darkness.cpp',
+  'src/gameplay/handlers/alter_weave_restore.cpp',
   'src/gameplay/handlers/create_weapon.cpp',
   'src/gameplay/handlers/create_armor.cpp',
   'src/gameplay/handlers/summon_tutelar.cpp',

@@ -268,8 +268,8 @@ class ActionContext {
 	bool patched_{false};
 };
 
-// VNUM'ы мобов для заклинаний, создающих мобов
-const int kMobDouble = 3000; //внум прототипа для клона
+// VNUM'О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+const int kMobDouble = 3000; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 const int kMobSkeleton = 3001;
 const int kMobZombie = 3002;
 const int kMobBonedog = 3003;
@@ -280,7 +280,7 @@ const int kMobNecrotank = 3008;
 const int kMobNecrobreather = 3009;
 const int kMobNecrocaster = 3010;
 const int kLastNecroMob = 3010;
-// резерв для некротических забав
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 const int kMobMentalShadow = 3020;
 const int kMobKeeper = 3021;
 const int kMobFirekeeper = 3022;
@@ -298,6 +298,10 @@ void ShowAffExpiredMsg(EAffect affect_type, CharData *ch);
 // affected = the char the affect is on ($n); other = the externally-supplied target/opponent ($N,
 // nullptr for a pure self-affect). Perspectives: ToChar->affected, ToVict->other, ToRoom->others.
 void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed);
+// issue.affect-suppression-dispell: the d100 dispel contest against a directly-supplied potency (for
+// obj-affect suppressions, which aren't on a char's ->affected). Always rolls; on failure decays
+// `target_potency` in place by `decay`% of the caster's dispel strength. Returns success.
+bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay);
 // issue.npc-races: true if `ch` can speak/incant (players always; NPCs iff their race is <vocal/>).
 bool IsAbleToSay(CharData *ch);
 

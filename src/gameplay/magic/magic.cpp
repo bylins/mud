@@ -2221,7 +2221,7 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 // Constant for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
 constexpr int kEquipmentAffectSuppressHours = 10;
 
-void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
+void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double competence) {
 	// A set-conferred affect (kAfFromSet) has no single owning item, so the suppression is BROADCAST to
 	// every worn set piece (one shared timer, survives anchor swaps); a single-item affect suppresses on
 	// its own source item.
@@ -2245,7 +2245,7 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
 			ObjData *obj = GET_EQ(victim, i);
 			if (obj && obj_sets::is_set_item(obj)) {
-				obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours);
+				obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours, static_cast<float>(competence));
 				any = true;
 			}
 		}
@@ -2261,7 +2261,7 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
 		ObjData *obj = GET_EQ(victim, i);
 		if (obj && obj->get_id() == src_id) {
-			obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours);
+			obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours, static_cast<float>(competence));
 			// The affect's own dispel narration already fired; tell the wearer when the item magic returns.
 			snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
 					 kEquipmentAffectSuppressHours,
@@ -2272,7 +2272,7 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 	}
 }
 
-void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type) {
+void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type, double competence) {
 	// issue.character-affect-triggers: kDispell -- fire the affect's own kDispell <actions> BEFORE it is
 	// stripped, run with the DISPELLER (ch) as BOTH the caster and the actor. This makes the retaliation
 	// SELF-INFLICTED by the dispeller (their choice to dispel, their consequence): a <damage>/<affects>
@@ -2284,7 +2284,7 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	// the AFFECT (its sheaf, with the kDefault generic fallback).
 	// issue.equipment-affects-improve (Phase 3): if a worn item conferred this affect, suppress it on
 	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
-	SuppressSourceEquipmentAffect(victim, affect_type);
+	SuppressSourceEquipmentAffect(victim, affect_type, competence);
 	ReduceStackOrRemove(victim, affect_type);
 	const std::string &to_vict = affects::AffectDispelMsg(affect_type, /*to_room=*/false);
 	if (!to_vict.empty()) {
@@ -2645,7 +2645,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 			}
 			if (ok) {
 				if constexpr (std::is_same_v<TTarget, CharData>) {
-					RemoveAffectAndAnnounce(ch, target, cand.affect_type);
+					RemoveAffectAndAnnounce(ch, target, cand.affect_type, competence);
 				} else {
 					RemoveAffectAndAnnounce(ch, target, cand.room_affect_type);
 				}
@@ -2671,6 +2671,20 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 }
 
 }  // namespace
+
+// issue.affect-suppression-dispell: the standard d100 dispel contest against a potency supplied DIRECTLY
+// (obj-affect suppressions are not on a char's ->affected). Same math as DispelSucceeds but no per-affect
+// dispel_mod and no buff auto-pass -- it always rolls. On failure, erodes `target_potency` in place by
+// `decay`% of the caster's dispel strength (repeated attempts wear a suppression down). Returns success.
+bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay) {
+	const double raw = kDispelSkillWeight * (competence - target_potency) + dispel_bonus;
+	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
+	const bool ok = number(1, 100) <= threshold;
+	if (!ok) {
+		ApplyDispelDecay(target_potency, static_cast<float>(kDispelSkillWeight * competence), decay);
+	}
+	return ok;
+}
 
 // Data-driven dispel stage. Dispatches on the non-null target: a CharData strips affects from
 // the victim (the historical path), a RoomData strips affects from the room.
@@ -2742,6 +2756,7 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"AlterRestoration", handlers::AlterRestoration},
 	{"AlterLight", handlers::AlterLight},
 	{"AlterDarkness", handlers::AlterDarkness},
+	{"AlterWeaveRestore", handlers::AlterWeaveRestore},
 };
 
 // Data-driven object transform (issue.obj-casting): resolve the target object (an explicit ovict,
@@ -2775,10 +2790,21 @@ EStageResult CastToAlterObjs(ActionContext &ctx) {
 				 rand--, obj = obj->get_next_content());
 		}
 	}
+	// issue.affect-suppression-dispell: <alter_obj collateral="first_suppressed"> on a CHAR cast (no
+	// explicit object) resolves to the victim's first worn item that carries any suppression (slot order).
+	if (obj == nullptr && victim != nullptr && ctx.action_or_default().GetAlterObj().find_suppressed) {
+		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+			ObjData *eq = GET_EQ(victim, i);
+			if (eq && eq->has_suppressed_affects()) {
+				obj = eq;
+				break;
+			}
+		}
+	}
 	if (obj == nullptr) {
 		return EStageResult::kSuccess;
 	}
-	if (obj->has_flag(EObjFlag::kNoalter)) {
+	if (obj->has_flag(EObjFlag::kNoalter) && !ctx.action_or_default().GetAlterObj().bypass_noalter) {
 		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kObjResist).c_str(), true, ch, obj, nullptr, kToChar);
 		return EStageResult::kSuccess;
 	}

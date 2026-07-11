@@ -132,12 +132,20 @@ void SpendCharge(ObjData *obj, EObjAffect type);
 // auto-returns. Modelled as one kSuppressed obj-affect per suppressed EAffect (modifier = the EAffect,
 // duration = game-hours), so it serializes/ticks with every other obj-affect. Multi-instance is keyed by
 // modifier -- kept separate from the one-per-type Impose/Find used by the flag affects.
-// Add/refresh a suppression of `aff` for `hours` game-hours (no-op for hours <= 0).
-void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours);
+// Add/refresh a suppression of `aff` for `hours` game-hours (no-op for hours <= 0). `potency` is the
+// suppressing dispel's competence (skill+stat, no additive bonus) -- the resistance a later un-suppress
+// spell (weave restoration) contests against; refreshing an existing suppression keeps the MAX potency.
+void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours, float potency = 0.0f);
 // Whether `aff` is currently suppressed on this item.
 [[nodiscard]] bool IsEquipAffectSuppressed(const ObjData *obj, EAffect aff);
 // (EAffect, remaining game-hours) for every suppression on the item (for identify display).
 [[nodiscard]] std::vector<std::pair<EAffect, int>> SuppressedEquipAffects(const ObjData *obj);
+// The first kSuppressed obj-affect on the item (nullptr if none) -- for the weave-restoration contest,
+// which reads its stored potency and (on failure) decays it. Its `modifier` is the suppressed EAffect.
+[[nodiscard]] ObjAffect::shared_ptr FirstSuppression(const ObjData *obj);
+// Erase the kSuppressed of `aff` from the item's obj-affect list (obj-side only; the caller re-materializes
+// the equipment affect on the wearer -- see ObjData::release_suppression). No-op if not suppressed.
+void RemoveSuppression(ObjData *obj, EAffect aff);
 
 // Examine/identify diagnostic text for all affects on the item (one line per affect, timer appended).
 // `viewer` gates which affects are shown (see SeeAffect); pass nullptr to show them all (god stat).

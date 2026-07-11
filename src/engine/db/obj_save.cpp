@@ -429,7 +429,8 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 					char token[64] = {0};
 					int dur = 0;
 					int mod = 0;
-					if (sscanf(tmp_buf.c_str(), "%63s %d %d", token, &dur, &mod) < 2) {
+					float pot = 0.0f;   // issue.affect-suppression-dispell: optional 4th field (kSuppressed potency)
+					if (sscanf(tmp_buf.c_str(), "%63s %d %d %f", token, &dur, &mod, &pot) < 2) {
 						*error = 50;
 						return object;
 					}
@@ -442,7 +443,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 					if (a == obj_affects::EObjAffect::kSuppressed) {
 						// issue.obj-suppressor-affect: an item can suppress several EAffects at once (one
 						// kSuppressed instance each) -- append by modifier, not the one-per-type Impose.
-						obj_affects::SuppressEquipAffect(object.get(), static_cast<EAffect>(mod), dur);
+						obj_affects::SuppressEquipAffect(object.get(), static_cast<EAffect>(mod), dur, pot);
 					} else {
 						obj_affects::Impose(object.get(), a, dur, mod);
 					}

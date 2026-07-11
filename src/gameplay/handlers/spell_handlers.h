@@ -38,6 +38,8 @@ EStageResult AlterTimerRestore(ActionContext &ctx);
 EStageResult AlterRestoration(ActionContext &ctx);
 EStageResult AlterLight(ActionContext &ctx);
 EStageResult AlterDarkness(ActionContext &ctx);
+// issue.affect-suppression-dispell: contest+lift one magic-suppression on the target item (weave restoration).
+EStageResult AlterWeaveRestore(ActionContext &ctx);
 
 // --- Object-creation handlers (issue.obj-casting) ----------------------------------------------
 // Optional post-load customizer for <obj_creation>: shapes the freshly-loaded base object before

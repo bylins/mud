@@ -593,6 +593,15 @@ struct AlterObj : public IAction {
 	// victim carries -- but ONLY when damage was dealt this cast (acid corroding gear). Default false
 	// = never splash onto a char's items; cast the spell directly on an object to affect one.
 	bool collateral_on_damage{false};
+	// issue.affect-suppression-dispell: weave-restoration params. find_suppressed = on a CHAR cast with no
+	// explicit object, act on the victim's first worn item bearing a suppression. dispel_bonus/decay feed
+	// the suppression-removal contest (win% at competence parity / potency erosion on a failed roll).
+	bool find_suppressed{false};
+	int dispel_bonus{50};
+	int decay{0};
+	// issue.affect-suppression-dispell: let this handler act on a kNoalter item (weave restoration lifts
+	// the item's OWN suppressed magic, it does not transmute the item), skipping CastToAlterObjs's guard.
+	bool bypass_noalter{false};
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 

@@ -30,9 +30,9 @@ void print_obj_affects(CharData *ch, const obj_affected_type &affect);
 void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
 
-/// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
-/// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
-/// Соответствие полей и типов предметов смотреть/обновлять в remove_incorrect_keys()
+/// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ GET_OBJ_VAL О©╫О©╫О©╫О©╫О©╫
+/// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫-О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ TextId::init_obj_vals()
+/// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ remove_incorrect_keys()
 class ObjVal {
  public:
 	enum class EValueKey : uint32_t {
@@ -79,29 +79,29 @@ class ObjVal {
 	const_iterator end() const { return m_values.end(); }
 	bool empty() const { return m_values.empty(); }
 
-	// \return -1 - ключ не был найден
+	// \return -1 - О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	int get(const EValueKey key) const;
-	// сет новой записи/обновление существующей
-	// \param val < 0 - запись (если была) удаляется
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// \param val < 0 - О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	void set(const EValueKey key, int val);
-	// если key не найден, то ничего не сетится
-	// \param val допускается +-
+	// О©╫О©╫О©╫О©╫ key О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// \param val О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ +-
 	void inc(const EValueKey key, int val = 1);
-	// save/load в файлы предметов
+	// save/load О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	std::string print_to_file() const;
 	bool init_from_file(const char *str);
-	// тоже самое в файлы зон
+	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
 	std::string print_to_zone() const;
 	void init_from_zone(const char *str);
-	// для сравнения с прототипом
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	bool operator==(const ObjVal &r) const {
 		return m_values == r.m_values;
 	}
 	bool operator!=(const ObjVal &r) const {
 		return m_values != r.m_values;
 	}
-	// чистка левых параметров (поменяли тип предмета в олц/файле и т.п.)
-	// дергается после редактирований в олц, лоада прототипов и просто шмоток
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫.О©╫.)
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	void remove_incorrect_keys(int type);
 
  private:
@@ -164,7 +164,7 @@ class CObjectPrototype {
 	constexpr static int DEFAULT_MAX_IN_WORLD = UNLIMITED_GLOBAL_MAXIMUM;
 	constexpr static int DEFAULT_MINIMUM_REMORTS = 0;
 
-	// бесконечный таймер
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	constexpr static int UNLIMITED_TIMER = 2147483647;
 	constexpr static int ONE_DAY = 24 * 60;
 	constexpr static int SEVEN_DAYS = 7 * ONE_DAY;
@@ -200,7 +200,7 @@ class CObjectPrototype {
 										   m_sex(EGender::kMale),
 										   m_wear_flags(),
 										   m_timer(DEFAULT_TIMER),
-										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
+										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 											m_cost(DEFAULT_COST),
 										   m_rent_on(DEFAULT_RENT_ON),
 										   m_rent_off(DEFAULT_RENT_OFF),
@@ -357,7 +357,7 @@ class CObjectPrototype {
 	int get_auto_mort_req() const;
 	double show_mort_req() const;
 	double show_koef_obj() const;
-	double get_ilevel() const;    ///< разные системы расчета привлекательности предмета
+	double get_ilevel() const;    ///< О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	void set_ilevel(double ilvl);
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const ObjRnum _);
@@ -430,17 +430,17 @@ class CObjectPrototype {
 
 	BitsetFlags<EWearFlag> m_wear_flags;        // Where you can wear it     //
 
-	int m_timer;    ///< таймер (в минутах рл)
+	int m_timer;    ///< О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫)
 
-	skills_t m_skills;    ///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
+	skills_t m_skills;    ///< О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫"
 
-	int m_minimum_remorts;    ///< если > 0 - требование по минимальным мортам, проставленное в олц
+	int m_minimum_remorts;    ///< О©╫О©╫О©╫О©╫ > 0 - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫
 	std::string m_dgscript_field;
-	int m_cost;    ///< цена шмотки при продаже
-	int m_rent_on;    ///< стоимость ренты, если надета
-	int m_rent_off;    ///< стоимость ренты, если в инве
+	int m_cost;    ///< О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	int m_rent_on;    ///< О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	int m_rent_off;    ///< О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
 
-	double m_ilevel;    ///< расчетный уровень шмотки, не сохраняется
+	double m_ilevel;    ///< О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	bool m_in_extracted_list;
 	ObjVnum m_rnum;    ///< Where in data-base
 
@@ -484,7 +484,7 @@ class activation {
 		return !skills.empty();
 	}
 
-	// * @warning Предполагается, что __out_skills.empty() == true.
+	// * @warning О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ __out_skills.empty() == true.
 	void get_skills(CObjectPrototype::skills_t &__skills) const {
 		__skills.insert(skills.begin(), skills.end());
 	}
@@ -649,16 +649,16 @@ typedef std::map<int, set_info> id_to_set_info_map;
 // ObjData stores them as obj_affects::ObjAffects (see m_obj_affects); runtime lives in obj_affects.cpp.
 
 
-// метки для команды "нацарапать"
+// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫"
 struct custom_label {
  public:
 	custom_label() : text_label(nullptr), clan_abbrev(nullptr), author(-2), author_mail(nullptr) {}
 	~custom_label();
 
-	char *text_label; // текст
-	char *clan_abbrev;       // аббревиатура клана, если метка предназначена для клана
-	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
-	char *author_mail;// будем проверять по емейлу тоже
+	char *text_label; // О©╫О©╫О©╫О©╫О©╫
+	char *clan_abbrev;       // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+	int author;       // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ch->get_idnum(), О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -2
+	char *author_mail;// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 };
 
 inline custom_label::~custom_label() {
@@ -719,6 +719,10 @@ class ObjData : public CObjectPrototype {
 	bool is_affect_suppressed(EAffect aff) const { return obj_affects::IsEquipAffectSuppressed(this, aff); }
 	bool has_suppressed_affects() const { return !obj_affects::SuppressedEquipAffects(this).empty(); }
 	std::vector<std::pair<EAffect, int>> suppressed_equip_affects() const { return obj_affects::SuppressedEquipAffects(this); }
+	// issue.affect-suppression-dispell: lift the suppression of `aff` NOW (weave-restoration success) --
+	// erase the kSuppressed and, if worn, re-materialize the equipment affect on the wearer (same as the
+	// timer auto-return in process_periodic_effects). No-op if `aff` was not suppressed.
+	void release_suppression(EAffect aff);
 
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
@@ -811,7 +815,7 @@ class ObjData : public CObjectPrototype {
 	CharData *m_worn_by;    // Worn by?              //
 	short int m_worn_on;        // Worn where?          //
 
-	std::shared_ptr<custom_label> m_custom_label;        // наносимая чаром метка //
+	std::shared_ptr<custom_label> m_custom_label;        // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ //
 
 	ObjData *m_in_obj;    // In what object NULL when none    //
 	ObjData *m_contains;    // Contains objects                 //
@@ -827,11 +831,11 @@ class ObjData : public CObjectPrototype {
 	long  m_id;            // used by DG triggers              //
 	std::shared_ptr<Script> m_script;    // script info for the object       //
 
-	// порядковый номер в списке чаров (для name_list)
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫ name_list)
 	int m_serial_number;
-	// true - объект спуржен и ждет вызова delete для оболочки
+	// true - О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ delete О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	bool m_purged;
-	// для сообщений сетов <активировано или нет, размер активатора>
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ <О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫>
 	std::pair<bool, int> m_activator;
 
 	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
@@ -882,15 +886,15 @@ bool is_mob_item(const CObjectPrototype *obj);
 std::string char_get_custom_label(ObjData *obj, CharData *ch);
 
 namespace system_obj {
-/// кошелек для кун с игрока
+/// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 extern int PURSE_RNUM;
-/// персональное хранилище
+/// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 extern int PERS_CHEST_RNUM;
 void init();
 ObjData *create_purse(CharData *ch, int gold);
 bool is_purse(ObjData *obj);
 void process_open_purse(CharData *ch, ObjData *obj);
-// телеграм-бот
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫
 extern TelegramBot *bot;
 } // namespace system_obj
 

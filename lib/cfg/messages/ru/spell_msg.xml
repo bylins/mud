@@ -720,6 +720,14 @@
 		<message type="kCastPhraseHeathen" val="изыде порча" />
 		<message type="kCastPhraseChristian" val="... да простятся тебе прегрешения твои." />
 	</msg_sheaf>
+	<msg_sheaf id="kWeaveRestoration">
+		<name val="восстановить плетение" />
+		<message type="kAlterObjToChar" val="$o ярко вспыхнул$G, и подавленная магия вернулась." />
+		<message type="kObjResist" val="Плетение упорно сопротивляется восстановлению." />
+		<message type="kNoeffect" val="Здесь нет подавленной магии, которую можно было бы восстановить." />
+		<message type="kCastPhraseHeathen" val="возродись, сокрытое плетение" />
+		<message type="kCastPhraseChristian" val="... да вернется сила, что была сокрыта." />
+	</msg_sheaf>
 	<msg_sheaf id="kFly">
 		<name val="полет" />
 		<message type="kAlterObjToChar" val="$o вспыхнул$G зеленоватым светом и тут же погас$Q." />

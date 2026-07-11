@@ -408,7 +408,7 @@ bool Has(const ObjData *obj, EObjAffect type) {
 }
 
 // --- equipment-affect suppression (issue.obj-suppressor-affect) ---------------------------------------
-void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours) {
+void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours, float potency) {
 	if (hours <= 0) {
 		return;
 	}
@@ -417,6 +417,7 @@ void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours) {
 	for (auto &existing : list) {   // refresh an existing suppression of the same EAffect in place
 		if (existing->affect_type == EObjAffect::kSuppressed && existing->modifier == mod) {
 			existing->duration = hours;
+			existing->potency = std::max(existing->potency, potency);   // strongest suppressor wins
 			world_objects.decay_manager().add_periodic_obj(obj);
 			return;
 		}
@@ -426,8 +427,29 @@ void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours) {
 	a->location = EObjApply::kNone;
 	a->duration = hours;
 	a->modifier = mod;
+	a->potency = potency;
 	list.push_back(a);
 	world_objects.decay_manager().add_periodic_obj(obj);
+}
+
+ObjAffect::shared_ptr FirstSuppression(const ObjData *obj) {
+	for (const auto &a : obj->get_obj_affects()) {
+		if (a->affect_type == EObjAffect::kSuppressed) {
+			return a;
+		}
+	}
+	return nullptr;
+}
+
+void RemoveSuppression(ObjData *obj, EAffect aff) {
+	const int mod = to_underlying(aff);
+	auto &list = obj->get_obj_affects();
+	for (auto it = list.begin(); it != list.end(); ++it) {
+		if ((*it)->affect_type == EObjAffect::kSuppressed && (*it)->modifier == mod) {
+			list.erase(it);
+			return;
+		}
+	}
 }
 
 bool IsEquipAffectSuppressed(const ObjData *obj, EAffect aff) {
@@ -497,8 +519,10 @@ std::string Serialize(const ObjData *obj) {
 	std::stringstream out;
 	out << "OAff: ";
 	for (const auto &aff : list) {
+		// issue.affect-suppression-dispell: 4th field = potency (only kSuppressed uses it; the suppressing
+		// dispel's competence, contested by weave restoration). Old 3-field lines still load (potency 0).
 		out << NAME_BY_ITEM<EObjAffect>(aff->affect_type) << " "
-			<< aff->duration << " " << aff->modifier << "\n";
+			<< aff->duration << " " << aff->modifier << " " << aff->potency << "\n";
 	}
 	out << "~\n";
 	return out.str();

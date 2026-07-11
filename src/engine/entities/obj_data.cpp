@@ -689,6 +689,22 @@ void ObjData::process_periodic_effects() {
 	}
 }
 
+// issue.affect-suppression-dispell: manual counterpart of the timer auto-return above -- lift ONE
+// suppression on demand (weave-restoration success). Erase the kSuppressed and, if the item is worn and
+// the affect is no longer suppressed (e.g. not still held down on another worn set piece), re-materialize
+// the equipment affect on the wearer.
+void ObjData::release_suppression(EAffect aff) {
+	if (!obj_affects::IsEquipAffectSuppressed(this, aff)) {
+		return;
+	}
+	obj_affects::RemoveSuppression(this, aff);
+	if (m_worn_by && !obj_affects::IsEquipAffectSuppressed(this, aff)) {
+		MaterializeEquipmentAffect(m_worn_by, this, aff);
+		m_worn_by->obj_bonus().update(m_worn_by);
+		affect_total(m_worn_by);
+	}
+}
+
 void ObjData::attach_triggers(const triggers_list_t &trigs) {
 	for (auto it = trigs.begin(); it != trigs.end(); ++it) {
 		int rnum = GetTriggerRnum(*it);
