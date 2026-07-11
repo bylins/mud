@@ -413,20 +413,16 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
 	if (obj->has_suppressed_affects()) {
-		SendMsgToChar("Временно подавлены     : ", ch);
+		SendMsgToChar("Временно подавлены     :\r\n", ch);
 		SendMsgToChar(kColorCyn, ch);
-		std::string sup;
+		std::string sup;   // one affect per indented line (unreadable comma-joined with 2+)
 		for (const auto &pr : obj->suppressed_equip_affects()) {
-			if (!sup.empty()) {
-				sup += ", ";
-			}
 			char hbuf[96];
-			snprintf(hbuf, sizeof(hbuf), "%s (%d %s)",
+			snprintf(hbuf, sizeof(hbuf), "    %s (%d %s)\r\n",
 					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
 					grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
 			sup += hbuf;
 		}
-		sup += "\r\n";
 		SendMsgToChar(sup.c_str(), ch);
 		SendMsgToChar(kColorNrm, ch);
 	}

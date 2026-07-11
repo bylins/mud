@@ -49,18 +49,15 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		generic_find(arg, where_bits, ch, &supp_ch, &supp_obj);
 		const bool did_look = sight::look_at_target(ch, argument, subcmd);
 		if (supp_obj && supp_obj->has_suppressed_affects()) {
-			std::string note = "Временно подавлено волшебство: ";
-			bool first = true;
+			// One suppressed affect per indented line -- a single comma-joined line is unreadable with 2+.
+			std::string note = "Временно подавлено волшебство:\r\n";
 			for (const auto &pr : supp_obj->suppressed_equip_affects()) {
-				if (!first) { note += ", "; }
-				first = false;
 				char hbuf[96];
-				snprintf(hbuf, sizeof(hbuf), "%s (%d %s)",
+				snprintf(hbuf, sizeof(hbuf), "    %s (%d %s)\r\n",
 						affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
 						grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
 				note += hbuf;
 			}
-			note += "\r\n";
 			SendMsgToChar(note, ch);
 		}
 		if (did_look) {
