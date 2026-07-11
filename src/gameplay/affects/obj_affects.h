@@ -26,6 +26,8 @@
 #include <list>
 #include <map>
 #include <string>
+#include <utility>
+#include <vector>
 
 class ObjData;
 class CharData;
@@ -45,7 +47,9 @@ enum class EObjAffect : Bitvector {
 	kFly = 5,			// item floats / does not sink (flag kFlying)
 	kLight = 6,			// item glows                  (flag kGlow)
 	kDartTrap = 7,		// a trap: on pick/open it blocks the action, damages + poisons the actor (no flag)
-	kCount = 8,
+	kSuppressed = 8,	// an equipment affect this item confers is dispel-suppressed (no flag, not player-
+						// dispellable): modifier = to_underlying(EAffect suppressed), duration = remaining game-hours
+	kCount = 9,
 };
 
 // Apply-location placeholder for Affect<EObjApply>. Obj affects do not use EApply-style stat
@@ -120,6 +124,18 @@ void SpendCharge(ObjData *obj, EObjAffect type);
 [[nodiscard]] bool Has(const ObjData *obj, EObjAffect type);
 // The poison ESpell on a weapon (kUndefined if none) -- the kPoisoned affect's combat subtype.
 [[nodiscard]] ESpell PoisonSpell(const ObjData *obj);
+
+// --- equipment-affect suppression (issue.obj-suppressor-affect) ------------------------------------
+// A dispel that lands on an equipment-conferred affect drops it on the source item for a time, then it
+// auto-returns. Modelled as one kSuppressed obj-affect per suppressed EAffect (modifier = the EAffect,
+// duration = game-hours), so it serializes/ticks with every other obj-affect. Multi-instance is keyed by
+// modifier -- kept separate from the one-per-type Impose/Find used by the flag affects.
+// Add/refresh a suppression of `aff` for `hours` game-hours (no-op for hours <= 0).
+void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours);
+// Whether `aff` is currently suppressed on this item.
+[[nodiscard]] bool IsEquipAffectSuppressed(const ObjData *obj, EAffect aff);
+// (EAffect, remaining game-hours) for every suppression on the item (for identify display).
+[[nodiscard]] std::vector<std::pair<EAffect, int>> SuppressedEquipAffects(const ObjData *obj);
 
 // Examine/identify diagnostic text for all affects on the item (one line per affect, timer appended).
 // `viewer` gates which affects are shown (see SeeAffect); pass nullptr to show them all (god stat).

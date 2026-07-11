@@ -27,7 +27,7 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sight::show_obj_to_char(GET_EQ(ch, i), ch, 1, true, 1);
 				if (!brief && GET_EQ(ch, i)->has_suppressed_affects()) {
 					SendMsgToChar("        &Gволшебство подавлено:&n\r\n", ch);
-					for (const auto &pr : GET_EQ(ch, i)->suppressed_affects()) {
+					for (const auto &pr : GET_EQ(ch, i)->suppressed_equip_affects()) {
 						char line[128];
 						snprintf(line, sizeof(line), "            &G%s (%d %s)&n\r\n",
 								affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,

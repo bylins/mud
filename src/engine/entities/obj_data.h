@@ -713,12 +713,12 @@ class ObjData : public CObjectPrototype {
 	obj_affects::ObjAffects &get_obj_affects() { return m_obj_affects; }
 	bool has_obj_affects() const { return !m_obj_affects.empty(); }
 
-	// issue.equipment-affect-suppression: equipment affects this item confers but that are temporarily
-	// suppressed by an unaffect spell (affect_total skips them while suppressed). Runtime-only.
-	bool is_affect_suppressed(EAffect aff) const { return m_suppressed_affects.find(aff) != m_suppressed_affects.end(); }
-	bool has_suppressed_affects() const { return !m_suppressed_affects.empty(); }
-	const std::map<EAffect, int> &suppressed_affects() const { return m_suppressed_affects; }
-	void suppress_affect(EAffect aff, int time);
+	// issue.obj-suppressor-affect: equipment affects this item confers but that are temporarily suppressed
+	// by a dispel (affect_total skips them while suppressed). Backed by kSuppressed obj-affects, so they
+	// persist across rent/relog and tick with every other obj-affect; the API lives in obj_affects.h.
+	bool is_affect_suppressed(EAffect aff) const { return obj_affects::IsEquipAffectSuppressed(this, aff); }
+	bool has_suppressed_affects() const { return !obj_affects::SuppressedEquipAffects(this).empty(); }
+	std::vector<std::pair<EAffect, int>> suppressed_equip_affects() const { return obj_affects::SuppressedEquipAffects(this); }
 
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
@@ -823,9 +823,6 @@ class ObjData : public CObjectPrototype {
 	int m_craft_timer;
 
 	obj_affects::ObjAffects m_obj_affects;    ///< issue.obj-affects: affects on this item
-	// issue.equipment-affect-suppression: EAffect -> remaining suppression timer (minutes,
-	// TimedSpell cadence). Runtime-only, never serialized.
-	std::map<EAffect, int> m_suppressed_affects;
 
 	long  m_id;            // used by DG triggers              //
 	std::shared_ptr<Script> m_script;    // script info for the object       //

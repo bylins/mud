@@ -416,7 +416,7 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 		SendMsgToChar("Временно подавлены     : ", ch);
 		SendMsgToChar(kColorCyn, ch);
 		std::string sup;
-		for (const auto &pr : obj->suppressed_affects()) {
+		for (const auto &pr : obj->suppressed_equip_affects()) {
 			if (!sup.empty()) {
 				sup += ", ";
 			}

@@ -439,7 +439,13 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 					} catch (const std::out_of_range &) {
 						continue;   // unknown token (e.g. a retired affect): skip
 					}
-					obj_affects::Impose(object.get(), a, dur, mod);
+					if (a == obj_affects::EObjAffect::kSuppressed) {
+						// issue.obj-suppressor-affect: an item can suppress several EAffects at once (one
+						// kSuppressed instance each) -- append by modifier, not the one-per-type Impose.
+						obj_affects::SuppressEquipAffect(object.get(), static_cast<EAffect>(mod), dur);
+					} else {
+						obj_affects::Impose(object.get(), a, dur, mod);
+					}
 				}
 			} else if (!strcmp(read_line, "Mort")) {
 				*error = 51;

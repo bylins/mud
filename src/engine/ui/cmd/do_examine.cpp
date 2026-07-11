@@ -51,7 +51,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (supp_obj && supp_obj->has_suppressed_affects()) {
 			std::string note = "Временно подавлено волшебство: ";
 			bool first = true;
-			for (const auto &pr : supp_obj->suppressed_affects()) {
+			for (const auto &pr : supp_obj->suppressed_equip_affects()) {
 				if (!first) { note += ", "; }
 				first = false;
 				char hbuf[96];

@@ -2245,7 +2245,7 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
 			ObjData *obj = GET_EQ(victim, i);
 			if (obj && obj_sets::is_set_item(obj)) {
-				obj->suppress_affect(affect_type, kEquipmentAffectSuppressHours);
+				obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours);
 				any = true;
 			}
 		}
@@ -2261,7 +2261,7 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type) {
 	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
 		ObjData *obj = GET_EQ(victim, i);
 		if (obj && obj->get_id() == src_id) {
-			obj->suppress_affect(affect_type, kEquipmentAffectSuppressHours);
+			obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours);
 			// The affect's own dispel narration already fired; tell the wearer when the item magic returns.
 			snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
 					 kEquipmentAffectSuppressHours,

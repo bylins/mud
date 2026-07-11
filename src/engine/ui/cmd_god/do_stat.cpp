@@ -785,7 +785,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	if (j->has_suppressed_affects()) {
 		SendMsgToChar("Подавленные аффекты   : ", ch);
 		std::string sup;
-		for (const auto &pr : j->suppressed_affects()) {
+		for (const auto &pr : j->suppressed_equip_affects()) {
 			char one[128];
 			snprintf(one, sizeof(one), "%s%s (%d %s)", sup.empty() ? "" : ", ",
 					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,

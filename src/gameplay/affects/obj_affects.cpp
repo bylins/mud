@@ -41,6 +41,7 @@ void init_obj_affect_names() {
 		{EObjAffect::kFly, "kFly"},
 		{EObjAffect::kLight, "kLight"},
 		{EObjAffect::kDartTrap, "kDartTrap"},
+		{EObjAffect::kSuppressed, "kSuppressed"},
 	};
 	for (const auto &[value, token] : g_obj_affect_name_by_value) {
 		g_obj_affect_value_by_name.emplace(token, value);
@@ -86,6 +87,7 @@ void ensure_meta() {
 	set(EObjAffect::kFly, true, EObjFlag::kFlying, true, ECase::kGen, EAffect::kUndefined);
 	set(EObjAffect::kLight, true, EObjFlag::kGlow, true, ECase::kGen, EAffect::kUndefined);
 	set(EObjAffect::kDartTrap, false, EObjFlag::kGlow, true, ECase::kGen, EAffect::kDetectMagic);
+	set(EObjAffect::kSuppressed, false, EObjFlag::kGlow, false, ECase::kGen, EAffect::kUndefined);
 	g_meta_loaded = true;
 }
 
@@ -398,6 +400,49 @@ bool Has(const ObjData *obj, EObjAffect type) {
 	return false;
 }
 
+// --- equipment-affect suppression (issue.obj-suppressor-affect) ---------------------------------------
+void SuppressEquipAffect(ObjData *obj, EAffect aff, int hours) {
+	if (hours <= 0) {
+		return;
+	}
+	const int mod = to_underlying(aff);
+	auto &list = obj->get_obj_affects();
+	for (auto &existing : list) {   // refresh an existing suppression of the same EAffect in place
+		if (existing->affect_type == EObjAffect::kSuppressed && existing->modifier == mod) {
+			existing->duration = hours;
+			world_objects.decay_manager().add_periodic_obj(obj);
+			return;
+		}
+	}
+	auto a = std::make_shared<ObjAffect>();   // one kSuppressed instance per suppressed EAffect
+	a->affect_type = EObjAffect::kSuppressed;
+	a->location = EObjApply::kNone;
+	a->duration = hours;
+	a->modifier = mod;
+	list.push_back(a);
+	world_objects.decay_manager().add_periodic_obj(obj);
+}
+
+bool IsEquipAffectSuppressed(const ObjData *obj, EAffect aff) {
+	const int mod = to_underlying(aff);
+	for (const auto &a : obj->get_obj_affects()) {
+		if (a->affect_type == EObjAffect::kSuppressed && a->modifier == mod) {
+			return true;
+		}
+	}
+	return false;
+}
+
+std::vector<std::pair<EAffect, int>> SuppressedEquipAffects(const ObjData *obj) {
+	std::vector<std::pair<EAffect, int>> out;
+	for (const auto &a : obj->get_obj_affects()) {
+		if (a->affect_type == EObjAffect::kSuppressed) {
+			out.emplace_back(static_cast<EAffect>(a->modifier), a->duration);
+		}
+	}
+	return out;
+}
+
 ESpell PoisonSpell(const ObjData *obj) {
 	for (const auto &aff : obj->get_obj_affects()) {
 		if (aff->affect_type == EObjAffect::kPoisoned) {
@@ -411,6 +456,9 @@ std::string Diag(const ObjData *obj, const CharData *viewer) {
 	std::string out;
 	for (const auto &aff : obj->get_obj_affects()) {
 		const EObjAffect type = aff->affect_type;
+		if (type == EObjAffect::kSuppressed) {   // meta-affect: never a displayable item property
+			continue;
+		}
 		// visibility: a normal inspector sees the affect only if they carry SeeAffect(type) (kUndefined =
 		// always, e.g. fly/light). A null viewer (god `stat`) or an immortal sees every affect.
 		const EAffect need = SeeAffect(type);

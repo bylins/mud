@@ -660,22 +660,25 @@ void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type)
 void affect_total(CharData *ch);   // set-affect auto-return recompute
 
 void ObjData::process_periodic_effects() {
+	// issue.obj-suppressor-affect: snapshot equipment-affect suppressions before ticking; obj_affects::Tick
+	// counts down + erases expired kSuppressed obj-affects like any other, so the ones that vanish this tick
+	// are the ones whose timer just ran out -- auto-return them on the wearer.
+	std::vector<EAffect> suppressed_before;
+	for (const auto &pr : obj_affects::SuppressedEquipAffects(this)) {
+		suppressed_before.push_back(pr.first);
+	}
 	if (has_obj_affects()) {
 		obj_affects::Tick(this, 1);
 	}
-	if (!m_suppressed_affects.empty()) {
-		std::vector<EAffect> expired;
-		for (auto it = m_suppressed_affects.begin(); it != m_suppressed_affects.end();) {
-			if (--(it->second) <= 0) {
-				expired.push_back(it->first);
-				it = m_suppressed_affects.erase(it);
-			} else {
-				++it;
+	if (m_worn_by && !suppressed_before.empty()) {
+		std::vector<EAffect> returned;
+		for (const EAffect aff : suppressed_before) {
+			if (!obj_affects::IsEquipAffectSuppressed(this, aff)) {
+				returned.push_back(aff);   // its suppression timer expired this tick
 			}
 		}
-		// Auto-return: re-materialize each expired affect on the wearer (only if still worn).
-		if (m_worn_by) {
-			for (const auto aff : expired) {
+		if (!returned.empty()) {
+			for (const EAffect aff : returned) {
 				MaterializeEquipmentAffect(m_worn_by, this, aff);   // item-own affect (no-op for a set affect)
 			}
 			// Set affects have no single owner: re-run the set reconcile so a now-unsuppressed set affect
@@ -841,14 +844,6 @@ void ObjData::set_activator(bool flag, int num) {
 
 std::pair<bool, int> ObjData::get_activator() const {
 	return m_activator;
-}
-
-void ObjData::suppress_affect(const EAffect aff, const int time) {
-	if (time <= 0) {
-		return;
-	}
-	m_suppressed_affects[aff] = time;
-	world_objects.decay_manager().add_periodic_obj(this);   // tick in the periodic-effects loop
 }
 
 void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {

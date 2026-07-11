@@ -43,4 +43,8 @@
 			</action>
 		</actions>
 	</obj_affect>
+	<!-- issue.obj-suppressor-affect: a dispel that lands on an equipment-conferred affect drops it
+	     here for a time (modifier = the suppressed EAffect); no flag, hidden on examine, and NOT
+	     player-dispellable (it is itself the result of a dispel). -->
+	<obj_affect id="kSuppressed" dispellable="0" see_affect="kUndefined"/>
 </obj_affects>
