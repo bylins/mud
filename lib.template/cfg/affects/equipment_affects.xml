@@ -36,6 +36,9 @@
 	<affect id="kPoison">
 		<impose flag="kUndefined" spell="kPoison" power_percent="60"/>
 	</affect>
+	<!-- kProtectFromDark / kProtectFromMind (retired bits 11-12) were intentionally removed and do NOT
+	     need to be restored here. They were resist parameters, not on/off affects: grant the resistance
+	     directly through the item's EApply system (EApply::kResistDark / kResistMind). -->
 	<affect id="kSleep">
 		<impose flag="kUndefined" spell="kSleep" power_percent="60"/>
 	</affect>

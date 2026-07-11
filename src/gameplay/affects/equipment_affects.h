@@ -29,9 +29,11 @@ enum class EEquipmentAffect : Bitvector {
 	kCurse = (1 << 8),
 	kInfravision = (1 << 9),
 	kPoison = (1 << 10),			//10
-	// bits 11-12 retired: kProtectFromDark/kProtectFromMind were EApply resist parameters
-	// (set via the item's apply menu, EApply::kResistDark/kResistMind), not on/off affects.
-	// Do NOT reuse these bit positions -- old object data may still carry them.
+	// bits 11-12 INTENTIONALLY removed and NOT to be restored: kProtectFromDark/kProtectFromMind were
+	// never on/off affects but EApply resist parameters. Grant the resistance directly through the item's
+	// EApply system (EApply::kResistDark / kResistMind on the apply menu) -- that is how objects still
+	// carrying these retired bits should be fixed. Do NOT reuse bit positions 11-12 (old object data
+	// may still carry them).
 	kSleep = (1 << 13),
 	kNoTrack = (1 << 14),
 	kBless = (1 << 15),
