@@ -102,7 +102,7 @@ struct EquipmentAffect {
 	int power_percent{100};   // <impose power_percent=>; scales pipeline skill/stat (=> modifier + potency)
 };
 
-// issue.equipment-affects-cfg: loaded from cfg/equipment_affects.xml at boot (was a hardcoded table).
+// issue.equipment-affects-cfg: loaded from cfg/affects/equipment_affects.xml at boot (was a hardcoded table).
 extern std::vector<EquipmentAffect> equipment_affect;
 
 // issue.equipment-affects-improve: the apply bridge (EEquipmentAffect -> {EApply, magnitude}) and

@@ -857,7 +857,7 @@ bool FindByShortDesc(const std::string &name, EAffect &out) {
 void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
 void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
 
-// issue.vedun-editor: in-game editing of cfg/affects.xml.
+// issue.vedun-editor: in-game editing of cfg/affects/affects.xml.
 std::string AffectsLoader::EditableWhat() const { return "affects"; }
 
 std::vector<cfg_manager::EditableElement> AffectsLoader::ListElements() const {

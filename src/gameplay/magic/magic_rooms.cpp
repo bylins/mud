@@ -26,7 +26,7 @@
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
-// --- issue.affect-migration: room-affect registry name maps (cfg/room_affects.xml) -----------------
+// --- issue.affect-migration: room-affect registry name maps (cfg/affects/room_affects.xml) -----------------
 // Mirrors the EAffect name maps in affect_contants.cpp. kUndefined (sentinel) and kCount (terminal)
 // are excluded -- only real room affects get a row.
 namespace {
@@ -303,7 +303,7 @@ const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type) {
 void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
 void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
 
-// issue.vedun-editor: in-game editing of cfg/room_affects.xml.
+// issue.vedun-editor: in-game editing of cfg/affects/room_affects.xml.
 std::string RoomAffectsLoader::EditableWhat() const { return "room_affects"; }
 
 std::vector<cfg_manager::EditableElement> RoomAffectsLoader::ListElements() const {

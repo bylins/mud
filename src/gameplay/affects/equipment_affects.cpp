@@ -86,7 +86,7 @@ const std::string &NAME_BY_ITEM(const EEquipmentAffect item) {
 	return EEquipmentAffectFlag_name_by_value.at(item);
 }
 
-// issue.equipment-affects-cfg: populated by EquipmentAffectsLoader from cfg/equipment_affects.xml.
+// issue.equipment-affects-cfg: populated by EquipmentAffectsLoader from cfg/affects/equipment_affects.xml.
 std::vector<EquipmentAffect> equipment_affect;
 
 // issue.equipment-affects-improve: apply bridge moved verbatim from affect_data.cpp.
@@ -102,7 +102,7 @@ static std::vector<const char *> g_equipment_affect_name_ptrs;
 static const char *g_empty_equipment_affect_names[] = {"\n", "\n", "\n", "\n"};
 const char **equipment_affects = g_empty_equipment_affect_names;
 
-// issue.equipment-affects-cfg: build the equipment_affect table from cfg/equipment_affects.xml.
+// issue.equipment-affects-cfg: build the equipment_affect table from cfg/affects/equipment_affects.xml.
 void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 	std::vector<EquipmentAffect> table;
 	for (auto &node : data.Children()) {

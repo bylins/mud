@@ -1,5 +1,5 @@
 /**
- \brief CfgManager loader for cfg/equipment_affects.xml -- the equipment_affect table
+ \brief CfgManager loader for cfg/affects/equipment_affects.xml -- the equipment_affect table
  (issue.equipment-affects-cfg). Kept out of equipment_affects.h so the low-level enum header
  (included by obj_data.h) does not pull in cfg_manager.
 */

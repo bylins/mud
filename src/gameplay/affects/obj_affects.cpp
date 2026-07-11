@@ -23,7 +23,7 @@
 // issue.obj-affects: core type layer for affects that live ON an item. See obj_affects.h for the
 // design. This TU owns the identity name maps, the legacy ESpell->EObjAffect migration table, and the
 // per-affect registry (which extra-flag the affect owns + whether it is player-dispellable). The
-// registry is populated from cfg/obj_affects.xml by ObjAffectsLoader (BuildRegistry); until then the
+// registry is populated from cfg/affects/obj_affects.xml by ObjAffectsLoader (BuildRegistry); until then the
 // built-in defaults below apply.
 
 namespace obj_affects {
@@ -63,14 +63,14 @@ std::array<ObjAffectMeta, to_underlying(EObjAffect::kCount)> g_meta;
 bool g_meta_loaded = false;
 
 // Per-affect <actions> (each action gated by its <trigger>), keyed by EObjAffect. Built from
-// cfg/obj_affects.xml by BuildRegistry via Actions::Build; empty for affects that declare none.
+// cfg/affects/obj_affects.xml by BuildRegistry via Actions::Build; empty for affects that declare none.
 std::array<talents_actions::Actions, to_underlying(EObjAffect::kCount)> g_obj_affect_actions;
 
 void ensure_meta() {
 	if (g_meta_loaded) {
 		return;
 	}
-	// Built-in defaults (cfg/obj_affects.xml overrides these via BuildRegistry).
+	// Built-in defaults (cfg/affects/obj_affects.xml overrides these via BuildRegistry).
 	using grammar::ECase;
 	auto set = [](EObjAffect a, bool has_flag, EObjFlag flag, bool dispellable, ECase c, EAffect see) {
 		auto &m = g_meta[to_underlying(a)];
@@ -123,7 +123,7 @@ EObjAffect BySpell(ESpell spell) {
 	}
 }
 
-// --- cfg/obj_affects.xml registry build --------------------------------------------------------------
+// --- cfg/affects/obj_affects.xml registry build --------------------------------------------------------------
 namespace {
 void ValidateRegistry(parser_wrapper::DataNode data) {
 	std::set<std::string> seen;
@@ -223,7 +223,7 @@ const talents_actions::Actions &ObjAffectActions(EObjAffect affect) {
 void ObjAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRegistry(data); BuildRegistry(data); }
 void ObjAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRegistry(data); BuildRegistry(data); }
 
-// issue.obj-affects: in-game editing of cfg/obj_affects.xml (`vedun obj_affects`).
+// issue.obj-affects: in-game editing of cfg/affects/obj_affects.xml (`vedun obj_affects`).
 std::string ObjAffectsLoader::EditableWhat() const { return "obj_affects"; }
 
 std::vector<cfg_manager::EditableElement> ObjAffectsLoader::ListElements() const {

@@ -1,5 +1,5 @@
 /**
- \brief issue.ext-affects: cfg loader for affect data (cfg/affects.xml).
+ \brief issue.ext-affects: cfg loader for affect data (cfg/affects/affects.xml).
  \details Phase 1 (Names pilot) loads the per-affect short display names that feed sprintbits via the
 		  EAffect bit, replacing the hand-maintained positionally-coupled affected_bits[] literal. The
 		  EAffect enum itself stays in C++ (it is the identity, used in AFF_FLAGGED/switch everywhere);
@@ -13,11 +13,11 @@
 
 namespace affects {
 
-class AffectsLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "affects" -> cfg/affects.xml
+class AffectsLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "affects" -> cfg/affects/affects.xml
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
-	// issue.vedun-editor: in-game editing of cfg/affects.xml (`vedun affects`). Elements are keyed by
+	// issue.vedun-editor: in-game editing of cfg/affects/affects.xml (`vedun affects`). Elements are keyed by
 	// the <affect id=> (EAffect token), so the default FindElementNode (child-by-id) is reused.
 	[[nodiscard]] std::string EditableWhat() const final;
 	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;

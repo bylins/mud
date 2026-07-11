@@ -353,7 +353,7 @@ EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name);
 template<>
 const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>();  // issue.vedun-editor: editor enum pick-list
 
-// issue.ext-affects: built at boot from cfg/affects.xml (see affects_loader.h), indexed positionally by
+// issue.ext-affects: built at boot from cfg/affects/affects.xml (see affects_loader.h), indexed positionally by
 // the EAffect bit so sprintbits keeps working unchanged; null until the "affects" cfg is loaded.
 extern const char *apply_types[];
 

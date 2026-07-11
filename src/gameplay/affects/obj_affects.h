@@ -12,7 +12,7 @@
 // the room-affect subsystem in magic_rooms.h): an obj affect is a real Affect<EObjApply> with the full
 // parameter set (duration -1 or computed, modifier, caster_id, potency, ...), stored in a per-item list.
 //
-// Each obj affect optionally OWNS an object extra-flag (EObjFlag), declared in cfg/obj_affects.xml. On
+// Each obj affect optionally OWNS an object extra-flag (EObjFlag), declared in cfg/affects/obj_affects.xml. On
 // impose the affect sets that flag on the item instance; on expiry/dispel it is cleared ONLY if the
 // item's PROTOTYPE does not carry the flag innately (an innate flag is a permanent property of the item
 // and must survive). The flag is a separate entity from the affect: consumers keep reading the flag.
@@ -73,7 +73,7 @@ using ObjAffect = Affect<EObjApply>;
 using ObjAffects = std::list<ObjAffect::shared_ptr>;
 using ObjAffectIt = ObjAffects::iterator;
 
-// --- per-affect registry (cfg/obj_affects.xml, filled by ObjAffectsLoader; built-in defaults until) ---
+// --- per-affect registry (cfg/affects/obj_affects.xml, filled by ObjAffectsLoader; built-in defaults until) ---
 // The extra-flag this affect owns while active. Returns false / kGlow(unused) when the affect owns no
 // flag (e.g. kPoisoned). Consumers should gate on HasFlag first.
 [[nodiscard]] bool HasFlag(EObjAffect affect);
@@ -86,10 +86,10 @@ using ObjAffectIt = ObjAffects::iterator;
 // The affect the inspecting character must carry to SEE this affect on a normal examine (kUndefined =
 // always visible, e.g. fly/light). Immortals and the god `stat` command bypass the gate.
 [[nodiscard]] EAffect SeeAffect(EObjAffect affect);
-// The affect's own <actions> (each gated by its <trigger>), parsed from cfg/obj_affects.xml; empty when
+// The affect's own <actions> (each gated by its <trigger>), parsed from cfg/affects/obj_affects.xml; empty when
 // the affect declares none. Mirrors room_spells::RoomAffectActions. Fired by the trigger dispatchers.
 [[nodiscard]] const talents_actions::Actions &ObjAffectActions(EObjAffect affect);
-// Rebuild the registry from a parsed cfg/obj_affects.xml document (see ObjAffectsLoader).
+// Rebuild the registry from a parsed cfg/affects/obj_affects.xml document (see ObjAffectsLoader).
 void BuildRegistry(parser_wrapper::DataNode data);
 
 // --- legacy on-disk migration (old obj save format stored ESpell in the "TSpl" tag) -------------------
