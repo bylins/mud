@@ -86,6 +86,10 @@ struct flag_index_mapping<EEquipmentAffect> {
 };
 template<>
 const std::string &NAME_BY_ITEM(EEquipmentAffect item);
+// issue.equipment-affects-vedun: full (value,name) map so the enum can be registered with the
+// Vedun EnumRegistry (equipment_affects.scheme id pick-list) and iterated by ListElements.
+template<>
+const std::map<EEquipmentAffect, std::string> &NAMES_OF<EEquipmentAffect>();
 
 enum class EAffect : Bitvector;   // forward decl (full def in affect_contants.h, which includes this header)
 // issue.equipment-affects-improve: <impose timer=>. Absent = spell-driven (standard duration);

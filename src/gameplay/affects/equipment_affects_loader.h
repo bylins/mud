@@ -9,10 +9,15 @@
 
 #include "engine/boot/cfg_manager.h"
 
-class EquipmentAffectsLoader : public cfg_manager::ICfgLoader {
+class EquipmentAffectsLoader : public cfg_manager::IEditableCfgLoader {  // cfg "equipment_affects" -> cfg/affects/equipment_affects.xml
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.equipment-affects-vedun: in-game editing (`vedun equipment_affects`). Keyed by the
+	// <affect id=> (EEquipmentAffect token); the default FindElementNode (child-by-id) is reused.
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
 // Loads cfg/messages/ru/equipment_affect_msg.xml (flat, keyed by affect id) and rebuilds the

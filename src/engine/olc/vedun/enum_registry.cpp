@@ -24,6 +24,7 @@
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
 #include "gameplay/magic/magic_rooms.h"       // room_spells::ERoomAffect + NAMES_OF
 #include "gameplay/affects/obj_affects.h"     // obj_affects::EObjAffect + NAMES_OF
+#include "gameplay/affects/equipment_affects.h"  // EEquipmentAffect + NAMES_OF
 #include "gameplay/skills/skills.h"           // ESkill + NAMES_OF
 #include "engine/core/config.h"               // ECommonMsg + NAMES_OF
 
@@ -96,6 +97,7 @@ void RegisterEditorEnums() {
 	registry.Register<fight::EFightMsg>("EFightMsg");
 	registry.Register<room_spells::ERoomAffect>("ERoomAffect");   // issue.room-affect-trigger-improve: room_affects scheme
 	registry.Register<obj_affects::EObjAffect>("EObjAffect");     // issue.obj-affects: obj_affects scheme
+	registry.Register<EEquipmentAffect>("EEquipmentAffect");      // issue.equipment-affects-vedun: equipment_affects scheme
 	// EObjFlag has no NAMES_OF map; register the obj-affect-relevant subset for the <obj_affect flag=> menu.
 	registry.RegisterNames("EObjAffectFlag", {"kGlow", "kInvisible", "kNodrop", "kBless", "kFlying", "kPoisoned"});
 	registry.RegisterNames("ECase", {"kNom", "kGen", "kDat", "kAcc", "kIns", "kPre"});

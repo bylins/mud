@@ -11,6 +11,8 @@
 #include "gameplay/affects/equipment_affects_loader.h"
 #include "utils/utils_parse.h"
 
+#include <stdexcept>                              // std::out_of_range (Validate)
+
 typedef std::map<EEquipmentAffect, std::string> EEquipmentAffectFlag_name_by_value_t;
 typedef std::map<const std::string, EEquipmentAffect> EEquipmentAffectFlag_value_by_name_t;
 EEquipmentAffectFlag_name_by_value_t EEquipmentAffectFlag_name_by_value;
@@ -86,6 +88,16 @@ const std::string &NAME_BY_ITEM(const EEquipmentAffect item) {
 	return EEquipmentAffectFlag_name_by_value.at(item);
 }
 
+// issue.equipment-affects-vedun: the full (value,name) map -- registered with the Vedun EnumRegistry
+// and iterated by EquipmentAffectsLoader::ListElements.
+template<>
+const std::map<EEquipmentAffect, std::string> &NAMES_OF() {
+	if (EEquipmentAffectFlag_name_by_value.empty()) {
+		init_EEquipmentAffectFlag_ITEM_NAMES();
+	}
+	return EEquipmentAffectFlag_name_by_value;
+}
+
 // issue.equipment-affects-cfg: populated by EquipmentAffectsLoader from cfg/affects/equipment_affects.xml.
 std::vector<EquipmentAffect> equipment_affect;
 
@@ -136,6 +148,44 @@ void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 
 void EquipmentAffectsLoader::Reload(parser_wrapper::DataNode data) {
 	Load(std::move(data));
+}
+
+// issue.equipment-affects-vedun: `vedun equipment_affects` -- keyed by the <affect id=> (EEquipmentAffect
+// token); the default FindElementNode (child-by-id) is reused.
+std::string EquipmentAffectsLoader::EditableWhat() const { return "equipment_affects"; }
+
+std::vector<cfg_manager::EditableElement> EquipmentAffectsLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &[ea, token] : NAMES_OF<EEquipmentAffect>()) {
+		out.push_back({token, token});
+	}
+	return out;
+}
+
+// Dry-run on save: the .scheme constrains the editor's pick-lists (EEquipmentAffect / EAffect / ESpell);
+// this re-checks the identity + imposed flag against the enum maps so a bad value never reaches the file.
+cfg_manager::ValidationResult EquipmentAffectsLoader::Validate(parser_wrapper::DataNode &doc) const {
+	for (auto &node : doc.Children("affect")) {
+		const char *id = node.GetValue("id");
+		if (!id || !*id) {
+			return {false, "<affect> without an id."};
+		}
+		try {
+			(void) ITEM_BY_NAME<EEquipmentAffect>(id);
+		} catch (const std::out_of_range &) {
+			return {false, std::string("unknown equipment affect id '") + id + "'."};
+		}
+		for (auto &imp : node.Children("impose")) {
+			if (const char *flag = imp.GetValue("flag"); flag && *flag) {
+				try {
+					(void) ITEM_BY_NAME<EAffect>(std::string(flag));
+				} catch (const std::out_of_range &) {
+					return {false, std::string("unknown affect flag '") + flag + "' for '" + id + "'."};
+				}
+			}
+		}
+	}
+	return {true, ""};
 }
 
 // issue.equipment-affects-cfg: rebuild the plane-padded equipment_affects[] name array from the flat
