@@ -147,4 +147,6 @@
     <spell id="kGeneralRecovery" level="27" runes="217|209|210|242"/>
     <spell id="kClod" level="27" runes="240|222|242"/>
     <spell id="kWhirlwind" level="27" runes="240|245|242"/>
+    <spell id="kAegisRift" level="18" runes="220|208|242|223"/>
+    <spell id="kUnweave" level="12" runes="206|245|229"/>
 </rune_spells>
