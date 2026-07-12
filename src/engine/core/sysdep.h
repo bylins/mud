@@ -202,7 +202,9 @@ extern void abort(), exit();
 // его явно. Остальные TU не платят за эти заголовки в препроцессинге.
 
 // Basic system dependencies ******************************************
-#if !defined(__GNUC__)
+#if !defined(__GNUC__) && !defined(__clang__)
+// clang-cl defines _MSC_VER but not __GNUC__, yet it fully supports __attribute__ -- and no-oping
+// it here would strip __vector_size__ from clang's own intrinsic headers (mmintrin.h via <vector>).
 #define __attribute__(x)	// nothing //
 #endif
 #if defined(__MWERKS__)
