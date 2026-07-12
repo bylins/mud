@@ -67,7 +67,10 @@ if cpp.get_id() == 'clang'
 endif
 
 cpu = host_machine.cpu_family()
-if cpp.get_id() != 'msvc'
+# GNU-driver compilers only. clang-cl (get_id()=='clang-cl') takes its arch from the MSVC
+# environment; handing it the GNU -m64 flag confused the target and stripped __vector_size__
+# from clang's own intrinsic types (mmintrin.h). MSVC/clang-cl use get_argument_syntax()=='msvc'.
+if cpp.get_argument_syntax() != 'msvc'
     if cpu == 'x86_64'
         project_args += '-m64'
     elif cpu == 'x86'
