@@ -76,7 +76,7 @@ if cpp.get_id() != 'msvc'
 endif
 
 if host_system == 'windows'
-    if cpp.get_id() == 'msvc' or (cpp.get_id() == 'clang' and cpp.get_argument_syntax() == 'msvc')
+    if cpp.get_argument_syntax() == 'msvc'   # MSVC and clang-cl (both use MSVC-style /source-charset)
         project_args += [
             '/source-charset:koi8-r',
             '/execution-charset:koi8-r',
