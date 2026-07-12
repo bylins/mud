@@ -2241,20 +2241,13 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double
 	}
 	char msg[kMaxStringLength];
 	if (is_set) {
-		bool any = false;
+		// issue.affect-suppression-dispell: no separate "set magic suppressed" line -- the affect's own
+		// dispel narration already told the wearer the effect was removed (message was redundant).
 		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
 			ObjData *obj = GET_EQ(victim, i);
 			if (obj && obj_sets::is_set_item(obj)) {
 				obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours, static_cast<float>(competence));
-				any = true;
 			}
-		}
-		if (any) {
-			snprintf(msg, sizeof(msg), "Магия набора предметов рассеяна и восстановится через %d %s.",
-					 kEquipmentAffectSuppressHours,
-					 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));
-			SendMsgToChar(msg, victim);
-			SendMsgToChar("\r\n", victim);
 		}
 		return;
 	}
