@@ -22,6 +22,7 @@
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
+#include "gameplay/affects/affect_messages.h"  // EAffectMsgType + NAMES_OF (affect_msg scheme)
 #include "gameplay/magic/magic_rooms.h"       // room_spells::ERoomAffect + NAMES_OF
 #include "gameplay/skills/skills.h"           // ESkill + NAMES_OF
 #include "engine/core/config.h"               // ECommonMsg + NAMES_OF
@@ -87,6 +88,7 @@ void RegisterEditorEnums() {
 	registry.Register<EAffect>("EAffect");
 	registry.Register<EApply>("EApply");
 	registry.Register<ESpellMsg>("ESpellMsg");
+	registry.Register<affects::EAffectMsgType>("EAffectMsgType");   // issue.unstable-hotfixes: affect_msg scheme
 	registry.Register<ESkillMsg>("ESkillMsg");
 	registry.Register<EFeat>("EFeat");
 	registry.Register<EFeatMsg>("EFeatMsg");

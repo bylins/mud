@@ -141,10 +141,18 @@ struct AffectApply {
 [[nodiscard]] bool MessagesLoaded();   // affect_messages cfg loaded? (boot guard)
 [[nodiscard]] const std::vector<EAffect> &MenuOrder();   // ordered affects for the OLC editor
 
-class AffectMessagesLoader : public cfg_manager::ICfgLoader {  // cfg id "affect_messages"
+class AffectMessagesLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "affect_messages"
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.unstable-hotfixes: in-game editing of affect messages (`vedun affectmsg`) -- an affect's
+	// kShortDesc / kLook / lifecycle narration. Keyed by the <msg_sheaf id=> (EAffect token; "kDefault"
+	// for the shared sheaf). Mirrors SpellMessagesLoader.
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 }  // namespace affects

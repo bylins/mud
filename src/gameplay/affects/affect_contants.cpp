@@ -7,6 +7,7 @@
 #include "affect_contants.h"
 #include "affects_loader.h"
 #include "affect_messages.h"
+#include "utils/utils_string.h"   // str_cmp (Vedun CanonicalElementId)
 #include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
 
 #include "gameplay/magic/spells.h"
@@ -1025,6 +1026,46 @@ void AffectMessagesLoader::Load(parser_wrapper::DataNode data) {
 void AffectMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Reload(data.Children());
 	g_affect_messages_loaded = true;
+}
+
+// issue.unstable-hotfixes: Vedun in-game editing of affect messages (`vedun affectmsg`). Mirrors
+// SpellMessagesLoader -- keyed by the <msg_sheaf id=> (EAffect token; the shared sheaf is "kDefault").
+std::string AffectMessagesLoader::EditableWhat() const {
+	return "affectmsg";
+}
+
+std::vector<cfg_manager::EditableElement> AffectMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : AffectMsgContainer()) {
+		const EAffect id = sheaf.GetId();
+		// The default sheaf is stored under kUndefined but its XML id is "kDefault".
+		const std::string id_str = (id == EAffect::kUndefined) ? "kDefault" : NAME_BY_ITEM<EAffect>(id);
+		out.push_back({id_str, sheaf.GetMessage(EAffectMsgType::kShortDesc)});   // label = short desc
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult AffectMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (AffectMsgContainer().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Affect-message data failed to parse (see syslog for the offending sheaf/message)."};
+}
+
+std::string AffectMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<EAffect>()) {
+		if (value != EAffect::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
+	}
+	return "";
+}
+
+parser_wrapper::DataNode AffectMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
 }
 }  // namespace affects
 
