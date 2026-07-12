@@ -696,7 +696,7 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 // MaterializeEquipmentAffects below can add the pipeline-built nodes without recalculating per node.
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);
 
-void MaterializeEquipmentAffects(CharData *ch, ObjData *obj) {
+void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce) {
 	if (!ch || !obj) {
 		return;
 	}
@@ -720,7 +720,9 @@ void MaterializeEquipmentAffects(CharData *ch, ObjData *obj) {
 		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
 			affect_to_char_no_recalc(ch, af);
 		}
-		if (!was_present) {
+		// issue.affect-suppression-dispell: announce the impose narration ONLY on a genuine wear, not on
+		// internal/load re-equips (which fire per equip and would re-announce a continuously-worn affect).
+		if (!was_present && announce) {
 			EmitAffectImpose(ch, nullptr, j.aff_affect, false);
 		}
 	}
@@ -728,7 +730,7 @@ void MaterializeEquipmentAffects(CharData *ch, ObjData *obj) {
 
 // issue.equipment-affects-improve (Phase 3): re-materialize ONE equipment affect on the wearer -- the
 // auto-return when an item's suppression timer expires. Recalculates (standalone event, not the equip path).
-void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type) {
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce) {
 	if (!ch || !obj) {
 		return;
 	}
@@ -747,7 +749,7 @@ void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type)
 		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
 			affect_to_char_no_recalc(ch, af);
 		}
-		if (!was_present) {
+		if (!was_present && announce) {
 			EmitAffectImpose(ch, nullptr, j.aff_affect, false);   // "your magic returns" on auto-return
 		}
 	}

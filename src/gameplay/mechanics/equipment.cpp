@@ -332,7 +332,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	}
 
 	// issue.equipment-affects-improve: materialize this item's equipment affects as real Affects.
-	MaterializeEquipmentAffects(ch, obj);
+	MaterializeEquipmentAffects(ch, obj, /*announce=*/!no_cast);
 
 	if (!skip_total) {
 		if (obj_sets::is_set_item(obj)) {

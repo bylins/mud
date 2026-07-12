@@ -656,7 +656,8 @@ int ObjData::get_timer() const {
 // issue.equipment-affects-improve (Phase 3): a dispel suppresses an item-materialized equipment affect
 // on the source item; the item counts the suppression down here and re-materializes the affect on its
 // wearer when it expires (auto-return).
-void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type);
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce);
+void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed);
 void affect_total(CharData *ch);   // set-affect auto-return recompute
 
 void ObjData::process_periodic_effects() {
@@ -697,11 +698,24 @@ void ObjData::release_suppression(EAffect aff) {
 	if (!obj_affects::IsEquipAffectSuppressed(this, aff)) {
 		return;
 	}
+	// Was the affect already active on the wearer (from another source)? If so its restoration is
+	// visually a no-op and must not announce. (Captured BEFORE removal/re-materialization.)
+	bool was_active = false;
+	if (m_worn_by) {
+		for (const auto &a : m_worn_by->affected) {
+			if (a && a->affect_type == aff) { was_active = true; break; }
+		}
+	}
 	obj_affects::RemoveSuppression(this, aff);
 	if (m_worn_by && !obj_affects::IsEquipAffectSuppressed(this, aff)) {
-		MaterializeEquipmentAffect(m_worn_by, this, aff);
+		// Materialize SILENTLY (the cast pipeline's internal re-equips are already silent), then announce
+		// the affect's return exactly once here -- so weave restoration shows one impose line, not zero/two.
+		MaterializeEquipmentAffect(m_worn_by, this, aff, /*announce=*/false);
 		m_worn_by->obj_bonus().update(m_worn_by);
 		affect_total(m_worn_by);
+		if (!was_active) {
+			EmitAffectImpose(m_worn_by, nullptr, aff, false);
+		}
 	}
 }
 

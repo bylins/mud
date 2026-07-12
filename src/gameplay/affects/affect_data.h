@@ -139,8 +139,8 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);   // call
 class ObjData;
 // issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as
 // real Affects (kAfFromEquipment, caster_id = item id); and strip an item's materialized affects.
-void MaterializeEquipmentAffects(CharData *ch, ObjData *obj);
-void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type);
+void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce = true);
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce = true);
 void RemoveEquipmentAffects(CharData *ch, long source_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
