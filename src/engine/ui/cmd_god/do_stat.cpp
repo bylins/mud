@@ -450,7 +450,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					parts.push_back(fmt::sprintf("%s:[%d]", skill.GetName(), GetSkill(k, skill.GetId())));
 				}
 			}
-			SendMsgToChar(utils::OutWordsList(parts, list_width, " ", "&GУмения:&c ") + "&n\r\n", ch);
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GУмения:&c ") + "&n\r\n", ch);
 		}
 		if (!k->mob_specials.have_spell) {
 			SendMsgToChar(ch, "&GЗаклинания: &Rнет&n\r\n");
@@ -464,7 +464,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					parts.push_back(fmt::sprintf("%s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id)));
 				}
 			}
-			SendMsgToChar(utils::OutWordsList(parts, list_width, " ", "&GЗаклинания:&c ") + "&n\r\n", ch);
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GЗаклинания:&c ") + "&n\r\n", ch);
 		}
 		{
 			std::vector<std::string> parts;
@@ -476,7 +476,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					parts.push_back(fmt::sprintf("'%s'", feat.GetCName()));
 				}
 			}
-			SendMsgToChar(utils::OutWordsList(parts, list_width, " ", "&GСпособности:&c ") + "&n\r\n", ch);
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GСпособности:&c ") + "&n\r\n", ch);
 		}
 		// информация о маршруте моба
 		if (k->mob_specials.dest_count > 0 && k->in_room != kNowhere) {
