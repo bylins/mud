@@ -439,38 +439,46 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					  kColorCyn,
 					  k->mob_specials.MaxFactor,
 					  kColorNrm);
-		SendMsgToChar(ch, "&GУмения:&c");
-		for (const auto &skill : MUD::Skills()) {
-			if (skill.IsValid() && GetSkill(k, skill.GetId())) {
-				SendMsgToChar(ch, " %s:[%d]", skill.GetName(), GetSkill(k, skill.GetId()));
+		// issue #3429: длинные списки умений/заклинаний/способностей переносим
+		// по ширине экрана игрока через utils::OutWordsList (цвет метки/элементов
+		// зашит в префикс, ширину считаем без цветокодов).
+		const size_t list_width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
+				? ch->player_specials->saved.stringLength : 120;
+		{
+			std::vector<std::string> parts;
+			for (const auto &skill : MUD::Skills()) {
+				if (skill.IsValid() && GetSkill(k, skill.GetId())) {
+					parts.push_back(fmt::sprintf("%s:[%d]", skill.GetName(), GetSkill(k, skill.GetId())));
+				}
 			}
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GУмения:&c ") + "&n\r\n", ch);
 		}
-		SendMsgToChar(ch, "\r\n");
 		if (!k->mob_specials.have_spell) {
-			SendMsgToChar(ch, "&GЗаклинания: &Rнет&n");
+			SendMsgToChar(ch, "&GЗаклинания: &Rнет&n\r\n");
 		} else {
-			SendMsgToChar(ch, "&GЗаклинания:&c");
+			std::vector<std::string> parts;
 			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 				if (MUD::Spell(spell_id).IsUnavailable()) {
 					continue;
 				}
 				if (GET_SPELL_MEM(k, spell_id)) {
-					SendMsgToChar(ch, " %s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id));
+					parts.push_back(fmt::sprintf("%s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id)));
 				}
 			}
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GЗаклинания:&c ") + "&n\r\n", ch);
 		}
-		SendMsgToChar(ch, "\r\n");
-		SendMsgToChar(ch, "&GСпособности:&c");
-		for (const auto &feat : MUD::Feats()) {
-			if (feat.IsInvalid()) {
-				continue;
+		{
+			std::vector<std::string> parts;
+			for (const auto &feat : MUD::Feats()) {
+				if (feat.IsInvalid()) {
+					continue;
+				}
+				if (k->HaveFeat(feat.GetId())) {
+					parts.push_back(fmt::sprintf("'%s'", feat.GetCName()));
+				}
 			}
-			if (k->HaveFeat(feat.GetId())) {
-				SendMsgToChar(ch, " '%s'", feat.GetCName());
-			}
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GСпособности:&c ") + "&n\r\n", ch);
 		}
-		SendMsgToChar(kColorNrm, ch);
-		SendMsgToChar(ch, "\r\n");
 		// информация о маршруте моба
 		if (k->mob_specials.dest_count > 0 && k->in_room != kNowhere) {
 			// подготавливаем путевые точки
