@@ -1265,7 +1265,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<duration base="5" skill_divisor="5" min="5" max="5" />
 					<affect id="kDetectLife"/>
 				</affects>
 			</action>
@@ -5041,7 +5041,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kRousing"/>
 				</affects>
 			</action>
@@ -5071,7 +5071,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kPassion"/>
 				</affects>
 			</action>
@@ -5105,7 +5105,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kSurgeOfPower"/>
 				</affects>
 			</action>
@@ -5135,7 +5135,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kSurgeOfValour"/>
 				</affects>
 			</action>
@@ -5165,7 +5165,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kBattleCourage"/>
 				</affects>
 			</action>
@@ -6376,7 +6376,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kConcentration"/>
 				</affects>
 			</action>
@@ -6406,7 +6406,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kBattleLuck"/>
 				</affects>
 			</action>
@@ -6436,7 +6436,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
+					<duration base="2" skill_divisor="50" min="10" max="10" />
 					<affect id="kPhysdamageBonus"/>
 				</affects>
 			</action>
