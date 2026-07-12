@@ -5,7 +5,7 @@ Old: dgaffect <target> <property> <spell> <value> <duration> [battlepos]
 New: dgaffect <target> <property> <value> <duration> [battlepos]
 
 The <spell> existed only to give the affect a descriptive name; affects now carry their own
-description (an APPLY-type affect falls back to the generic "чары"/kWirchery affect), so the spell
+description (an APPLY-type affect falls back to the generic "чары"/kWitchery affect), so the spell
 argument is removed from do_dg_affect and every trigger that calls it must drop it too.
 
 Byte-safe (world files are KOI8-R). Idempotent: a line whose 3rd token is already a value

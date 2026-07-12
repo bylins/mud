@@ -260,7 +260,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	EAffect dg_affect_type = EAffect::kUndefined;
 
 	// issue.affect-migration: the <spell> argument was dropped -- affects carry their own description now,
-	// so an APPLY-type dgaffect falls back to the generic "чары" (kWirchery) identity instead of naming a spell.
+	// so an APPLY-type dgaffect falls back to the generic "чары" (kWitchery) identity instead of naming a spell.
 	// parse: "dgaffect <target> <property> <value> <duration> [battlepos]"
 	std::string remains = cmd;
 	std::string junk = utils::ExtractFirstArgument(remains, remains);       // "dgaffect"
@@ -327,13 +327,13 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;
 			// APPLY affect -> the generic "чары" identity so it displays + expires sensibly.
-			af.affect_type = EAffect::kWirchery;
+			af.affect_type = EAffect::kWitchery;
 		}
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {
-		// remove affect -- by the affect identity (kWirchery for APPLY, the property's affect for AFFECT)
+		// remove affect -- by the affect identity (kWitchery for APPLY, the property's affect for AFFECT)
 		RemoveAffectFromCharAndRecalculate(ch,
-				type == AFFECT_TYPE ? dg_affect_type : EAffect::kWirchery);
+				type == AFFECT_TYPE ? dg_affect_type : EAffect::kWitchery);
 	}
 }
 

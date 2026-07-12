@@ -768,7 +768,7 @@
 	<msg_sheaf id="kEvade">
 		<message type="kShortDesc" val="уклонение"/>
 	</msg_sheaf>
-	<msg_sheaf id="kWirchery">
+	<msg_sheaf id="kWitchery">
 		<message type="kShortDesc" val="чары"/>
 		<message type="kAffExpiredToChar" val="Чары, наложенные на вас, развеялись."/>
 		<message type="kAffDispelledToChar" val="Чары, наложенные на вас, развеялись."/>

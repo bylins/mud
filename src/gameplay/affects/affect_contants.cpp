@@ -172,7 +172,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kPrayerful] = "kPrayerful";
 	EAffectFlag_name_by_value[EAffect::kPietas] = "kPietas";
 	EAffectFlag_name_by_value[EAffect::kEvade] = "kEvade";
-	EAffectFlag_name_by_value[EAffect::kWirchery] = "kWirchery";
+	EAffectFlag_name_by_value[EAffect::kWitchery] = "kWitchery";
 	EAffectFlag_name_by_value[EAffect::kAconitumPoison] = "kAconitumPoison";
 	EAffectFlag_name_by_value[EAffect::kCapable] = "kCapable";
 	EAffectFlag_name_by_value[EAffect::kWebbed] = "kWebbed";
@@ -186,6 +186,9 @@ void init_EAffectFlag_ITEM_NAMES() {
 	// the fixed spelling "kUndefined" alongside the legacy "kUndefinded" (already in the map above).
 	EAffectFlag_value_by_name["kDefault"] = EAffect::kUndefined;
 	EAffectFlag_value_by_name["kUndefined"] = EAffect::kUndefined;
+	// issue.witchery-typo: accept the legacy misspelling "kWirchery" alongside the fixed "kWitchery"
+	// so old player saves / world scripts / data still resolve on load.
+	EAffectFlag_value_by_name["kWirchery"] = EAffect::kWitchery;
 }
 
 template<>

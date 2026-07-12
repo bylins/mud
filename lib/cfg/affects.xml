@@ -863,7 +863,7 @@
 	<affect id="kEvade">
 		<flags val="kAfBattledec|kAfPulsedec"/>
 	</affect>
-	<affect id="kWirchery">
+	<affect id="kWitchery">
 		<flags val="kAfDispellable"/>
 	</affect>
 	<affect id="kWebbed" buff="N">

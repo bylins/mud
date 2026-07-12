@@ -205,7 +205,7 @@ enum class EAffect : Bitvector {
 	kPrayerful = 129,
 	kPietas = 130,
 	kEvade = 131,
-	kWirchery = 132,   // issue.affect-migration: generic "чары" affect -- the dg_affect default source (ex-kSolobonus)
+	kWitchery = 132,   // issue.affect-migration: generic "чары" affect -- the dg_affect default source (ex-kSolobonus)
 	kAconitumPoison = 133,   // issue.affect-migration: aconite-poison identity (the 4th nemo-poison; the others had their own affect_type, aconitum had reused kNoBattleSwitch)
 	kCapable = 134,   // issue.affect-migration: "embedded spell" marker on a clone (ex-ESpell::kCapable kService spell)
 	kWebbed = 135,          // issue.affects-improve: kWeb's own affect (AC/hitroll penalty + kBind)
