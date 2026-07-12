@@ -196,16 +196,16 @@ class ActionContext {
 	// data (damage amount, weapon, skill, the other party). Copied into side_spell sub-contexts.
 	void SetEvent(const EventContext &e) { event_ = e; }
 	[[nodiscard]] const EventContext &Event() const { return event_; }
-	// issue.attack-ward: defender-ward outcome, decided ONCE at the is_entry gate by RunAttackWards and
-	// read back by the stages. `reflect` is applied directly as cvict = caster (no flag). ward_stop_ =
-	// the whole cast was absorbed (caller returns kNotCast); the per-stage flags let a scoped absorb
-	// (e.g. Shadow Cloak = damage-only) skip just its stage.
+	// issue.attack-ward: whole-cast defender-ward outcome, decided at the is_entry gate by
+	// RunWholeCastWards. `reflect` is applied directly as cvict = caster (no flag); ward_stop_ = the
+	// whole cast was absorbed (scope="all" / shield -> caller returns kNotCast). Scoped damage/affect
+	// absorbs are NOT stored here -- they roll per-manifest in CastDamage/CastAffect (TryScopedAbsorb).
 	void SetWardStop() { ward_stop_ = true; }
 	[[nodiscard]] bool WardStop() const { return ward_stop_; }
-	void SetWardAbsorbDamage() { ward_absorb_damage_ = true; }
-	[[nodiscard]] bool WardAbsorbsDamage() const { return ward_absorb_damage_; }
-	void SetWardAbsorbAffect() { ward_absorb_affect_ = true; }
-	[[nodiscard]] bool WardAbsorbsAffect() const { return ward_absorb_affect_; }
+	// issue.attack-ward: this cast is a side-spell sub-cast -- part of the same incoming spell, so the
+	// whole-cast wards (reflect / scope="all") are NOT re-run for it (see CastSideSpell / is_entry gate).
+	void SetNested() { nested_ = true; }
+	[[nodiscard]] bool Nested() const { return nested_; }
 	// issue.character-affect-triggers: affect-owned damage flavor for <damage> stages run under this
 	// context (set by the affect-trigger runners). When present it FULLY REPLACES the generic combat
 	// message + severity line in Damage::Process. Copied into side_spell sub-contexts like the event.
@@ -252,9 +252,8 @@ class ActionContext {
 	int tick_duration_{-1};   // issue.affect-migration: see SetTickDuration (-1 = not a tick cast)
 	std::optional<int> trigger_return_;   // issue.room-affect-trigger-improve: see SetTriggerReturn
 	EventContext event_;   // issue.character-affect-triggers: see SetEvent/Event
-	bool ward_stop_{false};            // issue.attack-ward: whole cast absorbed
-	bool ward_absorb_damage_{false};   // issue.attack-ward: damage stage absorbed (scoped)
-	bool ward_absorb_affect_{false};   // issue.attack-ward: affect stage absorbed (scoped)
+	bool ward_stop_{false};   // issue.attack-ward: whole cast absorbed (scope="all"/shield) or refused
+	bool nested_{false};      // issue.attack-ward: this is a side-spell sub-cast (skip whole-cast wards)
 	std::string aff_dmg_msg_char_;   // issue.character-affect-triggers: see SetAffectDamageMsg
 	std::string aff_dmg_msg_vict_;
 	std::string aff_dmg_msg_room_;

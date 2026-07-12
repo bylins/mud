@@ -649,7 +649,7 @@
 		<message type="kAffImposedToRoom" val="$n0 достал$g из сумчки какие-то склянки и отвернул$u, бормоча под нос."/>
 		<message type="kAffImposedToChar" val="Вы попытались вспомнить полузабытые уроки старой цыганки, что учила вас головы морочить."/>
 		<message type="kAffExpiredToChar" val="Ваша красота куда-то пропала."/>
-		<message type="kShortDesc" val="призматическая аура"/>
+		<message type="kShortDesc" val="очарование"/>
 	</msg_sheaf>
 	<msg_sheaf id="kContusion">
 		<message type="kAffExpiredToChar" val="К вам вернулась способность нормально сражаться."/>
@@ -768,7 +768,7 @@
 	<msg_sheaf id="kEvade">
 		<message type="kShortDesc" val="уклонение"/>
 	</msg_sheaf>
-	<msg_sheaf id="kWirchery">
+	<msg_sheaf id="kWitchery">
 		<message type="kShortDesc" val="чары"/>
 		<message type="kAffExpiredToChar" val="Чары, наложенные на вас, развеялись."/>
 		<message type="kAffDispelledToChar" val="Чары, наложенные на вас, развеялись."/>

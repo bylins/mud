@@ -2113,6 +2113,22 @@ int CalcNoviceSkillBonusForValue(int skill, unsigned skill_divisor) {
 	return low_skill/skill_divisor;
 }
 
+// issue.duration-scale: full-skill duration bonus (no 75 cap); CalcDuration bounds it with
+// <duration min/max>. Separate from CalcNoviceSkillBonus, which still caps the extra-hits bonus at 75.
+int CalcDurationSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
+	if (skill_divisor == 0) {
+		return 0;
+	}
+	return GetSkill(ch, skill_id)/skill_divisor;
+}
+
+int CalcDurationSkillBonusForValue(int skill, unsigned skill_divisor) {
+	if (skill_divisor == 0) {
+		return 0;
+	}
+	return skill/skill_divisor;
+}
+
 const ESkill &operator++(ESkill &s) {
 	s = static_cast<ESkill>(to_underlying(s) + 1);
 	return s;

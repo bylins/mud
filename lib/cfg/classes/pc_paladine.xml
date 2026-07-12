@@ -63,6 +63,7 @@
         <spell id="kMassSilence"			level="26"	remort="2"	circle="4"	mem="0"		cast="1.0"/>
         <spell id="kPowerDeafness"			level="26"	remort="0"	circle="4"	mem="0"		cast="1.0"/>
         <spell id="kGroupProtectFromEvil"	level="26"	remort="0"	circle="4"	mem="0"		cast="1.0"/>
+        <spell id="kCleanseArea" level="15" remort="0" circle="5" mem="0" cast="0.0"/>
     </spells>
     <feats remorts_for_slot="4">
         <feat id="kLuckyGuy"			level="1"	remort="0"	slot="0"	inborn="1"/>

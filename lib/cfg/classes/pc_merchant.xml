@@ -59,6 +59,7 @@
         <spell id="kGroupArmor"			level="22"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
         <spell id="kCommonMeal"			level="22"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
 	<spell id="kMassFailure"		level="28"	remort="0"	circle="4"	mem="0"		cast="0.4"/>
+        <spell id="kUnweave" level="12" remort="0" circle="4" mem="0" cast="0.0"/>
     </spells>
     <feats remorts_for_slot="4">
         <feat id="kSilverTongue"		level="1"	remort="0"	slot="0"	inborn="1"/>
