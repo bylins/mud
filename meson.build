@@ -76,16 +76,16 @@ if cpp.get_id() != 'msvc'
 endif
 
 if host_system == 'windows'
-    if cpp.get_argument_syntax() == 'msvc'   # MSVC and clang-cl (both use MSVC-style /source-charset)
-        project_args += [
-            '/source-charset:koi8-r',
-            '/execution-charset:koi8-r',
-            '/MP',
-            '/bigobj',
-            '-DFMT_UNICODE=0',
-            '/external:anglebrackets',
-            '/external:W0'
-        ]
+    if cpp.get_argument_syntax() == 'msvc'   # MSVC and clang-cl
+        project_args += ['/MP', '/bigobj', '-DFMT_UNICODE=0', '/external:anglebrackets', '/external:W0']
+        if cpp.get_id() == 'msvc'
+            # MSVC accepts the KOI8-R codepage (20866) for source/exec charset.
+            project_args += ['/source-charset:koi8-r', '/execution-charset:koi8-r']
+        else
+            # clang-cl rejects non-UTF-8 /source-charset ('invalid value koi8-r'); it keeps narrow-literal
+            # bytes as-is, so just silence the KOI8-R source-encoding warnings (as for the GNU clang driver).
+            project_args += ['-Wno-invalid-source-encoding']
+        endif
     elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
         project_args += ['-Wa,-mbig-obj', '-D__USE_MINGW_ANSI_STDIO=1']
     endif
