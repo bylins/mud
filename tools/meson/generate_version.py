@@ -36,7 +36,7 @@ except Exception:
 
 # major.minor.patch: explicit, from the repo-root VERSION file (single source of truth).
 try:
-    with open(f'{source_root}/VERSION', encoding='ascii') as vf:
+    with open(f'{source_root}/VERSION.txt', encoding='ascii') as vf:
         mmp = vf.read().strip()
 except Exception:
     mmp = "0.0.0"
