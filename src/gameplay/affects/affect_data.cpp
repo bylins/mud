@@ -32,6 +32,7 @@
 #include "gameplay/mechanics/glory_const.h"
 #include "engine/ui/cmd/do_equip.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/abilities/abilities_constants.h"   // issue.duration-scale: kNoviceSkillThreshold
 #include "gameplay/fight/fight.h"
 #include "utils/backtrace.h"
 
@@ -1506,9 +1507,10 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 	return affects::FindByShortDesc(affName, result);
 }
 
-// issue.calc-duration: skill-based duration. `caster` provides the skill (bounded by
-// CalcNoviceSkillBonus's kNoviceSkillThreshold cap, so monster durations no longer grow with
-// raw mob level), `victim` decides the unit (PC: convert hours to player-affect ticks; NPC: raw).
+// issue.calc-duration: skill-based duration. `caster` provides the skill. issue.duration-scale: the
+// skill is uncapped; min/max bound the TOTAL duration, and an unset max (0) defaults to the old
+// skill-75 value (base + 75/divisor) so un-retuned effects still cap at skill 75. `victim` decides
+// the unit (PC: convert hours to player-affect ticks; NPC: raw).
 // skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
 // a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
@@ -1519,16 +1521,22 @@ int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
 	if (skill_divisor == 0 && min == 0 && max == 0) {
 		return (no_convert ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}
-	// issue.potion-hotfix: skill_override >= 0 (a potion) scales the duration off the potion MAKER's
-	// stored skill instead of the caster/drinker's -- a potion acts on its own. A spell with no
-	// duration skill (kUndefined) is flat either way; a live cast (override < 0) uses the caster.
-	int skill_bonus =
+	// issue.potion-hotfix: skill_override >= 0 (a potion) scales off the potion MAKER's stored skill;
+	// override < 0 = a live cast (the caster's skill); kUndefined skill = flat (no scaling).
+	const int skill_bonus =
 		(skill_id == ESkill::kUndefined) ? 0
-		: (skill_override >= 0) ? CalcNoviceSkillBonusForValue(skill_override, skill_divisor)
-		: CalcNoviceSkillBonus(caster, skill_id, skill_divisor);
-	if (min > 0) skill_bonus = std::max(skill_bonus, min);
-	if (max > 0) skill_bonus = std::min(skill_bonus, max);
-	const auto duration = base + static_cast<unsigned>(skill_bonus);
+		: (skill_override >= 0) ? CalcDurationSkillBonusForValue(skill_override, skill_divisor)
+		: CalcDurationSkillBonus(caster, skill_id, skill_divisor);
+	int total = static_cast<int>(base) + skill_bonus;   // Option A: min/max bound the TOTAL
+	const int default_max = (skill_divisor == 0)
+		? static_cast<int>(base)
+		: static_cast<int>(base) + abilities::kNoviceSkillThreshold / static_cast<int>(skill_divisor);
+	const int hi = std::max(min, (max > 0) ? max : default_max);   // never below the min floor
+	if (min > 0) {
+		total = std::max(total, min);
+	}
+	total = std::min(total, hi);
+	const auto duration = static_cast<unsigned>(std::max(0, total));
 	return (no_convert ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
 }
 

@@ -28,7 +28,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kMagicArmor"/>
 				</affects>
 			</action>
@@ -486,7 +486,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectAlign"/>
 				</affects>
 			</action>
@@ -513,7 +513,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectInvisible"/>
 				</affects>
 			</action>
@@ -540,7 +540,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectMagic"/>
 				</affects>
 			</action>
@@ -567,7 +567,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectPoison"/>
 				</affects>
 			</action>
@@ -810,7 +810,7 @@
 					</blocking>
 				</target_conditions>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kInvisible"/>
 				</affects>
 				<alter_obj handler="AlterInvisible" />
@@ -986,7 +986,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kProtectFromDark"/>
 				</affects>
 			</action>
@@ -1040,7 +1040,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kSanctuary"/>
 				</affects>
 				<unaffect prob="100" decay="25">
@@ -1131,7 +1131,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kMagicStrength"/>
 				</affects>
 				<unaffect decay="25">
@@ -1265,7 +1265,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectLife"/>
 				</affects>
 			</action>
@@ -1463,7 +1463,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kInfravision"/>
 				</affects>
 			</action>
@@ -1772,7 +1772,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kDark">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kHolyDark"/>
 				</affects>
 				<alter_obj handler="AlterDarkness" />
@@ -1800,7 +1800,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kEarth">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kStoneSkin"/>
 				</affects>
 			</action>
@@ -1827,7 +1827,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kWater">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kCloudly"/>
 				</affects>
 			</action>
@@ -2078,7 +2078,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kDark">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kShadowCloak"/>
 				</affects>
 			</action>
@@ -2156,7 +2156,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kEnlarge"/>
 				</affects>
 				<unaffect decay="25">
@@ -2290,7 +2290,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kBlink"/>
 				</affects>
 			</action>
@@ -2493,7 +2493,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kMagicShield"/>
 				</affects>
 			</action>
@@ -3009,7 +3009,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kHaste"/>
 				</affects>
 			</action>
@@ -3176,7 +3176,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kAwarness"/>
 				</affects>
 			</action>
@@ -3304,7 +3304,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kFastRegeneration"/>
 				</affects>
 			</action>
@@ -3513,7 +3513,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kLessening"/>
 				</affects>
 				<unaffect decay="25">
@@ -3635,7 +3635,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kFire">
-					<duration base="10" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kCloudOfArrows"/>
 				</affects>
 			</action>
@@ -3770,7 +3770,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kPrismaticAura"/>
 				</affects>
 				<unaffect prob="100" decay="25">
@@ -3845,7 +3845,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kAir">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kAirAura"/>
 				</affects>
 			</action>
@@ -3876,7 +3876,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kFire">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kFireAura"/>
 				</affects>
 			</action>
@@ -3907,7 +3907,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kWater">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kIceAura"/>
 				</affects>
 			</action>
@@ -3971,7 +3971,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="10" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="15" min="5" max="15" />
 					<affect id="kMagicGlass"/>
 				</affects>
 			</action>
@@ -5754,7 +5754,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kInfravision"/>
 				</affects>
 			</action>
@@ -5813,7 +5813,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectMagic"/>
 				</affects>
 			</action>
@@ -5844,7 +5844,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectInvisible"/>
 				</affects>
 			</action>
@@ -5875,7 +5875,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectLife"/>
 				</affects>
 			</action>
@@ -5937,7 +5937,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kFastRegeneration"/>
 				</affects>
 			</action>
@@ -5995,7 +5995,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kEarth">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="8" min="5" max="25" />
 					<affect id="kStoneSkin"/>
 				</affects>
 			</action>
@@ -6026,7 +6026,7 @@
 					<distribution type="kUniform" />
 				</area>
 				<affects saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
+					<duration base="5" skill_divisor="5" min="5" max="35" />
 					<affect id="kDetectPoison"/>
 				</affects>
 			</action>
