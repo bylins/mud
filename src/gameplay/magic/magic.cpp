@@ -382,7 +382,7 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 // The remaining code-only defense (magic mirror and sonic barrier are gone: the mirror is now a
 // data-driven kWardAttack affect, the barrier was dropped so warcries fizzle on gods like any spell).
 // TryBlockByMagicalShield returns true (and emits the standard ToChar/ToNotVict/ToVict message trio)
-// when the shield swallows the cast; the caller (RunAttackWards) then stops the whole cast.
+// when the shield swallows the cast; the caller (RunWholeCastWards) then stops the whole cast.
 namespace {
 
 // Build and process one Damage object for a multi-hit damage spell. `count` is the
@@ -417,7 +417,7 @@ int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_
 }
 
 // issue.attack-ward: TryReflectByMagicGlass removed -- the Magic Mirror (kMagicGlass) is now a
-// data-driven kWardAttack/reflect affect (its messages live in the affect msg cfg, see RunAttackWards).
+// data-driven kWardAttack/reflect affect (its messages live in the affect msg cfg, see RunWholeCastWards).
 // issue.attack-ward: TryReflectBySonicBarrier removed too. It was a bespoke "gods reflect warcries"
 // workaround that existed only because a violent warcry slipped past the general immortal guard. A
 // warcry against a god now simply fails like any other spell -- the IsGod block in CastOnTarget's
@@ -443,14 +443,6 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 	return true;
 }
 
-// issue.attack-ward: defender-side ward dispatcher. Run ONCE per cast at the is_entry gate, before the
-// stages. A violent, non-warcry MAGIC attack on `victim` may be REFLECTED (the whole cast bounces to the
-// caster: ctx.cvict = caster) or ABSORBED (per scope, recorded on ctx for the stages to honour) by the
-// victim's data-driven affects (kWardAttack actions: Magic Mirror reflect, Shadow Cloak absorb/damage)
-// or by the code-only defense (magical shield absorb-all). `is_magic` gates the
-// whole thing -- true for every cast today; later sourced from the <weave> component so non-magic skills
-// (once they share this pipeline) don't trip wards. First firing ward wins (mirrors the old chain).
-// Returns true if a ward fired.
 // issue.attack-ward: the target's current value of the resist apply an <absorption chance=> names.
 // Only kMagicResist is used today (Shadow Cloak); easily extended to the other resist applies.
 int WardResistStat(CharData *victim, EApply ap) {
@@ -461,30 +453,53 @@ int WardResistStat(CharData *victim, EApply ap) {
 	}
 }
 
-bool RunAttackWards(ActionContext &ctx, bool is_magic) {
+// issue.attack-ward: emit a fired ward's flavor (kWardTo{Char,Vict,Room}). Shared by the whole-cast
+// gate and the per-manifest absorb so both narrate identically.
+void EmitWardMsgs(CharData *caster, CharData *victim, EAffect at) {
+	const std::string &mc = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToChar);
+	const std::string &mv = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToVict);
+	const std::string &mr = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToRoom);
+	if (!mc.empty()) { act(mc.c_str(), false, caster, nullptr, victim, kToChar); }
+	if (!mv.empty()) { act(mv.c_str(), false, caster, nullptr, victim, kToVict); }
+	if (!mr.empty()) { act(mr.c_str(), false, caster, nullptr, victim, kToNotVict); }
+}
+
+// issue.attack-ward: a defender ward may react only to a violent, non-warcry MAGIC attack by a
+// non-god on a distinct same-room victim. `is_magic` is true for every cast today (later sourced
+// from the <weave> component so non-magic skills that share this pipeline won't trip wards).
+bool WardEligible(CharData *caster, CharData *victim, ESpell spell_id, bool is_magic) {
+	return is_magic && caster && victim && caster != victim
+		&& caster->in_room == victim->in_room
+		&& !privilege::IsGod(caster)
+		&& !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
+		&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim);
+}
+
+// issue.attack-ward (per-manifest wards): WHOLE-CAST defender wards -- reflection (the entire cast
+// bounces to the caster) and scope="all" absorption -- plus the code-only magical shield. Evaluated
+// ONCE at the is_entry gate, and only for the TOP-LEVEL cast (a side-spell sub-cast is part of the
+// same incoming spell, so it must not re-trigger these -- see CastSideSpell / ctx.Nested()). Scoped
+// damage/affect absorbs are NOT handled here; they are per-manifest (TryScopedAbsorb) inside the
+// stages so each attack rolls independently. First firing ward wins. Returns true if a ward fired.
+bool RunWholeCastWards(ActionContext &ctx, bool is_magic) {
 	CharData *caster = ctx.caster();
 	CharData *victim = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
-	if (!is_magic || !caster || !victim || caster == victim || caster->in_room != victim->in_room) {
-		return false;
-	}
-	// Data-driven affect wards: only a violent, non-warcry cast by a non-god triggers them.
-	// Warcries are excluded here and are not otherwise warded -- a warcry against a god just
-	// fizzles at CastOnTarget's IsGod gate, like any spell.
-	if (!privilege::IsGod(caster) && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
-			&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
-		// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
-		// also yields flag-only equipment shields (e.g. magic glass) this branch does not materialize.
+	if (WardEligible(caster, victim, spell_id, is_magic)) {
 		for (const auto &ward : VictimWardAffects(victim)) {
 			const EAffect at = ward.first;
 			for (const auto &action : affects::AffectActions(at).list()) {
 				if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardAttack)) {
 					continue;
 				}
-				// A kWardAttack action is either a <reflection> (bounce) or an <absorption> (swallow).
 				const auto &refl = action.GetReflection();
 				const auto &absb = action.GetAbsorption();
 				const bool is_reflect = refl.present;
+				// Only whole-cast outcomes belong here: a reflect, or an absorption scoped kAll.
+				if (!is_reflect
+						&& !(absb.present && absb.scope == talents_actions::EWardScope::kAll)) {
+					continue;
+				}
 				int chance;
 				if (is_reflect) {
 					// potency contest (max>0): clamp(mirror potency - incoming spell potency, min, max);
@@ -493,34 +508,21 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 						? std::clamp(static_cast<int>(ward.second - CalcCastPotency(ctx.potency())),
 									 refl.min, refl.max)
 						: refl.prob;
-				} else if (absb.present) {
-					if (absb.chance != EApply::kNone) {
-						// stat-driven: capped GET_<apply>(victim), same clamp as the elemental-resist path.
-						const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
-						chance = std::min(cap, WardResistStat(victim, absb.chance));
-					} else {
-						chance = absb.prob;
-					}
+				} else if (absb.chance != EApply::kNone) {
+					// stat-driven: capped GET_<apply>(victim), same clamp as the elemental-resist path.
+					const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
+					chance = std::min(cap, WardResistStat(victim, absb.chance));
 				} else {
-					continue;   // kWardAttack action with neither <reflection> nor <absorption>
+					chance = absb.prob;
 				}
 				if (number(1, 100) > chance) {
 					continue;
 				}
-				const std::string &mc = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToChar);
-				const std::string &mv = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToVict);
-				const std::string &mr = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToRoom);
-				if (!mc.empty()) { act(mc.c_str(), false, caster, nullptr, victim, kToChar); }
-				if (!mv.empty()) { act(mv.c_str(), false, caster, nullptr, victim, kToVict); }
-				if (!mr.empty()) { act(mr.c_str(), false, caster, nullptr, victim, kToNotVict); }
+				EmitWardMsgs(caster, victim, at);
 				if (is_reflect) {
 					ctx.cvict = caster;   // whole cast bounces back at the attacker
 				} else {
-					switch (absb.scope) {
-						case talents_actions::EWardScope::kAll:    ctx.SetWardStop(); break;
-						case talents_actions::EWardScope::kDamage: ctx.SetWardAbsorbDamage(); break;
-						case talents_actions::EWardScope::kAffect: ctx.SetWardAbsorbAffect(); break;
-					}
+					ctx.SetWardStop();    // scope="all": the whole cast is swallowed
 				}
 				return true;
 			}
@@ -531,6 +533,46 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 	if (TryBlockByMagicalShield(caster, victim, spell_id)) {
 		ctx.SetWardStop();
 		return true;
+	}
+	return false;
+}
+
+// issue.attack-ward (per-manifest wards): a SCOPED absorption ward (e.g. Shadow Cloak, scope="damage")
+// rolls INDEPENDENTLY for each payload delivery. Called from CastDamage (want=kDamage) and CastAffect
+// (want=kAffect) right before the stage applies its effect, so: a multi-attack spell gets one roll per
+// hit; a spell that carries no matching payload never trips the ward; and a side-spell delivery (a
+// nested cast) is warded as the separate attack it is. Returns true if THIS manifest was swallowed
+// (the caller skips just this stage). First matching ward wins.
+bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want) {
+	CharData *caster = ctx.caster();
+	CharData *victim = ctx.cvict;
+	const ESpell spell_id = ctx.spell_id();
+	if (!WardEligible(caster, victim, spell_id, /*is_magic=*/true)) {
+		return false;
+	}
+	for (const auto &ward : VictimWardAffects(victim)) {
+		const EAffect at = ward.first;
+		for (const auto &action : affects::AffectActions(at).list()) {
+			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardAttack)) {
+				continue;
+			}
+			const auto &absb = action.GetAbsorption();
+			if (!absb.present || absb.scope != want) {
+				continue;
+			}
+			int chance;
+			if (absb.chance != EApply::kNone) {
+				const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
+				chance = std::min(cap, WardResistStat(victim, absb.chance));
+			} else {
+				chance = absb.prob;
+			}
+			if (number(1, 100) > chance) {
+				continue;
+			}
+			EmitWardMsgs(caster, victim, at);
+			return true;
+		}
 	}
 	return false;
 }
@@ -567,9 +609,10 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (!pk_agro_action(ch, victim))
 		return EStageResult::kSuccess;
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-	// issue.attack-ward: magic-mirror/shadow-cloak/shield defenses now run once at the
-	// is_entry gate (RunAttackWards). A scoped damage-absorb (e.g. Shadow Cloak) skips just this stage.
-	if (ctx.WardAbsorbsDamage()) {
+	// issue.attack-ward (per-manifest wards): a scoped damage-absorb (e.g. Shadow Cloak) rolls HERE,
+	// per damage delivery, so each attack of a multi-hit/multi-action spell is warded independently and
+	// a non-damaging cast never trips a damage-scoped ward. Whole-cast reflect/absorb ran at the entry gate.
+	if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kDamage)) {
 		return EStageResult::kSuccess;
 	}
 
@@ -1260,9 +1303,10 @@ EStageResult CastAffect(ActionContext &ctx) {
 				return EStageResult::kSuccess;
 		}
 	}
-	// issue.attack-ward: defenses now run once at the is_entry gate (RunAttackWards). A scoped
-	// affect-absorb (or whole-cast absorb via ward_stop_) skips just this stage.
-	if (ctx.WardAbsorbsAffect()) {
+	// issue.attack-ward (per-manifest wards): a scoped affect-absorb rolls HERE, per affect delivery,
+	// so each affect application (incl. a side-spell's) is warded independently and a ward scoped to a
+	// different payload does not react. Whole-cast reflect/absorb ran at the entry gate.
+	if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kAffect)) {
 		return EStageResult::kSuccess;
 	}
 
@@ -3216,6 +3260,7 @@ EStageResult CastSideSpell(ActionContext &ctx) {
 		ActionContext sub = BuildActionContext(ctx.caster(), side, ctx.level);
 		sub.casting = ctx.casting;   // inherit the ancestry ...
 		sub.casting.insert(side);    // ... plus this side spell (so its own side casts see the chain)
+		sub.SetNested();             // issue.attack-ward: a side-spell delivery must not re-run whole-cast wards
 		sub.cvict = ctx.cvict;       // cast on the current target (this is a per-target stage)
 		sub.area_coeff = ctx.area_coeff;  // inherit the outer per-target falloff (mass spells)
 		sub.SetEvent(ctx.Event());   // issue.character-affect-triggers: a side-spell's handlers see the event too
@@ -3268,10 +3313,14 @@ ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 	if (is_entry) {
 		cvict = MaybeReflectToCaster(caster, cvict, spell_id);
 		ctx.cvict = cvict;
-		// issue.attack-ward: defender wards (Magic Mirror reflect / Shadow Cloak absorb / shield),
-		// once for the whole cast. Reflect redirects ctx.cvict to the caster; a whole-cast absorb stops
-		// here; a scoped absorb is read later by CastDamage/CastAffect.
-		RunAttackWards(ctx, /*is_magic=*/true);
+		// issue.attack-ward: WHOLE-CAST defender wards (Magic Mirror reflect / scope="all" absorb /
+		// magical shield), once for the TOP-LEVEL cast. Reflect redirects ctx.cvict to the caster; a
+		// whole-cast absorb stops here. Scoped damage/affect absorbs are per-manifest (CastDamage/
+		// CastAffect). A side-spell sub-cast (ctx.Nested()) is part of the same incoming spell, so it
+		// must NOT re-run these -- otherwise the whole-cast ward would fire twice (outer + delivery).
+		if (!ctx.Nested()) {
+			RunWholeCastWards(ctx, /*is_magic=*/true);
+		}
 		if (ctx.WardStop()) {
 			return ECastResult::kNotCast;
 		}
