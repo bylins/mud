@@ -42,7 +42,11 @@ jobs:
 
   clang:
     name: Clang / Base
-    runs-on: windows-latest
+    # Pinned (not windows-latest): the rolling image landed on clang 20 + MSVC 14.51, and that
+    # combination fails to compile clang's own <mmintrin.h> against the MSVC 14.51 STL (any
+    # <vector> include pulls it in via intrin.h). VS2022's older clang + MSVC 14.4x compiles fine.
+    # Revisit / un-pin once the upstream clang<->MSVC-STL incompatibility is resolved.
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v4
