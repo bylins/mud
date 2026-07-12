@@ -14,9 +14,9 @@
 #include <fstream>
 
 namespace {
-const char *kSrc = "affects_applies_src.xml";
+const char *kAffectsSrc = "affects_applies_src.xml";
 void WriteAffects() {
-	std::ofstream f(kSrc);
+	std::ofstream f(kAffectsSrc);
 	// kBlind: two applies (one full formula incl. cap/stack/random, one minimal).
 	// kSilence: flags only, no <apply> -> AffectApplies must be empty.
 	f << R"(<affects>)"
@@ -31,7 +31,7 @@ void WriteAffects() {
 
 TEST(AffectsLoader_Applies, ParsesPerAffectApplyListAndFormula) {
 	WriteAffects();
-	parser_wrapper::DataNode doc(kSrc);
+	parser_wrapper::DataNode doc(kAffectsSrc);
 	affects::AffectsLoader loader;
 	loader.Load(doc);
 
@@ -57,5 +57,5 @@ TEST(AffectsLoader_Applies, ParsesPerAffectApplyListAndFormula) {
 	// A flags-only affect has no applies.
 	EXPECT_TRUE(affects::AffectApplies(EAffect::kSilence).empty());
 
-	std::remove(kSrc);
+	std::remove(kAffectsSrc);
 }
