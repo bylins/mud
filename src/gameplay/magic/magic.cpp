@@ -1077,10 +1077,14 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// issue.vampirism-haste: a battle-decrementing grant (battleflag="kAfBattledec") is measured in
 	// combat rounds, so its duration must NOT get the PC hours->ticks conversion.
 	const bool raw_rounds = (talent.GetBattleflags() & to_underlying(EAffFlag::kAfBattledec)) != 0;
-	int duration = ApplyResist(victim, talent.GetResist(),
-		CalcDuration(ch, victim, duration_skill,
+	// issue.duration-scale: resistances resist VIOLENT effects only -- a beneficial cast's duration is
+	// never shortened by the target's resistance. Gate ApplyResist on the per-cast violence verdict.
+	int duration = CalcDuration(ch, victim, duration_skill,
 					 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
-					 talent.GetDurationMin(), talent.GetDurationMax(), potency.cast_skill, raw_rounds));
+					 talent.GetDurationMin(), talent.GetDurationMax(), potency.cast_skill, raw_rounds);
+	if (MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+		duration = ApplyResist(victim, talent.GetResist(), duration);
+	}
 	duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
 	const bool tc = spell_trace::Active(ch, victim);
 	if (tc) {
