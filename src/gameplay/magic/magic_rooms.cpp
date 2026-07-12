@@ -1,4 +1,5 @@
 #include "magic_rooms.h"
+#include "utils/utils_string.h"   // str_cmp (Vedun CanonicalElementId)
 #include "administration/privilege.h"
 #include "gameplay/handlers/spell_handlers.h"
 
@@ -367,6 +368,44 @@ void RoomAffectMessagesLoader::Load(parser_wrapper::DataNode data) {
 }
 void RoomAffectMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	RoomAffectMsgContainer().Reload(data.Children());
+}
+
+// issue.unstable-hotfixes: Vedun in-game editing of room-affect messages (`vedun roomaffectmsg`).
+// Mirrors AffectMessagesLoader -- keyed by the <msg_sheaf id=> (ERoomAffect token; shared = "kDefault").
+std::string RoomAffectMessagesLoader::EditableWhat() const {
+	return "roomaffectmsg";
+}
+
+std::vector<cfg_manager::EditableElement> RoomAffectMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : RoomAffectMsgContainer()) {
+		const ERoomAffect id = sheaf.GetId();
+		const std::string id_str = (id == ERoomAffect::kUndefined) ? "kDefault" : NAME_BY_ITEM<ERoomAffect>(id);
+		out.push_back({id_str, sheaf.GetMessage(ERoomAffectMsgType::kShortDesc)});   // label = short desc
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult RoomAffectMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (RoomAffectMsgContainer().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Room-affect message data failed to parse (see syslog for the offending sheaf/message)."};
+}
+
+std::string RoomAffectMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<ERoomAffect>()) {
+		if (value != ERoomAffect::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
+	}
+	return "";
+}
+
+parser_wrapper::DataNode RoomAffectMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
 }
 
 const int kRuneLabelDuration = 300;

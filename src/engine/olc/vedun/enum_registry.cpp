@@ -24,6 +24,7 @@
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
 #include "gameplay/affects/affect_messages.h"  // EAffectMsgType + NAMES_OF (affect_msg scheme)
 #include "gameplay/magic/magic_rooms.h"       // room_spells::ERoomAffect + NAMES_OF
+#include "gameplay/magic/room_affect_messages.h"  // ERoomAffectMsgType + NAMES_OF (room_affect_msg scheme)
 #include "gameplay/skills/skills.h"           // ESkill + NAMES_OF
 #include "engine/core/config.h"               // ECommonMsg + NAMES_OF
 
@@ -96,6 +97,7 @@ void RegisterEditorEnums() {
 	registry.Register<fight::EDamageSource>("EDamageSource");
 	registry.Register<fight::EFightMsg>("EFightMsg");
 	registry.Register<room_spells::ERoomAffect>("ERoomAffect");   // issue.room-affect-trigger-improve: room_affects scheme
+	registry.Register<room_spells::ERoomAffectMsgType>("ERoomAffectMsgType");   // issue.unstable-hotfixes: room_affect_msg scheme
 	// Inline-strcmp enums (no NAMES_OF map) registered by explicit name list -- keep in sync with
 	// the parser in talents_actions.cpp (Actions::ParseAction / the align reader).
 	registry.RegisterNames("EActionTarget", {"kTarFightSelf", "kTarFightVict", "kTarGroup", "kTarFoes",

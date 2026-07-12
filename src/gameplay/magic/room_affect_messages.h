@@ -77,10 +77,17 @@ enum class ERoomAffectMsgType {
 [[nodiscard]] const std::string &RoomAffectMsg(ERoomAffect affect, ERoomAffectMsgType slot);
 [[nodiscard]] const std::string &RoomAffectMsgRaw(ERoomAffect affect, ERoomAffectMsgType slot);
 
-class RoomAffectMessagesLoader : public cfg_manager::ICfgLoader {  // cfg id "room_affect_msg"
+class RoomAffectMessagesLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "room_affect_msg"
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.unstable-hotfixes: in-game editing of room-affect messages (`vedun roomaffectmsg`). Keyed by
+	// the <msg_sheaf id=> (ERoomAffect token; "kDefault" for the shared sheaf). Mirrors AffectMessagesLoader.
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 }  // namespace room_spells
