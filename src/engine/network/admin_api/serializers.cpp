@@ -159,7 +159,7 @@ json SerializeMob(const CharData& mob, int vnum)
 
 	// Flags - use SerializeFlags helper
 	json flags;
-	flags["mob_flags"] = SerializeFlags(mob.char_specials.saved.act);
+	flags["mob_flags"] = SerializeFlags(mob.char_specials.saved.mob_flags);
 	flags["affect_flags"] = SerializeFlags(mob.char_specials.saved.affected_by);
 	flags["npc_flags"] = SerializeFlags(mob.mob_specials.npc_flags);
 	mob_obj["flags"] = flags;
@@ -327,7 +327,7 @@ json SerializeRoom(RoomData& room, int vnum)
 
 	// Room flags (4 planes)
 	{
-		FlagData fl = room.read_flags();
+		auto fl = room.read_flags();
 		room_data["room_flags"] = json::array();
 		for (size_t i = 0; i < 4; ++i)
 		{

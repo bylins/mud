@@ -260,7 +260,7 @@ int HitData::ProcessExtradamage(CharData *ch, CharData *victim) {
 	dam = std::max(0, dam);
 	ProcessMighthit(ch, victim, *this);
 	ProcessOverhelm(ch, victim, *this);
-	ProcessPoisonedWeapom(ch, victim, *this);
+	RunObjAffectWeaponHit(wielded, ch, victim, dam);   // issue.obj-affects: poison-on-hit via trigger
 	ProcessToxicMob(ch, victim, *this);
 	ProcessPunctualStyle(ch, victim, *this);
 	auto dmg = GenerateExtradamage(memorized_dam);

@@ -292,6 +292,7 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 
 void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	timechange_unregister_obj(obj);
+	RunObjAffectTrigger(obj, nullptr, talents_actions::EActionTrigger::kDecay);   // issue.obj-affects: obj is being destroyed
 	char name[kMaxStringLength];
 	ObjData *temp;
 	int roomload = get_room_where_obj(obj, false);

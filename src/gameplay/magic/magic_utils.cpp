@@ -23,6 +23,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/equipment.h"
 #include "utils/utils_parse.h"
 #include "engine/core/target_resolver.h"
@@ -1010,10 +1011,26 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 
 // issue.handler-cleaning (Bucket 3): weapon cast-affect helper (was file-local in handler).
-void CastWeaponAffect(CharData *ch, ESpell spell_id) {
+void CastEquipmentAffect(CharData *ch, ESpell spell_id) {
 	ActionContext ctx(ch, spell_id, GetRealLevel(ch), {});
 	ctx.cvict = ch;
 	CastAffect(ctx);
+}
+
+
+// issue.affect-suppression-dispell: worn items carrying any obj-affect suppression, in slot order.
+std::vector<ObjData *> SuppressedWornItems(CharData *ch) {
+	std::vector<ObjData *> items;
+	if (!ch) {
+		return items;
+	}
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *eq = GET_EQ(ch, i);
+		if (eq && eq->has_suppressed_affects()) {
+			items.push_back(eq);
+		}
+	}
+	return items;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

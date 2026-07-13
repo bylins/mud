@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.h"
+#include "gameplay/affects/obj_affects.h"
 #include "administration/privilege.h"
 
 #include <algorithm>
@@ -98,7 +99,7 @@ namespace {
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
 				}
-				i.battleflag = kAfSameTime | kAfCurable;
+				i.battleflag = {kAfSameTime, kAfCurable};
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -139,7 +140,7 @@ namespace {
 					i.duration *= 30;
 				}
 				i.modifier = affect_modifier;
-				i.battleflag = kAfSameTime | kAfCurable;
+				i.battleflag = {kAfSameTime, kAfCurable};
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -185,7 +186,7 @@ namespace {
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
 				}
-				i.battleflag = kAfSameTime | kAfCurable;
+				i.battleflag = {kAfSameTime, kAfCurable};
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -230,7 +231,7 @@ namespace {
 					i.duration *= 30;
 				}
 				i.caster_id = ch->get_uid();
-				i.battleflag = kAfSameTime | kAfCurable;
+				i.battleflag = {kAfSameTime, kAfCurable};
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -280,7 +281,7 @@ namespace {
 					}
 					af.modifier = -GetRealLevel(ch) / 6 * 2;
 					af.affect_type = EAffect::kPoisoned;
-					af.battleflag = kAfSameTime | kAfCurable;
+					af.battleflag = {kAfSameTime, kAfCurable};
 
 					for (int i = EApply::kStr; i <= EApply::kCha; i++) {
 						af.location = static_cast<EApply>(i);
@@ -302,7 +303,7 @@ namespace {
 					af.location = EApply::kInitiative;
 					af.modifier = -GetRealLevel(ch) / 6;
 					af.affect_type = EAffect::kPoisoned;
-					af.battleflag = kAfSameTime | kAfCurable;
+					af.battleflag = {kAfSameTime, kAfCurable};
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 								  kColorGrn, sight::PersonName(vict, ch, 0), grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
@@ -339,25 +340,25 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	af[0].duration = CalcDuration(ch, vict, ESkill::kUndefined, 1, 0, 0, 0);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
 	af[0].affect_type = EAffect::kPoisoned;
-	af[0].battleflag = kAfSameTime | kAfCurable;
+	af[0].battleflag = {kAfSameTime, kAfCurable};
 	// change damroll
 	af[1].location = EApply::kDamroll;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
 	af[1].affect_type = EAffect::kPoisoned;
-	af[1].battleflag = kAfSameTime | kAfCurable;
+	af[1].battleflag = {kAfSameTime, kAfCurable};
 	// change hitroll
 	af[2].location = EApply::kHitroll;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
 	af[2].affect_type = EAffect::kPoisoned;
-	af[2].battleflag = kAfSameTime | kAfCurable;
+	af[2].battleflag = {kAfSameTime, kAfCurable};
 	// change poison level
 	af[3].location = EApply::kPoison;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
 	af[3].affect_type = EAffect::kPoisoned;
-	af[3].battleflag = kAfSameTime | kAfCurable;
+	af[3].battleflag = {kAfSameTime, kAfCurable};
 
 	for (auto & i : af) {
 		i.caster_id = ch->get_uid();   // автор отравления -- хранится в аффекте (для засчёта убийства)
@@ -370,15 +371,28 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	act(buf, false, ch, nullptr, vict, kToVict);
 }
 
-void ProcessPoisonedWeapom(CharData *ch, CharData *victim, HitData &hit_data) {
-	if (!victim->IsFlagged(EMobFlag::kProtect)
-		&& hit_data.dam
-		&& hit_data.wielded
-		&& hit_data.wielded->has_timed_spell()
-		&& GetSkill(ch, ESkill::kPoisoning)) {
-		PerformPoisonedWeapom(ch, victim, hit_data.wielded->timed_spell().IsSpellPoisoned());
+// issue.obj-affects: weapon-poison is now the first obj-affect trigger. The kPoisoned affect on the
+// weapon declares a <trigger val="kWeaponHit"> action pointing here (obj_affects.xml); the dispatcher
+// (RunObjAffectWeaponHit) fires it per landed blow with ch = wielder, event.actor = victim, event.weapon
+// = the weapon. Subtype rides in the affect modifier (PoisonSpell reads it). Replaces the old hardcoded
+// ProcessPoisonedWeapom check in HitData::ProcessExtradamage.
+namespace handlers {
+EStageResult WeaponPoisonHit(ActionContext &ctx) {
+	CharData *ch = ctx.caster();
+	const EventContext &e = ctx.Event();
+	CharData *victim = e.actor;
+	ObjData *weapon = e.weapon;
+	if (!ch || !victim || !weapon) {
+		return EStageResult::kSuccess;
 	}
+	// poison-specific gates (the general "weapon landed damage" gate is the dispatcher's job)
+	if (victim->IsFlagged(EMobFlag::kProtect) || !GetSkill(ch, ESkill::kPoisoning)) {
+		return EStageResult::kSuccess;
+	}
+	PerformPoisonedWeapom(ch, victim, obj_affects::PoisonSpell(weapon));
+	return EStageResult::kSuccess;
 }
+}  // namespace handlers
 
 // * Попытка травануть с пушки при ударе.
 void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
@@ -437,13 +451,13 @@ bool poison_in_vessel(int liquid_num) {
 void set_weap_poison(ObjData *weapon, int liquid_num) {
 	const int poison_timer = 30;
 	if (liquid_num == LIQ_POISON_ACONITUM)
-		weapon->add_timed_spell(ESpell::kAconitumPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kAconitumPoison));
 	else if (liquid_num == LIQ_POISON_SCOPOLIA)
-		weapon->add_timed_spell(ESpell::kScopolaPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kScopolaPoison));
 	else if (liquid_num == LIQ_POISON_BELENA)
-		weapon->add_timed_spell(ESpell::kBelenaPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kBelenaPoison));
 	else if (liquid_num == LIQ_POISON_DATURA)
-		weapon->add_timed_spell(ESpell::kDaturaPoison, poison_timer);
+		obj_affects::Impose(weapon, obj_affects::EObjAffect::kPoisoned, poison_timer, to_underlying(ESpell::kDaturaPoison));
 	else
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }
@@ -508,12 +522,12 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		af.modifier = -2;
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;
-		af.battleflag = kAfSameTime | kAfCurable;
+		af.battleflag = {kAfSameTime, kAfCurable};
 		ImposeAffect(ch, af, false, false, false, false);
 		af.modifier = poison_level * dose;   // poison intensity = potion poison level x dose drunk
 		af.location = EApply::kPoison;
 		af.affect_type = EAffect::kPoisoned;
-		af.battleflag = kAfSameTime | kAfCurable;
+		af.battleflag = {kAfSameTime, kAfCurable};
 		ImposeAffect(ch, af, false, false, false, false);
 		// самоотравление (выпил яд): автора нет -- caster_id аффектов остаётся 0
 	}

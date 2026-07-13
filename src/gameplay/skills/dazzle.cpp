@@ -95,13 +95,13 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	};
 
 	Affect<EApply> af;
-	af.battleflag = kAfPulsedec;
+	af.battleflag = {kAfPulsedec};
 	af.duration = 150 + (GetSkill(ch, ESkill::kDazzle) * 1.25);
 	af.affect_type = EAffect::kBlind;
 
 	Affect<EApply> af2;
 	af2.duration = 5;
-	af2.battleflag = kNone;
+	af2.battleflag.clear();
 	af2.caster_id = ch->get_uid();
 	af2.affect_type = EAffect::kSuspiciousness;
 

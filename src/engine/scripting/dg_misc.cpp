@@ -313,7 +313,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if (duration > 0) {
 		// add the affect
 		Affect<EApply> af;
-		af.battleflag = battle;
+		af.battleflag.set_plane(0, battle);
 		if (battle == kAfPulsedec) {
 			af.duration = duration;
 		} else {

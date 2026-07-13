@@ -792,7 +792,7 @@ int perform_mob_switch(CharData *ch) {
 	if (GetSkill(ch, ESkill::kHammer) && IsArmedWithMighthitWeapon(ch)) {
 		ch->battle_affects.set(kEafHammer);
 	} else if (GetSkill(ch, ESkill::kOverwhelm)) {
-		ch->battle_affects.set(ESkill::kOverwhelm);
+		ch->battle_affects.set(kEafOverwhelm);
 	}
 
 	return true;

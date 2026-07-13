@@ -385,7 +385,7 @@ void Player::save_char() {
 	saved.printf("Rmrt: %d\n", this->get_remort());
 	// флаги
 	*buf = '\0';
-	char_specials.saved.act.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	char_specials.saved.plr_flags.tascii(4, buf, sizeof(buf));
 	saved.printf("Act : %s\n", buf);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
@@ -429,7 +429,7 @@ void Player::save_char() {
 	// структуры
 	saved.printf("Alin: %d\n", alignment::GetAlignment(this));
 	*buf = '\0';
-	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	AFF_FLAGS(this).tascii(kFlagPlanes, buf, sizeof(buf));
 	saved.printf("Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -587,7 +587,7 @@ void Player::save_char() {
 	saved.printf("DrSt: %d\n", GET_DRUNK_STATE(this));
 	saved.printf("Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
-	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+	this->player_specials->saved.pref.tascii(kFlagPlanes, buf, sizeof(buf));
 	saved.printf("Pref: %s\n", buf);
 	saved.printf("MgSh: %d\n", static_cast<int>(GetBriefShieldsMode()));
 
@@ -682,9 +682,10 @@ void Player::save_char() {
 		// the spell-keyed Aff2 block; old Aff2 blocks are dropped on load -- active buffs recast in game.
 		saved.printf("Aff3:\n");
 		for (auto &aff : tmp_aff) {
-			if (aff->affect_type != EAffect::kUndefined) {
+			// issue.equipment-affects-improve: item-materialized affects are re-created on equip, never saved.
+			if (aff->affect_type != EAffect::kUndefined && !IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
 				saved.printf("%d %d %d %d %d %f %d %s\n", static_cast<int>(aff->affect_type),
-						aff->duration, aff->modifier, aff->location, static_cast<int>(aff->battleflag),
+						aff->duration, aff->modifier, aff->location, aff->battleflag.get_plane(0),
 						aff->potency, aff->stacks,
 						NAME_BY_ITEM<EAffect>(aff->affect_type).c_str());
 			}
@@ -927,7 +928,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_remort(0);
 	this->player_specials->saved.LastIP[0] = 0;
 	GET_EMAIL(this)[0] = 0;
-	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
+	char_specials.saved.plr_flags.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
 //	log("plrname %s bool %d", get_name().c_str(), get_extracted_list());
@@ -954,7 +955,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		switch (*tag) {
 			case 'A':
 				if (!strcmp(tag, "Act ")) {
-					char_specials.saved.act.from_string(line);
+					char_specials.saved.plr_flags.from_string(line);
 				}
 				break;
 			case 'C':
@@ -1215,7 +1216,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
-							af.battleflag = num6;
+							af.battleflag.set_plane(0, num6);
 							if (parsed >= 6) {
 								af.potency = af_potency;
 							}

@@ -104,6 +104,17 @@ enum class EActionTrigger {
 	               // raw_kill). event.actor = the killer. <trigger return="0"/> PREVENTS the death (like
 	               // an entry trigger's block) -- but the action must also heal (a <points><heal> on
 	               // kTarFightSelf), or the char is still at <=0 HP and dies again next tick.
+	kWeaponHit,    // issue.obj-affects: an obj affect on a WEAPON fires because that weapon landed a
+	               // blow. Dispatched per hit from HitData::ProcessExtradamage over the weapon's obj
+	               // affects (not the wielder's char affects). event.actor = victim, event.weapon =
+	               // the weapon, event.amount = damage dealt.
+	// issue.obj-affects: object-lifecycle triggers for affects that live ON an item (RunObjAffectTrigger).
+	// The container verbs (pick/unlock/open/close/lock) reuse the door-trigger values above.
+	kDecay,        // the item is being destroyed / extracted from the world (no actor)
+	kGet,          // picked up from the ground into inventory
+	kDrop,         // dropped from inventory to the ground
+	kEquip,        // worn / wielded
+	kUnequip,      // removed from an equipment slot
 	kCount
 };
 
@@ -582,6 +593,15 @@ struct AlterObj : public IAction {
 	// victim carries -- but ONLY when damage was dealt this cast (acid corroding gear). Default false
 	// = never splash onto a char's items; cast the spell directly on an object to affect one.
 	bool collateral_on_damage{false};
+	// issue.affect-suppression-dispell: weave-restoration params. find_suppressed = on a CHAR cast with no
+	// explicit object, act on the victim's first worn item bearing a suppression. dispel_bonus/decay feed
+	// the suppression-removal contest (win% at competence parity / potency erosion on a failed roll).
+	bool find_suppressed{false};
+	int dispel_bonus{50};
+	int decay{0};
+	// issue.affect-suppression-dispell: let this handler act on a kNoalter item (weave restoration lifts
+	// the item's OWN suppressed magic, it does not transmute the item), skipping CastToAlterObjs's guard.
+	bool bypass_noalter{false};
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 

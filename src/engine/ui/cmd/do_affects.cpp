@@ -54,17 +54,23 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			snprintf(sp_name, sizeof(sp_name), "%s",
 					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 			int mod = 0;
-			if (aff->battleflag == kAfPulsedec) {
+			if (aff->battleflag.get_plane(0) == static_cast<Bitvector>(kAfPulsedec)) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
 			} else {
 				mod = aff->duration;
 			}
-			(mod + 1) / kSecsPerMudHour
-			? sprintf(buf2,
-					  "(%d %s)",
-					  (mod + 1) / kSecsPerMudHour + 1,
-					  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
-			: sprintf(buf2, "(менее часа)");
+			// A permanent affect (duration -1, e.g. a materialized equipment affect) is not "less than
+			// an hour" -- label it as unlimited so its persistence reads correctly.
+			if (mod < 0) {
+				sprintf(buf2, "(постоянно)");
+			} else if ((mod + 1) / kSecsPerMudHour) {
+				sprintf(buf2,
+						"(%d %s)",
+						(mod + 1) / kSecsPerMudHour + 1,
+						grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour));
+			} else {
+				sprintf(buf2, "(менее часа)");
+			}
 			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					 kColorBoldCyn, sp_name, buf2, kColorNrm);

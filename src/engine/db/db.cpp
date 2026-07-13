@@ -156,7 +156,6 @@ char *help{nullptr};        // help screen
 TimeInfoData time_info;
 ResetQueue reset_q;
 
-const FlagData clear_flags;
 
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
@@ -658,6 +657,8 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Guarded like the skills load just below; the normal running-server boot reaches here too.
 	if (!affects::MessagesLoaded()) {
 		MUD::CfgManager().LoadCfg("affects");
+		MUD::CfgManager().LoadCfg("equipment_affects");   // issue.equipment-affects-cfg
+		MUD::CfgManager().LoadCfg("equipment_affect_msg");
 		MUD::CfgManager().LoadCfg("affect_msg");
 		// issue.common-msg: nothing_string (CommonMsg(kNothing)) is used by sprintbits during the
 		// object/mob load below, so common_messages must be ready before the world parses.
@@ -1077,6 +1078,13 @@ void BootMudDataBase() {
 	log("Loading room affects cfg.");
 	MUD::CfgManager().LoadCfg("room_affect_msg");
 	MUD::CfgManager().LoadCfg("room_affects");
+
+	// issue.obj-affects: obj-affect registry (flag/dispellable/msg_case + <actions> trigger table) and
+	// its messages. After spells, since obj-affect actions reference spell ids / manual handlers.
+	boot_profiler.next_step("Loading obj affects cfg.");
+	log("Loading obj affects cfg.");
+	MUD::CfgManager().LoadCfg("obj_affect_msg");
+	MUD::CfgManager().LoadCfg("obj_affects");
 
 	boot_profiler.next_step("Linting editor schemes.");
 	vedun::LintSchemes();
@@ -2183,7 +2191,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	// added (OR) to the mob's own flags -- they never live on the prototype, only on the loaded mob.
 	{
 		const auto &race_info = MUD::MobRaces()[GET_RACE(mob)];
-		mob->char_specials.saved.act += race_info.GetMobFlags();
+		mob->char_specials.saved.mob_flags += race_info.GetMobFlags();
 		mob->mob_specials.npc_flags += race_info.GetNpcFlags();
 	}
 

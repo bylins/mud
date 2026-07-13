@@ -18,6 +18,8 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"          // BuildEquipmentMaterializedAffect + EmitAffectImpose (set-affect materialization)
+#include "gameplay/affects/affect_handler.h"  // RemoveAffect (iterator)
 #include "utils/utils.h"
 #include "engine/structs/flag_data.h"
 
@@ -507,7 +509,7 @@ void ObjSetsLoader::Save(parser_wrapper::DataNode &doc) const {
 			// issue.obj-sets: аффекты - атрибут (tascii добавляет хвостовой пробел - срезаем)
 			if (!k.second.affects.empty()) {
 				*buf_ = '\0';
-				k.second.affects.tascii(FlagData::kPlanesNumber, buf_, sizeof(buf_));
+				k.second.affects.tascii(kFlagPlanes, buf_, sizeof(buf_));
 				for (char *p = buf_ + strlen(buf_); p > buf_ && *(p - 1) == ' '; --p) {
 					*(p - 1) = '\0';
 				}
@@ -785,9 +787,9 @@ void do_slist(CharData *ch) {
 }
 
 /// распечатка аффектов активатора для справки с форматирование по 80 символов
-std::string print_activ_affects(const FlagData &aff) {
+std::string print_activ_affects(const BitsetFlags<EEquipmentAffect> &aff) {
 	char buf_[2048];
-	if (aff.sprintbits(weapon_affects, buf_, sizeof(buf_), ",")) {
+	if (aff.sprintbits(equipment_affects, buf_, sizeof(buf_), ",")) {
 		// весь этот изврат, чтобы вывести аффекты с разбивкой на строки
 		// по 80 символов (не разбивая слова), при этом подписать впереди
 		// каждой строки " + " и выделить сами аффекты цветом
@@ -1182,7 +1184,7 @@ bool activ_sum::IsEmpty() const {
 }
 
 void activ_sum::DoClear() {
-	affects = clear_flags;
+	affects.clear();
 	apply.clear();
 	skills.clear();
 	bonus.phys_dmg = 0;
@@ -1207,6 +1209,81 @@ void check_enchants(CharData *ch) {
 	}
 }
 
+// issue.equipment-affects-improve: materialize the active set's equipment affects as real Affects
+// (kAfFromSet) instead of re-deriving flags every affect_total, so they can be dispelled/suppressed
+// like worn-item affects. Reconciles desired (the set's affects) vs actual (kAfFromSet affects on ch):
+// add the missing ones (skipping any suppressed on a worn set piece -- broadcast suppression), strip
+// ones no longer conferred. One recalc if anything changed. caster_id/ilvl come from a representative
+// worn set piece; the affect is owned by this reconcile, not by that piece's unequip.
+static void reconcile_set_affects(CharData *ch, const BitsetFlags<EEquipmentAffect> &set_affects) {
+	std::vector<ObjData *> pieces;
+	ObjData *rep = nullptr;
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *o = GET_EQ(ch, i);
+		if (o && is_set_item(o)) {
+			pieces.push_back(o);
+			if (!rep || o->get_ilevel() > rep->get_ilevel()) {
+				rep = o;
+			}
+		}
+	}
+	std::map<EAffect, const EquipmentAffect *> desired;
+	for (const auto &j : equipment_affect) {
+		if (j.aff_affect != EAffect::kUndefined
+				&& set_affects.get(static_cast<EEquipmentAffect>(j.aff_pos))) {
+			desired.emplace(j.aff_affect, &j);
+		}
+	}
+	bool changed = false;
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		if (*it && (*it)->battleflag.get(EAffFlag::kAfFromSet)
+				&& desired.find((*it)->affect_type) == desired.end()) {
+			it = RemoveAffect(ch, it);
+			changed = true;
+		} else {
+			++it;
+		}
+	}
+	for (const auto &[at, entry] : desired) {
+		bool actual = false;
+		bool was_present = false;
+		for (const auto &a : ch->affected) {
+			if (a && a->affect_type == at) {
+				was_present = true;
+				if (a->battleflag.get(EAffFlag::kAfFromSet)) {
+					actual = true;
+					break;
+				}
+			}
+		}
+		if (actual || !rep) {
+			continue;
+		}
+		bool suppressed = false;
+		for (ObjData *o : pieces) {
+			if (o->is_affect_suppressed(at)) {
+				suppressed = true;
+				break;
+			}
+		}
+		if (suppressed) {
+			continue;
+		}
+		for (auto &af : BuildEquipmentMaterializedAffect(rep, at, entry->timer, entry->power_percent)) {
+			af.battleflag.set(EAffFlag::kAfFromSet);
+			affect_to_char_no_recalc(ch, af);
+		}
+		changed = true;
+		if (!was_present) {
+			EmitAffectImpose(ch, nullptr, at, false);
+		}
+	}
+	if (changed) {
+		affect_total(ch);
+	}
+}
+
 void activ_sum::update(CharData *ch) {
 	this->DoClear();
 	worn_sets.clear();
@@ -1215,15 +1292,13 @@ void activ_sum::update(CharData *ch) {
 	}
 	worn_sets.check(ch);
 	check_enchants(ch);
+	reconcile_set_affects(ch, affects);
 }
 
 void activ_sum::apply_affects(CharData *ch) const {
-	for (const auto &j : weapon_affect) {
-		if (j.aff_bitvector != 0
-			&& affects.get(j.aff_pos)) {
-			affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), true);
-		}
-	}
+	// issue.equipment-affects-improve: the set's equipment AFFECTS are now materialized as real
+	// Affects by reconcile_set_affects (called from update); only the stat applies + damage
+	// bonuses are re-derived here.
 	for (auto &&i : apply) {
 		affect_modify(ch, i.location, i.modifier, static_cast<EAffect>(0), true);
 	}
@@ -1298,12 +1373,12 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 						}
 
 						if (ch->in_room != kNowhere) {
-							for (const auto &i : weapon_affect) {
-								if (i.aff_bitvector == 0
-									|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+							for (const auto &i : equipment_affect) {
+								if (i.aff_affect == EAffect::kUndefined
+									|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+								affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 							}
 						}
 					}
@@ -1324,8 +1399,8 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 					}
 
 					if (ch->in_room != kNowhere) {
-						for (const auto &i : weapon_affect) {
-							if (i.aff_spell == ESpell::kUndefined || !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+						for (const auto &i : equipment_affect) {
+							if (i.aff_spell == ESpell::kUndefined || !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 								continue;
 							}
 							if (!no_cast) {
@@ -1335,12 +1410,10 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								} else {
-									CastWeaponAffect(ch, i.aff_spell);
+									CastEquipmentAffect(ch, i.aff_spell);
 								}
 							} else {
-								affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
-											  GetApplyByWeaponAffect(i.aff_pos, ch).second,
-											  static_cast<EAffect>(i.aff_bitvector), true);
+								affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 							}
 						}
 					}
@@ -1359,8 +1432,8 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 				}
 
 				if (ch->in_room != kNowhere) {
-					for (const auto &i : weapon_affect) {
-						if (i.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(i.aff_pos)) {
+					for (const auto &i : equipment_affect) {
+						if (i.aff_spell == ESpell::kUndefined || !obj->GetEEquipmentAffect(i.aff_pos)) {
 							continue;
 						}
 						if (!no_cast) {
@@ -1370,12 +1443,10 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToChar);
 							} else {
-								CastWeaponAffect(ch, i.aff_spell);
+								CastEquipmentAffect(ch, i.aff_spell);
 							}
 						} else {
-							affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
-										  GetApplyByWeaponAffect(i.aff_pos, ch).second,
-										  static_cast<EAffect>(i.aff_bitvector), true);
+							affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 						}
 					}
 				}
@@ -1431,12 +1502,12 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 							}
 
 							if (ch->in_room != kNowhere) {
-								for (const auto &i : weapon_affect) {
-									if (i.aff_bitvector == 0
-										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+								for (const auto &i : equipment_affect) {
+									if (i.aff_affect == EAffect::kUndefined
+										|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+									affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 								}
 							}
 
@@ -1459,12 +1530,12 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 							}
 
 							if (ch->in_room != kNowhere) {
-								for (const auto &i : weapon_affect) {
-									if (i.aff_bitvector == 0
-										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+								for (const auto &i : equipment_affect) {
+									if (i.aff_affect == EAffect::kUndefined
+										|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
+									affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 								}
 							}
 
@@ -1478,12 +1549,12 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 					}
 
 					if (ch->in_room != kNowhere) {
-						for (const auto &i : weapon_affect) {
-							if (i.aff_bitvector == 0
-								|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+						for (const auto &i : equipment_affect) {
+							if (i.aff_affect == EAffect::kUndefined
+								|| !GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 								continue;
 							}
-							affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+							affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 						}
 					}
 
@@ -1507,12 +1578,12 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 						}
 
 						if (ch->in_room != kNowhere) {
-							for (const auto &i : weapon_affect) {
-								if (i.aff_bitvector == 0 ||
-									!GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+							for (const auto &i : equipment_affect) {
+								if (i.aff_affect == EAffect::kUndefined ||
+									!GET_EQ(ch, pos)->GetEEquipmentAffect(i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
+								affect_modify(ch, EApply::kNone, 0, i.aff_affect, true);
 							}
 						}
 					}
@@ -1531,12 +1602,12 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 				}
 
 				if (ch->in_room != kNowhere) {
-					for (const auto &i : weapon_affect) {
-						if (i.aff_bitvector == 0
-							|| !obj->GetEWeaponAffect(i.aff_pos)) {
+					for (const auto &i : equipment_affect) {
+						if (i.aff_affect == EAffect::kUndefined
+							|| !obj->GetEEquipmentAffect(i.aff_pos)) {
 							continue;
 						}
-						affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+						affect_modify(ch, EApply::kNone, 0, i.aff_affect, false);
 					}
 				}
 

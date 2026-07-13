@@ -1143,20 +1143,20 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto &m : weapon_affect) {
-		if (obj->GetEWeaponAffect(m.aff_pos)) {
-			if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kAirShield) {
+	// аффекты AFF_x через equipment_affect
+	for (const auto &m : equipment_affect) {
+		if (obj->GetEEquipmentAffect(m.aff_pos)) {
+			if (m.aff_affect == EAffect::kAirShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kFireShield) {
+			} else if (m.aff_affect == EAffect::kFireShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kIceShield) {
+			} else if (m.aff_affect == EAffect::kIceShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kMagicGlass) {
+			} else if (m.aff_affect == EAffect::kMagicGlass) {
 				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kBlink) {
+			} else if (m.aff_affect == EAffect::kBlink) {
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
-			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kCloudly) {
+			} else if (m.aff_affect == EAffect::kCloudly) {
 				total_weight += pow(AFF_CLOUDLY_MOD, SQRT_MOD);
 			}
 		}
@@ -1256,7 +1256,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 
 	auto temp_flags = obj->get_affect_flags();
 	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
-	obj->SetWeaponAffectFlags(temp_flags);
+	obj->SetEquipmentAffectFlags(temp_flags);
 	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 	merge_extra_flags(ch, obj, ingrs[0], get_ingr_pow(ingrs[0]));
 	auto temp_affected = obj->get_all_affected();
@@ -1302,7 +1302,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		// переносим аффекты ... c ингров на прототип.
 		auto temp_flags = obj->get_affect_flags();
 		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
-		obj->SetWeaponAffectFlags(temp_flags);
+		obj->SetEquipmentAffectFlags(temp_flags);
 		// перносим эффекты ... с ингров на прототип.
 		merge_extra_flags(ch, obj, ingrs[j], get_ingr_pow(ingrs[j]));
 		// переносим 1 рандом аффект
@@ -1757,7 +1757,7 @@ int MakeRecept::make(CharData *ch) {
 			// переносим аффекты ... c ингров на прототип.
 			auto temp_flags = obj->get_affect_flags();
 			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
-			obj->SetWeaponAffectFlags(temp_flags);
+			obj->SetEquipmentAffectFlags(temp_flags);
 			// перносим эффекты ... с ингров на прототип.
 			merge_extra_flags(ch, obj.get(), ingrs[j], ingr_pow);
 			auto temp_affected = obj->get_all_affected();
@@ -1869,7 +1869,8 @@ void MakeRecept::add_rnd_skills(CharData * /*ch*/, ObjData *obj_from, ObjData *o
 		}
 	}
 }
-int MakeRecept::add_flags(CharData *ch, FlagData *base_flag, const FlagData *add_flag, int/* delta*/) {
+template<class F>
+int MakeRecept::add_flags(CharData *ch, F *base_flag, const F *add_flag, int/* delta*/) {
 // БЕз вариантов вообще :(
 	int tmpprob, skl = CalcCurrentSkill(ch, skill, 0);
 	for (int i = 0; i < 3; i++) {
@@ -1882,6 +1883,8 @@ int MakeRecept::add_flags(CharData *ch, FlagData *base_flag, const FlagData *add
 	}
 	return (true);
 }
+template int MakeRecept::add_flags(CharData *, BitsetFlags<EEquipmentAffect> *, const BitsetFlags<EEquipmentAffect> *, int);
+template int MakeRecept::add_flags(CharData *, BitsetFlags<EObjFlag> *, const BitsetFlags<EObjFlag> *, int);
 
 // Переносит extra-флаги ингредиента на предмет (как add_flags), но НЕ даёт ингредиенту
 // навешивать служебные/привязочные/распадные флаги (issue #3459: крафт плодил "!бросить" и т.п.).

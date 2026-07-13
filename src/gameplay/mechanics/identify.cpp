@@ -408,10 +408,24 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Накладывает на вас аффекты: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
+	obj->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
 	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
+	if (obj->has_suppressed_affects()) {
+		SendMsgToChar("Временно подавлены     :\r\n", ch);
+		SendMsgToChar(kColorCyn, ch);
+		std::string sup;   // one affect per indented line (unreadable comma-joined with 2+)
+		for (const auto &pr : obj->suppressed_equip_affects()) {
+			char hbuf[96];
+			snprintf(hbuf, sizeof(hbuf), "    %s (%d %s)\r\n",
+					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+					grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
+			sup += hbuf;
+		}
+		SendMsgToChar(sup.c_str(), ch);
+		SendMsgToChar(kColorNrm, ch);
+	}
 
 	if (fullness < 100) {
 		return;

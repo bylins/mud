@@ -532,42 +532,6 @@ long YamlWorldDataSource::GetLong(const YAML::Node &node, const std::string &key
 	return default_val;
 }
 
-FlagData YamlWorldDataSource::ParseFlags(const YAML::Node &node, const std::string &dict_name) const
-{
-	FlagData flags;
-
-	if (!node || !node.IsSequence())
-	{
-		return flags;
-	}
-
-	auto &dm = DictionaryManager::Instance();
-
-	for (const auto &flag_node : node)
-	{
-		std::string flag_name = flag_node.as<std::string>();
-
-		// Handle UNUSED_XX flags directly
-		if (flag_name.rfind("UNUSED_", 0) == 0)
-		{
-			int bit = std::stoi(flag_name.substr(7));
-			size_t plane = bit / 30;
-			int bit_in_plane = bit % 30;
-			flags.set_flag(plane, 1 << bit_in_plane);
-			continue;
-		}
-
-		long bit_pos = dm.Lookup(dict_name, flag_name, -1);
-		if (bit_pos >= 0)
-		{
-			size_t plane = bit_pos / 30;
-			int bit = bit_pos % 30;
-			flags.set_flag(plane, 1 << bit);
-		}
-	}
-
-	return flags;
-}
 
 int YamlWorldDataSource::ParseEnum(const YAML::Node &node, const std::string &dict_name, int default_val) const
 {
@@ -1457,7 +1421,7 @@ void YamlWorldDataSource::LoadRoomExits(RoomData *room, const YAML::Node &exits_
 		std::string keywords = GetText(exit_node, "keywords", "");
 		if (!keywords.empty()) exit_data->set_keywords(keywords);
 
-		exit_data->exit_info = GetInt(exit_node, "exit_flags", 0);
+		exit_data->exit_info.set_plane(0, GetInt(exit_node, "exit_flags", 0));
 
 		// Дропаем полностью пустые D-блоки (симметрично с legacy/sqlite),
 		// см. issue #3272.
@@ -2196,17 +2160,17 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 
 			if (root["affect_flags"] && root["affect_flags"].IsSequence())
 			{
-				// affect_flags на предмете -- бит EWeaponAffect (хранится в
+				// affect_flags на предмете -- бит EEquipmentAffect (хранится в
 				// m_waffect_flags), не EAffect. Раньше lookup шёл через dm
 				// "affect_flags" (EAffect-нумерация), и kDetectPoison из
-				// YAML попадал в бит 32, который в EWeaponAffect равен
+				// YAML попадал в бит 32, который в EEquipmentAffect равен
 				// kDisguising -- носитель получал маскировку вместо
-				// определения яда. ITEM_BY_NAME<EWeaponAffect>(name) даёт
-				// корректный EWeaponAffect-бит без посредника.
+				// определения яда. ITEM_BY_NAME<EEquipmentAffect>(name) даёт
+				// корректный EEquipmentAffect-бит без посредника.
 				//
 				// Старые YAML, конвертированные ранее через AFFECT_FLAGS-
 				// таблицу, могут содержать имена, которых нет в
-				// EWeaponAffect (kDetectInvisible вместо kDetectInvisibility).
+				// EEquipmentAffect (kDetectInvisible вместо kDetectInvisibility).
 				// ITEM_BY_NAME .at() бросает out_of_range -- ловим, пишем
 				// syslog, продолжаем. Лучше потерять один сомнительный
 				// флаг, чем уронить boot всего мира.
@@ -2223,12 +2187,12 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 					}
 					try
 					{
-						const auto wa = ITEM_BY_NAME<EWeaponAffect>(flag_name);
-						obj_ptr->SetEWeaponAffectFlag(wa);
+						const auto wa = ITEM_BY_NAME<EEquipmentAffect>(flag_name);
+						obj_ptr->SetEEquipmentAffectFlag(wa);
 					}
 					catch (const std::out_of_range &)
 					{
-						log("SYSERR: unknown EWeaponAffect '%s' on obj vnum %d, skipped",
+						log("SYSERR: unknown EEquipmentAffect '%s' on obj vnum %d, skipped",
 							flag_name.c_str(), obj_ptr->get_vnum());
 					}
 				}
@@ -2448,7 +2412,7 @@ std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagsT &
 
 	const auto &entries = dict->GetEntries();
 
-	for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+	for (size_t plane = 0; plane < kFlagPlanes; ++plane)
 	{
 		Bitvector plane_bits = flags.get_plane(plane);
 		if (plane_bits == 0) continue;
@@ -3209,7 +3173,7 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 	yaml.Value(ReverseLookupEnum("sectors", static_cast<int>(room->sector_type)));
 
 	// Flags
-	FlagData room_flags = room->read_flags();
+	auto room_flags = room->read_flags();
 	auto flag_names = ConvertFlagsToNames(room_flags, "room_flags");
 	if (!flag_names.empty())
 	{
@@ -3312,10 +3276,10 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 			}
 
 			// Exit flags (optional)
-			if (room->dir_option_proto[dir]->exit_info != 0)
+			if (room->dir_option_proto[dir]->exit_info.any())
 			{
 				out << yaml.GetIndent() << "  exit_flags: ";
-				out << static_cast<int>(room->dir_option_proto[dir]->exit_info) << std::endl;
+				out << room->dir_option_proto[dir]->exit_info.get_plane(0) << std::endl;
 			}
 
 			// Key (optional)
@@ -3685,7 +3649,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	}
 
 	// Action flags
-	auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.act, "action_flags");
+	auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.mob_flags, "action_flags");
 	if (!act_flags.empty())
 	{
 		yaml.Key("action_flags");
@@ -3774,7 +3738,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	// across mobs" diff: 'f1 0' on mob 1, 'f1 0 0 0' on mob 2, etc.
 	char special_buf[kMaxStringLength];
 	special_buf[0] = '\0';
-	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
+	mob.mob_specials.npc_flags.tascii(kFlagPlanes, special_buf, sizeof(special_buf));
 	std::string role_str = mob.get_role().to_string();
 	{
 		{
@@ -4347,15 +4311,15 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 		yaml.DecreaseIndent();
 	}
 
-	// Affect flags. m_waffect_flags хранит биты EWeaponAffect, имена
-	// берём из EWeaponAffect-таблицы (не EAffect), иначе round-trip
+	// Affect flags. m_waffect_flags хранит биты EEquipmentAffect, имена
+	// берём из EEquipmentAffect-таблицы (не EAffect), иначе round-trip
 	// конвертера сломает item-affects: загружено как kDetectPoison,
 	// сохранено как kHorse (бит 27 в EAffect-словаре). Идём по битам
-	// сами и берём имена через NAME_BY_ITEM<EWeaponAffect>.
+	// сами и берём имена через NAME_BY_ITEM<EEquipmentAffect>.
 	std::vector<std::string> affect_flags;
 	{
 		const auto &fld = obj->get_affect_flags();
-		for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+		for (size_t plane = 0; plane < kFlagPlanes; ++plane)
 		{
 			Bitvector plane_bits = fld.get_plane(plane);
 			if (plane_bits == 0) continue;
@@ -4368,7 +4332,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 					(kIntThree | (1u << bit)));
 				try
 				{
-					const auto &name = NAME_BY_ITEM<EWeaponAffect>(static_cast<EWeaponAffect>(v));
+					const auto &name = NAME_BY_ITEM<EEquipmentAffect>(static_cast<EEquipmentAffect>(v));
 					if (!name.empty()) affect_flags.push_back(name);
 				}
 				catch (const std::out_of_range &)

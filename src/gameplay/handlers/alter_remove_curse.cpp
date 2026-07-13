@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/affects/obj_affects.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
@@ -14,7 +15,11 @@ namespace handlers {
 EStageResult AlterRemoveCurse(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (obj->has_flag(EObjFlag::kNodrop)) {
-		obj->unset_extraflag(EObjFlag::kNodrop);
+		if (obj_affects::Has(obj, obj_affects::EObjAffect::kCurse)) {
+			obj_affects::Remove(obj, obj_affects::EObjAffect::kCurse, false);  // clears kNodrop unless innate
+		} else {
+			obj->unset_extraflag(EObjFlag::kNodrop);  // legacy flag-only curse (pre-obj-affects saves)
+		}
 		if (obj->get_type() == EObjType::kWeapon) {
 			obj->inc_val(2);
 		}

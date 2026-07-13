@@ -153,7 +153,7 @@ bool RunRoomAffectTrigger(RoomData *room, CharData *ch, ERoomAffect affect_type,
 
 } // namespace room_spells
 
-// Room-affect registry name maps (cfg/room_affects.xml validates these). Global scope, mirroring
+// Room-affect registry name maps (cfg/affects/room_affects.xml validates these). Global scope, mirroring
 // the EAffect specializations in affect_contants.h.
 template<>
 const std::string &NAME_BY_ITEM<room_spells::ERoomAffect>(room_spells::ERoomAffect item);

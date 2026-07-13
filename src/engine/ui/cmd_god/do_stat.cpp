@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/equipment.h"
+#include "gameplay/affects/obj_affects.h"   // issue.obj-affects: Diag
 #include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
@@ -418,7 +419,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	}
 
 	if (k->IsNpc()) {
-		k->char_specials.saved.act.sprintbits(action_bits, smallBuf, sizeof(smallBuf), ",", 4);
+		k->char_specials.saved.mob_flags.sprintbits(action_bits, smallBuf, sizeof(smallBuf), ",", 4);
 		snprintf(buf, sizeof(buf), "MOB флаги: %s%s%s\r\n", kColorCyn, smallBuf, kColorNrm);
 		SendMsgToChar(buf, ch);
 		k->mob_specials.npc_flags.sprintbits(function_bits, smallBuf, sizeof(smallBuf), ",", 4);
@@ -532,7 +533,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			}
 		}
 	} else {
-		k->char_specials.saved.act.sprintbits(player_bits, smallBuf, sizeof(smallBuf), ", ", 4);
+		k->char_specials.saved.plr_flags.sprintbits(player_bits, smallBuf, sizeof(smallBuf), ", ", 4);
 		std::vector<std::string> out_str = utils::Split(smallBuf, ',');
 		snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "PLR: ").c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
@@ -614,8 +615,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		for (const auto &aff : k->affected) {
 			std::string sline = fmt::sprintf("Заклинания: (%3d%s|%s) %s%-21s%s ",
 					aff->duration + 1,
-					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
-					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
+					(aff->battleflag.get(kAfPulsedec)) || (aff->battleflag.get(kAfSameTime)) ? "плс" : "мин",
+					(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин",
 					kColorCyn,
 					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
 					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(),
@@ -787,8 +788,20 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "%s\r\n", buf);
 
 	SendMsgToChar("Устанавливает аффекты : ", ch);
-	j->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",", 4);
+	j->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", 4);
 	SendMsgToChar(ch, "%s\r\n", buf);
+	if (j->has_suppressed_affects()) {
+		SendMsgToChar("Подавленные аффекты   : ", ch);
+		std::string sup;
+		for (const auto &pr : j->suppressed_equip_affects()) {
+			char one[128];
+			snprintf(one, sizeof(one), "%s%s (%d %s)", sup.empty() ? "" : ", ",
+					affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+					grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
+			sup += one;
+		}
+		SendMsgToChar(ch, "%s\r\n", sup.c_str());
+	}
 
 	SendMsgToChar("Дополнительные флаги  : ", ch);
 	j->get_extra_flags().sprintbits(extra_bits, buf, sizeof(buf), ",", 4);
@@ -1108,6 +1121,15 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		SendMsgToChar(" Нет", ch);
 	}
 
+	// issue.obj-affects: obj affects on the item (gods see everything -> nullptr viewer).
+	{
+		const std::string oaff = obj_affects::Diag(j, nullptr);
+		if (!oaff.empty()) {
+			SendMsgToChar("\r\nОбъектные аффекты:\r\n", ch);
+			SendMsgToChar(oaff, ch);
+		}
+	}
+
 	if (j->has_skills()) {
 		CObjectPrototype::skills_t skills;
 		j->get_skills(skills);
@@ -1234,7 +1256,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			else
 				snprintf(smallBuf, sizeof(smallBuf), "%s%5d%s", kColorCyn,
 						GET_ROOM_VNUM(rm->dir_option[i]->to_room()), kColorNrm);
-			sprintbit(rm->dir_option[i]->exit_info, exit_bits, tmpBuf, sizeof(tmpBuf));
+			sprintbit(rm->dir_option[i]->exit_info.get_plane(0), exit_bits, tmpBuf, sizeof(tmpBuf));
 			snprintf(buf, sizeof(buf),
 					"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
 					kColorCyn, dirs[i], kColorNrm, smallBuf,

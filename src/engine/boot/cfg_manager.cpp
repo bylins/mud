@@ -61,8 +61,11 @@
 #include "gameplay/mechanics/pc_race_messages.h"
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/affects/affects_loader.h"
+#include "gameplay/affects/equipment_affects_loader.h"
 #include "gameplay/magic/room_affects_loader.h"
+#include "gameplay/affects/obj_affects_loader.h"
 #include "gameplay/magic/room_affect_messages.h"
+#include "gameplay/affects/obj_affect_messages.h"
 #include "gameplay/affects/affect_messages.h"
 #include "engine/core/common_messages.h"
 #include "gameplay/mechanics/rune_stones_loaders.h"
@@ -86,7 +89,7 @@ LoaderPtr MakeLoader() {
 // здесь, в одном месте (внутренние константы менеджера).
 // issue.cfg-manager: подпространства cfg/ - раскладка каталогов в одном месте, чтобы пути в
 // таблице регистрации не дублировали префиксы, а переименование каталога было однострочным.
-enum class CfgDir { kRoot, kClasses, kCraft, kEconomics, kMechanics, kMessagesRu, kQuests };
+enum class CfgDir { kRoot, kClasses, kCraft, kEconomics, kMechanics, kMessagesRu, kQuests, kAffects };
 
 std::string MakeCfgPath(CfgDir dir, std::string_view file) {
 	std::string_view sub;
@@ -98,6 +101,7 @@ std::string MakeCfgPath(CfgDir dir, std::string_view file) {
 		case CfgDir::kMechanics:  sub = "mechanics/";   break;
 		case CfgDir::kMessagesRu: sub = "messages/ru/"; break;
 		case CfgDir::kQuests:     sub = "quests/";      break;
+		case CfgDir::kAffects:    sub = "affects/";     break;
 	}
 	std::string out = "cfg/";
 	out += sub;
@@ -147,10 +151,14 @@ CfgManager::CfgManager() {
 		{"shop_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::ShopMessagesLoader>(); }},
 		{"board_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
 		{"specials", CfgDir::kRoot, [] { return MakeLoader<SpecialsLoader>(); }},
-		{"affects", CfgDir::kRoot, [] { return MakeLoader<affects::AffectsLoader>(); }},
-		{"room_affects", CfgDir::kRoot, [] { return MakeLoader<room_spells::RoomAffectsLoader>(); }},
+		{"affects", CfgDir::kAffects, [] { return MakeLoader<affects::AffectsLoader>(); }},
+		{"equipment_affects", CfgDir::kAffects, [] { return MakeLoader<EquipmentAffectsLoader>(); }},
+		{"equipment_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<EquipmentAffectMsgLoader>(); }},
+		{"room_affects", CfgDir::kAffects, [] { return MakeLoader<room_spells::RoomAffectsLoader>(); }},
+		{"obj_affects", CfgDir::kAffects, [] { return MakeLoader<obj_affects::ObjAffectsLoader>(); }},
 		{"affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
 		{"room_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<room_spells::RoomAffectMessagesLoader>(); }},
+		{"obj_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<obj_affects::ObjAffectMessagesLoader>(); }},
 		{"common_msg", CfgDir::kMessagesRu, [] { return MakeLoader<CommonMessagesLoader>(); }},
 		{"social_msg", CfgDir::kMessagesRu, [] { return MakeLoader<communication::social::SocialsLoader>(); }},
 		{"cities_msg", CfgDir::kMessagesRu, [] { return MakeLoader<cities::CityMessagesLoader>(); }},

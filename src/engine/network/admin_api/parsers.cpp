@@ -358,7 +358,7 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		const auto& flags = data["flags"];
 
 		// mob_flags array
-		ParseFlags<EMobFlag>(flags, "mob_flags", mob->char_specials.saved.act);
+		ParseFlags<EMobFlag>(flags, "mob_flags", mob->char_specials.saved.mob_flags);
 
 		// npc_flags array
 		ParseFlags<ENpcFlag>(flags, "npc_flags", mob->mob_specials.npc_flags);
@@ -378,7 +378,7 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 	// Legacy flat flags array (backward compatibility)
 	else if (HasArray(data, "flags"))
 	{
-		ParseFlags<EMobFlag>(data, "flags", mob->char_specials.saved.act);
+		ParseFlags<EMobFlag>(data, "flags", mob->char_specials.saved.mob_flags);
 	}
 
 	// Legacy npc_flags array at root level
@@ -553,7 +553,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	// Extra flags (array of 4 plane values)
 	if (data.contains("extra_flags") && data["extra_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<EObjFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["extra_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["extra_flags"][i].get<Bitvector>());
@@ -570,7 +570,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	// Anti flags (array of 4 plane values)
 	if (data.contains("anti_flags") && data["anti_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<EAntiFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["anti_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["anti_flags"][i].get<Bitvector>());
@@ -581,7 +581,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	// No flags (array of 4 plane values)
 	if (data.contains("no_flags") && data["no_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<ENoFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["no_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["no_flags"][i].get<Bitvector>());
@@ -699,7 +699,7 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 	}
 	if (data.contains("room_flags") && data["room_flags"].is_array())
 	{
-		FlagData flags;
+		BitsetFlags<ERoomFlag> flags;
 		for (size_t i = 0; i < 4 && i < data["room_flags"].size(); ++i)
 		{
 			flags.set_plane(i, data["room_flags"][i].get<Bitvector>());

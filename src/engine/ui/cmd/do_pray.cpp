@@ -113,7 +113,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	blessing.modifier = 0;
 	blessing.location = EApply::kNone;
 	blessing.affect_type = (subcmd == SCMD_PRAY) ? EAffect::kPrayerful : EAffect::kPietas;
-	blessing.battleflag = 0;
+	blessing.battleflag.clear();
 	ImposeAffect(ch, blessing, false, false, false, false);
 
 	for (const auto &i : pray_affect) {
@@ -123,7 +123,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.modifier = i.modifier;
 			af.location = i.location;
 			af.affect_type = static_cast<EAffect>(i.bitvector);
-			af.battleflag = i.battleflag;
+			af.battleflag.set_plane(0, i.battleflag);
 			ImposeAffect(ch, af, false, false, false, false);
 		}
 	}

@@ -1001,44 +1001,6 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 		obj->set_zone(v);
 	}
 
-	FLAG_DATA get_affects() const {
-		Ensurer obj(*this);
-		return obj->get_affect_flags();
-	}
-
-	void set_affects(const FLAG_DATA &f) {
-		Ensurer obj(*this);
-		obj->set_affect_flags(f);
-	}
-
-	FLAG_DATA get_anti_flag() const {
-		Ensurer obj(*this);
-		return obj->get_anti_flags();
-	}
-
-	void set_anti_flag(const FLAG_DATA &f) {
-		Ensurer obj(*this);
-		obj->set_anti_flags(f);
-	}
-
-	FLAG_DATA get_no_flag() const {
-		Ensurer obj(*this);
-		return obj->get_no_flags();
-	}
-
-	void set_no_flag(const FLAG_DATA &f) {
-		Ensurer obj(*this);
-		obj->set_no_flags(f);
-	}
-
-	FLAG_DATA get_extra_flags() const {
-		Ensurer obj(*this);
-		return obj->get_extra_flags();
-	}
-
-	void set_extra_flags(const FLAG_DATA &f) {
-		Ensurer obj(*this);
-		obj->set_extra_flags(f);
 	}
 
 	const affected_t &get_affected() {
@@ -1106,26 +1068,6 @@ void obj_to_char_wrap(const CharacterWrapper &c, ObjWrapper &o) {
 	obj_to_char(obj, ch);
 }
 
-bool flag_is_set(const FLAG_DATA &flag, const unsigned f) {
-	return flag.get(f);
-}
-
-void flag_set(FLAG_DATA &flag, const unsigned f) {
-	flag.set(f);
-}
-
-void flag_remove(FLAG_DATA &flag, const unsigned f) {
-	flag.unset(f);
-}
-
-void flag_toggle(FLAG_DATA &flag, const unsigned f) {
-	flag.toggle(f);
-}
-
-str flag_str(const FLAG_DATA &flag) {
-	char buf[MAX_STRING_LENGTH];
-	*buf = '\0';
-	flag.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	return str(buf);
 }
 
@@ -1489,16 +1431,6 @@ BOOST_PYTHON_MODULE (mud) {
 					  &ObjWrapper::set_item_number,
 					  "п═п╣п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╬п╠я┼п╣п╨я┌п╟, я▐п╡п╩я▐я▌я┴п╦п╧я│я▐ п╦п╫п╢п╣п╨я│п╬п╪ п╡ я┌п╟п╠п╩п╦я├п╣ п©я─п╬я┌п╬я┌п╦п©п╬п╡.")
 		.def("vnum", &ObjWrapper::get_vnum, "п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╬п╠я┼п╣п╨я┌п╟-п©я─п╬я┌п╬я┌п╦п©п╟.")
-		.add_property("affects",
-					  &ObjWrapper::get_affects,
-					  &ObjWrapper::set_affects,
-					  "п²п╟п╨п╩п╟п╢я▀п╡п╟п╣п╪я▀п╣ п╟я└я└п╣п╨я┌я▀")
-		.add_property("extra_flags",
-					  &ObjWrapper::get_extra_flags,
-					  &ObjWrapper::set_extra_flags,
-					  "п╜п╨я│я┌я─п╟я└п╩п╟пЁп╦ (я┬я┐п╪п╦я┌, пЁп╬я─п╦я┌ п╦ я┌.п©.)")
-		.add_property("no_flags", &ObjWrapper::get_no_flag, &ObjWrapper::set_no_flag)
-		.add_property("anti_flags", &ObjWrapper::get_anti_flag, &ObjWrapper::set_anti_flag)
 		.add_property("modifiers",
 					  make_function(&ObjWrapper::get_affected, return_internal_reference<>()),
 					  "п°п╟я│я│п╦п╡ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─п╬п╡ (XXX я┐п╩я┐я┤я┬п╟п╣я┌ п╫п╟ YYY)")
@@ -1554,12 +1486,6 @@ BOOST_PYTHON_MODULE (mud) {
 					   &AFFECT_DATA<EApplyLocation>::apply_time,
 					   "пёп╨п╟п╥я▀п╡п╟п╣я┌ я│п╨п╬п╩я▄п╨п╬ п╟я└я└п╣п╨я┌ п╡п╦я│п╦я┌ (п©п╬п╨п╟ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╡ п╨п╬п╪п╫п╟я┌п╟я┘)");
 
-	class_<FLAG_DATA>("FlagData", "п╓п╩п╟пЁп╦ я┤п╣пЁп╬-п╫п╦п╠я┐п╢я▄.")
-		.def("__contains__", flag_is_set, "п║п╬п╢п╣я─п╤п╦я┌я│я▐ п╩п╦ я└п╩п╟пЁ п╡ я█я┌п╬п╪ п©п╬п╩п╣?")
-		.def("set", flag_set, "пёя│я┌п╟п╫п╬п╡п╦я┌я▄ я┐п╨п╟п╥п╟п╫п╫я▀п╧ я└п╩п╟пЁ")
-		.def("remove", flag_remove, "пёп╠я─п╟я┌я▄ я┐п╨п╟п╥п╟п╫п╫я▀п╧ я└п╩п╟пЁ")
-		.def("toggle", flag_toggle, "п÷п╣я─п╣п╨п╩я▌я┤п╦я┌я▄ я┐п╨п╟п╥п╟п╫п╫я▀п╧ я└п╩п╟пЁ")
-		.def("__str__", flag_str);
 
 	class_<obj_affected_type>("ObjectModifier",
 							  "п°п╬п╢п╦я└п╦п╨п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤п╟, п╫п╟п╨п╩п╟п╢я▀п╡п╟п╣п╪я▀п╧ п╬п╠я┼п╣п╨я┌п╬п╪.")

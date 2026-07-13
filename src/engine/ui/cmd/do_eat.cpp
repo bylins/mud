@@ -75,7 +75,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kCharmed;
-	af.battleflag = kAfCharmBond;
+	af.battleflag = {kAfCharmBond};
 
 	ImposeAffect(ch, af);
 	if (ch->IsNpc()) { ch->SetFlag(EMobFlag::kCompanion); }	// any NPC ally
@@ -182,13 +182,16 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Вы наелись.\r\n", ch);
 	}
 
-	for (int i = 0; i < kMaxObjAffect; i++) {
+	// Immortals use "eat" to destroy any object (the non-food guard above is skipped for gods). Only a
+	// real food item confers the well-fed buff -- otherwise eating an item to delete it would graft its
+	// apply modifiers onto the eater as kWellFed affects (which then persist across saves).
+	for (int i = 0; food->get_type() == EObjType::kFood && i < kMaxObjAffect; i++) {
 		if (food->get_affected(i).modifier) {
 			Affect<EApply> af;
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
 			af.affect_type = EAffect::kWellFed;
-//			af.battleflag = 0;
+//			af.battleflag.clear();
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10 * 2, 0, 0, 0);
 			ImposeAffect(ch, af);
 		}
@@ -206,13 +209,13 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		af.modifier = 0;
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;
-		af.battleflag = kAfSameTime;
+		af.battleflag = {kAfSameTime};
 		ImposeAffect(ch, af, false, false, false, false);
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 1 ? amount : amount * 2, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;
 		af.affect_type = EAffect::kPoisoned;
-		af.battleflag = kAfSameTime;
+		af.battleflag = {kAfSameTime};
 		ImposeAffect(ch, af, false, false, false, false);
 		// отравленная еда -- сам виноват: у аффекта нет автора (caster_id остаётся 0)
 	}

@@ -6,7 +6,6 @@
 // parsing against FlagData for the same flags.
 
 #include "engine/structs/bitset_flags.h"
-#include "engine/structs/flag_data.h"
 
 #include <gtest/gtest.h>
 #include <cstring>
@@ -43,14 +42,6 @@ namespace {
 
 using TestFlags = BitsetFlags<ETestFlag, 120>;
 
-FlagData MakeFlagData(std::initializer_list<int> indices) {
-	FlagData f;
-	for (const int n : indices) {
-		f.set(flag_data_by_num(n));
-	}
-	return f;
-}
-
 TestFlags MakeBitset(std::initializer_list<int> indices) {
 	TestFlags f;
 	for (const int n : indices) {
@@ -60,24 +51,27 @@ TestFlags MakeBitset(std::initializer_list<int> indices) {
 }
 
 void ExpectSameSerialization(std::initializer_list<int> indices) {
-	const FlagData fd = MakeFlagData(indices);
 	const TestFlags bf = MakeBitset(indices);
-
-	EXPECT_EQ(fd.to_numeric_string(), bf.to_numeric_string());
-
-	char a[256] = {0};
+	// expected 30-bit planes computed directly from the flat indices (no FlagData).
+	std::uint32_t planes[4] = {0, 0, 0, 0};
+	for (const int n : indices) { planes[n / 30] |= (1u << (n % 30)); }
+	const std::string expected = std::to_string(planes[0]) + " " + std::to_string(planes[1]) + " "
+		+ std::to_string(planes[2]) + " " + std::to_string(planes[3]);
+	EXPECT_EQ(expected, bf.to_numeric_string());
+	// tascii round-trips back to the same flags.
 	char b[256] = {0};
-	fd.tascii(FlagData::kPlanesNumber, a, sizeof(a));
 	bf.tascii(4, b, sizeof(b));
-	EXPECT_STREQ(a, b);
+	TestFlags rt;
+	rt.from_string(b);
+	EXPECT_EQ(bf, rt);
 }
 
 void ExpectSameParse(const char *s) {
-	FlagData fd;
-	fd.from_string(s);
 	TestFlags bf;
 	bf.from_string(s);
-	EXPECT_EQ(fd.to_numeric_string(), bf.to_numeric_string()) << "input: \"" << s << "\"";
+	TestFlags rt;
+	rt.from_string(bf.to_numeric_string().c_str());
+	EXPECT_EQ(bf, rt) << "input: \"" << s << "\"";
 }
 
 }  // namespace
@@ -227,22 +221,12 @@ TEST(BitsetFlags, Serialization_Plane2Bit5) { ExpectSameSerialization({65}); }
 TEST(BitsetFlags, Serialization_Plane3Bit29) { ExpectSameSerialization({119}); }
 TEST(BitsetFlags, Serialization_MultiPlane) { ExpectSameSerialization({0, 1, 31, 65, 90, 119}); }
 TEST(BitsetFlags, Serialization_AllBits) {
-	std::vector<int> all;
-	for (int i = 0; i < 120; ++i) {
-		all.push_back(i);
-	}
-	const FlagData fd = [&] {
-		FlagData f;
-		for (int n : all) {
-			f.set(flag_data_by_num(n));
-		}
-		return f;
-	}();
 	TestFlags bf;
-	for (int n : all) {
-		bf.set_index(static_cast<std::size_t>(n));
+	for (int i = 0; i < 120; ++i) {
+		bf.set_index(static_cast<std::size_t>(i));
 	}
-	EXPECT_EQ(fd.to_numeric_string(), bf.to_numeric_string());
+	// all 120 bits set -> every 30-bit plane full (0x3FFFFFFF = 1073741823).
+	EXPECT_EQ("1073741823 1073741823 1073741823 1073741823", bf.to_numeric_string());
 }
 
 TEST(BitsetFlags, NumericString_KnownValues) {

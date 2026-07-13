@@ -33,7 +33,6 @@
 #include "gameplay/magic/magic.h"   // issue.character-affect-triggers: RunCharEventTriggers / EventContext (kKill)
 #include "gameplay/affects/affect_messages.h"   // issue.damage-change: affects::AffectActions
 #include "gameplay/abilities/talents_actions.h"  // issue.damage-change: DamageChange / kWardDamage
-#include "gameplay/affects/affect_data.h"  // VictimWardAffects (autoaffects-hotfix; TEMPORARY, see unstable.next)
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/mechanics/tutelar.h"
@@ -120,10 +119,11 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 // shield's property counts only when it is the shield chosen for this hit (so ice/air stay selection-
 // gated); a non-shield affect (e.g. prismatic aura) counts whenever it is present.
 static bool VictimAffectDeclares(int selected_shield, CharData *victim, EAffFlag flag) {
-	// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
-	// also yields flag-only equipment shields that this branch does not materialize.
-	for (const auto &ward : VictimWardAffects(victim)) {
-		const EAffect at = ward.first;
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
+			continue;
+		}
+		const EAffect at = aff->affect_type;
 		if ((affects::AffectFlagsByType(at) & flag) == 0) {
 			continue;
 		}
@@ -170,7 +170,7 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	// даже в случае попадания можно уклониться мигалкой
 	// issue.mob-flag-affect-materialization: gate on the miss-chance APPLY, not the AFF flag. kCloudly/
 	// kBlink now grant kSpelledBlinkMag/Phys from every source -- cast (affects.xml <apply>), worn item
-	// (GetApplyByWeaponAffect) and materialized flag-only mob (BuildMaterializedAffect) -- so the flag
+	// (GetApplyByEquipmentAffect) and materialized flag-only mob (BuildMaterializedAffect) -- so the flag
 	// check is redundant. NPC bearers still take level+remort; PCs take the apply value.
 	if (dmg_type == fight::kMagicDmg) {
 		if (victim->add_abils.percent_spell_blink_mag > 0) {
@@ -212,19 +212,19 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 // `dam` by the variation and edits `flags`. Replaces the hardcoded per-affect blocks (kSanctuary,
 // kPrismaticAura, ... as they migrate); applied in affect-list order. -1 masks mean "any".
 void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_stage) {
-	if (dam <= 0 || !victim) {
+	if (dam <= 0 || !victim || victim->affected.empty()) {
 		return;
 	}
-	// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
-	// also yields flag-only equipment shields that this branch does not materialize.
-	for (const auto &ward : VictimWardAffects(victim)) {
-		const EAffect at = ward.first;
-		// issue.damage-change: a shield affect acts only when it is the one chosen for this hit.
-		if (const int sw = affects::AffectShieldWeight(at);
-			sw > 0 && static_cast<int>(at) != selected_shield_) {
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
 			continue;
 		}
-		for (const auto &action : affects::AffectActions(at).list()) {
+		// issue.damage-change: a shield affect acts only when it is the one chosen for this hit.
+		if (const int sw = affects::AffectShieldWeight(aff->affect_type);
+			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
+			continue;
+		}
+		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
 			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
 				continue;
 			}
@@ -269,6 +269,7 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 			// the blow"). The bearer is `victim` ($N); the attacker is `ch` ($n). Optional -- empty = silent.
 			if (ch && dc.msg_variant != 2) {
 				using EAMT = affects::EAffectMsgType;
+				const EAffect at = aff->affect_type;
 				const EAMT sc = (dc.msg_variant == 1) ? EAMT::kTransformCritToChar : EAMT::kTransformToChar;
 				const EAMT sv = (dc.msg_variant == 1) ? EAMT::kTransformCritToVict : EAMT::kTransformToVict;
 				const EAMT sr = (dc.msg_variant == 1) ? EAMT::kTransformCritToRoom : EAMT::kTransformToRoom;
@@ -293,16 +294,16 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 	if (flags[fight::kMagicReflect]) {
 		return;
 	}
-	// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
-	// also yields flag-only equipment shields that this branch does not materialize.
-	for (const auto &ward : VictimWardAffects(victim)) {
-		const EAffect at = ward.first;
-		// issue.damage-change: a shield affect retaliates only when it is the one chosen for this hit.
-		if (const int sw = affects::AffectShieldWeight(at);
-			sw > 0 && static_cast<int>(at) != selected_shield_) {
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
 			continue;
 		}
-		for (const auto &action : affects::AffectActions(at).list()) {
+		// issue.damage-change: a shield affect retaliates only when it is the one chosen for this hit.
+		if (const int sw = affects::AffectShieldWeight(aff->affect_type);
+			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
+			continue;
+		}
+		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
 			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
 				continue;
 			}
@@ -495,24 +496,27 @@ void Damage::SelectMagicShield(CharData *victim) {
 	// BOTH the retaliation pass and the reduction pass gate on the same choice. The pool is every shield
 	// the victim has, independent of the hit -- so e.g. a crit is absorbed only when ice is the pick.
 	int total = 0;
-	// autoaffects-hotfix (TEMPORARY, see VictimWardAffects): include flag-only equipment shields in the pool.
-	const auto wards = VictimWardAffects(victim);
-	for (const auto &ward : wards) {
-		total += affects::AffectShieldWeight(ward.first);
+	for (const auto &aff : victim->affected) {
+		if (aff) {
+			total += affects::AffectShieldWeight(aff->affect_type);
+		}
 	}
 	if (total <= 0) {
 		return;   // no shields -> selected_shield_ stays -1
 	}
 	int roll = number(1, total);
 	int acc = 0;
-	for (const auto &ward : wards) {
-		const int w = affects::AffectShieldWeight(ward.first);
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
+			continue;
+		}
+		const int w = affects::AffectShieldWeight(aff->affect_type);
 		if (w <= 0) {
 			continue;
 		}
 		acc += w;
 		if (acc >= roll) {
-			selected_shield_ = static_cast<int>(ward.first);
+			selected_shield_ = static_cast<int>(aff->affect_type);
 			break;
 		}
 	}

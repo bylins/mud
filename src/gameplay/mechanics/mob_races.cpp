@@ -79,8 +79,8 @@ using ItemPtr = MobRaceBuilder::ItemPtr;
 // Set every flag named in a "kA|kB|kC" value string into `flags`, decoding each token via the
 // enum's meta_enum table (so multi-plane flags land in the right plane). Unknown tokens are logged
 // and skipped. An empty/absent value leaves `flags` untouched.
-template<typename FlagEnum>
-static void ParseFlagSet(const char *value, FlagData &flags) {
+template<typename FlagEnum, typename FlagContainer>
+static void ParseFlagSet(const char *value, FlagContainer &flags) {
 	if (!value || !*value) {
 		return;
 	}

@@ -118,7 +118,7 @@ void ObjData::set_serial_num(int num) {
 
 const std::string ObjData::activate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
-		SetWeaponAffectFlags(__act.get_affects());
+		SetEquipmentAffectFlags(__act.get_affects());
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, __act.get_affected_i(i));
 		}
@@ -157,7 +157,7 @@ const std::string ObjData::activate_obj(const activation &__act) {
 
 const std::string ObjData::deactivate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
-		SetWeaponAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
+		SetEquipmentAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, obj_proto[get_rnum()]->get_affected(i));
 		}
@@ -230,7 +230,7 @@ void CObjectPrototype::toggle_val_bit(const size_t index, const Bitvector bit) {
 }
 
 void CObjectPrototype::toggle_wear_flag(const Bitvector flag) {
-	TOGGLE_BIT(m_wear_flags, flag);
+	m_wear_flags.toggle(static_cast<EWearFlag>(flag));
 }
 
 void CObjectPrototype::set_skill(ESkill skill_num, int percent) {
@@ -373,11 +373,11 @@ int CObjectPrototype::get_skill(ESkill skill_num) const {
 }
 
 bool CObjectPrototype::has_wear_flag(const EWearFlag part) const {
-	return IS_SET(m_wear_flags, to_underlying(part));
+	return m_wear_flags.get(part);
 }
 
 bool CObjectPrototype::get_wear_mask(const wear_flags_t part) const {
-	return IS_SET(m_wear_flags, part);
+	return (m_wear_flags.get_plane(0) & part) != 0;
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.
@@ -491,7 +491,7 @@ void ObjData::unset_enchant() {
 		}
 	}
 	// Возврат эфектов
-	SetWeaponAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
+	SetEquipmentAffectFlags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
 	if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasThreeSlots)) {
 		set_extra_flag(EObjFlag::kHasThreeSlots);
@@ -653,9 +653,69 @@ int ObjData::get_timer() const {
 	return static_cast<int>(deadline - now);
 }
 
+// issue.equipment-affects-improve (Phase 3): a dispel suppresses an item-materialized equipment affect
+// on the source item; the item counts the suppression down here and re-materializes the affect on its
+// wearer when it expires (auto-return).
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce);
+void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed);
+void affect_total(CharData *ch);   // set-affect auto-return recompute
+
 void ObjData::process_periodic_effects() {
-	if (!m_timed_spell.empty()) {
-		m_timed_spell.dec_timer(this, 1);
+	// issue.obj-suppressor-affect: snapshot equipment-affect suppressions before ticking; obj_affects::Tick
+	// counts down + erases expired kSuppressed obj-affects like any other, so the ones that vanish this tick
+	// are the ones whose timer just ran out -- auto-return them on the wearer.
+	std::vector<EAffect> suppressed_before;
+	for (const auto &pr : obj_affects::SuppressedEquipAffects(this)) {
+		suppressed_before.push_back(pr.first);
+	}
+	if (has_obj_affects()) {
+		obj_affects::Tick(this, 1);
+	}
+	if (m_worn_by && !suppressed_before.empty()) {
+		std::vector<EAffect> returned;
+		for (const EAffect aff : suppressed_before) {
+			if (!obj_affects::IsEquipAffectSuppressed(this, aff)) {
+				returned.push_back(aff);   // its suppression timer expired this tick
+			}
+		}
+		if (!returned.empty()) {
+			for (const EAffect aff : returned) {
+				MaterializeEquipmentAffect(m_worn_by, this, aff);   // item-own affect (no-op for a set affect)
+			}
+			// Set affects have no single owner: re-run the set reconcile so a now-unsuppressed set affect
+			// re-materializes (it stays down while still suppressed on another worn set piece).
+			m_worn_by->obj_bonus().update(m_worn_by);
+			affect_total(m_worn_by);
+		}
+	}
+}
+
+// issue.affect-suppression-dispell: manual counterpart of the timer auto-return above -- lift ONE
+// suppression on demand (weave-restoration success). Erase the kSuppressed and, if the item is worn and
+// the affect is no longer suppressed (e.g. not still held down on another worn set piece), re-materialize
+// the equipment affect on the wearer.
+void ObjData::release_suppression(EAffect aff) {
+	if (!obj_affects::IsEquipAffectSuppressed(this, aff)) {
+		return;
+	}
+	// Was the affect already active on the wearer (from another source)? If so its restoration is
+	// visually a no-op and must not announce. (Captured BEFORE removal/re-materialization.)
+	bool was_active = false;
+	if (m_worn_by) {
+		for (const auto &a : m_worn_by->affected) {
+			if (a && a->affect_type == aff) { was_active = true; break; }
+		}
+	}
+	obj_affects::RemoveSuppression(this, aff);
+	if (m_worn_by && !obj_affects::IsEquipAffectSuppressed(this, aff)) {
+		// Materialize SILENTLY (the cast pipeline's internal re-equips are already silent), then announce
+		// the affect's return exactly once here -- so weave restoration shows one impose line, not zero/two.
+		MaterializeEquipmentAffect(m_worn_by, this, aff, /*announce=*/false);
+		m_worn_by->obj_bonus().update(m_worn_by);
+		affect_total(m_worn_by);
+		if (!was_active) {
+			EmitAffectImpose(m_worn_by, nullptr, aff, false);
+		}
 	}
 }
 
@@ -679,8 +739,11 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 */
 void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	*buf2 = '\0';
-	if (!m_timed_spell.empty()) {
-		m_timed_spell.dec_timer(this, time);
+	if (has_obj_affects()) {
+		// issue.obj-suppressor-affect: dec_timer's obj-affect tick is the OFFLINE catch-up on rent-load
+		// (time = rented mud-hours). Suppressions pause offline ("N hours of play"), so exclude them here;
+		// the online periodic tick (process_periodic_effects) counts them down during actual play.
+		obj_affects::Tick(this, time, /*tick_suppressions=*/false);
 	}
 	if (!ignore_utimer && stable_objs::IsTimerUnlimited(this)) {
 		return;
@@ -816,21 +879,6 @@ std::pair<bool, int> ObjData::get_activator() const {
 	return m_activator;
 }
 
-void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
-	if (spell_id < ESpell::kFirst) {
-		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, to_underlying(spell_id), time);
-		return;
-	}
-	m_timed_spell.add(this, spell_id, time);
-	if (time > 0) {
-		world_objects.decay_manager().add_timed_spell_obj(this);
-	}
-}
-
-void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
-	m_timed_spell.del(this, spell_id, message);
-}
-
 void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {
 	ExtraDescription::shared_ptr d(new ExtraDescription());
 	d->keyword = strdup(keyword);
@@ -839,8 +887,8 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 }
 
 void set_obj_aff(ObjData *itemobj, const EAffect bitv) {
-	for (const auto &i : weapon_affect) {
-		if (i.aff_bitvector == static_cast<Bitvector>(bitv)) {
+	for (const auto &i : equipment_affect) {
+		if (i.aff_affect == bitv) {
 			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
 		}
 	}
@@ -1613,10 +1661,10 @@ double CalcRemortRequirements(const CObjectPrototype *obj) {
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto &m : weapon_affect) {
-		if (obj->GetEWeaponAffect(m.aff_pos)) {
-			auto obj_affects = static_cast<EAffect>(m.aff_bitvector);
+	// аффекты AFF_x через equipment_affect
+	for (const auto &m : equipment_affect) {
+		if (obj->GetEEquipmentAffect(m.aff_pos)) {
+			auto obj_affects = m.aff_affect;
 			if (obj_affects == EAffect::kAirShield ||
 				obj_affects == EAffect::kFireShield ||
 				obj_affects == EAffect::kIceShield) {

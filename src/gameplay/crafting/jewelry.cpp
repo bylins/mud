@@ -315,8 +315,8 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	for (const auto &i : weapon_affect) {
-		if (itemobj->GetEWeaponAffect(i.aff_pos)) {
+	for (const auto &i : equipment_affect) {
+		if (itemobj->GetEEquipmentAffect(i.aff_pos)) {
 			prob -= jewelry::cfg.skill_penalty_for_affect;
 		}
 	}

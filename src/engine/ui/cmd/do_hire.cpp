@@ -274,14 +274,14 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kCharmed;
-		af.battleflag = kAfCharmBond;
+		af.battleflag = {kAfCharmBond};
 		affect_to_char(helpee, af);
 		helpee->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kHelper;
-		af.battleflag = kAfCharmBond;
+		af.battleflag = {kAfCharmBond};
 		affect_to_char(helpee, af);
 
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IsFemale(ch) ? "хозяйка" : "хозяин");

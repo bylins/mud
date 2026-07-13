@@ -9,6 +9,7 @@
 #define BYLINS_SRC_ENTITY_ROOMS_ROOM_CONSTANTS_H_
 
 #include "engine/structs/structs.h"
+#include "engine/structs/bitset_flags.h"
 #include "engine/structs/meta_enum.h"
 
 #include <string>
@@ -245,6 +246,17 @@ enum EPrf : Bitvector {
 	kPerformSerratedBlade = kIntTwo | 1 << 19 // Активирована "воровская заточка".
 };
 
+template<>
+struct flag_traits<EPrf> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EPrf> {
+	static constexpr std::size_t to_index(EPrf f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 // при добавлении не забываем про preference_bits[]
 
 /**
@@ -287,6 +299,17 @@ extern const religion_names_t religion_name;
 // свободно
 	kDelete = 1 << 28,            // RESERVED - ONLY INTERNALLY (MOB_DELETE) //
 	kFree = 1 << 29,            // RESERVED - ONLY INTERBALLY (MOB_FREE)//
+};
+
+template<>
+struct flag_traits<EPlrFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EPlrFlag> {
+	static constexpr std::size_t to_index(EPlrFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
 };
 
 /**
@@ -398,6 +421,17 @@ enum EMobFlag : Bitvector {
 	kIgnoresFormation = kIntTwo | (1 << 22)
 };
 
+template<>
+struct flag_traits<EMobFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EMobFlag> {
+	static constexpr std::size_t to_index(EMobFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 /**
  * NPC's flags used by CharData.mob_specials.npc_flags
  */
@@ -432,6 +466,17 @@ enum ENpcFlag : Bitvector {
 	kNoTakeItems = kIntOne | (1 << 4),
 	kIgnoreRareKill = kIntOne | (1 << 5),
 	kUsingMagicItems = kIntOne | (1 << 6)	// issue.npc-races: NPC casts from wands/staves/potions
+};
+
+template<>
+struct flag_traits<ENpcFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<ENpcFlag> {
+	static constexpr std::size_t to_index(ENpcFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
 };
 
 template<>
@@ -528,6 +573,21 @@ EDirection &operator++(EDirection &d);
 	kDominationArena = kIntTwo | (1 << 1) // комната арены доминирования
  };
 
+// issue.flags-migration P1a: store RoomData::m_room_flags in BitsetFlags<ERoomFlag> while ERoomFlag
+// stays packed-bitmask (kIntOne|bit ...). flag_index_mapping decodes the packed value to its flat
+// bit index via packed_to_index, so on-disk bytes are byte-identical to the old FlagData. count is
+// the legacy 4-plane space (120 bits) so any round-tripping high bit is preserved, not dropped.
+template<>
+struct flag_traits<ERoomFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<ERoomFlag> {
+	static constexpr std::size_t to_index(ERoomFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 /**
  * Exit info: used in room_data.dir_option.exit_info
  */
@@ -540,6 +600,19 @@ EDirection &operator++(EDirection &d);
 	kBrokenLock = 1 << 5,	// замок двери сломан
 	kDungeonEntry = 1 << 6	// When character goes through this door then he will get into a copy of the zone behind the door.
  };
+
+// issue.flags-migration P1e: exit_info was a byte (single plane, serialized as a plain int via
+// get_plane(0)); packed mapping keeps flag identity. count=30 (one plane).
+template<>
+struct flag_traits<EExitFlag> {
+	static constexpr std::size_t count = 30;
+};
+template<>
+struct flag_index_mapping<EExitFlag> {
+	static constexpr std::size_t to_index(EExitFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Sector types: used in room_data.sector_type
@@ -689,6 +762,19 @@ enum class EWearFlag : Bitvector {
 	kQuiver = 1 << 16
 };
 
+// issue.flags-migration P1e: m_wear_flags was a bare int (single plane, serialized as a plain
+// int via get_plane(0)); packed mapping keeps identity. count=30 (one plane; max flag 1<<16).
+template<>
+struct flag_traits<EWearFlag> {
+	static constexpr std::size_t count = 30;
+};
+template<>
+struct flag_index_mapping<EWearFlag> {
+	static constexpr std::size_t to_index(EWearFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
+
 template<>
 const std::string &NAME_BY_ITEM<EWearFlag>(EWearFlag item);
 template<>
@@ -765,6 +851,17 @@ template<>
 const std::string &NAME_BY_ITEM<EObjFlag>(EObjFlag item);
 template<>
 EObjFlag ITEM_BY_NAME<EObjFlag>(const std::string &name);
+// issue.flags-migration P1b: transitional packed storage (see ERoomFlag above).
+template<>
+struct flag_traits<EObjFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EObjFlag> {
+	static constexpr std::size_t to_index(EObjFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Object no flags - who can't use this object.
@@ -817,6 +914,16 @@ template<>
 const std::string &NAME_BY_ITEM<ENoFlag>(ENoFlag item);
 template<>
 ENoFlag ITEM_BY_NAME<ENoFlag>(const std::string &name);
+template<>
+struct flag_traits<ENoFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<ENoFlag> {
+	static constexpr std::size_t to_index(ENoFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Object anti flags - who can't take or use this object.
@@ -875,6 +982,16 @@ template<>
 const std::string &NAME_BY_ITEM<EAntiFlag>(EAntiFlag item);
 template<>
 EAntiFlag ITEM_BY_NAME<EAntiFlag>(const std::string &name);
+template<>
+struct flag_traits<EAntiFlag> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EAntiFlag> {
+	static constexpr std::size_t to_index(EAntiFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
+};
 
 /**
  * Container flags - value[1]

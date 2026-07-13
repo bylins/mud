@@ -101,6 +101,12 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kDispell", EActionTrigger::kDispell},
 	{"kPoints", EActionTrigger::kPoints},
 	{"kDeath", EActionTrigger::kDeath},
+	{"kWeaponHit", EActionTrigger::kWeaponHit},
+	{"kDecay", EActionTrigger::kDecay},
+	{"kGet", EActionTrigger::kGet},
+	{"kDrop", EActionTrigger::kDrop},
+	{"kEquip", EActionTrigger::kEquip},
+	{"kUnequip", EActionTrigger::kUnequip},
 	{"kWardDamage", EActionTrigger::kWardDamage},
 };
 
@@ -636,7 +642,8 @@ void Creation::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 
 void AlterObj::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " AlterObj: handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm
-		   << (collateral_on_damage ? " collateral=on_damage" : "") << "\r\n";
+		   << (collateral_on_damage ? " collateral=on_damage" : "")
+		   << (find_suppressed ? " collateral=first_suppressed" : "") << "\r\n";
 }
 
 // historical skill-scaled-dice count + an optional secondary-stat nudge.
@@ -1388,6 +1395,11 @@ void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
 	if (h && *h) { ptr->handler = h; }
 	const char *col = node.GetValue("collateral");
 	ptr->collateral_on_damage = (col && strcmp(col, "on_damage") == 0);
+	ptr->find_suppressed = (col && strcmp(col, "first_suppressed") == 0);
+	ptr->dispel_bonus = RollIntOr(node.GetValue("dispel_bonus"), 50);
+	ptr->decay = RollIntOr(node.GetValue("decay"), 0);
+	const char *bn = node.GetValue("bypass_noalter");
+	ptr->bypass_noalter = (bn && (strcmp(bn, "Y") == 0 || strcmp(bn, "1") == 0));
 	auto it = out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
 	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }

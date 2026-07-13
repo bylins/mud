@@ -56,7 +56,7 @@ struct ParseFilter {
 
  private:
 	std::vector<int> affect_apply; // аффекты apply_types
-	std::vector<int> affect_weap;  // аффекты weapon_affects
+	std::vector<int> affect_weap;  // аффекты equipment_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
   
 	int remorts; //для количества ремортов

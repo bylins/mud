@@ -478,11 +478,11 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 
 	int num = 0;
 	for (int flag = 0; flag < 4; ++flag) {
-		for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num) {
-			if (strong && !strcmp(str, weapon_affects[num])) {
+		for (/* тут ничего не надо */; *equipment_affects[num] != '\n'; ++num) {
+			if (strong && !strcmp(str, equipment_affects[num])) {
 				affect_weap.push_back(num);
 				return true;
-			} else if (!strong && isname(str, weapon_affects[num])) {
+			} else if (!strong && isname(str, equipment_affects[num])) {
 				affect_weap.push_back(num);
 				return true;
 			}
@@ -665,7 +665,7 @@ bool ParseFilter::check_remorts(const CObjectPrototype *obj) const {
 bool ParseFilter::check_affect_weap(const CObjectPrototype *obj) const {
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
-			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it)) {
+			if (!CompareBits(obj->get_affect_flags(), equipment_affects, *it)) {
 				return false;
 			}
 		}
@@ -992,7 +992,7 @@ std::string ParseFilter::print() const {
 	if (!affect_weap.empty()) {
 		for (int it : affect_weap) {
 			buffer += "А";
-			buffer += weapon_affects[it];
+			buffer += equipment_affects[it];
 			buffer += ", ";
 		}
 	}

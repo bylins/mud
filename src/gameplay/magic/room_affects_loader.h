@@ -1,5 +1,5 @@
 /**
- \brief issue.affect-migration: cfg loader for the room-affect registry (cfg/room_affects.xml).
+ \brief issue.affect-migration: cfg loader for the room-affect registry (cfg/affects/room_affects.xml).
  \details Mirrors affects::AffectsLoader for char affects. The room-affect identity is the
 		  room_spells::ERoomAffect enumerator (kept in C++); this file validates that every
 		  <room_affect id> in the data resolves to a known enumerator and that every enumerator
@@ -13,11 +13,11 @@
 
 namespace room_spells {
 
-class RoomAffectsLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "room_affects" -> cfg/room_affects.xml
+class RoomAffectsLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "room_affects" -> cfg/affects/room_affects.xml
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
-	// issue.vedun-editor: in-game editing of cfg/room_affects.xml (`vedun room_affects`). Keyed by the
+	// issue.vedun-editor: in-game editing of cfg/affects/room_affects.xml (`vedun room_affects`). Keyed by the
 	// <room_affect id=> (ERoomAffect token) -> default FindElementNode (child-by-id) is reused.
 	[[nodiscard]] std::string EditableWhat() const final;
 	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;

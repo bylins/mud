@@ -142,10 +142,10 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				int num = 0;
 
 				for (int flag = 0; flag < 4; ++flag) {
-					for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num) {
-						if (strlen(weapon_affects[num]) < len)
+					for (/* тут ничего не надо */; *equipment_affects[num] != '\n'; ++num) {
+						if (strlen(equipment_affects[num]) < len)
 							continue;
-						if (!strncmp(weapon_affects[num], tmpbuf, len)) {
+						if (!strncmp(equipment_affects[num], tmpbuf, len)) {
 							filter.affect.push_back(num);
 							tmp_find = true;
 							break;
@@ -218,7 +218,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!filter.affect.empty()) {
 		for (const auto it : filter.affect) {
-			buffer += weapon_affects[it];
+			buffer += equipment_affects[it];
 			buffer += " ";
 		}
 	}
@@ -256,7 +256,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		bool find = true;
 		if (!filter.affect.empty()) {
 			for (int it : filter.affect) {
-				if (!CompareBits(i->get_affect_flags(), weapon_affects, it)) {
+				if (!CompareBits(i->get_affect_flags(), equipment_affects, it)) {
 					find = false;
 					break;
 				}

@@ -365,55 +365,53 @@ static std::unordered_map<std::string, EWearFlag> obj_wear_flag_map = {
 	{"kQuiver", EWearFlag::kQuiver},
 };
 
-// Object affect flags mapping (EWeaponAffect values)
-static std::unordered_map<std::string, EWeaponAffect> obj_affect_flag_map = {
-	{"kBlindness", EWeaponAffect::kBlindness},
-	{"kInvisibility", EWeaponAffect::kInvisibility},
-	{"kDetectAlign", EWeaponAffect::kDetectAlign},
-	{"kDetectInvisibility", EWeaponAffect::kDetectInvisibility},
-	{"kDetectMagic", EWeaponAffect::kDetectMagic},
-	{"kDetectLife", EWeaponAffect::kDetectLife},
-	{"kWaterWalk", EWeaponAffect::kWaterWalk},
-	{"kSanctuary", EWeaponAffect::kSanctuary},
-	{"kCurse", EWeaponAffect::kCurse},
-	{"kInfravision", EWeaponAffect::kInfravision},
-	{"kPoison", EWeaponAffect::kPoison},
-	{"kProtectFromDark", EWeaponAffect::kProtectFromDark},
-	{"kProtectFromMind", EWeaponAffect::kProtectFromMind},
-	{"kSleep", EWeaponAffect::kSleep},
-	{"kNoTrack", EWeaponAffect::kNoTrack},
-	{"kBless", EWeaponAffect::kBless},
-	{"kSneak", EWeaponAffect::kSneak},
-	{"kHide", EWeaponAffect::kHide},
-	{"kHold", EWeaponAffect::kHold},
-	{"kFly", EWeaponAffect::kFly},
-	{"kSilence", EWeaponAffect::kSilence},
-	{"kAwareness", EWeaponAffect::kAwareness},
-	{"kBlink", EWeaponAffect::kBlink},
-	{"kNoFlee", EWeaponAffect::kNoFlee},
-	{"kSingleLight", EWeaponAffect::kSingleLight},
-	{"kHolyLight", EWeaponAffect::kHolyLight},
-	{"kHolyDark", EWeaponAffect::kHolyDark},
-	{"kDetectPoison", EWeaponAffect::kDetectPoison},
-	{"kSlow", EWeaponAffect::kSlow},
-	{"kHaste", EWeaponAffect::kHaste},
-	{"kWaterBreath", EWeaponAffect::kWaterBreath},
-	{"kHaemorrhage", EWeaponAffect::kHaemorrhage},
-	{"kDisguising", EWeaponAffect::kDisguising},
-	{"kShield", EWeaponAffect::kShield},
-	{"kAirShield", EWeaponAffect::kAirShield},
-	{"kFireShield", EWeaponAffect::kFireShield},
-	{"kIceShield", EWeaponAffect::kIceShield},
-	{"kMagicGlass", EWeaponAffect::kMagicGlass},
-	{"kStoneHand", EWeaponAffect::kStoneHand},
-	{"kPrismaticAura", EWeaponAffect::kPrismaticAura},
-	{"kAirAura", EWeaponAffect::kAirAura},
-	{"kFireAura", EWeaponAffect::kFireAura},
-	{"kIceAura", EWeaponAffect::kIceAura},
-	{"kDeafness", EWeaponAffect::kDeafness},
-	{"kComamnder", EWeaponAffect::kComamnder},
-	{"kEarthAura", EWeaponAffect::kEarthAura},
-	{"kCloudly", EWeaponAffect::kCloudly},
+// Object affect flags mapping (EEquipmentAffect values)
+static std::unordered_map<std::string, EEquipmentAffect> obj_affect_flag_map = {
+	{"kBlindness", EEquipmentAffect::kBlindness},
+	{"kInvisibility", EEquipmentAffect::kInvisibility},
+	{"kDetectAlign", EEquipmentAffect::kDetectAlign},
+	{"kDetectInvisibility", EEquipmentAffect::kDetectInvisibility},
+	{"kDetectMagic", EEquipmentAffect::kDetectMagic},
+	{"kDetectLife", EEquipmentAffect::kDetectLife},
+	{"kWaterWalk", EEquipmentAffect::kWaterWalk},
+	{"kSanctuary", EEquipmentAffect::kSanctuary},
+	{"kCurse", EEquipmentAffect::kCurse},
+	{"kInfravision", EEquipmentAffect::kInfravision},
+	{"kPoison", EEquipmentAffect::kPoison},
+	{"kSleep", EEquipmentAffect::kSleep},
+	{"kNoTrack", EEquipmentAffect::kNoTrack},
+	{"kBless", EEquipmentAffect::kBless},
+	{"kSneak", EEquipmentAffect::kSneak},
+	{"kHide", EEquipmentAffect::kHide},
+	{"kHold", EEquipmentAffect::kHold},
+	{"kFly", EEquipmentAffect::kFly},
+	{"kSilence", EEquipmentAffect::kSilence},
+	{"kAwareness", EEquipmentAffect::kAwareness},
+	{"kBlink", EEquipmentAffect::kBlink},
+	{"kNoFlee", EEquipmentAffect::kNoFlee},
+	{"kSingleLight", EEquipmentAffect::kSingleLight},
+	{"kHolyLight", EEquipmentAffect::kHolyLight},
+	{"kHolyDark", EEquipmentAffect::kHolyDark},
+	{"kDetectPoison", EEquipmentAffect::kDetectPoison},
+	{"kSlow", EEquipmentAffect::kSlow},
+	{"kHaste", EEquipmentAffect::kHaste},
+	{"kWaterBreath", EEquipmentAffect::kWaterBreath},
+	{"kHaemorrhage", EEquipmentAffect::kHaemorrhage},
+	{"kDisguising", EEquipmentAffect::kDisguising},
+	{"kShield", EEquipmentAffect::kShield},
+	{"kAirShield", EEquipmentAffect::kAirShield},
+	{"kFireShield", EEquipmentAffect::kFireShield},
+	{"kIceShield", EEquipmentAffect::kIceShield},
+	{"kMagicGlass", EEquipmentAffect::kMagicGlass},
+	{"kStoneHand", EEquipmentAffect::kStoneHand},
+	{"kPrismaticAura", EEquipmentAffect::kPrismaticAura},
+	{"kAirAura", EEquipmentAffect::kAirAura},
+	{"kFireAura", EEquipmentAffect::kFireAura},
+	{"kIceAura", EEquipmentAffect::kIceAura},
+	{"kDeafness", EEquipmentAffect::kDeafness},
+	{"kComamnder", EEquipmentAffect::kComamnder},
+	{"kEarthAura", EEquipmentAffect::kEarthAura},
+	{"kCloudly", EEquipmentAffect::kCloudly},
 };
 
 // Object anti flags mapping (EAntiFlag values)
@@ -584,7 +582,7 @@ void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::str
 		sql = "INSERT INTO " + table_name + " (" + vnum_col + ", flag_category, flag_name) VALUES (?, ?, ?)";
 	}
 	
-	for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+	for (size_t plane = 0; plane < kFlagPlanes; ++plane)
 	{
 		Bitvector plane_bits = flags.get_plane(plane);
 		if (plane_bits == 0) continue;
@@ -1361,7 +1359,7 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 		if (!keywords.empty()) exit_data->set_keywords(keywords);
 
 		// Set exit flags (stored as string in database, parse as integer)
-		exit_data->exit_info = exit_flags;
+		exit_data->exit_info.set_plane(0, exit_flags);
 
 		// Дропаем полностью пустые D-блоки (симметрично с legacy/yaml),
 		// см. issue #3272.
@@ -2322,7 +2320,7 @@ void SqliteWorldDataSource::LoadObjectFlags()
 			auto flag_it = obj_affect_flag_map.find(flag_name);
 			if (flag_it != obj_affect_flag_map.end())
 			{
-				obj_proto[rnum]->SetEWeaponAffectFlag(flag_it->second);
+				obj_proto[rnum]->SetEEquipmentAffectFlag(flag_it->second);
 				flags_set++;
 			}
 			else if (flag_name.rfind("UNUSED_", 0) == 0)
@@ -3092,7 +3090,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	sqlite3_finalize(stmt);
 
 	// Save room flags
-	FlagData room_flags = room->read_flags();
+	auto room_flags = room->read_flags();
 	SaveFlagsToTable(m_db, "room_flags", "room_vnum", room_vnum, room_flags, room_flag_map);
 
 	// Save room exits
@@ -3141,7 +3139,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 			}
 
 			// Save exit flags as string (numeric value)
-			std::string exit_flags_str = std::to_string(room->dir_option_proto[dir]->exit_info);
+			std::string exit_flags_str = std::to_string(room->dir_option_proto[dir]->exit_info.get_plane(0));
 			if (!exit_flags_str.empty() && exit_flags_str != "0")
 			{
 				BindTextKoi(stmt, 5, exit_flags_str.c_str());
@@ -3412,7 +3410,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	// backend does the same init.
 	char special_buf[kMaxStringLength];
 	special_buf[0] = '\0';
-	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
+	mob.mob_specials.npc_flags.tascii(kFlagPlanes, special_buf, sizeof(special_buf));
 	if (special_buf[0] != '0' || special_buf[1] != 'a')
 	{
 		BindTextKoi(stmt, col++, special_buf);
@@ -3446,7 +3444,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 
 
 	// Save mob action flags
-	FlagData act_flags = mob.char_specials.saved.act;
+	auto act_flags = mob.char_specials.saved.mob_flags;
 	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, act_flags, mob_action_flag_map, "action");
 
 	// Save mob affect flags

@@ -67,6 +67,12 @@ struct RollResult {
 // duration is -1 (permanent) on every node. If no same-named spell exists the roll is zero (flat mins,
 // potency 0).
 [[nodiscard]] std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type);
+// issue.equipment-affects-improve: like BuildMaterializedAffect but for a worn item -- strength comes
+// from the item ilvl (skill = CalcSkillCap(ilvl), stat = kEquipmentAffectBaseStat + ilvl) scaled by
+// power_percent, run through the affect's same-named spell potency_roll (deterministic, no noise draw).
+// Nodes carry duration=timer, caster_id = item id, potency, and kAfFromEquipment.
+[[nodiscard]] std::vector<Affect<EApply>> BuildEquipmentMaterializedAffect(const ObjData *obj,
+		EAffect affect_type, int timer, int power_percent);
 
 // ActionContext (issue.spell-pipeline): the single object threaded through the whole
 // cast handler chain (CallMagic -> CastToSingleTarget -> the per-stage Cast* fns).
@@ -261,8 +267,8 @@ class ActionContext {
 	bool patched_{false};
 };
 
-// VNUM'ы мобов для заклинаний, создающих мобов
-const int kMobDouble = 3000; //внум прототипа для клона
+// VNUM'О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+const int kMobDouble = 3000; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 const int kMobSkeleton = 3001;
 const int kMobZombie = 3002;
 const int kMobBonedog = 3003;
@@ -273,7 +279,7 @@ const int kMobNecrotank = 3008;
 const int kMobNecrobreather = 3009;
 const int kMobNecrocaster = 3010;
 const int kLastNecroMob = 3010;
-// резерв для некротических забав
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 const int kMobMentalShadow = 3020;
 const int kMobKeeper = 3021;
 const int kMobFirekeeper = 3022;
@@ -291,6 +297,12 @@ void ShowAffExpiredMsg(EAffect affect_type, CharData *ch);
 // affected = the char the affect is on ($n); other = the externally-supplied target/opponent ($N,
 // nullptr for a pure self-affect). Perspectives: ToChar->affected, ToVict->other, ToRoom->others.
 void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed);
+// issue.affect-suppression-dispell: the d100 dispel contest against a directly-supplied potency (for
+// obj-affect suppressions, which aren't on a char's ->affected). Always rolls; on failure decays
+// `target_potency` in place by `decay`% of the caster's dispel strength. Returns success.
+bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay,
+				   CharData *trace_ch = nullptr, ESpell trace_spell = ESpell::kUndefined,
+				   EAffect trace_affect = EAffect::kUndefined);
 // issue.npc-races: true if `ch` can speak/incant (players always; NPCs iff their race is <vocal/>).
 bool IsAbleToSay(CharData *ch);
 
@@ -319,6 +331,19 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 // threading `event` onto the context so manual_cast handlers can read its rich data. Called from trigger
 // fire-sites (the per-hit kPreHit / post-damage kPostHit points in fight_hit.cpp). True if any ran.
 bool RunCharEventTriggers(CharData *ch, const EventContext &event);
+
+// issue.obj-affects: run a WEAPON's obj-affect actions whose trigger is kWeaponHit -- the obj-affect
+// analog of RunCharEventTriggers, dispatched per landed blow from HitData::ProcessExtradamage. Iterates
+// the weapon's obj affects (not the wielder's char affects); `ch` = wielder, `victim` = struck, `dam` =
+// damage dealt. No-op (false) unless `weapon` is a weapon that landed damage and carries a kWeaponHit
+// action. This is where a poisoned/flaming/vampiric weapon's on-hit effect fires.
+bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int dam);
+
+// issue.obj-affects: fire an object's obj-affect actions matching a lifecycle/container event
+// (kGet/kDrop/kEquip/kUnequip/kDecay + the container verbs kPick/kOpen/kClose/kLock/kUnlock).
+// The actor is the self-inflicting caster (a trap harms whoever triggers it). Returns true to
+// allow the actor's action, false to refuse it (a <trigger return="0"> affect, e.g. kDartTrap).
+bool RunObjAffectTrigger(ObjData *obj, CharData *actor, talents_actions::EActionTrigger trig);
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop
 // (issue.spell-pipeline) the dispatcher walks each spell action and runs its stages:

@@ -156,7 +156,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 1, 0, 0, 0);
-			af.battleflag = kAfBattledec | kAfPulsedec;
+			af.battleflag = {kAfBattledec, kAfPulsedec};
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
@@ -175,7 +175,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 2, 0, 0, 0);
-			af.battleflag = kAfBattledec | kAfPulsedec;
+			af.battleflag = {kAfBattledec, kAfPulsedec};
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
@@ -194,7 +194,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 3, 0, 0, 0);
-			af.battleflag = kAfBattledec | kAfPulsedec;
+			af.battleflag = {kAfBattledec, kAfPulsedec};
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);

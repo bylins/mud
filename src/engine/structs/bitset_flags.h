@@ -175,6 +175,46 @@ class BitsetFlags {
 		}
 		return v;
 	}
+	// Replace the 30 bits of `plane` with the low 30 bits of `value` (FlagData::set_plane parity;
+	// used by the admin-API flag parser and any loader that thinks in raw planes).
+	void set_plane(std::size_t plane, std::uint32_t value) {
+		for (std::size_t b = 0; b < bitset_flags_detail::kPlaneSize; ++b) {
+			const std::size_t i = plane * bitset_flags_detail::kPlaneSize + b;
+			if (value & (1u << b)) {
+				set_index(i);
+			} else {
+				unset_index(i);
+			}
+		}
+	}
+	// OR the masked bits of `flag` into `plane` (FlagData::set_flag parity -- additive, unlike
+	// set_plane which replaces the whole plane).
+	void set_flag(std::size_t plane, std::uint32_t flag) {
+		for (std::size_t b = 0; b < bitset_flags_detail::kPlaneSize; ++b) {
+			if (flag & (1u << b)) {
+				set_index(plane * bitset_flags_detail::kPlaneSize + b);
+			}
+		}
+	}
+	// Legacy plane+mask test/toggle (OLC menus edit flags by plane index + bit). `flag` is a 30-bit
+	// mask within the plane. get_flag: any masked bit set. toggle_flag: flip the masked bits and
+	// return whether they are set afterwards -- byte-for-byte the FlagData semantics.
+	bool get_flag(std::size_t plane, std::uint32_t flag) const {
+		for (std::size_t b = 0; b < bitset_flags_detail::kPlaneSize; ++b) {
+			if ((flag & (1u << b)) && test_index(plane * bitset_flags_detail::kPlaneSize + b)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	bool toggle_flag(std::size_t plane, std::uint32_t flag) {
+		for (std::size_t b = 0; b < bitset_flags_detail::kPlaneSize; ++b) {
+			if (flag & (1u << b)) {
+				toggle_index(plane * bitset_flags_detail::kPlaneSize + b);
+			}
+		}
+		return get_flag(plane, flag);
+	}
 	template<class F>
 	void for_each_set(F &&f) const {
 		for (std::size_t i = 0; i < kCapacity; ++i) {
@@ -187,6 +227,9 @@ class BitsetFlags {
 	// --- serialization (byte-compatible with FlagData) ---
 	void from_string(const char *flag) {
 		clear();
+		if (!flag) {
+			return;  // issue.flags-migration: tolerate a null (e.g. a legacy `field(0)` init)
+		}
 		const std::vector<std::uint32_t> planes = bitset_flags_detail::parse_string(flag);
 		for (std::size_t p = 0; p < planes.size(); ++p) {
 			const std::uint32_t v = planes[p] & 0x3FFFFFFFu;
@@ -293,6 +336,29 @@ class BitsetFlags {
 		return planes;
 	}
 };
+
+// issue.flags-migration: name-matching flag comparator (relocated from the deleted flag_data.h),
+// templated on any flag container exposing get_plane(). Returns true if the `affect`-th named
+// flag is set. Mirrors the old FlagData CompareBits byte-for-byte.
+template<class FlagsContainer>
+inline bool CompareBits(const FlagsContainer &flags, const char *names[], int affect) {
+	for (int i = 0; i < 4; i++) {
+		int nr = 0;
+		int fail = i;
+		std::uint32_t bitvector = flags.get_plane(i);
+		while (fail) {
+			if (*names[nr] == '\n') fail--;
+			nr++;
+		}
+		for (; bitvector; bitvector >>= 1) {
+			if (bitvector & 1u)
+				if (*names[nr] != '\n')
+					if (nr == affect) return true;
+			if (*names[nr] != '\n') nr++;
+		}
+	}
+	return false;
+}
 
 #endif  // BYLINS_SRC_ENGINE_STRUCTS_BITSET_FLAGS_H_
 

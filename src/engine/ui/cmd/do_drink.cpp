@@ -266,21 +266,21 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			af.modifier = -20;
 			af.location = EApply::kAc;
 			af.affect_type = EAffect::kDrunked;
-			af.battleflag = 0;
+			af.battleflag.clear();
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = -2;
 			af.location = EApply::kHitroll;
 			af.affect_type = EAffect::kDrunked;
-			af.battleflag = 0;
+			af.battleflag.clear();
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = GetRealLevel(ch) / 5 + remort::GetRealRemort(ch) / 5;
 			af.location = EApply::kPhysicDamagePercent;
 			af.affect_type = EAffect::kDrunked;
-			af.battleflag = 0;
+			af.battleflag.clear();
 			ImposeAffect(ch, af, false, false, false, false);
 			// issue.affect-migration: imposition narration on the kDrunked affect (self).
 			EmitAffectImpose(ch, nullptr, EAffect::kDrunked, false);

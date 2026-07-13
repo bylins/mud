@@ -84,18 +84,18 @@ extern std::array<EAffect, 2> char_saved_aff;
 extern std::array<EAffect, 3> char_stealth_aff;
 
 bool no_bad_affects(ObjData *obj) {
-	static std::list<EWeaponAffect> bad_waffects =
+	static std::list<EEquipmentAffect> bad_waffects =
 		{
-			EWeaponAffect::kHold,
-			EWeaponAffect::kSanctuary,
-			EWeaponAffect::kPrismaticAura,
-			EWeaponAffect::kPoison,
-			EWeaponAffect::kSilence,
-			EWeaponAffect::kDeafness,
-			EWeaponAffect::kHaemorrhage,
-			EWeaponAffect::kBlindness,
-			EWeaponAffect::kSleep,
-			EWeaponAffect::kHolyDark
+			EEquipmentAffect::kHold,
+			EEquipmentAffect::kSanctuary,
+			EEquipmentAffect::kPrismaticAura,
+			EEquipmentAffect::kPoison,
+			EEquipmentAffect::kSilence,
+			EEquipmentAffect::kDeafness,
+			EEquipmentAffect::kHaemorrhage,
+			EEquipmentAffect::kBlindness,
+			EEquipmentAffect::kSleep,
+			EEquipmentAffect::kHolyDark
 		};
 	for (const auto wa : bad_waffects) {
 		if (OBJ_AFFECT(obj, wa)) {
@@ -690,6 +690,90 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 	affect_total(ch);
 }
 
+// issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as real
+// Affects (permanent -1 or timed), tagged kAfFromEquipment with caster_id = the item id so they can
+// be dispelled naturally and stripped on unequip. No recalc here -- the equip path calls affect_total.
+// affect_to_char_no_recalc is defined further down in this TU; forward-declare it so
+// MaterializeEquipmentAffects below can add the pipeline-built nodes without recalculating per node.
+void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);
+
+void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce) {
+	if (!ch || !obj) {
+		return;
+	}
+	for (const auto &j : equipment_affect) {
+		// A currently-suppressed affect (dispelled while worn) stays down until its timer expires,
+		// even across a re-equip -- do not re-materialize it here.
+		if (j.timer == kEquipmentAffectNoTimer || !obj->GetEEquipmentAffect(j.aff_pos)
+				|| obj->is_affect_suppressed(j.aff_affect)) {
+			continue;
+		}
+		// Show the affect's own impose narration the FIRST time it lands (not when another source
+		// already grants it, and never on a plain affect_total refresh -- materialization only
+		// happens here on equip).
+		bool was_present = false;
+		for (const auto &a : ch->affected) {
+			if (a && a->affect_type == j.aff_affect) {
+				was_present = true;
+				break;
+			}
+		}
+		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+			affect_to_char_no_recalc(ch, af);
+		}
+		// issue.affect-suppression-dispell: announce the impose narration ONLY on a genuine wear, not on
+		// internal/load re-equips (which fire per equip and would re-announce a continuously-worn affect).
+		if (!was_present && announce) {
+			EmitAffectImpose(ch, nullptr, j.aff_affect, false);
+		}
+	}
+}
+
+// issue.equipment-affects-improve (Phase 3): re-materialize ONE equipment affect on the wearer -- the
+// auto-return when an item's suppression timer expires. Recalculates (standalone event, not the equip path).
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce) {
+	if (!ch || !obj) {
+		return;
+	}
+	for (const auto &j : equipment_affect) {
+		if (j.aff_affect != affect_type || j.timer == kEquipmentAffectNoTimer
+				|| !obj->GetEEquipmentAffect(j.aff_pos)) {
+			continue;
+		}
+		bool was_present = false;
+		for (const auto &a : ch->affected) {
+			if (a && a->affect_type == j.aff_affect) {
+				was_present = true;
+				break;
+			}
+		}
+		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+			affect_to_char_no_recalc(ch, af);
+		}
+		if (!was_present && announce) {
+			EmitAffectImpose(ch, nullptr, j.aff_affect, false);   // "your magic returns" on auto-return
+		}
+	}
+	affect_total(ch);   // auto-return: recalc once after all of the affect's nodes are re-added
+}
+
+// issue.equipment-affects-improve: strip every affect this item materialized (caster_id match).
+void RemoveEquipmentAffects(CharData *ch, long source_id) {
+	if (!ch) {
+		return;
+	}
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		const auto &aff = *it;
+		if (aff && aff->caster_id == source_id && IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)
+				&& !IS_SET(aff->battleflag, EAffFlag::kAfFromSet)) {   // set affects: owned by the set reconcile
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
+		}
+	}
+}
+
 // issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
 // companion buffs that share the per-instance kAfCharmBond flag) and, for an NPC, schedules its
 // extraction and clears the hire price -- the behavior the old RemoveAffectFromChar(ESpell::kCharm)
@@ -728,44 +812,6 @@ void RemoveCurableAffects(CharData *ch) {
 	}
 }
 
-std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch) {
-	int value;
-	if (ch) //чтоб не было варнинга, ch передаю на будущее
-		value = 2;
-	switch (element) {
-		case EWeaponAffect::kFireAura:
-			return std::pair<EApply, int>(EApply::kResistFire, value);
-			break;
-		case EWeaponAffect::kAirAura:
-			return std::pair<EApply, int>(EApply::kResistAir, value);
-			break;
-		case EWeaponAffect::kIceAura:
-			return std::pair<EApply, int>(EApply::kResistWater, value);
-			break;
-		case EWeaponAffect::kEarthAura:
-			return std::pair<EApply, int>(EApply::kResistEarth, value);
-			break;
-		case EWeaponAffect::kProtectFromDark:
-			return std::pair<EApply, int>(EApply::kResistDark, value);
-			break;
-		case EWeaponAffect::kProtectFromMind:
-			return std::pair<EApply, int>(EApply::kResistMind, value);
-			break;
-		// issue.mob-flag-affect-materialization: worn cloudly/blink must grant the miss-chance APPLY,
-		// not just the flag -- ProcessBlink now gates on the apply, not AFF_FLAGGED. Flat 10 preserves
-		// the pre-change PC value (the old hardcoded flag path defaulted a flagged PC to blink 10); NPC
-		// bearers still take level+remort from ProcessBlink regardless of magnitude.
-		case EWeaponAffect::kCloudly:
-			return std::pair<EApply, int>(EApply::kSpelledBlinkMag, 10);
-			break;
-		case EWeaponAffect::kBlink:
-			return std::pair<EApply, int>(EApply::kSpelledBlinkPhys, 10);
-			break;
-		default:
-			return std::pair<EApply, int>(EApply::kNone, 0);
-			break;
-	}
-}
 
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
@@ -841,13 +887,16 @@ void affect_total(CharData *ch) {
 				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location,
 							  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffect>(0), true);
 			}
-			// Update weapon bitvectors
-			for (const auto &j : weapon_affect) {
-				// То же самое, но переформулировал
-				if (j.aff_bitvector == 0 || !obj->GetEWeaponAffect(j.aff_pos)) {
+			// issue.equipment-affects-improve: timer-bearing equipment affects (persistent -1 buffs)
+			// are now real Affects materialized on equip and re-derived by the ch->affected loop above.
+			// The timer-less entries (blind/sleep/hold/poison) stay temporary while worn: re-derive them
+			// here every recalc so the flag drops automatically once the item is removed.
+			for (const auto &j : equipment_affect) {
+				if (j.timer != kEquipmentAffectNoTimer || j.aff_affect == EAffect::kUndefined
+						|| !obj->GetEEquipmentAffect(j.aff_pos) || obj->is_affect_suppressed(j.aff_affect)) {
 					continue;
 				}
-				affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first, GetApplyByWeaponAffect(j.aff_pos, ch).second, static_cast<EAffect>(j.aff_bitvector), true);
+				affect_modify(ch, EApply::kNone, 0, j.aff_affect, true);
 			}
 		}
 	}
@@ -1079,9 +1128,9 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_batt
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond))
-				| extra_battleflag;   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
+		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet))
+				| extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
@@ -1108,8 +1157,8 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
+		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet)));
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
@@ -1332,34 +1381,6 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 // flag-carrier for actions-only buffs (sanct/shields/prism/glass), or one node per <apply> (kCloudly ->
 // blink+AC, kBlink -> blink) with a mob-scaled modifier and potency -- are built by
 // BuildMaterializedAffect (magic), which rolls the buff's same-named spell for this mob.
-// issue.autoaffects-hotfix: see affect_data.h. Real affects first (their potency wins on dedup),
-// then any flagged kAfMaterialize affect not already present (equipment shields on a PC), potency 0.
-// TEMPORARY bridge -- superseded by full equipment-affect materialization on unstable.next (then remove).
-std::vector<std::pair<EAffect, float>> VictimWardAffects(CharData *ch) {
-	std::vector<std::pair<EAffect, float>> out;
-	for (const auto &aff : ch->affected) {
-		if (aff) {
-			out.emplace_back(aff->affect_type, aff->potency);
-		}
-	}
-	for (const EAffect at : affects::MaterializableAffects()) {
-		if (!AFF_FLAGGED(ch, at)) {
-			continue;
-		}
-		bool present = false;
-		for (const auto &p : out) {
-			if (p.first == at) {
-				present = true;
-				break;
-			}
-		}
-		if (!present) {
-			out.emplace_back(at, 0.0f);
-		}
-	}
-	return out;
-}
-
 void MaterializeMobFlagAffects(CharData *mob) {
 	if (!mob || !mob->IsNpc() || !affects::AffectFlagsLoaded() || mob->get_rnum() < 0) {
 		return;

@@ -278,6 +278,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	GET_EQ(ch, pos) = obj;
 	obj->set_worn_by(ch);
 	obj->set_worn_on(pos);
+	RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kEquip);   // issue.obj-affects
 	obj->set_next_content(nullptr);
 	ch->check_aggressive = true;
 
@@ -310,8 +311,8 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		}
 
 		if (ch->in_room != kNowhere) {
-			for (const auto &j : weapon_affect) {
-				if (j.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(j.aff_pos)) {
+			for (const auto &j : equipment_affect) {
+				if (j.aff_spell == ESpell::kUndefined || !obj->GetEEquipmentAffect(j.aff_pos)) {
 					continue;
 				}
 				if (!no_cast) {
@@ -321,16 +322,17 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						CastWeaponAffect(ch, j.aff_spell);
+						CastEquipmentAffect(ch, j.aff_spell);
 					}
 				} else {
-					affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first,
-								  GetApplyByWeaponAffect(j.aff_pos, ch).second,
-								  static_cast<EAffect>(j.aff_bitvector), true);
+					affect_modify(ch, EApply::kNone, 0, j.aff_affect, true);
 				}
 			}
 		}
 	}
+
+	// issue.equipment-affects-improve: materialize this item's equipment affects as real Affects.
+	MaterializeEquipmentAffects(ch, obj, /*announce=*/!no_cast);
 
 	if (!skip_total) {
 		if (obj_sets::is_set_item(obj)) {
@@ -387,18 +389,8 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 						  false);
 		}
 
-		if (ch->in_room != kNowhere) {
-			for (const auto &j : weapon_affect) {
-				if (j.aff_bitvector == 0 || !obj->GetEWeaponAffect(j.aff_pos)) {
-					continue;
-				}
-				if (ch->IsNpc()
-					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], static_cast<EAffect>(j.aff_bitvector))) {
-					continue;
-				}
-				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), false);
-			}
-		}
+		// issue.equipment-affects-improve: strip this item's materialized equipment affects.
+		RemoveEquipmentAffects(ch, obj->get_id());
 
 		if ((obj->has_flag(EObjFlag::kSetItem)) && (SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());
@@ -407,6 +399,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 	GET_EQ(ch, pos) = nullptr;
 	obj->set_worn_by(nullptr);
 	obj->set_worn_on(kNowhere);
+	RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kUnequip);   // issue.obj-affects
 	obj->set_next_content(nullptr);
 
 	if (!skip_total) {

@@ -55,7 +55,7 @@ extern const char *apply_types[];
 extern const char *container_bits[];
 extern const char *anti_bits[];
 extern const char *no_bits[];
-extern const char *weapon_affects[];
+extern const char *equipment_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
 extern const char *magic_container_bits[];*/
@@ -311,12 +311,12 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 				*buf1 = '\0';
 			}
 			*buf2 = '\0';
-			obj->get_affect_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
-			obj->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
-			obj->get_no_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
+			obj->get_affect_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
+			obj->get_anti_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
+			obj->get_no_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
 			size_t buf2_len = strlen(buf2);
 			snprintf(buf2 + buf2_len, sizeof(buf2) - buf2_len, "\n%d ", obj->get_type());
-			obj->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
+			obj->get_extra_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
 			const auto wear_flags = obj->get_wear_flags();
 			tascii(&wear_flags, 1, buf2, sizeof(buf2));
 			strncat(buf2, "\n", sizeof(buf2) - strlen(buf2) - 1);
@@ -970,16 +970,16 @@ void oedit_disp_no_menu(DescriptorData *d) {
 	SendMsgToChar(buf, d->character.get());
 }
 
-void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags) {
-	disp_planes_values(d, weapon_affects, 2);
-	flags.sprintbits(weapon_affects, buf1, sizeof(buf1), ",", 5);
+void show_equipment_affects_olc(DescriptorData *d, const BitsetFlags<EEquipmentAffect> &flags) {
+	disp_planes_values(d, equipment_affects, 2);
+	flags.sprintbits(equipment_affects, buf1, sizeof(buf1), ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nНакладываемые аффекты : %s%s%s\r\n"
 									 "Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
 void oedit_disp_affects_menu(DescriptorData *d) {
-	show_weapon_affects_olc(d, OLC_OBJ(d)->get_affect_flags());
+	show_equipment_affects_olc(d, OLC_OBJ(d)->get_affect_flags());
 }
 
 // * Object wear flags.
@@ -1180,7 +1180,7 @@ void oedit_disp_menu(DescriptorData *d) {
 	SendMsgToChar(buf, d->character.get());
 
 	obj->get_anti_flags().sprintbits(anti_bits, buf1, sizeof(buf1), ",", 4);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf2, sizeof(buf2), ",", 4);
+	obj->get_affect_flags().sprintbits(equipment_affects, buf2, sizeof(buf2), ",", 4);
 	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
 	snprintf(buf, kMaxStringLength,
 			 "%sE%s) Запрещен    : %s%s\r\n"

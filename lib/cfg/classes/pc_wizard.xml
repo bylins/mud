@@ -88,6 +88,7 @@
         <spell id="kGodsShield"				level="27"	remort="1"	circle="9"	mem="0"		cast="0.0"/>
         <spell id="kMassHold"				level="27"	remort="4"	circle="9"	mem="-10"	cast="0.0"/>
         <!-- issue.new-unaffect-spells: skill-based class/room dispels -->
+		<spell id="kWeaveRestoration"	level="12"	remort="0"	circle="4"	mem="0"	cast="0.0"/>
         <spell id="kErode"	level="15"	remort="0"	circle="5"	mem="0"	cast="0.0"/>
         <spell id="kAegisRift"	level="18"	remort="0"	circle="6"	mem="0"	cast="0.0"/>
     </spells>

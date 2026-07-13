@@ -193,12 +193,12 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 // --------------------- weapon affects
 	f = false;
 	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
-		if (*weapon_affects[counter] == '\n') {
+		if (*equipment_affects[counter] == '\n') {
 			plane++;
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(weapon_affects[counter]))) {
+		if (utils::IsEqual(searchname, utils::FixDot(equipment_affects[counter]))) {
 			f = true;
 			break;
 		}
@@ -210,7 +210,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
 						 ++found, i->get_vnum(),
 						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 weapon_affects[counter]);
+						 equipment_affects[counter]);
 				out += buf;
 			}
 		}

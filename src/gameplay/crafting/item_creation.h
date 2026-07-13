@@ -113,7 +113,7 @@ class MakeReceptList {
 class MakeRecept {
 	int stat_modify(CharData *ch, int value, float devider);
 
-	int add_flags(CharData *ch, FlagData *base_flag, const FlagData *add_flag, int delta);
+	template<class F> int add_flags(CharData *ch, F *base_flag, const F *add_flag, int delta);
 	// Перенос extra-флагов ингредиента на предмет, но без служебных/привязочных/распадных
 	// (kNodrop и т.п.) -- иначе крафт плодит "!бросить" и прочий некорректный стаф (issue #3459).
 	void merge_extra_flags(CharData *ch, ObjData *obj, ObjData *ingr, int pow);

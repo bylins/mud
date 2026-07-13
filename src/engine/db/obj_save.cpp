@@ -10,6 +10,7 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "engine/core/char_handler.h"
+#include "gameplay/affects/obj_affects.h"
 #include "gameplay/mechanics/equipment.h"
 #include "obj_save.h"
 #include "gameplay/mechanics/groups.h"
@@ -287,19 +288,19 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_level(atoi(buffer));
 			} else if (!strcmp(read_line, "Affs")) {
 				*error = 23;
-				object->SetWeaponAffectFlags(clear_flags);
+				object->SetEquipmentAffectFlags(BitsetFlags<EEquipmentAffect>{});
 				object->load_affect_flags(buffer);
 			} else if (!strcmp(read_line, "Anti")) {
 				*error = 24;
-				object->set_anti_flags(clear_flags);
+				object->set_anti_flags(BitsetFlags<EAntiFlag>{});
 				object->load_anti_flags(buffer);
 			} else if (!strcmp(read_line, "Nofl")) {
 				*error = 25;
-				object->set_no_flags(clear_flags);
+				object->set_no_flags(BitsetFlags<ENoFlag>{});
 				object->load_no_flags(buffer);
 			} else if (!strcmp(read_line, "Extr")) {
 				*error = 26;
-				object->set_extra_flags(clear_flags);
+				object->set_extra_flags(BitsetFlags<EObjFlag>{});
 				object->load_extra_flags(buffer);
 			} else if (!strcmp(read_line, "Wear")) {
 				*error = 27;
@@ -392,6 +393,8 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				*error = 48;
 				object->set_unique_id(atoi(buffer));
 			} else if (!strcmp(read_line, "TSpl")) {
+				// issue.obj-affects: legacy on-disk format stored an obj affect as its ESpell. Map each to
+				// its EObjAffect identity (the 4 poisons -> kPoisoned, the ESpell kept as subtype modifier).
 				*error = 49;
 				std::stringstream text(buffer);
 				std::string tmp_buf;
@@ -405,7 +408,45 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 						*error = 50;
 						return object;
 					}
-					object->add_timed_spell(static_cast<ESpell>(t[0]), t[1]);
+					const auto sp = static_cast<ESpell>(t[0]);
+					const auto oa = obj_affects::BySpell(sp);
+					if (oa != obj_affects::EObjAffect::kUndefined) {
+						const int mod = obj_affects::IsPoisonSpell(sp) ? t[0] : 0;
+						obj_affects::Impose(object.get(), oa, t[1], mod);
+					}
+				}
+			} else if (!strcmp(read_line, "OAff")) {
+				// issue.obj-affects: current format -- "<EObjAffect token> <timer> <modifier>" per line.
+				*error = 49;
+				std::stringstream text(buffer);
+				std::string tmp_buf;
+
+				while (std::getline(text, tmp_buf)) {
+					utils::Trim(tmp_buf);
+					if (tmp_buf.empty() || tmp_buf[0] == '~') {
+						break;
+					}
+					char token[64] = {0};
+					int dur = 0;
+					int mod = 0;
+					float pot = 0.0f;   // issue.affect-suppression-dispell: optional 4th field (kSuppressed potency)
+					if (sscanf(tmp_buf.c_str(), "%63s %d %d %f", token, &dur, &mod, &pot) < 2) {
+						*error = 50;
+						return object;
+					}
+					obj_affects::EObjAffect a;
+					try {
+						a = ITEM_BY_NAME<obj_affects::EObjAffect>(token);
+					} catch (const std::out_of_range &) {
+						continue;   // unknown token (e.g. a retired affect): skip
+					}
+					if (a == obj_affects::EObjAffect::kSuppressed) {
+						// issue.obj-suppressor-affect: an item can suppress several EAffects at once (one
+						// kSuppressed instance each) -- append by modifier, not the one-per-type Impose.
+						obj_affects::SuppressEquipAffect(object.get(), static_cast<EAffect>(mod), dur, pot);
+					} else {
+						obj_affects::Impose(object.get(), a, dur, mod);
+					}
 				}
 			} else if (!strcmp(read_line, "Mort")) {
 				*error = 51;
@@ -739,7 +780,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// в файл не пишем. Снимаем их на копии FlagData без мутации самого
 		// объекта -- иначе save-путь был бы не thread-safe и менял видимое
 		// состояние предмета для игроков на момент сериализации.
-		FlagData extra_to_save = object->get_extra_flags();
+		auto extra_to_save = object->get_extra_flags();
 		extra_to_save.unset(EObjFlag::kBloody);
 		if (object->has_flag(EObjFlag::kNosell)
 			&& !p->has_flag(EObjFlag::kNosell)) {
@@ -805,8 +846,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << object->serialize_values();
 		}
 	}
-	if (object->has_timed_spell()) {
-		out << object->timed_spell().print();
+	if (object->has_obj_affects()) {
+		out << obj_affects::Serialize(object);
 	}
 	if (!object->get_enchants().empty()) {
 		out << object->serialize_enchants();

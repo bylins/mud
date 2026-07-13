@@ -106,7 +106,7 @@ EStageResult SpellCharm(ActionContext &ctx) {
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = kAfCharmBond;
+		af.battleflag = {kAfCharmBond};
 
 		// резервируем место под фит ()
 		// the ~390-line AnimalMaster body moved to
@@ -154,7 +154,7 @@ EStageResult SpellCharm(ActionContext &ctx) {
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = kAfCharmBond;
+		af.battleflag = {kAfCharmBond};
 		af.affect_type = EAffect::kCharmed;
 		affect_to_char(victim, af);
 		follow::AddFollower(ch, victim);

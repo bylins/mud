@@ -27,7 +27,7 @@ TEST(ExitDataIsEmpty, ExitInfoFlagMakesNonEmpty) {
 	// Случай вроде [15000] D0: 8 0 0 0 -- декоративная скрытая дверь без to_room.
 	// Фильтр не должен её схлопывать.
 	ExitData e;
-	e.exit_info = 8;
+	e.exit_info.set_plane(0, 8);
 	EXPECT_FALSE(e.is_empty());
 }
 

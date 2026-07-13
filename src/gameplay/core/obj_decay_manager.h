@@ -33,15 +33,15 @@ class ObjDecayManager {
 	void on_timer_changed(ObjData *obj);
 	void add_env_check(ObjData *obj);
 	void remove_env_check(ObjData *obj);
-	void add_timed_spell_obj(ObjData *obj);
-	void remove_timed_spell_obj(ObjData *obj);
+	void add_periodic_obj(ObjData *obj);
+	void remove_periodic_obj(ObjData *obj);
 	// issue.potion-hotfix: track a food/liquid container so its CONTENTS freshness (val[3]) spoils each
 	// tick -- independent of the item's own decay timer, timed spells, or whether it is carried.
 	void register_perishable(ObjData *obj);
 	TickResult process_tick();
 	uint64_t current_mud_hour() const { return m_counter; }
 	size_t size() const { return m_obj_to_deadline.size(); }
-	size_t timed_spell_size() const { return m_timed_spell_objs.size(); }
+	size_t periodic_obj_count() const { return m_periodic_objs.size(); }
 	bool contains(const ObjData *obj) const { return m_obj_to_deadline.count(const_cast<ObjData *>(obj)) > 0; }
 	uint64_t get_deadline(const ObjData *obj) const;
 
@@ -56,7 +56,7 @@ class ObjDecayManager {
 	std::set<DecayEntry> m_queue;
 	std::unordered_map<ObjData *, uint64_t> m_obj_to_deadline;
 	std::unordered_set<ObjData *> m_env_check_objs;
-	std::unordered_set<ObjData *> m_timed_spell_objs;
+	std::unordered_set<ObjData *> m_periodic_objs;
 	std::unordered_set<ObjData *> m_perishable_objs;  // food/liquid with a decaying val[3] freshness
 	std::unordered_set<ObjData *> m_zonedecay_objs;
 };

@@ -522,17 +522,17 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	int result = sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3);
 	if (result == 3) {
 		if (t[0] & 1)
-			world[room]->dir_option_proto[dir]->exit_info = EExitFlag::kHasDoor;
+			world[room]->dir_option_proto[dir]->exit_info = {EExitFlag::kHasDoor};
 		else if (t[0] & 2)
-			world[room]->dir_option_proto[dir]->exit_info = EExitFlag::kHasDoor | EExitFlag::kPickroof;
+			world[room]->dir_option_proto[dir]->exit_info = {EExitFlag::kHasDoor, EExitFlag::kPickroof};
 		else
-			world[room]->dir_option_proto[dir]->exit_info = 0;
+			world[room]->dir_option_proto[dir]->exit_info.clear();
 		if (t[0] & 4)
-			world[room]->dir_option_proto[dir]->exit_info |= EExitFlag::kHidden;
+			world[room]->dir_option_proto[dir]->exit_info.set(EExitFlag::kHidden);
 
 		world[room]->dir_option_proto[dir]->lock_complexity = 0;
 	} else if (result == 4) {
-		world[room]->dir_option_proto[dir]->exit_info = t[0];
+		world[room]->dir_option_proto[dir]->exit_info.set_plane(0, t[0]);
 		world[room]->dir_option_proto[dir]->lock_complexity = t[3];
 	} else {
 		fatal_log("SYSERR: Format error, %s", buf2);
@@ -852,7 +852,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 			obj->get_short_description().c_str());
 	}
 
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",", 4);
+	obj->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", 4);
 
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;
