@@ -7,6 +7,7 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/magic_item.h"
+#include "gameplay/magic/magic_utils.h"
 #include "gameplay/fight/fight_messages.h"
 
 #include "administration/ban.h"
@@ -959,8 +960,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			}
 			break;
 
-		case EObjType::kScroll:
-		case EObjType::kPotion: {
+		case EObjType::kScroll: {
 			std::ostringstream out;
 			out << "Заклинания: (Уровень - " << GET_OBJ_VAL(j, 0) << ") ";
 			for (auto val = 1; val < 4; ++val) {
@@ -973,6 +973,27 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 						out << ".";
 					}
 				}
+			}
+			snprintf(buf, sizeof(buf), "%s", out.str().c_str());
+			break;
+		}
+		case EObjType::kPotion: {
+			std::ostringstream out;
+			out << "Заклинания:";
+			const ObjVal::EValueKey spell_keys[3] = {
+				ObjVal::EValueKey::kPotionSpell1Num,
+				ObjVal::EValueKey::kPotionSpell2Num,
+				ObjVal::EValueKey::kPotionSpell3Num};
+			for (const auto key : spell_keys) {
+				const auto spell_id = static_cast<ESpell>(j->GetPotionValueKey(key));
+				if (MUD::Spell(spell_id).IsValid()) {
+					const int potency = static_cast<int>(PotionPotency(j, spell_id) + 0.5f);
+					out << " " << MUD::Spell(spell_id).GetName()
+						<< " (сила " << potency << "),";
+				}
+			}
+			if (out.str().back() == ',') {
+				out.seekp(-1, out.end);
 			}
 			snprintf(buf, sizeof(buf), "%s", out.str().c_str());
 			break;

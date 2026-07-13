@@ -597,17 +597,20 @@ void name_to_drinkcon(ObjData *obj, int type) {
 
 std::string print_spell(const ObjData *obj, int num) {
 	const auto spell = init_spell_num(num);
-	const auto level = init_spell_lvl(num);
+	const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(spell));
 
-	if (obj->GetPotionValueKey(spell) == -1) {
+	if (obj->GetPotionValueKey(spell) == -1 || !MUD::Spell(spell_id).IsValid()) {
 		return "";
 	}
 
+	// issue.potion-olc-values: a magic drink shows the same maker-derived potency
+	// (сила) as a potion, not the retired per-spell level.
+	const int potency = static_cast<int>(PotionPotency(obj, spell_id) + 0.5f);
 	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
+	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (сила %d)%s\r\n",
 			 kColorCyn,
-			 MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(spell))).GetCName(),
-			 obj->GetPotionValueKey(level),
+			 MUD::Spell(spell_id).GetCName(),
+			 potency,
 			 kColorNrm);
 
 	return buf_;
