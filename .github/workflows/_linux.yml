@@ -28,6 +28,10 @@ jobs:
             meson_flags: "-Dbuild_profile=release -Dsqlite=system -Dyaml=disabled"
             packages: "libsqlite3-dev"
 
+          - name: "YAML + LuaJIT"
+            meson_flags: "-Dbuild_profile=release -Dyaml=system -Dluajit=system"
+            packages: "libyaml-cpp-dev libluajit-5.1-dev"
+
           - name: "Base + Admin API + OTEL"
             meson_flags: "-Dbuild_profile=release -Dadmin_api=true -Dotel=system"
             packages: "cmake"
