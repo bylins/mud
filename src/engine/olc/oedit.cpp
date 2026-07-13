@@ -1055,6 +1055,15 @@ std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1,
 	return MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(key1))).GetCName();
 }
 
+// A potion payload (spells + maker skill/stat) can live on a potion OR on a
+// drink container / fountain that holds a magic liquid -- all three share the
+// kPotion* ObjVal keys (see is_valid_drinkcon).
+static bool obj_has_potion_payload(EObjType t) {
+	return t == EObjType::kPotion
+		|| t == EObjType::kLiquidContainer
+		|| t == EObjType::kFountain;
+}
+
 void drinkcon_values_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -1081,7 +1090,7 @@ void drinkcon_values_menu(DescriptorData *d) {
 			 nrm);
 
 	SendMsgToChar(buf_, d->character.get());
-	if (OLC_OBJ(d)->get_type() == EObjType::kPotion) {
+	if (obj_has_potion_payload(OLC_OBJ(d)->get_type())) {
 		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
 		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
 		char pbuf[512], sk_s[32], st_s[32];
@@ -1137,18 +1146,14 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 }
 
 std::string print_values2_menu(ObjData *obj) {
-	if (obj->get_type() == EObjType::kPotion) {
+	if (obj_has_potion_payload(obj->get_type())) {
 		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
 		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
 		char buf_p[kMaxInputLength], sk_s[32], st_s[32];
 		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
 		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
-		snprintf(buf_p, sizeof(buf_p), "Доп. параметры зелья: навык=%s стат=%s", sk_s, st_s);
+		snprintf(buf_p, sizeof(buf_p), "Спец. параметры: навык=%s стат=%s", sk_s, st_s);
 		return buf_p;
-	}
-	if (obj->get_type() == EObjType::kLiquidContainer
-		|| obj->get_type() == EObjType::kFountain) {
-		return "Спец. параметры";
 	}
 
 	char buf_[kMaxInputLength];    
@@ -2153,7 +2158,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					return;
 				case 4:
 				case 5:
-					if (OLC_OBJ(d)->get_type() == EObjType::kPotion) {
+					if (obj_has_potion_payload(OLC_OBJ(d)->get_type())) {
 						if (number == 4) {
 							OLC_MODE(d) = OEDIT_POTION_SKILL;
 							SendMsgToChar("Навык мастера (-1 = по умолчанию) : ", d->character.get());
