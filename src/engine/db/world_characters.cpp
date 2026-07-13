@@ -1,6 +1,7 @@
 #include "world_characters.h"
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
+#include "engine/scripting/lua/lua_script_engine.h"
 #include "gameplay/ai/mobact.h"
 #include "global_objects.h"
 #include "gameplay/ai/mob_memory.h"
@@ -95,6 +96,7 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 }
 
 void Characters::AddToExtractedList(CharData *ch) {
+	lua_scripting::LuaScriptEngine::CancelWaitsForOwner(ch);
 	if (ch->IsNpc()) {
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	}

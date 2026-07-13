@@ -1,0 +1,8 @@
+[wrap-git]
+directory = sol2
+url = https://github.com/ThePhD/sol2.git
+revision = v3.3.0
+diff_files = sol2/0001-Fix-emplace.patch
+
+[provide]
+sol2 = sol2_dep

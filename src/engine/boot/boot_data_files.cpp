@@ -267,6 +267,8 @@ class TriggersFile : public DiscreteFile {
  private:
 	virtual void read_entry(const int nr) override;
 	void parse_trigger(int nr);
+	void LoadDgTriggerScript(Trigger *trig, const std::string &cmds, int vnum);
+	void LoadLuaTriggerScript(Trigger *trig, const std::string &cmds);
 
 	const DataFileFactoryImpl::regex_ptr_t m_load_obj_exp;
 };
@@ -277,7 +279,7 @@ void TriggersFile::read_entry(const int nr) {
 
 void TriggersFile::parse_trigger(int vnum) {
 	int t, add_flag, k;
-	char line[256], flags[256];
+	char line[256], flags[256], language[32];
 
 	ZoneRnum zrn = GetZoneRnum(vnum / 100);
 
@@ -291,8 +293,10 @@ void TriggersFile::parse_trigger(int vnum) {
 	get_line(file(), line);
 
 	int attach_type = 0;
+	flags[0] = '\0';
+	language[0] = '\0';
 	t = 0;  // Initialize narg to avoid undefined behavior when only 2 fields present
-	k = sscanf(line, "%d %s %d %d", &attach_type, flags, &t, &add_flag);
+	k = sscanf(line, "%d %255s %d %d %31s", &attach_type, flags, &t, &add_flag, language);
 
 	if (0 > attach_type
 		|| 2 < attach_type) {
@@ -304,14 +308,27 @@ void TriggersFile::parse_trigger(int vnum) {
 	asciiflag_conv(flags, &trigger_type);
 	const auto rnum = top_of_trigt;
 	Trigger *trig = new Trigger(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
+	if (k == 5 && !strcmp(language, "lua")) {
+		trig->set_script_language(TriggerScriptLanguage::Lua);
+	}
 
 	trig->narg = t;
-	if (k == 4)
+	if (k >= 4)
 		trig->add_flag = add_flag;
 	else 
 		trig->add_flag = false;
 	trig->arglist = fread_string();
 	std::string cmds(fread_string());
+	if (trig->get_script_language() == TriggerScriptLanguage::Dg) {
+		LoadDgTriggerScript(trig, cmds, vnum);
+	} else if (trig->get_script_language() == TriggerScriptLanguage::Lua) {
+		LoadLuaTriggerScript(trig, cmds);
+	}
+
+	AddTrigIndexEntry(vnum, trig);
+}
+
+void TriggersFile::LoadDgTriggerScript(Trigger *trig, const std::string &cmds, int vnum) {
 	std::size_t pos = 0;
 	int indlev = 0, num = 1;
 	auto ptr = trig->cmdlist.get();
@@ -328,9 +345,9 @@ void TriggersFile::parse_trigger(int vnum) {
 			(*ptr)->line_num = num++;
 
 			// lowercase the command (first word) for faster comparison at runtime
-				auto it = (*ptr)->cmd.begin();
-				while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
-				while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
+			auto it = (*ptr)->cmd.begin();
+			while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
+			while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
 			ptr = &(*ptr)->next;
 
 			std::smatch match;
@@ -361,8 +378,10 @@ void TriggersFile::parse_trigger(int vnum) {
 		log("%s", tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
+}
 
-	AddTrigIndexEntry(vnum, trig);
+void TriggersFile::LoadLuaTriggerScript(Trigger *trig, const std::string &cmds) {
+	trig->set_lua_script_source(cmds);
 }
 
 class WorldFile : public DiscreteFile {

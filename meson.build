@@ -8,6 +8,7 @@ project('bylins', 'cpp',
 cpp = meson.get_compiler('cpp')
 host_system = host_machine.system()
 py3 = import('python').find_installation()
+fs = import('fs')
 project_args = []
 dependencies = []
 
@@ -191,6 +192,35 @@ endif
 threads_dep = dependency('threads')
 dependencies += threads_dep
 
+luajit_opt = get_option('luajit')
+if luajit_opt != 'disabled'
+    if luajit_opt == 'builtin'
+        luajit_sub = subproject('luajit', default_options: ['default_library=static', 'luajit=false'])
+        luajit_dep = dependency('luajit')
+    elif luajit_opt == 'system'
+        luajit_dep = dependency('luajit', required: true, allow_fallback: false)
+    else
+        luajit_dep = dependency('luajit', required: true, fallback: ['luajit'], default_options: ['default_library=static', 'luajit=false'])
+    endif
+    meson.override_dependency('lua', luajit_dep)
+    sol2_root = get_option('sol2_root')
+    if sol2_root != ''
+        sol2_header = sol2_root / 'include' / 'sol' / 'sol.hpp'
+        if not fs.exists(sol2_header)
+            error('sol2 headers not found at @0@. Set -Dsol2_root=/path/to/sol2 or disable -Dluajit_prototype.'.format(sol2_root))
+        endif
+        sol2_base_dep = declare_dependency(include_directories: include_directories(sol2_root / 'include', is_system: true))
+    else
+        sol2_sub = subproject('sol2')
+        sol2_base_dep = sol2_sub.get_variable('sol2_dep')
+    endif
+    sol2_dep = declare_dependency(
+        dependencies: [sol2_base_dep, luajit_dep]
+    )
+    project_args += '-DWITH_LUAJIT_PROTOTYPE'
+    dependencies += [luajit_dep, sol2_dep]
+endif
+
 # Admin API
 admin_api_opt = get_option('admin_api')
 if admin_api_opt
@@ -306,6 +336,9 @@ endif
 if sqlite_opt != 'disabled'
     feature_flags += 'sqlite'
 endif
+if luajit_opt != 'disabled'
+    feature_flags += 'luajit'
+endif
 if telegram_opt != 'disabled'
     feature_flags += 'telegram'
 endif
@@ -406,6 +439,12 @@ main_sources = files(
   'src/engine/scripting/dg_scripts.cpp',
   'src/engine/scripting/dg_triggers.cpp',
   'src/engine/scripting/dg_wldcmd.cpp',
+  'src/engine/scripting/lua/lua_entity_bindings.cpp',
+  'src/engine/scripting/lua/lua_mud_api.cpp',
+  'src/engine/scripting/lua/lua_script_engine.cpp',
+  'src/engine/scripting/lua/lua_trigger_context.cpp',
+  'src/engine/scripting/lua/lua_utils.cpp',
+  'src/engine/ui/cmd_god/do_luainfo.cpp',
   'src/gameplay/economics/dictionary.cpp',
   'src/utils/diskio.cpp',
   'src/gameplay/statistics/dps.cpp',
@@ -1012,6 +1051,7 @@ summary({
     'Boost':           boost_opt,
     'fmt':             fmt_opt,
     'gtest':             gtest_opt,
+    'LuaJIT':          luajit_opt,
     'SQLite':          sqlite_opt,
     'YAML':            yaml_opt,
     'Telegram':        telegram_opt,

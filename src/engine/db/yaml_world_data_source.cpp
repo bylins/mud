@@ -31,6 +31,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <cctype>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
@@ -56,6 +57,27 @@ extern CharData *mob_proto;
 
 namespace world_loader
 {
+
+namespace
+{
+
+TriggerScriptLanguage ParseTriggerScriptLanguage(const YAML::Node &root)
+{
+	std::string language = "dg";
+	if (root["language"])
+	{
+		language = root["language"].as<std::string>();
+	}
+	else if (root["script_language"])
+	{
+		language = root["script_language"].as<std::string>();
+	}
+	std::transform(language.begin(), language.end(), language.begin(),
+		[](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+	return language == "lua" ? TriggerScriptLanguage::Lua : TriggerScriptLanguage::Dg;
+}
+
+} // namespace
 
 // Convert dictionary index to bitvector flag value.
 // Delegates to the canonical flag_data_by_num() in engine/structs/flag_data.h
@@ -1048,14 +1070,22 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 	int narg = GetInt(root, "narg", 0);
 	std::string arglist = GetText(root, "arglist", "");
 	std::string script = GetText(root, "script", "");
+	const auto script_language = ParseTriggerScriptLanguage(root);
 
 	// Create trigger (note: rnum will be assigned during merge)
 	auto trig = new Trigger(-1, std::move(name), static_cast<byte>(attach_type), trigger_type);
 	GET_TRIG_NARG(trig) = narg;
 	trig->arglist = arglist;
+	trig->set_script_language(script_language);
 
-	// Parse script into cmdlist
-	ParseTriggerScript(trig, script);
+	if (script_language == TriggerScriptLanguage::Lua)
+	{
+		trig->set_lua_script_source(script);
+	}
+	else
+	{
+		ParseTriggerScript(trig, script);
+	}
 
 	// Note: vnum will be passed separately in thread results
 	return trig;
@@ -3016,6 +3046,12 @@ void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
 	yaml.Key("attach_type");
 	yaml.Value(ReverseLookupEnum("attach_types", trig->get_attach_type()));
 
+	if (trig->get_script_language() == TriggerScriptLanguage::Lua)
+	{
+		yaml.Key("language");
+		yaml.Value("lua");
+	}
+
 	// Narg
 	yaml.Key("narg");
 	yaml.Value(GET_TRIG_NARG(trig));
@@ -3057,6 +3093,17 @@ void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
 		}
 
 		yaml.DecreaseIndent();
+	}
+
+	if (trig->get_script_language() == TriggerScriptLanguage::Lua)
+	{
+		const auto &script = trig->get_lua_script_source();
+		if (!script.empty())
+		{
+			yaml.Key("script");
+			yaml.Value(script, true);  // literal=true
+		}
+		return;
 	}
 
 	// Script (multiline literal block). ParseTriggerScript keeps

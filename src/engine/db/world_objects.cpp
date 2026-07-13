@@ -5,6 +5,7 @@
 #include "db.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/scripting/dg_scripts.h"
+#include "engine/scripting/lua/lua_script_engine.h"
 #include "utils/utils.h"
 #include "global_objects.h"
 #include "utils/backtrace.h"
@@ -391,6 +392,7 @@ void WorldObjects::GetObjListByVnum(const ObjVnum vnum, std::list<ObjData *> &re
 }
 
 void WorldObjects::AddToExtractedList(ObjData *obj) {
+	lua_scripting::LuaScriptEngine::CancelWaitsForObject(obj);
 	const ObjData::shared_ptr object_ptr = get_by_raw_ptr(obj);
 
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);

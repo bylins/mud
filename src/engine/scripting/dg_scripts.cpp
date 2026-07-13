@@ -892,9 +892,22 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 				buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
 	}
 	size_t sb_len = strlen(sb);
+	if (trig->get_script_language() == TriggerScriptLanguage::Lua) {
+		strncat(sb, "Lua script:\r\n", sizeof(sb) - sb_len - 1);
+		sb_len = strlen(sb);
+		const auto &lua_source = trig->get_lua_script_source();
+		if (!lua_source.empty()) {
+			strncat(sb, lua_source.c_str(), sizeof(sb) - sb_len - 1);
+			sb_len = strlen(sb);
+			strncat(sb, "\r\n", sizeof(sb) - sb_len - 1);
+		}
+		page_string(ch->desc, sb, 1);
+		return;
+	}
+
 	strncat(sb, "Commands:\r\n", sizeof(sb) - sb_len - 1);
 
-	auto cmd_list = *trig->cmdlist;
+	auto cmd_list = trig->cmdlist ? *trig->cmdlist : nullptr;
 	while (cmd_list) {
 		if (!cmd_list->cmd.empty()) {
 			if (need_num) {
@@ -6681,6 +6694,8 @@ Trigger::Trigger(const Trigger &from) :
 	attach_type(from.attach_type),
 	name(from.name),
 	trigger_type(from.trigger_type),
+	script_language(from.script_language),
+	lua_script_source(from.lua_script_source),
 	halted(from.halted) {
 }
 
@@ -6689,6 +6704,8 @@ void Trigger::reset() {
 	attach_type = 0;
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
+	script_language = TriggerScriptLanguage::Dg;
+	lua_script_source.clear();
 	cmdlist.reset();
 	wait_line.reset();
 	curr_line.reset();
@@ -6710,6 +6727,8 @@ Trigger &Trigger::operator=(const Trigger &right) {
 	set_attach_type(right.get_attach_type());
 	name = right.name;
 	trigger_type = right.trigger_type;
+	script_language = right.script_language;
+	lua_script_source = right.lua_script_source;
 	cmdlist = right.cmdlist;
 	narg = right.narg;
 	add_flag = right.add_flag;

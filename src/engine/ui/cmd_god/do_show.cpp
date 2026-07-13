@@ -25,6 +25,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/db/global_objects.h"
+#include "engine/scripting/lua/lua_script_engine.h"
 #include "utils/file_crc.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/statistics/money_drop.h"
@@ -415,6 +416,7 @@ struct show_struct show_fields[] = {
 	{"runeslist", kLvlGod},
 	{"dungeons", kLvlGod},
 	{"mobclass", kLvlGod},
+	{"luaworlds", kLvlImmortal},
 	{"\n", 0}
 };
 
@@ -964,6 +966,16 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 39: // mob class
 			ShowMobClassInfo(ch, value);
+			break;
+		case 40: // lua worlds
+			if (*value && is_number(value)) {
+				lua_scripting::PrintLuaWorldVars(ch, atol(value));
+			}
+			else if (*value && !str_cmp("all", value)) {
+				lua_scripting::PrintLuaWorldVars(ch, std::nullopt);
+			} else {
+				SendMsgToChar("Ошибка синтаксиса: show luaworlds номер-контекста|all.\r\n", ch);
+			}
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

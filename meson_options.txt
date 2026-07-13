@@ -5,6 +5,7 @@ option('build_tests', type: 'boolean', value: true, description: 'Build and run 
 option('nocrypt', type: 'boolean', value: false, description: 'Disable use of crypt()')
 option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux or freebsd)')
 option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
+option('sol2_root', type: 'string', value: '', description: 'Optional path to sol2 root for luajit_prototype; empty uses Meson dependency/fallback')
 option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
 option('use_pch', type: 'boolean', value: true, description: 'Use precompiled headers for circle.library')
 
@@ -25,6 +26,7 @@ option('gtest', type: 'combo', choices: ['auto', 'system', 'builtin'], value: 'b
 option('zlib', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'auto', description: 'Enable MCCP support via ZLib')
 option('iconv', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Detect and use iconv')
 option('telegram', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable Telegram integration (requires CURL + OpenSSL)')
+option('luajit', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable optional sol2 + LuaJIT prototype')
 option('boost', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable Boost usage')
 option('sqlite', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable SQLite world data source')
 option('yaml', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'builtin', description: 'Enable YAML world data source and dictionary loader (default format; lib.template ships YAML)')
