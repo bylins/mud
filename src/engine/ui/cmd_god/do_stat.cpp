@@ -679,8 +679,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		}
 
 		std::string quested(k->quested_print());
-		if (!quested.empty())
-			SendMsgToChar(ch, "Выполнил квесты:\r\n%s\r\n", quested.c_str());
+		if (!quested.empty()) {
+			// issue #3429: список выполненных квестов бывает очень длинным --
+			// переносим каждую строку (зону) по ширине экрана через WrapText.
+			const size_t width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
+					? ch->player_specials->saved.stringLength : 120;
+			SendMsgToChar(ch, "Выполнил квесты:\r\n%s\r\n", utils::WrapText(quested, width).c_str());
+		}
 
 		if (NORENTABLE(k)) {
 			snprintf(buf, sizeof(buf), "Не может уйти на постой %ld\r\n",
