@@ -215,6 +215,8 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_CLONE                        50
 #define OEDIT_CLONE_WITH_TRIGGERS            51
 #define OEDIT_CLONE_WITHOUT_TRIGGERS            52
+#define OEDIT_POTION_SKILL                      53
+#define OEDIT_POTION_STAT                       54
 
 // * Submodes of REDIT connectedness.
 #define REDIT_MAIN_MENU        1
