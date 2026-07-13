@@ -475,7 +475,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					continue;
 				}
 				if (k->HaveFeat(feat.GetId())) {
-					parts.push_back(fmt::sprintf("'%s'", feat.GetCName()));
+					parts.push_back(feat.GetCName());
 				}
 			}
 			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GСпособности:&c ") + "&n\r\n", ch);
