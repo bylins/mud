@@ -1055,6 +1055,15 @@ std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1,
 	return MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(key1))).GetCName();
 }
 
+// A potion payload (spells + maker skill/stat) can live on a potion OR on a
+// drink container / fountain that holds a magic liquid -- all three share the
+// kPotion* ObjVal keys (see is_valid_drinkcon).
+static bool obj_has_potion_payload(EObjType t) {
+	return t == EObjType::kPotion
+		|| t == EObjType::kLiquidContainer
+		|| t == EObjType::kFountain;
+}
+
 void drinkcon_values_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -1081,6 +1090,19 @@ void drinkcon_values_menu(DescriptorData *d) {
 			 nrm);
 
 	SendMsgToChar(buf_, d->character.get());
+	if (obj_has_potion_payload(OLC_OBJ(d)->get_type())) {
+		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+		char pbuf[512], sk_s[32], st_s[32];
+		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
+		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
+		snprintf(pbuf, sizeof(pbuf),
+			"%s4%s) навык мастера     : %s%s%s\r\n"
+			"%s5%s) ключевая хар-ка   : %s%s%s\r\n",
+			grn, nrm, cyn, sk_s, nrm,
+			grn, nrm, cyn, st_s, nrm);
+		SendMsgToChar(pbuf, d->character.get());
+	}
 	SendMsgToChar("Ваш выбор (0 - выход) :", d->character.get());
 	return;
 }
@@ -1124,9 +1146,14 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 }
 
 std::string print_values2_menu(ObjData *obj) {
-	if (obj->get_type() == EObjType::kLiquidContainer
-		|| obj->get_type() == EObjType::kFountain) {
-		return "Спец. параметры";
+	if (obj_has_potion_payload(obj->get_type())) {
+		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+		char buf_p[kMaxInputLength], sk_s[32], st_s[32];
+		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
+		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
+		snprintf(buf_p, sizeof(buf_p), "Спец. параметры: навык=%s стат=%s", sk_s, st_s);
+		return buf_p;
 	}
 
 	char buf_[kMaxInputLength];    
@@ -1511,7 +1538,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 						oedit_disp_skills_menu(d);
 						OLC_MODE(d) = OEDIT_SKILL;
 					} else if (OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
-						|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
+						|| OLC_OBJ(d)->get_type() == EObjType::kFountain
+						|| OLC_OBJ(d)->get_type() == EObjType::kPotion) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 					} else {
@@ -1521,6 +1549,14 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case 'o':
 				case 'O':
+					// issue.potion-olc-values: potions keep their data in the extended ObjVal
+					// map, not val[0..3]; route 'O' to the same extended editor as 'N'. Other
+					// (not yet migrated) item types keep the legacy val editor untouched.
+					if (OLC_OBJ(d)->get_type() == EObjType::kPotion) {
+						drinkcon_values_menu(d);
+						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+						break;
+					}
 					// * Clear any old values
 					OLC_OBJ(d)->set_val(0, 0);
 					OLC_OBJ(d)->set_val(1, 0);
@@ -2120,6 +2156,21 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 3: OLC_MODE(d) = OEDIT_POTION_SPELL3_NUM;
 					oedit_disp_spells_menu(d);
 					return;
+				case 4:
+				case 5:
+					if (obj_has_potion_payload(OLC_OBJ(d)->get_type())) {
+						if (number == 4) {
+							OLC_MODE(d) = OEDIT_POTION_SKILL;
+							SendMsgToChar("Навык мастера (-1 = по умолчанию) : ", d->character.get());
+						} else {
+							OLC_MODE(d) = OEDIT_POTION_STAT;
+							SendMsgToChar("Ключевая характеристика (-1 = по умолчанию) : ", d->character.get());
+						}
+						return;
+					}
+					SendMsgToChar("Неверный выбор.\r\n", d->character.get());
+					drinkcon_values_menu(d);
+					return;
 				default: SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 					drinkcon_values_menu(d);
 					return;
@@ -2144,6 +2195,18 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 		case OEDIT_POTION_SPELL3_LVL: number = atoi(arg);
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell3Lvl, number);
+			return;
+		case OEDIT_POTION_SKILL: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
+				number < 0 ? -1 : std::clamp(number, 0, 200));
+			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+			drinkcon_values_menu(d);
+			return;
+		case OEDIT_POTION_STAT: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+				number < 0 ? -1 : std::clamp(number, 0, 100));
+			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+			drinkcon_values_menu(d);
 			return;
 		case OEDIT_CLONE:
 			switch (*arg) {
