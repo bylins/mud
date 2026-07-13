@@ -83,7 +83,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (AFF_FLAGGED(k, EAffect::kCharmed)
 			&& k->get_master() == ch
 			&& k->IsFlagged(EMobFlag::kClone)
-			&& !IsAffectedBySpell(k, ESpell::kCapable)
+			&& !IsAffected(k, EAffect::kCapable)
 			&& ch->isInSameRoom(k)) {
 			follower = k;
 			break;
@@ -144,7 +144,6 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	GET_CAST_SUCCESS(follower) = remort::GetRealRemort(ch) * 4;
 	Affect<EApply> af;
-	af.type = ESpell::kCapable;
 	af.duration = 48;
 	if (remort::GetRealRemort(ch) > 0) {
 		af.modifier = remort::GetRealRemort(ch) * 4;//вешаецо аффект который дает +морт*4 касту
@@ -154,7 +153,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.location = EApply::kNone;
 	}
 	af.battleflag = 0;
-	af.affect_type = EAffect::kUndefined;
+	af.affect_type = EAffect::kCapable;
 	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spell_id;
 }
@@ -165,8 +164,8 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 		&& killer != ch
 		&& ch->IsFlagged(EMobFlag::kClone)
 		&& ch->has_master()
-		&& IsAffectedBySpell(ch, ESpell::kCapable)) {
-		RemoveAffectFromCharAndRecalculate(ch, ESpell::kCapable);
+		&& IsAffected(ch, EAffect::kCapable)) {
+		RemoveAffectFromCharAndRecalculate(ch, EAffect::kCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, nullptr, killer, kToRoom | kToArenaListen);
 		auto pos = ch->GetPosition();

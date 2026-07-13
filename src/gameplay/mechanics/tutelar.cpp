@@ -16,7 +16,7 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/skills/resque.h"
-#include "gameplay/magic/magic.h"  // CastContext / EStageResult (issue.summons-fix)
+#include "gameplay/magic/magic.h"  // ActionContext / EStageResult (issue.summons-fix)
 #include "gameplay/mechanics/sight.h"
 
 void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {

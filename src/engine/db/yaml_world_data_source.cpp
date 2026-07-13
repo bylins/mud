@@ -335,110 +335,163 @@ std::vector<int> YamlWorldDataSource::GetZoneList()
 	return zones;
 }
 
-std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::string &sub)
+namespace
 {
-	namespace fs = std::filesystem;
+struct DiscoverResult
+{
 	std::vector<EntityFileTask> tasks;
-
-	// [yaml-timing] this whole discovery runs SERIALLY on the main thread
-	// before any worker starts. In flat layout it fully parses every zone file
-	// just to enumerate keys -- the workers then parse the same files again.
-	utils::CExecutionTimer disc_timer;
 	size_t flat_files_parsed = 0;
 	size_t perfile_indexes_parsed = 0;
+	int failures = 0;
+};
+} // namespace
 
-	for (int zone_vnum : GetZoneList())
+std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::string &sub, const std::vector<int> *zone_filter)
+{
+	namespace fs = std::filesystem;
+
+	// [yaml-timing] this used to run SERIALLY on the main thread, one zone at
+	// a time. In flat layout, enumerating a zone's keys requires fully
+	// parsing its file -- with 600+ zones that added up to 5-6x the actual
+	// (already parallel) load step, for no reason: nothing here depends on
+	// zone order (the load step re-sorts everything by vnum after parsing,
+	// see the merge/post step below), so it's embarrassingly parallel across
+	// zones exactly like the load step already is. Distributed across the
+	// same thread pool here removes that serial bottleneck.
+	utils::CExecutionTimer disc_timer;
+
+	std::vector<int> zone_vnums = zone_filter ? *zone_filter : GetZoneList();
+	std::sort(zone_vnums.begin(), zone_vnums.end());
+	auto batches = utils::DistributeBatches(zone_vnums, m_num_threads);
+
+	std::vector<std::future<DiscoverResult>> futures;
+	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
-		const std::string flat_path = zone_dir + "/" + sub + ".yaml";
-		const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
-		const bool has_flat = fs::exists(flat_path);
-		const bool has_perfile = fs::exists(index_path);
-
-		// Normally only one layout exists (saves are self-cleaning). If both are
-		// present -- a half-finished migration or a leftover from a failed
-		// cleanup -- the configured layout (m_save_layout, from world_config.yaml)
-		// decides which one is authoritative; the other is ignored.
-		bool use_flat;
-		if (has_flat && has_perfile)
-		{
-			use_flat = (m_save_layout == YamlLayout::Flat);
-			log("WARNING: zone %d has both flat %s.yaml and per-file %s/ -- using "
-				"%s per world_config layout; the other is ignored.",
-				zone_vnum, sub.c_str(), sub.c_str(), use_flat ? "flat" : "per-file");
-		}
-		else
-		{
-			use_flat = has_flat;
-		}
-
-		if (use_flat)
-		{
-			// Flat layout: the file is a map of rel-number -> entity node and
-			// doubles as its own index. Enumerate the keys here (sequentially,
-			// main thread); the worker re-loads and parses the entities.
-			EntityFileTask task;
-			task.flat = true;
-			task.path = flat_path;
-			try
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &sub]() -> DiscoverResult {
+			namespace fs = std::filesystem;
+			DiscoverResult result;
+			for (int zone_vnum : batches[thread_id])
 			{
-				YAML::Node root = YAML::LoadFile(flat_path);
-				++flat_files_parsed;
-				for (auto it = root.begin(); it != root.end(); ++it)
+				const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+				const std::string flat_path = zone_dir + "/" + sub + ".yaml";
+				const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
+				const bool has_flat = fs::exists(flat_path);
+				const bool has_perfile = fs::exists(index_path);
+
+				// Normally only one layout exists (saves are self-cleaning). If
+				// both are present -- a half-finished migration or a leftover
+				// from a failed cleanup -- the configured layout (m_save_layout,
+				// from world_config.yaml) decides which one is authoritative;
+				// the other is ignored.
+				bool use_flat;
+				if (has_flat && has_perfile)
 				{
-					int rel_num = it->first.as<int>();
-					task.vnums.push_back(zone_vnum * 100 + rel_num);
+					use_flat = (m_save_layout == YamlLayout::Flat);
+					log("WARNING: zone %d has both flat %s.yaml and per-file %s/ -- using "
+						"%s per world_config layout; the other is ignored.",
+						zone_vnum, sub.c_str(), sub.c_str(), use_flat ? "flat" : "per-file");
 				}
-			}
-			catch (const YAML::Exception &e)
-			{
-				fatal_log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
-					sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
-			}
-			std::sort(task.vnums.begin(), task.vnums.end());
-			if (!task.vnums.empty())
-			{
-				tasks.push_back(std::move(task));
-			}
-			continue;
-		}
-
-		// Per-file layout: one task per entity, listed in <sub>/index.yaml.
-		// A missing index simply means the zone has no entities of this type.
-		if (!has_perfile)
-		{
-			continue;
-		}
-		try
-		{
-			YAML::Node root = YAML::LoadFile(index_path);
-			++perfile_indexes_parsed;
-			if (root[sub] && root[sub].IsSequence())
-			{
-				for (const auto &rel_node : root[sub])
+				else
 				{
-					int rel_num = rel_node.as<int>();
+					use_flat = has_flat;
+				}
+
+				if (use_flat)
+				{
+					// Flat layout: the file is a map of rel-number -> entity
+					// node and doubles as its own index. Enumerating the keys
+					// here already requires a full parse; stash that parsed
+					// root in the task so the worker (below, in each Load*()
+					// parallel section) reuses it instead of calling
+					// YAML::LoadFile() on the same file a second time.
 					EntityFileTask task;
-					task.flat = false;
-					std::ostringstream ss;
-					ss << zone_dir << "/" << sub << "/"
-					   << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-					task.path = ss.str();
-					task.vnums.push_back(zone_vnum * 100 + rel_num);
-					tasks.push_back(std::move(task));
+					task.flat = true;
+					task.path = flat_path;
+					try
+					{
+						YAML::Node root = YAML::LoadFile(flat_path);
+						++result.flat_files_parsed;
+						for (auto it = root.begin(); it != root.end(); ++it)
+						{
+							int rel_num = it->first.as<int>();
+							task.vnums.push_back(zone_vnum * 100 + rel_num);
+						}
+						task.parsed_root = root;
+					}
+					catch (const YAML::Exception &e)
+					{
+						log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
+							sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
+						++result.failures;
+						continue;
+					}
+					std::sort(task.vnums.begin(), task.vnums.end());
+					if (!task.vnums.empty())
+					{
+						result.tasks.push_back(std::move(task));
+					}
+					continue;
+				}
+
+				// Per-file layout: one task per entity, listed in
+				// <sub>/index.yaml. A missing index simply means the zone has
+				// no entities of this type.
+				if (!has_perfile)
+				{
+					continue;
+				}
+				try
+				{
+					YAML::Node root = YAML::LoadFile(index_path);
+					++result.perfile_indexes_parsed;
+					if (root[sub] && root[sub].IsSequence())
+					{
+						for (const auto &rel_node : root[sub])
+						{
+							int rel_num = rel_node.as<int>();
+							EntityFileTask task;
+							task.flat = false;
+							std::ostringstream ss;
+							ss << zone_dir << "/" << sub << "/"
+							   << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+							task.path = ss.str();
+							task.vnums.push_back(zone_vnum * 100 + rel_num);
+							result.tasks.push_back(std::move(task));
+						}
+					}
+				}
+				catch (const YAML::Exception &e)
+				{
+					log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
+						sub.c_str(), zone_vnum, index_path.c_str(), e.what());
+					++result.failures;
 				}
 			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
-				sub.c_str(), zone_vnum, index_path.c_str(), e.what());
-		}
+			return result;
+		}));
 	}
 
-	log("   [yaml-timing] discover '%s': %.1f ms serial (flat files fully parsed: %zu, "
+	std::vector<EntityFileTask> tasks;
+	size_t flat_files_parsed = 0;
+	size_t perfile_indexes_parsed = 0;
+	int failures = 0;
+	for (auto &f : futures)
+	{
+		DiscoverResult result = f.get();
+		flat_files_parsed += result.flat_files_parsed;
+		perfile_indexes_parsed += result.perfile_indexes_parsed;
+		failures += result.failures;
+		tasks.insert(tasks.end(), std::make_move_iterator(result.tasks.begin()),
+			std::make_move_iterator(result.tasks.end()));
+	}
+	if (failures > 0)
+	{
+		fatal_log("SYSERR: Failed to load %d %s file(s) during discovery. Aborting.", failures, sub.c_str());
+	}
+
+	log("   [yaml-timing] discover '%s': %.1f ms parallel (threads=%zu, flat files fully parsed: %zu, "
 		"per-file indexes: %zu, tasks: %zu)",
-		sub.c_str(), disc_timer.delta().count() * 1000.0,
+		sub.c_str(), disc_timer.delta().count() * 1000.0, batches.size(),
 		flat_files_parsed, perfile_indexes_parsed, tasks.size());
 	return tasks;
 }
@@ -740,6 +793,21 @@ void YamlWorldDataSource::LoadZonesParallel()
 	log("Loaded %d zones from YAML (parallel).", zone_count);
 }
 
+void YamlWorldDataSource::EnsureThreadPool()
+{
+	// Same rationale as the LoadDictionaries() guard below: a composite may
+	// call LoadTriggers/Rooms/Mobs/Objects on this instance without its own
+	// LoadZones() ever having run (a different source won the index), so the
+	// pool can't be assumed to exist yet. Idempotent -- cheap no-op once set.
+	if (m_thread_pool)
+	{
+		return;
+	}
+
+	m_num_threads = GetConfiguredThreadCount();
+	m_thread_pool = std::make_unique<utils::ThreadPool>(m_num_threads);
+}
+
 void YamlWorldDataSource::LoadZones()
 {
 	log("Loading zones from YAML files.");
@@ -751,9 +819,8 @@ void YamlWorldDataSource::LoadZones()
 	}
 
 	// Get thread count and create thread pool
-	m_num_threads = GetConfiguredThreadCount();
+	EnsureThreadPool();
 	log("YAML loading with %zu threads", m_num_threads);
-	m_thread_pool = std::make_unique<utils::ThreadPool>(m_num_threads);
 
 	// Parallel load zones
 	LoadZonesParallel();
@@ -1025,29 +1092,39 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 }
 
 // Parallel trigger loading
-void YamlWorldDataSource::LoadTriggersParallel()
+// The only trigger-loading entry point: `zone_filter` null means every zone.
+// Parses in parallel across zones/tasks and returns the results WITHOUT
+// touching trig_index/top_of_trigt -- the caller (GameLoader::BootWorld's
+// orchestrator in db.cpp) does that placement once, after possibly combining
+// results from other sources too (composite).
+std::vector<LoadedTrigger> YamlWorldDataSource::LoadTriggers(const std::vector<int> *zone_filter)
 {
-	utils::CExecutionTimer t_total;
-	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("triggers");
-	std::vector<int> trigger_vnums;
-	for (const auto &t : tasks)
+	// Callers may invoke this without this instance's own LoadZones() ever
+	// having run (a composite may have picked a DIFFERENT source to supply
+	// zone_table/the index) -- LoadDictionaries() is otherwise only reached
+	// from LoadZones(), so without this guard every ParseEnum/ParseFlags
+	// lookup below would silently fall back to its default value (issue found
+	// via per-zone round-trip testing: a room's sector and exits came back
+	// wrong when SQLite, not YAML, won the index).
+	if (!LoadDictionaries())
 	{
-		trigger_vnums.insert(trigger_vnums.end(), t.vnums.begin(), t.vnums.end());
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
-	if (trigger_vnums.empty())
+	EnsureThreadPool();
+
+	utils::CExecutionTimer t_total;
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("triggers", zone_filter);
+	if (tasks.empty())
 	{
 		log("No triggers found in YAML index.");
-		return;
+		return {};
 	}
-
-	int trig_count = trigger_vnums.size();
-	log("   %d triggers.", trig_count);
 
 	// Distribute trigger files into batches (flat task = many vnums, per-file = one)
 	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 
 	// Thread-local results (each thread collects its triggers)
-	std::vector<std::vector<std::pair<int, Trigger*>>> thread_results(batches.size());
+	std::vector<std::vector<LoadedTrigger>> thread_results(batches.size());
 	std::atomic<int> error_count{0};
 
 	const double disc_ms = t_total.delta().count() * 1000.0;
@@ -1055,22 +1132,31 @@ void YamlWorldDataSource::LoadTriggersParallel()
 
 	// Launch parallel loading
 	std::vector<std::future<void>> futures;
-	log("DEBUG: Starting %zu trigger loading threads", batches.size());
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count]() {
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					// Already parsed by DiscoverEntityFiles() to enumerate
+					// this task's vnums -- reuse it instead of parsing the
+					// same file again.
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load triggers from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load triggers from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
@@ -1078,7 +1164,7 @@ void YamlWorldDataSource::LoadTriggersParallel()
 					try
 					{
 						Trigger* trig = ParseTriggerNode(node);
-						thread_results[thread_id].emplace_back(vnum, trig);
+						thread_results[thread_id].push_back(LoadedTrigger{vnum, trig});
 					}
 					catch (const std::exception &e)
 					{
@@ -1090,8 +1176,6 @@ void YamlWorldDataSource::LoadTriggersParallel()
 		}));
 	}
 
-	// Wait for all tasks
-	log("DEBUG: Waiting for all trigger threads to complete");
 	for (auto &future : futures)
 	{
 		future.wait();
@@ -1104,46 +1188,19 @@ void YamlWorldDataSource::LoadTriggersParallel()
 
 	const double par_ms = t_par.delta().count() * 1000.0;
 
-	// Merge results into trig_index (sequential, sorted by vnum)
-	// Collect all triggers into single vector and sort by vnum
-	std::vector<std::pair<int, Trigger*>> all_triggers;
+	std::vector<LoadedTrigger> all_triggers;
 	for (auto &results : thread_results)
 	{
-		for (auto &trig_pair : results)
-		{
-			all_triggers.push_back(std::move(trig_pair));
-		}
-	}
-
-	// Sort by vnum to match Legacy loader order (required for binary search in GetTriggerRnum)
-	std::sort(all_triggers.begin(), all_triggers.end(),
-		[](const auto &a, const auto &b) { return a.first < b.first; });
-
-	// Add to trig_index in sorted order
-	CREATE(trig_index, trig_count);
-	top_of_trigt = 0;
-
-	for (auto &[vnum, trig] : all_triggers)
-	{
-		// Assign rnum
-		trig->set_rnum(top_of_trigt);
-		// Create index entry
-		CreateTriggerIndex(vnum, trig);
+		all_triggers.insert(all_triggers.end(), std::make_move_iterator(results.begin()),
+			std::make_move_iterator(results.end()));
 	}
 
 	const double total_ms = t_total.delta().count() * 1000.0;
 	log("   [yaml-timing] triggers (threads=%zu): total=%.1f ms | discovery=%.1f | "
 		"parallel-parse=%.1f | merge/post=%.1f",
 		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
-	log("Loaded %d triggers from YAML (parallel).", top_of_trigt);
-}
-
-void YamlWorldDataSource::LoadTriggers()
-{
-	log("Loading triggers from YAML files.");
-
-	// Dictionaries already loaded in LoadZones, thread pool already created
-	LoadTriggersParallel();
+	log("Loaded %zu triggers from YAML.", all_triggers.size());
+	return all_triggers;
 }
 
 // ============================================================================
@@ -1231,28 +1288,29 @@ RoomData* YamlWorldDataSource::ParseRoomNode(const YAML::Node &root, int vnum, i
 
 // Parallel room loading
 // Parallel room loading
-void YamlWorldDataSource::LoadRoomsParallel()
+// The only room-loading entry point: `zone_filter` null means every zone.
+// Parses in parallel across zones/tasks and returns the results WITHOUT
+// touching world[]/top_of_world/zone_table[].RnumRoomsLocation or attaching
+// triggers -- the caller (GameLoader::BootWorld's orchestrator in db.cpp)
+// does all of that once, after possibly combining results from other
+// sources too (composite). Room description dedup (GlobalObjects::
+// descriptions()) still merges per-source here, since it's cheap and every
+// source already funnels through the same global singleton either way.
+std::vector<LoadedRoom> YamlWorldDataSource::LoadRooms(const std::vector<int> *zone_filter)
 {
-	utils::CExecutionTimer t_total;
-	// Creating empty world with kNowhere room (dummy room 0) - same as Legacy loader
-	world.push_back(new RoomData);
-	top_of_world = kNowhere;
-
-	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("rooms");
-	std::vector<int> room_vnums;
-	for (const auto &t : tasks)
+	if (!LoadDictionaries())
 	{
-		room_vnums.insert(room_vnums.end(), t.vnums.begin(), t.vnums.end());
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
+	EnsureThreadPool();
 
-	int room_count = room_vnums.size();
-	if (room_count == 0)
+	utils::CExecutionTimer t_total;
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("rooms", zone_filter);
+	if (tasks.empty())
 	{
 		log("No rooms found in YAML files.");
-		return;
+		return {};
 	}
-
-	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
 	// Distribute room files into batches (flat task = many vnums, per-file = one)
 	auto batches = utils::DistributeBatches(tasks, m_num_threads);
@@ -1274,15 +1332,22 @@ void YamlWorldDataSource::LoadRoomsParallel()
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load rooms from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load rooms from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
@@ -1353,89 +1418,45 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		local_to_global[batch_id] = global_descriptions.merge(parsed_batches[batch_id].descriptions);
 	}
 
-	// Collect all rooms with their batch IDs for description reindexing
-	std::vector<std::tuple<int, RoomData*, size_t, size_t>> all_rooms;  // (vnum, room, batch_id, local_desc_idx)
+	std::vector<LoadedRoom> all_rooms;
 	for (size_t batch_id = 0; batch_id < parsed_batches.size(); ++batch_id)
 	{
 		for (auto &[vnum, room, local_desc_idx] : parsed_batches[batch_id].rooms)
 		{
-			all_rooms.push_back(std::make_tuple(vnum, room, batch_id, local_desc_idx));
-		}
-	}
-
-	// Sort rooms by vnum (CRITICAL for correct indexing)
-	std::sort(all_rooms.begin(), all_rooms.end(),
-		[](const auto &a, const auto &b) { return std::get<0>(a) < std::get<0>(b); });
-
-	// Add rooms to world vector in sorted order (sequential, using push_back like Legacy)
-	for (auto &[vnum, room, batch_id, local_desc_idx] : all_rooms)
-	{
-		// Update room's description_num with global index
-		// local_desc_idx is 1-based (0 = no description, 1 = first description)
-		// local_to_global is 0-indexed vector
-		if (local_desc_idx > 0)
-		{
-			size_t local_idx_0based = local_desc_idx - 1;
-			if (local_idx_0based < local_to_global[batch_id].size())
+			// local_desc_idx is 1-based (0 = no description, 1 = first description)
+			// local_to_global is 0-indexed vector
+			if (local_desc_idx > 0)
 			{
-				room->description_num = local_to_global[batch_id][local_idx_0based];
-			}
-		}
-
-		world.push_back(room);
-	}
-
-	top_of_world = world.size() - 1;
-	log("   Merged %zu unique room descriptions from %zu threads.", global_descriptions.size(), parsed_batches.size());
-
-	// Update zone_table.RnumRoomsLocation (sequential post-processing)
-	for (size_t i = 0; i < world.size(); ++i)
-	{
-		if (world[i])
-		{
-			ZoneRnum zone_rn = world[i]->zone_rn;
-			if (zone_rn < static_cast<ZoneRnum>(zone_table.size()))
-			{
-				if (zone_table[zone_rn].RnumRoomsLocation.first == -1)
+				size_t local_idx_0based = local_desc_idx - 1;
+				if (local_idx_0based < local_to_global[batch_id].size())
 				{
-					zone_table[zone_rn].RnumRoomsLocation.first = i;
+					room->description_num = local_to_global[batch_id][local_idx_0based];
 				}
-				zone_table[zone_rn].RnumRoomsLocation.second = i;
 			}
-		}
-	}
 
-	// Merge thread-local trigger maps into single map
-	std::map<int, std::vector<int>> room_triggers;
-	for (auto &batch : parsed_batches)
-	{
-		room_triggers.insert(batch.triggers.begin(), batch.triggers.end());
-	}
-
-	// Attach triggers (sequential, after all rooms added to world)
-	for (const auto &[room_vnum, trigger_list] : room_triggers)
-	{
-		int room_rnum = GetRoomRnum(room_vnum);
-		if (room_rnum >= 0)
-		{
-			for (int trigger_vnum : trigger_list)
+			LoadedRoom lr;
+			lr.vnum = vnum;
+			lr.room = room;
+			auto trig_it = parsed_batches[batch_id].triggers.find(vnum);
+			if (trig_it != parsed_batches[batch_id].triggers.end())
 			{
-				AttachTriggerToRoom(room_rnum, trigger_vnum, room_vnum);
+				lr.triggers = trig_it->second;
 			}
+			all_rooms.push_back(std::move(lr));
 		}
 	}
+
+	// Sort by vnum (CRITICAL for correct indexing -- see world_data_source.h)
+	std::sort(all_rooms.begin(), all_rooms.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
+
+	log("   Merged %zu unique room descriptions from %zu threads.", global_descriptions.size(), parsed_batches.size());
 
 	const double total_ms = t_total.delta().count() * 1000.0;
 	log("   [yaml-timing] rooms (threads=%zu): total=%.1f ms | discovery=%.1f | "
 		"parallel-parse=%.1f | merge/post=%.1f",
 		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
-}
-void YamlWorldDataSource::LoadRooms()
-{
-	log("Loading rooms from YAML files.");
-
-	// Dictionaries already loaded in LoadZones, thread pool already created
-	LoadRoomsParallel();
+	return all_rooms;
 }
 
 void YamlWorldDataSource::LoadRoomExits(RoomData *room, const YAML::Node &exits_node, int room_vnum)
@@ -1667,7 +1688,7 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 			long flag_val = dm.Lookup("affect_flags", flag_name, -1);
 			if (flag_val >= 0)
 			{
-				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_data_by_num(flag_val)));
+				AFF_FLAGS(&mob).set_index(flag_val);
 			}
 		}
 	}
@@ -1897,46 +1918,31 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 }
 
 // Parallel mob loading
-void YamlWorldDataSource::LoadMobsParallel()
+// The only mob-loading entry point: `zone_filter` null means every zone.
+// Parses in parallel across zones/tasks and returns the results WITHOUT
+// touching mob_proto[]/mob_index[]/top_of_mobt/zone_table[].RnumMobsLocation
+// or attaching triggers -- the caller (GameLoader::BootWorld's orchestrator
+// in db.cpp) does all of that once, after possibly combining results from
+// other sources too (composite).
+std::vector<LoadedMob> YamlWorldDataSource::LoadMobs(const std::vector<int> *zone_filter)
 {
-	utils::CExecutionTimer t_total;
-	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("mobs");
-	std::vector<int> mob_vnums;
-	for (const auto &t : tasks)
+	if (!LoadDictionaries())
 	{
-		mob_vnums.insert(mob_vnums.end(), t.vnums.begin(), t.vnums.end());
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
-	if (mob_vnums.empty())
+	EnsureThreadPool();
+
+	utils::CExecutionTimer t_total;
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("mobs", zone_filter);
+	if (tasks.empty())
 	{
 		log("No mobs found in YAML index.");
-		return;
-	}
-
-	int mob_count = mob_vnums.size();
-	mob_proto = new CharData[mob_count];
-	CREATE(mob_index, mob_count);
-	log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.",
-		mob_count, sizeof(IndexData) * mob_count, sizeof(CharData) * mob_count);
-
-	// Build zone vnum to rnum map
-	std::map<int, int> zone_vnum_to_rnum;
-	for (size_t i = 0; i < zone_table.size(); i++)
-	{
-		zone_vnum_to_rnum[zone_table[i].vnum] = i;
-	}
-
-	// Sort mob vnums to match Legacy loader order (CRITICAL for checksums)
-	std::sort(mob_vnums.begin(), mob_vnums.end());
-
-	// Pre-allocate vnum to index mapping (sorted by vnum)
-	std::map<int, size_t> vnum_to_idx;
-	for (size_t i = 0; i < mob_vnums.size(); ++i)
-	{
-		vnum_to_idx[mob_vnums[i]] = i;
+		return {};
 	}
 
 	// One-time init for shared mob singleton state -- done in the main thread
-	// before workers start, so worker threads never write to globals.
+	// before workers start, so worker threads never write to globals. Cheap
+	// and idempotent, so no harm in repeating it across sources/calls.
 	player_special_data::s_for_mobiles->saved.NameGod = 1001;
 
 	// Distribute mob files into batches (each task is one file; a flat file
@@ -1945,34 +1951,39 @@ void YamlWorldDataSource::LoadMobsParallel()
 	std::atomic<int> error_count{0};
 
 	// Two-phase loading: workers only parse into thread-local buffers; the
-	// merge below writes mob_proto[] and attaches triggers in a single thread.
-	// This prevents data races on (a) the shared player_specials singleton,
-	// (b) ProtectedCharData::operator= observer callbacks, and
-	// (c) caching::character_cache contention from CharData copy/destroy in
+	// merge below builds the final sorted list in a single thread. This
+	// prevents data races on (a) the shared player_specials singleton, (b)
+	// ProtectedCharData::operator= observer callbacks, and (c)
+	// caching::character_cache contention from CharData copy/destroy in
 	// CharData::operator= side-effects across threads.
-	std::vector<std::vector<std::pair<int, std::unique_ptr<CharData>>>> thread_results(batches.size());
-	std::vector<std::map<int, std::vector<int>>> thread_triggers(batches.size());
+	std::vector<std::vector<LoadedMob>> thread_results(batches.size());
 
 	const double disc_ms = t_total.delta().count() * 1000.0;
 	utils::CExecutionTimer t_par;
 
-	// Launch parallel parsing only -- no global writes from workers
 	std::vector<std::future<void>> futures;
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count]() {
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load mobs from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load mobs from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
@@ -1981,22 +1992,18 @@ void YamlWorldDataSource::LoadMobsParallel()
 					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
 					try
 					{
-						auto mob_ptr = std::make_unique<CharData>(ParseMobNode(node));
-						thread_results[thread_id].emplace_back(vnum, std::move(mob_ptr));
+						LoadedMob lm;
+						lm.vnum = vnum;
+						lm.mob = new CharData(ParseMobNode(node));
 
-						// Collect triggers for sequential attach in merge phase
 						if (node["triggers"] && node["triggers"].IsSequence())
 						{
-							std::vector<int> trigger_list;
 							for (const auto &trig_node : node["triggers"])
 							{
-								trigger_list.push_back(trig_node.as<int>());
-							}
-							if (!trigger_list.empty())
-							{
-								thread_triggers[thread_id][vnum] = std::move(trigger_list);
+								lm.triggers.push_back(trig_node.as<int>());
 							}
 						}
+						thread_results[thread_id].push_back(std::move(lm));
 					}
 					catch (const std::exception &e)
 					{
@@ -2008,7 +2015,6 @@ void YamlWorldDataSource::LoadMobsParallel()
 		}));
 	}
 
-	// Wait for all tasks
 	for (auto &future : futures)
 	{
 		future.wait();
@@ -2021,82 +2027,21 @@ void YamlWorldDataSource::LoadMobsParallel()
 
 	const double par_ms = t_par.delta().count() * 1000.0;
 
-	// Merge phase (single-threaded): place parsed mobs into mob_proto[] by
-	// pre-computed index, then attach triggers.
+	std::vector<LoadedMob> all_mobs;
 	for (auto &results : thread_results)
 	{
-		for (auto &[vnum, mob_ptr] : results)
-		{
-			size_t mob_idx = vnum_to_idx.at(vnum);
-			mob_proto[mob_idx] = std::move(*mob_ptr);
-			mob_proto[mob_idx].set_rnum(mob_idx);
-		}
+		all_mobs.insert(all_mobs.end(), std::make_move_iterator(results.begin()),
+			std::make_move_iterator(results.end()));
 	}
-
-	// Merge thread-local trigger maps into single map and attach
-	std::map<int, std::vector<int>> mob_triggers;
-	for (auto &triggers_map : thread_triggers)
-	{
-		mob_triggers.insert(triggers_map.begin(), triggers_map.end());
-	}
-	for (const auto &[mob_vnum, trigger_list] : mob_triggers)
-	{
-		auto idx_it = vnum_to_idx.find(mob_vnum);
-		if (idx_it == vnum_to_idx.end()) continue;
-		size_t mob_idx = idx_it->second;
-		for (int trigger_vnum : trigger_list)
-		{
-			AttachTriggerToMob(mob_idx, trigger_vnum, mob_vnum);
-		}
-	}
-
-	// Sequential post-processing: setup mob_index and zone locations
-	top_of_mobt = mob_count;
-
-	// top_of_mobt should be last valid index, not count
-	if (top_of_mobt > 0)
-	{
-		top_of_mobt--;
-	}
-
-	for (size_t i = 0; i < mob_vnums.size(); ++i)
-	{
-		int vnum = mob_vnums[i];
-
-		mob_index[i].vnum = vnum;
-		mob_index[i].total_online = 0;
-		mob_index[i].stored = 0;
-		mob_index[i].func = nullptr;
-		mob_index[i].farg = nullptr;
-		mob_index[i].proto = nullptr;
-		mob_index[i].set_idx = -1;
-
-		// Update zone RnumMobsLocation
-		int zone_vnum = vnum / 100;
-		auto zone_it = zone_vnum_to_rnum.find(zone_vnum);
-		if (zone_it != zone_vnum_to_rnum.end())
-		{
-			if (zone_table[zone_it->second].RnumMobsLocation.first == -1)
-			{
-				zone_table[zone_it->second].RnumMobsLocation.first = i;
-			}
-			zone_table[zone_it->second].RnumMobsLocation.second = i;
-		}
-	}
+	std::sort(all_mobs.begin(), all_mobs.end(),
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
 
 	const double total_ms = t_total.delta().count() * 1000.0;
 	log("   [yaml-timing] mobs (threads=%zu): total=%.1f ms | discovery=%.1f | "
 		"parallel-parse=%.1f | merge/post=%.1f",
 		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
-	log("Loaded %d mobs from YAML (parallel).", top_of_mobt);
-}
-
-void YamlWorldDataSource::LoadMobs()
-{
-	log("Loading mobs from YAML files.");
-
-	// Dictionaries already loaded in LoadZones, thread pool already created
-	LoadMobsParallel();
+	log("Loaded %zu mobs from YAML.", all_mobs.size());
+	return all_mobs;
 }
 
 // Parse single object file (thread-safe worker function)
@@ -2391,75 +2336,78 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 
 
 // Parallel object loading
-void YamlWorldDataSource::LoadObjectsParallel()
+// The only object-loading entry point: `zone_filter` null means every zone.
+// Parses in parallel across zones/tasks and returns the results WITHOUT
+// touching obj_proto or attaching triggers -- the caller (GameLoader::
+// BootWorld's orchestrator in db.cpp) does both once, after possibly
+// combining results from other sources too (composite).
+std::vector<LoadedObject> YamlWorldDataSource::LoadObjects(const std::vector<int> *zone_filter)
 {
-	utils::CExecutionTimer t_total;
-	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("objects");
-	std::vector<int> obj_vnums;
-	for (const auto &t : tasks)
+	if (!LoadDictionaries())
 	{
-		obj_vnums.insert(obj_vnums.end(), t.vnums.begin(), t.vnums.end());
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
-	if (obj_vnums.empty())
+	EnsureThreadPool();
+
+	utils::CExecutionTimer t_total;
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("objects", zone_filter);
+	if (tasks.empty())
 	{
 		log("No objects found in YAML index.");
-		return;
+		return {};
 	}
-
-	int obj_count = obj_vnums.size();
-	log("   %d objs.", obj_count);
 
 	// Distribute object files into batches (flat task = many vnums, per-file = one)
 	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 
 	// Thread-local results (each thread collects its objects and triggers)
-	std::vector<std::vector<std::pair<int, CObjectPrototype*>>> thread_results(batches.size());
-	std::vector<std::map<int, std::vector<int>>> thread_triggers(batches.size());
+	std::vector<std::vector<LoadedObject>> thread_results(batches.size());
 	std::atomic<int> error_count{0};
 
 	const double disc_ms = t_total.delta().count() * 1000.0;
 	utils::CExecutionTimer t_par;
 
-	// Launch parallel loading
 	std::vector<std::future<void>> futures;
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count]() {
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load objects from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load objects from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
 					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
 					try
 					{
-						CObjectPrototype* obj = ParseObjectNode(node, vnum);
+						LoadedObject lo;
+						lo.vnum = vnum;
+						lo.obj = std::shared_ptr<CObjectPrototype>(ParseObjectNode(node, vnum));
 
-						// Load object triggers (if present)
 						if (node["triggers"] && node["triggers"].IsSequence())
 						{
-							std::vector<int> trigger_list;
 							for (const auto &trig_node : node["triggers"])
 							{
-								trigger_list.push_back(trig_node.as<int>());
-							}
-							if (!trigger_list.empty())
-							{
-								thread_triggers[thread_id][vnum] = std::move(trigger_list);
+								lo.triggers.push_back(trig_node.as<int>());
 							}
 						}
-
-						thread_results[thread_id].emplace_back(vnum, obj);
+						thread_results[thread_id].push_back(std::move(lo));
 					}
 					catch (const std::exception &e)
 					{
@@ -2471,7 +2419,6 @@ void YamlWorldDataSource::LoadObjectsParallel()
 		}));
 	}
 
-	// Wait for all tasks
 	for (auto &future : futures)
 	{
 		future.wait();
@@ -2484,66 +2431,21 @@ void YamlWorldDataSource::LoadObjectsParallel()
 
 	const double par_ms = t_par.delta().count() * 1000.0;
 
-	// Merge results into obj_proto (sequential, sorted by vnum)
-	// Collect all objects into single vector and sort by vnum
-	std::vector<std::pair<int, CObjectPrototype*>> all_objects;
+	std::vector<LoadedObject> all_objects;
 	for (auto &results : thread_results)
 	{
-		for (auto &obj_pair : results)
-		{
-			all_objects.push_back(std::move(obj_pair));
-		}
+		all_objects.insert(all_objects.end(), std::make_move_iterator(results.begin()),
+			std::make_move_iterator(results.end()));
 	}
-
-	// Sort by vnum to match Legacy loader order
 	std::sort(all_objects.begin(), all_objects.end(),
-		[](const auto &a, const auto &b) { return a.first < b.first; });
-
-	// Add to obj_proto in sorted order
-	int loaded_count = 0;
-	for (auto &[vnum, obj_raw_ptr] : all_objects)
-	{
-		// Wrap in shared_ptr and add to obj_proto
-		auto obj = std::shared_ptr<CObjectPrototype>(obj_raw_ptr);
-		obj_proto.add(obj, vnum);
-		loaded_count++;
-	}
-
-	// Merge thread-local trigger maps into single map
-	std::map<int, std::vector<int>> object_triggers;
-	for (auto &triggers_map : thread_triggers)
-	{
-		object_triggers.insert(triggers_map.begin(), triggers_map.end());
-	}
-
-	// Attach triggers (sequential, after all objects added to obj_proto)
-	for (const auto &[obj_vnum, trigger_list] : object_triggers)
-	{
-		int rnum = obj_proto.get_rnum(obj_vnum);
-		if (rnum >= 0)
-		{
-			log("DEBUG: Object %d has %zu triggers", obj_vnum, trigger_list.size());
-			for (int trigger_vnum : trigger_list)
-			{
-				AttachTriggerToObject(rnum, trigger_vnum, obj_vnum);
-			}
-		}
-	}
+		[](const auto &a, const auto &b) { return a.vnum < b.vnum; });
 
 	const double total_ms = t_total.delta().count() * 1000.0;
 	log("   [yaml-timing] objects (threads=%zu): total=%.1f ms | discovery=%.1f | "
 		"parallel-parse=%.1f | merge/post=%.1f",
 		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
-	log("Loaded %d objects from YAML (parallel).", loaded_count);
-}
-
-
-void YamlWorldDataSource::LoadObjects()
-{
-	log("Loading objects from YAML files.");
-
-	// Dictionaries already loaded in LoadZones, thread pool already created
-	LoadObjectsParallel();
+	log("Loaded %zu objects from YAML.", all_objects.size());
+	return all_objects;
 }
 
 // Helper methods for save operations
@@ -2562,7 +2464,8 @@ std::string YamlWorldDataSource::ConvertToUtf8(const std::string &koi8r_str) con
 	return buffer;
 }
 
-std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const
+template<class FlagsT>
+std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagsT &flags, const std::string &dict_name) const
 {
 	std::vector<std::string> names;
 	auto &dm = DictionaryManager::Instance();

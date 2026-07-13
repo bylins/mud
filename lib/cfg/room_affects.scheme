@@ -1,0 +1,121 @@
+<!--
+  issue.room-affect-trigger-improve: editor scheme for cfg/room_affects.xml (`vedun room_affects`).
+  OPTIONAL sidecar describing field types/bounds/help so the Vedun editor offers enum pick-lists and
+  numeric ranges instead of bare strings; RoomAffectsLoader::Validate rejects bad ids/flags on save.
+  Intentionally incomplete - any tag/attribute not declared here degrades to a plain string field and
+  is still validated by the room-affect / action parser on reload. The <action> sub-tree mirrors
+  spells.scheme (a room affect runs the same talents_actions repertoire); the room-specific addition is
+  the entry trigger (<trigger val="kEnter|kEnterPC|kEnterNPC" return= prob=>).
+
+  enum/flagset attributes name an enum resolved via vedun::EnumRegistry: ERoomAffect / EAffFlag /
+  EActionTarget / EActionTrigger / EApply / EAffect / EMobFlag / ERoomFlag / EAlign / ESpell are
+  registered there.
+-->
+<scheme>
+	<prohibited>
+		<element id="kUndefined"/>
+	</prohibited>
+
+	<tag name="room_affects" desc="Room-affect registry (cfg/room_affects.xml)">
+		<child tag="room_affect" multiple="Y"/>
+	</tag>
+
+	<tag name="room_affect" desc="One room affect: the flag it sets, its seal strength, and its actions">
+		<attr name="id" type="enum" enum="ERoomAffect" readonly="Y" desc="Room-affect identity (immutable)"/>
+		<child tag="flags"/>
+		<child tag="seal_strength"/>
+		<child tag="actions"/>
+	</tag>
+
+	<tag name="flags" desc="The room affect's own behaviour flags">
+		<attr name="val" type="flagset" enum="EAffFlag" desc="| -separated EAffFlag set"/>
+	</tag>
+
+	<tag name="seal_strength" desc="Per-cast block-strength formula. Doubles as an entry trigger's block chance (percent) and the strength shown by the sight stars.">
+		<attr name="min" type="double" desc="Floor strength"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
+		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
+		<attr name="factor" type="int" desc="Sign/scale factor"/>
+		<attr name="cap" type="int" min="0" desc="Upper bound (e.g. 100 for a percent block chance)"/>
+	</tag>
+
+	<tag name="actions" desc="Ordered list of the affect's actions">
+		<child tag="action" multiple="Y"/>
+	</tag>
+
+	<tag name="action" desc="One action: an effect (side_spell/affects/...) gated by an optional trigger + conditions">
+		<attr name="target" type="enum" enum="EActionTarget" desc="Target selector (kTarActor = the entering char)"/>
+		<attr name="base" type="enum" enum="EActionBase" desc="Formula base (default kCompetence)"/>
+		<attr name="reset" type="bool" desc="Reset the roll for this action"/>
+		<child tag="trigger"/>
+		<child tag="target_conditions"/>
+		<child tag="side_spell" multiple="Y"/>
+		<child tag="manual_cast"/>
+		<child tag="affects"/>
+		<child tag="unaffect"/>
+	</tag>
+
+	<!-- issue.room-affect-trigger-improve: the room-specific tag. -->
+	<tag name="trigger" desc="The event(s) that fire this action (no trigger = runs inline in the cast)">
+		<attr name="val" type="flagset" enum="EActionTrigger" desc="| -separated: kPulse / kBattlePulse / kEnter / kEnterPC / kEnterNPC"/>
+		<attr name="return" type="int" desc="Value yielded to the firing event: 0 = block it (refuse the walk), else/absent = allow"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Percent chance to fire (absent = always; a seal_strength affect uses its strength instead)"/>
+	</tag>
+
+	<tag name="target_conditions" desc="Gates on the actor before this action fires">
+		<child tag="blocking"/>
+		<child tag="required"/>
+	</tag>
+	<tag name="blocking" desc="Skip the action when the actor carries any of these">
+		<child tag="room_flags"/>
+		<child tag="mob_flags"/>
+		<child tag="affect_flags"/>
+		<child tag="align"/>
+	</tag>
+	<tag name="required" desc="Run the action only when the actor carries these">
+		<child tag="room_flags"/>
+		<child tag="mob_flags"/>
+		<child tag="affect_flags"/>
+		<child tag="align"/>
+	</tag>
+	<tag name="room_flags" desc="Room-flag gate">
+		<attr name="val" type="flagset" enum="ERoomFlag" desc="ERoomFlag token(s), '|'-separated"/>
+	</tag>
+	<tag name="mob_flags" desc="Mob-flag gate (NPC actors; e.g. kIgnoreForbidden, kNoSleep)">
+		<attr name="val" type="flagset" enum="EMobFlag" desc="EMobFlag token(s), '|'-separated"/>
+	</tag>
+	<tag name="affect_flags" desc="AFF-bit gate (e.g. kBlind)">
+		<attr name="val" type="flagset" enum="EAffect" desc="EAffect token(s), '|'-separated"/>
+	</tag>
+	<tag name="align" desc="Alignment gate">
+		<attr name="val" type="enum" enum="EAlign" desc="kGood / kEvil / kNeutral"/>
+	</tag>
+
+	<tag name="side_spell" desc="Also cast another spell as this action's effect">
+		<attr name="id" type="enum" enum="ESpell" desc="Spell to cast (e.g. kSleep)"/>
+	</tag>
+	<tag name="manual_cast" desc="Invoke a hardcoded spell handler function">
+		<attr name="handler" type="enum" enum="ManualHandler" desc="Registered spell handler"/>
+	</tag>
+
+	<tag name="affects" desc="Impose an affect on the target">
+		<child tag="apply" multiple="Y"/>
+	</tag>
+	<tag name="unaffect" desc="Remove an affect from the target">
+		<attr name="id" type="enum" enum="EAffect" desc="Affect bit to clear"/>
+	</tag>
+	<tag name="apply" desc="One stat modifier carried by the imposed affect">
+		<attr name="id" type="enum" enum="EAffect" desc="Affect bit set on the target (kUndefinded = none)"/>
+		<attr name="location" type="enum" enum="EApply" desc="Stat location modified"/>
+		<attr name="random" type="bool" desc="Pick one apply at random per cast"/>
+		<child tag="modifier"/>
+	</tag>
+	<tag name="modifier" desc="Modifier magnitude formula">
+		<attr name="min" type="double" desc="Floor modifier"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
+		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="factor" type="int" desc="Sign/scale factor"/>
+		<attr name="cap" type="int" desc="Stacking cap"/>
+		<attr name="stack" type="int" min="2" desc="Number of stacks (>= 2)"/>
+	</tag>
+</scheme>

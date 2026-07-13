@@ -20,7 +20,7 @@
 #include <iosfwd>
 
 class ZoneData;
-class RoomData;
+struct RoomData;
 class CharData;
 struct Trigger;
 class CObjectPrototype;
@@ -51,6 +51,14 @@ struct EntityFileTask {
 	bool flat = false;
 	std::string path;
 	std::vector<int> vnums;  // sorted ascending
+	// Flat layout only: DiscoverEntityFiles() already parses the whole file to
+	// enumerate these vnums (the file's keys); stashing the parsed root here
+	// lets the worker reuse it instead of calling YAML::LoadFile() a second
+	// time on the same file. Per-file layout leaves this unset -- discovery
+	// there only reads the tiny <sub>/index.yaml, never the entity file
+	// itself, so the worker's own YAML::LoadFile(task.path) is the first (and
+	// only) parse either way.
+	YAML::Node parsed_root;
 };
 
 // Result of parsing rooms in a single thread
@@ -68,12 +76,13 @@ public:
 	~YamlWorldDataSource() override = default;
 
 	std::string GetName() const override { return "YAML files: " + m_world_dir; }
+	std::string GetKind() const override { return "yaml"; }
 
 	void LoadZones() override;
-	void LoadTriggers() override;
-	void LoadRooms() override;
-	void LoadMobs() override;
-	void LoadObjects() override;
+	std::vector<LoadedTrigger> LoadTriggers(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedRoom> LoadRooms(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedMob> LoadMobs(const std::vector<int> *zone_filter = nullptr) override;
+	std::vector<LoadedObject> LoadObjects(const std::vector<int> *zone_filter = nullptr) override;
 
 	// Save methods (YAML is read-only for now)
 	void SaveZone(int zone_rnum) override;
@@ -81,6 +90,15 @@ public:
 	void SaveRooms(int zone_rnum, int specific_vnum = -1) override;
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
+
+	// Freshness / membership (for CompositeWorldDataSource). Freshness is the
+	// newest file mtime (unix seconds) under the zone directory; the index
+	// freshness is the mtime of zones/index.yaml (changes on zone add/remove).
+	std::vector<int> ListZoneVnums() const override;
+	Freshness GetZoneFreshness(int zone_vnum) const override;
+	Freshness GetIndexFreshness() const override;
+
+	bool SupportsZoneFilter() const override { return true; }
 
 	// Exposed for unit tests: parses a single mob YAML file into a CharData.
 	// Stateless aside from reading the global DictionaryManager singleton --
@@ -100,10 +118,14 @@ private:
 	std::vector<int> GetZoneList();
 
 	// Discover the entity files for one sub-type ("mobs"/"objects"/"rooms"/
-	// "triggers") across all zones, auto-detecting per (zone, sub) whether the
-	// data lives in a flat <sub>.yaml or a per-file <sub>/ directory. Runs
-	// sequentially in the main thread before tasks are distributed to workers.
-	std::vector<EntityFileTask> DiscoverEntityFiles(const std::string &sub);
+	// "triggers"), auto-detecting per zone whether the data lives in a flat
+	// <sub>.yaml or a per-file <sub>/ directory. `zone_filter` null means every
+	// zone (GetZoneList()); this is the only discovery entry point -- a full
+	// zone list and no filter are the same request, so there is no separate
+	// single-zone variant. Distributed across the thread pool (each zone is
+	// independent work); see LoadTriggers/Rooms/Mobs/Objects for how the
+	// results get used.
+	std::vector<EntityFileTask> DiscoverEntityFiles(const std::string &sub, const std::vector<int> *zone_filter = nullptr);
 
 	// Zone loading helpers
 	void LoadZoneCommands(ZoneData &zone, const YAML::Node &commands_node);
@@ -128,7 +150,8 @@ private:
 
 	// Helper methods for save operations
 	std::string ConvertToUtf8(const std::string &koi8r_str) const;
-	std::vector<std::string> ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const;
+	template<class FlagsT>
+	std::vector<std::string> ConvertFlagsToNames(const FlagsT &flags, const std::string &dict_name) const;
 	std::string ReverseLookupEnum(const std::string &dict_name, int value) const;
 	bool WriteYamlAtomic(const std::string &filepath, const YAML::Node &node) const;
 
@@ -163,12 +186,14 @@ private:
 	// drop the <sub>.yaml file.
 	void CleanupOtherLayout(int zone_vnum, const std::string &sub, YamlLayout written) const;
 
-	// Parallel loading methods (only used when m_num_threads > 1)
+	// Parallel zone-table loading (only used when m_num_threads > 1).
 	void LoadZonesParallel();
-	void LoadTriggersParallel();
-	void LoadRoomsParallel();
-	void LoadMobsParallel();
-	void LoadObjectsParallel();
+
+	// Lazily create m_thread_pool/m_num_threads on first use. LoadZones() is
+	// not guaranteed to have run on this instance before LoadTriggers/Rooms/
+	// Mobs/Objects are called (a composite may have picked a different source
+	// for the zone index) -- idempotent, safe to call from every entry point.
+	void EnsureThreadPool();
 
 	// Worker functions (thread-safe, parse single file)
 	ZoneData ParseZoneFile(const std::string &file_path);

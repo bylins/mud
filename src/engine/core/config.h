@@ -10,6 +10,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <vector>
 
 /*
 * Should the game automatically save people?  (i.e., save player data
@@ -192,6 +193,11 @@ class RuntimeConfiguration {
 	size_t thread_pools_loader() const { return m_thread_pools_loader; }
 	size_t thread_pools_savers() const { return m_thread_pools_savers; }
 
+	// Ordered list of world data sources from <world_loader><sources> (e.g.
+	// {"yaml","sqlite"}). First == highest priority. Empty means "use the
+	// compile-time default single source" (legacy behaviour).
+	const std::vector<std::string> &world_sources() const { return m_world_sources; }
+
 
 #ifdef ENABLE_ADMIN_API
 	const auto &admin_socket_path() const { return m_admin_socket_path; }
@@ -219,6 +225,7 @@ class RuntimeConfiguration {
 	void load_statistics_configuration(const pugi::xml_node *root);
 	void load_telemetry_configuration_impl(const pugi::xml_node *root);
 	void load_thread_pools_configuration(const pugi::xml_node *root);
+	void load_world_sources_configuration(const pugi::xml_node *root);
 
 #ifdef ENABLE_ADMIN_API
 	void load_admin_api_configuration(const pugi::xml_node *root);
@@ -249,6 +256,7 @@ class RuntimeConfiguration {
 
 	size_t m_thread_pools_loader;
 	size_t m_thread_pools_savers;
+	std::vector<std::string> m_world_sources;
 #ifdef ENABLE_ADMIN_API
 	std::string m_admin_socket_path{"admin_api.sock"};
 	bool m_admin_api_enabled{false};

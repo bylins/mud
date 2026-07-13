@@ -1,0 +1,18 @@
+<!--
+  issue.unstable-hotfixes: Vedun scheme for room_affect_msg.xml. One <msg_sheaf> per room affect
+  (id = ERoomAffect) plus the shared "kDefault" sheaf; <message type="<ERoomAffectMsgType>" val="text"/>.
+  Mirrors affect_msg.scheme (char affects).
+-->
+<scheme>
+	<tag name="room_affect_msg" desc="Room-affect message container">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+	<tag name="msg_sheaf" desc="One room affect's messages (id = ERoomAffect), or kDefault (shared fallbacks)">
+		<attr name="id" type="enum" enum="ERoomAffect" readonly="Y" desc="ERoomAffect token, or kDefault; immutable"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+	<tag name="message" desc="One room-affect message">
+		<attr name="type" type="enum" enum="ERoomAffectMsgType" desc="Slot (kShortDesc / kAffImposed* / kAffDispelled* / kAffExpired* / kTrigger*)"/>
+		<attr name="val" type="string" desc="Text; $n = actor/caster"/>
+	</tag>
+</scheme>

@@ -68,7 +68,7 @@ static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
 
 namespace handlers {
 
-void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*duration*/) {
+void CloneCascade(CharData *ch, CharData *mob, const ActionContext &ctx, int /*duration*/) {
 	ApplyCloneCosmetics(ch, mob);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
 	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally
@@ -78,7 +78,7 @@ void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*dur
 			++already;
 		}
 	}
-	int remaining = MaxCloneCharmices(ch) - already;
+	int remaining = MaxCharmices(ch) - already;
 	while (remaining-- > 0) {
 		CharData *extra = ReadMobile(-kMobDouble, kVirtual);
 		if (!extra) {

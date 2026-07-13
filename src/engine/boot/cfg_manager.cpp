@@ -61,6 +61,8 @@
 #include "gameplay/mechanics/pc_race_messages.h"
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/affects/affects_loader.h"
+#include "gameplay/magic/room_affects_loader.h"
+#include "gameplay/magic/room_affect_messages.h"
 #include "gameplay/affects/affect_messages.h"
 #include "engine/core/common_messages.h"
 #include "gameplay/mechanics/rune_stones_loaders.h"
@@ -146,7 +148,9 @@ CfgManager::CfgManager() {
 		{"board_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
 		{"specials", CfgDir::kRoot, [] { return MakeLoader<SpecialsLoader>(); }},
 		{"affects", CfgDir::kRoot, [] { return MakeLoader<affects::AffectsLoader>(); }},
+		{"room_affects", CfgDir::kRoot, [] { return MakeLoader<room_spells::RoomAffectsLoader>(); }},
 		{"affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
+		{"room_affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<room_spells::RoomAffectMessagesLoader>(); }},
 		{"common_msg", CfgDir::kMessagesRu, [] { return MakeLoader<CommonMessagesLoader>(); }},
 		{"social_msg", CfgDir::kMessagesRu, [] { return MakeLoader<communication::social::SocialsLoader>(); }},
 		{"cities_msg", CfgDir::kMessagesRu, [] { return MakeLoader<cities::CityMessagesLoader>(); }},

@@ -1,0 +1,45 @@
+<!--
+  issue.vedun-editor: editor scheme for cfg/affects.xml (`vedun affects`). OPTIONAL sidecar - it
+  describes field types, bounds and help so the Vedun editor shows enum pick-lists / numeric ranges
+  instead of bare strings, and the loader's Validate rejects bad values on save. Any tag/attribute not
+  declared here degrades to a plain string field (still validated on save by AffectsLoader::Validate).
+
+  enum / flagset attributes name an enum resolved via vedun::EnumRegistry (EAffect / EApply / EAffFlag
+  are registered there); an unregistered enum still displays but skips the value-validity check.
+-->
+<scheme>
+	<prohibited>
+		<element id="kUndefinded"/>
+	</prohibited>
+
+	<tag name="affects" desc="Affect registry (cfg/affects.xml)">
+		<child tag="affect" multiple="Y"/>
+	</tag>
+
+	<tag name="affect" desc="One affect: the flag it sets + the stat changes it imposes">
+		<attr name="id" type="enum" enum="EAffect" readonly="Y" desc="Affect identity (immutable)"/>
+		<attr name="buff" type="bool" desc="Y = buff, N = debuff (drives dispel/cure classification)"/>
+		<attr name="dispel_mod" type="int" desc="issue.random-noise-rework: additive per-affect modifier to the dispel-contest threshold (percentage points); negative = harder to remove (critical buffs), default 0"/>
+		<child tag="flags"/>
+		<child tag="apply" multiple="Y"/>
+	</tag>
+
+	<tag name="flags" desc="The affect's own behaviour flags">
+		<attr name="val" type="flagset" enum="EAffFlag" desc="| -separated EAffFlag set"/>
+	</tag>
+
+	<tag name="apply" desc="One stat change the affect imposes (kNone = flag-only)">
+		<attr name="location" type="enum" enum="EApply" desc="Stat location modified (kNone = no stat)"/>
+		<attr name="random" type="bool" desc="Member of the affect's pick-one-at-random pool"/>
+		<child tag="modifier"/>
+	</tag>
+
+	<tag name="modifier" desc="Modifier magnitude: factor*cap(min + beta*C*(1 + weight*d))">
+		<attr name="min" type="double" desc="Floor magnitude"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
+		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
+		<attr name="factor" type="int" desc="Sign/scale factor (-1 makes it a penalty)"/>
+		<attr name="cap" type="int" min="0" desc="Upper bound on raw magnitude before factor (0 = no cap)"/>
+		<attr name="stack" type="int" min="1" desc="Max stacks this affect builds up (default 1)"/>
+	</tag>
+</scheme>

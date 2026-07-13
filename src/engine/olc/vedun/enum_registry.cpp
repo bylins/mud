@@ -22,6 +22,9 @@
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
+#include "gameplay/affects/affect_messages.h"  // EAffectMsgType + NAMES_OF (affect_msg scheme)
+#include "gameplay/magic/magic_rooms.h"       // room_spells::ERoomAffect + NAMES_OF
+#include "gameplay/magic/room_affect_messages.h"  // ERoomAffectMsgType + NAMES_OF (room_affect_msg scheme)
 #include "gameplay/skills/skills.h"           // ESkill + NAMES_OF
 #include "engine/core/config.h"               // ECommonMsg + NAMES_OF
 
@@ -86,16 +89,22 @@ void RegisterEditorEnums() {
 	registry.Register<EAffect>("EAffect");
 	registry.Register<EApply>("EApply");
 	registry.Register<ESpellMsg>("ESpellMsg");
+	registry.Register<affects::EAffectMsgType>("EAffectMsgType");   // issue.unstable-hotfixes: affect_msg scheme
 	registry.Register<ESkillMsg>("ESkillMsg");
 	registry.Register<EFeat>("EFeat");
 	registry.Register<EFeatMsg>("EFeatMsg");
 	registry.Register<guilds::EMsg>("EGuildMsg");
 	registry.Register<fight::EDamageSource>("EDamageSource");
 	registry.Register<fight::EFightMsg>("EFightMsg");
+	registry.Register<room_spells::ERoomAffect>("ERoomAffect");   // issue.room-affect-trigger-improve: room_affects scheme
+	registry.Register<room_spells::ERoomAffectMsgType>("ERoomAffectMsgType");   // issue.unstable-hotfixes: room_affect_msg scheme
 	// Inline-strcmp enums (no NAMES_OF map) registered by explicit name list -- keep in sync with
 	// the parser in talents_actions.cpp (Actions::ParseAction / the align reader).
 	registry.RegisterNames("EActionTarget", {"kTarFightSelf", "kTarFightVict", "kTarGroup", "kTarFoes",
-		"kTarRandomFoe", "kTarRandomAlly", "kTarMinions", "kTarSame", "kTarRoomThis"});
+		"kTarRandomFoe", "kTarRandomAlly", "kTarMinions", "kTarActor", "kTarSame", "kTarRoomThis"});
+	registry.RegisterNames("EActionTrigger",
+		{"kPulse", "kBattlePulse", "kEnter", "kEnterPC", "kEnterNPC", "kPick", "kUnlock", "kOpen",
+		 "kClose", "kLock"});
 	registry.RegisterNames("EActionBase", {"kDamage", "kPoints", "kAffects", "kDispelled", "kCompetence"});
 	registry.RegisterNames("EAlign", {"kGood", "kEvil", "kNeutral"});
 	// <misc violent> is stored as the literal Y/N/A the spell loader parses into EViolent.

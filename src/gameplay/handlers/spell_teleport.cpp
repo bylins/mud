@@ -16,7 +16,7 @@
 
 namespace handlers {
 
-EStageResult SpellTeleport(CastContext &ctx) {
+EStageResult SpellTeleport(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 

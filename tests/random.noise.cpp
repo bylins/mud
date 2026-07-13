@@ -99,10 +99,9 @@ TEST(RebalanceModel, SkillDominatesAndAnchorHolds) {
 // issue.random-noise-rework P3: stored potency (dispel strength / cure priority / re-apply
 // "keep stronger") is DETERMINISTIC competence -- the rolled dice must not leak in.
 TEST(RebalanceModel, PotencyIsDeterministicCompetence) {
-	const RollResult with_dice{/*dices*/999, /*skill*/3.0, /*stat*/2.0, /*low*/0.0};
-	const RollResult no_dice{/*dices*/0, /*skill*/3.0, /*stat*/2.0, /*low*/0.0};
-	EXPECT_FLOAT_EQ(CalcCastPotency(with_dice), 5.0f);            // skill+stat only
-	EXPECT_FLOAT_EQ(CalcCastPotency(with_dice), CalcCastPotency(no_dice));  // dice irrelevant
+	// issue.potency-noise: dice retired -- CalcCastPotency = skill_coeff + stat_coeff only.
+	const RollResult r{/*skill*/3.0, /*stat*/2.0, /*low*/0.0};
+	EXPECT_FLOAT_EQ(CalcCastPotency(r), 5.0f);
 }
 
 // The dispel contest (issue.random-noise-rework): a d100 skill check. The win threshold is
@@ -146,3 +145,17 @@ TEST(RebalanceModel, DispelContestIsSkillDrivenWithAdditiveBonus) {
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
+// issue.potency-noise / issue.damage-over-time: a DoT tick's per-tick damage must scale off the
+// affect's STORED POTENCY (fed as the cast competence C) -- i.e. min + beta*C -- NOT just its `min`
+// floor. Locks the fix for the base_override regression, where a DoT's scale base read the always-0
+// `dices` field so CalcTotalSpellDmg passed scaled = beta*0, collapsing every tick to `min`.
+TEST(DamageOverTime, TickScalesOffStoredPotencyNotJustMin) {
+	const double min = 5.0, beta = 2.0, C = 10.0;   // affect stored potency C = 10
+	// deterministic tick (weight 0, realized noise 0): value must be min + beta*C = 25.
+	const int dot = CalcNoisyAmount(min, beta * C, /*weight*/ 0.0, /*cap*/ 0, /*noise_dev*/ 0.0);
+	EXPECT_EQ(dot, static_cast<int>(std::lround(min + beta * C)));
+	EXPECT_GT(dot, static_cast<int>(min));   // must NOT collapse to the floor
+	// The regression this guards: a zero scale base (beta*0) yields only `min`.
+	EXPECT_EQ(CalcNoisyAmount(min, beta * 0.0, 0.0, 0, 0.0), static_cast<int>(min));
+}

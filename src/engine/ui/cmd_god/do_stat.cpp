@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/equipment.h"
+#include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
@@ -438,38 +439,46 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					  kColorCyn,
 					  k->mob_specials.MaxFactor,
 					  kColorNrm);
-		SendMsgToChar(ch, "&GУмения:&c");
-		for (const auto &skill : MUD::Skills()) {
-			if (skill.IsValid() && GetSkill(k, skill.GetId())) {
-				SendMsgToChar(ch, " %s:[%d]", skill.GetName(), GetSkill(k, skill.GetId()));
+		// issue #3429: длинные списки умений/заклинаний/способностей переносим
+		// по ширине экрана игрока через utils::OutWordsList (цвет метки/элементов
+		// зашит в префикс, ширину считаем без цветокодов).
+		const size_t list_width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
+				? ch->player_specials->saved.stringLength : 120;
+		{
+			std::vector<std::string> parts;
+			for (const auto &skill : MUD::Skills()) {
+				if (skill.IsValid() && GetSkill(k, skill.GetId())) {
+					parts.push_back(fmt::sprintf("%s:[%d]", skill.GetName(), GetSkill(k, skill.GetId())));
+				}
 			}
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GУмения:&c ") + "&n\r\n", ch);
 		}
-		SendMsgToChar(ch, "\r\n");
 		if (!k->mob_specials.have_spell) {
-			SendMsgToChar(ch, "&GЗаклинания: &Rнет&n");
+			SendMsgToChar(ch, "&GЗаклинания: &Rнет&n\r\n");
 		} else {
-			SendMsgToChar(ch, "&GЗаклинания:&c");
+			std::vector<std::string> parts;
 			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 				if (MUD::Spell(spell_id).IsUnavailable()) {
 					continue;
 				}
 				if (GET_SPELL_MEM(k, spell_id)) {
-					SendMsgToChar(ch, " %s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id));
+					parts.push_back(fmt::sprintf("%s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id)));
 				}
 			}
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GЗаклинания:&c ") + "&n\r\n", ch);
 		}
-		SendMsgToChar(ch, "\r\n");
-		SendMsgToChar(ch, "&GСпособности:&c");
-		for (const auto &feat : MUD::Feats()) {
-			if (feat.IsInvalid()) {
-				continue;
+		{
+			std::vector<std::string> parts;
+			for (const auto &feat : MUD::Feats()) {
+				if (feat.IsInvalid()) {
+					continue;
+				}
+				if (k->HaveFeat(feat.GetId())) {
+					parts.push_back(fmt::sprintf("'%s'", feat.GetCName()));
+				}
 			}
-			if (k->HaveFeat(feat.GetId())) {
-				SendMsgToChar(ch, " '%s'", feat.GetCName());
-			}
+			SendMsgToChar(utils::OutWordsList(parts, list_width, ", ", "&GСпособности:&c ") + "&n\r\n", ch);
 		}
-		SendMsgToChar(kColorNrm, ch);
-		SendMsgToChar(ch, "\r\n");
 		// информация о маршруте моба
 		if (k->mob_specials.dest_count > 0 && k->in_room != kNowhere) {
 			// подготавливаем путевые точки
@@ -594,7 +603,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		}
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, sizeof(smallBuf), ", ", 4);
+	snprintf(smallBuf, sizeof(smallBuf), "%s", affects::DescribeActive(k->char_specials.saved.affected_by, ", ").c_str());
 	std::vector<std::string> out_str = utils::Split(smallBuf, ',');
 	sprintf(buf, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 	SendMsgToChar(buf, ch);
@@ -607,18 +616,24 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					aff->duration + 1,
 					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
 					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
-					kColorCyn, MUD::Spell(aff->type).GetCName(), kColorNrm);
+					kColorCyn,
+					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
+					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(),
+					kColorNrm);
 			bool has_modifier = aff->modifier != 0;
 			if (has_modifier) {
 				sline += fmt::sprintf("%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 			}
 			if (aff->affect_type != EAffect::kUndefined) {
 				sline += has_modifier ? ", sets " : "sets ";
-				sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
+				snprintf(buf2, sizeof(buf2), "%s", affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 				sline += buf2;
 			}
 			if (aff->potency != 0.0f) {
-				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, aff->debuff ? "debuff" : "buff");
+				const auto bk = affects::AffectBuffKind(aff->affect_type);
+				const char *kind = bk == affects::EBuff::kYes ? "buff"
+						: bk == affects::EBuff::kNo ? "debuff" : "ambiguous";
+				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, kind);
 			}
 			sline += "\r\n";
 			SendMsgToChar(sline, ch);
@@ -989,8 +1004,10 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			{
 				std::string spells = drinkcon::print_spells(j);
 				utils::Trim(spells);
-				snprintf(buf, sizeof(buf), "Объем: %d, Содержит: %d, Таймер (если 1 отравлено): %d, Жидкость: %s\r\n%s",
-						GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3), smallBuf, spells.c_str());
+				snprintf(buf, sizeof(buf), "Объем: %d, Содержит: %d, Свежесть: %d, Отрава: %d, Жидкость: %s\r\n%s",
+						GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
+						j->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer),
+						j->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison), smallBuf, spells.c_str());
 			}
 			break;
 
@@ -1002,9 +1019,10 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 		case EObjType::kFood:
 			snprintf(buf, sizeof(buf),
-					"Насыщает(час): %d, Таймер (если 1 отравлено): %d",
+					"Насыщает(час): %d, Свежесть: %d, Отрава: %d",
 					GET_OBJ_VAL(j, 0),
-					GET_OBJ_VAL(j, 3));
+					j->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer),
+					j->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison));
 			break;
 
 		case EObjType::kMoney:
@@ -1237,14 +1255,35 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		snprintf(buf1, sizeof(buf1), "&GАффекты на комнате:\r\n&n");
 		for (const auto &aff : rm->affected) {
 			size_t buf1_len = strlen(buf1);
-			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
-					MUD::Spell(aff->type).GetCName(),
+			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d, сила: %.1f) - %s.\r\n",
+					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
 					aff->duration,
-					aff->type == ESpell::kPortalTimer ? world[aff->modifier]->vnum : aff->modifier,
+					room_spells::IsPortalAffect(aff->affect_type) ? world[aff->modifier]->vnum : aff->modifier,
+					aff->potency,
 					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
 		}
 		SendMsgToChar(buf1, ch);
 	}
+
+	// issue.room-affect-trigger-improve (door affects): affects hosted on this room's exits/doors.
+	for (int d = 0; d < EDirection::kMaxDirNum; ++d) {
+		const auto ex = rm->dir_option[d];
+		if (!ex || ex->affected.empty()) {
+			continue;
+		}
+		snprintf(buf1, sizeof(buf1), "&GАффекты на выходе (%s):\r\n&n", dirs_rus[d]);
+		for (const auto &aff : ex->affected) {
+			const size_t len = strlen(buf1);
+			snprintf(buf1 + len, sizeof(buf1) - len,
+					"       Заклинание \"%s\" (длит: %d, модиф: %d, сила: %.1f, заряды: %s) - %s.\r\n",
+					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
+					aff->duration, aff->modifier, aff->potency,
+					(aff->charges == -1 ? "беск" : std::to_string(aff->charges).c_str()),
+					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
+		}
+		SendMsgToChar(buf1, ch);
+	}
+
 	// check the room for a script
 	do_sstat_room(rm, ch);
 }

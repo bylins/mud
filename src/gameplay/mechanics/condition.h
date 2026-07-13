@@ -36,7 +36,6 @@ enum EPenalty { kDamroll, kHitroll, kCast, kMemGain, kMoveGain, kHitGain, kAc };
 [[nodiscard]] float GetCondPenalty(const CharData *ch, EPenalty type);
 // Impose the hangover (abstinence) affect on a drinker whose drunkenness wore off. Was
 // CharData::set_abstinent; called from the affect update loop.
-void SetAbstinent(CharData *ch);
 
 }  // namespace condition
 

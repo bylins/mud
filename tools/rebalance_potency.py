@@ -66,7 +66,8 @@ def set_attr(s, name, val):
     """Set attr (in-place if present, else insert before the self-closing />)."""
     if re.search(r'\b%s="[^"]*"' % name, s):
         return re.sub(r'\b%s="[^"]*"' % name, '%s="%s"' % (name, val), s, count=1)
-    return re.sub(r'\s*/>\s*$', ' %s="%s" />' % (name, val), s, count=1)
+    # preserve the trailing newline (\1) -- a bare \s*$ ate it and merged this line into the next.
+    return re.sub(r'\s*/>(\s*)$', ' %s="%s" />\\1' % (name, val), s, count=1)
 
 
 def fmtk(x):

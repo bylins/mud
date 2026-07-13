@@ -12,7 +12,7 @@
 
 namespace handlers {
 
-EStageResult SpellEnergydrain(CastContext &ctx) {
+EStageResult SpellEnergydrain(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	// истощить энергию - круг 28 уровень 9 (1)

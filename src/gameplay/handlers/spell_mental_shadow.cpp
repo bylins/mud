@@ -15,7 +15,7 @@
 
 namespace handlers {
 
-EStageResult SpellMentalShadow(CastContext &ctx) {
+EStageResult SpellMentalShadow(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;
@@ -53,12 +53,11 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 	Affect<EApply> af;
-	af.type = ESpell::kCharm;
 	af.duration = CalcDuration(mob, mob, ESkill::kUndefined, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kHelper;
-	af.battleflag = 0;
+	af.battleflag = kAfCharmBond;
 	affect_to_char(mob, af);
 	
 	mob->set_max_hit(floorf(hp + hp_per_int * (eff_int - 20) + ch->get_hit()/4));

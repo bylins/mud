@@ -14,7 +14,7 @@ extern const char *what_weapon[];         // defined in magic_utils.cpp (shared 
 
 namespace handlers {
 
-void CreateWeapon(CharData *ch, ObjData *obj, const CastContext &ctx) {
+void CreateWeapon(CharData *ch, ObjData *obj, const ActionContext &ctx) {
 	(void) ch; (void) obj; (void) ctx;
 	// TODO (kCreateWeapon is unfinished): resolve the requested weapon type from the cast argument
 	// and shape the loaded base object accordingly. If the caster named no/unknown type, that is

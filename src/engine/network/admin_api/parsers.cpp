@@ -364,7 +364,16 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		ParseFlags<ENpcFlag>(flags, "npc_flags", mob->mob_specials.npc_flags);
 
 		// affect_flags array
-		ParseFlags<EAffect>(flags, "affect_flags", mob->char_specials.saved.affected_by);
+		// affect_flags: EAffect is renumbered to plain ints, but the JSON still encodes the legacy
+		// packed value (plane<<30 | 1<<bit). Convert packed -> flat bit index before setting.
+		if (HasArray(flags, "affect_flags")) {
+			for (const auto &flag_val : flags["affect_flags"]) {
+				if (flag_val.is_number_integer()) {
+					mob->char_specials.saved.affected_by.set_index(
+						bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(flag_val.get<int>())));
+				}
+			}
+		}
 	}
 	// Legacy flat flags array (backward compatibility)
 	else if (HasArray(data, "flags"))

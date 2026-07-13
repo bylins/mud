@@ -54,7 +54,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	int percent = number(1, MUD::Skill(ESkill::kChopoff).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kChopoff, vict);
 
-	if (IsAffectedBySpell(ch, ESpell::kWeb)) {
+	if (IsAffectedWithFlag(ch, kAfEntanglement)) {
 		prob /= 3;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodsLike)
@@ -80,7 +80,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob = 3;
 		if (CanUseFeat(ch, EFeat::kEvasion)) {
 			Affect<EApply> af;
-			af.type = ESpell::kExpedient;
+			af.affect_type = EAffect::kEvade;
 			af.location = EApply::kPhysicResist;
 			af.modifier = 50;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);

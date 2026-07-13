@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-EStageResult AlterRepair(CastContext &ctx) {
+EStageResult AlterRepair(ActionContext &ctx) {
 	ctx.ovict->set_current_durability(ctx.ovict->get_maximum_durability());
 	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 }

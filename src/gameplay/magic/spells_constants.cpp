@@ -13,11 +13,11 @@
 
 std::string GetAffExpiredText(ESpell spell_id) {
 	// The map of per-spell expiration messages used to live here. The texts moved to
-	// lib/cfg/spell_msg.xml under the kAffExpired key; a generic default lives in the
-	// kDefault sheaf, so a spell without its own kAffExpired falls back to it. The
+	// lib/cfg/spell_msg.xml under the kAffExpiredToChar key; a generic default lives in the
+	// kDefault sheaf, so a spell without its own kAffExpiredToChar falls back to it. The
 	// callers (ShowAffExpiredMsg, SendRemoveAffectMsgToRoom) still gate on !msg.empty()
 	// in case the lookup ever returns the fallback error string.
-	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAffExpired);
+	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAffExpiredToChar);
 }
 
 // GetCastPhrase удалён (issue #3304): фразы заклинаний перенесены в
@@ -91,7 +91,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kMassHold] = "kMassHold";
 	ESpell_name_by_value[ESpell::kFly] = "kFly";
 	ESpell_name_by_value[ESpell::kBrokenChains] = "kBrokenChains";
-	ESpell_name_by_value[ESpell::kNoflee] = "kNoflee";
+	ESpell_name_by_value[ESpell::kEntangleEnemy] = "kEntangleEnemy";
 	ESpell_name_by_value[ESpell::kCreateLight] = "kCreateLight";
 	ESpell_name_by_value[ESpell::kDarkness] = "kDarkness";
 	ESpell_name_by_value[ESpell::kStoneSkin] = "kStoneSkin";
@@ -133,12 +133,8 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kStunning] = "kStunning";
 	ESpell_name_by_value[ESpell::kHide] = "kHide";
 	ESpell_name_by_value[ESpell::kSneak] = "kSneak";
-	ESpell_name_by_value[ESpell::kDrunked] = "kDrunked";
-	ESpell_name_by_value[ESpell::kAbstinent] = "kAbstinent";
 	ESpell_name_by_value[ESpell::kFullFeed] = "kFullFeed";
 	ESpell_name_by_value[ESpell::kColdWind] = "kColdWind";
-	ESpell_name_by_value[ESpell::kBattle] = "kBattle";
-	ESpell_name_by_value[ESpell::kHaemorrhage] = "kHaemorrhage";
 	ESpell_name_by_value[ESpell::kCourage] = "kCourage";
 	ESpell_name_by_value[ESpell::kWaterbreath] = "kWaterbreath";
 	ESpell_name_by_value[ESpell::kSlowdown] = "kSlowdown";
@@ -149,7 +145,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kFever] = "kFever";
 	ESpell_name_by_value[ESpell::kCureFever] = "kCureFever";
 	ESpell_name_by_value[ESpell::kAwareness] = "kAwareness";
-	ESpell_name_by_value[ESpell::kReligion] = "kReligion";
 	ESpell_name_by_value[ESpell::kAirShield] = "kAirShield";
 	ESpell_name_by_value[ESpell::kPortal] = "kPortal";
 	ESpell_name_by_value[ESpell::kDispellMagic] = "kDispellMagic";
@@ -195,7 +190,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kBurdenOfTime] = "kBurdenOfTime";
 	ESpell_name_by_value[ESpell::kGroupRefresh] = "kGroupRefresh";
 	ESpell_name_by_value[ESpell::kPeaceful] = "kPeaceful";
-	ESpell_name_by_value[ESpell::kMagicBattle] = "kMagicBattle";
 	ESpell_name_by_value[ESpell::kBerserk] = "kBerserk";
 	ESpell_name_by_value[ESpell::kStoneBones] = "kStoneBones";
 	ESpell_name_by_value[ESpell::kRoomLight] = "kRoomLight";
@@ -203,7 +197,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kThunderstorm] = "kThunderstorm";
 	ESpell_name_by_value[ESpell::kLightWalk] = "kLightWalk";
 	ESpell_name_by_value[ESpell::kFailure] = "kFailure";
-	ESpell_name_by_value[ESpell::kClanPray] = "kClanPray";
 	ESpell_name_by_value[ESpell::kGlitterDust] = "kGlitterDust";
 	ESpell_name_by_value[ESpell::kScream] = "kScream";
 	ESpell_name_by_value[ESpell::kCatGrace] = "kCatGrace";
@@ -230,13 +223,8 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kDaturaPoison] = "kDaturaPoison";
 	ESpell_name_by_value[ESpell::kTimerRestore] = "kTimerRestore";
 	ESpell_name_by_value[ESpell::kCombatLuck] = "kCombatLuck";
-	ESpell_name_by_value[ESpell::kBandage] = "kBandage";
-	ESpell_name_by_value[ESpell::kNoBandage] = "kNoBandage";
-	ESpell_name_by_value[ESpell::kCapable] = "kCapable";
 	ESpell_name_by_value[ESpell::kStrangle] = "kStrangle";
-	ESpell_name_by_value[ESpell::kRecallSpells] = "kRecallSpells";
 	ESpell_name_by_value[ESpell::kHypnoticPattern] = "kHypnoticPattern";
-	ESpell_name_by_value[ESpell::kSolobonus] = "kSolobonus";
 	ESpell_name_by_value[ESpell::kVampirism] = "kVampirism";
 	ESpell_name_by_value[ESpell::kRestoration] = "kRestoration";
 	ESpell_name_by_value[ESpell::kDeathAura] = "kDeathAura";
@@ -250,7 +238,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kAcidArrow] = "kAcidArrow";
 	ESpell_name_by_value[ESpell::kThunderStone] = "kThunderStone";
 	ESpell_name_by_value[ESpell::kClod] = "kClod";
-	ESpell_name_by_value[ESpell::kExpedient] = "kExpedient";
 	ESpell_name_by_value[ESpell::kSightOfDarkness] = "kSightOfDarkness";
 	ESpell_name_by_value[ESpell::kGroupSincerity] = "kGroupSincerity";
 	ESpell_name_by_value[ESpell::kMagicalGaze] = "kMagicalGaze";
@@ -275,11 +262,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kGroupAwareness] = "kGroupAwareness";
 	ESpell_name_by_value[ESpell::kMassFailure] = "kMassFailure";
 	ESpell_name_by_value[ESpell::kSnare] = "kSnare";
-	ESpell_name_by_value[ESpell::kExpedientFail] = "kExpedientFail";
-	ESpell_name_by_value[ESpell::kLowerEffectiveness] = "kLowerEffectiveness";
-	ESpell_name_by_value[ESpell::kConfuse] = "kConfuse";
 	ESpell_name_by_value[ESpell::kCloudOfArrowsBolt] = "kCloudOfArrowsBolt";
-	ESpell_name_by_value[ESpell::kNoInjure] = "kNoInjure";
 	ESpell_name_by_value[ESpell::kFireBreath] = "kFireBreath";
 	ESpell_name_by_value[ESpell::kGasBreath] = "kGasBreath";
 	ESpell_name_by_value[ESpell::kFrostBreath] = "kFrostBreath";
@@ -287,20 +270,23 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kLightingBreath] = "kLightingBreath";
 	ESpell_name_by_value[ESpell::kIdentify] = "kIdentify";
 	ESpell_name_by_value[ESpell::kFullIdentify] = "kFullIdentify";
-	ESpell_name_by_value[ESpell::kQUest] = "kQUest";
-	ESpell_name_by_value[ESpell::kPortalTimer] = "kPortalTimer";
-	ESpell_name_by_value[ESpell::kNoCharge] = "kNoCharge";
 	ESpell_name_by_value[ESpell::kDazzle] = "kDazzle";
 	ESpell_name_by_value[ESpell::kGreatHeal] = "kGreatHeal";
 	ESpell_name_by_value[ESpell::kFrenzy] = "kFrenzy";
 	// Testing placeholders -- see spells_constants.h for the slot policy.
-	ESpell_name_by_value[ESpell::kTestOne] = "kTestOne";
+	ESpell_name_by_value[ESpell::kFireTrap] = "kFireTrap";
 	ESpell_name_by_value[ESpell::kTestTwo] = "kTestTwo";
 	ESpell_name_by_value[ESpell::kTestThree] = "kTestThree";
 	ESpell_name_by_value[ESpell::kTestFour] = "kTestFour";
 	ESpell_name_by_value[ESpell::kTestFive] = "kTestFive";
-	ESpell_name_by_value[ESpell::kDeadlyFogTick] = "kDeadlyFogTick";
 	ESpell_name_by_value[ESpell::kCreateArmor] = "kCreateArmor";
+	// issue.new-unaffect-spells
+	ESpell_name_by_value[ESpell::kUnweave] = "kUnweave";
+	ESpell_name_by_value[ESpell::kSuppress] = "kSuppress";
+	ESpell_name_by_value[ESpell::kErode] = "kErode";
+	ESpell_name_by_value[ESpell::kAegisRift] = "kAegisRift";
+	ESpell_name_by_value[ESpell::kToils] = "kToils";
+	ESpell_name_by_value[ESpell::kCleanseArea] = "kCleanseArea";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
@@ -523,6 +509,7 @@ void init_ETarget_ITEM_NAMES() {
 	ETarget_name_by_value[ETarget::kTarRoomWorld] = "kTarRoomWorld";
 	ETarget_name_by_value[ETarget::kTarAllyOnly] = "kTarAllyOnly";
 	ETarget_name_by_value[ETarget::kTarMinionsOnly] = "kTarMinionsOnly";
+	ETarget_name_by_value[ETarget::kTarDirection] = "kTarDirection";
 
 	for (const auto &i : ETarget_name_by_value) {
 		ETarget_value_by_name[i.second] = i.first;

@@ -20,7 +20,10 @@ bool is_dark(RoomRnum room) {
 
 	// если на комнате висит флаг всегда светло, то добавляем
 	// +2 к коэф
-	if (room_spells::IsRoomAffected(world[room], ESpell::kLight))
+	// issue.affect-migration: the room-light affect is kRoomLight (the kMagRoom spell). This used to check
+	// ESpell::kLight (a char-side light spell that never produces a room affect), so room light never lit
+	// a room -- fixed to kRoomLight.
+	if (room_spells::IsRoomAffected(world[room], room_spells::ERoomAffect::kRoomLight))
 		coef += 2.0;
 	// если светит луна и комната !помещение и !город
 	if ((SECT(room) != ESector::kInside) && (SECT(room) != ESector::kCity)

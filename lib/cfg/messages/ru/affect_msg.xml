@@ -6,8 +6,12 @@
     For standalone affects (cocoon/glow/status) kLook is a complete "...line "; for grouped affects
     (shields/auras) kLook is a bare fragment the frame joins. $a = looked-at char gender suffix.
 -->
-<affect_msg>
+<msg_container>
 	<msg_sheaf id="kDefault">
+		<message type="kAffDispelledToRoom" val="Быстрые тени метнулись вокруг $n3."/>
+		<message type="kAffDispelledToChar" val="Волна тепла прошла по вашему телу."/>
+		<message type="kAffExpiredToChar" val="Магия, наложенная на вас, рассеялась."/>
+		<message type="kShortDesc" val="странное ощущение"/>
 		<message type="kShieldFrame" val="...окружен$a {list} {noun} "/>
 		<message type="kShieldNoun" val="щитом"/>
 		<message type="kShieldNounMany" val="щитами"/>
@@ -16,28 +20,55 @@
 		<message type="kAuraNounMany" val="ауры"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBlind">
+		<message type="kAffImposedToRoom" val="$n0 ослеп$q!"/>
+		<message type="kAffImposedToChar" val="Вы ослепли!"/>
+		<message type="kAffDispelledToRoom" val="$n прозрел$g."/>
+		<message type="kAffDispelledToChar" val="К вам вернулась способность видеть."/>
+		<message type="kAffExpiredToChar" val="Вы вновь можете видеть."/>
 		<message type="kShortDesc" val="слепота"/>
 		<message type="kLook" val="...слеп$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kInvisible">
+		<message type="kAffImposedToRoom" val="$n медленно растворил$u в пустоте."/>
+		<message type="kAffImposedToChar" val="Вы стали невидимы для окружающих."/>
+		<message type="kAffExpiredToChar" val="Вы вновь видимы."/>
 		<message type="kShortDesc" val="невидимость"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDetectAlign">
+		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели зеленый оттенок."/>
+		<message type="kAffImposedToChar" val="Ваши глаза приобрели зеленый оттенок."/>
+		<message type="kAffExpiredToChar" val="Вы более не можете определять наклонности."/>
 		<message type="kShortDesc" val="определение наклонностей"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDetectInvisible">
+		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели золотистый оттенок."/>
+		<message type="kAffImposedToChar" val="Ваши глаза приобрели золотистый оттенок."/>
+		<message type="kAffExpiredToChar" val="Вы не в состоянии больше видеть невидимых."/>
 		<message type="kShortDesc" val="определение невидимости"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDetectMagic">
+		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели желтый оттенок."/>
+		<message type="kAffImposedToChar" val="Ваши глаза приобрели желтый оттенок."/>
+		<message type="kAffExpiredToChar" val="Вы не в состоянии более определять магию."/>
 		<message type="kShortDesc" val="определение магии"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDetectLife">
+		<message type="kAffImposedToRoom" val="$n0 начал$g замечать любые движения."/>
+		<message type="kAffImposedToChar" val="Вы способны разглядеть даже микроба."/>
+		<message type="kAffExpiredToChar" val="Вы больше не можете чувствовать жизнь."/>
 		<message type="kShortDesc" val="чувствовать жизнь"/>
 	</msg_sheaf>
 	<msg_sheaf id="kWaterWalk">
+		<message type="kAffImposedToRoom" val=""/>
+		<message type="kAffImposedToChar" val="На рыбалку вы можете отправляться без лодки."/>
+		<message type="kAffExpiredToChar" val="Вы больше не можете ходить по воде."/>
 		<message type="kShortDesc" val="хождение по воде"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSanctuary">
+		<message type="kAffImposedToRoom" val="Белая аура покрыла $n3 с головы до пят."/>
+		<message type="kAffImposedToChar" val="Белая аура мгновенно окружила вас."/>
+		<message type="kAffExpiredToChar" val="Белая аура вокруг вашего тела угасла."/>
+		<message type="kAffExpiredToRoom" val="Белая аура вокруг $n1 угасла."/>
 		<message type="kShortDesc" val="освящение"/>
 		<message type="kLook" val="...светится ярким сиянием "/>
 		<message type="kLookPoly" val="...светятся ярким сиянием "/>
@@ -46,21 +77,41 @@
 		<message type="kShortDesc" val="состоит в группе"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCurse">
+		<message type="kAffImposedToRoom" val="Красное сияние вспыхнуло над $n4 и тут же погасло!"/>
+		<message type="kAffImposedToChar" val="Боги сурово поглядели на вас."/>
+		<message type="kAffDispelledToChar" val="Боги вернули вам свое покровительство."/>
+		<message type="kAffExpiredToChar" val="Вы почувствовали себя более уверенно."/>
 		<message type="kShortDesc" val="проклятие"/>
 	</msg_sheaf>
 	<msg_sheaf id="kInfravision">
+		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели красный оттенок."/>
+		<message type="kAffImposedToChar" val="Ваши глаза приобрели красный оттенок."/>
+		<message type="kAffExpiredToChar" val="Вы больше не можете видеть ночью."/>
 		<message type="kShortDesc" val="инфравидение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kPoisoned">
-		<message type="kShortDesc" val="яд"/>
+		<message type="kAffDispelledToRoom" val="$n выглядит лучше."/>
+		<message type="kAffDispelledToChar" val="Тепло заполнило ваше тело."/>
+		<message type="kAffImposedToRoom" val="$n позеленел$g от действия яда."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали себя отравленным."/>
+		<message type="kAffExpiredToChar" val="В вашей крови не осталось ни капельки яда."/>
+		<message type="kAffExpiredToChar" val="В вашей крови не осталось ни капельки яда аконита."/>
+		<message type="kAffExpiredToChar" val="В вашей крови не осталось ни капельки яда скополии."/>
+		<message type="kAffExpiredToChar" val="В вашей крови не осталось ни капельки яда белены."/>
+		<message type="kAffExpiredToChar" val="В вашей крови не осталось ни капельки яда дурмана."/>
+		<message type="kShortDesc" val="отравление"/>
 	</msg_sheaf>
 	<msg_sheaf id="kProtectFromDark">
+		<message type="kAffImposedToRoom" val="$n подавил$g в себе страх к тьме."/>
+		<message type="kAffImposedToChar" val="Вы подавили в себе страх к тьме."/>
+		<message type="kAffExpiredToChar" val="Вы вновь ощущаете страх перед тьмой."/>
 		<message type="kShortDesc" val="защита от тьмы"/>
 	</msg_sheaf>
 	<msg_sheaf id="kProtectFromMind">
-		<message type="kShortDesc" val="защита от света"/>
+		<message type="kShortDesc" val="защита от разума"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSleep">
+		<message type="kAffExpiredToChar" val="Вы не чувствуете сонливости."/>
 		<message type="kShortDesc" val="магический сон"/>
 	</msg_sheaf>
 	<msg_sheaf id="kNoTrack">
@@ -70,59 +121,106 @@
 		<message type="kShortDesc" val="привязан"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBless">
+		<message type="kAffImposedToRoom" val="$n осветил$u на миг неземным светом."/>
+		<message type="kAffImposedToChar" val="Боги одарили вас своей улыбкой."/>
+		<message type="kAffExpiredToChar" val="Вы почувствовали себя менее доблестно."/>
 		<message type="kShortDesc" val="доблесть"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSneak">
+		<message type="kAffExpiredToChar" val="Ваши передвижения стали заметны."/>
 		<message type="kShortDesc" val="подкрадывается"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHide">
+		<message type="kAffDispelledToChar" val="Вы прекратили прятаться."/>
+		<message type="kAffDispelledToRoom" val="$n прекратил$g прятаться."/>
+		<message type="kAffExpiredToChar" val="Вы стали заметны окружающим."/>
 		<message type="kShortDesc" val="прячется"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCourage">
+		<message type="kAffImposedToChar" val="Вы пришли в ярость."/>
+		<message type="kAffImposedToRoom" val="Глаза $n1 налились кровью и $e яростно сжал$g в руках $o3."/>
+		<message type="kAffImposedToRoom" val="Глаза $n1 налились кровью."/>
+		<message type="kAffExpiredToChar" val="Вы успокоились."/>
 		<message type="kShortDesc" val="ярость"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCharmed">
+		<message type="kAffExpiredToChar" val="Вы подчиняетесь теперь только себе."/>
+		<message type="kAffExpireSoon" val="$n начал$g растерянно оглядываться по сторонам."/>
 		<message type="kShortDesc" val="зачарован"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHold">
+		<message type="kAffImposedToRoom" val="$n0 замер$q на месте!"/>
+		<message type="kAffImposedToChar" val="Вы замерли на месте, не в силах пошевельнуться."/>
+		<message type="kAffDispelledToChar" val="К вам вернулась способность двигаться."/>
+		<message type="kAffExpiredToChar" val="К вам вернулась способность двигаться."/>
 		<message type="kShortDesc" val="оцепенение"/>
 		<message type="kLook" val="...парализован$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFly">
+		<message type="kAffImposedToRoom" val="$n0 медленно поднял$u в воздух."/>
+		<message type="kAffImposedToChar" val="Вы медленно поднялись в воздух."/>
+		<message type="kAffExpiredToChar" val="Вы приземлились на землю."/>
 		<message type="kShortDesc" val="летит"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSilence">
+		<message type="kAffImposedToRoom" val="$n0 прикусил$g язык!"/>
+		<message type="kAffImposedToChar" val="Вы не в состоянии вымолвить ни слова."/>
+		<message type="kAffDispelledToChar" val="К вам вернулась способность разговаривать."/>
+		<message type="kAffExpiredToChar" val="Теперь вы можете болтать, все что думаете."/>
 		<message type="kShortDesc" val="молчание"/>
 		<message type="kLook" val="...нем$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kAwarness">
+		<message type="kAffImposedToRoom" val="$n начал$g внимательно осматриваться по сторонам."/>
+		<message type="kAffImposedToChar" val="Вы стали более внимательны к окружающему."/>
+		<message type="kAffExpiredToChar" val="Вы стали менее внимательны."/>
 		<message type="kShortDesc" val="настороженность"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBlink">
+		<message type="kAffImposedToRoom" val="$n начал$g мигать."/>
+		<message type="kAffImposedToChar" val="Вы начали мигать."/>
+		<message type="kAffExpiredToChar" val="Вы перестали мигать."/>
 		<message type="kShortDesc" val="мигание"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHorse">
-		<message type="kShortDesc" val="верхом или под седлом"/>
+		<message type="kShortDesc" val="едете верхом"/>
 	</msg_sheaf>
 	<msg_sheaf id="kNoFlee">
+		<message type="kAffImposedToRoom" val="$n3 покрыла невидимая паутина, сковывая $s движения!"/>
+		<message type="kAffImposedToRoom" val="Теперь $n не сможет сбежать из боя!"/>
+		<message type="kAffImposedToChar" val="Вас покрыла невидимая паутина!"/>
+		<message type="kAffExpiredToChar" val="Магическая сеть, покрывавшая вас, исчезла."/>
 		<message type="kShortDesc" val="не сбежать"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSingleLight">
 		<message type="kShortDesc" val="свет"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHolyLight">
+		<message type="kAffImposedToRoom" val="$n0 начал$g светиться ярким светом."/>
+		<message type="kAffImposedToChar" val="Вы засветились, освещая комнату."/>
+		<message type="kAffExpiredToChar" val="Ваше тело перестало светиться."/>
 		<message type="kShortDesc" val="освещение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHolyDark">
+		<message type="kAffImposedToRoom" val="$n0 погрузил$g комнату во мрак."/>
+		<message type="kAffImposedToChar" val="Вы погрузили комнату в непроглядную тьму."/>
+		<message type="kAffExpiredToChar" val="Облако тьмы, окружающее вас, спало."/>
 		<message type="kShortDesc" val="затемнение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDetectPoison">
+		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели карий оттенок."/>
+		<message type="kAffImposedToChar" val="Ваши глаза приобрели карий оттенок."/>
+		<message type="kAffExpiredToChar" val="Вы не в состоянии более определять яды."/>
 		<message type="kShortDesc" val="определение яда"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDrunked">
+		<message type="kAffImposedToChar" val="Винные пары ударили вам в голову."/>
+		<message type="kAffExpiredToChar" val="Кураж прошел. Мама, лучше бы я умер$q вчера."/>
 		<message type="kShortDesc" val="под мухой"/>
 	</msg_sheaf>
 	<msg_sheaf id="kAbstinent">
+		<message type="kAffImposedToRoom" val="$n попробовал$g похмелиться, но это не пошло $m на пользу."/>
+		<message type="kAffExpiredToChar" val="А головка ваша уже не болит."/>
 		<message type="kShortDesc" val="отходняк"/>
 	</msg_sheaf>
 	<msg_sheaf id="kStopRight">
@@ -135,47 +233,102 @@
 		<message type="kShortDesc" val="параплегия"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHaemorrhage">
+		<message type="kAffExpiredToChar" val="Ваши кровоточащие раны затянулись."/>
 		<message type="kShortDesc" val="кровотечение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDisguise">
+		<message type="kAffDispelledToChar" val="Вы прекратили маскироваться."/>
+		<message type="kAffDispelledToRoom" val="$n прекратил$g маскироваться."/>
+		<message type="kAffExpiredToChar" val="Вы стали вновь похожи сами на себя."/>
 		<message type="kShortDesc" val="маскировка"/>
 	</msg_sheaf>
 	<msg_sheaf id="kWaterBreath">
+		<message type="kAffImposedToRoom" val="У $n1 выросли жабры."/>
+		<message type="kAffImposedToChar" val="У вас выросли жабры."/>
+		<message type="kAffExpiredToChar" val="Вы более не способны дышать водой."/>
 		<message type="kShortDesc" val="дышать водой"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSlow">
+		<message type="kAffImposedToRoom" val="Движения $n1 заметно замедлились."/>
+		<message type="kAffImposedToChar" val="Ваши движения заметно замедлились."/>
+		<message type="kAffExpiredToChar" val="Медлительность исчезла."/>
 		<message type="kShortDesc" val="медлительность"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHaste">
+		<message type="kAffImposedToRoom" val="$n начал$g двигаться заметно быстрее."/>
+		<message type="kAffImposedToChar" val="Вы начали двигаться быстрее."/>
+		<message type="kAffExpiredToChar" val="Вы стали более медлительны."/>
 		<message type="kShortDesc" val="ускорение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kGodsShield">
+		<message type="kAffImposedToRoom" val="$n покрыл$u сверкающим коконом."/>
+		<message type="kAffImposedToChar" val="Вас покрыл голубой кокон."/>
+		<message type="kAffExpiredToChar" val="Голубой кокон вокруг вашего тела угас."/>
+		<message type="kAffExpiredToRoom" val="Сверкающий кокон вокруг $n1 угас."/>
 		<message type="kShortDesc" val="защита богов"/>
 		<message type="kLook" val="...окутан$a сверкающим коконом "/>
 	</msg_sheaf>
 	<msg_sheaf id="kAirShield">
+		<message type="kAffImposedToRoom" val="$n3 окутал воздушный щит."/>
+		<message type="kAffImposedToChar" val="Вас окутал воздушный щит."/>
+		<message type="kAffExpiredToChar" val="Ваш воздушный щит исчез."/>
+		<message type="kAffExpiredToRoom" val="Воздушный щит вокруг $n1 исчез."/>
 		<message type="kShortDesc" val="воздушный щит"/>
 		<message type="kLook" val="воздушным"/>
+		<message type="kTransformToChar" val="Воздушный щит вокруг $N1 ослабил ваш удар."/>
+		<message type="kTransformToVict" val="Воздушный щит смягчил удар $n1."/>
+		<message type="kTransformToRoom" val="Воздушный щит вокруг $N1 ослабил удар $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kFireShield">
+		<message type="kAffImposedToRoom" val="$n3 окутал огненный щит."/>
+		<message type="kAffImposedToChar" val="Вас окутал огненный щит."/>
+		<message type="kAffExpiredToChar" val="Огненный щит вокруг вашего тела исчез."/>
+		<message type="kAffExpiredToRoom" val="Огненный щит вокруг $n1 исчез."/>
 		<message type="kShortDesc" val="огненный щит"/>
 		<message type="kLook" val="огненным"/>
+		<message type="kTransformToChar" val="Огненный щит вокруг $N1 ослабил вашу атаку."/>
+		<message type="kTransformToVict" val="Огненный щит принял часть повреждений на себя."/>
+		<message type="kTransformToRoom" val="Огненный щит вокруг $N1 ослабил атаку $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kIceShield">
+		<message type="kAffImposedToRoom" val="$n3 окутал ледяной щит."/>
+		<message type="kAffImposedToChar" val="Вас окутал ледяной щит."/>
+		<message type="kAffExpiredToChar" val="Ледяной щит вокруг вашего тела исчез."/>
+		<message type="kAffExpiredToRoom" val="Ледяной щит вокруг $n1 исчез."/>
 		<message type="kShortDesc" val="ледяной щит"/>
 		<message type="kLook" val="ледяным"/>
+		<message type="kTransformToChar" val="Ледяной щит вокруг $N1 смягчил ваш удар."/>
+		<message type="kTransformToVict" val="Ледяной щит принял часть удара на себя."/>
+		<message type="kTransformToRoom" val="Ледяной щит вокруг $N1 смягчил удар $n1."/>
+		<message type="kTransformCritToChar" val="Ваше меткое попадания частично утонуло в ледяной пелене вокруг $N1."/>
+		<message type="kTransformCritToVict" val="Меткое попадание частично утонуло в ледяной пелене щита."/>
+		<message type="kTransformCritToRoom" val="Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kMagicGlass">
+		<message type="kAffImposedToRoom" val="$n3 покрыла зеркальная пелена."/>
+		<message type="kAffImposedToChar" val="Вас покрыло зеркало магии."/>
+		<message type="kAffExpiredToChar" val="Вы вновь чувствительны к магическим поражениям."/>
+		<message type="kAffExpiredToRoom" val="Зеркальная пелена вокруг $n1 растаяла."/>
 		<message type="kShortDesc" val="зеркало магии"/>
 		<message type="kLook" val="серебристая"/>
+		<message type="kWardToChar" val="Магическое зеркало $N1 отразило вашу магию!"/>
+		<message type="kWardToVict" val="Ваше магическое зеркало отразило поражение $n1!"/>
+		<message type="kWardToRoom" val="Магическое зеркало $N1 отразило магию $n1!"/>
 	</msg_sheaf>
 	<msg_sheaf id="kStairs">
 		<message type="kShortDesc" val="звезды"/>
 	</msg_sheaf>
 	<msg_sheaf id="kStoneHands">
+		<message type="kAffImposedToRoom" val="Руки $n1 задубели."/>
+		<message type="kAffImposedToChar" val="Ваши руки задубели."/>
+		<message type="kAffExpiredToChar" val="Ваши руки вернулись к прежнему состоянию."/>
 		<message type="kShortDesc" val="каменная рука"/>
 	</msg_sheaf>
 	<msg_sheaf id="kPrismaticAura">
+		<message type="kAffImposedToRoom" val="$n3 покрыла призматическая аура."/>
+		<message type="kAffImposedToChar" val="Вас покрыла призматическая аура."/>
+		<message type="kAffExpiredToChar" val="Призматическая аура вокруг вашего тела угасла."/>
+		<message type="kAffExpiredToRoom" val="Призматическая аура вокруг $n1 угасла."/>
 		<message type="kShortDesc" val="призматическая.аура"/>
 		<message type="kLook" val="...переливается всеми цветами "/>
 		<message type="kLookPoly" val="...переливаются всеми цветами "/>
@@ -184,58 +337,117 @@
 		<message type="kShortDesc" val="нанят"/>
 	</msg_sheaf>
 	<msg_sheaf id="kForcesOfEvil">
+		<message type="kAffImposedToRoom" val="Черное облако покрыло $n3 с головы до пят."/>
+		<message type="kAffImposedToChar" val="Черное облако покрыло вас."/>
+		<message type="kAffExpiredToChar" val="Силы зла оставили вас."/>
+		<message type="kAffExpiredToRoom" val="Черное облако вокруг $n1 рассеялось."/>
 		<message type="kShortDesc" val="силы зла"/>
 		<message type="kLook" val="черная"/>
 	</msg_sheaf>
 	<msg_sheaf id="kAirAura">
+		<message type="kAffImposedToRoom" val="$n3 окружила воздушная аура."/>
+		<message type="kAffImposedToChar" val="Вас окружила воздушная аура."/>
+		<message type="kAffExpiredToChar" val="Воздушная аура вокруг вас исчезла."/>
+		<message type="kAffExpiredToRoom" val="Воздушная аура вокруг $n1 исчезла."/>
 		<message type="kShortDesc" val="воздушная аура"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFireAura">
+		<message type="kAffImposedToRoom" val="$n3 окружила огненная аура."/>
+		<message type="kAffImposedToChar" val="Вас окружила огненная аура."/>
+		<message type="kAffExpiredToChar" val="Огненная аура вокруг вас исчезла."/>
+		<message type="kAffExpiredToRoom" val="Огненная аура вокруг $n1 исчезла."/>
 		<message type="kShortDesc" val="огненная аура"/>
 	</msg_sheaf>
 	<msg_sheaf id="kIceAura">
+		<message type="kAffImposedToRoom" val="$n3 окружила ледяная аура."/>
+		<message type="kAffImposedToChar" val="Вас окружила ледяная аура."/>
+		<message type="kAffExpiredToChar" val="Ледяная аура вокруг вас исчезла."/>
+		<message type="kAffExpiredToRoom" val="Ледяная аура вокруг $n1 исчезла."/>
 		<message type="kShortDesc" val="ледяная аура"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDeafness">
+		<message type="kAffImposedToRoom" val="$n0 оглох$q!"/>
+		<message type="kAffImposedToChar" val="Вы оглохли."/>
+		<message type="kAffDispelledToChar" val="К вам вернулась способность слышать."/>
+		<message type="kAffExpiredToChar" val="Вы вновь можете слышать."/>
 		<message type="kShortDesc" val="глухота"/>
 		<message type="kLook" val="...глух$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCrying">
+		<message type="kAffImposedToRoom" val="$n0 издал$g протяжный стон."/>
+		<message type="kAffImposedToChar" val="Вы впали в уныние."/>
+		<message type="kAffExpiredToChar" val="Ваша душа успокоилась."/>
 		<message type="kShortDesc" val="плач"/>
 	</msg_sheaf>
 	<msg_sheaf id="kPeaceful">
+		<message type="kAffImposedToRoom" val="Взгляд $n1 потускнел, а сам он успокоился."/>
+		<message type="kAffImposedToChar" val="Ваша душа очистилась от зла и странно успокоилась."/>
+		<message type="kAffExpiredToChar" val="Смирение в вашей душе вдруг куда-то исчезло."/>
 		<message type="kShortDesc" val="смирение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kMagicStopFight">
+		<message type="kAffImposedToRoom" val="$n3 оглушило."/>
+		<message type="kAffImposedToChar" val="Вас оглушило."/>
+		<message type="kAffExpiredToChar" val="К вам вернулась свобода движений."/>
 		<message type="kShortDesc" val="маг параплегия"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBerserk">
+		<message type="kAffImposedToChar" val="Вас обуяла предсмертная ярость!"/>
+		<message type="kAffImposedToVict" val="$n0 исступленно взвыл$g и бросил$u на вас!"/>
+		<message type="kAffImposedToRoom" val="$n0 исступленно взвыл$g и бросил$u на противника!"/>
+		<message type="kAffImposeFailToChar" val="Вы истошно завопили, пытаясь напугать противника. Без толку."/>
+		<message type="kAffImposeFailToVict" val="$n0 истошно завопил$g, пытаясь напугать вас. Забавно..."/>
+		<message type="kAffImposeFailToRoom" val="$n0 истошно завопил$g, пытаясь напугать противника. Забавно..."/>
 		<message type="kShortDesc" val="предсмертная ярость"/>
 	</msg_sheaf>
 	<msg_sheaf id="kLightWalk">
+		<message type="kAffImposedToChar" val="Ваши шаги стали легче перышка."/>
+		<message type="kAffImposeFailToChar" val="Вам не хватает ловкости..."/>
+		<message type="kAffExpiredToChar" val="Ваши следы вновь стали заметны."/>
 		<message type="kShortDesc" val="легкая поступь"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBrokenChains">
+		<message type="kAffImposedToRoom" val="Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас."/>
+		<message type="kAffImposedToChar" val="Волна ярко-синего света омыла вас с головы до ног."/>
+		<message type="kAffExpiredToChar" val="Вы вновь стали уязвимы для оцепенения."/>
 		<message type="kShortDesc" val="разбитые оковы"/>
 		<message type="kLook" val="ярко-синяя"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCloudOfArrows">
+		<message type="kAffImposedToRoom" val="$n3 окружило облако летающих огненных стрел."/>
+		<message type="kAffImposedToChar" val="Вас окружило облако летающих огненных стрел."/>
+		<message type="kAffExpiredToChar" val="Облако стрел вокруг вас рассеялось."/>
+		<message type="kAffExpiredToRoom" val="Облако стрел вокруг $n1 рассеялось."/>
 		<message type="kShortDesc" val="облако стрел"/>
 	</msg_sheaf>
 	<msg_sheaf id="kShadowCloak">
+		<message type="kAffImposedToRoom" val="$n скрыл$u в густой тени."/>
+		<message type="kAffImposedToChar" val="Густые тени окутали вас."/>
+		<message type="kAffExpiredToChar" val="Ваша теневая мантия замерцала и растаяла."/>
+		<message type="kAffExpiredToRoom" val="Теневая мантия $n1 замерцала и растаяла."/>
 		<message type="kShortDesc" val="мантия теней"/>
+		<message type="kWardToChar" val="Густая тень вокруг $N1 жадно поглотила вашу магию."/>
+		<message type="kWardToVict" val="Густая тень вокруг вас поглотила магию $n1."/>
+		<message type="kWardToRoom" val="Густая тень вокруг $N1 жадно поглотила магию $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kGlitterDust">
+		<message type="kAffImposedToRoom" val="Облако ярко блестящей пыли накрыло $n3."/>
+		<message type="kAffImposedToChar" val="Липкая блестящая пыль покрыла вас с головы до пят."/>
+		<message type="kAffExpiredToChar" val="Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе."/>
+		<message type="kAffExpiredToRoom" val="Блестящая пыль, покрывавшая $n3, осыпалась и растаяла."/>
 		<message type="kShortDesc" val="блестящая пыль"/>
 	</msg_sheaf>
 	<msg_sheaf id="kAffright">
+		<message type="kAffImposedToRoom" val="$n0 побледнел$g и задрожал$g от страха."/>
+		<message type="kAffImposedToChar" val="Страх сжал ваше сердце ледяными когтями."/>
+		<message type="kAffExpiredToChar" val="Леденящий душу испуг отпустил вас."/>
 		<message type="kShortDesc" val="испуг"/>
 	</msg_sheaf>
 	<msg_sheaf id="kScopolaPoison">
-		<message type="kShortDesc" val="яд скополии"/>
+		<message type="kShortDesc" val="отравление скополией"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDaturaPoison">
-		<message type="kShortDesc" val="яд дурмана"/>
+		<message type="kShortDesc" val="отравление дурманом"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSkillReduce">
 		<message type="kShortDesc" val="понижение умений"/>
@@ -244,24 +456,40 @@
 		<message type="kShortDesc" val="не переключается"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBelenaPoison">
-		<message type="kShortDesc" val="яд белены"/>
+		<message type="kShortDesc" val="отравление беленой"/>
+	</msg_sheaf>
+	<msg_sheaf id="kAconitumPoison">
+		<message type="kShortDesc" val="отравление аконитом"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCapable">
+		<message type="kShortDesc" val="зачарован"/>
 	</msg_sheaf>
 	<msg_sheaf id="kNoTeleport">
+		<message type="kAffImposedToRoom" val="$n0 теперь прикован$a к $N2."/>
+		<message type="kAffImposedToChar" val="Вы не сможете покинуть $N3."/>
+		<message type="kAffExpiredToChar" val="Покрывавшие вас сети колдовской западни растаяли."/>
+		<message type="kAffExpiredToChar" val="Вы опять можете сбежать с поля боя."/>
 		<message type="kShortDesc" val="прикован"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCombatLuck">
+		<message type="kAffImposedToRoom" val="$n вдохновенно выпятил$g грудь."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали вдохновение."/>
 		<message type="kShortDesc" val="боевое везение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBandage">
+		<message type="kAffImposedToChar" val="Вы достали бинты и начали оказывать себе первую помощь..."/>
+		<message type="kAffImposedToRoom" val="$n начал$g перевязывать свои раны.&amp;n"/>
+		<message type="kAffExpiredToChar" val="Вы аккуратно перевязали свои раны."/>
 		<message type="kShortDesc" val="перевязка"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCannotBeBandaged">
-		<message type="kShortDesc" val="не может перевязываться"/>
+		<message type="kShortDesc" val="наложены повязки"/>
 	</msg_sheaf>
 	<msg_sheaf id="kMorphing">
 		<message type="kShortDesc" val="превращен"/>
 	</msg_sheaf>
 	<msg_sheaf id="kStrangled">
+		<message type="kAffExpiredToChar" val="Удушье отпустило вас, и вы вздохнули полной грудью."/>
 		<message type="kShortDesc" val="удушье"/>
 		<message type="kLook" val="...задыхается"/>
 	</msg_sheaf>
@@ -272,6 +500,10 @@
 		<message type="kShortDesc" val="регенерация новичка"/>
 	</msg_sheaf>
 	<msg_sheaf id="kVampirism">
+		<message type="kAffImposedToRoom" val="Зрачки $n3 приобрели красный оттенок."/>
+		<message type="kAffImposedToChar" val="Ваши зрачки приобрели красный оттенок."/>
+		<message type="kAffDispelledToChar" val="Красный оттенок ваших зрачков исчез."/>
+		<message type="kAffDispelledToRoom" val="Красный оттенок зрачков $n3 исчез."/>
 		<message type="kShortDesc" val="вампиризм"/>
 	</msg_sheaf>
 	<msg_sheaf id="kLacerations">
@@ -282,9 +514,17 @@
 		<message type="kLook" val="...реет стяг над головой"/>
 	</msg_sheaf>
 	<msg_sheaf id="kEarthAura">
+		<message type="kAffImposedToRoom" val="$n глубоко поклонил$u земле."/>
+		<message type="kAffImposedToChar" val="Глубокий поклон тебе, матушка земля."/>
+		<message type="kAffExpiredToChar" val="Матушка земля забыла про Вас."/>
+		<message type="kAffExpiredToRoom" val="Земная аура вокруг $n1 рассеялась."/>
 		<message type="kShortDesc" val="земной поклон"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCloudly">
+		<message type="kAffImposedToRoom" val="Очертания $n1 расплылись и стали менее отчетливыми."/>
+		<message type="kAffImposedToChar" val="Ваше тело стало прозрачным, как туман."/>
+		<message type="kAffExpiredToChar" val="Ваши очертания приобрели отчетливость."/>
+		<message type="kAffExpiredToRoom" val="Очертания $n1 вновь стали отчетливыми."/>
 		<message type="kShortDesc" val="затуманивание"/>
 	</msg_sheaf>
 	<msg_sheaf id="kConfused">
@@ -293,10 +533,265 @@
 	<msg_sheaf id="kNoCharge">
 		<message type="kShortDesc" val="натиск"/>
 	</msg_sheaf>
-	<msg_sheaf id="kInjured">
+	<msg_sheaf id="kInjuredLimb">
 		<message type="kShortDesc" val="ранен"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFrenzy">
+		<message type="kAffImposedToChar" val="&amp;RЖажда крови затмила ваш разум и Вы пришли в исступление!&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n выпучил$g глаза и издал$g бешеный вопль! Похоже разум окончательно покинул $s..."/>
+		<message type="kAffExpiredToChar" val="Жажда крови отступила и Вы пришли в себя."/>
 		<message type="kShortDesc" val="исступление"/>
 	</msg_sheaf>
-</affect_msg>
+	<msg_sheaf id="kMagicArmor">
+		<message type="kAffImposedToRoom" val="Вокруг $n1 вспыхнул белый щит и тут же погас."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали вокруг себя невидимую защиту."/>
+		<message type="kAffExpiredToChar" val="Вы почувствовали себя менее защищенно."/>
+		<message type="kShortDesc" val="магическая защита"/>
+	</msg_sheaf>
+	<msg_sheaf id="kShivering">
+		<message type="kAffImposedToRoom" val="Боевой пыл $n1 несколько остыл."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали себя слабее!"/>
+		<message type="kAffExpiredToChar" val="Вы отметили, что силы вернулись к вам."/>
+		<message type="kShortDesc" val="озноб"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDespodency">
+		<message type="kAffImposedToRoom" val="$n стал$g немного слабее."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали себя слабее!"/>
+		<message type="kShortDesc" val="упадок сил"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicStrength">
+		<message type="kAffImposedToRoom" val="Мышцы $n1 налились силой."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали себя сильнее."/>
+		<message type="kAffExpiredToChar" val="Вы чувствуете себя немного слабее."/>
+		<message type="kShortDesc" val="волшебная сила"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPatronage">
+		<message type="kAffImposedToRoom" val="Исходящий с небес свет на мгновение озарил $n3."/>
+		<message type="kAffImposedToChar" val="Исходящий с небес свет на мгновение озарил вас."/>
+		<message type="kAffExpiredToChar" val="Вы утратили покровительство высших сил."/>
+		<message type="kShortDesc" val="покровительство"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStoneSkin">
+		<message type="kAffImposedToRoom" val="Кожа $n1 покрылась каменными пластинами."/>
+		<message type="kAffImposedToChar" val="Вы стали менее чувствительны к ударам."/>
+		<message type="kAffExpiredToChar" val="Ваша кожа вновь стала мягкой и бархатистой."/>
+		<message type="kShortDesc" val="каменная кожа"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicWeaknes">
+		<message type="kAffImposedToRoom" val="$n стал$g немного слабее."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали себя слабее!"/>
+		<message type="kAffExpiredToChar" val="Силы вернулись к вам."/>
+		<message type="kShortDesc" val="колдовская слабость"/>
+	</msg_sheaf>
+	<msg_sheaf id="kEnlarge">
+		<message type="kAffImposedToRoom" val="$n начал$g расти, как на дрожжах."/>
+		<message type="kAffImposedToChar" val="Вы стали крупнее."/>
+		<message type="kAffExpiredToChar" val="Ваши размеры стали прежними."/>
+		<message type="kShortDesc" val="увеличение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicShield">
+		<message type="kAffImposedToRoom" val="Сверкающий щит вспыхнул вокруг $n1 и угас."/>
+		<message type="kAffImposedToChar" val="Сверкающий щит вспыхнул вокруг вас и угас."/>
+		<message type="kAffExpiredToChar" val="Ваш волшебный щит рассеялся."/>
+		<message type="kAffExpiredToRoom" val="Волшебный щит вокруг $n1 рассеялся."/>
+		<message type="kShortDesc" val="волшебный щит"/>
+	</msg_sheaf>
+	<msg_sheaf id="kForbidden">
+		<message type="kShortDesc" val="магическая печать"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFrostbite">
+		<message type="kAffImposedToRoom" val="$n покрыл$u красивым серебристым инеем."/>
+		<message type="kAffImposedToChar" val="Вы покрылись серебристым инеем."/>
+		<message type="kAffExpiredToChar" val="Вы согрелись и подвижность вернулась к вам."/>
+		<message type="kShortDesc" val="обморожение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSlowdown">
+		<message type="kAffImposedToRoom" val="Движения $n1 стали медленными и неуклюжими."/>
+		<message type="kAffImposedToChar" val="Ваши движения стали медленными и неуклюжими."/>
+		<message type="kAffExpiredToRoom" val="К $n2 вернулась былая подвижность."/>
+		<message type="kAffExpiredToChar" val="К вам вернулась былая подвижность."/>
+		<message type="kShortDesc" val="колдовское замедление"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFever">
+		<message type="kAffDispelledToChar" val="Лихорадка прекратилась."/>
+		<message type="kAffImposedToRoom" val="$n3 скрутило в жестокой лихорадке."/>
+		<message type="kAffImposedToChar" val="Вас скрутило в жестокой лихорадке."/>
+		<message type="kAffExpiredToChar" val="Лихорадка прекратилась."/>
+		<message type="kShortDesc" val="лихорадка"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFastRegeneration">
+		<message type="kAffImposedToRoom" val="$n расцвел$g на ваших глазах."/>
+		<message type="kAffImposedToChar" val="Вас наполнила живительная сила."/>
+		<message type="kAffExpiredToChar" val="Живительная сила покинула вас."/>
+		<message type="kShortDesc" val="быстрое восстановление"/>
+	</msg_sheaf>
+	<msg_sheaf id="kLessening">
+		<message type="kAffImposedToRoom" val="$n скукожил$u."/>
+		<message type="kAffImposedToChar" val="Вы стали мельче."/>
+		<message type="kAffExpiredToChar" val="Ваши размеры вновь стали прежними."/>
+		<message type="kAffExpiredToRoom" val="$n0 вновь стал$g прежних размеров."/>
+		<message type="kShortDesc" val="уменьшение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMadness">
+		<message type="kAffImposedToRoom" val="$n0 обезумел$g!"/>
+		<message type="kAffImposedToChar" val="Рассудок покинул вас, и вами овладело безумие!"/>
+		<message type="kAffExpiredToRoom" val="Рассудок вернулся к $n2."/>
+		<message type="kAffExpiredToChar" val="Рассудок вернулся к вам."/>
+		<message type="kShortDesc" val="безумие"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMindless">
+		<message type="kAffImposedToRoom" val="$n0 стал$g слаб$g на голову!"/>
+		<message type="kAffImposedToChar" val="Ваш разум помутился!"/>
+		<message type="kAffExpiredToChar" val="Ваш разум просветлел."/>
+		<message type="kShortDesc" val="повреждение разума"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFascination">
+		<message type="kAffImposedToRoom" val="$n0 достал$g из сумчки какие-то склянки и отвернул$u, бормоча под нос."/>
+		<message type="kAffImposedToChar" val="Вы попытались вспомнить полузабытые уроки старой цыганки, что учила вас головы морочить."/>
+		<message type="kAffExpiredToChar" val="Ваша красота куда-то пропала."/>
+		<message type="kShortDesc" val="очарование"/>
+	</msg_sheaf>
+	<msg_sheaf id="kContusion">
+		<message type="kAffExpiredToChar" val="К вам вернулась способность нормально сражаться."/>
+		<message type="kShortDesc" val="контузия"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStoneBones">
+		<message type="kAffImposedToRoom" val="Кости $n1 обрели твердость кремня."/>
+		<message type="kAffImposedToChar" val=" "/>
+		<message type="kShortDesc" val="каменные кости"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFailure">
+		<message type="kAffImposedToRoom" val="Тяжелое бурое облако сгустилось над $n4."/>
+		<message type="kAffImposedToChar" val="Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас."/>
+		<message type="kAffExpiredToChar" val="Удача вновь вернулась к вам."/>
+		<message type="kAffExpiredToChar" val="Удача снова повернулась к вам лицом... и залепила пощечину."/>
+		<message type="kShortDesc" val="недоля"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCatGrace">
+		<message type="kAffImposedToRoom" val="Движения $n1 обрели невиданную ловкость."/>
+		<message type="kAffImposedToRoom" val="$n0 будет двигаться более шустро."/>
+		<message type="kAffImposedToChar" val="Ваши движения обрели невиданную ловкость."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали себя более шустрым."/>
+		<message type="kAffExpiredToChar" val="Ваши движения утратили прежнюю колдовскую ловкость."/>
+		<message type="kAffExpiredToChar" val="Вы стали менее шустрым."/>
+		<message type="kShortDesc" val="ловкость кошки"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBullBody">
+		<message type="kAffImposedToRoom" val="Плечи $n1 раздались вширь, а тело налилось звериной мощью."/>
+		<message type="kAffImposedToChar" val="Ваше тело налилось звериной мощью."/>
+		<message type="kAffExpiredToChar" val="Ваше телосложение вновь стало обычным."/>
+		<message type="kAffExpiredToRoom" val="Тело $n1 вновь стало обычным."/>
+		<message type="kShortDesc" val="бычье тело"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSnakeWisdom">
+		<message type="kAffImposedToRoom" val="$n спокойно и мудро посмотрел$g вокруг."/>
+		<message type="kAffImposedToChar" val="Шелест змеиной чешуи коснулся вашего сознания, и вы стали мудрее."/>
+		<message type="kAffExpiredToChar" val="Вы утратили навеянную магией мудрость."/>
+		<message type="kShortDesc" val="мудрость змеи"/>
+	</msg_sheaf>
+	<msg_sheaf id="kGimmicry">
+		<message type="kAffImposedToRoom" val="$n хитро прищурил$u и поглядел$g по сторонам."/>
+		<message type="kAffImposedToChar" val="Вы почувствовали, что для вашего ума более нет преград."/>
+		<message type="kAffExpiredToChar" val="Навеянная магией хитрость покинула вас."/>
+		<message type="kShortDesc" val="хитроумие"/>
+	</msg_sheaf>
+	<msg_sheaf id="kIndecision">
+		<message type="kAffImposedToRoom" val="Удача покинула $n3."/>
+		<message type="kAffImposedToChar" val="Похоже, сегодня не ваш день."/>
+		<message type="kShortDesc" val="нерешительность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInsanity">
+		<message type="kAffImposedToChar" val="Вы обезумели."/>
+		<message type="kAffImposedToRoom" val="$n0 обезумел$g."/>
+		<message type="kShortDesc" val="помешательство"/>
+	</msg_sheaf>
+	<msg_sheaf id="kRousing">
+		<message type="kAffExpiredToChar" val="Решительность покинула вас."/>
+		<message type="kShortDesc" val="решительность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPassion">
+		<message type="kAffExpiredToChar" val="Вдохновение боя покинуло вас."/>
+		<message type="kShortDesc" val="вдохновение боя"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSurgeOfPower">
+		<message type="kAffExpiredToChar" val="Прилив сил покинул вас."/>
+		<message type="kShortDesc" val="прилив сил"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSurgeOfValour">
+		<message type="kAffExpiredToChar" val="Доблесть покинула вас."/>
+		<message type="kShortDesc" val="доблесть"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBattleCourage">
+		<message type="kAffExpiredToChar" val="Отвага покинула вас."/>
+		<message type="kShortDesc" val="отвага"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInspiration">
+		<message type="kAffExpiredToChar" val="*Боевое воодушевление угасло, а с ним и вся жажда подвигов!"/>
+		<message type="kShortDesc" val="воодушевление"/>
+	</msg_sheaf>
+	<msg_sheaf id="kConcentration">
+		<message type="kAffExpiredToChar" val="Сосредоточенность покинула вас."/>
+		<message type="kShortDesc" val="сосредоточенность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBattleLuck">
+		<message type="kAffExpiredToChar" val="Удача в бою покинула вас."/>
+		<message type="kShortDesc" val="удача в бою"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPhysdamageBonus">
+		<message type="kAffExpiredToChar" val="Точность покинула вас."/>
+		<message type="kShortDesc" val="точность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSuspiciousness">
+		<message type="kAffImposedToChar" val="$N ранил$G Вас в руку! Надо бы дать сдачи..."/>
+		<message type="kAffImposedToVict" val="Вы ранили $n3! Как же $e теперь будет Вас бить?..."/>
+		<message type="kAffImposedToRoom" val="$N ранил$G $n3. Кажется $n0 уже передумал$g драться..."/>
+		<message type="kAffImposeFailToChar" val="$N попытал$U поранить Вас, но у н$S не вышло! На радостях Вы принялись колотить $S еще веселей!"/>
+		<message type="kAffImposeFailToVict" val="Вам не удалось ранить $n3 и $e продолжил$g весело бить Вас!"/>
+		<message type="kAffImposeFailToRoom" val="$N безуспешно попытал$U поранить $n3. Как нелепо..."/>
+		<message type="kShortDesc" val="подозрительность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSevereWound">
+		<message type="kShortDesc" val="тяжелая рана"/>
+	</msg_sheaf>
+	<msg_sheaf id="kWellFed">
+		<message type="kAffExpiredToChar" val="Вам снова захотелось жареного, да с дымком."/>
+		<message type="kShortDesc" val="сытость"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPrayerful">
+		<message type="kAffExpiredToChar" val="Вы утратили расположение Богов."/>
+		<message type="kShortDesc" val="вознесена молитва"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPietas">
+		<message type="kAffExpiredToChar" val="Вы утратили расположение Богов."/>
+		<message type="kShortDesc" val="принесены жертвы"/>
+	</msg_sheaf>
+	<msg_sheaf id="kEvade">
+		<message type="kShortDesc" val="уклонение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kWitchery">
+		<message type="kShortDesc" val="чары"/>
+		<message type="kAffExpiredToChar" val="Чары, наложенные на вас, развеялись."/>
+		<message type="kAffDispelledToChar" val="Чары, наложенные на вас, развеялись."/>
+	</msg_sheaf>
+	<msg_sheaf id="kWebbed">
+		<message type="kAffImposedToRoom" val="$n0 запутал$u в липкой паутине!"/>
+		<message type="kAffImposedToChar" val="Вы запутались в липкой паутине!"/>
+		<message type="kAffExpiredToRoom" val="$n0 выпутал$u из паутины."/>
+		<message type="kAffExpiredToChar" val="Вы выпутались из паутины."/>
+		<message type="kShortDesc" val="опутан"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInsidiousWound">
+		<message type="kAffExpiredToChar" val="Ваши раны затянулись."/>
+		<message type="kAffExpiredToRoom" val="Раны $n1 затянулись."/>
+		<message type="kShortDesc" val="коварная рана"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBurning">
+		<message type="kAffImposedToChar" val="Вас охватывает пламя!"/>
+		<message type="kAffImposedToRoom" val="$n0 вспыхнул$g, объят$g пламенем!"/>
+		<message type="kDamageToChar" val="&RЯзыки пламени жадно лижут вас, обжигая плоть!&n"/>
+		<message type="kDamageToRoom" val="&RПламя пляшет по телу $n2, обжигая плоть.&n"/>
+		<message type="kAffExpiredToChar" val="Пламя, охватившее вас, угасает."/>
+		<message type="kAffExpiredToRoom" val="Пламя, охватившее $n2, угасает."/>
+		<message type="kShortDesc" val="горение"/>
+	</msg_sheaf>
+</msg_container>

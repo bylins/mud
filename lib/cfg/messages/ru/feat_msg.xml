@@ -462,4 +462,19 @@
 	<msg_sheaf id="kPhysicians">
 		<name val="врачеватель" />
 	</msg_sheaf>
+	<msg_sheaf id="kEmberTouch">
+		<name val="тлеющее прикосновение" />
+	</msg_sheaf>
+	<msg_sheaf id="kEmberFury">
+		<name val="яростное пламя" />
+	</msg_sheaf>
+	<msg_sheaf id="kCinderburst">
+		<name val="вспышка углей" />
+	</msg_sheaf>
+	<msg_sheaf id="kPyromancer">
+		<name val="пиромантия" />
+	</msg_sheaf>
+	<msg_sheaf id="kMaledictor">
+		<name val="сглаз" />
+	</msg_sheaf>
 </feat_msg>

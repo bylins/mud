@@ -57,7 +57,7 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantOther).c_str();
 }
 
-EStageResult AlterEnchantWeapon(CastContext &ctx) {
+EStageResult AlterEnchantWeapon(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;

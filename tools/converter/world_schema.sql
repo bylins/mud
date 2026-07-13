@@ -246,11 +246,14 @@ CREATE TABLE mob_spells (
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
 
--- Mob helpers (Helper: #)
+-- Mob helpers (Helper: #). helper_order (not helper_vnum) is the primary key
+-- component so the same helper vnum can legitimately appear more than once
+-- (weighted random helper selection) without colliding.
 CREATE TABLE mob_helpers (
     mob_vnum INTEGER NOT NULL,
+    helper_order INTEGER NOT NULL,
     helper_vnum INTEGER NOT NULL,
-    PRIMARY KEY (mob_vnum, helper_vnum),
+    PRIMARY KEY (mob_vnum, helper_order),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
 

@@ -657,10 +657,6 @@ void ObjData::process_periodic_effects() {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, 1);
 	}
-	if ((get_type() == EObjType::kLiquidContainer || get_type() == EObjType::kFood)
-		&& GET_OBJ_VAL(this, 3) > 1) {
-		dec_val(3);
-	}
 }
 
 void ObjData::attach_triggers(const triggers_list_t &trigs) {
@@ -716,14 +712,6 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	}
 	if (time > 0) {
 		set_timer(get_timer() - time);
-	}
-	if (!exchange) {
-		if (((this->get_type() == EObjType::kLiquidContainer)
-			|| (this->get_type() == EObjType::kFood))
-			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
-		{
-			dec_val(3);
-		}
 	}
 }
 
@@ -1222,13 +1210,19 @@ void ObjVal::init_from_zone(const char *str) {
 
 bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 	switch (key) {
-		case ObjVal::EValueKey::POTION_SPELL1_NUM:
-		case ObjVal::EValueKey::POTION_SPELL1_LVL:
-		case ObjVal::EValueKey::POTION_SPELL2_NUM:
-		case ObjVal::EValueKey::POTION_SPELL2_LVL:
-		case ObjVal::EValueKey::POTION_SPELL3_NUM:
-		case ObjVal::EValueKey::POTION_SPELL3_LVL:
-		case ObjVal::EValueKey::POTION_PROTO_VNUM: return true;
+		case ObjVal::EValueKey::kPotionSpell1Num:
+		case ObjVal::EValueKey::kPotionSpell1Lvl:
+		case ObjVal::EValueKey::kPotionSpell2Num:
+		case ObjVal::EValueKey::kPotionSpell2Lvl:
+		case ObjVal::EValueKey::kPotionSpell3Num:
+		case ObjVal::EValueKey::kPotionSpell3Lvl:
+		case ObjVal::EValueKey::kPotionProtoVnum:
+		case ObjVal::EValueKey::kPotionPotency:
+		case ObjVal::EValueKey::kPotionBrewRoll:
+		case ObjVal::EValueKey::kPotionSkill:
+		case ObjVal::EValueKey::kPotionStat:
+		case ObjVal::EValueKey::kLiquidTimer:
+		case ObjVal::EValueKey::kLiquidPoison: return true;
 	}
 	return false;
 }
@@ -1237,6 +1231,7 @@ void ObjVal::remove_incorrect_keys(int type) {
 	for (auto i = m_values.begin(); i != m_values.end(); /* empty */) {
 		bool erased = false;
 		switch (type) {
+			case EObjType::kPotion:
 			case EObjType::kLiquidContainer:
 			case EObjType::kFountain:
 				if (!is_valid_drinkcon(i->first)) {

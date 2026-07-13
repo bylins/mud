@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-EStageResult AlterCurse(CastContext &ctx) {
+EStageResult AlterCurse(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (!obj->has_flag(EObjFlag::kNodrop)) {
 		obj->set_extra_flag(EObjFlag::kNodrop);

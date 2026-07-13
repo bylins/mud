@@ -17,7 +17,7 @@
 #include "spells_constants.h"
 #include "engine/structs/structs.h"    // there was defined type "byte" if it had been missing
 
-class CastContext;   // defined in magic.h (issue.spell-pipeline)
+class ActionContext;   // defined in magic.h (issue.spell-pipeline)
 enum class EStageResult;  // defined in magic.h; manual handlers return it (issue.manual-cast)
 
 #include <optional>

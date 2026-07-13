@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/hide.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
@@ -117,10 +118,8 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			if (percent > prob && !success) {
 				ohoh = true;
 				if (AFF_FLAGGED(ch, EAffect::kHide)) {
-					RemoveAffectFromChar(ch, ESpell::kHide);
-					AFF_FLAGS(ch).unset(EAffect::kHide);
-					SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-					act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
+					RemoveAffectFromChar(ch, EAffect::kHide);
+					MakeVisible(ch, EAffect::kHide);
 				};
 				SendMsgToChar("Атас.. Дружина на конях!\r\n", ch);
 				act("$n пытал$u обокрасть вас!", false, ch, nullptr, vict, kToVict);
@@ -151,10 +150,8 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		if (percent > prob && !success) {
 			ohoh = true;
 			if (AFF_FLAGGED(ch, EAffect::kHide)) {
-				RemoveAffectFromChar(ch, ESpell::kHide);
-				AFF_FLAGS(ch).unset(EAffect::kHide);
-				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
+				RemoveAffectFromChar(ch, EAffect::kHide);
+				MakeVisible(ch, EAffect::kHide);
 			};
 			SendMsgToChar("Вы влипли... Вас посодют... А вы не воруйте..\r\n", ch);
 			act("Вы обнаружили руку $n1 в своем кармане.", false, ch, nullptr, vict, kToVict);

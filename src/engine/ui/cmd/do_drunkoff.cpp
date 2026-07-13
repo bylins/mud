@@ -9,6 +9,7 @@
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/condition.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/mechanics/liquid.h"
@@ -122,27 +123,23 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (percent > prob) {
 		sprintf(buf, "Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
-		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", false, ch, 0, 0, kToRoom);
 		duration = std::max(1, amount / 3);
 		Affect<EApply> af[3];
-		af[0].type = ESpell::kAbstinent;
 		af[0].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[0].modifier = 0;
 		af[0].location = EApply::kDamroll;
 		af[0].affect_type = EAffect::kAbstinent;
-		af[0].battleflag = 0;
-		af[1].type = ESpell::kAbstinent;
+		af[0].battleflag = kAfCurable;
 		af[1].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = EApply::kHitroll;
 		af[1].affect_type = EAffect::kAbstinent;
-		af[1].battleflag = 0;
-		af[2].type = ESpell::kAbstinent;
+		af[1].battleflag = kAfCurable;
 		af[2].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = EApply::kAc;
 		af[2].affect_type = EAffect::kAbstinent;
-		af[2].battleflag = 0;
+		af[2].battleflag = kAfCurable;
 		switch (number(0, GetSkill(ch, ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;
@@ -160,12 +157,13 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ImposeAffect(ch, af[prob], true, false, true, false);
 		}
 		gain_condition(ch, condition::kDrunk, amount);
+		EmitAffectImpose(ch, nullptr, EAffect::kAbstinent, false);
 	} else {
 		sprintf(buf, "Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
 				drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
 		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, nullptr, nullptr, kToRoom);
-		RemoveAffectFromCharAndRecalculate(ch, ESpell::kAbstinent);
+		RemoveAffectFromCharAndRecalculate(ch, EAffect::kAbstinent);
 	}
 }
 

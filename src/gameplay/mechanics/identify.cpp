@@ -4,10 +4,12 @@
 */
 
 #include "gameplay/mechanics/identify.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/magic/spells.h"
+#include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/liquid.h"
@@ -20,6 +22,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/initiative.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/core/remort.h"
@@ -75,14 +78,36 @@ static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
 	long int li;
 	(void) i; (void) j; (void) li;  // some branches do not touch all of them
 switch (obj->get_type()) {
-	case EObjType::kScroll:
-	case EObjType::kPotion: {
+	case EObjType::kScroll: {
 		std::ostringstream out;
 		out << "Содержит заклинание:";
 		for (auto val = 1; val < 4; ++val) {
 			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
 			if (MUD::Spell(spell_id).IsValid()) {
 				out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
+			}
+		}
+		if (out.str().back() == ',') {
+			out.seekp(-1, out.end);
+		}
+		out << "\r\n";
+		SendMsgToChar(out.str(), ch);
+		break;
+	}
+	// issue.potion-hotfix: a potion reads its spells from the ObjVal keys and shows its maker-derived
+	// POTENCY (Сила), never a per-spell level -- the drinker's own skill/stats are irrelevant.
+	case EObjType::kPotion: {
+		std::ostringstream out;
+		out << "Содержит заклинание:";
+		const ObjVal::EValueKey spell_keys[3] = {
+			ObjVal::EValueKey::kPotionSpell1Num,
+			ObjVal::EValueKey::kPotionSpell2Num,
+			ObjVal::EValueKey::kPotionSpell3Num};
+		for (const auto key : spell_keys) {
+			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
+			if (MUD::Spell(spell_id).IsValid()) {
+				const int potency = static_cast<int>(PotionPotency(obj, spell_id) + 0.5f);
+				out << " Сила [" << potency << "] " << MUD::Spell(spell_id).GetName() << ",";
 			}
 		}
 		if (out.str().back() == ',') {
@@ -522,12 +547,12 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 				-CalcSaving(victim, victim, ESaving::kReflex, false));
 	}
 	if (skill > 249) {
-		// Разделитель ", " (не " "!): имена аффектов сами содержат пробелы
-		// ("воздушный щит"), и при " " их рвал бы OutWordsList по пробелам.
-		// Split по запятой собирает их обратно целиком (имена с пробелами сохраняются).
-		victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
-		std::vector<std::string> aff_list = utils::Split(buf2, ',');
-		// "Аффекты: " префиксом: учитывается в ширине строки, но без лишней запятой после метки.
+		// issue.affect-migration: affect short names come from affects::DescribeActive (the affected_bits[]
+		// projection was removed). Join with "," then Split back into a list so master's OutWordsList wraps
+		// to line width WITHOUT splitting multi-word names ("воздушный щит") -- the separator is a comma,
+		// which never appears inside an affect name (the names contain spaces, not commas).
+		std::vector<std::string> aff_list =
+				utils::Split(affects::DescribeActive(victim->char_specials.saved.affected_by, ","), ',');
 		ss << fmt::format("&G{}&n\r\n",
 				utils::OutWordsList(aff_list, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
 	}
@@ -629,7 +654,7 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 
 	SendMsgToChar("Аффекты :\r\n", ch);
 	SendMsgToChar(kColorBoldCyn, ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), "\r\n", privilege::IsImmortal(ch) ? 4 : 0);
+	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(victim->char_specials.saved.affected_by, "\r\n").c_str());
 	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);

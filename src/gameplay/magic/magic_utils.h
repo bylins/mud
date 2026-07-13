@@ -1,6 +1,8 @@
 #ifndef SPELL_PARSER_HPP_
 #define SPELL_PARSER_HPP_
 
+#include <limits>
+
 #include "gameplay/abilities/feats.h"
 #include "engine/entities/entities_constants.h"
 #include "spells.h"
@@ -8,6 +10,8 @@
 #include "gameplay/abilities/talents_actions.h"
 
 #include "magic.h"  // RollResult -- used by CalcCastPotency / ComputeApplyModifier
+#include <cmath>
+#include <algorithm>
 
 class CharData;
 struct RoomData;
@@ -33,7 +37,8 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name);
 
 ESpell FindSpellIdWithName(const std::string &name);
 
-int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);
+int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
+		int *dir = nullptr);  // issue.room-affect-trigger-improve: kTarDirection -> *dir = parsed direction
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
 
 // True if `caster` bypasses the spell's room-level <blocking> (kNoMagic etc.).
@@ -62,14 +67,36 @@ float CalcCastPotency(const RollResult &potency);
 // Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's
 // first-apply default. cap == 0 disables the clamp; factor is allowed to be
 // negative (debuffs), with the clamp acting on the pre-factor magnitude.
-int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
-						 const RollResult &potency);
+// issue.affects-improve: templated so it serves a spell apply (TalentAffect::Apply) AND an
+// affect-owned apply (affects::AffectApply) -- both carry min/dices_weight/alpha/beta/factor/cap.
+template<class ApplyT>
+int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResult &potency) {
+	const double competencies = competence;
+	// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d), d = the cast's shared noise_dev.
+	double raw = apply.min + std::ceil(
+			apply.beta * competencies * (1.0 + apply.weight * potency.noise_dev));
+	if (apply.cap > 0) {
+		raw = std::min(raw, static_cast<double>(apply.cap));
+	}
+	return static_cast<int>(apply.factor * raw);
+}
 
 // issue.random-noise-rework (P1): multiplicative truncated-normal amount. mean = floor + scaled,
 // std = sigma*scaled, so the coefficient of variation is ~sigma -- CONSTANT as `scaled` (= k*competence)
 // grows, unlike additive dice noise (whose relative spread shrinks). Truncated to [floor, cap]; cap<=0 =
 // no upper bound. Uses the seeded global RNG (GaussIntNumber), so simulator runs stay reproducible.
-int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap);
+int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
+		double fixed_z = std::numeric_limits<double>::quiet_NaN());
+
+// issue.potion-hotfix P3: a potion's casting potency (competence C). The brewed-in kPotionPotency if
+// present (crafted); otherwise the potency a fixed-skill potion-maker would brew, from the potion's
+// FIRST spell. Returns <=0 if the potion has no castable first spell.
+[[nodiscard]] float PotionPotency(const ObjData *potion, ESpell spell_id);
+
+// issue.potion-hotfix: the maker's skill for a potion's buff DURATION (brew skill for crafted, the
+// authored maker skill otherwise). The drinker's own skill never matters.
+[[nodiscard]] int PotionCastSkill(const ObjData *potion);
+[[nodiscard]] int PotionCastStat(const ObjData *potion);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 

@@ -53,6 +53,9 @@ archive/
 # Backup files from patch/sed
 *.orig
 
+# production server data backup (local only)
+/1/
+
 # downloadable dependencies
 subprojects/.wraplock
 subprojects/fmt

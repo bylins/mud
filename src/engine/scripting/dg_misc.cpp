@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "dg_scripts.h"
+#include "gameplay/affects/affect_messages.h"
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
@@ -256,25 +257,26 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	CharData *ch = nullptr;
 	int value = 0, duration = 0, battle = 0;
 	int index = 0, type = 0;
+	EAffect dg_affect_type = EAffect::kUndefined;
 
-	// parse: "dgaffect <target> <property> <spell> <value> <duration> [battlepos]"
+	// issue.affect-migration: the <spell> argument was dropped -- affects carry their own description now,
+	// so an APPLY-type dgaffect falls back to the generic "чары" (kWitchery) identity instead of naming a spell.
+	// parse: "dgaffect <target> <property> <value> <duration> [battlepos]"
 	std::string remains = cmd;
 	std::string junk = utils::ExtractFirstArgument(remains, remains);       // "dgaffect"
 	std::string charname = utils::ExtractFirstArgument(remains, remains);   // target
 	std::string property = utils::ExtractFirstArgument(remains, remains);   // property
-	std::string spell_name = utils::ExtractFirstArgument(remains, remains); // spell
 	std::string value_p = utils::ExtractFirstArgument(remains, remains);    // value
 	std::string duration_p = utils::ExtractFirstArgument(remains, remains); // duration
 	std::string battle_p = remains;                                          // battlepos (optional)
 	utils::Trim(battle_p);
 
 	// make sure all parameters are present
-	if (charname.empty() || property.empty() || spell_name.empty() || value_p.empty() || duration_p.empty()) {
-		trig_log(trig, "dg affect usage: <target> <property> <spell> <value> <duration> *<battleposition>");
+	if (charname.empty() || property.empty() || value_p.empty() || duration_p.empty()) {
+		trig_log(trig, "dg affect usage: <target> <property> <value> <duration> *<battleposition>");
 		return;
 	}
 
-	std::replace(spell_name.begin(), spell_name.end(), '_', ' ');
 	std::replace(property.begin(), property.end(), '_', ' ');
 
 	value = atoi(value_p.c_str());
@@ -289,20 +291,13 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if ((index = search_block(property.c_str(), apply_types, false)) != -1) {
 		type = APPLY_TYPE;
 	} else {
-		if ((index = ext_search_block(property.c_str(), affected_bits, false)) != 0)
+		if (affects::FindByShortDesc(property, dg_affect_type))
 			type = AFFECT_TYPE;
 	}
 
 	if (!type)        // property not found
 	{
 		sprintf(buf2, "dg_affect: unknown property '%s'!", property.c_str());
-		trig_log(trig, buf2);
-		return;
-	}
-
-	auto index_s = FixNameAndFindSpellId(spell_name.data());
-	if (index_s == ESpell::kUndefined) {
-		sprintf(buf2, "dg_affect: unknown spell '%s' ставим 'чары'!", spell_name.c_str());
 		trig_log(trig, buf2);
 		return;
 	}
@@ -318,8 +313,6 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if (duration > 0) {
 		// add the affect
 		Affect<EApply> af;
-		af.type = index_s;
-
 		af.battleflag = battle;
 		if (battle == kAfPulsedec) {
 			af.duration = duration;
@@ -329,16 +322,18 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		if (type == AFFECT_TYPE) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.affect_type = static_cast<EAffect>(index);
+			af.affect_type = dg_affect_type;
 		} else {
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;
-			af.affect_type = EAffect::kUndefined;
+			// APPLY affect -> the generic "чары" identity so it displays + expires sensibly.
+			af.affect_type = EAffect::kWitchery;
 		}
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {
-		// remove affect
-		RemoveAffectFromCharAndRecalculate(ch, index_s);
+		// remove affect -- by the affect identity (kWitchery for APPLY, the property's affect for AFFECT)
+		RemoveAffectFromCharAndRecalculate(ch,
+				type == AFFECT_TYPE ? dg_affect_type : EAffect::kWitchery);
 	}
 }
 

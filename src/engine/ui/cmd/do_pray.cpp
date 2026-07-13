@@ -97,7 +97,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (!privilege::IsImmortal(ch) && (IsTimedBySkill(ch, ESkill::kReligion)
-		|| IsAffectedBySpell(ch, ESpell::kReligion))) {
+		|| IsAffected(ch, EAffect::kPrayerful) || IsAffected(ch, EAffect::kPietas))) {
 		SendMsgToChar("Вы не можете так часто взывать к Богам.\r\n", ch);
 		return;
 	}
@@ -106,10 +106,19 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	timed.time = 12;
 	ImposeTimedSkill(ch, &timed);
 
+	// The "blessed" marker effect checked above (separate from the stat blessings below, which keep
+	// their own affect_type -- e.g. Yarilo grants kInfravision). kPrayerful for prayer, kPietas for sacrifice.
+	Affect<EApply> blessing;
+	blessing.duration = CalcDuration(ch, ch, ESkill::kUndefined, 12, 0, 0, 0);
+	blessing.modifier = 0;
+	blessing.location = EApply::kNone;
+	blessing.affect_type = (subcmd == SCMD_PRAY) ? EAffect::kPrayerful : EAffect::kPietas;
+	blessing.battleflag = 0;
+	ImposeAffect(ch, blessing, false, false, false, false);
+
 	for (const auto &i : pray_affect) {
 		if (i.metter == metter) {
 			Affect<EApply> af;
-			af.type = ESpell::kReligion;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 12, 0, 0, 0);
 			af.modifier = i.modifier;
 			af.location = i.location;

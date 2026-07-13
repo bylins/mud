@@ -14,6 +14,7 @@
 
 #include "gameplay/core/game_limits.h"
 #include "gameplay/core/experience.h"
+#include "gameplay/affects/affect_data.h"   // issue.mob-flag-affect-materialization: restore re-materialize
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
@@ -118,7 +119,7 @@ void handle_recall_spells(CharData *ch) {
 	Affect<EApply>::shared_ptr aff;
 
 	for (const auto &af : ch->affected) {
-		if (af->type == ESpell::kRecallSpells) {
+		if (af->affect_type == EAffect::kMemorizeSpells) {
 			aff = af;
 			break;
 		}
@@ -730,7 +731,7 @@ void beat_points_update(int pulse) {
 
 		if (AFF_FLAGGED(d->character.get(), EAffect::kBandage)) {
 			for (const auto &aff : d->character->affected) {
-				if (aff->type == ESpell::kBandage) {
+				if (aff->affect_type == EAffect::kBandage) {
 					restore += std::min(d->character.get()->get_real_max_hit() / 10, aff->modifier);
 					break;
 				}
@@ -738,7 +739,8 @@ void beat_points_update(int pulse) {
 		}
 		if (AFF_FLAGGED(d->character.get(), EAffect::kFrenzy)) {
 			for (const auto &aff : d->character->affected) {
-				if (aff->type == ESpell::kFrenzy && aff->location == EApply::kHpRegen) {
+				// issue.affect-migration: identify the frenzy affect by its EAffect, not the casting spell.
+				if (aff->affect_type == EAffect::kFrenzy && aff->location == EApply::kHpRegen) {
 					restore += aff->modifier;
 					break;
 				}
@@ -939,7 +941,7 @@ void check_idling(CharData *ch) {
 				PlaceCharToRoom(ch, kStrangeRoom);
 				d_move = tmr.delta().count();
 				tmr.restart();
-				room_spells::RemoveSingleAffectFromWorld(ch, ESpell::kRuneLabel);
+				room_spells::RemoveSingleAffectFromWorld(ch, room_spells::ERoomAffect::kRuneLabel);
 				d_aff = tmr.delta().count();
 				log("idle-void %s: save_char=%.4f crashsave=%.4f move=%.4f rune_aff=%.4f",
 					GET_NAME(ch), d_save, d_crash, d_move, d_aff);
@@ -1424,7 +1426,11 @@ void point_update() {
 	  	}
 
 		if (i->IsNpc()) {
-			i->inc_restore_timer(kSecsPerMudHour);
+			// issue.mob-flag-affect-materialization: on the tick the out-of-combat restore fires,
+			// re-materialize any intrinsic buffs a player dispelled during the fight.
+			if (i->inc_restore_timer(kSecsPerMudHour)) {
+				MaterializeMobFlagAffects(i);
+			}
 		}
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */

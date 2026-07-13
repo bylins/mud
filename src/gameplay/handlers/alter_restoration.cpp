@@ -12,7 +12,7 @@
 
 namespace handlers {
 
-EStageResult AlterRestoration(CastContext &ctx) {
+EStageResult AlterRestoration(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (obj->has_flag(EObjFlag::kMagic) && (obj->get_rnum() != kNothing)) {
 		if (obj_proto.at(obj->get_rnum())->has_flag(EObjFlag::kMagic)) {

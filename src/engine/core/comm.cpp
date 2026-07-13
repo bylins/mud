@@ -194,6 +194,8 @@ extern const char* build_datetime;
 extern const char* revision;
 extern const char* build_compiler;
 extern const char* build_features;
+extern const char* engine_name;
+extern const char* engine_version;
 
 // flags for show_list_to_char
 
@@ -381,6 +383,7 @@ extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
 extern bool enable_world_checksum;
+extern const char *g_force_world_source;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -697,6 +700,19 @@ int main_function(int argc, char **argv) {
 		enable_world_checksum = true;
 		puts("World checksum calculation enabled.");
 				break;
+			case 'F':
+				if (*(argv[pos] + 2))
+					g_force_world_source = argv[pos] + 2;
+				else if (++pos < argc)
+					g_force_world_source = argv[pos];
+				else {
+					puts("SYSERR: Source kind arg expected after option -F (e.g. sqlite).");
+					exit(1);
+				}
+				printf("Forcing world source '%s' for this boot -- every other configured\n"
+					   "source will be unconditionally rebuilt from it (not a freshness cache).\n",
+					   g_force_world_source);
+				break;
 			case 'd':
 				if (*(argv[pos] + 2))
 					dir = argv[pos] + 2;
@@ -719,7 +735,12 @@ int main_function(int argc, char **argv) {
 					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
 					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
 					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
-					   "                 (default = compile-time backend).\n", argv[0]);
+					   "                 (default = compile-time backend).\n"
+					   "  -F <kind>     Force this boot to read from world source <kind> (e.g.\n"
+					   "                 sqlite) unconditionally, ignoring per-zone freshness, and\n"
+					   "                 rebuild every other configured source from it. Requires a\n"
+					   "                 composite <world_loader> with 2+ sources. Combine with -c\n"
+					   "                 to rebuild and exit without serving.\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -733,7 +754,12 @@ int main_function(int argc, char **argv) {
 					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
 					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
 					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
-					   "                 (default = compile-time backend).\n", argv[0]);
+					   "                 (default = compile-time backend).\n"
+					   "  -F <kind>     Force this boot to read from world source <kind> (e.g.\n"
+					   "                 sqlite) unconditionally, ignoring per-zone freshness, and\n"
+					   "                 rebuild every other configured source from it. Requires a\n"
+					   "                 composite <world_loader> with 2+ sources. Combine with -c\n"
+					   "                 to rebuild and exit without serving.\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -777,7 +803,8 @@ int main_function(int argc, char **argv) {
 		exit(1);
 	}
 	LogBuildInfo();
-	printf("[%s] Code version %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n", utils::NowTs().c_str(), build_datetime, revision, build_compiler, build_features);
+	printf("[%s] %s %s, build from %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n",
+		utils::NowTs().c_str(), engine_name, engine_version, build_datetime, revision, build_compiler, build_features);
 	if (save_target) {
 		GameLoader::BootWorld();
 		// target_dir is interpreted relative to the world data directory

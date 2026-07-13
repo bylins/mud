@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.affect-migration: room-affect messages, keyed by room_spells::ERoomAffect (one <msg_sheaf
+    id="<ERoomAffect>"> per room affect), parallel to cfg/messages/ru/affect_msg.xml for char affects.
+    Slots are room-only (see room_affect_messages.h: ERoomAffectMsgType): caster ("...ToChar"),
+    onlookers ("...ToRoom"), and the room-aura listing variants (kRoomAffect*). The shared kDefault
+    sheaf (ERoomAffect::kUndefined) holds generic fallbacks.
+
+    Phase 3a: the 8 CastRoomAffect spells. Text moved verbatim from spell_msg.xml (same $n=caster
+    perspective; the spell-system expiry "ToChar" line, which is sent to the whole room, becomes
+    kAffExpiredToRoom here). Phase 3b added the portals (kPortalTimer two-way + kNoPortalExit one-way; pentagram aura +
+    expiry). The one-way side shows no aura on look (skipped in show_room_affects) but still
+    narrates its expiry, so it carries only kAffExpiredToRoom.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kAffDispelledToChar" val="Ваша магия была развеяна."/>
+		<message type="kAffInterruptedToChar" val="Вы прервали прежние чары."/>
+	</msg_sheaf>
+	<msg_sheaf id="kForbidden">
+		<message type="kRoomAffectInvisible" val="&amp;c... магическая печать закрывает все входы ...&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n запечатал$g магией все входы."/>
+		<message type="kAffImposedToChar" val="Вы запечатали магией все входы."/>
+		<message type="kAffExpiredToRoom" val="Магия, запечатывающая входы, пропала."/>
+		<message type="kAffDispelledToChar" val="Вы развеяли магию, запечатывающую входы."/>
+		<message type="kAffDispelledToRoom" val="$n развеял$g магию, запечатывающую входы."/>
+		<message type="kTriggerOnEntryToChar" val="Незримая магическая преграда не пускает вас внутрь."/>
+		<message type="kTriggerOnEntryToRoom" val="Незримая магическая преграда не пускает $n3 внутрь."/>
+	</msg_sheaf>
+	<msg_sheaf id="kMeteorStorm">
+		<message type="kRoomAffectVisible" val="&amp;R... раскаленные громовые камни рушатся на землю!&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n воздел$g руки и с небес посыпался град раскаленных громовых камней."/>
+		<message type="kAffImposedToChar" val="Повинуясь вашей воле, несшиеся в неизмеримой дали громовые камни обрушились на землю."/>
+		<message type="kAffExpiredToRoom" val="Последний громовой камень грянул в землю и все стихло."/>
+		<message type="kTickMsgOne" val="Раскаленные громовые камни рушатся с небес!"/>
+	</msg_sheaf>
+	<msg_sheaf id="kRoomLight">
+		<message type="kRoomAffectVisible" val="&amp;W... земля освещена колдовством ...&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n вызвал$g разлившееся в воздухе свечение."/>
+		<message type="kAffImposedToChar" val="Вы прищелкнули пальцами и в воздухе разлился свет."/>
+		<message type="kAffExpiredToRoom" val="Колдовской свет угас."/>
+	</msg_sheaf>
+	<msg_sheaf id="kDeadlyFog">
+		<message type="kRoomAffectVisible" val="&amp;B... все окутано туманом &amp;Kсмерти&amp;B ...&amp;n"/>
+		<message type="kRoomAffectInvisible" val="&amp;B... туман &amp;Kсмерти&amp;B плывет над вами  ...&amp;n"/>
+		<message type="kAffImposedToRoom" val="Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном."/>
+		<message type="kAffImposedToChar" val="Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном."/>
+		<message type="kAffExpiredToRoom" val="Порыв ветра развеял туман смерти."/>
+		<message type="kTickMsgOne" val="Повинуясь вашему желанию отравить всех, туман начал густеть..."/>
+		<message type="kTickMsgTwo" val="Вы осознали, что хотите вызвать ужасные мучения у врагов..."/>
+		<message type="kTickMsgThree" val="Что может быть лучше, чем слабый враг?!"/>
+		<message type="kTickMsgFour" val="Вам захотелось лишить всех глаз!"/>
+		<message type="kTickMsgFive" val="Сильно навредить врагам?!"/>
+		<message type="kTickMsgSix" val="Вам невтерпеж испить жизненной силы врагов!"/>
+		<message type="kTickMsgSeven" val="Вы осознали что кислоты мало не бывает!"/>
+		<message type="kTickMsgEight" val="Вы решили проклясть всех напоследок!"/>
+	</msg_sheaf>
+	<msg_sheaf id="kThunderstorm">
+		<message type="kRoomAffectVisible" val="&amp;W... чудовищная буря кружится над вашей головой ...&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n проревел$g заклинание. Вы услышали раскаты далекой грозы."/>
+		<message type="kAffImposedToChar" val="Вы ощутили в небесах силу бури и призвали ее к себе."/>
+		<message type="kAffExpiredToRoom" val="Ветер прогнал грозовые тучи."/>
+	</msg_sheaf>
+	<msg_sheaf id="kRuneLabel">
+		<message type="kRoomAffectInvisible" val="&amp;G... светящиеся руны на земле складываются в чьё-то имя ...&amp;n"/>
+		<message type="kRoomAffectSelfInvisible" val="&amp;G... светящиеся руны на земле складываются в Ваше имя ...&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n начертил$g на земле несколько рун и произнес$q заклинание."/>
+		<message type="kAffImposedToChar" val="Вы начертали свое имя рунами на земле и произнесли заклинание."/>
+		<message type="kAffExpiredToRoom" val="Магические письмена на земле угасли."/>
+		<message type="kAffDispelledToChar" val="Ваша рунная метка удалена."/>
+	</msg_sheaf>
+	<msg_sheaf id="kHypnoticPattern">
+		<message type="kRoomAffectVisible" val="&amp;Y... чарующий огненный узор плывет в воздухе ...&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор."/>
+		<message type="kAffImposedToChar" val="Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор."/>
+		<message type="kAffExpiredToRoom" val="Плывший в воздухе огненный узор потускнел и растаял струйками дыма."/>
+		<message type="kTriggerOnEntryToChar" val="Вы уставились на огненный узор, как баран на новые ворота."/>
+		<message type="kTriggerOnEntryToRoom" val="$n0 уставил$u на огненный узор, как баран на новые ворота."/>
+	</msg_sheaf>
+	<msg_sheaf id="kBlackTentacles">
+		<message type="kRoomAffectVisible" val="&amp;K... множество черных сухих рук высовывается из земли и шарит в воздухе!&amp;n"/>
+		<message type="kAffImposedToRoom" val="$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g. Из земли полезли скрюченные мертвые руки."/>
+		<message type="kAffImposedToChar" val="Вы выкрикнули несколько мерзко звучащих слов и притопнули. Из земли полезли скрюченные мертвые руки."/>
+		<message type="kAffExpiredToRoom" val="Жуткие черные руки побледнели и расплылись зловонной дымкой."/>
+		<message type="kTickMsgOne" val="Мертвые руки навей шарят в поисках добычи!"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPortalTimer">
+		<message type="kRoomAffectVisible" val="&amp;BЛазурная пентаграмма ярко сверкает здесь.&amp;n"/>
+		<message type="kRoomAffectPkVisible" val="&amp;BЛазурная пентаграмма &amp;Rс кровавым отблеском&amp;B ярко сверкает здесь.&amp;n"/>
+		<message type="kAffExpiredToRoom" val="Пентаграмма медленно растаяла."/>
+	</msg_sheaf>
+	<msg_sheaf id="kNoPortalExit">
+		<message type="kAffExpiredToRoom" val="Пентаграмма медленно растаяла."/>
+	</msg_sheaf>
+	<msg_sheaf id="kFireTrap">
+		<message type="kAffImposedToChar" val="Вы заколдовали проход огненной ловушкой."/>
+		<message type="kAffImposedToRoom" val="$n заколдовал$g проход огненной ловушкой."/>
+		<message type="kAffExpiredToRoom" val="Огненная ловушка на проходе погасла."/>
+		<message type="kAffDispelledToChar" val="Вы развеяли огненную ловушку, наложенную на проход."/>
+		<message type="kAffDispelledToRoom" val="$n0 развеял$g огненную ловушку, наложенную на проход."/>
+		<message type="kTriggerOnEntryToChar" val="Шагнув через проход, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnEntryToRoom" val="$n0 задел$g огненную ловушку, шагнув через проход!"/>
+		<message type="kTriggerOnOpenToChar" val="Открывая дверь, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnOpenToRoom" val="$n0 задел$g огненную ловушку, открывая дверь!"/>
+		<message type="kTriggerOnPickToChar" val="Вскрывая замок, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnPickToRoom" val="$n0 задел$g огненную ловушку, вскрывая замок!"/>
+		<message type="kTriggerOnUnlockToChar" val="Отпирая замок, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnUnlockToRoom" val="$n0 задел$g огненную ловушку, отпирая замок!"/>
+		<message type="kTriggerOnCloseToChar" val="Закрывая дверь, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnCloseToRoom" val="$n0 задел$g огненную ловушку, закрывая дверь!"/>
+		<message type="kTriggerOnLockToChar" val="Запирая замок, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnLockToRoom" val="$n0 задел$g огненную ловушку, запирая замок!"/>
+		<message type="kTriggerNoEffect" val="Яркая вспышка на мгновение озарила комнату и тут же погасла."/>
+		<message type="kRoomAffectInvisible" val="Проход тускло мерцает багровым - кто-то заговорил его огненной ловушкой."/>
+		<message type="kRoomAffectSelfInvisible" val="Ваша огненная ловушка тускло мерцает на проходе багровым светом."/>
+	</msg_sheaf>
+</msg_container>

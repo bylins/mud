@@ -21,6 +21,9 @@
 #include "poison.h"
 
 #include <cmath>
+#include <limits>
+
+#include "gameplay/magic/magic_utils.h"
 
 
 const char *drinks[] = {"воды",
@@ -183,28 +186,34 @@ namespace drinkcon {
 
 ObjVal::EValueKey init_spell_num(int num) {
 	return num == 1
-		   ? ObjVal::EValueKey::POTION_SPELL1_NUM
+		   ? ObjVal::EValueKey::kPotionSpell1Num
 		   : (num == 2
-			  ? ObjVal::EValueKey::POTION_SPELL2_NUM
-			  : ObjVal::EValueKey::POTION_SPELL3_NUM);
+			  ? ObjVal::EValueKey::kPotionSpell2Num
+			  : ObjVal::EValueKey::kPotionSpell3Num);
 }
 
 ObjVal::EValueKey init_spell_lvl(int num) {
 	return num == 1
-		   ? ObjVal::EValueKey::POTION_SPELL1_LVL
+		   ? ObjVal::EValueKey::kPotionSpell1Lvl
 		   : (num == 2
-			  ? ObjVal::EValueKey::POTION_SPELL2_LVL
-			  : ObjVal::EValueKey::POTION_SPELL3_LVL);
+			  ? ObjVal::EValueKey::kPotionSpell2Lvl
+			  : ObjVal::EValueKey::kPotionSpell3Lvl);
 }
 
 void reset_potion_values(CObjectPrototype *obj) {
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_LVL, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_NUM, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL2_LVL, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_LVL, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Lvl, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Lvl, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Lvl, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, -1);
 }
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
@@ -229,7 +238,17 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 	}
 
 	if (copied) {
-		to_obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, GET_OBJ_VNUM(from_obj));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, GET_OBJ_VNUM(from_obj));
+		// issue.potion-hotfix: the brewed-in strength is one per potion (not per spell), so carry the
+		// potency + frozen noise roll once, letting a poured container cast exactly like the source.
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat));
 	}
 }
 
@@ -242,26 +261,26 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	if (spell_id <= ESpell::kUndefined) {
 		return ECastResult::kSuccess;
 	}
-	// issue.potion-potency: the 3rd spell slot (val3 -> POTION_SPELL3_NUM) now carries the brewed-in
-	// fixed potency, not a third spell. If present (>0), cast with that potency instead of the legacy
-	// negative-level item hack -- a potion's strength is brewed in, not taken from the drinker's stats.
-	const int potency = obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM);
-	if (potency > 0) {
-		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, static_cast<float>(potency));
-	}
-	// legacy potion without a brewed potency: keep the old level-based item-cast path
-	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
-	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
+	// issue.potion-hotfix P3: strength is brewed in, not taken from the drinker -- the crafted
+	// kPotionPotency, or (non-crafted) the value a fixed-skill potion-maker would brew (PotionPotency).
+	// kPotionBrewRoll is the frozen brew-luck z replayed by CalcNoisyAmount; absent (non-crafted) ->
+	// NaN -> drawn at cast. One potency + roll for the whole potion.
+	const float potency = PotionPotency(obj, spell_id);
+	const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
+	const double noise_z = (brew_roll > 0)
+		? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
+		: std::numeric_limits<double>::quiet_NaN();
+	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, potency, noise_z, PotionCastSkill(obj));
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
-	if (is_potion(jar) && jar->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
+	if (is_potion(jar) && jar->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) >= 0) {
 		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, kToRoom);
 		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, grammar::ECase::kGen));
 
 		//не очень понятно, но так было
-		// slots 1-2 are spells; slot 3 (val3) now holds the brewed potency (issue.potion-potency)
-		for (int i = 1; i <= 2; ++i)
+		// issue.potion-hotfix: all three slots are spells again (potency/roll live in their own keys)
+		for (int i = 1; i <= 3; ++i)
 			if (cast_potion_spell(ch, jar, i) != ECastResult::kSuccess)
 				break;
 
@@ -384,8 +403,8 @@ int check_potion_spell(ObjData *from_obj, ObjData *to_obj, int num) {
 ///        -1 - попытка перелить зелье с меньшим уровнем закла
 int drinkcon::check_equal_potions(ObjData *from_obj, ObjData *to_obj) {
 	// емкость с уже перелитым ранее зельем
-	if (to_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-		&& GET_OBJ_VNUM(from_obj) != to_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM)) {
+	if (to_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) > 0
+		&& GET_OBJ_VNUM(from_obj) != to_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum)) {
 		return 0;
 	}
 	// совпадение заклов и не меньшего уровня
@@ -444,10 +463,75 @@ void drinkcon::spells_to_drinkcon(ObjData *from_obj, ObjData *to_obj) {
 		to_obj->SetPotionValueKey(level, from_obj->GetPotionValueKey(level));
 	}
 	// сохранение инфы о первоначальном источнике зелья
-	const int proto_vnum = from_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0
-						   ? from_obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM)
+	const int proto_vnum = from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) > 0
+						   ? from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum)
 						   : GET_OBJ_VNUM(from_obj);
-	to_obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, proto_vnum);
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, proto_vnum);
+	// issue.potion-hotfix: carry the FULL brewed stats, not just the spells + proto vnum. A brewed
+	// potion's strength is its maker skill/stat (+ the frozen roll); the vnum alone can't recover it.
+	for (const auto key : {ObjVal::EValueKey::kPotionSkill, ObjVal::EValueKey::kPotionStat,
+						   ObjVal::EValueKey::kPotionPotency, ObjVal::EValueKey::kPotionBrewRoll}) {
+		to_obj->SetPotionValueKey(key, from_obj->GetPotionValueKey(key));
+	}
+}
+
+// issue.potion-hotfix: pouring one potion (n_from units) into another (n_to units) blends the two
+// makers' inputs by quantity -- e.g. 18 units at skill 100 mixed with 2 at skill 80 gives
+// (18*100 + 2*80)/20 = 98; the key stat blends the same way, and the re-derived potency follows.
+// The spells must already match (the caller checks). Uses each side's EFFECTIVE value so an authored
+// potion (no stored skill/stat) contributes its authored maker (80/25), not zero.
+void drinkcon::mix_potion_values(ObjData *to_obj, const ObjData *from_obj, int n_to, int n_from) {
+	if (n_to + n_from <= 0) {
+		return;
+	}
+	const int skill = (n_to * PotionCastSkill(to_obj) + n_from * PotionCastSkill(from_obj)) / (n_to + n_from);
+	const int stat  = (n_to * PotionCastStat(to_obj)  + n_from * PotionCastStat(from_obj))  / (n_to + n_from);
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, std::max(1, skill));
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, std::max(1, stat));
+}
+
+int drinkcon::age_contents(ObjData *obj) {
+	if (!obj) {
+		return 0;
+	}
+	const auto type = obj->get_type();
+	if (type != EObjType::kLiquidContainer && type != EObjType::kFood) {
+		return 0;
+	}
+	int timer = obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer);
+	if (timer <= 0) {
+		return 0;    // 0 / unset -> no freshness clock (never spoils, or already spoiled)
+	}
+	timer -= 1;
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, timer);
+	if (timer == 0) {
+		spoil_potion(obj);
+	}
+	return timer;
+}
+
+void drinkcon::spoil_potion(ObjData *obj) {
+	if (!obj) {
+		return;
+	}
+	// Poison level = a fixed percentage of the power the potion has RIGHT NOW (before it is weakened),
+	// read from its primary spell's potency. Compute it first, then halve the power inputs so the next
+	// spoilage cycle leaves an even weaker -- eventually inert -- potion.
+	const auto spell = static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num));
+	float power = 0.0f;
+	if (spell > ESpell::kUndefined) {
+		power = PotionPotency(obj, spell);
+	}
+	int poison = 0;
+	if (power > 0.0f) {
+		poison = std::max(1, static_cast<int>(std::lround(power * kSpoiledPoisonPercent / 100.0)));
+	}
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, poison);
+
+	// Halve the effective maker skill/stat and store them EXPLICITLY. PotionCastSkill/Stat fall back to
+	// the authored default only when the key is ABSENT, so once stored a value keeps halving toward 0.
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, PotionCastSkill(obj) / 2);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,  PotionCastStat(obj)  / 2);
 }
 
 size_t find_liquid_name(const char *name) {
@@ -567,13 +651,13 @@ void identify(CharData *ch, const ObjData *obj) {
 	// емкость не пуста
 	if (amount > 0) {
 		// есть какие-то заклы
-		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
+		if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum) >= 0) {
 			if (privilege::IsImmortal(ch)) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
 						 grammar::GetDeclensionInNumber(amount, grammar::EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)],
-						 obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM));
+						 obj->GetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum));
 			} else {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
 						 amount,
@@ -614,7 +698,8 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 			return buf1;
 		}
 		else {
-			const char *msg = AFF_FLAGGED(ch, EAffect::kDetectPoison) && obj->get_val(3) == 1 ? " *отравленной*" : "";
+			const char *msg = AFF_FLAGGED(ch, EAffect::kDetectPoison)
+				&& obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison) > 0 ? " *отравленной*" : "";
 			int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 			sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
 			snprintf(buf1, kMaxStringLength,
@@ -625,12 +710,12 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 }
 
 const char *diag_liquid_timer(const ObjData *obj) {
-	int tm;
-	if (GET_OBJ_VAL(obj, 3) == 1)
+	// issue.potion-hotfix: freshness now lives in kLiquidTimer (a countdown), spoilage in kLiquidPoison.
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison) > 0)
 		return "испортилось!";
-	if (GET_OBJ_VAL(obj, 3) == 0)
+	const int tm = obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer);
+	if (tm <= 0)   // 0 / absent -> no spoilage clock running
 		return "идеальное.";
-	tm = (GET_OBJ_VAL(obj, 3));
 	if (tm < 1440) // сутки
 		return "скоро испортится!";
 	else if (tm < 10080) //неделя

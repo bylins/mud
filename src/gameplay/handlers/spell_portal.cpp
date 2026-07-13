@@ -17,7 +17,7 @@
 
 namespace handlers {
 
-EStageResult SpellPortal(CastContext &ctx) {
+EStageResult SpellPortal(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum fnd_room;
@@ -69,10 +69,10 @@ EStageResult SpellPortal(CastContext &ctx) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);
 		}
-		if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
+		if (room_spells::RoomHasPortal(world[ch->in_room])) {
 			bool remove = false;
 			for (const auto &aff : world[ch->in_room]->affected) {
-				if (aff->type == ESpell::kPortalTimer ) {
+				if (room_spells::IsPortalAffect(aff->affect_type)) {
 					if (aff->caster_id == ch->get_uid() && aff->modifier == fnd_room) {
 						remove = true;
 						break;

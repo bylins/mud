@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-EStageResult AlterFly(CastContext &ctx) {
+EStageResult AlterFly(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	obj->add_timed_spell(ESpell::kFly, -1);
 	obj->set_extra_flag(EObjFlag::kFlying);

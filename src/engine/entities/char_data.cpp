@@ -178,14 +178,17 @@ bool CharData::has_any_affect(const affects_list_t &affects) {
 }
 
 size_t CharData::remove_random_affects(const size_t count) {
-	auto last_type{ESpell::kUndefined};
+	// issue.affect-migration: dedup adjacent same-affect slots by IDENTITY (affect_type), not by the
+	// casting spell -- migrated affects share Affect::type == kUndefined, so keying on type collapsed
+	// them all into one "type" and listed only a single one as removable.
+	Affect<EApply>::shared_ptr last_pushed;
 	std::deque<char_affects_list_t::iterator> removable_affects;
 	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i) {
 		const auto &affect = *affect_i;
 
-		if (affect->type != last_type && affect->removable()) {
+		if ((!last_pushed || !SameAffectIdentity(affect, last_pushed)) && affect->removable()) {
 			removable_affects.push_back(affect_i);
-			last_type = affect->type;
+			last_pushed = affect;
 		}
 	}
 
@@ -1095,9 +1098,11 @@ const CharData::role_t &CharData::get_role_bits() const {
 	return role_;
 }
 
-// отмечает, что босса атаковал игрок: взводит флаг пост-боевого таймера рефреша
+// отмечает, что непися атаковал игрок: взводит флаг пост-боевого таймера рефреша
+// issue.mob-flag-affect-materialization: now marks ANY NPC a player engages (was: bosses only), so the
+// out-of-combat restore can re-materialize buffs the player dispelled during the fight.
 void CharData::mark_attacked(CharData *attacker) {
-	if (!this->IsNpc() || attacker->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+	if (!this->IsNpc() || attacker->IsNpc()) {
 		return;
 	}
 	was_attacked_ = true;
@@ -1213,13 +1218,19 @@ void CharData::set_wait(const unsigned _) {
 // инкремент и проверка таймера на рестор босса,
 // который находится вне боя и до этого был кем-то бит
 // (т.к. имеет не нулевой список атакеров)
-void CharData::inc_restore_timer(int num) {
-	if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && was_attacked_ && !GetEnemy()) {
-		restore_timer_ += num;
-		if (restore_timer_ > num) {
-			restore_mob();
-		}
+bool CharData::inc_restore_timer(int num) {
+	if (!was_attacked_ || GetEnemy()) {   // only NPCs a player fought (mark_attacked), now out of combat
+		return false;
 	}
+	restore_timer_ += num;
+	if (restore_timer_ <= num) {
+		return false;   // out of combat, but not long enough yet (fires on the 2nd tick, as before)
+	}
+	// Long enough out of combat: full stat/HP/moves/spell restore for EVERY mob (was: bosses only).
+	// restore_mob() resets restore_timer_ + was_attacked_. The caller then re-materializes any dispelled
+	// intrinsic buffs (see game_limits).
+	restore_mob();
+	return true;
 }
 
 obj_sets::activ_sum &CharData::obj_bonus() {

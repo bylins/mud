@@ -35,6 +35,9 @@ class ObjDecayManager {
 	void remove_env_check(ObjData *obj);
 	void add_timed_spell_obj(ObjData *obj);
 	void remove_timed_spell_obj(ObjData *obj);
+	// issue.potion-hotfix: track a food/liquid container so its CONTENTS freshness (val[3]) spoils each
+	// tick -- independent of the item's own decay timer, timed spells, or whether it is carried.
+	void register_perishable(ObjData *obj);
 	TickResult process_tick();
 	uint64_t current_mud_hour() const { return m_counter; }
 	size_t size() const { return m_obj_to_deadline.size(); }
@@ -54,6 +57,7 @@ class ObjDecayManager {
 	std::unordered_map<ObjData *, uint64_t> m_obj_to_deadline;
 	std::unordered_set<ObjData *> m_env_check_objs;
 	std::unordered_set<ObjData *> m_timed_spell_objs;
+	std::unordered_set<ObjData *> m_perishable_objs;  // food/liquid with a decaying val[3] freshness
 	std::unordered_set<ObjData *> m_zonedecay_objs;
 };
 

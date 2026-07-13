@@ -911,7 +911,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		}
 	}
 
-	ch->char_specials.saved.affected_by = clear_flags;
+	ch->char_specials.saved.affected_by.clear();
 	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
 		SetSave(ch, save, 0);
 	}

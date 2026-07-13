@@ -9,10 +9,14 @@
 #ifndef BYLINS_SRC_GAMEPLAY_MECHANICS_HIDE_H_
 #define BYLINS_SRC_GAMEPLAY_MECHANICS_HIDE_H_
 
+#include "engine/structs/structs.h"
+
 class CharData;
+enum class EAffect : Bitvector;
 int SkipHiding(CharData *ch, CharData *vict);
 int SkipCamouflage(CharData *ch, CharData *vict);
 int SkipSneaking(CharData *ch, CharData *vict);
+void MakeVisible(CharData *ch, EAffect affect);
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_HIDE_H_
 

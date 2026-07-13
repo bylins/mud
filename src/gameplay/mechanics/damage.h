@@ -14,6 +14,7 @@
 #include "engine/entities/entities_constants.h"
 
 #include <bitset>
+#include <vector>
 
 /**
  * Для входа со скила без инита остальных полей:
@@ -111,23 +112,52 @@ class Damage {
   // нет (урон нанесён сам себе: тик повреждающего аффекта и т.п.). Обычно это caster_id
   // аффекта. 0 - автора нет; равен UID жертвы - урон самому себе, убийство не засчитывается.
   long author_uid{0};
+  // issue.character-affect-triggers: affect-owned damage flavor (set by the affect-trigger runners via
+  // CastDamage/LandOneDamageHit). When any is non-empty it FULLY REPLACES the generic combat hit line
+  // and the char_dam_message severity line in Process. $n = ch, $N = victim.
+  std::string aff_msg_char_;
+  std::string aff_msg_vict_;
+  std::string aff_msg_room_;
 
  private:
   // инит всех полей дефолтными значениями для конструкторов
   // инит msg_num, ch_start_pos, victim_start_pos
   // дергается в начале process, когда все уже заполнено
   void PerformPostInit(CharData *ch, CharData *victim);
-  void SetPostInitShieldFlags(CharData *victim);
+  // issue.damage-change: weighted-random-pick one elemental shield (by AffectShieldWeight) among the
+  // victim's shields; stores its EAffect underlying value in selected_shield_ (-1 = none). A hit passes
+  // through exactly that shield -- its retaliation/reduction actions run, the others are skipped.
+  void SelectMagicShield(CharData *victim);
   // process()
-  bool CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim);
   void CalcArmorDmgAbsorption(CharData *victim);
   bool CalcDmgAbsorption(CharData *ch, CharData *victim);
   void ProcessDeath(CharData *ch, CharData *victim) const;
   void SendCritHitMsg(CharData *ch, CharData *victim);
   void ProcessBlink(CharData *ch, CharData *victim);
+  // issue.damage-change: apply the victim's kWardDamage <damage_change> actions to this in-flight Damage
+  // (data-driven incoming-damage modifiers: scale dam, edit flags), gated by type/element/flags.
+  void ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_stage);
+  // issue.damage-change: scan the victim's kWardDamage <retaliation> actions and append their thorns
+  // contributions to reflect_pool_ (reads the PRE-reduction dam; never mutates it). Skipped for reflected
+  // damage (kMagicReflect) to stop a Process->Process bounce. DealReflectPool deals the pool afterwards.
+  void ApplyRetaliations(CharData *ch, CharData *victim);
+  void DealReflectPool(CharData *ch, CharData *victim);
 
-  // обратный дамаг от огненного щита
-  int fs_damage{0};
+  // issue.damage-change: one accumulated thorns contribution (a <retaliation> that fired). Dealt back to
+  // the attacker as its own Damage after the main pipeline, so the attacker's own defenses transform it.
+  // Attribution is NOT stored here: the reflect is credited to the incoming attack (this->spell_id) at
+  // deal time -- a ward doesn't deal damage of its own; the reflected spell does.
+  struct ReflectHit {
+    int amount{0};
+    fight::DmgType type{fight::kUndefDmg};
+    EElement element{EElement::kUndefined};
+  };
+  std::vector<ReflectHit> reflect_pool_;
+
+  // issue.damage-change: the elemental shield chosen (weighted-random) to handle this hit -- underlying
+  // EAffect value, or -1 if the victim has no shield. Only this shield's actions apply; others skip.
+  int selected_shield_{-1};
+
   // строка для краткого режима щитов, дописывается после ударов и прочего
   // если во flags были соответствующие флаги
   std::string brief_shields_;

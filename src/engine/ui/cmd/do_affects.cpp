@@ -3,12 +3,14 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/affects/affect_data.h"   // issue.affect-migration: SameAffectIdentity dedup by affect_type
 
 std::array<EAffect, 3> hiding = {EAffect::kSneak, EAffect::kHide, EAffect::kDisguise};
 
@@ -31,7 +33,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		aff_copy.unset(j);
 	}
 
-	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
+	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(aff_copy, ", ").c_str());
 	std::vector<std::string> out_str = utils::Split(buf2, ',');
 	// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
 	// склеивается через ", " (иначе после метки была бы лишняя запятая).
@@ -45,12 +47,12 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i) {
 			const auto aff = *affect_i;
 
-			if (aff->type == ESpell::kSolobonus) {
-				continue;
-			}
 
 			*buf2 = '\0';
-			snprintf(sp_name, sizeof(sp_name), "%s", MUD::Spell(aff->type).GetCName());
+			// issue.affect-migration: name the affect by its own identity (affect_type kShortDesc);
+			// fall back to the casting spell's name for affects not yet migrated off Affect::type.
+			snprintf(sp_name, sizeof(sp_name), "%s",
+					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 			int mod = 0;
 			if (aff->battleflag == kAfPulsedec) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
@@ -72,7 +74,10 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				++next_affect_i;
 				if (next_affect_i != ch->affected.end()) {
 					const auto &next_affect = *next_affect_i;
-					if (aff->type == next_affect->type) {
+					// issue.affect-migration: collapse adjacent slots of the SAME affect (one effect
+					// shown once) by identity, not by casting spell -- migrated affects share
+					// Affect::type == kUndefined and must stay distinct here.
+					if (SameAffectIdentity(aff, next_affect)) {
 						continue;
 					}
 				}
@@ -81,14 +86,16 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 				}
-				if (aff->affect_type != EAffect::kUndefined) {
+				// Show the affect's short-desc; an anonymous affect (kDefault/kUndefined) resolves
+				// via the shared kDefault sheaf fallback to "странное ощущение".
+				if (!affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).empty()) {
 					if (*buf2) {
 						strncat(buf, ", устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					} else {
 						strncat(buf, "устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					}
 					strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
-					sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
+					snprintf(buf2, sizeof(buf2), "%s", affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}
@@ -105,38 +112,6 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [p: %.1f]", aff->potency);
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
-		}
-// отображение наград
-		for (const auto &aff : ch->affected) {
-			if (aff->type == ESpell::kSolobonus) {
-				int mod;
-				if (aff->battleflag == kAfPulsedec) {
-					mod = aff->duration / 51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты
-				} else {
-					mod = aff->duration;
-				}
-				(mod + 1) / kSecsPerMudHour
-				? sprintf(buf2,
-						  "(%d %s)",
-						  (mod + 1) / kSecsPerMudHour + 1,
-						  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
-				: sprintf(buf2, "(менее часа)");
-				snprintf(buf,
-						 kMaxStringLength,
-						 "Заклинание : %s%-21s %-12s%s ",
-						 kColorBoldCyn,
-						 "награда",
-						 buf2,
-						 kColorNrm);
-				*buf2 = '\0';
-				if (aff->modifier) {
-					sprintf(buf2, "%s%-3d к параметру: %s%s%s", (aff->modifier > 0) ? "+" : "",
-							aff->modifier, kColorBoldRed, apply_types[(int) aff->location], kColorNrm);
-					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
-				}
-				strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-				SendMsgToChar(buf, ch);
-			}
 		}
 	}
 }

@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-EStageResult AlterLight(CastContext &ctx) {
+EStageResult AlterLight(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	obj->add_timed_spell(ESpell::kLight, -1);
 	obj->set_extra_flag(EObjFlag::kGlow);

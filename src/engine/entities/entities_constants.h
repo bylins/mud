@@ -141,12 +141,15 @@ enum EEquipPos : int {
 	kNumEquipPos = 20    // This must be the # of eq positions!!
 };
 
-// Экстра флаги персонажа
-// \TODO Переделать на enum или удалить
-constexpr Bitvector EXTRA_FAILHIDE = 1 << 0;
-constexpr Bitvector EXTRA_FAILSNEAK = 1 << 1;
-constexpr Bitvector EXTRA_FAILCAMOUFLAGE = 1 << 2;
-constexpr Bitvector EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежания повторных записей моба в списки SetsDrop
+// Экстра флаги персонажа (рантайм-флаги, в файл не сохраняются).
+// Хранятся в CharData::Temporary, тип BitsetFlags<ECharExtraFlag>.
+enum class ECharExtraFlag {
+	kFailHide = 0,
+	kFailSneak = 1,
+	kFailCamouflage = 2,
+	kGrpKillCount = 3,    // для избежания повторных записей моба в списки SetsDrop
+	kCount               // число флагов (терминальный счётчик для BitsetFlags)
+};
 
 /*
  * ========================================================================================

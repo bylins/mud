@@ -7,25 +7,28 @@
 #include "affect_contants.h"
 #include "affects_loader.h"
 #include "affect_messages.h"
+#include "utils/utils_string.h"   // str_cmp (Vedun CanonicalElementId)
+#include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
 
 #include "gameplay/magic/spells.h"
 #include "engine/structs/structs.h"   // kIntOne/kIntTwo plane prefixes
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"   // kUndefinedVnum
 #include "utils/logger.h"
+#include "engine/core/config.h"   // CommonMsg / ECommonMsg
+#include "gameplay/abilities/talents_actions.h"   // issue.character-affect-triggers: per-affect <actions>
 
 #include <array>
+#include <algorithm>
 #include <bit>
 #include <set>
 
-// issue.ext-affects: the affect short display names are data now (cfg/affects.xml). affected_bits is
-// rebuilt at boot into the same flat, bit-positional, '\n'-plane-terminated layout sprintbits expects
-// (see affects_loader.h / AffectsLoader below). Owned by g_affected_bits_*; null until the cfg loads.
+// issue.affect-migration: affect short names are queried straight from the affect system
+// (affects::DescribeActive / AffectMsg) -- no affected_bits[] projection. This flag only tracks
+// whether the affect_messages cfg has loaded yet (the boot guard in db.cpp uses it).
 namespace {
-std::vector<std::string> g_affected_bits_storage;   // owns the strings + '\n' plane markers
-std::vector<const char *> g_affected_bits_ptrs;     // stable c_str() view handed to sprintbits
+bool g_affect_messages_loaded = false;
 }  // namespace
-const char **affected_bits = nullptr;
 
 typedef std::map<EAffect, std::string> EAffectFlag_name_by_value_t;
 typedef std::map<const std::string, EAffect> EAffectFlag_value_by_name_t;
@@ -125,8 +128,56 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCloudly] = "kCloudly";
 	EAffectFlag_name_by_value[EAffect::kConfused] = "kConfused";
 	EAffectFlag_name_by_value[EAffect::kNoCharge] = "kNoCharge";
-	EAffectFlag_name_by_value[EAffect::kInjured] = "kInjured";
+	EAffectFlag_name_by_value[EAffect::kInjuredLimb] = "kInjuredLimb";
 	EAffectFlag_name_by_value[EAffect::kFrenzy] = "kFrenzy";
+	EAffectFlag_name_by_value[EAffect::kMagicArmor] = "kMagicArmor";
+	EAffectFlag_name_by_value[EAffect::kShivering] = "kShivering";
+	EAffectFlag_name_by_value[EAffect::kDespodency] = "kDespodency";
+	EAffectFlag_name_by_value[EAffect::kMagicStrength] = "kMagicStrength";
+	EAffectFlag_name_by_value[EAffect::kPatronage] = "kPatronage";
+	EAffectFlag_name_by_value[EAffect::kStoneSkin] = "kStoneSkin";
+	EAffectFlag_name_by_value[EAffect::kMagicWeaknes] = "kMagicWeaknes";
+	EAffectFlag_name_by_value[EAffect::kEnlarge] = "kEnlarge";
+	EAffectFlag_name_by_value[EAffect::kMagicShield] = "kMagicShield";
+	EAffectFlag_name_by_value[EAffect::kForbidden] = "kForbidden";
+	EAffectFlag_name_by_value[EAffect::kFrostbite] = "kFrostbite";
+	EAffectFlag_name_by_value[EAffect::kSlowdown] = "kSlowdown";
+	EAffectFlag_name_by_value[EAffect::kFever] = "kFever";
+	EAffectFlag_name_by_value[EAffect::kFastRegeneration] = "kFastRegeneration";
+	EAffectFlag_name_by_value[EAffect::kLessening] = "kLessening";
+	EAffectFlag_name_by_value[EAffect::kMadness] = "kMadness";
+	EAffectFlag_name_by_value[EAffect::kMindless] = "kMindless";
+	EAffectFlag_name_by_value[EAffect::kFascination] = "kFascination";
+	EAffectFlag_name_by_value[EAffect::kContusion] = "kContusion";
+	EAffectFlag_name_by_value[EAffect::kStoneBones] = "kStoneBones";
+	EAffectFlag_name_by_value[EAffect::kFailure] = "kFailure";
+	EAffectFlag_name_by_value[EAffect::kCatGrace] = "kCatGrace";
+	EAffectFlag_name_by_value[EAffect::kBullBody] = "kBullBody";
+	EAffectFlag_name_by_value[EAffect::kSnakeWisdom] = "kSnakeWisdom";
+	EAffectFlag_name_by_value[EAffect::kGimmicry] = "kGimmicry";
+	EAffectFlag_name_by_value[EAffect::kIndecision] = "kIndecision";
+	EAffectFlag_name_by_value[EAffect::kInsanity] = "kInsanity";
+	EAffectFlag_name_by_value[EAffect::kRousing] = "kRousing";
+	EAffectFlag_name_by_value[EAffect::kPassion] = "kPassion";
+	EAffectFlag_name_by_value[EAffect::kSurgeOfPower] = "kSurgeOfPower";
+	EAffectFlag_name_by_value[EAffect::kSurgeOfValour] = "kSurgeOfValour";
+	EAffectFlag_name_by_value[EAffect::kBattleCourage] = "kBattleCourage";
+	EAffectFlag_name_by_value[EAffect::kInspiration] = "kInspiration";
+	EAffectFlag_name_by_value[EAffect::kConcentration] = "kConcentration";
+	EAffectFlag_name_by_value[EAffect::kBattleLuck] = "kBattleLuck";
+	EAffectFlag_name_by_value[EAffect::kPhysdamageBonus] = "kPhysdamageBonus";
+	EAffectFlag_name_by_value[EAffect::kSuspiciousness] = "kSuspiciousness";
+	EAffectFlag_name_by_value[EAffect::kSevereWound] = "kSevereWound";
+	EAffectFlag_name_by_value[EAffect::kWellFed] = "kWellFed";
+	EAffectFlag_name_by_value[EAffect::kPrayerful] = "kPrayerful";
+	EAffectFlag_name_by_value[EAffect::kPietas] = "kPietas";
+	EAffectFlag_name_by_value[EAffect::kEvade] = "kEvade";
+	EAffectFlag_name_by_value[EAffect::kWitchery] = "kWitchery";
+	EAffectFlag_name_by_value[EAffect::kAconitumPoison] = "kAconitumPoison";
+	EAffectFlag_name_by_value[EAffect::kCapable] = "kCapable";
+	EAffectFlag_name_by_value[EAffect::kWebbed] = "kWebbed";
+	EAffectFlag_name_by_value[EAffect::kInsidiousWound] = "kInsidiousWound";
+	EAffectFlag_name_by_value[EAffect::kBurning] = "kBurning";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -135,6 +186,9 @@ void init_EAffectFlag_ITEM_NAMES() {
 	// the fixed spelling "kUndefined" alongside the legacy "kUndefinded" (already in the map above).
 	EAffectFlag_value_by_name["kDefault"] = EAffect::kUndefined;
 	EAffectFlag_value_by_name["kUndefined"] = EAffect::kUndefined;
+	// issue.witchery-typo: accept the legacy misspelling "kWirchery" alongside the fixed "kWitchery"
+	// so old player saves / world scripts / data still resolve on load.
+	EAffectFlag_value_by_name["kWirchery"] = EAffect::kWitchery;
 }
 
 template<>
@@ -352,6 +406,8 @@ const char *apply_types[] = {"ничего",
 							 "волшебное.уклонение.от.физ.урона",
 							 "сила.заклинаний.%",
 							 "волшебное.уклонение.от.маг.урона",
+							 "путы",
+							 "отравление",
 							 "\n"
 };
 
@@ -419,7 +475,9 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApply::kAffectResist] = "kAffectResist";
 	EApplyLocation_name_by_value[EApply::kMagicResist] = "kMagicResist";
 	EApplyLocation_name_by_value[EApply::kAconitumPoison] = "kAconitumPoison";
-	EApplyLocation_name_by_value[EApply::kScopolaPoison] = "kScopolaPoison";
+	// issue.affects-improve (P3d): EApply::kScopolaPoison RETIRED (dead -- no affect_modify case);
+	// enum value 54 kept reserved (objects persist EApply by value, never renumber), but not
+	// name-mapped so it can no longer be referenced from XML.
 	EApplyLocation_name_by_value[EApply::kBelenaPoison] = "kBelenaPoison";
 	EApplyLocation_name_by_value[EApply::kDaturaPoison] = "kDaturaPoison";
 	EApplyLocation_name_by_value[EApply::kFreeForUse1] = "kFreeForUse1";
@@ -435,6 +493,8 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApply::kSpelledBlinkPhys] =  "kSpelledBlinkPhys";
 	EApplyLocation_name_by_value[EApply::kMagicDamagePercent] = "kMagicDamagePercent";
 	EApplyLocation_name_by_value[EApply::kSpelledBlinkMag] =  "kSpelledBlinkMag";
+	EApplyLocation_name_by_value[EApply::kBind] = "kBind";
+	EApplyLocation_name_by_value[EApply::kPoisoned] = "kPoisoned";
 	EApplyLocation_name_by_value[EApply::kNumberApplies] = "kNumberApplies";
 	for (const auto &i : EApplyLocation_name_by_value) {
 		EApplyLocation_value_by_name[i.second] = i.first;
@@ -477,6 +537,22 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfCurable] = "kAfCurable";
 	EAffFlag_name_by_value[EAffFlag::kAfMustBeHandled] = "kAfMustBeHandled";
 	EAffFlag_name_by_value[EAffFlag::kAfUnique] = "kAfUnique";
+	EAffFlag_name_by_value[EAffFlag::kAfFailed] = "kAfFailed";
+	EAffFlag_name_by_value[EAffFlag::kAfPoison] = "kAfPoison";
+	EAffFlag_name_by_value[EAffFlag::kAfEntanglement] = "kAfEntanglement";
+	EAffFlag_name_by_value[EAffFlag::kAfCharmBond] = "kAfCharmBond";
+	EAffFlag_name_by_value[EAffFlag::kAfNeedControl] = "kAfNeedControl";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInRoom] = "kAfCasterInRoom";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorld] = "kAfCasterInWorld";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorldDelay] = "kAfCasterInWorldDelay";
+	EAffFlag_name_by_value[EAffFlag::kAfIgnoreBlink] = "kAfIgnoreBlink";
+	EAffFlag_name_by_value[EAffFlag::kAfNoPositionBonus] = "kAfNoPositionBonus";
+	EAffFlag_name_by_value[EAffFlag::kAfNoCritBonus] = "kAfNoCritBonus";
+	EAffFlag_name_by_value[EAffFlag::kAfFullAbsorb] = "kAfFullAbsorb";
+	EAffFlag_name_by_value[EAffFlag::kAfMaterialize] = "kAfMaterialize";
+	EAffFlag_name_by_value[EAffFlag::kAfBoon] = "kAfBoon";
+	EAffFlag_name_by_value[EAffFlag::kAfWarding] = "kAfWarding";
+	EAffFlag_name_by_value[EAffFlag::kAfAegis] = "kAfAegis";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
@@ -540,6 +616,31 @@ const std::map<affects::EAffectMsgType, std::string> kAffectMsgTypeNames{
 		{affects::EAffectMsgType::kAuraFrame, "kAuraFrame"},
 		{affects::EAffectMsgType::kAuraNoun, "kAuraNoun"},
 		{affects::EAffectMsgType::kAuraNounMany, "kAuraNounMany"},
+		{affects::EAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
+		{affects::EAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
+		{affects::EAffectMsgType::kAffImposedToVict, "kAffImposedToVict"},
+		{affects::EAffectMsgType::kAffImposeFailToChar, "kAffImposeFailToChar"},
+		{affects::EAffectMsgType::kAffImposeFailToVict, "kAffImposeFailToVict"},
+		{affects::EAffectMsgType::kAffImposeFailToRoom, "kAffImposeFailToRoom"},
+		{affects::EAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
+		{affects::EAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
+		{affects::EAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
+		{affects::EAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
+		{affects::EAffectMsgType::kAffExpireSoon, "kAffExpireSoon"},
+		{affects::EAffectMsgType::kWardToChar, "kWardToChar"},
+		{affects::EAffectMsgType::kWardToVict, "kWardToVict"},
+		{affects::EAffectMsgType::kWardToRoom, "kWardToRoom"},
+		{affects::EAffectMsgType::kDamageToChar, "kDamageToChar"},
+		{affects::EAffectMsgType::kDamageToVict, "kDamageToVict"},
+		{affects::EAffectMsgType::kDamageToRoom, "kDamageToRoom"},
+		{affects::EAffectMsgType::kDeathToChar, "kDeathToChar"},
+		{affects::EAffectMsgType::kDeathToRoom, "kDeathToRoom"},
+		{affects::EAffectMsgType::kTransformToChar, "kTransformToChar"},
+		{affects::EAffectMsgType::kTransformToVict, "kTransformToVict"},
+		{affects::EAffectMsgType::kTransformToRoom, "kTransformToRoom"},
+		{affects::EAffectMsgType::kTransformCritToChar, "kTransformCritToChar"},
+		{affects::EAffectMsgType::kTransformCritToVict, "kTransformCritToVict"},
+		{affects::EAffectMsgType::kTransformCritToRoom, "kTransformCritToRoom"},
 	};
 
 msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContainer() {
@@ -547,47 +648,132 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 	return container;
 }
 
-// Rebuild affected_bits from each affect's kShortDesc. The EAffect bit (kept in C++) gives each name
-// its plane (value>>30) and bit (ctz of the low 30) -> the same flat, '\n'-plane-terminated array
-// sprintbits walks. An affect with no kShortDesc becomes an "UNUSED" placeholder (positions aligned).
-void RebuildAffectedBits() {
-	constexpr int kPlanes = 3;
-	std::array<std::map<int, std::string>, kPlanes> planes;
-	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
-		if (affect == EAffect::kUndefined) {
+// issue.affect-migration: per-affect_type behavior flags (kAfCurable/kAfDispellable/kAfBattledec/...)
+// loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
+// source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
+// (EAffect is 1-based; index 0 = kUndefined = no flags).
+constexpr std::size_t kAffectFlagTableSize = 138;  // EAffect max (kBurning=137) + 1
+std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
+std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
+// issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from
+// affects.xml. Built here but NOT yet read by the impose path (that switch is P3).
+std::array<std::vector<affects::AffectApply>, kAffectFlagTableSize> g_affect_applies{};
+// issue.character-affect-triggers: per-affect pulse/battle-pulse <actions> (same talents_actions grammar
+// as room_affects), so a char affect can carry data-driven periodic effects (DoT). Mirrors
+// g_room_affect_actions. Indexed by to_underlying(EAffect).
+std::array<talents_actions::Actions, kAffectFlagTableSize> g_affect_actions{};
+// issue.damage-change: per-affect "magic shield" selection weight (<shield weight="N"/>). >0 marks the
+// affect as one of the mutually-exclusive elemental shields; a hit passes through exactly one, picked
+// weighted-random by these values. 0 = not a shield.
+std::array<int, kAffectFlagTableSize> g_affect_shield_weight{};
+// issue.random-noise-rework: per-affect additive dispel modifier (<affect dispel_mod="N"/>), in dispel-
+// contest threshold percentage points. Negative -> harder to remove (critical buffs). 0 = neutral.
+std::array<int, kAffectFlagTableSize> g_affect_dispel_mod{};
+// issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize, collected once at load so
+// the zone-wake materializer can walk a short list instead of scanning every EAffect per mob.
+std::vector<EAffect> g_materializable_affects{};
+// issue.damage-change: affect types flagged kAfFullAbsorb, collected once at load so the total-immunity
+// block can scan a short list of AFF flags instead of hard-coding the kGodsShield affect id.
+std::vector<EAffect> g_full_absorb_affects{};
+bool g_affect_flags_loaded = false;
+
+// Parse an <affect buff="Y|N|A"> attribute into EBuff (the affect-side analog of ParseViolent). Absent
+// or unrecognised -> kAmbiguous (classification undetermined).
+static affects::EBuff ParseAffectBuff(const char *raw) {
+	if (!raw || !*raw) return affects::EBuff::kAmbiguous;
+	if (*raw == 'Y' || *raw == 'y' || *raw == '1') return affects::EBuff::kYes;
+	if (*raw == 'N' || *raw == 'n' || *raw == '0') return affects::EBuff::kNo;
+	return affects::EBuff::kAmbiguous;
+}
+
+void BuildAffectFlagTable(parser_wrapper::DataNode data) {
+	g_affect_flags.fill(0);
+	g_affect_buff.fill(affects::EBuff::kAmbiguous);
+	g_affect_shield_weight.fill(0);
+	g_affect_dispel_mod.fill(0);
+	for (auto &v : g_affect_applies) { v.clear(); }
+	for (auto &a : g_affect_actions) { a = talents_actions::Actions{}; }
+	for (auto &node : data.Children("affect")) {
+		const char *id = node.GetValue("id");
+		if (!id || !*id) {
 			continue;
 		}
-		const Bitvector value = to_underlying(affect);
-		const int plane = static_cast<int>(value >> 30);
-		const Bitvector low = value & 0x3FFFFFFFu;
-		if (plane >= kPlanes || low == 0) {
+		EAffect affect;
+		try {
+			affect = ITEM_BY_NAME<EAffect>(id);
+		} catch (const std::out_of_range &) {
+			continue;  // unknown id already reported by ValidateAffectRegistry
+		}
+		const auto idx = static_cast<std::size_t>(to_underlying(affect));
+		if (idx >= kAffectFlagTableSize) {
 			continue;
 		}
-		const std::string &short_name =
-			AffectMsgContainer().GetMessage(affect, affects::EAffectMsgType::kShortDesc);
-		if (short_name.empty()) {
-			log("SYSERROR: affect_msg.xml: affect '%s' has no kShortDesc message.", token.c_str());
+		// issue.affect-migration: effect flags live in a <flags val="..."> child tag (unified with the
+		// spells.xml format); read off a COPY of the node (the obj_sets pattern).
+		auto fnode = node;
+		if (fnode.GoToChild("flags")) {
+			if (const char *flags = fnode.GetValue("val"); flags && *flags) {
+				g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+			}
 		}
-		planes[plane][std::countr_zero(low)] = short_name.empty() ? "UNUSED" : short_name;
-	}
-
-	g_affected_bits_storage.clear();
-	for (int plane = 0; plane < kPlanes; ++plane) {
-		const int max_bit = planes[plane].empty() ? -1 : planes[plane].rbegin()->first;
-		for (int bit = 0; bit <= max_bit; ++bit) {
-			const auto it = planes[plane].find(bit);
-			g_affected_bits_storage.push_back(it != planes[plane].end() ? it->second : "UNUSED");
+		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
+		g_affect_buff[idx] = ParseAffectBuff(node.GetValue("buff"));
+		// issue.random-noise-rework: additive dispel-threshold modifier (percentage points), default 0.
+		if (const char *dm = node.GetValue("dispel_mod"); dm && *dm) {
+			g_affect_dispel_mod[idx] = parse::ReadAsInt(dm);
 		}
-		g_affected_bits_storage.push_back("\n");   // plane separator sprintbits counts
+		// issue.damage-change: <shield weight="N"/> -- marks a mutually-exclusive elemental shield and its
+		// weighted-random selection weight (read off a COPY of the node, the obj_sets pattern).
+		{
+			auto snode = node;
+			if (snode.GoToChild("shield")) {
+				if (const char *w = snode.GetValue("weight"); w && *w) {
+					g_affect_shield_weight[idx] = std::max(0, parse::ReadAsInt(w));
+				}
+			}
+		}
+		// issue.affects-improve (P2): the affect's stat-change applies (location + <modifier>), same
+		// shape as a spell's <apply>. The affect IS the id, so applies carry only location + formula.
+		for (auto &ap : node.Children("apply")) {
+			affects::AffectApply a;
+			a.location = parse::ReadAsConstant<EApply>(ap.GetValue("location"));
+			const char *r = ap.GetValue("random");
+			a.random = (r && *r) && parse::ReadAsBool(r);
+			auto mn = ap;
+			if (mn.GoToChild("modifier")) {
+				a.min = parse::ReadAsDouble(mn.GetValue("min"));
+				a.beta = parse::ReadAsDouble(mn.GetValue("beta"));
+				{ const char *w = mn.GetValue("weight"); a.weight = (w && *w) ? parse::ReadAsDouble(w) : 0.0; }  // issue.potency-noise
+				a.factor = parse::ReadAsInt(mn.GetValue("factor"));
+				const char *st = mn.GetValue("stack");
+				a.stack = (st && *st) ? std::max(1, parse::ReadAsInt(st)) : 1;
+				const char *cp = mn.GetValue("cap");
+				a.cap = (cp && *cp) ? std::max(0, parse::ReadAsInt(cp)) : 0;
+			}
+			g_affect_applies[idx].push_back(a);
+		}
+		// issue.character-affect-triggers: the affect's own pulse/battle-pulse <actions> (same grammar as
+		// a spell's <talent_actions> / room_affects). Read off a COPY of the node (the obj_sets pattern).
+		{
+			auto act_node = node;
+			if (act_node.GoToChild("actions")) {
+				g_affect_actions[idx].Build(act_node);
+			}
+		}
 	}
-	g_affected_bits_storage.push_back("\n");        // trailing terminator (empty plane 3)
-
-	g_affected_bits_ptrs.clear();
-	g_affected_bits_ptrs.reserve(g_affected_bits_storage.size());
-	for (const auto &entry : g_affected_bits_storage) {
-		g_affected_bits_ptrs.push_back(entry.c_str());
+	// issue.mob-flag-affect-materialization: cache the kAfMaterialize affect types.
+	g_materializable_affects.clear();
+	// issue.damage-change: cache the kAfFullAbsorb affect types (total-immunity flag scan).
+	g_full_absorb_affects.clear();
+	for (std::size_t i = 0; i < kAffectFlagTableSize; ++i) {
+		if (g_affect_flags[i] & to_underlying(EAffFlag::kAfMaterialize)) {
+			g_materializable_affects.push_back(static_cast<EAffect>(i));
+		}
+		if (g_affect_flags[i] & to_underlying(EAffFlag::kAfFullAbsorb)) {
+			g_full_absorb_affects.push_back(static_cast<EAffect>(i));
+		}
 	}
-	affected_bits = g_affected_bits_ptrs.data();
+	g_affect_flags_loaded = true;
 }
 
 // affects.xml is the affect registry (id-only for now; grows per-affect handler/action data later).
@@ -639,15 +825,250 @@ namespace affects {
 const std::string &AffectMsg(EAffect affect, EAffectMsgType slot) {
 	return AffectMsgContainer().GetMessage(affect, slot);
 }
-void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
-void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
+
+const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot) {
+	static const std::string kEmpty;
+	auto &c = AffectMsgContainer();
+	return c.IsKnown(affect) ? c[affect].GetMessage(slot) : kEmpty;
+}
+
+const std::string &AffectMsgWeapon(EAffect affect, EAffectMsgType slot, bool has_weapon) {
+	static const std::string kEmpty;
+	auto &c = AffectMsgContainer();
+	if (!c.IsKnown(affect)) return kEmpty;
+	const auto &all = c[affect].GetMessages(slot);
+	if (all.empty()) return kEmpty;
+	std::vector<const std::string *> pool;
+	if (has_weapon) {
+		for (const auto &m : all) if (m.find("$o") != std::string::npos) pool.push_back(&m);
+		if (pool.empty()) for (const auto &m : all) pool.push_back(&m);
+	} else {
+		for (const auto &m : all) if (m.find("$o") == std::string::npos) pool.push_back(&m);
+	}
+	if (pool.empty()) return kEmpty;
+	return *pool[number(0, static_cast<int>(pool.size()) - 1)];
+}
+
+bool MessagesLoaded() { return g_affect_messages_loaded; }
+
+// Affects in NAMES_OF order (kUndefined excluded) -- the ordered list the OLC affect editor
+// numbers and toggles by index.
+const std::vector<EAffect> &MenuOrder() {
+	static std::vector<EAffect> order;
+	if (order.empty()) {
+		for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+			if (affect != EAffect::kUndefined) {
+				order.push_back(affect);
+			}
+		}
+	}
+	return order;
+}
+
+// issue.affect-migration: the affect's intrinsic behavior flags (cure/dispel/refresh/decrement/...)
+// from affects.xml, keyed by affect_type. 0 for affects with no row/flags. Not yet wired into the
+// apply path (Phase 1 -- table built, sourcing switched in Phase 2).
+Bitvector AffectFlagsByType(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
+}
+
+// issue.character-affect-triggers: the affect's own pulse/battle-pulse <actions> from affects.xml.
+const talents_actions::Actions &AffectActions(EAffect affect_type) {
+	static const talents_actions::Actions kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_actions[idx] : kEmpty;
+}
+
+// issue.affect-migration: the affect's buff/debuff/ambiguous classification from affects.xml.
+EBuff AffectBuffKind(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_buff[idx] : EBuff::kAmbiguous;
+}
+
+// issue.damage-change: the affect's magic-shield selection weight (0 = not a shield).
+int AffectShieldWeight(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_shield_weight[idx] : 0;
+}
+
+// issue.random-noise-rework: the affect's additive dispel modifier (0 = neutral).
+int AffectDispelMod(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_dispel_mod[idx] : 0;
+}
+
+// issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize (buffs to realize as real
+// affects on flag-only NPCs when their zone wakes).
+const std::vector<EAffect> &MaterializableAffects() {
+	return g_materializable_affects;
+}
+
+// issue.damage-change: affect types flagged kAfFullAbsorb (grant total damage immunity).
+const std::vector<EAffect> &FullAbsorbAffects() {
+	return g_full_absorb_affects;
+}
+
+// issue.affects-improve (P2): the affect's stat-change applies from affects.xml (empty if none).
+const std::vector<AffectApply> &AffectApplies(EAffect affect_type) {
+	static const std::vector<AffectApply> kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_applies[idx] : kEmpty;
+}
+
+// True once affects.xml flags have been loaded; before that (unit tests, early boot) callers keep
+// their own battleflag instead of sourcing from the (empty) table.
+bool AffectFlagsLoaded() { return g_affect_flags_loaded; }
+
+// The flat bit index of an active affect back to its EAffect (the inverse of the 1-based
+// flag_index_mapping<EAffect>: enum value = index + 1). kUndefined if it is not a known affect.
+EAffect AffectByIndex(std::size_t flat_index) {
+	const EAffect affect = static_cast<EAffect>(flat_index + 1);
+	return NAMES_OF<EAffect>().count(affect) ? affect : EAffect::kUndefined;
+}
+
+// Joined short descriptions of all active affects, queried straight from the affect system (no
+// affected_bits[] projection). Returns CommonMsg(kNothing) when none are set.
+std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div) {
+	std::string result;
+	flags.for_each_set([&](std::size_t i) {
+		const EAffect affect = AffectByIndex(i);
+		if (affect == EAffect::kUndefined) {
+			return;
+		}
+		const std::string &name = AffectMsg(affect, EAffectMsgType::kShortDesc);
+		if (name.empty()) {
+			return;
+		}
+		if (!result.empty()) {
+			result += div;
+		}
+		result += name;
+	});
+	return result.empty() ? CommonMsg(ECommonMsg::kNothing) : result;
+}
+
+// Resolve an affect by its short description (prefix match, mirroring the old ext_search_block on
+// affected_bits). Iterates in EAffect order for deterministic first-match.
+bool FindByShortDesc(const std::string &name, EAffect &out) {
+	if (name.empty()) {
+		return false;
+	}
+	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+		if (affect == EAffect::kUndefined) {
+			continue;
+		}
+		const std::string &sd = AffectMsg(affect, EAffectMsgType::kShortDesc);
+		if (!sd.empty() && sd.size() >= name.size() && sd.compare(0, name.size(), name) == 0) {
+			out = affect;
+			return true;
+		}
+	}
+	return false;
+}
+void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
+void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
+
+// issue.vedun-editor: in-game editing of cfg/affects.xml.
+std::string AffectsLoader::EditableWhat() const { return "affects"; }
+
+std::vector<cfg_manager::EditableElement> AffectsLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+		if (affect == EAffect::kUndefined) {
+			continue;
+		}
+		const std::string &label = affects::AffectMsg(affect, affects::EAffectMsgType::kShortDesc);
+		out.push_back({token, label.empty() ? token : label});
+	}
+	return out;
+}
+
+// Dry-run: re-check every <affect> the editor is about to save against the same enum/range rules the
+// loader applies, so an invalid id / location / flag / buff / modifier is rejected BEFORE the file is
+// written (the .scheme already constrains the editor's pick-lists; this is the on-save safety net).
+cfg_manager::ValidationResult AffectsLoader::Validate(parser_wrapper::DataNode &doc) const {
+	for (auto &affect : doc.Children("affect")) {
+		const char *id = affect.GetValue("id");
+		if (!id || !*id) {
+			return {false, "<affect> without an id."};
+		}
+		try {
+			(void) ITEM_BY_NAME<EAffect>(id);
+		} catch (const std::out_of_range &) {
+			return {false, std::string("unknown affect id '") + id + "'."};
+		}
+		if (const char *b = affect.GetValue("buff"); b && *b && strcmp(b, "Y") != 0 && strcmp(b, "N") != 0) {
+			return {false, std::string("affect '") + id + "': buff must be Y or N."};
+		}
+		if (auto fnode = affect; fnode.GoToChild("flags")) {
+			if (const char *fv = fnode.GetValue("val"); fv && *fv) {
+				try {
+					(void) parse::ReadAsConstantsBitvector<EAffFlag>(fv);
+				} catch (const std::exception &) {
+					return {false, std::string("affect '") + id + "': unknown flag in '" + fv + "'."};
+				}
+			}
+		}
+		for (auto &ap : affect.Children("apply")) {
+			if (const char *loc = ap.GetValue("location"); loc && *loc) {
+				try {
+					(void) ITEM_BY_NAME<EApply>(loc);
+				} catch (const std::out_of_range &) {
+					return {false, std::string("affect '") + id + "': unknown apply location '" + loc + "'."};
+				}
+			}
+		}
+	}
+	return {true, ""};
+}
 void AffectMessagesLoader::Load(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Init(data.Children());
-	RebuildAffectedBits();
+	g_affect_messages_loaded = true;
 }
 void AffectMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Reload(data.Children());
-	RebuildAffectedBits();
+	g_affect_messages_loaded = true;
+}
+
+// issue.unstable-hotfixes: Vedun in-game editing of affect messages (`vedun affectmsg`). Mirrors
+// SpellMessagesLoader -- keyed by the <msg_sheaf id=> (EAffect token; the shared sheaf is "kDefault").
+std::string AffectMessagesLoader::EditableWhat() const {
+	return "affectmsg";
+}
+
+std::vector<cfg_manager::EditableElement> AffectMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : AffectMsgContainer()) {
+		const EAffect id = sheaf.GetId();
+		// The default sheaf is stored under kUndefined but its XML id is "kDefault".
+		const std::string id_str = (id == EAffect::kUndefined) ? "kDefault" : NAME_BY_ITEM<EAffect>(id);
+		out.push_back({id_str, sheaf.GetMessage(EAffectMsgType::kShortDesc)});   // label = short desc
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult AffectMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (AffectMsgContainer().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Affect-message data failed to parse (see syslog for the offending sheaf/message)."};
+}
+
+std::string AffectMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<EAffect>()) {
+		if (value != EAffect::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
+	}
+	return "";
+}
+
+parser_wrapper::DataNode AffectMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
 }
 }  // namespace affects
 

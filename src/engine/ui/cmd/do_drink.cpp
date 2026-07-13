@@ -13,6 +13,7 @@
 
 #include "engine/entities/obj_data.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/core/game_limits.h"
@@ -259,10 +260,8 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 		if (!AFF_FLAGGED(ch, EAffect::kAbstinent)
 			&& GET_DRUNK_STATE(ch) < kMaxCondition
 			&& GET_DRUNK_STATE(ch) == GET_COND(ch, condition::kDrunk)) {
-			SendMsgToChar("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
 			Affect<EApply> af;
-			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = -20;
 			af.location = EApply::kAc;
@@ -270,7 +269,6 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
-			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = -2;
 			af.location = EApply::kHitroll;
@@ -278,13 +276,14 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
-			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = GetRealLevel(ch) / 5 + remort::GetRealRemort(ch) / 5;
 			af.location = EApply::kPhysicDamagePercent;
 			af.affect_type = EAffect::kDrunked;
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
+			// issue.affect-migration: imposition narration on the kDrunked affect (self).
+			EmitAffectImpose(ch, nullptr, EAffect::kDrunked, false);
 		}
 	}
 }

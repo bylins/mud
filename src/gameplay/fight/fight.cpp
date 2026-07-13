@@ -16,6 +16,7 @@
 #include "utils/logger.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/initiative.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/skills/bash.h"
@@ -32,6 +33,8 @@
 #include "gameplay/ai/mobact.h"
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_messages.h"  // affects::AffectBuffKind
+#include "gameplay/abilities/talents_actions.h"  // primary-affect lookup for the buff/debuff AI
 #include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
 #include "utils/random.h"
@@ -208,12 +211,12 @@ void SetFighting(CharData *ch, CharData *vict) {
 
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kBandage);
+		RemoveAffectFromChar(ch, EAffect::kBandage);
 		AFF_FLAGS(ch).unset(EAffect::kBandage);
 	}
 	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {
 		SendMsgToChar("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kRecallSpells);
+		RemoveAffectFromChar(ch, EAffect::kMemorizeSpells);
 	}
 	combat_list_element attaker;
 
@@ -222,7 +225,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	combat_list.push_front(attaker);
 
 	if (AFF_FLAGGED(ch, EAffect::kSleep)) {
-		RemoveAffectFromChar(ch, ESpell::kSleep);
+		RemoveAffectFromChar(ch, EAffect::kSleep);
 		AFF_FLAGS(ch).unset(EAffect::kSleep);
 	}
 	ch->SetEnemy(vict);
@@ -298,8 +301,6 @@ void stop_fighting(CharData *ch, int switch_others) {
 	}
 	ch->battle_affects.clear();
 	DpsSystem::check_round(ch);
-	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
-	handle_affects(params);
 	if (switch_others != 2) {
 		for (auto &temp : combat_list) {
 			if (temp.deleted)
@@ -488,7 +489,6 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 	affects_list_t AFF_USED;
-	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
 		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
@@ -505,20 +505,18 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 			break;
 		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case ESpell::kCureFever: spellreal = ESpell::kFever;
+		case ESpell::kCureFever: AFF_USED.push_back(EAffect::kFever);
 			break;
 		default: break;
 	}
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& caster->IsFlagged(EMobFlag::kCompanion)) { //()
-		if (caster->has_any_affect(AFF_USED)
-			|| IsAffectedBySpell(caster, spellreal)) {
+		if (caster->has_any_affect(AFF_USED)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
+			&& caster->get_master()->has_any_affect(AFF_USED)) {
 			return caster->get_master();
 		}
 
@@ -562,7 +560,6 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 	affects_list_t AFF_USED;
-	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
 		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
@@ -579,21 +576,19 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 			break;
 		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case ESpell::kCureFever: spellreal = ESpell::kFever;
+		case ESpell::kCureFever: AFF_USED.push_back(EAffect::kFever);
 			break;
 		default: break;
 	}
 
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& caster->IsFlagged(EMobFlag::kCompanion)) { // ()
-		if (caster->has_any_affect(AFF_USED)
-			|| IsAffectedBySpell(caster, spellreal)) {
+		if (caster->has_any_affect(AFF_USED)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
+			&& caster->get_master()->has_any_affect(AFF_USED)) {
 			return caster->get_master();
 		}
 
@@ -631,6 +626,21 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	}
 
 	return victim;
+}
+
+// issue.affect-migration: the primary affect a single-target spell imposes. The mob buff/debuff AI
+// uses it to ask "is the target already under this spell's effect?" via IsAffected (affect identity),
+// instead of the retired IsAffectedBySpell (which keyed on the casting spell). kUndefined when the
+// spell imposes no affect -- callers treat that as "can't tell -> not affected".
+static EAffect PrimaryAffectOf(ESpell spell) {
+	const auto &info = MUD::Spell(spell);
+	if (info.actions.Contains(talents_actions::EAction::kAffect)) {
+		const auto &applies = info.actions.GetAffect().GetApplies();
+		if (!applies.empty()) {
+			return applies.front().id;
+		}
+	}
+	return EAffect::kUndefined;
 }
 
 CharData *find_affectee(CharData *caster, ESpell spell_id) {
@@ -671,14 +681,17 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kSnakeEyes)
 		spellreal = ESpell::kDetectPoison;
 
+	const EAffect want = PrimaryAffectOf(spellreal);
+
 	if (caster->IsFlagged(EMobFlag::kCompanion) &&
 		AFF_FLAGGED(caster, EAffect::kHelper)) {
-		if (!IsAffectedBySpell(caster, spellreal)) {
+		if (want == EAffect::kUndefined || !IsAffected(caster, want)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& caster->get_master()->GetEnemy() && !IsAffectedBySpell(caster->get_master(), spellreal)) {
+			&& caster->get_master()->GetEnemy()
+			&& (want == EAffect::kUndefined || !IsAffected(caster->get_master(), want))) {
 			return caster->get_master();
 		}
 
@@ -698,7 +711,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 
 			if (!vict->GetEnemy()
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| IsAffectedBySpell(vict, spellreal)) {
+				|| (want != EAffect::kUndefined && IsAffected(vict, want))) {
 				continue;
 			}
 
@@ -709,7 +722,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		}
 	}
 
-	if (!victim && !IsAffectedBySpell(caster, spellreal)) {
+	if (!victim && (want == EAffect::kUndefined || !IsAffected(caster, want))) {
 		victim = caster;
 	}
 
@@ -734,7 +747,9 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kMassFailure)
 		spellreal = ESpell::kFailure;
 	else if (spellreal == ESpell::kSnare)
-		spellreal = ESpell::kNoflee;
+		spellreal = ESpell::kEntangleEnemy;
+
+	const EAffect want = PrimaryAffectOf(spellreal);
 
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
@@ -750,7 +765,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 				&& (GetRealInt(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| IsAffectedBySpell(vict, spellreal)) {
+				|| (want != EAffect::kUndefined && IsAffected(vict, want))) {
 				continue;
 			}
 			if (!victim || vict_val < GET_MAXDAMAGE(vict)) {
@@ -762,7 +777,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 
 	if (!victim
 		&& caster->GetEnemy()
-		&& !IsAffectedBySpell(caster->GetEnemy(), spellreal)) {
+		&& (want == EAffect::kUndefined || !IsAffected(caster->GetEnemy(), want))) {
 		victim = caster->GetEnemy();
 	}
 
@@ -785,12 +800,13 @@ bool HasHostileRoomWard(CharData *ch) {
 	return false;
 }
 
-// issue.mob-ai-improve: does `vict` carry a dispellable BUFF -- a kAfDispellable affect that
-// is NOT a debuff? Debuff affects were imposed violently; stripping them would help the
-// target, so an offensive dispel ignores them.
+// issue.mob-ai-improve: does `vict` carry a dispellable BUFF -- a kAfDispellable affect declared a
+// buff by its own buff flag? Debuffs (and ambiguous affects) were imposed violently / are not clean
+// buffs; stripping them would help the target, so an offensive dispel ignores them.
 bool HasDispellableBuff(const CharData *vict) {
 	for (const auto &aff : vict->affected) {
-		if (aff && !aff->debuff && IS_SET(aff->battleflag, kAfDispellable)) {
+		if (aff && affects::AffectBuffKind(aff->affect_type) == affects::EBuff::kYes
+				&& IS_SET(aff->battleflag, kAfDispellable)) {
 			return true;
 		}
 	}
@@ -1384,50 +1400,6 @@ void set_mob_skills_flags(CharData *ch) {
 	}
 }
 
-int calc_initiative(CharData *ch, bool mode) {
-	int initiative = SizeApp(GET_POS_SIZE(ch)).initiative;
-	if (mode) //Добавим булевую переменную, чтобы счет все выдавал постоянное значение, а не каждый раз рандом
-	{
-		int i = number(1, 10);
-		if (i == 10)
-			initiative -= 1;
-		else
-			initiative += i;
-	};
-
-	initiative += GET_INITIATIVE(ch);
-
-	if (!ch->IsNpc()) {
-		switch (ch->GetCarryingWeight() * 10 / MAX(1, CAN_CARRY_W(ch))) {
-			case 10:
-			case 9:
-			case 8: initiative -= 20;
-				break;
-			case 7:
-			case 6:
-			case 5: initiative -= 10;
-				break;
-		}
-	}
-
-	if (ch->battle_affects.get(kEafAwake))
-		initiative -= 20;
-	if (ch->battle_affects.get(kEafPunctual))
-		initiative -= 10;
-	if (ch->get_wait() > 0)
-		initiative -= 1;
-	if (CalcLeadership(ch))
-		initiative += 5;
-	if (ch->battle_affects.get(kEafSlow))
-		initiative = 1;
-
-// indra
-// рраскомменчу, посмотрим
-	initiative = std::max(initiative, 1);
-	//Почему инициатива не может быть отрицательной?
-	return initiative;
-}
-
 void using_charmice_skills(CharData *ch) {
 	// если чармис вооружен и может глушить - будем глушить
 	// если нет оружия но есть молот - будем молотить
@@ -1776,7 +1748,7 @@ void update_round_affs() {
 			it.ch->set_touching(0);
 
 		if (it.ch->battle_affects.get(kEafSleep)) {
-			RemoveAffectFromChar(it.ch, ESpell::kSleep);
+			RemoveAffectFromChar(it.ch, EAffect::kSleep);
 			AFF_FLAGS(it.ch).unset(EAffect::kSleep);
 		}
 		if (it.ch->battle_affects.get(kEafBlock)) {
@@ -1961,8 +1933,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			}
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}
-		if (ch->initiative > min_init) {
-			--(ch->initiative);
+		if (try_consume_extra_pass(ch, min_init)) {
 			return;
 		}
 	}
@@ -1975,8 +1946,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			&& ch->get_wait() <= 0 
 			&& using_extra_attack(ch)) {
 		ch->SetExtraAttack(kExtraAttackUnused, nullptr);
-		if (ch->initiative > min_init) {
-			--(ch->initiative);
+		if (try_consume_extra_pass(ch, min_init)) {
 			return;
 		}
 	}
@@ -2010,8 +1980,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 		ch->battle_affects.unset(kEafFirst);
 		ch->battle_affects.set(kEafSecond);
-		if (ch->initiative > min_init) {
-			--(ch->initiative);
+		if (try_consume_extra_pass(ch, min_init)) {
 			return;
 		}
 	}
@@ -2052,12 +2021,10 @@ bool stuff_before_round(CharData *ch) {
 	ch->battle_counter = 0;
 	ch->round_counter += 1;
 	DpsSystem::check_round(ch);
-	BattleRoundParameters params(ch);
-	handle_affects(params);
 	round_num_mtrigger(ch, ch->GetEnemy());
 
 	ch->battle_affects.set(kEafStand);
-	if (IsAffectedBySpell(ch, ESpell::kSleep))
+	if (IsAffected(ch, EAffect::kSleep))
 		ch->battle_affects.set(kEafSleep);
 	if (ch->in_room == kNowhere)
 		return false;
@@ -2139,21 +2106,8 @@ void perform_violence() {
 			continue;
 		}
 
-		int initiative = calc_initiative(it.ch, true);
-		if (initiative > 100) { //откуда больше 100??????
-			log("initiative calc: %s (%d) == %d", GET_NAME(it.ch), GET_MOB_VNUM(it.ch), initiative);
-		}
-		initiative = std::clamp(initiative, -100, 100);
-		if (initiative == 0) {
-			it.ch->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
-			min_init = MIN(min_init, -100);
-		} else {
-			it.ch->initiative = initiative;
-		}
-
+		roll_round_initiative(it.ch, min_init, max_init);
 		it.ch->battle_affects.set(kEafFirst);
-		max_init = MAX(max_init, initiative);
-		min_init = MIN(min_init, initiative);
 	}
 	int size = 0;
 	//* обработка раунда по очередности инициативы

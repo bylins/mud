@@ -13,6 +13,7 @@
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
+#include "gameplay/affects/affect_data.h"   // issue.mob-flag-affect-materialization: spawn-hook
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/economics/auction.h"
 #include "utils/backtrace.h"
@@ -84,7 +85,7 @@ void RemoveCharFromRoom(CharData *ch) {
 	ch->track_dirs = 0;
 }
 
-void PlaceCharToRoom(CharData *ch, RoomRnum room) {
+void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
@@ -106,9 +107,9 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 
 	ch->in_room = room;
 	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
-	ch->Temporary.unset(EXTRA_FAILHIDE);
-	ch->Temporary.unset(EXTRA_FAILSNEAK);
-	ch->Temporary.unset(EXTRA_FAILCAMOUFLAGE);
+	ch->Temporary.unset(ECharExtraFlag::kFailHide);
+	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
+	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
@@ -131,12 +132,20 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	}
 
 	if (!ch->IsNpc() && !GET_INVIS_LEV(ch)) {
-		zone_table[world[room]->zone_rn].used = true;
+		MarkZoneUsed(world[room]->zone_rn);   // wake the zone (materializes flag-only NPC buffs on the edge)
 		zone_table[world[room]->zone_rn].activity++;
-	} else {
+	} else if (process_entry_affects) {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
 		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+	}
+	// issue.mob-flag-affect-materialization: a mob placed into an ALREADY-AWAKE zone (script mobload,
+	// summon, reset under a present player) materializes its intrinsic buff flags here -- the wake-hook
+	// only catches mobs present when the zone first wakes. Placement is bounded (spawns/relocations, not
+	// routine wandering, which uses char_to_room), and MaterializeMobFlagAffects no-ops if the mob has no
+	// such buffs or already has them.
+	if (ch->IsNpc() && ch->in_room != kNowhere && zone_table[world[ch->in_room]->zone_rn].used) {
+		MaterializeMobFlagAffects(ch);
 	}
 	cities::CheckCityVisit(ch, room);
 }

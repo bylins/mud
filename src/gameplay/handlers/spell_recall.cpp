@@ -18,7 +18,7 @@
 
 namespace handlers {
 
-EStageResult SpellRecall(CastContext &ctx) {
+EStageResult SpellRecall(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;

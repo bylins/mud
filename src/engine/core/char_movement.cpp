@@ -89,9 +89,9 @@ int CalcMoveCost(CharData *ch, int dir) {
 
 	if (privilege::IsImmortal(ch))
 		need_movement = 0;
-	else if (IsAffectedBySpell(ch, ESpell::kCamouflage))
+	else if (IsAffectedFlagOnly(ch, EAffect::kDisguise))
 		need_movement += kCamouflageMoves;
-	else if (IsAffectedBySpell(ch, ESpell::kSneak))
+	else if (IsAffectedFlagOnly(ch, EAffect::kSneak))
 		need_movement += kSneakMoves;
 
 	return need_movement;
@@ -316,9 +316,9 @@ void PerformDunkSong(CharData *ch) {
 		SendMsgToChar("\r\n", ch);
 		strcat(buf, drunk_voice[number(0, kMaxDrunkVoice - 1)]);
 		act(buf, false, ch, nullptr, nullptr, kToRoom | kToNotDeaf);
-		RemoveAffectFromChar(ch, ESpell::kHide);
-		RemoveAffectFromChar(ch, ESpell::kSneak);
-		RemoveAffectFromChar(ch, ESpell::kCamouflage);
+		RemoveAffectFromChar(ch, EAffect::kHide);
+		RemoveAffectFromChar(ch, EAffect::kSneak);
+		RemoveAffectFromChar(ch, EAffect::kDisguise);
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -384,6 +384,21 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	if (!enter_wtrigger(world[EXIT(ch, dir)->to_room()], ch, dir)) {
 		return false;
 	}
+	// issue.room-affect-trigger-improve: a blocking on-entry room affect (a kEnter/kEnterPC action with
+	// return=0) can refuse this voluntary move, like a DGScript ENTER trigger. Only blocking-capable
+	// actions run here (before placement); the rest fire after arrival (kEffectsNonBlocking, below) so
+	// non-blocking effects keep their destination-room context.
+	if (!room_spells::RunRoomEntryTriggers(ch, world[EXIT(ch, dir)->to_room()],
+			room_spells::EEntryTriggerPhase::kBlockCheck)) {
+		return false;
+	}
+	// issue.room-affect-trigger-improve (door affects): a PASSAGE affect can also react to simply moving
+	// through this exit -- its kEnter/kEnterPC/kEnterNPC action fires now (actor still in the source room,
+	// so the effect plays out in the doorway), and return=0 refuses the move. Reverse-resolved, so a trap
+	// on either side of the passage triggers.
+	if (!room_spells::RunDoorTriggers(ch, world[ch->in_room], dir, talents_actions::EActionTrigger::kEnter)) {
+		return false;
+	}
 
 	// Now we know we're allowed to go into the room.
 	if (!privilege::IsImmortal(ch) && !ch->IsNpc())
@@ -394,9 +409,9 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_sneak(ch)) {
-			RemoveAffectFromChar(ch, ESpell::kSneak);
+			RemoveAffectFromChar(ch, EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
-		} else if (!IsAffectedBySpell(ch, ESpell::kSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
+		} else if (!IsAffectedFlagOnly(ch, EAffect::kSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
 			invis = 1;
 	}
 
@@ -405,9 +420,9 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_camouflage(ch)) {
-			RemoveAffectFromChar(ch, ESpell::kCamouflage);
+			RemoveAffectFromChar(ch, EAffect::kDisguise);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
-		} else if (!IsAffectedBySpell(ch, ESpell::kCamouflage) ||
+		} else if (!IsAffectedFlagOnly(ch, EAffect::kDisguise) ||
 		CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))
 			invis = 1;
 	}
@@ -495,7 +510,9 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	if (move_type == EMoveType::kFlee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
 		FleeToRoom(ch, go_to);
 	else
-		PlaceCharToRoom(ch, go_to);
+		// Defer on-entry room affects (e.g. kHypnoticPattern) until AFTER the arrival message
+		// below, so a walking NPC is announced before the room reacts to it.
+		PlaceCharToRoom(ch, go_to, false);
 	if (horse) {
 		GET_HORSESTATE(horse) -= 1;
 		RemoveCharFromRoom(horse);
@@ -563,8 +580,11 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	if (ch->desc != nullptr)
 		sight::look_at_room(ch, 0, move_type != EMoveType::kFlee);
 
-	if (!ch->IsNpc())
-		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+	// issue.room-affect-trigger-improve: AFTER placement on the walk path -- run the non-blocking
+	// on-entry effects (e.g. kHypnoticPattern's sleep) in the destination room. The blocking-capable
+	// actions already ran (and possibly refused the move) before placement, above.
+	room_spells::RunRoomEntryTriggers(ch, world[ch->in_room],
+			room_spells::EEntryTriggerPhase::kEffectsNonBlocking);
 
 	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {
@@ -605,9 +625,8 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 
 		if (track) {
 			SET_BIT(track->time_income[Reverse[dir]], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
-				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
-					track->time_income[Reverse[dir]] <<= number(15, 30);
+			if (IsAffectedFlagOnly(ch, EAffect::kLightWalk) && !mount::IsOnHorse(ch))
+				track->time_income[Reverse[dir]] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
 		}
 
@@ -627,9 +646,8 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		}
 		if (track) {
 			SET_BIT(track->time_outgone[dir], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
-				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
-					track->time_outgone[dir] <<= number(15, 30);
+			if (IsAffectedFlagOnly(ch, EAffect::kLightWalk) && !mount::IsOnHorse(ch))
+				track->time_outgone[dir] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
 		}
 	}
@@ -684,7 +702,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master) {
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kBandage);
+		RemoveAffectFromChar(ch, EAffect::kBandage);
 		AFF_FLAGS(ch).unset(EAffect::kBandage);
 	}
 	ch->set_motion(true);
@@ -775,9 +793,9 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 
 	ch->in_room = room;
 	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
-	ch->Temporary.unset(EXTRA_FAILHIDE);
-	ch->Temporary.unset(EXTRA_FAILSNEAK);
-	ch->Temporary.unset(EXTRA_FAILCAMOUFLAGE);
+	ch->Temporary.unset(ECharExtraFlag::kFailHide);
+	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
+	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
@@ -800,7 +818,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	}
 
 	if (!ch->IsNpc()) {
-		zone_table[world[room]->zone_rn].used = true;
+		MarkZoneUsed(world[room]->zone_rn);   // wake the zone (materializes flag-only NPC buffs on the edge)
 		zone_table[world[room]->zone_rn].activity++;
 	} else {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
