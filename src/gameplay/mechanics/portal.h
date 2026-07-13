@@ -14,9 +14,9 @@ struct RoomData;
 
 // Impose a kPortalTimer room affect on `from_room` pointing at `to_room` (the "pentagram gate"
 // endpoint). pk_unique stamps the imposing caster for PK; affect_type=kNoPortalExit marks a
-// one-way destination (townportal). Default = a plain two-way endpoint.
+// one-way destination (townportal). Default = a plain two-way endpoint (kPortalTimer).
 void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time, long pk_unique = 0,
-					room_spells::ERoomAffect affect_type = static_cast<room_spells::ERoomAffect>(0));
+					room_spells::ERoomAffect affect_type = room_spells::ERoomAffect::kPortalTimer);
 
 // Break the pentagram gate rooted at `rnum` and its paired endpoint, narrating to both rooms.
 void RemovePortalGate(RoomRnum rnum);

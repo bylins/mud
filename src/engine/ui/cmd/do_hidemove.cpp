@@ -32,22 +32,21 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вам мешает $N.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
-	auto sneaking = IsAffectedBySpell(ch, ESpell::kSneak);
+	auto sneaking = IsAffectedFlagOnly(ch, EAffect::kSneak);
 	if (!sneaking) {
 		Affect<EApply> af;
-		af.type = ESpell::kSneak;
 		af.location = EApply::kNone;
 		af.modifier = 0;
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 		const int chance = number(1, MUD::Skill(ESkill::kSneak).difficulty);
-		af.affect_type = (chance < calculated_skill) ? EAffect::kSneak : EAffect::kUndefined;
-		af.battleflag = 0;
+		af.affect_type = EAffect::kSneak;
+		af.battleflag = (chance < calculated_skill) ? 0 : static_cast<Bitvector>(kAfFailed);
 		ImposeAffect(ch, af, false, false, false, false);
 	}
 	PerformMove(ch, dir, 0, true, nullptr);
-	if (!sneaking || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
-		RemoveAffectFromChar(ch, ESpell::kSneak);
+	if (!sneaking || IsAffected(ch, EAffect::kGlitterDust)) {
+		RemoveAffectFromChar(ch, EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 	}
 }

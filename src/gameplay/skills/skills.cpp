@@ -22,6 +22,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/initiative.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/illumination.h"
@@ -2110,6 +2111,22 @@ int CalcNoviceSkillBonusForValue(int skill, unsigned skill_divisor) {
 	}
 	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	return low_skill/skill_divisor;
+}
+
+// issue.duration-scale: full-skill duration bonus (no 75 cap); CalcDuration bounds it with
+// <duration min/max>. Separate from CalcNoviceSkillBonus, which still caps the extra-hits bonus at 75.
+int CalcDurationSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
+	if (skill_divisor == 0) {
+		return 0;
+	}
+	return GetSkill(ch, skill_id)/skill_divisor;
+}
+
+int CalcDurationSkillBonusForValue(int skill, unsigned skill_divisor) {
+	if (skill_divisor == 0) {
+		return 0;
+	}
+	return skill/skill_divisor;
 }
 
 const ESkill &operator++(ESkill &s) {

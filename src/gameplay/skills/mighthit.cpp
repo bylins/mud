@@ -152,7 +152,6 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			lag = 1;
 			SetBattleLag(victim, 1);
 			Affect<EApply> af;
-			af.type = ESpell::kBattle;
 			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
@@ -172,7 +171,6 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			hit_data.dam += (hit_data.dam / 1);
 			SetBattleLag(victim, 2);
 			Affect<EApply> af;
-			af.type = ESpell::kBattle;
 			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
@@ -192,7 +190,6 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			hit_data.dam *= 4;
 			SetBattleLag(victim, 3);
 			Affect<EApply> af;
-			af.type = ESpell::kBattle;
 			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;

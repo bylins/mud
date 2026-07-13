@@ -194,6 +194,8 @@ extern const char* build_datetime;
 extern const char* revision;
 extern const char* build_compiler;
 extern const char* build_features;
+extern const char* engine_name;
+extern const char* engine_version;
 
 // flags for show_list_to_char
 
@@ -801,7 +803,8 @@ int main_function(int argc, char **argv) {
 		exit(1);
 	}
 	LogBuildInfo();
-	printf("[%s] Code version %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n", utils::NowTs().c_str(), build_datetime, revision, build_compiler, build_features);
+	printf("[%s] %s %s, build from %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n",
+		utils::NowTs().c_str(), engine_name, engine_version, build_datetime, revision, build_compiler, build_features);
 	if (save_target) {
 		GameLoader::BootWorld();
 		// target_dir is interpreted relative to the world data directory

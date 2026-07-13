@@ -147,7 +147,24 @@ void ParseFlags(const json& j, const char* key, FlagsetType& flagset)
  * Usage:
  *   json arr = SerializeFlags(mob.char_specials.saved.act);
  */
-json SerializeFlags(const FlagData& flagset);
+template<class FlagsT>
+inline json SerializeFlags(const FlagsT& flagset)
+{
+	json flags_array = json::array();
+	for (size_t plane = 0; plane < 4; ++plane)
+	{
+		Bitvector plane_bits = flagset.get_plane(plane);
+		for (size_t bit = 0; bit < 30; ++bit)
+		{
+			if (plane_bits & (1U << bit))
+			{
+				unsigned int flag_value = (static_cast<unsigned int>(plane) << 30) | (1U << bit);
+				flags_array.push_back(static_cast<int>(flag_value));
+			}
+		}
+	}
+	return flags_array;
+}
 
 /**
  * \brief Serialize single Bitvector to JSON array

@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/equipment.h"
+#include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
@@ -602,7 +603,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		}
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, sizeof(smallBuf), ", ", 4);
+	snprintf(smallBuf, sizeof(smallBuf), "%s", affects::DescribeActive(k->char_specials.saved.affected_by, ", ").c_str());
 	std::vector<std::string> out_str = utils::Split(smallBuf, ',');
 	sprintf(buf, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 	SendMsgToChar(buf, ch);
@@ -615,18 +616,24 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					aff->duration + 1,
 					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
 					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
-					kColorCyn, MUD::Spell(aff->type).GetCName(), kColorNrm);
+					kColorCyn,
+					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
+					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(),
+					kColorNrm);
 			bool has_modifier = aff->modifier != 0;
 			if (has_modifier) {
 				sline += fmt::sprintf("%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 			}
 			if (aff->affect_type != EAffect::kUndefined) {
 				sline += has_modifier ? ", sets " : "sets ";
-				sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
+				snprintf(buf2, sizeof(buf2), "%s", affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 				sline += buf2;
 			}
 			if (aff->potency != 0.0f) {
-				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, aff->debuff ? "debuff" : "buff");
+				const auto bk = affects::AffectBuffKind(aff->affect_type);
+				const char *kind = bk == affects::EBuff::kYes ? "buff"
+						: bk == affects::EBuff::kNo ? "debuff" : "ambiguous";
+				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, kind);
 			}
 			sline += "\r\n";
 			SendMsgToChar(sline, ch);
@@ -1248,14 +1255,35 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		snprintf(buf1, sizeof(buf1), "&GАффекты на комнате:\r\n&n");
 		for (const auto &aff : rm->affected) {
 			size_t buf1_len = strlen(buf1);
-			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
-					MUD::Spell(aff->type).GetCName(),
+			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d, сила: %.1f) - %s.\r\n",
+					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
 					aff->duration,
-					aff->type == ESpell::kPortalTimer ? world[aff->modifier]->vnum : aff->modifier,
+					room_spells::IsPortalAffect(aff->affect_type) ? world[aff->modifier]->vnum : aff->modifier,
+					aff->potency,
 					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
 		}
 		SendMsgToChar(buf1, ch);
 	}
+
+	// issue.room-affect-trigger-improve (door affects): affects hosted on this room's exits/doors.
+	for (int d = 0; d < EDirection::kMaxDirNum; ++d) {
+		const auto ex = rm->dir_option[d];
+		if (!ex || ex->affected.empty()) {
+			continue;
+		}
+		snprintf(buf1, sizeof(buf1), "&GАффекты на выходе (%s):\r\n&n", dirs_rus[d]);
+		for (const auto &aff : ex->affected) {
+			const size_t len = strlen(buf1);
+			snprintf(buf1 + len, sizeof(buf1) - len,
+					"       Заклинание \"%s\" (длит: %d, модиф: %d, сила: %.1f, заряды: %s) - %s.\r\n",
+					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
+					aff->duration, aff->modifier, aff->potency,
+					(aff->charges == -1 ? "беск" : std::to_string(aff->charges).c_str()),
+					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
+		}
+		SendMsgToChar(buf1, ch);
+	}
+
 	// check the room for a script
 	do_sstat_room(rm, ch);
 }

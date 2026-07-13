@@ -18,7 +18,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -28,18 +27,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kArmor" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAc">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingReflex">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kMagicArmor"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -80,7 +70,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -90,15 +79,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBless" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kBless" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.2889" factor="-1" />
-					</apply>
-					<apply id="kBless" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.1508" factor="-1" />
-					</apply>
+					<affect id="kBless"/>
 				</affects>
 				<alter_obj handler="AlterBless" />
 			</action>
@@ -115,7 +98,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -130,12 +112,9 @@
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kDark">
+				<affects saving="kStability" resist="kDark">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -158,7 +137,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="10" sdice="3" adice="10" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -167,9 +146,10 @@
 			<base_stat id="kWis" threshold="22" weight="5" />
 		</success_roll>
 		<talent_actions>
-			<action>
-				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="20.5861" sigma="0.25" />				</damage>
+			<action id="Main">
+				<damage id="MainDamage" saving="kReflex">
+					<amount min="0" beta="20.5861" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
@@ -188,7 +168,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kNpcAffectPc|kMagAffects|kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="10" sdice="6" adice="40" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -199,7 +179,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="55.638" sigma="0.25" />				</damage>
+					<amount min="0" beta="55.638" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
@@ -237,7 +218,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kMagAffects|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="15" sdice="4" adice="30" />
+			<noise sigma="0.15" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -248,13 +229,11 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="55.4572" sigma="0.15" />				</damage>
-				<affects type="kChillTouch" saving="kStability" resist="kWater">
+					<amount min="0" beta="55.4572" weight="1" />
+				</damage>
+				<affects saving="kStability" resist="kWater">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfAccumulateDuration|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kStr">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.9425" factor="-1" />
-					</apply>
+					<affect id="kShivering"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -299,7 +278,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="12" sdice="30" adice="55" />
+			<noise sigma="0.15" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -310,7 +289,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="161.799" sigma="0.15" />				</damage>
+					<amount min="0" beta="161.799" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="30" dice_size="2" min="1" max="4" />
 					<distribution type="kStepped" decay="0.05" free_targets="2" />
@@ -388,7 +368,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagUnaffects|kNpcUnaffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -399,7 +378,7 @@
 		<talent_actions>
 			<action>
 				<unaffect dispel_bonus="80" decay="50">
-					<remove any_of="kBlindness" />
+					<remove any_of="kBlind" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -415,7 +394,7 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagPoints|kNpcDummy" />
 		<potency_roll>
-			<dices ndice="6" sdice="6" adice="6" />
+			<noise sigma="0.15" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="25" weight="18" />
 		</potency_roll>
@@ -426,7 +405,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="47.4703" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="0" beta="47.4703" weight="1" />
+				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -441,7 +421,7 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagPoints|kNpcDummy" />
 		<potency_roll>
-			<dices ndice="4" sdice="4" adice="4" />
+			<noise sigma="0.15" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="25" weight="18" />
 		</potency_roll>
@@ -452,7 +432,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="17.4481" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="0" beta="17.4481" weight="1" />
+				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -467,7 +448,6 @@
 		<targets val="kTarCharRoom|kTarFightVict|kTarObjInv" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="4" sdice="4" adice="4" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="12" weight="18" />
 		</potency_roll>
@@ -477,18 +457,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCurse" saving="kWill" resist="kDark">
+				<affects saving="kWill" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
-					<apply id="kCurse" location="kHitroll">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.8961" factor="-1" />
-					</apply>
-					<apply id="kCurse" location="kInitiative">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kCurse" location="kCastSuccess">
-						<modifier min="22.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kCurse"/>
 				</affects>
 				<alter_obj handler="AlterCurse" />
 			</action>
@@ -505,7 +476,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -515,12 +485,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectAlign" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectAlign" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectAlign"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -536,7 +503,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -546,12 +512,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectInvis" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectInvisible" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectInvisible"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -567,7 +530,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -577,12 +539,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectMagic" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectMagic" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectMagic"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -598,7 +557,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -608,12 +566,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectPoison" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectPoison" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -629,7 +584,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage" />
 		<potency_roll>
-			<dices ndice="4" sdice="30" adice="60" />
+			<noise sigma="0.15" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -645,7 +600,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="63.6246" sigma="0.15" />				</damage>
+					<amount min="0" beta="63.6246" weight="1" />
+				</damage>
 				<target_conditions>
 					<required>
 						<align val="kEvil" />
@@ -665,7 +621,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagDamage|kNpcDamagePc|kMagAffects" />
 		<potency_roll>
-			<dices ndice="40" sdice="3" adice="30" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -676,13 +632,13 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="56.8769" sigma="0.15" />				</damage>
+					<amount min="0" beta="56.8769" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="25" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
-				<affects type="kEarthquake" saving="kReflex" resist="kEarth">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kReflex" resist="kEarth">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 				</affects>
@@ -719,8 +675,9 @@
 		<mana max="150" min="140" change="2" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagManual|kMagAffects|kMagUnaffects|kNpcDamagePc" />
+		<tags val="curse" />
 		<potency_roll>
-			<dices ndice="5" sdice="6" adice="5" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -731,17 +688,15 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="4.6295" sigma="0.25" />				</damage>
-				<affects type="kWeaknes" saving="kWill" resist="kImmunity" potency_weight="1">
+					<amount min="0" beta="4.6295" weight="1" />
+				</damage>
+				<affects saving="kWill" resist="kImmunity" potency_weight="1">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kStr">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.7464" factor="-1" />
-					</apply>
+					<affect id="kDespodency"/>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kStrength|kDexterity" />
-					<remove any_of="kStrength|kDexterity" />
+					<breaking any_of="kMagicStrength|kCatGrace" />
+					<remove any_of="kMagicStrength|kCatGrace" />
 				</unaffect>
 				<manual_cast handler="SpellEnergydrain" />
 			</action>
@@ -758,7 +713,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="21" sdice="10" adice="80" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -769,7 +724,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="111.2378" sigma="0.25" />				</damage>
+					<amount min="0" beta="111.2378" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -783,8 +739,9 @@
 		<mana max="110" min="100" change="2" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
+		<tags val="curse" />
 		<potency_roll>
-			<dices ndice="8" sdice="20" adice="100" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -795,7 +752,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kCritical">
-					<amount min="0" dices_weight="0" alpha="0" beta="116.7062" sigma="0.25" />				</damage>
+					<amount min="0" beta="116.7062" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -810,7 +768,7 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagPoints|kNpcDummy" />
 		<potency_roll>
-			<dices ndice="12" sdice="12" adice="12" />
+			<noise sigma="0.15" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="25" weight="18" />
 		</potency_roll>
@@ -821,7 +779,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="0" beta="163.3086" weight="1" />
+				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -836,7 +795,6 @@
 		<targets val="kTarCharRoom|kTarObjInv|kTarObjRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -851,12 +809,9 @@
 						<affect_flags val="kGlitterDust" />
 					</blocking>
 				</target_conditions>
-				<affects type="kInvisible" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kInvisible" location="kAc">
-						<modifier min="40.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kInvisible"/>
 				</affects>
 				<alter_obj handler="AlterInvisible" />
 			</action>
@@ -873,7 +828,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="4" sdice="18" adice="5" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -884,7 +839,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="26.1732" sigma="0.25" />					<hits max="1" prob="20" />
+					<amount min="0" beta="26.1732" weight="1" />
+					<hits max="1" prob="20" />
 				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
@@ -924,7 +880,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="6" sdice="4" adice="10" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -933,9 +889,10 @@
 			<base_stat id="kWis" threshold="22" weight="5" />
 		</success_roll>
 		<talent_actions>
-			<action>
-				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="15.3468" sigma="0.25" />					<hits skill_divisor="12" max="2" prob="100" />
+			<action id="Main">
+				<damage id="Bolt" saving="kReflex">
+					<amount min="0" beta="15.3468" weight="1" />
+					<hits skill_divisor="12" max="2" prob="100" />
 				</damage>
 			</action>
 		</talent_actions>
@@ -950,7 +907,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="6" sdice="4" adice="10" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -961,7 +918,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="15.3468" sigma="0.25" />				</damage>
+					<amount min="0" beta="15.3468" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -976,7 +934,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarObjInv|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -995,14 +952,13 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kPoison" saving="kCritical" resist="kDark">
+				<affects saving="kCritical" resist="kDark">
 					<duration base="0" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfSameTime|kAfDispellable|kAfCurable" />
 					<apply id="kPoisoned" location="kStr">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="5" />
+						<modifier min="2" beta="0" factor="-1" />
 					</apply>
 					<apply id="kPoisoned" location="kPoison">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="5.2936" factor="1" />
+						<modifier min="0" beta="18.4125" factor="1" />
 					</apply>
 				</affects>
 				<alter_obj handler="AlterPoison" />
@@ -1020,7 +976,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -1030,12 +985,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kProtectFromDark" location="kResistDark">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kProtectFromDark"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1051,7 +1003,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip" />
 		<flags val="kMagUnaffects|kNpcUnaffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1079,7 +1030,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc|kNpcUnaffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -1089,12 +1039,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects dispel_mod="-35" type="kSanctuary" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kSanctuary" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kSanctuary"/>
 				</affects>
 				<unaffect prob="100" decay="25">
 					<breaking any_of="kPrismaticAura" />
@@ -1113,7 +1060,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="15" sdice="3" adice="20" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1124,7 +1071,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="35.6269" sigma="0.25" />				</damage>
+					<amount min="0" beta="35.6269" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -1139,7 +1087,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1155,13 +1102,10 @@
 						<affect_flags val="kHold" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSleep" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<reposition pos="kSleep" />
 					<duration base="1" skill_divisor="15" min="1" max="6" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kSleep" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kSleep"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1177,7 +1121,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1187,16 +1130,13 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kStrength" saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kStr">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kMagicStrength"/>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kWeaknes" />
-					<remove any_of="kWeaknes" />
+					<breaking any_of="kMagicWeaknes" />
+					<remove any_of="kMagicWeaknes" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -1232,7 +1172,7 @@
 		<targets val="kTarSelfOnly|kTarCharRoom" />
 		<flags val="kMagPoints|kMagAffects" />
 		<potency_roll>
-			<dices ndice="0" sdice="0" adice="1" />
+			<noise sigma="0.15" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="20" weight="18" />
 		</potency_roll>
@@ -1243,13 +1183,11 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="1" dices_weight="0" alpha="0" beta="48.9614" sigma="0.15" />				</points>
-				<affects type="kPatronage" saving="kNone" resist="kVitality">
+					<heal npc_coeff="3" min="1" beta="48.9614" weight="1" />
+				</points>
+				<affects saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="25" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod" />
-					<apply id="kUndefinded" location="kHp">
-						<modifier min="72.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kPatronage"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1290,7 +1228,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom" />
 		<flags val="kMagUnaffects|kNpcUnaffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1301,7 +1238,7 @@
 		<talent_actions>
 			<action>
 				<unaffect dispel_bonus="80" affect_flags="kAfCurable" decay="25">
-					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
+					<remove all_of="kPoisoned|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
 			</action>
@@ -1318,7 +1255,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1328,12 +1264,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kSenseLife" saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectLife" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="5" skill_divisor="5" min="5" max="5" />
+					<affect id="kDetectLife"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1369,7 +1302,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage" />
 		<potency_roll>
-			<dices ndice="10" sdice="15" adice="22" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1385,7 +1318,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="58.1128" sigma="0.25" />				</damage>
+					<amount min="0" beta="58.1128" weight="1" />
+				</damage>
 				<target_conditions>
 					<required>
 						<align val="kGood" />
@@ -1405,7 +1339,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1434,7 +1367,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagPoints|kNpcDummy" />
 		<potency_roll>
-			<dices ndice="8" sdice="8" adice="8" />
+			<noise sigma="0.15" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="25" weight="18" />
 		</potency_roll>
@@ -1445,7 +1378,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="82.908" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="0" beta="82.908" weight="1" />
+				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
@@ -1464,7 +1398,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagPoints|kNpcDummy" />
 		<potency_roll>
-			<dices ndice="12" sdice="12" adice="12" />
+			<noise sigma="0.15" />
 			<base_skill id="kPunctual" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="16" weight="18" />
 		</potency_roll>
@@ -1475,7 +1409,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="0" beta="163.3086" weight="1" />
+				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
@@ -1518,7 +1453,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1528,12 +1462,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kInfravision" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kInfravision" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kInfravision"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1549,7 +1480,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1559,12 +1489,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kWaterwalk" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kWaterWalk" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kWaterWalk"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1580,7 +1507,7 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagPoints|kNpcDummy" />
 		<potency_roll>
-			<dices ndice="4" sdice="4" adice="5" />
+			<noise sigma="0.15" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="25" weight="18" />
 		</potency_roll>
@@ -1591,7 +1518,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="26.595" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="0" beta="26.595" weight="1" />
+				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -1606,7 +1534,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1635,7 +1562,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1651,12 +1577,9 @@
 						<affect_flags val="kBrokenChains|kSleep" />
 					</blocking>
 				</target_conditions>
-				<affects type="kHold" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kHold" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kHold"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1672,7 +1595,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1688,12 +1610,9 @@
 						<affect_flags val="kBrokenChains|kSleep" />
 					</blocking>
 				</target_conditions>
-				<affects type="kHold" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="2" max="5" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kHold" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kHold"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1709,7 +1628,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1738,7 +1656,6 @@
 		<targets val="kTarCharRoom|kTarObjInv|kTarObjEquip" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1748,12 +1665,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects dispel_mod="-35" type="kFly" saving="kNone" resist="kAir">
+				<affects saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kFly" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kFly"/>
 				</affects>
 				<alter_obj handler="AlterFly" />
 			</action>
@@ -1770,7 +1684,6 @@
 		<targets val="kTarSelfOnly|kTarCharRoom" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1780,17 +1693,14 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBrokenChains" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kBrokenChains" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kBrokenChains"/>
 				</affects>
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kNoflee" element="kMind" mode="kEnabled">
+	<spell id="kEntangleEnemy" element="kMind" mode="kEnabled">
 		<name val="noflee" />
 		<components>
 			<verbal />
@@ -1801,7 +1711,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1816,12 +1725,9 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kNoflee" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kNoTeleport" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1856,7 +1762,6 @@
 		<targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1866,12 +1771,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDarkness" saving="kNone" resist="kDark">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kHolyDark" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kDark">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kHolyDark"/>
 				</affects>
 				<alter_obj handler="AlterDarkness" />
 			</action>
@@ -1888,7 +1790,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1898,12 +1799,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kStoneSkin" saving="kNone" resist="kEarth">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAbsorbe">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kEarth">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kStoneSkin"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1919,7 +1817,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1929,15 +1826,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCloudly" saving="kNone" resist="kWater">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSpelledBlinkMag">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kAc">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kWater">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kCloudly"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1953,7 +1844,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -1968,12 +1858,9 @@
 						<mob_flags val="kNoSilence" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSilence" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kSilence" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kSilence"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1989,7 +1876,6 @@
 		<targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -1999,12 +1885,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kLight" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kHolyLight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kHolyLight"/>
 				</affects>
 				<alter_obj handler="AlterLight" />
 			</action>
@@ -2021,7 +1904,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="40" sdice="4" adice="60" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -2032,7 +1915,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="88.1306" sigma="0.25" />				</damage>
+					<amount min="0" beta="88.1306" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="10" dice_size="3" min="1" max="8" />
 					<distribution type="kStepped" decay="0.05" free_targets="1" />
@@ -2049,9 +1933,9 @@
 		<misc pos="kFight" violent="Y" danger="5" />
 		<mana max="110" min="90" change="2" />
 		<targets val="kTarIgnore" />
-		<flags val="kMagMasses|kMagDamage|kNpcDamagePc" />
+		<flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="15" sdice="9" adice="45" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2062,11 +1946,24 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="63.0267" sigma="0.25" />				</damage>
+					<amount min="0" beta="63.0267" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
+				<!-- issue.damage-over-time: survivors of the blast catch fire (kBurning DoT). Runs after
+				     <damage> (a target killed by the blast is skipped). potency_weight scales the stored
+				     potency that drives kBurning's per-tick <damage>; a kReflex save / kFire resist cut
+				     the burn duration, mirroring the blast. -->
+				<affects saving="kReflex" resist="kFire" potency_weight="0.5">
+					<duration base="0" skill_divisor="6" min="2" max="6" />
+					<!-- issue.damage-over-time: cap the burn at 7 ticks (one charge per tick), so it lasts the
+					     same number of ticks in and out of combat and does not run the *30 (mud-hour) duration
+					     on a PC victim. Duration is the fallback bound; charges win when shorter. -->
+					<charges max="7"/>
+					<affect id="kBurning"/>
+				</affects>
 			</action>
 		</talent_actions>
 	</spell>
@@ -2081,7 +1978,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="16" sdice="36" adice="75" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2092,7 +1989,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kWill">
-					<amount min="0" dices_weight="0" alpha="0" beta="272.0575" sigma="0.25" />				</damage>
+					<amount min="0" beta="272.0575" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -2107,7 +2005,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2121,16 +2018,13 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kWeaknes" saving="kWill" resist="kImmunity">
+				<affects saving="kWill" resist="kImmunity">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kStr">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.6111" factor="-1" />
-					</apply>
+					<affect id="kMagicWeaknes"/>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kStrength|kDexterity" />
-					<remove any_of="kStrength|kDexterity" />
+					<breaking any_of="kMagicStrength|kCatGrace" />
+					<remove any_of="kMagicStrength|kCatGrace" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -2146,7 +2040,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2175,7 +2068,6 @@
 		<targets val="kTarSelfOnly|kTarCharRoom" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2185,12 +2077,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kShadowCloak" saving="kNone" resist="kDark">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kShadowCloak" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.7365" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kDark">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kShadowCloak"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2206,7 +2095,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="7" sdice="15" adice="30" />
+			<noise sigma="0.15" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -2217,7 +2106,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="70.6565" sigma="0.15" />				</damage>
+					<amount min="0" beta="70.6565" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="10" dice_size="3" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
@@ -2256,7 +2146,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2266,12 +2155,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kEnlarge" saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kSize">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="3.4984" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kEnlarge"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kLessening" />
@@ -2311,7 +2197,7 @@
 		<targets val="kTarCharRoom|kTarFightVict|kTarNotSelf" />
 		<flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="8" sdice="15" adice="60" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -2322,7 +2208,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kWill">
-					<amount min="0" dices_weight="0" alpha="0" beta="82.5134" sigma="0.25" />				</damage>
+					<amount min="0" beta="82.5134" weight="1" />
+				</damage>
 				<target_conditions>
 					<blocking>
 						<affect_flags val="kCharmed" />
@@ -2331,11 +2218,13 @@
 			</action>
 			<action target="kTarFightSelf" base="kDamage">
 				<points extra="300">
-					<heal min="0" dices_weight="0" alpha="0" beta="0.5171" npc_coeff="0" sigma="0.25" />				</points>
+					<heal npc_coeff="0" min="0" beta="0.5171" weight="1" />
+				</points>
 			</action>
 			<action target="kTarMinions" base="kDamage">
 				<points extra="300">
-					<heal min="0" dices_weight="0" alpha="0" beta="0.5171" npc_coeff="0" sigma="0.25" />				</points>
+					<heal npc_coeff="0" min="0" beta="0.5171" weight="1" />
+				</points>
 				<area>
 					<targets max="-1" />
 					<distribution type="kUniform" />
@@ -2359,7 +2248,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2374,15 +2262,9 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kWeb" saving="kReflex" resist="kMind">
+				<affects saving="kReflex" resist="kMind">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kNoFlee" location="kHitroll">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.5524" factor="-1" />
-					</apply>
-					<apply id="kNoFlee" location="kAc">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kWebbed"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2398,7 +2280,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2408,12 +2289,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBlink" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSpelledBlinkPhys">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="3.2222" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kBlink"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2429,7 +2307,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagUnaffects|kNpcUnaffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2463,7 +2340,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2482,12 +2358,9 @@
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kDark">
+				<affects saving="kStability" resist="kDark">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2503,7 +2376,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2532,7 +2404,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2547,12 +2418,9 @@
 						<mob_flags val="kNoSilence" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSilence" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kSilence" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kSilence"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2568,7 +2436,7 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagPoints|kNpcDummy" />
 		<potency_roll>
-			<dices ndice="2" sdice="3" adice="0" />
+			<noise sigma="0.15" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="20" weight="18" />
 		</potency_roll>
@@ -2579,7 +2447,8 @@
 		<talent_actions>
 			<action>
 				<points extra="33">
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="17.8635" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="0" beta="17.8635" weight="1" />
+				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -2614,7 +2483,6 @@
 		<targets val="kTarSelfOnly|kTarCharRoom" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2624,18 +2492,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMagicShield" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAc">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingReflex">
-						<modifier min="6.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
-						<modifier min="6.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kMagicShield"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2660,12 +2519,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kForbidden" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="60" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kNone">
-						<modifier min="0" dices_weight="0" alpha="0" beta="5.0445" factor="1" cap="100" />
-					</apply>
+					<affect id="kForbidden"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2681,7 +2537,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2710,7 +2565,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2737,7 +2591,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="3" sdice="5" adice="35" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2748,7 +2602,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kCritical">
-					<amount min="0" dices_weight="0" alpha="0" beta="23.5994" sigma="0.25" />				</damage>
+					<amount min="0" beta="23.5994" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -2763,7 +2618,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="5" sdice="5" adice="55" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2774,7 +2629,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kCritical">
-					<amount min="0" dices_weight="0" alpha="0" beta="35.3375" sigma="0.25" />				</damage>
+					<amount min="0" beta="35.3375" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="15" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="20" />
@@ -2793,7 +2649,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="10" sdice="5" adice="70" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2804,7 +2660,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kCritical">
-					<amount min="0" dices_weight="0" alpha="0" beta="50.1113" sigma="0.25" />				</damage>
+					<amount min="0" beta="50.1113" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="15" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="20" />
@@ -2823,7 +2680,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2852,7 +2708,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="30" sdice="4" adice="180" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -2863,7 +2719,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kWill">
-					<amount min="0" dices_weight="0" alpha="0" beta="136.2964" sigma="0.25" />				</damage>
+					<amount min="0" beta="136.2964" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="25" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
@@ -2882,7 +2739,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2911,7 +2767,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -2940,7 +2795,7 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagPoints" />
 		<potency_roll>
-			<dices ndice="18" sdice="90" adice="16" />
+			<noise sigma="0.15" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="15" weight="18" />
 		</potency_roll>
@@ -2951,7 +2806,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<moves min="20" dices_weight="0" alpha="0" beta="65.7678" sigma="0.15" />				</points>
+					<moves min="20" beta="65.7678" weight="1" />
+				</points>
 			</action>
 		</talent_actions>
 	</spell>
@@ -2966,7 +2822,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kMagAffects" />
 		<potency_roll>
-			<dices ndice="18" sdice="90" adice="16" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -2977,9 +2833,9 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="443.2066" sigma="0.15" />				</damage>
-				<affects type="kStunning" saving="kCritical" resist="kEarth">
-					<flags val="kAfDispellable|kAfCurable" />
+					<amount min="0" beta="443.2066" weight="1" />
+				</damage>
+				<affects saving="kCritical" resist="kEarth">
 					<reposition pos="kStun" />
 					<lag base="6" bonus_divisor="-1" />
 				</affects>
@@ -2995,20 +2851,6 @@
 	</spell>
 	<spell id="kSneak" element="kUndefined" mode="kService">
 		<name val="!set by skill!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kDrunked" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kAbstinent" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="0" min="0" change="0" />
 		<targets val="kTarNone" />
@@ -3031,8 +2873,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<thirst min="9999" dices_weight="0" alpha="0" beta="0" />
-					<full min="9999" dices_weight="0" alpha="0" beta="0" />
+					<thirst min="9999" beta="0" weight="1" />
+					<full min="9999" beta="0" weight="1" />
 				</points>
 			</action>
 		</talent_actions>
@@ -3048,7 +2890,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="11" sdice="7" adice="55" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3059,34 +2901,18 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="54.3839" sigma="0.25" />				</damage>
+					<amount min="0" beta="54.3839" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="40" dice_size="2" min="2" max="5" />
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
-				<affects type="kColdWind" saving="kStability" resist="kAir">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kAir">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
-					<apply id="kUndefinded" location="kDex">
-						<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kFrostbite"/>
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kBattle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kHaemorrhage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kCourage" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />
@@ -3113,7 +2939,6 @@
 		<targets val="kTarCharRoom" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3123,12 +2948,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects dispel_mod="-35" type="kWaterbreath" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kWaterBreath" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kWaterBreath"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3144,7 +2966,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3156,23 +2977,14 @@
 			<action>
 				<target_conditions>
 					<blocking>
-						<affect_flags val="kBrokenChains|kHaste" />
+						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSlowdown" saving="kStability" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kMind">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
-					<apply id="kSlow" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kDex">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kSlow"/>
+					<affect id="kSlowdown"/>
 				</affects>
-				<unaffect decay="25">
-					<breaking any_of="kHaste" />
-					<remove any_of="kHaste" />
-				</unaffect>
 			</action>
 		</talent_actions>
 	</spell>
@@ -3185,9 +2997,8 @@
 		<misc pos="kFight" violent="N" danger="0" />
 		<mana max="55" min="40" change="1" />
 		<targets val="kTarCharRoom|kTarFightSelf" />
-		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
+		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3197,17 +3008,10 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kHaste" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kHaste" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.4143" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kHaste"/>
 				</affects>
-				<unaffect decay="25">
-					<breaking any_of="kSlowdown" />
-					<remove any_of="kSlowdown" />
-				</unaffect>
 			</action>
 		</talent_actions>
 	</spell>
@@ -3222,7 +3026,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3251,7 +3054,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3280,7 +3082,6 @@
 		<targets val="kTarCharRoom|kTarSelfOnly" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -3290,18 +3091,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kGodsShield" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod" />
-					<apply id="kGodsShield" location="kSavingStability">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kGodsShield" location="kSavingWill">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kGodsShield" location="kSavingReflex">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kGodsShield"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3317,7 +3109,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3331,33 +3122,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kFever" saving="kStability" resist="kImmunity">
-					<flags val="kAfCurable" />
+				<affects saving="kStability" resist="kImmunity">
 					<duration base="0" skill_divisor="5" min="0" max="0" />
-					<apply id="kUndefinded" location="kHpRegen">
-						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kManaRegen">
-						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kMoveRegen">
-						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kPlague">
-						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kWis">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2762" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kInt">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2762" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kDex">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2762" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kStr">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2762" factor="-1" />
-					</apply>
+					<affect id="kFever"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3373,7 +3140,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagUnaffects|kNpcUnaffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3400,7 +3166,6 @@
 		<targets val="kTarCharRoom|kTarSelfOnly" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3410,25 +3175,12 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kAwareness" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kAwarness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kAwarness" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.5524" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kAwarness"/>
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kReligion" element="kUndefined" mode="kService">
-		<name val="!pray or donate!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kAirShield" element="kAir" mode="kEnabled">
 		<name val="air shield" />
@@ -3441,7 +3193,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3451,12 +3202,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects dispel_mod="-35" type="kAirShield" saving="kNone" resist="kAir">
+				<affects saving="kNone" resist="kAir">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kAirShield" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kAirShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kIceShield|kFireShield" />
@@ -3484,17 +3232,6 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kPortalTimer" element="kLight" mode="kService">
-		<name val="portal" />
-		<components>
-			<verbal />
-			<weave />
-		</components>
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="200" min="180" change="4" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kDispellMagic" element="kLight" mode="kEnabled">
 		<name val="dispel magic" />
 		<components>
@@ -3503,10 +3240,9 @@
 		</components>
 		<misc pos="kFight" violent="A" danger="0" />
 		<mana max="85" min="70" change="1" />
-		<targets val="kTarCharRoom|kTarFightSelf" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
 		<flags val="kMagUnaffects|kNpcUnaffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3532,7 +3268,6 @@
 		<mana max="100" min="80" change="2" />
 		<targets val="kTarIgnore" />
 		<potency_roll>
-			<dices ndice="10" sdice="10" adice="0" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -3559,7 +3294,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3569,15 +3303,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHpRegen">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="9.1142" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kMoveRegen">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="9.1142" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kFastRegeneration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3631,7 +3359,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3641,12 +3368,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects dispel_mod="-35" type="kFireShield" saving="kNone" resist="kFire">
+				<affects saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kFireShield" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kFireShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kIceShield|kAirShield" />
@@ -3713,7 +3437,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3723,12 +3446,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects dispel_mod="-35" type="kIceShield" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kIceShield" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kIceShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kFireShield|kAirShield" />
@@ -3747,7 +3467,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="20" sdice="5" adice="50" />
+			<noise sigma="0.15" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3758,18 +3478,16 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="40.0668" sigma="0.15" />				</damage>
+					<amount min="0" beta="40.0668" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="30" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kMagicBattle" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
-					<apply id="kMagicStopFight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kMagicStopFight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3785,7 +3503,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3795,12 +3512,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kLessening" saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kSize">
-						<modifier min="15.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kLessening"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kEnlarge" />
@@ -3820,7 +3534,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="10" sdice="4" adice="15" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3831,18 +3545,16 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="17.9674" sigma="0.25" />				</damage>
+					<amount min="0" beta="17.9674" weight="1" />
+				</damage>
 				<target_conditions>
 					<blocking>
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kFire">
+				<affects saving="kStability" resist="kFire">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3858,7 +3570,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3868,15 +3579,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMadness" saving="kWill" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kNoFlee" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kMadness">
-						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kMadness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3892,7 +3597,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3921,7 +3625,6 @@
 		<targets val="kTarSelfOnly|kTarCharRoom" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -3931,12 +3634,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCloudOfArrows" saving="kNone" resist="kFire">
-					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kCloudOfArrows" location="kHitroll">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kFire">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kCloudOfArrows"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3952,7 +3652,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc|kMagAffects" />
 		<potency_roll>
-			<dices ndice="4" sdice="90" adice="400" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -3963,9 +3663,9 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="296.3969" sigma="0.25" />				</damage>
-				<affects type="kVacuum" saving="kCritical" resist="kDark">
-					<flags val="kAfDispellable|kAfCurable" />
+					<amount min="0" beta="296.3969" weight="1" />
+				</damage>
+				<affects saving="kCritical" resist="kDark">
 					<reposition pos="kStun" />
 					<lag base="2" bonus_divisor="15" />
 				</affects>
@@ -3988,9 +3688,9 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kMeteorStorm" saving="kNone" resist="kVitality" tick_spell="kThunderStone">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
+					<affect id="kMeteorStorm"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4006,7 +3706,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4016,12 +3715,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kStoneHands" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kStoneHands" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kStoneHands"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4037,7 +3733,6 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4047,18 +3742,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMindless" saving="kStability" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kMind">
 					<duration base="0" skill_divisor="25" min="0" max="0" />
-					<apply id="kUndefinded" location="kManaRegen">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kCastSuccess">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kHitroll">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kMindless"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4074,7 +3760,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc|kNpcUnaffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4084,12 +3769,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects dispel_mod="-35" type="kPrismaticAura" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kPrismaticAura" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kPrismaticAura"/>
 				</affects>
 				<unaffect prob="100" decay="25">
 					<breaking any_of="kSanctuary" />
@@ -4109,7 +3791,7 @@
 		<targets val="kTarIgnore|kTarMinionsOnly" />
 		<flags val="kMagGroups|kMagAffects|kMagPoints" />
 		<potency_roll>
-			<dices ndice="15" sdice="15" adice="15" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="20" weight="18" />
 		</potency_roll>
@@ -4125,20 +3807,15 @@
 					</required>
 				</target_conditions>
 				<points>
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="1702.5223" sigma="0.25" />				</points>
+					<heal npc_coeff="3" min="0" beta="1702.5223" weight="1" />
+				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="1" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kEviless" saving="kNone" resist="kDark">
+				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod" />
-					<apply id="kForcesOfEvil" location="kDamroll">
-						<modifier min="19.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kForcesOfEvil" location="kHitroll">
-						<modifier min="11.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kForcesOfEvil"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4154,7 +3831,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4168,12 +3844,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kAirAura" saving="kNone" resist="kAir">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kAirAura" location="kResistAir">
-						<modifier min="1" dices_weight="0" alpha="0" beta="4.1428" factor="1" cap="30" />
-					</apply>
+				<affects saving="kNone" resist="kAir">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kAirAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4189,7 +3862,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4203,12 +3875,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kFireAura" saving="kNone" resist="kFire">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kFireAura" location="kResistWater">
-						<modifier min="1" dices_weight="0" alpha="0" beta="4.1428" factor="1" cap="30" />
-					</apply>
+				<affects saving="kNone" resist="kFire">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kFireAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4224,7 +3893,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4238,12 +3906,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kIceAura" saving="kNone" resist="kWater">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kIceAura" location="kResistFire">
-						<modifier min="1" dices_weight="0" alpha="0" beta="4.1428" factor="1" cap="30" />
-					</apply>
+				<affects saving="kNone" resist="kWater">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kIceAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4259,7 +3924,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="8" sdice="15" adice="60" />
+			<noise sigma="0.15" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -4270,21 +3935,17 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="53.3531" sigma="0.15" />				</damage>
+					<amount min="0" beta="53.3531" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="35" dice_size="2" min="1" max="4" />
 					<distribution type="kStepped" decay="0.05" free_targets="2" />
 				</area>
-				<affects type="kMagicBattle" saving="kStability" resist="kVitality">
+				<affects saving="kStability" resist="kVitality">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
-					<apply id="kMagicStopFight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kMagicStopFight"/>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4300,7 +3961,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4310,12 +3970,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMagicGlass" saving="kNone" resist="kVitality">
-					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kMagicGlass" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="15" min="5" max="15" />
+					<affect id="kMagicGlass"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4331,7 +3988,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4360,7 +4016,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4389,7 +4044,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4399,12 +4053,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDeafness" saving="kStability" resist="kMind">
+				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4420,7 +4071,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4430,12 +4080,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDeafness" saving="kStability" resist="kMind">
+				<affects saving="kStability" resist="kMind">
 					<duration base="4" skill_divisor="10" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4451,7 +4098,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4478,7 +4124,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4507,7 +4152,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="6" sdice="8" adice="90" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4518,7 +4163,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="35.4125" sigma="0.15" />				</damage>
+					<amount min="0" beta="35.4125" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="15" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
@@ -4528,14 +4174,11 @@
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kEarth">
+				<affects saving="kStability" resist="kEarth">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4551,7 +4194,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="12" sdice="12" adice="90" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="50" weight="18" />
 		</potency_roll>
@@ -4562,18 +4205,16 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="77.2077" sigma="0.15" />				</damage>
+					<amount min="0" beta="77.2077" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="1" max="3" />
 					<distribution type="kStepped" decay="0.05" free_targets="1" />
 				</area>
-				<affects type="kMagicBattle" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
-					<apply id="kMagicStopFight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kMagicStopFight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4588,7 +4229,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="30" sdice="2" adice="50" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4599,19 +4240,17 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="52.7151" sigma="0.25" />				</damage>
+					<amount min="0" beta="52.7151" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kDeafness" saving="kCritical" resist="kAir">
+				<affects saving="kCritical" resist="kAir">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4627,7 +4266,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagManual|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="10" sdice="8" adice="150" />
+			<noise sigma="0.15" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4638,10 +4277,11 @@
 		<talent_actions>
 			<action>
 				<damage saving="kCritical">
-					<amount min="0" dices_weight="0" alpha="0" beta="239.6142" sigma="0.15" />				</damage>
+					<amount min="0" beta="239.6142" weight="1" />
+				</damage>
 				<unaffect decay="25">
-					<breaking any_of="kEviless" />
-					<remove any_of="kEviless" />
+					<breaking any_of="kForcesOfEvil" />
+					<remove any_of="kForcesOfEvil" />
 				</unaffect>
 				<target_conditions>
 					<blocking>
@@ -4649,12 +4289,9 @@
 						<affect_flags val="kForcesOfEvil|kBrokenChains|kSleep" />
 					</blocking>
 				</target_conditions>
-				<affects type="kHold" saving="kWill" resist="kVitality">
+				<affects saving="kWill" resist="kVitality">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kHold" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kHold"/>
 				</affects>
 				<manual_cast handler="SpellHolystrike" />
 			</action>
@@ -4717,7 +4354,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -4727,12 +4363,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFascination" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kCha">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kFascination"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4748,7 +4381,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="1" sdice="1" adice="0" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 		</potency_roll>
 		<success_roll>
@@ -4761,21 +4393,9 @@
 						<affect_flags val="kCrying" />
 					</blocking>
 				</target_conditions>
-				<affects type="kCrying" saving="kStability" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kMind">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
-					<apply id="kCrying" location="kHp">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="51.3344" factor="-1" />
-					</apply>
-					<apply id="kCrying" location="kLikes">
-						<modifier min="3.0" dices_weight="0" alpha="0" beta="2.5667" factor="-1" />
-					</apply>
-					<apply id="kCrying" location="kCastSuccess">
-						<modifier min="3.0" dices_weight="0" alpha="0" beta="1.0267" factor="-1" />
-					</apply>
-					<apply id="kCrying" location="kMorale">
-						<modifier min="2.0" dices_weight="0" alpha="0" beta="0.5133" factor="-1" />
-					</apply>
+					<affect id="kCrying"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4791,7 +4411,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4801,13 +4420,10 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kOblivion" saving="kWill" resist="kDark">
+				<affects saving="kWill" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kSlow" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kSlow"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4823,7 +4439,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagAreas|kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4837,13 +4452,10 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kOblivion" saving="kCritical" resist="kDark">
+				<affects saving="kCritical" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kSlow" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kSlow"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4865,7 +4477,7 @@
 		<talent_actions>
 			<action>
 				<points>
-					<moves min="9999" dices_weight="0" alpha="0" beta="0" />
+					<moves min="9999" beta="0" weight="1" />
 				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
@@ -4885,7 +4497,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarFightVict" />
 		<flags val="kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -4901,35 +4512,11 @@
 						<affect_flags val="kPeaceful" />
 					</blocking>
 				</target_conditions>
-				<affects type="kPeaceful" saving="kNone" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kNone" resist="kMind">
 					<reposition stop_fight="true" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kPeaceful" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-				</affects>
-			</action>
-		</talent_actions>
-	</spell>
-	<spell id="kMagicBattle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-		<talent_actions>
-			<action>
-				<affects type="kMagicBattle" saving="kNone" resist="kVitality">
-					<flags val="kAfDispellable" />
-					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<apply id="kUndefinded" location="kHitroll">
-						<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kCastSuccess">
-						<modifier min="8.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kPeaceful"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4952,7 +4539,6 @@
 		<targets val="kTarCharRoom|kTarNotSelf|kTarMinionsOnly" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -4970,15 +4556,9 @@
 						<mob_flags val="kCorpse" />
 					</required>
 				</target_conditions>
-				<affects type="kStoneBones" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="100" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kArmour">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="6.7666" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="6.7666" factor="1" />
-					</apply>
+					<affect id="kStoneBones"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5000,9 +4580,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kRoomLight" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="75" skill_divisor="1" min="0" max="0" />
-					<flags val="kAfAccumulateDuration|kAfUpdateDuration" />
+					<affect id="kRoomLight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5023,47 +4603,10 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kDeadlyFog" saving="kNone" resist="kVitality" tick_spell="kDeadlyFogTick">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="8" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
+					<affect id="kDeadlyFog"/>
 				</affects>
-			</action>
-		</talent_actions>
-	</spell>
-	<spell id="kDeadlyFogTick" element="kDark" mode="kService">
-		<name val="deadly fog tick" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarRoomThis" />
-		<flags val="kMagDamage" />
-		<talent_actions>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kAcidArrow" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kPoison" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kDamageCritic" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kSacrifice" />
 			</action>
 		</talent_actions>
 	</spell>
@@ -5083,9 +4626,9 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kThunderstorm" saving="kNone" resist="kVitality" tick_handler="HandleThunderstormTick">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
+					<affect id="kThunderstorm"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5130,40 +4673,12 @@
 					<targets skill_divisor="15" dice_size="2" min="1" max="5" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kFailure" saving="kWill" resist="kDark">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kWill" resist="kDark">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
-					<apply id="kUndefinded" location="kMorale">
-						<modifier min="1.0" dices_weight="0" alpha="0" beta="3.5608" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kStr" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2448" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kDex" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2448" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kInt" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2448" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kWis" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2448" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kCon" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2448" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kCha" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.2448" factor="-1" />
-					</apply>
+					<affect id="kFailure"/>
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kClanPray" element="kUndefined" mode="kService">
-		<name val="!clan affect!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kGlitterDust" element="kEarth" mode="kEnabled">
 		<name val="glitterdust" />
@@ -5175,7 +4690,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -5190,13 +4704,11 @@
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
 				<unaffect decay="25">
-					<remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true" />
+					<remove all_of="kInvisible|kDisguise|kHide" breaking_by_failure="true" />
 				</unaffect>
-				<affects type="kGlitterDust" saving="kReflex" resist="kEarth">
+				<affects saving="kReflex" resist="kEarth">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<apply id="kGlitterDust" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="2.0254" factor="1" />
-					</apply>
+					<affect id="kGlitterDust"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5212,7 +4724,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="12" sdice="30" adice="150" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -5223,20 +4735,15 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="171.4896" sigma="0.25" />				</damage>
+					<amount min="0" beta="171.4896" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="40" dice_size="3" min="1" max="8" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kScream" saving="kStability" resist="kAir">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kAir">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
-					<apply id="kAffright" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="2.6427" factor="1" />
-					</apply>
-					<apply id="kAffright" location="kMorale">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.0136" factor="-1" />
-					</apply>
+					<affect id="kAffright"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5252,7 +4759,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5262,12 +4768,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCatGrace" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kDex">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kCatGrace"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5283,7 +4786,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5293,12 +4795,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBullBody" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kCon">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kBullBody"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5314,7 +4813,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5324,12 +4822,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kSnakeWisdom" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kWis">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kSnakeWisdom"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5345,7 +4840,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5355,12 +4849,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kGimmicry" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kInt">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kGimmicry"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5375,7 +4866,6 @@
 		<targets val="kTarFightVict" />
 		<flags val="kMagWarcry|kMagAreas|kMagDamage|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -5402,7 +4892,6 @@
 		<targets val="kTarFightVict" />
 		<flags val="kMagWarcry|kMagAreas|kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -5412,12 +4901,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kWarcryOfMenace" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kMorale">
-						<modifier min="8.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kIndecision"/>
 				</affects>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
@@ -5436,7 +4922,7 @@
 		<targets val="kTarFightVict" />
 		<flags val="kMagWarcry|kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="11" sdice="6" adice="8" />
+			<noise sigma="0.15" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -5447,17 +4933,15 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="26.4926" sigma="0.15" />				</damage>
+					<amount min="0" beta="26.4926" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.01" free_targets="3" />
 				</area>
-				<affects type="kDeafness" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5472,7 +4956,6 @@
 		<targets val="kTarFightVict" />
 		<flags val="kMagWarcry|kMagAreas|kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="3" sdice="4" adice="0" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="20" weight="18" />
 		</potency_roll>
@@ -5486,18 +4969,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.01" free_targets="3" />
 				</area>
-				<affects type="kWarcryOfMadness" saving="kStability" resist="kMind">
+				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kInt" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.8932" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kCastSuccess" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="5.6083" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kManaRegen" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="5.6083" factor="-1" />
-					</apply>
+					<affect id="kInsanity"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5512,7 +4986,7 @@
 		<targets val="kTarFightVict" />
 		<flags val="kMagWarcry|kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc" />
 		<potency_roll>
-			<dices ndice="40" sdice="5" adice="0" />
+			<noise sigma="0.15" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -5523,7 +4997,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="68.368" sigma="0.15" />				</damage>
+					<amount min="0" beta="68.368" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.01" free_targets="3" />
@@ -5533,14 +5008,11 @@
 						<affect_flags val="kDeafness" />
 					</blocking>
 				</target_conditions>
-				<affects type="kWarcryOfThunder" saving="kStability" resist="kVitality">
+				<affects saving="kStability" resist="kVitality">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="0" max="6" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kDeafness" location="kSavingCritical">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5555,7 +5027,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -5569,21 +5040,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfDefence" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSavingCritical">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="2.0254" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="2.0254" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="2.0254" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="2.0254" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kRousing"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5598,7 +5057,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -5612,12 +5070,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfBattle" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAc">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="4.419" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kPassion"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5632,7 +5087,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagPoints|kMagAffects|kNpcDummy|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="0" sdice="1" adice="1" />
+			<noise sigma="0.15" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="20" weight="18" />
 		</potency_roll>
@@ -5643,17 +5098,15 @@
 		<talent_actions>
 			<action>
 				<points>
-					<heal npc_coeff="3" min="1" dices_weight="0" alpha="0" beta="25.3709" sigma="0.15" />				</points>
+					<heal npc_coeff="3" min="1" beta="25.3709" weight="1" />
+				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfPower" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHp">
-						<modifier min="100.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kSurgeOfPower"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5668,7 +5121,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -5682,15 +5134,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfBless" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.1508" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.1508" factor="-1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kSurgeOfValour"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5705,7 +5151,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -5719,15 +5164,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfCourage" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHitroll">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.5524" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kDamroll">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="0.8746" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kBattleCourage"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5755,9 +5194,9 @@
 						<room_flags val="kPeaceful|kTunnel|kNoTeleportIn" />
 					</blocking>
 				</target_conditions>
-				<affects type="kRuneLabel" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="1100" skill_divisor="10" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUnique" />
+					<affect id="kRuneLabel"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5769,7 +5208,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kPoisoning" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5784,11 +5222,10 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
 					<apply id="kPoisoned" location="kAconitumPoison">
-						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
+						<modifier min="30" beta="0" factor="1" />
 					</apply>
 				</affects>
 			</action>
@@ -5801,7 +5238,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kPoisoning" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5816,15 +5252,10 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
-					<apply id="kPoisoned" location="kScopolaPoison">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
-					</apply>
-					<apply id="kScopolaPoison" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
-					</apply>
+					<affect id="kPoisoned"/>
+					<affect id="kScopolaPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5836,7 +5267,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kPoisoning" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5851,11 +5281,10 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
 					<apply id="kPoisoned" location="kBelenaPoison">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
+						<modifier min="5" beta="0" factor="1" />
 					</apply>
 				</affects>
 			</action>
@@ -5868,7 +5297,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kPoisoning" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -5883,11 +5311,10 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
 					<apply id="kPoisoned" location="kDaturaPoison">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
+						<modifier min="5" beta="0" factor="1" />
 					</apply>
 				</affects>
 			</action>
@@ -5923,35 +5350,7 @@
 		<targets val="kTarCharRoom|kTarSelfOnly" />
 		<flags val="kMagAffects" />
 	</spell>
-	<spell id="kBandage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoBandage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kCapable" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kStrangle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kRecallSpells" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="0" min="0" change="0" />
@@ -5974,21 +5373,14 @@
 		<flags val="kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kHypnoticPattern" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="114" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfDispellable" />
+					<affect id="kHypnoticPattern"/>
 				</affects>
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kSolobonus" element="kUndefined" mode="kService">
-		<name val="bonus" />
-		<misc pos="kFight" violent="N" danger="1" />
-		<mana max="55" min="40" change="1" />
-		<targets val="kTarCharRoom|kTarNotSelf" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kVampirism" element="kDark" mode="kDisabled">
+	<spell id="kVampirism" element="kDark" mode="kEnabled">
 		<name val="vampire" />
 		<components>
 			<verbal />
@@ -5996,10 +5388,9 @@
 		</components>
 		<misc pos="kStand" violent="N" danger="3" />
 		<mana max="150" min="130" change="5" />
-		<targets val="kTarIgnore" />
-		<flags val="kMagManual" />
+		<targets val="kTarCharRoom|kTarFightSelf" />
+		<flags val="kMagAffects" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6009,14 +5400,10 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kVampirism" saving="kNone" resist="kDark">
+				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kVampirism" location="kDamroll">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kVampirism"/>
 				</affects>
-				<manual_cast handler="SpellVampirism" />
 			</action>
 		</talent_actions>
 	</spell>
@@ -6158,9 +5545,9 @@
 						<room_flags val="kForMono|kForPoly" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlackTentacles" saving="kNone" resist="kVitality" tick_spell="kDamageSerious">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="1" skill_divisor="18" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
+					<affect id="kBlackTentacles"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6176,7 +5563,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="14" sdice="10" adice="25" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="32" weight="18" />
 		</potency_roll>
@@ -6187,7 +5574,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kStability">
-					<amount min="0" dices_weight="0" alpha="0" beta="70.6358" sigma="0.25" />					<hits max="1" prob="14" />
+					<amount min="0" beta="70.6358" weight="1" />
+					<hits max="1" prob="14" />
 				</damage>
 				<area>
 					<targets skill_divisor="10" dice_size="3" min="5" max="20" />
@@ -6207,7 +5595,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6218,18 +5606,16 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="22.5211" sigma="0.15" />				</damage>
+					<amount min="0" beta="22.5211" weight="1" />
+				</damage>
 				<target_conditions>
 					<blocking>
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kIndriksTeeth" saving="kWill" resist="kEarth">
+				<affects saving="kWill" resist="kEarth">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kNoTeleport" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6245,7 +5631,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="20" sdice="25" adice="75" />
+			<noise sigma="0.15" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6256,21 +5642,21 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="118.6796" sigma="0.15" />				</damage>
-				<affects type="kAcidArrow" saving="kStability" resist="kImmunity" prob="15">
+					<amount min="0" beta="118.6796" weight="1" />
+				</damage>
+				<affects saving="kStability" resist="kImmunity" prob="15">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply random="true" id="kSilence" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+						<modifier min="0" beta="0" factor="1" />
 					</apply>
 					<apply random="true" id="kUndefinded" location="kPlague">
-						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+						<modifier min="30" beta="0" factor="1" />
 					</apply>
 					<apply random="true" id="kPoisoned" location="kPoison">
-						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+						<modifier min="30" beta="0" factor="1" />
 					</apply>
 					<apply random="true" id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+						<modifier min="0" beta="0" factor="1" />
 					</apply>
 				</affects>
 				<area>
@@ -6292,7 +5678,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="15" sdice="6" adice="30" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="40" weight="18" />
 		</potency_roll>
@@ -6303,7 +5689,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="60.5898" sigma="0.15" />				</damage>
+					<amount min="0" beta="60.5898" weight="1" />
+				</damage>
 				<area>
 					<targets skill_divisor="25" dice_size="2" min="5" max="10" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
@@ -6322,7 +5709,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="9" sdice="20" adice="50" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6333,21 +5720,14 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="101.8361" sigma="0.15" />				</damage>
-				<affects type="kClod" saving="kReflex" resist="kEarth">
-					<flags val="kAfDispellable|kAfCurable" />
+					<amount min="0" beta="101.8361" weight="1" />
+				</damage>
+				<affects saving="kReflex" resist="kEarth">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kExpedient" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
 		<name val="sight darkness" />
@@ -6360,7 +5740,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6374,12 +5753,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kInfravision" saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kInfravision" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kInfravision"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6395,7 +5771,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6424,7 +5799,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6438,12 +5812,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kDetectMagic" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectMagic" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectMagic"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6459,7 +5830,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6473,12 +5843,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kDetectInvis" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectInvisible" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectInvisible"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6494,7 +5861,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -6508,12 +5874,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kSenseLife" saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectLife" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectLife"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6529,7 +5892,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6543,12 +5905,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWaterbreath" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kWaterBreath" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kWaterBreath"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6564,7 +5923,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -6578,15 +5936,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHpRegen">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kMoveRegen">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kFastRegeneration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6608,8 +5960,8 @@
 		<talent_actions>
 			<action>
 				<points>
-					<thirst min="9999" dices_weight="0" alpha="0" beta="0" />
-					<full min="9999" dices_weight="0" alpha="0" beta="0" />
+					<thirst min="9999" beta="0" weight="1" />
+					<full min="9999" beta="0" weight="1" />
 				</points>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
@@ -6629,7 +5981,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6643,12 +5994,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kStoneSkin" saving="kNone" resist="kEarth">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAbsorbe">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kEarth">
+					<duration base="5" skill_divisor="8" min="5" max="25" />
+					<affect id="kStoneSkin"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6664,7 +6012,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6678,12 +6025,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kDetectPoison" saving="kNone" resist="kMind">
-					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kDetectPoison" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<affect id="kDetectPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6699,7 +6043,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6713,12 +6056,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kEarthAura" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kEarthAura" location="kResistEarth">
-						<modifier min="1" dices_weight="0" alpha="0" beta="4.1428" factor="1" cap="30" />
-					</apply>
+					<affect id="kEarthAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6734,7 +6074,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6759,7 +6098,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="30" sdice="4" adice="45" />
+			<noise sigma="0.25" />
 			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6770,7 +6109,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="75.9347" sigma="0.25" />				</damage>
+					<amount min="0" beta="75.9347" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -6781,7 +6121,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="30" sdice="4" adice="45" />
+			<noise sigma="0.15" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6792,7 +6132,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="75.9347" sigma="0.15" />				</damage>
+					<amount min="0" beta="75.9347" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -6803,7 +6144,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="30" sdice="4" adice="45" />
+			<noise sigma="0.15" />
 			<base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6814,7 +6155,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="75.9347" sigma="0.15" />				</damage>
+					<amount min="0" beta="75.9347" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -6825,7 +6167,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="30" sdice="4" adice="45" />
+			<noise sigma="0.25" />
 			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6836,7 +6178,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="75.9347" sigma="0.25" />				</damage>
+					<amount min="0" beta="75.9347" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -6847,7 +6190,7 @@
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
-			<dices ndice="30" sdice="4" adice="45" />
+			<noise sigma="0.25" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -6858,7 +6201,8 @@
 		<talent_actions>
 			<action>
 				<damage saving="kReflex">
-					<amount min="0" dices_weight="0" alpha="0" beta="75.9347" sigma="0.25" />				</damage>
+					<amount min="0" beta="75.9347" weight="1" />
+				</damage>
 			</action>
 		</talent_actions>
 	</spell>
@@ -6869,7 +6213,7 @@
 		<targets val="kTarNone" />
 		<flags val="kMagGroups|kMagAffects|kMagPoints" />
 		<potency_roll>
-			<dices ndice="12" sdice="12" adice="12" />
+			<noise sigma="0.15" />
 			<base_skill id="kPunctual" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="16" weight="18" />
 		</potency_roll>
@@ -6884,27 +6228,16 @@
 					<distribution type="kUniform" />
 				</area>
 				<points prob="15">
-					<heal npc_coeff="3" min="0" dices_weight="0" alpha="0" beta="163.3086" sigma="0.15" />				</points>
-				<affects type="kPaladineInspiration" saving="kNone" resist="kImmunity">
+					<heal npc_coeff="3" min="0" beta="163.3086" weight="1" />
+				</points>
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable" />
-					<apply id="kUndefinded" location="kPhysicDamagePercent" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="3.3323" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kCastSuccess" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="3.3323" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kManaRegen" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="11.6632" factor="1" />
-					</apply>
-					<apply id="kUndefinded" location="kMagicDamagePercent" random="true">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="3.3323" factor="1" />
-					</apply>
+					<affect id="kInspiration"/>
 				</affects>
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kDexterity" element="kLife" mode="kEnabled">
+	<spell id="kDexterity" element="kLife" mode="kDisabled">
 		<name val="dexterity" />
 		<components>
 			<verbal />
@@ -6915,7 +6248,6 @@
 		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -6925,16 +6257,13 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDexterity" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kDex">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kCatGrace"/>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kWeaknes" />
-					<remove any_of="kWeaknes" />
+					<breaking any_of="kMagicWeaknes" />
+					<remove any_of="kMagicWeaknes" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -6950,7 +6279,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
@@ -6979,7 +6307,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWaterMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -7008,7 +6335,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagGroups|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
@@ -7036,7 +6362,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -7050,12 +6375,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfExperience" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kExpPercent">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.0127" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kConcentration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -7070,7 +6392,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -7084,12 +6405,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfLuck" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kMorale">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.0127" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kBattleLuck"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -7104,7 +6422,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kWarcry" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCon" threshold="22" weight="18" />
 		</potency_roll>
@@ -7118,12 +6435,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfPhysdamage" saving="kNone" resist="kMind">
-					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kPhysicDamagePercent">
-						<modifier min="0.0" dices_weight="0" alpha="0" beta="1.0127" factor="1" />
-					</apply>
+				<affects saving="kNone" resist="kMind">
+					<duration base="2" skill_divisor="50" min="10" max="10" />
+					<affect id="kPhysdamageBonus"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -7167,7 +6481,6 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kCha" threshold="22" weight="18" />
 		</potency_roll>
@@ -7186,50 +6499,12 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSnare" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kNoTeleport" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kExpedientFail" element="kUndefined" mode="kService">
-		<name val="!expediend fail!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kLowerEffectiveness" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoInjure" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoCharge" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kConfuse" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kIdentify" element="kMind" mode="kEnabled">
 		<name val="identify" />
@@ -7271,24 +6546,36 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kQUest" element="kUndefined" mode="kService">
-		<name val="!quest spell!" />
-		<misc pos="kFight" violent="N" danger="1" />
-		<mana max="55" min="40" change="1" />
-		<targets val="kTarCharRoom|kTarNotSelf" />
-		<flags val="kMagManual" />
+	<spell id="kFireTrap" element="kFire" mode="kTesting">
+		<name val="fire trap" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="50" min="40" change="2" />
+		<targets val="kTarDirection" />
+		<flags val="kMagRoom" />
+		<potency_roll>
+			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="0" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kFireMagic" low_skill_bonus="0" hi_skill_bonus="40" />
+			<base_stat id="kWis" threshold="0" weight="100" />
+		</success_roll>
 		<talent_actions>
 			<action>
-				<target_conditions>
-					<blocking>
-						<room_flags val="kNoMagic" />
-					</blocking>
-				</target_conditions>
+				<affects saving="kNone" resist="kVitality">
+					<!-- base="-1": permanent (never decays); the trap stays until it is triggered its
+					     3 charges' worth of times or dispelled. UpdateExitsAffects treats duration -1 as
+					     permanent. -->
+					<duration base="-1" skill_divisor="0" min="0" max="0" />
+					<charges max="3"/>
+					<affect id="kFireTrap"/>
+				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kTestOne" mode="kTesting">
-		<name val="test 1" />
 	</spell>
 	<spell id="kTestTwo" mode="kTesting">
 		<name val="test 2" />
@@ -7301,5 +6588,161 @@
 	</spell>
 	<spell id="kTestFive" mode="kTesting">
 		<name val="test 5" />
+	</spell>
+	<spell id="kUnweave" element="kLight" mode="kEnabled">
+		<name val="unweave" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="70" min="55" change="1" />
+		<targets val="kTarCharRoom|kTarSelf" />
+		<flags val="kMagUnaffects" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfDispellable" dispel_bonus="50" debuff_only="Y">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kSuppress" element="kLight" mode="kEnabled">
+		<name val="suppress" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="75" min="60" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfBoon" dispel_bonus="40">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kErode" element="kLight" mode="kEnabled">
+		<name val="erode" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="85" min="70" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfWarding" dispel_bonus="30">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kAegisRift" element="kLight" mode="kEnabled">
+		<name val="aegis rift" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="100" min="85" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfAegis" dispel_bonus="55">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kToils" element="kLight" mode="kEnabled">
+		<name val="toils" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="A" danger="0" />
+		<mana max="80" min="65" change="1" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfDispellable" dispel_bonus="15">
+					<remove any_of="kFly|kWaterWalk|kWaterBreath" />
+				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kCleanseArea" element="kLight" mode="kEnabled">
+		<name val="cleanse area" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="90" min="75" change="1" />
+		<targets val="kTarRoomThis" />
+		<flags val="kMagRoom" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<unaffect affect_flags="kAfDispellable" dispel_bonus="30">
+					<remove any_of="*" />
+				</unaffect>
+			</action>
+		</talent_actions>
 	</spell>
 </spells>

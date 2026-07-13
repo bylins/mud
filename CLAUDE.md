@@ -6,6 +6,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is **Bylins MUD** - a Russian-language Multi-User Dungeon game server based on CircleMUD/DikuMUD. The codebase is ~272K lines of C++20 code with extensive Russian comments and variable names. It implements a complete multiplayer text-based RPG with combat, magic, crafting, quests, and scripting systems.
 
+## Versioning Policy
+
+The engine is named **BRusMUD** and carries an explicit four-part version **`major.minor.patch.release`** (e.g. `0.1.0.12810`), shown by the in-game `version` command and in the boot log.
+
+- **major.minor.patch** are declared explicitly in the repo-root **`VERSION.txt`** file — the single source of truth.
+- **release** (the 4th number) is generated automatically at build time from the git commit count (`git rev-list --count HEAD`, via `tools/meson/generate_version.py`). **Never edit it by hand** — it advances on its own with every commit.
+
+### When to bump (rules for Claude Code)
+
+- **patch** — bump **manually and without prompting** on **every bug fix and every feature-branch merge**. Count the merges: if two branches are merged (e.g. one into `master` and one into `unstable`), increase patch by **2**. Treat editing `VERSION.txt` as a routine step of finishing such work, included in the same commit/merge.
+- **minor** — bump when a **major rework** lands (for example, the data-driven effects/affects system would qualify). Reset patch to `0`.
+- **major** — bump **only when the user explicitly says so**. Reset minor and patch to `0`. You **may prompt** the user to consider a major bump once **minor reaches 100 or more**.
+
+Only the `VERSION.txt` file changes for a version bump; `release` and the build-date stamp update themselves on the next build.
+
 ## Build Commands
 
 ### Initial Setup (Ubuntu/WSL)

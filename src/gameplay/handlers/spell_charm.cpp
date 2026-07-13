@@ -25,7 +25,7 @@
 
 namespace handlers {
 
-EStageResult SpellCharm(CastContext &ctx) {
+EStageResult SpellCharm(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	int k_skills = 0;
@@ -98,7 +98,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 
 		if (victim->IsFlagged(EMobFlag::kNoGroup))
 			victim->UnsetFlag(EMobFlag::kNoGroup);
-		RemoveAffectFromChar(victim, ESpell::kCharm);
+		RemoveCharmBond(victim);
 		if (GetRealInt(victim) > GetRealInt(ch)) {
 			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch), 0, 0, 0);
 		} else {
@@ -106,8 +106,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
-		af.type = ESpell::kCharm;
+		af.battleflag = kAfCharmBond;
 
 		// резервируем место под фит ()
 		// the ~390-line AnimalMaster body moved to
@@ -155,8 +154,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
-		af.type = ESpell::kCharm;
+		af.battleflag = kAfCharmBond;
 		af.affect_type = EAffect::kCharmed;
 		affect_to_char(victim, af);
 		follow::AddFollower(ch, victim);

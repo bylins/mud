@@ -16,30 +16,6 @@ namespace admin_api::json {
 // Flag Serialization
 // ============================================================================
 
-json SerializeFlags(const FlagData& flagset)
-{
-	json flags_array = json::array();
-
-	// Iterate through all 4 planes
-	for (size_t plane = 0; plane < 4; ++plane)
-	{
-		Bitvector plane_bits = flagset.get_plane(plane);
-
-		// Check each bit in the plane (30 bits per plane)
-		for (size_t bit = 0; bit < 30; ++bit)
-		{
-			if (plane_bits & (1U << bit))
-			{
-				// Encode as: (plane << 30) | (1 << bit)
-				unsigned int flag_value = (static_cast<unsigned int>(plane) << 30) | (1U << bit);
-				flags_array.push_back(static_cast<int>(flag_value));
-			}
-		}
-	}
-
-	return flags_array;
-}
-
 json SerializeBitvector(Bitvector bits, size_t plane)
 {
 	json flags_array = json::array();

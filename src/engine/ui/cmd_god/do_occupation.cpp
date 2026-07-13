@@ -14,7 +14,7 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 	int rnum_start, rnum_stop;
 	bool found = false;
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, room_spells::ERoomAffect::kRuneLabel)) {
 		SendMsgToChar("В зоне имеется рунная метка.\r\n", ch);
 	}
 

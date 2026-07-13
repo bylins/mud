@@ -117,7 +117,7 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hi
 				}
 				if (check_sneak) {
 					SkipSneaking(vict, mob);
-					if ((vict)->Temporary.get(EXTRA_FAILSNEAK)) {
+					if ((vict)->Temporary.get(ECharExtraFlag::kFailSneak)) {
 						AFF_FLAGS(vict).unset(EAffect::kSneak);
 					}
 					if (AFF_FLAGGED(vict, EAffect::kSneak))
@@ -125,11 +125,11 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hi
 				}
 				if (!skip_hide_camouflage_checks) {
 					SkipHiding(vict, mob);
-					if ((vict)->Temporary.get(EXTRA_FAILHIDE)) {
+					if ((vict)->Temporary.get(ECharExtraFlag::kFailHide)) {
 						AFF_FLAGS(vict).unset(EAffect::kHide);
 					}
 					SkipCamouflage(vict, mob);
-					if ((vict)->Temporary.get(EXTRA_FAILCAMOUFLAGE)) {
+					if ((vict)->Temporary.get(ECharExtraFlag::kFailCamouflage)) {
 						AFF_FLAGS(vict).unset(EAffect::kDisguise);
 					}
 				}

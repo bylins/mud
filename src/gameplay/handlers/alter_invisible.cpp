@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-EStageResult AlterInvisible(CastContext &ctx) {
+EStageResult AlterInvisible(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (!obj->has_flag(EObjFlag::kNoinvis) && !obj->has_flag(EObjFlag::kInvisible)) {
 		obj->set_extra_flag(EObjFlag::kInvisible);

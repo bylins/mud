@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.affect-migration: the room-affect registry. id = the room_spells::ERoomAffect enumerator
+    (the identity, kept in C++). Parallels cfg/affects.xml for character affects. Per-room-affect
+    display/lifecycle text lives in cfg/messages/ru/room_affect_msg.xml.
+
+    Format (unified with spells.xml): effect flags live in a <flags val="..."/> child tag; per-tick
+    work lives in an <actions> block. Each <action> carries its own <trigger val="..."/> (an ACTION
+    flag, not an effect flag) deciding when it fires, so one effect can run different actions on
+    different events. trigger tokens: kPulse = every room-affect pulse; kBattlePulse = only while
+    combat is underway in the room. A side_spell action area-casts a spell on the room's foes; a
+    manual_cast action runs a hand-coded handler (the same kManualHandlers registry spells use).
+-->
+<room_affects>
+	<room_affect id="kNoPortalExit"/>
+	<room_affect id="kForbidden">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<seal_strength min="0" beta="5.5" factor="1" cap="100"/>
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kEnterNPC" return="0"/>
+				<target_conditions>
+					<blocking>
+						<mob_flags val="kIgnoreForbidden|kCompanion"/>
+					</blocking>
+				</target_conditions>
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kMeteorStorm">
+		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>
+		<actions>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kThunderStone" />
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kRoomLight">
+		<flags val="kAfUpdateDuration|kAfAccumulateDuration"/>
+	</room_affect>
+	<room_affect id="kDeadlyFog">
+		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>
+		<actions>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kAcidArrow" />
+			</action>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kPoison" />
+			</action>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kDamageCritic" />
+			</action>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kSacrifice" />
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kThunderstorm">
+		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>
+		<actions>
+			<action>
+				<trigger val="kPulse"/>
+				<manual_cast handler="HandleThunderstormTick" />
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kRuneLabel">
+		<flags val="kAfUpdateDuration|kAfUnique|kAfCasterInWorldDelay"/>
+	</room_affect>
+	<room_affect id="kHypnoticPattern">
+		<flags val="kAfDispellable|kAfCasterInRoom"/>
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kEnter"/>
+				<target_conditions>
+					<blocking>
+						<affect_flags val="kBlind"/>
+						<mob_flags val="kNoSleep|kClone"/>
+					</blocking>
+				</target_conditions>
+				<side_spell id="kSleep"/>
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kBlackTentacles">
+		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>
+		<actions>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kDamageSerious" />
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kPortalTimer"/>
+	<room_affect id="kFireTrap">
+		<flags val="kAfUpdateDuration|kAfDispellable"/>
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kOpen|kEnter|kPick|kUnlock|kClose|kLock" return="0"/>
+				<side_spell id="kFireball"/>
+			</action>
+			<!-- issue.damage-over-time: dispel sting. Whoever dispels the trap catches fire - the kBurning
+			     buff ITSELF is imposed (not a kFireBlast/kFireball cast). target=kTarFightSelf resolves to the
+			     dispeller (RunRoomAffectTrigger runs the kDispell action with them as caster), so it is
+			     self-inflicted (no PvP). kBurning inherits the trap's stored potency (dispel_potency), and
+			     - with issue.damage-over-time out-of-combat ticking - it burns even if the dispeller is not
+			     fighting. potency_weight/duration below are placeholder tuning; balance to taste. -->
+			<action target="kTarFightSelf">
+				<trigger val="kDispell"/>
+				<affects saving="kNone" resist="kFire" potency_weight="0.3">
+					<duration base="0" skill_divisor="20" min="2" max="4"/>
+					<!-- issue.damage-over-time: 7 ticks (one charge per tick), so the dispel sting burns the
+					     dispeller ~6-7 ticks whether or not they are in combat, instead of the *30 PC duration. -->
+					<charges max="7"/>
+					<affect id="kBurning"/>
+				</affects>
+			</action>
+		</actions>
+	</room_affect>
+</room_affects>

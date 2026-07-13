@@ -676,21 +676,20 @@ void Player::save_char() {
 
 	// affected_type
 	if (!tmp_aff.empty()) {
-		saved.printf("Affs:\n");
+		// issue.affect-migration: affects are persisted by their OWN identity (affect_type), not by
+		// the casting spell. Fields: affect_type duration modifier location battleflag potency
+		// stacks, then the affect's name as a readable comment (ignored on load). The Aff3 tag replaces
+		// the spell-keyed Aff2 block; old Aff2 blocks are dropped on load -- active buffs recast in game.
+		saved.printf("Aff3:\n");
 		for (auto &aff : tmp_aff) {
-			if (aff->type >= ESpell::kFirst) {
-				// Поля после battleflag: potency (сила наложения), debuff (1 -- дебафф, 0 -- бафф)
-				// и stacks (число стаков, issue.affect-stacks). Имя заклинания идёт последним как
-				// читаемый комментарий и при загрузке игнорируется.
-				// (merge: master switched to buffered saved.printf API; phase-1 work keeps
-				// the extended schema -- affect_type / potency / debuff / stacks fields)
-				saved.printf("%d %d %d %d %d %d %f %d %d %s\n", to_underlying(aff->type), aff->duration,
-						aff->modifier, aff->location, static_cast<int>(aff->affect_type),
-						static_cast<int>(aff->battleflag), aff->potency, static_cast<int>(aff->debuff),
-						aff->stacks, MUD::Spell(aff->type).GetCName());
+			if (aff->affect_type != EAffect::kUndefined) {
+				saved.printf("%d %d %d %d %d %f %d %s\n", static_cast<int>(aff->affect_type),
+						aff->duration, aff->modifier, aff->location, static_cast<int>(aff->battleflag),
+						aff->potency, aff->stacks,
+						NAME_BY_ITEM<EAffect>(aff->affect_type).c_str());
 			}
 		}
-		saved.printf("0 0 0 0 0 0\n");
+		saved.printf("0 0 0 0 0\n");
 	}
 
 	// порталы
@@ -767,7 +766,7 @@ void Player::save_char() {
 		if (found_follower
 			&& !found_follower->affected.empty()) {
 			for (const auto &aff : found_follower->affected) {
-				if (aff->type == ESpell::kCharm) {
+				if (IS_SET(aff->battleflag, kAfCharmBond)) {
 					if (found_follower->mob_specials.hire_price == 0) {
 						break;
 					}
@@ -1064,7 +1063,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		GET_SPELL_MEM(this, spell_id) = 0;
 	}
-	this->char_specials.saved.affected_by = clear_flags;
+	this->char_specials.saved.affected_by.clear();
 	POOFIN(this) = nullptr;
 	POOFOUT(this) = nullptr;
 	GET_RSKILL(this) = nullptr;    // рецептов не знает
@@ -1190,43 +1189,51 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					GET_AC(this) = num;
 				} else if (!strcmp(tag, "Aff ")) {
 					AFF_FLAGS(this).from_string(line);
-				} else if (!strcmp(tag, "Affs")) {
+				} else if (!strcmp(tag, "Aff2")) {
+					// issue.affect-migration: legacy spell-keyed temp-effect block. The format is now
+					// affect-identity-keyed (Aff3); drop the old block -- active buffs recast in game
+					// (kvirund: no back-compat for the temp-effects format).
+					do {
+						fbgetline(fl, line);
+						num = atoi(line);
+					} while (num != 0);
+				} else if (!strcmp(tag, "Aff3")) {
 					i = 0;
 					do {
 						fbgetline(fl, line);
-						// New saves carry extra fields after battleflag: potency (float), debuff (0/1)
-						// and stacks (issue.affect-stacks). Old saves parse fewer fields -> the
-						// missing ones keep their defaults (potency 0, debuff false, stacks 1). The
-						// trailing spell name is ignored.
+						// Fields: affect_type duration modifier location battleflag potency stacks.
+						// The trailing affect name is a readable comment, ignored here. af.type is gone --
+						// the affect is identified by affect_type; the funnel re-sources battleflag from it
+						// (preserving the per-instance kAfFailed / kAfCharmBond bits from the saved value).
 						float af_potency = 0.0f;
-						int af_debuff = 0;
 						int af_stacks = 1;
-						const int parsed = sscanf(line, "%d %d %d %d %d %d %f %d %d",
-								&num, &num2, &num3, &num4, &num5, &num6, &af_potency, &af_debuff, &af_stacks);
+						const int parsed = sscanf(line, "%d %d %d %d %d %f %d",
+								&num, &num2, &num3, &num4, &num6, &af_potency, &af_stacks);
 						if (num > 0) {
 							Affect<EApply> af;
-							af.type = static_cast<ESpell>(num);
+							af.affect_type = static_cast<EAffect>(num);
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
-							af.affect_type = static_cast<EAffect>(num5);
 							af.battleflag = num6;
-							if (parsed >= 8) {
+							if (parsed >= 6) {
 								af.potency = af_potency;
-								af.debuff = (af_debuff != 0);
 							}
-							if (parsed >= 9) {
+							if (parsed >= 7) {
 								af.stacks = std::max(1, af_stacks);
 							}
-//							if (af.type == ESpell::kCombatLuck) {
-//								af.handler.reset(new CombatLuckAffectHandler());
-//							}
 							affect_to_char(this, af);
 							i++;
 						}
 					} while (num != 0);
 					std::reverse(affected.begin(), affected.end());
-					/* do not load affects */
+				} else if (!strcmp(tag, "Affs")) {
+					// Legacy pre-renumber affect block: affect_type was stored as a packed value that no
+					// longer maps to the renumbered EAffect. Drop these (active spell buffs); recast in game.
+					do {
+						fbgetline(fl, line);
+						num = atoi(line);
+					} while (num != 0);
 				} else if (!strcmp(tag, "Alin")) {
 					alignment::SetAlignment(this, num);
 				}

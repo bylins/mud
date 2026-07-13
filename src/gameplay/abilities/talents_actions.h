@@ -16,9 +16,11 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 class CharData;
 enum class ESpell;
+namespace room_spells { enum class ERoomAffect : Bitvector; }
 
 namespace talents_actions {
 
@@ -46,15 +48,72 @@ enum class EActionTarget {
 	kTarRandomFoe,   // one random foe in the room
 	kTarRandomAlly,  // one random ally in the room
 	kTarMinions,     // the caster's charmed NPC followers in the room (minions)
-	kTarRoomThis     // the room itself -- this action imposes its effect on the room
+	kTarActor,       // issue.room-affect-trigger-improve: the char that triggered an event trigger
+	                 // (e.g. the character entering the room for kEnter/kEnterPC)
+	kTarRoomThis,    // the room itself -- this action imposes its effect on the room
 	                 // (the per-tick effect lives in the linked kService spell)
+	// issue.soullink-affect-patching: the bearer's/caster's charm master. Resolves to caster->get_master();
+	// used by target-holder patches that act on the minion's master (kSoulLink).
+	kTarMaster
+};
+
+// issue.affect-migration: which game event fires this <action>. An action with no <trigger> runs
+// inline in the normal cast pipeline (when the spell is cast); actions WITH a trigger fire only on
+// that event (e.g. a room affect's per-pulse tick). A single effect can carry several actions on
+// different triggers (e.g. a per-pulse action plus an on-dispel action). Dense integers + terminal
+// kCount so BitsetFlags<EActionTrigger> can hold the set.
+enum class EActionTrigger {
+	kPulse = 0,    // every affect pulse (room/char affect update), regardless of combat
+	kBattlePulse,  // an affect pulse, but only while combat is happening in the room
+	kEnter,        // issue.room-affect-trigger-improve: a character enters the room (any actor)
+	kEnterPC,      // ... only when a PC enters (mirrors DGScript WTRIG_ENTER / WTRIG_ENTER_PC)
+	kEnterNPC,     // ... only when an NPC enters (e.g. kForbidden seals a room against mobs, not players)
+	// issue.room-affect-trigger-improve (door affects): fired by the door commands on the room/exit
+	// affect when someone picks / unlocks / opens / closes / locks a door. return=0 refuses the action.
+	kPick,
+	kUnlock,
+	kOpen,
+	kClose,
+	kLock,
+	kPreHit,          // issue.character-affect-triggers: the bearer lands a (basic melee) hit on a victim
+	               // (pre-damage swing; event carries weapon, skill)
+	kPostHit,  // issue.character-affect-triggers: a landed hit resolved (post-damage; event carries
+	               // amount, weapon, skill, actor=victim)
+	kWardAttack,   // issue.attack-ward: the bearer is the TARGET of an incoming (magic) attack -- the
+	               // defender's affect may reflect/absorb it. Fired once per cast at the is_entry gate.
+	kKill,         // issue.character-affect-triggers: the bearer dealt the FATAL damage to a victim in
+	               // the same room (direct hit OR indirect DoT/spell -- whoever the death is credited to).
+	               // Fired from Damage::ProcessDeath on the resolved killer, before the victim is purged.
+	               // Event carries actor=victim, amount=fatal dmg, weapon, skill. Recommended targets are
+	               // kTarFightSelf / kTarGroup / kTarRandomAlly; do NOT target the victim (it is dead).
+	kExpired,      // issue.character-affect-triggers: THIS affect's timer (or trigger charges) ran out --
+	               // fired on the bearer once, just before the affect is stripped, from the affect-update
+	               // loops. Natural end -> no external actor; use self/ally targets (kTarFightSelf/Group).
+	kDispell,      // issue.character-affect-triggers: THIS affect was FORCIBLY removed by a dispeller
+	               // (dispel magic / unaffect -- the RemoveAffectAndAnnounce path). Fired on the bearer
+	               // before the strip; event.actor = the dispeller, so <action target="kTarActor"> can
+	               // sting them back.
+	kPoints,       // issue.character-affect-triggers: the bearer was RESTORED (HP/moves/thirst/full) by
+	               // an external caster via <points> (not natural regen). Fired on the bearer; event.actor
+	               // = the healer, event.amount = the restored amount. An optional <trigger category=>
+	               // restricts it to one points category (kHeal/kMoves/kThirst/kFull).
+	kWardDamage,   // issue.damage-change: the bearer is taking an INCOMING damage instance (fired per
+	               // Damage::Process on the victim's affects). A <damage_change> action passively scales
+	               // the damage / edits its flags -- data-driven kSanctuary/kPrismaticAura/kHold/etc.
+	kDeath,        // issue.character-affect-triggers: the bearer is DYING (fired from die() before
+	               // raw_kill). event.actor = the killer. <trigger return="0"/> PREVENTS the death (like
+	               // an entry trigger's block) -- but the action must also heal (a <points><heal> on
+	               // kTarFightSelf), or the char is still at <=0 HP and dies again next tick.
+	kCount
 };
 
 // issue.cast-chain: what a NON-FIRST <action> uses as the "base" of its formula instead of the
 // caster's competence (skill+stat). kCompetence (default) keeps competence; the others substitute
 // the matching per-cast accumulator (damage dealt / points restored / affects applied / removed).
 // The first action ignores this -- it always uses competence. Set via <action base="...">.
-enum class EActionBase { kCompetence, kDamage, kPoints, kAffects, kDispelled };
+// issue.character-affect-triggers: kTag = the formula base comes from an event tag (e.g. base="tag"
+// tag="amount"), read off the ActionContext's EventContext and cast to a number.
+enum class EActionBase { kCompetence, kDamage, kPoints, kAffects, kDispelled, kTag };
 
 // (EAlign moved to engine/entities/entities_constants.h, issue.cast-dmg-migration: it's a
 //  general alignment concept, not a talents-specific one. Used by <blocking>/<required>/<reflection>.)
@@ -83,20 +142,113 @@ struct FlagCondition {
 // CastToSingleTarget so it runs once for the whole cast, not per stage. Reflection can't fire on
 // self-casts. Potency/strength comparisons aren't checked here: mob/object affects are bare flags
 // without a potency value, so a simple flag match + prob is the most we can do today.
+// issue.attack-ward: which stages an <absorption> swallows (reflect is always whole-cast).
+enum class EWardScope {
+	kAll,       // every stage (whole cast negated)
+	kDamage,    // damage stages only (e.g. Shadow Cloak)
+	kAffect     // affect stages only
+};
+
 struct Reflection {
 	std::vector<EAffect> affect_flags;
 	EAlign align{EAlign::kAny};
 	int prob{20};
+	// issue.attack-ward: potency-contest bounds for a defender reflect ward. max > 0 switches the chance
+	// from the fixed `prob` to clamp(aff->potency - incoming spell potency, min, max) -- a stronger mirror
+	// vs a weaker spell reflects more (toward max), balanced/out-powered presses toward min.
+	int min{0};
+	int max{0};
+	// `present` is set when a <reflection> element was actually parsed, so the ward dispatcher can tell a
+	// defender Magic-Mirror ward (no affect_flags/align) from a default-constructed Reflection. The
+	// spell-side MaybeReflectToCaster uses empty() (affect_flags/align).
+	bool present{false};
 	[[nodiscard]] bool empty() const {
 		return affect_flags.empty() && align == EAlign::kAny;
 	}
 };
+
+// issue.attack-ward: a defender ABSORPTION ward (e.g. Shadow Cloak) -- swallows an incoming attack per
+// `scope`. The chance is either a fixed `prob`%, or, when `chance` names a resist apply (e.g.
+// kMagicResist), the target's capped GET_<that>(victim) so the absorb scales with a real, stackable stat.
+struct Absorption {
+	EWardScope scope{EWardScope::kAll};
+	EApply chance{EApply::kNone};   // kNone => use `prob`; else roll vs the target's capped GET_<apply>
+	int prob{0};
+	bool present{false};
+};
+
+// issue.damage-change: a PASSIVE incoming-damage modifier (`<damage_change>` on a kWardDamage action).
+// Applied by Damage::ApplyAffectDamageChanges, NOT the cast pipeline -- it mutates the in-flight Damage.
+// Stored as decoupled bitmasks so this header needs no fight/element enums: type_mask bit = fight::DmgType
+// value, element_mask bit = EElement value, flag masks bit = fight:: hit-flag index (< 64). 0 mask = "any".
+struct DamageChange {
+	int prob{100};                  // % chance the whole modification applies
+	unsigned type_mask{0};          // <conditions><type> -- damage must be one of these (0 = any)
+	unsigned element_mask{0};       // <conditions><element> -- magic-damage element must be one of these (0 = any)
+	unsigned long long flags_present{0};   // <conditions><flags present=> -- all must be SET on the Damage
+	unsigned long long flags_missing{0};   // <conditions><flags missing=> -- all must be CLEAR
+	unsigned long long flags_add{0};       // <flags add=> -- set these on the Damage
+	unsigned long long flags_remove{0};    // <flags remove=> -- clear these
+	int var_min{0};                 // <variation min=> percent
+	int var_max{0};                 // <variation max=> percent
+	int var_factor{0};              // <variation factor=> signed direction (-1 reduce / +1 increase; 0 = none)
+	bool late{false};               // <damage_change stage="late"> -- applied AFTER the shield/reflect stage
+	                                // (so a hardcoded reflect still sees the pre-reduction damage); default
+	                                // "early" runs at the main incoming-damage hook (sanct/prism/hold).
+	int msg_variant{0};             // <damage_change msg=>: 0 (default) emit kTransformTo*; "crit" -> 1
+	                                // emit kTransformCrit* (a second flavor, e.g. ice "softened" vs "crit
+	                                // absorbed"); "none" -> 2 emit nothing (a silent modifier, e.g. fire's
+	                                // reflect-case reduction, whose flavor is the reflected hit itself).
+	bool present{false};
+};
+
+// issue.damage-change: a THORNS/RETALIATION modifier (`<retaliation>` on a kWardDamage action). Distinct
+// from the whole-cast <reflection> (Magic Mirror) above: here the bearer STILL takes the hit, and a
+// percentage of the PRE-reduction damage is dealt back to the attacker (fire-shield/magic-glass style).
+// Damage::ApplyRetaliations reads the in-flight Damage and appends to its reflect pool; the pool is dealt
+// (each as its own bearer->attacker Damage) after the main pipeline. Bitmasks decouple this header from
+// the fight/element enums, exactly like DamageChange (type/element/flag masks; 0 = "any"). The reflected
+// damage's element/dmg_type default to the incoming hit's (-1 sentinels) and may be overridden here.
+// The affect NEVER names a damage source: the reflected damage is attributed to the INCOMING attack (the
+// spell being reflected), taken from context by DealReflectPool -- a ward doesn't deal damage of its own.
+// The percent is base [min,max] plus bearer bonuses: `npc_bonus` when the bearer is a real NPC
+// (IsNpc && !charmice), and `boss_bonus` added on top only when that NPC also has the boss role.
+struct Retaliation {
+	int prob{100};
+	unsigned type_mask{0};          // <conditions><type> -- incoming damage must be one of these (0 = any)
+	unsigned element_mask{0};       // <conditions><element>
+	unsigned long long flags_present{0};   // <conditions><flags present=>
+	unsigned long long flags_missing{0};   // <conditions><flags missing=>
+	unsigned long long flags_add{0};       // <flags add=> -- set on the in-flight Damage when it fires (HUD glyph)
+	unsigned long long flags_remove{0};    // <flags remove=>
+	int pct_min{0};                 // <percent min=> base percent of the incoming damage
+	int pct_max{0};                 // <percent max=>
+	int npc_bonus{0};               // <percent npc_bonus=> added when the bearer is a real NPC
+	int boss_bonus{0};              // <percent boss_bonus=> added on top when that NPC is a boss
+	int element{-1};                // <element val=> EElement of the reflected damage (-1 = same as incoming)
+	int dmg_type{-1};               // <element type=> fight::DmgType of the reflected damage (-1 = same as incoming)
+	bool present{false};
+};
+
+// issue.affect-action-patch-improve (Phase B): the arithmetic of op="modify" (mul/add/set a field).
+enum class EFieldModOp { kMul, kAdd, kSet };
 
 class IAction {
  public:
 	virtual ~IAction() = default;
 
 	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
+
+	// issue.affect-action-patch-improve (Phase B): op="modify" -- scale/offset/set a named numeric field of
+	// this manifestation. Default no-op; each modifiable type overrides it (the fields live here, so no
+	// setters/friends). Only ever called on a per-cast/per-tick CLONE, never the shared config instance.
+	virtual void ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
+		(void) field; (void) op; (void) value;
+	}
+
+	// issue.perk-action-patching: optional stable id (manifestation <tag id=>), so a perk patch can
+	// address this effect inside its <action> block. Empty = not addressable at manifestation level.
+	std::string id;
 };
 
 // Spell "potency roll" parameters (see issue #3332): dice plus a bonus from the
@@ -109,9 +261,12 @@ class Roll {
 	// dice contribution". The previous defaults of 1/1/1 silently added a constant +2 to every
 	// spell missing a <dices> block, which broke the principle of least surprise. See the
 	// parser (Roll::Roll) for the matching change to drop the std::max(1, ...) clamps.
-	int dice_num_{0};
-	int dice_size_{0};
-	int dice_add_{0};
+	// issue.potency-noise (stage 1, additive): the spell's ONE shared random draw. At cast a single
+	// z ~ TruncNormal(0,1) clamped to +/-noise_trunc_ is drawn; the realized relative deviation
+	// d = noise_sigma_ * z is shared by every manifestation, each scaling it by its own weight.
+	// Replaces <dices>; dice fields above stay until the formula switch + data migration land.
+	double noise_sigma_{0.0};
+	double noise_trunc_{2.0};
 
 	ESkill base_skill_{ESkill::kUndefined};
 	// Member defaults are 0 (no competence) so a wholly-absent <base_skill>/<base_stat> node -- e.g. a
@@ -128,7 +283,8 @@ class Roll {
 	Roll() = default;
 	explicit Roll(parser_wrapper::DataNode &node);
 
-	[[nodiscard]] int RollSkillDices() const;
+	[[nodiscard]] double GetNoiseSigma() const { return noise_sigma_; }  // issue.potency-noise
+	[[nodiscard]] double GetNoiseTrunc() const { return noise_trunc_; }  // issue.potency-noise
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcSkillCoeffForValue(int skill) const;  // CalcSkillCoeff with an explicit skill value (item brewing)
 	// The low-skill part of the skill coefficient only (no hi-skill term, no /100): used
@@ -258,17 +414,18 @@ class Components {
 // alpha*C) + beta*C, where C = skill_coeff + stat_coeff. alpha=0 reduces to the legacy additive
 // Formula A. The <amount> is optional; defaults are min=0, dices_weight=1.0, alpha=0, beta=1.0
 // amount = dice + competencies).
+// issue.damage-over-time: where a <damage> action's amount comes from. kNormal = the <amount> dice/potency
+// formula (all existing damage). kPoison = ProcessPoisonDmg's kPoison branch reproduced through the
+// data-driven path: amount = CalcPoisonDamage(victim) (GET_POISON based), dealt as kPoisonDmg, no-flee,
+// with the poisoner (affect caster_id) as author.
+enum class EDamageSource { kNormal, kPoison };
+
 class Damage : public IAction {
 	ESaving saving_{ESaving::kReflex};
 	int prob_{100};                          // percent chance the damage actually happens
 	double amount_min_{0};                   // flat minimum damage
-	double amount_dices_weight_{1.0};        // base scale on the potency roll's dice
-	double amount_alpha_{0.0};               // dice-amplification: skill scales the dice (issue.potency-formula)
 	double amount_beta_{1.0};                // additive skill+stat coefficient (was competencies_weight)
-	// issue.random-noise-rework (P1): opt-in multiplicative truncated-normal noise. sigma>0 switches the
-	// amount to GaussIntNumber(min + beta*C, sigma*beta*C, ...) -- mean scales with competence, relative
-	// spread stays ~sigma (constant CV). 0 (default) keeps the legacy dice formula. beta is reused as k.
-	double amount_sigma_{0.0};
+	double amount_weight_{0.0};  // issue.potency-noise (stage 1): weight on the spell's shared noise draw (0 = deterministic)
 	// Multi-hit support (issue.extra-hits): a <hits ...> child enables extra-hits computation via
 	// CalcExtraHits. Absent tag -> has_hits_=false -> the spell deals exactly one hit (count=1).
 	// When present, count = 1 + CalcExtraHits(caster, spell_id, base_skill, divisor, max, prob).
@@ -278,14 +435,13 @@ class Damage : public IAction {
 	int hits_prob_{20};                      // percent chance the bonus fires (0 = random 0..extra)
 	bool has_instant_death_{false};          // issue.instant-death: presence => the spell can kill outright
 	int instant_death_prob_{100};            // percent chance the instant-death attempt is rolled
+	EDamageSource source_{EDamageSource::kNormal};  // issue.damage-over-time: <damage source="poison">
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
-	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
-	[[nodiscard]] double GetAmountAlpha() const { return amount_alpha_; }
 	[[nodiscard]] double GetAmountBeta() const { return amount_beta_; }
-	[[nodiscard]] double GetAmountSigma() const { return amount_sigma_; }
+	[[nodiscard]] double GetAmountWeight() const { return amount_weight_; }  // issue.potency-noise
 	[[nodiscard]] bool HasHits() const { return has_hits_; }
 	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
 	[[nodiscard]] int GetHitsMax() const { return hits_max_; }
@@ -293,7 +449,9 @@ class Damage : public IAction {
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] bool HasInstantDeath() const { return has_instant_death_; }
 	[[nodiscard]] int GetInstantDeathProb() const { return instant_death_prob_; }
+	[[nodiscard]] EDamageSource GetSource() const { return source_; }
 
+	void ApplyFieldMod(const std::string &field, EFieldModOp op, double value) override;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
@@ -329,11 +487,9 @@ class Points : public IAction {
 	struct Amount {
 		bool present{false};
 		double min{0};
-		double dices_weight{0};   // base scale on the potency dice
-		double alpha{0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0};           // additive skill/stat coefficient (was competencies_weight)
 		double npc_coeff{0};
-		double sigma{0};          // issue.random-noise-rework: >0 -> multiplicative truncated-normal spread (heal/moves)
+		double weight{0};  // issue.potency-noise (stage 1): weight on the spell's shared noise draw (0 = deterministic)
 	};
  private:
 	int extra_{0};        // overheal cap as percent ABOVE max_hp
@@ -386,6 +542,7 @@ struct Area : public IAction {
 	// Per-target coefficient f_j (1-based j of n). decay_eff lets the caller pass the
 	// kMultipleCast-softened rate. Always in [0,1] and non-increasing (never amplifies).
 	[[nodiscard]] double DistributionCoeff(int j, int n, double decay_eff) const;
+	void ApplyFieldMod(const std::string &field, EFieldModOp op, double value) override;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
@@ -442,9 +599,8 @@ class TalentAffect : public IAction {
 		// The cap (see below) is applied to the raw magnitude BEFORE the factor, so factor=-1
 		// debuffs are bounded by [-cap, -min] when cap > 0.
 		double min{0.0};
-		double dices_weight{0.0};   // base scale on the potency dice
-		double alpha{0.0};          // dice-amplification: skill scales the dice (issue.potency-formula)
 		double beta{0.0};           // additive skill/stat coefficient (was competencies_weight)
+		double weight{0.0};         // issue.potency-noise (stage 1): weight on the spell's shared noise draw
 		int factor{1};
 		// Optional upper bound on the raw magnitude (i.e. on (min + ceil(comp*cw + dice*dw)))
 		// before factor is applied. 0 (default) means "no cap" -- the modifier scales without
@@ -463,16 +619,13 @@ class TalentAffect : public IAction {
 	explicit TalentAffect(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 
-	[[nodiscard]] ESpell GetSpell() const { return spell_; }
-	// Room-affect per-tick spell (a kService spell whose actions run each tick); kUndefined = none.
-	[[nodiscard]] ESpell GetTickSpell() const { return tick_spell_; }
-	// Room-affect per-tick code handler named by string (the manual-cast mechanism for ticks the
-	// data can't express, e.g. weather); empty = none. Resolved via the room tick-handler registry.
-	[[nodiscard]] const std::string &GetTickHandler() const { return tick_handler_; }
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] EResist GetResist() const { return resist_; }
+	// issue.affects-improve: the room affect this block imposes (room-target spells only),
+	// declared by <affects id=...>; kUndefined for char-affect spells. The room cast path uses
+	// this instead of deriving the affect from the spell id.
+	[[nodiscard]] room_spells::ERoomAffect GetRoomAffect() const { return room_affect_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
-	[[nodiscard]] Bitvector GetFlags() const { return flags_; }
 	// Duration parameters (issue.calc-duration): base (flat duration in hours, PC unit-converted to
 	// ticks) plus a skill-scaled bonus = min(skill, kNoviceSkillThreshold)/skill_divisor, optionally
 	// clamped to [dur_min_, dur_max_] (0 means no clamp on that side, OLD-style). The "skill" is
@@ -481,6 +634,13 @@ class TalentAffect : public IAction {
 	[[nodiscard]] int GetDurationSkillDivisor() const { return dur_skill_divisor_; }
 	[[nodiscard]] int GetDurationMin() const { return dur_min_; }
 	[[nodiscard]] int GetDurationMax() const { return dur_max_; }
+	// issue.drunked-migration (Gap A): the skill whose novice-bonus scales this affect's duration. Normally
+	// kUndefined (the cast path uses the spell's potency base_skill); a TRIGGERED affect-action has no spell,
+	// so it can name the skill here (e.g. <duration skill="kHangovering"/>).
+	[[nodiscard]] ESkill GetDurationSkill() const { return dur_skill_; }
+	// issue.room-affect-trigger-improve: <charges max="N"/> -- trigger firings before the affect is
+	// removed. -1 = unlimited (default). Only meaningful for triggered (room/door) affects.
+	[[nodiscard]] int GetChargesMax() const { return charges_max_; }
 	[[nodiscard]] const std::vector<Apply> &GetApplies() const { return applies_; }
 	[[nodiscard]] bool HasLag() const { return has_lag_; }
 	[[nodiscard]] unsigned GetLagBase() const { return lag_base_; }
@@ -496,23 +656,21 @@ class TalentAffect : public IAction {
 	// both modifier and stored potency. Symmetric in spirit with
 	// TalentUnaffect::potency_weight_ on the dispel side.
 	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
-	// issue.random-noise-rework: additive per-affect dispel modifier (threshold percentage points) in
-	// the dispel contest -- negative = harder to remove (critical buffs), positive = easier. Default 0;
-	// the data-driven <affects dispel_mod=> attr (no code constants).
-	[[nodiscard]] int GetDispelMod() const { return dispel_mod_; }
+	// issue.vampirism-haste: extra per-instance battle flags (EAffFlag bits) OR'd onto every affect this
+	// block imposes -- e.g. kAfBattledec to make a normally tick-based buff decrement per combat round.
+	[[nodiscard]] Bitvector GetBattleflags() const { return extra_battleflags_; }
 
  private:
-	ESpell spell_{static_cast<ESpell>(0)};
-	ESpell tick_spell_{ESpell::kUndefined};
-	std::string tick_handler_;
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
+	room_spells::ERoomAffect room_affect_{};  // issue.affects-improve: see GetRoomAffect()
 	int prob_{100};                         // percent chance the affect block fires (default always)
-	Bitvector flags_{0};
 	int dur_base_{0};
 	int dur_skill_divisor_{0};
+	ESkill dur_skill_{ESkill::kUndefined};
 	int dur_min_{0};
 	int dur_max_{0};
+	int charges_max_{-1};   // issue.room-affect-trigger-improve: trigger charges; -1 = unlimited
 	std::vector<Apply> applies_;
 	// Battle lag applied to the victim when the affect lands (the <lag> tag,
 	// issue.cast-spell-lag): lag = base + skill_bonus/bonus_divisor battle rounds, or just
@@ -528,7 +686,8 @@ class TalentAffect : public IAction {
 	bool reposition_stop_fight_{false};
 	// Stored-potency scale (issue.affects-potency-weight); see GetPotencyWeight().
 	float potency_weight_{1.0f};
-	int dispel_mod_{0};  // issue.random-noise-rework: additive dispel-threshold modifier (<affects dispel_mod=>)
+	// issue.vampirism-haste: see GetBattleflags(). 0 = impose with the affect type's own flags only.
+	Bitvector extra_battleflags_{0};
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or
@@ -540,15 +699,24 @@ class TalentAffect : public IAction {
 // wildcard_all, every eligible affect is queued for removal.
 class TalentUnaffect : public IAction {
  public:
-	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of lists.
+	// issue.affect-migration: the any_of/all_of tags name AFFECTS, not the casting spell. A name
+	// resolves to a char affect (EAffect) OR a room affect (ERoomAffect) -- the namespaces are
+	// disjoint -- so AffectRefs carries one list per domain and the char/room dispel paths each read
+	// the list for their target type.
+	struct AffectRefs {
+		std::vector<EAffect> chars;
+		std::vector<room_spells::ERoomAffect> rooms;
+		[[nodiscard]] bool empty() const { return chars.empty() && rooms.empty(); }
+	};
+	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of affect lists.
 	// breaking_by_failure (remove/remove_anyway only): if a dispel of any affect in this block
 	// fails the potency check, the cast chain breaks (CastUnaffects returns kBreak).
 	// wildcard_any/wildcard_all (set by any_of="*"/all_of="*"): match the unaffect's
-	// affect_flags filter rather than a fixed spell list. Mutually exclusive with their
-	// respective list; "*|kPoison" is rejected at parse time.
+	// affect_flags filter rather than a fixed list. Mutually exclusive with their
+	// respective list; "*|kCurse" is rejected at parse time.
 	struct Set {
-		std::vector<ESpell> any_of;
-		std::vector<ESpell> all_of;
+		AffectRefs any_of;
+		AffectRefs all_of;
 		bool wildcard_any{false};
 		bool wildcard_all{false};
 		bool breaking_by_failure{false};
@@ -577,6 +745,9 @@ class TalentUnaffect : public IAction {
 	// issue.debuff-decay: percent of THIS dispel's potency by which a SURVIVING affect's potency
 	// shifts when a removal attempt fails (positive weakens it, negative strengthens it; 0 = none).
 	[[nodiscard]] int GetDecay() const { return decay_; }
+	// issue.new-unaffect-spells: true if a wildcard <remove any_of="*"> is restricted to
+	// debuffs (buffs on the target are left untouched). Set by <unaffect debuff_only="Y">.
+	[[nodiscard]] bool GetDebuffOnly() const { return debuff_only_; }
 
  private:
 	Set blocking_;       // present -> removal is blocked (chain not affected)
@@ -587,6 +758,7 @@ class TalentUnaffect : public IAction {
 	Bitvector affect_flags_{kAfCurable | kAfDispellable};
 	int prob_{100};      // percent chance the unaffect block fires at all (default always)
 	int decay_{0};       // issue.debuff-decay: % of dispel potency to shift a surviving affect on a failed removal
+	bool debuff_only_{false};  // issue.new-unaffect-spells: wildcard removal restricted to debuffs
 };
 
 using ActionPtr = std::shared_ptr<IAction>;
@@ -600,6 +772,9 @@ using ActionPtr = std::shared_ptr<IAction>;
 class Action {
 	using ActionsRoster = std::unordered_multimap<EAction, ActionPtr>;
 	ActionsRoster manifestations_;
+	// issue.perk-action-patching: optional stable id (<action id=>) -- the action's "vnum" within the
+	// spell; lets a perk patch address this block (insert/replace/remove). Empty = append/replace_all only.
+	std::string id_;
 	// Target gates (issue.cast-affect): the cast is refused on this action unless the target has
 	// none of blocking_ and all of required_. Checked in CastToSingleTarget, not inside a stage.
 	FlagCondition blocking_;
@@ -607,6 +782,9 @@ class Action {
 	// Reflection (issue.cast-dmg-migration): checked in CastToSingleTarget; redirects the cast
 	// back at the caster on a successful prob roll.
 	Reflection reflection_;
+	Absorption absorption_;   // issue.attack-ward: defender absorb ward (<absorption>)
+	DamageChange damage_change_;   // issue.damage-change: passive incoming-damage modifier (<damage_change>)
+	Retaliation retaliation_;      // issue.damage-change: thorns/retaliation modifier (<retaliation>)
 	// Per-action target selector (issue.area-cast): how a non-first action picks its targets.
 	// Ignored for the first action (uses the spell's targeting flags). Default kTarSame.
 	EActionTarget target_{EActionTarget::kTarSame};
@@ -614,6 +792,7 @@ class Action {
 	// otherwise the matching accumulator. Ignored for the first action. reset_ zeroes the base
 	// accumulator after this action runs (no-op for the first action / kCompetence).
 	EActionBase base_{EActionBase::kCompetence};
+	std::string tag_name_;   // issue.character-affect-triggers: <action base="tag" tag="NAME"> -- the event tag
 	bool reset_{false};
 	// issue.manual-cast: name of the hand-coded handler (<manual_cast><handler val=>) this action
 	// runs as its manual stage; resolved against the registry in magic.cpp. Empty = no manual stage.
@@ -621,6 +800,24 @@ class Action {
 	// issue.side-spell: spells to cast (full nested pipeline) on this action's target(s), in order.
 	// Parsed from <side_spell id="kHold"/> (several allowed). Empty = no side-spell stage.
 	std::vector<ESpell> side_spells_;
+	// issue.affect-migration: the event(s) that fire this action (empty = inline in the normal cast).
+	// Parsed from <trigger val="kPulse|kBattlePulse">. See EActionTrigger.
+	BitsetFlags<EActionTrigger> trigger_;
+	// issue.character-affect-triggers: <trigger val="kPoints" category="kHeal"/> -- restrict a kPoints
+	// trigger to one restoration category. Value mirrors points_intensity::ECategory (kHeal=0, kMoves=1,
+	// kThirst=2, kFull=3); -1 = no filter (react to any restoration). Ignored by non-kPoints triggers.
+	int trigger_points_category_{-1};
+	// issue.room-affect-trigger-improve: the value an EVENT trigger yields back to the firing game
+	// event, parsed from <trigger return="N"/> (int). 0 = block the action that fired it (e.g. refuse
+	// the room entry); non-zero = allow. std::nullopt = the action set no value -> the dispatcher
+	// treats it as "allow". A manual_cast handler can override this at runtime (out-param on the
+	// context). Only meaningful for blocking-capable event triggers (kEnter/kEnterPC); ignored by pulse.
+	std::optional<int> trigger_return_;
+	// issue.room-affect-trigger-improve: <trigger prob="N"/> -- the percent chance the trigger fires
+	// when its event occurs (a (100-N)% miss lets the event proceed untouched). std::nullopt = always
+	// fires. For a room affect that carries a <seal_strength> formula the per-cast strength
+	// (Affect::modifier) is used as the chance instead, so the seal's strength IS its block chance.
+	std::optional<int> trigger_prob_;
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -639,11 +836,35 @@ class Action {
 	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
+	[[nodiscard]] const Absorption &GetAbsorption() const { return absorption_; }
+	[[nodiscard]] const DamageChange &GetDamageChange() const { return damage_change_; }
+	[[nodiscard]] const Retaliation &GetRetaliation() const { return retaliation_; }
+	[[nodiscard]] const std::string &GetId() const { return id_; }
+	// issue.perk-action-patching: manifestation-level patch helpers, applied ONLY to per-cast scratch
+	// COPIES of a block (the shared spell blocks stay const). They copy the shared_ptr leaves, so no
+	// deep copy of the manifestation objects happens.
+	void MergeManifestationsFrom(const Action &src) {
+		for (const auto &kv : src.manifestations_) { manifestations_.insert(kv); }
+	}
+	void EraseManifestationsById(const std::string &mid) {
+		for (auto it = manifestations_.begin(); it != manifestations_.end(); ) {
+			if (it->second->id == mid) { it = manifestations_.erase(it); } else { ++it; }
+		}
+	}
+	// issue.perk-action-patching: deep-copy the manifestation of `kind` in place, so this block owns a
+	// private copy (no longer shared with the spell) that op="modify" can safely mutate. Returns the
+	// clone (mutable) or nullptr if absent / kind unsupported. Defined in the .cpp (needs concrete types).
+	IAction *CloneManifestation(EAction kind);
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
+	[[nodiscard]] const std::string &GetTagName() const { return tag_name_; }
 	[[nodiscard]] bool GetReset() const { return reset_; }
 	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
 	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }
+	[[nodiscard]] const BitsetFlags<EActionTrigger> &GetTrigger() const { return trigger_; }
+	[[nodiscard]] int GetTriggerPointsCategory() const { return trigger_points_category_; }
+	[[nodiscard]] std::optional<int> GetTriggerReturn() const { return trigger_return_; }
+	[[nodiscard]] std::optional<int> GetTriggerProb() const { return trigger_prob_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster
@@ -676,6 +897,9 @@ class Actions {
 	// <required> children fill the action's blocking_/required_ via ParseFlagCondition.
 	static void ParseTargetConditions(Action &out, parser_wrapper::DataNode &node);
 	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
+	static void ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node);   // issue.attack-ward
+	static void ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node);   // issue.damage-change
+	static void ParseRetaliation(Retaliation &rt, parser_wrapper::DataNode &node);   // issue.damage-change
 
 	// Empty fallback for the back-compat delegating getters when list_ is empty
 	// (a spell with no <action>): preserves the old "default-constructed gates"
@@ -696,7 +920,7 @@ class Actions {
 
 	// The action a single-action (or bypass / room) caller should use: the first
 	// action, or a static empty one when the spell has none. Underpins the
-	// back-compat getters and CastContext::action_or_default().
+	// back-compat getters and ActionContext::action_or_default().
 	[[nodiscard]] const Action &primary() const {
 		return list_.empty() ? EmptyAction() : list_.front();
 	}

@@ -223,10 +223,10 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNohorse))
 		act("$Z $N взбрыкнул$G и отказал$U вас слушаться.", false, ch, 0, horse, kToChar);
 	else {
-		if (IsAffectedBySpell(ch, ESpell::kSneak))
-			RemoveAffectFromCharAndRecalculate(ch, ESpell::kSneak);
-		if (IsAffectedBySpell(ch, ESpell::kCamouflage))
-			RemoveAffectFromCharAndRecalculate(ch, ESpell::kCamouflage);
+		if (IsAffectedFlagOnly(ch, EAffect::kSneak))
+			RemoveAffectFromCharAndRecalculate(ch, EAffect::kSneak);
+		if (IsAffectedFlagOnly(ch, EAffect::kDisguise))
+			RemoveAffectFromCharAndRecalculate(ch, EAffect::kDisguise);
 		act("Вы взобрались на спину $N1.", false, ch, 0, horse, kToChar);
 		act("$n вскочил$g на $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
 		AFF_FLAGS(ch).set(EAffect::kHorse);

@@ -21,24 +21,24 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("Вам стоит подумать о мягкой обуви для $N1", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
-	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
+	if (IsAffected(ch, EAffect::kGlitterDust)) {
 		SendMsgToChar("Вы бесшумно крадетесь, отбрасывая тысячи солнечных зайчиков...\r\n", ch);
 		return;
 	}
-	RemoveAffectFromChar(ch, ESpell::kSneak);
+	RemoveAffectFromChar(ch, EAffect::kSneak);
 	SendMsgToChar("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
-	ch->Temporary.unset(EXTRA_FAILSNEAK);
+	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	percent = number(1, MUD::Skill(ESkill::kSneak).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
 	Affect<EApply> af;
-	af.type = ESpell::kSneak;
 	af.duration = CalcDuration(ch, ch, ESkill::kSneak, 0, 20, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (percent > prob) {
-		af.affect_type = EAffect::kUndefined;
+		af.affect_type = EAffect::kSneak;
+		af.battleflag = kAfFailed;
 	} else {
 		af.affect_type = EAffect::kSneak;
 	}

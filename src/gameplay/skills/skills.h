@@ -193,6 +193,10 @@ bool CritLuckTest(CharData *ch, CharData *vict);
 int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
 int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor);
 int CalcNoviceSkillBonusForValue(int skill, unsigned skill_divisor);
+// issue.duration-scale: uncapped duration bonus (full skill/divisor, no 75 clamp). CalcDuration
+// bounds it via <duration min/max>; the extra-hits bonus keeps CalcNoviceSkillBonus (75 cap).
+int CalcDurationSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor);
+int CalcDurationSkillBonusForValue(int skill, unsigned skill_divisor);
 // issue.chardata-cleaning: the skill-value accessors moved off CharData. They read the trained
 // level (CharacterSkills) plus equipment/talent/arena bonuses.
 [[nodiscard]] int GetSkillBonus(const CharData *ch, ESkill skill_id);

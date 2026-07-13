@@ -4,6 +4,8 @@
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
+#include "gameplay/fight/fight_constants.h"   // issue.damage-change: fight::DmgType + hit-flag values
+#include "gameplay/magic/magic_rooms.h"  // ERoomAffect, ITEM_BY_NAME/NAME_BY_ITEM<ERoomAffect>
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
 #include "fmt/format.h"
 #include "utils/random.h"
@@ -11,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <stdexcept>
 
 namespace talents_actions {
 
@@ -27,6 +30,7 @@ const char *ActionTargetName(EActionTarget t) {
 		case EActionTarget::kTarRandomFoe: return "kTarRandomFoe";
 		case EActionTarget::kTarRandomAlly: return "kTarRandomAlly";
 		case EActionTarget::kTarMinions: return "kTarMinions";
+		case EActionTarget::kTarActor: return "kTarActor";
 		case EActionTarget::kTarRoomThis: return "kTarRoomThis";
 	}
 	return "?";
@@ -39,6 +43,7 @@ const char *ActionBaseName(EActionBase b) {
 		case EActionBase::kPoints: return "kPoints";
 		case EActionBase::kAffects: return "kAffects";
 		case EActionBase::kDispelled: return "kDispelled";
+		case EActionBase::kTag: return "tag";
 	}
 	return "?";
 }
@@ -70,6 +75,112 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kMounting", EMobFlag::kMounting},
 	{"kHelper", EMobFlag::kHelper},
 	{"kClone", EMobFlag::kClone},
+	{"kIgnoreForbidden", EMobFlag::kIgnoreForbidden},   // issue.room-affect-trigger-improve: kForbidden seal exempts these
+	{"kCompanion", EMobFlag::kCompanion},   // any NPC ally (charm/summon/clone/keeper); kForbidden lets minions follow
+};
+
+// issue.room-affect-trigger-improve: <trigger val=...> token -> event flag. Single source of truth for
+// the trigger names (replaces a hand-rolled if/else chain). A `|`-separated val sets several flags --
+// an action may fire on more than one event (e.g. "kPulse|kEnter").
+const std::map<std::string, EActionTrigger> kActionTriggerByName{
+	{"kPulse", EActionTrigger::kPulse},
+	{"kBattlePulse", EActionTrigger::kBattlePulse},
+	{"kEnter", EActionTrigger::kEnter},
+	{"kEnterPC", EActionTrigger::kEnterPC},
+	{"kEnterNPC", EActionTrigger::kEnterNPC},
+	{"kPick", EActionTrigger::kPick},
+	{"kUnlock", EActionTrigger::kUnlock},
+	{"kOpen", EActionTrigger::kOpen},
+	{"kClose", EActionTrigger::kClose},
+	{"kLock", EActionTrigger::kLock},
+	{"kPreHit", EActionTrigger::kPreHit},
+	{"kPostHit", EActionTrigger::kPostHit},
+	{"kWardAttack", EActionTrigger::kWardAttack},
+	{"kKill", EActionTrigger::kKill},
+	{"kExpired", EActionTrigger::kExpired},
+	{"kDispell", EActionTrigger::kDispell},
+	{"kPoints", EActionTrigger::kPoints},
+	{"kDeath", EActionTrigger::kDeath},
+	{"kWardDamage", EActionTrigger::kWardDamage},
+};
+
+// issue.damage-change: name -> value maps for <damage_change> conditions/flags. DmgType and the fight
+// hit-flags aren't meta-enum-registered, so we map by name here (values mirror fight_constants.h). EElement
+// IS registered (ITEM_BY_NAME<EElement>), so it's parsed directly. The masks are stored decoupled (ints).
+const std::map<std::string, int> kDmgTypeByName{
+	{"kUndefDmg", fight::kUndefDmg}, {"kPhysDmg", fight::kPhysDmg}, {"kMagicDmg", fight::kMagicDmg},
+	{"kPoisonDmg", fight::kPoisonDmg}, {"kPureDmg", fight::kPureDmg},
+};
+// Hit-flags referenceable from <damage_change> conditions/edits. Besides the author-facing kIgnore*/
+// kCrit* set, the kDrawBrief* display flags and kShieldApplied/kPunctualCrit are exposed so shield
+// reductions (kWardDamage <damage_change>) can light the brief-shield HUD, enforce one-shield-per-hit,
+// and let the ice crit-absorb skip precise-style crits. (Which shield is active is decided in code by
+// the weighted SelectMagicShield, not via a flag.)
+const std::map<std::string, int> kHitFlagByName{
+	{"kIgnoreSanct", fight::kIgnoreSanct}, {"kIgnorePrism", fight::kIgnorePrism},
+	{"kIgnoreArmor", fight::kIgnoreArmor}, {"kHalfIgnoreArmor", fight::kHalfIgnoreArmor},
+	{"kIgnoreAbsorbe", fight::kIgnoreAbsorbe}, {"kNoFleeDmg", fight::kNoFleeDmg},
+	{"kCritHit", fight::kCritHit}, {"kCritLuck", fight::kCritLuck},
+	{"kIgnoreFireShield", fight::kIgnoreFireShield}, {"kMagicReflect", fight::kMagicReflect},
+	{"kIgnoreBlink", fight::kIgnoreBlink},
+	{"kDrawBriefFireShield", fight::kDrawBriefFireShield}, {"kDrawBriefAirShield", fight::kDrawBriefAirShield},
+	{"kDrawBriefIceShield", fight::kDrawBriefIceShield}, {"kDrawBriefMagMirror", fight::kDrawBriefMagMirror},
+	{"kShieldApplied", fight::kShieldApplied}, {"kPunctualCrit", fight::kPunctualCrit},
+};
+
+// issue.damage-change: parse a `|`-separated name list into a mask (bit = enum value). Unknown => err_log.
+static unsigned ParseDmgTypeMask(const char *val) {
+	unsigned mask = 0;
+	if (!val || !*val) { return mask; }
+	for (const auto &name : utils::Split(val, '|')) {
+		const auto it = kDmgTypeByName.find(name);
+		if (it != kDmgTypeByName.end()) { mask |= (1u << static_cast<unsigned>(it->second)); }
+		else { err_log("Actions: unknown <damage_change type='%s'>.", name.c_str()); }
+	}
+	return mask;
+}
+static unsigned ParseElementMask(const char *val) {
+	unsigned mask = 0;
+	if (!val || !*val) { return mask; }
+	for (const auto &name : utils::Split(val, '|')) {
+		const EElement e = ITEM_BY_NAME<EElement>(name);
+		mask |= (1u << static_cast<unsigned>(e));   // kUndefined(0) for an unknown name -> harmless bit
+	}
+	return mask;
+}
+static unsigned long long ParseHitFlagMask(const char *val) {
+	unsigned long long mask = 0;
+	if (!val || !*val) { return mask; }
+	for (const auto &name : utils::Split(val, '|')) {
+		const auto it = kHitFlagByName.find(name);
+		if (it != kHitFlagByName.end()) { mask |= (1ULL << static_cast<unsigned>(it->second)); }
+		else { err_log("Actions: unknown <damage_change flag '%s'>.", name.c_str()); }
+	}
+	return mask;
+}
+
+// issue.character-affect-triggers: <trigger val="kPoints" category="..."/> -> a points_intensity::ECategory
+// value (kept as int here to avoid a magic-subsystem include; MUST mirror that enum's values). kDamage
+// is intentionally absent -- it is weapon-hit narration, not a restoration a kPoints trigger reacts to.
+const std::map<std::string, int> kPointsCategoryByName{
+	{"kHeal", 0}, {"kMoves", 1}, {"kThirst", 2}, {"kFull", 3},
+};
+
+// issue.room-affect-trigger-improve: <action target=...> token -> EActionTarget, replacing a
+// hand-rolled if/else chain. (The reverse, EActionTarget -> token, stays in ActionTargetName's
+// switch so a new enumerator trips -Wswitch.)
+const std::map<std::string, EActionTarget> kActionTargetByName{
+	{"kTarSame", EActionTarget::kTarSame},
+	{"kTarFightSelf", EActionTarget::kTarFightSelf},
+	{"kTarFightVict", EActionTarget::kTarFightVict},
+	{"kTarGroup", EActionTarget::kTarGroup},
+	{"kTarFoes", EActionTarget::kTarFoes},
+	{"kTarRandomFoe", EActionTarget::kTarRandomFoe},
+	{"kTarRandomAlly", EActionTarget::kTarRandomAlly},
+	{"kTarMinions", EActionTarget::kTarMinions},
+	{"kTarActor", EActionTarget::kTarActor},
+	{"kTarRoomThis", EActionTarget::kTarRoomThis},
+	{"kTarMaster", EActionTarget::kTarMaster},
 };
 
 // Room flags (ERoomFlag) addressable from the <blocking>/<required>/<caster_blocking>
@@ -88,29 +199,33 @@ const std::map<std::string, ERoomFlag> kBlockingRoomFlagByName{
 	{"kForPoly", ERoomFlag::kForPoly},
 };
 
-// Parse a `|`-separated list of ESpell names (an any_of/all_of attribute of an
-// <unaffect> sub-tag, issue #3342). Empty/absent attribute -> empty list. The
-// single-token "*" is the wildcard (handled by the caller, not this helper).
-std::vector<ESpell> ParseSpellList(const char *value) {
-	std::vector<ESpell> out;
+// Resolve a `|`-separated list of AFFECT names (an any_of/all_of attribute of an <unaffect>
+// sub-tag) into char-affect (EAffect) and room-affect (ERoomAffect) ids. issue.affect-migration:
+// the tags name the AFFECT, not the casting spell; a name resolves in exactly one domain (the
+// EAffect / ERoomAffect namespaces are disjoint), so each token lands in either out.chars or
+// out.rooms. Empty/absent attribute -> empty refs. "*" is the wildcard (handled by the caller).
+void ParseAffectRefs(const char *value, TalentUnaffect::AffectRefs &out) {
 	if (!value || !*value) {
-		return out;
+		return;
 	}
 	for (const auto &name : utils::Split(value, '|')) {
 		try {
-			out.push_back(parse::ReadAsConstant<ESpell>(name.c_str()));
-		} catch (...) {
-			err_log("TalentUnaffect: unknown ESpell '%s' in <unaffect>.", name.c_str());
+			out.chars.push_back(ITEM_BY_NAME<EAffect>(name));
+			continue;
+		} catch (const std::out_of_range &) {}
+		try {
+			out.rooms.push_back(ITEM_BY_NAME<room_spells::ERoomAffect>(name));
+		} catch (const std::out_of_range &) {
+			err_log("TalentUnaffect: unknown affect '%s' in <unaffect>.", name.c_str());
 		}
 	}
-	return out;
 }
 
 // Parse one any_of/all_of attribute, recognising the "*" wildcard token. On a wildcard,
-// out_wildcard is set true and the explicit list stays empty. Mixing wildcard with explicit
-// names (e.g. "*|kPoison") is rejected with an error: the semantic is ambiguous and the
+// out_wildcard is set true and the explicit refs stay empty. Mixing wildcard with explicit
+// names (e.g. "*|kCurse") is rejected with an error: the semantic is ambiguous and the
 // explicit names are redundant if "*" is present.
-void ParseRemovalAttr(const char *value, std::vector<ESpell> &out_list, bool &out_wildcard,
+void ParseRemovalAttr(const char *value, TalentUnaffect::AffectRefs &out_refs, bool &out_wildcard,
 					  const char *tag_name, const char *attr_name) {
 	if (!value || !*value) {
 		return;
@@ -126,13 +241,12 @@ void ParseRemovalAttr(const char *value, std::vector<ESpell> &out_list, bool &ou
 		out_wildcard = true;
 		return;
 	}
-	out_list = ParseSpellList(value);
+	ParseAffectRefs(value, out_refs);
 }
 }  // namespace
 
 void Roll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Potency roll: " << "\r\n"
-		   << kColorGrn << "  " << dice_num_ << "d" << dice_size_ << "+" << dice_add_ << kColorNrm
 		   << " Skill: " << kColorGrn << NAME_BY_ITEM<ESkill>(base_skill_) << kColorNrm
 		   << " (low " << low_skill_bonus_ << " / hi " << hi_skill_bonus_ << ")"
 		   << " Stat: " << kColorGrn << NAME_BY_ITEM<EBaseStat>(base_stat_) << kColorNrm
@@ -148,10 +262,6 @@ void SuccessRoll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " bonus[roll " << bonus_roll_ << " pvp " << bonus_pvp_ << " pve " << bonus_pve_
 		   << " evp " << bonus_evp_ << " eve " << bonus_eve_ << "]"
 		   << " crit[" << critsuccess_ << "/" << critfail_ << "]\r\n";
-}
-
-int Roll::RollSkillDices() const {
-	return RollDices(dice_num_, dice_size_) + dice_add_;
 }
 
 double Roll::CalcSkillCoeff(const CharData *const ch) const {
@@ -193,15 +303,12 @@ double RollDoubleOr(const char *v, double def) { return (v && *v) ? parse::ReadA
 }  // namespace
 
 Roll::Roll(parser_wrapper::DataNode &node) {
-	if (node.GoToChild("dices")) {
-		// no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
-		// <dices ndice="0" sdice="0" adice="N"/> reliably returns N. The previous std::max(1, ...)
-		// silently added one to every all-zero spec, which violated the principle of least
-		// surprise. RollDices(0, *) and RollDices(*, 0) already short-circuit to 0, so the
-		// arithmetic stays correct without any extra guard here.
-		dice_num_ = RollIntOr(node.GetValue("ndice"), 0);
-		dice_size_ = RollIntOr(node.GetValue("sdice"), 0);
-		dice_add_ = RollIntOr(node.GetValue("adice"), 0);
+	if (node.GoToChild("noise")) {
+		// issue.potency-noise: the spell's random-draw parameters (replaces <dices>). sigma = base
+		// relative spread of the shared z; trunc = clamp of z in sd units. Absent <noise> -> sigma 0,
+		// i.e. a deterministic spell unless a manifestation opts into noise via its own weight.
+		noise_sigma_ = RollDoubleOr(node.GetValue("sigma"), 0.0);
+		noise_trunc_ = RollDoubleOr(node.GetValue("trunc"), 2.0);
 		node.GoToParent();
 	}
 
@@ -396,8 +503,6 @@ void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm << "\r\n"
 		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
-		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
-		   << " alpha: " << kColorGrn << amount_alpha_ << kColorNrm
 		   << " beta: " << kColorGrn << amount_beta_ << kColorNrm << "\r\n";
 	if (has_hits_) {
 		buffer << " Hits: skill_divisor=" << kColorGrn << hits_skill_divisor_ << kColorNrm
@@ -410,20 +515,18 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
+	// issue.damage-over-time: <damage source="poison"> reproduces ProcessPoisonDmg's kPoison branch.
+	const char *src = node.GetValue("source");
+	if (src && strcmp(src, "poison") == 0) { source_ = EDamageSource::kPoison; }
 	// <amount> is optional; absent -> keep the defaults (min 0, both weights 1.0). A present tag
 	// may still omit individual attributes, which fall back to those same defaults.
 	if (node.GoToChild("amount")) {
 		const char *amin = node.GetValue("min");
 		amount_min_ = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
-		const char *adw = node.GetValue("dices_weight");
-		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 1.0;
-		const char *aa = node.GetValue("alpha");
-		amount_alpha_ = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 		const char *ab = node.GetValue("beta");
 		amount_beta_ = (ab && *ab) ? parse::ReadAsDouble(ab) : 1.0;
-		// issue.random-noise-rework (P1): optional relative-spread (CV) knob for multiplicative noise.
-		const char *asg = node.GetValue("sigma");
-		amount_sigma_ = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
+		const char *awt = node.GetValue("weight");
+		amount_weight_ = (awt && *awt) ? parse::ReadAsDouble(awt) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 		node.GoToParent();
 	}
 	// <hits> is optional; absent -> the spell deals one hit. Individual attrs
@@ -458,14 +561,10 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 	a.present = true;
 	const char *amin = node.GetValue("min");
 	a.min = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
-	const char *adw = node.GetValue("dices_weight");
-	a.dices_weight = (adw && *adw) ? parse::ReadAsDouble(adw) : 0.0;
-	const char *aa = node.GetValue("alpha");
-	a.alpha = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
 	const char *ab = node.GetValue("beta");
 	a.beta = (ab && *ab) ? parse::ReadAsDouble(ab) : 0.0;
-	const char *asg = node.GetValue("sigma");
-	a.sigma = (asg && *asg) ? parse::ReadAsDouble(asg) : 0.0;
+	const char *awt2 = node.GetValue("weight");
+	a.weight = (awt2 && *awt2) ? parse::ReadAsDouble(awt2) : 0.0;  // issue.potency-noise (stage 1, additive): weight on the shared draw
 	if (with_npc) {
 		// 1.0 default mirrors the legacy <heal npc_coeff/> default: NPC casters
 		// get a *2 boost on heal points unless the tag overrides it.
@@ -490,8 +589,6 @@ static void PrintAmount(std::ostringstream &buffer, const char *label,
 						const Points::Amount &a, bool with_npc) {
 	if (!a.present) return;
 	buffer << "  " << label << ": min=" << kColorGrn << a.min << kColorNrm
-		   << " dices_weight=" << kColorGrn << a.dices_weight << kColorNrm
-		   << " alpha=" << kColorGrn << a.alpha << kColorNrm
 		   << " beta=" << kColorGrn << a.beta << kColorNrm;
 	if (with_npc) {
 		buffer << " npc_coeff=" << kColorGrn << a.npc_coeff << kColorNrm;
@@ -568,9 +665,12 @@ double Area::DistributionCoeff(const int j, const int n, const double decay_eff)
 }
 
 TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
-	spell_ = parse::ReadAsConstant<ESpell>(node.GetValue("type"));
-	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
-	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
+	// Both OPTIONAL -- guard the reads so an absent attribute keeps the member default instead of throwing.
+	// An unguarded ReadAsConstant("") threw -> Actions::Build dropped the WHOLE payload, silently disabling
+	// any <affects> that omitted saving/resist (issue.perk-action-patching; same lesson as the <damage>
+	// saving guard from issue.damage-over-time).
+	if (const char *s = node.GetValue("saving"); s && *s) { saving_ = parse::ReadAsConstant<ESaving>(s); }
+	if (const char *r = node.GetValue("resist"); r && *r) { resist_ = parse::ReadAsConstant<EResist>(r); }
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	// potency_weight: optional scale on the cast
@@ -579,18 +679,11 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// in the opposite direction.
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
-	// dispel_mod: additive per-affect modifier to the dispel-contest threshold (percentage points);
-	// negative makes the affect harder to remove (critical buffs). Default 0.
-	const char *dm = node.GetValue("dispel_mod");
-	dispel_mod_ = (dm && *dm) ? parse::ReadAsInt(dm) : 0;
-	// tick_spell (room affects): the kService spell whose actions the room-affect handler runs
-	// each tick. Optional; absent -> kUndefined (no per-tick effect / handled in code).
-	const char *tick = node.GetValue("tick_spell");
-	tick_spell_ = (tick && *tick) ? parse::ReadAsConstant<ESpell>(tick) : ESpell::kUndefined;
-	// tick_handler (room affects): name of a registered code tick handler (manual-cast style).
-	const char *th = node.GetValue("tick_handler");
-	tick_handler_ = (th && *th) ? th : "";
-
+	// issue.vampirism-haste: optional per-application battle flags OR'd onto each imposed affect. Lets an
+	// action grant an affect with kAfBattledec (round-decrementing) though the affect TYPE is tick-based;
+	// with kAfBattledec set, the <duration> below is read as raw combat rounds (no PC hour->tick scaling).
+	const char *bf = node.GetValue("battleflag");
+	extra_battleflags_ = (bf && *bf) ? parse::ReadAsConstantsBitvector<EAffFlag>(bf) : 0;
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		if (strcmp(name, "duration") == 0) {
@@ -601,12 +694,55 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			dur_max_ = parse::ReadAsInt(child.GetValue("max"));
 			dur_base_ = parse::ReadAsInt(child.GetValue("base"));
 			dur_skill_divisor_ = parse::ReadAsInt(child.GetValue("skill_divisor"));
-		} else if (strcmp(name, "flags") == 0) {
-			flags_ = parse::ReadAsConstantsBitvector<EAffFlag>(child.GetValue("val"));
+			// issue.drunked-migration (Gap A): optional skill whose novice-bonus scales the duration -- lets a
+			// triggered affect-action (no casting spell) scale like a real cast would.
+			if (const char *sk = child.GetValue("skill"); sk && *sk) { dur_skill_ = parse::ReadAsConstant<ESkill>(sk); }
+		} else if (strcmp(name, "charges") == 0) {
+			// issue.room-affect-trigger-improve: <charges max="N"/> -- how many times a TRIGGERED affect
+			// may fire before it is removed. -1 (or absent) = unlimited. Modelled on <hits max=>; the
+			// count is deterministic (decremented by one per trigger execution), so no prob attr.
+			const char *mx = child.GetValue("max");
+			charges_max_ = (mx && *mx) ? parse::ReadAsInt(mx) : -1;
+		} else if (strcmp(name, "affect") == 0) {
+			// issue.affects-improve (P3e): a bare affect reference -- the canonical grammar. The affect
+			// OWNS its applies (affects.xml); the spell only names which affect(s) to impose, plus an
+			// optional `random` flag marking it a member of the spell's random-one-of pool. The id may
+			// resolve as an EAffect (char affect -> applies_) and/or an ERoomAffect (room affect ->
+			// room_affect_); kForbidden is intentionally BOTH, so we try both enums and let each cast
+			// path (magic.cpp / magic_rooms.cpp) consume the kind it understands.
+			const char *idv = child.GetValue("id");
+			if (!idv || !*idv) {
+				err_log("talent_actions <affect>: missing id attribute.");
+			} else {
+				bool resolved = false;
+				try {
+					Apply apply;
+					apply.id = ITEM_BY_NAME<EAffect>(idv);
+					apply.location = EApply::kNone;  // the affect owns its location(s)/modifier(s)
+					const char *r = child.GetValue("random");
+					apply.random = (r && *r) && parse::ReadAsBool(r);
+					applies_.push_back(apply);
+					resolved = true;
+				} catch (const std::out_of_range &) {}
+				try {
+					room_affect_ = ITEM_BY_NAME<room_spells::ERoomAffect>(idv);
+					resolved = true;
+				} catch (const std::out_of_range &) {}
+				if (!resolved) {
+					err_log("talent_actions <affect id='%s'>: unknown affect (not an EAffect or ERoomAffect).",
+							idv);
+				}
+			}
 		} else if (strcmp(name, "apply") == 0) {
+			// issue.affects-improve: LEGACY spell-owned apply (location + <modifier>). Retained only for
+			// affects whose data has not yet moved into affects.xml (the kPoisoned poison family). New
+			// data uses the bare <affect id=...> form above; this branch retires once poison migrates.
 			Apply apply;
 			apply.id = parse::ReadAsConstant<EAffect>(child.GetValue("id"));
-			apply.location = parse::ReadAsConstant<EApply>(child.GetValue("location"));
+			// issue.affects-improve (P3c): location is optional now that affects.xml owns it; a bare
+			// <apply id=".."/> ref (no location/modifier) parses as kNone (content comes from the affect).
+			const char *loc = child.GetValue("location");
+			apply.location = (loc && *loc) ? parse::ReadAsConstant<EApply>(loc) : EApply::kNone;
 			// random is optional (default false). parse::ReadAsBool throws on empty input, so
 			// guard with the (p && *p) pattern that the other optional attrs use. Without this
 			// guard, ANY <apply> tag missing the random= attribute aborts parsing of the whole
@@ -617,8 +753,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			apply.random = (r && *r) && parse::ReadAsBool(r);
 			if (child.GoToChild("modifier")) {
 				apply.min = parse::ReadAsDouble(child.GetValue("min"));
-				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
-				apply.alpha = parse::ReadAsDouble(child.GetValue("alpha"));
+				{ const char *w = child.GetValue("weight"); apply.weight = (w && *w) ? parse::ReadAsDouble(w) : 0.0; }  // issue.potency-noise (stage 1, additive): weight on the shared draw
 				apply.beta = parse::ReadAsDouble(child.GetValue("beta"));
 				apply.factor = parse::ReadAsInt(child.GetValue("factor"));
 				// stack: optional max stack count, default 1, clamped to a minimum of 1.
@@ -651,16 +786,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 
 void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Affect:" << "\r\n"
-		   << "  Spell: " << kColorGrn << NAME_BY_ITEM<ESpell>(spell_) << kColorNrm
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
-		   << " Flags: " << kColorGrn << flags_ << kColorNrm
-		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
-		   << " dispel_mod=" << kColorGrn << dispel_mod_ << kColorNrm
-		   << (tick_spell_ != ESpell::kUndefined ? " tick_spell=" : "") << kColorGrn
-		   << (tick_spell_ != ESpell::kUndefined ? NAME_BY_ITEM<ESpell>(tick_spell_) : "") << kColorNrm
-		   << (tick_handler_.empty() ? "" : " tick_handler=") << kColorGrn << tick_handler_ << kColorNrm << "\r\n"
+		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm << "\r\n"
 		   << "  Duration: base=" << kColorGrn << dur_base_ << kColorNrm
 		   << " skill_divisor=" << kColorGrn << dur_skill_divisor_ << kColorNrm
 		   << " min=" << kColorGrn << dur_min_ << kColorNrm
@@ -669,8 +798,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		buffer << "  Apply: " << kColorGrn << NAME_BY_ITEM<EAffect>(apply.id) << kColorNrm
 			   << " -> " << kColorGrn << NAME_BY_ITEM<EApply>(apply.location) << kColorNrm
 			   << (apply.random ? " [random]" : "")
-			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
-			   << " alpha=" << apply.alpha << " beta=" << apply.beta
+			   << " (min=" << apply.min << " beta=" << apply.beta
 			   << " factor=" << apply.factor << " stack=" << apply.stack
 			   << " cap=" << apply.cap << ")\r\n";
 	}
@@ -694,6 +822,10 @@ TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	const char *dec = node.GetValue("decay");
 	decay_ = (dec && *dec) ? parse::ReadAsInt(dec) : 0;
+	// issue.new-unaffect-spells: restrict a wildcard <remove any_of="*"> to DEBUFFS only
+	// (so a friendly cleanse like "unweave" never strips the target's own buffs).
+	const char *donly = node.GetValue("debuff_only");
+	debuff_only_ = (donly && *donly) && parse::ReadAsBool(donly);
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		Set *set = nullptr;
@@ -725,14 +857,16 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			buffer << " any_of=" << kColorGrn << "*" << kColorNrm;
 		} else if (!set.any_of.empty()) {
 			buffer << " any_of=" << kColorGrn;
-			for (const auto s: set.any_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
+			for (const auto a: set.any_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
+			for (const auto r: set.any_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.wildcard_all) {
 			buffer << " all_of=" << kColorGrn << "*" << kColorNrm;
 		} else if (!set.all_of.empty()) {
 			buffer << " all_of=" << kColorGrn;
-			for (const auto s: set.all_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
+			for (const auto a: set.all_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
+			for (const auto r: set.all_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.breaking_by_failure) {
@@ -742,6 +876,8 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	};
 	buffer << " Unaffect:" << " dispel_bonus=" << kColorGrn << dispel_bonus_ << kColorNrm
 		   << " affect_flags=" << kColorGrn << affect_flags_ << kColorNrm
+		   << " decay=" << kColorGrn << decay_ << kColorNrm
+		   << " debuff_only=" << kColorGrn << (debuff_only_ ? "yes" : "no") << kColorNrm
 		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
 	print_set("blocking", blocking_);
 	print_set("breaking", breaking_);
@@ -931,18 +1067,13 @@ void Actions::ParseCasterConditions(CasterConditions &out, parser_wrapper::DataN
 
 void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 	// optional per-action target selector (non-first actions). Default kTarSame.
-	const char *tgt = node.GetValue("target");
-	if (tgt && *tgt) {
-		if (strcmp(tgt, "kTarFightSelf") == 0) { out.target_ = EActionTarget::kTarFightSelf; }
-		else if (strcmp(tgt, "kTarFightVict") == 0) { out.target_ = EActionTarget::kTarFightVict; }
-		else if (strcmp(tgt, "kTarGroup") == 0) { out.target_ = EActionTarget::kTarGroup; }
-		else if (strcmp(tgt, "kTarFoes") == 0) { out.target_ = EActionTarget::kTarFoes; }
-		else if (strcmp(tgt, "kTarRandomFoe") == 0) { out.target_ = EActionTarget::kTarRandomFoe; }
-		else if (strcmp(tgt, "kTarRandomAlly") == 0) { out.target_ = EActionTarget::kTarRandomAlly; }
-		else if (strcmp(tgt, "kTarMinions") == 0) { out.target_ = EActionTarget::kTarMinions; }
-		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
-		else if (strcmp(tgt, "kTarRoomThis") == 0) { out.target_ = EActionTarget::kTarRoomThis; }
-		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
+	if (const char *tgt = node.GetValue("target"); tgt && *tgt) {
+		const auto it = kActionTargetByName.find(tgt);
+		if (it != kActionTargetByName.end()) {
+			out.target_ = it->second;
+		} else {
+			err_log("Actions: unknown <action target='%s'>.", tgt);
+		}
 	}
 	// optional formula base + reset (non-first actions). Default kCompetence/false.
 	const char *bs = node.GetValue("base");
@@ -952,10 +1083,20 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		else if (strcmp(bs, "kAffects") == 0) { out.base_ = EActionBase::kAffects; }
 		else if (strcmp(bs, "kDispelled") == 0) { out.base_ = EActionBase::kDispelled; }
 		else if (strcmp(bs, "kCompetence") == 0) { out.base_ = EActionBase::kCompetence; }
+		// issue.character-affect-triggers: base="tag" tag="NAME" -- the formula base is the event tag NAME
+		// (read off the ActionContext's EventContext, cast to a number).
+		else if (strcmp(bs, "tag") == 0) {
+			out.base_ = EActionBase::kTag;
+			const char *tn = node.GetValue("tag");
+			if (tn && *tn) { out.tag_name_ = tn; }
+			else { err_log("Actions: <action base='tag'> without a tag='NAME'."); }
+		}
 		else { err_log("Actions: unknown <action base='%s'>.", bs); }
 	}
 	const char *rs = node.GetValue("reset");
 	out.reset_ = (rs && (strcmp(rs, "true") == 0 || strcmp(rs, "Y") == 0 || strcmp(rs, "1") == 0));
+	// issue.perk-action-patching: optional <action id="Name"> -- the block's stable id for perk patches.
+	if (const char *idv = node.GetValue("id"); idv && *idv) { out.id_ = idv; }
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
 			ParseDamage(out, manifestation);
@@ -977,6 +1118,12 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseTargetConditions(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(out.reflection_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "absorption") == 0) {
+			ParseAbsorption(out.absorption_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "damage_change") == 0) {
+			ParseDamageChange(out.damage_change_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "retaliation") == 0) {
+			ParseRetaliation(out.retaliation_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "manual_cast") == 0) {
 			// <manual_cast handler="SpellX"/>.
 			const char *hv = manifestation.GetValue("handler");
@@ -985,6 +1132,39 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			// <side_spell id="kHold"/>.
 			const char *idv = manifestation.GetValue("id");
 			if (idv && *idv) { out.side_spells_.push_back(parse::ReadAsConstant<ESpell>(idv)); }
+		} else if (strcmp(manifestation.GetName(), "trigger") == 0) {
+			// issue.affect-migration: <trigger val="kPulse|kBattlePulse"/> -- the event(s) that fire
+			// this action. No trigger => the action runs inline in the normal cast.
+			// issue.room-affect-trigger-improve: kEnter/kEnterPC fire on a character entering the room;
+			// the optional return="N" int is the value the trigger yields the firing event (0 = block).
+			const char *tv = manifestation.GetValue("val");
+			if (tv && *tv) {
+				// `|`-separated -> several flags; an action can fire on more than one event.
+				for (const auto &name : utils::Split(tv, '|')) {
+					const auto it = kActionTriggerByName.find(name);
+					if (it != kActionTriggerByName.end()) {
+						out.trigger_.set(it->second);
+					} else {
+						err_log("Actions: unknown <trigger val='%s'>.", name.c_str());
+					}
+				}
+			}
+			if (const char *rv = manifestation.GetValue("return"); rv && *rv) {
+				out.trigger_return_ = parse::ReadAsInt(rv);
+			}
+			// issue.character-affect-triggers: optional <trigger category="kHeal"/> for kPoints -- restrict
+			// the trigger to one restoration category. Unknown name => no filter (react to any).
+			if (const char *cv = manifestation.GetValue("category"); cv && *cv) {
+				const auto it = kPointsCategoryByName.find(cv);
+				if (it != kPointsCategoryByName.end()) {
+					out.trigger_points_category_ = it->second;
+				} else {
+					err_log("Actions: unknown <trigger category='%s'> (kHeal|kMoves|kThirst|kFull).", cv);
+				}
+			}
+			if (const char *pv = manifestation.GetValue("prob"); pv && *pv) {
+				out.trigger_prob_ = parse::ReadAsInt(pv);
+			}
 		}
 	}
 	node.GoToParent();
@@ -1015,10 +1195,113 @@ void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) 
 	if (prob && *prob) {
 		refl.prob = parse::ReadAsInt(prob);
 	}
+	// issue.attack-ward: potency-contest bounds (max>0 => contest mode in RunAttackWards, else fixed prob).
+	const char *mn = node.GetValue("min");
+	if (mn && *mn) { refl.min = parse::ReadAsInt(mn); }
+	const char *mx = node.GetValue("max");
+	if (mx && *mx) { refl.max = parse::ReadAsInt(mx); }
+	refl.present = true;   // issue.attack-ward: marks a defender Magic-Mirror ward (vs a default Reflection)
+}
+
+// issue.attack-ward: <absorption scope="all|damage|affect" [chance="kMagicResist"] [prob="N"]/>.
+// chance names a resist apply whose capped GET_<apply>(target) is the absorb % (scales with the stat);
+// when absent, the fixed prob is used. scope defaults to all; prob to 0.
+static EWardScope ParseWardScope(const char *scope, const char *ctx) {
+	if (!scope || !*scope || strcmp(scope, "all") == 0) { return EWardScope::kAll; }
+	if (strcmp(scope, "damage") == 0) { return EWardScope::kDamage; }
+	if (strcmp(scope, "affect") == 0) { return EWardScope::kAffect; }
+	err_log("Actions: unknown <%s scope='%s'> (all|damage|affect).", ctx, scope);
+	return EWardScope::kAll;
+}
+
+void Actions::ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node) {
+	absorb.present = true;
+	absorb.scope = ParseWardScope(node.GetValue("scope"), "absorption");
+	const char *chance = node.GetValue("chance");
+	if (chance && *chance) {
+		absorb.chance = parse::ReadAsConstant<EApply>(chance);
+	}
+	const char *prob = node.GetValue("prob");
+	if (prob && *prob) {
+		absorb.prob = parse::ReadAsInt(prob);
+	}
+}
+
+void Actions::ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node) {
+	dc.present = true;
+	if (const char *p = node.GetValue("prob"); p && *p) { dc.prob = parse::ReadAsInt(p); }
+	if (const char *s = node.GetValue("stage"); s && strcmp(s, "late") == 0) { dc.late = true; }
+	if (const char *m = node.GetValue("msg"); m && *m) {
+		if (strcmp(m, "crit") == 0) { dc.msg_variant = 1; }
+		else if (strcmp(m, "none") == 0) { dc.msg_variant = 2; }
+	}
+	for (auto &child : node.Children()) {
+		const auto cn = child.GetName();
+		if (strcmp(cn, "conditions") == 0) {
+			for (auto &c : child.Children()) {
+				const auto n = c.GetName();
+				if (strcmp(n, "type") == 0) {
+					dc.type_mask |= ParseDmgTypeMask(c.GetValue("val"));
+				} else if (strcmp(n, "element") == 0) {
+					dc.element_mask |= ParseElementMask(c.GetValue("val"));
+				} else if (strcmp(n, "flags") == 0) {
+					dc.flags_present |= ParseHitFlagMask(c.GetValue("present"));
+					dc.flags_missing |= ParseHitFlagMask(c.GetValue("missing"));
+				}
+			}
+		} else if (strcmp(cn, "variation") == 0) {
+			if (const char *v = child.GetValue("min"); v && *v) { dc.var_min = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("max"); v && *v) { dc.var_max = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("factor"); v && *v) { dc.var_factor = parse::ReadAsInt(v); }
+		} else if (strcmp(cn, "flags") == 0) {
+			dc.flags_add |= ParseHitFlagMask(child.GetValue("add"));
+			dc.flags_remove |= ParseHitFlagMask(child.GetValue("remove"));
+		}
+	}
+}
+
+void Actions::ParseRetaliation(Retaliation &rt, parser_wrapper::DataNode &node) {
+	rt.present = true;
+	if (const char *p = node.GetValue("prob"); p && *p) { rt.prob = parse::ReadAsInt(p); }
+	for (auto &child : node.Children()) {
+		const auto cn = child.GetName();
+		if (strcmp(cn, "conditions") == 0) {
+			for (auto &c : child.Children()) {
+				const auto n = c.GetName();
+				if (strcmp(n, "type") == 0) {
+					rt.type_mask |= ParseDmgTypeMask(c.GetValue("val"));
+				} else if (strcmp(n, "element") == 0) {
+					rt.element_mask |= ParseElementMask(c.GetValue("val"));
+				} else if (strcmp(n, "flags") == 0) {
+					rt.flags_present |= ParseHitFlagMask(c.GetValue("present"));
+					rt.flags_missing |= ParseHitFlagMask(c.GetValue("missing"));
+				}
+			}
+		} else if (strcmp(cn, "percent") == 0) {
+			if (const char *v = child.GetValue("min"); v && *v) { rt.pct_min = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("max"); v && *v) { rt.pct_max = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("npc_bonus"); v && *v) { rt.npc_bonus = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("boss_bonus"); v && *v) { rt.boss_bonus = parse::ReadAsInt(v); }
+		} else if (strcmp(cn, "element") == 0) {
+			// The reflected damage's element/type. Absent => same as the incoming hit (-1 sentinel).
+			if (const char *v = child.GetValue("val"); v && *v) {
+				rt.element = static_cast<int>(ITEM_BY_NAME<EElement>(v));
+			}
+			if (const char *v = child.GetValue("type"); v && *v) {
+				const auto it = kDmgTypeByName.find(v);
+				if (it != kDmgTypeByName.end()) { rt.dmg_type = static_cast<int>(it->second); }
+				else { err_log("Actions: unknown <retaliation><element type='%s'>.", v); }
+			}
+		} else if (strcmp(cn, "flags") == 0) {
+			rt.flags_add |= ParseHitFlagMask(child.GetValue("add"));
+			rt.flags_remove |= ParseHitFlagMask(child.GetValue("remove"));
+		}
+	}
 }
 
 void Actions::ParseDamage(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kDamage, std::make_shared<Damage>(node));
+	auto it = out.manifestations_.emplace(EAction::kDamage, std::make_shared<Damage>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
@@ -1060,7 +1343,8 @@ void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 		if (ft && *ft) { ptr->free_targets = std::max(0, parse::ReadAsInt(ft)); }
 		node.GoToParent();
 	}
-	out.manifestations_.insert({EAction::kArea, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kArea, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseSummon(Action &out, parser_wrapper::DataNode &node) {
@@ -1084,7 +1368,8 @@ void Actions::ParseSummon(Action &out, parser_wrapper::DataNode &node) {
 		ptr->from_corpse = (fc && *fc) && parse::ReadAsBool(fc);
 		node.GoToParent();
 	}
-	out.manifestations_.insert({EAction::kSummon, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kSummon, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseCreation(Action &out, parser_wrapper::DataNode &node) {
@@ -1093,7 +1378,8 @@ void Actions::ParseCreation(Action &out, parser_wrapper::DataNode &node) {
 	if (vn && *vn) { ptr->vnum = parse::ReadAsInt(vn); }
 	const char *h = node.GetValue("handler");
 	if (h && *h) { ptr->handler = h; }
-	out.manifestations_.insert({EAction::kCreation, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kCreation, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
@@ -1102,19 +1388,23 @@ void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
 	if (h && *h) { ptr->handler = h; }
 	const char *col = node.GetValue("collateral");
 	ptr->collateral_on_damage = (col && strcmp(col, "on_damage") == 0);
-	out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParsePoints(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kPoints, std::make_shared<Points>(node));
+	auto it = out.manifestations_.emplace(EAction::kPoints, std::make_shared<Points>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseAffect(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
+	auto it = out.manifestations_.emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseUnaffect(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kUnaffect, std::make_shared<TalentUnaffect>(node));
+	auto it = out.manifestations_.emplace(EAction::kUnaffect, std::make_shared<TalentUnaffect>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 /*
@@ -1135,6 +1425,53 @@ bool Action::Contains(EAction action) const {
 		return !side_spells_.empty();
 	}
 	return manifestations_.contains(action);
+}
+
+// issue.perk-action-patching: op="modify" support -- replace this block's shared manifestation of `kind`
+// with a private deep copy and hand it back mutable. Only the kinds modify actually edits are cloned.
+// issue.affect-action-patch-improve (Phase B): the mul/add/set arithmetic shared by ApplyFieldMod overrides.
+static double ApplyModOp(double cur, EFieldModOp op, double v) {
+	switch (op) {
+		case EFieldModOp::kMul: return cur * v;
+		case EFieldModOp::kAdd: return cur + v;
+		case EFieldModOp::kSet: return v;
+	}
+	return cur;
+}
+
+void Area::ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
+	if (field == "decay") { decay = ApplyModOp(decay, op, value); }
+	else if (field == "free_targets") { free_targets = static_cast<int>(ApplyModOp(free_targets, op, value)); }
+	else if (field == "max_targets") { max_targets = static_cast<int>(ApplyModOp(max_targets, op, value)); }
+	else if (field == "min_targets") { min_targets = static_cast<int>(ApplyModOp(min_targets, op, value)); }
+	else if (field == "skill_divisor") { skill_divisor = std::max(1, static_cast<int>(ApplyModOp(skill_divisor, op, value))); }
+	else { err_log("ApplyFieldMod: unknown Area field [%s].", field.c_str()); }
+}
+
+void Damage::ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
+	if (field == "beta") { amount_beta_ = ApplyModOp(amount_beta_, op, value); }
+	else if (field == "min") { amount_min_ = ApplyModOp(amount_min_, op, value); }
+	else if (field == "prob") { prob_ = static_cast<int>(ApplyModOp(prob_, op, value)); }
+	else if (field == "hits_max") { hits_max_ = static_cast<int>(ApplyModOp(hits_max_, op, value)); }
+	else { err_log("ApplyFieldMod: unknown Damage field [%s].", field.c_str()); }
+}
+
+IAction *Action::CloneManifestation(EAction kind) {
+	auto it = manifestations_.find(kind);
+	if (it == manifestations_.end() || !it->second) {
+		return nullptr;
+	}
+	switch (kind) {
+		case EAction::kArea:
+			it->second = std::make_shared<Area>(*std::static_pointer_cast<Area>(it->second));
+			break;
+		case EAction::kDamage:
+			it->second = std::make_shared<Damage>(*std::static_pointer_cast<Damage>(it->second));
+			break;
+		default:
+			return nullptr;   // kind not supported by op="modify" yet
+	}
+	return it->second.get();
 }
 
 const Damage &Action::GetDmg() const {

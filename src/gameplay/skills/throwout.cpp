@@ -31,7 +31,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
-	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !privilege::IsImmortal(ch)) {
+	if (!IsAffected(ch, EAffect::kFrenzy) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Не получается! Вы ещё не достаточно разъярились!\r\n", ch);
 		return;
 	}

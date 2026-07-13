@@ -11,6 +11,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/abilities/abilities_constants.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_messages.h"
 #include "gameplay/fight/fight.h"
 #include "utils/random.h"
 #include "utils/utils_string.h"
@@ -20,12 +21,9 @@
 #include <vector>
 
 // =====================================================================================
-// First Aid: old vs new implementation toggle (issue.first-aid).
-//
-// The new version (BYLINS_FIRSTAID_NEW = 1) reworks affect removal around the same
-// potency-roll contest the data-driven spells use:
-//   - the `kAfCurable` flag is the only source of truth for "can be cured"
-//     (the hardcoded GetRemovableSpellId list is bypassed);
+// First Aid (issue.first-aid): affect removal uses the same potency-roll contest as the
+// data-driven spells:
+//   - the `kAfCurable` flag is the only source of truth for "can be cured";
 //   - the cure's potency is rolled from First Aid skill + Intelligence stat;
 //   - the potency contest mirrors DispelSucceeds (5% luck floor + weighted
 //     dice + skill + stat vs the affect's recorded potency);
@@ -33,16 +31,9 @@
 //   - argument syntax mirrors do_cast: 'spell name' [target], with bare-target
 //     legacy form preserved as auto-pick on the named character.
 //
-// The HP-heal half is preserved verbatim from the legacy version because low-
-// level fighters often have no other healing route.
-//
-// Flip to 1 once the new version is debugged; the legacy code stays under
-// `#else` so we can fall back instantly if something needs investigating.
-// Once the new version has stabilised in play, delete the legacy branch.
+// The HP-heal half is preserved from the legacy version because low-level fighters
+// often have no other healing route.
 // =====================================================================================
-#define BYLINS_FIRSTAID_NEW 1
-
-#if BYLINS_FIRSTAID_NEW
 
 namespace {
 
@@ -91,9 +82,9 @@ float ComputeFirstAidPotency(CharData *ch) {
 //   `firstaid <target>`         -> spell=kUndefined, vict=<target> (auto-pick on target, legacy)
 //   `firstaid 'spell'`          -> spell=<spell>, vict=empty (named affect on self)
 //   `firstaid 'spell' <target>` -> spell=<spell>, vict=<target> (named affect on target)
-// Quote chars match do_cast: ', *, !. Returns false on a malformed spell name.
-bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict_arg) {
-	spell_id = ESpell::kUndefined;
+// Quote chars match do_cast: ', *, !. Returns false on an unknown affect name.
+bool ParseFirstAidArgs(const char *argument, EAffect &affect_id, std::string &vict_arg) {
+	affect_id = EAffect::kUndefined;
 	vict_arg.clear();
 	if (!argument || !*argument) {
 		return true;
@@ -115,11 +106,10 @@ bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict
 	}
 
 	const auto quote2 = arg_str.find_first_of("'*!", quote1 + 1);
-	std::string spell_name_str = (quote2 != std::string::npos)
+	std::string affect_name_str = (quote2 != std::string::npos)
 			? arg_str.substr(quote1 + 1, quote2 - quote1 - 1)
 			: arg_str.substr(quote1 + 1);
-	spell_id = FixNameAndFindSpellId(spell_name_str);
-	if (spell_id == ESpell::kUndefined) {
+	if (!GetAffectNumByName(affect_name_str, affect_id)) {
 		return false;
 	}
 
@@ -137,11 +127,12 @@ bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict
 //   desired == kUndefined -> the kAfCurable affect on vict with the LOWEST potency.
 //                            "Triage easy stuff first" -- if even the cheapest fails,
 //                            stronger affects need a real dispel spell anyway.
-//   desired != kUndefined -> the matching kAfCurable affect of that spell, or nullptr.
-Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
-	if (desired != ESpell::kUndefined) {
+//   desired != kUndefined -> the matching kAfCurable affect of that type, or nullptr.
+Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, EAffect desired) {
+	if (desired != EAffect::kUndefined) {
 		for (const auto &aff : vict->affected) {
-			if (aff && aff->type == desired && IS_SET(aff->battleflag, kAfCurable) && aff->debuff) {
+			if (aff && aff->affect_type == desired && IS_SET(aff->battleflag, kAfCurable)
+					&& affects::AffectBuffKind(aff->affect_type) != affects::EBuff::kYes) {
 				return aff;
 			}
 		}
@@ -149,9 +140,11 @@ Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
 	}
 	Affect<EApply>::shared_ptr best;
 	for (const auto &aff : vict->affected) {
-		// Only harmful affects (debuff) are cured -- never the target's own buffs (many buffs also
-		// carry kAfCurable). issue.spells-hotfix.
-		if (aff && IS_SET(aff->battleflag, kAfCurable) && aff->debuff
+		// Only harmful affects are cured -- never the target's own buffs (many buffs also carry
+		// kAfCurable). The affect's own buff flag is the source of truth: cure anything that is NOT a
+		// declared buff (debuff or ambiguous). issue.spells-hotfix / issue.affect-migration.
+		if (aff && IS_SET(aff->battleflag, kAfCurable)
+				&& affects::AffectBuffKind(aff->affect_type) != affects::EBuff::kYes
 				&& (!best || aff->potency < best->potency)) {
 			best = aff;
 		}
@@ -184,10 +177,10 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	ESpell desired_spell = ESpell::kUndefined;
+	EAffect desired_affect = EAffect::kUndefined;
 	std::string vict_arg;
-	if (!ParseFirstAidArgs(argument, desired_spell, vict_arg)) {
-		SendMsgToChar("Использование: firstaid ['название заклинания' [цель]] | [цель]\r\n", ch);
+	if (!ParseFirstAidArgs(argument, desired_affect, vict_arg)) {
+		SendMsgToChar("Использование: firstaid ['название эффекта' [цель]] | [цель]\r\n", ch);
 		return;
 	}
 
@@ -234,7 +227,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	// --- Affect removal phase (new: potency contest gated by kAfCurable) ---
-	const auto target_aff = PickCureTarget(vict, desired_spell);
+	const auto target_aff = PickCureTarget(vict, desired_affect);
 	bool affect_cleared = false;
 	bool affect_contest_failed = false;
 	if (target_aff) {
@@ -247,12 +240,12 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			snprintf(dbuf, sizeof(dbuf),
 					 "First Aid: %.1f%s vs %s [p: %.1f]. %s.\r\n",
 					 potency, luck ? " (luck)" : "",
-					 MUD::Spell(target_aff->type).GetCName(), aff_potency,
+					 affects::AffectMsg(target_aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(), aff_potency,
 					 ok ? "Success" : "Fail");
 			SendMsgToChar(dbuf, ch);
 		}
 		if (ok) {
-			RemoveAffectFromCharAndRecalculate(vict, target_aff->type);
+			RemoveAffectFromCharAndRecalculate(vict, target_aff->affect_type);
 			affect_cleared = true;
 		} else {
 			affect_contest_failed = true;
@@ -316,137 +309,5 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// a successful cure/heal be spammed.
 	ApplyFirstAidCooldown(ch);
 }
-
-#else  // BYLINS_FIRSTAID_NEW
-
-void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct TimedSkill timed;
-
-	if (!GetSkill(ch, ESkill::kFirstAid)) {
-		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
-		return;
-	}
-	if (!privilege::IsGod(ch) && IsTimedBySkill(ch, ESkill::kFirstAid)) {
-		SendMsgToChar("Так много лечить нельзя - больных не останется.\r\n", ch);
-		return;
-	}
-
-	one_argument(argument, arg);
-
-	CharData *vict;
-	if (!*arg) {
-		vict = ch;
-	} else {
-		vict = target_resolver::FindCharInRoom(ch, arg);
-		if (!vict) {
-			SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kNoTarget) + "\r\n", ch);
-			return;
-		}
-	}
-
-	if (vict->GetEnemy()) {
-		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-	if (vict->IsNpc() && !IsCharmice(vict)) {
-		SendMsgToChar("Вы не красный крест - лечить всех подряд.\r\n", ch);
-		return;
-	}
-	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
-		percent = 0;
-	}
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
-		prob = 0;
-	}
-	auto success = (prob >= percent);
-	bool need = false;
-	bool enough_skill = false;
-	if ((vict->get_real_max_hit() > 0 && (vict->get_hit() * 100 / vict->get_real_max_hit()) < 31) ||
-		(vict->get_real_max_hit() <= 0 && vict->get_hit() < vict->get_real_max_hit()) ||
-		(vict->get_hit() < vict->get_real_max_hit() && CanUseFeat(ch, EFeat::kHealer))) {
-		need = true;
-		enough_skill = true;
-		if (success) {
-			int dif = std::min(vict->get_real_max_hit(), vict->get_real_max_hit() - vict->get_hit());
-			int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
-			vict->set_hit(vict->get_hit() + add);
-		}
-	}
-	auto spell_id{ESpell::kUndefined};
-	for (int count = kMaxFirstaidRemove - 1; count >= 0; count--) {
-		spell_id = GetRemovableSpellId(count);
-		if (IsAffectedBySpell(vict, spell_id)) {
-			need = true;
-			if (prob / 10  > count) {
-				enough_skill = true;
-				break;
-			}
-		}
-	}
-	if (!need) {
-		if (vict == ch) {
-			act("Вы в лечении не нуждаетесь.", false, ch, nullptr, vict, kToChar);
-		} else {
-			act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
-		}
-	} else if (!enough_skill) {
-		if (vict == ch) {
-			act("У вас не хватило умения вылечить себя.", false, ch, nullptr, vict, kToChar);
-		} else {
-			act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
-		}
-	} else {
-		timed.skill = ESkill::kFirstAid;
-		int time = privilege::IsImmortal(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
-		if (CanUseFeat(ch, EFeat::kPhysicians))
-			time /=2;
-		timed.time = time;
-		ImposeTimedSkill(ch, &timed);
-		ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
-		if (vict != ch) {
-			if (success) {
-				act("Вы оказали первую помощь $N2.", false, ch, nullptr, vict, kToChar);
-				act("$n оказал$g первую помощь $N2.",
-					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-				if (spell_id != ESpell::kUndefined) {
-					RemoveAffectFromCharAndRecalculate(vict, spell_id);
-				}
-				if (ch->get_sex() == EGender::kMale)
-					sprintf(buf, "%s оказал вам первую помощь.\r\n", ch->get_name().c_str());
-				else
-					sprintf(buf, "%s оказала вам первую помощь.\r\n", ch->get_name().c_str());
-				SendMsgToChar(buf, vict);
-				vict->zero_wait();
-				update_pos(vict);
-			} else {
-				act("Вы безрезультатно попытались оказать первую помощь $N2.",
-					false, ch, nullptr, vict, kToChar);
-				act("$N безрезультатно попытал$U оказать вам первую помощь.",
-					false, vict, nullptr, ch, kToChar);
-				act("$n безрезультатно попытал$u оказать первую помощь $N2.",
-					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-			}
-		} else {
-			if (success) {
-				act("Вы оказали себе первую помощь.",
-					false, ch, nullptr, nullptr, kToChar);
-				act("$n оказал$g себе первую помощь.",
-					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-				if (spell_id != ESpell::kUndefined) {
-					RemoveAffectFromCharAndRecalculate(vict, spell_id);
-				}
-			} else {
-				act("Вы безрезультатно попытались оказать себе первую помощь.",
-					false, ch, nullptr, vict, kToChar);
-				act("$n безрезультатно попытал$u оказать себе первую помощь.",
-					false, ch, nullptr, vict, kToRoom | kToArenaListen);
-			}
-		}
-	}
-}
-
-#endif  // BYLINS_FIRSTAID_NEW
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

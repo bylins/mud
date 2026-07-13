@@ -14,7 +14,6 @@
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
-	noflee.type = ESpell::kExpedientFail;
 	noflee.affect_type = EAffect::kNoFlee;
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
@@ -26,7 +25,6 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 
 void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	Affect<EApply> cut;
-	cut.type = ESpell::kBattle;
 	cut.duration = CalcDuration(roll.GetActor(), roll.GetActor(), ESkill::kUndefined, 3 * number(2, 4), 0, 0, 0);;
 	cut.battleflag = kAfBattledec;
 	if (roll.GetActor()->IsFlagged(EPrf::kPerformSerratedBlade)) {

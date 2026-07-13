@@ -20,7 +20,7 @@
 
 namespace handlers {
 
-EStageResult SpellLocateObject(CastContext &ctx) {
+EStageResult SpellLocateObject(ActionContext &ctx) {
 	const int level = abs(ctx.level);
 	CharData *ch = ctx.caster();
 	ObjData *obj = ctx.ovict;

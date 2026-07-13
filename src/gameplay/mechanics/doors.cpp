@@ -21,6 +21,8 @@
 #include "gameplay/skills/pick.h"
 #include "administration/privilege.h"
 #include "named_stuff.h"
+#include "gameplay/magic/magic_rooms.h"          // issue.room-affect-trigger-improve: RunDoorTriggers
+#include "gameplay/abilities/talents_actions.h"  // EActionTrigger::kOpen
 #include "engine/db/player_index.h"
 
 enum EDoorError : int {
@@ -294,11 +296,21 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 				return;
 			if (scmd == kScmdOpen && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], false))
 				return;
+			// issue.room-affect-trigger-improve (door affects): an affect on this door may react to the
+			// open (e.g. kFireTrap fireballs the opener) and refuse it via <trigger return="0">.
+			if (scmd == kScmdOpen && !obj
+				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kOpen))
+				return;
 			if (scmd == kScmdClose && obj && !close_otrigger(obj, ch, false))
 				return;
 			if (scmd == kScmdClose && !obj && !close_wtrigger(world[ch->in_room], ch, door, false))
 				return;
 			if (scmd == kScmdClose && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], false))
+				return;
+			// issue.room-affect-trigger-improve (door affects): an affect may react to closing the door
+			// and refuse it via <trigger val="kClose" return="0">.
+			if (scmd == kScmdClose && !obj
+				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kClose))
 				return;
 			OPEN_DOOR(ch->in_room, obj, door);
 			if (back) {
@@ -333,6 +345,15 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 				return;
 			if (scmd == kScmdLock && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], true))
 				return;
+			// issue.room-affect-trigger-improve (door affects): an affect may react to the unlock and
+			// refuse it via <trigger val="kUnlock" return="0">.
+			if (scmd == kScmdUnlock && !obj
+				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kUnlock))
+				return;
+			// ... and likewise to locking it, via <trigger val="kLock" return="0">.
+			if (scmd == kScmdLock && !obj
+				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kLock))
+				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)
 				LOCK_DOOR(other_room, obj, rev_dir[door]);
@@ -349,6 +370,10 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			if (!obj && !pick_wtrigger(world[ch->in_room], ch, door))
 				return;
 			if (!obj && back && !pick_wtrigger(world[other_room], ch, rev_dir[door]))
+				return;
+			// issue.room-affect-trigger-improve (door affects): an affect may react to the pick and
+			// refuse it via <trigger val="kPick" return="0">.
+			if (!obj && !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kPick))
 				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)

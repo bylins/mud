@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-EStageResult AlterDarkness(CastContext &ctx) {
+EStageResult AlterDarkness(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (obj->timed_spell().check_spell(ESpell::kLight)) {
 		obj->del_timed_spell(ESpell::kLight, true);

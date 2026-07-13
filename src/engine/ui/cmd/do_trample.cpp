@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
 #include "administration/privilege.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/groups.h"
@@ -59,7 +60,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			//Find own rune label or first run label in room
 			for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-				if (affect_it->get()->type == ESpell::kRuneLabel) {
+				if (affect_it->get()->affect_type == room_spells::ERoomAffect::kRuneLabel) {
 					if (affect_it->get()->caster_id == ch->get_uid()) {
 						aff_i = affect_it;
 						break;

@@ -15,7 +15,7 @@ extern const char *what_sky_type[];   // defined in magic_utils.cpp (shared with
 
 namespace handlers {
 
-EStageResult SpellControlWeather(CastContext &ctx) {
+EStageResult SpellControlWeather(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;

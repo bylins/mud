@@ -242,7 +242,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			auto aff = hired->affected.begin();
 			for (; aff != hired->affected.end(); ++aff) {
-				if ((*aff)->type == ESpell::kCharm) {
+				if (IS_SET((*aff)->battleflag, kAfCharmBond)) {
 					break;
 				}
 			}
@@ -260,7 +260,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 			}
 		}
-		RemoveAffectFromChar(helpee, ESpell::kCharm);
+		RemoveCharmBond(helpee);
 		if (!privilege::IsImmortal(ch)) {
 			if (isname(isbank, "банк bank")) {
 				currencies::RemoveBank(*ch, currencies::kGold, cost);
@@ -271,19 +271,17 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kCharmed;
-		af.battleflag = 0;
+		af.battleflag = kAfCharmBond;
 		affect_to_char(helpee, af);
 		helpee->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 
-		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kHelper;
-		af.battleflag = 0;
+		af.battleflag = kAfCharmBond;
 		affect_to_char(helpee, af);
 
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IsFemale(ch) ? "хозяйка" : "хозяин");
@@ -353,7 +351,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 
 	if (!privilege::IsImmortal(ch)) {
 		for (const auto &aff : hired->affected) {
-			if (aff->type == ESpell::kCharm) {
+			if (IS_SET(aff->battleflag, kAfCharmBond)) {
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (cost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
@@ -369,7 +367,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	act("Вы рассчитали $N3.", false, ch, 0, hired, kToChar);
-	RemoveAffectFromCharAndRecalculate(hired, ESpell::kCharm);
+	RemoveCharmBond(hired, true);
 	follow::StopFollower(hired, follow::kSfCharmlost);
 }
 

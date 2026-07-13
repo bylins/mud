@@ -377,24 +377,6 @@ float CalcCastPotency(const RollResult &potency) {
 	return static_cast<float>(potency.skill_coeff + potency.stat_coeff);
 }
 
-int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
-						 const RollResult &potency) {
-	// `competence` replaces the caster's skill+stat for chained actions
-	// (it equals skill+stat for the entry action / base==kCompetence). potency.dices stays.
-	const double competencies = competence;
-	// Option-2 subquadratic: dice amplified by skill/stat (alpha)
-	// plus an additive term (beta). alpha=0 -> old Formula A.
-	double raw = apply.min + std::ceil(
-			potency.dices * apply.dices_weight * (1.0 + apply.alpha * competencies)
-			+ apply.beta * competencies);
-	// Optional cap on raw magnitude before factor. 0 = no cap.
-	// Clamps the buff/debuff magnitude regardless of factor sign.
-	if (apply.cap > 0) {
-		raw = std::min(raw, static_cast<double>(apply.cap));
-	}
-	return static_cast<int>(apply.factor * raw);
-}
-
 bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	int ignore;
 
@@ -487,27 +469,45 @@ private:
 // Evaluates the spell's potency roll against the caster once, so the result can be
 // threaded to the cast-dispatch functions. The roll values do not depend on level;
 // level is carried only to replace that parameter.
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill) {
+ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, float fixed_potency,
+								 float fixed_competence, double fixed_noise_z, int fixed_skill) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
-		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
-						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
+		RollResult rr{roll.CalcSkillCoeff(caster),
+					  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
+		// issue.potency-noise: draw the spell's ONE shared truncated-normal z; realize d = sigma*z once,
+		// shared by every manifestation (each scales it by its own weight).
+		const double z = GaussDoubleNumber(0.0, 1.0, -roll.GetNoiseTrunc(), roll.GetNoiseTrunc());
+		rr.noise_z = z;
+		rr.noise_dev = roll.GetNoiseSigma() * z;
+		return rr;
 	};
-	// issue.potion-potency: a brewed-in fixed potency (>=0) from an item/potion bypasses the
-	// caster's skill/stat roll. issue.random-noise-rework (P3): put it in `skill_coeff` (not `dices`)
-	// so it flows as COMPETENCE -- both CalcCastPotency (skill+stat, deterministic) and
-	// CompetenceBase() equal it, so the stored potency AND the beta*C effect amounts scale with the
-	// fixed potency. (Under P2 all effect dices_weight=0, so a dices-only value no longer scaled the
-	// amount.) Negative -> roll from the caster as usual.
-	const RollResult bcc_roll = (fixed_potency >= 0.0f)
-		? RollResult{0, static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z, fixed_skill}
-		: eval(spell.GetPotencyRoll());
-	CastContext ctx(caster, spell_id, level, bcc_roll);
+	// issue.vampirism-haste: an affect-action grant (e.g. kVampirism's on-kill kHaste) has no skill roll,
+	// so it scales with the FIRING affect's stored potency, fed here as competence (skill_coeff).
+	// issue.potion-potency + issue.random-noise-rework (P3): a brewed-in fixed potency (>=0) from an
+	// item/potion ALSO flows as COMPETENCE (skill_coeff, not dices), so CalcCastPotency (skill+stat,
+	// deterministic) and the beta*C effect amounts scale with it (under P2 dices_weight=0, a dices-only
+	// value would no longer scale the amount). Negative -> roll from the caster as usual.
+	// issue.potion-hotfix: a brewed potion also carries a frozen brew-luck z (fixed_noise_z) and the
+	// MAKER's skill (fixed_skill) for deterministic amount + maker-driven buff duration.
+	RollResult bcc_roll;
+	if (fixed_competence >= 0.0f) {
+		bcc_roll = RollResult{static_cast<double>(fixed_competence), 0.0, 0.0};
+	} else if (fixed_potency >= 0.0f) {
+		bcc_roll = RollResult{static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z, fixed_skill};
+		// issue.potency-noise: a brewed potion replays its frozen z; realize d with THIS spell's sigma.
+		if (!std::isnan(fixed_noise_z)) {
+			bcc_roll.noise_dev = spell.GetPotencyRoll().GetNoiseSigma() * fixed_noise_z;
+		}
+	} else {
+		bcc_roll = eval(spell.GetPotencyRoll());
+	}
+	ActionContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -585,10 +585,25 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency, fixed_noise_z, fixed_skill);
+	ActionContext ctx = BuildActionContext(caster, spell_id, level, fixed_potency, -1.0f, fixed_noise_z, fixed_skill);
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
+	// issue.perk-action-patching: if the caster holds a perk that patches this spell, build the per-cast
+	// modified action chain now, before dispatch. No-op for every other caster / every unpatched spell.
+	ctx.ApplyTalentPatches();
+
+	// issue.room-affect-trigger-improve: a cast aimed at a DIRECTION targets that passage/exit -- general,
+	// not tied to any spell id. CallMagicToExit runs only the passage-meaningful stages of the spell
+	// (impose an affect on the door, dispel affects already there); char-targeted stages (damage / heal /
+	// summon / ...) are pointless on a doorway and are silently skipped. So `развеять магию <dir>`,
+	// `огненная ловушка <dir>`, etc. all flow through here without per-spell branching.
+	if (dir >= 0) {
+		profiler.next_step("exit");
+		ActionContext exit_ctx = ctx;
+		exit_ctx.level = abs(level);
+		return room_spells::CallMagicToExit(caster, dir, exit_ctx);
+	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		profiler.next_step("area");
@@ -603,7 +618,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
 		profiler.next_step("room");
-		CastContext room_ctx = ctx;
+		ActionContext room_ctx = ctx;
 		room_ctx.level = abs(level);
 		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
@@ -614,7 +629,14 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	// cannot block its own removal.
 	if (spell_id == ESpell::kDispellMagic && !cvict && !ovict) {
 		profiler.next_step("room-dispel");
-		CastContext room_ctx = ctx;
+		// issue.affects-improve (P2): a no-target dispel goes to the ROOM, not the caster -- tell the
+		// caster so the empty "no effect" result on their own buffs is not mistaken for a bug. To strip
+		// your own affects, target yourself by name. The clarifier is kDispellMagic's kCustomMsgOne.
+		if (const std::string &m = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCustomMsgOne);
+				!m.empty()) {
+			SendMsgToChar(m + "\r\n", caster);
+		}
+		ActionContext room_ctx = ctx;
 		room_ctx.cvict = nullptr;
 		room_ctx.rvict = world[caster->in_room];
 		return (CastUnaffects(room_ctx) == EStageResult::kBreak)
@@ -675,7 +697,8 @@ static void SendNoTargetMsg(ESpell spell_id, CharData *ch) {
 	SendMsgToChar(msg + "\r\n", ch);
 }
 
-int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
+int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
+		int *dir) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
@@ -684,6 +707,19 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	// that moved into the respective handlers (issue.spell-pipeline-cleaning #2/#3), so the generic
 	// resolver no longer special-cases spell ids.
 	strcpy(cast_argument, t);
+	// issue.room-affect-trigger-improve: a kTarDirection spell targets a direction/exit. Parse the arg
+	// as a RU or EN direction name; *troom stays the caster's room and *dir carries the direction.
+	// issue.room-affect-trigger-improve: a kTarDirection spell whose argument is a RU/EN direction targets
+	// that exit. If the arg is NOT a direction we fall through so a spell that ALSO allows other targets
+	// (e.g. kDispellMagic on a char, or its no-arg room form) still resolves normally.
+	if (MUD::Spell(spell_id).AllowTarget(kTarDirection) && *t) {
+		int d = search_block(t, dirs_rus, false);
+		if (d < 0) { d = search_block(t, dirs, false); }
+		if (d >= 0) {
+			if (dir) { *dir = d; }
+			return true;
+		}
+	}
 	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;
 	if (MUD::Spell(spell_id).AllowTarget(kTarIgnore))
@@ -788,7 +824,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir) {
 	if (spell_id == ESpell::kUndefined) {
 		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
 		return ECastResult::kNotCast;
@@ -916,7 +952,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch)));
+	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, std::numeric_limits<double>::quiet_NaN(), -1, dir));
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {
@@ -975,7 +1011,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 // issue.handler-cleaning (Bucket 3): weapon cast-affect helper (was file-local in handler).
 void CastWeaponAffect(CharData *ch, ESpell spell_id) {
-	CastContext ctx(ch, spell_id, GetRealLevel(ch), {});
+	ActionContext ctx(ch, spell_id, GetRealLevel(ch), {});
 	ctx.cvict = ch;
 	CastAffect(ctx);
 }

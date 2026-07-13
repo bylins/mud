@@ -25,9 +25,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	RemoveAffectFromChar(ch, ESpell::kHide);
-
-	if (IsAffectedBySpell(ch, ESpell::kHide)) {
+	if (IsAffectedOrAttempting(ch, EAffect::kHide)) {
 		SendMsgToChar("Вы уже пытаетесь спрятаться.\r\n", ch);
 		return;
 	}
@@ -37,25 +35,25 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
+	if (IsAffected(ch, EAffect::kGlitterDust)) {
 		SendMsgToChar("Спрятаться?! Да вы сверкаете как корчма во время гулянки!.\r\n", ch);
 		return;
 	}
 
 	SendMsgToChar("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
-	ch->Temporary.unset(EXTRA_FAILHIDE);
+	ch->Temporary.unset(ECharExtraFlag::kFailHide);
 	percent = number(1, MUD::Skill(ESkill::kHide).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
 	Affect<EApply> af;
-	af.type = ESpell::kHide;
 	af.duration = CalcDuration(ch, ch, ESkill::kHide, 0, 20, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 
 	if (percent > prob) {
-		af.affect_type = EAffect::kUndefined;
+		af.affect_type = EAffect::kHide;
+		af.battleflag = kAfFailed;
 	} else {
 		af.affect_type = EAffect::kHide;
 	}

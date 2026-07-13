@@ -10,6 +10,8 @@
 #include "gameplay/abilities/talents_actions.h"
 
 #include "magic.h"  // RollResult -- used by CalcCastPotency / ComputeApplyModifier
+#include <cmath>
+#include <algorithm>
 
 class CharData;
 struct RoomData;
@@ -35,7 +37,8 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name);
 
 ESpell FindSpellIdWithName(const std::string &name);
 
-int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);
+int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
+		int *dir = nullptr);  // issue.room-affect-trigger-improve: kTarDirection -> *dir = parsed direction
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
 
 // True if `caster` bypasses the spell's room-level <blocking> (kNoMagic etc.).
@@ -64,8 +67,19 @@ float CalcCastPotency(const RollResult &potency);
 // Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's
 // first-apply default. cap == 0 disables the clamp; factor is allowed to be
 // negative (debuffs), with the clamp acting on the pre-factor magnitude.
-int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
-						 const RollResult &potency);
+// issue.affects-improve: templated so it serves a spell apply (TalentAffect::Apply) AND an
+// affect-owned apply (affects::AffectApply) -- both carry min/dices_weight/alpha/beta/factor/cap.
+template<class ApplyT>
+int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResult &potency) {
+	const double competencies = competence;
+	// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d), d = the cast's shared noise_dev.
+	double raw = apply.min + std::ceil(
+			apply.beta * competencies * (1.0 + apply.weight * potency.noise_dev));
+	if (apply.cap > 0) {
+		raw = std::min(raw, static_cast<double>(apply.cap));
+	}
+	return static_cast<int>(apply.factor * raw);
+}
 
 // issue.random-noise-rework (P1): multiplicative truncated-normal amount. mean = floor + scaled,
 // std = sigma*scaled, so the coefficient of variation is ~sigma -- CONSTANT as `scaled` (= k*competence)

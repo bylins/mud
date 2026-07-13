@@ -53,12 +53,11 @@ void CharacterBuilder::add_poison()
 	check_character_existance();
 
 	auto poison = std::make_shared<Affect<EApply>>();
-	poison->type = ESpell::kPoison;
 	poison->modifier = 0;
 	poison->location = EApply::kStr;
 	poison->duration = CalcDuration(m_result.get(), m_result.get(), ESkill::kUndefined, 10 * 2, 0, 0, 0);
 	poison->affect_type = EAffect::kPoisoned;
-	poison->battleflag = kAfSameTime;
+	poison->battleflag = kAfSameTime | kAfCurable;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(poison);
 }
@@ -68,12 +67,11 @@ void CharacterBuilder::add_sleep()
 	check_character_existance();
 
 	auto sleep = std::make_shared<Affect<EApply>>();
-	sleep->type = ESpell::kSleep;
 	sleep->modifier = 0;
 	sleep->location = EApply::kAc;
 	sleep->duration = CalcDuration(m_result.get(), m_result.get(), ESkill::kUndefined, 10 * 2, 0, 0, 0);
 	sleep->affect_type = EAffect::kSleep;
-	sleep->battleflag = kAfSameTime;
+	sleep->battleflag = kAfSameTime | kAfCurable;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(sleep);
 }
@@ -83,7 +81,6 @@ void CharacterBuilder::add_detect_invis()
 	check_character_existance();
 
 	auto detect_invis = std::make_shared<Affect<EApply>>();
-	detect_invis->type = ESpell::kDetectInvis;
 	detect_invis->modifier = 0;
 	detect_invis->location = EApply::kAc;
 	detect_invis->duration = CalcDuration(m_result.get(), m_result.get(), ESkill::kUndefined, 10 * 2, 0, 0, 0);
@@ -98,7 +95,6 @@ void CharacterBuilder::add_detect_align()
 	check_character_existance();
 
 	auto detect_align = std::make_shared<Affect<EApply>>();
-	detect_align->type = ESpell::kDetectAlign;
 	detect_align->modifier = 0;
 	detect_align->location = EApply::kAc;
 	detect_align->duration = CalcDuration(m_result.get(), m_result.get(), ESkill::kUndefined, 10 * 2, 0, 0, 0);

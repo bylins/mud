@@ -30,6 +30,10 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/magic/magic_utils.h"
+#include "gameplay/magic/magic.h"   // issue.character-affect-triggers: RunCharEventTriggers / EventContext (kKill)
+#include "gameplay/affects/affect_messages.h"   // issue.damage-change: affects::AffectActions
+#include "gameplay/abilities/talents_actions.h"  // issue.damage-change: DamageChange / kWardDamage
+#include "gameplay/affects/affect_data.h"  // VictimWardAffects (autoaffects-hotfix; TEMPORARY, see unstable.next)
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/mechanics/tutelar.h"
@@ -44,107 +48,6 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
 // Estern - нужно разобраться, почему функции работы с опытом распиханы по всем углам
 //
-bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
-	if (dam <= 0) {
-		return false;
-	}
-
-	// отражение части маг дамага от зеркала
-	if (AFF_FLAGGED(victim, EAffect::kMagicGlass)
-		&& dmg_type == fight::kMagicDmg) {
-		int pct = 6;
-		if (victim->IsNpc() && !IsCharmice(victim)) {
-			pct += 2;
-			if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-				pct += 2;
-			}
-		}
-		// дамаг обратки
-		const int mg_damage = dam * pct / 100;
-		if (mg_damage > 0
-			&& victim->GetEnemy()
-			&& victim->GetPosition() > EPosition::kStun
-			&& victim->in_room != kNowhere) {
-			flags.set(fight::kDrawBriefMagMirror);
-			Damage dmg(SpellDmg(ESpell::kMagicGlass), mg_damage, fight::kUndefDmg);
-			dmg.flags.set(fight::kNoFleeDmg);
-			dmg.flags.set(fight::kMagicReflect);
-			dmg.Process(victim, ch);
-		}
-	}
-
-	// обработка щитов, см Damage::post_init_shields()
-	if (flags[fight::kVictimFireShield]
-		&& !flags[fight::kCritHit]) {
-		if (dmg_type == fight::kPhysDmg
-			&& !flags[fight::kIgnoreFireShield]) {
-			int pct = 15;
-			if (victim->IsNpc() && !IsCharmice(victim)) {
-				pct += 5;
-				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-					pct += 5;
-				}
-			}
-			fs_damage = dam * pct / 100;
-		} else {
-			act("Огненный щит вокруг $N1 ослабил вашу атаку.",
-				false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-			act("Огненный щит принял часть повреждений на себя.",
-				false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-			act("Огненный щит вокруг $N1 ослабил атаку $n1.",
-				true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-		}
-		flags.set(fight::kDrawBriefFireShield);
-		dam -= (dam * number(30, 50) / 100);
-	}
-
-	// если критический удар (не точка и стаб) и есть щит - 95% шанс в молоко
-	// критическим считается любой удар который вложиля в определенные границы
-	if (dam
-		&& flags[fight::kCritHit] && flags[fight::kVictimIceShield]
-		&& !dam_critic
-		&& spell_id != ESpell::kPoison
-		&& number(0, 100) < 94) {
-		act("Ваше меткое попадания частично утонуло в ледяной пелене вокруг $N1.",
-			false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-		act("Меткое попадание частично утонуло в ледяной пелене щита.",
-			false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-		act("Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1.",
-			true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-
-		flags.reset(fight::kCritHit);
-		if (dam > 0) dam -= (dam * number(30, 50) / 100);
-	}
-		//шоб небуло спама модернизировал условие
-	else if (dam > 0
-		&& flags[fight::kVictimIceShield]
-		&& !flags[fight::kCritHit]) {
-		flags.set(fight::kDrawBriefIceShield);
-		act("Ледяной щит вокруг $N1 смягчил ваш удар.",
-			false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-		act("Ледяной щит принял часть удара на себя.",
-			false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-		act("Ледяной щит вокруг $N1 смягчил удар $n1.",
-			true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-		dam -= (dam * number(30, 50) / 100);
-	}
-
-	if (dam > 0
-		&& flags[fight::kVictimAirShield]
-		&& !flags[fight::kCritHit]) {
-		flags.set(fight::kDrawBriefAirShield);
-		act("Воздушный щит вокруг $N1 ослабил ваш удар.",
-			false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-		act("Воздушный щит смягчил удар $n1.",
-			false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-		act("Воздушный щит вокруг $N1 ослабил удар $n1.",
-			true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-		dam -= (dam * number(30, 50) / 100);
-	}
-
-	return false;
-}
-
 void Damage::CalcArmorDmgAbsorption(CharData *victim) {
 	// броня на физ дамаг
 	if (dam > 0 && dmg_type == fight::kPhysDmg) {
@@ -212,27 +115,49 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 	return false;
 }
 
-void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
-	// Блочить мессагу крита при ледяном щите вроде нелогично,
-	// так что добавил отдельные сообщения для ледяного щита (Купала)
-	if (!flags[fight::kVictimIceShield]) {
-		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
-				sight::PersonName(victim, ch, 3));
-	} else {
-		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
-				sight::PersonName(victim, ch, 1));
+// issue.damage-change: does the victim have an active affect that declares a given category property?
+// Lets engine damage rules test a declared affect property instead of naming a specific affect id. A
+// shield's property counts only when it is the shield chosen for this hit (so ice/air stay selection-
+// gated); a non-shield affect (e.g. prismatic aura) counts whenever it is present.
+static bool VictimAffectDeclares(int selected_shield, CharData *victim, EAffFlag flag) {
+	// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
+	// also yields flag-only equipment shields that this branch does not materialize.
+	for (const auto &ward : VictimWardAffects(victim)) {
+		const EAffect at = ward.first;
+		if ((affects::AffectFlagsByType(at) & flag) == 0) {
+			continue;
+		}
+		if (affects::AffectShieldWeight(at) > 0 && static_cast<int>(at) != selected_shield) {
+			continue;   // a shield acts only when it is the one chosen for this hit
+		}
+		return true;
 	}
+	return false;
+}
 
+// issue.damage-change: does the victim have any affect that grants TOTAL damage immunity (kAfFullAbsorb,
+// e.g. the "magic cocoon" kGodsShield)? Unlike VictimAffectDeclares this reads the AFF_FLAGS bitset, not
+// the affect structs, so it holds for EVERY holder -- cast (affect_total ORs the flag), worn item
+// (weapon-affect sets the flag) and bare-flag NPC (vendors/renters) alike -- without needing a struct.
+static bool VictimFullyAbsorbs(CharData *victim) {
+	for (const EAffect at : affects::FullAbsorbAffects()) {
+		if (AFF_FLAGGED(victim, at)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
+	// issue.damage-change: the ice-shield "sank into the icy veil" crit flavor now lives in the ice
+	// crit-absorb <damage_change>'s kTransformCrit* sheaf message (shown on the 94% absorb). This is just
+	// the plain crit line for a crit that lands.
+	sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
+			sight::PersonName(victim, ch, 3));
 	SendMsgToChar(buf, ch);
 
-	if (!flags[fight::kVictimIceShield]) {
-		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
-				sight::PersonName(ch, victim, 1));
-	} else {
-		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене вашего щита.&Q&n\r\n",
-				sight::PersonName(ch, victim, 1));
-	}
-
+	sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
+			sight::PersonName(ch, victim, 1));
 	SendMsgToChar(buf, victim);
 	// Закомментил чтобы не спамило, сделать потом в виде режима
 	//act("Меткое попадание $N1 заставило $n3 пошатнуться.", true, victim, nullptr, ch, TO_NOTVICT);
@@ -243,24 +168,24 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 		return;
 	ubyte blink = 0;
 	// даже в случае попадания можно уклониться мигалкой
+	// issue.mob-flag-affect-materialization: gate on the miss-chance APPLY, not the AFF flag. kCloudly/
+	// kBlink now grant kSpelledBlinkMag/Phys from every source -- cast (affects.xml <apply>), worn item
+	// (GetApplyByWeaponAffect) and materialized flag-only mob (BuildMaterializedAffect) -- so the flag
+	// check is redundant. NPC bearers still take level+remort; PCs take the apply value.
 	if (dmg_type == fight::kMagicDmg) {
-		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
+		if (victim->add_abils.percent_spell_blink_mag > 0) {
 			if (victim->IsNpc()) {
 				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
-			} else if(victim->add_abils.percent_spell_blink_mag > 0) {
-				blink = victim->add_abils.percent_spell_blink_mag;
 			} else {
-				blink = 10;
+				blink = victim->add_abils.percent_spell_blink_mag;
 			}
 		}
 	} else if(dmg_type == fight::kPhysDmg) {
-		if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink_phys > 0) {
+		if (victim->add_abils.percent_spell_blink_phys > 0) {
 			if (victim->IsNpc()) {
 				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
-			} else if (victim->add_abils.percent_spell_blink_phys > 0) {
-				blink = victim->add_abils.percent_spell_blink_phys;
 			} else {
-				blink = 10;
+				blink = victim->add_abils.percent_spell_blink_phys;
 			}
 		}
 	}
@@ -278,9 +203,175 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
 		dam = 0;
-		fs_damage = 0;
 		return;
 	}
+}
+
+// issue.damage-change: apply the victim's data-driven incoming-damage modifiers. Each kWardDamage
+// <damage_change> whose <conditions> match this Damage (type/element/flags) rolls its prob, then scales
+// `dam` by the variation and edits `flags`. Replaces the hardcoded per-affect blocks (kSanctuary,
+// kPrismaticAura, ... as they migrate); applied in affect-list order. -1 masks mean "any".
+void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_stage) {
+	if (dam <= 0 || !victim) {
+		return;
+	}
+	// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
+	// also yields flag-only equipment shields that this branch does not materialize.
+	for (const auto &ward : VictimWardAffects(victim)) {
+		const EAffect at = ward.first;
+		// issue.damage-change: a shield affect acts only when it is the one chosen for this hit.
+		if (const int sw = affects::AffectShieldWeight(at);
+			sw > 0 && static_cast<int>(at) != selected_shield_) {
+			continue;
+		}
+		for (const auto &action : affects::AffectActions(at).list()) {
+			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
+				continue;
+			}
+			const auto &dc = action.GetDamageChange();
+			if (!dc.present) {
+				continue;
+			}
+			// stage="late" modifiers (shield reductions) run at a separate, later hook so a hardcoded
+			// reflect still reads the pre-reduction damage; the default (early) hook handles the rest.
+			if (dc.late != late_stage) {
+				continue;
+			}
+			if (dc.type_mask && !(dc.type_mask & (1u << static_cast<unsigned>(dmg_type)))) {
+				continue;
+			}
+			if (dc.element_mask && !(dc.element_mask & (1u << static_cast<unsigned>(element)))) {
+				continue;
+			}
+			const unsigned long long f = flags.to_ullong();   // re-read: a prior change may have edited flags
+			if ((f & dc.flags_present) != dc.flags_present || (f & dc.flags_missing) != 0) {
+				continue;
+			}
+			if (dc.prob < 100 && number(1, 100) > dc.prob) {
+				continue;
+			}
+			if (dc.var_factor != 0) {
+				const int pct = (dc.var_min == dc.var_max) ? dc.var_min : number(dc.var_min, dc.var_max);
+				dam = dam * (100 + dc.var_factor * pct) / 100;
+				if (dam < 0) {
+					dam = 0;
+				}
+			}
+			for (int i = 0; i < fight::kHitFlagsNum; ++i) {
+				if (dc.flags_add & (1ULL << i)) {
+					flags.set(i);
+				}
+				if (dc.flags_remove & (1ULL << i)) {
+					flags.reset(i);
+				}
+			}
+			// The modification applied: show the affect's own transform flavor (e.g. "the shield softened
+			// the blow"). The bearer is `victim` ($N); the attacker is `ch` ($n). Optional -- empty = silent.
+			if (ch && dc.msg_variant != 2) {
+				using EAMT = affects::EAffectMsgType;
+				const EAMT sc = (dc.msg_variant == 1) ? EAMT::kTransformCritToChar : EAMT::kTransformToChar;
+				const EAMT sv = (dc.msg_variant == 1) ? EAMT::kTransformCritToVict : EAMT::kTransformToVict;
+				const EAMT sr = (dc.msg_variant == 1) ? EAMT::kTransformCritToRoom : EAMT::kTransformToRoom;
+				const std::string &mc = affects::AffectMsgRaw(at, sc);
+				const std::string &mv = affects::AffectMsgRaw(at, sv);
+				const std::string &mr = affects::AffectMsgRaw(at, sr);
+				if (!mc.empty()) { act(mc.c_str(), false, ch, nullptr, victim, kToChar | kToNoBriefShields); }
+				if (!mv.empty()) { act(mv.c_str(), false, ch, nullptr, victim, kToVict | kToNoBriefShields); }
+				if (!mr.empty()) {
+					act(mr.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
+				}
+			}
+		}
+	}
+}
+
+void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
+	if (dam <= 0 || !ch || !victim || victim->affected.empty()) {
+		return;
+	}
+	// A reflected hit must never itself retaliate, or two thorns-bearers would bounce forever.
+	if (flags[fight::kMagicReflect]) {
+		return;
+	}
+	// autoaffects-hotfix (TEMPORARY -- reverts to victim->affected on unstable.next; see VictimWardAffects):
+	// also yields flag-only equipment shields that this branch does not materialize.
+	for (const auto &ward : VictimWardAffects(victim)) {
+		const EAffect at = ward.first;
+		// issue.damage-change: a shield affect retaliates only when it is the one chosen for this hit.
+		if (const int sw = affects::AffectShieldWeight(at);
+			sw > 0 && static_cast<int>(at) != selected_shield_) {
+			continue;
+		}
+		for (const auto &action : affects::AffectActions(at).list()) {
+			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
+				continue;
+			}
+			const auto &rt = action.GetRetaliation();
+			if (!rt.present) {
+				continue;
+			}
+			if (rt.type_mask && !(rt.type_mask & (1u << static_cast<unsigned>(dmg_type)))) {
+				continue;
+			}
+			if (rt.element_mask && !(rt.element_mask & (1u << static_cast<unsigned>(element)))) {
+				continue;
+			}
+			const unsigned long long f = flags.to_ullong();
+			if ((f & rt.flags_present) != rt.flags_present || (f & rt.flags_missing) != 0) {
+				continue;
+			}
+			if (rt.prob < 100 && number(1, 100) > rt.prob) {
+				continue;
+			}
+			// Percent of the PRE-reduction damage, plus the bearer's (victim's) NPC/boss bonuses.
+			int pct = (rt.pct_min == rt.pct_max) ? rt.pct_min : number(rt.pct_min, rt.pct_max);
+			if (victim->IsNpc() && !IsCharmice(victim)) {
+				pct += rt.npc_bonus;
+				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+					pct += rt.boss_bonus;
+				}
+			}
+			const int amount = dam * pct / 100;
+			if (amount > 0) {
+				ReflectHit hit;
+				hit.amount = amount;
+				hit.type = static_cast<fight::DmgType>((rt.dmg_type >= 0) ? rt.dmg_type : dmg_type);
+				hit.element = (rt.element >= 0) ? static_cast<EElement>(rt.element) : element;
+				reflect_pool_.push_back(hit);
+			}
+			// Flag edits (e.g. the kDrawBriefMagMirror HUD glyph) apply whenever the ward reacts.
+			for (int i = 0; i < fight::kHitFlagsNum; ++i) {
+				if (rt.flags_add & (1ULL << i)) {
+					flags.set(i);
+				}
+				if (rt.flags_remove & (1ULL << i)) {
+					flags.reset(i);
+				}
+			}
+		}
+	}
+}
+
+void Damage::DealReflectPool(CharData *ch, CharData *victim) {
+	if (reflect_pool_.empty()
+		|| !victim->GetEnemy()
+		|| victim->GetPosition() <= EPosition::kStun
+		|| victim->in_room == kNowhere) {
+		return;
+	}
+	for (const auto &hit : reflect_pool_) {
+		if (hit.amount <= 0) {
+			continue;
+		}
+		// A ward deals no damage of its own: the reflect is credited to the incoming attack (the spell
+		// being reflected), so its own combat/death messages are the ones shown.
+		Damage dmg(SpellDmg(spell_id), hit.amount, hit.type);
+		dmg.element = hit.element;
+		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.flags.set(fight::kMagicReflect);
+		dmg.Process(victim, ch);
+	}
+	reflect_pool_.clear();
 }
 
 void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
@@ -360,6 +451,33 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 	}
 
+	// issue.character-affect-triggers: kKill trigger -- the killer just dealt the fatal damage. Fire
+	// their affects' kKill actions while the victim is still a valid (dead, unpurged) pointer, before
+	// die() below turns it into a corpse. Gates: (1) a real character is credited (killer != nullptr;
+	// killer != victim is already guaranteed by the resolution above); (2) killer and victim are in the
+	// SAME room -- an indirect DoT/spell kill only counts if its credited author is still here; (3) the
+	// damage is not server/script-dealt (kTriggerDeath = DG m/w/o-damage -- "the server hit them, not a
+	// character"). Recursion (an on-kill effect that itself deals damage) is bounded by the shared
+	// trigger-action depth guard inside RunRoomCycledAction. The event exposes the victim as `actor` for
+	// reads only -- do NOT cast on it (it is dead); the corpse guards in the cast pipeline log+bail if so.
+	if (killer && killer->in_room == victim->in_room
+			&& damage_source != fight::EDamageSource::kTriggerDeath) {
+		EventContext kill_event;
+		kill_event.trigger = talents_actions::EActionTrigger::kKill;
+		kill_event.amount = dam;
+		kill_event.weapon = wielded;
+		kill_event.skill = skill_id;
+		kill_event.actor = victim;
+		RunCharEventTriggers(killer, kill_event);
+		// A kill-trigger side effect (e.g. an explosion) may have purged one of the parties.
+		if (victim->purged()) {
+			return;   // the death was already fully processed by a nested ProcessDeath/die path
+		}
+		if (killer->purged()) {
+			killer = nullptr;   // fall back to the original attacker for die() below
+		}
+	}
+
 	if (killer) {
 		ch = killer;
 	}
@@ -370,47 +488,32 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
  * Разный инит щитов у мобов и чаров.
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
  */
-void Damage::SetPostInitShieldFlags(CharData *victim) {
-	if (victim->IsNpc() && !IsCharmice(victim)) {
-		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
-			flags.set(fight::kVictimFireShield);
+void Damage::SelectMagicShield(CharData *victim) {
+	// issue.damage-change: a character may wear several elemental shields, but a given hit passes through
+	// exactly ONE, chosen weighted-random by each shield's AffectShieldWeight (roulette-wheel). This
+	// unifies PCs and NPCs (both: all shields active, one applies per hit) and is decided up-front so
+	// BOTH the retaliation pass and the reduction pass gate on the same choice. The pool is every shield
+	// the victim has, independent of the hit -- so e.g. a crit is absorbed only when ice is the pick.
+	int total = 0;
+	// autoaffects-hotfix (TEMPORARY, see VictimWardAffects): include flag-only equipment shields in the pool.
+	const auto wards = VictimWardAffects(victim);
+	for (const auto &ward : wards) {
+		total += affects::AffectShieldWeight(ward.first);
+	}
+	if (total <= 0) {
+		return;   // no shields -> selected_shield_ stays -1
+	}
+	int roll = number(1, total);
+	int acc = 0;
+	for (const auto &ward : wards) {
+		const int w = affects::AffectShieldWeight(ward.first);
+		if (w <= 0) {
+			continue;
 		}
-
-		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
-			flags.set(fight::kVictimIceShield);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
-			flags.set(fight::kVictimAirShield);
-		}
-	} else {
-		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
-		std::vector<int> shields;
-
-		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
-			shields.push_back(FIRESHIELD);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
-			shields.push_back(AIRSHIELD);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
-			shields.push_back(ICESHIELD);
-		}
-
-		if (shields.empty()) {
-			return;
-		}
-
-		int shield_num = number(0, static_cast<int>(shields.size() - 1));
-
-		if (shields[shield_num] == FIRESHIELD) {
-			flags.set(fight::kVictimFireShield);
-		} else if (shields[shield_num] == AIRSHIELD) {
-			flags.set(fight::kVictimAirShield);
-		} else if (shields[shield_num] == ICESHIELD) {
-			flags.set(fight::kVictimIceShield);
+		acc += w;
+		if (acc >= roll) {
+			selected_shield_ = static_cast<int>(ward.first);
+			break;
 		}
 	}
 }
@@ -424,7 +527,13 @@ void Damage::PerformPostInit(CharData *ch, CharData *victim) {
 		victim_start_pos = victim->GetPosition();
 	}
 
-	SetPostInitShieldFlags(victim);
+	SelectMagicShield(victim);
+
+	// issue.damage-change: expose the precise-style (точный стиль) crit as a hit-flag so the ice-shield
+	// crit-absorb <damage_change> can gate on it -- a punctual crit (dam_critic>0) pierces the ice shield.
+	if (dam_critic > 0) {
+		flags.set(fight::kPunctualCrit);
+	}
 }
 
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
@@ -508,20 +617,10 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	if (dam >= 2) {
-		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) && !flags[fight::kIgnorePrism]) {
-			if (dmg_type == fight::kPhysDmg) {
-				dam *= 2;
-			} else if (dmg_type == fight::kMagicDmg) {
-				dam /= 2;
-			}
-		}
-		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct]) {
-			if (dmg_type == fight::kPhysDmg) {
-				dam /= 2;
-			} else if (dmg_type == fight::kMagicDmg) {
-				dam *= 2;
-			}
-		}
+		// issue.damage-change: data-driven incoming-damage modifiers (kWardDamage <damage_change>).
+		// kSanctuary and kPrismaticAura are now affect data (their hardcoded phys/magic scaling lived
+		// right here and was removed); kHold and the shields' reduction migrate in later phases.
+		ApplyAffectDamageChanges(ch, victim, /*late_stage=*/false);
 
 		if (victim->IsNpc() && Bonus::is_bonus_active(Bonus::EBonusType::BONUS_DAMAGE)) {
 			dam *= Bonus::get_mult_bonus();
@@ -556,7 +655,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// на жертве есть воздушный щит
 	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
 	if (victim_start_pos < EPosition::kFight
-		&& !flags[fight::kVictimAirShield]
+		&& !VictimAffectDeclares(selected_shield_, victim, kAfNoPositionBonus)
 		&& !(dmg_type == fight::kMagicDmg
 			&& ch->IsNpc())) {
 		dam += dam * (EPosition::kFight - victim_start_pos) / 4;
@@ -564,13 +663,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// прочие множители
 
-	if (AFF_FLAGGED(victim, EAffect::kHold) && dmg_type == fight::kPhysDmg) {
-		if (ch->IsNpc() && !IsCharmice(ch)) {
-			dam = dam * 15 / 10;
-		} else {
-			dam = dam * 125 / 100;
-		}
-	}
+	// issue.damage-change: kHold's "held target takes more physical damage" migrated to a data-driven
+	// <damage_change> (kWardDamage) on the affect -- applied at the ApplyAffectDamageChanges hook above.
+	// Simplified to a flat x1.5 (the old NPC x1.5 / PC x1.25 split was dropped as a pointless distinction).
 
 	if (!victim->IsNpc() && IsCharmice(ch)) {
 		dam = dam * 8 / 10;
@@ -584,7 +679,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
-	if (!privilege::IsImmortal(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
+	if (!privilege::IsImmortal(ch) && VictimFullyAbsorbs(victim)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, skill_id);
 		}
@@ -600,27 +695,31 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	// щиты, броня, поглощение
 	if (victim != ch) {
-		bool shield_full_absorb = CalcMagisShieldsDmgAbsoption(ch, victim);
+		// issue.damage-change: the elemental shields are fully data-driven now (kWardDamage
+		// <retaliation>/<damage_change> on the shield affects). Retaliation reads the pre-reduction
+		// damage; the late <damage_change> pass applies the one-per-hit reduction (kShieldApplied) and
+		// the ice crit-absorb. CalcMagisShieldsDmgAbsoption is retired.
+		ApplyRetaliations(ch, victim);
+		ApplyAffectDamageChanges(ch, victim, /*late_stage=*/true);
 		CalcArmorDmgAbsorption(victim);
 		bool armor_full_absorb = CalcDmgAbsorption(ch, victim);
 		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->IsNpc())
-			&& !AFF_FLAGGED(victim, EAffect::kPrismaticAura)
-			&& !flags[fight::kVictimIceShield]) {
+			&& !VictimAffectDeclares(selected_shield_, victim, kAfNoCritBonus)) {
 			int tmpdam = std::min(victim->get_real_max_hit() / 8, dam * 2);
 			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
 			dam = std::max(dam, tmpdam); //крит
 		}
 		// полное поглощение
-		if (shield_full_absorb || armor_full_absorb) {
+		if (armor_full_absorb) {
 			return 0;
 		}
 		if (dam > 0)
 			ProcessBlink(ch, victim);
 	}
 
-	// Внутри magic_shields_dam вызывается dmg::proccess, если чар там умрет, то будет креш
+	// Защитная проверка: участники боя могли быть удалены в ходе обработки щитов/поглощения.
 	if (!(ch && victim) || (ch->purged() || victim->purged())) {
-		log("Death from CalcMagisShieldsDmgAbsoption");
+		log("Death during incoming-damage shield/absorption stage");
 		return 0;
 	}
 
@@ -630,14 +729,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 		return 0;
 	}
-	// внутри есть !боевое везение!, для какого типа дамага - не знаю
-	DamageActorParameters params(ch, victim, dam);
-	handle_affects(params);
-	dam = params.damage;
-	DamageVictimParameters params1(ch, victim, dam);
-	handle_affects(params1);
-	dam = params1.damage;
-
 	// обратка от зеркал/огненного щита
 	if (flags[fight::kMagicReflect]) {
 		// ограничение для зеркал на 40% от макс хп кастера
@@ -712,21 +803,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		log("SKILLTEST:;%s;skill;%s;damage;%d;Luck;%s", GET_NAME(ch), MUD::Skill(skill_id).GetName(), dam, flags[fight::kCritLuck] ? "yes" : "no");
 	}
-	// если на чармисе вампир
-	if (AFF_FLAGGED(ch, EAffect::kVampirism)) {
-		ch->set_hit(std::clamp(ch->get_hit() + std::max(1, dam / 10),
-							   ch->get_hit(), ch->get_real_max_hit() + ch->get_real_max_hit() * GetRealLevel(ch) / 10));
-		// если есть родство душ, то чару отходит по 5% от дамаги к хп
-		if (ch->has_master()) {
-			if (CanUseFeat(ch->get_master(), EFeat::kSoulLink)) {
-				ch->get_master()->set_hit(std::max(ch->get_master()->get_hit(),
-												   std::min(ch->get_master()->get_hit() + std::max(1, dam / 20 ),
-															ch->get_master()->get_real_max_hit() +
-																ch->get_master()->get_real_max_hit() *
-																	GetRealLevel(ch->get_master()) / 10)));
-			}
-		}
-	}
+	// issue.character-affect-triggers: the kVampirism HP-leech moved OUT of the damage pipeline to the
+	// affect's data-driven kPostHit <points> heal (affects.xml). (SoulLink master-share dropped for now --
+	// re-add as a second action / handler if needed.)
 	// запись в дметр фактического и овер дамага
 	DpsSystem::UpdateDpsStatistics(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
@@ -778,17 +857,32 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		brief_shields_ = buf_;
 	}
 	// сообщения об ударах //
-	if (MUD::Skills().IsValid(skill_id)) {
-		SendSkillMessages(dam, ch, victim, skill_id, brief_shields_);
-	} else if (spell_id > ESpell::kUndefined) {
-		SendSkillMessages(dam, ch, victim, spell_id, brief_shields_);
+	// issue.character-affect-triggers: affect-owned damage flavor (a kDispell trap, a DoT) FULLY
+	// replaces the generic combat message AND the char_dam_message severity line -- the affect speaks
+	// for itself. $n = ch, $N = victim; a self-damage affect (ch == victim) uses only ToChar/ToRoom.
+	if (!aff_msg_char_.empty() || !aff_msg_vict_.empty() || !aff_msg_room_.empty()) {
+		if (!aff_msg_char_.empty()) {
+			act(aff_msg_char_.c_str(), false, ch, nullptr, victim, kToChar);
+		}
+		if (ch != victim && !aff_msg_vict_.empty()) {
+			act(aff_msg_vict_.c_str(), false, ch, nullptr, victim, kToVict);
+		}
+		if (!aff_msg_room_.empty()) {
+			act(aff_msg_room_.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+		}
 	} else {
-		// удар оружием/рукой или серверный урон - всё из контейнера сообщений
-		// (для ударов оружием kFightHit* содержит плейсхолдер {intensity}, issue #3322)
-		SendSkillMessages(dam, ch, victim, damage_source, brief_shields_);
+		if (MUD::Skills().IsValid(skill_id)) {
+			SendSkillMessages(dam, ch, victim, skill_id, brief_shields_);
+		} else if (spell_id > ESpell::kUndefined) {
+			SendSkillMessages(dam, ch, victim, spell_id, brief_shields_);
+		} else {
+			// удар оружием/рукой или серверный урон - всё из контейнера сообщений
+			// (для ударов оружием kFightHit* содержит плейсхолдер {intensity}, issue #3322)
+			SendSkillMessages(dam, ch, victim, damage_source, brief_shields_);
+		}
+		/// Use SendMsgToChar -- act() doesn't send message if you are DEAD.
+		char_dam_message(dam, ch, victim, flags[fight::kNoFleeDmg]);
 	}
-	/// Use SendMsgToChar -- act() doesn't send message if you are DEAD.
-	char_dam_message(dam, ch, victim, flags[fight::kNoFleeDmg]);
 
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
@@ -811,16 +905,10 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		ProcessDeath(ch, victim);
 		return -1;
 	}
-	// обратка от огненного щита
-	if (fs_damage > 0
-		&& victim->GetEnemy()
-		&& victim->GetPosition() > EPosition::kStun
-		&& victim->in_room != kNowhere) {
-		Damage dmg(SpellDmg(ESpell::kFireShield), fs_damage, fight::kUndefDmg);
-		dmg.flags.set(fight::kNoFleeDmg);
-		dmg.flags.set(fight::kMagicReflect);
-		dmg.Process(victim, ch);
-	}
+	// issue.damage-change: deal the accumulated data-driven thorns (fire/ice/glass retaliation) here, at
+	// the post-pipeline point where fire's fs_damage used to be applied -- each as its own kMagicReflect-
+	// capped bearer->attacker hit, so the attacker's own defenses transform it.
+	DealReflectPool(ch, victim);
 	return dam;
 }
 

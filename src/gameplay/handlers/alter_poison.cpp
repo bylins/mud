@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-EStageResult AlterPoison(CastContext &ctx) {
+EStageResult AlterPoison(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (!GET_OBJ_VAL(obj, 3) && (obj->get_type() == EObjType::kLiquidContainer
 			|| obj->get_type() == EObjType::kFountain || obj->get_type() == EObjType::kFood)) {

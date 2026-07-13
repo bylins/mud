@@ -286,7 +286,7 @@ static std::unordered_map<std::string, Bitvector> mob_affect_flag_map = {
 	{"kCloudly", to_underlying(EAffect::kCloudly)},
 	{"kConfused", to_underlying(EAffect::kConfused)},
 	{"kNoCharge", to_underlying(EAffect::kNoCharge)},
-	{"kInjured", to_underlying(EAffect::kInjured)},
+	{"kInjuredLimb", to_underlying(EAffect::kInjuredLimb)},
 	{"kFrenzy", to_underlying(EAffect::kFrenzy)},
 };
 
@@ -511,6 +511,34 @@ std::string ReverseLookupFlag(const std::unordered_map<std::string, T> &flag_map
 	return "";  // Not found
 }
 
+// EAffect was renumbered to plain 1-based ints, so the packed-bit reconstruction in
+// SaveFlagsToTable no longer matches the (enum-valued) affect map. Save affects by testing each
+// mapped affect through the typed BitsetFlags API instead.
+static void SaveAffectFlags(sqlite3 *db, const std::string &table_name, const std::string &vnum_col,
+                            int vnum, const BitsetFlags<EAffect> &flags,
+                            const std::unordered_map<std::string, Bitvector> &flag_map,
+                            const std::string &category)
+{
+	const std::string sql = "INSERT INTO " + table_name + " (" + vnum_col
+			+ ", flag_category, flag_name) VALUES (?, ?, ?)";
+	for (const auto &[name, value] : flag_map)
+	{
+		if (!flags.test(static_cast<EAffect>(value)))
+		{
+			continue;
+		}
+		sqlite3_stmt *stmt = nullptr;
+		if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, vnum);
+			sqlite3_bind_text(stmt, 2, category.c_str(), -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmt, 3, name.c_str(), -1, SQLITE_TRANSIENT);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+}
+
 // Enum value <-> text helpers for single-valued enum columns (position, sex).
 // An out-of-range value with no symbolic name (e.g. a corrupt default_pos of 15)
 // is stored as its raw integer and parsed back verbatim, matching the YAML
@@ -539,9 +567,9 @@ inline int EnumIntFromText(const std::unordered_map<std::string, int> &m, const 
 }
 
 // Save flags helper (template version)
-template<typename T>
+template<typename T, typename FlagsT>
 void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::string &vnum_col,
-                      int vnum, const FlagData &flags,
+                      int vnum, const FlagsT &flags,
                       const std::unordered_map<std::string, T> &flag_map,
                       const std::string &category = "")
 {
@@ -1666,14 +1694,13 @@ void SqliteWorldDataSource::LoadMobFlags()
 			auto flag_it = mob_affect_flag_map.find(flag_name);
 			if (flag_it != mob_affect_flag_map.end() && flag_it->second != 0)
 			{
-				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_it->second));
+				AFF_FLAGS(&mob).set(static_cast<EAffect>(flag_it->second));
 				flags_set++;
 			}
 			else if (flag_name.rfind("UNUSED_", 0) == 0)
 			{
 				int absbit = std::stoi(flag_name.substr(7));
-				Bitvector v = (static_cast<Bitvector>(absbit / 30) << 30) | (static_cast<Bitvector>(1) << (absbit % 30));
-				AFF_FLAGS(&mob).set(v);
+				AFF_FLAGS(&mob).set_index(static_cast<std::size_t>(absbit));
 				flags_set++;
 			}
 		}
@@ -3423,8 +3450,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, act_flags, mob_action_flag_map, "action");
 
 	// Save mob affect flags
-	FlagData affect_flags = mob.char_specials.saved.affected_by;
-	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, affect_flags, mob_affect_flag_map, "affect");
+	SaveAffectFlags(m_db, "mob_flags", "mob_vnum", mob_vnum, mob.char_specials.saved.affected_by, mob_affect_flag_map, "affect");
 
 
 	// Save mob resistances

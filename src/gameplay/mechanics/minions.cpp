@@ -246,7 +246,7 @@ bool IsMortifier(const CharData *ch) {
 // issue.chardata-cleaning: was CharData::low_charm -- a kCharm affect about to wear off.
 bool IsCharmExpiring(const CharData *ch) {
 	for (const auto &aff : ch->affected) {
-		if (aff->type == ESpell::kCharm && aff->duration <= 1) {
+		if (IS_SET(aff->battleflag, kAfCharmBond) && aff->duration <= 1) {
 			return true;
 		}
 	}

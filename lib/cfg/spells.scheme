@@ -76,8 +76,8 @@
 		<attr name="any_of" type="intlist" desc="Object vnum(s) accepted, '|'-separated"/>
 	</tag>
 
-	<tag name="potency_roll" desc="Potency dice pool + skill/stat scaling">
-		<child tag="dices"/>
+	<tag name="potency_roll" desc="Competence (skill/stat, deterministic) + noise draw parameters">
+		<child tag="noise"/>
 		<child tag="base_skill"/>
 		<child tag="base_stat"/>
 	</tag>
@@ -104,10 +104,9 @@
 		<attr name="critfail" type="int" min="1" max="100" desc="Roll &gt;= this is a critical failure (default 95)"/>
 	</tag>
 
-	<tag name="dices" desc="Dice pool: ndice d sdice plus adice">
-		<attr name="ndice" type="int" min="0" desc="Number of dice"/>
-		<attr name="sdice" type="int" min="0" desc="Die size (number of faces)"/>
-		<attr name="adice" type="int" min="0" desc="Flat amount added to the roll"/>
+	<tag name="noise" desc="Truncated-normal noise: one shared draw per cast, weighted per manifestation">
+		<attr name="sigma" type="double" min="0" desc="Base relative spread (CV) of the shared draw; 0 = deterministic spell"/>
+		<attr name="trunc" type="double" min="0" desc="Clamp of the standard-normal draw in standard deviations (default 2)"/>
 	</tag>
 
 	<tag name="base_skill" desc="Skill that scales the roll">
@@ -224,10 +223,9 @@
 		<attr name="prob" type="int" min="0" max="100" desc="Chance the instant-death attempt is rolled (percent, default 100)"/>
 	</tag>
 
-	<tag name="amount" desc="Magnitude formula: min + dices_weight*roll, shaped by alpha/beta">
+	<tag name="amount" desc="Magnitude: min + beta*C*(1 + weight*d), one shared draw per cast">
 		<attr name="min" type="double" desc="Floor amount"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
-		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="sigma" type="double" min="0" desc="issue.random-noise-rework: >0 -> multiplicative truncated-normal spread; value is the coefficient of variation (e.g. 0.15)"/>
 	</tag>
@@ -249,41 +247,37 @@
 	<tag name="heal" desc="Hit-point restore amount" parent="points">
 		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
 		<attr name="min" type="double" desc="Floor amount"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
-		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="sigma" type="double" min="0" desc="issue.random-noise-rework: >0 -> multiplicative truncated-normal spread; value is the coefficient of variation (e.g. 0.15)"/>
 	</tag>
 	<tag name="moves" desc="Movement-point amount" parent="points">
 		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
 		<attr name="min" type="double" desc="Floor amount"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
-		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="sigma" type="double" min="0" desc="issue.random-noise-rework: >0 -> multiplicative truncated-normal spread; value is the coefficient of variation (e.g. 0.15)"/>
 	</tag>
 	<tag name="thirst" desc="Thirst condition amount" parent="points">
 		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
 		<attr name="min" type="double" desc="Floor amount"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
-		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 	</tag>
 	<tag name="full" desc="Fullness condition amount" parent="points">
 		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
 		<attr name="min" type="double" desc="Floor amount"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
-		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 	</tag>
 
 	<tag name="affects" desc="Impose an affect on the target">
+		<child tag="charges"/>
 		<attr name="type" type="enum" enum="ESpell" desc="Affect identity (the spell whose affect is imposed)"/>
 		<attr name="saving" type="enum" enum="ESaving" desc="Saving throw that resists the affect"/>
 		<attr name="resist" type="enum" enum="EResist" desc="Resistance type that mitigates it"/>
 		<attr name="prob" type="int" min="0" max="100" desc="Chance to impose (percent)"/>
 		<attr name="potency_weight" type="double" min="0" desc="Caster potency multiplier"/>
-		<attr name="dispel_mod" type="int" desc="Additive per-affect modifier to the dispel-contest threshold in percentage points; negative = harder to remove (critical buffs), default 0"/>
 		<attr name="tick_spell" type="enum" enum="ESpell" desc="Per-tick spell effect for a room affect (optional)"/>
 		<attr name="tick_handler" type="string" desc="Per-tick code handler name for a room affect (optional)"/>
 		<child tag="duration"/>
@@ -313,8 +307,7 @@
 
 	<tag name="modifier" desc="Modifier magnitude formula">
 		<attr name="min" type="double" desc="Floor modifier"/>
-		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
-		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="factor" type="int" desc="Sign/scale factor (e.g. -1 to make it a penalty)"/>
 		<attr name="stack" type="int" min="2" desc="Number of stacks (must be >= 2)"/>
@@ -382,5 +375,9 @@
 	     EAlign get value->name maps (a separate task; the boot lint tracks them). -->
 	<tag name="affect_flags" desc="AFF bits gating the cast">
 		<attr name="val" type="flagset" enum="EAffect" desc="EAffect (AFF) flag set"/>
+	</tag>
+
+	<tag name="charges" desc="Trigger charges: how many times a TRIGGERED affect fires before removal">
+		<attr name="max" type="int" min="-1" desc="Firings before the affect is removed; -1 = unlimited"/>
 	</tag>
 </scheme>

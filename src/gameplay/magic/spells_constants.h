@@ -76,7 +76,7 @@ enum class ESpell {
 	kMassHold = 56,
 	kFly = 57,
 	kBrokenChains = 58,
-	kNoflee = 59,
+	kEntangleEnemy = 59,
 	kCreateLight = 60,
 	kDarkness = 61,
 	kStoneSkin = 62,
@@ -118,12 +118,12 @@ enum class ESpell {
 	kStunning = 98,
 	kHide = 99,
 	kSneak = 100,
-	kDrunked = 101,
-	kAbstinent = 102,
+//	kDrunked = 101,	// UNUSED (issue.affect-migration): the "drunk" state is identified by its EAffect::kDrunked affect; af.type was redundant; value 101 retired.
+//	kAbstinent = 102,	// UNUSED (issue.affect-migration): the "hangover" state is identified by its EAffect::kAbstinent affect; af.type was redundant; value 102 retired.
 	kFullFeed = 103,
 	kColdWind = 104,
-	kBattle = 105,
-	kHaemorrhage = 106,
+//	kBattle = 105,	// UNUSED (issue.affect-migration): the generic "battle-applied affect" marker is gone; battle effects are identified by their EAffect affect_type + flags from affects.xml; value 105 retired.
+//	kHaemorrhage = 106,	// UNUSED (issue.affect-migration): the bleeding state is identified by its EAffect::kHaemorrhage affect; af.type was redundant; value 106 retired.
 	kCourage = 107,
 	kWaterbreath = 108,
 	kSlowdown = 109,
@@ -134,7 +134,8 @@ enum class ESpell {
 	kFever = 114,
 	kCureFever = 115,
 	kAwareness = 116,
-	kReligion = 117,
+//	kReligion = 117,	// UNUSED (issue.affect-migration): the pray/donate utility "spell" was removed;
+//						// the prayer / sacrifice effects are now the affects kPrayerful / kPietas (value 117 retired).
 	kAirShield = 118,
 	kPortal = 119,
 	kDispellMagic = 120,
@@ -180,7 +181,7 @@ enum class ESpell {
 	kBurdenOfTime = 160,
 	kGroupRefresh = 161,
 	kPeaceful = 162,
-	kMagicBattle = 163,
+//	kMagicBattle = 163,	// UNUSED (issue.affect-migration): the magic-stun marker is gone; the stun is identified by EAffect::kMagicStopFight; value 163 retired.
 	kBerserk = 164,
 	kStoneBones = 165,
 	kRoomLight = 166,
@@ -188,7 +189,7 @@ enum class ESpell {
 	kThunderstorm = 168,
 	kLightWalk = 169,
 	kFailure = 170,
-	kClanPray = 171,
+//	kClanPray = 171,	// UNUSED (issue.affect-migration): dead: no code references; value 171 retired.
 	kGlitterDust = 172,
 	kScream = 173,
 	kCatGrace = 174,
@@ -212,13 +213,13 @@ enum class ESpell {
 	kDaturaPoison = 192,
 	kTimerRestore = 193,
 	kCombatLuck = 194,
-	kBandage = 195,
-	kNoBandage = 196,
-	kCapable = 197,
+//	kBandage = 195,	// UNUSED (issue.affect-migration): the bandage state is identified by its EAffect::kBandage affect; af.type was redundant; value 195 retired.
+//	kNoBandage = 196,	// UNUSED (issue.affect-migration): re-bandage already gated on AFF_FLAGGED(kCannotBeBandaged); value 196 retired.
+//	kCapable = 197,	// UNUSED (issue.affect-migration): the "embedded spell" clone marker is the EAffect::kCapable affect; the kService spell was only an Affect::type marker; value 197 retired.
 	kStrangle = 198,
-	kRecallSpells = 199,
+//	kRecallSpells = 199,	// UNUSED (issue.affect-migration): the spell-recall buff is the EAffect::kMemorizeSpells affect; af.type was redundant; value 199 retired.
 	kHypnoticPattern = 200,
-	kSolobonus = 201,
+//	kSolobonus = 201,	// UNUSED (issue.affect-migration): dead -- no apply site anywhere; the only consumers were two do_affects display checks for an affect nothing created; value 201 retired.
 	kVampirism = 202,
 	kRestoration = 203,
 	kDeathAura = 204,
@@ -232,7 +233,7 @@ enum class ESpell {
 	kAcidArrow = 212,
 	kThunderStone = 213,
 	kClod = 214,
-	kExpedient = 215,
+//	kExpedient = 215,	// UNUSED (issue.affect-migration): the chopoff Evasion buff is the EAffect::kEvade affect; af.type was redundant; value 215 retired.
 	kSightOfDarkness = 216,
 	kGroupSincerity = 217,
 	kMagicalGaze = 218,
@@ -265,33 +266,41 @@ enum class ESpell {
 	kFrostBreath = 245,
 	kAcidBreath = 246,
 	kLightingBreath = 247,
-	kExpedientFail = 248,
-	kLowerEffectiveness = 249,
-	kNoInjure = 250,
-	kConfuse = 251,
+//	kExpedientFail = 248,	// UNUSED (issue.affect-migration): was only an af.type marker, never queried; value 248 retired.
+//	kLowerEffectiveness = 249,	// UNUSED (issue.affect-migration): disarm injure debuff identified by its kInjuredLimb affect; af.type was unused; value 249 retired.
+//	kNoInjure = 250,	// UNUSED (issue.affect-migration): the disarm re-injure cooldown is now the
+//						// kSuspiciousness affect (checked via IsAffectedWithCasterId); value 250 retired.
+//	kConfuse = 251,	// UNUSED (issue.affect-migration): the shield-bash stun is the EAffect::kConfused affect; af.type was redundant; value 251 retired.
 	// Internal proc spell: the per-hit bolt of the kCloudOfArrows affect. Cast via
 	// CallMagic from fight_hit.cpp (no verbal, weave-only) -- not player-castable.
 	kCloudOfArrowsBolt = 252,
 	kIdentify = 351,
 	kFullIdentify = 352,
-	kQUest = 353,
-	kPortalTimer = 354,
-	kNoCharge = 355,
+//	kQUest = 353,	// UNUSED (issue.affect-migration): dead: no code references; value 353 retired.
+//	kPortalTimer = 354,	// UNUSED (issue.affect-migration): the portal pair is identified by its ERoomAffect (kPortalTimer two-way / kNoPortalExit one-way); the room af.type was migrated off ESpell; value 354 retired.
+//	kNoCharge = 355,	// UNUSED (issue.affect-migration): effect now checked via the kNoCharge affect (IsAffectedWithCasterId); value 355 retired.
 	kDazzle = 356,
 	kGreatHeal = 357,
 	kFrenzy = 358,
 	// Placeholder slots for spell prototyping in test mode (mode="kTesting"
 	// in spells.xml). Pick the next free slot, write the config under that
 	// id, and rename here when the spell graduates to its real name.
-	kTestOne = 359,
+	kFireTrap = 359,	// issue.room-affect-trigger-improve: door-affect test spell (kTarDirection; was kTestOne)
 	kTestTwo = 360,
 	kTestThree = 361,
 	kTestFour = 362,
 	kTestFive = 363,
-	kDeadlyFogTick = 364,
+//	kDeadlyFogTick = 364,	// UNUSED (issue.affect-migration): the deadly-fog tick is now the kDeadlyFog room affect's own <actions> in room_affects.xml; value 364 retired.
 	kCreateArmor = 365,  // issue.obj-casting: new data-driven <obj_creation> spell (plumbing)
+	// issue.new-unaffect-spells: skill-based dispels (see spells.xml <unaffect>).
+	kUnweave = 366,      // "unweave" -- peaceful: strip dispellable debuffs from a char
+	kSuppress = 367,     // "suppress" -- strip the kAfBoon buff class from an enemy
+	kErode = 368,        // "erode" -- strip the kAfWarding buff class from an enemy
+	kAegisRift = 369,    // "aegis rift" -- strip the kAfAegis buff class from an enemy
+	kToils = 370,        // "toils" -- strip fly/waterwalk/waterbreath from an enemy
+	kCleanseArea = 371,  // "cleanse area" -- strip dispellable room affects
 	kFirst = kArmor,
-	kLast = 365	// Не забываем менять
+	kLast = 371	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);
@@ -401,7 +410,8 @@ enum ETarget : Bitvector {
 	kTarRoomDir = 1 << 12,	// Цель комната в каком-то направлении от чара//
 	kTarRoomWorld = 1 << 13,	// Цель какая-то комната в мире//
 	kTarAllyOnly = 1 << 14,	// Only a check: PC may target only self or a groupmate. Use with kTarCharRoom //
-	kTarMinionsOnly = 1 << 15	// Only a check: target must be one of the caster's own NPC followers (master == caster) //
+	kTarMinionsOnly = 1 << 15,	// Only a check: target must be one of the caster's own NPC followers (master == caster) //
+	kTarDirection = 1 << 16	// issue.room-affect-trigger-improve: target a DIRECTION/exit from the caster (door affects). Arg = a RU/EN direction name; resolves to EXIT(caster, dir).
 };
 
 template<>

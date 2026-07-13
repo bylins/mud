@@ -53,7 +53,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("На живом человеке? Креста не вас нет!\r\n", ch);
 		return;
 	}
-	if (IsAffectedBySpell(vict, ESpell::kGodsShield) || vict->IsFlagged(EMobFlag::kProtect)) {
+	if (IsAffected(vict, EAffect::kGodsShield) || vict->IsFlagged(EMobFlag::kProtect)) {
 		SendMsgToChar("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}

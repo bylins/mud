@@ -1,5 +1,7 @@
 project('bylins', 'cpp',
-    version: run_command('git', 'rev-parse', '--short', 'HEAD', check: false).stdout().strip(),
+    # issue.versioning: major.minor.patch from the explicit repo-root VERSION file (single
+    # source of truth). The runtime string appends the commit count (see generate_version.py).
+    version: run_command('cat', files('VERSION.txt'), check: false).stdout().strip(),
     default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2', 'unity=on']
 )
 
@@ -65,7 +67,10 @@ if cpp.get_id() == 'clang'
 endif
 
 cpu = host_machine.cpu_family()
-if cpp.get_id() != 'msvc'
+# GNU-driver compilers only. clang-cl (get_id()=='clang-cl') takes its arch from the MSVC
+# environment; handing it the GNU -m64 flag confused the target and stripped __vector_size__
+# from clang's own intrinsic types (mmintrin.h). MSVC/clang-cl use get_argument_syntax()=='msvc'.
+if cpp.get_argument_syntax() != 'msvc'
     if cpu == 'x86_64'
         project_args += '-m64'
     elif cpu == 'x86'
@@ -74,16 +79,16 @@ if cpp.get_id() != 'msvc'
 endif
 
 if host_system == 'windows'
-    if cpp.get_id() == 'msvc' or (cpp.get_id() == 'clang' and cpp.get_argument_syntax() == 'msvc')
-        project_args += [
-            '/source-charset:koi8-r',
-            '/execution-charset:koi8-r',
-            '/MP',
-            '/bigobj',
-            '-DFMT_UNICODE=0',
-            '/external:anglebrackets',
-            '/external:W0'
-        ]
+    if cpp.get_argument_syntax() == 'msvc'   # MSVC and clang-cl
+        project_args += ['/MP', '/bigobj', '-DFMT_UNICODE=0', '/external:anglebrackets', '/external:W0']
+        if cpp.get_id() == 'msvc'
+            # MSVC accepts the KOI8-R codepage (20866) for source/exec charset.
+            project_args += ['/source-charset:koi8-r', '/execution-charset:koi8-r']
+        else
+            # clang-cl rejects non-UTF-8 /source-charset ('invalid value koi8-r'); it keeps narrow-literal
+            # bytes as-is, so just silence the KOI8-R source-encoding warnings (as for the GNU clang driver).
+            project_args += ['-Wno-invalid-source-encoding']
+        endif
     elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
         project_args += ['-Wa,-mbig-obj', '-D__USE_MINGW_ANSI_STDIO=1']
     endif
@@ -485,7 +490,6 @@ main_sources = files(
   'src/gameplay/handlers/spell_fear.cpp',
   'src/gameplay/handlers/spell_energydrain.cpp',
   'src/gameplay/handlers/spell_holystrike.cpp',
-  'src/gameplay/handlers/spell_vampirism.cpp',
   'src/gameplay/handlers/spell_mental_shadow.cpp',
   'src/gameplay/core/remort.cpp',
   'src/gameplay/mechanics/summon.cpp',
@@ -552,6 +556,7 @@ main_sources = files(
   'src/gameplay/ai/subcmd_resolver.cpp',
   'src/engine/network/descriptor_data.cpp',
   'src/gameplay/mechanics/stuff.cpp',
+  'src/gameplay/mechanics/initiative.cpp',
   'src/utils/id_converter.cpp',
   'src/utils/utils_time.cpp',
   'src/gameplay/mechanics/title.cpp',
@@ -626,6 +631,7 @@ main_sources = files(
   'src/engine/ui/cmd/do_employ.cpp',
   'src/engine/ui/cmd/do_follow.cpp',
   'src/engine/structs/flag_data.cpp',
+  'src/engine/structs/bitset_flags.cpp',
   'src/gameplay/crafting/jewelry.cpp',
   'src/gameplay/crafting/mining.cpp',
   'src/gameplay/classes/classes_constants.cpp',

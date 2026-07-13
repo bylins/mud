@@ -28,13 +28,21 @@ static void EmitThunderstormMsg(CharData *ch, ESpellMsg key) {
 
 namespace handlers {
 
-void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
-	switch (aff->duration) {
+// issue.affect-migration: a room-affect manual_cast handler. It runs as an <action><manual_cast
+// handler="HandleThunderstormTick"/></action> on the kThunderstorm affect, dispatched via the same
+// kManualHandlers registry spells use. The per-tick phase is the affect's current duration, threaded
+// in via ActionContext (SetTickDuration); writing it back (SetTickDuration) ends the storm early.
+EStageResult HandleThunderstormTick(ActionContext &ctx) {
+	CharData *ch = ctx.caster();
+	if (ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+	switch (ctx.GetTickDuration()) {
 	case 7:
 		cast_argument[0] = '\0';   // programmatic cast: SpellControlWeather must not parse a stale argument
 		if (CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch)) == ECastResult::kNotCast) {
-			aff->duration = 0;
-			break;
+			ctx.SetTickDuration(0);
+			return EStageResult::kBreak;
 		}
 		what_sky = kSkyCloudy;
 		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgOne);
@@ -69,6 +77,7 @@ void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &
 		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgEight);
 		break;
 	}
+	return EStageResult::kSuccess;
 }
 
 }  // namespace handlers

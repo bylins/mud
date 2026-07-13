@@ -16,10 +16,10 @@
 
 namespace {
 
-const char *kSrc = "guilds_vnum_src.xml";
+const char *kGuildsSrc = "guilds_vnum_src.xml";
 
 void WriteGuilds() {
-	std::ofstream f(kSrc);
+	std::ofstream f(kGuildsSrc);
 	f << R"(<guilds>)"
 	     R"(<guild text_id="kOldMan" vnum="6" name="x"><trainers vnums="4008"/></guild>)"
 	     R"(<guild text_id="kSmith" vnum="42" name="y"/>)"
@@ -31,7 +31,7 @@ void WriteGuilds() {
 // FindElementNode locates a guild by its `vnum` attribute (not an `id`, which guilds lack).
 TEST(GuildsLoader_Vnum, FindElementNodeMatchesByVnumAttr) {
 	WriteGuilds();
-	parser_wrapper::DataNode doc(kSrc);
+	parser_wrapper::DataNode doc(kGuildsSrc);
 	guilds::GuildsLoader loader;
 
 	auto hit = loader.FindElementNode(doc, "6");
@@ -44,7 +44,7 @@ TEST(GuildsLoader_Vnum, FindElementNodeMatchesByVnumAttr) {
 
 	EXPECT_TRUE(loader.FindElementNode(doc, "7").IsEmpty());        // no such vnum
 	EXPECT_TRUE(loader.FindElementNode(doc, "kOldMan").IsEmpty());  // text_id is not the node key
-	std::remove(kSrc);
+	std::remove(kGuildsSrc);
 }
 
 // CanonicalElementId (the create-path key gate) accepts only non-negative integers.

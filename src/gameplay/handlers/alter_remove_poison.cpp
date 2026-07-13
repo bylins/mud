@@ -16,7 +16,7 @@
 
 namespace handlers {
 
-EStageResult AlterRemovePoison(CastContext &ctx) {
+EStageResult AlterRemovePoison(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (obj->get_rnum() < 0) {
 		char message[100];

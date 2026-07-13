@@ -11,7 +11,7 @@
 #ifndef BYLINS_SRC_GAMEPLAY_HANDLERS_SPELL_HANDLERS_H_
 #define BYLINS_SRC_GAMEPLAY_HANDLERS_SPELL_HANDLERS_H_
 
-#include "gameplay/magic/magic.h"        // CastContext, EStageResult
+#include "gameplay/magic/magic.h"        // ActionContext, EStageResult
 #include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomApply (HandleThunderstormTick sig)
 
 enum class ESpellMsg;               // defined in gameplay/magic/spell_messages.h
@@ -24,65 +24,65 @@ namespace handlers {
 // Each runs on ctx.ovict (already resolved and kNoalter-guarded by CastToAlterObjs), does its OWN
 // messaging, and returns kSuccess when it acted (or chose to stay silent) or kFail to ask the
 // skeleton for the generic "no effect" line.
-EStageResult AlterBless(CastContext &ctx);
-EStageResult AlterCurse(CastContext &ctx);
-EStageResult AlterInvisible(CastContext &ctx);
-EStageResult AlterPoison(CastContext &ctx);
-EStageResult AlterRemoveCurse(CastContext &ctx);
-EStageResult AlterEnchantWeapon(CastContext &ctx);
-EStageResult AlterRemovePoison(CastContext &ctx);
-EStageResult AlterFly(CastContext &ctx);
-EStageResult AlterAcid(CastContext &ctx);
-EStageResult AlterRepair(CastContext &ctx);
-EStageResult AlterTimerRestore(CastContext &ctx);
-EStageResult AlterRestoration(CastContext &ctx);
-EStageResult AlterLight(CastContext &ctx);
-EStageResult AlterDarkness(CastContext &ctx);
+EStageResult AlterBless(ActionContext &ctx);
+EStageResult AlterCurse(ActionContext &ctx);
+EStageResult AlterInvisible(ActionContext &ctx);
+EStageResult AlterPoison(ActionContext &ctx);
+EStageResult AlterRemoveCurse(ActionContext &ctx);
+EStageResult AlterEnchantWeapon(ActionContext &ctx);
+EStageResult AlterRemovePoison(ActionContext &ctx);
+EStageResult AlterFly(ActionContext &ctx);
+EStageResult AlterAcid(ActionContext &ctx);
+EStageResult AlterRepair(ActionContext &ctx);
+EStageResult AlterTimerRestore(ActionContext &ctx);
+EStageResult AlterRestoration(ActionContext &ctx);
+EStageResult AlterLight(ActionContext &ctx);
+EStageResult AlterDarkness(ActionContext &ctx);
 
 // --- Object-creation handlers (issue.obj-casting) ----------------------------------------------
 // Optional post-load customizer for <obj_creation>: shapes the freshly-loaded base object before
 // narration/placement. Currently plumbing stubs (the stat/type customization is a TODO).
-void CreateWeapon(CharData *ch, ObjData *obj, const CastContext &ctx);
-void CreateArmor(CharData *ch, ObjData *obj, const CastContext &ctx);
+void CreateWeapon(CharData *ch, ObjData *obj, const ActionContext &ctx);
+void CreateArmor(CharData *ch, ObjData *obj, const ActionContext &ctx);
 
 // --- Summon handlers (issue.spellhandlers) ------------------------------------------------------
 // kSummonTutelar manual cast: rolls the guardian-angel summon, builds and places the mob.
-EStageResult SummonTutelar(CastContext &ctx);
+EStageResult SummonTutelar(ActionContext &ctx);
 
 // Post-spawn customizers run by CastSummonAction's kSummonHandlers registry (the spell-specific
 // 20%); the shared summon-pipeline helpers they use live in gameplay/mechanics/summon.h.
-void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx);
-void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, int charm_duration);
-void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int duration);
+void SetupKeeperStats(CharData *ch, CharData *mob, const ActionContext &ctx);
+void SetupFirekeeperStats(CharData *ch, CharData *mob, const ActionContext &ctx, int charm_duration);
+void CloneCascade(CharData *ch, CharData *mob, const ActionContext &ctx, int duration);
 
 // --- Room-affect tick handler (issue.spellhandlers) ---------------------------------------------
-// kThunderstorm per-tick cascade, dispatched by magic_rooms.cpp's kRoomTickHandlers. (Its
-// Affect<ERoomApply>::shared_ptr signature is why this header includes magic_rooms.h.)
-void HandleThunderstormTick(CharData *ch, const Affect<room_spells::ERoomApply>::shared_ptr &aff);
+// issue.affect-migration: kThunderstorm per-tick cascade -- now a manual_cast handler in the shared
+// kManualHandlers registry (was the room_affects tick_handler). Phase = the affect's duration, passed
+// via ActionContext (SetTickDuration/GetTickDuration).
+EStageResult HandleThunderstormTick(ActionContext &ctx);
 
 // --- Manual spell-cast handlers (issue.spellhandlers, extracted from spells.cpp) ------------
-EStageResult SpellCreateWater(CastContext &ctx);
-EStageResult SpellRecall(CastContext &ctx);
-EStageResult SpellTeleport(CastContext &ctx);
-EStageResult SpellRelocate(CastContext &ctx);
-EStageResult SpellPortal(CastContext &ctx);
-EStageResult SpellSummon(CastContext &ctx);
-EStageResult SpellLocateObject(CastContext &ctx);
-EStageResult SpellCharm(CastContext &ctx);
-EStageResult SpellIdentify(CastContext &ctx);
-EStageResult SpellFullIdentify(CastContext &ctx);
-EStageResult SpellControlWeather(CastContext &ctx);
-EStageResult SpellFear(CastContext &ctx);
-EStageResult SpellEnergydrain(CastContext &ctx);
-EStageResult SpellHolystrike(CastContext &ctx);
-EStageResult SpellVampirism(CastContext &ctx);
-EStageResult SpellMentalShadow(CastContext &ctx);
+EStageResult SpellCreateWater(ActionContext &ctx);
+EStageResult SpellRecall(ActionContext &ctx);
+EStageResult SpellTeleport(ActionContext &ctx);
+EStageResult SpellRelocate(ActionContext &ctx);
+EStageResult SpellPortal(ActionContext &ctx);
+EStageResult SpellSummon(ActionContext &ctx);
+EStageResult SpellLocateObject(ActionContext &ctx);
+EStageResult SpellCharm(ActionContext &ctx);
+EStageResult SpellIdentify(ActionContext &ctx);
+EStageResult SpellFullIdentify(ActionContext &ctx);
+EStageResult SpellControlWeather(ActionContext &ctx);
+EStageResult SpellFear(ActionContext &ctx);
+EStageResult SpellEnergydrain(ActionContext &ctx);
+EStageResult SpellHolystrike(ActionContext &ctx);
+EStageResult SpellMentalShadow(ActionContext &ctx);
 
 // Shared messaging helper for the alter-obj handlers: act() the cast spell's `key` message on
 // ctx.ovict and return kSuccess. Used by multiple handlers, so by the issue's rule it is shared
 // code -- kept in magic.cpp by design (trivial pipeline messaging glue; a candidate for a future
 // move to src/gameplay/mechanics/ should it grow).
-EStageResult AlterMsg(CastContext &ctx, ESpellMsg key);
+EStageResult AlterMsg(ActionContext &ctx, ESpellMsg key);
 
 }  // namespace handlers
 

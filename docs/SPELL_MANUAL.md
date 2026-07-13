@@ -12,6 +12,12 @@ C++.
 For motivation and per-issue history, see the commit log on `sventovit.work`.
 This document focuses strictly on what *you, the designer, can configure*.
 
+> **Companion manuals.** Affects (buffs/debuffs/DoTs/wards and their triggers) are
+> documented in the **[Affect Manual](AFFECT_MANUAL.md)**; perks/feats that modify
+> spells or affects in the **[Feat Manual](FEAT_MANUAL.md)**. A spell *imposes* an
+> affect (§8); the affect then owns its own behaviour.
+See the **[Cookbook](COOKBOOK.md)** for complete worked examples.
+
 ---
 
 ## 1. The cast pipeline at a glance
@@ -55,6 +61,13 @@ set and its own stages; the engine runs them top to bottom (action-outer,
 target-inner), and the victim reaction (stage 12) fires once, after the **last**
 action. A single-action spell behaves exactly as the list above. See §3.8 for the
 multi-action model and §13.8 for a worked example (`kSacrifice`).
+
+> **Beyond the cast.** Stages 6/8 impose *affects*. Once on the target, an affect
+> runs its **own** trigger-driven actions — every tick (`kPulse`), on a hit
+> (`kPreHit`/`kPostHit`), on a kill (`kKill`), on expiry (`kExpired`), on an
+> incoming attack (`kWard*`), etc. That whole layer is the
+> **[Affect Manual](AFFECT_MANUAL.md)**; the cast pipeline here only *delivers* the
+> affect.
 
 ---
 
@@ -155,7 +168,7 @@ constant" SYSERRs from old values.
 |---|---|
 | `N` | Pure-helpful spell. Never triggers PK, retaliation, AR resist, magic-mirror / sonic-barrier reflection, or potency-gated dispel. |
 | `Y` | Always violent. PK rules + retaliation + saving-shields + dispel contest + GET_AR check all apply. |
-| `A` | **Ambiguous.** Resolves per-target: helpful on self / charmed pet (walking up the master chain) / groupmate / NPC-vs-NPC, fully violent (with full PK liability) on an outsider. `kDispellMagic` is the current carrier — dispel from an ally hand passes without a contest; dispel from an outsider triggers the strength check. |
+| `A` | **Ambiguous.** Resolves per-target: helpful on self / charmed pet (walking up the master chain) / groupmate / NPC-vs-NPC, fully violent (with full PK liability) on an outsider. `kDispellMagic` is the current carrier — dispel from an ally hand passes without a contest; dispel from an outsider triggers the d100 dispel contest (§9.3). |
 
 The runtime helper that decides per-target is
 `SpellInfo::IsViolentAgainst(caster, target)`. The static `IsViolent()`
@@ -289,26 +302,30 @@ point of the option-2 rework: a purely additive `roll + C` would make the roll
 meaningless at high skill/stat — option-2 avoids that. (Set `alpha=0` only when you
 deliberately want the legacy flat behaviour, e.g. flat affect modifiers.)
 
-**`cast_potency`** is a *separate* scalar, and it **is** the plain additive sum:
+**`cast_potency`** is a *separate* scalar — the caster's **deterministic competence**
+(`CalcCastPotency`, issue.random-noise-rework):
 
 ```
-cast_potency = RollSkillDices + skill_coeff + stat_coeff
+cast_potency = skill_coeff + stat_coeff        (no dice)
 ```
 
-It is used **only as a relative-strength number**, never as an effect's magnitude:
-the potency stored on an affect (`cast_potency × <affects potency_weight>`) and the
-dispel contest that later tries to remove it (§9.3). Additivity is harmless here
-because the contest compares two casts that both scale the same way — the random
-term being a small share of a strong cast is fine when it's measured against another
-strong cast. Extra-hit counts are a third, separate thing: they scale on
-`min(skill, 75) / skill_divisor`, not on `cast_potency` (§5).
+It is used **only as a relative-strength number**, never as an effect's magnitude: the
+potency stored on an affect (`cast_potency × <affects potency_weight>`) and the dispel
+contest that later tries to remove it (§9.3). Dropping the dice makes the stored strength
+reflect the caster's **skill**, not the randomness of the delivered amount — so the dispel
+contest is a clean skill comparison (§9.3). Extra-hit counts are a third, separate thing:
+they scale on `min(skill, 75) / skill_divisor`, not on `cast_potency` (§5).
 
-A spell that omits a sub-block contributes 0 from that side. A spell with an
-empty `<potency_roll>` rolls a flat 0 — its affects land at potency 0, its
-dispel always loses the contest (5 % luck floor still applies), and any
-magnitude reduces to its `min`.
+A spell that omits a sub-block contributes 0 from that side. A spell with an empty
+`<potency_roll>` yields competence 0 — its affects land at potency 0, so any dispel removes
+them trivially (the §9.3 threshold hits its 95 % ceiling), and any magnitude reduces to its
+`min`.
 
 ### 3.8 `<talent_actions>` — the ordered action list *(multi-action)*
+
+> This is the **spell's** action list, run once at cast time. Affects have a
+> parallel `<actions>` list that runs on *triggers* over the affect's life — same
+> action vocabulary, different driver. See the [Affect Manual](AFFECT_MANUAL.md) §5.
 
 Container for an **ordered list** of `<action>` blocks. Each `<action>` is a
 self-contained sub-cast: it resolves its **own** target list and runs its **own**
@@ -879,60 +896,50 @@ everywhere). The `kMultipleCast` feat softens `kStepped` decay (`decay ×= 0.6`)
 
 ---
 
-## 8. `<affects>` — apply a magical affect
+## 8. `<affects>` — impose a magical affect
 
-This is the workhorse for buffs and debuffs.
+The `<affects>` block imposes one or more **affects** on the action's targets. An
+affect's *behaviour* — its `<flags>`, its stat `<apply>` list (and their
+competence-scaling), stacking, random pools, and everything it *does* while it
+lasts (damage-over-time, on-hit/on-kill/on-expire triggers, wards) — is defined on
+the affect itself in `lib/cfg/affects.xml` and documented in the
+**[Affect Manual](AFFECT_MANUAL.md)**. This section covers only the **imposition**:
+which affect, for how long, against what save.
 
 ```xml
-<affects type="kSleep" saving="kWill" resist="kMind" prob="100">
-    <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+<affects saving="kWill" resist="kMind" prob="100">
     <duration base="1" skill_divisor="15" min="1" max="6"/>
-    <apply id="kSleep" location="kNone">
-        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="1"/>
-    </apply>
+    <affect id="kSleep"/>
     <reposition pos="kSleep" stop_fight="false"/>
     <lag base="2" bonus_divisor="-1"/>
 </affects>
 ```
 
+Each `<affect id="…">` child names an `EAffect` to impose — a block may name
+several (e.g. the `slow` spell imposes `kSlow` **and** `kSlowdown`). The engine
+reads that affect's flags and `<apply>` list from `affects.xml`; the spell
+contributes only the imposition fields below plus the cast's stored potency
+(which the affect's competence-scaled applies then read).
+
+> **Migration note (spells.xml → affects.xml).** Older spells named the affect
+> with a `type="…"` attribute and carried its `<flags>` and `<apply>` *inline*
+> here. That data now lives on the affect. Inline `<apply>` is still honoured as a
+> **fallback** for affects that have not yet been given their own applies; inline
+> `<flags>` is obsolete (the instance's flags come from the affect). Author new
+> content as `<affect id=>` + affect-owned data.
+
 ### 8.1 `<affects>` attributes
 
 | Attribute | Default | Description |
 |---|---|---|
-| `type` | required | `ESpell` enum value — the **affect identity** recorded on the target. Used as the lookup key for dispel/cure and for messages. |
-| `saving` | `kReflex` | The save the victim makes to avoid the affect. `kNone` means no save. |
+| `saving` | `kReflex` | The save the victim makes to avoid the affect. `kNone` = no save. |
 | `resist` | `kFire` | `EResist` — the resist channel applied to the affect's duration. |
-| `prob` | `100` | Percent chance the affect block fires at all (silent miss otherwise). The `<lag>` and `<reposition>` are *gated* by this same prob — failure suppresses them too. |
-| `potency_weight` | `1.0` | *(issue.affects-potency-weight)* Scale on the stored `Affect::potency` value (i.e. on `cast_potency`, not on the modifier). The Affect lands at `cast_potency * potency_weight`; the dispel contest in `DispelSucceeds` reads that scaled value back. **Use case:** a big-modifier spell where the same `<potency_roll>` feeds both the modifier formula *and* the stored potency can become undispellable just because the modifier needs to be big. `potency_weight="0.4"` lets the author decouple — keep the modifier strong, scale only the stored potency down to a dispellable range. Symmetric in spirit with `<unaffect potency_weight=>` on the dispel side (see §9.1). |
-| `tick_spell` | *(none)* | *Room affects only.* `ESpell` of a `kService` spell whose action(s) the room-affect tick handler runs each pulse (see §11.5). Absent → no data-driven tick (the affect is passive, or uses `tick_handler`). |
-| `tick_handler` | *(none)* | *Room affects only.* Name of a C++ tick handler — the manual-cast mechanism for ticks the data can't express (e.g. `kThunderstorm`'s weather). Registered in the room tick-handler table; receives the affect (so it can read its `duration`). Takes precedence over `tick_spell`. |
+| `prob` | `100` | Percent chance the block fires at all (silent miss otherwise). `<lag>`/`<reposition>` are gated by this same prob. |
+| `potency_weight` | `1.0` | *Multiplier* on the stored `Affect::potency` (not the modifier) that `DispelSucceeds` reads as `affect_potency`. Lets a big-modifier affect stay dispellable: keep the modifier strong, scale only the stored potency down. Complements the **additive** dispel knobs — `<unaffect dispel_bonus=>` and the affect's own `<affect dispel_mod=>` (§9.3). |
+| `tick_spell` | *(none)* | *Room affects only.* `ESpell` of a `kService` spell whose actions the room-affect tick handler runs each pulse (see the Affect Manual §7). |
+| `tick_handler` | *(none)* | *Room affects only.* Name of a C++ tick handler for ticks the data can't express (e.g. `kThunderstorm` weather). Takes precedence over `tick_spell`. |
 
-### 8.2 `<flags val="…">` — `EAffFlag` bits
-
-| Flag | Meaning |
-|---|---|
-| `kAfBattledec` | Duration decrements per fight round in addition to per tick. |
-| `kAfDeadkeep` | Affect persists on the corpse / through death. |
-| `kAfPulsedec` | Decrement on every pulse instead of every tick. |
-| `kAfSameTime` | Same duration for PC and NPC (no PC tick-conversion). |
-| `kAfUpdateDuration` | Re-casting overwrites the duration (the longer of old / new). |
-| `kAfAccumulateDuration` | Re-casting adds to the existing duration. |
-| `kAfUpdateMod` | Re-casting overwrites the modifier. |
-| `kAfDispellable` | **Eligible for dispel** (e.g. `kDispellMagic`). |
-| `kAfCurable` | **Eligible for cure** (e.g. `kRemovePoison`, first aid). Put it on **afflictions only** — not on buffs. First aid additionally requires the affect's runtime `debuff` flag, so a cure never strips the target's own buffs. |
-| `kAfMustBeHandled` | Room affects only: the affect ticks each pulse. `HandleRoomAffect` runs its `tick_spell` (§8.1, §11.5) if set, else its `tick_handler` (a named C++ handler, e.g. `kThunderstorm`'s weather). There is no per-spell switch. Char affects don't use this flag. |
-| `kAfUnique` | Room affects only: before imposing, remove any prior cast of this same spell by this same caster. Used by kRuneLabel ("one rune label in the world per caster"). |
-
-`kAfDispellable` / `kAfCurable` are the **single source of truth** for
-whether an affect can be removed by a given dispel/cure. Drop both and
-the affect is permanent until natural expiry.
-
-`kAfMustBeHandled` and `kAfUnique` are properties of room affects only;
-char affects do not currently use them. They replaced the per-affect
-`must_handled` member and the per-call `only_one` local bool that used
-to live in `CallMagicToRoom`.
-
-### 8.3 `<duration>` (skill-scaled)
+### 8.2 `<duration>` (skill-scaled)
 
 ```xml
 <duration base="2" skill_divisor="5" min="0" max="0"/>
@@ -940,236 +947,39 @@ to live in `CallMagicToRoom`.
 
 | Attr | Description |
 |---|---|
-| `base` | Flat base duration (in hours, PC unit-converted to ticks). |
-| `skill_divisor` | Per-`min(skill,75) / skill_divisor` hour bonus, using the spell's potency-roll `base_skill`. `0` means no skill scaling. |
-| `min` / `max` | Clamps in hours. `0` on either side means "no clamp on that side" (matches old behaviour). |
+| `base` | Flat base duration (hours; PC unit-converted to ticks). |
+| `skill_divisor` | Per-`min(skill,75) / skill_divisor` hour bonus, using the spell's potency-roll `base_skill`. `0` = no skill scaling. |
+| `min` / `max` | Clamps in hours. `0` on a side = no clamp there. |
+| `skill` | *(affect-action only)* Names the duration-scaling skill when there is no casting spell (e.g. a triggered hangover scaling with `kHangovering`). For a spell cast the base_skill comes from `<potency_roll>`, so this is omitted. See Affect Manual §5.6. |
 
-The skill bonus is capped at the novice threshold (75) divided by
-`skill_divisor`, so monster skills can't grow affect durations unbounded.
+The skill bonus is capped at the novice threshold (75) / `skill_divisor`.
 
-### 8.4 `<apply>` — one stat / status change per `<apply>`
-
-```xml
-<apply id="kPoisoned" location="kStr" random="false">
-    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
-</apply>
-```
-
-| `<apply>` attr | Description |
-|---|---|
-| `id` | `EAffect` flag this apply imposes (e.g. `kSleep`, `kPoisoned`, `kInvisible`). `kUndefinded` for a stat-only apply with no flag. |
-| `location` | `EApply`: where the modifier lands. `kNone` for a flag-only apply, `kStr`/`kDex`/…, `kHitroll`, `kSavingReflex`, `kResistDark`, `kManaRegen`, `kCastSuccess`, etc. |
-| `random` | `Y`/`N` (default N). When Y, this apply is **not always applied**: see §8.7. |
-
-| `<modifier>` attr | Default | Description |
-|---|---|---|
-| `min` | `0.0` | Floor for the modifier magnitude. |
-| `dices_weight` | `0.0` | Base scale on the potency-roll dice contribution. |
-| `alpha` | `0.0` | Multiplicative: competence `C` amplifies the dice. `0` (the usual value for modifiers, which are flat) = legacy additive behaviour. |
-| `beta` | `0.0` | Additive weight on `C = (skill_coeff + stat_coeff)` (the old `competencies_weight`). |
-| `factor` | `1` | Final sign/scale multiplier. Use `-1` for debuffs (str penalty, save penalty, etc.). |
-| `cap` | `0` | Optional upper bound on the raw magnitude **before** factor. `0` (default) = no cap. Used by `kForbidden` (cap=100, mirroring the OLD `MIN(100, …)`) and by the elemental auras (cap=30, saturating around R15). |
-| `stack` | `1` | **Stacking cap** — see §8.5. |
-
-Formula:
-
-```
-raw      = min + ceil(dices · dices_weight · (1 + alpha · C) + beta · C)   // C = competencies = skill_coeff + stat_coeff
-if cap > 0: raw = min(raw, cap)            # optional clamp before factor
-modifier = factor · raw
-```
-
-The cap clamps **raw magnitude**, so a debuff with `factor="-1" cap="30"` is
-bounded between `-30` and `-min`. Use `cap` for "hard ceiling" effects whose
-balance was previously enforced by `std::min(…)` calls in code.
-
-### 8.5 Stacking *(new mechanic)*
-
-`stack` is the maximum number of stacks an apply may build on a single
-target. With `stack="1"` (the default), re-casting the spell either updates
-or refuses to re-apply (depending on the affect's `kAfUpdate…` flags). With
-`stack="3"`, re-casting **adds a stack** up to 3, accumulating the modifier.
-
-**What stacks accumulate:**
-
-* The modifier grows: stack 2 reaches `2·modifier`, stack 3 reaches `3·modifier`, etc.
-* Duration is also extended if the flag set says so
-  (`kAfAccumulateDuration` or `kAfUpdateDuration`).
-* When the affect is dispelled (e.g. by `kDispellMagic`), one stack is
-  *peeled* rather than the whole affect removed — the modifier shrinks
-  proportionally, the stack count drops by one, the affect persists. Only
-  when the last stack is removed does the affect disappear.
-
-This makes "stacking poison", "stacking morale loss", or "build-up debuffs"
-expressible purely in XML.
-
-Example design — a poison that stacks up to 3 times:
-
-```xml
-<affects type="kSlowPoison" saving="kCritical" resist="kDark">
-    <flags val="kAfAccumulateDuration|kAfCurable"/>
-    <duration base="0" skill_divisor="3" min="0" max="0"/>
-    <apply id="kPoisoned" location="kStr">
-        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
-    </apply>
-    <apply id="kPoisoned" location="kPoison">
-        <modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3"/>
-    </apply>
-</affects>
-```
-
-### 8.6 `<reposition>` — forced position / fight-stop
+### 8.3 `<reposition>` and `<lag>` — landing side-effects
 
 ```xml
 <reposition pos="kSleep" stop_fight="false"/>
-```
-
-| Attr | Default | Description |
-|---|---|---|
-| `pos` | (none) | `EPosition`. The victim is forced to this position when the affect lands. Omit to skip the position change but keep `stop_fight`. |
-| `stop_fight` | `N` | If `Y`, everyone fighting the victim stops fighting them (the "peaceful" effect). |
-
-Useful for sleep, stun, peaceful, knockdown — moves what used to be
-hard-coded post-cast nudges into data.
-
-When an affect carries a `<reposition>`, a **saved** cast shows nothing instead of the generic "no
-effect" line (issue.spells-hotfix): on success the victim sees the knockdown/stun message, so the
-*absence* of it on a save is signal enough — the redundant "no effect" would only be noise.
-
-### 8.7 `<lag>` — battle-lag the victim
-
-```xml
 <lag base="6" bonus_divisor="-1"/>
 ```
 
-| Attr | Description |
-|---|---|
-| `base` | Flat lag in battle rounds when the affect lands. |
-| `bonus_divisor` | If `> 0`, the caster's low-skill coefficient is added as `low_skill_coeff / bonus_divisor` extra rounds. `≤ 0` means flat lag (no skill scaling). |
+`<reposition>` forces the victim to `pos` (an `EPosition`; omit to only stop the
+fight) and, if `stop_fight="Y"`, stops everyone fighting them (the "peaceful"
+effect). A **saved** cast with a `<reposition>` suppresses the generic "no effect"
+line — the absent knockdown message is signal enough.
 
-### 8.8 Random apply pools
+`<lag>` imposes battle-lag on the victim: `base` rounds, plus
+`low_skill_coeff / bonus_divisor` extra when `bonus_divisor > 0` (`≤ 0` = flat).
 
-Among the `<apply random="true">` siblings inside one `<affects>`, **exactly
-one** is picked at random per cast (uniform, reservoir sampling). Mix
-random-flagged and unconditional applies freely in the same `<affects>` —
-the unconditional ones always fire, the random ones share a single pool.
+### 8.4 The affect's own data — see the Affect Manual
 
-Example (from `kFailure`): one guaranteed morale penalty + one random stat
-penalty out of six.
-
-```xml
-<affects type="kFailure" saving="kWill" resist="kDark">
-    <flags val="kAfDispellable|kAfCurable"/>
-    <duration base="2" skill_divisor="5" min="0" max="0"/>
-    <apply id="kUndefinded" location="kMorale">
-        <modifier min="5.0" alpha="0" beta="1" factor="-1"/>
-    </apply>
-    <apply id="kUndefinded" location="kStr" random="true">
-        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
-    </apply>
-    <apply id="kUndefinded" location="kDex" random="true">
-        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
-    </apply>
-    <apply id="kUndefinded" location="kInt" random="true">
-        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
-    </apply>
-    <apply id="kUndefinded" location="kWis" random="true">
-        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
-    </apply>
-    <apply id="kUndefinded" location="kCon" random="true">
-        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
-    </apply>
-    <apply id="kUndefinded" location="kCha" random="true">
-        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
-    </apply>
-</affects>
-```
-
-### 8.9 Scaling modifiers with caster competence
-
-The new system's design philosophy is that **modifier magnitude grows with
-caster competence (skill + stat), not with caster level or remort
-directly**. The OLD per-spell formulas like `-1 - R/2` or `(L+R)/3` are
-re-expressed via `beta` (the additive competence weight). Modifiers are almost
-always flat (`dices_weight=0`), where the formula is just `min + ceil(beta · C)`
-and `beta` is exactly the old `competencies_weight` renamed — so the tuning rules
-below carry over unchanged. `alpha` only matters when `dices_weight ≠ 0`.
-
-The conversion rule used when translating from OLD formulas:
-
-> **1 remort = +5 skill cap + +1 base stat**
->
-> (Newly-created character has skill cap 80 and base stat = class
-> default; each transformation/remort raises the cap by 5 and the
-> base stat by 1.)
-
-For the cookie-cutter potency_roll (`low=3 hi=1.25`,
-`threshold=22 weight=0.5`), per-remort competencies grow by
-`(5·1.25 + 1·0.5)/100 = 0.0675`. So a modifier that should grow by
-`k` per remort needs `beta ≈ k / 0.0675`.
-
-**The min ≥ 0 rule.** Choose `min` and `beta` so an
-untrained caster (competencies = 0) gets `min·factor` = 0 modifier
-(or a small clean baseline). This avoids untrained casters
-accidentally getting an inverted-sign buff from a debuff spell.
-
-**Recommended algorithm** (used for the bulk of the `<modifier>`
-scaling in `spells.xml`):
-
-```
-cw_exact   = |target at R=12 max-skill| / competencies_at_R12_max
-cw         = floor(cw_exact * 10) / 10        # round down to keep min ≥ 0
-min        = |target at R=12| - ceil(competencies_at_R12 * cw)
-```
-
-This anchors the R=12 typical caster (skill cap 140, key stat
-threshold+12) exactly, lets the modifier scale monotonically with
-competence in either direction, and gives untrained casters a clean
-zero baseline.
-
-**Example.** `kBless`'s old formula was `-5 - R/3` on
-`kSavingStability`. With cookie-cutter potency_roll
-(competencies ≈ 3.12 at R=12 max-skill), `cw_exact = 9/3.12 ≈ 2.88`,
-so `cw = 2.8` and `min = 9 - ceil(3.12·2.8) = 9 - 9 = 0`. The current
-XML reads:
-
-```xml
-<apply id="kBless" location="kSavingStability">
-    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.8" factor="-1"/>
-</apply>
-```
-
-Verification:
-- Untrained caster (competencies = 0): modifier = `-1·(0 + 0)` = 0.
-- R=0 max-skill (competencies ≈ 2.31): modifier = `-1·ceil(6.47)` = −7.
-- R=12 typical (competencies ≈ 3.12): modifier = `-1·ceil(8.74)` = **−9** ✓
-- R=24 max (competencies ≈ 3.93): modifier = `-1·ceil(11.0)` = −11.
-
-The slope is slightly gentler than OLD's `-1/3` per remort, but R=12
-matches exactly and competence drives the value end-to-end.
-
-**When `min` ends up negative.** With aggressive potency_rolls (large
-`low_skill_bonus`/`hi_skill_bonus` or large stat `weight`), the
-algorithm above can produce `min < 0`. *Avoid this.* A negative `min`
-means an untrained caster's modifier becomes `-1·(negative)` = positive
-— inverting the spell's sign. For example, a debuff with `min=-7
-factor=-1` gives an untrained mage a `+7` *buff* on enemy saves. Fix by:
-
-- reducing `beta` until `min ≥ 0` (gentler scaling), or
-- normalising the spell's potency_roll to cookie-cutter shape so the
-  arithmetic works out without overshoot.
-
-A handful of spells in the codebase have unusually aggressive
-potency_rolls (`kPatronage`, `kEviless`, `kCurse`) and currently use
-flat-`min` modifiers without `beta`. They're left that
-way until their potency_rolls are normalised.
-
----
+`<flags>`, the `<apply>` stat-change list and its competence-scaling formula,
+stacking, random apply pools, and the affect's trigger-driven `<actions>`
+(DoT/HoT, on-hit/on-kill/on-expire/ward triggers) are all defined on the affect in
+`affects.xml` — see **[Affect Manual](AFFECT_MANUAL.md) §4–§5**.
 
 ## 9. `<unaffect>` — dispels / cures *(new mechanics)*
 
 ```xml
-<unaffect affect_flags="kAfCurable" potency_weight="1.0" prob="100" decay="0">
+<unaffect affect_flags="kAfCurable" dispel_bonus="50" prob="100" decay="0">
     <blocking      any_of="kGodsShield" all_of=""/>
     <breaking      any_of="kSanctuary"/>
     <remove_anyway any_of="kQuestMark"/>
@@ -1182,9 +992,9 @@ way until their potency_rolls are normalised.
 | Attribute | Default | Description |
 |---|---|---|
 | `affect_flags` | `kAfCurable\|kAfDispellable` | **Which affects this dispel may touch.** An affect is eligible only if it carries at least one of these `EAffFlag` bits. Narrow to `kAfCurable` for cures (cures don't dispel), `kAfDispellable` for `kDispellMagic` (doesn't cure poisons), etc. |
-| `potency_weight` | `1.0` | Multiplier on the dispel spell's potency when contested against an affect's recorded potency. See §9.3. |
+| `dispel_bonus` *(issue.random-noise-rework)* | `50` | **Base dispel win-chance, in percentage points, at competence parity** — a flat, level-independent probability offset (replaces the old `potency_weight` multiplier). The dispeller's competence advantage and the affect's own `dispel_mod` shift it from there. See §9.3. Debuff cures set ~80; leave 50 for a neutral dispel. |
 | `prob` | `100` | Percent chance the unaffect block fires at all (silent skip otherwise). |
-| `decay` *(new mechanic, issue.debuff-decay)* | `0` | On a **failed** removal, shift the surviving affect's potency by this percent of **the dispel's** rolled potency (not the affect's): positive **weakens** the affect, negative **strengthens** it. Result is clamped to `[0, 30000]` (floor 0 per design; the cap guards a negative `decay` from growing potency without bound / overflowing). `0` = no change. Applied only on the contest-fail path in `DispelSucceeds`. |
+| `decay` *(issue.debuff-decay)* | `0` | On a **failed** removal, shift the surviving affect's potency by this percent of **the dispeller's competence contribution** (`kDispelSkillWeight · competence`): positive **weakens** the affect (easier next time), negative **strengthens** it. Result is clamped to `[0, 30000]` (floor 0 per design; the cap guards a negative `decay` from growing potency without bound / overflowing). `0` = no change. Applied only on the contest-fail path in `DispelSucceeds`. |
 
 ### 9.2 The four sub-blocks
 
@@ -1209,53 +1019,60 @@ Mixing `"*"` with explicit names (e.g. `any_of="*\|kPoison"`) is rejected
 at parse time with a warning — the explicit names are redundant when the
 wildcard is present, and the semantic is ambiguous. Use one or the other.
 
-### 9.3 Potency-gated dispel *(new mechanic)*
+### 9.3 The dispel contest *(reworked — issue.random-noise-rework)*
 
-Each affect imposed by `CastAffect` **records the cast's potency** (the
-roll value at the moment of imposition) and a debuff flag (matches the
-spell's `violent`). When `CastUnaffects` tries to remove an affect, the
-removal is gated by a strength contest.
-
-**The math**, side by side. Both sides use the same `cast_potency` formula
-(§3.7); the only knob is each side's `potency_weight`:
+Each affect imposed by `CastAffect` **records the cast's competence** — the caster's
+**deterministic** skill+stat potency at the moment of imposition (`CalcCastPotency`, §3.7;
+no dice roll leaks in). When `CastUnaffects` tries to remove it, the removal is a **d100
+skill check**, not the old dice-vs-dice roll:
 
 ```
-stored_potency = cast_potency(affect_spell, caster_at_impose) · <affects potency_weight>     (impose-time, §8.1)
-dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect potency_weight>    (contest-time, §9.1)
+threshold = clamp( k·(area_coeff·C_dispel − affect_potency) + dispel_bonus + dispel_mod,  5,  95 )
+removed   = number(1,100) ≤ threshold
 ```
 
-The dispel succeeds when `dispel_potency > stored_potency`. The full ruleset:
+| Term | Meaning |
+|---|---|
+| `C_dispel` | the dispeller's competence (skill+stat) for the dispel spell |
+| `affect_potency` | the affect's stored competence (`stored_potency` below) |
+| `dispel_bonus` | the `<unaffect dispel_bonus=>` knob (§9.1) — the **win-% at competence parity**, a flat, level-independent offset. Default 50. |
+| `dispel_mod` | the affect's own `<affect dispel_mod=>` additive modifier (**Affect Manual** — it lives on the affect in `affects.xml`). Negative = harder to remove. Default 0. |
+| `k` | `kDispelSkillWeight` (global, `4.0`). Turns one point of competence advantage into `k` percentage points; with the rebalanced range (~2..12) a ±10 gap ≈ ±40 points. |
+| `clamp(5,95)` | symmetric **5 % upset floor and 5 % save ceiling** — nothing is ever a guaranteed strip or a guaranteed save. (Subsumes the old flat 5 % luck roll.) |
 
-1. **Non-violent dispel + non-debuff affect** (a buff being purified by a
-   non-violent cure) — **no check**, the affect is always removed. This is
-   the path that lets a benign `kRemovePoison` strip a player's own
-   accidental buffs without a contest. For an ambiguous (`A`) dispel like
-   `kDispellMagic`, the "non-violent" predicate resolves per-target
-   (§3.3): from an ally hand the dispel passes; from an outsider it goes
-   to the contest below.
-2. **Flat 5 % luck floor** — regardless of strength, the dispel always has
-   a 5 % chance to succeed. Keeps even a novice cure relevant against a
-   strong affect.
-3. **Strength contest** — otherwise `dispel_potency > stored_potency`.
+`stored_potency = cast_potency(affect_spell, caster_at_impose) · <affects potency_weight>`
+(impose-time, §8.1). The affect-side `potency_weight` still scales the recorded competence —
+a secondary *multiplicative* "hard/easy to out-muscle" knob that complements the additive
+`dispel_mod`.
 
-So a high-level necromancer's poison resists a weak novice's cure, but the
-cure may still win on the 5 % free chance. The two `potency_weight` knobs
-are independent — the affect-side knob (issue.affects-potency-weight) lets
-big-modifier spells stay dispellable by recording a deliberately weaker
-stored potency than the raw roll would suggest; the dispel-side knob
-(issue.#3342) lets a designer make a specific cure stronger or weaker
-against the affects it targets.
+**Ruleset:**
 
-**Worked example.** A kFireball with `<affects potency_weight="0.4">` and a
-`<potency_roll>` rolling 60 lands its burning affect at `stored = 60 × 0.4 = 24`.
-A kDispellMagic with `<unaffect potency_weight="0.5">` rolling 50 contests at
-`dispel = 50 × 0.5 = 25`. Dispel wins (25 > 24) — but only just; a slightly
-lower roll on the dispel side would fail the contest and rely on the 5 %
-floor.
+1. **Non-violent dispel of a buff** (an ally cleansing a friendly buff) — **no contest**, the
+   affect is removed. For an ambiguous (`A`) dispel like `kDispellMagic`, "non-violent"
+   resolves per-target (§3.3): from an ally hand it passes; from an outsider it rolls.
+2. **The d100 contest** otherwise — `number(1,100) ≤ threshold`.
 
-A failed potency check emits `kNoeffect` to the caster (for a pure dispel
-spell — a `kMagAffects` spell that also dispels remains silent on failure
-and still applies its own affect).
+Because the bonus is **additive**, it is a probability knob a designer can read off directly:
+`dispel_bonus=50` → 50 % at parity, `80` → 80 %, `85`+ → near-certain. The competence gap then
+shifts each contest up or down by `k` points, so a clearly stronger dispeller reliably beats a
+weaker affect and vice-versa, with genuine uncertainty only near parity. (Unlike the old
+*multiplier*, whose probability effect depended on the absolute potency level.)
+
+**Category tuning — the shipped defaults:**
+
+| Affect kind | Knob | Chance at parity |
+|---|---|---|
+| Debuff (curse, blind, hold, poison…) | its cure's `<unaffect dispel_bonus="80">` | **~80 %** (≈1.25 casts) |
+| Ordinary buff (strength, armor, magic shield…) | none — the default | **~50 %** |
+| Critical buff (fire/ice/air shield, sanctuary, prismatic aura, fly, water-breath) | `<affect dispel_mod="-35">` | **~15 %** |
+
+**Worked example.** `kDispellMagic` (bonus 50) at competence parity vs a plain buff rolls a
+threshold of `50` → 50 %. Vs sanctuary (`dispel_mod=-35`) the threshold is `50 − 35 = 15`
+→ ~15 %. A dedicated `kRemoveCurse` (bonus 80) on a curse from an equal-skill enemy rolls
+`80` → ~80 %, and a curer 10 competence points stronger hits the 95 % ceiling.
+
+A failed contest emits `kNoeffect` to the caster (for a pure dispel spell — a `kMagAffects`
+spell that also dispels remains silent on failure and still applies its own affect).
 
 ### 9.4 The chain-break path *(new mechanic)*
 
@@ -1392,113 +1209,15 @@ These stages run dedicated logic in `magic.cpp`. They are **partly data-driven**
 The data-driven parts you can tune for these stages are: `<flags>`,
 `<targets>`, `<misc>`, `<mana>`, and the spell's messages.
 
-### 11.5 Room affects (`kMagRoom`) — same `<affects>` block, **raw-pulse durations**
+### 11.5 Room affects (`kMagRoom`)
 
-Room spells (the `kMagRoom` flag, dispatched through `CallMagicToRoom` in
-`magic_rooms.cpp`) reuse the **same `<affects>` schema** as char affects
-(§8). The reader pulls duration, battleflag, and modifier from
-`talent.GetAffect()` and assembles an `Affect<ERoomApply>` from it. There
-are two differences from char-affect semantics:
-
-1. **Duration unit is RAW PULSES, not hours.** For room affects, the
-   value `talent.GetDurationBase() + CalcNoviceSkillBonus(...)` is used
-   directly with no `kSecsPerMudHour / kSecsPerPlayerAffect` multiplier
-   for PC casters. Why: room-affect ticks fire per pulse, and several
-   long-standing room durations (kDeadlyFog=8, kMeteorStorm=3,
-   kThunderstorm=7) are sub-hour values that hours-based duration
-   couldn't express in integers. The room reader matches the existing
-   pulse-direct convention.
-2. **The affect-flag enum is `ERoomAffect`, not `EAffect`.** Most room
-   affects today don't set a flag (kNone). The reader populates
-   `af[0].affect_type` from the apply's `id=` attribute, but the
-   `<apply id=...>` parser is currently typed against `EAffect`, so
-   room-affect flag emission via XML isn't fully wired yet — set the
-   apply's `id="kUndefinded"` for room affects unless you're certain
-   you want a char-affect-typed flag.
-
-**Battleflag bits that matter for room affects:**
-
-| Flag | Effect |
-|---|---|
-| `kAfUpdateDuration` | Re-casting your own room affect refreshes its duration (`max(old, new)`). Without this, a self-recast is a no-op. |
-| `kAfAccumulateDuration` | Re-casting adds durations instead of refreshing. |
-| `kAfMustBeHandled` | The affect ticks each pulse — `HandleRoomAffect` runs its `tick_spell` (below) if set, else its `tick_handler`. |
-| `kAfUnique` | Before imposing, remove any prior cast of this same spell by this same caster (room-affect "only one in the world per caster", used by kRuneLabel). |
-
-**Per-tick handling — `tick_spell` (data-driven).** A `kAfMustBeHandled` room affect can
-name a **tick spell** in `<affects tick_spell="...">` — a `kService` spell whose action(s)
-the tick handler runs each pulse, no code required:
-
-* **Single-phase** (a normal `kEnabled` spell, e.g. `kThunderStone`): the whole spell is
-  area-cast on the room's foes each pulse — the legacy "re-cast a spell each round" pattern.
-  `kMeteorStorm` → `kThunderStone`; `kBlackTentacles` → `kDamageSerious`.
-* **Multi-phase** (a `kService` spell with several actions): the handler runs **one action
-  per pulse**, cycling `action[(apply_time-1) % N]`, so each round advances a phase and the
-  sequence loops. Each action uses its own `target=` (`kTarFoes`, `kTarRoomThis`, …) and
-  effects (`<side_spell>`, `<damage>`, …). `kDeadlyFog` → `kDeadlyFogTick` (8 actions,
-  kPoison → … → kMassCurse on the room's foes).
-* **Per-tick narration** comes from the *impose* spell's `kCustomMsgOne…Ten` slots, cycled
-  by the same phase, so message and effect stay aligned (kDeadlyFog defines 8).
-* **`tick_handler`** → for ticks the data can't express (`kThunderstorm`'s weather change),
-  name a C++ handler by string in `<affects tick_handler="...">`. It's registered in the room
-  tick-handler table and receives the affect (so it can read its `duration`) — the manual-cast
-  mechanism for room ticks. `HandleRoomAffect` has **no** per-spell switch: every tick resolves
-  to a `tick_spell` or a `tick_handler`.
-
-**Material-component check is universal.** Any room spell that has a
-configured component in `ProcessMatComponents` (currently
-`kHypnoticPattern`, `kFascination`, `kEnchantWeapon`) aborts the cast
-if the component is missing. The check runs at the top of
-`CallMagicToRoom` before any affect data is read — same position as
-the equivalent check in `CastAffect`. Spells without a configured
-component fall through to the default branch in
-`ProcessMatComponents` and the cast proceeds.
-
-**Code-side overrides** still required (these are mechanics the XML
-schema can't express):
-
-| Override | Where | What it does |
-|---|---|---|
-| Mana-caster modifier | `kForbidden` case | `IS_MANA_CASTER(ch)` → modifier = 95 (constant), overriding the formula. |
-| Modifier cap | `kForbidden` case | `min(100, ...)` cap (the XML modifier formula can over-shoot). |
-| Modifier-tier message | `kForbidden` case | The 3-tier seal-quality narration (>99 / >79 / else) depends on the runtime modifier. |
-| Fizzle path | `kRuneLabel` case | Room-flag check (`kPeaceful`/`kTunnel`/`kNoTeleportIn`) cancels the affect and emits failure-specific narration. |
-| Incompatible-room block | `kBlackTentacles` case | `kForMono` / `kForPoly` room flags abort the cast. |
-
-**Authoring a new room spell:**
-
-```xml
-<spell id="kMyRoomSpell" element="kEarth" mode="kEnabled">
-    <name rus="..." eng="..."/>
-    <misc pos="kStand" violent="N" danger="1"/>
-    <mana .../>
-    <targets val="kTarIgnore"/>
-    <flags val="kMagRoom"/>          <!-- this is what routes through CallMagicToRoom -->
-    <potency_roll>
-        <!-- Only needed if duration or modifier scales with a skill. -->
-        <base_skill id="kEarthMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
-    </potency_roll>
-    <talent_actions>
-        <action>
-            <affects type="kMyRoomSpell" saving="kNone" resist="kVitality">
-                <!-- Duration in RAW PULSES. -->
-                <duration base="20" skill_divisor="5" min="0" max="0"/>
-                <flags val="kAfMustBeHandled"/>
-                <!-- Optional <apply> for a modifier; omit for flag-only affects. -->
-            </affects>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-If the spell needs per-tick logic, set `tick_spell` to a `kService`
-spell (see "Per-tick handling" above) — no code. Only genuinely
-code-only ticks (e.g. weather) still need a `HandleRoomAffect` case.
-If it needs a code-side override above, add a minimal case in
-`CallMagicToRoom`'s switch — but keep the plain parameters
-(duration / battleflag / modifier formula) in the XML.
-
----
+Room spells (the `kMagRoom` flag, dispatched through `CallMagicToRoom`) impose
+**room affects** (`ERoomAffect`, defined in `lib/cfg/room_affects.xml`) rather than
+char affects. They reuse the `<affects>` imposition grammar of §8, but room affects
+have their own trigger set (on-entry `kEnter`/`kEnterPC`/`kEnterNPC`, door triggers
+`kPick`/`kOpen`/…) and **raw-pulse durations** (no hours→ticks conversion). The
+per-tick effect is usually a `<side_spell>` to a linked `kService` spell. See the
+**[Affect Manual](AFFECT_MANUAL.md) §7** for the full room/exit affect grammar.
 
 ## 12. Messages (`lib/cfg/spell_msg.xml`)
 
@@ -1586,359 +1305,10 @@ A message lookup tries the spell's own sheaf first, then falls back to
 
 ## 13. Worked examples
 
-### 13.1 A simple damage spell with extra hits
-
-```xml
-<spell id="kMagicMissile" element="kAir" mode="kEnabled">
-    <name rus="волшебная стрела" eng="magic missile"/>
-    <misc pos="kFight" violent="Y" danger="1"/>
-    <mana max="40" min="30" change="1"/>
-    <targets val="kTarCharRoom|kTarFightVict"/>
-    <flags val="kMagDamage|kNpcDamagePc"/>
-    <potency_roll>
-        <dices ndice="6" sdice="4" adice="10"/>
-        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
-        <base_stat id="kWis" threshold="22" weight="5"/>
-    </potency_roll>
-    <talent_actions>
-        <action>
-            <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
-                <hits skill_divisor="12" max="2" prob="100"/>
-            </damage>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-* Saving throw `kReflex`, halves on save.
-* Amount = `dices · 1.0 + competencies · 25`.
-* Up to 2 extra hits, fired every cast (`prob=100`), with the extra-hit
-  bonus scaled by `min(kFireMagic, 75) / 12`.
-
-### 13.2 A debuff with saving throw, reposition, and lag
-
-```xml
-<spell id="kSleep" element="kMind" mode="kEnabled">
-    <name rus="сон" eng="sleep"/>
-    <misc pos="kFight" violent="Y" danger="0"/>
-    <mana max="70" min="55" change="1"/>
-    <targets val="kTarCharRoom|kTarFightVict"/>
-    <flags val="kMagAffects|kNpcAffectPc"/>
-    <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
-        <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-        <base_stat id="kInt" threshold="22" weight="0.5"/>
-    </potency_roll>
-    <talent_actions>
-        <action>
-            <blocking>
-                <mob_flags val="kNoSleep"/>
-                <affect_flags val="kHold"/>
-                <room_flags val="kNoMagic"/>
-            </blocking>
-            <affects type="kSleep" saving="kWill" resist="kMind">
-                <reposition pos="kSleep"/>
-                <duration base="1" skill_divisor="15" min="1" max="6"/>
-                <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-                <apply id="kSleep" location="kNone">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                </apply>
-            </affects>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-* Targets are NPCs flagged `kNoSleep` or anyone holding the `kHold` affect
-  are immune (the gate fires before any roll).
-* A successful `kWill` save averts the sleep.
-* On a successful imposition, the victim drops to `kSleep` position.
-* Duration: `1 + min(kMindMagic, 75) / 15` hours, clamped `[1..6]`.
-* `kAfDispellable|kAfCurable` means both `kDispellMagic` and
-  `kRemovePoison`-style cures can attempt removal (subject to potency
-  contest).
-
-### 13.3 A pure cure (potency-gated)
-
-```xml
-<spell id="kRemovePoison" element="kLife" mode="kEnabled">
-    <name rus="лечить яд" eng="remove poison"/>
-    <misc pos="kFight" violent="N" danger="0"/>
-    <mana max="60" min="45" change="2"/>
-    <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
-    <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
-    <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
-        <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-        <base_stat id="kWis" threshold="22" weight="0.5"/>
-    </potency_roll>
-    <talent_actions>
-        <action>
-            <unaffect affect_flags="kAfCurable">
-                <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
-            </unaffect>
-            <alter_obj handler="AlterRemovePoison"/>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-* `affect_flags="kAfCurable"` — won't touch affects that are only
-  `kAfDispellable` (e.g. blessings).
-* `<remove all_of="…">` — tries every listed poison present on the target.
-* `<alter_obj handler="AlterRemovePoison"/>` — the same spell cast on a poisoned
-  food/drink cleans the object instead (§3.8.7); both manifestations live in the
-  one action.
-* Each removal is a potency contest. A novice priest's `remove poison`
-  may fail against a master assassin's `poison` (high recorded potency),
-  but always has the 5 % free chance.
-
-### 13.4 Reveal with chain-break
-
-```xml
-<spell id="kGlitterDust" element="kEarth" mode="kEnabled">
-    <name rus="блестящая пыль" eng="glitterdust"/>
-    <misc pos="kFight" violent="Y" danger="5"/>
-    <mana max="120" min="100" change="3"/>
-    <targets val="kTarIgnore"/>
-    <flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc"/>
-    <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
-        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-        <base_stat id="kWis" threshold="22" weight="0.5"/>
-    </potency_roll>
-    <talent_actions>
-        <action>
-            <area>
-                <targets skill_divisor="15" dice_size="3" min="5" max="20"/>
-                <distribution type="kStepped" decay="0.05" free_targets="5"/>
-            </area>
-            <unaffect>
-                <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
-            </unaffect>
-            <affects type="kGlitterDust" saving="kReflex" resist="kEarth">
-                <flags val="kAfDispellable|kAfCurable"/>
-                <duration base="4" skill_divisor="0" min="0" max="0"/>
-                <apply id="kGlitterDust" location="kSavingReflex">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
-                </apply>
-            </affects>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-* `<unaffect>` runs first (chain order): tries to strip
-  `kInvisible|kCamouflage|kHide`.
-* If the potency contest **fails** for any of them on a given target,
-  `breaking_by_failure="true"` makes the cast chain break **for that
-  target** — the glitterdust debuff doesn't land.
-* If the dispels succeed (or the affects weren't present), the debuff
-  applies normally — a saving-throw penalty for 4 hours.
-* The penalty scales with caster competence: at competencies ≈ 3.12
-  (skill 140 / wis 34, the R=12 typical caster) the saving-throw
-  modifier is `+ceil(3.12·4.4) = +14`; an untrained caster (skill 0,
-  stat at threshold) gets `+ceil(0·4.4) = 0` — see §8.9.
-
-### 13.5 Alignment-restricted spell
-
-```xml
-<spell id="kDispelEvil" element="kLight" mode="kEnabled">
-    <name rus="рассеять зло" eng="dispel evil"/>
-    <misc pos="kFight" violent="Y" danger="2"/>
-    <mana max="120" min="100" change="2"/>
-    <targets val="kTarCharRoom|kTarFightVict"/>
-    <flags val="kMagDamage|kNpcDamagePc"/>
-    <potency_roll>
-        <dices ndice="6" sdice="9" adice="20"/>
-        <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-        <base_stat id="kWis" threshold="22" weight="0.5"/>
-    </potency_roll>
-    <caster_conditions>
-        <blocking>
-            <align val="kEvil"/>
-        </blocking>
-    </caster_conditions>
-    <talent_actions>
-        <action>
-            <target_conditions>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-                <required>
-                    <align val="kEvil"/>
-                </required>
-            </target_conditions>
-            <damage saving="kStability">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="61"/>
-            </damage>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-* `<caster_conditions><blocking><align val="kEvil"/></blocking></caster_conditions>` —
-  the *caster* must not be evil, else `kNoeffect` (the old "wrath of light" behaviour,
-  now data-driven). Spell-level, checked once before any target.
-* `<target_conditions><required><align val="kEvil"/></required></target_conditions>` —
-  the *target* must be evil, else `kNoeffect`.
-* `<target_conditions><blocking><room_flags val="kNoMagic"/></blocking></target_conditions>` —
-  universal NOMAGIC-room fizzle added to all non-warcry spells; emits `kCastForbidden*`
-  (see §15).
-
-### 13.6 A reflection template
-
-No spell currently uses `<reflection>` in production (it's plumbed and
-ready). Here's how a fire-shielded creature might reflect cold spells:
-
-```xml
-<spell id="kIceBolt" element="kWater" mode="kEnabled">
-    <!-- … usual fields … -->
-    <talent_actions>
-        <action>
-            <reflection affect_flags="kFireShield|kFireAura" prob="35"/>
-            <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="40"/>
-            </damage>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-* Targets carrying `kFireShield` or `kFireAura` have a **35 %** chance per
-  cast to reflect the spell back at the caster.
-* Once reflection fires, the caster takes the damage themselves (subject
-  to all of their own defences). Three messages
-  (`kReflectedToChar`/`Vict`/`Room`) describe the bounce.
-* Alignments: add `align="kEvil"` to the same tag to make undead innately
-  reflect holy spells, etc.
-
-### 13.7 Stacking poison (hypothetical)
-
-The real `kPoison` doesn't stack today — this example illustrates the
-mechanic. The actual `kPoison` uses `beta` to scale the
-poison-damage tick (no stacking); here we re-add `stack="3"` to show
-how a stacking variant would be authored.
-
-```xml
-<spell id="kPoison" element="kDark" mode="kEnabled">
-    <!-- … usual fields … -->
-    <talent_actions>
-        <action>
-            <blocking affect_flags="kGodsShield"/>
-            <affects type="kPoison" saving="kCritical" resist="kDark">
-                <duration base="0" skill_divisor="3" min="0" max="0"/>
-                <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
-                <apply id="kPoisoned" location="kStr">
-                    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
-                </apply>
-                <apply id="kPoisoned" location="kPoison">
-                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
-                </apply>
-            </affects>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-* Re-casting on the same victim **stacks up to 3 times**: the strength
-  penalty scales `-2`, `-4`, `-6` (flat per stack) and the
-  poison-damage tick scales as `1×`, `2×`, `3×` the per-cast value
-  (where the per-cast value is `ceil(competencies·11.5)` — at the R=12
-  typical caster ≈ 36 per stack).
-* Duration accumulates (`kAfAccumulateDuration`).
-* `kAfCurable` (without `kAfDispellable`) — `kRemovePoison` works, plain
-  `kDispellMagic` does not.
-* `kRemovePoison`'s dispel **peels one stack** rather than removing the
-  whole thing — three cures to fully clear a triply-stacked poison
-  (assuming each potency contest succeeds).
-
----
-
-### 13.8 A multi-action spell: `kSacrifice` *(per-action targets + cast-chain)*
-
-`kSacrifice` ("высосать жизнь") is the reference multi-action spell: it damages a
-foe, then heals the caster by the damage dealt, then heals the caster's **undead**
-minions by the same amount. Three `<action>` blocks, each with a different target.
-
-```xml
-<spell id="kSacrifice" element="kDark" mode="kEnabled">
-    <name rus="высосать жизнь" eng="sacrifice"/>
-    <components><verbal/><weave/></components>
-    <misc pos="kFight" violent="Y" danger="10"/>
-    <mana max="140" min="75" change="3"/>
-    <targets val="kTarCharRoom|kTarFightVict|kTarNotSelf"/>
-    <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
-    <potency_roll>
-        <dices ndice="8" sdice="15" adice="60"/>
-        <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
-        <base_stat id="kWis" threshold="32" weight="4.5"/>
-    </potency_roll>
-    <talent_actions>
-        <!-- A1 — damage ONE foe (the entry action; uses the spell-level target). -->
-        <action>
-            <damage saving="kWill">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="62"/>
-            </damage>
-            <target_conditions>
-                <blocking><affect_flags val="kCharmed"/></blocking>   <!-- never your own charmed pet -->
-            </target_conditions>
-        </action>
-        <!-- A2 — heal the CASTER by the damage just dealt (base=kDamage). -->
-        <action target="kTarFightSelf" base="kDamage">
-            <points extra="300">
-                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
-            </points>
-        </action>
-        <!-- A3 — heal the caster's UNDEAD minions by the same amount. -->
-        <action target="kTarMinions" base="kDamage">
-            <points extra="300">
-                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
-            </points>
-            <area>
-                <targets max="-1"/>             <!-- all minions, no scaling -->
-                <distribution type="kUniform"/>
-            </area>
-            <target_conditions>
-                <required><mob_flags val="kCorpse"/></required>   <!-- undead only -->
-            </target_conditions>
-        </action>
-    </talent_actions>
-</spell>
-```
-
-What each piece does:
-
-* **A1 (entry action)** uses the spell's own `<targets>`/`kMagDamage` scope — one
-  chosen foe — and deals `kWill`-saved damage. `<target_conditions><blocking>` on
-  `kCharmed` refuses to drain your own pet. Because it's the entry action, it also
-  carries the spell's gates and the victim reaction (deferred to the end).
-* **A2 (`target="kTarFightSelf"`, `base="kDamage"`)** re-aims at the caster and
-  **heals**. `base="kDamage"` swaps the competence scalar for *the HP A1 actually
-  removed*; with `dices_weight="0"` and `beta="1.0"` the heal equals the damage
-  (a clean 1:1 transfer). `<points extra="300">` lets the heal overheal to 4× max.
-* **A3 (`target="kTarMinions"`, `base="kDamage"`)** repeats that heal on the
-  caster's charmed NPC followers, but its `<required><mob_flags val="kCorpse"/>`
-  limits it to **undead** minions, and its `<area><targets max="-1"/>` fans the
-  heal out to **all** of them uniformly. Note `<targets max="-1"/>` deliberately
-  omits `skill_divisor`/`dice_size`/`min`/`stat_weight` — they default (§7).
-
-Things this example illustrates:
-
-* **Per-action targets** — A1 hits a foe, A2 the caster, A3 the minions; the
-  spell re-aims mid-cast (§3.8.1).
-* **Cast-chain** — A2 and A3 read the running **damage** accumulator instead of
-  re-rolling competence (§3.8.2). The accumulator captures *actual HP removed*
-  (overkill and resists already applied), so the heal can never exceed the damage.
-* **Per-action area** — only A3 fans out; A1/A2 are single-target.
-* **One reaction** — the foe retaliates once, after A3, not between actions.
-
-> The single-target version of "deal damage, then heal by it" needs only A1 + A2;
-> A3 is the undead-minion bonus. A *mass* version would instead make A1 fan out
-> (`kMagMasses` + an `<area>` on A1).
-
----
+Worked examples now live in a dedicated **[Cookbook](COOKBOOK.md)** — a flagship
+cross-system example (a spell that imposes a multi-trigger affect whose on-expiry
+payload blights the bearer's allies, plus feats that reshape it) and a gallery of
+shorter recipes.
 
 ## 14. Reference: enum cheat-sheet
 
@@ -1974,11 +1344,11 @@ The thresholds for "good / evil / neutral" come from
 `alignment ≤ kAligEvilLess` and `alignment ≥ kAligGoodMore` in
 `entities_constants.h`.
 
-### 14.6 `EAffFlag` (affect-level flags, the `<flags val>` inside `<affects>`)
+### 14.6 `EAffFlag` (affect behaviour flags)
 
-`kAfBattledec` · `kAfDeadkeep` · `kAfPulsedec` · `kAfSameTime` ·
-`kAfUpdateDuration` · `kAfAccumulateDuration` · `kAfUpdateMod` ·
-`kAfDispellable` · `kAfCurable` · `kAfMustBeHandled` · `kAfUnique`.
+Now defined on the affect (`affects.xml <flags>`), not the spell — see the
+**[Affect Manual](AFFECT_MANUAL.md) §4.1** for the full list and the
+decrement-timing rules (`kAfBattledec`/`kAfPulsedec`/`kAfSameTime`).
 
 ### 14.7 `EMobFlag` allowed in `<blocking><mob_flags val>` / `<required><mob_flags val>`
 
@@ -1996,11 +1366,11 @@ The thresholds for "good / evil / neutral" come from
 to the `kBlockingRoomFlagByName` table in
 `src/gameplay/abilities/talents_actions.cpp` to expose more.
 
-### 14.8 `EAffect` (status flags for `<apply id>` and the various
-`affect_flags` attributes)
+### 14.8 `EAffect` (the affect ids named by `<affect id=>`)
 
-The list is large (`src/gameplay/affects/affect_contants.h`). Some commonly
-referenced ones:
+The full catalogue and each affect's behaviour is the
+**[Affect Manual](AFFECT_MANUAL.md)**; enum source in
+`src/gameplay/affects/affect_contants.h`. Some commonly referenced ids:
 
 `kCharmed` · `kPoisoned` · `kInvisible` · `kCamouflage` · `kHide` ·
 `kBlind` · `kSleep` · `kHold` · `kSanctuary` · `kPrismaticAura` ·
@@ -2058,7 +1428,12 @@ should change a stat *without* imposing an affect flag.
   classical percent-based `CalcCastSuccess` still gates landing.
 * **Skill-interference modifiers** — feats like `kMagicArrows` that boost
   specific spells (e.g. doubles `kMagicMissile` extra-hits) are still
-  hard-coded in `CalcExtraHits` and similar helpers.
+  hard-coded in `CalcExtraHits` and similar helpers. Data-driven perk→spell
+  modification (`talent_patch`) now exists — see the [Feat Manual](FEAT_MANUAL.md) —
+  but these specific feats have not been migrated onto it yet.
+
+Affects and their triggers, and feats, are **no longer** in the "not covered" list —
+they have their own companion manuals ([Affect](AFFECT_MANUAL.md) / [Feat](FEAT_MANUAL.md)).
 
 If you need any of these, open an issue and the work can be scoped.
 

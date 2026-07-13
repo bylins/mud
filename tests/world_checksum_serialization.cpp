@@ -26,7 +26,8 @@ namespace {
 
 // Format a 4-plane FlagData the same way SerializeMob/Object do:
 // "<plane0>,<plane1>,<plane2>,<plane3>".
-std::string PlanesString(const FlagData& f) {
+template<class F>
+std::string PlanesString(const F& f) {
 	std::ostringstream oss;
 	oss << f.get_plane(0) << "," << f.get_plane(1) << ","
 	    << f.get_plane(2) << "," << f.get_plane(3);
@@ -53,8 +54,8 @@ TEST(SerializeMob, IncludesActionFlagPlanes) {
 TEST(SerializeMob, IncludesAffectFlagPlanes) {
 	CharData mob;
 	mob.SetNpcAttribute(true);
-	AFF_FLAGS(&mob).set(static_cast<Bitvector>(EAffect::kSanctuary));
-	AFF_FLAGS(&mob).set(static_cast<Bitvector>(EAffect::kHelper));   // plane 1
+	AFF_FLAGS(&mob).set(EAffect::kSanctuary);
+	AFF_FLAGS(&mob).set(EAffect::kHelper);   // plane 1
 
 	const std::string out = WorldChecksum::SerializeMob(42, mob);
 

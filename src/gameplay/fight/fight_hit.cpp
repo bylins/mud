@@ -464,10 +464,8 @@ void HitData::CalcBaseHitroll(CharData *ch) {
 		calc_thaco += 4;
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kBerserk)) {
-		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
-			calc_thaco -= (12 * ((ch->get_real_max_hit() / 2) - ch->get_hit()) / ch->get_real_max_hit());
-		}
+	if (IsAffected(ch, EAffect::kBerserk)) {
+		calc_thaco -= (12 * ((ch->get_real_max_hit() / 2) - ch->get_hit()) / ch->get_real_max_hit());
 	}
 
 }
@@ -492,7 +490,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	}
 
 	// courage
-	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
+	if (IsAffected(ch, EAffect::kCourage)) {
 		int range = number(1, MUD::Skill(ESkill::kCourage).difficulty + ch->get_real_max_hit() - ch->get_hit());
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, victim);
 		TrainSkill(ch, ESkill::kCourage, prob > range, victim);
@@ -567,7 +565,7 @@ void HitData::CalcStaticHitroll(CharData *ch) {
 	}
 
 	// courage
-	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
+	if (IsAffected(ch, EAffect::kCourage)) {
 		dam += ((GetSkill(ch, ESkill::kCourage) + 19) / 20);
 		calc_thaco -= static_cast<int>(((GetSkill(ch, ESkill::kCourage) + 9.0) / 20.0) * p_hitroll);
 	}
@@ -720,9 +718,11 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 	if (ch->IsFlagged(EPrf::kExecutor))
 		SendMsgToChar(ch, "&YДамага с учетом перков мощная-улучш == %d&n\r\n", dam);
 	// courage
-	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
+	// issue.affects-improve: courage is an affect identity now (IsAffected/EAffect::kCourage), not a
+	// spell-affect. Keep master's need_dice averaging so identify (need_dice == false) shows a stable
+	// expected damage instead of a fresh roll.
+	if (IsAffected(ch, EAffect::kCourage)) {
 		const int courage_range = MUD::Skill(ESkill::kCourage).difficulty + ch->get_real_max_hit() - ch->get_hit();
-		// при показе (need_dice == false) берём среднее, чтобы урон в опознании не "плавал"
 		int range = need_dice ? number(1, courage_range) : (1 + courage_range) / 2;
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, ch);
 		if (prob > range) {
@@ -793,13 +793,11 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 			SendMsgToChar(ch, "&YДамага после расчета железного ветра == %d&n\r\n", dam);
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kBerserk)) {
-		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
-			dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
-				RollDices(0, remort::GetRealRemort(ch)) * 2)) / 100;
-			if (ch->IsFlagged(EPrf::kExecutor))
-				SendMsgToChar(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
-		}
+	if (IsAffected(ch, EAffect::kBerserk)) {
+		dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
+			RollDices(0, remort::GetRealRemort(ch)) * 2)) / 100;
+		if (ch->IsFlagged(EPrf::kExecutor))
+			SendMsgToChar(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 	}
 	if (ch->IsNpc()) { // урон моба из олц
 		// при показе (need_dice == false) берём среднее кубиков, иначе урон в опознании "плавает"
@@ -961,19 +959,23 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	hit_params.weapon = weapon;
 	hit_params.Init(ch, victim);
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
-	if (AFF_FLAGGED(ch, EAffect::kCloudOfArrows)
-		&& hit_params.skill_num == ESkill::kUndefined
-		&& (ch->GetEnemy() 
+	// issue.character-affect-triggers: per-hit (kPreHit) affect triggers, fired once per basic melee hit
+	// (skill_num kUndefined; not an overwhelm/hammer setup) -- the same gate the hand-coded kCloudOfArrows
+	// proc used. kCloudOfArrows is now data-driven: <actions><trigger kPreHit><target kTarFightVict>
+	// <side_spell kCloudOfArrowsBolt>; RunCharHitTriggers casts each bearer's kPreHit action on the current
+	// opponent at the proc level (NPC -> real level, как раньше для болта облака стрел).
+	if (hit_params.skill_num == ESkill::kUndefined
+		&& (ch->GetEnemy()
 		|| (!ch->battle_affects.get(kEafHammer) && !ch->battle_affects.get(kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-		// Cloud of Arrows fires one bolt per melee hit. Route it through the public
-		// CallMagic entry (unified cast pipeline) rather than a raw CastDamage. The
-		// dedicated kCloudOfArrowsBolt proc spell is weave-only (no verbal, so silence
-		// does not stop it), costs no mana, and is single-target -- it lands straight in
-		// CastToSingleTarget. A no-magic room now suppresses it (weave component), which
-		// is the intended unified behaviour.
-		const int bolt_level = ch->IsNpc() ? GetRealLevel(ch) : 1;
-		CallMagic(ch, victim, nullptr, nullptr, ESpell::kCloudOfArrowsBolt, bolt_level);
+		// issue.character-affect-triggers: kPreHit event = pre-damage swing (weapon + weapon-skill known;
+		// the physical amount is computed below, so it rides on kPostHit, not here).
+		EventContext hit_event;
+		hit_event.trigger = talents_actions::EActionTrigger::kPreHit;
+		hit_event.weapon = hit_params.wielded;
+		hit_event.skill = hit_params.weap_skill;
+		hit_event.actor = victim;
+		RunCharEventTriggers(ch, hit_event);
 		if (ch->purged() || victim->purged()) { // вдруг помер
 			return;
 		}
@@ -981,8 +983,6 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (ch->in_room != victim->in_room) {  //если сбег по трусости
 			return;
 		}
-		auto skillnum = MUD::Spell(ESpell::kCloudOfArrows).GetSuccessRoll().GetBaseSkill();
-		TrainSkill(ch, skillnum, true, victim);
 	}
 	// вычисление хитролов/ац
 	hit_params.CalcBaseHitroll(ch);
@@ -1097,6 +1097,23 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	SendToTC(ch, false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	SendToTC(victim, false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	int made_dam = hit_params.ProcessExtradamage(ch, victim);
+
+	// issue.character-affect-triggers: kPostHit event = a landed melee hit resolved. Fires only when
+	// the hit dealt damage AND the victim survived (made_dam == -1 means the victim died this hit -> no
+	// post-hit trigger on a corpse). Event carries the actual amount, the weapon, the weapon-skill and
+	// the victim, for handlers (no XML grammar for these).
+	if (made_dam != -1 && hit_params.dam > 0) {
+		EventContext dmg_event;
+		dmg_event.trigger = talents_actions::EActionTrigger::kPostHit;
+		dmg_event.amount = hit_params.dam;
+		dmg_event.weapon = hit_params.wielded;
+		dmg_event.skill = hit_params.weap_skill;
+		dmg_event.actor = victim;
+		RunCharEventTriggers(ch, dmg_event);
+		if (ch->purged() || victim->purged()) {
+			return;
+		}
+	}
 
 	//Обнуление лага, когда виктим убит с применением
 	//оглушить или молотить. Чтобы все это было похоже на

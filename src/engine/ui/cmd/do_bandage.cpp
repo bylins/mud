@@ -8,6 +8,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/obj_handler.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/magic/magic.h"
 
 void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
@@ -42,11 +43,8 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	SendMsgToChar("Вы достали бинты и начали оказывать себе первую помощь...\r\n", ch);
-	act("$n начал$g перевязывать свои раны.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
 	Affect<EApply> af;
-	af.type = ESpell::kBandage;
 	af.location = EApply::kNone;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10, 0, 0, 0);
@@ -54,12 +52,13 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.battleflag = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);
 
-	af.type = ESpell::kNoBandage;
 	af.location = EApply::kNone;
 	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 60, 0, 0, 0);
 	af.affect_type = EAffect::kCannotBeBandaged;
 	af.battleflag = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);
+	// issue.affect-migration: imposition narration on the kBandage affect (self).
+	EmitAffectImpose(ch, nullptr, EAffect::kBandage, false);
 
 	bandage->set_weight(bandage->get_weight() - 1);
 	IS_CARRYING_W(ch) -= 1;

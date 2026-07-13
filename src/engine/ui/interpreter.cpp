@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "gameplay/mechanics/hide.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/utils_encoding.h"
 
@@ -1004,7 +1005,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
-	if (IsAffectedBySpell(ch, ESpell::kHide)) {
+	if (IsAffectedFlagOnly(ch, EAffect::kHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skill(ESkill::kSneak).difficulty) >
@@ -1019,10 +1020,8 @@ void check_hiding_cmd(CharData *ch, int percent) {
 			remove_hide = number(1, percent) > GetSkill(ch, ESkill::kHide);
 		}
 		if (remove_hide) {
-			RemoveAffectFromChar(ch, ESpell::kHide);
-			AFF_FLAGS(ch).unset(EAffect::kHide);
-			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
+			RemoveAffectFromChar(ch, EAffect::kHide);
+			MakeVisible(ch, EAffect::kHide);
 		}
 	}
 }

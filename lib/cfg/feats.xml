@@ -479,10 +479,38 @@
     <feat id="kRegenOfDarkness" mode="kEnabled">
     </feat>
     <feat id="kSoulLink" mode="kEnabled">
+        <!-- issue.soullink-affect-patching: restores the old master-share. When a minion's kVampirism
+             fires (kPostHit), if the minion's MASTER has kSoulLink the master also heals ~5% of the
+             damage (half the minion's ~10% self-heal). affect= patches the AFFECT's chain; relative=
+             "master" gates on the bearer's master; target="kTarMaster" heals that master. kVampirism
+             itself is untouched. -->
+        <talent_patches>
+            <talent_patch affect="kVampirism" relative="master" op="append">
+                <action target="kTarMaster" base="tag" tag="amount">
+                    <trigger val="kPostHit"/>
+                    <points extra="100">
+                        <heal min="1" dices_weight="0" alpha="0" beta="0.05" npc_coeff="0"/>
+                    </points>
+                </action>
+            </talent_patch>
+        </talent_patches>
     </feat>
     <feat id="kStrongClutch" mode="kEnabled">
     </feat>
     <feat id="kMagicArrows" mode="kEnabled">
+        <!-- issue.perk-action-patching Phase 3: migrated from the hardcoded CalcExtraHits branch.
+             Replaces Magic Missile's <damage> with a boosted <hits> (divisor 12->6, max 2->6) - the
+             exact halve-divisor/triple-max the C++ used to do. -->
+        <talent_patches>
+            <talent_patch spell="kMagicMissile" op="replace" action="Main" effect="Bolt">
+                <action>
+                    <damage saving="kReflex">
+                        <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5" />
+                        <hits skill_divisor="6" max="6" prob="100" />
+                    </damage>
+                </action>
+            </talent_patch>
+        </talent_patches>
     </feat>
     <feat id="kSoulsCollector" mode="kEnabled">
     </feat>
@@ -549,6 +577,15 @@
     <feat id="kDeadlyThrow" mode="kEnabled">
     </feat>
     <feat id="kMultipleCast" mode="kEnabled">
+        <!-- issue.perk-action-patching Phase 2: migrated from the hardcoded area-decay branch in
+             RunActionOverTargets. op="modify" scales the <area> decay of every area spell by 0.6
+             (relative to each spell's own decay), reproducing the old *0.6. has_effect="kArea"
+             selects area spells at boot; effect="kArea" is the manifestation whose field is scaled. -->
+        <talent_patches>
+            <talent_patch has_effect="kArea" op="modify" effect="kArea">
+                <modify field="decay" mul="0.6"/>
+            </talent_patch>
+        </talent_patches>
     </feat>
     <feat id="kMagicalShield" mode="kEnabled">
     </feat>
@@ -557,5 +594,83 @@
     <feat id="kSlashMaster" mode="kEnabled">
     </feat>
     <feat id="kPhysicians" mode="kEnabled">
+    </feat>
+    <!-- issue.perk-action-patching PILOT: kEmberTouch appends a kBurning DoT to Burning Hands. Only a
+         caster who can use this perk ignites the target; everyone else's Burning Hands is unchanged.
+         The appended <action> reuses the same affect/charges machinery as kFireBlast's kBurning. -->
+    <feat id="kEmberTouch" mode="kTesting">
+        <talent_patches>
+            <talent_patch spell="kBurningHands" op="append">
+                <action id="EmberIgnite" target="kTarSame">
+                    <affects saving="kReflex" resist="kFire" potency_weight="0.5">
+                        <duration base="0" skill_divisor="6" min="2" max="6" />
+                        <charges max="5"/>
+                        <affect id="kBurning"/>
+                    </affects>
+                </action>
+            </talent_patch>
+        </talent_patches>
+    </feat>
+    <!-- issue.perk-action-patching Phase 2: prove (b) manifestation-level <damage> replace (copy-into-
+         scratch; the <area> sibling in the same block survives) - doubles Burning Hands damage. -->
+    <feat id="kEmberFury" mode="kTesting">
+        <talent_patches>
+            <talent_patch spell="kBurningHands" op="replace" action="Main" effect="MainDamage">
+                <action>
+                    <damage saving="kReflex">
+                        <amount min="0" dices_weight="2.0" alpha="0.5" beta="15" />
+                    </damage>
+                </action>
+            </talent_patch>
+        </talent_patches>
+    </feat>
+    <!-- issue.perk-action-patching Phase 2: prove (a) whole-block replace (pointer swap) - swaps the
+         entire Main block for a x3-damage variant (keeps area). -->
+    <feat id="kCinderburst" mode="kTesting">
+        <talent_patches>
+            <talent_patch spell="kBurningHands" op="replace" action="Main">
+                <action id="Main">
+                    <damage saving="kReflex">
+                        <amount min="0" dices_weight="3.0" alpha="0.5" beta="15" />
+                    </damage>
+                    <area>
+                        <targets skill_divisor="20" dice_size="2" min="5" max="20" />
+                        <distribution type="kStepped" decay="0.05" free_targets="3" />
+                    </area>
+                </action>
+            </talent_patch>
+        </talent_patches>
+    </feat>
+    <!-- issue.perk-action-patching Phase 1 (selectors): a CLASS patch. element="kFire" AND
+         flag="kMagDamage" selects every fire damage spell at boot (no per-spell listing), appending a
+         kBurning DoT to each. Demonstrates element + flag AND-filtering resolved into the per-spell index. -->
+    <feat id="kPyromancer" mode="kTesting">
+        <talent_patches>
+            <talent_patch element="kFire" flag="kMagDamage" op="append">
+                <action target="kTarSame">
+                    <affects saving="kReflex" resist="kFire" potency_weight="0.5">
+                        <duration base="0" skill_divisor="6" min="2" max="6" />
+                        <charges max="4"/>
+                        <affect id="kBurning"/>
+                    </affects>
+                </action>
+            </talent_patch>
+        </talent_patches>
+    </feat>
+    <!-- issue.perk-action-patching Phase 3 (selectors): CATEGORY patch. category="curse" selects every
+         spell tagged <tags val="curse"/> at boot (kHarm, kEnergyDrain, ...), appending a DoT to each.
+         Demonstrates the semantic-category selector (open string taxonomy authored in spells.xml). -->
+    <feat id="kMaledictor" mode="kTesting">
+        <talent_patches>
+            <talent_patch category="curse" op="append">
+                <action target="kTarSame">
+                    <affects saving="kReflex" potency_weight="0.5">
+                        <duration base="0" skill_divisor="6" min="2" max="6" />
+                        <charges max="3"/>
+                        <affect id="kBurning"/>
+                    </affects>
+                </action>
+            </talent_patch>
+        </talent_patches>
     </feat>
 </feats>

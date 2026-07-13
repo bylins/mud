@@ -10,6 +10,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/portal.h"
+#include "gameplay/magic/magic_rooms.h"   // issue.room-affect-trigger-improve: ClearExitAffects on dungeon reuse
 #include "engine/scripting/dg_db_scripts.h"
 #include "dungeons.h"
 #include "engine/core/char_equip_flags.h"
@@ -884,7 +885,7 @@ void RoomDataFree(ZoneRnum zrn) {
 	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
 
 	for (RoomRnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
-		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
+		while (room_spells::RoomHasPortal(world[rrn])) {
 			RemovePortalGate(rrn);
 		}
 		if (ROOM_FLAGGED(rrn, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(rrn, ERoomFlag::kIceTrap)) {
@@ -903,6 +904,9 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->affected.clear();
 		room->vnum = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			// issue.room-affect-trigger-improve (door affects): a reused dungeon room rebuilds its exits;
+			// drop any door affect + its registry entry so nothing outlives the old ExitData.
+			room_spells::ClearExitAffects(room, dir);
 			if (room->dir_option_proto[dir]) {
 				room->dir_option_proto[dir].reset();
 				room->dir_option[dir].reset();

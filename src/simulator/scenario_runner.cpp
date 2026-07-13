@@ -1,4 +1,5 @@
 #include "scenario_runner.h"
+#include "gameplay/affects/affect_messages.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/follow.h"
 
@@ -325,7 +326,6 @@ CharData* SpawnPet(CharData* owner, const PetSpec& spec, RoomRnum room) {
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
-	af.type = ESpell::kCharm;
 	af.duration = 999;  // long enough that no scenario will outlive it
 	af.affect_type = EAffect::kCharmed;
 	affect_to_char(pet, af);
@@ -475,7 +475,7 @@ void EmitCharState(const char* role,
 	for (const auto& a : ch->affected) {
 		++aff_count;
 		if (!aff_list.empty()) aff_list += "|";
-		aff_list += MUD::Spell(a->type).GetCName();
+		aff_list += NAME_BY_ITEM<EAffect>(a->affect_type);
 		aff_list += fmt::format(" ({}t)", a->duration);
 	}
 	e.attrs["affects_count"] = static_cast<std::int64_t>(aff_count);
@@ -512,7 +512,7 @@ void EmitCharState(const char* role,
 	// автоматически подхватывали новые флаги движка.
 	{
 		char buf[kMaxStringLength];
-		AFF_FLAGS(ch).sprintbits(affected_bits, buf, sizeof(buf), "|", 0);
+		snprintf(buf, sizeof(buf), "%s", affects::DescribeActive(AFF_FLAGS(ch), "|").c_str());
 		std::string s(buf);
 		// FlagData::sprintbits пишет nothing_string ("ничего") когда
 		// ни одного флага не выставлено -- для UI пустая строка лучше.

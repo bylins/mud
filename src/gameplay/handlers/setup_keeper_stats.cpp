@@ -9,7 +9,7 @@
 
 namespace handlers {
 
-void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx) {
+void SetupKeeperStats(CharData *ch, CharData *mob, const ActionContext &ctx) {
 	mob->set_level(GetRealLevel(ch));
 	const int hp = SummonScaledStat(ctx, 50, 1.0, 164.4);   // + the 10d10 potency dice (old RollDices(10,10))
 	mob->set_hit(hp);

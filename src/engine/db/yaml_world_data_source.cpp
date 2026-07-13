@@ -1658,7 +1658,7 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 			long flag_val = dm.Lookup("affect_flags", flag_name, -1);
 			if (flag_val >= 0)
 			{
-				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_data_by_num(flag_val)));
+				AFF_FLAGS(&mob).set_index(flag_val);
 			}
 		}
 	}
@@ -2434,7 +2434,8 @@ std::string YamlWorldDataSource::ConvertToUtf8(const std::string &koi8r_str) con
 	return buffer;
 }
 
-std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const
+template<class FlagsT>
+std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagsT &flags, const std::string &dict_name) const
 {
 	std::vector<std::string> names;
 	auto &dm = DictionaryManager::Instance();

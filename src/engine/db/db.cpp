@@ -1,4 +1,6 @@
 #include <filesystem>
+#include "gameplay/affects/affect_messages.h"
+#include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
 #include "utils/utils_encoding.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -654,7 +656,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// affect_messages loads -- and object/mob parsing below renders affect flags through it (sprintbits),
 	// so it must be populated before the world loads. affects (the id registry) is validated alongside.
 	// Guarded like the skills load just below; the normal running-server boot reaches here too.
-	if (!affected_bits) {
+	if (!affects::MessagesLoaded()) {
 		MUD::CfgManager().LoadCfg("affects");
 		MUD::CfgManager().LoadCfg("affect_msg");
 		// issue.common-msg: nothing_string (CommonMsg(kNothing)) is used by sprintbits during the
@@ -1064,6 +1066,17 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading spells cfg.");
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
+
+	// issue.perk-action-patching: feats + spells are both loaded now -- bucket every talent patch
+	// onto its target SpellInfo and validate its action ids.
+	feats::BuildTalentPatchIndex();
+
+	// issue.affect-migration: room-affect registry + messages (flags/triggers/actions and the
+	// per-room-affect display/lifecycle text). After spells, since room affects reference spell ids.
+	boot_profiler.next_step("Loading room affects cfg.");
+	log("Loading room affects cfg.");
+	MUD::CfgManager().LoadCfg("room_affect_msg");
+	MUD::CfgManager().LoadCfg("room_affects");
 
 	boot_profiler.next_step("Linting editor schemes.");
 	vedun::LintSchemes();
@@ -2251,12 +2264,12 @@ void after_reset_zone(ZoneRnum nr_zone) {
 		// Чар должен быть в игре
 		if (d->state == EConState::kPlaying) {
 			if (world[d->character->in_room]->zone_rn == nr_zone) {
-				zone_table[nr_zone].used = true;
+				MarkZoneUsed(nr_zone);   // player present when zone reset -> wake + materialize fresh mobs
 				return;
 			}
 			for (auto *k : d->character->followers) {
 				if (IsCharmice(k) && world[k->in_room]->zone_rn == nr_zone) {
-					zone_table[nr_zone].used = true;
+					MarkZoneUsed(nr_zone);   // charmice present when zone reset -> wake + materialize
 					return;
 				}
 			}
@@ -3182,7 +3195,7 @@ void ZoneReset::ResetZoneEssential() {
 			if (!(sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim || sect == ESector::kOnlyFlying)) {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
-			while (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
+			while (room_spells::RoomHasPortal(world[rnum])) {
 				RemovePortalGate(rnum);
 			}
 			paste_on_reset(room);
@@ -3260,7 +3273,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 		return false;
 	}
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, room_spells::ERoomAffect::kRuneLabel)) {
 		return false;
 	}
 	if (debug) {

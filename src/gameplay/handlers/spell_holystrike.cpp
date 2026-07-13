@@ -13,7 +13,7 @@
 
 namespace handlers {
 
-EStageResult SpellHolystrike(CastContext &ctx) {
+EStageResult SpellHolystrike(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
@@ -42,7 +42,7 @@ EStageResult SpellHolystrike(CastContext &ctx) {
 		// returns kBreak, which skips the hold imposition for that just-dispelled minion. Damage
 		// always lands first, so the high-damage replacement for the old instant_death still
 		// bites kEviless minions on the way through.
-		CastContext hs_ctx(ch, ESpell::kHolystrike, GetRealLevel(ch), {});
+		ActionContext hs_ctx(ch, ESpell::kHolystrike, GetRealLevel(ch), {});
 		hs_ctx.cvict = tch;
 		CastDamage(hs_ctx);
 		if (CastUnaffects(hs_ctx) == EStageResult::kBreak) {

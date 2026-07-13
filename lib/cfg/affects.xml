@@ -6,93 +6,906 @@
     self-process instead of needing a marker-spell).
 -->
 <affects>
-	<affect id="kBlind"/>
-	<affect id="kInvisible"/>
-	<affect id="kDetectAlign"/>
-	<affect id="kDetectInvisible"/>
-	<affect id="kDetectMagic"/>
-	<affect id="kDetectLife"/>
-	<affect id="kWaterWalk"/>
-	<affect id="kSanctuary"/>
+	<affect id="kBlind" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kInvisible" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
+		<apply location="kAc">
+			<modifier min="40" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kDetectAlign" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon|kAfMaterialize"/>
+	</affect>
+	<affect id="kDetectInvisible" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
+	</affect>
+	<affect id="kDetectMagic" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon|kAfMaterialize"/>
+	</affect>
+	<affect id="kDetectLife" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
+	</affect>
+	<affect id="kWaterWalk" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSanctuary" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags missing="kIgnoreSanct"/>
+					</conditions>
+					<variation min="50" max="50" factor="-1"/>
+				</damage_change>
+			</action>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kMagicDmg"/>
+						<flags missing="kIgnoreSanct"/>
+					</conditions>
+					<variation min="100" max="100" factor="1"/>
+				</damage_change>
+			</action>
+		</actions>
+	</affect>
 	<affect id="kGroup"/>
-	<affect id="kCurse"/>
-	<affect id="kInfravision"/>
-	<affect id="kPoisoned"/>
-	<affect id="kProtectFromDark"/>
+	<affect id="kCurse" buff="N">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+		<apply location="kHitroll">
+			<modifier min="0" beta="0.1841" factor="-1" />
+		</apply>
+		<apply location="kInitiative">
+			<modifier min="5" beta="0" factor="-1" />
+		</apply>
+		<apply location="kCastSuccess">
+			<modifier min="22" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kInfravision" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
+	</affect>
+	<affect id="kPoisoned" buff="N">
+		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
+		<actions>
+			<!-- issue.damage-over-time: data-driven poison DoT (retires the PoisonDot manual_cast). kPulse =
+			     ticks in AND out of combat (RunCharAffectTick fires kPulse regardless of combat state).
+			     target=kTarFightSelf = the bearer (self-inflicted). <damage source="poison"> reproduces
+			     ProcessPoisonDmg's kPoison branch exactly: GET_POISON amount, kPoisonDmg, no-flee, poisoner
+			     as author. saving="kNone" - poison has no per-tick save (and a bare <damage> needs one). -->
+			<action target="kTarFightSelf">
+				<trigger val="kPulse"/>
+				<damage source="poison" saving="kNone"/>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kProtectFromDark" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<apply location="kResistDark">
+			<modifier min="5" beta="0" factor="1" />
+		</apply>
+	</affect>
 	<affect id="kProtectFromMind"/>
-	<affect id="kSleep"/>
+	<affect id="kSleep" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
 	<affect id="kNoTrack"/>
 	<affect id="kTethered"/>
-	<affect id="kBless"/>
+	<affect id="kBless" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
+		<apply location="kSavingStability">
+			<modifier min="0" beta="1.2889" factor="-1" />
+		</apply>
+		<apply location="kSavingWill">
+			<modifier min="0" beta="1.1508" factor="-1" />
+		</apply>
+	</affect>
 	<affect id="kSneak"/>
 	<affect id="kHide"/>
 	<affect id="kCourage"/>
 	<affect id="kCharmed"/>
-	<affect id="kHold"/>
-	<affect id="kFly"/>
-	<affect id="kSilence"/>
-	<affect id="kAwarness"/>
-	<affect id="kBlink"/>
+	<affect id="kHold" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kPhysDmg"/>
+					</conditions>
+					<variation min="50" max="50" factor="1"/>
+				</damage_change>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kFly" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSilence" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kAwarness" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon|kAfMaterialize"/>
+		<apply location="kSavingReflex">
+			<modifier min="0" beta="0.5524" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kBlink" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kSpelledBlinkPhys">
+			<modifier min="0" beta="3.2222" factor="1" />
+		</apply>
+	</affect>
 	<affect id="kHorse"/>
-	<affect id="kNoFlee"/>
+	<affect id="kNoFlee" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
 	<affect id="kSingleLight"/>
-	<affect id="kHolyLight"/>
-	<affect id="kHolyDark"/>
-	<affect id="kDetectPoison"/>
-	<affect id="kDrunked"/>
-	<affect id="kAbstinent"/>
-	<affect id="kStopRight"/>
-	<affect id="kStopLeft"/>
-	<affect id="kStopFight"/>
-	<affect id="kHaemorrhage"/>
+	<affect id="kHolyLight" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon"/>
+	</affect>
+	<affect id="kHolyDark" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon|kAfMaterialize"/>
+	</affect>
+	<affect id="kDetectPoison" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon|kAfMaterialize"/>
+	</affect>
+	<affect id="kDrunked">
+		<!-- issue.drunked-migration: applies (AC/HR/DR) stay dynamic in do_drink; here only the on-expire
+		     hangover. kDrunked has battleflag 0 -> expires only in the out-of-combat point-update, where
+		     kExpired fires. Duration scales with kHangovering (Gap A). NOTE: the kDrunkard-feat halving that
+		     condition::SetAbstinent used is intentionally dropped for now (Gap C, follow-up). -->
+		<actions>
+			<action target="kTarFightSelf">
+				<trigger val="kExpired"/>
+				<affects>
+					<duration base="2" skill_divisor="10" min="2" max="5" skill="kHangovering"/>
+					<affect id="kAbstinent"/>
+				</affects>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kAbstinent" buff="N">
+		<flags val="kAfCurable"/>
+		<!-- issue.drunked-migration: hangover applies (were hardcoded in condition::SetAbstinent). -->
+		<apply location="kAc">
+			<modifier min="20" beta="0" factor="1" />
+		</apply>
+		<apply location="kHitroll">
+			<modifier min="2" beta="0" factor="-1" />
+		</apply>
+		<apply location="kDamroll">
+			<modifier min="2" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kStopRight">
+		<flags val="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	</affect>
+	<affect id="kStopLeft">
+		<flags val="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	</affect>
+	<affect id="kStopFight">
+		<flags val="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	</affect>
+	<affect id="kHaemorrhage">
+		<flags val="kAfCurable"/>
+	</affect>
 	<affect id="kDisguise"/>
-	<affect id="kWaterBreath"/>
-	<affect id="kSlow"/>
-	<affect id="kHaste"/>
-	<affect id="kGodsShield"/>
-	<affect id="kAirShield"/>
-	<affect id="kFireShield"/>
-	<affect id="kIceShield"/>
-	<affect id="kMagicGlass"/>
+	<affect id="kWaterBreath" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSlow" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
+	<affect id="kHaste" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kInitiative">
+			<modifier min="0" beta="0.4143" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kGodsShield" buff="Y">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfFullAbsorb"/>
+		<apply location="kSavingStability">
+			<modifier min="10" beta="0" factor="-1" />
+		</apply>
+		<apply location="kSavingWill">
+			<modifier min="10" beta="0" factor="-1" />
+		</apply>
+		<apply location="kSavingReflex">
+			<modifier min="10" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kAirShield" buff="Y" dispel_mod="-35">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoPositionBonus|kAfMaterialize|kAfAegis"/>
+		<shield weight="10"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late">
+					<conditions>
+						<flags missing="kCritHit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefAirShield|kShieldApplied"/>
+				</damage_change>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kFireShield" buff="Y" dispel_mod="-35">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<shield weight="10"/>
+		<actions>
+			<!-- Retaliation: a physical hit (not ignoring the shield, not a crit) reflects 15% back
+			     (+5 NPC bearer, +5 boss). Reflected as kUndefDmg, attributed to the incoming attack.
+			     Fires only when fire is the shield chosen for this hit (handled in SelectMagicShield). -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<retaliation>
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags missing="kIgnoreFireShield|kCritHit"/>
+					</conditions>
+					<percent min="15" max="15" npc_bonus="5" boss_bonus="5"/>
+					<element type="kUndefDmg"/>
+				</retaliation>
+			</action>
+			<!-- Reduction, reflect case (phys, !ignore): silent; the reflected hit is the visible effect.
+			     Ordered before the general reduction so kShieldApplied gates the "weakened" message out. -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late" msg="none">
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags missing="kIgnoreFireShield|kCritHit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefFireShield|kShieldApplied"/>
+				</damage_change>
+			</action>
+			<!-- Reduction, non-reflect case (non-phys, or physical it can't reflect): shows "weakened". -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late">
+					<conditions>
+						<flags missing="kCritHit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefFireShield|kShieldApplied"/>
+				</damage_change>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kIceShield" buff="Y" dispel_mod="-35">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize|kAfAegis"/>
+		<shield weight="10"/>
+		<actions>
+			<!-- Crit-absorb: a crit (not precise-style, not poison) has a 94% chance to be neutralized:
+			     reduce 30-50% AND clear kCritHit (converts it to a glancing hit). Its own "crit" flavor. -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late" prob="94" msg="crit">
+					<conditions>
+						<type val="kPhysDmg|kMagicDmg|kPureDmg|kUndefDmg"/>
+						<flags present="kCritHit" missing="kPunctualCrit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags remove="kCritHit" add="kShieldApplied"/>
+				</damage_change>
+			</action>
+			<!-- Normal: soften a non-crit hit 30-50%. -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late">
+					<conditions>
+						<flags missing="kCritHit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefIceShield|kShieldApplied"/>
+				</damage_change>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kMagicGlass" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<actions>
+			<action>
+				<trigger val="kWardAttack"/>
+				<reflection min="10" max="20"/>
+			</action>
+			<action>
+				<trigger val="kWardDamage"/>
+				<retaliation>
+					<conditions>
+						<type val="kMagicDmg"/>
+					</conditions>
+					<percent min="6" max="6" npc_bonus="2" boss_bonus="2"/>
+					<element type="kUndefDmg"/>
+					<flags add="kDrawBriefMagMirror"/>
+				</retaliation>
+			</action>
+		</actions>
+	</affect>
 	<affect id="kStairs"/>
-	<affect id="kStoneHands"/>
-	<affect id="kPrismaticAura"/>
+	<affect id="kStoneHands" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfWarding"/>
+	</affect>
+	<affect id="kPrismaticAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize|kAfAegis"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags missing="kIgnorePrism"/>
+					</conditions>
+					<variation min="100" max="100" factor="1"/>
+				</damage_change>
+			</action>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kMagicDmg"/>
+						<flags missing="kIgnorePrism"/>
+					</conditions>
+					<variation min="50" max="50" factor="-1"/>
+				</damage_change>
+			</action>
+		</actions>
+	</affect>
 	<affect id="kHelper"/>
-	<affect id="kForcesOfEvil"/>
-	<affect id="kAirAura"/>
-	<affect id="kFireAura"/>
-	<affect id="kIceAura"/>
-	<affect id="kDeafness"/>
-	<affect id="kCrying"/>
-	<affect id="kPeaceful"/>
-	<affect id="kMagicStopFight"/>
+	<affect id="kForcesOfEvil" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod"/>
+		<apply location="kDamroll">
+			<modifier min="19" beta="0" factor="1" />
+		</apply>
+		<apply location="kHitroll">
+			<modifier min="11" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kAirAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<apply location="kResistAir">
+			<modifier min="1" beta="4.1428" factor="1" cap="30" />
+		</apply>
+	</affect>
+	<affect id="kFireAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<apply location="kResistWater">
+			<modifier min="1" beta="4.1428" factor="1" cap="30" />
+		</apply>
+	</affect>
+	<affect id="kIceAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<apply location="kResistFire">
+			<modifier min="1" beta="4.1428" factor="1" cap="30" />
+		</apply>
+	</affect>
+	<affect id="kDeafness" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kCrying" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+		<apply location="kHp">
+			<modifier min="0" beta="0.4603" factor="-1" />
+		</apply>
+		<apply location="kLikes">
+			<modifier min="3" beta="0.023" factor="-1" />
+		</apply>
+		<apply location="kCastSuccess">
+			<modifier min="3" beta="0.0092" factor="-1" />
+		</apply>
+		<apply location="kMorale">
+			<modifier min="2" beta="0.0046" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kPeaceful" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kMagicStopFight" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
+	</affect>
 	<affect id="kBerserk"/>
 	<affect id="kLightWalk"/>
-	<affect id="kBrokenChains"/>
-	<affect id="kCloudOfArrows"/>
-	<affect id="kShadowCloak"/>
-	<affect id="kGlitterDust"/>
-	<affect id="kAffright"/>
-	<affect id="kScopolaPoison"/>
-	<affect id="kDaturaPoison"/>
-	<affect id="kSkillReduce"/>
-	<affect id="kNoBattleSwitch"/>
-	<affect id="kBelenaPoison"/>
-	<affect id="kNoTeleport"/>
+	<affect id="kBrokenChains" buff="Y" dispel_mod="-35">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
+	</affect>
+	<affect id="kCloudOfArrows" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kHitroll">
+			<modifier min="5" beta="0" factor="1" />
+		</apply>
+		<actions>
+			<action target="kTarFightVict">
+				<trigger val="kPreHit"/>
+				<side_spell id="kCloudOfArrowsBolt"/>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kShadowCloak" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfAegis"/>
+		<apply location="kSavingStability">
+			<modifier min="0" beta="0.7365" factor="-1" />
+		</apply>
+		<apply location="kMagicResist">
+			<modifier min="21" beta="0" factor="1" />
+		</apply>
+		<actions>
+			<action>
+				<trigger val="kWardAttack"/>
+				<absorption scope="damage" chance="kMagicResist"/>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kGlitterDust" buff="N">
+		<apply location="kSavingReflex">
+			<modifier min="0" beta="2.0254" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kAffright" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+		<apply location="kSavingWill">
+			<modifier min="0" beta="3.3603" factor="1" />
+		</apply>
+		<apply location="kMorale">
+			<modifier min="0" beta="1.2889" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kScopolaPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kDaturaPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kSkillReduce" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kNoBattleSwitch" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kBelenaPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<!-- issue.damage-over-time: the aconite DoT is NOT here - aconite contributes to GET_POISON (see
+	     PoisonVictWithWeapon af[0], a kPoisoned affect), so the single kPoisoned <damage source="poison">
+	     tick deals it. This affect is aconite's identity ("отравление аконитом") + its magic-resist debuff
+	     (the af[2] cluster member); no tick action of its own. -->
+	<affect id="kAconitumPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kCapable"/>
+	<affect id="kNoTeleport" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
 	<affect id="kCombatLuck"/>
-	<affect id="kBandage"/>
-	<affect id="kCannotBeBandaged"/>
+	<affect id="kBandage">
+		<flags val="kAfPulsedec"/>
+	</affect>
+	<affect id="kCannotBeBandaged">
+		<flags val="kAfPulsedec"/>
+	</affect>
 	<affect id="kMorphing"/>
 	<affect id="kStrangled"/>
-	<affect id="kMemorizeSpells"/>
+	<affect id="kMemorizeSpells">
+		<flags val="kAfDeadkeep|kAfPulsedec"/>
+	</affect>
 	<affect id="kNoobRegen"/>
-	<affect id="kVampirism"/>
-	<affect id="kLacerations"/>
+	<affect id="kVampirism" buff="Y">
+		<flags val="kAfUpdateDuration|kAfDispellable"/>
+		<actions>
+			<action target="kTarFightSelf" base="tag" tag="amount">
+				<trigger val="kPostHit"/>
+				<points extra="100">
+					<heal npc_coeff="0" min="1" beta="0.1" weight="0" />
+				</points>
+			</action>
+			<!-- issue.vampirism-haste: on a KILL the bearer gets a SHORT battle-haste (kAfBattledec =>
+			     duration is combat rounds, not the spell's hours). -->
+			<action target="kTarFightSelf">
+				<trigger val="kKill"/>
+				<affects battleflag="kAfBattledec">
+					<duration base="6" skill_divisor="0" min="0" max="0"/>
+					<affect id="kHaste"/>
+				</affects>
+			</action>
+		</actions>
+	</affect>
+	<affect id="kLacerations">
+		<flags val="kAfBattledec|kAfCurable"/>
+	</affect>
 	<affect id="kCommander"/>
-	<affect id="kEarthAura"/>
-	<affect id="kCloudly"/>
-	<affect id="kConfused"/>
+	<affect id="kEarthAura" buff="Y" dispel_mod="-35">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>
+		<apply location="kResistEarth">
+			<modifier min="1" beta="4.1428" factor="1" cap="30" />
+		</apply>
+	</affect>
+	<affect id="kCloudly" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kSpelledBlinkMag">
+			<modifier min="10" beta="0" factor="1" />
+		</apply>
+		<apply location="kAc">
+			<modifier min="20" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kConfused">
+		<flags val="kAfSameTime"/>
+	</affect>
 	<affect id="kNoCharge"/>
-	<affect id="kInjured"/>
-	<affect id="kFrenzy"/>
+	<affect id="kInjuredLimb">
+		<flags val="kAfBattledec"/>
+	</affect>
+	<affect id="kFrenzy">
+		<flags val="kAfPulsedec"/>
+	</affect>
+	<affect id="kMagicArmor" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kAc">
+			<modifier min="20" beta="0" factor="-1" />
+		</apply>
+		<apply location="kSavingReflex">
+			<modifier min="5" beta="0" factor="-1" />
+		</apply>
+		<apply location="kSavingStability">
+			<modifier min="5" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kShivering" buff="N">
+		<flags val="kAfBattledec|kAfAccumulateDuration|kAfDispellable|kAfCurable"/>
+		<apply location="kStr">
+			<modifier min="0" beta="0.6444" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kDespodency" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+		<apply location="kStr">
+			<modifier min="1.5" beta="0.3" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kMagicStrength" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kStr">
+			<modifier min="5" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kPatronage" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfMaterialize"/>
+		<apply location="kHp">
+			<modifier min="72" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kStoneSkin" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kAbsorbe">
+			<modifier min="20" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kMagicWeaknes" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+		<apply location="kStr">
+			<modifier min="0" beta="1.6111" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kEnlarge">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable|kAfBoon"/>
+		<apply location="kSize">
+			<modifier min="0" beta="3.4984" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kMagicShield" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize|kAfWarding"/>
+		<apply location="kAc">
+			<modifier min="50" beta="0" factor="-1" />
+		</apply>
+		<apply location="kSavingReflex">
+			<modifier min="6" beta="0" factor="-1" />
+		</apply>
+		<apply location="kSavingStability">
+			<modifier min="6" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kForbidden" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<apply location="kNone">
+			<modifier min="0" beta="0.4603" factor="1" cap="100" />
+		</apply>
+	</affect>
+	<affect id="kFrostbite" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+		<apply location="kDex">
+			<modifier min="4" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kSlowdown" buff="N">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+		<apply location="kInitiative">
+			<modifier min="0" beta="0.4143" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kFever" buff="N">
+		<flags val="kAfCurable"/>
+		<apply location="kHpRegen">
+			<modifier min="95" beta="0" factor="-1" />
+		</apply>
+		<apply location="kManaRegen">
+			<modifier min="95" beta="0" factor="-1" />
+		</apply>
+		<apply location="kMoveRegen">
+			<modifier min="95" beta="0" factor="-1" />
+		</apply>
+		<apply location="kPlague">
+			<modifier min="30" beta="0" factor="1" />
+		</apply>
+		<apply location="kWis">
+			<modifier min="0" beta="0.2762" factor="-1" />
+		</apply>
+		<apply location="kInt">
+			<modifier min="0" beta="0.2762" factor="-1" />
+		</apply>
+		<apply location="kDex">
+			<modifier min="0" beta="0.2762" factor="-1" />
+		</apply>
+		<apply location="kStr">
+			<modifier min="0" beta="0.2762" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kFastRegeneration" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfBoon|kAfMaterialize"/>
+		<apply location="kHpRegen">
+			<modifier min="0" beta="9.1142" factor="1" />
+		</apply>
+		<apply location="kMoveRegen">
+			<modifier min="0" beta="9.1142" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kLessening">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable|kAfBoon"/>
+		<apply location="kSize">
+			<modifier min="15" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kMadness" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+		<apply location="kMadness">
+			<modifier min="30" beta="0" factor="1" />
+		</apply>
+		<apply location="kBind">
+			<modifier min="1" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kMindless" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+		<apply location="kManaRegen">
+			<modifier min="50" beta="0" factor="-1" />
+		</apply>
+		<apply location="kCastSuccess">
+			<modifier min="50" beta="0" factor="-1" />
+		</apply>
+		<apply location="kHitroll">
+			<modifier min="5" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kFascination" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kCha">
+			<modifier min="3" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kContusion">
+		<flags val="kAfDeadkeep"/>
+	</affect>
+	<affect id="kStoneBones" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kArmour">
+			<modifier min="0" beta="6.7666" factor="1" />
+		</apply>
+		<apply location="kSavingStability">
+			<modifier min="0" beta="6.7666" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kFailure" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+		<apply location="kMorale">
+			<modifier min="1" beta="0.7365" factor="-1" />
+		</apply>
+		<apply location="kStr" random="Y">
+			<modifier min="0" beta="0.0506" factor="-1" />
+		</apply>
+		<apply location="kDex" random="Y">
+			<modifier min="0" beta="0.0506" factor="-1" />
+		</apply>
+		<apply location="kInt" random="Y">
+			<modifier min="0" beta="0.0506" factor="-1" />
+		</apply>
+		<apply location="kWis" random="Y">
+			<modifier min="0" beta="0.0506" factor="-1" />
+		</apply>
+		<apply location="kCon" random="Y">
+			<modifier min="0" beta="0.0506" factor="-1" />
+		</apply>
+		<apply location="kCha" random="Y">
+			<modifier min="0" beta="0.0506" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kCatGrace" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kDex">
+			<modifier min="3" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kBullBody" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kCon">
+			<modifier min="3" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kSnakeWisdom" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kWis">
+			<modifier min="2" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kGimmicry" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kInt">
+			<modifier min="2" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kIndecision" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+		<apply location="kMorale">
+			<modifier min="8" beta="0" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kInsanity" buff="N">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+		<apply location="kInt" random="Y">
+			<modifier min="4.5" beta="0.0729995" factor="-1" />
+		</apply>
+		<apply location="kCastSuccess" random="Y">
+			<modifier min="15" beta="1.0952" factor="-1" />
+		</apply>
+		<apply location="kManaRegen" random="Y">
+			<modifier min="15" beta="1.0952" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kRousing" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kSavingCritical">
+			<modifier min="0" beta="2.0254" factor="-1" />
+		</apply>
+		<apply location="kSavingReflex">
+			<modifier min="0" beta="2.0254" factor="-1" />
+		</apply>
+		<apply location="kSavingStability">
+			<modifier min="0" beta="2.0254" factor="-1" />
+		</apply>
+		<apply location="kSavingWill">
+			<modifier min="0" beta="2.0254" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kPassion" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kAc">
+			<modifier min="0" beta="4.419" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kSurgeOfPower" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kHp">
+			<modifier min="100" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kSurgeOfValour" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kSavingStability">
+			<modifier min="0" beta="1.1508" factor="-1" />
+		</apply>
+		<apply location="kSavingWill">
+			<modifier min="0" beta="1.1508" factor="-1" />
+		</apply>
+	</affect>
+	<affect id="kBattleCourage" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kHitroll">
+			<modifier min="0" beta="0.5524" factor="1" />
+		</apply>
+		<apply location="kDamroll">
+			<modifier min="0" beta="0.8746" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kInspiration" buff="Y">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable"/>
+		<apply location="kPhysicDamagePercent" random="Y">
+			<modifier min="0" beta="0.9206" factor="1" />
+		</apply>
+		<apply location="kCastSuccess" random="Y">
+			<modifier min="0" beta="0.9206" factor="1" />
+		</apply>
+		<apply location="kManaRegen" random="Y">
+			<modifier min="0" beta="3.2222" factor="1" />
+		</apply>
+		<apply location="kMagicDamagePercent" random="Y">
+			<modifier min="0" beta="0.9206" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kConcentration" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kExpPercent">
+			<modifier min="0" beta="1.0127" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kBattleLuck" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kMorale">
+			<modifier min="0" beta="1.0127" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kPhysdamageBonus" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
+		<apply location="kPhysicDamagePercent">
+			<modifier min="0" beta="1.0127" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kSuspiciousness"/>
+	<affect id="kSevereWound"/>
+	<affect id="kWellFed"/>
+	<affect id="kPrayerful"/>
+	<affect id="kPietas"/>
+	<affect id="kEvade">
+		<flags val="kAfBattledec|kAfPulsedec"/>
+	</affect>
+	<affect id="kWitchery">
+		<flags val="kAfDispellable"/>
+	</affect>
+	<affect id="kWebbed" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+		<apply location="kHitroll">
+			<modifier min="0" beta="0.5524" factor="-1" />
+		</apply>
+		<apply location="kAc">
+			<modifier min="20" beta="0" factor="1" />
+		</apply>
+		<apply location="kBind">
+			<modifier min="1" beta="0" factor="1" />
+		</apply>
+	</affect>
+	<affect id="kInsidiousWound" buff="N">
+		<flags val="kAfDeadkeep"/>
+	</affect>
+	<!-- issue.damage-over-time: a fully data-driven fire damage-over-time debuff (imposed by kFireBlast).
+	     kAfSameTime makes it a combat DoT: battle_affect_update runs its <actions> once per combat round
+	     via RunCharAffectTick. The kBattlePulse action deals a self-<damage> tick (default target kTarSame
+	     = the bearer) scaled by the affect's stored potency: with a tick's fixed-potency roll competence
+	     is 0, so per-tick damage = amount.min + ceil(stored_potency * dices_weight). No C++ handler and no
+	     stat <apply> - the damage lives entirely in data. kAfDispellable so it can be removed by dispel. -->
+	<affect id="kBurning" buff="N">
+		<flags val="kAfSameTime|kAfDispellable"/>
+		<actions>
+			<!-- target="kTarFightSelf" = the bearer: a lone tick action defaults to kTarSame, which resolves
+			     to the PREVIOUS action's targets (empty here) -> no victim -> no damage. kTarFightSelf
+			     returns {caster}=the bearer, so the DoT damages the burning char. -->
+			<!-- kPulse (not kBattlePulse) so the burn ticks BOTH in combat (battle_affect_update) and out of
+			     combat (player_/mobile_affect_update) - e.g. a fire-trap dispel sting on a char who is not
+			     fighting. RunCharAffectTick fires kPulse regardless of combat state. -->
+			<action target="kTarFightSelf">
+				<trigger val="kPulse"/>
+				<!-- issue.damage-over-time: per-tick damage = amount.min + ceil(stored_potency * dices_weight).
+				     dices_weight is the DAMAGE scale; it is independent of the dispel strength (the stored
+				     potency itself, set by kFireBlast's <affects potency_weight>). Raise dices_weight for a
+				     harder-hitting burn without making it any harder to dispel. -->
+				<damage saving="kNone">
+					<amount min="0" beta="0.6" weight="0" />
+				</damage>
+			</action>
+		</actions>
+	</affect>
 </affects>

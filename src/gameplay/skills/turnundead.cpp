@@ -73,21 +73,27 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",
 				false, target, nullptr, ch, kToNotVict | kToArenaListen);
 			Affect<EApply> af1;
-			af1.type = ESpell::kCourage;
 			af1.duration = CalcDuration(target, target, ESkill::kUndefined, 3, 0, 0, 0);
 			af1.modifier = std::max(1, roll.GetSuccessDegree() * 2);
 			af1.location = EApply::kDamroll;
-			af1.affect_type = EAffect::kNoFlee;
+			af1.affect_type = EAffect::kFrenzy;
 			af1.battleflag = 0;
 			Affect<EApply> af2;
-			af2.type = ESpell::kCourage;
 			af2.duration = CalcDuration(target, target, ESkill::kUndefined, 3, 0, 0, 0);
 			af2.modifier = std::max(1, 25 + roll.GetSuccessDegree() * 5);
 			af2.location = EApply::kHpRegen;
-			af2.affect_type = EAffect::kNoFlee;
+			af2.affect_type = EAffect::kFrenzy;
 			af2.battleflag = 0;
+			// issue.affects-improve: the enraged undead cannot flee (EApply::kBind), replacing the kNoFlee affect.
+			Affect<EApply> af3;
+			af3.duration = CalcDuration(target, target, ESkill::kUndefined, 3, 0, 0, 0);
+			af3.modifier = 1;
+			af3.location = EApply::kBind;
+			af3.affect_type = EAffect::kFrenzy;
+			af3.battleflag = 0;
 			ImposeAffect(target, af1, true, false, true, false);
 			ImposeAffect(target, af2, true, false, true, false);
+			ImposeAffect(target, af3, true, false, true, false);
 		};
 		damage.flags.set(fight::kIgnoreBlink);
 		damage.Process(ch, target);

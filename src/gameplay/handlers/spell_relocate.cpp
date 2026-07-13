@@ -16,7 +16,7 @@
 
 namespace handlers {
 
-EStageResult SpellRelocate(CastContext &ctx) {
+EStageResult SpellRelocate(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum to_room, fnd_room;

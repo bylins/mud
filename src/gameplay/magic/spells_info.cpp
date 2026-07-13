@@ -88,6 +88,7 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 	ParseMana(info, node);
 	ParseTargets(info, node);
 	ParseFlags(info, node);
+	ParseTags(info, node);
 	if (node.GoToChild("potency_roll")) {
 		info->potency_roll_ = talents_actions::Roll(node);
 		node.GoToParent();
@@ -241,6 +242,18 @@ void SpellInfoBuilder::ParseFlags(ItemPtr &info, DataNode &node) {
 		} catch (std::exception &e) {
 			err_log("Incorrect 'flags' section (spell: %s, value: %s).",
 					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+		}
+		node.GoToParent();
+	}
+}
+
+// issue.perk-action-patching (Phase 3): <tags val="curse|shield"/> -> the spell's semantic category set.
+void SpellInfoBuilder::ParseTags(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("tags")) {
+		if (const char *v = node.GetValue("val"); v && *v) {
+			for (const auto &t : utils::Split(v, '|')) {
+				if (!t.empty()) { info->tags_.insert(t); }
+			}
 		}
 		node.GoToParent();
 	}

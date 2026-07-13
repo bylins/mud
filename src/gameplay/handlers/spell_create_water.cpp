@@ -15,7 +15,7 @@
 
 namespace handlers {
 
-EStageResult SpellCreateWater(CastContext &ctx) {
+EStageResult SpellCreateWater(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;

@@ -1958,7 +1958,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							oedit_disp_val4_menu(d);
 							return;
 						}
-						number = MUD::Spell(potion_spell).GetPotencyRoll().RollSkillDices();
+						number = 0;  // issue.potency-noise: dice retired (potency is deterministic skill+stat)
 						SendMsgToChar(d->character.get(), "Брошена сила: %d.\r\n", number);
 					}
 					min_val = 0;

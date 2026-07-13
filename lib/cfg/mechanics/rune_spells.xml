@@ -10,8 +10,8 @@
     a fixed 4-slot ceiling, the new schema accepts arbitrary length.
     level= is clamped to [1, 34] at load time (the legacy invariant).
 
-    Commented <!-- <spell .../> --> entries preserve lines that started with
-    ";" in runes.lst -- the data is kept for archaeology / future re-enabling.
+    Commented-out <spell .../> entries preserve lines that started with
+    ";" in runes.lst - the data is kept for archaeology / future re-enabling.
 
     Reload at runtime via `reload runes` (issue.runes-migrate retired the legacy
     `reload rune_levels` path through the standard cfg_manager).
@@ -61,7 +61,7 @@
     <spell id="kLightingBolt" level="12" runes="245|224"/>
     <spell id="kAcid" level="16" runes="234|223|235"/>
     <spell id="kMadness" level="27" runes="216|240|203"/>
-    <!-- <spell id="kNoflee" level="19" runes="214|201"/> -->
+    <!-- <spell id="kEntangleEnemy" level="19" runes="214|201"/> -->
     <spell id="kWeb" level="12" runes="210|201"/>
     <spell id="kWorldOfRecall" level="19" runes="229|243|221"/>
     <spell id="kFireBlast" level="19" runes="224|243|208"/>
@@ -147,4 +147,6 @@
     <spell id="kGeneralRecovery" level="27" runes="217|209|210|242"/>
     <spell id="kClod" level="27" runes="240|222|242"/>
     <spell id="kWhirlwind" level="27" runes="240|245|242"/>
+    <spell id="kAegisRift" level="18" runes="220|208|242|223"/>
+    <spell id="kUnweave" level="12" runes="206|245|229"/>
 </rune_spells>

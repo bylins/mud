@@ -14,7 +14,7 @@
 
 namespace handlers {
 
-EStageResult AlterAcid(CastContext &ctx) {
+EStageResult AlterAcid(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;

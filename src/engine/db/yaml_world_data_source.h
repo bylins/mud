@@ -150,7 +150,8 @@ private:
 
 	// Helper methods for save operations
 	std::string ConvertToUtf8(const std::string &koi8r_str) const;
-	std::vector<std::string> ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const;
+	template<class FlagsT>
+	std::vector<std::string> ConvertFlagsToNames(const FlagsT &flags, const std::string &dict_name) const;
 	std::string ReverseLookupEnum(const std::string &dict_name, int value) const;
 	bool WriteYamlAtomic(const std::string &filepath, const YAML::Node &node) const;
 

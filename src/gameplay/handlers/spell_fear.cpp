@@ -13,7 +13,7 @@
 
 namespace handlers {
 
-EStageResult SpellFear(CastContext &ctx) {
+EStageResult SpellFear(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	int modi = 0;

@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/identify.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 
 #include "gameplay/mechanics/magic_item.h"
@@ -21,6 +22,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/initiative.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/core/remort.h"
@@ -545,12 +547,12 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 				-CalcSaving(victim, victim, ESaving::kReflex, false));
 	}
 	if (skill > 249) {
-		// Разделитель ", " (не " "!): имена аффектов сами содержат пробелы
-		// ("воздушный щит"), и при " " их рвал бы OutWordsList по пробелам.
-		// Split по запятой собирает их обратно целиком (имена с пробелами сохраняются).
-		victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
-		std::vector<std::string> aff_list = utils::Split(buf2, ',');
-		// "Аффекты: " префиксом: учитывается в ширине строки, но без лишней запятой после метки.
+		// issue.affect-migration: affect short names come from affects::DescribeActive (the affected_bits[]
+		// projection was removed). Join with "," then Split back into a list so master's OutWordsList wraps
+		// to line width WITHOUT splitting multi-word names ("воздушный щит") -- the separator is a comma,
+		// which never appears inside an affect name (the names contain spaces, not commas).
+		std::vector<std::string> aff_list =
+				utils::Split(affects::DescribeActive(victim->char_specials.saved.affected_by, ","), ',');
 		ss << fmt::format("&G{}&n\r\n",
 				utils::OutWordsList(aff_list, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
 	}
@@ -652,7 +654,7 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 
 	SendMsgToChar("Аффекты :\r\n", ch);
 	SendMsgToChar(kColorBoldCyn, ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), "\r\n", privilege::IsImmortal(ch) ? 4 : 0);
+	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(victim->char_specials.saved.affected_by, "\r\n").c_str());
 	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);

@@ -60,6 +60,14 @@ class MsgSheaf : public info_container::BaseItem<IdEnum> {
 		return it != messages_.end() && !it->second.empty();
 	}
 
+	// issue.affect-migration: all variants of a type (for callers that pick by a predicate,
+	// e.g. the armed/unarmed $o rule). Empty vector if none.
+	[[nodiscard]] const std::vector<std::string> &GetMessages(MsgType type) const {
+		static const std::vector<std::string> kEmpty;
+		const auto it = messages_.find(type);
+		return (it == messages_.end()) ? kEmpty : it->second;
+	}
+
 	// issue.thing-names: the entity's localised display name, parsed from the <name val="..."/> child
 	// of the sheaf. Empty when the entity has no name in this string file. (Spells have a single name;
 	// cased entities will later extend <name> with <case> children -- a sparse case map.)
@@ -111,7 +119,10 @@ class MsgSheafBuilder : public info_container::IItemBuilder<MsgSheaf<IdEnum, Msg
 		} else {
 			IdEnum id;
 			try {
-				id = parse::ReadAsConstant<IdEnum>(id_str);
+				// "kDefault" => the kUndefined default sheaf (mirrors the vnum branch + the
+				// container's default_id fallback), for enums that lack a kDefault alias (e.g. ERoomAffect).
+				id = (id_str && std::string(id_str) == "kDefault")
+						 ? IdEnum::kUndefined : parse::ReadAsConstant<IdEnum>(id_str);
 			} catch (const std::exception &) {
 				err_log("MsgSheafBuilder: msg_sheaf has unknown or missing 'id' attribute ('%s').", id_str);
 				return nullptr;

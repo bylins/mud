@@ -14,7 +14,7 @@
 
 namespace handlers {
 
-EStageResult AlterTimerRestore(CastContext &ctx) {
+EStageResult AlterTimerRestore(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	ObjData *obj = ctx.ovict;
 	if (obj->get_rnum() != kNothing) {

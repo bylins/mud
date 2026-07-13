@@ -8,6 +8,7 @@
 ***************************************************************************/
 
 #include "engine/db/world_characters.h"
+#include "gameplay/affects/affect_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
@@ -1047,9 +1048,19 @@ void medit_disp_npc_flags(DescriptorData *d) {
 
 // * Display affection flags menu.
 void medit_disp_aff_flags(DescriptorData *d) {
-	disp_planes_values(d, affected_bits, 2);
-	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
+	const auto &order = affects::MenuOrder();
+	int col = 0;
+	for (size_t i = 0; i < order.size(); ++i) {
+		snprintf(buf1, sizeof(buf1), "%s%3zu%s) %-25.25s", grn, i + 1, nrm,
+				affects::AffectMsg(order[i], affects::EAffectMsgType::kShortDesc).c_str());
+		SendMsgToChar(buf1, d->character.get());
+		if (++col % 2 == 0) {
+			SendMsgToChar("\r\n", d->character.get());
+		}
+	}
+	const std::string cur = affects::DescribeActive(OLC_MOB(d)->char_specials.saved.affected_by, ", ");
+	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flag number (0 to quit) : ",
+			cyn, cur.c_str(), nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
@@ -1107,7 +1118,7 @@ void medit_disp_menu(DescriptorData *d) {
 	SendMsgToChar(buf, d->character.get());
 
 	mob->char_specials.saved.act.sprintbits(action_bits, buf1, sizeof(buf1), ",", 4);
-	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), ",", 4);
+	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(mob->char_specials.saved.affected_by, ",").c_str());
 	snprintf(buf, kMaxStringLength,
 			 "%sP%s) Положение     : %s%s\r\n"
 			 "%sR%s) По умолчанию  : %s%s\r\n"
@@ -1842,14 +1853,15 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-		case MEDIT_AFF_FLAGS: number = planebit(arg, &plane, &bit);
-			if (number < 0) {
-				medit_disp_aff_flags(d);
-				return;
-			} else if (number == 0) {
+		case MEDIT_AFF_FLAGS:
+			if (!*arg || !str_cmp(arg, "0")) {
 				break;
 			} else {
-				OLC_MOB(d)->char_specials.saved.affected_by.toggle_flag(plane, 1 << bit);
+				const auto &order = affects::MenuOrder();
+				number = atoi(arg);
+				if (number >= 1 && number <= static_cast<int>(order.size())) {
+					OLC_MOB(d)->char_specials.saved.affected_by.toggle(order[number - 1]);
+				}
 				medit_disp_aff_flags(d);
 				return;
 			}
