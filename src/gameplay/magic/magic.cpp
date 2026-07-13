@@ -25,6 +25,7 @@
 #include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
+#include "gameplay/mechanics/animate_dead.h"
 
 #include <functional>
 #include <map>
@@ -1487,35 +1488,6 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 // bypass every guard except the horse check (which is universal).
 
 
-// For the top-tier kAnimateDead spawns (kMobNecrodamager..kLastNecroMob): bump max HP by 10% per
-// remort, then crank up damnodice until the mob's reformed-charm value matches the caster's
-// charm-points budget (or hits the 255 cap, which means damsize is too small for this caster).
-static void BoostNecroDamage(CharData *ch, CharData *mob, ESpell spell_id) {
-	// add 10% mob health by remort
-	mob->set_max_hit(mob->get_max_hit() * (1.0 + remort::GetRealRemort(ch) / 10.0));
-	mob->set_hit(mob->get_max_hit());
-	int player_charms_value = CalcCharmPoint(ch, spell_id);
-	int mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
-	int damnodice = 1;
-	mob->mob_specials.damnodice = damnodice;
-	// look for count dice to maximize damage on player_charms_value. max 255.
-	while (player_charms_value > mob_cahrms_value && damnodice <= 255) {
-		damnodice++;
-		mob->mob_specials.damnodice = damnodice;
-		mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
-	}
-	damnodice--;
-
-	mob->mob_specials.damnodice = damnodice; // get prew damnodice for match with player_charms_value
-	if (damnodice == 255) {
-		// if damnodice == 255 mob damage not maximized. damsize too small
-		SendMsgToRoom("Темные искры пробежали по земле... И исчезли...", ch->in_room, 0);
-	} else {
-		// mob damage maximazed.
-		SendMsgToRoom("Темные искры пробежали по земле. Кажется сама СМЕРТЬ наполняет это тело силой!",
-					  ch->in_room, 0);
-	}
-}
 
 // Copy caster cosmetics + stats onto the kClone double: PNames in all six cases, every stat, the
 // hp/ac/dr/hr/class/build, position, gender, flags.
@@ -1731,8 +1703,10 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	if (IsSummonTargetProtected(ch, mob, spell_id)) {
 		return EStageResult::kSuccess;
 	}
-	if (!resurrection && mob_num >= kMobNecrodamager && mob_num <= kLastNecroMob) {
-		BoostNecroDamage(ch, mob, spell_id);
+	if (!resurrection) {
+		// issue.animate-dead: scale HP/damage off cast potency C for ALL tiers
+		// (was BoostNecroDamage: top-tier-only, remort HP + charm-budget damage back-solve).
+		animate_dead::SetupUndeadStats(ch, mob, ctx.CompetenceBase());
 	}
 	if (!CheckCharmices(ch, mob, spell_id)) {
 		ExtractCharFromWorld(mob, false);

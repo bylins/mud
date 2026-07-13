@@ -417,6 +417,7 @@ main_sources = files(
   'src/gameplay/communication/boards/boards.cpp',
   'src/gameplay/communication/boards/boards_formatters.cpp',
   'src/gameplay/communication/boards/boards_types.cpp',
+  'src/gameplay/mechanics/animate_dead.cpp',
   'src/gameplay/mechanics/bonus.cpp',
   'src/gameplay/mechanics/bonus_command_parser.cpp',
   'src/engine/boot/boot_constants.cpp',

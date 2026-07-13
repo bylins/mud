@@ -1285,6 +1285,10 @@
 		<mana max="50" min="35" change="3" />
 		<targets val="kTarObjRoom" />
 		<flags val="kMagManual" />
+		<potency_roll>
+			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="4" />
+			<base_stat id="kWis" threshold="14" weight="4" />
+		</potency_roll>
 		<talent_actions>
 			<action>
 				<manual_cast handler="SpellAnimateDead" />
