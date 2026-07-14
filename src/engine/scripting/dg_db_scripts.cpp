@@ -23,7 +23,10 @@
 #include "gameplay/magic/magic_temp_spells.h"
 #include "engine/db/global_objects.h"
 #include "trigger_indenter.h"
+#include "utils/utils_string.h"
 
+#include <algorithm>
+#include <cstring>
 #include <stack>
 
 //External functions
@@ -35,6 +38,95 @@ trigger_to_owners_map_t owner_trig;
 extern int top_of_trigt;
 
 extern IndexData *mob_index;
+
+namespace {
+
+// Разбирает строку триггера вида "<load|oload|mload|wload|%load%> obj <внум>".
+// Вызывается для каждой строки каждого триггера при загрузке мира, поэтому
+// разбор посимвольный, без regex.
+bool ParseObjLoadCommand(const std::string &command, ObjVnum &obj_vnum) {
+	static const char *const kLoadCommands[] = {"%load%", "oload", "mload", "wload", "load"};
+
+	auto is_space = [](const char c) { return c == ' ' || c == '\t'; };
+	auto skip_spaces = [&is_space](const char *&pos) {
+		while (is_space(*pos)) {
+			++pos;
+		}
+	};
+
+	const char *pos = command.c_str();
+	skip_spaces(pos);
+
+	const char *args = nullptr;
+	for (const auto *load_command : kLoadCommands) {
+		const auto len = std::strlen(load_command);
+		if (!strn_cmp(pos, load_command, len) && is_space(pos[len])) {
+			args = pos + len;
+			break;
+		}
+	}
+	if (!args) {
+		return false;
+	}
+
+	// Первый аргумент разбираем так же, как рантайм в do_dgoload()/do_mload():
+	// IsAbbr(arg, "obj") -- без учета регистра и с сокращениями ("o", "ob", "obj").
+	pos = args;
+	skip_spaces(pos);
+	const char *arg = pos;
+	while (*pos && !is_space(*pos)) {
+		++pos;
+	}
+	const auto arg_len = static_cast<std::size_t>(pos - arg);
+	if (arg_len < 1 || arg_len > std::strlen("obj") || strn_cmp(arg, "obj", arg_len)) {
+		return false;
+	}
+
+	skip_spaces(pos);
+	if (*pos < '0' || *pos > '9') {
+		return false;
+	}
+	obj_vnum = std::atoi(pos);
+
+	return true;
+}
+
+} // namespace
+
+// Индекс "внум предмета -> триггеры, грузящие этот предмет" для команды 'vnum trig'.
+// Строится при загрузке мира -- одинаково для всех форматов (YAML/SQLite/Legacy).
+void IndexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig) {
+	if (!trig->cmdlist) {
+		return;
+	}
+
+	for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
+		ObjVnum obj_vnum = 0;
+		if (!ParseObjLoadCommand(cmd->cmd, obj_vnum)) {
+			continue;
+		}
+
+		auto &triggers = obj2triggers[obj_vnum];
+		if (std::find(triggers.begin(), triggers.end(), trig_vnum) == triggers.end()) {
+			triggers.push_back(trig_vnum);
+		}
+	}
+}
+
+// То же, но с предварительной чисткой старых записей триггера: скрипт мог
+// перестать грузить предмет, который грузил до правки в trigedit.
+void ReindexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig) {
+	for (auto it = obj2triggers.begin(); it != obj2triggers.end();) {
+		it->second.remove(trig_vnum);
+		if (it->second.empty()) {
+			it = obj2triggers.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	IndexTriggerObjLoads(trig_vnum, trig);
+}
 
 // TODO: Get rid of me
 char *dirty_indent_trigger(char *cmd, int *level) {

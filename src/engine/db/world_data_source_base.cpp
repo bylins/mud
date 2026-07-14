@@ -115,6 +115,11 @@ IndexData* WorldDataSourceBase::CreateTriggerIndex(int vnum, Trigger *trig)
 	index->proto = trig;
 
 	trig_index[top_of_trigt++] = index;
+
+	// Индекс для 'vnum trig': какие триггеры грузят данный предмет. Строим его
+	// здесь -- через эту функцию проходит каждый триггер любого формата мира.
+	IndexTriggerObjLoads(vnum, trig);
+
 	return index;
 }
 
