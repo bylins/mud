@@ -426,6 +426,10 @@ int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_
 // The Vityaz magical-shield block: a skill+feat+worn-shield absorption. The chance is
 // (kShieldBlock / 20 + shield_weight / 2) percent. Mass/area/warcry casts bypass the shield.
 bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
+	// issue #3554: у каста по объекту/комнате нет char-victim (ctx.cvict == nullptr).
+	// Ниже сразу GetSkill(victim,...) -> разыменование nullptr -> краш. Щита-защитника
+	// без цели-персонажа нет, поэтому просто выходим (как делает WardEligible).
+	if (!victim) return false;
 	if (ch == victim) return false;
 	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
