@@ -8,8 +8,6 @@
 
 #include "minions.h"
 
-#include "gameplay/mechanics/animate_dead.h"
-
 #include "engine/core/comm.h"
 #include "gameplay/core/constants.h"
 #include "engine/db/global_objects.h"
@@ -221,9 +219,10 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 		return (false);
 	}
 
-	const int count_cap = (spell_id == ESpell::kAnimateDead)
-		? animate_dead::MaxUndead(ch) : MaxCharmices(ch);
-	if (cha_summ >= count_cap) {
+	// issue.animate-dead: animate dead's control limit is a per-type skill-weight budget
+	// enforced at tier selection (animate_dead::FitUndeadTier in CorpseSummon), so it skips
+	// this flat count cap.
+	if (spell_id != ESpell::kAnimateDead && cha_summ >= MaxCharmices(ch)) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
