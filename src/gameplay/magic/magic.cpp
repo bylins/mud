@@ -1692,6 +1692,17 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 			return EStageResult::kSuccess;
 		}
 	}
+	if (!resurrection) {
+		// issue.animate-dead: demote the raised tier to the strongest that fits the caster's
+		// per-type skill-weight budget (min(Dark-Magic,75) minus held-undead weights). 0 means
+		// even a skeleton no longer fits -> the caster is already at their minion limit.
+		mob_num = animate_dead::FitUndeadTier(ch, mob_num);
+		if (mob_num == 0) {
+			SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
+			ExtractObjFromWorld(obj);
+			return EStageResult::kSuccess;
+		}
+	}
 	CharData *mob = ReadMobile(-mob_num, kVirtual);
 	if (!mob) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
