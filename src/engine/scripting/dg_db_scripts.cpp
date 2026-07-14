@@ -23,11 +23,11 @@
 #include "gameplay/magic/magic_temp_spells.h"
 #include "engine/db/global_objects.h"
 #include "trigger_indenter.h"
-#include "utils/utils_string.h"
 
 #include <algorithm>
-#include <cstring>
+#include <charconv>
 #include <stack>
+#include <string_view>
 
 //External functions
 extern void ExtractTrigger(Trigger *trig);
@@ -41,54 +41,65 @@ extern IndexData *mob_index;
 
 namespace {
 
-// Разбирает строку триггера вида "<load|oload|mload|wload|%load%> obj <внум>".
-// Вызывается для каждой строки каждого триггера при загрузке мира, поэтому
-// разбор посимвольный, без regex.
-bool ParseObjLoadCommand(const std::string &command, ObjVnum &obj_vnum) {
-	static const char *const kLoadCommands[] = {"%load%", "oload", "mload", "wload", "load"};
+constexpr std::string_view kSpaces = " \t";
+constexpr std::string_view kLoadCommands[] = {"%load%", "oload", "mload", "wload", "load"};
+constexpr std::string_view kObjArgument = "obj";
 
-	auto is_space = [](const char c) { return c == ' ' || c == '\t'; };
-	auto skip_spaces = [&is_space](const char *&pos) {
-		while (is_space(*pos)) {
-			++pos;
+std::string_view SkipSpaces(std::string_view text) {
+	const auto pos = text.find_first_not_of(kSpaces);
+	return pos == std::string_view::npos ? std::string_view{} : text.substr(pos);
+}
+
+std::string_view FirstWord(std::string_view text) {
+	return text.substr(0, text.find_first_of(kSpaces));
+}
+
+// utils::IsAbbr() для string_view: непустое сокращение слова без учета регистра.
+bool IsAbbrOf(std::string_view abbr, std::string_view word) {
+	if (abbr.empty() || abbr.size() > word.size()) {
+		return false;
+	}
+
+	for (std::size_t i = 0; i < abbr.size(); ++i) {
+		if (LOWER(abbr[i]) != LOWER(word[i])) {
+			return false;
 		}
-	};
-
-	const char *pos = command.c_str();
-	skip_spaces(pos);
-
-	const char *args = nullptr;
-	for (const auto *load_command : kLoadCommands) {
-		const auto len = std::strlen(load_command);
-		if (!strn_cmp(pos, load_command, len) && is_space(pos[len])) {
-			args = pos + len;
-			break;
-		}
 	}
-	if (!args) {
-		return false;
-	}
-
-	// Первый аргумент разбираем так же, как рантайм в do_dgoload()/do_mload():
-	// IsAbbr(arg, "obj") -- без учета регистра и с сокращениями ("o", "ob", "obj").
-	pos = args;
-	skip_spaces(pos);
-	const char *arg = pos;
-	while (*pos && !is_space(*pos)) {
-		++pos;
-	}
-	const auto arg_len = static_cast<std::size_t>(pos - arg);
-	if (arg_len < 1 || arg_len > std::strlen("obj") || strn_cmp(arg, "obj", arg_len)) {
-		return false;
-	}
-
-	skip_spaces(pos);
-	if (*pos < '0' || *pos > '9') {
-		return false;
-	}
-	obj_vnum = std::atoi(pos);
 
 	return true;
+}
+
+bool IsSameWord(std::string_view lhs, std::string_view rhs) {
+	return lhs.size() == rhs.size() && IsAbbrOf(lhs, rhs);
+}
+
+// Разбирает строку скрипта вида "<load|oload|mload|wload|%load%> obj <внум>".
+bool ParseObjLoadCommand(std::string_view line, ObjVnum &obj_vnum) {
+	line = SkipSpaces(line);
+	const auto command = FirstWord(line);
+	if (std::none_of(std::begin(kLoadCommands), std::end(kLoadCommands),
+					 [command](const auto load_command) { return IsSameWord(command, load_command); })) {
+		return false;
+	}
+
+	// Аргументы сверяем так же, как рантайм в do_dgoload()/do_mload():
+	// IsAbbr(arg, "obj") -- без учета регистра и с сокращениями ("o", "ob", "obj"),
+	// внум -- строго число (иначе рантайм ругнется на синтаксис и ничего не загрузит).
+	line = SkipSpaces(line.substr(command.size()));
+	const auto argument = FirstWord(line);
+	if (!IsAbbrOf(argument, kObjArgument)) {
+		return false;
+	}
+
+	const auto number = FirstWord(SkipSpaces(line.substr(argument.size())));
+	if (number.empty() || number.front() == '-') {
+		return false;
+	}
+
+	const auto number_end = number.data() + number.size();
+	const auto parsed = std::from_chars(number.data(), number_end, obj_vnum);
+
+	return parsed.ec == std::errc() && parsed.ptr == number_end;
 }
 
 } // namespace

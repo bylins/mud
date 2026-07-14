@@ -73,6 +73,22 @@ TEST(TriggerObjLoadIndex, IndexesAbbreviatedObjArgument) {
 	EXPECT_TRUE(Indexed(1071, 5010));
 }
 
+// do_dgoload() refuses to load anything unless the vnum is a plain number, so
+// neither must the index accept one -- otherwise `vnum trig` reports a trigger
+// that in fact loads nothing.
+TEST(TriggerObjLoadIndex, SkipsVnumsThatAreNotPlainNumbers) {
+	Trigger trig;
+	IndexScript(trig, 5011,
+				"mload obj %loaditem%\n"
+				"mload obj 1080abc\n"
+				"mload obj -1081\n"
+				"mload obj 99999999999999999999\n");
+
+	EXPECT_EQ(obj2triggers.end(), obj2triggers.find(1080)) << "trailing garbage is not a vnum";
+	EXPECT_EQ(obj2triggers.end(), obj2triggers.find(-1081)) << "negative vnum is refused by the runtime";
+	EXPECT_FALSE(Indexed(0, 5011)) << "an overflowing vnum must not be indexed as anything";
+}
+
 TEST(TriggerObjLoadIndex, SkipsCommandsThatDoNotLoadObjects) {
 	Trigger trig;
 	IndexScript(trig, 5003,
