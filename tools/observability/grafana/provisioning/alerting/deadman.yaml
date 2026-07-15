@@ -15,8 +15,8 @@ contactPoints:
       - uid: bylins_telegram_rooster
         type: telegram
         settings:
-          bottoken: ${BYLINS_ROOSTER_TOKEN}
-          chatid: ${BYLINS_ROOSTER_CHATID}
+          bottoken: "${BYLINS_ROOSTER_TOKEN}"
+          chatid: "-1003843866812"
           parse_mode: HTML
           message: |-
             {{ if eq .Status "firing" -}}
