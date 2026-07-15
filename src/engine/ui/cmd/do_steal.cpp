@@ -97,6 +97,11 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				} else {
 					act("Вы раздели $N3 и взяли $o3.", false, ch, obj, vict, kToChar);
 					act("$n украл$g $o3 у $N1.", false, ch, obj, vict, kToNotVict | kToArenaListen);
+					// issue #3563: кража НАДЕТОЙ вещи (имм или у спящей жертвы) -- она уходит
+					// через UnequipChar, без obj_from_char, поэтому логируем отдельно.
+					log("[Steal eq] %s украл надетую вещь '%s' (vnum %d) у %s",
+							GET_NAME(ch), obj->get_PName(grammar::ECase::kNom).c_str(),
+							GET_OBJ_VNUM(obj), GET_NAME(vict));
 					PlaceObjToInventory(UnequipChar(vict, eq_pos, CharEquipFlags()), ch);
 				}
 			}
