@@ -44,6 +44,8 @@
 #include "gameplay/magic/magic_temp_spells.h"
 #include "engine/db/global_objects.h"
 #include "table_wrapper.h"
+#include "engine/scripting/dg_olc.h"
+#include "engine/scripting/lua/lua_line_numbers.h"
 
 void show_string(DescriptorData *d, char *input);
 
@@ -380,6 +382,19 @@ void parse_action(int command, char *string, DescriptorData *d) {
 			if (line_high < line_low) {
 				iosystem::write_to_output("Неверный диапазон.\r\n", d);
 				return;
+			}
+			if (d->olc
+				&& OLC_MODE(d) == TRIGEDIT_COMMANDS
+				&& OLC_TRIG(d)
+				&& OLC_TRIG(d)->get_script_language() == TriggerScriptLanguage::Lua) {
+				const char *text = d->writer->get_string();
+				const auto numbered = lua_scripting::FormatNumberedSource(text ? text : "", line_low, line_high);
+				if (numbered.empty()) {
+					iosystem::write_to_output("Requested line range does not exist.\r\n", d);
+					return;
+				}
+				page_string(d, numbered);
+				break;
 			}
 			*buf = '\0';
 			i = 1;
