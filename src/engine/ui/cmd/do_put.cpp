@@ -70,7 +70,15 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 	else if (obj->has_flag(EObjFlag::kNodrop)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	}
-	else if (obj->is_unrentable()) {
+	// Обычный контейнер в комнате -- не постоянное хранилище, поэтому
+	// нерентуемость предмета (kRepopDecay/kNorent/rent_off<0 -> is_unrentable())
+	// не должна мешать положить его внутрь. Постоянные хранилища (рент/depot/
+	// сундук клана) обработаны выше и сами применяют is_unrentable(). Здесь
+	// возвращаем прежнюю узкую проверку: блокируем только zone-decay и ключи
+	// (анти-стеш). См. issue #3371: в квесте зоны 65 гнездо (obj 6505,
+	// kRepopDecay) нужно положить в молодое дерево (obj 6504) -- расширенная
+	// проверка is_unrentable() это сломала.
+	else if (obj->has_flag(EObjFlag::kZonedecay) || obj->get_type() == EObjType::kKey) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	}
 	else {
