@@ -54,6 +54,7 @@ test_sources = files(
     'extra_description.cpp',
     'trigger_indenter.cpp',
     'trigger_script_parser.cpp',
+    'trigger_obj_load_index.cpp',
     'yaml_loader_flag_packing.cpp',
     'yaml_mob_saves_resistances.cpp',
     'world_checksum_serialization.cpp',

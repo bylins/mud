@@ -24,7 +24,10 @@
 #include "engine/db/global_objects.h"
 #include "trigger_indenter.h"
 
+#include <algorithm>
+#include <charconv>
 #include <stack>
+#include <string_view>
 
 //External functions
 extern void ExtractTrigger(Trigger *trig);
@@ -35,6 +38,106 @@ trigger_to_owners_map_t owner_trig;
 extern int top_of_trigt;
 
 extern IndexData *mob_index;
+
+namespace {
+
+constexpr std::string_view kSpaces = " \t";
+constexpr std::string_view kLoadCommands[] = {"%load%", "oload", "mload", "wload", "load"};
+constexpr std::string_view kObjArgument = "obj";
+
+std::string_view SkipSpaces(std::string_view text) {
+	const auto pos = text.find_first_not_of(kSpaces);
+	return pos == std::string_view::npos ? std::string_view{} : text.substr(pos);
+}
+
+std::string_view FirstWord(std::string_view text) {
+	return text.substr(0, text.find_first_of(kSpaces));
+}
+
+// utils::IsAbbr() для string_view: непустое сокращение слова без учета регистра.
+bool IsAbbrOf(std::string_view abbr, std::string_view word) {
+	if (abbr.empty() || abbr.size() > word.size()) {
+		return false;
+	}
+
+	for (std::size_t i = 0; i < abbr.size(); ++i) {
+		if (LOWER(abbr[i]) != LOWER(word[i])) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool IsSameWord(std::string_view lhs, std::string_view rhs) {
+	return lhs.size() == rhs.size() && IsAbbrOf(lhs, rhs);
+}
+
+// Разбирает строку скрипта вида "<load|oload|mload|wload|%load%> obj <внум>".
+bool ParseObjLoadCommand(std::string_view line, ObjVnum &obj_vnum) {
+	line = SkipSpaces(line);
+	const auto command = FirstWord(line);
+	if (std::none_of(std::begin(kLoadCommands), std::end(kLoadCommands),
+					 [command](const auto load_command) { return IsSameWord(command, load_command); })) {
+		return false;
+	}
+
+	// Аргументы сверяем так же, как рантайм в do_dgoload()/do_mload():
+	// IsAbbr(arg, "obj") -- без учета регистра и с сокращениями ("o", "ob", "obj"),
+	// внум -- строго число (иначе рантайм ругнется на синтаксис и ничего не загрузит).
+	line = SkipSpaces(line.substr(command.size()));
+	const auto argument = FirstWord(line);
+	if (!IsAbbrOf(argument, kObjArgument)) {
+		return false;
+	}
+
+	const auto number = FirstWord(SkipSpaces(line.substr(argument.size())));
+	if (number.empty() || number.front() == '-') {
+		return false;
+	}
+
+	const auto number_end = number.data() + number.size();
+	const auto parsed = std::from_chars(number.data(), number_end, obj_vnum);
+
+	return parsed.ec == std::errc() && parsed.ptr == number_end;
+}
+
+} // namespace
+
+// Индекс "внум предмета -> триггеры, грузящие этот предмет" для команды 'vnum trig'.
+// Строится при загрузке мира -- одинаково для всех форматов (YAML/SQLite/Legacy).
+void IndexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig) {
+	if (!trig->cmdlist) {
+		return;
+	}
+
+	for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
+		ObjVnum obj_vnum = 0;
+		if (!ParseObjLoadCommand(cmd->cmd, obj_vnum)) {
+			continue;
+		}
+
+		auto &triggers = obj2triggers[obj_vnum];
+		if (std::find(triggers.begin(), triggers.end(), trig_vnum) == triggers.end()) {
+			triggers.push_back(trig_vnum);
+		}
+	}
+}
+
+// То же, но с предварительной чисткой старых записей триггера: скрипт мог
+// перестать грузить предмет, который грузил до правки в trigedit.
+void ReindexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig) {
+	for (auto it = obj2triggers.begin(); it != obj2triggers.end();) {
+		it->second.remove(trig_vnum);
+		if (it->second.empty()) {
+			it = obj2triggers.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	IndexTriggerObjLoads(trig_vnum, trig);
+}
 
 // TODO: Get rid of me
 char *dirty_indent_trigger(char *cmd, int *level) {

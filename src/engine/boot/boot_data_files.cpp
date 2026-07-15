@@ -12,8 +12,6 @@
 
 #include <fmt/format.h>
 
-#include <regex>
-
 extern int scheck;                        // TODO: get rid of this line
 CharData *mob_proto;                    // TODO: get rid of this global variable
 
@@ -240,37 +238,22 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 
 class DataFileFactoryImpl : public DataFileFactory {
  public:
-	using regex_ptr_t = std::shared_ptr<std::regex>;
-
-	DataFileFactoryImpl() : m_load_obj_exp(std::make_shared<std::regex>(
-		"^\\s*(?:%load%|load|oload|mload|wload)\\s+obj\\s+(\\d+)")) {}
-
 	virtual BaseDataFile::shared_ptr get_file(const EBootType mode, const std::string &file_name) override;
-
- private:
-	const regex_ptr_t m_load_obj_exp;
 };
 
 class TriggersFile : public DiscreteFile {
  public:
-	TriggersFile(const std::string &file_name, const DataFileFactoryImpl::regex_ptr_t &expression) : DiscreteFile(
-		file_name), m_load_obj_exp(expression) {}
+	TriggersFile(const std::string &file_name) : DiscreteFile(file_name) {}
 
 	virtual EBootType mode() const override { return DB_BOOT_TRG; }
 
-	static shared_ptr create(const std::string &file_name,
-							 const DataFileFactoryImpl::regex_ptr_t &expression) {
-		return shared_ptr(new TriggersFile(file_name,
-										   expression));
-	}
+	static shared_ptr create(const std::string &file_name) { return shared_ptr(new TriggersFile(file_name)); }
 
  private:
 	virtual void read_entry(const int nr) override;
 	void parse_trigger(int nr);
 	void LoadDgTriggerScript(Trigger *trig, const std::string &cmds, int vnum);
 	void LoadLuaTriggerScript(Trigger *trig, const std::string &cmds);
-
-	const DataFileFactoryImpl::regex_ptr_t m_load_obj_exp;
 };
 
 void TriggersFile::read_entry(const int nr) {
@@ -349,23 +332,6 @@ void TriggersFile::LoadDgTriggerScript(Trigger *trig, const std::string &cmds, i
 			while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
 			while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
 			ptr = &(*ptr)->next;
-
-			std::smatch match;
-			if (std::regex_search(line, match, *m_load_obj_exp)) {
-				ObjVnum obj_num = std::stoi(match.str(1));
-				const auto tlist_it = obj2triggers.find(obj_num);
-				if (tlist_it != obj2triggers.end()) {
-					//const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), top_of_trigt);
-					const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), vnum);
-					if (trig_f == tlist_it->second.end()) {
-						//tlist_it->second.push_back(top_of_trigt);
-						tlist_it->second.push_back(vnum);
-					}
-				} else {
-					std::list<TrgVnum> tlist = {vnum};
-					obj2triggers.emplace(obj_num, tlist);
-				}
-			}
 		}
 		if (pos_end != std::string::npos)
 			pos_end = pos_end + 1;
@@ -1830,7 +1796,7 @@ BaseDataFile::shared_ptr DataFileFactoryImpl::get_file(const EBootType mode, con
 
 		case DB_BOOT_HLP:return HelpFile::create(file_name);
 
-		case DB_BOOT_TRG:return TriggersFile::create(file_name, m_load_obj_exp);
+		case DB_BOOT_TRG:return TriggersFile::create(file_name);
 
 
 		default:return nullptr;

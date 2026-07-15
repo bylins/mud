@@ -628,6 +628,11 @@ void trigedit_save(DescriptorData *d) {
 		}
 	}
 	
+	// Индекс "предмет -> грузящие его триггеры" строится при загрузке мира,
+	// так что для правленого скрипта его надо пересчитать -- иначе 'vnum trig'
+	// будет показывать старую картину до ближайшей перезагрузки.
+	ReindexTriggerObjLoads(OLC_NUM(d), trig_index[trig_rnum]->proto);
+
 	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
 	TriggerDistribution(d);
 	int notify_level = MAX(kLvlBuilder, GET_INVIS_LEV(d->character));

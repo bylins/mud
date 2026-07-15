@@ -413,6 +413,11 @@ void trig_log(Trigger *trig, std::string msg, LogMode type = LogMode::OFF);
 using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
 
+// Добавляет в obj2triggers предметы, которые грузит скрипт триггера (см. 'vnum trig').
+void IndexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig);
+// То же, но сначала убирает прежние записи триггера -- для правки скрипта в trigedit.
+void ReindexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig);
+
 class GlobalTriggersStorage {
  public:
 	~GlobalTriggersStorage();
