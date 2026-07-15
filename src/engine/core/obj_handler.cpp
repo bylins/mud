@@ -290,6 +290,36 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 	return kNowhere;
 }
 
+// issue #3563: единый лог о пропаже вещи у игрока. Ищет игрока-владельца
+// (инвентарь/экипировка/его контейнер) и пишет в syslog причину. Звать НАДО
+// до отвязки вещи от владельца, иначе get_carried_by/get_worn_by уже пустые.
+void LogPlayerObjLoss(ObjData *obj, const char *reason) {
+	if (!obj) {
+		return;
+	}
+	CharData *owner = obj->get_carried_by() ? obj->get_carried_by()
+			: (obj->get_worn_by() ? obj->get_worn_by() : nullptr);
+	if (!owner) {
+		// вещь в контейнере -- ищем игрока-владельца контейнера
+		for (ObjData *cont = obj->get_in_obj(); cont; cont = cont->get_in_obj()) {
+			if (cont->get_carried_by()) {
+				owner = cont->get_carried_by();
+				break;
+			}
+			if (cont->get_worn_by()) {
+				owner = cont->get_worn_by();
+				break;
+			}
+		}
+	}
+	if (!owner || owner->IsNpc()) {
+		return;
+	}
+	log("[Obj loss] у игрока %s пропала вещь '%s' vnum == %d (%s), timer == %d, прочность == %d/%d",
+			GET_NAME(owner), obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj),
+			reason, obj->get_timer(), obj->get_current_durability(), obj->get_maximum_durability());
+}
+
 void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	timechange_unregister_obj(obj);
 	char name[kMaxStringLength];

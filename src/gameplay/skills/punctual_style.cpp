@@ -645,11 +645,20 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 				break;
 		}
-		if (!victim->IsNpc() && ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena))
+		if (!victim->IsNpc() && ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 			PlaceObjToInventory(obj, victim);
-		else
+		} else {
+			// issue #3563: точный стиль выбил вещь НА ЗЕМЛЮ (не в инвентарь). Для игрока
+			// логируем -- иначе потом непонятно, куда делось оружие (валяется в комнате,
+			// владелец не находит). Мобов не логируем, чтобы не шуметь.
+			if (!victim->IsNpc()) {
+				log("[Punctual -> ground] %s выбил точным стилем '%s' (vnum %d) из рук %s -> комната [%d] %s",
+						GET_NAME(ch), obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj),
+						GET_NAME(victim), world[victim->in_room]->vnum, world[victim->in_room]->name);
+			}
 			PlaceObjToRoom(obj, victim->in_room);
-		CheckObjDecay(obj);
+			CheckObjDecay(obj);
+		}
 	}
 	if (!victim->IsNpc()) {
 		hit_data.dam /= 5;

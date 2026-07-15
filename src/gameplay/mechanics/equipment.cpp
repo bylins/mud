@@ -99,6 +99,8 @@ void DamageObj(ObjData *obj, int dam, int chance) {
 						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
 				act(buf, false, obj->get_carried_by(), obj, nullptr, kToChar);
 			}
+			// issue #3563: логируем пропажу до отложенного удаления, пока владелец известен.
+			LogPlayerObjLoss(obj, "рассыпалась по прочности");
 			// issue.obj-casting: deferred extraction (freed at heartbeat end) so a live ctx.ovict
 			// (acid corrode etc.) is left flagged purged() rather than dangling.
 			world_objects.AddToExtractedList(obj);
