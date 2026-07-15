@@ -73,9 +73,12 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin123
       - GF_USERS_ALLOW_SIGN_UP=false
+      # МСК для .StartsAt.Local в шаблонах алёртов (god-appeals шлёт время обращения).
+      - TZ=Europe/Moscow
       - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
-      # Dead-man алёрт (provisioning/alerting/deadman.yaml). Значения — из
+      # Telegram-алёрты (provisioning/alerting/*.yaml). Секрет-токен — из
       # tools/observability/.env (gitignored, см. .env.example). В репу не коммитим.
+      # id каналов не секретны и заданы литералами прямо в *.yaml.
       - BYLINS_ROOSTER_TOKEN=${BYLINS_ROOSTER_TOKEN:-}
       - BYLINS_ROOSTER_CHATID=${BYLINS_ROOSTER_CHATID:-}
       - GRAFANA_EXTERNAL_URL=${GRAFANA_EXTERNAL_URL:-}
