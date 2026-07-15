@@ -1,4 +1,5 @@
 #include "engine/scripting/lua/lua_internal.h"
+#include "engine/scripting/lua/lua_line_numbers.h"
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
@@ -9,6 +10,28 @@
 
 namespace lua_scripting {
 namespace {
+
+std::optional<int> GetLuaErrorLine(Trigger *trigger, const char *error)
+{
+	if (!trigger || !error)
+	{
+		return std::nullopt;
+	}
+	const std::string marker = "[string \"trigger:" + std::to_string(GetTriggerVnum(trigger)) + "\"]:";
+	const auto marker_pos = std::string(error).find(marker);
+	if (marker_pos == std::string::npos)
+	{
+		return std::nullopt;
+	}
+	const char *begin = error + marker_pos + marker.size();
+	char *end = nullptr;
+	const auto line = strtol(begin, &end, 10);
+	if (end == begin || !end || *end != ':' || line < 1 || line > std::numeric_limits<int>::max())
+	{
+		return std::nullopt;
+	}
+	return static_cast<int>(line);
+}
 
 int LuaIpairs(lua_State *state)
 {
@@ -154,7 +177,17 @@ void LogLuaError(LuaRuntimeContext runtime, const char *phase, const sol::error 
 		GetOwnerVnum(runtime.owner),
 		GetOwnerUid(runtime.owner),
 		err.what());
-	mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+	std::string message(buf);
+	const auto line_number = GetLuaErrorLine(runtime.trigger, err.what());
+	if (line_number && runtime.trigger)
+	{
+		const auto source_line = GetSourceLine(runtime.trigger->get_lua_script_source(), *line_number);
+		if (source_line)
+		{
+			message += " source_line[" + std::to_string(*line_number) + "]=\"" + *source_line + "\"";
+		}
+	}
+	mudlog(message, BRF, kLvlBuilder, ERRLOG, true);
 }
 
 void LogLuaReturnDiagnostic(LuaRuntimeContext runtime, const sol::object &value)
