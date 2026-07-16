@@ -81,9 +81,24 @@ void TrigeditLoadStorageFromTrigger(Trigger *trig, char *storage)
 		return;
 	}
 	if (trig->cmdlist) {
+		// issue #3568: storage -- heap-буфер размера MAX_CMD_LENGTH. Раньше strcat всех
+		// команд шёл БЕЗ границы, и при DG-скрипте длиннее буфера переполнял кучу
+		// (crash-save потом ловил "corrupted top size"). Ограничиваем по размеру буфера.
+		size_t used = strlen(storage);
 		for (auto c = *trig->cmdlist; c; c = c->next) {
+			const size_t need = c->cmd.size() + 2;    // команда + "\r\n"
+			if (used + need >= MAX_CMD_LENGTH) {
+				char m[256];
+				snprintf(m, sizeof(m),
+						"SYSERR: TrigeditLoadStorageFromTrigger: DG-скрипт триггера #%d не влез "
+						"в буфер %d байт -- обрезан (предотвращено переполнение)",
+						GET_TRIG_VNUM(trig), MAX_CMD_LENGTH);
+				mudlog(m, NRM, kLvlGod, SYSLOG, true);
+				break;
+			}
 			strcat(storage, c->cmd.c_str());
 			strcat(storage, "\r\n");
+			used += need;
 		}
 	}
 }
