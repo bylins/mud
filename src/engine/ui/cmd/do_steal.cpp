@@ -14,6 +14,7 @@
 #include "gameplay/mechanics/mount.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/char_equip_flags.h"
+#include "engine/core/obj_handler.h"   // ObjHolderLogDesc (issue #3563)
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"
 #include "gameplay/skills/skills.h"
@@ -99,9 +100,11 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 					act("$n украл$g $o3 у $N1.", false, ch, obj, vict, kToNotVict | kToArenaListen);
 					// issue #3563: кража НАДЕТОЙ вещи (имм или у спящей жертвы) -- она уходит
 					// через UnequipChar, без obj_from_char, поэтому логируем отдельно.
+					// Для чармиса-жертвы в описании будет имя чармиса и его владельца.
+					const std::string who = ObjHolderLogDesc(vict);
 					log("[Steal eq] %s украл надетую вещь '%s' (vnum %d) у %s",
 							GET_NAME(ch), obj->get_PName(grammar::ECase::kNom).c_str(),
-							GET_OBJ_VNUM(obj), GET_NAME(vict));
+							GET_OBJ_VNUM(obj), who.empty() ? GET_NAME(vict) : who.c_str());
 					PlaceObjToInventory(UnequipChar(vict, eq_pos, CharEquipFlags()), ch);
 				}
 			}

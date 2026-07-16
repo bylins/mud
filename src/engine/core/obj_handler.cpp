@@ -293,30 +293,56 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 // issue #3563: единый лог о пропаже вещи у игрока. Ищет игрока-владельца
 // (инвентарь/экипировка/его контейнер) и пишет в syslog причину. Звать НАДО
 // до отвязки вещи от владельца, иначе get_carried_by/get_worn_by уже пустые.
+// issue #3563: описание держателя вещи для лога (родительный падеж) -- игрок или
+// чармис игрока. "" -> обычный моб/никто (не логируем). Для чармиса поднимаемся
+// по цепочке мастеров до игрока-владельца.
+std::string ObjHolderLogDesc(CharData *holder) {
+	if (!holder) {
+		return "";
+	}
+	char buf[kMaxStringLength];
+	if (!holder->IsNpc()) {
+		snprintf(buf, sizeof(buf), "игрока %s", GET_NAME(holder));
+		return buf;
+	}
+	if (IsCharmice(holder)) {
+		// чармис висит напрямую на игроке (конвенция: pk.cpp, equipment.cpp и т.п.)
+		CharData *m = holder->get_master();
+		if (m && !m->IsNpc()) {
+			snprintf(buf, sizeof(buf), "чармиса '%s' игрока %s", GET_NAME(holder), GET_NAME(m));
+		} else {
+			snprintf(buf, sizeof(buf), "чармиса '%s' (потерявшего владельца)", GET_NAME(holder));
+		}
+		return buf;
+	}
+	return "";
+}
+
 void LogPlayerObjLoss(ObjData *obj, const char *reason) {
 	if (!obj) {
 		return;
 	}
-	CharData *owner = obj->get_carried_by() ? obj->get_carried_by()
+	CharData *holder = obj->get_carried_by() ? obj->get_carried_by()
 			: (obj->get_worn_by() ? obj->get_worn_by() : nullptr);
-	if (!owner) {
-		// вещь в контейнере -- ищем игрока-владельца контейнера
+	if (!holder) {
+		// вещь в контейнере -- ищем владельца контейнера
 		for (ObjData *cont = obj->get_in_obj(); cont; cont = cont->get_in_obj()) {
 			if (cont->get_carried_by()) {
-				owner = cont->get_carried_by();
+				holder = cont->get_carried_by();
 				break;
 			}
 			if (cont->get_worn_by()) {
-				owner = cont->get_worn_by();
+				holder = cont->get_worn_by();
 				break;
 			}
 		}
 	}
-	if (!owner || owner->IsNpc()) {
+	const std::string who = ObjHolderLogDesc(holder);
+	if (who.empty()) {  // не игрок и не чармис игрока -- не логируем
 		return;
 	}
-	log("[Obj loss] у игрока %s пропала вещь '%s' vnum == %d (%s), timer == %d, прочность == %d/%d",
-			GET_NAME(owner), obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj),
+	log("[Obj loss] у %s пропала вещь '%s' vnum == %d (%s), timer == %d, прочность == %d/%d",
+			who.c_str(), obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj),
 			reason, obj->get_timer(), obj->get_current_durability(), obj->get_maximum_durability());
 }
 
