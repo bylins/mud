@@ -4,6 +4,7 @@
 #include <string>
 
 #include "engine/entities/char_data.h"
+#include "engine/scripting/lua/lua_formatter.h"
 #include "engine/scripting/lua/lua_internal.h"
 #include "engine/ui/modify.h"
 
@@ -71,6 +72,8 @@ void AppendLuaRuntimeDiagnostics(std::ostringstream &out) {
 void DoLuaInfo(CharData *ch, char * /*argument*/, int /*cmd*/, int /*subcmd*/) {
 	std::ostringstream out;
 	out << "Информация Lua:\r\n";
+	out << "  форматтер: "
+		<< (lua_scripting::LuaFormatterAvailable() ? "включен (EmmyLuaCodeStyle)" : "выключен") << "\r\n";
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 	out << "  статус: включено\r\n";

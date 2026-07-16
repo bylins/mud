@@ -27,6 +27,7 @@
 #include "engine/entities/zone.h"
 #include <sys/stat.h>
 #include "engine/db/world_characters.h"
+#include "engine/scripting/lua/lua_formatter.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/world_data_source_manager.h"
 #include "dg_db_scripts.h"
@@ -68,6 +69,26 @@ bool TrigeditLuaEditingEnabled()
 bool TrigeditIsLuaTrigger(const Trigger *trig)
 {
 	return trig && trig->get_script_language() == TriggerScriptLanguage::Lua;
+}
+
+void TrigeditFormatLua(DescriptorData *d)
+{
+	std::string formatted;
+	std::string error;
+	const std::string source = OLC_STORAGE(d) ? OLC_STORAGE(d) : "";
+	if (!lua_scripting::FormatLuaSource(source, formatted, error)) {
+		SendMsgToChar(d->character.get(), "Ошибка автоформата Lua: %s\r\n", error.c_str());
+		return;
+	}
+	if (formatted.size() >= MAX_CMD_LENGTH) {
+		SendMsgToChar(d->character.get(), "Ошибка автоформата Lua: результат слишком большой.\r\n");
+		return;
+	}
+
+	RECREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
+	memcpy(OLC_STORAGE(d), formatted.c_str(), formatted.size() + 1);
+	OLC_VAL(d)++;
+	SendMsgToChar(d->character.get(), "Lua-скрипт отформатирован.\r\n");
 }
 
 void TrigeditLoadStorageFromTrigger(Trigger *trig, char *storage)
@@ -259,6 +280,9 @@ void trigedit_disp_menu(DescriptorData *d) {
 #if defined(WITH_LUAJIT_PROTOTYPE)
 	out << "&g8)&n Язык скрипта       : &y" << (TrigeditIsLuaTrigger(trig) ? "Lua" : "DG") << "&n\r\n";
 #endif
+	if (TrigeditIsLuaTrigger(trig) && lua_scripting::LuaFormatterAvailable()) {
+		out << "&g9)&n Автоформат Lua\r\n";
+	}
 	out << "&gQ)&n Завершить редактирование\r\n" "Введите Выбранное :";
 	SendMsgToChar(out.str(), d->character.get());
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
@@ -367,6 +391,17 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					SendMsgToChar("0: DG, 1: Lua: ", d->character.get());
 					break;
 #endif
+
+				case '9':
+					if (!TrigeditIsLuaTrigger(OLC_TRIG(d))) {
+						SendMsgToChar("Автоформат доступен только для Lua-триггеров.\r\n", d->character.get());
+					} else if (!lua_scripting::LuaFormatterAvailable()) {
+						SendMsgToChar("Форматтер Lua недоступен в этой сборке.\r\n", d->character.get());
+					} else {
+						TrigeditFormatLua(d);
+					}
+					trigedit_disp_menu(d);
+					return;
 
 				default: trigedit_disp_menu(d);
 					return;
