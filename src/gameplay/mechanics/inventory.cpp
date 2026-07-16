@@ -258,6 +258,12 @@ void RemoveObjFromChar(ObjData *object) {
 	if (!object->get_carried_by()->IsNpc()) {
 		object->get_carried_by()->SetFlag(EPlrFlag::kCrashSave);
 		log("obj_from_char: %s -> %d", object->get_carried_by()->get_name().c_str(), GET_OBJ_VNUM(object));
+	} else {
+		// issue #3563: трейс ухода из инвентаря чармиса игрока (игрок -- ветка выше)
+		const std::string who = ObjHolderLogDesc(object->get_carried_by());
+		if (!who.empty()) {
+			log("obj_from_char: %s -> %d", who.c_str(), GET_OBJ_VNUM(object));
+		}
 	}
 
 	IS_CARRYING_W(object->get_carried_by()) -= object->get_weight();
