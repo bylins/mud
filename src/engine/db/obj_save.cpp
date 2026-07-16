@@ -113,8 +113,13 @@ enum {
 	RENT_TIMEDOUT, // заренчен после idle_rent_time
 };
 
+// issue #3568: все вызывающие передают буфер размера kMaxStringLength, поэтому
+// пишем не дальше него -- иначе строка из файла длиннее буфера затирала память
+// за границей (порча кучи/стека). При переполнении обрезаем и пишем в лог.
 int get_buf_line(char **source, char *target) {
 	char *otarget = target;
+	char *const limit = target + kMaxStringLength - 1;    // резерв под '\0'
+	bool truncated = false;
 	int empty = true;
 
 	*target = '\0';
@@ -130,6 +135,17 @@ int get_buf_line(char **source, char *target) {
 			(*source)++;
 			return (true);
 		}
+		if (target >= limit) {    // граница буфера: дочитываем строку, но не пишем
+			if (!truncated) {
+				truncated = true;
+				char msg[256];
+				snprintf(msg, sizeof(msg),
+						"SYSERR: get_buf_line: строка обрезана до %d байт (предотвращено переполнение буфера)",
+						kMaxStringLength);
+				mudlog(msg, NRM, kLvlGod, SYSLOG, true);   // #3568: в mudlog -- боги видят сразу
+			}
+			continue;
+		}
 		*target = **source;
 		if (!isspace(static_cast<unsigned char>(*target++)))
 			empty = false;
@@ -139,8 +155,10 @@ int get_buf_line(char **source, char *target) {
 }
 
 int get_buf_lines(char **source, char *target) {
-	*target = '\0';
+	char *const limit = target + kMaxStringLength - 1;    // резерв под '\0'
+	bool truncated = false;
 
+	*target = '\0';
 	for (; **source && **source != DIV_CHAR && **source != END_CHAR; (*source)++) {
 		if (**source == END_LINES) {
 			(*source)++;
@@ -149,6 +167,17 @@ int get_buf_lines(char **source, char *target) {
 			if (**source == END_LINE)
 				(*source)++;
 			return (true);
+		}
+		if (target >= limit) {    // граница буфера: дочитываем блок, но не пишем
+			if (!truncated) {
+				truncated = true;
+				char msg[256];
+				snprintf(msg, sizeof(msg),
+						"SYSERR: get_buf_lines: блок обрезан до %d байт (предотвращено переполнение буфера)",
+						kMaxStringLength);
+				mudlog(msg, NRM, kLvlGod, SYSLOG, true);   // #3568: в mudlog -- боги видят сразу
+			}
+			continue;
 		}
 		*(target++) = **source;
 		*target = '\0';
