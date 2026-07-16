@@ -1317,6 +1317,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				if (!strcmp(tag, "Desc")) {
 					const auto ptr = fbgetstring(fl);
 					this->player_data.description = ptr ? ptr : "";
+					free(ptr);    // issue #3574: fbgetstring malloc'ит; текст уже скопирован в std::string
 				} else if (!strcmp(tag, "Disp")) {
 					std::bitset<DIS_TOTAL_NUM> tmp_flags(lnum);
 					disposable_flags_ = tmp_flags;
