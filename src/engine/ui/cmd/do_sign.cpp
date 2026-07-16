@@ -66,6 +66,10 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			if (erase_only) {
 				target->remove_custom_label();
+				// issue #3568: логируем операции с метками -- для корреляции в Loki
+				// (custom_label нарушает rule-of-3, подозреваем double-free).
+				log("[Custom label] %s стёр метку с %s #%d",
+						GET_NAME(ch), target->get_short_description().c_str(), GET_OBJ_VNUM(target));
 				act("Вы затерли надписи на $o5.", false, ch, target, nullptr, kToChar);
 			} else if (labels) {
 				if (strlen(labels) > kMaxLabelLength)
@@ -87,6 +91,11 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					msg = "Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.";
 				}
 				target->set_custom_label(label);
+				// issue #3568: логируем операции с метками -- для корреляции в Loki
+				// (custom_label нарушает rule-of-3, подозреваем double-free).
+				log("[Custom label] %s нанёс метку '%s'%s на %s #%d",
+						GET_NAME(ch), labels, clan ? " (клан)" : "",
+						target->get_short_description().c_str(), GET_OBJ_VNUM(target));
 				act(msg, false, ch, target, nullptr, kToChar);
 			}
 		}
