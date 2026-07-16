@@ -40,6 +40,14 @@ const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
 
 PlayersIndex::~PlayersIndex() {
 	log("~PlayersIndex()");
+	// issue #3574: timer -- сырой SaveInfo*, аллоцируется при boot и живёт весь ран.
+	// Освобождаем в деструкторе контейнера (один раз, безопасно). В деструкторе
+	// элемента нельзя -- при росте вектора элементы копируются/перемещаются и был бы
+	// double-free. Без этого LeakSanitizer репортит таймеры как утечку на shutdown.
+	for (auto &element : *this) {
+		delete element.timer;
+		element.timer = nullptr;
+	}
 }
 
 std::size_t PlayersIndex::Append(const PlayerIndexElement &element) {
