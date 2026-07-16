@@ -18,8 +18,8 @@ namespace animate_dead {
 
 namespace {
 // Potency scaling knobs (issue.animate-dead study, section 8; subject to a balance pass).
-constexpr double kHpFactor = 0.08;      // HP        = proto_hp * (1 + kHpFactor * C)
-constexpr double kDiceFactor = 1.2;     // damnodice += round(kDiceFactor * C)
+constexpr double kHpFactor = 0.25;      // HP = proto_hp * (1 + kHpFactor*C); calibrated to the old x(1+remort/10)
+constexpr double kDiceFactor = 1.5;     // damnodice += round(kDiceFactor*C); matches old necrotank dmg/round
 constexpr int kMaxDamNoDice = 100;      // keep well inside the signed `byte` damnodice range
 
 // Undead tier ladder, weakest -> strongest, with each type's skill-weight (cost). The weight is

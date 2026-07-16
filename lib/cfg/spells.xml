@@ -1286,8 +1286,8 @@
 		<targets val="kTarObjRoom" />
 		<flags val="kMagManual" />
 		<potency_roll>
-			<base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="4" />
-			<base_stat id="kWis" threshold="14" weight="4" />
+			<base_skill id="kDarkMagic" low_skill_bonus="0" hi_skill_bonus="8" />
+			<base_stat id="kWis" threshold="14" weight="1" />
 		</potency_roll>
 		<talent_actions>
 			<action>
