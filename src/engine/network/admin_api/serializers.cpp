@@ -456,6 +456,7 @@ json SerializeTrigger(const Trigger& trig, int vnum)
 	trig_data["trigger_type"] = trig.get_trigger_type();
 	trig_data["narg"] = trig.narg;
 	trig_data["add_flag"] = trig.add_flag;
+	trig_data["script_language"] = trig.get_script_language() == TriggerScriptLanguage::Lua ? "lua" : "dg";
 
 	// Argument
 	if (!trig.arglist.empty())
@@ -463,18 +464,25 @@ json SerializeTrigger(const Trigger& trig, int vnum)
 		trig_data["arglist"] = Koi8rToUtf8(trig.arglist);
 	}
 
-	// Command list
-	json commands = json::array();
-	if (trig.cmdlist)
+	if (trig.get_script_language() == TriggerScriptLanguage::Lua)
 	{
-		auto cmd = *trig.cmdlist;
-		while (cmd)
-		{
-			commands.push_back(Koi8rToUtf8(cmd->cmd));
-			cmd = cmd->next;
-		}
+		trig_data["script"] = Koi8rToUtf8(trig.get_lua_script_source());
 	}
-	trig_data["commands"] = commands;
+	else
+	{
+		// Command list
+		json commands = json::array();
+		if (trig.cmdlist)
+		{
+			auto cmd = *trig.cmdlist;
+			while (cmd)
+			{
+				commands.push_back(Koi8rToUtf8(cmd->cmd));
+				cmd = cmd->next;
+			}
+		}
+		trig_data["commands"] = commands;
+	}
 
 	return trig_data;
 }

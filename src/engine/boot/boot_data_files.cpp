@@ -12,8 +12,6 @@
 
 #include <fmt/format.h>
 
-#include <regex>
-
 extern int scheck;                        // TODO: get rid of this line
 CharData *mob_proto;                    // TODO: get rid of this global variable
 
@@ -240,35 +238,22 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 
 class DataFileFactoryImpl : public DataFileFactory {
  public:
-	using regex_ptr_t = std::shared_ptr<std::regex>;
-
-	DataFileFactoryImpl() : m_load_obj_exp(std::make_shared<std::regex>(
-		"^\\s*(?:%load%|load|oload|mload|wload)\\s+obj\\s+(\\d+)")) {}
-
 	virtual BaseDataFile::shared_ptr get_file(const EBootType mode, const std::string &file_name) override;
-
- private:
-	const regex_ptr_t m_load_obj_exp;
 };
 
 class TriggersFile : public DiscreteFile {
  public:
-	TriggersFile(const std::string &file_name, const DataFileFactoryImpl::regex_ptr_t &expression) : DiscreteFile(
-		file_name), m_load_obj_exp(expression) {}
+	TriggersFile(const std::string &file_name) : DiscreteFile(file_name) {}
 
 	virtual EBootType mode() const override { return DB_BOOT_TRG; }
 
-	static shared_ptr create(const std::string &file_name,
-							 const DataFileFactoryImpl::regex_ptr_t &expression) {
-		return shared_ptr(new TriggersFile(file_name,
-										   expression));
-	}
+	static shared_ptr create(const std::string &file_name) { return shared_ptr(new TriggersFile(file_name)); }
 
  private:
 	virtual void read_entry(const int nr) override;
 	void parse_trigger(int nr);
-
-	const DataFileFactoryImpl::regex_ptr_t m_load_obj_exp;
+	void LoadDgTriggerScript(Trigger *trig, const std::string &cmds, int vnum);
+	void LoadLuaTriggerScript(Trigger *trig, const std::string &cmds);
 };
 
 void TriggersFile::read_entry(const int nr) {
@@ -277,7 +262,7 @@ void TriggersFile::read_entry(const int nr) {
 
 void TriggersFile::parse_trigger(int vnum) {
 	int t, add_flag, k;
-	char line[256], flags[256];
+	char line[256], flags[256], language[32];
 
 	ZoneRnum zrn = GetZoneRnum(vnum / 100);
 
@@ -291,8 +276,10 @@ void TriggersFile::parse_trigger(int vnum) {
 	get_line(file(), line);
 
 	int attach_type = 0;
+	flags[0] = '\0';
+	language[0] = '\0';
 	t = 0;  // Initialize narg to avoid undefined behavior when only 2 fields present
-	k = sscanf(line, "%d %s %d %d", &attach_type, flags, &t, &add_flag);
+	k = sscanf(line, "%d %255s %d %d %31s", &attach_type, flags, &t, &add_flag, language);
 
 	if (0 > attach_type
 		|| 2 < attach_type) {
@@ -304,14 +291,27 @@ void TriggersFile::parse_trigger(int vnum) {
 	asciiflag_conv(flags, &trigger_type);
 	const auto rnum = top_of_trigt;
 	Trigger *trig = new Trigger(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
+	if (k == 5 && !strcmp(language, "lua")) {
+		trig->set_script_language(TriggerScriptLanguage::Lua);
+	}
 
 	trig->narg = t;
-	if (k == 4)
+	if (k >= 4)
 		trig->add_flag = add_flag;
 	else 
 		trig->add_flag = false;
 	trig->arglist = fread_string();
 	std::string cmds(fread_string());
+	if (trig->get_script_language() == TriggerScriptLanguage::Dg) {
+		LoadDgTriggerScript(trig, cmds, vnum);
+	} else if (trig->get_script_language() == TriggerScriptLanguage::Lua) {
+		LoadLuaTriggerScript(trig, cmds);
+	}
+
+	AddTrigIndexEntry(vnum, trig);
+}
+
+void TriggersFile::LoadDgTriggerScript(Trigger *trig, const std::string &cmds, int vnum) {
 	std::size_t pos = 0;
 	int indlev = 0, num = 1;
 	auto ptr = trig->cmdlist.get();
@@ -328,27 +328,10 @@ void TriggersFile::parse_trigger(int vnum) {
 			(*ptr)->line_num = num++;
 
 			// lowercase the command (first word) for faster comparison at runtime
-				auto it = (*ptr)->cmd.begin();
-				while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
-				while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
+			auto it = (*ptr)->cmd.begin();
+			while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
+			while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
 			ptr = &(*ptr)->next;
-
-			std::smatch match;
-			if (std::regex_search(line, match, *m_load_obj_exp)) {
-				ObjVnum obj_num = std::stoi(match.str(1));
-				const auto tlist_it = obj2triggers.find(obj_num);
-				if (tlist_it != obj2triggers.end()) {
-					//const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), top_of_trigt);
-					const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), vnum);
-					if (trig_f == tlist_it->second.end()) {
-						//tlist_it->second.push_back(top_of_trigt);
-						tlist_it->second.push_back(vnum);
-					}
-				} else {
-					std::list<TrgVnum> tlist = {vnum};
-					obj2triggers.emplace(obj_num, tlist);
-				}
-			}
 		}
 		if (pos_end != std::string::npos)
 			pos_end = pos_end + 1;
@@ -361,8 +344,10 @@ void TriggersFile::parse_trigger(int vnum) {
 		log("%s", tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
+}
 
-	AddTrigIndexEntry(vnum, trig);
+void TriggersFile::LoadLuaTriggerScript(Trigger *trig, const std::string &cmds) {
+	trig->set_lua_script_source(cmds);
 }
 
 class WorldFile : public DiscreteFile {
@@ -1811,7 +1796,7 @@ BaseDataFile::shared_ptr DataFileFactoryImpl::get_file(const EBootType mode, con
 
 		case DB_BOOT_HLP:return HelpFile::create(file_name);
 
-		case DB_BOOT_TRG:return TriggersFile::create(file_name, m_load_obj_exp);
+		case DB_BOOT_TRG:return TriggersFile::create(file_name);
 
 
 		default:return nullptr;

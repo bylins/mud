@@ -1307,6 +1307,8 @@ void obj_point_update() {
 					timer_otrigger(j);
 					continue;
 			}
+			// issue #3563: логируем пропажу до отвязки вещи от игрока (ниже RemoveObjFromChar).
+			LogPlayerObjLoss(j, "истёк таймер жизни / decay");
 			// *** рассыпание объекта
 			ObjData *jj, *next_thing2;
 			for (jj = j->get_contains(); jj; jj = next_thing2) {

@@ -582,15 +582,23 @@ std::string SerializeTrigger(int rnum)
 	oss << trig->get_trigger_type() << "|";
 	oss << trig->narg << "|";
 	oss << trig->arglist << "|";
+	oss << static_cast<int>(trig->get_script_language()) << "|";
 
-	// Serialize command list
-	if (trig->cmdlist)
+	if (trig->get_script_language() == TriggerScriptLanguage::Lua)
 	{
-		auto cmd = *trig->cmdlist;
-		while (cmd)
+		oss << trig->get_lua_script_source();
+	}
+	else
+	{
+		// Serialize command list
+		if (trig->cmdlist)
 		{
-			oss << cmd->cmd << ";";
-			cmd = cmd->next;
+			auto cmd = *trig->cmdlist;
+			while (cmd)
+			{
+				oss << cmd->cmd << ";";
+				cmd = cmd->next;
+			}
 		}
 	}
 

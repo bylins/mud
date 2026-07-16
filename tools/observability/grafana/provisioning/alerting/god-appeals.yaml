@@ -1,0 +1,194 @@
+apiVersion: 1
+
+# Пересылка общения игроков с богами (команда "воззвать") из bylins-new-4000
+# в Телеграм-канал «Былины (обращения игроков)». Два типа сообщений:
+#   • обращение игрока     — <Игрок> {комната} [воззвать <текст>]
+#   • ответ бога игроку    — <Бог>   {комната} [воззвать <игрок> <текст>]
+# (см. do_pray_gods.cpp: у имма синтаксис "воззвать <кому> <текст>"). Оба типа
+# видны в Loki как эхо команды (command_interpreter, src/engine/ui/interpreter.cpp);
+# сам do_pray_gods в syslog не пишет — ловим именно эхо.
+#
+# Два правила шлют в ОДИН контакт-пойнт; шаблон ветвится по метке kind:
+#   god_appeals_bylins_new — who НЕ бог → обращение (kind=appeal)
+#   god_replies_bylins_new — who бог     → ответ    (kind=reply), достаём "кому".
+# Список богов захардкожен (их "воззвать" — ответы; Grafana alert rules НЕ
+# поддерживают dashboard-переменные, список живёт в regex).
+#
+# Якорь \[возз — минимальное однозначное сокращение "воззвать" (4 символа;
+# конфликт "возврат" расходится на 4-м символе возв/возз).
+#
+# parse_mode HTML — имя/VNUM в <code> (тап = копирование по отдельности). Текст —
+# произвольный ввод игрока, поэтому HTML-экранируем его в LogQL (label_format text
+# = regexReplaceAll & < >), т.к. в шаблонах алёртинга Grafana нет функции экранирования.
+# Время — .StartsAt (момент срабатывания, ~≤1 мин от события); TZ=Europe/Moscow
+# у контейнера grafana → .Local печатает МСК.
+#
+# Окно count_over_time — [5m] (НЕ [1m]!) при оценке раз в минуту. Причина: строку,
+# залогированную за ~10с до тика оценки, Loki ещё не успевает принять (otel батчит
+# ~5с), а к следующему тику она уже выпадает из узкого [1m]-окна → событие терялось
+# навсегда. С [5m] у события ~5 попыток попасть в оценку. Дублей нет: алёрт срабатывает
+# один раз, держится, пока строка в окне (~5 мин), и резолвится (disableResolveMessage).
+#
+# Токен бота — из env (${BYLINS_ROOSTER_TOKEN}; tools/observability/.env, gitignored).
+# chatid — литералом строкой: не секрет, а через env нельзя (Grafana при подстановке
+# ${...} теряет кавычки, число ломает провижининг). Так же сделан deadman.yaml.
+
+contactPoints:
+  - orgId: 1
+    name: bylins-god-appeals
+    receivers:
+      - uid: bylins_telegram_appeals
+        type: telegram
+        settings:
+          bottoken: "${BYLINS_ROOSTER_TOKEN}"
+          chatid: "-1004476972843"
+          parse_mode: HTML
+          message: |-
+            {{ range .Alerts -}}
+            {{ if eq .Labels.kind "reply" -}}
+            💬 <b>Ответ бога</b>
+            🕐 {{ .StartsAt.Local.Format "02.01.2006 15:04:05" }} (МСК)
+            👤 <code>{{ .Labels.who }}</code> → <code>{{ .Labels.to }}</code>   🏠 <code>{{ .Labels.room }}</code>
+            {{ .Labels.text }}
+            {{- else -}}
+            🙏 <b>Обращение к богам</b>
+            🕐 {{ .StartsAt.Local.Format "02.01.2006 15:04:05" }} (МСК)
+            👤 <code>{{ .Labels.who }}</code>   🏠 <code>{{ .Labels.room }}</code>
+            {{ .Labels.text }}
+            {{- end }}
+            {{ end -}}
+        disableResolveMessage: true
+
+groups:
+  - orgId: 1
+    name: god-appeals
+    folder: Обращения к богам
+    interval: 1m
+    rules:
+      # --- Обращения игроков (who НЕ бог) ---
+      - uid: god_appeals_bylins_new
+        title: "Обращение игрока к богам: bylins-new"
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          kind: appeal
+          service: bylins-bylins-new-4000
+        annotations:
+          summary: "Игрок воззвал к богам."
+        notification_settings:
+          receiver: bylins-god-appeals
+          group_by: ['who', 'room', 'text']
+          group_wait: 10s
+          group_interval: 1m
+          repeat_interval: 12h
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: loki
+            model:
+              datasource:
+                type: loki
+                uid: loki
+              editorMode: code
+              expr: 'sum by (who, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s*(?P<msg>.*)\]` | who =~ `.+` | who !~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
+              queryType: instant
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              reducer: last
+              expression: A
+              refId: B
+              datasource:
+                type: __expr__
+                uid: __expr__
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+
+      # --- Ответы богов (who бог; достаём "кому" — первый аргумент после команды) ---
+      - uid: god_replies_bylins_new
+        title: "Ответ бога игроку: bylins-new"
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          kind: reply
+          service: bylins-bylins-new-4000
+        annotations:
+          summary: "Бог ответил на воззвание."
+        notification_settings:
+          receiver: bylins-god-appeals
+          group_by: ['who', 'to', 'room', 'text']
+          group_wait: 10s
+          group_interval: 1m
+          repeat_interval: 12h
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: loki
+            model:
+              datasource:
+                type: loki
+                uid: loki
+              editorMode: code
+              expr: 'sum by (who, to, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s+(?P<to>\S+)\s+(?P<msg>.*)\]` | who =~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
+              queryType: instant
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              reducer: last
+              expression: A
+              refId: B
+              datasource:
+                type: __expr__
+                uid: __expr__
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]

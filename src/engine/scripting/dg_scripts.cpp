@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "engine/scripting/lua/lua_line_numbers.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/groups.h"
@@ -892,9 +893,23 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 				buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
 	}
 	size_t sb_len = strlen(sb);
+	if (trig->get_script_language() == TriggerScriptLanguage::Lua) {
+		std::string output(sb);
+		output += "Lua script:\r\n";
+		const auto &lua_source = trig->get_lua_script_source();
+		if (!lua_source.empty()) {
+			output += need_num
+				? lua_scripting::FormatNumberedSource(lua_source, 1, std::numeric_limits<int>::max())
+				: lua_source;
+			output += "\r\n";
+		}
+		page_string(ch->desc, output);
+		return;
+	}
+
 	strncat(sb, "Commands:\r\n", sizeof(sb) - sb_len - 1);
 
-	auto cmd_list = *trig->cmdlist;
+	auto cmd_list = trig->cmdlist ? *trig->cmdlist : nullptr;
 	while (cmd_list) {
 		if (!cmd_list->cmd.empty()) {
 			if (need_num) {
@@ -6280,14 +6295,14 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	half_chop(argument, str, argument);
 
+	if (!str_cmp(str, "-n")) {
+		need_number = true;
+		snprintf(str, sizeof(str), "%s", argument);
+	}
 	auto first = atoi(str);
 	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first / 100)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
-	}
-	if (!str_cmp(str, "-n")) {
-		need_number = true;
-		snprintf(str, sizeof(str), "%s", argument);
 	}
 	if (*str) {
 		vnum = atoi(str);
@@ -6299,7 +6314,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 		do_stat_trigger(ch, trig_index[rnum]->proto, need_number);
 	} else
-		SendMsgToChar("Usage: tstat <vnum>\r\n", ch);
+		SendMsgToChar("Usage: tstat [-n] <vnum>\r\n", ch);
 }
 
 // read a line in from a file, return the number of entities read
@@ -6681,6 +6696,8 @@ Trigger::Trigger(const Trigger &from) :
 	attach_type(from.attach_type),
 	name(from.name),
 	trigger_type(from.trigger_type),
+	script_language(from.script_language),
+	lua_script_source(from.lua_script_source),
 	halted(from.halted) {
 }
 
@@ -6689,6 +6706,8 @@ void Trigger::reset() {
 	attach_type = 0;
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
+	script_language = TriggerScriptLanguage::Dg;
+	lua_script_source.clear();
 	cmdlist.reset();
 	wait_line.reset();
 	curr_line.reset();
@@ -6710,6 +6729,8 @@ Trigger &Trigger::operator=(const Trigger &right) {
 	set_attach_type(right.get_attach_type());
 	name = right.name;
 	trigger_type = right.trigger_type;
+	script_language = right.script_language;
+	lua_script_source = right.lua_script_source;
 	cmdlist = right.cmdlist;
 	narg = right.narg;
 	add_flag = right.add_flag;

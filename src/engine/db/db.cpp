@@ -119,14 +119,7 @@ Rooms &world = GlobalObjects::world();
 RoomRnum top_of_world = 0;    // ref to top element of world
 
 void AddTrigIndexEntry(int nr, Trigger *trig) {
-	IndexData *index;
-	CREATE(index, 1);
-	index->vnum = nr;
-	index->total_online = 0;
-	index->func = nullptr;
-	index->proto = trig;
-
-	trig_index[top_of_trigt++] = index;
+	world_loader::WorldDataSourceBase::CreateTriggerIndex(nr, trig);
 }
 
 IndexData **trig_index;    // index table for triggers

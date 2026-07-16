@@ -22,6 +22,7 @@
 #include "utils/logger.h"
 
 #include <compare>
+#include <utility>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -30,6 +31,11 @@ struct RoomData;    // forward declaration to avoid inclusion of room.hpp and an
 const int MOB_TRIGGER = 0;
 const int OBJ_TRIGGER = 1;
 const int WLD_TRIGGER = 2;
+
+enum class TriggerScriptLanguage {
+	Dg,
+	Lua
+};
 
 extern const char *attach_name[];
 const int DG_NO_TRIG = 256;    // don't check act trigger   //
@@ -179,6 +185,11 @@ class Trigger {
 	void set_name(const std::string &_) { name = _; }
 	[[nodiscard]] auto get_trigger_type() const { return trigger_type; }
 	void set_trigger_type(const long _) { trigger_type = _; }
+	[[nodiscard]] auto get_script_language() const { return script_language; }
+	void set_script_language(const TriggerScriptLanguage _) { script_language = _; }
+	[[nodiscard]] const std::string &get_lua_script_source() const { return lua_script_source; }
+	void set_lua_script_source(std::string source) { lua_script_source = std::move(source); }
+	[[nodiscard]] bool has_lua_script_source() const { return !lua_script_source.empty(); }
 	void clear_var_list() {var_list.clear();}
 	cmdlist_ptr cmdlist;    // top of command list             //
 	cmdlist_element::shared_ptr wait_line;    // ptr to current line of trigger after wait  //
@@ -202,6 +213,8 @@ class Trigger {
 	byte attach_type;    // mob/obj/wld intentions          //
 	std::string name;    // name of trigger
 	long trigger_type;    // type of trigger (for bitvector) //
+	TriggerScriptLanguage script_language = TriggerScriptLanguage::Dg;
+	std::string lua_script_source;
 	bool halted;
 };
 
@@ -399,6 +412,11 @@ void trig_log(Trigger *trig, std::string msg, LogMode type = LogMode::OFF);
 
 using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
+
+// Добавляет в obj2triggers предметы, которые грузит скрипт триггера (см. 'vnum trig').
+void IndexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig);
+// То же, но сначала убирает прежние записи триггера -- для правки скрипта в trigedit.
+void ReindexTriggerObjLoads(TrgVnum trig_vnum, const Trigger *trig);
 
 class GlobalTriggersStorage {
  public:

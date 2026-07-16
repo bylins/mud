@@ -61,6 +61,7 @@
 #include "engine/ui/cmd_god/do_print_armor.h"
 #include "engine/ui/cmd_god/do_purge.h"
 #include "engine/ui/cmd_god/do_godtest.h"
+#include "engine/ui/cmd_god/do_luainfo.h"
 #include "engine/ui/cmd_god/do_sdemigods.h"
 #include "engine/ui/cmd_god/do_restore.h"
 #include "engine/ui/cmd_god/do_sanitize.h"
@@ -974,6 +975,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 		// test command for gods
 		{"godtest", EPosition::kDead, do_godtest, kLvlGreatGod, 0, 0},
+		{"luainfo", EPosition::kDead, DoLuaInfo, kLvlGreatGod, 0, 0},
 		{"armor", EPosition::kDead, DoPrintArmor, kLvlImplementator, 0, 0},
 
 		// Команды крафтинга - для тестига пока уровня имма

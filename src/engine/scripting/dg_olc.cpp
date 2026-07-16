@@ -16,6 +16,7 @@
 
 #include "dg_olc.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -44,6 +45,133 @@ void trigedit_save(DescriptorData *d);
 bool trigedit_save_to_disk(int zone_rnum, int notify_level);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
+
+namespace {
+
+const char kDefaultLuaTriggerTemplate[] =
+	"return function(ctx)\r\n"
+	"  return true\r\n"
+	"end\r\n";
+
+const char kDefaultDgTriggerTemplate[] =
+	"say My trigger commandlist is not complete!\r\n";
+
+bool TrigeditLuaEditingEnabled()
+{
+#if defined(WITH_LUAJIT_PROTOTYPE)
+	return true;
+#else
+	return false;
+#endif
+}
+
+bool TrigeditIsLuaTrigger(const Trigger *trig)
+{
+	return trig && trig->get_script_language() == TriggerScriptLanguage::Lua;
+}
+
+void TrigeditLoadStorageFromTrigger(Trigger *trig, char *storage)
+{
+	if (!trig || !storage) {
+		return;
+	}
+	storage[0] = '\0';
+	if (TrigeditIsLuaTrigger(trig)) {
+		strncat(storage, trig->get_lua_script_source().c_str(), MAX_CMD_LENGTH - 1);
+		return;
+	}
+	if (trig->cmdlist) {
+		for (auto c = *trig->cmdlist; c; c = c->next) {
+			strcat(storage, c->cmd.c_str());
+			strcat(storage, "\r\n");
+		}
+	}
+}
+
+void TrigeditCompileDgCmdlist(Trigger *trig, const std::string &storage_str)
+{
+	if (!trig->cmdlist) {
+		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
+	}
+	trig->cmdlist->reset(new cmdlist_element());
+	const auto &cmdlist = *trig->cmdlist;
+	auto lowercase_first_word = [](std::string &str) {
+		auto it = str.begin();
+		while (it != str.end() && (*it == ' ' || *it == '\t')) {
+			++it;
+		}
+		while (it != str.end() && *it != ' ') {
+			*it = LOWER(*it);
+			++it;
+		}
+	};
+
+	std::vector<std::string> script_lines;
+	{
+		std::string::size_type start = 0;
+		while (start < storage_str.size()) {
+			auto pos = storage_str.find_first_of("\n\r", start);
+			if (pos == std::string::npos) {
+				script_lines.push_back(storage_str.substr(start));
+				break;
+			}
+			if (pos > start) {
+				script_lines.push_back(storage_str.substr(start, pos - start));
+			}
+			start = pos + 1;
+		}
+	}
+
+	if (!script_lines.empty()) {
+		cmdlist->cmd = script_lines[0];
+		cmdlist->line_num = 1;
+		lowercase_first_word(cmdlist->cmd);
+	} else {
+		cmdlist->cmd = "";
+		cmdlist->line_num = 0;
+	}
+	auto cmd = cmdlist;
+	int line_num = 2;
+	for (size_t li = 1; li < script_lines.size(); ++li) {
+		cmd->next.reset(new cmdlist_element());
+		cmd = cmd->next;
+		cmd->cmd = script_lines[li];
+		cmd->line_num = line_num++;
+		lowercase_first_word(cmd->cmd);
+	}
+}
+
+void TrigeditApplyStorageToTrigger(Trigger *trig, const std::string &storage_str)
+{
+	if (TrigeditIsLuaTrigger(trig)) {
+		trig->set_lua_script_source(storage_str);
+		trig->cmdlist.reset();
+		return;
+	}
+	trig->set_script_language(TriggerScriptLanguage::Dg);
+	trig->set_lua_script_source("");
+	TrigeditCompileDgCmdlist(trig, storage_str);
+}
+
+void TrigeditFprintEscapedBody(FILE *fp, const std::string &body)
+{
+	if (body.empty()) {
+		fprintf(fp, "* Empty script~\n");
+		return;
+	}
+	std::string::size_type pos = 0;
+	std::string::size_type prev = 0;
+	bool first = true;
+	while ((pos = body.find('~', prev)) != std::string::npos) {
+		fprintf(fp, "%s%s", first ? "" : "~~", body.substr(prev, pos - prev).c_str());
+		first = false;
+		prev = pos + 1;
+	}
+	fprintf(fp, "%s%s", first ? "" : "~~", body.substr(prev).c_str());
+	fprintf(fp, "~\n");
+}
+
+} // namespace
 
 inline void fprint_script(FILE *fp, const ObjData::triggers_list_t &scripts) {
 	for (const auto vnum : scripts) {
@@ -89,18 +217,8 @@ void trigedit_setup_existing(DescriptorData *d, int rtrg_num) {
 	// Allocate a scratch trigger structure
 	Trigger *trig = new Trigger(*trig_index[rtrg_num]->proto);
 
-	// convert cmdlist to a char string
-	auto c = *trig->cmdlist;
 	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
-	strcpy(OLC_STORAGE(d), "");
-
-	while (c) {
-		strcat(OLC_STORAGE(d), c->cmd.c_str());
-		strcat(OLC_STORAGE(d), "\r\n");
-		c = c->next;
-	}
-	// now trig->cmdlist is something to pass to the text editor
-	// it will be converted back to a real cmdlist_element list later
+	TrigeditLoadStorageFromTrigger(trig, OLC_STORAGE(d));
 
 	OLC_TRIG(d) = trig;
 	OLC_VAL(d) = 0;        // Has changed flag. (It hasn't so far, we just made it.)
@@ -133,11 +251,14 @@ void trigedit_disp_menu(DescriptorData *d) {
 			<< "&g3)&n События: " << "&y" << trgtypes << "\r\n"
 			<< "&g4)&n Числовой Аргумент : " << "&y" << trig->narg << "\r\n"
 			<< "&g5)&n Аргументы    : " << "&y" << trig->arglist.c_str() << "\r\n"
-			<< "&g6)&n Команды:\r\n"
+			<< "&g6)&n " << (TrigeditIsLuaTrigger(trig) ? "Lua-скрипт" : "Команды") << ":\r\n"
 			<< "&c" << OLC_STORAGE(d);
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		out << "&g7)&n Обрабатывать команды моба в стане? : &y" << (trig->add_flag ? "ДА" : "НЕТ") << "&n\r\n";
 	}
+#if defined(WITH_LUAJIT_PROTOTYPE)
+	out << "&g8)&n Язык скрипта       : &y" << (TrigeditIsLuaTrigger(trig) ? "Lua" : "DG") << "&n\r\n";
+#endif
 	out << "&gQ)&n Завершить редактирование\r\n" "Введите Выбранное :";
 	SendMsgToChar(out.str(), d->character.get());
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
@@ -209,8 +330,18 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					SendMsgToChar("Аргументы: ", d->character.get());
 					break;
 
-				case '6': OLC_MODE(d) = TRIGEDIT_COMMANDS;
-					SendMsgToChar("Введите команды триггера: (/s saves /h for help)\r\n\r\n", d->character.get());
+				case '6':
+					if (TrigeditIsLuaTrigger(OLC_TRIG(d)) && !TrigeditLuaEditingEnabled()) {
+						SendMsgToChar("Редактирование Lua-скриптов недоступно в этой сборке сервера.\r\n",
+							d->character.get());
+						trigedit_disp_menu(d);
+						return;
+					}
+					OLC_MODE(d) = TRIGEDIT_COMMANDS;
+					SendMsgToChar(TrigeditIsLuaTrigger(OLC_TRIG(d))
+						? "Введите Lua-скрипт триггера: (/s saves /h for help)\r\n\r\n"
+						: "Введите команды триггера: (/s saves /h for help)\r\n\r\n",
+						d->character.get());
 					d->backstr = nullptr;
 					if (OLC_STORAGE(d)) {
 						SendMsgToChar(d->character.get(), "&S%s&s", OLC_STORAGE(d));
@@ -225,8 +356,17 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					if (OLC_TRIG(d)->get_attach_type() == MOB_TRIGGER) {
 						OLC_MODE(d) = TRIGEDIT_ADDFLAG;
 						SendMsgToChar("Флаг (1-ДА): ", d->character.get());
-					} else trigedit_disp_menu(d);
+					} else {
+						trigedit_disp_menu(d);
+					}
 					break;
+
+#if defined(WITH_LUAJIT_PROTOTYPE)
+				case '8':
+					OLC_MODE(d) = TRIGEDIT_LANGUAGE;
+					SendMsgToChar("0: DG, 1: Lua: ", d->character.get());
+					break;
+#endif
 
 				default: trigedit_disp_menu(d);
 					return;
@@ -274,6 +414,26 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 
 		case TRIGEDIT_ADDFLAG: OLC_TRIG(d)->add_flag = atoi(arg) == 1 ? 1 : 0;
 			OLC_VAL(d)++;
+			break;
+
+		case TRIGEDIT_LANGUAGE:
+#if defined(WITH_LUAJIT_PROTOTYPE)
+			if (atoi(arg) == 1) {
+				if (!TrigeditIsLuaTrigger(OLC_TRIG(d))) {
+					OLC_TRIG(d)->set_script_language(TriggerScriptLanguage::Lua);
+					strcpy(OLC_STORAGE(d), kDefaultLuaTriggerTemplate);
+					SendMsgToChar("Тело триггера заменено на шаблон Lua.\r\n", d->character.get());
+					OLC_VAL(d)++;
+				}
+			} else if (TrigeditIsLuaTrigger(OLC_TRIG(d))) {
+				OLC_TRIG(d)->set_script_language(TriggerScriptLanguage::Dg);
+				strcpy(OLC_STORAGE(d), kDefaultDgTriggerTemplate);
+				SendMsgToChar("Тело триггера заменено на шаблон DG.\r\n", d->character.get());
+				OLC_VAL(d)++;
+			}
+#else
+			SendMsgToChar("Lua-триггеры недоступны в этой сборке сервера.\r\n", d->character.get());
+#endif
 			break;
 
 		case TRIGEDIT_TYPES:
@@ -369,54 +529,14 @@ void trigedit_save(DescriptorData *d) {
 	IndexData **new_index;
 	DescriptorData *dsc;
 
-	// Recompile the command list from the new script
-	std::string storage_str(OLC_STORAGE(d));
+	if (TrigeditIsLuaTrigger(trig) && !TrigeditLuaEditingEnabled()) {
+		SendMsgToChar("ОШИБКА: Lua-триггеры недоступны в этой сборке сервера.\r\n", d->character.get());
+		return;
+	}
+
+	std::string storage_str(OLC_STORAGE(d) ? OLC_STORAGE(d) : "");
 	olc_log("%s start trig %d:\n%s", GET_NAME(d->character), OLC_NUM(d), OLC_STORAGE(d));
-
-	trig->cmdlist->reset(new cmdlist_element());
-	const auto &cmdlist = *trig->cmdlist;
-	// lowercase the command (first word) for faster comparison at runtime
-	auto lowercase_first_word = [](std::string &str) {
-		auto it = str.begin();
-		while (it != str.end() && (*it == ' ' || *it == '\t')) ++it;
-		while (it != str.end() && *it != ' ') { *it = LOWER(*it); ++it; }
-	};
-
-	// Split storage into lines by \n and \r
-	std::vector<std::string> script_lines;
-	{
-		std::string::size_type start = 0;
-		while (start < storage_str.size()) {
-			auto pos = storage_str.find_first_of("\n\r", start);
-			if (pos == std::string::npos) {
-				script_lines.push_back(storage_str.substr(start));
-				break;
-			}
-			if (pos > start) {
-				script_lines.push_back(storage_str.substr(start, pos - start));
-			}
-			start = pos + 1;
-		}
-	}
-
-	if (!script_lines.empty()) {
-		cmdlist->cmd = script_lines[0];
-		cmdlist->line_num = 1;
-		lowercase_first_word(cmdlist->cmd);
-	} else {
-		cmdlist->cmd = "";
-		cmdlist->line_num = 0;
-	}
-	auto cmd = cmdlist;
-	int line_num = 2;
-	for (size_t li = 1; li < script_lines.size(); ++li) {
-		cmd->next.reset(new cmdlist_element());
-		cmd = cmd->next;
-		cmd->cmd = script_lines[li];
-		cmd->line_num = line_num++;
-		lowercase_first_word(cmd->cmd);
-	}
-//	log("Триггер зона1 %d внум %d ласт %d", OLC_ZNUM(d), zone_table[OLC_ZNUM(d)].vnum, trig_index[zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second]->vnum);
+	TrigeditApplyStorageToTrigger(trig, storage_str);
 
 	if ((trig_rnum = GetTriggerRnum(OLC_NUM(d))) != -1) {
 		// Этот триггер уже есть.
@@ -508,6 +628,11 @@ void trigedit_save(DescriptorData *d) {
 		}
 	}
 	
+	// Индекс "предмет -> грузящие его триггеры" строится при загрузке мира,
+	// так что для правленого скрипта его надо пересчитать -- иначе 'vnum trig'
+	// будет показывать старую картину до ближайшей перезагрузки.
+	ReindexTriggerObjLoads(OLC_NUM(d), trig_index[trig_rnum]->proto);
+
 	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
 	TriggerDistribution(d);
 	int notify_level = MAX(kLvlBuilder, GET_INVIS_LEV(d->character));
@@ -564,42 +689,34 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 				return false;
 			}
 			sprintbyts(GET_TRIG_TYPE(trig), bitBuf);
-			fprintf(trig_file, "%s~\n"
-							   "%d %s %d %d\n"
-							   "%s~\n",
-					(GET_TRIG_NAME(trig)) ? (GET_TRIG_NAME(trig)) :
-					"unknown trigger", trig->get_attach_type(), bitBuf,
-					GET_TRIG_NARG(trig), trig->add_flag, trig->arglist.c_str());
-
-			// Build the text for the script
-			int lev = 0;
-			strcpy(buf, "");
-			for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
-				// Indenting
-				indent_trigger(cmd->cmd, &lev);
-				strcat(buf, cmd->cmd.c_str());
-				strcat(buf, "\n");
-			}
-
-			if (!buf[0]) {
-				strcpy(buf, "* Empty script~\n");
-				fprintf(trig_file, "%s", buf);
+			if (TrigeditIsLuaTrigger(trig)) {
+				fprintf(trig_file, "%s~\n"
+								   "%d %s %d %d lua\n"
+								   "%s~\n",
+						(GET_TRIG_NAME(trig)) ? (GET_TRIG_NAME(trig)) :
+						"unknown trigger", trig->get_attach_type(), bitBuf,
+						GET_TRIG_NARG(trig), trig->add_flag, trig->arglist.c_str());
 			} else {
-				// замена одиночного '~' на '~~'
-				std::string buf_str(buf);
-				std::string::size_type pos = 0;
-				std::string::size_type prev = 0;
-				bool first = true;
-				while ((pos = buf_str.find('~', prev)) != std::string::npos) {
-					fprintf(trig_file, "%s%s", first ? "" : "~~", buf_str.substr(prev, pos - prev).c_str());
-					first = false;
-					prev = pos + 1;
-				}
-				fprintf(trig_file, "%s%s", first ? "" : "~~", buf_str.substr(prev).c_str());
-				fprintf(trig_file, "~\n");
+				fprintf(trig_file, "%s~\n"
+								   "%d %s %d %d\n"
+								   "%s~\n",
+						(GET_TRIG_NAME(trig)) ? (GET_TRIG_NAME(trig)) :
+						"unknown trigger", trig->get_attach_type(), bitBuf,
+						GET_TRIG_NARG(trig), trig->add_flag, trig->arglist.c_str());
 			}
 
-			*buf = '\0';
+			std::string script_body;
+			if (TrigeditIsLuaTrigger(trig)) {
+				script_body = trig->get_lua_script_source();
+			} else if (trig->cmdlist) {
+				int lev = 0;
+				for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
+					indent_trigger(cmd->cmd, &lev);
+					script_body += cmd->cmd;
+					script_body += "\n";
+				}
+			}
+			TrigeditFprintEscapedBody(trig_file, script_body);
 		}
 	}
 

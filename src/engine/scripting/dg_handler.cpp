@@ -15,12 +15,14 @@
 
 #include "dg_scripts.h"
 #include "engine/entities/char_data.h"
+#include "engine/scripting/lua/lua_script_engine.h"
 #include "gameplay/magic/magic_utils.h"
 #include "dg_event.h"
 #include "engine/db/global_objects.h"
 
 // remove a single trigger from a mob/obj/room и остановить его выполнение
 void ExtractTrigger(Trigger *trig) {
+	lua_scripting::LuaScriptEngine::CancelWaitsForTrigger(trig);
 	if (trig->wait_event.time_remaining > 0) {
 		auto for_delete = trig->wait_event.info;
 		remove_event(trig->wait_event);

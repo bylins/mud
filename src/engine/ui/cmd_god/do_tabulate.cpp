@@ -9,6 +9,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/olc/olc.h"
 #include "engine/db/global_objects.h"
+#include "utils/logger.h"
 #include "utils/utils_string.h"
 #include "utils/utils_time.h"
 
@@ -319,6 +320,16 @@ int TabulateTrigsByObjLoad(char *searchname, CharData *ch) {
 	int found = 0;
 	for (const auto &t : trigger->second) {
 		TrgRnum rnum = GetTriggerRnum(t);
+		if (rnum < 0) {
+			// Инвариант: триггеры из trig_index никогда не удаляются, так что
+			// внум из obj2triggers обязан существовать. Если сюда попали --
+			// индекс разошелся с trig_index (напр., в OLC добавили удаление
+			// триггера, не почистив obj2triggers). Читать trig_index[rnum]
+			// нельзя, продолжаем -- но это ошибка, а не штатная ситуация.
+			log("SYSERR: obj2triggers references trigger #%d with no rnum "
+				"(index out of sync with trig_index)", t);
+			continue;
+		}
 		SendMsgToChar(fmt::format("{:<3}. [{:>5}] {}\r\n",
 								  ++found, trig_index[rnum]->vnum, trig_index[rnum]->proto->get_name()), ch);
 	}

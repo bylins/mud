@@ -60,6 +60,8 @@ archive/
 subprojects/.wraplock
 subprojects/fmt
 subprojects/gtest
+subprojects/sol2
+subprojects/luajit
 subprojects/yaml-cpp
 subprojects/zlib
 /1/
