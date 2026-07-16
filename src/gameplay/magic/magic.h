@@ -267,8 +267,8 @@ class ActionContext {
 	bool patched_{false};
 };
 
-// VNUM'О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
-const int kMobDouble = 3000; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+// VNUM'ы мобов для заклинаний, создающих мобов
+const int kMobDouble = 3000; //внум прототипа для клона
 const int kMobSkeleton = 3001;
 const int kMobZombie = 3002;
 const int kMobBonedog = 3003;
@@ -279,7 +279,7 @@ const int kMobNecrotank = 3008;
 const int kMobNecrobreather = 3009;
 const int kMobNecrocaster = 3010;
 const int kLastNecroMob = 3010;
-// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+// резерв для некротических забав
 const int kMobMentalShadow = 3020;
 const int kMobKeeper = 3021;
 const int kMobFirekeeper = 3022;
