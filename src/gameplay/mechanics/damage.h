@@ -14,7 +14,16 @@
 #include "engine/entities/entities_constants.h"
 
 #include <bitset>
+#include <list>
 #include <vector>
+
+class CharData;
+
+// issue.dot-death-exp: pick the character to credit for a self-inflicted death (DoT/poison tick or
+// suffering) among `people` (the victim's room). Author looked up by UID, so a dead author -> nullptr.
+// Defined in damage.cpp; exposed here for ProcessDeath and unit tests.
+CharData *SelectSelfInflictedKiller(const std::list<CharData *> &people, const CharData *victim,
+								   long author_uid, fight::EDamageSource damage_source);
 
 /**
  * Для входа со скила без инита остальных полей:

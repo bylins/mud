@@ -27,6 +27,7 @@ test_sources = files(
     'msdp.parser.cpp',
     'msdp.builder.cpp',
     'char.affects.cpp',
+    'dot.death.credit.cpp',
     'affects.loader.cpp',
     'random.noise.cpp',
     'potion.duration.cpp',
