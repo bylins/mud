@@ -24,6 +24,11 @@ if build_profile == 'hunt'
 endif
 
 buildtype = {'release': 'Release', 'debug': 'Debug', 'dev': 'Dev', 'fasttest': 'FastTest', 'custom': 'Custom'}[build_profile]
+if fortify_source
+    # hunt ведёт себя как release, но в версии/summary помечаем отдельно, чтобы было
+    # видно, что бинарь собран с _FORTIFY_SOURCE (иначе писал бы "Release").
+    buildtype = 'Hunt'
+endif
 
 if build_profile in ['dev', 'fasttest']
     project_args += ['-DTEST_BUILD']
