@@ -4284,8 +4284,9 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.IncreaseIndent();
 
 	// issue #3583: у свитков/палочек/посохов values-слоты со спеллами подписываем именем заклинания.
+	// val[0] -- это уровень/сила заклинания, а не номер спелла, поэтому его не подписываем.
 	const auto obj_type = obj->get_type();
-	yaml.SequenceItem(obj->get_val(0), GetObjValueSpellComment(obj_type, 0, obj->get_val(0)));
+	yaml.SequenceItem(obj->get_val(0));
 	yaml.SequenceItem(obj->get_val(1), GetObjValueSpellComment(obj_type, 1, obj->get_val(1)));
 	yaml.SequenceItem(obj->get_val(2), GetObjValueSpellComment(obj_type, 2, obj->get_val(2)));
 	yaml.SequenceItem(obj->get_val(3), GetObjValueSpellComment(obj_type, 3, obj->get_val(3)));
