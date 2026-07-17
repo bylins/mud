@@ -18,8 +18,8 @@ struct RoomData;
 class ObjData;
 
 /**
- * О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
- * О©╫О©╫О©╫О©╫О©╫О©╫ 'О©╫О©╫ О©╫О©╫' О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ 'О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫'.
+ * Проверяется что первая строка является эквивалентом второй, например
+ * строка 'ог ша' является эквивалентом строки 'огненный шар'.
  */
 ESkill FindSkillId(const char *name);
 ESkill FixNameAndFindSkillId(char *name);
@@ -61,9 +61,9 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond);
 float CalcCastPotency(const RollResult &potency);
 
 // Apply-side modifier value used by every affect imposition path:
-//     raw = min + ceil(dicesО©╫dices_weightО©╫(1 + alphaО©╫C) + betaО©╫C)   C = skill_coeff+stat_coeff
+//     raw = min + ceil(dices·dices_weight·(1 + alpha·C) + beta·C)   C = skill_coeff+stat_coeff
 //     raw = min(raw, cap)        if cap > 0
-//     return static_cast<int>(factor О©╫ raw)
+//     return static_cast<int>(factor · raw)
 // Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's
 // first-apply default. cap == 0 disables the clamp; factor is allowed to be
 // negative (debuffs), with the clamp acting on the pre-factor magnitude.
