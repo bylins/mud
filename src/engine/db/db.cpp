@@ -323,9 +323,9 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	if (obj->get_type() != EObjType::kPotion) {
 		return 0;
 	}
-	if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num) >= 0
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) >= 0
 		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency) >= 0) {
 		return 0;  // already migrated
 	}
@@ -341,8 +341,8 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 			obj->SetPotionValueKey(key, num);
 		}
 	};
-	set_spell(ObjVal::EValueKey::kPotionSpell1Num, v1);
-	set_spell(ObjVal::EValueKey::kPotionSpell2Num, v2);
+	set_spell(ObjVal::EValueKey::kSpell1Num, v1);
+	set_spell(ObjVal::EValueKey::kSpell2Num, v2);
 
 	bool brewed = false;
 	if (!proto && v3 > 0) {
@@ -354,7 +354,7 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	if (brewed) {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, v3);
 	} else {
-		set_spell(ObjVal::EValueKey::kPotionSpell3Num, v3);
+		set_spell(ObjVal::EValueKey::kSpell3Num, v3);
 	}
 	return 1;
 }
@@ -395,24 +395,24 @@ int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
 	if (type != EObjType::kScroll && type != EObjType::kWand && type != EObjType::kStaff) {
 		return 0;
 	}
-	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSpell1Num) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSpell2Num) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSpell3Num) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemMaxCharges) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill) >= 0) {
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill) >= 0) {
 		return 0;  // already migrated
 	}
 	const auto set_pos = [obj](ObjVal::EValueKey key, int num) {
 		if (num > 0) { obj->SetPotionValueKey(key, num); }
 	};
 	if (type == EObjType::kScroll) {
-		set_pos(ObjVal::EValueKey::kSpellItemSpell1Num, obj->get_val(1));
-		set_pos(ObjVal::EValueKey::kSpellItemSpell2Num, obj->get_val(2));
-		set_pos(ObjVal::EValueKey::kSpellItemSpell3Num, obj->get_val(3));
+		set_pos(ObjVal::EValueKey::kSpell1Num, obj->get_val(1));
+		set_pos(ObjVal::EValueKey::kSpell2Num, obj->get_val(2));
+		set_pos(ObjVal::EValueKey::kSpell3Num, obj->get_val(3));
 	} else {
-		set_pos(ObjVal::EValueKey::kSpellItemSpell1Num, obj->get_val(3));
-		set_pos(ObjVal::EValueKey::kSpellItemMaxCharges, obj->get_val(1));
-		set_pos(ObjVal::EValueKey::kSpellItemCurCharges, obj->get_val(2));
+		set_pos(ObjVal::EValueKey::kSpell1Num, obj->get_val(3));
+		set_pos(ObjVal::EValueKey::kMaxCharges, obj->get_val(1));
+		set_pos(ObjVal::EValueKey::kCurCharges, obj->get_val(2));
 	}
 	return 1;
 }

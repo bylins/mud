@@ -1210,17 +1210,17 @@ void ObjVal::init_from_zone(const char *str) {
 
 bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 	switch (key) {
-		case ObjVal::EValueKey::kPotionSpell1Num:
+		case ObjVal::EValueKey::kSpell1Num:
 		case ObjVal::EValueKey::kPotionSpell1Lvl:
-		case ObjVal::EValueKey::kPotionSpell2Num:
+		case ObjVal::EValueKey::kSpell2Num:
 		case ObjVal::EValueKey::kPotionSpell2Lvl:
-		case ObjVal::EValueKey::kPotionSpell3Num:
+		case ObjVal::EValueKey::kSpell3Num:
 		case ObjVal::EValueKey::kPotionSpell3Lvl:
 		case ObjVal::EValueKey::kPotionProtoVnum:
 		case ObjVal::EValueKey::kPotionPotency:
 		case ObjVal::EValueKey::kPotionBrewRoll:
-		case ObjVal::EValueKey::kPotionSkill:
-		case ObjVal::EValueKey::kPotionStat:
+		case ObjVal::EValueKey::kMakerSkill:
+		case ObjVal::EValueKey::kMakerStat:
 		case ObjVal::EValueKey::kLiquidTimer:
 		case ObjVal::EValueKey::kLiquidPoison: return true;
 		default: return false;   // issue.magic-items: kSpellItem* keys are not drinkcon keys
@@ -1230,13 +1230,13 @@ bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 // issue.magic-items: keys a scroll/wand/staff may legally carry (the kSpellItem* shared payload).
 bool is_valid_spell_item(const ObjVal::EValueKey key) {
 	switch (key) {
-		case ObjVal::EValueKey::kSpellItemSpell1Num:
-		case ObjVal::EValueKey::kSpellItemSpell2Num:
-		case ObjVal::EValueKey::kSpellItemSpell3Num:
-		case ObjVal::EValueKey::kSpellItemSkill:
-		case ObjVal::EValueKey::kSpellItemStat:
-		case ObjVal::EValueKey::kSpellItemMaxCharges:
-		case ObjVal::EValueKey::kSpellItemCurCharges: return true;
+		case ObjVal::EValueKey::kSpell1Num:
+		case ObjVal::EValueKey::kSpell2Num:
+		case ObjVal::EValueKey::kSpell3Num:
+		case ObjVal::EValueKey::kMakerSkill:
+		case ObjVal::EValueKey::kMakerStat:
+		case ObjVal::EValueKey::kMaxCharges:
+		case ObjVal::EValueKey::kCurCharges: return true;
 		default: return false;
 	}
 }

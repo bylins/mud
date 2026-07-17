@@ -1439,8 +1439,8 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case EObjType::kScroll:
 					// issue.magic-items: a crafted scroll stores the crafter's competence (recipe skill + Int),
 					// like a brewed potion; its spells come from the prototype's kSpellItem* keys.
-					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill, rs->perc);
-					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemStat, GetRealBaseStat(ch, EBaseStat::kInt));
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
 					if (val[2] > 0) {
 						result->set_timer(val[2]);
 					}
@@ -1467,8 +1467,8 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							// computed potency: the brewing skill (rs->perc -- it stands in for the magic
 							// skill, since non-mages brew too) and the key stat (Intelligence). The
 							// competence is derived from these at cast, per spell.
-							result->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, rs->perc);
-							result->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+							result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
+							result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 													  GetRealBaseStat(ch, EBaseStat::kInt));
 							// One standard-normal draw (mean z=0, sd z=1), encoded with the bias so it
 							// stores positive. sigma-independent: every spell scales it by its own sigma.
@@ -1483,11 +1483,11 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case EObjType::kWand:
 				case EObjType::kStaff:
 					// issue.magic-items: crafted wand/staff -- crafter competence + charges into kSpellItem keys.
-					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill, rs->perc);
-					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemStat, GetRealBaseStat(ch, EBaseStat::kInt));
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
 					if (val[1] > 0) {
-						result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemMaxCharges, val[1]);
-						result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemCurCharges, val[1]);
+						result->SetPotionValueKey(ObjVal::EValueKey::kMaxCharges, val[1]);
+						result->SetPotionValueKey(ObjVal::EValueKey::kCurCharges, val[1]);
 					}
 					if (val[2] > 0) {
 						result->set_timer(val[2]);

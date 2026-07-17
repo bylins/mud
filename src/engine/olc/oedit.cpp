@@ -1078,22 +1078,22 @@ void drinkcon_values_menu(DescriptorData *d) {
 			 "%s",
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell1Num,
+							   ObjVal::EValueKey::kSpell1Num,
 							   ObjVal::EValueKey::kPotionSpell1Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell2Num,
+							   ObjVal::EValueKey::kSpell2Num,
 							   ObjVal::EValueKey::kPotionSpell2Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell3Num,
+							   ObjVal::EValueKey::kSpell3Num,
 							   ObjVal::EValueKey::kPotionSpell3Lvl).c_str(),
 			 nrm);
 
 	SendMsgToChar(buf_, d->character.get());
 	if (obj_has_potion_payload(OLC_OBJ(d)->get_type())) {
-		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 		char pbuf[512], sk_s[32], st_s[32];
 		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
 		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
@@ -1115,8 +1115,8 @@ void spellitem_values_menu(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	ObjData *obj = OLC_OBJ(d);
-	const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill);
-	const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemStat);
+	const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+	const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 	char sk_s[32], st_s[32];
 	if (sk < 0) snprintf(sk_s, sizeof(sk_s), "авт."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
 	if (st < 0) snprintf(st_s, sizeof(st_s), "авт."); else snprintf(st_s, sizeof(st_s), "%d", st);
@@ -1129,14 +1129,14 @@ void spellitem_values_menu(DescriptorData *d) {
 			"%s4%s) Навык мастера    : %s%s%s\r\n"
 			"%s5%s) Ключевой стат    : %s%s%s\r\n"
 			"Ваш выбор (0 - выход) :",
-			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpellItemSpell1Num, ObjVal::EValueKey::kSpellItemSpell1Num).c_str(), nrm,
-			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpellItemSpell2Num, ObjVal::EValueKey::kSpellItemSpell2Num).c_str(), nrm,
-			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpellItemSpell3Num, ObjVal::EValueKey::kSpellItemSpell3Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell1Num, ObjVal::EValueKey::kSpell1Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell2Num, ObjVal::EValueKey::kSpell2Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell3Num, ObjVal::EValueKey::kSpell3Num).c_str(), nrm,
 			grn,nrm,cyn, sk_s, nrm,
 			grn,nrm,cyn, st_s, nrm);
 	} else {
-		const int mx = obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemMaxCharges);
-		const int cur = obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemCurCharges);
+		const int mx = obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges);
+		const int cur = obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges);
 		char mx_s[32], cur_s[32];
 		snprintf(mx_s, sizeof(mx_s), "%d", mx < 0 ? 0 : mx);
 		snprintf(cur_s, sizeof(cur_s), "%d", cur < 0 ? 0 : cur);
@@ -1147,7 +1147,7 @@ void spellitem_values_menu(DescriptorData *d) {
 			"%s4%s) Максимум зарядов : %s%s%s\r\n"
 			"%s5%s) Текущие заряды   : %s%s%s\r\n"
 			"Ваш выбор (0 - выход) :",
-			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpellItemSpell1Num, ObjVal::EValueKey::kSpellItemSpell1Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell1Num, ObjVal::EValueKey::kSpell1Num).c_str(), nrm,
 			grn,nrm,cyn, sk_s, nrm,
 			grn,nrm,cyn, st_s, nrm,
 			grn,nrm,cyn, mx_s, nrm,
@@ -1215,8 +1215,8 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 
 std::string print_values2_menu(ObjData *obj) {
 	if (obj_has_potion_payload(obj->get_type())) {
-		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 		char buf_p[kMaxInputLength], sk_s[32], st_s[32];
 		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
 		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
@@ -1344,9 +1344,9 @@ int planebit(const char *str, int *plane, int *bit) {
 }
 
 void check_potion_proto(ObjData *obj) {
-	if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num) > 0) {
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) > 0) {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, 0);
 	} else {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
@@ -1382,13 +1382,13 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 		}
 
 		switch (key) {
-			case ObjVal::EValueKey::kPotionSpell1Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, -1);
+			case ObjVal::EValueKey::kPotionSpell1Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell1Num, -1);
 				break;
 
-			case ObjVal::EValueKey::kPotionSpell2Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num, -1);
+			case ObjVal::EValueKey::kPotionSpell2Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell2Num, -1);
 				break;
 
-			case ObjVal::EValueKey::kPotionSpell3Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num, -1);
+			case ObjVal::EValueKey::kPotionSpell3Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell3Num, -1);
 				break;
 
 			default: break;
@@ -2260,13 +2260,13 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		// issue.potion-hotfix: the retired per-spell level step (OEDIT_POTION_SPELL*_LVL) is skipped --
 		// parse_val_spell_num sets the spell and returns to the potion menu on both success and failure.
 		case OEDIT_POTION_SPELL1_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell1Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell1Num, number);
 			return;
 		case OEDIT_POTION_SPELL2_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell2Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell2Num, number);
 			return;
 		case OEDIT_POTION_SPELL3_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell3Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell3Num, number);
 			return;
 		case OEDIT_POTION_SPELL1_LVL: number = atoi(arg);
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell1Lvl, number);
@@ -2278,13 +2278,13 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell3Lvl, number);
 			return;
 		case OEDIT_POTION_SKILL: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
 				number < 0 ? -1 : std::clamp(number, 0, 200));
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
 			return;
 		case OEDIT_POTION_STAT: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 				number < 0 ? -1 : std::clamp(number, 0, 100));
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
@@ -2337,31 +2337,31 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					return;
 			}
 			break;
-		case OEDIT_SPELLITEM_SPELL1: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpellItemSpell1Num, atoi(arg));
+		case OEDIT_SPELLITEM_SPELL1: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell1Num, atoi(arg));
 			return;
-		case OEDIT_SPELLITEM_SPELL2: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpellItemSpell2Num, atoi(arg));
+		case OEDIT_SPELLITEM_SPELL2: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell2Num, atoi(arg));
 			return;
-		case OEDIT_SPELLITEM_SPELL3: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpellItemSpell3Num, atoi(arg));
+		case OEDIT_SPELLITEM_SPELL3: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell3Num, atoi(arg));
 			return;
 		case OEDIT_SPELLITEM_SKILL: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill,
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
 				number < 0 ? -1 : std::clamp(number, 0, 200));
 			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 			spellitem_values_menu(d);
 			return;
 		case OEDIT_SPELLITEM_STAT: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpellItemStat,
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 				number < 0 ? -1 : std::clamp(number, 0, 100));
 			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 			spellitem_values_menu(d);
 			return;
 		case OEDIT_SPELLITEM_MAXCHARGES: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpellItemMaxCharges, std::clamp(number, 0, 200));
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMaxCharges, std::clamp(number, 0, 200));
 			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 			spellitem_values_menu(d);
 			return;
 		case OEDIT_SPELLITEM_CURCHARGES: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpellItemCurCharges, std::clamp(number, 0, 200));
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kCurCharges, std::clamp(number, 0, 200));
 			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 			spellitem_values_menu(d);
 			return;

@@ -186,10 +186,10 @@ namespace drinkcon {
 
 ObjVal::EValueKey init_spell_num(int num) {
 	return num == 1
-		   ? ObjVal::EValueKey::kPotionSpell1Num
+		   ? ObjVal::EValueKey::kSpell1Num
 		   : (num == 2
-			  ? ObjVal::EValueKey::kPotionSpell2Num
-			  : ObjVal::EValueKey::kPotionSpell3Num);
+			  ? ObjVal::EValueKey::kSpell2Num
+			  : ObjVal::EValueKey::kSpell3Num);
 }
 
 ObjVal::EValueKey init_spell_lvl(int num) {
@@ -201,17 +201,17 @@ ObjVal::EValueKey init_spell_lvl(int num) {
 }
 
 void reset_potion_values(CObjectPrototype *obj) {
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kSpell1Num, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Lvl, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kSpell2Num, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Lvl, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kSpell3Num, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Lvl, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, -1);
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, -1);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, -1);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, -1);
 }
@@ -245,10 +245,10 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency));
 		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll,
 								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll));
-		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
-								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill));
-		to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
-								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill));
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
+								  from_obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat));
 	}
 }
 
@@ -469,7 +469,7 @@ void drinkcon::spells_to_drinkcon(ObjData *from_obj, ObjData *to_obj) {
 	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, proto_vnum);
 	// issue.potion-hotfix: carry the FULL brewed stats, not just the spells + proto vnum. A brewed
 	// potion's strength is its maker skill/stat (+ the frozen roll); the vnum alone can't recover it.
-	for (const auto key : {ObjVal::EValueKey::kPotionSkill, ObjVal::EValueKey::kPotionStat,
+	for (const auto key : {ObjVal::EValueKey::kMakerSkill, ObjVal::EValueKey::kMakerStat,
 						   ObjVal::EValueKey::kPotionPotency, ObjVal::EValueKey::kPotionBrewRoll}) {
 		to_obj->SetPotionValueKey(key, from_obj->GetPotionValueKey(key));
 	}
@@ -486,8 +486,8 @@ void drinkcon::mix_potion_values(ObjData *to_obj, const ObjData *from_obj, int n
 	}
 	const int skill = (n_to * PotionCastSkill(to_obj) + n_from * PotionCastSkill(from_obj)) / (n_to + n_from);
 	const int stat  = (n_to * PotionCastStat(to_obj)  + n_from * PotionCastStat(from_obj))  / (n_to + n_from);
-	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, std::max(1, skill));
-	to_obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, std::max(1, stat));
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, std::max(1, skill));
+	to_obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, std::max(1, stat));
 }
 
 int drinkcon::age_contents(ObjData *obj) {
@@ -517,7 +517,7 @@ void drinkcon::spoil_potion(ObjData *obj) {
 	// Poison level = a fixed percentage of the power the potion has RIGHT NOW (before it is weakened),
 	// read from its primary spell's potency. Compute it first, then halve the power inputs so the next
 	// spoilage cycle leaves an even weaker -- eventually inert -- potion.
-	const auto spell = static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num));
+	const auto spell = static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num));
 	float power = 0.0f;
 	if (spell > ESpell::kUndefined) {
 		power = PotionPotency(obj, spell);
@@ -530,8 +530,8 @@ void drinkcon::spoil_potion(ObjData *obj) {
 
 	// Halve the effective maker skill/stat and store them EXPLICITLY. PotionCastSkill/Stat fall back to
 	// the authored default only when the key is ABSENT, so once stored a value keeps halving toward 0.
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, PotionCastSkill(obj) / 2);
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,  PotionCastStat(obj)  / 2);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, PotionCastSkill(obj) / 2);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,  PotionCastStat(obj)  / 2);
 }
 
 size_t find_liquid_name(const char *name) {

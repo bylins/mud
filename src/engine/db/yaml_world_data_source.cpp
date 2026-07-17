@@ -143,8 +143,10 @@ std::string GetExtraValueSpellComment(const std::string &key, int value) {
 	// the potion POTION_SPELL<n>_NUM keys. Both hold an ESpell number in a *_SPELL<n>_NUM key.
 	const bool has_num_suffix = key.size() > kSuffix.size()
 		&& key.compare(key.size() - kSuffix.size(), kSuffix.size(), kSuffix) == 0;
+	// issue.magic-items: canonical SPELL<n>_NUM (unified) plus the legacy POTION_SPELL*/SPELLITEM_SPELL*
+	// read-aliases -- rfind("SPELL",0) already covers SPELL<n>_NUM and SPELLITEM_SPELL<n>_NUM.
 	const bool is_spell_key = has_num_suffix
-		&& (key.rfind("POTION_SPELL", 0) == 0 || key.rfind("SPELLITEM_SPELL", 0) == 0);
+		&& (key.rfind("SPELL", 0) == 0 || key.rfind("POTION_SPELL", 0) == 0);
 	if (!is_spell_key || value <= 0 || value > to_underlying(ESpell::kLast)) {
 		return "";
 	}

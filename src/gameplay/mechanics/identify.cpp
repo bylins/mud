@@ -82,9 +82,9 @@ switch (obj->get_type()) {
 		std::ostringstream out;
 		out << "Содержит заклинание:";
 		const ObjVal::EValueKey spell_keys[3] = {
-			ObjVal::EValueKey::kSpellItemSpell1Num,
-			ObjVal::EValueKey::kSpellItemSpell2Num,
-			ObjVal::EValueKey::kSpellItemSpell3Num};
+			ObjVal::EValueKey::kSpell1Num,
+			ObjVal::EValueKey::kSpell2Num,
+			ObjVal::EValueKey::kSpell3Num};
 		for (const auto key : spell_keys) {
 			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
 			if (MUD::Spell(spell_id).IsValid()) {
@@ -106,9 +106,9 @@ switch (obj->get_type()) {
 		std::ostringstream out;
 		out << "Содержит заклинание:";
 		const ObjVal::EValueKey spell_keys[3] = {
-			ObjVal::EValueKey::kPotionSpell1Num,
-			ObjVal::EValueKey::kPotionSpell2Num,
-			ObjVal::EValueKey::kPotionSpell3Num};
+			ObjVal::EValueKey::kSpell1Num,
+			ObjVal::EValueKey::kSpell2Num,
+			ObjVal::EValueKey::kSpell3Num};
 		for (const auto key : spell_keys) {
 			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
 			if (MUD::Spell(spell_id).IsValid()) {
@@ -127,10 +127,10 @@ switch (obj->get_type()) {
 	case EObjType::kWand:
 	case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
 		sprintf(buf + strlen(buf), " %s\r\n",
-				MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSpell1Num))).GetCName());
+				MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num))).GetCName());
 		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
-				obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemCurCharges),
-				obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemMaxCharges));
+				obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
+				obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));
 		SendMsgToChar(buf, ch);
 		break;
 

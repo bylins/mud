@@ -973,9 +973,9 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			std::ostringstream out;
 			out << "Заклинания:";
 			const ObjVal::EValueKey spell_keys[3] = {
-				ObjVal::EValueKey::kPotionSpell1Num,
-				ObjVal::EValueKey::kPotionSpell2Num,
-				ObjVal::EValueKey::kPotionSpell3Num};
+				ObjVal::EValueKey::kSpell1Num,
+				ObjVal::EValueKey::kSpell2Num,
+				ObjVal::EValueKey::kSpell3Num};
 			for (const auto key : spell_keys) {
 				const auto spell_id = static_cast<ESpell>(j->GetPotionValueKey(key));
 				if (MUD::Spell(spell_id).IsValid()) {
