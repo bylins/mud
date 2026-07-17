@@ -1065,6 +1065,14 @@ static bool obj_has_potion_payload(EObjType t) {
 		|| t == EObjType::kFountain;
 }
 
+// issue.magic-items: object types whose payload lives in the extended ObjVal (extra_values) map,
+// not val[0..3] -- their legacy "O) Values" line is meaningless and their "N)" summary is the
+// maker skill/stat, not spec_param.
+static bool obj_uses_extended_values(EObjType t) {
+	return obj_has_potion_payload(t)
+		|| t == EObjType::kScroll || t == EObjType::kWand || t == EObjType::kStaff;
+}
+
 void drinkcon_values_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -1214,7 +1222,7 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 }
 
 std::string print_values2_menu(ObjData *obj) {
-	if (obj_has_potion_payload(obj->get_type())) {
+	if (obj_uses_extended_values(obj->get_type())) {
 		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
 		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 		char buf_p[kMaxInputLength], sk_s[32], st_s[32];
@@ -1230,6 +1238,17 @@ std::string print_values2_menu(ObjData *obj) {
 }
 
 // * Display main menu.
+// The "O) Values" summary: the raw val[0..3] for legacy types, or nothing for extended-value types.
+static std::string print_obj_values_line(ObjData *obj) {
+	if (obj_uses_extended_values(obj->get_type())) {
+		return "";
+	}
+	char b[64];
+	snprintf(b, sizeof(b), "%d %d %d %d",
+			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3));
+	return b;
+}
+
 void oedit_disp_menu(DescriptorData *d) {
 	ObjData *obj;
 
@@ -1284,7 +1303,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sJ%s) Макс.проч.  : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
 			 "%sL%s) Материал    : %s%s\r\n"
 			 "%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
-			 "%sO%s) Values      : %s%d %d %d %d\r\n"
+			 "%sO%s) Values      : %s%s\r\n"
 			 "%sP%s) Аффекты     : %s%s\r\n"
 			 "%sR%s) Меню наводимых аффектов\r\n"
 			 "%sT%s) Меню экстраописаний\r\n"
@@ -1307,8 +1326,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn, obj->get_timer(),
 			 grn, nrm, print_values2_menu(obj).c_str(),
 			 grn, nrm, cyn,
-			 GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-			 GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
+			 print_obj_values_line(obj).c_str(), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			 nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют",
 			 grn, nrm, cyn, genders[gender],
 			 grn, nrm, cyn, obj->get_max_in_world(),
