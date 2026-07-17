@@ -672,6 +672,17 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		MUD::CfgManager().LoadCfg("skills");
 	}
 
+	// issue #3583: имена спеллов (MUD::Spell().GetName()) нужны, чтобы подписывать
+	// спелл-значения свитков/палочек/посохов в objects.yaml. Как и skills выше,
+	// конфиг спеллов грузит BootMudDataBase для боевого сервера, но путь `-S`
+	// resave / scheck его пропускает -- иначе имена спеллов остаются "!undefined!".
+	// Guarded, чтобы обычный boot не перезагружал уже загруженное.
+	if (!MUD::Spells().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("spell_msg");   // имена спеллов (spell_msg.xml), читаются при загрузке spells
+		MUD::CfgManager().LoadCfg("spells");
+	}
+
 	// Create data source if none provided. Runtime selection comes from
 	// <world_loader><sources> (ordered = priority); several sources combine into
 	// a CompositeWorldDataSource. An empty/absent block falls back to the
