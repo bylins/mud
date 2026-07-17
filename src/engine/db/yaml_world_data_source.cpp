@@ -2125,8 +2125,7 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 			if (timer > 99999) timer = 99999;
 			obj_ptr->set_timer(timer);
 
-			obj_ptr->set_spell(GetInt(root, "spell", -1));
-			obj_ptr->set_level(GetInt(root, "level", 0));
+			// issue #3581: obj->spell и его уровень (level) -- мёртвая пара, из мировой сериализации выпилены; ключи "spell"/"level" в старых yaml игнорируются.
 			obj_ptr->set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
 			if (root["max_in_world"])
@@ -4290,17 +4289,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.Key("timer");
 	yaml.Value(obj->get_timer());
 
-	// Spell (with comment)
-	if (to_underlying(obj->get_spell()) >= 0)
-	{
-		int spell_id = to_underlying(obj->get_spell());
-		yaml.Key("spell");
-		yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
-	}
-
-	// Level and sex
-	yaml.Key("level");
-	yaml.Value(obj->get_level());
+	// issue #3581: obj->spell и его уровень (level) -- мёртвая пара, в yaml больше не пишем.
 
 	yaml.Key("sex");
 	yaml.Value(ReverseLookupEnum("genders", static_cast<int>(obj->get_sex())));
