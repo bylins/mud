@@ -645,9 +645,8 @@ void ObjectFile::parse_object(const int nr) {
 		timer = 99999;
 	}
 	tobj->set_timer(timer);
-	// issue #3581: obj->spell -- мёртвое поле, ни одна механика его не читает.
-	// t[2] всё ещё разбирается (формат легаси-строки = 4 поля), но объекту не присваивается.
-	tobj->set_level(t[3]);
+	// issue #3581: obj->spell и его уровень -- мёртвая пара, ни одна механика их не читает.
+	// t[2]/t[3] всё ещё разбираются (формат легаси-строки = 4 поля), но объекту не присваиваются.
 
 	if (!get_line(file(), m_line)) {
 		fatal_log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", m_buffer);

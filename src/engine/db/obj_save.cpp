@@ -313,7 +313,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				// issue #3581: obj->spell -- мёртвое поле; тег игнорируем (совместимость со старыми рентами).
 			} else if (!strcmp(read_line, "Levl")) {
 				*error = 22;
-				object->set_level(atoi(buffer));
+				// issue #3581: obj->spell/level -- мёртвая пара; тег игнорируем (совместимость со старыми рентами).
 			} else if (!strcmp(read_line, "Affs")) {
 				*error = 23;
 				object->SetWeaponAffectFlags(clear_flags);
@@ -734,10 +734,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (obj_timer != proto_timer) {
 			out << "Tmer: " << obj_timer << "~\n";
 		}
-		// issue #3581: obj->spell -- мёртвое поле, в рент больше не пишем.
-		if (object->get_level() != p->get_level()) {
-			out << "Levl: " << object->get_level() << "~\n";
-		}
+		// issue #3581: obj->spell/level -- мёртвая пара, в рент больше не пишем.
 		if (object->get_is_rename()) {
 			out << "Rnme: 1~\n";
 		}
