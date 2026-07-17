@@ -135,6 +135,20 @@ std::string GetObjValueSpellComment(EObjType type, int slot, int value) {
 	return GetSpellNameComment(static_cast<ESpell>(value));
 }
 
+// issue #3583: имя спелла для потионных ключей extra_values вида POTION_SPELL<n>_NUM
+// (у зелий заклинания лежат в ObjVal-ключах, а не в val[]). Ключи *_LVL не трогаем.
+std::string GetExtraValueSpellComment(const std::string &key, int value) {
+	static const std::string kPrefix = "POTION_SPELL";
+	static const std::string kSuffix = "_NUM";
+	const bool is_spell_key = key.size() > kPrefix.size() + kSuffix.size()
+		&& key.compare(0, kPrefix.size(), kPrefix) == 0
+		&& key.compare(key.size() - kSuffix.size(), kSuffix.size(), kSuffix) == 0;
+	if (!is_spell_key || value <= 0 || value > to_underlying(ESpell::kLast)) {
+		return "";
+	}
+	return GetSpellNameComment(static_cast<ESpell>(value));
+}
+
 // Get material name by ID (for material comments)
 std::string GetMaterialNameComment(int material_id) {
 	return ::material_name[material_id];
@@ -4579,7 +4593,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 			for (const auto &kv : sorted_vals)
 			{
 				yaml.Key(kv.first);
-				yaml.Value(kv.second);
+				yaml.Value(kv.second, GetExtraValueSpellComment(kv.first, kv.second));
 			}
 			yaml.EndBlock();
 		}
