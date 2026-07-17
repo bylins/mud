@@ -119,43 +119,31 @@ static void olc_save_all(CharData *ch, int subcmd) {
 		SendMsgToChar("Запись всех зон доступна только старшим богам.\r\n", ch);
 		return;
 	}
-	const char *type = nullptr;
-	switch (subcmd) {
-		case kScmdOlcRedit: type = "room"; break;
-		case kScmdOlcZedit: type = "zone"; break;
-		case kScmdOlcMedit: type = "mobile"; break;
-		case kScmdOlcOedit: type = "object"; break;
-		default:
-			SendMsgToChar("Для этого типа запись всех зон не поддерживается.\r\n", ch);
-			return;
-	}
 	auto *data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 	if (!data_source) {
 		SendMsgToChar("Нет активного источника мира.\r\n", ch);
 		return;
 	}
-	const int log_lvl = std::max(kLvlImplementator, GET_INVIS_LEV(ch));
-	int ok = 0, fail = 0;
+	// Save*-методы yaml-источника не бросают исключений (ошибки файла логируют
+	// и делают return), поэтому try/catch тут не нужен. Один switch по subcmd
+	// прямо в цикле пишет зону и заодно запоминает type для лога/сообщения.
+	const char *type = "";
 	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		try {
-			switch (subcmd) {
-				case kScmdOlcRedit: data_source->SaveRooms(zrn); break;
-				case kScmdOlcZedit: data_source->SaveZone(zrn); break;
-				case kScmdOlcMedit: data_source->SaveMobs(zrn); break;
-				case kScmdOlcOedit: data_source->SaveObjects(zrn); break;
-			}
-			ok++;
-		} catch (const std::exception &e) {
-			fail++;
-			snprintf(buf, kMaxStringLength, "SYSERR: OLC save all (%s): зона %d: %s",
-				type, zone_table[zrn].vnum, e.what());
-			mudlog(buf, LGH, log_lvl, SYSLOG, true);
+		switch (subcmd) {
+			case kScmdOlcRedit: data_source->SaveRooms(zrn);   type = "room";   break;
+			case kScmdOlcZedit: data_source->SaveZone(zrn);    type = "zone";   break;
+			case kScmdOlcMedit: data_source->SaveMobs(zrn);    type = "mobile"; break;
+			case kScmdOlcOedit: data_source->SaveObjects(zrn); type = "object"; break;
+			default:
+				SendMsgToChar("Для этого типа запись всех зон не поддерживается.\r\n", ch);
+				return;
 		}
 	}
-	snprintf(buf, kMaxStringLength, "OLC: %s saves all %ss (ok=%d fail=%d).", GET_NAME(ch), type, ok, fail);
-	mudlog(buf, LGH, log_lvl, SYSLOG, true);
-	olc_log("%s save all %s (ok=%d fail=%d)", GET_NAME(ch), type, ok, fail);
-	snprintf(buf, kMaxStringLength, "Записаны все зоны (%s): успешно %d, с ошибкой %d.\r\n", type, ok, fail);
+	const int count = static_cast<int>(zone_table.size());
+	snprintf(buf, kMaxStringLength, "OLC: %s saves all %ss (%d zones).", GET_NAME(ch), type, count);
+	mudlog(buf, LGH, std::max(kLvlImplementator, GET_INVIS_LEV(ch)), SYSLOG, true);
+	olc_log("%s save all %s (%d zones)", GET_NAME(ch), type, count);
+	snprintf(buf, kMaxStringLength, "Записаны на диск все зоны (%s): %d.\r\n", type, count);
 	SendMsgToChar(buf, ch);
 }
 
