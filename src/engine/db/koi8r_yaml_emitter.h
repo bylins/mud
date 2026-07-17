@@ -21,6 +21,16 @@ class Koi8rYamlEmitter
 	std::ostream &out_;
 	int indent_;
 
+	// True while the most recent stream write was a keep-chomping literal
+	// block ("|+"). A "|+" block keeps *every* trailing line break up to the
+	// next less-indented, non-empty line -- including a blank separator line
+	// emitted right after it. That blank gets absorbed into the scalar, the
+	// value gains one '\n', the next save writes one more blank, and the block
+	// grows without bound on every round-trip (issue #3587). EmptyLine() reads
+	// this flag to suppress the swallowable separator; a following comment or
+	// key then terminates the block cleanly with the exact newline count.
+	bool pending_keep_block_ = false;
+
 public:
 	explicit Koi8rYamlEmitter(std::ostream &out) : out_(out), indent_(0) {}
 
@@ -29,10 +39,11 @@ public:
 	void BeginMap() {}
 	void EndMap() {}
 
-	void Key(const std::string &key) { out_ << GetIndent() << key << ":"; }
+	void Key(const std::string &key) { pending_keep_block_ = false; out_ << GetIndent() << key << ":"; }
 
 	void Value(const std::string &value, [[maybe_unused]] bool literal = false)
 	{
+		pending_keep_block_ = false;
 		// Any value containing a newline has to go into a literal block --
 		// plain and single-quoted scalars don't survive embedded \n on
 		// reload (they get folded/truncated). Force literal regardless of
@@ -66,6 +77,7 @@ public:
 
 			if (content_only_newlines)
 			{
+				pending_keep_block_ = true;
 				out_ << " |+2" << std::endl;
 			}
 			else if (trailing_nl == 0)
@@ -78,6 +90,7 @@ public:
 			}
 			else
 			{
+				pending_keep_block_ = true;
 				out_ << " |+2" << std::endl;
 			}
 
@@ -133,6 +146,7 @@ public:
 
 	void Value(int value, const std::string &comment = "")
 	{
+		pending_keep_block_ = false;
 		out_ << " " << value;
 		if (!comment.empty()) { out_ << "  # " << comment; }
 		out_ << std::endl;
@@ -140,15 +154,17 @@ public:
 
 	void Value(long value, const std::string &comment = "")
 	{
+		pending_keep_block_ = false;
 		out_ << " " << value;
 		if (!comment.empty()) { out_ << "  # " << comment; }
 		out_ << std::endl;
 	}
 
-	void BeginSequence() { out_ << std::endl; }
+	void BeginSequence() { pending_keep_block_ = false; out_ << std::endl; }
 
 	void SequenceItem(const std::string &value, const std::string &comment = "")
 	{
+		pending_keep_block_ = false;
 		out_ << GetIndent() << "- " << value;
 		if (!comment.empty()) { out_ << "  # " << comment; }
 		out_ << std::endl;
@@ -156,19 +172,34 @@ public:
 
 	void SequenceItem(int value, const std::string &comment = "")
 	{
+		pending_keep_block_ = false;
 		out_ << GetIndent() << "- " << value;
 		if (!comment.empty()) { out_ << "  # " << comment; }
 		out_ << std::endl;
 	}
 
+	// Indent changes emit no output, so they must NOT reset the keep-block
+	// flag -- the several DecreaseIndent() calls between a trailing "|+" block
+	// and the next EmptyLine() would otherwise clear it and re-open the bug.
 	void IncreaseIndent() { indent_ += 2; }
 	void DecreaseIndent() { indent_ -= 2; }
 
-	void Comment(const std::string &text) { out_ << GetIndent() << "# " << text << std::endl; }
+	void Comment(const std::string &text) { pending_keep_block_ = false; out_ << GetIndent() << "# " << text << std::endl; }
 
-	void EmptyLine() { out_ << std::endl; }
+	// Skip the blank line when it directly follows a "|+" keep block: that
+	// block would swallow it (issue #3587). The next comment/key terminates
+	// the block cleanly, so no separator is lost in any meaningful sense.
+	void EmptyLine()
+	{
+		if (pending_keep_block_)
+		{
+			pending_keep_block_ = false;
+			return;
+		}
+		out_ << std::endl;
+	}
 
-	void BeginBlock() { out_ << std::endl; indent_ += 2; }
+	void BeginBlock() { pending_keep_block_ = false; out_ << std::endl; indent_ += 2; }
 	void EndBlock() { indent_ -= 2; }
 };
 

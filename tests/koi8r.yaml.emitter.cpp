@@ -30,6 +30,25 @@ std::string RoundTrip(const std::string &value)
 	return node["v"].as<std::string>();
 }
 
+// Emit `value` as a literal block, then a blank separator line and the comment
+// that begins the next record -- exactly the flat-layout object separator in
+// YamlWorldDataSource::SaveObjects. Parse back and return the scalar. This is
+// the round-trip that used to grow (issue #3587): a "|+" keep block swallows a
+// blank line placed right after it.
+std::string RoundTripWithSeparator(const std::string &value)
+{
+	std::ostringstream out;
+	Koi8rYamlEmitter yaml(out);
+	yaml.Key("v");
+	yaml.Value(value, true);
+	yaml.EmptyLine();            // separator before the next record
+	yaml.Comment("Object #2");   // terminates the block
+	yaml.Key("next");
+	yaml.Value(1);
+	YAML::Node node = YAML::Load(out.str());
+	return node["v"].as<std::string>();
+}
+
 }  // namespace
 
 TEST(Koi8rYamlEmitter, RoundTripPlainAscii)
@@ -86,6 +105,31 @@ TEST(Koi8rYamlEmitter, SingleQuoteEscaped)
 TEST(Koi8rYamlEmitter, ColonInValueRoundTrip)
 {
 	EXPECT_EQ(RoundTrip("foo: bar"), "foo: bar");
+}
+
+// Issue #3587: an empty description (a value that is only newlines) emits a
+// "|+" keep block. The blank separator line before the next record's comment
+// used to be swallowed by the keep block, so the value gained one '\n' on each
+// save. Feeding the parsed value back through the emitter must be a fixed point.
+TEST(Koi8rYamlEmitter, KeepBlockDoesNotAbsorbSeparator)
+{
+	std::string value = "\n\n\n\n";
+	std::string once = RoundTripWithSeparator(value);
+	EXPECT_EQ(once, value);
+	// And it stays put across further saves -- no unbounded growth.
+	std::string twice = RoundTripWithSeparator(once);
+	EXPECT_EQ(twice, value);
+	std::string thrice = RoundTripWithSeparator(twice);
+	EXPECT_EQ(thrice, value);
+}
+
+// A keep block also arises for non-empty content ending in >= 2 newlines; the
+// separator must not be absorbed there either.
+TEST(Koi8rYamlEmitter, KeepBlockWithContentDoesNotAbsorbSeparator)
+{
+	std::string value = "text\n\n";
+	EXPECT_EQ(RoundTripWithSeparator(value), value);
+	EXPECT_EQ(RoundTripWithSeparator(RoundTripWithSeparator(value)), value);
 }
 
 #endif  // HAVE_YAML
