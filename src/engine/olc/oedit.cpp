@@ -2279,7 +2279,9 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 		case OEDIT_POTION_SKILL: number = atoi(arg);
 			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
-				number < 0 ? -1 : std::clamp(number, 0, 200));
+				// issue.magic-items: the maker skill IS the magic skill -- it can far exceed 200 (skill cap
+				// is 80 + 5*remort = 575 at max remort, and higher with skill buffs). Cap generously.
+				number < 0 ? -1 : std::clamp(number, 0, 1000));
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
 			return;
@@ -2345,7 +2347,9 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 		case OEDIT_SPELLITEM_SKILL: number = atoi(arg);
 			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
-				number < 0 ? -1 : std::clamp(number, 0, 200));
+				// issue.magic-items: the maker skill IS the magic skill -- it can far exceed 200 (skill cap
+				// is 80 + 5*remort = 575 at max remort, and higher with skill buffs). Cap generously.
+				number < 0 ? -1 : std::clamp(number, 0, 1000));
 			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 			spellitem_values_menu(d);
 			return;
