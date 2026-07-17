@@ -110,6 +110,55 @@ olc_data::olc_data()
 
 //------------------------------------------------------------
 
+// issue #3582: "<olc> save all" -- перезаписать на диск ВСЕ зоны данного типа
+// (redit->комнаты, oedit->объекты, medit->мобы, zedit->зоны) текущим сериализатором.
+// Массовая операция по всему миру -- только для имплов. Удобно для разовой
+// конвертации формата мира (заменяет отдельную ветку-инструмент).
+static void olc_save_all(CharData *ch, int subcmd) {
+	if (!privilege::IsImpl(ch)) {
+		SendMsgToChar("Запись всех зон доступна только старшим богам.\r\n", ch);
+		return;
+	}
+	const char *type = nullptr;
+	switch (subcmd) {
+		case kScmdOlcRedit: type = "room"; break;
+		case kScmdOlcZedit: type = "zone"; break;
+		case kScmdOlcMedit: type = "mobile"; break;
+		case kScmdOlcOedit: type = "object"; break;
+		default:
+			SendMsgToChar("Для этого типа запись всех зон не поддерживается.\r\n", ch);
+			return;
+	}
+	auto *data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+	if (!data_source) {
+		SendMsgToChar("Нет активного источника мира.\r\n", ch);
+		return;
+	}
+	const int log_lvl = std::max(kLvlImplementator, GET_INVIS_LEV(ch));
+	int ok = 0, fail = 0;
+	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		try {
+			switch (subcmd) {
+				case kScmdOlcRedit: data_source->SaveRooms(zrn); break;
+				case kScmdOlcZedit: data_source->SaveZone(zrn); break;
+				case kScmdOlcMedit: data_source->SaveMobs(zrn); break;
+				case kScmdOlcOedit: data_source->SaveObjects(zrn); break;
+			}
+			ok++;
+		} catch (const std::exception &e) {
+			fail++;
+			snprintf(buf, kMaxStringLength, "SYSERR: OLC save all (%s): зона %d: %s",
+				type, zone_table[zrn].vnum, e.what());
+			mudlog(buf, LGH, log_lvl, SYSLOG, true);
+		}
+	}
+	snprintf(buf, kMaxStringLength, "OLC: %s saves all %ss (ok=%d fail=%d).", GET_NAME(ch), type, ok, fail);
+	mudlog(buf, LGH, log_lvl, SYSLOG, true);
+	olc_log("%s save all %s (ok=%d fail=%d)", GET_NAME(ch), type, ok, fail);
+	snprintf(buf, kMaxStringLength, "Записаны все зоны (%s): успешно %d, с ошибкой %d.\r\n", type, ok, fail);
+	SendMsgToChar(buf, ch);
+}
+
 /*
  * Exported ACMD do_olc function.
  *
@@ -149,6 +198,11 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		if (strn_cmp("save", buf1, 4) == 0
 			|| (lock = !strn_cmp("lock", buf1, 4)) == true
 			|| (unlock = !strn_cmp("unlock", buf1, 6)) == true) {
+			// issue #3582: "save all" -- записать на диск все зоны данного типа.
+			if (strn_cmp("save", buf1, 4) == 0 && *buf2 && !str_cmp(buf2, "all")) {
+				olc_save_all(ch, subcmd);
+				return;
+			}
 			if (!*buf2) {
 				if (GET_OLC_ZONE(ch)) {
 					save = 1;
