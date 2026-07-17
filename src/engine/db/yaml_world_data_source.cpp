@@ -138,11 +138,13 @@ std::string GetObjValueSpellComment(EObjType type, int slot, int value) {
 // issue #3583: имя спелла для потионных ключей extra_values вида POTION_SPELL<n>_NUM
 // (у зелий заклинания лежат в ObjVal-ключах, а не в val[]). Ключи *_LVL не трогаем.
 std::string GetExtraValueSpellComment(const std::string &key, int value) {
-	static const std::string kPrefix = "POTION_SPELL";
 	static const std::string kSuffix = "_NUM";
-	const bool is_spell_key = key.size() > kPrefix.size() + kSuffix.size()
-		&& key.compare(0, kPrefix.size(), kPrefix) == 0
+	// issue.magic-items: annotate the scroll/wand/staff SPELLITEM_SPELL<n>_NUM keys too, not just
+	// the potion POTION_SPELL<n>_NUM keys. Both hold an ESpell number in a *_SPELL<n>_NUM key.
+	const bool has_num_suffix = key.size() > kSuffix.size()
 		&& key.compare(key.size() - kSuffix.size(), kSuffix.size(), kSuffix) == 0;
+	const bool is_spell_key = has_num_suffix
+		&& (key.rfind("POTION_SPELL", 0) == 0 || key.rfind("SPELLITEM_SPELL", 0) == 0);
 	if (!is_spell_key || value <= 0 || value > to_underlying(ESpell::kLast)) {
 		return "";
 	}
