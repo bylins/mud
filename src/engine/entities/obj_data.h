@@ -55,7 +55,17 @@ class ObjVal {
 		// val[3] (which meant BOTH a freshness countdown AND, at exactly 1, "poisoned"). Persisted by
 		// name via the kObjVals text_id table, like the potion keys above.
 		kLiquidTimer = 11,      // contents freshness: counts down 1/mud-hour; reaching 0 spoils the potion
-		kLiquidPoison = 12      // poison level applied on drinking (0 = harmless); set when it spoils
+		kLiquidPoison = 12,     // poison level applied on drinking (0 = harmless); set when it spoils
+		// issue.magic-items: shared payload for scrolls/wands/staves -- the spell-casting-item analog of
+		// the kPotion* keys. Scroll uses spell 1..3; wand/staff use spell 1 + charges. Strength is the
+		// maker skill+stat run through each spell's potency_roll (SpellItemPotency), like a potion.
+		kSpellItemSpell1Num = 13,
+		kSpellItemSpell2Num = 14,
+		kSpellItemSpell3Num = 15,
+		kSpellItemSkill = 16,       // maker skill -> potency + duration (absent -> authored default)
+		kSpellItemStat = 17,        // maker key stat -> potency (absent -> authored default)
+		kSpellItemMaxCharges = 18,  // wand/staff capacity
+		kSpellItemCurCharges = 19   // wand/staff charges remaining
 	};
 
 	// issue.potion-hotfix: fixed-point scale for kPotionBrewRoll. The stored int is

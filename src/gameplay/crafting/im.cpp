@@ -1437,6 +1437,14 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (result) {
 			switch (result->get_type()) {
 				case EObjType::kScroll:
+					// issue.magic-items: a crafted scroll stores the crafter's competence (recipe skill + Int),
+					// like a brewed potion; its spells come from the prototype's kSpellItem* keys.
+					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill, rs->perc);
+					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemStat, GetRealBaseStat(ch, EBaseStat::kInt));
+					if (val[2] > 0) {
+						result->set_timer(val[2]);
+					}
+					break;
 				case EObjType::kPotion:
 					if (val[0] > 0) {
 						result->set_val(0, val[0]);
@@ -1474,12 +1482,12 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				case EObjType::kWand:
 				case EObjType::kStaff:
-					if (val[0] > 0) {
-						result->set_val(0, val[0]);
-					}
+					// issue.magic-items: crafted wand/staff -- crafter competence + charges into kSpellItem keys.
+					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill, rs->perc);
+					result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemStat, GetRealBaseStat(ch, EBaseStat::kInt));
 					if (val[1] > 0) {
-						result->set_val(1, val[1]);
-						result->set_val(2, val[1]);
+						result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemMaxCharges, val[1]);
+						result->SetPotionValueKey(ObjVal::EValueKey::kSpellItemCurCharges, val[1]);
 					}
 					if (val[2] > 0) {
 						result->set_timer(val[2]);

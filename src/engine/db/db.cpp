@@ -384,12 +384,46 @@ int ConvertDrinkPoisonField(CObjectPrototype *obj, bool /*proto*/) {
 	return 0;
 }
 
+// issue.magic-items: migrate a scroll/wand/staff's legacy val[] payload into the kSpellItem* ObjVal
+// keys. Scroll: val[1..3] = up to 3 spells. Wand/staff: val[1]=max charges, val[2]=cur charges,
+// val[3]=spell. Skill/stat are left ABSENT (-> the authored-maker potency default), like a builder
+// potion; a builder can tune them in OLC. Idempotent: skipped once any kSpellItem* key is present.
+// val[] is left in place as a read-fallback until a later cleanup. This is the load-time counterpart
+// of the tools/convert_magic_items.py on-disk converter.
+int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
+	const auto type = obj->get_type();
+	if (type != EObjType::kScroll && type != EObjType::kWand && type != EObjType::kStaff) {
+		return 0;
+	}
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSpell1Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSpell2Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSpell3Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemMaxCharges) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill) >= 0) {
+		return 0;  // already migrated
+	}
+	const auto set_pos = [obj](ObjVal::EValueKey key, int num) {
+		if (num > 0) { obj->SetPotionValueKey(key, num); }
+	};
+	if (type == EObjType::kScroll) {
+		set_pos(ObjVal::EValueKey::kSpellItemSpell1Num, obj->get_val(1));
+		set_pos(ObjVal::EValueKey::kSpellItemSpell2Num, obj->get_val(2));
+		set_pos(ObjVal::EValueKey::kSpellItemSpell3Num, obj->get_val(3));
+	} else {
+		set_pos(ObjVal::EValueKey::kSpellItemSpell1Num, obj->get_val(3));
+		set_pos(ObjVal::EValueKey::kSpellItemMaxCharges, obj->get_val(1));
+		set_pos(ObjVal::EValueKey::kSpellItemCurCharges, obj->get_val(2));
+	}
+	return 1;
+}
+
 void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
 		save = std::max(save, ConvertDrinkPoisonField(i.get(), true));
 		save = std::max(save, ConvertPotionToEValueKey(i.get(), true));
+		save = std::max(save, ConvertSpellItemToEValueKey(i.get(), true));
 		if (i->has_flag(EObjFlag::k2inlaid)) {
 			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;

@@ -369,6 +369,28 @@ int PotionCastStat(const ObjData *potion) {
 	return (stored >= 0) ? stored : kAuthoredPotionKeyStat;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
+// issue.magic-items: the same maker-competence model as potions, for scrolls/wands/staves. Strength =
+// skill_coeff + stat_coeff from the item's stored maker skill/stat (absent -> the authored maker),
+// through THIS spell's potency-roll. Mirrors PotionPotency; there is no legacy pre-computed potency here.
+float SpellItemPotency(const ObjData *item, ESpell spell_id) {
+	if (spell_id <= ESpell::kUndefined) {
+		return -1.0f;
+	}
+	const int skill = item->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill);
+	const int use_skill = (skill >= 0) ? skill : kAuthoredPotionSkill;
+	const int stat = item->GetPotionValueKey(ObjVal::EValueKey::kSpellItemStat);
+	const int use_stat = (stat >= 0) ? stat : kAuthoredPotionKeyStat;
+	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
+	return static_cast<float>(roll.CalcSkillCoeffForValue(use_skill)
+			+ roll.CalcBaseStatCoeffForValue(use_stat));
+}
+
+// issue.magic-items: the maker's skill, to scale a scroll/wand/staff buff's DURATION (like PotionCastSkill).
+int SpellItemSkill(const ObjData *item) {
+	const int stored = item->GetPotionValueKey(ObjVal::EValueKey::kSpellItemSkill);
+	return (stored >= 0) ? stored : kAuthoredPotionSkill;
+}
+
 float CalcCastPotency(const RollResult &potency) {
 	// issue.random-noise-rework (P3): stored potency is DETERMINISTIC competence (skill+stat),
 	// NOT the rolled dice. The affect's recorded strength (used by dispel contests, first-aid

@@ -217,6 +217,15 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_CLONE_WITHOUT_TRIGGERS            52
 #define OEDIT_POTION_SKILL                      53
 #define OEDIT_POTION_STAT                       54
+// issue.magic-items: scroll/wand/staff extended-value editor (kSpellItem* keys).
+#define OEDIT_SPELLITEM_VALUES                  55
+#define OEDIT_SPELLITEM_SPELL1                  56
+#define OEDIT_SPELLITEM_SPELL2                  57
+#define OEDIT_SPELLITEM_SPELL3                  58
+#define OEDIT_SPELLITEM_SKILL                   59
+#define OEDIT_SPELLITEM_STAT                    60
+#define OEDIT_SPELLITEM_MAXCHARGES              61
+#define OEDIT_SPELLITEM_CURCHARGES              62
 
 // * Submodes of REDIT connectedness.
 #define REDIT_MAIN_MENU        1

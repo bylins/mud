@@ -34,6 +34,7 @@ test_sources = files(
     'char.leaders.cpp',
     'char.morph.copy.cpp',
     'obj.copy.cpp',
+    'spell_item_convert.cpp',
     'act.makefood.cpp',
     'utils.editor.cpp',
     'utils.string.cpp',

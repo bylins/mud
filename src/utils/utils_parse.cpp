@@ -52,6 +52,14 @@ void InitObjVals() {
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionStat), "POTION_STAT");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidTimer), "LIQUID_TIMER");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidPoison), "LIQUID_POISON");
+	// issue.magic-items: scroll/wand/staff shared payload (see ObjVal::EValueKey).
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpellItemSpell1Num), "SPELLITEM_SPELL1_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpellItemSpell2Num), "SPELLITEM_SPELL2_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpellItemSpell3Num), "SPELLITEM_SPELL3_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpellItemSkill), "SPELLITEM_SKILL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpellItemStat), "SPELLITEM_STAT");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpellItemMaxCharges), "SPELLITEM_MAX_CHARGES");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpellItemCurCharges), "SPELLITEM_CUR_CHARGES");
 }
 
 ///

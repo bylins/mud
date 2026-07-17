@@ -1223,8 +1223,22 @@ bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 		case ObjVal::EValueKey::kPotionStat:
 		case ObjVal::EValueKey::kLiquidTimer:
 		case ObjVal::EValueKey::kLiquidPoison: return true;
+		default: return false;   // issue.magic-items: kSpellItem* keys are not drinkcon keys
 	}
-	return false;
+}
+
+// issue.magic-items: keys a scroll/wand/staff may legally carry (the kSpellItem* shared payload).
+bool is_valid_spell_item(const ObjVal::EValueKey key) {
+	switch (key) {
+		case ObjVal::EValueKey::kSpellItemSpell1Num:
+		case ObjVal::EValueKey::kSpellItemSpell2Num:
+		case ObjVal::EValueKey::kSpellItemSpell3Num:
+		case ObjVal::EValueKey::kSpellItemSkill:
+		case ObjVal::EValueKey::kSpellItemStat:
+		case ObjVal::EValueKey::kSpellItemMaxCharges:
+		case ObjVal::EValueKey::kSpellItemCurCharges: return true;
+		default: return false;
+	}
 }
 
 void ObjVal::remove_incorrect_keys(int type) {
@@ -1235,6 +1249,14 @@ void ObjVal::remove_incorrect_keys(int type) {
 			case EObjType::kLiquidContainer:
 			case EObjType::kFountain:
 				if (!is_valid_drinkcon(i->first)) {
+					i = m_values.erase(i);
+					erased = true;
+				}
+				break;
+			case EObjType::kScroll:
+			case EObjType::kWand:
+			case EObjType::kStaff:
+				if (!is_valid_spell_item(i->first)) {
 					i = m_values.erase(i);
 					erased = true;
 				}
