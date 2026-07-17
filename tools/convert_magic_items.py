@@ -3,7 +3,7 @@
 # val[0..3] layout to the extended ObjVal (kSpellItem*) `extra_values` keys.
 #
 #   scroll (kScroll): val1/val2/val3 -> SPELLITEM_SPELL1_NUM / SPELL2_NUM / SPELL3_NUM
-#   wand   (kWand)  : val3 -> SPELLITEM_SPELL1_NUM ; val1 -> SPELLITEM_MAX_CHARGES ; val2 -> CUR_CHARGES
+#   wand   (kWand)  : val3 -> SPELL1_NUM ; val1 -> MAX_CHARGES ; val2 -> CUR_CHARGES
 #   staff  (kStaff) : same as wand
 #
 # The maker skill/stat are left ABSENT (the engine then uses the authored-maker potency default, exactly
@@ -38,13 +38,13 @@ def build_keys(vals, typ):
             kv[key] = v
 
     if typ == "kScroll":
-        pos("SPELLITEM_SPELL1_NUM", vals[1])
-        pos("SPELLITEM_SPELL2_NUM", vals[2])
-        pos("SPELLITEM_SPELL3_NUM", vals[3])
+        pos("SPELL1_NUM", vals[1])
+        pos("SPELL2_NUM", vals[2])
+        pos("SPELL3_NUM", vals[3])
     else:  # kWand / kStaff
-        pos("SPELLITEM_SPELL1_NUM", vals[3])
-        pos("SPELLITEM_MAX_CHARGES", vals[1])
-        pos("SPELLITEM_CUR_CHARGES", vals[2])
+        pos("SPELL1_NUM", vals[3])
+        pos("MAX_CHARGES", vals[1])
+        pos("CUR_CHARGES", vals[2])
     return kv
 
 
@@ -54,7 +54,7 @@ def convert_block(block):
     if not tm:
         return block, False
     typ = tm.group(1)
-    if "SPELLITEM_" in block:  # already migrated
+    if "SPELL1_NUM" in block or "SPELLITEM_" in block:  # already migrated (canonical or legacy)
         return block, False
     vm = VALUES_RE.search(block)
     if not vm:
@@ -103,7 +103,7 @@ def convert_file(path, dry_run):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Migrate scroll/wand/staff protos to kSpellItem extra_values.")
+    ap = argparse.ArgumentParser(description="Migrate scroll/wand/staff protos to the unified magic-item extra_values keys.")
     ap.add_argument("world_dir", help="world directory containing zones/<n>/objects.yaml")
     ap.add_argument("--dry-run", action="store_true", help="report only, do not write")
     args = ap.parse_args()
