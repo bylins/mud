@@ -979,7 +979,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			for (const auto key : spell_keys) {
 				const auto spell_id = static_cast<ESpell>(j->GetPotionValueKey(key));
 				if (MUD::Spell(spell_id).IsValid()) {
-					const int potency = static_cast<int>(PotionPotency(j, spell_id) + 0.5f);
+					const int potency = static_cast<int>(MagicItemPotency(j, spell_id) + 0.5f);
 					out << " " << MUD::Spell(spell_id).GetName()
 						<< " (сила " << potency << "),";
 				}

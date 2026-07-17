@@ -88,7 +88,7 @@ switch (obj->get_type()) {
 		for (const auto key : spell_keys) {
 			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
 			if (MUD::Spell(spell_id).IsValid()) {
-				const int potency = static_cast<int>(SpellItemPotency(obj, spell_id) + 0.5f);
+				const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
 				out << " " << MUD::Spell(spell_id).GetName()
 					<< " (сила " << potency << "),";
 			}
@@ -112,7 +112,7 @@ switch (obj->get_type()) {
 		for (const auto key : spell_keys) {
 			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
 			if (MUD::Spell(spell_id).IsValid()) {
-				const int potency = static_cast<int>(PotionPotency(obj, spell_id) + 0.5f);
+				const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
 				out << " " << MUD::Spell(spell_id).GetName()
 					<< " (сила " << potency << "),";
 			}

@@ -262,15 +262,15 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 		return ECastResult::kSuccess;
 	}
 	// issue.potion-hotfix P3: strength is brewed in, not taken from the drinker -- the crafted
-	// kPotionPotency, or (non-crafted) the value a fixed-skill potion-maker would brew (PotionPotency).
+	// kPotionPotency, or (non-crafted) the value a fixed-skill potion-maker would brew (MagicItemPotency).
 	// kPotionBrewRoll is the frozen brew-luck z replayed by CalcNoisyAmount; absent (non-crafted) ->
 	// NaN -> drawn at cast. One potency + roll for the whole potion.
-	const float potency = PotionPotency(obj, spell_id);
+	const float potency = MagicItemPotency(obj, spell_id);
 	const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
 	const double noise_z = (brew_roll > 0)
 		? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
 		: std::numeric_limits<double>::quiet_NaN();
-	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, potency, noise_z, PotionCastSkill(obj));
+	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, potency, noise_z, MagicItemSkill(obj));
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
@@ -484,8 +484,8 @@ void drinkcon::mix_potion_values(ObjData *to_obj, const ObjData *from_obj, int n
 	if (n_to + n_from <= 0) {
 		return;
 	}
-	const int skill = (n_to * PotionCastSkill(to_obj) + n_from * PotionCastSkill(from_obj)) / (n_to + n_from);
-	const int stat  = (n_to * PotionCastStat(to_obj)  + n_from * PotionCastStat(from_obj))  / (n_to + n_from);
+	const int skill = (n_to * MagicItemSkill(to_obj) + n_from * MagicItemSkill(from_obj)) / (n_to + n_from);
+	const int stat  = (n_to * MagicItemStat(to_obj)  + n_from * MagicItemStat(from_obj))  / (n_to + n_from);
 	to_obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, std::max(1, skill));
 	to_obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, std::max(1, stat));
 }
@@ -520,7 +520,7 @@ void drinkcon::spoil_potion(ObjData *obj) {
 	const auto spell = static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num));
 	float power = 0.0f;
 	if (spell > ESpell::kUndefined) {
-		power = PotionPotency(obj, spell);
+		power = MagicItemPotency(obj, spell);
 	}
 	int poison = 0;
 	if (power > 0.0f) {
@@ -528,10 +528,10 @@ void drinkcon::spoil_potion(ObjData *obj) {
 	}
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidPoison, poison);
 
-	// Halve the effective maker skill/stat and store them EXPLICITLY. PotionCastSkill/Stat fall back to
+	// Halve the effective maker skill/stat and store them EXPLICITLY. MagicItemSkill/Stat fall back to
 	// the authored default only when the key is ABSENT, so once stored a value keeps halving toward 0.
-	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, PotionCastSkill(obj) / 2);
-	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,  PotionCastStat(obj)  / 2);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, MagicItemSkill(obj) / 2);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,  MagicItemStat(obj)  / 2);
 }
 
 size_t find_liquid_name(const char *name) {
@@ -605,7 +605,7 @@ std::string print_spell(const ObjData *obj, int num) {
 
 	// issue.potion-olc-values: a magic drink shows the same maker-derived potency
 	// (сила) as a potion, not the retired per-spell level.
-	const int potency = static_cast<int>(PotionPotency(obj, spell_id) + 0.5f);
+	const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (сила %d)%s\r\n",
 			 kColorCyn,

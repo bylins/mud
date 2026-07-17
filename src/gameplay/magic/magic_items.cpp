@@ -29,7 +29,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 	one_argument(argument, cast_argument);
 	// issue.magic-items: scroll/wand/staff no longer cast at a stored caster-level -- their strength
-	// is the maker competence (SpellItemPotency), like a potion. A kTimedLvl item still "wears out":
+	// is the maker competence (MagicItemPotency), like a potion. A kTimedLvl item still "wears out":
 	// the fraction of its timer remaining scales the effective potency/skill down as it ages.
 	double timed_factor = 1.0;
 	if (obj->has_flag(EObjFlag::kTimedLvl)) {
@@ -41,8 +41,8 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 	// Cast one spell from this item at its maker competence (potency); noise drawn fresh (not brewed).
 	auto cast_item_spell = [&](CharData *tgt_ch, ObjData *tgt_obj, ESpell sp) -> ECastResult {
-		const float potency = SpellItemPotency(obj, sp) * static_cast<float>(timed_factor);
-		const int skill = static_cast<int>(SpellItemSkill(obj) * timed_factor);
+		const float potency = MagicItemPotency(obj, sp) * static_cast<float>(timed_factor);
+		const int skill = static_cast<int>(MagicItemSkill(obj) * timed_factor);
 		// issue.magic-items: pass a real 0.0 (deterministic -- no noise spread), never NaN. Under the
 		// fasttest -Ofast (-ffast-math) build std::isnan() folds to false, so a NaN sentinel would leak
 		// into the affect <apply> modifier (noise_dev) and yield INT_MIN. Authored items cast at their
@@ -203,7 +203,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			SetBattleLag(ch, 1);
 			{
 				// issue.potion-hotfix P3: strength is BREWED IN -- the crafted kPotionPotency, or (non-
-				// crafted) the value a fixed-skill potion-maker would brew (PotionPotency). Spells,
+				// crafted) the value a fixed-skill potion-maker would brew (MagicItemPotency). Spells,
 				// potency and the frozen noise roll all live in the ObjVal keys (the boot/load converter
 				// migrated every potion off m_vals), so we read keys ONLY. brew_roll absent (non-crafted)
 				// -> NaN -> the noise is drawn at cast, like a fresh cast.
@@ -218,9 +218,9 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 					if (spell_num <= 0) {
 						continue;
 					}
-					const float potency = PotionPotency(obj, static_cast<ESpell>(spell_num));
+					const float potency = MagicItemPotency(obj, static_cast<ESpell>(spell_num));
 					if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(spell_num), 0,
-								  potency, noise_z, PotionCastSkill(obj)) != ECastResult::kSuccess) {
+								  potency, noise_z, MagicItemSkill(obj)) != ECastResult::kSuccess) {
 						break;
 					}
 				}
