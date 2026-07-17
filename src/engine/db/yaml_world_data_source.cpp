@@ -119,6 +119,36 @@ std::string GetSpellNameComment(ESpell spell_id) {
 	return MUD::Spell(spell_id).GetName();
 }
 
+// issue #3583: имя спелла для values-слотов, которые хранят номер заклинания.
+// Свиток -- спеллы в val[1..3]; палочка/посох -- в val[3]. Зелья держат спеллы в
+// ObjVal-ключах (а не в val[]), поэтому их values не аннотируем.
+std::string GetObjValueSpellComment(EObjType type, int slot, int value) {
+	bool is_spell_slot = false;
+	if (type == EObjType::kScroll) {
+		is_spell_slot = (slot >= 1 && slot <= 3);
+	} else if (type == EObjType::kWand || type == EObjType::kStaff) {
+		is_spell_slot = (slot == 3);
+	}
+	if (!is_spell_slot || value <= 0 || value > to_underlying(ESpell::kLast)) {
+		return "";
+	}
+	return GetSpellNameComment(static_cast<ESpell>(value));
+}
+
+// issue #3583: имя спелла для потионных ключей extra_values вида POTION_SPELL<n>_NUM
+// (у зелий заклинания лежат в ObjVal-ключах, а не в val[]). Ключи *_LVL не трогаем.
+std::string GetExtraValueSpellComment(const std::string &key, int value) {
+	static const std::string kPrefix = "POTION_SPELL";
+	static const std::string kSuffix = "_NUM";
+	const bool is_spell_key = key.size() > kPrefix.size() + kSuffix.size()
+		&& key.compare(0, kPrefix.size(), kPrefix) == 0
+		&& key.compare(key.size() - kSuffix.size(), kSuffix.size(), kSuffix) == 0;
+	if (!is_spell_key || value <= 0 || value > to_underlying(ESpell::kLast)) {
+		return "";
+	}
+	return GetSpellNameComment(static_cast<ESpell>(value));
+}
+
 // Get material name by ID (for material comments)
 std::string GetMaterialNameComment(int material_id) {
 	return ::material_name[material_id];
@@ -4252,10 +4282,13 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.BeginSequence();
 	yaml.IncreaseIndent();
 
+	// issue #3583: у свитков/палочек/посохов values-слоты со спеллами подписываем именем заклинания.
+	// val[0] -- это уровень/сила заклинания, а не номер спелла, поэтому его не подписываем.
+	const auto obj_type = obj->get_type();
 	yaml.SequenceItem(obj->get_val(0));
-	yaml.SequenceItem(obj->get_val(1));
-	yaml.SequenceItem(obj->get_val(2));
-	yaml.SequenceItem(obj->get_val(3));
+	yaml.SequenceItem(obj->get_val(1), GetObjValueSpellComment(obj_type, 1, obj->get_val(1)));
+	yaml.SequenceItem(obj->get_val(2), GetObjValueSpellComment(obj_type, 2, obj->get_val(2)));
+	yaml.SequenceItem(obj->get_val(3), GetObjValueSpellComment(obj_type, 3, obj->get_val(3)));
 
 	yaml.DecreaseIndent();
 
@@ -4550,7 +4583,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 			for (const auto &kv : sorted_vals)
 			{
 				yaml.Key(kv.first);
-				yaml.Value(kv.second);
+				yaml.Value(kv.second, GetExtraValueSpellComment(kv.first, kv.second));
 			}
 			yaml.EndBlock();
 		}
