@@ -449,7 +449,7 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	oss << obj->get_max_in_world() << "|";
 	oss << obj->get_timer() << "|";
 	oss << static_cast<int>(obj->get_sex()) << "|";
-	oss << static_cast<int>(obj->get_spell()) << "|";
+	// issue #3581: obj->spell -- мёртвое поле, из чексуммы исключено.
 	oss << obj->get_maximum_durability() << "|";
 	oss << obj->get_current_durability() << "|";
 	oss << obj->get_minimum_remorts() << "|";

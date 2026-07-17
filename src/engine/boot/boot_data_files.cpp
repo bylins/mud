@@ -645,7 +645,8 @@ void ObjectFile::parse_object(const int nr) {
 		timer = 99999;
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2]);
+	// issue #3581: obj->spell -- мёртвое поле, ни одна механика его не читает.
+	// t[2] всё ещё разбирается (формат легаси-строки = 4 поля), но объекту не присваивается.
 	tobj->set_level(t[3]);
 
 	if (!get_line(file(), m_line)) {

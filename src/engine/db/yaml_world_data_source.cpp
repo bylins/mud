@@ -2125,7 +2125,7 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 			if (timer > 99999) timer = 99999;
 			obj_ptr->set_timer(timer);
 
-			obj_ptr->set_spell(GetInt(root, "spell", -1));
+			// issue #3581: obj->spell -- мёртвое поле, из мировой сериализации выпилено; ключ "spell" в старых yaml игнорируется.
 			obj_ptr->set_level(GetInt(root, "level", 0));
 			obj_ptr->set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
@@ -4290,13 +4290,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.Key("timer");
 	yaml.Value(obj->get_timer());
 
-	// Spell (with comment)
-	if (to_underlying(obj->get_spell()) >= 0)
-	{
-		int spell_id = to_underlying(obj->get_spell());
-		yaml.Key("spell");
-		yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
-	}
+	// issue #3581: obj->spell -- мёртвое поле, в yaml больше не пишем.
 
 	// Level and sex
 	yaml.Key("level");

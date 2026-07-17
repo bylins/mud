@@ -2160,7 +2160,7 @@ LoadedObject SqliteWorldDataSource::LoadObjectRow(sqlite3_stmt *stmt)
 	}
 	if (timer > 99999) timer = 99999;  // Cap timer like Legacy
 	obj->set_timer(timer);
-	obj->set_spell(sqlite3_column_int(stmt, 24));
+	// issue #3581: obj->spell -- мёртвое поле; колонку 24 не присваиваем (индексы ниже не сдвигаем).
 	obj->set_level(sqlite3_column_int(stmt, 25));
 	obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
 	obj->set_max_in_world(sqlite3_column_type(stmt, 27) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 27));
