@@ -3553,47 +3553,44 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 		yaml.DecreaseIndent();
 	}
 
-	// Extra descriptions
-	if (room->ex_description)
+	// Extra descriptions.
+	// issue #3596: экстра-дескриптор без описания (0 символов/одни пробелы, напр.
+	// после очистки в OLC через /c) считаем несуществующим -- не пишем; если
+	// валидных дескрипторов не осталось, секцию опускаем.
+	std::vector<ExtraDescription *> exdescs;
+	for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
+	{
+		if (exdesc->keyword && exdesc->description
+			&& std::string(exdesc->description).find_first_not_of(" \t\r\n") != std::string::npos)
+		{
+			exdescs.push_back(exdesc.get());
+		}
+	}
+	if (!exdescs.empty())
 	{
 		yaml.Key("extra_descriptions");
 		yaml.BeginSequence();
 		yaml.IncreaseIndent();
 
-		// LoadRoomExtraDescriptions prepends each yaml entry to the
-		// list, so the in-memory head->tail order is the reverse of the
-		// file order. To keep checksums stable through save->load, walk
-		// the list head->tail and write the entries in reverse: a fresh
-		// load will prepend them back to the same in-memory order.
-		std::vector<ExtraDescription *> exdescs;
-		for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
-		{
-			exdescs.push_back(exdesc.get());
-		}
+		// LoadRoomExtraDescriptions prepends each yaml entry to the list, so the
+		// in-memory head->tail order is the reverse of the file order. To keep
+		// checksums stable through save->load, write the entries in reverse: a
+		// fresh load will prepend them back to the same in-memory order.
 		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
 		{
 			const auto *exdesc = *it;
-			if (exdesc->keyword)
-			{
-				// keywords may start with '-' (legitimately a single dash);
-				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-				out << yaml.GetIndent() << "- keywords:";
-				// IncreaseIndent so yaml.Value's literal-block branch
-				// emits content lines at the correct column for indicator
-				// "2" (parent_indent + 2). The "  " before `-` already
-				// indented us; we need one more level so a multi-line
-				// keyword doesn't get content at the wrong column.
-				yaml.IncreaseIndent();
-				yaml.Value(std::string(exdesc->keyword));
-				yaml.DecreaseIndent();
-				if (exdesc->description)
-				{
-					out << yaml.GetIndent() << "  description:";
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->description), true);
-					yaml.DecreaseIndent();
-				}
-			}
+			// keywords may start with '-' (legitimately a single dash);
+			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+			out << yaml.GetIndent() << "- keywords:";
+			// IncreaseIndent so yaml.Value's literal-block branch emits content
+			// lines at the correct column for indicator "2" (parent_indent + 2).
+			yaml.IncreaseIndent();
+			yaml.Value(std::string(exdesc->keyword));
+			yaml.DecreaseIndent();
+			out << yaml.GetIndent() << "  description:";
+			yaml.IncreaseIndent();
+			yaml.Value(std::string(exdesc->description), true);
+			yaml.DecreaseIndent();
 		}
 
 		yaml.DecreaseIndent();
@@ -4652,46 +4649,43 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 		yaml.DecreaseIndent();
 	}
 
-	// Extra descriptions
-	if (obj->get_ex_description())
+	// Extra descriptions.
+	// issue #3596: экстра-дескриптор без описания (0 символов/одни пробелы, напр.
+	// после очистки в OLC через /c) считаем несуществующим -- не пишем ни keyword,
+	// ни блок description; если валидных дескрипторов не осталось, секцию опускаем.
+	std::vector<ExtraDescription *> exdescs;
+	for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
+	{
+		if (exdesc->keyword && exdesc->description
+			&& std::string(exdesc->description).find_first_not_of(" \t\r\n") != std::string::npos)
+		{
+			exdescs.push_back(exdesc.get());
+		}
+	}
+	if (!exdescs.empty())
 	{
 		yaml.Key("extra_descriptions");
 		yaml.BeginSequence();
 		yaml.IncreaseIndent();
 
-		// Load prepends each yaml entry, so the in-memory list is
-		// reversed relative to the file. Emit in reverse so a fresh load
-		// rebuilds the same in-memory order -- otherwise the order flips
-		// on every round-trip.
-		std::vector<ExtraDescription *> exdescs;
-		for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
-		{
-			exdescs.push_back(exdesc.get());
-		}
+		// Load prepends each yaml entry, so the in-memory list is reversed
+		// relative to the file. Emit in reverse so a fresh load rebuilds the
+		// same in-memory order -- otherwise the order flips on every round-trip.
 		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
 		{
 			const auto *exdesc = *it;
-			if (exdesc->keyword)
-			{
-				// keywords may start with '-' (legitimately a single dash);
-				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-				out << yaml.GetIndent() << "- keywords:";
-				// IncreaseIndent so yaml.Value's literal-block branch
-				// emits content lines at the correct column for indicator
-				// "2" (parent_indent + 2). The "  " before `-` already
-				// indented us; we need one more level so a multi-line
-				// keyword doesn't get content at the wrong column.
-				yaml.IncreaseIndent();
-				yaml.Value(std::string(exdesc->keyword));
-				yaml.DecreaseIndent();
-				if (exdesc->description)
-				{
-					out << yaml.GetIndent() << "  description:";
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->description), true);
-					yaml.DecreaseIndent();
-				}
-			}
+			// keywords may start with '-' (legitimately a single dash);
+			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+			out << yaml.GetIndent() << "- keywords:";
+			// IncreaseIndent so yaml.Value's literal-block branch emits content
+			// lines at the correct column for indicator "2" (parent_indent + 2).
+			yaml.IncreaseIndent();
+			yaml.Value(std::string(exdesc->keyword));
+			yaml.DecreaseIndent();
+			out << yaml.GetIndent() << "  description:";
+			yaml.IncreaseIndent();
+			yaml.Value(std::string(exdesc->description), true);
+			yaml.DecreaseIndent();
 		}
 
 		yaml.DecreaseIndent();
