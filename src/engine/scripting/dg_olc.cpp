@@ -31,6 +31,9 @@
 #include "engine/db/world_data_source_manager.h"
 #include "dg_db_scripts.h"
 #include "gameplay/mechanics/dungeons.h"
+#if defined(WITH_LUAJIT_PROTOTYPE)
+#include "engine/scripting/lua/lua_script_engine.h"   // CancelWaitsForTrigger (issue #3568)
+#endif
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DescriptorData *descriptor_list;
@@ -562,6 +565,13 @@ void trigedit_save(DescriptorData *d) {
 					free(GET_TRIG_WAIT(trigger).info);    // Причина уже обсуждалась
 					remove_event(GET_TRIG_WAIT(trigger));
 				}
+#if defined(WITH_LUAJIT_PROTOTYPE)
+				// issue #3568: у живого инстанса может висеть приостановленная Lua-корутина
+				// (LuaWaitState хранит Trigger*). Перезапись тела ниже (*trigger = *proto),
+				// особенно при смене Lua->DG, оставила бы вейт-реестр ссылаться на изменённый
+				// триггер -> UAF/порча кучи. Отменяем Lua-вейты, как это делает ExtractTrigger.
+				lua_scripting::LuaScriptEngine::CancelWaitsForTrigger(trigger);
+#endif
 
 				trigger->clear_var_list();
 				*trigger = *proto;

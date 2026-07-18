@@ -27,6 +27,7 @@
         <skill id="kDarkMagic"		level="1"	remort="0"	improve="200"/>
         <skill id="kMindMagic"		level="1"	remort="0"	improve="200"/>
         <skill id="kLifeMagic"		level="1"	remort="0"	improve="100"/>
+        <skill id="kEarthMagic"         level="1"       remort="0"      improve="200"/>
         <skill id="kHangovering"	level="3"	remort="0"	improve="95000"/>
         <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
         <skill id="kHide"		level="5"	remort="0"	improve="200"/>

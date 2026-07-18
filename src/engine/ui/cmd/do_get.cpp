@@ -16,7 +16,7 @@
 #include <fmt/format.h>
 
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
-extern char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
+extern const char *sight::find_exdesc(const char *word, const std::vector<ExtraDescription> &list);
 
 /// считаем сколько у ch в группе еще игроков (не мобов)
 int other_pc_in_group(CharData *ch) {

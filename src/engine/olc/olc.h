@@ -97,7 +97,7 @@ struct olc_data {
 	RoomData *room;
 	ObjData *obj;
 	ZoneData *zone;
-	ExtraDescription::shared_ptr desc;
+	int desc{-1};   // индекс редактируемого экстра-описания в векторе сущности (-1 = нет)
 
 	MakeRecept *mrec;
 
@@ -217,6 +217,18 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_CLONE_WITHOUT_TRIGGERS            52
 #define OEDIT_POTION_SKILL                      53
 #define OEDIT_POTION_STAT                       54
+// issue.magic-items: scroll/wand/staff extended-value editor (kSpellItem* keys).
+#define OEDIT_SPELLITEM_VALUES                  55
+#define OEDIT_SPELLITEM_SPELL1                  56
+#define OEDIT_SPELLITEM_SPELL2                  57
+#define OEDIT_SPELLITEM_SPELL3                  58
+#define OEDIT_SPELLITEM_SKILL                   59
+#define OEDIT_SPELLITEM_STAT                    60
+#define OEDIT_SPELLITEM_MAXCHARGES              61
+#define OEDIT_SPELLITEM_CURCHARGES              62
+#define OEDIT_DRINKCON_CAPACITY                 63
+#define OEDIT_DRINKCON_CURRENT                  64
+#define OEDIT_DRINKCON_TYPE                     65
 
 // * Submodes of REDIT connectedness.
 #define REDIT_MAIN_MENU        1

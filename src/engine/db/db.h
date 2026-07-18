@@ -202,6 +202,8 @@ extern TimeInfoData time_info;
 extern int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto);
 extern int ConvertDrinkPoisonField(CObjectPrototype *obj, bool proto);
 extern int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto);
+extern int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool proto);   // issue.magic-items
+int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool proto);
 
 void PasteMobiles();
 

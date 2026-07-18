@@ -39,19 +39,41 @@ std::array<TextIdNode, kTextIdCount> text_id_list;
 /// Инит текстовых ИД параметров предметов для сохранения в файл.
 ///
 void InitObjVals() {
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell1Num), "POTION_SPELL1_NUM");
+	// issue.magic-items: unified magic-item payload. The FIRST string per key is canonical (Add keeps the
+	// first num->str, so ToStr writes it); the trailing POTION_*/SPELLITEM_* strings are READ-ALIASES so
+	// every existing potion/scroll/wand/staff still loads and is silently re-saved in the new short form.
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell1Num), "SPELL1_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell1Num), "POTION_SPELL1_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell1Num), "SPELLITEM_SPELL1_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell2Num), "SPELL2_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell2Num), "POTION_SPELL2_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell2Num), "SPELLITEM_SPELL2_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell3Num), "SPELL3_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell3Num), "POTION_SPELL3_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kSpell3Num), "SPELLITEM_SPELL3_NUM");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMakerSkill), "MAKER_SKILL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMakerSkill), "POTION_SKILL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMakerSkill), "SPELLITEM_SKILL");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMakerStat), "MAKER_STAT");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMakerStat), "POTION_STAT");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMakerStat), "SPELLITEM_STAT");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMaxCharges), "MAX_CHARGES");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kMaxCharges), "SPELLITEM_MAX_CHARGES");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kCurCharges), "CUR_CHARGES");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kCurCharges), "SPELLITEM_CUR_CHARGES");
+	// potion / drink-specific keys (names unchanged)
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell1Lvl), "POTION_SPELL1_LVL");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell2Num), "POTION_SPELL2_NUM");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell2Lvl), "POTION_SPELL2_LVL");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell3Num), "POTION_SPELL3_NUM");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSpell3Lvl), "POTION_SPELL3_LVL");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionProtoVnum), "POTION_PROTO_VNUM");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionPotency), "POTION_POTENCY");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionBrewRoll), "POTION_BREW_ROLL");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionSkill), "POTION_SKILL");
-	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionStat), "POTION_STAT");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidTimer), "LIQUID_TIMER");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidPoison), "LIQUID_POISON");
+	// issue.magic-items-hotfix: drink-container/fountain liquid core keys
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidCapacity), "LIQUID_CAPACITY");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidCurrent), "LIQUID_CURRENT");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidType), "LIQUID_TYPE");
 }
 
 ///

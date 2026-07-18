@@ -766,11 +766,11 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			kColorNrm);
 	SendMsgToChar(buf, ch);
 
-	if (j->get_ex_description()) {
+	if (!j->get_ex_description().empty()) {
 		std::string sline = fmt::sprintf("Экстра описание:%s", kColorCyn);
-		for (auto desc = j->get_ex_description(); desc; desc = desc->next) {
+		for (const auto &desc : j->get_ex_description()) {
 			sline += " ";
-			sline += desc->keyword;
+			sline += desc.keyword;
 		}
 		sline += kColorNrm;
 		sline += "\r\n";
@@ -973,13 +973,13 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			std::ostringstream out;
 			out << "Заклинания:";
 			const ObjVal::EValueKey spell_keys[3] = {
-				ObjVal::EValueKey::kPotionSpell1Num,
-				ObjVal::EValueKey::kPotionSpell2Num,
-				ObjVal::EValueKey::kPotionSpell3Num};
+				ObjVal::EValueKey::kSpell1Num,
+				ObjVal::EValueKey::kSpell2Num,
+				ObjVal::EValueKey::kSpell3Num};
 			for (const auto key : spell_keys) {
 				const auto spell_id = static_cast<ESpell>(j->GetPotionValueKey(key));
 				if (MUD::Spell(spell_id).IsValid()) {
-					const int potency = static_cast<int>(PotionPotency(j, spell_id) + 0.5f);
+					const int potency = static_cast<int>(MagicItemPotency(j, spell_id) + 0.5f);
 					out << " " << MUD::Spell(spell_id).GetName()
 						<< " (сила " << potency << "),";
 				}
@@ -1197,11 +1197,11 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	SendMsgToChar("Описание:\r\n", ch);
 	SendMsgToChar(GlobalObjects::descriptions().get(rm->description_num), ch);
 
-	if (rm->ex_description) {
+	if (!rm->ex_description.empty()) {
 		std::string sline = fmt::sprintf("Доп. описание:%s", kColorCyn);
-		for (auto desc = rm->ex_description; desc; desc = desc->next) {
+		for (const auto &desc : rm->ex_description) {
 			sline += " ";
-			sline += desc->keyword;
+			sline += desc.keyword;
 		}
 		sline += kColorNrm;
 		sline += "\r\n";

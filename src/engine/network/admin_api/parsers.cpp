@@ -638,28 +638,20 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	if (data.contains("extra_descriptions") && data["extra_descriptions"].is_array())
 	{
 		// Clear existing extra descriptions
-		obj->set_ex_description(nullptr);
+		obj->ex_descriptions().clear();
 
-		// Build linked list from array (in reverse to maintain order)
-		ExtraDescription::shared_ptr prev = nullptr;
-		for (auto it = data["extra_descriptions"].rbegin(); it != data["extra_descriptions"].rend(); ++it)
+		// Заполняем вектор в порядке массива (push_back)
+		for (const auto &ed_data : data["extra_descriptions"])
 		{
-			const auto &ed_data = *it;
 			if (!ed_data.contains("keywords") || !ed_data.contains("description"))
 			{
 				continue;
 			}
 
-			auto ed = std::make_shared<ExtraDescription>();
-			ed->set_keyword(Utf8ToKoi8r(ed_data["keywords"].get<std::string>()));
-			ed->set_description(Utf8ToKoi8r(ed_data["description"].get<std::string>()));
-			ed->next = prev;
-			prev = ed;
-		}
-
-		if (prev)
-		{
-			obj->set_ex_description(prev);
+			ExtraDescription ed;
+			ed.set_keyword(Utf8ToKoi8r(ed_data["keywords"].get<std::string>()));
+			ed.set_description(Utf8ToKoi8r(ed_data["description"].get<std::string>()));
+			obj->ex_descriptions().push_back(std::move(ed));
 		}
 	}
 

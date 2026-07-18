@@ -665,6 +665,20 @@ EObjMaterial ITEM_BY_NAME<EObjMaterial>(const std::string &name);
 	kFeat = 4
 };
 
+// Название типа книги (единый источник для OLC-меню и подсказок в yaml).
+// TODO: перенести в конфиги. Возвращает "" для неизвестного типа.
+const char *GetBookTypeName(EBook type);
+
+// Классы магических ингредиентов (kMagicComponent val[3]) -- нормальный тип
+// взамен старых #define IM_CLASS_ROSL/JIV/TVERD. Единый источник имён для OLC и
+// yaml. TODO: перенести в конфиги.
+enum class EIngredientClass {
+	kRosl = 0,    // РОСЛЬ (растения)
+	kJiv = 1,     // ЖИВЬ (животные)
+	kTverd = 2    // ТВЕРДЬ (минералы)
+};
+const char *GetIngredientClassName(EIngredientClass type);
+
 /**
  * Take/Wear flags: used by obj_data.obj_flags.wear_flags
  */

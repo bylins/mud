@@ -78,7 +78,7 @@ void mix_potion_values(ObjData *to_obj, const ObjData *from_obj, int n_to, int n
 
 // issue.potion-hotfix: contents-spoilage tuning. A potion in a container carries a freshness
 // countdown (kLiquidTimer, see obj_data.h). When it reaches zero the potion SPOILS: its power inputs
-// (kPotionSkill and kPotionStat) are halved and it becomes poisonous -- the poison level a fixed
+// (kMakerSkill and kMakerStat) are halved and it becomes poisonous -- the poison level a fixed
 // percentage of the power it had at that moment. Casting "remove poison" on the container clears the
 // poison and restarts the timer, so a spoiled potion can be salvaged; but each spoilage cycle halves
 // its power again, so after enough cycles it becomes inert.
@@ -90,7 +90,7 @@ constexpr int kSpoiledResetTimerMinutes = 10;  // remove-poison restarts the fre
 // the freshness left after the tick (0 means it has just spoiled / is spoiled).
 int age_contents(ObjData *obj);
 // Spoil a liquid/food's contents now: set the poison level from the current power, then halve the
-// power inputs (kPotionSkill/kPotionStat).
+// power inputs (kMakerSkill/kMakerStat).
 void spoil_potion(ObjData *obj);
 
 } // namespace drinkcon

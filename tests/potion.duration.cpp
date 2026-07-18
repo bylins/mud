@@ -44,19 +44,19 @@ TEST(PotionBuffDuration, MakerSkillOverrideGivesDurationWhereZeroGivesNone) {
 TEST(PotionMix, WeightedBlendOfSkillAndStat) {
 	auto to = std::make_shared<ObjData>(CObjectPrototype(42));
 	to->set_type(EObjType::kPotion);
-	to->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, 100);
-	to->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, 30);
+	to->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, 100);
+	to->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, 30);
 
 	auto from = std::make_shared<ObjData>(CObjectPrototype(42));
 	from->set_type(EObjType::kPotion);
-	from->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, 80);
-	from->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, 20);
+	from->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, 80);
+	from->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, 20);
 
 	// 18 units at skill 100 mixed with 2 at skill 80 -> (18*100 + 2*80) / 20 = 98 (kvirund's example).
 	drinkcon::mix_potion_values(to.get(), from.get(), /*n_to*/ 18, /*n_from*/ 2);
 
-	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill), 98);
-	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 29);  // (18*30 + 2*20) / 20 = 29
+	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill), 98);
+	EXPECT_EQ(to->GetPotionValueKey(ObjVal::EValueKey::kMakerStat), 29);  // (18*30 + 2*20) / 20 = 29
 }
 
 // issue.potion-hotfix: contents freshness lives in the named kLiquidTimer key (no longer the overloaded
@@ -84,26 +84,26 @@ TEST(PotionFreshness, AgeContentsDecrementsTimerForPerishableTypesOnly) {
 }
 
 // issue.potion-hotfix: when the freshness timer hits 0 the potion SPOILS -- its power inputs
-// (kPotionSkill/kPotionStat) are halved. (The poison level is a % of the spell potency, which needs the
+// (kMakerSkill/kMakerStat) are halved. (The poison level is a % of the spell potency, which needs the
 // spell registry, so it is exercised at runtime; here we pin the registry-independent halving, incl.
 // that repeated spoilage drives the power all the way to zero -- a stored 0 is honored, not re-defaulted.)
 TEST(PotionSpoilage, TimerZeroHalvesPowerInputsDownToZero) {
 	auto o = std::make_shared<ObjData>(CObjectPrototype(42));
 	o->set_type(EObjType::kLiquidContainer);
-	o->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, 100);
-	o->SetPotionValueKey(ObjVal::EValueKey::kPotionStat, 40);
+	o->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, 100);
+	o->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, 40);
 
 	o->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, 1);
 	EXPECT_EQ(drinkcon::age_contents(o.get()), 0);                                  // spoils
-	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill), 50);           // halved
-	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 20);
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill), 50);           // halved
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kMakerStat), 20);
 
 	for (int i = 0; i < 12; ++i) {   // each remove-poison/respoil cycle halves again
 		o->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, 1);
 		drinkcon::age_contents(o.get());
 	}
-	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill), 0);            // reaches inert
-	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kPotionStat), 0);
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill), 0);            // reaches inert
+	EXPECT_EQ(o->GetPotionValueKey(ObjVal::EValueKey::kMakerStat), 0);
 }
 
 // issue.potion-hotfix: the boot/load converter that migrates the historically overloaded drink/food

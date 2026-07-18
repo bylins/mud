@@ -398,7 +398,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	int bits, found = false, fnum, i = 0;
 	CharData *found_char = nullptr;
 	ObjData *found_obj = nullptr;
-	char *desc, *what, whatp[kMaxInputLength], where[kMaxInputLength];
+	const char *desc;
+	char *what, whatp[kMaxInputLength], where[kMaxInputLength];
 	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip | EFind::kCharInRoom | EFind::kObjExtraDesc;
 
 	if (!ch->desc) {
@@ -489,7 +490,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	i = 0;
 	// Does the argument match an extra desc in the room?
 	if ((desc = find_exdesc(what, world[ch->in_room]->ex_description)) != nullptr && ++i == fnum) {
-		page_string(ch->desc, desc, false);
+		page_string(ch->desc, const_cast<char *>(desc), false);
 		return false;
 	}
 
@@ -1464,10 +1465,10 @@ bool put_delim(std::stringstream &out, bool delim) {
 	return true;
 }
 
-char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list) {
-	for (auto i = list; i; i = i->next) {
-		if (isname(word, i->keyword)) {
-			return i->description;
+const char *find_exdesc(const char *word, const std::vector<ExtraDescription> &list) {
+	for (const auto &i : list) {
+		if (isname(word, i.keyword)) {
+			return i.description.c_str();
 		}
 	}
 

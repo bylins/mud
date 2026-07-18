@@ -434,7 +434,7 @@ void WorldFile::parse_room(int virtual_nr) {
 		world[room_realnum]->dir_option[i] = nullptr;
 	}
 
-	world[room_realnum]->ex_description = nullptr;
+	world[room_realnum]->ex_description.clear();
 
 	snprintf(buf, sizeof(buf), "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
 
@@ -447,12 +447,11 @@ void WorldFile::parse_room(int virtual_nr) {
 				break;
 
 			case 'E': {
-				const ExtraDescription::shared_ptr new_descr(new ExtraDescription);
-				new_descr->set_keyword(fread_string());
-				new_descr->set_description(fread_string());
-				if (new_descr->keyword && new_descr->description) {
-					new_descr->next = world[room_realnum]->ex_description;
-					world[room_realnum]->ex_description = new_descr;
+				ExtraDescription new_descr;
+				new_descr.set_keyword(fread_string());
+				new_descr.set_description(fread_string());
+				if (!new_descr.keyword.empty() && !new_descr.description.empty()) {
+					world[room_realnum]->ex_description.push_back(std::move(new_descr));
 				} else {
 					snprintf(buf, sizeof(buf), "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
 					log("%s", buf);
@@ -645,8 +644,8 @@ void ObjectFile::parse_object(const int nr) {
 		timer = 99999;
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2]);
-	tobj->set_level(t[3]);
+	// issue #3581: obj->spell и его уровень -- мёртвая пара, ни одна механика их не читает.
+	// t[2]/t[3] всё ещё разбираются (формат легаси-строки = 4 поля), но объекту не присваиваются.
 
 	if (!get_line(file(), m_line)) {
 		fatal_log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", m_buffer);
@@ -730,12 +729,11 @@ void ObjectFile::parse_object(const int nr) {
 		}
 		switch (*m_line) {
 			case 'E': {
-				const ExtraDescription::shared_ptr new_descr(new ExtraDescription());
-				new_descr->set_keyword(fread_string());
-				new_descr->set_description(fread_string());
-				if (new_descr->keyword && new_descr->description) {
-					new_descr->next = tobj->get_ex_description();
-					tobj->set_ex_description(new_descr);
+				ExtraDescription new_descr;
+				new_descr.set_keyword(fread_string());
+				new_descr.set_description(fread_string());
+				if (!new_descr.keyword.empty() && !new_descr.description.empty()) {
+					tobj->ex_descriptions().push_back(std::move(new_descr));
 				} else {
 					const auto written =
 						snprintf(buf, sizeof(buf), "SYSERR: Format error in %s (Corrupt extradesc)", m_buffer);

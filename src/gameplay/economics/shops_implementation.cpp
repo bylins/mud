@@ -37,7 +37,7 @@ extern int invalid_unique(CharData *ch, const ObjData *obj);    // implemented i
 extern int invalid_no_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
 extern int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
-char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list); // implemented in act.informative.cpp
+const char *sight::find_exdesc(const char *word, const std::vector<ExtraDescription> &list); // implemented in act.informative.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
 
@@ -194,7 +194,7 @@ void ItemNode::replace_descs(ObjData *obj, const int vnum) const {
 		obj->attach_triggers(desc.trigs);
 	}
 
-	obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
+	obj->ex_descriptions().clear(); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
 
 	if ((obj->get_type() == EObjType::kLiquidContainer)
 		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...

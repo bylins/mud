@@ -73,6 +73,7 @@ void oedit_disp_container_flags_menu(DescriptorData *d);
 void oedit_disp_extradesc_menu(DescriptorData *d);
 void oedit_disp_weapon_menu(DescriptorData *d);
 void oedit_disp_val1_menu(DescriptorData *d);
+void spellitem_values_menu(DescriptorData *d);   // issue.magic-items
 void oedit_disp_val2_menu(DescriptorData *d);
 void oedit_disp_val3_menu(DescriptorData *d);
 void oedit_disp_val4_menu(DescriptorData *d);
@@ -365,20 +366,17 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 			}
 
 			// * Do we have extra descriptions?
-			if (obj->get_ex_description())    // Yes, save them too.
-			{
-				for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next) {
-					// * Sanity check to prevent nasty protection faults.
-					if (!ex_desc->keyword
-						|| !ex_desc->description) {
-						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
-							   BRF, kLvlBuilder, SYSLOG, true);
-						continue;
-					}
-					snprintf(buf1, sizeof(buf1), "%s", ex_desc->description);
-					strip_string(buf1);
-					fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc->keyword, buf1);
+			for (const auto &ex_desc : obj->get_ex_description()) {
+				// * Sanity check to prevent nasty protection faults.
+				if (ex_desc.keyword.empty()
+					|| ex_desc.description.empty()) {
+					mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
+						   BRF, kLvlBuilder, SYSLOG, true);
+					continue;
 				}
+				snprintf(buf1, sizeof(buf1), "%s", ex_desc.description.c_str());
+				strip_string(buf1);
+				fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc.keyword.c_str(), buf1);
 			}
 			// * Do we have affects?
 			for (counter2 = 0; counter2 < kMaxObjAffect; counter2++) {
@@ -446,8 +444,11 @@ void oedit_disp_container_flags_menu(DescriptorData *d) {
 
 // * For extra descriptions.
 void oedit_disp_extradesc_menu(DescriptorData *d) {
-	auto extra_desc = OLC_DESC(d);
-	snprintf(buf1, sizeof(buf1), "%s", !extra_desc->next ? "<Not set>\r\n" : "Set.");
+	auto &descs = OLC_OBJ(d)->ex_descriptions();
+	const int idx = OLC_DESC(d);
+	const ExtraDescription &extra_desc = descs[idx];
+	const bool has_next = (idx + 1 < static_cast<int>(descs.size()));
+	snprintf(buf1, sizeof(buf1), "%s", !has_next ? "<Not set>\r\n" : "Set.");
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -458,8 +459,8 @@ void oedit_disp_extradesc_menu(DescriptorData *d) {
 			 "%s3%s) Следующий дескриптор: %s\r\n"
 			 "%s0%s) Выход\r\n"
 			 "Ваш выбор : ",
-			 grn, nrm, yel, (extra_desc->keyword && *extra_desc->keyword) ? extra_desc->keyword : "<NONE>",
-			 grn, nrm, yel, (extra_desc->description && *extra_desc->description) ? extra_desc->description : "<NONE>",
+			 grn, nrm, yel, !extra_desc.keyword.empty() ? extra_desc.keyword.c_str() : "<NONE>",
+			 grn, nrm, yel, !extra_desc.description.empty() ? extra_desc.description.c_str() : "<NONE>",
 			 grn, nrm, buf1, grn, nrm);
 	SendMsgToChar(buf, d->character.get());
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
@@ -647,8 +648,8 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			break;
 
 		case EObjType::kWeapon:
-			// * This doesn't seem to be used if I remember right.
-			SendMsgToChar("Модификатор попадания : ", d->character.get());
+			// val[0] у оружия в бою не читается (см. fight_hit.cpp).
+			SendMsgToChar("Не используется : ", d->character.get());
 			break;
 
 		case EObjType::kArmor:
@@ -674,32 +675,17 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			// * This is supposed to be language, but it's unused.
 			break;
 
-		case EObjType::kBook:
-			snprintf(buf, sizeof(buf),
-					"%s0%s) %sКнига заклинаний\r\n"
-					"%s1%s) %sКнига умений\r\n"
-					"%s2%s) %sУлучшение умения\r\n"
-					"%s3%s) %sКнига рецептов\r\n"
-					"%s4%s) %sКнига способностей\r\n"
-					"%sВыберите тип книги : ",
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					nrm);
+		case EObjType::kBook: {
+			// названия типов книг -- из единого источника GetBookTypeName (enum EBook)
+			buf[0] = '\0';
+			for (int bt = EBook::kSpell; bt <= EBook::kFeat; ++bt) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s%d%s) %s%s\r\n",
+						grn, bt, nrm, yel, GetBookTypeName(static_cast<EBook>(bt)));
+			}
+			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%sВыберите тип книги : ", nrm);
 			SendMsgToChar(buf, d->character.get());
 			break;
+		}
 
 		case EObjType::kMagicIngredient:
 			SendMsgToChar("Первый байт - лаг после применения в сек, 6 бит - уровень : ",
@@ -906,7 +892,13 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 			}
 			break;
 
-		case EObjType::kMagicComponent: SendMsgToChar("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character.get());
+		case EObjType::kMagicComponent:
+			// названия классов -- из единого источника GetIngredientClassName
+			snprintf(buf, sizeof(buf), "Класс ингредиента (0-%s, 1-%s, 2-%s): ",
+					GetIngredientClassName(EIngredientClass::kRosl),
+					GetIngredientClassName(EIngredientClass::kJiv),
+					GetIngredientClassName(EIngredientClass::kTverd));
+			SendMsgToChar(buf, d->character.get());
 			break;
 
 		case EObjType::kCraftMaterial: SendMsgToChar("Введите условный уровень: ", d->character.get());
@@ -1064,6 +1056,14 @@ static bool obj_has_potion_payload(EObjType t) {
 		|| t == EObjType::kFountain;
 }
 
+// issue.magic-items: object types whose payload lives in the extended ObjVal (extra_values) map,
+// not val[0..3] -- their legacy "O) Values" line is meaningless and their "N)" summary is the
+// maker skill/stat, not spec_param.
+static bool obj_uses_extended_values(EObjType t) {
+	return obj_has_potion_payload(t)
+		|| t == EObjType::kScroll || t == EObjType::kWand || t == EObjType::kStaff;
+}
+
 void drinkcon_values_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -1077,22 +1077,22 @@ void drinkcon_values_menu(DescriptorData *d) {
 			 "%s",
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell1Num,
+							   ObjVal::EValueKey::kSpell1Num,
 							   ObjVal::EValueKey::kPotionSpell1Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell2Num,
+							   ObjVal::EValueKey::kSpell2Num,
 							   ObjVal::EValueKey::kPotionSpell2Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell3Num,
+							   ObjVal::EValueKey::kSpell3Num,
 							   ObjVal::EValueKey::kPotionSpell3Lvl).c_str(),
 			 nrm);
 
 	SendMsgToChar(buf_, d->character.get());
 	if (obj_has_potion_payload(OLC_OBJ(d)->get_type())) {
-		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 		char pbuf[512], sk_s[32], st_s[32];
 		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
 		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
@@ -1103,8 +1103,91 @@ void drinkcon_values_menu(DescriptorData *d) {
 			grn, nrm, cyn, st_s, nrm);
 		SendMsgToChar(pbuf, d->character.get());
 	}
+	// issue.magic-items-hotfix: the liquid core (capacity/amount/type) is edited here in the extended
+	// menu, not via the legacy val editor.
+	if (OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
+		|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
+		const int lt = GET_OBJ_VAL(OLC_OBJ(d), 2);
+		const char *lname = (lt >= 0 && lt < NUM_LIQ_TYPES) ? drinks[lt] : "?";
+		char lbuf[512];
+		snprintf(lbuf, sizeof(lbuf),
+			"%s6%s) Ёмкость       : %s%d%s\r\n"
+			"%s7%s) Налито        : %s%d%s\r\n"
+			"%s8%s) Жидкость      : %s%d (%s)%s\r\n",
+			grn, nrm, cyn, GET_OBJ_VAL(OLC_OBJ(d), 0), nrm,
+			grn, nrm, cyn, GET_OBJ_VAL(OLC_OBJ(d), 1), nrm,
+			grn, nrm, cyn, lt, lname, nrm);
+		SendMsgToChar(lbuf, d->character.get());
+	}
 	SendMsgToChar("Ваш выбор (0 - выход) :", d->character.get());
 	return;
+}
+
+// issue.magic-items: extended-value editor for scrolls/wands/staves (kSpellItem* keys), the analog of
+// drinkcon_values_menu. Scroll: 3 spells + maker skill/stat. Wand/staff: 1 spell + skill/stat + charges.
+void spellitem_values_menu(DescriptorData *d) {
+#if defined(CLEAR_SCREEN)
+	SendMsgToChar("[H[J", d->character);
+#endif
+	ObjData *obj = OLC_OBJ(d);
+	const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+	const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
+	char sk_s[32], st_s[32];
+	if (sk < 0) snprintf(sk_s, sizeof(sk_s), "авт."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
+	if (st < 0) snprintf(st_s, sizeof(st_s), "авт."); else snprintf(st_s, sizeof(st_s), "%d", st);
+	char b[2048];
+	if (obj->get_type() == EObjType::kScroll) {
+		snprintf(b, sizeof(b),
+			"%s1%s) Заклинание 1     : %s%s%s\r\n"
+			"%s2%s) Заклинание 2     : %s%s%s\r\n"
+			"%s3%s) Заклинание 3     : %s%s%s\r\n"
+			"%s4%s) Навык мастера    : %s%s%s\r\n"
+			"%s5%s) Ключевой стат    : %s%s%s\r\n"
+			"Ваш выбор (0 - выход) :",
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell1Num, ObjVal::EValueKey::kSpell1Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell2Num, ObjVal::EValueKey::kSpell2Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell3Num, ObjVal::EValueKey::kSpell3Num).c_str(), nrm,
+			grn,nrm,cyn, sk_s, nrm,
+			grn,nrm,cyn, st_s, nrm);
+	} else {
+		const int mx = obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges);
+		const int cur = obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges);
+		char mx_s[32], cur_s[32];
+		snprintf(mx_s, sizeof(mx_s), "%d", mx < 0 ? 0 : mx);
+		snprintf(cur_s, sizeof(cur_s), "%d", cur < 0 ? 0 : cur);
+		snprintf(b, sizeof(b),
+			"%s1%s) Заклинание       : %s%s%s\r\n"
+			"%s2%s) Навык мастера    : %s%s%s\r\n"
+			"%s3%s) Ключевой стат    : %s%s%s\r\n"
+			"%s4%s) Максимум зарядов : %s%s%s\r\n"
+			"%s5%s) Текущие заряды   : %s%s%s\r\n"
+			"Ваш выбор (0 - выход) :",
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell1Num, ObjVal::EValueKey::kSpell1Num).c_str(), nrm,
+			grn,nrm,cyn, sk_s, nrm,
+			grn,nrm,cyn, st_s, nrm,
+			grn,nrm,cyn, mx_s, nrm,
+			grn,nrm,cyn, cur_s, nrm);
+	}
+	SendMsgToChar(b, d->character.get());
+}
+
+// issue.magic-items: set a scroll/wand/staff spell from OLC input and return to the spell-item menu.
+bool parse_val_spellitem_num(DescriptorData *d, const ObjVal::EValueKey key, int val) {
+	auto spell_id = static_cast<ESpell>(val);
+	if (spell_id < ESpell::kFirst || spell_id >= ESpell::kLast) {
+		if (val != 0) {
+			SendMsgToChar("Неверный спелл.\r\n", d->character.get());
+		}
+		OLC_OBJ(d)->SetPotionValueKey(key, -1);
+		OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+		spellitem_values_menu(d);
+		return false;
+	}
+	OLC_OBJ(d)->SetPotionValueKey(key, val);
+	SendMsgToChar(d->character.get(), "Установлено заклинание: %s\r\n", MUD::Spell(spell_id).GetCName());
+	OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+	spellitem_values_menu(d);
+	return true;
 }
 
 std::array<const char *, 9> wskill_bits =
@@ -1146,22 +1229,63 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 }
 
 std::string print_values2_menu(ObjData *obj) {
-	if (obj_has_potion_payload(obj->get_type())) {
-		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
-		char buf_p[kMaxInputLength], sk_s[32], st_s[32];
-		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
-		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
-		snprintf(buf_p, sizeof(buf_p), "Спец. параметры: навык=%s стат=%s", sk_s, st_s);
-		return buf_p;
+	const auto type = obj->get_type();
+	if (!obj_uses_extended_values(type)) {
+		return "Спец. параметры: " + std::to_string(obj->get_spec_param());
 	}
-
-	char buf_[kMaxInputLength];    
-	snprintf(buf_, sizeof(buf_), "Спец. параметры: %d", obj->get_spec_param());
-	return buf_;
+	// issue.magic-items-hotfix: full decoded parameter list for a migrated item, all on the N) line.
+	const auto k = [obj](ObjVal::EValueKey key) { return obj->GetPotionValueKey(key); };
+	const auto spell = [](int num) -> std::string {
+		const auto sp = static_cast<ESpell>(num);
+		return MUD::Spell(sp).IsValid() ? MUD::Spell(sp).GetName() : std::to_string(num);
+	};
+	std::string s = "Спец. параметры:";
+	if (type == EObjType::kLiquidContainer || type == EObjType::kFountain) {
+		s += " ёмкость=" + std::to_string(GET_OBJ_VAL(obj, 0));
+		s += " налито=" + std::to_string(GET_OBJ_VAL(obj, 1));
+		const int lt = GET_OBJ_VAL(obj, 2);
+		s += " жидкость=";
+		s += (lt >= 0 && lt < NUM_LIQ_TYPES) ? std::string(drinks[lt]) : std::to_string(lt);
+		if (k(ObjVal::EValueKey::kLiquidPoison) > 0) { s += " (ядовитая)"; }
+	}
+	const std::pair<ObjVal::EValueKey, const char *> spells[] = {
+		{ObjVal::EValueKey::kSpell1Num, "закл1"},
+		{ObjVal::EValueKey::kSpell2Num, "закл2"},
+		{ObjVal::EValueKey::kSpell3Num, "закл3"},
+	};
+	for (const auto &[key, label] : spells) {
+		const int v = k(key);
+		if (v > 0) { s += " "; s += label; s += "="; s += spell(v); }
+	}
+	const bool spellcaster = type == EObjType::kScroll || type == EObjType::kWand
+		|| type == EObjType::kStaff || type == EObjType::kPotion;
+	const int sk = k(ObjVal::EValueKey::kMakerSkill);
+	const int st = k(ObjVal::EValueKey::kMakerStat);
+	if (spellcaster || sk >= 0 || st >= 0) {
+		s += " навык=" + (sk < 0 ? std::string("деф.") : std::to_string(sk));
+		s += " стат=" + (st < 0 ? std::string("деф.") : std::to_string(st));
+	}
+	if (type == EObjType::kWand || type == EObjType::kStaff) {
+		s += " заряды=" + std::to_string(k(ObjVal::EValueKey::kCurCharges))
+			+ "/" + std::to_string(k(ObjVal::EValueKey::kMaxCharges));
+	}
+	return s;
 }
 
 // * Display main menu.
+// The "O) Values" summary: the raw val[0..3] for legacy types, or nothing for extended-value types.
+static std::string print_obj_values_line(ObjData *obj) {
+	// issue.magic-items-hotfix: migrated types show their payload on the N) line, so drop their legacy
+	// O) val[0..3] line entirely; legacy types still get a full "O) Values" line.
+	if (obj_uses_extended_values(obj->get_type())) {
+		return "";
+	}
+	char b[128];
+	snprintf(b, sizeof(b), "%sO%s) Values      : %s%d %d %d %d\r\n",
+			grn, nrm, cyn, GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3));
+	return b;
+}
+
 void oedit_disp_menu(DescriptorData *d) {
 	ObjData *obj;
 
@@ -1215,8 +1339,9 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
 			 "%sJ%s) Макс.проч.  : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
 			 "%sL%s) Материал    : %s%s\r\n"
-			 "%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
-			 "%sO%s) Values      : %s%d %d %d %d\r\n"
+			 "%sM%s) Таймер      : %s%8d\r\n"
+			 "%sN%s) %s\r\n"
+			 "%s"
 			 "%sP%s) Аффекты     : %s%s\r\n"
 			 "%sR%s) Меню наводимых аффектов\r\n"
 			 "%sT%s) Меню экстраописаний\r\n"
@@ -1238,9 +1363,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn, material_name[obj->get_material()],
 			 grn, nrm, cyn, obj->get_timer(),
 			 grn, nrm, print_values2_menu(obj).c_str(),
-			 grn, nrm, cyn,
-			 GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-			 GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
+			 print_obj_values_line(obj).c_str(), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			 nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют",
 			 grn, nrm, cyn, genders[gender],
 			 grn, nrm, cyn, obj->get_max_in_world(),
@@ -1276,9 +1399,9 @@ int planebit(const char *str, int *plane, int *bit) {
 }
 
 void check_potion_proto(ObjData *obj) {
-	if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num) > 0) {
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) > 0) {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, 0);
 	} else {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
@@ -1314,13 +1437,13 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 		}
 
 		switch (key) {
-			case ObjVal::EValueKey::kPotionSpell1Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, -1);
+			case ObjVal::EValueKey::kPotionSpell1Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell1Num, -1);
 				break;
 
-			case ObjVal::EValueKey::kPotionSpell2Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num, -1);
+			case ObjVal::EValueKey::kPotionSpell2Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell2Num, -1);
 				break;
 
-			case ObjVal::EValueKey::kPotionSpell3Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num, -1);
+			case ObjVal::EValueKey::kPotionSpell3Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell3Num, -1);
 				break;
 
 			default: break;
@@ -1542,6 +1665,11 @@ void oedit_parse(DescriptorData *d, char *arg) {
 						|| OLC_OBJ(d)->get_type() == EObjType::kPotion) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+					} else if (OLC_OBJ(d)->get_type() == EObjType::kScroll
+						|| OLC_OBJ(d)->get_type() == EObjType::kWand
+						|| OLC_OBJ(d)->get_type() == EObjType::kStaff) {
+						spellitem_values_menu(d);
+						OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 					} else {
 						oedit_disp_menu(d);
 					}
@@ -1552,9 +1680,19 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					// issue.potion-olc-values: potions keep their data in the extended ObjVal
 					// map, not val[0..3]; route 'O' to the same extended editor as 'N'. Other
 					// (not yet migrated) item types keep the legacy val editor untouched.
-					if (OLC_OBJ(d)->get_type() == EObjType::kPotion) {
+					if (OLC_OBJ(d)->get_type() == EObjType::kPotion
+						|| OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
+						|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+						break;
+					}
+					// issue.magic-items: scroll/wand/staff keep their data in the kSpellItem* ObjVal keys.
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll
+						|| OLC_OBJ(d)->get_type() == EObjType::kWand
+						|| OLC_OBJ(d)->get_type() == EObjType::kStaff) {
+						spellitem_values_menu(d);
+						OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 						break;
 					}
 					// * Clear any old values
@@ -1577,10 +1715,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 't':
 				case 'T':
 					// * If extra descriptions don't exist.
-					if (!OLC_OBJ(d)->get_ex_description()) {
-						OLC_OBJ(d)->set_ex_description(new ExtraDescription());
+					if (OLC_OBJ(d)->get_ex_description().empty()) {
+						OLC_OBJ(d)->ex_descriptions().emplace_back();
 					}
-					OLC_DESC(d) = OLC_OBJ(d)->get_ex_description();
+					OLC_DESC(d) = 0;
 					oedit_disp_extradesc_menu(d);
 					break;
 
@@ -2070,53 +2208,60 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case OEDIT_EXTRADESC_KEY:
-			if (OLC_DESC(d)->keyword)
-				free(OLC_DESC(d)->keyword);
-			OLC_DESC(d)->keyword = str_dup((arg && *arg) ? arg : "undefined");
+			// пустой ключ оставляем пустым (<NONE>), а не пишем "undefined":
+			// на выходе из меню незаполненное экстра-описание удаляется.
+			OLC_OBJ(d)->ex_descriptions()[OLC_DESC(d)].keyword = (arg && *arg) ? arg : "";
 			oedit_disp_extradesc_menu(d);
 			return;
 
 		case OEDIT_EXTRADESC_MENU:
 			switch ((number = atoi(arg))) {
-				case 0:
-					if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
-						OLC_DESC(d).reset();
-						OLC_OBJ(d)->set_ex_description(nullptr);
+				case 0: {
+					auto &descs = OLC_OBJ(d)->ex_descriptions();
+					// незавершённое описание (нет ключа или текста) удаляем из вектора
+					if (descs[OLC_DESC(d)].keyword.empty() || descs[OLC_DESC(d)].description.empty()) {
+						descs.erase(descs.begin() + OLC_DESC(d));
+						OLC_DESC(d) = -1;
 					}
 					break;
+				}
 
 				case 1: OLC_MODE(d) = OEDIT_EXTRADESC_KEY;
 					SendMsgToChar("Enter keywords, separated by spaces :-\r\n| ", d->character.get());
 					return;
 
-				case 2: OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
-				iosystem::write_to_output("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
+				case 2: {
+					OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
+					iosystem::write_to_output("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
 					d->backstr = nullptr;
-					if (OLC_DESC(d)->description) {
-					iosystem::write_to_output(OLC_DESC(d)->description, d);
-						d->backstr = str_dup(OLC_DESC(d)->description);
+					auto &cur = OLC_OBJ(d)->ex_descriptions()[OLC_DESC(d)];
+					if (!cur.description.empty()) {
+						iosystem::write_to_output(cur.description.c_str(), d);
+						d->backstr = str_dup(cur.description.c_str());
 					}
-					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));
+					d->writer.reset(new utils::DelegatedStdStringWriter(cur.description));
 					d->max_str = 4096;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
 					return;
+				}
 
-				case 3:
+				case 3: {
 					// * Only go to the next description if this one is finished.
-					if (OLC_DESC(d)->keyword && OLC_DESC(d)->description) {
-						if (OLC_DESC(d)->next) {
-							OLC_DESC(d) = OLC_DESC(d)->next;
-						} else    // Make new extra description and attach at end.
-						{
-							ExtraDescription::shared_ptr new_extra(new ExtraDescription());
-							OLC_DESC(d)->next = new_extra;
-							OLC_DESC(d) = OLC_DESC(d)->next;
+					auto &descs = OLC_OBJ(d)->ex_descriptions();
+					const int idx = OLC_DESC(d);
+					if (!descs[idx].keyword.empty() && !descs[idx].description.empty()) {
+						if (idx + 1 < static_cast<int>(descs.size())) {
+							OLC_DESC(d) = idx + 1;
+						} else {    // Make new extra description and attach at end.
+							descs.emplace_back();
+							OLC_DESC(d) = static_cast<int>(descs.size()) - 1;
 						}
 					}
 					// * No break - drop into default case.
 
 					// fall through
+				}
 				default: oedit_disp_extradesc_menu(d);
 					return;
 			}
@@ -2171,6 +2316,26 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 					drinkcon_values_menu(d);
 					return;
+				case 6:
+				case 7:
+				case 8:
+					if (OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
+						|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
+						if (number == 6) {
+							OLC_MODE(d) = OEDIT_DRINKCON_CAPACITY;
+							SendMsgToChar("Ёмкость (макс. объём) : ", d->character.get());
+						} else if (number == 7) {
+							OLC_MODE(d) = OEDIT_DRINKCON_CURRENT;
+							SendMsgToChar("Налито (текущий объём) : ", d->character.get());
+						} else {
+							OLC_MODE(d) = OEDIT_DRINKCON_TYPE;
+							SendMsgToChar("Тип жидкости (0 - вода) : ", d->character.get());
+						}
+						return;
+					}
+					SendMsgToChar("Неверный выбор.\r\n", d->character.get());
+					drinkcon_values_menu(d);
+					return;
 				default: SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 					drinkcon_values_menu(d);
 					return;
@@ -2179,13 +2344,13 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		// issue.potion-hotfix: the retired per-spell level step (OEDIT_POTION_SPELL*_LVL) is skipped --
 		// parse_val_spell_num sets the spell and returns to the potion menu on both success and failure.
 		case OEDIT_POTION_SPELL1_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell1Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell1Num, number);
 			return;
 		case OEDIT_POTION_SPELL2_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell2Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell2Num, number);
 			return;
 		case OEDIT_POTION_SPELL3_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell3Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell3Num, number);
 			return;
 		case OEDIT_POTION_SPELL1_LVL: number = atoi(arg);
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell1Lvl, number);
@@ -2197,16 +2362,112 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell3Lvl, number);
 			return;
 		case OEDIT_POTION_SKILL: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
-				number < 0 ? -1 : std::clamp(number, 0, 200));
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
+				// issue.magic-items: the maker skill IS the magic skill -- it can far exceed 200 (skill cap
+				// is 80 + 5*remort = 575 at max remort, and higher with skill buffs). Cap generously.
+				number < 0 ? -1 : std::clamp(number, 0, 1000));
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
 			return;
 		case OEDIT_POTION_STAT: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 				number < 0 ? -1 : std::clamp(number, 0, 100));
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
+			return;
+			// issue.magic-items-hotfix: drink-container/fountain liquid core (val[0..2]) edited via keys' menu.
+			case OEDIT_DRINKCON_CAPACITY: number = atoi(arg);
+				OLC_OBJ(d)->set_val(0, std::max(0, number));
+				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+				drinkcon_values_menu(d);
+				return;
+			case OEDIT_DRINKCON_CURRENT: number = atoi(arg);
+				OLC_OBJ(d)->set_val(1, std::clamp(number, 0, GET_OBJ_VAL(OLC_OBJ(d), 0)));
+				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+				drinkcon_values_menu(d);
+				return;
+			case OEDIT_DRINKCON_TYPE: number = atoi(arg);
+				OLC_OBJ(d)->set_val(2, std::clamp(number, 0, NUM_LIQ_TYPES - 1));
+				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+				drinkcon_values_menu(d);
+				return;
+		// issue.magic-items: scroll/wand/staff extended-value editor.
+		case OEDIT_SPELLITEM_VALUES:
+			switch (number = atoi(arg)) {
+				case 0: break;
+				case 1: OLC_MODE(d) = OEDIT_SPELLITEM_SPELL1;
+					oedit_disp_spells_menu(d);
+					return;
+				case 2:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SPELL2;
+						oedit_disp_spells_menu(d);
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SKILL;
+						SendMsgToChar("Навык мастера (-1 = авт.) : ", d->character.get());
+					}
+					return;
+				case 3:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SPELL3;
+						oedit_disp_spells_menu(d);
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_STAT;
+						SendMsgToChar("Ключевой стат (-1 = авт.) : ", d->character.get());
+					}
+					return;
+				case 4:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SKILL;
+						SendMsgToChar("Навык мастера (-1 = авт.) : ", d->character.get());
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_MAXCHARGES;
+						SendMsgToChar("Максимум зарядов : ", d->character.get());
+					}
+					return;
+				case 5:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_STAT;
+						SendMsgToChar("Ключевой стат (-1 = авт.) : ", d->character.get());
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_CURCHARGES;
+						SendMsgToChar("Текущие заряды : ", d->character.get());
+					}
+					return;
+				default: SendMsgToChar("Неверный выбор.\r\n", d->character.get());
+					spellitem_values_menu(d);
+					return;
+			}
+			break;
+		case OEDIT_SPELLITEM_SPELL1: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell1Num, atoi(arg));
+			return;
+		case OEDIT_SPELLITEM_SPELL2: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell2Num, atoi(arg));
+			return;
+		case OEDIT_SPELLITEM_SPELL3: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell3Num, atoi(arg));
+			return;
+		case OEDIT_SPELLITEM_SKILL: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
+				// issue.magic-items: the maker skill IS the magic skill -- it can far exceed 200 (skill cap
+				// is 80 + 5*remort = 575 at max remort, and higher with skill buffs). Cap generously.
+				number < 0 ? -1 : std::clamp(number, 0, 1000));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
+			return;
+		case OEDIT_SPELLITEM_STAT: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
+				number < 0 ? -1 : std::clamp(number, 0, 100));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
+			return;
+		case OEDIT_SPELLITEM_MAXCHARGES: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMaxCharges, std::clamp(number, 0, 200));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
+			return;
+		case OEDIT_SPELLITEM_CURCHARGES: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kCurCharges, std::clamp(number, 0, 200));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
 			return;
 		case OEDIT_CLONE:
 			switch (*arg) {

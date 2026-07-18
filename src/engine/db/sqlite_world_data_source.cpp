@@ -1426,11 +1426,10 @@ void SqliteWorldDataSource::LoadRoomExtraDescriptions(const std::map<int, int> &
 		auto it = vnum_to_rnum.find(room_vnum);
 		if (it == vnum_to_rnum.end()) continue;
 
-		auto ex_desc = std::make_shared<ExtraDescription>();
-		ex_desc->set_keyword(keywords);
-		ex_desc->set_description(description);
-		ex_desc->next = world[it->second]->ex_description;
-		world[it->second]->ex_description = ex_desc;
+		ExtraDescription ex_desc;
+		ex_desc.set_keyword(keywords);
+		ex_desc.set_description(description);
+		world[it->second]->ex_description.push_back(std::move(ex_desc));
 		loaded++;
 	}
 	sqlite3_finalize(stmt);
@@ -2160,8 +2159,7 @@ LoadedObject SqliteWorldDataSource::LoadObjectRow(sqlite3_stmt *stmt)
 	}
 	if (timer > 99999) timer = 99999;  // Cap timer like Legacy
 	obj->set_timer(timer);
-	obj->set_spell(sqlite3_column_int(stmt, 24));
-	obj->set_level(sqlite3_column_int(stmt, 25));
+	// issue #3581: obj->spell/level -- мёртвая пара; колонки 24/25 не присваиваем (индексы ниже не сдвигаем).
 	obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
 	obj->set_max_in_world(sqlite3_column_type(stmt, 27) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 27));
 	obj->set_minimum_remorts(sqlite3_column_int(stmt, 28));
@@ -2502,11 +2500,10 @@ void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum < 0) continue;
 
-		auto ex_desc = std::make_shared<ExtraDescription>();
-		ex_desc->set_keyword(keywords);
-		ex_desc->set_description(description);
-		ex_desc->next = obj_proto[rnum]->get_ex_description();
-		obj_proto[rnum]->set_ex_description(ex_desc);
+		ExtraDescription ex_desc;
+		ex_desc.set_keyword(keywords);
+		ex_desc.set_description(description);
+		obj_proto[rnum]->ex_descriptions().push_back(std::move(ex_desc));
 		loaded++;
 	}
 	sqlite3_finalize(stmt);
@@ -3165,13 +3162,13 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description) "
 		"VALUES ('room', ?, ?, ?)";
 
-	for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
+	for (const auto &exdesc : room->ex_description)
 	{
 		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
 			sqlite3_bind_int(stmt, 1, room_vnum);
-			BindTextKoi(stmt, 2, exdesc->keyword);
-			BindTextKoi(stmt, 3, exdesc->description);
+			BindTextKoi(stmt, 2, exdesc.keyword.c_str());
+			BindTextKoi(stmt, 3, exdesc.description.c_str());
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
@@ -3875,13 +3872,13 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description) "
 		"VALUES ('obj', ?, ?, ?)";
 
-	for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
+	for (const auto &exdesc : obj->get_ex_description())
 	{
 		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
 			sqlite3_bind_int(stmt, 1, obj_vnum);
-			BindTextKoi(stmt, 2, exdesc->keyword);
-			BindTextKoi(stmt, 3, exdesc->description);
+			BindTextKoi(stmt, 2, exdesc.keyword.c_str());
+			BindTextKoi(stmt, 3, exdesc.description.c_str());
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
