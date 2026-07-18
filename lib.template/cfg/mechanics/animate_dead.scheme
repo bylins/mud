@@ -24,7 +24,7 @@
 	</tag>
 	<tag name="cost" desc="Tier selection">
 		<attr name="corpse_max_level" type="int" desc="Highest source-corpse level yielding this tier"/>
-		<attr name="min_rating" type="int" desc="Smallest caster rating (level+remort+4) allowed"/>
+		<attr name="min_rating" type="int" desc="Smallest caster rating (level + skill-derived remort-equiv + 4) allowed"/>
 		<attr name="pick" type="int" desc="Relative odds within a shared top corpse band"/>
 	</tag>
 	<tag name="scaling" desc="Per-tier stat scaling off cast competence C">

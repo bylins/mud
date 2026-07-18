@@ -41,7 +41,7 @@ struct CreatureInfo {
 	int proto_vnum = 0;        // the summoned mob prototype
 	int weight = 0;            // control-budget cost
 	int corpse_max_level = 0;  // highest source-corpse level that yields this tier
-	int min_rating = 0;        // smallest caster rating (level+remort+4) allowed
+	int min_rating = 0;        // smallest caster rating (level + skill-derived remort-equiv + 4)
 	int pick = 0;              // relative odds within a shared top corpse band (0 = the single tier)
 	CreatureScaling scaling;
 };
