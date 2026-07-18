@@ -1,5 +1,7 @@
 #include "engine/scripting/lua/lua_formatter.h"
 
+#include <cstdlib>
+
 #if defined(WITH_LUA_FORMATTER)
 #include "CodeFormatCLib.h"
 #include "utils/utils_encoding.h"
@@ -216,25 +218,74 @@ private:
 	std::uint64_t m_next_request_id{1};
 };
 
-std::unique_ptr<LuaFormatterWorker>& FormatterWorkerStorage() {
-	static std::unique_ptr<LuaFormatterWorker> worker;
-	return worker;
+#endif
+
+} // namespace
+
+namespace {
+
+struct FormatterRuntime {
+#if defined(WITH_LUA_FORMATTER)
+	LuaFormatterWorker& EnsureWorker() {
+		if (!worker) {
+			worker = std::make_unique<LuaFormatterWorker>();
+		}
+		return *worker;
+	}
+
+	std::unique_ptr<LuaFormatterWorker> worker;
+#endif
+};
+
+void DeleteFormatterRuntime(void* runtime) {
+	delete static_cast<FormatterRuntime*>(runtime);
 }
 
-LuaFormatterWorker& EnsureFormatterWorker() {
-	auto& worker = FormatterWorkerStorage();
-	if (!worker) {
-		worker = std::make_unique<LuaFormatterWorker>();
-	}
-	return *worker;
+#if defined(WITH_LUA_FORMATTER)
+LuaFormatterShutdownGuard*& ActiveFormatterGuard() {
+	static LuaFormatterShutdownGuard* guard = nullptr;
+	return guard;
 }
 #endif
 
 } // namespace
 
+LuaFormatterShutdownGuard::LuaFormatterShutdownGuard()
+#if defined(WITH_LUA_FORMATTER)
+	: m_runtime(new FormatterRuntime, DeleteFormatterRuntime) {
+	if (ActiveFormatterGuard() != nullptr) {
+		std::abort();
+	}
+	ActiveFormatterGuard() = this;
+#else
+	: m_runtime(nullptr, DeleteFormatterRuntime) {
+#endif
+}
+
+std::uint64_t LuaFormatterShutdownGuard::Submit(std::string source) {
+#if defined(WITH_LUA_FORMATTER)
+	return static_cast<FormatterRuntime*>(m_runtime.get())->EnsureWorker().Submit(std::move(source));
+#else
+	(void)source;
+	return 0;
+#endif
+}
+
+bool LuaFormatterShutdownGuard::TryPop(LuaFormatResult& result) {
+#if defined(WITH_LUA_FORMATTER)
+	auto* runtime = static_cast<FormatterRuntime*>(m_runtime.get());
+	auto* worker = runtime ? runtime->worker.get() : nullptr;
+	return worker && worker->TryPop(result);
+#else
+	(void)result;
+	return false;
+#endif
+}
+
 std::uint64_t QueueLuaFormat(std::string source) {
 #if defined(WITH_LUA_FORMATTER)
-	return EnsureFormatterWorker().Submit(std::move(source));
+	auto* guard = ActiveFormatterGuard();
+	return guard ? guard->Submit(std::move(source)) : 0;
 #else
 	(void)source;
 	return 0;
@@ -243,8 +294,8 @@ std::uint64_t QueueLuaFormat(std::string source) {
 
 bool TryPopLuaFormatResult(LuaFormatResult& result) {
 #if defined(WITH_LUA_FORMATTER)
-	const auto& worker = FormatterWorkerStorage();
-	return worker && worker->TryPop(result);
+	auto* guard = ActiveFormatterGuard();
+	return guard && guard->TryPop(result);
 #else
 	(void)result;
 	return false;
@@ -253,7 +304,10 @@ bool TryPopLuaFormatResult(LuaFormatResult& result) {
 
 LuaFormatterShutdownGuard::~LuaFormatterShutdownGuard() {
 #if defined(WITH_LUA_FORMATTER)
-	FormatterWorkerStorage().reset();
+	if (ActiveFormatterGuard() != this) {
+		std::abort();
+	}
+	ActiveFormatterGuard() = nullptr;
 #endif
 }
 
