@@ -397,16 +397,15 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	} else {
 		corpse->set_timer(0);
 	}
-	ExtraDescription::shared_ptr exdesc(new ExtraDescription());
-	exdesc->keyword = str_dup(corpse->get_PName(grammar::ECase::kNom).c_str());    // косметика
+	ExtraDescription exdesc;
+	exdesc.keyword = corpse->get_PName(grammar::ECase::kNom);    // косметика
 	if (killer) {
 		sprintf(buf, "Убит%s на арене %s.\r\n", grammar::SexEnding((ch)->get_sex(), 6), GET_PAD(killer, 4));
 	} else {
 		sprintf(buf, "Умер%s на арене.\r\n", grammar::SexEnding((ch)->get_sex(), 4));
 	}
-	exdesc->description = str_dup(buf);    // косметика
-	exdesc->next = corpse->get_ex_description();
-	corpse->set_ex_description(exdesc);
+	exdesc.description = buf;    // косметика
+	corpse->ex_descriptions().push_back(std::move(exdesc));
 	PlaceObjToRoom(corpse.get(), ch->in_room);
 }
 

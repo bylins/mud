@@ -10,7 +10,9 @@
 #include <memory>
 #include <string>
 
-// Extra description: used in objects, mobiles, and rooms //
+// Extra description: used in objects, mobiles, and rooms.
+// Хранятся в std::vector<ExtraDescription> у объекта/комнаты (без ручной
+// next-цепочки). shared_ptr оставлен для совместимости отдельных мест.
 struct ExtraDescription {
 	using shared_ptr = std::shared_ptr<ExtraDescription>;
 	void set_keyword(std::string const &keyword);
@@ -18,7 +20,6 @@ struct ExtraDescription {
 
 	std::string keyword;        // Keyword in look/examine          //
 	std::string description;    // What to see                      //
-	shared_ptr next;    // Next in list                     //
 };
 
 #endif //BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_H_

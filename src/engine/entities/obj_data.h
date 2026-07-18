@@ -248,6 +248,8 @@ class CObjectPrototype {
 	const auto &get_anti_flags() const { return m_anti_flags; }
 	const auto &get_description() const { return m_description; }
 	const auto &get_ex_description() const { return m_ex_description; }
+	// Мутабельный доступ к вектору экстра-описаний (для OLC-редактора).
+	std::vector<ExtraDescription> &ex_descriptions() { return m_ex_description; }
 	const auto &get_extra_flags() const { return m_extra_flags; }
 	const auto &get_no_flags() const { return m_no_flags; }
 	const auto &get_proto_script() const { return *m_proto_script; }
@@ -297,8 +299,8 @@ class CObjectPrototype {
 	void set_current_durability(const int _) { m_current_durability = _; }
 	void set_description(const std::string &_) { m_description = _; }
 	void set_destroyer(const int _) { m_destroyer = _; }
-	void set_ex_description(const ExtraDescription::shared_ptr &_) { m_ex_description = _; }
-	void set_ex_description(ExtraDescription *_) { m_ex_description.reset(_); }
+	void set_ex_description(std::nullptr_t) { m_ex_description.clear(); }
+	void add_ex_description(const ExtraDescription &ed) { m_ex_description.push_back(ed); }
 	void set_extra_flag(const EObjFlag packed_flag) { m_extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const Bitvector flag) { m_extra_flags.set_flag(plane, flag); }
 	void set_extra_flags(const FlagData &flags) { m_extra_flags = flags; }
@@ -405,7 +407,7 @@ class CObjectPrototype {
 
 	std::string m_short_description;    // when worn/carry/in cont.         //
 	std::string m_action_description;    // What to write when used          //
-	ExtraDescription::shared_ptr m_ex_description;    // extra descriptions     //
+	std::vector<ExtraDescription> m_ex_description;    // extra descriptions     //
 
 	triggers_list_ptr m_proto_script;    // list of default triggers  //
 

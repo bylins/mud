@@ -37,7 +37,7 @@ extern int invalid_unique(CharData *ch, const ObjData *obj);    // implemented i
 extern int invalid_no_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
 extern int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
-const char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list); // implemented in act.informative.cpp
+const char *sight::find_exdesc(const char *word, const std::vector<ExtraDescription> &list); // implemented in act.informative.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
 

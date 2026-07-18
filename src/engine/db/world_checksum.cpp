@@ -201,15 +201,15 @@ std::string SerializeRoom(const RoomData *room)
 	// Extra descriptions (E-blocks in the legacy room file). Without these
 	// the checksum is blind to a yaml/sqlite converter that silently drops
 	// the room's ex_description list (see boot_data_files.cpp:463-475).
-	for (auto ed = room->ex_description; ed; ed = ed->next)
+	for (const auto &ed : room->ex_description)
 	{
-		if (!ed->keyword.empty())
+		if (!ed.keyword.empty())
 		{
-			oss << ed->keyword << ":";
+			oss << ed.keyword << ":";
 		}
-		if (!ed->description.empty())
+		if (!ed.description.empty())
 		{
-			oss << ed->description;
+			oss << ed.description;
 		}
 		oss << ";";
 	}
@@ -519,15 +519,15 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	oss << "|";
 
 	// Extra descriptions
-	for (auto ed = obj->get_ex_description(); ed; ed = ed->next)
+	for (const auto &ed : obj->get_ex_description())
 	{
-		if (!ed->keyword.empty())
+		if (!ed.keyword.empty())
 		{
-			oss << ed->keyword << ":";
+			oss << ed.keyword << ":";
 		}
-		if (!ed->description.empty())
+		if (!ed.description.empty())
 		{
-			oss << ed->description;
+			oss << ed.description;
 		}
 		oss << ";";
 	}

@@ -273,7 +273,7 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum) {
 	}
 	const auto &cur = MUD::Currency(currency_vnum);
 	auto obj = world_objects.create_blank();
-	ExtraDescription::shared_ptr new_descr(new ExtraDescription());
+	ExtraDescription new_descr;
 
 	// Generic money keywords + every declension (singular & plural) so any typed form picks it up.
 	std::string aliases = "coins coin money монеты монет деньги денег";
@@ -293,10 +293,9 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum) {
 	snprintf(descr_buf, sizeof(descr_buf), "Здесь лежит %s.", cur.GetObjCName(quantity, grammar::ECase::kNom));
 	obj->set_description(utils::CAP(descr_buf));
 
-	new_descr->keyword = str_dup(aliases.c_str());
-	new_descr->description = str_dup(cur.GetObjCName(quantity, grammar::ECase::kNom));
-	new_descr->next = nullptr;
-	obj->set_ex_description(new_descr);
+	new_descr.keyword = aliases;
+	new_descr.description = cur.GetObjCName(quantity, grammar::ECase::kNom);
+	obj->ex_descriptions().assign(1, std::move(new_descr));
 
 	obj->set_type(EObjType::kMoney);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
@@ -322,7 +321,7 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		return (nullptr);
 	}
 	auto obj = world_objects.create_blank();
-	ExtraDescription::shared_ptr new_descr(new ExtraDescription());
+	ExtraDescription new_descr;
 
 	if (quantity == 1) {
 		sprintf(buf, "coin gold кун деньги денег монет %s",
@@ -330,8 +329,8 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		obj->set_aliases(buf);
 		obj->set_short_description("куна");
 		obj->set_description("Одна куна лежит здесь.");
-		new_descr->keyword = str_dup("coin gold монет кун денег");
-		new_descr->description = str_dup("Всего лишь одна куна.");
+		new_descr.keyword = "coin gold монет кун денег";
+		new_descr.description = "Всего лишь одна куна.";
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 			auto name_case = static_cast<grammar::ECase>(i);
 			obj->set_PName(name_case,
@@ -351,11 +350,10 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
 		obj->set_description(utils::CAP(buf));
 
-		new_descr->keyword = str_dup("coins gold кун денег");
+		new_descr.keyword = "coins gold кун денег";
 	}
 
-	new_descr->next = nullptr;
-	obj->set_ex_description(new_descr);
+	obj->ex_descriptions().assign(1, std::move(new_descr));
 	obj->set_type(EObjType::kMoney);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_sex(EGender::kFemale);

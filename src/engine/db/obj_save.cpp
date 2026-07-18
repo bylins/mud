@@ -405,17 +405,17 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_affected(7, static_cast<EApply>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Edes")) {
 				*error = 46;
-				ExtraDescription::shared_ptr new_descr(new ExtraDescription());
-				new_descr->keyword = buffer;
-				if (new_descr->keyword == "None") {
+				ExtraDescription new_descr;
+				new_descr.keyword = buffer;
+				if (new_descr.keyword == "None") {
 					object->set_ex_description(nullptr);
 				} else {
 					if (!get_buf_lines(data, buffer)) {
 						*error = 47;
 						return (object);
 					}
-					new_descr->description = str_dup(buffer);
-					object->set_ex_description(new_descr);
+					new_descr.description = buffer;
+					object->ex_descriptions().push_back(std::move(new_descr));
 				}
 			} else if (!strcmp(read_line, "Ouid")) {
 				*error = 48;
@@ -620,10 +620,10 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	return (object);
 }
 
-inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const ExtraDescription::shared_ptr &pdesc) {
-	for (auto desc = pdesc; desc; desc = desc->next) {
-		if (!str_cmp(odesc->keyword, desc->keyword)
-			&& !str_cmp(odesc->description, desc->description)) {
+inline bool proto_has_descr(const ExtraDescription &odesc, const std::vector<ExtraDescription> &pdesc) {
+	for (const auto &desc : pdesc) {
+		if (!str_cmp(odesc.keyword.c_str(), desc.keyword.c_str())
+			&& !str_cmp(odesc.description.c_str(), desc.description.c_str())) {
 			return true;
 		}
 	}
@@ -810,14 +810,14 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 				out << "Afc" << j << ": " << oaff.location << " " << oaff.modifier << "~\n";
 			}
 		}
-		for (auto descr = object->get_ex_description(); descr; descr = descr->next) {
+		for (const auto &descr : object->get_ex_description()) {
 			if (proto_has_descr(descr, p->get_ex_description())) {
 				continue;
 			}
-			out << "Edes: " << descr->keyword << "~\n"
-				<< descr->description << "~\n";
+			out << "Edes: " << descr.keyword << "~\n"
+				<< descr.description << "~\n";
 		}
-		if (!object->get_ex_description() && p->get_ex_description()) {
+		if (object->get_ex_description().empty() && !p->get_ex_description().empty()) {
 			out << "Edes: None~\n";
 		}
 		if (object->get_auto_mort_req() > 0) {
