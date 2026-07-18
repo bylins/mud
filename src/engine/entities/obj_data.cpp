@@ -829,8 +829,10 @@ void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
 
 void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {
 	ExtraDescription::shared_ptr d(new ExtraDescription());
-	d->keyword = strdup(keyword);
-	d->description = strdup(description);
+	// keyword/description -- std::string, присваиваем напрямую (strdup утёк бы:
+	// строка копирует контент, а выделенный буфер терялся).
+	d->keyword = keyword;
+	d->description = description;
 	m_ex_description = d;
 }
 
