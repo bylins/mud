@@ -226,6 +226,9 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_SPELLITEM_STAT                    60
 #define OEDIT_SPELLITEM_MAXCHARGES              61
 #define OEDIT_SPELLITEM_CURCHARGES              62
+#define OEDIT_DRINKCON_CAPACITY                 63
+#define OEDIT_DRINKCON_CURRENT                  64
+#define OEDIT_DRINKCON_TYPE                     65
 
 // * Submodes of REDIT connectedness.
 #define REDIT_MAIN_MENU        1

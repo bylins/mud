@@ -1103,6 +1103,22 @@ void drinkcon_values_menu(DescriptorData *d) {
 			grn, nrm, cyn, st_s, nrm);
 		SendMsgToChar(pbuf, d->character.get());
 	}
+	// issue.magic-items-hotfix: the liquid core (capacity/amount/type) is edited here in the extended
+	// menu, not via the legacy val editor.
+	if (OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
+		|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
+		const int lt = GET_OBJ_VAL(OLC_OBJ(d), 2);
+		const char *lname = (lt >= 0 && lt < NUM_LIQ_TYPES) ? drinks[lt] : "?";
+		char lbuf[512];
+		snprintf(lbuf, sizeof(lbuf),
+			"%s6%s) Ёмкость       : %s%d%s\r\n"
+			"%s7%s) Налито        : %s%d%s\r\n"
+			"%s8%s) Жидкость      : %s%d (%s)%s\r\n",
+			grn, nrm, cyn, GET_OBJ_VAL(OLC_OBJ(d), 0), nrm,
+			grn, nrm, cyn, GET_OBJ_VAL(OLC_OBJ(d), 1), nrm,
+			grn, nrm, cyn, lt, lname, nrm);
+		SendMsgToChar(lbuf, d->character.get());
+	}
 	SendMsgToChar("Ваш выбор (0 - выход) :", d->character.get());
 	return;
 }
@@ -1213,30 +1229,60 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 }
 
 std::string print_values2_menu(ObjData *obj) {
-	if (obj_uses_extended_values(obj->get_type())) {
-		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
-		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
-		char buf_p[kMaxInputLength], sk_s[32], st_s[32];
-		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
-		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
-		snprintf(buf_p, sizeof(buf_p), "Спец. параметры: навык=%s стат=%s", sk_s, st_s);
-		return buf_p;
+	const auto type = obj->get_type();
+	if (!obj_uses_extended_values(type)) {
+		return "Спец. параметры: " + std::to_string(obj->get_spec_param());
 	}
-
-	char buf_[kMaxInputLength];    
-	snprintf(buf_, sizeof(buf_), "Спец. параметры: %d", obj->get_spec_param());
-	return buf_;
+	// issue.magic-items-hotfix: full decoded parameter list for a migrated item, all on the N) line.
+	const auto k = [obj](ObjVal::EValueKey key) { return obj->GetPotionValueKey(key); };
+	const auto spell = [](int num) -> std::string {
+		const auto sp = static_cast<ESpell>(num);
+		return MUD::Spell(sp).IsValid() ? MUD::Spell(sp).GetName() : std::to_string(num);
+	};
+	std::string s = "Спец. параметры:";
+	if (type == EObjType::kLiquidContainer || type == EObjType::kFountain) {
+		s += " ёмкость=" + std::to_string(GET_OBJ_VAL(obj, 0));
+		s += " налито=" + std::to_string(GET_OBJ_VAL(obj, 1));
+		const int lt = GET_OBJ_VAL(obj, 2);
+		s += " жидкость=";
+		s += (lt >= 0 && lt < NUM_LIQ_TYPES) ? std::string(drinks[lt]) : std::to_string(lt);
+		if (k(ObjVal::EValueKey::kLiquidPoison) > 0) { s += " (ядовитая)"; }
+	}
+	const std::pair<ObjVal::EValueKey, const char *> spells[] = {
+		{ObjVal::EValueKey::kSpell1Num, "закл1"},
+		{ObjVal::EValueKey::kSpell2Num, "закл2"},
+		{ObjVal::EValueKey::kSpell3Num, "закл3"},
+	};
+	for (const auto &[key, label] : spells) {
+		const int v = k(key);
+		if (v > 0) { s += " "; s += label; s += "="; s += spell(v); }
+	}
+	const bool spellcaster = type == EObjType::kScroll || type == EObjType::kWand
+		|| type == EObjType::kStaff || type == EObjType::kPotion;
+	const int sk = k(ObjVal::EValueKey::kMakerSkill);
+	const int st = k(ObjVal::EValueKey::kMakerStat);
+	if (spellcaster || sk >= 0 || st >= 0) {
+		s += " навык=" + (sk < 0 ? std::string("деф.") : std::to_string(sk));
+		s += " стат=" + (st < 0 ? std::string("деф.") : std::to_string(st));
+	}
+	if (type == EObjType::kWand || type == EObjType::kStaff) {
+		s += " заряды=" + std::to_string(k(ObjVal::EValueKey::kCurCharges))
+			+ "/" + std::to_string(k(ObjVal::EValueKey::kMaxCharges));
+	}
+	return s;
 }
 
 // * Display main menu.
 // The "O) Values" summary: the raw val[0..3] for legacy types, or nothing for extended-value types.
 static std::string print_obj_values_line(ObjData *obj) {
+	// issue.magic-items-hotfix: migrated types show their payload on the N) line, so drop their legacy
+	// O) val[0..3] line entirely; legacy types still get a full "O) Values" line.
 	if (obj_uses_extended_values(obj->get_type())) {
 		return "";
 	}
-	char b[64];
-	snprintf(b, sizeof(b), "%d %d %d %d",
-			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3));
+	char b[128];
+	snprintf(b, sizeof(b), "%sO%s) Values      : %s%d %d %d %d\r\n",
+			grn, nrm, cyn, GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3));
 	return b;
 }
 
@@ -1293,8 +1339,9 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
 			 "%sJ%s) Макс.проч.  : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
 			 "%sL%s) Материал    : %s%s\r\n"
-			 "%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
-			 "%sO%s) Values      : %s%s\r\n"
+			 "%sM%s) Таймер      : %s%8d\r\n"
+			 "%sN%s) %s\r\n"
+			 "%s"
 			 "%sP%s) Аффекты     : %s%s\r\n"
 			 "%sR%s) Меню наводимых аффектов\r\n"
 			 "%sT%s) Меню экстраописаний\r\n"
@@ -1316,7 +1363,6 @@ void oedit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn, material_name[obj->get_material()],
 			 grn, nrm, cyn, obj->get_timer(),
 			 grn, nrm, print_values2_menu(obj).c_str(),
-			 grn, nrm, cyn,
 			 print_obj_values_line(obj).c_str(), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			 nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют",
 			 grn, nrm, cyn, genders[gender],
@@ -1634,7 +1680,9 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					// issue.potion-olc-values: potions keep their data in the extended ObjVal
 					// map, not val[0..3]; route 'O' to the same extended editor as 'N'. Other
 					// (not yet migrated) item types keep the legacy val editor untouched.
-					if (OLC_OBJ(d)->get_type() == EObjType::kPotion) {
+					if (OLC_OBJ(d)->get_type() == EObjType::kPotion
+						|| OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
+						|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 						break;
@@ -2259,6 +2307,26 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 					drinkcon_values_menu(d);
 					return;
+				case 6:
+				case 7:
+				case 8:
+					if (OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
+						|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
+						if (number == 6) {
+							OLC_MODE(d) = OEDIT_DRINKCON_CAPACITY;
+							SendMsgToChar("Ёмкость (макс. объём) : ", d->character.get());
+						} else if (number == 7) {
+							OLC_MODE(d) = OEDIT_DRINKCON_CURRENT;
+							SendMsgToChar("Налито (текущий объём) : ", d->character.get());
+						} else {
+							OLC_MODE(d) = OEDIT_DRINKCON_TYPE;
+							SendMsgToChar("Тип жидкости (0 - вода) : ", d->character.get());
+						}
+						return;
+					}
+					SendMsgToChar("Неверный выбор.\r\n", d->character.get());
+					drinkcon_values_menu(d);
+					return;
 				default: SendMsgToChar("Неверный выбор.\r\n", d->character.get());
 					drinkcon_values_menu(d);
 					return;
@@ -2298,6 +2366,22 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
 			return;
+			// issue.magic-items-hotfix: drink-container/fountain liquid core (val[0..2]) edited via keys' menu.
+			case OEDIT_DRINKCON_CAPACITY: number = atoi(arg);
+				OLC_OBJ(d)->set_val(0, std::max(0, number));
+				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+				drinkcon_values_menu(d);
+				return;
+			case OEDIT_DRINKCON_CURRENT: number = atoi(arg);
+				OLC_OBJ(d)->set_val(1, std::clamp(number, 0, GET_OBJ_VAL(OLC_OBJ(d), 0)));
+				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+				drinkcon_values_menu(d);
+				return;
+			case OEDIT_DRINKCON_TYPE: number = atoi(arg);
+				OLC_OBJ(d)->set_val(2, std::clamp(number, 0, NUM_LIQ_TYPES - 1));
+				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+				drinkcon_values_menu(d);
+				return;
 		// issue.magic-items: scroll/wand/staff extended-value editor.
 		case OEDIT_SPELLITEM_VALUES:
 			switch (number = atoi(arg)) {

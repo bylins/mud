@@ -4415,19 +4415,23 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.Key("material");
 	yaml.Value(material_id, GetMaterialNameComment(material_id));
 
-	// Values
-	yaml.Key("values");
-	yaml.BeginSequence();
-	yaml.IncreaseIndent();
-
-	// issue #3593: подписываем каждый values-слот по смыслу для типа предмета.
+	// issue.magic-items-hotfix (point 5): scrolls/wands/staves/potions/drink-containers/fountains keep
+	// their payload in extra_values; the raw val[0..3] just duplicate it, so skip them (YAML). Loaders
+	// reconstruct val[] from the keys (ConvertObjValues / obj_save).
 	const auto obj_type = obj->get_type();
-	yaml.SequenceItem(obj->get_val(0), GetObjValueComment(obj_type, 0, obj->get_val(0)));
-	yaml.SequenceItem(obj->get_val(1), GetObjValueComment(obj_type, 1, obj->get_val(1)));
-	yaml.SequenceItem(obj->get_val(2), GetObjValueComment(obj_type, 2, obj->get_val(2)));
-	yaml.SequenceItem(obj->get_val(3), GetObjValueComment(obj_type, 3, obj->get_val(3)));
-
-	yaml.DecreaseIndent();
+	const bool hotfix_extended = obj_type == EObjType::kScroll || obj_type == EObjType::kWand
+		|| obj_type == EObjType::kStaff || obj_type == EObjType::kPotion
+		|| obj_type == EObjType::kLiquidContainer || obj_type == EObjType::kFountain;
+	if (!hotfix_extended) {
+		yaml.Key("values");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+		yaml.SequenceItem(obj->get_val(0), GetObjValueComment(obj_type, 0, obj->get_val(0)));
+		yaml.SequenceItem(obj->get_val(1), GetObjValueComment(obj_type, 1, obj->get_val(1)));
+		yaml.SequenceItem(obj->get_val(2), GetObjValueComment(obj_type, 2, obj->get_val(2)));
+		yaml.SequenceItem(obj->get_val(3), GetObjValueComment(obj_type, 3, obj->get_val(3)));
+		yaml.DecreaseIndent();
+	}
 
 	// Weight, cost, rent
 	yaml.Key("weight");
