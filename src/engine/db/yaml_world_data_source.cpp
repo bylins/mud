@@ -226,9 +226,14 @@ std::string GetObjValueComment(EObjType type, int slot, int value) {
 			return "";
 
 		case EObjType::kMagicComponent:
-			if (slot == 3) {
-				const char *n = GetIngredientClassName(static_cast<EIngredientClass>(value));
-				return (n && *n) ? std::string("класс ингредиента: ") + n : "класс ингредиента";
+			// слоты магкомпонента: см. IM_POWER_SLOT/IM_TYPE_SLOT/IM_INDEX_SLOT (im.h)
+			switch (slot) {
+				case 1: return "сила ингредиента";             // IM_POWER_SLOT
+				case 2: return "номер типа (из im.lst)";       // IM_TYPE_SLOT
+				case 3: {                                       // IM_INDEX_SLOT: в прото -- класс
+					const char *n = GetIngredientClassName(static_cast<EIngredientClass>(value));
+					return (n && *n) ? std::string("класс ингредиента: ") + n : "класс ингредиента";
+				}
 			}
 			return "";
 
