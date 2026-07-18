@@ -1140,86 +1140,86 @@ BOOST_PYTHON_MODULE (mud) {
 		mudlog_python,
 		(py::arg("msg"), py::arg("msg_type") = DEF, py::arg("level") = LVL_IMMORT, py::arg("channel") =
 			static_cast<int>(SYSLOG), py::arg("to_file") = TRUE),
-		"п≈п╟п©п╦я│я▀п╡п╟п╣я┌ я│п╬п╬п╠я┴п╣п╫п╦п╣ msg я┌п╦п©п╟ msg_type п╡ п╨п╟п╫п╟п╩ п╩п╬пЁп╟ channel п╢п╩я▐ я┐я─п╬п╡п╫я▐ level.\n"
+		"Записывает сообщение msg типа msg_type в канал лога channel для уровня level.\n"
 		"\n"
-		"msg_type п©я─п╦п╫п╦п╪п╟п╣я┌ п╥п╫п╟я┤п╣п╫п╦я▐ п╨п╬п╫я│я┌п╟п╫я┌ п╦п╥ utils.h, defines for mudlog.\n"
-		"channel  п╨п╟п╫п╟п╩, п╡ п╨п╬я┌п╬я─я▀п╧ п╠я┐п╢п╣я┌ п╥п╟п©п╦я│п╟п╫п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ (comm.h). п╡ п╫п╟я│я┌п╬я▐я┴п╣п╣ п╡я─п╣п╪я▐ п╪п╬п╤п╣я┌ п©я─п╦п╫п╦п╪п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦я▐ constants.SYSLOG, constants.ERRLOG п╦ constants.IMLOG.\n"
-		"to_file  п≈п╟п©п╦я│я▀п╡п╟я┌я▄ п╩п╦ я│п╬п╬п╠я┴п╣п╫п╦п╣ я┌п╟п╨ п╤п╣ п╡ я└п╟п╧п╩, п©п╬п╪п╦п╪п╬ п╡я▀п╡п╬п╢п╟ п╣пЁп╬ п╦п╪п╪п╟п╪");
+		"msg_type принимает значения констант из utils.h, defines for mudlog.\n"
+		"channel  канал, в который будет записано сообщение (comm.h). в настоящее время может принимать значения constants.SYSLOG, constants.ERRLOG и constants.IMLOG.\n"
+		"to_file  Записывать ли сообщение так же в файл, помимо вывода его иммам");
 	def("send_all", send_to_all, (py::arg("msg")),
-		"п╗п╩п╣я┌ я│п╬п╬п╠я┴п╣п╫п╦п╣ msg п╡я│п╣п╪ п╦пЁя─п╬п╨п╟п╪.");
-	def("find_skill_num", find_skill_num, "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╫п╬п╪п╣я─ я│п╨п╦п╩п╟ п©п╬ п╣пЁп╬ п╫п╟п╥п╡п╟п╫п╦я▌.");
-	def("find_spell_num", find_spell_num, "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╫п╬п╪п╣я─ я│п©п╣п╩п╩п╟ п©п╬ п╣пЁп╬ п╫п╟п╥п╡п╟п╫п╦я▌.");
+		"Шлет сообщение msg всем игрокам.");
+	def("find_skill_num", find_skill_num, "Возвращает номер скила по его названию.");
+	def("find_spell_num", find_spell_num, "Возвращает номер спелла по его названию.");
 	def("get_mob_proto",
 		get_mob_proto,
-		"п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╪п╬п╠п╟ п╦п╥ п╠п╟п╥я▀ п©я─п╬я┌п╬я┌п╦п©п╬п╡ я│ п╥п╟п╢п╟п╫я▀п╪ rnum.");
+		"Возвращает моба из базы прототипов с заданым rnum.");
 	def("get_obj_proto",
 		get_obj_proto,
-		"п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╬п╠я┼п╣п╨я┌ п╦п╥ п╠п╟п╥я▀ п©я─п╬я┌п╬я┌п╦п©п╬п╡ я│ п╥п╟п╢п╟п╫я▀п╪ rnum.");
-	def("get_mob_rnum", real_mobile, "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ rnum п╪п╬п╠п╟ п©п╬ vnum.\n"
+		"Возвращает объект из базы прототипов с заданым rnum.");
+	def("get_mob_rnum", real_mobile, "Возвращает rnum моба по vnum.\n"
 									 "\n"
-									 "rnum - я█я┌п╬ п╦п╫п╢п╣п╨я│ п╡ п╠п╟п╥п╣ п©я─п╬я┌п╬я┌п╦п©п╬п╡.\n"
-									 "vnum - я█я┌п╬ п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╪п╬п╠п╟, п╨п╬я┌п╬я─я▀п╧ п╥п╟п╢п╟п╣я┌я│я▐ п╠п╦п╩п╢п╣я─п╬п╪.");
-	def("get_obj_rnum", real_object, "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ rnum п╬п╠я┼п╣п╨я┌п╟ п©п╬ vnum."
+									 "rnum - это индекс в базе прототипов.\n"
+									 "vnum - это виртуальный номер моба, который задается билдером.");
+	def("get_obj_rnum", real_object, "Возвращает rnum объекта по vnum."
 									 "\n"
-									 "п║п╪. п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ get_mob_rnum.");
-	def("get_room_rnum", real_room, "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ rnum п╨п╬п╪п╫п╟я┌я▀ п©п╬ vnum."
+									 "См. комментарии к get_mob_rnum.");
+	def("get_room_rnum", real_room, "Возвращает rnum комнаты по vnum."
 									"\n"
-									"п║п╪. п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ get_mob_rnum.");
+									"См. комментарии к get_mob_rnum.");
 	def("create_mob",
 		create_mob_from_proto,
 		create_mob_from_proto_overloads((py::args("proto_num"), py::args("virtual") = true),
-										"п║п╬п╥п╢п╟п╣я┌ я█п╨п╥п╣п╪п©п╩я▐я─ п╪п╬п╠п╟ п╦п╥ п╥п╟п╢п╟п╫п╫п╬пЁп╬ п©я─п╬я┌п╬я┌п╦п©п╟.\n"
+										"Создает экземпляр моба из заданного прототипа.\n"
 										"\n"
-										"num  п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ (vnum) п╦п╩п╦ я─п╣п╟п╩я▄п╫я▀п╧ (rnum) п©я─п╬я┌п╬я┌п╦п©п╟.\n"
-										"virtual  п╬п©я─п╣п╢п╣п╩я▐п╣я┌ я│п╪я▀я│п╩ п©п╣я─п╡п╬пЁп╬ п©п╟я─п╟п╪п╣я┌я─п╟. True - п╥п╟п╢п╟п╫ vnum, False - п╥п╟п╢п╟п╫ rnum.\n"
-										"п÷п╬я│п╩п╣ я│п╬п╥п╢п╟п╫п╦я▐, п╪п╬п╠п╟ п╫я┐п╤п╫п╬ п©п╬п╪п╣я│я┌п╦я┌я▄ п╨я┐п╢п╟п╫п╦п╠я┐п╢я▄ (п╫п╟п©я─п╦п╪п╣я─ я┐я│я┌п╟п╫п╬п╡п╨п╬п╧ п©п╬п╩я▐ in_room)."));
+										"num  виртуальный (vnum) или реальный (rnum) прототипа.\n"
+										"virtual  определяет смысл первого параметра. True - задан vnum, False - задан rnum.\n"
+										"После создания, моба нужно поместить куданибудь (например установкой поля in_room)."));
 	def("register_global_command",
 		register_global_command,
 		(py::arg("command"), py::arg("command_koi8-r"), py::arg("func"), py::arg("minimum_position"), py::arg(
 			"minimum_level"), py::arg("unhide_percent") = -1),
-		"п═п╣пЁп╦я│я┌я─п╦я─я┐п╣я┌ п╦пЁя─п╬п╡я┐я▌ п╨п╬п╪п╟п╫п╢я┐, я─п╣п╟п╩п╦п╥п╬п╡п╟п╫п╫я┐я▌ п╫п╟ п©п╦я┌п╬п╫п╣.\n"
+		"Регистрирует игровую команду, реализованную на питоне.\n"
 		"\n"
-		"command - п©п╬п╩п╫п╬п╣ я│п╩п╩п╬п╡п╬ п╨п╬п╪п╟п╫п╢я▀\n"
-		"func - п©п╦я┌п╬п╫п╬п╡я│п╨п╟я▐ я└я┐п╫п╨я├п╦я▐ п╦п╩п╦ п╩я▌п╠п╬п╧ п╡я▀п╥я▀п╡п╟п╣п╪я▀п╧ п╬п╠я┼п╣п╨я┌. п▓я▀п╥я▀п╡п╟п╣я┌я│я▐ я│ я┌я─п╣п╪я▐ п©п╟я─п╟п╪п╣я┌я─п╟п╪п╦: я┤п╟я─, я│я┌я─п╬п╨п╟ п╨п╬п╪п╟п╫п╢я▀, я│я┌я─п╬п╨п╟ п╟я─пЁя┐п╪п╣п╫я┌п╬п╡.\n"
-		"minimum_position - п©п╬п╥п╦я├п╦я▐, п╫п╟я┤п╦п╫п╟я▐ я│ п╨п╬я┌п╬я─п╬п╧ п╨п╬п╪п╟п╫п╢я┐ п╪п╬п╤п╫п╬ п╡я▀п©п╬п╩п╫я▐я┌я▄. constants.POS_XXX\n"
-		"minimum_level - п╪п╦п╫. я┐я─п╬п╡п╣п╫я▄ п╦пЁя─п╬п╨п╟ п╢п╩я▐ п╡я▀п©п╬п╩п╫п╣п╫п╦я▐ п╨п╬п╪п╟п╫п╢я▀\n"
-		"unhide_percent - п╡п╣я─п╬я▐я┌п╫п╬я│я┌я▄ я─п╟п╥я┘п╟п╧п╢п╦я┌я▄я│я▐");
+		"command - полное сллово команды\n"
+		"func - питоновская функция или любой вызываемый объект. Вызывается с тремя параметрами: чар, строка команды, строка аргументов.\n"
+		"minimum_position - позиция, начиная с которой команду можно выполнять. constants.POS_XXX\n"
+		"minimum_level - мин. уровень игрока для выполнения команды\n"
+		"unhide_percent - вероятность разхайдиться");
 	def("unregister_global_command",
 		unregister_global_command,
-		"п·я┌п╪п╣п╫я▐п╣я┌ я─п╣пЁп╦я│я┌я─п╟я├п╦я▌ п╦пЁя─п╬п╡п╬п╧ п╨п╬п╪п╟п╫п╢я▀, я─п╣п╟п╩п╦п╥п╬п╡п╟п╫п╫п╬п╧ п╫п╟ п©п╦я┌п╬п╫п╣.");
+		"Отменяет регистрацию игровой команды, реализованной на питоне.");
 	def("call_later",
 		call_later,
 		py::arg("callable"),
-		"п║п╬я┘я─п╟п╫я▐п╣я┌ п©п╣я─п╣п╢п╟п╫я┐я▌ я└я┐п╫п╨я├п╦я▌ п╢п╩я▐ п╡я▀п©п╬п╩п╫п╣п╫п╦я▐ п╡ п╡ п╬я│п╫п╬п╡п╫п╬п╪ я├п╦п╨п╩п╣ я│п╣я─п╡п╣я─п╟ п©п╬п╥п╤п╣.");
+		"Сохраняет переданую функцию для выполнения в в основном цикле сервера позже.");
 	ObjectDoesNotExist = handle<>(PyErr_NewException((char *) "mud.ObjectDoesNotExist", PyExc_RuntimeError, NULL));
 	scope().attr("ObjectDoesNotExist") = ObjectDoesNotExist;
-	class_<CharacterWrapper>("Character", "п≤пЁя─п╬п╡п╬п╧ п©п╣я─я│п╬п╫п╟п╤.", no_init)
+	class_<CharacterWrapper>("Character", "Игровой персонаж.", no_init)
 		.def("char_from_room", char_to_room_wrap, "")
-		.def("obj_to_char", obj_to_char_wrap, "п©п╣я─п╣п╢п╟п╣я┌ п╬п╠я┼п╣п╨я┌ я┤п╟я─я┐.")
-		.def("send", &CharacterWrapper::send, "п÷п╬я│я▀п╩п╟п╣я┌ п©п╣я─я│п╬п╫п╟п╤я┐ п╥п╟п╢п╟п╫п╫я┐я▌ я│я┌я─п╬п╨я┐.")
+		.def("obj_to_char", obj_to_char_wrap, "передает объект чару.")
+		.def("send", &CharacterWrapper::send, "Посылает персонажу заданную строку.")
 		.def("page_string",
 			 &CharacterWrapper::_page_string,
-			 "п·я┌п©я─п╟п╡п╩я▐п╣я┌ я│я┌я─п╬п╨я┐ п©п╣я─я│п╬п╫п╟п╤я┐ я│ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄я▌ п©п╬я│я┌я─п╟п╫п╦я┤п╫п╬пЁп╬ п©я─п╬я│п╪п╬я┌я─п╟.")
+			 "Отправляет строку персонажу с возможностью постраничного просмотра.")
 		.def("act",
 			 &CharacterWrapper::act_on_char,
 			 (py::arg("msg"), py::arg("hide_invisible") = false, py::arg("obj") = NULL, py::arg("victim") = NULL,
 				 py::arg("act_type") = TO_CHAR),
-			 "п п╩п╟я│я│п╦я┤п╣я│п╨п╦п╧ act (я│п╪. comm.cpp).")
+			 "Классический act (см. comm.cpp).")
 		.def("act", &CharacterWrapper::act_on_obj)
 		.def("interpret",
 			 &CharacterWrapper::interpret,
-			 "п÷п╣я─я│п╬п╫п╟п╤ п╡я▀п©п╬п╩п╫я▐п╣я┌ п╥п╟п╢п╟п╫п╫я┐я▌ п╦пЁя─п╬п╡я┐я▌ п╨п╬п╪п╟п╫п╢я┐.")
+			 "Персонаж выполняет заданную игровую команду.")
 		.add_property("name", &CharacterWrapper::get_name, &CharacterWrapper::set_name)
-		.def("get_pad", &CharacterWrapper::get_pad, "п÷п╬п╩я┐я┤п╦я┌я▄ п╦п╪я▐ п╡ я┐п╨п╟п╥п╟п╫п╫п╬п╪ п©п╟п╢п╣п╤п╣ (0-5).")
-		.def("set_pad", &CharacterWrapper::set_pad, "пёя│я┌п╟п╫п╬п╡п╦я┌я▄ я┐п╨п╟п╥п╟п╫п╫я▀п╧ п©п╟п╢п╣п╤ (0-5).")
+		.def("get_pad", &CharacterWrapper::get_pad, "Получить имя в указанном падеже (0-5).")
+		.def("set_pad", &CharacterWrapper::set_pad, "Установить указанный падеж (0-5).")
 		.add_property("long_descr",
 					  &CharacterWrapper::get_long_descr,
 					  &CharacterWrapper::set_long_descr,
-					  "п·п©п╦я│п╟п╫п╦п╣ п╪п╬п╠п╟, п╬я┌п╬п╠я─п╟п╤п╟п╣п╪п╬п╣ п╡ п╨п╬п╪п╫п╟я┌п╣.")
+					  "Описание моба, отображаемое в комнате.")
 		.add_property("description",
 					  &CharacterWrapper::get_description,
 					  &CharacterWrapper::set_description,
-					  "п·п©п╦я│п╟п╫п╦п╣ п╪п╬п╠п╟, п╡п╦п╢п╫п╬п╣ п©п╬ п╨п╬п╪п╟п╫п╢п╣ 'я│п╪ п╪п╬п╠'.")
+					  "Описание моба, видное по команде 'см моб'.")
 		.add_property("class", &CharacterWrapper::get_class, &CharacterWrapper::set_class)
 		.add_property("level", &CharacterWrapper::get_level, &CharacterWrapper::set_level)
 		.add_property("UID", &CharacterWrapper::get_uid)
@@ -1231,12 +1231,12 @@ BOOST_PYTHON_MODULE (mud) {
 		.def("remove_bank", &CharacterWrapper::remove_bank)
 		.def("remove_both_gold",
 			 &CharacterWrapper::remove_both_gold,
-			 "п÷я▀я┌п╟п╣я┌я│я▐ я│п╫я▐я┌я▄ я┐п╨п╟п╥п╟п╫п╫я┐я▌ я│я┐п╪я┐ я┐ п©п╣я─я│п╬п╫п╟п╤п╟ я│ я─я┐п╨, п╦, п╡ я│п╩я┐я┤п╟п╣ п╫п╣я┘п╡п╟я┌п╨п╦ п╫п╟п╩п╦я┤п╫п╬я│я┌п╦, я│ п╠п╟п╫п╨п╬п╡я│п╨п╬пЁп╬ я│я┤п╣я┌п╟.")
+			 "Пытается снять указанную суму у персонажа с рук, и, в случае нехватки наличности, с банковского счета.")
 		.def("add_gold", &CharacterWrapper::add_gold)
 		.def("add_bank", &CharacterWrapper::add_bank)
 		.add_property("total_gold",
 					  &CharacterWrapper::get_total_gold,
-					  "п║я┐п╪п╪п╟я─п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╢п╣п╫п╣пЁ я┐ п©п╣я─я│п╬п╫п╟п╤п╟ (п╠п╟п╫п╨ + п╫п╟п╩п╦я┤п╨п╟).")
+					  "Суммарное количество денег у персонажа (банк + наличка).")
 		.add_property("str", &CharacterWrapper::get_str, &CharacterWrapper::set_str)
 		.add_property("dex", &CharacterWrapper::get_dex, &CharacterWrapper::set_dex)
 		.add_property("con", &CharacterWrapper::get_con, &CharacterWrapper::set_con)
@@ -1247,109 +1247,109 @@ BOOST_PYTHON_MODULE (mud) {
 		.add_property("sex",
 					  &CharacterWrapper::get_sex,
 					  &CharacterWrapper::set_sex,
-					  "п÷п╬п╩ п©п╣я─я│п╬п╫п╟п╤п╟. п╥п╫п╟я┤п╣п╫п╦я▐ п╦п╥ constants.SEX_XXX")
-		.add_property("weight", &CharacterWrapper::get_weight, &CharacterWrapper::set_weight, "п▓п╣я│")
-		.add_property("height", &CharacterWrapper::get_height, &CharacterWrapper::set_height, "я─п╬я│я┌")
+					  "Пол персонажа. значения из constants.SEX_XXX")
+		.add_property("weight", &CharacterWrapper::get_weight, &CharacterWrapper::set_weight, "Вес")
+		.add_property("height", &CharacterWrapper::get_height, &CharacterWrapper::set_height, "рост")
 		.add_property("religion",
 					  &CharacterWrapper::get_religion,
 					  &CharacterWrapper::set_religion,
-					  "п═п╣п╩п╦пЁп╦п╬п╥п╫п╟я▐ п╫п╟п©я─п╟п╡п╩п╣п╫п╫п╬я│я┌я▄. 0 - п©п╬п╩п╦я┌п╣п╦п╥п╪, 1 - п╪п╬п╫п╬я┌п╣п╦п╥п╪.")
-		.add_property("race", &CharacterWrapper::get_race, &CharacterWrapper::set_race, "я─п╬п╢")
+					  "Религиозная направленность. 0 - политеизм, 1 - монотеизм.")
+		.add_property("race", &CharacterWrapper::get_race, &CharacterWrapper::set_race, "род")
 		.add_property("hit",
 					  &CharacterWrapper::get_hit,
 					  &CharacterWrapper::set_hit,
-					  "п╒п╣п╨я┐я┴п╣п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╣п╢п╦п╫п╦я├ п╤п╦п╥п╫п╦")
+					  "Текущее количество единиц жизни")
 		.add_property("max_hit",
 					  &CharacterWrapper::get_max_hit,
 					  &CharacterWrapper::set_max_hit,
-					  "п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╣п╢п╦п╫п╦я├ п╤п╦п╥п╫п╦")
+					  "Максимальное количество единиц жизни")
 		.add_property("move",
 					  &CharacterWrapper::get_move,
 					  &CharacterWrapper::set_move,
-					  "п╒п╣п╨я┐я┴п╣п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╣п╢п╦п╫п╦я├ п╢п╡п╦п╤п╣п╫п╦я▐")
+					  "Текущее количество единиц движения")
 		.add_property("max_move",
 					  &CharacterWrapper::get_max_move,
 					  &CharacterWrapper::set_max_move,
-					  "п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╩п╦я┤п╣я│я┌п╡п╬ п╣п╢п╦п╫п╦я├ я█п╫п╣я─пЁп╦п╦")
+					  "Максимальное колличество единиц энергии")
 			//.add_property("master", make_getter(&CharacterWrapper::master, return_value_policy<reference_existing_object>()), make_setter(Character::master, ))
 		.def("clan_status", &CharacterWrapper::clan_status, "get clan status")
 		.def("followers",
 			 &CharacterWrapper::get_followers,
-			 "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ я│п©п╦я│п╬п╨ п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩п╣п╧ п©п╣я─я│п╬п╫п╟п╤п╟.")
+			 "Возвращает список последователей персонажа.")
 		.add_property("is_immortal", &CharacterWrapper::is_immortal)
 		.add_property("is_impl", &CharacterWrapper::is_impl)
 		.add_property("is_NPC", &CharacterWrapper::is_NPC)
 		.def("get_skill",
 			 &CharacterWrapper::get_skill,
-			 "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ я┐я─п╬п╡п╣п╫я▄ п╡п╩п╟п╢п╣п╫п╦я▐ п╥п╟п╢п╟п╫я▀п╪ я┐п╪п╣п╫п╦п╣п╪.\n"
+			 "Возвращает уровень владения заданым умением.\n"
 			 "\n"
-			 "п║п╨п╦п╩п╩ я│ я┐я┤п╣я┌п╬п╪ п╡я│п╣я┘ п©п╩я▌я│п╬п╡ п╦ п╪п╦п╫я┐я│п╬п╡ п╬я┌ я┬п╪п╬я┌п╬п╨/я▐п╢п╟.\n"
-			 "п■п╩я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ п╫п╬п╪п╣я─п╟ я┐п╪п╣п╫п╦я▐ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ я│п╪. get_skill_num.")
+			 "Скилл с учетом всех плюсов и минусов от шмоток/яда.\n"
+			 "Для получения номера умения по названию см. get_skill_num.")
 		.def("set_skill",
 			 &CharacterWrapper::set_skill,
-			 "пёя│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ я┐я─п╬п╡п╣п╫я▄ п╡п╩п╟п╢п╣п╫п╦я▐ п╥п╟п╢п╟п╫п╫я▀п╪ я┐п╪п╣п╫п╦п╣п╪.")
-		.def("clear_skills", &CharacterWrapper::clear_skills, "п·я┤п╦я┴п╟п╣я┌ я│п©п╦я│п╬п╨  я┐п╪п╣п╫п╦п╧.")
+			 "Устанавливает уровень владения заданным умением.")
+		.def("clear_skills", &CharacterWrapper::clear_skills, "Очищает список  умений.")
 		.add_property("skills_count",
 					  &CharacterWrapper::get_skills_count,
-					  "п║п╬п╢п╣я─п╤п╦я┌ я┤п╦я│п╩п╬ я┐п╪п╣п╫п╦п╧, п╨п╬я┌п╬я─я▀п╪п╦ п╡п╩п╟п╢п╣п╣я┌ п©п╣я─я│п╬п╫п╟п╤.")
-		.def("get_equipped_skill", &CharacterWrapper::get_equipped_skill, "п║п╨п╦п╩п╩ я│п╬ я┬п╪п╬я┌п╬п╨.")
+					  "Содержит число умений, которыми владеет персонаж.")
+		.def("get_equipped_skill", &CharacterWrapper::get_equipped_skill, "Скилл со шмоток.")
 		.def("get_trained_skill",
 			 &CharacterWrapper::get_trained_skill,
-			 "п═п╬п╢п╫п╬п╧ я┌я─п╣п╫п╦я─п╬п╡п╟п╫п╫я▀п╧ я│п╨п╦п╩п╩ я┤п╟я─п╟.")
+			 "Родной тренированный скилл чара.")
 		.def("get_spell",
 			 &CharacterWrapper::get_spell,
-			 "п▓п╩п╟п╢п╣п╣я┌ п╩п╦ п©п╣я─я│п╬п╫п╟п╤ я┐п╨п╟п╥п╟п╫п╫я▀п╪ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣п╪.\n"
+			 "Владеет ли персонаж указанным заклинанием.\n"
 			 "\n"
-			 "п■п╩я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ п╫п╬п╪п╣я─п╟ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ я│п╪. get_spell_num.")
+			 "Для получения номера заклинания по названию см. get_spell_num.")
 		.def("set_spell",
 			 &CharacterWrapper::set_spell,
-			 "пёя│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ п╦п╥я┐я┤п╣п╫п╫п╬я│я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ я┐ п©п╣я─я│п╬п╫п╟п╤п╟.")
+			 "Устанавливает изученность заклинания у персонажа.")
 		.add_property("rnum",
 					  &CharacterWrapper::get_nr,
 					  &CharacterWrapper::set_nr,
-					  "п═п╣п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п©п╣я─я│п╬п╫п╟п╤п╟ п╡ я┌п╟п╠п╩п╦я├п╣ п©я─п╬я┌п╬я┌п╦п©п╬п╡.")
+					  "Реальный номер персонажа в таблице прототипов.")
 		.add_property("in_room",
 					  &CharacterWrapper::get_in_room,
 					  &CharacterWrapper::set_in_room,
-					  "rnum п╨п╬п╪п╫п╟я┌я▀, п╡ п╨п╬я┌п╬я─п╬п╧ п╫п╟я┘п╬п╢п╦я┌я│я▐ п©п╣я─я│п╬п╫п╟п╤.\n"
+					  "rnum комнаты, в которой находится персонаж.\n"
 					  "\n"
-					  "п÷я─п╦ п╦п╥п╪п╣п╫п╣п╫п╦п╦ я█я┌п╬пЁп╬ я│п╡п╬п╧я│я┌п╡п╟ п©п╣я─я│п╬п╫п╟п╤ п©п╣я─п╣п╫п╬я│п╦я┌я│я▐ п╡ п╥п╟п╢п╟п╫п╫я┐я▌ п╨п╬п╪п╫п╟я┌я┐.")
+					  "При изменении этого свойства персонаж переносится в заданную комнату.")
 		.def("affected_by_spell",
 			 &CharacterWrapper::is_affected_by_spell,
-			 "п÷п╬п╢п╡п╣я─п╤п╣п╫ п╩п╦ п©п╣я─я│п╬п╫п╟п╤ п╢п╣п╧я│я┌п╡п╦я▌ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐.")
+			 "Подвержен ли персонаж действию указанного заклинания.")
 		.def("add_affect",
 			 &CharacterWrapper::add_affect,
-			 "п²п╟п╩п╬п╤п╦я┌я▄ п╫п╟ п©п╣я─я│п╬п╫п╟п╤п╟ п╥п╟п╢п╟п╫п╫я▀п╧ п╟я└я└п╣п╨я┌.")
+			 "Наложить на персонажа заданный аффект.")
 		.def("get_char_vis",
 			 &CharacterWrapper::get_vis,
-			 "п≤я┴п╣я┌ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟ я│ я┐я┤п╣я┌п╬п╪ п╡п╦п╢п╦п╪п╬я│я┌п╦.\n"
+			 "Ищет указанного персонажа с учетом видимости.\n"
 			 "\n"
-			 "п÷п╬я│п╩п╣п╢п╫п╦п╧ п©п╟я─п╟п╪п╣я┌я─ п©я─п╦п╫п╦п╪п╟п╣я┌ п╥п╫п╟я┤п╣п╫п╦я▐ п╦п╥ constants.FIND_XXX.")
+			 "Последний параметр принимает значения из constants.FIND_XXX.")
 		.def("get_equipment",
 			 get_char_equipment,
-			 "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╬п╠я┼п╣п╨я┌ п╦п╥ п╥п╟п╢п╟п╫п╫п╬пЁп╬ я│п╩п╬я┌п╟ я█п╨п╦п©п╦я─п╬п╡п╨п╦ п©п╣я─я│п╬п╫п╟п╤п╟.")
+			 "Возвращает объект из заданного слота экипировки персонажа.")
 		.def("restore",
 			 &CharacterWrapper::restore,
-			 "п▓п╬я│я┌я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ п╬я┤п╨п╦ п╤п╦п╥п╫п╦, я█п╫п╣я─пЁп╦п╦ п╦ п╪п╟п╫я┐/п╪п╣п╪.")
+			 "Восттанавливает очки жизни, энергии и ману/мем.")
 		.def("quested_add",
 			 &CharacterWrapper::quested_add,
-			 "п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╡я▀п©п╬п╩п╫п╣п╫п╫п╬пЁп╬ п╨п╡п╣я│я┌п╟ п╫п╬п╪п╣я─/я│я┌я─п╬п╨п╟ п╢п╟п╫п╫я▀я┘ (128 я│п╦п╪п╡п╬п╩п╬п╡).")
+			 "Добавление выполненного квеста номер/строка данных (128 символов).")
 		.def("quested_remove",
 			 &CharacterWrapper::quested_remove,
-			 "пёп╢п╟п╩п╣п╫п╦п╣ п╦п╫я└п╬я─п╪п╟я├п╦п╦ п╬ п╨п╡п╣я│я┌п╣.")
+			 "Удаление информации о квесте.")
 		.def("quested_get",
 			 &CharacterWrapper::quested_get_text,
-			 "п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ я│я┌я─п╬п╨я┐ п╨п╡п╣я│я┌п╬п╡п╬п╧ п╦п╫я└п╬я─п╪п╟я├п╦п╦, я│п╬я┘я─п╟п╫п╣п╫п╫п╬п╧ п©п╬п╢ п╥п╟п╢п╟п╫я▀п╪ п╫п╬п╪п╣я─п╬п╪ vnum.")
+			 "Возвращает строку квестовой информации, сохраненной под заданым номером vnum.")
 		.add_property("quested_text",
 					  &CharacterWrapper::quested_print,
-					  "п▓я│я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ п╨п╡п╣я│я┌п╟п╪ п╡ я┌п╣п╨я│я┌п╬п╡п╬п╪ п╡п╦п╢п╣.")
+					  "Вся информация по квестам в текстовом виде.")
 		.add_property("wait",
 					  &CharacterWrapper::get_wait,
 					  &CharacterWrapper::set_wait,
-					  "п║п╨п╬п╩я▄п╨п╬ я├п╦п╨п╩п╬п╡ п╤п╢п╟я┌я▄");
+					  "Сколько циклов ждать");
 
 	class_<affected_t>("ObjAffectedArray",
-					   "п°п╟я│я│п╦п╡ п╦п╥ я┬п╣я│я┌п╦ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─п╬п╡ п╬п╠я┼п╣п╨я┌п╟.",
+					   "Массив из шести модификаторов объекта.",
 					   no_init)
 		.def("__len__", &_arrayN<obj_affected_type, MAX_OBJ_AFFECT>::size)
 		.def("__getitem__", &_arrayN<obj_affected_type, MAX_OBJ_AFFECT>::get)
@@ -1359,142 +1359,142 @@ BOOST_PYTHON_MODULE (mud) {
 		.def("values", &_arrayN<obj_affected_type, MAX_OBJ_AFFECT>::values);
 
 	//wraps obj_data (see obj.hpp)
-	class_<ObjWrapper>("Object", "п≤пЁя─п╬п╡п╬п╧ п╬п╠я┼п╣п╨я┌ (п╡п╣я┴я▄).", no_init)
-		.add_property("name", &ObjWrapper::get_aliases, &ObjWrapper::set_aliases, "п░п╩п╦п╟я│я▀ п╬п╠я┼п╣п╨я┌п╟")
+	class_<ObjWrapper>("Object", "Игровой объект (вещь).", no_init)
+		.add_property("name", &ObjWrapper::get_aliases, &ObjWrapper::set_aliases, "Алиасы объекта")
 		.add_property("description",
 					  &ObjWrapper::get_description,
 					  &ObjWrapper::set_description,
-					  "п·п©п╦я│п╟п╫п╦п╣ п╬п╠я┼п╣п╨я┌п╟ п╨п╬пЁп╢п╟ п╩п╣п╤п╦я┌.")
+					  "Описание объекта когда лежит.")
 		.add_property("short_description",
 					  &ObjWrapper::get_short_description,
 					  &ObjWrapper::set_short_description,
-					  "п╫п╟п╥п╡п╟п╫п╦п╣ п╬п╠я┼п╣п╨я┌п╟ (п╦п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤)")
+					  "название объекта (именительный падеж)")
 		.add_property("action_description",
 					  &ObjWrapper::get_action_description,
 					  &ObjWrapper::set_action_description,
-					  "п·п©п╦я│п╟п╫п╦п╣ п©я─п╦ п╢п╣п╧я│я┌п╡п╦п╦ (п©п╟п╩п╬я┤п╨п╦ п╦ я┌.п©.)")
+					  "Описание при действии (палочки и т.п.)")
 		.def("get_pad",
 			 &ObjWrapper::get_pad,
-			 "п÷п╬п╩я┐я┤п╟п╣я┌ п╫п╟п╥п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ п╡ п╥п╟п╢п╟п╫п╫п╬п╪ п©п╟п╢п╣п╤п╣.")
+			 "Получает название предмета в заданном падеже.")
 		.def("set_pad",
 			 &ObjWrapper::set_pad,
-			 "пёя│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ п╥п╟п╢п╟п╫п╫я▀п╧ п©п╟п╢п╣п╤ п©я─п╣п╢п╪п╣я┌п╟ п╡ п╥п╟п╢п╟п╫п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣.")
+			 "Устанавливает заданный падеж предмета в заданное значение.")
 		.add_property("item_type",
 					  &ObjWrapper::get_obj_type,
 					  &ObjWrapper::set_obj_type,
-					  "п╒п╦п© п©я─п╣п╢п╪п╣я┌п╟ (п╥п╫п╟я┤п╣п╫п╦я▐ п╦п╥ constants.ITEM_XXX)")
+					  "Тип предмета (значения из constants.ITEM_XXX)")
 		.def("get_value",
 			 &ObjWrapper::get_value,
-			 "п÷п╬п╩я┐я┤п╦я┌я▄ п©п╬п╩п╣ п╦п╥ п╥п╫п╟я┤п╣п╫п╦п╧ п©я─п╣п╢п╪п╣я┌п╟ (0-3).\n"
+			 "Получить поле из значений предмета (0-3).\n"
 			 "\n"
-			 "п÷п╬п╩я▐ п╥п╫п╟я┤п╣п╫п╦п╧ п╦п╪п╣я▌я┌ я─п╟п╥п╫п╬п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╢п╩я▐ я─п╟п╥п╫я▀я┘ я┌п╦п©п╬п╡ п©я─п╣п╢п╪п╣я┌п╬п╡.\n")
+			 "Поля значений имеют разное использование для разных типов предметов.\n")
 		.def("set_value",
 			 &ObjWrapper::set_value,
-			 "пёя│я┌п╟п╫п╬п╡п╦я┌я▄ п©п╬п╩п╣ п╥п╫п╟я┤п╣п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╟ (п©п╬п╩я▐ 0-3)")
+			 "Установить поле значения предмета (поля 0-3)")
 		.add_property("wear_flags",
 					  &ObjWrapper::get_wear_flags,
 					  &ObjWrapper::set_wear_flags,
-					  "п°п╟я│п╨п╟ я└п╩п╟пЁп╬п╡ п╬п╢п╣п╡п╟п╫п╦я▐ (п╨я┐п╢п╟ п©я─п╣п╢п╪п╣я┌ п╪п╬п╤п╣я┌ п╠я▀я┌ п╬п╢п╣я┌?)")
-		.add_property("weight", &ObjWrapper::get_weight, &ObjWrapper::set_weight, "п▓п╣я│")
+					  "Маска флагов одевания (куда предмет может быт одет?)")
+		.add_property("weight", &ObjWrapper::get_weight, &ObjWrapper::set_weight, "Вес")
 		.add_property("cost",
 					  &ObjWrapper::get_cost,
 					  &ObjWrapper::set_cost,
-					  "п╕п╣п╫п╟ п©я─п╦ п©я─п╬п╢п╟п╤п╣ п╡ п╪п╟пЁп╟п╥п╦п╫п╣")
+					  "Цена при продаже в магазине")
 		.add_property("cost_per_day_on",
 					  &ObjWrapper::get_cost_per_day_on,
 					  &ObjWrapper::set_cost_per_day_on,
-					  "п╕п╣п╫п╟ я─п╣п╫я┌я▀, п╨п╬пЁп╢п╟ п©я─п╣п╢п╪п╣я┌ п╬п╢п╣я┌ п╡ я█п╨п╦п©п╦я─п╬п╡п╨п╣")
+					  "Цена ренты, когда предмет одет в экипировке")
 		.add_property("cost_per_day_off",
 					  &ObjWrapper::get_cost_per_day_off,
 					  &ObjWrapper::set_cost_per_day_off,
-					  "п╕п╣п╫п╟ я─п╣п╫я┌я▀, п╨п╬пЁп╢п╟ п©я─п╣п╢п╪п╣я┌ п╫п╣ п╡ я█п╨п╦п©п╦я─п╬п╡п╨п╣")
-		.add_property("sex", &ObjWrapper::get_sex, &ObjWrapper::set_sex, "п÷п╬п╩ п©я─п╣п╢п╪п╣я┌п╟")
+					  "Цена ренты, когда предмет не в экипировке")
+		.add_property("sex", &ObjWrapper::get_sex, &ObjWrapper::set_sex, "Пол предмета")
 		.add_property("spell", &ObjWrapper::get_spell, &ObjWrapper::set_spell)
 		.add_property("level", &ObjWrapper::get_level, &ObjWrapper::set_level)
 		.add_property("skill", &ObjWrapper::get_skill, &ObjWrapper::set_skill)
-		.add_property("timer", &ObjWrapper::get_timer, &ObjWrapper::set_timer, "п╒п╟п╧п╪п╣я─ п╬п╠я┼п╣п╨я┌п╟")
-		.add_property("max", &ObjWrapper::get_max, &ObjWrapper::set_max, "п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╟я▐ п©я─п╬я┤п╫п╬я│я┌я▄")
-		.add_property("cur", &ObjWrapper::get_cur, &ObjWrapper::set_cur, "п╒п╣п╨я┐я┴п╟я▐ п©я─п╬я┤п╫п╬я│я┌я▄")
-		.add_property("material", &ObjWrapper::get_mater, &ObjWrapper::set_mater, "п°п╟я┌п╣я─п╦п╟п╩")
+		.add_property("timer", &ObjWrapper::get_timer, &ObjWrapper::set_timer, "Таймер объекта")
+		.add_property("max", &ObjWrapper::get_max, &ObjWrapper::set_max, "Максимальная прочность")
+		.add_property("cur", &ObjWrapper::get_cur, &ObjWrapper::set_cur, "Текущая прочность")
+		.add_property("material", &ObjWrapper::get_mater, &ObjWrapper::set_mater, "Материал")
 		.add_property("owner",
 					  &ObjWrapper::get_owner,
 					  &ObjWrapper::set_owner,
-					  "ID п╡п╩п╟п╢п╣п╩я▄я├п╟ (п╢п╩я▐ п╨п╬п╡п╨п╦?)")
+					  "ID владельца (для ковки?)")
 		.add_property("destroyer", &ObjWrapper::get_destroyer, &ObjWrapper::set_destroyer)
-		.add_property("maker", &ObjWrapper::get_maker, &ObjWrapper::set_maker, "ID п╨я─п╟я└я┌п╣я─п╟ (?)")
+		.add_property("maker", &ObjWrapper::get_maker, &ObjWrapper::set_maker, "ID крафтера (?)")
 		.add_property("zone",
 					  &ObjWrapper::get_zone,
 					  &ObjWrapper::set_zone,
-					  "rnum п╥п╬п╫я▀, п╦п╥ п╨п╬я┌п╬я─п╬п╧ п©я─п╣п╢п╪п╣я┌ я─п╬п╢п╬п╪")
+					  "rnum зоны, из которой предмет родом")
 		.add_property("rnum",
 					  &ObjWrapper::get_item_number,
 					  &ObjWrapper::set_item_number,
-					  "п═п╣п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╬п╠я┼п╣п╨я┌п╟, я▐п╡п╩я▐я▌я┴п╦п╧я│я▐ п╦п╫п╢п╣п╨я│п╬п╪ п╡ я┌п╟п╠п╩п╦я├п╣ п©я─п╬я┌п╬я┌п╦п©п╬п╡.")
-		.def("vnum", &ObjWrapper::get_vnum, "п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╬п╠я┼п╣п╨я┌п╟-п©я─п╬я┌п╬я┌п╦п©п╟.")
+					  "Реальный номер объекта, являющийся индексом в таблице прототипов.")
+		.def("vnum", &ObjWrapper::get_vnum, "виртуальный номер объекта-прототипа.")
 		.add_property("modifiers",
 					  make_function(&ObjWrapper::get_affected, return_internal_reference<>()),
-					  "п°п╟я│я│п╦п╡ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─п╬п╡ (XXX я┐п╩я┐я┤я┬п╟п╣я┌ п╫п╟ YYY)")
-		.add_property("carried_by", &ObjWrapper::get_carried_by, "пё п╨п╬пЁп╬ п©я─п╣п╢п╪п╣я┌ п╡ п╦п╫п╡п╣п╫я┌п╟я─п╣")
+					  "Массив модификаторов (XXX улучшает на YYY)")
+		.add_property("carried_by", &ObjWrapper::get_carried_by, "У кого предмет в инвентаре")
 		.add_property("worn_by",
 					  &ObjWrapper::get_worn_by,
-					  "п²п╟ п╨п╬п╪ п©я─п╣п╢п╪п╣я┌ п╬п╢п╣я┌ п╡ я█п╨п╦п©п╦я─п╬п╡п╨п╣");
+					  "На ком предмет одет в экипировке");
 
 	//implicitly_convertible<Character*, CharacterWrapper>();
 	implicitly_convertible<CharacterWrapper, CharacterData *>();
 
 	class_<CharacterListWrapper::iterator>("CharacterListIterator",
-										   "п≤я┌п╣я─п╟я┌п╬я─ п©п╬ я│п©п╦я│п╨я┐ mud.character_list",
+										   "Итератор по списку mud.character_list",
 										   no_init)
 		.def("next", &CharacterListWrapper::iterator::next);
 	scope().attr("character_list") =
-		class_<CharacterListWrapper>("CharacterListWrapper", "п║п©п╦я│п╬п╨ п╡я│п╣я┘ п©п╣я─я│п╬п╫п╟п╤п╣п╧ п╡ п╦пЁя─п╣.")
+		class_<CharacterListWrapper>("CharacterListWrapper", "Список всех персонажей в игре.")
 			.def("__iter__", &CharacterListWrapper::iter, return_value_policy<manage_new_object>())
 			.staticmethod("__iter__")
 				();
 
 	class_<AFFECT_DATA<EApplyLocation>, std::auto_ptr<AFFECT_DATA<EApplyLocation>>>("Affect",
-																					"п≤пЁя─п╬п╡п╬п╧ п╟я└я└п╣п╨я┌.")
+																					"Игровой аффект.")
 		.def_readwrite("spell_type",
 					   &AFFECT_DATA<EApplyLocation>::type,
-					   "п²п╬п╪п╣я─ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐, п╨п╬я┌п╬я─п╬п╣ п╫п╟п╩п╬п╤п╦п╩п╬ я█я┌п╬я┌ п╟я└я└п╣п╨я┌")
+					   "Номер заклинания, которое наложило этот аффект")
 		.add_property("spell_type_str",
 					  get_spell_type_str,
-					  "п²п╟п╥п╡п╟п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ я┤я┌п╣п╫п╦я▐)")
+					  "Название заклинания (только для чтения)")
 		.add_property("location_str",
 					  get_location_str,
-					  "п²п╟п╥п╡п╟п╫п╦п╣ п╦п╥п╪п╣п╫я▐п╣п╪п╬пЁп╬ п©п╟я─п╟п╪п╣я┌я─п╟ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ я┤я┌п╣п╫п╦я▐)")
+					  "Название изменяемого параметра (только для чтения)")
 		.add_property("bitvector_str",
 					  get_bitvector_str,
-					  "п п╟п╨п╦п╣ п╟я└я└п╣п╨я┌я▀ п╫п╟п╨п╩п╟п╢я▀п╡п╟п╣п╪ (п╡ я┌п╣п╨я│я┌п╬п╡п╬п╪ п╡п╦п╢п╣, я┌п╬п╩я▄п╨п╬ п╢п╩я▐ я┤я┌п╣п╫п╦я▐)")
+					  "Какие аффекты накладываем (в текстовом виде, только для чтения)")
 		.def_readwrite("duration",
 					   &AFFECT_DATA<EApplyLocation>::duration,
-					   "п÷я─п╬п╢п╬п╩п╤п╦я┌п╣п╩я▄п╫п╬я│я┌я▄ п╡ я│п╣п╨я┐п╫п╢п╟я┘")
+					   "Продолжительность в секундах")
 		.def_readwrite("modifier",
 					   &AFFECT_DATA<EApplyLocation>::modifier,
-					   "п▓п╣п╩п╦я┤п╦п╫п╟ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п©п╟я─п╟п╪п╣я┌я─п╟")
+					   "Величина изменения параметра")
 		.def_readwrite("location",
 					   &AFFECT_DATA<EApplyLocation>::location,
-					   "п≤п╥п╪п╣п╫я▐п╣п╪я▀п╧ п©п╟я─п╟п╪п╣я┌я─ (constants.APLY_XXX)")
+					   "Изменяемый параметр (constants.APLY_XXX)")
 		.def_readwrite("battleflag",
 					   &AFFECT_DATA<EApplyLocation>::battleflag,
-					   "п╓п╩п╟пЁ п╢п╩я▐ п╠п╬я▐ (я┘п╬п╩п╢, п╦ я┌.п©.)")
+					   "Флаг для боя (холд, и т.п.)")
 		.def_readwrite("bitvector",
 					   &AFFECT_DATA<EApplyLocation>::bitvector,
-					   "п²п╟п╨п╩п╟п╢я▀п╡п╟п╣п╪я▀п╣ п╟я└я└п╣п╨я┌я▀")
-		.def_readwrite("caster_id", &AFFECT_DATA<EApplyLocation>::caster_id, "ID я│п╨п╟я│я┌п╬п╡п╟п╡я┬п╣пЁп╬")
+					   "Накладываемые аффекты")
+		.def_readwrite("caster_id", &AFFECT_DATA<EApplyLocation>::caster_id, "ID скастовавшего")
 		.def_readwrite("apply_time",
 					   &AFFECT_DATA<EApplyLocation>::apply_time,
-					   "пёп╨п╟п╥я▀п╡п╟п╣я┌ я│п╨п╬п╩я▄п╨п╬ п╟я└я└п╣п╨я┌ п╡п╦я│п╦я┌ (п©п╬п╨п╟ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╡ п╨п╬п╪п╫п╟я┌п╟я┘)");
+					   "Указывает сколько аффект висит (пока используется только в комнатах)");
 
 
 	class_<obj_affected_type>("ObjectModifier",
-							  "п°п╬п╢п╦я└п╦п╨п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤п╟, п╫п╟п╨п╩п╟п╢я▀п╡п╟п╣п╪я▀п╧ п╬п╠я┼п╣п╨я┌п╬п╪.")
+							  "Модификатор персонажа, накладываемый объектом.")
 		.def(py::init<EApplyLocation, int>(py::args("location", "modifier")))
-		.def_readwrite("location", &obj_affected_type::location, "п░я┌я─п╦п╠я┐я┌, п╨п╬я┌п╬я─я▀п╧ п╦п╥п╪п╣п╫я▐п╣п╪")
-		.def_readwrite("modifier", &obj_affected_type::modifier, "п▓п╣п╩п╦я┤п╦п╫п╟ п╦п╥п╪п╣п╫п╣п╫п╦я▐")
+		.def_readwrite("location", &obj_affected_type::location, "Атрибут, который изменяем")
+		.def_readwrite("modifier", &obj_affected_type::modifier, "Величина изменения")
 		.def("__str__",
 			 obj_affected_type_str,
-			 "п÷п╣я─п╣п╡п╬п╢п╦я┌ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─ п╡ я│я┌я─п╬п╨я┐ п╡п╦п╢п╟ (XXX я┐п╩я┐я┤я┬п╟п╣я┌ п╫п╟ YYY)");
+			 "Переводит модификатор в строку вида (XXX улучшает на YYY)");
 }
 
 BOOST_PYTHON_MODULE (constants) {

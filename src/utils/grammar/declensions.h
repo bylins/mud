@@ -2,7 +2,7 @@
 \file declensions.h - a part of the Bylins engine.
 \authors Created by Sventovit.
 \brief Numeral-agreement (declension) of Russian nouns by count.
-\detail issue.utils-cleaning: moved out of utils.h -- the "N я┬я┌я┐п╨ / N я┬я┌я┐п╨п╟ / N я┬я┌я┐п╨п╦"
+\detail issue.utils-cleaning: moved out of utils.h -- the "N штук / N штука / N штуки"
         agreement is language grammar, not a generic utility.
 */
 
@@ -46,7 +46,7 @@ enum class EWhat : int  {
 };
 
 // Return the correctly-declined noun for `amount` of `of_what`
-// (e.g. 1 -> "я┬я┌я┐п╨п╟", 2 -> "я┬я┌я┐п╨п╦", 5 -> "я┬я┌я┐п╨").
+// (e.g. 1 -> "штука", 2 -> "штуки", 5 -> "штук").
 const char *GetDeclensionInNumber(long amount, EWhat of_what);
 
 // issue.currencies: endings for a counted "<size-adjective> <pile-noun>" phrase

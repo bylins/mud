@@ -1,7 +1,7 @@
 /**
  \file alter_weave_restore.cpp - a part of the Bylins engine.
  \brief issue.affect-suppression-dispell: AlterWeaveRestore alter-object handler for the
-        !п╡п╬я│я│я┌п╟п╫п╬п╡п╦я┌я▄ п©п╩п╣я┌п╣п╫п╦п╣! / !weave restoration! spell -- contest+lift one magic-suppression
+        !восстановить плетение! / !weave restoration! spell -- contest+lift one magic-suppression
         (kSuppressed obj-affect) from the target item; on success the equipment affect auto-returns.
 */
 
