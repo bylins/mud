@@ -122,6 +122,11 @@ std::string GetSpellNameComment(ESpell spell_id) {
 	return MUD::Spell(spell_id).GetName();
 }
 
+// Get feat name by ID (for feat comments)
+std::string GetFeatNameComment(int feat_id) {
+	return MUD::Feat(static_cast<EFeat>(feat_id)).GetName();
+}
+
 // issue #3593 (расширяет #3583): подпись values-слота по типу предмета -- смысл
 // слота и, где уместно, расшифровка enum-значения (заклинание/тип атаки/жидкость/
 // валюта/книга/класс компонента). Смысл слотов взят из OLC-меню
@@ -2021,27 +2026,42 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 			}
 		}
 
-		if (enhanced["spells"] && enhanced["spells"].IsSequence())
+		if (enhanced["spells"])
 		{
-			// Each occurrence of a spell id in the sequence increments SplMem
-			// (memorized slot count), mirroring the legacy `Spell: N` parser
-			// in boot_data_files.cpp:1393-1405. SplKnw was a yaml/sqlite-only
-			// shortcut that lost the multiplicity and didn't update
-			// caster_level / have_spell, leaving casters effectively spell-less
-			// after a yaml load.
-			for (const auto &spell_node : enhanced["spells"])
-			{
-				int spell_id_int = spell_node.as<int>();
+			// Начисляет мобу count слотов спелла (SplMem), обновляя caster_level
+			// и have_spell так же, как легаси-парсер `Spell: N`
+			// (boot_data_files.cpp). SplKnw был yaml/sqlite-only сокращением,
+			// терявшим кратность, из-за чего кастер после загрузки оставался
+			// фактически без спеллов.
+			const auto add_spell_mem = [&mob](int spell_id_int, int count) {
+				if (count <= 0) { return; }
 				if (spell_id_int < to_underlying(ESpell::kFirst)
 					|| spell_id_int > to_underlying(ESpell::kLast))
 				{
 					log("SYSERR: Unknown spell id %d in mob yaml", spell_id_int);
-					continue;
+					return;
 				}
-				auto spell_id = static_cast<ESpell>(spell_id_int);
-				GET_SPELL_MEM(&mob, spell_id) += 1;
-				mob.caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
+				const auto spell_id = static_cast<ESpell>(spell_id_int);
+				GET_SPELL_MEM(&mob, spell_id) += count;
+				mob.caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? count : 0);
 				mob.mob_specials.have_spell = true;
+			};
+			const auto &spells_node = enhanced["spells"];
+			if (spells_node.IsMap())
+			{
+				// Новый формат: `id: count` (по записи на спелл).
+				for (const auto &kv : spells_node)
+				{
+					add_spell_mem(kv.first.as<int>(), kv.second.as<int>());
+				}
+			}
+			else if (spells_node.IsSequence())
+			{
+				// Старый формат: id повторяется по разу на каждый слот.
+				for (const auto &spell_node : spells_node)
+				{
+					add_spell_mem(spell_node.as<int>(), 1);
+				}
 			}
 		}
 
@@ -4174,16 +4194,17 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 				{
 					if (mob.real_abils.Feats.test(i))
 					{
-						yaml.SequenceItem(static_cast<int>(i));
+						yaml.SequenceItem(static_cast<int>(i), GetFeatNameComment(static_cast<int>(i)));
 					}
 				}
 
 				yaml.DecreaseIndent();
 			}
 
-			// Spells (memorized slot counts). Mirror legacy: a spell with
-			// SplMem[id] == N is serialised as N copies of `id`, matching
-			// the load path which increments SplMem on each occurrence.
+			// Spells (memorized slot counts) как map `id: count` c подписью
+			// имени спелла. Раньше писался повторяющийся список (N копий id) --
+			// рудимент легаси-формата `Spell: N` по строке на слот. Загрузчик
+			// принимает и map, и старый список (см. ParseMobNode).
 			bool has_spells = false;
 			for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
 			{
@@ -4192,19 +4213,19 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 			if (has_spells)
 			{
 				yaml.Key("spells");
-				yaml.BeginSequence();
-				yaml.IncreaseIndent();
+				yaml.BeginBlock();
 
 				for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
 				{
-					int mem = mob.real_abils.SplMem[i];
-					for (int n = 0; n < mem; ++n)
+					const int mem = mob.real_abils.SplMem[i];
+					if (mem > 0)
 					{
-						yaml.SequenceItem(static_cast<int>(i));
+						yaml.Key(std::to_string(i));
+						yaml.Value(mem, GetSpellNameComment(static_cast<ESpell>(i)));
 					}
 				}
 
-				yaml.DecreaseIndent();
+				yaml.EndBlock();
 			}
 
 			// Helpers
