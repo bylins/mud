@@ -911,10 +911,16 @@ void stop_game(ush_int port) {
 		}
 	}
 #endif
-	game_loop(epoll, mother_desc);
+	{
+		lua_scripting::LuaFormatterShutdownGuard lua_formatter_shutdown_guard;
+		game_loop(epoll, mother_desc);
+	}
 #else
 	log("Polling using select().");
-	game_loop(mother_desc);
+	{
+		lua_scripting::LuaFormatterShutdownGuard lua_formatter_shutdown_guard;
+		game_loop(mother_desc);
+	}
 #endif
 
 	// Shutdown OTEL providers to flush remaining telemetry
@@ -968,7 +974,6 @@ void stop_game(ush_int port) {
 	while (descriptor_list)
 		close_socket(descriptor_list, true);
 #endif
-	lua_scripting::ShutdownLuaFormatter();
 	// должно идти после дисконекта плееров
 	FileCRC::save(true);
 

@@ -216,9 +216,17 @@ private:
 	std::uint64_t m_next_request_id{1};
 };
 
-LuaFormatterWorker& FormatterWorker() {
-	static LuaFormatterWorker worker;
+std::unique_ptr<LuaFormatterWorker>& FormatterWorkerStorage() {
+	static std::unique_ptr<LuaFormatterWorker> worker;
 	return worker;
+}
+
+LuaFormatterWorker& EnsureFormatterWorker() {
+	auto& worker = FormatterWorkerStorage();
+	if (!worker) {
+		worker = std::make_unique<LuaFormatterWorker>();
+	}
+	return *worker;
 }
 #endif
 
@@ -226,7 +234,7 @@ LuaFormatterWorker& FormatterWorker() {
 
 std::uint64_t QueueLuaFormat(std::string source) {
 #if defined(WITH_LUA_FORMATTER)
-	return FormatterWorker().Submit(std::move(source));
+	return EnsureFormatterWorker().Submit(std::move(source));
 #else
 	(void)source;
 	return 0;
@@ -235,16 +243,17 @@ std::uint64_t QueueLuaFormat(std::string source) {
 
 bool TryPopLuaFormatResult(LuaFormatResult& result) {
 #if defined(WITH_LUA_FORMATTER)
-	return FormatterWorker().TryPop(result);
+	const auto& worker = FormatterWorkerStorage();
+	return worker && worker->TryPop(result);
 #else
 	(void)result;
 	return false;
 #endif
 }
 
-void ShutdownLuaFormatter() {
+LuaFormatterShutdownGuard::~LuaFormatterShutdownGuard() {
 #if defined(WITH_LUA_FORMATTER)
-	FormatterWorker().Shutdown();
+	FormatterWorkerStorage().reset();
 #endif
 }
 

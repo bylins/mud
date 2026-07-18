@@ -13,11 +13,20 @@ struct LuaFormatResult {
 	std::string error;
 };
 
+// Единственный guard на время работы сервера. Деструктор останавливает и
+// уничтожает лениво созданный worker форматтера.
+class LuaFormatterShutdownGuard {
+public:
+	LuaFormatterShutdownGuard() = default;
+	~LuaFormatterShutdownGuard();
+	LuaFormatterShutdownGuard(const LuaFormatterShutdownGuard&) = delete;
+	LuaFormatterShutdownGuard& operator=(const LuaFormatterShutdownGuard&) = delete;
+};
+
 bool LuaFormatterAvailable();
 // Вызываются только из основного игрового потока.
 std::uint64_t QueueLuaFormat(std::string source);
 bool TryPopLuaFormatResult(LuaFormatResult& result);
-void ShutdownLuaFormatter();
 
 } // namespace lua_scripting
 
