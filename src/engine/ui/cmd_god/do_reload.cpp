@@ -102,6 +102,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         MUD::CfgManager().ReloadCfg("hit_msg");
 	} else if (!str_cmp(arg, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
+	} else if (!str_cmp(arg, "animatedead")) {
+		MUD::CfgManager().ReloadCfg("animate_dead");   // issue.animate-dead
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("pc_classes");
 	} else if (!str_cmp(arg, "mobclasses")) {

@@ -1,102 +1,273 @@
 /**
 \file animate_dead.cpp - a part of the Bylins engine.
-\brief kAnimateDead mechanic implementation (issue.animate-dead / #3548).
+\brief kAnimateDead mechanic, driven by cfg/mechanics/animate_dead.xml (issue.animate-dead / #3548).
 */
 
 #include "animate_dead.h"
 
+#include "engine/db/global_objects.h"   // MUD::AnimateDead()
 #include "engine/entities/char_data.h"
 #include "gameplay/skills/skills.h"
-#include "gameplay/abilities/abilities_constants.h"
-#include "gameplay/magic/magic.h"   // kMobSkeleton .. kMobNecrocaster necro-mob vnums
+#include "gameplay/mechanics/saving.h"  // ESaving, GetSave/SetSave
+#include "gameplay/core/remort.h"       // remort::GetRealRemort
+#include "utils/utils.h"                // GET_* macros, err_log, number, GetRealLevel
+#include "utils/utils_parse.h"
 
 #include <algorithm>
 #include <cmath>
-#include <iterator>
+#include <string>
+
+using parser_wrapper::DataNode;
 
 namespace animate_dead {
 
 namespace {
-// Potency scaling knobs (issue.animate-dead study, section 8; subject to a balance pass).
-constexpr double kHpFactor = 0.25;      // HP = proto_hp * (1 + kHpFactor*C); calibrated to the old x(1+remort/10)
-constexpr double kDiceFactor = 1.5;     // damnodice += round(kDiceFactor*C); matches old necrotank dmg/round
-constexpr int kMaxDamNoDice = 100;      // keep well inside the signed `byte` damnodice range
 
-// Undead tier ladder, weakest -> strongest, with each type's skill-weight (cost). The weight is
-// the Dark-Magic skill points one undead of that type consumes; floor(75/weight) is its count at
-// the novice threshold (skeleton 6, zombie 5, bonedog 4, bonedragon 3, bonespirit/necrodamager 2,
-// necrotank/breather/caster 1). Demotion walks DOWN this list from the desired tier.
-struct UndeadTier { int vnum; int weight; };
-constexpr UndeadTier kLadder[] = {
-	{kMobSkeleton,      12},
-	{kMobZombie,        15},
-	{kMobBonedog,       16},
-	{kMobBonedragon,    25},
-	{kMobBonespirit,    37},
-	{kMobNecrodamager,  37},
-	{kMobNecrotank,     75},
-	{kMobNecrobreather, 75},
-	{kMobNecrocaster,   75},
-};
-
-int WeightOf(int vnum) {
-	for (const auto &t : kLadder) {
-		if (t.vnum == vnum) {
-			return t.weight;
-		}
+// Parse a single <stat beta= mode= cap=/> child of the current <scaling> node.
+StatScale ParseStat(DataNode &scaling, const char *name) {
+	StatScale s;
+	if (!scaling.GoToChild(name)) {
+		return s;
 	}
-	return 0;   // non-necro (e.g. resurrection) followers do not consume the animate-dead budget
+	const char *b = scaling.GetValue("beta");
+	s.beta = (b && *b) ? parse::ReadAsDouble(b) : 0.0;
+	const char *m = scaling.GetValue("mode");
+	s.mode = (m && std::string(m) == "mult") ? EScaleMode::kMult : EScaleMode::kAdd;
+	const char *c = scaling.GetValue("cap");
+	if (c && *c) {
+		s.has_cap = true;
+		s.cap = parse::ReadAsInt(c);
+	}
+	scaling.GoToParent();
+	return s;
 }
 
-int LadderIndex(int vnum) {
-	for (int i = 0; i < static_cast<int>(std::size(kLadder)); ++i) {
-		if (kLadder[i].vnum == vnum) {
-			return i;
-		}
-	}
-	return static_cast<int>(std::size(kLadder)) - 1;   // unknown -> treat as the top tier
+int RoundC(double beta, double c) {
+	return static_cast<int>(std::lround(beta * c));
 }
 
-// Skill-weight already spent on the caster's currently-held charmed undead.
 int UsedBudget(CharData *ch) {
 	int used = 0;
 	for (auto *k : ch->followers) {
 		if (k && AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
-			used += WeightOf(GET_MOB_VNUM(k));
+			used += MUD::AnimateDead().WeightOf(GET_MOB_VNUM(k));
 		}
 	}
 	return used;
 }
+
 }  // namespace
 
-int FitUndeadTier(CharData *ch, int desired) {
-	// Budget = Dark-Magic skill up to the novice threshold (skill beyond it feeds potency, not
-	// headcount), minus the weight of the undead already under control.
-	const int budget = std::min(GetSkill(ch, ESkill::kDarkMagic), abilities::kNoviceSkillThreshold);
-	const int remaining = budget - UsedBudget(ch);
-	// Demote: from the corpse's natural tier, walk down to the strongest tier that still fits.
-	for (int i = LadderIndex(desired); i >= 0; --i) {
-		if (kLadder[i].weight <= remaining) {
-			return kLadder[i].vnum;
+void AnimateDeadInfo::Load(DataNode data) {
+	creatures_.clear();
+	for (auto &node : data.Children()) {
+		const std::string name = node.GetName();
+		if (name == "control") {
+			const char *sk = node.GetValue("skill");
+			if (sk && *sk) {
+				control_skill_ = parse::ReadAsConstant<ESkill>(sk);
+			}
+			const char *bc = node.GetValue("budget_cap");
+			if (bc && *bc) {
+				budget_cap_ = parse::ReadAsInt(bc);
+			}
+			continue;
+		}
+		if (name != "creature") {
+			continue;
+		}
+		try {
+			CreatureInfo ci;
+			ci.vnum = parse::ReadAsInt(node.GetValue("vnum"));
+			ci.id = parse::ReadAsStr(node.GetValue("id"));
+			ci.proto_vnum = parse::ReadAsInt(node.GetValue("proto_vnum"));
+			ci.weight = parse::ReadAsInt(node.GetValue("weight"));
+			if (node.GoToChild("cost")) {
+				ci.corpse_max_level = parse::ReadAsInt(node.GetValue("corpse_max_level"));
+				const char *mr = node.GetValue("min_rating");
+				ci.min_rating = (mr && *mr) ? parse::ReadAsInt(mr) : 0;
+				const char *pk = node.GetValue("pick");
+				ci.pick = (pk && *pk) ? parse::ReadAsInt(pk) : 0;
+				node.GoToParent();
+			}
+			if (node.GoToChild("scaling")) {
+				ci.scaling.hp          = ParseStat(node, "hp");
+				ci.scaling.damage_dice = ParseStat(node, "damage_dice");
+				ci.scaling.hitroll     = ParseStat(node, "hitroll");
+				ci.scaling.ac          = ParseStat(node, "ac");
+				ci.scaling.skills      = ParseStat(node, "skills");
+				ci.scaling.saving      = ParseStat(node, "saving");
+				ci.scaling.armor       = ParseStat(node, "armor");
+				ci.scaling.morale      = ParseStat(node, "morale");
+				ci.scaling.initiative  = ParseStat(node, "initiative");
+				node.GoToParent();
+			}
+			creatures_.push_back(std::move(ci));
+		} catch (std::exception &e) {
+			err_log("animate_dead creature parse error: %s", e.what());
 		}
 	}
-	return 0;   // even a skeleton does not fit -> caller reports "too many minions"
+}
+
+const CreatureInfo *AnimateDeadInfo::ByProtoVnum(int proto_vnum) const {
+	for (const auto &c : creatures_) {
+		if (c.proto_vnum == proto_vnum) {
+			return &c;
+		}
+	}
+	return nullptr;
+}
+
+int AnimateDeadInfo::WeightOf(int proto_vnum) const {
+	const auto *c = ByProtoVnum(proto_vnum);
+	return c ? c->weight : 0;   // non-tier followers do not consume the budget
+}
+
+int AnimateDeadInfo::LadderIndex(int proto_vnum) const {
+	for (int i = 0; i < static_cast<int>(creatures_.size()); ++i) {
+		if (creatures_[i].proto_vnum == proto_vnum) {
+			return i;
+		}
+	}
+	return static_cast<int>(creatures_.size()) - 1;   // unknown -> treat as the top tier
+}
+
+void AnimateDeadLoader::Load(DataNode data) {
+	MUD::AnimateDead().Load(data);
+}
+
+void AnimateDeadLoader::Reload(DataNode data) {
+	MUD::AnimateDead().Load(data);
+}
+
+int PickTier(CharData *ch, int corpse_mob_level) {
+	const auto &cfg = MUD::AnimateDead();
+	const auto &cr = cfg.Creatures();
+	if (cr.empty()) {
+		return 0;
+	}
+	// 1) corpse-level band: the weakest tier whose corpse_max_level covers the corpse.
+	int band_max = cr.back().corpse_max_level;
+	for (const auto &c : cr) {
+		if (corpse_mob_level <= c.corpse_max_level) {
+			band_max = c.corpse_max_level;
+			break;
+		}
+	}
+	// 2) random pick among the tiers sharing that band (pick odds; single tier = itself).
+	std::vector<const CreatureInfo *> band;
+	for (const auto &c : cr) {
+		if (c.corpse_max_level == band_max) {
+			band.push_back(&c);
+		}
+	}
+	const CreatureInfo *chosen = band.front();
+	if (band.size() > 1) {
+		int total = 0;
+		for (auto *c : band) {
+			total += std::max(1, c->pick);
+		}
+		int roll = number(1, total);
+		for (auto *c : band) {
+			roll -= std::max(1, c->pick);
+			if (roll <= 0) {
+				chosen = c;
+				break;
+			}
+		}
+	}
+	// 3) caster-rating gate: demote down the ladder until min_rating is met.
+	const int rating = GetRealLevel(ch) + remort::GetRealRemort(ch) + 4;
+	int idx = cfg.LadderIndex(chosen->proto_vnum);
+	while (idx > 0 && rating < cr[idx].min_rating) {
+		--idx;
+	}
+	return cr[idx].proto_vnum;
+}
+
+int FitUndeadTier(CharData *ch, int desired) {
+	const auto &cfg = MUD::AnimateDead();
+	const auto &cr = cfg.Creatures();
+	if (cr.empty()) {
+		return 0;
+	}
+	const int budget = std::min(GetSkill(ch, cfg.ControlSkill()), cfg.BudgetCap());
+	const int remaining = budget - UsedBudget(ch);
+	for (int i = cfg.LadderIndex(desired); i >= 0; --i) {
+		if (cr[i].weight <= remaining) {
+			return cr[i].proto_vnum;
+		}
+	}
+	return 0;   // even the weakest tier does not fit -> caller reports "too many minions"
 }
 
 void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
+	const auto *info = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(mob));
+	if (!info) {
+		return;
+	}
 	const double c = std::max(0.0, competence);
+	const CreatureScaling &s = info->scaling;
 
-	// HP: multiplicative on the tier prototype (keeps skeleton < ... < necrotank proportions,
-	// mirrors the retired x(1+remort/10) boost). Never below the prototype value.
-	const int hp = static_cast<int>(mob->get_max_hit() * (1.0 + kHpFactor * c));
-	mob->set_max_hit(hp);
-	mob->set_hit(hp);
+	// "up" stat (higher is better): += round(beta*C), capped to a max.
+	auto up = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur + RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::min(v, sc.cap);
+		}
+		return v;
+	};
+	// "down" stat (lower is better, e.g. AC / saves): -= round(beta*C), floored to cap.
+	auto down = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur - RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::max(v, sc.cap);
+		}
+		return v;
+	};
 
-	// Damage: additive on the dice COUNT (damsizedice kept from the prototype). Necromancer
-	// undead are damage-first, so the damage weight (kDiceFactor) is heavier than the HP one.
-	const int bonus = static_cast<int>(std::lround(kDiceFactor * c));
-	const int dice = std::clamp(mob->mob_specials.damnodice + bonus, 1, kMaxDamNoDice);
-	mob->mob_specials.damnodice = static_cast<byte>(dice);
+	// HP (multiplicative on the prototype; keeps tier proportions).
+	if (s.hp.beta != 0.0) {
+		int hp = mob->get_max_hit();
+		hp = (s.hp.mode == EScaleMode::kMult) ? static_cast<int>(hp * (1.0 + s.hp.beta * c))
+											  : hp + RoundC(s.hp.beta, c);
+		if (s.hp.has_cap) {
+			hp = std::min(hp, s.hp.cap);
+		}
+		mob->set_max_hit(hp);
+		mob->set_hit(hp);
+	}
+	// Damage dice count (additive; guard the signed-byte damnodice).
+	if (s.damage_dice.beta != 0.0) {
+		const int dice = std::clamp(up(s.damage_dice, mob->mob_specials.damnodice), 1, 100);
+		mob->mob_specials.damnodice = static_cast<ubyte>(dice);
+	}
+	GET_HR(mob)         = up(s.hitroll, GET_HR(mob));
+	GET_ARMOUR(mob)     = up(s.armor, GET_ARMOUR(mob));
+	GET_MORALE(mob)     = up(s.morale, GET_MORALE(mob));
+	GET_INITIATIVE(mob) = up(s.initiative, GET_INITIATIVE(mob));
+	GET_AC(mob)         = down(s.ac, GET_AC(mob));   // lower AC = better
+	if (s.saving.beta != 0.0) {
+		for (auto sv = ESaving::kFirst; sv <= ESaving::kLast; ++sv) {
+			SetSave(mob, sv, down(s.saving, GetSave(mob, sv)));
+		}
+	}
+	if (s.skills.beta != 0.0) {
+		// scale every skill the prototype already has, uniformly.
+		std::vector<ESkill> ids;
+		for (const auto &kv : mob->GetCharSkills()) {
+			ids.push_back(kv.first);
+		}
+		for (const ESkill id : ids) {
+			SetSkill(mob, id, up(s.skills, GetSkill(mob, id)));
+		}
+	}
 }
 
 }  // namespace animate_dead

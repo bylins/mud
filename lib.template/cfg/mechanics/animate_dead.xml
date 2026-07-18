@@ -1,0 +1,122 @@
+<!-- issue.animate-dead: warlock construct (animate-dead) parameters. Loaded via CfgManager
+     as 'animate_dead'; reload live with `reload animatedead`. See the design in
+     claude_1/OUTPUT. Stat scaling is per-creature off the cast competence C (skill_coeff +
+     stat_coeff of kAnimateDead's potency_roll). 'luck' is omitted: mobs have no luck stat. -->
+<animate_dead>
+	<!-- headcount budget = min(<skill>, budget_cap) - sum of held-undead weights -->
+	<control skill="kDarkMagic" budget_cap="75" />
+
+	<creature vnum="0" id="kSkeleton" proto_vnum="3001" weight="12">
+		<cost corpse_max_level="5" min_rating="0" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<creature vnum="1" id="kZombie" proto_vnum="3002" weight="15">
+		<cost corpse_max_level="10" min_rating="0" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<creature vnum="2" id="kBonedog" proto_vnum="3003" weight="16">
+		<cost corpse_max_level="15" min_rating="15" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<creature vnum="3" id="kBonedragon" proto_vnum="3004" weight="25">
+		<cost corpse_max_level="20" min_rating="25" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<creature vnum="4" id="kBonespirit" proto_vnum="3005" weight="37">
+		<cost corpse_max_level="25" min_rating="32" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<creature vnum="5" id="kNecrotank" proto_vnum="3008" weight="75">
+		<cost corpse_max_level="34" min_rating="32" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<creature vnum="6" id="kNecrodamager" proto_vnum="3007" weight="37">
+		<cost corpse_max_level="127" min_rating="32" pick="50" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<creature vnum="7" id="kNecrobreather" proto_vnum="3009" weight="75">
+		<cost corpse_max_level="127" min_rating="32" pick="50" />
+		<scaling>
+			<hp          beta="0.25" mode="mult" />
+			<damage_dice beta="1.5"  mode="add"  cap="100" />
+			<hitroll     beta="0"    mode="add" />
+			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
+			<skills      beta="0"    mode="add"  cap="200" />
+			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
+			<armor       beta="0"    mode="add" />
+			<morale      beta="0"    mode="add" />
+			<initiative  beta="0"    mode="add" />
+		</scaling>
+	</creature>
+	<!-- kNecrocaster (3010) intentionally omitted: currently disabled. -->
+</animate_dead>
