@@ -140,6 +140,62 @@ void AnimateDeadLoader::Reload(DataNode data) {
 	MUD::AnimateDead().Load(data);
 }
 
+std::string AnimateDeadLoader::EditableWhat() const {
+	return "creature";
+}
+
+std::vector<cfg_manager::EditableElement> AnimateDeadLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &c : MUD::AnimateDead().Creatures()) {
+		out.push_back({std::to_string(c.vnum), c.id});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult AnimateDeadLoader::Validate(DataNode &doc) const {
+	AnimateDeadInfo trial;
+	trial.Load(doc);
+	if (trial.empty()) {
+		return {false, "animate_dead: no <creature> tiers parsed (see syslog)."};
+	}
+	return {true, ""};
+}
+
+DataNode AnimateDeadLoader::FindElementNode(DataNode root, const std::string &id) const {
+	// A <creature> is keyed by its integer vnum; iterate children with a name check (a node copied
+	// out of a keyed range would otherwise carry that range's filter -- see RegionsLoader).
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "creature" && id == child.GetValue("vnum")) {
+			return child;
+		}
+	}
+	return DataNode{};
+}
+
+std::string AnimateDeadLoader::CanonicalElementId(const std::string &id) const {
+	if (id.empty()) {
+		return "";
+	}
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	return id;
+}
+
+DataNode AnimateDeadLoader::CreateElementNode(DataNode root, const std::string &id) const {
+	auto node = root.AddChild("creature");
+	node.SetValue("vnum", id);
+	node.SetValue("id", "kUndefined");
+	node.SetValue("proto_vnum", "0");
+	node.SetValue("weight", "0");
+	auto cost = node.AddChild("cost");
+	cost.SetValue("corpse_max_level", "0");
+	cost.SetValue("min_rating", "0");
+	return node;
+}
+
 int PickTier(CharData *ch, int corpse_mob_level) {
 	const auto &cfg = MUD::AnimateDead();
 	const auto &cr = cfg.Creatures();

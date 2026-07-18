@@ -64,10 +64,17 @@ class AnimateDeadInfo {
 	[[nodiscard]] int LadderIndex(int proto_vnum) const;
 };
 
-class AnimateDeadLoader : public cfg_manager::ICfgLoader {
+class AnimateDeadLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// Vedun editor: each <creature> is an editable element keyed by its integer vnum.
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] parser_wrapper::DataNode FindElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 // The construct VNUM for a corpse of `corpse_mob_level`, cast by `ch`: the corpse-level band, then
