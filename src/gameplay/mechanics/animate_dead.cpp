@@ -9,7 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/skills/skills.h"
 #include "gameplay/mechanics/saving.h"  // ESaving, GetSave/SetSave
-#include "gameplay/core/remort.h"       // remort::GetRealRemort
+#include "gameplay/core/remort.h"       // remort::SkillCapStart / SkillCapIncrement
 #include "utils/utils.h"                // GET_* macros, err_log, number, GetRealLevel
 #include "utils/utils_parse.h"
 
@@ -232,8 +232,13 @@ int PickTier(CharData *ch, int corpse_mob_level) {
 			}
 		}
 	}
-	// 3) caster-rating gate: demote down the ladder until min_rating is met.
-	const int rating = GetRealLevel(ch) + remort::GetRealRemort(ch) + 4;
+	// 3) caster-rating gate: demote down the ladder until min_rating is met. The rating is
+	// level + a skill-derived remort-equivalent + 4 -- NOT the actual remort count (issue.animate-dead:
+	// the control skill, not remort, gates tiers). The remort-equivalent inverts CalcSkillCap: a remort
+	// R has skill cap SkillCapStart + R*SkillCapIncrement, so R = (skill - SkillCapStart) / increment.
+	const int inc = std::max(1, remort::SkillCapIncrement());
+	const int pseudo_remort = std::max(0, (GetSkill(ch, cfg.ControlSkill()) - remort::SkillCapStart()) / inc);
+	const int rating = GetRealLevel(ch) + pseudo_remort + 4;
 	int idx = cfg.LadderIndex(chosen->proto_vnum);
 	while (idx > 0 && rating < cr[idx].min_rating) {
 		--idx;
