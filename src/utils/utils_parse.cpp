@@ -70,6 +70,10 @@ void InitObjVals() {
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kPotionBrewRoll), "POTION_BREW_ROLL");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidTimer), "LIQUID_TIMER");
 	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidPoison), "LIQUID_POISON");
+	// issue.magic-items-hotfix: drink-container/fountain liquid core keys
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidCapacity), "LIQUID_CAPACITY");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidCurrent), "LIQUID_CURRENT");
+	text_id_list.at(kObjVals).Add(to_underlying(ObjVal::EValueKey::kLiquidType), "LIQUID_TYPE");
 }
 
 ///

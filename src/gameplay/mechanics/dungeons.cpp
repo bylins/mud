@@ -478,14 +478,8 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 				add_trig_to_owner(-1, trigger_vnum, new_room->vnum);
 			}
 		}
-		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
-		while (sdd) {
-			const ExtraDescription::shared_ptr new_descr(new ExtraDescription);
-			new_descr->set_keyword(sdd->keyword);
-			new_descr->set_description(sdd->description);
-			new_descr->next = new_room->ex_description;
-			sdd = sdd->next;
-		}
+		// копируем экстра-описания исходной комнаты (vector по значению)
+		new_room->ex_description = world[i]->ex_description;
 	}
 }
 
@@ -912,15 +906,7 @@ void RoomDataFree(ZoneRnum zrn) {
 				room->dir_option[dir].reset();
 			}
 		}
-		ExtraDescription::shared_ptr sdd = room->ex_description;
-		if (sdd) {
-			while (sdd) {
-				free(sdd->keyword);
-				free(sdd->description);
-				sdd = sdd->next;
-			}
-			sdd.reset();
-		}
+		room->ex_description.clear();
 	}
 }
 

@@ -537,10 +537,10 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 							 [&]() { throw std::runtime_error("WARNING: Failed to save long description"); });
 		CHelper::save_string(description, "action", get_action_description().c_str(),
 							 [&]() { throw std::runtime_error("WARNING: Failed to save action description"); });
-		if (get_ex_description()) {
-			CHelper::save_string(description, "keyword", get_ex_description()->keyword,
+		if (!get_ex_description().empty()) {
+			CHelper::save_string(description, "keyword", get_ex_description().front().keyword.c_str(),
 								 [&]() { throw std::runtime_error("WARNING: Failed to save keyword"); });
-			CHelper::save_string(description, "extended", get_ex_description()->description,
+			CHelper::save_string(description, "extended", get_ex_description().front().description.c_str(),
 								 [&]() { throw std::runtime_error("WARNING: Failed to save extended description"); });
 		}
 

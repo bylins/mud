@@ -346,12 +346,12 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 				}
 			}
 			// * Home straight, just deal with extra descriptions.
-			if (room->ex_description) {
-				for (auto ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next) {
-					if (ex_desc->keyword && ex_desc->description) {
-						snprintf(buf1, sizeof(buf1), "%s", ex_desc->description);
+			{
+				for (const auto &ex_desc : room->ex_description) {
+					if (!ex_desc.keyword.empty() && !ex_desc.description.empty()) {
+						snprintf(buf1, sizeof(buf1), "%s", ex_desc.description.c_str());
 						strip_string(buf1);
-						fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword, buf1);
+						fprintf(fp, "E\n%s~\n%s~\n", ex_desc.keyword.c_str(), buf1);
 					}
 				}
 			}
@@ -384,16 +384,19 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 
 // * For extra descriptions.
 void redit_disp_extradesc_menu(DescriptorData *d) {
-	auto extra_desc = OLC_DESC(d);
+	auto &descs = OLC_ROOM(d)->ex_description;
+	const int idx = OLC_DESC(d);
+	const ExtraDescription &extra_desc = descs[idx];
+	const bool has_next = (idx + 1 < static_cast<int>(descs.size()));
 
 	snprintf(buf, sizeof(buf),
 			"&g1&n) Ключ: &y%s\r\n"
 			"&g2&n) Описание:\r\n&y%s\r\n"
 			"&g3&n) Следующее описание: ",
-			extra_desc->keyword ? extra_desc->keyword : "<NONE>",
-			extra_desc->description ? extra_desc->description : "<NONE>");
+			!extra_desc.keyword.empty() ? extra_desc.keyword.c_str() : "<NONE>",
+			!extra_desc.description.empty() ? extra_desc.description.c_str() : "<NONE>");
 
-	strncat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n", sizeof(buf) - strlen(buf) - 1);
+	strncat(buf, !has_next ? "<NOT SET>\r\n" : "Set.\r\n", sizeof(buf) - strlen(buf) - 1);
 	strncat(buf, "Enter choice (0 to quit) : ", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, d->character.get());
 	OLC_MODE(d) = REDIT_EXTRADESC_MENU;
@@ -655,10 +658,10 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 'b':
 				case 'B':
 					// * If the extra description doesn't exist.
-					if (!OLC_ROOM(d)->ex_description) {
-						OLC_ROOM(d)->ex_description.reset(new ExtraDescription());
+					if (OLC_ROOM(d)->ex_description.empty()) {
+						OLC_ROOM(d)->ex_description.emplace_back();
 					}
-					OLC_DESC(d) = OLC_ROOM(d)->ex_description;
+					OLC_DESC(d) = 0;
 					redit_disp_extradesc_menu(d);
 					break;
 
@@ -800,54 +803,61 @@ void redit_parse(DescriptorData *d, char *arg) {
 			OLC_MODE(d) = REDIT_EXIT_DOORFLAGS;
 			redit_disp_exit_flag_menu(d);
 			return;
-		case REDIT_EXTRADESC_KEY: OLC_DESC(d)->keyword = ((arg && *arg) ? str_dup(arg) : nullptr);
+		case REDIT_EXTRADESC_KEY: OLC_ROOM(d)->ex_description[OLC_DESC(d)].keyword = (arg && *arg) ? arg : "";
 			redit_disp_extradesc_menu(d);
 			return;
 
 		case REDIT_EXTRADESC_MENU:
 			switch ((number = atoi(arg))) {
-				case 0:
+				case 0: {
 					// * If something got left out, delete the extra description
 					// * when backing out to the menu.
-					if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
-						auto &desc = OLC_DESC(d);
-						desc.reset();
+					auto &descs = OLC_ROOM(d)->ex_description;
+					if (descs[OLC_DESC(d)].keyword.empty() || descs[OLC_DESC(d)].description.empty()) {
+						descs.erase(descs.begin() + OLC_DESC(d));
+						OLC_DESC(d) = -1;
 					}
 					break;
+				}
 
 				case 1: OLC_MODE(d) = REDIT_EXTRADESC_KEY;
 					SendMsgToChar("Введите ключевые слова, разделенные пробелами : ", d->character.get());
 					return;
 
-				case 2: OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
-				iosystem::write_to_output("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
+				case 2: {
+					OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
+					iosystem::write_to_output("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
 					d->backstr = nullptr;
-					if (OLC_DESC(d)->description) {
-					iosystem::write_to_output(OLC_DESC(d)->description, d);
-						d->backstr = str_dup(OLC_DESC(d)->description);
+					auto &cur = OLC_ROOM(d)->ex_description[OLC_DESC(d)];
+					if (!cur.description.empty()) {
+						iosystem::write_to_output(cur.description.c_str(), d);
+						d->backstr = str_dup(cur.description.c_str());
 					}
-					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));
+					d->writer.reset(new utils::DelegatedStdStringWriter(cur.description));
 					d->max_str = 4096;
 					d->mail_to = 0;
 					return;
+				}
 
-				case 3:
-					if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
+				case 3: {
+					auto &descs = OLC_ROOM(d)->ex_description;
+					const int idx = OLC_DESC(d);
+					if (descs[idx].keyword.empty() || descs[idx].description.empty()) {
 						SendMsgToChar("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
 									 d->character.get());
 						redit_disp_extradesc_menu(d);
 					} else {
-						if (OLC_DESC(d)->next) {
-							OLC_DESC(d) = OLC_DESC(d)->next;
+						if (idx + 1 < static_cast<int>(descs.size())) {
+							OLC_DESC(d) = idx + 1;
 						} else {
 							// * Make new extra description and attach at end.
-							ExtraDescription::shared_ptr new_extra(new ExtraDescription());
-							OLC_DESC(d)->next = new_extra;
-							OLC_DESC(d) = new_extra;
+							descs.emplace_back();
+							OLC_DESC(d) = static_cast<int>(descs.size()) - 1;
 						}
 						redit_disp_extradesc_menu(d);
 					}
 					return;
+				}
 			}
 			break;
 
@@ -918,18 +928,8 @@ void CopyRoom(RoomData *dst, RoomData *src) {
 		}
 	}
 
-	// Дополнительные описания, если есть
-	ExtraDescription::shared_ptr *pddd = &dst->ex_description;
-	ExtraDescription::shared_ptr sdd = src->ex_description;
-	*pddd = nullptr;
-
-	while (sdd) {
-		*pddd = std::make_shared<ExtraDescription>();
-		(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
-		(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
-		pddd = &((*pddd)->next);
-		sdd = sdd->next;
-	}
+	// Дополнительные описания, если есть (vector копируется по значению)
+	dst->ex_description = src->ex_description;
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst).reset(new Script());

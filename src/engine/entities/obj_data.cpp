@@ -88,15 +88,11 @@ void ObjData::zero_init() {
 }
 
 void ObjData::detach_ex_description() {
-	const auto old_description = get_ex_description();
-	const auto new_description = std::make_shared<ExtraDescription>();
-	if (nullptr != old_description->keyword) {
-		new_description->keyword = str_dup(old_description->keyword);
+	// vector экстра-описаний уже приватный у объекта; сохраняем прежнее
+	// поведение -- оставляем только первое описание (бывшую голову).
+	if (ex_descriptions().size() > 1) {
+		ex_descriptions().resize(1);
 	}
-	if (nullptr != old_description->keyword) {
-		new_description->description = str_dup(old_description->description);
-	}
-	set_ex_description(new_description);
 }
 
 // * См. Character::purge()
@@ -277,7 +273,7 @@ void CObjectPrototype::zero_init() {
 	m_description.clear();
 	m_short_description.clear();
 	m_action_description.clear();
-	m_ex_description.reset();
+	m_ex_description.clear();
 	m_proto_script->clear();
 	m_dgscript_field.clear();
 	m_max_in_world = 0;
@@ -306,7 +302,9 @@ void CObjectPrototype::set_vnum(const ObjVnum vnum) {
 }
 
 void CObjectPrototype::tag_ex_description(const char *tag) {
-	m_ex_description->description = str_add(m_ex_description->description, tag);
+	if (!m_ex_description.empty()) {
+		m_ex_description.front().description += tag;
+	}
 }
 
 CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
@@ -556,23 +554,8 @@ void ObjData::copy_from(const CObjectPrototype *src) {
 																: "неопределено");
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
 
-	// Дополнительные описания, если есть
-	{
-		ExtraDescription::shared_ptr nd;
-		auto *pddd = &nd;
-		auto sdd = src->get_ex_description();
-		while (sdd) {
-			pddd->reset(new ExtraDescription());
-			(*pddd)->keyword = str_dup(sdd->keyword);
-			(*pddd)->description = str_dup(sdd->description);
-			pddd = &(*pddd)->next;
-			sdd = sdd->next;
-		}
-
-		if (nd) {
-			set_ex_description(nd);
-		}
-	}
+	// Дополнительные описания, если есть (vector копируется по значению)
+	ex_descriptions() = src->get_ex_description();
 }
 
 void ObjData::swap(ObjData &object, bool swap_trig) {
@@ -624,8 +607,8 @@ void ObjData::swap(ObjData &object, bool swap_trig) {
 }
 
 void ObjData::set_tag(const char *tag) {
-	if (!get_ex_description()) {
-		set_ex_description(get_aliases().c_str(), tag);
+	if (get_ex_description().empty()) {
+		set_ex_description(get_aliases(), tag);
 	} else {
 		// По уму тут надо бы стереть старое описапние если оно не с прототипа
 		detach_ex_description();
@@ -879,11 +862,11 @@ std::pair<bool, int> ObjData::get_activator() const {
 	return m_activator;
 }
 
-void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {
-	ExtraDescription::shared_ptr d(new ExtraDescription());
-	d->keyword = strdup(keyword);
-	d->description = strdup(description);
-	m_ex_description = d;
+void CObjectPrototype::set_ex_description(const std::string &keyword, const std::string &description) {
+	ExtraDescription d;
+	d.keyword = keyword;
+	d.description = description;
+	m_ex_description.assign(1, std::move(d));
 }
 
 void set_obj_aff(ObjData *itemobj, const EAffect bitv) {
@@ -1270,6 +1253,9 @@ bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 		case ObjVal::EValueKey::kMakerSkill:
 		case ObjVal::EValueKey::kMakerStat:
 		case ObjVal::EValueKey::kLiquidTimer:
+		case ObjVal::EValueKey::kLiquidCapacity:
+		case ObjVal::EValueKey::kLiquidCurrent:
+		case ObjVal::EValueKey::kLiquidType:
 		case ObjVal::EValueKey::kLiquidPoison: return true;
 		default: return false;   // issue.magic-items: kSpellItem* keys are not drinkcon keys
 	}

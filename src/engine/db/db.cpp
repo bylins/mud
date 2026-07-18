@@ -416,6 +416,25 @@ int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
 	return 1;
 }
 
+// issue.magic-items-hotfix: the liquid core is stored in the kLiquid* keys (get_val/set_val redirect
+// val[0..2] to them for drink containers/fountains). Safety net for a load path that filled the raw
+// val[] array without going through set_val: seed the keys from it. Idempotent -- keys present -> skip.
+int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool /*proto*/) {
+	const auto type = obj->get_type();
+	if (type != EObjType::kLiquidContainer && type != EObjType::kFountain) {
+		return 0;
+	}
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidCurrent) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidType) >= 0) {
+		return 0;
+	}
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity, obj->get_val(0));
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCurrent, obj->get_val(1));
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidType, obj->get_val(2));
+	return 1;
+}
+
 void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
@@ -423,6 +442,7 @@ void ConvertObjValues() {
 		save = std::max(save, ConvertDrinkPoisonField(i.get(), true));
 		save = std::max(save, ConvertPotionToEValueKey(i.get(), true));
 		save = std::max(save, ConvertSpellItemToEValueKey(i.get(), true));
+		save = std::max(save, ConvertDrinkconLiquidCore(i.get(), true));
 		if (i->has_flag(EObjFlag::k2inlaid)) {
 			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;

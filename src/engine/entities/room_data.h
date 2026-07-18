@@ -84,7 +84,7 @@ struct RoomData {
 	char *name;        // Rooms name 'You are ...'           //
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
-	ExtraDescription::shared_ptr ex_description;    // for examine/look       //
+	std::vector<ExtraDescription> ex_description;    // for examine/look       //
 	std::array<exit_data_ptr, EDirection::kMaxDirNum> dir_option;    // Directions //
 	std::array<exit_data_ptr, EDirection::kMaxDirNum> dir_option_proto;
 

@@ -29,7 +29,7 @@ void look_in_obj(CharData *ch, char *arg);
 void look_in_direction(CharData *ch, int dir, int info_is);
 void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
 void print_zone_info(CharData *ch);
-char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
+const char *find_exdesc(const char *word, const std::vector<ExtraDescription> &list);
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
 void print_zone_info(CharData *ch);

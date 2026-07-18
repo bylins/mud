@@ -58,7 +58,12 @@ class ObjVal {
 		kLiquidTimer = 11,     // drink/potion-only: contents freshness countdown
 		kLiquidPoison = 12,    // drink/potion-only: poison level applied on drinking
 		kMaxCharges = 13,      // wand/staff-only: capacity (was kSpellItemMaxCharges)
-		kCurCharges = 14       // wand/staff-only: charges remaining (was kSpellItemCurCharges)
+		kCurCharges = 14,      // wand/staff-only: charges remaining (was kSpellItemCurCharges)
+		// issue.magic-items-hotfix: drink-container/fountain liquid core (migrated off raw val[0..2]).
+		// val[] stays the runtime store; these keys are the on-disk (YAML) + OLC/display form.
+		kLiquidCapacity = 15,  // drink/fountain-only: total volume (was val[0])
+		kLiquidCurrent = 16,   // drink/fountain-only: current contents (was val[1])
+		kLiquidType = 17       // drink/fountain-only: liquid kind (was val[2])
 	};
 
 	// issue.potion-hotfix: fixed-point scale for kPotionBrewRoll. The stored int is
@@ -214,7 +219,23 @@ class CObjectPrototype {
 	ObjVnum get_parent_vnum();
 	void set_parent_rnum(ObjRnum _) {m_parent_proto = _;}
 	auto &get_skills() const { return m_skills; }
-	auto dec_val(size_t index) { return --m_vals[index]; }
+	// issue.magic-items-hotfix: a drink container's / fountain's liquid core (capacity=0, current=1,
+	// liquid-type=2) is the source of truth in the ObjVal keys, NOT val[0..2]. The val mutators below
+	// transparently redirect those indices for those types to the keys, so every existing consumer uses
+	// the extended store and val[] stops being authoritative. (YAML save skips val[]; old worlds
+	// auto-migrate because the loader's set_val() writes the key.)
+	static constexpr ObjVal::EValueKey liquid_core_key(size_t index) {
+		return index == 0 ? ObjVal::EValueKey::kLiquidCapacity
+			 : index == 1 ? ObjVal::EValueKey::kLiquidCurrent
+						  : ObjVal::EValueKey::kLiquidType;
+	}
+	bool uses_liquid_core(size_t index) const {
+		return index <= 2 && (m_type == EObjType::kLiquidContainer || m_type == EObjType::kFountain);
+	}
+	int dec_val(size_t index) {
+		if (uses_liquid_core(index)) { const int v = get_val(index) - 1; set_val(index, v); return v; }
+		return --m_vals[index];
+	}
 	auto get_current_durability() const { return m_current_durability; }
 	auto get_destroyer() const { return m_destroyer; }
 	auto get_level() const { return m_level; }
@@ -225,7 +246,13 @@ class CObjectPrototype {
 	auto get_spec_param() const { return m_sparam; }
 	auto get_spell() const { return m_spell; }
 	auto get_type() const { return m_type; }
-	auto get_val(size_t index) const { return m_vals[index]; }
+	int get_val(size_t index) const {
+		if (uses_liquid_core(index)) {
+			const int v = m_values.get(liquid_core_key(index));
+			if (v >= 0) { return v; }
+		}
+		return m_vals[index];
+	}
 	auto GetPotionValueKey(const ObjVal::EValueKey key) const { return m_values.get(key); }
 	wear_flags_t get_wear_flags() const { return m_wear_flags.get_plane(0); }
 	auto get_weight() const { return m_weight; }
@@ -249,6 +276,8 @@ class CObjectPrototype {
 	const auto &get_anti_flags() const { return m_anti_flags; }
 	const auto &get_description() const { return m_description; }
 	const auto &get_ex_description() const { return m_ex_description; }
+	// Мутабельный доступ к вектору экстра-описаний (для OLC-редактора).
+	std::vector<ExtraDescription> &ex_descriptions() { return m_ex_description; }
 	const auto &get_extra_flags() const { return m_extra_flags; }
 	const auto &get_no_flags() const { return m_no_flags; }
 	const auto &get_proto_script() const { return *m_proto_script; }
@@ -262,7 +291,10 @@ class CObjectPrototype {
 	void add_maximum(const int amount) { m_maximum_durability += amount; }
 	void add_no_flags(const BitsetFlags<ENoFlag> &flags) { m_no_flags += flags; }
 	void add_proto_script(const ObjVnum vnum) { m_proto_script->push_back(vnum); }
-	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
+	void add_val(const size_t index, const int amount) {
+		if (uses_liquid_core(index)) { set_val(index, get_val(index) + amount); return; }
+		m_vals[index] += amount;
+	}
 	void add_weight(const int _) { m_weight += _; }
 	void clear_action_description() { m_action_description.clear(); }
 	void clear_affected(const size_t index) { m_affected[index].location = EApply::kNone; }
@@ -277,7 +309,10 @@ class CObjectPrototype {
 	void gm_extra_flag(const char *subfield, const char **list, char *res) {
 		m_extra_flags.gm_flag(subfield, list, res);
 	}
-	void inc_val(const size_t index) { ++m_vals[index]; }
+	void inc_val(const size_t index) {
+		if (uses_liquid_core(index)) { set_val(index, get_val(index) + 1); return; }
+		++m_vals[index];
+	}
 	void init_values_from_zone(const char *str) { m_values.init_from_zone(str); }
 	void load_affect_flags(const char *string) { m_waffect_flags.from_string(string); }
 	void load_anti_flags(const char *string) { m_anti_flags.from_string(string); }
@@ -298,8 +333,8 @@ class CObjectPrototype {
 	void set_current_durability(const int _) { m_current_durability = _; }
 	void set_description(const std::string &_) { m_description = _; }
 	void set_destroyer(const int _) { m_destroyer = _; }
-	void set_ex_description(const ExtraDescription::shared_ptr &_) { m_ex_description = _; }
-	void set_ex_description(ExtraDescription *_) { m_ex_description.reset(_); }
+	void set_ex_description(std::nullptr_t) { m_ex_description.clear(); }
+	void add_ex_description(const ExtraDescription &ed) { m_ex_description.push_back(ed); }
 	void set_extra_flag(const EObjFlag packed_flag) { m_extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const Bitvector flag) { m_extra_flags.set_flag(plane, flag); }
 	void set_extra_flags(const BitsetFlags<EObjFlag> &flags) { m_extra_flags = flags; }
@@ -325,9 +360,15 @@ class CObjectPrototype {
 	void set_wear_flag(const EWearFlag flag);
 	void set_wear_flags(const wear_flags_t _) { m_wear_flags.clear(); m_wear_flags.set_plane(0, _); }
 	void set_weight(const int _) { m_weight = _; }
-	void set_val(size_t index, int value) { m_vals[index] = value; }
+	void set_val(size_t index, int value) {
+		if (uses_liquid_core(index)) { m_values.set(liquid_core_key(index), value); return; }
+		m_vals[index] = value;
+	}
 	void sub_current(const int _) { m_current_durability -= _; }
-	void sub_val(const size_t index, const int amount) { m_vals[index] -= amount; }
+	void sub_val(const size_t index, const int amount) {
+		if (uses_liquid_core(index)) { set_val(index, get_val(index) - amount); return; }
+		m_vals[index] -= amount;
+	}
 	void sub_weight(const int _) { m_weight -= _; }
 	void swap_proto_script(triggers_list_t &_) { m_proto_script->swap(_); }
 	void toggle_affect_flag(const size_t plane, const Bitvector flag) { m_waffect_flags.toggle_flag(plane, flag); }
@@ -353,7 +394,7 @@ class CObjectPrototype {
 	void set_rent_off(int x);
 	auto get_rent_on() const { return m_rent_on; }
 	void set_rent_on(int x);
-	void set_ex_description(const char *keyword, const char *description);
+	void set_ex_description(const std::string &keyword, const std::string &description);
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
 	void set_dgscript_field(const std::string _) { m_dgscript_field = _; }
 	int get_auto_mort_req() const;
@@ -406,7 +447,7 @@ class CObjectPrototype {
 
 	std::string m_short_description;    // when worn/carry/in cont.         //
 	std::string m_action_description;    // What to write when used          //
-	ExtraDescription::shared_ptr m_ex_description;    // extra descriptions     //
+	std::vector<ExtraDescription> m_ex_description;    // extra descriptions     //
 
 	triggers_list_ptr m_proto_script;    // list of default triggers  //
 

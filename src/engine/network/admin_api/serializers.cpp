@@ -279,13 +279,13 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 	}
 	obj_data["affects"] = affects;
 
-	// Extra descriptions (linked list)
+	// Extra descriptions
 	json extra_descs = json::array();
-	for (auto ed = obj.get_ex_description(); ed; ed = ed->next)
+	for (const auto &ed : obj.get_ex_description())
 	{
 		json extra;
-		extra["keywords"] = Koi8rToUtf8(ed->keyword ? ed->keyword : "");
-		extra["description"] = Koi8rToUtf8(ed->description ? ed->description : "");
+		extra["keywords"] = Koi8rToUtf8(ed.keyword);
+		extra["description"] = Koi8rToUtf8(ed.description);
 		extra_descs.push_back(extra);
 	}
 	obj_data["extra_descriptions"] = extra_descs;
@@ -362,16 +362,16 @@ json SerializeRoom(RoomData& room, int vnum)
 
 	// Extra descriptions
 	json extra_descrs = json::array();
-	for (auto ed = room.ex_description; ed; ed = ed->next)
+	for (const auto &ed : room.ex_description)
 	{
 		json ed_obj;
-		if (ed->keyword)
+		if (!ed.keyword.empty())
 		{
-			ed_obj["keyword"] = Koi8rToUtf8(ed->keyword);
+			ed_obj["keyword"] = Koi8rToUtf8(ed.keyword);
 		}
-		if (ed->description)
+		if (!ed.description.empty())
 		{
-			ed_obj["description"] = Koi8rToUtf8(ed->description);
+			ed_obj["description"] = Koi8rToUtf8(ed.description);
 		}
 		extra_descrs.push_back(ed_obj);
 	}
