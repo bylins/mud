@@ -194,7 +194,7 @@ void ItemNode::replace_descs(ObjData *obj, const int vnum) const {
 		obj->attach_triggers(desc.trigs);
 	}
 
-	obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
+	obj->ex_descriptions().clear(); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
 
 	if ((obj->get_type() == EObjType::kLiquidContainer)
 		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...

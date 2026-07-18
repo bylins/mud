@@ -231,6 +231,9 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			return nullptr;
 		}
 	}
+	// Первая строка Edes задаёт полный список экстра-описаний, затирая
+	// унаследованные от прототипа (объект создан как копия прототипа выше).
+	bool ex_desc_loaded = false;
 	// Далее найденные параметры присваиваем к прототипу
 	while (get_buf_lines(data, buffer)) {
 		ExtractTagFromArgument(buffer, read_line);
@@ -407,14 +410,18 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				*error = 46;
 				ExtraDescription new_descr;
 				new_descr.keyword = buffer;
-				if (new_descr.keyword == "None") {
-					object->set_ex_description(nullptr);
-				} else {
+				// Маркер "None" больше не пишется; в старых рентах он означал
+				// "описаний нет" -- просто пропускаем (описания прототипа не трогаем).
+				if (new_descr.keyword != "None") {
 					if (!get_buf_lines(data, buffer)) {
 						*error = 47;
 						return (object);
 					}
 					new_descr.description = buffer;
+					if (!ex_desc_loaded) {
+						object->ex_descriptions().clear();
+						ex_desc_loaded = true;
+					}
 					object->ex_descriptions().push_back(std::move(new_descr));
 				}
 			} else if (!strcmp(read_line, "Ouid")) {
@@ -620,17 +627,6 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	return (object);
 }
 
-inline bool proto_has_descr(const ExtraDescription &odesc, const std::vector<ExtraDescription> &pdesc) {
-	for (const auto &desc : pdesc) {
-		if (!str_cmp(odesc.keyword.c_str(), desc.keyword.c_str())
-			&& !str_cmp(odesc.description.c_str(), desc.description.c_str())) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void WriteMagicComponentItem(std::stringstream &out, ObjData *object, int location) {
 	out << "#" << object->get_vnum() << "\n";
 	// Положение в экипировке/контейнере: без него ингредиент из сумки
@@ -810,15 +806,12 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 				out << "Afc" << j << ": " << oaff.location << " " << oaff.modifier << "~\n";
 			}
 		}
+		// Пишем полный список экстра-описаний объекта (не диф против
+		// прототипа): при загрузке первая строка Edes затирает
+		// унаследованные от прототипа описания, дальше идёт push_back.
 		for (const auto &descr : object->get_ex_description()) {
-			if (proto_has_descr(descr, p->get_ex_description())) {
-				continue;
-			}
 			out << "Edes: " << descr.keyword << "~\n"
 				<< descr.description << "~\n";
-		}
-		if (object->get_ex_description().empty() && !p->get_ex_description().empty()) {
-			out << "Edes: None~\n";
 		}
 		if (object->get_auto_mort_req() > 0) {
 			out << "Mort: " << object->get_auto_mort_req() << "~\n";
