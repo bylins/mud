@@ -51,6 +51,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/clans/house.h"
 #include "engine/olc/olc.h"
+#include "engine/scripting/lua/lua_formatter.h"
 #include "engine/olc/vedun/vedun.h"
 #include "administration/ban.h"
 #include "administration/proxy.h"
@@ -967,6 +968,7 @@ void stop_game(ush_int port) {
 	while (descriptor_list)
 		close_socket(descriptor_list, true);
 #endif
+	lua_scripting::ShutdownLuaFormatter();
 	// должно идти после дисконекта плееров
 	FileCRC::save(true);
 

@@ -11,6 +11,8 @@
 #ifndef _OLC_H_
 #define _OLC_H_
 
+#include <cstdint>
+
 #include "engine/db/db.h"
 #include "engine/structs/structs.h"
 
@@ -109,6 +111,7 @@ struct olc_data {
 	int script_mode;
 	int trigger_position;
 	int item_type;
+	std::uint64_t lua_format_request_id;
 	ObjData::triggers_list_t script;
 	char *storage;        // for holding commands etc..
 };
