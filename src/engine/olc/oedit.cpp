@@ -2160,7 +2160,9 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case OEDIT_EXTRADESC_KEY:
-			OLC_OBJ(d)->ex_descriptions()[OLC_DESC(d)].keyword = (arg && *arg) ? arg : "undefined";
+			// пустой ключ оставляем пустым (<NONE>), а не пишем "undefined":
+			// на выходе из меню незаполненное экстра-описание удаляется.
+			OLC_OBJ(d)->ex_descriptions()[OLC_DESC(d)].keyword = (arg && *arg) ? arg : "";
 			oedit_disp_extradesc_menu(d);
 			return;
 
