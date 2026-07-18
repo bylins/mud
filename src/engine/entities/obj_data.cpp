@@ -90,12 +90,8 @@ void ObjData::zero_init() {
 void ObjData::detach_ex_description() {
 	const auto old_description = get_ex_description();
 	const auto new_description = std::make_shared<ExtraDescription>();
-	if (nullptr != old_description->keyword) {
-		new_description->keyword = str_dup(old_description->keyword);
-	}
-	if (nullptr != old_description->keyword) {
-		new_description->description = str_dup(old_description->description);
-	}
+	new_description->keyword = old_description->keyword;
+	new_description->description = old_description->description;
 	set_ex_description(new_description);
 }
 
@@ -306,7 +302,7 @@ void CObjectPrototype::set_vnum(const ObjVnum vnum) {
 }
 
 void CObjectPrototype::tag_ex_description(const char *tag) {
-	m_ex_description->description = str_add(m_ex_description->description, tag);
+	m_ex_description->description += tag;
 }
 
 CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
@@ -563,8 +559,8 @@ void ObjData::copy_from(const CObjectPrototype *src) {
 		auto sdd = src->get_ex_description();
 		while (sdd) {
 			pddd->reset(new ExtraDescription());
-			(*pddd)->keyword = str_dup(sdd->keyword);
-			(*pddd)->description = str_dup(sdd->description);
+			(*pddd)->keyword = sdd->keyword;
+			(*pddd)->description = sdd->description;
 			pddd = &(*pddd)->next;
 			sdd = sdd->next;
 		}

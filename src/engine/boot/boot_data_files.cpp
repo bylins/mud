@@ -450,7 +450,7 @@ void WorldFile::parse_room(int virtual_nr) {
 				const ExtraDescription::shared_ptr new_descr(new ExtraDescription);
 				new_descr->set_keyword(fread_string());
 				new_descr->set_description(fread_string());
-				if (new_descr->keyword && new_descr->description) {
+				if (!new_descr->keyword.empty() && !new_descr->description.empty()) {
 					new_descr->next = world[room_realnum]->ex_description;
 					world[room_realnum]->ex_description = new_descr;
 				} else {
@@ -733,7 +733,7 @@ void ObjectFile::parse_object(const int nr) {
 				const ExtraDescription::shared_ptr new_descr(new ExtraDescription());
 				new_descr->set_keyword(fread_string());
 				new_descr->set_description(fread_string());
-				if (new_descr->keyword && new_descr->description) {
+				if (!new_descr->keyword.empty() && !new_descr->description.empty()) {
 					new_descr->next = tobj->get_ex_description();
 					tobj->set_ex_description(new_descr);
 				} else {

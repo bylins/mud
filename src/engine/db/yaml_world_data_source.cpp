@@ -3560,8 +3560,8 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 	std::vector<ExtraDescription *> exdescs;
 	for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
 	{
-		if (exdesc->keyword && exdesc->description
-			&& std::string(exdesc->description).find_first_not_of(" \t\r\n") != std::string::npos)
+		if (!exdesc->keyword.empty()
+			&& exdesc->description.find_first_not_of(" \t\r\n") != std::string::npos)
 		{
 			exdescs.push_back(exdesc.get());
 		}
@@ -3585,11 +3585,11 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 			// IncreaseIndent so yaml.Value's literal-block branch emits content
 			// lines at the correct column for indicator "2" (parent_indent + 2).
 			yaml.IncreaseIndent();
-			yaml.Value(std::string(exdesc->keyword));
+			yaml.Value(exdesc->keyword);
 			yaml.DecreaseIndent();
 			out << yaml.GetIndent() << "  description:";
 			yaml.IncreaseIndent();
-			yaml.Value(std::string(exdesc->description), true);
+			yaml.Value(exdesc->description, true);
 			yaml.DecreaseIndent();
 		}
 
@@ -4656,8 +4656,8 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	std::vector<ExtraDescription *> exdescs;
 	for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
 	{
-		if (exdesc->keyword && exdesc->description
-			&& std::string(exdesc->description).find_first_not_of(" \t\r\n") != std::string::npos)
+		if (!exdesc->keyword.empty()
+			&& exdesc->description.find_first_not_of(" \t\r\n") != std::string::npos)
 		{
 			exdescs.push_back(exdesc.get());
 		}
@@ -4680,11 +4680,11 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 			// IncreaseIndent so yaml.Value's literal-block branch emits content
 			// lines at the correct column for indicator "2" (parent_indent + 2).
 			yaml.IncreaseIndent();
-			yaml.Value(std::string(exdesc->keyword));
+			yaml.Value(exdesc->keyword);
 			yaml.DecreaseIndent();
 			out << yaml.GetIndent() << "  description:";
 			yaml.IncreaseIndent();
-			yaml.Value(std::string(exdesc->description), true);
+			yaml.Value(exdesc->description, true);
 			yaml.DecreaseIndent();
 		}
 
