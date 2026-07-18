@@ -819,3 +819,87 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
 Задействованы все три вида: **предмет** (`kPlagueBlade`), **персонаж**
 (`kPlagueTouch`, `kSwampPlague`) и **комната** (`kPlagueMiasma`).
 
+---
+
+## 5. Способности, перекраивающие Чумной клинок — `feats.xml`
+
+Как §2 перекраивает «Порчу увядания», эти способности правят чумную цепочку из §4
+через `talent_patch` (см. [Руководство по способностям](FEAT_MANUAL_RU.md) §4):
+`modify`/`append`, патч заклинания против патча эффекта и гейтинг `relative`.
+
+```xml
+<!-- 1) modify поля ЭФФЕКТА: болотная чума грызёт сильнее (DoT x1.5). -->
+<feat id="kPestilence" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kSwampPlague" op="modify" effect="kDamage">
+            <modify field="beta" mul="1.5"/>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 2) modify area ЭФФЕКТА: при истечении «касание» заражает +2 союзников (пол 3 -> 5). -->
+<feat id="kVirulentStrain" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kPlagueTouch" op="modify" effect="kArea">
+            <modify field="min_targets" add="2"/>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 3) append к ЭФФЕКТУ: чума перекидывается ещё и на врагов (5% за тик). -->
+<feat id="kUnbridledPlague" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kSwampPlague" op="append">
+            <action target="kTarRandomFoe">
+                <trigger val="kPulse" prob="5"/>
+                <affects saving="kCritical" resist="kDark">
+                    <duration base="6" skill_divisor="0" min="6" max="6"/>
+                    <affect id="kSwampPlague"/>
+                </affects>
+            </action>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 4) append к ЗАКЛИНАНИЮ: заражая клинок, чумодел укрепляется сам. Заклинание
+     нацелено на ПРЕДМЕТ (kTarObjInv), но у добавленного действия своя цель
+     (kTarFightSelf) -> оно бьёт по кастеру. Это патч ЗАКЛИНАНИЯ, не эффекта. -->
+<feat id="kPlaguecrafter" mode="kEnabled">
+    <talent_patches>
+        <talent_patch spell="kInfectBlade" op="append">
+            <action target="kTarFightSelf">
+                <affects>
+                    <duration base="6" skill_divisor="0" min="6" max="6"/>
+                    <affect id="kHaste"/>
+                </affects>
+            </action>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 5) гейтинг relative: заботливый ЛИДЕР группы ослабляет чуму у ведомых. Если больной
+     союзник ведом кем-то с этой способностью, DoT его kSwampPlague вдвое слабее —
+     гейт по способности ЛИДЕРА, не самого больного. -->
+<feat id="kPlagueWard" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kSwampPlague" relative="group_leader" op="modify" effect="kDamage">
+            <modify field="beta" mul="0.5"/>
+        </talent_patch>
+    </talent_patches>
+</feat>
+```
+
+Что показывает каждая:
+
+| способность | цель | операция | механика |
+|---|---|---|---|
+| `kPestilence` | эффект `kSwampPlague` | `modify` `kDamage` | масштаб числового поля проявления (`beta`) |
+| `kVirulentStrain` | эффект `kPlagueTouch` | `modify` `kArea` | масштаб числа целей area (`min_targets`) |
+| `kUnbridledPlague` | эффект `kSwampPlague` | `append` | добавить действие (заражение врагов) в цепочку тика |
+| `kPlaguecrafter` | **заклинание** `kInfectBlade` | `append` | патч *заклинания*; у действия своя цель `kTarFightSelf` |
+| `kPlagueWard` | эффект `kSwampPlague` | `modify` + `relative="group_leader"` | гейт патча по способности *родственника* |
+
+Все под гейтом `CanUseFeat(holder, feat)` и ничего не стоят при касте/тике тем, у кого
+их нет. Способности — чистые данные (`feats.xml`), поверх идентификаторов из §4;
+нового кода они не требуют.
+

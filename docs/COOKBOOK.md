@@ -869,3 +869,87 @@ Each new id needs its own messages (or it renders silent):
 All three kinds are in play: **item** (`kPlagueBlade`), **character** (`kPlagueTouch`,
 `kSwampPlague`), and **room** (`kPlagueMiasma`).
 
+---
+
+## 5. Feats reworking the Plague Blade — `feats.xml`
+
+Just as §2 reshapes the Hex of Decay, these feats edit the plague chain from §4 via
+`talent_patch` (see the [Feat Manual](FEAT_MANUAL.md) §4): `modify`/`append`, a spell
+patch vs. an affect patch, and `relative` gating.
+
+```xml
+<!-- 1) modify a numeric EFFECT field: swamp plague bites harder (DoT x1.5). -->
+<feat id="kPestilence" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kSwampPlague" op="modify" effect="kDamage">
+            <modify field="beta" mul="1.5"/>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 2) modify the EFFECT area: on expiry the "touch" infects +2 allies (floor 3 -> 5). -->
+<feat id="kVirulentStrain" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kPlagueTouch" op="modify" effect="kArea">
+            <modify field="min_targets" add="2"/>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 3) append to the EFFECT: the plague leaps to enemies too (5% per tick). -->
+<feat id="kUnbridledPlague" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kSwampPlague" op="append">
+            <action target="kTarRandomFoe">
+                <trigger val="kPulse" prob="5"/>
+                <affects saving="kCritical" resist="kDark">
+                    <duration base="6" skill_divisor="0" min="6" max="6"/>
+                    <affect id="kSwampPlague"/>
+                </affects>
+            </action>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 4) append to the SPELL: tainting the blade also empowers the plaguecrafter. The
+     spell targets an OBJECT (kTarObjInv), but the appended action has its own target
+     (kTarFightSelf) -> it hits the caster. This patches the SPELL, not the affect. -->
+<feat id="kPlaguecrafter" mode="kEnabled">
+    <talent_patches>
+        <talent_patch spell="kInfectBlade" op="append">
+            <action target="kTarFightSelf">
+                <affects>
+                    <duration base="6" skill_divisor="0" min="6" max="6"/>
+                    <affect id="kHaste"/>
+                </affects>
+            </action>
+        </talent_patch>
+    </talent_patches>
+</feat>
+
+<!-- 5) relative gating: a caring group LEADER softens the plague on the led. If a sick
+     ally is led by someone with this feat, their kSwampPlague DoT is halved -- gated on
+     the LEADER's feat, not the sick ally's. -->
+<feat id="kPlagueWard" mode="kEnabled">
+    <talent_patches>
+        <talent_patch affect="kSwampPlague" relative="group_leader" op="modify" effect="kDamage">
+            <modify field="beta" mul="0.5"/>
+        </talent_patch>
+    </talent_patches>
+</feat>
+```
+
+What each shows:
+
+| feat | target | op | mechanic |
+|---|---|---|---|
+| `kPestilence` | affect `kSwampPlague` | `modify` `kDamage` | scale a manifestation's numeric field (`beta`) |
+| `kVirulentStrain` | affect `kPlagueTouch` | `modify` `kArea` | scale the area target count (`min_targets`) |
+| `kUnbridledPlague` | affect `kSwampPlague` | `append` | add an action (infect enemies) to a trigger chain |
+| `kPlaguecrafter` | **spell** `kInfectBlade` | `append` | patch the *spell*; the action's own `kTarFightSelf` target |
+| `kPlagueWard` | affect `kSwampPlague` | `modify` + `relative="group_leader"` | gate the patch on a *relative's* feat |
+
+All are gated by `CanUseFeat(holder, feat)` and cost nothing on cast/tick for anyone
+without them. The feats are pure data (`feats.xml`) layered over the §4 ids; they need
+no new code.
+
