@@ -1,5 +1,6 @@
 #include "magic_items.h"
 
+#include <algorithm>
 #include <limits>
 
 #include "engine/entities/char_data.h"
@@ -9,36 +10,48 @@
 #include "magic_utils.h"
 #include "engine/db/global_objects.h"
 
-const short kDefaultStaffLvl = 12;
-const short kDefaultWandLvl = 12;
+// issue.magic-items: map a scroll spell slot (1..3) to its shared ObjVal key.
+static ObjVal::EValueKey spell_item_slot_key(int slot) {
+	switch (slot) {
+		case 2: return ObjVal::EValueKey::kSpell2Num;
+		case 3: return ObjVal::EValueKey::kSpell3Num;
+		default: return ObjVal::EValueKey::kSpell1Num;
+	}
+}
 
 extern char cast_argument[kMaxInputLength];
 
 void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	int i;
-	int level;
 	CharData *tch = nullptr;
 	ObjData *tobj = nullptr;
 	RoomData *troom = nullptr;
 
 	one_argument(argument, cast_argument);
-	level = GET_OBJ_VAL(obj, 0) * -1;
-	if (level == 0) {
-		if (obj->get_type() == EObjType::kStaff) {
-			level = kDefaultStaffLvl;
-		} else if (obj->get_type() == EObjType::kWand) {
-			level = kDefaultWandLvl;
-		}
-	}
-
+	// issue.magic-items: scroll/wand/staff no longer cast at a stored caster-level -- their strength
+	// is the maker competence (MagicItemPotency), like a potion. A kTimedLvl item still "wears out":
+	// the fraction of its timer remaining scales the effective potency/skill down as it ages.
+	double timed_factor = 1.0;
 	if (obj->has_flag(EObjFlag::kTimedLvl)) {
-		int proto_timer = obj_proto[obj->get_rnum()]->get_timer();
+		const int proto_timer = obj_proto[obj->get_rnum()]->get_timer();
 		if (proto_timer != 0) {
-			level -= level * (proto_timer - obj->get_timer()) / proto_timer;
+			timed_factor = std::clamp(static_cast<double>(obj->get_timer()) / proto_timer, 0.0, 1.0);
 		}
 	}
 
-	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 3));
+	// Cast one spell from this item at its maker competence (potency); noise drawn fresh (not brewed).
+	auto cast_item_spell = [&](CharData *tgt_ch, ObjData *tgt_obj, ESpell sp) -> ECastResult {
+		const float potency = MagicItemPotency(obj, sp) * static_cast<float>(timed_factor);
+		const int skill = static_cast<int>(MagicItemSkill(obj) * timed_factor);
+		// issue.magic-items: pass a real 0.0 (deterministic -- no noise spread), never NaN. Under the
+		// fasttest -Ofast (-ffast-math) build std::isnan() folds to false, so a NaN sentinel would leak
+		// into the affect <apply> modifier (noise_dev) and yield INT_MIN. Authored items cast at their
+		// exact maker potency.
+		return CallMagic(ch, tgt_ch, tgt_obj, world[ch->in_room], sp, 0, potency,
+						 /*noise z*/ 0.0, skill);
+	};
+
+	auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num));
 	switch (obj->get_type()) {
 		case EObjType::kStaff:
 			if (!obj->get_action_description().empty()) {
@@ -49,21 +62,22 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				act("$n ударил$g $o4 о землю.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
-			if (GET_OBJ_VAL(obj, 2) <= 0) {
+			if (obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) <= 0) {
 				SendMsgToChar("Похоже, кончились заряды :)\r\n", ch);
 				act("И ничего не случилось.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			} else {
-				obj->dec_val(2);
+				obj->SetPotionValueKey(ObjVal::EValueKey::kCurCharges,
+						obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) - 1);
 				SetBattleLag(ch, 1);
 				if (MUD::Spell(spell_id).IsFlagged(kMagMasses | kMagAreas)) {
-					CallMagic(ch, nullptr, nullptr, world[ch->in_room], spell_id, level);
+					cast_item_spell(nullptr, nullptr, spell_id);
 				} else  if (MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagManual)) {
-					CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
+					cast_item_spell(ch, nullptr, spell_id);
 				} else {
 					const auto people_copy = world[ch->in_room]->people;
 					for (const auto target : people_copy) {
 						if (ch != target) {
-							CallMagic(ch, target, nullptr, world[ch->in_room], spell_id, level);
+							cast_item_spell(target, nullptr, spell_id);
 						}
 					}
 				}
@@ -71,7 +85,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			break;
 
 		case EObjType::kWand:
-			if (GET_OBJ_VAL(obj, 2) <= 0) {
+			if (obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) <= 0) {
 				SendMsgToChar("Похоже, магия кончилась.\r\n", ch);
 				return;
 			}
@@ -123,9 +137,10 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				}
 			}
 
-			obj->dec_val(2);
+			obj->SetPotionValueKey(ObjVal::EValueKey::kCurCharges,
+					obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) - 1);
 			SetBattleLag(ch, 1);
-			CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, level);
+			cast_item_spell(tch, tobj, spell_id);
 			break;
 
 		case EObjType::kScroll:
@@ -138,10 +153,10 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				return;
 			}
 
-			spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
+			spell_id = static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num));
 			if (!*argument) {
 				for (int slot = 1; slot < 4; slot++) {
-					if (MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, slot))).IsFlagged(kMagAreas | kMagMasses)) {
+					if (MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(spell_item_slot_key(slot)))).IsFlagged(kMagAreas | kMagMasses)) {
 						break;
 					}
 					tch = ch;
@@ -160,7 +175,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			SetBattleLag(ch, 1);
 			for (i = 1; i <= 3; i++) {
-				if (CallMagic(ch, tch, tobj, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) != ECastResult::kSuccess) {
+				if (cast_item_spell(tch, tobj, static_cast<ESpell>(obj->GetPotionValueKey(spell_item_slot_key(i)))) != ECastResult::kSuccess) {
 					break;
 				}
 			}
@@ -188,7 +203,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			SetBattleLag(ch, 1);
 			{
 				// issue.potion-hotfix P3: strength is BREWED IN -- the crafted kPotionPotency, or (non-
-				// crafted) the value a fixed-skill potion-maker would brew (PotionPotency). Spells,
+				// crafted) the value a fixed-skill potion-maker would brew (MagicItemPotency). Spells,
 				// potency and the frozen noise roll all live in the ObjVal keys (the boot/load converter
 				// migrated every potion off m_vals), so we read keys ONLY. brew_roll absent (non-crafted)
 				// -> NaN -> the noise is drawn at cast, like a fresh cast.
@@ -197,15 +212,15 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 					? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
 					: std::numeric_limits<double>::quiet_NaN();
 				for (i = 1; i <= 3; i++) {
-					const ObjVal::EValueKey spell_key = (i == 1) ? ObjVal::EValueKey::kPotionSpell1Num
-						: (i == 2) ? ObjVal::EValueKey::kPotionSpell2Num : ObjVal::EValueKey::kPotionSpell3Num;
+					const ObjVal::EValueKey spell_key = (i == 1) ? ObjVal::EValueKey::kSpell1Num
+						: (i == 2) ? ObjVal::EValueKey::kSpell2Num : ObjVal::EValueKey::kSpell3Num;
 					const int spell_num = obj->GetPotionValueKey(spell_key);
 					if (spell_num <= 0) {
 						continue;
 					}
-					const float potency = PotionPotency(obj, static_cast<ESpell>(spell_num));
+					const float potency = MagicItemPotency(obj, static_cast<ESpell>(spell_num));
 					if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(spell_num), 0,
-								  potency, noise_z, PotionCastSkill(obj)) != ECastResult::kSuccess) {
+								  potency, noise_z, MagicItemSkill(obj)) != ECastResult::kSuccess) {
 						break;
 					}
 				}

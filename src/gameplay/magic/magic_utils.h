@@ -88,15 +88,17 @@ int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResul
 int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 		double fixed_z = std::numeric_limits<double>::quiet_NaN());
 
-// issue.potion-hotfix P3: a potion's casting potency (competence C). The brewed-in kPotionPotency if
-// present (crafted); otherwise the potency a fixed-skill potion-maker would brew, from the potion's
-// FIRST spell. Returns <=0 if the potion has no castable first spell.
-[[nodiscard]] float PotionPotency(const ObjData *potion, ESpell spell_id);
+// issue.magic-items: a magic item's casting potency (competence C) -- SHARED by potions, scrolls, wands
+// and staves. From the item's stored maker skill+stat (kMakerSkill/kMakerStat; absent -> the authored
+// maker default), through the spell's potency_roll. A crafted potion may carry a brewed-in kPotionPotency
+// (legacy pre-P3b saves), used when no maker skill is stored. Returns <=0 if the spell is undefined.
+[[nodiscard]] float MagicItemPotency(const ObjData *item, ESpell spell_id);
 
-// issue.potion-hotfix: the maker's skill for a potion's buff DURATION (brew skill for crafted, the
-// authored maker skill otherwise). The drinker's own skill never matters.
-[[nodiscard]] int PotionCastSkill(const ObjData *potion);
-[[nodiscard]] int PotionCastStat(const ObjData *potion);
+// issue.magic-items: the maker's skill for a magic item's buff DURATION (brew skill for a crafted potion,
+// else the authored maker). MagicItemStat is the paired key-stat. The user's own skill never matters --
+// the item acts on its own.
+[[nodiscard]] int MagicItemSkill(const ObjData *item);
+[[nodiscard]] int MagicItemStat(const ObjData *item);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 

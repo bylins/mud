@@ -73,6 +73,7 @@ void oedit_disp_container_flags_menu(DescriptorData *d);
 void oedit_disp_extradesc_menu(DescriptorData *d);
 void oedit_disp_weapon_menu(DescriptorData *d);
 void oedit_disp_val1_menu(DescriptorData *d);
+void spellitem_values_menu(DescriptorData *d);   // issue.magic-items
 void oedit_disp_val2_menu(DescriptorData *d);
 void oedit_disp_val3_menu(DescriptorData *d);
 void oedit_disp_val4_menu(DescriptorData *d);
@@ -1055,6 +1056,14 @@ static bool obj_has_potion_payload(EObjType t) {
 		|| t == EObjType::kFountain;
 }
 
+// issue.magic-items: object types whose payload lives in the extended ObjVal (extra_values) map,
+// not val[0..3] -- their legacy "O) Values" line is meaningless and their "N)" summary is the
+// maker skill/stat, not spec_param.
+static bool obj_uses_extended_values(EObjType t) {
+	return obj_has_potion_payload(t)
+		|| t == EObjType::kScroll || t == EObjType::kWand || t == EObjType::kStaff;
+}
+
 void drinkcon_values_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -1068,22 +1077,22 @@ void drinkcon_values_menu(DescriptorData *d) {
 			 "%s",
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell1Num,
+							   ObjVal::EValueKey::kSpell1Num,
 							   ObjVal::EValueKey::kPotionSpell1Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell2Num,
+							   ObjVal::EValueKey::kSpell2Num,
 							   ObjVal::EValueKey::kPotionSpell2Lvl).c_str(),
 			 grn, nrm, cyn,
 			 print_spell_value(OLC_OBJ(d),
-							   ObjVal::EValueKey::kPotionSpell3Num,
+							   ObjVal::EValueKey::kSpell3Num,
 							   ObjVal::EValueKey::kPotionSpell3Lvl).c_str(),
 			 nrm);
 
 	SendMsgToChar(buf_, d->character.get());
 	if (obj_has_potion_payload(OLC_OBJ(d)->get_type())) {
-		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+		const int sk = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+		const int st = OLC_OBJ(d)->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 		char pbuf[512], sk_s[32], st_s[32];
 		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
 		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
@@ -1096,6 +1105,73 @@ void drinkcon_values_menu(DescriptorData *d) {
 	}
 	SendMsgToChar("Ваш выбор (0 - выход) :", d->character.get());
 	return;
+}
+
+// issue.magic-items: extended-value editor for scrolls/wands/staves (kSpellItem* keys), the analog of
+// drinkcon_values_menu. Scroll: 3 spells + maker skill/stat. Wand/staff: 1 spell + skill/stat + charges.
+void spellitem_values_menu(DescriptorData *d) {
+#if defined(CLEAR_SCREEN)
+	SendMsgToChar("[H[J", d->character);
+#endif
+	ObjData *obj = OLC_OBJ(d);
+	const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+	const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
+	char sk_s[32], st_s[32];
+	if (sk < 0) snprintf(sk_s, sizeof(sk_s), "авт."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
+	if (st < 0) snprintf(st_s, sizeof(st_s), "авт."); else snprintf(st_s, sizeof(st_s), "%d", st);
+	char b[2048];
+	if (obj->get_type() == EObjType::kScroll) {
+		snprintf(b, sizeof(b),
+			"%s1%s) Заклинание 1     : %s%s%s\r\n"
+			"%s2%s) Заклинание 2     : %s%s%s\r\n"
+			"%s3%s) Заклинание 3     : %s%s%s\r\n"
+			"%s4%s) Навык мастера    : %s%s%s\r\n"
+			"%s5%s) Ключевой стат    : %s%s%s\r\n"
+			"Ваш выбор (0 - выход) :",
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell1Num, ObjVal::EValueKey::kSpell1Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell2Num, ObjVal::EValueKey::kSpell2Num).c_str(), nrm,
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell3Num, ObjVal::EValueKey::kSpell3Num).c_str(), nrm,
+			grn,nrm,cyn, sk_s, nrm,
+			grn,nrm,cyn, st_s, nrm);
+	} else {
+		const int mx = obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges);
+		const int cur = obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges);
+		char mx_s[32], cur_s[32];
+		snprintf(mx_s, sizeof(mx_s), "%d", mx < 0 ? 0 : mx);
+		snprintf(cur_s, sizeof(cur_s), "%d", cur < 0 ? 0 : cur);
+		snprintf(b, sizeof(b),
+			"%s1%s) Заклинание       : %s%s%s\r\n"
+			"%s2%s) Навык мастера    : %s%s%s\r\n"
+			"%s3%s) Ключевой стат    : %s%s%s\r\n"
+			"%s4%s) Максимум зарядов : %s%s%s\r\n"
+			"%s5%s) Текущие заряды   : %s%s%s\r\n"
+			"Ваш выбор (0 - выход) :",
+			grn,nrm,cyn, print_spell_value(obj, ObjVal::EValueKey::kSpell1Num, ObjVal::EValueKey::kSpell1Num).c_str(), nrm,
+			grn,nrm,cyn, sk_s, nrm,
+			grn,nrm,cyn, st_s, nrm,
+			grn,nrm,cyn, mx_s, nrm,
+			grn,nrm,cyn, cur_s, nrm);
+	}
+	SendMsgToChar(b, d->character.get());
+}
+
+// issue.magic-items: set a scroll/wand/staff spell from OLC input and return to the spell-item menu.
+bool parse_val_spellitem_num(DescriptorData *d, const ObjVal::EValueKey key, int val) {
+	auto spell_id = static_cast<ESpell>(val);
+	if (spell_id < ESpell::kFirst || spell_id >= ESpell::kLast) {
+		if (val != 0) {
+			SendMsgToChar("Неверный спелл.\r\n", d->character.get());
+		}
+		OLC_OBJ(d)->SetPotionValueKey(key, -1);
+		OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+		spellitem_values_menu(d);
+		return false;
+	}
+	OLC_OBJ(d)->SetPotionValueKey(key, val);
+	SendMsgToChar(d->character.get(), "Установлено заклинание: %s\r\n", MUD::Spell(spell_id).GetCName());
+	OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+	spellitem_values_menu(d);
+	return true;
 }
 
 std::array<const char *, 9> wskill_bits =
@@ -1137,9 +1213,9 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 }
 
 std::string print_values2_menu(ObjData *obj) {
-	if (obj_has_potion_payload(obj->get_type())) {
-		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
-		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+	if (obj_uses_extended_values(obj->get_type())) {
+		const int sk = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
+		const int st = obj->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 		char buf_p[kMaxInputLength], sk_s[32], st_s[32];
 		if (sk < 0) snprintf(sk_s, sizeof(sk_s), "деф."); else snprintf(sk_s, sizeof(sk_s), "%d", sk);
 		if (st < 0) snprintf(st_s, sizeof(st_s), "деф."); else snprintf(st_s, sizeof(st_s), "%d", st);
@@ -1153,6 +1229,17 @@ std::string print_values2_menu(ObjData *obj) {
 }
 
 // * Display main menu.
+// The "O) Values" summary: the raw val[0..3] for legacy types, or nothing for extended-value types.
+static std::string print_obj_values_line(ObjData *obj) {
+	if (obj_uses_extended_values(obj->get_type())) {
+		return "";
+	}
+	char b[64];
+	snprintf(b, sizeof(b), "%d %d %d %d",
+			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3));
+	return b;
+}
+
 void oedit_disp_menu(DescriptorData *d) {
 	ObjData *obj;
 
@@ -1207,7 +1294,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sJ%s) Макс.проч.  : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
 			 "%sL%s) Материал    : %s%s\r\n"
 			 "%sM%s) Таймер      : %s%8d   %sN%s) %s\r\n"
-			 "%sO%s) Values      : %s%d %d %d %d\r\n"
+			 "%sO%s) Values      : %s%s\r\n"
 			 "%sP%s) Аффекты     : %s%s\r\n"
 			 "%sR%s) Меню наводимых аффектов\r\n"
 			 "%sT%s) Меню экстраописаний\r\n"
@@ -1230,8 +1317,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn, obj->get_timer(),
 			 grn, nrm, print_values2_menu(obj).c_str(),
 			 grn, nrm, cyn,
-			 GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-			 GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
+			 print_obj_values_line(obj).c_str(), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			 nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют",
 			 grn, nrm, cyn, genders[gender],
 			 grn, nrm, cyn, obj->get_max_in_world(),
@@ -1267,9 +1353,9 @@ int planebit(const char *str, int *plane, int *bit) {
 }
 
 void check_potion_proto(ObjData *obj) {
-	if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num) > 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num) > 0) {
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) > 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) > 0) {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, 0);
 	} else {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionProtoVnum, -1);
@@ -1305,13 +1391,13 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 		}
 
 		switch (key) {
-			case ObjVal::EValueKey::kPotionSpell1Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, -1);
+			case ObjVal::EValueKey::kPotionSpell1Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell1Num, -1);
 				break;
 
-			case ObjVal::EValueKey::kPotionSpell2Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num, -1);
+			case ObjVal::EValueKey::kPotionSpell2Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell2Num, -1);
 				break;
 
-			case ObjVal::EValueKey::kPotionSpell3Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num, -1);
+			case ObjVal::EValueKey::kPotionSpell3Lvl: OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kSpell3Num, -1);
 				break;
 
 			default: break;
@@ -1533,6 +1619,11 @@ void oedit_parse(DescriptorData *d, char *arg) {
 						|| OLC_OBJ(d)->get_type() == EObjType::kPotion) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+					} else if (OLC_OBJ(d)->get_type() == EObjType::kScroll
+						|| OLC_OBJ(d)->get_type() == EObjType::kWand
+						|| OLC_OBJ(d)->get_type() == EObjType::kStaff) {
+						spellitem_values_menu(d);
+						OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 					} else {
 						oedit_disp_menu(d);
 					}
@@ -1546,6 +1637,14 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					if (OLC_OBJ(d)->get_type() == EObjType::kPotion) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
+						break;
+					}
+					// issue.magic-items: scroll/wand/staff keep their data in the kSpellItem* ObjVal keys.
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll
+						|| OLC_OBJ(d)->get_type() == EObjType::kWand
+						|| OLC_OBJ(d)->get_type() == EObjType::kStaff) {
+						spellitem_values_menu(d);
+						OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
 						break;
 					}
 					// * Clear any old values
@@ -2170,13 +2269,13 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		// issue.potion-hotfix: the retired per-spell level step (OEDIT_POTION_SPELL*_LVL) is skipped --
 		// parse_val_spell_num sets the spell and returns to the potion menu on both success and failure.
 		case OEDIT_POTION_SPELL1_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell1Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell1Num, number);
 			return;
 		case OEDIT_POTION_SPELL2_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell2Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell2Num, number);
 			return;
 		case OEDIT_POTION_SPELL3_NUM: number = atoi(arg);
-			parse_val_spell_num(d, ObjVal::EValueKey::kPotionSpell3Num, number);
+			parse_val_spell_num(d, ObjVal::EValueKey::kSpell3Num, number);
 			return;
 		case OEDIT_POTION_SPELL1_LVL: number = atoi(arg);
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell1Lvl, number);
@@ -2188,16 +2287,96 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			parse_val_spell_lvl(d, ObjVal::EValueKey::kPotionSpell3Lvl, number);
 			return;
 		case OEDIT_POTION_SKILL: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill,
-				number < 0 ? -1 : std::clamp(number, 0, 200));
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
+				// issue.magic-items: the maker skill IS the magic skill -- it can far exceed 200 (skill cap
+				// is 80 + 5*remort = 575 at max remort, and higher with skill buffs). Cap generously.
+				number < 0 ? -1 : std::clamp(number, 0, 1000));
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
 			return;
 		case OEDIT_POTION_STAT: number = atoi(arg);
-			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 				number < 0 ? -1 : std::clamp(number, 0, 100));
 			OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 			drinkcon_values_menu(d);
+			return;
+		// issue.magic-items: scroll/wand/staff extended-value editor.
+		case OEDIT_SPELLITEM_VALUES:
+			switch (number = atoi(arg)) {
+				case 0: break;
+				case 1: OLC_MODE(d) = OEDIT_SPELLITEM_SPELL1;
+					oedit_disp_spells_menu(d);
+					return;
+				case 2:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SPELL2;
+						oedit_disp_spells_menu(d);
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SKILL;
+						SendMsgToChar("Навык мастера (-1 = авт.) : ", d->character.get());
+					}
+					return;
+				case 3:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SPELL3;
+						oedit_disp_spells_menu(d);
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_STAT;
+						SendMsgToChar("Ключевой стат (-1 = авт.) : ", d->character.get());
+					}
+					return;
+				case 4:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_SKILL;
+						SendMsgToChar("Навык мастера (-1 = авт.) : ", d->character.get());
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_MAXCHARGES;
+						SendMsgToChar("Максимум зарядов : ", d->character.get());
+					}
+					return;
+				case 5:
+					if (OLC_OBJ(d)->get_type() == EObjType::kScroll) {
+						OLC_MODE(d) = OEDIT_SPELLITEM_STAT;
+						SendMsgToChar("Ключевой стат (-1 = авт.) : ", d->character.get());
+					} else {
+						OLC_MODE(d) = OEDIT_SPELLITEM_CURCHARGES;
+						SendMsgToChar("Текущие заряды : ", d->character.get());
+					}
+					return;
+				default: SendMsgToChar("Неверный выбор.\r\n", d->character.get());
+					spellitem_values_menu(d);
+					return;
+			}
+			break;
+		case OEDIT_SPELLITEM_SPELL1: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell1Num, atoi(arg));
+			return;
+		case OEDIT_SPELLITEM_SPELL2: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell2Num, atoi(arg));
+			return;
+		case OEDIT_SPELLITEM_SPELL3: parse_val_spellitem_num(d, ObjVal::EValueKey::kSpell3Num, atoi(arg));
+			return;
+		case OEDIT_SPELLITEM_SKILL: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill,
+				// issue.magic-items: the maker skill IS the magic skill -- it can far exceed 200 (skill cap
+				// is 80 + 5*remort = 575 at max remort, and higher with skill buffs). Cap generously.
+				number < 0 ? -1 : std::clamp(number, 0, 1000));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
+			return;
+		case OEDIT_SPELLITEM_STAT: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
+				number < 0 ? -1 : std::clamp(number, 0, 100));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
+			return;
+		case OEDIT_SPELLITEM_MAXCHARGES: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kMaxCharges, std::clamp(number, 0, 200));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
+			return;
+		case OEDIT_SPELLITEM_CURCHARGES: number = atoi(arg);
+			OLC_OBJ(d)->SetPotionValueKey(ObjVal::EValueKey::kCurCharges, std::clamp(number, 0, 200));
+			OLC_MODE(d) = OEDIT_SPELLITEM_VALUES;
+			spellitem_values_menu(d);
 			return;
 		case OEDIT_CLONE:
 			switch (*arg) {
