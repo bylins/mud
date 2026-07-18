@@ -1300,6 +1300,7 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("cities");
 	MUD::CfgManager().LoadCfg("region_msg");   // issue.regions: messages before regions
 	MUD::CfgManager().LoadCfg("regions");
+	MUD::CfgManager().LoadCfg("animate_dead");   // issue.animate-dead: cfg/mechanics/animate_dead.xml
 	MUD::CfgManager().LoadCfg("pc_race_msg");   // issue.player-races-rework: names before races
 	MUD::CfgManager().LoadCfg("pc_races");
 
