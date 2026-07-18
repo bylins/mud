@@ -352,7 +352,7 @@ class CObjectPrototype {
 	void set_rent_off(int x);
 	auto get_rent_on() const { return m_rent_on; }
 	void set_rent_on(int x);
-	void set_ex_description(const char *keyword, const char *description);
+	void set_ex_description(const std::string &keyword, const std::string &description);
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
 	void set_dgscript_field(const std::string _) { m_dgscript_field = _; }
 	int get_auto_mort_req() const;
