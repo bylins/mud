@@ -647,8 +647,8 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			break;
 
 		case EObjType::kWeapon:
-			// * This doesn't seem to be used if I remember right.
-			SendMsgToChar("Модификатор попадания : ", d->character.get());
+			// val[0] у оружия в бою не читается (см. fight_hit.cpp).
+			SendMsgToChar("Не используется : ", d->character.get());
 			break;
 
 		case EObjType::kArmor:
