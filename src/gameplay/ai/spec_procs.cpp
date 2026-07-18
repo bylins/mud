@@ -1355,8 +1355,9 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
 					pet->player_data.description.c_str(), pet_name);
-			// free(pet->player_data.description); don't free the prototype!
-			pet->player_data.description = str_dup(buf);
+			// player_data.description -- std::string со своим владением: прямое
+			// присваивание заменяет собственную копию, прототип не затрагивается.
+			pet->player_data.description = buf;
 		}
 		PlaceCharToRoom(pet, ch->in_room);
 		follow::AddFollower(ch, pet);
