@@ -68,7 +68,7 @@ trigger actions — a DoT while active, and the payload on natural expiry.
         <action target="kTarFightSelf">
             <trigger val="kPulse"/>
             <damage saving="kNone">
-                <amount min="0" dices_weight="0.4" alpha="0" beta="0"/>
+                <amount min="0" beta="0.4"/>
             </damage>
         </action>
 
@@ -90,7 +90,7 @@ trigger actions — a DoT while active, and the payload on natural expiry.
 </affect>
 ```
 
-* **`kPulse` (a)** gnaws the bearer each tick — `dices_weight="0.4"` on the stored
+* **`kPulse` (a)** gnaws the bearer each tick — `beta="0.4"` on the stored
   potency ([Affect Manual](AFFECT_MANUAL.md) §4.2). Give it a `kDamageToChar/Room`
   message so it isn't silent.
 * **`kExpired` (b)** is the twist. On natural timeout it hits `kTarGroup` (the
@@ -112,13 +112,13 @@ plus a stronger DoT.
 ```xml
 <affect id="kBlightCurse" buff="N">
     <flags val="kAfSameTime|kAfCurable"/>
-    <apply location="kStr"><modifier min="3.0" dices_weight="0" alpha="0" beta="0" factor="-1"/></apply>
-    <apply location="kDex"><modifier min="3.0" dices_weight="0" alpha="0" beta="0" factor="-1"/></apply>
-    <apply location="kHitroll"><modifier min="5.0" dices_weight="0" alpha="0" beta="0" factor="-1"/></apply>
+    <apply location="kStr"><modifier min="3.0" beta="0" factor="-1"/></apply>
+    <apply location="kDex"><modifier min="3.0" beta="0" factor="-1"/></apply>
+    <apply location="kHitroll"><modifier min="5.0" beta="0" factor="-1"/></apply>
     <actions>
         <action target="kTarFightSelf">
             <trigger val="kPulse"/>
-            <damage saving="kNone"><amount min="0" dices_weight="0.9" alpha="0" beta="0"/></damage>
+            <damage saving="kNone"><amount min="0" beta="0.9"/></damage>
         </action>
     </actions>
 </affect>
@@ -150,7 +150,7 @@ Five feats, covering `modify`/`append`, spell-patch vs affect-patch, and
 <feat id="kHexweaver" mode="kEnabled">
     <talent_patches>
         <talent_patch affect="kDecayHex" op="modify" effect="kDamage">
-            <modify field="dices_weight" mul="1.6"/>
+            <modify field="beta" mul="1.6"/>
         </talent_patch>
     </talent_patches>
 </feat>
@@ -186,7 +186,7 @@ Five feats, covering `modify`/`append`, spell-patch vs affect-patch, and
         <talent_patch spell="kHexOfDecay" op="append">
             <action target="kTarFightVict">
                 <damage saving="kStability">
-                    <amount min="10" dices_weight="0.5" alpha="0" beta="0"/>
+                    <amount min="10" beta="0.5"/>
                 </damage>
             </action>
         </talent_patch>
@@ -199,7 +199,7 @@ Five feats, covering `modify`/`append`, spell-patch vs affect-patch, and
 <feat id="kWardingLeader" mode="kEnabled">
     <talent_patches>
         <talent_patch affect="kBlightCurse" relative="group_leader" op="modify" effect="kDamage">
-            <modify field="dices_weight" mul="0.5"/>
+            <modify field="beta" mul="0.5"/>
         </talent_patch>
     </talent_patches>
 </feat>
@@ -247,7 +247,7 @@ Shorter single-purpose examples (relocated from the Spell Manual).
     <talent_actions>
         <action>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
+                <amount min="0" beta="12.5"/>
                 <hits skill_divisor="12" max="2" prob="100"/>
             </damage>
         </action>
@@ -380,7 +380,7 @@ Shorter single-purpose examples (relocated from the Spell Manual).
 <affect id="kGlitterDust" buff="N">
     <flags val="kAfDispellable|kAfCurable"/>
     <apply location="kSavingReflex">
-        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
+        <modifier min="0.0" beta="4.4" factor="1"/>
     </apply>
 </affect>
 ```
@@ -427,7 +427,7 @@ Shorter single-purpose examples (relocated from the Spell Manual).
                 </required>
             </target_conditions>
             <damage saving="kStability">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="61"/>
+                <amount min="0" beta="61"/>
             </damage>
         </action>
     </talent_actions>
@@ -455,7 +455,7 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
         <action>
             <reflection affect_flags="kFireShield|kFireAura" prob="35"/>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="40"/>
+                <amount min="0" beta="40"/>
             </damage>
         </action>
     </talent_actions>
@@ -497,10 +497,10 @@ how a stacking variant would be authored.
 <affect id="kPoison" buff="N">
     <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
     <apply location="kStr">
-        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
+        <modifier min="2.0" beta="0" factor="-1" stack="3"/>
     </apply>
     <apply location="kPoison">
-        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
+        <modifier min="0.0" beta="11.5" factor="1" stack="3"/>
     </apply>
 </affect>
 ```
@@ -546,7 +546,7 @@ minions by the same amount. Three `<action>` blocks, each with a different targe
         <!-- A1 — damage ONE foe (the entry action; uses the spell-level target). -->
         <action>
             <damage saving="kWill">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="62"/>
+                <amount min="0" beta="62"/>
             </damage>
             <target_conditions>
                 <blocking><affect_flags val="kCharmed"/></blocking>   <!-- never your own charmed pet -->
@@ -555,13 +555,13 @@ minions by the same amount. Three `<action>` blocks, each with a different targe
         <!-- A2 — heal the CASTER by the damage just dealt (base=kDamage). -->
         <action target="kTarFightSelf" base="kDamage">
             <points extra="300">
-                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+                <heal min="0" beta="1.0" npc_coeff="0"/>
             </points>
         </action>
         <!-- A3 — heal the caster's UNDEAD minions by the same amount. -->
         <action target="kTarMinions" base="kDamage">
             <points extra="300">
-                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+                <heal min="0" beta="1.0" npc_coeff="0"/>
             </points>
             <area>
                 <targets max="-1"/>             <!-- all minions, no scaling -->
@@ -583,7 +583,7 @@ What each piece does:
   carries the spell's gates and the victim reaction (deferred to the end).
 * **A2 (`target="kTarFightSelf"`, `base="kDamage"`)** re-aims at the caster and
   **heals**. `base="kDamage"` swaps the competence scalar for *the HP A1 actually
-  removed*; with `dices_weight="0"` and `beta="1.0"` the heal equals the damage
+  removed*; with `beta="1.0"` (and `base="kDamage"`) the heal equals the damage
   (a clean 1:1 transfer). `<points extra="300">` lets the heal overheal to 4× max.
 * **A3 (`target="kTarMinions"`, `base="kDamage"`)** repeats that heal on the
   caster's charmed NPC followers, but its `<required><mob_flags val="kCorpse"/>`
@@ -606,4 +606,266 @@ Things this example illustrates:
 > (`kMagMasses` + an `<area>` on A1).
 
 ---
+
+## 4. The Plague Blade — all three affect kinds (item, room, character)
+
+Where §1 runs one scenario through **spell / affect / feat**, this one runs through
+the **three affect subsystems**: an affect **on an item** (`obj_affects.xml`), a
+**room** affect (`room_affects.xml`), and **character** affects (`affects.xml`). A
+sword is temporarily plague-tainted; on hit it has a chance to infect; the infection
+escalates on expiry, spreading through victims **and** leaving a miasma in the room
+that infects anyone who enters.
+
+Infection chain:
+
+```
+spell -> kPlagueBlade (item affect, on the sword, timed)
+   hit (15%) -> kPlagueTouch (char affect: weak DoT, -Str/-Int; curable & dispellable)
+      expiry -> kSwampPlague on the victim + 3 allies (char affect: heavy DoT)
+         tick (5%) -> kSwampPlague to a random ally in the room  (char -> char)
+         tick (5%) -> kPlagueMiasma on the room (room affect)    (char -> room)
+            entry  -> kPlagueTouch on the entrant                (room -> char)
+```
+
+> **What is code vs. data.** Affect ids are fixed C++ enums, so a **new id cannot be
+> declared in XML alone**. Before the data resolves, add one enumerator **and** one
+> name-map string per id:
+>
+> | New id | Enum / name map |
+> |---|---|
+> | `kPlagueTouch`, `kSwampPlague` | `EAffect` — `affect_contants.h` + `affect_contants.cpp` |
+> | `kPlagueMiasma` | `ERoomAffect` — `magic_rooms.h` + name map |
+> | `kPlagueBlade` | `EObjAffect` — `obj_affects.h` + `obj_affects.cpp` |
+>
+> Plus one tiny `<alter_obj>` handler (§4.1) that puts a *timed* affect on the
+> weapon. **Everything else below is pure data** (flags, applies, DoT, triggers,
+> chances). That is the data ↔ code boundary.
+
+### 4.1 The spell — `spells.xml` (+ a tiny handler)
+
+`kInfectBlade` ("infect blade") is cast on a weapon and, via `<alter_obj>`, puts a
+**timed** `kPlagueBlade` affect on it.
+
+```xml
+<spell id="kInfectBlade" element="kDark" mode="kEnabled">
+    <name val="infect blade"/>
+    <components><verbal/><weave/><material/></components>
+    <misc pos="kStand" violent="N" danger="1"/>
+    <mana max="50" min="35" change="1"/>
+    <targets val="kTarObjInv"/>
+    <potency_roll>
+        <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
+        <base_stat id="kInt" threshold="22" weight="0.5"/>
+    </potency_roll>
+    <success_roll>
+        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+    </success_roll>
+    <talent_actions>
+        <action>
+            <alter_obj handler="AlterInfectBlade"/>
+        </action>
+    </talent_actions>
+</spell>
+```
+
+The shipped `<alter_obj>` handlers (`AlterBless`/`AlterCurse`) impose a **permanent**
+affect (`obj_affects::Impose(obj, …, -1)`). A *timed* one needs its own handler — a
+copy of `AlterCurse` that passes a positive timer instead of `-1` (sketch):
+
+```cpp
+// src/gameplay/handlers/alter_infect_blade.cpp — temporarily taints a weapon with plague.
+EStageResult AlterInfectBlade(ActionContext &ctx) {
+    ObjData *obj = ctx.ovict;
+    if (!obj || GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
+        return EStageResult::kFail;                 // -> generic "no effect"
+    }
+    const int timer = 24;                           // game-hours; -1 would be permanent
+    obj_affects::Impose(obj, obj_affects::EObjAffect::kPlagueBlade,
+                        timer, /*modifier*/0,
+                        ctx.caster() ? ctx.caster()->get_uid() : 0,
+                        ctx.CompetenceBase());       // strength -> item-affect potency
+    return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+}
+```
+
+Register it in the `kAlterObjHandlers` registry (`magic.cpp`):
+`{"AlterInfectBlade", handlers::AlterInfectBlade}`. The timer is `Impose`'s `duration`
+argument; `obj_affects::Tick` decrements it once per game hour.
+
+### 4.2 The item affect — `obj_affects.xml`
+
+On hit, `kPlagueBlade` has a chance to inflict `kPlagueTouch` on the victim. Because
+the payload is a **plain character affect**, this is expressed **purely in data** via
+`<affects>` — no handler needed (unlike `kPoisoned`, whose handler exists only for the
+poison subtype and skill roll).
+
+```xml
+<obj_affect id="kPlagueBlade" msg_case="kIns" see_affect="kDetectMagic">
+    <actions>
+        <action target="kTarActor">
+            <trigger val="kWeaponHit" prob="15"/>
+            <affects saving="kCritical" resist="kDark">
+                <duration base="4" skill_divisor="20" min="3" max="8"/>
+                <affect id="kPlagueTouch"/>
+            </affects>
+        </action>
+    </actions>
+</obj_affect>
+```
+
+* `kWeaponHit` fires when the tainted weapon lands a blow; `prob="15"` = 15% of hits.
+  A `saving=` is mandatory (else the action is dropped).
+* `target="kTarActor"` = the struck character.
+* `msg_case="kIns"` — the item name declines in the instrumental case in the affect's
+  messages.
+
+### 4.3 The character affect — the "touch" (`affects.xml`)
+
+`kPlagueTouch` is **curable and dispellable** — a weak DoT plus Str/Int penalties; on
+natural expiry it infects the victim **and three allies** with `kSwampPlague`.
+
+```xml
+<affect id="kPlagueTouch" buff="N">
+    <flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+    <apply location="kStr"><modifier min="2" beta="0" factor="-1"/></apply>
+    <apply location="kInt"><modifier min="2" beta="0" factor="-1"/></apply>
+    <actions>
+        <!-- (a) WHILE ACTIVE: a weak DoT each tick. -->
+        <action target="kTarFightSelf">
+            <trigger val="kPulse"/>
+            <damage saving="kNone"><amount min="0" beta="0.4" weight="0"/></damage>
+        </action>
+        <!-- (b) ON EXPIRY: the victim itself -> kSwampPlague. -->
+        <action target="kTarFightSelf">
+            <trigger val="kExpired"/>
+            <affects saving="kNone">
+                <duration base="6" skill_divisor="0" min="6" max="6"/>
+                <affect id="kSwampPlague"/>
+            </affects>
+        </action>
+        <!-- (c) ON EXPIRY: 3 random allies in the room -> kSwampPlague.
+             No kDispell action -> curing/dispelling early is safe. -->
+        <action target="kTarGroup">
+            <trigger val="kExpired"/>
+            <area>
+                <targets min="3" max="3"/>
+                <distribution type="kUniform"/>
+            </area>
+            <affects saving="kNone">
+                <duration base="6" skill_divisor="0" min="6" max="6"/>
+                <affect id="kSwampPlague"/>
+            </affects>
+        </action>
+    </actions>
+</affect>
+```
+
+* `buff="N"` = **debuff** — the cure system gates on this (`kAfCurable` alone is not
+  enough). `kAfCurable` + `kAfDispellable` → removable by both cure and dispel.
+* Flat −2 Str/Int (`beta="0"` → potency-independent).
+* **(b) and (c)** both use `kExpired`: the victim and three of its group. The
+  once-per-type dedup fires once per affect type per pass, but **all** actions bearing
+  `kExpired` run, so both impositions happen.
+* **No `kDispell`** → removing it early triggers nothing; the payload only fires on the
+  natural-expiry path (the `kExpired`/`kDispell` contrast, as in §1.2).
+
+### 4.4 The character affect — "swamp plague" (`affects.xml`)
+
+`kSwampPlague` is the heavy stage: a DoT several times the "touch", plus **contagion** —
+each tick a 5% chance to infect an ally and a 5% chance to infect the room itself.
+
+```xml
+<affect id="kSwampPlague" buff="N">
+    <flags val="kAfSameTime|kAfCurable"/>
+    <apply location="kStr"><modifier min="4" beta="0" factor="-1"/></apply>
+    <apply location="kInt"><modifier min="4" beta="0" factor="-1"/></apply>
+    <actions>
+        <!-- (a) heavy DoT — several times the "touch" (beta 1.5 vs 0.4). -->
+        <action target="kTarFightSelf">
+            <trigger val="kPulse"/>
+            <damage saving="kNone"><amount min="0" beta="1.5" weight="0"/></damage>
+        </action>
+        <!-- (b) 5% per tick: infect one random ally in the room. -->
+        <action target="kTarRandomAlly">
+            <trigger val="kPulse" prob="5"/>
+            <affects saving="kNone">
+                <duration base="6" skill_divisor="0" min="6" max="6"/>
+                <affect id="kSwampPlague"/>
+            </affects>
+        </action>
+        <!-- (c) 5% per tick: settle a miasma into the ROOM (room affect, §4.5). -->
+        <action target="kTarRoomThis">
+            <trigger val="kPulse" prob="5"/>
+            <affects saving="kNone">
+                <duration base="8" skill_divisor="0" min="8" max="8"/>
+                <affect id="kPlagueMiasma"/>
+            </affects>
+        </action>
+    </actions>
+</affect>
+```
+
+* `kAfCurable` **but not** `kAfDispellable` — the full plague is **cured, not
+  dispelled** (like `kBlightCurse` in §1.3). Its DoT (`beta="1.5"`) bites nearly four
+  times harder than the touch.
+* **(b)** `target="kTarRandomAlly"` + `prob="5"` — each tick, a 5% chance to jump to
+  one friendly in the room: **character → character** contagion.
+* **(c)** `target="kTarRoomThis"` + `prob="5"` — a 5% chance to settle `kPlagueMiasma`
+  into the room: **character → room** contagion. `<affect id>` resolves as both
+  `EAffect` and `ERoomAffect`, so the same grammar block imposes a room affect when the
+  target is a room.
+
+### 4.5 The room affect — "miasma" (`room_affects.xml`)
+
+`kPlagueMiasma` infects **entering** players with `kPlagueTouch` — so the plague
+spreads through the location even with no carrier present.
+
+```xml
+<room_affect id="kPlagueMiasma">
+    <flags val="kAfDispellable"/>
+    <actions>
+        <action target="kTarActor">
+            <trigger val="kEnterPC"/>
+            <target_conditions>
+                <blocking><affect_flags val="kPlagueTouch"/></blocking>
+            </target_conditions>
+            <affects saving="kCritical" resist="kDark">
+                <duration base="4" skill_divisor="0" min="4" max="4"/>
+                <affect id="kPlagueTouch"/>
+            </affects>
+        </action>
+    </actions>
+</room_affect>
+```
+
+* `kEnterPC` — fires on a player entering (`kTarActor`). We do **not** add `return="0"`
+  — entry is not forbidden, only infected.
+* `<target_conditions><blocking>` on `kPlagueTouch` — don't re-infect the already-sick.
+* The payload is `kPlagueTouch` again with a save: the loop closes.
+
+### 4.6 Messages
+
+Each new id needs its own messages (or it renders silent):
+
+* `cfg/messages/ru/obj_affect_msg.xml` — sheaf `kPlagueBlade`: `kShortDesc` (a plague
+  film), `kDiagToChar` (the examine line).
+* `cfg/messages/ru/affect_msg.xml` — sheaves `kPlagueTouch` / `kSwampPlague`:
+  impose/expire + `kDamageToChar`/`kDamageToRoom` for the DoT (else the tick is silent).
+* `cfg/messages/ru/room_affect_msg.xml` — sheaf `kPlagueMiasma`: the room's miasma
+  description.
+
+### 4.7 How it plays
+
+1. A mage casts `kInfectBlade` on a sword → the sword carries `kPlagueBlade` for 24h.
+2. Each hit: 15% → the victim gets `kPlagueTouch` (3–8h).
+3. `kPlagueTouch`: a weak DoT + −2 Str/Int. Dispel or cure it and you're safe.
+4. If ignored → the timer runs out → the victim **and 3 allies** get `kSwampPlague`
+   for 6h.
+5. `kSwampPlague`: a heavy DoT; each tick 5% → the plague jumps to a random ally
+   (**char→char**) and 5% → settles into the room as a miasma (**char→room**).
+6. `kPlagueMiasma`: anyone entering the room catches `kPlagueTouch` (**room→char**) —
+   and the cycle repeats.
+
+All three kinds are in play: **item** (`kPlagueBlade`), **character** (`kPlagueTouch`,
+`kSwampPlague`), and **room** (`kPlagueMiasma`).
 

@@ -71,7 +71,7 @@
         <action target="kTarFightSelf">
             <trigger val="kPulse"/>
             <damage saving="kNone">
-                <amount min="0" dices_weight="0.4" alpha="0" beta="0"/>
+                <amount min="0" beta="0.4"/>
             </damage>
         </action>
 
@@ -93,7 +93,7 @@
 </affect>
 ```
 
-* **`kPulse` (a)** грызёт носителя каждый тик — `dices_weight="0.4"` от сохранённого
+* **`kPulse` (a)** грызёт носителя каждый тик — `beta="0.4"` от сохранённого
   potency ([Руководство по эффектам](AFFECT_MANUAL_RU.md) §4.2). Дайте ему
   сообщение `kDamageToChar/Room`, чтобы он не молчал.
 * **`kExpired` (b)** — подвох. При естественном истечении бьёт по `kTarGroup`
@@ -115,13 +115,13 @@
 ```xml
 <affect id="kBlightCurse" buff="N">
     <flags val="kAfSameTime|kAfCurable"/>
-    <apply location="kStr"><modifier min="3.0" dices_weight="0" alpha="0" beta="0" factor="-1"/></apply>
-    <apply location="kDex"><modifier min="3.0" dices_weight="0" alpha="0" beta="0" factor="-1"/></apply>
-    <apply location="kHitroll"><modifier min="5.0" dices_weight="0" alpha="0" beta="0" factor="-1"/></apply>
+    <apply location="kStr"><modifier min="3.0" beta="0" factor="-1"/></apply>
+    <apply location="kDex"><modifier min="3.0" beta="0" factor="-1"/></apply>
+    <apply location="kHitroll"><modifier min="5.0" beta="0" factor="-1"/></apply>
     <actions>
         <action target="kTarFightSelf">
             <trigger val="kPulse"/>
-            <damage saving="kNone"><amount min="0" dices_weight="0.9" alpha="0" beta="0"/></damage>
+            <damage saving="kNone"><amount min="0" beta="0.9"/></damage>
         </action>
     </actions>
 </affect>
@@ -153,7 +153,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 <feat id="kHexweaver" mode="kEnabled">
     <talent_patches>
         <talent_patch affect="kDecayHex" op="modify" effect="kDamage">
-            <modify field="dices_weight" mul="1.6"/>
+            <modify field="beta" mul="1.6"/>
         </talent_patch>
     </talent_patches>
 </feat>
@@ -189,7 +189,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
         <talent_patch spell="kHexOfDecay" op="append">
             <action target="kTarFightVict">
                 <damage saving="kStability">
-                    <amount min="10" dices_weight="0.5" alpha="0" beta="0"/>
+                    <amount min="10" beta="0.5"/>
                 </damage>
             </action>
         </talent_patch>
@@ -202,7 +202,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 <feat id="kWardingLeader" mode="kEnabled">
     <talent_patches>
         <talent_patch affect="kBlightCurse" relative="group_leader" op="modify" effect="kDamage">
-            <modify field="dices_weight" mul="0.5"/>
+            <modify field="beta" mul="0.5"/>
         </talent_patch>
     </talent_patches>
 </feat>
@@ -245,7 +245,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
     <talent_actions>
         <action>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
+                <amount min="0" beta="12.5"/>
                 <hits skill_divisor="12" max="2" prob="100"/>
             </damage>
         </action>
@@ -360,7 +360,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 <affect id="kGlitterDust" buff="N">
     <flags val="kAfDispellable|kAfCurable"/>
     <apply location="kSavingReflex">
-        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
+        <modifier min="0.0" beta="4.4" factor="1"/>
     </apply>
 </affect>
 ```
@@ -393,7 +393,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
                 </required>
             </target_conditions>
             <damage saving="kStability">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="61"/>
+                <amount min="0" beta="61"/>
             </damage>
         </action>
     </talent_actions>
@@ -416,7 +416,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
         <action>
             <reflection affect_flags="kFireShield|kFireAura" prob="35"/>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="40"/>
+                <amount min="0" beta="40"/>
             </damage>
         </action>
     </talent_actions>
@@ -449,10 +449,10 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 <affect id="kPoison" buff="N">
     <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
     <apply location="kStr">
-        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0.0" factor="-1" stack="3"/>
+        <modifier min="2.0" beta="0.0" factor="-1" stack="3"/>
     </apply>
     <apply location="kPoison">
-        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
+        <modifier min="0.0" beta="11.5" factor="1" stack="3"/>
     </apply>
 </affect>
 ```
@@ -491,7 +491,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
         <!-- A1 — урон по ОДНОМУ врагу (входное действие; цель уровня заклинания). -->
         <action>
             <damage saving="kWill">
-                <amount min="0" dices_weight="1.0" alpha="0.5" beta="62"/>
+                <amount min="0" beta="62"/>
             </damage>
             <target_conditions>
                 <blocking><affect_flags val="kCharmed"/></blocking>   <!-- никогда по своему питомцу -->
@@ -500,13 +500,13 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
         <!-- A2 — лечит КАСТЕРА на только что нанесённый урон (base=kDamage). -->
         <action target="kTarFightSelf" base="kDamage">
             <points extra="300">
-                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+                <heal min="0" beta="1.0" npc_coeff="0"/>
             </points>
         </action>
         <!-- A3 — лечит НЕЖИТЬ-миньонов кастера на ту же величину. -->
         <action target="kTarMinions" base="kDamage">
             <points extra="300">
-                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+                <heal min="0" beta="1.0" npc_coeff="0"/>
             </points>
             <area>
                 <targets max="-1"/>             <!-- все миньоны, без масштабирования -->
@@ -529,7 +529,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
   реакцию жертвы (отложенную до конца).
 * **A2 (`target="kTarFightSelf"`, `base="kDamage"`)** перенацеливается на кастера и
   **лечит**. `base="kDamage"` заменяет скаляр компетентности на *фактически снятые
-  A1 HP*; при `dices_weight="0"` и `beta="1.0"` лечение равно урону (чистый перенос
+  A1 HP*; при `beta="1.0"` (и `base="kDamage"`) лечение равно урону (чистый перенос
   1:1). `<points extra="300">` позволяет перелечить до 4× от максимума.
 * **A3 (`target="kTarMinions"`, `base="kDamage"`)** повторяет это лечение на
   очарованных NPC-последователях кастера, но `<required><mob_flags val="kCorpse"/>`
@@ -553,4 +553,269 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 > бы охватывать несколько целей само A1 (`kMagMasses` + `<area>` на A1).
 
 ---
+
+## 4. Чумной клинок — все три вида эффектов (предмет, комната, персонаж)
+
+Если §1 показывает один сценарий сквозь **заклинание / эффект / способность**, то
+этот — сквозь **три подсистемы эффектов**: эффект **на предмете**
+(`obj_affects.xml`), эффект **комнаты** (`room_affects.xml`) и эффект **персонажа**
+(`affects.xml`). Меч временно заражают чумой; при ударе есть шанс наложить болезнь;
+болезнь при истечении перерастает в тяжёлую заразу, которая расползается по жертвам
+**и** оставляет в комнате миазмы, заражающие входящих.
+
+Схема заражения:
+
+```
+заклинание -> kPlagueBlade (эффект предмета, на мече, с таймером)
+   удар (15%) -> kPlagueTouch (эффект персонажа: слабый DoT, -Сила/-Ум; лечится и развеивается)
+      истечение -> kSwampPlague на жертву + 3 союзников (эффект персонажа: сильный DoT)
+         тик (5%) -> kSwampPlague случайному союзнику в комнате   (персонаж -> персонаж)
+         тик (5%) -> kPlagueMiasma на комнату (эффект комнаты)    (персонаж -> комната)
+            вход  -> kPlagueTouch входящему                       (комната -> персонаж)
+```
+
+> **Что здесь код, а что данные.** Идентификаторы эффектов — это фиксированные
+> C++-перечисления, поэтому **новый id нельзя объявить только в XML**. Перед данными
+> добавьте по одному значению перечисления **и** строке в карту имён:
+>
+> | Новый id | Перечисление / карта имён |
+> |---|---|
+> | `kPlagueTouch`, `kSwampPlague` | `EAffect` — `affect_contants.h` + `affect_contants.cpp` |
+> | `kPlagueMiasma` | `ERoomAffect` — `magic_rooms.h` + карта имён |
+> | `kPlagueBlade` | `EObjAffect` — `obj_affects.h` + `obj_affects.cpp` |
+>
+> Плюс один маленький обработчик `<alter_obj>` (§4.1), который вешает *временный*
+> эффект на оружие. **Всё остальное ниже — чистые данные** (флаги, apply, DoT,
+> триггеры, шансы). Это и есть граница «данные ↔ код».
+
+### 4.1 Заклинание — `spells.xml` (+ крошечный обработчик)
+
+`kInfectBlade` («заразить клинок») кастуется на оружие и через `<alter_obj>` вешает
+на него **временный** эффект `kPlagueBlade`.
+
+```xml
+<spell id="kInfectBlade" element="kDark" mode="kEnabled">
+    <name val="заразить клинок"/>
+    <components><verbal/><weave/><material/></components>
+    <misc pos="kStand" violent="N" danger="1"/>
+    <mana max="50" min="35" change="1"/>
+    <targets val="kTarObjInv"/>
+    <potency_roll>
+        <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
+        <base_stat id="kInt" threshold="22" weight="0.5"/>
+    </potency_roll>
+    <success_roll>
+        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+    </success_roll>
+    <talent_actions>
+        <action>
+            <alter_obj handler="AlterInfectBlade"/>
+        </action>
+    </talent_actions>
+</spell>
+```
+
+Готовые обработчики `<alter_obj>` (`AlterBless`/`AlterCurse`) вешают **постоянный**
+эффект (`obj_affects::Impose(obj, …, -1)`). Для *временного* нужен свой обработчик —
+копия `AlterCurse`, где вместо `-1` передан положительный таймер (схематично):
+
+```cpp
+// src/gameplay/handlers/alter_infect_blade.cpp — временно заражает оружие чумой.
+EStageResult AlterInfectBlade(ActionContext &ctx) {
+    ObjData *obj = ctx.ovict;
+    if (!obj || GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
+        return EStageResult::kFail;                 // -> общая строка «нет эффекта»
+    }
+    const int timer = 24;                           // игровых часов; -1 было бы «навсегда»
+    obj_affects::Impose(obj, obj_affects::EObjAffect::kPlagueBlade,
+                        timer, /*modifier*/0,
+                        ctx.caster() ? ctx.caster()->get_uid() : 0,
+                        ctx.CompetenceBase());       // сила -> потенция эффекта предмета
+    return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+}
+```
+
+Зарегистрируйте в реестре `kAlterObjHandlers` (`magic.cpp`):
+`{"AlterInfectBlade", handlers::AlterInfectBlade}`. Таймер — это аргумент
+`duration` у `Impose`; `obj_affects::Tick` убавляет его раз в игровой час.
+
+### 4.2 Эффект предмета — `obj_affects.xml`
+
+`kPlagueBlade` на ударе с шансом накладывает `kPlagueTouch` на жертву. Так как
+нагрузка — **обычный эффект персонажа**, это выражается **чисто данными** через
+`<affects>` (обработчик не нужен — в отличие от `kPoisoned`, которому нужен код ради
+подтипа яда и броска навыка).
+
+```xml
+<obj_affect id="kPlagueBlade" msg_case="kIns" see_affect="kDetectMagic">
+    <actions>
+        <action target="kTarActor">
+            <trigger val="kWeaponHit" prob="15"/>
+            <affects saving="kCritical" resist="kDark">
+                <duration base="4" skill_divisor="20" min="3" max="8"/>
+                <affect id="kPlagueTouch"/>
+            </affects>
+        </action>
+    </actions>
+</obj_affect>
+```
+
+* `kWeaponHit` срабатывает, когда заражённое оружие наносит удар; `prob="15"` = 15 %
+  ударов. Обязателен `saving=` (иначе действие отбраковывается).
+* `target="kTarActor"` — тот, кого ударили.
+* `msg_case="kIns"` — имя предмета склоняется в творительном («клинком») в
+  сообщениях эффекта.
+
+### 4.3 Эффект персонажа — «касание» (`affects.xml`)
+
+`kPlagueTouch` **развеиваемый и излечимый** — слабый DoT + штрафы к Силе и Уму; при
+естественном истечении заражает жертву **и трёх союзников** `kSwampPlague`.
+
+```xml
+<affect id="kPlagueTouch" buff="N">
+    <flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+    <apply location="kStr"><modifier min="2" beta="0" factor="-1"/></apply>
+    <apply location="kInt"><modifier min="2" beta="0" factor="-1"/></apply>
+    <actions>
+        <!-- (a) ПОКА АКТИВЕН: слабый DoT каждый тик. -->
+        <action target="kTarFightSelf">
+            <trigger val="kPulse"/>
+            <damage saving="kNone"><amount min="0" beta="0.4" weight="0"/></damage>
+        </action>
+        <!-- (b) ПРИ ИСТЕЧЕНИИ: сама жертва -> kSwampPlague. -->
+        <action target="kTarFightSelf">
+            <trigger val="kExpired"/>
+            <affects saving="kNone">
+                <duration base="6" skill_divisor="0" min="6" max="6"/>
+                <affect id="kSwampPlague"/>
+            </affects>
+        </action>
+        <!-- (c) ПРИ ИСТЕЧЕНИИ: 3 случайных союзника в комнате -> kSwampPlague.
+             Действия kDispell НЕТ -> развеять/вылечить рано безопасно. -->
+        <action target="kTarGroup">
+            <trigger val="kExpired"/>
+            <area>
+                <targets min="3" max="3"/>
+                <distribution type="kUniform"/>
+            </area>
+            <affects saving="kNone">
+                <duration base="6" skill_divisor="0" min="6" max="6"/>
+                <affect id="kSwampPlague"/>
+            </affects>
+        </action>
+    </actions>
+</affect>
+```
+
+* `buff="N"` = **дебаф** — на это гейтится лечение (одного `kAfCurable` мало).
+  `kAfCurable` + `kAfDispellable` → снять можно и лечением, и развеиванием.
+* Плоские `-2` к Силе/Уму (`beta="0"` → без зависимости от компетентности).
+* **(b) и (c)** — оба на `kExpired`: жертва и трое из её группы. Диспел-дедуп
+  срабатывает раз на тип эффекта за проход, но **все** действия с `kExpired`
+  выполняются, поэтому оба наложения проходят.
+* **Нет `kDispell`** → раннее снятие ничего не запускает; нагрузка только на пути
+  естественного истечения (контраст `kExpired`/`kDispell`, как в §1.2).
+
+### 4.4 Эффект персонажа — «болотная чума» (`affects.xml`)
+
+`kSwampPlague` — тяжёлая стадия: DoT в несколько раз сильнее «касания», плюс
+**заразность** — каждый тик по 5 % шанса заразить союзника и по 5 % заразить саму
+комнату.
+
+```xml
+<affect id="kSwampPlague" buff="N">
+    <flags val="kAfSameTime|kAfCurable"/>
+    <apply location="kStr"><modifier min="4" beta="0" factor="-1"/></apply>
+    <apply location="kInt"><modifier min="4" beta="0" factor="-1"/></apply>
+    <actions>
+        <!-- (a) сильный DoT — в несколько раз больше «касания» (beta 1.5 против 0.4). -->
+        <action target="kTarFightSelf">
+            <trigger val="kPulse"/>
+            <damage saving="kNone"><amount min="0" beta="1.5" weight="0"/></damage>
+        </action>
+        <!-- (b) 5% за тик: заразить одного случайного союзника в комнате. -->
+        <action target="kTarRandomAlly">
+            <trigger val="kPulse" prob="5"/>
+            <affects saving="kNone">
+                <duration base="6" skill_divisor="0" min="6" max="6"/>
+                <affect id="kSwampPlague"/>
+            </affects>
+        </action>
+        <!-- (c) 5% за тик: осадить в самой КОМНАТЕ миазмы (эффект комнаты, §4.5). -->
+        <action target="kTarRoomThis">
+            <trigger val="kPulse" prob="5"/>
+            <affects saving="kNone">
+                <duration base="8" skill_divisor="0" min="8" max="8"/>
+                <affect id="kPlagueMiasma"/>
+            </affects>
+        </action>
+    </actions>
+</affect>
+```
+
+* `kAfCurable`, **но не** `kAfDispellable` — развитую заразу **лечат, а не
+  развеивают** (как `kBlightCurse` в §1.3). DoT `beta="1.5"` кусает почти вчетверо
+  сильнее «касания».
+* **(b)** `target="kTarRandomAlly"` + `prob="5"` — на каждый тик 5 % шанс перекинуть
+  чуму на одного дружественного в комнате: заражение **персонаж → персонаж**.
+* **(c)** `target="kTarRoomThis"` + `prob="5"` — 5 % шанс осадить в комнате эффект
+  `kPlagueMiasma`: заражение **персонаж → комната**. `<affect id>` резолвится и как
+  `EAffect`, и как `ERoomAffect`, поэтому один и тот же грамматический блок вешает
+  эффект комнаты, если цель — комната.
+
+### 4.5 Эффект комнаты — «миазмы» (`room_affects.xml`)
+
+`kPlagueMiasma` заражает **входящих** игроков `kPlagueTouch` — так зараза
+распространяется по локации даже без носителя.
+
+```xml
+<room_affect id="kPlagueMiasma">
+    <flags val="kAfDispellable"/>
+    <actions>
+        <action target="kTarActor">
+            <trigger val="kEnterPC"/>
+            <target_conditions>
+                <blocking><affect_flags val="kPlagueTouch"/></blocking>
+            </target_conditions>
+            <affects saving="kCritical" resist="kDark">
+                <duration base="4" skill_divisor="0" min="4" max="4"/>
+                <affect id="kPlagueTouch"/>
+            </affects>
+        </action>
+    </actions>
+</room_affect>
+```
+
+* `kEnterPC` — срабатывает на входящего игрока (`kTarActor`). `return="0"` **не**
+  ставим — вход не запрещаем, только заражаем.
+* `<target_conditions><blocking>` по `kPlagueTouch` — не заражать повторно уже
+  больного.
+* Нагрузка — снова `kPlagueTouch` со спасброском: круг замыкается.
+
+### 4.6 Сообщения
+
+Каждому новому id нужны свои сообщения (иначе он молчит):
+
+* `cfg/messages/ru/obj_affect_msg.xml` — sheaf `kPlagueBlade`: `kShortDesc`
+  («налёт чумы»), `kDiagToChar` (строка при осмотре).
+* `cfg/messages/ru/affect_msg.xml` — sheaves `kPlagueTouch` / `kSwampPlague`:
+  наложение/спадение + `kDamageToChar`/`kDamageToRoom` для DoT (иначе тик молчит).
+* `cfg/messages/ru/room_affect_msg.xml` — sheaf `kPlagueMiasma`: описание миазмов в
+  комнате.
+
+### 4.7 Как это играется
+
+1. Маг кастует `kInfectBlade` на меч → меч на 24 ч несёт `kPlagueBlade`.
+2. Каждый удар: 15 % → жертва получает `kPlagueTouch` (3–8 ч).
+3. `kPlagueTouch`: слабый DoT + −2 Сила/Ум. Развейте или вылечите — и всё, безопасно.
+4. Если проигнорировать → таймер истёк → жертва **и 3 союзника** получают
+   `kSwampPlague` на 6 ч.
+5. `kSwampPlague`: тяжёлый DoT; каждый тик 5 % → зараза прыгает на случайного
+   союзника (**персонаж→персонаж**) и 5 % → оседает в комнате как миазмы
+   (**персонаж→комната**).
+6. `kPlagueMiasma`: всякий вошедший в комнату ловит `kPlagueTouch`
+   (**комната→персонаж**) — и цикл повторяется.
+
+Задействованы все три вида: **предмет** (`kPlagueBlade`), **персонаж**
+(`kPlagueTouch`, `kSwampPlague`) и **комната** (`kPlagueMiasma`).
 
