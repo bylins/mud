@@ -914,11 +914,8 @@ void RoomDataFree(ZoneRnum zrn) {
 		}
 		ExtraDescription::shared_ptr sdd = room->ex_description;
 		if (sdd) {
-			while (sdd) {
-				free(sdd->keyword);
-				free(sdd->description);
-				sdd = sdd->next;
-			}
+			// строки keyword/description теперь std::string -- освобождаются
+			// автоматически при разрушении ExtraDescription, ручной free не нужен.
 			sdd.reset();
 		}
 	}

@@ -13,13 +13,11 @@
 // Extra description: used in objects, mobiles, and rooms //
 struct ExtraDescription {
 	using shared_ptr = std::shared_ptr<ExtraDescription>;
-	ExtraDescription() : keyword(nullptr), description(nullptr), next(nullptr) {}
-	~ExtraDescription();
 	void set_keyword(std::string const &keyword);
 	void set_description(std::string const &description);
 
-	char *keyword;        // Keyword in look/examine          //
-	char *description;    // What to see                      //
+	std::string keyword;        // Keyword in look/examine          //
+	std::string description;    // What to see                      //
 	shared_ptr next;    // Next in list                     //
 };
 

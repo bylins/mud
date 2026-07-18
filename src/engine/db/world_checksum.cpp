@@ -203,11 +203,11 @@ std::string SerializeRoom(const RoomData *room)
 	// the room's ex_description list (see boot_data_files.cpp:463-475).
 	for (auto ed = room->ex_description; ed; ed = ed->next)
 	{
-		if (ed->keyword)
+		if (!ed->keyword.empty())
 		{
 			oss << ed->keyword << ":";
 		}
-		if (ed->description)
+		if (!ed->description.empty())
 		{
 			oss << ed->description;
 		}
@@ -521,11 +521,11 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	// Extra descriptions
 	for (auto ed = obj->get_ex_description(); ed; ed = ed->next)
 	{
-		if (ed->keyword)
+		if (!ed->keyword.empty())
 		{
 			oss << ed->keyword << ":";
 		}
-		if (ed->description)
+		if (!ed->description.empty())
 		{
 			oss << ed->description;
 		}

@@ -284,8 +284,8 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 	for (auto ed = obj.get_ex_description(); ed; ed = ed->next)
 	{
 		json extra;
-		extra["keywords"] = Koi8rToUtf8(ed->keyword ? ed->keyword : "");
-		extra["description"] = Koi8rToUtf8(ed->description ? ed->description : "");
+		extra["keywords"] = Koi8rToUtf8(ed->keyword);
+		extra["description"] = Koi8rToUtf8(ed->description);
 		extra_descs.push_back(extra);
 	}
 	obj_data["extra_descriptions"] = extra_descs;
@@ -365,11 +365,11 @@ json SerializeRoom(RoomData& room, int vnum)
 	for (auto ed = room.ex_description; ed; ed = ed->next)
 	{
 		json ed_obj;
-		if (ed->keyword)
+		if (!ed->keyword.empty())
 		{
 			ed_obj["keyword"] = Koi8rToUtf8(ed->keyword);
 		}
-		if (ed->description)
+		if (!ed->description.empty())
 		{
 			ed_obj["description"] = Koi8rToUtf8(ed->description);
 		}

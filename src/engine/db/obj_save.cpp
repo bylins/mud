@@ -406,8 +406,8 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			} else if (!strcmp(read_line, "Edes")) {
 				*error = 46;
 				ExtraDescription::shared_ptr new_descr(new ExtraDescription());
-				new_descr->keyword = str_dup(buffer);
-				if (!strcmp(new_descr->keyword, "None")) {
+				new_descr->keyword = buffer;
+				if (new_descr->keyword == "None") {
 					object->set_ex_description(nullptr);
 				} else {
 					if (!get_buf_lines(data, buffer)) {
@@ -814,8 +814,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			if (proto_has_descr(descr, p->get_ex_description())) {
 				continue;
 			}
-			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
-				<< (descr->description ? descr->description : "") << "~\n";
+			out << "Edes: " << descr->keyword << "~\n"
+				<< descr->description << "~\n";
 		}
 		if (!object->get_ex_description() && p->get_ex_description()) {
 			out << "Edes: None~\n";

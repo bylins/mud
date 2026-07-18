@@ -370,15 +370,15 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 			{
 				for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next) {
 					// * Sanity check to prevent nasty protection faults.
-					if (!ex_desc->keyword
-						|| !ex_desc->description) {
+					if (ex_desc->keyword.empty()
+						|| ex_desc->description.empty()) {
 						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
 							   BRF, kLvlBuilder, SYSLOG, true);
 						continue;
 					}
-					snprintf(buf1, sizeof(buf1), "%s", ex_desc->description);
+					snprintf(buf1, sizeof(buf1), "%s", ex_desc->description.c_str());
 					strip_string(buf1);
-					fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc->keyword, buf1);
+					fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc->keyword.c_str(), buf1);
 				}
 			}
 			// * Do we have affects?
@@ -459,8 +459,8 @@ void oedit_disp_extradesc_menu(DescriptorData *d) {
 			 "%s3%s) Следующий дескриптор: %s\r\n"
 			 "%s0%s) Выход\r\n"
 			 "Ваш выбор : ",
-			 grn, nrm, yel, (extra_desc->keyword && *extra_desc->keyword) ? extra_desc->keyword : "<NONE>",
-			 grn, nrm, yel, (extra_desc->description && *extra_desc->description) ? extra_desc->description : "<NONE>",
+			 grn, nrm, yel, !extra_desc->keyword.empty() ? extra_desc->keyword.c_str() : "<NONE>",
+			 grn, nrm, yel, !extra_desc->description.empty() ? extra_desc->description.c_str() : "<NONE>",
 			 grn, nrm, buf1, grn, nrm);
 	SendMsgToChar(buf, d->character.get());
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
@@ -2160,16 +2160,14 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case OEDIT_EXTRADESC_KEY:
-			if (OLC_DESC(d)->keyword)
-				free(OLC_DESC(d)->keyword);
-			OLC_DESC(d)->keyword = str_dup((arg && *arg) ? arg : "undefined");
+			OLC_DESC(d)->keyword = (arg && *arg) ? arg : "undefined";
 			oedit_disp_extradesc_menu(d);
 			return;
 
 		case OEDIT_EXTRADESC_MENU:
 			switch ((number = atoi(arg))) {
 				case 0:
-					if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
+					if (OLC_DESC(d)->keyword.empty() || OLC_DESC(d)->description.empty()) {
 						OLC_DESC(d).reset();
 						OLC_OBJ(d)->set_ex_description(nullptr);
 					}
@@ -2182,11 +2180,11 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 2: OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
 				iosystem::write_to_output("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
 					d->backstr = nullptr;
-					if (OLC_DESC(d)->description) {
-					iosystem::write_to_output(OLC_DESC(d)->description, d);
-						d->backstr = str_dup(OLC_DESC(d)->description);
+					if (!OLC_DESC(d)->description.empty()) {
+					iosystem::write_to_output(OLC_DESC(d)->description.c_str(), d);
+						d->backstr = str_dup(OLC_DESC(d)->description.c_str());
 					}
-					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));
+					d->writer.reset(new utils::DelegatedStdStringWriter(OLC_DESC(d)->description));
 					d->max_str = 4096;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
@@ -2194,7 +2192,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case 3:
 					// * Only go to the next description if this one is finished.
-					if (OLC_DESC(d)->keyword && OLC_DESC(d)->description) {
+					if (!OLC_DESC(d)->keyword.empty() && !OLC_DESC(d)->description.empty()) {
 						if (OLC_DESC(d)->next) {
 							OLC_DESC(d) = OLC_DESC(d)->next;
 						} else    // Make new extra description and attach at end.

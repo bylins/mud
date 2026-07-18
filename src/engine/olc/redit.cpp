@@ -348,10 +348,10 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 			// * Home straight, just deal with extra descriptions.
 			if (room->ex_description) {
 				for (auto ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next) {
-					if (ex_desc->keyword && ex_desc->description) {
-						snprintf(buf1, sizeof(buf1), "%s", ex_desc->description);
+					if (!ex_desc->keyword.empty() && !ex_desc->description.empty()) {
+						snprintf(buf1, sizeof(buf1), "%s", ex_desc->description.c_str());
 						strip_string(buf1);
-						fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword, buf1);
+						fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword.c_str(), buf1);
 					}
 				}
 			}
@@ -390,8 +390,8 @@ void redit_disp_extradesc_menu(DescriptorData *d) {
 			"&g1&n) Ключ: &y%s\r\n"
 			"&g2&n) Описание:\r\n&y%s\r\n"
 			"&g3&n) Следующее описание: ",
-			extra_desc->keyword ? extra_desc->keyword : "<NONE>",
-			extra_desc->description ? extra_desc->description : "<NONE>");
+			!extra_desc->keyword.empty() ? extra_desc->keyword.c_str() : "<NONE>",
+			!extra_desc->description.empty() ? extra_desc->description.c_str() : "<NONE>");
 
 	strncat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n", sizeof(buf) - strlen(buf) - 1);
 	strncat(buf, "Enter choice (0 to quit) : ", sizeof(buf) - strlen(buf) - 1);
@@ -800,7 +800,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 			OLC_MODE(d) = REDIT_EXIT_DOORFLAGS;
 			redit_disp_exit_flag_menu(d);
 			return;
-		case REDIT_EXTRADESC_KEY: OLC_DESC(d)->keyword = ((arg && *arg) ? str_dup(arg) : nullptr);
+		case REDIT_EXTRADESC_KEY: OLC_DESC(d)->keyword = (arg && *arg) ? arg : "";
 			redit_disp_extradesc_menu(d);
 			return;
 
@@ -809,7 +809,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 0:
 					// * If something got left out, delete the extra description
 					// * when backing out to the menu.
-					if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
+					if (OLC_DESC(d)->keyword.empty() || OLC_DESC(d)->description.empty()) {
 						auto &desc = OLC_DESC(d);
 						desc.reset();
 					}
@@ -822,17 +822,17 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 2: OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
 				iosystem::write_to_output("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
 					d->backstr = nullptr;
-					if (OLC_DESC(d)->description) {
-					iosystem::write_to_output(OLC_DESC(d)->description, d);
-						d->backstr = str_dup(OLC_DESC(d)->description);
+					if (!OLC_DESC(d)->description.empty()) {
+					iosystem::write_to_output(OLC_DESC(d)->description.c_str(), d);
+						d->backstr = str_dup(OLC_DESC(d)->description.c_str());
 					}
-					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));
+					d->writer.reset(new utils::DelegatedStdStringWriter(OLC_DESC(d)->description));
 					d->max_str = 4096;
 					d->mail_to = 0;
 					return;
 
 				case 3:
-					if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
+					if (OLC_DESC(d)->keyword.empty() || OLC_DESC(d)->description.empty()) {
 						SendMsgToChar("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
 									 d->character.get());
 						redit_disp_extradesc_menu(d);
@@ -925,8 +925,8 @@ void CopyRoom(RoomData *dst, RoomData *src) {
 
 	while (sdd) {
 		*pddd = std::make_shared<ExtraDescription>();
-		(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
-		(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
+		(*pddd)->keyword = sdd->keyword;
+		(*pddd)->description = sdd->description;
 		pddd = &((*pddd)->next);
 		sdd = sdd->next;
 	}
