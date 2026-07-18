@@ -417,7 +417,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	const std::string descr = std::string("острые когти ") + ch->get_pad(1);
 	obj->set_short_description(descr);
 	obj->set_description("Острые когти лежат здесь.");
-	obj->set_ex_description(descr.c_str(), "Острые когти лежат здесь.");
+	obj->set_ex_description(descr, "Острые когти лежат здесь.");
 	obj->set_PName(grammar::ECase::kNom, "острые когти");
 	obj->set_PName(grammar::ECase::kGen, "острых когтей");
 	obj->set_PName(grammar::ECase::kDat, "острым когтям");
@@ -524,7 +524,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kShieldBlock: // блок щитом ? делаем щит
 		obj->set_type(EObjType::kArmor);
 		obj->set_description("Роговые пластины лежат здесь.");
-		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
+		obj->set_ex_description(descr, "Роговые пластины лежат здесь.");
 		obj->set_aliases("роговые пластины");
 		obj->set_short_description("роговые пластины");
 		obj->set_PName(grammar::ECase::kNom, "роговые пластины");
@@ -546,7 +546,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 			obj->set_sex(EGender::kPoly);
 			obj->set_weight(50);
 			obj->set_description("Оторванная лапа зверя лежит здесь.");
-			obj->set_ex_description(descr.c_str(), "Оторванная лапа зверя лежит здесь.");
+			obj->set_ex_description(descr, "Оторванная лапа зверя лежит здесь.");
 			obj->set_aliases("огромные лапы");
 			obj->set_short_description("огромные лапы");
 			obj->set_PName(grammar::ECase::kNom, "огромные лапы");
@@ -561,7 +561,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_type(EObjType::kArmor);
 		obj->set_sex(EGender::kFemale);
 		obj->set_description("Прочная шкура лежит здесь.");
-		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
+		obj->set_ex_description(descr, "Прочная шкура лежит здесь.");
 		obj->set_aliases("прочная шкура");
 		obj->set_short_description("прочная шкура");
 		obj->set_PName(grammar::ECase::kNom, "прочная шкура");

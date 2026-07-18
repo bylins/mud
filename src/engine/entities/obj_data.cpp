@@ -621,7 +621,7 @@ void ObjData::swap(ObjData &object, bool swap_trig) {
 
 void ObjData::set_tag(const char *tag) {
 	if (!get_ex_description()) {
-		set_ex_description(get_aliases().c_str(), tag);
+		set_ex_description(get_aliases(), tag);
 	} else {
 		// По уму тут надо бы стереть старое описапние если оно не с прототипа
 		detach_ex_description();
@@ -827,10 +827,8 @@ void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
 	m_timed_spell.del(this, spell_id, message);
 }
 
-void CObjectPrototype::set_ex_description(const char *keyword, const char *description) {
+void CObjectPrototype::set_ex_description(const std::string &keyword, const std::string &description) {
 	ExtraDescription::shared_ptr d(new ExtraDescription());
-	// keyword/description -- std::string, присваиваем напрямую (strdup утёк бы:
-	// строка копирует контент, а выделенный буфер терялся).
 	d->keyword = keyword;
 	d->description = description;
 	m_ex_description = d;
