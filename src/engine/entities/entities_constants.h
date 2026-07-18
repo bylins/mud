@@ -665,6 +665,10 @@ EObjMaterial ITEM_BY_NAME<EObjMaterial>(const std::string &name);
 	kFeat = 4
 };
 
+// Название типа книги (единый источник для OLC-меню и подсказок в yaml).
+// TODO: перенести в конфиги. Возвращает "" для неизвестного типа.
+const char *GetBookTypeName(EBook type);
+
 /**
  * Take/Wear flags: used by obj_data.obj_flags.wear_flags
  */

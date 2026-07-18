@@ -674,32 +674,17 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			// * This is supposed to be language, but it's unused.
 			break;
 
-		case EObjType::kBook:
-			snprintf(buf, sizeof(buf),
-					"%s0%s) %sКнига заклинаний\r\n"
-					"%s1%s) %sКнига умений\r\n"
-					"%s2%s) %sУлучшение умения\r\n"
-					"%s3%s) %sКнига рецептов\r\n"
-					"%s4%s) %sКнига способностей\r\n"
-					"%sВыберите тип книги : ",
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					grn,
-					nrm,
-					yel,
-					nrm);
+		case EObjType::kBook: {
+			// названия типов книг -- из единого источника GetBookTypeName (enum EBook)
+			buf[0] = '\0';
+			for (int bt = EBook::kSpell; bt <= EBook::kFeat; ++bt) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s%d%s) %s%s\r\n",
+						grn, bt, nrm, yel, GetBookTypeName(static_cast<EBook>(bt)));
+			}
+			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%sВыберите тип книги : ", nrm);
 			SendMsgToChar(buf, d->character.get());
 			break;
+		}
 
 		case EObjType::kMagicIngredient:
 			SendMsgToChar("Первый байт - лаг после применения в сек, 6 бит - уровень : ",

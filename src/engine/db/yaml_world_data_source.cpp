@@ -25,6 +25,7 @@
 #include "gameplay/mechanics/dead_load.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/liquid.h"          // issue #3593: drinks[]/NUM_LIQ_TYPES
+#include "gameplay/economics/currencies.h"       // issue #3593: MUD::Currency().GetName()
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/skills/skills.h"
@@ -197,28 +198,17 @@ std::string GetObjValueComment(EObjType type, int slot, int value) {
 		case EObjType::kMoney:
 			if (slot == 0) return "сумма";
 			if (slot == 1) {
-				switch (value) {
-					case 0: return "куны";
-					case 1: return "слава";
-					case 2: return "гривны";
-					case 3: return "снежинки";
-				}
-				return "тип валюты";
+				// валюта -- из кода: money val[1] == vnum валюты (kGoldVnum=0 и т.д.).
+				const std::string &n = MUD::Currency(value).GetName();
+				return (n.empty() || n == "!undefined!") ? "тип валюты" : n;
 			}
 			return "";
 
 		case EObjType::kBook:
-			// значения из enum EBook (entities_constants.h) -- при его переопределении/
-			// переименовании компилятор поймает, а числа-подсказки не разъедутся.
+			// название типа книги -- из единого источника GetBookTypeName (enum EBook).
 			if (slot == 0) {
-				switch (static_cast<EBook>(value)) {
-					case EBook::kSpell:        return "книга заклинаний";
-					case EBook::kSkill:        return "книга умений";
-					case EBook::kSkillUpgrade: return "улучшение умения";
-					case EBook::kReceipt:      return "книга рецептов";
-					case EBook::kFeat:         return "книга способностей";
-				}
-				return "тип книги";
+				const char *n = GetBookTypeName(static_cast<EBook>(value));
+				return (n && *n) ? n : "тип книги";
 			}
 			return "";
 

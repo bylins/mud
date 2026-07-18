@@ -775,5 +775,18 @@ std::vector<EWearFlag> ParseWearPositions(const std::string &val) {
 	return out;
 }
 
+// Единый источник названий типов книг (см. enum EBook). Используется OLC-меню
+// и подсказками в yaml. TODO: перенести в конфиги.
+const char *GetBookTypeName(EBook type) {
+	switch (type) {
+		case EBook::kSpell:        return "Книга заклинаний";
+		case EBook::kSkill:        return "Книга умений";
+		case EBook::kSkillUpgrade: return "Улучшение умения";
+		case EBook::kReceipt:      return "Книга рецептов";
+		case EBook::kFeat:         return "Книга способностей";
+	}
+	return "";
+}
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
