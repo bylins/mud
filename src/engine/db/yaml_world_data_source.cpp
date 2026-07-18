@@ -226,7 +226,11 @@ std::string GetObjValueComment(EObjType type, int slot, int value) {
 			return "";
 
 		case EObjType::kMagicComponent:
-			return slot == 3 ? "класс ингредиента (0 РОСЛЬ, 1 ЖИВЬ, 2 ТВЕРДЬ)" : "";
+			if (slot == 3) {
+				const char *n = GetIngredientClassName(static_cast<EIngredientClass>(value));
+				return (n && *n) ? std::string("класс ингредиента: ") + n : "класс ингредиента";
+			}
+			return "";
 
 		case EObjType::kCraftMaterial:
 			switch (slot) {

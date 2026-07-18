@@ -891,7 +891,13 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 			}
 			break;
 
-		case EObjType::kMagicComponent: SendMsgToChar("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character.get());
+		case EObjType::kMagicComponent:
+			// названия классов -- из единого источника GetIngredientClassName
+			snprintf(buf, sizeof(buf), "Класс ингредиента (0-%s, 1-%s, 2-%s): ",
+					GetIngredientClassName(EIngredientClass::kRosl),
+					GetIngredientClassName(EIngredientClass::kJiv),
+					GetIngredientClassName(EIngredientClass::kTverd));
+			SendMsgToChar(buf, d->character.get());
 			break;
 
 		case EObjType::kCraftMaterial: SendMsgToChar("Введите условный уровень: ", d->character.get());

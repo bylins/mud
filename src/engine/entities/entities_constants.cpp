@@ -788,5 +788,16 @@ const char *GetBookTypeName(EBook type) {
 	return "";
 }
 
+// Единый источник названий классов магингредиентов (см. enum EIngredientClass).
+// Используется OLC-меню и подсказками в yaml. TODO: перенести в конфиги.
+const char *GetIngredientClassName(EIngredientClass type) {
+	switch (type) {
+		case EIngredientClass::kRosl:  return "РОСЛЬ";
+		case EIngredientClass::kJiv:   return "ЖИВЬ";
+		case EIngredientClass::kTverd: return "ТВЕРДЬ";
+	}
+	return "";
+}
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

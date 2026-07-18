@@ -17,10 +17,8 @@
 class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct RoomData;    //
 
-// Определение основных классов ингредиентов: росль, живь, твердь
-#define        IM_CLASS_ROSL        0
-#define        IM_CLASS_JIV        1
-#define        IM_CLASS_TVERD        2
+// Классы ингредиентов (росль/живь/твердь) -- см. enum EIngredientClass в
+// entities_constants.h (заменил старые #define IM_CLASS_*).
 
 #define    IM_POWER_SLOT        1
 #define        IM_TYPE_SLOT        2

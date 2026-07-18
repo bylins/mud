@@ -314,7 +314,7 @@ int im_assign_power(ObjData *obj)
 	onum = GetObjRnum(imtypes[rind].proto_vnum);
 	if (onum < 0)
 		return 4;
-	if (GET_OBJ_VAL(obj_proto[onum], 3) == IM_CLASS_JIV) {
+	if (GET_OBJ_VAL(obj_proto[onum], 3) == static_cast<int>(EIngredientClass::kJiv)) {
 		if (GET_OBJ_VAL(obj, IM_INDEX_SLOT) == -1)
 			return 3;
 		rnum = GetMobRnum(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
