@@ -19,6 +19,7 @@
 #include "gameplay/mechanics/guild_messages.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/regions.h"
+#include "gameplay/mechanics/animate_dead.h"
 #include "gameplay/mechanics/region_messages.h"
 #include "engine/ui/system_messages.h"
 #include "gameplay/mechanics/cities_messages.h"
@@ -90,6 +91,7 @@ class GlobalObjects {
 	static guilds::GuildMessages &GuildMessages();
 	static cities::CitiesInfo &Cities();
 	static regions::RegionsInfo &Regions();
+	static animate_dead::AnimateDeadInfo &AnimateDead();
 	static regions::RegionMessages &RegionMessages();
 	static system_messages::SystemMessages &SystemMessages();
 	static cities::CityMessages &CityMessages();

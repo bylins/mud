@@ -1407,32 +1407,7 @@ EStageResult CastAffect(ActionContext &ctx) {
 // upper tier (>34) is a 50/50 between damager/breather. The caster's own (level + remort + 4)
 // then caps the result: very low-level necromancers can never spawn higher-tier undead.
 static MobVnum PickNecroMobForCorpse(CharData *ch, int corpse_mob_level) {
-	MobVnum mob_num;
-	if (corpse_mob_level <= 5) {
-		mob_num = kMobSkeleton;
-	} else if (corpse_mob_level <= 10) {
-		mob_num = kMobZombie;
-	} else if (corpse_mob_level <= 15) {
-		mob_num = kMobBonedog;
-	} else if (corpse_mob_level <= 20) {
-		mob_num = kMobBonedragon;
-	} else if (corpse_mob_level <= 25) {
-		mob_num = kMobBonespirit;
-	} else if (corpse_mob_level <= 34) {
-		mob_num = kMobNecrotank;
-	} else {
-		mob_num = (number(1, 100) > 50) ? kMobNecrobreather : kMobNecrodamager;
-	}
-	// kMobNecrocaster disabled, cant cast
-	const int cap = GetRealLevel(ch) + remort::GetRealRemort(ch) + 4;
-	if (cap < 15 && mob_num > kMobZombie) {
-		mob_num = kMobZombie;
-	} else if (cap < 25 && mob_num > kMobBonedog) {
-		mob_num = kMobBonedog;
-	} else if (cap < 32 && mob_num > kMobBonedragon) {
-		mob_num = kMobBonedragon;
-	}
-	return mob_num;
+	return static_cast<MobVnum>(animate_dead::PickTier(ch, corpse_mob_level));
 }
 
 
