@@ -112,8 +112,8 @@ EStageResult SummonTutelar(ActionContext &ctx) {
 		mob->player_data.PNames[grammar::ECase::kIns] = "Небесным защитником";
 		mob->player_data.PNames[grammar::ECase::kPre] = "Небесном защитнике";
 		mob->set_npc_name("Небесный защитник");
-		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
-		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
+		mob->player_data.long_descr = "Небесный защитник летает тут.\r\n";
+		mob->player_data.description = "Сияющая призрачная фигура о двух крылах.\r\n";
 	} else {
 		mob->set_sex(EGender::kFemale);
 		mob->SetCharAliases("Небесная защитница");
@@ -124,8 +124,8 @@ EStageResult SummonTutelar(ActionContext &ctx) {
 		mob->player_data.PNames[grammar::ECase::kIns] = "Небесной защитницей";
 		mob->player_data.PNames[grammar::ECase::kPre] = "Небесной защитнице";
 		mob->set_npc_name("Небесная защитница");
-		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
-		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
+		mob->player_data.long_descr = "Небесная защитница летает тут.\r\n";
+		mob->player_data.description = "Сияющая призрачная фигура о двух крылах.\r\n";
 	}
 
 	float additional_str_for_charisma = 0.6875;
