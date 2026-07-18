@@ -1,0 +1,86 @@
+<!--
+  issue.animate-dead: Vedun editor scheme for cfg/mechanics/animate_dead.xml. Each <creature>
+  is a construct tier keyed by integer vnum (ladder order, weakest -> strongest). <control> is
+  the global headcount budget. <scaling> holds one child per scaled stat; beta is the per-C
+  factor, mode is add|mult, cap bounds the result. Optional sidecar; undeclared nodes degrade
+  to plain strings and are validated on save by the loader.
+-->
+<scheme>
+	<tag name="animate_dead" desc="Warlock construct (animate-dead) parameters">
+		<child tag="control"/>
+		<child tag="creature" multiple="Y"/>
+	</tag>
+	<tag name="control" desc="Headcount budget">
+		<attr name="skill" type="string" desc="ESkill id gating headcount (e.g. kDarkMagic)"/>
+		<attr name="budget_cap" type="int" desc="Skill cap that becomes the control budget"/>
+	</tag>
+	<tag name="creature" desc="One construct tier, keyed by integer vnum (ladder order)">
+		<attr name="vnum" type="int" readonly="Y" desc="Ladder index (identity; immutable)"/>
+		<attr name="id" type="string" desc="Tier id, e.g. kSkeleton"/>
+		<attr name="proto_vnum" type="int" desc="Summoned mob prototype vnum"/>
+		<attr name="weight" type="int" desc="Control-budget cost of one of this tier"/>
+		<child tag="cost"/>
+		<child tag="scaling"/>
+	</tag>
+	<tag name="cost" desc="Tier selection">
+		<attr name="corpse_max_level" type="int" desc="Highest source-corpse level yielding this tier"/>
+		<attr name="min_rating" type="int" desc="Smallest caster rating (level+remort+4) allowed"/>
+		<attr name="pick" type="int" desc="Relative odds within a shared top corpse band"/>
+	</tag>
+	<tag name="scaling" desc="Per-tier stat scaling off cast competence C">
+		<child tag="hp"/>
+		<child tag="damage_dice"/>
+		<child tag="hitroll"/>
+		<child tag="ac"/>
+		<child tag="skills"/>
+		<child tag="saving"/>
+		<child tag="armor"/>
+		<child tag="morale"/>
+		<child tag="initiative"/>
+	</tag>
+	<tag name="hp" desc="Max HP (mode=mult keeps tier proportions)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="damage_dice" desc="Number of damage dice (mode=add)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="hitroll" desc="Hitroll (higher = better)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="ac" desc="Armor class (lower = better; cap = best/lowest)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="skills" desc="Every prototype skill, uniform (higher = better)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="saving" desc="All saving throws (lower = better; cap = best/lowest)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="armor" desc="Armour value (higher = better)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="morale" desc="Morale (higher = better)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+	<tag name="initiative" desc="Initiative (higher = better)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+	</tag>
+</scheme>
