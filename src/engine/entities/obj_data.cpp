@@ -1222,6 +1222,9 @@ bool is_valid_drinkcon(const ObjVal::EValueKey key) {
 		case ObjVal::EValueKey::kMakerSkill:
 		case ObjVal::EValueKey::kMakerStat:
 		case ObjVal::EValueKey::kLiquidTimer:
+		case ObjVal::EValueKey::kLiquidCapacity:
+		case ObjVal::EValueKey::kLiquidCurrent:
+		case ObjVal::EValueKey::kLiquidType:
 		case ObjVal::EValueKey::kLiquidPoison: return true;
 		default: return false;   // issue.magic-items: kSpellItem* keys are not drinkcon keys
 	}

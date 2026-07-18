@@ -102,3 +102,44 @@ TEST(SpellItemConvert, UnifiedKeyReadAliases) {
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
+
+// issue.magic-items-hotfix: a drink-container/fountain liquid core lives in the kLiquid* keys; the val
+// mutators (get/set/dec/inc/add/sub_val) redirect indices 0..2 to them, so val[] is not the store.
+TEST(DrinkconLiquidCore, ValMutatorsRedirectToKeys) {
+	auto p = make_proto(EObjType::kLiquidContainer, 24, 18, 5, 0);  // set_val -> keys
+	EXPECT_EQ(24, key(p, ObjVal::EValueKey::kLiquidCapacity));
+	EXPECT_EQ(18, key(p, ObjVal::EValueKey::kLiquidCurrent));
+	EXPECT_EQ(5,  key(p, ObjVal::EValueKey::kLiquidType));
+	EXPECT_EQ(24, p->get_val(0));  // get_val reads the key
+	EXPECT_EQ(18, p->get_val(1));
+	EXPECT_EQ(5,  p->get_val(2));
+}
+
+TEST(DrinkconLiquidCore, DrinkingUpdatesTheKey) {
+	auto p = make_proto(EObjType::kFountain, 50, 50, 2, 0);
+	p->sub_val(1, 20);  // drink 20
+	EXPECT_EQ(30, p->get_val(1));
+	EXPECT_EQ(30, key(p, ObjVal::EValueKey::kLiquidCurrent));  // key is the store, kept in sync
+	p->dec_val(1);
+	EXPECT_EQ(29, key(p, ObjVal::EValueKey::kLiquidCurrent));
+}
+
+TEST(DrinkconLiquidCore, ZeroIsStoredNotAbsent) {
+	auto p = make_proto(EObjType::kLiquidContainer, 24, 0, 0, 0);  // empty container of water
+	EXPECT_EQ(0, key(p, ObjVal::EValueKey::kLiquidCurrent));
+	EXPECT_EQ(0, key(p, ObjVal::EValueKey::kLiquidType));
+	EXPECT_EQ(0, p->get_val(1));
+	EXPECT_EQ(0, p->get_val(2));
+}
+
+TEST(DrinkconLiquidCore, NonDrinkTypeUsesValArray) {
+	auto p = make_proto(EObjType::kArmor, 1, 2, 3, 4);
+	EXPECT_LT(key(p, ObjVal::EValueKey::kLiquidCapacity), 0);  // no liquid key created
+	EXPECT_EQ(1, p->get_val(0));                               // reads m_vals
+}
+
+TEST(DrinkconLiquidCore, ConvertIsNoOpWhenKeysPresent) {
+	auto p = make_proto(EObjType::kLiquidContainer, 24, 18, 5, 0);  // set_val already populated the keys
+	EXPECT_EQ(0, ConvertDrinkconLiquidCore(p.get(), true));
+}
