@@ -208,13 +208,15 @@ std::string GetObjValueComment(EObjType type, int slot, int value) {
 			return "";
 
 		case EObjType::kBook:
+			// значения из enum EBook (entities_constants.h) -- при его переопределении/
+			// переименовании компилятор поймает, а числа-подсказки не разъедутся.
 			if (slot == 0) {
-				switch (value) {
-					case 0: return "книга заклинаний";
-					case 1: return "книга умений";
-					case 2: return "улучшение умения";
-					case 3: return "книга рецептов";
-					case 4: return "книга способностей";
+				switch (static_cast<EBook>(value)) {
+					case EBook::kSpell:        return "книга заклинаний";
+					case EBook::kSkill:        return "книга умений";
+					case EBook::kSkillUpgrade: return "улучшение умения";
+					case EBook::kReceipt:      return "книга рецептов";
+					case EBook::kFeat:         return "книга способностей";
 				}
 				return "тип книги";
 			}
