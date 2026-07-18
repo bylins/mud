@@ -290,6 +290,16 @@ std::string GetExtraValueSpellComment(const std::string &key, int value) {
 	return GetSpellNameComment(static_cast<ESpell>(value));
 }
 
+// issue.magic-items-hotfix: подпись значения для extra_values-ключей, чей смысл --
+// enum из кода. LIQUID_TYPE (бывший val[2] у питья/фонтанов, теперь ключ) -- название
+// жидкости из drinks[] (enum LIQ_*). Прочее делегируем на спелл-подпись.
+std::string GetExtraValueComment(const std::string &key, int value) {
+	if (key == "LIQUID_TYPE") {
+		return (value >= 0 && value < NUM_LIQ_TYPES) ? std::string(drinks[value]) : "";
+	}
+	return GetExtraValueSpellComment(key, value);
+}
+
 // Get material name by ID (for material comments)
 std::string GetMaterialNameComment(int material_id) {
 	return ::material_name[material_id];
@@ -4712,7 +4722,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 			for (const auto &kv : sorted_vals)
 			{
 				yaml.Key(kv.first);
-				yaml.Value(kv.second, GetExtraValueSpellComment(kv.first, kv.second));
+				yaml.Value(kv.second, GetExtraValueComment(kv.first, kv.second));
 			}
 			yaml.EndBlock();
 		}
