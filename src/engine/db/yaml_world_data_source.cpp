@@ -226,15 +226,9 @@ std::string GetObjValueComment(EObjType type, int slot, int value) {
 			return "";
 
 		case EObjType::kMagicComponent:
-			// слоты магкомпонента: см. IM_POWER_SLOT/IM_TYPE_SLOT/IM_INDEX_SLOT (im.h)
-			switch (slot) {
-				case 1: return "сила ингредиента";             // IM_POWER_SLOT
-				case 2: return "номер типа (из im.lst)";       // IM_TYPE_SLOT
-				case 3: {                                       // IM_INDEX_SLOT: в прото -- класс
-					const char *n = GetIngredientClassName(static_cast<EIngredientClass>(value));
-					return (n && *n) ? std::string("класс ингредиента: ") + n : "класс ингредиента";
-				}
-			}
+			// В OLC у магкомпонента доступен только val[0]; val[1..3] заполняются
+			// при загрузке мада из lib/misc/im.lst (сила/тип/индекс), в objects.yaml
+			// это плейсхолдеры -- поэтому их не подписываем, чтобы не вводить в заблуждение.
 			return "";
 
 		case EObjType::kCraftMaterial:
