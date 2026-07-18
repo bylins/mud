@@ -156,6 +156,7 @@ std::string GetObjValueComment(EObjType type, int slot, int value) {
 
 		case EObjType::kWeapon:
 			switch (slot) {
+				case 0: return "не используется";
 				case 1: return "число бросков кубика";
 				case 2: return "граней кубика";
 				case 3: {
