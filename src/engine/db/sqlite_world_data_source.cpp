@@ -3169,8 +3169,8 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
 			sqlite3_bind_int(stmt, 1, room_vnum);
-			BindTextKoi(stmt, 2, exdesc->keyword);
-			BindTextKoi(stmt, 3, exdesc->description);
+			BindTextKoi(stmt, 2, exdesc->keyword.c_str());
+			BindTextKoi(stmt, 3, exdesc->description.c_str());
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
@@ -3879,8 +3879,8 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
 			sqlite3_bind_int(stmt, 1, obj_vnum);
-			BindTextKoi(stmt, 2, exdesc->keyword);
-			BindTextKoi(stmt, 3, exdesc->description);
+			BindTextKoi(stmt, 2, exdesc->keyword.c_str());
+			BindTextKoi(stmt, 3, exdesc->description.c_str());
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
