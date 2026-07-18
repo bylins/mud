@@ -407,15 +407,30 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				*error = 46;
 				ExtraDescription new_descr;
 				new_descr.keyword = buffer;
-				if (new_descr.keyword == "None") {
-					object->set_ex_description(nullptr);
-				} else {
+				// Маркер "None" в старых рентах означал "описаний нет"; больше не
+				// пишется -- просто пропускаем (описания прототипа не трогаем).
+				if (new_descr.keyword != "None") {
 					if (!get_buf_lines(data, buffer)) {
 						*error = 47;
 						return (object);
 					}
 					new_descr.description = buffer;
-					object->ex_descriptions().push_back(std::move(new_descr));
+					// Мерж по ключу: объект -- копия прототипа, в ренте лежат только
+					// отличия. Есть описание с таким ключом -- меняем его текст,
+					// нет -- добавляем новое.
+					auto &descs = object->ex_descriptions();
+					ExtraDescription *same_key = nullptr;
+					for (auto &d : descs) {
+						if (!str_cmp(d.keyword.c_str(), new_descr.keyword.c_str())) {
+							same_key = &d;
+							break;
+						}
+					}
+					if (same_key) {
+						same_key->description = std::move(new_descr.description);
+					} else {
+						descs.push_back(std::move(new_descr));
+					}
 				}
 			} else if (!strcmp(read_line, "Ouid")) {
 				*error = 48;
@@ -621,10 +636,16 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	return (object);
 }
 
+// Есть ли в прототипе точно такое же экстра-описание. Если да -- в ренте его не
+// пишем: при загрузке оно приходит из копии прототипа. Ключ сравниваем
+// регистронезависимо (как матчинг ключей в игре), а текст -- точно, побайтно
+// (== короче str_cmp: сначала сверяет длину, при равной делает memcmp, и не
+// даункейсит по 2-3 сотни символов). Иначе описание, отличающееся хотя бы
+// регистром, ошибочно считалось бы совпавшим и терялось при сохранении.
 inline bool proto_has_descr(const ExtraDescription &odesc, const std::vector<ExtraDescription> &pdesc) {
 	for (const auto &desc : pdesc) {
 		if (!str_cmp(odesc.keyword.c_str(), desc.keyword.c_str())
-			&& !str_cmp(odesc.description.c_str(), desc.description.c_str())) {
+			&& odesc.description == desc.description) {
 			return true;
 		}
 	}
@@ -811,15 +832,16 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 				out << "Afc" << j << ": " << oaff.location << " " << oaff.modifier << "~\n";
 			}
 		}
+		// Диф экстра-описаний против прототипа: описания, совпадающие с
+		// прототипом (ключ + текст), в ренте не пишем -- при загрузке они
+		// приходят из копии прототипа. Пишем только новые/изменённые; при
+		// загрузке мерж идёт по ключу (см. read_one_object_new).
 		for (const auto &descr : object->get_ex_description()) {
 			if (proto_has_descr(descr, p->get_ex_description())) {
 				continue;
 			}
 			out << "Edes: " << descr.keyword << "~\n"
 				<< descr.description << "~\n";
-		}
-		if (object->get_ex_description().empty() && !p->get_ex_description().empty()) {
-			out << "Edes: None~\n";
 		}
 		if (object->get_auto_mort_req() > 0) {
 			out << "Mort: " << object->get_auto_mort_req() << "~\n";
