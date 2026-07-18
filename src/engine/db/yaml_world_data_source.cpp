@@ -26,6 +26,7 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/liquid.h"          // issue #3593: drinks[]/NUM_LIQ_TYPES
 #include "gameplay/economics/currencies.h"       // issue #3593: MUD::Currency().GetName()
+#include "gameplay/fight/fight_messages.h"        // issue #3593: GetAttackTypeDescription
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/skills/skills.h"
@@ -157,7 +158,11 @@ std::string GetObjValueComment(EObjType type, int slot, int value) {
 			switch (slot) {
 				case 1: return "число бросков кубика";
 				case 2: return "граней кубика";
-				case 3: return "тип атаки";   // enum-номер; расшифровку см. в oedit/medit
+				case 3: {
+					// тип удара -- из кода (fight-сообщения); в oedit save all они загружены
+					const std::string &n = fight::GetAttackTypeDescription(value);
+					return n.empty() ? "тип атаки" : "тип атаки: " + n;
+				}
 			}
 			return "";
 
