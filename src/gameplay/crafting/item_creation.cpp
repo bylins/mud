@@ -1700,7 +1700,10 @@ int MakeRecept::make(CharData *ch) {
 		case EObjType::kWand:
 		case EObjType::kStaff:
 			// Считаем уровень закла
-			obj->set_val(0, GetRealLevel(ch));
+			// issue.magic-items: the maker's competence (make-staff skill + Int) becomes the casting
+			// potency (kSpellItem* keys), replacing the legacy val[0] = caster level.
+			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, std::max(1, GetSkill(ch, ESkill::kMakeStaff)));
+			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
 			break;
 		case EObjType::kWeapon:
 			// Считаем число xdy

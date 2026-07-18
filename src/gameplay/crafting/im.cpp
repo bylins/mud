@@ -314,7 +314,7 @@ int im_assign_power(ObjData *obj)
 	onum = GetObjRnum(imtypes[rind].proto_vnum);
 	if (onum < 0)
 		return 4;
-	if (GET_OBJ_VAL(obj_proto[onum], 3) == IM_CLASS_JIV) {
+	if (GET_OBJ_VAL(obj_proto[onum], 3) == static_cast<int>(EIngredientClass::kJiv)) {
 		if (GET_OBJ_VAL(obj, IM_INDEX_SLOT) == -1)
 			return 3;
 		rnum = GetMobRnum(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
@@ -1437,6 +1437,14 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (result) {
 			switch (result->get_type()) {
 				case EObjType::kScroll:
+					// issue.magic-items: a crafted scroll stores the crafter's competence (recipe skill + Int),
+					// like a brewed potion; its spells come from the prototype's kSpellItem* keys.
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
+					if (val[2] > 0) {
+						result->set_timer(val[2]);
+					}
+					break;
 				case EObjType::kPotion:
 					if (val[0] > 0) {
 						result->set_val(0, val[0]);
@@ -1459,8 +1467,8 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							// computed potency: the brewing skill (rs->perc -- it stands in for the magic
 							// skill, since non-mages brew too) and the key stat (Intelligence). The
 							// competence is derived from these at cast, per spell.
-							result->SetPotionValueKey(ObjVal::EValueKey::kPotionSkill, rs->perc);
-							result->SetPotionValueKey(ObjVal::EValueKey::kPotionStat,
+							result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
+							result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 													  GetRealBaseStat(ch, EBaseStat::kInt));
 							// One standard-normal draw (mean z=0, sd z=1), encoded with the bias so it
 							// stores positive. sigma-independent: every spell scales it by its own sigma.
@@ -1474,12 +1482,12 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				case EObjType::kWand:
 				case EObjType::kStaff:
-					if (val[0] > 0) {
-						result->set_val(0, val[0]);
-					}
+					// issue.magic-items: crafted wand/staff -- crafter competence + charges into kSpellItem keys.
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
+					result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
 					if (val[1] > 0) {
-						result->set_val(1, val[1]);
-						result->set_val(2, val[1]);
+						result->SetPotionValueKey(ObjVal::EValueKey::kMaxCharges, val[1]);
+						result->SetPotionValueKey(ObjVal::EValueKey::kCurCharges, val[1]);
 					}
 					if (val[2] > 0) {
 						result->set_timer(val[2]);

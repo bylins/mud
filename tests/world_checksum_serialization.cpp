@@ -168,7 +168,7 @@ TEST(SerializeRoom, UndefFlagsAreNotMaskedFromChecksum) {
 TEST(SerializeObject, IncludesExtraValuesFromObjVal) {
 	auto obj = std::make_shared<CObjectPrototype>(42);
 	obj->set_type(EObjType::kPotion);
-	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, 17);
+	obj->SetPotionValueKey(ObjVal::EValueKey::kSpell1Num, 17);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Lvl, 23);
 
 	const std::string out = WorldChecksum::SerializeObject(obj);
@@ -185,7 +185,7 @@ TEST(SerializeObject, ObjectsDifferingOnlyByExtraValuesSerializeDifferently) {
 	b->set_type(EObjType::kPotion);
 
 	// Same base values, same flags, same descriptions -- only ObjVal map differs.
-	a->SetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num, 17);
+	a->SetPotionValueKey(ObjVal::EValueKey::kSpell1Num, 17);
 
 	const std::string sa = WorldChecksum::SerializeObject(a);
 	const std::string sb = WorldChecksum::SerializeObject(b);

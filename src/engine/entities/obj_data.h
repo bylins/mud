@@ -39,24 +39,26 @@ class ObjVal {
 		// issue.potion-hotfix: magic-potion (kPotion) payload, also carried by a drink container.
 		// Persisted BY NAME via the text_id kObjVals table (utils_parse.cpp), so the on-disk
 		// strings stay stable even though the C++ identifiers follow the Google style.
-		kPotionSpell1Num = 0,
-		kPotionSpell1Lvl = 1,   // retired: no per-spell power (misnamed "level"). Kept only so old
-		kPotionSpell2Num = 2,   // saves still load; strength is kPotionPotency, one per potion.
-		kPotionSpell2Lvl = 3,   // retired
-		kPotionSpell3Num = 4,   // the REAL 3rd spell again (had been hijacked to store the potency)
-		kPotionSpell3Lvl = 5,   // retired
-		kPotionProtoVnum = 6,   // vnum of the source potion poured into a container (0 = set via OLC)
-		kPotionPotency = 7,     // the potion's single casting potency (competence C), replayed at cast
-		kPotionBrewRoll = 8,    // the brew-success roll: the noise realization, replayed at cast
-		kPotionSkill = 9,       // the MAKER's skill (brew skill for crafted, authored default else) --
-		                        // stands in for the magic skill (non-mages brew too); drives DURATION
-		                        // and, with kPotionStat, the competence (AMOUNT). Drinker never matters.
-		kPotionStat = 10,       // the MAKER's key stat (Intelligence when brewing / authored default)
-		// issue.potion-hotfix: drink/food CONTENTS state, split out of the historically overloaded
-		// val[3] (which meant BOTH a freshness countdown AND, at exactly 1, "poisoned"). Persisted by
-		// name via the kObjVals text_id table, like the potion keys above.
-		kLiquidTimer = 11,      // contents freshness: counts down 1/mud-hour; reaching 0 spoils the potion
-		kLiquidPoison = 12      // poison level applied on drinking (0 = harmless); set when it spoils
+		// issue.magic-items: unified spell-casting-item payload -- shared by potions, scrolls, wands and
+		// staves (a potion IS a magic item). The spell/skill/stat keys are COMMON; only the type-specific
+		// keys differ (potion: proto/potency/brew-roll/liquid; wand/staff: charges). Persisted BY NAME via
+		// text_id::kObjVals; the canonical strings are the new short names, and the old POTION_*/SPELLITEM_*
+		// strings are kept as READ-ALIASES so every existing item still loads (see text_id::InitObjVals).
+		kSpell1Num = 0,        // shared: 1st spell (was kPotionSpell1Num / kSpellItemSpell1Num)
+		kPotionSpell1Lvl = 1,  // retired per-spell level; kept only so old potion saves still load
+		kSpell2Num = 2,        // shared: 2nd spell
+		kPotionSpell2Lvl = 3,  // retired
+		kSpell3Num = 4,        // shared: 3rd spell
+		kPotionSpell3Lvl = 5,  // retired
+		kPotionProtoVnum = 6,  // potion-only: vnum of the source potion poured into a container
+		kPotionPotency = 7,    // potion-only: legacy pre-computed potency (pre-P3b migrated saves)
+		kPotionBrewRoll = 8,   // potion-only: frozen brew-luck noise, replayed at cast
+		kMakerSkill = 9,       // shared: maker skill -> potency + duration (was kPotionSkill / kSpellItemSkill)
+		kMakerStat = 10,       // shared: maker key stat -> potency (was kPotionStat / kSpellItemStat)
+		kLiquidTimer = 11,     // drink/potion-only: contents freshness countdown
+		kLiquidPoison = 12,    // drink/potion-only: poison level applied on drinking
+		kMaxCharges = 13,      // wand/staff-only: capacity (was kSpellItemMaxCharges)
+		kCurCharges = 14       // wand/staff-only: charges remaining (was kSpellItemCurCharges)
 	};
 
 	// issue.potion-hotfix: fixed-point scale for kPotionBrewRoll. The stored int is
