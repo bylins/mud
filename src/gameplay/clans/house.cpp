@@ -5494,11 +5494,10 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj->set_description(it->desc);
 
 		if (it->longdesc.length() > 0) {
-			ExtraDescription::shared_ptr new_descr(new ExtraDescription());
-			new_descr->keyword = str_dup(obj->get_short_description().c_str());
-			new_descr->description = str_dup(it->longdesc.c_str());
-			new_descr->next = nullptr;
-			obj->set_ex_description(new_descr);
+			ExtraDescription new_descr;
+			new_descr.keyword = obj->get_short_description();
+			new_descr.description = it->longdesc;
+			obj->ex_descriptions().assign(1, std::move(new_descr));
 		}
 
 		if (!cnt) {

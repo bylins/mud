@@ -88,11 +88,11 @@ void ObjData::zero_init() {
 }
 
 void ObjData::detach_ex_description() {
-	const auto old_description = get_ex_description();
-	const auto new_description = std::make_shared<ExtraDescription>();
-	new_description->keyword = old_description->keyword;
-	new_description->description = old_description->description;
-	set_ex_description(new_description);
+	// vector экстра-описаний уже приватный у объекта; сохраняем прежнее
+	// поведение -- оставляем только первое описание (бывшую голову).
+	if (ex_descriptions().size() > 1) {
+		ex_descriptions().resize(1);
+	}
 }
 
 // * См. Character::purge()
@@ -273,7 +273,7 @@ void CObjectPrototype::zero_init() {
 	m_description.clear();
 	m_short_description.clear();
 	m_action_description.clear();
-	m_ex_description.reset();
+	m_ex_description.clear();
 	m_proto_script->clear();
 	m_dgscript_field.clear();
 	m_max_in_world = 0;
@@ -302,7 +302,9 @@ void CObjectPrototype::set_vnum(const ObjVnum vnum) {
 }
 
 void CObjectPrototype::tag_ex_description(const char *tag) {
-	m_ex_description->description += tag;
+	if (!m_ex_description.empty()) {
+		m_ex_description.front().description += tag;
+	}
 }
 
 CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
@@ -552,23 +554,8 @@ void ObjData::copy_from(const CObjectPrototype *src) {
 																: "неопределено");
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
 
-	// Дополнительные описания, если есть
-	{
-		ExtraDescription::shared_ptr nd;
-		auto *pddd = &nd;
-		auto sdd = src->get_ex_description();
-		while (sdd) {
-			pddd->reset(new ExtraDescription());
-			(*pddd)->keyword = sdd->keyword;
-			(*pddd)->description = sdd->description;
-			pddd = &(*pddd)->next;
-			sdd = sdd->next;
-		}
-
-		if (nd) {
-			set_ex_description(nd);
-		}
-	}
+	// Дополнительные описания, если есть (vector копируется по значению)
+	ex_descriptions() = src->get_ex_description();
 }
 
 void ObjData::swap(ObjData &object, bool swap_trig) {
@@ -620,7 +607,7 @@ void ObjData::swap(ObjData &object, bool swap_trig) {
 }
 
 void ObjData::set_tag(const char *tag) {
-	if (!get_ex_description()) {
+	if (get_ex_description().empty()) {
 		set_ex_description(get_aliases(), tag);
 	} else {
 		// По уму тут надо бы стереть старое описапние если оно не с прототипа
@@ -828,10 +815,10 @@ void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
 }
 
 void CObjectPrototype::set_ex_description(const std::string &keyword, const std::string &description) {
-	ExtraDescription::shared_ptr d(new ExtraDescription());
-	d->keyword = keyword;
-	d->description = description;
-	m_ex_description = d;
+	ExtraDescription d;
+	d.keyword = keyword;
+	d.description = description;
+	m_ex_description.assign(1, std::move(d));
 }
 
 void set_obj_aff(ObjData *itemobj, const EAffect bitv) {

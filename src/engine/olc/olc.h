@@ -97,7 +97,7 @@ struct olc_data {
 	RoomData *room;
 	ObjData *obj;
 	ZoneData *zone;
-	ExtraDescription::shared_ptr desc;
+	int desc{-1};   // индекс редактируемого экстра-описания в векторе сущности (-1 = нет)
 
 	MakeRecept *mrec;
 

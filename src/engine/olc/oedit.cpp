@@ -366,20 +366,17 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 			}
 
 			// * Do we have extra descriptions?
-			if (obj->get_ex_description())    // Yes, save them too.
-			{
-				for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next) {
-					// * Sanity check to prevent nasty protection faults.
-					if (ex_desc->keyword.empty()
-						|| ex_desc->description.empty()) {
-						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
-							   BRF, kLvlBuilder, SYSLOG, true);
-						continue;
-					}
-					snprintf(buf1, sizeof(buf1), "%s", ex_desc->description.c_str());
-					strip_string(buf1);
-					fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc->keyword.c_str(), buf1);
+			for (const auto &ex_desc : obj->get_ex_description()) {
+				// * Sanity check to prevent nasty protection faults.
+				if (ex_desc.keyword.empty()
+					|| ex_desc.description.empty()) {
+					mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
+						   BRF, kLvlBuilder, SYSLOG, true);
+					continue;
 				}
+				snprintf(buf1, sizeof(buf1), "%s", ex_desc.description.c_str());
+				strip_string(buf1);
+				fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc.keyword.c_str(), buf1);
 			}
 			// * Do we have affects?
 			for (counter2 = 0; counter2 < kMaxObjAffect; counter2++) {
@@ -447,8 +444,11 @@ void oedit_disp_container_flags_menu(DescriptorData *d) {
 
 // * For extra descriptions.
 void oedit_disp_extradesc_menu(DescriptorData *d) {
-	auto extra_desc = OLC_DESC(d);
-	snprintf(buf1, sizeof(buf1), "%s", !extra_desc->next ? "<Not set>\r\n" : "Set.");
+	auto &descs = OLC_OBJ(d)->ex_descriptions();
+	const int idx = OLC_DESC(d);
+	const ExtraDescription &extra_desc = descs[idx];
+	const bool has_next = (idx + 1 < static_cast<int>(descs.size()));
+	snprintf(buf1, sizeof(buf1), "%s", !has_next ? "<Not set>\r\n" : "Set.");
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -459,8 +459,8 @@ void oedit_disp_extradesc_menu(DescriptorData *d) {
 			 "%s3%s) Следующий дескриптор: %s\r\n"
 			 "%s0%s) Выход\r\n"
 			 "Ваш выбор : ",
-			 grn, nrm, yel, !extra_desc->keyword.empty() ? extra_desc->keyword.c_str() : "<NONE>",
-			 grn, nrm, yel, !extra_desc->description.empty() ? extra_desc->description.c_str() : "<NONE>",
+			 grn, nrm, yel, !extra_desc.keyword.empty() ? extra_desc.keyword.c_str() : "<NONE>",
+			 grn, nrm, yel, !extra_desc.description.empty() ? extra_desc.description.c_str() : "<NONE>",
 			 grn, nrm, buf1, grn, nrm);
 	SendMsgToChar(buf, d->character.get());
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
@@ -1715,10 +1715,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 't':
 				case 'T':
 					// * If extra descriptions don't exist.
-					if (!OLC_OBJ(d)->get_ex_description()) {
-						OLC_OBJ(d)->set_ex_description(new ExtraDescription());
+					if (OLC_OBJ(d)->get_ex_description().empty()) {
+						OLC_OBJ(d)->ex_descriptions().emplace_back();
 					}
-					OLC_DESC(d) = OLC_OBJ(d)->get_ex_description();
+					OLC_DESC(d) = 0;
 					oedit_disp_extradesc_menu(d);
 					break;
 
@@ -2208,51 +2208,58 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case OEDIT_EXTRADESC_KEY:
-			OLC_DESC(d)->keyword = (arg && *arg) ? arg : "undefined";
+			OLC_OBJ(d)->ex_descriptions()[OLC_DESC(d)].keyword = (arg && *arg) ? arg : "undefined";
 			oedit_disp_extradesc_menu(d);
 			return;
 
 		case OEDIT_EXTRADESC_MENU:
 			switch ((number = atoi(arg))) {
-				case 0:
-					if (OLC_DESC(d)->keyword.empty() || OLC_DESC(d)->description.empty()) {
-						OLC_DESC(d).reset();
-						OLC_OBJ(d)->set_ex_description(nullptr);
+				case 0: {
+					auto &descs = OLC_OBJ(d)->ex_descriptions();
+					// незавершённое описание (нет ключа или текста) удаляем из вектора
+					if (descs[OLC_DESC(d)].keyword.empty() || descs[OLC_DESC(d)].description.empty()) {
+						descs.erase(descs.begin() + OLC_DESC(d));
+						OLC_DESC(d) = -1;
 					}
 					break;
+				}
 
 				case 1: OLC_MODE(d) = OEDIT_EXTRADESC_KEY;
 					SendMsgToChar("Enter keywords, separated by spaces :-\r\n| ", d->character.get());
 					return;
 
-				case 2: OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
-				iosystem::write_to_output("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
+				case 2: {
+					OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
+					iosystem::write_to_output("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
 					d->backstr = nullptr;
-					if (!OLC_DESC(d)->description.empty()) {
-					iosystem::write_to_output(OLC_DESC(d)->description.c_str(), d);
-						d->backstr = str_dup(OLC_DESC(d)->description.c_str());
+					auto &cur = OLC_OBJ(d)->ex_descriptions()[OLC_DESC(d)];
+					if (!cur.description.empty()) {
+						iosystem::write_to_output(cur.description.c_str(), d);
+						d->backstr = str_dup(cur.description.c_str());
 					}
-					d->writer.reset(new utils::DelegatedStdStringWriter(OLC_DESC(d)->description));
+					d->writer.reset(new utils::DelegatedStdStringWriter(cur.description));
 					d->max_str = 4096;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
 					return;
+				}
 
-				case 3:
+				case 3: {
 					// * Only go to the next description if this one is finished.
-					if (!OLC_DESC(d)->keyword.empty() && !OLC_DESC(d)->description.empty()) {
-						if (OLC_DESC(d)->next) {
-							OLC_DESC(d) = OLC_DESC(d)->next;
-						} else    // Make new extra description and attach at end.
-						{
-							ExtraDescription::shared_ptr new_extra(new ExtraDescription());
-							OLC_DESC(d)->next = new_extra;
-							OLC_DESC(d) = OLC_DESC(d)->next;
+					auto &descs = OLC_OBJ(d)->ex_descriptions();
+					const int idx = OLC_DESC(d);
+					if (!descs[idx].keyword.empty() && !descs[idx].description.empty()) {
+						if (idx + 1 < static_cast<int>(descs.size())) {
+							OLC_DESC(d) = idx + 1;
+						} else {    // Make new extra description and attach at end.
+							descs.emplace_back();
+							OLC_DESC(d) = static_cast<int>(descs.size()) - 1;
 						}
 					}
 					// * No break - drop into default case.
 
 					// fall through
+				}
 				default: oedit_disp_extradesc_menu(d);
 					return;
 			}

@@ -1465,10 +1465,10 @@ bool put_delim(std::stringstream &out, bool delim) {
 	return true;
 }
 
-const char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list) {
-	for (auto i = list; i; i = i->next) {
-		if (isname(word, i->keyword)) {
-			return i->description.c_str();
+const char *find_exdesc(const char *word, const std::vector<ExtraDescription> &list) {
+	for (const auto &i : list) {
+		if (isname(word, i.keyword)) {
+			return i.description.c_str();
 		}
 	}
 

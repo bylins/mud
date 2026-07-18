@@ -1680,11 +1680,10 @@ void YamlWorldDataSource::LoadRoomExtraDescriptions(RoomData *room, const YAML::
 		std::string keywords = GetText(ed_node, "keywords", "");
 		std::string description = GetText(ed_node, "description", "");
 
-		auto ex_desc = std::make_shared<ExtraDescription>();
-		ex_desc->set_keyword(keywords);
-		ex_desc->set_description(description);
-		ex_desc->next = room->ex_description;
-		room->ex_description = ex_desc;
+		ExtraDescription ex_desc;
+		ex_desc.set_keyword(keywords);
+		ex_desc.set_description(description);
+		room->ex_description.push_back(std::move(ex_desc));
 	}
 }
 
@@ -2491,11 +2490,10 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 					std::string keywords = GetText(ed_node, "keywords");
 					std::string description = GetText(ed_node, "description");
 
-					auto ex_desc = std::make_shared<ExtraDescription>();
-					ex_desc->set_keyword(keywords);
-					ex_desc->set_description(description);
-					ex_desc->next = obj_ptr->get_ex_description();
-					obj_ptr->set_ex_description(ex_desc);
+					ExtraDescription ex_desc;
+					ex_desc.set_keyword(keywords);
+					ex_desc.set_description(description);
+					obj_ptr->ex_descriptions().push_back(std::move(ex_desc));
 				}
 			}
 
@@ -3557,13 +3555,13 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 	// issue #3596: экстра-дескриптор без описания (0 символов/одни пробелы, напр.
 	// после очистки в OLC через /c) считаем несуществующим -- не пишем; если
 	// валидных дескрипторов не осталось, секцию опускаем.
-	std::vector<ExtraDescription *> exdescs;
-	for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
+	std::vector<const ExtraDescription *> exdescs;
+	for (const auto &exdesc : room->ex_description)
 	{
-		if (!exdesc->keyword.empty()
-			&& exdesc->description.find_first_not_of(" \t\r\n") != std::string::npos)
+		if (!exdesc.keyword.empty()
+			&& exdesc.description.find_first_not_of(" \t\r\n") != std::string::npos)
 		{
-			exdescs.push_back(exdesc.get());
+			exdescs.push_back(&exdesc);
 		}
 	}
 	if (!exdescs.empty())
@@ -3572,13 +3570,9 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 		yaml.BeginSequence();
 		yaml.IncreaseIndent();
 
-		// LoadRoomExtraDescriptions prepends each yaml entry to the list, so the
-		// in-memory head->tail order is the reverse of the file order. To keep
-		// checksums stable through save->load, write the entries in reverse: a
-		// fresh load will prepend them back to the same in-memory order.
-		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+		// Вектор хранит описания в порядке файла (load делает push_back), пишем вперёд.
+		for (const auto *exdesc : exdescs)
 		{
-			const auto *exdesc = *it;
 			// keywords may start with '-' (legitimately a single dash);
 			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
 			out << yaml.GetIndent() << "- keywords:";
@@ -4657,13 +4651,13 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	// issue #3596: экстра-дескриптор без описания (0 символов/одни пробелы, напр.
 	// после очистки в OLC через /c) считаем несуществующим -- не пишем ни keyword,
 	// ни блок description; если валидных дескрипторов не осталось, секцию опускаем.
-	std::vector<ExtraDescription *> exdescs;
-	for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
+	std::vector<const ExtraDescription *> exdescs;
+	for (const auto &exdesc : obj->get_ex_description())
 	{
-		if (!exdesc->keyword.empty()
-			&& exdesc->description.find_first_not_of(" \t\r\n") != std::string::npos)
+		if (!exdesc.keyword.empty()
+			&& exdesc.description.find_first_not_of(" \t\r\n") != std::string::npos)
 		{
-			exdescs.push_back(exdesc.get());
+			exdescs.push_back(&exdesc);
 		}
 	}
 	if (!exdescs.empty())
@@ -4672,12 +4666,9 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 		yaml.BeginSequence();
 		yaml.IncreaseIndent();
 
-		// Load prepends each yaml entry, so the in-memory list is reversed
-		// relative to the file. Emit in reverse so a fresh load rebuilds the
-		// same in-memory order -- otherwise the order flips on every round-trip.
-		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+		// Вектор хранит описания в порядке файла (load делает push_back), пишем вперёд.
+		for (const auto *exdesc : exdescs)
 		{
-			const auto *exdesc = *it;
 			// keywords may start with '-' (legitimately a single dash);
 			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
 			out << yaml.GetIndent() << "- keywords:";
