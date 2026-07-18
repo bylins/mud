@@ -638,7 +638,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	if (data.contains("extra_descriptions") && data["extra_descriptions"].is_array())
 	{
 		// Clear existing extra descriptions
-		obj->set_ex_description(nullptr);
+		obj->ex_descriptions().clear();
 
 		// Заполняем вектор в порядке массива (push_back)
 		for (const auto &ed_data : data["extra_descriptions"])
