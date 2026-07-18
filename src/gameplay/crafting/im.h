@@ -17,14 +17,16 @@
 class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct RoomData;    //
 
-// Определение основных классов ингредиентов: росль, живь, твердь
-#define        IM_CLASS_ROSL        0
-#define        IM_CLASS_JIV        1
-#define        IM_CLASS_TVERD        2
+// Классы ингредиентов (росль/живь/твердь) -- см. enum EIngredientClass в
+// entities_constants.h (заменил старые #define IM_CLASS_*).
 
-#define    IM_POWER_SLOT        1
-#define        IM_TYPE_SLOT        2
-#define     IM_INDEX_SLOT       3
+// Слоты значений магингредиента (индексы в values). Plain enum: имена
+// по-прежнему используются как int-индексы в GET_OBJ_VAL/set_val.
+enum EIngredientSlot {
+	IM_POWER_SLOT = 1,   // val[1] -- уровень (сила) ингредиента
+	IM_TYPE_SLOT = 2,    // val[2] -- номер типа (из im.lst)
+	IM_INDEX_SLOT = 3    // val[3] -- уровень ингредиента или VNUM моба
+};
 
 #define        IM_NPARAM            3
 

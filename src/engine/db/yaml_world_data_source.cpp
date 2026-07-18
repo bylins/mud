@@ -24,6 +24,9 @@
 #include "engine/structs/flag_data.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/mechanics/liquid.h"          // issue #3593: drinks[]/NUM_LIQ_TYPES
+#include "gameplay/economics/currencies.h"       // issue #3593: MUD::Currency().GetName()
+#include "gameplay/fight/fight_messages.h"        // issue #3593: GetAttackTypeDescription
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/skills/skills.h"
@@ -119,20 +122,153 @@ std::string GetSpellNameComment(ESpell spell_id) {
 	return MUD::Spell(spell_id).GetName();
 }
 
-// issue #3583: имя спелла для values-слотов, которые хранят номер заклинания.
-// Свиток -- спеллы в val[1..3]; палочка/посох -- в val[3]. Зелья держат спеллы в
-// ObjVal-ключах (а не в val[]), поэтому их values не аннотируем.
-std::string GetObjValueSpellComment(EObjType type, int slot, int value) {
-	bool is_spell_slot = false;
-	if (type == EObjType::kScroll) {
-		is_spell_slot = (slot >= 1 && slot <= 3);
-	} else if (type == EObjType::kWand || type == EObjType::kStaff) {
-		is_spell_slot = (slot == 3);
+// issue #3593 (расширяет #3583): подпись values-слота по типу предмета -- смысл
+// слота и, где уместно, расшифровка enum-значения (заклинание/тип атаки/жидкость/
+// валюта/книга/класс компонента). Смысл слотов взят из OLC-меню
+// (oedit_disp_val1..4_menu). slot 0-индексный (= val[0..3]); "" -- нет осмысленной
+// подписи для данного типа/слота.
+std::string GetObjValueComment(EObjType type, int slot, int value) {
+	// заклинание по номеру (для спелл-слотов свитков/палочек/посохов/зелий)
+	auto spell = [](int v) -> std::string {
+		return (v > 0 && v <= to_underlying(ESpell::kLast)) ? GetSpellNameComment(static_cast<ESpell>(v)) : "";
+	};
+	switch (type) {
+		case EObjType::kLightSource:
+			return slot == 2 ? "длительность горения (0=погасла, -1=вечный)" : "";
+
+		case EObjType::kScroll:
+			return slot == 0 ? "уровень заклинания" : spell(value);   // val[1..3] -- заклинания
+
+		case EObjType::kPotion:
+			if (slot == 0) return "уровень заклинания";
+			if (slot == 3) return "сила зелья (potency)";
+			return spell(value);   // val[1..2] -- заклинания
+
+		case EObjType::kWand:
+		case EObjType::kStaff:
+			switch (slot) {
+				case 0: return "уровень заклинания";
+				case 1: return "всего зарядов";
+				case 2: return "осталось зарядов";
+				case 3: return spell(value);
+			}
+			return "";
+
+		case EObjType::kWeapon:
+			switch (slot) {
+				case 1: return "число бросков кубика";
+				case 2: return "граней кубика";
+				case 3: {
+					// тип удара -- из кода (fight-сообщения); в oedit save all они загружены
+					const std::string &n = fight::GetAttackTypeDescription(value);
+					return n.empty() ? "тип атаки" : "тип атаки: " + n;
+				}
+			}
+			return "";
+
+		case EObjType::kArmor:
+		case EObjType::kLightArmor:
+		case EObjType::kMediumArmor:
+		case EObjType::kHeavyArmor:
+			if (slot == 0) return "изменяет AC";
+			if (slot == 1) return "изменяет броню";
+			return "";
+
+		case EObjType::kContainer:
+			switch (slot) {
+				case 0: return "макс. вместимый вес";
+				case 1: return "флаги контейнера";
+				case 2: return "vnum ключа (-1 нет)";
+				case 3: return "сложность замка (0-1000)";
+			}
+			return "";
+
+		case EObjType::kLiquidContainer:
+		case EObjType::kFountain:
+			switch (slot) {
+				case 0: return "объём, глотков";
+				case 1: return "налито, глотков";
+				case 2:
+					return (value >= 0 && value < NUM_LIQ_TYPES)
+						? "тип жидкости: " + std::string(drinks[value]) : "тип жидкости";
+				case 3: return "отравлено (0 нет, 1 да, >1 таймер)";
+			}
+			return "";
+
+		case EObjType::kFood:
+			if (slot == 0) return "насыщает, часов";
+			if (slot == 3) return "отравлено (0 нет, 1 да, >1 таймер)";
+			return "";
+
+		case EObjType::kMoney:
+			if (slot == 0) return "сумма";
+			if (slot == 1) {
+				// валюта -- из кода: money val[1] == vnum валюты (kGoldVnum=0 и т.д.).
+				const std::string &n = MUD::Currency(value).GetName();
+				return (n.empty() || n == "!undefined!") ? "тип валюты" : n;
+			}
+			return "";
+
+		case EObjType::kBook:
+			// название типа книги -- из единого источника GetBookTypeName (enum EBook).
+			if (slot == 0) {
+				const char *n = GetBookTypeName(static_cast<EBook>(value));
+				return (n && *n) ? n : "тип книги";
+			}
+			return "";
+
+		case EObjType::kMagicIngredient:
+			switch (slot) {
+				case 0: return "лаг применения, сек + уровень (6 бит)";
+				case 1: return "vnum прототипа";
+				case 2: return "число использований";
+			}
+			return "";
+
+		case EObjType::kMagicComponent:
+			// Единственное авторское значение -- класс ингредиента; OLC пишет его в
+			// val[3] (set_val(3) через меню класса), im.cpp читает GET_OBJ_VAL(...,3).
+			// val[0..2] заполняются при загрузке из lib/misc/im.lst -- их не подписываем.
+			if (slot == 3) {
+				const char *n = GetIngredientClassName(static_cast<EIngredientClass>(value));
+				return (n && *n) ? std::string("класс ингредиента: ") + n : "класс ингредиента";
+			}
+			return "";
+
+		case EObjType::kCraftMaterial:
+			switch (slot) {
+				case 0: return "уровень игрока + морт*2";
+				case 1: return "vnum прототипа";
+				case 2: return "сила ингредиента";
+				case 3: return "условный уровень";
+			}
+			return "";
+
+		case EObjType::kBandage:
+			return slot == 0 ? "хитов в секунду" : "";
+
+		case EObjType::kEnchant:
+			return slot == 0 ? "изменяет вес" : "";
+
+		case EObjType::kMagicContaner:
+			switch (slot) {
+				case 0: return spell(value);
+				case 1: return "объём колчана";
+				case 2: return "количество стрел";
+			}
+			return "";
+
+		case EObjType::kMagicArrow:
+			switch (slot) {
+				case 0: return spell(value);
+				case 1: return "размер пучка";
+				case 2: return "количество стрел";
+			}
+			return "";
+
+		default:
+			return "";
 	}
-	if (!is_spell_slot || value <= 0 || value > to_underlying(ESpell::kLast)) {
-		return "";
-	}
-	return GetSpellNameComment(static_cast<ESpell>(value));
 }
 
 // issue #3583: имя спелла для потионных ключей extra_values вида POTION_SPELL<n>_NUM
@@ -4282,13 +4418,12 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.BeginSequence();
 	yaml.IncreaseIndent();
 
-	// issue #3583: у свитков/палочек/посохов values-слоты со спеллами подписываем именем заклинания.
-	// val[0] -- это уровень/сила заклинания, а не номер спелла, поэтому его не подписываем.
+	// issue #3593: подписываем каждый values-слот по смыслу для типа предмета.
 	const auto obj_type = obj->get_type();
-	yaml.SequenceItem(obj->get_val(0));
-	yaml.SequenceItem(obj->get_val(1), GetObjValueSpellComment(obj_type, 1, obj->get_val(1)));
-	yaml.SequenceItem(obj->get_val(2), GetObjValueSpellComment(obj_type, 2, obj->get_val(2)));
-	yaml.SequenceItem(obj->get_val(3), GetObjValueSpellComment(obj_type, 3, obj->get_val(3)));
+	yaml.SequenceItem(obj->get_val(0), GetObjValueComment(obj_type, 0, obj->get_val(0)));
+	yaml.SequenceItem(obj->get_val(1), GetObjValueComment(obj_type, 1, obj->get_val(1)));
+	yaml.SequenceItem(obj->get_val(2), GetObjValueComment(obj_type, 2, obj->get_val(2)));
+	yaml.SequenceItem(obj->get_val(3), GetObjValueComment(obj_type, 3, obj->get_val(3)));
 
 	yaml.DecreaseIndent();
 
