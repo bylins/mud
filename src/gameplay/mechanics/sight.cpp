@@ -1656,13 +1656,13 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		}
 		sprintf(buf + strlen(buf), "\r\n%s", kColorNrm);
 	}
-	if (AUTH_CUSTOM_LABEL(obj, ch) && obj->get_custom_label()->text_label) {
-		if (obj->get_custom_label()->clan_abbrev) {
+	if (AUTH_CUSTOM_LABEL(obj, ch) && !obj->get_custom_label()->text_label.empty()) {
+		if (!obj->get_custom_label()->clan_abbrev.empty()) {
 			strcat(buf, "Метки дружины: ");
 		} else {
 			strcat(buf, "Ваши метки: ");
 		}
-		sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->text_label);
+		sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->text_label.c_str());
 	}
 	sprintf(buf + strlen(buf), "%s", diag_uses_to_char(obj, ch));
 	sprintf(buf + strlen(buf), "%s", diag_shot_to_char(obj, ch));

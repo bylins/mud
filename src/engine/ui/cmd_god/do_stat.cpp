@@ -717,8 +717,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			kColorNrm,
 			j->get_aliases().c_str());
 	SendMsgToChar(buf, ch);
-	if (j->get_custom_label() && j->get_custom_label()->text_label) {
-		snprintf(buf, sizeof(buf), " нацарапано: '&c%s&n',", j->get_custom_label()->text_label);
+	if (j->get_custom_label() && !j->get_custom_label()->text_label.empty()) {
+		snprintf(buf, sizeof(buf), " нацарапано: '&c%s&n',", j->get_custom_label()->text_label.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	snprintf(buf, sizeof(buf), "\r\n");

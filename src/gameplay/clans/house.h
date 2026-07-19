@@ -398,7 +398,7 @@ inline bool CHECK_CUSTOM_LABEL(const std::string &arg, const ObjData *obj, const
   return CHECK_CUSTOM_LABEL(arg.c_str(), obj, ch);
 }
 
-bool is_alliance_by_abbr(const CharData *ch, char *abbrev);
+bool is_alliance_by_abbr(const CharData *ch, const char *abbrev);
 // видит ли ch метки obj
 bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch);
 
