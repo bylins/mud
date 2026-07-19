@@ -619,12 +619,8 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							skills.emplace_back(skill.GetName());
 						}
 					}
-					std::string str;
-					joinList(skills, str);
-					if (!str.empty()) {
-						str = " " + str + ".";
-					}
-					SendMsgToChar(ch, "&C%s&n\r\n", str.c_str());
+					SendMsgToChar(ch, "&C %s&n\r\n",
+							utils::OutWordsList(skills, ch->player_specials->saved.stringLength).c_str());
 				} else {
 					SendMsgToChar(ch, "%s не подчиняется вам, и не хочет ничего докладывать.\r\n", utils::CAP(f->get_name()).c_str());
 				}

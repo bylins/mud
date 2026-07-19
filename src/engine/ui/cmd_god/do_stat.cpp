@@ -954,11 +954,13 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 		case EObjType::kScroll: {
 			// issue.magic-items: заклинания свитка лежат в extra_values, сила -- умение мастера
-			snprintf(buf, sizeof(buf), "Заклинания: %s", SpellItemSpellsWithPotency(j).c_str());
+			snprintf(buf, sizeof(buf), "%s", utils::OutWordsList(SpellItemSpellsWithPotency(j),
+					ch->player_specials->saved.stringLength, ", ", "Заклинания: ").c_str());
 			break;
 		}
 		case EObjType::kPotion: {
-			snprintf(buf, sizeof(buf), "Заклинания: %s", SpellItemSpellsWithPotency(j).c_str());
+			snprintf(buf, sizeof(buf), "%s", utils::OutWordsList(SpellItemSpellsWithPotency(j),
+					ch->player_specials->saved.stringLength, ", ", "Заклинания: ").c_str());
 			break;
 		}
 		case EObjType::kWand:

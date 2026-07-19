@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <string>
+#include <vector>
 
 #include "gameplay/abilities/feats.h"
 #include "engine/entities/entities_constants.h"
@@ -101,10 +102,10 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 [[nodiscard]] int MagicItemSkill(const ObjData *item);
 [[nodiscard]] int MagicItemStat(const ObjData *item);
 
-// issue.magic-items: перечень заклинаний свитка/зелья/посоха с их силой, вида
-// "исцеление (сила 42), защита (сила 30)". Пустая строка, если заклинаний нет.
-// Заклинания берутся из extra_values -- сырые val[] у этих типов нулевые.
-[[nodiscard]] std::string SpellItemSpellsWithPotency(const ObjData *item);
+// issue.magic-items: заклинания свитка/зелья/посоха с их силой, по одному на элемент,
+// вида "исцеление (сила 42)" -- на выход в utils::OutWordsList. Пустой список, если
+// заклинаний нет. Берутся из extra_values -- сырые val[] у этих типов нулевые.
+[[nodiscard]] std::vector<std::string> SpellItemSpellsWithPotency(const ObjData *item);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 

@@ -25,7 +25,6 @@
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/equipment.h"
-#include "utils/utils.h"      // joinList
 #include "utils/utils_parse.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
@@ -373,7 +372,7 @@ int MagicItemStat(const ObjData *item) {
 
 // issue.magic-items: перечень заклинаний предмета с их силой -- один формат для stat и опознания.
 // Заклинания лежат в extra_values (сырые val[] у свитков, зелий, посохов и жезлов нулевые).
-std::string SpellItemSpellsWithPotency(const ObjData *item) {
+std::vector<std::string> SpellItemSpellsWithPotency(const ObjData *item) {
 	std::vector<std::string> spells;
 	for (int pos = 1; pos <= 3; ++pos) {
 		const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(pos));
@@ -384,9 +383,7 @@ std::string SpellItemSpellsWithPotency(const ObjData *item) {
 		spells.push_back(fmt::format("{} (сила {})", MUD::Spell(spell_id).GetName(), potency));
 	}
 
-	std::string result;
-	joinList(spells, result);
-	return result;
+	return spells;
 }
 
 float CalcCastPotency(const RollResult &potency) {
