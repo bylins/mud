@@ -42,6 +42,29 @@ def copy_dirs(src_root, names, what):
         shutil.copytree(s, d, ignore=_IGNORE)
 
 
+def fill_missing(src_root, names):
+    """Докладывает файлы, которых нет в lib.
+
+    Часть конфигов (system_msg.xml, cases.xml, celebrates.xml, guards.xml, obj_sets.xml,
+    quests/, class.*) существует только в lib.template, и без них мир не работает: игрока
+    выкидывает на входе с "ERROR: message not found". Уже скопированные из lib файлы
+    не перезаписываем — там актуальная конфигурация.
+    """
+    for name in names:
+        src_dir = os.path.join(src_root, name)
+        if not os.path.isdir(src_dir):
+            continue
+        for root, dirs, files in os.walk(src_dir):
+            dirs[:] = [d for d in dirs if d != ".git"]
+            rel = os.path.relpath(root, src_root)
+            dst_root = os.path.join(small_world_dir, rel)
+            os.makedirs(dst_root, exist_ok=True)
+            for f in files:
+                dst = os.path.join(dst_root, f)
+                if not os.path.exists(dst):
+                    shutil.copy2(os.path.join(root, f), dst)
+
+
 if not os.path.exists(lib_src):
     print(f"ERROR: Source 'lib' not found at {lib_src}")
     sys.exit(1)
@@ -54,6 +77,7 @@ os.makedirs(small_world_dir, exist_ok=True)
 
 copy_dirs(lib_src, LIB_DIRS, "lib")
 copy_dirs(template_src, TEMPLATE_DIRS, "lib.template")
+fill_missing(template_src, LIB_DIRS)
 
 print(f"Small world configured at: {small_world_dir}")
 
