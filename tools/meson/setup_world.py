@@ -23,27 +23,37 @@ print(f"Setting up world data in {build_dir}...")
 lib_src = os.path.join(source_root, "lib")
 template_src = os.path.join(source_root, "lib.template")
 
+# Конфиги/тексты берём из lib (это актуальная боевая конфигурация), мир — из lib.template
+# (свежий сконвертированный YAML). Всё остальное (plrs, plrobjs, etc, stat...) сервер
+# создаёт сам при старте, так что small world получается абсолютно чистым.
+LIB_DIRS = ("cfg", "text", "misc")
+TEMPLATE_DIRS = ("world",)
+
+
+def copy_dirs(src_root, names, what):
+    for name in names:
+        s = os.path.join(src_root, name)
+        if not os.path.isdir(s):
+            print(f"ERROR: '{name}' not found in {what} at {s}")
+            sys.exit(1)
+        d = os.path.join(small_world_dir, name)
+        # Сносим прошлую копию, чтобы не оставалось мусора от старых конвертаций.
+        shutil.rmtree(d, ignore_errors=True)
+        shutil.copytree(s, d, ignore=_IGNORE)
+
+
 if not os.path.exists(lib_src):
     print(f"ERROR: Source 'lib' not found at {lib_src}")
     sys.exit(1)
 
-if not os.path.exists(small_world_dir):
-    shutil.copytree(lib_src, small_world_dir, ignore=_IGNORE)
-else:
-    shutil.copytree(lib_src, small_world_dir, dirs_exist_ok=True, ignore=_IGNORE)
+if not os.path.exists(template_src):
+    print(f"ERROR: Source 'lib.template' not found at {template_src}")
+    sys.exit(1)
 
-if os.path.exists(template_src):
-    for item in os.listdir(template_src):
-        if item == ".git":
-            continue
-        s = os.path.join(template_src, item)
-        d = os.path.join(small_world_dir, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, dirs_exist_ok=True, ignore=_IGNORE)
-        else:
-            shutil.copy2(s, d)
-else:
-    print(f"Warning: 'lib.template' not found at {template_src}")
+os.makedirs(small_world_dir, exist_ok=True)
+
+copy_dirs(lib_src, LIB_DIRS, "lib")
+copy_dirs(template_src, TEMPLATE_DIRS, "lib.template")
 
 print(f"Small world configured at: {small_world_dir}")
 
