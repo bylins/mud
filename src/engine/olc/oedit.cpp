@@ -2254,8 +2254,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 						}
 					}
 					// * No break - drop into default case.
-
-					// fall through
+					[[fallthrough]];
 				}
 				default: oedit_disp_extradesc_menu(d);
 					return;
