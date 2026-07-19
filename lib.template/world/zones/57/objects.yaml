@@ -13,11 +13,6 @@
   short_desc: Руки сделанные из шелковистой ткани набитой мелкой и мягкой стружкой лежат на земле.
   type: kPotion
   material: 0  # НЕИЗВЕСТЕН
-  values:
-    - 30
-    - 133
-    - 127
-    - 58
   weight: 1
   cost: 0
   rent_off: 0
@@ -25,9 +20,11 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 133  # облако стрел
+    SPELL2_NUM: 127  # ледяной щит
+    SPELL3_NUM: 58  # разбитые оковы

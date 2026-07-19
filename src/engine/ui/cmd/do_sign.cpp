@@ -81,13 +81,13 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						labels[i] = '-';
 
 				std::shared_ptr<custom_label> label(new custom_label());
-				label->text_label = str_dup(labels);
+				label->text_label = labels;
 				label->author = ch->get_uid();
-				label->author_mail = str_dup(GET_EMAIL(ch));
+				label->author_mail = GET_EMAIL(ch);
 
 				const char *msg = "Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.";
 				if (clan && ch->player_specials->clan) {
-					label->clan_abbrev = str_dup(ch->player_specials->clan->GetAbbrev());
+					label->clan_abbrev = ch->player_specials->clan->GetAbbrev();
 					msg = "Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.";
 				}
 				target->set_custom_label(label);
@@ -117,8 +117,8 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 	const char *delim_r = nullptr;
 
 	// разные скобки для клановых и личных
-	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->clan_abbrev != nullptr &&
-		is_alliance_by_abbr(ch, obj->get_custom_label()->clan_abbrev))) {
+	if (obj->get_custom_label() && (ch->player_specials->clan && !obj->get_custom_label()->clan_abbrev.empty() &&
+		is_alliance_by_abbr(ch, obj->get_custom_label()->clan_abbrev.c_str()))) {
 		delim_l = " *";
 		delim_r = "*";
 	} else {

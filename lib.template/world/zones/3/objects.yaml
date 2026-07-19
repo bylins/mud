@@ -14,10 +14,10 @@
   type: kWeapon
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 6
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 6  # тип атаки: сокрушил
   weight: 0
   cost: 150
   rent_off: 100
@@ -26,8 +26,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -48,10 +46,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 0
-    - 0
-    - 7
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 20
   cost: 100
   rent_off: 100
@@ -60,8 +58,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -82,10 +78,10 @@
   type: kWeapon
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 7
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 0
   cost: 1
   rent_off: 80
@@ -94,8 +90,6 @@
   max_durability: 2000
   cur_durability: 2000
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -115,10 +109,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 0
-    - 0
-    - 7
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 1
   cost: 100
   rent_off: 75
@@ -127,8 +121,6 @@
   max_durability: 65000
   cur_durability: 0
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -149,10 +141,10 @@
   type: kWeapon
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 3
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 0
   cost: 150
   rent_off: 120
@@ -161,8 +153,6 @@
   max_durability: 2000
   cur_durability: 2000
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -182,10 +172,10 @@
   type: kWeapon
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 0
-    - 0
-    - 2
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 2  # тип атаки: хлестнул
   weight: 0
   cost: 0
   rent_off: 0
@@ -194,8 +184,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -216,10 +204,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 0
-    - 0
-    - 5
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 0
   cost: 0
   rent_off: 0
@@ -228,8 +216,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -250,8 +236,8 @@
   type: kArmor
   material: 3  # ЖЕЛЕЗО
   values:
-    - 10
-    - 10
+    - 10  # изменяет AC
+    - 10  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -261,8 +247,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -282,8 +266,8 @@
   type: kArmor
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -293,8 +277,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -314,8 +296,8 @@
   type: kArmor
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -325,8 +307,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -346,8 +326,8 @@
   type: kArmor
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -357,8 +337,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 30000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -378,9 +356,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 311
-    - 0
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 311  # vnum прототипа
+    - 0  # число использований
     - 0
   weight: 5
   cost: 10
@@ -389,8 +367,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -409,10 +385,10 @@
   type: kWeapon
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 9
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 9  # тип атаки: подстрелил
   weight: 0
   cost: 150
   rent_off: 100
@@ -421,8 +397,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -441,9 +415,9 @@
   type: kMagicIngredient
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 313
-    - 0
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 313  # vnum прототипа
+    - 0  # число использований
     - 0
   weight: 15
   cost: 10
@@ -452,8 +426,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -472,9 +444,9 @@
   type: kMagicIngredient
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 314
-    - 0
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 314  # vnum прототипа
+    - 0  # число использований
     - 0
   weight: 5
   cost: 10
@@ -483,8 +455,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -503,10 +473,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 4
+    - 4  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 2
   rent_off: 0
@@ -514,11 +484,11 @@
   max_durability: 10
   cur_durability: 10
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #321
 21:
@@ -534,10 +504,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 2
   rent_off: 0
@@ -545,11 +515,11 @@
   max_durability: 10
   cur_durability: 10
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #322
 22:
@@ -565,10 +535,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 4
   rent_off: 0
@@ -576,11 +546,11 @@
   max_durability: 10
   cur_durability: 10
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #323
 23:
@@ -596,10 +566,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 16
+    - 16  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 6
   rent_off: 0
@@ -607,11 +577,11 @@
   max_durability: 10
   cur_durability: 10
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #324
 24:
@@ -627,10 +597,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 10
   rent_off: 0
@@ -638,8 +608,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 999
   extra_flags:
@@ -648,6 +616,8 @@
     - kTake
   affect_flags:
     - kBless
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #330
 30:
@@ -663,10 +633,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 0
+    - 0  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 0
   cost: 0
   rent_off: 0
@@ -674,8 +644,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kGlow
@@ -697,10 +665,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 0
+    - 0  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 0
   cost: 0
   rent_off: 0
@@ -708,8 +676,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -733,10 +699,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 0
+    - 0  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 0
   cost: 0
   rent_off: 0
@@ -744,8 +710,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -769,10 +733,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 0
+    - 0  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 0
   cost: 0
   rent_off: 0
@@ -780,8 +744,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNoinvis
@@ -802,10 +764,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 20
+    - 20  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 0
@@ -813,8 +775,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 999
   extra_flags:
@@ -828,6 +788,8 @@
       modifier: -3
     - location: 25  # восст.жизни
       modifier: 20
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #335
 35:
@@ -843,10 +805,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 20
+    - 20  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 0
@@ -854,8 +816,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 999
   extra_flags:
@@ -871,6 +831,8 @@
       modifier: -5
     - location: 50  # защита.от.ядов.и.болезней
       modifier: 5
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #336
 36:
@@ -886,10 +848,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 20
+    - 20  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 0
@@ -897,8 +859,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 999
   extra_flags:
@@ -914,6 +874,8 @@
       modifier: -7
     - location: 50  # защита.от.ядов.и.болезней
       modifier: 10
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #337
 37:
@@ -929,10 +891,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 20
+    - 20  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 0
@@ -940,8 +902,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -961,6 +921,8 @@
       modifier: 15
     - location: 19  # повреждение
       modifier: 5
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #338
 38:
@@ -976,10 +938,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 20
+    - 20  # насыщает, часов
     - 0
     - 0
-    - 1440
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 10
   rent_off: 0
@@ -987,8 +949,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 2160
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 999
   extra_flags:
@@ -1000,6 +960,8 @@
   applies:
     - location: 59  # бонус.ко.всем.умениям
       modifier: 20
+  extra_values:
+    LIQUID_TIMER: 1440
 
 # Object #347
 47:
@@ -1026,8 +988,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake

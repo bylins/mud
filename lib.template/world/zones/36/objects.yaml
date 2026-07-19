@@ -13,11 +13,6 @@
   short_desc: '&rЧереп &mПилатия&n лежит здесь. Какой ужас !'
   type: kLiquidContainer
   material: 13  # КОСТЬ
-  values:
-    - 1000
-    - 200
-    - 13
-    - 0
   weight: 205
   cost: 0
   rent_off: 0
@@ -25,8 +20,6 @@
   max_durability: 9999
   cur_durability: 9999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -42,6 +35,10 @@
     - keywords: череп пилатия
       description: |2
         Гладко отполированный череп некого Пилатия весело блестит на солнышке.
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 200
+    LIQUID_TYPE: 13  # КРОВИ
 
 # Object #3601
 1:
@@ -56,11 +53,6 @@
   short_desc: Небольшой &Wлучик ослепительного света.&n
   type: kLiquidContainer
   material: 13  # КОСТЬ
-  values:
-    - 1000
-    - 200
-    - 9
-    - 0
   weight: 205
   cost: 0
   rent_off: 0
@@ -68,8 +60,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   wear_flags:
@@ -79,6 +69,10 @@
     - keywords: луч света
       description: |2
         &WЛуч&n &Cяркого&n, &Wослепительного света.&n
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 200
+    LIQUID_TYPE: 9  # меду
 
 # Object #3602
 2:
@@ -94,10 +88,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 5
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -105,8 +99,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -138,10 +130,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 5
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -149,8 +141,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -182,10 +172,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 3
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 3  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -193,8 +183,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -226,10 +214,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -237,8 +225,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -274,10 +260,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -285,8 +271,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -318,11 +302,6 @@
   short_desc: Крупная деревянная кружка оставлена здесь кем-то.
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
-  values:
-    - 1000
-    - 1000
-    - 0
-    - 0
   weight: 1005
   cost: 100
   rent_off: 0
@@ -330,8 +309,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -343,6 +320,10 @@
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 1000
+    LIQUID_TYPE: 0  # воды
 
 # Object #3608
 8:
@@ -358,10 +339,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -369,8 +350,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -403,10 +382,10 @@
   type: kContainer
   material: 17  # БЕРЕСТА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -414,8 +393,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -443,10 +420,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 1
@@ -454,8 +431,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -491,10 +466,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 5
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -502,8 +477,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -535,10 +508,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -546,8 +519,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -582,11 +553,6 @@
   short_desc: '&RДивный кубок, доверху наполненный огнем, оставлен тут своим владельцем.&n'
   type: kLiquidContainer
   material: 6  # ДРАГ.МЕТАЛЛ
-  values:
-    - 1000
-    - 1000
-    - 0
-    - 0
   weight: 1005
   cost: 100
   rent_off: 0
@@ -594,8 +560,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -615,6 +579,9 @@
         Кубок источает ярчайший свет, который режет глаза, а стенки его дышат таким жаром,
         что невозможно взять в руки.
   extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 1000
+    LIQUID_TYPE: 0  # воды
     POTION_SPELL1_LVL: 50
 
 # Object #3614
@@ -631,10 +598,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -642,8 +609,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -677,10 +642,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -688,8 +653,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -719,10 +682,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -730,8 +693,6 @@
   max_durability: 400
   cur_durability: 400
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -767,10 +728,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -778,8 +739,6 @@
   max_durability: 400
   cur_durability: 400
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -813,10 +772,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 3999
-    - 0
-    - -1
-    - 0
+    - 3999  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -824,8 +783,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -863,10 +820,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 5
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -874,8 +831,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -913,10 +868,10 @@
   type: kContainer
   material: 7  # КРИСТАЛЛ
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -924,8 +879,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -961,10 +914,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -972,8 +925,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1015,10 +966,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1026,8 +977,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1066,10 +1015,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1077,8 +1026,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1114,10 +1061,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 1
@@ -1125,8 +1072,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1157,10 +1102,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 1
@@ -1168,8 +1113,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1200,10 +1143,10 @@
   type: kContainer
   material: 13  # КОСТЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1211,8 +1154,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1247,10 +1188,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1258,8 +1199,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1291,10 +1230,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1302,8 +1241,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1342,11 +1279,6 @@
   short_desc: Маленькая Истинно-Черная Пирамидка заглушающая каждый писк лежит на земле.
   type: kLiquidContainer
   material: 12  # КАМЕНЬ
-  values:
-    - 1000
-    - 1
-    - 13
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -1354,8 +1286,6 @@
   max_durability: 9999
   cur_durability: 9999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1367,6 +1297,10 @@
   wear_flags:
     - kTake
     - kNeck
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 1
+    LIQUID_TYPE: 13  # КРОВИ
 
 # Object #3630
 30:
@@ -1382,10 +1316,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1393,8 +1327,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1430,10 +1362,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1441,8 +1373,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1479,10 +1409,10 @@
   type: kContainer
   material: 7  # КРИСТАЛЛ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1490,8 +1420,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -1529,10 +1457,10 @@
   type: kContainer
   material: 10  # КЕРАМИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1540,8 +1468,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1577,10 +1503,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1588,8 +1514,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1623,11 +1547,6 @@
   short_desc: Магическая &cКапля&n растеклась под вашими ногами.
   type: kLiquidContainer
   material: 7  # КРИСТАЛЛ
-  values:
-    - 1000
-    - 1000
-    - 15
-    - 0
   weight: 1005
   cost: 0
   rent_off: 0
@@ -1635,8 +1554,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1657,6 +1574,10 @@
       description: |2
         &cМагические частички воды застыли во времени,&n
         &cобразуя прозрачный сосуд виде блестящей капли.&n
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 1000
+    LIQUID_TYPE: 15  # родниковой воды
 
 # Object #3636
 36:
@@ -1672,10 +1593,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1683,8 +1604,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1719,10 +1638,10 @@
   type: kContainer
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1730,8 +1649,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1767,10 +1684,10 @@
   type: kContainer
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1778,8 +1695,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -1810,10 +1725,10 @@
   type: kContainer
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 2000
-    - 3
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 3  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1821,8 +1736,6 @@
   max_durability: 300
   cur_durability: 300
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kMagic
@@ -1853,10 +1766,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1864,8 +1777,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNosell
@@ -1892,10 +1803,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1903,8 +1814,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1940,10 +1849,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1951,8 +1860,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1988,10 +1895,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -1999,8 +1906,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -2035,10 +1940,10 @@
   type: kContainer
   material: 8  # ДЕРЕВО
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2046,8 +1951,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kMagic
@@ -2080,10 +1983,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2091,8 +1994,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -2128,11 +2029,6 @@
     Прекраснее нее Вы никогда ничего не видели и не трогали! Так и хочется взять, и никогда с ней не расставаться!
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 1000
-    - 1000
-    - 15
-    - 0
   weight: 1005
   cost: 0
   rent_off: 0
@@ -2140,8 +2036,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -2155,6 +2049,10 @@
     - kFinger
     - kNeck
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 1000
+    LIQUID_TYPE: 15  # родниковой воды
 
 # Object #3647
 47:
@@ -2169,11 +2067,6 @@
   short_desc: Кубок из черного золота до краев наполненный слезами.
   type: kLiquidContainer
   material: 0  # НЕИЗВЕСТЕН
-  values:
-    - 1000
-    - 1000
-    - 15
-    - 0
   weight: 1005
   cost: 0
   rent_off: 0
@@ -2181,8 +2074,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -2196,6 +2087,10 @@
     - kFinger
     - kNeck
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 1000
+    LIQUID_TYPE: 15  # родниковой воды
 
 # Object #3648
 48:
@@ -2211,10 +2106,10 @@
   type: kContainer
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 0
@@ -2222,8 +2117,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   minimum_remorts: -1
@@ -2255,10 +2148,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2266,8 +2159,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2304,10 +2195,10 @@
   type: kContainer
   material: 7  # КРИСТАЛЛ
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2315,8 +2206,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2353,10 +2242,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2364,8 +2253,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -2398,10 +2285,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2409,8 +2296,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -2442,10 +2327,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2453,8 +2338,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -2486,10 +2369,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2497,8 +2380,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -2531,10 +2412,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2542,8 +2423,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -2573,10 +2452,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2584,8 +2463,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2628,10 +2505,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2639,8 +2516,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 1
   extra_flags:
@@ -2676,10 +2551,10 @@
   type: kContainer
   material: 13  # КОСТЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2687,8 +2562,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -2723,10 +2596,10 @@
   type: kContainer
   material: 13  # КОСТЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2734,8 +2607,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -2768,10 +2639,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2779,8 +2650,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -2818,10 +2687,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2829,8 +2698,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -2865,10 +2732,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2876,8 +2743,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -2913,10 +2778,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2924,8 +2789,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -2960,10 +2823,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -2971,8 +2834,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -3007,10 +2868,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 3000
-    - 0
-    - -1
-    - 0
+    - 3000  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3018,8 +2879,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodonate
@@ -3054,10 +2913,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 10
   rent_off: 10
@@ -3065,8 +2924,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   extra_flags:
@@ -3098,11 +2955,6 @@
     
   type: kLiquidContainer
   material: 7  # КРИСТАЛЛ
-  values:
-    - 500
-    - 0
-    - 0
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -3110,8 +2962,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3130,6 +2980,10 @@
         ___Едва взглянув на этот древний сосуд, понимаешь - из него пили сами боги!
         Толстые стенки, украшенные прекрасной росписью, слегка мерцают магическим светом.
         Какой же волшебной силой наделяет он напиток, налитый в него?
+  extra_values:
+    LIQUID_CAPACITY: 500
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 0  # воды
 
 # Object #3668
 68:
@@ -3147,10 +3001,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 10
   rent_off: 10
@@ -3158,8 +3012,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   minimum_remorts: -1
   extra_flags:
@@ -3192,10 +3044,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -3203,8 +3055,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3243,10 +3093,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3254,8 +3104,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3291,10 +3139,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -3302,8 +3150,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3340,11 +3186,6 @@
     Небольшой переносной фонтан. Да переносной. Да фонтан.
   type: kLiquidContainer
   material: 10  # КЕРАМИКА
-  values:
-    - 200
-    - 0
-    - 21
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -3352,8 +3193,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3365,6 +3204,10 @@
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 200
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 21  # черного колдовского зелья
 
 # Object #3673
 73:
@@ -3381,11 +3224,6 @@
     Большая, 500 ml, made in USA.
   type: kLiquidContainer
   material: 6  # ДРАГ.МЕТАЛЛ
-  values:
-    - 200
-    - 0
-    - 21
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -3393,8 +3231,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3407,6 +3243,10 @@
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 200
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 21  # черного колдовского зелья
 
 # Object #3674
 74:
@@ -3424,10 +3264,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -3435,8 +3275,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3473,10 +3311,10 @@
   type: kContainer
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 0
   cost: 0
   rent_off: 0
@@ -3484,8 +3322,6 @@
   max_durability: 10000
   cur_durability: 10000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 1
   minimum_remorts: -1
@@ -3518,11 +3354,6 @@
   short_desc: '&bНебольшое озерцо&n раскинулось перед вами.'
   type: kLiquidContainer
   material: 12  # КАМЕНЬ
-  values:
-    - 1000
-    - 200
-    - 10
-    - 0
   weight: 205
   cost: 0
   rent_off: 0
@@ -3530,8 +3361,6 @@
   max_durability: 10000
   cur_durability: 10000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   minimum_remorts: -1
@@ -3547,6 +3376,10 @@
     - kShoulders
     - kWaist
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 200
+    LIQUID_TYPE: 10  # молока
 
 # Object #3677
 77:
@@ -3561,11 +3394,6 @@
   short_desc: Бурдюк из доселе невиданного меха лежит здесь.
   type: kLiquidContainer
   material: 15  # КОЖА
-  values:
-    - 1000
-    - 200
-    - 10
-    - 0
   weight: 205
   cost: 0
   rent_off: 0
@@ -3573,8 +3401,6 @@
   max_durability: 10000
   cur_durability: 10000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   minimum_remorts: -1
@@ -3587,6 +3413,10 @@
   wear_flags:
     - kTake
     - kWaist
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 200
+    LIQUID_TYPE: 10  # молока
 
 # Object #3678
 78:
@@ -3604,10 +3434,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 1
@@ -3615,8 +3445,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3649,10 +3477,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -3660,8 +3488,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -3693,10 +3519,10 @@
   type: kContainer
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -3704,8 +3530,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3739,11 +3563,6 @@
     Каменная фляга, при осмотре различимы старинные руны. Глотков эдак на 200... Пить или не пить?...
   type: kLiquidContainer
   material: 12  # КАМЕНЬ
-  values:
-    - 200
-    - 0
-    - 21
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -3751,8 +3570,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3764,6 +3581,10 @@
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 200
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 21  # черного колдовского зелья
 
 # Object #3682
 82:
@@ -3781,10 +3602,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 1999
-    - 1
-    - -1
-    - 255
+    - 1999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 255  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3792,8 +3613,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3824,10 +3643,10 @@
   type: kContainer
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -3835,8 +3654,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3871,10 +3688,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 3999
-    - 0
-    - -1
-    - 0
+    - 3999  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3882,8 +3699,6 @@
   max_durability: 5000
   cur_durability: 5000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3918,11 +3733,6 @@
   short_desc: '&BПоходная канистра&n &Kупыря&n лежит тут.'
   type: kLiquidContainer
   material: 0  # НЕИЗВЕСТЕН
-  values:
-    - 999
-    - 0
-    - 0
-    - 0
   weight: 1
   cost: 100
   rent_off: 100
@@ -3930,12 +3740,14 @@
   max_durability: 100
   cur_durability: 100
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
     - kWaist
+  extra_values:
+    LIQUID_CAPACITY: 999
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 0  # воды
 
 # Object #3686
 86:
@@ -3951,10 +3763,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3962,8 +3774,6 @@
   max_durability: 1500
   cur_durability: 1500
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3994,10 +3804,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -4005,8 +3815,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -4043,10 +3851,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -4054,8 +3862,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -4095,11 +3901,6 @@
   short_desc: '&YШ&Cлем &Rвитязя &YБром&Cира&n лежит на земле.'
   type: kLiquidContainer
   material: 1  # БУЛАТ
-  values:
-    - 100
-    - 100
-    - 0
-    - 0
   weight: 105
   cost: 0
   rent_off: 0
@@ -4107,8 +3908,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -4129,3 +3928,7 @@
         вставками из мелкого янтаря, привезённого им из Новгорода. А один варяжский
         волхв вывел рунами сомнительную надпись "Бромир был здесь" и заколдовал его на
         личное владение.  
+  extra_values:
+    LIQUID_CAPACITY: 100
+    LIQUID_CURRENT: 100
+    LIQUID_TYPE: 0  # воды

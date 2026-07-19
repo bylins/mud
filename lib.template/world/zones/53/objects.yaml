@@ -14,10 +14,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 2
+    - 2  # насыщает, часов
     - 1
     - 0
-    - 1
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 0
   rent_off: 0
@@ -25,8 +25,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 99999
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -37,6 +35,8 @@
     - kAppearsAutumn
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_POISON: 1
 
 # Object #5301
 1:
@@ -52,10 +52,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 4
+    - 4  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 10
@@ -63,8 +63,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 30
   extra_flags:
@@ -89,11 +87,6 @@
   short_desc: Капля меда лежит тут.
   type: kPotion
   material: 16  # ОРГАНИКА
-  values:
-    - 5
-    - 103
-    - -1
-    - -1
   weight: 1
   cost: 1
   rent_off: 1
@@ -101,8 +94,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 30
   wear_flags:
@@ -112,6 +103,10 @@
       description: |2
         Довольно крупная капля меда. Пожалуй, ее бы хватило чтобы
         вас насытить. Стоит только осушить ее.
+  extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
+    SPELL1_NUM: 103  # насыщение
 
 # Object #5303
 3:
@@ -128,11 +123,6 @@
        Родник с чистый прохладной водой.
   type: kFountain
   material: 12  # КАМЕНЬ
-  values:
-    - 999
-    - 999
-    - 15
-    - 0
   weight: 1004
   cost: 1000000
   rent_off: 1000000
@@ -140,8 +130,6 @@
   max_durability: 100
   cur_durability: 55
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -152,6 +140,10 @@
     - kAppearsSpring
     - kAppearsSummer
     - kAppearsAutumn
+  extra_values:
+    LIQUID_CAPACITY: 999
+    LIQUID_CURRENT: 999
+    LIQUID_TYPE: 15  # родниковой воды
 
 # Object #5304
 4:
@@ -167,10 +159,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 3
+    - 3  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 3
   rent_off: 3
@@ -178,8 +170,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 10
   extra_flags:
@@ -208,10 +198,10 @@
   type: kWeapon
   material: 15  # КОЖА
   values:
-    - 0
-    - 2
-    - 4
-    - 12
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 4  # граней кубика
+    - 12  # тип атаки: ткнул
   weight: 5
   cost: 100
   rent_off: 20
@@ -220,8 +210,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 5
   extra_flags:
@@ -251,8 +239,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -262,8 +250,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 5
   wear_flags:
@@ -284,8 +270,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -295,8 +281,6 @@
   max_durability: 100
   cur_durability: 95
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 4
   wear_flags:
@@ -317,10 +301,10 @@
   type: kWeapon
   material: 13  # КОСТЬ
   values:
-    - 0
-    - 2
-    - 5
-    - 11
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 5  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 10
   cost: 50
   rent_off: 50
@@ -329,8 +313,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 4320
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 5
   wear_flags:

@@ -14,10 +14,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 3
-    - 1
-    - 5
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 1  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 10
   cost: 100
   rent_off: 100
@@ -26,8 +26,6 @@
   max_durability: 100
   cur_durability: 60
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 5
   extra_flags:
@@ -56,10 +54,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 300
-    - 0
-    - 0
-    - 0
+    - 300  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 5000
   cost: 0
   rent_off: 0
@@ -67,8 +65,6 @@
   max_durability: 10000
   cur_durability: 8000
   timer: 1440
-  spell: 1  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 1
   extra_flags:
@@ -93,11 +89,6 @@
     Вы осушили пузырек и почуствовали себя человеком.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 20
-    - 52
-    - -1
-    - -1
   weight: 1
   cost: 100
   rent_off: 100
@@ -105,8 +96,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 5
   extra_flags:
@@ -119,6 +108,10 @@
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    MAKER_SKILL: 110
+    MAKER_STAT: 35
+    SPELL1_NUM: 52  # серьезное исцеление
 
 # Object #6303
 3:
@@ -134,10 +127,10 @@
   type: kWeapon
   material: 13  # КОСТЬ
   values:
-    - 0
-    - 2
-    - 4
-    - 11
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 4  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 3
   cost: 50
   rent_off: 50
@@ -146,8 +139,6 @@
   max_durability: 100
   cur_durability: 80
   timer: 7200
-  spell: 1  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -189,10 +180,10 @@
   type: kContainer
   material: 13  # КОСТЬ
   values:
-    - 300
-    - 0
-    - 0
-    - 0
+    - 300  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -200,8 +191,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 99999
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNoinvis
@@ -227,10 +216,10 @@
   type: kWeapon
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
-    - 2
-    - 5
-    - 3
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 5  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 10
   cost: 100
   rent_off: 100
@@ -239,8 +228,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -282,8 +269,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 10
   extra_flags:
@@ -317,8 +302,8 @@
   type: kArmor
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 3
-    - 1
+    - 3  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -328,8 +313,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 12
   wear_flags:
@@ -358,8 +341,8 @@
   type: kArmor
   material: 4  # СТАЛЬ
   values:
-    - 3
-    - 3
+    - 3  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -369,8 +352,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 4
   wear_flags:
@@ -401,8 +382,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 7
@@ -412,8 +393,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kFlying
@@ -455,8 +434,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 20
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kGlow

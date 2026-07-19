@@ -14,10 +14,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 600
-    - 0
-    - -1
-    - 0
+    - 600  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 100
   rent_off: 100
@@ -25,8 +25,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kZonedecay
@@ -59,10 +57,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 5
-    - 4
-    - 3
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 4  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 10
   cost: 100
   rent_off: 100
@@ -71,8 +69,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kZonedecay
@@ -106,10 +102,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 10
+    - 10  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 100
   rent_off: 100
@@ -117,8 +113,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -148,10 +142,10 @@
   type: kContainer
   material: 8  # ДЕРЕВО
   values:
-    - 100
-    - 0
-    - -1
-    - 0
+    - 100  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 10
   cost: 100
   rent_off: 100
@@ -159,8 +153,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodecay
@@ -188,10 +180,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 1000
-    - 0
-    - -1
-    - 0
+    - 1000  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 20
   cost: 100
   rent_off: 100
@@ -199,8 +191,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodecay
@@ -239,8 +229,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   minimum_remorts: -1
   extra_flags:
@@ -283,8 +271,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNodecay
@@ -323,8 +309,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNodecay
@@ -362,8 +346,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -390,11 +372,6 @@
   short_desc: Широкий ручей бежит здесь, лаская прозрачными водами камни своего русла.
   type: kFountain
   material: 16  # ОРГАНИКА
-  values:
-    - 1000
-    - 1000
-    - 15
-    - 0
   weight: 1005
   cost: 0
   rent_off: 0
@@ -402,8 +379,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kHum
@@ -416,6 +391,10 @@
         Редкие листики проплывают вниз по течению, 
         кружась и отскакивая от торчащих из воды 
         камней. Вода прозрачна как воздух - отражает. 
+  extra_values:
+    LIQUID_CAPACITY: 1000
+    LIQUID_CURRENT: 1000
+    LIQUID_TYPE: 15  # родниковой воды
 
 # Object #6510
 10:
@@ -442,8 +421,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kZonedecay
@@ -475,10 +452,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 5
+    - 5  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 0
@@ -486,8 +463,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -518,10 +493,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 10
+    - 10  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 10
   rent_off: 0
@@ -529,8 +504,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kZonedecay
@@ -571,8 +544,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -611,8 +582,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay

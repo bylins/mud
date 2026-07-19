@@ -583,7 +583,10 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	// issue.room-affect-trigger-improve: AFTER placement on the walk path -- run the non-blocking
 	// on-entry effects (e.g. kHypnoticPattern's sleep) in the destination room. The blocking-capable
 	// actions already ran (and possibly refused the move) before placement, above.
-	room_spells::RunRoomEntryTriggers(ch, world[ch->in_room],
+	// Result is intentionally ignored here: only non-blocking on-entry effects
+	// run (the blocking pass already decided the move above). See magic_rooms.cpp
+	// for the same (void) pattern.
+	(void) room_spells::RunRoomEntryTriggers(ch, world[ch->in_room],
 			room_spells::EEntryTriggerPhase::kEffectsNonBlocking);
 
 	if (deathtrap::check_death_trap(ch)) {

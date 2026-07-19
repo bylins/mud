@@ -453,32 +453,32 @@
     %mob.castsucc(%actor.castsucc%)%
     %mob.initiative(%actor.initiative%)%
     eval bonus %actor.RealStr% -%mob.RealStr%
-    dgaffect %mob% сила !чары! %bonus% 720
+    dgaffect %mob% сила %bonus% 720
     eval bonus %actor.RealInt% -%mob.RealInt%
-    dgaffect %mob% интеллект !чары! %bonus% 720
+    dgaffect %mob% интеллект %bonus% 720
     eval bonus %actor.RealWis% -%mob.RealWis%
-    dgaffect %mob% мудрость !чары! %bonus% 720
+    dgaffect %mob% мудрость %bonus% 720
     eval bonus %actor.RealDex% -%mob.RealDex%
-    dgaffect %mob% ловкость !чары! %bonus% 720
+    dgaffect %mob% ловкость %bonus% 720
     eval bonus %actor.RealCon% -%mob.RealCon%
-    dgaffect %mob% телосложение !чары! %bonus% 720
+    dgaffect %mob% телосложение %bonus% 720
     eval bonus %actor.RealCha% -%mob.RealCha%
-    dgaffect %mob% обаяние !чары! %bonus% 720
+    dgaffect %mob% обаяние %bonus% 720
     eval bonus %actor.RealSize% -%mob.RealSize%
-    dgaffect %mob% размер !чары! %bonus% 720
+    dgaffect %mob% размер %bonus% 720
     eval bonus %actor.hr%-%mob.hr%
-    dgaffect %mob% попадание !чары! %bonus% 720
+    dgaffect %mob% попадание %bonus% 720
     eval bonus %actor.dr%-%mob.dr%
-    dgaffect %mob% повреждение !чары! %bonus% 720
+    dgaffect %mob% повреждение %bonus% 720
     eval bonus (%actor.ac% +%actor.acadd%) -(%mob.ac% +%mob.acadd%)
-    dgaffect %mob% защита !чары! %bonus% 720
+    dgaffect %mob% защита %bonus% 720
     eval bonus %actor.morale%-%mob.morale%
-    dgaffect %mob% удача !чары! %bonus% 720
+    dgaffect %mob% удача %bonus% 720
     %mob.align(+%actor.align%)%
     set apply бонус.физ сила.закл волшебное.уклонение.от.физ волшебное.уклонение.от.маг
     foreach i %apply%
       eval bonus %actor.ApplyValue(%i%)%-%mob.ApplyValue(%i%)%
-      dgaffect %mob% %i% !чары! %bonus% 720
+      dgaffect %mob% %i% %bonus% 720
     done
     set char_savings %actor.will% %actor.critical% %actor.stability% %actor.reflex%
     set mob_savings %mob.will% %mob.critical% %mob.stability% %mob.reflex%
@@ -494,10 +494,10 @@
       set bonus_savings %bonus_savings.trim%
       eval i %i%+1
     done
-    dgaffect %mob% воля !чары! %array.item(%bonus_savings%, 1)% 720
-    dgaffect %mob% здоровье !чары! %array.item(%bonus_savings%, 2)% 720
-    dgaffect %mob% стойкость !чары! %array.item(%bonus_savings%, 3)% 720
-    dgaffect %mob% реакция !чары! %array.item(%bonus_savings%, 4)% 720
+    dgaffect %mob% воля %array.item(%bonus_savings%, 1)% 720
+    dgaffect %mob% здоровье %array.item(%bonus_savings%, 2)% 720
+    dgaffect %mob% стойкость %array.item(%bonus_savings%, 3)% 720
+    dgaffect %mob% реакция %array.item(%bonus_savings%, 4)% 720
 
 # Trigger #1021
 21:

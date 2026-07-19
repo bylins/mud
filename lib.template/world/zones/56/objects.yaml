@@ -14,10 +14,10 @@
   type: kFood
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 24
+    - 24  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 5
   cost: 0
   rent_off: 0
@@ -25,8 +25,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodonate
@@ -53,10 +51,10 @@
   type: kWeapon
   material: 13  # КОСТЬ
   values:
-    - 0
-    - 2
-    - 3
-    - 11
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 3  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 2
   cost: 30
   rent_off: 30
@@ -65,8 +63,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake

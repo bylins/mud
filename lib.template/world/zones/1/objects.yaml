@@ -14,10 +14,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -25,8 +25,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 99999
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   extra_flags:
     - kNorent
@@ -36,7 +34,6 @@
     - keywords: нет
       description: |+2
         
-
 # Object #101
 1:
   names:
@@ -51,10 +48,10 @@
   type: kFood
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 15
+    - 15  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 1
@@ -62,8 +59,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -88,10 +83,10 @@
   type: kFood
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 16
+    - 16  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 10
   rent_off: 2
@@ -99,8 +94,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 2000
-  spell: 0  # !undefined!
-  level: 1
   sex: kNeutral
   max_in_world: 100000
   wear_flags:
@@ -126,10 +119,10 @@
   type: kLiquidContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 6
-    - 6
-    - 7
-    - 0
+    - 6  # объём, глотков
+    - 6  # налито, глотков
+    - 7  # тип жидкости: водки
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 7
   cost: 5
   rent_off: 1
@@ -137,8 +130,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -162,10 +153,10 @@
   type: kLiquidContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 12
-    - 12
-    - 2
-    - 0
+    - 12  # объём, глотков
+    - 12  # налито, глотков
+    - 2  # тип жидкости: вина
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 17
   cost: 5
   rent_off: 1
@@ -173,8 +164,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 100000
   wear_flags:
@@ -194,10 +183,10 @@
   type: kLiquidContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 25
-    - 25
-    - 7
-    - 0
+    - 25  # объём, глотков
+    - 25  # налито, глотков
+    - 7  # тип жидкости: водки
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 30
   cost: 20
   rent_off: 3
@@ -205,8 +194,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -229,10 +216,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 10
-    - 5
-    - 5
+    - 0  # не используется
+    - 10  # число бросков кубика
+    - 5  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 10
   cost: 20
   rent_off: 20
@@ -241,8 +228,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -273,10 +258,10 @@
   type: kWeapon
   material: 2  # БРОНЗА
   values:
-    - 0
-    - 2
-    - 5
-    - 3
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 5  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 14
   cost: 70
   rent_off: 70
@@ -285,8 +270,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 10000
   wear_flags:
@@ -312,10 +295,10 @@
   type: kWeapon
   material: 2  # БРОНЗА
   values:
-    - 0
-    - 1
-    - 5
-    - 3
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 5  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 5
   cost: 10
   rent_off: 10
@@ -324,8 +307,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 10000
   wear_flags:
@@ -352,10 +333,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 1
-    - 1
-    - 9
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 1  # граней кубика
+    - 9  # тип атаки: подстрелил
   weight: 5
   cost: 5
   rent_off: 0
@@ -364,8 +345,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 10000
   extra_flags:
@@ -394,10 +373,10 @@
   type: kWeapon
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 37
-    - 2
-    - 1
+    - 5  # не используется
+    - 37  # число бросков кубика
+    - 2  # граней кубика
+    - 1  # тип атаки: ободрал
   weight: 40
   cost: 20
   rent_off: 20
@@ -406,8 +385,6 @@
   max_durability: 500
   cur_durability: 100
   timer: 80000
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   minimum_remorts: 5
   extra_flags:
@@ -416,6 +393,7 @@
   wear_flags:
     - kTake
     - kWield
+    - kHold
     - kBoth
   affect_flags:
     - kBlindness
@@ -428,6 +406,8 @@
       modifier: 100
     - location: 6  # обаяние
       modifier: 50
+    - location: 3  # интеллект
+      modifier: 100
   skills:
     - skill_id: 2  # перехватить атаку
       value: -200
@@ -454,10 +434,10 @@
   type: kWeapon
   material: 2  # БРОНЗА
   values:
-    - 0
-    - 3
-    - 5
-    - 3
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 5  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 18
   cost: 50
   rent_off: 50
@@ -466,8 +446,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 10000
   wear_flags:
@@ -494,10 +472,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 1
-    - 5
-    - 7
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 5  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 5
   cost: 10
   rent_off: 0
@@ -506,8 +484,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 10000
   extra_flags:
@@ -537,8 +513,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 2
-    - 0
+    - 2  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -548,8 +524,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   max_in_world: 10000
   minimum_remorts: -1
@@ -596,10 +570,10 @@
   type: kLiquidContainer
   material: 3  # ЖЕЛЕЗО
   values:
-    - 14
-    - 14
-    - 0
-    - 0
+    - 14  # объём, глотков
+    - 14  # налито, глотков
+    - 0  # тип жидкости: воды
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 19
   cost: 2
   rent_off: 0
@@ -607,8 +581,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 100000
   extra_flags:
@@ -636,8 +608,8 @@
   type: kScroll
   material: 17  # БЕРЕСТА
   values:
-    - 0
-    - 42
+    - 0  # уровень заклинания
+    - 42  # слово возврата
     - -1
     - -1
   weight: 1
@@ -647,8 +619,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 10000
   extra_flags:
@@ -662,6 +632,8 @@
       description: |2
         Вы видите сероватый берестяной свиток,
         полностью исписанный знакомыми буквами.
+  extra_values:
+    SPELL1_NUM: 42  # слово возврата
 
 # Object #116
 16:
@@ -677,8 +649,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 1
+    - 0  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -688,8 +660,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   max_in_world: 10000
   extra_flags:
@@ -716,8 +686,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 1
+    - 0  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -727,8 +697,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 10000
   extra_flags:
@@ -755,8 +723,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 1
-    - 2
+    - 1  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -766,8 +734,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -795,8 +761,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 1
+    - 0  # изменяет AC
+    - 1  # изменяет броню
     - 5
     - 11
   weight: 1
@@ -807,8 +773,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   max_in_world: 10000
   extra_flags:
@@ -836,8 +800,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 1
+    - 0  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -847,8 +811,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 10000
   extra_flags:
@@ -877,10 +839,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 1
-    - 5
-    - 5
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 5  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 5
   cost: 5
   rent_off: 0
@@ -889,8 +851,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNosell
@@ -918,10 +878,10 @@
   type: kWeapon
   material: 2  # БРОНЗА
   values:
-    - 0
-    - 1
-    - 4
-    - 11
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 4  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 6
   cost: 0
   rent_off: 0
@@ -930,8 +890,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   extra_flags:
     - kNosell
@@ -959,8 +917,8 @@
   type: kArmor
   material: 3  # ЖЕЛЕЗО
   values:
-    - 1
-    - 2
+    - 1  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -970,8 +928,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -996,8 +952,8 @@
   type: kArmor
   material: 3  # ЖЕЛЕЗО
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1007,8 +963,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -1036,10 +990,10 @@
   type: kFood
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 15
+    - 15  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1047,8 +1001,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -1077,7 +1029,7 @@
   values:
     - 0
     - 0
-    - 24
+    - 24  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 1
   cost: 2
@@ -1086,8 +1038,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 10000
   extra_flags:
@@ -1120,7 +1070,7 @@
   values:
     - 12
     - 0
-    - 48
+    - 48  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 1
   cost: 1
@@ -1129,8 +1079,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNosell
@@ -1157,7 +1105,7 @@
   values:
     - 0
     - 0
-    - 48
+    - 48  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 1
   cost: 5
@@ -1166,8 +1114,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 100000
   extra_flags:
@@ -1193,10 +1139,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 75
-    - 0
-    - -1
-    - 0
+    - 75  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 10
   rent_off: 10
@@ -1204,8 +1150,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -1229,8 +1173,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 1
+    - 0  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1240,8 +1184,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 100000
   extra_flags:
@@ -1269,8 +1211,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 1
+    - 0  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1280,8 +1222,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -1309,8 +1249,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 1
+    - 0  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1320,8 +1260,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10000
   extra_flags:
@@ -1349,8 +1287,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1360,8 +1298,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 10000
   extra_flags:
@@ -1392,10 +1328,10 @@
   type: kContainer
   material: 3  # ЖЕЛЕЗО
   values:
-    - 250
-    - 0
-    - -1
-    - 0
+    - 250  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 5
   cost: 20
   rent_off: 20
@@ -1403,8 +1339,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -1429,8 +1363,8 @@
   type: kArmor
   material: 11  # СТЕКЛО
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1440,8 +1374,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1463,10 +1395,10 @@
   type: kLiquidContainer
   material: 15  # КОЖА
   values:
-    - 25
-    - 25
-    - 0
-    - 0
+    - 25  # объём, глотков
+    - 25  # налито, глотков
+    - 0  # тип жидкости: воды
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 30
   cost: 10
   rent_off: 10
@@ -1474,8 +1406,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1500,8 +1430,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 1
-    - 2
+    - 1  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 9
@@ -1511,8 +1441,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10000
   extra_flags:
@@ -1542,8 +1470,8 @@
   type: kScroll
   material: 17  # БЕРЕСТА
   values:
-    - 0
-    - 351
+    - 0  # уровень заклинания
+    - 351  # идентификация
     - -1
     - -1
   weight: 1
@@ -1553,8 +1481,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 201  # !undefined!
-  level: 30
   sex: kMale
   wear_flags:
     - kTake
@@ -1564,6 +1490,8 @@
       description: |2
         Вы видите свиток из бресты,
         покрытый знакомыми символами.
+  extra_values:
+    SPELL1_NUM: 351  # идентификация
 
 # Object #139
 39:
@@ -1579,8 +1507,8 @@
   type: kScroll
   material: 17  # БЕРЕСТА
   values:
-    - 0
-    - 42
+    - 0  # уровень заклинания
+    - 42  # слово возврата
     - 0
     - 0
   weight: 1
@@ -1590,8 +1518,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -1601,6 +1527,8 @@
       description: |2
         Вы видите сероватый берестяной свиток,
         покрытый знакомыми буквами.
+  extra_values:
+    SPELL1_NUM: 42  # слово возврата
 
 # Object #140
 40:
@@ -1616,10 +1544,10 @@
   type: kPotion
   material: 11  # СТЕКЛО
   values:
+    - 0  # уровень заклинания
+    - 19  # видеть невидимое
     - 0
-    - 19
-    - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 30
   rent_off: 15
@@ -1627,8 +1555,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -1638,6 +1564,10 @@
       description: |2
         Вы видите маленькую зеленую бутылочку,
         с неизвестным содержимым.
+  extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
+    SPELL1_NUM: 19  # видеть невидимое
 
 # Object #141
 41:
@@ -1653,10 +1583,10 @@
   type: kPotion
   material: 11  # СТЕКЛО
   values:
+    - 0  # уровень заклинания
+    - 97  # восстановление
     - 0
-    - 97
-    - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 300
   rent_off: 300
@@ -1664,8 +1594,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1674,6 +1602,10 @@
     - keywords: красный пузырек
       description: |2
         Вы видите красный пузырек с неизвестным напитком.
+  extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
+    SPELL1_NUM: 97  # восстановление
 
 # Object #142
 42:
@@ -1689,10 +1621,10 @@
   type: kPotion
   material: 11  # СТЕКЛО
   values:
+    - 0  # уровень заклинания
+    - 43  # удалить яд
     - 0
-    - 43
-    - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 20
   rent_off: 15
@@ -1700,8 +1632,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -1710,6 +1640,10 @@
     - keywords: колба с серой жидкостью
       description: |2
         Вы видите колбу с неизвестной серой жидкостью.
+  extra_values:
+    MAKER_SKILL: 125
+    MAKER_STAT: 40
+    SPELL1_NUM: 43  # удалить яд
 
 # Object #143
 43:
@@ -1725,10 +1659,10 @@
   type: kPotion
   material: 11  # СТЕКЛО
   values:
+    - 0  # уровень заклинания
+    - 16  # легкое исцеление
     - 0
-    - 16
-    - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 150
   rent_off: 15
@@ -1736,8 +1670,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1746,6 +1678,10 @@
     - keywords: черное зелье
       description: |2
         Вы видите невиданное черное зелье.
+  extra_values:
+    MAKER_SKILL: 125
+    MAKER_STAT: 40
+    SPELL1_NUM: 16  # легкое исцеление
 
 # Object #144
 44:
@@ -1761,10 +1697,10 @@
   type: kPotion
   material: 11  # СТЕКЛО
   values:
-    - 0
-    - 19
-    - 20
-    - 50
+    - 0  # уровень заклинания
+    - 19  # видеть невидимое
+    - 20  # определение магии
+    - 50  # сила зелья (potency)
   weight: 1
   cost: 100
   rent_off: 100
@@ -1772,8 +1708,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1782,6 +1716,12 @@
     - keywords: напиток всевидения
       description: |2
         Вы видите напиток всевидения, который слабо светится.
+  extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
+    SPELL1_NUM: 19  # видеть невидимое
+    SPELL2_NUM: 20  # определение магии
+    SPELL3_NUM: 50  # видение ночью
 
 # Object #145
 45:
@@ -1797,10 +1737,10 @@
   type: kPotion
   material: 10  # КЕРАМИКА
   values:
-    - 25
-    - 103
+    - 25  # уровень заклинания
+    - 103  # насыщение
     - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 30
   rent_off: 5
@@ -1808,8 +1748,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1818,6 +1756,10 @@
     - keywords: ключ
       description: |2
         Вы видите обычный ключ.
+  extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
+    SPELL1_NUM: 103  # насыщение
 
 # Object #146
 46:
@@ -1833,10 +1775,10 @@
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 50
-    - 0
-    - 0
-    - 0
+    - 50  # объём, глотков
+    - 0  # налито, глотков
+    - 0  # тип жидкости: воды
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 4
   cost: 30
   rent_off: 30
@@ -1844,8 +1786,6 @@
   max_durability: 80
   cur_durability: 80
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   wear_flags:
@@ -1865,10 +1805,10 @@
   type: kPotion
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 25
-    - 50
+    - 25  # уровень заклинания
+    - 50  # видение ночью
     - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 50
   rent_off: 10
@@ -1876,11 +1816,11 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    SPELL1_NUM: 50  # видение ночью
 
 # Object #148
 48:
@@ -1898,7 +1838,7 @@
   values:
     - 0
     - 0
-    - 7
+    - 7  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 5
   cost: 15
@@ -1907,8 +1847,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 100000
   wear_flags:
@@ -1929,10 +1867,10 @@
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 200
-    - 200
-    - 21
-    - 0
+    - 200  # объём, глотков
+    - 200  # налито, глотков
+    - 21  # тип жидкости: черного колдовского зелья
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 205
   cost: 22000
   rent_off: 20
@@ -1940,8 +1878,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -1952,9 +1888,11 @@
       description: |2
         Крепкий дубовый бочонок с притертой затычкой.
   extra_values:
+    MAKER_SKILL: 100
+    MAKER_STAT: 30
     POTION_PROTO_VNUM: 0
     POTION_SPELL1_LVL: 0
-    POTION_SPELL1_NUM: 16
+    SPELL1_NUM: 16  # легкое исцеление
 
 # Object #150
 50:
@@ -1970,10 +1908,10 @@
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 50
-    - 50
-    - 19
-    - 0
+    - 50  # объём, глотков
+    - 50  # налито, глотков
+    - 19  # тип жидкости: белого колдовского зелья
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 55
   cost: 5100
   rent_off: 50
@@ -1981,8 +1919,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -1998,11 +1934,11 @@
   extra_values:
     POTION_PROTO_VNUM: 0
     POTION_SPELL1_LVL: 0
-    POTION_SPELL1_NUM: 19
     POTION_SPELL2_LVL: 0
-    POTION_SPELL2_NUM: 20
     POTION_SPELL3_LVL: 0
-    POTION_SPELL3_NUM: 50
+    SPELL1_NUM: 19  # видеть невидимое
+    SPELL2_NUM: 20  # определение магии
+    SPELL3_NUM: 50  # видение ночью
 
 # Object #151
 51:
@@ -2018,10 +1954,10 @@
   type: kLiquidContainer
   material: 15  # КОЖА
   values:
-    - 20
-    - 20
-    - 17
-    - 0
+    - 20  # объём, глотков
+    - 20  # налито, глотков
+    - 17  # тип жидкости: красного колдовского зелья
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 25
   cost: 6100
   rent_off: 30
@@ -2029,8 +1965,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -2043,9 +1977,11 @@
       description: |2
         Небольшой мех для воды вытянут вверх как груша, как раз носить на поясе.
   extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
     POTION_PROTO_VNUM: 0
     POTION_SPELL1_LVL: 0
-    POTION_SPELL1_NUM: 97
+    SPELL1_NUM: 97  # восстановление
 
 # Object #152
 52:
@@ -2063,8 +1999,8 @@
   type: kScroll
   material: 17  # БЕРЕСТА
   values:
-    - 30
-    - 73
+    - 30  # уровень заклинания
+    - 73  # починка
     - 0
     - 0
   weight: 1
@@ -2074,8 +2010,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 45000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2084,6 +2018,8 @@
     - keywords: свиток обновления
       description: |2
         Тугой пергаментный свиток перетянутый синей тесемкой.
+  extra_values:
+    SPELL1_NUM: 73  # починка
 
 # Object #153
 53:
@@ -2099,10 +2035,10 @@
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 75
-    - 75
-    - 18
-    - 0
+    - 75  # объём, глотков
+    - 75  # налито, глотков
+    - 18  # тип жидкости: синего колдовского зелья
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 80
   cost: 3100
   rent_off: 50
@@ -2110,8 +2046,6 @@
   max_durability: 400
   cur_durability: 400
   timer: 30150
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -2122,9 +2056,11 @@
       description: |2
         Обычный деревянный бочонок с круглыми боками.
   extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
     POTION_PROTO_VNUM: 0
     POTION_SPELL1_LVL: 25
-    POTION_SPELL1_NUM: 103
+    SPELL1_NUM: 103  # насыщение
 
 # Object #154
 54:
@@ -2140,10 +2076,10 @@
   type: kLiquidContainer
   material: 11  # СТЕКЛО
   values:
-    - 50
-    - 50
-    - 19
-    - 0
+    - 50  # объём, глотков
+    - 50  # налито, глотков
+    - 19  # тип жидкости: белого колдовского зелья
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 55
   cost: 1600
   rent_off: 15
@@ -2151,8 +2087,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 40000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -2163,9 +2097,11 @@
       description: |2
         Объемистая четырехугольная бутыль мутного стекла.
   extra_values:
+    MAKER_SKILL: 80
+    MAKER_STAT: 25
     POTION_PROTO_VNUM: 0
     POTION_SPELL1_LVL: 0
-    POTION_SPELL1_NUM: 19
+    SPELL1_NUM: 19  # видеть невидимое
 
 # Object #155
 55:
@@ -2192,8 +2128,6 @@
   max_durability: 30
   cur_durability: 30
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 100000
   wear_flags:
@@ -2216,10 +2150,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 1
-    - 5
-    - 7
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 5  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 10
   rent_off: 10
@@ -2228,8 +2162,6 @@
   max_durability: 300
   cur_durability: 300
   timer: 67345
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodisarm
@@ -2251,10 +2183,10 @@
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 50
-    - 0
-    - 0
-    - 0
+    - 50  # объём, глотков
+    - 0  # налито, глотков
+    - 0  # тип жидкости: воды
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 4
   cost: 30
   rent_off: 30
@@ -2262,8 +2194,6 @@
   max_durability: 80
   cur_durability: 80
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   wear_flags:
@@ -2283,10 +2213,10 @@
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 50
-    - 0
-    - 0
-    - 0
+    - 50  # объём, глотков
+    - 0  # налито, глотков
+    - 0  # тип жидкости: воды
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 4
   cost: 30
   rent_off: 30
@@ -2294,8 +2224,6 @@
   max_durability: 80
   cur_durability: 80
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   wear_flags:
@@ -2315,10 +2243,10 @@
   type: kFountain
   material: 11  # СТЕКЛО
   values:
-    - 20
-    - 10
-    - 2
-    - 0
+    - 20  # объём, глотков
+    - 10  # налито, глотков
+    - 2  # тип жидкости: вина
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 10
   cost: 10
   rent_off: 10
@@ -2326,8 +2254,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -2358,8 +2284,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodecay
@@ -2381,10 +2305,10 @@
   type: kFountain
   material: 11  # СТЕКЛО
   values:
-    - 30
-    - 30
-    - 2
-    - 0
+    - 30  # объём, глотков
+    - 30  # налито, глотков
+    - 2  # тип жидкости: вина
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 35
   cost: 0
   rent_off: 0
@@ -2392,8 +2316,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kBless
@@ -2415,10 +2337,10 @@
   type: kScroll
   material: 14  # ТКАНЬ
   values:
-    - 30
-    - 1
-    - 1
-    - 1
+    - 30  # уровень заклинания
+    - 1  # защита
+    - 1  # защита
+    - 1  # защита
   weight: 1
   cost: 1
   rent_off: 1
@@ -2426,11 +2348,13 @@
   max_durability: 10
   cur_durability: 10
   timer: 300
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
+  extra_values:
+    SPELL1_NUM: 1  # защита
+    SPELL2_NUM: 1  # защита
+    SPELL3_NUM: 1  # защита
 
 # Object #163
 63:
@@ -2446,10 +2370,10 @@
   type: kWeapon
   material: 4  # СТАЛЬ
   values:
-    - 0
-    - 1
-    - 5
-    - 11
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 5  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 3
   cost: 10
   rent_off: 10
@@ -2458,8 +2382,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -2488,10 +2410,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 1
-    - 6
-    - 5
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 6  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 5
   cost: 9
   rent_off: 9
@@ -2500,8 +2422,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 100000
   extra_flags:
@@ -2529,10 +2449,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 2
-    - 6
-    - 3
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 6  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 20
   cost: 20
   rent_off: 20
@@ -2541,8 +2461,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 100000
   extra_flags:
@@ -2571,10 +2489,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 1
-    - 5
-    - 11
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 5  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 5
   cost: 7
   rent_off: 7
@@ -2583,8 +2501,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -2613,10 +2529,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 2
-    - 6
-    - 9
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 6  # граней кубика
+    - 9  # тип атаки: подстрелил
   weight: 10
   cost: 20
   rent_off: 20
@@ -2625,8 +2541,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -2654,10 +2568,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 1
-    - 6
-    - 3
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 6  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 13
   cost: 10
   rent_off: 10
@@ -2666,8 +2580,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -2695,10 +2607,10 @@
   type: kWeapon
   material: 2  # БРОНЗА
   values:
-    - 0
-    - 1
-    - 6
-    - 7
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 6  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 17
   cost: 10
   rent_off: 10
@@ -2707,8 +2619,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -2736,10 +2646,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 3
-    - 2
-    - 6
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 2  # граней кубика
+    - 6  # тип атаки: сокрушил
   weight: 22
   cost: 60
   rent_off: 60
@@ -2748,8 +2658,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2775,10 +2683,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 1
-    - 8
-    - 6
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 8  # граней кубика
+    - 6  # тип атаки: сокрушил
   weight: 4
   cost: 60
   rent_off: 60
@@ -2787,8 +2695,6 @@
   max_durability: 30
   cur_durability: 30
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2808,10 +2714,10 @@
   type: kWeapon
   material: 4  # СТАЛЬ
   values:
-    - 0
-    - 2
-    - 3
-    - 3
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 3  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 12
   cost: 56
   rent_off: 56
@@ -2820,8 +2726,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2848,10 +2752,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 2
-    - 3
-    - 5
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 3  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 10
   cost: 56
   rent_off: 56
@@ -2860,8 +2764,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2888,10 +2790,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 1
-    - 6
-    - 2
+    - 0  # не используется
+    - 1  # число бросков кубика
+    - 6  # граней кубика
+    - 2  # тип атаки: хлестнул
   weight: 13
   cost: 10
   rent_off: 10
@@ -2900,8 +2802,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 100000
   extra_flags:
@@ -2929,10 +2829,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 2
-    - 4
-    - 9
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 4  # граней кубика
+    - 9  # тип атаки: подстрелил
   weight: 16
   cost: 100
   rent_off: 100
@@ -2941,8 +2841,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2969,10 +2867,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 2
-    - 5
-    - 5
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 5  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 22
   cost: 150
   rent_off: 150
@@ -2981,8 +2879,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3006,10 +2902,10 @@
   type: kPotion
   material: 11  # СТЕКЛО
   values:
-    - 20
-    - 57
+    - 20  # уровень заклинания
+    - 57  # полет
     - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 5000
   rent_off: 50
@@ -3017,8 +2913,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3028,6 +2922,8 @@
       description: |2
         Небольшая пузатая склянка наполненная дымчатой,
         почти невесомой жидкостью.
+  extra_values:
+    SPELL1_NUM: 57  # полет
 
 # Object #178
 78:
@@ -3043,8 +2939,8 @@
   type: kScroll
   material: 16  # ОРГАНИКА
   values:
-    - 20
-    - 35
+    - 20  # уровень заклинания
+    - 35  # снять проклятие
     - 0
     - 0
   weight: 1
@@ -3054,8 +2950,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 50
   wear_flags:
@@ -3066,6 +2960,8 @@
       description: |2
         Короткий свиток полупрозрачной пленки -- то ли рыбьей
         кожи, то ли бычьего пузыря, покрытый диковинными рунами.
+  extra_values:
+    SPELL1_NUM: 35  # снять проклятие
 
 # Object #179
 79:
@@ -3081,7 +2977,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 1
     - 0
     - 0
@@ -3092,8 +2988,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 50
   wear_flags:
@@ -3133,8 +3027,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 1000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kHum
@@ -3157,9 +3049,9 @@
   type: kStaff
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
+    - 0  # уровень заклинания
+    - 0  # всего зарядов
+    - 0  # осталось зарядов
     - -1
   weight: 0
   cost: 0
@@ -3168,8 +3060,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 500
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3203,8 +3093,6 @@
   max_durability: 100
   cur_durability: 0
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kMagic
@@ -3245,8 +3133,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 40000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3277,8 +3163,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3300,10 +3184,10 @@
   type: kWeapon
   material: 7  # КРИСТАЛЛ
   values:
-    - 10
-    - 50
-    - 4
-    - 13
+    - 10  # не используется
+    - 50  # число бросков кубика
+    - 4  # граней кубика
+    - 13  # тип атаки: лягнул
   weight: 1
   cost: 0
   rent_off: 0
@@ -3312,8 +3196,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3335,8 +3217,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 40
-    - 40
+    - 40  # изменяет AC
+    - 40  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3346,8 +3228,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kGlow
@@ -3369,8 +3249,8 @@
   type: kArmor
   material: 11  # СТЕКЛО
   values:
-    - 20
-    - 20
+    - 20  # изменяет AC
+    - 20  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3380,8 +3260,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kHum
@@ -3403,8 +3281,8 @@
   type: kArmor
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 20
-    - 20
+    - 20  # изменяет AC
+    - 20  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3414,8 +3292,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3446,8 +3322,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3467,10 +3341,10 @@
   type: kFountain
   material: 12  # КАМЕНЬ
   values:
-    - 999
-    - 999
-    - 1
-    - 0
+    - 999  # объём, глотков
+    - 999  # налито, глотков
+    - 1  # тип жидкости: пива
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1004
   cost: 0
   rent_off: 0
@@ -3478,8 +3352,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3552,7 +3424,7 @@
   values:
     - 0
     - 0
-    - 0
+    - 0  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 10000
   cost: 10
@@ -3561,8 +3433,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 49999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -3585,8 +3455,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3596,8 +3466,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kHum
@@ -3636,8 +3504,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 40000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kFlying
@@ -3670,8 +3536,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3702,8 +3566,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3734,8 +3596,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3766,8 +3626,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 2000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kFinger
@@ -3811,8 +3669,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3853,8 +3709,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 21000
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   minimum_remorts: -1
   wear_flags:

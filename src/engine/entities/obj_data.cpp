@@ -720,7 +720,7 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
 * \param time по дефолту 1.
 */
-void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
+void ObjData::dec_timer(int time, bool ignore_utimer, bool /*exchange*/) {
 	*buf2 = '\0';
 	if (has_obj_affects()) {
 		// issue.obj-suppressor-affect: dec_timer's obj-affect tick is the OFFLINE catch-up on rent-load

@@ -13,11 +13,6 @@
   short_desc: Склянка с мутным эликсиром лежит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 16
-    - 16
-    - 16
   weight: 1
   cost: 10
   rent_off: 5
@@ -25,11 +20,13 @@
   max_durability: 30
   cur_durability: 30
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
+  extra_values:
+    SPELL1_NUM: 16  # легкое исцеление
+    SPELL2_NUM: 16  # легкое исцеление
+    SPELL3_NUM: 16  # легкое исцеление
   triggers:
     - 810  # <выпить эликсир> - действие  эликсира  молодости
 
@@ -46,11 +43,6 @@
   short_desc: Бутылочка с ядовито-красной смесью лежит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 57
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -58,12 +50,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 7  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 57  # полет
 
 # Object #802
 2:
@@ -78,11 +70,6 @@
   short_desc: Бутыль с жидкостью подозрительного цвета стоит у ваших ног.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 84
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -90,12 +77,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 7  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 84  # увеличить жизнь
 
 # Object #803
 3:
@@ -110,11 +97,6 @@
   short_desc: Бутылочка с жидкостью, напоминающей ягодный сок, лежит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 5
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -122,12 +104,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 7  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #804
 4:
@@ -142,11 +124,6 @@
   short_desc: Наполненная прозрачной зеленоватой жидкостью бутылочка лежит у Ваших ног.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 5
-    - 3
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -154,12 +131,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 7  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 3  # доблесть
 
 # Object #805
 5:
@@ -174,11 +151,6 @@
   short_desc: В стоящей перед Вами емкости шевелится нечто бесформенное.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 20
-    - 9
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -186,12 +158,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 6  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 9  # клонирование
 
 # Object #806
 6:
@@ -206,11 +178,6 @@
   short_desc: Глоток целительной влаги, заключенный в плен сосуда, лежит перед Вами.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 18
-    - 15
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -218,12 +185,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 6  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 15  # критическое исцеление
 
 # Object #807
 7:
@@ -238,11 +205,6 @@
   short_desc: Емкость с травяным отваром стоит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 14
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -250,12 +212,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 6  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 14  # вылечить слепоту
 
 # Object #808
 8:
@@ -270,11 +232,6 @@
   short_desc: Судя по неприятному запаху, это зелье должно быть полезным.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 5
-    - 16
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -282,12 +239,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 6  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 16  # легкое исцеление
 
 # Object #809
 9:
@@ -302,11 +259,6 @@
   short_desc: Бутылочка со светло-коричневой жидкостью стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 6
-    - 18
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 5
@@ -314,12 +266,12 @@
   max_durability: 50
   cur_durability: 1
   timer: 10080
-  spell: 3  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 18  # определение наклонностей
 
 # Object #810
 10:
@@ -336,11 +288,6 @@
     Вы почувствовали горьковатый привкус.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 6
-    - 19
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -348,12 +295,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 6  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 19  # видеть невидимое
 
 # Object #811
 11:
@@ -370,11 +317,6 @@
     Ваши глаза приобрели желтый оттенок.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 5
-    - 20
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -382,12 +324,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 6  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 20  # определение магии
 
 # Object #812
 12:
@@ -404,11 +346,6 @@
     Ваши глаза приобрели фиолетовый оттенок.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 5
-    - 43
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -416,12 +353,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 6  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 43  # удалить яд
 
 # Object #813
 13:
@@ -438,11 +375,6 @@
     
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 17
-    - 28
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -450,12 +382,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 28  # исцеление
 
 # Object #814
 14:
@@ -470,11 +402,6 @@
   short_desc: Бутыль с мутной жидкостью стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 12
-    - 29
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -482,12 +409,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 29  # невидимость
 
 # Object #815
 15:
@@ -502,11 +429,6 @@
   short_desc: Бутылочка с искрящейся жидкостью стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 6
-    - 34
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -514,12 +436,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 34  # защита от тьмы
 
 # Object #816
 16:
@@ -534,11 +456,6 @@
   short_desc: Закрытая колба с прозрачной жидкостью лежит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 8
-    - 35
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -546,12 +463,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 35  # снять проклятие
 
 # Object #817
 17:
@@ -566,11 +483,6 @@
   short_desc: Перед Вами сосуд, наполненный жидкостью, излучающей яркое сияние.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 12
-    - 36
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -578,12 +490,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 36  # освящение
 
 # Object #818
 18:
@@ -598,11 +510,6 @@
   short_desc: Пузырек с густой бурой смесью стоит перед Вами.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 8
-    - 39
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -610,12 +517,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 39  # сила
 
 # Object #819
 19:
@@ -630,11 +537,6 @@
   short_desc: Здесь лежит фляжка, вероятнее всего с вином.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 18
-    - 42
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -642,12 +544,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 42  # слово возврата
 
 # Object #820
 20:
@@ -662,11 +564,6 @@
   short_desc: Здесь лежит отвар из усов пруссака.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 44
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -674,12 +571,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 44  # определение жизни
 
 # Object #821
 21:
@@ -694,11 +591,6 @@
   short_desc: Колба с ярко-алой жидкостью стоит у Ваших ног.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 6
-    - 50
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -706,12 +598,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 50  # видение ночью
 
 # Object #822
 22:
@@ -726,11 +618,6 @@
   short_desc: Сквозь толщу бутылочного стекла виден кисель из насекомых.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 51
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -738,12 +625,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 51  # водохождение
 
 # Object #823
 23:
@@ -758,11 +645,6 @@
   short_desc: Бутылочка, лежащая здесь, даже сквозь пробку источает резкий аромат.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 12
-    - 52
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -770,12 +652,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 52  # серьезное исцеление
 
 # Object #824
 24:
@@ -790,11 +672,6 @@
   short_desc: Глубокая темнота скрывается внутри банки, стоящей здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 18
-    - 61
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -802,12 +679,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 61  # тьма
 
 # Object #825
 25:
@@ -822,11 +699,6 @@
   short_desc: Полная бутыль светло-коричневой жидкости лежит перед Вами.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 14
-    - 62
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -834,12 +706,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 62  # каменная кожа
 
 # Object #826
 26:
@@ -854,11 +726,6 @@
   short_desc: Перед Вами полная кастрюлька столь любимого французами лягушачьего супа.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 8
-    - 63
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -866,12 +733,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 63  # затуманивание
 
 # Object #827
 27:
@@ -886,11 +753,6 @@
   short_desc: Приятный травяной запах идет он стоящей перед Вами бутылочки.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 16
-    - 65
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -898,12 +760,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 65  # свет
 
 # Object #828
 28:
@@ -918,11 +780,6 @@
   short_desc: Жидкость как будто стремится выбраться из этой бутылки.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 12
-    - 74
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -930,12 +787,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 74  # увеличение
 
 # Object #829
 29:
@@ -950,11 +807,6 @@
   short_desc: Склянка перед Вами переливается так, что временами как-будто исчезает из виду.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 18
-    - 78
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -962,12 +814,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 78  # мигание
 
 # Object #830
 30:
@@ -982,11 +834,6 @@
   short_desc: Бутылочка с травяным отваром стоит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 97
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -994,12 +841,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 97  # восстановление
 
 # Object #831
 31:
@@ -1014,11 +861,6 @@
   short_desc: Склянка с жидкостью, напоминающей бульон, лежит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 103
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1026,12 +868,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 103  # насыщение
 
 # Object #832
 32:
@@ -1046,11 +888,6 @@
   short_desc: Кажется кто-то забыл тут баночку ухи.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 108
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1058,12 +895,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 108  # дышать водой
 
 # Object #833
 33:
@@ -1078,11 +915,6 @@
   short_desc: Колбочка с напитком явно кустарного производства расположена здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 12
-    - 110
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1090,12 +922,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 110  # ускорение
 
 # Object #834
 34:
@@ -1110,11 +942,6 @@
   short_desc: Емкость изящной формы с прозрачной жидкостью стоит перед Вами.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 28
-    - 113
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1122,12 +949,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 113  # защита богов
 
 # Object #835
 35:
@@ -1142,11 +969,6 @@
   short_desc: Баночка с густым варевом лежит у Ваших ног.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 116
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1154,12 +976,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 116  # внимательность
 
 # Object #836
 36:
@@ -1174,11 +996,6 @@
   short_desc: Вы видите небольшую бутыль с жидкостью небесно-голубого цвета.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 27
-    - 118
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1186,12 +1003,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 118  # воздушный щит
 
 # Object #837
 37:
@@ -1206,11 +1023,6 @@
   short_desc: Бутылочка с розовой жидкостью лежит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 120
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1218,12 +1030,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 120  # развеять магию
 
 # Object #838
 38:
@@ -1238,11 +1050,6 @@
   short_desc: Склянка с зельем зеленовато-желтого цвета просится к Вам в мешок.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 122
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1250,12 +1057,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 122  # быстрое восстановление
 
 # Object #839
 39:
@@ -1270,11 +1077,6 @@
   short_desc: Сосуд, наполненный черной искрящейся жидкостью, стоит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 27
-    - 124
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1282,12 +1084,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 124  # огненный щит
 
 # Object #840
 40:
@@ -1302,11 +1104,6 @@
   short_desc: Бутыль, покрытая инеем, стоит перед Вами.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 27
-    - 127
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1314,12 +1111,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 127  # ледяной щит
 
 # Object #841
 41:
@@ -1334,11 +1131,6 @@
   short_desc: Склянка с плавающими в ней насекомыми расположилась здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 18
-    - 129
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1346,12 +1138,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 129  # уменьшение
 
 # Object #842
 42:
@@ -1366,11 +1158,6 @@
   short_desc: Бутылка с серебристым отваром стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 27
-    - 144
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -1378,12 +1165,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 144  # зеркало магии
 
 # Object #843
 43:
@@ -1398,11 +1185,6 @@
   short_desc: Колба с каменной крошкой, плавающей в мутной воде, лежит у Ваших ног.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 24
-    - 136
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1410,12 +1192,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 136  # каменные руки
 
 # Object #844
 44:
@@ -1430,11 +1212,6 @@
   short_desc: Бутылочка, стоящая тут, переливается всеми цветами радуги.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 18
-    - 138
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1442,12 +1219,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 138  # призматическая аура
 
 # Object #845
 45:
@@ -1462,11 +1239,6 @@
   short_desc: Вы видите сосуд с прозрачной жидкостью.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 22
-    - 140
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1474,12 +1246,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 140  # воздушная аура
 
 # Object #846
 46:
@@ -1494,11 +1266,6 @@
   short_desc: Вы видите сосуд с ярко светящейся жидкостью.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 22
-    - 141
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1506,12 +1273,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 141  # огненная аура
 
 # Object #847
 47:
@@ -1526,11 +1293,6 @@
   short_desc: Вы видите сосуд, покрытый изморозью.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 22
-    - 142
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1538,12 +1300,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 142  # ледяная аура
 
 # Object #848
 48:
@@ -1558,11 +1320,6 @@
   short_desc: В стоящей перед Вами баночке плавают серые шерстинки.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 16
-    - 149
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1570,12 +1327,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 149  # снять глухоту
 
 # Object #849
 49:
@@ -1590,11 +1347,6 @@
   short_desc: Банка отвара фиолетового цвета лежит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 16
-    - 89
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1602,12 +1354,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 89  # снять молчание
 
 # Object #850
 50:
@@ -1622,11 +1374,6 @@
   short_desc: Клубящееся дымкой зелье в стеклянном сосуде стоит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 16
-    - 71
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1634,12 +1381,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 71  # мантия теней
 
 # Object #851
 51:
@@ -1654,11 +1401,6 @@
   short_desc: На вид жидкость в этой бутылке кажется неудобоваримой.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 20
-    - 54
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1666,12 +1408,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 54  # оцепенение
 
 # Object #852
 52:
@@ -1686,11 +1428,6 @@
   short_desc: Стеклянная непрозрачная бутылочка, плотно закрытая пробкой, лежит здесь.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 20
-    - 38
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1698,12 +1435,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 38  # сон
 
 # Object #853
 53:
@@ -1718,11 +1455,6 @@
   short_desc: Настойка ядовито-зеленого цвета налита в небольшую склянку.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 20
-    - 4
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1730,12 +1462,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 4  # слепота
 
 # Object #854
 54:
@@ -1750,11 +1482,6 @@
   short_desc: Кажется, то, чем когда-то наполняли эту бутыль, уже испортилось.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 20
-    - 147
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1762,12 +1489,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 147  # глухота
 
 # Object #855
 55:
@@ -1782,11 +1509,6 @@
   short_desc: Бутылочка, вся облепленная каким-то мусором, валяется под ногами.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 20
-    - 64
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1794,12 +1516,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 64  # молчание
 
 # Object #856
 56:
@@ -1814,11 +1536,6 @@
   short_desc: Испускающая травяной запах маленькая бутылочка лежит тут.
   type: kPotion
   material: 10  # КЕРАМИКА
-  values:
-    - 1
-    - 69
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -1826,13 +1543,13 @@
   max_durability: 5
   cur_durability: 5
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 69  # слабость
 
 # Object #857
 57:
@@ -1847,11 +1564,6 @@
   short_desc: Небольшая склянка с бурой жидкостью стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 16
-    - 174
-    - -1
-    - -1
   weight: 1
   cost: 50
   rent_off: 1
@@ -1859,12 +1571,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 174  # кошачья ловкость
 
 # Object #858
 58:
@@ -1879,11 +1591,6 @@
   short_desc: Бутылочка с постоянно бурлящей жидкостью стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 175
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -1891,12 +1598,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 175  # бычье тело
 
 # Object #859
 59:
@@ -1911,11 +1618,6 @@
   short_desc: Испускающая горький пар бутылочка с настойкой стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 176
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -1923,12 +1625,12 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 176  # мудрость змеи
 
 # Object #860
 60:
@@ -1943,11 +1645,6 @@
   short_desc: Склянка с каким-то зеленоватым зельем стоит тут.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 10
-    - 177
-    - 0
-    - 0
   weight: 1
   cost: 50
   rent_off: 1
@@ -1955,9 +1652,9 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 177  # хитроумие

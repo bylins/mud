@@ -25,8 +25,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -49,10 +47,10 @@
   type: kFountain
   material: 8  # ДЕРЕВО
   values:
-    - 999
-    - 999
-    - 0
-    - 0
+    - 999  # объём, глотков
+    - 999  # налито, глотков
+    - 0  # тип жидкости: воды
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1004
   cost: 0
   rent_off: 0
@@ -60,8 +58,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   max_in_world: 100
   extra_flags:
@@ -94,8 +90,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -136,8 +130,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -172,8 +164,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 240
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 100000
   extra_flags:
@@ -236,7 +226,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 32
     - 0
     - 0
@@ -247,8 +237,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 10000
   extra_flags:
@@ -292,8 +280,6 @@
   max_durability: 1000
   cur_durability: 760
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -323,10 +309,10 @@
   type: kLiquidContainer
   material: 11  # СТЕКЛО
   values:
-    - 30
-    - 30
-    - 24
-    - 1
+    - 30  # объём, глотков
+    - 30  # налито, глотков
+    - 24  # тип жидкости: розового колдовского зелья
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 31
   cost: 100
   rent_off: 1
@@ -334,11 +320,11 @@
   max_durability: 100
   cur_durability: 100
   timer: 5000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_POISON: 1
 
 # Object #4008
 8:
@@ -365,8 +351,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -399,8 +383,8 @@
   type: kScroll
   material: 17  # БЕРЕСТА
   values:
-    - 0
-    - 42
+    - 0  # уровень заклинания
+    - 42  # слово возврата
     - 0
     - 0
   weight: 1
@@ -410,8 +394,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodonate
@@ -426,6 +408,8 @@
       description: |2
         Хрупкий лист тонкой бересты, чем-то напоминающий вам обычный свиток возврата.
         Сказочник советовал зачитывать эту страницу если потребуется покинуть сказку.
+  extra_values:
+    SPELL1_NUM: 42  # слово возврата
 
 # Object #4055
 55:
@@ -452,8 +436,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -483,8 +465,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   wear_flags:
@@ -519,8 +499,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   extra_flags:
@@ -548,10 +526,10 @@
   type: kPotion
   material: 0  # НЕИЗВЕСТЕН
   values:
+    - 0  # уровень заклинания
     - 0
     - 0
-    - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 10000
   rent_off: 1000
@@ -559,8 +537,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -595,8 +571,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 17280
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   extra_flags:
@@ -641,8 +615,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 44640
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   extra_flags:
@@ -669,10 +641,10 @@
   type: kContainer
   material: 12  # КАМЕНЬ
   values:
-    - 1
-    - 15
-    - 4071
-    - 255
+    - 1  # макс. вместимый вес
+    - 15  # флаги контейнера
+    - 4071  # vnum ключа (-1 нет)
+    - 255  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -680,8 +652,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -714,8 +684,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   wear_flags:
@@ -746,8 +714,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -782,8 +748,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 17280
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   extra_flags:
@@ -824,8 +788,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 11111
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kUnique
@@ -873,8 +835,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 25000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10000
   extra_flags:
@@ -927,8 +887,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -960,8 +918,8 @@
   type: kScroll
   material: 15  # КОЖА
   values:
-    - 1
-    - 116
+    - 1  # уровень заклинания
+    - 116  # внимательность
     - 0
     - 0
   weight: 1
@@ -971,8 +929,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -985,6 +941,8 @@
     - keywords: свиток безграничного опыта
       description: |2
         Большой наградной свиток притягивает вас своей магической энергией. Среди вязи рун проглядывается надпись: "разорви меня"!
+  extra_values:
+    SPELL1_NUM: 116  # внимательность
   triggers:
     - 2602  # Большой наградной свиток безграничного опыта
 
@@ -1013,8 +971,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 11111
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kUnique
@@ -1047,10 +1003,10 @@
   type: kPotion
   material: 11  # СТЕКЛО
   values:
-    - 30
-    - 58
+    - 30  # уровень заклинания
+    - 58  # разбитые оковы
     - 0
-    - 0
+    - 0  # сила зелья (potency)
   weight: 1
   cost: 10
   rent_off: 10
@@ -1058,13 +1014,13 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    SPELL1_NUM: 58  # разбитые оковы
 
 # Object #4094
 94:
@@ -1091,8 +1047,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1111,8 +1065,8 @@
   type: kArmor
   material: 7  # КРИСТАЛЛ
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1122,8 +1076,6 @@
   max_durability: 500
   cur_durability: 500
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kMagic
@@ -1162,10 +1114,10 @@
   type: kContainer
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 100
-    - 15
-    - 4094
-    - 255
+    - 100  # макс. вместимый вес
+    - 15  # флаги контейнера
+    - 4094  # vnum ключа (-1 нет)
+    - 255  # сложность замка (0-1000)
   weight: 10
   cost: 3000
   rent_off: 1000
@@ -1173,8 +1125,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1199,10 +1149,10 @@
   type: kWand
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 28
-    - 1
-    - 1
-    - 98
+    - 28  # уровень заклинания
+    - 1  # всего зарядов
+    - 1  # осталось зарядов
+    - 98  # каменное проклятие
   weight: 1
   cost: 1
   rent_off: 1
@@ -1210,8 +1160,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 7200
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1223,6 +1171,10 @@
   applies:
     - location: 24  # стойкость
       modifier: -20
+  extra_values:
+    CUR_CHARGES: 1
+    MAX_CHARGES: 1
+    SPELL1_NUM: 98  # каменное проклятие
 
 # Object #4098
 98:
@@ -1238,10 +1190,10 @@
   type: kWeapon
   material: 12  # КАМЕНЬ
   values:
-    - 5
-    - 5
-    - 5
-    - 5
+    - 5  # не используется
+    - 5  # число бросков кубика
+    - 5  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 1
   cost: 5
   rent_off: 5
@@ -1250,8 +1202,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1283,10 +1233,10 @@
   type: kWeapon
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
-    - 1
+    - 0  # не используется
+    - 0  # число бросков кубика
+    - 0  # граней кубика
+    - 1  # тип атаки: ободрал
   weight: 30
   cost: 0
   rent_off: 0
@@ -1295,8 +1245,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 11000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   wear_flags:
