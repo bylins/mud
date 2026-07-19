@@ -6,7 +6,7 @@
 	<!-- headcount budget = min(<skill>, budget_cap) - sum of held-undead weights -->
 	<control skill="kDarkMagic" budget_cap="75" />
 
-	<creature vnum="0" id="kSkeleton" proto_vnum="3001" weight="12">
+	<creature vnum="0" id="kSkeleton" proto_vnum="3001" weight="8">
 		<cost corpse_max_level="5" min_rating="0" />
 		<scaling>
 			<hp          beta="0.25" mode="mult" />
@@ -20,7 +20,7 @@
 			<initiative  beta="0"    mode="add" />
 		</scaling>
 	</creature>
-	<creature vnum="1" id="kZombie" proto_vnum="3002" weight="15">
+	<creature vnum="1" id="kZombie" proto_vnum="3002" weight="10">
 		<cost corpse_max_level="10" min_rating="0" />
 		<scaling>
 			<hp          beta="0.25" mode="mult" />
@@ -34,7 +34,7 @@
 			<initiative  beta="0"    mode="add" />
 		</scaling>
 	</creature>
-	<creature vnum="2" id="kBonedog" proto_vnum="3003" weight="16">
+	<creature vnum="2" id="kBonedog" proto_vnum="3003" weight="11">
 		<cost corpse_max_level="15" min_rating="15" />
 		<scaling>
 			<hp          beta="0.25" mode="mult" />
@@ -48,7 +48,7 @@
 			<initiative  beta="0"    mode="add" />
 		</scaling>
 	</creature>
-	<creature vnum="3" id="kBonedragon" proto_vnum="3004" weight="25">
+	<creature vnum="3" id="kBonedragon" proto_vnum="3004" weight="17">
 		<cost corpse_max_level="20" min_rating="25" />
 		<scaling>
 			<hp          beta="0.25" mode="mult" />
@@ -62,7 +62,7 @@
 			<initiative  beta="0"    mode="add" />
 		</scaling>
 	</creature>
-	<creature vnum="4" id="kBonespirit" proto_vnum="3005" weight="37">
+	<creature vnum="4" id="kBonespirit" proto_vnum="3005" weight="25">
 		<cost corpse_max_level="25" min_rating="32" />
 		<scaling>
 			<hp          beta="0.25" mode="mult" />
@@ -90,7 +90,7 @@
 			<initiative  beta="0"    mode="add" />
 		</scaling>
 	</creature>
-	<creature vnum="6" id="kNecrodamager" proto_vnum="3007" weight="37">
+	<creature vnum="6" id="kNecrodamager" proto_vnum="3007" weight="25">
 		<cost corpse_max_level="127" min_rating="32" pick="50" />
 		<scaling>
 			<hp          beta="0.25" mode="mult" />
