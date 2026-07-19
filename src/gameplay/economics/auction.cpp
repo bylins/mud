@@ -396,7 +396,8 @@ bool auction_drive(CharData *ch, char *argument) {
 			sprintf(buf, "Предмет \"%s\", ", obj->get_short_description().c_str());
 			if ((obj->get_type() == EObjType::kWand)
 				|| (obj->get_type() == EObjType::kStaff)) {
-				if (GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1)) {
+				if (obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges)
+					< obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges)) {
 					strcat(buf, "(б/у), ");
 				}
 			}

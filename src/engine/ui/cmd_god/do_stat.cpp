@@ -953,18 +953,19 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			break;
 
 		case EObjType::kScroll: {
+			// issue.magic-items: заклинания свитка лежат в extra_values, сила -- умение мастера
 			std::ostringstream out;
-			out << "Заклинания: (Уровень - " << GET_OBJ_VAL(j, 0) << ") ";
-			for (auto val = 1; val < 4; ++val) {
-				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(j, val));
+			out << "Заклинания:";
+			for (auto pos = 1; pos < 4; ++pos) {
+				const auto spell_id = static_cast<ESpell>(j->GetSpellItemSpellNum(pos));
 				if (MUD::Spell(spell_id).IsValid()) {
-					out << MUD::Spell(spell_id).GetName();
-					if (val < 3) {
-						out << ", ";
-					} else {
-						out << ".";
-					}
+					const int potency = static_cast<int>(MagicItemPotency(j, spell_id) + 0.5f);
+					out << " " << MUD::Spell(spell_id).GetName()
+						<< " (сила " << potency << "),";
 				}
+			}
+			if (out.str().back() == ',') {
+				out.seekp(-1, out.end);
 			}
 			snprintf(buf, sizeof(buf), "%s", out.str().c_str());
 			break;
@@ -992,11 +993,16 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		}
 		case EObjType::kWand:
 		case EObjType::kStaff:
-			snprintf(buf, sizeof(buf), "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
-					MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(j, 3))).GetCName(),
-					GET_OBJ_VAL(j, 0),
-					GET_OBJ_VAL(j, 2),
-					GET_OBJ_VAL(j, 1));
+			// issue.magic-items: заклинание и заряды берем из extra_values, val[] у посохов нулевые
+			{
+				const auto staff_spell = static_cast<ESpell>(j->GetSpellItemSpellNum(1));
+				const int potency = static_cast<int>(MagicItemPotency(j, staff_spell) + 0.5f);
+				snprintf(buf, sizeof(buf), "Заклинание: %s (сила %d), %d (из %d) зарядов осталось",
+						MUD::Spell(staff_spell).GetCName(),
+						potency,
+						j->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
+						j->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));
+			}
 			break;
 
 		case EObjType::kWeapon:

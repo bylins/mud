@@ -928,7 +928,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 2) == 0
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) <= 0
 		&& (obj->get_type() == EObjType::kWand
 			|| obj->get_type() == EObjType::kStaff)) {
 		tell_to_char(keeper, ch, ShopMsg(ESM::kNoUsedItems).c_str());

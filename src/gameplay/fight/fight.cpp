@@ -1110,24 +1110,28 @@ void mob_casting(CharData *ch) {
 		switch (item->get_type()) {
 			case EObjType::kWand:
 			case EObjType::kStaff: {
-				const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, 3));
+				// issue.magic-items: заклинание и заряды лежат в extra_values, val[] у этих типов нулевые
+				const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(1));
 				if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-					log("SYSERR: Неверно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ",
-						GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VAL(item, 3));
+					log("SYSERR: Неверно указано значение спела в стафе vnum: %d %s, позиция: 1, значение: %d ",
+						GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(),
+						item->GetSpellItemSpellNum(1));
 					break;
 				}
 
-				if (GET_OBJ_VAL(item, 2) > 0 && MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE)) {
+				if (item->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) > 0
+					&& MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE)) {
 					battle_spells[spells++] = spell_id;
 				}
 				break;
 			}
 			case EObjType::kPotion: {
 				for (int i = 1; i <= 3; i++) {
-					const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, i));
+					const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(i));
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						log("SYSERR: Неверно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i, GET_OBJ_VAL(item, i));
+							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i,
+							item->GetSpellItemSpellNum(i));
 						continue;
 					}
 					if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc | kNpcUnaffectNpc | kNpcUnaffectNpcCaster)) {
@@ -1138,10 +1142,11 @@ void mob_casting(CharData *ch) {
 			}
 			case EObjType::kScroll: {
 				for (int i = 1; i <= 3; i++) {
-					const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, i));
+					const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(i));
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i, GET_OBJ_VAL(item, i));
+							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i,
+							item->GetSpellItemSpellNum(i));
 						continue;
 					}
 
@@ -1227,8 +1232,8 @@ void mob_casting(CharData *ch) {
 			switch (item->get_type()) {
 				case EObjType::kWand:
 				case EObjType::kStaff:
-					if (GET_OBJ_VAL(item, 2) > 0
-						&& static_cast<ESpell>(GET_OBJ_VAL(item, 3)) == spell_id_2) {
+					if (item->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) > 0
+						&& static_cast<ESpell>(item->GetSpellItemSpellNum(1)) == spell_id_2) {
 						EmployMagicItem(ch, item, GET_NAME(victim));
 						return;
 					}
@@ -1236,7 +1241,7 @@ void mob_casting(CharData *ch) {
 
 				case EObjType::kPotion:
 					for (int i = 1; i <= 3; i++) {
-						if (static_cast<ESpell>(GET_OBJ_VAL(item, i)) == spell_id_2) {
+						if (static_cast<ESpell>(item->GetSpellItemSpellNum(i)) == spell_id_2) {
 							if (ch != victim) {
 								RemoveObjFromChar(item);
 								act("$n передал$g $o3 $N2.", false, ch, item, victim, kToRoom | kToArenaListen);
@@ -1252,7 +1257,7 @@ void mob_casting(CharData *ch) {
 
 				case EObjType::kScroll:
 					for (int i = 1; i <= 3; i++) {
-						if (static_cast<ESpell>(GET_OBJ_VAL(item, i)) == spell_id_2) {
+						if (static_cast<ESpell>(item->GetSpellItemSpellNum(i)) == spell_id_2) {
 							EmployMagicItem(ch, item, GET_NAME(victim));
 							return;
 						}
