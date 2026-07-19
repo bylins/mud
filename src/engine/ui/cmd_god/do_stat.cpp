@@ -954,41 +954,11 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 		case EObjType::kScroll: {
 			// issue.magic-items: заклинания свитка лежат в extra_values, сила -- умение мастера
-			std::ostringstream out;
-			out << "Заклинания:";
-			for (auto pos = 1; pos < 4; ++pos) {
-				const auto spell_id = static_cast<ESpell>(j->GetSpellItemSpellNum(pos));
-				if (MUD::Spell(spell_id).IsValid()) {
-					const int potency = static_cast<int>(MagicItemPotency(j, spell_id) + 0.5f);
-					out << " " << MUD::Spell(spell_id).GetName()
-						<< " (сила " << potency << "),";
-				}
-			}
-			if (out.str().back() == ',') {
-				out.seekp(-1, out.end);
-			}
-			snprintf(buf, sizeof(buf), "%s", out.str().c_str());
+			snprintf(buf, sizeof(buf), "Заклинания: %s", SpellItemSpellsWithPotency(j).c_str());
 			break;
 		}
 		case EObjType::kPotion: {
-			std::ostringstream out;
-			out << "Заклинания:";
-			const ObjVal::EValueKey spell_keys[3] = {
-				ObjVal::EValueKey::kSpell1Num,
-				ObjVal::EValueKey::kSpell2Num,
-				ObjVal::EValueKey::kSpell3Num};
-			for (const auto key : spell_keys) {
-				const auto spell_id = static_cast<ESpell>(j->GetPotionValueKey(key));
-				if (MUD::Spell(spell_id).IsValid()) {
-					const int potency = static_cast<int>(MagicItemPotency(j, spell_id) + 0.5f);
-					out << " " << MUD::Spell(spell_id).GetName()
-						<< " (сила " << potency << "),";
-				}
-			}
-			if (out.str().back() == ',') {
-				out.seekp(-1, out.end);
-			}
-			snprintf(buf, sizeof(buf), "%s", out.str().c_str());
+			snprintf(buf, sizeof(buf), "Заклинания: %s", SpellItemSpellsWithPotency(j).c_str());
 			break;
 		}
 		case EObjType::kWand:

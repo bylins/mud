@@ -2,6 +2,7 @@
 #define SPELL_PARSER_HPP_
 
 #include <limits>
+#include <string>
 
 #include "gameplay/abilities/feats.h"
 #include "engine/entities/entities_constants.h"
@@ -99,6 +100,11 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 // the item acts on its own.
 [[nodiscard]] int MagicItemSkill(const ObjData *item);
 [[nodiscard]] int MagicItemStat(const ObjData *item);
+
+// issue.magic-items: перечень заклинаний свитка/зелья/посоха с их силой, вида
+// "исцеление (сила 42), защита (сила 30)". Пустая строка, если заклинаний нет.
+// Заклинания берутся из extra_values -- сырые val[] у этих типов нулевые.
+[[nodiscard]] std::string SpellItemSpellsWithPotency(const ObjData *item);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 
