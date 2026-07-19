@@ -19,6 +19,7 @@
 #include <map>
 #include <unordered_map>
 #include <bitset>
+#include <optional>
 #include <string>
 
 namespace ClanSystem {
@@ -340,6 +341,12 @@ class Clan {
   void HouseStat(CharData *ch, std::string &buffer);
   void remove_member(const ClanMembersList::key_type &it, char *reason);
   void save_clan_file(const std::string &filename) const;
+  std::string build_clan_file() const;
+  std::string build_pk_file() const;
+  // последнее записанное на диск содержимое: если не изменилось, файл не переписываем
+  // пустое значение означает "на диск еще не писали", а не "записали пустой файл"
+  mutable std::optional<std::string> saved_clan_file_;
+  mutable std::optional<std::string> saved_pk_file_;
   void house_web_url(CharData *ch, const std::string &buffer);
 
   // house аля олц

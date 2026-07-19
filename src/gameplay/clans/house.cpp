@@ -687,12 +687,9 @@ void Clan::HconShow(CharData *ch) {
 	SendMsgToChar(buffer.str().c_str(), ch);
 }
 
-void Clan::save_clan_file(const std::string &filename) const {
-	std::ofstream file(filename.c_str());
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-		return;
-	}
+// формирование содержимого основного файла клана
+std::string Clan::build_clan_file() const {
+	std::ostringstream file;
 
 	file << "Abbrev: " << abbrev << "\n"
 		 << "Name: " << name << "\n"
@@ -753,7 +750,48 @@ void Clan::save_clan_file(const std::string &filename) const {
 		}
 	}
 	file << "~\n";
+	return file.str();
+}
+
+// формирование содержимого пкл/дрл файла клана
+std::string Clan::build_pk_file() const {
+	std::ostringstream file;
+
+	for (auto it = pkList.begin(); it != pkList.end(); ++it)
+		file << it->second->author << " " << it->first << " " << (*it).
+			second->time << " " << "0\n" << it->second->text << "\n~\n";
+	for (auto it = frList.begin(); it != frList.end(); ++it)
+		file << it->second->author << " " << it->first << " " << (*it).
+			second->time << " " << "1\n" << it->second->text << "\n~\n";
+
+	return file.str();
+}
+
+namespace {
+
+// запись файла, если его содержимое изменилось с прошлого сохранения
+bool write_if_changed(const std::string &filename, const std::string &contents,
+					  std::optional<std::string> &cache) {
+	if (cache.has_value() && *cache == contents) {
+		return true;
+	}
+
+	std::ofstream file(filename.c_str());
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return false;
+	}
+	file.write(contents.data(), static_cast<std::streamsize>(contents.size()));
 	file.close();
+
+	cache = contents;
+	return true;
+}
+
+}  // namespace
+
+void Clan::save_clan_file(const std::string &filename) const {
+	write_if_changed(filename, build_clan_file(), saved_clan_file_);
 }
 
 // сохранение кланов в файлы
@@ -768,7 +806,13 @@ void Clan::ClanSave() {
 		// именем файла для клана служит его аббревиатура (английский и нижний регистр)
 		std::string buffer = clan->abbrev;
 		CreateFileName(buffer);
+		// в индексе дружина остается всегда, иначе она пропадет из игры после перезагрузки
 		index << buffer << "\n";
+
+		// дружина без игроков считается распущенной: ее файлы больше не трогаем
+		if (clan->m_members.empty()) {
+			continue;
+		}
 
 		std::string filepath = LIB_HOUSE + buffer + "/" + buffer;
 		std::string path = LIB_HOUSE + buffer;
@@ -782,18 +826,7 @@ void Clan::ClanSave() {
 		// основной файл клана
 		clan->save_clan_file(filepath);
 		// пкл/дрл
-		std::ofstream pkFile((filepath + ".pkl").c_str());
-		if (!pkFile.is_open()) {
-			log("Error open file: %s! (%s %s %d)", (filepath + ".pkl").c_str(), __FILE__, __func__, __LINE__);
-			return;
-		}
-		for (auto it = clan->pkList.begin(); it != clan->pkList.end(); ++it)
-			pkFile << it->second->author << " " << it->first << " " << (*it).
-				second->time << " " << "0\n" << it->second->text << "\n~\n";
-		for (auto it = clan->frList.begin(); it != clan->frList.end(); ++it)
-			pkFile << it->second->author << " " << it->first << " " << (*it).
-				second->time << " " << "1\n" << it->second->text << "\n~\n";
-		pkFile.close();
+		write_if_changed(filepath + ".pkl", clan->build_pk_file(), clan->saved_pk_file_);
 	}
 	index.close();
 }
