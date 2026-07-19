@@ -392,8 +392,12 @@ namespace {
 int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_dmg,
 					 EPosition ch_start_pos, EPosition victim_start_pos, int count,
 					 const std::string &aff_msg_char, const std::string &aff_msg_vict,
-					 const std::string &aff_msg_room) {
+					 const std::string &aff_msg_room, long author_uid) {
 	Damage dmg(SpellDmg(spell_id), total_dmg, fight::kMagicDmg);
+	// issue.dot-death-exp: carry the self-damage author (a DoT/affect tick's caster_id) so a kill
+	// dealt by the bearer's OWN tick credits the responsible character, exactly like the poison
+	// branch above. 0 = no author (a normal offensive hit sets nothing; ch != victim credits ch).
+	dmg.author_uid = author_uid;
 	dmg.ch_start_pos = ch_start_pos;
 	dmg.victim_start_pos = victim_start_pos;
 	// issue.character-affect-triggers: affect-owned damage flavor (empty for ordinary spell damage).
@@ -725,7 +729,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
 									ch_start_pos, victim_start_pos, count,
 									ctx.AffectDamageMsgChar(), ctx.AffectDamageMsgVict(),
-									ctx.AffectDamageMsgRoom());
+									ctx.AffectDamageMsgRoom(), ctx.DamageAuthorUid());
 			// accumulate the ACTUAL HP removed this hit (post-resist/save, capped
 			// at the target's HP) so a chained action scales off real damage. On death the victim is
 			// extracted -> count the HP it had; otherwise the HP it actually lost.
@@ -1937,7 +1941,6 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	// Shared roll: dice + competencies are rolled once per cast (not per
 	// category), so heal and moves restored on the same cast scale together
 	// with the same skill check.
@@ -4486,7 +4489,6 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 		if (rev && rev->to_room() == caster->in_room) { hosts.push_back(rev); }
 	}
 	ActionContext ctx = BuildActionContext(caster, spell_id, GetRealLevel(caster));
-	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
 	bool any = false;
 	for (const auto &ex : hosts) {
 		for (auto it = ex->affected.begin(); it != ex->affected.end();) {

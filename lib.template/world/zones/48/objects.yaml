@@ -14,10 +14,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 20
-    - 0
-    - 0
-    - 0
+    - 20  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 200
   cost: 0
   rent_off: 0
@@ -25,8 +25,6 @@
   max_durability: 30
   cur_durability: 30
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodonate
@@ -48,10 +46,10 @@
   type: kFood
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 2
@@ -59,8 +57,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1000
   extra_flags:
@@ -84,10 +80,10 @@
   type: kWeapon
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 10
-    - 10
-    - 10
-    - 12
+    - 10  # не используется
+    - 10  # число бросков кубика
+    - 10  # граней кубика
+    - 12  # тип атаки: ткнул
   weight: 30
   cost: 1000
   rent_off: 100000
@@ -96,8 +92,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 23000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:

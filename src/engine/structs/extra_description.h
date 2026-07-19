@@ -7,20 +7,18 @@
 #ifndef BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_H_
 #define BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_H_
 
-#include <memory>
 #include <string>
 
-// Extra description: used in objects, mobiles, and rooms //
+// Extra description: набор пар "ключ -> текст" у объекта и комнаты (look по
+// под-ключам). Хранятся в std::vector<ExtraDescription> у самой сущности, без
+// ручной next-цепочки. У моба "описание" -- отдельное одиночное поле
+// player_data.description (std::string), эту структуру не использует.
 struct ExtraDescription {
-	using shared_ptr = std::shared_ptr<ExtraDescription>;
-	ExtraDescription() : keyword(nullptr), description(nullptr), next(nullptr) {}
-	~ExtraDescription();
 	void set_keyword(std::string const &keyword);
 	void set_description(std::string const &description);
 
-	char *keyword;        // Keyword in look/examine          //
-	char *description;    // What to see                      //
-	shared_ptr next;    // Next in list                     //
+	std::string keyword;        // Keyword in look/examine          //
+	std::string description;    // What to see                      //
 };
 
 #endif //BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_H_

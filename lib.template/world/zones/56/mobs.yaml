@@ -760,8 +760,7 @@
     max_factor: 1
     extra_attack: 1
     spells:
-      - 16
-      - 16
+      16: 2  # легкое исцеление
 
 # Mob #5612
 12:

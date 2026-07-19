@@ -14,8 +14,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -25,8 +25,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 5
   wear_flags:

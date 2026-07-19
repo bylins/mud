@@ -323,9 +323,9 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	if (obj->get_type() != EObjType::kPotion) {
 		return 0;
 	}
-	if (obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell1Num) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell2Num) >= 0
-		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionSpell3Num) >= 0
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) >= 0
 		|| obj->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency) >= 0) {
 		return 0;  // already migrated
 	}
@@ -341,8 +341,8 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 			obj->SetPotionValueKey(key, num);
 		}
 	};
-	set_spell(ObjVal::EValueKey::kPotionSpell1Num, v1);
-	set_spell(ObjVal::EValueKey::kPotionSpell2Num, v2);
+	set_spell(ObjVal::EValueKey::kSpell1Num, v1);
+	set_spell(ObjVal::EValueKey::kSpell2Num, v2);
 
 	bool brewed = false;
 	if (!proto && v3 > 0) {
@@ -354,7 +354,7 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	if (brewed) {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, v3);
 	} else {
-		set_spell(ObjVal::EValueKey::kPotionSpell3Num, v3);
+		set_spell(ObjVal::EValueKey::kSpell3Num, v3);
 	}
 	return 1;
 }
@@ -384,12 +384,66 @@ int ConvertDrinkPoisonField(CObjectPrototype *obj, bool /*proto*/) {
 	return 0;
 }
 
+// issue.magic-items: migrate a scroll/wand/staff's legacy val[] payload into the kSpellItem* ObjVal
+// keys. Scroll: val[1..3] = up to 3 spells. Wand/staff: val[1]=max charges, val[2]=cur charges,
+// val[3]=spell. Skill/stat are left ABSENT (-> the authored-maker potency default), like a builder
+// potion; a builder can tune them in OLC. Idempotent: skipped once any kSpellItem* key is present.
+// val[] is left in place as a read-fallback until a later cleanup. This is the load-time counterpart
+// of the tools/convert_magic_items.py on-disk converter.
+int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
+	const auto type = obj->get_type();
+	if (type != EObjType::kScroll && type != EObjType::kWand && type != EObjType::kStaff) {
+		return 0;
+	}
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill) >= 0) {
+		return 0;  // already migrated
+	}
+	const auto set_pos = [obj](ObjVal::EValueKey key, int num) {
+		if (num > 0) { obj->SetPotionValueKey(key, num); }
+	};
+	if (type == EObjType::kScroll) {
+		set_pos(ObjVal::EValueKey::kSpell1Num, obj->get_val(1));
+		set_pos(ObjVal::EValueKey::kSpell2Num, obj->get_val(2));
+		set_pos(ObjVal::EValueKey::kSpell3Num, obj->get_val(3));
+	} else {
+		set_pos(ObjVal::EValueKey::kSpell1Num, obj->get_val(3));
+		set_pos(ObjVal::EValueKey::kMaxCharges, obj->get_val(1));
+		set_pos(ObjVal::EValueKey::kCurCharges, obj->get_val(2));
+	}
+	return 1;
+}
+
+// issue.magic-items-hotfix: the liquid core is stored in the kLiquid* keys (get_val/set_val redirect
+// val[0..2] to them for drink containers/fountains). Safety net for a load path that filled the raw
+// val[] array without going through set_val: seed the keys from it. Idempotent -- keys present -> skip.
+int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool /*proto*/) {
+	const auto type = obj->get_type();
+	if (type != EObjType::kLiquidContainer && type != EObjType::kFountain) {
+		return 0;
+	}
+	if (obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidCurrent) >= 0
+		|| obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidType) >= 0) {
+		return 0;
+	}
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity, obj->get_val(0));
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCurrent, obj->get_val(1));
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidType, obj->get_val(2));
+	return 1;
+}
+
 void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
 		save = std::max(save, ConvertDrinkPoisonField(i.get(), true));
 		save = std::max(save, ConvertPotionToEValueKey(i.get(), true));
+		save = std::max(save, ConvertSpellItemToEValueKey(i.get(), true));
+		save = std::max(save, ConvertDrinkconLiquidCore(i.get(), true));
 		if (i->has_flag(EObjFlag::k2inlaid)) {
 			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;
@@ -669,6 +723,17 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	{
 		MUD::CfgManager().LoadCfg("skill_msg");   // issue.thing-names: names/abbr before skills
 		MUD::CfgManager().LoadCfg("skills");
+	}
+
+	// issue #3583: имена спеллов (MUD::Spell().GetName()) нужны, чтобы подписывать
+	// спелл-значения свитков/палочек/посохов в objects.yaml. Как и skills выше,
+	// конфиг спеллов грузит BootMudDataBase для боевого сервера, но путь `-S`
+	// resave / scheck его пропускает -- иначе имена спеллов остаются "!undefined!".
+	// Guarded, чтобы обычный boot не перезагружал уже загруженное.
+	if (!MUD::Spells().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("spell_msg");   // имена спеллов (spell_msg.xml), читаются при загрузке spells
+		MUD::CfgManager().LoadCfg("spells");
 	}
 
 	// Create data source if none provided. Runtime selection comes from

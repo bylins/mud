@@ -53,4 +53,4 @@
   enhanced:
     max_factor: 4
     spells:
-      - 103
+      103: 1  # насыщение

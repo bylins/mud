@@ -769,7 +769,7 @@
       встать
       след .%actor.iname%
       if (%self.vnum% != 5905)
-        dgaffect %self% зачарован подчинить_разум 1 40000 4
+        dgaffect %self% зачарован 1 40000 4
       end
     end
 
@@ -1020,12 +1020,12 @@
     %echo% %self.iname% отдала приказ.
     if (%exist.mob(5901)%)
       calcuid mertv 5901 mob
-      dgaffect %mertv% зачарован подчинить_разум 0 0
+      dgaffect %mertv% зачарован 0 0
       %force% %mertv% след я
     end
     if (%exist.mob(5902)%)
       calcuid gonka 5902 mob
-      dgaffect %gonka% зачарован подчинить_разум 0 0
+      dgaffect %gonka% зачарован 0 0
       %force% %gonka% след я
     end
     if (%exist.mob(5903)%)

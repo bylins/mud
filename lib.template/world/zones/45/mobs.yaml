@@ -192,4 +192,4 @@
     max_factor: 1
     extra_attack: 1
     spells:
-      - 15
+      15: 1  # критическое исцеление

@@ -14,10 +14,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 2
-    - 3
-    - 5
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 3  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 5
   cost: 30
   rent_off: 30
@@ -26,8 +26,6 @@
   max_durability: 100
   cur_durability: 75
   timer: 21600
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 20
   extra_flags:
@@ -51,10 +49,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 4
-    - 4
-    - 5
+    - 0  # не используется
+    - 4  # число бросков кубика
+    - 4  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 20
   cost: 140
   rent_off: 140
@@ -63,8 +61,6 @@
   max_durability: 100
   cur_durability: 75
   timer: 21600
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 20
   extra_flags:
@@ -94,10 +90,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 2
-    - 4
-    - 10
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 4  # граней кубика
+    - 10  # тип атаки: пырнул
   weight: 18
   cost: 100
   rent_off: 100
@@ -106,8 +102,6 @@
   max_durability: 100
   cur_durability: 80
   timer: 21600
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 20
   wear_flags:
@@ -135,10 +129,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 3
-    - 4
-    - 6
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 4  # граней кубика
+    - 6  # тип атаки: сокрушил
   weight: 13
   cost: 60
   rent_off: 25
@@ -147,8 +141,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 21600
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 20
   wear_flags:
@@ -170,8 +162,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -181,8 +173,6 @@
   max_durability: 25
   cur_durability: 20
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   wear_flags:

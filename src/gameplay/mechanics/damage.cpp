@@ -374,6 +374,34 @@ void Damage::DealReflectPool(CharData *ch, CharData *victim) {
 	reflect_pool_.clear();
 }
 
+// issue.dot-death-exp: choose who to credit for a SELF-inflicted death (a DoT/poison affect tick, or
+// suffering) among the victim's room occupants `people`. A DoT/poison author is identified by UID (the
+// affect's stored caster_id) -- never a live pointer -- so a DoT whose author has ALREADY DIED finds no
+// live match and returns nullptr: nobody is credited and nothing stale is dereferenced. author_uid == 0
+// (self-inflicted with no author, e.g. eating poisoned food) or == the victim's own uid also yields
+// nullptr. Extracted from ProcessDeath so the attribution is unit-testable (tests/dot.death.credit.cpp).
+CharData *SelectSelfInflictedKiller(const std::list<CharData *> &people, const CharData *victim,
+								   long author_uid, fight::EDamageSource damage_source) {
+	if (author_uid != 0 && author_uid != victim->get_uid()) {
+		for (const auto author : people) {
+			if (author != victim && author->get_uid() == author_uid) {
+				return author;
+			}
+		}
+		return nullptr;   // the author is gone (their DoT outlived them) -- credit nobody, do not deref
+	}
+	if (damage_source == fight::EDamageSource::kSuffering) {
+		CharData *attacker = nullptr;
+		for (const auto a : people) {
+			if (a->GetEnemy() == victim) {
+				attacker = a;
+			}
+		}
+		return attacker;
+	}
+	return nullptr;
+}
+
 void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	CharData *killer = nullptr;
 
@@ -383,20 +411,8 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 			// урона (author_uid -- обычно caster_id аффекта), если он рядом. Нет автора (0) или
 			// автор сам victim -- не засчитывается. Любой будущий повреждающий аффект просто
 			// выставляет author_uid, отдельная ветка тут не нужна.
-			if (author_uid != 0 && author_uid != victim->get_uid()) {
-				for (const auto author : world[victim->in_room]->people) {
-					if (author != victim && author->get_uid() == author_uid) {
-						killer = author;
-						break;
-					}
-				}
-			} else if (damage_source == fight::EDamageSource::kSuffering) {
-				for (const auto attacker : world[victim->in_room]->people) {
-					if (attacker->GetEnemy() == victim) {
-						killer = attacker;
-					}
-				}
-			}
+			killer = SelectSelfInflictedKiller(world[victim->in_room]->people, victim,
+											   author_uid, damage_source);
 		}
 
 		if (ch != victim) {

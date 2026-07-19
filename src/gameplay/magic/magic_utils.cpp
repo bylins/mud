@@ -331,11 +331,11 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, doub
 constexpr int kAuthoredPotionSkill = 80;
 constexpr int kAuthoredPotionKeyStat = 25;
 
-float PotionPotency(const ObjData *potion, ESpell spell_id) {
-	const int skill = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+float MagicItemPotency(const ObjData *item, ESpell spell_id) {
+	const int skill = item->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
 	if (skill < 0) {   // < 0 == key ABSENT; a stored 0 is a spoiled-to-nothing potion, not legacy
 		// Legacy: a pre-P3b migrated instance carries a pre-computed potency but no maker skill/stat.
-		const int legacy = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
+		const int legacy = item->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
 		if (legacy > 0) {
 			return static_cast<float>(legacy);
 		}
@@ -347,7 +347,7 @@ float PotionPotency(const ObjData *potion, ESpell spell_id) {
 	// non-crafted: the authored maker), through THIS spell's own potency-roll weights. The drinker's
 	// own skill/stat are never consulted -- a potion acts on its own.
 	const int use_skill = (skill >= 0) ? skill : kAuthoredPotionSkill;   // present (incl. 0) wins; absent -> authored
-	const int stat = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+	const int stat = item->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 	const int use_stat = (stat >= 0) ? stat : kAuthoredPotionKeyStat;
 	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
 	return static_cast<float>(roll.CalcSkillCoeffForValue(use_skill)
@@ -355,17 +355,17 @@ float PotionPotency(const ObjData *potion, ESpell spell_id) {
 }
 
 // issue.potion-hotfix: the MAKER's skill, used to scale a potion buff's DURATION (the drinker's own
-// skill is irrelevant). A crafted potion carries its brew skill (kPotionSkill); a non-crafted one has
+// skill is irrelevant). A crafted potion carries its brew skill (kMakerSkill); a non-crafted one has
 // none, so it falls back to the authored maker's skill.
-int PotionCastSkill(const ObjData *potion) {
-	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionSkill);
+int MagicItemSkill(const ObjData *item) {
+	const int stored = item->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
 	return (stored >= 0) ? stored : kAuthoredPotionSkill;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
 // issue.potion-hotfix: the maker's key stat (crafted: brewer Intelligence; else the authored default).
-// Needed alongside PotionCastSkill to blend two potions' stats when they are poured together.
-int PotionCastStat(const ObjData *potion) {
-	const int stored = potion->GetPotionValueKey(ObjVal::EValueKey::kPotionStat);
+// Needed alongside MagicItemSkill to blend two potions' stats when they are poured together.
+int MagicItemStat(const ObjData *item) {
+	const int stored = item->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 	return (stored >= 0) ? stored : kAuthoredPotionKeyStat;   // absent (-1) -> authored; a stored 0 stays 0
 }
 

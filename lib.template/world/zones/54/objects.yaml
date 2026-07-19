@@ -16,10 +16,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 3
-    - 3
-    - 0
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 0  # тип атаки: ударил
   weight: 12
   cost: 75
   rent_off: 75
@@ -28,8 +28,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 5
   wear_flags:
@@ -57,10 +55,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 5
-    - 3
-    - 9
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 3  # граней кубика
+    - 9  # тип атаки: подстрелил
   weight: 10
   cost: 100
   rent_off: 100
@@ -69,8 +67,6 @@
   max_durability: 150
   cur_durability: 140
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 4
   extra_flags:
@@ -106,8 +102,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kZonedecay
@@ -135,10 +129,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 3
+    - 3  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 5
@@ -146,8 +140,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 50
   extra_flags:
@@ -185,8 +177,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 50
   wear_flags:
@@ -210,8 +200,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 2
+    - 0  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -221,8 +211,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   wear_flags:
@@ -243,8 +231,8 @@
   type: kMoney
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 100
-    - 0
+    - 100  # сумма
+    - 0  # куна
     - 0
     - 0
   weight: 1
@@ -254,8 +242,6 @@
   max_durability: 300
   cur_durability: 300
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -276,10 +262,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 4
+    - 4  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 5
   rent_off: 5
@@ -287,8 +273,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 10000
   wear_flags:
@@ -308,8 +292,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -319,8 +303,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 4320
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 2
   extra_flags:
@@ -351,11 +333,6 @@
   short_desc: Маленький лесной ручей протекает здесь.
   type: kFountain
   material: 0  # НЕИЗВЕСТЕН
-  values:
-    - 999
-    - 999
-    - 0
-    - 0
   weight: 1004
   cost: 1
   rent_off: 1
@@ -363,8 +340,6 @@
   max_durability: 300
   cur_durability: 300
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -375,6 +350,10 @@
     - kAppearsSpring
     - kAppearsSummer
     - kAppearsAutumn
+  extra_values:
+    LIQUID_CAPACITY: 999
+    LIQUID_CURRENT: 999
+    LIQUID_TYPE: 0  # воды
 
 # Object #5410
 10:
@@ -389,11 +368,6 @@
   short_desc: Мутная черная вода лесного пруда.
   type: kFountain
   material: 0  # НЕИЗВЕСТЕН
-  values:
-    - 999
-    - 999
-    - 0
-    - 2
   weight: 1004
   cost: 1
   rent_off: 1
@@ -401,8 +375,6 @@
   max_durability: 300
   cur_durability: 300
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -412,6 +384,11 @@
     - kAppearsSpring
     - kAppearsSummer
     - kAppearsAutumn
+  extra_values:
+    LIQUID_CAPACITY: 999
+    LIQUID_CURRENT: 999
+    LIQUID_TIMER: 2
+    LIQUID_TYPE: 0  # воды
 
 # Object #5411
 11:
@@ -427,10 +404,10 @@
   type: kWeapon
   material: 13  # КОСТЬ
   values:
-    - 0
-    - 2
-    - 4
-    - 11
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 4  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 1
   cost: 50
   rent_off: 50
@@ -439,8 +416,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 10
   wear_flags:
@@ -469,8 +444,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 1
-    - 2
+    - 1  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -480,8 +455,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 10
   wear_flags:
@@ -502,8 +475,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -513,8 +486,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 2880
-  spell: 103  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 4
   wear_flags:
@@ -546,8 +517,6 @@
   max_durability: 15
   cur_durability: 8
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 20
   extra_flags:

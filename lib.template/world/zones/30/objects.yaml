@@ -14,9 +14,9 @@
   type: kMagicIngredient
   material: 13  # КОСТЬ
   values:
-    - 256
-    - 3000
-    - 20
+    - 256  # лаг применения, сек + уровень (6 бит)
+    - 3000  # vnum прототипа
+    - 20  # число использований
     - 0
   weight: 2
   cost: 250
@@ -25,8 +25,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -56,9 +54,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 3001
-    - -1
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 3001  # vnum прототипа
+    - -1  # число использований
     - 0
   weight: 3
   cost: 1000
@@ -67,8 +65,6 @@
   max_durability: 50
   cur_durability: 43
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10000
   wear_flags:
@@ -95,10 +91,10 @@
   type: kWeapon
   material: 2  # БРОНЗА
   values:
-    - 0
-    - 4
-    - 3
-    - 7
+    - 0  # не используется
+    - 4  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 5
   cost: 1000
   rent_off: 1000
@@ -107,8 +103,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 4320
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 60
   wear_flags:
@@ -153,10 +147,10 @@
   type: kWeapon
   material: 13  # КОСТЬ
   values:
-    - 0
-    - 4
-    - 4
-    - 10
+    - 0  # не используется
+    - 4  # число бросков кубика
+    - 4  # граней кубика
+    - 10  # тип атаки: пырнул
   weight: 5
   cost: 1200
   rent_off: 1000
@@ -165,8 +159,6 @@
   max_durability: 80
   cur_durability: 80
   timer: 12960
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 30
   extra_flags:
@@ -215,10 +207,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 4
-    - 4
-    - 12
+    - 0  # не используется
+    - 4  # число бросков кубика
+    - 4  # граней кубика
+    - 12  # тип атаки: ткнул
   weight: 8
   cost: 1200
   rent_off: 1000
@@ -227,8 +219,6 @@
   max_durability: 140
   cur_durability: 140
   timer: 21600
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   extra_flags:
@@ -281,10 +271,10 @@
   type: kFood
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 1
+    - 1  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 5000
   rent_off: 1
@@ -292,8 +282,6 @@
   max_durability: 5000
   cur_durability: 5000
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10
   wear_flags:
@@ -318,9 +306,9 @@
   type: kMagicIngredient
   material: 8  # ДЕРЕВО
   values:
-    - 256
-    - 3006
-    - 10
+    - 256  # лаг применения, сек + уровень (6 бит)
+    - 3006  # vnum прототипа
+    - 10  # число использований
     - 0
   weight: 1
   cost: 3000
@@ -329,8 +317,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -355,9 +341,9 @@
   type: kMagicIngredient
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
-    - 0
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 0  # vnum прототипа
+    - 0  # число использований
     - 0
   weight: 0
   cost: 0
@@ -366,8 +352,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 10040
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 999
   wear_flags:
@@ -399,8 +383,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kDecay
@@ -433,8 +415,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kDecay
@@ -467,8 +447,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kDecay
@@ -501,8 +479,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kDecay
@@ -535,8 +511,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kDecay
@@ -569,8 +543,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kDecay
@@ -603,8 +575,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kDecay
@@ -637,8 +607,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kDecay
@@ -671,8 +639,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 7
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kDecay
@@ -694,8 +660,8 @@
   type: kArmor
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -705,8 +671,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   wear_flags:
@@ -730,9 +694,9 @@
   type: kMagicContaner
   material: 15  # КОЖА
   values:
-    - 77
-    - 6060
-    - 120
+    - 77  # сеть
+    - 6060  # объём колчана
+    - 120  # количество стрел
     - 0
   weight: 1
   cost: 100
@@ -741,8 +705,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -765,9 +727,9 @@
   type: kMagicArrow
   material: 8  # ДЕРЕВО
   values:
-    - 77
-    - 30
-    - 30
+    - 77  # сеть
+    - 30  # размер пучка
+    - 30  # количество стрел
     - 0
   weight: 3
   cost: 30
@@ -776,8 +738,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -810,8 +770,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -843,8 +801,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodecay
@@ -876,8 +832,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -909,8 +863,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -942,8 +894,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -964,8 +914,8 @@
   type: kArmor
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -975,8 +925,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:

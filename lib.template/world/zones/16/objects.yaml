@@ -14,10 +14,10 @@
   type: kCraftMaterial
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 1600
-    - 100
-    - 0
+    - 0  # уровень игрока + морт*2
+    - 1600  # vnum прототипа
+    - 100  # сила ингредиента
+    - 0  # условный уровень
   weight: 7
   cost: 10
   rent_off: 10
@@ -25,8 +25,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -54,9 +52,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 3840
-    - 1601
-    - 50
+    - 3840  # лаг применения, сек + уровень (6 бит)
+    - 1601  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 1
   cost: 50
@@ -65,8 +63,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -99,10 +95,10 @@
   type: kCraftMaterial
   material: 16  # ОРГАНИКА
   values:
-    - 1
-    - 1600
-    - 50
-    - 0
+    - 1  # уровень игрока + морт*2
+    - 1600  # vnum прототипа
+    - 50  # сила ингредиента
+    - 0  # условный уровень
   weight: 7
   cost: 30
   rent_off: 30
@@ -110,8 +106,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 50
   extra_flags:
@@ -153,9 +147,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 4096
-    - 1603
-    - 50
+    - 4096  # лаг применения, сек + уровень (6 бит)
+    - 1603  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 1
   cost: 50
@@ -164,8 +158,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -197,10 +189,10 @@
   type: kCraftMaterial
   material: 16  # ОРГАНИКА
   values:
-    - 40
-    - 1600
-    - 30
-    - 2
+    - 40  # уровень игрока + морт*2
+    - 1600  # vnum прототипа
+    - 30  # сила ингредиента
+    - 2  # условный уровень
   weight: 7
   cost: 40
   rent_off: 40
@@ -208,8 +200,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 25
   wear_flags:
@@ -251,9 +241,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 5632
-    - 1605
-    - 90
+    - 5632  # лаг применения, сек + уровень (6 бит)
+    - 1605  # vnum прототипа
+    - 90  # число использований
     - 0
   weight: 1
   cost: 100
@@ -262,8 +252,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -295,9 +283,9 @@
   type: kMagicIngredient
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 6144
-    - 1606
-    - 80
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1606  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 2
   cost: 100
@@ -306,8 +294,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 20160
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -340,10 +326,10 @@
   type: kCraftMaterial
   material: 16  # ОРГАНИКА
   values:
-    - 52
-    - 1600
-    - 30
-    - 3
+    - 52  # уровень игрока + морт*2
+    - 1600  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 200
   rent_off: 200
@@ -351,8 +337,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 15
   minimum_remorts: 12
@@ -394,9 +378,9 @@
   type: kMagicIngredient
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 7168
-    - 1608
-    - 95
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1608  # vnum прототипа
+    - 95  # число использований
     - 0
   weight: 2
   cost: 500
@@ -405,8 +389,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 30240
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -440,9 +422,9 @@
   type: kMagicIngredient
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 7168
-    - 1609
-    - 95
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1609  # vnum прототипа
+    - 95  # число использований
     - 0
   weight: 2
   cost: 500
@@ -451,8 +433,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 30240
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -483,10 +463,10 @@
   type: kCraftMaterial
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 1
-    - 1612
-    - 50
-    - 1
+    - 1  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 50  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 10
   rent_off: 10
@@ -494,8 +474,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 25
   wear_flags:
@@ -535,10 +513,10 @@
   type: kCraftMaterial
   material: 13  # КОСТЬ
   values:
-    - 15
-    - 1612
-    - 30
-    - 2
+    - 15  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 30  # сила ингредиента
+    - 2  # условный уровень
   weight: 7
   cost: 20
   rent_off: 20
@@ -546,8 +524,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 25
   wear_flags:
@@ -587,10 +563,10 @@
   type: kCraftMaterial
   material: 2  # БРОНЗА
   values:
-    - 1
-    - 1612
-    - 100
-    - 0
+    - 1  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 100  # сила ингредиента
+    - 0  # условный уровень
   weight: 7
   cost: 50
   rent_off: 50
@@ -598,8 +574,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -628,9 +602,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 5120
-    - 1613
-    - 70
+    - 5120  # лаг применения, сек + уровень (6 бит)
+    - 1613  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 30
   cost: 100
@@ -639,8 +613,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -671,9 +643,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 5120
-    - 1614
-    - 50
+    - 5120  # лаг применения, сек + уровень (6 бит)
+    - 1614  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 20
   cost: 50
@@ -682,8 +654,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -715,9 +685,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 6144
-    - 1615
-    - 80
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1615  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 10
   cost: 100
@@ -726,8 +696,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -759,9 +727,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 6144
-    - 1616
-    - 80
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1616  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 10
   cost: 100
@@ -770,8 +738,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 4  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -802,9 +768,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 6144
-    - 1617
-    - 80
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1617  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 10
   cost: 100
@@ -813,8 +779,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -846,9 +810,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 6144
-    - 1618
-    - 80
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1618  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 50
   cost: 100
@@ -857,8 +821,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -889,9 +851,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 6144
-    - 1619
-    - 80
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1619  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 50
   cost: 100
@@ -900,8 +862,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -932,9 +892,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 7168
-    - 1620
-    - 90
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1620  # vnum прототипа
+    - 90  # число использований
     - 0
   weight: 20
   cost: 1000
@@ -943,8 +903,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30240
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -975,9 +933,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 7168
-    - 1621
-    - 90
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1621  # vnum прототипа
+    - 90  # число использований
     - 0
   weight: 20
   cost: 1000
@@ -986,8 +944,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30240
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -1022,9 +978,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 7168
-    - 1622
-    - 90
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1622  # vnum прототипа
+    - 90  # число использований
     - 0
   weight: 20
   cost: 1000
@@ -1033,8 +989,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30240
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -1067,9 +1021,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 6656
-    - 1623
-    - 85
+    - 6656  # лаг применения, сек + уровень (6 бит)
+    - 1623  # vnum прототипа
+    - 85  # число использований
     - 0
   weight: 20
   cost: 1000
@@ -1078,8 +1032,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30240
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1113,9 +1065,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 6656
-    - 1624
-    - 85
+    - 6656  # лаг применения, сек + уровень (6 бит)
+    - 1624  # vnum прототипа
+    - 85  # число использований
     - 0
   weight: 15
   cost: 1000
@@ -1124,8 +1076,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30240
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -1162,9 +1112,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 3584
-    - 1625
-    - 30
+    - 3584  # лаг применения, сек + уровень (6 бит)
+    - 1625  # vnum прототипа
+    - 30  # число использований
     - 0
   weight: 5
   cost: 60
@@ -1173,8 +1123,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 900
   extra_flags:
@@ -1204,9 +1152,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 5376
-    - 1626
-    - 60
+    - 5376  # лаг применения, сек + уровень (6 бит)
+    - 1626  # vnum прототипа
+    - 60  # число использований
     - 0
   weight: 25
   cost: 100
@@ -1215,8 +1163,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1246,9 +1192,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 5376
-    - 1627
-    - 70
+    - 5376  # лаг применения, сек + уровень (6 бит)
+    - 1627  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 40
   cost: 100
@@ -1257,8 +1203,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1294,9 +1238,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 5376
-    - 1628
-    - 70
+    - 5376  # лаг применения, сек + уровень (6 бит)
+    - 1628  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 25
   cost: 100
@@ -1305,8 +1249,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1336,9 +1278,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 6144
-    - 1629
-    - 70
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1629  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 20
   cost: 100
@@ -1347,8 +1289,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1379,9 +1319,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 6144
-    - 1630
-    - 70
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1630  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 20
   cost: 100
@@ -1390,8 +1330,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30240
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -1422,9 +1360,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 3584
-    - 1631
-    - 30
+    - 3584  # лаг применения, сек + уровень (6 бит)
+    - 1631  # vnum прототипа
+    - 30  # число использований
     - 0
   weight: 5
   cost: 60
@@ -1433,8 +1371,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 4320
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   extra_flags:
@@ -1464,9 +1400,9 @@
   type: kMagicIngredient
   material: 14  # ТКАНЬ
   values:
-    - 3584
-    - 1632
-    - 30
+    - 3584  # лаг применения, сек + уровень (6 бит)
+    - 1632  # vnum прототипа
+    - 30  # число использований
     - 0
   weight: 5
   cost: 60
@@ -1475,8 +1411,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 4320
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   extra_flags:
@@ -1506,9 +1440,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 3584
-    - 1633
-    - 30
+    - 3584  # лаг применения, сек + уровень (6 бит)
+    - 1633  # vnum прототипа
+    - 30  # число использований
     - 0
   weight: 5
   cost: 60
@@ -1517,8 +1451,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 4320
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   extra_flags:
@@ -1548,9 +1480,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 3584
-    - 1634
-    - 30
+    - 3584  # лаг применения, сек + уровень (6 бит)
+    - 1634  # vnum прототипа
+    - 30  # число использований
     - 0
   weight: 5
   cost: 60
@@ -1559,8 +1491,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   extra_flags:
@@ -1590,9 +1520,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 4608
-    - 1635
-    - 40
+    - 4608  # лаг применения, сек + уровень (6 бит)
+    - 1635  # vnum прототипа
+    - 40  # число использований
     - 0
   weight: 10
   cost: 140
@@ -1601,8 +1531,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   extra_flags:
@@ -1634,9 +1562,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 4608
-    - 1636
-    - 40
+    - 4608  # лаг применения, сек + уровень (6 бит)
+    - 1636  # vnum прототипа
+    - 40  # число использований
     - 0
   weight: 10
   cost: 140
@@ -1645,8 +1573,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   extra_flags:
@@ -1678,9 +1604,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 4608
-    - 1637
-    - 40
+    - 4608  # лаг применения, сек + уровень (6 бит)
+    - 1637  # vnum прототипа
+    - 40  # число использований
     - 0
   weight: 10
   cost: 140
@@ -1689,8 +1615,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   extra_flags:
@@ -1722,9 +1646,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 5120
-    - 1638
-    - 50
+    - 5120  # лаг применения, сек + уровень (6 бит)
+    - 1638  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 15
   cost: 140
@@ -1733,8 +1657,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -1766,9 +1688,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 5632
-    - 1641
-    - 60
+    - 5632  # лаг применения, сек + уровень (6 бит)
+    - 1641  # vnum прототипа
+    - 60  # число использований
     - 0
   weight: 20
   cost: 220
@@ -1777,8 +1699,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -1810,10 +1730,10 @@
   type: kCraftMaterial
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 40
-    - 1677
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1677  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 30
   rent_off: 100
@@ -1821,8 +1741,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -1861,10 +1779,10 @@
   type: kCraftMaterial
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 40
-    - 1677
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1677  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 30
   rent_off: 100
@@ -1872,8 +1790,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -1912,10 +1828,10 @@
   type: kCraftMaterial
   material: 3  # ЖЕЛЕЗО
   values:
-    - 40
-    - 1678
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1678  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 40
   rent_off: 100
@@ -1923,8 +1839,6 @@
   max_durability: 130
   cur_durability: 130
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   extra_flags:
@@ -1962,10 +1876,10 @@
   type: kCraftMaterial
   material: 3  # ЖЕЛЕЗО
   values:
-    - 40
-    - 1678
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1678  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 40
   rent_off: 100
@@ -1973,8 +1887,6 @@
   max_durability: 130
   cur_durability: 130
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   extra_flags:
@@ -2013,10 +1925,10 @@
   type: kCraftMaterial
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 40
-    - 1674
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1674  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 100
   rent_off: 500
@@ -2024,8 +1936,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   extra_flags:
@@ -2064,10 +1974,10 @@
   type: kCraftMaterial
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 52
-    - 1674
-    - 30
-    - 3
+    - 52  # уровень игрока + морт*2
+    - 1674  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 100
   rent_off: 100
@@ -2075,8 +1985,6 @@
   max_durability: 35
   cur_durability: 35
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -2112,9 +2020,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 6144
-    - 1646
-    - 70
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1646  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 30
   cost: 50
@@ -2123,8 +2031,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2155,9 +2061,9 @@
   type: kMagicIngredient
   material: 15  # КОЖА
   values:
-    - 6144
-    - 1647
-    - 70
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1647  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 30
   cost: 50
@@ -2166,8 +2072,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2198,9 +2102,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 6144
-    - 1648
-    - 70
+    - 6144  # лаг применения, сек + уровень (6 бит)
+    - 1648  # vnum прототипа
+    - 70  # число использований
     - 0
   weight: 30
   cost: 50
@@ -2209,8 +2113,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2241,9 +2143,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 6656
-    - 1649
-    - 80
+    - 6656  # лаг применения, сек + уровень (6 бит)
+    - 1649  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 35
   cost: 50
@@ -2252,8 +2154,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2290,9 +2190,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 6656
-    - 1650
-    - 80
+    - 6656  # лаг применения, сек + уровень (6 бит)
+    - 1650  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 35
   cost: 50
@@ -2301,8 +2201,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2339,9 +2237,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 6656
-    - 1651
-    - 80
+    - 6656  # лаг применения, сек + уровень (6 бит)
+    - 1651  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 35
   cost: 50
@@ -2350,8 +2248,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2388,9 +2284,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 6656
-    - 1652
-    - 80
+    - 6656  # лаг применения, сек + уровень (6 бит)
+    - 1652  # vnum прототипа
+    - 80  # число использований
     - 0
   weight: 35
   cost: 50
@@ -2399,8 +2295,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 14400
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2437,9 +2331,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 7168
-    - 1653
-    - 90
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1653  # vnum прототипа
+    - 90  # число использований
     - 0
   weight: 50
   cost: 1000
@@ -2448,8 +2342,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 17280
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -2485,9 +2377,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 7168
-    - 1654
-    - 90
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1654  # vnum прототипа
+    - 90  # число использований
     - 0
   weight: 50
   cost: 1000
@@ -2496,8 +2388,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 17280
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -2535,9 +2425,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 7168
-    - 1655
-    - 90
+    - 7168  # лаг применения, сек + уровень (6 бит)
+    - 1655  # vnum прототипа
+    - 90  # число использований
     - 0
   weight: 50
   cost: 1000
@@ -2546,8 +2436,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 17280
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -2585,9 +2473,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 5120
-    - 1656
-    - 50
+    - 5120  # лаг применения, сек + уровень (6 бит)
+    - 1656  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 5
   cost: 100
@@ -2596,8 +2484,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -2628,9 +2514,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 5120
-    - 1657
-    - 50
+    - 5120  # лаг применения, сек + уровень (6 бит)
+    - 1657  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 5
   cost: 100
@@ -2639,8 +2525,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -2671,9 +2555,9 @@
   type: kMagicIngredient
   material: 16  # ОРГАНИКА
   values:
-    - 5120
-    - 1658
-    - 50
+    - 5120  # лаг применения, сек + уровень (6 бит)
+    - 1658  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 5
   cost: 100
@@ -2682,8 +2566,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -2714,9 +2596,9 @@
   type: kMagicIngredient
   material: 13  # КОСТЬ
   values:
-    - 5120
-    - 1659
-    - 50
+    - 5120  # лаг применения, сек + уровень (6 бит)
+    - 1659  # vnum прототипа
+    - 50  # число использований
     - 0
   weight: 10
   cost: 100
@@ -2725,8 +2607,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20160
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -2756,10 +2636,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 3
-    - 1661
-    - 0
-    - 0
+    - 3  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 0  # сила ингредиента
+    - 0  # условный уровень
   weight: 5
   cost: 100
   rent_off: 100
@@ -2767,8 +2647,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kSwimming
@@ -2793,10 +2671,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 1
-    - 1661
-    - 100
-    - 1
+    - 1  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 100  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 100
   rent_off: 100
@@ -2804,8 +2682,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2828,10 +2704,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 2
-    - 1661
-    - 100
-    - 0
+    - 2  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 100  # сила ингредиента
+    - 0  # условный уровень
   weight: 7
   cost: 100
   rent_off: 100
@@ -2839,8 +2715,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 600
   wear_flags:
@@ -2864,10 +2738,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 10
-    - 1661
-    - 95
-    - 1
+    - 10  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 95  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 100
   rent_off: 100
@@ -2875,8 +2749,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   wear_flags:
@@ -2902,10 +2774,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 18
-    - 1661
-    - 95
-    - 0
+    - 18  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 95  # сила ингредиента
+    - 0  # условный уровень
   weight: 7
   cost: 10
   rent_off: 10
@@ -2913,8 +2785,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 800
   wear_flags:
@@ -2938,10 +2808,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 20
-    - 1661
-    - 95
-    - 1
+    - 20  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 95  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 35
   rent_off: 10
@@ -2949,8 +2819,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 700
   wear_flags:
@@ -2976,10 +2844,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 21
-    - 1661
-    - 95
-    - 1
+    - 21  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 95  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 60
   rent_off: 10
@@ -2987,8 +2855,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 500
   wear_flags:
@@ -3014,10 +2880,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 30
-    - 1661
-    - 95
-    - 1
+    - 30  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 95  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 90
   rent_off: 10
@@ -3025,8 +2891,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 700
   wear_flags:
@@ -3052,10 +2916,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 40
-    - 1661
-    - 95
-    - 1
+    - 40  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 95  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 120
   rent_off: 10
@@ -3063,8 +2927,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 700
   extra_flags:
@@ -3092,10 +2954,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 54
-    - 1661
-    - 95
-    - 1
+    - 54  # уровень игрока + морт*2
+    - 1661  # vnum прототипа
+    - 95  # сила ингредиента
+    - 1  # условный уровень
   weight: 7
   cost: 180
   rent_off: 10
@@ -3103,8 +2965,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 300
   wear_flags:
@@ -3143,8 +3003,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 17280
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3172,10 +3030,10 @@
   type: kCraftMaterial
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 52
-    - 1612
-    - 30
-    - 3
+    - 52  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 7000
   rent_off: 1000
@@ -3183,8 +3041,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -3217,10 +3073,10 @@
   type: kCraftMaterial
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 52
-    - 1612
-    - 30
-    - 3
+    - 52  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 7000
   rent_off: 1000
@@ -3228,8 +3084,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -3262,10 +3116,10 @@
   type: kCraftMaterial
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 52
-    - 1612
-    - 30
-    - 4
+    - 52  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 30  # сила ингредиента
+    - 4  # условный уровень
   weight: 7
   cost: 8000
   rent_off: 1000
@@ -3273,8 +3127,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -3307,10 +3159,10 @@
   type: kCraftMaterial
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 40
-    - 1674
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1674  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 100
   rent_off: 500
@@ -3318,8 +3170,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   extra_flags:
@@ -3357,10 +3207,10 @@
   type: kCraftMaterial
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 52
-    - 1674
-    - 30
-    - 4
+    - 52  # уровень игрока + морт*2
+    - 1674  # vnum прототипа
+    - 30  # сила ингредиента
+    - 4  # условный уровень
   weight: 7
   cost: 100
   rent_off: 100
@@ -3368,8 +3218,6 @@
   max_durability: 35
   cur_durability: 35
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   extra_flags:
@@ -3405,10 +3253,10 @@
   type: kCraftMaterial
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 0
-    - 0
-    - 0
+    - 0  # уровень игрока + морт*2
+    - 0  # vnum прототипа
+    - 0  # сила ингредиента
+    - 0  # условный уровень
   weight: 10
   cost: 10
   rent_off: 100
@@ -3416,8 +3264,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 12000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 15
   wear_flags:
@@ -3437,10 +3283,10 @@
   type: kCraftMaterial
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 40
-    - 1677
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1677  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 30
   rent_off: 100
@@ -3448,8 +3294,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -3489,10 +3333,10 @@
   type: kCraftMaterial
   material: 3  # ЖЕЛЕЗО
   values:
-    - 40
-    - 1678
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1678  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 40
   rent_off: 100
@@ -3500,8 +3344,6 @@
   max_durability: 130
   cur_durability: 130
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   extra_flags:
@@ -3540,10 +3382,10 @@
   type: kCraftMaterial
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 40
-    - 1679
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1679  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 150
   rent_off: 50
@@ -3551,8 +3393,6 @@
   max_durability: 14
   cur_durability: 14
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 12
   wear_flags:
@@ -3589,10 +3429,10 @@
   type: kCraftMaterial
   material: 13  # КОСТЬ
   values:
-    - 15
-    - 1612
-    - 30
-    - 2
+    - 15  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 30  # сила ингредиента
+    - 2  # условный уровень
   weight: 7
   cost: 20
   rent_off: 20
@@ -3600,8 +3440,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10080
-  spell: 5  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 25
   wear_flags:
@@ -3641,10 +3479,10 @@
   type: kCraftMaterial
   material: 16  # ОРГАНИКА
   values:
-    - 40
-    - 1681
-    - 30
-    - 3
+    - 40  # уровень игрока + морт*2
+    - 1681  # vnum прототипа
+    - 30  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 50
   rent_off: 50
@@ -3652,8 +3490,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 12
   wear_flags:
@@ -3686,8 +3522,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 20
@@ -3697,8 +3533,6 @@
   max_durability: 250
   cur_durability: 250
   timer: 50000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kBless
@@ -3720,8 +3554,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 15
@@ -3731,8 +3565,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 55000
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kBless
@@ -3754,8 +3586,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3765,8 +3597,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kBless
@@ -3788,8 +3618,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3799,8 +3629,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kBless
@@ -3822,8 +3650,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 25
@@ -3833,8 +3661,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 999
   extra_flags:
@@ -3857,8 +3683,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 8
-    - 5
+    - 8  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 6
@@ -3868,8 +3694,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kBless
@@ -3894,8 +3718,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 4
+    - 4  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 30
@@ -3905,8 +3729,6 @@
   max_durability: 250
   cur_durability: 250
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 30
   minimum_remorts: 9
@@ -3941,8 +3763,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 7
@@ -3952,8 +3774,6 @@
   max_durability: 250
   cur_durability: 250
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 40
   minimum_remorts: 9
@@ -3977,8 +3797,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3988,8 +3808,6 @@
   max_durability: 250
   cur_durability: 250
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 30
   extra_flags:
@@ -4012,8 +3830,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -4023,8 +3841,6 @@
   max_durability: 250
   cur_durability: 250
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 999
   extra_flags:
@@ -4049,8 +3865,8 @@
   type: kHeavyArmor
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 0
@@ -4060,8 +3876,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -4080,8 +3894,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 7
@@ -4091,8 +3905,6 @@
   max_durability: 250
   cur_durability: 250
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 40
   minimum_remorts: 9
@@ -4116,10 +3928,10 @@
   type: kCraftMaterial
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 52
-    - 1612
-    - 30
-    - 4
+    - 52  # уровень игрока + морт*2
+    - 1612  # vnum прототипа
+    - 30  # сила ингредиента
+    - 4  # условный уровень
   weight: 7
   cost: 8000
   rent_off: 1000
@@ -4127,8 +3939,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 12
   wear_flags:
@@ -4161,10 +3971,10 @@
   type: kCraftMaterial
   material: 2  # БРОНЗА
   values:
-    - 5
-    - 1695
-    - 50
-    - 3
+    - 5  # уровень игрока + морт*2
+    - 1695  # vnum прототипа
+    - 50  # сила ингредиента
+    - 3  # условный уровень
   weight: 7
   cost: 150
   rent_off: 50
@@ -4172,8 +3982,6 @@
   max_durability: 14
   cur_durability: 14
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 12
   wear_flags:

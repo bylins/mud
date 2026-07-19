@@ -81,10 +81,16 @@ switch (obj->get_type()) {
 	case EObjType::kScroll: {
 		std::ostringstream out;
 		out << "Содержит заклинание:";
-		for (auto val = 1; val < 4; ++val) {
-			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
+		const ObjVal::EValueKey spell_keys[3] = {
+			ObjVal::EValueKey::kSpell1Num,
+			ObjVal::EValueKey::kSpell2Num,
+			ObjVal::EValueKey::kSpell3Num};
+		for (const auto key : spell_keys) {
+			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
 			if (MUD::Spell(spell_id).IsValid()) {
-				out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
+				const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
+				out << " " << MUD::Spell(spell_id).GetName()
+					<< " (сила " << potency << "),";
 			}
 		}
 		if (out.str().back() == ',') {
@@ -94,19 +100,19 @@ switch (obj->get_type()) {
 		SendMsgToChar(out.str(), ch);
 		break;
 	}
-	// issue.potion-hotfix: a potion reads its spells from the ObjVal keys and shows its maker-derived
+		// issue.potion-hotfix: a potion reads its spells from the ObjVal keys and shows its maker-derived
 	// POTENCY (Сила), never a per-spell level -- the drinker's own skill/stats are irrelevant.
 	case EObjType::kPotion: {
 		std::ostringstream out;
 		out << "Содержит заклинание:";
 		const ObjVal::EValueKey spell_keys[3] = {
-			ObjVal::EValueKey::kPotionSpell1Num,
-			ObjVal::EValueKey::kPotionSpell2Num,
-			ObjVal::EValueKey::kPotionSpell3Num};
+			ObjVal::EValueKey::kSpell1Num,
+			ObjVal::EValueKey::kSpell2Num,
+			ObjVal::EValueKey::kSpell3Num};
 		for (const auto key : spell_keys) {
 			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
 			if (MUD::Spell(spell_id).IsValid()) {
-				const int potency = static_cast<int>(PotionPotency(obj, spell_id) + 0.5f);
+				const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
 				out << " " << MUD::Spell(spell_id).GetName()
 					<< " (сила " << potency << "),";
 			}
@@ -121,9 +127,10 @@ switch (obj->get_type()) {
 	case EObjType::kWand:
 	case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
 		sprintf(buf + strlen(buf), " %s\r\n",
-				MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))).GetCName());
+				MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num))).GetCName());
 		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
-				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+				obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
+				obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));
 		SendMsgToChar(buf, ch);
 		break;
 

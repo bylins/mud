@@ -290,27 +290,35 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	*/
 	const auto group_descriptor = std::make_shared<ArrayValue>();
 	const auto ch = descriptor()->character.get();
-	const auto master = ch->has_master() ? ch->get_master() : ch;
-	append_char(group_descriptor, ch, master, true);
-	for (auto *f : master->followers) {
-		if (!AFF_FLAGGED(f, EAffect::kGroup)
-			&& !(f->IsFlagged(EMobFlag::kCompanion))) {
-			continue;
-		}
-
-		append_char(group_descriptor, ch, f, false);
-
-		// followers of a ch
-		if (!AFF_FLAGGED(f, EAffect::kGroup)) {
-			continue;
-		}
-
-		for (auto *ff : f->followers) {
-			if (!(ff->IsFlagged(EMobFlag::kCompanion))) {
+	// issue #3586: не раскрывать группу того, за кем персонаж просто следует.
+	// Членство в группе -- это флаг kGroup (ставится и лидеру, и согруппникам,
+	// см. group::perform_group), а не follow-отношение. Без этой проверки
+	// заследовавшийся не-член получал полное состояние чужой группы. Гейт тот же,
+	// что в group::print_list_group ("Но вы же не член группы!"). Не в группе --
+	// отдаём пустой GROUP.
+	if (ch && AFF_FLAGGED(ch, EAffect::kGroup)) {
+		const auto master = ch->has_master() ? ch->get_master() : ch;
+		append_char(group_descriptor, ch, master, true);
+		for (auto *f : master->followers) {
+			if (!AFF_FLAGGED(f, EAffect::kGroup)
+				&& !(f->IsFlagged(EMobFlag::kCompanion))) {
 				continue;
 			}
 
-			append_char(group_descriptor, ch, ff, false);
+			append_char(group_descriptor, ch, f, false);
+
+			// followers of a ch
+			if (!AFF_FLAGGED(f, EAffect::kGroup)) {
+				continue;
+			}
+
+			for (auto *ff : f->followers) {
+				if (!(ff->IsFlagged(EMobFlag::kCompanion))) {
+					continue;
+				}
+
+				append_char(group_descriptor, ch, ff, false);
+			}
 		}
 	}
 

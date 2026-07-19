@@ -14,7 +14,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 72
     - 0
     - 0
@@ -25,8 +25,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -51,7 +49,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 77
     - 0
     - 0
@@ -62,8 +60,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -87,7 +83,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 108
     - 0
     - 0
@@ -98,8 +94,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -124,7 +118,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 54
     - 0
     - 0
@@ -135,8 +129,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -160,7 +152,7 @@
   type: kBook
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 76
     - 0
     - 0
@@ -171,8 +163,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -196,7 +186,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 66
     - 0
     - 0
@@ -207,8 +197,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -232,7 +220,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 128
     - 0
     - 0
@@ -243,8 +231,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -269,7 +255,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 68
     - 0
     - 0
@@ -280,8 +266,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -305,7 +289,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 113
     - 0
     - 0
@@ -316,8 +300,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 300
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -342,7 +324,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 11
     - 0
     - 0
@@ -353,8 +335,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -378,7 +358,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 56
     - 0
     - 0
@@ -389,8 +369,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -415,7 +393,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 45
     - 0
     - 0
@@ -426,8 +404,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 10
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -451,7 +427,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 57
     - 0
     - 0
@@ -462,8 +438,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -489,7 +463,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 15
     - 0
     - 0
@@ -500,8 +474,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -529,7 +501,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 30
     - 0
     - 0
@@ -540,8 +512,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 20
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -568,7 +538,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 55
     - 0
     - 0
@@ -579,8 +549,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -605,7 +573,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 64
     - 0
     - 0
@@ -616,8 +584,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -641,7 +607,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 8
     - 0
     - 0
@@ -652,8 +618,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -678,7 +642,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 69
     - 0
     - 0
@@ -689,8 +653,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -715,7 +677,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 23
     - 0
     - 0
@@ -726,8 +688,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 20
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -752,7 +712,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 36
     - 0
     - 0
@@ -763,8 +723,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 20
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -789,7 +747,7 @@
   type: kBook
   material: 16  # ОРГАНИКА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 7
     - 0
     - 0
@@ -800,8 +758,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -835,7 +791,7 @@
   type: kBook
   material: 12  # КАМЕНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 122
     - 0
     - 0
@@ -846,8 +802,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -868,7 +822,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 34
     - 0
     - 0
@@ -879,8 +833,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -902,7 +854,7 @@
   type: kBook
   material: 11  # СТЕКЛО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 92
     - 0
     - 0
@@ -913,8 +865,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -937,7 +887,7 @@
   type: kBook
   material: 13  # КОСТЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 65
     - 0
     - 0
@@ -948,8 +898,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -972,7 +920,7 @@
   type: kBook
   material: 13  # КОСТЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 61
     - 0
     - 0
@@ -983,8 +931,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 55
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1007,7 +953,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 52
     - 0
     - 0
@@ -1018,8 +964,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1030,7 +974,7 @@
 # Object #528
 28:
   names:
-    aliases: книга толстая мудрости
+    aliases: толстая книга мудрости
     nominative: толстая книга мудрости
     genitive: толстой книги мудрости
     dative: толстой книге мудрости
@@ -1041,7 +985,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 116
     - 0
     - 0
@@ -1052,8 +996,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1077,7 +1019,7 @@
   type: kBook
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 28
     - 0
     - 0
@@ -1088,8 +1030,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kGlow
@@ -1113,7 +1053,7 @@
   type: kBook
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 2
     - 0
     - 0
@@ -1124,8 +1064,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1149,7 +1087,7 @@
   type: kBook
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 27
     - 0
     - 0
@@ -1160,8 +1098,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1185,7 +1121,7 @@
   type: kBook
   material: 2  # БРОНЗА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 48
     - 0
     - 0
@@ -1196,8 +1132,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1222,7 +1156,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 131
     - 0
     - 0
@@ -1233,8 +1167,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -1256,7 +1188,7 @@
   type: kBook
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 85
     - 0
     - 0
@@ -1267,8 +1199,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 10
   extra_flags:
@@ -1291,7 +1221,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 97
     - 0
     - 0
@@ -1302,8 +1232,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1326,7 +1254,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 115
     - 0
     - 0
@@ -1337,8 +1265,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1361,7 +1287,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 120
     - 0
     - 0
@@ -1372,8 +1298,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1397,7 +1321,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 75
     - 0
     - 0
@@ -1408,8 +1332,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1432,7 +1354,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 42
     - 0
     - 0
@@ -1443,8 +1365,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1466,7 +1386,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 31
     - 0
     - 0
@@ -1477,8 +1397,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -1502,7 +1420,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 38
     - 0
     - 0
@@ -1513,8 +1431,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1537,7 +1453,7 @@
   type: kBook
   material: 8  # ДЕРЕВО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 67
     - 0
     - 0
@@ -1548,8 +1464,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1573,7 +1487,7 @@
   type: kBook
   material: 13  # КОСТЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 91
     - 0
     - 0
@@ -1584,8 +1498,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1609,7 +1521,7 @@
   type: kBook
   material: 16  # ОРГАНИКА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 112
     - 0
     - 0
@@ -1620,8 +1532,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 4
   extra_flags:
@@ -1645,7 +1555,7 @@
   type: kBook
   material: 16  # ОРГАНИКА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 96
     - 0
     - 0
@@ -1656,8 +1566,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 4
   extra_flags:
@@ -1681,7 +1589,7 @@
   type: kBook
   material: 11  # СТЕКЛО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 95
     - 0
     - 0
@@ -1692,8 +1600,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1716,7 +1622,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 74
     - 0
     - 0
@@ -1727,8 +1633,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 45
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -1750,7 +1654,7 @@
   type: kBook
   material: 10  # КЕРАМИКА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 53
     - 0
     - 0
@@ -1761,8 +1665,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1786,7 +1688,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 83
     - 0
     - 0
@@ -1797,8 +1699,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -1820,7 +1720,7 @@
   type: kBook
   material: 14  # ТКАНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 47
     - 0
     - 0
@@ -1831,8 +1731,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -1857,7 +1755,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 104
     - 0
     - 0
@@ -1868,8 +1766,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1893,7 +1789,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 49
     - 0
     - 0
@@ -1904,8 +1800,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1929,7 +1823,7 @@
   type: kBook
   material: 8  # ДЕРЕВО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 109
     - 0
     - 0
@@ -1940,8 +1834,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 50
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1963,7 +1855,7 @@
   type: kBook
   material: 12  # КАМЕНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 62
     - 0
     - 0
@@ -1974,8 +1866,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1999,7 +1889,7 @@
   type: kBook
   material: 7  # КРИСТАЛЛ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 87
     - 0
     - 0
@@ -2010,8 +1900,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2033,7 +1921,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 114
     - 0
     - 0
@@ -2044,8 +1932,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -2069,7 +1955,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 110
     - 0
     - 0
@@ -2080,8 +1966,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2105,7 +1989,7 @@
   type: kBook
   material: 11  # СТЕКЛО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 70
     - 0
     - 0
@@ -2116,8 +2000,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 10
   extra_flags:
@@ -2143,7 +2025,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 33
     - 0
     - 0
@@ -2154,8 +2036,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2180,7 +2060,7 @@
   type: kBook
   material: 12  # КАМЕНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 129
     - 0
     - 0
@@ -2191,8 +2071,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2214,7 +2092,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 79
     - 0
     - 0
@@ -2225,8 +2103,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2249,7 +2125,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 89
     - 0
     - 0
@@ -2260,8 +2136,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 45
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2283,7 +2157,7 @@
   type: kBook
   material: 13  # КОСТЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 10
     - 0
     - 0
@@ -2294,8 +2168,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 2
   extra_flags:
@@ -2321,7 +2193,7 @@
   type: kBook
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 142
     - 0
     - 0
@@ -2332,8 +2204,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 60
-  spell: 1  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2355,7 +2225,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 111
     - 0
     - 0
@@ -2366,8 +2236,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -2389,7 +2257,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 93
     - 0
     - 0
@@ -2400,8 +2268,6 @@
   max_durability: 10
   cur_durability: 5
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2423,7 +2289,7 @@
   type: kBook
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 82
     - 0
     - 0
@@ -2434,8 +2300,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 60
-  spell: 1  # !undefined!
-  level: 1
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2457,7 +2321,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 137
     - 0
     - 0
@@ -2468,8 +2332,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 80
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2491,7 +2353,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 88
     - 0
     - 0
@@ -2502,8 +2364,6 @@
   max_durability: 30
   cur_durability: 29
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 5
   extra_flags:
@@ -2527,7 +2387,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 81
     - 0
     - 0
@@ -2538,8 +2398,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 40
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2561,7 +2419,7 @@
   type: kBook
   material: 1  # БУЛАТ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 26
     - 0
     - 0
@@ -2572,8 +2430,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2597,7 +2453,7 @@
   type: kBook
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 138
     - 0
     - 0
@@ -2608,8 +2464,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2632,7 +2486,7 @@
   type: kBook
   material: 8  # ДЕРЕВО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 6
     - 0
     - 0
@@ -2643,8 +2497,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 10
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -2665,7 +2517,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 4
     - 0
     - 0
@@ -2676,8 +2528,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2699,7 +2549,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 126
     - 0
     - 0
@@ -2710,8 +2560,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 300
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2733,7 +2581,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 149
     - 0
     - 0
@@ -2744,8 +2592,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 20
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -2766,7 +2612,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 145
     - 0
     - 0
@@ -2777,8 +2623,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 40
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2800,7 +2644,7 @@
   type: kBook
   material: 13  # КОСТЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 73
     - 0
     - 0
@@ -2811,8 +2655,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 25
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2834,7 +2676,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 152
     - 0
     - 0
@@ -2845,8 +2687,6 @@
   max_durability: 100
   cur_durability: 1
   timer: 1440
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   extra_flags:
@@ -2868,7 +2708,7 @@
   type: kBook
   material: 14  # ТКАНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 151
     - 0
     - 0
@@ -2879,8 +2719,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2902,7 +2740,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 146
     - 0
     - 0
@@ -2913,8 +2751,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 40
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -2937,7 +2773,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 153
     - 0
     - 0
@@ -2948,8 +2784,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 120
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 10
   extra_flags:
@@ -2971,7 +2805,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 44
     - 0
     - 0
@@ -2982,8 +2816,6 @@
   max_durability: 175
   cur_durability: 175
   timer: 40
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 2
   extra_flags:
@@ -3006,7 +2838,7 @@
   type: kBook
   material: 8  # ДЕРЕВО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 147
     - 0
     - 0
@@ -3017,8 +2849,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 10
   extra_flags:
@@ -3040,7 +2870,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 149
     - 0
     - 0
@@ -3051,8 +2881,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -3073,7 +2901,7 @@
   type: kBook
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 148
     - 0
     - 0
@@ -3084,8 +2912,6 @@
   max_durability: 1
   cur_durability: 1
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -3107,7 +2933,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 136
     - 0
     - 0
@@ -3118,8 +2944,6 @@
   max_durability: 18
   cur_durability: 18
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3142,7 +2966,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 127
     - 0
     - 0
@@ -3153,8 +2977,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 200
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3178,7 +3000,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 124
     - 0
     - 0
@@ -3189,8 +3011,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 2
   extra_flags:
@@ -3214,7 +3034,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 118
     - 0
     - 0
@@ -3225,8 +3045,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 200
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3250,7 +3068,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 40
     - 0
     - 0
@@ -3261,8 +3079,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 60
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3286,7 +3102,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 17
     - 0
     - 0
@@ -3297,8 +3113,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3323,7 +3137,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 4
+    - 4  # Книга способностей
     - 96
     - 0
     - 0
@@ -3334,8 +3148,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 900
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3359,7 +3171,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 25
     - 0
     - 0
@@ -3370,8 +3182,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3394,7 +3204,7 @@
   type: kBook
   material: 14  # ТКАНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 155
     - 0
     - 0
@@ -3405,8 +3215,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 2
   extra_flags:
@@ -3435,7 +3243,7 @@
   type: kBook
   material: 11  # СТЕКЛО
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 135
     - 0
     - 0
@@ -3446,8 +3254,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3473,7 +3279,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 140
     - 0
     - 0
@@ -3484,8 +3290,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 36
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -3508,7 +3312,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 165
     - 0
     - 0
@@ -3519,8 +3323,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 30
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3542,7 +3344,7 @@
   type: kBook
   material: 17  # БЕРЕСТА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 3
     - 0
     - 0
@@ -3553,8 +3355,6 @@
   max_durability: 6
   cur_durability: 6
   timer: 1200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent

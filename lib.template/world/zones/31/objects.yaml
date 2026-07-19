@@ -14,10 +14,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -26,8 +26,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -48,10 +46,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -60,8 +58,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -82,10 +78,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -94,8 +90,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -116,10 +110,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -128,8 +122,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -150,10 +142,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -162,8 +154,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -184,10 +174,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -196,8 +186,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -217,10 +205,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -229,8 +217,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -251,10 +237,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -263,8 +249,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -285,10 +269,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 7
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 10
   cost: 100
   rent_off: 10
@@ -297,8 +281,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -330,8 +312,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -363,8 +343,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -385,8 +363,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 30
@@ -396,8 +374,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -418,8 +394,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -429,8 +405,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -451,8 +425,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 15
@@ -462,8 +436,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -484,8 +456,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -495,8 +467,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -517,8 +487,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -528,8 +498,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -550,8 +518,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 8
@@ -561,8 +529,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -583,8 +549,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -594,8 +560,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -616,8 +580,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -627,8 +591,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -660,8 +622,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -682,8 +642,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 8
-    - 8
+    - 8  # изменяет AC
+    - 8  # изменяет броню
     - 0
     - 0
   weight: 20
@@ -693,8 +653,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   wear_flags:
@@ -715,10 +673,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 10
-    - 61500
-    - 30
-    - 30
+    - 10  # уровень игрока + морт*2
+    - 61500  # vnum прототипа
+    - 30  # сила ингредиента
+    - 30  # условный уровень
   weight: 2
   cost: 100
   rent_off: 10
@@ -726,8 +684,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -746,10 +702,10 @@
   type: kCraftMaterial
   material: 15  # КОЖА
   values:
-    - 10
-    - 61500
-    - 30
-    - 30
+    - 10  # уровень игрока + морт*2
+    - 61500  # vnum прототипа
+    - 30  # сила ингредиента
+    - 30  # условный уровень
   weight: 2
   cost: 100
   rent_off: 10
@@ -757,8 +713,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake

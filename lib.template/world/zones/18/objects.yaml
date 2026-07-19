@@ -13,11 +13,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 109
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -25,8 +20,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -38,6 +31,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 109  # медлительность
 
 # Object #1801
 1:
@@ -52,11 +47,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 110
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -64,8 +54,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -77,6 +65,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 110  # ускорение
 
 # Object #1802
 2:
@@ -91,11 +81,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 111
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -103,8 +88,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -116,6 +99,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 111  # массовая медлительность
 
 # Object #1803
 3:
@@ -130,11 +115,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 112
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -142,8 +122,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -155,6 +133,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 112  # групповое ускорение
 
 # Object #1804
 4:
@@ -169,11 +149,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 113
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -181,8 +156,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -194,6 +167,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 113  # защита богов
 
 # Object #1805
 5:
@@ -208,11 +183,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 114
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -220,8 +190,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -233,6 +201,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 114  # лихорадка
 
 # Object #1806
 6:
@@ -247,11 +217,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 115
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -259,8 +224,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -272,6 +235,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 115  # вылечить лихорадку
 
 # Object #1807
 7:
@@ -286,11 +251,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 116
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -298,8 +258,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -311,6 +269,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 116  # внимательность
 
 # Object #1808
 8:
@@ -325,11 +285,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 118
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -337,8 +292,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -350,6 +303,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 118  # воздушный щит
 
 # Object #1809
 9:
@@ -364,11 +319,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 119
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -376,8 +326,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -389,6 +337,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 119  # переход
 
 # Object #1810
 10:
@@ -403,11 +353,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 120
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -415,8 +360,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -428,6 +371,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 120  # развеять магию
 
 # Object #1811
 11:
@@ -442,11 +387,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 121
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -454,8 +394,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -467,6 +405,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 121  # защитник
 
 # Object #1812
 12:
@@ -481,11 +421,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 122
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -493,8 +428,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -506,6 +439,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 122  # быстрое восстановление
 
 # Object #1813
 13:
@@ -520,11 +455,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 123
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -532,8 +462,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -545,6 +473,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 123  # создать оружие
 
 # Object #1814
 14:
@@ -559,11 +489,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 124
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -571,8 +496,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -584,6 +507,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 124  # огненный щит
 
 # Object #1815
 15:
@@ -598,11 +523,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 125
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -610,8 +530,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -623,6 +541,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 125  # переместиться
 
 # Object #1816
 16:
@@ -637,11 +557,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 126
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -649,8 +564,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -662,6 +575,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 126  # огненный защитник
 
 # Object #1817
 17:
@@ -676,11 +591,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 127
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -688,8 +598,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -701,6 +609,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 127  # ледяной щит
 
 # Object #1818
 18:
@@ -715,11 +625,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 128
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -727,8 +632,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -740,6 +643,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 128  # ледяной шторм
 
 # Object #1819
 19:
@@ -754,11 +659,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 129
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -766,8 +666,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -779,6 +677,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 129  # уменьшение
 
 # Object #1820
 20:
@@ -793,11 +693,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 130
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -805,8 +700,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -818,6 +711,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 130  # яркий блик
 
 # Object #1821
 21:
@@ -832,11 +727,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 131
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -844,8 +734,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -857,6 +745,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 131  # безумие
 
 # Object #1822
 22:
@@ -871,11 +761,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 132
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -883,8 +768,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -896,6 +779,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 132  # магическое зеркало
 
 # Object #1823
 23:
@@ -910,11 +795,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 133
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -922,8 +802,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -935,6 +813,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 133  # облако стрел
 
 # Object #1824
 24:
@@ -949,11 +829,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 134
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -961,8 +836,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -974,6 +847,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 134  # круг пустоты
 
 # Object #1825
 25:
@@ -988,11 +863,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 135
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1000,8 +870,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1013,6 +881,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 135  # метеоритный дождь
 
 # Object #1826
 26:
@@ -1027,11 +897,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 136
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1039,8 +904,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1052,6 +915,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 136  # каменные руки
 
 # Object #1827
 27:
@@ -1066,11 +931,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 137
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1078,8 +938,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1091,6 +949,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 137  # повреждение разума
 
 # Object #1828
 28:
@@ -1105,11 +965,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 138
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1117,8 +972,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1130,6 +983,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 138  # призматическая аура
 
 # Object #1829
 29:
@@ -1144,11 +999,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 139
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1156,8 +1006,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1169,6 +1017,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 139  # силы зла
 
 # Object #1830
 30:
@@ -1183,11 +1033,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 140
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1195,8 +1040,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1208,6 +1051,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 140  # воздушная аура
 
 # Object #1831
 31:
@@ -1222,11 +1067,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 141
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1234,8 +1074,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1247,6 +1085,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 141  # огненная аура
 
 # Object #1832
 32:
@@ -1261,11 +1101,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 142
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1273,8 +1108,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1286,6 +1119,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 142  # ледяная аура
 
 # Object #1833
 33:
@@ -1300,11 +1135,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 143
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1312,8 +1142,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1325,6 +1153,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 143  # шок
 
 # Object #1834
 34:
@@ -1339,11 +1169,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 144
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1351,8 +1176,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1364,6 +1187,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 144  # зеркало магии
 
 # Object #1835
 35:
@@ -1378,11 +1203,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 145
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1390,8 +1210,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1403,6 +1221,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 145  # групповое освящение
 
 # Object #1836
 36:
@@ -1417,11 +1237,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 146
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1429,8 +1244,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1442,6 +1255,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 146  # групповая призматическая аура
 
 # Object #1837
 37:
@@ -1456,11 +1271,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 147
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1468,8 +1278,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1481,6 +1289,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 147  # глухота
 
 # Object #1838
 38:
@@ -1495,11 +1305,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 148
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1507,8 +1312,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1520,6 +1323,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 148  # длительная глухота
 
 # Object #1839
 39:
@@ -1534,11 +1339,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 149
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1546,8 +1346,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1559,6 +1357,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 149  # снять глухоту
 
 # Object #1840
 40:
@@ -1573,11 +1373,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 150
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1585,8 +1380,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1598,6 +1391,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 150  # массовая глухота
 
 # Object #1841
 41:
@@ -1612,11 +1407,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 151
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1624,8 +1414,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1637,6 +1425,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 151  # пылевая буря
 
 # Object #1842
 42:
@@ -1651,11 +1441,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 152
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1663,8 +1448,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1676,6 +1459,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 152  # камнепад
 
 # Object #1843
 43:
@@ -1690,11 +1475,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 153
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1702,8 +1482,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1715,6 +1493,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 153  # звуковая волна
 
 # Object #1844
 44:
@@ -1729,11 +1509,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 154
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1741,8 +1516,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1754,6 +1527,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 154  # силы света
 
 # Object #1845
 45:
@@ -1768,11 +1543,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 155
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1780,8 +1550,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1793,6 +1561,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 155  # ангел-хранитель
 
 # Object #1846
 46:
@@ -1807,11 +1577,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 156
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1819,8 +1584,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1832,6 +1595,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 156  # массовый страх
 
 # Object #1847
 47:
@@ -1846,11 +1611,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 157
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1858,8 +1618,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1871,6 +1629,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 157  # обаяние
 
 # Object #1848
 48:
@@ -1885,11 +1645,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 158
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1897,8 +1652,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1910,6 +1663,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 158  # плач
 
 # Object #1849
 49:
@@ -1924,11 +1679,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 159
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1936,8 +1686,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1949,6 +1697,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 159  # забвение
 
 # Object #1850
 50:
@@ -1963,11 +1713,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 160
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -1975,8 +1720,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1988,6 +1731,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 160  # бремя времени
 
 # Object #1851
 51:
@@ -2002,11 +1747,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 161
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2014,8 +1754,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2027,6 +1765,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 161  # групповое восстановление
 
 # Object #1852
 52:
@@ -2041,11 +1781,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 162
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2053,8 +1788,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2066,6 +1799,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 162  # смирение
 
 # Object #1853
 53:
@@ -2080,11 +1815,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 165
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2092,8 +1822,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2105,6 +1833,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 165  # каменные кости
 
 # Object #1854
 54:
@@ -2119,11 +1849,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 166
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2131,8 +1856,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2144,6 +1867,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 166  # осветить комнату
 
 # Object #1855
 55:
@@ -2158,11 +1883,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 167
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2170,8 +1890,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2183,6 +1901,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 167  # туман смерти
 
 # Object #1856
 56:
@@ -2197,11 +1917,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 168
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2209,8 +1924,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2222,6 +1935,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 168  # буря отмщения
 
 # Object #1857
 57:
@@ -2236,11 +1951,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 170
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2248,8 +1958,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2261,6 +1969,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 170  # недоля
 
 # Object #1858
 58:
@@ -2275,11 +1985,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 172
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2287,8 +1992,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2300,6 +2003,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 172  # блестящая пыль
 
 # Object #1859
 59:
@@ -2314,11 +2019,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 173
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2326,8 +2026,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2339,6 +2037,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 173  # вопль
 
 # Object #1860
 60:
@@ -2353,11 +2053,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 15  # КОЖА
-  values:
-    - 20
-    - 174
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2365,8 +2060,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2378,6 +2071,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 174  # кошачья ловкость
 
 # Object #1861
 61:
@@ -2392,11 +2087,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 15  # КОЖА
-  values:
-    - 20
-    - 175
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2404,8 +2094,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2417,6 +2105,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 175  # бычье тело
 
 # Object #1862
 62:
@@ -2431,11 +2121,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 15  # КОЖА
-  values:
-    - 20
-    - 176
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2443,8 +2128,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2456,6 +2139,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 176  # мудрость змеи
 
 # Object #1863
 63:
@@ -2470,11 +2155,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 177
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2482,8 +2162,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2495,6 +2173,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 177  # хитроумие
 
 # Object #1864
 64:
@@ -2509,11 +2189,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 188
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2521,8 +2196,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2534,6 +2207,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 188  # рунная метка
 
 # Object #1865
 65:
@@ -2548,11 +2223,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 351
-    - 0
-    - 0
   weight: 1
   cost: 15
   rent_off: 5
@@ -2560,8 +2230,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2573,6 +2241,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 351  # идентификация
 
 # Object #1866
 66:
@@ -2587,11 +2257,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 200
-    - 0
-    - 200
   weight: 1
   cost: 500
   rent_off: 5
@@ -2599,8 +2264,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2612,6 +2275,9 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 200  # чарующий узор
+    SPELL3_NUM: 200  # чарующий узор
 
 # Object #1867
 67:
@@ -2626,11 +2292,6 @@
   short_desc: Покрытый древними защитными рунами свиток лежит на земле, источая тонкие лучи света.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 100000
   rent_off: 20000
@@ -2638,8 +2299,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2651,6 +2310,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1868
 68:
@@ -2665,11 +2326,6 @@
   short_desc: Перевязанный тесемкой свиток полного познания лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 352
-    - 0
-    - 0
   weight: 1
   cost: 100000
   rent_off: 5
@@ -2677,8 +2333,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   wear_flags:
@@ -2691,6 +2345,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 352  # полная идентификация
 
 # Object #1869
 69:
@@ -2705,11 +2361,6 @@
   short_desc: Свиток мгновенного перемещения валяется тут!
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 10
-    - 2
-    - 0
-    - 0
   weight: 1
   cost: 15000
   rent_off: 5
@@ -2717,8 +2368,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2736,6 +2385,8 @@
         ведь именно в этом процессе заключена магическая сила, способная разорвать само
         пространство и время. Этот свиток + редчайшая находка, которой владеют лишь
         избранные.  
+  extra_values:
+    SPELL1_NUM: 2  # прыжок
 
 # Object #1870
 70:
@@ -2750,11 +2401,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2762,8 +2408,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2775,6 +2419,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1871
 71:
@@ -2789,11 +2435,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2801,8 +2442,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2814,6 +2453,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1872
 72:
@@ -2828,11 +2469,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2840,8 +2476,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2853,6 +2487,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1873
 73:
@@ -2867,11 +2503,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2879,8 +2510,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2892,6 +2521,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1874
 74:
@@ -2906,11 +2537,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2918,8 +2544,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2931,6 +2555,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1875
 75:
@@ -2945,11 +2571,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2957,8 +2578,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2970,6 +2589,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1876
 76:
@@ -2984,11 +2605,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -2996,8 +2612,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3009,6 +2623,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1877
 77:
@@ -3023,11 +2639,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3035,8 +2646,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3048,6 +2657,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1878
 78:
@@ -3062,11 +2673,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3074,8 +2680,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3087,6 +2691,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1879
 79:
@@ -3101,11 +2707,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3113,8 +2714,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3126,6 +2725,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1880
 80:
@@ -3140,11 +2741,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3152,8 +2748,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3165,6 +2759,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1881
 81:
@@ -3179,11 +2775,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3191,8 +2782,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3204,6 +2793,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1882
 82:
@@ -3218,11 +2809,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3230,8 +2816,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3243,6 +2827,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1883
 83:
@@ -3257,11 +2843,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3269,8 +2850,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3282,6 +2861,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1884
 84:
@@ -3296,11 +2877,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3308,8 +2884,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3321,6 +2895,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1885
 85:
@@ -3335,11 +2911,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3347,8 +2918,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3360,6 +2929,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1886
 86:
@@ -3374,11 +2945,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3386,8 +2952,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3399,6 +2963,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1887
 87:
@@ -3413,11 +2979,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3425,8 +2986,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3438,6 +2997,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1888
 88:
@@ -3452,11 +3013,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3464,8 +3020,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3477,6 +3031,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1889
 89:
@@ -3491,11 +3047,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3503,8 +3054,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3516,6 +3065,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1890
 90:
@@ -3530,11 +3081,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3542,8 +3088,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3555,6 +3099,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1891
 91:
@@ -3569,11 +3115,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3581,8 +3122,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3594,6 +3133,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1892
 92:
@@ -3608,11 +3149,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3620,8 +3156,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3633,6 +3167,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1893
 93:
@@ -3647,11 +3183,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3659,8 +3190,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3672,6 +3201,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1894
 94:
@@ -3686,11 +3217,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3698,8 +3224,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3711,6 +3235,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1895
 95:
@@ -3725,11 +3251,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3737,8 +3258,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3750,6 +3269,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1896
 96:
@@ -3764,11 +3285,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3776,8 +3292,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3789,6 +3303,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1897
 97:
@@ -3803,11 +3319,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3815,8 +3326,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3828,6 +3337,8 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита
 
 # Object #1898
 98:
@@ -3842,11 +3353,6 @@
   short_desc: Перевязанный тесемкой свиток лежит на земле.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 20
-    - 1
-    - -1
-    - -1
   weight: 1
   cost: 15
   rent_off: 5
@@ -3854,8 +3360,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3867,3 +3371,5 @@
         то станут видны тесные строчки диковинных рун. При попытке
         запомнить их в голове начинает неприятно звенеть, а земля
         под ногами слегка покачивается.
+  extra_values:
+    SPELL1_NUM: 1  # защита

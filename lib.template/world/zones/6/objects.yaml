@@ -14,9 +14,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 200
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 200  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 400
@@ -26,8 +26,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -51,9 +49,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 201
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 201  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 500
@@ -63,8 +61,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -88,9 +84,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 2063
-    - 202
-    - 1000
+    - 2063  # лаг применения, сек + уровень (6 бит)
+    - 202  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 200
@@ -100,8 +96,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -125,9 +119,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 203
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 203  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 600
@@ -137,8 +131,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -162,9 +154,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 6164
-    - 204
-    - 1000
+    - 6164  # лаг применения, сек + уровень (6 бит)
+    - 204  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 10
@@ -174,8 +166,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -199,9 +189,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 6962
-    - 205
-    - 1000
+    - 6962  # лаг применения, сек + уровень (6 бит)
+    - 205  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 700
@@ -211,8 +201,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -236,9 +224,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 3084
-    - 206
-    - 1000
+    - 3084  # лаг применения, сек + уровень (6 бит)
+    - 206  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 500
@@ -248,8 +236,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -273,9 +259,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 3084
-    - 207
-    - 1000
+    - 3084  # лаг применения, сек + уровень (6 бит)
+    - 207  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 500
@@ -285,8 +271,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -310,9 +294,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 4904
-    - 208
-    - 1000
+    - 4904  # лаг применения, сек + уровень (6 бит)
+    - 208  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 400
@@ -322,8 +306,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -347,9 +329,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 7784
-    - 209
-    - 1000
+    - 7784  # лаг применения, сек + уровень (6 бит)
+    - 209  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 600
@@ -359,8 +341,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -384,9 +364,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 210
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 210  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 400
@@ -396,8 +376,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -421,9 +399,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 211
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 211  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 800
@@ -433,8 +411,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -458,9 +434,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 212
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 212  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 600
@@ -470,8 +446,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -495,9 +469,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 213
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 213  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 600
@@ -507,8 +481,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -532,9 +504,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 214
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 214  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 500
@@ -544,8 +516,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -569,9 +539,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 215
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 215  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 500
@@ -581,8 +551,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -606,9 +574,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 216
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 216  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 800
@@ -618,8 +586,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -643,9 +609,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 217
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 217  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1000
@@ -655,8 +621,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -680,9 +644,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 218
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 218  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 800
@@ -692,8 +656,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -717,9 +679,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 219
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 219  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 800
@@ -729,8 +691,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -754,9 +714,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 220
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 220  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1000
@@ -766,8 +726,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -791,9 +749,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 221
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 221  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1000
@@ -803,8 +761,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -828,9 +784,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 222
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 222  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -840,8 +796,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -865,9 +819,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 223
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 223  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -877,8 +831,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -902,9 +854,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 224
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 224  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -914,8 +866,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -939,9 +889,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 225
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 225  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -951,8 +901,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -976,9 +924,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 226
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 226  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 50
@@ -988,8 +936,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 60
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1024,8 +970,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1055,8 +999,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1075,9 +1017,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 229
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 229  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1087,8 +1029,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1112,9 +1052,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 230
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 230  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1124,8 +1064,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1160,8 +1098,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1180,9 +1116,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 232
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 232  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1192,8 +1128,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1228,8 +1162,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1248,9 +1180,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 234
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 234  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1260,8 +1192,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1285,9 +1215,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 235
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 235  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1297,8 +1227,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1322,9 +1250,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 236
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 236  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1334,8 +1262,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1370,8 +1296,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1390,9 +1314,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 238
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 238  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1402,8 +1326,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1427,9 +1349,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 239
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 239  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1439,8 +1361,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1464,9 +1384,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 240
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 240  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1476,8 +1396,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1501,9 +1419,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 241
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 241  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1513,8 +1431,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1538,9 +1454,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 242
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 242  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1550,8 +1466,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodonate
@@ -1574,9 +1488,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 243
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 243  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1586,8 +1500,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1611,9 +1523,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 245
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 245  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 1
@@ -1623,8 +1535,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -1659,8 +1569,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1679,9 +1587,9 @@
   type: kMagicIngredient
   material: 13  # КОСТЬ
   values:
-    - 256
-    - 3000
-    - 20
+    - 256  # лаг применения, сек + уровень (6 бит)
+    - 3000  # vnum прототипа
+    - 20  # число использований
     - 0
   weight: 2
   cost: 250
@@ -1690,8 +1598,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -1725,9 +1631,9 @@
   type: kMagicIngredient
   material: 8  # ДЕРЕВО
   values:
-    - 256
-    - 3006
-    - 10
+    - 256  # лаг применения, сек + уровень (6 бит)
+    - 3006  # vnum прототипа
+    - 10  # число использований
     - 0
   weight: 1
   cost: 0
@@ -1736,8 +1642,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNorent
@@ -1767,9 +1671,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 222
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 222  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 0
@@ -1779,8 +1683,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1799,9 +1701,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 223
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 223  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 0
@@ -1811,8 +1713,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1831,9 +1731,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 224
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 224  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 0
@@ -1843,8 +1743,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1863,9 +1761,9 @@
   type: kMagicIngredient
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 225
-    - 1000
+    - 0  # лаг применения, сек + уровень (6 бит)
+    - 225  # vnum прототипа
+    - 1000  # число использований
     - 0
   weight: 1
   cost: 0
@@ -1875,8 +1773,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1894,11 +1790,6 @@
   short_desc: Кем-то брошенный бутылек лежит здесь.
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 36
-    - 36
-    - 28
-    - 0
   weight: 37
   cost: 0
   rent_off: 2
@@ -1906,8 +1797,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -1918,6 +1807,10 @@
     - kRepopDecay
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 36
+    LIQUID_CURRENT: 36
+    LIQUID_TYPE: 28  # настойки дурмана
 
 # Object #697
 97:
@@ -1932,11 +1825,6 @@
   short_desc: Кем-то брошенный бутылек лежит здесь.
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 36
-    - 36
-    - 25
-    - 1
   weight: 37
   cost: 0
   rent_off: 2
@@ -1944,8 +1832,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -1956,6 +1842,11 @@
     - kRepopDecay
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 36
+    LIQUID_CURRENT: 36
+    LIQUID_POISON: 1
+    LIQUID_TYPE: 25  # настойки аконита
 
 # Object #698
 98:
@@ -1970,11 +1861,6 @@
   short_desc: Кем-то брошенный бутылек лежит здесь.
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 36
-    - 36
-    - 26
-    - 1
   weight: 37
   cost: 0
   rent_off: 2
@@ -1982,8 +1868,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -1994,6 +1878,11 @@
     - kRepopDecay
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 36
+    LIQUID_CURRENT: 36
+    LIQUID_POISON: 1
+    LIQUID_TYPE: 26  # настойки скополии
 
 # Object #699
 99:
@@ -2008,11 +1897,6 @@
   short_desc: Кем-то брошенный бутылек лежит здесь.
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 36
-    - 36
-    - 27
-    - 1
   weight: 37
   cost: 0
   rent_off: 2
@@ -2020,8 +1904,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 120
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -2032,3 +1914,8 @@
     - kRepopDecay
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 36
+    LIQUID_CURRENT: 36
+    LIQUID_POISON: 1
+    LIQUID_TYPE: 27  # настойки белены

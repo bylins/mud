@@ -24,6 +24,9 @@
 #include "engine/structs/flag_data.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/mechanics/liquid.h"          // issue #3593: drinks[]/NUM_LIQ_TYPES
+#include "gameplay/economics/currencies.h"       // issue #3593: MUD::Currency().GetName()
+#include "gameplay/fight/fight_messages.h"        // issue #3593: GetAttackTypeDescription
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/skills/skills.h"
@@ -117,6 +120,189 @@ std::string GetSkillNameComment(ESkill skill_id) {
 // Get spell name by ID (for spell comments)
 std::string GetSpellNameComment(ESpell spell_id) {
 	return MUD::Spell(spell_id).GetName();
+}
+
+// Get feat name by ID (for feat comments)
+std::string GetFeatNameComment(int feat_id) {
+	return MUD::Feat(static_cast<EFeat>(feat_id)).GetName();
+}
+
+// issue #3593 (расширяет #3583): подпись values-слота по типу предмета -- смысл
+// слота и, где уместно, расшифровка enum-значения (заклинание/тип атаки/жидкость/
+// валюта/книга/класс компонента). Смысл слотов взят из OLC-меню
+// (oedit_disp_val1..4_menu). slot 0-индексный (= val[0..3]); "" -- нет осмысленной
+// подписи для данного типа/слота.
+std::string GetObjValueComment(EObjType type, int slot, int value) {
+	// заклинание по номеру (для спелл-слотов свитков/палочек/посохов/зелий)
+	auto spell = [](int v) -> std::string {
+		return (v > 0 && v <= to_underlying(ESpell::kLast)) ? GetSpellNameComment(static_cast<ESpell>(v)) : "";
+	};
+	switch (type) {
+		case EObjType::kLightSource:
+			return slot == 2 ? "длительность горения (0=погасла, -1=вечный)" : "";
+
+		case EObjType::kScroll:
+			return slot == 0 ? "уровень заклинания" : spell(value);   // val[1..3] -- заклинания
+
+		case EObjType::kPotion:
+			if (slot == 0) return "уровень заклинания";
+			if (slot == 3) return "сила зелья (potency)";
+			return spell(value);   // val[1..2] -- заклинания
+
+		case EObjType::kWand:
+		case EObjType::kStaff:
+			switch (slot) {
+				case 0: return "уровень заклинания";
+				case 1: return "всего зарядов";
+				case 2: return "осталось зарядов";
+				case 3: return spell(value);
+			}
+			return "";
+
+		case EObjType::kWeapon:
+			switch (slot) {
+				case 0: return "не используется";
+				case 1: return "число бросков кубика";
+				case 2: return "граней кубика";
+				case 3: {
+					// тип удара -- из кода (fight-сообщения); в oedit save all они загружены
+					const std::string &n = fight::GetAttackTypeDescription(value);
+					return n.empty() ? "тип атаки" : "тип атаки: " + n;
+				}
+			}
+			return "";
+
+		case EObjType::kArmor:
+		case EObjType::kLightArmor:
+		case EObjType::kMediumArmor:
+		case EObjType::kHeavyArmor:
+			if (slot == 0) return "изменяет AC";
+			if (slot == 1) return "изменяет броню";
+			return "";
+
+		case EObjType::kContainer:
+			switch (slot) {
+				case 0: return "макс. вместимый вес";
+				case 1: return "флаги контейнера";
+				case 2: return "vnum ключа (-1 нет)";
+				case 3: return "сложность замка (0-1000)";
+			}
+			return "";
+
+		case EObjType::kLiquidContainer:
+		case EObjType::kFountain:
+			switch (slot) {
+				case 0: return "объём, глотков";
+				case 1: return "налито, глотков";
+				case 2:
+					return (value >= 0 && value < NUM_LIQ_TYPES)
+						? "тип жидкости: " + std::string(drinks[value]) : "тип жидкости";
+				case 3: return "отравлено (0 нет, 1 да, >1 таймер)";
+			}
+			return "";
+
+		case EObjType::kFood:
+			if (slot == 0) return "насыщает, часов";
+			if (slot == 3) return "отравлено (0 нет, 1 да, >1 таймер)";
+			return "";
+
+		case EObjType::kMoney:
+			if (slot == 0) return "сумма";
+			if (slot == 1) {
+				// валюта -- из кода: money val[1] == vnum валюты (kGoldVnum=0 и т.д.).
+				const std::string &n = MUD::Currency(value).GetName();
+				return (n.empty() || n == "!undefined!") ? "тип валюты" : n;
+			}
+			return "";
+
+		case EObjType::kBook:
+			// название типа книги -- из единого источника GetBookTypeName (enum EBook).
+			if (slot == 0) {
+				const char *n = GetBookTypeName(static_cast<EBook>(value));
+				return (n && *n) ? n : "тип книги";
+			}
+			return "";
+
+		case EObjType::kMagicIngredient:
+			switch (slot) {
+				case 0: return "лаг применения, сек + уровень (6 бит)";
+				case 1: return "vnum прототипа";
+				case 2: return "число использований";
+			}
+			return "";
+
+		case EObjType::kMagicComponent:
+			// Единственное авторское значение -- класс ингредиента; OLC пишет его в
+			// val[3] (set_val(3) через меню класса), im.cpp читает GET_OBJ_VAL(...,3).
+			// val[0..2] заполняются при загрузке из lib/misc/im.lst -- их не подписываем.
+			if (slot == 3) {
+				const char *n = GetIngredientClassName(static_cast<EIngredientClass>(value));
+				return (n && *n) ? std::string("класс ингредиента: ") + n : "класс ингредиента";
+			}
+			return "";
+
+		case EObjType::kCraftMaterial:
+			switch (slot) {
+				case 0: return "уровень игрока + морт*2";
+				case 1: return "vnum прототипа";
+				case 2: return "сила ингредиента";
+				case 3: return "условный уровень";
+			}
+			return "";
+
+		case EObjType::kBandage:
+			return slot == 0 ? "хитов в секунду" : "";
+
+		case EObjType::kEnchant:
+			return slot == 0 ? "изменяет вес" : "";
+
+		case EObjType::kMagicContaner:
+			switch (slot) {
+				case 0: return spell(value);
+				case 1: return "объём колчана";
+				case 2: return "количество стрел";
+			}
+			return "";
+
+		case EObjType::kMagicArrow:
+			switch (slot) {
+				case 0: return spell(value);
+				case 1: return "размер пучка";
+				case 2: return "количество стрел";
+			}
+			return "";
+
+		default:
+			return "";
+	}
+}
+
+// issue #3583: имя спелла для потионных ключей extra_values вида POTION_SPELL<n>_NUM
+// (у зелий заклинания лежат в ObjVal-ключах, а не в val[]). Ключи *_LVL не трогаем.
+std::string GetExtraValueSpellComment(const std::string &key, int value) {
+	static const std::string kSuffix = "_NUM";
+	// issue.magic-items: annotate the scroll/wand/staff SPELLITEM_SPELL<n>_NUM keys too, not just
+	// the potion POTION_SPELL<n>_NUM keys. Both hold an ESpell number in a *_SPELL<n>_NUM key.
+	const bool has_num_suffix = key.size() > kSuffix.size()
+		&& key.compare(key.size() - kSuffix.size(), kSuffix.size(), kSuffix) == 0;
+	// issue.magic-items: canonical SPELL<n>_NUM (unified) plus the legacy POTION_SPELL*/SPELLITEM_SPELL*
+	// read-aliases -- rfind("SPELL",0) already covers SPELL<n>_NUM and SPELLITEM_SPELL<n>_NUM.
+	const bool is_spell_key = has_num_suffix
+		&& (key.rfind("SPELL", 0) == 0 || key.rfind("POTION_SPELL", 0) == 0);
+	if (!is_spell_key || value <= 0 || value > to_underlying(ESpell::kLast)) {
+		return "";
+	}
+	return GetSpellNameComment(static_cast<ESpell>(value));
+}
+
+// issue.magic-items-hotfix: подпись значения для extra_values-ключей, чей смысл --
+// enum из кода. LIQUID_TYPE (бывший val[2] у питья/фонтанов, теперь ключ) -- название
+// жидкости из drinks[] (enum LIQ_*). Прочее делегируем на спелл-подпись.
+std::string GetExtraValueComment(const std::string &key, int value) {
+	if (key == "LIQUID_TYPE") {
+		return (value >= 0 && value < NUM_LIQ_TYPES) ? std::string(drinks[value]) : "";
+	}
+	return GetExtraValueSpellComment(key, value);
 }
 
 // Get material name by ID (for material comments)
@@ -1509,11 +1695,10 @@ void YamlWorldDataSource::LoadRoomExtraDescriptions(RoomData *room, const YAML::
 		std::string keywords = GetText(ed_node, "keywords", "");
 		std::string description = GetText(ed_node, "description", "");
 
-		auto ex_desc = std::make_shared<ExtraDescription>();
-		ex_desc->set_keyword(keywords);
-		ex_desc->set_description(description);
-		ex_desc->next = room->ex_description;
-		room->ex_description = ex_desc;
+		ExtraDescription ex_desc;
+		ex_desc.set_keyword(keywords);
+		ex_desc.set_description(description);
+		room->ex_description.push_back(std::move(ex_desc));
 	}
 }
 
@@ -1841,27 +2026,42 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 			}
 		}
 
-		if (enhanced["spells"] && enhanced["spells"].IsSequence())
+		if (enhanced["spells"])
 		{
-			// Each occurrence of a spell id in the sequence increments SplMem
-			// (memorized slot count), mirroring the legacy `Spell: N` parser
-			// in boot_data_files.cpp:1393-1405. SplKnw was a yaml/sqlite-only
-			// shortcut that lost the multiplicity and didn't update
-			// caster_level / have_spell, leaving casters effectively spell-less
-			// after a yaml load.
-			for (const auto &spell_node : enhanced["spells"])
-			{
-				int spell_id_int = spell_node.as<int>();
+			// Начисляет мобу count слотов спелла (SplMem), обновляя caster_level
+			// и have_spell так же, как легаси-парсер `Spell: N`
+			// (boot_data_files.cpp). SplKnw был yaml/sqlite-only сокращением,
+			// терявшим кратность, из-за чего кастер после загрузки оставался
+			// фактически без спеллов.
+			const auto add_spell_mem = [&mob](int spell_id_int, int count) {
+				if (count <= 0) { return; }
 				if (spell_id_int < to_underlying(ESpell::kFirst)
 					|| spell_id_int > to_underlying(ESpell::kLast))
 				{
 					log("SYSERR: Unknown spell id %d in mob yaml", spell_id_int);
-					continue;
+					return;
 				}
-				auto spell_id = static_cast<ESpell>(spell_id_int);
-				GET_SPELL_MEM(&mob, spell_id) += 1;
-				mob.caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
+				const auto spell_id = static_cast<ESpell>(spell_id_int);
+				GET_SPELL_MEM(&mob, spell_id) += count;
+				mob.caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? count : 0);
 				mob.mob_specials.have_spell = true;
+			};
+			const auto &spells_node = enhanced["spells"];
+			if (spells_node.IsMap())
+			{
+				// Новый формат: `id: count` (по записи на спелл).
+				for (const auto &kv : spells_node)
+				{
+					add_spell_mem(kv.first.as<int>(), kv.second.as<int>());
+				}
+			}
+			else if (spells_node.IsSequence())
+			{
+				// Старый формат: id повторяется по разу на каждый слот.
+				for (const auto &spell_node : spells_node)
+				{
+					add_spell_mem(spell_node.as<int>(), 1);
+				}
 			}
 		}
 
@@ -2125,8 +2325,7 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 			if (timer > 99999) timer = 99999;
 			obj_ptr->set_timer(timer);
 
-			obj_ptr->set_spell(GetInt(root, "spell", -1));
-			obj_ptr->set_level(GetInt(root, "level", 0));
+			// issue #3581: obj->spell и его уровень (level) -- мёртвая пара, из мировой сериализации выпилены; ключи "spell"/"level" в старых yaml игнорируются.
 			obj_ptr->set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
 			if (root["max_in_world"])
@@ -2321,11 +2520,10 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 					std::string keywords = GetText(ed_node, "keywords");
 					std::string description = GetText(ed_node, "description");
 
-					auto ex_desc = std::make_shared<ExtraDescription>();
-					ex_desc->set_keyword(keywords);
-					ex_desc->set_description(description);
-					ex_desc->next = obj_ptr->get_ex_description();
-					obj_ptr->set_ex_description(ex_desc);
+					ExtraDescription ex_desc;
+					ex_desc.set_keyword(keywords);
+					ex_desc.set_description(description);
+					obj_ptr->ex_descriptions().push_back(std::move(ex_desc));
 				}
 			}
 
@@ -3383,47 +3581,40 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 		yaml.DecreaseIndent();
 	}
 
-	// Extra descriptions
-	if (room->ex_description)
+	// Extra descriptions.
+	// issue #3596: экстра-дескриптор без описания (0 символов/одни пробелы, напр.
+	// после очистки в OLC через /c) считаем несуществующим -- не пишем; если
+	// валидных дескрипторов не осталось, секцию опускаем.
+	std::vector<const ExtraDescription *> exdescs;
+	for (const auto &exdesc : room->ex_description)
+	{
+		if (!exdesc.keyword.empty()
+			&& exdesc.description.find_first_not_of(" \t\r\n") != std::string::npos)
+		{
+			exdescs.push_back(&exdesc);
+		}
+	}
+	if (!exdescs.empty())
 	{
 		yaml.Key("extra_descriptions");
 		yaml.BeginSequence();
 		yaml.IncreaseIndent();
 
-		// LoadRoomExtraDescriptions prepends each yaml entry to the
-		// list, so the in-memory head->tail order is the reverse of the
-		// file order. To keep checksums stable through save->load, walk
-		// the list head->tail and write the entries in reverse: a fresh
-		// load will prepend them back to the same in-memory order.
-		std::vector<ExtraDescription *> exdescs;
-		for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
+		// Вектор хранит описания в порядке файла (load делает push_back), пишем вперёд.
+		for (const auto *exdesc : exdescs)
 		{
-			exdescs.push_back(exdesc.get());
-		}
-		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
-		{
-			const auto *exdesc = *it;
-			if (exdesc->keyword)
-			{
-				// keywords may start with '-' (legitimately a single dash);
-				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-				out << yaml.GetIndent() << "- keywords:";
-				// IncreaseIndent so yaml.Value's literal-block branch
-				// emits content lines at the correct column for indicator
-				// "2" (parent_indent + 2). The "  " before `-` already
-				// indented us; we need one more level so a multi-line
-				// keyword doesn't get content at the wrong column.
-				yaml.IncreaseIndent();
-				yaml.Value(std::string(exdesc->keyword));
-				yaml.DecreaseIndent();
-				if (exdesc->description)
-				{
-					out << yaml.GetIndent() << "  description:";
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->description), true);
-					yaml.DecreaseIndent();
-				}
-			}
+			// keywords may start with '-' (legitimately a single dash);
+			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+			out << yaml.GetIndent() << "- keywords:";
+			// IncreaseIndent so yaml.Value's literal-block branch emits content
+			// lines at the correct column for indicator "2" (parent_indent + 2).
+			yaml.IncreaseIndent();
+			yaml.Value(exdesc->keyword);
+			yaml.DecreaseIndent();
+			out << yaml.GetIndent() << "  description:";
+			yaml.IncreaseIndent();
+			yaml.Value(exdesc->description, true);
+			yaml.DecreaseIndent();
 		}
 
 		yaml.DecreaseIndent();
@@ -4003,16 +4194,17 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 				{
 					if (mob.real_abils.Feats.test(i))
 					{
-						yaml.SequenceItem(static_cast<int>(i));
+						yaml.SequenceItem(static_cast<int>(i), GetFeatNameComment(static_cast<int>(i)));
 					}
 				}
 
 				yaml.DecreaseIndent();
 			}
 
-			// Spells (memorized slot counts). Mirror legacy: a spell with
-			// SplMem[id] == N is serialised as N copies of `id`, matching
-			// the load path which increments SplMem on each occurrence.
+			// Spells (memorized slot counts) как map `id: count` c подписью
+			// имени спелла. Раньше писался повторяющийся список (N копий id) --
+			// рудимент легаси-формата `Spell: N` по строке на слот. Загрузчик
+			// принимает и map, и старый список (см. ParseMobNode).
 			bool has_spells = false;
 			for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
 			{
@@ -4021,19 +4213,19 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 			if (has_spells)
 			{
 				yaml.Key("spells");
-				yaml.BeginSequence();
-				yaml.IncreaseIndent();
+				yaml.BeginBlock();
 
 				for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
 				{
-					int mem = mob.real_abils.SplMem[i];
-					for (int n = 0; n < mem; ++n)
+					const int mem = mob.real_abils.SplMem[i];
+					if (mem > 0)
 					{
-						yaml.SequenceItem(static_cast<int>(i));
+						yaml.Key(std::to_string(i));
+						yaml.Value(mem, GetSpellNameComment(static_cast<ESpell>(i)));
 					}
 				}
 
-				yaml.DecreaseIndent();
+				yaml.EndBlock();
 			}
 
 			// Helpers
@@ -4248,17 +4440,23 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.Key("material");
 	yaml.Value(material_id, GetMaterialNameComment(material_id));
 
-	// Values
-	yaml.Key("values");
-	yaml.BeginSequence();
-	yaml.IncreaseIndent();
-
-	yaml.SequenceItem(obj->get_val(0));
-	yaml.SequenceItem(obj->get_val(1));
-	yaml.SequenceItem(obj->get_val(2));
-	yaml.SequenceItem(obj->get_val(3));
-
-	yaml.DecreaseIndent();
+	// issue.magic-items-hotfix (point 5): scrolls/wands/staves/potions/drink-containers/fountains keep
+	// their payload in extra_values; the raw val[0..3] just duplicate it, so skip them (YAML). Loaders
+	// reconstruct val[] from the keys (ConvertObjValues / obj_save).
+	const auto obj_type = obj->get_type();
+	const bool hotfix_extended = obj_type == EObjType::kScroll || obj_type == EObjType::kWand
+		|| obj_type == EObjType::kStaff || obj_type == EObjType::kPotion
+		|| obj_type == EObjType::kLiquidContainer || obj_type == EObjType::kFountain;
+	if (!hotfix_extended) {
+		yaml.Key("values");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+		yaml.SequenceItem(obj->get_val(0), GetObjValueComment(obj_type, 0, obj->get_val(0)));
+		yaml.SequenceItem(obj->get_val(1), GetObjValueComment(obj_type, 1, obj->get_val(1)));
+		yaml.SequenceItem(obj->get_val(2), GetObjValueComment(obj_type, 2, obj->get_val(2)));
+		yaml.SequenceItem(obj->get_val(3), GetObjValueComment(obj_type, 3, obj->get_val(3)));
+		yaml.DecreaseIndent();
+	}
 
 	// Weight, cost, rent
 	yaml.Key("weight");
@@ -4290,17 +4488,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.Key("timer");
 	yaml.Value(obj->get_timer());
 
-	// Spell (with comment)
-	if (to_underlying(obj->get_spell()) >= 0)
-	{
-		int spell_id = to_underlying(obj->get_spell());
-		yaml.Key("spell");
-		yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
-	}
-
-	// Level and sex
-	yaml.Key("level");
-	yaml.Value(obj->get_level());
+	// issue #3581: obj->spell и его уровень (level) -- мёртвая пара, в yaml больше не пишем.
 
 	yaml.Key("sex");
 	yaml.Value(ReverseLookupEnum("genders", static_cast<int>(obj->get_sex())));
@@ -4490,46 +4678,40 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 		yaml.DecreaseIndent();
 	}
 
-	// Extra descriptions
-	if (obj->get_ex_description())
+	// Extra descriptions.
+	// issue #3596: экстра-дескриптор без описания (0 символов/одни пробелы, напр.
+	// после очистки в OLC через /c) считаем несуществующим -- не пишем ни keyword,
+	// ни блок description; если валидных дескрипторов не осталось, секцию опускаем.
+	std::vector<const ExtraDescription *> exdescs;
+	for (const auto &exdesc : obj->get_ex_description())
+	{
+		if (!exdesc.keyword.empty()
+			&& exdesc.description.find_first_not_of(" \t\r\n") != std::string::npos)
+		{
+			exdescs.push_back(&exdesc);
+		}
+	}
+	if (!exdescs.empty())
 	{
 		yaml.Key("extra_descriptions");
 		yaml.BeginSequence();
 		yaml.IncreaseIndent();
 
-		// Load prepends each yaml entry, so the in-memory list is
-		// reversed relative to the file. Emit in reverse so a fresh load
-		// rebuilds the same in-memory order -- otherwise the order flips
-		// on every round-trip.
-		std::vector<ExtraDescription *> exdescs;
-		for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
+		// Вектор хранит описания в порядке файла (load делает push_back), пишем вперёд.
+		for (const auto *exdesc : exdescs)
 		{
-			exdescs.push_back(exdesc.get());
-		}
-		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
-		{
-			const auto *exdesc = *it;
-			if (exdesc->keyword)
-			{
-				// keywords may start with '-' (legitimately a single dash);
-				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-				out << yaml.GetIndent() << "- keywords:";
-				// IncreaseIndent so yaml.Value's literal-block branch
-				// emits content lines at the correct column for indicator
-				// "2" (parent_indent + 2). The "  " before `-` already
-				// indented us; we need one more level so a multi-line
-				// keyword doesn't get content at the wrong column.
-				yaml.IncreaseIndent();
-				yaml.Value(std::string(exdesc->keyword));
-				yaml.DecreaseIndent();
-				if (exdesc->description)
-				{
-					out << yaml.GetIndent() << "  description:";
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->description), true);
-					yaml.DecreaseIndent();
-				}
-			}
+			// keywords may start with '-' (legitimately a single dash);
+			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+			out << yaml.GetIndent() << "- keywords:";
+			// IncreaseIndent so yaml.Value's literal-block branch emits content
+			// lines at the correct column for indicator "2" (parent_indent + 2).
+			yaml.IncreaseIndent();
+			yaml.Value(exdesc->keyword);
+			yaml.DecreaseIndent();
+			out << yaml.GetIndent() << "  description:";
+			yaml.IncreaseIndent();
+			yaml.Value(exdesc->description, true);
+			yaml.DecreaseIndent();
 		}
 
 		yaml.DecreaseIndent();
@@ -4561,7 +4743,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 			for (const auto &kv : sorted_vals)
 			{
 				yaml.Key(kv.first);
-				yaml.Value(kv.second);
+				yaml.Value(kv.second, GetExtraValueComment(kv.first, kv.second));
 			}
 			yaml.EndBlock();
 		}
