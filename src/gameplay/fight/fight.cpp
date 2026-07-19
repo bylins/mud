@@ -1113,9 +1113,9 @@ void mob_casting(CharData *ch) {
 				// issue.magic-items: заклинание и заряды лежат в extra_values, val[] у этих типов нулевые
 				const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(1));
 				if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-					log("SYSERR: Неверно указано значение спела в стафе vnum: %d %s, позиция: 1, значение: %d ",
-						GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(),
-						item->GetSpellItemSpellNum(1));
+					mudlog(fmt::format("SYSERR: неверное заклинание в посохе {} #{}, позиция 1, значение {}",
+							item->get_PName(grammar::ECase::kNom), GET_OBJ_VNUM(item),
+							item->GetSpellItemSpellNum(1)), BRF, kLvlImmortal, SYSLOG, true);
 					break;
 				}
 
@@ -1129,9 +1129,9 @@ void mob_casting(CharData *ch) {
 				for (int i = 1; i <= 3; i++) {
 					const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(i));
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-						log("SYSERR: Неверно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i,
-							item->GetSpellItemSpellNum(i));
+						mudlog(fmt::format("SYSERR: неверное заклинание в напитке {} #{}, позиция {}, значение {}",
+								item->get_PName(grammar::ECase::kNom), GET_OBJ_VNUM(item), i,
+								item->GetSpellItemSpellNum(i)), BRF, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 					if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc | kNpcUnaffectNpc | kNpcUnaffectNpcCaster)) {
@@ -1144,9 +1144,9 @@ void mob_casting(CharData *ch) {
 				for (int i = 1; i <= 3; i++) {
 					const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(i));
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
-						log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i,
-							item->GetSpellItemSpellNum(i));
+						mudlog(fmt::format("SYSERR: неверное заклинание в свитке {} #{}, позиция {}, значение {}",
+								item->get_PName(grammar::ECase::kNom), GET_OBJ_VNUM(item), i,
+								item->GetSpellItemSpellNum(i)), BRF, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
