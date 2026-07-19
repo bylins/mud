@@ -74,8 +74,9 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	bool has_pepper = false;
 
 	for (auto i = ch->carrying;i; i = i->get_next_content()) {
-		if (i->get_type() == EObjType::kWand && GET_OBJ_VAL(i,3) == 356 && GET_OBJ_VAL(i,2) > 0) {
-			int charges = GET_OBJ_VAL(i,2);
+		if (i->get_type() == EObjType::kWand && i->GetSpellItemSpellNum(1) == 356
+			&& i->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) > 0) {
+			int charges = i->GetPotionValueKey(ObjVal::EValueKey::kCurCharges);
 			if (charges > 0) {
 				i->set_val(2, charges - 1);
 				has_pepper = true;

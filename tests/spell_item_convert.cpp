@@ -143,3 +143,35 @@ TEST(DrinkconLiquidCore, ConvertIsNoOpWhenKeysPresent) {
 	auto p = make_proto(EObjType::kLiquidContainer, 24, 18, 5, 0);  // set_val already populated the keys
 	EXPECT_EQ(0, ConvertDrinkconLiquidCore(p.get(), true));
 }
+
+// issue.magic-items: a world already saved in the new format carries the payload ONLY in
+// extra_values -- the yaml serializer skips the values block for these types, so val[] stays zero.
+// Consumers must read the keys; reading raw val[] made every staff look discharged and every scroll
+// spell-less (mob scavengers threw such items on the floor, shops refused them, stat printed zeros).
+TEST(SpellItemAccessor, StaffLoadedFromExtraValuesOnly) {
+	auto p = std::make_shared<CObjectPrototype>(60700);
+	p->set_type(EObjType::kStaff);
+	// exactly what the yaml loader does for: CUR_CHARGES 1 / MAX_CHARGES 1 / SPELL1_NUM 28
+	p->init_values_from_zone("SPELL1_NUM 28");
+	p->init_values_from_zone("MAX_CHARGES 1");
+	p->init_values_from_zone("CUR_CHARGES 1");
+
+	EXPECT_EQ(0, p->get_val(2)) << "raw val[] is empty for a new-format world";
+	EXPECT_EQ(28, p->GetSpellItemSpellNum(1));
+	EXPECT_EQ(1, key(p, ObjVal::EValueKey::kCurCharges));
+	EXPECT_EQ(1, key(p, ObjVal::EValueKey::kMaxCharges));
+}
+
+// A scroll's three spell slots are readable by position through the accessor.
+TEST(SpellItemAccessor, ScrollSpellsByPosition) {
+	auto p = std::make_shared<CObjectPrototype>(60701);
+	p->set_type(EObjType::kScroll);
+	p->init_values_from_zone("SPELL1_NUM 28");
+	p->init_values_from_zone("SPELL2_NUM 84");
+
+	EXPECT_EQ(28, p->GetSpellItemSpellNum(1));
+	EXPECT_EQ(84, p->GetSpellItemSpellNum(2));
+	EXPECT_LT(p->GetSpellItemSpellNum(3), 0) << "an unset slot stays absent";
+	EXPECT_LT(p->GetSpellItemSpellNum(0), 0) << "out-of-range position is not a slot";
+	EXPECT_LT(p->GetSpellItemSpellNum(4), 0);
+}

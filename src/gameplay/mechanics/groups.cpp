@@ -611,19 +611,16 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			for (auto *f : ch->followers) {
 				if (IsCharmice(f)) {
-					std::string str;
+					std::vector<std::string> skills;
 
 					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->get_name()).c_str(), grammar::SexEnding((f)->get_sex(), 1));
 					for (const auto &skill : MUD::Skills()) {
 						if (skill.IsValid() && GetSkill(f, skill.GetId())) {
-							str += fmt::format(" {},", skill.GetName());
+							skills.emplace_back(skill.GetName());
 						}
 					}
-					if (str.back() == ',') {
-						str.pop_back();
-						str.push_back('.');
-					}
-					SendMsgToChar(ch, "&C%s&n\r\n", str.c_str());
+					SendMsgToChar(ch, "&C %s&n\r\n",
+							utils::OutWordsList(skills, ch->player_specials->saved.stringLength).c_str());
 				} else {
 					SendMsgToChar(ch, "%s не подчиняется вам, и не хочет ничего докладывать.\r\n", utils::CAP(f->get_name()).c_str());
 				}
