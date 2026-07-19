@@ -14,10 +14,10 @@
   type: kContainer
   material: 13  # КОСТЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 2
   cost: 1
   rent_off: 1
@@ -26,8 +26,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kMagic
@@ -66,10 +64,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -78,8 +76,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 13  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -111,10 +107,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -123,8 +119,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 14  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -157,10 +151,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -169,8 +163,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 15  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -202,10 +194,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -214,8 +206,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 15  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -247,10 +237,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 3
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 3  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -259,8 +249,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 99999
-  spell: 8  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -292,10 +280,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -304,8 +292,6 @@
   max_durability: 9999
   cur_durability: 9999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -337,10 +323,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -349,8 +335,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -379,10 +363,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -391,8 +375,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kMagic
@@ -425,10 +407,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -437,8 +419,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -470,10 +450,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 7
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 7  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -482,8 +462,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -517,10 +495,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -529,8 +507,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodonate
@@ -560,10 +536,10 @@
   type: kContainer
   material: 1  # БУЛАТ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -572,8 +548,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 8  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -604,10 +578,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -616,8 +590,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -649,10 +621,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -661,8 +633,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -694,10 +664,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 15
-    - 12354
-    - 0
+    - 999  # макс. вместимый вес
+    - 15  # флаги контейнера
+    - 12354  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -706,8 +676,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNosell
@@ -738,10 +706,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -750,8 +718,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -782,10 +748,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -794,8 +760,6 @@
   max_durability: 9999
   cur_durability: 9999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -827,10 +791,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -839,8 +803,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNoinvis
@@ -872,10 +834,10 @@
   type: kContainer
   material: 13  # КОСТЬ
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 2
   cost: 1
   rent_off: 1
@@ -884,8 +846,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -921,10 +881,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 2
   cost: 1
   rent_off: 1
@@ -933,8 +893,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 8  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -966,10 +924,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -978,8 +936,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 8  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -1010,10 +966,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1022,8 +978,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -1053,10 +1007,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 50
@@ -1065,8 +1019,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1098,10 +1050,10 @@
   type: kContainer
   material: 4  # СТАЛЬ
   values:
-    - 500
-    - 5
-    - -1
-    - 0
+    - 500  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1110,8 +1062,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1144,10 +1094,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1156,8 +1106,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -1190,10 +1138,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 0
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1202,8 +1150,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1236,10 +1182,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 1000
-    - 0
-    - 0
-    - 0
+    - 1000  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1248,8 +1194,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 12  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1281,10 +1225,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1293,8 +1237,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 8  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -1325,10 +1267,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1336,8 +1278,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1366,10 +1306,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1377,8 +1317,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1409,10 +1347,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1420,8 +1358,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1451,10 +1387,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1462,8 +1398,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1494,10 +1428,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1505,8 +1439,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1537,10 +1469,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1548,8 +1480,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1579,10 +1509,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1590,8 +1520,6 @@
   max_durability: 999999
   cur_durability: 999999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1621,10 +1549,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1632,8 +1560,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNoinvis
@@ -1669,10 +1595,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1680,8 +1606,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1711,10 +1635,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1722,8 +1646,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1753,10 +1675,10 @@
   type: kContainer
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1764,8 +1686,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -1795,10 +1715,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1806,8 +1726,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1837,10 +1755,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1848,8 +1766,6 @@
   max_durability: 99999
   cur_durability: 99999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -1880,10 +1796,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1891,8 +1807,6 @@
   max_durability: 999999
   cur_durability: 999999
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -1922,10 +1836,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1933,8 +1847,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -1964,10 +1876,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -1975,8 +1887,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -2006,10 +1916,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2017,8 +1927,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -2048,10 +1956,10 @@
   type: kContainer
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2059,8 +1967,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -2092,10 +1998,10 @@
   type: kContainer
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2103,8 +2009,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 2  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2143,10 +2047,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2154,8 +2058,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kMagic
@@ -2186,10 +2088,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2197,8 +2099,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kMagic
@@ -2229,10 +2129,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2240,8 +2140,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -2277,10 +2175,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2288,8 +2186,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2320,10 +2216,10 @@
   type: kContainer
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2331,8 +2227,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -2362,10 +2256,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2373,8 +2267,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -2405,10 +2297,10 @@
   type: kContainer
   material: 8  # ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2416,8 +2308,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -2449,10 +2339,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2460,8 +2350,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -2490,10 +2378,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2501,8 +2389,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2533,10 +2419,10 @@
   type: kContainer
   material: 8  # ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2544,8 +2430,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -2576,10 +2460,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2587,8 +2471,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -2619,10 +2501,10 @@
   type: kContainer
   material: 16  # ОРГАНИКА
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2630,8 +2512,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -2658,10 +2538,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2669,8 +2549,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -2699,10 +2577,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2710,8 +2588,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2743,10 +2619,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2754,8 +2630,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -2786,10 +2660,10 @@
   type: kContainer
   material: 17  # БЕРЕСТА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2797,8 +2671,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2823,10 +2695,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2834,8 +2706,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2866,10 +2736,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2877,8 +2747,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -2909,10 +2777,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2920,8 +2788,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -2950,10 +2816,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -2961,8 +2827,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -2998,10 +2862,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3009,8 +2873,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -3041,10 +2903,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 1500
-    - 3
-    - -1
-    - 0
+    - 1500  # макс. вместимый вес
+    - 3  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3052,8 +2914,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3082,10 +2942,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 1999
-    - 5
-    - -1
-    - 0
+    - 1999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3093,8 +2953,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3127,10 +2985,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 1
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3138,8 +2996,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -3170,10 +3026,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 1500
-    - 3
-    - -1
-    - 0
+    - 1500  # макс. вместимый вес
+    - 3  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3181,8 +3037,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   max_in_world: 1
   extra_flags:
@@ -3213,10 +3067,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3224,8 +3078,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -3253,10 +3105,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3264,8 +3116,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3297,10 +3147,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3308,8 +3158,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -3339,10 +3187,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 2000
-    - 5
-    - 0
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3350,8 +3198,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -3387,10 +3233,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - 99999
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - 99999  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3398,8 +3244,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3434,10 +3278,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3445,8 +3289,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -3482,10 +3324,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3493,8 +3335,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3525,10 +3365,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3536,8 +3376,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -3568,10 +3406,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3579,8 +3417,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -3617,10 +3453,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3628,8 +3464,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -3658,10 +3492,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3669,8 +3503,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -3700,10 +3532,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3711,8 +3543,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -3739,10 +3569,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3750,8 +3580,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -3781,10 +3609,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3792,8 +3620,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -3823,10 +3649,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3834,8 +3660,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -3865,10 +3689,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3876,8 +3700,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -3911,10 +3733,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3922,8 +3744,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -3952,10 +3772,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -3963,8 +3783,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -3999,11 +3817,6 @@
   short_desc: '&KОбугленный&n комок плоти лежит здесь.'
   type: kLiquidContainer
   material: 16  # ОРГАНИКА
-  values:
-    - 999
-    - 0
-    - 13
-    - 0
   weight: 1
   cost: 1
   rent_off: 1
@@ -4011,8 +3824,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNosell
@@ -4027,6 +3838,10 @@
     - keywords: сердце василисы
       description: |2
         &CВедь должно быть моим твое сердце, твое сердце вернет мне весну...&n
+  extra_values:
+    LIQUID_CAPACITY: 999
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 13  # КРОВИ
   triggers:
     - 3791  # Именной стаф Наська
 
@@ -4044,10 +3859,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -4055,8 +3870,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -4086,10 +3899,10 @@
   type: kContainer
   material: 8  # ДЕРЕВО
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -4097,8 +3910,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNosell
@@ -4127,10 +3938,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -4138,8 +3949,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -4169,10 +3978,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 1
@@ -4180,8 +3989,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -4208,10 +4015,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 999
-    - 5
-    - -1
-    - 0
+    - 999  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -4219,8 +4026,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNosell
@@ -4250,10 +4055,10 @@
   type: kContainer
   material: 15  # КОЖА
   values:
-    - 1000
-    - 0
-    - -1
-    - 0
+    - 1000  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -4261,8 +4066,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -4285,10 +4088,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 5
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 5  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 1
   rent_off: 1
@@ -4296,8 +4099,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   wear_flags:
@@ -4327,10 +4128,10 @@
   type: kContainer
   material: 0  # НЕИЗВЕСТЕН
   values:
-    - 2000
-    - 1
-    - -1
-    - 0
+    - 2000  # макс. вместимый вес
+    - 1  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 1
   cost: 0
   rent_off: 0
@@ -4338,8 +4139,6 @@
   max_durability: 999
   cur_durability: 999
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:

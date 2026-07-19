@@ -11,7 +11,7 @@ top_room: 199
 lifespan: 10
 reset_mode: 0
 reset_idle: 0
-zone_type: 3
+zone_type: 3  # Темный лес
 mode: 50  # level
 entrance: 100
 under_construction: 0
@@ -47,4 +47,3 @@ commands:
   - MOB 0 119 1 119 1  # громовая колесница -> Покои Индры; mr:1 mw:1
   - MOB 0 4070 1000 119 1  # ямщик -> Покои Индры; mr:1 mw:1000
   - OBJECT 0 15168 -1 119 100  # фонтан пива -> Покои Индры
-  - OBJECT 0 110 -1 100 100  # длинный нож -> Тронный зал

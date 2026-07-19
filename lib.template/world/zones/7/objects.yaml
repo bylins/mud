@@ -17,7 +17,7 @@
     - 0
     - 0
     - 0
-    - 0
+    - 0  # класс ингредиента: РОСЛЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -25,8 +25,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -54,7 +52,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -62,8 +60,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kAppearsSpring
@@ -90,7 +86,7 @@
     - 0
     - 0
     - 0
-    - 0
+    - 0  # класс ингредиента: РОСЛЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -98,14 +94,12 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
+    - kNodecay
     - kAppearsSpring
     - kAppearsSummer
     - kAppearsAutumn
-    - kNodecay
     - kNolocate
   wear_flags:
     - kTake
@@ -127,7 +121,7 @@
     - 0
     - 0
     - 0
-    - 0
+    - 0  # класс ингредиента: РОСЛЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -135,8 +129,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -164,7 +156,7 @@
     - 0
     - 0
     - 0
-    - 0
+    - 0  # класс ингредиента: РОСЛЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -172,8 +164,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -201,7 +191,7 @@
     - 0
     - 0
     - 0
-    - 0
+    - 0  # класс ингредиента: РОСЛЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -209,8 +199,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -235,7 +223,7 @@
     - 0
     - 0
     - 0
-    - 0
+    - 0  # класс ингредиента: РОСЛЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -243,8 +231,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -269,7 +255,7 @@
     - 0
     - 0
     - 0
-    - 2
+    - 2  # класс ингредиента: ТВЕРДЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -277,8 +263,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNolocate
@@ -302,7 +286,7 @@
     - 0
     - 0
     - 0
-    - 2
+    - 2  # класс ингредиента: ТВЕРДЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -310,8 +294,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -336,7 +318,7 @@
     - 0
     - 0
     - 0
-    - 2
+    - 2  # класс ингредиента: ТВЕРДЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -344,8 +326,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -370,7 +350,7 @@
     - 0
     - 0
     - 0
-    - 2
+    - 2  # класс ингредиента: ТВЕРДЬ
   weight: 1
   cost: 3
   rent_off: 1
@@ -378,8 +358,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -404,7 +382,7 @@
     - 0
     - 0
     - 0
-    - 0
+    - 0  # класс ингредиента: РОСЛЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -412,8 +390,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodecay
@@ -437,11 +413,6 @@
   short_desc: Свиток возврата лежит тут.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 5
-    - 42
-    - -1
-    - -1
   weight: 1
   cost: 25
   rent_off: 0
@@ -449,8 +420,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   extra_flags:
     - kNosell
@@ -463,6 +432,8 @@
       description: |2
         Вы видите сероватый берестяной свиток,
         полностью исписанный знакомыми буквами.
+  extra_values:
+    SPELL1_NUM: 42  # слово возврата
 
 # Object #751
 51:
@@ -481,7 +452,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -489,8 +460,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kAppearsSpring
@@ -516,7 +485,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -524,8 +493,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kAppearsSpring
@@ -552,7 +519,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -560,8 +527,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kAppearsSpring
@@ -588,7 +553,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -596,8 +561,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kAppearsSpring
@@ -624,7 +587,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -632,8 +595,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kAppearsSpring
@@ -659,7 +620,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -667,8 +628,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kAppearsSpring
@@ -695,7 +654,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -703,8 +662,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kAppearsSpring
@@ -730,7 +687,7 @@
     - 0
     - 0
     - 0
-    - 1
+    - 1  # класс ингредиента: ЖИВЬ
   weight: 1
   cost: 5
   rent_off: 1
@@ -738,8 +695,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kAppearsSpring

@@ -14,10 +14,10 @@
   type: kContainer
   material: 10  # КЕРАМИКА
   values:
-    - 0
-    - 15
-    - 99999
-    - 0
+    - 0  # макс. вместимый вес
+    - 15  # флаги контейнера
+    - 99999  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 49
   cost: 0
   rent_off: 0
@@ -25,8 +25,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 10000
-  spell: 2  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kGlow
@@ -62,10 +60,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 2
-    - 2
-    - 5
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 2  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 1
   cost: 0
   rent_off: 0
@@ -74,8 +72,6 @@
   max_durability: 100
   cur_durability: 80
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -108,10 +104,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 2
-    - 1
-    - 10
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 1  # граней кубика
+    - 10  # тип атаки: пырнул
   weight: 1
   cost: 0
   rent_off: 0
@@ -120,8 +116,6 @@
   max_durability: 100
   cur_durability: 60
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -165,8 +159,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -200,10 +192,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 5
-    - 0
-    - 99999
-    - 0
+    - 5  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 99999  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 0
   cost: 0
   rent_off: 0
@@ -211,8 +203,6 @@
   max_durability: 100
   cur_durability: 95
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -242,11 +232,6 @@
   short_desc: Пустая фляга валяется у вас под ногами.
   type: kLiquidContainer
   material: 3  # ЖЕЛЕЗО
-  values:
-    - 10
-    - 0
-    - 0
-    - 0
   weight: 0
   cost: 0
   rent_off: 0
@@ -254,8 +239,6 @@
   max_durability: 100
   cur_durability: 90
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -273,6 +256,10 @@
         Старая пустая металлическая фляга, немного помятая сбоку.
         Небольшой ремень, прилаженный к ней, позволяет легко
         одеть ее на шею (&Rодеть шея&n) или пояс (&Rодеть пояс&n).
+  extra_values:
+    LIQUID_CAPACITY: 10
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 0  # воды
   triggers:
     - 4903  # [o4901-4910] Взяли вещь
 
@@ -289,11 +276,6 @@
   short_desc: Свиток насыщения так и просится к вам в руки.
   type: kScroll
   material: 17  # БЕРЕСТА
-  values:
-    - 30
-    - 103
-    - 0
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -301,8 +283,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -321,6 +301,8 @@
         Если &Rзачитать свиток&n, вы тут же насытитесь.
         Можно также насытить стоящего рядом с вами персонажа (моба):
         &Rзачитать свиток имя&n
+  extra_values:
+    SPELL1_NUM: 103  # насыщение
   triggers:
     - 4903  # [o4901-4910] Взяли вещь
 
@@ -337,11 +319,6 @@
   short_desc: Посох воинской доблести, лежащий на полу, светится неземным светом.
   type: kStaff
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
-  values:
-    - 30
-    - 3
-    - 3
-    - 3
   weight: 1
   cost: 0
   rent_off: 0
@@ -349,8 +326,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -369,6 +344,10 @@
         Чтобы &Rприменить посох&n, нужно &Rдержать&n его в левой руке.
         Применив его в клетке с персонажами, вы вызовете магию доблести
         на каждого из них, но не на себя.
+  extra_values:
+    CUR_CHARGES: 3
+    MAX_CHARGES: 3
+    SPELL1_NUM: 3  # доблесть
   triggers:
     - 4903  # [o4901-4910] Взяли вещь
 
@@ -385,11 +364,6 @@
   short_desc: Черное магическое зелье в небольшом пузырьке стоит неподалеку.
   type: kPotion
   material: 11  # СТЕКЛО
-  values:
-    - 30
-    - 16
-    - 0
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -397,8 +371,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNorent
@@ -419,6 +391,8 @@
         &Rосушить зелье&n или же
         &Rперелить зелье ковшик&n и потом
         &Rпить ковшик&n
+  extra_values:
+    SPELL1_NUM: 16  # легкое исцеление
   triggers:
     - 4903  # [o4901-4910] Взяли вещь
 
@@ -435,11 +409,6 @@
   short_desc: Деревянная волшебная палочка катается здесь по полу.
   type: kWand
   material: 8  # ДЕРЕВО
-  values:
-    - 30
-    - 2
-    - 2
-    - 78
   weight: 1
   cost: 0
   rent_off: 0
@@ -447,8 +416,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -467,6 +434,10 @@
         Чтобы &Rприменить палочк&nу, нужно &Rдержать&n ее в левой руке.
         Попробуйте применить ее на ком-то кроме себя:
         &Rприменить палочка имя&n
+  extra_values:
+    CUR_CHARGES: 2
+    MAX_CHARGES: 2
+    SPELL1_NUM: 78  # мигание
   triggers:
     - 4903  # [o4901-4910] Взяли вещь
 
@@ -483,11 +454,6 @@
   short_desc: Небольшой ковшик повешен на край чана.
   type: kLiquidContainer
   material: 3  # ЖЕЛЕЗО
-  values:
-    - 5
-    - 0
-    - 0
-    - 0
   weight: 1
   cost: 0
   rent_off: 0
@@ -495,8 +461,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -518,6 +482,10 @@
         &Rперелить зелье ковшик&n, после чего можно
         &Rвылить ковшик земля&n или
         &Rпить ковшик&n
+  extra_values:
+    LIQUID_CAPACITY: 5
+    LIQUID_CURRENT: 0
+    LIQUID_TYPE: 0  # воды
   triggers:
     - 4903  # [o4901-4910] Взяли вещь
 
@@ -534,11 +502,6 @@
   short_desc: Медный чан с водой установлен посреди комнаты.
   type: kFountain
   material: 12  # КАМЕНЬ
-  values:
-    - 100
-    - 100
-    - 0
-    - 0
   weight: 105
   cost: 0
   rent_off: 0
@@ -546,8 +509,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -559,3 +520,7 @@
         не получится выпить всю эту воду. Однако вы можете
         запастись водой впрок, наполнив какую-то емкость из него:
         &Rнаполнить емкость чан&n
+  extra_values:
+    LIQUID_CAPACITY: 100
+    LIQUID_CURRENT: 100
+    LIQUID_TYPE: 0  # воды

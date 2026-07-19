@@ -457,7 +457,7 @@
     max_factor: 2
     extra_attack: 1
     spells:
-      - 5
+      5: 1  # горящие руки
     helpers:
       - 5410
 

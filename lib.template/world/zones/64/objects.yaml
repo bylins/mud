@@ -25,8 +25,6 @@
   max_durability: -1
   cur_durability: -1
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kZonedecay
@@ -54,8 +52,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -65,8 +63,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -102,8 +98,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kZonedecay
@@ -123,11 +117,6 @@
   short_desc: Мышиная лапка лежит здесь.
   type: kWand
   material: 0  # НЕИЗВЕСТЕН
-  values:
-    - 15
-    - 1
-    - 1
-    - 1
   weight: 1
   cost: 100
   rent_off: 50
@@ -135,13 +124,15 @@
   max_durability: 25
   cur_durability: 25
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 100
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    CUR_CHARGES: 1
+    MAX_CHARGES: 1
+    SPELL1_NUM: 1  # защита
 
 # Object #6404
 4:
@@ -157,10 +148,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 4
-    - 3
-    - 9
+    - 0  # не используется
+    - 4  # число бросков кубика
+    - 3  # граней кубика
+    - 9  # тип атаки: подстрелил
   weight: 1
   cost: 150
   rent_off: 150
@@ -169,8 +160,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 20
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -205,8 +194,6 @@
   max_durability: 30
   cur_durability: 30
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kGlow
@@ -234,8 +221,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -245,8 +232,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 4
   wear_flags:
@@ -272,10 +257,10 @@
   type: kWeapon
   material: 7  # КРИСТАЛЛ
   values:
-    - 0
-    - 4
-    - 4
-    - 10
+    - 0  # не используется
+    - 4  # число бросков кубика
+    - 4  # граней кубика
+    - 10  # тип атаки: пырнул
   weight: 12
   cost: 150
   rent_off: 150
@@ -284,8 +269,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodisarm
@@ -319,8 +302,6 @@
   max_durability: 30
   cur_durability: 30
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNoinvis
@@ -351,11 +332,6 @@
     Челюсть клацнула и жутко заскрипела.
   type: kWand
   material: 13  # КОСТЬ
-  values:
-    - 15
-    - 5
-    - 5
-    - 52
   weight: 4
   cost: 300
   rent_off: 200
@@ -363,8 +339,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 10
   wear_flags:
@@ -372,6 +346,10 @@
     - kHold
   affect_flags:
     - kNoFlee
+  extra_values:
+    CUR_CHARGES: 5
+    MAX_CHARGES: 5
+    SPELL1_NUM: 52  # серьезное исцеление
 
 # Object #6410
 10:
@@ -387,8 +365,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 6
@@ -398,8 +376,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake

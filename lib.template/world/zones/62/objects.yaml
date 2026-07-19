@@ -25,8 +25,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -52,8 +50,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 5
@@ -63,8 +61,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 50
   wear_flags:
@@ -96,8 +92,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -124,10 +118,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 100
-    - 13
-    - 6200
-    - 10
+    - 100  # макс. вместимый вес
+    - 13  # флаги контейнера
+    - 6200  # vnum ключа (-1 нет)
+    - 10  # сложность замка (0-1000)
   weight: 200
   cost: 1
   rent_off: 1
@@ -135,8 +129,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -162,10 +154,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 0
   rent_off: 1
@@ -173,8 +165,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 240
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1000
   extra_flags:
@@ -209,8 +199,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 20
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -236,10 +224,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 6
-    - 2
-    - 10
-    - 6
+    - 6  # не используется
+    - 2  # число бросков кубика
+    - 10  # граней кубика
+    - 6  # тип атаки: сокрушил
   weight: 22
   cost: 100
   rent_off: 100
@@ -248,8 +236,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -288,8 +274,6 @@
   max_durability: 100
   cur_durability: 5
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNoinvis
@@ -318,8 +302,8 @@
   type: kMoney
   material: 18  # ДРАГ.КАМЕНЬ
   values:
-    - 100
-    - 2
+    - 100  # сумма
+    - 2  # медная гривна
     - 10
     - 6
   weight: 2
@@ -329,8 +313,6 @@
   max_durability: 50
   cur_durability: 40
   timer: 15
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -354,8 +336,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -365,8 +347,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 180
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNoinvis

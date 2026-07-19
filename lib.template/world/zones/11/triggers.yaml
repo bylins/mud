@@ -24,7 +24,7 @@
     eval maxhp %actor.maxhitp% + %actor.hitpadd%
     *убираем клич мощи
     if (%direction% == west)
-      dgaffect %actor% макс.жизнь клич_мощи 0 0
+      dgaffect %actor% макс.жизнь 0 0
     end
     *черноки могут дрынится
     if (%actor.class% == 8)

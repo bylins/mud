@@ -25,8 +25,6 @@
   max_durability: 0
   cur_durability: 0
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -45,10 +43,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 3
+    - 3  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 0
@@ -56,8 +54,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -76,10 +72,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 3
+    - 3  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 0
@@ -87,8 +83,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -113,10 +107,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 20
   rent_off: 4
@@ -124,8 +118,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -148,10 +140,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 3
+    - 3  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 1
@@ -159,8 +151,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -185,10 +175,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 20
   rent_off: 4
@@ -196,8 +186,6 @@
   max_durability: 20
   cur_durability: 20
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -221,10 +209,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 3
+    - 3  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 5
   rent_off: 1
@@ -232,8 +220,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 900
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -252,10 +238,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 8
   rent_off: 1
@@ -263,8 +249,6 @@
   max_durability: 15
   cur_durability: 15
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -289,10 +273,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 8
   rent_off: 1
@@ -300,8 +284,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -326,10 +308,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 2
@@ -337,8 +319,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 25920
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -361,10 +341,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 1
@@ -372,8 +352,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -398,10 +376,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 1
@@ -409,8 +387,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -429,10 +405,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 11
   rent_off: 2
@@ -440,8 +416,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -460,10 +434,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 2
@@ -471,8 +445,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -491,10 +463,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 9
+    - 9  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 2
@@ -502,15 +474,9 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kNeutral
   wear_flags:
     - kTake
-  extra_descriptions:
-    - keywords: 1
-      description: |+2
-        
 
 # Object #2015
 15:
@@ -526,10 +492,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 9
+    - 9  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 45
   rent_off: 10
@@ -537,8 +503,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -565,10 +529,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 9
+    - 9  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 2
@@ -576,8 +540,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -601,10 +563,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 25
   rent_off: 2
@@ -612,8 +574,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -637,10 +597,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 9
+    - 9  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 15
   rent_off: 2
@@ -648,8 +608,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -668,10 +626,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 24
+    - 24  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 55
   rent_off: 10
@@ -679,8 +637,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 4320
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -699,10 +655,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 15
   rent_off: 1
@@ -710,8 +666,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -735,10 +689,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -746,8 +700,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -771,10 +723,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 15
   rent_off: 1
@@ -782,8 +734,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -807,10 +757,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 15
   rent_off: 1
@@ -818,8 +768,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -843,10 +791,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 15
   rent_off: 1
@@ -854,8 +802,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -879,10 +825,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -890,8 +836,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -915,10 +859,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -926,8 +870,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -946,10 +888,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 9
+    - 9  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 1
@@ -957,8 +899,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -977,10 +917,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -988,8 +928,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -1008,10 +946,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1019,8 +957,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -1039,10 +975,10 @@
   type: kFood
   material: 10  # КЕРАМИКА
   values:
-    - 20
+    - 20  # насыщает, часов
     - 0
     - 10
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 17
   cost: 30
   rent_off: 10
@@ -1050,8 +986,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1075,10 +1009,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1086,8 +1020,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -1111,10 +1043,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1122,8 +1054,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -1147,10 +1077,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 20
   rent_off: 2
@@ -1158,8 +1088,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 14400
-  spell: 0  # !undefined!
-  level: 1
   sex: kNeutral
   wear_flags:
     - kTake
@@ -1184,10 +1112,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 20
   rent_off: 1
@@ -1195,8 +1123,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 14400
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1220,10 +1146,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 24
+    - 24  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 15
   rent_off: 10
@@ -1231,8 +1157,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 28800
-  spell: 11  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 10000
   wear_flags:
@@ -1256,10 +1180,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 1
@@ -1267,8 +1191,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 14400
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1287,10 +1209,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 24
+    - 24  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 3
   cost: 150
   rent_off: 15
@@ -1298,8 +1220,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 14400
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1318,10 +1238,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 3
+    - 3  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 2
   rent_off: 1
@@ -1329,8 +1249,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 14400
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1349,10 +1267,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 16
+    - 16  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 50
   rent_off: 5
@@ -1360,8 +1278,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1380,10 +1296,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 1
@@ -1391,8 +1307,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 14400
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1415,10 +1329,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1426,8 +1340,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1450,10 +1362,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1461,8 +1373,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1485,10 +1395,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1496,8 +1406,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1520,10 +1428,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1531,8 +1439,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1555,10 +1461,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 14
   rent_off: 1
@@ -1566,8 +1472,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1590,10 +1494,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 14
   rent_off: 1
@@ -1601,8 +1505,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1625,10 +1527,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1636,8 +1538,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1660,10 +1560,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1671,8 +1571,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1696,10 +1594,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 9
   rent_off: 1
@@ -1707,8 +1605,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1733,10 +1629,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 9
   rent_off: 1
@@ -1744,8 +1640,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1768,10 +1662,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 9
   rent_off: 1
@@ -1779,8 +1673,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1803,10 +1695,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 6
   rent_off: 1
@@ -1814,8 +1706,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 1440
-  spell: 0  # !undefined!
-  level: 1
   sex: kNeutral
   max_in_world: 200
   wear_flags:
@@ -1839,10 +1729,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 7
   rent_off: 1
@@ -1850,8 +1740,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 960
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1874,10 +1762,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 10
   rent_off: 1
@@ -1885,8 +1773,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 960
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -1909,10 +1795,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 12
   rent_off: 1
@@ -1920,8 +1806,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -1944,10 +1828,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 15
   rent_off: 1
@@ -1955,8 +1839,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 1
   sex: kPoly
   wear_flags:
     - kTake
@@ -1980,10 +1862,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 25
   rent_off: 1
@@ -1991,8 +1873,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 14400
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2016,10 +1896,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 20
   rent_off: 5
@@ -2027,8 +1907,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 5760
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2051,10 +1929,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 14
+    - 14  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 30
   rent_off: 1
@@ -2062,8 +1940,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4320
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2086,10 +1962,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 9
+    - 9  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 14
   rent_off: 1
@@ -2097,8 +1973,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 5760
-  spell: 36  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -2121,10 +1995,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 16
+    - 16  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 45
   rent_off: 10
@@ -2132,8 +2006,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 5760
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2156,10 +2028,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 1
@@ -2167,8 +2039,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2191,10 +2061,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 1
@@ -2202,8 +2072,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2226,10 +2094,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 1
@@ -2237,8 +2105,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2261,10 +2127,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 12
+    - 12  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 1
@@ -2272,8 +2138,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2296,10 +2160,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 36
+    - 36  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 3
   cost: 150
   rent_off: 15
@@ -2307,8 +2171,6 @@
   max_durability: 15
   cur_durability: 15
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2331,10 +2193,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 18
+    - 18  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 75
   rent_off: 1
@@ -2342,8 +2204,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 5760
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2366,10 +2226,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 16
+    - 16  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 50
   rent_off: 5
@@ -2377,8 +2237,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 5760
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -2401,10 +2259,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 48
+    - 48  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 250
   rent_off: 30
@@ -2412,8 +2270,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -2436,10 +2292,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 16
+    - 16  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 40
   rent_off: 1
@@ -2447,8 +2303,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -2471,10 +2325,10 @@
   type: kFood
   material: 10  # КЕРАМИКА
   values:
-    - 36
+    - 36  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 3
   cost: 155
   rent_off: 20
@@ -2482,8 +2336,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -2506,10 +2358,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 24
+    - 24  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 90
   rent_off: 20
@@ -2517,8 +2369,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2541,10 +2391,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 18
+    - 18  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 70
   rent_off: 10
@@ -2552,8 +2402,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2576,10 +2424,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 500
   rent_off: 80
@@ -2587,8 +2435,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 960
-  spell: 36  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2611,10 +2457,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 18
+    - 18  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 2
   cost: 180
   rent_off: 30
@@ -2622,8 +2468,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 5760
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2647,10 +2491,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 48
+    - 48  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 350
   rent_off: 50
@@ -2658,8 +2502,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -2683,10 +2525,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 48
+    - 48  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 300
   rent_off: 50
@@ -2694,8 +2536,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2719,10 +2559,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 40
+    - 40  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 250
   rent_off: 45
@@ -2730,8 +2570,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2755,10 +2593,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 16
+    - 16  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 60
   rent_off: 15
@@ -2766,8 +2604,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2790,10 +2626,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 24
+    - 24  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 100
   rent_off: 20
@@ -2801,8 +2637,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2825,10 +2659,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 48
+    - 48  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 450
   rent_off: 50
@@ -2836,8 +2670,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2861,10 +2693,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 48
+    - 48  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 350
   rent_off: 50
@@ -2872,8 +2704,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 7200
-  spell: 36  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2897,11 +2727,6 @@
   short_desc: Завязанная чистой тряпицей крынка стоит здесь.
   type: kLiquidContainer
   material: 10  # КЕРАМИКА
-  values:
-    - 25
-    - 25
-    - 10
-    - 0
   weight: 53
   cost: 5
   rent_off: 1
@@ -2909,8 +2734,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2918,6 +2741,10 @@
     - keywords: крынка
       description: |2
         Небольшой кувшин с широким горлом для хранения съестного.
+  extra_values:
+    LIQUID_CAPACITY: 25
+    LIQUID_CURRENT: 25
+    LIQUID_TYPE: 10  # молока
 
 # Object #2084
 84:
@@ -2932,11 +2759,6 @@
   short_desc: Бутыль темного стекла перекатывается под ногами.
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 12
-    - 12
-    - 2
-    - 0
   weight: 30
   cost: 20
   rent_off: 3
@@ -2944,8 +2766,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -2953,6 +2773,10 @@
     - keywords: штоф
       description: |2
         Вы видите большой кувшин для хранения жидкостей.
+  extra_values:
+    LIQUID_CAPACITY: 12
+    LIQUID_CURRENT: 12
+    LIQUID_TYPE: 2  # вина
 
 # Object #2085
 85:
@@ -2967,11 +2791,6 @@
   short_desc: Пахнущий квасом бочонок лежит здесь.
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
-  values:
-    - 100
-    - 100
-    - 4
-    - 0
   weight: 105
   cost: 60
   rent_off: 5
@@ -2979,11 +2798,13 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 100
+    LIQUID_CURRENT: 100
+    LIQUID_TYPE: 4  # кваса
 
 # Object #2086
 86:
@@ -2998,11 +2819,6 @@
   short_desc: Кувшин с высоким горлышком стоит здесь.
   type: kLiquidContainer
   material: 10  # КЕРАМИКА
-  values:
-    - 24
-    - 24
-    - 9
-    - 0
   weight: 29
   cost: 25
   rent_off: 1
@@ -3010,11 +2826,13 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 24
+    LIQUID_CURRENT: 24
+    LIQUID_TYPE: 9  # меду
 
 # Object #2087
 87:
@@ -3029,11 +2847,6 @@
   short_desc: Кувшин с высоким горлышком стоит здесь.
   type: kLiquidContainer
   material: 10  # КЕРАМИКА
-  values:
-    - 24
-    - 24
-    - 1
-    - 0
   weight: 29
   cost: 20
   rent_off: 1
@@ -3041,11 +2854,13 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 24
+    LIQUID_CURRENT: 24
+    LIQUID_TYPE: 1  # пива
 
 # Object #2088
 88:
@@ -3060,11 +2875,6 @@
   short_desc: Кувшин с высоким горлышком стоит здесь.
   type: kLiquidContainer
   material: 10  # КЕРАМИКА
-  values:
-    - 24
-    - 24
-    - 6
-    - 0
   weight: 29
   cost: 20
   rent_off: 1
@@ -3072,11 +2882,13 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 24
+    LIQUID_CURRENT: 24
+    LIQUID_TYPE: 6  # морсу
 
 # Object #2089
 89:
@@ -3091,11 +2903,6 @@
   short_desc: Кожаная фляга лежит тут.
   type: kLiquidContainer
   material: 3  # ЖЕЛЕЗО
-  values:
-    - 12
-    - 12
-    - 3
-    - 0
   weight: 17
   cost: 10
   rent_off: 1
@@ -3103,11 +2910,13 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
+  extra_values:
+    LIQUID_CAPACITY: 12
+    LIQUID_CURRENT: 12
+    LIQUID_TYPE: 3  # медовухи
 
 # Object #2090
 90:
@@ -3122,11 +2931,6 @@
   short_desc: Чекушка водки валяется на земле.
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 6
-    - 6
-    - 7
-    - 0
   weight: 7
   cost: 5
   rent_off: 1
@@ -3134,8 +2938,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -3144,6 +2946,10 @@
       description: |2
         Это всего лишь чекушка...
         А так хотелось бы побольше...
+  extra_values:
+    LIQUID_CAPACITY: 6
+    LIQUID_CURRENT: 6
+    LIQUID_TYPE: 7  # водки
 
 # Object #2091
 91:
@@ -3158,11 +2964,6 @@
   short_desc: 'Штоф самогона (скорее всего пустой :) лежит тут.'
   type: kLiquidContainer
   material: 11  # СТЕКЛО
-  values:
-    - 36
-    - 36
-    - 7
-    - 0
   weight: 41
   cost: 20
   rent_off: 3
@@ -3170,8 +2971,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kMale
   wear_flags:
     - kTake
@@ -3180,6 +2979,10 @@
       description: |2
         Вы видите большую зеленоватую бутылку четырехгранной формы с коротким горлышком.
         Дабы не расплескать ценную влагу, горлышко закрывается деревянной пробкой.
+  extra_values:
+    LIQUID_CAPACITY: 36
+    LIQUID_CURRENT: 36
+    LIQUID_TYPE: 7  # водки
 
 # Object #2092
 92:
@@ -3194,11 +2997,6 @@
   short_desc: 'Четверть самогона (скорее всего пустая :) лежит тут.'
   type: kLiquidContainer
   material: 8  # ДЕРЕВО
-  values:
-    - 72
-    - 72
-    - 7
-    - 0
   weight: 77
   cost: 80
   rent_off: 10
@@ -3206,8 +3004,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 1
   sex: kFemale
   wear_flags:
     - kTake
@@ -3215,6 +3011,10 @@
     - keywords: четверть самогон
       description: |2
         Вы видите внушительную ёмкость для хранения жидкостей.
+  extra_values:
+    LIQUID_CAPACITY: 72
+    LIQUID_CURRENT: 72
+    LIQUID_TYPE: 7  # водки
 
 # Object #2093
 93:
@@ -3229,11 +3029,6 @@
   short_desc: Маленькое замызганное ведерко лежит у вас под ногами.
   type: kLiquidContainer
   material: 3  # ЖЕЛЕЗО
-  values:
-    - 144
-    - 144
-    - 5
-    - 0
   weight: 149
   cost: 150
   rent_off: 15
@@ -3241,8 +3036,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3251,6 +3044,10 @@
     - keywords: ведерко
       description: |2
         Небольшое ведерко с тоненькой ручкой и помятыми краями.
+  extra_values:
+    LIQUID_CAPACITY: 144
+    LIQUID_CURRENT: 144
+    LIQUID_TYPE: 5  # самогона
 
 # Object #2094
 94:
@@ -3265,11 +3062,6 @@
   short_desc: Украшенная чеканкой чарка лежит здесь.
   type: kLiquidContainer
   material: 2  # БРОНЗА
-  values:
-    - 3
-    - 3
-    - 7
-    - 0
   weight: 8
   cost: 10
   rent_off: 1
@@ -3277,8 +3069,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3287,6 +3077,10 @@
       description: |2
         Небольшой черненый бронзовый сосуд для крепких напитков,
         как раз удобен, что бы сообразить на троих.
+  extra_values:
+    LIQUID_CAPACITY: 3
+    LIQUID_CURRENT: 3
+    LIQUID_TYPE: 7  # водки
 
 # Object #2095
 95:
@@ -3302,10 +3096,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 8
+    - 8  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 20
   rent_off: 5
@@ -3313,8 +3107,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 20160
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -3349,8 +3141,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 5
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent

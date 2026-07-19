@@ -25,8 +25,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -68,8 +66,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -110,8 +106,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 4440
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -154,8 +148,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -198,8 +190,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -242,8 +232,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -286,8 +274,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -330,8 +316,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2881
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -374,8 +358,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -418,8 +400,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -462,8 +442,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -506,8 +484,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -550,8 +526,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -594,8 +568,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -638,8 +610,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -684,8 +654,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -732,8 +700,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 999
   extra_flags:
@@ -779,8 +745,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -827,8 +791,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 999
   extra_flags:
@@ -875,8 +837,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -920,8 +880,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 7200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -962,8 +920,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -1006,8 +962,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -1050,8 +1004,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -1094,8 +1046,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:
@@ -1127,7 +1077,7 @@
   type: kBook
   material: 15  # КОЖА
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 134
     - 0
     - 0
@@ -1138,8 +1088,6 @@
   max_durability: 100
   cur_durability: 70
   timer: 300
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -1166,7 +1114,7 @@
   type: kBook
   material: 13  # КОСТЬ
   values:
-    - 1
+    - 1  # Книга умений
     - 190
     - 28
     - 0
@@ -1177,8 +1125,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 100
-  spell: 1  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1203,7 +1149,7 @@
   type: kBook
   material: 12  # КАМЕНЬ
   values:
-    - 0
+    - 0  # Книга заклинаний
     - 98
     - 0
     - 0
@@ -1214,8 +1160,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 300
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -1255,8 +1199,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 2880
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 999
   extra_flags:

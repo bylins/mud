@@ -60,4 +60,4 @@
       kStability: -10
       kReflex: -10
     spells:
-      - 103
+      103: 1  # насыщение

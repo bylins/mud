@@ -594,19 +594,10 @@
   flags:
     - kPeaceful
     - kNoTeleportIn
-    - kForMages
     - kForSorcerers
-    - kForThieves
-    - kForWarriors
-    - kForAssasines
-    - kForGuards
-    - kForPaladines
-    - kForRangers
     - kForPoly
     - kForMono
     - kForge
-    - kForMerchants
-    - kForMaguses
     - kArena
     - kNoSummonOut
     - kNoTeleportOut
@@ -1847,20 +1838,7 @@
   sector: kInside
   flags:
     - kPeaceful
-    - kForMages
     - kForSorcerers
-    - kForThieves
-    - kForWarriors
-    - kForAssasines
-    - kForGuards
-    - kForPaladines
-    - kForRangers
-    - kForPoly
-    - kForMono
-    - kForge
-    - kForMerchants
-    - kForMaguses
-    - kArena
     - kTribune
   exits:
     - direction: down
