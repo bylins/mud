@@ -32,6 +32,7 @@ const char *ActionTargetName(EActionTarget t) {
 		case EActionTarget::kTarMinions: return "kTarMinions";
 		case EActionTarget::kTarActor: return "kTarActor";
 		case EActionTarget::kTarRoomThis: return "kTarRoomThis";
+		case EActionTarget::kTarMaster: return "kTarMaster";
 	}
 	return "?";
 }

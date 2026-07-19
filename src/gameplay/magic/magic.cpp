@@ -1941,7 +1941,6 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	// Shared roll: dice + competencies are rolled once per cast (not per
 	// category), so heal and moves restored on the same cast scale together
 	// with the same skill check.
@@ -4490,7 +4489,6 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 		if (rev && rev->to_room() == caster->in_room) { hosts.push_back(rev); }
 	}
 	ActionContext ctx = BuildActionContext(caster, spell_id, GetRealLevel(caster));
-	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
 	bool any = false;
 	for (const auto &ex : hosts) {
 		for (auto it = ex->affected.begin(); it != ex->affected.end();) {
