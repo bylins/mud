@@ -246,6 +246,10 @@ namespace {
 // * Крит при отравлении с пушек.
 	void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/) {
 		Affect<EApply> af;
+		// issue #3610: крит-яд вешает свои узлы kPoisoned поверх основного, а тик берет из списка
+		// первый узел этого типа. Без автора весь урон яда переставал кому-либо засчитываться,
+		// и моб, умерший от яда, не давал опыта отравителю.
+		af.caster_id = ch->get_uid();
 		if (number(1, 100) <= 15) {
 			switch (number(1, 3)) {
 				case 1:
