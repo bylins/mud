@@ -14,10 +14,10 @@
   type: kContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 100
-    - 0
-    - -1
-    - 0
+    - 100  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - -1  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 200
   cost: 1
   rent_off: 1
@@ -25,8 +25,6 @@
   max_durability: 10000
   cur_durability: 10000
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 1
   extra_flags:
@@ -47,10 +45,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 6
+    - 6  # насыщает, часов
     - 3
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 1
@@ -58,8 +56,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -86,11 +82,6 @@
   short_desc: Бутыль  с вином лежит здесь.
   type: kLiquidContainer
   material: 16  # ОРГАНИКА
-  values:
-    - 100
-    - 20
-    - 2
-    - 0
   weight: 25
   cost: 40
   rent_off: 40
@@ -98,8 +89,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNorent
@@ -109,6 +98,10 @@
   wear_flags:
     - kTake
     - kHold
+  extra_values:
+    LIQUID_CAPACITY: 100
+    LIQUID_CURRENT: 20
+    LIQUID_TYPE: 2  # вина
 
 # Object #5803
 3:
@@ -124,10 +117,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 3
-    - 4
-    - 5
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 4  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 2
   cost: 100
   rent_off: 100
@@ -136,8 +129,6 @@
   max_durability: 50
   cur_durability: 45
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNorent
@@ -163,10 +154,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 10
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 10  # тип атаки: пырнул
   weight: 2
   cost: 10
   rent_off: 10
@@ -175,8 +166,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -212,8 +201,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -238,8 +225,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 2
-    - 1
+    - 2  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -249,8 +236,6 @@
   max_durability: 150
   cur_durability: 145
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 5
   wear_flags:
@@ -287,8 +272,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 30
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent
@@ -314,8 +297,8 @@
   type: kArmor
   material: 4  # СТАЛЬ
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -325,8 +308,6 @@
   max_durability: 25
   cur_durability: 25
   timer: 20
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNorent

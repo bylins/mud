@@ -14,10 +14,10 @@
   type: kWeapon
   material: 12  # КАМЕНЬ
   values:
-    - 0
-    - 2
-    - 2
-    - 5
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 2  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 12
   cost: 10
   rent_off: 10
@@ -26,8 +26,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 4320
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodonate
@@ -53,10 +51,10 @@
   type: kContainer
   material: 14  # ТКАНЬ
   values:
-    - 30
-    - 0
-    - 0
-    - 0
+    - 30  # макс. вместимый вес
+    - 0  # флаги контейнера
+    - 0  # vnum ключа (-1 нет)
+    - 0  # сложность замка (0-1000)
   weight: 2
   cost: 100
   rent_off: 100
@@ -64,8 +62,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 36000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 50
   wear_flags:
@@ -89,8 +85,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -100,8 +96,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   max_in_world: 50
   wear_flags:
@@ -122,8 +116,8 @@
   type: kArmor
   material: 8  # ДЕРЕВО
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -133,8 +127,6 @@
   max_durability: 50
   cur_durability: 50
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   max_in_world: 50
   wear_flags:
@@ -155,8 +147,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 1
-    - 0
+    - 1  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -166,8 +158,6 @@
   max_durability: 40
   cur_durability: 40
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 50
   wear_flags:
@@ -188,10 +178,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 10
+    - 10  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 1
@@ -199,8 +189,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -233,10 +221,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 5
-    - 2
-    - 5
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 2  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 29
   cost: 50
   rent_off: 50
@@ -245,8 +233,6 @@
   max_durability: 125
   cur_durability: 125
   timer: 36000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -267,10 +253,10 @@
   type: kWeapon
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 3
-    - 2
-    - 11
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 2  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 2
   cost: 20
   rent_off: 20
@@ -279,8 +265,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -302,8 +286,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -313,8 +297,6 @@
   max_durability: 75
   cur_durability: 75
   timer: 14400
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -345,8 +327,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 5
   extra_flags:
@@ -385,8 +365,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNorent
@@ -411,10 +389,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 30
+    - 30  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 1
@@ -422,8 +400,6 @@
   max_durability: 15
   cur_durability: 15
   timer: 1440
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNorent
@@ -446,10 +422,10 @@
   type: kFood
   material: 16  # ОРГАНИКА
   values:
-    - 10
+    - 10  # насыщает, часов
     - 0
     - 0
-    - 0
+    - 0  # отравлено (0 нет, 1 да, >1 таймер)
   weight: 1
   cost: 1
   rent_off: 1
@@ -457,8 +433,6 @@
   max_durability: 10
   cur_durability: 10
   timer: 99999
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 1
   extra_flags:
@@ -487,10 +461,10 @@
   type: kWeapon
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 3
-    - 2
-    - 11
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 2  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 3
   cost: 150
   rent_off: 150
@@ -499,8 +473,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 28800
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake

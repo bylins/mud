@@ -14,10 +14,10 @@
   type: kWeapon
   material: 1  # БУЛАТ
   values:
-    - 7
-    - 7
-    - 6
-    - 7
+    - 7  # не используется
+    - 7  # число бросков кубика
+    - 6  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 25
   cost: 3000
   rent_off: 1000
@@ -26,8 +26,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -63,10 +61,10 @@
   type: kWeapon
   material: 14  # ТКАНЬ
   values:
-    - 0
-    - 3
-    - 3
-    - 2
+    - 0  # не используется
+    - 3  # число бросков кубика
+    - 3  # граней кубика
+    - 2  # тип атаки: хлестнул
   weight: 7
   cost: 1000
   rent_off: 1000
@@ -75,8 +73,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -110,10 +106,10 @@
   type: kWeapon
   material: 1  # БУЛАТ
   values:
-    - 0
-    - 6
-    - 5
-    - 0
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 5  # граней кубика
+    - 0  # тип атаки: ударил
   weight: 13
   cost: 2000
   rent_off: 200
@@ -122,8 +118,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: 9
   extra_flags:
@@ -162,8 +156,8 @@
   type: kArmor
   material: 11  # СТЕКЛО
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -173,8 +167,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -208,8 +200,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 6
+    - 5  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 36
@@ -219,8 +211,6 @@
   max_durability: 200
   cur_durability: 70
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -254,7 +244,7 @@
   values:
     - 0
     - 0
-    - 0
+    - 0  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 3
   cost: 200
@@ -263,8 +253,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -299,8 +287,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -310,8 +298,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -344,10 +330,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 5
-    - 6
-    - 6
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 6  # граней кубика
+    - 6  # тип атаки: сокрушил
   weight: 15
   cost: 3000
   rent_off: 1000
@@ -356,8 +342,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -393,11 +377,6 @@
   short_desc: ___Чаша магии воды стоит под ногами.
   type: kLiquidContainer
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
-  values:
-    - 50
-    - 50
-    - 14
-    - 0
   weight: 55
   cost: 3000
   rent_off: 1000
@@ -405,8 +384,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodisarm
@@ -430,6 +407,10 @@
   skills:
     - skill_id: 184  # магия воды
       value: 5
+  extra_values:
+    LIQUID_CAPACITY: 50
+    LIQUID_CURRENT: 50
+    LIQUID_TYPE: 14  # соленой воды
 
 # Object #3509
 9:
@@ -445,8 +426,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 3
-    - 4
+    - 3  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -456,8 +437,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   minimum_remorts: -1
   wear_flags:
@@ -493,8 +472,8 @@
   type: kArmor
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 2
-    - 1
+    - 2  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -504,8 +483,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -540,8 +517,8 @@
   type: kArmor
   material: 13  # КОСТЬ
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -551,8 +528,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -588,8 +563,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 3
-    - 3
+    - 3  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -599,8 +574,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -638,8 +611,8 @@
   type: kArmor
   material: 12  # КАМЕНЬ
   values:
-    - 5
-    - 5
+    - 5  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 12
@@ -649,8 +622,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kBless
@@ -685,10 +656,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 6
-    - 5
-    - 7
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 5  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 13
   cost: 1000
   rent_off: 500
@@ -697,8 +668,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -735,10 +704,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 9
-    - 7
-    - 3
+    - 0  # не используется
+    - 9  # число бросков кубика
+    - 7  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 43
   cost: 3000
   rent_off: 1200
@@ -747,8 +716,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -785,10 +752,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 6
-    - 7
-    - 3
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 7  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 29
   cost: 2000
   rent_off: 1200
@@ -797,8 +764,6 @@
   max_durability: 300
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -840,8 +805,8 @@
   type: kArmor
   material: 1  # БУЛАТ
   values:
-    - 6
-    - 7
+    - 6  # изменяет AC
+    - 7  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -851,8 +816,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -890,8 +853,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 6
-    - 6
+    - 6  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 5
@@ -901,8 +864,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -940,8 +901,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -951,8 +912,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -982,8 +941,8 @@
   type: kArmor
   material: 13  # КОСТЬ
   values:
-    - 2
-    - 3
+    - 2  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -993,8 +952,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1028,8 +985,8 @@
   type: kArmor
   material: 2  # БРОНЗА
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1039,8 +996,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -1073,8 +1028,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1084,8 +1039,6 @@
   max_durability: 175
   cur_durability: 80
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1120,8 +1073,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -1131,8 +1084,6 @@
   max_durability: 150
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1163,8 +1114,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 7
-    - 8
+    - 7  # изменяет AC
+    - 8  # изменяет броню
     - 0
     - 0
   weight: 7
@@ -1174,8 +1125,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1209,8 +1158,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 6
+    - 5  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 6
@@ -1220,8 +1169,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1255,8 +1202,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 4
+    - 5  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1266,8 +1213,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -1301,8 +1246,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 4
+    - 4  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1312,8 +1257,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1347,8 +1290,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -1358,8 +1301,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1393,8 +1334,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 3
-    - 4
+    - 3  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -1404,8 +1345,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1439,8 +1378,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 34
@@ -1450,8 +1389,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1487,8 +1424,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 5
+    - 5  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1498,8 +1435,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1532,8 +1467,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 6
-    - 7
+    - 6  # изменяет AC
+    - 7  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -1543,8 +1478,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -1582,8 +1515,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 4
+    - 5  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 7
@@ -1593,8 +1526,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1630,8 +1561,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1641,8 +1572,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -1676,8 +1605,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 4
+    - 4  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1687,8 +1616,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1723,8 +1650,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 11
@@ -1734,8 +1661,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   minimum_remorts: 1
   wear_flags:
@@ -1773,8 +1698,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 3
-    - 3
+    - 3  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 2
@@ -1784,8 +1709,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -1822,8 +1745,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 32
@@ -1833,8 +1756,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1869,8 +1790,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 5
+    - 5  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -1880,8 +1801,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1914,8 +1833,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 5
+    - 5  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -1925,8 +1844,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -1957,10 +1874,10 @@
   type: kWeapon
   material: 1  # БУЛАТ
   values:
-    - 0
-    - 6
-    - 6
-    - 7
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 6  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 20
   cost: 1000
   rent_off: 500
@@ -1969,8 +1886,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2006,10 +1921,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 6
-    - 5
-    - 11
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 5  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 10
   cost: 1000
   rent_off: 300
@@ -2018,8 +1933,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -2055,8 +1968,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 4
-    - 6
+    - 4  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 27
@@ -2066,8 +1979,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2099,10 +2010,10 @@
   type: kWeapon
   material: 1  # БУЛАТ
   values:
-    - 0
-    - 6
-    - 7
-    - 3
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 7  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 20
   cost: 1000
   rent_off: 300
@@ -2111,8 +2022,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -2149,8 +2058,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 7
-    - 11
+    - 7  # изменяет AC
+    - 11  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -2160,8 +2069,6 @@
   max_durability: 250
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: 6
   wear_flags:
@@ -2204,8 +2111,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 2
-    - 3
+    - 2  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -2215,8 +2122,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2248,8 +2153,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -2259,8 +2164,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -2287,8 +2190,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -2298,8 +2201,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2331,10 +2232,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 0
-    - 5
-    - 4
-    - 5
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 4  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 6
   cost: 1000
   rent_off: 300
@@ -2343,8 +2244,6 @@
   max_durability: 250
   cur_durability: 250
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2376,10 +2275,10 @@
   type: kWeapon
   material: 4  # СТАЛЬ
   values:
-    - 0
-    - 6
-    - 5
-    - 11
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 5  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 6
   cost: 200
   rent_off: 100
@@ -2388,8 +2287,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -2427,8 +2324,8 @@
   type: kArmor
   material: 7  # КРИСТАЛЛ
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -2438,8 +2335,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -2471,10 +2366,10 @@
   type: kWeapon
   material: 1  # БУЛАТ
   values:
-    - 0
-    - 7
-    - 8
-    - 3
+    - 0  # не используется
+    - 7  # число бросков кубика
+    - 8  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 30
   cost: 1000
   rent_off: 300
@@ -2483,8 +2378,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -2524,10 +2417,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 6
-    - 7
-    - 3
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 7  # граней кубика
+    - 3  # тип атаки: рубанул
   weight: 20
   cost: 500
   rent_off: 200
@@ -2536,8 +2429,6 @@
   max_durability: 250
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -2576,7 +2467,7 @@
   values:
     - 0
     - 0
-    - -1
+    - -1  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 4
   cost: 1000
@@ -2585,8 +2476,6 @@
   max_durability: 250
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2616,8 +2505,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 7
-    - 7
+    - 7  # изменяет AC
+    - 7  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -2627,8 +2516,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2661,8 +2548,8 @@
   type: kArmor
   material: 2  # БРОНЗА
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -2672,8 +2559,6 @@
   max_durability: 250
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -2703,8 +2588,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 7
-    - 8
+    - 7  # изменяет AC
+    - 8  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -2714,8 +2599,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -2751,8 +2634,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 4
-    - 3
+    - 4  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -2762,8 +2645,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2796,8 +2677,8 @@
   type: kArmor
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 4
-    - 6
+    - 4  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 11
@@ -2807,8 +2688,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -2837,8 +2716,8 @@
   type: kArmor
   material: 13  # КОСТЬ
   values:
-    - 6
-    - 7
+    - 6  # изменяет AC
+    - 7  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -2848,8 +2727,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2881,10 +2758,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 2
-    - 3
-    - 5
+    - 0  # не используется
+    - 2  # число бросков кубика
+    - 3  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 7
   cost: 300
   rent_off: 300
@@ -2893,8 +2770,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodisarm
@@ -2925,8 +2800,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -2936,8 +2811,6 @@
   max_durability: 150
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -2966,8 +2839,8 @@
   type: kArmor
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -2977,8 +2850,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3007,8 +2878,8 @@
   type: kArmor
   material: 12  # КАМЕНЬ
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -3018,8 +2889,6 @@
   max_durability: 250
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -3048,8 +2917,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 2
+    - 5  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -3059,8 +2928,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   minimum_remorts: -1
   wear_flags:
@@ -3090,10 +2957,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 6
-    - 7
-    - 11
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 7  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 15
   cost: 1000
   rent_off: 300
@@ -3102,8 +2969,6 @@
   max_durability: 300
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -3139,10 +3004,10 @@
   type: kWeapon
   material: 3  # ЖЕЛЕЗО
   values:
-    - 0
-    - 7
-    - 3
-    - 11
+    - 0  # не используется
+    - 7  # число бросков кубика
+    - 3  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 8
   cost: 200
   rent_off: 200
@@ -3151,8 +3016,6 @@
   max_durability: 250
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   extra_flags:
     - kNodisarm
@@ -3185,7 +3048,7 @@
   type: kBandage
   material: 14  # ТКАНЬ
   values:
-    - 120
+    - 120  # хитов в секунду
     - 0
     - 0
     - 0
@@ -3196,8 +3059,6 @@
   max_durability: 5
   cur_durability: 5
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -3216,8 +3077,8 @@
   type: kArmor
   material: 8  # ДЕРЕВО
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -3227,8 +3088,6 @@
   max_durability: 250
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -3259,8 +3118,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 3
-    - 3
+    - 3  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 8
@@ -3270,8 +3129,6 @@
   max_durability: 250
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3306,8 +3163,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 6
-    - 8
+    - 6  # изменяет AC
+    - 8  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3317,8 +3174,6 @@
   max_durability: 250
   cur_durability: 120
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3353,8 +3208,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 3
-    - 3
+    - 3  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -3364,8 +3219,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3399,8 +3252,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 5
+    - 5  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 5
@@ -3410,8 +3263,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -3446,8 +3297,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 4
-    - 6
+    - 4  # изменяет AC
+    - 6  # изменяет броню
     - 0
     - 0
   weight: 5
@@ -3457,8 +3308,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3492,8 +3341,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 3
-    - 4
+    - 3  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 4
@@ -3503,8 +3352,6 @@
   max_durability: 300
   cur_durability: 120
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -3535,8 +3382,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -3546,8 +3393,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -3581,8 +3426,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 5
+    - 4  # изменяет AC
+    - 5  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3592,8 +3437,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   minimum_remorts: -1
   wear_flags:
@@ -3631,8 +3474,8 @@
   type: kArmor
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 17
@@ -3642,8 +3485,6 @@
   max_durability: 150
   cur_durability: 75
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -3673,8 +3514,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 5
-    - 8
+    - 5  # изменяет AC
+    - 8  # изменяет броню
     - 0
     - 0
   weight: 33
@@ -3684,8 +3525,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -3720,10 +3559,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 5
-    - 5
-    - 5
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 5  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 8
   cost: 120
   rent_off: 120
@@ -3732,8 +3571,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodisarm
@@ -3767,10 +3604,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 5
-    - 6
-    - 11
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 6  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 10
   cost: 300
   rent_off: 300
@@ -3779,8 +3616,6 @@
   max_durability: 300
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   extra_flags:
     - kNodisarm
@@ -3816,10 +3651,10 @@
   type: kWeapon
   material: 8  # ДЕРЕВО
   values:
-    - 0
-    - 6
-    - 7
-    - 5
+    - 0  # не используется
+    - 6  # число бросков кубика
+    - 7  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 10
   cost: 400
   rent_off: 200
@@ -3828,8 +3663,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodisarm
@@ -3866,10 +3699,10 @@
   type: kWeapon
   material: 9  # ПРОЧНОЕ.ДЕРЕВО
   values:
-    - 5
-    - 5
-    - 7
-    - 9
+    - 5  # не используется
+    - 5  # число бросков кубика
+    - 7  # граней кубика
+    - 9  # тип атаки: подстрелил
   weight: 10
   cost: 300
   rent_off: 300
@@ -3878,8 +3711,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -3915,8 +3746,8 @@
   type: kArmor
   material: 13  # КОСТЬ
   values:
-    - 3
-    - 4
+    - 3  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 8
@@ -3926,8 +3757,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -3965,8 +3794,8 @@
   type: kArmor
   material: 3  # ЖЕЛЕЗО
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -3976,8 +3805,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kHasOneSlot
@@ -4014,8 +3841,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 3
-    - 3
+    - 3  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -4025,8 +3852,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -4060,8 +3885,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 2
-    - 2
+    - 2  # изменяет AC
+    - 2  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -4071,8 +3896,6 @@
   max_durability: 250
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -4110,8 +3933,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 0
-    - -5
+    - 0  # изменяет AC
+    - -5  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -4121,8 +3944,6 @@
   max_durability: 150
   cur_durability: 40
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -4160,8 +3981,8 @@
   type: kArmor
   material: 7  # КРИСТАЛЛ
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -4171,8 +3992,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -4203,8 +4022,8 @@
   type: kArmor
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 1
-    - 1
+    - 1  # изменяет AC
+    - 1  # изменяет броню
     - 0
     - 0
   weight: 5
@@ -4214,8 +4033,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -4245,8 +4062,8 @@
   type: kArmor
   material: 3  # ЖЕЛЕЗО
   values:
-    - 4
-    - 4
+    - 4  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 7
@@ -4256,8 +4073,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kPoly
   wear_flags:
     - kTake
@@ -4306,8 +4121,6 @@
   max_durability: 170
   cur_durability: 70
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodecay
@@ -4341,7 +4154,7 @@
   values:
     - 0
     - 0
-    - -1
+    - -1  # длительность горения (0=погасла, -1=вечный)
     - 0
   weight: 1
   cost: 500
@@ -4350,8 +4163,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kNeutral
   wear_flags:
     - kTake
@@ -4380,8 +4191,8 @@
   type: kArmor
   material: 3  # ЖЕЛЕЗО
   values:
-    - 2
-    - 3
+    - 2  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 10
@@ -4391,8 +4202,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -4419,10 +4228,10 @@
   type: kWeapon
   material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-    - 0
-    - 5
-    - 5
-    - 7
+    - 0  # не используется
+    - 5  # число бросков кубика
+    - 5  # граней кубика
+    - 7  # тип атаки: резанул
   weight: 15
   cost: 1500
   rent_off: 500
@@ -4431,8 +4240,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -4475,8 +4282,6 @@
   max_durability: 250
   cur_durability: 125
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   extra_flags:
     - kNodisarm
@@ -4509,10 +4314,10 @@
   type: kWeapon
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
-    - 4
-    - 5
-    - 5
+    - 0  # не используется
+    - 4  # число бросков кубика
+    - 5  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 10
   cost: 5000
   rent_off: 5000
@@ -4521,8 +4326,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   extra_flags:
     - kNodisarm
@@ -4553,8 +4356,8 @@
   type: kArmor
   material: 14  # ТКАНЬ
   values:
-    - 2
-    - 3
+    - 2  # изменяет AC
+    - 3  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -4564,8 +4367,6 @@
   max_durability: 200
   cur_durability: 100
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   wear_flags:
     - kTake
@@ -4598,8 +4399,8 @@
   type: kArmor
   material: 15  # КОЖА
   values:
-    - 4
-    - 4
+    - 4  # изменяет AC
+    - 4  # изменяет броню
     - 0
     - 0
   weight: 3
@@ -4609,8 +4410,6 @@
   max_durability: 300
   cur_durability: 150
   timer: 43200
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake

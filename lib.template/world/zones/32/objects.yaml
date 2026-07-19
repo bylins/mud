@@ -14,8 +14,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 7
-    - 7
+    - 7  # изменяет AC
+    - 7  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -25,8 +25,6 @@
   max_durability: 200
   cur_durability: 200
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   minimum_remorts: -1
   extra_flags:
@@ -77,8 +75,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 15
-    - 15
+    - 15  # изменяет AC
+    - 15  # изменяет броню
     - 0
     - 0
   weight: 15
@@ -88,8 +86,6 @@
   max_durability: 1500
   cur_durability: 1500
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   extra_flags:
@@ -111,7 +107,7 @@
       modifier: -75
     - location: 68  # сила.заклинаний.%
       modifier: 25
-    - location: 66  # бонус.физ.повреждений %
+    - location: 66  # бонус.физ.повреждений.%
       modifier: 25
     - location: 50  # защита.от.ядов.и.болезней
       modifier: 45
@@ -134,10 +130,10 @@
   type: kWeapon
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 35
-    - 4
-    - 11
+    - 0  # не используется
+    - 35  # число бросков кубика
+    - 4  # граней кубика
+    - 11  # тип атаки: уколол
   weight: 3
   cost: 1000
   rent_off: 0
@@ -146,8 +142,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   minimum_remorts: -1
   extra_flags:
@@ -175,7 +169,7 @@
       modifier: 35
     - location: 40  # успех.колдовства
       modifier: 55
-    - location: 66  # бонус.физ.повреждений %
+    - location: 66  # бонус.физ.повреждений.%
       modifier: 25
     - location: 68  # сила.заклинаний.%
       modifier: 25
@@ -198,10 +192,10 @@
   type: kWeapon
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 17
-    - 10
-    - 5
+    - 0  # не используется
+    - 17  # число бросков кубика
+    - 10  # граней кубика
+    - 5  # тип атаки: огрел
   weight: 70
   cost: 1000
   rent_off: 0
@@ -210,8 +204,6 @@
   max_durability: 1500
   cur_durability: 1500
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   minimum_remorts: -1
   extra_flags:
@@ -236,7 +228,7 @@
       modifier: 25
     - location: 18  # попадание
       modifier: 35
-    - location: 66  # бонус.физ.повреждений %
+    - location: 66  # бонус.физ.повреждений.%
       modifier: 25
     - location: 23  # здоровье
       modifier: -50
@@ -259,10 +251,10 @@
   type: kWeapon
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 12
-    - 5
-    - 2
+    - 0  # не используется
+    - 12  # число бросков кубика
+    - 5  # граней кубика
+    - 2  # тип атаки: хлестнул
   weight: 10
   cost: 1000
   rent_off: 0
@@ -271,8 +263,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   minimum_remorts: -1
   extra_flags:
@@ -321,8 +311,8 @@
   type: kArmor
   material: 16  # ОРГАНИКА
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -332,8 +322,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 60
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake
@@ -356,8 +344,8 @@
   type: kArmor
   material: 6  # ДРАГ.МЕТАЛЛ
   values:
-    - 0
-    - 0
+    - 0  # изменяет AC
+    - 0  # изменяет броню
     - 0
     - 0
   weight: 1
@@ -367,8 +355,6 @@
   max_durability: 1000
   cur_durability: 1000
   timer: 10000
-  spell: 0  # !undefined!
-  level: 0
   sex: kFemale
   max_in_world: 3
   minimum_remorts: -1
@@ -393,7 +379,7 @@
       modifier: 50
     - location: 59  # бонус.ко.всем.умениям
       modifier: 25
-    - location: 66  # бонус.физ.повреждений %
+    - location: 66  # бонус.физ.повреждений.%
       modifier: 25
     - location: 68  # сила.заклинаний.%
       modifier: 25
@@ -423,8 +409,6 @@
   max_durability: 100
   cur_durability: 100
   timer: 10080
-  spell: 0  # !undefined!
-  level: 0
   sex: kMale
   wear_flags:
     - kTake

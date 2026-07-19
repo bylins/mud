@@ -352,8 +352,8 @@
     extra_attack: 1
     special_bitvector: b1c1
     spells:
-      - 1
-      - 114
+      1: 1  # защита
+      114: 1  # лихорадка
 
 # Mob #6705
 5:
@@ -817,8 +817,8 @@
     max_factor: 1
     extra_attack: 2
     spells:
-      - 75
-      - 114
+      75: 1  # страх
+      114: 1  # лихорадка
 
 # Mob #6712
 12:
@@ -1483,7 +1483,7 @@
     like_work: 40
     extra_attack: 1
     spells:
-      - 5
+      5: 1  # горящие руки
 
 # Mob #6722
 22:

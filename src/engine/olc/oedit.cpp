@@ -211,13 +211,8 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 	}
 	//восстанавливаем метки, если они были
 	if (tmp.get_custom_label()) {
-		obj->set_custom_label(new custom_label());
-		obj->get_custom_label()->text_label = str_dup(tmp.get_custom_label()->text_label);
-		obj->get_custom_label()->author = tmp.get_custom_label()->author;
-		if (tmp.get_custom_label()->clan_abbrev != nullptr) {
-			obj->get_custom_label()->clan_abbrev = str_dup(tmp.get_custom_label()->clan_abbrev);
-		}
-		obj->get_custom_label()->author_mail = str_dup(tmp.get_custom_label()->author_mail);
+		// custom_label is now a value-type with deep copy (issue #3568)
+		obj->set_custom_label(std::make_shared<custom_label>(*tmp.get_custom_label()));
 	}
 	// восстановим силу ингров
 	if (tmp.get_type() == EObjType::kMagicComponent) {
@@ -2259,8 +2254,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 						}
 					}
 					// * No break - drop into default case.
-
-					// fall through
+					[[fallthrough]];
 				}
 				default: oedit_disp_extradesc_menu(d);
 					return;

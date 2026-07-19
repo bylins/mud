@@ -660,7 +660,7 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
 * \param time по дефолту 1.
 */
-void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
+void ObjData::dec_timer(int time, bool ignore_utimer, bool /*exchange*/) {
 	*buf2 = '\0';
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, time);

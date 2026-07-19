@@ -703,28 +703,14 @@ class TimedSpell {
 // метки для команды "нацарапать"
 struct custom_label {
  public:
-	custom_label() : text_label(nullptr), clan_abbrev(nullptr), author(-2), author_mail(nullptr) {}
-	~custom_label();
+	custom_label() : author(-2) {}
+	// rule-of-0: std::string fields self-manage; default copy/move are deep copies (issue #3568).
 
-	char *text_label; // текст
-	char *clan_abbrev;       // аббревиатура клана, если метка предназначена для клана
+	std::string text_label; // текст
+	std::string clan_abbrev;       // аббревиатура клана, если метка предназначена для клана
 	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
-	char *author_mail;// будем проверять по емейлу тоже
+	std::string author_mail;// будем проверять по емейлу тоже
 };
-
-inline custom_label::~custom_label() {
-	if (nullptr != text_label) {
-		free(text_label);
-	}
-
-	if (nullptr != clan_abbrev) {
-		free(clan_abbrev);
-	}
-
-	if (nullptr != author_mail) {
-		free(author_mail);
-	}
-}
 
 class Script;    // to avoid inclusion of "dg_scripts.h"
 

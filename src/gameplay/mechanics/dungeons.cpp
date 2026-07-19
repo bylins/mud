@@ -1155,13 +1155,8 @@ ObjData *SwapOriginalObject(ObjData *obj) {
 			RemoveObjFromObj(obj);
 		}
 		if (obj->get_custom_label()) {
-			obj_original->set_custom_label(new custom_label());
-			obj_original->get_custom_label()->text_label = str_dup(obj->get_custom_label()->text_label);
-			obj_original->get_custom_label()->author = obj->get_custom_label()->author;
-			if (obj->get_custom_label()->clan_abbrev != nullptr) {
-				obj_original->get_custom_label()->clan_abbrev = str_dup(obj->get_custom_label()->clan_abbrev);
-			}
-			obj_original->get_custom_label()->author_mail = str_dup(obj->get_custom_label()->author_mail);
+			// custom_label is now a value-type with deep copy (issue #3568)
+			obj_original->set_custom_label(std::make_shared<custom_label>(*obj->get_custom_label()));
 		}
 		if (obj->has_flag(EObjFlag::kTicktimer)) {
 			obj_original->set_extra_flag(EObjFlag::kTicktimer);

@@ -460,10 +460,8 @@
     extra_attack: 1
     special_bitvector: i0p0
     spells:
-      - 15
-      - 15
-      - 75
-      - 75
+      15: 2  # критическое исцеление
+      75: 2  # страх
 
 # Mob #6407
 7:
@@ -662,7 +660,7 @@
     extra_attack: 4
     special_bitvector: l0
     spells:
-      - 76
+      76: 1  # высосать жизнь
 
 # Mob #6410
 10:
@@ -731,11 +729,9 @@
     bare_hand_attack: 13
     max_factor: 1
     spells:
-      - 15
-      - 15
-      - 77
-      - 92
-      - 92
+      15: 2  # критическое исцеление
+      77: 1  # сеть
+      92: 2  # критический вред
 
 # Mob #6411
 11:
@@ -883,10 +879,8 @@
     like_work: 95
     max_factor: 2
     spells:
-      - 15
-      - 15
-      - 15
-      - 33
+      15: 3  # критическое исцеление
+      33: 1  # яд
   dead_load:
     - obj_vnum: 1726
       load_prob: 4

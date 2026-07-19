@@ -151,9 +151,7 @@
     max_factor: 2
     extra_attack: 1
     spells:
-      - 54
-      - 54
-      - 54
+      54: 3  # оцепенение
 
 # Mob #5802
 2:
@@ -295,10 +293,7 @@
     max_factor: 2
     extra_attack: 1
     spells:
-      - 54
-      - 54
-      - 54
-      - 54
+      54: 4  # оцепенение
 
 # Mob #5804
 4:
@@ -438,10 +433,9 @@
     max_factor: 1
     extra_attack: 1
     spells:
-      - 52
-      - 54
-      - 54
-      - 72
+      52: 1  # серьезное исцеление
+      54: 2  # оцепенение
+      72: 1  # кислота
     helpers:
       - 5800
 
@@ -524,9 +518,7 @@
     extra_attack: 1
     special_bitvector: a0
     spells:
-      - 54
-      - 54
-      - 54
+      54: 3  # оцепенение
 
 # Mob #5807
 7:
@@ -681,8 +673,4 @@
     max_factor: 3
     extra_attack: 2
     spells:
-      - 28
-      - 28
-      - 28
-      - 28
-      - 28
+      28: 5  # исцеление
