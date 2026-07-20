@@ -510,8 +510,12 @@ Heartbeat::steps_t &pulse_steps() {
 							 15,
 							 std::make_shared<SimpleCall>(Clan::ChestInvoice)),
 //			Heartbeat::PulseStep("Gifts", 60 * 60 * kPassesPerSec, 18, std::make_shared<SimpleCall>(gifts)),
+		// issue: FileCRC::save переписывает весь crc.lst целиком при изменении CRC любого игрока
+		// (need_save -- один флаг на весь список). Раз в секунду это давало до 0.044 секунды на
+		// пульс при массовом заходе людей после рестарта, почти все -- запись файла на диск.
+		// Минуты достаточно: файл нужен для сверки целостности, а не для сохранности имущества.
 		Heartbeat::PulseStep("File CRC: saving",
-							 kPassesPerSec,
+							 60 * kPassesPerSec,
 							 23,
 							 std::make_shared<SimpleCall>([]() { FileCRC::save(false); })),
 		Heartbeat::PulseStep("Spells usage saving", 60 * 60 * kPassesPerSec, 0, std::make_shared<SpellUsageCall>()),

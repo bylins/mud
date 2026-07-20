@@ -223,6 +223,14 @@ void update_from_content(long uid, EType file, const char *data, std::size_t len
 
 // Сброс CRC файла игрока в 0: файл удалён (Crash_delete_files). Раньше для
 // этого звали check_crc на уже удалённом файле, чтобы получить 0 чтением.
+std::size_t forget_all() {
+	const std::size_t forgotten = crc_list.size();
+	crc_list.clear();
+	need_save = true;
+	save(true);
+	return forgotten;
+}
+
 void reset(long uid, EType file) {
 	set_crc_field(uid, file, 0);
 	need_save = true;
@@ -240,6 +248,19 @@ bool verify_from_content(long uid, EType file, const char *data, std::size_t len
 		return true;
 	}
 	const uint32_t stored = get_crc_field(*it->second, file);
+	// Ноль в поле player означает "снимка нет", а не "ожидаем нулевую сумму". Запись могла
+	// появиться из-за сброса соседнего поля: истекла рента -> reset для objs заводит запись со
+	// всеми нулями, а в player CRC ни разу не писали. Раньше такой ноль сверялся как настоящий
+	// ожидаемый CRC, и игрок при каждом входе давал имму ложную тревогу; сам собой этот ноль не
+	// чинился, потому что при несовпадении снимок не обновляется.
+	//
+	// Только для player: файл персонажа существует всегда, и reset для него не вызывается. У
+	// файлов объектов ноль осмыслен -- это "файл удален сервером", и появление такого файла
+	// заново как раз должно поднимать тревогу.
+	if (file == kPlayer && stored == 0) {
+		set_crc_field(uid, file, crc);
+		return true;
+	}
 	if (stored != crc) {
 		create_message(it->second->name, file, stored, crc);
 		return false;
