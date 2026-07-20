@@ -418,8 +418,10 @@ void init_mob_name_list() {
 			if (room_rnum <= 0 || static_cast<size_t>(room_rnum) >= world.size()) {
 				continue;
 			}
-			// в мирной комнате моба не убить
-			if (ROOM_FLAGGED(room_rnum, ERoomFlag::kPeaceful)) {
+			// В мирной комнате моба не убить -- но только если он там и стоит. Бродячий моб
+			// из мирной выйдет, такой в списке нужен: дождется, когда выйдет, и будет убит.
+			if (ROOM_FLAGGED(room_rnum, ERoomFlag::kPeaceful)
+				&& mob_proto[rnum].IsFlagged(EMobFlag::kSentinel)) {
 				continue;
 			}
 			// засадные мобы сидят в виртуальных комнатах без выходов -- до них не добраться
