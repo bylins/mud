@@ -15,6 +15,11 @@ namespace handlers {
 EStageResult AlterBless(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	ObjData *obj = ctx.ovict;
+	// Благословение прибавляет прочность и кубы, поэтому имеет смысл только для оружия и брони.
+	// Раньше благословить можно было что угодно, вплоть до хлеба.
+	if (obj->get_type() != EObjType::kWeapon && !ObjSystem::is_armor_type(obj)) {
+		return EStageResult::kFail;
+	}
 	if (!obj->has_flag(EObjFlag::kBless) && (obj->get_weight() <= 5 * GetRealLevel(ch))) {
 		obj->set_extra_flag(EObjFlag::kBless);
 		if (obj->has_flag(EObjFlag::kNodrop)) {
