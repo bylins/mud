@@ -3,6 +3,8 @@
 
 #include "sets_drop.h"
 
+#include <unordered_map>
+
 #include "third_party_libs/pugixml/pugixml.h"
 #include <fmt/format.h>
 
@@ -13,6 +15,7 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/entities/zone.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/dungeons.h"   // kZoneStartDungeons
 
 namespace SetsDrop {
 // список сетин на дроп
@@ -362,21 +365,27 @@ void add_to_zone_list(std::list<ZoneNode> &cont, MobNode &node) {
  * Отсекаются: мобы без прототипа
  *             левые зоны: клан-замки, города с рентой, почтой и банком
  */
-void init_mob_name_list() {
-	std::set<int> bad_zones;
+// Зоны-города (есть рента, почта и банкир) -- обход всего мира, поэтому считаем один раз
+// и держим до перезагрузки зоны: состав города меняется только правкой мира, а не игрой.
+std::set<int> city_zones_cache;
+bool city_zones_cached = false;
 
-	// клан-замки
-	for (const auto &clan : Clan::ClanList) {
-		bad_zones.insert(clan->GetRent() / 100);
+void reset_city_zones_cache() {
+	city_zones_cached = false;
+	city_zones_cache.clear();
+}
+
+const std::set<int> &city_zones() {
+	if (city_zones_cached) {
+		return city_zones_cache;
 	}
 
-	// города
 	int curr_zone = 0;
 	bool rent = false, mail = false, banker = false;
 	for (const auto i : world) {
 		if (curr_zone != zone_table[i->zone_rn].vnum) {
 			if (rent && mail && banker) {
-				bad_zones.insert(curr_zone);
+				city_zones_cache.insert(curr_zone);
 			}
 			rent = false;
 			mail = false;
@@ -394,6 +403,24 @@ void init_mob_name_list() {
 			}
 		}
 	}
+	// ВНИМАНИЕ: последняя зона мира здесь намеренно не проверяется -- так было в исходном коде
+	// (цикл закрывает зону только при переходе к следующей). Поведение сохранено как есть.
+
+	city_zones_cached = true;
+	return city_zones_cache;
+}
+
+void init_mob_name_list() {
+	std::set<int> bad_zones;
+
+	// клан-замки -- меняются в игре, поэтому считаем каждый раз
+	for (const auto &clan : Clan::ClanList) {
+		bad_zones.insert(clan->GetRent() / 100);
+	}
+
+	// города
+	const auto &cities = city_zones();
+	bad_zones.insert(cities.begin(), cities.end());
 
 	// тестовые зоны
 	for (std::size_t nr = 0; nr < zone_table.size(); nr++) {
@@ -410,6 +437,7 @@ void init_mob_name_list() {
 
 		if (rnum < 0
 			|| zone < 100
+			|| zone >= dungeons::kZoneStartDungeons   // в данжах сеты не падают
 			|| k != bad_zones.end()) {
 			continue;
 		}
@@ -485,18 +513,17 @@ void filter_dupe_names() {
 	for (std::list<ZoneNode>::iterator it = mob_name_list.begin(),
 			 iend = mob_name_list.end(); it != iend; ++it) {
 		std::list<MobNode> tmp_list;
+		// Сколько мобов зоны носит каждое имя -- одним проходом. Раньше для каждого моба
+		// перебирались все мобы зоны со сравнением строк, то есть квадрат на зону.
+		std::unordered_map<std::string, int> name_count;
+		for (const auto &m : it->mobs) {
+			++name_count[m.name];
+		}
 		// отсеиваем (включая оригинал) одинаковые имена с разными внумами
 		for (std::list<MobNode>::iterator k = it->mobs.begin(),
 				 kend = it->mobs.end(); k != kend; ++k) {
 			// одинаковые имена в пределах зоны
-			bool good = true;
-			for (std::list<MobNode>::iterator l = it->mobs.begin(),
-					 lend = it->mobs.end(); l != lend; ++l) {
-				if (k->vnum != l->vnum && k->name == l->name) {
-					good = false;
-					break;
-				}
-			}
+			const bool good = name_count[k->name] <= 1;
 			if (!good || k->type == -1) {
 				continue;
 			}
@@ -539,7 +566,7 @@ void filter_dupe_names() {
 
 			tmp_list.push_back(*k);
 		}
-		it->mobs = tmp_list;
+		it->mobs = std::move(tmp_list);
 	}
 }
 
@@ -1028,6 +1055,8 @@ void reload(int zone_vnum) {
 
 	if (zone_vnum > 0) {
 		mob_stat::ClearZoneStat(zone_vnum);
+		// зону могли перезалить -- состав города мог измениться, пересчитаем
+		reset_city_zones_cache();
 	}
 
 	init_obj_list();
