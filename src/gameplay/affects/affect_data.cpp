@@ -416,6 +416,23 @@ void player_affect_update() {
 	player_affect_update_profiler::record_run(profile);
 }
 
+// issue #3610: см. описание правила в affect_data.h.
+long SelectAffectAuthorUid(const std::list<Affect<EApply>::shared_ptr> &affects,
+						   const Affect<EApply>::shared_ptr &ticking) {
+	if (!ticking) {
+		return 0;
+	}
+	if (ticking->caster_id != 0) {
+		return ticking->caster_id;
+	}
+	for (const auto &other : affects) {
+		if (other && other->affect_type == ticking->affect_type && other->caster_id != 0) {
+			return other->caster_id;
+		}
+	}
+	return 0;
+}
+
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
 	bool need_recalc = false;

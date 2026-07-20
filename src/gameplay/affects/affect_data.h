@@ -114,6 +114,14 @@ void mobile_affect_update();
 // (kPulse always, kBattlePulse only while fighting). Defined in magic.cpp. Returns true if any fired.
 bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff);
 
+// issue #3610: кому засчитывать урон тика повреждающего аффекта. Узлов одного типа на персонаже
+// может быть несколько, с разными авторами или вовсе без автора (отравленная еда, dg-триггер,
+// врожденный флаг моба), а тик достается наложенному последним. Если у него автора нет, берем его
+// у любого другого узла того же типа -- иначе отравитель терял опыт за смерть жертвы от яда.
+// Вынесено отдельно, чтобы правило проверялось тестами (tests/dot.death.credit.cpp).
+long SelectAffectAuthorUid(const std::list<Affect<EApply>::shared_ptr> &affects,
+						   const Affect<EApply>::shared_ptr &ticking);
+
 // issue.character-affect-triggers: run an affect TYPE's <actions> matching `trig` on the bearer `ch`,
 // with event.actor = `actor` (nullptr for actor-less triggers). Used for kExpired (from the affect-update
 // loops, actor=null) and kDispell (from RemoveAffectAndAnnounce, actor=dispeller). Defined in magic.cpp;

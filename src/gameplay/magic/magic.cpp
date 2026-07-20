@@ -4005,6 +4005,8 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 	}
 	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
 	int dur = aff->duration;
+	// issue #3610: автора тика ищем по всем узлам этого типа, см. SelectAffectAuthorUid.
+	const long author_uid = SelectAffectAuthorUid(ch->affected, aff);
 	// Spell-free tick on the affect's stored potency (ctx_spell kUndefined); the bearer is the caster, so
 	// a <damage> action targeting kTarFightSelf damages the bearer (a lone action's default kTarSame
 	// resolves to the previous action's targets -- empty -- so it must be explicit). Room = bearer's room.
@@ -4014,13 +4016,13 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToChar),
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToVict),
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom),
-			aff->caster_id);   // issue.damage-over-time: poison <damage> credits the poisoner
+			author_uid);   // issue.damage-over-time: poison <damage> credits the poisoner
 	aff->duration = dur;
 	// issue.affect-action-patch-improve: run the affect's ADDITIVE talent-patches this tick (fresh ctx with
 	// the tick's potency/author), matching the pulse triggers -- e.g. a perk that adds an effect each DoT tick.
 	if (!ch->purged() && !feats::AffectTalentPatches(aff->affect_type).empty()) {
 		ActionContext pctx = BuildActionContext(ch, ESpell::kUndefined, GetRealLevel(ch), aff->potency);
-		pctx.SetDamageAuthorUid(aff->caster_id);
+		pctx.SetDamageAuthorUid(author_uid);
 		RunAdditiveAffectPatches(pctx, ch, world[ch->in_room], aff->affect_type,
 				[combat](const talents_actions::Action &a) {
 					const auto &tt = a.GetTrigger();
