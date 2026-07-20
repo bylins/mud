@@ -75,6 +75,7 @@ const std::set<ESpecial> &MobSpecials(int vnum) {
 	return it == g_mob_specials.end() ? kEmpty : it->second;
 }
 ESpecial ObjSpecial(int vnum) { return Lookup(g_obj_specials, vnum); }
+const std::unordered_map<int, std::set<ESpecial>> &AllMobSpecials() { return g_mob_specials; }
 bool IsMobSpecial(int vnum) { return !MobSpecials(vnum).empty(); }
 bool IsMobSpecial(int vnum, ESpecial s) { return MobSpecials(vnum).count(s) > 0; }
 bool SharesMobSpecial(int v1, int v2) {

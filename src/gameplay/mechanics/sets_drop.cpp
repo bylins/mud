@@ -365,8 +365,10 @@ void add_to_zone_list(std::list<ZoneNode> &cont, MobNode &node) {
  * Отсекаются: мобы без прототипа
  *             левые зоны: клан-замки, города с рентой, почтой и банком
  */
-// Зоны-города (есть рента, почта и банкир) -- обход всего мира, поэтому считаем один раз
-// и держим до перезагрузки зоны: состав города меняется только правкой мира, а не игрой.
+// Зоны, где стоят рента, почта и банкир -- то есть города. Спецпроки мобов заданы в
+// cfg/specials.xml и загружены в реестр при старте, поэтому зону города видно прямо оттуда:
+// перебрать десяток записей реестра дешевле, чем обходить весь мир со всеми существами в
+// комнатах. Реестр меняется только правкой конфига, поэтому результат кэшируем.
 std::set<int> city_zones_cache;
 bool city_zones_cached = false;
 
@@ -380,31 +382,25 @@ const std::set<int> &city_zones() {
 		return city_zones_cache;
 	}
 
-	int curr_zone = 0;
-	bool rent = false, mail = false, banker = false;
-	for (const auto i : world) {
-		if (curr_zone != zone_table[i->zone_rn].vnum) {
-			if (rent && mail && banker) {
-				city_zones_cache.insert(curr_zone);
-			}
-			rent = false;
-			mail = false;
-			banker = false;
-			curr_zone = zone_table[i->zone_rn].vnum;
+	std::set<int> rent_zones, mail_zones, bank_zones;
+	for (const auto &[vnum, specs] : specials::AllMobSpecials()) {
+		const int zone = vnum / 100;
+		if (specs.count(specials::ESpecial::kRent) > 0) {
+			rent_zones.insert(zone);
 		}
-
-		for (const auto ch : i->people) {
-			if (specials::IsRentkeeper(ch)) {
-				rent = true;
-			} else if (specials::IsPostkeeper(ch)) {
-				mail = true;
-			} else if (specials::IsBankkeeper(ch)) {
-				banker = true;
-			}
+		if (specs.count(specials::ESpecial::kMail) > 0) {
+			mail_zones.insert(zone);
+		}
+		if (specs.count(specials::ESpecial::kBank) > 0) {
+			bank_zones.insert(zone);
 		}
 	}
-	// ВНИМАНИЕ: последняя зона мира здесь намеренно не проверяется -- так было в исходном коде
-	// (цикл закрывает зону только при переходе к следующей). Поведение сохранено как есть.
+	// город -- это зона, где есть все три службы сразу
+	for (const int zone : rent_zones) {
+		if (mail_zones.count(zone) > 0 && bank_zones.count(zone) > 0) {
+			city_zones_cache.insert(zone);
+		}
+	}
 
 	city_zones_cached = true;
 	return city_zones_cache;
