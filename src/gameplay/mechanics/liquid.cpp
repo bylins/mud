@@ -612,7 +612,8 @@ std::string print_spell(const ObjData *obj, int num) {
 	char buf_[kMaxInputLength];
 	// issue #3611: у вещи из прототипа сила посчитана по зашитым умолчаниям, а не по умению
 	// мастера -- помечаем так же, как у свитков, зелий, посохов и жезлов.
-	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (сила %d%s)%s\r\n",
+	snprintf(buf_, sizeof(buf_), "%sСодержит заклинание:%s %s%s (сила %d%s)%s\r\n",
+			 kColorGrn, kColorNrm,
 			 kColorCyn,
 			 MUD::Spell(spell_id).GetCName(),
 			 potency,

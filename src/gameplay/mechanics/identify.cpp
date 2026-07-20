@@ -80,14 +80,16 @@ static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
 switch (obj->get_type()) {
 	case EObjType::kScroll: {
 		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
-				ch->player_specials->saved.stringLength, ", ", "Содержит заклинание: ") + "\r\n", ch);
+				ch->player_specials->saved.stringLength, ", ",
+				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
 		// issue.potion-hotfix: a potion reads its spells from the ObjVal keys and shows its maker-derived
 	// POTENCY (Сила), never a per-spell level -- the drinker's own skill/stats are irrelevant.
 	case EObjType::kPotion: {
 		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
-				ch->player_specials->saved.stringLength, ", ", "Содержит заклинание: ") + "\r\n", ch);
+				ch->player_specials->saved.stringLength, ", ",
+				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
 	case EObjType::kWand:

@@ -962,12 +962,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kScroll: {
 			// issue.magic-items: заклинания свитка лежат в extra_values, сила -- умение мастера
 			snprintf(buf, sizeof(buf), "%s", utils::OutWordsList(SpellItemSpellsWithPotency(j),
-					ch->player_specials->saved.stringLength, ", ", "Заклинания: ").c_str());
+					ch->player_specials->saved.stringLength, ", ",
+					std::string(kColorGrn) + "Заклинания:" + kColorNrm + " ").c_str());
 			break;
 		}
 		case EObjType::kPotion: {
 			snprintf(buf, sizeof(buf), "%s", utils::OutWordsList(SpellItemSpellsWithPotency(j),
-					ch->player_specials->saved.stringLength, ", ", "Заклинания: ").c_str());
+					ch->player_specials->saved.stringLength, ", ",
+					std::string(kColorGrn) + "Заклинания:" + kColorNrm + " ").c_str());
 			break;
 		}
 		case EObjType::kWand:
@@ -978,8 +980,11 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				const int potency = static_cast<int>(MagicItemPotency(j, staff_spell) + 0.5f);
 				// issue #3611: у вещи из прототипа сила посчитана по зашитым умолчаниям, а не по
 				// умению мастера -- помечаем так же, как в перечне заклинаний свитков и зелий.
-				snprintf(buf, sizeof(buf), "Заклинание: %s (сила %d%s), %d (из %d) зарядов осталось",
+				snprintf(buf, sizeof(buf), "%sЗаклинание:%s %s%s%s (сила %d%s), %d (из %d) зарядов осталось",
+						kColorGrn, kColorNrm,
+						kColorCyn,
 						MUD::Spell(staff_spell).GetCName(),
+						kColorNrm,
 						potency,
 						IsPotencyFromProto(j) ? ", из прототипа" : "",
 						j->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
