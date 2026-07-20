@@ -808,7 +808,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	else
 		snprintf(buf, sizeof(buf), "Таймер: %d, ", j->get_timer());
 	SendMsgToChar(buf, ch);
-	snprintf(buf, sizeof(buf), "Таймер на земле: %d\r\n", j->get_destroyer());
+	// Таймер на земле тикает только пока вещь лежит в комнате, и выставляется при попадании
+	// туда (PlaceObjToRoom). У вещи в инвентаре в этом поле лежит умолчание конструктора (60),
+	// которое выглядело настоящим таймером, хотя таким никогда не станет.
+	if (j->get_in_room() != kNowhere) {
+		snprintf(buf, sizeof(buf), "Таймер на земле: %d\r\n", j->get_destroyer());
+	} else {
+		snprintf(buf, sizeof(buf), "\r\n");
+	}
 	SendMsgToChar(buf, ch);
 	std::string str;
 
@@ -955,12 +962,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kScroll: {
 			// issue.magic-items: заклинания свитка лежат в extra_values, сила -- умение мастера
 			snprintf(buf, sizeof(buf), "%s", utils::OutWordsList(SpellItemSpellsWithPotency(j),
-					ch->player_specials->saved.stringLength, ", ", "Заклинания: ").c_str());
+					ch->player_specials->saved.stringLength, ", ",
+					std::string(kColorGrn) + "Заклинания:" + kColorNrm + " ").c_str());
 			break;
 		}
 		case EObjType::kPotion: {
 			snprintf(buf, sizeof(buf), "%s", utils::OutWordsList(SpellItemSpellsWithPotency(j),
-					ch->player_specials->saved.stringLength, ", ", "Заклинания: ").c_str());
+					ch->player_specials->saved.stringLength, ", ",
+					std::string(kColorGrn) + "Заклинания:" + kColorNrm + " ").c_str());
 			break;
 		}
 		case EObjType::kWand:
@@ -969,9 +978,15 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			{
 				const auto staff_spell = static_cast<ESpell>(j->GetSpellItemSpellNum(1));
 				const int potency = static_cast<int>(MagicItemPotency(j, staff_spell) + 0.5f);
-				snprintf(buf, sizeof(buf), "Заклинание: %s (сила %d), %d (из %d) зарядов осталось",
+				// issue #3611: у вещи из прототипа сила посчитана по зашитым умолчаниям, а не по
+				// умению мастера -- помечаем так же, как в перечне заклинаний свитков и зелий.
+				snprintf(buf, sizeof(buf), "%sЗаклинание:%s %s%s%s (сила %d%s), %d (из %d) зарядов осталось",
+						kColorGrn, kColorNrm,
+						kColorCyn,
 						MUD::Spell(staff_spell).GetCName(),
+						kColorNrm,
 						potency,
+						IsPotencyFromProto(j) ? ", из прототипа" : "",
 						j->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
 						j->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));
 			}

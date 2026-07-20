@@ -610,10 +610,14 @@ std::string print_spell(const ObjData *obj, int num) {
 	// (сила) as a potion, not the retired per-spell level.
 	const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
 	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (сила %d)%s\r\n",
+	// issue #3611: у вещи из прототипа сила посчитана по зашитым умолчаниям, а не по умению
+	// мастера -- помечаем так же, как у свитков, зелий, посохов и жезлов.
+	snprintf(buf_, sizeof(buf_), "%sСодержит заклинание:%s %s%s (сила %d%s)%s\r\n",
+			 kColorGrn, kColorNrm,
 			 kColorCyn,
 			 MUD::Spell(spell_id).GetCName(),
 			 potency,
+			 IsPotencyFromProto(obj) ? ", из прототипа" : "",
 			 kColorNrm);
 
 	return buf_;
