@@ -7,6 +7,7 @@
 #include "engine/entities/obj_data.h"
 #include "engine/db/db.h"
 #include "utils/utils_parse.h"
+#include "gameplay/magic/magic_utils.h"
 
 #include <memory>
 
@@ -101,8 +102,6 @@ TEST(SpellItemConvert, UnifiedKeyReadAliases) {
 	EXPECT_EQ(str(K::kPotionPotency), "POTION_POTENCY");
 }
 
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-
 
 // issue.magic-items-hotfix: a drink-container/fountain liquid core lives in the kLiquid* keys; the val
 // mutators (get/set/dec/inc/add/sub_val) redirect indices 0..2 to them, so val[] is not the store.
@@ -175,3 +174,33 @@ TEST(SpellItemAccessor, ScrollSpellsByPosition) {
 	EXPECT_LT(p->GetSpellItemSpellNum(0), 0) << "out-of-range position is not a slot";
 	EXPECT_LT(p->GetSpellItemSpellNum(4), 0);
 }
+
+// issue #3611: сила у вещи из прототипа посчитана по зашитым умолчаниям, а не по умению мастера --
+// одна и та же у всех вещей с этим заклинанием. Такую в выводе помечаем "из прототипа".
+TEST(PotencyFromProto, PrototypeItemHasNoMakerKeys) {
+	auto p = make_proto(EObjType::kStaff, 30, 1, 1, 28);
+	EXPECT_TRUE(IsPotencyFromProto(p.get()));
+}
+
+// Вещь, сделанную игроком, не помечаем: ее сила записана в ней самой.
+TEST(PotencyFromProto, CraftedItemCarriesMakerSkill) {
+	auto p = make_proto(EObjType::kPotion, 0, 0, 0, 0);
+	p->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, 120);
+	EXPECT_FALSE(IsPotencyFromProto(p.get()));
+}
+
+// Нулевое умение мастера -- это "выдохлось до нуля", а не отсутствие ключа: тоже не помечаем.
+TEST(PotencyFromProto, ZeroMakerSkillIsStillStored) {
+	auto p = make_proto(EObjType::kPotion, 0, 0, 0, 0);
+	p->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, 0);
+	EXPECT_FALSE(IsPotencyFromProto(p.get()));
+}
+
+// Старое зелье без умения мастера, но с заранее посчитанной силой -- она своя, не из умолчаний.
+TEST(PotencyFromProto, LegacyStoredPotencyIsNotProto) {
+	auto p = make_proto(EObjType::kPotion, 0, 0, 0, 0);
+	p->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, 55);
+	EXPECT_FALSE(IsPotencyFromProto(p.get()));
+}
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
