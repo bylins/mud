@@ -16,6 +16,7 @@ EStageResult AlterPoison(ActionContext &ctx) {
 	if (!GET_OBJ_VAL(obj, 3) && (obj->get_type() == EObjType::kLiquidContainer
 			|| obj->get_type() == EObjType::kFountain || obj->get_type() == EObjType::kFood)) {
 		obj->set_val(3, 1);
+		obj->set_extra_flag(EObjFlag::kTransformed);   // issue #3618: отрава остается в вещи навсегда
 		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 	}
 	return EStageResult::kFail;

@@ -27,6 +27,8 @@ EStageResult AlterCurse(ActionContext &ctx) {
 				obj->dec_val(1);
 			}
 		}
+		// issue #3618: испорченные характеристики обратно не поднимаются -- вещь больше не прототип.
+		obj->set_extra_flag(EObjFlag::kTransformed);
 		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 	}
 	return EStageResult::kFail;
