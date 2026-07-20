@@ -808,7 +808,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	else
 		snprintf(buf, sizeof(buf), "Таймер: %d, ", j->get_timer());
 	SendMsgToChar(buf, ch);
-	snprintf(buf, sizeof(buf), "Таймер на земле: %d\r\n", j->get_destroyer());
+	// Таймер на земле тикает только пока вещь лежит в комнате, и выставляется при попадании
+	// туда (PlaceObjToRoom). У вещи в инвентаре в этом поле лежит умолчание конструктора (60),
+	// которое выглядело настоящим таймером, хотя таким никогда не станет.
+	if (j->get_in_room() != kNowhere) {
+		snprintf(buf, sizeof(buf), "Таймер на земле: %d\r\n", j->get_destroyer());
+	} else {
+		snprintf(buf, sizeof(buf), "\r\n");
+	}
 	SendMsgToChar(buf, ch);
 	std::string str;
 
