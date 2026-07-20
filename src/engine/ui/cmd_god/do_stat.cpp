@@ -976,9 +976,12 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			{
 				const auto staff_spell = static_cast<ESpell>(j->GetSpellItemSpellNum(1));
 				const int potency = static_cast<int>(MagicItemPotency(j, staff_spell) + 0.5f);
-				snprintf(buf, sizeof(buf), "Заклинание: %s (сила %d), %d (из %d) зарядов осталось",
+				// issue #3611: у вещи из прототипа сила посчитана по зашитым умолчаниям, а не по
+				// умению мастера -- помечаем так же, как в перечне заклинаний свитков и зелий.
+				snprintf(buf, sizeof(buf), "Заклинание: %s (сила %d%s), %d (из %d) зарядов осталось",
 						MUD::Spell(staff_spell).GetCName(),
 						potency,
+						IsPotencyFromProto(j) ? ", из прототипа" : "",
 						j->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
 						j->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));
 			}
