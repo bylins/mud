@@ -15,6 +15,8 @@ EStageResult AlterLight(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	obj->add_timed_spell(ESpell::kLight, -1);
 	obj->set_extra_flag(EObjFlag::kGlow);
+	// issue #3618: таймер -1 -- это бессрочно, флаг лежит в самой вещи и переживает перезагрузку.
+	obj->set_extra_flag(EObjFlag::kTransformed);
 	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 }
 

@@ -18,6 +18,9 @@ EStageResult AlterRemoveCurse(ActionContext &ctx) {
 		if (obj->get_type() == EObjType::kWeapon) {
 			obj->inc_val(2);
 		}
+		// issue #3618: kNodrop снимается и с вещи, которая была проклята в самом прототипе, --
+		// после этого она от прототипа отличается.
+		obj->set_extra_flag(EObjFlag::kTransformed);
 		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 	}
 	return EStageResult::kFail;
