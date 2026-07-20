@@ -1111,11 +1111,15 @@ void mob_casting(CharData *ch) {
 			case EObjType::kWand:
 			case EObjType::kStaff: {
 				// issue.magic-items: заклинание и заряды лежат в extra_values, val[] у этих типов нулевые
-				const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(1));
+				const int spell_num = item->GetSpellItemSpellNum(1);
+				if (spell_num <= 0) {
+					break;   // заклинание не задано -- посох просто не боевой, это не поломка
+				}
+				const auto spell_id = static_cast<ESpell>(spell_num);
 				if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 					mudlog(fmt::format("SYSERR: неверное заклинание в посохе {} #{}, позиция 1, значение {}",
 							item->get_PName(grammar::ECase::kNom), GET_OBJ_VNUM(item),
-							item->GetSpellItemSpellNum(1)), BRF, kLvlImmortal, SYSLOG, true);
+							spell_num), BRF, kLvlImmortal, SYSLOG, true);
 					break;
 				}
 
@@ -1127,11 +1131,15 @@ void mob_casting(CharData *ch) {
 			}
 			case EObjType::kPotion: {
 				for (int i = 1; i <= 3; i++) {
-					const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(i));
+					const int spell_num = item->GetSpellItemSpellNum(i);
+					if (spell_num <= 0) {
+						continue;   // пустой слот -- это норма, заклинание может быть и одно
+					}
+					const auto spell_id = static_cast<ESpell>(spell_num);
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						mudlog(fmt::format("SYSERR: неверное заклинание в напитке {} #{}, позиция {}, значение {}",
 								item->get_PName(grammar::ECase::kNom), GET_OBJ_VNUM(item), i,
-								item->GetSpellItemSpellNum(i)), BRF, kLvlImmortal, SYSLOG, true);
+								spell_num), BRF, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 					if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc | kNpcUnaffectNpc | kNpcUnaffectNpcCaster)) {
@@ -1142,11 +1150,15 @@ void mob_casting(CharData *ch) {
 			}
 			case EObjType::kScroll: {
 				for (int i = 1; i <= 3; i++) {
-					const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(i));
+					const int spell_num = item->GetSpellItemSpellNum(i);
+					if (spell_num <= 0) {
+						continue;   // пустой слот -- это норма, заклинание может быть и одно
+					}
+					const auto spell_id = static_cast<ESpell>(spell_num);
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						mudlog(fmt::format("SYSERR: неверное заклинание в свитке {} #{}, позиция {}, значение {}",
 								item->get_PName(grammar::ECase::kNom), GET_OBJ_VNUM(item), i,
-								item->GetSpellItemSpellNum(i)), BRF, kLvlImmortal, SYSLOG, true);
+								spell_num), BRF, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
