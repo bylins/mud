@@ -593,6 +593,9 @@ void name_to_drinkcon(ObjData *obj, int type) {
 		snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_PName(name_case).c_str(), potion_name);
 		obj->set_PName(name_case, new_name);
 	}
+	// issue #3620: имя сосуда больше не совпадает с прототипом -- без этой пометки olc при правке
+	// прототипа восстановит исходное имя, и сосуд перестанет показывать свое содержимое.
+	obj->set_is_rename(true);
 }
 
 std::string print_spell(const ObjData *obj, int num) {
