@@ -527,7 +527,8 @@ void filter_dupe_names() {
 				|| mob->IsFlagged(EMobFlag::kAppearsSummer)
 				|| mob->IsFlagged(EMobFlag::kAppearsAutumn)
 				|| NPC_FLAGGED(mob, ENpcFlag::kFreeDrop) //не падает фридроп
-				|| mob->IsFlagged(EMobFlag::kProtect) //нельзя убить
+				|| mob->IsFlagged(EMobFlag::kProtect) //урон обнуляется, не убить
+				|| mob->IsFlagged(EMobFlag::kNoFight) //на него нельзя даже напасть
 				|| mob->get_exp() <= 0) {
 				continue;
 			}
