@@ -223,6 +223,14 @@ void update_from_content(long uid, EType file, const char *data, std::size_t len
 
 // Сброс CRC файла игрока в 0: файл удалён (Crash_delete_files). Раньше для
 // этого звали check_crc на уже удалённом файле, чтобы получить 0 чтением.
+std::size_t forget_all() {
+	const std::size_t forgotten = crc_list.size();
+	crc_list.clear();
+	need_save = true;
+	save(true);
+	return forgotten;
+}
+
 void reset(long uid, EType file) {
 	set_crc_field(uid, file, 0);
 	need_save = true;
