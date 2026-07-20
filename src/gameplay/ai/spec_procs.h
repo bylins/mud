@@ -12,7 +12,6 @@
 #include "engine/structs/structs.h"
 
 #include <set>
-#include <unordered_map>
 
 class CharData;
 int exchange(CharData *ch, void *me, int cmd, char *argument);
@@ -41,10 +40,6 @@ void UnregisterMob(int vnum, ESpecial s);  // remove ONE special (vs RegisterMob
 void RegisterObj(int vnum, ESpecial s);
 void RegisterRoom(int vnum, ESpecial s);
 [[nodiscard]] const std::set<ESpecial> &MobSpecials(int vnum);  // a mob may have several specials
-// Весь реестр специальных мобов (vnum -> набор специальностей), как он загружен из cfg/specials.xml.
-// Нужен тем, кому интересны не отдельные мобы, а картина целиком -- например, в каких зонах стоят
-// рента, почта и банкир. Перебрать десяток записей реестра дешевле, чем обходить мир.
-[[nodiscard]] const std::unordered_map<int, std::set<ESpecial>> &AllMobSpecials();
 [[nodiscard]] ESpecial ObjSpecial(int vnum);
 [[nodiscard]] bool IsMobSpecial(int vnum);
 [[nodiscard]] bool IsMobSpecial(int vnum, ESpecial s);

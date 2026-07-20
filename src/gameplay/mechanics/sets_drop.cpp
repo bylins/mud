@@ -365,47 +365,6 @@ void add_to_zone_list(std::list<ZoneNode> &cont, MobNode &node) {
  * Отсекаются: мобы без прототипа
  *             левые зоны: клан-замки, города с рентой, почтой и банком
  */
-// Зоны, где стоят рента, почта и банкир -- то есть города. Спецпроки мобов заданы в
-// cfg/specials.xml и загружены в реестр при старте, поэтому зону города видно прямо оттуда:
-// перебрать десяток записей реестра дешевле, чем обходить весь мир со всеми существами в
-// комнатах. Реестр меняется только правкой конфига, поэтому результат кэшируем.
-std::set<int> city_zones_cache;
-bool city_zones_cached = false;
-
-void reset_city_zones_cache() {
-	city_zones_cached = false;
-	city_zones_cache.clear();
-}
-
-const std::set<int> &city_zones() {
-	if (city_zones_cached) {
-		return city_zones_cache;
-	}
-
-	std::set<int> rent_zones, mail_zones, bank_zones;
-	for (const auto &[vnum, specs] : specials::AllMobSpecials()) {
-		const int zone = vnum / 100;
-		if (specs.count(specials::ESpecial::kRent) > 0) {
-			rent_zones.insert(zone);
-		}
-		if (specs.count(specials::ESpecial::kMail) > 0) {
-			mail_zones.insert(zone);
-		}
-		if (specs.count(specials::ESpecial::kBank) > 0) {
-			bank_zones.insert(zone);
-		}
-	}
-	// город -- это зона, где есть все три службы сразу
-	for (const int zone : rent_zones) {
-		if (mail_zones.count(zone) > 0 && bank_zones.count(zone) > 0) {
-			city_zones_cache.insert(zone);
-		}
-	}
-
-	city_zones_cached = true;
-	return city_zones_cache;
-}
-
 void init_mob_name_list() {
 	std::set<int> bad_zones;
 
@@ -414,9 +373,13 @@ void init_mob_name_list() {
 		bad_zones.insert(clan->GetRent() / 100);
 	}
 
-	// города
-	const auto &cities = city_zones();
-	bad_zones.insert(cities.begin(), cities.end());
+	// города -- флаг зоны, посчитанный при загрузке мира (SetZonesTownFlags): там уже пройдены
+	// комнаты каждой зоны в поисках ренты, банка и почты, второй раз то же самое делать незачем.
+	for (const auto &zone : zone_table) {
+		if (zone.is_town) {
+			bad_zones.insert(zone.vnum);
+		}
+	}
 
 	// тестовые зоны
 	for (std::size_t nr = 0; nr < zone_table.size(); nr++) {
@@ -1051,8 +1014,6 @@ void reload(int zone_vnum) {
 
 	if (zone_vnum > 0) {
 		mob_stat::ClearZoneStat(zone_vnum);
-		// зону могли перезалить -- состав города мог измениться, пересчитаем
-		reset_city_zones_cache();
 	}
 
 	init_obj_list();
