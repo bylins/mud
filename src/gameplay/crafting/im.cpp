@@ -1435,6 +1435,9 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		imlog(CMP, "Создание результата");
 		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
 		if (result) {
+			// issue #3618: сваренная вещь несет умение мастера и прочие свои значения -- помечаем
+			// сразу, до разбора по типам, иначе правка прототипа в olc перезапишет ее целиком.
+			result->set_extra_flag(EObjFlag::kTransformed);
 			switch (result->get_type()) {
 				case EObjType::kScroll:
 					// issue.magic-items: a crafted scroll stores the crafter's competence (recipe skill + Int),
