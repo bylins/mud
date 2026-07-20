@@ -66,6 +66,7 @@
 #include "gameplay/affects/affect_messages.h"
 #include "engine/core/common_messages.h"
 #include "gameplay/mechanics/rune_stones_loaders.h"
+#include "gameplay/mechanics/service_zones_loaders.h"
 #include "administration/privilege_db.h"
 #include "gameplay/crafting/mining.h"
 #include "gameplay/crafting/jewelry.h"
@@ -180,6 +181,7 @@ CfgManager::CfgManager() {
 		{"rune_spells", CfgDir::kMechanics, [] { return MakeLoader<rune_spells::RuneSpellsLoader>(); }},
 		{"rune_stone_msg", CfgDir::kMessagesRu, [] { return MakeLoader<RuneStoneMessagesLoader>(); }},
 		{"rune_stones", CfgDir::kMechanics, [] { return MakeLoader<RuneStonesLoader>(); }},
+		{"service_zones", CfgDir::kMechanics, [] { return MakeLoader<service_zones::ServiceZonesLoader>(); }},
 		{"mob_classes", CfgDir::kRoot, [] { return MakeLoader<mob_classes::MobClassesLoader>(); }},
 		{"privilege", CfgDir::kRoot, [] { return MakeLoader<privilege::PrivilegeLoader>(); }},
 	};

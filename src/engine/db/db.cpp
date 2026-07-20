@@ -1174,6 +1174,10 @@ void BootMudDataBase() {
 	log("Loading rune spells cfg.");
 	MUD::CfgManager().LoadCfg("rune_spells");
 
+	boot_profiler.next_step("Loading service zones");
+	log("Load service zones.");
+	MUD::CfgManager().LoadCfg("service_zones");   // служебные и начальные зоны, см. cfg/mechanics
+
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
 	MUD::CfgManager().LoadCfg("entity_names");   // issue.thing-names: names before mob_classes/races/zone_types

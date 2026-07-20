@@ -658,6 +658,7 @@ main_sources = files(
   'src/gameplay/skills/turnundead.cpp',
   'src/gameplay/skills/townportal.cpp',
   'src/gameplay/mechanics/rune_stones.cpp',
+	'src/gameplay/mechanics/service_zones.cpp',
   'src/gameplay/skills/manadrain.cpp',
   'src/gameplay/skills/warcry.cpp',
   'src/gameplay/skills/identify.cpp',

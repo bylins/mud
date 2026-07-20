@@ -16,6 +16,7 @@
 #include "engine/entities/zone.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/dungeons.h"   // kZoneStartDungeons
+#include "gameplay/mechanics/service_zones.h"
 
 namespace SetsDrop {
 // список сетин на дроп
@@ -394,7 +395,7 @@ void init_mob_name_list() {
 	// самого моба, его лимит в мире и комнату, куда он грузится.
 	for (const auto &zone : zone_table) {
 		const int zone_vnum = zone.vnum;
-		if (zone_vnum < 100
+		if (service_zones::IsNoLootZone(zone_vnum)   // служебные и начальные, см. cfg/mechanics
 			|| zone_vnum >= dungeons::kZoneStartDungeons   // в данжах сеты не падают
 			|| bad_zones.count(zone_vnum) > 0) {
 			continue;
