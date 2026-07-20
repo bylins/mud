@@ -4,7 +4,13 @@
 
 #if defined(WITH_LUA_FORMATTER)
 #include "CodeFormatCLib.h"
+#include "utils/logger.h"
 #include "utils/utils_encoding.h"
+
+extern "C" {
+#include <lauxlib.h>
+#include <lua.h>
+}
 
 #include <array>
 #include <atomic>
@@ -28,13 +34,40 @@ bool LuaFormatterAvailable() {
 namespace {
 
 #if defined(WITH_LUA_FORMATTER)
-bool FormatLuaSource(const std::string& source, std::string& formatted, std::string& error) {
+bool ValidateLuaSource(lua_State* lua, const std::string& source, std::string& error) {
+	if (!lua) {
+		error = "Проверка синтаксиса LuaJIT недоступна";
+		return false;
+	}
+
+	lua_settop(lua, 0);
+	const auto status = luaL_loadbuffer(lua, source.data(), source.size(), "=OLC Lua trigger");
+	if (status != LUA_OK) {
+		size_t error_size = 0;
+		const char* lua_error = lua_tolstring(lua, -1, &error_size);
+		if (lua_error) {
+			error.assign(lua_error, error_size);
+		} else {
+			error = "LuaJIT отклонил исходный код";
+		}
+		lua_settop(lua, 0);
+		return false;
+	}
+
+	lua_settop(lua, 0);
+	return true;
+}
+
+bool FormatLuaSource(lua_State* lua, const std::string& source, std::string& formatted, std::string& error) {
 	formatted.clear();
 	error.clear();
 
 	try {
 		if (source.find('\0') != std::string::npos) {
 			error = "Исходный Lua-код содержит нулевой байт";
+			return false;
+		}
+		if (!ValidateLuaSource(lua, source, error)) {
 			return false;
 		}
 
@@ -70,6 +103,12 @@ bool FormatLuaSource(const std::string& source, std::string& formatted, std::str
 		if (formatted_utf8 != round_trip_utf8.data()) {
 			formatted.clear();
 			error = "Результат форматирования Lua нельзя представить в KOI8-R";
+			return false;
+		}
+		std::string syntax_error;
+		if (!ValidateLuaSource(lua, formatted, syntax_error)) {
+			formatted.clear();
+			error = "Форматтер создал некорректный Lua-код: " + syntax_error;
 			return false;
 		}
 		return true;
@@ -183,6 +222,9 @@ private:
 	static constexpr std::size_t kQueueCapacity = 64;
 
 	void Run() {
+		using LuaStatePtr = std::unique_ptr<lua_State, decltype(&lua_close)>;
+		LuaStatePtr lua(nullptr, lua_close);
+		bool lua_state_failure_logged = false;
 		while (!m_stopping.load(std::memory_order_acquire)) {
 			LuaFormatJob job;
 			while (!m_jobs.Pop(job)) {
@@ -194,9 +236,16 @@ private:
 					m_jobs_changed.wait(observed, std::memory_order_acquire);
 				}
 			}
+			if (!lua) {
+				lua.reset(luaL_newstate());
+				if (!lua && !lua_state_failure_logged) {
+					log("SYSERR: lua_formatter: luaL_newstate failed");
+					lua_state_failure_logged = true;
+				}
+			}
 			LuaFormatResult result;
 			result.request_id = job.request_id;
-			result.success = FormatLuaSource(job.source, result.formatted, result.error);
+			result.success = FormatLuaSource(lua.get(), job.source, result.formatted, result.error);
 			while (!m_results.Push(std::move(result))) {
 				const auto observed = m_results_changed.load(std::memory_order_acquire);
 				if (m_stopping.load(std::memory_order_acquire)) {

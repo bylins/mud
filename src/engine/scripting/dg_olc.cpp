@@ -320,7 +320,7 @@ void trigedit_disp_menu(DescriptorData *d) {
 	out << "&g8)&n Язык скрипта       : &y" << (TrigeditIsLuaTrigger(trig) ? "Lua" : "DG") << "&n\r\n";
 #endif
 	if (TrigeditIsLuaTrigger(trig) && lua_scripting::LuaFormatterAvailable()) {
-		out << "&g9)&n Автоформат Lua\r\n";
+		out << "&g9)&n Проверить синтаксис и отформатировать Lua\r\n";
 	}
 	out << "&gQ)&n Завершить редактирование\r\n" "Введите Выбранное :";
 	SendMsgToChar(out.str(), d->character.get());
