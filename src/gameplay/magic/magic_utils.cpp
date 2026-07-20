@@ -372,7 +372,15 @@ int MagicItemStat(const ObjData *item) {
 
 // issue.magic-items: перечень заклинаний предмета с их силой -- один формат для stat и опознания.
 // Заклинания лежат в extra_values (сырые val[] у свитков, зелий, посохов и жезлов нулевые).
+// issue #3611: см. описание в magic_utils.h.
+bool IsPotencyFromProto(const CObjectPrototype *item) {
+	return item->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill) < 0
+			&& item->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency) <= 0;
+}
+
 std::vector<std::string> SpellItemSpellsWithPotency(const ObjData *item) {
+	const bool from_proto = IsPotencyFromProto(item);
+
 	std::vector<std::string> spells;
 	for (int pos = 1; pos <= 3; ++pos) {
 		const auto spell_id = static_cast<ESpell>(item->GetSpellItemSpellNum(pos));
@@ -380,7 +388,9 @@ std::vector<std::string> SpellItemSpellsWithPotency(const ObjData *item) {
 			continue;
 		}
 		const int potency = static_cast<int>(MagicItemPotency(item, spell_id) + 0.5f);
-		spells.push_back(fmt::format("{} (сила {})", MUD::Spell(spell_id).GetName(), potency));
+		spells.push_back(from_proto
+				? fmt::format("{} (сила {}, из прототипа)", MUD::Spell(spell_id).GetName(), potency)
+				: fmt::format("{} (сила {})", MUD::Spell(spell_id).GetName(), potency));
 	}
 
 	return spells;

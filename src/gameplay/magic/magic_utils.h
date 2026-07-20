@@ -3,6 +3,8 @@
 
 #include <limits>
 #include <string>
+
+class CObjectPrototype;
 #include <vector>
 
 #include "gameplay/abilities/feats.h"
@@ -101,6 +103,12 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 // the item acts on its own.
 [[nodiscard]] int MagicItemSkill(const ObjData *item);
 [[nodiscard]] int MagicItemStat(const ObjData *item);
+
+// issue #3611: сила вещи, которую сделал игрок, посчитана по его умению (kMakerSkill/kMakerStat) и
+// записана в самой вещи. У вещи из прототипа этих ключей нет, MagicItemPotency берет зашитые
+// умолчания, и число выходит одинаковым у всех вещей с этим заклинанием -- свойством конкретной
+// вещи оно не является. Такую силу помечаем в выводе, чтобы ее не принимали за настоящую.
+[[nodiscard]] bool IsPotencyFromProto(const CObjectPrototype *item);
 
 // issue.magic-items: заклинания свитка/зелья/посоха с их силой, по одному на элемент,
 // вида "исцеление (сила 42)" -- на выход в utils::OutWordsList. Пустой список, если
