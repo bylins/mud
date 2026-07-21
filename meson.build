@@ -277,6 +277,8 @@ if yaml_opt != 'disabled'
     else
         yaml_dep = dependency('yaml-cpp', required: true, fallback: ['yaml-cpp', 'yaml_cpp_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=s'])
     endif
+    project_args += '-DHAVE_YAML'
+    dependencies += yaml_dep
 endif
 
 otel_opt = get_option('otel')
