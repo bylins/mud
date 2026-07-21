@@ -17,6 +17,7 @@
   * [Windows (MSVC / Clang)](#windows-msvc--clang)
   * [Windows (MinGW / MSYS2)](#windows-mingw--msys2)
   * [Cross-компиляция под Windows с Linux (MinGW)](#cross-компиляция-под-windows-с-linux-mingw)
+  * [LuaJIT и форматирование Lua](#luajit-и-форматирование-lua)
  * [Unity-сборка](#unity-сборка)
  * [Пересборка](#пересборка)
  * [Тесты](#тесты)
@@ -140,6 +141,40 @@ meson setup build --cross-file toolchains/windows-mingw64-cross.txt -Dbuild_prof
 meson compile -C build
 ```
 
+### LuaJIT и форматирование Lua
+
+Для сборки движка с Lua-триггерами и встроенным форматтером EmmyLuaCodeStyle используйте встроенные Meson-зависимости:
+
+```bash
+meson setup build_lua \
+  -Dbuild_profile=release \
+  -Dbuild_tests=false \
+  -Dluajit=builtin \
+  -Dlua_formatter=true
+meson compile -C build_lua
+```
+
+`-Dluajit=builtin` включает LuaJIT и интеграцию через sol2. При включенном LuaJIT опция `lua_formatter` по умолчанию равна `true`; она указана в примере явно, чтобы конфигурация была очевидна. Meson использует subprojects из репозитория или загружает недостающие исходники через wrap-файлы.
+
+Если LuaJIT установлен в системе и доступен через `pkg-config`, вместо встроенной версии можно использовать:
+
+```bash
+meson setup build_lua \
+  -Dbuild_profile=release \
+  -Dbuild_tests=false \
+  -Dluajit=system \
+  -Dlua_formatter=true
+```
+
+Чтобы оставить Lua-триггеры, но отключить форматтер:
+
+```bash
+meson configure build_lua -Dlua_formatter=false
+meson compile -C build_lua
+```
+
+В итоговой сводке конфигурации Meson строки `LuaJIT` и `Lua formatter` показывают фактически выбранные режимы. Форматтер доступен в OLC только в сборке с LuaJIT.
+
 ---
 
 ## Unity-сборка
@@ -257,8 +292,10 @@ docker stop mud
 | `nocrypt` | boolean | `false` | Отключить использование `crypt()` |
 | `with_asan` | boolean | `false` | Address Sanitizer |
 | `use_pch` | boolean | `true` | Предкомпилированные заголовки |
+| `lua_formatter` | boolean | `true` | Встроенный EmmyLuaCodeStyle; используется только при включенном LuaJIT |
 | `linker` | string | `` (системный) | Линковщик: `gold`, `mold`, `lld`, `bfd` |
 | `full_world_path` | string | `` | Абсолютный путь к данным мира для создания симлинков |
+| `sol2_root` | string | `` | Необязательный путь к заголовкам sol2; пустое значение использует Meson dependency/fallback |
 
 ### Зависимости
 
@@ -276,6 +313,7 @@ meson setup build -Ddependency1=builtin -Ddependency2=system -Ddependency3=disab
 | `zlib` | `auto` | Поддержка MCCP через ZLib |
 | `iconv` | `disabled` | Поддержка iconv |
 | `telegram` | `disabled` | Telegram-интеграция (требует CURL + OpenSSL) |
+| `luajit` | `disabled` | Lua-триггеры через LuaJIT и sol2; `builtin` собирает встроенные зависимости |
 | `boost` | `disabled` | Boost (нужен для scripting) |
 | `sqlite` | `disabled` | SQLite как источник данных мира |
 | `yaml` | `disabled` | YAML как источник данных мира |
