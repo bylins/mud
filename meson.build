@@ -128,12 +128,12 @@ endif
 zlib_opt = get_option('zlib')
 if zlib_opt != 'disabled'
     if zlib_opt == 'builtin'
-        zlib_sub = subproject('zlib', default_options: ['default_library=static', 'tests=disabled', 'unity=off'])
+        zlib_sub = subproject('zlib', default_options: ['default_library=static', 'tests=disabled', 'unity=off', 'optimization=2'])
         zlib_dep = zlib_sub.get_variable('zlib_dep')
     elif zlib_opt == 'system'
         zlib_dep = dependency('zlib', required: true, allow_fallback: false)
     else
-        zlib_dep = dependency('zlib', required: true, fallback: ['zlib', 'zlib_dep'], default_options: ['default_library=static', 'tests=disabled', 'unity=off'])
+        zlib_dep = dependency('zlib', required: true, fallback: ['zlib', 'zlib_dep'], default_options: ['default_library=static', 'tests=disabled', 'unity=off', 'optimization=2'])
     endif
     project_args += '-DHAVE_ZLIB'
     dependencies += zlib_dep
@@ -142,12 +142,12 @@ endif
 iconv_opt = get_option('iconv')
 if iconv_opt != 'disabled'
     if iconv_opt == 'builtin'
-        iconv_sub = subproject('iconv', default_options: ['default_library=static', 'tests=disabled'])
+        iconv_sub = subproject('iconv', default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
         iconv_dep = iconv_sub.get_variable('iconv_dep')
     elif iconv_opt == 'system'
         iconv_dep = dependency('iconv', required: true, allow_fallback: false)
     else
-        iconv_dep = dependency('iconv', required: true, fallback: ['iconv', 'iconv_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        iconv_dep = dependency('iconv', required: true, fallback: ['iconv', 'iconv_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
     endif
     project_args += '-DHAVE_ICONV'
     dependencies += iconv_dep
@@ -156,16 +156,16 @@ endif
 telegram_opt = get_option('telegram')
 if telegram_opt != 'disabled'
     if telegram_opt == 'builtin'
-        curl_sub = subproject('curl', default_options: ['default_library=static', 'tests=disabled'])
+        curl_sub = subproject('curl', default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
         curl_dep = curl_sub.get_variable('curl_dep')
-        ssl_sub = subproject('openssl', default_options: ['default_library=static', 'tests=disabled'])
+        ssl_sub = subproject('openssl', default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
         ssl_dep = ssl_sub.get_variable('openssl_dep')
     elif telegram_opt == 'system'
         curl_dep = dependency('libcurl', required: true, allow_fallback: false)
         ssl_dep = dependency('openssl', required: true, allow_fallback: false)
     else
-        curl_dep = dependency('libcurl', required: true, fallback: ['curl', 'curl_dep'], default_options: ['default_library=static', 'tests=disabled'])
-        ssl_dep = dependency('openssl', required: true, fallback: ['openssl', 'openssl_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        curl_dep = dependency('libcurl', required: true, fallback: ['curl', 'curl_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
+        ssl_dep = dependency('openssl', required: true, fallback: ['openssl', 'openssl_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
     endif
     project_args += '-DHAVE_TG'
     dependencies += [curl_dep, ssl_dep]
@@ -255,7 +255,7 @@ endif
 sqlite_opt = get_option('sqlite')
 if sqlite_opt != 'disabled'
     if sqlite_opt == 'builtin'
-        sqlite_sub = subproject('sqlite3')
+        sqlite_sub = subproject('sqlite3', default_options: ['optimization=2'])
         sqlite_dep = sqlite_sub.get_variable('sqlite3_dep')
     elif sqlite_opt == 'system'
         sqlite_dep = dependency('sqlite3', required: true, allow_fallback: false)
@@ -335,12 +335,12 @@ endif
 
 fmt_opt = get_option('fmt')
 if fmt_opt == 'builtin'
-    fmt_sub = subproject('fmt', default_options: ['default_library=static'])
+    fmt_sub = subproject('fmt', default_options: ['default_library=static', 'optimization=2'])
     fmt_dep = fmt_sub.get_variable('fmt_dep')
 elif fmt_opt == 'system'
     fmt_dep = dependency('fmt', required: true, allow_fallback: false)
 else
-    fmt_dep = dependency('fmt', required: true, fallback: ['fmt', 'fmt_dep'], default_options: ['default_library=static'])
+    fmt_dep = dependency('fmt', required: true, fallback: ['fmt', 'fmt_dep'], default_options: ['default_library=static', 'optimization=2'])
 endif
 
 subdir('src/third_party_libs/libfort')
