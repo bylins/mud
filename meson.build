@@ -266,18 +266,17 @@ if sqlite_opt != 'disabled'
     dependencies += sqlite_dep
 endif
 
+
 yaml_opt = get_option('yaml')
 if yaml_opt != 'disabled'
     if yaml_opt == 'builtin'
-        yaml_sub = subproject('yaml-cpp', default_options: ['default_library=static', 'tests=disabled'])
+        yaml_sub = subproject('yaml-cpp', default_options: ['default_library=static', 'tests=disabled', 'optimization=s'])
         yaml_dep = yaml_sub.get_variable('yaml_cpp_dep')
     elif yaml_opt == 'system'
         yaml_dep = dependency('yaml-cpp', required: true, allow_fallback: false)
     else
-        yaml_dep = dependency('yaml-cpp', required: true, fallback: ['yaml-cpp', 'yaml_cpp_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        yaml_dep = dependency('yaml-cpp', required: true, fallback: ['yaml-cpp', 'yaml_cpp_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=s'])
     endif
-    project_args += '-DHAVE_YAML'
-    dependencies += yaml_dep
 endif
 
 otel_opt = get_option('otel')
