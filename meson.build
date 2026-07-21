@@ -243,7 +243,7 @@ if luajit_opt != 'disabled'
         emmy_dep = dependency(
             'emmyluacodestyle',
             fallback: ['emmyluacodestyle', 'emmyluacodestyle_dep'],
-            default_options: ['warning_level=0', 'unity=off'],
+            default_options: ['warning_level=0'],
         )
         dependencies += emmy_dep
         project_args += '-DWITH_LUA_FORMATTER'
