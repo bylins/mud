@@ -112,6 +112,7 @@ struct olc_data {
 	int trigger_position;
 	int item_type;
 	std::uint64_t lua_format_request_id;
+	bool lua_format_save_on_completion;
 	ObjData::triggers_list_t script;
 	char *storage;        // for holding commands etc..
 };

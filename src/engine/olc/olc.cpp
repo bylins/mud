@@ -104,6 +104,7 @@ olc_data::olc_data()
 	  trigger_position(0),
 	  item_type(0),
 	  lua_format_request_id(0),
+	  lua_format_save_on_completion(false),
 	  script(0),
 	  storage(0) {
 
@@ -474,6 +475,7 @@ void strip_string(char *buffer) {
  */
 void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 	if (d->olc) {
+		TrigeditSavePendingLuaOnCleanup(d);
 
 		// Освободить редактируемый триггер
 		if (OLC_TRIG(d)) {
