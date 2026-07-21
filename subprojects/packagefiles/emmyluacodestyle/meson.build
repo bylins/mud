@@ -23,6 +23,7 @@ uri_lib = static_library(
     uri_sources,
     include_directories: uri_inc,
     c_args: ['-DURI_LIBRARY_BUILD', '-DURI_STATIC_BUILD'],
+    override_options: ['unity=off'],
     pic: true,
 )
 
@@ -97,6 +98,7 @@ emmy_lib = static_library(
     include_directories: emmy_inc,
     link_with: uri_lib,
     cpp_args: ['-DURI_STATIC_BUILD'],
+    override_options: ['unity=off'],
     pic: true,
 )
 
