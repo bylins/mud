@@ -1464,7 +1464,9 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					//                     the potion's spells applies its OWN sigma to it at cast. Encoded
 					//                     (z + kBrewRollBias)*kBrewRollScale, always > 0.
 					if (result->get_type() == EObjType::kPotion) {
-						const auto potion_spell = static_cast<ESpell>(result->get_val(1));
+						// issue.magic-items: заклинание зелья -- в extra_values (kSpell1Num), сырой
+						// val[1] обнулён миграцией; иначе гейт не пройдёт и maker-ключи не проставятся.
+						const auto potion_spell = static_cast<ESpell>(result->GetSpellItemSpellNum(1));
 						if (potion_spell > ESpell::kUndefined) {
 							// issue.potion-hotfix: preserve the maker's INPUTS, not the (non-obvious)
 							// computed potency: the brewing skill (rs->perc -- it stands in for the magic
