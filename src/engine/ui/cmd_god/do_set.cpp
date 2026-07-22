@@ -363,7 +363,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 14: {
 			auto new_value = static_cast<long>(value);
-			new_value = std::clamp(new_value, 0L, experience::GetExpUntilNextLvl(vict, kLvlImmortal) - 1) - vict->get_exp();
+			new_value = std::clamp(new_value, 0L, std::max(0L, experience::GetExpUntilNextLvl(vict, kLvlImmortal) - 1)) - vict->get_exp();
 			experience::gain_exp_regardless(vict, new_value);
 			break;
 		}

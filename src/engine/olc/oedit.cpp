@@ -2382,7 +2382,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				drinkcon_values_menu(d);
 				return;
 			case OEDIT_DRINKCON_CURRENT: number = atoi(arg);
-				OLC_OBJ(d)->set_val(1, std::clamp(number, 0, GET_OBJ_VAL(OLC_OBJ(d), 0)));
+				OLC_OBJ(d)->set_val(1, std::clamp(number, 0, std::max(0, GET_OBJ_VAL(OLC_OBJ(d), 0))));
 				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 				drinkcon_values_menu(d);
 				return;

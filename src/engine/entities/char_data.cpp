@@ -1280,7 +1280,7 @@ int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_va
 	if (ch->IsNpc() || privilege::IsGod(ch))
 		return std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap);
 	else
-		return std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
+		return std::clamp(stat_value, kLeastBaseStat, std::max(kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id)));
 }
 
 int GetRealBaseStat(const CharData *ch, EBaseStat stat_id) {
