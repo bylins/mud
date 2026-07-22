@@ -986,7 +986,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 						MUD::Spell(staff_spell).GetCName(),
 						kColorNrm,
 						potency,
-						IsPotencyFromProto(j) ? ", из прототипа" : "",
+						IsPotencyFromProto(j) ? ", базовая" : "",
 						j->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
 						j->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));
 			}

@@ -617,7 +617,7 @@ std::string print_spell(const ObjData *obj, int num) {
 			 kColorCyn,
 			 MUD::Spell(spell_id).GetCName(),
 			 potency,
-			 IsPotencyFromProto(obj) ? ", из прототипа" : "",
+			 IsPotencyFromProto(obj) ? ", базовая" : "",
 			 kColorNrm);
 
 	return buf_;
