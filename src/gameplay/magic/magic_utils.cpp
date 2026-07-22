@@ -311,7 +311,8 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, doub
 	const double mean = floor_val + scaled;
 	const double sd = sigma * scaled;
 	const int lo = std::max(0, static_cast<int>(std::floor(floor_val)));
-	const int hi = (cap > 0) ? cap : std::numeric_limits<int>::max();
+	// issue #3631: cap ниже пола дал бы std::clamp lo>hi -- держим hi>=lo
+	const int hi = (cap > 0) ? std::max(lo, cap) : std::numeric_limits<int>::max();
 	// issue.potion-hotfix: a brewed potion replays its FROZEN brew-luck z (a standard normal) instead
 	// of drawing -- amount = mean + z*sd -- so every quaff of the potion is identical, yet each of its
 	// spells still applies its OWN sigma (via sd) to the one z. NaN = no fixed noise, draw as usual.

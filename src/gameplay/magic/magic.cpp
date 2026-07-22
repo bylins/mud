@@ -514,7 +514,7 @@ bool RunWholeCastWards(ActionContext &ctx, bool is_magic) {
 					// otherwise the fixed prob (spell-side <reflection> / flat-prob reflect).
 					chance = (refl.max > 0)
 						? std::clamp(static_cast<int>(ward.second - CalcCastPotency(ctx.potency())),
-									 refl.min, refl.max)
+									 refl.min, std::max(refl.min, refl.max))
 						: refl.prob;
 				} else if (absb.chance != EApply::kNone) {
 					// stat-driven: capped GET_<apply>(victim), same clamp as the elemental-resist path.

@@ -197,7 +197,7 @@ void decrease_level(CharData *ch) {
 	}
 
 	check_max_hp(ch);
-	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
+	ch->set_max_move(ch->get_max_move() - std::min(add_move, ch->get_max_move()));   // issue #3631: не уходим ниже 0
 
 	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
 	if (!privilege::IsImmortal(ch)) {
