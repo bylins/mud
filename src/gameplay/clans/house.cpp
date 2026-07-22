@@ -1375,6 +1375,37 @@ int Clan::delete_obj(int vnum) {
 	return num;
 }
 
+// Предмет рассыпался по таймеру внутри кланового хранилища. Savers сундука и ингр-храна --
+// dirty-трекеры (сохраняют только помеченные кланы), а распад сам по себе dirty не метил:
+// файл не переписывался, и предмет возвращался из него после ребута. Метим владельца dirty и
+// уменьшаем счётчик вещей (при take он уменьшается, при распаде забывали). Вызывается из
+// obj_point_update, пока предмет ещё лежит в сундуке (до ExtractObjFromWorld).
+void Clan::OnChestObjDecay(ObjData *j) {
+	ObjData *container = j ? j->get_in_obj() : nullptr;
+	if (!container) {
+		return;
+	}
+	const int room_vnum = GET_ROOM_VNUM(container->get_in_room());
+	for (auto &clan : Clan::ClanList) {
+		if (Clan::is_clan_chest(container) && clan->GetRent() == room_vnum) {
+			if (clan->chest_objcount > 0) {
+				clan->chest_objcount--;
+			}
+			GlobalObjects::chest_saver().mark_dirty(clan.get());
+			return;
+		}
+		if (Clan::is_ingr_chest(container)
+			&& clan->get_ingr_chest_room_rnum() >= 0
+			&& GET_ROOM_VNUM(clan->get_ingr_chest_room_rnum()) == room_vnum) {
+			if (clan->ingr_chest_objcount_ > 0) {
+				clan->ingr_chest_objcount_--;
+			}
+			GlobalObjects::ingr_chest_saver().mark_dirty(clan.get());
+			return;
+		}
+	}
+}
+
 // * hcontrol outcast имя - отписывание любого персонажа от дружины, кроме воеводы.
 void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 	std::string name;
