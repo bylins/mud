@@ -391,7 +391,7 @@ std::vector<std::string> SpellItemSpellsWithPotency(const ObjData *item) {
 		const int potency = static_cast<int>(MagicItemPotency(item, spell_id) + 0.5f);
 		// имя заклинания выделяем цветом, как в списке заклинаний моба
 		spells.push_back(from_proto
-				? fmt::format("{}{}{} (сила {}, из прототипа)",
+				? fmt::format("{}{}{} (сила {}, базовая)",
 						kColorCyn, MUD::Spell(spell_id).GetName(), kColorNrm, potency)
 				: fmt::format("{}{}{} (сила {})",
 						kColorCyn, MUD::Spell(spell_id).GetName(), kColorNrm, potency));
