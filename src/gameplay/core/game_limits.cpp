@@ -1268,6 +1268,9 @@ void obj_point_update() {
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_invoice(j);
 		}
+		// Распад в клановом сундуке/ингр-хране: пометить клан dirty и поправить счётчик, иначе
+		// dirty-savers не перезапишут файл и предмет воскреснет после ребута.
+		Clan::OnChestObjDecay(j);
 		if (IS_CORPSE(j)) {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {

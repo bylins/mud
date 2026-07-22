@@ -202,6 +202,10 @@ class Clan {
   static bool is_ingr_chest(ObjData *obj);
   static void clan_invoice(CharData *ch, bool enter);
   static int delete_obj(int vnum);
+  // Предмет распался внутри кланового сундука или ингр-храна: помечаем владеющий клан dirty
+  // (иначе savers -- dirty-трекеры -- не перезапишут файл, и предмет воскреснет после ребута) и
+  // уменьшаем счётчик вещей хранилища (при take он уменьшается, при распаде -- нет).
+  static void OnChestObjDecay(ObjData *j);
   static void save_pk_log();
   static bool put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest);
   static bool take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest);
