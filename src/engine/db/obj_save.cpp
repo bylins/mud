@@ -665,6 +665,12 @@ void WriteMagicComponentItem(std::stringstream &out, ObjData *object, int locati
 	out << "Val1: " << GET_OBJ_VAL(object, 1) << "~\n";
 	out << "Val2: " << GET_OBJ_VAL(object, 2) << "~\n";
 	out << "Val3: " << GET_OBJ_VAL(object, 3) << "~\n";
+	// Имя магкомпонента заполнено моба-источником (im_assign_power ставит is_rename), а короткий
+	// формат его раньше не сохранял -- после ребута флаг терялся, и правка прототипа в olc
+	// затирала имя шаблоном "@p1". Пишем флаг, чтобы olc_update_object восстановил имя.
+	if (object->get_is_rename()) {
+		out << "Rnme: 1~\n";
+	}
 	if (object->get_custom_label()) {
 		out << "Clbl: " << object->get_custom_label()->text_label << "~\n";
 		out << "ClID: " << object->get_custom_label()->author << "~\n";

@@ -214,11 +214,17 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		// custom_label is now a value-type with deep copy (issue #3568)
 		obj->set_custom_label(std::make_shared<custom_label>(*tmp.get_custom_label()));
 	}
-	// восстановим силу ингров
+	// восстановим силу ингров и имя. У магкомпонента (сердце и пр.) все per-instance данные лежат
+	// в values: val[3] (IM_INDEX_SLOT) -- vnum моба-источника, из него при загрузке проставляется
+	// имя ("сердце @p1" -> "сердце дракона"). Полное обновление выше (*obj = *olc_obj) затирает и
+	// values, и имя прототипными; val[3] раньше НЕ восстанавливали, из-за чего у всех держащихся
+	// сердец слетал моб (val[3] становился прототипной 1) и имя откатывалось к шаблону "@p1".
 	if (tmp.get_type() == EObjType::kMagicComponent) {
 		obj->set_val(0, tmp.get_val(0));
 		obj->set_val(1, tmp.get_val(1));
 		obj->set_val(2, tmp.get_val(2));
+		obj->set_val(3, tmp.get_val(3));
+		obj->copy_name_from(&tmp);
 	}
 	// Пересчитываем deadline в ObjDecayManager на основании актуальных полей:
 	// *obj = *olc_obj выше затирает extra_flags значениями из прототипа
