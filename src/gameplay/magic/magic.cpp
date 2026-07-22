@@ -1884,6 +1884,12 @@ void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 		return;
 	}
 	const int cap = max_hp + max_hp * extra_percent / 100;
+	// HP уже выше оверхил-капа (накопилось прошлыми кастами или упал max_hp) -- лечить нечем и
+	// нельзя урезать. Без этой проверки std::clamp получал lo(get_hit) > hi(cap) и падал по
+	// glibc-ассерту (issue #3631).
+	if (victim->get_hit() >= cap) {
+		return;
+	}
 	victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(), cap));
 }
 
