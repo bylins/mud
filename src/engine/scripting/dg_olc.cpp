@@ -27,6 +27,7 @@
 #include "engine/entities/zone.h"
 #include <sys/stat.h>
 #include "engine/db/world_characters.h"
+#include "engine/scripting/lua/lua_formatter.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/world_data_source_manager.h"
 #include "dg_db_scripts.h"
@@ -71,6 +72,55 @@ bool TrigeditLuaEditingEnabled()
 bool TrigeditIsLuaTrigger(const Trigger *trig)
 {
 	return trig && trig->get_script_language() == TriggerScriptLanguage::Lua;
+}
+
+bool TrigeditQueueLuaFormat(DescriptorData *d, bool save_on_completion)
+{
+	const std::string source = OLC_STORAGE(d) ? OLC_STORAGE(d) : "";
+	const auto request_id = lua_scripting::QueueLuaFormat(source);
+	if (request_id == 0) {
+		SendMsgToChar("Очередь форматтера Lua переполнена. Повторите позже.\r\n", d->character.get());
+		return false;
+	}
+	d->olc->lua_format_request_id = request_id;
+	d->olc->lua_format_save_on_completion = save_on_completion;
+	SendMsgToChar(save_on_completion
+		? "Проверка и форматирование Lua-скрипта перед сохранением запущены. Дождитесь результата.\r\n"
+		: "Форматирование Lua-скрипта запущено. Дождитесь результата.\r\n",
+		d->character.get());
+	return true;
+}
+
+bool TrigeditFormatLua(DescriptorData *d)
+{
+	return TrigeditQueueLuaFormat(d, false);
+}
+
+bool TrigeditFormatLuaBeforeSave(DescriptorData *d)
+{
+	return TrigeditQueueLuaFormat(d, true);
+}
+
+bool TrigeditApplyFormattedLua(DescriptorData *d, const lua_scripting::LuaFormatResult& result)
+{
+	if (!result.success) {
+		SendMsgToChar(d->character.get(), "Ошибка проверки/форматирования Lua: %s\r\n", result.error.c_str());
+		return false;
+	}
+	if (result.formatted.size() >= MAX_CMD_LENGTH) {
+		SendMsgToChar(d->character.get(), "Ошибка проверки/форматирования Lua: результат слишком большой.\r\n");
+		return false;
+	}
+	RECREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
+	memcpy(OLC_STORAGE(d), result.formatted.c_str(), result.formatted.size() + 1);
+	OLC_VAL(d)++;
+	SendMsgToChar(d->character.get(), "Lua-скрипт отформатирован.\r\n");
+	return true;
+}
+
+bool TrigeditLuaFormatPending(const DescriptorData *d)
+{
+	return d->olc && d->olc->lua_format_request_id != 0;
 }
 
 void TrigeditLoadStorageFromTrigger(Trigger *trig, char *storage)
@@ -174,7 +224,69 @@ void TrigeditFprintEscapedBody(FILE *fp, const std::string &body)
 	fprintf(fp, "~\n");
 }
 
+void TrigeditCommitSave(DescriptorData *d)
+{
+	trigedit_save(d);
+	snprintf(buf, sizeof(buf), "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
+	olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
+	mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+}
+
+void TrigeditSaveAndExit(DescriptorData *d)
+{
+	TrigeditCommitSave(d);
+	cleanup_olc(d, CLEANUP_ALL);
+}
+
 } // namespace
+
+void TrigeditSavePendingLuaOnCleanup(DescriptorData *d)
+{
+	if (!d || !d->olc || !d->olc->lua_format_save_on_completion || !OLC_TRIG(d)) {
+		return;
+	}
+	d->olc->lua_format_request_id = 0;
+	d->olc->lua_format_save_on_completion = false;
+	TrigeditCommitSave(d);
+}
+
+void ProcessLuaFormatterResults()
+{
+	lua_scripting::LuaFormatResult result;
+	while (lua_scripting::TryPopLuaFormatResult(result)) {
+		DescriptorData *d = descriptor_list;
+		while (d && (d->state != EConState::kTrigedit
+					 || !d->olc
+					 || d->olc->lua_format_request_id != result.request_id)) {
+			d = d->next;
+		}
+		if (!d) {
+			continue;
+		}
+		d->olc->lua_format_request_id = 0;
+		const bool save_on_completion = d->olc->lua_format_save_on_completion;
+		d->olc->lua_format_save_on_completion = false;
+		if (!TrigeditIsLuaTrigger(OLC_TRIG(d))) {
+			if (save_on_completion) {
+				SendMsgToChar("Форматирование не применено. Исходный код триггера сохраняется.\r\n",
+					d->character.get());
+				TrigeditSaveAndExit(d);
+			} else {
+				trigedit_disp_menu(d);
+			}
+			continue;
+		}
+		const bool formatted = TrigeditApplyFormattedLua(d, result);
+		if (save_on_completion) {
+			if (!formatted) {
+				SendMsgToChar("Исходный Lua-код сохраняется без форматирования.\r\n", d->character.get());
+			}
+			TrigeditSaveAndExit(d);
+			continue;
+		}
+		trigedit_disp_menu(d);
+	}
+}
 
 inline void fprint_script(FILE *fp, const ObjData::triggers_list_t &scripts) {
 	for (const auto vnum : scripts) {
@@ -262,6 +374,9 @@ void trigedit_disp_menu(DescriptorData *d) {
 #if defined(WITH_LUAJIT_PROTOTYPE)
 	out << "&g8)&n Язык скрипта       : &y" << (TrigeditIsLuaTrigger(trig) ? "Lua" : "DG") << "&n\r\n";
 #endif
+	if (TrigeditIsLuaTrigger(trig) && lua_scripting::LuaFormatterAvailable()) {
+		out << "&g9)&n Проверить синтаксис и отформатировать Lua\r\n";
+	}
 	out << "&gQ)&n Завершить редактирование\r\n" "Введите Выбранное :";
 	SendMsgToChar(out.str(), d->character.get());
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
@@ -298,8 +413,34 @@ void trigedit_disp_types(DescriptorData *d) {
 void trigedit_parse(DescriptorData *d, char *arg) {
 	int i = 0;
 
+	if (TrigeditLuaFormatPending(d) && d->olc->lua_format_save_on_completion) {
+		if (tolower(*arg) == 'q') {
+			d->olc->lua_format_request_id = 0;
+			d->olc->lua_format_save_on_completion = false;
+			SendMsgToChar("Форматирование отменено. Исходный Lua-код сохраняется без форматирования.\r\n",
+				d->character.get());
+			TrigeditSaveAndExit(d);
+		} else {
+			SendMsgToChar("Проверка и форматирование Lua-скрипта перед сохранением еще выполняются. "
+				"Для отмены форматирования и сохранения исходного кода используйте Q.\r\n",
+				d->character.get());
+		}
+		return;
+	}
+
 	switch (OLC_MODE(d)) {
 		case TRIGEDIT_MAIN_MENU:
+			if (TrigeditLuaFormatPending(d)) {
+				if (tolower(*arg) == 'q') {
+					d->olc->lua_format_request_id = 0;
+					d->olc->lua_format_save_on_completion = false;
+				} else {
+					SendMsgToChar("Форматирование Lua-скрипта еще выполняется. Для выхода используйте Q.\r\n",
+								  d->character.get());
+					trigedit_disp_menu(d);
+					return;
+				}
+			}
 			switch (tolower(*arg)) {
 				case 'q':
 					if (OLC_VAL(d))    // Anything been changed?
@@ -371,6 +512,17 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					break;
 #endif
 
+				case '9':
+					if (!TrigeditIsLuaTrigger(OLC_TRIG(d))) {
+						SendMsgToChar("Автоформат доступен только для Lua-триггеров.\r\n", d->character.get());
+					} else if (!lua_scripting::LuaFormatterAvailable()) {
+						SendMsgToChar("Форматтер Lua недоступен в этой сборке.\r\n", d->character.get());
+					} else if (TrigeditFormatLua(d)) {
+						return;
+					}
+					trigedit_disp_menu(d);
+					return;
+
 				default: trigedit_disp_menu(d);
 					return;
 			}
@@ -378,11 +530,15 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 
 		case TRIGEDIT_CONFIRM_SAVESTRING:
 			switch (tolower(*arg)) {
-				case 'y': trigedit_save(d);
-					snprintf(buf, sizeof(buf), "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
-					olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
-					// fall through
+				case 'y':
+					if (TrigeditIsLuaTrigger(OLC_TRIG(d)) && lua_scripting::LuaFormatterAvailable()) {
+						if (TrigeditFormatLuaBeforeSave(d)) {
+							return;
+						}
+						SendMsgToChar("Исходный Lua-код сохраняется без форматирования.\r\n", d->character.get());
+					}
+					TrigeditSaveAndExit(d);
+					return;
 
 				case 'n': cleanup_olc(d, CLEANUP_ALL);
 					return;

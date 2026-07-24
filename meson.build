@@ -218,6 +218,7 @@ threads_dep = dependency('threads')
 dependencies += threads_dep
 
 luajit_opt = get_option('luajit')
+lua_formatter_enabled = false
 if luajit_opt != 'disabled'
     if luajit_opt == 'builtin'
         luajit_sub = subproject('luajit', default_options: ['default_library=static', 'luajit=false'])
@@ -244,6 +245,16 @@ if luajit_opt != 'disabled'
     )
     project_args += '-DWITH_LUAJIT_PROTOTYPE'
     dependencies += [luajit_dep, sol2_dep]
+    if get_option('lua_formatter')
+        emmy_dep = dependency(
+            'emmyluacodestyle',
+            fallback: ['emmyluacodestyle', 'emmyluacodestyle_dep'],
+            default_options: ['warning_level=0'],
+        )
+        dependencies += emmy_dep
+        project_args += '-DWITH_LUA_FORMATTER'
+        lua_formatter_enabled = true
+    endif
 endif
 
 # Admin API
@@ -466,6 +477,7 @@ main_sources = files(
   'src/engine/scripting/dg_triggers.cpp',
   'src/engine/scripting/dg_wldcmd.cpp',
   'src/engine/scripting/lua/lua_entity_bindings.cpp',
+  'src/engine/scripting/lua/lua_formatter.cpp',
   'src/engine/scripting/lua/lua_mud_api.cpp',
   'src/engine/scripting/lua/lua_script_engine.cpp',
   'src/engine/scripting/lua/lua_trigger_context.cpp',
@@ -1080,6 +1092,7 @@ summary({
     'fmt':             fmt_opt,
     'gtest':             gtest_opt,
     'LuaJIT':          luajit_opt,
+    'Lua formatter':   lua_formatter_enabled,
     'SQLite':          sqlite_opt,
     'YAML':            yaml_opt,
     'Telegram':        telegram_opt,

@@ -1,5 +1,5 @@
 # No need for sanitizing and no point in wasting time with LTO on native helpers.
-native_overrides = ['b_sanitize=none', 'b_lto=false']
+native_overrides = ['b_sanitize=none', 'b_lto=false', 'unity=off']
 
 minilua_exe = executable(
   'minilua',

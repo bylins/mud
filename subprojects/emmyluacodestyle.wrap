@@ -1,0 +1,9 @@
+[wrap-git]
+directory = emmyluacodestyle
+url = https://github.com/CppCXY/EmmyLuaCodeStyle.git
+revision = fdbaa0fa411abda0dd172eb7e360a08f4500208b
+depth = 1
+patch_directory = emmyluacodestyle
+
+[provide]
+emmyluacodestyle = emmyluacodestyle_dep

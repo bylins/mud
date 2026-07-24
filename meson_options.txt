@@ -6,6 +6,7 @@ option('nocrypt', type: 'boolean', value: false, description: 'Disable use of cr
 option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux or freebsd)')
 option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
 option('sol2_root', type: 'string', value: '', description: 'Optional path to sol2 root for luajit_prototype; empty uses Meson dependency/fallback')
+option('lua_formatter', type: 'boolean', value: true, description: 'Build the embedded EmmyLuaCodeStyle formatter when LuaJIT is enabled')
 option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
 option('use_pch', type: 'boolean', value: true, description: 'Use precompiled headers for circle.library')
 

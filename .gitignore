@@ -62,6 +62,7 @@ subprojects/fmt
 subprojects/gtest
 subprojects/sol2
 subprojects/luajit
+subprojects/emmyluacodestyle
 subprojects/yaml-cpp
 subprojects/zlib
 /1/
