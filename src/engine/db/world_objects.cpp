@@ -1,4 +1,5 @@
 #include "world_objects.h"
+#include "utils/tracing/trace_manager.h"
 #include "engine/core/obj_handler.h"
 #include "engine/entities/char_data.h"
 #include "obj_prototypes.h"
@@ -392,6 +393,9 @@ void WorldObjects::GetObjListByVnum(const ObjVnum vnum, std::list<ObjData *> &re
 }
 
 void WorldObjects::AddToExtractedList(ObjData *obj) {
+	// diag #3646: trace which pulse an object is queued for extraction
+	auto _diag_span = tracing::TraceManager::Instance().StartSpan("obj.AddToExtractedList");
+	if (obj) { _diag_span->SetAttribute("obj_vnum", static_cast<int64_t>(obj->get_vnum())); }
 	lua_scripting::LuaScriptEngine::CancelWaitsForObject(obj);
 	const ObjData::shared_ptr object_ptr = get_by_raw_ptr(obj);
 

@@ -1,4 +1,5 @@
 #include "world_characters.h"
+#include "utils/tracing/trace_manager.h"
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/lua/lua_script_engine.h"
@@ -96,6 +97,9 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 }
 
 void Characters::AddToExtractedList(CharData *ch) {
+	// diag #3646: trace which pulse a char is queued for extraction (wraps DropEquipment/DropInventory)
+	auto _diag_span = tracing::TraceManager::Instance().StartSpan("char.AddToExtractedList");
+	if (ch) { _diag_span->SetAttribute("mob_vnum", static_cast<int64_t>(ch->IsNpc() ? mob_index[ch->get_rnum()].vnum : -1)); }
 	lua_scripting::LuaScriptEngine::CancelWaitsForOwner(ch);
 	if (ch->IsNpc()) {
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
