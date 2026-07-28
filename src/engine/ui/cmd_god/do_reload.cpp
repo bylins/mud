@@ -45,7 +45,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  all  *  -- everything below\r\n"
 			"  cfg data : abilities skills spells feats classes mobclasses guilds currencies\r\n"
 			"             ztypes runes mobraces objsets\r\n"
-			"  messages : spellmsg skillmsg hitmsg\r\n"
+			"  messages : spellmsg skillmsg hitmsg affectmsg roomaffectmsg\r\n"
 			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
 			"             digging guards jewelry makeitems basic cases\r\n"
@@ -57,6 +57,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!str_cmp(arg, "all") || *arg == '*') {
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
 		MUD::CfgManager().ReloadCfg("system_msg");
+		MUD::CfgManager().ReloadCfg("affect_msg");
+		MUD::CfgManager().ReloadCfg("room_affect_msg");
 		MUD::CfgManager().ReloadCfg("social_msg");
 		initIngredientsMagic();
 		MUD::CfgManager().ReloadCfg("zone_types");
@@ -100,6 +102,10 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("skill_msg");
     } else if (!str_cmp(arg, "hitmsg")) {
         MUD::CfgManager().ReloadCfg("hit_msg");
+	} else if (!str_cmp(arg, "affectmsg")) {
+		MUD::CfgManager().ReloadCfg("affect_msg");
+	} else if (!str_cmp(arg, "roomaffectmsg")) {
+		MUD::CfgManager().ReloadCfg("room_affect_msg");
 	} else if (!str_cmp(arg, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
