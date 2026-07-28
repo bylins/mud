@@ -177,7 +177,7 @@ luajit_lib_name = 'luajit-' + abiver
 luajit_lib_kwargs = {
   'dependencies'    : [m_dep, dl_dep],
   'install'         : true,
-  'override_options': ['b_sanitize=none'],
+  'override_options': ['b_sanitize=none', 'unity=off'],
 }
 
 # Shared luajit library. {{{
@@ -265,6 +265,7 @@ if get_option('luajit')
     export_dynamic: luajit_exe_export_dynamic,
     install: get_option('luajit'),
     link_with: luajit_exe_lib,
+    override_options: ['unity=off'],
   )
   meson.override_find_program('luajit', luajit_exe)
 

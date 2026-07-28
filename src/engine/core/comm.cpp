@@ -51,6 +51,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/clans/house.h"
 #include "engine/olc/olc.h"
+#include "engine/scripting/lua/lua_formatter.h"
 #include "engine/olc/vedun/vedun.h"
 #include "administration/ban.h"
 #include "administration/proxy.h"
@@ -910,10 +911,16 @@ void stop_game(ush_int port) {
 		}
 	}
 #endif
-	game_loop(epoll, mother_desc);
+	{
+		lua_scripting::LuaFormatterShutdownGuard lua_formatter_shutdown_guard;
+		game_loop(epoll, mother_desc);
+	}
 #else
 	log("Polling using select().");
-	game_loop(mother_desc);
+	{
+		lua_scripting::LuaFormatterShutdownGuard lua_formatter_shutdown_guard;
+		game_loop(mother_desc);
+	}
 #endif
 
 	// Shutdown OTEL providers to flush remaining telemetry

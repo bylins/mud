@@ -25,6 +25,7 @@
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/ai/mobact.h"
 #include "engine/scripting/dg_event.h"
+#include "engine/scripting/dg_olc.h"
 #include "engine/scripting/lua/lua_script_engine.h"
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
@@ -276,6 +277,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 0,
 							 std::make_shared<SimpleCall>(GlobalDrop::reload_tables)),
 		Heartbeat::PulseStep("Events processing", 1, 0, std::make_shared<SimpleCall>(process_events)),
+		Heartbeat::PulseStep("Lua formatter results", 1, 0, std::make_shared<SimpleCall>(ProcessLuaFormatterResults)),
 		Heartbeat::PulseStep("Lua scripting cleanup", 1, 0, std::make_shared<SimpleCall>(lua_scripting::LuaScriptEngine::HeartbeatCleanup)),
 		Heartbeat::PulseStep("Triggers check mobile", 
 							PULSE_DG_SCRIPT, 

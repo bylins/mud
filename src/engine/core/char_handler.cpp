@@ -205,6 +205,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		return;
 	}
 
+	log("[charlife] ExtractCharFromWorld %s #%d room %d", GET_NAME(ch), static_cast<int>(ch->IsNpc() ? mob_index[ch->get_rnum()].vnum : -1), GET_ROOM_VNUM(ch->in_room));
 	if (ch->IsFlagged(EMobFlag::kMobFreed) || ch->IsFlagged(EMobFlag::kMobDeleted)) {
 		return;
 	}

@@ -252,6 +252,7 @@ void RemoveObjFromChar(ObjData *object) {
 		log("SYSERR: NULL object or owner passed to obj_from_char");
 		return;
 	}
+	log("[objlife] RemoveObjFromChar %s #%d room %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object), get_room_where_obj(object));
 	object->remove_me_from_contains_list(object->get_carried_by()->carrying);
 
 	// set flag for crash-save system, but not on mobs!
