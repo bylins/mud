@@ -320,7 +320,7 @@
 			</action>
 			<action>
 				<trigger val="kWardDamage"/>
-				<retaliation>
+				<retaliation passive="true">
 					<conditions>
 						<type val="kMagicDmg"/>
 					</conditions>

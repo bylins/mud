@@ -163,6 +163,8 @@ class Damage {
     // issue: EAffect (underlying value) of the ward that fired this reflect, or -1. Lets DealReflectPool
     // narrate with that ward's own kWardTo* flavor instead of the reflected hit's generic combat line.
     int ward{-1};
+    // issue: a passive reflect (magic mirror) fires regardless of the bearer's stance/combat state.
+    bool passive{false};
   };
   std::vector<ReflectHit> reflect_pool_;
   // issue: set on a reflected-hit Damage when its ward already narrated via kWardTo* messages, so Process

@@ -338,6 +338,7 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 				hit.type = static_cast<fight::DmgType>((rt.dmg_type >= 0) ? rt.dmg_type : dmg_type);
 				hit.element = (rt.element >= 0) ? static_cast<EElement>(rt.element) : element;
 				hit.ward = static_cast<int>(at);   // so DealReflectPool can show this ward's own flavor
+				hit.passive = rt.passive;          // a magic mirror reflects even while stunned/downed
 				reflect_pool_.push_back(hit);
 			}
 			// Flag edits (e.g. the kDrawBriefMagMirror HUD glyph) apply whenever the ward reacts.
@@ -354,14 +355,14 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 }
 
 void Damage::DealReflectPool(CharData *ch, CharData *victim) {
-	if (reflect_pool_.empty()
-		|| !victim->GetEnemy()
-		|| victim->GetPosition() <= EPosition::kStun
-		|| victim->in_room == kNowhere) {
+	if (reflect_pool_.empty() || victim->in_room == kNowhere) {
 		return;
 	}
+	// Active retaliation (physical thorns) needs the bearer up and engaged; a PASSIVE reflect -- a magic
+	// mirror, a property of the affect rather than a combat action -- fires regardless of stance/combat.
+	const bool can_act = victim->GetEnemy() && victim->GetPosition() > EPosition::kStun;
 	for (const auto &hit : reflect_pool_) {
-		if (hit.amount <= 0) {
+		if (hit.amount <= 0 || (!hit.passive && !can_act)) {
 			continue;
 		}
 		// Narrate with the WARD's own flavor (e.g. the magic mirror's "reflected your magic!"), not the
