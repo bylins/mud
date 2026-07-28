@@ -375,10 +375,13 @@ void Damage::DealReflectPool(CharData *ch, CharData *victim) {
 			const std::string &mc = affects::AffectMsgRaw(w, EAMT::kWardToChar);
 			const std::string &mv = affects::AffectMsgRaw(w, EAMT::kWardToVict);
 			const std::string &mr = affects::AffectMsgRaw(w, EAMT::kWardToRoom);
-			if (!mc.empty()) { act(mc.c_str(), false, ch, nullptr, victim, kToChar); narrated = true; }
-			if (ch != victim && !mv.empty()) { act(mv.c_str(), false, ch, nullptr, victim, kToVict); narrated = true; }
+			// kToNoBriefShields: in brief magic-shields mode the shield collapses to a "(*)" on the triggering
+			// hit, so suppress the full ward line for those players (narrated stays true, so the generic combat
+			// line is still suppressed -- a brief-mode player sees only the "(*)", not the full text nor a hit).
+			if (!mc.empty()) { act(mc.c_str(), false, ch, nullptr, victim, kToChar | kToNoBriefShields); narrated = true; }
+			if (ch != victim && !mv.empty()) { act(mv.c_str(), false, ch, nullptr, victim, kToVict | kToNoBriefShields); narrated = true; }
 			if (!mr.empty()) {
-				act(mr.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+				act(mr.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
 				narrated = true;
 			}
 		}
