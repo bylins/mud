@@ -96,6 +96,7 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 }
 
 void Characters::AddToExtractedList(CharData *ch) {
+	if (ch) { log("[charlife] AddToExtractedList %s #%d room %d", GET_NAME(ch), static_cast<int>(ch->IsNpc() ? mob_index[ch->get_rnum()].vnum : -1), GET_ROOM_VNUM(ch->in_room)); }
 	lua_scripting::LuaScriptEngine::CancelWaitsForOwner(ch);
 	if (ch->IsNpc()) {
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
