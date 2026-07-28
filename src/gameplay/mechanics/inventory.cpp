@@ -6,6 +6,7 @@
 */
 
 #include "gameplay/mechanics/inventory.h"
+#include "utils/tracing/trace_manager.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
@@ -248,6 +249,8 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 }
 
 void RemoveObjFromChar(ObjData *object) {
+	auto _sp = tracing::TraceManager::Instance().StartSpan("RemoveObjFromChar");
+	if (object) { _sp->SetAttribute("obj_vnum", static_cast<int64_t>(object->get_vnum())); }
 	if (!object || !object->get_carried_by()) {
 		log("SYSERR: NULL object or owner passed to obj_from_char");
 		return;

@@ -4,6 +4,8 @@
 */
 
 #include "engine/core/char_handler.h"
+#include "utils/tracing/trace_manager.h"
+
 #include "engine/core/obj_handler.h"
 #include "administration/privilege.h"
 
@@ -199,6 +201,8 @@ void DropInventory(CharData *ch, bool zone_reset) {
 }
 
 void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
+	auto _sp = tracing::TraceManager::Instance().StartSpan("ExtractCharFromWorld");
+	if (ch) { _sp->SetAttribute("mob_vnum", static_cast<int64_t>(ch->IsNpc() ? mob_index[ch->get_rnum()].vnum : -1)); }
 	timechange_unregister_mob(ch);
 	if (ch->purged()) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);

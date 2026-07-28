@@ -4,6 +4,8 @@
 */
 
 #include "engine/core/obj_handler.h"
+#include "utils/tracing/trace_manager.h"
+
 #include "engine/core/char_movement.h"
 #include "engine/core/char_handler.h"
 #include "engine/core/char_movement.h"
@@ -197,6 +199,8 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 }
 
 void RemoveObjFromRoom(ObjData *object) {
+	auto _sp = tracing::TraceManager::Instance().StartSpan("RemoveObjFromRoom");
+	if (object) { _sp->SetAttribute("obj_vnum", static_cast<int64_t>(object->get_vnum())); }
 	if (!object || object->get_in_room() == kNowhere) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: NULL object (%p) or obj not in a room (%d) passed to RemoveObjFromRoom",
@@ -241,6 +245,8 @@ void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to) {
 }
 
 void RemoveObjFromObj(ObjData *obj) {
+	auto _sp = tracing::TraceManager::Instance().StartSpan("RemoveObjFromObj");
+	if (obj) { _sp->SetAttribute("obj_vnum", static_cast<int64_t>(obj->get_vnum())); }
 	if (obj->get_in_obj() == nullptr) {
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		log("SYSERR: (%s): trying to illegally extract obj from obj.", __FILE__);
@@ -347,6 +353,8 @@ void LogPlayerObjLoss(ObjData *obj, const char *reason) {
 }
 
 void ExtractObjFromWorld(ObjData *obj, bool showlog) {
+	auto _sp = tracing::TraceManager::Instance().StartSpan("ExtractObjFromWorld");
+	if (obj) { _sp->SetAttribute("obj_vnum", static_cast<int64_t>(obj->get_vnum())); }
 	timechange_unregister_obj(obj);
 	char name[kMaxStringLength];
 	ObjData *temp;
