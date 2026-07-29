@@ -1734,8 +1734,8 @@ class SqliteSaver(BaseSaver):
         # Insert main trigger record (without trigger_types - normalized)
         cursor.execute('''
             INSERT OR REPLACE INTO triggers (
-                vnum, name, attach_type_id, narg, arglist, script, enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                vnum, name, attach_type_id, narg, arglist, script, add_flag, enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             trigger.get('name'),
@@ -1743,6 +1743,7 @@ class SqliteSaver(BaseSaver):
             trigger.get('narg', 0),
             trigger.get('arglist'),
             trigger.get('script'),
+            trigger.get('add_flag', 0),
             trigger.get('enabled', 1),
         ))
 

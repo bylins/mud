@@ -373,6 +373,7 @@ CREATE TABLE triggers (
     attach_type_id INTEGER REFERENCES trigger_attach_types(id),
     narg INTEGER DEFAULT 0,
     arglist TEXT,
+    add_flag INTEGER DEFAULT 0,
     script TEXT,
     enabled INTEGER DEFAULT 1
 );
