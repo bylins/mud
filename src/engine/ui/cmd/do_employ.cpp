@@ -80,7 +80,9 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 				return;
 			}
 
-			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(mag_item, 3));
+			// issue.magic-items: заклинание жезла/посоха теперь в extra_values (kSpell1Num),
+			// сырой val[3] обнулён миграцией -- читаем через геттер, иначе фит-гейт не сработает.
+			auto spell_id = static_cast<ESpell>(mag_item->GetSpellItemSpellNum(1));
 			if (spell_id == ESpell::kCharm || spell_id == ESpell::kAnimateDead || spell_id == ESpell::kResurrection) {
 				if (!CanUseFeat(ch, EFeat::kMagicUser)) {
 					SendMsgToChar("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);

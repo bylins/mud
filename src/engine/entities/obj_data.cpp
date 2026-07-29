@@ -499,7 +499,9 @@ void ObjData::unset_enchant() {
 		set_extra_flag(EObjFlag::kHasOneSlot);
 	}
 	unset_extraflag(EObjFlag::kMagic);
-	unset_extraflag(EObjFlag::kTransformed);
+	// issue #3618: kTransformed здесь НЕ снимаем. Снятие зачарования возвращает к прототипу только
+	// его часть, а на вещи могли остаться другие изменения -- благословение, отрава, подгонка по
+	// мерке. Сняв флаг, мы разрешали olc перезаписать вещь прототипом целиком и потерять их.
 }
 
 bool ObjData::clone_olc_object_from_prototype(const ObjVnum vnum) {

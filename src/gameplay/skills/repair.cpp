@@ -58,12 +58,15 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act("$n попытал$u починить $o3, но сломал$g $S еще больше.",
 				false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			auto decay = (obj->get_maximum_durability() - obj->get_current_durability()) / 10;
-			decay = std::clamp(decay, 1, obj->get_maximum_durability()/20);
+			decay = std::clamp(decay, 1, std::max(1, obj->get_maximum_durability() / 20));   // issue #3631: hi>=lo
 			if (obj->get_maximum_durability() > decay) {
 				obj->set_maximum_durability(obj->get_maximum_durability() - decay);
 			} else {
 				obj->set_maximum_durability(1);
 			}
+			// issue #3618: максимальная прочность назад не поднимается -- вещь навсегда хуже
+			// прототипа, помечаем, чтобы правка прототипа в olc не вернула ее в исходный вид.
+			obj->set_extra_flag(EObjFlag::kTransformed);
 		} else {
 			act("Вы окончательно доломали $o3.",
 				false, ch, obj, nullptr, kToChar);

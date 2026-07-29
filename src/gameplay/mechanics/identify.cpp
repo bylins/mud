@@ -79,49 +79,17 @@ static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
 	(void) i; (void) j; (void) li;  // some branches do not touch all of them
 switch (obj->get_type()) {
 	case EObjType::kScroll: {
-		std::ostringstream out;
-		out << "Содержит заклинание:";
-		const ObjVal::EValueKey spell_keys[3] = {
-			ObjVal::EValueKey::kSpell1Num,
-			ObjVal::EValueKey::kSpell2Num,
-			ObjVal::EValueKey::kSpell3Num};
-		for (const auto key : spell_keys) {
-			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
-			if (MUD::Spell(spell_id).IsValid()) {
-				const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
-				out << " " << MUD::Spell(spell_id).GetName()
-					<< " (сила " << potency << "),";
-			}
-		}
-		if (out.str().back() == ',') {
-			out.seekp(-1, out.end);
-		}
-		out << "\r\n";
-		SendMsgToChar(out.str(), ch);
+		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
+				ch->player_specials->saved.stringLength, ", ",
+				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
 		// issue.potion-hotfix: a potion reads its spells from the ObjVal keys and shows its maker-derived
 	// POTENCY (Сила), never a per-spell level -- the drinker's own skill/stats are irrelevant.
 	case EObjType::kPotion: {
-		std::ostringstream out;
-		out << "Содержит заклинание:";
-		const ObjVal::EValueKey spell_keys[3] = {
-			ObjVal::EValueKey::kSpell1Num,
-			ObjVal::EValueKey::kSpell2Num,
-			ObjVal::EValueKey::kSpell3Num};
-		for (const auto key : spell_keys) {
-			const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(key));
-			if (MUD::Spell(spell_id).IsValid()) {
-				const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
-				out << " " << MUD::Spell(spell_id).GetName()
-					<< " (сила " << potency << "),";
-			}
-		}
-		if (out.str().back() == ',') {
-			out.seekp(-1, out.end);
-		}
-		out << "\r\n";
-		SendMsgToChar(out.str(), ch);
+		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
+				ch->player_specials->saved.stringLength, ", ",
+				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
 	case EObjType::kWand:

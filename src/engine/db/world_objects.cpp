@@ -392,6 +392,7 @@ void WorldObjects::GetObjListByVnum(const ObjVnum vnum, std::list<ObjData *> &re
 }
 
 void WorldObjects::AddToExtractedList(ObjData *obj) {
+	if (obj) { log("[objlife] AddToExtractedList %s #%d room %d", obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj), get_room_where_obj(obj)); }
 	lua_scripting::LuaScriptEngine::CancelWaitsForObject(obj);
 	const ObjData::shared_ptr object_ptr = get_by_raw_ptr(obj);
 

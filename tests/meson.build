@@ -1,11 +1,11 @@
 message('Seting up tests...')
 if gtest_opt == 'builtin'
-    gtest_sub = subproject('gtest', default_options: ['default_library=static'])
+    gtest_sub = subproject('gtest', default_options: ['default_library=static', 'optimization=2'])
     gtest_dep = gtest_sub.get_variable('gtest_dep')
 elif gtest_opt == 'system'
     gtest_dep = dependency('gtest', required: true, allow_fallback: false)
 else
-    gtest_dep = dependency('gtest', required: true, fallback: ['gtest', 'gtest_dep'], default_options: ['default_library=static'])
+    gtest_dep = dependency('gtest', required: true, fallback: ['gtest', 'gtest_dep'], default_options: ['default_library=static', 'optimization=2'])
 endif
 
 test_sources = files(

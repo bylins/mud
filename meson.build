@@ -14,9 +14,15 @@ dependencies = []
 
 build_profile = get_option('build_profile')
 
-# hunt: собираем ровно как release, но с -D_FORTIFY_SOURCE=2 -- дешёвый (околонулевой
-# оверхед) ловец переполнений фиксированных буферов в sprintf/strcpy/memcpy и т.п.,
-# падает в момент записи за границу с бэктрейсом. Дальше ведём себя как release.
+# hunt: собираем ровно как release, но с -D_FORTIFY_SOURCE=3 -- ловец переполнений в
+# sprintf/strcpy/memcpy и т.п., падает в момент записи за границу с бэктрейсом. Дальше
+# ведём себя как release.
+#
+# Уровень 3 (нужен gcc 12+) отличается от 2 тем, что берёт размер цели не только когда он
+# известен на этапе компиляции, но и через __builtin_dynamic_object_size -- то есть видит
+# буферы, выделенные в рантайме, а не только char buf[N]. Замеры: на чистой строковой
+# молотилке 2 даёт +21%, 3 даёт +30% к времени; на загрузке мира разница между ними тонет
+# в шуме между прогонами.
 fortify_source = false
 if build_profile == 'hunt'
     build_profile = 'release'
@@ -54,7 +60,7 @@ if cpp.get_argument_syntax() == 'gcc'
     project_args += ['-Wno-format-truncation']
     if fortify_source
         # -U на случай, если тулчейн уже определил _FORTIFY_SOURCE (иначе redefine-варнинг)
-        project_args += ['-U_FORTIFY_SOURCE', '-D_FORTIFY_SOURCE=2']
+        project_args += ['-U_FORTIFY_SOURCE', '-D_FORTIFY_SOURCE=3']
     endif
     if host_system != 'windows' and build_profile != 'fasttest'
         add_project_link_arguments('-rdynamic', language: 'cpp')
@@ -122,12 +128,12 @@ endif
 zlib_opt = get_option('zlib')
 if zlib_opt != 'disabled'
     if zlib_opt == 'builtin'
-        zlib_sub = subproject('zlib', default_options: ['default_library=static', 'tests=disabled', 'unity=off'])
+        zlib_sub = subproject('zlib', default_options: ['default_library=static', 'tests=disabled', 'unity=off', 'optimization=2'])
         zlib_dep = zlib_sub.get_variable('zlib_dep')
     elif zlib_opt == 'system'
         zlib_dep = dependency('zlib', required: true, allow_fallback: false)
     else
-        zlib_dep = dependency('zlib', required: true, fallback: ['zlib', 'zlib_dep'], default_options: ['default_library=static', 'tests=disabled', 'unity=off'])
+        zlib_dep = dependency('zlib', required: true, fallback: ['zlib', 'zlib_dep'], default_options: ['default_library=static', 'tests=disabled', 'unity=off', 'optimization=2'])
     endif
     project_args += '-DHAVE_ZLIB'
     dependencies += zlib_dep
@@ -136,12 +142,12 @@ endif
 iconv_opt = get_option('iconv')
 if iconv_opt != 'disabled'
     if iconv_opt == 'builtin'
-        iconv_sub = subproject('iconv', default_options: ['default_library=static', 'tests=disabled'])
+        iconv_sub = subproject('iconv', default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
         iconv_dep = iconv_sub.get_variable('iconv_dep')
     elif iconv_opt == 'system'
         iconv_dep = dependency('iconv', required: true, allow_fallback: false)
     else
-        iconv_dep = dependency('iconv', required: true, fallback: ['iconv', 'iconv_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        iconv_dep = dependency('iconv', required: true, fallback: ['iconv', 'iconv_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
     endif
     project_args += '-DHAVE_ICONV'
     dependencies += iconv_dep
@@ -150,16 +156,16 @@ endif
 telegram_opt = get_option('telegram')
 if telegram_opt != 'disabled'
     if telegram_opt == 'builtin'
-        curl_sub = subproject('curl', default_options: ['default_library=static', 'tests=disabled'])
+        curl_sub = subproject('curl', default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
         curl_dep = curl_sub.get_variable('curl_dep')
-        ssl_sub = subproject('openssl', default_options: ['default_library=static', 'tests=disabled'])
+        ssl_sub = subproject('openssl', default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
         ssl_dep = ssl_sub.get_variable('openssl_dep')
     elif telegram_opt == 'system'
         curl_dep = dependency('libcurl', required: true, allow_fallback: false)
         ssl_dep = dependency('openssl', required: true, allow_fallback: false)
     else
-        curl_dep = dependency('libcurl', required: true, fallback: ['curl', 'curl_dep'], default_options: ['default_library=static', 'tests=disabled'])
-        ssl_dep = dependency('openssl', required: true, fallback: ['openssl', 'openssl_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        curl_dep = dependency('libcurl', required: true, fallback: ['curl', 'curl_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
+        ssl_dep = dependency('openssl', required: true, fallback: ['openssl', 'openssl_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
     endif
     project_args += '-DHAVE_TG'
     dependencies += [curl_dep, ssl_dep]
@@ -212,6 +218,7 @@ threads_dep = dependency('threads')
 dependencies += threads_dep
 
 luajit_opt = get_option('luajit')
+lua_formatter_enabled = false
 if luajit_opt != 'disabled'
     if luajit_opt == 'builtin'
         luajit_sub = subproject('luajit', default_options: ['default_library=static', 'luajit=false'])
@@ -238,6 +245,16 @@ if luajit_opt != 'disabled'
     )
     project_args += '-DWITH_LUAJIT_PROTOTYPE'
     dependencies += [luajit_dep, sol2_dep]
+    if get_option('lua_formatter')
+        emmy_dep = dependency(
+            'emmyluacodestyle',
+            fallback: ['emmyluacodestyle', 'emmyluacodestyle_dep'],
+            default_options: ['warning_level=0'],
+        )
+        dependencies += emmy_dep
+        project_args += '-DWITH_LUA_FORMATTER'
+        lua_formatter_enabled = true
+    endif
 endif
 
 # Admin API
@@ -249,7 +266,7 @@ endif
 sqlite_opt = get_option('sqlite')
 if sqlite_opt != 'disabled'
     if sqlite_opt == 'builtin'
-        sqlite_sub = subproject('sqlite3')
+        sqlite_sub = subproject('sqlite3', default_options: ['optimization=2'])
         sqlite_dep = sqlite_sub.get_variable('sqlite3_dep')
     elif sqlite_opt == 'system'
         sqlite_dep = dependency('sqlite3', required: true, allow_fallback: false)
@@ -260,15 +277,16 @@ if sqlite_opt != 'disabled'
     dependencies += sqlite_dep
 endif
 
+
 yaml_opt = get_option('yaml')
 if yaml_opt != 'disabled'
     if yaml_opt == 'builtin'
-        yaml_sub = subproject('yaml-cpp', default_options: ['default_library=static', 'tests=disabled'])
+        yaml_sub = subproject('yaml-cpp', default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
         yaml_dep = yaml_sub.get_variable('yaml_cpp_dep')
     elif yaml_opt == 'system'
         yaml_dep = dependency('yaml-cpp', required: true, allow_fallback: false)
     else
-        yaml_dep = dependency('yaml-cpp', required: true, fallback: ['yaml-cpp', 'yaml_cpp_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        yaml_dep = dependency('yaml-cpp', required: true, fallback: ['yaml-cpp', 'yaml_cpp_dep'], default_options: ['default_library=static', 'tests=disabled', 'optimization=2'])
     endif
     project_args += '-DHAVE_YAML'
     dependencies += yaml_dep
@@ -328,12 +346,12 @@ endif
 
 fmt_opt = get_option('fmt')
 if fmt_opt == 'builtin'
-    fmt_sub = subproject('fmt', default_options: ['default_library=static'])
+    fmt_sub = subproject('fmt', default_options: ['default_library=static', 'optimization=2'])
     fmt_dep = fmt_sub.get_variable('fmt_dep')
 elif fmt_opt == 'system'
     fmt_dep = dependency('fmt', required: true, allow_fallback: false)
 else
-    fmt_dep = dependency('fmt', required: true, fallback: ['fmt', 'fmt_dep'], default_options: ['default_library=static'])
+    fmt_dep = dependency('fmt', required: true, fallback: ['fmt', 'fmt_dep'], default_options: ['default_library=static', 'optimization=2'])
 endif
 
 subdir('src/third_party_libs/libfort')
@@ -459,6 +477,7 @@ main_sources = files(
   'src/engine/scripting/dg_triggers.cpp',
   'src/engine/scripting/dg_wldcmd.cpp',
   'src/engine/scripting/lua/lua_entity_bindings.cpp',
+  'src/engine/scripting/lua/lua_formatter.cpp',
   'src/engine/scripting/lua/lua_mud_api.cpp',
   'src/engine/scripting/lua/lua_script_engine.cpp',
   'src/engine/scripting/lua/lua_trigger_context.cpp',
@@ -658,6 +677,7 @@ main_sources = files(
   'src/gameplay/skills/turnundead.cpp',
   'src/gameplay/skills/townportal.cpp',
   'src/gameplay/mechanics/rune_stones.cpp',
+	'src/gameplay/mechanics/service_zones.cpp',
   'src/gameplay/skills/manadrain.cpp',
   'src/gameplay/skills/warcry.cpp',
   'src/gameplay/skills/identify.cpp',
@@ -727,7 +747,8 @@ main_sources = files(
   'src/engine/ui/cmd/do_remove.cpp',
   'src/engine/ui/cmd/do_eat.cpp',
   'src/engine/ui/cmd_god/do_inspect.cpp',
-  'src/engine/ui/cmd_god/do_mark.cpp',
+  'src/engine/ui/cmd_god/do_crcsavecheck.cpp',
+	'src/engine/ui/cmd_god/do_mark.cpp',
   'src/gameplay/crafting/fry.cpp',
   'src/engine/ui/cmd/do_refill.cpp',
   'src/gameplay/mechanics/guilds.cpp',
@@ -1073,6 +1094,7 @@ summary({
     'fmt':             fmt_opt,
     'gtest':             gtest_opt,
     'LuaJIT':          luajit_opt,
+    'Lua formatter':   lua_formatter_enabled,
     'SQLite':          sqlite_opt,
     'YAML':            yaml_opt,
     'Telegram':        telegram_opt,

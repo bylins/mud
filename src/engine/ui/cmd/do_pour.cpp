@@ -69,7 +69,10 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 	}
-	if (GET_OBJ_VAL(from_obj, 1) == 0) {
+	// issue.magic-items: у зелья заклинание переехало в extra_values, сырой val[1] теперь 0, поэтому
+	// им нельзя мерить "пустоту" -- зелье это одна единица, полная пока существует. Пустоту проверяем
+	// только для сосудов/колодцев.
+	if (from_obj->get_type() != EObjType::kPotion && GET_OBJ_VAL(from_obj, 1) == 0) {
 		act("Пусто.", false, ch, from_obj, 0, kToChar);
 		return;
 	}
@@ -82,6 +85,13 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (!str_cmp(arg2, "out") || !str_cmp(arg2, "земля")) {
 			act("$n опустошил$g $o3.", true, ch, from_obj, 0, kToRoom);
 			act("Вы опустошили $o3.", false, ch, from_obj, 0, kToChar);
+
+			// Зелье -- одна единица, выливается целиком: уничтожаем, а не обнуляем (иначе оставался
+			// бы пустой "отвар" без заклинания). Опустошение val ниже -- для сосудов/колодцев.
+			if (from_obj->get_type() == EObjType::kPotion) {
+				ExtractObjFromWorld(from_obj);
+				return;
+			}
 
 			weight_change_object(from_obj, -GET_OBJ_VAL(from_obj, 1));    // Empty //
 
@@ -147,7 +157,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			if (GET_OBJ_VAL(to_obj, 1) == 0) {
 				drinkcon::copy_potion_values(from_obj, to_obj);
 				// определение названия зелья по содержащемуся заклинанию //
-				drinkcon::generate_drinkcon_name(to_obj, static_cast<ESpell>(GET_OBJ_VAL(from_obj, 1)));
+				drinkcon::generate_drinkcon_name(to_obj, static_cast<ESpell>(from_obj->GetSpellItemSpellNum(1)));
 			} else {
 				// issue.potion-hotfix: mixing into a non-empty container blends the maker skill/stat by
 				// quantity (n2 units already there + this one poured-in unit).

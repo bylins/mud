@@ -1435,6 +1435,9 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		imlog(CMP, "Создание результата");
 		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
 		if (result) {
+			// issue #3618: сваренная вещь несет умение мастера и прочие свои значения -- помечаем
+			// сразу, до разбора по типам, иначе правка прототипа в olc перезапишет ее целиком.
+			result->set_extra_flag(EObjFlag::kTransformed);
 			switch (result->get_type()) {
 				case EObjType::kScroll:
 					// issue.magic-items: a crafted scroll stores the crafter's competence (recipe skill + Int),
@@ -1461,7 +1464,9 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					//                     the potion's spells applies its OWN sigma to it at cast. Encoded
 					//                     (z + kBrewRollBias)*kBrewRollScale, always > 0.
 					if (result->get_type() == EObjType::kPotion) {
-						const auto potion_spell = static_cast<ESpell>(result->get_val(1));
+						// issue.magic-items: заклинание зелья -- в extra_values (kSpell1Num), сырой
+						// val[1] обнулён миграцией; иначе гейт не пройдёт и maker-ключи не проставятся.
+						const auto potion_spell = static_cast<ESpell>(result->GetSpellItemSpellNum(1));
 						if (potion_spell > ESpell::kUndefined) {
 							// issue.potion-hotfix: preserve the maker's INPUTS, not the (non-obvious)
 							// computed potency: the brewing skill (rs->perc -- it stands in for the magic

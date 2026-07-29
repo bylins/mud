@@ -138,6 +138,9 @@ void enchant::apply_to_obj(ObjData *obj) const {
 
 	correct_values(obj);
 	obj->add_enchant(*this);
+	// issue #3618: вещь обросла аффектами, флагами и весом поверх прототипа -- помечаем, иначе
+	// правка прототипа в olc перезапишет ее целиком и зачарование потеряется.
+	obj->set_extra_flag(EObjFlag::kTransformed);
 }
 
 void Enchants::add(const enchant &ench) {

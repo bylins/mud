@@ -19,6 +19,7 @@
 #include <map>
 #include <unordered_map>
 #include <bitset>
+#include <optional>
 #include <string>
 
 namespace ClanSystem {
@@ -201,6 +202,10 @@ class Clan {
   static bool is_ingr_chest(ObjData *obj);
   static void clan_invoice(CharData *ch, bool enter);
   static int delete_obj(int vnum);
+  // Предмет распался внутри кланового сундука или ингр-храна: помечаем владеющий клан dirty
+  // (иначе savers -- dirty-трекеры -- не перезапишут файл, и предмет воскреснет после ребута) и
+  // уменьшаем счётчик вещей хранилища (при take он уменьшается, при распаде -- нет).
+  static void OnChestObjDecay(ObjData *j);
   static void save_pk_log();
   static bool put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest);
   static bool take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest);
@@ -340,6 +345,12 @@ class Clan {
   void HouseStat(CharData *ch, std::string &buffer);
   void remove_member(const ClanMembersList::key_type &it, char *reason);
   void save_clan_file(const std::string &filename) const;
+  std::string build_clan_file() const;
+  std::string build_pk_file() const;
+  // последнее записанное на диск содержимое: если не изменилось, файл не переписываем
+  // пустое значение означает "на диск еще не писали", а не "записали пустой файл"
+  mutable std::optional<std::string> saved_clan_file_;
+  mutable std::optional<std::string> saved_pk_file_;
   void house_web_url(CharData *ch, const std::string &buffer);
 
   // house аля олц

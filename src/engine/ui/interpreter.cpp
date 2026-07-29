@@ -70,6 +70,7 @@
 #include "engine/ui/cmd_god/do_switch.h"
 #include "engine/ui/cmd_god/do_tabulate.h"
 #include "engine/ui/cmd_god/do_teleport.h"
+#include "engine/ui/cmd_god/do_crcsavecheck.h"
 #include "engine/ui/cmd_god/do_mark.h"
 #include "engine/ui/cmd_god/do_unfreeze.h"
 #include "engine/ui/cmd_god/do_vstat.h"
@@ -601,6 +602,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"помочь", EPosition::kFight, do_assist, 1, 0, -1},
 		{"помощь", EPosition::kDead, do_help, 0, 0, 0},
 		{"пометить", EPosition::kDead, do_mark, kLvlImplementator, 0, 0},
+		{"crcsavecheck", EPosition::kDead, do_crcsavecheck, kLvlImplementator, 0, 0},
 		{"порез", EPosition::kFight, DoExpedientCut, 0, 0, -1},
 		{"поселиться", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), -1},
 		{"постой", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), -1},

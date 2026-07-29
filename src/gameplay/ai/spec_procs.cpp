@@ -163,18 +163,19 @@ bool item_nouse(ObjData *obj) {
 			}
 			break;
 
+		// issue.magic-items: заклинания и заряды переехали в extra_values, val[] у этих типов нулевые
 		case EObjType::kScroll:
 		case EObjType::kPotion:
-			if (!GET_OBJ_VAL(obj, 1)
-				&& !GET_OBJ_VAL(obj, 2)
-				&& !GET_OBJ_VAL(obj, 3)) {
+			if (obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num) <= 0
+				&& obj->GetPotionValueKey(ObjVal::EValueKey::kSpell2Num) <= 0
+				&& obj->GetPotionValueKey(ObjVal::EValueKey::kSpell3Num) <= 0) {
 				return true;
 			}
 			break;
 
 		case EObjType::kStaff:
 		case EObjType::kWand:
-			if (!GET_OBJ_VAL(obj, 2)) {
+			if (obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges) <= 0) {
 				return true;
 			}
 			break;

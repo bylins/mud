@@ -289,6 +289,9 @@
 		<message type="kTransformToChar" val="Огненный щит вокруг $N1 ослабил вашу атаку."/>
 		<message type="kTransformToVict" val="Огненный щит принял часть повреждений на себя."/>
 		<message type="kTransformToRoom" val="Огненный щит вокруг $N1 ослабил атаку $n1."/>
+		<message type="kWardToChar" val="Огненный щит $N1 отразил часть урона в вас!"/>
+		<message type="kWardToVict" val="Ваш огненный щит отразил часть урона в $n3!"/>
+		<message type="kWardToRoom" val="Огненный щит $N1 отразил часть урона в $n3!"/>
 	</msg_sheaf>
 	<msg_sheaf id="kIceShield">
 		<message type="kAffImposedToRoom" val="$n3 окутал ледяной щит."/>
@@ -789,9 +792,9 @@
 		<message type="kAffImposedToChar" val="Вас охватывает пламя!"/>
 		<message type="kAffImposedToRoom" val="$n0 вспыхнул$g, объят$g пламенем!"/>
 		<message type="kDamageToChar" val="&RЯзыки пламени жадно лижут вас, обжигая плоть!&n"/>
-		<message type="kDamageToRoom" val="&RПламя пляшет по телу $n2, обжигая плоть.&n"/>
+		<message type="kDamageToRoom" val="&RПламя пляшет по телу $n1, обжигая плоть.&n"/>
 		<message type="kAffExpiredToChar" val="Пламя, охватившее вас, угасает."/>
-		<message type="kAffExpiredToRoom" val="Пламя, охватившее $n2, угасает."/>
+		<message type="kAffExpiredToRoom" val="Пламя, охватившее $n3, угасает."/>
 		<message type="kShortDesc" val="горение"/>
 	</msg_sheaf>
 </affect_msg>

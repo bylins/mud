@@ -104,7 +104,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d, создан coredump",
+			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d (backtrace в syslog)",
 					object->get_vnum(), object->get_PName(grammar::ECase::kNom).c_str(), world[room]->vnum);
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		}
@@ -205,6 +205,7 @@ void RemoveObjFromRoom(ObjData *object) {
 	}
 
 	{
+		log("[objlife] RemoveObjFromRoom %s #%d room %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object), get_room_where_obj(object));
 		auto &list = world[object->get_in_room()]->contents;
 		list.remove(object);
 	}
@@ -247,6 +248,7 @@ void RemoveObjFromObj(ObjData *obj) {
 		mudlog("SYSERR: trying to illegally extract obj from obj.");
 		return;
 	}
+	log("[objlife] RemoveObjFromObj %s #%d room %d", obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj), get_room_where_obj(obj));
 	auto obj_from = obj->get_in_obj();
 	auto head = obj_from->get_contains();
 	obj->remove_me_from_contains_list(head);
@@ -355,6 +357,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	utils::CExecutionTimer timer;
 
 	strcpy(name, obj->get_PName(grammar::ECase::kNom).c_str());
+	log("[objlife] ExtractObjFromWorld %s #%d room %d", obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj), get_room_where_obj(obj));
 	if (showlog) {
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());

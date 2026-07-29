@@ -445,7 +445,8 @@ int exchange_information(CharData *ch, char *arg) {
 	out += fmt::sprintf("Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
 	if (GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kWand
 		|| GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kStaff) {
-		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1)) {
+		if (GET_EXCHANGE_ITEM(item)->GetPotionValueKey(ObjVal::EValueKey::kCurCharges)
+			< GET_EXCHANGE_ITEM(item)->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges)) {
 			out += "(б/у), ";
 		}
 	}

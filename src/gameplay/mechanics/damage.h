@@ -160,8 +160,16 @@ class Damage {
     int amount{0};
     fight::DmgType type{fight::kUndefDmg};
     EElement element{EElement::kUndefined};
+    // issue: EAffect (underlying value) of the ward that fired this reflect, or -1. Lets DealReflectPool
+    // narrate with that ward's own kWardTo* flavor instead of the reflected hit's generic combat line.
+    int ward{-1};
+    // issue: a passive reflect (magic mirror) fires regardless of the bearer's stance/combat state.
+    bool passive{false};
   };
   std::vector<ReflectHit> reflect_pool_;
+  // issue: set on a reflected-hit Damage when its ward already narrated via kWardTo* messages, so Process
+  // skips the generic combat/severity line (a mirror reflect shouldn't read as an ordinary "hit").
+  bool no_generic_msg_{false};
 
   // issue.damage-change: the elemental shield chosen (weighted-random) to handle this hit -- underlying
   // EAffect value, or -1 if the victim has no shield. Only this shield's actions apply; others skip.

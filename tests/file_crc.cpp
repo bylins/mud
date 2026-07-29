@@ -48,6 +48,38 @@ TEST(FileCrcBuffer, VerifyWithoutSnapshotEstablishesBaseline) {
 	EXPECT_TRUE(FileCRC::verify_from_content(uid, FileCRC::kPlayer, a.data(), a.size()));
 }
 
+// Запись могла появиться из-за сброса поля объектов (истекла рента), и тогда в player лежит
+// ноль, которого туда никто не писал. Это "снимка нет", а не "ожидаем нулевую сумму": игрок не
+// должен при каждом входе поднимать имму ложную тревогу.
+TEST(FileCrcBuffer, ZeroPlayerCrcIsTreatedAsMissingSnapshot) {
+	const long uid = 7700010;
+	const std::string objs = "object data";
+	const std::string pfile = "player file";
+
+	// рента истекла -> запись заведена со всеми нулями, player CRC в нее не писали
+	FileCRC::update_from_content(uid, FileCRC::kTextObjs, objs.data(), objs.size());
+	FileCRC::reset(uid, FileCRC::kTextObjs);
+
+	// вход игрока: снимка player нет, значит его надо просто запомнить, а не ругаться
+	EXPECT_TRUE(FileCRC::verify_from_content(uid, FileCRC::kPlayer, pfile.data(), pfile.size()));
+	// и со второго раза он уже работает как обычный снимок
+	EXPECT_TRUE(FileCRC::verify_from_content(uid, FileCRC::kPlayer, pfile.data(), pfile.size()));
+	const std::string other = "tampered file";
+	EXPECT_FALSE(FileCRC::verify_from_content(uid, FileCRC::kPlayer, other.data(), other.size()));
+}
+
+// А вот у файлов объектов ноль осмыслен: сервер удалил файл, и появление его заново -- повод
+// для тревоги. Эта проверка не должна ослабнуть заодно с player.
+TEST(FileCrcBuffer, ZeroObjectCrcStillGuards) {
+	const long uid = 7700011;
+	const std::string objs = "object data";
+
+	FileCRC::update_from_content(uid, FileCRC::kTimeObjs, objs.data(), objs.size());
+	FileCRC::reset(uid, FileCRC::kTimeObjs);
+
+	EXPECT_FALSE(FileCRC::verify_from_content(uid, FileCRC::kTimeObjs, objs.data(), objs.size()));
+}
+
 TEST(FileCrcBuffer, FileTypesAreIndependent) {
 	const long uid = 7700005;
 	const std::string text = "text objects";

@@ -218,9 +218,16 @@ void reset_potion_values(CObjectPrototype *obj) {
 
 /// уровень в зельях (GET_OBJ_VAL(from_obj, 0)) пока один на все заклы
 bool copy_value(const CObjectPrototype *from_obj, CObjectPrototype *to_obj, int num) {
-	if (GET_OBJ_VAL(from_obj, num) > 0) {
-		to_obj->SetPotionValueKey(init_spell_num(num), GET_OBJ_VAL(from_obj, num));
-		to_obj->SetPotionValueKey(init_spell_lvl(num), GET_OBJ_VAL(from_obj, 0));
+	// issue.magic-items: заклинание зелья лежит в extra_values (kSpell<num>Num), сырой val[num]
+	// после миграции обнулён. Читали val -> при переливе в сосуд заклинание терялось ("у зелья
+	// отсутствуют заклинания"). Берём из ключа.
+	const int spell = from_obj->GetPotionValueKey(init_spell_num(num));
+	if (spell > 0) {
+		to_obj->SetPotionValueKey(init_spell_num(num), spell);
+		const int lvl = from_obj->GetPotionValueKey(init_spell_lvl(num));
+		if (lvl > 0) {
+			to_obj->SetPotionValueKey(init_spell_lvl(num), lvl);
+		}
 		return true;
 	}
 	return false;
@@ -387,11 +394,12 @@ int check_potion_spell(ObjData *from_obj, ObjData *to_obj, int num) {
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
-	if (GET_OBJ_VAL(from_obj, num) != to_obj->GetPotionValueKey(spell)) {
+	// issue.magic-items: заклинание и уровень зелья -- в extra_values, сырой val обнулён миграцией
+	if (from_obj->GetPotionValueKey(spell) != to_obj->GetPotionValueKey(spell)) {
 		// не совпали заклы
 		return 0;
 	}
-	if (GET_OBJ_VAL(from_obj, 0) < to_obj->GetPotionValueKey(level)) {
+	if (from_obj->GetPotionValueKey(level) < to_obj->GetPotionValueKey(level)) {
 		// переливаемое зелье ниже уровня закла в емкости
 		return -1;
 	}
@@ -409,7 +417,7 @@ int drinkcon::check_equal_potions(ObjData *from_obj, ObjData *to_obj) {
 	}
 	// совпадение заклов и не меньшего уровня
 	for (int i = 1; i <= 3; ++i) {
-		if (GET_OBJ_VAL(from_obj, i) > 0) {
+		if (from_obj->GetPotionValueKey(init_spell_num(i)) > 0) {
 			int result = check_potion_spell(from_obj, to_obj, i);
 			if (result <= 0) {
 				return result;
@@ -443,7 +451,9 @@ int check_drincon_spell(ObjData *from_obj, ObjData *to_obj, int num) {
 int drinkcon::check_equal_drinkcon(ObjData *from_obj, ObjData *to_obj) {
 	// совпадение заклов и не меньшего уровня (и в том же порядке, ибо влом)
 	for (int i = 1; i <= 3; ++i) {
-		if (GET_OBJ_VAL(from_obj, i) > 0) {
+		// issue.magic-items: гейт по наличию заклинания в ключе, а не по сырому val (у сосуда это
+		// объём/тип/отрава). Иначе позиция 3 сверялась только при наличии отравы.
+		if (from_obj->GetPotionValueKey(init_spell_num(i)) > 0) {
 			int result = check_drincon_spell(from_obj, to_obj, i);
 			if (result <= 0) {
 				return result;
@@ -593,6 +603,9 @@ void name_to_drinkcon(ObjData *obj, int type) {
 		snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_PName(name_case).c_str(), potion_name);
 		obj->set_PName(name_case, new_name);
 	}
+	// issue #3620: имя сосуда больше не совпадает с прототипом -- без этой пометки olc при правке
+	// прототипа восстановит исходное имя, и сосуд перестанет показывать свое содержимое.
+	obj->set_is_rename(true);
 }
 
 std::string print_spell(const ObjData *obj, int num) {
@@ -607,10 +620,14 @@ std::string print_spell(const ObjData *obj, int num) {
 	// (сила) as a potion, not the retired per-spell level.
 	const int potency = static_cast<int>(MagicItemPotency(obj, spell_id) + 0.5f);
 	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (сила %d)%s\r\n",
+	// issue #3611: у вещи из прототипа сила посчитана по зашитым умолчаниям, а не по умению
+	// мастера -- помечаем так же, как у свитков, зелий, посохов и жезлов.
+	snprintf(buf_, sizeof(buf_), "%sСодержит заклинание:%s %s%s (сила %d%s)%s\r\n",
+			 kColorGrn, kColorNrm,
 			 kColorCyn,
 			 MUD::Spell(spell_id).GetCName(),
 			 potency,
+			 IsPotencyFromProto(obj) ? ", базовая" : "",
 			 kColorNrm);
 
 	return buf_;

@@ -7,6 +7,7 @@
 #include "engine/entities/obj_data.h"
 #include "engine/db/db.h"
 #include "utils/utils_parse.h"
+#include "gameplay/magic/magic_utils.h"
 
 #include <memory>
 
@@ -101,8 +102,6 @@ TEST(SpellItemConvert, UnifiedKeyReadAliases) {
 	EXPECT_EQ(str(K::kPotionPotency), "POTION_POTENCY");
 }
 
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-
 
 // issue.magic-items-hotfix: a drink-container/fountain liquid core lives in the kLiquid* keys; the val
 // mutators (get/set/dec/inc/add/sub_val) redirect indices 0..2 to them, so val[] is not the store.
@@ -143,3 +142,65 @@ TEST(DrinkconLiquidCore, ConvertIsNoOpWhenKeysPresent) {
 	auto p = make_proto(EObjType::kLiquidContainer, 24, 18, 5, 0);  // set_val already populated the keys
 	EXPECT_EQ(0, ConvertDrinkconLiquidCore(p.get(), true));
 }
+
+// issue.magic-items: a world already saved in the new format carries the payload ONLY in
+// extra_values -- the yaml serializer skips the values block for these types, so val[] stays zero.
+// Consumers must read the keys; reading raw val[] made every staff look discharged and every scroll
+// spell-less (mob scavengers threw such items on the floor, shops refused them, stat printed zeros).
+TEST(SpellItemAccessor, StaffLoadedFromExtraValuesOnly) {
+	auto p = std::make_shared<CObjectPrototype>(60700);
+	p->set_type(EObjType::kStaff);
+	// exactly what the yaml loader does for: CUR_CHARGES 1 / MAX_CHARGES 1 / SPELL1_NUM 28
+	p->init_values_from_zone("SPELL1_NUM 28");
+	p->init_values_from_zone("MAX_CHARGES 1");
+	p->init_values_from_zone("CUR_CHARGES 1");
+
+	EXPECT_EQ(0, p->get_val(2)) << "raw val[] is empty for a new-format world";
+	EXPECT_EQ(28, p->GetSpellItemSpellNum(1));
+	EXPECT_EQ(1, key(p, ObjVal::EValueKey::kCurCharges));
+	EXPECT_EQ(1, key(p, ObjVal::EValueKey::kMaxCharges));
+}
+
+// A scroll's three spell slots are readable by position through the accessor.
+TEST(SpellItemAccessor, ScrollSpellsByPosition) {
+	auto p = std::make_shared<CObjectPrototype>(60701);
+	p->set_type(EObjType::kScroll);
+	p->init_values_from_zone("SPELL1_NUM 28");
+	p->init_values_from_zone("SPELL2_NUM 84");
+
+	EXPECT_EQ(28, p->GetSpellItemSpellNum(1));
+	EXPECT_EQ(84, p->GetSpellItemSpellNum(2));
+	EXPECT_LT(p->GetSpellItemSpellNum(3), 0) << "an unset slot stays absent";
+	EXPECT_LT(p->GetSpellItemSpellNum(0), 0) << "out-of-range position is not a slot";
+	EXPECT_LT(p->GetSpellItemSpellNum(4), 0);
+}
+
+// issue #3611: сила у вещи из прототипа посчитана по зашитым умолчаниям, а не по умению мастера --
+// одна и та же у всех вещей с этим заклинанием. Такую в выводе помечаем "из прототипа".
+TEST(PotencyFromProto, PrototypeItemHasNoMakerKeys) {
+	auto p = make_proto(EObjType::kStaff, 30, 1, 1, 28);
+	EXPECT_TRUE(IsPotencyFromProto(p.get()));
+}
+
+// Вещь, сделанную игроком, не помечаем: ее сила записана в ней самой.
+TEST(PotencyFromProto, CraftedItemCarriesMakerSkill) {
+	auto p = make_proto(EObjType::kPotion, 0, 0, 0, 0);
+	p->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, 120);
+	EXPECT_FALSE(IsPotencyFromProto(p.get()));
+}
+
+// Нулевое умение мастера -- это "выдохлось до нуля", а не отсутствие ключа: тоже не помечаем.
+TEST(PotencyFromProto, ZeroMakerSkillIsStillStored) {
+	auto p = make_proto(EObjType::kPotion, 0, 0, 0, 0);
+	p->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, 0);
+	EXPECT_FALSE(IsPotencyFromProto(p.get()));
+}
+
+// Старое зелье без умения мастера, но с заранее посчитанной силой -- она своя, не из умолчаний.
+TEST(PotencyFromProto, LegacyStoredPotencyIsNotProto) {
+	auto p = make_proto(EObjType::kPotion, 0, 0, 0, 0);
+	p->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, 55);
+	EXPECT_FALSE(IsPotencyFromProto(p.get()));
+}
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

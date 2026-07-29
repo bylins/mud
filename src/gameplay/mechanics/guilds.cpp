@@ -274,6 +274,9 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 }
 
 void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const {
+	if (learning_talents_.empty()) {
+		return;   // issue #3631: нечему учить -- иначе clamp(1, size=0) с lo>hi
+	}
 	talent_num = std::clamp(talent_num, size_t(1), learning_talents_.size());
 
 	for (const auto &talent : learning_talents_) {
@@ -550,7 +553,7 @@ int GuildInfo::GuildSkill::CalcGuildSkillCap(CharData *ch) const {
 }
 
 int GuildInfo::GuildSkill::CalcPracticesQuantity(CharData *ch) const {
-	return std::clamp(CalcGuildSkillCap(ch) - GetTrainedSkill(ch, id_), 1, practices_);
+	return std::clamp(CalcGuildSkillCap(ch) - GetTrainedSkill(ch, id_), 1, std::max(1, practices_));   // issue #3631: hi>=lo
 }
 
 long GuildInfo::GuildSkill::CalcPrice(CharData *buyer) const {

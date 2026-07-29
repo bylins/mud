@@ -3,6 +3,8 @@
 
 #include "sets_drop.h"
 
+#include <unordered_map>
+
 #include "third_party_libs/pugixml/pugixml.h"
 #include <fmt/format.h>
 
@@ -13,6 +15,8 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/entities/zone.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/dungeons.h"   // kZoneStartDungeons
+#include "gameplay/mechanics/service_zones.h"
 
 namespace SetsDrop {
 // список сетин на дроп
@@ -365,33 +369,16 @@ void add_to_zone_list(std::list<ZoneNode> &cont, MobNode &node) {
 void init_mob_name_list() {
 	std::set<int> bad_zones;
 
-	// клан-замки
+	// клан-замки -- меняются в игре, поэтому считаем каждый раз
 	for (const auto &clan : Clan::ClanList) {
 		bad_zones.insert(clan->GetRent() / 100);
 	}
 
-	// города
-	int curr_zone = 0;
-	bool rent = false, mail = false, banker = false;
-	for (const auto i : world) {
-		if (curr_zone != zone_table[i->zone_rn].vnum) {
-			if (rent && mail && banker) {
-				bad_zones.insert(curr_zone);
-			}
-			rent = false;
-			mail = false;
-			banker = false;
-			curr_zone = zone_table[i->zone_rn].vnum;
-		}
-
-		for (const auto ch : i->people) {
-			if (specials::IsRentkeeper(ch)) {
-				rent = true;
-			} else if (specials::IsPostkeeper(ch)) {
-				mail = true;
-			} else if (specials::IsBankkeeper(ch)) {
-				banker = true;
-			}
+	// города -- флаг зоны, посчитанный при загрузке мира (SetZonesTownFlags): там уже пройдены
+	// комнаты каждой зоны в поисках ренты, банка и почты, второй раз то же самое делать незачем.
+	for (const auto &zone : zone_table) {
+		if (zone.is_town) {
+			bad_zones.insert(zone.vnum);
 		}
 	}
 
@@ -402,26 +389,67 @@ void init_mob_name_list() {
 		}
 	}
 
-	for (auto i = mob_stat::mob_stat_register.cbegin(),
-			 iend = mob_stat::mob_stat_register.cend(); i != iend; ++i) {
-		const int rnum = GetMobRnum(i->first);
-		const int zone = i->first / 100;
-		std::set<int>::const_iterator k = bad_zones.find(zone);
-
-		if (rnum < 0
-			|| zone < 100
-			|| k != bad_zones.end()) {
+	// Кандидаты берутся из команд загрузки мобов в зон-ресетах, а не из статистики убийств:
+	// в реестр статистики попадают только те, кого недавно били, поэтому глухие зоны выпадали
+	// из таблицы навсегда и дроп сползал на популярных мобов. Команда 'M' дает все нужное сразу:
+	// самого моба, его лимит в мире и комнату, куда он грузится.
+	for (const auto &zone : zone_table) {
+		const int zone_vnum = zone.vnum;
+		if (service_zones::IsNoLootZone(zone_vnum)   // служебные и начальные, см. cfg/mechanics
+			|| zone_vnum >= dungeons::kZoneStartDungeons   // в данжах сеты не падают
+			|| bad_zones.count(zone_vnum) > 0) {
 			continue;
 		}
 
-		MobNode node;
-		node.vnum = i->first;
-		node.rnum = rnum;
-		node.name = mob_proto[rnum].get_name();
-		auto stat = mob_stat::SumStat(i->second.stats, 4);
-		node.kill_stat = stat.kills;
+		for (int cmd_no = 0; zone.cmd && zone.cmd[cmd_no].command != 'S'; ++cmd_no) {
+			if (zone.cmd[cmd_no].command != 'M') {
+				continue;
+			}
+			const int rnum = zone.cmd[cmd_no].arg1;      // rnum моба (переведен при загрузке)
+			const int max_in_world = zone.cmd[cmd_no].arg2;
+			const RoomRnum room_rnum = zone.cmd[cmd_no].arg3;   // rnum комнаты, тоже переведен
 
-		add_to_zone_list(mob_name_list, node);
+			if (rnum < 0 || rnum > top_of_mobt) {
+				continue;
+			}
+			// пока только уникальные мобы
+			if (max_in_world != 1) {
+				continue;
+			}
+			if (room_rnum <= 0 || static_cast<size_t>(room_rnum) >= world.size()) {
+				continue;
+			}
+			// В мирной комнате моба не убить -- но только если он там и стоит. Бродячий моб
+			// из мирной выйдет, такой в списке нужен: дождется, когда выйдет, и будет убит.
+			if (ROOM_FLAGGED(room_rnum, ERoomFlag::kPeaceful)
+				&& mob_proto[rnum].IsFlagged(EMobFlag::kSentinel)) {
+				continue;
+			}
+			// засадные мобы сидят в виртуальных комнатах без выходов -- до них не добраться
+			bool has_exit = false;
+			for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+				if (world[room_rnum]->dir_option[dir]) {
+					has_exit = true;
+					break;
+				}
+			}
+			if (!has_exit) {
+				continue;
+			}
+
+			MobNode node;
+			node.vnum = mob_index[rnum].vnum;
+			node.rnum = rnum;
+			node.name = mob_proto[rnum].get_name();
+			node.miw = max_in_world;
+			// статистика убийств есть не у всех -- она только уточняет тип моба
+			const auto stat_it = mob_stat::mob_stat_register.find(node.vnum);
+			if (stat_it != mob_stat::mob_stat_register.cend()) {
+				node.kill_stat = mob_stat::SumStat(stat_it->second.stats, 4).kills;
+			}
+
+			add_to_zone_list(mob_name_list, node);
+		}
 	}
 }
 
@@ -429,22 +457,11 @@ void init_mob_name_list() {
 void init_zone_type() {
 	for (std::list<ZoneNode>::iterator i = mob_name_list.begin(),
 			 iend = mob_name_list.end(); i != iend; ++i) {
-		int killed_solo = 0;
-		for (std::list<MobNode>::iterator k = i->mobs.begin(),
-				 kend = i->mobs.end(); k != kend; ++k) {
-			int group_cnt = 0;
-			for (int cnt = 2; cnt <= MAX_GROUP_SIZE; ++cnt) {
-				group_cnt += k->kill_stat.at(cnt);
-			}
-			if (k->kill_stat.at(1) > group_cnt) {
-				++killed_solo;
-			}
-		}
-		if (killed_solo >= i->mobs.size() * 0.8) {
-			i->type = SOLO_ZONE;
-		} else {
-			i->type = GROUP_ZONE;
-		}
+		// Тип берется из свойства зоны ("оптимальное число игроков", <= 1 -- соло): оно задано
+		// билдером и есть у любой зоны, в том числе у той, где никого ни разу не били. Раньше тип
+		// считался по статистике убийств, и зона без статистики выпадала из таблицы целиком.
+		const auto zone_rnum = GetZoneRnum(i->zone);
+		i->type = (zone_rnum >= 0 && zone_table[zone_rnum].group >= 2) ? GROUP_ZONE : SOLO_ZONE;
 	}
 }
 
@@ -454,30 +471,29 @@ void init_mob_type() {
 			 iend = mob_name_list.end(); i != iend; ++i) {
 		for (std::list<MobNode>::iterator k = i->mobs.begin(),
 				 kend = i->mobs.end(); k != kend; ++k) {
+			// по умолчанию моб той же природы, что и его зона -- это работает и без статистики
+			k->type = (i->type == GROUP_ZONE) ? GROUP_MOB : SOLO_MOB;
+
+			// если моба били, статистика уточняет: в групповой зоне его могли валить в одиночку
+			// и наоборот
 			int group_cnt = 0;
 			for (int cnt = 2; cnt <= MAX_GROUP_SIZE; ++cnt) {
 				group_cnt += k->kill_stat.at(cnt);
 			}
-			if (i->type == SOLO_ZONE && k->kill_stat.at(1) > group_cnt) {
-				k->type = SOLO_MOB;
-			} else if (i->type == GROUP_ZONE && k->kill_stat.at(1) < group_cnt) {
-				k->type = GROUP_MOB;
+			const int solo_cnt = k->kill_stat.at(1);
+			if (solo_cnt + group_cnt > 0) {
+				k->type = (solo_cnt > group_cnt) ? SOLO_MOB : GROUP_MOB;
 			}
 		}
 	}
 }
 
-int calc_max_in_world(int mob_rnum) {
-	return mob_index[mob_rnum].stored;
-}
-
 /**
  * С этого момента начинают отсекаться отдельные мобы
  * Отсекаются: мобы с неуникальным именем внутри одной зоны,
- *             мобы больше 1 макс.в.мире
  *             мобы ниже требуемого уровня для данного типа
  *             мобы с флагами только полнолуние/времена года
- * Инится у моба: макс.в.мире
+ * Мобы больше 1 макс.в.мире отсеиваются раньше, при отборе по командам зон-ресетов.
  */
 void filter_dupe_names() {
 	int vnum = 0;
@@ -485,18 +501,17 @@ void filter_dupe_names() {
 	for (std::list<ZoneNode>::iterator it = mob_name_list.begin(),
 			 iend = mob_name_list.end(); it != iend; ++it) {
 		std::list<MobNode> tmp_list;
+		// Сколько мобов зоны носит каждое имя -- одним проходом. Раньше для каждого моба
+		// перебирались все мобы зоны со сравнением строк, то есть квадрат на зону.
+		std::unordered_map<std::string, int> name_count;
+		for (const auto &m : it->mobs) {
+			++name_count[m.name];
+		}
 		// отсеиваем (включая оригинал) одинаковые имена с разными внумами
 		for (std::list<MobNode>::iterator k = it->mobs.begin(),
 				 kend = it->mobs.end(); k != kend; ++k) {
 			// одинаковые имена в пределах зоны
-			bool good = true;
-			for (std::list<MobNode>::iterator l = it->mobs.begin(),
-					 lend = it->mobs.end(); l != lend; ++l) {
-				if (k->vnum != l->vnum && k->name == l->name) {
-					good = false;
-					break;
-				}
-			}
+			const bool good = name_count[k->name] <= 1;
 			if (!good || k->type == -1) {
 				continue;
 			}
@@ -512,19 +527,14 @@ void filter_dupe_names() {
 				|| mob->IsFlagged(EMobFlag::kAppearsSummer)
 				|| mob->IsFlagged(EMobFlag::kAppearsAutumn)
 				|| NPC_FLAGGED(mob, ENpcFlag::kFreeDrop) //не падает фридроп
-				|| mob->IsFlagged(EMobFlag::kProtect) //нельзя убить
+				|| mob->IsFlagged(EMobFlag::kProtect) //урон обнуляется, не убить
+				|| mob->IsFlagged(EMobFlag::kNoFight) //на него нельзя даже напасть
 				|| mob->get_exp() <= 0) {
 				continue;
 			}
 
 
 
-
-			// пока только уникальные мобы
-			k->miw = calc_max_in_world(k->rnum);
-			if (k->miw != 1) {
-				continue;
-			}
 
 			vnum = mob_index[k->rnum].vnum;
 			level = mob_proto[k->rnum].GetLevel();
@@ -539,7 +549,7 @@ void filter_dupe_names() {
 
 			tmp_list.push_back(*k);
 		}
-		it->mobs = tmp_list;
+		it->mobs = std::move(tmp_list);
 	}
 }
 

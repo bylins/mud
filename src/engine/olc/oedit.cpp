@@ -214,11 +214,17 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		// custom_label is now a value-type with deep copy (issue #3568)
 		obj->set_custom_label(std::make_shared<custom_label>(*tmp.get_custom_label()));
 	}
-	// восстановим силу ингров
+	// восстановим значения ингра. У магкомпонента (сердце и пр.) per-instance данные лежат в
+	// values: val[3] (IM_INDEX_SLOT) -- vnum моба-источника, из него при загрузке проставляется
+	// имя ("сердце @p1" -> "сердце дракона"). Полное обновление выше (*obj = *olc_obj) затирает
+	// values прототипными; val[3] раньше НЕ восстанавливали, из-за чего у держащихся сердец
+	// слетал моб (val[3] становился прототипной 1). Имя восстанавливает ветка is_rename выше --
+	// im_assign_power ставит этот флаг при выпадении, а короткий формат его теперь сохраняет.
 	if (tmp.get_type() == EObjType::kMagicComponent) {
 		obj->set_val(0, tmp.get_val(0));
 		obj->set_val(1, tmp.get_val(1));
 		obj->set_val(2, tmp.get_val(2));
+		obj->set_val(3, tmp.get_val(3));
 	}
 	// Пересчитываем deadline в ObjDecayManager на основании актуальных полей:
 	// *obj = *olc_obj выше затирает extra_flags значениями из прототипа
@@ -2376,7 +2382,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				drinkcon_values_menu(d);
 				return;
 			case OEDIT_DRINKCON_CURRENT: number = atoi(arg);
-				OLC_OBJ(d)->set_val(1, std::clamp(number, 0, GET_OBJ_VAL(OLC_OBJ(d), 0)));
+				OLC_OBJ(d)->set_val(1, std::clamp(number, 0, std::max(0, GET_OBJ_VAL(OLC_OBJ(d), 0))));
 				OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 				drinkcon_values_menu(d);
 				return;

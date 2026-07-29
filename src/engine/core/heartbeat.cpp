@@ -25,6 +25,7 @@
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/ai/mobact.h"
 #include "engine/scripting/dg_event.h"
+#include "engine/scripting/dg_olc.h"
 #include "engine/scripting/lua/lua_script_engine.h"
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
@@ -276,6 +277,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 0,
 							 std::make_shared<SimpleCall>(GlobalDrop::reload_tables)),
 		Heartbeat::PulseStep("Events processing", 1, 0, std::make_shared<SimpleCall>(process_events)),
+		Heartbeat::PulseStep("Lua formatter results", 1, 0, std::make_shared<SimpleCall>(ProcessLuaFormatterResults)),
 		Heartbeat::PulseStep("Lua scripting cleanup", 1, 0, std::make_shared<SimpleCall>(lua_scripting::LuaScriptEngine::HeartbeatCleanup)),
 		Heartbeat::PulseStep("Triggers check mobile", 
 							PULSE_DG_SCRIPT, 
@@ -510,8 +512,12 @@ Heartbeat::steps_t &pulse_steps() {
 							 15,
 							 std::make_shared<SimpleCall>(Clan::ChestInvoice)),
 //			Heartbeat::PulseStep("Gifts", 60 * 60 * kPassesPerSec, 18, std::make_shared<SimpleCall>(gifts)),
+		// issue: FileCRC::save переписывает весь crc.lst целиком при изменении CRC любого игрока
+		// (need_save -- один флаг на весь список). Раз в секунду это давало до 0.044 секунды на
+		// пульс при массовом заходе людей после рестарта, почти все -- запись файла на диск.
+		// Минуты достаточно: файл нужен для сверки целостности, а не для сохранности имущества.
 		Heartbeat::PulseStep("File CRC: saving",
-							 kPassesPerSec,
+							 60 * kPassesPerSec,
 							 23,
 							 std::make_shared<SimpleCall>([]() { FileCRC::save(false); })),
 		Heartbeat::PulseStep("Spells usage saving", 60 * 60 * kPassesPerSec, 0, std::make_shared<SpellUsageCall>()),

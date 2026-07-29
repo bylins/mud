@@ -255,6 +255,16 @@ class CObjectPrototype {
 	}
 	auto GetPotionValueKey(const ObjVal::EValueKey key) const { return m_values.get(key); }
 	wear_flags_t get_wear_flags() const { return m_wear_flags.get_plane(0); }
+	// issue.magic-items: номер заклинания в позиции 1..3. У свитков, зелий, посохов и жезлов
+	// заклинания живут в extra_values, сырые val[] у них нулевые.
+	int GetSpellItemSpellNum(int pos) const {
+		switch (pos) {
+			case 1: return m_values.get(ObjVal::EValueKey::kSpell1Num);
+			case 2: return m_values.get(ObjVal::EValueKey::kSpell2Num);
+			case 3: return m_values.get(ObjVal::EValueKey::kSpell3Num);
+			default: return -1;
+		}
+	}
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
 	bool can_wear_any() const { return m_wear_flags.any() && m_wear_flags.get_plane(0) != to_underlying(EWearFlag::kTake); }
