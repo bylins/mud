@@ -1264,6 +1264,7 @@ void Actions::ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node
 void Actions::ParseRetaliation(Retaliation &rt, parser_wrapper::DataNode &node) {
 	rt.present = true;
 	if (const char *p = node.GetValue("prob"); p && *p) { rt.prob = parse::ReadAsInt(p); }
+	if (const char *p = node.GetValue("passive"); p && *p) { rt.passive = parse::ReadAsBool(p); }
 	for (auto &child : node.Children()) {
 		const auto cn = child.GetName();
 		if (strcmp(cn, "conditions") == 0) {

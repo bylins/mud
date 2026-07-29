@@ -337,6 +337,8 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 				hit.amount = amount;
 				hit.type = static_cast<fight::DmgType>((rt.dmg_type >= 0) ? rt.dmg_type : dmg_type);
 				hit.element = (rt.element >= 0) ? static_cast<EElement>(rt.element) : element;
+				hit.ward = static_cast<int>(at);   // so DealReflectPool can show this ward's own flavor
+				hit.passive = rt.passive;          // a magic mirror reflects even while stunned/downed
 				reflect_pool_.push_back(hit);
 			}
 			// Flag edits (e.g. the kDrawBriefMagMirror HUD glyph) apply whenever the ward reacts.
@@ -353,22 +355,44 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 }
 
 void Damage::DealReflectPool(CharData *ch, CharData *victim) {
-	if (reflect_pool_.empty()
-		|| !victim->GetEnemy()
-		|| victim->GetPosition() <= EPosition::kStun
-		|| victim->in_room == kNowhere) {
+	if (reflect_pool_.empty() || victim->in_room == kNowhere) {
 		return;
 	}
+	// Active retaliation (physical thorns) needs the bearer up and engaged; a PASSIVE reflect -- a magic
+	// mirror, a property of the affect rather than a combat action -- fires regardless of stance/combat.
+	const bool can_act = victim->GetEnemy() && victim->GetPosition() > EPosition::kStun;
 	for (const auto &hit : reflect_pool_) {
-		if (hit.amount <= 0) {
+		if (hit.amount <= 0 || (!hit.passive && !can_act)) {
 			continue;
 		}
-		// A ward deals no damage of its own: the reflect is credited to the incoming attack (the spell
-		// being reflected), so its own combat/death messages are the ones shown.
+		// Narrate with the WARD's own flavor (e.g. the magic mirror's "reflected your magic!"), not the
+		// incoming attack's generic combat line. ch = attacker ($n), victim = ward bearer ($N) -- the same
+		// orientation the kWardTo* strings are written for (cf. EmitWardMsgs in magic.cpp).
+		bool narrated = false;
+		if (hit.ward >= 0) {
+			using EAMT = affects::EAffectMsgType;
+			const EAffect w = static_cast<EAffect>(hit.ward);
+			const std::string &mc = affects::AffectMsgRaw(w, EAMT::kWardToChar);
+			const std::string &mv = affects::AffectMsgRaw(w, EAMT::kWardToVict);
+			const std::string &mr = affects::AffectMsgRaw(w, EAMT::kWardToRoom);
+			// kToNoBriefShields: in brief magic-shields mode the shield collapses to a "(*)" on the triggering
+			// hit, so suppress the full ward line for those players (narrated stays true, so the generic combat
+			// line is still suppressed -- a brief-mode player sees only the "(*)", not the full text nor a hit).
+			if (!mc.empty()) { act(mc.c_str(), false, ch, nullptr, victim, kToChar | kToNoBriefShields); narrated = true; }
+			if (ch != victim && !mv.empty()) { act(mv.c_str(), false, ch, nullptr, victim, kToVict | kToNoBriefShields); narrated = true; }
+			if (!mr.empty()) {
+				act(mr.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
+				narrated = true;
+			}
+		}
+		// The reflect still deals its damage (the attacker's own defenses transform it); when the ward
+		// narrated above, suppress the reflected Damage's generic combat/severity line -- a mirror reflect
+		// shouldn't read as an ordinary "hit". (The reflected damage itself is still credited to spell_id.)
 		Damage dmg(SpellDmg(spell_id), hit.amount, hit.type);
 		dmg.element = hit.element;
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kMagicReflect);
+		dmg.no_generic_msg_ = narrated;
 		dmg.Process(victim, ch);
 	}
 	reflect_pool_.clear();
@@ -886,7 +910,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		if (!aff_msg_room_.empty()) {
 			act(aff_msg_room_.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 		}
-	} else {
+	} else if (!no_generic_msg_) {
 		if (MUD::Skills().IsValid(skill_id)) {
 			SendSkillMessages(dam, ch, victim, skill_id, brief_shields_);
 		} else if (spell_id > ESpell::kUndefined) {

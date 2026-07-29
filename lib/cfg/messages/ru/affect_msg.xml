@@ -289,6 +289,9 @@
 		<message type="kTransformToChar" val="Огненный щит вокруг $N1 ослабил вашу атаку."/>
 		<message type="kTransformToVict" val="Огненный щит принял часть повреждений на себя."/>
 		<message type="kTransformToRoom" val="Огненный щит вокруг $N1 ослабил атаку $n1."/>
+		<message type="kWardToChar" val="Огненный щит $N1 отразил часть урона в вас!"/>
+		<message type="kWardToVict" val="Ваш огненный щит отразил часть урона в $n3!"/>
+		<message type="kWardToRoom" val="Огненный щит $N1 отразил часть урона в $n3!"/>
 	</msg_sheaf>
 	<msg_sheaf id="kIceShield">
 		<message type="kAffImposedToRoom" val="$n3 окутал ледяной щит."/>

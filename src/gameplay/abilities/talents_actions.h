@@ -228,6 +228,8 @@ struct Retaliation {
 	int element{-1};                // <element val=> EElement of the reflected damage (-1 = same as incoming)
 	int dmg_type{-1};               // <element type=> fight::DmgType of the reflected damage (-1 = same as incoming)
 	bool present{false};
+	bool passive{false};            // <retaliation passive=> reflect ignores the bearer's stance/combat state
+	                                // (a magic mirror is a property of the affect, not a combat action)
 };
 
 // issue.affect-action-patch-improve (Phase B): the arithmetic of op="modify" (mul/add/set a field).
