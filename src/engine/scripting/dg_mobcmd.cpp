@@ -1547,13 +1547,14 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_DEATH))) {
 		if (!use_in_stoped && !mob_cmd_info[cmd].use_in_stoped
 				&& (AFF_FLAGGED(ch, EAffect::kHold)
-						|| AFF_FLAGGED(ch, EAffect::kStopFight)
-						|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
 				&& !trig->add_flag) {
-			if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
-				sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
+			// issue #3523: моб в стане -> команду не теряем: вешаем триггеру wait
+			// 1 RL-сек, после стана script_driver повторит её (TRIG_FROM_LINE).
+			hang_trig_wait(ch, trig, MOB_TRIGGER, kPassesPerSec, true);
+			sprintf(buf, "mob command_interpreter: моб в стане, trigger встал на wait 1");
 				mob_log(ch, trig, buf);
-			}
 			return false;
 		}
 	}
