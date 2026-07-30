@@ -97,8 +97,8 @@ switch (obj->get_type()) {
 		sprintf(buf + strlen(buf), " %s\r\n",
 				MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num))).GetCName());
 		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
-				obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges),
-				obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));
+				obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges),
+				obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges));
 		SendMsgToChar(buf, ch);
 		break;
 
