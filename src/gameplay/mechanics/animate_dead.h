@@ -32,7 +32,7 @@ struct StatScale {
 
 // Per-tier scaling. 'luck' is intentionally absent (mobs have no luck stat).
 struct CreatureScaling {
-	StatScale hp, damage_dice, hitroll, ac, skills, saving, armor, morale, initiative;
+	StatScale hp, damage_dice, damage_size, damage_bonus, hitroll, ac, skills, saving, armor, morale, initiative;
 };
 
 struct CreatureInfo {

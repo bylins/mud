@@ -93,6 +93,8 @@ void AnimateDeadInfo::Load(DataNode data) {
 			if (node.GoToChild("scaling")) {
 				ci.scaling.hp          = ParseStat(node, "hp");
 				ci.scaling.damage_dice = ParseStat(node, "damage_dice");
+				ci.scaling.damage_size = ParseStat(node, "damage_size");
+				ci.scaling.damage_bonus = ParseStat(node, "damage_bonus");
 				ci.scaling.hitroll     = ParseStat(node, "hitroll");
 				ci.scaling.ac          = ParseStat(node, "ac");
 				ci.scaling.skills      = ParseStat(node, "skills");
@@ -316,6 +318,15 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 	if (s.damage_dice.beta != 0.0) {
 		const int dice = std::clamp(up(s.damage_dice, mob->mob_specials.damnodice), 1, 100);
 		mob->mob_specials.damnodice = static_cast<ubyte>(dice);
+	}
+	// Damage die SIZE / magnitude (additive; same signed-byte guard as the count).
+	if (s.damage_size.beta != 0.0) {
+		const int size = std::clamp(up(s.damage_size, mob->mob_specials.damsizedice), 1, 100);
+		mob->mob_specials.damsizedice = static_cast<ubyte>(size);
+	}
+	// Flat damage bonus (+B added to every hit): the mob's damroll.
+	if (s.damage_bonus.beta != 0.0) {
+		GET_DR(mob) = up(s.damage_bonus, GET_DR(mob));
 	}
 	GET_HR(mob)         = up(s.hitroll, GET_HR(mob));
 	GET_ARMOUR(mob)     = up(s.armor, GET_ARMOUR(mob));

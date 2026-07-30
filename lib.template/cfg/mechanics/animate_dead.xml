@@ -11,6 +11,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />
@@ -25,6 +27,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />
@@ -39,6 +43,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />
@@ -53,6 +59,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />
@@ -67,6 +75,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />
@@ -81,6 +91,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />
@@ -95,6 +107,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />
@@ -109,6 +123,8 @@
 		<scaling>
 			<hp          beta="0.25" mode="mult" cap="2.0" />
 			<damage_dice beta="1.5"  mode="add"  cap="25" />
+			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
 			<hitroll     beta="0"    mode="add" />
 			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
 			<skills      beta="0"    mode="add"  cap="200" />

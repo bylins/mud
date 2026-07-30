@@ -30,6 +30,8 @@
 	<tag name="scaling" desc="Per-tier stat scaling off cast competence C">
 		<child tag="hp"/>
 		<child tag="damage_dice"/>
+		<child tag="damage_size"/>
+		<child tag="damage_bonus"/>
 		<child tag="hitroll"/>
 		<child tag="ac"/>
 		<child tag="skills"/>
@@ -44,6 +46,16 @@
 		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="damage_dice" desc="Number of damage dice (mode=add)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
+	</tag>
+	<tag name="damage_size" desc="Damage die size / magnitude (mode=add)">
+		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
+		<attr name="mode" type="string" desc="add | mult"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
+	</tag>
+	<tag name="damage_bonus" desc="Flat damage bonus +B every hit / damroll (mode=add)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
 		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
