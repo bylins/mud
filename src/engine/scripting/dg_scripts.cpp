@@ -4659,6 +4659,12 @@ void hang_trig_wait(void *go, Trigger *trig, int type, long time, bool from_curr
 	wait_event_obj->go = go;
 	wait_event_obj->type = type;
 	wait_event_obj->from_current = from_current;
+	// issue #3655: from_current-пауза (стан/лаг) вешается на ТЕКУЩУЮ строку (curr_line).
+	// Синхронизируем wait_line с ней, иначе show trig показывает протухшую
+	// строку прошлого wait'а, а не место реальной паузы.
+	if (from_current && trig->curr_line) {
+		trig->wait_line = trig->curr_line;
+	}
 	if (GET_TRIG_WAIT(trig).time_remaining > 0) {
 		trig_log(trig, "Wait structure already allocated for trigger");
 	}
