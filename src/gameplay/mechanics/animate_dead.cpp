@@ -35,8 +35,8 @@ StatScale ParseStat(DataNode &scaling, const char *name) {
 	s.mode = (m && std::string(m) == "mult") ? EScaleMode::kMult : EScaleMode::kAdd;
 	const char *c = scaling.GetValue("cap");
 	if (c && *c) {
-		s.has_cap = true;
-		s.cap = parse::ReadAsInt(c);
+		s.cap = parse::ReadAsDouble(c);
+		s.has_cap = (s.cap != 0.0);   // cap="0" (or an absent cap) means "no cap" -- the stat is unbounded
 	}
 	scaling.GoToParent();
 	return s;
@@ -277,7 +277,7 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 		}
 		int v = cur + RoundC(sc.beta, c);
 		if (sc.has_cap) {
-			v = std::min(v, sc.cap);
+			v = std::min(v, static_cast<int>(sc.cap));
 		}
 		return v;
 	};
@@ -288,18 +288,26 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 		}
 		int v = cur - RoundC(sc.beta, c);
 		if (sc.has_cap) {
-			v = std::max(v, sc.cap);
+			v = std::max(v, static_cast<int>(sc.cap));
 		}
 		return v;
 	};
 
 	// HP (multiplicative on the prototype; keeps tier proportions).
 	if (s.hp.beta != 0.0) {
-		int hp = mob->get_max_hit();
-		hp = (s.hp.mode == EScaleMode::kMult) ? static_cast<int>(hp * (1.0 + s.hp.beta * c))
-											  : hp + RoundC(s.hp.beta, c);
-		if (s.hp.has_cap) {
-			hp = std::min(hp, s.hp.cap);
+		const int proto = mob->get_max_hit();
+		int hp;
+		if (s.hp.mode == EScaleMode::kMult) {
+			double factor = 1.0 + s.hp.beta * c;
+			if (s.hp.has_cap) {
+				factor = std::min(factor, s.hp.cap);   // cap the multiplier, e.g. proto*2.0
+			}
+			hp = static_cast<int>(proto * factor);
+		} else {
+			hp = proto + RoundC(s.hp.beta, c);
+			if (s.hp.has_cap) {
+				hp = std::min(hp, static_cast<int>(s.hp.cap));
+			}
 		}
 		mob->set_max_hit(hp);
 		mob->set_hit(hp);

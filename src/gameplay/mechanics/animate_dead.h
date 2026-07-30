@@ -26,8 +26,8 @@ enum class EScaleMode { kAdd, kMult };
 struct StatScale {
 	double beta = 0.0;
 	EScaleMode mode = EScaleMode::kAdd;
-	bool has_cap = false;
-	int cap = 0;
+	bool has_cap = false;   // set from cap!=0. mode=mult: cap is the max MULTIPLIER (hp <= proto*cap);
+	double cap = 0;         // mode=add "up": ceiling; "down" (ac/saving): floor. cap="0"/absent = no cap.
 };
 
 // Per-tier scaling. 'luck' is intentionally absent (mobs have no luck stat).

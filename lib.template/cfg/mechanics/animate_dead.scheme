@@ -2,7 +2,7 @@
   issue.animate-dead: Vedun editor scheme for cfg/mechanics/animate_dead.xml. Each <creature>
   is a construct tier keyed by integer vnum (ladder order, weakest -> strongest). <control> is
   the global headcount budget. <scaling> holds one child per scaled stat; beta is the per-C
-  factor, mode is add|mult, cap bounds the result. Optional sidecar; undeclared nodes degrade
+  factor, mode is add|mult, cap bounds the result (mult=max multiplier, add=ceiling/floor; cap=0=no cap). Optional sidecar; undeclared nodes degrade
   to plain strings and are validated on save by the loader.
 -->
 <scheme>
@@ -41,46 +41,46 @@
 	<tag name="hp" desc="Max HP (mode=mult keeps tier proportions)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="damage_dice" desc="Number of damage dice (mode=add)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="hitroll" desc="Hitroll (higher = better)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="ac" desc="Armor class (lower = better; cap = best/lowest)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="skills" desc="Every prototype skill, uniform (higher = better)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="saving" desc="All saving throws (lower = better; cap = best/lowest)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="armor" desc="Armour value (higher = better)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="morale" desc="Morale (higher = better)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 	<tag name="initiative" desc="Initiative (higher = better)">
 		<attr name="beta" type="float" desc="Per-unit-of-C factor (0 = off)"/>
 		<attr name="mode" type="string" desc="add | mult"/>
-		<attr name="cap" type="int" desc="Bound on the result (optional)"/>
+		<attr name="cap" type="float" desc="cap=0/absent = no cap; mult: max multiplier (proto*cap); add up: ceiling, down (ac/saving): floor"/>
 	</tag>
 </scheme>
