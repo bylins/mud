@@ -1548,7 +1548,8 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 		if (!use_in_stoped && !mob_cmd_info[cmd].use_in_stoped
 				&& (AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
-				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
+				|| ch->get_wait() > 0)   // issue #3655: лаг (combat wait_state) тоже стопорит триггер
 				&& !trig->add_flag) {
 			// issue #3523: моб в стане -> команду не теряем: вешаем триггеру wait
 			// 1 RL-сек, после стана script_driver повторит её (TRIG_FROM_LINE).

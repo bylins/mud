@@ -846,7 +846,8 @@ EVENT(trig_wait_event) {
 		if (mob->in_room != kNowhere
 				&& !AFF_FLAGGED(mob, EAffect::kHold)
 				&& !AFF_FLAGGED(mob, EAffect::kStopFight)
-				&& !AFF_FLAGGED(mob, EAffect::kMagicStopFight)) {
+				&& !AFF_FLAGGED(mob, EAffect::kMagicStopFight)
+				&& mob->get_wait() == 0) {   // issue #3655: ждём снятия лага
 			mudlog(fmt::format("DG: триггер {} #{} продолжил работу после лага моба {} #{}",
 							   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), GET_SHORT(mob), GET_MOB_VNUM(mob)),
 				   NRM, kLvlGod, SYSLOG, true);
