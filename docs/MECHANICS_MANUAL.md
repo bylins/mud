@@ -158,25 +158,35 @@ parameters:
 |---|---|
 | `beta` | Scaling coefficient. `0` = the stat is unchanged (taken from the prototype). |
 | `mode` | `add` — an addition; `mult` — a multiplier (see the formulas below). |
-| `cap` | A bound on the result: a ceiling for "growing" stats, a floor for "shrinking" ones (AC, saves). Optional. |
+| `cap` | Bound on the result. **`cap="0"` or an absent cap = no cap** (unbounded). For `mode="mult"` the cap is the **maximum multiplier** (`value ≤ prototype × cap`); for `mode="add"` it is an absolute **ceiling** for "growing" stats and a **floor** for "shrinking" ones (AC, saves). |
 
-Scaled stats: `hp`, `damage_dice` (number of damage dice), `hitroll`, `ac`, `skills` (all of the
-prototype's skills, uniformly), `saving` (all 4 saves), `armor`, `morale`, `initiative`. There is no
-`luck` on purpose — mobs do not have it.
+Scaled stats:
+
+- **`hp`** — max HP (`mult` keeps tier proportions).
+- **Damage** — the three parts of the prototype's `NdM+B` roll are each separately scalable:
+  - **`damage_dice`** — the *number* of dice (N, `damnodice`);
+  - **`damage_size`** — the die *size* / magnitude (M, `damsizedice`);
+  - **`damage_bonus`** — the flat *+B* added to every hit (the mob's damroll).
+- **`hitroll`**, **`armor`**, **`morale`**, **`initiative`** — "growing" stats.
+- **`ac`**, **`saving`** (all 4 saves) — "shrinking" stats (lower = better).
+- **`skills`** — every skill the prototype already has, uniformly.
+
+There is no `luck` on purpose — mobs do not have it.
 
 **Formulas.** Let `C` be the competence (see section 8):
 
-- "Growing" stats (`hitroll`, `armor`, `morale`, `initiative`, `skills`, `damage_dice`), `mode="add"`:
-  `value = prototype + round(beta · C)`, then bounded above by `cap`.
+- "Growing" stats (`hitroll`, `armor`, `morale`, `initiative`, `skills`, `damage_dice`, `damage_size`,
+  `damage_bonus`), `mode="add"`: `value = prototype + round(beta · C)`, then bounded above by `cap`.
 - "Shrinking" stats (`ac`, `saving`), where lower = better, `mode="add"`:
   `value = prototype − round(beta · C)`, then bounded below by `cap`.
-- Health `hp`, `mode="mult"`: `value = prototype × (1 + beta · C)` (not above `cap` if set).
-  The multiplier preserves the proportions between tiers.
-- `damage_dice` is additionally clamped to `1…100` (guarding the signed `damnodice`).
+- Health `hp`, `mode="mult"`: `value = prototype × min(1 + beta · C, cap)` — the cap limits the
+  **multiplier** (e.g. `cap="2.0"` ⇒ never above 2× the prototype). It preserves tier proportions.
+- `damage_dice` and `damage_size` are additionally clamped to `1…100` (guarding the signed bytes
+  `damnodice` / `damsizedice`).
 
-The config's seed values reproduce the historical behaviour: `hp beta=0.25 mode=mult` (+25% · C to
-health) and `damage_dice beta=1.5 mode=add cap=100`. The other seven stats ship at `beta=0` (off) —
-enable and tune them as you like.
+The config's seed values: `hp beta=0.25 mode=mult cap=2.0` (up to +25% · C, ceiling 2× the prototype —
+≈ the pre-rework maximum) and `damage_dice beta=1.5 mode=add cap=25`. `damage_size`, `damage_bonus`
+and the other combat stats ship **off** (`beta=0`) — enable and tune them as you like.
 
 ### 8. What the competence `C` is
 
