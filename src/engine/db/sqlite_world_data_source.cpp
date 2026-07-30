@@ -1126,7 +1126,7 @@ std::vector<LoadedTrigger> SqliteWorldDataSource::LoadTriggers(const std::vector
 		return {};
 	}
 
-	const char *sql = "SELECT t.vnum, t.name, t.attach_type_id, GROUP_CONCAT(ttb.type_char, '') AS type_chars, t.narg, t.arglist, t.script "
+	const char *sql = "SELECT t.vnum, t.name, t.attach_type_id, GROUP_CONCAT(ttb.type_char, '') AS type_chars, t.narg, t.arglist, t.script, t.add_flag "
 					  "FROM triggers t LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum WHERE t.enabled = 1 GROUP BY t.vnum ORDER BY t.vnum";
 
 	sqlite3_stmt *stmt;
@@ -1156,6 +1156,7 @@ std::vector<LoadedTrigger> SqliteWorldDataSource::LoadTriggers(const std::vector
 		int narg = sqlite3_column_int(stmt, 4);
 		std::string arglist = GetText(stmt, 5);
 		std::string script = GetText(stmt, 6);
+		int add_flag = sqlite3_column_int(stmt, 7);
 
 		byte attach_type = static_cast<byte>(attach_type_id);
 
@@ -1175,6 +1176,7 @@ std::vector<LoadedTrigger> SqliteWorldDataSource::LoadTriggers(const std::vector
 		auto trig = new Trigger(-1, std::move(name), attach_type, trigger_type);
 		GET_TRIG_NARG(trig) = narg;
 		trig->arglist = arglist;
+		trig->add_flag = add_flag != 0;
 		ParseTriggerScript(trig, script);
 
 		result.push_back(LoadedTrigger{vnum, trig});
@@ -2899,8 +2901,8 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 	// the primary key, so this atomically overwrites any existing row.
 	sqlite3_stmt *stmt = nullptr;
 	const char *insert_sql =
-		"INSERT OR REPLACE INTO triggers (vnum, name, attach_type_id, narg, arglist, script, enabled) "
-		"VALUES (?, ?, ?, ?, ?, ?, 1)";
+		"INSERT OR REPLACE INTO triggers (vnum, name, attach_type_id, narg, arglist, script, add_flag, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
 
 	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
@@ -2932,6 +2934,7 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 	sqlite3_bind_int(stmt, 4, GET_TRIG_NARG(trig));
 	BindTextKoi(stmt, 5, trig->arglist.c_str());
 	BindTextKoi(stmt, 6, script_text.c_str());
+	sqlite3_bind_int(stmt, 7, trig->add_flag ? 1 : 0);
 
 	int rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE)

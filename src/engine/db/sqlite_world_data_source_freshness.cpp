@@ -342,6 +342,7 @@ CREATE TABLE triggers (
     attach_type_id INTEGER REFERENCES trigger_attach_types(id),
     narg INTEGER DEFAULT 0,
     arglist TEXT,
+    add_flag INTEGER DEFAULT 0,
     script TEXT,
     enabled INTEGER DEFAULT 1
 );
@@ -551,6 +552,7 @@ SELECT
     tat.name AS attach_type,
     t.narg,
     t.arglist,
+    t.add_flag,
     GROUP_CONCAT(ttb.type_char, '') AS type_chars,
     GROUP_CONCAT(ttd.name) AS trigger_types,
     LENGTH(t.script) AS script_length

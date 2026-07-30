@@ -1261,6 +1261,7 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 	// Create trigger (note: rnum will be assigned during merge)
 	auto trig = new Trigger(-1, std::move(name), static_cast<byte>(attach_type), trigger_type);
 	GET_TRIG_NARG(trig) = narg;
+	trig->add_flag = GetInt(root, "add_flag", 0) != 0;
 	trig->arglist = arglist;
 	trig->set_script_language(script_language);
 
@@ -3253,6 +3254,13 @@ void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
 	// Narg
 	yaml.Key("narg");
 	yaml.Value(GET_TRIG_NARG(trig));
+
+	// add_flag (выполнять команду даже в стане) -- optional, only when set
+	if (trig->add_flag)
+	{
+		yaml.Key("add_flag");
+		yaml.Value(1);
+	}
 
 	// Arglist (optional)
 	if (!trig->arglist.empty())
