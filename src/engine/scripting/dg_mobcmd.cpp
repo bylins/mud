@@ -34,6 +34,8 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/char_handler.h"
+#include "engine/ui/cmd/do_stand.h"
+#include "gameplay/affects/affect_data.h"
 #include "engine/core/obj_handler.h"
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"
@@ -1542,6 +1544,28 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 				break;
 		}
 		cmd++;
+	}
+	// issue #3658: HitPrcnt должен визуально среагировать, а не залипнуть на стан-гейте.
+	// Моб под контролем (и не при смерти) -> стряхиваем контроль с сообщением и поднимаем,
+	// тогда стан-блок ниже уже не паузит. При смерти (pos < kStun) не трогаем.
+	if (trig && IS_SET(GET_TRIG_TYPE(trig), MTRIG_HITPRCNT)
+			&& ch->GetPosition() >= EPosition::kStun
+			&& (AFF_FLAGGED(ch, EAffect::kHold)
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kSleep)
+				|| ch->get_wait() > 0)) {
+		if (AFF_FLAGGED(ch, EAffect::kHold)) { RemoveAffectFromChar(ch, EAffect::kHold); }
+		if (AFF_FLAGGED(ch, EAffect::kStopFight)) { RemoveAffectFromChar(ch, EAffect::kStopFight); }
+		if (AFF_FLAGGED(ch, EAffect::kMagicStopFight)) { RemoveAffectFromChar(ch, EAffect::kMagicStopFight); }
+		if (AFF_FLAGGED(ch, EAffect::kSleep)) { RemoveAffectFromChar(ch, EAffect::kSleep); }
+		ch->set_wait(0);
+		act("Множество быстрых теней метнулись вокруг $n3.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		if (ch->GetPosition() < EPosition::kFight) {   // сидел/спал/оглушён -> встаём
+			ch->SetPosition(EPosition::kSit);
+			char st[] = "";
+			do_stand(ch, st, 0, 0);
+		}
 	}
 // damage mtrigger срабатывает всегда
 	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_DEATH))) {
