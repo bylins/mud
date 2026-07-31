@@ -92,7 +92,7 @@ void go_stun(CharData *ch, CharData *vict) {
 			act("$n мощным ударом ошеломил$g $N3!", true, ch,
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
-		vict->SetPosition(EPosition::kIncap);
+		vict->SetPosition(EPosition::kStun);   // issue #3658: kStun (не kIncap) -- ошеломление тоже можно стряхнуть (HitPrcnt)
 		SetWaitState(vict, (2 + remort::GetRealRemort(ch) / 5) * kBattleRound * GetSkill(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
 		ch->setSkillCooldown(ESkill::kStun, 3 * kBattleRound);
 		hit(ch, vict, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);

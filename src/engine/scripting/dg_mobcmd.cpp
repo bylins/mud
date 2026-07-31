@@ -34,6 +34,8 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/char_handler.h"
+#include "engine/ui/cmd/do_stand.h"
+#include "gameplay/affects/affect_data.h"
 #include "engine/core/obj_handler.h"
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"
@@ -1543,17 +1545,38 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 		}
 		cmd++;
 	}
+	// issue #3658: HitPrcnt должен визуально среагировать, а не залипнуть на стан-гейте.
+	// Моб под контролем (и не при смерти) -> стряхиваем контроль с сообщением и поднимаем,
+	if (trig && IS_SET(GET_TRIG_TYPE(trig), MTRIG_HITPRCNT)
+			&& ch->GetPosition() >= EPosition::kStun   // issue #3658: выведен из строя
+			&& (AFF_FLAGGED(ch, EAffect::kHold)
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kSleep)
+				|| ch->get_wait() > 0)) {
+		if (AFF_FLAGGED(ch, EAffect::kHold)) { RemoveAffectFromChar(ch, EAffect::kHold); }
+		if (AFF_FLAGGED(ch, EAffect::kStopFight)) { RemoveAffectFromChar(ch, EAffect::kStopFight); }
+		if (AFF_FLAGGED(ch, EAffect::kMagicStopFight)) { RemoveAffectFromChar(ch, EAffect::kMagicStopFight); }
+		if (AFF_FLAGGED(ch, EAffect::kSleep)) { RemoveAffectFromChar(ch, EAffect::kSleep); }
+		ch->set_wait(0);
+		act("Множество быстрых теней метнулись вокруг $n3.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		if (ch->GetPosition() < EPosition::kFight) {   // сидел/спал/оглушён -> встаём
+			ch->SetPosition(EPosition::kSit);
+			char st[] = "";
+			do_stand(ch, st, 0, 0);
+		}
+		sprintf(buf, "mob command_interpreter: моб отжил из лага/стана в HitPercent, проценты жизни %d", GET_TRIG_NARG(trig));
+		mob_log(ch, trig, buf);
+	}
 // damage mtrigger срабатывает всегда
 	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_DEATH))) {
 		if (!use_in_stoped && !mob_cmd_info[cmd].use_in_stoped
 				&& (AFF_FLAGGED(ch, EAffect::kHold)
-						|| AFF_FLAGGED(ch, EAffect::kStopFight)
-						|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
-				&& !trig->add_flag) {
-			if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
-				sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
-				mob_log(ch, trig, buf);
-			}
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
+			// issue #3523: моб в стане -> команду не теряем: вешаем триггеру wait
+			// 0.025 RL sec, после стана script_driver повторит её (TRIG_FROM_LINE).
+			hang_trig_wait(ch, trig, MOB_TRIGGER, kPassesPerSec, true);
 			return false;
 		}
 	}

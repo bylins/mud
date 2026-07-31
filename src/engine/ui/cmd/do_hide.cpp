@@ -46,7 +46,9 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
 	Affect<EApply> af;
-	af.duration = CalcDuration(ch, ch, ESkill::kHide, 0, 20, 0, 1);
+	// issue #3664: скилл-скейл прятки. base=1 (пол ~60с), бонус = skill/50, кап total=5.
+	// ~60с на низком скилле -> ~5 мин на 200 (шаг 60с; секундная точность тут не нужна).
+	af.duration = CalcDuration(ch, ch, ESkill::kHide, 1, 50, 0, 5);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag.clear();

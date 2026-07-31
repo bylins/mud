@@ -1734,8 +1734,8 @@ class SqliteSaver(BaseSaver):
         # Insert main trigger record (without trigger_types - normalized)
         cursor.execute('''
             INSERT OR REPLACE INTO triggers (
-                vnum, name, attach_type_id, narg, arglist, script, enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                vnum, name, attach_type_id, narg, arglist, script, add_flag, enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             trigger.get('name'),
@@ -1743,6 +1743,7 @@ class SqliteSaver(BaseSaver):
             trigger.get('narg', 0),
             trigger.get('arglist'),
             trigger.get('script'),
+            trigger.get('add_flag', 0),
             trigger.get('enabled', 1),
         ))
 
@@ -3385,6 +3386,8 @@ def parse_trg_file(filepath):
                     trigger['type_chars'] = type_chars
 
                     trigger['narg'] = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 0
+                    # add_flag: 4th header field ("execute mob command even in stun"), matches boot_data_files.cpp
+                    trigger['add_flag'] = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 0
                 idx += 1
 
             # Argument until ~
@@ -3479,6 +3482,10 @@ def trg_to_yaml(trigger):
 
     if 'narg' in trigger:
         data['narg'] = trigger['narg']
+
+    # add_flag: emit only when set (like arglist), matches C++ EmitTriggerBody
+    if trigger.get('add_flag'):
+        data['add_flag'] = trigger['add_flag']
 
     # Match C++ SaveTriggers: emit arglist only when non-empty. Otherwise
     # converter writes `arglist: ''` and a round-trip save drops the key.

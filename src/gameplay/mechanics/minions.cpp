@@ -219,11 +219,16 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 		return (false);
 	}
 
-	if (cha_summ >= MaxCharmices(ch)) {
+	// issue.animate-dead: animate dead's control limit is a per-type skill-weight budget
+	// enforced at tier selection (animate_dead::FitUndeadTier in CorpseSummon), so it skips
+	// this flat count cap.
+	if (spell_id != ESpell::kAnimateDead && cha_summ >= MaxCharmices(ch)) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
-	if (spell_id != ESpell::kClone &&
+	// issue.animate-dead: animate dead is off the reformed-HP budget (like clone); its sole
+	// limit is the skill-based count cap above.
+	if (spell_id != ESpell::kClone && spell_id != ESpell::kAnimateDead &&
 		reformed_hp_summ + GetReformedCharmiceHp(ch, victim, spell_id) >= CalcCharmPoint(ch, spell_id)) {
 		SendMsgToChar("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		return (false);

@@ -21,6 +21,7 @@ void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to);
 void RemoveObjFromObj(ObjData *obj);
 void object_list_new_owner(ObjData *list, CharData *ch);
 RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
+std::string ObjLocDesc(ObjData *obj);
 void ExtractObjFromWorld(ObjData *obj, bool showlog = false);
 // issue #3563: пишет в syslog о пропаже вещи у игрока; звать до отвязки от владельца.
 void LogPlayerObjLoss(ObjData *obj, const char *reason);
