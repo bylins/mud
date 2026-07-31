@@ -180,6 +180,12 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 								const CharData *ch,
 								const CharData *character,
 								const bool leader) {
+	// issue #3666: член группы мог быть экстракчен (убит) в этом же пульсе, но ещё висит в
+	// followers. in_room == kNowhere -- канон признак "готовится к удалению" (purged устарел).
+	// Чтение статов такого = use-after-purge (SYSERR в get_wis). Пропускаем.
+	if (!character || character->in_room == kNowhere) {
+		return;
+	}
 	if (ch->IsFlagged(EPrf::kNoClones)
 		&& character->IsNpc()
 		&& (character->IsFlagged(EMobFlag::kClone)
