@@ -48,6 +48,7 @@ struct GlobalObjectsStorage {
 	guilds::GuildMessages guild_messages;
 	cities::CitiesInfo cities_info;
 	regions::RegionsInfo regions_info;
+	animate_dead::AnimateDeadInfo animate_dead_info;
 	regions::RegionMessages region_messages;
 	system_messages::SystemMessages system_messages;
 	cities::CityMessages city_messages;
@@ -189,6 +190,10 @@ cities::CitiesInfo &GlobalObjects::Cities() {
 
 regions::RegionsInfo &GlobalObjects::Regions() {
 	return global_objects().regions_info;
+}
+
+animate_dead::AnimateDeadInfo &GlobalObjects::AnimateDead() {
+	return global_objects().animate_dead_info;
 }
 
 regions::RegionMessages &GlobalObjects::RegionMessages() {

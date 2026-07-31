@@ -25,6 +25,7 @@
 #include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
+#include "gameplay/mechanics/animate_dead.h"
 
 #include <functional>
 #include <map>
@@ -116,7 +117,6 @@ int CalcAntiSavings(CharData *ch) {
 	if (!ch->IsNpc()) {
 		modi *= condition::GetCondPenalty(ch, condition::kCast);
 	}
-//  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
 	return modi;
 }
 
@@ -125,9 +125,6 @@ int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 	auto skill = GetSkill(ch, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill());
 	return static_cast<int>(mod*skill);
 }
-
-
-//killer нужен для того чтоб вывести стату
 
 
 // issue.npc-races: a mob can speak/incant iff its race carries the <vocal/> trait (players always
@@ -216,9 +213,6 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 	return element_coeff;
 }
 
-
-// as a local lambda that handles every category (heal / moves / thirst /
-// cond) uniformly.
 
 /**
  * Number of *extra* hits a multi-hit damage spell deals beyond its single mandatory hit.
@@ -634,8 +628,6 @@ EStageResult CastDamage(ActionContext &ctx) {
 		if (ch->IsFlagged(EPrf::kAwake) && !victim->IsNpc())
 			modi = modi - 50;
 	}
-//	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
-//		modi += (GetRealLevel(ch) - 10);
 
 	// issue.instant-death: roll the damage saving throw ONCE here and stash it in the context, so the
 	// instant-death gate (target must FAIL) and the save-for-half below share a single roll instead of
@@ -1415,38 +1407,9 @@ EStageResult CastAffect(ActionContext &ctx) {
 // upper tier (>34) is a 50/50 between damager/breather. The caster's own (level + remort + 4)
 // then caps the result: very low-level necromancers can never spawn higher-tier undead.
 static MobVnum PickNecroMobForCorpse(CharData *ch, int corpse_mob_level) {
-	MobVnum mob_num;
-	if (corpse_mob_level <= 5) {
-		mob_num = kMobSkeleton;
-	} else if (corpse_mob_level <= 10) {
-		mob_num = kMobZombie;
-	} else if (corpse_mob_level <= 15) {
-		mob_num = kMobBonedog;
-	} else if (corpse_mob_level <= 20) {
-		mob_num = kMobBonedragon;
-	} else if (corpse_mob_level <= 25) {
-		mob_num = kMobBonespirit;
-	} else if (corpse_mob_level <= 34) {
-		mob_num = kMobNecrotank;
-	} else {
-		mob_num = (number(1, 100) > 50) ? kMobNecrobreather : kMobNecrodamager;
-	}
-	// kMobNecrocaster disabled, cant cast
-	const int cap = GetRealLevel(ch) + remort::GetRealRemort(ch) + 4;
-	if (cap < 15 && mob_num > kMobZombie) {
-		mob_num = kMobZombie;
-	} else if (cap < 25 && mob_num > kMobBonedog) {
-		mob_num = kMobBonedog;
-	} else if (cap < 32 && mob_num > kMobBonedragon) {
-		mob_num = kMobBonedragon;
-	}
-	return mob_num;
+	return static_cast<MobVnum>(animate_dead::PickTier(ch, corpse_mob_level));
 }
 
-// Compute the per-spell summon parameters into `p`. Returns false (no further action by caller)
-// when the spell short-circuits with its own diagnostic message (e.g. kAnimateDead/kResurrection
-// when obj isn't a corpse, kResurrection on a corpse missing its mob VNUM, or an unsummonable
-// spell_id reaching the default case).
 
 // Rename a freshly-spawned resurrection mob as "умертвие <его_имя>" across all six grammatical
 // cases. Also clears the long-description, sets neutral gender, marks it kResurrected, and
@@ -1485,45 +1448,6 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 	}
 }
 
-// True if the freshly-loaded `mob` can't be summoned by `ch` (sanctuary / mob spec / world flag /
-// god's shield / horse). On true, sends the appropriate kResurrect*/kSummonWarhorse message and
-// extracts `mob` from the world; caller must `return kSuccess` without further action. Immortals
-// bypass every guard except the horse check (which is universal).
-
-
-// For the top-tier kAnimateDead spawns (kMobNecrodamager..kLastNecroMob): bump max HP by 10% per
-// remort, then crank up damnodice until the mob's reformed-charm value matches the caster's
-// charm-points budget (or hits the 255 cap, which means damsize is too small for this caster).
-static void BoostNecroDamage(CharData *ch, CharData *mob, ESpell spell_id) {
-	// add 10% mob health by remort
-	mob->set_max_hit(mob->get_max_hit() * (1.0 + remort::GetRealRemort(ch) / 10.0));
-	mob->set_hit(mob->get_max_hit());
-	int player_charms_value = CalcCharmPoint(ch, spell_id);
-	int mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
-	int damnodice = 1;
-	mob->mob_specials.damnodice = damnodice;
-	// look for count dice to maximize damage on player_charms_value. max 255.
-	while (player_charms_value > mob_cahrms_value && damnodice <= 255) {
-		damnodice++;
-		mob->mob_specials.damnodice = damnodice;
-		mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
-	}
-	damnodice--;
-
-	mob->mob_specials.damnodice = damnodice; // get prew damnodice for match with player_charms_value
-	if (damnodice == 255) {
-		// if damnodice == 255 mob damage not maximized. damsize too small
-		SendMsgToRoom("Темные искры пробежали по земле... И исчезли...", ch->in_room, 0);
-	} else {
-		// mob damage maximazed.
-		SendMsgToRoom("Темные искры пробежали по земле. Кажется сама СМЕРТЬ наполняет это тело силой!",
-					  ch->in_room, 0);
-	}
-}
-
-// Copy caster cosmetics + stats onto the kClone double: PNames in all six cases, every stat, the
-// hp/ac/dr/hr/class/build, position, gender, flags.
-
 
 // kAnimateDead post-spawn: mark undead + per-tier rescue grants for the kLoyalAssist /
 // kHauntingSpirit feats; high-wisdom (75+) casters also gift an ice shield. The wis>=65 magic-
@@ -1559,29 +1483,9 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 	}
 }
 
-// kSummonKeeper post-spawn: tie keeper level to caster, then derive a "rating" from
-// light-magic + cha and project that onto hit/skills/stats/HR/AC.
-// Svent TODO: не забыть перенести это в ability
-// Scale a summoned-minion stat off the cast competence C (skill_coeff+stat_coeff, from kSummonKeeper's
-// <potency_roll>) via the standard option-2 modifier formula -- the SAME ComputeApplyModifier the
-// affect modifiers use; no new formula. dices_weight>0 folds in the spell's potency dice (the HP
-// spread, replacing the old RollDices(10,10)); flat stats use beta*C only.
-
-
-// Keeper stats, calibrated to reproduce the old rating-based curve at a maxed R12 keeper-summoner
-// (C ~ 3.1: skill 140, cha 30) and flatten above the novice skill threshold (the accepted
-// rebalance -- caps runaway high-skill keepers). C replaces the old (kLightMagic skill + cha)/2
-// rating; competence_weight lives in each stat's beta. kRescue is now scaled (was flat 100 only
-// via the keeper flag; this is the in-class keeper's own rescue).
-
-
-// kSummonFirekeeper post-spawn: a fire-aura (or fire-shield at 30+ effective cha) charm affect,
-// dr/hp/skills scaled by a 0..30 modifier derived from caster cha. Awakens on spawn.
-
 
 // Spill the source corpse's contents into the caster's room (decay-checking each item) and
 // extract the corpse itself. Used post-spawn whenever SummonParams::handle_corpse is set.
-// А надо ли это вообще делать???
 static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 	for (ObjData *tobj = obj->get_contains(); tobj; ) {
 		ObjData *next_obj = tobj->get_next_content();
@@ -1594,17 +1498,6 @@ static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 	}
 	ExtractObjFromWorld(obj);
 }
-
-// Charm a freshly-read summoned `mob` to `ch` and place it in the caster's room: zero gold/exp/
-// carry, the kCharm affect (+ kHelper & kRescue=100 when `keeper`) with a wisdom+moon-phase
-// duration, kCorpse, the kSummonToRoom narration, place + add_follower. Returns the charm duration
-// (callers reuse it -- the firekeeper aura and the animate-dead ice shield share it).
-
-
-// kClone post-spawn (issue.summon-pipeline): make the spawned double a copy of the caster, then
-// fill the rest of the clone quota -- max(1,(level+4)/5-2) total -- with extra doubles. Each extra
-// is charmice-capped and finalized like the first but never re-rolls failure or cascades again
-// (replacing the old need_fail=false recursion into CastSummon).
 
 
 // issue.summon-pipeline: string-named post-spawn handlers (the spell-specific 20%). Signature
@@ -1724,6 +1617,17 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 			return EStageResult::kSuccess;
 		}
 	}
+	if (!resurrection) {
+		// issue.animate-dead: demote the raised tier to the strongest that fits the caster's
+		// per-type skill-weight budget (min(Dark-Magic,75) minus held-undead weights). 0 means
+		// even a skeleton no longer fits -> the caster is already at their minion limit.
+		mob_num = animate_dead::FitUndeadTier(ch, mob_num);
+		if (mob_num == 0) {
+			SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
+			ExtractObjFromWorld(obj);
+			return EStageResult::kSuccess;
+		}
+	}
 	CharData *mob = ReadMobile(-mob_num, kVirtual);
 	if (!mob) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
@@ -1735,8 +1639,10 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	if (IsSummonTargetProtected(ch, mob, spell_id)) {
 		return EStageResult::kSuccess;
 	}
-	if (!resurrection && mob_num >= kMobNecrodamager && mob_num <= kLastNecroMob) {
-		BoostNecroDamage(ch, mob, spell_id);
+	if (!resurrection) {
+		// issue.animate-dead: scale HP/damage off cast potency C for ALL tiers
+		// (was BoostNecroDamage: top-tier-only, remort HP + charm-budget damage back-solve).
+		animate_dead::SetupUndeadStats(ch, mob, ctx.CompetenceBase());
 	}
 	if (!CheckCharmices(ch, mob, spell_id)) {
 		ExtractCharFromWorld(mob, false);
@@ -2603,10 +2509,6 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 // Data-driven dispel stage. Dispatches on the non-null target: a CharData strips affects from
 // the victim (the historical path), a RoomData strips affects from the room.
 // Exactly one of {victim, room} should be non-null; passing both is treated as the char path.
-// TODO(#3342): CastUnaffects has no saving (success) check yet. kEnergyDrain/kWeaknes
-// used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
-// that check is added here the buff is stripped regardless of the save. See their
-// commented stub case in CastAffect.
 EStageResult CastUnaffects(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
@@ -2633,16 +2535,7 @@ EStageResult CastUnaffects(ActionContext &ctx) {
 	return r;
 }
 
-// Try to enchant a weapon. Returns the to_char message to relay to the caster, or nullptr when
-// the caller should fall through to the kNoeffect fallback. Side effects: may consume a reagent
-// (a held magical symbol in MAGIC1/2/3_ENCHANT_VNUM containers), set the obj's enchant, and
-// silently emit kEnchantSetItem when the item is part of a set. Caller is responsible for the
-// (ch, obj) null guard.
 
-
-// When `obj` is null but `victim` isn't, pick a random item from the victim's equipment/
-// inventory. If neither obj nor victim is given there is nothing to act on -- the function
-// exits without effect.
 // issue.obj-casting: alter-obj handlers (the per-spell object transforms migrated out of the old
 // CastToAlterObjs switch). Each runs on ctx.ovict (resolved + kNoalter-guarded by the skeleton),
 // does its OWN messaging, and returns kSuccess when it acted (or chose to stay silent) / kFail to
@@ -2727,7 +2620,7 @@ EStageResult CastToAlterObjs(ActionContext &ctx) {
 // issue.obj-casting: string-named post-load creation handlers (the spell-specific customization,
 // e.g. shaping a created weapon/armor base). Signature (ch, created obj, ctx). The plain food/light
 // spells need no handler. CreateWeapon/CreateArmor are PLUMBING STUBS: the base vnum is loaded by
-// the skeleton; the stat/type customization (TODO) goes in these bodies.
+// the skeleton; the stat/type customization goes in these bodies.
 static const std::map<std::string, std::function<void(CharData *, ObjData *, const ActionContext &)>>
 		kCreationHandlers = {
 	{"CreateWeapon", handlers::CreateWeapon},
@@ -3429,7 +3322,6 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell 
 	if (room && world[ch->in_room] == room && IsAbleToSay(ch)) {
 		const auto &sheaf = MUD::SpellMessages()[spell_id];
 		if (sheaf.HasMessage(ESpellMsg::kAreaToChar)) {
-			// вот тут надо воткнуть проверку на группу.
 			act(sheaf.GetMessage(ESpellMsg::kAreaToChar).c_str(), false, ch, nullptr, victim, kToChar);
 		}
 		if (sheaf.HasMessage(ESpellMsg::kAreaToRoom)) {
