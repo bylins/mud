@@ -46,7 +46,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
 	Affect<EApply> af;
-	af.duration = CalcDuration(ch, ch, ESkill::kHide, 0, 20, 0, 1);
+	af.duration = CalcDuration(ch, ch, ESkill::kHide, 15, 20, 0, 1); // 15 - это минимально висит 30 секунд
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;

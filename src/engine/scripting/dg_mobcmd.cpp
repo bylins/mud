@@ -1566,6 +1566,8 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 			char st[] = "";
 			do_stand(ch, st, 0, 0);
 		}
+		sprintf(buf, "mob command_interpreter: моб отжил из лага/стана в HitPercent, проценты жизни %d", GET_TRIG_NARG(trig));
+		mob_log(ch, trig, buf);
 	}
 // damage mtrigger срабатывает всегда
 	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_DEATH))) {
@@ -1576,8 +1578,6 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 			// issue #3523: моб в стане -> команду не теряем: вешаем триггеру wait
 			// 1 RL-сек, после стана script_driver повторит её (TRIG_FROM_LINE).
 			hang_trig_wait(ch, trig, MOB_TRIGGER, kPassesPerSec, true);
-			sprintf(buf, "mob command_interpreter: моб в стане, trigger встал на wait 1");
-				mob_log(ch, trig, buf);
 			return false;
 		}
 	}
