@@ -1547,9 +1547,8 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	}
 	// issue #3658: HitPrcnt должен визуально среагировать, а не залипнуть на стан-гейте.
 	// Моб под контролем (и не при смерти) -> стряхиваем контроль с сообщением и поднимаем,
-	// тогда стан-блок ниже уже не паузит. Выведен из строя (pos < kStun: круг пустоты, при смерти) -- не трогаем.
 	if (trig && IS_SET(GET_TRIG_TYPE(trig), MTRIG_HITPRCNT)
-			&& ch->GetPosition() >= EPosition::kStun   // issue #3658: не выведен из строя (kIncap и ниже -- круг пустоты, при смерти)
+			&& ch->GetPosition() >= EPosition::kStun   // issue #3658: выведен из строя
 			&& (AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
@@ -1576,7 +1575,7 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
 			// issue #3523: моб в стане -> команду не теряем: вешаем триггеру wait
-			// 1 RL-сек, после стана script_driver повторит её (TRIG_FROM_LINE).
+			// 0.025 RL sec, после стана script_driver повторит её (TRIG_FROM_LINE).
 			hang_trig_wait(ch, trig, MOB_TRIGGER, kPassesPerSec, true);
 			return false;
 		}
