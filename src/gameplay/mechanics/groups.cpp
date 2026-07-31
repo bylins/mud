@@ -658,26 +658,48 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		}
 		k = ch->has_master() ? ch->get_master() : ch;
 
+		// issue #3669: лидера-моба считать нельзя -- долю получают только игроки
+		// (ниже стоит !k->IsNpc()), иначе его доля списывалась бы у делящего и
+		// не доставалась никому.
 		if (AFF_FLAGGED(k, EAffect::kGroup)
+			&& !k->IsNpc()
 			&& (k->in_room == ch->in_room)) {
 			num = 1;
 		} else {
 			num = 0;
 		}
 
+		int absent = 0;   // issue #3669: члены группы вне комнаты -- долю не получают
+		if (AFF_FLAGGED(k, EAffect::kGroup)
+			&& !k->IsNpc()
+			&& k->in_room != ch->in_room) {
+			absent++;
+		}
+
 		for (auto *f : k->followers) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)
-				&& !f->IsNpc()
-				&& f->in_room == ch->in_room) {
-				num++;
+				&& !f->IsNpc()) {
+				if (f->in_room == ch->in_room) {
+					num++;
+				} else {
+					absent++;
+				}
 			}
 		}
 
-		if (num && AFF_FLAGGED(ch, EAffect::kGroup)) {
+		if (num > 0 && AFF_FLAGGED(ch, EAffect::kGroup)) {
 			share = amount / num;
 			rest = amount % num;
 		} else {
 			SendMsgToChar("С кем вы хотите разделить это добро?\r\n", ch);
+			return;
+		}
+
+		// issue #3669: делить нечего -- каждому вышло бы по нулю. Молча оставляем
+		// всё делящему, а не рассылаем группе "вам досталось 0".
+		if (share <= 0) {
+			SendMsgToChar(ch, "%d %s на %d не разделить -- оставили себе.\r\n",
+					amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), num);
 			return;
 		}
 		//MONEY_HACK
@@ -705,6 +727,13 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 			sprintf(buf + strlen(buf),
 					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
 					rest, MUD::Currency(currency_vnum).GetNameWithAmount(rest, grammar::ECase::kAcc).c_str());
+		}
+
+		// issue #3669: делится только на тех, кто рядом. Иначе непонятно, почему
+		// в группе народу больше, чем долей.
+		if (absent > 0) {
+			sprintf(buf + strlen(buf),
+					"Членов группы вне комнаты: %d -- доля им не досталась.\r\n", absent);
 		}
 
 		SendMsgToChar(buf, ch);
