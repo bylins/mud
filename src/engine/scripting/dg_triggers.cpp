@@ -675,8 +675,12 @@ void hitprcnt_mtrigger(CharData *ch) {
 	for (auto t : SCRIPT(ch)->script_trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_HITPRCNT) && ch->get_max_hit() &&
 			(((ch->get_hit() * 100) / ch->get_max_hit()) <= GET_TRIG_NARG(t))) {
-			ADD_UID_CHAR_VAR(buf, t, ch->GetEnemy(), "actor", 0);
-			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			// issue #3658: событие HitPrcnt прилетает на каждый удар (в группе -- от каждого игрока).
+			// Если триггер уже запущен (в т.ч. висит на wait), не плодим копию.
+			if (!GET_TRIG_DEPTH(t)) {
+				ADD_UID_CHAR_VAR(buf, t, ch->GetEnemy(), "actor", 0);
+				script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			}
 			break;
 		}
 	}
