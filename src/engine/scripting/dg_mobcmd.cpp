@@ -1547,9 +1547,9 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	}
 	// issue #3658: HitPrcnt должен визуально среагировать, а не залипнуть на стан-гейте.
 	// Моб под контролем (и не при смерти) -> стряхиваем контроль с сообщением и поднимаем,
-	// тогда стан-блок ниже уже не паузит. При смерти (HP <= 0) не трогаем.
+	// тогда стан-блок ниже уже не паузит. Выведен из строя (pos < kStun: круг пустоты, при смерти) -- не трогаем.
 	if (trig && IS_SET(GET_TRIG_TYPE(trig), MTRIG_HITPRCNT)
-			&& ch->get_hit() > 0   // issue #3658: живой (в т.ч. ошеломлён=kIncap+лаг), но не при смерти (HP<=0)
+			&& ch->GetPosition() >= EPosition::kStun   // issue #3658: не выведен из строя (kIncap и ниже -- круг пустоты, при смерти)
 			&& (AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
