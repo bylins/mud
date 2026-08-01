@@ -1314,6 +1314,7 @@ EStageResult CastAffect(ActionContext &ctx) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
+	ctx.ResetArApplied();   // issue.shadow-cloak-bug: affect-resist gates once per affect delivery
 
 	// Calculate PKILL's affects. issue.spell-ally-aggression: a benign cast is never an
 	// aggressive act -- gate the PK check on the per-target violence verdict. IsViolentAgainst
@@ -1338,13 +1339,18 @@ EStageResult CastAffect(ActionContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
+	// issue.shadow-cloak-bug: affect-resist (GET_AR) blocks a debuff at most once per delivery. This
+	// pre-roll consumes that single AR roll for a non-warcry violent debuff (whether or not it blocks),
+	// so the blanket AR block below defers instead of rolling GET_AR a second time.
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim
-		&& MUD::Spell(spell_id).IsViolentAgainst(ch, victim)
-		&& number(1, 999) <= GET_AR(victim) * 10) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: AR pre-roll (AR %d).&n\r\n",
-			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
-		return EStageResult::kSuccess;
+		&& MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+		ctx.SetArApplied();
+		if (number(1, 999) <= GET_AR(victim) * 10) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+			spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: AR pre-roll (AR %d).&n\r\n",
+				MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
+			return EStageResult::kSuccess;
+		}
 	}
 
 	// decrease modi for failing, increese fo success
@@ -1373,11 +1379,16 @@ EStageResult CastAffect(ActionContext &ctx) {
 	// Affect-resist (GET_AR): a blanket block on any debuff (a violent spell with an effect),
 	// a historical mechanic -- checked up front, before any saving throw or affect is built,
 	// so it stops the debuff regardless of circumstances.
-	if (ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim) && number(1, 100) <= GET_AR(victim)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: affect-resist (AR %d).&n\r\n",
-			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
-		return EStageResult::kSuccess;
+	// issue.shadow-cloak-bug: gate on GET_AR only if the pre-roll above didn't already spend this
+	// stage's AR roll (e.g. a warcry, which skips the pre-roll, is gated here instead).
+	if (!ctx.ArApplied() && ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+		ctx.SetArApplied();
+		if (number(1, 100) <= GET_AR(victim)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+			spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: affect-resist (AR %d).&n\r\n",
+				MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
+			return EStageResult::kSuccess;
+		}
 	}
 	// The affect's saving throw is read straight from the talent (GetAffect().GetSaving()) in the
 	// talent-affect block below; the <blocking>/<required> immunity checks moved up to

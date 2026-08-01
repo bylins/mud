@@ -204,6 +204,13 @@ class ActionContext {
 	void SetMrApplied() { mr_applied_ = true; }
 	[[nodiscard]] bool MrApplied() const { return mr_applied_; }
 	void ResetMrApplied() { mr_applied_ = false; }
+	// issue.shadow-cloak-bug: the affect-stage counterpart. Affect-resist (GET_AR) blocks a debuff at most
+	// ONCE per affect delivery: the first AR gate to evaluate (the pre-roll or the blanket block) sets this,
+	// and any later AR gate that stage defers. Reset per stage (ResetArApplied at CastAffect entry). AR is
+	// the affect-axis stat; the damage stage uses GET_MR, so this flag is not used there.
+	void SetArApplied() { ar_applied_ = true; }
+	[[nodiscard]] bool ArApplied() const { return ar_applied_; }
+	void ResetArApplied() { ar_applied_ = false; }
 	// issue.attack-ward: this cast is a side-spell sub-cast -- part of the same incoming spell, so the
 	// whole-cast wards (reflect / scope="all") are NOT re-run for it (see CastSideSpell / is_entry gate).
 	void SetNested() { nested_ = true; }
@@ -257,6 +264,7 @@ class ActionContext {
 	bool ward_stop_{false};   // issue.attack-ward: whole cast absorbed (scope="all"/shield) or refused
 	bool nested_{false};      // issue.attack-ward: this is a side-spell sub-cast (skip whole-cast wards)
 	bool mr_applied_{false};  // issue.shadow-cloak-bug: an MR (GET_MR) gate already fired this damage stage
+	bool ar_applied_{false};  // issue.shadow-cloak-bug: an AR (GET_AR) gate already fired this affect stage
 	std::string aff_dmg_msg_char_;   // issue.character-affect-triggers: see SetAffectDamageMsg
 	std::string aff_dmg_msg_vict_;
 	std::string aff_dmg_msg_room_;
