@@ -315,6 +315,7 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 							const talents_actions::Action &action, double competence,
+							ActionContext &ctx,
 							double noise_z = std::numeric_limits<double>::quiet_NaN()) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
@@ -329,7 +330,15 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 		}
 	}
 	int total_dmg{0};
-	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
+	// issue.shadow-cloak-bug: gate on GET_MR at most once per stage. If an MR-based ward already rolled
+	// (and let the hit through -- an absorb would have skipped this stage), don't gate again; otherwise
+	// roll GET_MR here and mark it spent for the stage (see ActionContext::MrApplied).
+	bool mr_resisted = false;
+	if (!ctx.MrApplied()) {
+		mr_resisted = number(1, 100) <= std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim));
+		ctx.SetMrApplied();
+	}
+	if (!mr_resisted) {
 		const float skill_coeff = potency_roll.CalcSkillCoeff(ch);
 		const float stat_coeff = potency_roll.CalcBaseStatCoeff(ch);
 		const float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
@@ -564,8 +573,22 @@ bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want) {
 			}
 			int chance;
 			if (absb.chance != EApply::kNone) {
+				// issue.shadow-cloak-bug: GET_MR is a DAMAGE-axis stat (the affect stage gates on GET_AR
+				// instead), so this MR bookkeeping applies only to a damage-scoped ward. It is gated once
+				// per stage: a prior MR ward already spent the roll -> this one doesn't gate again (only
+				// one MR-based ward triggers).
+				const bool mr_ward = (want == talents_actions::EWardScope::kDamage
+									  && absb.chance == EApply::kMagicResist);
+				if (mr_ward && ctx.MrApplied()) {
+					continue;
+				}
 				const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
 				chance = std::min(cap, WardResistStat(victim, absb.chance));
+				// This ward consumes the stage's single MR roll (whether or not it absorbs), so the global
+				// CalcTotalSpellDmg gate will not roll GET_MR again this stage.
+				if (mr_ward) {
+					ctx.SetMrApplied();
+				}
 			} else {
 				chance = absb.prob;
 			}
@@ -589,6 +612,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return EStageResult::kSuccess;
+	ctx.ResetMrApplied();   // issue.shadow-cloak-bug: MR gates once per stage (ward OR the global gate)
 
 	// issue.damage-over-time: a poison-sourced <damage> tick reproduces ProcessPoisonDmg's kPoison branch
 	// exactly and returns before the general damage machinery: GET_POISON-based amount dealt as kPoisonDmg,
@@ -695,7 +719,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 
 	try {
 		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
-													   ctx.CompetenceBase(), ctx.potency().noise_dev) * ctx.area_coeff);
+													   ctx.CompetenceBase(), ctx, ctx.potency().noise_dev) * ctx.area_coeff);
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
