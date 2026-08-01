@@ -315,7 +315,6 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 							const talents_actions::Action &action, double competence,
-							ActionContext &ctx,
 							double noise_z = std::numeric_limits<double>::quiet_NaN()) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
@@ -330,15 +329,9 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 		}
 	}
 	int total_dmg{0};
-	// issue.shadow-cloak-bug: gate on GET_MR at most once per stage. If an MR-based ward already rolled
-	// (and let the hit through -- an absorb would have skipped this stage), don't gate again; otherwise
-	// roll GET_MR here and mark it spent for the stage (see ActionContext::MrApplied).
-	bool mr_resisted = false;
-	if (!ctx.MrApplied()) {
-		mr_resisted = number(1, 100) <= std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim));
-		ctx.SetMrApplied();
-	}
-	if (!mr_resisted) {
+	// issue.shadow-cloak-bug: this computes only the base per-hit amount now. Magic-resist is rolled PER
+	// HIT in CastDamage's loop (so a multi-hit spell distributes), not here.
+	{
 		const float skill_coeff = potency_roll.CalcSkillCoeff(ch);
 		const float stat_coeff = potency_roll.CalcBaseStatCoeff(ch);
 		const float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
@@ -612,7 +605,6 @@ EStageResult CastDamage(ActionContext &ctx) {
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return EStageResult::kSuccess;
-	ctx.ResetMrApplied();   // issue.shadow-cloak-bug: MR gates once per stage (ward OR the global gate)
 
 	// issue.damage-over-time: a poison-sourced <damage> tick reproduces ProcessPoisonDmg's kPoison branch
 	// exactly and returns before the general damage machinery: GET_POISON-based amount dealt as kPoisonDmg,
@@ -635,13 +627,6 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (!pk_agro_action(ch, victim))
 		return EStageResult::kSuccess;
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-	// issue.attack-ward (per-manifest wards): a scoped damage-absorb (e.g. Shadow Cloak) rolls HERE,
-	// per damage delivery, so each attack of a multi-hit/multi-action spell is warded independently and
-	// a non-damaging cast never trips a damage-scoped ward. Whole-cast reflect/absorb ran at the entry gate.
-	if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kDamage)) {
-		return EStageResult::kSuccess;
-	}
-
 	auto ch_start_pos = ch->GetPosition();
 	auto victim_start_pos = victim->GetPosition();
 	const bool tc = spell_trace::Active(ch, victim);
@@ -719,16 +704,11 @@ EStageResult CastDamage(ActionContext &ctx) {
 
 	try {
 		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
-													   ctx.CompetenceBase(), ctx, ctx.potency().noise_dev) * ctx.area_coeff);
+													   ctx.CompetenceBase(), ctx.potency().noise_dev) * ctx.area_coeff);
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
-	// issue.instant-death: a successful saving throw halves the damage (the now-live <damage saving=>
-	// half-save), reusing the single roll stashed above. A failed/absent save leaves full damage.
-	if (ctx.last_saving_result.value_or(false)) {
-		total_dmg /= 2;
-	}
 	if (tc) {
 		spell_trace::Line(ch, victim, "&CDamage %s -> %s: total_dmg %d (area %.2f applied), hits %d.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), total_dmg, ctx.area_coeff, count);
@@ -741,8 +721,34 @@ EStageResult CastDamage(ActionContext &ctx) {
 			&& victim->in_room == ch->in_room
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
+			// issue.shadow-cloak-bug: MR / ward / save roll PER HIT so a multi-hit spell distributes --
+			// each attack is independently absorbed, magic-resisted, or saved, instead of all-or-nothing.
+			ctx.ResetMrApplied();
+			// 1) damage-scoped ward (e.g. Shadow Cloak absorb) -- consumes this hit; it emits its own msg.
+			if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kDamage)) {
+				continue;
+			}
+			int hit_dmg = total_dmg;
+			// 2) global magic-resist gate (skipped if an MR ward already spent this hit's MR roll).
+			if (!ctx.MrApplied()) {
+				const int mr = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim));
+				if (number(1, 100) <= mr) {
+					hit_dmg = 0;
+					if (tc) {
+						spell_trace::Line(ch, victim, "&C  hit %d: resisted by magic resist (MR %d).&n\r\n",
+							total_hits - count + 1, mr);
+					}
+				}
+				ctx.SetMrApplied();
+			}
+			// 3) per-hit saving throw halves this hit (was one per-stage roll; now independent per attack).
+			if (hit_dmg > 0 && ch != victim
+					&& ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
+					&& CalcGeneralSaving(ch, victim, ctx.action_or_default().GetDmg().GetSaving(), modi)) {
+				hit_dmg /= 2;
+			}
 			const int hp_before = victim->get_hit();
-			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
+			rand = LandOneDamageHit(ch, victim, spell_id, hit_dmg,
 									ch_start_pos, victim_start_pos, count,
 									ctx.AffectDamageMsgChar(), ctx.AffectDamageMsgVict(),
 									ctx.AffectDamageMsgRoom(), ctx.DamageAuthorUid());
