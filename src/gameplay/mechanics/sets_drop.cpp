@@ -4,6 +4,7 @@
 #include "sets_drop.h"
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include "third_party_libs/pugixml/pugixml.h"
 #include <fmt/format.h>
@@ -389,6 +390,30 @@ void init_mob_name_list() {
 		}
 	}
 
+	// Лимит в мире у моба глобальный: при ресете сверяется total_online < arg2 (см. db.cpp,
+	// обработку команды 'M'), а команд загрузки у одного внума бывает несколько, и с разными
+	// лимитами. Раньше уникальность проверялась по каждой команде отдельно, поэтому моб с
+	// набором лимитов [4, 4, 4, 4, 1] проходил как уникальный по единственной строке с
+	// единицей, хотя в мире их стояло четверо -- и шанс дропа сетины с зоны множился на их
+	// число. Считаем эффективный лимит внума заранее, по всем командам всех зон: города,
+	// стройки и данжи в таблицу дропа не идут, но мир заполняют наравне со всеми.
+	std::unordered_map<int, int> effective_miw;
+	for (const auto &zone : zone_table) {
+		for (int cmd_no = 0; zone.cmd && zone.cmd[cmd_no].command != 'S'; ++cmd_no) {
+			if (zone.cmd[cmd_no].command != 'M') {
+				continue;
+			}
+			const int rnum = zone.cmd[cmd_no].arg1;
+			if (rnum < 0 || rnum > top_of_mobt) {
+				continue;
+			}
+			int &cap = effective_miw[rnum];
+			cap = std::max(cap, zone.cmd[cmd_no].arg2);
+		}
+	}
+	// один и тот же моб грузится несколькими командами -- в списке кандидатов он нужен однажды
+	std::unordered_set<int> added_mobs;
+
 	// Кандидаты берутся из команд загрузки мобов в зон-ресетах, а не из статистики убийств:
 	// в реестр статистики попадают только те, кого недавно били, поэтому глухие зоны выпадали
 	// из таблицы навсегда и дроп сползал на популярных мобов. Команда 'M' дает все нужное сразу:
@@ -406,12 +431,13 @@ void init_mob_name_list() {
 				continue;
 			}
 			const int rnum = zone.cmd[cmd_no].arg1;      // rnum моба (переведен при загрузке)
-			const int max_in_world = zone.cmd[cmd_no].arg2;
 			const RoomRnum room_rnum = zone.cmd[cmd_no].arg3;   // rnum комнаты, тоже переведен
 
 			if (rnum < 0 || rnum > top_of_mobt) {
 				continue;
 			}
+			// лимит берем не из этой команды, а эффективный по внуму -- см. комментарий выше
+			const int max_in_world = effective_miw[rnum];
 			// пока только уникальные мобы
 			if (max_in_world != 1) {
 				continue;
@@ -434,6 +460,10 @@ void init_mob_name_list() {
 				}
 			}
 			if (!has_exit) {
+				continue;
+			}
+			// первая подошедшая команда моба заносит его в список, остальные пропускаем
+			if (!added_mobs.insert(rnum).second) {
 				continue;
 			}
 
