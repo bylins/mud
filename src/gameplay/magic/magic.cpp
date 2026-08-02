@@ -329,7 +329,9 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 		}
 	}
 	int total_dmg{0};
-	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
+	// issue.shadow-cloak-bug: this computes only the base per-hit amount now. Magic-resist is rolled PER
+	// HIT in CastDamage's loop (so a multi-hit spell distributes), not here.
+	{
 		const float skill_coeff = potency_roll.CalcSkillCoeff(ch);
 		const float stat_coeff = potency_roll.CalcBaseStatCoeff(ch);
 		const float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
@@ -564,8 +566,22 @@ bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want) {
 			}
 			int chance;
 			if (absb.chance != EApply::kNone) {
+				// issue.shadow-cloak-bug: GET_MR is a DAMAGE-axis stat (the affect stage gates on GET_AR
+				// instead), so this MR bookkeeping applies only to a damage-scoped ward. It is gated once
+				// per stage: a prior MR ward already spent the roll -> this one doesn't gate again (only
+				// one MR-based ward triggers).
+				const bool mr_ward = (want == talents_actions::EWardScope::kDamage
+									  && absb.chance == EApply::kMagicResist);
+				if (mr_ward && ctx.MrApplied()) {
+					continue;
+				}
 				const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
 				chance = std::min(cap, WardResistStat(victim, absb.chance));
+				// This ward consumes the stage's single MR roll (whether or not it absorbs), so the global
+				// CalcTotalSpellDmg gate will not roll GET_MR again this stage.
+				if (mr_ward) {
+					ctx.SetMrApplied();
+				}
 			} else {
 				chance = absb.prob;
 			}
@@ -611,13 +627,6 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (!pk_agro_action(ch, victim))
 		return EStageResult::kSuccess;
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-	// issue.attack-ward (per-manifest wards): a scoped damage-absorb (e.g. Shadow Cloak) rolls HERE,
-	// per damage delivery, so each attack of a multi-hit/multi-action spell is warded independently and
-	// a non-damaging cast never trips a damage-scoped ward. Whole-cast reflect/absorb ran at the entry gate.
-	if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kDamage)) {
-		return EStageResult::kSuccess;
-	}
-
 	auto ch_start_pos = ch->GetPosition();
 	auto victim_start_pos = victim->GetPosition();
 	const bool tc = spell_trace::Active(ch, victim);
@@ -700,11 +709,6 @@ EStageResult CastDamage(ActionContext &ctx) {
 		err_log("%s", e.what());
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
-	// issue.instant-death: a successful saving throw halves the damage (the now-live <damage saving=>
-	// half-save), reusing the single roll stashed above. A failed/absent save leaves full damage.
-	if (ctx.last_saving_result.value_or(false)) {
-		total_dmg /= 2;
-	}
 	if (tc) {
 		spell_trace::Line(ch, victim, "&CDamage %s -> %s: total_dmg %d (area %.2f applied), hits %d.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), total_dmg, ctx.area_coeff, count);
@@ -717,8 +721,34 @@ EStageResult CastDamage(ActionContext &ctx) {
 			&& victim->in_room == ch->in_room
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
+			// issue.shadow-cloak-bug: MR / ward / save roll PER HIT so a multi-hit spell distributes --
+			// each attack is independently absorbed, magic-resisted, or saved, instead of all-or-nothing.
+			ctx.ResetMrApplied();
+			// 1) damage-scoped ward (e.g. Shadow Cloak absorb) -- consumes this hit; it emits its own msg.
+			if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kDamage)) {
+				continue;
+			}
+			int hit_dmg = total_dmg;
+			// 2) global magic-resist gate (skipped if an MR ward already spent this hit's MR roll).
+			if (!ctx.MrApplied()) {
+				const int mr = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim));
+				if (number(1, 100) <= mr) {
+					hit_dmg = 0;
+					if (tc) {
+						spell_trace::Line(ch, victim, "&C  hit %d: resisted by magic resist (MR %d).&n\r\n",
+							total_hits - count + 1, mr);
+					}
+				}
+				ctx.SetMrApplied();
+			}
+			// 3) per-hit saving throw halves this hit (was one per-stage roll; now independent per attack).
+			if (hit_dmg > 0 && ch != victim
+					&& ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
+					&& CalcGeneralSaving(ch, victim, ctx.action_or_default().GetDmg().GetSaving(), modi)) {
+				hit_dmg /= 2;
+			}
 			const int hp_before = victim->get_hit();
-			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
+			rand = LandOneDamageHit(ch, victim, spell_id, hit_dmg,
 									ch_start_pos, victim_start_pos, count,
 									ctx.AffectDamageMsgChar(), ctx.AffectDamageMsgVict(),
 									ctx.AffectDamageMsgRoom(), ctx.DamageAuthorUid());
@@ -1290,6 +1320,7 @@ EStageResult CastAffect(ActionContext &ctx) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
+	ctx.ResetArApplied();   // issue.shadow-cloak-bug: affect-resist gates once per affect delivery
 
 	// Calculate PKILL's affects. issue.spell-ally-aggression: a benign cast is never an
 	// aggressive act -- gate the PK check on the per-target violence verdict. IsViolentAgainst
@@ -1314,13 +1345,18 @@ EStageResult CastAffect(ActionContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
+	// issue.shadow-cloak-bug: affect-resist (GET_AR) blocks a debuff at most once per delivery. This
+	// pre-roll consumes that single AR roll for a non-warcry violent debuff (whether or not it blocks),
+	// so the blanket AR block below defers instead of rolling GET_AR a second time.
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim
-		&& MUD::Spell(spell_id).IsViolentAgainst(ch, victim)
-		&& number(1, 999) <= GET_AR(victim) * 10) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: AR pre-roll (AR %d).&n\r\n",
-			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
-		return EStageResult::kSuccess;
+		&& MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+		ctx.SetArApplied();
+		if (number(1, 999) <= GET_AR(victim) * 10) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+			spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: AR pre-roll (AR %d).&n\r\n",
+				MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
+			return EStageResult::kSuccess;
+		}
 	}
 
 	// decrease modi for failing, increese fo success
@@ -1349,11 +1385,16 @@ EStageResult CastAffect(ActionContext &ctx) {
 	// Affect-resist (GET_AR): a blanket block on any debuff (a violent spell with an effect),
 	// a historical mechanic -- checked up front, before any saving throw or affect is built,
 	// so it stops the debuff regardless of circumstances.
-	if (ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim) && number(1, 100) <= GET_AR(victim)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: affect-resist (AR %d).&n\r\n",
-			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
-		return EStageResult::kSuccess;
+	// issue.shadow-cloak-bug: gate on GET_AR only if the pre-roll above didn't already spend this
+	// stage's AR roll (e.g. a warcry, which skips the pre-roll, is gated here instead).
+	if (!ctx.ArApplied() && ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+		ctx.SetArApplied();
+		if (number(1, 100) <= GET_AR(victim)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+			spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: affect-resist (AR %d).&n\r\n",
+				MUD::Spell(spell_id).GetCName(), GET_NAME(victim), GET_AR(victim));
+			return EStageResult::kSuccess;
+		}
 	}
 	// The affect's saving throw is read straight from the talent (GetAffect().GetSaving()) in the
 	// talent-affect block below; the <blocking>/<required> immunity checks moved up to
