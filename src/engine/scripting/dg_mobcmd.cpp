@@ -1558,7 +1558,10 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 		if (AFF_FLAGGED(ch, EAffect::kStopFight)) { RemoveAffectFromChar(ch, EAffect::kStopFight); }
 		if (AFF_FLAGGED(ch, EAffect::kMagicStopFight)) { RemoveAffectFromChar(ch, EAffect::kMagicStopFight); }
 		if (AFF_FLAGGED(ch, EAffect::kSleep)) { RemoveAffectFromChar(ch, EAffect::kSleep); }
-		ch->set_wait(0);
+		// issue #3658: именно zero_wait(), а не set_wait(0) -- set_wait игнорирует ноль
+		// (guard "if (_ > 0)" в char_data.cpp), лаг оставался, и каждая следующая команда
+		// триггера снова входила сюда: тени в комнату и строка в лог на каждую.
+		ch->zero_wait();
 		act("Множество быстрых теней метнулись вокруг $n3.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		if (ch->GetPosition() < EPosition::kFight) {   // сидел/спал/оглушён -> встаём
 			ch->SetPosition(EPosition::kSit);
