@@ -12,7 +12,10 @@ through them changes nothing until the encoding flip.
 #ifdef INTERNAL_ENCODING_UTF8
 #include "utf8.h"
 #else
-#include "utils.h"  // UPPER() / a_ucc() -- the KOI8-R case table
+// The KOI8-R case tables (defined in utils.cpp). Declared directly instead of including utils.h,
+// which drags in fmt/ and much of the engine for what is just two 256-byte lookups.
+extern const char a_ucc_table[];
+extern const char a_lcc_table[];
 #endif
 
 #include <string>
@@ -84,6 +87,51 @@ std::size_t char_bytes(const char *s) {
 	return n;
 }
 
+namespace {
+
+// Shared driver for the two case-insensitive comparisons. `limit` caps how many bytes of `a` may
+// be consumed (npos = unlimited): once that budget is spent the strings count as equal, which is
+// what the strn_cmp callers -- who pass a prefix length in bytes -- expect.
+int compare_folded(std::string_view a, std::string_view b, std::size_t limit) {
+	std::size_t pa = 0;
+	std::size_t pb = 0;
+	while (true) {
+		if (limit != std::string_view::npos && pa >= limit) {
+			return 0;
+		}
+		char32_t ca = 0;
+		char32_t cb = 0;
+		const std::size_t la = utf8::decode(a, pa, ca);
+		const std::size_t lb = utf8::decode(b, pb, cb);
+		if (la == 0 && lb == 0) {
+			return 0;
+		}
+		if (la == 0) {
+			return -1;
+		}
+		if (lb == 0) {
+			return 1;
+		}
+		const char32_t fa = utf8::to_lower(ca);
+		const char32_t fb = utf8::to_lower(cb);
+		if (fa != fb) {
+			return fa < fb ? -1 : 1;
+		}
+		pa += la;
+		pb += lb;
+	}
+}
+
+}  // namespace
+
+int compare_ci(std::string_view a, std::string_view b) {
+	return compare_folded(a, b, std::string_view::npos);
+}
+
+int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
+	return compare_folded(a, b, n);
+}
+
 #else  // KOI8-R: 1 byte == 1 character
 
 bool native_is_utf8() {
@@ -100,7 +148,7 @@ std::size_t char_count(std::string_view s) {
 
 void capitalize_first(char *s) {
 	if (s != nullptr && *s != '\0') {
-		*s = static_cast<char>(UPPER(static_cast<unsigned char>(*s)));
+		*s = a_ucc_table[static_cast<unsigned char>(*s)];
 	}
 }
 
@@ -110,6 +158,42 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
 
 std::size_t char_bytes(const char *) {
 	return 1;
+}
+
+namespace {
+
+// Byte-wise fold-and-subtract, identical to the open-coded `LOWER(a[i]) - LOWER(b[i])` loops in
+// utils_string.cpp: the magnitude of the result (not just its sign) is preserved, since some
+// callers propagate it. A string that ended compares as LOWER('\0') against the other's byte.
+int compare_bytes(std::string_view a, std::string_view b, std::size_t limit) {
+	std::size_t i = 0;
+	while (true) {
+		if (limit != std::string_view::npos && i >= limit) {
+			return 0;
+		}
+		const bool a_end = i >= a.size();
+		const bool b_end = i >= b.size();
+		if (a_end && b_end) {
+			return 0;
+		}
+		const unsigned char ca = a_end ? '\0' : static_cast<unsigned char>(a[i]);
+		const unsigned char cb = b_end ? '\0' : static_cast<unsigned char>(b[i]);
+		const int chk = a_lcc_table[ca] - a_lcc_table[cb];
+		if (chk != 0) {
+			return chk;
+		}
+		++i;
+	}
+}
+
+}  // namespace
+
+int compare_ci(std::string_view a, std::string_view b) {
+	return compare_bytes(a, b, std::string_view::npos);
+}
+
+int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
+	return compare_bytes(a, b, n);
 }
 
 #endif
