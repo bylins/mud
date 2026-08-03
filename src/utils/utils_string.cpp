@@ -1,6 +1,7 @@
 //#include "utils_string.h"
 
 #include "utils.h"
+#include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "gameplay/core/constants.h"
 
@@ -579,11 +580,17 @@ char *delete_doubledollar(char *string) {
 }
 
 // Moved from utils.cpp
+// The str_cmp/strn_cmp family folds case per *character*: under KOI8-R that is the original
+// byte-wise LOWER() loop kept verbatim below, under UTF-8 it is native_text's code-point fold
+// (issue #3681). The KOI8-R path is untouched so behaviour is bit-identical until the flip.
 int str_cmp(const char *arg1, const char *arg2) {
 	int chk, i;
 	if (arg1 == nullptr || arg2 == nullptr) {
 		log("SYSERR: str_cmp() passed a nullptr pointer, %p or %p.", arg1, arg2);
 		return (0);
+	}
+	if (native_text::native_is_utf8()) {
+		return native_text::compare_ci(arg1, arg2);
 	}
 	for (i = 0; arg1[i] || arg2[i]; i++)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
@@ -597,6 +604,9 @@ int str_cmp(const std::string &arg1, const char *arg2) {
 	if (arg2 == nullptr) {
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
+	}
+	if (native_text::native_is_utf8()) {
+		return native_text::compare_ci(arg1, arg2);
 	}
 	for (i = 0; i != arg1.length() && *arg2; i++, arg2++)
 		if ((chk = LOWER(arg1[i]) - LOWER(*arg2)) != 0)
@@ -616,6 +626,9 @@ int str_cmp(const char *arg1, const std::string &arg2) {
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
+	if (native_text::native_is_utf8()) {
+		return native_text::compare_ci(arg1, arg2);
+	}
 	for (i = 0; *arg1 && i != arg2.length(); i++, arg1++)
 		if ((chk = LOWER(*arg1) - LOWER(arg2[i])) != 0)
 			return (chk);
@@ -630,6 +643,9 @@ int str_cmp(const char *arg1, const std::string &arg2) {
 int str_cmp(const std::string &arg1, const std::string &arg2) {
 	int chk;
 	std::string::size_type i;
+	if (native_text::native_is_utf8()) {
+		return native_text::compare_ci(arg1, arg2);
+	}
 	for (i = 0; i != arg1.length() && i != arg2.length(); i++)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
 			return (chk);
@@ -647,6 +663,9 @@ int strn_cmp(const char *arg1, const char *arg2, size_t n) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
 		return (0);
 	}
+	if (native_text::native_is_utf8()) {
+		return native_text::ncompare_ci(arg1, arg2, n);
+	}
 	for (i = 0; (arg1[i] || arg2[i]) && (n > 0); i++, n--)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
 			return (chk);
@@ -659,6 +678,9 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n) {
 	if (arg2 == nullptr) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
+	}
+	if (native_text::native_is_utf8()) {
+		return native_text::ncompare_ci(arg1, arg2, n);
 	}
 	for (i = 0; i != arg1.length() && *arg2 && (n > 0); i++, arg2++, n--)
 		if ((chk = LOWER(arg1[i]) - LOWER(*arg2)) != 0)
@@ -678,6 +700,9 @@ int strn_cmp(const char *arg1, const std::string &arg2, size_t n) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
+	if (native_text::native_is_utf8()) {
+		return native_text::ncompare_ci(arg1, arg2, n);
+	}
 	for (i = 0; *arg1 && i != arg2.length() && (n > 0); i++, arg1++, n--)
 		if ((chk = LOWER(*arg1) - LOWER(arg2[i])) != 0)
 			return (chk);
@@ -692,6 +717,9 @@ int strn_cmp(const char *arg1, const std::string &arg2, size_t n) {
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n) {
 	int chk;
 	std::string::size_type i;
+	if (native_text::native_is_utf8()) {
+		return native_text::ncompare_ci(arg1, arg2, n);
+	}
 	for (i = 0; i != arg1.length() && i != arg2.length() && (n > 0); i++, n--)
 		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
 			return (chk);

@@ -48,6 +48,15 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes);
 // bytes actually present (never counts past a terminator or a non-continuation byte).
 std::size_t char_bytes(const char *s);
 
+// Case-insensitive comparison in the native encoding: lexicographic over lowered characters,
+// the shorter string orders first, returns the signed difference at the first mismatch (0 when
+// equal). KOI8-R: per byte, via LOWER() -- matches str_cmp/str/str semantics. UTF-8: per code
+// point, folded via utf8::to_lower (so the sign is meaningful; the magnitude is a code-point
+// difference). In ncompare_ci, `n` is a byte budget -- the callers pass strlen()/length() -- and
+// the comparison stops (as a match) once that many bytes of equal text have been consumed.
+int compare_ci(std::string_view a, std::string_view b);
+int ncompare_ci(std::string_view a, std::string_view b, std::size_t n);
+
 }  // namespace native_text
 
 #endif  // BYLINS_SRC_UTILS_NATIVE_TEXT_H_

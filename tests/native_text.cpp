@@ -18,6 +18,18 @@ const char *const kPrivet = "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";
 
 }  // namespace
 
+// The legacy KOI8-R lowercase table (utils.cpp). Declared here rather than including utils.h,
+// which pulls in fmt/ and the rest of the engine headers.
+extern const char a_lcc_table[];
+
+namespace {
+
+int legacy_lower(unsigned char c) {
+	return a_lcc_table[c];
+}
+
+}  // namespace
+
 TEST(NativeText, CharCountAscii) {
 	EXPECT_EQ(native_text::char_count("Hello"), 5u);
 	EXPECT_EQ(native_text::char_count(kPrivet, kPrivet + 4), native_text::native_is_utf8() ? 2u : 4u);
@@ -77,6 +89,70 @@ TEST(NativeText, TruncateOffset) {
 		EXPECT_EQ(native_text::truncate_offset(p, 4), 4u);
 	} else {
 		EXPECT_EQ(native_text::truncate_offset(p, 5), 5u);
+	}
+}
+
+TEST(NativeText, CompareCiAscii) {
+	EXPECT_EQ(native_text::compare_ci("abc", "abc"), 0);
+	EXPECT_EQ(native_text::compare_ci("ABC", "abc"), 0);   // case-insensitive
+	EXPECT_EQ(native_text::compare_ci("AbC", "aBc"), 0);
+	EXPECT_LT(native_text::compare_ci("abc", "abd"), 0);   // ordering by first mismatch
+	EXPECT_GT(native_text::compare_ci("abd", "abc"), 0);
+	EXPECT_LT(native_text::compare_ci("ab", "abc"), 0);    // prefix orders first
+	EXPECT_GT(native_text::compare_ci("abc", "ab"), 0);
+	EXPECT_EQ(native_text::compare_ci("", ""), 0);
+	EXPECT_LT(native_text::compare_ci("", "a"), 0);
+}
+
+TEST(NativeText, NCompareCiAscii) {
+	EXPECT_EQ(native_text::ncompare_ci("abcdef", "abcXXX", 3), 0);  // only first 3 bytes matter
+	EXPECT_NE(native_text::ncompare_ci("abcdef", "abXXXX", 3), 0);
+	EXPECT_EQ(native_text::ncompare_ci("ABC", "abc", 3), 0);
+	EXPECT_EQ(native_text::ncompare_ci("anything", "other", 0), 0);  // zero budget: equal
+	EXPECT_LT(native_text::ncompare_ci("ab", "abc", 10), 0);         // budget beyond the strings
+}
+
+TEST(NativeText, CompareCiCyrillicIsCaseInsensitive) {
+	// "PRIVET" vs "privet" in Cyrillic: must compare equal in BOTH encodings -- under KOI8-R via
+	// the byte table, under UTF-8 via the code-point fold. This is the property that a naive
+	// "just compare bytes" UTF-8 migration would silently lose.
+	const char *const upper = "\xD0\x9F\xD0\xA0\xD0\x98\xD0\x92\xD0\x95\xD0\xA2";
+	const char *const lower = "\xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(native_text::compare_ci(upper, lower), 0);
+		EXPECT_EQ(native_text::compare_ci(upper, upper), 0);
+		EXPECT_NE(native_text::compare_ci(upper, "\xD0\xBF\xD1\x80\xD0\xB8"), 0);  // prefix differs
+	} else {
+		// Under KOI8-R these UTF-8 bytes are not Cyrillic; just assert self-equality and that
+		// the comparison stays reflexive/antisymmetric on arbitrary high bytes.
+		EXPECT_EQ(native_text::compare_ci(upper, upper), 0);
+		EXPECT_EQ(native_text::compare_ci(lower, lower), 0);
+	}
+}
+
+TEST(NativeText, CompareCiMatchesLegacyByteLoopUnderKoi8r) {
+	if (native_text::native_is_utf8()) {
+		GTEST_SKIP() << "this pins the KOI8-R branch against the original LOWER() byte loop";
+	}
+	// Reference implementation: the exact loop str_cmp() used before the migration.
+	auto legacy = [](const char *a, const char *b) {
+		for (int i = 0;; ++i) {
+			if (!a[i] && !b[i]) {
+				return 0;
+			}
+			const int chk = legacy_lower(static_cast<unsigned char>(a[i]))
+				- legacy_lower(static_cast<unsigned char>(b[i]));
+			if (chk != 0) {
+				return chk;
+			}
+		}
+	};
+	const char *const samples[] = {"", "a", "A", "abc", "ABC", "abd", "ab", "zzz", "\xC1\xC2", "\xE1\xE2"};
+	for (const char *x : samples) {
+		for (const char *y : samples) {
+			EXPECT_EQ(native_text::compare_ci(x, y), legacy(x, y))
+				<< "mismatch for \"" << x << "\" vs \"" << y << "\"";
+		}
 	}
 }
 
