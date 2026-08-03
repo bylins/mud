@@ -17,6 +17,8 @@ through them changes nothing until the encoding flip.
 extern const char a_ucc_table[];
 extern const char a_lcc_table[];
 extern const bool a_isalnum_table[];
+extern const bool a_isalpha_table[];
+extern const bool a_isupper_table[];
 #endif
 
 #include <string>
@@ -146,6 +148,30 @@ bool is_alnum_char(const char *s) {
 	return (cp >= 0x0410 && cp <= 0x044F) || cp == 0x0401 || cp == 0x0451;
 }
 
+bool is_alpha_char(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return (lead >= 'A' && lead <= 'Z') || (lead >= 'a' && lead <= 'z');
+	}
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(s, char_bytes(s)), 0, cp) == 0) {
+		return false;
+	}
+	return (cp >= 0x0410 && cp <= 0x044F) || cp == 0x0401 || cp == 0x0451;
+}
+
+bool is_upper_char(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return lead >= 'A' && lead <= 'Z';
+	}
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(s, char_bytes(s)), 0, cp) == 0) {
+		return false;
+	}
+	return (cp >= 0x0410 && cp <= 0x042F) || cp == 0x0401;
+}
+
 bool chars_equal_ci(const char *a, const char *b) {
 	char32_t ca = 0;
 	char32_t cb = 0;
@@ -242,6 +268,14 @@ int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
 
 bool is_alnum_char(const char *s) {
 	return a_isalnum_table[static_cast<unsigned char>(*s)];
+}
+
+bool is_alpha_char(const char *s) {
+	return a_isalpha_table[static_cast<unsigned char>(*s)];
+}
+
+bool is_upper_char(const char *s) {
+	return a_isupper_table[static_cast<unsigned char>(*s)];
 }
 
 bool chars_equal_ci(const char *a, const char *b) {

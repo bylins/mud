@@ -62,6 +62,14 @@ int ncompare_ci(std::string_view a, std::string_view b, std::size_t n);
 // alphanumeric character rather than a lead byte followed by "punctuation" trail bytes.
 bool is_alnum_char(const char *s);
 
+// Is the character starting at `s` a letter? Same contract as is_alnum_char, minus the digits.
+bool is_alpha_char(const char *s);
+
+// Is the character starting at `s` an uppercase letter? KOI8-R: the a_isupper byte table.
+// UTF-8: ASCII A-Z plus the uppercase Cyrillic range (and Yo) as whole code points -- the byte
+// table cannot see these at all, since a UTF-8 Cyrillic lead byte is not in its uppercase range.
+bool is_upper_char(const char *s);
+
 // Do the characters starting at `a` and `b` match ignoring case? KOI8-R: LOWER(*a) == LOWER(*b).
 // UTF-8: compares whole folded code points, so "P" matches "p" in Cyrillic too.
 bool chars_equal_ci(const char *a, const char *b);

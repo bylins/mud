@@ -11,6 +11,7 @@
 // user-visible behaviour.
 
 #include "utils/utils_string.h"
+#include "utils/utils_parse.h"
 #include "utils/mud_string.h"
 #include "gameplay/core/genchar.h"
 #include "utils/grammar/gender.h"
@@ -143,6 +144,52 @@ TEST(TextSemantics, DeclensionOfNameEndingInA) {
 TEST(TextSemantics, DeclensionOfMasculineNameEndingInIShort) {
 	EXPECT_EQ(declension("Дрегвий", EGender::kMale, 1), "Дрегвия");
 	EXPECT_EQ(declension("Дрегвий", EGender::kMale, 4), "Дрегвием");
+}
+
+// ---------------------------------------------------------------------------- fname
+
+TEST(TextSemantics, FnameExtractsFirstKeyword) {
+	EXPECT_STREQ(fname("sword long blade"), "sword");
+	EXPECT_STREQ(fname("меч длинный"), "меч");
+	EXPECT_STREQ(fname("кольцо"), "кольцо");
+	EXPECT_STREQ(fname(""), "");
+	EXPECT_STREQ(fname(" leading space"), "");  // stops at the very first non-letter
+}
+
+TEST(TextSemantics, FnameStaysInsideItsBuffer) {
+	// fname() returns a fixed 30-byte buffer and used to copy without any bounds check; a long
+	// keyword (twice as many bytes per letter once the text is multibyte) ran past its end.
+	const char *const very_long = "оченьдлинноеключевоесловокотороенепомещается прочее";
+	const char *const got = fname(very_long);
+	EXPECT_LT(std::strlen(got), 30u);
+	// Whatever was copied must be a prefix of the input, never mangled bytes.
+	EXPECT_EQ(std::string(very_long).compare(0, std::strlen(got), got), 0);
+}
+
+// ---------------------------------------------------------------------------- cut_one_word
+
+TEST(TextSemantics, CutOneWordSplitsOnWordBoundaries) {
+	std::string rest = "меч длинный острый";
+	std::string word;
+	cut_one_word(rest, word);
+	EXPECT_EQ(word, "меч");
+	cut_one_word(rest, word);
+	EXPECT_EQ(word, "длинный");
+	cut_one_word(rest, word);
+	EXPECT_EQ(word, "острый");
+}
+
+TEST(TextSemantics, CutOneWordHandlesAsciiAndEmpty) {
+	std::string rest = "take all";
+	std::string word;
+	cut_one_word(rest, word);
+	EXPECT_EQ(word, "take");
+	cut_one_word(rest, word);
+	EXPECT_EQ(word, "all");
+
+	std::string empty;
+	cut_one_word(empty, word);
+	EXPECT_TRUE(word.empty());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
