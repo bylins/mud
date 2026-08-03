@@ -188,4 +188,56 @@ TEST(NativeText, CharsEqualCi) {
 	}
 }
 
+TEST(NativeText, CopyLowerChar) {
+	char buf[8] = {0};
+	EXPECT_EQ(native_text::copy_lower_char("A", buf), 1u);
+	EXPECT_STREQ(buf, "a");
+	EXPECT_EQ(native_text::copy_lower_char("z", buf), 1u);
+	EXPECT_STREQ(buf, "z");
+	EXPECT_EQ(native_text::copy_lower_char("7", buf), 1u);
+	EXPECT_STREQ(buf, "7");
+	if (native_text::native_is_utf8()) {
+		std::memset(buf, 0, sizeof(buf));
+		EXPECT_EQ(native_text::copy_lower_char("\xD0\x9F", buf), 2u);  // P -> p
+		EXPECT_STREQ(buf, "\xD0\xBF");
+		std::memset(buf, 0, sizeof(buf));
+		EXPECT_EQ(native_text::copy_lower_char("\xD0\x81", buf), 2u);  // Yo -> yo
+		EXPECT_STREQ(buf, "\xD1\x91");
+		// In-place folding must be safe (the lowercase form keeps the byte length).
+		char inplace[] = "\xD0\x9F";
+		EXPECT_EQ(native_text::copy_lower_char(inplace, inplace), 2u);
+		EXPECT_STREQ(inplace, "\xD0\xBF");
+	}
+}
+
+TEST(NativeText, LastCharOffset) {
+	EXPECT_EQ(native_text::last_char_offset(""), 0u);
+	EXPECT_EQ(native_text::last_char_offset("a"), 0u);
+	EXPECT_EQ(native_text::last_char_offset("abc"), 2u);
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(native_text::last_char_offset(kPrivet), 10u);  // 6 chars, last starts at byte 10
+		const std::string_view s(kPrivet, 12);
+		EXPECT_EQ(s.substr(native_text::last_char_offset(s)), "\xD1\x82");  // final char "t"
+		EXPECT_EQ(native_text::last_char_offset("\xF0\x9F\x98\x80"), 0u);   // single 4-byte char
+	} else {
+		EXPECT_EQ(native_text::last_char_offset(kPrivet), 11u);  // 12 bytes -> last byte
+	}
+}
+
+TEST(NativeText, ListContainsChar) {
+	EXPECT_TRUE(native_text::list_contains_char("abc", "b"));
+	EXPECT_FALSE(native_text::list_contains_char("abc", "d"));
+	EXPECT_FALSE(native_text::list_contains_char("abc", ""));
+	EXPECT_FALSE(native_text::list_contains_char("", "a"));
+	EXPECT_FALSE(native_text::list_contains_char("abc", "A"));  // case-sensitive, like strchr
+	if (native_text::native_is_utf8()) {
+		// A multibyte character must match as a whole and never on a partial byte sequence.
+		const char *const list = "\xD1\x88\xD1\x89\xD0\xB6\xD1\x87";  // sh shch zh ch
+		EXPECT_TRUE(native_text::list_contains_char(list, "\xD1\x89"));
+		EXPECT_TRUE(native_text::list_contains_char(list, "\xD0\xB6"));
+		EXPECT_FALSE(native_text::list_contains_char(list, "\xD1\x82"));
+		EXPECT_FALSE(native_text::list_contains_char(list, "\xD1"));  // lead byte alone
+	}
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
