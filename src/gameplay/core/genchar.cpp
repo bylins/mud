@@ -20,6 +20,7 @@
 #include "engine/core/comm.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/native_text.h"
 #include "gameplay/magic/spells.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
@@ -249,10 +250,18 @@ void SetStartAbils(CharData *ch) {
 //  5 - предложный (о ком? о чем?)
 // result - результат
 void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
-	size_t len = name.size();
 	std::string result = data;
 
-	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != nullptr
+	// The declension is chosen by the last letter of the name (and sometimes the one before it).
+	// Those are *characters*, not bytes (issue #3681): under KOI8-R `stem`/`last`/`prev` are the
+	// same single bytes the old name[len - 1] / name[len - 2] / substr(0, len - 1) produced,
+	// under UTF-8 they are whole letters.
+	const size_t last_off = native_text::last_char_offset(name);
+	const std::string stem = name.substr(0, last_off);
+	const std::string last = name.substr(last_off);
+	const std::string prev = stem.substr(native_text::last_char_offset(stem));
+
+	if (native_text::list_contains_char("цкнгшщзхфвпрлджчсмтб", last)
 		&& sex == EGender::kMale) {
 		result = name;
 		if (caseNum == 1)
@@ -265,8 +274,8 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "ом"; // Иваном, Ретичем
 		else if (caseNum == 5)
 			result += "е"; // Иване
-	} else if (name[len - 1] == 'я') {
-		result = name.substr(0, len - 1);
+	} else if (last == "я") {
+		result = stem;
 		if (caseNum == 1)
 			result += "и"; // Ани, Вани
 		else if (caseNum == 2)
@@ -279,9 +288,9 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "е"; // Ане, Ване
 		else
 			result += "я"; // Аня, Ваня
-	} else if (name[len - 1] == 'й'
+	} else if (last == "й"
 		&& sex == EGender::kMale) {
-		result = name.substr(0, len - 1);
+		result = stem;
 		if (caseNum == 1)
 			result += "я"; // Дрегвия
 		else if (caseNum == 2)
@@ -294,10 +303,10 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "и"; // Дрегвии
 		else
 			result += "й"; // Дрегвий
-	} else if (name[len - 1] == 'а') {
-		result = name.substr(0, len - 1);
+	} else if (last == "а") {
+		result = stem;
 		if (caseNum == 1) {
-			if (strchr("шщжч", name[len - 2]) != nullptr)
+			if (native_text::list_contains_char("шщжч", prev))
 				result += "и"; // Маши, Паши
 			else
 				result += "ы"; // Анны
@@ -306,7 +315,7 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 		else if (caseNum == 3)
 			result += "у"; // Пашу, Анну
 		else if (caseNum == 4) {
-			if (strchr("шщч", name[len - 2]) != nullptr)
+			if (native_text::list_contains_char("шщч", prev))
 				result += "ей"; // Машей, Пашей
 			else
 				result += "ой"; // Анной, Ханжой

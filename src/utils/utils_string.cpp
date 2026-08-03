@@ -1009,17 +1009,21 @@ const char *one_word(const char *argument, char *first_arg) {
 	char *begin = first_arg;
 	skip_spaces(&argument);
 	first_arg = begin;
+	// Lowercase whole characters (issue #3681); the '"' and a_isspace() tests stay byte-based
+	// since they only run at a character boundary and both delimiters are ASCII.
 	if (*argument == '\"') {
 		argument++;
 		while (*argument && *argument != '\"') {
-			*(first_arg++) = a_lcc(*argument);
-			argument++;
+			const size_t n = native_text::copy_lower_char(argument, first_arg);
+			first_arg += n;
+			argument += n;
 		}
 		argument++;
 	} else {
 		while (*argument && !a_isspace(*argument)) {
-			*(first_arg++) = a_lcc(*argument);
-			argument++;
+			const size_t n = native_text::copy_lower_char(argument, first_arg);
+			first_arg += n;
+			argument += n;
 		}
 	}
 	*first_arg = '\0';

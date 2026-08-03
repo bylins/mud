@@ -156,6 +156,26 @@ bool chars_equal_ci(const char *a, const char *b) {
 	return utf8::to_lower(ca) == utf8::to_lower(cb);
 }
 
+std::size_t copy_lower_char(const char *src, char *dst) {
+	const std::size_t len = char_bytes(src);
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(src, len), 0, cp) != 0) {
+		std::string folded;
+		// Only rewrite when the lowercase form keeps the byte length -- true for ASCII and for
+		// the whole Russian alphabet, so callers never see a character change size.
+		if (utf8::encode(utf8::to_lower(cp), folded) == len) {
+			for (std::size_t i = 0; i < len; ++i) {
+				dst[i] = folded[i];
+			}
+			return len;
+		}
+	}
+	for (std::size_t i = 0; i < len; ++i) {
+		dst[i] = src[i];
+	}
+	return len;
+}
+
 #else  // KOI8-R: 1 byte == 1 character
 
 bool native_is_utf8() {
@@ -228,7 +248,67 @@ bool chars_equal_ci(const char *a, const char *b) {
 	return a_lcc_table[static_cast<unsigned char>(*a)] == a_lcc_table[static_cast<unsigned char>(*b)];
 }
 
+std::size_t copy_lower_char(const char *src, char *dst) {
+	*dst = a_lcc_table[static_cast<unsigned char>(*src)];
+	return 1;
+}
+
 #endif
+
+// ---------------------------------------------------------------------------------------------
+// Encoding-independent helpers: expressed purely in terms of the primitives above, so they need
+// no per-encoding branch. Unlike char_bytes() these take a bounded view, not a C string, so they
+// are safe on a string_view that is not null-terminated.
+// ---------------------------------------------------------------------------------------------
+
+namespace {
+
+// Byte length of the character at `pos`, clamped to the end of `s`.
+std::size_t char_bytes_at(std::string_view s, std::size_t pos) {
+#ifdef INTERNAL_ENCODING_UTF8
+	const unsigned char lead = static_cast<unsigned char>(s[pos]);
+	if (lead < 0x80) {
+		return 1;
+	}
+	const std::size_t want = static_cast<std::size_t>(utf8::sequence_length(lead));
+	std::size_t n = 1;
+	while (n < want && pos + n < s.size() && (static_cast<unsigned char>(s[pos + n]) & 0xC0) == 0x80) {
+		++n;
+	}
+	return n;
+#else
+	(void) s;
+	(void) pos;
+	return 1;
+#endif
+}
+
+}  // namespace
+
+std::size_t last_char_offset(std::string_view s) {
+	std::size_t last = 0;
+	std::size_t pos = 0;
+	while (pos < s.size()) {
+		last = pos;
+		pos += char_bytes_at(s, pos);
+	}
+	return last;
+}
+
+bool list_contains_char(std::string_view list, std::string_view ch) {
+	if (ch.empty()) {
+		return false;
+	}
+	std::size_t pos = 0;
+	while (pos < list.size()) {
+		const std::size_t len = char_bytes_at(list, pos);
+		if (len == ch.size() && list.compare(pos, len, ch) == 0) {
+			return true;
+		}
+		pos += len;
+	}
+	return false;
+}
 
 }  // namespace native_text
 

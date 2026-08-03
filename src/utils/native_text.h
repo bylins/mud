@@ -66,6 +66,23 @@ bool is_alnum_char(const char *s);
 // UTF-8: compares whole folded code points, so "P" matches "p" in Cyrillic too.
 bool chars_equal_ci(const char *a, const char *b);
 
+// Copy the character starting at `src` to `dst`, lowercased, and return how many bytes were
+// consumed (always the same number written, so a caller's buffer accounting is unaffected).
+// KOI8-R: one byte through a_lcc_table. UTF-8: folds the code point; in the rare case where the
+// lowercase form would not be the same byte length, the character is copied unchanged rather
+// than resized. `dst` may alias `src` (the length-preserving property makes that safe).
+std::size_t copy_lower_char(const char *src, char *dst);
+
+// Byte offset at which the final character of `s` begins (0 for an empty string), so that
+// s.substr(0, last_char_offset(s)) drops exactly one character and s.substr(last_char_offset(s))
+// is that character. KOI8-R: s.size() - 1.
+std::size_t last_char_offset(std::string_view s);
+
+// Does the single character `ch` occur in `list`? The replacement for strchr() over a literal
+// list of letters: `list` is walked one whole character at a time, so a multibyte character can
+// never match on a partial byte sequence. Comparison is exact (case-sensitive), like strchr.
+bool list_contains_char(std::string_view list, std::string_view ch);
+
 }  // namespace native_text
 
 #endif  // BYLINS_SRC_UTILS_NATIVE_TEXT_H_
