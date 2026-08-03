@@ -156,4 +156,36 @@ TEST(NativeText, CompareCiMatchesLegacyByteLoopUnderKoi8r) {
 	}
 }
 
+TEST(NativeText, IsAlnumChar) {
+	EXPECT_TRUE(native_text::is_alnum_char("a"));
+	EXPECT_TRUE(native_text::is_alnum_char("Z"));
+	EXPECT_TRUE(native_text::is_alnum_char("7"));
+	EXPECT_FALSE(native_text::is_alnum_char(" "));
+	EXPECT_FALSE(native_text::is_alnum_char("!"));
+	EXPECT_FALSE(native_text::is_alnum_char("."));
+	EXPECT_FALSE(native_text::is_alnum_char(""));  // terminator is not alphanumeric
+	if (native_text::native_is_utf8()) {
+		// A Cyrillic letter is ONE alphanumeric character; its trail byte must not be read as
+		// punctuation (which is what the raw byte table would do and what breaks tokenisation).
+		EXPECT_TRUE(native_text::is_alnum_char(kPrivet));
+		EXPECT_TRUE(native_text::is_alnum_char("\xD0\x81"));  // Yo
+		EXPECT_TRUE(native_text::is_alnum_char("\xD1\x91"));  // yo
+	}
+}
+
+TEST(NativeText, CharsEqualCi) {
+	EXPECT_TRUE(native_text::chars_equal_ci("a", "a"));
+	EXPECT_TRUE(native_text::chars_equal_ci("a", "A"));
+	EXPECT_TRUE(native_text::chars_equal_ci("Z", "z"));
+	EXPECT_FALSE(native_text::chars_equal_ci("a", "b"));
+	EXPECT_FALSE(native_text::chars_equal_ci("a", ""));
+	if (native_text::native_is_utf8()) {
+		// The regression this whole step exists for: with the raw KOI8-R byte table the lead
+		// bytes of "P"/"p" fold equal but the trail bytes differ, so the match was lost.
+		EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x9F", "\xD0\xBF"));   // P vs p
+		EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x81", "\xD1\x91"));   // Yo vs yo
+		EXPECT_FALSE(native_text::chars_equal_ci("\xD0\x9F", "\xD1\x80"));  // P vs r
+	}
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

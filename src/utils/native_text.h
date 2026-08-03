@@ -57,6 +57,15 @@ std::size_t char_bytes(const char *s);
 int compare_ci(std::string_view a, std::string_view b);
 int ncompare_ci(std::string_view a, std::string_view b, std::size_t n);
 
+// Is the character starting at `s` alphanumeric? KOI8-R: the a_isalnum byte table. UTF-8: ASCII
+// letters/digits plus the Russian Cyrillic block -- so a multibyte letter is classified as one
+// alphanumeric character rather than a lead byte followed by "punctuation" trail bytes.
+bool is_alnum_char(const char *s);
+
+// Do the characters starting at `a` and `b` match ignoring case? KOI8-R: LOWER(*a) == LOWER(*b).
+// UTF-8: compares whole folded code points, so "P" matches "p" in Cyrillic too.
+bool chars_equal_ci(const char *a, const char *b);
+
 }  // namespace native_text
 
 #endif  // BYLINS_SRC_UTILS_NATIVE_TEXT_H_

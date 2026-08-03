@@ -943,13 +943,18 @@ bool IsValidEmail(const char *address) {
 	return true;
 }
 
+// Walks both strings one *character* at a time (issue #3681): the classification, the
+// case-insensitive match and every advance go through native_text, so a multibyte letter is one
+// unit instead of a lead byte plus trail bytes that the byte tables would read as punctuation.
+// Under KOI8-R every helper is the original byte operation and char_bytes() == 1, so the state
+// machine below -- including each `curstr = laststr` backtrack -- behaves exactly as before.
 bool isname(const char *str, const char *namelist) {
 	bool once_ok = false;
 	const char *curname, *curstr, *laststr;
 	if (!namelist || !*namelist || !str) {
 		return false;
 	}
-	for (curstr = str; !a_isalnum(*curstr); curstr++) {
+	for (curstr = str; !native_text::is_alnum_char(curstr); curstr += native_text::char_bytes(curstr)) {
 		if (!*curstr) {
 			return once_ok;
 		}
@@ -958,18 +963,18 @@ bool isname(const char *str, const char *namelist) {
 	curname = namelist;
 	for (;;) {
 		once_ok = false;
-		for (;; curstr++, curname++) {
+		for (;; curstr += native_text::char_bytes(curstr), curname += native_text::char_bytes(curname)) {
 			if (!*curstr) {
 				return once_ok;
 			}
 			if (*curstr == '!') {
-				if (a_isalnum(*curname)) {
+				if (native_text::is_alnum_char(curname)) {
 					curstr = laststr;
 					break;
 				}
 			}
-			if (!a_isalnum(*curstr)) {
-				for (; !a_isalnum(*curstr); curstr++) {
+			if (!native_text::is_alnum_char(curstr)) {
+				for (; !native_text::is_alnum_char(curstr); curstr += native_text::char_bytes(curstr)) {
 					if (!*curstr) {
 						return once_ok;
 					}
@@ -980,19 +985,19 @@ bool isname(const char *str, const char *namelist) {
 			if (!*curname) {
 				return false;
 			}
-			if (!a_isalnum(*curname)) {
+			if (!native_text::is_alnum_char(curname)) {
 				curstr = laststr;
 				break;
 			}
-			if (LOWER(*curstr) != LOWER(*curname)) {
+			if (!native_text::chars_equal_ci(curstr, curname)) {
 				curstr = laststr;
 				break;
 			} else {
 				once_ok = true;
 			}
 		}
-		for (; a_isalnum(*curname); curname++);
-		for (; !a_isalnum(*curname); curname++) {
+		for (; native_text::is_alnum_char(curname); curname += native_text::char_bytes(curname));
+		for (; !native_text::is_alnum_char(curname); curname += native_text::char_bytes(curname)) {
 			if (!*curname) {
 				return false;
 			}

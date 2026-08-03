@@ -16,6 +16,7 @@ through them changes nothing until the encoding flip.
 // which drags in fmt/ and much of the engine for what is just two 256-byte lookups.
 extern const char a_ucc_table[];
 extern const char a_lcc_table[];
+extern const bool a_isalnum_table[];
 #endif
 
 #include <string>
@@ -132,6 +133,29 @@ int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
 	return compare_folded(a, b, n);
 }
 
+bool is_alnum_char(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return (lead >= '0' && lead <= '9') || (lead >= 'A' && lead <= 'Z') || (lead >= 'a' && lead <= 'z');
+	}
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(s, char_bytes(s)), 0, cp) == 0) {
+		return false;
+	}
+	// Russian Cyrillic block, including Yo.
+	return (cp >= 0x0410 && cp <= 0x044F) || cp == 0x0401 || cp == 0x0451;
+}
+
+bool chars_equal_ci(const char *a, const char *b) {
+	char32_t ca = 0;
+	char32_t cb = 0;
+	if (utf8::decode(std::string_view(a, char_bytes(a)), 0, ca) == 0
+		|| utf8::decode(std::string_view(b, char_bytes(b)), 0, cb) == 0) {
+		return false;
+	}
+	return utf8::to_lower(ca) == utf8::to_lower(cb);
+}
+
 #else  // KOI8-R: 1 byte == 1 character
 
 bool native_is_utf8() {
@@ -194,6 +218,14 @@ int compare_ci(std::string_view a, std::string_view b) {
 
 int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
 	return compare_bytes(a, b, n);
+}
+
+bool is_alnum_char(const char *s) {
+	return a_isalnum_table[static_cast<unsigned char>(*s)];
+}
+
+bool chars_equal_ci(const char *a, const char *b) {
+	return a_lcc_table[static_cast<unsigned char>(*a)] == a_lcc_table[static_cast<unsigned char>(*b)];
 }
 
 #endif
