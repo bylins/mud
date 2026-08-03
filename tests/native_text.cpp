@@ -13,8 +13,9 @@
 
 namespace {
 
-// "Privet": 6 Cyrillic code points, 12 UTF-8 bytes.
-const char *const kPrivet = "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";
+// "Privet": 6 Cyrillic code points, 12 UTF-8 bytes. (Name-prefixed: the test files are
+// unity-built, so a plain kPrivet would clash with the one in tests/utf8.cpp.)
+const char *const kNtPrivet = "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";
 
 }  // namespace
 
@@ -32,16 +33,16 @@ int legacy_lower(unsigned char c) {
 
 TEST(NativeText, CharCountAscii) {
 	EXPECT_EQ(native_text::char_count("Hello"), 5u);
-	EXPECT_EQ(native_text::char_count(kPrivet, kPrivet + 4), native_text::native_is_utf8() ? 2u : 4u);
+	EXPECT_EQ(native_text::char_count(kNtPrivet, kNtPrivet + 4), native_text::native_is_utf8() ? 2u : 4u);
 }
 
 TEST(NativeText, CharCountReflectsEncoding) {
 	if (native_text::native_is_utf8()) {
-		EXPECT_EQ(native_text::char_count(kPrivet), 6u);
-		EXPECT_EQ(native_text::char_count(kPrivet, kPrivet + 12), 6u);
+		EXPECT_EQ(native_text::char_count(kNtPrivet), 6u);
+		EXPECT_EQ(native_text::char_count(kNtPrivet, kNtPrivet + 12), 6u);
 	} else {
-		EXPECT_EQ(native_text::char_count(kPrivet), 12u);
-		EXPECT_EQ(native_text::char_count(kPrivet, kPrivet + 12), 12u);
+		EXPECT_EQ(native_text::char_count(kNtPrivet), 12u);
+		EXPECT_EQ(native_text::char_count(kNtPrivet, kNtPrivet + 12), 12u);
 	}
 }
 
@@ -71,16 +72,16 @@ TEST(NativeText, CapitalizeCyrillicUtf8Only) {
 TEST(NativeText, CharBytes) {
 	EXPECT_EQ(native_text::char_bytes("A"), 1u);
 	if (native_text::native_is_utf8()) {
-		EXPECT_EQ(native_text::char_bytes(kPrivet), 2u);              // Cyrillic lead -> 2 bytes
+		EXPECT_EQ(native_text::char_bytes(kNtPrivet), 2u);              // Cyrillic lead -> 2 bytes
 		EXPECT_EQ(native_text::char_bytes("\xF0\x9F\x98\x80"), 4u);   // 4-byte code point
 		EXPECT_EQ(native_text::char_bytes("\xD0"), 1u);              // truncated lead: 1 byte present
 	} else {
-		EXPECT_EQ(native_text::char_bytes(kPrivet), 1u);             // KOI8-R: every byte is a char
+		EXPECT_EQ(native_text::char_bytes(kNtPrivet), 1u);             // KOI8-R: every byte is a char
 	}
 }
 
 TEST(NativeText, TruncateOffset) {
-	const std::string_view p(kPrivet, 12);
+	const std::string_view p(kNtPrivet, 12);
 	EXPECT_EQ(native_text::truncate_offset(p, 100), 12u);  // past end -> full size
 	EXPECT_EQ(native_text::truncate_offset(p, 0), 0u);
 	if (native_text::native_is_utf8()) {
@@ -167,7 +168,7 @@ TEST(NativeText, IsAlnumChar) {
 	if (native_text::native_is_utf8()) {
 		// A Cyrillic letter is ONE alphanumeric character; its trail byte must not be read as
 		// punctuation (which is what the raw byte table would do and what breaks tokenisation).
-		EXPECT_TRUE(native_text::is_alnum_char(kPrivet));
+		EXPECT_TRUE(native_text::is_alnum_char(kNtPrivet));
 		EXPECT_TRUE(native_text::is_alnum_char("\xD0\x81"));  // Yo
 		EXPECT_TRUE(native_text::is_alnum_char("\xD1\x91"));  // yo
 	}
@@ -215,12 +216,12 @@ TEST(NativeText, LastCharOffset) {
 	EXPECT_EQ(native_text::last_char_offset("a"), 0u);
 	EXPECT_EQ(native_text::last_char_offset("abc"), 2u);
 	if (native_text::native_is_utf8()) {
-		EXPECT_EQ(native_text::last_char_offset(kPrivet), 10u);  // 6 chars, last starts at byte 10
-		const std::string_view s(kPrivet, 12);
+		EXPECT_EQ(native_text::last_char_offset(kNtPrivet), 10u);  // 6 chars, last starts at byte 10
+		const std::string_view s(kNtPrivet, 12);
 		EXPECT_EQ(s.substr(native_text::last_char_offset(s)), "\xD1\x82");  // final char "t"
 		EXPECT_EQ(native_text::last_char_offset("\xF0\x9F\x98\x80"), 0u);   // single 4-byte char
 	} else {
-		EXPECT_EQ(native_text::last_char_offset(kPrivet), 11u);  // 12 bytes -> last byte
+		EXPECT_EQ(native_text::last_char_offset(kNtPrivet), 11u);  // 12 bytes -> last byte
 	}
 }
 

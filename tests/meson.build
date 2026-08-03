@@ -45,6 +45,7 @@ test_sources = files(
     'accounts.storage.cpp',
     'utf8.cpp',
     'native_text.cpp',
+    'text_semantics.cpp',
     'fight.penalties.cpp',
     'bonus.command.parser.cpp',
     'quested.cpp',
