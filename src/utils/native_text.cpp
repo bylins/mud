@@ -338,6 +338,16 @@ std::size_t missing_width(std::string_view s, std::size_t width) {
 
 }  // namespace
 
+std::string truncate_to_chars(std::string_view s, std::size_t count) {
+	std::size_t pos = 0;
+	std::size_t seen = 0;
+	while (pos < s.size() && seen < count) {
+		pos += char_bytes_at(s, pos);
+		++seen;
+	}
+	return std::string(s.substr(0, pos));
+}
+
 std::string pad_right(std::string_view s, std::size_t width, char fill) {
 	std::string out(s);
 	out.append(missing_width(s, width), fill);
