@@ -56,6 +56,17 @@ TEST(NativeText, CapitalizeCyrillicUtf8Only) {
 	EXPECT_STREQ(buf, "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82");  // "Privet"
 }
 
+TEST(NativeText, CharBytes) {
+	EXPECT_EQ(native_text::char_bytes("A"), 1u);
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(native_text::char_bytes(kPrivet), 2u);              // Cyrillic lead -> 2 bytes
+		EXPECT_EQ(native_text::char_bytes("\xF0\x9F\x98\x80"), 4u);   // 4-byte code point
+		EXPECT_EQ(native_text::char_bytes("\xD0"), 1u);              // truncated lead: 1 byte present
+	} else {
+		EXPECT_EQ(native_text::char_bytes(kPrivet), 1u);             // KOI8-R: every byte is a char
+	}
+}
+
 TEST(NativeText, TruncateOffset) {
 	const std::string_view p(kPrivet, 12);
 	EXPECT_EQ(native_text::truncate_offset(p, 100), 12u);  // past end -> full size
