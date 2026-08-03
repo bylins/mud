@@ -43,6 +43,11 @@ void capitalize_first(char *s);
 // there never splits a multibyte character. KOI8-R: min(max_bytes, s.size()).
 std::size_t truncate_offset(std::string_view s, std::size_t max_bytes);
 
+// Byte length of the character that starts at `s` (KOI8-R: 1), for stepping over a whole
+// character byte-by-byte. Always >= 1; on a malformed/truncated UTF-8 lead it returns only the
+// bytes actually present (never counts past a terminator or a non-continuation byte).
+std::size_t char_bytes(const char *s);
+
 }  // namespace native_text
 
 #endif  // BYLINS_SRC_UTILS_NATIVE_TEXT_H_

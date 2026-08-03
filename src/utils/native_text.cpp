@@ -71,6 +71,19 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
 	return pos;
 }
 
+std::size_t char_bytes(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return 1;
+	}
+	const std::size_t want = static_cast<std::size_t>(utf8::sequence_length(lead));
+	std::size_t n = 1;
+	while (n < want && (static_cast<unsigned char>(s[n]) & 0xC0) == 0x80) {
+		++n;
+	}
+	return n;
+}
+
 #else  // KOI8-R: 1 byte == 1 character
 
 bool native_is_utf8() {
@@ -93,6 +106,10 @@ void capitalize_first(char *s) {
 
 std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
 	return max_bytes < s.size() ? max_bytes : s.size();
+}
+
+std::size_t char_bytes(const char *) {
+	return 1;
 }
 
 #endif
