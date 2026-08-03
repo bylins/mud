@@ -43,6 +43,7 @@ test_sources = files(
     'utils.string.cpp',
     'utils.encoding.cpp',
     'accounts.storage.cpp',
+    'utf8.cpp',
     'fight.penalties.cpp',
     'bonus.command.parser.cpp',
     'quested.cpp',
