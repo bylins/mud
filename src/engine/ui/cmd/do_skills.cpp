@@ -1,4 +1,5 @@
 #include "do_skills.h"
+#include "utils/native_text.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
@@ -77,8 +78,9 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 				default: sprintf(buf, "      ");
 			}
 
-			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
-					skill.GetName(),
+			// Ширина колонки - в символах, а не в байтах (issue #3681).
+			sprintf(buf + strlen(buf), "%s %s (%d)%s \r\n",
+					native_text::pad_right(skill.GetName(), 23).c_str(),
 					how_good(GetSkill(ch, skill_id), CalcSkillHardCap(ch, skill_id)),
 					GetTrainedSkill(ch, skill_id) == 0 ? GetEquippedSkill(ch, skill_id) : 
 					std::min(CalcSkillMinCap(ch, skill_id) + GetEquippedSkill(ch, skill_id), MUD::Skill(skill_id).cap),

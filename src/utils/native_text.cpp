@@ -329,6 +329,27 @@ std::size_t last_char_offset(std::string_view s) {
 	return last;
 }
 
+namespace {
+
+std::size_t missing_width(std::string_view s, std::size_t width) {
+	const std::size_t have = char_count(s);
+	return have >= width ? 0 : width - have;
+}
+
+}  // namespace
+
+std::string pad_right(std::string_view s, std::size_t width, char fill) {
+	std::string out(s);
+	out.append(missing_width(s, width), fill);
+	return out;
+}
+
+std::string pad_left(std::string_view s, std::size_t width, char fill) {
+	std::string out(missing_width(s, width), fill);
+	out.append(s);
+	return out;
+}
+
 bool list_contains_char(std::string_view list, std::string_view ch) {
 	if (ch.empty()) {
 		return false;

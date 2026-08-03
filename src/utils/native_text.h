@@ -86,6 +86,14 @@ std::size_t copy_lower_char(const char *src, char *dst);
 // is that character. KOI8-R: s.size() - 1.
 std::size_t last_char_offset(std::string_view s);
 
+// Pad `s` to at least `width` display characters, appending (pad_right) or prepending (pad_left)
+// `fill`. The replacement for a printf "%-Ns" / "%Ns" field, which counts bytes: under KOI8-R the
+// result is identical, under UTF-8 a Russian column no longer comes out half as wide.
+// Note: like printf, colour codes embedded in `s` still count toward the width -- that is a
+// separate, pre-existing skew and is deliberately not changed here.
+std::string pad_right(std::string_view s, std::size_t width, char fill = ' ');
+std::string pad_left(std::string_view s, std::size_t width, char fill = ' ');
+
 // Does the single character `ch` occur in `list`? The replacement for strchr() over a literal
 // list of letters: `list` is walked one whole character at a time, so a multibyte character can
 // never match on a partial byte sequence. Comparison is exact (case-sensitive), like strchr.

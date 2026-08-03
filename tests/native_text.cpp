@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 
 #include <cstring>
+#include <string>
 #include <string_view>
 
 namespace {
@@ -249,6 +250,22 @@ TEST(NativeText, LastCharOffset) {
 		EXPECT_EQ(native_text::last_char_offset("\xF0\x9F\x98\x80"), 0u);   // single 4-byte char
 	} else {
 		EXPECT_EQ(native_text::last_char_offset(kNtPrivet), 11u);  // 12 bytes -> last byte
+	}
+}
+
+TEST(NativeText, PadRightAndLeft) {
+	EXPECT_EQ(native_text::pad_right("ab", 5), "ab   ");
+	EXPECT_EQ(native_text::pad_left("ab", 5), "   ab");
+	EXPECT_EQ(native_text::pad_right("ab", 2), "ab");      // already wide enough
+	EXPECT_EQ(native_text::pad_right("abcdef", 3), "abcdef");  // never truncates
+	EXPECT_EQ(native_text::pad_right("", 3), "   ");
+	EXPECT_EQ(native_text::pad_right("ab", 4, '.'), "ab..");
+	if (native_text::native_is_utf8()) {
+		// 6 Cyrillic characters (12 bytes) padded to a 10-character column: no padding, and
+		// crucially not 12 bytes' worth of "already too wide" either.
+		EXPECT_EQ(native_text::pad_right(kNtPrivet, 10), kNtPrivet);
+		// 6 characters padded to 8 -> exactly two spaces, not eight.
+		EXPECT_EQ(native_text::pad_right(kNtPrivet, 8), std::string(kNtPrivet) + "  ");
 	}
 }
 

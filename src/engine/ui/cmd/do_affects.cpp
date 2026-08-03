@@ -2,6 +2,7 @@
 // Created by Sventovit on 07.09.2024.
 //
 
+#include <fmt/format.h>
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
@@ -118,9 +119,11 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (const auto &r : rows) {
 			// A permanent source wins the label; otherwise show the longest remaining time.
 			FormatAffectDuration(r.permanent ? -1 : r.best_mod, buf2, sizeof(buf2));
-			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s",
+			// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
+			// точках, printf мерил бы в байтах (issue #3681).
+			strcpy(buf, fmt::format("{}{}{:<21} {:<12}{}",
 					 (!r.name.empty() && r.name[0] == '!') ? "Состояние  : " : "Заклинание : ",
-					 kColorBoldCyn, r.name.c_str(), buf2, kColorNrm);
+					 kColorBoldCyn, r.name.c_str(), buf2, kColorNrm).c_str());
 			if (r.count > 1) {
 				snprintf(buf + strlen(buf), kMaxStringLength - strlen(buf), " [x%d]", r.count);
 			}
@@ -140,9 +143,11 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		snprintf(sp_name, sizeof(sp_name), "%s",
 				affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 		FormatAffectDuration(AffectDisplayMod(aff), buf2, sizeof(buf2));
-		snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
+			// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
+			// точках, printf мерил бы в байтах (issue #3681).
+			strcpy(buf, fmt::format("{}{}{:<21} {:<12}{} ",
 				 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
-				 kColorBoldCyn, sp_name, buf2, kColorNrm);
+				 kColorBoldCyn, sp_name, buf2, kColorNrm).c_str());
 		*buf2 = '\0';
 		if (immortal) {
 			if (aff->modifier) {
