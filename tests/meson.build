@@ -41,6 +41,7 @@ test_sources = files(
     'utils.encoding.cpp',
     'utf8.cpp',
     'native_text.cpp',
+    'text_semantics.cpp',
     'fight.penalties.cpp',
     'bonus.command.parser.cpp',
     'quested.cpp',
