@@ -878,13 +878,15 @@ void cut_one_word(std::string &str, std::string &word) {
 	}
 	bool process = false;
 	unsigned begin = 0, end = 0;
-	for (unsigned i = 0; i < str.size(); ++i) {
-		if (!process && a_isalnum(str.at(i))) {
+	// Word boundaries are looked for one whole character at a time (issue #3681); a byte-wise
+	// scan finds a "boundary" inside a multibyte letter and cuts the word in half.
+	for (unsigned i = 0; i < str.size(); i += native_text::char_bytes(str.c_str() + i)) {
+		if (!process && native_text::is_alnum_char(str.c_str() + i)) {
 			process = true;
 			begin = i;
 			continue;
 		}
-		if (process && !a_isalnum(str.at(i))) {
+		if (process && !native_text::is_alnum_char(str.c_str() + i)) {
 			end = i;
 			break;
 		}

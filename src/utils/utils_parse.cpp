@@ -4,7 +4,8 @@
 #include "utils_parse.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
-#include "utils/parser_wrapper.h"   // issue.xml-parse-cleaning: AttrInt/AttrStr over DataNode
+#include "utils/parser_wrapper.h"
+#include "utils/native_text.h"   // issue.xml-parse-cleaning: AttrInt/AttrStr over DataNode
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
@@ -393,10 +394,21 @@ int get_number(std::string &name) {
 // issue.handler-cleaning: first keyword of a name list (moved from handler).
 char *fname(const char *namelist) {
 	static char holder[30];
-	char *point;
+	char *point = holder;
 
-	for (point = holder; a_isalpha(*namelist); namelist++, point++)
-		*point = *namelist;
+	// Copy the leading word one whole character at a time (issue #3681): a byte-wise copy stops
+	// in the middle of a multibyte letter. The bounds check is new -- the previous loop could
+	// already run past holder[] on a long keyword, and multibyte text reaches the end twice as
+	// fast, so leave room for the terminator.
+	while (native_text::is_alpha_char(namelist)) {
+		const size_t bytes = native_text::char_bytes(namelist);
+		if (point + bytes >= holder + sizeof(holder)) {
+			break;
+		}
+		for (size_t i = 0; i < bytes; ++i) {
+			*point++ = *namelist++;
+		}
+	}
 
 	*point = '\0';
 

@@ -13,6 +13,7 @@
 #include "im.h"
 #include "utils/parser_wrapper.h"
 #include "utils/utils_parse.h"
+#include "utils/native_text.h"
 #include <unordered_map>
 #include <vector>
 #include <cstdlib>
@@ -246,7 +247,17 @@ const char *replace_alias(const char *ptr, im_memb *sample, int rnum, const char
 				if (*ptr == VAR_CHAR) {
 					int k;
 					++ptr;
-					for (k = 0; (*ptr) && a_isalnum(*ptr); aname[k++] = *ptr++);
+					// One whole character per step (issue #3681), with a bounds check: the
+					// previous loop had none, and multibyte text fills aname[] twice as fast.
+					for (k = 0; *ptr && native_text::is_alnum_char(ptr);) {
+						const size_t bytes = native_text::char_bytes(ptr);
+						if (static_cast<size_t>(k) + bytes >= sizeof(aname)) {
+							break;
+						}
+						for (size_t i = 0; i < bytes; ++i) {
+							aname[k++] = *ptr++;
+						}
+					}
 					aname[k] = 0;
 					al = get_im_alias(sample, aname);
 					strcpy(dst, al ? al : aname);

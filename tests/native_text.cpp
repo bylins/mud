@@ -174,6 +174,33 @@ TEST(NativeText, IsAlnumChar) {
 	}
 }
 
+TEST(NativeText, IsAlphaChar) {
+	EXPECT_TRUE(native_text::is_alpha_char("a"));
+	EXPECT_TRUE(native_text::is_alpha_char("Z"));
+	EXPECT_FALSE(native_text::is_alpha_char("7"));  // digit: alnum but not alpha
+	EXPECT_FALSE(native_text::is_alpha_char(" "));
+	EXPECT_FALSE(native_text::is_alpha_char(""));
+	if (native_text::native_is_utf8()) {
+		EXPECT_TRUE(native_text::is_alpha_char(kNtPrivet));
+		EXPECT_TRUE(native_text::is_alpha_char("\xD0\x81"));  // Yo
+	}
+}
+
+TEST(NativeText, IsUpperChar) {
+	EXPECT_TRUE(native_text::is_upper_char("A"));
+	EXPECT_FALSE(native_text::is_upper_char("a"));
+	EXPECT_FALSE(native_text::is_upper_char("7"));
+	EXPECT_FALSE(native_text::is_upper_char(""));
+	if (native_text::native_is_utf8()) {
+		// The byte table cannot see these: a UTF-8 Cyrillic lead byte is outside its uppercase
+		// range, which is why the anti-caps filter stopped working for Russian.
+		EXPECT_TRUE(native_text::is_upper_char("\xD0\x9F"));   // P
+		EXPECT_FALSE(native_text::is_upper_char("\xD0\xBF"));  // p
+		EXPECT_TRUE(native_text::is_upper_char("\xD0\x81"));   // Yo
+		EXPECT_FALSE(native_text::is_upper_char("\xD1\x91"));  // yo
+	}
+}
+
 TEST(NativeText, CharsEqualCi) {
 	EXPECT_TRUE(native_text::chars_equal_ci("a", "a"));
 	EXPECT_TRUE(native_text::chars_equal_ci("a", "A"));
