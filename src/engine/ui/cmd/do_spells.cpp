@@ -1,4 +1,5 @@
 #include "do_spells.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/magic_item.h"
 
@@ -88,15 +89,17 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				continue;
 			if (CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %s%-38s&n|",
+										   "%s|<...%4d.> %s%s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ",
-										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id),
+										   native_text::pad_right(MUD::Spell(spell_id).GetCName(), 38).c_str());
 			} else {
 				if (all) {
 					slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-							"%s|+--------+ %s%-38s&n|", slots[slot_num] % 114 < 10 ? "\r\n" 
-							: "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+							"%s|+--------+ %s%s&n|", slots[slot_num] % 114 < 10 ? "\r\n" 
+							: "  ", GetSpellColor(spell_id),
+							native_text::pad_right(MUD::Spell(spell_id).GetCName(), 38).c_str());
 				}
 			}
 		} else {

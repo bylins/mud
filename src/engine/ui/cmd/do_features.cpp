@@ -1,4 +1,5 @@
 #include "engine/ui/color.h"
+#include "utils/native_text.h"
 #include "gameplay/core/remort.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/abilities/timed_abilities.h"
@@ -81,17 +82,17 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				continue;
 			}
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
-				sprintf(buf, "        %s%s %-30s%s\r\n",
+				sprintf(buf, "        %s%s %s%s\r\n",
 						ch->HaveFeat(feat.GetId()) ? kColorGrn :
 						CanGetFeat(ch, feat.GetId()) ? kColorNrm : kColorRed,
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
 						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
-						MUD::Feat(feat.GetId()).GetCName(), kColorNrm);
+						native_text::pad_right(MUD::Feat(feat.GetId()).GetCName(), 30).c_str(), kColorNrm);
 			} else {
-				sprintf(buf, "    %s %-30s\r\n",
+				sprintf(buf, "    %s %s\r\n",
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
 						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
-						MUD::Feat(feat.GetId()).GetCName());
+						native_text::pad_right(MUD::Feat(feat.GetId()).GetCName(), 30).c_str());
 			}
 
 			if (feat.IsInborn() ||

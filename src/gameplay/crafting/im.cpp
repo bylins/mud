@@ -953,13 +953,13 @@ void list_recipes(CharData *ch, bool all_recipes) {
 			rs = im_get_char_rskill(ch, sortpos);
 			const bool unavailable = req->level > GetRealLevel(ch) || req->remort > remort::GetRealRemort(ch);
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
-				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
+				sprintf(buf, "     %s%s%s %2d (%2d)%s\r\n",
 						unavailable ? kColorRed : rs ? kColorGrn : kColorNrm,
-						imrecipes[sortpos].name, kColorCyn,
+						native_text::pad_right(imrecipes[sortpos].name, 30).c_str(), kColorCyn,
 						req->level, req->remort, kColorNrm);
 			} else {
-				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
-						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
+				sprintf(buf, " %s %s %2d (%2d)\r\n",
+						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", native_text::pad_right(imrecipes[sortpos].name, 30).c_str(),
 						req->level, req->remort);
 			}
 			strcat(buf1, buf);
@@ -982,7 +982,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 		}
 		if (rs->perc <= 0)
 			continue;
-		sprintf(buf, "%-30s %s%s\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel), kColorBoldBlk);
+		sprintf(buf, "%s %s%s\r\n", native_text::pad_right(imrecipes[rs->rid].name, 30).c_str(), how_good(rs->perc, kMaxRecipeLevel), kColorBoldBlk);
 		strcat(buf2, buf);
 		++i;
 	}

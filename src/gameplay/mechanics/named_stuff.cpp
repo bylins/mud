@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "named_stuff.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 
@@ -369,10 +370,10 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 								out += buf1;
 							}
 							found++;
-							sprintf(buf2, "%6ld) &R*&n%-31s Владелец:%-16s e-mail:&S%s&s\r\n",
+							sprintf(buf2, "%6ld) &R*&n%s Владелец:%s e-mail:&S%s&s\r\n",
 									it->first + 1,
-									"Несуществующий предмет",
-									GetNameByUnique(it->second->uid, false).c_str(),
+									native_text::pad_right("Несуществующий предмет", 31).c_str(),
+									native_text::pad_right(GetNameByUnique(it->second->uid, false), 16).c_str(),
 									str_dup(it->second->mail.c_str())
 							);
 							out += buf2;
@@ -388,9 +389,9 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
 							if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
+								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%s e-mail:&S%s&s\r\n", buf1,
 										 obj_proto.total_online(r_num), obj_proto.stored(r_num),
-										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
+										 native_text::pad_right(GetNameByUnique(it->second->uid, false), 16).c_str(), it->second->mail.c_str());
 							} else {
 								snprintf(buf2, kMaxStringLength, "%s\r\n", buf1);
 							}

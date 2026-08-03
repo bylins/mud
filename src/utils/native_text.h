@@ -94,6 +94,11 @@ std::size_t last_char_offset(std::string_view s);
 std::string pad_right(std::string_view s, std::size_t width, char fill = ' ');
 std::string pad_left(std::string_view s, std::size_t width, char fill = ' ');
 
+// First `count` characters of `s` (all of it when shorter). The replacement for a substr(0, N)
+// used to cap a display length: under KOI8-R it is exactly that, under UTF-8 it counts characters
+// and so never cuts one in half.
+std::string truncate_to_chars(std::string_view s, std::size_t count);
+
 // Does the single character `ch` occur in `list`? The replacement for strchr() over a literal
 // list of letters: `list` is walked one whole character at a time, so a multibyte character can
 // never match on a partial byte sequence. Comparison is exact (case-sensitive), like strchr.

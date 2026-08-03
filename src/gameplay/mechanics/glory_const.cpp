@@ -4,6 +4,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_const.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
@@ -226,7 +227,8 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 	*buf = '\0';
 	for (auto i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i) {
 		if ((i->first >= 0) && (i->first < (int) sizeof(olc_stat_name))) {
-			sprintf(buf + strlen(buf), "%-16s: +%d", olc_stat_name[i->first], i->second * stat_multi(i->first));
+			sprintf(buf + strlen(buf), "%s: +%d", native_text::pad_right(olc_stat_name[i->first], 16).c_str(),
+					i->second * stat_multi(i->first));
 			if (stat_multi(i->first) > 1)
 				sprintf(buf + strlen(buf), "(%d)", i->second);
 			strcat(buf, "\r\n");
