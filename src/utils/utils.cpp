@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "utils.h"
+#include "native_text.h"
 #include "utils/grammar/declensions.h"
 
 #include <algorithm>
@@ -266,7 +267,7 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 				flow++;
 			}
 
-			if ((total_chars + (flow - start) + 1) > 79) {
+			if ((total_chars + native_text::char_count(start, flow) + 1) > 79) {
 				strcpy(pos, "\r\n");
 				total_chars = 0;
 				pos += 2;
@@ -280,11 +281,11 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 				}
 			}
 
-			total_chars += flow - start;
+			total_chars += native_text::char_count(start, flow);
 			strncpy(pos, start, flow - start);
 			if (cap_next) {
 				cap_next = false;
-				*pos = UPPER(*pos);
+				native_text::capitalize_first(pos);
 			}
 			pos += flow - start;
 		}
@@ -304,7 +305,7 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 	strcpy(pos, "\r\n");
 
 	if (static_cast<size_t>(pos - formatted) > maxlen) {
-		formatted[maxlen] = '\0';
+		formatted[native_text::truncate_offset(formatted, maxlen)] = '\0';
 	}
 	writer->set_string(formatted);
 }
