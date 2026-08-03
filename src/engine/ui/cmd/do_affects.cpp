@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
@@ -65,9 +66,12 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					  (mod + 1) / kSecsPerMudHour + 1,
 					  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
 			: sprintf(buf2, "(менее часа)");
-			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
+			// Ширина колонок - в символах, а не в байтах (issue #3681).
+			snprintf(buf, kMaxStringLength, "%s%s%s %s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
-					 kColorBoldCyn, sp_name, buf2, kColorNrm);
+					 kColorBoldCyn,
+					 native_text::pad_right(sp_name, 21).c_str(),
+					 native_text::pad_right(buf2, 12).c_str(), kColorNrm);
 			*buf2 = '\0';
 			if (!privilege::IsImmortal(ch)) {
 				auto next_affect_i = affect_i;
