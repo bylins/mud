@@ -94,7 +94,7 @@ groups:
                 type: loki
                 uid: loki
               editorMode: code
-              expr: 'sum by (who, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s*(?P<msg>.*)\]` | who =~ `.+` | who !~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
+              expr: 'sum by (who, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s*(?P<msg>.*)\]` | who =~ `.+` | who !~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель|Ярило)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
               queryType: instant
               intervalMs: 1000
               maxDataPoints: 43200
@@ -158,7 +158,7 @@ groups:
                 type: loki
                 uid: loki
               editorMode: code
-              expr: 'sum by (who, to, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s+(?P<to>\S+)\s+(?P<msg>.*)\]` | who =~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
+              expr: 'sum by (who, to, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s+(?P<to>\S+)\s+(?P<msg>.*)\]` | who =~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель|Ярило)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
               queryType: instant
               intervalMs: 1000
               maxDataPoints: 43200

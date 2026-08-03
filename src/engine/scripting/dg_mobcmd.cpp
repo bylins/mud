@@ -1554,10 +1554,21 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kSleep)
 				|| ch->get_wait() > 0)) {
-		if (AFF_FLAGGED(ch, EAffect::kHold)) { RemoveAffectFromChar(ch, EAffect::kHold); }
-		if (AFF_FLAGGED(ch, EAffect::kStopFight)) { RemoveAffectFromChar(ch, EAffect::kStopFight); }
-		if (AFF_FLAGGED(ch, EAffect::kMagicStopFight)) { RemoveAffectFromChar(ch, EAffect::kMagicStopFight); }
-		if (AFF_FLAGGED(ch, EAffect::kSleep)) { RemoveAffectFromChar(ch, EAffect::kSleep); }
+		// issue #3658: RemoveAffectFromChar убирает аффект из списка ch->affected, но сводный
+		// битвектор affected_by не трогает -- его пересобирает affect_total (отработает в конце
+		// боевого раунда, гонять его отдельно тут незачем). До пересчета AFF_FLAGGED продолжает
+		// отвечать "да", условие блока остается истинным, и каждая следующая команда триггера
+		// снова шлет тени в комнату и строку в лог. Поэтому гасим бит сразу руками.
+		const auto strip_control = [ch](EAffect affect) {
+			if (AFF_FLAGGED(ch, affect)) {
+				RemoveAffectFromChar(ch, affect);
+				ch->remove_affect(affect);
+			}
+		};
+		strip_control(EAffect::kHold);
+		strip_control(EAffect::kStopFight);
+		strip_control(EAffect::kMagicStopFight);
+		strip_control(EAffect::kSleep);
 		// issue #3658: именно zero_wait(), а не set_wait(0) -- set_wait игнорирует ноль
 		// (guard "if (_ > 0)" в char_data.cpp), лаг оставался, и каждая следующая команда
 		// триггера снова входила сюда: тени в комнату и строка в лог на каждую.
