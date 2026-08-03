@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "utils/native_text.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/ui/modify.h"
 #include "engine/ui/objects_filter.h"
@@ -96,9 +97,9 @@ int TabulateObjsByFilter(char *argument, CharData *ch) {
 	for (const auto &i : obj_proto) {
 		// ch не передаём: у прототипов нет наносимых меток (custom label).
 		if (filter.check(i.get(), nullptr)) {
-			snprintf(line, sizeof(line), "%3d. [%7d] %-50s %s\r\n",
+			snprintf(line, sizeof(line), "%3d. [%7d] %s %s\r\n",
 					 ++found, i->get_vnum(),
-					 utils::RemoveColors(i->get_short_description()).c_str(),
+					 native_text::pad_right(utils::RemoveColors(i->get_short_description()), 50).c_str(),
 					 filter.show_obj_aff(i.get()).c_str());
 			out += line;
 		}
@@ -117,7 +118,8 @@ int TabulateMobsByName(char *searchname, CharData *ch) {
 
 	for (nr = 0; nr <= top_of_mobt; nr++) {
 		if (isname(searchname, mob_proto[nr].GetCharAliases())) {
-			sprintf(buf, "%3d. [%5d] %-30s (%s)\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str(),
+			sprintf(buf, "%3d. [%5d] %s (%s)\r\n", ++found, mob_index[nr].vnum,
+					native_text::pad_right(mob_proto[nr].get_npc_name(), 30).c_str(),
 					npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]);
 			SendMsgToChar(buf, ch);
 		}

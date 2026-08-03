@@ -6257,8 +6257,8 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char trgtypes[256];
 	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		std::string out = "";
-		snprintf(buf, sizeof(buf), "%2d) [%5d] %-50s ", ++found,
-				trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
+		snprintf(buf, sizeof(buf), "%2d) [%5d] %s ", ++found,
+				trig_index[nr]->vnum, native_text::pad_right(trig_index[nr]->proto->get_name(), 50).c_str());
 		out += buf;
 		if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
 			sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes, sizeof(trgtypes));

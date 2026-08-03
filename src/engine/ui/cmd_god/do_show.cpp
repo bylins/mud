@@ -3,6 +3,7 @@
 //
 
 #include "administration/accounts.h"
+#include "utils/native_text.h"
 #include "administration/ban.h"
 #include "administration/privilege.h"
 #include "engine/ui/cmd/do_features.h"
@@ -254,10 +255,10 @@ void print_mob_bosses(CharData *ch, bool lvl_sort) {
 		const auto vnum = GET_MOB_VNUM(mob);
 		out += fmt::format("{:<3} {:<31}s [{:<2}][{:<6}] {:<31}s\r\n",
 							  ++cnt,
-							  mob->get_name_str().substr(0, 31),
+							  native_text::truncate_to_chars(mob->get_name_str(), 31),
 							  zone_table[mob_index[mob_rnum].zone].mob_level,
 							  vnum,
-							  zone_name_str.substr(0, 31));
+							  native_text::truncate_to_chars(zone_name_str, 31));
 	}
 	page_string(ch->desc, out);
 }
@@ -460,8 +461,8 @@ void ListSpellCreate(CharData *ch) {
 			if (r > 0) runes_str += '|';
 			runes_str += std::to_string(info.runes[r]);
 		}
-		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %s level %d\r\n",
-				++i, to_underlying(spell_id), MUD::Spell(spell_id).GetCName(),
+		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%s&n runes: %s level %d\r\n",
+				++i, to_underlying(spell_id), native_text::pad_right(MUD::Spell(spell_id).GetCName(), 30).c_str(),
 				runes_str.c_str(), info.min_caster_level);
 	}
 }
@@ -718,8 +719,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& ((sight::CanSee(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
 					sprintf(buf + strlen(buf),
-							"%-10s - подслушивается %s (map %s).\r\n",
-							GET_NAME(d->snooping->character),
+							"%s - подслушивается %s (map %s).\r\n",
+							native_text::pad_right(GET_NAME(d->snooping->character), 10).c_str(),
 							GET_PAD(d->character, 4),
 							d->snoop_with_map ? "on" : "off");
 				}
@@ -728,7 +729,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;        // snoop
 		case 9:        // show linkdrop
 			SendMsgToChar("  Список игроков в состоянии 'link drop'\r\n", ch);
-			sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
+			sprintf(buf, "%s%s   %s\r\n", native_text::pad_right("   Имя", 50).c_str(),
+					native_text::pad_right("Комната", 16).c_str(), "Бездействие (тики)");
 			SendMsgToChar(buf, ch);
 			i = 0;
 			for (const auto &character : character_list) {
@@ -737,8 +739,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 				++i;
-				sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
-						character->GetNameWithTitleOrRace().c_str(), GET_ROOM_VNUM(character->in_room),
+				sprintf(buf, "%s[%6d][%6d]   %d\r\n",
+						native_text::pad_right(character->GetNameWithTitleOrRace(), 50).c_str(), GET_ROOM_VNUM(character->in_room),
 						GET_ROOM_VNUM(character->get_was_in_room()), character->char_specials.timer);
 				SendMsgToChar(buf, ch);
 			}

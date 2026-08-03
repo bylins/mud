@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "gameplay/communication/social.h"
 #include "engine/db/global_objects.h"
@@ -37,7 +38,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			}
 			for (const auto &kw : soc.GetKeywords()) {
-				sprintf(buf + strlen(buf), "%-19s", kw.c_str());
+				sprintf(buf + strlen(buf), "%s", native_text::pad_right(kw, 19).c_str());
 				if (!(no % 4))
 					strcat(buf, "\r\n");
 				no++;
@@ -49,13 +50,13 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (wizhelp) {
 				if (privilege::HasPrivilege(vict, std::string(cmd_info[i].command), 0, 0, 0)) {
-					sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
+					sprintf(buf + strlen(buf), "%s", native_text::pad_right(cmd_info[i].command, 15).c_str());
 					if (!(no % 5))
 						strcat(buf, "\r\n");
 					no++;
 				}
 			} else if (cmd_info[i].minimum_level >= 0 && (static_cast<bool>(socials) == cmd_sort_info[i].is_social)) {
-				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
+				sprintf(buf + strlen(buf), "%s", native_text::pad_right(cmd_info[i].command, 15).c_str());
 				if (!(no % 5))
 					strcat(buf, "\r\n");
 				no++;
