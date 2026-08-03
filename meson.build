@@ -120,6 +120,11 @@ if host_system == 'windows'
     endif
 endif
 
+# Native runtime string encoding (issue #3681). Default koi8r keeps byte semantics unchanged.
+if get_option('internal_encoding') == 'utf8'
+    project_args += '-DINTERNAL_ENCODING_UTF8'
+endif
+
 linker_choice = get_option('linker')
 if linker_choice != ''
     add_project_link_arguments('-fuse-ld=' + linker_choice, language: 'cpp')
@@ -646,6 +651,7 @@ main_sources = files(
   'src/gameplay/statistics/top.cpp',
   'src/utils/utils.cpp',
   'src/utils/utf8.cpp',
+  'src/utils/native_text.cpp',
   'src/utils/utils_encoding.cpp',
   'src/gameplay/mechanics/weather.cpp',
   'src/engine/olc/zedit.cpp',
