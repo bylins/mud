@@ -27,6 +27,7 @@ constexpr unsigned char kYoUpperByte = 0xB3;
 #endif
 
 #include <string>
+#include <vector>
 
 namespace native_text {
 
@@ -385,6 +386,16 @@ void to_lower(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s
 void to_upper(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s), true); }
 
 
+std::string from_koi8(const std::string &text) {
+	if (text.empty()) {
+		return text;
+	}
+	// koi_to_utf8() can grow the text; utils_encoding sizes its own buffers at 6x, so match that.
+	std::vector<char> out(text.size() * 6 + 1, '\0');
+	codepages::koi_to_utf8(const_cast<char *>(text.c_str()), out.data());
+	return std::string(out.data());
+}
+
 std::string translit_to_filename(std::string_view name) {
 	// Code point -> the very same Latin character the KOI8-R byte table yields, so a player's
 	// file name is identical before and after the flip. Upper and lower case collapse together
@@ -583,6 +594,10 @@ void to_upper(char *s) {
 	}
 }
 
+
+std::string from_koi8(const std::string &text) {
+	return text;   // the native encoding already is KOI8-R
+}
 
 std::string translit_to_filename(std::string_view name) {
 	// Byte-wise, exactly as get_filename() did before this was extracted: transliterate through

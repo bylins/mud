@@ -145,6 +145,11 @@ void to_upper(std::string &s);
 void to_lower(char *s);
 void to_upper(char *s);
 
+// Bring text stored on disk in KOI8-R (world files, configs, saves) into the engine's native
+// encoding. Identity under KOI8-R, a transcode under UTF-8. Having it here keeps the loaders
+// free of #ifdefs and gives one place to revisit when the data files themselves move.
+std::string from_koi8(const std::string &text);
+
 // Transliterate `name` into the ASCII form used for save-file names: Russian letters become
 // Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
 // produced before the migration and MUST NOT drift -- the result is the on-disk file name of a
