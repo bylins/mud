@@ -12,6 +12,7 @@
 ************************************************************************ */
 
 #include "pk.h"
+#include "utils/native_text.h"
 #include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
@@ -653,7 +654,7 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			temp[0] = UPPER(temp[0]);
+			native_text::capitalize_first(temp);
 			// если нада исключаем тех, кто находится оффлайн
 			if (bOnlineOnly) {
 				for (const auto &tch : character_list) {

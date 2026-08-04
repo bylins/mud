@@ -4,6 +4,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_const.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
@@ -1127,7 +1128,7 @@ void PrintGloryChart(CharData *ch) {
 		 t_it != playerGloryList.end() && i < kPlayerChartSize; ++t_it, ++i) {
 
 		std::string name = GetNameByUnique(t_it->get()->uid);
-		name[0] = UPPER(name[0]);
+		native_text::capitalize_first(name);
 		if (name.length() == 0) {
 			name = "*скрыто*";
 		}

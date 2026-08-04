@@ -20,6 +20,7 @@ the encoding flip. Once the flip is permanent the KOI8-R branch and this indirec
 #define BYLINS_SRC_UTILS_NATIVE_TEXT_H_
 
 #include <cstddef>
+#include <string>
 #include <string_view>
 
 namespace native_text {
@@ -38,6 +39,7 @@ std::size_t char_count(std::string_view s);
 // Cyrillic incl. Yo). No-op on an empty string, on a non-cased first character, or in the (never
 // occurring for these alphabets) case where the uppercase form has a different byte length.
 void capitalize_first(char *s);
+void capitalize_first(std::string &s);
 
 // Largest byte offset <= max_bytes that lands on a character boundary, so cutting the string
 // there never splits a multibyte character. KOI8-R: min(max_bytes, s.size()).
@@ -81,10 +83,57 @@ bool chars_equal_ci(const char *a, const char *b);
 // than resized. `dst` may alias `src` (the length-preserving property makes that safe).
 std::size_t copy_lower_char(const char *src, char *dst);
 
+// Uppercase counterpart of copy_lower_char, with the same contract.
+std::size_t copy_upper_char(const char *src, char *dst);
+
 // Byte offset at which the final character of `s` begins (0 for an empty string), so that
 // s.substr(0, last_char_offset(s)) drops exactly one character and s.substr(last_char_offset(s))
 // is that character. KOI8-R: s.size() - 1.
 std::size_t last_char_offset(std::string_view s);
+
+// Range-for over the characters of `s`: each element is a string_view covering exactly one
+// character, so scanning code never does pointer arithmetic and never lands mid-character.
+//
+//   for (auto ch : native_text::chars(name)) { ... }   // ch is one character, whatever its size
+//
+// The view must outlive the loop (it is not copied). Malformed bytes yield one element each.
+class CharRange {
+ public:
+	explicit CharRange(std::string_view s) : m_str(s) {}
+
+	class Iterator {
+	 public:
+		Iterator(std::string_view s, std::size_t pos) : m_str(s), m_pos(pos), m_len(step(s, pos)) {}
+		std::string_view operator*() const { return m_str.substr(m_pos, m_len); }
+		Iterator &operator++() {
+			m_pos += m_len;
+			m_len = step(m_str, m_pos);
+			return *this;
+		}
+		bool operator!=(const Iterator &other) const { return m_pos != other.m_pos; }
+
+	 private:
+		static std::size_t step(std::string_view s, std::size_t pos);
+		std::string_view m_str;
+		std::size_t m_pos;
+		std::size_t m_len;
+	};
+
+	[[nodiscard]] Iterator begin() const { return Iterator(m_str, 0); }
+	[[nodiscard]] Iterator end() const { return Iterator(m_str, m_str.size()); }
+
+ private:
+	std::string_view m_str;
+};
+
+inline CharRange chars(std::string_view s) { return CharRange(s); }
+
+// Whole-string case conversion in place. Prefer these over hand-rolled per-character loops.
+// Length-preserving for ASCII and the Russian alphabet, so no reallocation happens.
+void to_lower(std::string &s);
+void to_upper(std::string &s);
+void to_lower(char *s);
+void to_upper(char *s);
 
 // Does the single character `ch` occur in `list`? The replacement for strchr() over a literal
 // list of letters: `list` is walked one whole character at a time, so a multibyte character can

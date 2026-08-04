@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd_god/do_set_all.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 
 #include "administration/karma.h"
@@ -167,7 +168,7 @@ void setall_inspect() {
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
 						std::string str = player_table[it->second->pos].name();
-						str[0] = UPPER(str[0]);
+						native_text::capitalize_first(str);
 						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name().c_str());
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
