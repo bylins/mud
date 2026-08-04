@@ -313,6 +313,14 @@ char32_t first_char_code(const char *s) {
 	return cp;
 }
 
+char32_t first_char_code_lower(const char *s) {
+	return utf8::to_lower(first_char_code(s));
+}
+
+char32_t first_char_code_upper(const char *s) {
+	return utf8::to_upper(first_char_code(s));
+}
+
 namespace {
 
 // Whole-buffer case conversion as one tight loop with no calls in the hot path: ASCII and the
@@ -464,6 +472,16 @@ std::size_t copy_upper_char(const char *src, char *dst) {
 
 char32_t first_char_code(const char *s) {
 	return (s == nullptr || *s == '\0') ? 0 : static_cast<unsigned char>(*s);
+}
+
+char32_t first_char_code_lower(const char *s) {
+	return (s == nullptr || *s == '\0')
+		? 0 : static_cast<unsigned char>(a_lcc_table[static_cast<unsigned char>(*s)]);
+}
+
+char32_t first_char_code_upper(const char *s) {
+	return (s == nullptr || *s == '\0')
+		? 0 : static_cast<unsigned char>(a_ucc_table[static_cast<unsigned char>(*s)]);
 }
 
 void to_lower(std::string &s) {

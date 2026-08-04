@@ -56,6 +56,10 @@ std::size_t char_bytes(const char *s);
 // Returns 0 on an empty string.
 char32_t first_char_code(const char *s);
 
+// The same, case-folded -- the replacements for switch (LOWER(*s)) / switch (UPPER(*s)).
+char32_t first_char_code_lower(const char *s);
+char32_t first_char_code_upper(const char *s);
+
 // Case-insensitive comparison in the native encoding: lexicographic over lowered characters,
 // the shorter string orders first, returns the signed difference at the first mismatch (0 when
 // equal). KOI8-R: per byte, via LOWER() -- matches str_cmp/str/str semantics. UTF-8: per code

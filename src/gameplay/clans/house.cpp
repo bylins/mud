@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "utils/russian_keys.h"
 #include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "gameplay/economics/currencies.h"
@@ -2752,9 +2753,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 
 	switch (d->clan_olc->mode) {
 		case CLAN_MAIN_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// есть вариант, что за время в олц в клане изменят кол-во званий
@@ -2834,9 +2835,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_PRIVILEGE_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню
@@ -2879,11 +2880,11 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_SAVE_MENU:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д': d->clan_olc->clan->privileges.clear();
+				case rus::kDe:
+				case rus::kDeUpper: d->clan_olc->clan->privileges.clear();
 					d->clan_olc->clan->privileges = d->clan_olc->privileges;
 					d->clan_olc.reset();
 					// Clan::ClanSave();
@@ -2893,8 +2894,8 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': d->clan_olc.reset();
+				case rus::kEn:
+				case rus::kEnUpper: d->clan_olc.reset();
 					d->state = EConState::kPlaying;
 					SendMsgToChar("Редактирование отменено.\r\n", d->character.get());
 					return;
@@ -2909,9 +2910,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_ADDALL_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню с изменением всех званий
@@ -2963,9 +2964,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_DELALL_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню с изменением всех званий

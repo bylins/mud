@@ -4,6 +4,8 @@
         extracted from interpreter.cpp. Entry point ProcessLoginInput (was nanny).
 */
 #include "interpreter.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/ui/system_messages.h"
 #include "engine/core/config.h"
 #include "gameplay/mechanics/condition.h"
@@ -185,8 +187,8 @@ int _parse_name(char *argument, char *name) {
 
 	// skip whitespaces
 	for (i = 0; (*name = (i ? LOWER(*argument) : UPPER(*argument))); argument++, i++, name++) {
-		if (*argument == 'ё'
-			|| *argument == 'Ё'
+		if (native_text::first_char_code(argument) == rus::kYo
+			|| native_text::first_char_code(argument) == rus::kYoUpper
 			|| !a_isalpha(*argument)
 			|| *argument > 0) {
 			return (1);
@@ -1532,7 +1534,8 @@ static void HandleGetKeytable(DescriptorData *d, char *argument) {
 
 static void HandleNameConfirm(DescriptorData *d, char *argument) {
 	char buffer[kMaxStringLength];
-	if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
+	if (native_text::first_char_code_upper(argument) == 'Y'
+		|| native_text::first_char_code_upper(argument) == rus::kDeUpper) {
 		if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
 			sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 					GET_PC_NAME(d->character), d->host);
@@ -1570,7 +1573,8 @@ static void HandleNameConfirm(DescriptorData *d, char *argument) {
 		d->state = EConState::kQsex;
 		return;
 
-	} else if (UPPER(*argument) == 'N' || UPPER(*argument) == 'Н') {
+	} else if (native_text::first_char_code_upper(argument) == 'N'
+		|| native_text::first_char_code_upper(argument) == rus::kEnUpper) {
 		iosystem::write_to_output("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
 		d->character->SetCharAliases(nullptr);
 		d->state = EConState::kGetName;
@@ -1677,12 +1681,12 @@ static void HandleQuerySex(DescriptorData *d, char *argument) {
 		return;
 	}
 
-	switch (UPPER(*argument)) {
-		case 'М':
+	switch (native_text::first_char_code_upper(argument)) {
+		case rus::kEmUpper:
 		case 'M': d->character->set_sex(EGender::kMale);
 			break;
 
-		case 'Ж':
+		case rus::kZheUpper:
 		case 'F': d->character->set_sex(EGender::kFemale);
 			break;
 
@@ -1706,9 +1710,9 @@ static void HandleQueryReligion(DescriptorData *d, char *argument) {
 		return;
 	}
 
-	switch (UPPER(*argument)) {
-		case 'Я':
-		case 'З':
+	switch (native_text::first_char_code_upper(argument)) {
+		case rus::kYaUpper:
+		case rus::kZeUpper:
 		case 'P':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 				iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
@@ -1718,7 +1722,7 @@ static void HandleQueryReligion(DescriptorData *d, char *argument) {
 			GET_RELIGION(d->character) = kReligionPoly;
 			break;
 
-		case 'Х':
+		case rus::kHaUpper:
 		case 'C':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 				iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
@@ -2049,9 +2053,9 @@ static void HandleResetReligion(DescriptorData *d, char *argument) {
 		return;
 	}
 
-	switch (UPPER(*argument)) {
-		case 'Я':
-		case 'З':
+	switch (native_text::first_char_code_upper(argument)) {
+		case rus::kYaUpper:
+		case rus::kZeUpper:
 		case 'P':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 				iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
@@ -2061,7 +2065,7 @@ static void HandleResetReligion(DescriptorData *d, char *argument) {
 			GET_RELIGION(d->character) = kReligionPoly;
 			break;
 
-		case 'Х':
+		case rus::kHaUpper:
 		case 'C':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 				iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"

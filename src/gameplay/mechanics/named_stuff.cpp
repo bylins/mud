@@ -3,6 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "named_stuff.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
@@ -166,11 +168,15 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 	if (!*buf1) {
 		return false;
 	}
-	if ((*buf1 < '1' || *buf1 > '8') && (LOWER(*buf1) != 'в' && LOWER(*buf1) != 'х' && LOWER(*buf1) != 'у')) {
+	if ((*buf1 < '1' || *buf1 > '8') && (native_text::first_char_code_lower(buf1) != rus::kVe
+			&& native_text::first_char_code_lower(buf1) != rus::kHa
+			&& native_text::first_char_code_lower(buf1) != rus::kU)) {
 		SendMsgToChar(ch, "Неверный параметр %c!\r\n", *buf1);
 		return false;
 	}
-	if (!*buf2 && LOWER(*buf1) != 'в' && LOWER(*buf1) != 'х' && LOWER(*buf1) != 'у') {
+	if (!*buf2 && native_text::first_char_code_lower(buf1) != rus::kVe
+		&& native_text::first_char_code_lower(buf1) != rus::kHa
+		&& native_text::first_char_code_lower(buf1) != rus::kU) {
 		if (*buf1 < '5' || *buf1 > '8') {
 			SendMsgToChar("Не указан второй параметр!\r\n", ch);
 		} else {
@@ -191,7 +197,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 		return false;
 	}
 
-	switch (LOWER(*buf1)) {
+	switch (native_text::first_char_code_lower(buf1)) {
 		case '1':
 			if (a_isdigit(*buf2) && sscanf(buf2, "%d", &num)) {
 				if (GetObjRnum(num) < 0) {
@@ -263,7 +269,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			}
 			break;
 
-		case 'у':
+		case rus::kU:
 			if (!ch->desc->old_vnum)
 				return false;
 			stuff_list.erase(ch->desc->old_vnum);
@@ -272,7 +278,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			save();
 			return true;
 
-		case 'в': tmp_node->uid = ch->desc->named_obj->uid;
+		case rus::kVe: tmp_node->uid = ch->desc->named_obj->uid;
 			tmp_node->can_clan = ch->desc->named_obj->can_clan;
 			tmp_node->can_alli = ch->desc->named_obj->can_alli;
 			tmp_node->mail = ch->desc->named_obj->mail;
@@ -288,7 +294,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			save();
 			return true;
 
-		case 'х': ch->desc->state = EConState::kPlaying;
+		case rus::kHa: ch->desc->state = EConState::kPlaying;
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			return true;
 
