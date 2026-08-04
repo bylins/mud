@@ -12,7 +12,7 @@
 ************************************************************************ */
 
 #include "pk.h"
-#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -664,9 +664,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (tch->get_uid() == uid) {
 						found = true;
 						if (pk.battle_exp > time(nullptr)) {
-							sprintf(buf + strlen(buf), "  %s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", native_text::pad_right(temp, 40).c_str());
+							strcat(buf, fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp).c_str());
 						} else {
-							sprintf(buf + strlen(buf), "  %s %3ld %3ld\r\n", native_text::pad_right(temp, 40).c_str(), pk.kill_num, pk.revenge_num);
+							strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num).c_str());
 						}
 						break;
 					}
@@ -674,9 +674,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				found = true;
 				if (pk.battle_exp > time(nullptr)) {
-					sprintf(buf + strlen(buf), "  %s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", native_text::pad_right(temp, 40).c_str());
+					strcat(buf, fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp).c_str());
 				} else {
-					sprintf(buf + strlen(buf), "  %s %3ld %3ld\r\n", native_text::pad_right(temp, 40).c_str(), pk.kill_num, pk.revenge_num);
+					strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num).c_str());
 				}
 			}
 		}
@@ -709,12 +709,12 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			// Сначала проверка клан флага
 			if (CLAN(ch) && pk.clan_exp > time(nullptr)) {
-				sprintf(buf + strlen(buf), "  %s <ВОЙНА>\r\n", native_text::pad_right(GET_NAME(tch), 40).c_str());
+				strcat(buf, fmt::format("  {:<40} <ВОЙНА>\r\n", GET_NAME(tch)).c_str());
 			} else if (pk.clan_exp > time(nullptr)) {
-				sprintf(buf + strlen(buf), "  %s <ВРЕМЕННЫЙ ФЛАГ>\r\n", native_text::pad_right(GET_NAME(tch), 40).c_str());
+				strcat(buf, fmt::format("  {:<40} <ВРЕМЕННЫЙ ФЛАГ>\r\n", GET_NAME(tch)).c_str());
 			} else if (pk.kill_num + pk.revenge_num > 0) {
-				sprintf(buf + strlen(buf), "  %s %3ld %3ld\r\n",
-						native_text::pad_right(GET_NAME(tch), 40).c_str(), pk.kill_num, pk.revenge_num);
+				strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n",
+						GET_NAME(tch), pk.kill_num, pk.revenge_num).c_str());
 			} else {
 				continue;
 			}

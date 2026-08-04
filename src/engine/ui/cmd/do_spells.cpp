@@ -1,5 +1,5 @@
 #include "do_spells.h"
-#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/magic_item.h"
 
@@ -88,18 +88,19 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			if (CalcSpellManacost(ch, spell_id) > Mana(GetRealWis(ch)))
 				continue;
 			if (CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
-				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %s%s&n|",
-										   slots[slot_num] % 114 <
-											   10 ? "\r\n" : "  ",
+				const auto line = fmt::format("{}|<...{:4}.> {}{:<38}&n|",
+										   slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
 										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id),
-										   native_text::pad_right(MUD::Spell(spell_id).GetCName(), 38).c_str());
+										   MUD::Spell(spell_id).GetCName());
+				strcpy(names[slot_num] + slots[slot_num], line.c_str());
+				slots[slot_num] += static_cast<int>(line.size());
 			} else {
 				if (all) {
-					slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-							"%s|+--------+ %s%s&n|", slots[slot_num] % 114 < 10 ? "\r\n" 
-							: "  ", GetSpellColor(spell_id),
-							native_text::pad_right(MUD::Spell(spell_id).GetCName(), 38).c_str());
+					const auto line = fmt::format("{}|+--------+ {}{:<38}&n|",
+							slots[slot_num] % 114 < 10 ? "\r\n" : "  ", GetSpellColor(spell_id),
+							MUD::Spell(spell_id).GetCName());
+					strcpy(names[slot_num] + slots[slot_num], line.c_str());
+					slots[slot_num] += static_cast<int>(line.size());
 				}
 			}
 		} else {

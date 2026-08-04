@@ -7,7 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item_creation.h"
-#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "administration/privilege.h"
@@ -334,10 +334,9 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			}
 			j++;
 		}
-		sprintf(tmpbuf, "%3zd  %-1s  %s  %s(%5d) :",
-				i + 1, (trec->locked ? "*" : " "), native_text::pad_right(skill_name, 6).c_str(),
-				native_text::pad_right(obj_name, 40).c_str(), trec->obj_proto);
-		tmpstr += string(tmpbuf);
+		tmpstr += fmt::format("{:3}  {:<1}  {:<6}  {:<40}({:5}) :",
+				i + 1, (trec->locked ? "*" : " "), skill_name,
+				obj_name, trec->obj_proto);
 		for (int j = 0; j < MAX_PARTS; j++) {
 			if (trec->parts[j].proto != 0) {
 				obj = GetObjectPrototype(trec->parts[j].proto);
@@ -346,7 +345,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 				} else {
 					obj_name = "Нет";
 				}
-				sprintf(tmpbuf, " %s(%5d)", native_text::pad_right(obj_name, 35).c_str(), trec->parts[j].proto);
+				strcpy(tmpbuf, fmt::format(" {:<35}({:5})", obj_name, trec->parts[j].proto).c_str());
 				if (j > 0) {
 					if (j % 2 == 0) {
 						// разбиваем строчки если ингров больше 2;

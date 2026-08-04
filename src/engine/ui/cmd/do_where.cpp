@@ -3,7 +3,6 @@
 //
 
 #include "engine/entities/char_data.h"
-#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/economics/exchange.h"
@@ -147,9 +146,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 			}
 
 			// Ширина колонки - в символах, а не в байтах (issue #3681).
-			sprintf(buf, "%s - %s\r\n",
-					native_text::pad_right(GET_NAME(i), 20).c_str(), world[i->in_room]->name);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{:<20} - {}\r\n", GET_NAME(i), world[i->in_room]->name), ch);
 		}
 	} else        // print only FIRST char, not all.
 	{
@@ -168,9 +165,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			sprintf(buf, "%s - %s\r\n",
-					native_text::pad_right(GET_NAME(i), 25).c_str(), world[i->in_room]->name);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{:<25} - {}\r\n", GET_NAME(i), world[i->in_room]->name), ch);
 			return;
 		}
 		SendMsgToChar("Никого похожего с этим именем нет.\r\n", ch);
