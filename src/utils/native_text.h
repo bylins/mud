@@ -145,6 +145,12 @@ void to_upper(std::string &s);
 void to_lower(char *s);
 void to_upper(char *s);
 
+// Transliterate `name` into the ASCII form used for save-file names: Russian letters become
+// Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
+// produced before the migration and MUST NOT drift -- the result is the on-disk file name of a
+// player, so a change would orphan every existing character. Pinned by a test in both encodings.
+std::string translit_to_filename(std::string_view name);
+
 // Does the single character `ch` occur in `list`? The replacement for strchr() over a literal
 // list of letters: `list` is walked one whole character at a time, so a multibyte character can
 // never match on a partial byte sequence. Comparison is exact (case-sensitive), like strchr.

@@ -8,6 +8,7 @@ through them changes nothing until the encoding flip.
 */
 
 #include "native_text.h"
+#include "utils_encoding.h"
 
 #ifdef INTERNAL_ENCODING_UTF8
 #include "utf8.h"
@@ -19,6 +20,10 @@ extern const char a_lcc_table[];
 extern const bool a_isalnum_table[];
 extern const bool a_isalpha_table[];
 extern const bool a_isupper_table[];
+
+// Yo is absent from the Latin table and always had a special case in get_filename().
+constexpr unsigned char kYoLowerByte = 0xA3;
+constexpr unsigned char kYoUpperByte = 0xB3;
 #endif
 
 #include <string>
@@ -379,6 +384,76 @@ void to_upper(std::string &s) { fold_range_utf8(s.data(), s.data() + s.size(), t
 void to_lower(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s), false); }
 void to_upper(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s), true); }
 
+
+std::string translit_to_filename(std::string_view name) {
+	// Code point -> the very same Latin character the KOI8-R byte table yields, so a player's
+	// file name is identical before and after the flip. Upper and lower case collapse together
+	// because the byte-wise original lowercased after transliterating.
+	static const struct { char32_t cp; char latin; } kMap[] = {
+		{0x0430, 'a'}, {0x0410, 'a'},
+		{0x0431, 'b'}, {0x0411, 'b'},
+		{0x0432, 'v'}, {0x0412, 'v'},
+		{0x0433, 'g'}, {0x0413, 'g'},
+		{0x0434, 'd'}, {0x0414, 'd'},
+		{0x0435, 'e'}, {0x0415, 'e'},
+		{0x0451, '9'}, {0x0401, '9'},
+		{0x0436, '1'}, {0x0416, '1'},
+		{0x0437, 'z'}, {0x0417, 'z'},
+		{0x0438, 'i'}, {0x0418, 'i'},
+		{0x0439, 'j'}, {0x0419, 'j'},
+		{0x043A, 'k'}, {0x041A, 'k'},
+		{0x043B, 'l'}, {0x041B, 'l'},
+		{0x043C, 'm'}, {0x041C, 'm'},
+		{0x043D, 'n'}, {0x041D, 'n'},
+		{0x043E, 'o'}, {0x041E, 'o'},
+		{0x043F, 'p'}, {0x041F, 'p'},
+		{0x0440, 'r'}, {0x0420, 'r'},
+		{0x0441, 's'}, {0x0421, 's'},
+		{0x0442, 't'}, {0x0422, 't'},
+		{0x0443, 'y'}, {0x0423, 'y'},
+		{0x0444, 'f'}, {0x0424, 'f'},
+		{0x0445, 'h'}, {0x0425, 'h'},
+		{0x0446, 'c'}, {0x0426, 'c'},
+		{0x0447, '7'}, {0x0427, '7'},
+		{0x0448, '4'}, {0x0428, '4'},
+		{0x0449, '6'}, {0x0429, '6'},
+		{0x044A, '8'}, {0x042A, '8'},
+		{0x044B, '3'}, {0x042B, '3'},
+		{0x044C, '2'}, {0x042C, '2'},
+		{0x044D, '5'}, {0x042D, '5'},
+		{0x044E, '0'}, {0x042E, '0'},
+		{0x044F, 'q'}, {0x042F, 'q'},
+	};
+	std::string out;
+	out.reserve(name.size());
+	std::size_t pos = 0;
+	while (pos < name.size()) {
+		char32_t cp = 0;
+		const std::size_t len = utf8::decode(name, pos, cp);   // decode() already reports the length
+		if (len == 0) {
+			break;
+		}
+		if (cp < 0x80) {
+			char c = static_cast<char>(cp);
+			if (c >= 'A' && c <= 'Z') {
+				c = static_cast<char>(c + 0x20);
+			}
+			out.push_back(c);
+		} else {
+			char mapped = '_';
+			for (const auto &e : kMap) {
+				if (e.cp == cp) {
+					mapped = e.latin;
+					break;
+				}
+			}
+			out.push_back(mapped);
+		}
+		pos += len;
+	}
+	return out;
+}
+
 #else  // KOI8-R: 1 byte == 1 character
 
 bool native_is_utf8() {
@@ -506,6 +581,23 @@ void to_upper(char *s) {
 	for (; *s; ++s) {
 		*s = a_ucc_table[static_cast<unsigned char>(*s)];
 	}
+}
+
+
+std::string translit_to_filename(std::string_view name) {
+	// Byte-wise, exactly as get_filename() did before this was extracted: transliterate through
+	// the Latin table, then lowercase. Yo is not in that table and had its own special case.
+	std::string out;
+	out.reserve(name.size());
+	for (const char ch : name) {
+		const unsigned char b = static_cast<unsigned char>(ch);
+		if (b == kYoLowerByte || b == kYoUpperByte) {
+			out.push_back('9');
+		} else {
+			out.push_back(a_lcc_table[static_cast<unsigned char>(codepages::AtoL(ch))]);
+		}
+	}
+	return out;
 }
 
 #endif
