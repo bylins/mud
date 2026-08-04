@@ -342,4 +342,95 @@ TEST(NativeText, RussianKeysMatchFirstCharCode) {
 	EXPECT_EQ(native_text::first_char_code(nullptr), 0u);
 }
 
+TEST(NativeText, TransliterationIsStableAcrossTheFlip) {
+	// A player's save file is named after the transliterated character name, so this mapping is
+	// on-disk state: if it ever changes, every existing character stops being found. Each row is
+	// the letter in both encodings and the single ASCII character it must always produce -- the
+	// values were taken from what the byte-wise implementation produced before the migration.
+	struct Row { const char *koi8; const char *utf8; char expected; };
+	static const Row kRows[] = {
+		{"\xC1", "\xD0\xB0", 'a'},
+		{"\xE1", "\xD0\x90", 'a'},
+		{"\xC2", "\xD0\xB1", 'b'},
+		{"\xE2", "\xD0\x91", 'b'},
+		{"\xD7", "\xD0\xB2", 'v'},
+		{"\xF7", "\xD0\x92", 'v'},
+		{"\xC7", "\xD0\xB3", 'g'},
+		{"\xE7", "\xD0\x93", 'g'},
+		{"\xC4", "\xD0\xB4", 'd'},
+		{"\xE4", "\xD0\x94", 'd'},
+		{"\xC5", "\xD0\xB5", 'e'},
+		{"\xE5", "\xD0\x95", 'e'},
+		{"\xA3", "\xD1\x91", '9'},
+		{"\xB3", "\xD0\x81", '9'},
+		{"\xD6", "\xD0\xB6", '1'},
+		{"\xF6", "\xD0\x96", '1'},
+		{"\xDA", "\xD0\xB7", 'z'},
+		{"\xFA", "\xD0\x97", 'z'},
+		{"\xC9", "\xD0\xB8", 'i'},
+		{"\xE9", "\xD0\x98", 'i'},
+		{"\xCA", "\xD0\xB9", 'j'},
+		{"\xEA", "\xD0\x99", 'j'},
+		{"\xCB", "\xD0\xBA", 'k'},
+		{"\xEB", "\xD0\x9A", 'k'},
+		{"\xCC", "\xD0\xBB", 'l'},
+		{"\xEC", "\xD0\x9B", 'l'},
+		{"\xCD", "\xD0\xBC", 'm'},
+		{"\xED", "\xD0\x9C", 'm'},
+		{"\xCE", "\xD0\xBD", 'n'},
+		{"\xEE", "\xD0\x9D", 'n'},
+		{"\xCF", "\xD0\xBE", 'o'},
+		{"\xEF", "\xD0\x9E", 'o'},
+		{"\xD0", "\xD0\xBF", 'p'},
+		{"\xF0", "\xD0\x9F", 'p'},
+		{"\xD2", "\xD1\x80", 'r'},
+		{"\xF2", "\xD0\xA0", 'r'},
+		{"\xD3", "\xD1\x81", 's'},
+		{"\xF3", "\xD0\xA1", 's'},
+		{"\xD4", "\xD1\x82", 't'},
+		{"\xF4", "\xD0\xA2", 't'},
+		{"\xD5", "\xD1\x83", 'y'},
+		{"\xF5", "\xD0\xA3", 'y'},
+		{"\xC6", "\xD1\x84", 'f'},
+		{"\xE6", "\xD0\xA4", 'f'},
+		{"\xC8", "\xD1\x85", 'h'},
+		{"\xE8", "\xD0\xA5", 'h'},
+		{"\xC3", "\xD1\x86", 'c'},
+		{"\xE3", "\xD0\xA6", 'c'},
+		{"\xDE", "\xD1\x87", '7'},
+		{"\xFE", "\xD0\xA7", '7'},
+		{"\xDB", "\xD1\x88", '4'},
+		{"\xFB", "\xD0\xA8", '4'},
+		{"\xDD", "\xD1\x89", '6'},
+		{"\xFD", "\xD0\xA9", '6'},
+		{"\xDF", "\xD1\x8A", '8'},
+		{"\xFF", "\xD0\xAA", '8'},
+		{"\xD9", "\xD1\x8B", '3'},
+		{"\xF9", "\xD0\xAB", '3'},
+		{"\xD8", "\xD1\x8C", '2'},
+		{"\xF8", "\xD0\xAC", '2'},
+		{"\xDC", "\xD1\x8D", '5'},
+		{"\xFC", "\xD0\xAD", '5'},
+		{"\xC0", "\xD1\x8E", '0'},
+		{"\xE0", "\xD0\xAE", '0'},
+		{"\xD1", "\xD1\x8F", 'q'},
+		{"\xF1", "\xD0\xAF", 'q'},
+	};
+	for (const auto &r : kRows) {
+		const char *const input = native_text::native_is_utf8() ? r.utf8 : r.koi8;
+		EXPECT_EQ(native_text::translit_to_filename(input), std::string(1, r.expected))
+			<< "transliteration drifted for " << (native_text::native_is_utf8() ? r.utf8 : r.koi8);
+	}
+
+	// ASCII is lowercased and digits pass through, as before.
+	EXPECT_EQ(native_text::translit_to_filename("Vasya"), "vasya");
+	EXPECT_EQ(native_text::translit_to_filename("Abc123"), "abc123");
+	EXPECT_EQ(native_text::translit_to_filename(""), "");
+
+	// A whole name: "Vasya" in Cyrillic must give the same file name in both encodings.
+	const char *const name = native_text::native_is_utf8()
+		? "\xD0\x92\xD0\xB0\xD1\x81\xD1\x8F" : "\xF7\xC1\xD3\xD1";
+	EXPECT_EQ(native_text::translit_to_filename(name), "vasq");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
