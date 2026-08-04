@@ -6,6 +6,7 @@
 // строки == ширине колонки, и индексная арифметика ниже корректна.
 
 #include "engine/ui/cmd/do_where.h"
+#include "utils/native_text.h"
 
 #include <gtest/gtest.h>
 
@@ -92,14 +93,23 @@ TEST(WhereFormat, LocationColumnAligned) {
 	const auto lines = SplitLines(FormatWhere(SampleRows()));
 	ASSERT_GE(lines.size(), 5u);
 
-	const auto ref = lines[1].rfind(" - ");
+	// Колонка разделителя измеряется в СИМВОЛАХ, а не в байтах: под UTF-8 байтовое смещение
+	// зависит от того, сколько в имени кириллицы, и "выровнено" перестаёт значить "в одной
+	// колонке" (issue #3681).
+	const auto column_of_separator = [](const std::string &line) {
+		const auto at = line.rfind(" - ");
+		return at == std::string::npos
+			? std::string::npos : native_text::char_count(std::string_view(line).substr(0, at));
+	};
+
+	const auto ref = column_of_separator(lines[1]);
 	ASSERT_NE(ref, std::string::npos);
-	EXPECT_EQ(lines[2].rfind(" - "), ref) << "предмет с именем ровно 25 симв.";
-	EXPECT_EQ(lines[3].rfind(" - "), ref) << "строка-продолжение контейнера";
-	EXPECT_EQ(lines[4].rfind(" - "), ref) << "короткое имя";
+	EXPECT_EQ(column_of_separator(lines[2]), ref) << "предмет с именем ровно 25 симв.";
+	EXPECT_EQ(column_of_separator(lines[3]), ref) << "строка-продолжение контейнера";
+	EXPECT_EQ(column_of_separator(lines[4]), ref) << "короткое имя";
 
 	// Имя моба (29 симв.) длиннее поля в 25 -> разделитель уезжает вправо на 4.
-	EXPECT_EQ(lines[0].rfind(" - "), ref + 4);
+	EXPECT_EQ(column_of_separator(lines[0]), ref + 4);
 }
 
 // Предмет в контейнере даёт ровно две строки: первая оканчивается на
