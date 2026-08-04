@@ -77,12 +77,35 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
 	return pos;
 }
 
+namespace {
+
+// Local copy of the lead-byte length table. utf8::sequence_length lives in another translation
+// unit, and this runs once per character in every scan -- a cross-module call there costs more
+// than the work itself.
+inline std::size_t lead_len(unsigned char c) {
+	if (c < 0x80) {
+		return 1;
+	}
+	if (c >= 0xC0 && c <= 0xDF) {
+		return 2;
+	}
+	if (c >= 0xE0 && c <= 0xEF) {
+		return 3;
+	}
+	if (c >= 0xF0 && c <= 0xF7) {
+		return 4;
+	}
+	return 1;
+}
+
+}  // namespace
+
 std::size_t char_bytes(const char *s) {
 	const unsigned char lead = static_cast<unsigned char>(*s);
 	if (lead < 0x80) {
 		return 1;
 	}
-	const std::size_t want = static_cast<std::size_t>(utf8::sequence_length(lead));
+	const std::size_t want = lead_len(lead);
 	std::size_t n = 1;
 	while (n < want && (static_cast<unsigned char>(s[n]) & 0xC0) == 0x80) {
 		++n;
@@ -184,22 +207,88 @@ bool chars_equal_ci(const char *a, const char *b) {
 
 namespace {
 
-std::size_t copy_folded_char(const char *src, char *dst, char32_t (*fold)(char32_t)) {
+// Case folding for the repertoire the engine actually carries -- ASCII and the two-byte Cyrillic
+// block -- done directly on the bytes. This runs per character in hot paths (whole-string case
+// conversion, argument parsing), so it must not decode, allocate, or make a cross-module call:
+//
+//   A-Z / a-z : one byte, +-0x20
+//   A-P (D0 90..D0 9F) <-> a-p (D0 B0..D0 BF) : lead stays D0, trail +-0x20
+//   R-Ya(D0 A0..D0 AF) <-> r-ya(D1 80..D1 8F) : lead flips D0<->D1, trail -+0x20
+//   Yo  (D0 81)        <-> yo  (D1 91)
+//
+// Anything else (other scripts, malformed bytes) falls through to the general path below, which
+// is correct but slower -- and effectively never taken by this codebase.
+inline bool fold_fast(const char *src, char *dst, std::size_t len, bool upper) {
+	const unsigned char c0 = static_cast<unsigned char>(src[0]);
+	if (c0 < 0x80) {
+		char c = src[0];
+		if (upper) {
+			if (c >= 'a' && c <= 'z') {
+				c = static_cast<char>(c - 0x20);
+			}
+		} else if (c >= 'A' && c <= 'Z') {
+			c = static_cast<char>(c + 0x20);
+		}
+		dst[0] = c;
+		return true;
+	}
+	if (len != 2) {
+		return false;
+	}
+	const unsigned char c1 = static_cast<unsigned char>(src[1]);
+	unsigned char o0 = c0;
+	unsigned char o1 = c1;
+	if (upper) {
+		if (c0 == 0xD0 && c1 >= 0xB0 && c1 <= 0xBF) {          // a-p -> A-P
+			o1 = static_cast<unsigned char>(c1 - 0x20);
+		} else if (c0 == 0xD1 && c1 >= 0x80 && c1 <= 0x8F) {   // r-ya -> R-Ya
+			o0 = 0xD0;
+			o1 = static_cast<unsigned char>(c1 + 0x20);
+		} else if (c0 == 0xD1 && c1 == 0x91) {                 // yo -> Yo
+			o0 = 0xD0;
+			o1 = 0x81;
+		} else if (!((c0 == 0xD0 && c1 >= 0x90 && c1 <= 0xAF) || (c0 == 0xD0 && c1 == 0x81))) {
+			return false;                                       // not Cyrillic: general path
+		}
+	} else {
+		if (c0 == 0xD0 && c1 >= 0x90 && c1 <= 0x9F) {          // A-P -> a-p
+			o1 = static_cast<unsigned char>(c1 + 0x20);
+		} else if (c0 == 0xD0 && c1 >= 0xA0 && c1 <= 0xAF) {   // R-Ya -> r-ya
+			o0 = 0xD1;
+			o1 = static_cast<unsigned char>(c1 - 0x20);
+		} else if (c0 == 0xD0 && c1 == 0x81) {                 // Yo -> yo
+			o0 = 0xD1;
+			o1 = 0x91;
+		} else if (!((c0 == 0xD0 && c1 >= 0xB0) || (c0 == 0xD1 && c1 <= 0x8F) || (c0 == 0xD1 && c1 == 0x91))) {
+			return false;
+		}
+	}
+	dst[0] = static_cast<char>(o0);
+	dst[1] = static_cast<char>(o1);
+	return true;
+}
+
+std::size_t copy_folded_char(const char *src, char *dst, bool upper) {
 	const std::size_t len = char_bytes(src);
+	if (fold_fast(src, dst, len, upper)) {
+		return len;
+	}
+	// General path: decode, fold, re-encode; only taken for characters outside ASCII+Cyrillic.
 	char32_t cp = 0;
 	if (utf8::decode(std::string_view(src, len), 0, cp) != 0) {
-		std::string folded;
-		// Only rewrite when the folded form keeps the byte length -- true for ASCII and for the
-		// whole Russian alphabet, so callers never see a character change size.
-		if (utf8::encode(fold(cp), folded) == len) {
+		const char32_t folded = upper ? utf8::to_upper(cp) : utf8::to_lower(cp);
+		char tmp[4];
+		if (folded != cp && utf8::encode(folded, tmp) == len) {
 			for (std::size_t i = 0; i < len; ++i) {
-				dst[i] = folded[i];
+				dst[i] = tmp[i];
 			}
 			return len;
 		}
 	}
-	for (std::size_t i = 0; i < len; ++i) {
-		dst[i] = src[i];
+	if (dst != src) {
+		for (std::size_t i = 0; i < len; ++i) {
+			dst[i] = src[i];
+		}
 	}
 	return len;
 }
@@ -207,12 +296,71 @@ std::size_t copy_folded_char(const char *src, char *dst, char32_t (*fold)(char32
 }  // namespace
 
 std::size_t copy_lower_char(const char *src, char *dst) {
-	return copy_folded_char(src, dst, utf8::to_lower);
+	return copy_folded_char(src, dst, false);
 }
 
 std::size_t copy_upper_char(const char *src, char *dst) {
-	return copy_folded_char(src, dst, utf8::to_upper);
+	return copy_folded_char(src, dst, true);
 }
+
+
+namespace {
+
+// Whole-buffer case conversion as one tight loop with no calls in the hot path: ASCII and the
+// two-byte Cyrillic block are folded straight on the bytes. Anything else falls back to the
+// general helper, which this codebase never hits in practice. Written this way deliberately --
+// a per-character dispatch measured several times slower than the byte loop it replaces.
+inline void fold_range_utf8(char *p, char *const end, bool upper) {
+	while (p < end) {
+		const unsigned char c0 = static_cast<unsigned char>(*p);
+		if (c0 < 0x80) {
+			char c = *p;
+			if (upper) {
+				if (c >= 'a' && c <= 'z') {
+					c = static_cast<char>(c - 0x20);
+				}
+			} else if (c >= 'A' && c <= 'Z') {
+				c = static_cast<char>(c + 0x20);
+			}
+			*p++ = c;
+			continue;
+		}
+		if ((c0 == 0xD0 || c0 == 0xD1) && p + 1 < end) {
+			const unsigned char c1 = static_cast<unsigned char>(p[1]);
+			if (upper) {
+				if (c0 == 0xD0 && c1 >= 0xB0) {
+					p[1] = static_cast<char>(c1 - 0x20);
+				} else if (c0 == 0xD1 && c1 <= 0x8F) {
+					p[0] = static_cast<char>(0xD0);
+					p[1] = static_cast<char>(c1 + 0x20);
+				} else if (c0 == 0xD1 && c1 == 0x91) {
+					p[0] = static_cast<char>(0xD0);
+					p[1] = static_cast<char>(0x81);
+				}
+			} else {
+				if (c0 == 0xD0 && c1 >= 0x90 && c1 <= 0x9F) {
+					p[1] = static_cast<char>(c1 + 0x20);
+				} else if (c0 == 0xD0 && c1 >= 0xA0 && c1 <= 0xAF) {
+					p[0] = static_cast<char>(0xD1);
+					p[1] = static_cast<char>(c1 - 0x20);
+				} else if (c0 == 0xD0 && c1 == 0x81) {
+					p[0] = static_cast<char>(0xD1);
+					p[1] = static_cast<char>(0x91);
+				}
+			}
+			p += 2;
+			continue;
+		}
+		p += upper ? copy_upper_char(p, p) : copy_lower_char(p, p);
+	}
+}
+
+}  // namespace
+
+void to_lower(std::string &s) { fold_range_utf8(s.data(), s.data() + s.size(), false); }
+void to_upper(std::string &s) { fold_range_utf8(s.data(), s.data() + s.size(), true); }
+void to_lower(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s), false); }
+void to_upper(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s), true); }
 
 #else  // KOI8-R: 1 byte == 1 character
 
@@ -304,6 +452,31 @@ std::size_t copy_upper_char(const char *src, char *dst) {
 	return 1;
 }
 
+
+void to_lower(std::string &s) {
+	for (char &c : s) {
+		c = a_lcc_table[static_cast<unsigned char>(c)];
+	}
+}
+
+void to_upper(std::string &s) {
+	for (char &c : s) {
+		c = a_ucc_table[static_cast<unsigned char>(c)];
+	}
+}
+
+void to_lower(char *s) {
+	for (; *s; ++s) {
+		*s = a_lcc_table[static_cast<unsigned char>(*s)];
+	}
+}
+
+void to_upper(char *s) {
+	for (; *s; ++s) {
+		*s = a_ucc_table[static_cast<unsigned char>(*s)];
+	}
+}
+
 #endif
 
 // ---------------------------------------------------------------------------------------------
@@ -314,6 +487,22 @@ std::size_t copy_upper_char(const char *src, char *dst) {
 
 namespace {
 
+inline std::size_t lead_len_shared(unsigned char c) {
+	if (c < 0x80) {
+		return 1;
+	}
+	if (c >= 0xC0 && c <= 0xDF) {
+		return 2;
+	}
+	if (c >= 0xE0 && c <= 0xEF) {
+		return 3;
+	}
+	if (c >= 0xF0 && c <= 0xF7) {
+		return 4;
+	}
+	return 1;
+}
+
 // Byte length of the character at `pos`, clamped to the end of `s`.
 std::size_t char_bytes_at(std::string_view s, std::size_t pos) {
 #ifdef INTERNAL_ENCODING_UTF8
@@ -321,7 +510,7 @@ std::size_t char_bytes_at(std::string_view s, std::size_t pos) {
 	if (lead < 0x80) {
 		return 1;
 	}
-	const std::size_t want = static_cast<std::size_t>(utf8::sequence_length(lead));
+	const std::size_t want = lead_len_shared(lead);
 	std::size_t n = 1;
 	while (n < want && pos + n < s.size() && (static_cast<unsigned char>(s[pos + n]) & 0xC0) == 0x80) {
 		++n;
@@ -347,30 +536,6 @@ void capitalize_first(std::string &s) {
 
 std::size_t CharRange::Iterator::step(std::string_view s, std::size_t pos) {
 	return pos < s.size() ? char_bytes_at(s, pos) : 0;
-}
-
-void to_lower(std::string &s) {
-	for (std::size_t i = 0; i < s.size();) {
-		i += copy_lower_char(&s[i], &s[i]);
-	}
-}
-
-void to_upper(std::string &s) {
-	for (std::size_t i = 0; i < s.size();) {
-		i += copy_upper_char(&s[i], &s[i]);
-	}
-}
-
-void to_lower(char *s) {
-	while (*s) {
-		s += copy_lower_char(s, s);
-	}
-}
-
-void to_upper(char *s) {
-	while (*s) {
-		s += copy_upper_char(s, s);
-	}
 }
 
 std::size_t last_char_offset(std::string_view s) {
