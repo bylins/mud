@@ -37,6 +37,10 @@ std::size_t decode(std::string_view s, std::size_t pos, char32_t &cp);
 // not a valid Unicode scalar (surrogate half or > U+10FFFF), in which case `out` is untouched.
 std::size_t encode(char32_t cp, std::string &out);
 
+// Same, but writes into a caller-supplied buffer of at least 4 bytes and never allocates.
+// Returns the number of bytes written, or 0 for a value that is not a Unicode scalar.
+std::size_t encode(char32_t cp, char *out);
+
 // Strict, whole-string well-formedness check per the Unicode Table 3-7 byte-sequence grammar
 // (rejects overlong forms, surrogates, code points above U+10FFFF and stray continuation bytes).
 bool is_valid(std::string_view s);

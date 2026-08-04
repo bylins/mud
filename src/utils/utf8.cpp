@@ -143,6 +143,35 @@ std::size_t encode(char32_t cp, std::string &out) {
 	return 0;
 }
 
+std::size_t encode(char32_t cp, char *out) {
+	if (cp <= 0x7F) {
+		out[0] = static_cast<char>(cp);
+		return 1;
+	}
+	if (cp <= 0x7FF) {
+		out[0] = static_cast<char>(0xC0 | (cp >> 6));
+		out[1] = static_cast<char>(0x80 | (cp & 0x3F));
+		return 2;
+	}
+	if (cp >= 0xD800 && cp <= 0xDFFF) {
+		return 0;
+	}
+	if (cp <= 0xFFFF) {
+		out[0] = static_cast<char>(0xE0 | (cp >> 12));
+		out[1] = static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+		out[2] = static_cast<char>(0x80 | (cp & 0x3F));
+		return 3;
+	}
+	if (cp <= 0x10FFFF) {
+		out[0] = static_cast<char>(0xF0 | (cp >> 18));
+		out[1] = static_cast<char>(0x80 | ((cp >> 12) & 0x3F));
+		out[2] = static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+		out[3] = static_cast<char>(0x80 | (cp & 0x3F));
+		return 4;
+	}
+	return 0;
+}
+
 bool is_valid(std::string_view s) {
 	std::size_t pos = 0;
 	const std::size_t n = s.size();
