@@ -3,7 +3,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "parcel.h"
-#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
@@ -829,13 +828,13 @@ bool print_imm_where_obj(CharData *ch, const ObjData *arg, int num) {
 					std::string sender = GetNameByUnique(it2->first);
 
 					found = true;
-					SendMsgToChar(ch, "%2d. [%6d] %s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
+					SendMsgToChar(fmt::format("{:2}. [{:6}] {:<25} - наход{}ся на почте (отправитель: {}, получатель: {}).\r\n",
 								  num++,
 								  GET_OBJ_VNUM(it3->obj_.get()),
-								  native_text::pad_right(it3->obj_->get_short_description(), 25).c_str(),
+								  it3->obj_->get_short_description(),
 								  grammar::ObjPluralVerbEnding((it3->obj_)->get_sex()),
-								  sender.c_str(),
-								  target.c_str());
+								  sender,
+								  target), ch);
 				}
 			}
 		}

@@ -7,7 +7,6 @@
  */
 
 #include "engine/ui/color.h"
-#include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
@@ -233,12 +232,12 @@ void PrintScoreList(CharData *ch) {
 	} else if (NAME_BAD(ch)) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
-	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %s\r\n",
+	SendMsgToChar(fmt::format("Вы можете вступить в группу с максимальной разницей в {:2} {:<75.76}\r\n",
 				  grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(ch))],
-				  native_text::pad_right(native_text::truncate_to_chars(std::string(
+				  
 					  grammar::GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(
 						  ch))], grammar::EWhat::kLvl)
-						  + std::string(" без потерь для опыта.")), 76), 75).c_str());
+						  + std::string(" без потерь для опыта.")), ch);
 
 	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", group::max_group_size(ch));
 	std::ostringstream out;

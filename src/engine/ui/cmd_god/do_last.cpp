@@ -7,7 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
-#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
@@ -29,14 +29,13 @@ void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		SendMsgToChar("Вы не столь уж и божественны для этого.\r\n", ch);
 	} else {
 		time_t tmp_time = chdata->get_last_logon();
-		sprintf(buf, "[%5ld] [%2d %s] %s : %s : %s\r\n",
+		SendMsgToChar(fmt::format("[{:5}] [{:2} {}] {:<12} : {:<18} : {:<20}\r\n",
 				chdata->get_uid(), GetRealLevel(chdata),
-				MUD::Class(chdata->GetClass()).GetAbbr().c_str(),
-				native_text::pad_right(GET_NAME(chdata), 12).c_str(),
-				native_text::pad_right(chdata->player_specials->saved.LastIP[0]
-					? chdata->player_specials->saved.LastIP : "Unknown", 18).c_str(),
-				native_text::pad_right(ctime(&tmp_time), 20).c_str());
-		SendMsgToChar(buf, ch);
+				MUD::Class(chdata->GetClass()).GetAbbr(),
+				GET_NAME(chdata),
+				chdata->player_specials->saved.LastIP[0]
+					? chdata->player_specials->saved.LastIP : "Unknown",
+				ctime(&tmp_time)), ch);
 	}
 }
 

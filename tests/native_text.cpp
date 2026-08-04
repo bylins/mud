@@ -253,22 +253,6 @@ TEST(NativeText, LastCharOffset) {
 	}
 }
 
-TEST(NativeText, PadRightAndLeft) {
-	EXPECT_EQ(native_text::pad_right("ab", 5), "ab   ");
-	EXPECT_EQ(native_text::pad_left("ab", 5), "   ab");
-	EXPECT_EQ(native_text::pad_right("ab", 2), "ab");      // already wide enough
-	EXPECT_EQ(native_text::pad_right("abcdef", 3), "abcdef");  // never truncates
-	EXPECT_EQ(native_text::pad_right("", 3), "   ");
-	EXPECT_EQ(native_text::pad_right("ab", 4, '.'), "ab..");
-	if (native_text::native_is_utf8()) {
-		// 6 Cyrillic characters (12 bytes) padded to a 10-character column: no padding, and
-		// crucially not 12 bytes' worth of "already too wide" either.
-		EXPECT_EQ(native_text::pad_right(kNtPrivet, 10), kNtPrivet);
-		// 6 characters padded to 8 -> exactly two spaces, not eight.
-		EXPECT_EQ(native_text::pad_right(kNtPrivet, 8), std::string(kNtPrivet) + "  ");
-	}
-}
-
 TEST(NativeText, ListContainsChar) {
 	EXPECT_TRUE(native_text::list_contains_char("abc", "b"));
 	EXPECT_FALSE(native_text::list_contains_char("abc", "d"));

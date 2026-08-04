@@ -11,6 +11,7 @@
 // Реализация ингредиентной магии
 
 #include "im.h"
+#include <fmt/format.h>
 #include "utils/parser_wrapper.h"
 #include "utils/utils_parse.h"
 #include "utils/native_text.h"
@@ -953,14 +954,14 @@ void list_recipes(CharData *ch, bool all_recipes) {
 			rs = im_get_char_rskill(ch, sortpos);
 			const bool unavailable = req->level > GetRealLevel(ch) || req->remort > remort::GetRealRemort(ch);
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
-				sprintf(buf, "     %s%s%s %2d (%2d)%s\r\n",
+				strcpy(buf, fmt::format("     {}{:<30}{} {:2} ({:2}){}\r\n",
 						unavailable ? kColorRed : rs ? kColorGrn : kColorNrm,
-						native_text::pad_right(imrecipes[sortpos].name, 30).c_str(), kColorCyn,
-						req->level, req->remort, kColorNrm);
+						imrecipes[sortpos].name, kColorCyn,
+						req->level, req->remort, kColorNrm).c_str());
 			} else {
-				sprintf(buf, " %s %s %2d (%2d)\r\n",
-						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", native_text::pad_right(imrecipes[sortpos].name, 30).c_str(),
-						req->level, req->remort);
+				strcpy(buf, fmt::format(" {} {:<30} {:2} ({:2})\r\n",
+						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
+						req->level, req->remort).c_str());
 			}
 			strcat(buf1, buf);
 			++i;
@@ -982,7 +983,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 		}
 		if (rs->perc <= 0)
 			continue;
-		sprintf(buf, "%s %s%s\r\n", native_text::pad_right(imrecipes[rs->rid].name, 30).c_str(), how_good(rs->perc, kMaxRecipeLevel), kColorBoldBlk);
+		strcpy(buf, fmt::format("{:<30} {}{}\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel), kColorBoldBlk).c_str());
 		strcat(buf2, buf);
 		++i;
 	}

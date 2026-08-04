@@ -3,7 +3,7 @@
 //
 
 #include "engine/ui/color.h"
-#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/classes/pc_classes.h"
 #include "engine/entities/char_data.h"
@@ -108,7 +108,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Ширина колонок - в символах, а не в байтах (issue #3681): поля ниже паддятся
 // через native_text, поэтому формат содержит голые "%s".
-	const char *format = "%3d %s %s %s %s %s ";
+	const char *format = "{:3} {:<7} {:<20} {:<17} {:<3} {:<8} ";
 	if (showemail) {
 		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт       E-mail\r\n");
 	} else {
@@ -263,28 +263,17 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (d->character
 			&& d->character->GetCharAliases().c_str()) {
 			if (d->original) {
-				sprintf(line,
-						format,
-						d->desc_num,
-						native_text::pad_right(classname, 7).c_str(),
-						native_text::pad_right(d->original->GetCharAliases().c_str(), 20).c_str(),
-						native_text::pad_right(state, 17).c_str(),
-						native_text::pad_right(idletime, 3).c_str(),
-						native_text::pad_right(timeptr, 8).c_str());
+				strcpy(line, fmt::format(fmt::runtime(format),
+						d->desc_num, classname, d->original->GetCharAliases().c_str(),
+						state, idletime, timeptr).c_str());
 			} else {
-				sprintf(line,
-						format,
-						d->desc_num,
-						native_text::pad_right(classname, 7).c_str(),
-						native_text::pad_right(d->character->GetCharAliases().c_str(), 20).c_str(),
-						native_text::pad_right(state, 17).c_str(),
-						native_text::pad_right(idletime, 3).c_str(),
-						native_text::pad_right(timeptr, 8).c_str());
+				strcpy(line, fmt::format(fmt::runtime(format),
+						d->desc_num, classname, d->character->GetCharAliases().c_str(),
+						state, idletime, timeptr).c_str());
 			}
 		} else {
-			sprintf(line, format, d->desc_num, native_text::pad_right("   -   ", 7).c_str(),
-					native_text::pad_right("UNDEFINED", 20).c_str(), native_text::pad_right(state, 17).c_str(),
-					native_text::pad_right(idletime, 3).c_str(), native_text::pad_right(timeptr, 8).c_str());
+			strcpy(line, fmt::format(fmt::runtime(format), d->desc_num, "   -   ",
+					"UNDEFINED", state, idletime, timeptr).c_str());
 		}
 
 		if (d && *d->host) {
