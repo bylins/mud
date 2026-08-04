@@ -908,11 +908,11 @@
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
 			<noise sigma="0.25" />
-			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kWis" threshold="22" weight="18" />
 		</potency_roll>
 		<success_roll>
-			<base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="0.75" />
+			<base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75" />
 			<base_stat id="kWis" threshold="22" weight="5" />
 		</success_roll>
 		<talent_actions>
@@ -3611,7 +3611,7 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kCloudOfArrows" element="kAir" mode="kEnabled">
+	<spell id="kCloudOfArrows" element="kFire" mode="kEnabled">
 		<name val="cloud of arrous" />
 		<components>
 			<verbal />
@@ -3622,11 +3622,11 @@
 		<targets val="kTarSelfOnly|kTarCharRoom" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
-			<base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7" />
 			<base_stat id="kInt" threshold="22" weight="18" />
 		</potency_roll>
 		<success_roll>
-			<base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
 			<base_stat id="kInt" threshold="22" weight="0.5" />
 		</success_roll>
 		<talent_actions>
