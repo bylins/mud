@@ -3620,7 +3620,7 @@ Rooms::~Rooms() {
 
 int get_filename(const char *orig_name, char *filename, int mode) {
 	const char *prefix, *middle, *suffix;
-	char name[64], *ptr;
+	char name[64];
 
 	if (orig_name == nullptr || *orig_name == '\0' || filename == nullptr) {
 		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
