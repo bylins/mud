@@ -85,6 +85,9 @@ struct ZoneNode {
 
 // временный список для отсева неуникальных имен внутри одной зоны
 std::list<ZoneNode> mob_name_list;
+// перепись имен зоны: сколько РАЗНЫХ мобов носит каждое имя. Считается по всем мобам из
+// зон-ресетов, до отсева по лимиту в мире (см. init_mob_name_list и filter_dupe_names).
+std::unordered_map<int, std::unordered_map<std::string, int>> zone_name_count;
 // временный список мобов на лоад груп-сетин
 std::list<ZoneNode> group_mob_list;
 // временный список мобов на лоад соло-сетин
@@ -411,6 +414,19 @@ void init_mob_name_list() {
 			cap = std::max(cap, zone.cmd[cmd_no].arg2);
 		}
 	}
+	// Перепись имен строится здесь же, по ключам effective_miw -- это ровно все мобы из
+	// зон-ресетов, каждый по одному разу. Раньше filter_dupe_names считала имена по уже
+	// отобранным кандидатам, и двойник, отсеявшийся раньше по лимиту, в счет не попадал:
+	// у зоны 682 "всадник без головы" есть двумя внумами, 68203 (лимит 4) и 68211 (лимит 1),
+	// первый отсеивался по лимиту, второй оставался и выглядел уникальным по имени. Сетина
+	// садилась на него, а игрок бил неотличимого с виду двойника и не понимал, почему
+	// счетчик не двигается.
+	zone_name_count.clear();
+	for (const auto &node : effective_miw) {
+		const int mob_vnum = mob_index[node.first].vnum;
+		++zone_name_count[mob_vnum / 100][mob_proto[node.first].get_name()];
+	}
+
 	// один и тот же моб грузится несколькими командами -- в списке кандидатов он нужен однажды
 	std::unordered_set<int> added_mobs;
 
@@ -531,17 +547,16 @@ void filter_dupe_names() {
 	for (std::list<ZoneNode>::iterator it = mob_name_list.begin(),
 			 iend = mob_name_list.end(); it != iend; ++it) {
 		std::list<MobNode> tmp_list;
-		// Сколько мобов зоны носит каждое имя -- одним проходом. Раньше для каждого моба
-		// перебирались все мобы зоны со сравнением строк, то есть квадрат на зону.
-		std::unordered_map<std::string, int> name_count;
-		for (const auto &m : it->mobs) {
-			++name_count[m.name];
-		}
+		// Перепись имен готова заранее (init_mob_name_list) и считана по ВСЕМ мобам зоны, а не
+		// по одним кандидатам: двойник мог отсеяться раньше по лимиту в мире, и тогда счет по
+		// кандидатам показывал оставшегося уникальным по имени.
+		const auto &name_count = zone_name_count[it->zone];
 		// отсеиваем (включая оригинал) одинаковые имена с разными внумами
 		for (std::list<MobNode>::iterator k = it->mobs.begin(),
 				 kend = it->mobs.end(); k != kend; ++k) {
 			// одинаковые имена в пределах зоны
-			const bool good = name_count[k->name] <= 1;
+			const auto name_it = name_count.find(k->name);
+			const bool good = (name_it == name_count.end() ? 1 : name_it->second) <= 1;
 			if (!good || k->type == -1) {
 				continue;
 			}
