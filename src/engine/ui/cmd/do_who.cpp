@@ -3,6 +3,8 @@
 //
 
 #include "engine/ui/cmd/do_who.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include <fmt/format.h>
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -52,10 +54,10 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sscanf(arg, "%d-%d", &low, &high);
 			strcpy(buf, buf1);
 		} else if (*arg == '-') {
-			const char mode = *(arg + 1);    // just in case; we destroy arg in the switch
+			const char32_t mode = native_text::first_char_code(arg + 1);    // just in case; we destroy arg in the switch
 			switch (mode) {
 				case 'b':
-				case 'и':
+				case rus::kI:
 					if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kDemigod) || ch->IsFlagged(EPrf::kCoderinfo))
 						showname = true;
 					strcpy(buf, buf1);

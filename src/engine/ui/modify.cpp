@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include <fmt/format.h>
+#include "utils/russian_keys.h"
 #include "engine/db/player_index.h"
 #include <string>
 
@@ -1269,7 +1270,8 @@ void show_string(DescriptorData *d, char *input) {
 	any_one_arg(input, buf);
 
 	//* Q is for quit. :)
-	if (LOWER(*buf) == 'q' || LOWER(*buf) == 'к') {
+	if (native_text::first_char_code_lower(buf) == 'q'
+		|| native_text::first_char_code_lower(buf) == rus::kKa) {
 		free(d->showstr_vector);
 		d->showstr_count = 0;
 		if (d->showstr_head) {
@@ -1281,12 +1283,14 @@ void show_string(DescriptorData *d, char *input) {
 	}
 		// R is for refresh, so back up one page internally so we can display
 		// it again.
-	else if (LOWER(*buf) == 'r' || LOWER(*buf) == 'п') {
+	else if (native_text::first_char_code_lower(buf) == 'r'
+		|| native_text::first_char_code_lower(buf) == rus::kPe) {
 		d->showstr_page = MAX(0, d->showstr_page - 1);
 	}
 		// B is for back, so back up two pages internally so we can display the
 		// correct page here.
-	else if (LOWER(*buf) == 'b' || LOWER(*buf) == 'н') {
+	else if (native_text::first_char_code_lower(buf) == 'b'
+		|| native_text::first_char_code_lower(buf) == rus::kEn) {
 		d->showstr_page = MAX(0, d->showstr_page - 2);
 	}
 		// Feature to 'goto' a page.  Just type the number of the page and you

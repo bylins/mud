@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "genchar.h"
+#include "utils/russian_keys.h"
 
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
@@ -95,48 +96,48 @@ void genchar_disp_menu(CharData *ch) {
 
 int genchar_parse(CharData *ch, char *arg) {
 	const auto &ch_class = MUD::Class(ch->GetClass());
-	switch (*arg) {
-		case 'А':
-		case 'а': ch->set_str(std::max(ch->GetInbornStr() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kStr)));
+	switch (native_text::first_char_code(arg)) {
+		case rus::kAUpper:
+		case rus::kA: ch->set_str(std::max(ch->GetInbornStr() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kStr)));
 			break;
-		case 'Б':
-		case 'б': ch->set_dex(std::max(ch->GetInbornDex() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kDex)));
+		case rus::kBeUpper:
+		case rus::kBe: ch->set_dex(std::max(ch->GetInbornDex() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kDex)));
 			break;
-		case 'Г':
-		case 'г': ch->set_int(std::max(ch->GetInbornInt() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kInt)));
+		case rus::kGeUpper:
+		case rus::kGe: ch->set_int(std::max(ch->GetInbornInt() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kInt)));
 			break;
-		case 'Д':
-		case 'д': ch->set_wis(std::max(ch->GetInbornWis() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kWis)));
+		case rus::kDeUpper:
+		case rus::kDe: ch->set_wis(std::max(ch->GetInbornWis() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kWis)));
 			break;
-		case 'Е':
-		case 'е': ch->set_con(std::max(ch->GetInbornCon() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCon)));
+		case rus::kIeUpper:
+		case rus::kIe: ch->set_con(std::max(ch->GetInbornCon() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCon)));
 			break;
-		case 'Ж':
-		case 'ж': ch->set_cha(std::max(ch->GetInbornCha() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCha)));
+		case rus::kZheUpper:
+		case rus::kZhe: ch->set_cha(std::max(ch->GetInbornCha() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCha)));
 			break;
-		case 'З':
-		case 'з': ch->set_str(std::min(ch->GetInbornStr() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kStr)));
+		case rus::kZeUpper:
+		case rus::kZe: ch->set_str(std::min(ch->GetInbornStr() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kStr)));
 			break;
-		case 'И':
-		case 'и': ch->set_dex(std::min(ch->GetInbornDex() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kDex)));
+		case rus::kIUpper:
+		case rus::kI: ch->set_dex(std::min(ch->GetInbornDex() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kDex)));
 			break;
-		case 'К':
-		case 'к': ch->set_int(std::min(ch->GetInbornInt() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kInt)));
+		case rus::kKaUpper:
+		case rus::kKa: ch->set_int(std::min(ch->GetInbornInt() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kInt)));
 			break;
-		case 'Л':
-		case 'л': ch->set_wis(std::min(ch->GetInbornWis() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kWis)));
+		case rus::kElUpper:
+		case rus::kEl: ch->set_wis(std::min(ch->GetInbornWis() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kWis)));
 			break;
-		case 'М':
-		case 'м': ch->set_con(std::min(ch->GetInbornCon() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCon)));
+		case rus::kEmUpper:
+		case rus::kEm: ch->set_con(std::min(ch->GetInbornCon() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCon)));
 			break;
-		case 'Н':
-		case 'н': ch->set_cha(std::min(ch->GetInbornCha() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCha)));
+		case rus::kEnUpper:
+		case rus::kEn: ch->set_cha(std::min(ch->GetInbornCha() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCha)));
 			break;
-		case 'П':
-		case 'п': SendMsgToChar(genchar_help, ch);
+		case rus::kPeUpper:
+		case rus::kPe: SendMsgToChar(genchar_help, ch);
 			break;
-		case 'В':
-		case 'в':
+		case rus::kVeUpper:
+		case rus::kVe:
 			if (CalcBasseStatsSum(ch) != kBaseStatsSum)
 				break;
 			// по случаю успешной генерации сохраняем стартовые статы
@@ -147,8 +148,8 @@ int genchar_parse(CharData *ch, char *arg) {
 			ch->set_start_stat(G_CON, ch->GetInbornCon());
 			ch->set_start_stat(G_CHA, ch->GetInbornCha());
 			return kGencharExit;
-		case 'О':
-		case 'о': {
+		case rus::kOUpper:
+		case rus::kO: {
 			const auto &tmp_class = MUD::Class(ch->GetClass());
 			ch->set_str(tmp_class.GetBaseStatGenAuto(EBaseStat::kStr));
 			ch->set_dex(tmp_class.GetBaseStatGenAuto(EBaseStat::kDex));

@@ -7,6 +7,8 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 
 const char *DISPLAY_HELP = "Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П | К } | все | нет }\r\n";
@@ -38,35 +40,35 @@ void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		const size_t len = strlen(argument);
 		for (size_t i = 0; i < len; i++) {
-			switch (LOWER(argument[i])) {
+			switch (native_text::first_char_code_lower(argument + i)) {
 				case 'h':
-				case 'ж': ch->SetFlag(EPrf::kDispHp);
+				case rus::kZhe: ch->SetFlag(EPrf::kDispHp);
 					break;
 				case 'w':
-				case 'з': ch->SetFlag(EPrf::kDispMana);
+				case rus::kZe: ch->SetFlag(EPrf::kDispMana);
 					break;
 				case 'm':
-				case 'э': ch->SetFlag(EPrf::kDispMove);
+				case rus::kE: ch->SetFlag(EPrf::kDispMove);
 					break;
 				case 'e':
-				case 'в': ch->SetFlag(EPrf::kDispExits);
+				case rus::kVe: ch->SetFlag(EPrf::kDispExits);
 					break;
 				case 'g':
-				case 'д': ch->SetFlag(EPrf::kDispMoney);
+				case rus::kDe: ch->SetFlag(EPrf::kDispMoney);
 					break;
 				case 'l':
-				case 'у': ch->SetFlag(EPrf::kDispLvl);
+				case rus::kU: ch->SetFlag(EPrf::kDispLvl);
 					break;
 				case 'x':
-				case 'о': ch->SetFlag(EPrf::kDispExp);
+				case rus::kO: ch->SetFlag(EPrf::kDispExp);
 					break;
-				case 'б':
+				case rus::kBe:
 				case 'f': ch->SetFlag(EPrf::kDispFight);
 					break;
-				case 'п':
+				case rus::kPe:
 				case 't': ch->SetFlag(EPrf::kDispTimed);
 					break;
-				case 'к':
+				case rus::kKa:
 				case 'c': ch->SetFlag(EPrf::kDispCooldowns);
 					break;
 				case ' ': break;

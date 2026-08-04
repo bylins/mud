@@ -5,6 +5,8 @@
  ************************************************************************/
 
 #include "engine/db/obj_prototypes.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
@@ -1362,11 +1364,11 @@ void zedit_parse(DescriptorData *d, char *arg) {
 
 	switch (OLC_MODE(d)) {
 		case ZEDIT_CONFIRM_SAVESTRING:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д':
+				case rus::kDe:
+				case rus::kDeUpper:
 					// * Save the zone in memory, hiding invisible people.
 					SendMsgToChar("Зона сохранена.\r\n", d->character.get());
 					zedit_save_internally(d);
@@ -1376,8 +1378,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 					// FALL THROUGH
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': cleanup_olc(d, CLEANUP_ALL);
+				case rus::kEn:
+				case rus::kEnUpper: cleanup_olc(d, CLEANUP_ALL);
 					break;
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
 					SendMsgToChar("Вы желаете сохранить зону? : ", d->character.get());
