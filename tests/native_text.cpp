@@ -5,6 +5,7 @@
 // flag the library was built with), so this one test file is correct under either build.
 
 #include "utils/native_text.h"
+#include "utils/russian_keys.h"
 
 #include <gtest/gtest.h>
 
@@ -314,6 +315,31 @@ TEST(NativeText, WholeStringCaseTransforms) {
 		native_text::to_upper(ru);
 		EXPECT_EQ(ru, "\xD0\x9F\xD0\xA0\xD0\x98");
 	}
+}
+
+TEST(NativeText, RussianKeysMatchFirstCharCode) {
+	// The switch-dispatch contract: for every Russian letter, the constant in russian_keys.h must
+	// equal what first_char_code() returns for that letter in the build's native encoding. If this
+	// ever drifts, menus and OLC editors silently stop responding to that key.
+	struct Case { const char *koi8; const char *utf8; char32_t expected; };
+	const Case cases[] = {
+		{"\xC1", "\xD0\xB0", rus::kA},    {"\xE1", "\xD0\x90", rus::kAUpper},
+		{"\xC4", "\xD0\xB4", rus::kDe},   {"\xE4", "\xD0\x94", rus::kDeUpper},
+		{"\xCE", "\xD0\xBD", rus::kEn},   {"\xEE", "\xD0\x9D", rus::kEnUpper},
+		{"\xD1", "\xD1\x8F", rus::kYa},   {"\xF1", "\xD0\xAF", rus::kYaUpper},
+		{"\xA3", "\xD1\x91", rus::kYo},   {"\xB3", "\xD0\x81", rus::kYoUpper},
+		{"\xD7", "\xD0\xB2", rus::kVe},   {"\xC8", "\xD1\x85", rus::kHa},
+	};
+	for (const auto &c : cases) {
+		const char *const input = native_text::native_is_utf8() ? c.utf8 : c.koi8;
+		EXPECT_EQ(native_text::first_char_code(input), c.expected);
+	}
+
+	// ASCII keys are unchanged by the flip and stay ordinary character literals in the switches.
+	EXPECT_EQ(native_text::first_char_code("y"), static_cast<char32_t>('y'));
+	EXPECT_EQ(native_text::first_char_code("N"), static_cast<char32_t>('N'));
+	EXPECT_EQ(native_text::first_char_code(""), 0u);
+	EXPECT_EQ(native_text::first_char_code(nullptr), 0u);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

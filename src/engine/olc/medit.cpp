@@ -8,6 +8,8 @@
 ***************************************************************************/
 
 #include "engine/db/world_characters.h"
+#include "utils/native_text.h"
+#include "utils/russian_keys.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "engine/entities/obj_data.h"
@@ -1289,11 +1291,11 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_CONFIRM_SAVESTRING:
 			// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
 			OLC_MOB(d)->SetFlag(EMobFlag::kNpc);
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д':
+				case rus::kDe:
+				case rus::kDeUpper:
 					// * Save the mob in memory and to disk.
 //					SendMsgToChar("Saving mobile to memory a.\r\n", d->character.get());
 					medit_save_internally(d);
@@ -1307,8 +1309,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': cleanup_olc(d, CLEANUP_ALL);
+				case rus::kEn:
+				case rus::kEnUpper: cleanup_olc(d, CLEANUP_ALL);
 					break;
 
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());

@@ -304,6 +304,15 @@ std::size_t copy_upper_char(const char *src, char *dst) {
 }
 
 
+char32_t first_char_code(const char *s) {
+	if (s == nullptr || *s == '\0') {
+		return 0;
+	}
+	char32_t cp = 0;
+	utf8::decode(std::string_view(s, char_bytes(s)), 0, cp);
+	return cp;
+}
+
 namespace {
 
 // Whole-buffer case conversion as one tight loop with no calls in the hot path: ASCII and the
@@ -452,6 +461,10 @@ std::size_t copy_upper_char(const char *src, char *dst) {
 	return 1;
 }
 
+
+char32_t first_char_code(const char *s) {
+	return (s == nullptr || *s == '\0') ? 0 : static_cast<unsigned char>(*s);
+}
 
 void to_lower(std::string &s) {
 	for (char &c : s) {

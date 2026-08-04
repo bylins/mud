@@ -50,6 +50,12 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes);
 // bytes actually present (never counts past a terminator or a non-continuation byte).
 std::size_t char_bytes(const char *s);
 
+// Numeric identity of the character starting at `s`, for dispatching a switch on a letter:
+// the raw byte under KOI8-R, the code point under UTF-8. Compare against the constants in
+// utils/russian_keys.h (Cyrillic) or ordinary character literals (ASCII, identical in both).
+// Returns 0 on an empty string.
+char32_t first_char_code(const char *s);
+
 // Case-insensitive comparison in the native encoding: lexicographic over lowered characters,
 // the shorter string orders first, returns the signed difference at the first mismatch (0 when
 // equal). KOI8-R: per byte, via LOWER() -- matches str_cmp/str/str semantics. UTF-8: per code
