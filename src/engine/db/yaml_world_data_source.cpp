@@ -731,8 +731,9 @@ std::string YamlWorldDataSource::GetText(const YAML::Node &node, const std::stri
 {
 	if (node[key])
 	{
-		// YAML files are already in KOI8-R, no conversion needed
-		std::string text = node[key].as<std::string>();
+		// Файлы мира лежат на диске в KOI8-R; переводим в нативную кодировку движка
+		// (под KOI8-R это тождество, под UTF-8 - перекодировка). Issue #3681.
+		std::string text = native_text::from_koi8(node[key].as<std::string>());
 
 		// Convert line endings if configured for DOS format
 		if (m_convert_lf_to_crlf) {
