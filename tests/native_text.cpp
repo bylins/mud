@@ -11,6 +11,7 @@
 #include <cstring>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -266,6 +267,52 @@ TEST(NativeText, ListContainsChar) {
 		EXPECT_TRUE(native_text::list_contains_char(list, "\xD0\xB6"));
 		EXPECT_FALSE(native_text::list_contains_char(list, "\xD1\x82"));
 		EXPECT_FALSE(native_text::list_contains_char(list, "\xD1"));  // lead byte alone
+	}
+}
+
+TEST(NativeText, CharRangeIteratesWholeCharacters) {
+	std::vector<std::string> got;
+	for (auto c : native_text::chars(kNtPrivet)) {
+		got.emplace_back(c);
+	}
+	if (native_text::native_is_utf8()) {
+		ASSERT_EQ(got.size(), 6u);              // 6 letters, not 12 bytes
+		EXPECT_EQ(got.front(), "\xD0\x9F");     // whole "P", both bytes
+		EXPECT_EQ(got.back(), "\xD1\x82");      // whole "t"
+	} else {
+		ASSERT_EQ(got.size(), 12u);             // KOI8-R: every byte is a character
+	}
+
+	got.clear();
+	for (auto c : native_text::chars("abc")) {
+		got.emplace_back(c);
+	}
+	EXPECT_EQ(got, (std::vector<std::string>{"a", "b", "c"}));
+
+	got.clear();
+	for (auto c : native_text::chars("")) {
+		got.emplace_back(c);
+	}
+	EXPECT_TRUE(got.empty());
+}
+
+TEST(NativeText, WholeStringCaseTransforms) {
+	std::string s = "Hello World";
+	native_text::to_lower(s);
+	EXPECT_EQ(s, "hello world");
+	native_text::to_upper(s);
+	EXPECT_EQ(s, "HELLO WORLD");
+
+	char buf[] = "MiXeD";
+	native_text::to_lower(buf);
+	EXPECT_STREQ(buf, "mixed");
+
+	if (native_text::native_is_utf8()) {
+		std::string ru = "\xD0\x9F\xD0\xA0\xD0\x98";   // "PRI" in Cyrillic
+		native_text::to_lower(ru);
+		EXPECT_EQ(ru, "\xD0\xBF\xD1\x80\xD0\xB8");     // "pri"
+		native_text::to_upper(ru);
+		EXPECT_EQ(ru, "\xD0\x9F\xD0\xA0\xD0\x98");
 	}
 }
 

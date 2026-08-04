@@ -117,10 +117,13 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 		return false;
 	}
 
-	for (; *arg1 && *arg2; arg1++, arg2++) {
-		if (LOWER(*arg1) != LOWER(*arg2)) {
+	// Посимвольно (issue #3681): побайтное сравнение под UTF-8 теряет регистронезависимость.
+	while (*arg1 && *arg2) {
+		if (!native_text::chars_equal_ci(arg1, arg2)) {
 			return false;
 		}
+		arg1 += native_text::char_bytes(arg1);
+		arg2 += native_text::char_bytes(arg2);
 	}
 
 	if (!*arg1) {
@@ -229,9 +232,7 @@ std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
 }
 
 std::string SubstToLow(std::string s) {
-	for (char &it: s) {
-		it = LOWER(it);
-	}
+	ConvertToLow(s);
 	return s;
 }
 
@@ -258,29 +259,22 @@ std::string SubstWtoK(std::string s) {
 }
 
 void ConvertToLow(std::string &text) {
-	for (char &it: text) {
-		it = LOWER(it);
-	}
+	native_text::to_lower(text);
 }
 
 void ConvertToLow(char *text) {
-	while (*text) {
-		*text = LOWER(*text);
-		text++;
-	}
+	native_text::to_lower(text);
 }
 
 std::string SubstStrToLow(std::string s) {
-	for (char &it: s) {
-		it = UPPER(it);
-	}
+	// NB: имя говорит "ToLow", а тело поднимает регистр. Расхождение предсуществующее,
+	// поведение сохранено намеренно -- меняется только байтовая семантика на символьную.
+	native_text::to_upper(s);
 	return s;
 }
 
 std::string SubstStrToUpper(std::string s) {
-	for (char &it: s) {
-		it = UPPER(it);
-	}
+	native_text::to_upper(s);
 	return s;
 }
 
@@ -477,14 +471,14 @@ const char *first_letter(const char *txt) {
 char *colorCAP(char *txt) {
 	char *letter = const_cast<char *>(first_letter(txt));
 	if (letter && *letter) {
-		*letter = UPPER(*letter);
+		native_text::capitalize_first(letter);
 	}
 	return txt;
 }
 
 std::string &colorCAP(std::string &txt) {
 	size_t pos = first_letter(txt.c_str()) - txt.c_str();
-	txt[pos] = UPPER(txt[pos]);
+	native_text::capitalize_first(&txt[pos]);
 	return txt;
 }
 
@@ -496,14 +490,14 @@ std::string &colorCAP(std::string &&txt) {
 char *colorLOW(char *txt) {
 	char *letter = const_cast<char *>(first_letter(txt));
 	if (letter && *letter) {
-		*letter = LOWER(*letter);
+		native_text::copy_lower_char(letter, letter);
 	}
 	return txt;
 }
 
 std::string &colorLOW(std::string &txt) {
 	size_t pos = first_letter(txt.c_str()) - txt.c_str();
-	txt[pos] = LOWER(txt[pos]);
+	native_text::copy_lower_char(&txt[pos], &txt[pos]);
 	return txt;
 }
 
@@ -513,13 +507,13 @@ std::string &colorLOW(std::string &&txt) {
 }
 
 char *CAP(char *txt) {
-	*txt = UPPER(*txt);
+	native_text::capitalize_first(txt);
 	return (txt);
 }
 
 std::string CAP(const std::string txt) {
 	std::string tmp_str = txt;
-	tmp_str[0] = UPPER(tmp_str[0]);
+	native_text::capitalize_first(tmp_str);
 	return (tmp_str);
 }
 

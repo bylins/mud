@@ -11,6 +11,7 @@
 
 #include "engine/core/char_handler.h"
 #include "gameplay/affects/obj_affects.h"
+#include "utils/native_text.h"
 #include "gameplay/mechanics/equipment.h"
 #include "obj_save.h"
 #include "gameplay/mechanics/groups.h"
@@ -1662,7 +1663,7 @@ int Crash_load(CharData *ch) {
 		}
 
 		std::string cap = obj->get_PName(grammar::ECase::kNom);
-		cap[0] = UPPER(cap[0]);
+		native_text::capitalize_first(cap);
 
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0) {

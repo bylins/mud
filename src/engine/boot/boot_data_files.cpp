@@ -1,4 +1,5 @@
 #include "boot_data_files.h"
+#include "utils/native_text.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/scripting/dg_olc.h"
@@ -397,7 +398,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_realnum]->zone_rn = zone;
 	world[room_realnum]->vnum = virtual_nr;
 	std::string tmpstr = fread_string();
-	tmpstr[0] = UPPER(tmpstr[0]);
+	native_text::capitalize_first(tmpstr);
 	world[room_realnum]->set_name(tmpstr);
 //	if (zone_table[zone].RnumRoomsLocation.first == -1) {
 //		zone_table[zone].RnumRoomsLocation.first = room_realnum;

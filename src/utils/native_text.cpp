@@ -182,14 +182,16 @@ bool chars_equal_ci(const char *a, const char *b) {
 	return utf8::to_lower(ca) == utf8::to_lower(cb);
 }
 
-std::size_t copy_lower_char(const char *src, char *dst) {
+namespace {
+
+std::size_t copy_folded_char(const char *src, char *dst, char32_t (*fold)(char32_t)) {
 	const std::size_t len = char_bytes(src);
 	char32_t cp = 0;
 	if (utf8::decode(std::string_view(src, len), 0, cp) != 0) {
 		std::string folded;
-		// Only rewrite when the lowercase form keeps the byte length -- true for ASCII and for
-		// the whole Russian alphabet, so callers never see a character change size.
-		if (utf8::encode(utf8::to_lower(cp), folded) == len) {
+		// Only rewrite when the folded form keeps the byte length -- true for ASCII and for the
+		// whole Russian alphabet, so callers never see a character change size.
+		if (utf8::encode(fold(cp), folded) == len) {
 			for (std::size_t i = 0; i < len; ++i) {
 				dst[i] = folded[i];
 			}
@@ -200,6 +202,16 @@ std::size_t copy_lower_char(const char *src, char *dst) {
 		dst[i] = src[i];
 	}
 	return len;
+}
+
+}  // namespace
+
+std::size_t copy_lower_char(const char *src, char *dst) {
+	return copy_folded_char(src, dst, utf8::to_lower);
+}
+
+std::size_t copy_upper_char(const char *src, char *dst) {
+	return copy_folded_char(src, dst, utf8::to_upper);
 }
 
 #else  // KOI8-R: 1 byte == 1 character
@@ -287,6 +299,11 @@ std::size_t copy_lower_char(const char *src, char *dst) {
 	return 1;
 }
 
+std::size_t copy_upper_char(const char *src, char *dst) {
+	*dst = a_ucc_table[static_cast<unsigned char>(*src)];
+	return 1;
+}
+
 #endif
 
 // ---------------------------------------------------------------------------------------------
@@ -318,6 +335,43 @@ std::size_t char_bytes_at(std::string_view s, std::size_t pos) {
 }
 
 }  // namespace
+
+void capitalize_first(std::string &s) {
+	if (s.empty()) {
+		return;
+	}
+	// The uppercase form keeps the byte length for ASCII and the whole Russian alphabet, so
+	// capitalising in place never resizes the string.
+	capitalize_first(&s[0]);
+}
+
+std::size_t CharRange::Iterator::step(std::string_view s, std::size_t pos) {
+	return pos < s.size() ? char_bytes_at(s, pos) : 0;
+}
+
+void to_lower(std::string &s) {
+	for (std::size_t i = 0; i < s.size();) {
+		i += copy_lower_char(&s[i], &s[i]);
+	}
+}
+
+void to_upper(std::string &s) {
+	for (std::size_t i = 0; i < s.size();) {
+		i += copy_upper_char(&s[i], &s[i]);
+	}
+}
+
+void to_lower(char *s) {
+	while (*s) {
+		s += copy_lower_char(s, s);
+	}
+}
+
+void to_upper(char *s) {
+	while (*s) {
+		s += copy_upper_char(s, s);
+	}
+}
 
 std::size_t last_char_offset(std::string_view s) {
 	std::size_t last = 0;

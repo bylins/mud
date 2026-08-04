@@ -3,6 +3,7 @@
 * 2018 (c) bodrich
 */
 #include "accounts.h"
+#include "utils/native_text.h"
 #include "password.h"
 #include "engine/entities/zone.h"
 #include <sstream>
@@ -85,7 +86,7 @@ void Account::show_players(CharData *ch) {
 	ss << "Данные аккаунта: " << this->email << "\r\n";
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
-		name[0] = UPPER(name[0]);
+		native_text::capitalize_first(name);
 		ss << count << ") " << name << "\r\n";
 		count++;
 	}
@@ -101,7 +102,7 @@ void Account::list_players(DescriptorData *d) {
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
 		iosystem::write_to_output((std::to_string(count) + ") ").c_str(), d);
-		name[0] = UPPER(name[0]);
+		native_text::capitalize_first(name);
 		iosystem::write_to_output(name.c_str(), d);
 		iosystem::write_to_output("\r\n", d);
 		count++;

@@ -162,9 +162,8 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		// The denominator is the character count for the same reason -- with byte lengths the
 		// percentage would be halved for Russian text.
 		const size_t total_chars = native_text::char_count(argument);
-		for (int k = 0; argument[k] != '\0';) {
-			const int bytes = static_cast<int>(native_text::char_bytes(argument + k));
-			if (native_text::is_upper_char(argument + k)) {
+		for (auto letter : native_text::chars(argument)) {
+			if (native_text::is_upper_char(letter.data())) {
 				bad_simb_cnt++;
 				bad_seq_cnt++;
 			} else
@@ -172,10 +171,11 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 			if ((bad_seq_cnt > 1) &&
 				(((bad_simb_cnt * 100 / total_chars) > bad_smb_procent) ||
-					(bad_seq_cnt > MAX_UPPERS_SEQ_CHAR)))
-				native_text::copy_lower_char(argument + k, argument + k);
-
-			k += bytes;
+					(bad_seq_cnt > MAX_UPPERS_SEQ_CHAR))) {
+				// letter указывает внутрь argument; свёртка регистра не меняет длину.
+				char *at = argument + (letter.data() - argument);
+				native_text::copy_lower_char(at, at);
+			}
 		}
 		// фильтруем одинаковые сообщения в эфире
 		if (!str_cmp(ch->get_last_tell().c_str(), argument)) {
@@ -302,7 +302,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 		return "";
 	}
 	std::string name = privilege::IsImmortal(ch) ? GET_NAME(ch) : sight::PersonName(ch, vict, 0);
-	name[0] = UPPER(name[0]);
+	native_text::capitalize_first(name);
 	return name;
 }
 

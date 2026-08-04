@@ -3,6 +3,7 @@
 //
 
 #include "administration/accounts.h"
+#include "utils/native_text.h"
 #include "administration/ban.h"
 #include "administration/privilege.h"
 #include "engine/ui/cmd/do_features.h"
@@ -594,11 +595,11 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf + strlen(buf), "Имя никем не одобрено!\r\n");
 			} else if ((vict)->player_specials->saved.NameGod < 1000) {
 				sprintf(buf1, "%s", GetNameById((vict)->player_specials->saved.NameIDGod).c_str());
-				*buf1 = UPPER(*buf1);
+				native_text::capitalize_first(buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
 				sprintf(buf1, "%s", GetNameById((vict)->player_specials->saved.NameIDGod).c_str());
-				*buf1 = UPPER(*buf1);
+				native_text::capitalize_first(buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
 			if (remort::GetRealRemort(vict) < 4)

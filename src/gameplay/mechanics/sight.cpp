@@ -7,6 +7,7 @@
 
 #include "engine/core/char_movement.h"
 #include "gameplay/affects/obj_affects.h"
+#include "utils/native_text.h"
 #include "engine/core/target_resolver.h"
 #include "sight.h"
 #include "gameplay/mechanics/hide.h"
@@ -1358,7 +1359,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 			}
 		} else if (mode >= 2 && how <= 1) {
 			std::string obj_name = OBJN(object, ch, grammar::ECase::kNom);
-			obj_name[0] = UPPER(obj_name[0]);
+			native_text::capitalize_first(obj_name);
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());

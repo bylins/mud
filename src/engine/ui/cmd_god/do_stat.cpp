@@ -1,5 +1,6 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/affects/obj_affects.h"   // issue.obj-affects: Diag
+#include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
@@ -858,7 +859,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		}
 	}
 	if (!str.empty()) {
-		str[0] = UPPER(str[0]);
+		native_text::capitalize_first(str);
 		SendMsgToChar(ch, "&C%s&n", str.c_str());
 	} else {
 		auto room = get_room_where_obj(j);

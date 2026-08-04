@@ -4,6 +4,7 @@
 #ifdef HAVE_YAML
 
 #include "yaml_world_data_source.h"
+#include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
 #include "db.h"
@@ -1419,7 +1420,7 @@ RoomData* YamlWorldDataSource::ParseRoomNode(const YAML::Node &root, int vnum, i
 	room->zone_rn = zone_rnum;
 
 	std::string name = GetText(root, "name", "Untitled Room");
-	if (!name.empty()) { name[0] = UPPER(name[0]); }
+	if (!name.empty()) { native_text::capitalize_first(name); }
 	room->set_name(name);
 
 	std::string description = GetText(root, "description", "");
