@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "sets_drop.h"
+#include "utils/native_text.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -216,7 +217,10 @@ void create_clone_miniset(int vnum) {
 // * Инициализация списка сетов на лоад.
 void init_obj_list() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_sets_drop = native_text::read_data_file(CONFIG_FILE);
+	pugi::xml_parse_result result = doc.load_buffer(xml_sets_drop.data(), xml_sets_drop.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);

@@ -38,6 +38,11 @@ typedef struct {
 	int size;        // size in bytes of buffer              //
 	int flags;        // read/write/append, future expansion  //
 	char *name;        // filename (for delayed writing)       //
+	// Исходные байты файла, как они лежат на диске. buf может быть перекодирован в нативную
+	// кодировку движка (issue #3681), а CRC файлов игроков считается по ИСХОДНОМУ содержимому,
+	// иначе сумма разъедется. Под KOI8-R это тот же указатель, что и buf.
+	char *raw;         // original on-disk bytes (for CRC)     //
+	int raw_size;      // size of raw in bytes                 //
 } FBFILE;
 
 void ExtractTagFromArgument(char *argument, char *tag);

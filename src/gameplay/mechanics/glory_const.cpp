@@ -900,7 +900,10 @@ void save() {
 void load() {
 	int ver = 0;
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_USERDATA"glory_const.xml");
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_glory_const = native_text::read_data_file(LIB_USERDATA"glory_const.xml");
+	pugi::xml_parse_result result = doc.load_buffer(xml_glory_const.data(), xml_glory_const.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "WARNING: glory_const.xml not found or unreadable (%s), skipping (non-fatal)", result.description());
 		perror(buf);

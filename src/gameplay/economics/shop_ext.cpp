@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "shop_ext.h"
+#include "utils/native_text.h"
 #include "engine/olc/vedun/enum_registry.h"   // vedun::RegisterEditorEnums (refresh ShopItemSetId)
 #include <cstdlib>
 #include "gameplay/economics/currencies.h"
@@ -148,7 +149,10 @@ void log_shop_load() {
 
 void load_item_desc() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_CLANS"item_desc.xml");
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_shop_ext = native_text::read_data_file(LIB_CLANS"item_desc.xml");
+	pugi::xml_parse_result result = doc.load_buffer(xml_shop_ext.data(), xml_shop_ext.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);

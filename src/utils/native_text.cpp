@@ -8,6 +8,7 @@ through them changes nothing until the encoding flip.
 */
 
 #include "native_text.h"
+#include "utf8.h"
 #include "utils_encoding.h"
 
 #ifdef INTERNAL_ENCODING_UTF8
@@ -26,6 +27,8 @@ constexpr unsigned char kYoLowerByte = 0xA3;
 constexpr unsigned char kYoUpperByte = 0xB3;
 #endif
 
+#include <fstream>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -733,6 +736,27 @@ bool list_contains_char(std::string_view list, std::string_view ch) {
 		pos += len;
 	}
 	return false;
+}
+
+std::string from_disk_line(const char *line) {
+#ifdef INTERNAL_ENCODING_UTF8
+	if (line == nullptr || *line == '\0') {
+		return {};
+	}
+	const std::string_view view(line);
+	return utf8::is_valid(view) ? std::string(view) : from_koi8(std::string(view));
+#else
+	return line == nullptr ? std::string() : std::string(line);
+#endif
+}
+
+std::string read_data_file(const std::string &path) {
+	std::ifstream in(path, std::ios::binary);
+	if (!in) {
+		return {};
+	}
+	std::string raw((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	return from_koi8(raw);
 }
 
 }  // namespace native_text
