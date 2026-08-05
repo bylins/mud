@@ -1580,7 +1580,8 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 			do_stand(ch, st, 0, 0);
 		}
 		if (!(ch->GetEnemy()->IsNpc() && !IsCharmice(ch->GetEnemy()))) {
-			sprintf(buf, "mob command_interpreter: моб отжил из лага/стана в HitPercent, проценты жизни %d", GET_TRIG_NARG(trig));
+			sprintf(buf, "mob command_interpreter: моб %s (%d) отжил из лага/стана в HitPercent, проценты жизни %d, сражается с %s", 
+					ch->get_name().c_str(), GET_MOB_VNUM(ch), GET_TRIG_NARG(trig), ch->GetEnemy()->get_name().c_str());
 			mob_log(ch, trig, buf);
 		}
 	}
