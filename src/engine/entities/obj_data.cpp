@@ -638,10 +638,14 @@ int ObjData::get_timer() const {
 	return static_cast<int>(deadline - now);
 }
 
-void ObjData::process_periodic_effects() {
+void ObjData::dec_timed_spell(int time) {
 	if (!m_timed_spell.empty()) {
-		m_timed_spell.dec_timer(this, 1);
+		m_timed_spell.dec_timer(this, time);
 	}
+}
+
+void ObjData::process_periodic_effects() {
+	dec_timed_spell(1);
 }
 
 void ObjData::attach_triggers(const triggers_list_t &trigs) {
@@ -659,14 +663,13 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
-* Помимо таймера самой шмотки снимается таймер ее временного обкаста.
+* Трогает ТОЛЬКО таймер живучести предмета. Временный обкаст стареет своим ходом --
+* см. dec_timed_spell(); раньше он снимался заодно отсюда, и два независимых механизма
+* оказывались связаны через один вызов.
 * \param time по дефолту 1.
 */
 void ObjData::dec_timer(int time, bool ignore_utimer, bool /*exchange*/) {
 	*buf2 = '\0';
-	if (!m_timed_spell.empty()) {
-		m_timed_spell.dec_timer(this, time);
-	}
 	if (!ignore_utimer && stable_objs::IsTimerUnlimited(this)) {
 		return;
 	}
@@ -808,7 +811,7 @@ void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
 	}
 	m_timed_spell.add(this, spell_id, time);
 	if (time > 0) {
-		world_objects.decay_manager().add_timed_spell_obj(this);
+		world_objects.decay_manager().track_timed_spell(this);
 	}
 }
 
