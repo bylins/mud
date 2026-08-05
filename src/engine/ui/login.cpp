@@ -183,18 +183,28 @@ std::map<std::string, int> new_loc_codes;
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
 
+// Посимвольно, а не побайтно (issue #3681): у многобайтной буквы хвостовой байт не проходит
+// проверку "это буква", и раньше здесь отвергалось любое русское имя. Условие "*argument > 0"
+// означало "символ не ASCII" (у старших байтов знаковый char отрицателен) - теперь это прямая
+// проверка кодовой точки. Регистр тоже сворачивается по символу: первая буква заглавная,
+// остальные строчные; длина при этом не меняется, поэтому буфер name не переполняется.
 int _parse_name(char *argument, char *name) {
-	int i;
+	int i = 0;
 
-	// skip whitespaces
-	for (i = 0; (*name = (i ? LOWER(*argument) : UPPER(*argument))); argument++, i++, name++) {
-		if (native_text::first_char_code(argument) == rus::kYo
-			|| native_text::first_char_code(argument) == rus::kYoUpper
-			|| !a_isalpha(*argument)
-			|| *argument > 0) {
+	while (*argument) {
+		const char32_t code = native_text::first_char_code(argument);
+		if (code == rus::kYo || code == rus::kYoUpper
+			|| !native_text::is_alpha_char(argument)
+			|| code < 0x80) {
 			return (1);
 		}
+		const size_t bytes = i ? native_text::copy_lower_char(argument, name)
+							   : native_text::copy_upper_char(argument, name);
+		argument += bytes;
+		name += bytes;
+		++i;
 	}
+	*name = '\0';
 
 	if (!i) {
 		return (1);
@@ -208,12 +218,19 @@ int _parse_name(char *argument, char *name) {
 * чтобы их в игру вообще пускало, а новых с Ё/ё соответственно брило.
 */
 int parse_exist_name(char *argument, char *name) {
-	int i;
+	int i = 0;
 
-	// skip whitespaces
-	for (i = 0; (*name = (i ? LOWER(*argument) : UPPER(*argument))); argument++, i++, name++)
-		if (!a_isalpha(*argument) || *argument > 0)
+	while (*argument) {
+		if (!native_text::is_alpha_char(argument) || native_text::first_char_code(argument) < 0x80) {
 			return (1);
+		}
+		const size_t bytes = i ? native_text::copy_lower_char(argument, name)
+							   : native_text::copy_upper_char(argument, name);
+		argument += bytes;
+		name += bytes;
+		++i;
+	}
+	*name = '\0';
 
 	if (!i)
 		return (1);
