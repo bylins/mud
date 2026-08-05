@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "mail.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
@@ -594,7 +595,10 @@ void save() {
 
 void load() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MAIL_XML_FILE);
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_mail = native_text::read_data_file(MAIL_XML_FILE);
+	pugi::xml_parse_result result = doc.load_buffer(xml_mail.data(), xml_mail.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);

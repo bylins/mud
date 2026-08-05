@@ -1853,7 +1853,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
-		FileCRC::verify_from_content(this->get_uid(), FileCRC::kPlayer, fl->buf, fl->size);
+		FileCRC::verify_from_content(this->get_uid(), FileCRC::kPlayer, fl->raw, fl->raw_size);
 	}
 	fbclose(fl);
 

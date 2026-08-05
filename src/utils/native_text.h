@@ -156,6 +156,20 @@ std::string from_koi8(const std::string &text);
 // replaced by the converter (it substitutes '+'), which is unavoidable for a narrower encoding.
 std::string to_koi8(const std::string &text);
 
+// Read a data file (all of which are stored in KOI8-R) and hand back its contents in the
+// engine's native encoding. The counterpart of from_koi8 for whole files: parsers that take a
+// buffer should go through this instead of reading the path themselves, so the boundary stays
+// in one place. Returns an empty string if the file cannot be read -- callers report that the
+// same way they did when the parser failed to open it.
+std::string read_data_file(const std::string &path);
+
+// Bring one line read from a data file into the native encoding, tolerating a file that has
+// already been converted. Under KOI8-R this is the identity. Under UTF-8 the text is taken as
+// already-native when it is well-formed UTF-8 and transcoded otherwise -- Cyrillic in KOI8-R is
+// almost never valid UTF-8, which makes validity a reliable discriminator and lets old and new
+// player files coexist without a version field.
+std::string from_disk_line(const char *line);
+
 // Transliterate `name` into the ASCII form used for save-file names: Russian letters become
 // Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
 // produced before the migration and MUST NOT drift -- the result is the on-disk file name of a
