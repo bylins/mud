@@ -811,7 +811,7 @@ void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
 	}
 	m_timed_spell.add(this, spell_id, time);
 	if (time > 0) {
-		world_objects.decay_manager().add_timed_spell_obj(this);
+		world_objects.decay_manager().track_timed_spell(this);
 	}
 }
 

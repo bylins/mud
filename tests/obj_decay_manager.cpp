@@ -55,12 +55,12 @@ TEST_F(ObjDecayManagerTest, RemoveCleansUp) {
 	auto obj = make_obj(100);
 	decay_mgr.insert(obj.get());
 	decay_mgr.add_env_check(obj.get());
-	decay_mgr.add_timed_spell_obj(obj.get());
+	decay_mgr.track_timed_spell(obj.get());
 
-	auto ts_before = decay_mgr.timed_spell_size();
+	auto ts_before = decay_mgr.timed_spell_index_size();
 	decay_mgr.remove(obj.get());
 	EXPECT_FALSE(decay_mgr.contains(obj.get()));
-	EXPECT_EQ(decay_mgr.timed_spell_size(), ts_before - 1);
+	EXPECT_EQ(decay_mgr.timed_spell_index_size(), ts_before - 1);
 }
 
 TEST_F(ObjDecayManagerTest, ProcessTick_NoExpiry) {
@@ -203,13 +203,13 @@ TEST_F(ObjDecayManagerTest, InsertThaws_FrozenWhenTicktimerActivated) {
 
 TEST_F(ObjDecayManagerTest, TimedSpellTracking) {
 	auto obj = make_obj(100);
-	auto before = decay_mgr.timed_spell_size();
+	auto before = decay_mgr.timed_spell_index_size();
 
-	decay_mgr.add_timed_spell_obj(obj.get());
-	EXPECT_EQ(decay_mgr.timed_spell_size(), before + 1);
+	decay_mgr.track_timed_spell(obj.get());
+	EXPECT_EQ(decay_mgr.timed_spell_index_size(), before + 1);
 
-	decay_mgr.remove_timed_spell_obj(obj.get());
-	EXPECT_EQ(decay_mgr.timed_spell_size(), before);
+	decay_mgr.untrack_timed_spell(obj.get());
+	EXPECT_EQ(decay_mgr.timed_spell_index_size(), before);
 }
 
 TEST_F(ObjDecayManagerTest, GetDeadline_Tracked) {
