@@ -1543,6 +1543,11 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	strcpy(buf, PersonName(i, ch, 0));
 	utils::CAP(buf);
 
+	// Состояние жизни красим тем же градиентом, каким показаны хиты в бою -- в промпте
+	// (iosystem.cpp) и в списке группы (groups.cpp). Без цвета строка при осмотре сливается
+	// с описанием персонажа. Красится только само состояние, имя и поза остаются как были.
+	strcat(buf, GetWarmValueColor(i->get_hit(), i->get_real_max_hit()));
+
 	if (percent >= 100) {
 		sprintf(buf2, " невредим%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
@@ -1565,6 +1570,8 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 		strcat(buf, " в ужасном состоянии");
 	else
 		strcat(buf, " умирает");
+
+	strcat(buf, kColorNrm);
 
 	if (!mount::IsOnHorse(i))
 		switch (i->GetPosition()) {
