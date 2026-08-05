@@ -7,6 +7,7 @@
 */
 
 #include "player_index.h"
+#include "utils/native_text.h"
 
 #include "administration/accounts.h"
 #include "global_objects.h"
@@ -345,6 +346,13 @@ void BuildPlayerIndexNew() {
 			continue;
 		if (sscanf(name, "%s ", playername) == 0)
 			continue;
+
+		// players.lst читается обычным fopen, минуя FBFILE, поэтому границу кодировки надо
+		// пройти здесь: иначе индекс останется в KOI8-R, а поиск пойдёт по нативной кодировке
+		// и ни одного существующего персонажа не найдёт (issue #3681).
+		const std::string native_name = native_text::from_disk_line(playername);
+		strncpy(playername, native_name.c_str(), sizeof(playername) - 1);
+		playername[sizeof(playername) - 1] = '\0';
 
 		if (!player_table.IsPlayerExists(playername)) {
 			ActualizePlayersIndex(playername);
