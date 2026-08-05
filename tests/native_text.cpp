@@ -455,4 +455,22 @@ TEST(NativeText, FromKoi8BringsDiskTextIntoTheNativeEncoding) {
 	}
 }
 
+TEST(NativeText, ToKoi8IsTheInverseBoundary) {
+	// The counterpart of from_koi8: used where something downstream speaks KOI8-R -- the legacy
+	// client code pages (their tables are indexed by KOI8-R bytes) and the on-disk formats.
+	const char *const koi8_privet = "\xF0\xD2\xC9\xD7\xC5\xD4";
+	const char *const utf8_privet = "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";
+
+	EXPECT_EQ(native_text::to_koi8(""), "");
+	EXPECT_EQ(native_text::to_koi8("plain ascii 123"), "plain ascii 123");
+
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(native_text::to_koi8(utf8_privet), koi8_privet);
+		// Round trip through the boundary must return the original text.
+		EXPECT_EQ(native_text::from_koi8(native_text::to_koi8(utf8_privet)), utf8_privet);
+	} else {
+		EXPECT_EQ(native_text::to_koi8(koi8_privet), koi8_privet);
+	}
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
