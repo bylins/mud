@@ -352,7 +352,9 @@ int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def) {
 
 std::string AttrStr(const parser_wrapper::DataNode &node, const char *key, const char *def) {
 	const char *v = node.GetValue(key);
-	return (v && *v) ? std::string(v) : std::string(def);
+	// XML-конфиги лежат на диске в KOI8-R; переводим в нативную кодировку движка
+	// (под KOI8-R это тождество, под UTF-8 - перекодировка). Issue #3681.
+	return native_text::from_koi8((v && *v) ? std::string(v) : std::string(def));
 }
 
 } // namespace parse

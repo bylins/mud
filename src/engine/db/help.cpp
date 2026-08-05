@@ -1285,8 +1285,12 @@ void SetsHelp() {
 			str_out = "все";
 		else if (count_class == 0)
 			str_out = "никто";
-		if (str_out.back() == '\n')
-			str_out.back() = '\0';
+		// Именно pop_back(), а не запись '\0': присваивание оставляло NUL ВНУТРИ строки,
+		// не меняя её длины. Байтовая таблица это терпела, а libfort в режиме utf8_table
+		// на встроенном нуле уводит расчёт ширины в переполнение и роняет процесс.
+		if (str_out.back() == '\n') {
+			str_out.pop_back();
+		}
 		table << str_out << table_wrapper::kSeparator << table_wrapper::kEndRow;
 	}
 	table.SetColumnAlign(0, table_wrapper::align::kRight);
