@@ -1861,7 +1861,14 @@ void find_replacement(void *go,
 				trig_log(trig, "recalc: нет такой зоны");
 				return;
 			}
-			trig_log(trig, fmt::format("Пересчитываю зону {} {} {} {}", param[0], param[1], param[2], param[3]));
+			// Строка нужна для разбора по логу, а не богам онлайн, поэтому log() в syslog, а не
+			// trig_log(), который дублирует запись в канал ERRLOG. Заодно пишем зону-оригинал
+			// (copy_from_zone): по одному номеру инстанса данжа непонятно, что пересчитывается.
+			// Имя и внум триггера подставляем сами -- их давал trig_log, а без них не найти,
+			// кто затеял пересчет.
+			log(fmt::format("Пересчитываю зону {} (оригинал {}) {} {} {} [триггер {}, VNum: {}]",
+					param[0], zone_table[zrn].copy_from_zone, param[1], param[2], param[3],
+					GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig)));
 			auto value = param[0] + " " +  param[1]+ " " + param[2] + " " +param[3];
 			DGRecalcZone(value.c_str());
 			UniqueList<ZoneRnum> zone_repop_list;
