@@ -387,11 +387,21 @@ void to_upper(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s
 
 
 std::string from_koi8(const std::string &text) {
-	if (text.empty()) {
+	// This runs per attribute/field while the world and the configs load, and the overwhelming
+	// majority of those are pure ASCII (keys, aliases, numbers), which KOI8-R and UTF-8 spell
+	// identically. Detect that first and hand the text back untouched instead of transcoding.
+	bool has_high_byte = false;
+	for (const char c : text) {
+		if (static_cast<unsigned char>(c) >= 0x80) {
+			has_high_byte = true;
+			break;
+		}
+	}
+	if (!has_high_byte) {
 		return text;
 	}
-	// koi_to_utf8() can grow the text; utils_encoding sizes its own buffers at 6x, so match that.
-	std::vector<char> out(text.size() * 6 + 1, '\0');
+	// Every KOI8-R character lives below U+FFFF, so three bytes per input byte is a hard bound.
+	std::vector<char> out(text.size() * 3 + 1, '\0');
 	codepages::koi_to_utf8(const_cast<char *>(text.c_str()), out.data());
 	return std::string(out.data());
 }

@@ -5,6 +5,7 @@
 // flag the library was built with), so this one test file is correct under either build.
 
 #include "utils/native_text.h"
+#include "utils/utf8.h"
 #include "utils/russian_keys.h"
 
 #include <gtest/gtest.h>
@@ -431,6 +432,27 @@ TEST(NativeText, TransliterationIsStableAcrossTheFlip) {
 	const char *const name = native_text::native_is_utf8()
 		? "\xD0\x92\xD0\xB0\xD1\x81\xD1\x8F" : "\xF7\xC1\xD3\xD1";
 	EXPECT_EQ(native_text::translit_to_filename(name), "vasq");
+}
+
+TEST(NativeText, FromKoi8BringsDiskTextIntoTheNativeEncoding) {
+	// Data files (world, configs, help, boards, saves) are stored in KOI8-R. from_koi8() is the
+	// boundary that brings them into whatever the engine runs on: a no-op today, a transcode
+	// after the flip. Both directions are asserted here so the wiring can be trusted before the
+	// sources that need it are converted.
+	const char *const koi8_privet = "\xF0\xD2\xC9\xD7\xC5\xD4";              // "Privet", KOI8-R
+	const char *const utf8_privet = "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";  // the same, UTF-8
+
+	EXPECT_EQ(native_text::from_koi8(""), "");
+	EXPECT_EQ(native_text::from_koi8("plain ascii 123"), "plain ascii 123");  // ASCII never changes
+
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(native_text::from_koi8(koi8_privet), utf8_privet);
+		// The result must be well-formed UTF-8 -- libfort aborts the process on anything else.
+		EXPECT_TRUE(utf8::is_valid(native_text::from_koi8(koi8_privet)));
+		EXPECT_EQ(native_text::char_count(native_text::from_koi8(koi8_privet)), 6u);
+	} else {
+		EXPECT_EQ(native_text::from_koi8(koi8_privet), koi8_privet);  // identity under KOI8-R
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

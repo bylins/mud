@@ -1,4 +1,6 @@
 #include "parser_wrapper.h"
+#include <fstream>
+#include "utils/native_text.h"
 
 #include "utils/logger.h"
 
@@ -20,7 +22,18 @@ DataNode::DataNode() :
 DataNode::DataNode(const std::filesystem::path &file_name) :
 	DataNode()
 {
-	if (auto result = impl_->xml_doc->load_file(file_name.c_str()); !result) {
+	// Файлы конфигов лежат на диске в KOI8-R. Переводим содержимое в нативную кодировку
+	// движка ОДИН раз на документ, а не на каждое поле: тогда всё, что читается через
+	// DataNode, приходит уже в нужной кодировке (issue #3681). Под KOI8-R это тождество.
+	std::string raw;
+	{
+		std::ifstream in(file_name, std::ios::binary);
+		if (in) {
+			raw.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+		}
+	}
+	const std::string converted = native_text::from_koi8(raw);
+	if (auto result = impl_->xml_doc->load_buffer(converted.data(), converted.size()); !result) {
 		std::ostringstream buffer;
 		buffer << "..." << result.description() << "\r\n" << " (file: " << file_name << ")" << "\r\n";
 		err_log("%s", buffer.str().c_str());
