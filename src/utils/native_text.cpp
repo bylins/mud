@@ -406,6 +406,26 @@ std::string from_koi8(const std::string &text) {
 	return std::string(out.data());
 }
 
+std::string to_koi8(const std::string &text) {
+	if (text.empty()) {
+		return text;
+	}
+	bool has_high_byte = false;
+	for (const char c : text) {
+		if (static_cast<unsigned char>(c) >= 0x80) {
+			has_high_byte = true;
+			break;
+		}
+	}
+	if (!has_high_byte) {
+		return text;   // pure ASCII is spelled identically in both encodings
+	}
+	// KOI8-R is never longer than the UTF-8 it came from, so the input size is a safe bound.
+	std::vector<char> out(text.size() + 1, '\0');
+	codepages::utf8_to_koi(const_cast<char *>(text.c_str()), out.data());
+	return std::string(out.data());
+}
+
 std::string translit_to_filename(std::string_view name) {
 	// Code point -> the very same Latin character the KOI8-R byte table yields, so a player's
 	// file name is identical before and after the flip. Upper and lower case collapse together
@@ -606,6 +626,10 @@ void to_upper(char *s) {
 
 
 std::string from_koi8(const std::string &text) {
+	return text;   // the native encoding already is KOI8-R
+}
+
+std::string to_koi8(const std::string &text) {
 	return text;   // the native encoding already is KOI8-R
 }
 

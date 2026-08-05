@@ -150,6 +150,12 @@ void to_upper(char *s);
 // free of #ifdefs and gives one place to revisit when the data files themselves move.
 std::string from_koi8(const std::string &text);
 
+// The inverse: take native text down to KOI8-R. Needed wherever something downstream is defined
+// in terms of KOI8-R bytes -- the legacy client code pages are KOI8-R -> target byte tables, and
+// the on-disk formats are KOI8-R. Identity under KOI8-R. Characters absent from KOI8-R are
+// replaced by the converter (it substitutes '+'), which is unavoidable for a narrower encoding.
+std::string to_koi8(const std::string &text);
+
 // Transliterate `name` into the ASCII form used for save-file names: Russian letters become
 // Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
 // produced before the migration and MUST NOT drift -- the result is the on-disk file name of a

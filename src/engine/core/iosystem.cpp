@@ -7,6 +7,7 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "utils/native_text.h"
 #include <cstring>
 #include <string_view>
 #include "gameplay/core/experience.h"
@@ -431,7 +432,11 @@ int process_input(DescriptorData *t) {
 					// Буква задана СТРОКОВЫМ литералом: он байт-прозрачен, поэтому один и тот
 					// же код верен и для KOI8-R (1 байт), и для UTF-8 (2 байта) -- в отличие от
 					// символьного литерала, который под UTF-8 не помещается в char (issue #3681).
-					static const std::string_view kYaLetter = "я";
+					// В этой точке буфер содержит KOI8-R (таблицы легаси-кодировок выше отдают
+					// именно его), поэтому букву тоже берём в KOI8-R. Под KOI8-R-рантаймом
+					// to_koi8 - тождество, под UTF-8 - перекодировка литерала.
+					static const std::string kYaStorage = native_text::to_koi8("я");
+					const std::string_view kYaLetter = kYaStorage;
 					if (*(write_point - 1) == 'z' && space_left + 1 >= kYaLetter.size()) {
 						--write_point;
 						++space_left;
@@ -446,20 +451,32 @@ int process_input(DescriptorData *t) {
 
 		*write_point = '\0';
 
+		// Приводим собранную строку к нативной кодировке движка (issue #3681). После разбора
+		// выше в tmp лежит либо UTF-8 (клиент UTF-8), либо KOI8-R (все остальные кодировки
+		// клиентов - их таблицы отдают именно KOI8-R).
 		if (t->keytable == kCodePageUTF8) {
-			int i;
-			char utf8_tmp[kMaxSockBuf * 2 * 3];
-			size_t len_i, len_o;
+			if (!native_text::native_is_utf8()) {
+				int i;
+				char utf8_tmp[kMaxSockBuf * 2 * 3];
+				size_t len_i, len_o;
 
-			len_i = strlen(tmp);
+				len_i = strlen(tmp);
 
-			for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
-				utf8_tmp[i] = 0;
+				for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
+					utf8_tmp[i] = 0;
+				}
+				codepages::utf8_to_koi(tmp, utf8_tmp);
+				len_o = strlen(utf8_tmp);
+				strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
+				space_left = space_left + len_i - len_o;
 			}
-			codepages::utf8_to_koi(tmp, utf8_tmp);
-			len_o = strlen(utf8_tmp);
-			strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
-			space_left = space_left + len_i - len_o;
+			// иначе клиент прислал уже нативную кодировку - трогать нечего
+		} else if (native_text::native_is_utf8()) {
+			const size_t len_i = strlen(tmp);
+			const std::string native = native_text::from_koi8(tmp);
+			strncpy(tmp, native.c_str(), kMaxInputLength - 1);
+			tmp[kMaxInputLength - 1] = '\0';
+			space_left = space_left + len_i - strlen(tmp);
 		}
 
 		if ((space_left <= 0) && (ptr < nl_pos)) {
