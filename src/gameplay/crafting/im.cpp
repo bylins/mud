@@ -11,8 +11,10 @@
 // Реализация ингредиентной магии
 
 #include "im.h"
+#include <fmt/format.h>
 #include "utils/parser_wrapper.h"
 #include "utils/utils_parse.h"
+#include "utils/native_text.h"
 #include <unordered_map>
 #include <vector>
 #include <cstdlib>
@@ -246,7 +248,17 @@ const char *replace_alias(const char *ptr, im_memb *sample, int rnum, const char
 				if (*ptr == VAR_CHAR) {
 					int k;
 					++ptr;
-					for (k = 0; (*ptr) && a_isalnum(*ptr); aname[k++] = *ptr++);
+					// One whole character per step (issue #3681), with a bounds check: the
+					// previous loop had none, and multibyte text fills aname[] twice as fast.
+					for (k = 0; *ptr && native_text::is_alnum_char(ptr);) {
+						const size_t bytes = native_text::char_bytes(ptr);
+						if (static_cast<size_t>(k) + bytes >= sizeof(aname)) {
+							break;
+						}
+						for (size_t i = 0; i < bytes; ++i) {
+							aname[k++] = *ptr++;
+						}
+					}
 					aname[k] = 0;
 					al = get_im_alias(sample, aname);
 					strcpy(dst, al ? al : aname);
@@ -942,14 +954,14 @@ void list_recipes(CharData *ch, bool all_recipes) {
 			rs = im_get_char_rskill(ch, sortpos);
 			const bool unavailable = req->level > GetRealLevel(ch) || req->remort > remort::GetRealRemort(ch);
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
-				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
+				strcpy(buf, fmt::format("     {}{:<30}{} {:2} ({:2}){}\r\n",
 						unavailable ? kColorRed : rs ? kColorGrn : kColorNrm,
 						imrecipes[sortpos].name, kColorCyn,
-						req->level, req->remort, kColorNrm);
+						req->level, req->remort, kColorNrm).c_str());
 			} else {
-				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
+				strcpy(buf, fmt::format(" {} {:<30} {:2} ({:2})\r\n",
 						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
-						req->level, req->remort);
+						req->level, req->remort).c_str());
 			}
 			strcat(buf1, buf);
 			++i;
@@ -971,7 +983,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 		}
 		if (rs->perc <= 0)
 			continue;
-		sprintf(buf, "%-30s %s%s\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel), kColorBoldBlk);
+		strcpy(buf, fmt::format("{:<30} {}{}\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel), kColorBoldBlk).c_str());
 		strcat(buf2, buf);
 		++i;
 	}

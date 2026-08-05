@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "genchar.h"
+#include "utils/russian_keys.h"
 
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
@@ -20,6 +21,7 @@
 #include "engine/core/comm.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/native_text.h"
 #include "gameplay/magic/spells.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
@@ -94,48 +96,48 @@ void genchar_disp_menu(CharData *ch) {
 
 int genchar_parse(CharData *ch, char *arg) {
 	const auto &ch_class = MUD::Class(ch->GetClass());
-	switch (*arg) {
-		case 'А':
-		case 'а': ch->set_str(std::max(ch->GetInbornStr() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kStr)));
+	switch (native_text::first_char_code(arg)) {
+		case rus::kAUpper:
+		case rus::kA: ch->set_str(std::max(ch->GetInbornStr() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kStr)));
 			break;
-		case 'Б':
-		case 'б': ch->set_dex(std::max(ch->GetInbornDex() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kDex)));
+		case rus::kBeUpper:
+		case rus::kBe: ch->set_dex(std::max(ch->GetInbornDex() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kDex)));
 			break;
-		case 'Г':
-		case 'г': ch->set_int(std::max(ch->GetInbornInt() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kInt)));
+		case rus::kGeUpper:
+		case rus::kGe: ch->set_int(std::max(ch->GetInbornInt() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kInt)));
 			break;
-		case 'Д':
-		case 'д': ch->set_wis(std::max(ch->GetInbornWis() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kWis)));
+		case rus::kDeUpper:
+		case rus::kDe: ch->set_wis(std::max(ch->GetInbornWis() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kWis)));
 			break;
-		case 'Е':
-		case 'е': ch->set_con(std::max(ch->GetInbornCon() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCon)));
+		case rus::kIeUpper:
+		case rus::kIe: ch->set_con(std::max(ch->GetInbornCon() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCon)));
 			break;
-		case 'Ж':
-		case 'ж': ch->set_cha(std::max(ch->GetInbornCha() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCha)));
+		case rus::kZheUpper:
+		case rus::kZhe: ch->set_cha(std::max(ch->GetInbornCha() - 1, ch_class.GetBaseStatGenMin(EBaseStat::kCha)));
 			break;
-		case 'З':
-		case 'з': ch->set_str(std::min(ch->GetInbornStr() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kStr)));
+		case rus::kZeUpper:
+		case rus::kZe: ch->set_str(std::min(ch->GetInbornStr() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kStr)));
 			break;
-		case 'И':
-		case 'и': ch->set_dex(std::min(ch->GetInbornDex() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kDex)));
+		case rus::kIUpper:
+		case rus::kI: ch->set_dex(std::min(ch->GetInbornDex() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kDex)));
 			break;
-		case 'К':
-		case 'к': ch->set_int(std::min(ch->GetInbornInt() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kInt)));
+		case rus::kKaUpper:
+		case rus::kKa: ch->set_int(std::min(ch->GetInbornInt() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kInt)));
 			break;
-		case 'Л':
-		case 'л': ch->set_wis(std::min(ch->GetInbornWis() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kWis)));
+		case rus::kElUpper:
+		case rus::kEl: ch->set_wis(std::min(ch->GetInbornWis() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kWis)));
 			break;
-		case 'М':
-		case 'м': ch->set_con(std::min(ch->GetInbornCon() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCon)));
+		case rus::kEmUpper:
+		case rus::kEm: ch->set_con(std::min(ch->GetInbornCon() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCon)));
 			break;
-		case 'Н':
-		case 'н': ch->set_cha(std::min(ch->GetInbornCha() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCha)));
+		case rus::kEnUpper:
+		case rus::kEn: ch->set_cha(std::min(ch->GetInbornCha() + 1, ch_class.GetBaseStatGenMax(EBaseStat::kCha)));
 			break;
-		case 'П':
-		case 'п': SendMsgToChar(genchar_help, ch);
+		case rus::kPeUpper:
+		case rus::kPe: SendMsgToChar(genchar_help, ch);
 			break;
-		case 'В':
-		case 'в':
+		case rus::kVeUpper:
+		case rus::kVe:
 			if (CalcBasseStatsSum(ch) != kBaseStatsSum)
 				break;
 			// по случаю успешной генерации сохраняем стартовые статы
@@ -146,8 +148,8 @@ int genchar_parse(CharData *ch, char *arg) {
 			ch->set_start_stat(G_CON, ch->GetInbornCon());
 			ch->set_start_stat(G_CHA, ch->GetInbornCha());
 			return kGencharExit;
-		case 'О':
-		case 'о': {
+		case rus::kOUpper:
+		case rus::kO: {
 			const auto &tmp_class = MUD::Class(ch->GetClass());
 			ch->set_str(tmp_class.GetBaseStatGenAuto(EBaseStat::kStr));
 			ch->set_dex(tmp_class.GetBaseStatGenAuto(EBaseStat::kDex));
@@ -249,10 +251,18 @@ void SetStartAbils(CharData *ch) {
 //  5 - предложный (о ком? о чем?)
 // result - результат
 void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
-	size_t len = name.size();
 	std::string result = data;
 
-	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != nullptr
+	// The declension is chosen by the last letter of the name (and sometimes the one before it).
+	// Those are *characters*, not bytes (issue #3681): under KOI8-R `stem`/`last`/`prev` are the
+	// same single bytes the old name[len - 1] / name[len - 2] / substr(0, len - 1) produced,
+	// under UTF-8 they are whole letters.
+	const size_t last_off = native_text::last_char_offset(name);
+	const std::string stem = name.substr(0, last_off);
+	const std::string last = name.substr(last_off);
+	const std::string prev = stem.substr(native_text::last_char_offset(stem));
+
+	if (native_text::list_contains_char("цкнгшщзхфвпрлджчсмтб", last)
 		&& sex == EGender::kMale) {
 		result = name;
 		if (caseNum == 1)
@@ -265,8 +275,8 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "ом"; // Иваном, Ретичем
 		else if (caseNum == 5)
 			result += "е"; // Иване
-	} else if (name[len - 1] == 'я') {
-		result = name.substr(0, len - 1);
+	} else if (last == "я") {
+		result = stem;
 		if (caseNum == 1)
 			result += "и"; // Ани, Вани
 		else if (caseNum == 2)
@@ -279,9 +289,9 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "е"; // Ане, Ване
 		else
 			result += "я"; // Аня, Ваня
-	} else if (name[len - 1] == 'й'
+	} else if (last == "й"
 		&& sex == EGender::kMale) {
-		result = name.substr(0, len - 1);
+		result = stem;
 		if (caseNum == 1)
 			result += "я"; // Дрегвия
 		else if (caseNum == 2)
@@ -294,10 +304,10 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "и"; // Дрегвии
 		else
 			result += "й"; // Дрегвий
-	} else if (name[len - 1] == 'а') {
-		result = name.substr(0, len - 1);
+	} else if (last == "а") {
+		result = stem;
 		if (caseNum == 1) {
-			if (strchr("шщжч", name[len - 2]) != nullptr)
+			if (native_text::list_contains_char("шщжч", prev))
 				result += "и"; // Маши, Паши
 			else
 				result += "ы"; // Анны
@@ -306,7 +316,7 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 		else if (caseNum == 3)
 			result += "у"; // Пашу, Анну
 		else if (caseNum == 4) {
-			if (strchr("шщч", name[len - 2]) != nullptr)
+			if (native_text::list_contains_char("шщч", prev))
 				result += "ей"; // Машей, Пашей
 			else
 				result += "ой"; // Анной, Ханжой

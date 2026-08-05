@@ -5,6 +5,8 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/utils_encoding.h"
@@ -991,7 +993,7 @@ void Clan::HouseInfo(CharData *ch) {
 	for (const auto &it : temp_list) {
 		if (temp != ranks[it->rank_num]) {
 			std::string rnk = ranks[it->rank_num];
-			rnk[0] = UPPER(rnk[0]);
+			native_text::capitalize_first(rnk);
 
 			if (temp == "") {
 				buffer << rnk << ": ";
@@ -1116,7 +1118,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 		return;
 	}
 	std::string name = buffer2;
-	name[0] = UPPER(name[0]);
+	native_text::capitalize_first(name);
 	if (unique == ch->get_uid()) {
 		SendMsgToChar("Сам себя повысил, самому себе вынес благодарность?\r\n", ch);
 		return;
@@ -1308,7 +1310,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 		if (d->character
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == this->GetRent()) {
-			name[0] = UPPER(name[0]);
+			native_text::capitalize_first(name);
 			SendMsgToChar(d->character.get(), "%s более не является членом вашей дружины.\r\n", name.c_str());
 		}
 	}
@@ -1426,7 +1428,7 @@ void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 			char tmpstr[kMaxInputLength];
 			sprintf(tmpstr, "Богом %s", GET_NAME(ch));
 			clan->remove_member(member_uid, tmpstr);
-			name[0] = UPPER(name[0]);
+			native_text::capitalize_first(name);
 			SendMsgToChar(ch, "%s исключен(a) из дружины '%s'.\r\n", name.c_str(), clan->name.c_str());
 			return;
 		}
@@ -2073,7 +2075,7 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 	tempClan->chest_room = rent;
 	tempClan->guard = guard;
 	// пишем воеводу
-	owner[0] = UPPER(owner[0]);
+	native_text::capitalize_first(owner);
 	tempClan->owner = owner;
 	const auto tempMember = std::make_shared<ClanMember>();
 	tempMember->name = owner;
@@ -2751,9 +2753,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 
 	switch (d->clan_olc->mode) {
 		case CLAN_MAIN_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// есть вариант, что за время в олц в клане изменят кол-во званий
@@ -2833,9 +2835,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_PRIVILEGE_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню
@@ -2878,11 +2880,11 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_SAVE_MENU:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д': d->clan_olc->clan->privileges.clear();
+				case rus::kDe:
+				case rus::kDeUpper: d->clan_olc->clan->privileges.clear();
 					d->clan_olc->clan->privileges = d->clan_olc->privileges;
 					d->clan_olc.reset();
 					// Clan::ClanSave();
@@ -2892,8 +2894,8 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': d->clan_olc.reset();
+				case rus::kEn:
+				case rus::kEnUpper: d->clan_olc.reset();
 					d->state = EConState::kPlaying;
 					SendMsgToChar("Редактирование отменено.\r\n", d->character.get());
 					return;
@@ -2908,9 +2910,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_ADDALL_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню с изменением всех званий
@@ -2962,9 +2964,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_DELALL_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню с изменением всех званий
@@ -3475,7 +3477,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 	else if (CLAN(d->character) && CLAN(ch) != CLAN(d->character))
 		SendMsgToChar("Вы не можете передать свои права члену другой дружины.\r\n", ch);
 	else {
-		buffer2[0] = UPPER(buffer2[0]);
+		native_text::capitalize_first(buffer2);
 		// воевода идет рангом ниже
 		this->m_members.set_rank(ch->get_uid(), 1);
 		Clan::SetClanData(ch);

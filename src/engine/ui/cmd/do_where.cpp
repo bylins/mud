@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/economics/exchange.h"
@@ -145,8 +146,8 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			sprintf(buf, "%-20s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
-			SendMsgToChar(buf, ch);
+			// Ширина колонки - в символах, а не в байтах (issue #3681).
+			SendMsgToChar(fmt::format("{:<20} - {}\r\n", GET_NAME(i), world[i->in_room]->name), ch);
 		}
 	} else        // print only FIRST char, not all.
 	{
@@ -165,8 +166,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			sprintf(buf, "%-25s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{:<25} - {}\r\n", GET_NAME(i), world[i->in_room]->name), ch);
 			return;
 		}
 		SendMsgToChar("Никого похожего с этим именем нет.\r\n", ch);
@@ -196,9 +196,11 @@ std::string where_format::FormatWhere(const std::vector<WhereRow> &rows) {
 	for (const auto &row : rows) {
 		const std::string prefix = fmt::format("{:>{}}. {:<5} [{:>7}] {:<25} - ",
 				row.num, num_width, RowKindLabel(row.kind), row.vnum, row.name);
-		// Отступ строк-продолжений = длине префикса, чтобы разделитель " - "
-		// встал ровно под разделителем первой строки.
-		const std::string cont = fmt::format("{:>{}}", " - ", static_cast<int>(prefix.size()));
+		// Отступ строк-продолжений = ШИРИНЕ префикса в символах, чтобы разделитель " - "
+		// встал ровно под разделителем первой строки. Именно в символах, а не в байтах:
+		// prefix.size() под UTF-8 больше числа колонок, и отступ уезжал (issue #3681).
+		const std::string cont =
+			fmt::format("{:>{}}", " - ", static_cast<int>(native_text::char_count(prefix)));
 
 		out += prefix;
 		if (!row.location_lines.empty()) {

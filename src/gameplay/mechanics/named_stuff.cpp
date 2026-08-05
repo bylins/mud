@@ -3,6 +3,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "named_stuff.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 
@@ -165,11 +168,15 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 	if (!*buf1) {
 		return false;
 	}
-	if ((*buf1 < '1' || *buf1 > '8') && (LOWER(*buf1) != 'в' && LOWER(*buf1) != 'х' && LOWER(*buf1) != 'у')) {
+	if ((*buf1 < '1' || *buf1 > '8') && (native_text::first_char_code_lower(buf1) != rus::kVe
+			&& native_text::first_char_code_lower(buf1) != rus::kHa
+			&& native_text::first_char_code_lower(buf1) != rus::kU)) {
 		SendMsgToChar(ch, "Неверный параметр %c!\r\n", *buf1);
 		return false;
 	}
-	if (!*buf2 && LOWER(*buf1) != 'в' && LOWER(*buf1) != 'х' && LOWER(*buf1) != 'у') {
+	if (!*buf2 && native_text::first_char_code_lower(buf1) != rus::kVe
+		&& native_text::first_char_code_lower(buf1) != rus::kHa
+		&& native_text::first_char_code_lower(buf1) != rus::kU) {
 		if (*buf1 < '5' || *buf1 > '8') {
 			SendMsgToChar("Не указан второй параметр!\r\n", ch);
 		} else {
@@ -190,7 +197,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 		return false;
 	}
 
-	switch (LOWER(*buf1)) {
+	switch (native_text::first_char_code_lower(buf1)) {
 		case '1':
 			if (a_isdigit(*buf2) && sscanf(buf2, "%d", &num)) {
 				if (GetObjRnum(num) < 0) {
@@ -262,7 +269,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			}
 			break;
 
-		case 'у':
+		case rus::kU:
 			if (!ch->desc->old_vnum)
 				return false;
 			stuff_list.erase(ch->desc->old_vnum);
@@ -271,7 +278,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			save();
 			return true;
 
-		case 'в': tmp_node->uid = ch->desc->named_obj->uid;
+		case rus::kVe: tmp_node->uid = ch->desc->named_obj->uid;
 			tmp_node->can_clan = ch->desc->named_obj->can_clan;
 			tmp_node->can_alli = ch->desc->named_obj->can_alli;
 			tmp_node->mail = ch->desc->named_obj->mail;
@@ -287,7 +294,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			save();
 			return true;
 
-		case 'х': ch->desc->state = EConState::kPlaying;
+		case rus::kHa: ch->desc->state = EConState::kPlaying;
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			return true;
 
@@ -369,12 +376,12 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 								out += buf1;
 							}
 							found++;
-							sprintf(buf2, "%6ld) &R*&n%-31s Владелец:%-16s e-mail:&S%s&s\r\n",
+							strcpy(buf2, fmt::format("{:6}) &R*&n{:<31} Владелец:{:<16} e-mail:&S{}&s\r\n",
 									it->first + 1,
 									"Несуществующий предмет",
-									GetNameByUnique(it->second->uid, false).c_str(),
-									str_dup(it->second->mail.c_str())
-							);
+									GetNameByUnique(it->second->uid, false),
+									it->second->mail
+							).c_str());
 							out += buf2;
 						}
 					} else {
@@ -388,9 +395,9 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
 							if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
+								strcpy(buf2, fmt::format("{} Игра:{} Пост:{} Владелец:{:<16} e-mail:&S{}&s\r\n", buf1,
 										 obj_proto.total_online(r_num), obj_proto.stored(r_num),
-										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
+										 GetNameByUnique(it->second->uid, false), it->second->mail).c_str());
 							} else {
 								snprintf(buf2, kMaxStringLength, "%s\r\n", buf1);
 							}

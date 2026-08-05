@@ -31,6 +31,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/inventory.h"
 #include "utils/utils_parse.h"
+#include "utils/native_text.h"
 #include "dg_event.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
@@ -4312,8 +4313,13 @@ int eval_lhs_op_rhs(const char *expr, char *result, size_t result_size, void *go
 			p = matching_paren(p) + 1;
 		else if (*p == '"')
 			p = matching_quote(p) + 1;
-		else if (a_isalnum(*p))
-			for (p++; *p && (a_isalnum(*p) || isspace(*p)); p++);
+		// Step over whole characters (issue #3681): a byte-wise scan ends a token in the middle
+		// of a multibyte letter. isspace() takes an unsigned value -- a raw char is negative for
+		// any non-ASCII byte, which is undefined behaviour.
+		else if (native_text::is_alnum_char(p))
+			for (p += native_text::char_bytes(p);
+				 *p && (native_text::is_alnum_char(p) || isspace(static_cast<unsigned char>(*p)));
+				 p += native_text::char_bytes(p));
 		else
 			p++;
 	}
@@ -6251,8 +6257,8 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char trgtypes[256];
 	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		std::string out = "";
-		snprintf(buf, sizeof(buf), "%2d) [%5d] %-50s ", ++found,
-				trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
+		strcpy(buf, fmt::format("{:2}) [{:5}] {:<50} ", ++found,
+				trig_index[nr]->vnum, trig_index[nr]->proto->get_name()).c_str());
 		out += buf;
 		if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
 			sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes, sizeof(trgtypes));

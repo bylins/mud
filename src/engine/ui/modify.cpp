@@ -13,10 +13,12 @@
 ************************************************************************ */
 
 #include <fmt/format.h>
+#include "utils/russian_keys.h"
 #include "engine/db/player_index.h"
 #include <string>
 
 #include "modify.h"
+#include "utils/native_text.h"
 #include "engine/olc/vedun/vedun.h"
 #include "interpreter.h"
 #include "engine/core/target_resolver.h"
@@ -652,11 +654,11 @@ void string_add(DescriptorData *d, char *str) {
 	if (!d->writer->get_string()) {
 		if (strlen(str) + 3 > d->max_str) {
 			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
-			strcpy(&str[d->max_str - 3], "\r\n");
+			strcpy(&str[native_text::truncate_offset(str, d->max_str - 3)], "\r\n");
 			d->writer->set_string(str);
 		} else if (EConState::kWriteMod == d->state && strlen(str) + 3 > 80) {
 			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
-			str[80 - 3] = '\0';
+			str[native_text::truncate_offset(str, 80 - 3)] = '\0';
 			d->writer->set_string(str);
 		} else {
 			d->writer->set_string(str);
@@ -664,7 +666,7 @@ void string_add(DescriptorData *d, char *str) {
 	} else {
 		if (EConState::kWriteMod == d->state && strlen(str) + 3 > 80) {
 			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
-			str[80 - 3] = '\0';
+			str[native_text::truncate_offset(str, 80 - 3)] = '\0';
 		}
 
 		if (strlen(str) + d->writer->length() + 3 > d->max_str)    // \r\n\0 //
@@ -1188,9 +1190,14 @@ char *next_page(char *str, CharData *ch) {
 
 				// * We need to check here and see if we are over the page width,
 				// * and if so, compensate by going to the begining of the next line.
-			else if ((ch)->player_specials->saved.stringLength && ++col > (ch)->player_specials->saved.stringLength) {
-				col = 1;
-				line++;
+				// * A multibyte character counts as one column; skip its trailing bytes so
+				// * they are not counted again (native_text::char_bytes == 1 under KOI8-R).
+			else if ((ch)->player_specials->saved.stringLength) {
+				if (++col > (ch)->player_specials->saved.stringLength) {
+					col = 1;
+					line++;
+				}
+				str += native_text::char_bytes(str) - 1;
 			}
 		}
 	}
@@ -1263,7 +1270,8 @@ void show_string(DescriptorData *d, char *input) {
 	any_one_arg(input, buf);
 
 	//* Q is for quit. :)
-	if (LOWER(*buf) == 'q' || LOWER(*buf) == 'к') {
+	if (native_text::first_char_code_lower(buf) == 'q'
+		|| native_text::first_char_code_lower(buf) == rus::kKa) {
 		free(d->showstr_vector);
 		d->showstr_count = 0;
 		if (d->showstr_head) {
@@ -1275,12 +1283,14 @@ void show_string(DescriptorData *d, char *input) {
 	}
 		// R is for refresh, so back up one page internally so we can display
 		// it again.
-	else if (LOWER(*buf) == 'r' || LOWER(*buf) == 'п') {
+	else if (native_text::first_char_code_lower(buf) == 'r'
+		|| native_text::first_char_code_lower(buf) == rus::kPe) {
 		d->showstr_page = MAX(0, d->showstr_page - 1);
 	}
 		// B is for back, so back up two pages internally so we can display the
 		// correct page here.
-	else if (LOWER(*buf) == 'b' || LOWER(*buf) == 'н') {
+	else if (native_text::first_char_code_lower(buf) == 'b'
+		|| native_text::first_char_code_lower(buf) == rus::kEn) {
 		d->showstr_page = MAX(0, d->showstr_page - 2);
 	}
 		// Feature to 'goto' a page.  Just type the number of the page and you

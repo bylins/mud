@@ -263,8 +263,8 @@ void Print(CharData *ch, int first, int last, const std::string &options) {
 	int cnt = 0;
 	for (int i = 0; i <= top_of_mobt; ++i) {
 		if (mob_index[i].vnum >= first && mob_index[i].vnum <= last) {
-			fmt::format_to(std::back_inserter(out), "{:5}. {:<45} [{:<6}] [{:<2}]{}",
-					  ++cnt, mob_proto[i].get_name_str().substr(0, 45),
+			fmt::format_to(std::back_inserter(out), "{:5}. {:<45.45} [{:<6}] [{:<2}]{}",
+					  ++cnt, mob_proto[i].get_name_str(),
 					  mob_index[i].vnum, mob_proto[i].GetLevel(),
 					  PrintFlag(mob_proto + i, options));
 			if (!mob_proto[i].proto_script->empty()) {

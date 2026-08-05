@@ -1,4 +1,5 @@
 #include "do_skills.h"
+#include <fmt/format.h>
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
@@ -77,12 +78,13 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 				default: sprintf(buf, "      ");
 			}
 
-			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
+			// Ширина колонки - в символах, а не в байтах (issue #3681).
+			strcat(buf, fmt::format("{:<23} {} ({}){} \r\n",
 					skill.GetName(),
 					how_good(GetSkill(ch, skill_id), CalcSkillHardCap(ch, skill_id)),
 					GetTrainedSkill(ch, skill_id) == 0 ? GetEquippedSkill(ch, skill_id) : 
 					std::min(CalcSkillMinCap(ch, skill_id) + GetEquippedSkill(ch, skill_id), MUD::Skill(skill_id).cap),
-					kColorNrm);
+					kColorNrm).c_str());
 			skills_names.emplace_back(buf);
 			i++;
 		}

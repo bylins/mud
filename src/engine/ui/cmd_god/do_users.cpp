@@ -3,6 +3,7 @@
 //
 
 #include "engine/ui/color.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/classes/pc_classes.h"
 #include "engine/entities/char_data.h"
@@ -105,7 +106,9 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}            // end while (parser)
 
-	const char *format = "%3d %-7s %-20s %-17s %-3s %-8s ";
+	// Ширина колонок - в символах, а не в байтах (issue #3681): поля ниже паддятся
+// через native_text, поэтому формат содержит голые "%s".
+	const char *format = "{:3} {:<7} {:<20} {:<17} {:<3} {:<8} ";
 	if (showemail) {
 		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт       E-mail\r\n");
 	} else {
@@ -260,26 +263,17 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (d->character
 			&& d->character->GetCharAliases().c_str()) {
 			if (d->original) {
-				sprintf(line,
-						format,
-						d->desc_num,
-						classname,
-						d->original->GetCharAliases().c_str(),
-						state,
-						idletime,
-						timeptr);
+				strcpy(line, fmt::format(fmt::runtime(format),
+						d->desc_num, classname, d->original->GetCharAliases().c_str(),
+						state, idletime, timeptr).c_str());
 			} else {
-				sprintf(line,
-						format,
-						d->desc_num,
-						classname,
-						d->character->GetCharAliases().c_str(),
-						state,
-						idletime,
-						timeptr);
+				strcpy(line, fmt::format(fmt::runtime(format),
+						d->desc_num, classname, d->character->GetCharAliases().c_str(),
+						state, idletime, timeptr).c_str());
 			}
 		} else {
-			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
+			strcpy(line, fmt::format(fmt::runtime(format), d->desc_num, "   -   ",
+					"UNDEFINED", state, idletime, timeptr).c_str());
 		}
 
 		if (d && *d->host) {

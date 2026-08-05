@@ -7,6 +7,8 @@
 */
 
 #include "engine/core/iosystem.h"
+#include <cstring>
+#include <string_view>
 #include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "utils/utils_encoding.h"
@@ -426,8 +428,16 @@ int process_input(DescriptorData *t) {
 			// Увы, это кое-что ломает, напр. wizhelp, или "г я использую zMUD"
 			if  (t->state == EConState::kPlaying ||  (t->state == EConState::kExdesc)) {
 				if (t->keytable == kCodePageWinzZ || t->keytable == kCodePageWinzOld) {
-					if (*(write_point - 1) == 'z') {
-						*(write_point - 1) = 'я';
+					// Буква задана СТРОКОВЫМ литералом: он байт-прозрачен, поэтому один и тот
+					// же код верен и для KOI8-R (1 байт), и для UTF-8 (2 байта) -- в отличие от
+					// символьного литерала, который под UTF-8 не помещается в char (issue #3681).
+					static const std::string_view kYaLetter = "я";
+					if (*(write_point - 1) == 'z' && space_left + 1 >= kYaLetter.size()) {
+						--write_point;
+						++space_left;
+						std::memcpy(write_point, kYaLetter.data(), kYaLetter.size());
+						write_point += kYaLetter.size();
+						space_left -= kYaLetter.size();
 					}
 				}
 			}

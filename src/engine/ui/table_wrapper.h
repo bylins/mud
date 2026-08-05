@@ -41,9 +41,21 @@ using Color = fort::color;
 using TextAlign = fort::text_align;
 
 /**
- * Таблица в стандартной, не unicode кодировке.
+ * Базовый тип таблицы выбирается под нативную кодировку движка (issue #3681).
+ * libfort считает ширину ячейки по-разному: char_table меряет байтами, utf8_table - кодовыми
+ * точками. Под KOI8-R (1 байт = 1 символ) верен первый, под UTF-8 - второй; при неверном выборе
+ * колонки с русским текстом съезжают вдвое.
  */
-class Table : public fort::char_table {
+#ifdef INTERNAL_ENCODING_UTF8
+using TableBase = fort::utf8_table;
+#else
+using TableBase = fort::char_table;
+#endif
+
+/**
+ * Таблица в нативной кодировке движка.
+ */
+class Table : public TableBase {
  public:
 	void SetColumnAlign(std::size_t column_index, TextAlign align) {
 		this->column(column_index).set_cell_text_align(align);

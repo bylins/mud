@@ -1,0 +1,706 @@
+/**
+\file native_text.cpp - a part of the Bylins engine.
+\brief Native-encoding character helpers declared in native_text.h (issue #3681).
+
+Two implementations selected by the INTERNAL_ENCODING_UTF8 build macro. The KOI8-R branch is kept
+byte-for-byte identical to the open-coded logic these helpers replace so that routing call sites
+through them changes nothing until the encoding flip.
+*/
+
+#include "native_text.h"
+#include "utils_encoding.h"
+
+#ifdef INTERNAL_ENCODING_UTF8
+#include "utf8.h"
+#else
+// The KOI8-R case tables (defined in utils.cpp). Declared directly instead of including utils.h,
+// which drags in fmt/ and much of the engine for what is just two 256-byte lookups.
+extern const char a_ucc_table[];
+extern const char a_lcc_table[];
+extern const bool a_isalnum_table[];
+extern const bool a_isalpha_table[];
+extern const bool a_isupper_table[];
+
+// Yo is absent from the Latin table and always had a special case in get_filename().
+constexpr unsigned char kYoLowerByte = 0xA3;
+constexpr unsigned char kYoUpperByte = 0xB3;
+#endif
+
+#include <string>
+#include <vector>
+
+namespace native_text {
+
+#ifdef INTERNAL_ENCODING_UTF8
+
+bool native_is_utf8() {
+	return true;
+}
+
+std::size_t char_count(const char *begin, const char *end) {
+	return utf8::length(std::string_view(begin, static_cast<std::size_t>(end - begin)));
+}
+
+std::size_t char_count(std::string_view s) {
+	return utf8::length(s);
+}
+
+void capitalize_first(char *s) {
+	if (s == nullptr || *s == '\0') {
+		return;
+	}
+	const std::string_view sv(s);
+	char32_t cp = 0;
+	const std::size_t len = utf8::decode(sv, 0, cp);
+	if (len == 0) {
+		return;
+	}
+	const char32_t upper = utf8::to_upper(cp);
+	if (upper == cp) {
+		return;
+	}
+	std::string encoded;
+	if (utf8::encode(upper, encoded) == len) {
+		for (std::size_t i = 0; i < len; ++i) {
+			s[i] = encoded[i];
+		}
+	}
+}
+
+std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
+	if (max_bytes >= s.size()) {
+		return s.size();
+	}
+	std::size_t pos = 0;
+	while (true) {
+		char32_t cp = 0;
+		const std::size_t len = utf8::decode(s, pos, cp);
+		if (len == 0 || pos + len > max_bytes) {
+			break;
+		}
+		pos += len;
+	}
+	return pos;
+}
+
+namespace {
+
+// Local copy of the lead-byte length table. utf8::sequence_length lives in another translation
+// unit, and this runs once per character in every scan -- a cross-module call there costs more
+// than the work itself.
+inline std::size_t lead_len(unsigned char c) {
+	if (c < 0x80) {
+		return 1;
+	}
+	if (c >= 0xC0 && c <= 0xDF) {
+		return 2;
+	}
+	if (c >= 0xE0 && c <= 0xEF) {
+		return 3;
+	}
+	if (c >= 0xF0 && c <= 0xF7) {
+		return 4;
+	}
+	return 1;
+}
+
+}  // namespace
+
+std::size_t char_bytes(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return 1;
+	}
+	const std::size_t want = lead_len(lead);
+	std::size_t n = 1;
+	while (n < want && (static_cast<unsigned char>(s[n]) & 0xC0) == 0x80) {
+		++n;
+	}
+	return n;
+}
+
+namespace {
+
+// Shared driver for the two case-insensitive comparisons. `limit` caps how many bytes of `a` may
+// be consumed (npos = unlimited): once that budget is spent the strings count as equal, which is
+// what the strn_cmp callers -- who pass a prefix length in bytes -- expect.
+int compare_folded(std::string_view a, std::string_view b, std::size_t limit) {
+	std::size_t pa = 0;
+	std::size_t pb = 0;
+	while (true) {
+		if (limit != std::string_view::npos && pa >= limit) {
+			return 0;
+		}
+		char32_t ca = 0;
+		char32_t cb = 0;
+		const std::size_t la = utf8::decode(a, pa, ca);
+		const std::size_t lb = utf8::decode(b, pb, cb);
+		if (la == 0 && lb == 0) {
+			return 0;
+		}
+		if (la == 0) {
+			return -1;
+		}
+		if (lb == 0) {
+			return 1;
+		}
+		const char32_t fa = utf8::to_lower(ca);
+		const char32_t fb = utf8::to_lower(cb);
+		if (fa != fb) {
+			return fa < fb ? -1 : 1;
+		}
+		pa += la;
+		pb += lb;
+	}
+}
+
+}  // namespace
+
+int compare_ci(std::string_view a, std::string_view b) {
+	return compare_folded(a, b, std::string_view::npos);
+}
+
+int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
+	return compare_folded(a, b, n);
+}
+
+bool is_alnum_char(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return (lead >= '0' && lead <= '9') || (lead >= 'A' && lead <= 'Z') || (lead >= 'a' && lead <= 'z');
+	}
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(s, char_bytes(s)), 0, cp) == 0) {
+		return false;
+	}
+	// Russian Cyrillic block, including Yo.
+	return (cp >= 0x0410 && cp <= 0x044F) || cp == 0x0401 || cp == 0x0451;
+}
+
+bool is_alpha_char(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return (lead >= 'A' && lead <= 'Z') || (lead >= 'a' && lead <= 'z');
+	}
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(s, char_bytes(s)), 0, cp) == 0) {
+		return false;
+	}
+	return (cp >= 0x0410 && cp <= 0x044F) || cp == 0x0401 || cp == 0x0451;
+}
+
+bool is_upper_char(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return lead >= 'A' && lead <= 'Z';
+	}
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(s, char_bytes(s)), 0, cp) == 0) {
+		return false;
+	}
+	return (cp >= 0x0410 && cp <= 0x042F) || cp == 0x0401;
+}
+
+bool chars_equal_ci(const char *a, const char *b) {
+	char32_t ca = 0;
+	char32_t cb = 0;
+	if (utf8::decode(std::string_view(a, char_bytes(a)), 0, ca) == 0
+		|| utf8::decode(std::string_view(b, char_bytes(b)), 0, cb) == 0) {
+		return false;
+	}
+	return utf8::to_lower(ca) == utf8::to_lower(cb);
+}
+
+namespace {
+
+// Case folding for the repertoire the engine actually carries -- ASCII and the two-byte Cyrillic
+// block -- done directly on the bytes. This runs per character in hot paths (whole-string case
+// conversion, argument parsing), so it must not decode, allocate, or make a cross-module call:
+//
+//   A-Z / a-z : one byte, +-0x20
+//   A-P (D0 90..D0 9F) <-> a-p (D0 B0..D0 BF) : lead stays D0, trail +-0x20
+//   R-Ya(D0 A0..D0 AF) <-> r-ya(D1 80..D1 8F) : lead flips D0<->D1, trail -+0x20
+//   Yo  (D0 81)        <-> yo  (D1 91)
+//
+// Anything else (other scripts, malformed bytes) falls through to the general path below, which
+// is correct but slower -- and effectively never taken by this codebase.
+inline bool fold_fast(const char *src, char *dst, std::size_t len, bool upper) {
+	const unsigned char c0 = static_cast<unsigned char>(src[0]);
+	if (c0 < 0x80) {
+		char c = src[0];
+		if (upper) {
+			if (c >= 'a' && c <= 'z') {
+				c = static_cast<char>(c - 0x20);
+			}
+		} else if (c >= 'A' && c <= 'Z') {
+			c = static_cast<char>(c + 0x20);
+		}
+		dst[0] = c;
+		return true;
+	}
+	if (len != 2) {
+		return false;
+	}
+	const unsigned char c1 = static_cast<unsigned char>(src[1]);
+	unsigned char o0 = c0;
+	unsigned char o1 = c1;
+	if (upper) {
+		if (c0 == 0xD0 && c1 >= 0xB0 && c1 <= 0xBF) {          // a-p -> A-P
+			o1 = static_cast<unsigned char>(c1 - 0x20);
+		} else if (c0 == 0xD1 && c1 >= 0x80 && c1 <= 0x8F) {   // r-ya -> R-Ya
+			o0 = 0xD0;
+			o1 = static_cast<unsigned char>(c1 + 0x20);
+		} else if (c0 == 0xD1 && c1 == 0x91) {                 // yo -> Yo
+			o0 = 0xD0;
+			o1 = 0x81;
+		} else if (!((c0 == 0xD0 && c1 >= 0x90 && c1 <= 0xAF) || (c0 == 0xD0 && c1 == 0x81))) {
+			return false;                                       // not Cyrillic: general path
+		}
+	} else {
+		if (c0 == 0xD0 && c1 >= 0x90 && c1 <= 0x9F) {          // A-P -> a-p
+			o1 = static_cast<unsigned char>(c1 + 0x20);
+		} else if (c0 == 0xD0 && c1 >= 0xA0 && c1 <= 0xAF) {   // R-Ya -> r-ya
+			o0 = 0xD1;
+			o1 = static_cast<unsigned char>(c1 - 0x20);
+		} else if (c0 == 0xD0 && c1 == 0x81) {                 // Yo -> yo
+			o0 = 0xD1;
+			o1 = 0x91;
+		} else if (!((c0 == 0xD0 && c1 >= 0xB0) || (c0 == 0xD1 && c1 <= 0x8F) || (c0 == 0xD1 && c1 == 0x91))) {
+			return false;
+		}
+	}
+	dst[0] = static_cast<char>(o0);
+	dst[1] = static_cast<char>(o1);
+	return true;
+}
+
+std::size_t copy_folded_char(const char *src, char *dst, bool upper) {
+	const std::size_t len = char_bytes(src);
+	if (fold_fast(src, dst, len, upper)) {
+		return len;
+	}
+	// General path: decode, fold, re-encode; only taken for characters outside ASCII+Cyrillic.
+	char32_t cp = 0;
+	if (utf8::decode(std::string_view(src, len), 0, cp) != 0) {
+		const char32_t folded = upper ? utf8::to_upper(cp) : utf8::to_lower(cp);
+		char tmp[4];
+		if (folded != cp && utf8::encode(folded, tmp) == len) {
+			for (std::size_t i = 0; i < len; ++i) {
+				dst[i] = tmp[i];
+			}
+			return len;
+		}
+	}
+	if (dst != src) {
+		for (std::size_t i = 0; i < len; ++i) {
+			dst[i] = src[i];
+		}
+	}
+	return len;
+}
+
+}  // namespace
+
+std::size_t copy_lower_char(const char *src, char *dst) {
+	return copy_folded_char(src, dst, false);
+}
+
+std::size_t copy_upper_char(const char *src, char *dst) {
+	return copy_folded_char(src, dst, true);
+}
+
+
+char32_t first_char_code(const char *s) {
+	if (s == nullptr || *s == '\0') {
+		return 0;
+	}
+	char32_t cp = 0;
+	utf8::decode(std::string_view(s, char_bytes(s)), 0, cp);
+	return cp;
+}
+
+char32_t first_char_code_lower(const char *s) {
+	return utf8::to_lower(first_char_code(s));
+}
+
+char32_t first_char_code_upper(const char *s) {
+	return utf8::to_upper(first_char_code(s));
+}
+
+namespace {
+
+// Whole-buffer case conversion as one tight loop with no calls in the hot path: ASCII and the
+// two-byte Cyrillic block are folded straight on the bytes. Anything else falls back to the
+// general helper, which this codebase never hits in practice. Written this way deliberately --
+// a per-character dispatch measured several times slower than the byte loop it replaces.
+inline void fold_range_utf8(char *p, char *const end, bool upper) {
+	while (p < end) {
+		const unsigned char c0 = static_cast<unsigned char>(*p);
+		if (c0 < 0x80) {
+			char c = *p;
+			if (upper) {
+				if (c >= 'a' && c <= 'z') {
+					c = static_cast<char>(c - 0x20);
+				}
+			} else if (c >= 'A' && c <= 'Z') {
+				c = static_cast<char>(c + 0x20);
+			}
+			*p++ = c;
+			continue;
+		}
+		if ((c0 == 0xD0 || c0 == 0xD1) && p + 1 < end) {
+			const unsigned char c1 = static_cast<unsigned char>(p[1]);
+			if (upper) {
+				if (c0 == 0xD0 && c1 >= 0xB0) {
+					p[1] = static_cast<char>(c1 - 0x20);
+				} else if (c0 == 0xD1 && c1 <= 0x8F) {
+					p[0] = static_cast<char>(0xD0);
+					p[1] = static_cast<char>(c1 + 0x20);
+				} else if (c0 == 0xD1 && c1 == 0x91) {
+					p[0] = static_cast<char>(0xD0);
+					p[1] = static_cast<char>(0x81);
+				}
+			} else {
+				if (c0 == 0xD0 && c1 >= 0x90 && c1 <= 0x9F) {
+					p[1] = static_cast<char>(c1 + 0x20);
+				} else if (c0 == 0xD0 && c1 >= 0xA0 && c1 <= 0xAF) {
+					p[0] = static_cast<char>(0xD1);
+					p[1] = static_cast<char>(c1 - 0x20);
+				} else if (c0 == 0xD0 && c1 == 0x81) {
+					p[0] = static_cast<char>(0xD1);
+					p[1] = static_cast<char>(0x91);
+				}
+			}
+			p += 2;
+			continue;
+		}
+		p += upper ? copy_upper_char(p, p) : copy_lower_char(p, p);
+	}
+}
+
+}  // namespace
+
+void to_lower(std::string &s) { fold_range_utf8(s.data(), s.data() + s.size(), false); }
+void to_upper(std::string &s) { fold_range_utf8(s.data(), s.data() + s.size(), true); }
+void to_lower(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s), false); }
+void to_upper(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s), true); }
+
+
+std::string from_koi8(const std::string &text) {
+	if (text.empty()) {
+		return text;
+	}
+	// koi_to_utf8() can grow the text; utils_encoding sizes its own buffers at 6x, so match that.
+	std::vector<char> out(text.size() * 6 + 1, '\0');
+	codepages::koi_to_utf8(const_cast<char *>(text.c_str()), out.data());
+	return std::string(out.data());
+}
+
+std::string translit_to_filename(std::string_view name) {
+	// Code point -> the very same Latin character the KOI8-R byte table yields, so a player's
+	// file name is identical before and after the flip. Upper and lower case collapse together
+	// because the byte-wise original lowercased after transliterating.
+	static const struct { char32_t cp; char latin; } kMap[] = {
+		{0x0430, 'a'}, {0x0410, 'a'},
+		{0x0431, 'b'}, {0x0411, 'b'},
+		{0x0432, 'v'}, {0x0412, 'v'},
+		{0x0433, 'g'}, {0x0413, 'g'},
+		{0x0434, 'd'}, {0x0414, 'd'},
+		{0x0435, 'e'}, {0x0415, 'e'},
+		{0x0451, '9'}, {0x0401, '9'},
+		{0x0436, '1'}, {0x0416, '1'},
+		{0x0437, 'z'}, {0x0417, 'z'},
+		{0x0438, 'i'}, {0x0418, 'i'},
+		{0x0439, 'j'}, {0x0419, 'j'},
+		{0x043A, 'k'}, {0x041A, 'k'},
+		{0x043B, 'l'}, {0x041B, 'l'},
+		{0x043C, 'm'}, {0x041C, 'm'},
+		{0x043D, 'n'}, {0x041D, 'n'},
+		{0x043E, 'o'}, {0x041E, 'o'},
+		{0x043F, 'p'}, {0x041F, 'p'},
+		{0x0440, 'r'}, {0x0420, 'r'},
+		{0x0441, 's'}, {0x0421, 's'},
+		{0x0442, 't'}, {0x0422, 't'},
+		{0x0443, 'y'}, {0x0423, 'y'},
+		{0x0444, 'f'}, {0x0424, 'f'},
+		{0x0445, 'h'}, {0x0425, 'h'},
+		{0x0446, 'c'}, {0x0426, 'c'},
+		{0x0447, '7'}, {0x0427, '7'},
+		{0x0448, '4'}, {0x0428, '4'},
+		{0x0449, '6'}, {0x0429, '6'},
+		{0x044A, '8'}, {0x042A, '8'},
+		{0x044B, '3'}, {0x042B, '3'},
+		{0x044C, '2'}, {0x042C, '2'},
+		{0x044D, '5'}, {0x042D, '5'},
+		{0x044E, '0'}, {0x042E, '0'},
+		{0x044F, 'q'}, {0x042F, 'q'},
+	};
+	std::string out;
+	out.reserve(name.size());
+	std::size_t pos = 0;
+	while (pos < name.size()) {
+		char32_t cp = 0;
+		const std::size_t len = utf8::decode(name, pos, cp);   // decode() already reports the length
+		if (len == 0) {
+			break;
+		}
+		if (cp < 0x80) {
+			char c = static_cast<char>(cp);
+			if (c >= 'A' && c <= 'Z') {
+				c = static_cast<char>(c + 0x20);
+			}
+			out.push_back(c);
+		} else {
+			char mapped = '_';
+			for (const auto &e : kMap) {
+				if (e.cp == cp) {
+					mapped = e.latin;
+					break;
+				}
+			}
+			out.push_back(mapped);
+		}
+		pos += len;
+	}
+	return out;
+}
+
+#else  // KOI8-R: 1 byte == 1 character
+
+bool native_is_utf8() {
+	return false;
+}
+
+std::size_t char_count(const char *begin, const char *end) {
+	return static_cast<std::size_t>(end - begin);
+}
+
+std::size_t char_count(std::string_view s) {
+	return s.size();
+}
+
+void capitalize_first(char *s) {
+	if (s != nullptr && *s != '\0') {
+		*s = a_ucc_table[static_cast<unsigned char>(*s)];
+	}
+}
+
+std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
+	return max_bytes < s.size() ? max_bytes : s.size();
+}
+
+std::size_t char_bytes(const char *) {
+	return 1;
+}
+
+namespace {
+
+// Byte-wise fold-and-subtract, identical to the open-coded `LOWER(a[i]) - LOWER(b[i])` loops in
+// utils_string.cpp: the magnitude of the result (not just its sign) is preserved, since some
+// callers propagate it. A string that ended compares as LOWER('\0') against the other's byte.
+int compare_bytes(std::string_view a, std::string_view b, std::size_t limit) {
+	std::size_t i = 0;
+	while (true) {
+		if (limit != std::string_view::npos && i >= limit) {
+			return 0;
+		}
+		const bool a_end = i >= a.size();
+		const bool b_end = i >= b.size();
+		if (a_end && b_end) {
+			return 0;
+		}
+		const unsigned char ca = a_end ? '\0' : static_cast<unsigned char>(a[i]);
+		const unsigned char cb = b_end ? '\0' : static_cast<unsigned char>(b[i]);
+		const int chk = a_lcc_table[ca] - a_lcc_table[cb];
+		if (chk != 0) {
+			return chk;
+		}
+		++i;
+	}
+}
+
+}  // namespace
+
+int compare_ci(std::string_view a, std::string_view b) {
+	return compare_bytes(a, b, std::string_view::npos);
+}
+
+int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
+	return compare_bytes(a, b, n);
+}
+
+bool is_alnum_char(const char *s) {
+	return a_isalnum_table[static_cast<unsigned char>(*s)];
+}
+
+bool is_alpha_char(const char *s) {
+	return a_isalpha_table[static_cast<unsigned char>(*s)];
+}
+
+bool is_upper_char(const char *s) {
+	return a_isupper_table[static_cast<unsigned char>(*s)];
+}
+
+bool chars_equal_ci(const char *a, const char *b) {
+	return a_lcc_table[static_cast<unsigned char>(*a)] == a_lcc_table[static_cast<unsigned char>(*b)];
+}
+
+std::size_t copy_lower_char(const char *src, char *dst) {
+	*dst = a_lcc_table[static_cast<unsigned char>(*src)];
+	return 1;
+}
+
+std::size_t copy_upper_char(const char *src, char *dst) {
+	*dst = a_ucc_table[static_cast<unsigned char>(*src)];
+	return 1;
+}
+
+
+char32_t first_char_code(const char *s) {
+	return (s == nullptr || *s == '\0') ? 0 : static_cast<unsigned char>(*s);
+}
+
+char32_t first_char_code_lower(const char *s) {
+	return (s == nullptr || *s == '\0')
+		? 0 : static_cast<unsigned char>(a_lcc_table[static_cast<unsigned char>(*s)]);
+}
+
+char32_t first_char_code_upper(const char *s) {
+	return (s == nullptr || *s == '\0')
+		? 0 : static_cast<unsigned char>(a_ucc_table[static_cast<unsigned char>(*s)]);
+}
+
+void to_lower(std::string &s) {
+	for (char &c : s) {
+		c = a_lcc_table[static_cast<unsigned char>(c)];
+	}
+}
+
+void to_upper(std::string &s) {
+	for (char &c : s) {
+		c = a_ucc_table[static_cast<unsigned char>(c)];
+	}
+}
+
+void to_lower(char *s) {
+	for (; *s; ++s) {
+		*s = a_lcc_table[static_cast<unsigned char>(*s)];
+	}
+}
+
+void to_upper(char *s) {
+	for (; *s; ++s) {
+		*s = a_ucc_table[static_cast<unsigned char>(*s)];
+	}
+}
+
+
+std::string from_koi8(const std::string &text) {
+	return text;   // the native encoding already is KOI8-R
+}
+
+std::string translit_to_filename(std::string_view name) {
+	// Byte-wise, exactly as get_filename() did before this was extracted: transliterate through
+	// the Latin table, then lowercase. Yo is not in that table and had its own special case.
+	std::string out;
+	out.reserve(name.size());
+	for (const char ch : name) {
+		const unsigned char b = static_cast<unsigned char>(ch);
+		if (b == kYoLowerByte || b == kYoUpperByte) {
+			out.push_back('9');
+		} else {
+			out.push_back(a_lcc_table[static_cast<unsigned char>(codepages::AtoL(ch))]);
+		}
+	}
+	return out;
+}
+
+#endif
+
+// ---------------------------------------------------------------------------------------------
+// Encoding-independent helpers: expressed purely in terms of the primitives above, so they need
+// no per-encoding branch. Unlike char_bytes() these take a bounded view, not a C string, so they
+// are safe on a string_view that is not null-terminated.
+// ---------------------------------------------------------------------------------------------
+
+namespace {
+
+inline std::size_t lead_len_shared(unsigned char c) {
+	if (c < 0x80) {
+		return 1;
+	}
+	if (c >= 0xC0 && c <= 0xDF) {
+		return 2;
+	}
+	if (c >= 0xE0 && c <= 0xEF) {
+		return 3;
+	}
+	if (c >= 0xF0 && c <= 0xF7) {
+		return 4;
+	}
+	return 1;
+}
+
+// Byte length of the character at `pos`, clamped to the end of `s`.
+std::size_t char_bytes_at(std::string_view s, std::size_t pos) {
+#ifdef INTERNAL_ENCODING_UTF8
+	const unsigned char lead = static_cast<unsigned char>(s[pos]);
+	if (lead < 0x80) {
+		return 1;
+	}
+	const std::size_t want = lead_len_shared(lead);
+	std::size_t n = 1;
+	while (n < want && pos + n < s.size() && (static_cast<unsigned char>(s[pos + n]) & 0xC0) == 0x80) {
+		++n;
+	}
+	return n;
+#else
+	(void) s;
+	(void) pos;
+	return 1;
+#endif
+}
+
+}  // namespace
+
+void capitalize_first(std::string &s) {
+	if (s.empty()) {
+		return;
+	}
+	// The uppercase form keeps the byte length for ASCII and the whole Russian alphabet, so
+	// capitalising in place never resizes the string.
+	capitalize_first(&s[0]);
+}
+
+std::size_t CharRange::Iterator::step(std::string_view s, std::size_t pos) {
+	return pos < s.size() ? char_bytes_at(s, pos) : 0;
+}
+
+std::size_t last_char_offset(std::string_view s) {
+	std::size_t last = 0;
+	std::size_t pos = 0;
+	while (pos < s.size()) {
+		last = pos;
+		pos += char_bytes_at(s, pos);
+	}
+	return last;
+}
+
+bool list_contains_char(std::string_view list, std::string_view ch) {
+	if (ch.empty()) {
+		return false;
+	}
+	std::size_t pos = 0;
+	while (pos < list.size()) {
+		const std::size_t len = char_bytes_at(list, pos);
+		if (len == ch.size() && list.compare(pos, len, ch) == 0) {
+			return true;
+		}
+		pos += len;
+	}
+	return false;
+}
+
+}  // namespace native_text
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

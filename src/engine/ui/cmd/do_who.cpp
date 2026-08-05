@@ -3,6 +3,9 @@
 //
 
 #include "engine/ui/cmd/do_who.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
@@ -51,10 +54,10 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sscanf(arg, "%d-%d", &low, &high);
 			strcpy(buf, buf1);
 		} else if (*arg == '-') {
-			const char mode = *(arg + 1);    // just in case; we destroy arg in the switch
+			const char32_t mode = native_text::first_char_code(arg + 1);    // just in case; we destroy arg in the switch
 			switch (mode) {
 				case 'b':
-				case 'и':
+				case rus::kI:
 					if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kDemigod) || ch->IsFlagged(EPrf::kCoderinfo))
 						showname = true;
 					strcpy(buf, buf1);
@@ -164,15 +167,19 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (short_list) {
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "%s%s%s", GetPkNameColor(tch), GET_NAME(tch), kColorNrm);
+			// Ширина колонки - в символах, а не в байтах (issue #3681): fmt "{:<30}" считает
+			// байты, из-за чего колонка с русским именем под UTF-8 выходит вдвое уже.
 			if (privilege::IsImpl(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-				sprintf(buf, "%s[%2d %s] %-30s%s",
+				strcpy(buf, fmt::format("{}[{:2} {}] {:<30}{}",
 						privilege::IsGod(tch.get()) ? kColorWht : "",
 						GetRealLevel(tch), MUD::Class(tch->GetClass()).GetCName(),
-						tmp, privilege::IsGod(tch.get()) ? kColorNrm : "");
+						tmp,
+						privilege::IsGod(tch.get()) ? kColorNrm : "").c_str());
 			} else {
-				sprintf(buf, "%s%-30s%s",
+				strcpy(buf, fmt::format("{}{:<30}{}",
 						privilege::IsImmortal(tch.get()) ? kColorWht : "",
-						tmp, privilege::IsImmortal(tch.get()) ? kColorNrm : "");
+						tmp,
+						privilege::IsImmortal(tch.get()) ? kColorNrm : "").c_str());
 			}
 		} else {
 			if (privilege::IsImpl(ch)

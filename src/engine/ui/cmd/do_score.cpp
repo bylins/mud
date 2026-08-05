@@ -232,12 +232,12 @@ void PrintScoreList(CharData *ch) {
 	} else if (NAME_BAD(ch)) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
-	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
+	SendMsgToChar(fmt::format("Вы можете вступить в группу с максимальной разницей в {:2} {:<75.76}\r\n",
 				  grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(ch))],
-				  (std::string(
+				  
 					  grammar::GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(
 						  ch))], grammar::EWhat::kLvl)
-						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
+						  + std::string(" без потерь для опыта.")), ch);
 
 	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", group::max_group_size(ch));
 	std::ostringstream out;

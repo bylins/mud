@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "exchange.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
@@ -472,7 +473,7 @@ int exchange_information(CharData *ch, char *arg) {
 	}
 	auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
 	snprintf(buf2, sizeof(buf2), "%s", seller_name.empty() ? "(сожран долгоносиком)" : seller_name.c_str());
-	*buf2 = UPPER(*buf2);
+	native_text::capitalize_first(buf2);
 	out += fmt::sprintf("Продавец %s\n", buf2);
 	if (GET_EXCHANGE_ITEM_COMMENT(item)) {
 		out += fmt::sprintf("Берестовая наклейка на лоте гласит: '%s'.\n", GET_EXCHANGE_ITEM_COMMENT(item));
@@ -668,7 +669,7 @@ int exchange_offers(const CharData *ch, const char *arg) {
 		filter += GET_NAME(ch);
 	} else {
 		while (*arg1) {
-			arg1[0] = UPPER(arg1[0]);
+			native_text::capitalize_first(arg1);
 			filter += arg1;
 			filter += ' ';
 			arg = one_argument(arg, arg1);
@@ -907,7 +908,7 @@ int LoadExchange() {
 		// Предмет разваливается от старости
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0) {
 			std::string cap = GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom);
-			cap[0] = UPPER(cap[0]);
+			native_text::capitalize_first(cap);
 			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
 				cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 2));
 			extract_exchange_item(item);
@@ -1002,7 +1003,7 @@ int exchange_database_reload(bool loadbackup) {
 		// Предмет разваливается от старости
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0) {
 			std::string cap = GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom);
-			cap[0] = UPPER(cap[0]);
+			native_text::capitalize_first(cap);
 			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
 				cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 2));
 			extract_exchange_item(item);

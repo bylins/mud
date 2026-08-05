@@ -1,4 +1,5 @@
 #include <filesystem>
+#include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
 #include "utils/utils_encoding.h"
@@ -3595,7 +3596,7 @@ Rooms::~Rooms() {
 
 int get_filename(const char *orig_name, char *filename, int mode) {
 	const char *prefix, *middle, *suffix;
-	char name[64], *ptr;
+	char name[64];
 
 	if (orig_name == nullptr || *orig_name == '\0' || filename == nullptr) {
 		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
@@ -3630,13 +3631,9 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 		default: return (0);
 	}
 
-	strcpy(name, orig_name);
-	for (ptr = name; *ptr; ptr++) {
-		if (*ptr == 'Ё' || *ptr == 'ё')
-			*ptr = '9';
-		else
-			*ptr = LOWER(codepages::AtoL(*ptr));
-	}
+	// Транслитерация вынесена в native_text: имя файла игрока обязано совпадать до и после
+	// смены кодировки, иначе сохранёнки перестанут находиться (issue #3681).
+	strcpy(name, native_text::translit_to_filename(orig_name).c_str());
 
 	switch (LOWER(*name)) {
 		case 'a':

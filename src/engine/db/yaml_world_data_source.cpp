@@ -4,6 +4,7 @@
 #ifdef HAVE_YAML
 
 #include "yaml_world_data_source.h"
+#include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
 #include "db.h"
@@ -700,8 +701,9 @@ std::string YamlWorldDataSource::GetText(const YAML::Node &node, const std::stri
 {
 	if (node[key])
 	{
-		// YAML files are already in KOI8-R, no conversion needed
-		std::string text = node[key].as<std::string>();
+		// Файлы мира лежат на диске в KOI8-R; переводим в нативную кодировку движка
+		// (под KOI8-R это тождество, под UTF-8 - перекодировка). Issue #3681.
+		std::string text = native_text::from_koi8(node[key].as<std::string>());
 
 		// Convert line endings if configured for DOS format
 		if (m_convert_lf_to_crlf) {
@@ -1425,7 +1427,7 @@ RoomData* YamlWorldDataSource::ParseRoomNode(const YAML::Node &root, int vnum, i
 	room->zone_rn = zone_rnum;
 
 	std::string name = GetText(root, "name", "Untitled Room");
-	if (!name.empty()) { name[0] = UPPER(name[0]); }
+	if (!name.empty()) { native_text::capitalize_first(name); }
 	room->set_name(name);
 
 	std::string description = GetText(root, "description", "");
