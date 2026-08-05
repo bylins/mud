@@ -420,7 +420,7 @@ int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
 // issue.magic-items-hotfix: the liquid core is stored in the kLiquid* keys (get_val/set_val redirect
 // val[0..2] to them for drink containers/fountains). Safety net for a load path that filled the raw
 // val[] array without going through set_val: seed the keys from it. Idempotent -- keys present -> skip.
-int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool /*proto*/) {
+int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool proto) {
 	const auto type = obj->get_type();
 	if (type != EObjType::kLiquidContainer && type != EObjType::kFountain) {
 		return 0;
@@ -430,7 +430,21 @@ int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool /*proto*/) {
 		|| obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidType) >= 0) {
 		return 0;
 	}
-	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity, obj->get_val(0));
+	int capacity = obj->get_val(0);
+	// issue #3691: у прототипа, чье жидкостное ядро переехало в extra_values, сырой val[] нулевой.
+	// Пфайл, записанный до того переезда, несет блок Vals без жидкостных ключей (тогда объем жил
+	// в val[]), init_values_from_file заменяет им весь набор ключей -- и ядро у экземпляра
+	// пропадает. Засев из пустого val[] давал объем 0, а guard выше делал это необратимым: ни
+	// налить, ни перелить в такую емкость больше нельзя. Берем объем у прототипа.
+	// Текущее содержимое и тип жидкости при этом НЕ подтягиваем: непустой прототип налил бы
+	// игроку полную емкость даром.
+	if (!proto && capacity <= 0) {
+		const auto rnum = obj->get_rnum();
+		if (rnum >= 0 && static_cast<size_t>(rnum) < obj_proto.size()) {
+			capacity = obj_proto[rnum]->get_val(0);
+		}
+	}
+	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity, capacity);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCurrent, obj->get_val(1));
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidType, obj->get_val(2));
 	return 1;
