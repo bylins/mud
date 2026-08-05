@@ -259,7 +259,11 @@ void ActualizePlayersIndex(char *name) {
 	int deleted;
 	char filename[kMaxStringLength];
 
-	for (int i = 0; (name[i] = LOWER(name[i])); i++);
+	// По символу, а не по байту (issue #3681). Побайтная свёртка бьёт многобайтные буквы:
+	// у "г" второй байт UTF-8 равен 0xB3, а в KOI8-R это "Ё", и таблица опускала его в 0xA3 --
+	// буква превращалась в "У". Имя файла получалось неверным, персонаж не загружался и просто
+	// не попадал в индекс (в боевом мире так терялось 1278 из 9117 записей).
+	native_text::to_lower(name);
 	if (get_filename(name, filename, kPlayersFile)) {
 		Player t_short_ch;
 		Player *short_ch = &t_short_ch;
