@@ -104,22 +104,22 @@ std::size_t PlayersIndex::hasher::operator()(const std::string &value) const {
 	// FNV-1a implementation
 	using p = fnv_params<sizeof(std::size_t)>;
 	std::size_t result = p::offset_basis;
-	for (unsigned char c : value) {
-		result ^= static_cast<std::size_t>(LOWER(c));
+	// Регистр сворачивается ПО СИМВОЛУ, а не по байту (issue #3681): побайтная свёртка
+	// оставляет многобайтные буквы нетронутыми, из-за чего "Дрегвий" и "дрегвий" дают разные
+	// хэши и точный поиск персонажа промахивается. Компаратор ниже обязан согласоваться.
+	std::string folded = value;
+	native_text::to_lower(folded);
+	for (unsigned char c : folded) {
+		result ^= static_cast<std::size_t>(c);
 		result *= p::prime;
 	}
 	return result;
 }
 
 bool PlayersIndex::equal_to::operator()(const std::string &left, const std::string &right) const {
-	if (left.size() != right.size()) {
+	// Посимвольное сравнение без учёта регистра -- в паре к hasher выше.
+	if (native_text::compare_ci(left, right) != 0) {
 		return false;
-	}
-
-	for (std::size_t i = 0; i < left.size(); ++i) {
-		if (LOWER(left[i]) != LOWER(right[i])) {
-			return false;
-		}
 	}
 
 	return true;
