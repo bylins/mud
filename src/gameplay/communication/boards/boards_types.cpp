@@ -1,4 +1,5 @@
 #include "boards_types.h"
+#include "utils/native_text.h"
 
 #include "boards_constants.h"
 #include "utils/logger.h"
@@ -57,6 +58,13 @@ void Board::Load() {
 			std::getline(file, message->subject, '~');
 			ReadEndString(file);
 			std::getline(file, message->text, '~');
+
+			// Доски лежат на диске в KOI8-R и читаются потоком, минуя FBFILE, поэтому границу
+			// кодировки проходим здесь -- по текстовым полям (issue #3681). Под KOI8-R это
+			// тождество.
+			message->author = native_text::from_disk_line(message->author.c_str());
+			message->subject = native_text::from_disk_line(message->subject.c_str());
+			message->text = native_text::from_disk_line(message->text.c_str());
 
 			// не помешает глянуть че мы там залоадили
 			if (message->author.empty()
