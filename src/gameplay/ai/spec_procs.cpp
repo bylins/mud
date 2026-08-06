@@ -49,7 +49,7 @@ extern CharData *get_player_of_name(const char *name);
 // extern functions
 void DoDrop(CharData *ch, char *argument, int, int);
 void do_say(CharData *ch, char *argument, int cmd, int subcmd);
-int find_first_step(RoomRnum src, RoomRnum target, CharData *ch);
+int find_first_step(RoomRnum src, RoomRnum target, CharData *ch, bool complain = false);
 
 // local functions
 int mayor(CharData *ch, void *me, int cmd, char *argument);
@@ -821,7 +821,9 @@ int npc_walk(CharData *ch) {
 			return (npc_walk(ch));
 	}
 
-	door = find_first_step(ch->in_room, rnum, ch);
+	// Единственное место, где ненайденный путь -- настоящая проблема: у моба задан маршрут,
+	// а дойти до очередной точки нельзя. Жалуемся билдеру.
+	door = find_first_step(ch->in_room, rnum, ch, true);
 
 	return (door);
 }
