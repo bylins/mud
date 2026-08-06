@@ -758,13 +758,24 @@ std::string from_disk_line(const char *line) {
 #endif
 }
 
+std::string from_disk_text(const std::string &text) {
+#ifdef INTERNAL_ENCODING_UTF8
+	// Same discriminator as from_disk_line, applied to the whole file: well-formed UTF-8 is taken
+	// as already native, anything else as KOI8-R. Cyrillic in KOI8-R is almost never valid UTF-8,
+	// which makes validity a reliable test, and it is what keeps a load/save cycle idempotent.
+	return utf8::is_valid(text) ? text : from_koi8(text);
+#else
+	return text;
+#endif
+}
+
 std::string read_data_file(const std::string &path) {
 	std::ifstream in(path, std::ios::binary);
 	if (!in) {
 		return {};
 	}
 	std::string raw((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-	return from_koi8(raw);
+	return from_disk_text(raw);
 }
 
 
