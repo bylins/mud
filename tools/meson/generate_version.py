@@ -20,9 +20,10 @@ try:
 except Exception:
     pass
 
-# issue.versioning: the 4th version part ("release") = total commit count -- monotonic,
-# +1 per commit. Computed at build time like the revision hash. If git is unavailable
-# (e.g. build from an unpacked archive) it falls back to 0, mirroring git_rev above.
+# issue.versioning: версия движка = число коммитов в репозитории. Монотонна, +1 на коммит,
+# считается на каждой сборке, как и хеш ревизии. Отдельного файла с номером в дереве нет:
+# он только создавал конфликты в ветках и требовал ручных бампов. Если git недоступен
+# (сборка из распакованного архива) -- 0, как и git_rev выше.
 commit_count = "0"
 try:
     cc = subprocess.run(
@@ -34,15 +35,8 @@ try:
 except Exception:
     pass
 
-# major.minor.patch: explicit, from the repo-root VERSION file (single source of truth).
-try:
-    with open(f'{source_root}/VERSION.txt', encoding='ascii') as vf:
-        mmp = vf.read().strip()
-except Exception:
-    mmp = "0.0.0"
-
 engine_name = "BRusMUD"
-engine_version = f'{mmp}.{commit_count}'
+engine_version = commit_count
 
 with open(input_file, encoding='koi8-r') as f:
     content = f.read()
