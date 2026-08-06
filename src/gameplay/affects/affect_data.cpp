@@ -702,6 +702,27 @@ void RemoveAffectFromChar(CharData *ch, EAffect affect_type) {
 	}
 }
 
+// issue.equipment-affects-improve: same removal as RemoveAffectFromChar but skips affects
+// materialized from worn equipment (kAfFromEquipment). Appear() uses this so a fight reveals a
+// character wearing an item of permanent invisibility only for the duration of combat: the
+// underlying affect stays, and affect_total restores the flag once GET_ENEMY clears.
+void RemoveAffectFromCharExceptEquipment(CharData *ch, EAffect affect_type) {
+	if (affect_type == EAffect::kUndefined) {
+		return;
+	}
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		Affect<EApply>::shared_ptr affect = *it;
+		if (affect->affect_type == affect_type
+				&& !IS_SET(affect->battleflag, EAffFlag::kAfFromEquipment)) {
+			EmitAffectEvent("affect_removed", ch, *affect);
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
+		}
+	}
+}
+
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 	RemoveAffectFromChar(ch, affect_type);
 	affect_total(ch);

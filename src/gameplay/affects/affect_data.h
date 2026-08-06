@@ -151,6 +151,11 @@ void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce = tru
 void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce = true);
 void RemoveEquipmentAffects(CharData *ch, long source_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
+// issue.equipment-affects-improve: like RemoveAffectFromChar, but keeps affects materialized
+// from worn equipment (kAfFromEquipment) -- used by Appear() so an aggressive action strips
+// castable invisibility/hide while an item's permanent invisibility survives (affect_total
+// re-derives its flag after the fight; it is suppressed while GET_ENEMY is set).
+void RemoveAffectFromCharExceptEquipment(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
 // for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).

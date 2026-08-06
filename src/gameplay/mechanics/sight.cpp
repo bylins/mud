@@ -2226,10 +2226,14 @@ void Appear(CharData *ch) {
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide);
 
-	RemoveAffectFromChar(ch, EAffect::kInvisible);
-	RemoveAffectFromChar(ch, EAffect::kHide);
-	RemoveAffectFromChar(ch, EAffect::kSneak);
-	RemoveAffectFromChar(ch, EAffect::kDisguise);
+	// issue.equipment-affects-improve: keep item-sourced (permanent) stealth affects alive -- a
+	// fight only suppresses their flag (see affect_total's GET_ENEMY check); deleting the affect
+	// here made an equipped invisibility "wear off" and require re-equip. Castable/skill stealth
+	// (no kAfFromEquipment) still breaks on action.
+	RemoveAffectFromCharExceptEquipment(ch, EAffect::kInvisible);
+	RemoveAffectFromCharExceptEquipment(ch, EAffect::kHide);
+	RemoveAffectFromCharExceptEquipment(ch, EAffect::kSneak);
+	RemoveAffectFromCharExceptEquipment(ch, EAffect::kDisguise);
 
 	AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	AFF_FLAGS(ch).unset(EAffect::kHide);
