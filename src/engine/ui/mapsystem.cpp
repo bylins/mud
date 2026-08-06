@@ -149,98 +149,116 @@ enum {
 };
 
 // Символы карты записаны в UTF-8 (escape-последовательностями, чтобы не зависеть от кодировки
-// самого файла) и приводятся к нативной кодировке один раз, при первом обращении. Под UTF-8 это
-// тождество, под KOI8-R -- перекодировка со сведением через словарь: жирная и пунктирная линии
-// становятся обычной, треугольники -- '^' и 'v'. Ширина при этом не меняется, каждая замена
-// ровно в один символ, так что раскладка карты одинакова в обеих кодировках (issue #3681).
+// самого файла) и приводятся к нативной кодировке один раз, при первом обращении.
 //
-// Язык рисунка прежний: разрывы -- значит пройти можно, сплошная -- значит нельзя. Открытый
-// проход тонкий с разрывом, дверь с перекладиной, скрытый (видят только боги) пунктиром,
-// стена жирная.
-const char *signs_utf8[] =
+// На каждую клетку два начертания. Богатое -- UTF-8-клиенту: тонкие, жирные и пунктирные линии,
+// треугольники переходов вверх-вниз, домик постоя, звёздочка учителя. Простое -- всем остальным,
+// из того, что есть в KOI8-R. Начертание выбирается по кодировке клиента, а не отдаётся на откуп
+// словарю транслитерации: словарь подбирает замену по похожести символа, а тут нужна замена по
+// смыслу ('домик' должен стать 'R', а не '#') и строго той же ширины, иначе карта разъедется
+// (issue #3681).
+//
+// Язык рисунка прежний -- разрывы значат "пройти можно", сплошная "нельзя": открытый проход
+// тонкий с разрывом, дверь с перекладиной, скрытый (видят только боги) пунктиром, стена жирная.
+struct MapSign {
+	const char *rich;
+	const char *plain;
+};
+
+const MapSign signs_utf8[] =
 	{
 		// SCREEN_Y
-		"&K \xE2\x94\x80 &n",
-		"&C\xE2\x94\x80\xE2\x95\x90\xE2\x94\x80&n",
-		"&R\xE2\x94\x84\xE2\x94\x84\xE2\x94\x84&n",
-		"&G\xE2\x94\x81\xE2\x94\x81\xE2\x94\x81&n",
+		{"&K \xE2\x94\x80 &n", "&K \xE2\x94\x80 &n"},
+		{"&C\xE2\x94\x80\xE2\x95\x90\xE2\x94\x80&n", "&C\xE2\x94\x80\xE2\x95\x90\xE2\x94\x80&n"},
+		{"&R\xE2\x94\x84\xE2\x94\x84\xE2\x94\x84&n", "&R\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80&n"},
+		{"&G\xE2\x94\x81\xE2\x94\x81\xE2\x94\x81&n", "&G\xE2\x94\x80\xE2\x94\x80\xE2\x94\x80&n"},
 		// SCREEN_X
-		"&K\xC2\xB7&n",
-		"&C/&n",
-		"&R\xE2\x94\x8A&n",
-		"&G\xE2\x94\x83&n",
+		{"&K\xC2\xB7&n", "&K\xC2\xB7&n"},
+		{"&C/&n", "&C/&n"},
+		{"&R\xE2\x94\x8A&n", "&R\xE2\x94\x82&n"},
+		{"&G\xE2\x94\x83&n", "&G\xE2\x94\x82&n"},
 		// SCREEN_UP
-		"&K\xE2\x96\xB2&n",
-		"&C\xE2\x96\xB2&n",
-		"&R\xE2\x96\xB2&n",
-		"",
+		{"&K\xE2\x96\xB2&n", "&K^&n"},
+		{"&C\xE2\x96\xB2&n", "&C^&n"},
+		{"&R\xE2\x96\xB2&n", "&R^&n"},
+		{"", ""},
 		// SCREEN_DOWN
-		"&K\xE2\x96\xBC&n",
-		"&C\xE2\x96\xBC&n",
-		"&R\xE2\x96\xBC&n",
-		"",
+		{"&K\xE2\x96\xBC&n", "&Kv&n"},
+		{"&C\xE2\x96\xBC&n", "&Cv&n"},
+		{"&R\xE2\x96\xBC&n", "&Rv&n"},
+		{"", ""},
 		// SCREEN_Y_UP
-		"&K \xE2\x94\x80&n",
-		"&C\xE2\x94\x80\xE2\x95\x90&n",
-		"&R\xE2\x94\x84\xE2\x94\x84&n",
-		"&G\xE2\x94\x81\xE2\x94\x81&n",
+		{"&K \xE2\x94\x80&n", "&K \xE2\x94\x80&n"},
+		{"&C\xE2\x94\x80\xE2\x95\x90&n", "&C\xE2\x94\x80\xE2\x95\x90&n"},
+		{"&R\xE2\x94\x84\xE2\x94\x84&n", "&R\xE2\x94\x80\xE2\x94\x80&n"},
+		{"&G\xE2\x94\x81\xE2\x94\x81&n", "&G\xE2\x94\x80\xE2\x94\x80&n"},
 		// SCREEN_Y_DOWN
-		"&K\xE2\x94\x80 &n",
-		"&C\xE2\x95\x90\xE2\x94\x80&n",
-		"&R\xE2\x94\x84\xE2\x94\x84&n",
-		"&G\xE2\x94\x81\xE2\x94\x81&n",
+		{"&K\xE2\x94\x80 &n", "&K\xE2\x94\x80 &n"},
+		{"&C\xE2\x95\x90\xE2\x94\x80&n", "&C\xE2\x95\x90\xE2\x94\x80&n"},
+		{"&R\xE2\x94\x84\xE2\x94\x84&n", "&R\xE2\x94\x80\xE2\x94\x80&n"},
+		{"&G\xE2\x94\x81\xE2\x94\x81&n", "&G\xE2\x94\x80\xE2\x94\x80&n"},
 		// OTHERS
-		"&c@&n",
-		"&C>&n",
-		"&K~&n",
-		"&R\xD0\x96&n",
-		"",
-		"&K?&n",
-		"&r1&n",
-		"&r2&n",
-		"&r3&n",
-		"&r4&n",
-		"&r5&n",
-		"&r6&n",
-		"&r7&n",
-		"&r8&n",
-		"&r9&n",
-		"&R!&n",
-		"&K?&n",
-		"&y1&n",
-		"&y2&n",
-		"&y3&n",
-		"&y4&n",
-		"&y5&n",
-		"&y6&n",
-		"&y7&n",
-		"&y8&n",
-		"&y9&n",
-		"&Y!&n",
-		"&W$&n",
-		"&WR&n",
-		"&WM&n",
-		"&WB&n",
-		"&WH&n",
-		"&WT&n",
-		"&WE&n",
-		"&WG&n",
-		"&C\xE2\x89\x88&n",
-		"&C\xC2\xB0&n",
-		"&WO&n",
-		"&R\xE2\x89\x88&n",
-		"&R\xC2\xB0&n"
+		{"&c@&n", "&c@&n"},  // SCREEN_CHAR
+		{"&C\xE2\x86\x92&n", "&C>&n"},  // SCREEN_NEW_ZONE
+		{"&K\xE2\x97\x8B&n", "&K~&n"},  // SCREEN_PEACE
+		{"&R\xD0\x96&n", "&R\xD0\x96&n"},  // SCREEN_DEATH_TRAP
+		{"", ""},  // SCREEN_EMPTY
+		{"&K?&n", "&K?&n"},
+		{"&r1&n", "&r1&n"},
+		{"&r2&n", "&r2&n"},
+		{"&r3&n", "&r3&n"},
+		{"&r4&n", "&r4&n"},
+		{"&r5&n", "&r5&n"},
+		{"&r6&n", "&r6&n"},
+		{"&r7&n", "&r7&n"},
+		{"&r8&n", "&r8&n"},
+		{"&r9&n", "&r9&n"},
+		{"&R!&n", "&R!&n"},
+		{"&K?&n", "&K?&n"},
+		{"&y1&n", "&y1&n"},
+		{"&y2&n", "&y2&n"},
+		{"&y3&n", "&y3&n"},
+		{"&y4&n", "&y4&n"},
+		{"&y5&n", "&y5&n"},
+		{"&y6&n", "&y6&n"},
+		{"&y7&n", "&y7&n"},
+		{"&y8&n", "&y8&n"},
+		{"&y9&n", "&y9&n"},
+		{"&Y!&n", "&Y!&n"},
+		{"&W$&n", "&W$&n"},  // SHOP
+		{"&W\xE2\x8C\x82&n", "&WR&n"},  // RENT
+		{"&WM&n", "&WM&n"},  // MAIL
+		{"&WB&n", "&WB&n"},  // BANK
+		{"&WH&n", "&WH&n"},  // HORSE
+		{"&W\xE2\x98\x85&n", "&WT&n"},  // TEACH
+		{"&WE&n", "&WE&n"},  // EXCH
+		{"&WG&n", "&WG&n"},  // TORC
+		{"&C\xE2\x89\x88&n", "&C\xE2\x89\x88&n"},  // WATER
+		{"&C\xC2\xB0&n", "&C\xC2\xB0&n"},  // FLYING
+		{"&WO&n", "&WO&n"},  // SPEC_OUTFIT
+		{"&R\xE2\x89\x88&n", "&R\xE2\x89\x88&n"},  // WATER_RED
+		{"&R\xC2\xB0&n", "&R\xC2\xB0&n"}  // FLYING_RED
 	};
 
-const std::string &Sign(int index) {
-	static std::vector<std::string> native;
-	if (native.empty()) {
-		native.reserve(std::size(signs_utf8));
-		for (const char *const sign : signs_utf8) {
-			native.push_back(native_text::from_utf8(sign));
+// true, если клиенту можно отдать богатое начертание: он сам в UTF-8 и движок в UTF-8. В любом
+// другом сочетании текст по дороге проходит перекодировку в KOI8-R, и богатых символов там нет.
+bool RichSigns(const CharData *viewer) {
+	return native_text::native_is_utf8()
+		&& viewer->desc != nullptr
+		&& viewer->desc->keytable == kCodePageUTF8;
+}
+
+const std::string &Sign(const CharData *viewer, int index) {
+	static std::vector<std::string> rich, plain;
+	if (rich.empty()) {
+		rich.reserve(std::size(signs_utf8));
+		plain.reserve(std::size(signs_utf8));
+		for (const auto &sign : signs_utf8) {
+			rich.push_back(native_text::from_utf8(sign.rich));
+			plain.push_back(native_text::from_utf8(sign.plain));
 		}
 	}
-	return native[index];
+	return RichSigns(viewer) ? rich[index] : plain[index];
 }
 
 
@@ -716,7 +734,7 @@ void print_map(CharData *ch, CharData *imm) {
 			if (screen[i][k] <= -1) {
 				out += " ";
 			} else if (screen[i][k] < SCREEN_TOTAL && screen[i][k] != SCREEN_EMPTY) {
-				out += Sign(screen[i][k]);
+				out += Sign(imm ? imm : ch, screen[i][k]);
 			}
 		}
 		out += "\r\n";
