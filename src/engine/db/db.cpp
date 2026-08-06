@@ -1429,8 +1429,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading shop_ext list");
 	log("load shop_ext list start.");
-	MUD::CfgManager().LoadCfg("shop_item_sets");   // issue.shops-ext: catalog before shops
-	ShopExt::load(false);
+	ShopExt::load(false);   // issue.shops-ext: каталог наборов и магазины, в этом порядке
 	log("load shop_ext list stop.");
 
 	boot_profiler.next_step("Loading zone average mob_level");
