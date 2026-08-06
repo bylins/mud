@@ -4,7 +4,10 @@
 
 #include "engine/ui/mapsystem.h"
 #include "administration/privilege.h"
+#include "utils/native_text.h"
+
 #include <queue>
+#include <vector>
 #include <unordered_set>
 #include <fmt/format.h>
 
@@ -145,43 +148,52 @@ enum {
 	SCREEN_TOTAL
 };
 
-const char *signs[] =
+// Символы карты записаны в UTF-8 (escape-последовательностями, чтобы не зависеть от кодировки
+// самого файла) и приводятся к нативной кодировке один раз, при первом обращении. Под UTF-8 это
+// тождество, под KOI8-R -- перекодировка со сведением через словарь: жирная и пунктирная линии
+// становятся обычной, треугольники -- '^' и 'v'. Ширина при этом не меняется, каждая замена
+// ровно в один символ, так что раскладка карты одинакова в обеих кодировках (issue #3681).
+//
+// Язык рисунка прежний: разрывы -- значит пройти можно, сплошная -- значит нельзя. Открытый
+// проход тонкий с разрывом, дверь с перекладиной, скрытый (видят только боги) пунктиром,
+// стена жирная.
+const char *signs_utf8[] =
 	{
 		// SCREEN_Y
-		"&K - &n",
-		"&C-=-&n",
-		"&R---&n",
-		"&G---&n",
+		"&K \xE2\x94\x80 &n",
+		"&C\xE2\x94\x80\xE2\x95\x90\xE2\x94\x80&n",
+		"&R\xE2\x94\x84\xE2\x94\x84\xE2\x94\x84&n",
+		"&G\xE2\x94\x81\xE2\x94\x81\xE2\x94\x81&n",
 		// SCREEN_X
-		"&K:&n",
+		"&K\xC2\xB7&n",
 		"&C/&n",
-		"&R|&n",
-		"&G|&n",
+		"&R\xE2\x94\x8A&n",
+		"&G\xE2\x94\x83&n",
 		// SCREEN_UP
-		"&K^&n",
-		"&C^&n",
-		"&R^&n",
+		"&K\xE2\x96\xB2&n",
+		"&C\xE2\x96\xB2&n",
+		"&R\xE2\x96\xB2&n",
 		"",
 		// SCREEN_DOWN
-		"&Kv&n",
-		"&Cv&n",
-		"&Rv&n",
+		"&K\xE2\x96\xBC&n",
+		"&C\xE2\x96\xBC&n",
+		"&R\xE2\x96\xBC&n",
 		"",
 		// SCREEN_Y_UP
-		"&K -&n",
-		"&C-=&n",
-		"&R--&n",
-		"&G--&n",
+		"&K \xE2\x94\x80&n",
+		"&C\xE2\x94\x80\xE2\x95\x90&n",
+		"&R\xE2\x94\x84\xE2\x94\x84&n",
+		"&G\xE2\x94\x81\xE2\x94\x81&n",
 		// SCREEN_Y_DOWN
-		"&K- &n",
-		"&C=-&n",
-		"&R--&n",
-		"&G--&n",
+		"&K\xE2\x94\x80 &n",
+		"&C\xE2\x95\x90\xE2\x94\x80&n",
+		"&R\xE2\x94\x84\xE2\x94\x84&n",
+		"&G\xE2\x94\x81\xE2\x94\x81&n",
 		// OTHERS
 		"&c@&n",
 		"&C>&n",
 		"&K~&n",
-		"&RЖ&n",
+		"&R\xD0\x96&n",
 		"",
 		"&K?&n",
 		"&r1&n",
@@ -213,12 +225,23 @@ const char *signs[] =
 		"&WT&n",
 		"&WE&n",
 		"&WG&n",
-		"&C,&n",
-		"&C`&n",
+		"&C\xE2\x89\x88&n",
+		"&C\xC2\xB0&n",
 		"&WO&n",
-		"&R,&n",
-		"&R`&n"
+		"&R\xE2\x89\x88&n",
+		"&R\xC2\xB0&n"
 	};
+
+const std::string &Sign(int index) {
+	static std::vector<std::string> native;
+	if (native.empty()) {
+		native.reserve(std::size(signs_utf8));
+		for (const char *const sign : signs_utf8) {
+			native.push_back(native_text::from_utf8(sign));
+		}
+	}
+	return native[index];
+}
 
 
 inline bool GodBigMode(CharData *ch) { 
@@ -688,7 +711,7 @@ void print_map(CharData *ch, CharData *imm) {
 			if (screen[i][k] <= -1) {
 				out += " ";
 			} else if (screen[i][k] < SCREEN_TOTAL && screen[i][k] != SCREEN_EMPTY) {
-				out += signs[screen[i][k]];
+				out += Sign(screen[i][k]);
 			}
 		}
 		out += "\r\n";
