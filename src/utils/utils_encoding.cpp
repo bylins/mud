@@ -150,7 +150,10 @@ void utf8_to_koi(char *str_i, char *str_o)
 
 #else  // HAVE_ICONV
 
-#define KOI8_UNKNOWN_CHAR  '+'  // char to use when cannot represent unicode codepoint in KOI8-R
+// Placeholder for a code point KOI8-R cannot represent AND for which translit_koi8 has no
+// equivalent. '?' rather than the former '+': a plus is ordinary text in this game ("+5 to
+// damage"), so it read as content rather than as a lost character (issue #3681).
+#define KOI8_UNKNOWN_CHAR  '?'
 
 // Simple implementation of UTF-8/KOI8-R converter, supports all codes available in KOI8-R
 void utf8_to_koi(char *str_i, char *str_o) {

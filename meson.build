@@ -653,6 +653,7 @@ main_sources = files(
   'src/utils/utf8.cpp',
   'src/utils/native_text.cpp',
   'src/utils/utils_encoding.cpp',
+  'src/utils/translit_koi8.cpp',
   'src/gameplay/mechanics/weather.cpp',
   'src/engine/olc/zedit.cpp',
   'src/utils/utils_string.cpp',

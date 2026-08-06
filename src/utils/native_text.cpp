@@ -10,6 +10,7 @@ through them changes nothing until the encoding flip.
 #include "native_text.h"
 #include "utf8.h"
 #include "utils_encoding.h"
+#include "translit_koi8.h"
 
 #ifdef INTERNAL_ENCODING_UTF8
 #include "utf8.h"
@@ -423,9 +424,30 @@ std::string to_koi8(const std::string &text) {
 	if (!has_high_byte) {
 		return text;   // pure ASCII is spelled identically in both encodings
 	}
+	// Characters KOI8-R does not have are first reduced to the closest thing it does have
+	// (a typographic dash to "-", curly quotes to '"', an accented letter to its base one);
+	// only what has no equivalent reaches the converter's placeholder. Doing it here, before
+	// the conversion, is what allows a replacement to be longer than one character.
+	std::string reduced;
+	reduced.reserve(text.size());
+	for (std::size_t pos = 0; pos < text.size();) {
+		char32_t cp = 0;
+		const std::size_t len = utf8::decode(text, pos, cp);
+		if (len == 0) {
+			break;
+		}
+		const char *const replacement = codepages::TranslitToKoi8(cp);
+		if (replacement != nullptr) {
+			reduced.append(replacement);
+		} else {
+			reduced.append(text, pos, len);
+		}
+		pos += len;
+	}
+
 	// KOI8-R is never longer than the UTF-8 it came from, so the input size is a safe bound.
-	std::vector<char> out(text.size() + 1, '\0');
-	codepages::utf8_to_koi(const_cast<char *>(text.c_str()), out.data());
+	std::vector<char> out(reduced.size() + 1, '\0');
+	codepages::utf8_to_koi(const_cast<char *>(reduced.c_str()), out.data());
 	return std::string(out.data());
 }
 
