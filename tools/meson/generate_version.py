@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import os
 import subprocess
 from datetime import datetime
 
@@ -20,6 +21,11 @@ try:
 except Exception:
     pass
 
+# Сборка может идти там, где git недоступен или бесполезен: контейнер, worktree (у него .git --
+# файл-ссылка наружу контекста), распакованный архив. Тогда значения пробрасываются окружением.
+if not git_rev or git_rev == 'unknown':
+    git_rev = os.environ.get('BYLINS_GIT_REV', '') or git_rev or 'unknown'
+
 # issue.versioning: the 4th version part ("release") = total commit count -- monotonic,
 # +1 per commit. Computed at build time like the revision hash. If git is unavailable
 # (e.g. build from an unpacked archive) it falls back to 0, mirroring git_rev above.
@@ -33,6 +39,9 @@ try:
         commit_count = cc
 except Exception:
     pass
+
+if commit_count == "0":
+    commit_count = os.environ.get('BYLINS_COMMIT_COUNT', '') or "0"
 
 # major.minor.patch: explicit, from the repo-root VERSION file (single source of truth).
 try:
