@@ -152,9 +152,17 @@ std::string from_koi8(const std::string &text);
 
 // The inverse: take native text down to KOI8-R. Needed wherever something downstream is defined
 // in terms of KOI8-R bytes -- the legacy client code pages are KOI8-R -> target byte tables, and
-// the on-disk formats are KOI8-R. Identity under KOI8-R. Characters absent from KOI8-R are
-// replaced by the converter (it substitutes '+'), which is unavoidable for a narrower encoding.
+// the on-disk formats are KOI8-R. Identity under KOI8-R. A character KOI8-R does not have is
+// first reduced to the closest one it does (see translit_koi8.h): a typographic dash to "-", a
+// rounded frame corner to a square one, an accented letter to its base. Only what has no
+// equivalent at all becomes the converter's placeholder.
 std::string to_koi8(const std::string &text);
+
+// Bring text that is UTF-8 on disk into the native encoding. The counterpart of from_koi8 for
+// the files that are deliberately kept in UTF-8 rather than KOI8-R (the login screen). Identity
+// under UTF-8; under KOI8-R it goes through the same reduction as to_koi8, so a file written
+// with the full Unicode repertoire still renders sensibly on a KOI8-R build.
+std::string from_utf8(const std::string &text);
 
 // Read a data file (all of which are stored in KOI8-R) and hand back its contents in the
 // engine's native encoding. The counterpart of from_koi8 for whole files: parsers that take a

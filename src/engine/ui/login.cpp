@@ -1536,47 +1536,46 @@ static void HandleInit(DescriptorData *d, char * /*argument*/) {
 	return;
 }
 
-// Экран приветствия в нарядном виде: рамка со скругленными углами, типографское тире, кавычки
-// с "лапками". Всё это символы, которых в KOI8-R попросту нет, поэтому файл лежит отдельно от
-// system_msg.xml (тот пока в KOI8-R) и уходит клиенту байт в байт (issue #3681).
+// Экран приветствия. Файл lib/text/greeting.utf8 всегда в UTF-8 и написан полной палитрой:
+// скруглённая рамка, типографское тире, кавычки-лапки. Он один на все кодировки -- клиенту в
+// alt/win/koi8 (и всему KOI8-R-сборке целиком) то же самое доезжает уже приведённым к KOI8-R,
+// где скруглённые углы становятся обычными, тире -- дефисом, лапки -- палочками (issue #3681).
 //
-// Показываем его только когда движок работает нативно в UTF-8 И клиент выбрал UTF-8: лишь в
-// этом сочетании текст не проходит через перекодировку и доезжает целым. Во всех остальных
-// случаях (движок под KOI8-R, клиент в alt/win/koi8) отдаём прежнюю шапку из system_msg.xml.
-static const std::string &GetGreeting(DescriptorData *d) {
-	static std::string fancy;
-	static bool fancy_loaded = false;
-	if (!fancy_loaded) {
-		fancy_loaded = true;
-		if (native_text::native_is_utf8()) {
-			std::ifstream in(GREETING_UTF8_FILE, std::ios::binary);
-			if (in) {
-				std::ostringstream body;
-				body << in.rdbuf();
+// Файл необязателен: нет его или в нём битый UTF-8 -- берётся прежняя шапка из system_msg.xml.
+static const std::string &GetGreeting() {
+	static std::string greeting;
+	static bool loaded = false;
+	if (!loaded) {
+		loaded = true;
+		std::ifstream in(GREETING_UTF8_FILE, std::ios::binary);
+		if (in) {
+			std::ostringstream body;
+			body << in.rdbuf();
+			const std::string raw = body.str();
+			if (utf8::is_valid(raw)) {
 				// В файле переводы строк обычные, а выводу нужен CRLF -- ровно та же
 				// нормализация, что делает загрузчик system_msg.xml.
-				for (const char c : body.str()) {
+				std::string crlf;
+				crlf.reserve(raw.size() + raw.size() / 32);
+				for (const char c : raw) {
 					if (c == '\r') {
 						continue;
 					}
 					if (c == '\n') {
-						fancy += "\r\n";
+						crlf += "\r\n";
 					} else {
-						fancy += c;
+						crlf += c;
 					}
 				}
-				// Файл читается сырым, без перекодировки, поэтому битый UTF-8 доехал бы до
-				// клиента как есть. Дешевле проверить один раз здесь, чем ловить это в игре.
-				if (!utf8::is_valid(fancy)) {
-					log("SYSERR: %s is not valid UTF-8, falling back to the plain greeting",
-						GREETING_UTF8_FILE);
-					fancy.clear();
-				}
+				greeting = native_text::from_utf8(crlf);
+			} else {
+				log("SYSERR: %s is not valid UTF-8, falling back to the plain greeting",
+					GREETING_UTF8_FILE);
 			}
 		}
 	}
-	if (!fancy.empty() && d->keytable == kCodePageUTF8) {
-		return fancy;
+	if (!greeting.empty()) {
+		return greeting;
 	}
 	return system_messages::GetText(system_messages::ESystemMsg::kGreetings);
 }
@@ -1594,7 +1593,7 @@ static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	}
 	d->keytable = (ubyte) *argument - (ubyte) '0';
 	ip_log(d->host);
-	iosystem::write_to_output(GetGreeting(d).c_str(), d);
+	iosystem::write_to_output(GetGreeting().c_str(), d);
 	d->state = EConState::kGetName;
 	return;
 }

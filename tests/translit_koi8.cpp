@@ -7,9 +7,11 @@
 
 #include "utils/translit_koi8.h"
 #include "utils/native_text.h"
+#include "utils/utf8.h"
 
 #include <gtest/gtest.h>
 
+#include <cstring>
 #include <string>
 
 using codepages::TranslitToKoi8;
@@ -32,7 +34,7 @@ TEST(TranslitKoi8, TypographyBecomesPlainAscii) {
 	EXPECT_EQ(Tr(0x00BB), "\"");     // RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
 	EXPECT_EQ(Tr(0x201C), "\"");     // LEFT DOUBLE QUOTATION MARK
 	EXPECT_EQ(Tr(0x2019), "'");      // RIGHT SINGLE QUOTATION MARK
-	EXPECT_EQ(Tr(0x2122), "(tm)");   // TRADE MARK SIGN
+	EXPECT_EQ(Tr(0x2122), "tm");     // TRADE MARK SIGN
 	EXPECT_EQ(Tr(0x00AD), "");       // SOFT HYPHEN: drops out entirely
 	// A no-break space needs no replacement: KOI8-R has one of its own (0x9A).
 	EXPECT_EQ(TranslitToKoi8(0x00A0), nullptr);
@@ -105,6 +107,39 @@ TEST(TranslitKoi8, ToKoi8FallsBackToThePlaceholder) {
 	}
 	// An emoji has no KOI8-R equivalent at all, so it becomes the single placeholder character.
 	EXPECT_EQ(native_text::to_koi8("a\xF0\x9F\x98\x80" "b"), "a?b");
+}
+
+TEST(TranslitKoi8, GraphicsDegradeToWhatKoi8CanDraw) {
+	// Frames: the rounded and heavy corners reduce to the plain ones KOI8-R does have.
+	EXPECT_EQ(Tr(0x256D), "\xE2\x94\x8C");   // arc down and right -> U+250C
+	EXPECT_EQ(Tr(0x256E), "\xE2\x94\x90");   // arc down and left  -> U+2510
+	EXPECT_EQ(Tr(0x256F), "\xE2\x94\x98");   // arc up and left    -> U+2518
+	EXPECT_EQ(Tr(0x2570), "\xE2\x94\x94");   // arc up and right   -> U+2514
+	EXPECT_EQ(Tr(0x2501), "\xE2\x94\x80");   // heavy horizontal   -> U+2500
+	EXPECT_EQ(Tr(0x2503), "\xE2\x94\x82");   // heavy vertical     -> U+2502
+	// Partial blocks and stars reduce to something that still draws.
+	EXPECT_EQ(Tr(0x2589), "\xE2\x96\x88");   // 7/8 block -> full block
+	EXPECT_EQ(Tr(0x2726), "*");                // black four pointed star
+	EXPECT_EQ(Tr(0x2605), "*");                // black star
+}
+
+TEST(TranslitKoi8, ReplacementNeverGrowsTheText) {
+	// The substitution is a pre-pass over the UTF-8, and callers rely on the conversion to
+	// KOI8-R never making the string longer. So a replacement must fit in the bytes the
+	// character itself occupied.
+	for (char32_t cp = 1; cp <= 0x10FFFF; ++cp) {
+		if (cp >= 0xD800 && cp <= 0xDFFF) {
+			continue;   // surrogates are not encodable
+		}
+		const char *const r = TranslitToKoi8(cp);
+		if (r == nullptr) {
+			continue;
+		}
+		std::string source;
+		ASSERT_GT(utf8::encode(cp, source), 0u) << "U+" << static_cast<unsigned>(cp);
+		EXPECT_LE(std::strlen(r), source.size())
+			<< "replacement for U+" << static_cast<unsigned>(cp) << " is longer than the character";
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
