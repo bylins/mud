@@ -499,8 +499,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 			// Предполагаемый маршрут считаем и показываем только для живого моба
 			// (не vstat): vstat ставит временный прототип в комнату rnum 1 чужой
-			// зоны, а kStayZone-моб не строит путь между зонами, из-за чего
-			// find_first_step зря писал "can't find path" в errlog (issue #3384).
+			// зоны, а kStayZone-моб не строит путь между зонами. В лог это теперь
+			// не сыплется в любом случае -- find_first_step молчит, пока его не
+			// попросят жаловаться (issue #3384).
 			if (!virt) {
 				// пытаемся просчитать маршрут на несколько клеток вперед
 				std::vector<RoomVnum> predictive_path_vnum_list;
