@@ -6,6 +6,11 @@
 #include "interpreter.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
+#include "utils/utf8.h"
+#include "engine/boot/boot_constants.h"
+
+#include <fstream>
+#include <sstream>
 #include "engine/ui/system_messages.h"
 #include "engine/core/config.h"
 #include "gameplay/mechanics/condition.h"
@@ -1537,6 +1542,51 @@ static void HandleInit(DescriptorData *d, char * /*argument*/) {
 	return;
 }
 
+// Экран приветствия в нарядном виде: рамка со скругленными углами, типографское тире, кавычки
+// с "лапками". Всё это символы, которых в KOI8-R попросту нет, поэтому файл лежит отдельно от
+// system_msg.xml (тот пока в KOI8-R) и уходит клиенту байт в байт (issue #3681).
+//
+// Показываем его только когда движок работает нативно в UTF-8 И клиент выбрал UTF-8: лишь в
+// этом сочетании текст не проходит через перекодировку и доезжает целым. Во всех остальных
+// случаях (движок под KOI8-R, клиент в alt/win/koi8) отдаём прежнюю шапку из system_msg.xml.
+static const std::string &GetGreeting(DescriptorData *d) {
+	static std::string fancy;
+	static bool fancy_loaded = false;
+	if (!fancy_loaded) {
+		fancy_loaded = true;
+		if (native_text::native_is_utf8()) {
+			std::ifstream in(GREETING_UTF8_FILE, std::ios::binary);
+			if (in) {
+				std::ostringstream body;
+				body << in.rdbuf();
+				// В файле переводы строк обычные, а выводу нужен CRLF -- ровно та же
+				// нормализация, что делает загрузчик system_msg.xml.
+				for (const char c : body.str()) {
+					if (c == '\r') {
+						continue;
+					}
+					if (c == '\n') {
+						fancy += "\r\n";
+					} else {
+						fancy += c;
+					}
+				}
+				// Файл читается сырым, без перекодировки, поэтому битый UTF-8 доехал бы до
+				// клиента как есть. Дешевле проверить один раз здесь, чем ловить это в игре.
+				if (!utf8::is_valid(fancy)) {
+					log("SYSERR: %s is not valid UTF-8, falling back to the plain greeting",
+						GREETING_UTF8_FILE);
+					fancy.clear();
+				}
+			}
+		}
+	}
+	if (!fancy.empty() && d->keytable == kCodePageUTF8) {
+		return fancy;
+	}
+	return system_messages::GetText(system_messages::ESystemMsg::kGreetings);
+}
+
 static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	if (strlen(argument) > 0)
 		argument[0] = argument[strlen(argument) - 1];
@@ -1550,7 +1600,7 @@ static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	}
 	d->keytable = (ubyte) *argument - (ubyte) '0';
 	ip_log(d->host);
-	iosystem::write_to_output(system_messages::GetText(system_messages::ESystemMsg::kGreetings).c_str(), d);
+	iosystem::write_to_output(GetGreeting(d).c_str(), d);
 	d->state = EConState::kGetName;
 	return;
 }
