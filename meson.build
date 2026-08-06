@@ -1,7 +1,9 @@
 project('bylins', 'cpp',
-    # issue.versioning: major.minor.patch from the explicit repo-root VERSION file (single
-    # source of truth). The runtime string appends the commit count (see generate_version.py).
-    version: run_command('cat', files('VERSION.txt'), check: false).stdout().strip(),
+    # issue.versioning: номер версии ведется по репозиторию (счетчик коммитов), а не файлом в
+    # дереве. Считается на каждой сборке в tools/meson/generate_version.py; здесь его держать
+    # незачем -- meson.project_version() нигде не используется, а пустая строка от git вне
+    # рабочей копии сломала бы конфигурацию.
+
     default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2', 'unity=on']
 )
 

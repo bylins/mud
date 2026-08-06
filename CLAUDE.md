@@ -8,18 +8,11 @@ This is **Bylins MUD** - a Russian-language Multi-User Dungeon game server based
 
 ## Versioning Policy
 
-The engine is named **BRusMUD** and carries an explicit four-part version **`major.minor.patch.release`** (e.g. `0.1.0.12810`), shown by the in-game `version` command and in the boot log.
+The engine is named **BRusMUD**. Its version is the **git commit count** (`git rev-list --count HEAD`), computed at build time by `tools/meson/generate_version.py` and shown by the in-game `version` command and in the boot log next to the short revision hash.
 
-- **major.minor.patch** are declared explicitly in the repo-root **`VERSION.txt`** file — the single source of truth.
-- **release** (the 4th number) is generated automatically at build time from the git commit count (`git rev-list --count HEAD`, via `tools/meson/generate_version.py`). **Never edit it by hand** — it advances on its own with every commit.
+There is **no VERSION file in the tree and nothing to bump by hand.** The number advances by itself with every commit. A file with an explicit `major.minor.patch` used to live in the repo root; it was dropped because it conflicted in every branch and had to be bumped manually for no benefit.
 
-### When to bump (rules for Claude Code)
-
-- **patch** — bump **manually and without prompting** on **every bug fix and every feature-branch merge**. Count the merges: if two branches are merged (e.g. one into `master` and one into `unstable`), increase patch by **2**. Treat editing `VERSION.txt` as a routine step of finishing such work, included in the same commit/merge.
-- **minor** — bump when a **major rework** lands (for example, the data-driven effects/affects system would qualify). Reset patch to `0`.
-- **major** — bump **only when the user explicitly says so**. Reset minor and patch to `0`. You **may prompt** the user to consider a major bump once **minor reaches 100 or more**.
-
-Only the `VERSION.txt` file changes for a version bump; `release` and the build-date stamp update themselves on the next build.
+Do not add version bumps to commits, PRs or release notes — there is nothing to bump.
 
 ## Build Commands
 
