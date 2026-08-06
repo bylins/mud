@@ -45,6 +45,7 @@ test_sources = files(
     'utils.encoding.cpp',
     'accounts.storage.cpp',
     'translit_koi8.cpp',
+    'parser_wrapper.encoding.cpp',
     'utf8.cpp',
     'native_text.cpp',
     'text_semantics.cpp',
