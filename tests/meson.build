@@ -24,6 +24,7 @@ test_sources = files(
     'blocking.queue.cpp',
     'boards.changelog.cpp',
     'boards.news.cpp',
+    'boards.encoding.cpp',
     'msdp.parser.cpp',
     'msdp.builder.cpp',
     'char.affects.cpp',
