@@ -1579,8 +1579,11 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 			char st[] = "";
 			do_stand(ch, st, 0, 0);
 		}
-		sprintf(buf, "mob command_interpreter: моб отжил из лага/стана в HitPercent, проценты жизни %d", GET_TRIG_NARG(trig));
-		mob_log(ch, trig, buf);
+		if (!(ch->GetEnemy()->IsNpc() && !IsCharmice(ch->GetEnemy()))) {
+			sprintf(buf, "mob command_interpreter: моб %s (%d) отжил из лага/стана в HitPercent, проценты жизни %d, сражается с %s", 
+					ch->get_name().c_str(), GET_MOB_VNUM(ch), GET_TRIG_NARG(trig), ch->GetEnemy()->get_name().c_str());
+			mob_log(ch, trig, buf);
+		}
 	}
 // damage mtrigger срабатывает всегда
 	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_DEATH))) {
