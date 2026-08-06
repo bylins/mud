@@ -745,11 +745,6 @@ class ObjData : public CObjectPrototype {
 	void set_timer(int timer) override;
 	int get_timer() const override;
 	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
-	// Таймер временного обкаста (яд на оружии и прочее) живет отдельно от таймера живучести
-	// предмета: у них разные единицы, разные правила и разные владельцы. В мире обкаст стареет
-	// сам, тиком ObjDecayManager (process_periodic_effects); разовую перемотку -- например догон
-	// оффлайна при выходе из ренты -- вызывающий заказывает этим методом явно.
-	void dec_timed_spell(int time = 1);
 	void process_periodic_effects();
 
 	static id_to_set_info_map set_table;
