@@ -12,9 +12,9 @@
 
 const char* REVISION = "$ Build revision: ${REVISION} $";
 const char* revision = "${REVISION}";
-// issue.versioning: engine identity. engine_version -- число коммитов в репозитории,
-// считается на каждой сборке (см. tools/meson/generate_version.py). Отдельного файла с
-// номером версии в дереве нет. "revision" выше -- короткий хеш сборки.
+// issue.versioning: explicit engine identity. engine_version is major.minor.patch.release,
+// where major.minor.patch come from the repo-root VERSION file and release = total commit
+// count (see tools/meson/generate_version.py). "revision" above stays the short build hash.
 const char* engine_name = "${ENGINE_NAME}";
 const char* engine_version = "${ENGINE_VERSION}";
 const char* build_datetime = "${BUILD_DATETIME}";

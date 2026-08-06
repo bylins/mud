@@ -8,11 +8,22 @@ This is **Bylins MUD** - a Russian-language Multi-User Dungeon game server based
 
 ## Versioning Policy
 
-The engine is named **BRusMUD**. Its version is the **git commit count** (`git rev-list --count HEAD`), computed at build time by `tools/meson/generate_version.py` and shown by the in-game `version` command and in the boot log next to the short revision hash.
+The engine is named **BRusMUD** and carries an explicit four-part version **`major.minor.patch.release`** (e.g. `0.2.27.13260`), shown by the in-game `version` command and in the boot log.
 
-There is **no VERSION file in the tree and nothing to bump by hand.** The number advances by itself with every commit. A file with an explicit `major.minor.patch` used to live in the repo root; it was dropped because it conflicted in every branch and had to be bumped manually for no benefit.
+- **major.minor.patch** are declared explicitly in the repo-root **`VERSION.txt`** file — the single source of truth.
+- **release** (the 4th number) is generated automatically at build time from the git commit count (`git rev-list --count HEAD`, via `tools/meson/generate_version.py`). It is never stored in the tree and never edited by hand — it advances on its own with every commit.
 
-Do not add version bumps to commits, PRs or release notes — there is nothing to bump.
+### When to bump (rules for Claude Code)
+
+**`VERSION.txt` is NOT bumped automatically, and NOT on every fix or merge.** An earlier policy bumped patch on every merge; that made the file conflict in nearly every branch and made PRs to `master` painful (the number even went backwards when a merge/revert resolved the conflict in favour of a branch). So the file now changes rarely and only on purpose:
+
+- **Do not touch `VERSION.txt` for bug fixes, refactors, or ordinary branch merges.** Routine work leaves the version unchanged — there is nothing to bump when finishing a fix or a merge.
+- The version is bumped **only manually, by the author**, and only when **a major new feature lands** or **a release is cut**:
+  - **minor** — a major new feature. Reset patch to `0`.
+  - **major** — a release. Reset minor and patch to `0`.
+  - **patch** — optional, at the author's discretion (e.g. to mark a notable standalone change); never required.
+
+Because bumps are deliberate and infrequent, `VERSION.txt` rarely appears in a diff and rarely conflicts. Only the `VERSION.txt` file changes for a bump; `release` and the build-date stamp update themselves on the next build.
 
 ## Build Commands
 
