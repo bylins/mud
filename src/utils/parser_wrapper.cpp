@@ -22,17 +22,14 @@ DataNode::DataNode() :
 DataNode::DataNode(const std::filesystem::path &file_name) :
 	DataNode()
 {
-	// Файлы конфигов лежат на диске в KOI8-R. Переводим содержимое в нативную кодировку
-	// движка ОДИН раз на документ, а не на каждое поле: тогда всё, что читается через
-	// DataNode, приходит уже в нужной кодировке (issue #3681). Под KOI8-R это тождество.
-	std::string raw;
-	{
-		std::ifstream in(file_name, std::ios::binary);
-		if (in) {
-			raw.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-		}
-	}
-	const std::string converted = native_text::from_koi8(raw);
+	// Содержимое приводится к нативной кодировке движка ОДИН раз на документ, а не на каждое
+	// поле: тогда всё, что читается через DataNode, приходит уже в нужной кодировке. Под KOI8-R
+	// это тождество (issue #3681).
+	//
+	// read_data_file, а не самодельное чтение с from_koi8: конфиг движок не только читает, но и
+	// пишет обратно, а безусловная перекодировка уже сохранённого в UTF-8 файла удваивала бы
+	// каждую кириллическую букву на каждом цикле загрузки-сохранения.
+	const std::string converted = native_text::read_data_file(file_name.string());
 	if (auto result = impl_->xml_doc->load_buffer(converted.data(), converted.size()); !result) {
 		std::ostringstream buffer;
 		buffer << "..." << result.description() << "\r\n" << " (file: " << file_name << ")" << "\r\n";

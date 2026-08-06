@@ -185,6 +185,13 @@ std::string read_data_file(const std::string &path);
 // player files coexist without a version field.
 std::string from_disk_line(const char *line);
 
+// The same for a whole file's contents. Use this, not from_koi8, for anything the engine also
+// WRITES back: from_koi8 transcodes unconditionally, so a file the engine already saved in the
+// native encoding would be transcoded a second time -- and since the save then writes that back,
+// every Cyrillic byte doubles on each load/save cycle and the file grows exponentially (that is
+// exactly what happened to cfg/mechanics/obj_sets.xml, issue #3681).
+std::string from_disk_text(const std::string &text);
+
 // Transliterate `name` into the ASCII form used for save-file names: Russian letters become
 // Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
 // produced before the migration and MUST NOT drift -- the result is the on-disk file name of a

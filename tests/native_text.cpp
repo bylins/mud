@@ -508,4 +508,30 @@ TEST(NativeText, SortKeyIsStableAcrossEncodings) {
 	EXPECT_EQ(native_text::sort_key("plain ascii"), "plain ascii");
 }
 
+TEST(NativeText, FromDiskTextIsIdempotent) {
+	// The bug this guards against: a config the engine both reads and writes was transcoded
+	// unconditionally on load, so text already saved in the native encoding got transcoded a
+	// second time -- and since the save wrote that back, every Cyrillic byte doubled on each
+	// load/save cycle. cfg/mechanics/obj_sets.xml grew from 120 KB to 6.7 GB that way.
+	const std::string koi8 = "\xD0\xD2\xC9\xD7\xC5\xD4";   // "privet" in KOI8-R
+	const std::string once = native_text::from_disk_text(koi8);
+	const std::string twice = native_text::from_disk_text(once);
+	EXPECT_EQ(once, twice) << "reading back what we wrote must not change it";
+	// However many times it goes through, the size must not grow.
+	std::string acc = koi8;
+	for (int i = 0; i < 10; ++i) {
+		acc = native_text::from_disk_text(acc);
+	}
+	EXPECT_EQ(acc, once);
+
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(once, "\xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82");
+	} else {
+		EXPECT_EQ(once, koi8);   // no conversion at all under KOI8-R
+	}
+	// ASCII is spelled the same in both encodings and must pass through untouched.
+	EXPECT_EQ(native_text::from_disk_text("<obj vnum=\"1234\"/>"), "<obj vnum=\"1234\"/>");
+	EXPECT_EQ(native_text::from_disk_text(""), "");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
