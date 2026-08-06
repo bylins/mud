@@ -24,6 +24,7 @@
 		<attr name="flag" type="enum" enum="EObjAffectFlag" desc="The EObjFlag this affect sets on the item while active (empty = none, e.g. kPoisoned)"/>
 		<attr name="dispellable" type="bool" desc="May a player effect (remove curse / dispel magic / darkness) strip it? Default Y. The innate-prototype-flag rule is separate and always applies."/>
 		<attr name="msg_case" type="enum" enum="ECase" desc="Grammatical case the item name (the %s placeholder) takes in this affect's lifecycle messages. Default kGen."/>
+		<attr name="see_affect" type="enum" enum="ESpell" desc="Detect-spell that reveals this affect on inspect (e.g. kDetectMagic, kDetectInvisible; kUndefined = always visible)."/>
 		<child tag="actions"/>
 	</tag>
 
@@ -41,6 +42,7 @@
 		<child tag="manual_cast"/>
 		<child tag="affects"/>
 		<child tag="unaffect"/>
+		<child tag="damage"/>
 	</tag>
 
 	<tag name="trigger" desc="The event(s) that fire this action">
@@ -99,5 +101,17 @@
 		<attr name="factor" type="int" desc="Sign/scale factor"/>
 		<attr name="cap" type="int" desc="Stacking cap"/>
 		<attr name="stack" type="int" min="2" desc="Number of stacks (>= 2)"/>
+	</tag>
+	<tag name="damage" desc="Deal damage as this action's effect (e.g. a dart trap, poison DoT)">
+		<attr name="saving" type="enum" enum="ESaving" desc="Saving throw that halves the damage"/>
+		<attr name="source" type="string" desc="Damage source (e.g. poison)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Percent chance the damage fires (default 100)"/>
+		<child tag="amount"/>
+	</tag>
+	<tag name="amount" desc="Damage magnitude formula: min + beta*C*(1 + weight*d)">
+		<attr name="min" type="double" desc="Floor magnitude"/>
+		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
+		<attr name="weight" type="double" desc="Weight on the spell's shared noise draw (0 = deterministic)"/>
+		<attr name="cap" type="int" min="0" desc="Upper bound on the raw magnitude (0 = no cap)"/>
 	</tag>
 </scheme>

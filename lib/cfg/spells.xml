@@ -6591,7 +6591,7 @@
 		</components>
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="70" min="55" change="1" />
-		<targets val="kTarCharRoom|kTarSelf" />
+		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagUnaffects" />
 		<potency_roll>
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
