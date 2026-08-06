@@ -40,6 +40,7 @@ test_sources = files(
     'utils.editor.cpp',
     'utils.string.cpp',
     'utils.encoding.cpp',
+    'translit_koi8.cpp',
     'utf8.cpp',
     'native_text.cpp',
     'text_semantics.cpp',
