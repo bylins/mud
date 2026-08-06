@@ -767,6 +767,15 @@ std::string read_data_file(const std::string &path) {
 	return from_koi8(raw);
 }
 
+
+std::string sort_key(const std::string &text) {
+	std::string key = to_koi8(text);
+	for (char &c : key) {
+		c = codepages::KtoW(c);
+	}
+	return key;
+}
+
 }  // namespace native_text
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

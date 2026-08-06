@@ -164,6 +164,13 @@ std::string to_koi8(const std::string &text);
 // with the full Unicode repertoire still renders sensibly on a KOI8-R build.
 std::string from_utf8(const std::string &text);
 
+// Collation key for sorting Russian text. The Russian letters are not in alphabetical order in
+// KOI8-R, so sorting has always gone through Windows-1251 bytes, where they are. The key
+// reproduces exactly that order and does not depend on the native encoding: compare two keys
+// instead of transcoding the strings themselves (which corrupted them under UTF-8, since the
+// KOI8-R -> Windows-1251 byte table means nothing for a multibyte string).
+std::string sort_key(const std::string &text);
+
 // Read a data file (all of which are stored in KOI8-R) and hand back its contents in the
 // engine's native encoding. The counterpart of from_koi8 for whole files: parsers that take a
 // buffer should go through this instead of reading the path themselves, so the boundary stays
