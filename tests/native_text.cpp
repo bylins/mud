@@ -473,4 +473,39 @@ TEST(NativeText, ToKoi8IsTheInverseBoundary) {
 	}
 }
 
+// KOI8-R spellings, so the fixture is built through from_koi8 and comes out native in either
+// build. Words chosen to expose the KOI8-R byte order: there the Russian letters are NOT in
+// alphabetical order, so a plain byte comparison would sort these wrong.
+TEST(NativeText, SortKeyOrdersRussianAlphabetically) {
+	const auto native = [](const char *koi8) { return native_text::from_koi8(koi8); };
+	// "arbuz", "banan", "vishnya", "yabloko" -- a, b, v, ya.
+	const std::string a = native("\xC1\xD2\xC2\xD5\xDA");
+	const std::string b = native("\xC2\xC1\xCE\xC1\xCE");
+	const std::string v = native("\xD7\xC9\xDB\xCE\xD1");
+	const std::string ya = native("\xD1\xC2\xCC\xCF\xCB\xCF");
+
+	EXPECT_LT(native_text::sort_key(a), native_text::sort_key(b));
+	EXPECT_LT(native_text::sort_key(b), native_text::sort_key(v));
+	EXPECT_LT(native_text::sort_key(v), native_text::sort_key(ya));
+	// "zhaba" and "ivan": alphabetically zh comes before i, but in KOI8-R its byte (0xD6) is
+	// above i's (0xC9) -- which is the whole reason the key exists.
+	const std::string zh = native("\xD6\xC1\xC2\xC1");
+	const std::string i = native("\xC9\xD7\xC1\xCE");
+	EXPECT_LT(native_text::sort_key(zh), native_text::sort_key(i));
+	if (!native_text::native_is_utf8()) {
+		EXPECT_GT(zh, i);
+	}
+	// ASCII keeps its own order and stays below the Cyrillic.
+	EXPECT_LT(native_text::sort_key("abc"), native_text::sort_key("abd"));
+	EXPECT_LT(native_text::sort_key("zzz"), native_text::sort_key(a));
+}
+
+TEST(NativeText, SortKeyIsStableAcrossEncodings) {
+	// The key is a byte string in a fixed encoding, so the very same words must produce the very
+	// same key no matter which encoding the engine runs in. Pinned literally.
+	EXPECT_EQ(native_text::sort_key(native_text::from_koi8("\xC1\xD2\xC2\xD5\xDA")),
+			  "\xE0\xF0\xE1\xF3\xE7");   // "arbuz" in Windows-1251
+	EXPECT_EQ(native_text::sort_key("plain ascii"), "plain ascii");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

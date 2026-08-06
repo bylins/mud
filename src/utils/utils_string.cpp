@@ -365,25 +365,21 @@ std::string FixDot(std::string s) {
 	return s;
 }
 
+// Сортировка идёт по ключу, а не по перекодированной на месте строке. Прежний трюк -- перегнать
+// список в Windows-1251 (там русские буквы стоят по алфавиту, в отличие от KOI8-R), отсортировать
+// и перегнать обратно -- под UTF-8 портил текст: побайтовая таблица KOI8-R -> Windows-1251 для
+// многобайтовой строки не значит ничего, и обратное преобразование уже не восстанавливало исходник
+// (issue #3681). native_text::sort_key даёт ровно тот же порядок, ничего не меняя в самих строках.
 void SortKoiString(std::vector<std::string> &str) {
-	for (auto &it : str) {
-		ConvertKtoW(it);
-	}
-	std::sort(str.begin(), str.end(), std::less<std::string>());
-	for (auto &it : str) {
-		ConvertWtoK(it);
-	}
+	std::sort(str.begin(), str.end(), [](const std::string &a, const std::string &b) {
+		return native_text::sort_key(a) < native_text::sort_key(b);
+	});
 }
 
-
 void SortKoiStringReverse(std::vector<std::string> &str) {
-	for (auto &it : str) {
-		ConvertKtoW(it);
-	}
-	std::sort(str.begin(), str.end(), std::greater<std::string>());
-	for (auto &it : str) {
-		ConvertWtoK(it);
-	}
+	std::sort(str.begin(), str.end(), [](const std::string &a, const std::string &b) {
+		return native_text::sort_key(a) > native_text::sort_key(b);
+	});
 }
 
 void ReplaceFirst(std::string &s, const std::string &toSearch, const std::string &replacer) {
