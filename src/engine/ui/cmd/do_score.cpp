@@ -6,6 +6,7 @@
  слабовидящих.
  */
 
+#include "utils/native_text.h"
 #include "engine/ui/color.h"
 #include "gameplay/affects/affect_messages.h"
 #include "utils/utils_string.h"
@@ -118,9 +119,9 @@ void PrintBonusStateInfo(CharData *ch, std::ostringstream &out);
 // \todo Переписать на вывод в поток с использованием общих со "счет все" функций
 void PrintScoreList(CharData *ch) {
 	sprintf(buf, "%s", MUD::RaceMessages().GetMessage(GET_RACE(ch), ch->get_sex()).c_str());
-	buf[0] = LOWER(buf[0]);
+	native_text::copy_lower_char(buf, buf);
 	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())]);
-	buf1[0] = LOWER(buf1[0]);
+	native_text::copy_lower_char(buf1, buf1);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				  buf,
 				  MUD::Class(ch->GetClass()).GetCName(),

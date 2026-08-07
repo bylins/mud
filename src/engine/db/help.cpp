@@ -586,12 +586,12 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 	utils::SortKoiString(skills_list);
 	for (auto it : skills_list) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out << "\t" << std::left << std::setw(30) << it << tmpstr;
+		out << "\t" << fmt::format("{:<30}", it) << tmpstr;
 	}
 	utils::SortKoiString(skills_list2);
 	for (auto it : skills_list2) {
 			tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
-			out2 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+			out2 << "\t" << "&C" << fmt::format("{:<30}", it) << "&n" << tmpstr;
 	}
 	if (out.str().back() == '\t')
 		out << "\r\n";
@@ -711,20 +711,20 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 			}
 		}
 		if (num == 1) {
-			skills_list2.push_back(utils::SubstKtoW(skill.GetName()));
+			skills_list2.push_back(skill.GetName());
 			continue;
 		}
-		skills_list.push_back(utils::SubstKtoW(skill.GetName()));
+		skills_list.push_back(skill.GetName());
 	}
 	std::sort(skills_list.begin(), skills_list.end());
 	for (auto it : skills_list) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out << "\t" << std::left << std::setw(30) << utils::SubstWtoK(it) << tmpstr;
+		out << "\t" << fmt::format("{:<30}", it) << tmpstr;
 	}
 	std::sort(skills_list2.begin(), skills_list2.end());
 	for (auto it : skills_list2) {
 			tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
-			out2 << "\t" << "&C" << std::left << std::setw(30) << utils::SubstWtoK(it) << "&n" << tmpstr;
+			out2 << "\t" << "&C" << fmt::format("{:<30}", it) << "&n" << tmpstr;
 	}
 	if (out.str().back() == '\t')
 		out << "\r\n";
@@ -970,17 +970,17 @@ std::string OutFeatureHelp(ECharClass ch_class) {
 	utils::SortKoiString(feat_list);
 	for (auto it : feat_list) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out << "\t" << std::left << std::setw(30) << it << tmpstr;
+		out << "\t" << fmt::format("{:<30}", it) << tmpstr;
 	}
 	utils::SortKoiString(feat_list2);
 	for (auto it : feat_list2) {
 		tmpstr = !(++columns2 % 2) ? "\r\n" : "\t";
-		out2 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+		out2 << "\t" << "&C" << fmt::format("{:<30}", it) << "&n" << tmpstr;
 	}
 	utils::SortKoiString(feat_list3);
 	for (auto it : feat_list3) {
 		tmpstr = !(++columns3 % 2) ? "\r\n" : "\t";
-		out3 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+		out3 << "\t" << "&C" << fmt::format("{:<30}", it) << "&n" << tmpstr;
 	}
 	if (out.str().back() == '\t')
 		out << "\r\n";
@@ -1285,8 +1285,12 @@ void SetsHelp() {
 			str_out = "все";
 		else if (count_class == 0)
 			str_out = "никто";
-		if (str_out.back() == '\n')
-			str_out.back() = '\0';
+		// Именно pop_back(), а не запись '\0': присваивание оставляло NUL ВНУТРИ строки,
+		// не меняя её длины. Байтовая таблица это терпела, а libfort в режиме utf8_table
+		// на встроенном нуле уводит расчёт ширины в переполнение и роняет процесс.
+		if (str_out.back() == '\n') {
+			str_out.pop_back();
+		}
 		table << str_out << table_wrapper::kSeparator << table_wrapper::kEndRow;
 	}
 	table.SetColumnAlign(0, table_wrapper::align::kRight);

@@ -352,6 +352,11 @@ int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def) {
 
 std::string AttrStr(const parser_wrapper::DataNode &node, const char *key, const char *def) {
 	const char *v = node.GetValue(key);
+	// Перекодировки здесь НЕТ и быть не должно: DataNode приводит содержимое файла к нативной
+	// кодировке один раз на документ, поэтому значение уже нативное. Пока перекодировка стояла
+	// ещё и здесь, каждое поле переводилось дважды, а так как конфиги движок ещё и пишет
+	// обратно, файл рос на каждой загрузке -- cfg/mechanics/obj_sets.xml так дорос со 120 КБ
+	// до 6,7 ГБ и убивал загрузку по памяти (issue #3681).
 	return (v && *v) ? std::string(v) : std::string(def);
 }
 

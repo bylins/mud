@@ -5,6 +5,7 @@
 // flag the library was built with), so this one test file is correct under either build.
 
 #include "utils/native_text.h"
+#include "utils/utf8.h"
 #include "utils/russian_keys.h"
 
 #include <gtest/gtest.h>
@@ -431,6 +432,106 @@ TEST(NativeText, TransliterationIsStableAcrossTheFlip) {
 	const char *const name = native_text::native_is_utf8()
 		? "\xD0\x92\xD0\xB0\xD1\x81\xD1\x8F" : "\xF7\xC1\xD3\xD1";
 	EXPECT_EQ(native_text::translit_to_filename(name), "vasq");
+}
+
+TEST(NativeText, FromKoi8BringsDiskTextIntoTheNativeEncoding) {
+	// Data files (world, configs, help, boards, saves) are stored in KOI8-R. from_koi8() is the
+	// boundary that brings them into whatever the engine runs on: a no-op today, a transcode
+	// after the flip. Both directions are asserted here so the wiring can be trusted before the
+	// sources that need it are converted.
+	const char *const koi8_privet = "\xF0\xD2\xC9\xD7\xC5\xD4";              // "Privet", KOI8-R
+	const char *const utf8_privet = "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";  // the same, UTF-8
+
+	EXPECT_EQ(native_text::from_koi8(""), "");
+	EXPECT_EQ(native_text::from_koi8("plain ascii 123"), "plain ascii 123");  // ASCII never changes
+
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(native_text::from_koi8(koi8_privet), utf8_privet);
+		// The result must be well-formed UTF-8 -- libfort aborts the process on anything else.
+		EXPECT_TRUE(utf8::is_valid(native_text::from_koi8(koi8_privet)));
+		EXPECT_EQ(native_text::char_count(native_text::from_koi8(koi8_privet)), 6u);
+	} else {
+		EXPECT_EQ(native_text::from_koi8(koi8_privet), koi8_privet);  // identity under KOI8-R
+	}
+}
+
+TEST(NativeText, ToKoi8IsTheInverseBoundary) {
+	// The counterpart of from_koi8: used where something downstream speaks KOI8-R -- the legacy
+	// client code pages (their tables are indexed by KOI8-R bytes) and the on-disk formats.
+	const char *const koi8_privet = "\xF0\xD2\xC9\xD7\xC5\xD4";
+	const char *const utf8_privet = "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82";
+
+	EXPECT_EQ(native_text::to_koi8(""), "");
+	EXPECT_EQ(native_text::to_koi8("plain ascii 123"), "plain ascii 123");
+
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(native_text::to_koi8(utf8_privet), koi8_privet);
+		// Round trip through the boundary must return the original text.
+		EXPECT_EQ(native_text::from_koi8(native_text::to_koi8(utf8_privet)), utf8_privet);
+	} else {
+		EXPECT_EQ(native_text::to_koi8(koi8_privet), koi8_privet);
+	}
+}
+
+// KOI8-R spellings, so the fixture is built through from_koi8 and comes out native in either
+// build. Words chosen to expose the KOI8-R byte order: there the Russian letters are NOT in
+// alphabetical order, so a plain byte comparison would sort these wrong.
+TEST(NativeText, SortKeyOrdersRussianAlphabetically) {
+	const auto native = [](const char *koi8) { return native_text::from_koi8(koi8); };
+	// "arbuz", "banan", "vishnya", "yabloko" -- a, b, v, ya.
+	const std::string a = native("\xC1\xD2\xC2\xD5\xDA");
+	const std::string b = native("\xC2\xC1\xCE\xC1\xCE");
+	const std::string v = native("\xD7\xC9\xDB\xCE\xD1");
+	const std::string ya = native("\xD1\xC2\xCC\xCF\xCB\xCF");
+
+	EXPECT_LT(native_text::sort_key(a), native_text::sort_key(b));
+	EXPECT_LT(native_text::sort_key(b), native_text::sort_key(v));
+	EXPECT_LT(native_text::sort_key(v), native_text::sort_key(ya));
+	// "zhaba" and "ivan": alphabetically zh comes before i, but in KOI8-R its byte (0xD6) is
+	// above i's (0xC9) -- which is the whole reason the key exists.
+	const std::string zh = native("\xD6\xC1\xC2\xC1");
+	const std::string i = native("\xC9\xD7\xC1\xCE");
+	EXPECT_LT(native_text::sort_key(zh), native_text::sort_key(i));
+	if (!native_text::native_is_utf8()) {
+		EXPECT_GT(zh, i);
+	}
+	// ASCII keeps its own order and stays below the Cyrillic.
+	EXPECT_LT(native_text::sort_key("abc"), native_text::sort_key("abd"));
+	EXPECT_LT(native_text::sort_key("zzz"), native_text::sort_key(a));
+}
+
+TEST(NativeText, SortKeyIsStableAcrossEncodings) {
+	// The key is a byte string in a fixed encoding, so the very same words must produce the very
+	// same key no matter which encoding the engine runs in. Pinned literally.
+	EXPECT_EQ(native_text::sort_key(native_text::from_koi8("\xC1\xD2\xC2\xD5\xDA")),
+			  "\xE0\xF0\xE1\xF3\xE7");   // "arbuz" in Windows-1251
+	EXPECT_EQ(native_text::sort_key("plain ascii"), "plain ascii");
+}
+
+TEST(NativeText, FromDiskTextIsIdempotent) {
+	// The bug this guards against: a config the engine both reads and writes was transcoded
+	// unconditionally on load, so text already saved in the native encoding got transcoded a
+	// second time -- and since the save wrote that back, every Cyrillic byte doubled on each
+	// load/save cycle. cfg/mechanics/obj_sets.xml grew from 120 KB to 6.7 GB that way.
+	const std::string koi8 = "\xD0\xD2\xC9\xD7\xC5\xD4";   // "privet" in KOI8-R
+	const std::string once = native_text::from_disk_text(koi8);
+	const std::string twice = native_text::from_disk_text(once);
+	EXPECT_EQ(once, twice) << "reading back what we wrote must not change it";
+	// However many times it goes through, the size must not grow.
+	std::string acc = koi8;
+	for (int i = 0; i < 10; ++i) {
+		acc = native_text::from_disk_text(acc);
+	}
+	EXPECT_EQ(acc, once);
+
+	if (native_text::native_is_utf8()) {
+		EXPECT_EQ(once, "\xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82");
+	} else {
+		EXPECT_EQ(once, koi8);   // no conversion at all under KOI8-R
+	}
+	// ASCII is spelled the same in both encodings and must pass through untouched.
+	EXPECT_EQ(native_text::from_disk_text("<obj vnum=\"1234\"/>"), "<obj vnum=\"1234\"/>");
+	EXPECT_EQ(native_text::from_disk_text(""), "");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

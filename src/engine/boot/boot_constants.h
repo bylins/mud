@@ -115,6 +115,9 @@ enum SetStuffMode {
 #define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
 
 #define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
+// Rich UTF-8 login screen, sent verbatim to UTF-8 clients (issue #3681). Optional: when the
+// file is absent the plain greeting from system_msg.xml is used instead.
+#define GREETING_UTF8_FILE LIB_TEXT "greeting.utf8"
 
 #define PROXY_FILE        LIB_MISC "proxy"    // register proxy list
 #define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings

@@ -6,6 +6,9 @@
 */
 
 #include "descriptor_data.h"
+#include <string>
+#include <cstring>
+#include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 
 #include "engine/entities/char_player.h"
@@ -164,6 +167,16 @@ void DescriptorData::msdp_report_changed_vars() {
 }
 
 void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str) const {
+	// Легаси-кодировки клиентов заданы таблицами "байт KOI8-R -> байт целевой кодировки",
+	// поэтому перед ними текст надо привести к KOI8-R. Под KOI8-R-рантаймом это тождество,
+	// под UTF-8 - настоящая перекодировка (issue #3681). Для UTF-8-клиента ничего приводить
+	// не нужно: см. case kCodePageUTF8 ниже.
+	std::string koi8_text;
+	if (keytable != kCodePageUTF8) {
+		koi8_text = native_text::to_koi8(in_str);
+		in_str = koi8_text.c_str();
+	}
+
 	switch (keytable) {
 		case kCodePageAlt:
 			for (; *in_str; *out_str = codepages::KtoA(*in_str), in_str++, out_str++);
@@ -204,7 +217,13 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 			// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
 			// contain character with code 0xff which telnet interprets as IAC.
 			// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
-			codepages::koi_to_utf8(const_cast<char *>(in_str), out_str);
+			if (native_text::native_is_utf8()) {
+				// Рантайм уже в UTF-8 - отдаём как есть. Повторная перекодировка испортила бы
+				// текст (именно так и выглядела первая флип-сборка).
+				strcpy(out_str, in_str);
+			} else {
+				codepages::koi_to_utf8(const_cast<char *>(in_str), out_str);
+			}
 			break;
 
 		default:

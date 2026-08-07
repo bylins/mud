@@ -365,25 +365,21 @@ std::string FixDot(std::string s) {
 	return s;
 }
 
+// Сортировка идёт по ключу, а не по перекодированной на месте строке. Прежний трюк -- перегнать
+// список в Windows-1251 (там русские буквы стоят по алфавиту, в отличие от KOI8-R), отсортировать
+// и перегнать обратно -- под UTF-8 портил текст: побайтовая таблица KOI8-R -> Windows-1251 для
+// многобайтовой строки не значит ничего, и обратное преобразование уже не восстанавливало исходник
+// (issue #3681). native_text::sort_key даёт ровно тот же порядок, ничего не меняя в самих строках.
 void SortKoiString(std::vector<std::string> &str) {
-	for (auto &it : str) {
-		ConvertKtoW(it);
-	}
-	std::sort(str.begin(), str.end(), std::less<std::string>());
-	for (auto &it : str) {
-		ConvertWtoK(it);
-	}
+	std::sort(str.begin(), str.end(), [](const std::string &a, const std::string &b) {
+		return native_text::sort_key(a) < native_text::sort_key(b);
+	});
 }
 
-
 void SortKoiStringReverse(std::vector<std::string> &str) {
-	for (auto &it : str) {
-		ConvertKtoW(it);
-	}
-	std::sort(str.begin(), str.end(), std::greater<std::string>());
-	for (auto &it : str) {
-		ConvertWtoK(it);
-	}
+	std::sort(str.begin(), str.end(), [](const std::string &a, const std::string &b) {
+		return native_text::sort_key(a) > native_text::sort_key(b);
+	});
 }
 
 void ReplaceFirst(std::string &s, const std::string &toSearch, const std::string &replacer) {
@@ -1165,6 +1161,14 @@ std::string sprintGender(int gender_value) {
 
 // замена в name русских символов на англ в нижнем регистре (для файлов)
 void CreateFileName(std::string &name) {
+	// Имя файла собирается по байтам KOI8-R -- ровно так, как собиралось до миграции. Иначе у
+	// уже существующего персонажа доска получит другое имя файла, и старая просто потеряется:
+	// под UTF-8 байтовый AtoL резал русскую букву пополам и оставлял её в имени как есть, отчего
+	// рядом со 105 старыми досками завелось 70 новых, с кириллицей в имени (issue #3681).
+	//
+	// Приводим строку к KOI8-R и дальше работаем прежним байтовым кодом: под KOI8-R to_koi8 --
+	// тождество, так что поведение там не меняется ни на байт.
+	name = native_text::to_koi8(name);
 	for (unsigned i = 0; i != name.length(); ++i)
 		name[i] = LOWER(codepages::AtoL(name[i]));
 }
@@ -1190,7 +1194,10 @@ std::string ExpFormat(long long exp) {
 void name_convert(std::string &text) {
 	if (!text.empty()) {
 		utils::ConvertToLow(text);
-		*text.begin() = UPPER(*text.begin());
+		// Первую букву поднимаем целиком, а не первый байт: под UTF-8 у русской буквы их два,
+		// и байтовый UPPER превращал имя в мусор -- "имя щщщщщ одобрить" не находило
+		// персонажа (issue #3681).
+		native_text::capitalize_first(text);
 	}
 }
 

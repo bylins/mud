@@ -150,6 +150,60 @@ void to_upper(char *s);
 // free of #ifdefs and gives one place to revisit when the data files themselves move.
 std::string from_koi8(const std::string &text);
 
+// The inverse: take native text down to KOI8-R. Needed wherever something downstream is defined
+// in terms of KOI8-R bytes -- the legacy client code pages are KOI8-R -> target byte tables, and
+// the on-disk formats are KOI8-R. Identity under KOI8-R. A character KOI8-R does not have is
+// first reduced to the closest one it does (see translit_koi8.h): a typographic dash to "-", a
+// rounded frame corner to a square one, an accented letter to its base. Only what has no
+// equivalent at all becomes the converter's placeholder.
+std::string to_koi8(const std::string &text);
+
+// Bring text that is UTF-8 on disk into the native encoding. The counterpart of from_koi8 for
+// the files that are deliberately kept in UTF-8 rather than KOI8-R (the login screen). Identity
+// under UTF-8; under KOI8-R it goes through the same reduction as to_koi8, so a file written
+// with the full Unicode repertoire still renders sensibly on a KOI8-R build.
+std::string from_utf8(const std::string &text);
+
+// Collation key for sorting Russian text. The Russian letters are not in alphabetical order in
+// KOI8-R, so sorting has always gone through Windows-1251 bytes, where they are. The key
+// reproduces exactly that order and does not depend on the native encoding: compare two keys
+// instead of transcoding the strings themselves (which corrupted them under UTF-8, since the
+// KOI8-R -> Windows-1251 byte table means nothing for a multibyte string).
+std::string sort_key(const std::string &text);
+
+// Read a data file (all of which are stored in KOI8-R) and hand back its contents in the
+// engine's native encoding. The counterpart of from_koi8 for whole files: parsers that take a
+// buffer should go through this instead of reading the path themselves, so the boundary stays
+// in one place. Returns an empty string if the file cannot be read -- callers report that the
+// same way they did when the parser failed to open it.
+std::string read_data_file(const std::string &path);
+
+// Bring one line read from a data file into the native encoding, tolerating a file that has
+// already been converted. Under KOI8-R this is the identity. Under UTF-8 the text is taken as
+// already-native when it is well-formed UTF-8 and transcoded otherwise -- Cyrillic in KOI8-R is
+// almost never valid UTF-8, which makes validity a reliable discriminator and lets old and new
+// player files coexist without a version field.
+std::string from_disk_line(const char *line);
+
+// The same for a whole file's contents. Use this, not from_koi8, for anything the engine also
+// WRITES back: from_koi8 transcodes unconditionally, so a file the engine already saved in the
+// native encoding would be transcoded a second time -- and since the save then writes that back,
+// every Cyrillic byte doubles on each load/save cycle and the file grows exponentially (that is
+// exactly what happened to cfg/mechanics/obj_sets.xml, issue #3681).
+std::string from_disk_text(const std::string &text);
+
+// The write side of the same boundary, and the exact mirror of from_disk_text: whatever the
+// engine puts on disk goes out in the encoding the disk format is in, which during the migration
+// is still KOI8-R. Identity under KOI8-R; under UTF-8 the text is reduced and transcoded exactly
+// as it is for a legacy client (see to_koi8).
+//
+// Read and write MUST stay symmetric. If the engine writes the native encoding while the rest of
+// the world is KOI8-R, then the first save quietly converts every file it touches, rolling back
+// to a KOI8-R build stops being possible, and the world is no longer the world we started with.
+// The files that are deliberately UTF-8 (lib/text/greeting.utf8) are read raw and never go
+// through here (issue #3681).
+std::string to_disk(const std::string &text);
+
 // Transliterate `name` into the ASCII form used for save-file names: Russian letters become
 // Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
 // produced before the migration and MUST NOT drift -- the result is the on-disk file name of a

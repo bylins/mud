@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "mob_stat.h"
+#include "utils/native_text.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/utils_parse.h"
@@ -275,7 +276,10 @@ static void LoadXmlLegacy() {
 	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(kMobStatFileNew);
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_mob_stat = native_text::read_data_file(kMobStatFileNew);
+	pugi::xml_parse_result result = doc.load_buffer(xml_mob_stat.data(), xml_mob_stat.size());
 	if (!result) {
 		snprintf(buf_, sizeof(buf_), "...%s", result.description());
 		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);

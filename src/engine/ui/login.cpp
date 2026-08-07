@@ -6,6 +6,11 @@
 #include "interpreter.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
+#include "utils/utf8.h"
+#include "engine/boot/boot_constants.h"
+
+#include <fstream>
+#include <sstream>
 #include "engine/ui/system_messages.h"
 #include "engine/core/config.h"
 #include "gameplay/mechanics/condition.h"
@@ -182,18 +187,28 @@ std::map<std::string, int> new_loc_codes;
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
 
+// Посимвольно, а не побайтно (issue #3681): у многобайтной буквы хвостовой байт не проходит
+// проверку "это буква", и раньше здесь отвергалось любое русское имя. Условие "*argument > 0"
+// означало "символ не ASCII" (у старших байтов знаковый char отрицателен) - теперь это прямая
+// проверка кодовой точки. Регистр тоже сворачивается по символу: первая буква заглавная,
+// остальные строчные; длина при этом не меняется, поэтому буфер name не переполняется.
 int _parse_name(char *argument, char *name) {
-	int i;
+	int i = 0;
 
-	// skip whitespaces
-	for (i = 0; (*name = (i ? LOWER(*argument) : UPPER(*argument))); argument++, i++, name++) {
-		if (native_text::first_char_code(argument) == rus::kYo
-			|| native_text::first_char_code(argument) == rus::kYoUpper
-			|| !a_isalpha(*argument)
-			|| *argument > 0) {
+	while (*argument) {
+		const char32_t code = native_text::first_char_code(argument);
+		if (code == rus::kYo || code == rus::kYoUpper
+			|| !native_text::is_alpha_char(argument)
+			|| code < 0x80) {
 			return (1);
 		}
+		const size_t bytes = i ? native_text::copy_lower_char(argument, name)
+							   : native_text::copy_upper_char(argument, name);
+		argument += bytes;
+		name += bytes;
+		++i;
 	}
+	*name = '\0';
 
 	if (!i) {
 		return (1);
@@ -207,12 +222,19 @@ int _parse_name(char *argument, char *name) {
 * чтобы их в игру вообще пускало, а новых с Ё/ё соответственно брило.
 */
 int parse_exist_name(char *argument, char *name) {
-	int i;
+	int i = 0;
 
-	// skip whitespaces
-	for (i = 0; (*name = (i ? LOWER(*argument) : UPPER(*argument))); argument++, i++, name++)
-		if (!a_isalpha(*argument) || *argument > 0)
+	while (*argument) {
+		if (!native_text::is_alpha_char(argument) || native_text::first_char_code(argument) < 0x80) {
 			return (1);
+		}
+		const size_t bytes = i ? native_text::copy_lower_char(argument, name)
+							   : native_text::copy_upper_char(argument, name);
+		argument += bytes;
+		name += bytes;
+		++i;
+	}
+	*name = '\0';
 
 	if (!i)
 		return (1);
@@ -1514,6 +1536,50 @@ static void HandleInit(DescriptorData *d, char * /*argument*/) {
 	return;
 }
 
+// Экран приветствия. Файл lib/text/greeting.utf8 всегда в UTF-8 и написан полной палитрой:
+// скруглённая рамка, типографское тире, кавычки-лапки. Он один на все кодировки -- клиенту в
+// alt/win/koi8 (и всему KOI8-R-сборке целиком) то же самое доезжает уже приведённым к KOI8-R,
+// где скруглённые углы становятся обычными, тире -- дефисом, лапки -- палочками (issue #3681).
+//
+// Файл необязателен: нет его или в нём битый UTF-8 -- берётся прежняя шапка из system_msg.xml.
+static const std::string &GetGreeting() {
+	static std::string greeting;
+	static bool loaded = false;
+	if (!loaded) {
+		loaded = true;
+		std::ifstream in(GREETING_UTF8_FILE, std::ios::binary);
+		if (in) {
+			std::ostringstream body;
+			body << in.rdbuf();
+			const std::string raw = body.str();
+			if (utf8::is_valid(raw)) {
+				// В файле переводы строк обычные, а выводу нужен CRLF -- ровно та же
+				// нормализация, что делает загрузчик system_msg.xml.
+				std::string crlf;
+				crlf.reserve(raw.size() + raw.size() / 32);
+				for (const char c : raw) {
+					if (c == '\r') {
+						continue;
+					}
+					if (c == '\n') {
+						crlf += "\r\n";
+					} else {
+						crlf += c;
+					}
+				}
+				greeting = native_text::from_utf8(crlf);
+			} else {
+				log("SYSERR: %s is not valid UTF-8, falling back to the plain greeting",
+					GREETING_UTF8_FILE);
+			}
+		}
+	}
+	if (!greeting.empty()) {
+		return greeting;
+	}
+	return system_messages::GetText(system_messages::ESystemMsg::kGreetings);
+}
+
 static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	if (strlen(argument) > 0)
 		argument[0] = argument[strlen(argument) - 1];
@@ -1527,7 +1593,7 @@ static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	}
 	d->keytable = (ubyte) *argument - (ubyte) '0';
 	ip_log(d->host);
-	iosystem::write_to_output(system_messages::GetText(system_messages::ESystemMsg::kGreetings).c_str(), d);
+	iosystem::write_to_output(GetGreeting().c_str(), d);
 	d->state = EConState::kGetName;
 	return;
 }

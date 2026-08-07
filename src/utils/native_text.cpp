@@ -8,7 +8,9 @@ through them changes nothing until the encoding flip.
 */
 
 #include "native_text.h"
+#include "utf8.h"
 #include "utils_encoding.h"
+#include "translit_koi8.h"
 
 #ifdef INTERNAL_ENCODING_UTF8
 #include "utf8.h"
@@ -26,6 +28,8 @@ constexpr unsigned char kYoLowerByte = 0xA3;
 constexpr unsigned char kYoUpperByte = 0xB3;
 #endif
 
+#include <fstream>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -387,13 +391,44 @@ void to_upper(char *s) { fold_range_utf8(s, s + std::char_traits<char>::length(s
 
 
 std::string from_koi8(const std::string &text) {
+	// This runs per attribute/field while the world and the configs load, and the overwhelming
+	// majority of those are pure ASCII (keys, aliases, numbers), which KOI8-R and UTF-8 spell
+	// identically. Detect that first and hand the text back untouched instead of transcoding.
+	bool has_high_byte = false;
+	for (const char c : text) {
+		if (static_cast<unsigned char>(c) >= 0x80) {
+			has_high_byte = true;
+			break;
+		}
+	}
+	if (!has_high_byte) {
+		return text;
+	}
+	// Every KOI8-R character lives below U+FFFF, so three bytes per input byte is a hard bound.
+	std::vector<char> out(text.size() * 3 + 1, '\0');
+	codepages::koi_to_utf8(const_cast<char *>(text.c_str()), out.data());
+	return std::string(out.data());
+}
+
+std::string to_koi8(const std::string &text) {
 	if (text.empty()) {
 		return text;
 	}
-	// koi_to_utf8() can grow the text; utils_encoding sizes its own buffers at 6x, so match that.
-	std::vector<char> out(text.size() * 6 + 1, '\0');
-	codepages::koi_to_utf8(const_cast<char *>(text.c_str()), out.data());
-	return std::string(out.data());
+	bool has_high_byte = false;
+	for (const char c : text) {
+		if (static_cast<unsigned char>(c) >= 0x80) {
+			has_high_byte = true;
+			break;
+		}
+	}
+	if (!has_high_byte) {
+		return text;   // pure ASCII is spelled identically in both encodings
+	}
+	return codepages::Utf8ToKoi8(text);
+}
+
+std::string from_utf8(const std::string &text) {
+	return text;   // the native encoding already is UTF-8
 }
 
 std::string translit_to_filename(std::string_view name) {
@@ -599,6 +634,16 @@ std::string from_koi8(const std::string &text) {
 	return text;   // the native encoding already is KOI8-R
 }
 
+std::string to_koi8(const std::string &text) {
+	return text;   // the native encoding already is KOI8-R
+}
+
+std::string from_utf8(const std::string &text) {
+	// The native encoding is KOI8-R, so this is the real conversion: reduce what KOI8-R lacks
+	// (see translit_koi8.h), then transcode.
+	return codepages::Utf8ToKoi8(text);
+}
+
 std::string translit_to_filename(std::string_view name) {
 	// Byte-wise, exactly as get_filename() did before this was extracted: transliterate through
 	// the Latin table, then lowercase. Yo is not in that table and had its own special case.
@@ -699,6 +744,55 @@ bool list_contains_char(std::string_view list, std::string_view ch) {
 		pos += len;
 	}
 	return false;
+}
+
+std::string from_disk_line(const char *line) {
+#ifdef INTERNAL_ENCODING_UTF8
+	if (line == nullptr || *line == '\0') {
+		return {};
+	}
+	const std::string_view view(line);
+	return utf8::is_valid(view) ? std::string(view) : from_koi8(std::string(view));
+#else
+	return line == nullptr ? std::string() : std::string(line);
+#endif
+}
+
+std::string from_disk_text(const std::string &text) {
+#ifdef INTERNAL_ENCODING_UTF8
+	// Same discriminator as from_disk_line, applied to the whole file: well-formed UTF-8 is taken
+	// as already native, anything else as KOI8-R. Cyrillic in KOI8-R is almost never valid UTF-8,
+	// which makes validity a reliable test, and it is what keeps a load/save cycle idempotent.
+	return utf8::is_valid(text) ? text : from_koi8(text);
+#else
+	return text;
+#endif
+}
+
+std::string to_disk(const std::string &text) {
+#ifdef INTERNAL_ENCODING_UTF8
+	return to_koi8(text);
+#else
+	return text;
+#endif
+}
+
+std::string read_data_file(const std::string &path) {
+	std::ifstream in(path, std::ios::binary);
+	if (!in) {
+		return {};
+	}
+	std::string raw((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	return from_disk_text(raw);
+}
+
+
+std::string sort_key(const std::string &text) {
+	std::string key = to_koi8(text);
+	for (char &c : key) {
+		c = codepages::KtoW(c);
+	}
+	return key;
 }
 
 }  // namespace native_text

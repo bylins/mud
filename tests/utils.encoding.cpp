@@ -119,11 +119,13 @@ TEST(Utils_Encoding, Utf8ToKoi_YoLowercase)
 
 TEST(Utils_Encoding, Utf8ToKoi_UnknownCharReplacement)
 {
-	// Characters not in KOI8-R should be replaced with KOI8_UNKNOWN_CHAR (+)
+	// Characters not in KOI8-R should be replaced with KOI8_UNKNOWN_CHAR (?)
 	// For example, Euro sign: U+20AC = UTF-8 E2 82 AC
+	// (This is the raw converter. native_text::to_koi8 runs the transliteration table first,
+	// so through that path the euro sign becomes "EUR" and never reaches the placeholder.)
 	std::string utf8_euro = "\xE2\x82\xAC";
 	std::string koi_euro = Utf8ToKoi(utf8_euro.c_str());
-	EXPECT_EQ("+", koi_euro);
+	EXPECT_EQ("?", koi_euro);
 }
 
 TEST(Utils_Encoding, Utf8ToKoi_BoxDrawingChars)

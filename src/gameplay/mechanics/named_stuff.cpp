@@ -553,7 +553,10 @@ void load() {
 	stuff_list.clear();
 
 	pugi::xml_document doc;
-	doc.load_file(LIB_PLRSTUFF"named_stuff_list.xml");
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_named_stuff = native_text::read_data_file(LIB_PLRSTUFF"named_stuff_list.xml");
+	doc.load_buffer(xml_named_stuff.data(), xml_named_stuff.size());
 
 	pugi::xml_node obj_list = doc.child("named_stuff_list");
 	for (pugi::xml_node node = obj_list.child("obj"); node; node = node.next_sibling("obj")) {

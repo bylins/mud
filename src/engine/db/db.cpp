@@ -1020,7 +1020,10 @@ void ZoneTrafficSave() {
 }
 void zone_traffic_load() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(ZONE_TRAFFIC_FILE);
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_db = native_text::read_data_file(ZONE_TRAFFIC_FILE);
+	pugi::xml_parse_result result = doc.load_buffer(xml_db.data(), xml_db.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);

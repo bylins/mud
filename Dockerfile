@@ -34,6 +34,15 @@ ARG WITH_OTEL=false
 ARG WITH_ADMIN_API=false
 ARG WITH_YAML=true
 ARG WITH_SQLITE=false
+# Кодировка рантайма (issue #3681). utf8 = флип: исходники перечекаучиваются в UTF-8
+# (в git они и так UTF-8, KOI8-R даёт лишь working-tree-encoding), рантайм -- символьный.
+ARG INTERNAL_ENCODING=koi8r
+# Ревизия и счётчик коммитов: внутри контейнера git бесполезен (контекст может быть worktree,
+# где .git -- файл-ссылка наружу, или распакованный архив), поэтому пробрасываем их снаружи:
+#   --build-arg GIT_REV=$(git rev-parse --short HEAD) \
+#   --build-arg GIT_COUNT=$(git rev-list --count HEAD)
+ARG GIT_REV=
+ARG GIT_COUNT=
 
 RUN apk add --no-cache \
     build-base make meson ninja git cmake samurai \
@@ -61,6 +70,19 @@ RUN if [ "$WITH_SQLITE" = "true" ]; then apk add --no-cache sqlite-dev; fi
 WORKDIR /mud/mud
 COPY . /mud/mud
 
+# Флип кодировки исходников. Перекодируем дерево на месте, а не через git checkout: контекст
+# сборки может быть worktree (там .git -- файл-ссылка) или вообще экспортированным архивом.
+# Конвертируем только C++ -- .py в tests/ уже в UTF-8 (см. .gitattributes).
+RUN if [ "$INTERNAL_ENCODING" = "utf8" ]; then \
+      find src tests -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
+        ! -path 'src/third_party_libs/*' \
+        -exec sh -c 'iconv -f KOI8-R -t UTF-8 "$1" > "$1.u8" && mv "$1.u8" "$1"' _ {} \; && \
+      file src/utils/utils.cpp | grep -q UTF-8 ; \
+    fi
+
+ENV BYLINS_GIT_REV=${GIT_REV} \
+    BYLINS_COMMIT_COUNT=${GIT_COUNT}
+
 RUN OTEL_OPT=$([ "$WITH_OTEL" = "true" ] && echo system || echo disabled); \
     ADMIN_OPT=$([ "$WITH_ADMIN_API" = "true" ] && echo true || echo false); \
     YAML_OPT=$([ "$WITH_YAML" = "true" ] && echo builtin || echo disabled); \
@@ -69,7 +91,8 @@ RUN OTEL_OPT=$([ "$WITH_OTEL" = "true" ] && echo system || echo disabled); \
         -Dbuild_tests=false -Dbuild_profile=${BUILD_TYPE} \
         --unity=on -Dunity_size=45 \
         -Dadmin_api=${ADMIN_OPT} -Dotel=${OTEL_OPT} \
-        -Dyaml=${YAML_OPT} -Dsqlite=${SQLITE_OPT} && \
+        -Dyaml=${YAML_OPT} -Dsqlite=${SQLITE_OPT} \
+        -Dinternal_encoding=${INTERNAL_ENCODING} && \
     meson compile -C build circle:executable
 
 # ───────────────────────── Этап 2: рантайм ─────────────────────────

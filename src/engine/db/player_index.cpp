@@ -7,6 +7,7 @@
 */
 
 #include "player_index.h"
+#include "utils/native_text.h"
 
 #include "administration/accounts.h"
 #include "global_objects.h"
@@ -103,22 +104,22 @@ std::size_t PlayersIndex::hasher::operator()(const std::string &value) const {
 	// FNV-1a implementation
 	using p = fnv_params<sizeof(std::size_t)>;
 	std::size_t result = p::offset_basis;
-	for (unsigned char c : value) {
-		result ^= static_cast<std::size_t>(LOWER(c));
+	// Регистр сворачивается ПО СИМВОЛУ, а не по байту (issue #3681): побайтная свёртка
+	// оставляет многобайтные буквы нетронутыми, из-за чего "Дрегвий" и "дрегвий" дают разные
+	// хэши и точный поиск персонажа промахивается. Компаратор ниже обязан согласоваться.
+	std::string folded = value;
+	native_text::to_lower(folded);
+	for (unsigned char c : folded) {
+		result ^= static_cast<std::size_t>(c);
 		result *= p::prime;
 	}
 	return result;
 }
 
 bool PlayersIndex::equal_to::operator()(const std::string &left, const std::string &right) const {
-	if (left.size() != right.size()) {
+	// Посимвольное сравнение без учёта регистра -- в паре к hasher выше.
+	if (native_text::compare_ci(left, right) != 0) {
 		return false;
-	}
-
-	for (std::size_t i = 0; i < left.size(); ++i) {
-		if (LOWER(left[i]) != LOWER(right[i])) {
-			return false;
-		}
 	}
 
 	return true;
@@ -258,7 +259,11 @@ void ActualizePlayersIndex(char *name) {
 	int deleted;
 	char filename[kMaxStringLength];
 
-	for (int i = 0; (name[i] = LOWER(name[i])); i++);
+	// По символу, а не по байту (issue #3681). Побайтная свёртка бьёт многобайтные буквы:
+	// у "г" второй байт UTF-8 равен 0xB3, а в KOI8-R это "Ё", и таблица опускала его в 0xA3 --
+	// буква превращалась в "У". Имя файла получалось неверным, персонаж не загружался и просто
+	// не попадал в индекс (в боевом мире так терялось 1278 из 9117 записей).
+	native_text::to_lower(name);
 	if (get_filename(name, filename, kPlayersFile)) {
 		Player t_short_ch;
 		Player *short_ch = &t_short_ch;
@@ -346,6 +351,13 @@ void BuildPlayerIndexNew() {
 		if (sscanf(name, "%s ", playername) == 0)
 			continue;
 
+		// players.lst читается обычным fopen, минуя FBFILE, поэтому границу кодировки надо
+		// пройти здесь: иначе индекс останется в KOI8-R, а поиск пойдёт по нативной кодировке
+		// и ни одного существующего персонажа не найдёт (issue #3681).
+		const std::string native_name = native_text::from_disk_line(playername);
+		strncpy(playername, native_name.c_str(), sizeof(playername) - 1);
+		playername[sizeof(playername) - 1] = '\0';
+
 		if (!player_table.IsPlayerExists(playername)) {
 			ActualizePlayersIndex(playername);
 		}
@@ -372,8 +384,10 @@ void FlushPlayerIndex() {
 		}
 
 		++saved;
+		// Имя уходит на диск в кодировке мира (сейчас KOI8-R) -- зеркало from_disk_line,
+		// которым индекс читается обратно (issue #3681).
 		sprintf(name, "%s %ld %d %d\n",
-				i.name().c_str(),
+				native_text::to_disk(i.name()).c_str(),
 				i.uid(), i.level, i.last_logon);
 		fputs(name, players);
 	}

@@ -2,6 +2,7 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.bylins.su
 
+#include "utils/native_text.h"
 #include "title.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/player_index.h"
@@ -134,8 +135,8 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			utils::Trim(title);
 			utils::Trim(pre_title);
 			if (!pre_title.empty()) {
-				sprintf(buf2, "%c%s", UPPER(pre_title.substr(0, 1).c_str()[0]), pre_title.substr(1).c_str());
-				pre_title = buf2;
+				// Поднимаем первую букву целиком, а не первый байт (issue #3681).
+				native_text::capitalize_first(pre_title);
 			}
 			if (!pre_title.empty() && !check_pre_title(pre_title, ch)) return;
 			if (!title.empty() && !check_title(title, ch)) return;
