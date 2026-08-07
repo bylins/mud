@@ -403,14 +403,15 @@ parser_wrapper::DataNode ShopsLoader::CreateElementNode(parser_wrapper::DataNode
 // Thin entry points: route through cfg_manager so boot, `reload shop` and the item-set
 // editor share one path (cfg_manager supplies the DataNode).
 //
-// issue #3700: каталог наборов читаем здесь же и всегда перед магазинами. Внумы и цены
-// товаров живут в shop_item_sets.xml, а shops.xml только ссылается на набор по id и
-// разворачивает его из g_item_sets. Раньше каталог грузился отдельной строкой на буте, а
-// "reload shop" перечитывал только shops.xml -- и подставлял внумы из каталога, оставшегося
-// в памяти с загрузки. Правка внума в наборе не доезжала до перезапуска.
+// Перезагрузка каталога наборов сюда НЕ входит, и это принципиально:
+// ShopItemSetsLoader::Reload сам зовет load(true), чтобы правка каталога сразу доехала до
+// магазинов. Если добавить сюда ReloadCfg("shop_item_sets"), получится бесконечная
+// рекурсия -- мад висит и умирает (issue #3700, откат правки из #3701). Точка входа,
+// которой нужны обе части, -- ReloadCfg("shop_item_sets"): каталог, а следом магазины.
+//
+// На буте рекурсии нет: там LoadCfg, а не Reload, поэтому обе части читаются здесь.
 void load(bool reload) {
 	if (reload) {
-		MUD::CfgManager().ReloadCfg("shop_item_sets");
 		MUD::CfgManager().ReloadCfg("shops");
 	} else {
 		MUD::CfgManager().LoadCfg("shop_item_sets");
