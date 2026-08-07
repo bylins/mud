@@ -197,7 +197,10 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "offtop")) {
 		offtop_system::Init();
 	} else if (!str_cmp(arg, "shop")) {
-		ShopExt::load(true);
+		// Каталог наборов, а следом магазины: ShopItemSetsLoader::Reload сам зовет
+		// ShopExt::load(true). Звать load(true) отсюда мало -- внумы и цены живут в
+		// наборах, и правка в них иначе не доедет (issue #3700).
+		MUD::CfgManager().ReloadCfg("shop_item_sets");
 	} else if (!str_cmp(arg, "named")) {
 		NamedStuff::load();
 	} else if (!str_cmp(arg, "celebrates")) {
