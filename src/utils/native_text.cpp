@@ -769,6 +769,14 @@ std::string from_disk_text(const std::string &text) {
 #endif
 }
 
+std::string to_disk(const std::string &text) {
+#ifdef INTERNAL_ENCODING_UTF8
+	return to_koi8(text);
+#else
+	return text;
+#endif
+}
+
 std::string read_data_file(const std::string &path) {
 	std::ifstream in(path, std::ios::binary);
 	if (!in) {

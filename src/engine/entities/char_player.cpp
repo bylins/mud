@@ -2,6 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "utils/native_text.h"
 #include "char_player.h"
 #include "gameplay/core/experience.h"
 #include "administration/privilege.h"
@@ -830,7 +831,9 @@ void Player::save_char(bool update_save_time) {
 	// Накопленный буфер пишем на диск в бинарном режиме (байты файла == байты
 	// буфера на всех платформах) и из него же считаем CRC -- без перечитывания
 	// только что записанного файла.
-	const std::string &pfile = saved.str();
+	// Граница записи: сейв уходит на диск в той же кодировке, в какой лежит остальной мир
+	// (сейчас KOI8-R), а не в нативной -- зеркало от from_disk_line на чтении (issue #3681).
+	const std::string pfile = native_text::to_disk(saved.str());
 	utils::CExecutionTimer wt;
 	FILE *pf = fopen(filename, "wb");
 	if (!pf) {

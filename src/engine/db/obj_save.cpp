@@ -2127,7 +2127,10 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 				Crash_delete_files(iplayer);
 				return false;
 			}
-			file.write(obj_content.data(), static_cast<std::streamsize>(obj_content.size()));
+			// Граница записи: рента уходит на диск в кодировке мира (сейчас KOI8-R), зеркально
+			// чтению -- иначе первое сохранение переводит файл в UTF-8 (issue #3681).
+			const std::string on_disk = native_text::to_disk(obj_content);
+			file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 			file.close();
 /* оставил как пример
 #ifndef _WIN32
@@ -2140,7 +2143,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 */
 			utils::CExecutionTimer crc_timer;
 			FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
-				obj_content.data(), obj_content.size());
+				on_disk.data(), on_disk.size());
 			crc_sec = crc_timer.delta().count();
 			g_obj_crash_save_hash[ch->get_uid()] = content_hash;
 		}

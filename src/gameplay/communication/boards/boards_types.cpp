@@ -143,20 +143,26 @@ void Board::Save() {
 		log("Error open file: %s! (%s %s %d)", file_.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << "Type: " << type_ << " "
-		 << "Clan: " << clan_rent_ << " "
-		 << "PersUID: " << pers_unique_ << " "
-		 << "PersName: " << (pers_name_.empty() ? "none" : pers_name_) << "\n";
+	// Собираем всё в строку и приводим к кодировке диска одним куском: граница записи -- зеркало
+	// границы чтения (доски читаются через from_disk_line), иначе первое же сохранение доски
+	// переводит её файл в UTF-8, а мир вокруг остаётся в KOI8-R (issue #3681).
+	std::ostringstream out;
+	out << "Type: " << type_ << " "
+		<< "Clan: " << clan_rent_ << " "
+		<< "PersUID: " << pers_unique_ << " "
+		<< "PersName: " << (pers_name_.empty() ? "none" : pers_name_) << "\n";
 	for (MessageListType::const_reverse_iterator message = messages.rbegin(); message != messages.rend(); ++message) {
-		file << "Message: " << (*message)->num << "\n"
-			 << (*message)->author << " "
-			 << (*message)->unique << " "
-			 << (*message)->level << " "
-			 << (*message)->date << " "
-			 << (*message)->rank << "\n"
-			 << (*message)->subject << "~\n"
-			 << (*message)->text << "~\n";
+		out << "Message: " << (*message)->num << "\n"
+			<< (*message)->author << " "
+			<< (*message)->unique << " "
+			<< (*message)->level << " "
+			<< (*message)->date << " "
+			<< (*message)->rank << "\n"
+			<< (*message)->subject << "~\n"
+			<< (*message)->text << "~\n";
 	}
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
 

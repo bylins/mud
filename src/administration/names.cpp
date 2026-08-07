@@ -9,6 +9,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "utils/native_text.h"
 #include "names.h"
 #include "utils/grammar/gender.h"
 
@@ -127,6 +128,11 @@ static void NewNames::save() {
 	lines.reserve(NewNameList.size());
 	for (const auto &it : NewNameList) {
 		lines.push_back(it.first);
+	}
+	// Граница записи: имена уходят на диск в кодировке мира (сейчас KOI8-R), зеркально
+	// чтению (issue #3681).
+	for (auto &line : lines) {
+		line = native_text::to_disk(line);
 	}
 	MUD::StateManager().SaveLines(state::EStateFile::kPendingNames, lines);
 }

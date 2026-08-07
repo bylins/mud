@@ -122,7 +122,18 @@ bool DataNode::Save(const std::filesystem::path &file) const {
 		decl.append_attribute("encoding");
 	}
 	decl.attribute("encoding").set_value("koi8-r");
-	return doc.save_file(file.string().c_str());
+	// Пишем в той же кодировке, в какой файл лежит на диске (сейчас KOI8-R), а не в нативной:
+	// граница записи обязана быть зеркалом границы чтения, иначе первое же сохранение молча
+	// переводит файл в UTF-8 и откат на KOI8-R-сборку становится невозможен (issue #3681).
+	std::ostringstream xml;
+	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	const std::string on_disk = native_text::to_disk(xml.str());
+	std::ofstream out(file, std::ios::binary);
+	if (!out) {
+		return false;
+	}
+	out.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
+	return out.good();
 }
 
 std::string DataNode::ToXmlString() const {
