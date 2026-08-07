@@ -97,7 +97,7 @@ class Player : public CharData {
 	void dps_end_round(int type, CharData *ch = nullptr);
 	void dps_add_exp(int exp, bool battle = false);
 
-	void save_char();
+	void save_char(bool update_save_time = true);
 	int load_char_ascii(const char *name, int load_flags) override;
 
 	bool get_disposable_flag(int num);

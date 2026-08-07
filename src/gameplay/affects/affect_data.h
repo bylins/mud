@@ -106,6 +106,8 @@ struct obj_affected_type {
 [[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);
 
 void UpdateAffectOnPulse(CharData *ch, int count);
+// issue.3678-affect-timer: age affect + cooldown/feat timers by the offline interval at login.
+void ApplyOfflineTimerAging(CharData *ch, time_t now);
 void player_timed_update();
 void player_affect_update();
 void battle_affect_update(CharData *ch);

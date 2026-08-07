@@ -398,6 +398,8 @@ class CharData : public ProtectedCharData {
 
 	time_t get_last_logon() const;
 	void set_last_logon(time_t num);
+	time_t get_last_state_save() const;
+	void set_last_state_save(time_t num);
 
 	time_t get_last_exchange() const;
 	void set_last_exchange(time_t num);
@@ -577,6 +579,7 @@ class CharData : public ProtectedCharData {
 	int remorts_;  // реморты
 	int remorts_add_;  // плюсы на реморт
 	time_t last_logon_;  // время последнего входа в игру //by kilnik
+	time_t last_state_save_{0};  // issue.3678-affect-timer: wall-clock of the last live-state save; drives offline affect/cooldown aging
 	time_t last_exchange_;  // последний вызов базара
 	currencies::CurrencyStorage currency_storage_;  // деньги на руках
 	int str_;  // родная сила

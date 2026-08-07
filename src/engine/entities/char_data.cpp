@@ -225,6 +225,7 @@ void CharData::zero_init() {
 	remorts_ = 0;
 	remorts_add_ = 0;
 	last_logon_ = 0;
+	last_state_save_ = 0;
 	str_ = 0;
 	str_add_ = 0;
 	dex_ = 0;
@@ -656,6 +657,14 @@ time_t CharData::get_last_logon() const {
 
 void CharData::set_last_logon(time_t num) {
 	last_logon_ = num;
+}
+
+time_t CharData::get_last_state_save() const {
+	return last_state_save_;
+}
+
+void CharData::set_last_state_save(time_t num) {
+	last_state_save_ = num;
 }
 
 time_t CharData::get_last_exchange() const {

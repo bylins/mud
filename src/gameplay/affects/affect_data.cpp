@@ -239,6 +239,46 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 	}
 }
 
+// issue.3678-affect-timer: at login, age a character's affect and cooldown timers by the interval it
+// spent offline (now - last live-state save), so they expire like item timers instead of pausing.
+// Offline is always out of combat, where normal and kAfBattledec affects tick once per
+// kSecsPerPlayerAffect seconds (see player_affect_update), so one such tick is removed per interval
+// of that length; kAfPulsedec affects tick sub-second and are fully decayed by any real offline gap.
+// Permanent affects (duration -1) are untouched. Durations are only reduced to 0 (never negative):
+// the normal affect update then removes the zero-timer affects on its next pass, firing kExpired /
+// apply cleanup through the usual path -- we deliberately do not remove here. Config-gated by caller.
+void ApplyOfflineTimerAging(CharData *ch, time_t now) {
+	if (!ch) {
+		return;
+	}
+	const time_t saved = ch->get_last_state_save();
+	if (saved <= 0 || now <= saved) {   // no known interval, or the clock moved backwards
+		return;
+	}
+	const long elapsed = static_cast<long>(now - saved);
+	const long slow_ticks = elapsed / kSecsPerPlayerAffect;
+
+	for (const auto &aff : ch->affected) {
+		if (aff->duration <= 0) {   // permanent (-1) or already expired -- leave alone
+			continue;
+		}
+		if (IS_SET(aff->battleflag, kAfPulsedec)) {
+			aff->duration = 0;
+		} else {
+			aff->duration = static_cast<int>(std::max(0L, static_cast<long>(aff->duration) - slow_ticks));
+		}
+	}
+
+	// Cooldowns / feat timers hold an absolute expiry (now + remaining) rebuilt at load; shift them
+	// back by the offline interval so they age too. player_timed_update reaps the ones now in the past.
+	for (auto &t : ch->timed_skill) {
+		t.second -= elapsed;
+	}
+	for (auto &t : ch->timed_feat) {
+		t.second -= elapsed;
+	}
+}
+
 void player_timed_update() {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)

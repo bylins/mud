@@ -323,7 +323,7 @@ void Player::dps_add_exp(int exp, bool battle) {
 // не дергать wear/remove триги при скрытом раздевании/одевании чара во время сейва
 #define NO_EXTRANEOUS_TRIGGERS
 
-void Player::save_char() {
+void Player::save_char(bool update_save_time) {
 	BufferedFileWriter saved;
 	char filename[kMaxStringLength];
 	int i;
@@ -334,6 +334,13 @@ void Player::save_char() {
 
 	if (this->IsNpc() || this->get_pfilepos() < 0)
 		return;
+
+	// issue.3678-affect-timer: stamp when the live state was last saved, so the next login can
+	// age affects/cooldowns by the offline interval. NOT updated on offline edits (set file):
+	// that path passes update_save_time=false, preserving the value loaded from disk.
+	if (update_save_time) {
+		set_last_state_save(time(0));
+	}
 
 	// Профилировка save_char (#3440): общий таймер функции + фазы.
 	utils::CExecutionTimer fn_timer;
@@ -393,6 +400,9 @@ void Player::save_char() {
 	}
 	// это пишем обязательно посленим, потому что после него ничего не прочитается
 	saved.printf("Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
+	// issue.3678-affect-timer: SvTm MUST be written after Rebt -- pre-Rebt fields are parsed by a
+	// separate first pass that does not know this tag; the main parse loop (post-Rebt) handles it.
+	saved.printf("SvTm: %ld\n", static_cast<long int>(this->get_last_state_save()));
 	// дальше пишем как хотим и что хотим
 
 	saved.printf("NmI : %s\n", GET_PAD(this, 0));
@@ -1685,7 +1695,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 
 			case 'S':
-				if (!strcmp(tag, "Size"))
+				if (!strcmp(tag, "SvTm")) {
+					set_last_state_save(lnum);
+				} else if (!strcmp(tag, "Size"))
 					GET_SIZE(this) = num;
 				else if (!strcmp(tag, "Sex ")) {
 					this->set_sex(static_cast<EGender>(num));
