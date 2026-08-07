@@ -4,6 +4,7 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
+#include "utils/utils_string.h"
 #include "house.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
@@ -2432,9 +2433,11 @@ void Clan::save_chest() {
 	log("Save obj: %s", this->abbrev.c_str());
 	ObjSaveSync::check(this->GetRent(), ObjSaveSync::CLAN_SAVE);
 
+	// Имя каталога дружины строится из байтов KOI8-R, как и до миграции: под UTF-8 байтовый
+	// AtoL резал русскую букву пополам, и добро дружины уезжало в каталог с другим именем
+	// (issue #3681).
 	std::string buffer = this->abbrev;
-	for (unsigned i = 0; i != buffer.length(); ++i)
-		buffer[i] = LOWER(codepages::AtoL(buffer[i]));
+	CreateFileName(buffer);
 	std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 	for (auto chest : world[GetRoomRnum(this->chest_room)]->contents) {
 		if (Clan::is_clan_chest(chest)) {
@@ -2494,9 +2497,7 @@ void Clan::ChestLoad() {
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		buffer = (*clan)->abbrev;
-		for (unsigned i = 0; i != buffer.length(); ++i) {
-			buffer[i] = LOWER(codepages::AtoL(buffer[i]));
-		}
+		CreateFileName(buffer);
 		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 
 		//лоадим сундук. в зонах его лоадить не нужно.
@@ -2597,9 +2598,7 @@ void Clan::ChestUpdate() {
 // * Запись сообщения дружины в файл и поле клана.
 void Clan::write_mod(const std::string &arg) {
 	std::string abbrev = this->get_abbrev();
-	for (unsigned i = 0; i != abbrev.length(); ++i) {
-		abbrev[i] = LOWER(codepages::AtoL(abbrev[i]));
-	}
+	CreateFileName(abbrev);
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".mod";
 
 	std::ofstream file(filename.c_str());
@@ -4226,9 +4225,7 @@ std::string Clan::get_remember(unsigned int num, int flag) const {
 
 std::string Clan::get_file_abbrev() const {
 	std::string text = this->get_abbrev();
-	for (unsigned i = 0; i != text.length(); ++i) {
-		text[i] = LOWER(codepages::AtoL(text[i]));
-	}
+	CreateFileName(text);
 	return text;
 }
 
