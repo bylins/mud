@@ -41,12 +41,12 @@ void pers_log(CharData *ch, const char *format, ...) {
 	}
 
 	if (!ch->desc->pers_log) {
-		char filename[128], name[64], *ptr;
-		strcpy(name, GET_NAME(ch));
-		for (ptr = name; *ptr; ptr++) {
-			*ptr = LOWER(codepages::AtoL(*ptr));
-		}
-		sprintf(filename, "%s/perslog/%s.log", runtime_config.log_dir().c_str(), name);
+		char filename[128];
+		// Имя файла персонального лога строится из байтов KOI8-R, как и до миграции
+		// (issue #3681).
+		std::string name = GET_NAME(ch);
+		CreateFileName(name);
+		sprintf(filename, "%s/perslog/%s.log", runtime_config.log_dir().c_str(), name.c_str());
 		ch->desc->pers_log = fopen(filename, "a");
 		if (!ch->desc->pers_log) {
 			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
