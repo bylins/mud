@@ -912,12 +912,18 @@ void do_auto_exits(CharData *ch) {
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere) {
 			if (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
+				// Печатаем первую БУКВУ направления: под UTF-8 у русской буквы два байта, и %c
+				// выводил половину (issue #3681).
+				slen += sprintf(buf + slen, "(");
+				slen += static_cast<int>(native_text::copy_lower_char(dirs[door], buf + slen));
+				slen += sprintf(buf + slen, ") ");
 			} else if (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kHidden)) {
 				if (world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn) {
-					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
+					slen += static_cast<int>(native_text::copy_lower_char(dirs[door], buf + slen));
+					slen += sprintf(buf + slen, " ");
 				} else {
-					slen += sprintf(buf + slen, "%c ", UPPER(*dirs[door]));
+					slen += static_cast<int>(native_text::copy_upper_char(dirs[door], buf + slen));
+					slen += sprintf(buf + slen, " ");
 				}
 			}
 		}

@@ -1186,7 +1186,10 @@ std::string ExpFormat(long long exp) {
 void name_convert(std::string &text) {
 	if (!text.empty()) {
 		utils::ConvertToLow(text);
-		*text.begin() = UPPER(*text.begin());
+		// Первую букву поднимаем целиком, а не первый байт: под UTF-8 у русской буквы их два,
+		// и байтовый UPPER превращал имя в мусор -- "имя щщщщщ одобрить" не находило
+		// персонажа (issue #3681).
+		native_text::capitalize_first(text);
 	}
 }
 

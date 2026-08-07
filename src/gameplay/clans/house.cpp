@@ -441,7 +441,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 				log("Owner %ld is no longer exist (%s).", unique, filename.c_str());
 				break;
 			}
-			tempMember->name[0] = UPPER(tempMember->name[0]);
+			native_text::capitalize_first(tempMember->name);
 			tempMember->rank_num = 0;
 			tempMember->money = money;
 			tempMember->exp = exp;
@@ -477,7 +477,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 					log("Member %ld is no longer exist (%s).", unique, filename.c_str());
 					continue;
 				}
-				tempMember->name[0] = UPPER(tempMember->name[0]);
+				native_text::capitalize_first(tempMember->name);
 				tempMember->rank_num = rank;
 				tempMember->money = money;
 				tempMember->exp = exp;

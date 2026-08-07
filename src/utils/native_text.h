@@ -192,6 +192,18 @@ std::string from_disk_line(const char *line);
 // exactly what happened to cfg/mechanics/obj_sets.xml, issue #3681).
 std::string from_disk_text(const std::string &text);
 
+// The write side of the same boundary, and the exact mirror of from_disk_text: whatever the
+// engine puts on disk goes out in the encoding the disk format is in, which during the migration
+// is still KOI8-R. Identity under KOI8-R; under UTF-8 the text is reduced and transcoded exactly
+// as it is for a legacy client (see to_koi8).
+//
+// Read and write MUST stay symmetric. If the engine writes the native encoding while the rest of
+// the world is KOI8-R, then the first save quietly converts every file it touches, rolling back
+// to a KOI8-R build stops being possible, and the world is no longer the world we started with.
+// The files that are deliberately UTF-8 (lib/text/greeting.utf8) are read raw and never go
+// through here (issue #3681).
+std::string to_disk(const std::string &text);
+
 // Transliterate `name` into the ASCII form used for save-file names: Russian letters become
 // Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
 // produced before the migration and MUST NOT drift -- the result is the on-disk file name of a

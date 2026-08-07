@@ -9,6 +9,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "utils/native_text.h"
 #include "names.h"
 #include "utils/grammar/gender.h"
 
@@ -169,9 +170,14 @@ static void NewNames::save() {
 		return;
 	}
 
+	// Граница записи: список уходит на диск в кодировке мира (сейчас KOI8-R), зеркально чтению
+	// (issue #3681).
+	std::ostringstream out;
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
-		file << it->first << "\n";
+		out << it->first << "\n";
 
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
 

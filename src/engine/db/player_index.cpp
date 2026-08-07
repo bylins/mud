@@ -384,8 +384,10 @@ void FlushPlayerIndex() {
 		}
 
 		++saved;
+		// Имя уходит на диск в кодировке мира (сейчас KOI8-R) -- зеркало from_disk_line,
+		// которым индекс читается обратно (issue #3681).
 		sprintf(name, "%s %ld %d %d\n",
-				i.name().c_str(),
+				native_text::to_disk(i.name()).c_str(),
 				i.uid(), i.level, i.last_logon);
 		fputs(name, players);
 	}
