@@ -242,13 +242,12 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 
 		if (static_cast<unsigned int>(obj->get_unique_id()) == obj_uid
 			&& obj->get_vnum() == obj_vnum) {
-			std::ostringstream text;
-			text << "[Персональное хранилище]: " << kColorBoldRed << "'"
-				 << obj->get_short_description() << char_get_custom_label(obj.get(), ch)
-				 << " рассыпал" << grammar::ObjSexEnding((obj.get())->get_sex(), 2)
-				 << " в прах'" << kColorNrm << "\r\n";
+			// Цвет повторяется после имени -- см. комментарий в SendMsgToChar ниже.
+			auto text = fmt::format("[Персональное хранилище]: &R'{}{}&R рассыпал{} в прах'&n\r\n",
+									obj->get_short_description(), char_get_custom_label(obj.get(), ch),
+									grammar::ObjSexEnding(obj->get_sex(), 2));
 			ExtractObjFromWorld(obj.get());
-			return text.str();
+			return text;
 		}
 		ExtractObjFromWorld(obj.get());
 	}
@@ -634,10 +633,13 @@ void CharNode::update_online_item() {
 				// если чар в лд или еще чего - лучше записать и выдать это ему при след
 				// входе в игру, чтобы уж точно увидел
 				if (ch->desc && ch->desc->state == EConState::kPlaying) {
-					SendMsgToChar(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-								  kColorBoldRed, (*obj_it)->get_short_description().c_str(),
-								  char_get_custom_label(obj_it->get(), ch).c_str(),
-								  grammar::ObjSexEnding(((*obj_it))->get_sex(), 2), kColorNrm);
+					// Цвет повторяем после имени: именные вещи закрывают свой цвет сбросом (&n),
+					// и без этого красной оставалась только открывающая кавычка.
+					SendMsgToChar(fmt::format("[Персональное хранилище]: &R'{}{}&R рассыпал{} в прах'&n\r\n",
+											  (*obj_it)->get_short_description(),
+											  char_get_custom_label(obj_it->get(), ch),
+											  grammar::ObjSexEnding((*obj_it)->get_sex(), 2)),
+								  ch);
 				} else {
 					add_purged_message(ch->get_uid(), GET_OBJ_VNUM(obj_it->get()), (*obj_it)->get_unique_id());
 				}

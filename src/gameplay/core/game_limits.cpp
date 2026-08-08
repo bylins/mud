@@ -1182,12 +1182,14 @@ void clan_chest_invoice(ObjData *j) {
 			&& d->character->IsFlagged(EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
-			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-						  kColorBoldRed,
-						  j->get_short_description().c_str(),
-						  clan_get_custom_label(j, CLAN(d->character)).c_str(),
-						  grammar::ObjSexEnding((j)->get_sex(), 2),
-						  kColorNrm);
+			// Цвет включается заново после имени предмета: у именных вещей имя само цветное и
+			// закрывается сбросом (&n), поэтому без повтора красной оставалась одна открывающая
+			// кавычка, а хвост фразы шел обычным цветом.
+			SendMsgToChar(fmt::format("[Хранилище]: &R'{}{}&R рассыпал{} в прах'&n\r\n",
+									  j->get_short_description(),
+									  clan_get_custom_label(j, CLAN(d->character)),
+									  grammar::ObjSexEnding(j->get_sex(), 2)),
+						  d->character.get());
 		}
 	}
 
