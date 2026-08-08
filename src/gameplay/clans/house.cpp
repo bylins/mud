@@ -2364,9 +2364,13 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
-				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
-							  kColorBoldRed, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(grammar::ECase::kAcc).c_str(),
-							  clan_get_custom_label(obj, CLAN(ch)).c_str(), kColorNrm);
+				// Цвет повторяем после имени предмета: у именных вещей оно само цветное и
+				// закрывается сбросом (&n), из-за чего хвост фразы терял цвет.
+				SendMsgToChar(fmt::format("[Хранилище]: &R'{} сдал{} {}{}&R.'&n\r\n",
+										  GET_NAME(ch), grammar::SexEnding(ch->get_sex(), 1),
+										  obj->get_PName(grammar::ECase::kAcc),
+										  clan_get_custom_label(obj, CLAN(ch))),
+							  d->character.get());
 			}
 		}
 
@@ -2409,11 +2413,11 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
-				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
-							  kColorBoldRed, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
-							  obj->get_PName(grammar::ECase::kAcc).c_str(),
-							  clan_get_custom_label(obj, CLAN(d->character)).c_str(),
-							  kColorNrm);
+				SendMsgToChar(fmt::format("[Хранилище]: &R'{} забрал{} {}{}&R.'&n\r\n",
+										  GET_NAME(ch), grammar::SexEnding(ch->get_sex(), 1),
+										  obj->get_PName(grammar::ECase::kAcc),
+										  clan_get_custom_label(obj, CLAN(d->character))),
+							  d->character.get());
 			}
 		}
 
