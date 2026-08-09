@@ -88,9 +88,6 @@ if host_system == 'windows'
     endif
 endif
 
-if cpp.get_id() == 'clang'
-    project_args += '-Wno-invalid-source-encoding'
-endif
 
 cpu = host_machine.cpu_family()
 # GNU-driver compilers only. clang-cl (get_id()=='clang-cl') takes its arch from the MSVC
@@ -108,22 +105,18 @@ if host_system == 'windows'
     if cpp.get_argument_syntax() == 'msvc'   # MSVC and clang-cl
         project_args += ['/MP', '/bigobj', '-DFMT_UNICODE=0', '/external:anglebrackets', '/external:W0']
         if cpp.get_id() == 'msvc'
-            # MSVC accepts the KOI8-R codepage (20866) for source/exec charset.
-            project_args += ['/source-charset:koi8-r', '/execution-charset:koi8-r']
-        else
-            # clang-cl rejects non-UTF-8 /source-charset ('invalid value koi8-r'); it keeps narrow-literal
-            # bytes as-is, so just silence the KOI8-R source-encoding warnings (as for the GNU clang driver).
-            project_args += ['-Wno-invalid-source-encoding']
+            project_args += ['/source-charset:utf-8', '/execution-charset:utf-8']
         endif
     elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
         project_args += ['-Wa,-mbig-obj', '-D__USE_MINGW_ANSI_STDIO=1']
     endif
 endif
 
-# Native runtime string encoding (issue #3681). Default koi8r keeps byte semantics unchanged.
-if get_option('internal_encoding') == 'utf8'
-    project_args += '-DINTERNAL_ENCODING_UTF8'
-endif
+# issue #3681: движок работает с текстом в UTF-8 и посимвольно. Исходники тоже UTF-8 (см.
+# .gitattributes), поэтому строковые литералы и рантайм совпадают по кодировке -- это одно
+# состояние, а не два: собрать байтовый вариант из UTF-8-исходников нельзя, и опции для этого
+# больше нет. Байтовые ветки под #else в native_text ещё остались и будут вычищены отдельно.
+project_args += '-DINTERNAL_ENCODING_UTF8'
 
 linker_choice = get_option('linker')
 if linker_choice != ''

@@ -90,39 +90,6 @@ jobs:
       - name: Run tests
         run: meson test -C build
 
-  utf8-flip:
-    name: GCC / UTF-8 flip rehearsal
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install base dependencies
-        uses: ./.github/actions/install-linux-deps
-        with:
-          add-universe: 'true'
-
-      # Репетиция флипа кодировки (issue #3681). Исходники и рантайм переключаются ВМЕСТЕ:
-      # блобы в git и так лежат в UTF-8, поэтому снятие working-tree-encoding + повторный
-      # checkout даёт UTF-8-исходники, а -Dinternal_encoding=utf8 переводит на символьную
-      # семантику рантайм. Задача держит UTF-8-ветку компилируемой и протестированной до
-      # самого флипа -- иначе она не собирается вообще ничем.
-      - name: Check out sources as UTF-8
-        run: |
-          sed -i -E 's|^(/(src\|tests)/\*\* +)working-tree-encoding=KOI8-R |\1|' .gitattributes
-          rm -rf src tests
-          git checkout -- src tests
-          file src/utils/utils.cpp | grep -q UTF-8 || { echo "sources did not become UTF-8"; exit 1; }
-
-      - name: Configure meson
-        run: meson setup build --wipe -Dbuild_profile=release -Dinternal_encoding=utf8 -Dunity_size=45
-
-      - name: Build
-        run: meson compile -C build tests
-
-      - name: Run tests
-        run: meson test -C build
-
   gcc15:
     name: GCC 15 / Base
     runs-on: ubuntu-latest

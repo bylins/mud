@@ -53,7 +53,7 @@ except Exception:
 engine_name = "BRusMUD"
 engine_version = f'{mmp}.{commit_count}'
 
-with open(input_file, encoding='koi8-r') as f:
+with open(input_file, encoding='utf-8') as f:
     content = f.read()
 
 content = content.replace('${REVISION}', f'{git_rev} ({buildtype})')
@@ -63,5 +63,5 @@ content = content.replace('${BUILD_DATETIME}', datetime.now().strftime('%b %d %Y
 content = content.replace('${ENGINE_NAME}', engine_name)
 content = content.replace('${ENGINE_VERSION}', engine_version)
 
-with open(output_file, 'w', encoding='koi8-r') as f:
+with open(output_file, 'w', encoding='utf-8') as f:
     f.write(content)

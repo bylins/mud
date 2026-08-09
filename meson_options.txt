@@ -12,7 +12,6 @@ option('use_pch', type: 'boolean', value: true, description: 'Use precompiled he
 
 # KOI8-R -> UTF-8 migration (issue #3681). Selects the engine's native runtime string encoding.
 # koi8r = current byte semantics (default); utf8 = character semantics via the utf8:: helpers.
-option('internal_encoding', type: 'combo', choices: ['koi8r', 'utf8'], value: 'koi8r', description: 'Engine-native runtime string encoding: koi8r (byte semantics, current) or utf8 (character semantics)')
 
 # Options for Admin API and Web features
 option('admin_api', type: 'boolean', value: false, description: 'Enable Admin API and JSON-related features')
