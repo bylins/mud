@@ -343,7 +343,9 @@ void TriggersFile::LoadDgTriggerScript(Trigger *trig, const std::string &cmds, i
 			// lowercase the command (first word) for faster comparison at runtime
 			auto it = (*ptr)->cmd.begin();
 			while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
-			while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
+			for (; it != (*ptr)->cmd.end() && *it != ' '; it += native_text::char_bytes(&*it)) {
+				native_text::copy_lower_char(&*it, &*it);
+			}
 			ptr = &(*ptr)->next;
 		}
 		if (pos_end != std::string::npos)

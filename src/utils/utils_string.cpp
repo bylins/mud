@@ -830,15 +830,18 @@ char *str_str(const char *cs, const char *ct) {
 	if (!cs || !ct) {
 		return nullptr;
 	}
+	// Сравниваем и шагаем ПО СИМВОЛАМ: под UTF-8 побайтовое приведение регистра для кириллицы
+	// неверно (таблица регистра -- байтовая, KOI8-R), и поиск подстроки то не находил совпадения,
+	// то находил ложные на границе байтов (issue #3681).
 	while (*cs) {
 		const char *t = ct;
-		while (*cs && (LOWER(*cs) != LOWER(*t))) {
-			cs++;
+		while (*cs && !native_text::chars_equal_ci(cs, t)) {
+			cs += native_text::char_bytes(cs);
 		}
 		char *s = (char*)cs;
-		while (*t && *cs && (LOWER(*cs) == LOWER(*t))) {
-			t++;
-			cs++;
+		while (*t && *cs && native_text::chars_equal_ci(cs, t)) {
+			t += native_text::char_bytes(t);
+			cs += native_text::char_bytes(cs);
 		}
 		if (!*t) {
 			return s;

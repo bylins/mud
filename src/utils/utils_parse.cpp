@@ -505,11 +505,16 @@ bool CompareParam(const std::string &buffer, const char *str, bool full) {
 		return false;
 	}
 
+	// Посимвольно, а не побайтово: под UTF-8 регистр русской буквы по одному байту не берётся
+	// (issue #3681). Шаг обеих строк -- на длину символа, они здесь всегда в одной кодировке.
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && *str; ++i, ++str) {
-		if (LOWER(buffer[i]) != LOWER(*str)) {
+	for (i = 0; i != buffer.length() && *str;) {
+		if (!native_text::chars_equal_ci(buffer.c_str() + i, str)) {
 			return false;
 		}
+		const std::size_t step = native_text::char_bytes(str);
+		i += step;
+		str += step;
 	}
 
 	if (i == buffer.length()) {
@@ -526,11 +531,13 @@ bool CompareParam(const std::string &buffer, const std::string &buffer2, bool fu
 		return false;
 	}
 
+	// Посимвольно, как и в перегрузке выше (issue #3681).
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i) {
-		if (LOWER(buffer[i]) != LOWER(buffer2[i])) {
+	for (i = 0; i != buffer.length() && i != buffer2.length();) {
+		if (!native_text::chars_equal_ci(buffer.c_str() + i, buffer2.c_str() + i)) {
 			return false;
 		}
+		i += native_text::char_bytes(buffer.c_str() + i);
 	}
 
 	if (i == buffer.length()) {

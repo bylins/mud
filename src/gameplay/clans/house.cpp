@@ -3640,7 +3640,6 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 	// т.к. в кои8-р русские буквы не попорядку
 	const char *pSortAlph = "яюэьыъщшчцхфутсрпонмлкизжёедгвба";
 	// первая буква имени
-	char pcFirstChar[2];
 
 	// для избежания путаницы с именами фильтр начинается со знака "!"
 	// формат команды:
@@ -3752,11 +3751,23 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			case SORT_STAT_BY_LOGON: lSortParam = GetLastlogonByUnique(it.first);
 				break;
 			case SORT_STAT_BY_NAME: {
-				pcFirstChar[0] = LOWER(it.second->name[0]);
-				pcFirstChar[1] = '\0';
-				char const *pTmp = strpbrk(pSortAlph, pcFirstChar);
-				if (pTmp) lSortParam = pTmp - pSortAlph; // индекс первой буквы в массиве
-				else lSortParam = pcFirstChar[0]; // или не русская буква или я хз
+				// Индекс первой БУКВЫ имени в алфавите. Под UTF-8 буква занимает два байта, и
+				// strpbrk по одному байту находил бы что попало, а то и вовсе ничего
+				// (issue #3681). Идём по алфавиту символ за символом.
+				char first_letter[8] = {0};
+				native_text::copy_lower_char(it.second->name.c_str(), first_letter);
+				lSortParam = -1;
+				long letter_index = 0;
+				for (const char *p = pSortAlph; *p; p += native_text::char_bytes(p), ++letter_index) {
+					if (native_text::chars_equal_ci(p, first_letter)) {
+						lSortParam = letter_index;
+						break;
+					}
+				}
+				if (lSortParam < 0) {
+					// не русская буква -- пусть уедет в конец, но в стабильном порядке
+					lSortParam = static_cast<long>(native_text::first_char_code(first_letter));
+				}
 				break;
 			}
 				// на всякий случай

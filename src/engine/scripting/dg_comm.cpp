@@ -8,6 +8,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include "utils/native_text.h"
 #include "engine/entities/obj_data.h"
 #include "utils/grammar/gender.h"
 #include "dg_scripts.h"
@@ -31,10 +32,14 @@ char *any_one_name(char *argument, char *first_arg) {
 	 * Библиотечная функция ispunct() неправильно работает для русского языка
 	 * (по крайней мере у меня). Пока закоментировал.
 	 */
+	// Шагаем по символу, а не по байту: под UTF-8 русская буква занимает два, и побайтовое
+	// приведение к нижнему регистру ломало её (issue #3681).
 	for (arg = first_arg; *argument && !isspace(*argument) &&
-			(!ispunct(*argument) || *argument == '#' || *argument == '-');
-		 arg++, argument++)
-		*arg = LOWER(*argument);
+			(!ispunct(*argument) || *argument == '#' || *argument == '-');) {
+		const std::size_t written = native_text::copy_lower_char(argument, arg);
+		arg += written;
+		argument += written;
+	}
 	*arg = '\0';
 
 	return argument;

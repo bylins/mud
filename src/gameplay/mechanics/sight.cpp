@@ -1344,7 +1344,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					if (object->get_type() == EObjType::kLiquidContainer) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
 						char tmp2[128];
-						*tmp = LOWER(*tmp);
+						native_text::copy_lower_char(tmp, tmp);
 						sprintf(tmp2, "(%s)", tmp);
 						strcat(buf2, tmp2);
 					}

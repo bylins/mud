@@ -2759,8 +2759,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "clan")) {
 			if (CLAN(mob)) {
 				snprintf(str, str_size, "%s", CLAN(mob)->GetAbbrev());
-				for (i = 0; str[i]; i++)
-					str[i] = LOWER(str[i]);
+				native_text::to_lower(str);
 			} else
 				snprintf(str, str_size, "0");
 		} else if (!str_cmp(field, "ClanRank")) {
