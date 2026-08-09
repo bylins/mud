@@ -28,12 +28,12 @@ char *any_one_name(char *argument, char *first_arg) {
 
 	// Find length of first word 
 	/*
-	 * п╒я┐я┌ п╫я┐п╤п╫п╬ я┤я┌п╬-я┌п╬ п╢п╣п╩п╟я┌я▄!!!
-	 * п▒п╦п╠п╩п╦п╬я┌п╣я┤п╫п╟я▐ я└я┐п╫п╨я├п╦я▐ ispunct() п╫п╣п©я─п╟п╡п╦п╩я▄п╫п╬ я─п╟п╠п╬я┌п╟п╣я┌ п╢п╩я▐ я─я┐я│я│п╨п╬пЁп╬ я▐п╥я▀п╨п╟
-	 * (п©п╬ п╨я─п╟п╧п╫п╣п╧ п╪п╣я─п╣ я┐ п╪п╣п╫я▐). п÷п╬п╨п╟ п╥п╟п╨п╬п╪п╣п╫я┌п╦я─п╬п╡п╟п╩.
+	 * Тут нужно что-то делать!!!
+	 * Библиотечная функция ispunct() неправильно работает для русского языка
+	 * (по крайней мере у меня). Пока закоментировал.
 	 */
-	// п╗п╟пЁп╟п╣п╪ п©п╬ я│п╦п╪п╡п╬п╩я┐, п╟ п╫п╣ п©п╬ п╠п╟п╧я┌я┐: п©п╬п╢ UTF-8 я─я┐я│я│п╨п╟я▐ п╠я┐п╨п╡п╟ п╥п╟п╫п╦п╪п╟п╣я┌ п╢п╡п╟, п╦ п©п╬п╠п╟п╧я┌п╬п╡п╬п╣
-	// п©я─п╦п╡п╣п╢п╣п╫п╦п╣ п╨ п╫п╦п╤п╫п╣п╪я┐ я─п╣пЁп╦я│я┌я─я┐ п╩п╬п╪п╟п╩п╬ п╣я▒ (issue #3681).
+	// Шагаем по символу, а не по байту: под UTF-8 русская буква занимает два, и побайтовое
+	// приведение к нижнему регистру ломало её (issue #3681).
 	for (arg = first_arg; *argument && !isspace(*argument) &&
 			(!ispunct(*argument) || *argument == '#' || *argument == '-');) {
 		const std::size_t written = native_text::copy_lower_char(argument, arg);
@@ -56,18 +56,18 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 		switch (type[i]) {
 			case '~':
 				if (!otokens[i])
-					strcat(sb, "п я┌п╬-я┌п╬");
+					strcat(sb, "Кто-то");
 				else if ((CharData *) otokens[i] == ch)
-					strcat(sb, "п▓я▀");
+					strcat(sb, "Вы");
 				else
 					strcat(sb, sight::PersonName((CharData *) otokens[i], ch, 0));
 				break;
 
 			case '@':
 				if (!otokens[i])
-					strcat(sb, "я┤п╣п╧-я┌п╬");
+					strcat(sb, "чей-то");
 				else if ((CharData *) otokens[i] == ch)
-					strcat(sb, "п╡п╟я┬");
+					strcat(sb, "ваш");
 				else {
 					strcat(sb, sight::PersonName((CharData *) otokens[i], ch, 1));
 				}
@@ -75,34 +75,34 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 
 			case '^':
 				if (!otokens[i] || !sight::CanSee(ch, (CharData *) otokens[i]))
-					strcat(sb, "я┤п╣п╧-я┌п╬");
+					strcat(sb, "чей-то");
 				else if (otokens[i] == ch)
-					strcat(sb, "п╡п╟я┬");
+					strcat(sb, "ваш");
 				else
 					strcat(sb, grammar::PossessivePronoun(((CharData *) otokens[i])->get_sex()));
 				break;
 
 			case '}':
 				if (!otokens[i] || !sight::CanSee(ch, (CharData *) otokens[i]))
-					strcat(sb, "п·п╫");
+					strcat(sb, "Он");
 				else if (otokens[i] == ch)
-					strcat(sb, "п▓я▀");
+					strcat(sb, "Вы");
 				else
 					strcat(sb, grammar::PersonalPronoun(((CharData *) otokens[i])->get_sex()));
 				break;
 
 			case '*':
 				if (!otokens[i] || !sight::CanSee(ch, (CharData *) otokens[i]))
-					strcat(sb, "п╣п╪я┐");
+					strcat(sb, "ему");
 				else if (otokens[i] == ch)
-					strcat(sb, "п╡п╟п╪");
+					strcat(sb, "вам");
 				else
 					strcat(sb, grammar::DativePronoun(((CharData *) otokens[i])->get_sex()));
 				break;
 
 			case '`':
 				if (!otokens[i])
-					strcat(sb, "я┤я┌п╬-я┌п╬");
+					strcat(sb, "что-то");
 				else
 					strcat(sb, OBJS(((ObjData *) otokens[i]), ch));
 				break;
@@ -111,8 +111,8 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 
 	strcat(sb, tokens[i]);
 	strcat(sb, "\n\r");
-// п≤п╠п╬ п╫п╣я└п╦пЁ, п╢п╬я│я┌п╟п╩п╦ п©я─п╬я┤п╣я─п╨п╦ я│я┌п╟п╡п╦я┌я▄ я┤я┌п╬п╠ п╫п╣ п╟п©п╣я─п╨п╣п╧я│п╦п╩п╬ п╡ п╪п╫п╬пЁп╬я│я┌я─п╬п╨п╬п╡я▀я┘ я│п╨п╟п╥п╟п╫п╦я▐я┘, п©я┐я│я┌я▄ п╠п╦п╩п╢п╣я─я▀ я─я┐п╨п╟п╪п╦.
-//	sb[0] = UPPER(sb[0]);    // п▒п╦п╠п╩п╦п╬я┌п╣я┤п╫я▀п╧ п╡я▀п╥п╬п╡ toupper() пЁп╩я▌я┤п╦я┌ п╢п╩я▐ я─я┐я│я│п╨п╬пЁп╬
+// Ибо нефиг, достали прочерки ставить чтоб не аперкейсило в многостроковых сказаниях, пусть билдеры руками.
+//	sb[0] = UPPER(sb[0]);    // Библиотечный вызов toupper() глючит для русского
 	SendMsgToChar(sb, ch);
 }
 

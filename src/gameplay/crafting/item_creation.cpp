@@ -58,99 +58,99 @@ struct create_item_type created_item[] =
 		{310, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_HEAD},
 		{312, 0, 4, 40, {{WOOD_PROTO, TETIVA_PROTO, 0}}, ESkill::kCreateBow, WEAR_TAKE_BOTHS}
 	};
-const char *create_item_name[] = {"я┬п╣п╩п╣п©я┐пЁп╟",
-								  "п╪п╣я┤",
-								  "я│п╟п╠п╩я▐",
-								  "п╫п╬п╤",
-								  "я┌п╬п©п╬я─",
-								  "п©п╩п╣я┌я▄",
-								  "п╢я┐п╠п╦п╫п╟",
-								  "п╨п╬п╩я▄я┤я┐пЁп╟",
-								  "п╫п╟я─я┐я┤п╦",
-								  "п©п╬п╫п╬п╤п╦",
-								  "я┬п╩п╣п╪",
-								  "п╩я┐п╨",
+const char *create_item_name[] = {"шелепуга",
+								  "меч",
+								  "сабля",
+								  "нож",
+								  "топор",
+								  "плеть",
+								  "дубина",
+								  "кольчуга",
+								  "наручи",
+								  "поножи",
+								  "шлем",
+								  "лук",
 								  "\n"
 };
 const struct make_skill_type make_skills[] =
 	{
-		{"я│п╪п╟я│я┌п╣я─п╦я┌я▄ п©я─п╣п╢п╪п╣я┌", "п©я─п╣п╢п╪п╣я┌я▀", ESkill::kMakeStaff},
-		{"я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╩я┐п╨", "п╩я┐п╨п╦", ESkill::kMakeBow},
-		{"п╡я▀п╨п╬п╡п╟я┌я▄ п╬я─я┐п╤п╦п╣", "п╬я─я┐п╤п╦п╣", ESkill::kMakeWeapon},
-		{"п╡я▀п╨п╬п╡п╟я┌я▄ п╢п╬я│п©п╣я┘", "п╢п╬я│п©п╣я┘", ESkill::kMakeArmor},
-		{"я│я┬п╦я┌я▄ п╬п╢п╣п╤п╢я┐", "п╬п╢п╣п╤п╢п╟", ESkill::kMakeWear},
-		{"я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╢п╦п╨п╬п╡п╦п╫я┐", "п╟я─я┌п╣я└.", ESkill::kMakeJewel},
-		{"я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╬п╠п╣я─п╣пЁ", "п╬п╠п╣я─п╣пЁ", ESkill::kMakeAmulet},
-//  { "я│п╡п╟я─п╦я┌я▄ п╬я┌п╡п╟я─","п╡п╟я─п╣п╡п╬", ESkill::kMakePotion },
-		{"\n", "\n", ESkill::kUndefined}        // п╒п╣я─п╪п╦п╫п╟я┌п╬я─
+		{"смастерить предмет", "предметы", ESkill::kMakeStaff},
+		{"смастерить лук", "луки", ESkill::kMakeBow},
+		{"выковать оружие", "оружие", ESkill::kMakeWeapon},
+		{"выковать доспех", "доспех", ESkill::kMakeArmor},
+		{"сшить одежду", "одежда", ESkill::kMakeWear},
+		{"смастерить диковину", "артеф.", ESkill::kMakeJewel},
+		{"смастерить оберег", "оберег", ESkill::kMakeAmulet},
+//  { "сварить отвар","варево", ESkill::kMakePotion },
+		{"\n", "\n", ESkill::kUndefined}        // Терминатор
 	};
 const char *create_weapon_quality[] = {"RESERVED",
 									   "RESERVED",
 									   "RESERVED",
 									   "RESERVED",
 									   "RESERVED",
-									   "п╫п╣п╡п╬п╬п╠я─п╟п╥п╦п╪п╬ я┐п╤п╟я│п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // <3 //
-									   "я┐п╤п╟я│п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 3 //
-									   "п╠п╬п╩п╣п╣ я┤п╣п╪ п╤я┐я┌п╨п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "п╤я┐я┌п╨п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 4 //
-									   "п╠п╬п╩п╣п╣ я┤п╣п╪ п╬я┌п╡я─п╟я┌п╦я┌п╣п╩я▄п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "п╬я┌п╡я─п╟я┌п╦я┌п╣п╩я▄п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 5 //
-									   "п╠п╬п╩п╣п╣ я┤п╣п╪ п©п╩п╬я┘п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "п©п╩п╬я┘п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 6 //
-									   "я┘я┐п╤п╣ я┤п╣п╪ я│я─п╣п╢п╫п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "я│я─п╣п╢п╫п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 7 //
-									   "п╩я┐я┤я┬п╣ я┤п╣п╪ я│я─п╣п╢п╫п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "п╫п╣п©п╩п╬я┘п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 8 //
-									   "п╠п╬п╩п╣п╣ я┤п╣п╪ п╫п╣п©п╩п╬я┘п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "я┘п╬я─п╬я┬п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 9 //
-									   "п╠п╬п╩п╣п╣ я┤п╣п╪ я┘п╬я─п╬я┬п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "п©я─п╣п╡п╬я│я┘п╬п╢п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 10 //
-									   "п╠п╬п╩п╣п╣ я┤п╣п╪ п©я─п╣п╡п╬я│я┘п╬п╢п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "п╡п╣п╩п╦п╨п╬п╩п╣п©п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",    // 11 //
-									   "п╠п╬п╩п╣п╣ я┤п╣п╪ п╡п╣п╩п╦п╨п╬п╩п╣п©п╫п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я┐я┤п╣п╫п╦п╨п╬п╡ п╪п╟я│я┌п╣я─п╟",    // 12 //
-									   "п╩я┐я┤я┬п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟, я┤п╣п╪ п╢п╣п╩п╟я▌я┌ я┐я┤п╣п╫п╦п╨п╦ п╪п╟я│я┌п╣я─п╟",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ п╪п╟я│я┌п╣я─п╟",    // 13 //
-									   "п╩я┐я┤я┬п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟, я┤п╣п╪ п╢п╣п╩п╟я▌я┌ п╪п╟я│я┌п╣я─п╟",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ п╡п╣п╩п╦п╨п╬пЁп╬ п╪п╟я│я┌п╣я─п╟",    // 14 //
-									   "п╩я┐я┤я┬п╣пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟, я┤п╣п╪ п╢п╣п╩п╟я▌я┌ п╡п╣п╩п╦п╨п╦п╣ п╪п╟я│я┌п╣я─п╟",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ я│я▀п╫п╟ п╠п╬я▐я─я│п╨п╬пЁп╬",    // 15 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ я│я▀п╫п╟ п╠п╬я▐я─я│п╨п╬пЁп╬",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╠п╬я▐я─п╦п╫п╟",    // 16 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╠п╬я▐я─п╦п╫п╟",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ я│я▀п╫п╟ п╡п╬п╣п╡п╬п╢я▀",    // 17 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ я│я▀п╫п╟ п╡п╬п╣п╡п╬п╢я▀",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╡п╬п╣п╡п╬п╢я▀",    // 18 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╡п╬п╣п╡п╬п╢я▀",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╨п╫я▐п╤п╦я┤п╟",    // 19 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╨п╫я▐п╤п╦я┤п╟",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╨п╫я▐п╥я▐",    // 20 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╨п╫я▐п╥я▐",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ пЁп╣я─п╬я▐",    // 21 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ пЁп╣я─п╬я▐",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╡п╣п╩п╦п╨п╬пЁп╬ пЁп╣я─п╬я▐",    // 22 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я─я┐п╨п╦ п╡п╣п╩п╦п╨п╬пЁп╬ пЁп╣я─п╬я▐",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╨п╬я┌п╬я─п╬п╣ п╥п╫п╟п╩п╦ я┌п╬п╩я▄п╨п╬ п╢я─п╣п╡п╫п╦п╣ я┌п╦я┌п╟п╫я▀",    // 23 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╩я┐я┤я┬п╣пЁп╬ я┤п╣п╪ я┌п╬, п╨п╬я┌п╬я─п╬п╣ п╥п╫п╟п╩п╦ п╢я─п╣п╡п╫п╦п╣ я┌п╦я┌п╟п╫я▀",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ п╪п╩п╟п╢я┬п╦я┘ п╠п╬пЁп╬п╡",    // 24 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ п╪п╩п╟п╢я┬п╦я┘ п╠п╬пЁп╬п╡",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ п╠п╬пЁп╬п╡",    // 25 //
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╠п╬п╩п╣п╣ я┤п╣п╪ п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ п╠п╬пЁп╬п╡",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╨п╬я┌п╬я─п╬пЁп╬ п╢п╬я│я┌п╦пЁп╟я▌я┌ п╫п╣п╪п╫п╬пЁп╦п╣", // 26
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╨п╬я┌п╬я─п╬пЁп╬ п╢п╬я│я┌п╦пЁп╟я▌я┌ п╫п╣п╪п╫п╬пЁп╦п╣",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╨п╬я┌п╬я─п╬пЁп╬ п╢п╬я│я┌п╦пЁп╟я▌я┌ п╫п╣п╪п╫п╬пЁп╦п╣", // 27
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╨п╬я┌п╬я─п╬пЁп╬ п╢п╬я│я┌п╦пЁп╟я▌я┌ п╫п╣п╪п╫п╬пЁп╦п╣",
-									   "п╨п╟я┤п╣я│я┌п╡п╟, п╢п╬я│я┌п╬п╧п╫п╬пЁп╬ я│я┌п╟я─я┬п╦я┘ п╠п╬пЁп╬п╡", // >= 28
+									   "невообразимо ужасного качества",    // <3 //
+									   "ужасного качества",    // 3 //
+									   "более чем жуткого качества",
+									   "жуткого качества",    // 4 //
+									   "более чем отвратительного качества",
+									   "отвратительного качества",    // 5 //
+									   "более чем плохого качества",
+									   "плохого качества",    // 6 //
+									   "хуже чем среднего качества",
+									   "среднего качества",    // 7 //
+									   "лучше чем среднего качества",
+									   "неплохого качества",    // 8 //
+									   "более чем неплохого качества",
+									   "хорошего качества",    // 9 //
+									   "более чем хорошего качества",
+									   "превосходного качества",    // 10 //
+									   "более чем превосходного качества",
+									   "великолепного качества",    // 11 //
+									   "более чем великолепного качества",
+									   "качества, достойного учеников мастера",    // 12 //
+									   "лучшего качества, чем делают ученики мастера",
+									   "качества, достойного мастера",    // 13 //
+									   "лучшего качества, чем делают мастера",
+									   "качества, достойного великого мастера",    // 14 //
+									   "лучшего качества, чем делают великие мастера",
+									   "качества, достойного руки сына боярского",    // 15 //
+									   "качества, более чем достойного руки сына боярского",
+									   "качества, достойного руки боярина",    // 16 //
+									   "качества, более чем достойного руки боярина",
+									   "качества, достойного руки сына воеводы",    // 17 //
+									   "качества, более чем достойного руки сына воеводы",
+									   "качества, достойного руки воеводы",    // 18 //
+									   "качества, более чем достойного руки воеводы",
+									   "качества, достойного руки княжича",    // 19 //
+									   "качества, более чем достойного руки княжича",
+									   "качества, достойного руки князя",    // 20 //
+									   "качества, более чем достойного руки князя",
+									   "качества, достойного руки героя",    // 21 //
+									   "качества, более чем достойного руки героя",
+									   "качества, достойного руки великого героя",    // 22 //
+									   "качества, более чем достойного руки великого героя",
+									   "качества, которое знали только древние титаны",    // 23 //
+									   "качества, лучшего чем то, которое знали древние титаны",
+									   "качества, достойного младших богов",    // 24 //
+									   "качества, более чем достойного младших богов",
+									   "качества, достойного богов",    // 25 //
+									   "качества, более чем достойного богов",
+									   "качества, которого достигают немногие", // 26
+									   "качества, которого достигают немногие",
+									   "качества, которого достигают немногие", // 27
+									   "качества, которого достигают немногие",
+									   "качества, достойного старших богов", // >= 28
 									   "\n"
 };
 MakeReceptList make_recepts;
-// п╓я┐п╫п╨я├п╦я▐ п╡я▀п╡п╬п╢п╟ п╡ п©п╬я┌п╬п╨ //
+// Функция вывода в поток //
 CharData *&operator<<(CharData *&ch, const string &p) {
 	SendMsgToChar(p, ch);
 	return ch;
 }
 
-// п╕п╣п╩п╬я┤п╦я│п╩п╣п╫п╫я▀п╧ п╟я┌я─п╦п╠я┐я┌ DataNode; def п©я─п╦ п╬я┌я│я┐я┌я│я┌п╡п╦п╦/п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╪ п╥п╫п╟я┤п╣п╫п╦п╦.
+// Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
 static int RecipeAttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
 	const char *v = node.GetValue(key);
 	if (!v || !*v) {
@@ -163,7 +163,7 @@ static int RecipeAttrInt(parser_wrapper::DataNode &node, const char *key, int de
 	}
 }
 
-// п╖я┌п╣п╫п╦п╣ cfg/craft/item_creation.xml я┤п╣я─п╣п╥ cfg_manager (boot + reload makeitems).
+// Чтение cfg/craft/item_creation.xml через cfg_manager (boot + reload makeitems).
 void ItemCreationLoader::Load(parser_wrapper::DataNode data) {
 	make_recepts.clear();
 	for (auto &rnode : data.Children("recipe")) {
@@ -209,7 +209,7 @@ void ItemCreationLoader::Reload(parser_wrapper::DataNode data) {
 	Load(std::move(data));
 }
 
-// п²п╟п╦п╪п╣п╫я▄я┬п╦п╧ я│п╡п╬п╠п╬п╢п╫я▀п╧ (п╫п╣п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╧) vnum я─п╣я├п╣п©я┌п╟, п╫п╟я┤п╦п╫п╟я▐ я│ 1.
+// Наименьший свободный (неиспользуемый) vnum рецепта, начиная с 1.
 static int FirstFreeRecipeVnum() {
 	std::set<int> used;
 	for (size_t i = 0; i < make_recepts.size(); ++i) {
@@ -238,7 +238,7 @@ std::vector<cfg_manager::EditableElement> ItemCreationLoader::ListElements() con
 }
 
 cfg_manager::ValidationResult ItemCreationLoader::Validate(parser_wrapper::DataNode &doc) const {
-	// п÷я─п╬п╡п╣я─я▐п╣п╪ п╡п╟п╩п╦п╢п╫п╬я│я┌я▄ я┐п╪п╣п╫п╦п╧ п╦ пёп²п≤п п░п⌡п╛п²п·п║п╒п╛ vnum'п╬п╡ я─п╣я├п╣п©я┌п╬п╡.
+	// Проверяем валидность умений и УНИКАЛЬНОСТЬ vnum'ов рецептов.
 	std::set<std::string> seen;
 	for (auto &node : doc.Children()) {
 		if (std::string(node.GetName()) != "recipe") {
@@ -269,9 +269,9 @@ cfg_manager::ValidationResult ItemCreationLoader::Validate(parser_wrapper::DataN
 
 parser_wrapper::DataNode ItemCreationLoader::FindElementNode(parser_wrapper::DataNode root,
 															const std::string &id) const {
-	// п═п╣я├п╣п©я┌ п╬п©п╬п╥п╫п╟п╣я┌я│я▐ п©п╬ я├п╣п╩п╬я┤п╦я│п╩п╣п╫п╫п╬п╪я┐ vnum (п╫п╣ п©п╬ `id`-п╟я┌я─п╦п╠я┐я┌я┐). п≤п╢п╣п╪ п©п╬ п╡я│п╣п╪ п╢п╣я┌я▐п╪ я│ п©я─п╬п╡п╣я─п╨п╬п╧
-	// п╦п╪п╣п╫п╦ я┌п╣пЁп╟ (п╟ п╫п╣ Children("recipe")): я┐п╥п╣п╩, я│п╨п╬п©п╦я─п╬п╡п╟п╫п╫я▀п╧ п╦п╥ п╬я┌я└п╦п╩я▄я┌я─п╬п╡п╟п╫п╫п╬пЁп╬ п╢п╦п╟п©п╟п╥п╬п╫п╟, я┐п╫п╣я│ п╠я▀
-	// я└п╦п╩я▄я┌я─ п╦ я│п╩п╬п╪п╟п╩ п╠я▀ я│п╡п╬п╧ я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╧ Children() п╫п╦п╤п╣.
+	// Рецепт опознается по целочисленному vnum (не по `id`-атрибуту). Идем по всем детям с проверкой
+	// имени тега (а не Children("recipe")): узел, скопированный из отфильтрованного диапазона, унес бы
+	// фильтр и сломал бы свой собственный Children() ниже.
 	for (auto &child : root.Children()) {
 		if (std::string(child.GetName()) == "recipe" && id == child.GetValue("vnum")) {
 			return child;
@@ -284,12 +284,12 @@ std::string ItemCreationLoader::CanonicalElementId(const std::string &id) const 
 	if (id.empty()) {
 		return "";
 	}
-	// "new"/"auto"/"next" -- я│п╬п╥п╢п╟я┌я▄ я─п╣я├п╣п©я┌ я│ п©п╣я─п╡я▀п╪ я│п╡п╬п╠п╬п╢п╫я▀п╪ vnum.
+	// "new"/"auto"/"next" -- создать рецепт с первым свободным vnum.
 	if (id == "new" || id == "auto" || id == "next") {
 		return std::to_string(FirstFreeRecipeVnum());
 	}
-	// п≤п╫п╟я┤п╣ п╨п╩я▌я┤п╬п╪ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я┌п╬п╩я▄п╨п╬ п╫п╣п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫п╬п╣ я├п╣п╩п╬п╣ (я│п╡п╬п╠п╬п╢п╫я▀п╧ vnum п╢п╩я▐ п╫п╬п╡п╬пЁп╬ я─п╣я├п╣п©я┌п╟ п╦п╩п╦
-	// я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╧ -- п©п╬я│п╩п╣п╢п╫п╦п╧ п╬п╠я─п╟п╠п╟я┌я▀п╡п╟п╣я┌я│я▐ я┤п╣я─п╣п╥ FindElementNode п╨п╟п╨ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣).
+	// Иначе ключом может быть только неотрицательное целое (свободный vnum для нового рецепта или
+	// существующий -- последний обрабатывается через FindElementNode как редактирование).
 	for (const char c : id) {
 		if (c < '0' || c > '9') {
 			return "";
@@ -312,17 +312,17 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	char tmpbuf[kMaxInputLength];
 	MakeRecept *trec;
 	if (make_recepts.size() == 0) {
-		SendMsgToChar("п═п╣я├п╣п©я┌я▀ п╡ я█я┌п╬п╪ п╪п╦я─п╣ п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫я▀.", ch);
+		SendMsgToChar("Рецепты в этом мире не определены.", ch);
 		return;
 	}
-	// п▓я▀п╢п╟п╣п╪ я│п©п╦я│п╬п╨ я─п╣я├п╣п©я┌п╬п╡ п╡я│п╣я┘ я─п╣я├п╣п©я┌п╬п╡ п╨п╟п╨ п╡ п╪п╟пЁп╟п╥п╦п╫п╣.
-	tmpstr = "###  п▒  пёп╪п╣п╫п╦п╣  п÷я─п╣п╢п╪п╣я┌                                 п║п╬я│я┌п╟п╡п╩я▐я▌я┴п╦п╣:                         \r\n";
+	// Выдаем список рецептов всех рецептов как в магазине.
+	tmpstr = "###  Б  Умение  Предмет                                 Составляющие:                         \r\n";
 	tmpstr +=
 		"-------------------------------------------------------------------------------------------------------------------------------------------------------\r\n";
 	for (size_t i = 0; i < make_recepts.size(); i++) {
 		int j = 0;
-		skill_name = "п²п╣я┌";
-		obj_name = "п²п╣я┌";
+		skill_name = "Нет";
+		obj_name = "Нет";
 		trec = make_recepts[i];
 		auto obj = GetObjectPrototype(trec->obj_proto);
 		if (obj) {
@@ -344,12 +344,12 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 				if (obj) {
 					obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, native_text::char_offset(obj->get_PName(grammar::ECase::kNom), 34)));
 				} else {
-					obj_name = "п²п╣я┌";
+					obj_name = "Нет";
 				}
 				strcpy(tmpbuf, fmt::format(" {:<35}({:5})", obj_name, trec->parts[j].proto).c_str());
 				if (j > 0) {
 					if (j % 2 == 0) {
-						// я─п╟п╥п╠п╦п╡п╟п╣п╪ я│я┌я─п╬я┤п╨п╦ п╣я│п╩п╦ п╦п╫пЁя─п╬п╡ п╠п╬п╩я▄я┬п╣ 2;
+						// разбиваем строчки если ингров больше 2;
 						tmpstr += "\r\n";
 						tmpstr += "                                                               ->";
 					}
@@ -364,18 +364,18 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	page_string(ch->desc, tmpstr);
 	return;
 }
-// п║п╬п╥п╢п╟п╫п╦п╣ п╩я▌п╠п╬пЁп╬ п©я─п╣п╢п╪п╣я┌п╟ п╦п╥ п╨п╬п╪п©п╬п╫п╣п╫я┌п╟.
+// Создание любого предмета из компонента.
 void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	// п╒я┐я┌ я┌п╡п╬я─п╦п╪ п©я─п╣п╢п╪п╣я┌.
-	// п∙я│п╩п╦ п©я─п╦я│п╩п╟п╩п╦ п╠п╣п╥ п©п╟я─п╟п╪п╣я┌я─п╟ я┌п╬ п╡я▀п╡п╬п╢п╦п╪ я│п©п╦я│п╬п╨ п╡я│п╣я┘ я─п╣я├п╣п©я┌п╬п╡
-	// п╢п╬я│я┌я┐п©п╫я▀я┘ п╢п╩я▐ п╦п╥пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ п©п╣я─я│п╬п╫п╟п╤я┐ п╦п╥ п╣пЁп╬ п╦п╫пЁя─п╬п╡
-	// п°п╟я│я┌п╣я─п╦я┌я▄ п╪п╬п╤п╫п╬ п╩я┐п╨, п©п╬я│п╬я┘ , п╦ п╢п╦п╨п╬п╡п╦п╫я┐(п╟п╫п╟п╩п╬пЁ п╟я─я┌п╣я└п╟п╨я┌п╟)
-	// я│я┐п╠ п╨п╬п╪п╟п╫п╢п╟ make
-	// п▓я▀п╨п╬п╡п╟я┌я▄ п╪п╬п╤п╫п╬ п╨п╩п╦п╫п╬п╨ п╦ п╢п╬я│п©п╣я┘ (я┴п╦я┌) я┐п╪п╣п╫п╦я▐ я─п╟п╥п╫я▀п╣. п╫п╟п╥п╡п╟п╫п╦п╣ п╬п╢п╫п╬
-	// п║п╡п╟я─п╦я┌я▄ п╬я┌п╡п╟я─
-	// п║я┬п╦я┌я▄ п╬п╢п╣п╤п╢я┐
+	// Тут творим предмет.
+	// Если прислали без параметра то выводим список всех рецептов
+	// доступных для изготовления персонажу из его ингров
+	// Мастерить можно лук, посох , и диковину(аналог артефакта)
+	// суб команда make
+	// Выковать можно клинок и доспех (щит) умения разные. название одно
+	// Сварить отвар
+	// Сшить одежду
 	if ((subcmd == MAKE_WEAR) && (!GetSkill(ch, ESkill::kMakeWear))) {
-		SendMsgToChar("п▓п╟я│ я█я┌п╬п╪я┐ п╫п╦п╨я┌п╬ п╫п╣ п╫п╟я┐я┤п╦п╩.\r\n", ch);
+		SendMsgToChar("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
 	string tmpstr;
@@ -384,23 +384,23 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char tmpbuf[kMaxInputLength];
 	//int used_skill = subcmd;
 	argument = one_argument(argument, tmpbuf);
-	// п═п╟п╥п╠п╦я─п╟п╣п╪ п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ я┌п╬пЁп╬ я┤я┌п╬ п╫п╟п╠я─п╟п╩п╦ ... я│п©п╦я│п╬п╨ п╬п╠я┼п╣п╨я┌п╬п╡
+	// Разбираем в зависимости от того что набрали ... список объектов
 	switch (subcmd) {
 		case (MAKE_POTION):
-			// п▓п╟я─п╦п╪ п╬я┌п╡п╟я─.
-			tmpstr = "п▓я▀ п╪п╬п╤п╣я┌п╣ я│п╡п╟я─п╦я┌я▄:\r\n";
+			// Варим отвар.
+			tmpstr = "Вы можете сварить:\r\n";
 			make_recepts.can_make(ch, &canlist, ESkill::kMakePotion);
 			break;
 		case (MAKE_WEAR):
-			// п╗я▄п╣п╪ п╬п╢п╣п╤п╨я┐.
-			tmpstr = "п▓я▀ п╪п╬п╤п╣я┌п╣ я│я┬п╦я┌я▄:\r\n";
+			// Шьем одежку.
+			tmpstr = "Вы можете сшить:\r\n";
 			make_recepts.can_make(ch, &canlist, ESkill::kMakeWear);
 			break;
-		case (MAKE_METALL): tmpstr = "п▓я▀ п╪п╬п╤п╣я┌п╣ п╡я▀п╨п╬п╡п╟я┌я▄:\r\n";
+		case (MAKE_METALL): tmpstr = "Вы можете выковать:\r\n";
 			make_recepts.can_make(ch, &canlist, ESkill::kMakeWeapon);
 			make_recepts.can_make(ch, &canlist, ESkill::kMakeArmor);
 			break;
-		case (MAKE_CRAFT): tmpstr = "п▓я▀ п╪п╬п╤п╣я┌п╣ я│п╪п╟я│я┌п╣я─п╦я┌я▄:\r\n";
+		case (MAKE_CRAFT): tmpstr = "Вы можете смастерить:\r\n";
 			make_recepts.can_make(ch, &canlist, ESkill::kMakeStaff);
 			make_recepts.can_make(ch, &canlist, ESkill::kMakeBow);
 			make_recepts.can_make(ch, &canlist, ESkill::kMakeJewel);
@@ -408,12 +408,12 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			break;
 	}
 	if (canlist.size() == 0) {
-		// п╖п╟я─ п╫п╣ п╪п╬п╤п╣я┌ я│п╢п╣п╩п╟я┌я▄ п╫п╦я┤п╣пЁп╬.
-		SendMsgToChar("п▓я▀ п╫п╦я┤п╣пЁп╬ п╫п╣ п╪п╬п╤п╣я┌п╣ я│п╢п╣п╩п╟я┌я▄.\r\n", ch);
+		// Чар не может сделать ничего.
+		SendMsgToChar("Вы ничего не можете сделать.\r\n", ch);
 		return;
 	}
 	if (!*tmpbuf) {
-		// п▓я▀п╡п╬п╢п╦п╪ я┌я┐я┌ я│п©п╦я│п╬п╨ п©я─п╣п╢п╪п╣я┌п╬п╡ п╨п╬я┌п╬я─я▀п╣ п╪п╬п╤п╣п╪ я│п╢п╣п╩п╟я┌я▄.
+		// Выводим тут список предметов которые можем сделать.
 		for (size_t i = 0; i < canlist.size(); i++) {
 			auto tobj = GetObjectPrototype(canlist[i]->obj_proto);
 			if (!tobj)
@@ -424,7 +424,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar(tmpstr.c_str(), ch);
 		return;
 	}
-	// п░п╢я─п╣я│я┐п╣п╪я│я▐ п©п╬ я│п©п╦я│п╨я┐ п╩п╦п╠п╬ п©п╬ п╫п╬п╪п╣я─я┐, п╩п╦п╠п╬ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ я│ п╫п╬п╪п╣я─п╬п╪.
+	// Адресуемся по списку либо по номеру, либо по названию с номером.
 	tmpstr = string(tmpbuf);
 	size_t i = atoi(tmpbuf);
 	if ((i > 0) && (i <= canlist.size())
@@ -433,7 +433,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else {
 		trec = canlist.get_by_name(tmpstr);
 		if (trec == nullptr) {
-			tmpstr = "п÷п╬я┘п╬п╤п╣, я┐ п╡п╟я│ я┌п╡п╬я─я┤п╣я│п╨п╦п╧ п╨я─п╦п╥п╦я│.\r\n";
+			tmpstr = "Похоже, у вас творческий кризис.\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			return;
 		}
@@ -461,23 +461,23 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 		weight = MIN(obj->get_weight() - 2, obj->get_weight() * prob / percent);
 	}
 	if (weight < created_item[obj_type].min_weight) {
-		SendMsgToChar("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╦п╩п╬ п╪п╟я┌п╣я─п╦п╟п╩п╟.\r\n", ch);
+		SendMsgToChar("У вас не хватило материала.\r\n", ch);
 	} else if (prob * 5 < percent) {
-		SendMsgToChar("пё п╡п╟я│ п╫п╦я┤п╣пЁп╬ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄.\r\n", ch);
+		SendMsgToChar("У вас ничего не получилось.\r\n", ch);
 	} else {
 		const auto tobj = world_objects.create_from_prototype_by_vnum(created_item[obj_type].obj_vnum);
 		if (!tobj) {
-			SendMsgToChar("п·п╠я─п╟п╥п╣я├ п╠я▀п╩ п╫п╣п╡п╬п╥п╡я─п╟я┌п╦п╪п╬ я┐я┌п╣я─я▐п╫.\r\n", ch);
+			SendMsgToChar("Образец был невозвратимо утерян.\r\n", ch);
 		} else {
 			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
 			tobj->set_cost(2 * obj->get_cost() / 3);
 			tobj->set_owner(ch->get_uid());
 			tobj->set_extra_flag(EObjFlag::kTransformed);
-			// п╨п╬п╡п╨п╟ п╬п╠я┼п╣п╨я┌п╬п╡ я│п╬ я│п╩п╬я┌п╟п╪п╦.
-			// п╢п╩я▐ 5+ п╪п╬я─я┌п╬п╡ п╦п╪п╣п╣п╪ я┬п╟п╫я│ я│п╨п╬п╡п╟я┌я▄ я│я┌п╟я└ я│ 3 я│п╩п╬я┌п╟п╪п╦: п╠п╟п╥п╬п╡я▀п╧ 2% п╦ п©п╬ 0.5% п╥п╟ п╪п╬я─я┌
-			// п╢п╩я▐ 2 я│п╩п╬я┌п╬п╡ п╠п╟п╥п╬п╡я▀п╧ я┬п╟п╫я│ 5%, 1% п╥п╟ п╨п╟п╤п╢я▀п╧ п╪п╬я─я┌
-			// п╢п╩я▐ 1 я│п╩п╬я┌п╟ п╠п╟п╥п╬п╡п╬ 20% п╦ 4% п╥п╟ п╨п╟п╤п╢я▀п╧ п╪п╬я─я┌
-			// п п╟я─п╟я┤я┐п╫. п÷п╬п©я─п╟п╡п╩п╣п╫п╬. п═п╟я│я┤п╣я┌ п╫п╣ я┤п╣я─п╣п╥ п╪п╬я─я┌я▀ п╟ я┤п╣я─п╣п╥ я│п╨п╦п╩.
+			// ковка объектов со слотами.
+			// для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
+			// для 2 слотов базовый шанс 5%, 1% за каждый морт
+			// для 1 слота базово 20% и 4% за каждый морт
+			// Карачун. Поправлено. Расчет не через морты а через скил.
 			if (skill == ESkill::kReforging) {
 				if (GetSkill(ch, skill) >= 105 && number(1, 100) <= 2 + (GetSkill(ch, skill) - 105) / 10) {
 					tobj->set_extra_flag(EObjFlag::kHasThreeSlots);
@@ -494,21 +494,21 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 				case 3:
 				case 4:
 				case 11: {
-					// п п╟я─п╟я┤я┐п╫. п╒п╟п╧п╪п╣я─ п╢п╬п╩п╤п╣п╫ п╥п╟п╡п╦я│п╦я┌я▄ п╬я┌ я┌п╟п╧п╪п╣я─п╟ п©я─п╬я┌п╬я┌п╦п©п╟.
-					// п╓п╬я─п╪я┐п╩п╟ MAX(<п╪п╦п╫п╦п╪я┐п╪>, <п╪п╟п╨я│п╦п╪я┐п╪>/100*<п©я─п╬я├п╣п╫я┌ я│п╨п╦п╩п╟>-<я─п╟п╫п╢п╬п╪ п╬я┌ 0 п╢п╬ 25% п╪п╟п╨я│п╦п╪я┐п╪п╟>)
-					// п▓ п╪п╦п╫п╦п╪я┐п╪п╣ п╬п╢п╦п╫ п╢п╣п╫я▄ я─п╣п╟п╩п╟, п╡ п╪п╟п╨я│п╦п╪я┐п╪п╣ я┌п╟п╧п╪п╣я─ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟
+					// Карачун. Таймер должен зависить от таймера прототипа.
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// В минимуме один день реала, в максимуме таймер из прототипа
 					const int
 						timer_value =
 						tobj->get_timer() / 100 * GetSkill(ch, skill) - number(0, tobj->get_timer() / 100 * 25);
 					const int timer = MAX(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
-					sprintf(buf, "п▓п╟я┬п╣ п╦п╥п╢п╣п╩п╦п╣ п©я─п╬п╢п╣я─п╤п╦я┌я│я▐ п©я─п╦п╪п╣я─п╫п╬ %d п╢п╫п╣п╧\n", tobj->get_timer() / 24 / 60);
+					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 					act(buf, false, ch, tobj.get(), 0, kToChar);
 					tobj->set_material(obj->get_material());
-					// п п╟я─п╟я┤я┐п╫. п╒п╟п╨ п╩п╬пЁп╦я┤п╫п╣п╣.
-					// п╠я▀п╩п╬ tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
-					// п╓п╬я─п╪я┐п╩п╟ MAX(<п╪п╦п╫п╦п╪я┐п╪>, <п╪п╟п╨я│п╦п╪я┐п╪>/100*<п©я─п╬я├п╣п╫я┌ я│п╨п╦п╩п╟>-<я─п╟п╫п╢п╬п╪ п╬я┌ 0 п╢п╬ 25% п╪п╟п╨я│п╦п╪я┐п╪п╟>)
-					// п©я─п╦ я─п╟я│я┤п╣я┌п╣ я┤п╦я│п╩п╟ я┐п╪п╫п╬п╤п╣п╫я▀ п╫п╟ 100, п©п╣я─п╣п╢ п©я─п╦я─п╟п╡п╫п╦п╡п╟п╫п╦п╣п╪ п╢п╣п╩я▐я┌я│я▐ п╫п╟ 100. п■п╩я▐ п╫п╣ п©п╬я┌п╣я─я▐я┌я▄ п╢п╣я│я▐я┌я▀п╣.
+					// Карачун. Так логичнее.
+					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
 						MAX(20000, 35000 / 100 * GetSkill(ch, skill) - number(0, 35000 / 100 * 25)) / 100);
 					tobj->set_current_durability(tobj->get_maximum_durability());
@@ -522,24 +522,24 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					sdice += tobj->get_weight() / 10;
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
-					//			tobj->set_wear_flags(created_item[obj_type].wear); п©я┐я│я┌я▄ wear я└п╩п╟пЁп╦ п╠я┐п╢я┐я┌ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟
+					//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
 					if (skill != ESkill::kCreateBow) {
 						if (tobj->get_weight() < 14 && percent * 4 > prob) {
 							tobj->set_wear_flag(EWearFlag::kHold);
 						}
-						to_room = "$n п╡я▀п╨п╬п╡п╟п╩$g $o3.";
+						to_room = "$n выковал$g $o3.";
 						average = (((float) sdice + 1) * (float) ndice / 2.0);
 						if (average < 3.0) {
-							sprintf(txtbuff, "п▓я▀ п╡я▀п╨п╬п╡п╟п╩п╦ $o3 %s.", create_weapon_quality[(int) (2.5 * 2)]);
+							sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int) (2.5 * 2)]);
 						} else if (average <= 27.5) {
-							sprintf(txtbuff, "п▓я▀ п╡я▀п╨п╬п╡п╟п╩п╦ $o3 %s.", create_weapon_quality[(int) (average * 2)]);
+							sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int) (average * 2)]);
 						} else {
-							sprintf(txtbuff, "п▓я▀ п╡я▀п╨п╬п╡п╟п╩п╦ $o3 %s!", create_weapon_quality[56]);
+							sprintf(txtbuff, "Вы выковали $o3 %s!", create_weapon_quality[56]);
 						}
 						to_char = (char *) txtbuff;
 					} else {
-						to_room = "$n я│п╪п╟я│я┌п╣я─п╦п╩$g $o3.";
-						to_char = "п▓я▀ я│п╪п╟я│я┌п╣я─п╦п╩п╦ $o3.";
+						to_room = "$n смастерил$g $o3.";
+						to_char = "Вы смастерили $o3.";
 					}
 					break;
 				}
@@ -557,28 +557,28 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					tobj->set_extra_flag(EObjFlag::kDecay);
 					tobj->set_extra_flag(EObjFlag::kNosell);
 					tobj->set_wear_flags(created_item[obj_type].wear);
-					to_room = "$n я│п╬п╥п╢п╟п╩$g $o3.";
-					to_char = "п▓я▀ я│п╬п╥п╢п╟п╩п╦ $o3.";
+					to_room = "$n создал$g $o3.";
+					to_char = "Вы создали $o3.";
 					break;
 				case 7:    // smith armor
 				case 8:
 				case 9:
 				case 10: {
-					// п п╟я─п╟я┤я┐п╫. п╒п╟п╧п╪п╣я─ п╢п╬п╩п╤п╣п╫ п╥п╟п╡п╦я│п╦я┌я▄ п╬я┌ я┌п╟п╧п╪п╣я─п╟ п©я─п╬я┌п╬я┌п╦п©п╟.
-					// п╓п╬я─п╪я┐п╩п╟ MAX(<п╪п╦п╫п╦п╪я┐п╪>, <п╪п╟п╨я│п╦п╪я┐п╪>/100*<п©я─п╬я├п╣п╫я┌ я│п╨п╦п╩п╟>-<я─п╟п╫п╢п╬п╪ п╬я┌ 0 п╢п╬ 25% п╪п╟п╨я│п╦п╪я┐п╪п╟>)
-					// п▓ п╪п╦п╫п╦п╪я┐п╪п╣ п╬п╢п╦п╫ п╢п╣п╫я▄ я─п╣п╟п╩п╟, п╡ п╪п╟п╨я│п╦п╪я┐п╪п╣ я┌п╟п╧п╪п╣я─ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟
+					// Карачун. Таймер должен зависить от таймера прототипа.
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// В минимуме один день реала, в максимуме таймер из прототипа
 					const int
 						timer_value =
 						tobj->get_timer() / 100 * GetSkill(ch, skill) - number(0, tobj->get_timer() / 100 * 25);
 					const int timer = MAX(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
-					sprintf(buf, "п▓п╟я┬п╣ п╦п╥п╢п╣п╩п╦п╣ п©я─п╬п╢п╣я─п╤п╦я┌я│я▐ п©я─п╦п╪п╣я─п╫п╬ %d п╢п╫п╣п╧\n", tobj->get_timer() / 24 / 60);
+					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 					act(buf, false, ch, tobj.get(), 0, kToChar);
 					tobj->set_material(obj->get_material());
-					// п п╟я─п╟я┤я┐п╫. п╒п╟п╨ п╩п╬пЁп╦я┤п╫п╣п╣.
-					// п╠я▀п╩п╬ tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
-					// п╓п╬я─п╪я┐п╩п╟ MAX(<п╪п╦п╫п╦п╪я┐п╪>, <п╪п╟п╨я│п╦п╪я┐п╪>/100*<п©я─п╬я├п╣п╫я┌ я│п╨п╦п╩п╟>-<я─п╟п╫п╢п╬п╪ п╬я┌ 0 п╢п╬ 25% п╪п╟п╨я│п╦п╪я┐п╪п╟>)
-					// п©я─п╦ я─п╟я│я┤п╣я┌п╣ я┤п╦я│п╩п╟ я┐п╪п╫п╬п╤п╣п╫я▀ п╫п╟ 100, п©п╣я─п╣п╢ п©я─п╦я─п╟п╡п╫п╦п╡п╟п╫п╦п╣п╪ п╢п╣п╩я▐я┌я│я▐ п╫п╟ 100. п■п╩я▐ п╫п╣ п©п╬я┌п╣я─я▐я┌я▄ п╢п╣я│я▐я┌я▀п╣.
+					// Карачун. Так логичнее.
+					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
 						MAX(20000, 10000 / 100 * GetSkill(ch, skill) - number(0, 15000 / 100 * 25)) / 100);
 					tobj->set_current_durability(tobj->get_maximum_durability());
@@ -591,8 +591,8 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					tobj->set_val(0, ndice);
 					tobj->set_val(1, sdice);
 					tobj->set_wear_flags(created_item[obj_type].wear);
-					to_room = "$n п╡я▀п╨п╬п╡п╟п╩$g $o3.";
-					to_char = "п▓я▀ п╡я▀п╨п╬п╡п╟п╩п╦ $o3.";
+					to_room = "$n выковал$g $o3.";
+					to_char = "Вы выковали $o3.";
 					break;
 				}
 			} // switch
@@ -606,11 +606,11 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			}
 
 			if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
-				SendMsgToChar("п▓я▀ п╫п╣ я│п╪п╬п╤п╣я┌п╣ я┐п╫п╣я│я┌п╦ я│я┌п╬п╩я▄п╨п╬ п©я─п╣п╢п╪п╣я┌п╬п╡.\r\n", ch);
+				SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
 			} else if (ch->GetCarryingWeight() + tobj->get_weight() > CAN_CARRY_W(ch)) {
-				SendMsgToChar("п▓я▀ п╫п╣ я│п╪п╬п╤п╣я┌п╣ я┐п╫п╣я│я┌п╦ я┌п╟п╨п╬п╧ п╡п╣я│.\r\n", ch);
+				SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
 			} else {
@@ -640,16 +640,16 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	}
 
 	if (ch->IsNpc() || !GetSkill(ch, skill_id)) {
-		SendMsgToChar("п▓п╟я│ я█я┌п╬п╪я┐ п╫п╦п╨я┌п╬ п╫п╣ п╫п╟я┐я┤п╦п╩.\r\n", ch);
+		SendMsgToChar("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
 
 	argument = one_argument(argument, arg1);
 	if (!*arg1) {
 		switch (skill_id) {
-			case ESkill::kReforging: SendMsgToChar("п▓п╬ я┤я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ п©п╣я─п╣п╨п╬п╡п╟я┌я▄?\r\n", ch);
+			case ESkill::kReforging: SendMsgToChar("Во что вы хотите перековать?\r\n", ch);
 				break;
-			case ESkill::kCreateBow: SendMsgToChar("п╖я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ я│п╪п╟я│я┌п╣я─п╦я┌я▄?\r\n", ch);
+			case ESkill::kCreateBow: SendMsgToChar("Что вы хотите смастерить?\r\n", ch);
 				break;
 			default: break;
 		}
@@ -658,9 +658,9 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	obj_type = search_block(arg1, create_item_name, false);
 	if (-1 == obj_type) {
 		switch (skill_id) {
-			case ESkill::kReforging: SendMsgToChar("п÷п╣я─п╣п╨п╬п╡п╟я┌я▄ п╪п╬п╤п╫п╬ п╡ :\r\n", ch);
+			case ESkill::kReforging: SendMsgToChar("Перековать можно в :\r\n", ch);
 				break;
-			case ESkill::kCreateBow: SendMsgToChar("п║п╪п╟я│я┌п╣я─п╦я┌я▄ п╪п╬п╤п╫п╬ :\r\n", ch);
+			case ESkill::kCreateBow: SendMsgToChar("Смастерить можно :\r\n", ch);
 				break;
 			default: break;
 		}
@@ -674,9 +674,9 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	}
 	if (created_item[obj_type].skill != skill_id) {
 		switch (skill_id) {
-			case ESkill::kReforging: SendMsgToChar("п■п╟п╫п╫я▀п╧ п©я─п╣п╢п╪п╣я┌ п╡я▀п╨п╬п╡п╟я┌я▄ п╫п╣п╩я▄п╥я▐.\r\n", ch);
+			case ESkill::kReforging: SendMsgToChar("Данный предмет выковать нельзя.\r\n", ch);
 				break;
-			case ESkill::kCreateBow: SendMsgToChar("п■п╟п╫п╫я▀п╧ п©я─п╣п╢п╪п╣я┌ я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╫п╣п╩я▄п╥я▐.\r\n", ch);
+			case ESkill::kCreateBow: SendMsgToChar("Данный предмет смастерить нельзя.\r\n", ch);
 				break;
 			default: break;
 		}
@@ -685,16 +685,16 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 	for (i = 0; i < MAX_PROTO; proto[i++] = nullptr);
 	argument = one_argument(argument, arg2);
 	if (!*arg2) {
-		SendMsgToChar("п▓п╟п╪ п╫п╣я┤п╣пЁп╬ п©п╣я─п╣п╨п╬п╡я▀п╡п╟я┌я▄.\r\n", ch);
+		SendMsgToChar("Вам нечего перековывать.\r\n", ch);
 		return;
 	}
 	if (!(obj = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
-		sprintf(buf, "пё п▓п╟я│ п╫п╣я┌ '%s'.\r\n", arg2);
+		sprintf(buf, "У Вас нет '%s'.\r\n", arg2);
 		SendMsgToChar(buf, ch);
 		return;
 	}
 	if (obj->get_contains()) {
-		act("п▓ $o5 я┤я┌п╬-я┌п╬ п╩п╣п╤п╦я┌.", false, ch, obj, 0, kToChar);
+		act("В $o5 что-то лежит.", false, ch, obj, 0, kToChar);
 		return;
 	}
 	if (obj->get_type() == EObjType::kMagicIngredient) {
@@ -711,31 +711,31 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 		}
 		if (i >= MAX_PROTO) {
 			if (found) {
-				act("п÷п╬я┘п╬п╤п╣, п╡я▀ я┐п╤п╣ я┤я┌п╬-я┌п╬ п╦я│п©п╬п╩я▄п╥я┐п╣я┌п╣ п╡п╪п╣я│я┌п╬ $o1.", false, ch, obj, 0, kToChar);
+				act("Похоже, вы уже что-то используете вместо $o1.", false, ch, obj, 0, kToChar);
 			} else {
-				act("п÷п╬я┘п╬п╤п╣, $o п╫п╣ п©п╬п╢п╬п╧п╢п╣я┌ п╢п╩я▐ я█я┌п╬пЁп╬.", false, ch, obj, 0, kToChar);
+				act("Похоже, $o не подойдет для этого.", false, ch, obj, 0, kToChar);
 			}
 			return;
 		}
 	} else {
 		if (created_item[obj_type].material_bits
 			&& !IS_SET(created_item[obj_type].material_bits, (1 << obj->get_material()))) {
-			act("$o я│п╢п╣п╩п╟п╫$G п╦п╥ п╫п╣п©п╬п╢я┘п╬п╢я▐я┴п╣пЁп╬ п╪п╟я┌п╣я─п╦п╟п╩п╟.", false, ch, obj, 0, kToChar);
+			act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 			return;
 		}
 	}
 	switch (skill_id) {
 		case ESkill::kReforging:
-			// п÷я─п╬п╡п╣я─я▐п╣п╪ п©п╬п╡я┌п╬я─п╫п╬ п╦п╥ я┤п╣пЁп╬ я│п╢п╣п╩п╟п╫ п╬п╠я┼п╣п╨я┌
-			// п╖я┌п╬п╠я▀ п╫п╣ п╠я▀п╩п╬ п╟п╠я┼я▌п╥п╟ я│ п©п╣я─п╣п╨п╬п╡п╨п╬п╧ п╦п╥ я┐пЁп╩я▐.
+			// Проверяем повторно из чего сделан объект
+			// Чтобы не было абъюза с перековкой из угля.
 			if (created_item[obj_type].material_bits &&
 				!IS_SET(created_item[obj_type].material_bits, (1 << obj->get_material()))) {
-				act("$o я│п╢п╣п╩п╟п╫$G п╦п╥ п╫п╣п©п╬п╢я┘п╬п╢я▐я┴п╣пЁп╬ п╪п╟я┌п╣я─п╦п╟п╩п╟.", false, ch, obj, 0, kToChar);
+				act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 				return;
 			}
 			if (!privilege::IsImmortal(ch)) {
 				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
-					SendMsgToChar("п▓п╟п╪ п╫я┐п╤п╫п╬ п©п╬п©п╟я│я┌я▄ п╡ п╨я┐п╥п╫п╦я├я┐ п╢п╩я▐ я█я┌п╬пЁп╬.\r\n", ch);
+					SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
 				}
 				for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
@@ -756,10 +756,10 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 						&& !proto[i]) {
 						rnum = GetObjRnum(created_item[obj_type].proto[i]);
 						if (rnum < 0) {
-							act("пё п╡п╟я│ п╫п╣я┌ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬пЁп╬ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟.", false, ch, 0, 0, kToChar);
+							act("У вас нет необходимого ингредиента.", false, ch, 0, 0, kToChar);
 						} else {
 							const ObjData obj(*obj_proto[rnum]);
-							act("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╟п╣я┌ $o1 п╢п╩я▐ я█я┌п╬пЁп╬.", false, ch, &obj, 0, kToChar);
+							act("У вас не хватает $o1 для этого.", false, ch, &obj, 0, kToChar);
 						}
 						found = false;
 					}
@@ -795,10 +795,10 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 					&& !proto[i]) {
 					rnum = GetObjRnum(created_item[obj_type].proto[i]);
 					if (rnum < 0) {
-						act("пё п╡п╟я│ п╫п╣я┌ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬пЁп╬ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟.", false, ch, 0, 0, kToChar);
+						act("У вас нет необходимого ингредиента.", false, ch, 0, 0, kToChar);
 					} else {
 						const ObjData obj(*obj_proto[rnum]);
-						act("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╟п╣я┌ $o1 п╢п╩я▐ я█я┌п╬пЁп╬.", false, ch, &obj, 0, kToChar);
+						act("У вас не хватает $o1 для этого.", false, ch, &obj, 0, kToChar);
 					}
 					found = false;
 				}
@@ -820,10 +820,10 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 }
 // *****************************
 MakeReceptList::MakeReceptList() {
-	// п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╨п╩п╟я│я│п╟ п╩п╦я│я┌п╟ .
+	// Инициализация класса листа .
 }
 MakeReceptList::~MakeReceptList() {
-	// п═п╟п╥я─я┐я┬п╣п╫п╦п╣ я│п©п╦я│п╨п╟.
+	// Разрушение списка.
 	clear();
 }
 void MakeReceptList::add(MakeRecept *recept) {
@@ -838,7 +838,7 @@ bool by_skill(MakeRecept *const &lhs, MakeRecept *const &rhs) {
 	return ((lhs->skill) > (rhs->skill));
 }
 void MakeReceptList::sort() {
-	// п║п╢п╣п╩п╟я┌я▄ я│п╬я─я┌п╦я─п╬п╡п╨я┐ п©п╬ я┐п╪п╣п╫п╦я▐п╪.
+	// Сделать сортировку по умениям.
 	recepts.sort(by_skill);
 	return;
 }
@@ -846,7 +846,7 @@ size_t MakeReceptList::size() {
 	return recepts.size();
 }
 void MakeReceptList::clear() {
-	// п·я┤п╦я┴п╟п╣п╪ я│п©п╦я│п╬п╨
+	// Очищаем список
 	list<MakeRecept *>::iterator p;
 	p = recepts.begin();
 	while (p != recepts.end()) {
@@ -869,19 +869,19 @@ MakeRecept *MakeReceptList::operator[](size_t i) {
 	return (nullptr);
 }
 MakeRecept *MakeReceptList::get_by_name(string &rname) {
-	// п≤я┴п╣п╪ п©п╬ я│п©п╦я│п╨я┐ я─п╣я├п╣п©я┌ я│ я┌п╟п╨п╦п╪ п╦п╪п╣п╫п╣п╪.
-	// п≤я┴п╣п╪ п©п╬ я│п©п╦я│п╨я┐ я─п╣я├п╣п©я┌я▀ п╨п╬я┌п╬я─я▀п╣ я┤п╟я─ п╪п╬п╤п╣я┌ п╦п╥пЁп╬я┌п╬п╡п╦я┌я▄.
+	// Ищем по списку рецепт с таким именем.
+	// Ищем по списку рецепты которые чар может изготовить.
 	list<MakeRecept *>::iterator p = recepts.begin();
 	int k = 1;    // count
 	// split string by '.' character and convert first part into number (store to k)
 	size_t i = rname.find(".");
 	if (std::string::npos != i)    // TODO: Check me.
 	{
-		// п║я┌я─п╬п╨п╟ п╫п╣ п╫п╟п╧п╢п╣п╫п╟.
+		// Строка не найдена.
 		if (0 < i) {
 			k = atoi(rname.substr(0, i).c_str());
 			if (k <= 0) {
-				return nullptr;    // п∙я│п╩п╦ п╡п╡п╣п╩п╦ -3.xxx
+				return nullptr;    // Если ввели -3.xxx
 			}
 		}
 		rname = rname.substr(i + 1);
@@ -908,7 +908,7 @@ MakeRecept *MakeReceptList::get_by_name(string &rname) {
 	return nullptr;
 }
 MakeReceptList *MakeReceptList::can_make(CharData *ch, MakeReceptList *canlist, ESkill use_skill) {
-	// п≤я┴п╣п╪ п©п╬ я│п©п╦я│п╨я┐ я─п╣я├п╣п©я┌я▀ п╨п╬я┌п╬я─я▀п╣ я┤п╟я─ п╪п╬п╤п╣я┌ п╦п╥пЁп╬я┌п╬п╡п╦я┌я▄.
+	// Ищем по списку рецепты которые чар может изготовить.
 	list<MakeRecept *>::iterator p;
 	p = recepts.begin();
 	while (p != recepts.end()) {
@@ -922,7 +922,7 @@ MakeReceptList *MakeReceptList::can_make(CharData *ch, MakeReceptList *canlist, 
 	return (canlist);
 }
 ObjData *get_obj_in_list_ingr(int num,
-							  ObjData *list) //п≤п╫пЁя─п╦п╢п╦п╣п╫я┌п╬п╪ я▐п╡п╩я▐п╣я┌я│я▐ п╦п╩п╦ я│п╟п╪ п©я─п╬я┌п╬я┌п╦п© я│ VNUM п╦п╩п╦ п╟п╩я▄я┌п╣я─п╫п╟я┌п╦п╡п╟ я│ VALUE 1 я─п╟п╡п╫я▀п╪ п╡п╫я┐п╪ п©я─п╬я┌п╬я┌п╦п©п╟
+							  ObjData *list) //Ингридиентом является или сам прототип с VNUM или альтернатива с VALUE 1 равным внум прототипа
 {
 	ObjData *i;
 	for (i = list; i; i = i->get_next_content()) {
@@ -939,7 +939,7 @@ ObjData *get_obj_in_list_ingr(int num,
 	return nullptr;
 }
 MakeRecept::MakeRecept() : skill(ESkill::kUndefined) {
-	locked = true;        // п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ я─п╣я├п╣п©я┌ п╥п╟п╩п╬я┤п╣п╫.
+	locked = true;        // по умолчанию рецепт залочен.
 	vnum = 0;
 	obj_proto = 0;
 	for (int i = 0; i < MAX_PARTS; i++) {
@@ -952,16 +952,16 @@ int MakeRecept::can_make(CharData *ch) {
 	int i;
 	ObjData *ingrobj = nullptr;
 	// char tmpbuf[kMaxInputLength];
-	// п║п╢п╣п╩п╟я┌я▄ п©я─п╬п╡п╣я─п╨я┐ п╫п╟ п©п╬п╩п╣ locked
+	// Сделать проверку на поле locked
 	if (!ch)
 		return (false);
 	if (locked)
 		return (false);
-	// п║п╢п╣п╩п╟я┌я▄ п©я─п╬п╡п╣я─п╨я┐ п╫п╟п╩п╦я┤п╦я▐ я│п╨п╦п╩п╩п╟ я┐ п╦пЁя─п╬п╨п╟.
+	// Сделать проверку наличия скилла у игрока.
 	if (ch->IsNpc() || !GetSkill(ch, skill)) {
 		return (false);
 	}
-	// п■п╣п╩п╟п╣п╪ п©я─п╬п╡п╣я─п╨я┐ п╪п╬п╤п╣я┌ п╩п╦ я┤п╟я─ я│п╢п╣п╩п╟я┌я▄ п©я─п╣п╢п╪п╣я┌ я┌п╟п╨п╬пЁп╬ я┌п╦п©п╟
+	// Делаем проверку может ли чар сделать предмет такого типа
 	if (skill == ESkill::kMakeStaff) {
 		return 0;
 	}
@@ -971,17 +971,17 @@ int MakeRecept::can_make(CharData *ch) {
 		}
 		if (GetObjRnum(parts[i].proto) < 0)
 			return (false);
-		//SendMsgToChar("п·п╠я─п╟п╥п╣я├ п╠я▀п╩ п╫п╣п╡п╬п╥п╡я─п╟я┌п╦п╪п╬ я┐я┌п╣я─я▐п╫.\r\n",ch); //п╩п╣я┬п╦п╧ п╥п╫п╟п╣я┌ я┤п╣пЁп╬ я┌я┐я┌ п╫п╟п╢п╬ п©п╦я│п╟я┌я▄
+		//SendMsgToChar("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
 		if (!(ingrobj = get_obj_in_list_ingr(parts[i].proto, ch->carrying))) {
-			//sprintf(tmpbuf,"п■п╩я▐ '%d' я┐ п╡п╟я│ п╫п╣я┌ '%d'.\r\n",obj_proto,parts[i].proto);
+			//sprintf(tmpbuf,"Для '%d' у вас нет '%d'.\r\n",obj_proto,parts[i].proto);
 			//SendMsgToChar(tmpbuf,ch);
 			return (false);
 		}
 		int ingr_lev = get_ingr_lev(ingrobj);
-		// п∙я│п╩п╦ я┤п╟я─ п╫п╦п╤п╣ я┐я─п╬п╡п╫я▐ п╦п╫пЁя─п╦п╢п╦п╣п╫я┌п╟ я┌п╬ п╬п╫ п╫п╣ п╪п╬п╤п╣я┌ п╢п╣п╩п╟я┌я▄ я─п╣я├п╣п©я┌я▀ я│ п╣пЁп╬
-		// я┐я┤п╟я│я┌п╦п╣п╪.
+		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
+		// участием.
 		if (!privilege::IsImpl(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
-			SendMsgToChar("п▓я▀ я│п╩п╦я┬п╨п╬п╪ п╪п╟п╩п╬пЁп╬ я┐я─п╬п╡п╫я▐ п╦ п╡п╟п╪ я┤я┌п╬-я┌п╬ п╫п╣ п©п╬п╢я┘п╬п╢п╦я┌ п╢п╩я▐ я┬п╦я┌я▄я▐.\r\n", ch);
+			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
 	}
@@ -989,12 +989,12 @@ int MakeRecept::can_make(CharData *ch) {
 }
 
 int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
-	// п÷п╬п╩я┐я┤п╟п╣п╪ я┐я─п╬п╡п╣п╫я▄ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ ...
+	// Получаем уровень ингредиента ...
 	if (ingrobj->get_type() == EObjType::kMagicIngredient) {
-		// п÷п╬п╩я┐я┤п╟п╣п╪ я┐я─п╬п╡п╣п╫я▄ п╦пЁя─п╣п╢п╦п╣п╫я┌п╟ п╢п╬ 128
+		// Получаем уровень игредиента до 128
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
 	} else if (ingrobj->get_type() == EObjType::kMagicComponent) {
-		// пё п╦п╫пЁя─п╬п╡ я┌п╦п©п╟ 26 я│п╬п╡п©п╟п╢п╟п╣я┌ я┐я─п╬п╡п╣п╫я▄ п╦ я│п╦п╩п╟.
+		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
 	} else if (ingrobj->get_type() == EObjType::kCraftMaterial) {
 		return GET_OBJ_VAL(ingrobj, 0);
@@ -1004,7 +1004,7 @@ int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
 }
 
 int MakeRecept::get_ingr_pow(ObjData *ingrobj) {
-	// п÷п╬п╩я┐я┤п╟п╣п╪ я│п╦п╩я┐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ ...
+	// Получаем силу ингредиента ...
 	if (ingrobj->get_type() == EObjType::kMagicIngredient
 		|| ingrobj->get_type() == EObjType::kCraftMaterial) {
 		return GET_OBJ_VAL(ingrobj, 2);
@@ -1047,7 +1047,7 @@ void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_
 	obj->set_val(0,
 				 ((GetRealInt(ch) * GetRealInt(ch) / 10 + GetSkill(ch, ESkill::kMakeWear)) / 100
 					 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
-					 / 100); //п░п║=((п╦п╫я┌п╟*п╦п╫я┌п╟/10+я┐п╪п╣п╩п╨п╟)/100+п╩п╣п╡п╩.я┬п╨я┐я─я▀)*п╨п╬я█я└.я┤п╟я│я┌п╦ я┌п╣п╩п╟
+					 / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
 	if (CAN_WEAR(obj, EWearFlag::kBody)) //0.9
 	{
 		wearkoeff = 90;
@@ -1078,7 +1078,7 @@ void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_
 	}
 	obj->set_val(1,
 				 (GetSkill(ch, ESkill::kMakeWear) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
-					 / 100); //п╠я─п╬п╫я▐=(%я┐п╪п╣п╩п╨п╦/25+п╩п╣п╡п╩.я┬п╨я┐я─я▀)*п╨п╬я█я└.я┤п╟я│я┌п╦ я┌п╣п╩п╟
+					 / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
 }
 float MakeRecept::count_mort_requred(ObjData *obj) {
 	float result = 0.0;
@@ -1092,11 +1092,11 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 
 	float total_weight = 0.0;
 
-	// п╟я└я└п╣п╨я┌я▀ APPLY_x
+	// аффекты APPLY_x
 	for (int k = 0; k < kMaxObjAffect; k++) {
 		if (obj->get_affected(k).location == 0) continue;
 
-		// я│п╩я┐я┤п╟п╧, п╣я│п╩п╦ п╬п╢п╦п╫ п╟я└я└п╣п╨я┌ п©я─п╬п©п╦я│п╟п╫ п╡ п╫п╣я│п╨п╬п╩я▄п╨п╦я┘ п©п╬п╩я▐я┘
+		// случай, если один аффект прописан в нескольких полях
 		for (int kk = 0; kk < kMaxObjAffect; kk++) {
 			if (obj->get_affected(k).location == obj->get_affected(kk).location
 				&& k != kk) {
@@ -1115,7 +1115,7 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 				weight, GET_OBJ_VNUM(obj));
 			total_weight += pow(weight, SQRT_MOD);
 		}
-			// я│п╟п╡п╣я│я▀ п╨п╬я┌п╬я─я▀п╣ я│ п╪п╦п╫я┐я│п╬п╪ п╢п╬п╩п╤п╫я▀ я┌п╬пЁп╢п╟ п©п╬п╫п╦п╤п╟я┌я▄ п╡п╣я│ п╣я│п╩п╦ п╡ +
+			// савесы которые с минусом должны тогда понижать вес если в +
 		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == EApply::kAc) ||
 			(obj->get_affected(k).location == EApply::kSavingWill) ||
 			(obj->get_affected(k).location == EApply::kSavingCritical) ||
@@ -1124,7 +1124,7 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 			float weight = count_affect_weight(obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
-			//п■п╬п╠п╟п╡п╩п╣п╫я▀п╧ п╨я┐я│п╬п╨ я┐я┤п╣я┌ я│п╟п╡п╣я│п╬п╡ я│ - п╥п╫п╟я┤п╣п╫п╦я▐п╪п╦
+			//Добавленый кусок учет савесов с - значениями
 		else if ((obj->get_affected(k).modifier < 0)
 			&& ((obj->get_affected(k).location == EApply::kAc) ||
 				(obj->get_affected(k).location == EApply::kSavingWill) ||
@@ -1134,7 +1134,7 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
-			//п■п╬п╠п╟п╡п╩п╣п╫я▀п╧ п╨я┐я│п╬п╨ я┐я┤п╣я┌ п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫п╬пЁп╬ п╥п╫п╟я┤п╣п╫п╦я▐ п╫п╬ п╫п╣ я│п╟п╡п╣я│п╬п╡
+			//Добавленый кусок учет отрицательного значения но не савесов
 		else if ((obj->get_affected(k).modifier < 0)
 			&& ((obj->get_affected(k).location != EApply::kAc) &&
 				(obj->get_affected(k).location != EApply::kSavingWill) &&
@@ -1145,7 +1145,7 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 	}
-	// п╟я└я└п╣п╨я┌я▀ AFF_x я┤п╣я─п╣п╥ equipment_affect
+	// аффекты AFF_x через equipment_affect
 	for (const auto &m : equipment_affect) {
 		if (obj->GetEEquipmentAffect(m.aff_pos)) {
 			if (m.aff_affect == EAffect::kAirShield) {
@@ -1222,77 +1222,77 @@ float MakeRecept::count_affect_weight(int num, int mod) {
 }
 void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS], int ingr_cnt) {
 	int i, j;
-	//я│я┌п╟п╡п╦п╪ п╦п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╣ п╦п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╣ п©п╟п╢п╣п╤п╦ п╡ п╟п╩п╦п╟я│я▀
+	//ставим именительные именительные падежи в алиасы
 	sprintf(buf, "%s %s %s %s",
 			obj->get_PName(grammar::ECase::kNom).c_str(),
 			ingrs[0]->get_PName(grammar::ECase::kGen).c_str(),
 			ingrs[1]->get_PName(grammar::ECase::kIns).c_str(),
 			ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
 	obj->set_aliases(buf);
-	for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) // я│я┌п╟п╡п╦п╪ п©п╟п╢п╣п╤п╦ п╡ п╦п╪я▐ я│ я┐я┤п╣я┌п╬п╡ п╦п╫пЁя─п╬п╡
+	for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) // ставим падежи в имя с учетов ингров
 	{
 		auto name_case = static_cast<grammar::ECase>(i);
 		sprintf(buf, "%s", obj->get_PName(name_case).c_str());
-		strcat(buf, " п╦п╥ ");
+		strcat(buf, " из ");
 		strcat(buf, ingrs[0]->get_PName(grammar::ECase::kGen).c_str());
-		strcat(buf, " я│ ");
+		strcat(buf, " с ");
 		strcat(buf, ingrs[1]->get_PName(grammar::ECase::kIns).c_str());
-		strcat(buf, " п╦ ");
+		strcat(buf, " и ");
 		strcat(buf, ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
 		obj->set_PName(name_case, buf);
-		if (i == 0) // п╦п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤
+		if (i == 0) // именительный падеж
 		{
 			obj->set_short_description(buf);
 			if (GET_OBJ_SEX(obj) == EGender::kMale) {
-				snprintf(buf2, kMaxStringLength, "п▒я─п╬я┬п╣п╫п╫я▀п╧ %s п╩п╣п╤п╦я┌ я┌я┐я┌.", buf);
+				snprintf(buf2, kMaxStringLength, "Брошенный %s лежит тут.", buf);
 			} else if (GET_OBJ_SEX(obj) == EGender::kFemale) {
-				snprintf(buf2, kMaxStringLength, "п▒я─п╬я┬п╣п╫п╫п╟я▐ %s п╩п╣п╤п╦я┌ я┌я┐я┌.", buf);
+				snprintf(buf2, kMaxStringLength, "Брошенная %s лежит тут.", buf);
 			} else if (GET_OBJ_SEX(obj) == EGender::kPoly) {
-				snprintf(buf2, kMaxStringLength, "п▒я─п╬я┬п╣п╫п╫я▀п╣ %s п╩п╣п╤п╟я┌ я┌я┐я┌.", buf);
+				snprintf(buf2, kMaxStringLength, "Брошенные %s лежат тут.", buf);
 			}
-			obj->set_description(buf2); // п╬п©п╦я│п╟п╫п╦п╣ п╫п╟ п╥п╣п╪п╩п╣
+			obj->set_description(buf2); // описание на земле
 		}
 	}
-	obj->set_is_rename(true); // я│я┌п╟п╡п╦п╪ я└п╩п╟пЁ я┤я┌п╬ п╬п╠я┼п╣п╨я┌ п©п╣я─п╣п╦п╪п╣п╫п╬п╡п╟п╫
+	obj->set_is_rename(true); // ставим флаг что объект переименован
 
 
 	auto temp_flags = obj->get_affect_flags();
 	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
 	obj->SetEquipmentAffectFlags(temp_flags);
-	// п©п╣я─п╫п╬я│п╦п╪ я█я└я└п╣п╨я┌я▀ ... я│ п╦п╫пЁя─п╬п╡ п╫п╟ п©я─п╬я┌п╬я┌п╦п©, 0 п╬п╠я┼п╣п╨я┌ я┬п╨я┐я─п╟ п©п╣я─п╣п╫п╬я│п╦п╪ п╡я│п╣, я│ п╬я│я┌п╟п╩я▄п╫я▀я┘ 1 я─п╟п╫п╢п╬п╪
+	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 	merge_extra_flags(ch, obj, ingrs[0], get_ingr_pow(ingrs[0]));
 	auto temp_affected = obj->get_all_affected();
 	add_affects(ch, temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
 	obj->set_all_affected(temp_affected);
-	add_rnd_skills(ch, ingrs[0], obj); //п©п╣я─п╣п╫п╬я│п╦п╪ я│п╩я┐я┤п╟п╧п╫я┐я▌ я┐п╪п╣п╩п╨я┐ я│п╬ я┬п╨я┐я─я▀
-	obj->set_extra_flag(EObjFlag::kNoalter);  // п╫п╣п╩я▄п╥я▐ я│я└я─п╣я┬п╦я┌я▄ я┤п╣я─п╫я▀п╪ я│п╡п╦я┌п╨п╬п╪
+	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
+	obj->set_extra_flag(EObjFlag::kNoalter);  // нельзя сфрешить черным свитком
 	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000
-					   + GetSkill(ch, ESkill::kMakeWear) / 2 * number(160, 220)); // я┌п╟п╧п╪п╣я─ п╥п╟п╡п╦я│п╦я┌ п╡ п╬я│п╫п╬п╡п╫п╬п╪ п╬я┌ я┐п╪п╣п╩п╨п╦
-	obj->set_craft_timer(obj->get_timer()); // п╥п╟п©п╬п╪п╫п╦п╪ я┌п╟п╧п╪п╣я─ я│п╬п╥п╢п╟п╫п╫п╬п╧ п╡п╣я┴п╦ п╢п╩я▐ п©я─п╟п╡п╦п╩я▄п╫п╬пЁп╬ п╬я┌п╬п╠я─п╟п╤п╣п╫п╦я▐ п©я─п╦ п╬я│п╪ п╢п╩я▐ п╣п╣ я│п╬я│я┌.
+					   + GetSkill(ch, ESkill::kMakeWear) / 2 * number(160, 220)); // таймер зависит в основном от умелки
+	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 	for (j = 1; j < ingr_cnt; j++) {
 		int i, raffect = 0;
-		for (i = 0; i < kMaxObjAffect; i++) // п©п╬я│п╪п╬я┌я─п╦п╪ я│п╨п╬п╨п╟ п╟я└я└п╣п╨я┌п╬п╡
+		for (i = 0; i < kMaxObjAffect; i++) // посмотрим скока аффектов
 		{
 			if (ingrs[j]->get_affected(i).location == EApply::kNone) {
 				break;
 			}
 		}
-		if (i > 0) // п╣я│п╩п╦ > 0 п©п╣я─п╣п╫п╬я│п╦п╪ я│п╩я┐я┤п╟п╧п╫я▀п╧
+		if (i > 0) // если > 0 переносим случайный
 		{
 			raffect = number(0, i - 1);
 			for (int i = 0; i < kMaxObjAffect; i++) {
 				const auto &ra = ingrs[j]->get_affected(raffect);
 				if (obj->get_affected(i).location
-					== ra.location) // п╣я│п╩п╦ п╟я└я└п╣п╨я┌ я┌п╟п╨п╬п╧ я┐п╤п╣ п╡п╦я│п╦я┌ п╦ п╬п╫ п╪п╣п╫я▄я┬п╣, п©п╣я─п╣я│я┌п╟п╡п╦п╪ п╥п╫п╟я┤п╣п╫п╦п╣
+					== ra.location) // если аффект такой уже висит и он меньше, переставим значение
 				{
 					if (obj->get_affected(i).modifier < ra.modifier) {
 						obj->set_affected(i, obj->get_affected(i).location, ra.modifier);
 					}
 					break;
 				}
-				if (obj->get_affected(i).location == EApply::kNone) // п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╟я└я└ п╫п╟ я│п╡п╬п╠п╬п╢п╫п╬п╣ п╪п╣я│я┌п╬
+				if (obj->get_affected(i).location == EApply::kNone) // добавляем афф на свободное место
 				{
-					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // п©я─п╬п╡п╣я─п╦п╪ я└п╣п╧п╩ п╫п╟ я│п╦п╩я┐ п╦п╫пЁя─п╟
+					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
 					{
 						break;
 					}
@@ -1301,14 +1301,14 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 				}
 			}
 		}
-		// п©п╣я─п╣п╫п╬я│п╦п╪ п╟я└я└п╣п╨я┌я▀ ... c п╦п╫пЁя─п╬п╡ п╫п╟ п©я─п╬я┌п╬я┌п╦п©.
+		// переносим аффекты ... c ингров на прототип.
 		auto temp_flags = obj->get_affect_flags();
 		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
 		obj->SetEquipmentAffectFlags(temp_flags);
-		// п©п╣я─п╫п╬я│п╦п╪ я█я└я└п╣п╨я┌я▀ ... я│ п╦п╫пЁя─п╬п╡ п╫п╟ п©я─п╬я┌п╬я┌п╦п©.
+		// перносим эффекты ... с ингров на прототип.
 		merge_extra_flags(ch, obj, ingrs[j], get_ingr_pow(ingrs[j]));
-		// п©п╣я─п╣п╫п╬я│п╦п╪ 1 я─п╟п╫п╢п╬п╪ п╟я└я└п╣п╨я┌
-		add_rnd_skills(ch, ingrs[j], obj); //п©п╣я─п╣п╫п╬я│п╦ я│п╩я┐я┤п╟п╧п╫я┐я▌ я┐п╪п╣п╩п╨я┐ я│ п╦п╫пЁя─п╬п╡
+		// переносим 1 рандом аффект
+		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
 }
 static std::string craft_recipe_name(int recipe_id) {
@@ -1334,39 +1334,39 @@ static void record_craft_success(int recipe_id, ESkill skill) {
 	});
 }
 
-// я│п╬п╥п╢п╟я┌я▄ п©я─п╣п╢п╪п╣я┌ п©п╬ я─п╣я├п╣п©я┌я┐
+// создать предмет по рецепту
 int MakeRecept::make(CharData *ch) {
 	char tmpbuf[kMaxStringLength];//, tmpbuf2[kMaxStringLength];
 	ObjData *ingrs[MAX_PARTS];
 	string tmpstr, charwork, roomwork, charfail, roomfail, charsucc, roomsucc, chardam, roomdam, tagging, itemtag;
 	int dam = 0;
 	bool make_fail;
-	// 1. п÷я─п╬п╡п╣я─п╦я┌я▄ п╣я│я┌я▄ п╩п╦ я│п╨п╦п╩п╩ я┐ я┤п╟я─п╟
+	// 1. Проверить есть ли скилл у чара
 	if (ch->IsNpc() || !GetSkill(ch, skill)) {
-		SendMsgToChar("п║я┌я─п╟п╫п╫п╬ я┤я┌п╬ п╡п╟п╪ п╡п╬п╬п╠я┴п╣ п©я─п╦я┬п╩п╬ п╡ пЁп╬п╩п╬п╡я┐ cп╢п╣п╩п╟я┌я▄ я█я┌п╬.\r\n", ch);
+		SendMsgToChar("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
 		return (false);
 	}
-	// 2. п÷я─п╬п╡п╣я─п╦я┌я▄ п╣я│я┌я▄ п╩п╦ п╦п╫пЁя─я▀ я┐ я┤п╟я─п╟
+	// 2. Проверить есть ли ингры у чара
 	if (!can_make(ch)) {
-		SendMsgToChar("пё п╡п╟я│ п╫п╣я┌ я│п╬я│я┌п╟п╡п╩я▐я▌я┴п╦я┘ п╢п╩я▐ я█я┌п╬пЁп╬.\r\n", ch);
+		SendMsgToChar("У вас нет составляющих для этого.\r\n", ch);
 		return (false);
 	}
 	if (ch->get_move() < MIN_MAKE_MOVE) {
-		SendMsgToChar("п▓я▀ я│п╩п╦я┬п╨п╬п╪ я┐я│я┌п╟п╩п╦ п╦ п╡п╟п╪ п╫п╦я┤п╣пЁп╬ п╫п╣ я┘п╬я┤п╣я┌я│я▐ п╢п╣п╩п╟я┌я▄.\r\n", ch);
+		SendMsgToChar("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
 		return (false);
 	}
 	auto tobj = GetObjectPrototype(obj_proto);
 	if (!tobj) {
 		return 0;
 	}
-	// п÷я─п╬п╡п╣я─я▐п╣п╪ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄ я│п╬п╥п╢п╟п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╟
+	// Проверяем возможность создания предмета
 	if (!privilege::IsImmortal(ch) && (skill == ESkill::kMakeStaff)) {
 		const ObjData obj(*tobj);
-		act("п▓я▀ п╫п╣ пЁп╬я┌п╬п╡я▀ п╨ я┌п╬п╪я┐ я┤я┌п╬п╠я▀ я│п╢п╣п╩п╟я┌я▄ $o3.", false, ch, &obj, 0, kToChar);
+		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
 	}
-	// п÷я─п╬пЁя─я┐п╤п╟п╣п╪ п╡ п╪п╟я│я│п╦п╡ я─п╣п╟п╩я▄п╫я▀п╣ п╦п╫пЁя─я▀
-	// 3. п÷я─п╬п╡п╣я─п╦я┌я▄ я┐я─п╬п╡п╫п╦ п╦п╫пЁя─п╬п╡ п╦ я┤п╟я─п╟
+	// Прогружаем в массив реальные ингры
+	// 3. Проверить уровни ингров и чара
 	int ingr_cnt = 0, ingr_lev, i, craft_weight, ingr_pow;
 	for (i = 0; i < MAX_PARTS; i++) {
 		if (parts[i].proto == 0)
@@ -1374,124 +1374,124 @@ int MakeRecept::make(CharData *ch) {
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
 		if (!privilege::IsImpl(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
-			tmpstr = "п▓я▀ п©п╬п╠п╬я▐п╩п╦я│я▄ п╦я│п©п╬я─я┌п╦я┌я▄ " + ingrs[i]->get_PName(grammar::ECase::kAcc)
-				+ "\r\n п╦ п©я─п╣п╨я─п╟я┌п╦п╩п╦ я─п╟п╠п╬я┌я┐ п╫п╟п╢ " + tobj->get_PName(grammar::ECase::kIns) + ".\r\n";
+			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(grammar::ECase::kAcc)
+				+ "\r\n и прекратили работу над " + tobj->get_PName(grammar::ECase::kIns) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			return (false);
 		};
 		ingr_pow = get_ingr_pow(ingrs[i]);
 		if (ingr_pow < parts[i].min_power) {
-			tmpstr = "$o п╫п╣ п©п╬п╢я┘п╬п╢п╦я┌ п╢п╩я▐ п╦п╥пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ " + tobj->get_PName(grammar::ECase::kGen) + ".";
+			tmpstr = "$o не подходит для изготовления " + tobj->get_PName(grammar::ECase::kGen) + ".";
 			act(tmpstr.c_str(), false, ch, ingrs[i], 0, kToChar);
 			return (false);
 		}
 		ingr_cnt++;
 	}
 	//int stat_bonus;
-	// п■п╣п╩п╟п╣п╪ п╡я│я▐п╨п╦п╣ п╢п╬п© п©я─п╬п╡п╣я─п╨п╦ п╢п╩я▐ я─п╟п╥п╩п╦я┤п╫я▀я┘ я┐п╪п╣п╫п╦п╧.
+	// Делаем всякие доп проверки для различных умений.
 	switch (skill) {
 		case ESkill::kMakeWeapon:
 		case ESkill::kMakeArmor:
-			// п÷я─п╬п╡п╣я─я▐п╣п╪ п╣я│я┌я▄ п╩п╦ я┌я┐я┌ п╫п╟п╨п╬п╡п╟п╩я▄п╫я▐ п╦п╩п╦ п╨п╬п╪п╫п╟я┌п╟ п╨я┐п╥п╫я▐.
+			// Проверяем есть ли тут наковальня или комната кузня.
 			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!privilege::IsImmortal(ch))) {
-				SendMsgToChar("п▓п╟п╪ п╫я┐п╤п╫п╬ п©п╬п©п╟я│я┌я▄ п╡ п╨я┐п╥п╫п╦я├я┐ п╢п╩я▐ я█я┌п╬пЁп╬.\r\n", ch);
+				SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}
-			charwork = "п▓я▀ п©п╬п╪п╣я│я┌п╦п╩п╦ п╥п╟пЁп╬я┌п╬п╡п╨я┐ п╫п╟ п╫п╟п╨п╬п╡п╟п╩я▄п╫я▌ п╦ п╫п╟я┤п╟п╩п╦ п╨п╬п╡п╟я┌я▄ $o3.";
-			roomwork = "$n п©п╬п╪п╣я│я┌п╦п╩$g п╥п╟п╨п╬я┌п╬п╡п╨я┐ п╫п╟ п╫п╟п╨п╬п╡п╟п╩я▄п╫я▌ п╦ п╫п╟я┤п╟п╩$g п╨п╬п╡п╟я┌я▄.";
-			charfail = "п≈п╟пЁп╬я┌п╬п╡п╨п╟ п©п╬п╢ п╡п╟я┬п╦п╪п╦ я┐п╢п╟я─п╟п╪п╦ п©п╬п╨я─я▀п╩п╟я│я▄ я│п╣я┌я▄я▌ я┌я─п╣я┴п╦п╫ п╦ я─п╟я│п╨п╬п╩п╬п╩п╟я│я▄.";
-			roomfail = "п÷п╬п╢ я┐п╢п╟я─п╟п╪п╦ п╪п╬п╩п╬я┌п╟ $n1 п╥п╟пЁп╬я┌п╬п╡п╨п╟ я─п╟я│п╨п╬п╩п╬п╩п╟я│я▄.";
-			charsucc = "п▓я▀ п╡я▀п╨п╬п╡п╟п╩п╦ $o3.";
-			roomsucc = "$n п╡я▀п╨п╬п╡п╟п╩$G $o3.";
-			chardam = "п≈п╟пЁп╬я┌п╬п╡п╨п╟ п╡я▀я│п╨п╬я┤п╦п╩п╟ п╦п╥ п©п╬п╢ п╪п╬п╩п╬я┌п╟ п╦ п╠п╬п╩я▄п╫п╬ я┐п╢п╟я─п╦п╩п╟ п╡п╟я│.";
-			roomdam = "п≈п╟пЁп╬я┌п╬п╡п╨п╟ п╡я▀я│п╨п╬я┤п╦п╩п╟ п╦п╥ п©п╬п╢ п╪п╬п╩п╬я┌п╟ $n1, п╠п╬п╩я▄п╫п╬ $s я┐п╢п╟я─п╦п╡.";
-			tagging = "п▓я▀ п©п╬я│я┌п╟п╡п╦п╩п╦ я│п╡п╬п╣ п╨п╩п╣п╧п╪п╬ п╫п╟ $o5.";
-			itemtag = "п²п╟ $o5 я│я┌п╬п╦я┌ п╨п╩п╣п╧п╪п╬ 'п▓я▀п╨п╬п╡п╟п╩$g $n'.";
+			charwork = "Вы поместили заготовку на наковальню и начали ковать $o3.";
+			roomwork = "$n поместил$g закотовку на наковальню и начал$g ковать.";
+			charfail = "Заготовка под вашими ударами покрылась сетью трещин и раскололась.";
+			roomfail = "Под ударами молота $n1 заготовка раскололась.";
+			charsucc = "Вы выковали $o3.";
+			roomsucc = "$n выковал$G $o3.";
+			chardam = "Заготовка выскочила из под молота и больно ударила вас.";
+			roomdam = "Заготовка выскочила из под молота $n1, больно $s ударив.";
+			tagging = "Вы поставили свое клеймо на $o5.";
+			itemtag = "На $o5 стоит клеймо 'Выковал$g $n'.";
 			dam = 70;
-			// п▒п╬п╫я┐я│ я│п╦п╩п╟
+			// Бонус сила
 			//stat_bonus = number(0, GetRealStr(ch));
 			break;
-		case ESkill::kMakeBow: charwork = "п▓я▀ п╫п╟я┤п╟п╩п╦ п╪п╟я│я┌п╣я─п╦я┌я▄ $o3.";
-			roomwork = "$n п╫п╟я┤п╟п╩$g п╪п╟я│я┌п╣я─п╦я┌я▄ я┤я┌п╬-я┌п╬ п╬я┤п╣п╫я▄ п╫п╟п©п╬п╪п╦п╫п╟я▌я┴п╣п╣ $o3.";
-			charfail = "п║ пЁя─п╬п╪п╨п╦п╪ я┌я─п╣я│п╨п╬п╪ $o я│п╩п╬п╪п╟п╩$U п╡ п╡п╟я┬п╦я┘ п╫п╣я┐п╪п╣п╩я▀я┘ я─я┐п╨п╟я┘.";
-			roomfail = "п║ пЁя─п╬п╪п╨п╦п╪ я┌я─п╣я│п╨п╬п╪ $o я│п╩п╬п╪п╟п╩$U п╡ п╫п╣я┐п╪п╣п╩я▀я┘ я─я┐п╨п╟я┘ $n1.";
-			charsucc = "п▓я▀ cп╪п╟я│я┌п╣я─п╦п╩п╦ $o3.";
-			roomsucc = "$n я│п╪п╟я│я┌п╣я─п╦п╩$g $o3.";
-			chardam = "$o3 я│ пЁя─п╬п╪п╨п╦п╪ я┌я─п╣я│п╨п╬п╪ я│п╩п╬п╪п╟п╩$U п╬я├п╟я─п╟п©п╟п╡ п╡п╟п╪ я─я┐п╨п╦.";
-			roomdam = "$o3 я│ пЁя─п╬п╪п╨п╦п╪ я┌я─п╣я│п╨п╬п╪ я│п╩п╬п╪п╟п╩$U п╬я├п╟я─п╟п©п╟п╡ я─я┐п╨п╦ $n2.";
-			tagging = "п▓я▀ п╡я▀я─п╣п╥п╟п╩п╦ я│п╡п╬п╣ п╦п╪я▐ п╫п╟ $o5.";
-			itemtag = "п²п╟ $o5 п╡п╦п╢п╫п╟ п╪п╣я┌п╨п╟ 'п║п╪п╟я│я┌п╣я─п╦п╩$g $n'.";
-			// п▒п╬п╫я┐я│ п╩п╬п╡п╨п╬я│я┌я▄
+		case ESkill::kMakeBow: charwork = "Вы начали мастерить $o3.";
+			roomwork = "$n начал$g мастерить что-то очень напоминающее $o3.";
+			charfail = "С громким треском $o сломал$U в ваших неумелых руках.";
+			roomfail = "С громким треском $o сломал$U в неумелых руках $n1.";
+			charsucc = "Вы cмастерили $o3.";
+			roomsucc = "$n смастерил$g $o3.";
+			chardam = "$o3 с громким треском сломал$U оцарапав вам руки.";
+			roomdam = "$o3 с громким треском сломал$U оцарапав руки $n2.";
+			tagging = "Вы вырезали свое имя на $o5.";
+			itemtag = "На $o5 видна метка 'Смастерил$g $n'.";
+			// Бонус ловкость
 			//stat_bonus = number(0, GetRealDex(ch));
 			dam = 40;
 			break;
-		case ESkill::kMakeWear: charwork = "п▓я▀ п╡п╥я▐п╩п╦ п╡ я─я┐п╨я┐ п╦пЁп╬п╩п╨я┐ п╦ п╫п╟я┤п╟п╩п╦ я┬п╦я┌я▄ $o3.";
-			roomwork = "$n п╡п╥я▐п╩$g п╡ я─я┐п╨я┐ п╦пЁп╬п╩п╨я┐ п╦ п╫п╟я┤п╟п╩$g я┐п╡п╩п╣я┤п╣п╫п╫п╬ я┬п╦я┌я▄.";
-			charfail = "пё п╡п╟я│ п╫п╦я┤п╣пЁп╬ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄ я│я┬п╦я┌я▄.";
-			roomfail = "$n п©я▀я┌п╟п╩$u я┤я┌п╬-я┌п╬ я│я┬п╦я┌я▄, п╫п╬ п╫п╦я┤п╣пЁп╬ п╫п╣ п╡я▀я┬п╩п╬.";
-			charsucc = "п▓я▀ я│я┬п╦п╩п╦ $o3.";
-			roomsucc = "$n я│я┬п╦п╩$g $o3.";
-			chardam = "п≤пЁп╩п╟ пЁп╩я┐п╠п╬п╨п╬ п╡п╬я┬п╩п╟ п╡ п╡п╟я┬я┐ я─я┐п╨я┐. п░п╨п╨я┐я─п╟я┌п╫п╣п╣ п╫п╟п╢п╬ п╠я▀я┌я▄.";
-			roomdam = "$n пЁп╩я┐п╠п╬п╨п╬ п╡п╬я┌п╨п╫я┐п╩$g п╦пЁп╩я┐ п╡ я│п╣п╠п╣ п╡ я─я┐п╨я┐. \r\nп░ я│ п╡п╦п╢я┐ п╡п©п╬п╩п╫п╣ п╫п╬я─п╪п╟п╩я▄п╫я▀п╧ я┤п╣п╩п╬п╡п╣п╨.";
-			tagging = "п▓я▀ п©я─п╦я┬п╦п╩п╦ п╨ $o2 п╠п╦я─п╨я┐ я│п╬ я│п╡п╬п╦п╪ п╦п╪п╣п╫п╣п╪.";
-			itemtag = "п²п╟ $o5 п╡я▀ п╥п╟п╪п╣я┌п╦п╩п╦ п╠п╦я─п╨я┐ 'п║я┬п╦п╩$g $n'.";
-			// п▒п╬п╫я┐я│ я┌п╣п╩п╬ , п╫п╣ я│п©я─п╟я┬п╦п╡п╟п╧я┌п╣ п©п╬я┤п╣п╪я┐ :))
+		case ESkill::kMakeWear: charwork = "Вы взяли в руку иголку и начали шить $o3.";
+			roomwork = "$n взял$g в руку иголку и начал$g увлеченно шить.";
+			charfail = "У вас ничего не получилось сшить.";
+			roomfail = "$n пытал$u что-то сшить, но ничего не вышло.";
+			charsucc = "Вы сшили $o3.";
+			roomsucc = "$n сшил$g $o3.";
+			chardam = "Игла глубоко вошла в вашу руку. Аккуратнее надо быть.";
+			roomdam = "$n глубоко воткнул$g иглу в себе в руку. \r\nА с виду вполне нормальный человек.";
+			tagging = "Вы пришили к $o2 бирку со своим именем.";
+			itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
+			// Бонус тело , не спрашивайте почему :))
 			//stat_bonus = number(0, GetRealCon(ch));
 			dam = 30;
 			break;
-		case ESkill::kMakeAmulet: charwork = "п▓я▀ п╡п╥я▐п╩п╦ п╡ я─я┐п╨п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ п╪п╟я┌п╣я─п╦п╟п╩я▀ п╦ п╫п╟я┤п╟п╩п╦ п╪п╟я│я┌п╣я─п╦я┌я▄ $o3.";
-			roomwork = "$n п╡п╥я▐п╩$g п╡ я─я┐п╨п╦ я┤я┌п╬-я┌п╬ п╦ п╫п╟я┤п╟п╩$g я┐п╡п╩п╣я┤п╣п╫п╫п╬ п©я▀я┘я┌п╣я┌я▄ п╫п╟п╢ я┤п╣п╪-я┌п╬.";
-			charfail = "пё п╡п╟я│ п╫п╦я┤п╣пЁп╬ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄";
-			roomfail = "$n п©я▀я┌п╟п╩$u я┤я┌п╬-я┌п╬ я│п╢п╣п╩п╟я┌я▄, п╫п╬ п╫п╦я┤п╣пЁп╬ п╫п╣ п╡я▀я┬п╩п╬.";
-			charsucc = "п▓я▀ я│п╪п╟я│я┌п╣я─п╦п╩п╦ $o3.";
-			roomsucc = "$n я│п╪п╟я│я┌п╣я─п╦п╩$g $o3.";
-			chardam = "п╞я─п╨п╟я▐ п╡я│п©я▀я┬п╨п╟ п╢п╟п╩п╟ п╡п╟п╪ п╥п╫п╟я┌я▄, я┤я┌п╬ я│ п╪п╟пЁп╦п╣п╧ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╠я▀я┌я▄ п©п╬п╬я│я┌п╬я─п╬п╤п╫п╣п╧.";
-			roomdam = "п╞я─п╨п╟я▐ п╡я│п©я▀я┬п╨п╟ п╬я│п╡п╣я┌п╦п╩п╟ п╡я│п╣ п╡п╬п╨я─я┐пЁ. $n2 я│я┌п╬п╦я┌ п╠я▀я┌я▄ п╟п╨п╨я┐я─п╟я┌п╫п╣п╣ я│ п╪п╟пЁп╦п╣п╧! \r\n";
-			tagging = "п²п╟ п╬п╠я─п╟я┌п╫п╬п╧ я│я┌п╬я─п╬п╫п╣ $o1 п╡я▀ п╫п╟я├п╟я─п╟п©п╟п╩п╦ я│п╡п╬п╣ п╦п╪я▐.";
-			itemtag = "п²п╟ п╬п╠я─п╟я┌п╫п╬п╧ я│я┌п╬я─п╬п╫п╣ $o1 п╡я▀ п╥п╟п╪п╣я┌п╦п╩п╦ я│п╩п╬п╡п╬ '$n', п╡п╦п╢п╦п╪п╬, я█я┌п╬ п╦п╪я▐ я│п╬п╥п╢п╟я┌п╣п╩я▐ я█я┌п╬п╧ я┤я┐п╢п╫п╬п╧ п╡п╣я┴п╦я├я▀.";
+		case ESkill::kMakeAmulet: charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
+			roomwork = "$n взял$g в руки что-то и начал$g увлеченно пыхтеть над чем-то.";
+			charfail = "У вас ничего не получилось";
+			roomfail = "$n пытал$u что-то сделать, но ничего не вышло.";
+			charsucc = "Вы смастерили $o3.";
+			roomsucc = "$n смастерил$g $o3.";
+			chardam = "Яркая вспышка дала вам знать, что с магией необходимо быть поосторожней.";
+			roomdam = "Яркая вспышка осветила все вокруг. $n2 стоит быть аккуратнее с магией! \r\n";
+			tagging = "На обратной стороне $o1 вы нацарапали свое имя.";
+			itemtag = "На обратной стороне $o1 вы заметили слово '$n', видимо, это имя создателя этой чудной вещицы.";
 			dam = 30;
 			break;
-		case ESkill::kMakeJewel: charwork = "п▓я▀ п╫п╟я┤п╟п╩п╦ п╪п╟я│я┌п╣я─п╦я┌я▄ $o3.";
-			roomwork = "$n п╫п╟я┤п╟п╩ п╪п╟я│я┌п╣я─п╦я┌я▄ п╨п╟п╨я┐я▌-я┌п╬ п╢п╦п╨п╬п╡п╦п╫п╨я┐.";
-			charfail = "п▓п╟я┬п╣ п╫п╣я┐п╢п╟я┤п╫п╬п╣ п╢п╡п╦п╤п╣п╫п╦п╣ п©п╬п╡я─п╣п╢п╦п╩п╬ $o5.";
-			roomfail = "п²п╣я┐п╢п╟я┤п╫п╬п╣ п╢п╡п╦п╤п╣п╫п╦п╣ $n, я│п╢п╣п╩п╟п╩п╬ $s я─п╟п╠п╬я┌я┐ п╠п╣я│я│п╪я▀я│п╩п╣п╫п╫п╬п╧.";
-			charsucc = "п▓я▀ я│п╪п╟я│я┌п╣я─п╦п╩п╦ $o3.";
-			roomsucc = "$n я│п╪п╟я│я┌п╣я─п╦п╩$g $o3.";
-			chardam = "п°п╣п╩п╨п╦п╧ п╨я┐я│п╬я┤п╣п╨ п╪п╟я┌п╣я─п╦п╟п╩п╟ п╬я┌я│п╨п╬я┤п╦п╩ п╦ п©п╬п©п╟п╩ п╡п╟п╪ п╡ пЁп╩п╟п╥.\r\nп╜я┌п╬ п╠я▀п╩п╬ п╠п╬п╩я▄п╫п╬!";
-			roomdam = "п°п╣п╩п╨п╦п╧ п╨я┐я│п╬я┤п╣п╨ п╪п╟я┌п╣я─п╦п╟п╩п╟ п╬я┌я│п╨п╬я┤п╦п╩ п╦ п©п╬п©п╟п╩ п╡ пЁп╩п╟п╥ $n2.";
-			tagging = "п▓я▀ п©я─п╦п╩п╟п╢п╦п╩п╦ п╨ $o2 я┌п╟п╠п╩п╦я┤п╨я┐ я│п╬ я│п╡п╬п╦п╪ п╦п╪п╣п╫п╣п╪.";
-			itemtag = "п║ п╫п╦п╤п╫п╣п╧ я│я┌п╬я─п╬п╫я▀ $o1 я┐п╨я─п╣п©п╩п╣п╫п╟ я┌п╟п╠п╩п╦я┤п╨п╟ 'Cп╢п╣п╩п╟п╫п╬ $n4'.";
-			// п▒п╬п╫я┐я│ я┘п╟я─я▐
+		case ESkill::kMakeJewel: charwork = "Вы начали мастерить $o3.";
+			roomwork = "$n начал мастерить какую-то диковинку.";
+			charfail = "Ваше неудачное движение повредило $o5.";
+			roomfail = "Неудачное движение $n, сделало $s работу бессмысленной.";
+			charsucc = "Вы смастерили $o3.";
+			roomsucc = "$n смастерил$g $o3.";
+			chardam = "Мелкий кусочек материала отскочил и попал вам в глаз.\r\nЭто было больно!";
+			roomdam = "Мелкий кусочек материала отскочил и попал в глаз $n2.";
+			tagging = "Вы приладили к $o2 табличку со своим именем.";
+			itemtag = "С нижней стороны $o1 укреплена табличка 'Cделано $n4'.";
+			// Бонус харя
 			//stat_bonus = number(0, GetRealCha(ch));
 			dam = 30;
 			break;
-		case ESkill::kMakeStaff: charwork = "п▓я▀ п╫п╟я┤п╟п╩п╦ п╪п╟я│я┌п╣я─п╦я┌я▄ $o3.";
-			roomwork = "$n п╫п╟я┤п╟п╩ п╪п╟я│я┌п╣я─п╦я┌я▄ я┤я┌п╬-я┌п╬, п©п╬я│я▀п╩п╟я▐ п╡я│п╣я┘ п╨ я┤п╣я─я┌я▐п╪.";
-			charfail = "$o3 п╬я│п╡п╣я┌п╦п╩ п╨п╬п╪п╫п╟я┌я┐ п╪п╟пЁп╦я┤п╣я│п╨п╦п╪ я│п╡п╣я┌п╬п╪ п╦ п╦я│я┌п╟я▐п╩.";
-			roomfail = "п÷я─п╣п╢п╪п╣я┌ п╡ я─я┐п╨п╟я┘ $n1 п╡я│п©я▀я┘п╫я┐п╩, п╬п╥п╟я─п╦п╡ п╨п╬п╪п╫п╟я┌я┐ п╪п╟пЁп╦я┤п╣я│п╨п╦п╪ я│п╡п╣я┌п╬п╪ п╦ п╦я│я┌п╟я▐п╩.";
+		case ESkill::kMakeStaff: charwork = "Вы начали мастерить $o3.";
+			roomwork = "$n начал мастерить что-то, посылая всех к чертям.";
+			charfail = "$o3 осветил комнату магическим светом и истаял.";
+			roomfail = "Предмет в руках $n1 вспыхнул, озарив комнату магическим светом и истаял.";
 			charsucc =
-				"п╒п╟п╧п╫я▀п╣ п╥п╫п╟п╨п╦ п╫п╟п╫п╣я│п╣п╫п╫я▀п╣ п╫п╟ $o3 п╡я│п©я▀я┘п╫я┐п╩п╦ п╦ п©п╬пЁп╟я│п╩п╦.\r\nп■п╟, $E я┘п╬я─п╬я┬п╬ п©п╬я│п╩я┐п╤п╦я┌ я│п╡п╬п╣п╪я┐ я┘п╬п╥я▐п╦п╫я┐.";
-			roomsucc = "$n я│п╪п╟я│я┌п╣я─п╦п╩$g $o3. п▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╨я─я▀я┌я┐я▌ я│п╦п╩я┐ я│п©я─я▐я┌п╟п╫п╫я┐я▌ п╡ я█я┌п╬п╪ п©я─п╣п╢п╪п╣я┌п╣.";
-			chardam = "$o п╡п╥п╬я─п╡п╟п╩я│я▐ п╡ п╡п╟я┬п╦я┘ я─я┐п╨п╟я┘. п▓п╟я│ я│п╦п╩я▄п╫п╬ п╬п╠п╬п╤пЁп╩п╬.";
-			roomdam = "$o п╡п╥п╬я─п╡п╟п╩я│я▐ п╡ я─я┐п╨п╟я┘ $n1, п╬п©п╟п╩п╦п╡ п╣пЁп╬.\r\nп▓п╬п╨я─я┐пЁ п©я─п╦я▐я┌п╫п╬ п╥п╟п©п╟я┘п╩п╬ п╤п╟я─п╣п╫п╫я▀п╪ п╪я▐я│п╬п╪.";
-			tagging = "п▓я▀ п╫п╟я┤п╣я─я┌п╦п╩п╦ п╫п╟ $o2 я│п╡п╬п╣ п╦п╪я▐.";
-			itemtag = "п║я─п╣п╢п╦ я─я┐п╫п╫я▀я┘ п╥п╫п╟п╨п╬п╡ п╡п╦п╢п╫п╟ п╫п╟п╢п©п╦я│я▄ 'п║п╬п╥п╢п╟п╫п╬ $n4'.";
-			// п▒п╬п╫я┐я│ я┐п╪.
+				"Тайные знаки нанесенные на $o3 вспыхнули и погасли.\r\nДа, $E хорошо послужит своему хозяину.";
+			roomsucc = "$n смастерил$g $o3. Вы почувствовали скрытую силу спрятанную в этом предмете.";
+			chardam = "$o взорвался в ваших руках. Вас сильно обожгло.";
+			roomdam = "$o взорвался в руках $n1, опалив его.\r\nВокруг приятно запахло жаренным мясом.";
+			tagging = "Вы начертили на $o2 свое имя.";
+			itemtag = "Среди рунных знаков видна надпись 'Создано $n4'.";
+			// Бонус ум.
 			//stat_bonus = number(0, GetRealInt(ch));
 			dam = 70;
 			break;
-		case ESkill::kMakePotion: charwork = "п▓я▀ п╢п╬я│я┌п╟п╩п╦ п╫п╣п╠п╬п╩я▄я┬п╬п╧ пЁп╬я─я┬п╬я┤п╣п╨ п╦ я─п╟п╥п╡п╣п╩п╦ п©п╬п╢ п╫п╦п╪ п╬пЁп╬п╫я▄, п╫п╟я┤п╟п╡ п╡п╟я─п╦я┌я▄ $o3.";
-			roomwork = "$n п╢п╬я│я┌п╟п╩ пЁп╬я─я┬п╬я┤п╣п╨ п╦ п©п╬я│я┌п╟п╡п╦п╩ п╣пЁп╬ п╫п╟ п╬пЁп╬п╫я▄.";
-			charfail = "п▓я▀ п╫п╣ я┐я│п╩п╣п╢п╦п╩п╦ п╨п╟п╨ п╥п╣п╩я▄п╣ п╥п╟п╨п╦п©п╣п╩п╬ п╦ п©я─п╬п╩п╦п╩п╬я│я▄ п╡ п╬пЁп╬п╫я▄.";
+		case ESkill::kMakePotion: charwork = "Вы достали небольшой горшочек и развели под ним огонь, начав варить $o3.";
+			roomwork = "$n достал горшочек и поставил его на огонь.";
+			charfail = "Вы не уследили как зелье закипело и пролилось в огонь.";
 			roomfail =
-				"п≈п╣п╩я▄п╣ п╨п╬я┌п╬я─п╬п╣ п╡п╟я─п╦п╩$g $n п╥п╟п╨п╦п©п╣п╩п╬ п╦ п©я─п╬п╩п╦п╩п╬я│я▄ п╡ п╬пЁп╬п╫я▄,\r\n я─п╟я│п©я─п╬я│я┌я─п╟п╫п╦п╡ п©п╬ п╨п╬п╪п╫п╟я┌п╣ я┐п╤п╟я│п╫я┐я▌ п╡п╬п╫я▄.";
-			charsucc = "п≈п╣п╩я▄п╣ я┐п╢п╟п╩п╬я│я▄ п╡п╟п╪ п╫п╟ я│п╩п╟п╡я┐.";
-			roomsucc = "$n я│п╡п╟я─п╦п╩$g $o3. п÷я─п╦я▐я┌п╫я▀п╧ п╟я─п╬п╪п╟я┌ п╥п╣п╩я▄я▐ п╦п╥ пЁп╬я─я┬п╬я┤п╨п╟, я┌п╟п╨ п╦ п╪п╟п╫п╦я┌ п╡п╟я│.";
-			chardam = "п▓я▀ п╬п©я─п╬п╨п╦п╫я┐п╩п╦ пЁп╬я─я┬п╬я┤п╣п╨ я│ п╥п╣п╩я▄п╣п╪ п╫п╟ я│п╣п╠я▐, я│п╦п╩я▄п╫п╬ п╬я┬п©п╟я─п╦п╡я┬п╦я│я▄.";
-			roomdam = "п⌠п╬я─я┬п╬я┤п╣п╨ я│ $o4 п╬п©я─п╬п╨п╦п╫я┐п╩я│я▐ п╫п╟ $n1, п╬я┬п©п╟я─п╦п╡ $s.";
-			tagging = "п▓я▀ п╫п╟ п©я─п╦п╨я─п╣п©п╦п╩п╦ п╨ $o2 п╠п╦я─п╨я┐ я│п╬ я│п╡п╬п╦п╪ п╦п╪п╣п╫п╣п╪.";
-			itemtag = "п²п╟ $o1 п╡я▀ п╥п╟п╪п╣я┌п╦п╩п╦ п╠п╦я─п╨я┐ 'п║п╡п╟я─п╣п╫п╬ $n4'";
-			// п▒п╬п╫я┐я│ п╪я┐п╢я─п╟
+				"Зелье которое варил$g $n закипело и пролилось в огонь,\r\n распространив по комнате ужасную вонь.";
+			charsucc = "Зелье удалось вам на славу.";
+			roomsucc = "$n сварил$g $o3. Приятный аромат зелья из горшочка, так и манит вас.";
+			chardam = "Вы опрокинули горшочек с зельем на себя, сильно ошпарившись.";
+			roomdam = "Горшочек с $o4 опрокинулся на $n1, ошпарив $s.";
+			tagging = "Вы на прикрепили к $o2 бирку со своим именем.";
+			itemtag = "На $o1 вы заметили бирку 'Сварено $n4'";
+			// Бонус мудра
 			//stat_bonus = number(0, GetRealWis(ch));
 			dam = 40;
 			break;
@@ -1500,15 +1500,15 @@ int MakeRecept::make(CharData *ch) {
 	const ObjData object(*tobj);
 	act(charwork.c_str(), false, ch, &object, 0, kToChar);
 	act(roomwork.c_str(), false, ch, &object, 0, kToRoom);
-	// п║я┤п╦я┌п╟п╣п╪ п╡п╣я─п╬я▐я┌п╫п╬я│я┌я▄ п╦я│п©п╬я─я┌п╦я┌я▄ п╬я┌п╢п╣п╩я▄п╫я▀п╧ п╦п╫пЁя─п╦п╢п╦п╣п╫я┌
-	// п╣я│п╩п╦ я┐я─п╬п╡п╣п╫я▄ я┤п╟я─п╟ = я┐я─п╬п╡п╫я▌ п╦п╫пЁя─п╟ я┌п╬ я└п╣п╧п╩ 50%
-	// п╣я│п╩п╦ я┐я─п╬п╡п╣п╫я▄ я┤п╟я─п╟ > я┐я─п╬п╡п╫я▐ п╦п╫пЁя─п╟ п╫п╟ 15 я┌п╬ я└п╣п╧п╩ 0%
-	// я┐я─п╬п╡п╣п╫я▄ я┤п╟я─п╟ * 2 - random(30) < 15 - я└п╣п╧п╩ я┌п╬ п©я─п╬п©п╟п╢п╟п╣я┌ п╡п╣я│я▄ п╪п╟я┌п╣я─п╦п╟п╩
-	// п▓я▀п╢п╟п╣я┌я│я▐ п▓я▀ п╦я│п©п╬я─я┌п╦п╩п╦ (...)
-	// п╦ п╡я▀я┘п╬п╢п╦п╪.
+	// Считаем вероятность испортить отдельный ингридиент
+	// если уровень чара = уровню ингра то фейл 50%
+	// если уровень чара > уровня ингра на 15 то фейл 0%
+	// уровень чара * 2 - random(30) < 15 - фейл то пропадает весь материал
+	// Выдается Вы испортили (...)
+	// и выходим.
 	make_fail = false;
-	// п╜я┌п╬ я│я─п╣п╢п╫п╦п╧ я┐я─п╬п╡п╣п╫я▄ п©п╬п╩я┐я┤п╦п╡я┬п╣пЁп╬я│я▐ п©я─п╣п╢п╪п╣я┌п╟.
-	// п╦я│п©п╬п╩я▄п╥я┐п╣я┌ п©я─п╦ я─п╟я│я┤п╣я┌п╣ п╪п╟п╨я│ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ п©я─п╣п╢п╪п╣я┌п╬п╡ п╡ п╪п╦я─п╣.
+	// Это средний уровень получившегося предмета.
+	// использует при расчете макс количества предметов в мире.
 	int created_lev = 0;
 	int used_non_ingrs = 0;
 	for (i = 0; i < ingr_cnt; i++) {
@@ -1518,12 +1518,12 @@ int MakeRecept::make(CharData *ch) {
 		} else {
 			created_lev += ingr_lev;
 		}
-		// п╗п╟п╫я│ п╦я│п©п╬я─я┌п╦я┌я▄ п╫п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌ п╡я│п╣я┌п╟п╨п╦ п╣я│я┌я▄.
+		// Шанс испортить не ингредиент всетаки есть.
 		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * remort::GetRealRemort(ch))) && !privilege::IsImpl(ch)) {
-			tmpstr = "п▓я▀ п╦я│п©п╬я─я┌п╦п╩п╦ " + ingrs[i]->get_PName(grammar::ECase::kAcc) + ".\r\n";
+			tmpstr = "Вы испортили " + ingrs[i]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
-			//extract_obj(ingrs[i]); //п╥п╟п╪п╣п╫п╦п╪ п╫п╟ п╬п╠п╫я┐п╩п╣п╫п╦п╣ п╡п╣я│п╟
-			//я┤я┌п╬п╠я▀ п╫п╣ п╨я─п╣я┬п╦п╩п╬ п╢п╟п╩я▄я┬п╣ п╡ п╬п╠я─п╟п╠п╬я┌п╨п╣ я└п╣п╧п╩п╟ (п я┐п©п╟п╩п╟)
+			//extract_obj(ingrs[i]); //заменим на обнуление веса
+			//чтобы не крешило дальше в обработке фейла (Купала)
 			IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 			ingrs[i]->set_weight(0);
 			make_fail = true;
@@ -1532,11 +1532,11 @@ int MakeRecept::make(CharData *ch) {
 	created_lev = created_lev / MAX(1, (ingr_cnt - used_non_ingrs));
 	int j;
 	int craft_move = MIN_MAKE_MOVE + (created_lev / 2) - 1;
-	// п║п╫п╦п╪п╟п╣п╪ п╪я┐п╡я▀ п╥п╟ я┐п╪п╣п╫п╦п╣
+	// Снимаем мувы за умение
 	if (ch->get_move() < craft_move) {
 		ch->set_move(0);
-		// п▓п╟п╪ п╫п╣ я┘п╡п╟я┌п╦п╩п╬ я│п╦п╩ п╢п╬п╢п╣п╩п╟я┌я▄.
-		tmpstr = "п▓п╟п╪ п╫п╣ я┘п╡п╟я┌п╦п╩п╬ я│п╦п╩ п╢п╬п╢п╣п╩п╟я┌я▄ " + tobj->get_PName(grammar::ECase::kAcc) + ".\r\n";
+		// Вам не хватило сил доделать.
+		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(grammar::ECase::kAcc) + ".\r\n";
 		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
@@ -1546,72 +1546,72 @@ int MakeRecept::make(CharData *ch) {
 	}
 
 	TrainSkill(ch, skill, !make_fail, nullptr);
-	// 4. п║я┤п╦я┌п╟п╣п╪ я│п╨п╬п╩я▄п╨п╬ п╪п╟я┌п╣я─п╦п╟п╩п╟ я┌я─п╣п╠п╟.
+	// 4. Считаем сколько материала треба.
 	if (!make_fail) {
 		for (i = 0; i < ingr_cnt; i++) {
-			if (skill == ESkill::kMakeWear && i == 0) //п╢п╩я▐ я┬п╦я┌я▄я▐ п╡я│п╣пЁп╢п╟ я─п╟я│п╨я─п╟п╦п╡п╟п╣п╪ я┬п╨я┐я─я┐
+			if (skill == ESkill::kMakeWear && i == 0) //для шитья всегда раскраиваем шкуру
 			{
 				IS_CARRYING_W(ch) -= ingrs[0]->get_weight();
-				ingrs[0]->set_weight(0);  // я┬п╨я┐я─я┐ п╢п╦п╨п╣п╦п╪ п©п╬п╩п╫п╬я│я┌я▄я▌
-				tmpstr = "п▓я▀ я─п╟я│п╨я─п╬п╦п╩п╦ п©п╬п╩п╫п╬я│я┌я▄я▌ " + ingrs[0]->get_PName(grammar::ECase::kAcc) + ".\r\n";
+				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
+				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 				SendMsgToChar(tmpstr.c_str(), ch);
 				continue;
 			}
 			//
-			// п╫я┐п╤п╫я▀п╧ п╪п╟я┌п╣я─п╦п╟п╩ = п╪п╦п╫.п╪п╟я┌п╣я─п╦п╟п╩ +
+			// нужный материал = мин.материал +
 			// random(100) - skill
-			// п╣я│п╩п╦ п╬п╫п╟ < 20 я┌п╬ п╪п╦п╫.п╡п╣я│ + rand(п╪п╦п╫.п╡п╣я│/3)
-			// п╣я│п╩п╦ п╬п╫п╟ < 50 я┌п╬ п╪п╦п╫.п╡п╣я│*rand(1,2) + rand(п╪п╦п╫.п╡п╣я│/3)
-			// п╣я│п╩п╦ п╬п╫п╟ > 50    п╪п╦п╫.п╡п╣я│*rand(2,5) + rand(п╪п╦п╫.п╡п╣я│/3)
+			// если она < 20 то мин.вес + rand(мин.вес/3)
+			// если она < 50 то мин.вес*rand(1,2) + rand(мин.вес/3)
+			// если она > 50    мин.вес*rand(2,5) + rand(мин.вес/3)
 			if (get_ingr_lev(ingrs[i]) == -1)
-				continue;    // п п╬п╪п©п╬п╫п╣п╫я┌ п╫п╣ п╦п╫пЁя─. п©я─п╬п©я┐я│п╨п╟п╣п╪.
+				continue;    // Компонент не ингр. пропускаем.
 			craft_weight = parts[i].min_weight + number(0, (parts[i].min_weight / 3) + 1);
 			j = number(0, 100) - CalcCurrentSkill(ch, skill, 0);
 			if ((j >= 20) && (j < 50))
 				craft_weight += parts[i].min_weight * number(1, 2);
 			else if (j > 50)
 				craft_weight += parts[i].min_weight * number(2, 5);
-			// 5. п■п╣п╩п╟п╣п╪ п©я─п╬п╡п╣я─п╨я┐ п╣я│я┌я▄ п╩п╦ я│я┌п╬п╩я▄п╨п╬ п╪п╟я┌п╣я─п╦п╟п╩п╟.
-			// п╣я│п╩п╦ п╫п╣ я┘п╡п╟я┌п╟п╣я┌ я┌п╬ я┐п╢п╟п╩я▐п╣п╪ п╦пЁя─п╦п╢п╦п╣п╫я┌ п╦ я└п╣п╧п╩п╦п╪.
+			// 5. Делаем проверку есть ли столько материала.
+			// если не хватает то удаляем игридиент и фейлим.
 			int state = craft_weight;
-			// п·п╠я│я┤п╣я┌ п╡п╣я│п╟ п╦п╫пЁя─п╬п╡ п╡ я├п╦п╨п╩п╣, п╣я│п╩п╦ п╫п╣ я┘п╡п╟я┌п╦п╩п╬ п╡п╣я│п╟ п╠п╣я─п╣п╪ я│п╩п╣п╢я┐я▌я┴п╦п╧ п╦п╫пЁя─ п╡ п╦п╫п╡п╣, п╣я│п╩п╦ п╫п╣ я┘п╡п╟я┌п╟п╣я┌, п╢п╣п╩п╟п╣п╪ я└я█п╧п╩ (make_fail) п╦ п╠я─п╣п╨п╟п╣п╪ п╡п╫п╣я┬п╫п╦п╧ я├п╦п╨п╩, я│п╪я▀я│п╩ п╢п╟п╩я▄я┬п╣ п╦п╫пЁя─я▀ я│п╪п╬я┌я─п╣я┌я▄?
-			//SendMsgToChar(ch, "п╒я─п╣п╠я┐п╣я┌я│я▐ п╡п╣я│ %d п╡п╣я│ п╦п╫пЁя─п╟ %d я┌я─п╣п╠я┐п╣п╪п╬п╣ п╨п╬п╩ п╦п╫пЁя─п╬п╡ %d\r\n", state, ingrs[i]->get_weight(), ingr_cnt);
+			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
+			//SendMsgToChar(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, ingrs[i]->get_weight(), ingr_cnt);
 			int obj_vnum_tmp = GET_OBJ_VNUM(ingrs[i]);
 			while (state > 0) {
-				//п÷п╣я─п╣п╢п╣п╩п╟п╣п╪ я│п╩п╣пЁп╨п╟ п╩п╬пЁп╦п╨я┐ п╦я┌п╣я─п╟я├п╦п╧
-				//п║п©п╣я─п╡п╟ п©я─п╬п╡п╣я─я▐п╣п╪ я│п╨п╬п╩я▄п╨п╬ п╫п╟п╪ п╫я┐п╤п╫п╬. п∙я│п╩п╦ п╡п╣я│ п╦п╫пЁя─п╟ п╠п╬п╩я▄я┬п╣, я┤п╣п╪ я┌я─п╣п╠я┐п╣я┌я│я▐, я┌п╬ п╡я▀я┤п╦я┌п╟п╣п╪ п╡п╣я│ п╦ п╬я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪ п╦я┌п╣я─п╟я├п╦я▌.
+				//Переделаем слегка логику итераций
+				//Сперва проверяем сколько нам нужно. Если вес ингра больше, чем требуется, то вычитаем вес и останавливаем итерацию.
 				if (ingrs[i]->get_weight() > state) {
 					ingrs[i]->sub_weight(state);
-					SendMsgToChar(ch, "п▓я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╩п╦ %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
+					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
 					IS_CARRYING_W(ch) -= state;
 					break;
 				}
-					//п∙я│п╩п╦ п╡п╣я│ п╦п╫пЁя─п╟ я─п╬п╡п╫п╬ я│я┌п╬п╩я▄п╨п╬, я│п╨п╬п╩я▄п╨п╬ я┌я─п╣п╠я┐п╣я┌я│я▐, п╡я▀я┤п╦я┌п╟п╣п╪ п╡п╣я│, п╩п╬п╪п╟п╣п╪ п╦п╫пЁя─ п╦ п╬я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪ п╦я┌п╣я─п╟я├п╦я▌.
+					//Если вес ингра ровно столько, сколько требуется, вычитаем вес, ломаем ингр и останавливаем итерацию.
 				else if (ingrs[i]->get_weight() == state) {
 					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
-					SendMsgToChar(ch, "п▓я▀ п©п╬п╩п╫п╬я│я┌я▄я▌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╩п╦ %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
+					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
 					//extract_obj(ingrs[i]);
 					break;
 				}
-					//п∙я│п╩п╦ п╡п╣я│ п╦п╫пЁя─п╟ п╪п╣п╫я▄я┬п╣, я┤п╣п╪ я┌я─п╣п╠я┐п╣я┌я│я▐, я┌п╬ п╡я▀я┤я┌п╣п╪ я█я┌п╬я┌ п╡п╣я│ п╦п╥ я┌п╬пЁп╬, я│п╨п╬п╩я▄п╨п╬ я┌я─п╣п╠я┐п╣я┌я│я▐.
+					//Если вес ингра меньше, чем требуется, то вычтем этот вес из того, сколько требуется.
 				else {
 					state = state - ingrs[i]->get_weight();
 					SendMsgToChar(ch,
-								  "п▓я▀ п©п╬п╩п╫п╬я│я┌я▄я▌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╩п╦ %s п╦ п╫п╟я┤п╟п╩п╦ п╦я│п╨п╟я┌я▄ я│п╩п╣п╢я┐я▌я┴п╦п╧ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌.\r\n",
+								  "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
 								  ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
 					std::string tmpname = std::string(ingrs[i]->get_PName(grammar::ECase::kGen).c_str());
 					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
 					ExtractObjFromWorld(ingrs[i]);
 					ingrs[i] = nullptr;
-					//п∙я│п╩п╦ п╫п╣п╨я│я┌ п╦п╫пЁя─п╟ п╡ п╦п╫п╡п╣ п╫п╣я┌, я┌п╬ я│п╬п╬п╠я┴п╟п╣п╪ п╬п╠ я█я┌п╬п╪ п╦ п╦п╢п╣п╪ п╡ я└я█п╧п╩. п²п╣п╨я│я┌ п╦п╫пЁя─я▀ п╡я│п╣ я─п╟п╡п╫п╬ п©я─п╬п╡п╣я─я▐п╣п╪
+					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
 					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying)) {
-						SendMsgToChar(ch, "пё п╡п╟я│ п╡ п╦п╫п╡п╣п╫я┌п╟я─п╣ п╠п╬п╩я▄я┬п╣ п╫п╣я┌ %s.\r\n", tmpname.c_str());
+						SendMsgToChar(ch, "У вас в инвентаре больше нет %s.\r\n", tmpname.c_str());
 						make_fail = true;
 						break;
 					}
-						//п÷п╬п╢я├п╣п©п╩я▐п╣п╪ п╫п╣п╨я│я┌ п╦п╫пЁя─ п╦ п╦п╢п╣п╪ п╡ п╫п╟я┬я┐ п©я─п╬п╡п╣я─п╨я┐ п╥п╟п╫п╬п╡п╬
+						//Подцепляем некст ингр и идем в нашу проверку заново
 					else {
 						ingrs[i] = get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying);
 					}
@@ -1620,7 +1620,7 @@ int MakeRecept::make(CharData *ch) {
 		}
 	}
 	if (make_fail) {
-		// п║я┤п╦я┌п╟п╣п╪ п╨я─п╦я┌ я└п╣п╧п╩ п╦п╩п╦ п╫п╣я┌.
+		// Считаем крит фейл или нет.
 		int crit_fail = number(0, 100);
 		if (crit_fail > 2) {
 			const ObjData obj(*tobj);
@@ -1631,16 +1631,16 @@ int MakeRecept::make(CharData *ch) {
 			act(chardam.c_str(), false, ch, &obj, 0, kToChar);
 			act(roomdam.c_str(), false, ch, &obj, 0, kToRoom);
 			dam = number(0, dam);
-			// п²п╟п╫п╬я│п╦п╪ п╢п╟п╪п╟пЁ.
+			// Наносим дамаг.
 			if (GetRealLevel(ch) >= kLvlImmortal && dam > 0) {
-				SendMsgToChar("п▒я┐п╢я┐я┤п╦ п╠п╣я│я│п╪п╣я─я┌п╫я▀п╪, п╡я▀ п╦п╥п╠п╣п╤п╟п╩п╦ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐...", ch);
+				SendMsgToChar("Будучи бессмертным, вы избежали повреждения...", ch);
 				return (false);
 			}
 			ch->set_hit(ch->get_hit() - dam);
 			update_pos(ch);
 			char_dam_message(dam, ch, ch, 0);
 			if (ch->GetPosition() == EPosition::kDead) {
-				// пёп╠п╦п╩я│я▐ п╡п╣п╫п╦п╨п╬п╪.
+				// Убился веником.
 				if (!ch->IsNpc()) {
 					sprintf(tmpbuf, "%s killed by a crafting at %s",
 							GET_NAME(ch),
@@ -1659,17 +1659,17 @@ int MakeRecept::make(CharData *ch) {
 		record_craft_failure(obj_proto, skill);
 		return (false);
 	}
-	// п⌡п╬п╟п╢п╦п╪ п©я─п╣п╢п╪п╣я┌ п╦пЁя─п╬п╨я┐
+	// Лоадим предмет игроку
 	const auto obj = world_objects.create_from_prototype_by_vnum(obj_proto);
 	act(charsucc.c_str(), false, ch, obj.get(), 0, kToChar);
 	act(roomsucc.c_str(), false, ch, obj.get(), 0, kToRoom);
-	// 6. п║я┤п╦я┌п╟п╣п╪ п╠п╟п╥п╬п╡я▀п╣ я│я┌п╟я┌я│я▀ п©я─п╣п╢п╪п╣я┌п╟ п╦ я┌п╟п╧п╪п╣я─
-	//  я└п╬я─п╪я┐п╩п╟ п╢п╩я▐ п╨п╟п╤п╢п╬пЁп╬ я┐п╪п╣п╫п╦я▐ п╬я┌п╢п╣п╩я▄п╫п╟я▐
-	// п■п╩я▐ я┤п╦я│п╩п╬п╡я▀я┘ я┘-п╨:  я┘-п╨п╟+(skill - random(100))/20;
-	// п■п╩я▐ я└п╩п╟пЁп╬п╡ ???: random(200) - skill > 0 я┌п╬ я└п╩п╟пЁ п©п╣я─п╣п╫п╬я│п╦я┌я▄я│я▐.
-	// п╒.п╨. я│п╢п╣п╩п╟я┌я▄ п╪я▀ п╪п╬п╤п╣п╪ п©я─п╟п╨я┌п╦я┤п╣я│п╨п╦ п╩я▌п╠п╬п╧ п©я─п╣п╢п╪п╣я┌.
-	// п°п╬п╢п╦я└п╦я├п╦я─я┐п╣п╪ п╡п╣я│ п©я─п╣п╢п╪п╣я┌п╟ п╦ п╣пЁп╬ я┌п╟п╧п╪п╣я─.
-	// п■п╩я▐ п╪п╟пЁ п©я─п╣п╢п╪п╣я┌п╬п╡ п╫п╟п╢п╬ п╡ я│я┌п╬я─п╬п╫я┐ п╬п╠п╩п╣пЁя┤п╣п╫п╦я▐.
+	// 6. Считаем базовые статсы предмета и таймер
+	//  формула для каждого умения отдельная
+	// Для числовых х-к:  х-ка+(skill - random(100))/20;
+	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
+	// Т.к. сделать мы можем практически любой предмет.
+	// Модифицируем вес предмета и его таймер.
+	// Для маг предметов надо в сторону облегчения.
 //	i = obj->get_weight();
 	switch (skill) {
 		case ESkill::kMakeBow:;
@@ -1687,29 +1687,29 @@ int MakeRecept::make(CharData *ch) {
 
 	i = obj->get_timer();
 	obj->set_timer(stat_modify(ch, obj->get_timer(), 1));
-	// п°п╬п╢п╦я└п╦я├п╦я─я┐п╣п╪ я┐п╫п╦п╨п╟п╩я▄п╫я▀п╣ п╢п╩я▐ п©я─п╣п╢п╪п╣я┌п╬п╡ я┘-п╨п╦.
-	// п▒п╟п╩п╟п╫я│п╦я─п╬п╡п╨п╟ п╡п╟я─я▄п╦я─я┐п╣я┌я│я▐ п╦п╥п╪п╣п╫п╣п╫п╦п╣п╪ п╢п╣п╩п╦я┌п╣п╩я▐ (!20!)
-	// п©я─п╦ п╢п╣п╩п╦я┌п╣п╩п╣ 20 п╦ я┐п╪п╣п╫п╦п╦ 100 п╦ п╪п╟п╨я│ п╡п╣п╥п╣п╫п╦п╦ п╠я┐п╢п╣я┌ +5 п╨ п©п╟я─п╟п╪п╣я┌я─я┐
-	// п°п╬п╤п╫п╬ п©п╬я│я┤п╦я┌п╟я┌я▄ п╠п╬п╫я┐я│я▀ п╬я┌ п╡я─п╣п╪п╣п╫п╦ я│я┐я┌п╬п╨.
-	// п║я┤п╦я┌п╟п╣п╪ я│я─п╣п╢п╫я▌я▌ я│п╦п╩я┐ п╦п╫пЁя─п╬п╡ .
+	// Модифицируем уникальные для предметов х-ки.
+	// Балансировка варьируется изменением делителя (!20!)
+	// при делителе 20 и умении 100 и макс везении будет +5 к параметру
+	// Можно посчитать бонусы от времени суток.
+	// Считаем среднюю силу ингров .
 	switch (obj->get_type()) {
 		case EObjType::kLightSource:
-			// п║я┤п╦я┌п╟п╣п╪ п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄ я│п╡п╣я┤п╣п╫п╦я▐.
+			// Считаем длительность свечения.
 			if (GET_OBJ_VAL(obj, 2) != -1) {
 				obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2), 1));
 			}
 			break;
 		case EObjType::kWand:
 		case EObjType::kStaff:
-			// п║я┤п╦я┌п╟п╣п╪ я┐я─п╬п╡п╣п╫я▄ п╥п╟п╨п╩п╟
+			// Считаем уровень закла
 			// issue.magic-items: the maker's competence (make-staff skill + Int) becomes the casting
 			// potency (kSpellItem* keys), replacing the legacy val[0] = caster level.
 			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, std::max(1, GetSkill(ch, ESkill::kMakeStaff)));
 			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
 			break;
 		case EObjType::kWeapon:
-			// п║я┤п╦я┌п╟п╣п╪ я┤п╦я│п╩п╬ xdy
-			// п╪п╬п╢п╦я└п╦я├п╦я─я┐п╣п╪ XdY
+			// Считаем число xdy
+			// модифицируем XdY
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2)) {
 				obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
 			} else {
@@ -1720,79 +1720,79 @@ int MakeRecept::make(CharData *ch) {
 		case EObjType::kLightArmor:
 		case EObjType::kMediumArmor:
 		case EObjType::kHeavyArmor:
-			// п║я┤п╦я┌п╟п╣п╪ + п░п║
+			// Считаем + АС
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
-			// п║я┤п╦я┌п╟п╣п╪ п©п╬пЁп╩п╬я┴п╣п╫п╦п╣.
+			// Считаем поглощение.
 			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
 			break;
 		case EObjType::kPotion:
-			// п║я┤п╦я┌п╟п╣п╪ я┐я─п╬п╡п╣п╫я▄ п╦я┌п╬пЁп╬п╡я▀п╧ п╫п╟п©п╦я┌п╨п╟
+			// Считаем уровень итоговый напитка
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
 		case EObjType::kContainer:
-			// п║я┤п╦я┌п╟п╣п╪ п╬п╠я┼п╣п╪ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟.
+			// Считаем объем контейнера.
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
 		case EObjType::kLiquidContainer:
-			// п║я┤п╦я┌п╟п╣п╪ п╬п╠я┼п╣п╪ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟.
+			// Считаем объем контейнера.
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
 		case EObjType::kMagicIngredient:
-			// п■п╩я▐ п╦п╫пЁя─п╬п╡ п╫п╦я┤п╣пЁп╬ п╫п╣ я┌я─п╬пЁп╟п╣п╪ ... п╦п╠п╬ п╬п©п╟я│п╫п╬. :)
+			// Для ингров ничего не трогаем ... ибо опасно. :)
 			break;
 		default: break;
 	}
-	// 7. п║я┤п╦я┌п╟п╣п╪ п╢п╬п©. я│я┌п╟я┌я│я▀ п©я─п╣п╢п╪п╣я┌п╟.
-	// я┘-п╨п╟ п©я─п╬я┌п╬я┌п╦п©п╟ +
-	// п╣я│п╩п╦ (random(100) - я│п╦п╩п╟ п╦п╫пЁя─п╟ ) < 1 я┌п╬ п©п╣я─п╣п╫п╬я│п╦я┌я▄я│я▐ п╡п╣я│я▄ п©п╟я─п╟п╪п╣я┌я─.
-	// п╣я│п╩п╦ п╬я┌ 1 п╢п╬ 25 я┌п╬ п©п╣я─п╣п╫п╬я│п╦я┌я▄я│я▐ 1/2
-	// п╣я│п╩п╦ п╬я┌ 25 п╢п╬ 50 я┌п╬ п©п╣я─п╣п╫п╬я│п╦я┌я▄я│я▐ 1/3
-	// п╠п╬п╩я▄я┬п╣ п©п╣я─п╣п╫п╬я│п╦я┌я▄я│я▐ 0
-	// п©п╣я─п╣п╫п╬я│п╦п╪ п╢п╬п© п╟я└я└п╣п╨я┌я▀ ...+п╪я┐п╢я─п╟ +п╩п╬п╡п╨п╟ п╦ я┌.п©.
+	// 7. Считаем доп. статсы предмета.
+	// х-ка прототипа +
+	// если (random(100) - сила ингра ) < 1 то переноситься весь параметр.
+	// если от 1 до 25 то переноситься 1/2
+	// если от 25 до 50 то переноситься 1/3
+	// больше переноситься 0
+	// переносим доп аффекты ...+мудра +ловка и т.п.
 	if (skill == ESkill::kMakeWear) {
 		make_object(ch, obj.get(), ingrs, ingr_cnt);
 		make_value_wear(ch, obj.get(), ingrs);
-	} else // п╣я│п╩п╦ п╫п╣ я┬п╦я┌я▄п╣ я┌п╬ п╫п╦п╨п╟п╨п╦я┘ п╪п╟я┘п╦п╫п╟я├п╦п╧ я│ п©п╟п╢п╣п╤п╟п╪п╦ п╦ п╨п╬п©п╦я─п╬п╡п╟п╫п╦п╣п╪ я─п╟п╫п╢п╬п╪ п╟я└я└п╣п╨я┌п╟
+	} else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта
 	{
 		for (j = 0; j < ingr_cnt; j++) {
 			ingr_pow = get_ingr_pow(ingrs[j]);
 			if (ingr_pow < 0) {
 				ingr_pow = 20;
 			}
-			// п©п╣я─п╣п╫п╬я│п╦п╪ п╟я└я└п╣п╨я┌я▀ ... c п╦п╫пЁя─п╬п╡ п╫п╟ п©я─п╬я┌п╬я┌п╦п©.
+			// переносим аффекты ... c ингров на прототип.
 			auto temp_flags = obj->get_affect_flags();
 			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
 			obj->SetEquipmentAffectFlags(temp_flags);
-			// п©п╣я─п╫п╬я│п╦п╪ я█я└я└п╣п╨я┌я▀ ... я│ п╦п╫пЁя─п╬п╡ п╫п╟ п©я─п╬я┌п╬я┌п╦п©.
+			// перносим эффекты ... с ингров на прототип.
 			merge_extra_flags(ch, obj.get(), ingrs[j], ingr_pow);
 			auto temp_affected = obj->get_all_affected();
 			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
 			obj->set_all_affected(temp_affected);
 		}
 	}
-	// п°п╬я┤п╦п╪ п╦я│я┌я─п╟я┤п╣п╫п╫я▀п╣ п╦п╫пЁя─я▀.
+	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++) {
 		if (ingrs[i]->get_weight() <= 0) {
 			ExtractObjFromWorld(ingrs[i]);
 		}
 	}
-	// 8. п÷я─п╬п╡п╣я─я▐п╣п╪ п╪п╟я┘. п╦п╫п╡п╬я─п╩п╢.
-	// п║я┤п╦я┌п╟п╣п╪ п©п╬ я└п╬я─п╪я┐п╩п╣ (31 - я│я─. я┐я─п╬п╡п╣п╫я▄ п©я─п╣п╢п╪п╣я┌п╟) * 5 -
-	// п╬п╡п╣я─ я┬п╪п╬я┌п╟ п╡ п╪п╦я─п╣ п╫п╣ 30 п╩п╣п╡п╟ п╫п╣ п╠п╬п╩я▄я┬п╣ 5 я┬я┌я┐п╨
-	// п╒.п╨. я│я─. я┐я─п╬п╡п╣п╫я▄ п╦п╫пЁя─п╬п╡ п╠я┐п╢п╣я┌ п╬п©я─п╣п╢п╣п╩я▐я┌я▄
-	// я┤п╦я│п╩п╬ я┬п╪п╬я┌п╬п╨ п╡ п╪п╦я─п╣ я┌п╬ я┬п╪п╬я┌п╨п╦ п©п╬ я┘я┐п╤п╣ п╠я┐п╢я┐я┌ п╡я▀я┌п╣я│п╫я▐я┌я▄
-	// я┬п╪п╬я┌п╨п╦ п©п╬ п╩я┐я┤я┬п╣ (п╡ я├п╣п╩п╬п╪ я█я┌п╬ п╫п╣ я┌п╟п╨ я│я┌я─п╟я┬п╫п╬).
-	// п║я┌п╟п╡п╦п╪ п╪п╣я┌п╨я┐ п╣я│п╩п╦ п╡я│п╣ я┘п╬я─п╬я┬п╬.
+	// 8. Проверяем мах. инворлд.
+	// Считаем по формуле (31 - ср. уровень предмета) * 5 -
+	// овер шмота в мире не 30 лева не больше 5 штук
+	// Т.к. ср. уровень ингров будет определять
+	// число шмоток в мире то шмотки по хуже будут вытеснять
+	// шмотки по лучше (в целом это не так страшно).
+	// Ставим метку если все хорошо.
 	if ((obj->get_type() != EObjType::kMagicIngredient
 		&& obj->get_type() != EObjType::kMagicComponent)
 		&& (number(1, 100) - CalcCurrentSkill(ch, skill, 0) < 0)) {
 		act(tagging.c_str(), false, ch, obj.get(), 0, kToChar);
-		// п÷я─п╦п╠п╟п╡п╩я▐п╣п╪ п╡ я█п╨я│я┌я─п╟ п╬п©п╦я│п╟п╫п╦п╣ я│я┌я─п╬я┤п╨я┐.
+		// Прибавляем в экстра описание строчку.
 		char *tagchar = format_act(itemtag.c_str(), ch, obj.get(), 0);
 		obj->set_tag(tagchar);
 		free(tagchar);
 	};
-	// п©я─п╬я│я┌п╟п╫п╬п╡п╨п╟ п╪п╬я─я┌п╬п╡ п©я─п╦ я┬п╦я┌я▄п╣
+	// простановка мортов при шитье
 	auto total_weight = count_mort_requred(obj.get()) * 7 / 10;
 
 	if (total_weight > 35) {
@@ -1809,14 +1809,14 @@ int MakeRecept::make(CharData *ch) {
 		obj->set_minimum_remorts(0);
 	}
 
-	// п÷п╦я┬п╣п╪ п©я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▐ п╡ п©п╬п╩п╣.
+	// Пишем производителя в поле.
 	obj->set_crafter_uid(ch->get_uid());
-	// 9. п÷я─п╬п╡п╣я─я▐п╣п╪ п╪п╦п╫п╦п╪я┐п╪ 2
+	// 9. Проверяем минимум 2
 	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
-		SendMsgToChar("п▓я▀ п╫п╣ я│п╪п╬п╤п╣я┌п╣ я┐п╫п╣я│я┌п╦ я│я┌п╬п╩я▄п╨п╬ п©я─п╣п╢п╪п╣я┌п╬п╡.\r\n", ch);
+		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else if (ch->GetCarryingWeight() + obj->get_weight() > CAN_CARRY_W(ch)) {
-		SendMsgToChar("п▓я▀ п╫п╣ я│п╪п╬п╤п╣я┌п╣ я┐п╫п╣я│я┌п╦ я┌п╟п╨п╬п╧ п╡п╣я│.\r\n", ch);
+		SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else {
 		PlaceObjToInventory(obj.get(), ch);
@@ -1825,11 +1825,11 @@ int MakeRecept::make(CharData *ch) {
 	record_craft_success(obj_proto, skill);
 	return (true);
 }
-// п╡я▀я┌п╟я┴п╦я┌я▄ я─п╣я├п╣п©я┌ п╦п╥ я│я┌я─п╬п╨п╦.
-// п°п╬п╢п╦я└п╦п╨п╟я┌п╬я─ п╠п╟п╥п╬п╡я▀я┘ п╥п╫п╟я┤п╣п╫п╦п╧.
+// вытащить рецепт из строки.
+// Модификатор базовых значений.
 int MakeRecept::stat_modify(CharData *ch, int value, float devider) {
-	// п■п╩я▐ я┤п╦я│п╩п╬п╡я▀я┘ я┘-п╨:  я┘-п╨п╟+(skill - random(100))/20;
-	// п■п╩я▐ я└п╩п╟пЁп╬п╡ ???: random(200) - skill > 0 я┌п╬ я└п╩п╟пЁ п©п╣я─п╣п╫п╬я│п╦я┌я▄я│я▐.
+	// Для числовых х-к:  х-ка+(skill - random(100))/20;
+	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
 	int res = value;
 	float delta = 0;
 	int skill_prc = 0;
@@ -1844,7 +1844,7 @@ int MakeRecept::stat_modify(CharData *ch, int value, float devider) {
 		delta = (value / 4) * delta / MUD::Skill(skill).difficulty / devider;
 	}
 	res += (int) delta;
-	// п∙я│п╩п╦ п©п╟я─п╟п╪п╣я┌я─ п╥п╟п╡п╟п╩п╦п╩п╦ я┌п╬ п╡п╬п╥п╡я─п╟я┴п╟п╣п╪ 1;
+	// Если параметр завалили то возвращаем 1;
 	if (res < 0) {
 		return 1;
 	}
@@ -1857,14 +1857,14 @@ void MakeRecept::add_rnd_skills(CharData * /*ch*/, ObjData *obj_from, ObjData *o
 		int percent;
 		CObjectPrototype::skills_t skills;
 		obj_from->get_skills(skills);
-		int i = static_cast<int>(skills.size()); // я│п╨п╬п╩я▄п╨п╬ п╢п╬п╠п╟п╡п╩п╣п╫п╬ я┐п╪п╣п╩п╬п╨
-		rskill = number(0, i); // п╠п╣я─п╣п╪ я─п╟п╫п╢п╬п╪
+		int i = static_cast<int>(skills.size()); // сколько добавлено умелок
+		rskill = number(0, i); // берем рандом
 		for (const auto &it : skills) {
-			if (z == rskill) // я│я┌п╟п╡п╦п╪ я─п╟п╫п╢п╬п╪п╫я┐я▌ я┐п╪п╣п╩п╨я┐
+			if (z == rskill) // ставим рандомную умелку
 			{
 				auto skill_num = it.first;
 				percent = it.second;
-				// TODO: я┌п╟п╨п╬пЁп╬ п╫п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄?
+				// TODO: такого не должно быть?
 				if (percent == 0) {
 					continue;
 				}
@@ -1876,7 +1876,7 @@ void MakeRecept::add_rnd_skills(CharData * /*ch*/, ObjData *obj_from, ObjData *o
 }
 template<class F>
 int MakeRecept::add_flags(CharData *ch, F *base_flag, const F *add_flag, int/* delta*/) {
-// п▒п∙п╥ п╡п╟я─п╦п╟п╫я┌п╬п╡ п╡п╬п╬п╠я┴п╣ :(
+// БЕз вариантов вообще :(
 	int tmpprob, skl = CalcCurrentSkill(ch, skill, 0);
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 32; j++) {
@@ -1891,9 +1891,9 @@ int MakeRecept::add_flags(CharData *ch, F *base_flag, const F *add_flag, int/* d
 template int MakeRecept::add_flags(CharData *, BitsetFlags<EEquipmentAffect> *, const BitsetFlags<EEquipmentAffect> *, int);
 template int MakeRecept::add_flags(CharData *, BitsetFlags<EObjFlag> *, const BitsetFlags<EObjFlag> *, int);
 
-// п÷п╣я─п╣п╫п╬я│п╦я┌ extra-я└п╩п╟пЁп╦ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ п╫п╟ п©я─п╣п╢п╪п╣я┌ (п╨п╟п╨ add_flags), п╫п╬ п²п∙ п╢п╟я▒я┌ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я┐
-// п╫п╟п╡п╣я┬п╦п╡п╟я┌я▄ я│п╩я┐п╤п╣п╠п╫я▀п╣/п©я─п╦п╡я▐п╥п╬я┤п╫я▀п╣/я─п╟я│п©п╟п╢п╫я▀п╣ я└п╩п╟пЁп╦ (issue #3459: п╨я─п╟я└я┌ п©п╩п╬п╢п╦п╩ "!п╠я─п╬я│п╦я┌я▄" п╦ я┌.п©.).
-// п║п╡п╬п╦ я┌п╟п╨п╦п╣ я└п╩п╟пЁп╦ п©я─п╣п╢п╪п╣я┌ я│п╬я┘я─п╟п╫я▐п╣я┌ -- п╠п╩п╬п╨п╦я─я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╦я┘ я│ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟.
+// Переносит extra-флаги ингредиента на предмет (как add_flags), но НЕ даёт ингредиенту
+// навешивать служебные/привязочные/распадные флаги (issue #3459: крафт плодил "!бросить" и т.п.).
+// Свои такие флаги предмет сохраняет -- блокируется только добавление их с ингредиента.
 void MakeRecept::merge_extra_flags(CharData *ch, ObjData *obj, ObjData *ingr, int pow) {
 	static const EObjFlag kNotTransferable[] = {
 		EObjFlag::kNodrop, EObjFlag::kNorent, EObjFlag::kNodonate, EObjFlag::kNosell,
@@ -1910,7 +1910,7 @@ void MakeRecept::merge_extra_flags(CharData *ch, ObjData *obj, ObjData *ingr, in
 	auto temp = obj->get_extra_flags();
 	add_flags(ch, &temp, &ingr->get_extra_flags(), pow);
 	obj->set_extra_flags(temp);
-	// п╬я┌п╨п╟я┌я▀п╡п╟п╣п╪ я┌п╬п╩я▄п╨п╬ я┌п╣ я│п╩я┐п╤п╣п╠п╫я▀п╣ я└п╩п╟пЁп╦, п╨п╬я┌п╬я─я▀я┘ я┐ п©я─п╣п╢п╪п╣я┌п╟ п╫п╣ п╠я▀п╩п╬ (я┌.п╣. п╦я┘ п╢п╬п╠п╟п╡п╦п╩ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌)
+	// откатываем только те служебные флаги, которых у предмета не было (т.е. их добавил ингредиент)
 	for (std::size_t i = 0; i < std::size(kNotTransferable); ++i) {
 		if (!had[i] && obj->has_flag(kNotTransferable[i])) {
 			obj->unset_extraflag(kNotTransferable[i]);
@@ -1932,7 +1932,7 @@ int MakeRecept::add_affects(CharData *ch,
 			if (base[j].location == EApply::kNone)
 				continue;
 			if (add[i].location == base[j].location) {
-				// п░я└я└п╣п╨я┌я▀ я│п╬п╡п©п╟п╩п╦.
+				// Аффекты совпали.
 				found = true;
 				if (number(0, 100) > delta)
 					break;
@@ -1941,7 +1941,7 @@ int MakeRecept::add_affects(CharData *ch,
 			}
 		}
 		if (!found) {
-			// п≤я┴п╣п╪ п©п╣я─п╡я▀п╧ я│п╡п╬п╠п╬п╢п╫я▀п╧ п╟я└я└п╣п╨я┌ п╦ п╡я┌я▀п╨п╟п╣п╪ я┌я┐п╢п╟ п╫п╬п╡я▀п╧.
+			// Ищем первый свободный аффект и втыкаем туда новый.
 			for (int j = 0; j < kMaxObjAffect; j++) {
 				if (base[j].location == EApply::kNone) {
 					if (number(0, 100) > delta)
@@ -1957,7 +1957,7 @@ int MakeRecept::add_affects(CharData *ch,
 	return (true);
 }
 
-// п╓п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п╡я▀п╡п╬п╢п╟ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╦ я│ я└п╬я─п╪п╟я┌п╬п╪ act-a
+// Форматирование вывода в соответствии с форматом act-a
 // output act format//
 char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj) {
 	const char *i = nullptr;

@@ -80,14 +80,14 @@ bool TrigeditQueueLuaFormat(DescriptorData *d, bool save_on_completion)
 	const std::string source = OLC_STORAGE(d) ? OLC_STORAGE(d) : "";
 	const auto request_id = lua_scripting::QueueLuaFormat(source);
 	if (request_id == 0) {
-		SendMsgToChar("п·я┤п╣я─п╣п╢я▄ я└п╬я─п╪п╟я┌я┌п╣я─п╟ Lua п©п╣я─п╣п©п╬п╩п╫п╣п╫п╟. п÷п╬п╡я┌п╬я─п╦я┌п╣ п©п╬п╥п╤п╣.\r\n", d->character.get());
+		SendMsgToChar("Очередь форматтера Lua переполнена. Повторите позже.\r\n", d->character.get());
 		return false;
 	}
 	d->olc->lua_format_request_id = request_id;
 	d->olc->lua_format_save_on_completion = save_on_completion;
 	SendMsgToChar(save_on_completion
-		? "п÷я─п╬п╡п╣я─п╨п╟ п╦ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ Lua-я│п╨я─п╦п©я┌п╟ п©п╣я─п╣п╢ я│п╬я┘я─п╟п╫п╣п╫п╦п╣п╪ п╥п╟п©я┐я┴п╣п╫я▀. п■п╬п╤п╢п╦я┌п╣я│я▄ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟.\r\n"
-		: "п╓п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ Lua-я│п╨я─п╦п©я┌п╟ п╥п╟п©я┐я┴п╣п╫п╬. п■п╬п╤п╢п╦я┌п╣я│я▄ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟.\r\n",
+		? "Проверка и форматирование Lua-скрипта перед сохранением запущены. Дождитесь результата.\r\n"
+		: "Форматирование Lua-скрипта запущено. Дождитесь результата.\r\n",
 		d->character.get());
 	return true;
 }
@@ -105,17 +105,17 @@ bool TrigeditFormatLuaBeforeSave(DescriptorData *d)
 bool TrigeditApplyFormattedLua(DescriptorData *d, const lua_scripting::LuaFormatResult& result)
 {
 	if (!result.success) {
-		SendMsgToChar(d->character.get(), "п·я┬п╦п╠п╨п╟ п©я─п╬п╡п╣я─п╨п╦/я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦я▐ Lua: %s\r\n", result.error.c_str());
+		SendMsgToChar(d->character.get(), "Ошибка проверки/форматирования Lua: %s\r\n", result.error.c_str());
 		return false;
 	}
 	if (result.formatted.size() >= MAX_CMD_LENGTH) {
-		SendMsgToChar(d->character.get(), "п·я┬п╦п╠п╨п╟ п©я─п╬п╡п╣я─п╨п╦/я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦я▐ Lua: я─п╣п╥я┐п╩я▄я┌п╟я┌ я│п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╧.\r\n");
+		SendMsgToChar(d->character.get(), "Ошибка проверки/форматирования Lua: результат слишком большой.\r\n");
 		return false;
 	}
 	RECREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
 	memcpy(OLC_STORAGE(d), result.formatted.c_str(), result.formatted.size() + 1);
 	OLC_VAL(d)++;
-	SendMsgToChar(d->character.get(), "Lua-я│п╨я─п╦п©я┌ п╬я┌я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫.\r\n");
+	SendMsgToChar(d->character.get(), "Lua-скрипт отформатирован.\r\n");
 	return true;
 }
 
@@ -268,7 +268,7 @@ void ProcessLuaFormatterResults()
 		d->olc->lua_format_save_on_completion = false;
 		if (!TrigeditIsLuaTrigger(OLC_TRIG(d))) {
 			if (save_on_completion) {
-				SendMsgToChar("п╓п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п╫п╣ п©я─п╦п╪п╣п╫п╣п╫п╬. п≤я│я┘п╬п╢п╫я▀п╧ п╨п╬п╢ я┌я─п╦пЁпЁп╣я─п╟ я│п╬я┘я─п╟п╫я▐п╣я┌я│я▐.\r\n",
+				SendMsgToChar("Форматирование не применено. Исходный код триггера сохраняется.\r\n",
 					d->character.get());
 				TrigeditSaveAndExit(d);
 			} else {
@@ -279,7 +279,7 @@ void ProcessLuaFormatterResults()
 		const bool formatted = TrigeditApplyFormattedLua(d, result);
 		if (save_on_completion) {
 			if (!formatted) {
-				SendMsgToChar("п≤я│я┘п╬п╢п╫я▀п╧ Lua-п╨п╬п╢ я│п╬я┘я─п╟п╫я▐п╣я┌я│я▐ п╠п╣п╥ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦я▐.\r\n", d->character.get());
+				SendMsgToChar("Исходный Lua-код сохраняется без форматирования.\r\n", d->character.get());
 			}
 			TrigeditSaveAndExit(d);
 			continue;
@@ -310,7 +310,7 @@ void script_save_to_disk(FILE *fp, const void *item, int type) {
 }
 
 /**************************************************************************
- *  п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╒п═п≤п⌠п⌠п∙п═п·п▓
+ *  Редактирование ТРИГГЕРОВ
  *  trigedit
  **************************************************************************/
 
@@ -360,24 +360,24 @@ void trigedit_disp_menu(DescriptorData *d) {
 		trgtypes[0] = '\0';
 	}
 	std::stringstream out;
-	out << "п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я┌я─п╦пЁпЁп╣я─п╟ " << "[&y" << OLC_NUM(d) << "&n]\r\n\r\n"
-			<< "&g1)&n п²п╟п╥п╡п╟п╫п╦п╣         : " << "&y" <<GET_TRIG_NAME(trig) << "\r\n"
-			<< "&g2)&n п╒п╦п©: " << "&y" << attach_type << "\r\n"
-			<< "&g3)&n п║п╬п╠я▀я┌п╦я▐: " << "&y" << trgtypes << "\r\n"
-			<< "&g4)&n п╖п╦я│п╩п╬п╡п╬п╧ п░я─пЁя┐п╪п╣п╫я┌ : " << "&y" << trig->narg << "\r\n"
-			<< "&g5)&n п░я─пЁя┐п╪п╣п╫я┌я▀    : " << "&y" << trig->arglist.c_str() << "\r\n"
-			<< "&g6)&n " << (TrigeditIsLuaTrigger(trig) ? "Lua-я│п╨я─п╦п©я┌" : "п п╬п╪п╟п╫п╢я▀") << ":\r\n"
+	out << "Редактирование триггера " << "[&y" << OLC_NUM(d) << "&n]\r\n\r\n"
+			<< "&g1)&n Название         : " << "&y" <<GET_TRIG_NAME(trig) << "\r\n"
+			<< "&g2)&n Тип: " << "&y" << attach_type << "\r\n"
+			<< "&g3)&n События: " << "&y" << trgtypes << "\r\n"
+			<< "&g4)&n Числовой Аргумент : " << "&y" << trig->narg << "\r\n"
+			<< "&g5)&n Аргументы    : " << "&y" << trig->arglist.c_str() << "\r\n"
+			<< "&g6)&n " << (TrigeditIsLuaTrigger(trig) ? "Lua-скрипт" : "Команды") << ":\r\n"
 			<< "&c" << OLC_STORAGE(d);
 	if (trig->get_attach_type() == MOB_TRIGGER) {
-		out << "&g7)&n п·п╠я─п╟п╠п╟я┌я▀п╡п╟я┌я▄ п╨п╬п╪п╟п╫п╢я▀ п╪п╬п╠п╟ п╡ я│я┌п╟п╫п╣? : &y" << (trig->add_flag ? "п■п░" : "п²п∙п╒") << "&n\r\n";
+		out << "&g7)&n Обрабатывать команды моба в стане? : &y" << (trig->add_flag ? "ДА" : "НЕТ") << "&n\r\n";
 	}
 #if defined(WITH_LUAJIT_PROTOTYPE)
-	out << "&g8)&n п╞п╥я▀п╨ я│п╨я─п╦п©я┌п╟       : &y" << (TrigeditIsLuaTrigger(trig) ? "Lua" : "DG") << "&n\r\n";
+	out << "&g8)&n Язык скрипта       : &y" << (TrigeditIsLuaTrigger(trig) ? "Lua" : "DG") << "&n\r\n";
 #endif
 	if (TrigeditIsLuaTrigger(trig) && lua_scripting::LuaFormatterAvailable()) {
-		out << "&g9)&n п÷я─п╬п╡п╣я─п╦я┌я▄ я│п╦п╫я┌п╟п╨я│п╦я│ п╦ п╬я┌я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟я┌я▄ Lua\r\n";
+		out << "&g9)&n Проверить синтаксис и отформатировать Lua\r\n";
 	}
-	out << "&gQ)&n п≈п╟п╡п╣я─я┬п╦я┌я▄ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣\r\n" "п▓п╡п╣п╢п╦я┌п╣ п▓я▀п╠я─п╟п╫п╫п╬п╣ :";
+	out << "&gQ)&n Завершить редактирование\r\n" "Введите Выбранное :";
 	SendMsgToChar(out.str(), d->character.get());
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
 }
@@ -417,12 +417,12 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 		if (tolower(*arg) == 'q') {
 			d->olc->lua_format_request_id = 0;
 			d->olc->lua_format_save_on_completion = false;
-			SendMsgToChar("п╓п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬. п≤я│я┘п╬п╢п╫я▀п╧ Lua-п╨п╬п╢ я│п╬я┘я─п╟п╫я▐п╣я┌я│я▐ п╠п╣п╥ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦я▐.\r\n",
+			SendMsgToChar("Форматирование отменено. Исходный Lua-код сохраняется без форматирования.\r\n",
 				d->character.get());
 			TrigeditSaveAndExit(d);
 		} else {
-			SendMsgToChar("п÷я─п╬п╡п╣я─п╨п╟ п╦ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ Lua-я│п╨я─п╦п©я┌п╟ п©п╣я─п╣п╢ я│п╬я┘я─п╟п╫п╣п╫п╦п╣п╪ п╣я┴п╣ п╡я▀п©п╬п╩п╫я▐я▌я┌я│я▐. "
-				"п■п╩я▐ п╬я┌п╪п╣п╫я▀ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦я▐ п╦ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п╦я│я┘п╬п╢п╫п╬пЁп╬ п╨п╬п╢п╟ п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ Q.\r\n",
+			SendMsgToChar("Проверка и форматирование Lua-скрипта перед сохранением еще выполняются. "
+				"Для отмены форматирования и сохранения исходного кода используйте Q.\r\n",
 				d->character.get());
 		}
 		return;
@@ -435,7 +435,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					d->olc->lua_format_request_id = 0;
 					d->olc->lua_format_save_on_completion = false;
 				} else {
-					SendMsgToChar("п╓п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ Lua-я│п╨я─п╦п©я┌п╟ п╣я┴п╣ п╡я▀п©п╬п╩п╫я▐п╣я┌я│я▐. п■п╩я▐ п╡я▀я┘п╬п╢п╟ п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ Q.\r\n",
+					SendMsgToChar("Форматирование Lua-скрипта еще выполняется. Для выхода используйте Q.\r\n",
 								  d->character.get());
 					trigedit_disp_menu(d);
 					return;
@@ -448,7 +448,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 						if (!GET_TRIG_TYPE(OLC_TRIG(d))) {
 							SendMsgToChar("Invalid Trigger Type! Answer a to abort quit!\r\n", d->character.get());
 						}
-						SendMsgToChar("п√п╣п╩п╟п╣я┌п╣ п╩п╦ п╡я▀ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╡ я┌я─п╦пЁпЁп╣я─п╣? (y/n): ", d->character.get());
+						SendMsgToChar("Желаете ли вы сохранить изменения в триггере? (y/n): ", d->character.get());
 						OLC_MODE(d) = TRIGEDIT_CONFIRM_SAVESTRING;
 					} else {
 						cleanup_olc(d, CLEANUP_ALL);
@@ -456,35 +456,35 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					return;
 
 				case '1': OLC_MODE(d) = TRIGEDIT_NAME;
-		 			SendMsgToChar("п²п╟п╥п╡п╟п╫п╦п╣: ", d->character.get());
+		 			SendMsgToChar("Название: ", d->character.get());
 					break;
 
 				case '2': OLC_MODE(d) = TRIGEDIT_INTENDED;
-					SendMsgToChar("0: п°п╬п╠я▀, 1: п·п╠я┼п╣п╨я┌я▀, 2: п п╬п╪п╫п╟я┌я▀: ", d->character.get());
+					SendMsgToChar("0: Мобы, 1: Объекты, 2: Комнаты: ", d->character.get());
 					break;
 
 				case '3': OLC_MODE(d) = TRIGEDIT_TYPES;
 					trigedit_disp_types(d);
 					break;
 				case '4': OLC_MODE(d) = TRIGEDIT_NARG;
-					SendMsgToChar("п╖п╦я│п╩п╬п╡п╬п╧ п╟я─пЁя┐п╪п╣п╫я┌: ", d->character.get());
+					SendMsgToChar("Числовой аргумент: ", d->character.get());
 					break;
 
 				case '5': OLC_MODE(d) = TRIGEDIT_ARGUMENT;
-					SendMsgToChar("п░я─пЁя┐п╪п╣п╫я┌я▀: ", d->character.get());
+					SendMsgToChar("Аргументы: ", d->character.get());
 					break;
 
 				case '6':
 					if (TrigeditIsLuaTrigger(OLC_TRIG(d)) && !TrigeditLuaEditingEnabled()) {
-						SendMsgToChar("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ Lua-я│п╨я─п╦п©я┌п╬п╡ п╫п╣п╢п╬я│я┌я┐п©п╫п╬ п╡ я█я┌п╬п╧ я│п╠п╬я─п╨п╣ я│п╣я─п╡п╣я─п╟.\r\n",
+						SendMsgToChar("Редактирование Lua-скриптов недоступно в этой сборке сервера.\r\n",
 							d->character.get());
 						trigedit_disp_menu(d);
 						return;
 					}
 					OLC_MODE(d) = TRIGEDIT_COMMANDS;
 					SendMsgToChar(TrigeditIsLuaTrigger(OLC_TRIG(d))
-						? "п▓п╡п╣п╢п╦я┌п╣ Lua-я│п╨я─п╦п©я┌ я┌я─п╦пЁпЁп╣я─п╟: (/s saves /h for help)\r\n\r\n"
-						: "п▓п╡п╣п╢п╦я┌п╣ п╨п╬п╪п╟п╫п╢я▀ я┌я─п╦пЁпЁп╣я─п╟: (/s saves /h for help)\r\n\r\n",
+						? "Введите Lua-скрипт триггера: (/s saves /h for help)\r\n\r\n"
+						: "Введите команды триггера: (/s saves /h for help)\r\n\r\n",
 						d->character.get());
 					d->backstr = nullptr;
 					if (OLC_STORAGE(d)) {
@@ -499,7 +499,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 				case '7': 
 					if (OLC_TRIG(d)->get_attach_type() == MOB_TRIGGER) {
 						OLC_MODE(d) = TRIGEDIT_ADDFLAG;
-						SendMsgToChar("п╓п╩п╟пЁ (1-п■п░): ", d->character.get());
+						SendMsgToChar("Флаг (1-ДА): ", d->character.get());
 					} else {
 						trigedit_disp_menu(d);
 					}
@@ -514,9 +514,9 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 
 				case '9':
 					if (!TrigeditIsLuaTrigger(OLC_TRIG(d))) {
-						SendMsgToChar("п░п╡я┌п╬я└п╬я─п╪п╟я┌ п╢п╬я│я┌я┐п©п╣п╫ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ Lua-я┌я─п╦пЁпЁп╣я─п╬п╡.\r\n", d->character.get());
+						SendMsgToChar("Автоформат доступен только для Lua-триггеров.\r\n", d->character.get());
 					} else if (!lua_scripting::LuaFormatterAvailable()) {
-						SendMsgToChar("п╓п╬я─п╪п╟я┌я┌п╣я─ Lua п╫п╣п╢п╬я│я┌я┐п©п╣п╫ п╡ я█я┌п╬п╧ я│п╠п╬я─п╨п╣.\r\n", d->character.get());
+						SendMsgToChar("Форматтер Lua недоступен в этой сборке.\r\n", d->character.get());
 					} else if (TrigeditFormatLua(d)) {
 						return;
 					}
@@ -535,7 +535,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 						if (TrigeditFormatLuaBeforeSave(d)) {
 							return;
 						}
-						SendMsgToChar("п≤я│я┘п╬п╢п╫я▀п╧ Lua-п╨п╬п╢ я│п╬я┘я─п╟п╫я▐п╣я┌я│я▐ п╠п╣п╥ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦я▐.\r\n", d->character.get());
+						SendMsgToChar("Исходный Lua-код сохраняется без форматирования.\r\n", d->character.get());
 					}
 					TrigeditSaveAndExit(d);
 					return;
@@ -546,8 +546,8 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 				case 'a':    // abort quitting
 					break;
 
-				default: SendMsgToChar("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", d->character.get());
-					SendMsgToChar("п√п╣п╩п╟п╣я┌п╣ п╩п╦ п╡я▀ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╡ я┌я─п╦пЁпЁп╣я─п╣? : ", d->character.get());
+				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
+					SendMsgToChar("Желаете ли вы сохранить изменения в триггере? : ", d->character.get());
 					return;
 			}
 			break;
@@ -581,17 +581,17 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 				if (!TrigeditIsLuaTrigger(OLC_TRIG(d))) {
 					OLC_TRIG(d)->set_script_language(TriggerScriptLanguage::Lua);
 					strcpy(OLC_STORAGE(d), kDefaultLuaTriggerTemplate);
-					SendMsgToChar("п╒п╣п╩п╬ я┌я─п╦пЁпЁп╣я─п╟ п╥п╟п╪п╣п╫п╣п╫п╬ п╫п╟ я┬п╟п╠п╩п╬п╫ Lua.\r\n", d->character.get());
+					SendMsgToChar("Тело триггера заменено на шаблон Lua.\r\n", d->character.get());
 					OLC_VAL(d)++;
 				}
 			} else if (TrigeditIsLuaTrigger(OLC_TRIG(d))) {
 				OLC_TRIG(d)->set_script_language(TriggerScriptLanguage::Dg);
 				strcpy(OLC_STORAGE(d), kDefaultDgTriggerTemplate);
-				SendMsgToChar("п╒п╣п╩п╬ я┌я─п╦пЁпЁп╣я─п╟ п╥п╟п╪п╣п╫п╣п╫п╬ п╫п╟ я┬п╟п╠п╩п╬п╫ DG.\r\n", d->character.get());
+				SendMsgToChar("Тело триггера заменено на шаблон DG.\r\n", d->character.get());
 				OLC_VAL(d)++;
 			}
 #else
-			SendMsgToChar("Lua-я┌я─п╦пЁпЁп╣я─я▀ п╫п╣п╢п╬я│я┌я┐п©п╫я▀ п╡ я█я┌п╬п╧ я│п╠п╬я─п╨п╣ я│п╣я─п╡п╣я─п╟.\r\n", d->character.get());
+			SendMsgToChar("Lua-триггеры недоступны в этой сборке сервера.\r\n", d->character.get());
 #endif
 			break;
 
@@ -629,7 +629,7 @@ void sprintbyts(int data, char *dest) {
 }
 void TriggerDistribution(DescriptorData *d) {
 	switch (OLC_TRIG(d)->get_attach_type()) {
-		case WLD_TRIGGER: // п╡ п╨п╬п╪п╫п╟я┌п╟я┘ я│я│я▀п╩п╨п╟ п╫п╟ п©я─п╬я┌п╬я┌п╦п©
+		case WLD_TRIGGER: // в комнатах ссылка на прототип
 			for (RoomRnum nr = kFirstRoom; nr <= top_of_world; nr++) {
 				if (!SCRIPT(world[nr])->has_triggers())
 					continue;
@@ -689,7 +689,7 @@ void trigedit_save(DescriptorData *d) {
 	DescriptorData *dsc;
 
 	if (TrigeditIsLuaTrigger(trig) && !TrigeditLuaEditingEnabled()) {
-		SendMsgToChar("п·п╗п≤п▒п п░: Lua-я┌я─п╦пЁпЁп╣я─я▀ п╫п╣п╢п╬я│я┌я┐п©п╫я▀ п╡ я█я┌п╬п╧ я│п╠п╬я─п╨п╣ я│п╣я─п╡п╣я─п╟.\r\n", d->character.get());
+		SendMsgToChar("ОШИБКА: Lua-триггеры недоступны в этой сборке сервера.\r\n", d->character.get());
 		return;
 	}
 
@@ -698,9 +698,9 @@ void trigedit_save(DescriptorData *d) {
 	TrigeditApplyStorageToTrigger(trig, storage_str);
 
 	if ((trig_rnum = GetTriggerRnum(OLC_NUM(d))) != -1) {
-		// п╜я┌п╬я┌ я┌я─п╦пЁпЁп╣я─ я┐п╤п╣ п╣я│я┌я▄.
+		// Этот триггер уже есть.
 
-		// п·я┤п╦я│я┌п╨п╟ п©я─п╬я┌п╬я┌п╦п©п╟
+		// Очистка прототипа
 		proto = trig_index[trig_rnum]->proto;
 		proto->cmdlist.reset();
 
@@ -718,14 +718,14 @@ void trigedit_save(DescriptorData *d) {
 				trigger->arglist.clear();
 				trigger->set_name("");
 				if (GET_TRIG_WAIT(trigger).time_remaining > 0) {
-					free(GET_TRIG_WAIT(trigger).info);    // п÷я─п╦я┤п╦п╫п╟ я┐п╤п╣ п╬п╠я│я┐п╤п╢п╟п╩п╟я│я▄
+					free(GET_TRIG_WAIT(trigger).info);    // Причина уже обсуждалась
 					remove_event(GET_TRIG_WAIT(trigger));
 				}
 #if defined(WITH_LUAJIT_PROTOTYPE)
-				// issue #3568: я┐ п╤п╦п╡п╬пЁп╬ п╦п╫я│я┌п╟п╫я│п╟ п╪п╬п╤п╣я┌ п╡п╦я│п╣я┌я▄ п©я─п╦п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╫п╟я▐ Lua-п╨п╬я─я┐я┌п╦п╫п╟
-				// (LuaWaitState я┘я─п╟п╫п╦я┌ Trigger*). п÷п╣я─п╣п╥п╟п©п╦я│я▄ я┌п╣п╩п╟ п╫п╦п╤п╣ (*trigger = *proto),
-				// п╬я│п╬п╠п╣п╫п╫п╬ п©я─п╦ я│п╪п╣п╫п╣ Lua->DG, п╬я│я┌п╟п╡п╦п╩п╟ п╠я▀ п╡п╣п╧я┌-я─п╣п╣я│я┌я─ я│я│я▀п╩п╟я┌я▄я│я▐ п╫п╟ п╦п╥п╪п╣п╫я▒п╫п╫я▀п╧
-				// я┌я─п╦пЁпЁп╣я─ -> UAF/п©п╬я─я┤п╟ п╨я┐я┤п╦. п·я┌п╪п╣п╫я▐п╣п╪ Lua-п╡п╣п╧я┌я▀, п╨п╟п╨ я█я┌п╬ п╢п╣п╩п╟п╣я┌ ExtractTrigger.
+				// issue #3568: у живого инстанса может висеть приостановленная Lua-корутина
+				// (LuaWaitState хранит Trigger*). Перезапись тела ниже (*trigger = *proto),
+				// особенно при смене Lua->DG, оставила бы вейт-реестр ссылаться на изменённый
+				// триггер -> UAF/порча кучи. Отменяем Lua-вейты, как это делает ExtractTrigger.
 				lua_scripting::LuaScriptEngine::CancelWaitsForTrigger(trigger);
 #endif
 
@@ -752,12 +752,12 @@ void trigedit_save(DescriptorData *d) {
 					new_index[trig_rnum]->func = nullptr;
 					new_index[trig_rnum]->proto = new Trigger(*trig);
 					--i;
-					continue;    // п©п╬п╡я┌п╬я─п╦я┌я▄ п╨п╬п©п╦я─п╬п╡п╟п╫п╦п╣ п╣я┴п╣ я─п╟п╥, п╫п╬ я┐п╤п╣ п©п╬-п╢я─я┐пЁп╬п╪я┐
+					continue;    // повторить копирование еще раз, но уже по-другому
 				} else {
 					new_index[i] = trig_index[i];
 				}
 			} else {
-				// п╢п╬п╨п╬п©п╦я─п╬п╡п╟я┌я▄
+				// докопировать
 				new_index[i + 1] = trig_index[i];
 				proto = trig_index[i]->proto;
 				proto->set_rnum(i + 1);
@@ -794,9 +794,9 @@ void trigedit_save(DescriptorData *d) {
 		}
 	}
 	
-	// п≤п╫п╢п╣п╨я│ "п©я─п╣п╢п╪п╣я┌ -> пЁя─я┐п╥я▐я┴п╦п╣ п╣пЁп╬ я┌я─п╦пЁпЁп╣я─я▀" я│я┌я─п╬п╦я┌я│я▐ п©я─п╦ п╥п╟пЁя─я┐п╥п╨п╣ п╪п╦я─п╟,
-	// я┌п╟п╨ я┤я┌п╬ п╢п╩я▐ п©я─п╟п╡п╩п╣п╫п╬пЁп╬ я│п╨я─п╦п©я┌п╟ п╣пЁп╬ п╫п╟п╢п╬ п©п╣я─п╣я│я┤п╦я┌п╟я┌я▄ -- п╦п╫п╟я┤п╣ 'vnum trig'
-	// п╠я┐п╢п╣я┌ п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ я│я┌п╟я─я┐я▌ п╨п╟я─я┌п╦п╫я┐ п╢п╬ п╠п╩п╦п╤п╟п╧я┬п╣п╧ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╦.
+	// Индекс "предмет -> грузящие его триггеры" строится при загрузке мира,
+	// так что для правленого скрипта его надо пересчитать -- иначе 'vnum trig'
+	// будет показывать старую картину до ближайшей перезагрузки.
 	ReindexTriggerObjLoads(OLC_NUM(d), trig_index[trig_rnum]->proto);
 
 	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
@@ -805,11 +805,11 @@ void trigedit_save(DescriptorData *d) {
 
 	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 	if (!data_source->SaveTriggers(OLC_ZNUM(d), OLC_NUM(d), notify_level)) {
-		SendMsgToChar("п·п╗п≤п▒п п░: п²п╣ я┐п╢п╟п╩п╬я│я▄ я│п╬я┘я─п╟п╫п╦я┌я▄ я┌я─п╦пЁпЁп╣я─!\r\n", d->character.get());
+		SendMsgToChar("ОШИБКА: Не удалось сохранить триггер!\r\n", d->character.get());
 		return;
 	}
 
-	SendMsgToChar("п╒я─п╦пЁпЁп╣я─ я│п╬я┘я─п╟п╫п╣п╫.\r\n", d->character.get());
+	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
 }
 
 // Save all triggers for a zone to disk (without requiring DescriptorData)
@@ -832,7 +832,7 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 	top = zone_table[zone_rnum].top;
 
 	if (zone >= dungeons::kZoneStartDungeons) {
-		snprintf(buf, sizeof(buf), "п·я┌п╨п╟п╥ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п╥п╬п╫я▀ %d п╫п╟ п╢п╦я│п╨.", zone);
+		snprintf(buf, sizeof(buf), "Отказ сохранения зоны %d на диск.", zone);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return false;
 	}
@@ -948,19 +948,19 @@ void trigedit_create_index(int znum, const char *type) {
 
 
 /**************************************************************************
- *  п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п÷п═п·п╒п·п╒п≤п÷п·п▓ п║п п═п≤п÷п╒п·п▓
+ *  Редактирование ПРОТОТИПОВ СКРИПТОВ
  *  trigedit
  **************************************************************************/
 
 
 void dg_olc_script_free(DescriptorData *d)
-//   пёп╢п╟п╩п╣п╫п╦п╣ п©я─п╬я┌п╬я┌п╦п©п╟ п╡ OLC_SCRIPT
+//   Удаление прототипа в OLC_SCRIPT
 {
 	OLC_SCRIPT(d).clear();
 }
 
 void dg_olc_script_copy(DescriptorData *d)
-//   п║п╬п╥п╢п╟п╫п╦п╣ п╨п╬п©п╦п╦ п©я─п╬я┌п╬я┌п╦п©п╟ я│п╨я─п╦п©я┌п╟ п╢п╩я▐ я┌п╣п╨я┴п╣пЁп╬ я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪п╬пЁп╬ п╪п╬п╠п╟/п╬п╠я┼п╣п╨я┌п╟/п╨п╬п╪п╫п╟я┌я▀
+//   Создание копии прототипа скрипта для текщего редактируемого моба/объекта/комнаты
 {
 	switch (OLC_ITEM_TYPE(d)) {
 		case MOB_TRIGGER: OLC_SCRIPT(d) = *OLC_MOB(d)->proto_script;
@@ -1006,11 +1006,11 @@ void dg_script_menu(DescriptorData *d) {
 	}
 
 	snprintf(buf, sizeof(buf), "\r\n"
-				 " %sN%s)  п²п╬п╡я▀п╧ я┌я─п╦пЁпЁп╣я─ п╢п╩я▐ я█я┌п╬пЁп╬ я│п╨я─п╦п©я┌п╟\r\n"
-				 " %sD%s)  пёп╢п╟п╩п╦я┌я▄ я┌я─п╦пЁпЁп╣я─ п╡ я█я┌п╬п╪ я│п╨я─п╦п©я┌п╣\r\n"
-				 " %sX%s)  п▓я▀п╧я┌п╦ п╦п╥ я─п╣п╢п╟п╨я┌п╬я─п╟ я│п╨я─п╦п©я┌п╟\r\n"
-				 " %sQ%s)  п▓я▀п╧я┌п╦ п╦п╥ я─п╣п╢п╟п╨я┌п╬я─п╟ я│п╨я─п╦п©я┌п╟ (п╠п╣п╥ я│п╬я┘я─п╟п╫п╣п╫п╦я▐) \r\n\r\n"
-				 "     п▓п╡п╣п╢п╦я┌п╣ п╡я▀п╠я─п╟п╫п╫п╬п╣ :", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+				 " %sN%s)  Новый триггер для этого скрипта\r\n"
+				 " %sD%s)  Удалить триггер в этом скрипте\r\n"
+				 " %sX%s)  Выйти из редактора скрипта\r\n"
+				 " %sQ%s)  Выйти из редактора скрипта (без сохранения) \r\n\r\n"
+				 "     Введите выбранное :", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
@@ -1028,7 +1028,7 @@ int dg_script_edit_parse(DescriptorData *d, char *arg) {
 					} else {
 						OLC_SCRIPT(d).swap(*OLC_ROOM(d)->proto_script);
 					}
-					// я┌я┐я┌ break п╫п╣ п╫я┐п╤п╣п╫
+					// тут break не нужен
 
 					// fall through
 				case 'q': dg_olc_script_free(d);
@@ -1063,8 +1063,8 @@ int dg_script_edit_parse(DescriptorData *d, char *arg) {
 			}
 
 			if (GetTriggerRnum(vnum) < 0) {
-				SendMsgToChar("п²п╣п╡п╣я─п╫я▀п╧ VNUM я┌я─п╦пЁпЁп╣я─п╟!\r\n"
-							 "п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, п╡я▀п╠п╣я─п╦я┌п╣ п©п╬п╥п╦я├п╦я▌, vnum   (ex: 1, 200):", d->character.get());
+				SendMsgToChar("Неверный VNUM триггера!\r\n"
+							 "Пожалуйста, выберите позицию, vnum   (ex: 1, 200):", d->character.get());
 				return 1;
 			}
 
