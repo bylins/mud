@@ -6,6 +6,7 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
 #include "engine/entities/char_data.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
@@ -314,7 +315,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		out << "   "
 			<< std::setw(2) << it->first << " | "
 			<< std::setw(7) << obj->get_vnum() << " | "
-			<< std::setw(14) << material_name[obj->get_material()] << " | "
+			<< fmt::format("{:>14}", material_name[obj->get_material()]) << " | "
 			<< obj->get_PName(grammar::ECase::kNom) << "\r\n";
 
 		for (int i = 0; i < kMaxObjAffect; i++) {

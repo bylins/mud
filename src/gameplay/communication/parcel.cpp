@@ -457,8 +457,8 @@ void fill_ex_desc(CharData *ch, ObjData *obj, std::string sender) {
 		   "неуклюжего взлома - царская служба безопасности бдит...\r\n"
 		   "На табличке сбоку видны надписи:\r\n\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
-	out << "| Отправитель: " << std::setw(size) << sender
-		<< " |\r\n|  Получатель: " << std::setw(size) << GET_NAME(ch) << " |\r\n";
+	out << "| Отправитель: " << fmt::format("{:>{}}", sender, size)
+		<< " |\r\n|  Получатель: " << fmt::format("{:>{}}", GET_NAME(ch), size) << " |\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
 
 	obj->set_ex_description("посылка бандероль пакет ящик parcel box case chest", out.str().c_str());

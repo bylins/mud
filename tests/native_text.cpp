@@ -534,4 +534,21 @@ TEST(NativeText, FromDiskTextIsIdempotent) {
 	EXPECT_EQ(native_text::from_disk_text(""), "");
 }
 
+TEST(NativeText, PadRightCountsCharactersNotBytes) {
+	// The replacement for printf's "%-Ns" wherever the value can be Russian: printf counts the
+	// field in bytes, so a Cyrillic word ate twice its share and the column drifted (issue #3681).
+	const std::string privet = native_text::from_koi8("\xD0\xD2\xC9\xD7\xC5\xD4");   // 6 letters
+	const std::string padded = native_text::pad_right(privet, 10);
+	EXPECT_EQ(native_text::char_count(padded), 10u) << "padding must be measured in characters";
+	EXPECT_EQ(padded.substr(0, privet.size()), privet);
+	EXPECT_EQ(padded.substr(privet.size()), "    ");
+
+	// ASCII behaves exactly like "%-Ns" did.
+	EXPECT_EQ(native_text::pad_right("ab", 5), "ab   ");
+	EXPECT_EQ(native_text::pad_right("", 3), "   ");
+	// Longer than the field: returned untouched, again like printf.
+	EXPECT_EQ(native_text::pad_right("abcdef", 3), "abcdef");
+	EXPECT_EQ(native_text::pad_right(privet, 2), privet);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

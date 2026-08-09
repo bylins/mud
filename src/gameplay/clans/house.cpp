@@ -4556,8 +4556,7 @@ void init_xhelp() {
 		   "  Список сайтов дружин:\r\n\r\n";
 
 	for (const auto &i : Clan::ClanList) {
-		out << "    $COLORW" << std::setw(7) << std::left
-			<< i->GetAbbrev() << "$COLORn --   $COLORC"
+		out << "    $COLORW" << fmt::format("{:<7}", i->GetAbbrev()) << "$COLORn --   $COLORC"
 			<< (i->get_web_url().empty() ? "$COLORW[ НЕТ ИНФОРМАЦИИ ]" : i->get_web_url())
 			<< "$COLORn\r\n";
 	}

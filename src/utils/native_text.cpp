@@ -769,6 +769,15 @@ std::string from_disk_text(const std::string &text) {
 #endif
 }
 
+std::string pad_right(std::string_view s, std::size_t width) {
+	const std::size_t len = char_count(s);
+	std::string out(s);
+	if (len < width) {
+		out.append(width - len, ' ');
+	}
+	return out;
+}
+
 std::string to_disk(const std::string &text) {
 #ifdef INTERNAL_ENCODING_UTF8
 	return to_koi8(text);

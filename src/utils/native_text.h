@@ -204,6 +204,12 @@ std::string from_disk_text(const std::string &text);
 // through here (issue #3681).
 std::string to_disk(const std::string &text);
 
+// Pad `s` on the right with spaces to `width` CHARACTERS. The replacement for printf's "%-Ns"
+// wherever the value can hold Russian: printf counts the field width in bytes, so under UTF-8 a
+// Cyrillic word ate twice its share and the column drifted. Under KOI8-R this is byte-for-byte
+// what "%-Ns" did. Longer input is returned untouched, exactly like printf (issue #3681).
+std::string pad_right(std::string_view s, std::size_t width);
+
 // Transliterate `name` into the ASCII form used for save-file names: Russian letters become
 // Latin ones, ASCII is lowercased. The mapping is fixed by what the byte-wise implementation
 // produced before the migration and MUST NOT drift -- the result is the on-disk file name of a

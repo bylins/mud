@@ -58,7 +58,7 @@ void AddClassExp(ECharClass class_id, int exp) {
 
 std::string PrintClassExpStat(const ECharClass id, unsigned long long top_exp) {
 	std::ostringstream out;
-	out << std::left << std::setw(15) << MUD::Class(id).GetPluralName() << " " << std::left << kColorBoldCyn;
+	out << fmt::format("{:<15}", MUD::Class(id).GetPluralName()) << " " << std::left << kColorBoldCyn;
 	const int points_amount{10};
 	int stars{0};
 	if (top_exp > 0) {
@@ -524,8 +524,7 @@ void ShowZoneMobKillsStat(CharData *ch, ZoneVnum zone_vnum, int months) {
 									  "   vnum : имя : pk : группа = убийств (n3=100 моба убили 100 раз втроем)\r\n\r\n";
 
 	for (auto & i : sort_list) {
-		out << i.first << " : " << std::setw(20)
-			<< PrintMobName(i.first, 20) << " : "
+		out << i.first << " : " << fmt::format("{:>20}", PrintMobName(i.first, 20)) << " : "
 			<< i.second.kills.at(0) << " :";
 		for (int g = 1; g <= kMaxGroupSize; ++g) {
 			if (i.second.kills.at(g) > 0) {
