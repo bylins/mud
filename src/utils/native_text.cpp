@@ -8,6 +8,8 @@ through them changes nothing until the encoding flip.
 */
 
 #include "native_text.h"
+
+#include <algorithm>
 #include "utf8.h"
 #include "utils_encoding.h"
 #include "translit_koi8.h"
@@ -766,6 +768,14 @@ std::string from_disk_text(const std::string &text) {
 	return utf8::is_valid(text) ? text : from_koi8(text);
 #else
 	return text;
+#endif
+}
+
+std::size_t char_offset(std::string_view s, std::size_t chars) {
+#ifdef INTERNAL_ENCODING_UTF8
+	return utf8::byte_offset(s, chars);
+#else
+	return std::min(chars, s.size());
 #endif
 }
 

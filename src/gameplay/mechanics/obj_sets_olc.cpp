@@ -897,7 +897,7 @@ void sedit::parse_setcomment(CharData *ch, const char *arg) {
 		olc_set.comment.clear();
 	} else {
 		olc_set.comment = arg;
-		olc_set.comment = olc_set.comment.substr(0, 40);
+		olc_set.comment = olc_set.comment.substr(0, native_text::char_offset(olc_set.comment, 40));
 	}
 	show_main(ch);
 }

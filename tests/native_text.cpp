@@ -551,4 +551,17 @@ TEST(NativeText, PadRightCountsCharactersNotBytes) {
 	EXPECT_EQ(native_text::pad_right(privet, 2), privet);
 }
 
+TEST(NativeText, CharOffsetCutsOnCharacterBoundaries) {
+	// Cutting text to fit a column by BYTES both halves the visible width under UTF-8 and can
+	// split a character in two, sending a broken byte to the client (issue #3681).
+	const std::string privet = native_text::from_koi8("\xD0\xD2\xC9\xD7\xC5\xD4");   // 6 letters
+	const std::string cut = privet.substr(0, native_text::char_offset(privet, 3));
+	EXPECT_EQ(native_text::char_count(cut), 3u);
+	EXPECT_EQ(cut, privet.substr(0, native_text::native_is_utf8() ? 6 : 3));
+	// Asking for more than there is yields the whole string, never past the end.
+	EXPECT_EQ(native_text::char_offset(privet, 100), privet.size());
+	EXPECT_EQ(native_text::char_offset("", 5), 0u);
+	EXPECT_EQ(native_text::char_offset("abcdef", 4), 4u);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

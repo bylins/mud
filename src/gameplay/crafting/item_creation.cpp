@@ -6,6 +6,7 @@
 *  $Date$                                          *
 *  $Revision$                                                     *
 ************************************************************************ */
+#include "utils/native_text.h"
 #include "item_creation.h"
 #include <fmt/format.h>
 #include "utils/utils_parse.h"
@@ -325,7 +326,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		trec = make_recepts[i];
 		auto obj = GetObjectPrototype(trec->obj_proto);
 		if (obj) {
-			obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 39));
+			obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, native_text::char_offset(obj->get_PName(grammar::ECase::kNom), 39)));
 		}
 		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
@@ -341,7 +342,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			if (trec->parts[j].proto != 0) {
 				obj = GetObjectPrototype(trec->parts[j].proto);
 				if (obj) {
-					obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 34));
+					obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, native_text::char_offset(obj->get_PName(grammar::ECase::kNom), 34)));
 				} else {
 					obj_name = "Нет";
 				}

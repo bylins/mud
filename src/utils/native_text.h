@@ -45,6 +45,12 @@ void capitalize_first(std::string &s);
 // there never splits a multibyte character. KOI8-R: min(max_bytes, s.size()).
 std::size_t truncate_offset(std::string_view s, std::size_t max_bytes);
 
+// Byte offset of the `chars`-th character (clamped to the end), so `s.substr(0, char_offset(s, n))`
+// keeps exactly n characters. KOI8-R: min(chars, s.size()). Use this, not substr(0, n), wherever
+// text is cut to fit a column: cutting by bytes both halves the visible width under UTF-8 and can
+// split a character in two (issue #3681).
+std::size_t char_offset(std::string_view s, std::size_t chars);
+
 // Byte length of the character that starts at `s` (KOI8-R: 1), for stepping over a whole
 // character byte-by-byte. Always >= 1; on a malformed/truncated UTF-8 lead it returns only the
 // bytes actually present (never counts past a terminator or a non-continuation byte).

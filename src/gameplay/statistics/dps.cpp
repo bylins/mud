@@ -2,6 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "utils/native_text.h"
 #include "dps.h"
 #include "gameplay/core/remort.h"
 #include "gameplay/mechanics/minions.h"
@@ -32,7 +33,7 @@ void DpsNode::set_name(const char *name) {
 	if (name && *name) {
 		name_ = name;
 		if (name_.size() > 25) {
-			name_ = name_.substr(0, 25);
+			name_ = name_.substr(0, native_text::char_offset(name_, 25));
 		}
 	}
 }
@@ -134,7 +135,7 @@ void Dps::Clear(int type) {
 struct sort_node {
 	sort_node(const std::string &in_name, int in_dps, unsigned in_round_dmg, unsigned in_over_dmg)
 		: dps(in_dps), round_dmg(in_round_dmg), over_dmg(in_over_dmg) {
-		name = in_name.substr(0, 25);
+		name = in_name.substr(0, native_text::char_offset(in_name, 25));
 	};
 
 	std::string name;

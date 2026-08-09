@@ -43,7 +43,7 @@ void ChangeLogLoaderImplementation::add_message(const std::string &author,
 	std::string subj(message->text.begin(), std::find(message->text.begin(), message->text.end(), '\n'));
 /*		if (subj.size() > 40)
 		{
-			subj = subj.substr(0, 40);
+			subj = subj.substr(0, native_text::char_offset(subj, 40));
 		} */
 	utils::Trim(subj);
 	message->subject = subj;
