@@ -29,24 +29,13 @@ U'...' literals.
 
 namespace rus {
 
-#ifdef INTERNAL_ENCODING_UTF8
 
 // Unicode code points: U+0410..U+042F (upper), U+0430..U+044F (lower), U+0401/U+0451 (Yo).
 #define BYLINS_RUS_LETTER(name, upper_cp, lower_cp) \
 	constexpr char32_t name##Upper = upper_cp;      \
 	constexpr char32_t name = lower_cp
 
-#else
 
-// KOI8-R byte values. The alphabet is not laid out alphabetically in KOI8-R, so every letter is
-// spelled out rather than derived from an offset.
-#define BYLINS_RUS_LETTER(name, upper_byte, lower_byte) \
-	constexpr char32_t name##Upper = upper_byte;        \
-	constexpr char32_t name = lower_byte
-
-#endif
-
-#ifdef INTERNAL_ENCODING_UTF8
 BYLINS_RUS_LETTER(kA,   0x0410, 0x0430);  // А а
 BYLINS_RUS_LETTER(kBe,  0x0411, 0x0431);  // Б б
 BYLINS_RUS_LETTER(kVe,  0x0412, 0x0432);  // В в
@@ -80,41 +69,6 @@ BYLINS_RUS_LETTER(kSoft,0x042C, 0x044C);  // Ь ь
 BYLINS_RUS_LETTER(kE,   0x042D, 0x044D);  // Э э
 BYLINS_RUS_LETTER(kYu,  0x042E, 0x044E);  // Ю ю
 BYLINS_RUS_LETTER(kYa,  0x042F, 0x044F);  // Я я
-#else
-BYLINS_RUS_LETTER(kA,   0xE1, 0xC1);  // А а
-BYLINS_RUS_LETTER(kBe,  0xE2, 0xC2);  // Б б
-BYLINS_RUS_LETTER(kVe,  0xF7, 0xD7);  // В в
-BYLINS_RUS_LETTER(kGe,  0xE7, 0xC7);  // Г г
-BYLINS_RUS_LETTER(kDe,  0xE4, 0xC4);  // Д д
-BYLINS_RUS_LETTER(kIe,  0xE5, 0xC5);  // Е е
-BYLINS_RUS_LETTER(kYo,  0xB3, 0xA3);  // Ё ё
-BYLINS_RUS_LETTER(kZhe, 0xF6, 0xD6);  // Ж ж
-BYLINS_RUS_LETTER(kZe,  0xFA, 0xDA);  // З з
-BYLINS_RUS_LETTER(kI,   0xE9, 0xC9);  // И и
-BYLINS_RUS_LETTER(kIi,  0xEA, 0xCA);  // Й й
-BYLINS_RUS_LETTER(kKa,  0xEB, 0xCB);  // К к
-BYLINS_RUS_LETTER(kEl,  0xEC, 0xCC);  // Л л
-BYLINS_RUS_LETTER(kEm,  0xED, 0xCD);  // М м
-BYLINS_RUS_LETTER(kEn,  0xEE, 0xCE);  // Н н
-BYLINS_RUS_LETTER(kO,   0xEF, 0xCF);  // О о
-BYLINS_RUS_LETTER(kPe,  0xF0, 0xD0);  // П п
-BYLINS_RUS_LETTER(kEr,  0xF2, 0xD2);  // Р р
-BYLINS_RUS_LETTER(kEs,  0xF3, 0xD3);  // С с
-BYLINS_RUS_LETTER(kTe,  0xF4, 0xD4);  // Т т
-BYLINS_RUS_LETTER(kU,   0xF5, 0xD5);  // У у
-BYLINS_RUS_LETTER(kEf,  0xE6, 0xC6);  // Ф ф
-BYLINS_RUS_LETTER(kHa,  0xE8, 0xC8);  // Х х
-BYLINS_RUS_LETTER(kTse, 0xE3, 0xC3);  // Ц ц
-BYLINS_RUS_LETTER(kChe, 0xFE, 0xDE);  // Ч ч
-BYLINS_RUS_LETTER(kSha, 0xFB, 0xDB);  // Ш ш
-BYLINS_RUS_LETTER(kScha,0xFD, 0xDD);  // Щ щ
-BYLINS_RUS_LETTER(kHard,0xFF, 0xDF);  // Ъ ъ
-BYLINS_RUS_LETTER(kYery,0xF9, 0xD9);  // Ы ы
-BYLINS_RUS_LETTER(kSoft,0xF8, 0xD8);  // Ь ь
-BYLINS_RUS_LETTER(kE,   0xFC, 0xDC);  // Э э
-BYLINS_RUS_LETTER(kYu,  0xE0, 0xC0);  // Ю ю
-BYLINS_RUS_LETTER(kYa,  0xF1, 0xD1);  // Я я
-#endif
 
 #undef BYLINS_RUS_LETTER
 

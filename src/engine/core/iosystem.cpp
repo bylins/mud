@@ -454,24 +454,7 @@ int process_input(DescriptorData *t) {
 		// Приводим собранную строку к нативной кодировке движка (issue #3681). После разбора
 		// выше в tmp лежит либо UTF-8 (клиент UTF-8), либо KOI8-R (все остальные кодировки
 		// клиентов - их таблицы отдают именно KOI8-R).
-		if (t->keytable == kCodePageUTF8) {
-			if (!native_text::native_is_utf8()) {
-				int i;
-				char utf8_tmp[kMaxSockBuf * 2 * 3];
-				size_t len_i, len_o;
-
-				len_i = strlen(tmp);
-
-				for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
-					utf8_tmp[i] = 0;
-				}
-				codepages::utf8_to_koi(tmp, utf8_tmp);
-				len_o = strlen(utf8_tmp);
-				strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
-				space_left = space_left + len_i - len_o;
-			}
-			// иначе клиент прислал уже нативную кодировку - трогать нечего
-		} else if (native_text::native_is_utf8()) {
+		if (t->keytable != kCodePageUTF8) {
 			const size_t len_i = strlen(tmp);
 			const std::string native = native_text::from_koi8(tmp);
 			strncpy(tmp, native.c_str(), kMaxInputLength - 1);

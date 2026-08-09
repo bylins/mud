@@ -14,21 +14,7 @@ through them changes nothing until the encoding flip.
 #include "utils_encoding.h"
 #include "translit_koi8.h"
 
-#ifdef INTERNAL_ENCODING_UTF8
 #include "utf8.h"
-#else
-// The KOI8-R case tables (defined in utils.cpp). Declared directly instead of including utils.h,
-// which drags in fmt/ and much of the engine for what is just two 256-byte lookups.
-extern const char a_ucc_table[];
-extern const char a_lcc_table[];
-extern const bool a_isalnum_table[];
-extern const bool a_isalpha_table[];
-extern const bool a_isupper_table[];
-
-// Yo is absent from the Latin table and always had a special case in get_filename().
-constexpr unsigned char kYoLowerByte = 0xA3;
-constexpr unsigned char kYoUpperByte = 0xB3;
-#endif
 
 #include <fstream>
 #include <iterator>
@@ -37,7 +23,6 @@ constexpr unsigned char kYoUpperByte = 0xB3;
 
 namespace native_text {
 
-#ifdef INTERNAL_ENCODING_UTF8
 
 bool native_is_utf8() {
 	return true;
@@ -502,167 +487,6 @@ std::string translit_to_filename(std::string_view name) {
 	return out;
 }
 
-#else  // KOI8-R: 1 byte == 1 character
-
-bool native_is_utf8() {
-	return false;
-}
-
-std::size_t char_count(const char *begin, const char *end) {
-	return static_cast<std::size_t>(end - begin);
-}
-
-std::size_t char_count(std::string_view s) {
-	return s.size();
-}
-
-void capitalize_first(char *s) {
-	if (s != nullptr && *s != '\0') {
-		*s = a_ucc_table[static_cast<unsigned char>(*s)];
-	}
-}
-
-std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
-	return max_bytes < s.size() ? max_bytes : s.size();
-}
-
-std::size_t char_bytes(const char *) {
-	return 1;
-}
-
-namespace {
-
-// Byte-wise fold-and-subtract, identical to the open-coded `LOWER(a[i]) - LOWER(b[i])` loops in
-// utils_string.cpp: the magnitude of the result (not just its sign) is preserved, since some
-// callers propagate it. A string that ended compares as LOWER('\0') against the other's byte.
-int compare_bytes(std::string_view a, std::string_view b, std::size_t limit) {
-	std::size_t i = 0;
-	while (true) {
-		if (limit != std::string_view::npos && i >= limit) {
-			return 0;
-		}
-		const bool a_end = i >= a.size();
-		const bool b_end = i >= b.size();
-		if (a_end && b_end) {
-			return 0;
-		}
-		const unsigned char ca = a_end ? '\0' : static_cast<unsigned char>(a[i]);
-		const unsigned char cb = b_end ? '\0' : static_cast<unsigned char>(b[i]);
-		const int chk = a_lcc_table[ca] - a_lcc_table[cb];
-		if (chk != 0) {
-			return chk;
-		}
-		++i;
-	}
-}
-
-}  // namespace
-
-int compare_ci(std::string_view a, std::string_view b) {
-	return compare_bytes(a, b, std::string_view::npos);
-}
-
-int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
-	return compare_bytes(a, b, n);
-}
-
-bool is_alnum_char(const char *s) {
-	return a_isalnum_table[static_cast<unsigned char>(*s)];
-}
-
-bool is_alpha_char(const char *s) {
-	return a_isalpha_table[static_cast<unsigned char>(*s)];
-}
-
-bool is_upper_char(const char *s) {
-	return a_isupper_table[static_cast<unsigned char>(*s)];
-}
-
-bool chars_equal_ci(const char *a, const char *b) {
-	return a_lcc_table[static_cast<unsigned char>(*a)] == a_lcc_table[static_cast<unsigned char>(*b)];
-}
-
-std::size_t copy_lower_char(const char *src, char *dst) {
-	*dst = a_lcc_table[static_cast<unsigned char>(*src)];
-	return 1;
-}
-
-std::size_t copy_upper_char(const char *src, char *dst) {
-	*dst = a_ucc_table[static_cast<unsigned char>(*src)];
-	return 1;
-}
-
-
-char32_t first_char_code(const char *s) {
-	return (s == nullptr || *s == '\0') ? 0 : static_cast<unsigned char>(*s);
-}
-
-char32_t first_char_code_lower(const char *s) {
-	return (s == nullptr || *s == '\0')
-		? 0 : static_cast<unsigned char>(a_lcc_table[static_cast<unsigned char>(*s)]);
-}
-
-char32_t first_char_code_upper(const char *s) {
-	return (s == nullptr || *s == '\0')
-		? 0 : static_cast<unsigned char>(a_ucc_table[static_cast<unsigned char>(*s)]);
-}
-
-void to_lower(std::string &s) {
-	for (char &c : s) {
-		c = a_lcc_table[static_cast<unsigned char>(c)];
-	}
-}
-
-void to_upper(std::string &s) {
-	for (char &c : s) {
-		c = a_ucc_table[static_cast<unsigned char>(c)];
-	}
-}
-
-void to_lower(char *s) {
-	for (; *s; ++s) {
-		*s = a_lcc_table[static_cast<unsigned char>(*s)];
-	}
-}
-
-void to_upper(char *s) {
-	for (; *s; ++s) {
-		*s = a_ucc_table[static_cast<unsigned char>(*s)];
-	}
-}
-
-
-std::string from_koi8(const std::string &text) {
-	return text;   // the native encoding already is KOI8-R
-}
-
-std::string to_koi8(const std::string &text) {
-	return text;   // the native encoding already is KOI8-R
-}
-
-std::string from_utf8(const std::string &text) {
-	// The native encoding is KOI8-R, so this is the real conversion: reduce what KOI8-R lacks
-	// (see translit_koi8.h), then transcode.
-	return codepages::Utf8ToKoi8(text);
-}
-
-std::string translit_to_filename(std::string_view name) {
-	// Byte-wise, exactly as get_filename() did before this was extracted: transliterate through
-	// the Latin table, then lowercase. Yo is not in that table and had its own special case.
-	std::string out;
-	out.reserve(name.size());
-	for (const char ch : name) {
-		const unsigned char b = static_cast<unsigned char>(ch);
-		if (b == kYoLowerByte || b == kYoUpperByte) {
-			out.push_back('9');
-		} else {
-			out.push_back(a_lcc_table[static_cast<unsigned char>(codepages::AtoL(ch))]);
-		}
-	}
-	return out;
-}
-
-#endif
 
 // ---------------------------------------------------------------------------------------------
 // Encoding-independent helpers: expressed purely in terms of the primitives above, so they need
@@ -690,7 +514,6 @@ inline std::size_t lead_len_shared(unsigned char c) {
 
 // Byte length of the character at `pos`, clamped to the end of `s`.
 std::size_t char_bytes_at(std::string_view s, std::size_t pos) {
-#ifdef INTERNAL_ENCODING_UTF8
 	const unsigned char lead = static_cast<unsigned char>(s[pos]);
 	if (lead < 0x80) {
 		return 1;
@@ -701,11 +524,6 @@ std::size_t char_bytes_at(std::string_view s, std::size_t pos) {
 		++n;
 	}
 	return n;
-#else
-	(void) s;
-	(void) pos;
-	return 1;
-#endif
 }
 
 }  // namespace
@@ -749,34 +567,22 @@ bool list_contains_char(std::string_view list, std::string_view ch) {
 }
 
 std::string from_disk_line(const char *line) {
-#ifdef INTERNAL_ENCODING_UTF8
 	if (line == nullptr || *line == '\0') {
 		return {};
 	}
 	const std::string_view view(line);
 	return utf8::is_valid(view) ? std::string(view) : from_koi8(std::string(view));
-#else
-	return line == nullptr ? std::string() : std::string(line);
-#endif
 }
 
 std::string from_disk_text(const std::string &text) {
-#ifdef INTERNAL_ENCODING_UTF8
 	// Same discriminator as from_disk_line, applied to the whole file: well-formed UTF-8 is taken
 	// as already native, anything else as KOI8-R. Cyrillic in KOI8-R is almost never valid UTF-8,
 	// which makes validity a reliable test, and it is what keeps a load/save cycle idempotent.
 	return utf8::is_valid(text) ? text : from_koi8(text);
-#else
-	return text;
-#endif
 }
 
 std::size_t char_offset(std::string_view s, std::size_t chars) {
-#ifdef INTERNAL_ENCODING_UTF8
 	return utf8::byte_offset(s, chars);
-#else
-	return std::min(chars, s.size());
-#endif
 }
 
 std::string pad_right(std::string_view s, std::size_t width) {
@@ -789,11 +595,7 @@ std::string pad_right(std::string_view s, std::size_t width) {
 }
 
 std::string to_disk(const std::string &text) {
-#ifdef INTERNAL_ENCODING_UTF8
 	return to_koi8(text);
-#else
-	return text;
-#endif
 }
 
 std::string read_data_file(const std::string &path) {

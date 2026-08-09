@@ -217,13 +217,9 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 			// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
 			// contain character with code 0xff which telnet interprets as IAC.
 			// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
-			if (native_text::native_is_utf8()) {
-				// Рантайм уже в UTF-8 - отдаём как есть. Повторная перекодировка испортила бы
-				// текст (именно так и выглядела первая флип-сборка).
-				strcpy(out_str, in_str);
-			} else {
-				codepages::koi_to_utf8(const_cast<char *>(in_str), out_str);
-			}
+			// Рантайм в UTF-8 - отдаём как есть. Перекодировка тут испортила бы текст
+			// (именно так и выглядела первая флип-сборка).
+			strcpy(out_str, in_str);
 			break;
 
 		default:

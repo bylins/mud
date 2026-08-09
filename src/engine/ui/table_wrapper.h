@@ -46,11 +46,7 @@ using TextAlign = fort::text_align;
  * точками. Под KOI8-R (1 байт = 1 символ) верен первый, под UTF-8 - второй; при неверном выборе
  * колонки с русским текстом съезжают вдвое.
  */
-#ifdef INTERNAL_ENCODING_UTF8
 using TableBase = fort::utf8_table;
-#else
-using TableBase = fort::char_table;
-#endif
 
 /**
  * Таблица в нативной кодировке движка.

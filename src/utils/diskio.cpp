@@ -155,8 +155,8 @@ FBFILE *fbopen_for_read(char *fname) {
 	// Данные на диске лежат в KOI8-R. Поднимаем весь буфер до нативной кодировки движка здесь,
 	// где размер под нашим контролем -- построчная конверсия рисковала бы переполнить буфер
 	// вызывающего, ведь кириллица при перекодировке удлиняется. Исходные байты остаются в raw
-	// для CRC. Под KOI8-R ветка не компилируется вовсе, buf и raw -- один и тот же указатель.
-	if (native_text::native_is_utf8()) {
+	// для CRC.
+	{
 		const std::string native = native_text::from_disk_line(fbfl->buf);
 		if (native.size() != static_cast<size_t>(fbfl->size)) {
 			char *converted = nullptr;
