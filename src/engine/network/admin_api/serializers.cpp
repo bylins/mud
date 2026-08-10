@@ -353,7 +353,9 @@ json SerializeRoom(RoomData& room, int vnum)
 			{
 				exit_obj["keyword"] = Koi8rToUtf8(room.dir_option[dir]->keyword);
 			}
-			exit_obj["exit_info"] = room.dir_option[dir]->exit_info;
+			// exit_info used to be a byte: a single 30-bit plane serialized as a plain number.
+			// BitsetFlags keeps that flag identity, so the JSON stays a number (get_plane(0)).
+			exit_obj["exit_info"] = room.dir_option[dir]->exit_info.get_plane(0);
 			exit_obj["key_vnum"] = room.dir_option[dir]->key;
 			exits.push_back(exit_obj);
 		}
