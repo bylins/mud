@@ -4082,6 +4082,11 @@ void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, 
 
 			field = p;
 			subfield_p = subfield;    //new
+			// Буфер обязательно гасим: ниже его длина участвует в расчете места под
+			// вложенную подстановку, а до первой записи здесь лежит мусор со стека.
+			// Из-за этого у %world.curobjs(66809)% отрезало последний символ -- движок
+			// ругался на несуществующий внум 6680.
+			*subfield = '\0';
 			if (*p == '.') {
 				*(p++) = '\0';
 				local_p = local;
@@ -4100,7 +4105,12 @@ void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, 
 						paren_count--;
 						if (!paren_count) {
 							*local_p = '\0';
-							var_subst(go, sc, trig, type, local, subfield_p, sizeof(subfield) - strlen(subfield));
+							// Остаток буфера считаем по указателю, а не по strlen: подполя пишутся
+							// друг за другом, и длина содержимого тут ни при чем. Со strlen на
+							// неинициализированной памяти разность могла уйти в минус и как size_t
+							// стать огромной -- snprintf писал бы за пределы буфера.
+							var_subst(go, sc, trig, type, local, subfield_p,
+									  sizeof(subfield) - static_cast<size_t>(subfield_p - subfield));
 							local_p = nullptr;
 							subfield_p = subfield + strlen(subfield);
 						}
