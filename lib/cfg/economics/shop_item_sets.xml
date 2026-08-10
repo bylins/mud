@@ -138,21 +138,21 @@
 		<item vnum="201536" price="850000" />
 	</shop_item_set>
 	<shop_item_set id="SpellsBooksHryv" comment="Книги за гривны">
-		<item vnum="400" price="150" />
-		<item vnum="403" price="200" />
-		<item vnum="404" price="150" />
-		<item vnum="405" price="150" />
-		<item vnum="406" price="150" />
-		<item vnum="407" price="150" />
-		<item vnum="408" price="200" />
-		<item vnum="412" price="150" />
-		<item vnum="413" price="150" />
-		<item vnum="414" price="100" />
-		<item vnum="416" price="500" />
-		<item vnum="417" price="400" />
-		<item vnum="418" price="200" />
-		<item vnum="419" price="150" />
-		<item vnum="420" price="100" />
+		<item vnum="40200" price="150" />
+		<item vnum="40203" price="200" />
+		<item vnum="40204" price="150" />
+		<item vnum="40205" price="150" />
+		<item vnum="40206" price="150" />
+		<item vnum="40207" price="150" />
+		<item vnum="40208" price="200" />
+		<item vnum="40212" price="150" />
+		<item vnum="40213" price="150" />
+		<item vnum="40214" price="100" />
+		<item vnum="40216" price="500" />
+		<item vnum="40217" price="400" />
+		<item vnum="40218" price="200" />
+		<item vnum="40219" price="150" />
+		<item vnum="40220" price="100" />
 		<item vnum="421" price="150" />
 		<item vnum="422" price="150" />
 		<item vnum="423" price="250" />

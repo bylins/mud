@@ -108,7 +108,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 
 	Affect<EApply> af;
 	af.duration = strangle_duration;
-	af.battleflag = kNone;
+	af.battleflag.clear();
 	af.affect_type = EAffect::kStrangled;
 	af.caster_id = ch->get_uid();
 
@@ -131,7 +131,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		af2.duration = silence_duration;
 		af2.modifier = -skill_strangle/3;
 		af2.location = EApply::kMagicDamagePercent;
-		af2.battleflag = kAfBattledec;
+		af2.battleflag = {kAfBattledec};
 		af2.affect_type = EAffect::kSilence;
 		affect_to_char(vict, af2);
 

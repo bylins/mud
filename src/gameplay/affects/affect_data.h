@@ -4,10 +4,10 @@
 #include "affect_contants.h"
 #include "gameplay/skills/skills.h"
 #include "engine/structs/flag_data.h"
+#include "engine/structs/bitset_flags.h"
 #include "engine/structs/structs.h"
 
 #include <vector>
-#include <utility>
 #include <list>
 #include <bitset>
 #include <string>
@@ -37,14 +37,14 @@ class Affect {
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
 	Affect() : duration(0), modifier(0), location(static_cast<TLocation>(0)),
-			   battleflag(0), caster_id(0),
+			   battleflag(), caster_id(0),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
 	int duration;    // For how long its effects will last      //
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
-	Bitvector battleflag;       //*** SUCH AS HOLD,SIELENCE etc
+	BitsetFlags<EAffFlag> battleflag;       //*** SUCH AS HOLD,SIELENCE etc
 	// The single flag this affect sets while active (AFF_XXX). Its enum type
 	// follows the affect's location kind via AffectFlagType (EAffect for chars,
 	// ERoomAffect for rooms). kUndefined/0 means the affect sets no flag.
@@ -106,6 +106,8 @@ struct obj_affected_type {
 [[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);
 
 void UpdateAffectOnPulse(CharData *ch, int count);
+// issue.3678-affect-timer: age affect + cooldown/feat timers by the offline interval at login.
+void ApplyOfflineTimerAging(CharData *ch, time_t now);
 void player_timed_update();
 void player_affect_update();
 void battle_affect_update(CharData *ch);
@@ -142,9 +144,20 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
-std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);
 void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
+void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);   // caller MUST affect_total after
+class ObjData;
+// issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as
+// real Affects (kAfFromEquipment, caster_id = item id); and strip an item's materialized affects.
+void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce = true);
+void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce = true);
+void RemoveEquipmentAffects(CharData *ch, long source_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
+// issue.equipment-affects-improve: like RemoveAffectFromChar, but keeps affects materialized
+// from worn equipment (kAfFromEquipment) -- used by Appear() so an aggressive action strips
+// castable invisibility/hide while an item's permanent invisibility survives (affect_total
+// re-derives its flag after the fight; it is suppressed while GET_ENEMY is set).
+void RemoveAffectFromCharExceptEquipment(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
 // for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).
@@ -153,7 +166,7 @@ void RemoveCurableAffects(CharData *ch);
 // True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
 bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
 // True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE
-// itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EWeaponAffect) and a mob's
+// itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EEquipmentAffect) and a mob's
 // innate proto flags. EAffect-keyed (decoupled from the casting spell); the successor to
 // IsAffectedBySpell for "does ch currently have this effect" queries.
 bool IsAffected(CharData *ch, EAffect affect_type);
@@ -177,14 +190,6 @@ void reset_affects_no_recalc(CharData *ch);
 // carries (with no matching Affect yet) as a real duration=-1 (permanent, dispellable) affect, so the
 // data-driven affect system works for that mob. One affect_total() at the end if anything was added.
 void MaterializeMobFlagAffects(CharData *mob);
-// issue.autoaffects-hotfix: shield/ward affects from PC equipment are flag-only in this branch (not
-// materialized like NPC buffs), so ward handlers that iterate ch->affected miss them. Returns the
-// affect types active for ward purposes: real affects (with potency) + flagged kAfMaterialize (potency 0).
-// TEMPORARY: a stopgap for the `unstable` line only. On unstable.next equipment affects are fully
-// materialized as real Affects (like NPC buffs), so ch->affected already holds them and every ward
-// handler can iterate ch->affected directly again -- at that point delete this helper and revert the
-// call sites (damage.cpp shield paths, magic.cpp RunAttackWards) back to `for (aff : victim->affected)`.
-std::vector<std::pair<EAffect, float>> VictimWardAffects(CharData *ch);
 // Materialize every NPC in the given zone (walks the zone's room rnum range).
 void MaterializeZoneMobAffects(ZoneRnum zrn);
 // (MarkZoneUsed -- the zone-wake hook that calls the above -- is declared in engine/entities/zone.h so

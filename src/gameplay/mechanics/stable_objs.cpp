@@ -19,7 +19,7 @@ namespace stable_objs {
 
 struct UndecayableCriterions {
   std::map<EApply, double> params;          // вес параметра предмета (EApply)
-  std::map<EWeaponAffect, double> affects;  // вес аффекта предмета (EWeaponAffect)
+  std::map<EEquipmentAffect, double> affects;  // вес аффекта предмета (EEquipmentAffect)
 };
 
 // массив для критерии, каждый элемент массива это отдельный слот (индекс = степень двойки EWearFlag)
@@ -148,8 +148,8 @@ double SumParamWeights(const CObjectPrototype *obj, int item_wear) {
 // Суммарный вес аффектов предмета по критериям слота item_wear.
 double SumAffectWeights(const CObjectPrototype *obj, int item_wear) {
 	double sum = 0.0;
-	for (const auto &[weapon_affect, weight] : undecayable_criterions[item_wear].affects) {
-		if (obj->GetEWeaponAffect(weapon_affect)) {
+	for (const auto &[equipment_affect, weight] : undecayable_criterions[item_wear].affects) {
+		if (obj->GetEEquipmentAffect(equipment_affect)) {
 			sum += weight;
 		}
 	}
@@ -327,7 +327,7 @@ double ParseCriterionValue(const char *value) {
 	}
 }
 
-// Загружает критерии одной <position> в слот index: <apply id=EApply>, <affect id=EWeaponAffect>.
+// Загружает критерии одной <position> в слот index: <apply id=EApply>, <affect id=EEquipmentAffect>.
 void LoadPosition(parser_wrapper::DataNode position, int index) {
 	if (position.GoToChild("params")) {
 		for (auto &apply : position.Children("apply")) {
@@ -343,7 +343,7 @@ void LoadPosition(parser_wrapper::DataNode position, int index) {
 	if (position.GoToChild("affects")) {
 		for (auto &affect : position.Children("affect")) {
 			try {
-				const EWeaponAffect id = parse::ReadAsConstant<EWeaponAffect>(affect.GetValue("id"));
+				const EEquipmentAffect id = parse::ReadAsConstant<EEquipmentAffect>(affect.GetValue("id"));
 				undecayable_criterions[index].affects[id] = ParseCriterionValue(affect.GetValue("value"));
 			} catch (const std::exception &) {
 				err_log("stable_objs: unknown <affect id> '%s'", affect.GetValue("id"));

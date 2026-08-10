@@ -147,7 +147,7 @@ void CharData::reset() {
 		remove_protecting();
 	}
 	set_touching(nullptr);
-	battle_affects = clear_flags;
+	battle_affects.clear();
 	SetEnemy(nullptr);
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
@@ -225,6 +225,7 @@ void CharData::zero_init() {
 	remorts_ = 0;
 	remorts_add_ = 0;
 	last_logon_ = 0;
+	last_state_save_ = 0;
 	str_ = 0;
 	str_add_ = 0;
 	dex_ = 0;
@@ -656,6 +657,14 @@ time_t CharData::get_last_logon() const {
 
 void CharData::set_last_logon(time_t num) {
 	last_logon_ = num;
+}
+
+time_t CharData::get_last_state_save() const {
+	return last_state_save_;
+}
+
+void CharData::set_last_state_save(time_t num) {
+	last_state_save_ = num;
 }
 
 time_t CharData::get_last_exchange() const {
@@ -1163,7 +1172,7 @@ void CharData::restore_npc() {
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
 	this->mob_specials.extra_attack = proto->mob_specials.extra_attack;
 	//флаги
-	this->char_specials.saved.act = proto->char_specials.saved.act;
+	this->char_specials.saved.mob_flags = proto->char_specials.saved.mob_flags;
 	this->set_touching(nullptr);
 	if (this->get_protecting()) {
 		this->remove_protecting();

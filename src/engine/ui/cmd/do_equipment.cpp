@@ -6,14 +6,15 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/utils_char_obj.inl"
+#include "gameplay/affects/affect_messages.h"
 
 void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, found = 0;
 	skip_spaces(&argument);
-
 	SendMsgToChar("На вас надето:\r\n", ch);
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {

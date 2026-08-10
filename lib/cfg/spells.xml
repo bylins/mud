@@ -6591,7 +6591,7 @@
 		</components>
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="70" min="55" change="1" />
-		<targets val="kTarCharRoom|kTarSelf" />
+		<targets val="kTarCharRoom|kTarFightSelf" />
 		<flags val="kMagUnaffects" />
 		<potency_roll>
 			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
@@ -6606,6 +6606,29 @@
 				<unaffect affect_flags="kAfDispellable" dispel_bonus="50" debuff_only="Y">
 					<remove any_of="*" />
 				</unaffect>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kWeaveRestoration" element="kLight" mode="kEnabled">
+		<name val="восстановить плетение" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kFight" violent="N" danger="0" />
+		<mana max="35" min="25" change="1" />
+		<targets val="kTarObjInv|kTarObjRoom|kTarCharRoom" />
+		<potency_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7" />
+			<base_stat id="kWis" threshold="22" weight="18" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_stat id="kWis" threshold="22" weight="0.5" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<alter_obj handler="AlterWeaveRestore" collateral="first_suppressed" dispel_bonus="50" decay="25" bypass_noalter="Y" />
 			</action>
 		</talent_actions>
 	</spell>

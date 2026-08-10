@@ -12,7 +12,7 @@
     expiry). The one-way side shows no aura on look (skipped in show_room_affects) but still
     narrates its expiry, so it carries only kAffExpiredToRoom.
 -->
-<msg_container>
+<room_affect_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kAffDispelledToChar" val="Ваша магия была развеяна."/>
 		<message type="kAffInterruptedToChar" val="Вы прервали прежние чары."/>
@@ -114,4 +114,4 @@
 		<message type="kRoomAffectInvisible" val="Проход тускло мерцает багровым - кто-то заговорил его огненной ловушкой."/>
 		<message type="kRoomAffectSelfInvisible" val="Ваша огненная ловушка тускло мерцает на проходе багровым светом."/>
 	</msg_sheaf>
-</msg_container>
+</room_affect_msg>

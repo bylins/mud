@@ -518,19 +518,22 @@ opts in with `collateral="on_damage"` and the cast dealt damage this stage** (`c
 — a random equipped/carried item of the victim; issue.spells-hotfix), guards
 the `kNoalter` flag, then dispatches the named handler from the
 `kAlterObjHandlers` registry (`magic.cpp`). The transform itself is irreducibly per-spell, so the
-attributes are `handler` and the optional `collateral` (mirroring `<manual_cast>`, but with the
+the main attribute is `handler`, plus the optional `collateral` / `dispel_bonus` / `decay` / `bypass_noalter` (mirroring `<manual_cast>`, but with the
 shared object-resolution + guard skeleton around it):
 
 | Attr | Default | Description |
 |---|---|---|
 | `handler` | required | The per-spell transform, resolved from the `kAlterObjHandlers` registry. |
-| `collateral` | `none` | On a **character** cast (no explicit object target), splash onto a random equipped/carried item: `on_damage` = only when the cast dealt damage this stage (acid corroding gear). Absent / `none` = never — cast the spell **directly on an object** to affect one. |
+| `collateral` | `none` | On a **character** cast (no explicit object target), splash onto one equipped/carried item: `on_damage` = only when the cast dealt damage this stage (acid corroding gear); `first_suppressed` = a random worn item of the victim carrying a **suppressed** affect (for weave restoration, see §9.3.1). Absent / `none` = never — cast the spell **directly on an object** to affect one. |
+| `dispel_bonus` | `50` | For contest handlers (e.g. `AlterWeaveRestore`): the flat `DispelContest` threshold offset — **win % at equal competence** (§9.3.1). |
+| `decay` | `0` | For contest handlers: on a **miss**, erode the stored suppression potency by this % of the dispeller's strength (repeated casts wear it down). |
+| `bypass_noalter` | `N` | `Y` skips the `kNoalter` guard: the handler restores the item's **own** magic rather than transmuting it (needed for no-alter set items). |
 
 The handler does its **own** messaging and returns `kSuccess` when it acted (or chose to stay
 silent), or **`kFail`** to ask the skeleton for the generic "no effect" line. Current handlers:
 `AlterBless` / `AlterCurse` / `AlterInvisible` / `AlterPoison` / `AlterRemoveCurse` /
 `AlterEnchantWeapon` / `AlterRemovePoison` / `AlterFly` / `AlterAcid` (kAcid + kAcidArrow) /
-`AlterRepair` / `AlterTimerRestore` / `AlterRestoration` / `AlterLight` / `AlterDarkness`. A
+`AlterRepair` / `AlterTimerRestore` / `AlterRestoration` / `AlterLight` / `AlterDarkness` / `AlterWeaveRestore` (lifts an item suppression — §9.3.1). A
 multi-purpose spell (e.g. `kBless`, which also affects a character) carries `<alter_obj>` alongside
 its `<affects>` in the same action. It replaced the old `kMagAlterObjs` flag. The random-item splash
 is now **opt-in per spell** via `collateral="on_damage"` (issue.spells-hotfix): casting a spell on a
@@ -1073,6 +1076,35 @@ threshold of `50` → 50 %. Vs sanctuary (`dispel_mod=-35`) the threshold is `50
 
 A failed contest emits `kNoeffect` to the caster (for a pure dispel spell — a `kMagAffects`
 spell that also dispels remains silent on failure and still applies its own affect).
+
+### 9.3.1 The contest for on-item suppressions — `DispelContest` *(issue.affect-suppression-dispell)*
+
+An affect **suppressed on an item** (the `kSuppressed` obj-affect — see the Affect Manual,
+"Suppression & restoration") is not on the character's `->affected` list, so it is lifted by a
+separate `DispelContest` function rather than `DispelSucceeds` (§9.3). The weave-restoration spell
+(`kWeaveRestoration`) uses it via
+`<alter_obj handler="AlterWeaveRestore" collateral="first_suppressed" dispel_bonus="50" decay="25" bypass_noalter="Y"/>`:
+
+```
+threshold = clamp( k·(C_dispel − suppression_potency) + dispel_bonus,  5,  95 )
+lifted    = number(1,100) ≤ threshold
+```
+
+Differences from §9.3:
+
+* `suppression_potency` is read **directly** off the `kSuppressed` obj-affect (the competence of
+  the dispel that imposed the suppression) — it is not on any character's affect list.
+* **No** `dispel_mod` term (that lives on a character affect in `affects.xml`; the suppression is
+  on the item).
+* **No** "non-violent cleanse skips the contest" shortcut — it **always** rolls.
+* `dispel_bonus` (`<alter_obj dispel_bonus=>`, default 50) and `k` (`kDispelSkillWeight` = 4) are
+  the same.
+* On a **miss** the stored suppression potency is **eroded** by `decay`% (`<alter_obj decay=>`) of
+  the dispeller's strength — repeated casts wear the suppression down until it lifts.
+
+On success the suppression is removed and the item's affect **auto-returns early** (the manual
+counterpart of the timer-driven auto-return). The full suppression / obj-affect model is in the
+Affect Manual.
 
 ### 9.4 The chain-break path *(new mechanic)*
 

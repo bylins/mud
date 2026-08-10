@@ -57,7 +57,7 @@ EStageResult SpellMentalShadow(ActionContext &ctx) {
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kHelper;
-	af.battleflag = kAfCharmBond;
+	af.battleflag = {kAfCharmBond};
 	affect_to_char(mob, af);
 	
 	mob->set_max_hit(floorf(hp + hp_per_int * (eff_int - 20) + ch->get_hit()/4));

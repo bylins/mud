@@ -197,6 +197,9 @@ class RuntimeConfiguration {
 	// {"yaml","sqlite"}). First == highest priority. Empty means "use the
 	// compile-time default single source" (legacy behaviour).
 	const std::vector<std::string> &world_sources() const { return m_world_sources; }
+	// issue.3678-affect-timer: when true, a character's affect/cooldown timers are aged by the
+	// offline interval at login (like item timers) instead of pausing. Default off.
+	bool offline_affect_aging() const { return m_offline_affect_aging; }
 
 
 #ifdef ENABLE_ADMIN_API
@@ -240,6 +243,7 @@ class RuntimeConfiguration {
 	bool m_logging_enabled;
 	bool m_msdp_disabled;
 	bool m_msdp_debug;
+	bool m_offline_affect_aging{false};  // issue.3678-affect-timer
 	std::string m_changelog_file_name;
 	std::string m_changelog_format;
 	std::string m_external_reboot_trigger_file_name;

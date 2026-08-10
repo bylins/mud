@@ -6,10 +6,12 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/target_resolver.h"
+#include "gameplay/affects/affect_messages.h"
 
 void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *tmp_char;
@@ -41,8 +43,27 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	sight::skip_hide_on_look(ch);
 
-	if (sight::look_at_target(ch, argument, subcmd))
-		return;
+	{
+		ObjData *supp_obj = nullptr;
+		CharData *supp_ch = nullptr;
+		generic_find(arg, where_bits, ch, &supp_ch, &supp_obj);
+		const bool did_look = sight::look_at_target(ch, argument, subcmd);
+		if (supp_obj && supp_obj->has_suppressed_affects()) {
+			// One suppressed affect per indented line -- a single comma-joined line is unreadable with 2+.
+			std::string note = "Временно подавлено волшебство:\r\n";
+			for (const auto &pr : supp_obj->suppressed_equip_affects()) {
+				char hbuf[96];
+				snprintf(hbuf, sizeof(hbuf), "    %s (%d %s)\r\n",
+						affects::AffectMsg(pr.first, affects::EAffectMsgType::kShortDesc).c_str(), pr.second,
+						grammar::GetDeclensionInNumber(pr.second, grammar::EWhat::kHour));
+				note += hbuf;
+			}
+			SendMsgToChar(note, ch);
+		}
+		if (did_look) {
+			return;
+		}
+	}
 
 	if (isname(arg, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
 		for (const auto &aff : world[ch->in_room]->affected) {

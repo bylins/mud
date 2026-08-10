@@ -135,7 +135,6 @@ private:
 	void LoadRoomExtraDescriptions(RoomData *room, const YAML::Node &extras_node);
 
 	// Flag parsing using dictionaries
-	FlagData ParseFlags(const YAML::Node &node, const std::string &dict_name) const;
 	int ParseEnum(const YAML::Node &node, const std::string &dict_name, int default_val = 0) const;
 	int ParsePosition(const YAML::Node &node) const;
 	int ParseGender(const YAML::Node &node, int default_val = 1) const;

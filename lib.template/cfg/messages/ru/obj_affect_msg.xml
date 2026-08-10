@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.obj-affects: lifecycle and display messages for affects that live ON an item, keyed by the
+    obj_affects::EObjAffect token (the <msg_sheaf id=>). Slots (EObjAffectMsgType):
+      kShortDesc          - the affect's label (examine / identify)
+      kDiagToChar         - the "examine" diagnostic line for the affect on the item
+      kAffExpiredToChar   - shown to the holder when the affect wears off ("%s" = item name)
+      kAffDispelledToChar - shown when a player effect strips the affect ("%s" = item name)
+    "%s" is the item name in the case declared by msg_case= in cfg/obj_affects.xml. The shared
+    kDefault sheaf supplies fallbacks for any slot a specific affect omits.
+-->
+<obj_affect_msg>
+	<msg_sheaf id="kDefault">
+		<message type="kAffDispelledToChar" val="Магия %s рассеялась.&#13;&#10;"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBless">
+		<message type="kShortDesc" val="благословение"/>
+		<message type="kDiagToChar" val="  Предмет благословлен.&#13;&#10;"/>
+		<message type="kAffExpiredToChar" val="Благословение покинуло %s.&#13;&#10;"/>
+		<message type="kAffDispelledToChar" val="Благословение покинуло %s.&#13;&#10;"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCurse">
+		<message type="kShortDesc" val="проклятие"/>
+		<message type="kDiagToChar" val="  Предмет проклят.&#13;&#10;"/>
+		<message type="kAffExpiredToChar" val="Проклятие спало с %s.&#13;&#10;"/>
+		<message type="kAffDispelledToChar" val="Проклятие спало с %s.&#13;&#10;"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPoisoned">
+		<message type="kShortDesc" val="яд"/>
+		<message type="kDiagToChar" val="  Оружие отравлено.&#13;&#10;"/>
+		<message type="kAffExpiredToChar" val="Отрава с %s испарилась.&#13;&#10;"/>
+		<message type="kAffDispelledToChar" val="Отрава с %s испарилась.&#13;&#10;"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFly">
+		<message type="kShortDesc" val="левитация"/>
+		<message type="kDiagToChar" val="  Предмет парит в воздухе.&#13;&#10;"/>
+		<message type="kAffExpiredToChar" val="Чары левитации спали с %s.&#13;&#10;"/>
+		<message type="kAffDispelledToChar" val="Чары левитации спали с %s.&#13;&#10;"/>
+	</msg_sheaf>
+	<msg_sheaf id="kLight">
+		<message type="kShortDesc" val="свет"/>
+		<message type="kDiagToChar" val="  Предмет испускает свет.&#13;&#10;"/>
+		<message type="kAffExpiredToChar" val="Сияние %s померкло.&#13;&#10;"/>
+		<message type="kAffDispelledToChar" val="Сияние %s померкло.&#13;&#10;"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInvisible">
+		<message type="kShortDesc" val="невидимость"/>
+		<message type="kDiagToChar" val="  Предмет невидим.&#13;&#10;"/>
+		<message type="kAffExpiredToChar" val="Невидимость %s рассеялась.&#13;&#10;"/>
+		<message type="kAffDispelledToChar" val="Невидимость %s рассеялась.&#13;&#10;"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDartTrap">
+		<message type="kShortDesc" val="ловушка с дротиками"/>
+		<message type="kDiagToChar" val="  На предмете установлена ловушка с дротиками.&#13;&#10;"/>
+		<message type="kTriggerToChar" val="Сработала ловушка с дротиками!&#13;&#10;"/>
+		<message type="kDamageToChar" val="Ядовитые дротики впиваются в ваше тело!&#13;&#10;"/>
+		<message type="kDamageToVict" val="Ядовитые дротики впиваются в ваше тело!&#13;&#10;"/>
+		<message type="kDamageToRoom" val="$n вздрогнул$g от впившихся ядовитых дротиков."/>
+		<message type="kTriggerToRoom" val="$n потревожил$g ловушку с дротиками."/>
+	</msg_sheaf>
+</obj_affect_msg>

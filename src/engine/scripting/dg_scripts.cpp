@@ -3212,7 +3212,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "mobflag")) {
 				if (mob->IsNpc()) {
 	//				mudlog(fmt::format("mob flag {}", subfield));
-					bool val = mob->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+					bool val = mob->char_specials.saved.mob_flags.gm_flag(subfield, action_bits, str);
 					if (!val) {
 						trig_log(trig, fmt::format("mobflag: неправильный параметр в скобках - ({})", subfield));
 						return;
@@ -3599,7 +3599,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "effect")) {
 			obj->gm_extra_flag(subfield, extra_bits, str);
 		} else if (!str_cmp(field, "affect")) {
-			obj->gm_affect_flag(subfield, weapon_affects, str);
+			obj->gm_affect_flag(subfield, equipment_affects, str);
 		} else if (!str_cmp(field, "apply")) {
 			char *p = strchr(subfield, ',');
 			if (p) {

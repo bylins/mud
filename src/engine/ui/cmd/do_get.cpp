@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/depot.h"
+#include "gameplay/magic/magic.h"   // issue.obj-affects: RunObjAffectTrigger
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 #include "engine/entities/char_data.h"
@@ -228,6 +229,7 @@ int perform_get_from_room(CharData *ch, ObjData *obj) {
 			world_objects.decay_manager().remove(obj);
 		}
 		PlaceObjToInventory(obj, ch);
+		RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kGet);   // issue.obj-affects
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {
 				act("Вы подняли $o3, испачкав свои руки кровью!",

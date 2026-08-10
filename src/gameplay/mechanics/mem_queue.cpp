@@ -393,7 +393,7 @@ void forget_all_spells(CharData *ch) {
 
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0);
 		af.affect_type = EAffect::kMemorizeSpells;
-		af.battleflag = kAfPulsedec | kAfDeadkeep;
+		af.battleflag = {kAfPulsedec, kAfDeadkeep};
 		ImposeAffect(ch, af, false, false, false, false);
 	}
 }

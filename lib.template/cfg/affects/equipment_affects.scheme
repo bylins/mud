@@ -1,0 +1,29 @@
+<!--
+  issue.equipment-affects-vedun: editor scheme for cfg/affects/equipment_affects.xml
+  (`vedun equipment_affects`). OPTIONAL sidecar describing field types so the Vedun editor offers enum
+  pick-lists instead of bare strings; EquipmentAffectsLoader::Validate rejects a bad id/flag on save.
+  Any attribute not declared here degrades to a plain string field and is still validated by the loader
+  on reload. Enums resolve via the Vedun EnumRegistry: EEquipmentAffect (the identity), EAffect (the
+  imposed AFF flag) and ESpell (the on-equip spell) are all registered there.
+-->
+<scheme>
+	<prohibited>
+		<element id="kUndefined"/>
+	</prohibited>
+
+	<tag name="equipment_affects" desc="Equipment-affect table (cfg/affects/equipment_affects.xml): what a worn item confers on its wearer.">
+		<child tag="affect" multiple="Y"/>
+	</tag>
+
+	<tag name="affect" desc="One equipment affect: the EAffect flag it sets and/or the spell it casts on the wearer.">
+		<attr name="id" type="enum" enum="EEquipmentAffect" readonly="Y" desc="Equipment-affect identity (immutable)"/>
+		<child tag="impose"/>
+	</tag>
+
+	<tag name="impose" desc="What the affect does to the wearer while the item is worn.">
+		<attr name="flag" type="enum" enum="EAffect" desc="EAffect flag set on the wearer (kUndefined = none, e.g. a purely spell-driven affect)"/>
+		<attr name="spell" type="enum" enum="ESpell" desc="Spell cast on equip (kUndefined = none)"/>
+		<attr name="timer" type="int" desc="Affect duration in ticks; -1 = permanent while worn (absent = spell-driven standard duration)"/>
+		<attr name="power_percent" type="int" min="0" desc="Power scaling percent applied to the affect magnitude"/>
+	</tag>
+</scheme>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.obj-affects: the obj-affect registry. id = the obj_affects::EObjAffect enumerator (the
+    identity, kept in C++). These are affects that live ON an item, distinct from character affects:
+    poison on a weapon poisons the strike target, bless/curse change the item, etc.
+
+    Each affect optionally OWNS an object extra-flag (flag="kX", an EObjFlag token): while the affect
+    is active the flag is set on the item INSTANCE; on expiry or dispel it is cleared only if the
+    item's PROTOTYPE lacks the flag (an innate prototype flag is a permanent property and survives).
+    kPoisoned owns no flag (the poison is read from the affect itself); its subtype (aconite / scopolia
+    / belena / datura) is carried in the affect modifier.
+
+    dispellable="0|1" (default 1): whether a player effect (remove curse / dispel magic / darkness) may
+    strip the affect. The prototype-innate-flag rule above is separate and always applies.
+
+    msg_case="kNom|kGen|kDat|kAcc|kIns|kPre" (default kGen): the grammatical case the affect's lifecycle
+    messages (obj_affect_msg.xml) expect the item name ("%s") in.
+
+    Per-affect display and lifecycle text lives in cfg/messages/ru/obj_affect_msg.xml.
+-->
+<obj_affects>
+	<obj_affect id="kInvisible" flag="kInvisible" msg_case="kGen" see_affect="kDetectInvisible"/>
+	<obj_affect id="kCurse" flag="kNodrop" msg_case="kGen" see_affect="kDetectMagic"/>
+	<obj_affect id="kPoisoned" msg_case="kGen" see_affect="kDetectMagic">
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kWeaponHit"/>
+				<manual_cast handler="WeaponPoisonHit"/>
+			</action>
+		</actions>
+	</obj_affect>
+	<obj_affect id="kBless" flag="kBless" msg_case="kAcc" see_affect="kDetectMagic"/>
+	<obj_affect id="kFly" flag="kFlying" msg_case="kGen" see_affect="kUndefined"/>
+	<obj_affect id="kLight" flag="kGlow" msg_case="kGen" see_affect="kUndefined"/>
+	<obj_affect id="kDartTrap" see_affect="kDetectMagic">
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kPick|kOpen" return="0"/>
+				<damage saving="kNone">
+					<amount min="200" beta="0" weight="0"/>
+				</damage>
+				<side_spell id="kPoison"/>
+			</action>
+		</actions>
+	</obj_affect>
+	<!-- issue.obj-suppressor-affect: a dispel that lands on an equipment-conferred affect drops it
+	     here for a time (modifier = the suppressed EAffect); no flag, hidden on examine, and NOT
+	     player-dispellable (it is itself the result of a dispel). -->
+	<obj_affect id="kSuppressed" dispellable="0" see_affect="kUndefined"/>
+</obj_affects>

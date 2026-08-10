@@ -411,8 +411,8 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 									});
 
 	// loading of object weapon affect flags
-	CHelper::load_flags<EWeaponAffect>(*node, "weapon_affects", "weapon_affect",
-									   [&](const auto flag) { this->SetEWeaponAffectFlag(flag); },
+	CHelper::load_flags<EEquipmentAffect>(*node, "weapon_affects", "weapon_affect",
+									   [&](const auto flag) { this->SetEEquipmentAffectFlag(flag); },
 									   [&](const auto value) {
 											   logger("Setting weapon affect flag '%s' for object with VNUM %d.\n",
 													  NAME_BY_ITEM(value).c_str(),
@@ -646,7 +646,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 											   "WARNING: Could not save extraflag " + NAME_BY_ITEM(value));
 									   });
 
-		CHelper::save_list<EWeaponAffect>(*node, "weapon_affects", "weapon_affect", get_affect_flags(),
+		CHelper::save_list<EEquipmentAffect>(*node, "weapon_affects", "weapon_affect", get_affect_flags(),
 										  [&]() {
 												  throw std::runtime_error(
 													  "WARNING: Failed to create node \"weapon_affects\".\n");

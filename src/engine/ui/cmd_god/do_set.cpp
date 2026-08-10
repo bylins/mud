@@ -248,7 +248,9 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				vict->save_char();
 			}
 			if (is_file) {
-				vict->save_char();
+				// issue.3678-affect-timer: offline edit must NOT restamp the last-live-save time,
+				// or it would zero the player's offline interval on the next login.
+				vict->save_char(false);
 				SendMsgToChar("Файл сохранен.\r\n", ch);
 			}
 		}

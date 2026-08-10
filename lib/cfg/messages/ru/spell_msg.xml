@@ -9,7 +9,7 @@
 	type сообщения (message) - значение ESpellMsg; текст в атрибуте val.
 
 -->
-<msg_container>
+<spell_msg>
 	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
 	     заклинаний (проверки позиции каста и т.п. из magic_utils.cpp). -->
 	<msg_sheaf id="kDefault">
@@ -719,6 +719,14 @@
 		<message type="kAlterObjToChar" val="$o вспыхнул$G розовым светом и тут же погас$Q." />
 		<message type="kCastPhraseHeathen" val="изыде порча" />
 		<message type="kCastPhraseChristian" val="... да простятся тебе прегрешения твои." />
+	</msg_sheaf>
+	<msg_sheaf id="kWeaveRestoration">
+		<name val="восстановить плетение" />
+		<message type="kAlterObjToChar" val="$o ярко вспыхнул$G, и подавленная магия вернулась." />
+		<message type="kObjResist" val="Плетение упорно сопротивляется восстановлению." />
+		<message type="kNoeffect" val="Здесь нет подавленной магии, которую можно было бы восстановить." />
+		<message type="kCastPhraseHeathen" val="возродись, сокрытое плетение" />
+		<message type="kCastPhraseChristian" val="... да вернется сила, что была сокрыта." />
 	</msg_sheaf>
 	<msg_sheaf id="kFly">
 		<name val="полет" />
@@ -1887,27 +1895,6 @@
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 	</msg_sheaf>
-	<msg_sheaf id="kDrunked">
-		<name val="!опьянение!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-	</msg_sheaf>
-	<msg_sheaf id="kAbstinent">
-		<name val="!абстиненция!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-	</msg_sheaf>
-	<msg_sheaf id="kBattle">
-		<name val="!получил в бою!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-		<message type="kAffExpiredToChar" val="К вам вернулась способность нормально сражаться." />
-	</msg_sheaf>
-	<msg_sheaf id="kHaemorrhage">
-		<name val="!кровотечение!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-	</msg_sheaf>
 	<msg_sheaf id="kCourage">
 		<name val="!ярость!" />
 		<message type="kCastPhraseHeathen" val="" />
@@ -2073,11 +2060,6 @@
 		<name val="смирение" />
 		<message type="kCastPhraseHeathen" val="Избавь речь свою от недобрых слов, а ум - от крамольных мыслей." />
 		<message type="kCastPhraseChristian" val="... любите врагов ваших и благотворите ненавидящим вас." />
-	</msg_sheaf>
-	<msg_sheaf id="kMagicBattle">
-		<name val="!получил в бою!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
 	</msg_sheaf>
 	<msg_sheaf id="kBerserk">
 		<name val="!предсмертная ярость!" />
@@ -2257,21 +2239,10 @@
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 	</msg_sheaf>
-	<msg_sheaf id="kBandage">
-		<name val="перевязка" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-	</msg_sheaf>
 	<msg_sheaf id="kStrangle">
 		<name val="!удушье!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
-	</msg_sheaf>
-	<msg_sheaf id="kRecallSpells">
-		<name val="!вспоминает заклинания!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-		<message type="kAffExpiredToChar" val="Вам стало не на чем концентрироваться." />
 	</msg_sheaf>
 	<msg_sheaf id="kHypnoticPattern">
 		<name val="чарующий узор" />
@@ -2339,12 +2310,6 @@
 		<message type="kCastPhraseHeathen" val="Ато егоже руци попасти." />
 		<message type="kCastPhraseChristian" val="И он не знает, что мертвецы там и что в глубине..." />
 		<!-- Room-affect aura (issue.sight-fmt). Visible to anyone. -->
-	</msg_sheaf>
-	<msg_sheaf id="kExpedient">
-		<name val="!боевой прием!" />
-		<message type="kCastPhraseHeathen" val="!Применил боевой прием!" />
-		<message type="kCastPhraseChristian" val="!use battle expedient!" />
-		<message type="kAffExpiredToChar" val="Эффект боевого приема завершился." />
 	</msg_sheaf>
 	<msg_sheaf id="kSightOfDarkness">
 		<name val="зрение тьмы" />
@@ -2417,23 +2382,11 @@
 	<msg_sheaf id="kFrenzy">
 		<name val="исступление" />
 	</msg_sheaf>
-	<msg_sheaf id="kPortalTimer">
-		<name val="врата" />
-		<!-- Room-affect aura (issue.affect-flags). Visible to anyone in the room;
-		     detect-magic viewers fall through to the same line. PK variant is
-		     preferred when Affect::pk_unique is set (the blood-tinge text). -->
-	</msg_sheaf>
 	<msg_sheaf id="kDazzle">
 		<name val="ослепить" />
 	</msg_sheaf>
 	<msg_sheaf id="kCreateArmor">
 		<name val="создать доспех" />
-	</msg_sheaf>
-	<msg_sheaf id="kDeadlyFogTick">
-		<name val="туман смерти (тик)" />
-	</msg_sheaf>
-	<msg_sheaf id="kConfuse">
-		<name val="ошарашен" />
 	</msg_sheaf>
 	<msg_sheaf id="kFireTrap">
 		<name val="огненная ловушка" />
@@ -2480,4 +2433,4 @@
 		<message type="kCastPhraseHeathen" val="очистися место сие" />
 		<message type="kCastPhraseChristian" val="... да сгинет скверна с места сего." />
 	</msg_sheaf>
-</msg_container>
+</spell_msg>

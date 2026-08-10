@@ -14,6 +14,7 @@
 #include "administration/karma.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
+#include "gameplay/affects/affect_data.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/communication/insult.h"
 #include "gameplay/communication/offtop.h"
@@ -641,6 +642,11 @@ void do_entergame(DescriptorData *d) {
 	// with the copyover patch, this next line goes in enter_player_game()
 	chardata_by_uid[d->character->get_uid()] = d->character.get();
 	GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
+	// issue.3678-affect-timer: age affect/cooldown timers by the offline interval, using the
+	// last-save time loaded from the file -- BEFORE save_char() below restamps it. Config-gated.
+	if (runtime_config.offline_affect_aging()) {
+		ApplyOfflineTimerAging(d->character.get(), time(nullptr));
+	}
 	d->character->set_last_logon(time(nullptr));
 //	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = d->character->get_last_logon();
 	player_table[d->character->get_pfilepos()].last_logon = d->character->get_last_logon();

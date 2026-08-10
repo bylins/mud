@@ -18,7 +18,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
 	noflee.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);;
-	noflee.battleflag = kAfBattledec | kAfPulsedec;
+	noflee.battleflag = {kAfBattledec, kAfPulsedec};
 	ImposeAffect(ch, noflee, true, false, true, false);
 	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
 }
@@ -26,7 +26,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	Affect<EApply> cut;
 	cut.duration = CalcDuration(roll.GetActor(), roll.GetActor(), ESkill::kUndefined, 3 * number(2, 4), 0, 0, 0);;
-	cut.battleflag = kAfBattledec;
+	cut.battleflag = {kAfBattledec};
 	if (roll.GetActor()->IsFlagged(EPrf::kPerformSerratedBlade)) {
 		cut.modifier = 1;
 		cut.affect_type = EAffect::kLacerations;

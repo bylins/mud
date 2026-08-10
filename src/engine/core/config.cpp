@@ -431,6 +431,13 @@ void RuntimeConfiguration::load_features_configuration(const pugi::xml_node *roo
 	if (msdp) {
 		load_msdp_configuration(&msdp);
 	}
+
+	// issue.3678-affect-timer: <features><offline_affect_aging>true</offline_affect_aging>
+	const auto offline_aging = features.child("offline_affect_aging");
+	if (offline_aging) {
+		const auto v = offline_aging.child_value();
+		m_offline_affect_aging = (v && 0 == strcmp("true", v));
+	}
 }
 
 void RuntimeConfiguration::setup_logs() {

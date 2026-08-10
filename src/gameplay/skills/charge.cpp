@@ -84,13 +84,13 @@ void GoCharge(CharData *ch, int direction) {
 
 	Affect<EApply> af;
 	af.duration = 4;
-	af.battleflag = kNone;
+	af.battleflag.clear();
 	af.affect_type = EAffect::kNoCharge;
 	af.caster_id = ch->get_uid();
 
 	Affect<EApply> af2;
 	af2.duration = 3;
-	af2.battleflag = kAfSameTime;
+	af2.battleflag = {kAfSameTime};
 	af2.affect_type = EAffect::kConfused;
 	SetWait(ch, 1, false);
 

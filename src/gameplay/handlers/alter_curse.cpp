@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/affects/obj_affects.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
@@ -14,7 +15,7 @@ namespace handlers {
 EStageResult AlterCurse(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (!obj->has_flag(EObjFlag::kNodrop)) {
-		obj->set_extra_flag(EObjFlag::kNodrop);
+		obj_affects::Impose(obj, obj_affects::EObjAffect::kCurse, -1);
 		if (obj->get_type() == EObjType::kWeapon) {
 			if (GET_OBJ_VAL(obj, 2) > 0) {
 				obj->dec_val(2);

@@ -28,7 +28,7 @@
 #include "gameplay/skills/skills_info.h"
 #include "engine/db/global_objects.h"
 
-void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags);
+void show_equipment_affects_olc(DescriptorData *d, const BitsetFlags<EEquipmentAffect> &flags);
 void show_apply_olc(DescriptorData *d);
 int planebit(const char *str, int *plane, int *bit);
 
@@ -390,7 +390,7 @@ void sedit::show_activ_edit(CharData *ch) {
 	const ActivNode &activ = i->second;
 
 	char buf_aff[2048];
-	activ.affects.sprintbits(weapon_affects, buf_aff, sizeof(buf_aff), ",");
+	activ.affects.sprintbits(equipment_affects, buf_aff, sizeof(buf_aff), ",");
 	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
 	std::string prof_str;
 	if (!activ.prof.all()) {
@@ -1175,7 +1175,7 @@ void sedit::parse_obj_edit(CharData *ch, const char *arg) {
 
 void sedit::show_activ_affects(CharData *ch) {
 	state = STATE_ACTIV_AFFECTS;
-	show_weapon_affects_olc(ch->desc,
+	show_equipment_affects_olc(ch->desc,
 							olc_set.activ_list.at(activ_edit).affects);
 }
 

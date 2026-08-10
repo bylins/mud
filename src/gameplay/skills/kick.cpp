@@ -71,7 +71,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.battleflag = 0;
+			af.battleflag.clear();
 			float modi = ((GetSkill(ch, ESkill::kKick) + GetRealStr(ch) * 5)
 				+ (GET_EQ(ch, EEquipPos::kFeet) ? GET_EQ(ch, EEquipPos::kFeet)->get_weight() : 0) * 3) / float(GET_SIZE(vict));
 			if (number(1, 1000) < modi * 10) {
@@ -84,21 +84,21 @@ void go_kick(CharData *ch, CharData *vict) {
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
 							af.affect_type = EAffect::kStopRight;
 							af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 4, 0, 0, 0);
-							af.battleflag = kAfBattledec | kAfPulsedec;
+							af.battleflag = {kAfBattledec, kAfPulsedec};
 						} else if (!AFF_FLAGGED(vict, EAffect::kStopLeft)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам левую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он выживет.";
 							af.affect_type = EAffect::kStopLeft;
 							af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 4, 0, 0, 0);
-							af.battleflag = kAfBattledec | kAfPulsedec;
+							af.battleflag = {kAfBattledec, kAfPulsedec};
 						} else {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
 							to_vict = "Мощный удар ноги $n1 вывел вас из строя.";
 							to_room = "Каблук сапога $n1 надолго запомнится $N2, $M теперь даже биться нечем.";
 							af.affect_type = EAffect::kStopFight;
 							af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 4, 0, 0, 0);
-							af.battleflag = kAfBattledec | kAfPulsedec;
+							af.battleflag = {kAfBattledec, kAfPulsedec};
 						}
 						break;
 					case 2:
@@ -108,7 +108,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 						af.affect_type = EAffect::kSilence;
 						af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 5, 0, 0, 0);
-						af.battleflag = kAfBattledec | kAfPulsedec;
+						af.battleflag = {kAfBattledec, kAfPulsedec};
 						dam *= 2;
 						break;
 					default:

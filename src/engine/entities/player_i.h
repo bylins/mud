@@ -92,7 +92,7 @@ class PlayerI {
 	virtual void dps_end_round(int/* type*/, CharData * /*ch*/ = nullptr) {};
 	virtual void dps_add_exp(int/* exp*/, bool/* battle*/ = false) {};
 
-	virtual void save_char() {};
+	virtual void save_char(bool update_save_time = true) {};
 	virtual int load_char_ascii(const char * /*name*/, const int /* load_flags */) { return -1; };
 
 	virtual bool get_disposable_flag(int/* num*/) { return false; };

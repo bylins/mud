@@ -576,7 +576,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		strip_string(buf1);
 		*buf2 = 0;
 		mob->PrintFlagsToAscii(buf2, sizeof(buf2));
-		AFF_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
+		AFF_FLAGS(mob).tascii(kFlagPlanes, buf2, sizeof(buf2));
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 				buf2, alignment::GetAlignment(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
@@ -651,7 +651,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		if (GET_WEIGHT(mob))
 			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 		snprintf(buf1, sizeof(buf1), "Special_Bitvector: ");
-		mob->mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, buf1, sizeof(buf1));
+		mob->mob_specials.npc_flags.tascii(kFlagPlanes, buf1, sizeof(buf1));
 		fprintf(mob_file, "%s\n", buf1);
 		for (const auto &feat : MUD::Feats()) {
 			if (mob->HaveFeat(feat.GetId())) {
@@ -1034,7 +1034,7 @@ void medit_disp_spells(DescriptorData *d) {
 // * Display mob-flags menu.
 void medit_disp_mob_flags(DescriptorData *d) {
 	disp_planes_values(d, action_bits, 2);
-	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, sizeof(buf1), ",", 5);
+	OLC_MOB(d)->char_specials.saved.mob_flags.sprintbits(action_bits, buf1, sizeof(buf1), ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
@@ -1117,7 +1117,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	SendMsgToChar(buf, d->character.get());
 
-	mob->char_specials.saved.act.sprintbits(action_bits, buf1, sizeof(buf1), ",", 4);
+	mob->char_specials.saved.mob_flags.sprintbits(action_bits, buf1, sizeof(buf1), ",", 4);
 	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(mob->char_specials.saved.affected_by, ",").c_str());
 	snprintf(buf, kMaxStringLength,
 			 "%sP%s) Положение     : %s%s\r\n"
@@ -1833,7 +1833,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (number == 0) {
 				break;
 			} else {
-				OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
+				OLC_MOB(d)->char_specials.saved.mob_flags.toggle_flag(plane, 1 << bit);
 				medit_disp_mob_flags(d);
 				if (OLC_MOB(d)->IsFlagged(EMobFlag::kIgnoresFormation)) {
 					OLC_MOB(d)->set_role(static_cast<unsigned>(EMobClass::kRogue), true);

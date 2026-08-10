@@ -152,7 +152,7 @@ std::string SerializeRoom(const RoomData *room)
 	// silently masked loader regressions where extra/missing bits would only
 	// show up as UNDEF labels. Comparing raw plane bitmasks catches them.
 	{
-		FlagData room_flags = room->read_flags();
+		auto room_flags = room->read_flags();  // BitsetFlags<ERoomFlag> (issue.flags-migration)
 		oss << room_flags.get_plane(0) << "," << room_flags.get_plane(1) << ","
 		    << room_flags.get_plane(2) << "," << room_flags.get_plane(3);
 	}
@@ -181,7 +181,7 @@ std::string SerializeRoom(const RoomData *room)
 				oss << exit->vkeyword;
 			}
 			oss << ":";
-			oss << static_cast<int>(exit->exit_info) << ":";
+			oss << exit->exit_info.get_plane(0) << ":";
 			oss << static_cast<int>(exit->lock_complexity) << ":";
 			oss << exit->key << ";";
 		}
@@ -269,7 +269,7 @@ std::string SerializeMob(int vnum, const CharData &mob)
 
 	// Action flags (all 4 planes) -- required to detect loader regressions
 	// like wrong bit packing in YAML/SQLite paths.
-	const auto &act = mob.char_specials.saved.act;
+	const auto &act = mob.char_specials.saved.mob_flags;
 	oss << act.get_plane(0) << "," << act.get_plane(1) << ","
 	    << act.get_plane(2) << "," << act.get_plane(3) << "|";
 

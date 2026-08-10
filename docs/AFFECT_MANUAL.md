@@ -25,18 +25,30 @@ new material is the **trigger/action layer** (§5) and the affect-authoring rule
 
 ## 1. Where affects live
 
+All affect data lives under the **`lib/cfg/affects/`** subdirectory (moved here from
+the `cfg/` root); message files stay under `lib/cfg/messages/<lang>/`:
+
 | File | Holds | Message file |
 |---|---|---|
-| `lib/cfg/affects.xml` | **character** affects (`EAffect`) | `lib/cfg/messages/<lang>/affect_msg.xml` |
-| `lib/cfg/room_affects.xml` | **room / exit** affects (`ERoomAffect`) | `lib/cfg/messages/<lang>/room_affect_msg.xml` |
+| `lib/cfg/affects/affects.xml` | **character** affects (`EAffect`) | `lib/cfg/messages/<lang>/affect_msg.xml` |
+| `lib/cfg/affects/room_affects.xml` | **room / exit** affects (`ERoomAffect`) | `lib/cfg/messages/<lang>/room_affect_msg.xml` |
+| `lib/cfg/affects/equipment_affects.xml` | affects a **worn** item confers (`EEquipmentAffect`) — §8.1 | `lib/cfg/messages/<lang>/equipment_affect_msg.xml` |
+| `lib/cfg/affects/obj_affects.xml` | affects that live **on an item** (`EObjAffect`) — §8.2 | `lib/cfg/messages/<lang>/obj_affect_msg.xml` |
 
-The message-file layout is validated against `lib/cfg/messages/affect_msg.scheme`.
-As with spells, the small-world/test snapshot is a copy — edit the tracked files
-under `lib.template/cfg` (or the live `lib/cfg`) and reload; do not hand-edit a
+Each `*.xml` has its `*.scheme` sidecar next to it (for Vedun editing). As with
+spells, the small-world/test snapshot is a copy — edit the tracked files under
+`lib.template/cfg/affects` (or the live `lib/cfg/affects`); do not hand-edit a
 build's `small/` copy.
 
-**Reload:** `reload affects` / `reload roomaffects` (and the message reloads) pick
-up changes without a restart, exactly like `reload spells`.
+> **Message-file roots** were retagged to match the filename (the loader requires
+> `root == name == id`): `affect_msg.xml` → root `<affect_msg>`, `room_affect_msg.xml`
+> → `<room_affect_msg>` (both previously shared a generic `<msg_container>`). A custom
+> copy with the old root **silently fails to load** — rename the root element.
+
+**Reload.** Only `obj_affects` reloads live — `reload objaffects` (and `reload all`).
+The other affect configs (`affects`, `room_affects`, `equipment_affects`) and their
+message files load **at server startup** — restart to apply edits. (`reload spells` /
+`reload spellmsg` / `reload feats` are separate commands.)
 
 ---
 
@@ -346,7 +358,163 @@ Room/exit affects share the `<affect>`/`<flags>`/`<actions>` grammar but add:
 
 ---
 
-## 8. Worked examples (all shipping)
+## 8. Item affects *(new core — issue.equipment-affects / issue.obj-affects)*
+
+Beyond character affects (§3–6) and room affects (§7), two affect classes are tied to
+**items**:
+
+* **Equipment affects** (`equipment_affects.xml`, §8.1) — what a **worn** item confers
+  on its wearer (invisibility, fly, fire shield; also the debuffs of cursed gear). They
+  live on the **character** while the item is worn.
+* **Obj-affects** (`obj_affects.xml`, §8.2) — affects that live **on the item itself**
+  (poison on a weapon, bless/curse, a trap).
+
+### 8.1 Equipment affects (`equipment_affects.xml`)
+
+Historically this was the "weapon affect" flag set (`EWeaponAffect`) — a misnomer, since
+**any** worn item, not just a weapon, confers them. The rework renamed
+(`EEquipmentAffect`) and data-drove it. Each entry is an `EEquipmentAffect` token (the
+identity) with one `<impose>` child:
+
+```xml
+<equipment_affects>
+    <affect id="kInvisibility">
+        <impose flag="kInvisible" spell="kUndefined" timer="-1" power_percent="60"/>
+    </affect>
+    <affect id="kBlindness">
+        <impose flag="kUndefined" spell="kBlindness" power_percent="60"/>
+    </affect>
+    <affect id="kFireShield">
+        <impose flag="kFireShield" spell="kUndefined" timer="-1" power_percent="60"/>
+    </affect>
+</equipment_affects>
+```
+
+| `<impose>` attr | Meaning |
+|---|---|
+| `flag` | the `EAffect` bit set on the wearer (`kUndefined` = none, i.e. spell-driven). |
+| `spell` | an `ESpell` cast on equip (`kUndefined` = none). |
+| `timer` | duration in ticks; **`-1` = permanent while worn**; **absent = temporary / spell-driven** (the blind/sleep/hold/poison debuffs stay only while worn and drop the instant the item is removed — a permanent worn "sleep" must be impossible). |
+| `power_percent` | power-scaling percent fed to the potency pipeline (below). |
+
+Two idioms: a **persistent buff** (`flag="kX" spell="kUndefined" timer="-1"`) and a
+**cursed-item debuff** (`flag="kUndefined" spell="kBlindness"` with no `timer`).
+
+**Materialization & potency.** Equipment affects used to be flags re-derived on every
+`affect_total` (no potency, undispellable). Now, on equip, `MaterializeEquipmentAffects`
+adds one **real `Affect`** per timer-bearing entry, tagged with **`kAfFromEquipment`**
+and `caster_id` = the item's id; `RemoveEquipmentAffects` strips them on unequip (these
+affects are **not written** to the player file — they re-materialize on wear). Strength
+no longer comes from a hardcoded table (`GetApplyByEquipmentAffect` is gone): the
+affect's `<apply>`/`<modifier>` live in `affects.xml`, and the magnitude is derived from
+the item (item level → skill and stat, scaled by `power_percent`) and run through the
+**same potency pipeline a cast uses** — deterministically (noise 0: an item bonus is
+fixed). This finally gives an equipment affect a meaningful **dispel-contest strength**
+(was 0).
+
+**Set** affects are unified under the same mechanism: **`kAfFromSet`** marks an affect
+materialized by the active set (`reconcile_set_affects`); it belongs to the set, not any
+one piece.
+
+> **Resists, not affects.** `kProtectFromDark` / `kProtectFromMind` (bits 11–12) were
+> **retired** from `EEquipmentAffect`: they are numeric resist parameters, not on/off
+> affects. Grant them on the item directly via apply — **`EApply::kResistDark` /
+> `EApply::kResistMind`**. Bits 11–12 are **reserved, do not reuse** (old object data
+> stays valid; in OLC the slots show as `UNUSED`).
+
+### 8.2 Obj-affects (`obj_affects.xml`)
+
+An affect that lives **on the item** (not the character), with its own identity
+`obj_affects::EObjAffect` (independent of `ESpell`/`EAffect`); materialized as a real
+`Affect<EObjApply>` in the item's affect list. The registry file is short:
+
+```xml
+<obj_affects>
+    <obj_affect id="kInvisible" flag="kInvisible" msg_case="kGen" see_affect="kDetectInvisible"/>
+    <obj_affect id="kCurse"     flag="kNodrop"    msg_case="kGen" see_affect="kDetectMagic"/>
+    <obj_affect id="kPoisoned" msg_case="kGen" see_affect="kDetectMagic">
+        <actions>
+            <action target="kTarActor">
+                <trigger val="kWeaponHit"/>
+                <manual_cast handler="WeaponPoisonHit"/>
+            </action>
+        </actions>
+    </obj_affect>
+    <obj_affect id="kDartTrap" see_affect="kDetectMagic">
+        <actions>
+            <action target="kTarActor">
+                <trigger val="kPick|kOpen" return="0"/>
+                <damage saving="kNone"><amount min="200" beta="0" weight="0"/></damage>
+                <side_spell id="kPoison"/>
+            </action>
+        </actions>
+    </obj_affect>
+    <obj_affect id="kSuppressed" dispellable="0" see_affect="kUndefined"/>
+</obj_affects>
+```
+
+| Attr | Meaning |
+|---|---|
+| `id` | the `EObjAffect` token (identity). |
+| `flag` | the `EObjFlag` the affect **owns** while active: set on the item **instance** on impose, cleared on expiry **only if the item's PROTOTYPE lacks it** (an innate prototype flag is permanent). Empty = no owned flag (e.g. `kPoisoned` reads the poison from the affect itself). |
+| `dispellable` | `0/1` (default `1`): whether a player effect (remove curse / dispel magic / darkness) may strip it. The prototype-innate-flag rule always applies separately. `kSuppressed` = `0`. |
+| `msg_case` | grammatical case the item name (`%s`) takes in lifecycle messages: `kNom/kGen/kDat/kAcc/kIns/kPre` (default `kGen`). |
+| `see_affect` | the `EAffect` an onlooker must carry to **see** the affect (`kUndefined` = always visible, e.g. fly/light; immortals and god `stat` always do). |
+| `<actions>` | the same `talents_actions` repertoire as room affects, plus the obj triggers (below). |
+
+**New obj triggers:** `kWeaponHit` (the item — a weapon — landed a blow; this is how
+**poison-on-hit** works: `kPoisoned` → `<manual_cast handler="WeaponPoisonHit">` on
+`kTarActor` = the strike victim) plus the item-lifecycle triggers
+`kGet`/`kDrop`/`kEquip`/`kUnequip`/`kDecay`. The **`kDartTrap`** trap fires on
+`kPick|kOpen` with `return="0"` (**blocks** the open), dealing `<damage>` (impersonal —
+no attacker) and a `<side_spell id="kPoison">` to the actor who tripped it.
+
+Serialization: an `OAff: <token> <timer> <modifier> [<potency>]` line (the 4th field,
+potency, is for suppressions; old 3-field lines load potency 0). A legacy `TSpl:`
+(timed-spell) line is read and mapped onto `EObjAffect` (the 4 poisons → `kPoisoned`).
+**The world is not converted** — this is the player-object file format, backward
+compatible.
+
+### 8.3 Suppression & restoration *(issue.obj-suppressor-affect / issue.affect-suppression-dispell)*
+
+Dispelling an equipment affect used to lose it until re-equip. Now the affect is
+**suppressed on its source item** for a while and **auto-returns** when the suppression
+expires:
+
+* Dispelling a `kAfFromEquipment` affect calls `SuppressSourceItemAffect`: it finds the
+  source item (by `caster_id`) among the worn equipment and suppresses the affect on it;
+  the real affect is then removed (the buff drops **now**).
+* Suppression is a **`kSuppressed` obj-affect** (one per suppressed `EAffect`), so it
+  serializes and ticks like any other obj-affect. It **stores a potency** = the
+  competence of the suppressing dispel (the resistance a later un-suppress must beat; a
+  refresh keeps the **MAX**).
+* **Paused offline:** the offline catch-up (rent/relog) skips `kSuppressed` (else it
+  would expire offline and the buff would return on login). Other obj-affects (poison
+  DoT, traps) keep ticking offline.
+* On timer expiry (or early — by a spell) the equipment affect **auto-returns** to the
+  wearer.
+
+**Lifting it early — the weave-restoration spell (`kWeaveRestoration`).** A new wizard
+spell (circle 4) that **contests** to lift a suppression and return the affect early. It
+is cast directly on an item, or on a character (then it hits a **random** suppressed worn
+item of the wearer). The `DispelContest` mechanic is documented in Spell Manual §9.3.1
+(the suppression potency is taken directly, no `dispel_mod`; it always rolls; a miss
+erodes the suppression by `decay`%). Its action grammar is
+`<alter_obj handler="AlterWeaveRestore" collateral="first_suppressed" dispel_bonus= decay= bypass_noalter=>` (ibid).
+
+**Suppression display** — four inspect surfaces: the `equipment` listing shows a compact
+suppressed-magic marker on the item (shipped Russian `<магия подавлена>`); `examine` and
+`identify` show a header line (`Временно подавлено волшебство:`) then one indented affect
+per line, `    <affect> (N hours)`. Times are in **game hours** (the counter decrements
+once per MUD hour).
+
+Related fixes: dispelled buffs now use **their own** removal message (chain
+`kAffDispelled` → `kAffExpired` → `kDefault`, not the generic "heat washes over you"); a
+permanent affect (`duration < 0`) renders as "(permanent)" in `affects`.
+
+---
+
+## 9. Worked examples (all shipping)
 
 * **DoT — `kBurning`:** `kAfSameTime` + a `kPulse` `<action target="kTarFightSelf">`
   with `<damage>` scaled by `dices_weight` off the stored potency, plus
@@ -370,7 +538,7 @@ Room/exit affects share the `<affect>`/`<flags>`/`<actions>` grammar but add:
 
 ---
 
-## 9. Reference
+## 10. Reference
 
 * **`EAffFlag`** (the `<flags val>` bits) — see §4.1; full list in
   `affect_contants.h`.
@@ -380,10 +548,12 @@ Room/exit affects share the `<affect>`/`<flags>`/`<actions>` grammar but add:
   `entities_constants.h`.
 * **`EAffect` / `ERoomAffect`** — the affect ids; `affect_contants.h` /
   `magic_rooms` enums.
+* **`EEquipmentAffect`** — worn-item affects (§8.1); `equipment_affects.{h,cpp}`.
+* **`EObjAffect`** — on-item affects (§8.2); `obj_affects.h`.
 
 ---
 
-## 10. Checklist for adding / migrating an affect
+## 11. Checklist for adding / migrating an affect
 
 1. **Add / find the `EAffect` id** and its `<affect id= buff=>` block.
 2. **Passive part → `<apply>`** (own the applies; leave `<duration>` on the imposer).
@@ -399,6 +569,8 @@ Room/exit affects share the `<affect>`/`<flags>`/`<actions>` grammar but add:
 8. **Verify** in mud-sim: impose it, tick/trigger it, confirm the effect + messages
    (note: the sim advances combat-round loops, not the mud-hour point-update — use
    `kAfBattledec` to observe expiry-based triggers).
+9. **Item affect?** these are separate subsystems — a worn-item affect → §8.1
+   (`equipment_affects.xml`), an on-item affect → §8.2 (`obj_affects.xml`).
 
 ---
 

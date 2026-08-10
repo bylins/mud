@@ -51,11 +51,11 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.duration = CalcDuration(ch, ch, ESkill::kHide, 1, 50, 0, 5);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.battleflag.clear();
 
 	if (percent > prob) {
 		af.affect_type = EAffect::kHide;
-		af.battleflag = kAfFailed;
+		af.battleflag = {kAfFailed};
 	} else {
 		af.affect_type = EAffect::kHide;
 	}

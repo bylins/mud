@@ -159,7 +159,7 @@ json SerializeMob(const CharData& mob, int vnum)
 
 	// Flags - use SerializeFlags helper
 	json flags;
-	flags["mob_flags"] = SerializeFlags(mob.char_specials.saved.act);
+	flags["mob_flags"] = SerializeFlags(mob.char_specials.saved.mob_flags);
 	flags["affect_flags"] = SerializeFlags(mob.char_specials.saved.affected_by);
 	flags["npc_flags"] = SerializeFlags(mob.mob_specials.npc_flags);
 	mob_obj["flags"] = flags;
@@ -327,7 +327,7 @@ json SerializeRoom(RoomData& room, int vnum)
 
 	// Room flags (4 planes)
 	{
-		FlagData fl = room.read_flags();
+		auto fl = room.read_flags();
 		room_data["room_flags"] = json::array();
 		for (size_t i = 0; i < 4; ++i)
 		{
@@ -353,7 +353,9 @@ json SerializeRoom(RoomData& room, int vnum)
 			{
 				exit_obj["keyword"] = Koi8rToUtf8(room.dir_option[dir]->keyword);
 			}
-			exit_obj["exit_info"] = room.dir_option[dir]->exit_info;
+			// exit_info used to be a byte: a single 30-bit plane serialized as a plain number.
+			// BitsetFlags keeps that flag identity, so the JSON stays a number (get_plane(0)).
+			exit_obj["exit_info"] = room.dir_option[dir]->exit_info.get_plane(0);
 			exit_obj["key_vnum"] = room.dir_option[dir]->key;
 			exits.push_back(exit_obj);
 		}

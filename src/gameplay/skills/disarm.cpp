@@ -111,7 +111,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		af.duration = injure_duration;
 		af.modifier = -(10 + std::min((GetSkill(ch, ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
-		af.battleflag = kAfBattledec;
+		af.battleflag = {kAfBattledec};
 		af.affect_type = EAffect::kInjuredLimb;
 		affect_to_char(vict, af);
 
@@ -138,7 +138,7 @@ void go_injure(CharData *ch, CharData *vict) {
 //Этот аффект ничего не дает, просто предотвращает повторное наложение дебаффа тем же персонажем.
 		Affect<EApply> af2;
 		af2.duration = no_injure_duration;
-		af2.battleflag = kNone;
+		af2.battleflag.clear();
 		af2.caster_id = ch->get_uid();
 		af2.affect_type = EAffect::kSuspiciousness;
 		affect_to_char(vict, af2);

@@ -6,7 +6,7 @@
 #include "utils/utils.h"
 ExitData::ExitData() : keyword(nullptr),
 					   vkeyword(nullptr),
-					   exit_info(0),
+					   exit_info(),
 					   lock_complexity(0),
 					   key(-1),
 					   to_room_(kNowhere) {
@@ -70,7 +70,7 @@ bool ExitData::is_empty() const {
 		&& general_description.empty()
 		&& keyword == nullptr
 		&& vkeyword == nullptr
-		&& exit_info == 0
+		&& exit_info.none()
 		&& key <= 0
 		&& lock_complexity == 0;
 }

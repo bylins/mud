@@ -15,6 +15,7 @@
 #define UTILS_H_
 
 #include <string>
+#include "engine/structs/bitset_flags.h"
 #include "gameplay/mechanics/minions.h"
 #include <list>
 #include <new>
@@ -280,9 +281,21 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 
-#define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(flag))
+// issue.flags-migration: overloads so existing IS_SET/SET_BIT/REMOVE_BIT/TOGGLE_BIT call sites keep
+// working after a field becomes BitsetFlags<E> (transitional -- sites can later switch to typed
+// .test/.set/.unset). Single-flag masks only; combined-mask (A|B) call sites use typed ops directly.
+template<typename E, std::size_t N, typename Arg>
+inline bool IS_SET(const BitsetFlags<E, N> &flags, const Arg bit) { return flags.get(static_cast<E>(bit)); }
+template<typename E, std::size_t N, typename Arg>
+inline void SET_BIT(BitsetFlags<E, N> &flags, const Arg bit) { flags.set(static_cast<E>(bit)); }
+template<typename E, std::size_t N, typename Arg>
+inline void REMOVE_BIT(BitsetFlags<E, N> &flags, const Arg bit) { flags.unset(static_cast<E>(bit)); }
+template<typename E, std::size_t N, typename Arg>
+inline void TOGGLE_BIT(BitsetFlags<E, N> &flags, const Arg bit) { flags.toggle(static_cast<E>(bit)); }
+
+#define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(static_cast<ENpcFlag>(flag)))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
-#define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
+#define EXIT_FLAGGED(exit, flag)     ((exit)->exit_info.get(static_cast<EExitFlag>(flag)))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)

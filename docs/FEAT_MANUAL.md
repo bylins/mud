@@ -221,6 +221,12 @@ is an ordinary action block — same grammar as a spell's `<talent_actions>`
 `<trigger>` (for affect patches), a `target=` (incl. `kTarMaster`), and any
 manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
 
+> **New on `unstable`:** the shared action-trigger vocabulary gained **item** triggers —
+> `kWeaponHit` (a weapon strike) and the item lifecycle
+> `kGet`/`kDrop`/`kEquip`/`kUnequip`/`kDecay` (used by on-item affects, Affect Manual §8.2).
+> A feat patch inherits the same `<trigger>`/`<action>` set, so these are available here too.
+> The feat grammar itself did not change between `master` and `unstable`.
+
 ---
 
 ## 5. Worked examples (shipping / test)

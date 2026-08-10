@@ -325,7 +325,7 @@ CharData* SpawnPet(CharData* owner, const PetSpec& spec, RoomRnum room) {
 	Affect<EApply> af;
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.battleflag.clear();
 	af.duration = 999;  // long enough that no scenario will outlive it
 	af.affect_type = EAffect::kCharmed;
 	affect_to_char(pet, af);

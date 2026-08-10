@@ -24,12 +24,12 @@ void CheckDeathRage(CharData *ch) {
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
+		af.battleflag.clear();
 
 		prob = ch->IsNpc() ? 601 : (751 - GetRealLevel(ch) * 5);
 		const bool berserk_failed = !(number(1, 1000) < prob);
 		af.affect_type = EAffect::kBerserk;
-		af.battleflag = berserk_failed ? static_cast<Bitvector>(kAfFailed) : 0;
+		af.battleflag.set_plane(0, berserk_failed ? static_cast<Bitvector>(kAfFailed) : 0);
 		ImposeAffect(ch, af, true, false, true, false);
 		// issue.affect-migration: success/fail narration on kBerserk; vict = the combat foe (external $N).
 		EmitAffectImpose(ch, vict, EAffect::kBerserk, berserk_failed);

@@ -38,6 +38,8 @@ EStageResult AlterTimerRestore(ActionContext &ctx);
 EStageResult AlterRestoration(ActionContext &ctx);
 EStageResult AlterLight(ActionContext &ctx);
 EStageResult AlterDarkness(ActionContext &ctx);
+// issue.affect-suppression-dispell: contest+lift one magic-suppression on the target item (weave restoration).
+EStageResult AlterWeaveRestore(ActionContext &ctx);
 
 // --- Object-creation handlers (issue.obj-casting) ----------------------------------------------
 // Optional post-load customizer for <obj_creation>: shapes the freshly-loaded base object before
@@ -60,6 +62,10 @@ void CloneCascade(CharData *ch, CharData *mob, const ActionContext &ctx, int dur
 // kManualHandlers registry (was the room_affects tick_handler). Phase = the affect's duration, passed
 // via ActionContext (SetTickDuration/GetTickDuration).
 EStageResult HandleThunderstormTick(ActionContext &ctx);
+
+// issue.obj-affects: kWeaponHit obj-affect manual handler -- a poisoned weapon poisons its strike
+// victim. Reads ch = ctx.caster() (wielder), victim = ctx.Event().actor, weapon = ctx.Event().weapon.
+EStageResult WeaponPoisonHit(ActionContext &ctx);
 
 // --- Manual spell-cast handlers (issue.spellhandlers, extracted from spells.cpp) ------------
 EStageResult SpellCreateWater(ActionContext &ctx);

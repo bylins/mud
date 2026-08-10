@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/affects/obj_affects.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
@@ -13,10 +14,7 @@ namespace handlers {
 
 EStageResult AlterLight(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
-	obj->add_timed_spell(ESpell::kLight, -1);
-	obj->set_extra_flag(EObjFlag::kGlow);
-	// issue #3618: таймер -1 -- это бессрочно, флаг лежит в самой вещи и переживает перезагрузку.
-	obj->set_extra_flag(EObjFlag::kTransformed);
+	obj_affects::Impose(obj, obj_affects::EObjAffect::kLight, -1);
 	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
 }
 

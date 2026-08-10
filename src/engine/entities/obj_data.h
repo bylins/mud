@@ -11,6 +11,7 @@
 #include "engine/db/id.h"
 #include "gameplay/mechanics/obj_enchant.h"
 #include "gameplay/magic/spells.h"
+#include "gameplay/affects/obj_affects.h"   // obj_affects::ObjAffects (affects that live ON the item)
 #include "gameplay/skills/skills.h"
 #include "engine/structs/extra_description.h"
 #include "engine/structs/flag_data.h"
@@ -204,7 +205,7 @@ class CObjectPrototype {
 										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
 										   m_material(DEFAULT_MATERIAL),
 										   m_sex(EGender::kMale),
-										   m_wear_flags(to_underlying(EWearFlag::kUndefined)),
+										   m_wear_flags(),
 										   m_timer(DEFAULT_TIMER),
 										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
 											m_cost(DEFAULT_COST),
@@ -253,6 +254,7 @@ class CObjectPrototype {
 		return m_vals[index];
 	}
 	auto GetPotionValueKey(const ObjVal::EValueKey key) const { return m_values.get(key); }
+	wear_flags_t get_wear_flags() const { return m_wear_flags.get_plane(0); }
 	// issue.magic-items: номер заклинания в позиции 1..3. У свитков, зелий, посохов и жезлов
 	// заклинания живут в extra_values, сырые val[] у них нулевые.
 	int GetSpellItemSpellNum(int pos) const {
@@ -263,12 +265,11 @@ class CObjectPrototype {
 			default: return -1;
 		}
 	}
-	auto get_wear_flags() const { return m_wear_flags; }
 	auto get_weight() const { return m_weight; }
 	auto serialize_values() const { return m_values.print_to_file(); }
-	bool can_wear_any() const { return m_wear_flags > 0 && m_wear_flags != to_underlying(EWearFlag::kTake); }
-	bool GetEWeaponAffect(const EWeaponAffect weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
-	bool GetWeaponAffect(const Bitvector weapon_affect) const { return m_waffect_flags.get(weapon_affect); }
+	bool can_wear_any() const { return m_wear_flags.any() && m_wear_flags.get_plane(0) != to_underlying(EWearFlag::kTake); }
+	bool GetEEquipmentAffect(const EEquipmentAffect equipment_affect) const { return m_waffect_flags.get(equipment_affect); }
+	bool GetEquipmentAffect(const Bitvector equipment_affect) const { return m_waffect_flags.get(static_cast<EEquipmentAffect>(equipment_affect)); }
 	bool has_anti_flag(const EAntiFlag flag) const { return m_anti_flags.get(flag); }
 	bool has_flag(const EObjFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
 	bool has_flag(const size_t plane, const Bitvector flag) const { return m_extra_flags.get_flag(plane, flag); }
@@ -293,12 +294,12 @@ class CObjectPrototype {
 	const auto &get_proto_script_ptr() const { return m_proto_script; }
 	const std::string &get_PName(const grammar::ECase name_case = grammar::ECase::kNom) const { return m_pnames[name_case]; }
 	const std::string &get_short_description() const { return m_short_description; }
-	void add_affect_flags(const FlagData &flags) { m_waffect_flags += flags; }
+	void add_affect_flags(const BitsetFlags<EEquipmentAffect> &flags) { m_waffect_flags += flags; }
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
-	void add_anti_flags(const FlagData &flags) { m_anti_flags += flags; }
-	void add_extra_flags(const FlagData &flags) { m_extra_flags += flags; }
+	void add_anti_flags(const BitsetFlags<EAntiFlag> &flags) { m_anti_flags += flags; }
+	void add_extra_flags(const BitsetFlags<EObjFlag> &flags) { m_extra_flags += flags; }
 	void add_maximum(const int amount) { m_maximum_durability += amount; }
-	void add_no_flags(const FlagData &flags) { m_no_flags += flags; }
+	void add_no_flags(const BitsetFlags<ENoFlag> &flags) { m_no_flags += flags; }
 	void add_proto_script(const ObjVnum vnum) { m_proto_script->push_back(vnum); }
 	void add_val(const size_t index, const int amount) {
 		if (uses_liquid_core(index)) { set_val(index, get_val(index) + amount); return; }
@@ -329,8 +330,8 @@ class CObjectPrototype {
 	void load_no_flags(const char *string) { m_no_flags.from_string(string); }
 	void remove_incorrect_values_keys(const int type) { m_values.remove_incorrect_keys(type); }
 	void set_action_description(const std::string &_) { m_action_description = _; }
-	void SetEWeaponAffectFlag(const EWeaponAffect packed_flag) { m_waffect_flags.set(packed_flag); }
-	void SetWeaponAffectFlags(const FlagData &flags) { m_waffect_flags = flags; }
+	void SetEEquipmentAffectFlag(const EEquipmentAffect packed_flag) { m_waffect_flags.set(packed_flag); }
+	void SetEquipmentAffectFlags(const BitsetFlags<EEquipmentAffect> &flags) { m_waffect_flags = flags; }
 	void set_affected(const size_t index, const EApply location, const int modifier);
 	void set_affected(const size_t index, const obj_affected_type &affect) { m_affected[index] = affect; }
 	void set_affected_location(const size_t index, const EApply _) { m_affected[index].location = _; }
@@ -338,20 +339,20 @@ class CObjectPrototype {
 	void set_aliases(const std::string &_) { m_aliases = _; }
 	void set_all_affected(const affected_t &_) { m_affected = _; }
 	void set_anti_flag(const EAntiFlag packed_flag) { m_anti_flags.set(packed_flag); }
-	void set_anti_flags(const FlagData &flags) { m_anti_flags = flags; }
+	void set_anti_flags(const BitsetFlags<EAntiFlag> &flags) { m_anti_flags = flags; }
 	void set_current_durability(const int _) { m_current_durability = _; }
 	void set_description(const std::string &_) { m_description = _; }
 	void set_destroyer(const int _) { m_destroyer = _; }
 	void set_extra_flag(const EObjFlag packed_flag) { m_extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const Bitvector flag) { m_extra_flags.set_flag(plane, flag); }
-	void set_extra_flags(const FlagData &flags) { m_extra_flags = flags; }
+	void set_extra_flags(const BitsetFlags<EObjFlag> &flags) { m_extra_flags = flags; }
 	void set_level(const int _) { m_level = _; }
 	void set_material(const EObjMaterial _) { m_material = _; }
 	void set_max_in_world(const int _) { m_max_in_world = _; }
 	void set_maximum_durability(const int _) { m_maximum_durability = _; }
 	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
-	void set_no_flags(const FlagData &flags) { m_no_flags = flags; }
-	void set_obj_aff(const Bitvector packed_flag) { m_waffect_flags.set(packed_flag); }
+	void set_no_flags(const BitsetFlags<ENoFlag> &flags) { m_no_flags = flags; }
+	void set_obj_aff(const Bitvector packed_flag) { m_waffect_flags.set(static_cast<EEquipmentAffect>(packed_flag)); }
 	void set_PName(const grammar::ECase index, const char *_) { m_pnames[index] = _; }
 	void set_PName(const grammar::ECase index, const std::string &_) { m_pnames[index] = _; }
 	void set_PNames(const pnames_t &_) { m_pnames = _; }
@@ -365,7 +366,7 @@ class CObjectPrototype {
 	void SetPotionValueKey(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
 	void SetPotionValues(const ObjVal &_) { m_values = _; }
 	void set_wear_flag(const EWearFlag flag);
-	void set_wear_flags(const wear_flags_t _) { m_wear_flags = _; }
+	void set_wear_flags(const wear_flags_t _) { m_wear_flags.clear(); m_wear_flags.set_plane(0, _); }
 	void set_weight(const int _) { m_weight = _; }
 	void set_val(size_t index, int value) {
 		if (uses_liquid_core(index)) { m_values.set(liquid_core_key(index), value); return; }
@@ -473,12 +474,12 @@ class CObjectPrototype {
 	EObjMaterial m_material;
 	EGender m_sex;
 
-	FlagData m_extra_flags;    // If it hums, glows, etc.      //
-	FlagData m_waffect_flags;
-	FlagData m_anti_flags;
-	FlagData m_no_flags;
+	BitsetFlags<EObjFlag> m_extra_flags;    // If it hums, glows, etc.      //
+	BitsetFlags<EEquipmentAffect> m_waffect_flags;
+	BitsetFlags<EAntiFlag> m_anti_flags;
+	BitsetFlags<ENoFlag> m_no_flags;
 
-	wear_flags_t m_wear_flags;        // Where you can wear it     //
+	BitsetFlags<EWearFlag> m_wear_flags;        // Where you can wear it     //
 
 	int m_timer;    ///< таймер (в минутах рл)
 
@@ -511,17 +512,17 @@ inline auto GET_OBJ_VAL(const CObjectPrototype::shared_ptr &obj, size_t index) {
 
 class activation {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
-	FlagData affects;
+	BitsetFlags<EEquipmentAffect> affects;
 	std::array<obj_affected_type, kMaxObjAffect> affected;
 	int weight, ndices, nsides;
 	CObjectPrototype::skills_t skills;
 
  public:
-	activation() : affects(clear_flags), weight(-1), ndices(-1), nsides(-1) {}
+	activation() : affects(), weight(-1), ndices(-1), nsides(-1) {}
 
 	activation(const std::string &__actmsg, const std::string &__deactmsg,
 			   const std::string &__room_actmsg, const std::string &__room_deactmsg,
-			   const FlagData &__affects, const obj_affected_type *__affected,
+			   const BitsetFlags<EEquipmentAffect> &__affects, const obj_affected_type *__affected,
 			   int __weight, int __ndices, int __nsides) :
 		actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg),
 		room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight),
@@ -620,13 +621,13 @@ class activation {
 		return *this;
 	}
 
-	const FlagData &
+	const BitsetFlags<EEquipmentAffect> &
 	get_affects() const {
 		return affects;
 	}
 
 	activation &
-	set_affects(const FlagData &__affects) {
+	set_affects(const BitsetFlags<EEquipmentAffect> &__affects) {
 		affects = __affects;
 		return *this;
 	}
@@ -694,21 +695,10 @@ class set_info : public std::map<ObjVnum, qty_to_camap_map> {
 
 typedef std::map<int, set_info> id_to_set_info_map;
 
-// * Временное заклинание на предмете (одно).
-class TimedSpell {
- public:
-	[[nodiscard]] bool check_spell(ESpell spell_id) const;
-	[[nodiscard]] ESpell IsSpellPoisoned() const;
-	[[nodiscard]] bool empty() const;
-	[[nodiscard]] std::string print() const;
-	void dec_timer(ObjData *obj, int time = 1);
-	void add(ObjData *obj, ESpell spell_id, int time);
-	void del(ObjData *obj, ESpell spell_id, bool message);
-	std::string diag_to_char();
+// issue.obj-affects: the former "TimedSpell on objects" mechanic is now the ObjAffect subsystem
+// (gameplay/affects/obj_affects.h) -- affects that live ON an item, keyed by obj_affects::EObjAffect.
+// ObjData stores them as obj_affects::ObjAffects (see m_obj_affects); runtime lives in obj_affects.cpp.
 
- private:
-	std::map<ESpell /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
-};
 
 // метки для команды "нацарапать"
 struct custom_label {
@@ -754,12 +744,22 @@ class ObjData : public CObjectPrototype {
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;
 
-	// wrappers to access to timed_spell
-	const TimedSpell &timed_spell() const { return m_timed_spell; }
-	std::string diag_ts_to_char() { return m_timed_spell.diag_to_char(); }
-	bool has_timed_spell() const { return !m_timed_spell.empty(); }
-	void add_timed_spell(const ESpell spell_id, const int time);
-	void del_timed_spell(const ESpell spell_id, const bool message);
+	// issue.obj-affects: affects that live ON this item (obj_affects::EObjAffect). Runtime helpers
+	// (impose/remove/tick/query) are free functions in gameplay/affects/obj_affects.h.
+	const obj_affects::ObjAffects &get_obj_affects() const { return m_obj_affects; }
+	obj_affects::ObjAffects &get_obj_affects() { return m_obj_affects; }
+	bool has_obj_affects() const { return !m_obj_affects.empty(); }
+
+	// issue.obj-suppressor-affect: equipment affects this item confers but that are temporarily suppressed
+	// by a dispel (affect_total skips them while suppressed). Backed by kSuppressed obj-affects, so they
+	// persist across rent/relog and tick with every other obj-affect; the API lives in obj_affects.h.
+	bool is_affect_suppressed(EAffect aff) const { return obj_affects::IsEquipAffectSuppressed(this, aff); }
+	bool has_suppressed_affects() const { return !obj_affects::SuppressedEquipAffects(this).empty(); }
+	std::vector<std::pair<EAffect, int>> suppressed_equip_affects() const { return obj_affects::SuppressedEquipAffects(this); }
+	// issue.affect-suppression-dispell: lift the suppression of `aff` NOW (weave-restoration success) --
+	// erase the kSuppressed and, if worn, re-materialize the equipment affect on the wearer (same as the
+	// timer auto-return in process_periodic_effects). No-op if `aff` was not suppressed.
+	void release_suppression(EAffect aff);
 
 	auto get_carried_by() const { return m_carried_by; }
 	auto get_contains() const { return m_contains; }
@@ -863,7 +863,7 @@ class ObjData : public CObjectPrototype {
 
 	int m_craft_timer;
 
-	TimedSpell m_timed_spell;    ///< временный обкаст
+	obj_affects::ObjAffects m_obj_affects;    ///< issue.obj-affects: affects on this item
 
 	long  m_id;            // used by DG triggers              //
 	std::shared_ptr<Script> m_script;    // script info for the object       //
@@ -888,10 +888,10 @@ inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return
 inline bool CAN_WEAR_ANY(const CObjectPrototype *obj) { return obj->can_wear_any(); }
 inline void SET_OBJ_AFF(CObjectPrototype *obj, const Bitvector packed_flag) { return obj->set_obj_aff(packed_flag); }
 inline bool OBJ_AFFECT(const CObjectPrototype *obj,
-					   const Bitvector weapon_affect) { return obj->GetWeaponAffect(weapon_affect); }
+					   const Bitvector equipment_affect) { return obj->GetEquipmentAffect(equipment_affect); }
 
-inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
-	return OBJ_AFFECT(obj, static_cast<Bitvector>(weapon_affect));
+inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EEquipmentAffect equipment_affect) {
+	return OBJ_AFFECT(obj, static_cast<Bitvector>(equipment_affect));
 }
 int GetObjMIW(ObjRnum rnum);
 

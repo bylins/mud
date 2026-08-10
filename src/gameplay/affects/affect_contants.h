@@ -10,6 +10,7 @@
 #include "gameplay/magic/spells_constants.h"
 #include "gameplay/mechanics/condition.h"
 #include "engine/structs/bitset_flags.h"
+#include "gameplay/affects/equipment_affects.h"
 
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;
@@ -62,7 +63,22 @@ enum EAffFlag : Bitvector {
   // <unaffect affect_flags="kAfBoon">, mirroring kAfPoison/kAfEntanglement.
   kAfBoon				= 1u << 24,	// detects + minor utility buffs (suppress)
   kAfWarding			= 1u << 25,	// ordinary combat/defense buffs (erode)
-  kAfAegis				= 1u << 26	// strong defensive magic: shields/auras/sanctuary (aegis rift)
+  kAfAegis				= 1u << 26,	// strong defensive magic: shields/auras/sanctuary (aegis rift)
+  kAfFromEquipment		= 1u << 27,	// issue.equipment-affects-improve: materialized from a worn item (never saved)
+  kAfFromSet			= 1u << 28	// issue.equipment-affects-improve: materialized from an object SET (broadcast suppress)
+};
+
+// issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags; single plane
+// (max kAfAegis=1<<26), serialized in player files as a plain int via get_plane(0)/set_plane(0).
+template<>
+struct flag_traits<EAffFlag> {
+	static constexpr std::size_t count = 30;
+};
+template<>
+struct flag_index_mapping<EAffFlag> {
+	static constexpr std::size_t to_index(EAffFlag f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
 };
 
 /**
@@ -240,69 +256,6 @@ const std::map<EAffect, std::string> &NAMES_OF<EAffect>();  // issue.vedun-edito
 
 typedef std::list<EAffect> affects_list_t;
 
-enum class EWeaponAffect : Bitvector {
-	kBlindness = (1 << 0),			//0
-	kInvisibility = (1 << 1),
-	kDetectAlign = (1 << 2),
-	kDetectInvisibility = (1 << 3),
-	kDetectMagic = (1 << 4),
-	kDetectLife = (1 << 5),
-	kWaterWalk = (1 << 6),
-	kSanctuary = (1 << 7),
-	kCurse = (1 << 8),
-	kInfravision = (1 << 9),
-	kPoison = (1 << 10),			//10
-	kProtectFromDark = (1 << 11),
-	kProtectFromMind = (1 << 12),
-	kSleep = (1 << 13),
-	kNoTrack = (1 << 14),
-	kBless = (1 << 15),
-	kSneak = (1 << 16),
-	kHide = (1 << 17),
-	kHold = (1 << 18),
-	kFly = (1 << 19),
-	kSilence = (1 << 20),			//20
-	kAwareness = (1 << 21),
-	kBlink = (1 << 22),
-	kNoFlee = (1 << 23),
-	kSingleLight = (1 << 24),
-	kHolyLight = (1 << 25),
-	kHolyDark = (1 << 26),
-	kDetectPoison = (1 << 27),
-	kSlow = (1 << 28),
-	kHaste = (1 << 29),
-	kWaterBreath = kIntOne | (1 << 0),//30
-	kHaemorrhage = kIntOne | (1 << 1),
-	kDisguising = kIntOne | (1 << 2),
-	kShield = kIntOne | (1 << 3),
-	kAirShield = kIntOne | (1 << 4),
-	kFireShield = kIntOne | (1 << 5),
-	kIceShield = kIntOne | (1 << 6),
-	kMagicGlass = kIntOne | (1 << 7),
-	kStoneHand = kIntOne | (1 << 8),
-	kPrismaticAura = kIntOne | (1 << 9),
-	kAirAura = kIntOne | (1 << 10),		//40
-	kFireAura = kIntOne | (1 << 11),
-	kIceAura = kIntOne | (1 << 12),
-	kDeafness = kIntOne | (1 << 13),
-	kComamnder = kIntOne | (1 << 14),
-	kEarthAura = kIntOne | (1 << 15),	//45
-	kCloudly = kIntOne | (1 << 16)
-// не забудьте поправить kWeaponAffectCount
-};
-
-constexpr size_t kWeaponAffectCount = 47;
-
-template<>
-EWeaponAffect ITEM_BY_NAME<EWeaponAffect>(const std::string &name);
-template<>
-const std::string &NAME_BY_ITEM(EWeaponAffect item);
-
-struct WeaponAffect {
-	EWeaponAffect aff_pos;
-	Bitvector aff_bitvector;
-	ESpell aff_spell;
-};
 
 // Applies используются как в предметах, так и в аффектах. Разумней разместить их тут, т.к. по сути
 // applies на предметах - это урезанные аффекты.
@@ -310,7 +263,7 @@ struct WeaponAffect {
  * Modifier constants used with obj affects ('A' fields) and character affects
  */
 
-enum EApply {
+enum EApply : int {
 	kNone = 0,    // No effect         //
 	kStr = 1,    // Apply to strength    //
 	kDex = 2,    // Apply to dexterity      //
@@ -400,9 +353,7 @@ EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name);
 template<>
 const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>();  // issue.vedun-editor: editor enum pick-list
 
-using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
-extern WeaponAffectArray weapon_affect;
-// issue.ext-affects: built at boot from cfg/affects.xml (see affects_loader.h), indexed positionally by
+// issue.ext-affects: built at boot from cfg/affects/affects.xml (see affects_loader.h), indexed positionally by
 // the EAffect bit so sprintbits keeps working unchanged; null until the "affects" cfg is loaded.
 extern const char *apply_types[];
 

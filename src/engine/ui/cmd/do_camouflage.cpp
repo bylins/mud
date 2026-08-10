@@ -55,11 +55,11 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	af.duration = CalcDuration(ch, ch, ESkill::kDisguise, 0, 15, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.battleflag.clear();
 
 	if (percent > prob) {
 		af.affect_type = EAffect::kDisguise;
-		af.battleflag = kAfFailed;
+		af.battleflag = {kAfFailed};
 	} else {
 		af.affect_type = EAffect::kDisguise;
 	}

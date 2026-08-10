@@ -129,17 +129,17 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af[0].modifier = 0;
 		af[0].location = EApply::kDamroll;
 		af[0].affect_type = EAffect::kAbstinent;
-		af[0].battleflag = kAfCurable;
+		af[0].battleflag = {kAfCurable};
 		af[1].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = EApply::kHitroll;
 		af[1].affect_type = EAffect::kAbstinent;
-		af[1].battleflag = kAfCurable;
+		af[1].battleflag = {kAfCurable};
 		af[2].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = EApply::kAc;
 		af[2].affect_type = EAffect::kAbstinent;
-		af[2].battleflag = kAfCurable;
+		af[2].battleflag = {kAfCurable};
 		switch (number(0, GetSkill(ch, ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;

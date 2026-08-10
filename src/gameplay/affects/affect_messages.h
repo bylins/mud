@@ -87,6 +87,11 @@ enum class EAffectMsgType {
 // Sheaf-direct variant: returns the affect's own message or empty (NO kDefault/error fallback).
 // Use where a missing message must stay silent (affect imposition narration).
 [[nodiscard]] const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot);
+// Dispel/suppress narration for a character affect. Most buffs define no kAffDispelled* line of their
+// own, so prefer the affect's OWN dispel line, then fall back to its OWN expiry line (its natural
+// "faded" narration), and only then the shared kDefault. to_room=false reads the *ToChar slots,
+// true the *ToRoom slots. Empty only if the affect defines neither and kDefault has none.
+[[nodiscard]] const std::string &AffectDispelMsg(EAffect affect, bool to_room);
 // Like AffectMsgRaw but for the armed/unarmed split: among the affect's variants of `slot`, when
 // has_weapon prefer ones using $o (the weapon flourish), else fall back to non-$o; when unarmed
 // return only non-$o variants (so $o never renders without a weapon). Empty if none apply.

@@ -1,0 +1,198 @@
+<!--
+  issue.vedun-editor: editor scheme for cfg/affects.xml (`vedun affects`). OPTIONAL sidecar - it
+  describes field types, bounds and help so the Vedun editor shows enum pick-lists / numeric ranges
+  instead of bare strings, and the loader's Validate rejects bad values on save. Any tag/attribute not
+  declared here degrades to a plain string field (still validated on save by AffectsLoader::Validate).
+
+  enum / flagset attributes name an enum resolved via vedun::EnumRegistry (EAffect / EApply / EAffFlag
+  are registered there); an unregistered enum still displays but skips the value-validity check.
+-->
+<scheme>
+	<prohibited>
+		<element id="kUndefinded"/>
+	</prohibited>
+
+	<tag name="affects" desc="Affect registry (cfg/affects.xml)">
+		<child tag="affect" multiple="Y"/>
+	</tag>
+
+	<tag name="affect" desc="One affect: the flag it sets, the stat changes it imposes, its shield weight and trigger actions">
+		<attr name="id" type="enum" enum="EAffect" readonly="Y" desc="Affect identity (immutable)"/>
+		<attr name="buff" type="bool" desc="Y = buff, N = debuff (drives dispel/cure classification)"/>
+		<attr name="dispel_mod" type="int" desc="issue.random-noise-rework: additive per-affect modifier to the dispel-contest threshold (percentage points); negative = harder to remove (critical buffs), default 0"/>
+		<child tag="flags"/>
+		<child tag="apply" multiple="Y"/>
+		<child tag="shield"/>
+		<child tag="actions"/>
+	</tag>
+
+	<tag name="flags" desc="The affect's own behaviour flags, or (inside actions) a hit-flag gate/edit">
+		<attr name="val" type="flagset" enum="EAffFlag" desc="| -separated EAffFlag set"/>
+		<attr name="present" type="string" desc="Hit-flag(s) that must be present (conditions)"/>
+		<attr name="missing" type="string" desc="Hit-flag(s) that must be absent (conditions)"/>
+		<attr name="add" type="string" desc="Hit-flag(s) to set on the in-flight hit"/>
+		<attr name="remove" type="string" desc="Hit-flag(s) to clear on the in-flight hit"/>
+	</tag>
+
+	<tag name="apply" desc="One stat change the affect imposes (kNone = flag-only)">
+		<attr name="location" type="enum" enum="EApply" desc="Stat location modified (kNone = no stat)"/>
+		<attr name="random" type="bool" desc="Member of the affect's pick-one-at-random pool"/>
+		<child tag="modifier"/>
+	</tag>
+
+	<tag name="modifier" desc="Modifier magnitude: factor*cap(min + beta*C*(1 + weight*d))">
+		<attr name="min" type="double" desc="Floor magnitude"/>
+		<attr name="weight" type="double" desc="issue.potency-noise: weight on the spell's shared noise draw (0 = deterministic)"/>
+		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
+		<attr name="factor" type="int" desc="Sign/scale factor (-1 makes it a penalty)"/>
+		<attr name="cap" type="int" min="0" desc="Upper bound on raw magnitude before factor (0 = no cap)"/>
+		<attr name="stack" type="int" min="1" desc="Max stacks this affect builds up (default 1)"/>
+	</tag>
+	<!-- Trigger-action repertoire (mirrors room_affects.scheme; affects add the damage/ward manifests). -->
+	<tag name="shield" desc="Marks the affect as an elemental damage shield of the given weight">
+		<attr name="weight" type="int" desc="Weighted-random shield selection weight"/>
+	</tag>
+	<tag name="actions" desc="Ordered list of the affect's trigger actions">
+		<child tag="action" multiple="Y"/>
+	</tag>
+	<tag name="action" desc="One action: an effect gated by an optional trigger + conditions">
+		<attr name="target" type="enum" enum="EActionTarget" desc="Target selector"/>
+		<attr name="base" type="enum" enum="EActionBase" desc="Formula base (default kCompetence)"/>
+		<attr name="tag" type="string" desc="Named event tag whose numeric value feeds the formula"/>
+		<attr name="reset" type="bool" desc="Reset the roll for this action"/>
+		<child tag="trigger"/>
+		<child tag="target_conditions"/>
+		<child tag="conditions"/>
+		<child tag="side_spell" multiple="Y"/>
+		<child tag="manual_cast"/>
+		<child tag="affects"/>
+		<child tag="unaffect"/>
+		<child tag="damage"/>
+		<child tag="damage_change"/>
+		<child tag="retaliation"/>
+		<child tag="reflection"/>
+		<child tag="absorption"/>
+		<child tag="points"/>
+	</tag>
+	<tag name="trigger" desc="The event(s) that fire this action (no trigger = runs inline in the cast)">
+		<attr name="val" type="flagset" enum="EActionTrigger" desc="| -separated EActionTrigger set"/>
+		<attr name="return" type="int" desc="Value yielded to the firing event (0 = block it)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Percent chance to fire (absent = always)"/>
+	</tag>
+	<tag name="target_conditions" desc="Gates on the target before this action fires">
+		<child tag="blocking"/>
+		<child tag="required"/>
+	</tag>
+	<tag name="blocking" desc="Skip the action when the target carries any of these">
+		<child tag="mob_flags"/>
+		<child tag="affect_flags"/>
+		<child tag="align"/>
+	</tag>
+	<tag name="required" desc="Run the action only when the target carries these">
+		<child tag="mob_flags"/>
+		<child tag="affect_flags"/>
+		<child tag="align"/>
+	</tag>
+	<tag name="mob_flags" desc="Mob-flag gate">
+		<attr name="val" type="flagset" enum="EMobFlag" desc="EMobFlag token(s), '|'-separated"/>
+	</tag>
+	<tag name="affect_flags" desc="AFF-bit gate">
+		<attr name="val" type="flagset" enum="EAffect" desc="EAffect token(s), '|'-separated"/>
+	</tag>
+	<tag name="align" desc="Alignment gate">
+		<attr name="val" type="enum" enum="EAlign" desc="kGood / kEvil / kNeutral"/>
+	</tag>
+	<tag name="side_spell" desc="Also cast another spell as this action's effect">
+		<attr name="id" type="enum" enum="ESpell" desc="Spell to cast"/>
+	</tag>
+	<tag name="manual_cast" desc="Invoke a hardcoded spell handler function">
+		<attr name="handler" type="enum" enum="ManualHandler" desc="Registered spell handler"/>
+	</tag>
+	<tag name="affects" desc="Impose an affect (with optional duration) on the target">
+		<attr name="battleflag" type="flagset" enum="EAffFlag" desc="Battle flags for the imposed affect"/>
+		<child tag="affect" multiple="Y"/>
+		<child tag="apply" multiple="Y"/>
+		<child tag="duration"/>
+	</tag>
+	<tag name="unaffect" desc="Remove an affect from the target">
+		<attr name="id" type="enum" enum="EAffect" desc="Affect bit to clear"/>
+	</tag>
+	<tag name="duration" desc="Duration formula for the imposed affect">
+		<attr name="base" type="int" desc="Base duration (mud-hours)"/>
+		<attr name="min" type="int" desc="Minimum duration"/>
+		<attr name="max" type="int" desc="Maximum duration"/>
+		<attr name="skill" type="enum" enum="ESkill" desc="Skill that scales the duration"/>
+		<attr name="skill_divisor" type="int" min="1" desc="Divisor applied to the skill contribution"/>
+	</tag>
+	<tag name="damage" desc="Deal damage as this action's effect">
+		<attr name="saving" type="enum" enum="ESaving" desc="Saving throw that halves the damage"/>
+		<attr name="source" type="string" desc="Damage source (e.g. poison)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Percent chance the damage fires (default 100)"/>
+		<child tag="amount"/>
+	</tag>
+	<tag name="amount" desc="Damage/heal magnitude formula: min + beta*C*(1 + weight*d)">
+		<attr name="min" type="double" desc="Floor magnitude"/>
+		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
+		<attr name="weight" type="double" desc="Weight on the spell's shared noise draw (0 = deterministic)"/>
+		<attr name="cap" type="int" min="0" desc="Upper bound on the raw magnitude (0 = no cap)"/>
+	</tag>
+	<tag name="points" desc="Restore points (e.g. heal) as this action's effect">
+		<attr name="extra" type="int" desc="Flat extra points added"/>
+		<child tag="heal"/>
+	</tag>
+	<tag name="heal" desc="Heal magnitude formula">
+		<attr name="min" type="double" desc="Floor heal"/>
+		<attr name="beta" type="double" desc="Additive skill/stat coefficient"/>
+		<attr name="weight" type="double" desc="Weight on the spell's shared noise draw"/>
+		<attr name="npc_coeff" type="double" desc="Multiplier applied when the healer is an NPC"/>
+	</tag>
+	<tag name="damage_change" desc="Passively scale incoming damage on the affect bearer (thorns/shield reduction)">
+		<attr name="stage" type="string" desc="When to apply: early | late"/>
+		<attr name="msg" type="string" desc="Message variant (none = silent)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Percent chance to apply"/>
+		<child tag="conditions"/>
+		<child tag="variation"/>
+		<child tag="flags"/>
+	</tag>
+	<tag name="variation" desc="Percent variation applied to the incoming damage">
+		<attr name="min" type="int" desc="Minimum percent"/>
+		<attr name="max" type="int" desc="Maximum percent"/>
+		<attr name="factor" type="int" desc="Sign/scale factor (-1 = reduction)"/>
+	</tag>
+	<tag name="retaliation" desc="Reflect a percentage of the incoming damage back at the attacker (thorns/mirror)">
+		<attr name="passive" type="bool" desc="Fires regardless of the bearer's stance/combat state (a magic mirror)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Percent chance to fire"/>
+		<child tag="conditions"/>
+		<child tag="percent"/>
+		<child tag="element"/>
+		<child tag="flags"/>
+	</tag>
+	<tag name="percent" desc="Reflect percentage of the pre-reduction damage, plus bearer bonuses">
+		<attr name="min" type="int" desc="Base minimum percent"/>
+		<attr name="max" type="int" desc="Base maximum percent"/>
+		<attr name="npc_bonus" type="int" desc="Added when the bearer is a real NPC"/>
+		<attr name="boss_bonus" type="int" desc="Added on top when that NPC is a boss"/>
+	</tag>
+	<tag name="reflection" desc="Bounce the whole cast back at the caster (Magic Mirror ward)">
+		<attr name="min" type="int" desc="Minimum reflect chance / potency floor"/>
+		<attr name="max" type="int" desc="Maximum reflect chance"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Fixed reflect chance (when not potency-contested)"/>
+	</tag>
+	<tag name="absorption" desc="Swallow an incoming attack (ward). scope = damage | affect | all">
+		<attr name="scope" type="string" desc="What the ward absorbs: damage | affect | all"/>
+		<attr name="chance" type="enum" enum="EApply" desc="Stat that drives the absorb chance (e.g. kMagicResist)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Fixed absorb chance (when not stat-driven)"/>
+	</tag>
+	<tag name="conditions" desc="Gate a damage_change / retaliation on the incoming hit's type/element/flags">
+		<child tag="type"/>
+		<child tag="element"/>
+		<child tag="flags"/>
+	</tag>
+	<tag name="type" desc="Damage-type gate">
+		<attr name="val" type="string" desc="Damage type token(s), '|'-separated (e.g. kPhysDmg|kMagicDmg)"/>
+	</tag>
+	<tag name="element" desc="Element gate / reflected-damage element">
+		<attr name="val" type="enum" enum="EElement" desc="Element token"/>
+		<attr name="type" type="string" desc="Damage-type override for the reflected damage"/>
+	</tag>
+</scheme>

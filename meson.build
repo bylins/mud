@@ -1,9 +1,7 @@
 project('bylins', 'cpp',
-    # issue.versioning: номер версии ведется по репозиторию (счетчик коммитов), а не файлом в
-    # дереве. Считается на каждой сборке в tools/meson/generate_version.py; здесь его держать
-    # незачем -- meson.project_version() нигде не используется, а пустая строка от git вне
-    # рабочей копии сломала бы конфигурацию.
-
+    # issue.versioning: major.minor.patch from the explicit repo-root VERSION file (single
+    # source of truth). The runtime string appends the commit count (see generate_version.py).
+    version: run_command('cat', files('VERSION.txt'), check: false).stdout().strip(),
     default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2', 'unity=on']
 )
 
@@ -549,6 +547,7 @@ main_sources = files(
   'src/gameplay/handlers/alter_restoration.cpp',
   'src/gameplay/handlers/alter_light.cpp',
   'src/gameplay/handlers/alter_darkness.cpp',
+  'src/gameplay/handlers/alter_weave_restore.cpp',
   'src/gameplay/handlers/create_weapon.cpp',
   'src/gameplay/handlers/create_armor.cpp',
   'src/gameplay/handlers/summon_tutelar.cpp',
@@ -599,7 +598,6 @@ main_sources = files(
   'src/gameplay/mechanics/obj_sets.cpp',
   'src/gameplay/mechanics/inventory.cpp',
   'src/gameplay/mechanics/obj_sets_olc.cpp',
-  'src/gameplay/magic/magic_objects.cpp',
   'src/engine/olc/oedit.cpp',
   'src/engine/olc/vedun/vedun.cpp',
   'src/engine/olc/vedun/enum_registry.cpp',
@@ -695,6 +693,7 @@ main_sources = files(
   'src/engine/ui/cmd/do_order.cpp',
   'src/engine/ui/cmd/do_mercenary.cpp',
   'src/gameplay/affects/affect_data.cpp',
+  'src/gameplay/affects/obj_affects.cpp',
   'src/gameplay/affects/mobile_affect_update_profiler.cpp',
   'src/gameplay/affects/player_affect_update_profiler.cpp',
   'src/gameplay/skills/track.cpp',
@@ -726,6 +725,7 @@ main_sources = files(
   'src/utils/parser_wrapper.cpp',
   'src/engine/boot/cfg_manager.cpp',
   'src/gameplay/affects/affect_contants.cpp',
+  'src/gameplay/affects/equipment_affects.cpp',
   'src/engine/ui/cmd_god/do_users.cpp',
   'src/engine/ui/table_wrapper.cpp',
   'src/engine/ui/cmd/do_score.cpp',

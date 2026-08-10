@@ -48,18 +48,18 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af[0].modifier = hp_regen;
 	af[0].location = EApply::kHpRegen;
 	af[0].affect_type = EAffect::kFrenzy;
-	af[0].battleflag = kAfPulsedec;
+	af[0].battleflag = {kAfPulsedec};
 	af[1].duration = duration;
 	af[1].modifier = dmg_multiplier;
 	af[1].location = EApply::kPhysicDamagePercent;
 	af[1].affect_type = EAffect::kFrenzy;
-	af[1].battleflag = kAfPulsedec;
+	af[1].battleflag = {kAfPulsedec};
 	// issue.affects-improve: frenzy prevents fleeing via EApply::kBind (was the kNoFlee affect).
 	af[2].duration = duration;
 	af[2].modifier = 1;
 	af[2].location = EApply::kBind;
 	af[2].affect_type = EAffect::kFrenzy;
-	af[2].battleflag = kAfPulsedec;
+	af[2].battleflag = {kAfPulsedec};
 	bool has_frenzy = false;
 	bool can_be_angrier = false;
 	// В цикле только СНИМАЕМ старые frenzy-аффекты и СОБИРАЕМ обновлённые копии.
