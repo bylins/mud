@@ -753,7 +753,8 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 			}
 			if (exit_json.contains("exit_info"))
 			{
-				exit->exit_info = exit_json["exit_info"].get<int>();
+				// Single-plane numeric form, mirrors the serializer and the world loaders.
+				exit->exit_info.set_plane(0, exit_json["exit_info"].get<Bitvector>());
 			}
 			if (exit_json.contains("key"))
 			{
