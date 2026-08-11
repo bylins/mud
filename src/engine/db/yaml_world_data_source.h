@@ -112,7 +112,12 @@ private:
 	bool LoadDictionaries();
 	
 	// Load world configuration (line endings, etc)
-	bool LoadWorldConfig();
+	// Возвращает пустую строку при успехе, иначе -- человекочитаемую причину отказа
+	// (нет файла, нет ключа, кривое значение, ошибка разбора). Конструктор ее и печатает.
+	std::string LoadWorldConfig();
+	// Похоже ли содержимое каталога на мир в легаси-формате: только тогда имеет смысл
+	// советовать конвертацию.
+	bool LooksLikeLegacyWorld() const;
 
 	// Get list of zone vnums from index.yaml
 	std::vector<int> GetZoneList();
