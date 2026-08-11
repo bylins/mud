@@ -391,13 +391,21 @@ YamlWorldDataSource::YamlWorldDataSource(const std::string &world_dir)
 	: m_world_dir(world_dir)
 {
 	// Load world configuration (required)
-	if (!LoadWorldConfig()) {
-		log("SYSERR: Failed to load world_config.yaml");
+	const std::string config_error = LoadWorldConfig();
+	if (!config_error.empty()) {
+		// Печатаем НАСТОЯЩУЮ причину. Раньше тут в любом случае сообщалось про легаси-формат,
+		// хотя из четырех путей отказа он объясняет только один -- отсутствие файла. Из-за
+		// этого битый yaml или забытый ключ выглядели как "мир не конвертирован".
+		log("SYSERR: %s", config_error.c_str());
 		fprintf(stderr, "\n");
-		fprintf(stderr, "ERROR: World is in Legacy format, but server built with YAML support.\n");
-		fprintf(stderr, "To convert world to YAML format, run from world directory (NOT world/world):\n");
-		fprintf(stderr, "  cd %s\n", m_world_dir.c_str());
-		fprintf(stderr, "  /path/to/convert_to_yaml.py -i . -o . --format yaml --type all\n");
+		fprintf(stderr, "ERROR: %s\n", config_error.c_str());
+		if (LooksLikeLegacyWorld()) {
+			fprintf(stderr, "\n");
+			fprintf(stderr, "Похоже на мир в Legacy-формате, а сервер собран с поддержкой YAML.\n");
+			fprintf(stderr, "Сконвертировать (запускать из каталога мира, NOT world/world):\n");
+			fprintf(stderr, "  cd %s\n", m_world_dir.c_str());
+			fprintf(stderr, "  /path/to/convert_to_yaml.py -i . -o . --format yaml --type all\n");
+		}
 		fprintf(stderr, "\n");
 		exit(1);
 	}
@@ -420,15 +428,39 @@ size_t YamlWorldDataSource::GetConfiguredThreadCount() const
 }
 
 // Load world configuration from world_config.yaml
-bool YamlWorldDataSource::LoadWorldConfig()
+// Признак легаси-мира: рядом лежат исходники старого формата. Ищем неглубоко и без
+// рекурсии -- достаточно одного файла, чтобы отличить "мир не конвертирован" от
+// "конфиг битый или потерялся".
+bool YamlWorldDataSource::LooksLikeLegacyWorld() const
+{
+	namespace fs = std::filesystem;
+	static const char *kLegacyExt[] = {".wld", ".zon", ".mob", ".obj", ".trg", ".shp"};
+	std::error_code ec;
+	for (const auto &entry : fs::directory_iterator(m_world_dir, ec)) {
+		if (ec) {
+			break;
+		}
+		if (!entry.is_regular_file(ec)) {
+			continue;
+		}
+		const std::string name = entry.path().filename().string();
+		for (const char *ext : kLegacyExt) {
+			if (name.size() > strlen(ext) && name.compare(name.size() - strlen(ext), strlen(ext), ext) == 0) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+std::string YamlWorldDataSource::LoadWorldConfig()
 {
 	std::string config_path = m_world_dir + "/world_config.yaml";
 
 	// Config file is required
 	std::ifstream test_file(config_path);
 	if (!test_file.good()) {
-		log("SYSERR: World configuration file not found: %s", config_path.c_str());
-		return false;
+		return "World configuration file not found: " + config_path;
 	}
 	test_file.close();
 
@@ -437,8 +469,7 @@ bool YamlWorldDataSource::LoadWorldConfig()
 
 		// Read line_endings setting (required)
 		if (!config["line_endings"]) {
-			log("SYSERR: Missing 'line_endings' in world_config.yaml");
-			return false;
+			return "Missing 'line_endings' in " + config_path;
 		}
 
 		std::string line_endings = config["line_endings"].as<std::string>();
@@ -449,8 +480,8 @@ bool YamlWorldDataSource::LoadWorldConfig()
 			m_convert_lf_to_crlf = false;
 			log("World config: Unix line endings (no conversion)");
 		} else {
-			log("SYSERR: Invalid line_endings value '%s' (expected 'dos' or 'unix')", line_endings.c_str());
-			return false;
+			return "Invalid line_endings value '" + line_endings + "' in " + config_path
+				   + " (expected 'dos' or 'unix')";
 		}
 
 		// Read layout setting (optional, defaults to flat). Controls only how
@@ -464,18 +495,17 @@ bool YamlWorldDataSource::LoadWorldConfig()
 				m_save_layout = YamlLayout::PerFile;
 				log("World config: per-file layout (one file per entity)");
 			} else {
-				log("SYSERR: Invalid layout value '%s' (expected 'flat' or 'per_file')", layout.c_str());
-				return false;
+				return "Invalid layout value '" + layout + "' in " + config_path
+					   + " (expected 'flat' or 'per_file')";
 			}
 		} else {
 			m_save_layout = YamlLayout::Flat;
 			log("World config: layout not set, defaulting to flat");
 		}
 
-		return true;
+		return "";
 	} catch (const YAML::Exception &e) {
-		log("SYSERR: Failed to parse world_config.yaml: %s", e.what());
-		return false;
+		return "Failed to parse " + config_path + ": " + e.what();
 	}
 }
 
