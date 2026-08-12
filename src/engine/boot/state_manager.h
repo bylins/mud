@@ -12,7 +12,9 @@
 #define BYLINS_SRC_ENGINE_BOOT_STATE_MANAGER_H_
 
 #include <array>
+#include <functional>
 #include <string>
+#include <vector>
 
 namespace state {
 
@@ -40,6 +42,18 @@ class StateManager {
 	// Path of a state file relative to the world directory (e.g. "state/badsites"). The returned
 	// reference is stable for the process lifetime, so `.c_str()` may be handed to C file APIs.
 	[[nodiscard]] const std::string &Path(EStateFile file) const;
+
+	// Line-level I/O for these flat list files. StateManager owns the file mechanics (open,
+	// read-all, atomic rewrite, append); the caller keeps its per-record parse/format -- these
+	// deal in whole lines/strings, not typed records. A missing file reads as empty (normal on
+	// first boot). Write helpers log a SYSERR and return false on failure.
+	[[nodiscard]] std::vector<std::string> LoadLines(EStateFile file) const;
+	// Atomically replace the whole file (write a .tmp then rename).
+	bool SaveLines(EStateFile file, const std::vector<std::string> &lines) const;
+	// Append one line (creating the file if absent).
+	bool AppendLine(EStateFile file, const std::string &line) const;
+	// Load, drop every line for which drop(line) is true, then SaveLines the rest atomically.
+	bool RewriteDropping(EStateFile file, const std::function<bool(const std::string &)> &drop) const;
 
  private:
 	std::array<std::string, static_cast<std::size_t>(EStateFile::kLast_)> paths_;

@@ -5,6 +5,12 @@
 
 #include "state_manager.h"
 
+#include <cstdio>
+#include <fstream>
+#include <utility>
+
+#include "utils/logger.h"
+
 namespace state {
 
 namespace {
@@ -31,6 +37,71 @@ StateManager::StateManager() {
 
 const std::string &StateManager::Path(EStateFile file) const {
 	return paths_[static_cast<std::size_t>(file)];
+}
+
+std::vector<std::string> StateManager::LoadLines(EStateFile file) const {
+	std::vector<std::string> lines;
+	std::ifstream in(Path(file));
+	if (!in.is_open()) {
+		return lines;   // absent file == empty list (normal on first boot)
+	}
+	std::string line;
+	while (std::getline(in, line)) {
+		if (!line.empty() && line.back() == '\r') {
+			line.pop_back();   // tolerate CRLF files
+		}
+		lines.push_back(std::move(line));
+	}
+	return lines;
+}
+
+bool StateManager::SaveLines(EStateFile file, const std::vector<std::string> &lines) const {
+	const std::string &path = Path(file);
+	const std::string tmp = path + ".tmp";
+	{
+		std::ofstream out(tmp, std::ios::trunc);
+		if (!out.is_open()) {
+			log("SYSERR: StateManager: cannot open '%s' for writing", tmp.c_str());
+			return false;
+		}
+		for (const auto &l : lines) {
+			out << l << '\n';
+		}
+		out.flush();
+		if (!out.good()) {
+			log("SYSERR: StateManager: write error on '%s'", tmp.c_str());
+			return false;
+		}
+	}   // close before rename
+	if (std::rename(tmp.c_str(), path.c_str()) != 0) {
+		log("SYSERR: StateManager: cannot rename '%s' -> '%s'", tmp.c_str(), path.c_str());
+		return false;
+	}
+	return true;
+}
+
+bool StateManager::AppendLine(EStateFile file, const std::string &line) const {
+	const std::string &path = Path(file);
+	std::ofstream out(path, std::ios::app);
+	if (!out.is_open()) {
+		log("SYSERR: StateManager: cannot open '%s' for append", path.c_str());
+		return false;
+	}
+	out << line << '\n';
+	return out.good();
+}
+
+bool StateManager::RewriteDropping(EStateFile file,
+		const std::function<bool(const std::string &)> &drop) const {
+	auto lines = LoadLines(file);
+	std::vector<std::string> kept;
+	kept.reserve(lines.size());
+	for (auto &l : lines) {
+		if (!drop(l)) {
+			kept.push_back(std::move(l));
+		}
+	}
+	return SaveLines(file, kept);
 }
 
 } // namespace state
