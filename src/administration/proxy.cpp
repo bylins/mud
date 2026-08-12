@@ -15,6 +15,8 @@
 #include "engine/core/comm.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils.h"
+
+#include <sstream>
 #include "utils/logger.h"
 
 const int kMaxProxyConnect{50};
@@ -23,44 +25,38 @@ const int kMaxProxyConnect{50};
 ProxyListType proxy_list;
 
 void SaveProxyList() {
-	const std::string &proxy_file = MUD::StateManager().Path(state::EStateFile::kProxy);
-	std::ofstream file(proxy_file);
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", proxy_file.c_str(), __FILE__, __func__, __LINE__);
-		return;
-	}
-
+	// issue.misc-migrate: build the lines and let StateManager write them atomically (tmp+rename).
+	std::vector<std::string> lines;
+	lines.reserve(proxy_list.size());
 	for (auto &it : proxy_list) {
-		file << it.second->textIp << "  " << (it.second->textIp2.empty() ? "0"
-																		 : it.second->textIp2) << "  "
-			 << it.second->num << "  " << it.second->text << "\n";
+		std::ostringstream oss;
+		oss << it.second->textIp << "  " << (it.second->textIp2.empty() ? "0" : it.second->textIp2)
+			<< "  " << it.second->num << "  " << it.second->text;
+		lines.push_back(oss.str());
 	}
-	file.close();
+	MUD::StateManager().SaveLines(state::EStateFile::kProxy, lines);
 }
 
 void RegisterSystem::LoadProxyList() {
+	// issue.misc-migrate: read records via StateManager. Parse each non-empty line the same way
+	// (ip ip2 num text); a malformed record still aborts+clears. This drops the old stream loop's
+	// trailing-line quirk that could abort a valid list, then re-normalises via SaveProxyList().
 	const std::string &proxy_file = MUD::StateManager().Path(state::EStateFile::kProxy);
-	// если релоадим
 	proxy_list.clear();
 
-	std::ifstream file(proxy_file);
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", proxy_file.c_str(), __FILE__, __func__, __LINE__);
-		return;
-	}
-
-	std::string buffer, textIp, textIp2;
-	int num = 0;
-
-	while (file) {
-		file >> textIp >> textIp2 >> num;
-		std::getline(file, buffer);
+	for (const auto &line : MUD::StateManager().LoadLines(state::EStateFile::kProxy)) {
+		if (line.empty()) {
+			continue;
+		}
+		std::istringstream iss(line);
+		std::string buffer, textIp, textIp2;
+		int num = 0;
+		iss >> textIp >> textIp2 >> num;
+		std::getline(iss, buffer);
 		utils::Trim(buffer);
 		if (textIp.empty() || textIp2.empty() || buffer.empty() || num < 2 || num > kMaxProxyConnect) {
 			log("Error read file: %s! IP: %s IP2: %s Num: %d Text: %s (%s %s %d)", proxy_file.c_str(), textIp.c_str(),
 				textIp2.c_str(), num, buffer.c_str(), __FILE__, __func__, __LINE__);
-			// не стоит грузить файл, если там чет не то - похерится потом при сохранении
-			// хотя будет смешно, если после неудачного лоада кто-то добавит запись в онлайне Ж)
 			proxy_list.clear();
 			return;
 		}
@@ -76,7 +72,6 @@ void RegisterSystem::LoadProxyList() {
 		tempIp->ip2 = TxtToIp(textIp2);
 		proxy_list[ip] = tempIp;
 	}
-	file.close();
 	SaveProxyList();
 }
 
