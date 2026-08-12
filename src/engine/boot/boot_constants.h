@@ -40,7 +40,6 @@ enum SetStuffMode {
 #define LIB_TEXT	":text:"
 #define LIB_TEXT_HELP	":text:help:"
 #define LIB_CFG		":cfg:"
-#define LIB_STATE		":state:"       // server-wide state (not chars/world)
 #define LIB_USERDATA	":userdata:"
 #define LIB_WORLDDATA	":worlddata:"
 #define BOARDS_DIR	":userdata:boards:"
@@ -58,7 +57,6 @@ enum SetStuffMode {
 #define LIB_TEXT_HELP "text/help/"
 #define LIB_CFG         "cfg/"
 #define LIB_ACCOUNTS  "plrs/accounts/"
-#define LIB_STATE      "state/"       // issue.misc-migrate: server-wide state (not chars/world)
 #define LIB_USERDATA   "userdata/"
 #define LIB_WORLDDATA  "worlddata/"
 #define LIB_STAT      "stat/"
@@ -116,11 +114,6 @@ enum SetStuffMode {
 
 #define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
 
-#define PROXY_FILE        LIB_STATE "proxy"    // register proxy list
-#define XNAME_FILE      LIB_STATE "xnames"    // invalid name substrings
-#define ANAME_FILE      LIB_STATE "apr_name" // одобренные имена
-#define DNAME_FILE      LIB_STATE "dis_name" // запрещенные имена
-#define NNAME_FILE      LIB_STATE "new_name" // ждущие одобрения
 // issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 
 

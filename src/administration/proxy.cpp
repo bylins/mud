@@ -11,6 +11,7 @@
 
 #include "engine/network/descriptor_data.h"
 #include "engine/boot/boot_constants.h"
+#include "engine/db/global_objects.h"
 #include "engine/core/comm.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils.h"
@@ -22,9 +23,10 @@ const int kMaxProxyConnect{50};
 ProxyListType proxy_list;
 
 void SaveProxyList() {
-	std::ofstream file(PROXY_FILE);
+	const std::string &proxy_file = MUD::StateManager().Path(state::EStateFile::kProxy);
+	std::ofstream file(proxy_file);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", PROXY_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", proxy_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 
@@ -37,12 +39,13 @@ void SaveProxyList() {
 }
 
 void RegisterSystem::LoadProxyList() {
+	const std::string &proxy_file = MUD::StateManager().Path(state::EStateFile::kProxy);
 	// если релоадим
 	proxy_list.clear();
 
-	std::ifstream file(PROXY_FILE);
+	std::ifstream file(proxy_file);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", PROXY_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", proxy_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 
@@ -54,7 +57,7 @@ void RegisterSystem::LoadProxyList() {
 		std::getline(file, buffer);
 		utils::Trim(buffer);
 		if (textIp.empty() || textIp2.empty() || buffer.empty() || num < 2 || num > kMaxProxyConnect) {
-			log("Error read file: %s! IP: %s IP2: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, textIp.c_str(),
+			log("Error read file: %s! IP: %s IP2: %s Num: %d Text: %s (%s %s %d)", proxy_file.c_str(), textIp.c_str(),
 				textIp2.c_str(), num, buffer.c_str(), __FILE__, __func__, __LINE__);
 			// не стоит грузить файл, если там чет не то - похерится потом при сохранении
 			// хотя будет смешно, если после неудачного лоада кто-то добавит запись в онлайне Ж)

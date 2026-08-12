@@ -221,7 +221,7 @@ void LoadSheduledReboot() {
 
 	time_t currTime;
 
-	sch = fopen(LIB_STATE "schedule", "r");
+	sch = fopen(MUD::StateManager().Path(state::EStateFile::kSchedule).c_str(), "r");
 	if (!sch) {
 		log("Error opening schedule");
 		return;
@@ -3589,7 +3589,7 @@ void LoadGlobalUid() {
 
 	global_uid = 0;
 
-	if (!(guid = fopen(LIB_STATE "globaluid", "r"))) {
+	if (!(guid = fopen(MUD::StateManager().Path(state::EStateFile::kGlobalUid).c_str(), "r"))) {
 		log("Can't open global uid file...");
 		return;
 	}
@@ -3601,7 +3601,7 @@ void LoadGlobalUid() {
 void SaveGlobalUID() {
 	FILE *guid;
 
-	if (!(guid = fopen(LIB_STATE "globaluid", "w"))) {
+	if (!(guid = fopen(MUD::StateManager().Path(state::EStateFile::kGlobalUid).c_str(), "w"))) {
 		log("Can't write global uid file...");
 		return;
 	}

@@ -17,6 +17,15 @@
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/player_index.h"
+#include "engine/db/global_objects.h"
+
+namespace {
+// issue.misc-migrate: state/ name-list paths via StateManager (were the per-list path macros).
+inline const std::string &AName() { return MUD::StateManager().Path(state::EStateFile::kApprovedNames); }
+inline const std::string &DName() { return MUD::StateManager().Path(state::EStateFile::kDisallowedNames); }
+inline const std::string &NName() { return MUD::StateManager().Path(state::EStateFile::kPendingNames); }
+inline const std::string &XName() { return MUD::StateManager().Path(state::EStateFile::kInvalidNameParts); }
+}  // namespace
 
 namespace NewNames {
 static void save();
@@ -37,8 +46,8 @@ int was_agree_name(DescriptorData *d) {
 
 //1. Load list
 
-	if (!(fp = fopen(ANAME_FILE, "r"))) {
-		perror("SYSERR: Unable to open '" ANAME_FILE "' for reading");
+	if (!(fp = fopen(AName().c_str(), "r"))) {
+		perror(("SYSERR: Unable to open '" + AName() + "' for reading").c_str());
 		log("was_agree_name end");
 		return (1);
 	}
@@ -78,8 +87,8 @@ int was_disagree_name(DescriptorData *d) {
 	char immname[kMaxInputLength];
 	int immlev;
 
-	if (!(fp = fopen(DNAME_FILE, "r"))) {
-		perror("SYSERR: Unable to open '" DNAME_FILE "' for reading");
+	if (!(fp = fopen(DName().c_str(), "r"))) {
+		perror(("SYSERR: Unable to open '" + DName() + "' for reading").c_str());
 		log("was_disagree_name end");
 		return (1);
 	}
@@ -117,12 +126,12 @@ void rm_agree_name(CharData *d) {
 	int sex;
 
 	// 1. Find name ...
-	if (!(fin = fopen(ANAME_FILE, "r"))) {
-		perror("SYSERR: Unable to open '" ANAME_FILE "' for read");
+	if (!(fin = fopen(AName().c_str(), "r"))) {
+		perror(("SYSERR: Unable to open '" + AName() + "' for read").c_str());
 		return;
 	}
-	if (!(fout = fopen("" ANAME_FILE ".tmp", "w"))) {
-		perror("SYSERR: Unable to open '" ANAME_FILE ".tmp' for writing");
+	if (!(fout = fopen((AName() + ".tmp").c_str(), "w"))) {
+		perror(("SYSERR: Unable to open '" + AName() + ".tmp' for writing").c_str());
 		fclose(fin);
 		return;
 	}
@@ -139,7 +148,7 @@ void rm_agree_name(CharData *d) {
 	fclose(fin);
 	fclose(fout);
 	// Rewrite from tmp
-	rename(ANAME_FILE ".tmp", ANAME_FILE);
+	rename((AName() + ".tmp").c_str(), AName().c_str());
 }
 
 // список неодобренных имен, дубль2
@@ -163,9 +172,9 @@ static NewNameListType NewNameList;
 
 // сохранение списка в файл
 static void NewNames::save() {
-	std::ofstream file(NNAME_FILE);
+	std::ofstream file(NName());
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", NNAME_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", NName().c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 
@@ -220,9 +229,9 @@ void NewNames::remove(const std::string &name, CharData *actor) {
 
 // лоад списка неодобренных имен
 void NewNames::load() {
-	std::ifstream file(NNAME_FILE);
+	std::ifstream file(NName());
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", NNAME_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", NName().c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 
@@ -282,12 +291,12 @@ static void rm_disagree_name(CharData *d) {
 	int immlev;
 
 	// 1. Find name ...
-	if (!(fin = fopen(DNAME_FILE, "r"))) {
-		perror("SYSERR: Unable to open '" DNAME_FILE "' for read");
+	if (!(fin = fopen(DName().c_str(), "r"))) {
+		perror(("SYSERR: Unable to open '" + DName() + "' for read").c_str());
 		return;
 	}
-	if (!(fout = fopen("" DNAME_FILE ".tmp", "w"))) {
-		perror("SYSERR: Unable to open '" DNAME_FILE ".tmp' for writing");
+	if (!(fout = fopen((DName() + ".tmp").c_str(), "w"))) {
+		perror(("SYSERR: Unable to open '" + DName() + ".tmp' for writing").c_str());
 		fclose(fin);
 		return;
 	}
@@ -301,13 +310,13 @@ static void rm_disagree_name(CharData *d) {
 	}
 	fclose(fin);
 	fclose(fout);
-	rename(DNAME_FILE ".tmp", DNAME_FILE);
+	rename((DName() + ".tmp").c_str(), DName().c_str());
 }
 
 static void add_agree_name(CharData *d, const char *immname, int immlev) {
 	FILE *fl;
-	if (!(fl = fopen(ANAME_FILE, "a"))) {
-		perror("SYSERR: Unable to open '" ANAME_FILE "' for writing");
+	if (!(fl = fopen(AName().c_str(), "a"))) {
+		perror(("SYSERR: Unable to open '" + AName() + "' for writing").c_str());
 		return;
 	}
 	// Pos to the end ...
@@ -327,8 +336,8 @@ static void add_agree_name(CharData *d, const char *immname, int immlev) {
 
 static void add_disagree_name(CharData *d, const char *immname, int immlev) {
 	FILE *fl;
-	if (!(fl = fopen(DNAME_FILE, "a"))) {
-		perror("SYSERR: Unable to open '" DNAME_FILE "' for writing");
+	if (!(fl = fopen(DName().c_str(), "a"))) {
+		perror(("SYSERR: Unable to open '" + DName() + "' for writing").c_str());
 		return;
 	}
 	// Pos to the end ...
@@ -508,8 +517,8 @@ void ReadCharacterInvalidNamesList() {
 	FILE *fp;
 	char temp[256];
 
-	if (!(fp = fopen(XNAME_FILE, "r"))) {
-		perror("SYSERR: Unable to open '" XNAME_FILE "' for reading");
+	if (!(fp = fopen(XName().c_str(), "r"))) {
+		perror(("SYSERR: Unable to open '" + XName() + "' for reading").c_str());
 		return;
 	}
 

@@ -41,6 +41,7 @@ struct GlobalObjectsStorage {
 	feats::FeatsInfo feats_info;
 	feats::FeatMessages feat_messages;
 	cfg_manager::CfgManager cfg_mngr;
+	state::StateManager state_mngr;
 	classes::ClassesInfo classes_info;
 	mob_classes::MobClassesInfo mob_classes_info;
 	guilds::GuildsInfo guilds_info;
@@ -154,6 +155,10 @@ const feats::FeatInfo &GlobalObjects::Feat(const EFeat feat_id) {
 
 cfg_manager::CfgManager &GlobalObjects::CfgManager() {
 	return global_objects().cfg_mngr;
+}
+
+state::StateManager &GlobalObjects::StateManager() {
+	return global_objects().state_mngr;
 }
 
 classes::ClassesInfo &GlobalObjects::Classes() {

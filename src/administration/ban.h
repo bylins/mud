@@ -40,8 +40,8 @@ using ProxyBanNodePtr = std::shared_ptr<ProxyBanNode>;
 
 class BanList {
  public:
-  static const char *const ban_filename;
-  static const char *const proxy_ban_filename;
+  static const std::string &ban_filename();
+  static const std::string &proxy_ban_filename();
   static const int BAN_NO = 0;
   static const int BAN_NEW = 1;
   static const int BAN_SELECT = 2;

@@ -14,8 +14,8 @@
 
 #include <fmt/format.h>
 
-const char *const BanList::ban_filename = LIB_STATE "badsites";
-const char *const BanList::proxy_ban_filename = LIB_STATE "badproxy";
+const std::string &BanList::ban_filename() { return MUD::StateManager().Path(state::EStateFile::kBannedSites); }
+const std::string &BanList::proxy_ban_filename() { return MUD::StateManager().Path(state::EStateFile::kBannedProxies); }
 const char *BanList::ban_types[] = {
 	"no",
 	"new",
@@ -218,7 +218,7 @@ bool BanList::AddProxyBan(std::string BannedIp, const std::string &BannerName) {
 bool BanList::ReloadBan() {
 	FILE *loaded;
 	ban_list_.clear();
-	if ((loaded = fopen(ban_filename, "r"))) {
+	if ((loaded = fopen(ban_filename().c_str(), "r"))) {
 		std::string str_to_parse;
 
 		while (!feof(loaded)) {
@@ -226,7 +226,7 @@ bool BanList::ReloadBan() {
 			std::vector<std::string> ban_tokens = utils::Split(str_to_parse);
 
 			if (ban_tokens.size() != 6) {
-				log("Ban list %s error, line %s", ban_filename, str_to_parse.c_str());
+				log("Ban list %s error, line %s", ban_filename().c_str(), str_to_parse.c_str());
 				continue;
 			}
 			BanNodePtr ptr(new struct BanNode);
@@ -270,7 +270,7 @@ bool BanList::ReloadBan() {
 bool BanList::ReloadProxyBan() {
 	FILE *loaded;
 
-	loaded = fopen(proxy_ban_filename, "r");
+	loaded = fopen(proxy_ban_filename().c_str(), "r");
 	if (loaded) {
 		std::string str_to_parse;
 
@@ -278,7 +278,7 @@ bool BanList::ReloadProxyBan() {
 			std::vector<std::string> ban_tokens = utils::Split(str_to_parse);
 
 			if (ban_tokens.size() != 2) {
-				log("Proxy ban list %s error, line %s", proxy_ban_filename, str_to_parse.c_str());
+				log("Proxy ban list %s error, line %s", proxy_ban_filename().c_str(), str_to_parse.c_str());
 				continue;
 			}
 			auto tok_iter = ban_tokens.begin();
@@ -305,7 +305,7 @@ bool BanList::ReloadProxyBan() {
 
 bool BanList::SaveIp() {
 	FILE *loaded;
-	if ((loaded = fopen(ban_filename, "w"))) {
+	if ((loaded = fopen(ban_filename().c_str(), "w"))) {
 		for (auto &i : ban_list_) {
 			fprintf(loaded, "%s %s %ld %s %ld %s\n",
 					ban_types[i->BanType], i->BannedIp.c_str(),
@@ -321,7 +321,7 @@ bool BanList::SaveIp() {
 
 bool BanList::SaveProxy() {
 	FILE *loaded;
-	if ((loaded = fopen(proxy_ban_filename, "w"))) {
+	if ((loaded = fopen(proxy_ban_filename().c_str(), "w"))) {
 		for (auto &i : proxy_ban_list_) {
 			fprintf(loaded, "%s %s\n", i->BannedIp.c_str(), i->BannerName.c_str());
 		}

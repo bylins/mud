@@ -650,6 +650,7 @@ main_sources = files(
   'src/engine/db/id.cpp',
   'src/engine/db/utils_find_obj_id_by_vnum.cpp',
   'src/engine/db/global_objects.cpp',
+  'src/engine/boot/state_manager.cpp',
   'src/gameplay/economics/shops_implementation.cpp',
   'src/engine/db/world_characters.cpp',
   'src/utils/utils_debug.cpp',

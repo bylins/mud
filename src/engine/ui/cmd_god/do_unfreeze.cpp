@@ -9,6 +9,7 @@
 #include "administration/punishments.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
+#include "engine/db/global_objects.h"
 
 #include <fstream>
 #include <iostream>
@@ -26,7 +27,7 @@ void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	std::string reason;
 	std::string name_buffer;
 	std::ifstream unfreeze_list;
-	unfreeze_list.open("../lib/state/unfreeze.lst", std::fstream::in);
+	unfreeze_list.open(MUD::StateManager().Path(state::EStateFile::kUnfreeze), std::fstream::in);
 	if (!unfreeze_list) {
 		SendMsgToChar("Файл unfreeze.lst отсутствует!\r\n", ch);
 		return;
