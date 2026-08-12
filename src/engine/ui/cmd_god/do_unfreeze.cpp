@@ -26,7 +26,7 @@ void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	std::string reason;
 	std::string name_buffer;
 	std::ifstream unfreeze_list;
-	unfreeze_list.open("../lib/misc/unfreeze.lst", std::fstream::in);
+	unfreeze_list.open("../lib/state/unfreeze.lst", std::fstream::in);
 	if (!unfreeze_list) {
 		SendMsgToChar("Файл unfreeze.lst отсутствует!\r\n", ch);
 		return;

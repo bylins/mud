@@ -42,6 +42,9 @@ enum SetStuffMode {
 #define LIB_MISC	":misc:"
 #define LIB_CFG		":cfg:"
 #define LIB_MISC_CRAFT		":misc:craft:"
+#define LIB_STATE		":state:"       // server-wide state (not chars/world)
+#define LIB_USERDATA	":userdata:"
+#define LIB_WORLDDATA	":worlddata:"
 #define LIB_ETC		":etc:"
 #define ETC_BOARD	":etc:board:"
 #define LIB_PLROBJS	":plrobjs:"
@@ -60,6 +63,9 @@ enum SetStuffMode {
 #define LIB_MISC      "misc/"
 #define LIB_ACCOUNTS  "plrs/accounts/"
 #define LIB_MISC_CRAFT        "misc/crafts/"
+#define LIB_STATE      "state/"       // issue.misc-migrate: server-wide state (not chars/world)
+#define LIB_USERDATA   "userdata/"
+#define LIB_WORLDDATA  "worlddata/"
 #define LIB_STAT      "stat/"
 #define LIB_ETC       "etc/"
 #define ETC_BOARD     "etc/board/"
@@ -116,11 +122,11 @@ enum SetStuffMode {
 
 #define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
 
-#define PROXY_FILE        LIB_MISC "proxy"    // register proxy list
-#define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings
-#define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
-#define DNAME_FILE      LIB_MISC "dis_name" // запрещенные имена
-#define NNAME_FILE      LIB_MISC "new_name" // ждущие одобрения
+#define PROXY_FILE        LIB_STATE "proxy"    // register proxy list
+#define XNAME_FILE      LIB_STATE "xnames"    // invalid name substrings
+#define ANAME_FILE      LIB_STATE "apr_name" // одобренные имена
+#define DNAME_FILE      LIB_STATE "dis_name" // запрещенные имена
+#define NNAME_FILE      LIB_STATE "new_name" // ждущие одобрения
 // issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 
 #define MAIL_FILE        LIB_ETC "plrmail"    // for the mudmail system

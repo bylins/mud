@@ -221,7 +221,7 @@ void LoadSheduledReboot() {
 
 	time_t currTime;
 
-	sch = fopen(LIB_MISC "schedule", "r");
+	sch = fopen(LIB_STATE "schedule", "r");
 	if (!sch) {
 		log("Error opening schedule");
 		return;
@@ -3586,7 +3586,7 @@ void LoadGlobalUid() {
 
 	global_uid = 0;
 
-	if (!(guid = fopen(LIB_MISC "globaluid", "r"))) {
+	if (!(guid = fopen(LIB_STATE "globaluid", "r"))) {
 		log("Can't open global uid file...");
 		return;
 	}
@@ -3598,7 +3598,7 @@ void LoadGlobalUid() {
 void SaveGlobalUID() {
 	FILE *guid;
 
-	if (!(guid = fopen(LIB_MISC "globaluid", "w"))) {
+	if (!(guid = fopen(LIB_STATE "globaluid", "w"))) {
 		log("Can't write global uid file...");
 		return;
 	}
