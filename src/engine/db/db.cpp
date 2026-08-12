@@ -3702,6 +3702,13 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 CharData *find_char(long uid) {
 	auto it = chardata_by_uid.find(uid);
 	if (it != chardata_by_uid.end()) {
+		// Выведенного из мира не отдаем. Убитый персонаж уходит не мгновенно: его выносят из
+		// комнаты (in_room = kNowhere), а из списков вычищают только в конце пульса. До этого
+		// момента все, что успевает выполниться -- триггеры смерти, отложенные команды,
+		// разрешение uid в скриптах -- получало указатель на "живого" мертвеца.
+		if (it->second->in_room == kNowhere) {
+			return nullptr;
+		}
 		return it->second;
 	}
 	return nullptr;
