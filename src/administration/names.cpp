@@ -24,7 +24,6 @@ namespace {
 inline const std::string &AName() { return MUD::StateManager().Path(state::EStateFile::kApprovedNames); }
 inline const std::string &DName() { return MUD::StateManager().Path(state::EStateFile::kDisallowedNames); }
 inline const std::string &NName() { return MUD::StateManager().Path(state::EStateFile::kPendingNames); }
-inline const std::string &XName() { return MUD::StateManager().Path(state::EStateFile::kInvalidNameParts); }
 }  // namespace
 
 namespace NewNames {
@@ -514,24 +513,19 @@ bool IsNameOffline(char *newname) {
 }
 
 void ReadCharacterInvalidNamesList() {
-	FILE *fp;
-	char temp[256];
-
-	if (!(fp = fopen(XName().c_str(), "r"))) {
-		perror(("SYSERR: Unable to open '" + XName() + "' for reading").c_str());
-		return;
-	}
-
+	// issue.misc-migrate: StateManager owns the file I/O. Preserve get_line's behaviour: skip blank
+	// lines and '*'-comment lines; a missing file yields an empty list.
 	num_invalid = 0;
-	while (get_line(fp, temp) && num_invalid < kMaxInvalidNames)
-		invalid_list[num_invalid++] = str_dup(temp);
-
-	if (num_invalid >= kMaxInvalidNames) {
-		log("SYSERR: Too many invalid names; change MAX_INVALID_NAMES in ban.c");
-		exit(1);
+	for (const auto &line : MUD::StateManager().LoadLines(state::EStateFile::kInvalidNameParts)) {
+		if (line.empty() || line[0] == '*') {
+			continue;
+		}
+		invalid_list[num_invalid++] = str_dup(line.c_str());
+		if (num_invalid >= kMaxInvalidNames) {
+			log("SYSERR: Too many invalid names; change MAX_INVALID_NAMES in ban.c");
+			exit(1);
+		}
 	}
-
-	fclose(fp);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
