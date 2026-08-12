@@ -1,7 +1,7 @@
 /**
 \file privilege_db.cpp - a part of the Bylins engine.
 \brief issue.privilege-rework (P1): parse cfg/privilege.xml into the membership privilege DB.
-\details Ingestion only at this stage -- the decision API does not yet consult this DB (P2). See
+\details Parses cfg/privilege.xml into the membership DB that the decision API consults. See
          privilege_db.h.
 */
 
@@ -169,9 +169,7 @@ void DoLoad(parser_wrapper::DataNode data) {
 			}
 		}
 	}
-	if constexpr (!kLegacyPrivilege) {
-		privilege::LoadGodBoards();
-	}
+	privilege::LoadGodBoards();
 }
 
 } // namespace

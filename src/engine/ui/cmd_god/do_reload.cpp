@@ -175,7 +175,6 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "emails"))
 		RegisterSystem::load();
 	else if (!str_cmp(arg, "privilege")) {
-		privilege::Load();
 		MUD::CfgManager().ReloadCfg("privilege");
 	}
 	else if (!str_cmp(arg, "mobraces"))
