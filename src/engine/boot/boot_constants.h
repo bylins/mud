@@ -39,7 +39,6 @@ enum SetStuffMode {
 #define LIB_WORLD	":world:"
 #define LIB_TEXT	":text:"
 #define LIB_TEXT_HELP	":text:help:"
-#define LIB_MISC	":misc:"
 #define LIB_CFG		":cfg:"
 #define LIB_STATE		":state:"       // server-wide state (not chars/world)
 #define LIB_USERDATA	":userdata:"
@@ -59,7 +58,6 @@ enum SetStuffMode {
 #define LIB_TEXT      "text/"
 #define LIB_TEXT_HELP "text/help/"
 #define LIB_CFG         "cfg/"
-#define LIB_MISC      "misc/"
 #define LIB_ACCOUNTS  "plrs/accounts/"
 #define LIB_STATE      "state/"       // issue.misc-migrate: server-wide state (not chars/world)
 #define LIB_USERDATA   "userdata/"
