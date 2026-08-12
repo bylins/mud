@@ -4224,6 +4224,11 @@ void eval_op(const char *op,
 			snprintf(result, result_size, "%d", !atoi(rhs));
 		else
 			snprintf(result, result_size, "%d", !*rhs);
+	} else if (!strcmp("#", op)) {
+		// Остаток от деления. Деление на ноль дает 0 -- так же, как у "/" выше: у DG нет
+		// способа сообщить билдеру об ошибке в середине выражения, а падать из-за опечатки
+		// в триггере сервер не должен.
+		snprintf(result, result_size, "%d", (n = atoi(rhs)) ? (atoi(lhs) % n) : 0);
 	}
 }
 
@@ -4310,6 +4315,10 @@ int eval_lhs_op_rhs(const char *expr, char *result, size_t result_size, void *go
 			"/",
 			"*",
 			"!",
+			// Остаток от деления. Стоит последним, то есть связывает слабее всех остальных:
+			// "%a% + %b% # 2" читается как "(a + b) # 2". Так оператор и был задуман изначально
+			// (см. 607bdaa84 в ветке not_sale), и так он описан в руководстве билдеров.
+			"#",
 			"\n"
 		};
 	if (strlen(expr) > kMaxTrglineLength - 1) {
