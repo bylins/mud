@@ -102,7 +102,7 @@ void oload_class::init() {
 
 	clear();
 
-	std::ifstream fp(LIB_MISC "stuff.lst");
+	std::ifstream fp(LIB_WORLDDATA "stuff.lst");
 
 	if (!fp) {
 		cppstr = "oload_class:: Unable open input file !!!";
