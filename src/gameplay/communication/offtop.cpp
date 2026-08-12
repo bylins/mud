@@ -12,6 +12,7 @@
 #include "utils/utils_string.h"
 
 #include <vector>
+#include <sstream>
 #include <string>
 
 namespace offtop_system {
@@ -33,16 +34,15 @@ void SetStopOfftopFlag(CharData *ch) {
 /// Лоад/релоад списка нежелательных для оффтопа товарисчей.
 void Init() {
 	block_list.clear();
-	const std::string &block_file = MUD::StateManager().Path(state::EStateFile::kStopOfftop);
-	std::ifstream file(block_file);
-	if (!file.is_open()) {
-		log("SYSERROR: не удалось открыть файл на чтение: %s", block_file.c_str());
-		return;
-	}
-	std::string buffer;
-	while (file >> buffer) {
-		utils::ConvertToLow(buffer);
-		block_list.push_back(buffer);
+	// issue.misc-migrate: StateManager owns the file I/O; entries are tokenized/lowercased here
+	// (preserving the previous `>> buffer` semantics). A missing file just yields an empty list.
+	for (const auto &line : MUD::StateManager().LoadLines(state::EStateFile::kStopOfftop)) {
+		std::istringstream iss(line);
+		std::string buffer;
+		while (iss >> buffer) {
+			utils::ConvertToLow(buffer);
+			block_list.push_back(buffer);
+		}
 	}
 
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
