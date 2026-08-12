@@ -23,7 +23,6 @@ namespace {
 // issue.misc-migrate: state/ name-list paths via StateManager (were the per-list path macros).
 inline const std::string &AName() { return MUD::StateManager().Path(state::EStateFile::kApprovedNames); }
 inline const std::string &DName() { return MUD::StateManager().Path(state::EStateFile::kDisallowedNames); }
-inline const std::string &NName() { return MUD::StateManager().Path(state::EStateFile::kPendingNames); }
 }  // namespace
 
 namespace NewNames {
@@ -171,16 +170,13 @@ static NewNameListType NewNameList;
 
 // сохранение списка в файл
 static void NewNames::save() {
-	std::ofstream file(NName());
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", NName().c_str(), __FILE__, __func__, __LINE__);
-		return;
+	// issue.misc-migrate: atomic whole-file replace via StateManager.
+	std::vector<std::string> lines;
+	lines.reserve(NewNameList.size());
+	for (const auto &it : NewNameList) {
+		lines.push_back(it.first);
 	}
-
-	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
-		file << it->first << "\n";
-
-	file.close();
+	MUD::StateManager().SaveLines(state::EStateFile::kPendingNames, lines);
 }
 
 // добавить в список без сохранения на диск
@@ -228,24 +224,21 @@ void NewNames::remove(const std::string &name, CharData *actor) {
 
 // лоад списка неодобренных имен
 void NewNames::load() {
-	std::ifstream file(NName());
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", NName().c_str(), __FILE__, __func__, __LINE__);
-		return;
+	// issue.misc-migrate: read names via StateManager (keeping the previous `>> buffer` tokenising),
+	// then re-save to normalise. A missing file just yields an empty list.
+	for (const auto &line : MUD::StateManager().LoadLines(state::EStateFile::kPendingNames)) {
+		std::istringstream iss(line);
+		std::string buffer;
+		while (iss >> buffer) {
+			// сразу проверяем не сделетился ли уже персонаж
+			Player t_tch;
+			Player *tch = &t_tch;
+			if (LoadPlayerCharacter(buffer.c_str(), tch, ELoadCharFlags::kFindId) < 0)
+				continue;
+			// не сделетился...
+			cache_add(tch);
+		}
 	}
-
-	std::string buffer;
-	while (file >> buffer) {
-		// сразу проверяем не сделетился ли уже персонаж
-		Player t_tch;
-		Player *tch = &t_tch;
-		if (LoadPlayerCharacter(buffer.c_str(), tch, ELoadCharFlags::kFindId) < 0)
-			continue;
-		// не сделетился...
-		cache_add(tch);
-	}
-
-	file.close();
 	save();
 }
 
