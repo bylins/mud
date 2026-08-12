@@ -1092,6 +1092,11 @@ void BootMudDataBase() {
 	MKLETTERS(plrstuff / depot);
 	MKDIR("plrstuff/house");
 	MKDIR("stat");
+	// issue.misc-migrate: the new world-data dirs (state = server state, userdata =
+	// per-account, worlddata = world content) may be written to at runtime.
+	MKDIR("state");
+	MKDIR("userdata");
+	MKDIR("worlddata");
 
 #undef MKLETTERS
 #undef MKDIR

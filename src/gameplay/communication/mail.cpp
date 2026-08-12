@@ -381,7 +381,7 @@ time_t from_iso8601(const std::string &str) {
 
 namespace mail {
 
-const char *MAIL_XML_FILE = LIB_ETC"plrmail.xml";
+const char *MAIL_XML_FILE = LIB_USERDATA"plrmail.xml";
 // макс сообщений в доставке от безмортовых чаров до NAME_LEVEL уровня
 const int LOW_LVL_MAX_POST = 10;
 // тоже самое для всех остальных
