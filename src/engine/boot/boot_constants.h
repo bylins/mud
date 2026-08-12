@@ -125,9 +125,6 @@ enum SetStuffMode {
 #define NNAME_FILE      LIB_STATE "new_name" // ждущие одобрения
 // issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 
-#define MAIL_FILE        LIB_ETC "plrmail"    // for the mudmail system
-#define BAN_FILE        LIB_ETC "badsites"    // for the siteban system
-#define PROXY_BAN_FILE    LIB_ETC "badproxy"    // for the siteban system
 
 #define WHOLIST_FILE    LIB_STAT "wholist.html"    // for the stat system
 
