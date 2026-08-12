@@ -10,11 +10,12 @@
 #include "ban.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "engine/boot/boot_constants.h"
 
 #include <fmt/format.h>
 
-const char *const BanList::ban_filename = "etc/badsites";
-const char *const BanList::proxy_ban_filename = "etc/badproxy";
+const char *const BanList::ban_filename = LIB_STATE "badsites";
+const char *const BanList::proxy_ban_filename = LIB_STATE "badproxy";
 const char *BanList::ban_types[] = {
 	"no",
 	"new",
