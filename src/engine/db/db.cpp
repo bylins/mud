@@ -1081,8 +1081,6 @@ void BootMudDataBase() {
         MKDIR(#BASE "/U-Z"); \
         MKDIR(#BASE "/ZZZ")
 
-	MKDIR("etc");
-	MKDIR("etc/board");
 	MKLETTERS(plralias);
 	MKLETTERS(plrobjs);
 	MKLETTERS(plrs);
@@ -1096,6 +1094,7 @@ void BootMudDataBase() {
 	// per-account, worlddata = world content) may be written to at runtime.
 	MKDIR("state");
 	MKDIR("userdata");
+	MKDIR("userdata/boards");
 	MKDIR("worlddata");
 
 #undef MKLETTERS

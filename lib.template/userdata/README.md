@@ -6,6 +6,7 @@ people playing, as distinct from the character save files themselves (`plrs/`,
 
 Migrated here from `etc/` (issue.misc-migrate):
 
-| File | Read/written by | Purpose |
+| Path | Read/written by | Purpose |
 |------|-----------------|---------|
 | `plrmail.xml` | `mail.cpp` (`MAIL_XML_FILE`) | pending (unread) in-game player mail; created/rewritten at runtime |
+| `boards/*.board` | `boards.cpp` (`BOARDS_DIR`) | message boards (general/news/idea/error/god-*/Б─╕); created/rewritten at runtime |
