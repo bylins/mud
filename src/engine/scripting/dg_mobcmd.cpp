@@ -50,6 +50,8 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/damage.h"
 
+#include <fmt/format.h>
+
 struct mob_command_info {
 	const char *command;
 	EPosition minimum_position;
@@ -1579,10 +1581,15 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 			char st[] = "";
 			do_stand(ch, st, 0, 0);
 		}
-		if (!(ch->GetEnemy()->IsNpc() && !IsCharmice(ch->GetEnemy()))) {
-			sprintf(buf, "mob command_interpreter: моб %s (%d) отжил из лага/стана в HitPercent, проценты жизни %d, сражается с %s", 
-					ch->get_name().c_str(), GET_MOB_VNUM(ch), GET_TRIG_NARG(trig), ch->GetEnemy()->get_name().c_str());
-			mob_log(ch, trig, buf);
+		// issue #3719: под контролем моб мог ни разу не ударить в ответ, и GetEnemy() тут nullptr
+		// (HitPrcnt дергается из hit() по жертве, а не по атакующему) -- разыменовывать его нельзя.
+		const auto *enemy = ch->GetEnemy();
+		if (!enemy || !(enemy->IsNpc() && !IsCharmice(enemy))) {
+			mob_log(ch, trig,
+					fmt::format("mob command_interpreter: моб {} ({}) отжил из лага/стана в HitPercent, "
+								"проценты жизни {}, сражается с {}",
+								ch->get_name(), GET_MOB_VNUM(ch), GET_TRIG_NARG(trig),
+								enemy ? enemy->get_name().c_str() : "никем").c_str());
 		}
 	}
 // damage mtrigger срабатывает всегда
