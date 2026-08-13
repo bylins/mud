@@ -1088,8 +1088,7 @@ void BootMudDataBase() {
 	MKLETTERS(plrs);
 	MKLETTERS(userdata/chardata/variables);
 	MKDIR("plrstuff");
-	MKDIR("plrstuff/depot");
-	MKLETTERS(plrstuff / depot);
+	MKLETTERS(userdata/chardata/depots);
 	MKDIR("userdata/clans");
 	MKDIR("stat");
 	// issue.misc-migrate: the new world-data dirs (state = server state, userdata =

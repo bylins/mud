@@ -65,7 +65,7 @@ enum SetStuffMode {
 #define LIB_PLRSTUFF  "plrstuff/"
 #define LIB_PLRVARS   "userdata/chardata/variables/"
 #define LIB_CLANS     "userdata/clans/"
-#define LIB_DEPOT     LIB_PLRSTUFF"depot/"
+#define LIB_DEPOT     "userdata/chardata/depots/"
 #define LIB           "lib/"
 #define SLASH         "/"
 #else
