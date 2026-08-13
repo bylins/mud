@@ -64,7 +64,7 @@ void save() {
 			stuf_node.append_attribute("cant_msg_a") = i->second->cant_msg_a.c_str();
 	}
 
-	doc.save_file(LIB_PLRSTUFF"named_stuff_list.xml");
+	doc.save_file(LIB_USERDATA"named_items.xml");
 }
 
 bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
@@ -546,7 +546,7 @@ void load() {
 	stuff_list.clear();
 
 	pugi::xml_document doc;
-	doc.load_file(LIB_PLRSTUFF"named_stuff_list.xml");
+	doc.load_file(LIB_USERDATA"named_items.xml");
 
 	pugi::xml_node obj_list = doc.child("named_stuff_list");
 	for (pugi::xml_node node = obj_list.child("obj"); node; node = node.next_sibling("obj")) {
