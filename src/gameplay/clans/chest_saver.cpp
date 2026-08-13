@@ -104,7 +104,7 @@ void ChestSaver::run() {
 			continue;
 		}
 		const auto file_abbrev = raw->get_file_abbrev();
-		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".obj";
+		std::string filename = LIB_CLANS + file_abbrev + "/" + file_abbrev + ".obj";
 		const auto rnum = GetRoomRnum(raw->get_chest_room());
 		if (rnum <= 0) {
 			m_impl->dirty.erase(raw);

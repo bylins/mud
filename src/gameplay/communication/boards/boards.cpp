@@ -667,7 +667,7 @@ void Static::ClanInit() {
 			description += clan->GetAbbrev();
 			board->set_description(description);
 			board->set_clan_rent(clan->GetRent());
-			board->set_file_name(LIB_HOUSE + name + "/" + name + ".board");
+			board->set_file_name(LIB_CLANS + name + "/" + name + ".board");
 			board->Load();
 			board_list.push_back(board);
 		}
@@ -680,7 +680,7 @@ void Static::ClanInit() {
 			description += clan->GetAbbrev();
 			board->set_description(description);
 			board->set_clan_rent(clan->GetRent());
-			board->set_file_name(LIB_HOUSE + name + "/" + name + "-news.board");
+			board->set_file_name(LIB_CLANS + name + "/" + name + "-news.board");
 			board->Load();
 			board_list.push_back(board);
 		}
