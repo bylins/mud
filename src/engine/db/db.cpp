@@ -1086,7 +1086,7 @@ void BootMudDataBase() {
 	MKLETTERS(userdata/chardata/aliases);
 	MKLETTERS(plrobjs);
 	MKLETTERS(plrs);
-	MKLETTERS(plrvars);
+	MKLETTERS(userdata/chardata/variables);
 	MKDIR("plrstuff");
 	MKDIR("plrstuff/depot");
 	MKLETTERS(plrstuff / depot);

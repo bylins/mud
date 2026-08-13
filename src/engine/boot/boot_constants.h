@@ -47,7 +47,7 @@ enum SetStuffMode {
 #define LIB_PLRALIAS	":userdata:chardata:aliases:"
 #define LIB_PLRSTUFF ":plrstuff:"
 #define LIB_CLANS	":userdata:clans:"
-#define LIB_PLRVARS	":plrvars:"
+#define LIB_PLRVARS	":userdata:chardata:variables:"
 #define LIB             ":lib:"
 #define SLASH		":"
 #elif defined(CIRCLE_AMIGA) || defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS) || defined(CIRCLE_ACORN) || defined(CIRCLE_VMS)
@@ -63,7 +63,7 @@ enum SetStuffMode {
 #define LIB_PLROBJS   "plrobjs/"
 #define LIB_PLRALIAS  "userdata/chardata/aliases/"
 #define LIB_PLRSTUFF  "plrstuff/"
-#define LIB_PLRVARS   "plrvars/"
+#define LIB_PLRVARS   "userdata/chardata/variables/"
 #define LIB_CLANS     "userdata/clans/"
 #define LIB_DEPOT     LIB_PLRSTUFF"depot/"
 #define LIB           "lib/"
