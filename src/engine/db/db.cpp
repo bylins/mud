@@ -1081,14 +1081,15 @@ void BootMudDataBase() {
         MKDIR(#BASE "/U-Z"); \
         MKDIR(#BASE "/ZZZ")
 
-	MKLETTERS(plralias);
+	MKDIR("userdata");
+	MKDIR("userdata/chardata");
+	MKLETTERS(userdata/chardata/aliases);
 	MKLETTERS(plrobjs);
 	MKLETTERS(plrs);
 	MKLETTERS(plrvars);
 	MKDIR("plrstuff");
 	MKDIR("plrstuff/depot");
 	MKLETTERS(plrstuff / depot);
-	MKDIR("userdata");
 	MKDIR("userdata/clans");
 	MKDIR("stat");
 	// issue.misc-migrate: the new world-data dirs (state = server state, userdata =
