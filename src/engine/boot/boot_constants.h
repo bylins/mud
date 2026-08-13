@@ -37,8 +37,7 @@ enum SetStuffMode {
 
 #if defined(CIRCLE_MACINTOSH)
 #define LIB_WORLD	":world:"
-#define LIB_TEXT	":text:"
-#define LIB_TEXT_HELP	":text:help:"
+#define LIB_HELP	":help:"
 #define LIB_CFG		":cfg:"
 #define LIB_USERDATA	":userdata:"
 #define LIB_WORLDDATA	":worlddata:"
@@ -53,8 +52,7 @@ enum SetStuffMode {
 #define SLASH		":"
 #elif defined(CIRCLE_AMIGA) || defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS) || defined(CIRCLE_ACORN) || defined(CIRCLE_VMS)
 #define LIB_WORLD     "world/"
-#define LIB_TEXT      "text/"
-#define LIB_TEXT_HELP "text/help/"
+#define LIB_HELP      "help/"
 #define LIB_CFG         "cfg/"
 #define LIB_ACCOUNTS  "plrs/accounts/"
 #define LIB_USERDATA   "userdata/"
@@ -105,14 +103,14 @@ enum SetStuffMode {
 #define OBJ_PREFIX    LIB_WORLD "obj" SLASH    // object prototypes
 #define ZON_PREFIX    LIB_WORLD "zon" SLASH    // zon defs & command tables
 #define TRG_PREFIX    LIB_WORLD "trg" SLASH    // shop definitions
-#define HLP_PREFIX    LIB_TEXT "help" SLASH    // for HELP <keyword>
+#define HLP_PREFIX    LIB_HELP    // for HELP <keyword>
 #define PLAYER_F_PREFIX LIB_PLRS "" LIB_F
 #define PLAYER_K_PREFIX LIB_PLRS "" LIB_K
 #define PLAYER_P_PREFIX LIB_PLRS "" LIB_P
 #define PLAYER_U_PREFIX LIB_PLRS "" LIB_U
 #define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
 
-#define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
+#define HELP_PAGE_FILE    LIB_HELP "screen"    // for HELP <CR>
 
 // issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 

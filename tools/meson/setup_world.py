@@ -26,7 +26,7 @@ template_src = os.path.join(source_root, "lib.template")
 # Конфиги/тексты берём из lib (это актуальная боевая конфигурация), мир — из lib.template
 # (свежий сконвертированный YAML). Всё остальное (plrs, plrobjs, etc, stat...) сервер
 # создаёт сам при старте, так что small world получается абсолютно чистым.
-LIB_DIRS = ("cfg", "text", "state", "worlddata")
+LIB_DIRS = ("cfg", "help", "state", "worlddata")
 TEMPLATE_DIRS = ("world",)
 
 
