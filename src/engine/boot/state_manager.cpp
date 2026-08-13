@@ -36,6 +36,7 @@ StateManager::StateManager() {
 	put(EStateFile::kBannedProxies, "badproxy.lst");
 	put(EStateFile::kTitles, "titles.lst");
 	put(EStateFile::kRegisteredEmails, "registered-email.lst");
+	put(EStateFile::kSaveChecksums, "player_save_checksums.lst");
 }
 
 const std::string &StateManager::Path(EStateFile file) const {

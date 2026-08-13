@@ -20,19 +20,20 @@ namespace state {
 
 // The server-state files kept under state/. Keep kLast_ last (array sizing).
 enum class EStateFile {
-	kSchedule,         // schedule             : scheduled reboot times
-	kGlobalUid,        // globaluid            : global unique object-id counter
-	kStopOfftop,       // stop_offtop.lst      : off-topic channel block list
-	kProxy,            // proxy.lst            : known proxy IP list
-	kInvalidNameParts, // xnames.lst           : invalid name substrings
-	kApprovedNames,    // apr_name.lst         : approved names
-	kDisallowedNames,  // dis_name.lst         : disallowed names
-	kPendingNames,     // new_name.lst         : names awaiting approval
-	kUnfreeze,         // unfreeze.lst         : scheduled un-freeze list
-	kBannedSites,      // badsites.lst         : banned site (host) list
-	kBannedProxies,    // badproxy.lst         : banned proxy list
-	kTitles,           // titles.lst           : approved/pending player titles
-	kRegisteredEmails, // registered-email.lst : registered player emails
+	kSchedule,         // schedule                  : scheduled reboot times
+	kGlobalUid,        // globaluid                 : global unique object-id counter
+	kStopOfftop,       // stop_offtop.lst           : off-topic channel block list
+	kProxy,            // proxy.lst                 : known proxy IP list
+	kInvalidNameParts, // xnames.lst                : invalid name substrings
+	kApprovedNames,    // apr_name.lst              : approved names
+	kDisallowedNames,  // dis_name.lst              : disallowed names
+	kPendingNames,     // new_name.lst              : names awaiting approval
+	kUnfreeze,         // unfreeze.lst              : scheduled un-freeze list
+	kBannedSites,      // badsites.lst              : banned site (host) list
+	kBannedProxies,    // badproxy.lst              : banned proxy list
+	kTitles,           // titles.lst                : approved/pending player titles
+	kRegisteredEmails, // registered-email.lst      : registered player emails
+	kSaveChecksums,    // player_save_checksums.lst : CRC snapshots of player save files
 	kLast_
 };
 
