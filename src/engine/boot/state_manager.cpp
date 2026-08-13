@@ -5,8 +5,9 @@
 
 #include "state_manager.h"
 
-#include <cstdio>
+#include <filesystem>
 #include <fstream>
+#include <system_error>
 #include <utility>
 
 #include "utils/logger.h"
@@ -73,8 +74,15 @@ bool StateManager::SaveLines(EStateFile file, const std::vector<std::string> &li
 			return false;
 		}
 	}   // close before rename
-	if (std::rename(tmp.c_str(), path.c_str()) != 0) {
-		log("SYSERR: StateManager: cannot rename '%s' -> '%s'", tmp.c_str(), path.c_str());
+	// std::filesystem::rename atomically REPLACES an existing destination on every
+	// platform (POSIX rename() and, on Windows, MoveFileExW/MOVEFILE_REPLACE_EXISTING).
+	// Plain std::rename() from <cstdio> fails on Windows when the destination exists,
+	// which would break every overwrite save (bans, name lists, proxy).
+	std::error_code ec;
+	std::filesystem::rename(tmp, path, ec);
+	if (ec) {
+		log("SYSERR: StateManager: cannot rename '%s' -> '%s': %s",
+			tmp.c_str(), path.c_str(), ec.message().c_str());
 		return false;
 	}
 	return true;

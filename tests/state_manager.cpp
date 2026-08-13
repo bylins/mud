@@ -30,6 +30,12 @@ TEST(StateManagerIO, LoadSaveAppendRewrite) {
 	ASSERT_TRUE(sm.SaveLines(kFile, Lines{"alpha", "beta", "gamma"}));
 	EXPECT_EQ(sm.LoadLines(kFile), (Lines{"alpha", "beta", "gamma"}));
 
+	// SaveLines must OVERWRITE an existing destination: the tmp+rename step has to
+	// replace the file that is already there. std::rename() fails at exactly this
+	// point on Windows, so this guards that cross-platform regression.
+	ASSERT_TRUE(sm.SaveLines(kFile, Lines{"alpha", "beta", "gamma"}));
+	EXPECT_EQ(sm.LoadLines(kFile), (Lines{"alpha", "beta", "gamma"}));
+
 	// AppendLine adds one record.
 	ASSERT_TRUE(sm.AppendLine(kFile, "delta"));
 	EXPECT_EQ(sm.LoadLines(kFile), (Lines{"alpha", "beta", "gamma", "delta"}));
