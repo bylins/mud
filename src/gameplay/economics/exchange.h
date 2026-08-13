@@ -35,8 +35,8 @@ extern std::vector<bool> lot_usage;
 #define EXCHANGE_AUTOSAVETIME 300    //Кол-во секунд между автосохранениями Базара (0 для отключения)
 #define EXCHANGE_AUTOSAVEBACKUPTIME 750    //Кол-во секунд между автосохранениями Базара (0 для отключения)
 #define EXCHANGE_SAVEONEVERYOPERATION false    //Сохранять базар после каждой операции
-#define EXCHANGE_DATABASE_FILE LIB_PLRSTUFF"exchange.db"
-#define EXCHANGE_DATABASE_BACKUPFILE LIB_PLRSTUFF"exchange.backup"
+#define EXCHANGE_DATABASE_FILE LIB_USERDATA"exchange.db"
+#define EXCHANGE_DATABASE_BACKUPFILE LIB_USERDATA"exchange.backup"
 #define EX_NEW_ITEM_CHAR '#'
 #define EX_END_CHAR '$'
 #define FILTER_LENGTH 250

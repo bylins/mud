@@ -45,7 +45,7 @@ const int SEND_COST = 100; // в любом случае снимается за
 const int RESERVED_COST_COEFF = 3; // цена ренты за 3 дня
 const int MAX_SLOTS = 25; // сколько шмоток может находиться в отправке от одного игрока
 const int RETURNED_TIMER = -1; // при развороте посылки идет двойной таймер шмоток без капания ренты
-const char *FILE_NAME = LIB_DEPOT"parcel.db";
+const char *FILE_NAME = LIB_USERDATA"parcel.db";
 
 // для возврата посылки отправителю
 const bool RETURN_WITH_MONEY = 1;
