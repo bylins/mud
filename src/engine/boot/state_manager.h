@@ -20,25 +20,26 @@ namespace state {
 
 // The server-state files kept under state/. Keep kLast_ last (array sizing).
 enum class EStateFile {
-	kSchedule,         // schedule                    : scheduled reboot times
-	kGlobalUid,        // globaluid                   : global unique object-id counter
-	kStopOfftop,       // stop_offtop.lst             : off-topic channel block list
-	kProxy,            // proxy.lst                   : known proxy IP list
-	kInvalidNameParts, // xnames.lst                  : invalid name substrings
-	kApprovedNames,    // apr_name.lst                : approved names
-	kDisallowedNames,  // dis_name.lst                : disallowed names
-	kPendingNames,     // new_name.lst                : names awaiting approval
-	kUnfreeze,         // unfreeze.lst                : scheduled un-freeze list
-	kBannedSites,      // badsites.lst                : banned site (host) list
-	kBannedProxies,    // badproxy.lst                : banned proxy list
-	kTitles,           // titles.lst                  : approved/pending player titles
-	kRegisteredEmails, // registered-email.lst        : registered player emails
-	kSaveChecksums,    // player_save_checksums.lst   : CRC snapshots of player save files
-	kMobStat,          // statistics/mob_stat_new.xml : mob statistics (legacy XML fallback)
-	kMobStatBin,       // statistics/mob_stat.bin     : mob statistics (current binary store)
-	kZoneTraffic,      // statistics/zone_traffic.xml : per-zone traffic statistics
-	kGlobalDropStat,   // statistics/global_drop.tmp  : per-mob kill counts (global-drop stats)
-	kUniqueMobs,       // unique_mobs.xml             : unique-mob registry (regenerable cache)
+	kSchedule,         // schedule                      : scheduled reboot times
+	kGlobalUid,        // globaluid                     : global unique object-id counter
+	kStopOfftop,       // stop_offtop.lst               : off-topic channel block list
+	kProxy,            // proxy.lst                     : known proxy IP list
+	kInvalidNameParts, // xnames.lst                    : invalid name substrings
+	kApprovedNames,    // apr_name.lst                  : approved names
+	kDisallowedNames,  // dis_name.lst                  : disallowed names
+	kPendingNames,     // new_name.lst                  : names awaiting approval
+	kUnfreeze,         // unfreeze.lst                  : scheduled un-freeze list
+	kBannedSites,      // badsites.lst                  : banned site (host) list
+	kBannedProxies,    // badproxy.lst                  : banned proxy list
+	kTitles,           // titles.lst                    : approved/pending player titles
+	kRegisteredEmails, // registered-email.lst          : registered player emails
+	kSaveChecksums,    // player_save_checksums.lst     : CRC snapshots of player save files
+	kMobStat,          // statistics/mob_stat_new.xml   : mob statistics (legacy XML fallback)
+	kMobStatBin,       // statistics/mob_stat.bin       : mob statistics (current binary store)
+	kZoneTraffic,      // statistics/zone_traffic.xml   : per-zone traffic statistics
+	kGlobalDropStat,   // statistics/global_drop.tmp    : per-mob kill counts (global-drop stats)
+	kUniqueMobs,       // unique_mobs.xml               : unique-mob registry (regenerable cache)
+	kDropTable,        // sets_drop_generated_table.lst : generated set-drop table (timer-reset cache)
 	kLast_
 };
 

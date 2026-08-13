@@ -42,6 +42,7 @@ StateManager::StateManager() {
 	put(EStateFile::kZoneTraffic, "statistics/zone_traffic.xml");
 	put(EStateFile::kGlobalDropStat, "statistics/global_drop.tmp");
 	put(EStateFile::kUniqueMobs, "unique_mobs.xml");
+	put(EStateFile::kDropTable, "sets_drop_generated_table.lst");
 }
 
 const std::string &StateManager::Path(EStateFile file) const {
