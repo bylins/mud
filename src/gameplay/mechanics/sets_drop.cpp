@@ -10,6 +10,7 @@
 #include <fmt/format.h>
 
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/color.h"
 #include "engine/db/help.h"
@@ -23,7 +24,6 @@ namespace SetsDrop {
 // список сетин на дроп
 const char *CONFIG_FILE = LIB_CFG"mechanics/sets_drop.xml";
 // список уникальных мобов
-const char *UNIQUE_MOBS = LIB_PLRSTUFF"unique_mobs.xml";
 // минимальный уровень моба для участия в груп-списке дропа
 const int MIN_GROUP_MOB_LVL = 32;
 // мин/макс уровни мобов для выборки соло-сетин
@@ -885,7 +885,7 @@ void init_xhelp_full() {
 
 bool load_unique_mobs() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(UNIQUE_MOBS);
+	pugi::xml_parse_result result = doc.load_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs).c_str());
 	int vnum = 0;
 	int level = 0;
 	if (!result) {
@@ -1006,7 +1006,7 @@ void save_unique_mobs() {
 		mob_node.append_attribute("vnum") = it->first;
 		mob_node.append_attribute("level") = it->second;
 	}
-	doc.save_file(UNIQUE_MOBS);
+	doc.save_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs).c_str());
 }
 
 void save_drop_table() {
