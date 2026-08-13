@@ -160,7 +160,6 @@ typedef std::map<std::string, std::string> EmailListType;
 // список зарегистрированных мыл
 EmailListType email_list;
 // файл для соъхранения/лоада
-const char *REGISTERED_EMAIL_FILE = LIB_PLRSTUFF"registered-email.lst";
 // т.к. список потенциально может быть довольно большим, то сейвить бум только в случае изменений в add и remove
 bool need_save = false;
 
@@ -234,9 +233,10 @@ std::string RegisterSystem::ShowComment(const std::string &email) {
 void RegisterSystem::load() {
 	email_list.clear();
 
-	std::ifstream file(REGISTERED_EMAIL_FILE);
+	const std::string &registered_email_file = MUD::StateManager().Path(state::EStateFile::kRegisteredEmails);
+	std::ifstream file(registered_email_file);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", REGISTERED_EMAIL_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", registered_email_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 	std::string email, comment;
@@ -253,9 +253,10 @@ void RegisterSystem::save() {
 	if (!need_save) {
 		return;
 	}
-	std::ofstream file(REGISTERED_EMAIL_FILE);
+	const std::string &registered_email_file = MUD::StateManager().Path(state::EStateFile::kRegisteredEmails);
+	std::ofstream file(registered_email_file);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", REGISTERED_EMAIL_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", registered_email_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 	for (auto &it : email_list) {
