@@ -2135,6 +2135,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			}
 			file.write(obj_content.data(), static_cast<std::streamsize>(obj_content.size()));
 			file.close();
+/* оставил как пример
 #ifndef _WIN32
 			if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 				std::stringstream ss;
@@ -2142,6 +2143,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 				mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 			}
 #endif
+*/
 			utils::CExecutionTimer crc_timer;
 			FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
 				obj_content.data(), obj_content.size());

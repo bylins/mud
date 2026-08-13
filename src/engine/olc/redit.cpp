@@ -339,7 +339,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 					REMOVE_BIT(room->dir_option_proto[counter2]->exit_info, EExitFlag::kBrokenLock);
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
 							counter2, buf1, buf2,
-							room->dir_option_proto[counter2]->exit_info, room->dir_option_proto[counter2]->key,
+							room->dir_option_proto[counter2]->exit_info.get_plane(0), room->dir_option_proto[counter2]->key,
 							room->dir_option_proto[counter2]->to_room() != kNowhere ?
 							world[room->dir_option_proto[counter2]->to_room()]->vnum : kNowhere,
 							room->dir_option_proto[counter2]->lock_complexity);
@@ -366,14 +366,6 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
-#ifndef _WIN32
-	if (chmod(buf2, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
-		std::stringstream ss;
-		ss << "Error chmod file: " << buf2 << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
-		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-	}
-#endif
-
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ROOM);
 }
 
