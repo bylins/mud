@@ -3611,7 +3611,7 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kCloudOfArrows" element="kFire" mode="kEnabled">
+	<spell id="kCloudOfArrows" element="kAir" mode="kEnabled">
 		<name val="cloud of arrous" />
 		<components>
 			<verbal />
