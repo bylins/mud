@@ -150,7 +150,6 @@ TimeInfoData time_info;
 ResetQueue reset_q;
 
 
-const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
 
 GameLoader game_loader;
@@ -1030,11 +1029,11 @@ void ZoneTrafficSave() {
 		zone_node.append_attribute("traffic") = i.traffic;
 	}
 
-	doc.save_file(ZONE_TRAFFIC_FILE);
+	doc.save_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic).c_str());
 }
 void zone_traffic_load() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(ZONE_TRAFFIC_FILE);
+	pugi::xml_parse_result result = doc.load_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic).c_str());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -1095,6 +1094,7 @@ void BootMudDataBase() {
 	// issue.misc-migrate: the new world-data dirs (state = server state, userdata =
 	// per-account, worlddata = world content) may be written to at runtime.
 	MKDIR("state");
+	MKDIR("state/statistics");
 	MKDIR("userdata");
 	MKDIR("userdata/boards");
 	MKDIR("worlddata");

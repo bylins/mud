@@ -37,6 +37,9 @@ StateManager::StateManager() {
 	put(EStateFile::kTitles, "titles.lst");
 	put(EStateFile::kRegisteredEmails, "registered-email.lst");
 	put(EStateFile::kSaveChecksums, "player_save_checksums.lst");
+	put(EStateFile::kMobStat, "statistics/mob_stat_new.xml");
+	put(EStateFile::kMobStatBin, "statistics/mob_stat.bin");
+	put(EStateFile::kZoneTraffic, "statistics/zone_traffic.xml");
 }
 
 const std::string &StateManager::Path(EStateFile file) const {
