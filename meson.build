@@ -376,6 +376,11 @@ endif
 if luajit_opt != 'disabled'
     feature_flags += 'luajit'
 endif
+# issue: флаг показывался только в сводке meson setup, а в строку версии не попадал --
+# по выводу version нельзя было понять, собран ли форматтер.
+if lua_formatter_enabled
+    feature_flags += 'lua_formatter'
+endif
 if telegram_opt != 'disabled'
     feature_flags += 'telegram'
 endif
