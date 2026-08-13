@@ -37,6 +37,7 @@ enum class EStateFile {
 	kMobStat,          // statistics/mob_stat_new.xml : mob statistics (legacy XML fallback)
 	kMobStatBin,       // statistics/mob_stat.bin     : mob statistics (current binary store)
 	kZoneTraffic,      // statistics/zone_traffic.xml : per-zone traffic statistics
+	kGlobalDropStat,   // statistics/global_drop.tmp  : per-mob kill counts (global-drop stats)
 	kUniqueMobs,       // unique_mobs.xml             : unique-mob registry (regenerable cache)
 	kLast_
 };

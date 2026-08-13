@@ -40,6 +40,7 @@ StateManager::StateManager() {
 	put(EStateFile::kMobStat, "statistics/mob_stat_new.xml");
 	put(EStateFile::kMobStatBin, "statistics/mob_stat.bin");
 	put(EStateFile::kZoneTraffic, "statistics/zone_traffic.xml");
+	put(EStateFile::kGlobalDropStat, "statistics/global_drop.tmp");
 	put(EStateFile::kUniqueMobs, "unique_mobs.xml");
 }
 
