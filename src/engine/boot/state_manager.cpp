@@ -34,6 +34,7 @@ StateManager::StateManager() {
 	put(EStateFile::kUnfreeze, "unfreeze.lst");
 	put(EStateFile::kBannedSites, "badsites");
 	put(EStateFile::kBannedProxies, "badproxy");
+	put(EStateFile::kTitles, "titles.lst");
 }
 
 const std::string &StateManager::Path(EStateFile file) const {

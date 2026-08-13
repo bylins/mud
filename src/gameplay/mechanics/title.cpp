@@ -5,6 +5,7 @@
 #include "title.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/player_index.h"
+#include "engine/db/global_objects.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/pk.h"
 #include "engine/entities/char_data.h"
@@ -27,7 +28,6 @@ struct waiting_title {
 
 const unsigned int MAX_TITLE_LENGTH = 80; // макс.длина строки титула (титул+предтитул)
 const int SET_TITLE_COST = 1000;          // цена за попытку установки титула
-const char *TITLE_FILE = LIB_PLRSTUFF"titles.lst"; // файл сохранения/подгрузки ждущих одобрения титулов
 const char *MORTAL_DO_TITLE_FORMAT =
 	"титул - справка о команде и информация по титулу, находящемуся на рассмотрении или ждущего вашего подтверждения\r\n"
 	"титул установить <текст> - предварительная установка нового титула, требует подтверждения\r\n"
@@ -406,9 +406,10 @@ const char *TitleSystem::print_help_string(CharData *ch) {
 
 // * Сохранение списка титулов на одобрение
 void TitleSystem::save_title_list() {
-	std::ofstream file(TITLE_FILE);
+	const std::string &title_file = MUD::StateManager().Path(state::EStateFile::kTitles);
+	std::ofstream file(title_file);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", TITLE_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", title_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
@@ -421,9 +422,10 @@ void TitleSystem::save_title_list() {
 void TitleSystem::load_title_list() {
 	title_list.clear();
 
-	std::ifstream file(TITLE_FILE);
+	const std::string &title_file = MUD::StateManager().Path(state::EStateFile::kTitles);
+	std::ifstream file(title_file);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", TITLE_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", title_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 	std::string name, pre_title, title;

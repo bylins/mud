@@ -31,6 +31,7 @@ enum class EStateFile {
 	kUnfreeze,          // unfreeze.lst: scheduled un-freeze list
 	kBannedSites,       // badsites    : banned site (host) list
 	kBannedProxies,     // badproxy    : banned proxy list
+	kTitles,            // titles.lst  : approved/pending player titles
 	kLast_
 };
 
