@@ -1084,7 +1084,7 @@ void BootMudDataBase() {
 	MKDIR("userdata");
 	MKDIR("userdata/chardata");
 	MKLETTERS(userdata/chardata/aliases);
-	MKLETTERS(plrobjs);
+	MKLETTERS(userdata/chardata/items);
 	MKLETTERS(plrs);
 	MKLETTERS(userdata/chardata/variables);
 	MKDIR("plrstuff");
