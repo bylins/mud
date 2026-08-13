@@ -12,34 +12,10 @@
 
 #include <cstdio>
 
-/**
-* Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.
-* Убрано редактирование из мада и запись уида автоматом -> все изменения производятся прямой правкой файла на сервере.
-* Добавлены группы команд и флаги для более удобного распределения привилегий.
-* Пример файла privilege.lst:
-* # предустановленные группы (названия не менять): default, default_demigod, boards, arena, skills
-* # default - команды, доступные всем иммам по умолчанию (демигоды не в счет)
-* # default_demigod - команды всем демигодам по дефолту
-* # boards - полный доступ на доски новостей, ошибок, кодеров и какие там еще будут
-* # arena - команды, которые доступны только на арене, без set и show (+ спеллы переход и призвать)
-* # skills - флаг, позволяющий имму пользоваться заклинаниями, умениями, рунами, взламывать двери (34е по дефолту)
-* # fullzedit - возможность открытия/закрытия зон для записи (zed lock/unlock) (34е по дефолту)
-* # title - одобрение/запрет чужих титулов
-* # остальные группы вписываете сколько хотите
-* # иммы: имя уид (0 не канает, теперь надо сразу писать уид) команды/группы
-* <groups>
-* default = wizhelp wiznet register имя титул title holylight uptime date set (title name) rules show nohassle ; show (punishment stats player)
-* default_demigod = wizhelp wiznet имя rules
-* arena = purge
-* olc = oedit zedit redit olc trigedit
-* goto = goto прыжок poofin poofout
-* </groups>
-* <gods>
-* Йцук 595336650 groups (olc) hell mute dumb ban delete set (bank)
-* Фыва 803863739 groups (arena goto olc boards) hell mute dumb ban delete set (bank)
-* </gods>
-* Формат файла временный, zone.ru там грозится своим форматом на lua, а xml в очередной раз решено не воротить, хотя и хотелось...
-*/
+// issue.misc-migrate: the legacy level-based / misc/privilege.lst system has been removed.
+// Privileges now come solely from the membership DB (cfg/privilege.xml -> privilege_db.*);
+// the public API below dispatches to the Modern* helpers in the anonymous namespace.
+
 namespace privilege {
 
 const int kBoards = 0;
@@ -52,38 +28,9 @@ const int kTitle = 5;
 const int kMisprint = 6;
 // чтение/удаление доски придумок
 const int kSuggest = 7;
-// количество флагов
-const int FLAGS_NUM = 8;
-
-typedef std::set<std::string> PrivListType;
-
-class GodListNode {
- public:
-	std::string name; // имя
-	PrivListType set; // доступные подкоманды set
-	PrivListType show; // доступные подкоманды show
-	PrivListType other; // доступные команды
-	PrivListType arena; // доступные команды на арене
-	std::bitset<FLAGS_NUM> flags; // флаги
-	void clear() {
-		name.clear();
-		set.clear();
-		show.clear();
-		other.clear();
-		arena.clear();
-		flags.reset();
-	}
-};
-
-const char *PRIVILEGE_FILE = LIB_MISC"privilege.lst";
-typedef std::map<long, GodListNode> GodListType;
-GodListType god_list; // основной список иммов и привилегий
-std::map<std::string, std::string> group_list; // имя группы, строка команд (для парса при лоаде файла)
-GodListNode tmp_god; // так удобнее
-void parse_command_line(const std::string &command, int other_flags = 0); // прототип
 
 // ===================== modern membership privilege system (issue.privilege-rework P2) =====================
-// When !kLegacyPrivilege, decisions come from the cfg/privilege.xml membership DB (privilege_db.h), keyed
+// Decisions come from the cfg/privilege.xml membership DB (privilege_db.h), keyed
 // by name+uid; character level grants nothing. "default", "default_demigod" and "arena" stay hardcoded
 // here (point 7): default/default_demigod are auto-applied by tier; arena commands work only on arena tiles.
 namespace {
@@ -242,228 +189,13 @@ void ModernLoadGodBoards() {
 
 }  // namespace
 
-/**
-* Группы и флаги идут одним полем (причем флаг может быть и группой одновременно),
-* поэтому флаги обрабатываем до парса по группам здесь.
-* \param command - имя флага
-*/
-void parse_flags(const std::string &command) {
-	if (command == "boards")
-		tmp_god.flags.set(kBoards);
-	else if (command == "skills")
-		tmp_god.flags.set(kUseSkills);
-	else if (command == "arena")
-		tmp_god.flags.set(kArenaMaster);
-	else if (command == "kroder")
-		tmp_god.flags.set(kKroder);
-	else if (command == "fullzedit")
-		tmp_god.flags.set(kFullzedit);
-	else if (command == "title")
-		tmp_god.flags.set(kTitle);
-	else if (command == "olc")
-		tmp_god.flags.set(kMisprint);
-	else if (command == "suggest")
-		tmp_god.flags.set(kSuggest);
-}
-
-/**
-* Рассовываем команды по группам (общие, set, show), из группы arena команды идут в отдельный список
-* \param command - имя команды, fill_mode - в какой список добавлять, other_flags - для групп вроде арены со своим списком команд
-*/
-void insert_command(const std::string &command, int fill_mode, int other_flags) {
-	if (other_flags == 1) {
-		// в арену пишется только аналог общего списка, я не знаю зачем на арене set или show
-		if (!fill_mode)
-			tmp_god.arena.insert(command);
-		return;
-	}
-
-	switch (fill_mode) {
-		case 0: tmp_god.other.insert(command);
-			break;
-		case 1: tmp_god.set.insert(command);
-			break;
-		case 2: tmp_god.show.insert(command);
-			break;
-		case 3: {
-			const auto it = group_list.find(command);
-			if (it != group_list.end()) {
-				if (command == "arena")
-					parse_command_line(it->second, 1);
-				else
-					parse_command_line(it->second);
-			}
-			break;
-		}
-		default: break;
-	}
-}
-
-// * Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
-void insert_default_command(long uid) {
-	std::map<std::string, std::string>::const_iterator it;
-	if (GetLevelByUnique(uid) < kLvlImmortal)
-		it = group_list.find("default_demigod");
-	else
-		it = group_list.find("default");
-	if (it != group_list.end())
-		parse_command_line(it->second);
-}
-
-
-std::vector<std::string> tokenize(const std::string& str) {
-	std::vector<std::string> tokens;
-	std::istringstream iss(str);
-	std::string token;
-
-	while (iss >> token) {
-		std::string new_token;
-
-		for (char c : token) {
-			if (c == '(' || c == ')') {
-				if (!new_token.empty()) {
-					tokens.push_back(new_token);
-					new_token.clear();
-				}
-				tokens.push_back(std::string(1, c));
-			} else {
-				new_token += c;
-			}
-		}
-		if (!new_token.empty()) {
-			tokens.push_back(new_token);
-		}
-	}
-	return tokens;
-}
-/**
-* Парс строки нагло дернут у Пелена, ибо креативить свой было влом
-* \param other_flags - по дефолту 0 (добавление идет в основной список команд), 1 - добавление в список arena
-* \param commands - строка со списком команд для парса
-*/
-void parse_command_line(const std::string &commands, int other_flags) {
-	std::vector<std::string>::iterator tok_iter, tmp_tok_iter;
-	std::stringstream ss;
-	int fill_mode = 0;
-	auto tokens = tokenize(commands);
-
-/*	for (auto it : tokens) {
-		ss << it << "|";
-	}
-	ss << "\r\n";
-	mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
-*/
-	if (tokens.begin() == tokens.end()) 
-		return;
-	for (tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
-		if ((*tok_iter) == "(") {
-			if ((*tmp_tok_iter) == "set") {
-				fill_mode = 1;
-				continue;
-			} else if ((*tmp_tok_iter) == "show") {
-				fill_mode = 2;
-				continue;
-			} else if ((*tmp_tok_iter) == "groups") {
-				fill_mode = 3;
-				continue;
-			}
-		} else if ((*tok_iter) == ")") {
-			fill_mode = 0;
-			continue;
-		}
-		parse_flags(*tok_iter);
-		insert_command(*tok_iter, fill_mode, other_flags);
-		tmp_tok_iter = tok_iter;
-	}
-}
-
-// * Лоад и релоад файла привилегий (reload privilege) с последующим проставлением блокнотов иммам.
-void Load() {
-	if constexpr (!kLegacyPrivilege) return;  // modern DB is loaded via CfgManager (PrivilegeLoader)
-	std::ifstream file(PRIVILEGE_FILE);
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", PRIVILEGE_FILE, __FILE__, __func__, __LINE__);
-		return;
-	}
-	god_list.clear(); // для релоада
-
-	std::string name, commands, temp;
-	long uid;
-
-	while (file >> name) {
-		if (name == "#") {
-			ReadEndString(file);
-			continue;
-		} else if (name == "<groups>") {
-
-			while (file >> name) {
-				if (name == "#") {
-					ReadEndString(file);
-					continue;
-				}
-				if (name == "</groups>")
-					break;
-
-				file >> temp; // "="
-				std::getline(file, commands);
-				utils::Trim(commands);
-				group_list[name] = commands;
-			}
-			continue;
-		} else if (name == "<gods>") {
-			while (file >> name) {
-				if (name == "#") {
-					ReadEndString(file);
-					continue;
-				}
-				if (name == "</gods>")
-					break;
-				file >> uid;
-				name_convert(name);
-				tmp_god.name = name;
-				std::getline(file, commands);
-				utils::Trim(commands);
-				parse_command_line(commands);
-				insert_default_command(uid);
-				god_list[uid] = tmp_god;
-				tmp_god.clear();
-			}
-		}
-	}
-	// генерим блокноты
-	LoadGodBoards();
-	group_list.clear();
-}
-
-/**
-* Ищет имма в списке по уиду и полному совпадению имени. Вариант с CharacterData на входе убран за ненадобностью.
-* Имм вне списка ниче из wiz команд не сможет, при сборке через make test или под студией поиск в этом списке не производится.
-* Напоминание: в этом списке не только иммы, но и демигоды...
-* \param name - имя имма, unique - его уид
-* \return 0 - не нашли, 1 - нашли
-*/
-
 bool IsContainedInGodsList(const std::string &name, long unique) {
-	if constexpr (!kLegacyPrivilege) return ModernIsContainedInGodsList(name, unique);
-#ifdef TEST_BUILD
-	return true;
-#endif
-	auto it = god_list.find(unique);
-	if (it != god_list.end())
-		if (it->second.name == name)
-			return true;
-	return false;
+	return ModernIsContainedInGodsList(name, unique);
 }
 
 // * Создание и лоад/релоад блокнотов иммам.
 void LoadGodBoards() {
-	if constexpr (!kLegacyPrivilege) { ModernLoadGodBoards(); return; }
-	Boards::Static::clear_god_boards();
-	for (auto & god : god_list) {
-		int level = GetLevelByUnique(god.first);
-		if (level < kLvlImmortal) continue;
-		Boards::Static::init_god_board(god.first, god.second.name);
-	}
+	ModernLoadGodBoards();
 }
 
 /**
@@ -473,61 +205,17 @@ void LoadGodBoards() {
 * \return 0 - нельзя, 1 - можно
 */
 bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
-	if constexpr (!kLegacyPrivilege) return ModernHasPrivilege(ch, cmd_name, cmd_number, mode, check_level);
-	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
-		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level) {
-		return true;
-	}
-	if (ch->IsNpc()) {
-		return false;
-	}
-#ifdef TEST_BUILD
-	if (privilege::IsImmortal(ch))
-		return true;
-#endif
-	const auto it = god_list.find(ch->get_uid());
-	if (it != god_list.end() && CompareParam(it->second.name, ch->get_name(), true)) {
-		if (GetRealLevel(ch) == kLvlImplementator)
-			return true;
-		switch (mode) {
-			case 0:
-				if (it->second.other.find(cmd_name) != it->second.other.end())
-					return true;
-				break;
-			case 1:
-				if (it->second.set.find(cmd_name) != it->second.set.end())
-					return true;
-				break;
-			case 2:
-				if (it->second.show.find(cmd_name) != it->second.show.end())
-					return true;
-				break;
-			default: break;
-		}
-		// на арене доступны команды из группы arena_master
-		if (!mode && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && it->second.arena.find(cmd_name) != it->second.arena.end())
-			return true;
-	}
-	return false;
+	return ModernHasPrivilege(ch, cmd_name, cmd_number, mode, check_level);
 }
 
 /**
 * Проверка флагов. 34м автоматически присваивается группа skills
 * для более удобного вызова, например при использовании рун.
-* \param flag - список флагов в начале файла, кол-во FLAGS_NUM
+* \param flag - один из privilege::k* флагов, объявленных в начале файла
 * \return 0 - не нашли, 1 - нашли
 */
 bool CheckFlag(const CharData *ch, int flag) {
-	if constexpr (!kLegacyPrivilege) return ModernCheckFlag(ch, flag);
-	if (flag >= FLAGS_NUM || flag < 0) return false;
-	bool result = false;
-	const auto it = god_list.find(ch->get_uid());
-	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true))
-		if (it->second.flags[flag])
-			result = true;
-	if (flag == kUseSkills && (privilege::IsImpl(ch)))
-		result = true;
-	return result;
+	return ModernCheckFlag(ch, flag);
 }
 
 /**
@@ -559,15 +247,14 @@ bool CheckSkills(const CharData *ch) {
 	return false;
 }
 
-bool IsImmortal(const CharData *ch) { if constexpr (!kLegacyPrivilege) return AtLeastTier(ch, EGodTier::kImmortal); return !ch->IsNpc() && ch->GetLevel() >= kLvlImmortal; }
-bool IsGod(const CharData *ch) { if constexpr (!kLegacyPrivilege) return AtLeastTier(ch, EGodTier::kGod); return !ch->IsNpc() && ch->GetLevel() >= kLvlGod; }
-bool IsGrGod(const CharData *ch) { if constexpr (!kLegacyPrivilege) return AtLeastTier(ch, EGodTier::kGreatGod); return !ch->IsNpc() && ch->GetLevel() >= kLvlGreatGod; }
-bool IsImpl(const CharData *ch) { if constexpr (!kLegacyPrivilege) return AtLeastTier(ch, EGodTier::kImplementator); return !ch->IsNpc() && ch->GetLevel() >= kLvlImplementator; }
+bool IsImmortal(const CharData *ch) { return AtLeastTier(ch, EGodTier::kImmortal); }
+bool IsGod(const CharData *ch) { return AtLeastTier(ch, EGodTier::kGod); }
+bool IsGrGod(const CharData *ch) { return AtLeastTier(ch, EGodTier::kGreatGod); }
+bool IsImpl(const CharData *ch) { return AtLeastTier(ch, EGodTier::kImplementator); }
 
 bool IsOwner(const CharData *ch) { return ModernIsOwner(ch); }
 
 bool CanEditVedun(const CharData *ch, const std::string &what) {
-	if constexpr (kLegacyPrivilege) return true;  // no per-file Vedun restriction in legacy mode
 	return ModernCanEditVedun(ch, what);
 }
 

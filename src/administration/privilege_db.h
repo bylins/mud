@@ -2,12 +2,10 @@
 \file privilege_db.h - a part of the Bylins engine.
 \brief issue.privilege-rework (P1): the membership-driven privilege database loaded from
        cfg/privilege.xml.
-\details This is the NEW privilege model: privileged status comes from membership in this data file
-         (name + uid), not from character level. P1 only INGESTS the file into the in-memory DB; the
-         decision API (privilege.{cpp,h}) is NOT yet rewired to consult it (that is P2, gated on the
-         `privilege::kLegacyPrivilege` switch below). So at this stage the DB is loaded but unused --
-         behaviour is unchanged. The file is server-edited only and is intentionally NOT exposed to
-         the Vedun editor (plain ICfgLoader, not IEditableCfgLoader) for security.
+\details The privilege model: privileged status comes from membership in this data file
+         (name + uid), not from character level. The decision API (privilege.{cpp,h}) consults
+         this DB. The file is server-edited only and is intentionally NOT exposed to the Vedun
+         editor (plain ICfgLoader, not IEditableCfgLoader) for security.
 */
 
 #ifndef BYLINS_SRC_ADMINISTRATION_PRIVILEGE_DB_H_
@@ -20,12 +18,6 @@
 #include "engine/boot/cfg_manager.h"
 
 namespace privilege {
-
-// Compile-time switch between the legacy (level-based, misc/privilege.lst) and the new
-// membership-based (cfg/privilege.xml) privilege systems. P1 ships the new ingestion inert; P2 rewires
-// the public decision API to honour this switch. Keep `true` until the new system is verified; flipping
-// back to `true` is the instant rollback (the legacy code stays compiled and reachable behind it).
-inline constexpr bool kLegacyPrivilege = false;
 
 // Privileged tiers, highest first (declared seniority order in the file is purely for readability).
 // Membership in a tier is by name+uid; cumulative nesting (owner > implementator > great-god > god >

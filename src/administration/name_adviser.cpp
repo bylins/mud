@@ -3,6 +3,7 @@
 #include <random>
 
 #include "engine/entities/char_player.h"
+#include "engine/db/global_objects.h"
 
 NameAdviser::NameAdviser() {
 	std::srand(static_cast<unsigned int>((std::time(nullptr))));
@@ -95,8 +96,9 @@ void NameAdviser::init() {
 	m_list_of_free_names.clear();
 	m_list_of_removed_names.clear();
 
-	// reading ANAME_FILE and try to load each char
-	std::ifstream approved_names_file(ANAME_FILE);
+	// read the approved-names file and try to load each char
+	const std::string &aname = MUD::StateManager().Path(state::EStateFile::kApprovedNames);
+	std::ifstream approved_names_file(aname);
 	if (!approved_names_file.is_open() || !approved_names_file.is_open()) {
 		log("NameAdviser: could bot build free_names list");
 		return;

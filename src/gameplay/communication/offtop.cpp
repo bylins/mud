@@ -3,6 +3,7 @@
 //
 
 #include "engine/boot/boot_constants.h"
+#include "engine/db/global_objects.h"
 #include "engine/core/comm.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
@@ -11,11 +12,11 @@
 #include "utils/utils_string.h"
 
 #include <vector>
+#include <sstream>
 #include <string>
 
 namespace offtop_system {
 
-const char *BLOCK_FILE{LIB_MISC"stop_offtop"};
 std::vector<std::string> block_list;
 
 /// Проверка на наличие чара в стоп-списке и сет флага
@@ -33,15 +34,15 @@ void SetStopOfftopFlag(CharData *ch) {
 /// Лоад/релоад списка нежелательных для оффтопа товарисчей.
 void Init() {
 	block_list.clear();
-	std::ifstream file(BLOCK_FILE);
-	if (!file.is_open()) {
-		log("SYSERROR: не удалось открыть файл на чтение: %s", BLOCK_FILE);
-		return;
-	}
-	std::string buffer;
-	while (file >> buffer) {
-		utils::ConvertToLow(buffer);
-		block_list.push_back(buffer);
+	// issue.misc-migrate: StateManager owns the file I/O; entries are tokenized/lowercased here
+	// (preserving the previous `>> buffer` semantics). A missing file just yields an empty list.
+	for (const auto &line : MUD::StateManager().LoadLines(state::EStateFile::kStopOfftop)) {
+		std::istringstream iss(line);
+		std::string buffer;
+		while (iss >> buffer) {
+			utils::ConvertToLow(buffer);
+			block_list.push_back(buffer);
+		}
 	}
 
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {

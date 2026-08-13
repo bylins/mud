@@ -221,7 +221,7 @@ void LoadSheduledReboot() {
 
 	time_t currTime;
 
-	sch = fopen(LIB_MISC "schedule", "r");
+	sch = fopen(MUD::StateManager().Path(state::EStateFile::kSchedule).c_str(), "r");
 	if (!sch) {
 		log("Error opening schedule");
 		return;
@@ -1081,8 +1081,6 @@ void BootMudDataBase() {
         MKDIR(#BASE "/U-Z"); \
         MKDIR(#BASE "/ZZZ")
 
-	MKDIR("etc");
-	MKDIR("etc/board");
 	MKLETTERS(plralias);
 	MKLETTERS(plrobjs);
 	MKLETTERS(plrs);
@@ -1092,6 +1090,12 @@ void BootMudDataBase() {
 	MKLETTERS(plrstuff / depot);
 	MKDIR("plrstuff/house");
 	MKDIR("stat");
+	// issue.misc-migrate: the new world-data dirs (state = server state, userdata =
+	// per-account, worlddata = world content) may be written to at runtime.
+	MKDIR("state");
+	MKDIR("userdata");
+	MKDIR("userdata/boards");
+	MKDIR("worlddata");
 
 #undef MKLETTERS
 #undef MKDIR
@@ -1374,8 +1378,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading privileges and gods list");
 	log("Load privilege and god list.");
-	privilege::Load();
-	MUD::CfgManager().LoadCfg("privilege");  // issue.privilege-rework P1: membership DB (inert until P2)
+	MUD::CfgManager().LoadCfg("privilege");  // membership privilege DB (cfg/privilege.xml)
 
 	// должен идти до резета зон
 	boot_profiler.next_step("Initializing depot system");
@@ -3586,7 +3589,7 @@ void LoadGlobalUid() {
 
 	global_uid = 0;
 
-	if (!(guid = fopen(LIB_MISC "globaluid", "r"))) {
+	if (!(guid = fopen(MUD::StateManager().Path(state::EStateFile::kGlobalUid).c_str(), "r"))) {
 		log("Can't open global uid file...");
 		return;
 	}
@@ -3598,7 +3601,7 @@ void LoadGlobalUid() {
 void SaveGlobalUID() {
 	FILE *guid;
 
-	if (!(guid = fopen(LIB_MISC "globaluid", "w"))) {
+	if (!(guid = fopen(MUD::StateManager().Path(state::EStateFile::kGlobalUid).c_str(), "w"))) {
 		log("Can't write global uid file...");
 		return;
 	}

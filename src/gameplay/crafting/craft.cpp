@@ -50,7 +50,7 @@ bool start() {
 const char *BODY_PREFIX = "| ";
 const char *END_PREFIX = "> ";
 
-const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "index.xml";
+const std::string CCraftModel::FILE_NAME = LIB_CFG "craft/metacraft/index.xml";
 
 bool Cases::load_from_node(const pugi::xml_node *node) {
 	for (int c = 0; c <= grammar::ECase::kLastCase; ++c) {
