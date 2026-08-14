@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import glob, os
 files = glob.glob("*.*")
 for file in files:
