@@ -79,7 +79,7 @@ fi
 
 # ---- 1. create the new directories ----
 log "Creating new directories"
-for d in state state/statistics userdata userdata/accounts userdata/clans \
+for d in state state/statistics worlddata userdata userdata/accounts userdata/clans \
          userdata/chardata userdata/chardata/characters userdata/chardata/items \
          userdata/chardata/aliases userdata/chardata/variables userdata/chardata/depots; do
 	[[ -d "$d" ]] || run "mkdir -p '$d'"
@@ -149,6 +149,12 @@ move_one "plrstuff/mob_stat_new.xml"    "state/statistics/mob_stat_new.xml"
 move_one "plrstuff/zone_traffic.xml"    "state/statistics/zone_traffic.xml"
 move_one "plrstuff/global_drop.tmp"     "state/statistics/global_drop.tmp"
 move_one "stat/spellstat.txt"           "state/statistics/spellstat.txt"
+log ""
+
+# ---- 5b. world content -> worlddata/ ----
+log "Moving world content -> worlddata/"
+move_one "world"    "worlddata/world"     # YAML/legacy world tree (rooms/mobs/objects/zones/triggers)
+move_one "world.db" "worlddata/world.db"  # SQLite world (only on SQLite servers)
 log ""
 
 # ---- 6. rename state/ list files to the .lst convention (if present) ----
