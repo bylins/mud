@@ -64,7 +64,7 @@ private:
 void EnsureLegacyWorldLayout(const std::filesystem::path &target_dir)
 {
 	static const char *const kSubdirs[] = {"wld", "mob", "obj", "zon", "trg"};
-	const auto world_root = target_dir / "world";
+	const auto world_root = target_dir / "worlddata/world";
 	std::filesystem::create_directories(world_root);
 	for (const auto *sub : kSubdirs) {
 		std::filesystem::create_directories(world_root / sub);
@@ -228,7 +228,7 @@ void LegacyWorldDataSource::FinalizeResave()
 	if (m_world_dir.empty()) {
 		return;
 	}
-	const std::filesystem::path world_root = std::filesystem::path(m_world_dir) / "world";
+	const std::filesystem::path world_root = std::filesystem::path(m_world_dir) / "worlddata/world";
 	WriteIndexFile(world_root / "wld", ".wld");
 	WriteIndexFile(world_root / "mob", ".mob");
 	WriteIndexFile(world_root / "obj", ".obj");

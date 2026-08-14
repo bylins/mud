@@ -480,7 +480,7 @@ namespace {
 std::unique_ptr<world_loader::IWorldDataSource> CreateWorldSourceByName(const std::string &name) {
 	if (name == "yaml") {
 #ifdef HAVE_YAML
-		return world_loader::CreateYamlDataSource("world");
+		return world_loader::CreateYamlDataSource("worlddata/world");
 #else
 		log("SYSERR: world source 'yaml' configured but YAML backend is not compiled in");
 		return nullptr;
@@ -488,7 +488,7 @@ std::unique_ptr<world_loader::IWorldDataSource> CreateWorldSourceByName(const st
 	}
 	if (name == "sqlite") {
 #ifdef HAVE_SQLITE
-		return world_loader::CreateSqliteDataSource("world.db");
+		return world_loader::CreateSqliteDataSource("worlddata/world.db");
 #else
 		log("SYSERR: world source 'sqlite' configured but SQLite backend is not compiled in");
 		return nullptr;
@@ -781,9 +781,9 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	if (!data_source)
 	{
 #ifdef HAVE_YAML
-		data_source = world_loader::CreateYamlDataSource("world");
+		data_source = world_loader::CreateYamlDataSource("worlddata/world");
 #elif defined(HAVE_SQLITE)
-		data_source = world_loader::CreateSqliteDataSource("world.db");
+		data_source = world_loader::CreateSqliteDataSource("worlddata/world.db");
 #else
 		data_source = world_loader::CreateLegacyDataSource();
 #endif
@@ -1613,7 +1613,7 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 		// location -- which BootWorld used at the compile-time default of
 		// "world" -- before constructing. SaveZone/Save* rebuild their
 		// index.yaml files themselves now, so we don't mirror any indexes here.
-		const std::string load_dir = "world";
+		const std::string load_dir = "worlddata/world";
 		try {
 			fs::create_directories(target_dir);
 			fs::copy_file(load_dir + "/world_config.yaml",

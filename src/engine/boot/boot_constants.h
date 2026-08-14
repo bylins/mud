@@ -36,7 +36,7 @@ enum SetStuffMode {
 #define LIB_Z       "ZZZ"
 
 #if defined(CIRCLE_MACINTOSH)
-#define LIB_WORLD	":world:"
+#define LIB_WORLD	":worlddata:world:"
 #define LIB_HELP	":help:"
 #define LIB_CFG		":cfg:"
 #define LIB_USERDATA	":userdata:"
@@ -50,7 +50,7 @@ enum SetStuffMode {
 #define LIB             ":lib:"
 #define SLASH		":"
 #elif defined(CIRCLE_AMIGA) || defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS) || defined(CIRCLE_ACORN) || defined(CIRCLE_VMS)
-#define LIB_WORLD     "world/"
+#define LIB_WORLD     "worlddata/world/"
 #define LIB_HELP      "help/"
 #define LIB_CFG         "cfg/"
 #define LIB_ACCOUNTS  "userdata/accounts/"
