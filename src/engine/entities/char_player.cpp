@@ -839,13 +839,6 @@ void Player::save_char(bool update_save_time) {
 	}
 	fwrite(pfile.data(), 1, pfile.size(), pf);
 	fclose(pf);
-#ifndef _WIN32
-	if (chmod(filename, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
-		std::stringstream ss;
-		ss << "Error chmod file: " << filename << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
-		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-	}
-#endif
 	d_write = wt.delta().count();
 	FileCRC::update_from_content(this->get_uid(), FileCRC::kPlayer, pfile.data(), pfile.size());
 

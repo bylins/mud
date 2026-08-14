@@ -627,17 +627,17 @@ void Static::new_message_notify(const Board::shared_ptr board) {
 void Static::BoardInit() {
 	board_list.clear();
 
-	create_board(GENERAL_BOARD, "Вече", "Базарная площадь", ETC_BOARD"general.board");
-	create_board(NEWS_BOARD, "Новости", "Анонсы и новости Былин", ETC_BOARD"news.board");
-	create_board(IDEA_BOARD, "Идеи", "Идеи и их обсуждение", ETC_BOARD"idea.board");
-	create_board(ERROR_BOARD, "Баги", "Сообщения об ошибках в мире", ETC_BOARD"error.board");
-	create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", ETC_BOARD"god-news.board");
-	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", ETC_BOARD"god-general.board");
-	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", ETC_BOARD"god-build.board");
-	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", ETC_BOARD"god-punish.board");
-	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board");
-	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
-	create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", ETC_BOARD"suggest.board");
+	create_board(GENERAL_BOARD, "Вече", "Базарная площадь", BOARDS_DIR"general.board");
+	create_board(NEWS_BOARD, "Новости", "Анонсы и новости Былин", BOARDS_DIR"news.board");
+	create_board(IDEA_BOARD, "Идеи", "Идеи и их обсуждение", BOARDS_DIR"idea.board");
+	create_board(ERROR_BOARD, "Баги", "Сообщения об ошибках в мире", BOARDS_DIR"error.board");
+	create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", BOARDS_DIR"god-news.board");
+	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", BOARDS_DIR"god-general.board");
+	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", BOARDS_DIR"god-build.board");
+	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", BOARDS_DIR"god-punish.board");
+	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", BOARDS_DIR"notice.board");
+	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", BOARDS_DIR"misprint.board");
+	create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", BOARDS_DIR"suggest.board");
 	create_board(CODER_BOARD, "Кодер", "Изменения в коде Былин", "");
 
 	dg_script_message();
@@ -705,7 +705,7 @@ void Static::init_god_board(long uid, std::string name) {
 	// генерим имя и лоадим по возможности
 	std::string tmp_name = name;
 	CreateFileName(tmp_name);
-	board->set_file_name(ETC_BOARD + tmp_name + ".board");
+	board->set_file_name(BOARDS_DIR + tmp_name + ".board");
 	board->Load();
 	board_list.push_back(board);
 }

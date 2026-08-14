@@ -9,8 +9,10 @@
 #include "administration/punishments.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
+#include "engine/db/global_objects.h"
 
-#include <fstream>
+#include <sstream>
+#include <vector>
 #include <iostream>
 
 void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -25,21 +27,29 @@ void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	std::string email;
 	std::string reason;
 	std::string name_buffer;
-	std::ifstream unfreeze_list;
-	unfreeze_list.open("../lib/misc/unfreeze.lst", std::fstream::in);
-	if (!unfreeze_list) {
+	// issue.misc-migrate: StateManager owns the file I/O. Flatten to whitespace tokens to keep the
+	// previous stream `>>` semantics: token 0 = email, token 1 = reason, the rest = char names.
+	std::vector<std::string> tokens;
+	for (const auto &line : MUD::StateManager().LoadLines(state::EStateFile::kUnfreeze)) {
+		std::istringstream iss(line);
+		std::string tok;
+		while (iss >> tok) {
+			tokens.push_back(tok);
+		}
+	}
+	if (tokens.size() < 2) {
 		SendMsgToChar("Файл unfreeze.lst отсутствует!\r\n", ch);
 		return;
 	}
-	unfreeze_list >> email;
-	unfreeze_list >> reason;
+	email = tokens[0];
+	reason = tokens[1];
 	sprintf(buf, "Начинаем масс.разфриз\r\nEmail:%s\r\nПричина:%s\r\n", email.c_str(), reason.c_str());
 	SendMsgToChar(buf, ch);
 	reason_c = new char[reason.length() + 1];
 	strcpy(reason_c, reason.c_str());
 
-	while (!unfreeze_list.eof()) {
-		unfreeze_list >> name_buffer;
+	for (std::size_t i = 2; i < tokens.size(); ++i) {
+		name_buffer = tokens[i];
 		if (LoadPlayerCharacter(name_buffer.c_str(), &t_vict, ELoadCharFlags::kFindId) < 0) {
 			sprintf(buf, "Чара с именем %s не существует !\r\n", name_buffer.c_str());
 			SendMsgToChar(buf, ch);
@@ -58,7 +68,6 @@ void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	delete[] reason_c;
-	unfreeze_list.close();
 
 }
 

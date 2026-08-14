@@ -25,7 +25,6 @@ build/
 build_*/
 magic.mgc
 data/
-misc/
 
 __pycache__/
 autorun.out

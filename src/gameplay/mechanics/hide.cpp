@@ -126,7 +126,10 @@ void MakeVisible(CharData *ch, const EAffect affect) {
 	AFF_FLAGS(ch).unset(affect);
 	ch->check_aggressive = true;
 	if (!to_char.empty()) {
-		SendMsgToChar(to_char.c_str(), ch);
+		// issue #3721: act(), а не SendMsgToChar() -- строка приходит из affect_msg.xml без
+		// перевода в конце, и SendMsgToChar пишет ее в буфер как есть, склеивая со следующей.
+		// kToSleep -- чтобы спящий увидел строку так же, как видел ее при SendMsgToChar.
+		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar | kToSleep);
 	}
 	if (!to_room.empty()) {
 		act(to_room.c_str(), false, ch, nullptr, nullptr, kToRoom);

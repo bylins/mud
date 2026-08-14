@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="koi8-r"?>
-<cities>
-	<city>
-		<name value="Лесная деревня"/>
-		<rent_vnum value="4056"/>
-		<ZoneVnum value="40"/>
-	</city>
-</cities>

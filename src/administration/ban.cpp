@@ -10,11 +10,14 @@
 #include "ban.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "engine/boot/boot_constants.h"
+
+#include <sstream>
 
 #include <fmt/format.h>
 
-const char *const BanList::ban_filename = "etc/badsites";
-const char *const BanList::proxy_ban_filename = "etc/badproxy";
+const std::string &BanList::ban_filename() { return MUD::StateManager().Path(state::EStateFile::kBannedSites); }
+const std::string &BanList::proxy_ban_filename() { return MUD::StateManager().Path(state::EStateFile::kBannedProxies); }
 const char *BanList::ban_types[] = {
 	"no",
 	"new",
@@ -215,120 +218,91 @@ bool BanList::AddProxyBan(std::string BannedIp, const std::string &BannerName) {
 }
 
 bool BanList::ReloadBan() {
-	FILE *loaded;
+	// issue.misc-migrate: read records via StateManager (no in-file fopen); missing file -> empty.
 	ban_list_.clear();
-	if ((loaded = fopen(ban_filename, "r"))) {
-		std::string str_to_parse;
-
-		while (!feof(loaded)) {
-			DiskIo::read_line(loaded, str_to_parse, true);
-			std::vector<std::string> ban_tokens = utils::Split(str_to_parse);
-
-			if (ban_tokens.size() != 6) {
-				log("Ban list %s error, line %s", ban_filename, str_to_parse.c_str());
-				continue;
-			}
-			BanNodePtr ptr(new struct BanNode);
-			auto tok_iter = ban_tokens.begin();
-
-			// type
-			for (int i = BAN_NO; i <= BAN_ALL; i++) {
-				if (!strcmp((*tok_iter).c_str(), ban_types[i])) {
-					ptr->BanType = i;
-				}
-			}
-			// ip
-			++tok_iter;
-			ptr->BannedIp = (*tok_iter);
-			// removing port specification i.e. 129.1.1.1:8080; :8080 is removed
-			std::string::size_type at = ptr->BannedIp.find_first_of(':');
-			if (at != std::string::npos) {
-				ptr->BannedIp.erase(at);
-			}
-			//ban_date
-			++tok_iter;
-			ptr->BanDate = atol((*tok_iter).c_str());
-			//banner_name
-			++tok_iter;
-			ptr->BannerName = (*tok_iter);
-			//ban_length
-			++tok_iter;
-			ptr->UnbanDate = atol((*tok_iter).c_str());
-			//ban_reason
-			++tok_iter;
-			ptr->BanReason = (*tok_iter);
-			ban_list_.push_front(ptr);
+	for (const auto &str_to_parse : MUD::StateManager().LoadLines(state::EStateFile::kBannedSites)) {
+		std::vector<std::string> ban_tokens = utils::Split(str_to_parse);
+		if (ban_tokens.size() != 6) {
+			log("Ban list %s error, line %s", ban_filename().c_str(), str_to_parse.c_str());
+			continue;
 		}
-		fclose(loaded);
-		return true;
+		BanNodePtr ptr(new struct BanNode);
+		auto tok_iter = ban_tokens.begin();
+		for (int i = BAN_NO; i <= BAN_ALL; i++) {
+			if (!strcmp((*tok_iter).c_str(), ban_types[i])) {
+				ptr->BanType = i;
+			}
+		}
+		++tok_iter;
+		ptr->BannedIp = (*tok_iter);
+		// removing port specification i.e. 129.1.1.1:8080; :8080 is removed
+		std::string::size_type at = ptr->BannedIp.find_first_of(':');
+		if (at != std::string::npos) {
+			ptr->BannedIp.erase(at);
+		}
+		++tok_iter;
+		ptr->BanDate = atol((*tok_iter).c_str());
+		++tok_iter;
+		ptr->BannerName = (*tok_iter);
+		++tok_iter;
+		ptr->UnbanDate = atol((*tok_iter).c_str());
+		++tok_iter;
+		ptr->BanReason = (*tok_iter);
+		ban_list_.push_front(ptr);
 	}
-	log("SYSERR: Unable to open banfile");
-	return false;
+	return true;
 }
 
 bool BanList::ReloadProxyBan() {
-	FILE *loaded;
-
-	loaded = fopen(proxy_ban_filename, "r");
-	if (loaded) {
-		std::string str_to_parse;
-
-		while (DiskIo::read_line(loaded, str_to_parse, true)) {
-			std::vector<std::string> ban_tokens = utils::Split(str_to_parse);
-
-			if (ban_tokens.size() != 2) {
-				log("Proxy ban list %s error, line %s", proxy_ban_filename, str_to_parse.c_str());
-				continue;
-			}
-			auto tok_iter = ban_tokens.begin();
-			ProxyBanNodePtr ptr(new struct ProxyBanNode);
-
-			ptr->BannerName = "Undefined";
-			ptr->BannedIp = (*tok_iter);
-			// removing port specification i.e. 129.1.1.1:8080; :8080 is removed
-			std::string::size_type at = ptr->BannedIp.find_first_of(':');
-			if (at != std::string::npos) {
-				ptr->BannedIp.erase(at);
-			}
-			++tok_iter;
-			ptr->BannerName = (*tok_iter);
-			proxy_ban_list_.push_front(ptr);
-			DisconnectBannedIp(ptr->BannedIp);
+	// issue.misc-migrate: read via StateManager. NB: unlike ReloadBan this intentionally does NOT
+	// clear proxy_ban_list_ first (preserving the previous behaviour).
+	for (const auto &str_to_parse : MUD::StateManager().LoadLines(state::EStateFile::kBannedProxies)) {
+		std::vector<std::string> ban_tokens = utils::Split(str_to_parse);
+		if (ban_tokens.size() != 2) {
+			log("Proxy ban list %s error, line %s", proxy_ban_filename().c_str(), str_to_parse.c_str());
+			continue;
 		}
-		fclose(loaded);
-		return true;
+		auto tok_iter = ban_tokens.begin();
+		ProxyBanNodePtr ptr(new struct ProxyBanNode);
+		ptr->BannerName = "Undefined";
+		ptr->BannedIp = (*tok_iter);
+		// removing port specification i.e. 129.1.1.1:8080; :8080 is removed
+		std::string::size_type at = ptr->BannedIp.find_first_of(':');
+		if (at != std::string::npos) {
+			ptr->BannedIp.erase(at);
+		}
+		++tok_iter;
+		ptr->BannerName = (*tok_iter);
+		proxy_ban_list_.push_front(ptr);
+		DisconnectBannedIp(ptr->BannedIp);
 	}
-	log("SYSERR: Unable to open proxybanfile");
-	return false;
+	return true;
 }
 
 bool BanList::SaveIp() {
-	FILE *loaded;
-	if ((loaded = fopen(ban_filename, "w"))) {
-		for (auto &i : ban_list_) {
-			fprintf(loaded, "%s %s %ld %s %ld %s\n",
-					ban_types[i->BanType], i->BannedIp.c_str(),
-					static_cast<long int>(i->BanDate), i->BannerName.c_str(),
-					static_cast<long int>(i->UnbanDate), i->BanReason.c_str());
-		}
-		fclose(loaded);
-		return true;
+	// issue.misc-migrate: atomic whole-file replace via StateManager (was a truncate-in-place write).
+	std::vector<std::string> lines;
+	lines.reserve(ban_list_.size());
+	for (auto &i : ban_list_) {
+		std::ostringstream oss;
+		oss << ban_types[i->BanType] << ' ' << i->BannedIp << ' '
+			<< static_cast<long int>(i->BanDate) << ' ' << i->BannerName << ' '
+			<< static_cast<long int>(i->UnbanDate) << ' ' << i->BanReason;
+		lines.push_back(oss.str());
 	}
-	log("SYSERR: Unable to save banfile");
-	return false;
+	return MUD::StateManager().SaveLines(state::EStateFile::kBannedSites, lines);
 }
 
 bool BanList::SaveProxy() {
-	FILE *loaded;
-	if ((loaded = fopen(proxy_ban_filename, "w"))) {
-		for (auto &i : proxy_ban_list_) {
-			fprintf(loaded, "%s %s\n", i->BannedIp.c_str(), i->BannerName.c_str());
-		}
-		fclose(loaded);
-		return true;
+	// issue.misc-migrate: atomic whole-file replace via StateManager.
+	std::vector<std::string> lines;
+	lines.reserve(proxy_ban_list_.size());
+	for (auto &i : proxy_ban_list_) {
+		std::ostringstream oss;
+		oss << i->BannedIp << ' ' << i->BannerName;
+		lines.push_back(oss.str());
 	}
-	log("SYSERR: Unable to save proxybanfile");
-	return false;
+	return MUD::StateManager().SaveLines(state::EStateFile::kBannedProxies, lines);
 }
 
 void BanList::ShowBannedIp(int sort_mode, CharData *ch) {
