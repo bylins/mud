@@ -134,7 +134,10 @@ compute_checksum() {
 # Copy non-world artifacts from src to dst so legacy/yaml builds can boot it.
 copy_data_dir_skeleton() {
     local src="$1" dst="$2"
-    for sub in misc cfg etc text plrs plrobjs plralias plrstuff plrvars stat; do
+    # New layout: help/ userdata/ state/ worlddata/. Old ones kept for legacy
+    # fixtures; each is copied only if present.
+    for sub in cfg help userdata state worlddata \
+               misc etc text plrs plrobjs plralias plrstuff plrvars stat; do
         if [[ -e "$src/$sub" ]]; then
             cp -r "$src/$sub" "$dst/"
         fi
