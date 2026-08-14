@@ -1286,13 +1286,6 @@ int Crash_write_timer(const std::size_t index) {
 	}
 	fwrite(content.data(), 1, content.size(), fl);
 	fclose(fl);
-#ifndef _WIN32
-	if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
-		std::stringstream ss;
-		ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
-		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-	}
-#endif
 	// CRC из буфера вместо повторного чтения файла (см. FileCRC::update_from_content).
 	FileCRC::update_from_content(player_table[index].uid(), FileCRC::kTimeObjs,
 		content.data(), content.size());
