@@ -56,7 +56,6 @@ enum SetStuffMode {
 #define LIB_ACCOUNTS  "userdata/accounts/"
 #define LIB_USERDATA   "userdata/"
 #define LIB_WORLDDATA  "worlddata/"
-#define LIB_STAT      "stat/"
 #define BOARDS_DIR  LIB_USERDATA "boards/"
 #define LIB_PLRS      "userdata/chardata/characters/"
 #define LIB_PLROBJS   "userdata/chardata/items/"
@@ -113,7 +112,6 @@ enum SetStuffMode {
 // issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 
 
-#define WHOLIST_FILE    LIB_STAT "wholist.html"    // for the stat system
 
 enum EBootType : int {
 	DB_BOOT_WLD = 0,

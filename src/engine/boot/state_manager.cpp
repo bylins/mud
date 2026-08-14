@@ -41,6 +41,7 @@ StateManager::StateManager() {
 	put(EStateFile::kMobStatBin, "statistics/mob_stat.bin");
 	put(EStateFile::kZoneTraffic, "statistics/zone_traffic.xml");
 	put(EStateFile::kGlobalDropStat, "statistics/global_drop.tmp");
+	put(EStateFile::kSpellStat, "statistics/spellstat.txt");
 	put(EStateFile::kUniqueMobs, "unique_mobs.xml");
 	put(EStateFile::kDropTable, "sets_drop_generated_table.lst");
 }
