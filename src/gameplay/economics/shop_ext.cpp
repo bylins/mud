@@ -148,7 +148,7 @@ void log_shop_load() {
 
 void load_item_desc() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/item_desc.xml");
+	pugi::xml_parse_result result = doc.load_file(LIB_CLANS"item_desc.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);

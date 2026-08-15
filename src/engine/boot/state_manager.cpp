@@ -25,15 +25,25 @@ StateManager::StateManager() {
 	};
 	put(EStateFile::kSchedule, "schedule");
 	put(EStateFile::kGlobalUid, "globaluid");
-	put(EStateFile::kStopOfftop, "stop_offtop");
-	put(EStateFile::kProxy, "proxy");
-	put(EStateFile::kInvalidNameParts, "xnames");
-	put(EStateFile::kApprovedNames, "apr_name");
-	put(EStateFile::kDisallowedNames, "dis_name");
-	put(EStateFile::kPendingNames, "new_name");
+	put(EStateFile::kStopOfftop, "stop_offtop.lst");
+	put(EStateFile::kProxy, "proxy.lst");
+	put(EStateFile::kInvalidNameParts, "xnames.lst");
+	put(EStateFile::kApprovedNames, "apr_name.lst");
+	put(EStateFile::kDisallowedNames, "dis_name.lst");
+	put(EStateFile::kPendingNames, "new_name.lst");
 	put(EStateFile::kUnfreeze, "unfreeze.lst");
-	put(EStateFile::kBannedSites, "badsites");
-	put(EStateFile::kBannedProxies, "badproxy");
+	put(EStateFile::kBannedSites, "badsites.lst");
+	put(EStateFile::kBannedProxies, "badproxy.lst");
+	put(EStateFile::kTitles, "titles.lst");
+	put(EStateFile::kRegisteredEmails, "registered-email.lst");
+	put(EStateFile::kSaveChecksums, "player_save_checksums.lst");
+	put(EStateFile::kMobStat, "statistics/mob_stat_new.xml");
+	put(EStateFile::kMobStatBin, "statistics/mob_stat.bin");
+	put(EStateFile::kZoneTraffic, "statistics/zone_traffic.xml");
+	put(EStateFile::kGlobalDropStat, "statistics/global_drop.tmp");
+	put(EStateFile::kSpellStat, "statistics/spellstat.txt");
+	put(EStateFile::kUniqueMobs, "unique_mobs.xml");
+	put(EStateFile::kDropTable, "sets_drop_generated_table.lst");
 }
 
 const std::string &StateManager::Path(EStateFile file) const {

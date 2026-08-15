@@ -190,9 +190,9 @@ Clan::~Clan() {
 }
 // релоад одного отдельного клана, абр. указывать на латинице!
 void Clan::ClanReload(const std::string &index) {
-	std::ifstream file(LIB_HOUSE "index");
+	std::ifstream file(LIB_CLANS "index");
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", LIB_HOUSE "index", __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", LIB_CLANS "index", __FILE__, __func__, __LINE__);
 		return;
 	}
 	std::string buffer;
@@ -223,7 +223,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 	std::string buffer;
 	const auto tempClan = std::make_shared<Clan>();
 
-	std::string filename = LIB_HOUSE + index + "/" + index;
+	std::string filename = LIB_CLANS + index + "/" + index;
 	std::ifstream file(filename.c_str());
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
@@ -624,9 +624,9 @@ void Clan::ClanLoad() {
 	Clan::ClanList.clear();
 
 	// файл со списком кланов
-	std::ifstream file(LIB_HOUSE "index");
+	std::ifstream file(LIB_CLANS "index");
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", LIB_HOUSE "index", __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", LIB_CLANS "index", __FILE__, __func__, __LINE__);
 		return;
 	}
 	std::string buffer;
@@ -796,9 +796,9 @@ void Clan::save_clan_file(const std::string &filename) const {
 
 // сохранение кланов в файлы
 void Clan::ClanSave() {
-	std::ofstream index(LIB_HOUSE "index");
+	std::ofstream index(LIB_CLANS "index");
 	if (!index.is_open()) {
-		log("Error open file: %s! (%s %s %d)", LIB_HOUSE "index", __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", LIB_CLANS "index", __FILE__, __func__, __LINE__);
 		return;
 	}
 
@@ -814,8 +814,8 @@ void Clan::ClanSave() {
 			continue;
 		}
 
-		std::string filepath = LIB_HOUSE + buffer + "/" + buffer;
-		std::string path = LIB_HOUSE + buffer;
+		std::string filepath = LIB_CLANS + buffer + "/" + buffer;
+		std::string path = LIB_CLANS + buffer;
 		struct stat result;
 		if (stat(filepath.c_str(), &result)) {
 			if (mkdir(path.c_str(), 0700)) {
@@ -2437,7 +2437,7 @@ void Clan::save_chest() {
 	std::string buffer = this->abbrev;
 	for (unsigned i = 0; i != buffer.length(); ++i)
 		buffer[i] = LOWER(codepages::AtoL(buffer[i]));
-	std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
+	std::string filename = LIB_CLANS + buffer + "/" + buffer + ".obj";
 	for (auto chest : world[GetRoomRnum(this->chest_room)]->contents) {
 		if (Clan::is_clan_chest(chest)) {
 			std::stringstream out;
@@ -2499,7 +2499,7 @@ void Clan::ChestLoad() {
 		for (unsigned i = 0; i != buffer.length(); ++i) {
 			buffer[i] = LOWER(codepages::AtoL(buffer[i]));
 		}
-		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
+		std::string filename = LIB_CLANS + buffer + "/" + buffer + ".obj";
 
 		//лоадим сундук. в зонах его лоадить не нужно.
 		const auto chest = world_objects.create_from_prototype_by_vnum(CLAN_CHEST_VNUM);
@@ -2602,7 +2602,7 @@ void Clan::write_mod(const std::string &arg) {
 	for (unsigned i = 0; i != abbrev.length(); ++i) {
 		abbrev[i] = LOWER(codepages::AtoL(abbrev[i]));
 	}
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".mod";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".mod";
 
 	std::ofstream file(filename.c_str());
 	if (!file.is_open()) {
@@ -2629,7 +2629,7 @@ bool Clan::print_mod(CharData *ch) const {
 // * Загрузка сообщения дружины.
 void Clan::load_mod() {
 	std::string abbrev = this->get_file_abbrev();
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".mod";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".mod";
 
 	std::ifstream file(filename.c_str(), std::ios::binary);
 	if (!file.is_open()) {
@@ -4260,7 +4260,7 @@ void Clan::init_ingr_chest() {
 	}
 
 	std::string file_abbrev = get_file_abbrev();
-	std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
+	std::string filename = LIB_CLANS + file_abbrev + "/" + file_abbrev + ".ing";
 
 	const auto chest = world_objects.create_from_prototype_by_vnum(INGR_CHEST_VNUM);
 	if (!chest) {

@@ -12,7 +12,7 @@ still loads a file with a "wrong" root, it just logs one warning per file.
 IMPORTANT: this is an EXPLICIT, closed list of renames (only CfgManager-registered
 files whose root changed). It deliberately does NOT touch other cfg XML such as the
 per-class cfg/classes/pc_*.xml (root <class>), cfg/craft/ingredient_magic/*.xml, or
-plrstuff sets_drop.xml -- those are read by their own loaders that rely on their
+cfg/mechanics/sets_drop.xml -- those are read by their own loaders that rely on their
 current root and must NOT be renamed.
 
 Encoding-safe: only the ASCII root tag bytes are touched; KOI8-R payloads preserved.

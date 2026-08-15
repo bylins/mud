@@ -24,10 +24,14 @@ lib_src = os.path.join(source_root, "lib")
 template_src = os.path.join(source_root, "lib.template")
 
 # Конфиги/тексты берём из lib (это актуальная боевая конфигурация), мир — из lib.template
-# (свежий сконвертированный YAML). Всё остальное (plrs, plrobjs, etc, stat...) сервер
+# (свежий сконвертированный YAML). Всё остальное (userdata с сейвами персонажей/аккаунтов и т.п.) сервер
 # создаёт сам при старте, так что small world получается абсолютно чистым.
 LIB_DIRS = ("cfg", "help", "state", "worlddata")
-TEMPLATE_DIRS = ("world",)
+# The world tree now lives under worlddata/world (from lib.template). copy_dirs
+# preserves the nested path, so it lands at <small>/worlddata/world. This runs
+# AFTER the LIB_DIRS copy of worlddata/ above, so it drops the world into the
+# already-created <small>/worlddata without clobbering stuff.lst.
+TEMPLATE_DIRS = ("worlddata/world",)
 
 
 def copy_dirs(src_root, names, what):
