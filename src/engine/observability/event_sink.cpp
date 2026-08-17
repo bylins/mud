@@ -52,12 +52,6 @@ void FlushAllSinks() {
 	}
 }
 
-std::string EngineStringToUtf8(const std::string& koi8r) {
-	// Движок держит текст в UTF-8, потребитель тоже ждёт UTF-8 -- границы здесь больше нет.
-	// Перекодировка, оставшаяся с байтовых времён, теперь разбирала бы готовый UTF-8 как
-	// KOI8-R и удваивала каждую букву (issue #3681).
-	return koi8r;
-}
 
 }  // namespace observability
 
