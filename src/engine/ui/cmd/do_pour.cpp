@@ -212,12 +212,27 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// копируем тип жидкости //
 	to_obj->set_val(2, GET_OBJ_VAL(from_obj, 2));
 
-	int n1 = GET_OBJ_VAL(from_obj, 1);
-	int n2 = GET_OBJ_VAL(to_obj, 1);
-	int t1 = std::max(0, from_obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer));
-	int t2 = std::max(0, to_obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer));
+	// issue #3727: сколько переливаем -- не больше свободного места в приемнике и не больше того,
+	// что реально есть в источнике. Раньше приемник заливали "под горлышко", а недолив правили тем,
+	// что val[1] источника уходил в минус. После переезда ликвид-ядра в ObjVal так делать нельзя:
+	// ObjVal::set удаляет запись при отрицательном значении, get_val на пропавшем ключе молча
+	// откатывается на сырой val[] (после миграции он нулевой), и коррекция получала 0 вместо
+	// недостачи -- приемник оставался полным, а жидкость бралась из воздуха: 144 глотка самогона
+	// превращались в 500. Бездонный фонтан (val[1] == 999) по-прежнему наливает сколько влезет.
+	const bool endless_source = (from_obj->get_type() == EObjType::kFountain
+			&& GET_OBJ_VAL(from_obj, 1) == 999);
+	const int free_space = GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1);
+	amount = endless_source ? free_space : std::min(free_space, GET_OBJ_VAL(from_obj, 1));
+
+	const int n1 = amount;                      // сколько долили
+	const int n2 = GET_OBJ_VAL(to_obj, 1);      // сколько уже было
+	const int t1 = std::max(0, from_obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer));
+	const int t2 = std::max(0, to_obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidTimer));
 	// issue.potion-hotfix: blend the two containers' CONTENTS freshness (kLiquidTimer) by fill amount.
-	to_obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, (n1 * t1 + n2 * t2) / (n1 + n2));
+	// issue #3727: вес первого слагаемого -- перелитый объем, а не все содержимое источника.
+	if (n1 + n2 > 0) {
+		to_obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidTimer, (n1 * t1 + n2 * t2) / (n1 + n2));
+	}
 //	sprintf(buf, "Игрок %s переливает жижку. Первая емкость: %s (%d) Вторая емкость %s (%d). SCMD %d",
 //		GET_NAME(ch), from_obj->get_PName(ECase::kGen).c_str(), GET_OBJ_VNUM(from_obj), to_obj->get_PName(ECase::kGen).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -225,30 +240,26 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	// New alias //
-	if (GET_OBJ_VAL(to_obj, 1) == 0)
+	if (GET_OBJ_VAL(to_obj, 1) == 0) {
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
-	// Then how much to pour //
-	amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1));
+	}
 	// issue.potion-hotfix: mixing a potion into a non-empty container blends the maker skill/stat by
 	// quantity -- the n2 units already there plus the `amount` poured in. Spells match (checked above).
 	if (n2 > 0 && is_potion(from_obj)) {
 		drinkcon::mix_potion_values(to_obj, from_obj, n2, amount);
 	}
-	if (from_obj->get_type() != EObjType::kFountain
-		|| GET_OBJ_VAL(from_obj, 1) != 999) {
+	if (!endless_source) {
 		from_obj->sub_val(1, amount);
 	}
-	to_obj->set_val(1, GET_OBJ_VAL(to_obj, 0));
+	to_obj->add_val(1, amount);
 	// issue.potion-hotfix: a freshly filled liquid container's contents spoil over time -- track it.
 	world_objects.decay_manager().register_perishable(to_obj);
 
 	// Then the poison boogie //
 
 
-	if (GET_OBJ_VAL(from_obj, 1) <= 0)    // There was too little //
+	if (!endless_source && GET_OBJ_VAL(from_obj, 1) <= 0)    // Источник опустел //
 	{
-		to_obj->add_val(1, GET_OBJ_VAL(from_obj, 1));
-		amount += GET_OBJ_VAL(from_obj, 1);
 		from_obj->set_val(1, 0);
 		from_obj->set_val(2, 0);
 		from_obj->set_val(3, 0);

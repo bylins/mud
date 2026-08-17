@@ -114,7 +114,7 @@ void IngrChestSaver::run() {
 			continue;
 		}
 		const auto file_abbrev = raw->get_file_abbrev();
-		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
+		std::string filename = LIB_CLANS + file_abbrev + "/" + file_abbrev + ".ing";
 		for (auto chest : world[raw->get_ingr_chest_room_rnum()]->contents) {
 			if (!ClanSystem::is_ingr_chest(chest)) {
 				continue;

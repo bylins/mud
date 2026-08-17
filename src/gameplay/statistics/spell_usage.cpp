@@ -14,7 +14,6 @@
 namespace SpellUsage {
 bool is_active = false;
 std::map<ECharClass, SpellCountType> usage;
-const char *SPELL_STAT_FILE = LIB_STAT"spellstat.txt";
 time_t start;
 }
 
@@ -44,10 +43,11 @@ void SpellUsage::Save() {
 	if (!is_active)
 		return;
 
-	std::ofstream file(SPELL_STAT_FILE, std::ios_base::app | std::ios_base::out);
+	const std::string &spell_stat_file = MUD::StateManager().Path(state::EStateFile::kSpellStat);
+	std::ofstream file(spell_stat_file, std::ios_base::app | std::ios_base::out);
 
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", SPELL_STAT_FILE, __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", spell_stat_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 	file << StatToPrint();

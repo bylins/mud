@@ -891,13 +891,13 @@ void save() {
 	spent_node.set_name("total_spent");
 	spent_node.append_attribute("amount") = total_spent;
 
-	doc.save_file(LIB_PLRSTUFF"glory_const.xml");
+	doc.save_file(LIB_USERDATA"glory_const.xml");
 }
 
 void load() {
 	int ver = 0;
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"glory_const.xml");
+	pugi::xml_parse_result result = doc.load_file(LIB_USERDATA"glory_const.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "WARNING: glory_const.xml not found or unreadable (%s), skipping (non-fatal)", result.description());
 		perror(buf);

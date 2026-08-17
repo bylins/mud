@@ -127,11 +127,8 @@ void LogClassesExpStat() {
 
 namespace mob_stat {
 
-//const char *kMobStatFile = LIB_PLRSTUFF"mob_stat.xml";
-/// legacy XML, оставлен только для разовой миграции на бинарь
-const char *kMobStatFileNew = LIB_PLRSTUFF"mob_stat_new.xml";
-/// текущий бинарный формат
-const char *kMobStatFileBin = LIB_PLRSTUFF"mob_stat.bin";
+// mob_stat_new.xml (legacy XML fallback) and mob_stat.bin (current binary store) live
+// under state/statistics/; their paths come from StateManager (kMobStat / kMobStatBin).
 /// за сколько месяцев хранится статистика (+ текущий месяц)
 const int kMobStatHistorySize = 6;
 /// выборка кол-ва мобов для show stats при старте мада <months, mob-count>
@@ -198,7 +195,7 @@ static bool ApplyParsedStat(MobKillStat &tmp_time, MobMonthKillStat tmp_mob) {
 // Чтение бинарного файла. true -- файл существует (даже если оказался
 // битым: тогда просто не падаем в XML), false -- файла нет (нужна миграция).
 static bool LoadBinary() {
-	std::ifstream in(kMobStatFileBin, std::ios::binary);
+	std::ifstream in(MUD::StateManager().Path(state::EStateFile::kMobStatBin), std::ios::binary);
 	if (!in.is_open()) {
 		return false;
 	}
@@ -275,7 +272,7 @@ static void LoadXmlLegacy() {
 	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(kMobStatFileNew);
+	pugi::xml_parse_result result = doc.load_file(MUD::StateManager().Path(state::EStateFile::kMobStat).c_str());
 	if (!result) {
 		snprintf(buf_, sizeof(buf_), "...%s", result.description());
 		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
@@ -366,7 +363,7 @@ void Save() {
 	// Запись синхронно в основном потоке -- без отдельного треда: замеряем,
 	// нужен ли он вообще (см. лог времени ниже). Через .tmp + rename для
 	// атомарности.
-	const std::string filename = kMobStatFileBin;
+	const std::string filename = MUD::StateManager().Path(state::EStateFile::kMobStatBin);
 	const std::string tmp = filename + ".tmp";
 	{
 		std::ofstream f(tmp, std::ios::binary | std::ios::trunc);

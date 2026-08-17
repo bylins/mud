@@ -137,7 +137,7 @@ void GloryNode::copy_glory(const GloryNodePtr& k) {
 
 // * Загрузка общего списка славы, проверка на валидность чара, славы, сверка мд5 файла.
 void load_glory() {
-	const char *glory_file = LIB_PLRSTUFF"glory.lst";
+	const char *glory_file = LIB_USERDATA"glory.lst";
 	std::ifstream file(glory_file);
 	if (!file.is_open()) {
 		log("Glory: не удалось открыть файл на чтение: %s", glory_file);
@@ -275,7 +275,7 @@ void save_glory() {
 	// TODO: в file_crc систему это надо
 	out << Password::generate_md5_hash(fmt::format("{}", all_sum)) << "\n";
 
-	const char *glory_file = LIB_PLRSTUFF"glory.lst";
+	const char *glory_file = LIB_USERDATA"glory.lst";
 	std::ofstream file(glory_file);
 	if (!file.is_open()) {
 		log("Glory: не удалось открыть файл на запись: %s", glory_file);

@@ -1550,6 +1550,24 @@ void do_mload(CharData *ch, char *argument, int cmd, int subcmd, Trigger *trig);
 void do_dgoload(ObjData *obj, char *argument, int cmd, int subcmd, Trigger *trig);
 void do_wload(RoomData *room, char *argument, int cmd, int subcmd, Trigger *trig);
 
+// Изъять предмет оттуда, где он сейчас лежит, кем бы он ни держался. Нужно и для
+// object.put, и для object.placetoroom, поэтому вынесено из обоих.
+// Возвращает false, если предмет уже нигде -- вызывающему в этом случае размещать нечего.
+static bool RemoveObjFromAnywhere(ObjData *obj) {
+	if (obj->get_worn_by()) {
+		UnequipChar(obj->get_worn_by(), obj->get_worn_on(), CharEquipFlags());
+	} else if (obj->get_carried_by()) {
+		RemoveObjFromChar(obj);
+	} else if (obj->get_in_obj()) {
+		RemoveObjFromObj(obj);
+	} else if (obj->get_in_room() > kNowhere) {
+		RemoveObjFromRoom(obj);
+	} else {
+		return false;
+	}
+	return true;
+}
+
 void find_replacement(void *go,
 					  Script *sc,
 					  Trigger *trig,
@@ -3697,6 +3715,37 @@ void find_replacement(void *go,
 				*str = '\0';
 			}
 		}
+		// issue #3732: положить предмет в комнату одним движением, откуда бы он ни лежал --
+		// из комнаты, из рук, из контейнера, из экипировки. То же самое умеет object.put, но он
+		// требует UID приемника, а это лишнее знание для билдера: здесь достаточно номера комнаты,
+		// хотя UID тоже принимается. Предмет переносится сам, со своим таймером, меткой владельца
+		// и зачарованиями -- в отличие от связки oload + opurge, которая создает новый экземпляр
+		// с прототипа. Возвращает 1 при успехе и 0 при неудаче.
+		else if (!str_cmp(field, "placetoroom")) {
+			snprintf(str, str_size, "0");
+			RoomRnum room_to_place = kNowhere;
+			if (*subfield == UID_ROOM) {
+				RoomData *room_by_uid = find_room(atoi(subfield + 1));
+				if (room_by_uid && room_by_uid->vnum != kNowhere) {
+					room_to_place = GetRoomRnum(room_by_uid->vnum);
+				}
+			} else {
+				const auto vnum = atoi(subfield);
+				if (vnum > 0) {
+					room_to_place = GetRoomRnum(vnum);
+				}
+			}
+			if (room_to_place == kNowhere) {
+				trig_log(trig, "object.placetoroom: недопустимая комната");
+				return;
+			}
+			if (!RemoveObjFromAnywhere(obj)) {
+				trig_log(trig, "object.placetoroom: не удалось извлечь предмет");
+				return;
+			}
+			PlaceObjToRoom(obj, room_to_place);
+			snprintf(str, str_size, "1");
+		}
 		else if (!str_cmp(field, "put")) {
 			ObjData *obj_to = nullptr;
 			CharData *char_to = nullptr;
@@ -3729,15 +3778,7 @@ void find_replacement(void *go,
 			}
 			//found something to put our object
 			//let's make it nobody's!
-			if (obj->get_worn_by()) {
-				UnequipChar(obj->get_worn_by(), obj->get_worn_on(), CharEquipFlags());
-			} else if (obj->get_carried_by()) {
-				RemoveObjFromChar(obj);
-			} else if (obj->get_in_obj()) {
-				RemoveObjFromObj(obj);
-			} else if (obj->get_in_room() > kNowhere) {
-				RemoveObjFromRoom(obj);
-			} else {
+			if (!RemoveObjFromAnywhere(obj)) {
 				trig_log(trig, "object.put: не удалось извлечь объект");
 				return;
 			}

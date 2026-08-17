@@ -36,36 +36,33 @@ enum SetStuffMode {
 #define LIB_Z       "ZZZ"
 
 #if defined(CIRCLE_MACINTOSH)
-#define LIB_WORLD	":world:"
+#define LIB_WORLD	":worlddata:world:"
 #define LIB_HELP	":help:"
 #define LIB_CFG		":cfg:"
 #define LIB_USERDATA	":userdata:"
 #define LIB_WORLDDATA	":worlddata:"
 #define BOARDS_DIR	":userdata:boards:"
-#define LIB_PLROBJS	":plrobjs:"
-#define LIB_PLRS    ":plrs:"
-#define LIB_PLRALIAS	":plralias:"
-#define LIB_PLRSTUFF ":plrstuff:"
-#define LIB_HOUSE	":plrstuff:house:"
-#define LIB_PLRVARS	":plrvars:"
+#define LIB_PLROBJS	":userdata:chardata:items:"
+#define LIB_PLRS    ":userdata:chardata:characters:"
+#define LIB_PLRALIAS	":userdata:chardata:aliases:"
+#define LIB_CLANS	":userdata:clans:"
+#define LIB_PLRVARS	":userdata:chardata:variables:"
 #define LIB             ":lib:"
 #define SLASH		":"
 #elif defined(CIRCLE_AMIGA) || defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS) || defined(CIRCLE_ACORN) || defined(CIRCLE_VMS)
-#define LIB_WORLD     "world/"
+#define LIB_WORLD     "worlddata/world/"
 #define LIB_HELP      "help/"
 #define LIB_CFG         "cfg/"
-#define LIB_ACCOUNTS  "plrs/accounts/"
+#define LIB_ACCOUNTS  "userdata/accounts/"
 #define LIB_USERDATA   "userdata/"
 #define LIB_WORLDDATA  "worlddata/"
-#define LIB_STAT      "stat/"
 #define BOARDS_DIR  LIB_USERDATA "boards/"
-#define LIB_PLRS      "plrs/"
-#define LIB_PLROBJS   "plrobjs/"
-#define LIB_PLRALIAS  "plralias/"
-#define LIB_PLRSTUFF  "plrstuff/"
-#define LIB_PLRVARS   "plrvars/"
-#define LIB_HOUSE     LIB_PLRSTUFF"house/"
-#define LIB_DEPOT     LIB_PLRSTUFF"depot/"
+#define LIB_PLRS      "userdata/chardata/characters/"
+#define LIB_PLROBJS   "userdata/chardata/items/"
+#define LIB_PLRALIAS  "userdata/chardata/aliases/"
+#define LIB_PLRVARS   "userdata/chardata/variables/"
+#define LIB_CLANS     "userdata/clans/"
+#define LIB_DEPOT     "userdata/chardata/depots/"
 #define LIB           "lib/"
 #define SLASH         "/"
 #else
@@ -115,7 +112,6 @@ enum SetStuffMode {
 // issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 
 
-#define WHOLIST_FILE    LIB_STAT "wholist.html"    // for the stat system
 
 enum EBootType : int {
 	DB_BOOT_WLD = 0,

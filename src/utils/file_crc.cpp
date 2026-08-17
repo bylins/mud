@@ -6,6 +6,7 @@
 #include "engine/db/player_index.h"
 
 #include "engine/db/db.h"
+#include "engine/db/global_objects.h"
 #include "logger.h"
 #include "utils/utils.h"
 #include "engine/ui/interpreter.h"
@@ -71,7 +72,7 @@ uint32_t calculate_str_crc(const std::string &text) {
 
 // * Загрузка глобального списка crc.
 void load() {
-	const char *file_name = LIB_PLRSTUFF"crc.lst";
+	const char *file_name = MUD::StateManager().Path(state::EStateFile::kSaveChecksums).c_str();
 	std::ifstream file(file_name);
 	if (!file.is_open()) {
 		add_message("SYSERROR: не удалось открыть файл на чтение: %s", file_name);
@@ -152,7 +153,7 @@ void save(bool force_save) {
 	const uint32_t crc = calculate_str_crc(out.str());
 
 	// это все в конце, чтобы не завалить на креше файл
-	const char *file_name = LIB_PLRSTUFF"crc.lst";
+	const char *file_name = MUD::StateManager().Path(state::EStateFile::kSaveChecksums).c_str();
 	std::ofstream file(file_name);
 	if (!file.is_open()) {
 		add_message("SYSERROR: не удалось открыть файл на запись: %s", file_name);

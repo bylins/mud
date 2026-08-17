@@ -110,7 +110,6 @@ DropListType drop_list;
 
 std::vector<global_drop_obj> drop_list_obj;
 
-const char *STAT_FILE = LIB_PLRSTUFF"global_drop.tmp";
 
 // Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
 using parse::AttrInt;
@@ -247,9 +246,10 @@ void init() {
 	MUD::CfgManager().LoadCfg("global_drop");
 
 	// сохраненные статы по убитым ранее мобам
-	std::ifstream file(STAT_FILE);
+	const std::string &stat_file = MUD::StateManager().Path(state::EStateFile::kGlobalDropStat);
+	std::ifstream file(stat_file);
 	if (!file.is_open()) {
-		log("SYSERROR: не удалось открыть файл на чтение: %s", STAT_FILE);
+		log("SYSERROR: не удалось открыть файл на чтение: %s", stat_file.c_str());
 		return;
 	}
 	int vnum, mobs;
@@ -263,9 +263,10 @@ void init() {
 }
 
 void save() {
-	std::ofstream file(STAT_FILE);
+	const std::string &stat_file = MUD::StateManager().Path(state::EStateFile::kGlobalDropStat);
+	std::ofstream file(stat_file);
 	if (!file.is_open()) {
-		log("SYSERROR: не удалось открыть файл на запись: %s", STAT_FILE);
+		log("SYSERROR: не удалось открыть файл на запись: %s", stat_file.c_str());
 		return;
 	}
 	for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i) {

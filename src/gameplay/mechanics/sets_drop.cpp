@@ -10,6 +10,7 @@
 #include <fmt/format.h>
 
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/color.h"
 #include "engine/db/help.h"
@@ -23,7 +24,6 @@ namespace SetsDrop {
 // список сетин на дроп
 const char *CONFIG_FILE = LIB_CFG"mechanics/sets_drop.xml";
 // список уникальных мобов
-const char *UNIQUE_MOBS = LIB_PLRSTUFF"unique_mobs.xml";
 // минимальный уровень моба для участия в груп-списке дропа
 const int MIN_GROUP_MOB_LVL = 32;
 // мин/макс уровни мобов для выборки соло-сетин
@@ -31,7 +31,6 @@ const int MIN_SOLO_MOB_LVL = 25;
 const int MAX_SOLO_MOB_LVL = 31;
 // макс. кол-во участников в группе учитываемое в статистике
 const int MAX_GROUP_SIZE = 12;
-const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 // сброс таблицы лоада каждые х часов
 const int RESET_TIMER = 35;
 // базовый шанс дропа соло сетин *10
@@ -885,7 +884,7 @@ void init_xhelp_full() {
 
 bool load_unique_mobs() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(UNIQUE_MOBS);
+	pugi::xml_parse_result result = doc.load_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs).c_str());
 	int vnum = 0;
 	int level = 0;
 	if (!result) {
@@ -910,86 +909,41 @@ bool load_unique_mobs() {
 }
 
 bool load_drop_table() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(DROP_TABLE_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+	// Machine-only regenerable cache -> a flat list (see save_drop_table). First
+	// line is the reset timestamp; each following line is one item:
+	//   obj_vnum mob_vnum drop_chance solo(0/1) can_drop(0/1)
+	const auto lines = MUD::StateManager().LoadLines(state::EStateFile::kDropTable);
+	if (lines.empty()) {
+		return false;  // no saved table -> caller regenerates it
+	}
+	try {
+		next_reset_time = std::stoull(lines[0], nullptr, 10);
+	}
+	catch (...) {
+		mudlog("SetsDrop: bad reset time in drop table, regenerating", CMP, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
-
-	pugi::xml_node node_list = doc.child("drop_list");
-	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...<drop_list> read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return false;
-	}
-
-	pugi::xml_node time_node = node_list.child("time");
-	std::string timer = parse::ReadAattrAsStr(time_node, "reset");
-	if (!timer.empty()) {
-		try {
-			next_reset_time = std::stoull(timer, nullptr, 10);
+	for (std::size_t n = 1; n < lines.size(); ++n) {
+		if (lines[n].empty()) {
+			continue;
 		}
-		catch (...) {
-			snprintf(buf, kMaxStringLength, "...timer (%s) lexical_cast fail", timer.c_str());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		int obj_vnum = 0, mob_vnum = 0, chance = 0, solo = 0, can_drop = 0;
+		if (sscanf(lines[n].c_str(), "%d %d %d %d %d", &obj_vnum, &mob_vnum, &chance, &solo, &can_drop) != 5) {
+			mudlog("SetsDrop: malformed drop-table line, regenerating", CMP, kLvlImmortal, SYSLOG, true);
 			return false;
 		}
-	} else {
-		mudlog("...empty reset time", CMP, kLvlImmortal, SYSLOG, true);
-		return false;
-	}
-
-	for (pugi::xml_node item_node = node_list.child("item"); item_node;
-		 item_node = item_node.next_sibling("item")) {
-		const int obj_vnum = parse::ReadAttrAsInt(item_node, "vnum");
 		const int obj_rnum = GetObjRnum(obj_vnum);
-		if (obj_vnum <= 0 || obj_rnum < 0) {
-			snprintf(buf, sizeof(buf),
-					 "...bad item attributes (vnum=%d)", obj_vnum);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			return false;
-		}
-
-		const int mob_vnum = parse::ReadAttrAsInt(item_node, "mob");
 		const int mob_rnum = GetMobRnum(mob_vnum);
-		if (mob_vnum <= 0 || mob_rnum < 0) {
-			snprintf(buf, sizeof(buf),
-					 "...bad item attributes (mob=%d)", mob_vnum);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		if (obj_vnum <= 0 || obj_rnum < 0 || mob_vnum <= 0 || mob_rnum < 0 || chance < 0) {
+			mudlog("SetsDrop: bad drop-table entry, regenerating", CMP, kLvlImmortal, SYSLOG, true);
 			return false;
 		}
-
-		const int chance = parse::ReadAttrAsInt(item_node, "drop_chance");
-		if (chance < 0) {
-			snprintf(buf, sizeof(buf),
-					 "...bad item attributes (drop_chance=%d)", chance);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			return false;
-		}
-
-		std::string solo = parse::ReadAattrAsStr(item_node, "solo");
-		if (solo.empty()) {
-			snprintf(buf, sizeof(buf), "...bad item attributes (solo=empty)");
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			return false;
-		}
-
-		std::string can_drop = parse::ReadAattrAsStr(item_node, "can_drop");
-		if (can_drop.empty()) {
-			snprintf(buf, sizeof(buf), "...bad item attributes (can_drop=empty)");
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			return false;
-		}
-
 		DropNode tmp_node;
 		tmp_node.obj_rnum = obj_rnum;
 		tmp_node.obj_vnum = obj_vnum;
 		tmp_node.chance = chance;
-		tmp_node.solo = solo == "true" ? true : false;
-		tmp_node.can_drop = can_drop == "true" ? true : false;
-
+		tmp_node.solo = solo != 0;
+		tmp_node.can_drop = can_drop != 0;
 		drop_list.insert(std::make_pair(mob_rnum, tmp_node));
 	}
 	return true;
@@ -1006,33 +960,25 @@ void save_unique_mobs() {
 		mob_node.append_attribute("vnum") = it->first;
 		mob_node.append_attribute("level") = it->second;
 	}
-	doc.save_file(UNIQUE_MOBS);
+	doc.save_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs).c_str());
 }
 
 void save_drop_table() {
 	if (!need_save_drop_table) return;
-
-	pugi::xml_document doc;
-	doc.append_child().set_name("drop_list");
-	pugi::xml_node node_list = doc.child("drop_list");
-
-	pugi::xml_node time_node = node_list.append_child();
-	time_node.set_name("time");
-	time_node.append_attribute("reset") = fmt::format("{}", next_reset_time).c_str();
-
-	for (std::map<int, DropNode>::iterator i = drop_list.begin(),
-			 iend = drop_list.end(); i != iend; ++i) {
-		pugi::xml_node mob_node = node_list.append_child();
-		mob_node.set_name("item");
-		mob_node.append_attribute("vnum") = obj_proto[i->second.obj_rnum]->get_vnum();
-		mob_node.append_attribute("mob") = mob_index[i->first].vnum;
-		mob_node.append_attribute("drop_chance") = i->second.chance;
-		mob_node.append_attribute("solo") = i->second.solo ? "true" : "false";
-		mob_node.append_attribute("can_drop") = i->second.can_drop ? "true" : "false";
+	// Machine-only regenerable cache -> a flat list, not XML. First line is the
+	// reset timestamp; each following line is one item:
+	//   obj_vnum mob_vnum drop_chance solo(0/1) can_drop(0/1)
+	std::vector<std::string> lines;
+	lines.push_back(fmt::format("{}", next_reset_time));
+	for (std::map<int, DropNode>::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i) {
+		lines.push_back(fmt::format("{} {} {} {} {}",
+								obj_proto[i->second.obj_rnum]->get_vnum(),
+								mob_index[i->first].vnum,
+								i->second.chance,
+								i->second.solo ? 1 : 0,
+								i->second.can_drop ? 1 : 0));
 	}
-
-	doc.save_file(DROP_TABLE_FILE);
-
+	MUD::StateManager().SaveLines(state::EStateFile::kDropTable, lines);
 	need_save_drop_table = false;
 }
 

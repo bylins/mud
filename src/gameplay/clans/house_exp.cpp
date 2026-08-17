@@ -44,7 +44,7 @@ long long ClanExp::get_exp() const {
 
 // * Сохранение списка и буффера в отдельный файл клана (по аббревиатуре).
 void ClanExp::save(const std::string &abbrev) const {
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".exp";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".exp";
 	std::ofstream file(filename.c_str());
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
@@ -60,7 +60,7 @@ void ClanExp::save(const std::string &abbrev) const {
 
 // * Загрузка списка экспы и буффера конкретного клана (по аббревиатуре).
 void ClanExp::load(const std::string &abbrev) {
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".exp";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".exp";
 	std::ifstream file(filename.c_str());
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
@@ -134,7 +134,7 @@ void ClanPkLog::save(const std::string &abbrev) {
 		return;
 	}
 
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".war";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".war";
 	if (pk_log.empty()) {
 		remove(filename.c_str());
 		return;
@@ -155,7 +155,7 @@ void ClanPkLog::save(const std::string &abbrev) {
 }
 
 void ClanPkLog::load(const std::string &abbrev) {
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".war";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".war";
 
 	std::ifstream file(filename.c_str(), std::ios::binary);
 	if (!file.is_open()) {
@@ -221,7 +221,7 @@ void ClanExpHistory::add_exp(long exp) {
 }
 
 void ClanExpHistory::load(const std::string &abbrev) {
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + "-history.exp";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + "-history.exp";
 
 	std::ifstream file(filename.c_str(), std::ios::binary);
 	if (!file.is_open()) {
@@ -238,7 +238,7 @@ void ClanExpHistory::load(const std::string &abbrev) {
 }
 
 void ClanExpHistory::save(const std::string &abbrev) const {
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + "-history.exp";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + "-history.exp";
 // и зачем удалять файл а потом проверять его наличие
 /*	if (list_.empty())
 	{
@@ -363,7 +363,7 @@ void ClanChestLog::save(const std::string &abbrev) {
 		return;
 	}
 
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".log";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".log";
 	if (chest_log_.empty()) {
 		remove(filename.c_str());
 		return;
@@ -386,7 +386,7 @@ void ClanChestLog::save(const std::string &abbrev) {
 }
 
 void ClanChestLog::load(const std::string &abbrev) {
-	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".log";
+	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".log";
 
 	std::ifstream file(filename.c_str(), std::ios::binary);
 	if (!file.is_open()) {
