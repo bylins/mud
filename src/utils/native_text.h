@@ -202,6 +202,11 @@ std::string from_disk_text(const std::string &text);
 // (issue #3681).
 std::string to_disk(const std::string &text);
 
+// Записать текст в файл в кодировке мира. Однострочная обёртка над to_disk для тех, кто иначе
+// звал бы pugi::save_file или свой ofstream и уносил бы на диск нативную кодировку. Возвращает
+// false, если файл не открылся (issue #3681).
+bool write_file(const std::string &path, const std::string &text);
+
 // Pad `s` on the right with spaces to `width` CHARACTERS. The replacement for printf's "%-Ns"
 // wherever the value can hold Russian: printf counts the field width in bytes, so under UTF-8 a
 // Cyrillic word ate twice its share and the column drifted. Under KOI8-R this is byte-for-byte

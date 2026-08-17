@@ -1,3 +1,4 @@
+#include <sstream>
 #include <filesystem>
 #include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
@@ -1030,7 +1031,11 @@ void ZoneTrafficSave() {
 		zone_node.append_attribute("traffic") = i.traffic;
 	}
 
-	doc.save_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic).c_str());
+	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
+	// (issue #3681).
+	std::ostringstream xml;
+	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	native_text::write_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic), xml.str());
 }
 void zone_traffic_load() {
 	pugi::xml_document doc;

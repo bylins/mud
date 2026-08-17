@@ -580,6 +580,16 @@ std::size_t char_offset(std::string_view s, std::size_t chars) {
 	return utf8::byte_offset(s, chars);
 }
 
+bool write_file(const std::string &path, const std::string &text) {
+	const std::string on_disk = to_disk(text);
+	std::ofstream out(path, std::ios::binary);
+	if (!out) {
+		return false;
+	}
+	out.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
+	return out.good();
+}
+
 std::string pad_right(std::string_view s, std::size_t width) {
 	const std::size_t len = char_count(s);
 	std::string out(s);

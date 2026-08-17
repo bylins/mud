@@ -2,6 +2,7 @@
 // Copyright (c) 2010 WorM
 // Part of Bylins http://www.mud.ru
 
+#include <sstream>
 #include "named_stuff.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
@@ -67,7 +68,11 @@ void save() {
 			stuf_node.append_attribute("cant_msg_a") = i->second->cant_msg_a.c_str();
 	}
 
-	doc.save_file(LIB_USERDATA"named_items.xml");
+	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
+	// (issue #3681).
+	std::ostringstream xml;
+	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	native_text::write_file(LIB_USERDATA"named_items.xml", xml.str());
 }
 
 bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
