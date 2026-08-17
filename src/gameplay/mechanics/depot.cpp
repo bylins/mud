@@ -2,6 +2,7 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <vector>
 #include "utils/native_text.h"
 #include "depot.h"
 #include "engine/db/player_index.h"
@@ -216,20 +217,19 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 		return out.str();
 	}
 
-	const std::shared_ptr<char> databuf(new char[fsize + 1], std::default_delete<char[]>());
+	std::vector<char> raw(fsize + 1, '\0');
 
 	fseek(fl, 0L, SEEK_SET);
-	if (!databuf
-		|| !fread(databuf.get(), fsize, 1, fl)
-		|| ferror(fl)) {
+	if (!fread(raw.data(), fsize, 1, fl) || ferror(fl)) {
 		fclose(fl);
 		log("Хранилище: ошибка чтения файла предметов (%s).", filename);
 		return out.str();
 	}
 	fclose(fl);
 
-	char *data = databuf.get();
-	data[fsize] = '\0';
+	// Граница чтения: файлы хранилищ лежат на диске в KOI8-R (issue #3681).
+	std::string databuf = native_text::from_disk_text(std::string(raw.data(), fsize));
+	char *data = databuf.data();
 	int error = 0;
 
 	for (fsize = 0; *data && *data != '$'; fsize++) {
@@ -308,8 +308,9 @@ bool show_purged_message(CharData *ch) {
 			return true;
 		}
 		std::ostringstream out;
-		out << "\r\n" << file.rdbuf();
-		SendMsgToChar(out.str(), ch);
+		out << file.rdbuf();
+		// Граница чтения: файл записан в кодировке мира (issue #3681).
+		SendMsgToChar("\r\n" + native_text::from_disk_text(out.str()), ch);
 		remove(name.c_str());
 		purged_list.erase(it);
 		need_save_purged_list = true;

@@ -8,6 +8,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <vector>
 #include "exchange.h"
 #include "utils/native_text.h"
 #include "administration/privilege.h"
@@ -870,19 +871,24 @@ int LoadExchange() {
 	fseek(fl, 0L, SEEK_END);
 	fsize = ftell(fl);
 
-	CREATE(readdata, fsize + 1);
+	std::vector<char> raw(fsize + 1, '\0');
 	fseek(fl, 0L, SEEK_SET);
-	auto actual_size = fread(readdata, 1, fsize, fl);
+	auto actual_size = fread(raw.data(), 1, fsize, fl);
 	if (!actual_size || ferror(fl)) {
 		fclose(fl);
 		log("SYSERR: Memory error or cann't read exchange database file. (exchange.cpp)");
-		free(readdata);
 		return (0);
 	};
 	fclose(fl);
 
+	// Граница чтения: база лежит на диске в KOI8-R, а движок работает с текстом в нативной
+	// кодировке. Без этого названия лотов оставались бы байтами чужой кодировки -- и на экране,
+	// и при обратной записи через to_disk, которая приняла бы их за UTF-8 (issue #3681).
+	const std::string native = native_text::from_disk_text(std::string(raw.data(), actual_size));
+	CREATE(readdata, native.size() + 1);
+	memcpy(readdata, native.c_str(), native.size() + 1);
+
 	data = readdata;
-	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
@@ -956,22 +962,25 @@ int exchange_database_reload(bool loadbackup) {
 	fseek(fl, 0L, SEEK_END);
 	fsize = ftell(fl);
 
-	CREATE(readdata, fsize + 1);
+	std::vector<char> raw(fsize + 1, '\0');
 	fseek(fl, 0L, SEEK_SET);
-	auto actual_size = fread(readdata, 1, fsize, fl);
+	auto actual_size = fread(raw.data(), 1, fsize, fl);
 	if (!actual_size || ferror(fl)) {
 		fclose(fl);
 		if (loadbackup)
 			log("SYSERR: Memory error or cann't read exchange database backup file. (exchange.cpp)");
 		else
 			log("SYSERR: Memory error or cann't read exchange database file. (exchange.cpp)");
-		free(readdata);
 		return (0);
 	};
 	fclose(fl);
 
+	// Граница чтения, как и выше (issue #3681).
+	const std::string native = native_text::from_disk_text(std::string(raw.data(), actual_size));
+	CREATE(readdata, native.size() + 1);
+	memcpy(readdata, native.c_str(), native.size() + 1);
+
 	data = readdata;
-	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);

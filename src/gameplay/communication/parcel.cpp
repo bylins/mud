@@ -2,6 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <vector>
 #include "parcel.h"
 #include "utils/native_text.h"
 #include "engine/db/player_index.h"
@@ -669,18 +670,22 @@ void load() {
 	int fsize = ftell(fl);
 
 	char *data, *readdata;
-	CREATE(readdata, fsize + 1);
+	std::vector<char> raw(fsize + 1, '\0');
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, fsize, 1, fl) || ferror(fl)) {
+	if (!fread(raw.data(), fsize, 1, fl) || ferror(fl)) {
 		fclose(fl);
 		log("SYSERR: Memory error or cann't read parcel database file.");
-		free(readdata);
 		return;
 	};
 	fclose(fl);
 
+	// Граница чтения: база лежит на диске в KOI8-R, движок держит текст в нативной кодировке
+	// (issue #3681).
+	const std::string native = native_text::from_disk_text(std::string(raw.data(), fsize));
+	CREATE(readdata, native.size() + 1);
+	memcpy(readdata, native.c_str(), native.size() + 1);
+
 	data = readdata;
-	*(data + fsize) = '\0';
 
 	for (fsize = 0; *data && *data != '$'; fsize++) {
 		int error;

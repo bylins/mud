@@ -450,10 +450,11 @@ void TitleSystem::load_title_list() {
 		std::getline(file, pre_title);
 		std::getline(file, title);
 		WaitingTitlePtr temp(new waiting_title);
-		temp->title = title;
-		temp->pre_title = pre_title;
+		// Граница чтения: список лежит на диске в кодировке мира (issue #3681).
+		temp->title = native_text::from_disk_line(title.c_str());
+		temp->pre_title = native_text::from_disk_line(pre_title.c_str());
 		temp->unique = unique;
-		title_list[name] = temp;
+		title_list[native_text::from_disk_line(name.c_str())] = temp;
 	}
 	file.close();
 }

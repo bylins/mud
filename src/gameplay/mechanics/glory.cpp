@@ -140,8 +140,10 @@ void GloryNode::copy_glory(const GloryNodePtr& k) {
 // * Загрузка общего списка славы, проверка на валидность чара, славы, сверка мд5 файла.
 void load_glory() {
 	const char *glory_file = LIB_USERDATA"glory.lst";
-	std::ifstream file(glory_file);
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(glory_file));
+	if (file.str().empty()) {
 		log("Glory: не удалось открыть файл на чтение: %s", glory_file);
 		return;
 	}
@@ -288,7 +290,6 @@ void save_glory() {
 	// прежнюю сборку становится невозможен (issue #3681).
 	const std::string on_disk = native_text::to_disk(out.str());
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
-	file.close();
 }
 
 // * Аналог бывшего макроса GET_GLORY().

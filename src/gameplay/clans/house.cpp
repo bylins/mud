@@ -193,8 +193,10 @@ Clan::~Clan() {
 }
 // релоад одного отдельного клана, абр. указывать на латинице!
 void Clan::ClanReload(const std::string &index) {
-	std::ifstream file(LIB_CLANS "index");
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(LIB_CLANS "index"));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", LIB_CLANS "index", __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -202,7 +204,6 @@ void Clan::ClanReload(const std::string &index) {
 	std::list<std::string> clanIndex;
 	while (file >> buffer)
 		clanIndex.push_back(buffer);
-	file.close();
 	// ищем наш клан
 	for (const auto &it : clanIndex) {
 		if (it == index) {
@@ -227,8 +228,10 @@ void Clan::ClanLoadSingle(const std::string &index) {
 	const auto tempClan = std::make_shared<Clan>();
 
 	std::string filename = LIB_CLANS + index + "/" + index;
-	std::ifstream file(filename.c_str());
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -488,7 +491,6 @@ void Clan::ClanLoadSingle(const std::string &index) {
 		}
 
 	}
-	file.close();
 
 	// тут нужно проверить наличие критичных для клана полей
 	// т.к. загрузка без привязки к положению в файле - что-то может не проинициализироваться
@@ -575,7 +577,6 @@ void Clan::ClanLoadSingle(const std::string &index) {
 					tempClan->frList[victim] = tempRecord;
 			}
 		}
-		pkFile.close();
 	}
 	//подгружаем кланстафф
 	std::ifstream stuffFile((filename + ".stuff").c_str());
@@ -627,8 +628,10 @@ void Clan::ClanLoad() {
 	Clan::ClanList.clear();
 
 	// файл со списком кланов
-	std::ifstream file(LIB_CLANS "index");
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(LIB_CLANS "index"));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", LIB_CLANS "index", __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -636,7 +639,6 @@ void Clan::ClanLoad() {
 	std::list<std::string> clanIndex;
 	while (file >> buffer)
 		clanIndex.push_back(buffer);
-	file.close();
 	// собственно грузим кланы
 	for (const auto &it : clanIndex) {
 		Clan::ClanLoadSingle(it);
@@ -789,7 +791,6 @@ bool write_if_changed(const std::string &filename, const std::string &contents,
 	// прежнюю сборку становится невозможен (issue #3681).
 	const std::string on_disk = native_text::to_disk(contents);
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
-	file.close();
 
 	cache = contents;
 	return true;
@@ -2466,7 +2467,6 @@ void Clan::save_chest() {
 			// прежнюю сборку становится невозможен (issue #3681).
 			const std::string on_disk = native_text::to_disk(out.str());
 			file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
-			file.close();
 			break;
 		}
 	}
@@ -2622,7 +2622,6 @@ void Clan::write_mod(const std::string &arg) {
 	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
 	// прежнюю сборку становится невозможен (issue #3681).
 	file << native_text::to_disk(arg);
-	file.close();
 
 	mod_text = arg;
 }
@@ -2643,8 +2642,10 @@ void Clan::load_mod() {
 	std::string abbrev = this->get_file_abbrev();
 	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".mod";
 
-	std::ifstream file(filename.c_str(), std::ios::binary);
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
