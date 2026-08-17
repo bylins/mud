@@ -784,7 +784,11 @@ bool write_if_changed(const std::string &filename, const std::string &contents,
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return false;
 	}
-	file.write(contents.data(), static_cast<std::streamsize>(contents.size()));
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(contents);
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 
 	cache = contents;
@@ -2457,7 +2461,11 @@ void Clan::save_chest() {
 				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 				return;
 			}
-			file << out.rdbuf();
+			// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+			// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+			// прежнюю сборку становится невозможен (issue #3681).
+			const std::string on_disk = native_text::to_disk(out.str());
+			file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 			file.close();
 			break;
 		}
@@ -2610,7 +2618,10 @@ void Clan::write_mod(const std::string &arg) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << arg;
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	file << native_text::to_disk(arg);
 	file.close();
 
 	mod_text = arg;

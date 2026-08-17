@@ -413,9 +413,15 @@ void TitleSystem::save_title_list() {
 		log("Error open file: %s! (%s %s %d)", title_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
+	std::ostringstream out;
 	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
-		file << it->first << " " << it->second->unique << "\n" << it->second->pre_title << "\n" << it->second->title
-			 << "\n";
+		out << it->first << " " << it->second->unique << "\n" << it->second->pre_title << "\n" << it->second->title
+			<< "\n";
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
 

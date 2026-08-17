@@ -2,6 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "utils/native_text.h"
 #include "house_exp.h"
 #include "utils/grammar/gender.h"
 
@@ -55,7 +56,11 @@ void ClanExp::save(const std::string &abbrev) const {
 	for (ExpListType::const_iterator it = list_.begin(); it != list_.end(); ++it) {
 		out << *it << "\n";
 	}
-	file << out.rdbuf();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 }
 
 // * Загрузка списка экспы и буффера конкретного клана (по аббревиатуре).
@@ -146,9 +151,15 @@ void ClanPkLog::save(const std::string &abbrev) {
 		return;
 	}
 
+	std::ostringstream out;
 	for (std::list<std::string>::const_iterator i = pk_log.begin(); i != pk_log.end(); ++i) {
-		file << *i;
+		out << *i;
 	}
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
 	file.close();
 	need_save = false;
@@ -252,9 +263,15 @@ void ClanExpHistory::save(const std::string &abbrev) const {
 		return;
 	}
 
+	std::ostringstream out;
 	for (HistoryExpListType::const_iterator i = list_.begin(); i != list_.end(); ++i) {
-		file << i->first << " " << i->second << "\n";
+		out << i->first << " " << i->second << "\n";
 	}
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
 
@@ -376,10 +393,16 @@ void ClanChestLog::save(const std::string &abbrev) {
 		return;
 	}
 
+	std::ostringstream out;
 	for (std::list<std::string>::const_iterator i = chest_log_.begin(),
 			 iend = chest_log_.end(); i != iend; ++i) {
-		file << *i;
+		out << *i;
 	}
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
 	file.close();
 	need_save_ = false;
