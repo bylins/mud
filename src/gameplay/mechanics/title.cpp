@@ -260,15 +260,23 @@ bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 * \return 0 не сканало, 1 сканало
 */
 bool TitleSystem::check_alphabet(const std::string &text, CharData *ch, const std::string &allowed) {
-	int i = 0;
-	std::string::size_type idx;
-	for (std::string::const_iterator it = text.begin(); it != text.end(); ++it, ++i) {
-		unsigned char c = static_cast<char>(*it);
-		idx = allowed.find(*it);
-		if (c < 192 && idx == std::string::npos) {
-			SendMsgToChar(ch, "Недопустимый символ '%c' в позиции %d.\r\n", *it, ++i);
-			return false;
+	// Проверяем по символам, а не по байтам. Раньше условие было "байт >= 192", то есть
+	// кириллица KOI8-R; под UTF-8 у русской буквы два байта, и хвостовой (0x80..0xBF) попадал
+	// в "меньше 192" -- титул с кириллицей отвергался на второй позиции (issue #3681).
+	//
+	// Набор букв оставлен ровно прежним: диапазон 0xC0..0xFF в KOI8-R -- это а-я и А-Я без "ё",
+	// поэтому "ё" по-прежнему допустима только если перечислена в allowed.
+	int position = 0;
+	for (const std::string_view symbol : native_text::chars(text)) {
+		++position;
+		const char32_t code = native_text::first_char_code(std::string(symbol).c_str());
+		const bool russian_letter = (code >= 0x0410 && code <= 0x044F);
+		if (russian_letter || native_text::list_contains_char(allowed, symbol)) {
+			continue;
 		}
+		SendMsgToChar(ch, "Недопустимый символ '%.*s' в позиции %d.\r\n",
+					  static_cast<int>(symbol.size()), symbol.data(), position);
+		return false;
 	}
 	return true;
 }
