@@ -112,12 +112,6 @@ if host_system == 'windows'
     endif
 endif
 
-# issue #3681: движок работает с текстом в UTF-8 и посимвольно. Исходники тоже UTF-8 (см.
-# .gitattributes), поэтому строковые литералы и рантайм совпадают по кодировке -- это одно
-# состояние, а не два: собрать байтовый вариант из UTF-8-исходников нельзя, и опции для этого
-# больше нет. Байтовые ветки под #else в native_text ещё остались и будут вычищены отдельно.
-project_args += '-DINTERNAL_ENCODING_UTF8'
-
 linker_choice = get_option('linker')
 if linker_choice != ''
     add_project_link_arguments('-fuse-ld=' + linker_choice, language: 'cpp')

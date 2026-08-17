@@ -2,18 +2,15 @@
 \file native_text.h - a part of the Bylins engine.
 \brief Character-semantic operations in the engine's *native runtime encoding* (issue #3681).
 
-The migration flips the engine's internal string encoding from KOI8-R (1 byte == 1 character) to
-UTF-8 (multibyte). Code that must reason about characters -- counting display width, capitalising
-a letter, truncating without splitting a character -- should go through this thin dispatch layer
-instead of assuming bytes. The active encoding is chosen at build time by the `internal_encoding`
-Meson option, which defines INTERNAL_ENCODING_UTF8 for the UTF-8 build:
+The engine holds text in UTF-8, where one character is one to four bytes. Code that reasons about
+characters -- counting width, capitalising a letter, truncating without splitting a character,
+comparing case-insensitively -- goes through here instead of touching bytes directly: a plain
+LOWER(*s) or s[0] = UPPER(s[0]) is wrong on a multibyte letter and was the single largest source
+of bugs in the migration.
 
-  * KOI8-R (default, current behaviour): every helper is byte-for-byte identical to the open-coded
-    byte logic it replaces, so routing call sites through it is a no-op.
-  * UTF-8: helpers operate on code points via the utf8:: primitives.
-
-This lets the whole byte-vs-char refactor land and ship on KOI8-R (safely, as a no-op) ahead of
-the encoding flip. Once the flip is permanent the KOI8-R branch and this indirection are removed.
+The conversions at the bottom of this header are boundaries, not helpers for everyday code:
+from_disk_* / to_disk for the world files (still KOI8-R on disk), to_koi8 for legacy client code
+pages (their tables are indexed by KOI8-R bytes).
 */
 
 #ifndef BYLINS_SRC_UTILS_NATIVE_TEXT_H_
@@ -25,10 +22,6 @@ the encoding flip. Once the flip is permanent the KOI8-R branch and this indirec
 
 namespace native_text {
 
-// True iff the engine was built with UTF-8 as its native runtime encoding. Reflects the flag the
-// library itself was compiled with (not the translation unit that calls this), so callers/tests
-// can branch reliably regardless of their own compile flags.
-bool native_is_utf8();
 
 // Number of display characters in a byte range / view. KOI8-R: the byte count. UTF-8: the number
 // of code points (malformed bytes counted as one each, so it never stalls on legacy data).

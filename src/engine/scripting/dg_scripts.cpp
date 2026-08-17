@@ -1564,7 +1564,7 @@ void find_replacement(void *go,
 	ObjData *tmp_obj = nullptr, *obj = nullptr;
 	RoomData *tmp_room = nullptr, *room = nullptr;
 	std::string name;
-	int num = 0, count = 0, i;
+	int num = 0, count = 0;
 	char uid_type = '\0';
 	char tmp[kMaxTrglineLength] = {};
 	const char *send_cmd[] = {"msend", "osend", "wsend"};

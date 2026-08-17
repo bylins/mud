@@ -1,9 +1,7 @@
 // Unit tests for the KOI8-R transliteration table (src/utils/translit_koi8.*, issue #3681).
 //
-// Pure ASCII: every non-ASCII fixture is spelled as UTF-8 byte escapes, so the file means the
-// same thing under either source encoding. The end-to-end expectations go through
-// native_text::to_koi8, which only converts in the UTF-8 build, so they branch on
-// native_text::native_is_utf8().
+// Pure ASCII: every non-ASCII fixture is spelled as UTF-8 byte escapes, so the test data does not
+// depend on how an editor happens to save this file.
 
 #include "utils/translit_koi8.h"
 #include "utils/native_text.h"
@@ -88,9 +86,6 @@ TEST(TranslitKoi8, TableIsSortedAndUnique) {
 }
 
 TEST(TranslitKoi8, ToKoi8AppliesTheTable) {
-	if (!native_text::native_is_utf8()) {
-		GTEST_SKIP() << "to_koi8 is a no-op when the native encoding already is KOI8-R";
-	}
 	// "-- privet ..." with an em dash and an ellipsis around Cyrillic text.
 	const std::string source =
 		"\xE2\x80\x94" " \xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82" "\xE2\x80\xA6";
@@ -102,9 +97,6 @@ TEST(TranslitKoi8, ToKoi8AppliesTheTable) {
 }
 
 TEST(TranslitKoi8, ToKoi8FallsBackToThePlaceholder) {
-	if (!native_text::native_is_utf8()) {
-		GTEST_SKIP() << "to_koi8 is a no-op when the native encoding already is KOI8-R";
-	}
 	// An emoji has no KOI8-R equivalent at all, so it becomes the single placeholder character.
 	EXPECT_EQ(native_text::to_koi8("a\xF0\x9F\x98\x80" "b"), "a?b");
 }

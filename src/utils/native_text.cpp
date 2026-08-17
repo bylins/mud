@@ -2,9 +2,8 @@
 \file native_text.cpp - a part of the Bylins engine.
 \brief Native-encoding character helpers declared in native_text.h (issue #3681).
 
-Two implementations selected by the INTERNAL_ENCODING_UTF8 build macro. The KOI8-R branch is kept
-byte-for-byte identical to the open-coded logic these helpers replace so that routing call sites
-through them changes nothing until the encoding flip.
+The hot paths (case folding, comparison) walk bytes directly instead of decoding to code points
+and back: the straightforward version cost 17x on a string-heavy benchmark.
 */
 
 #include "native_text.h"
@@ -23,10 +22,6 @@ through them changes nothing until the encoding flip.
 
 namespace native_text {
 
-
-bool native_is_utf8() {
-	return true;
-}
 
 std::size_t char_count(const char *begin, const char *end) {
 	return utf8::length(std::string_view(begin, static_cast<std::size_t>(end - begin)));

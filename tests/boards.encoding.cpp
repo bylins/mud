@@ -48,7 +48,7 @@ TEST(BoardsEncoding, MessagesLoadInTheNativeEncoding) {
 			seen_cyrillic = true;
 			// В UTF-8-сборке текст обязан быть корректным UTF-8; в KOI8-R-сборке -- наоборот,
 			// это KOI8-R, который валидным UTF-8 не является.
-			EXPECT_EQ(utf8::is_valid(*field), native_text::native_is_utf8())
+			EXPECT_TRUE(utf8::is_valid(*field))
 				<< "поле не в нативной кодировке: " << *field;
 		}
 	}
