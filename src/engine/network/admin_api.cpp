@@ -32,38 +32,6 @@ using json = nlohmann::json;
 using namespace admin_api::handlers;
 
 // ============================================================================
-// Helper functions for encoding conversion
-// ============================================================================
-
-// Convert KOI8-R string to UTF-8 for JSON
-std::string koi8r_to_utf8(const std::string &koi8r) {
-	char utf8_buf[kMaxSockBuf * 6];
-	char koi8r_buf[kMaxSockBuf * 6];
-
-	utf8_buf[0] = '\0';
-
-	strncpy(koi8r_buf, koi8r.c_str(), sizeof(koi8r_buf) - 1);
-	koi8r_buf[sizeof(koi8r_buf) - 1] = 0;
-
-	codepages::koi_to_utf8(koi8r_buf, utf8_buf);
-
-	return std::string(utf8_buf);
-}
-
-// Convert UTF-8 string to KOI8-R (for incoming JSON data)
-std::string utf8_to_koi8r(const std::string &utf8) {
-	char koi8r_buf[kMaxSockBuf * 6];
-	char utf8_buf[kMaxSockBuf * 6];
-	
-	strncpy(utf8_buf, utf8.c_str(), sizeof(utf8_buf) - 1);
-	utf8_buf[sizeof(utf8_buf) - 1] = '\0';
-
-	codepages::utf8_to_koi(utf8_buf, koi8r_buf);
-
-	return std::string(koi8r_buf);
-}
-
-// ============================================================================
 // Admin API socket I/O and chunking
 // ============================================================================
 
@@ -254,10 +222,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 				client_ip = d->host;
 			}
 
-			// Convert username from UTF-8 to KOI8-R (server's internal encoding)
-			std::string username = utf8_to_koi8r(username_utf8);
+			// JSON is UTF-8 and so is the engine, so the name goes through as it is.
+			const std::string &username = username_utf8;
 
-			// Authenticate with KOI8-R username
 			if (admin_api_authenticate(d, username.c_str(), password.c_str())) {
 				json response;
 				response["status"] = "ok";
