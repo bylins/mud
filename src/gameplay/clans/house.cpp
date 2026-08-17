@@ -542,8 +542,9 @@ void Clan::ClanLoadSingle(const std::string &index) {
 	}
 
 	// подгружаем пкл/дрл
-	std::ifstream pkFile((filename + ".pkl").c_str());
-	if (pkFile.is_open()) {
+	// Граница чтения: pk-лог лежит на диске в кодировке мира (issue #3681).
+	std::istringstream pkFile(native_text::read_data_file(filename + ".pkl"));
+	if (!pkFile.str().empty()) {
 		int author = 0;
 		while (pkFile >> author) {
 			int victim = 0;
@@ -579,8 +580,9 @@ void Clan::ClanLoadSingle(const std::string &index) {
 		}
 	}
 	//подгружаем кланстафф
-	std::ifstream stuffFile((filename + ".stuff").c_str());
-	if (stuffFile.is_open()) {
+	// Граница чтения: названия именных вещей дружины лежат в кодировке мира (issue #3681).
+	std::istringstream stuffFile(native_text::read_data_file(filename + ".stuff"));
+	if (!stuffFile.str().empty()) {
 		int i;
 		while (stuffFile >> i) {
 			ClanStuffName temp;
