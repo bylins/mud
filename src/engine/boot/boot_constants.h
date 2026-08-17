@@ -108,10 +108,6 @@ enum SetStuffMode {
 #define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
 
 #define HELP_PAGE_FILE    LIB_HELP "screen"    // for HELP <CR>
-// Нарядный экран входа, уходит клиенту байт в байт (issue #3681). Необязателен: если файла нет
-// или в нём битый UTF-8 -- берётся обычная шапка из system_msg.xml. Лежит в корне lib: каталог
-// text/ в мастере разобран, а этот файл ни к справке, ни к конфигам не относится.
-#define GREETING_UTF8_FILE "greeting.utf8"
 
 // issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 

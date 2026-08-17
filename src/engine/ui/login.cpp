@@ -6,10 +6,8 @@
 #include "interpreter.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
-#include "utils/utf8.h"
 #include "engine/boot/boot_constants.h"
 
-#include <fstream>
 #include <sstream>
 #include "engine/ui/system_messages.h"
 #include "engine/core/config.h"
@@ -1542,50 +1540,6 @@ static void HandleInit(DescriptorData *d, char * /*argument*/) {
 	return;
 }
 
-// Экран приветствия. Файл lib/text/greeting.utf8 всегда в UTF-8 и написан полной палитрой:
-// скруглённая рамка, типографское тире, кавычки-лапки. Он один на все кодировки -- клиенту в
-// alt/win/koi8 (и всему KOI8-R-сборке целиком) то же самое доезжает уже приведённым к KOI8-R,
-// где скруглённые углы становятся обычными, тире -- дефисом, лапки -- палочками (issue #3681).
-//
-// Файл необязателен: нет его или в нём битый UTF-8 -- берётся прежняя шапка из system_msg.xml.
-static const std::string &GetGreeting() {
-	static std::string greeting;
-	static bool loaded = false;
-	if (!loaded) {
-		loaded = true;
-		std::ifstream in(GREETING_UTF8_FILE, std::ios::binary);
-		if (in) {
-			std::ostringstream body;
-			body << in.rdbuf();
-			const std::string raw = body.str();
-			if (utf8::is_valid(raw)) {
-				// В файле переводы строк обычные, а выводу нужен CRLF -- ровно та же
-				// нормализация, что делает загрузчик system_msg.xml.
-				std::string crlf;
-				crlf.reserve(raw.size() + raw.size() / 32);
-				for (const char c : raw) {
-					if (c == '\r') {
-						continue;
-					}
-					if (c == '\n') {
-						crlf += "\r\n";
-					} else {
-						crlf += c;
-					}
-				}
-				greeting = native_text::from_utf8(crlf);
-			} else {
-				log("SYSERR: %s is not valid UTF-8, falling back to the plain greeting",
-					GREETING_UTF8_FILE);
-			}
-		}
-	}
-	if (!greeting.empty()) {
-		return greeting;
-	}
-	return system_messages::GetText(system_messages::ESystemMsg::kGreetings);
-}
-
 static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	if (strlen(argument) > 0)
 		argument[0] = argument[strlen(argument) - 1];
@@ -1599,7 +1553,7 @@ static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	}
 	d->keytable = (ubyte) *argument - (ubyte) '0';
 	ip_log(d->host);
-	iosystem::write_to_output(GetGreeting().c_str(), d);
+	iosystem::write_to_output(system_messages::GetText(system_messages::ESystemMsg::kGreetings).c_str(), d);
 	d->state = EConState::kGetName;
 	return;
 }

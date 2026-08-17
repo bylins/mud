@@ -199,8 +199,7 @@ std::string from_disk_text(const std::string &text);
 // Read and write MUST stay symmetric. If the engine writes the native encoding while the rest of
 // the world is KOI8-R, then the first save quietly converts every file it touches, rolling back
 // to a KOI8-R build stops being possible, and the world is no longer the world we started with.
-// The files that are deliberately UTF-8 (lib/text/greeting.utf8) are read raw and never go
-// through here (issue #3681).
+// (issue #3681).
 std::string to_disk(const std::string &text);
 
 // Pad `s` on the right with spaces to `width` CHARACTERS. The replacement for printf's "%-Ns"
