@@ -22,14 +22,14 @@ struct FilterType {
   EWearFlag wear;
   int wear_message;
   int material;
-  std::vector<int> affect; // аффекты weap
-  std::vector<int> affect2; // аффекты apply
-  std::vector<int> affect3; // экстрафлаг
+  std::vector<int> affect; // п╟я└я└п╣п╨я┌я▀ weap
+  std::vector<int> affect2; // п╟я└я└п╣п╨я┌я▀ apply
+  std::vector<int> affect3; // я█п╨я│я┌я─п╟я└п╩п╟пЁ
 };
 
 void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || (!privilege::IsGrGod(ch) && !ch->IsFlagged(EPrf::kCoderinfo))) {
-		SendMsgToChar("Чаво?\r\n", ch);
+		SendMsgToChar("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -39,84 +39,84 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while (*argument) {
 		switch (native_text::first_char_code(argument)) {
 			case rus::kEmUpper: argument = one_argument(++argument, tmpbuf);
-				if (utils::IsAbbr(tmpbuf, "булат")) {
+				if (utils::IsAbbr(tmpbuf, "п╠я┐п╩п╟я┌")) {
 					filter.material = EObjMaterial::kBulat;
-				} else if (utils::IsAbbr(tmpbuf, "бронза")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╠я─п╬п╫п╥п╟")) {
 					filter.material = EObjMaterial::kBronze;
-				} else if (utils::IsAbbr(tmpbuf, "железо")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╤п╣п╩п╣п╥п╬")) {
 					filter.material = EObjMaterial::kIron;
-				} else if (utils::IsAbbr(tmpbuf, "сталь")) {
+				} else if (utils::IsAbbr(tmpbuf, "я│я┌п╟п╩я▄")) {
 					filter.material = EObjMaterial::kSteel;
-				} else if (utils::IsAbbr(tmpbuf, "кованая.сталь")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╨п╬п╡п╟п╫п╟я▐.я│я┌п╟п╩я▄")) {
 					filter.material = EObjMaterial::kForgedSteel;
-				} else if (utils::IsAbbr(tmpbuf, "драг.металл")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╢я─п╟пЁ.п╪п╣я┌п╟п╩п╩")) {
 					filter.material = EObjMaterial::kPreciousMetel;
-				} else if (utils::IsAbbr(tmpbuf, "кристалл")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╨я─п╦я│я┌п╟п╩п╩")) {
 					filter.material = EObjMaterial::kCrystal;
-				} else if (utils::IsAbbr(tmpbuf, "дерево")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╢п╣я─п╣п╡п╬")) {
 					filter.material = EObjMaterial::kWood;
-				} else if (utils::IsAbbr(tmpbuf, "прочное.дерево")) {
+				} else if (utils::IsAbbr(tmpbuf, "п©я─п╬я┤п╫п╬п╣.п╢п╣я─п╣п╡п╬")) {
 					filter.material = EObjMaterial::kHardWood;
-				} else if (utils::IsAbbr(tmpbuf, "керамика")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╨п╣я─п╟п╪п╦п╨п╟")) {
 					filter.material = EObjMaterial::kCeramic;
-				} else if (utils::IsAbbr(tmpbuf, "стекло")) {
+				} else if (utils::IsAbbr(tmpbuf, "я│я┌п╣п╨п╩п╬")) {
 					filter.material = EObjMaterial::kGlass;
-				} else if (utils::IsAbbr(tmpbuf, "камень")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╨п╟п╪п╣п╫я▄")) {
 					filter.material = EObjMaterial::kStone;
-				} else if (utils::IsAbbr(tmpbuf, "кость")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╨п╬я│я┌я▄")) {
 					filter.material = EObjMaterial::kBone;
-				} else if (utils::IsAbbr(tmpbuf, "ткань")) {
+				} else if (utils::IsAbbr(tmpbuf, "я┌п╨п╟п╫я▄")) {
 					filter.material = EObjMaterial::kCloth;
-				} else if (utils::IsAbbr(tmpbuf, "кожа")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╨п╬п╤п╟")) {
 					filter.material = EObjMaterial::kSkin;
-				} else if (utils::IsAbbr(tmpbuf, "органика")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╬я─пЁп╟п╫п╦п╨п╟")) {
 					filter.material = EObjMaterial::kOrganic;
-				} else if (utils::IsAbbr(tmpbuf, "береста")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╠п╣я─п╣я│я┌п╟")) {
 					filter.material = EObjMaterial::kPaper;
-				} else if (utils::IsAbbr(tmpbuf, "драг.камень")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╢я─п╟пЁ.п╨п╟п╪п╣п╫я▄")) {
 					filter.material = EObjMaterial::kDiamond;
 				} else {
-					SendMsgToChar("Неверный материал предмета.\r\n", ch);
+					SendMsgToChar("п²п╣п╡п╣я─п╫я▀п╧ п╪п╟я┌п╣я─п╦п╟п╩ п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 					return;
 				}
 				find_param = true;
 				break;
 			case rus::kTeUpper: argument = one_argument(++argument, tmpbuf);
-				if (utils::IsAbbr(tmpbuf, "броня") || utils::IsAbbr(tmpbuf, "armor")) {
+				if (utils::IsAbbr(tmpbuf, "п╠я─п╬п╫я▐") || utils::IsAbbr(tmpbuf, "armor")) {
 					filter.type = EObjType::kArmor;
-				} else if (utils::IsAbbr(tmpbuf, "легкие") || utils::IsAbbr(tmpbuf, "легкая")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╩п╣пЁп╨п╦п╣") || utils::IsAbbr(tmpbuf, "п╩п╣пЁп╨п╟я▐")) {
 					filter.type = EObjType::kLightArmor;
-				} else if (utils::IsAbbr(tmpbuf, "средние") || utils::IsAbbr(tmpbuf, "средняя")) {
+				} else if (utils::IsAbbr(tmpbuf, "я│я─п╣п╢п╫п╦п╣") || utils::IsAbbr(tmpbuf, "я│я─п╣п╢п╫я▐я▐")) {
 					filter.type = EObjType::kMediumArmor;
-				} else if (utils::IsAbbr(tmpbuf, "тяжелые") || utils::IsAbbr(tmpbuf, "тяжелая")) {
+				} else if (utils::IsAbbr(tmpbuf, "я┌я▐п╤п╣п╩я▀п╣") || utils::IsAbbr(tmpbuf, "я┌я▐п╤п╣п╩п╟я▐")) {
 					filter.type = EObjType::kHeavyArmor;
 				} else {
-					SendMsgToChar("Неверный тип предмета.\r\n", ch);
+					SendMsgToChar("п²п╣п╡п╣я─п╫я▀п╧ я┌п╦п© п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 					return;
 				}
 				find_param = true;
 				break;
 			case rus::kOUpper: argument = one_argument(++argument, tmpbuf);
-				if (utils::IsAbbr(tmpbuf, "тело")) {
+				if (utils::IsAbbr(tmpbuf, "я┌п╣п╩п╬")) {
 					filter.wear = EWearFlag::kBody;
 					filter.wear_message = 3;
-				} else if (utils::IsAbbr(tmpbuf, "голова")) {
+				} else if (utils::IsAbbr(tmpbuf, "пЁп╬п╩п╬п╡п╟")) {
 					filter.wear = EWearFlag::kHead;
 					filter.wear_message = 4;
-				} else if (utils::IsAbbr(tmpbuf, "ноги")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╫п╬пЁп╦")) {
 					filter.wear = EWearFlag::kLegs;
 					filter.wear_message = 5;
-				} else if (utils::IsAbbr(tmpbuf, "ступни")) {
+				} else if (utils::IsAbbr(tmpbuf, "я│я┌я┐п©п╫п╦")) {
 					filter.wear = EWearFlag::kFeet;
 					filter.wear_message = 6;
-				} else if (utils::IsAbbr(tmpbuf, "кисти")) {
+				} else if (utils::IsAbbr(tmpbuf, "п╨п╦я│я┌п╦")) {
 					filter.wear = EWearFlag::kHands;
 					filter.wear_message = 7;
-				} else if (utils::IsAbbr(tmpbuf, "руки")) {
+				} else if (utils::IsAbbr(tmpbuf, "я─я┐п╨п╦")) {
 					filter.wear = EWearFlag::kArms;
 					filter.wear_message = 8;
 				} else {
-					SendMsgToChar("Неверное место одевания предмета.\r\n", ch);
+					SendMsgToChar("п²п╣п╡п╣я─п╫п╬п╣ п╪п╣я│я┌п╬ п╬п╢п╣п╡п╟п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 					return;
 				}
 				find_param = true;
@@ -125,18 +125,18 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				bool tmp_find = false;
 				argument = one_argument(++argument, tmpbuf);
 				if (!strlen(tmpbuf)) {
-					SendMsgToChar("Неверный аффект предмета.\r\n", ch);
+					SendMsgToChar("п²п╣п╡п╣я─п╫я▀п╧ п╟я└я└п╣п╨я┌ п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 					return;
 				}
 				if (filter.affect.size() + filter.affect2.size() + filter.affect3.size() >= 3) {
 					break;
 				}
 				switch (*tmpbuf) {
-					case '1': sprintf(tmpbuf, "можно вплавить 1 камень");
+					case '1': sprintf(tmpbuf, "п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 1 п╨п╟п╪п╣п╫я▄");
 						break;
-					case '2': sprintf(tmpbuf, "можно вплавить 2 камня");
+					case '2': sprintf(tmpbuf, "п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 2 п╨п╟п╪п╫я▐");
 						break;
-					case '3': sprintf(tmpbuf, "можно вплавить 3 камня");
+					case '3': sprintf(tmpbuf, "п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 3 п╨п╟п╪п╫я▐");
 						break;
 					default: break;
 				}
@@ -145,7 +145,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				int num = 0;
 
 				for (int flag = 0; flag < 4; ++flag) {
-					for (/* тут ничего не надо */; *equipment_affects[num] != '\n'; ++num) {
+					for (/* я┌я┐я┌ п╫п╦я┤п╣пЁп╬ п╫п╣ п╫п╟п╢п╬ */; *equipment_affects[num] != '\n'; ++num) {
 						if (strlen(equipment_affects[num]) < len)
 							continue;
 						if (!strncmp(equipment_affects[num], tmpbuf, len)) {
@@ -170,11 +170,11 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						}
 					}
 				}
-				// поиск по экстрафлагу
+				// п©п╬п╦я│п╨ п©п╬ я█п╨я│я┌я─п╟я└п╩п╟пЁя┐
 				if (!tmp_find) {
 					num = 0;
 					for (int flag = 0; flag < 4; ++flag) {
-						for (/* тут ничего не надо */; *extra_bits[num] != '\n'; ++num) {
+						for (/* я┌я┐я┌ п╫п╦я┤п╣пЁп╬ п╫п╣ п╫п╟п╢п╬ */; *extra_bits[num] != '\n'; ++num) {
 							if (strlen(extra_bits[num]) < len)
 								continue;
 							if (!strncmp(extra_bits[num], tmpbuf, len)) {
@@ -190,7 +190,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 				if (!tmp_find) {
-					sprintf(buf, "Неверный аффект предмета: '%s'.\r\n", tmpbuf);
+					sprintf(buf, "п²п╣п╡п╣я─п╫я▀п╧ п╟я└я└п╣п╨я┌ п©я─п╣п╢п╪п╣я┌п╟: '%s'.\r\n", tmpbuf);
 					SendMsgToChar(buf, ch);
 					return;
 				}
@@ -201,12 +201,12 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (!find_param) {
-		SendMsgToChar("Формат команды:\r\n"
-					  "   armor Т[броня|легкие|средние|тяжелые] О[тело|голова|ногиступни|кисти|руки] А[аффект] М[материал]\r\n",
+		SendMsgToChar("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀:\r\n"
+					  "   armor п╒[п╠я─п╬п╫я▐|п╩п╣пЁп╨п╦п╣|я│я─п╣п╢п╫п╦п╣|я┌я▐п╤п╣п╩я▀п╣] п·[я┌п╣п╩п╬|пЁп╬п╩п╬п╡п╟|п╫п╬пЁп╦я│я┌я┐п©п╫п╦|п╨п╦я│я┌п╦|я─я┐п╨п╦] п░[п╟я└я└п╣п╨я┌] п°[п╪п╟я┌п╣я─п╦п╟п╩]\r\n",
 					  ch);
 		return;
 	}
-	std::string buffer = "Выборка по следующим параметрам: ";
+	std::string buffer = "п▓я▀п╠п╬я─п╨п╟ п©п╬ я│п╩п╣п╢я┐я▌я┴п╦п╪ п©п╟я─п╟п╪п╣я┌я─п╟п╪: ";
 	if (filter.material >= 0) {
 		buffer += material_name[filter.material];
 		buffer += " ";
@@ -237,25 +237,25 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			buffer += " ";
 		}
 	}
-	buffer += "\r\nСредний уровень мобов в зоне | внум предмета  | материал | имя предмета + аффекты если есть\r\n";
+	buffer += "\r\nп║я─п╣п╢п╫п╦п╧ я┐я─п╬п╡п╣п╫я▄ п╪п╬п╠п╬п╡ п╡ п╥п╬п╫п╣ | п╡п╫я┐п╪ п©я─п╣п╢п╪п╣я┌п╟  | п╪п╟я┌п╣я─п╦п╟п╩ | п╦п╪я▐ п©я─п╣п╢п╪п╣я┌п╟ + п╟я└я└п╣п╨я┌я▀ п╣я│п╩п╦ п╣я│я┌я▄\r\n";
 	SendMsgToChar(buffer, ch);
 
 	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
 	for (const auto &i : obj_proto) {
-		// материал
+		// п╪п╟я┌п╣я─п╦п╟п╩
 		if (filter.material >= 0 && filter.material != i->get_material()) {
 			continue;
 		}
-		// тип
+		// я┌п╦п©
 		if (filter.type >= 0 && filter.type != i->get_type()) {
 			continue;
 		}
-		// куда можно одеть
+		// п╨я┐п╢п╟ п╪п╬п╤п╫п╬ п╬п╢п╣я┌я▄
 		if (filter.wear != EWearFlag::kUndefined
 			&& !i->has_wear_flag(filter.wear)) {
 			continue;
 		}
-		// аффекты
+		// п╟я└я└п╣п╨я┌я▀
 		bool find = true;
 		if (!filter.affect.empty()) {
 			for (int it : filter.affect) {
@@ -264,7 +264,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					break;
 				}
 			}
-			// аффект не найден, продолжать смысла нет
+			// п╟я└я└п╣п╨я┌ п╫п╣ п╫п╟п╧п╢п╣п╫, п©я─п╬п╢п╬п╩п╤п╟я┌я▄ я│п╪я▀я│п╩п╟ п╫п╣я┌
 			if (!find) {
 				continue;
 			}
@@ -280,7 +280,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 			}
-			// доп.свойство не найдено, продолжать смысла нет
+			// п╢п╬п©.я│п╡п╬п╧я│я┌п╡п╬ п╫п╣ п╫п╟п╧п╢п╣п╫п╬, п©я─п╬п╢п╬п╩п╤п╟я┌я▄ я│п╪я▀я│п╩п╟ п╫п╣я┌
 			if (!find) {
 				continue;
 			}
@@ -293,7 +293,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					break;
 				}
 			}
-			// экстрафлаг не найден, продолжать смысла нет
+			// я█п╨я│я┌я─п╟я└п╩п╟пЁ п╫п╣ п╫п╟п╧п╢п╣п╫, п©я─п╬п╢п╬п╩п╤п╟я┌я▄ я│п╪я▀я│п╩п╟ п╫п╣я┌
 			if (!find) {
 				continue;
 			}
@@ -334,15 +334,15 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
 					 kColorCyn, buf2, kColorNrm,
 					 kColorCyn,
-					 negative ? " ухудшает на " : " улучшает на ", abs(drsdice), kColorNrm);
+					 negative ? " я┐я┘я┐п╢я┬п╟п╣я┌ п╫п╟ " : " я┐п╩я┐я┤я┬п╟п╣я┌ п╫п╟ ", abs(drsdice), kColorNrm);
 			out << "      |         |                | " << buf;
 		}
 	}
 	if (!out.str().empty()) {
-		SendMsgToChar(ch, "Всего найдено предметов: %zu\r\n\r\n", tmp_list.size());
+		SendMsgToChar(ch, "п▓я│п╣пЁп╬ п╫п╟п╧п╢п╣п╫п╬ п©я─п╣п╢п╪п╣я┌п╬п╡: %zu\r\n\r\n", tmp_list.size());
 		page_string(ch->desc, out.str());
 	} else {
-		SendMsgToChar("Ничего не найдено.\r\n", ch);
+		SendMsgToChar("п²п╦я┤п╣пЁп╬ п╫п╣ п╫п╟п╧п╢п╣п╫п╬.\r\n", ch);
 	}
 }
 

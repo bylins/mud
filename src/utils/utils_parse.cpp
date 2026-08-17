@@ -17,9 +17,9 @@
 namespace text_id {
 
 ///
-/// Содержит списки соответствия номер=строка/строка=номер для конверта
-/// внутри-игровых констант в строковые ИД и обратно.
-/// Нужно для независимости файлов от изменения номеров констант в коде.
+/// п║п╬п╢п╣я─п╤п╦я┌ я│п©п╦я│п╨п╦ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦я▐ п╫п╬п╪п╣я─=я│я┌я─п╬п╨п╟/я│я┌я─п╬п╨п╟=п╫п╬п╪п╣я─ п╢п╩я▐ п╨п╬п╫п╡п╣я─я┌п╟
+/// п╡п╫я┐я┌я─п╦-п╦пЁя─п╬п╡я▀я┘ п╨п╬п╫я│я┌п╟п╫я┌ п╡ я│я┌я─п╬п╨п╬п╡я▀п╣ п≤п■ п╦ п╬п╠я─п╟я┌п╫п╬.
+/// п²я┐п╤п╫п╬ п╢п╩я▐ п╫п╣п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ я└п╟п╧п╩п╬п╡ п╬я┌ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╫п╬п╪п╣я─п╬п╡ п╨п╬п╫я│я┌п╟п╫я┌ п╡ п╨п╬п╢п╣.
 ///
 class TextIdNode {
  public:
@@ -33,11 +33,11 @@ class TextIdNode {
 	std::unordered_map<std::string, int> str_to_num;
 };
 
-// общий список конвертируемых констант
+// п╬п╠я┴п╦п╧ я│п©п╦я│п╬п╨ п╨п╬п╫п╡п╣я─я┌п╦я─я┐п╣п╪я▀я┘ п╨п╬п╫я│я┌п╟п╫я┌
 std::array<TextIdNode, kTextIdCount> text_id_list;
 
 ///
-/// Инит текстовых ИД параметров предметов для сохранения в файл.
+/// п≤п╫п╦я┌ я┌п╣п╨я│я┌п╬п╡я▀я┘ п≤п■ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п╡ я└п╟п╧п╩.
 ///
 void InitObjVals() {
 	// issue.magic-items: unified magic-item payload. The FIRST string per key is canonical (Add keeps the
@@ -78,7 +78,7 @@ void InitObjVals() {
 }
 
 ///
-/// Общий инит системы текстовых ИД, дергается при старте мада.
+/// п·п╠я┴п╦п╧ п╦п╫п╦я┌ я│п╦я│я┌п╣п╪я▀ я┌п╣п╨я│я┌п╬п╡я▀я┘ п≤п■, п╢п╣я─пЁп╟п╣я┌я│я▐ п©я─п╦ я│я┌п╟я─я┌п╣ п╪п╟п╢п╟.
 ///
 void Init() {
 	/// OBJ_VALS
@@ -87,8 +87,8 @@ void Init() {
 }
 
 ///
-/// Конвертирование текстового ИД константы в ее значение в коде.
-/// \return значение константы или -1, если ничего не было найдено
+/// п п╬п╫п╡п╣я─я┌п╦я─п╬п╡п╟п╫п╦п╣ я┌п╣п╨я│я┌п╬п╡п╬пЁп╬ п≤п■ п╨п╬п╫я│я┌п╟п╫я┌я▀ п╡ п╣п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╡ п╨п╬п╢п╣.
+/// \return п╥п╫п╟я┤п╣п╫п╦п╣ п╨п╬п╫я│я┌п╟п╫я┌я▀ п╦п╩п╦ -1, п╣я│п╩п╦ п╫п╦я┤п╣пЁп╬ п╫п╣ п╠я▀п╩п╬ п╫п╟п╧п╢п╣п╫п╬
 ///
 int ToNum(EIdType type, const std::string &str) {
 	if (type < kTextIdCount) {
@@ -98,8 +98,8 @@ int ToNum(EIdType type, const std::string &str) {
 }
 
 ///
-/// Конвертирование значения константы в ее текстовый ИД.
-/// \return текстовый ИД константы или пустая строка, если ничего не было найдено
+/// п п╬п╫п╡п╣я─я┌п╦я─п╬п╡п╟п╫п╦п╣ п╥п╫п╟я┤п╣п╫п╦я▐ п╨п╬п╫я│я┌п╟п╫я┌я▀ п╡ п╣п╣ я┌п╣п╨я│я┌п╬п╡я▀п╧ п≤п■.
+/// \return я┌п╣п╨я│я┌п╬п╡я▀п╧ п≤п■ п╨п╬п╫я│я┌п╟п╫я┌я▀ п╦п╩п╦ п©я┐я│я┌п╟я▐ я│я┌я─п╬п╨п╟, п╣я│п╩п╦ п╫п╦я┤п╣пЁп╬ п╫п╣ п╠я▀п╩п╬ п╫п╟п╧п╢п╣п╫п╬
 ///
 std::string ToStr(EIdType type, int num) {
 	if (type < kTextIdCount) {
@@ -109,7 +109,7 @@ std::string ToStr(EIdType type, int num) {
 }
 
 ///
-/// Добавление соответствия значение=константа/константа=значение
+/// п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦я▐ п╥п╫п╟я┤п╣п╫п╦п╣=п╨п╬п╫я│я┌п╟п╫я┌п╟/п╨п╬п╫я│я┌п╟п╫я┌п╟=п╥п╫п╟я┤п╣п╫п╦п╣
 ///
 void TextIdNode::Add(int num, std::string str) {
 	num_to_str.insert(std::make_pair(num, str));
@@ -117,7 +117,7 @@ void TextIdNode::Add(int num, std::string str) {
 }
 
 ///
-/// Конвертирование значение -> текстовый ИД
+/// п п╬п╫п╡п╣я─я┌п╦я─п╬п╡п╟п╫п╦п╣ п╥п╫п╟я┤п╣п╫п╦п╣ -> я┌п╣п╨я│я┌п╬п╡я▀п╧ п≤п■
 ///
 std::string TextIdNode::ToStr(int num) const {
 	auto i = num_to_str.find(num);
@@ -128,7 +128,7 @@ std::string TextIdNode::ToStr(int num) const {
 }
 
 ///
-/// Конвертирование текстовый ИД -> значение
+/// п п╬п╫п╡п╣я─я┌п╦я─п╬п╡п╟п╫п╦п╣ я┌п╣п╨я│я┌п╬п╡я▀п╧ п≤п■ -> п╥п╫п╟я┤п╣п╫п╦п╣
 ///
 int TextIdNode::ToNum(const std::string &str) const {
 	auto i = str_to_num.find(str);
@@ -143,8 +143,8 @@ int TextIdNode::ToNum(const std::string &str) const {
 namespace parse {
 	char buf[kMaxStringLength];
 ///
-/// Попытка конвертирования \param text в <int> с перехватом исключения
-/// \return число или -1, в случае неудачи
+/// п÷п╬п©я▀я┌п╨п╟ п╨п╬п╫п╡п╣я─я┌п╦я─п╬п╡п╟п╫п╦я▐ \param text п╡ <int> я│ п©п╣я─п╣я┘п╡п╟я┌п╬п╪ п╦я│п╨п╩я▌я┤п╣п╫п╦я▐
+/// \return я┤п╦я│п╩п╬ п╦п╩п╦ -1, п╡ я│п╩я┐я┤п╟п╣ п╫п╣я┐п╢п╟я┤п╦
 ///
 int CastToInt(const char *text) {
 	int result = -1;
@@ -160,10 +160,10 @@ int CastToInt(const char *text) {
 }
 
 ///
-/// Обертка на pugixml для чтения числового аттрибута
-/// с логирование в имм- и сислог
-/// В конфиге это выглядит как <param value="1234" />
-/// \return -1 в случае неудачи
+/// п·п╠п╣я─я┌п╨п╟ п╫п╟ pugixml п╢п╩я▐ я┤я┌п╣п╫п╦я▐ я┤п╦я│п╩п╬п╡п╬пЁп╬ п╟я┌я┌я─п╦п╠я┐я┌п╟
+/// я│ п╩п╬пЁп╦я─п╬п╡п╟п╫п╦п╣ п╡ п╦п╪п╪- п╦ я│п╦я│п╩п╬пЁ
+/// п▓ п╨п╬п╫я└п╦пЁп╣ я█я┌п╬ п╡я▀пЁп╩я▐п╢п╦я┌ п╨п╟п╨ <param value="1234" />
+/// \return -1 п╡ я│п╩я┐я┤п╟п╣ п╫п╣я┐п╢п╟я┤п╦
 int ReadAttrAsInt(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
@@ -173,7 +173,7 @@ int ReadAttrAsInt(const pugi::xml_node &node, const char *text) {
 	return CastToInt(attr.value());
 }
 
-// тоже самое, что и attr_int, только, если элемента нет, возвращает -1
+// я┌п╬п╤п╣ я│п╟п╪п╬п╣, я┤я┌п╬ п╦ attr_int, я┌п╬п╩я▄п╨п╬, п╣я│п╩п╦ я█п╩п╣п╪п╣п╫я┌п╟ п╫п╣я┌, п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ -1
 int ReadAttrAsIntT(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
@@ -183,8 +183,8 @@ int ReadAttrAsIntT(const pugi::xml_node &node, const char *text) {
 }
 
 ///
-/// Тоже, что и ReadAttrAsInt, только для чтения child_value()
-/// В конфиге это выглядит как <param>1234<param>
+/// п╒п╬п╤п╣, я┤я┌п╬ п╦ ReadAttrAsInt, я┌п╬п╩я▄п╨п╬ п╢п╩я▐ я┤я┌п╣п╫п╦я▐ child_value()
+/// п▓ п╨п╬п╫я└п╦пЁп╣ я█я┌п╬ п╡я▀пЁп╩я▐п╢п╦я┌ п╨п╟п╨ <param>1234<param>
 ///
 int ReadChildValueAsInt(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
@@ -196,7 +196,7 @@ int ReadChildValueAsInt(const pugi::xml_node &node, const char *text) {
 }
 
 ///
-/// Аналог ReadAttrAsInt, \return строку со значением или пустую строку
+/// п░п╫п╟п╩п╬пЁ ReadAttrAsInt, \return я│я┌я─п╬п╨я┐ я│п╬ п╥п╫п╟я┤п╣п╫п╦п╣п╪ п╦п╩п╦ п©я┐я│я┌я┐я▌ я│я┌я─п╬п╨я┐
 ///
 std::string ReadAattrAsStr(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
@@ -210,7 +210,7 @@ std::string ReadAattrAsStr(const pugi::xml_node &node, const char *text) {
 }
 
 ///
-/// Аналог ReadChildValueAsInt, \return строку со значением или пустую строку
+/// п░п╫п╟п╩п╬пЁ ReadChildValueAsInt, \return я│я┌я─п╬п╨я┐ я│п╬ п╥п╫п╟я┤п╣п╫п╦п╣п╪ п╦п╩п╦ п©я┐я│я┌я┐я▌ я│я┌я─п╬п╨я┐
 ///
 std::string ReadChildValueAsStr(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
@@ -243,8 +243,8 @@ pugi::xml_node GetChild(const pugi::xml_node &node, const char *name) {
 }
 
 ///
-/// проверка валидности внума объекта с логированием ошибки в имм и сислог
-/// \return true - если есть прототип объекта (рнум) с данным внумом
+/// п©я─п╬п╡п╣я─п╨п╟ п╡п╟п╩п╦п╢п╫п╬я│я┌п╦ п╡п╫я┐п╪п╟ п╬п╠я┼п╣п╨я┌п╟ я│ п╩п╬пЁп╦я─п╬п╡п╟п╫п╦п╣п╪ п╬я┬п╦п╠п╨п╦ п╡ п╦п╪п╪ п╦ я│п╦я│п╩п╬пЁ
+/// \return true - п╣я│п╩п╦ п╣я│я┌я▄ п©я─п╬я┌п╬я┌п╦п© п╬п╠я┼п╣п╨я┌п╟ (я─п╫я┐п╪) я│ п╢п╟п╫п╫я▀п╪ п╡п╫я┐п╪п╬п╪
 ///
 bool IsValidObjVnum(int vnum) {
 	if (GetObjRnum(vnum) < 0) {
@@ -259,8 +259,8 @@ bool IsValidObjVnum(int vnum) {
 // =====================================================================================================================
 
 /**
- * Прочитать значение value как строку.
- * Ecxeption: если строка пуста, сообщение "string is empty";
+ * п÷я─п╬я┤п╦я┌п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣ value п╨п╟п╨ я│я┌я─п╬п╨я┐.
+ * Ecxeption: п╣я│п╩п╦ я│я┌я─п╬п╨п╟ п©я┐я│я┌п╟, я│п╬п╬п╠я┴п╣п╫п╦п╣ "string is empty";
  */
 const char *ReadAsStr(const char *value) {
 	if (strcmp(value, "") == 0) {
@@ -270,8 +270,8 @@ const char *ReadAsStr(const char *value) {
 }
 
 /**
- * Прочитать значение value как int.
- * Ecxeption: при неудаче, сообщение - содержимое value.
+ * п÷я─п╬я┤п╦я┌п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣ value п╨п╟п╨ int.
+ * Ecxeption: п©я─п╦ п╫п╣я┐п╢п╟я┤п╣, я│п╬п╬п╠я┴п╣п╫п╦п╣ - я│п╬п╢п╣я─п╤п╦п╪п╬п╣ value.
  */
 int ReadAsInt(const char *value) {
 	try {
@@ -282,7 +282,7 @@ int ReadAsInt(const char *value) {
 }
 
 /**
- * Прочитать значение value как массив int, разделенный 'I' и записать знаения в num_set.
+ * п÷я─п╬я┤п╦я┌п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣ value п╨п╟п╨ п╪п╟я│я│п╦п╡ int, я─п╟п╥п╢п╣п╩п╣п╫п╫я▀п╧ 'I' п╦ п╥п╟п©п╦я│п╟я┌я▄ п╥п╫п╟п╣п╫п╦я▐ п╡ num_set.
  */
 void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value) {
 	if (strcmp(value, "") == 0) {
@@ -299,8 +299,8 @@ void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value) {
 }
 
 /**
- * Прочитать значение value как float.
- * Ecxeption: при неудаче, сообщение - содержимое value.
+ * п÷я─п╬я┤п╦я┌п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣ value п╨п╟п╨ float.
+ * Ecxeption: п©я─п╦ п╫п╣я┐п╢п╟я┤п╣, я│п╬п╬п╠я┴п╣п╫п╦п╣ - я│п╬п╢п╣я─п╤п╦п╪п╬п╣ value.
  */
 float ReadAsFloat(const char *value) {
 	try {
@@ -311,8 +311,8 @@ float ReadAsFloat(const char *value) {
 }
 
 /**
- * Прочитать значение value как double.
- * Ecxeption: при неудаче, сообщение - содержимое value.
+ * п÷я─п╬я┤п╦я┌п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣ value п╨п╟п╨ double.
+ * Ecxeption: п©я─п╦ п╫п╣я┐п╢п╟я┤п╣, я│п╬п╬п╠я┴п╣п╫п╦п╣ - я│п╬п╢п╣я─п╤п╦п╪п╬п╣ value.
  */
 double ReadAsDouble(const char *value) {
 	try {
@@ -323,9 +323,9 @@ double ReadAsDouble(const char *value) {
 }
 
 /**
- * Прочитать значение value как bool.
- * Возвращает true, если значение "1", "true", "T", "t", "Y" или "y" и false в ином случае.
- * Ecxeption: если value пусто, сообщение - "value is empty".
+ * п÷я─п╬я┤п╦я┌п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣ value п╨п╟п╨ bool.
+ * п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ true, п╣я│п╩п╦ п╥п╫п╟я┤п╣п╫п╦п╣ "1", "true", "T", "t", "Y" п╦п╩п╦ "y" п╦ false п╡ п╦п╫п╬п╪ я│п╩я┐я┤п╟п╣.
+ * Ecxeption: п╣я│п╩п╦ value п©я┐я│я┌п╬, я│п╬п╬п╠я┴п╣п╫п╦п╣ - "value is empty".
  */
 bool ReadAsBool(const char *value) {
 	if (strcmp(value, "") == 0) {
@@ -335,9 +335,9 @@ bool ReadAsBool(const char *value) {
 				|| strcmp(value, "T") == 0 || strcmp(value, "y") == 0 || strcmp(value, "Y") == 0);
 }
 
-// issue.xml-parse-cleaning: единые толерантные читатели атрибутов DataNode (заменяют
-// локальные AttrInt/AttrStr, ранее продублированные в загрузчиках). Пустой/отсутствующий/
-// неразобранный атрибут -> def.
+// issue.xml-parse-cleaning: п╣п╢п╦п╫я▀п╣ я┌п╬п╩п╣я─п╟п╫я┌п╫я▀п╣ я┤п╦я┌п╟я┌п╣п╩п╦ п╟я┌я─п╦п╠я┐я┌п╬п╡ DataNode (п╥п╟п╪п╣п╫я▐я▌я┌
+// п╩п╬п╨п╟п╩я▄п╫я▀п╣ AttrInt/AttrStr, я─п╟п╫п╣п╣ п©я─п╬п╢я┐п╠п╩п╦я─п╬п╡п╟п╫п╫я▀п╣ п╡ п╥п╟пЁя─я┐п╥я┤п╦п╨п╟я┘). п÷я┐я│я┌п╬п╧/п╬я┌я│я┐я┌я│я┌п╡я┐я▌я┴п╦п╧/
+// п╫п╣я─п╟п╥п╬п╠я─п╟п╫п╫я▀п╧ п╟я┌я─п╦п╠я┐я┌ -> def.
 int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def) {
 	const char *v = node.GetValue(key);
 	if (!v || !*v) {
@@ -352,11 +352,11 @@ int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def) {
 
 std::string AttrStr(const parser_wrapper::DataNode &node, const char *key, const char *def) {
 	const char *v = node.GetValue(key);
-	// Перекодировки здесь НЕТ и быть не должно: DataNode приводит содержимое файла к нативной
-	// кодировке один раз на документ, поэтому значение уже нативное. Пока перекодировка стояла
-	// ещё и здесь, каждое поле переводилось дважды, а так как конфиги движок ещё и пишет
-	// обратно, файл рос на каждой загрузке -- cfg/mechanics/obj_sets.xml так дорос со 120 КБ
-	// до 6,7 ГБ и убивал загрузку по памяти (issue #3681).
+	// п÷п╣я─п╣п╨п╬п╢п╦я─п╬п╡п╨п╦ п╥п╢п╣я│я▄ п²п∙п╒ п╦ п╠я▀я┌я▄ п╫п╣ п╢п╬п╩п╤п╫п╬: DataNode п©я─п╦п╡п╬п╢п╦я┌ я│п╬п╢п╣я─п╤п╦п╪п╬п╣ я└п╟п╧п╩п╟ п╨ п╫п╟я┌п╦п╡п╫п╬п╧
+	// п╨п╬п╢п╦я─п╬п╡п╨п╣ п╬п╢п╦п╫ я─п╟п╥ п╫п╟ п╢п╬п╨я┐п╪п╣п╫я┌, п©п╬я█я┌п╬п╪я┐ п╥п╫п╟я┤п╣п╫п╦п╣ я┐п╤п╣ п╫п╟я┌п╦п╡п╫п╬п╣. п÷п╬п╨п╟ п©п╣я─п╣п╨п╬п╢п╦я─п╬п╡п╨п╟ я│я┌п╬я▐п╩п╟
+	// п╣я┴я▒ п╦ п╥п╢п╣я│я▄, п╨п╟п╤п╢п╬п╣ п©п╬п╩п╣ п©п╣я─п╣п╡п╬п╢п╦п╩п╬я│я▄ п╢п╡п╟п╤п╢я▀, п╟ я┌п╟п╨ п╨п╟п╨ п╨п╬п╫я└п╦пЁп╦ п╢п╡п╦п╤п╬п╨ п╣я┴я▒ п╦ п©п╦я┬п╣я┌
+	// п╬п╠я─п╟я┌п╫п╬, я└п╟п╧п╩ я─п╬я│ п╫п╟ п╨п╟п╤п╢п╬п╧ п╥п╟пЁя─я┐п╥п╨п╣ -- cfg/mechanics/obj_sets.xml я┌п╟п╨ п╢п╬я─п╬я│ я│п╬ 120 п п▒
+	// п╢п╬ 6,7 п⌠п▒ п╦ я┐п╠п╦п╡п╟п╩ п╥п╟пЁя─я┐п╥п╨я┐ п©п╬ п©п╟п╪я▐я┌п╦ (issue #3681).
 	return (v && *v) ? std::string(v) : std::string(def);
 }
 
@@ -469,7 +469,7 @@ void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
 	beg_idx = in_buffer.find_first_not_of(' ');
 
 	if (beg_idx != std::string::npos) {
-		// случай с кавычками
+		// я│п╩я┐я┤п╟п╧ я│ п╨п╟п╡я▀я┤п╨п╟п╪п╦
 		if (in_buffer[beg_idx] == '\'') {
 			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of('\'', beg_idx))) {
 				if (std::string::npos == (end_idx = in_buffer.find_first_of('\'', beg_idx))) {
@@ -480,7 +480,7 @@ void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
 					in_buffer.erase(0, ++end_idx);
 				}
 			}
-			// случай с одним параметром через пробел
+			// я│п╩я┐я┤п╟п╧ я│ п╬п╢п╫п╦п╪ п©п╟я─п╟п╪п╣я┌я─п╬п╪ я┤п╣я─п╣п╥ п©я─п╬п╠п╣п╩
 		} else {
 			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of(' ', beg_idx))) {
 				if (std::string::npos == (end_idx = in_buffer.find_first_of(' ', beg_idx))) {
@@ -499,14 +499,14 @@ void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
 	out_buffer.clear();
 }
 
-// регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
+// я─п╣пЁп╦я│я┌я─п╬п╫п╣п╥п╟п╡п╦я│п╦п╪п╬п╣ я│я─п╟п╡п╫п╣п╫п╦п╣ п╢п╡я┐я┘ я│я┌я─п╬п╨ п©п╬ п╢п╩п╦п╫п╣ п©п╣я─п╡п╬п╧, я└п╩п╟пЁ - п╢п╩я▐ я┐я┤п╣я┌п╟ п╢п╩п╦п╫я▀ я│я┌я─п╬п╨ (п╫п╣я─п╟п╡п╣п╫я│я┌п╡п╬)
 bool CompareParam(const std::string &buffer, const char *str, bool full) {
 	if (!str || !*str || buffer.empty() || (full && buffer.length() != strlen(str))) {
 		return false;
 	}
 
-	// Посимвольно, а не побайтово: под UTF-8 регистр русской буквы по одному байту не берётся
-	// (issue #3681). Шаг обеих строк -- на длину символа, они здесь всегда в одной кодировке.
+	// п÷п╬я│п╦п╪п╡п╬п╩я▄п╫п╬, п╟ п╫п╣ п©п╬п╠п╟п╧я┌п╬п╡п╬: п©п╬п╢ UTF-8 я─п╣пЁп╦я│я┌я─ я─я┐я│я│п╨п╬п╧ п╠я┐п╨п╡я▀ п©п╬ п╬п╢п╫п╬п╪я┐ п╠п╟п╧я┌я┐ п╫п╣ п╠п╣я─я▒я┌я│я▐
+	// (issue #3681). п╗п╟пЁ п╬п╠п╣п╦я┘ я│я┌я─п╬п╨ -- п╫п╟ п╢п╩п╦п╫я┐ я│п╦п╪п╡п╬п╩п╟, п╬п╫п╦ п╥п╢п╣я│я▄ п╡я│п╣пЁп╢п╟ п╡ п╬п╢п╫п╬п╧ п╨п╬п╢п╦я─п╬п╡п╨п╣.
 	std::string::size_type i;
 	for (i = 0; i != buffer.length() && *str;) {
 		if (!native_text::chars_equal_ci(buffer.c_str() + i, str)) {
@@ -524,14 +524,14 @@ bool CompareParam(const std::string &buffer, const char *str, bool full) {
 	}
 }
 
-// тоже самое с обоими аргументами стринг
+// я┌п╬п╤п╣ я│п╟п╪п╬п╣ я│ п╬п╠п╬п╦п╪п╦ п╟я─пЁя┐п╪п╣п╫я┌п╟п╪п╦ я│я┌я─п╦п╫пЁ
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full) {
 	if (buffer.empty() || buffer2.empty()
 		|| (full && buffer.length() != buffer2.length())) {
 		return false;
 	}
 
-	// Посимвольно, как и в перегрузке выше (issue #3681).
+	// п÷п╬я│п╦п╪п╡п╬п╩я▄п╫п╬, п╨п╟п╨ п╦ п╡ п©п╣я─п╣пЁя─я┐п╥п╨п╣ п╡я▀я┬п╣ (issue #3681).
 	std::string::size_type i;
 	for (i = 0; i != buffer.length() && i != buffer2.length();) {
 		if (!native_text::chars_equal_ci(buffer.c_str() + i, buffer2.c_str() + i)) {

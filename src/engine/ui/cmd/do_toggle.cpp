@@ -13,19 +13,19 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 	if (GET_WIMP_LEV(ch) == 0)
-		strcpy(buf2, "ÎÅÔ");
+		strcpy(buf2, "Ð½ÐµÑ‚");
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
 	if (GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kCoderinfo)) {
 		snprintf(buf, kMaxStringLength,
-				 " îÅÔ ÁÇÒÏ×     : %-3s     "
-				 " óÕÐÅÒ×ÉÄÅÎÉÅ  : %-3s     "
-				 " æÌÁÇÉ ËÏÍÎÁÔ  : %-3s \r\n"
-				 " þÁÓÔÎÙÊ ÒÅÖÉÍ : %-3s     "
-				 " úÁÍÅÄÌÅÎÉÅ    : %-3s     "
-				 " ëÏÄÅÒ         : %-3s \r\n"
-				 " ïÐÅÞÁÔËÉ      : %-3s \r\n",
+				 " ÐÐµÑ‚ Ð°Ð³Ñ€Ð¾Ð²     : %-3s     "
+				 " Ð¡ÑƒÐ¿ÐµÑ€Ð²Ð¸Ð´ÐµÐ½Ð¸Ðµ  : %-3s     "
+				 " Ð¤Ð»Ð°Ð³Ð¸ ÐºÐ¾Ð¼Ð½Ð°Ñ‚  : %-3s \r\n"
+				 " Ð§Ð°ÑÑ‚Ð½Ñ‹Ð¹ Ñ€ÐµÐ¶Ð¸Ð¼ : %-3s     "
+				 " Ð—Ð°Ð¼ÐµÐ´Ð»ÐµÐ½Ð¸Ðµ    : %-3s     "
+				 " ÐšÐ¾Ð´ÐµÑ€         : %-3s \r\n"
+				 " ÐžÐ¿ÐµÑ‡Ð°Ñ‚ÐºÐ¸      : %-3s \r\n",
 				 BoolToOnOffStr(ch->IsFlagged(EPrf::kNohassle)),
 				 BoolToOnOffStr(ch->IsFlagged(EPrf::kHolylight)),
 				 BoolToOnOffStr(ch->IsFlagged(EPrf::kRoomFlags)),
@@ -37,47 +37,47 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	snprintf(buf, kMaxStringLength,
-			 " á×ÔÏ×ÙÈÏÄÙ    : %-3s     "
-			 " ëÒÁÔËÉÊ ÒÅÖÉÍ : %-3s     "
-			 " óÖÁÔÙÊ ÒÅÖÉÍ  : %-3s \r\n"
-			 " ðÏ×ÔÏÒ ËÏÍÁÎÄ : %-3s     "
-			 " ïÂÒÁÝÅÎÉÑ     : %-3s     "
-			 " ëÔÏ-ÔÏ        : %s \r\n"
-			 " âÏÌÔÁÔØ       : %-3s     "
-			 " ïÒÁÔØ         : %-3s \r\n"
-			 " áÕËÃÉÏÎ       : %-3s     "
-			 " âÁÚÁÒ         : %-3s     "
-			 " á×ÔÏÚÁÕÞÉ×ÁÎÉÅ: %-3s \r\n"
-			 " ðÒÉÚÙ×        : %-3s     "
-			 " á×ÔÏÚÁ×ÅÒÛÅÎÉÅ: %-3s     "
-			 " çÒÕÐÐÁ (×ÉÄ)  : %s \r\n"
-			 " âÅÚ Ä×ÏÊÎÉËÏ× : %-3s     "
-			 " á×ÔÏÐÏÍÏÝØ    : %-3s     "
-			 " á×ÔÏÄÅÌÅÖ     : %-3s \r\n"
-			 " á×ÔÏÇÒÁÂÅÖ    : %-7s "
-			 " âÒÁÔØ ËÕÎÙ    : %-3s     "
-			 " áÒÅÎÁ         : %-3s \r\n"
-			 " ôÒÕÓÏÓÔØ      : %-3s     "
-			 " ûÉÒÉÎÁ ÜËÒÁÎÁ : %-3d     "
-			 " ÷ÙÓÏÔÁ ÜËÒÁÎÁ : %-3d \r\n"
-			 " óÖÁÔÉÅ        : %s  "
-			 " îÏ×ÏÓÔÉ (×ÉÄ) : %-5s   "
-			 " äÏÓËÉ         : %-3s \r\n"
-			 " èÒÁÎÉÌÉÝÅ     : %-8s"
-			 " ðËÌÉÓÔ        : %-3s     "
-			 " ðÏÌÉÔÉËÁ      : %-3s \r\n"
-			 " ðËÆÏÒÍÁÔ      : %s  "
-			 " óÏËÌÁÎÏ×ÃÙ    : %-8s"
-			 " ïÆÆÔÏÐ        : %-3s \r\n"
-			 " ðÏÔÅÒÑ Ó×ÑÚÉ  : %-3s     "
-			 " éÎÇÒÅÄÉÅÎÔÙ   : %-3s     "
-			 " ÷ÓÐÏÍÎÉÔØ     : %-3u \r\n",
+			 " ÐÐ²Ñ‚Ð¾Ð²Ñ‹Ñ…Ð¾Ð´Ñ‹    : %-3s     "
+			 " ÐšÑ€Ð°Ñ‚ÐºÐ¸Ð¹ Ñ€ÐµÐ¶Ð¸Ð¼ : %-3s     "
+			 " Ð¡Ð¶Ð°Ñ‚Ñ‹Ð¹ Ñ€ÐµÐ¶Ð¸Ð¼  : %-3s \r\n"
+			 " ÐŸÐ¾Ð²Ñ‚Ð¾Ñ€ ÐºÐ¾Ð¼Ð°Ð½Ð´ : %-3s     "
+			 " ÐžÐ±Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ     : %-3s     "
+			 " ÐšÑ‚Ð¾-Ñ‚Ð¾        : %s \r\n"
+			 " Ð‘Ð¾Ð»Ñ‚Ð°Ñ‚ÑŒ       : %-3s     "
+			 " ÐžÑ€Ð°Ñ‚ÑŒ         : %-3s \r\n"
+			 " ÐÑƒÐºÑ†Ð¸Ð¾Ð½       : %-3s     "
+			 " Ð‘Ð°Ð·Ð°Ñ€         : %-3s     "
+			 " ÐÐ²Ñ‚Ð¾Ð·Ð°ÑƒÑ‡Ð¸Ð²Ð°Ð½Ð¸Ðµ: %-3s \r\n"
+			 " ÐŸÑ€Ð¸Ð·Ñ‹Ð²        : %-3s     "
+			 " ÐÐ²Ñ‚Ð¾Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ðµ: %-3s     "
+			 " Ð“Ñ€ÑƒÐ¿Ð¿Ð° (Ð²Ð¸Ð´)  : %s \r\n"
+			 " Ð‘ÐµÐ· Ð´Ð²Ð¾Ð¹Ð½Ð¸ÐºÐ¾Ð² : %-3s     "
+			 " ÐÐ²Ñ‚Ð¾Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒ    : %-3s     "
+			 " ÐÐ²Ñ‚Ð¾Ð´ÐµÐ»ÐµÐ¶     : %-3s \r\n"
+			 " ÐÐ²Ñ‚Ð¾Ð³Ñ€Ð°Ð±ÐµÐ¶    : %-7s "
+			 " Ð‘Ñ€Ð°Ñ‚ÑŒ ÐºÑƒÐ½Ñ‹    : %-3s     "
+			 " ÐÑ€ÐµÐ½Ð°         : %-3s \r\n"
+			 " Ð¢Ñ€ÑƒÑÐ¾ÑÑ‚ÑŒ      : %-3s     "
+			 " Ð¨Ð¸Ñ€Ð¸Ð½Ð° ÑÐºÑ€Ð°Ð½Ð° : %-3d     "
+			 " Ð’Ñ‹ÑÐ¾Ñ‚Ð° ÑÐºÑ€Ð°Ð½Ð° : %-3d \r\n"
+			 " Ð¡Ð¶Ð°Ñ‚Ð¸Ðµ        : %s  "
+			 " ÐÐ¾Ð²Ð¾ÑÑ‚Ð¸ (Ð²Ð¸Ð´) : %-5s   "
+			 " Ð”Ð¾ÑÐºÐ¸         : %-3s \r\n"
+			 " Ð¥Ñ€Ð°Ð½Ð¸Ð»Ð¸Ñ‰Ðµ     : %-8s"
+			 " ÐŸÐºÐ»Ð¸ÑÑ‚        : %-3s     "
+			 " ÐŸÐ¾Ð»Ð¸Ñ‚Ð¸ÐºÐ°      : %-3s \r\n"
+			 " ÐŸÐºÑ„Ð¾Ñ€Ð¼Ð°Ñ‚      : %s  "
+			 " Ð¡Ð¾ÐºÐ»Ð°Ð½Ð¾Ð²Ñ†Ñ‹    : %-8s"
+			 " ÐžÑ„Ñ„Ñ‚Ð¾Ð¿        : %-3s \r\n"
+			 " ÐŸÐ¾Ñ‚ÐµÑ€Ñ ÑÐ²ÑÐ·Ð¸  : %-3s     "
+			 " Ð˜Ð½Ð³Ñ€ÐµÐ´Ð¸ÐµÐ½Ñ‚Ñ‹   : %-3s     "
+			 " Ð’ÑÐ¿Ð¾Ð¼Ð½Ð¸Ñ‚ÑŒ     : %-3u \r\n",
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoexit)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kBrief)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kCompact)),
 			 (ch->IsFlagged(EPrf::kNoRepeat) ? "NO" : "YES"),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoTell)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kNoInvistell) ? "ÎÅÌØÚÑ" : "ÍÏÖÎÏ", 6).c_str(),
+			 native_text::pad_right(ch->IsFlagged(EPrf::kNoInvistell) ? "Ð½ÐµÐ»ÑŒÐ·Ñ" : "Ð¼Ð¾Ð¶Ð½Ð¾", 6).c_str(),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoGossip)),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoHoller)),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoAuction)),
@@ -85,7 +85,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomem)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::KSummonable)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kGoAhead)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kShowGroup) ? "ÐÏÌÎÙÊ" : "ËÒÁÔËÉÊ", 7).c_str(),
+			 native_text::pad_right(ch->IsFlagged(EPrf::kShowGroup) ? "Ð¿Ð¾Ð»Ð½Ñ‹Ð¹" : "ÐºÑ€Ð°Ñ‚ÐºÐ¸Ð¹", 7).c_str(),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoClones)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoassist)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutosplit)),
@@ -96,16 +96,16 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 (ch)->player_specials->saved.stringLength,
 			 (ch)->player_specials->saved.stringWidth,
 #if defined(HAVE_ZLIB)
-			 native_text::pad_right(ch->desc->deflate == nullptr ? "ÎÅÔ" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"), 6).c_str(),
+			 native_text::pad_right(ch->desc->deflate == nullptr ? "Ð½ÐµÑ‚" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"), 6).c_str(),
 #else
 		"N/A",
 #endif
-			 ch->IsFlagged(EPrf::kNewsMode) ? "ÄÏÓËÁ" : "ÌÅÎÔÁ",
+			 ch->IsFlagged(EPrf::kNewsMode) ? "Ð´Ð¾ÑÐºÐ°" : "Ð»ÐµÐ½Ñ‚Ð°",
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kBoardMode)),
 			 GetChestMode(ch).c_str(),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kPklMode)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kPolitMode)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kPkFormatMode) ? "ËÒÁÔËÉÊ" : "ÐÏÌÎÙÊ", 6).c_str(),
+			 native_text::pad_right(ch->IsFlagged(EPrf::kPkFormatMode) ? "ÐºÑ€Ð°Ñ‚ÐºÐ¸Ð¹" : "Ð¿Ð¾Ð»Ð½Ñ‹Ð¹", 6).c_str(),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kClanmembersMode)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kOfftopMode)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAntiDcMode)),
@@ -113,27 +113,27 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 ch->remember_get_num());
 	SendMsgToChar(buf, ch);
 	if ((ch)->player_specials->saved.ntfyExchangePrice > 0) {
-		sprintf(buf, " õ×ÅÄÏÍÌÅÎÉÑ   : %-7ld ", (ch)->player_specials->saved.ntfyExchangePrice);
+		sprintf(buf, " Ð£Ð²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ   : %-7ld ", (ch)->player_specials->saved.ntfyExchangePrice);
 	} else {
-		sprintf(buf, " õ×ÅÄÏÍÌÅÎÉÑ   : %s ", native_text::pad_right("îÅÔ", 7).c_str());
+		sprintf(buf, " Ð£Ð²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ   : %s ", native_text::pad_right("ÐÐµÑ‚", 7).c_str());
 	}
 	SendMsgToChar(buf, ch);
 	snprintf(buf, kMaxStringLength,
-			 " ëÁÒÔÁ         : %-3s     "
-			 " ÷ÈÏÄ × ÚÏÎÕ   : %-3s   \r\n"
-			 " íÁÇÝÉÔÙ (×ÉÄ) : %s"
-			 " á×ÔÏÐÒÉÚÙ×    : %-5s   "
-			 " íÁÐÐÅÒ        : %-3s   \r\n"
-			 " ëÏÎÔÒÏÌØ IP   : %-6s  ",
+			 " ÐšÐ°Ñ€Ñ‚Ð°         : %-3s     "
+			 " Ð’Ñ…Ð¾Ð´ Ð² Ð·Ð¾Ð½Ñƒ   : %-3s   \r\n"
+			 " ÐœÐ°Ð³Ñ‰Ð¸Ñ‚Ñ‹ (Ð²Ð¸Ð´) : %s"
+			 " ÐÐ²Ñ‚Ð¾Ð¿Ñ€Ð¸Ð·Ñ‹Ð²    : %-5s   "
+			 " ÐœÐ°Ð¿Ð¿ÐµÑ€        : %-3s   \r\n"
+			 " ÐšÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒ IP   : %-6s  ",
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kDrawMap)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kBriefShields) ? "ËÒÁÔËÉÊ" : "ÐÏÌÎÙÊ", 8).c_str(),
+			 native_text::pad_right(ch->IsFlagged(EPrf::kBriefShields) ? "ÐºÑ€Ð°Ñ‚ÐºÐ¸Ð¹" : "Ð¿Ð¾Ð»Ð½Ñ‹Ð¹", 8).c_str(),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutonosummon)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
 	SendMsgToChar(buf, ch);
 	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
-		sprintf(buf, " ôÅÓÔÅÒ        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
+		sprintf(buf, " Ð¢ÐµÑÑ‚ÐµÑ€        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
 	else
 		sprintf(buf, "\r\n");
 	SendMsgToChar(buf, ch);

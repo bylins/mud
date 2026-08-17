@@ -53,11 +53,11 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		++total;
 	}
 	/*
-	 * Тут нужно использовать форматирование таблицы
+	 * п╒я┐я┌ п╫я┐п╤п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ я┌п╟п╠п╩п╦я├я▀
 	 * \todo table format
 	 */
 	std::ostringstream out;
-	out << kColorBoldCyn << " Статистика по персонажам в игре (всего / 25 ур. и выше / ниже 25 ур.):"
+	out << kColorBoldCyn << " п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п©п╬ п©п╣я─я│п╬п╫п╟п╤п╟п╪ п╡ п╦пЁя─п╣ (п╡я│п╣пЁп╬ / 25 я┐я─. п╦ п╡я▀я┬п╣ / п╫п╦п╤п╣ 25 я┐я─.):"
 		<< kColorNrm << "\r\n" << "\r\n" << " ";
 	int count{1};
 	const int columns{2};
@@ -83,29 +83,29 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	const int headline_width{33};
 
-	out << fmt::format("{:<{}}", " Всего игроков:", headline_width);
+	out << fmt::format("{:<{}}", " п▓я│п╣пЁп╬ п╦пЁя─п╬п╨п╬п╡:", headline_width);
 	PrintValue(out, number_col_width, total);
 
-	out << fmt::format("{:<{}}", " Игроков выше|ниже 25 уровня:", headline_width);
+	out << fmt::format("{:<{}}", " п≤пЁя─п╬п╨п╬п╡ п╡я▀я┬п╣|п╫п╦п╤п╣ 25 я┐я─п╬п╡п╫я▐:", headline_width);
 	PrintPair(out, number_col_width, hilvl, lowlvl);
 
-	out << fmt::format("{:<{}}", " Игроков с перевоплощениями|без:", headline_width);
+	out << fmt::format("{:<{}}", " п≤пЁя─п╬п╨п╬п╡ я│ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦я▐п╪п╦|п╠п╣п╥:", headline_width);
 	PrintPair(out, number_col_width, rem, norem);
 
-	out << fmt::format("{:<{}}", " Клановых|внеклановых игроков:", headline_width);
+	out << fmt::format("{:<{}}", " п п╩п╟п╫п╬п╡я▀я┘|п╡п╫п╣п╨п╩п╟п╫п╬п╡я▀я┘ п╦пЁя─п╬п╨п╬п╡:", headline_width);
 	PrintPair(out, number_col_width, clan, noclan);
 
-	out << fmt::format("{:<{}}", " Игроков с флагами ПК|без ПК:", headline_width);
+	out << fmt::format("{:<{}}", " п≤пЁя─п╬п╨п╬п╡ я│ я└п╩п╟пЁп╟п╪п╦ п÷п |п╠п╣п╥ п÷п :", headline_width);
 	PrintPair(out, number_col_width, pk, nopk);
 
-	out << fmt::format("{:<{}}", " Героев (без ПК) | Тварей убито:", headline_width);
+	out << fmt::format("{:<{}}", " п⌠п╣я─п╬п╣п╡ (п╠п╣п╥ п÷п ) | п╒п╡п╟я─п╣п╧ я┐п╠п╦я┌п╬:", headline_width);
 	const int kills_col_width{5};
 	PrintPair(out, kills_col_width, char_stat::players_killed, char_stat::mobs_killed);
 	out << "\r\n";
 
 	char_stat::PrintClassesExpStat(out);
 
-	out << " Времени с перезагрузки: ";
+	out << " п▓я─п╣п╪п╣п╫п╦ я│ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╦: ";
 	PrintUptime(out);
 
 	SendMsgToChar(out.str(), ch);

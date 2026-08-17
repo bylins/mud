@@ -51,7 +51,7 @@ int was_agree_name(DescriptorData *d) {
 			d->character->set_sex(static_cast<EGender>(sex));
 			(d->character)->player_specials->saved.NameGod = immlev + 1000;
 			(d->character)->player_specials->saved.NameIDGod = GetPlayerIdByName(immname);
-			sprintf(buf, "\r\nВаше имя одобрено!\r\n");
+			sprintf(buf, "\r\nп▓п╟я┬п╣ п╦п╪я▐ п╬п╢п╬п╠я─п╣п╫п╬!\r\n");
 			iosystem::write_to_output(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
@@ -75,7 +75,7 @@ int was_disagree_name(DescriptorData *d) {
 		}
 		sscanf(line.c_str(), "%s %s %d", mortname, immname, &immlev);
 		if (!strcmp(mortname, GET_NAME(d->character))) {
-			sprintf(buf, "\r\nВаше имя запрещено!\r\n");
+			sprintf(buf, "\r\nп▓п╟я┬п╣ п╦п╪я▐ п╥п╟п©я─п╣я┴п╣п╫п╬!\r\n");
 			iosystem::write_to_output(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was disagreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
@@ -102,18 +102,18 @@ void rm_agree_name(CharData *d) {
 		});
 }
 
-// список неодобренных имен, дубль2
-// на этот раз ничего перебирать не будем, держа все в памяти и обновляя по необходимости
+// я│п©п╦я│п╬п╨ п╫п╣п╬п╢п╬п╠я─п╣п╫п╫я▀я┘ п╦п╪п╣п╫, п╢я┐п╠п╩я▄2
+// п╫п╟ я█я┌п╬я┌ я─п╟п╥ п╫п╦я┤п╣пЁп╬ п©п╣я─п╣п╠п╦я─п╟я┌я▄ п╫п╣ п╠я┐п╢п╣п╪, п╢п╣я─п╤п╟ п╡я│п╣ п╡ п©п╟п╪я▐я┌п╦ п╦ п╬п╠п╫п╬п╡п╩я▐я▐ п©п╬ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦
 
 struct NewName {
-	std::string name0; // падежи
+	std::string name0; // п©п╟п╢п╣п╤п╦
 	std::string name1; // --//--
 	std::string name2; // --//--
 	std::string name3; // --//--
 	std::string name4; // --//--
 	std::string name5; // --//--
-	std::string email; // мыло
-	EGender sex{EGender::kNeutral};         // часто не ясно, для какоо пола падежи вообще
+	std::string email; // п╪я▀п╩п╬
+	EGender sex{EGender::kNeutral};         // я┤п╟я│я┌п╬ п╫п╣ я▐я│п╫п╬, п╢п╩я▐ п╨п╟п╨п╬п╬ п©п╬п╩п╟ п©п╟п╢п╣п╤п╦ п╡п╬п╬п╠я┴п╣
 };
 
 typedef std::shared_ptr<NewName> NewNamePtr;
@@ -121,7 +121,7 @@ typedef std::map<std::string, NewNamePtr> NewNameListType;
 
 static NewNameListType NewNameList;
 
-// сохранение списка в файл
+// я│п╬я┘я─п╟п╫п╣п╫п╦п╣ я│п©п╦я│п╨п╟ п╡ я└п╟п╧п╩
 static void NewNames::save() {
 	// issue.misc-migrate: atomic whole-file replace via StateManager.
 	std::vector<std::string> lines;
@@ -129,15 +129,15 @@ static void NewNames::save() {
 	for (const auto &it : NewNameList) {
 		lines.push_back(it.first);
 	}
-	// Граница записи: имена уходят на диск в кодировке мира (сейчас KOI8-R), зеркально
-	// чтению (issue #3681).
+	// п⌠я─п╟п╫п╦я├п╟ п╥п╟п©п╦я│п╦: п╦п╪п╣п╫п╟ я┐я┘п╬п╢я▐я┌ п╫п╟ п╢п╦я│п╨ п╡ п╨п╬п╢п╦я─п╬п╡п╨п╣ п╪п╦я─п╟ (я│п╣п╧я┤п╟я│ KOI8-R), п╥п╣я─п╨п╟п╩я▄п╫п╬
+	// я┤я┌п╣п╫п╦я▌ (issue #3681).
 	for (auto &line : lines) {
 		line = native_text::to_disk(line);
 	}
 	MUD::StateManager().SaveLines(state::EStateFile::kPendingNames, lines);
 }
 
-// добавить в список без сохранения на диск
+// п╢п╬п╠п╟п╡п╦я┌я▄ п╡ я│п©п╦я│п╬п╨ п╠п╣п╥ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п╫п╟ п╢п╦я│п╨
 static void NewNames::cache_add(CharData *ch) {
 	NewNamePtr name(new NewName);
 
@@ -153,13 +153,13 @@ static void NewNames::cache_add(CharData *ch) {
 	NewNameList[GET_NAME(ch)] = name;
 }
 
-// добавление имени в список неодобренных для показа иммам
+// п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╦п╪п╣п╫п╦ п╡ я│п©п╦я│п╬п╨ п╫п╣п╬п╢п╬п╠я─п╣п╫п╫я▀я┘ п╢п╩я▐ п©п╬п╨п╟п╥п╟ п╦п╪п╪п╟п╪
 void NewNames::add(CharData *ch) {
 	cache_add(ch);
 	save();
 }
 
-// поиск/удаление персонажа из списка неодобренных имен
+// п©п╬п╦я│п╨/я┐п╢п╟п╩п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤п╟ п╦п╥ я│п©п╦я│п╨п╟ п╫п╣п╬п╢п╬п╠я─п╣п╫п╫я▀я┘ п╦п╪п╣п╫
 void NewNames::remove(CharData *ch) {
 	NewNameListType::iterator it;
 	it = NewNameList.find(GET_NAME(ch));
@@ -168,19 +168,19 @@ void NewNames::remove(CharData *ch) {
 	save();
 }
 
-// для удаления через команду имма
+// п╢п╩я▐ я┐п╢п╟п╩п╣п╫п╦я▐ я┤п╣я─п╣п╥ п╨п╬п╪п╟п╫п╢я┐ п╦п╪п╪п╟
 void NewNames::remove(const std::string &name, CharData *actor) {
 	auto it = NewNameList.find(name);
 	if (it != NewNameList.end()) {
 		NewNameList.erase(it);
-		SendMsgToChar("Запись удалена.\r\n", actor);
+		SendMsgToChar("п≈п╟п©п╦я│я▄ я┐п╢п╟п╩п╣п╫п╟.\r\n", actor);
 	} else
-		SendMsgToChar("В списке нет такого имени.\r\n", actor);
+		SendMsgToChar("п▓ я│п©п╦я│п╨п╣ п╫п╣я┌ я┌п╟п╨п╬пЁп╬ п╦п╪п╣п╫п╦.\r\n", actor);
 
 	save();
 }
 
-// лоад списка неодобренных имен
+// п╩п╬п╟п╢ я│п©п╦я│п╨п╟ п╫п╣п╬п╢п╬п╠я─п╣п╫п╫я▀я┘ п╦п╪п╣п╫
 void NewNames::load() {
 	// issue.misc-migrate: read names via StateManager (keeping the previous `>> buffer` tokenising),
 	// then re-save to normalise. A missing file just yields an empty list.
@@ -188,32 +188,32 @@ void NewNames::load() {
 		std::istringstream iss(line);
 		std::string buffer;
 		while (iss >> buffer) {
-			// сразу проверяем не сделетился ли уже персонаж
+			// я│я─п╟п╥я┐ п©я─п╬п╡п╣я─я▐п╣п╪ п╫п╣ я│п╢п╣п╩п╣я┌п╦п╩я│я▐ п╩п╦ я┐п╤п╣ п©п╣я─я│п╬п╫п╟п╤
 			Player t_tch;
 			Player *tch = &t_tch;
 			if (LoadPlayerCharacter(buffer.c_str(), tch, ELoadCharFlags::kFindId) < 0)
 				continue;
-			// не сделетился...
+			// п╫п╣ я│п╢п╣п╩п╣я┌п╦п╩я│я▐...
 			cache_add(tch);
 		}
 	}
 	save();
 }
 
-// вывод списка неодобренных имму
+// п╡я▀п╡п╬п╢ я│п©п╦я│п╨п╟ п╫п╣п╬п╢п╬п╠я─п╣п╫п╫я▀я┘ п╦п╪п╪я┐
 bool NewNames::show(CharData *actor) {
 	if (NewNameList.empty())
 		return false;
 
 	std::ostringstream buffer;
-	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << kColorWht;
+	buffer << "\r\nп≤пЁя─п╬п╨п╦, п╤п╢я┐я┴п╦п╣ п╬п╢п╬п╠я─п╣п╫п╦я▐ п╦п╪п╣п╫п╦ (п╦п╪я▐ <п╦пЁя─п╬п╨> п╬п╢п╬п╠я─п╦я┌я▄/п╥п╟п©я─п╣я┌п╦я┌я▄/я┐п╢п╟п╩п╦я┌я▄):\r\n" << kColorWht;
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it) {
 		const auto sex = static_cast<size_t>(to_underlying(it->second->sex));
-		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
+		buffer << "п≤п╪я▐: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 			   << "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 			   << "/" << it->second->name5 << " Email: &S"
-			   << (GET_GOD_FLAG(actor, EGf::kDemigod) ? "неопределен" : it->second->email)
-			   << "&s Пол: " << genders[sex] << "\r\n";
+			   << (GET_GOD_FLAG(actor, EGf::kDemigod) ? "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫" : it->second->email)
+			   << "&s п÷п╬п╩: " << genders[sex] << "\r\n";
 	}
 	buffer << kColorNrm;
 	SendMsgToChar(buffer.str(), actor);
@@ -286,41 +286,41 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
 	if (GetRealLevel(vict) > god_level) {
-		SendMsgToChar("А он ведь старше вас...\r\n", ch);
+		SendMsgToChar("п░ п╬п╫ п╡п╣п╢я▄ я│я┌п╟я─я┬п╣ п╡п╟я│...\r\n", ch);
 		return;
 	}
 
-	// одобряем или нет
+	// п╬п╢п╬п╠я─я▐п╣п╪ п╦п╩п╦ п╫п╣я┌
 	int lev = (vict)->player_specials->saved.NameGod;
 	if (lev > 1000)
 		lev = lev - 1000;
 	if (lev > god_level) {
-		SendMsgToChar("Об этом имени уже позаботился бог старше вас.\r\n", ch);
+		SendMsgToChar("п·п╠ я█я┌п╬п╪ п╦п╪п╣п╫п╦ я┐п╤п╣ п©п╬п╥п╟п╠п╬я┌п╦п╩я│я▐ п╠п╬пЁ я│я┌п╟я─я┬п╣ п╡п╟я│.\r\n", ch);
 		return;
 	}
 
 	if (lev == god_level)
 		if ((vict)->player_specials->saved.NameIDGod != ch->get_uid())
-			SendMsgToChar("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
+			SendMsgToChar("п·п╠ я█я┌п╬п╪ п╦п╪п╣п╫п╦ я┐п╤п╣ п©п╬п╥п╟п╠п╬я┌п╦п╩я│я▐ п╢я─я┐пЁп╬п╧ п╠п╬пЁ п╡п╟я┬п╣пЁп╬ я┐я─п╬п╡п╫я▐.\r\n", ch);
 
 	if (action == NAME_AGREE) {
 		(vict)->player_specials->saved.NameGod = god_level + 1000;
 		(vict)->player_specials->saved.NameIDGod = ch->get_uid();
-		//SendMsgToChar("Имя одобрено!\r\n", ch);
-		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
+		//SendMsgToChar("п≤п╪я▐ п╬п╢п╬п╠я─п╣п╫п╬!\r\n", ch);
+		SendMsgToChar(vict, "&Gп▓п╟я┬п╣ п╦п╪я▐ п╬п╢п╬п╠я─п╣п╫п╬!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
+		sprintf(buf, "&c%s п╬п╢п╬п╠я─п╦п╩%s п╦п╪я▐ п╦пЁя─п╬п╨п╟ %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
 		SendMsgToGods(buf, true);
-		// В этом теперь нет смысла
+		// п▓ я█я┌п╬п╪ я┌п╣п©п╣я─я▄ п╫п╣я┌ я│п╪я▀я│п╩п╟
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
 	} else {
 		(vict)->player_specials->saved.NameGod = god_level;
 		(vict)->player_specials->saved.NameIDGod = ch->get_uid();
-		//SendMsgToChar("Имя запрещено!\r\n", ch);
-		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
+		//SendMsgToChar("п≤п╪я▐ п╥п╟п©я─п╣я┴п╣п╫п╬!\r\n", ch);
+		SendMsgToChar(vict, "&Rп▓п╟я┬п╣ п╦п╪я▐ п╥п╟п©я─п╣я┴п╣п╫п╬!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
+		sprintf(buf, "&c%s п╥п╟п©я─п╣я┌п╦п╩%s п╦п╪я▐ п╦пЁя─п╬п╨п╟ %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
 		SendMsgToGods(buf, true);
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
@@ -329,10 +329,10 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 }
 
 const char *MORTAL_DO_TITLE_FORMAT = "\r\n"
-									 "имя - вывод списка имен, ждущих одобрения, если они есть\r\n"
-									 "имя <игрок> одобрить - одобрить имя данного игрока\r\n"
-									 "имя <игрок> запретить - запретить имя данного игрока\r\n"
-									 "имя <игрок> удалить - удалить данное имя из списка без запрета или одобрения\r\n";
+									 "п╦п╪я▐ - п╡я▀п╡п╬п╢ я│п©п╦я│п╨п╟ п╦п╪п╣п╫, п╤п╢я┐я┴п╦я┘ п╬п╢п╬п╠я─п╣п╫п╦я▐, п╣я│п╩п╦ п╬п╫п╦ п╣я│я┌я▄\r\n"
+									 "п╦п╪я▐ <п╦пЁя─п╬п╨> п╬п╢п╬п╠я─п╦я┌я▄ - п╬п╢п╬п╠я─п╦я┌я▄ п╦п╪я▐ п╢п╟п╫п╫п╬пЁп╬ п╦пЁя─п╬п╨п╟\r\n"
+									 "п╦п╪я▐ <п╦пЁя─п╬п╨> п╥п╟п©я─п╣я┌п╦я┌я▄ - п╥п╟п©я─п╣я┌п╦я┌я▄ п╦п╪я▐ п╢п╟п╫п╫п╬пЁп╬ п╦пЁя─п╬п╨п╟\r\n"
+									 "п╦п╪я▐ <п╦пЁя─п╬п╨> я┐п╢п╟п╩п╦я┌я▄ - я┐п╢п╟п╩п╦я┌я▄ п╢п╟п╫п╫п╬п╣ п╦п╪я▐ п╦п╥ я│п©п╦я│п╨п╟ п╠п╣п╥ п╥п╟п©я─п╣я┌п╟ п╦п╩п╦ п╬п╢п╬п╠я─п╣п╫п╦я▐\r\n";
 
 void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string name, command = argument;
@@ -348,11 +348,11 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	utils::Trim(command);
 	int action = -1;
-	if (CompareParam(command, "одобрить"))
+	if (CompareParam(command, "п╬п╢п╬п╠я─п╦я┌я▄"))
 		action = NAME_AGREE;
-	else if (CompareParam(command, "запретить"))
+	else if (CompareParam(command, "п╥п╟п©я─п╣я┌п╦я┌я▄"))
 		action = NAME_DISAGREE;
-	else if (CompareParam(command, "удалить"))
+	else if (CompareParam(command, "я┐п╢п╟п╩п╦я┌я▄"))
 		action = NAME_DELETE;
 
 	if (action < 0) {
@@ -369,14 +369,14 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	if ((vict = target_resolver::FindPlayerVis(ch, name)) != nullptr) {
 		if (!(vict = target_resolver::FindPlayer(ch, name))) {
-			SendMsgToChar("Нет такого игрока.\r\n", ch);
+			SendMsgToChar("п²п╣я┌ я┌п╟п╨п╬пЁп╬ п╦пЁя─п╬п╨п╟.\r\n", ch);
 			return;
 		}
 		go_name(ch, vict, action);
 	} else {
-		vict = new Player; // TODO: переделать на стек
+		vict = new Player; // TODO: п©п╣я─п╣п╢п╣п╩п╟я┌я▄ п╫п╟ я│я┌п╣п╨
 		if (LoadPlayerCharacter(name.c_str(), vict, ELoadCharFlags::kFindId) < 0) {
-			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
+			SendMsgToChar("п╒п╟п╨п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n", ch);
 			delete vict;
 			return;
 		}

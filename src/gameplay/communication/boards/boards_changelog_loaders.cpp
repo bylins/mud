@@ -24,7 +24,7 @@ void ChangeLogLoaderImplementation::add_message(const std::string &author,
 												const std::string &desc,
 												time_t parsed_time) {
 	const auto message = std::make_shared<Message>();
-	// имя автора
+	// п╦п╪я▐ п╟п╡я┌п╬я─п╟
 	std::string author_copy = author;
 	const std::size_t e_pos = author_copy.find('<');
 	const std::size_t s_pos = author_copy.find(' ');
@@ -39,7 +39,7 @@ void ChangeLogLoaderImplementation::add_message(const std::string &author,
 	utils::Trim(desc_copy);
 	message->text = desc_copy;
 
-	// из текста первая строка в заголовок
+	// п╦п╥ я┌п╣п╨я│я┌п╟ п©п╣я─п╡п╟я▐ я│я┌я─п╬п╨п╟ п╡ п╥п╟пЁп╬п╩п╬п╡п╬п╨
 	std::string subj(message->text.begin(), std::find(message->text.begin(), message->text.end(), '\n'));
 /*		if (subj.size() > 40)
 		{
@@ -204,8 +204,8 @@ bool GitChangeLogLoader::GitCommitReader::next_line(std::string &buffer, std::is
 	if (!std::getline(is, buffer)) {
 		return false;
 	}
-	// Changelog лежит на диске в KOI8-R и читается потоком; границу кодировки проходим здесь
-	// (issue #3681). Под KOI8-R это тождество.
+	// Changelog п╩п╣п╤п╦я┌ п╫п╟ п╢п╦я│п╨п╣ п╡ KOI8-R п╦ я┤п╦я┌п╟п╣я┌я│я▐ п©п╬я┌п╬п╨п╬п╪; пЁя─п╟п╫п╦я├я┐ п╨п╬п╢п╦я─п╬п╡п╨п╦ п©я─п╬я┘п╬п╢п╦п╪ п╥п╢п╣я│я▄
+	// (issue #3681). п÷п╬п╢ KOI8-R я█я┌п╬ я┌п╬п╤п╢п╣я│я┌п╡п╬.
 	buffer = native_text::from_disk_line(buffer.c_str());
 	++line;
 

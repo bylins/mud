@@ -58,10 +58,10 @@ void DataFile::get_one_line(char *buf, std::size_t buf_size) {
 		raw[--len] = '\0';    // take off the trailing \r\n
 	}
 
-	// Граница кодировки (issue #3681): файлы справки лежат на диске в KOI8-R, а движок под
-	// UTF-8 ждёт нативный текст -- без этого ключи разделов не совпадали бы с тем, что ввёл
-	// игрок, а тело раздела уезжало бы клиенту байтами чужой кодировки. Строка может при этом
-	// вырасти (KOI8-R байт -> до трёх байт UTF-8), поэтому размер буфера передаётся явно.
+	// п⌠я─п╟п╫п╦я├п╟ п╨п╬п╢п╦я─п╬п╡п╨п╦ (issue #3681): я└п╟п╧п╩я▀ я│п©я─п╟п╡п╨п╦ п╩п╣п╤п╟я┌ п╫п╟ п╢п╦я│п╨п╣ п╡ KOI8-R, п╟ п╢п╡п╦п╤п╬п╨ п©п╬п╢
+	// UTF-8 п╤п╢я▒я┌ п╫п╟я┌п╦п╡п╫я▀п╧ я┌п╣п╨я│я┌ -- п╠п╣п╥ я█я┌п╬пЁп╬ п╨п╩я▌я┤п╦ я─п╟п╥п╢п╣п╩п╬п╡ п╫п╣ я│п╬п╡п©п╟п╢п╟п╩п╦ п╠я▀ я│ я┌п╣п╪, я┤я┌п╬ п╡п╡я▒п╩
+	// п╦пЁя─п╬п╨, п╟ я┌п╣п╩п╬ я─п╟п╥п╢п╣п╩п╟ я┐п╣п╥п╤п╟п╩п╬ п╠я▀ п╨п╩п╦п╣п╫я┌я┐ п╠п╟п╧я┌п╟п╪п╦ я┤я┐п╤п╬п╧ п╨п╬п╢п╦я─п╬п╡п╨п╦. п║я┌я─п╬п╨п╟ п╪п╬п╤п╣я┌ п©я─п╦ я█я┌п╬п╪
+	// п╡я▀я─п╟я│я┌п╦ (KOI8-R п╠п╟п╧я┌ -> п╢п╬ я┌я─я▒я┘ п╠п╟п╧я┌ UTF-8), п©п╬я█я┌п╬п╪я┐ я─п╟п╥п╪п╣я─ п╠я┐я└п╣я─п╟ п©п╣я─п╣п╢п╟я▒я┌я│я▐ я▐п╡п╫п╬.
 	const std::string native = native_text::from_disk_line(raw);
 	strncpy(buf, native.c_str(), buf_size - 1);
 	buf[buf_size - 1] = '\0';
@@ -407,7 +407,7 @@ void WorldFile::parse_room(int virtual_nr) {
 			fatal_log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 		}
 	}
-	// Создаем новую комнату
+	// п║п╬п╥п╢п╟п╣п╪ п╫п╬п╡я┐я▌ п╨п╬п╪п╫п╟я┌я┐
 	world.push_back(new RoomData);
 	world[room_realnum]->zone_rn = zone;
 	world[room_realnum]->vnum = virtual_nr;
@@ -482,7 +482,7 @@ void WorldFile::parse_room(int virtual_nr) {
 					switch (letter) {
 						case 'I':
 							get_line(file(),
-									 line); //оставлено для совместимости, удалить после пересохранения комнат
+									 line); //п╬я│я┌п╟п╡п╩п╣п╫п╬ п╢п╩я▐ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦, я┐п╢п╟п╩п╦я┌я▄ п©п╬я│п╩п╣ п©п╣я─п╣я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п╨п╬п╪п╫п╟я┌
 							break;
 
 						case 'T': dg_read_trigger(world[room_realnum], WLD_TRIGGER, virtual_nr);
@@ -512,7 +512,7 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	world[room]->dir_option_proto[dir] = std::make_shared<ExitData>();
 	world[room]->dir_option_proto[dir]->general_description = fread_string();
 
-	// парс строки алиаса двери на имя; вининельный падеж, если он есть
+	// п©п╟я─я│ я│я┌я─п╬п╨п╦ п╟п╩п╦п╟я│п╟ п╢п╡п╣я─п╦ п╫п╟ п╦п╪я▐; п╡п╦п╫п╦п╫п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤, п╣я│п╩п╦ п╬п╫ п╣я│я┌я▄
 	world[room]->dir_option_proto[dir]->set_keywords(fread_string());
 
 	if (!get_line(file(), line)) {
@@ -540,9 +540,9 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	world[room]->dir_option_proto[dir]->key = t[1];
 	world[room]->dir_option_proto[dir]->to_room(t[2]);
 
-	// Полностью пустые D-блоки - мусор из старых редакторов, на рантайм не
-	// влияют и без причины засоряют show errors. Дропаем их сразу при загрузке
-	// (симметрично в YAML- и SQLite-загрузчиках), см. issue #3272.
+	// п÷п╬п╩п╫п╬я│я┌я▄я▌ п©я┐я│я┌я▀п╣ D-п╠п╩п╬п╨п╦ - п╪я┐я│п╬я─ п╦п╥ я│я┌п╟я─я▀я┘ я─п╣п╢п╟п╨я┌п╬я─п╬п╡, п╫п╟ я─п╟п╫я┌п╟п╧п╪ п╫п╣
+	// п╡п╩п╦я▐я▌я┌ п╦ п╠п╣п╥ п©я─п╦я┤п╦п╫я▀ п╥п╟я│п╬я─я▐я▌я┌ show errors. п■я─п╬п©п╟п╣п╪ п╦я┘ я│я─п╟п╥я┐ п©я─п╦ п╥п╟пЁя─я┐п╥п╨п╣
+	// (я│п╦п╪п╪п╣я┌я─п╦я┤п╫п╬ п╡ YAML- п╦ SQLite-п╥п╟пЁя─я┐п╥я┤п╦п╨п╟я┘), я│п╪. issue #3272.
 	if (world[room]->dir_option_proto[dir]->is_empty()) {
 		world[room]->dir_option_proto[dir].reset();
 	}
@@ -615,7 +615,7 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_short_description(utils::colorLOW(fread_string()));
 
 	snprintf(buf, sizeof(buf), "%s", tobj->get_short_description().c_str());
-	tobj->set_PName(grammar::ECase::kNom, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
+	tobj->set_PName(grammar::ECase::kNom, utils::colorLOW(buf)); //п╦п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤ я─п╟п╡п╣п╫ п╨п╬я─п╬я┌п╨п╬п╪я┐ п╬п©п╦я│п╟п╫п╦я▌
 
 	for (j = grammar::ECase::kGen; j <= grammar::ECase::kLastCase; j++) {
 		tobj->set_PName(static_cast<grammar::ECase>(j), utils::colorLOW(fread_string()));
@@ -659,8 +659,8 @@ void ObjectFile::parse_object(const int nr) {
 		timer = 99999;
 	}
 	tobj->set_timer(timer);
-	// issue #3581: obj->spell и его уровень -- мёртвая пара, ни одна механика их не читает.
-	// t[2]/t[3] всё ещё разбираются (формат легаси-строки = 4 поля), но объекту не присваиваются.
+	// issue #3581: obj->spell п╦ п╣пЁп╬ я┐я─п╬п╡п╣п╫я▄ -- п╪я▒я─я┌п╡п╟я▐ п©п╟я─п╟, п╫п╦ п╬п╢п╫п╟ п╪п╣я┘п╟п╫п╦п╨п╟ п╦я┘ п╫п╣ я┤п╦я┌п╟п╣я┌.
+	// t[2]/t[3] п╡я│я▒ п╣я┴я▒ я─п╟п╥п╠п╦я─п╟я▌я┌я│я▐ (я└п╬я─п╪п╟я┌ п╩п╣пЁп╟я│п╦-я│я┌я─п╬п╨п╦ = 4 п©п╬п╩я▐), п╫п╬ п╬п╠я┼п╣п╨я┌я┐ п╫п╣ п©я─п╦я│п╡п╟п╦п╡п╟я▌я┌я│я▐.
 
 	if (!get_line(file(), m_line)) {
 		fatal_log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", m_buffer);
@@ -731,7 +731,7 @@ void ObjectFile::parse_object(const int nr) {
 			tobj->set_weight(tobj->get_val(1) + 5);
 		}
 	}
-	tobj->unset_extraflag(EObjFlag::kTransformed); //от шаловливых ручек
+	tobj->unset_extraflag(EObjFlag::kTransformed); //п╬я┌ я┬п╟п╩п╬п╡п╩п╦п╡я▀я┘ я─я┐я┤п╣п╨
 	tobj->unset_extraflag(EObjFlag::kTicktimer);
 
 	// *** extra descriptions and affect fields ***
@@ -829,7 +829,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 		log("SYSERR: Object #%d (%s) has negative weight (%d).",
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), obj->get_weight());
 	}
-/* спам от антуражных шмоток
+/* я│п©п╟п╪ п╬я┌ п╟п╫я┌я┐я─п╟п╤п╫я▀я┘ я┬п╪п╬я┌п╬п╨
 	if (obj->get_rent_off() <= 0) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",
@@ -1026,14 +1026,14 @@ void MobileFile::parse_mobile(const int nr) {
 
 	// DG triggers -- script info follows mob S/E section
 	// DG triggers -- script is defined after the end of the room 'T'
-	// Ингредиентная магия -- 'I'
-	// Объекты загружаемые по-смертно -- 'L'
+	// п≤п╫пЁя─п╣п╢п╦п╣п╫я┌п╫п╟я▐ п╪п╟пЁп╦я▐ -- 'I'
+	// п·п╠я┼п╣п╨я┌я▀ п╥п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п©п╬-я│п╪п╣я─я┌п╫п╬ -- 'L'
 
 	do {
 		letter = fread_letter(file());
 		ungetc(letter, file());
 		switch (letter) {
-			case 'I': // Оставлено для совместимости со старым форматиом (с ингредиентами в файлах зон).
+			case 'I': // п·я│я┌п╟п╡п╩п╣п╫п╬ п╢п╩я▐ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦ я│п╬ я│я┌п╟я─я▀п╪ я└п╬я─п╪п╟я┌п╦п╬п╪ (я│ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟п╪п╦ п╡ я└п╟п╧п╩п╟я┘ п╥п╬п╫).
 				get_line(file(), line);
 				break;
 
@@ -1074,12 +1074,12 @@ void MobileFile::parse_mobile(const int nr) {
 		}
 	}
 /*
-//сконвертированно в пфайлы
-	// Авто-выставление "магии жизни" мобам с заклинанием
-	// "исцеление"/"групповое исцеление" -- билдеры часто забывают
-	// прописать Skill: 189, и кастер заваливает каст из-за нулевого
-	// процента. На загрузке выставляем kLifeMagic = level * 10 для
-	// любого моба с одним из этих заклинаний в памяти (#3267).
+//я│п╨п╬п╫п╡п╣я─я┌п╦я─п╬п╡п╟п╫п╫п╬ п╡ п©я└п╟п╧п╩я▀
+	// п░п╡я┌п╬-п╡я▀я│я┌п╟п╡п╩п╣п╫п╦п╣ "п╪п╟пЁп╦п╦ п╤п╦п╥п╫п╦" п╪п╬п╠п╟п╪ я│ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣п╪
+	// "п╦я│я├п╣п╩п╣п╫п╦п╣"/"пЁя─я┐п©п©п╬п╡п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣" -- п╠п╦п╩п╢п╣я─я▀ я┤п╟я│я┌п╬ п╥п╟п╠я▀п╡п╟я▌я┌
+	// п©я─п╬п©п╦я│п╟я┌я▄ Skill: 189, п╦ п╨п╟я│я┌п╣я─ п╥п╟п╡п╟п╩п╦п╡п╟п╣я┌ п╨п╟я│я┌ п╦п╥-п╥п╟ п╫я┐п╩п╣п╡п╬пЁп╬
+	// п©я─п╬я├п╣п╫я┌п╟. п²п╟ п╥п╟пЁя─я┐п╥п╨п╣ п╡я▀я│я┌п╟п╡п╩я▐п╣п╪ kLifeMagic = level * 10 п╢п╩я▐
+	// п╩я▌п╠п╬пЁп╬ п╪п╬п╠п╟ я│ п╬п╢п╫п╦п╪ п╦п╥ я█я┌п╦я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ п╡ п©п╟п╪я▐я┌п╦ (#3267).
 	if (GET_SPELL_MEM(mob_proto + i, ESpell::kHeal) > 0
 		|| GET_SPELL_MEM(mob_proto + i, ESpell::kGroupHeal) > 0) {
 		mob_proto[i].set_skill(ESkill::kLifeMagic, mob_proto[i].GetLevel() * 10);
@@ -1099,7 +1099,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	mob_proto[i].set_con(11);
 	mob_proto[i].set_cha(11);
 
-	mob_proto[i].player_specials->saved.NameGod = 1001; // у мобов имя всегда одобрено
+	mob_proto[i].player_specials->saved.NameGod = 1001; // я┐ п╪п╬п╠п╬п╡ п╦п╪я▐ п╡я│п╣пЁп╢п╟ п╬п╢п╬п╠я─п╣п╫п╬
 	if (!get_line(file(), line)) {
 		fatal_log("SYSERR: Format error in mob #%d, file ended after S flag!", nr);
 	}
@@ -1236,10 +1236,10 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 
 
-/*		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
-		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(kBoss)) // жизнь и не боссы
+/*		п╥п╟пЁп╬я┌п╬п╡п╨п╟ п©п╟я─я│п╟ я─п╣п╥п╦я│я┌п╬п╡ я┐ п╪п╬п╠п╟ п©я─п╦ п╥п╟пЁя─я┐п╥п╨п╣ п╪п╟п╢п╟, я┤я┌п╬п╠ п╡ я│п╩п╣п╢ я─п╟п╥ п╫п╣ п©я─п╦п╢я┐п╪я▀п╡п╟я┌я▄
+		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(kBoss)) // п╤п╦п╥п╫я▄ п╦ п╫п╣ п╠п╬я│я│я▀
 		{
-			if (zone_table[world[&mob_proto[i]->in_room]->zone].group < 3) // в зонах 0-2 группы
+			if (zone_table[world[&mob_proto[i]->in_room]->zone].group < 3) // п╡ п╥п╬п╫п╟я┘ 0-2 пЁя─я┐п©п©я▀
 				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", GET_RESIST(mob_proto + i, 4), mob_index[i].vnum, GetRealLevel(&mob_proto[i]), GET_PAD(&mob_proto[i], 0));
 		}
 */
@@ -1254,7 +1254,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			SetSave(mob_proto + i, save, std::clamp(t[to_underlying(save)], kMinSaving, kMaxSaving));
 		}
 	}
-// Svent: и что тут за коллекция магик намберов бесконечная? Вынести в настройки.
+// Svent: п╦ я┤я┌п╬ я┌я┐я┌ п╥п╟ п╨п╬п╩п╩п╣п╨я├п╦я▐ п╪п╟пЁп╦п╨ п╫п╟п╪п╠п╣я─п╬п╡ п╠п╣я│п╨п╬п╫п╣я┤п╫п╟я▐? п▓я▀п╫п╣я│я┌п╦ п╡ п╫п╟я│я┌я─п╬п╧п╨п╦.
 	CASE("HPReg") {
 		mob_proto[i].add_abils.hitreg = std::clamp(num_arg, -200, 200);
 	}
@@ -1489,7 +1489,7 @@ bool ZoneFile::load_zone() {
 		size_t digits = full_file_name().find_first_of("1234567890");
 		if (digits <= full_file_name().size()) {
 			if (zone.vnum != atoi(full_file_name().c_str() + digits)) {
-				fatal_log("SYSERR: файл %s содержит неверный номер зоны %d", full_file_name().c_str(), zone.vnum);
+				fatal_log("SYSERR: я└п╟п╧п╩ %s я│п╬п╢п╣я─п╤п╦я┌ п╫п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ п╥п╬п╫я▀ %d", full_file_name().c_str(), zone.vnum);
 			}
 		}
 		if (2 == count) {
@@ -1538,7 +1538,7 @@ bool ZoneFile::load_regular_zone() {
 	if (zone.typeB_count) {
 		CREATE(zone.typeB_list, zone.typeB_count);
 		CREATE(zone.typeB_flag, zone.typeB_count);
-		// сбрасываем все флаги
+		// я│п╠я─п╟я│я▀п╡п╟п╣п╪ п╡я│п╣ я└п╩п╟пЁп╦
 		for (b_number = zone.typeB_count; b_number > 0; b_number--) {
 			zone.typeB_flag[b_number - 1] = false;
 		}
@@ -1559,7 +1559,7 @@ bool ZoneFile::load_regular_zone() {
 	}
 	zone.name = buf;
 
-	log("Читаем zon файл: %s", full_file_name().c_str());
+	log("п╖п╦я┌п╟п╣п╪ zon я└п╟п╧п╩: %s", full_file_name().c_str());
 	while (*buf != 'S' && !feof(file())) {
 		line_num += get_line(file(), buf);
 
@@ -1598,9 +1598,9 @@ bool ZoneFile::load_regular_zone() {
 	auto group = 0;
 	const auto count = sscanf(buf, "#%d %d %d %d", &zone.level, &zone.type, &group, &zone.entrance);
 	if (count < 2) {
-		fatal_log("SYSERR: ошибка чтения z.level, z.type, z.group, z.entrance: %s", buf);
+		fatal_log("SYSERR: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ z.level, z.type, z.group, z.entrance: %s", buf);
 	}
-	zone.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+	zone.group = (group == 0) ? 1 : group; //пЁя─я┐п©п©я▀ п╡ 0 я─я▀п╩ п╫п╣ п╠я▀п╡п╟п╣я┌
 	line_num += get_line(file(), buf);
 
 	char t1[80];
@@ -1609,7 +1609,7 @@ bool ZoneFile::load_regular_zone() {
 	*t2 = 0;
 	auto tmp_reset_idle = 0;
 	if (sscanf(buf, " %d %d %d %d %s %s", &zone.top, &zone.lifespan, &zone.reset_mode, &tmp_reset_idle, t1, t2) < 4) {
-		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
+		// п╣я│п╩п╦ п╫п╣я┌ я┤п╣я┌я▀я─п╣я┘ п╨п╬п╫я│я┌п╟п╫я┌, я┌п╬, п╡п╬п╥п╪п╬п╤п╫п╬, я█я┌п╬ я│я┌п╟я─я▀п╧ я└п╬я─п╪п╟я┌ -- п©п╬п©я─п╬п╠я┐п╣п╪ п©я─п╬я┤п╦я┌п╟я┌я▄ я┌я─п╦
 		const auto count = sscanf(buf, " %d %d %d %s %s",
 								  &zone.top,
 								  &zone.lifespan,
@@ -1643,9 +1643,9 @@ bool ZoneFile::load_regular_zone() {
 		}
 		ptr++;
 
-		// Новые параметры формата файла:
-		// A номер_зоны -- зона типа A из списка
-		// B номер_зоны -- зона типа B из списка
+		// п²п╬п╡я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀ я└п╬я─п╪п╟я┌п╟ я└п╟п╧п╩п╟:
+		// A п╫п╬п╪п╣я─_п╥п╬п╫я▀ -- п╥п╬п╫п╟ я┌п╦п©п╟ A п╦п╥ я│п©п╦я│п╨п╟
+		// B п╫п╬п╪п╣я─_п╥п╬п╫я▀ -- п╥п╬п╫п╟ я┌п╦п©п╟ B п╦п╥ я│п©п╦я│п╨п╟
 		if (zone.cmd[cmd_no].command == 'A') {
 			sscanf(ptr, " %d", &zone.typeA_list[a_number]);
 			a_number++;
@@ -1744,8 +1744,8 @@ class HelpFile : public DataFile {
 };
 
 bool HelpFile::load_help() {
-	// В нативной кодировке строка может быть втрое длиннее прочитанной с диска (KOI8-R байт
-	// разворачивается в UTF-8 максимум в три), поэтому буферы с запасом (issue #3681).
+	// п▓ п╫п╟я┌п╦п╡п╫п╬п╧ п╨п╬п╢п╦я─п╬п╡п╨п╣ я│я┌я─п╬п╨п╟ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╡я┌я─п╬п╣ п╢п╩п╦п╫п╫п╣п╣ п©я─п╬я┤п╦я┌п╟п╫п╫п╬п╧ я│ п╢п╦я│п╨п╟ (KOI8-R п╠п╟п╧я┌
+	// я─п╟п╥п╡п╬я─п╟я┤п╦п╡п╟п╣я┌я│я▐ п╡ UTF-8 п╪п╟п╨я│п╦п╪я┐п╪ п╡ я┌я─п╦), п©п╬я█я┌п╬п╪я┐ п╠я┐я└п╣я─я▀ я│ п╥п╟п©п╟я│п╬п╪ (issue #3681).
 	constexpr size_t kLineBufSize = 3 * READ_SIZE + 1;
 #if defined(CIRCLE_MACINTOSH)
 	static char key[kLineBufSize], next_key[kLineBufSize], entry[32384];	// ?
@@ -1762,8 +1762,8 @@ bool HelpFile::load_help() {
 		snprintf(entry, sizeof(entry), "%s\r\n", key);
 		get_one_line(line, sizeof(line));
 		while (*line != '#') {
-			// если вдруг файл внезапно закончился и '#' так и не встретился
-			// логаем ошибку и заканчиваем парсинг во избежание зацикливания
+			// п╣я│п╩п╦ п╡п╢я─я┐пЁ я└п╟п╧п╩ п╡п╫п╣п╥п╟п©п╫п╬ п╥п╟п╨п╬п╫я┤п╦п╩я│я▐ п╦ '#' я┌п╟п╨ п╦ п╫п╣ п╡я│я┌я─п╣я┌п╦п╩я│я▐
+			// п╩п╬пЁп╟п╣п╪ п╬я┬п╦п╠п╨я┐ п╦ п╥п╟п╨п╟п╫я┤п╦п╡п╟п╣п╪ п©п╟я─я│п╦п╫пЁ п╡п╬ п╦п╥п╠п╣п╤п╟п╫п╦п╣ п╥п╟я├п╦п╨п╩п╦п╡п╟п╫п╦я▐
 			if ((*line == '$') && (*(line + 1) == 0)) {
 				std::stringstream str_log;
 				str_log << "SYSERR: unexpected EOF in help file: \"" << file_name() << "\"";

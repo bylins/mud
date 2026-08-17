@@ -22,22 +22,22 @@
 
 namespace char_stat {
 
-/// мобов убито - для 'статистика'
+/// п╪п╬п╠п╬п╡ я┐п╠п╦я┌п╬ - п╢п╩я▐ 'я│я┌п╟я┌п╦я│я┌п╦п╨п╟'
 int mobs_killed = 0;
-/// игроков убито - для 'статистика'
+/// п╦пЁя─п╬п╨п╬п╡ я┐п╠п╦я┌п╬ - п╢п╩я▐ 'я│я┌п╟я┌п╦я│я┌п╦п╨п╟'
 int players_killed = 0;
 
 using ClassExpStat = std::pair<ECharClass, long long int>;
 using ExpStatArray = std::array<ClassExpStat, to_underlying(ECharClass::kLast) + 1>;
 using ExpStatArrayPtr = std::unique_ptr<ExpStatArray>;
-/// Опыт за ребут с делением по профам - для 'статистика'
+/// п·п©я▀я┌ п╥п╟ я─п╣п╠я┐я┌ я│ п╢п╣п╩п╣п╫п╦п╣п╪ п©п╬ п©я─п╬я└п╟п╪ - п╢п╩я▐ 'я│я┌п╟я┌п╦я│я┌п╦п╨п╟'
 std::unordered_map<ECharClass, unsigned long long> classes_exp_stat;
 
 /*
- * Подобная инициализация небезопасна: всегда существует возможность, что кто-то сунется в структуру
- * статистики до ее инициализации.
- *  \todo Нужно сделать глобальное хранилище статистики в global_objects и засунуть это все туда
- *  инициализацию, соответственно, разместить в процедуре загрузки мада. ABYRVALG
+ * п÷п╬п╢п╬п╠п╫п╟я▐ п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╫п╣п╠п╣п╥п╬п©п╟я│п╫п╟: п╡я│п╣пЁп╢п╟ я│я┐я┴п╣я│я┌п╡я┐п╣я┌ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄, я┤я┌п╬ п╨я┌п╬-я┌п╬ я│я┐п╫п╣я┌я│я▐ п╡ я│я┌я─я┐п╨я┌я┐я─я┐
+ * я│я┌п╟я┌п╦я│я┌п╦п╨п╦ п╢п╬ п╣п╣ п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦п╦.
+ *  \todo п²я┐п╤п╫п╬ я│п╢п╣п╩п╟я┌я▄ пЁп╩п╬п╠п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ п╡ global_objects п╦ п╥п╟я│я┐п╫я┐я┌я▄ я█я┌п╬ п╡я│п╣ я┌я┐п╢п╟
+ *  п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▌, я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬, я─п╟п╥п╪п╣я│я┌п╦я┌я▄ п╡ п©я─п╬я├п╣п╢я┐я─п╣ п╥п╟пЁя─я┐п╥п╨п╦ п╪п╟п╢п╟. ABYRVALG
  */
 void InitClassesExpStat() {
 	for ( const auto &it : MUD::Classes()) {
@@ -89,11 +89,11 @@ void PrintClassesExpStat(std::ostringstream &out) {
 	auto tmp_array = BuildExpStatArray();
 	const unsigned long long top_exp = (*tmp_array)[0].second;
 
-	out << " Соотношения набранного с перезагрузки опыта:" << "\r\n" << "\r\n";
+	out << " п║п╬п╬я┌п╫п╬я┬п╣п╫п╦я▐ п╫п╟п╠я─п╟п╫п╫п╬пЁп╬ я│ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╦ п╬п©я▀я┌п╟:" << "\r\n" << "\r\n";
 	/*
-	 * При более чем 2 столбцах будет работать неправильно.
-	 * Но возиться сейчас с написанием универсальной функции не вижу смысла:
-	 * нужен полноценный модуль форматирования таблиц, а не такие костыли по всему коду.
+	 * п÷я─п╦ п╠п╬п╩п╣п╣ я┤п╣п╪ 2 я│я┌п╬п╩п╠я├п╟я┘ п╠я┐п╢п╣я┌ я─п╟п╠п╬я┌п╟я┌я▄ п╫п╣п©я─п╟п╡п╦п╩я▄п╫п╬.
+	 * п²п╬ п╡п╬п╥п╦я┌я▄я│я▐ я│п╣п╧я┤п╟я│ я│ п╫п╟п©п╦я│п╟п╫п╦п╣п╪ я┐п╫п╦п╡п╣я─я│п╟п╩я▄п╫п╬п╧ я└я┐п╫п╨я├п╦п╦ п╫п╣ п╡п╦п╤я┐ я│п╪я▀я│п╩п╟:
+	 * п╫я┐п╤п╣п╫ п©п╬п╩п╫п╬я├п╣п╫п╫я▀п╧ п╪п╬п╢я┐п╩я▄ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦я▐ я┌п╟п╠п╩п╦я├, п╟ п╫п╣ я┌п╟п╨п╦п╣ п╨п╬я│я┌я▀п╩п╦ п©п╬ п╡я│п╣п╪я┐ п╨п╬п╢я┐.
 	 * \todo table format
 	 */
 	const int columns{2};
@@ -130,12 +130,12 @@ namespace mob_stat {
 
 // mob_stat_new.xml (legacy XML fallback) and mob_stat.bin (current binary store) live
 // under state/statistics/; their paths come from StateManager (kMobStat / kMobStatBin).
-/// за сколько месяцев хранится статистика (+ текущий месяц)
+/// п╥п╟ я│п╨п╬п╩я▄п╨п╬ п╪п╣я│я▐я├п╣п╡ я┘я─п╟п╫п╦я┌я│я▐ я│я┌п╟я┌п╦я│я┌п╦п╨п╟ (+ я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├)
 const int kMobStatHistorySize = 6;
-/// выборка кол-ва мобов для show stats при старте мада <months, mob-count>
+/// п╡я▀п╠п╬я─п╨п╟ п╨п╬п╩-п╡п╟ п╪п╬п╠п╬п╡ п╢п╩я▐ show stats п©я─п╦ я│я┌п╟я─я┌п╣ п╪п╟п╢п╟ <months, mob-count>
 std::map<int, int> count_stats;
 std::map<int, int> kill_stats;
-/// список мобов по внуму и месяцам
+/// я│п©п╦я│п╬п╨ п╪п╬п╠п╬п╡ п©п╬ п╡п╫я┐п╪я┐ п╦ п╪п╣я│я▐я├п╟п╪
 
 const time_t MobKillStat::default_date = 0;
 
@@ -150,14 +150,14 @@ std::pair<int, int> GetDate() {
 
 namespace {
 
-// Бинарный формат mob_stat. Файл машинный, руками не правится, поэтому
-// XML тут только тормозил и запись (построение DOM), и чтение при бутe.
-// Порядок байт нативный: файл не шарится между архитектурами.
+// п▒п╦п╫п╟я─п╫я▀п╧ я└п╬я─п╪п╟я┌ mob_stat. п╓п╟п╧п╩ п╪п╟я┬п╦п╫п╫я▀п╧, я─я┐п╨п╟п╪п╦ п╫п╣ п©я─п╟п╡п╦я┌я│я▐, п©п╬я█я┌п╬п╪я┐
+// XML я┌я┐я┌ я┌п╬п╩я▄п╨п╬ я┌п╬я─п╪п╬п╥п╦п╩ п╦ п╥п╟п©п╦я│я▄ (п©п╬я│я┌я─п╬п╣п╫п╦п╣ DOM), п╦ я┤я┌п╣п╫п╦п╣ п©я─п╦ п╠я┐я┌e.
+// п÷п╬я─я▐п╢п╬п╨ п╠п╟п╧я┌ п╫п╟я┌п╦п╡п╫я▀п╧: я└п╟п╧п╩ п╫п╣ я┬п╟я─п╦я┌я│я▐ п╪п╣п╤п╢я┐ п╟я─я┘п╦я┌п╣п╨я┌я┐я─п╟п╪п╦.
 //
-// Записи kills хранятся разреженно (индекс + значение, только ненулевые) --
-// иначе фикс-массив kills[kMaxGroupSize+1] на каждый стат раздувал файл
-// больше XML (там тоже писались только ненулевые n#).
-constexpr uint32_t kMobStatBinMagic = 0x4253544D;   // 'MSTB' в little-endian
+// п≈п╟п©п╦я│п╦ kills я┘я─п╟п╫я▐я┌я│я▐ я─п╟п╥я─п╣п╤п╣п╫п╫п╬ (п╦п╫п╢п╣п╨я│ + п╥п╫п╟я┤п╣п╫п╦п╣, я┌п╬п╩я▄п╨п╬ п╫п╣п╫я┐п╩п╣п╡я▀п╣) --
+// п╦п╫п╟я┤п╣ я└п╦п╨я│-п╪п╟я│я│п╦п╡ kills[kMaxGroupSize+1] п╫п╟ п╨п╟п╤п╢я▀п╧ я│я┌п╟я┌ я─п╟п╥п╢я┐п╡п╟п╩ я└п╟п╧п╩
+// п╠п╬п╩я▄я┬п╣ XML (я┌п╟п╪ я┌п╬п╤п╣ п©п╦я│п╟п╩п╦я│я▄ я┌п╬п╩я▄п╨п╬ п╫п╣п╫я┐п╩п╣п╡я▀п╣ n#).
+constexpr uint32_t kMobStatBinMagic = 0x4253544D;   // 'MSTB' п╡ little-endian
 constexpr uint32_t kMobStatBinVersion = 2;
 
 template<typename T>
@@ -172,8 +172,8 @@ bool BinRead(std::istream &in, T &value) {
 
 }  // namespace
 
-// Валидация + накопление count_stats/kill_stats для одного разобранного
-// стата. Общая для бинарного и legacy-XML путей загрузки.
+// п▓п╟п╩п╦п╢п╟я├п╦я▐ + п╫п╟п╨п╬п©п╩п╣п╫п╦п╣ count_stats/kill_stats п╢п╩я▐ п╬п╢п╫п╬пЁп╬ я─п╟п╥п╬п╠я─п╟п╫п╫п╬пЁп╬
+// я│я┌п╟я┌п╟. п·п╠я┴п╟я▐ п╢п╩я▐ п╠п╦п╫п╟я─п╫п╬пЁп╬ п╦ legacy-XML п©я┐я┌п╣п╧ п╥п╟пЁя─я┐п╥п╨п╦.
 static bool ApplyParsedStat(MobKillStat &tmp_time, MobMonthKillStat tmp_mob) {
 	if (tmp_mob.month <= 0 || tmp_mob.month > 12 || tmp_mob.year <= 0) {
 		return false;
@@ -193,8 +193,8 @@ static bool ApplyParsedStat(MobKillStat &tmp_time, MobMonthKillStat tmp_mob) {
 	return true;
 }
 
-// Чтение бинарного файла. true -- файл существует (даже если оказался
-// битым: тогда просто не падаем в XML), false -- файла нет (нужна миграция).
+// п╖я┌п╣п╫п╦п╣ п╠п╦п╫п╟я─п╫п╬пЁп╬ я└п╟п╧п╩п╟. true -- я└п╟п╧п╩ я│я┐я┴п╣я│я┌п╡я┐п╣я┌ (п╢п╟п╤п╣ п╣я│п╩п╦ п╬п╨п╟п╥п╟п╩я│я▐
+// п╠п╦я┌я▀п╪: я┌п╬пЁп╢п╟ п©я─п╬я│я┌п╬ п╫п╣ п©п╟п╢п╟п╣п╪ п╡ XML), false -- я└п╟п╧п╩п╟ п╫п╣я┌ (п╫я┐п╤п╫п╟ п╪п╦пЁя─п╟я├п╦я▐).
 static bool LoadBinary() {
 	std::ifstream in(MUD::StateManager().Path(state::EStateFile::kMobStatBin), std::ios::binary);
 	if (!in.is_open()) {
@@ -209,8 +209,8 @@ static bool LoadBinary() {
 		return false;
 	}
 	if (!BinRead(in, version) || version != kMobStatBinVersion) {
-		// Старый/чужой формат -- падаем в XML-миграцию, следующий Save
-		// перезапишет bin актуальной версией.
+		// п║я┌п╟я─я▀п╧/я┤я┐п╤п╬п╧ я└п╬я─п╪п╟я┌ -- п©п╟п╢п╟п╣п╪ п╡ XML-п╪п╦пЁя─п╟я├п╦я▌, я│п╩п╣п╢я┐я▌я┴п╦п╧ Save
+		// п©п╣я─п╣п╥п╟п©п╦я┬п╣я┌ bin п╟п╨я┌я┐п╟п╩я▄п╫п╬п╧ п╡п╣я─я│п╦п╣п╧.
 		mudlog("mob_stat.bin: unsupported version, fall back to XML", CMP, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
@@ -236,7 +236,7 @@ static bool LoadBinary() {
 			}
 			tmp_mob.month = month;
 			tmp_mob.year = year;
-			// Разреженные kills: nz пар (индекс, значение).
+			// п═п╟п╥я─п╣п╤п╣п╫п╫я▀п╣ kills: nz п©п╟я─ (п╦п╫п╢п╣п╨я│, п╥п╫п╟я┤п╣п╫п╦п╣).
 			uint8_t nz = 0;
 			if (!BinRead(in, nz)) {
 				break;
@@ -267,14 +267,14 @@ static bool LoadBinary() {
 	return true;
 }
 
-// Разовая миграция со старого XML (mob_stat_new.xml). После первого Save
-// данные уже в бинаре, и этот путь больше не используется.
+// п═п╟п╥п╬п╡п╟я▐ п╪п╦пЁя─п╟я├п╦я▐ я│п╬ я│я┌п╟я─п╬пЁп╬ XML (mob_stat_new.xml). п÷п╬я│п╩п╣ п©п╣я─п╡п╬пЁп╬ Save
+// п╢п╟п╫п╫я▀п╣ я┐п╤п╣ п╡ п╠п╦п╫п╟я─п╣, п╦ я█я┌п╬я┌ п©я┐я┌я▄ п╠п╬п╩я▄я┬п╣ п╫п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐.
 static void LoadXmlLegacy() {
 	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
-	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
-	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	// п╓п╟п╧п╩ п╩п╣п╤п╦я┌ п╫п╟ п╢п╦я│п╨п╣ п╡ KOI8-R; я┤п╦я┌п╟п╣п╪ я┤п╣я─п╣п╥ пЁя─п╟п╫п╦я├я┐ п╨п╬п╢п╦я─п╬п╡п╨п╦, п╟ я─п╟п╥п╠п╦я─п╟п╣п╪ я┐п╤п╣
+	// п╠я┐я└п╣я─ п╡ п╫п╟я┌п╦п╡п╫п╬п╧ п╨п╬п╢п╦я─п╬п╡п╨п╣ п╢п╡п╦п╤п╨п╟ (issue #3681). п÷п╬п╢ KOI8-R я█я┌п╬ я┌п╬п╤п╢п╣я│я┌п╡п╬.
 	const std::string xml_mob_stat = native_text::read_data_file(MUD::StateManager().Path(state::EStateFile::kMobStat));
 	pugi::xml_parse_result result = doc.load_buffer(xml_mob_stat.data(), xml_mob_stat.size());
 	if (!result) {
@@ -304,7 +304,7 @@ static void LoadXmlLegacy() {
 			kill_date = static_cast<time_t>(xml_date.as_ullong(kill_date));
 		}
 
-		// инит статы конкретного моба по месяцам
+		// п╦п╫п╦я┌ я│я┌п╟я┌я▀ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ п╪п╬п╠п╟ п©п╬ п╪п╣я│я▐я├п╟п╪
 		MobKillStat tmp_time(kill_date);
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
 			 xml_time = xml_time.next_sibling("t")) {
@@ -347,7 +347,7 @@ void Save() {
 		for (const auto &stat : i.second.stats) {
 			BinWrite(buf, static_cast<int32_t>(stat.month));
 			BinWrite(buf, static_cast<int32_t>(stat.year));
-			// Разреженно: только ненулевые kills как пары (индекс, значение).
+			// п═п╟п╥я─п╣п╤п╣п╫п╫п╬: я┌п╬п╩я▄п╨п╬ п╫п╣п╫я┐п╩п╣п╡я▀п╣ kills п╨п╟п╨ п©п╟я─я▀ (п╦п╫п╢п╣п╨я│, п╥п╫п╟я┤п╣п╫п╦п╣).
 			uint8_t nz = 0;
 			for (int g = 0; g <= kMaxGroupSize; ++g) {
 				if (stat.kills.at(g) > 0) {
@@ -364,9 +364,9 @@ void Save() {
 		}
 	}
 
-	// Запись синхронно в основном потоке -- без отдельного треда: замеряем,
-	// нужен ли он вообще (см. лог времени ниже). Через .tmp + rename для
-	// атомарности.
+	// п≈п╟п©п╦я│я▄ я│п╦п╫я┘я─п╬п╫п╫п╬ п╡ п╬я│п╫п╬п╡п╫п╬п╪ п©п╬я┌п╬п╨п╣ -- п╠п╣п╥ п╬я┌п╢п╣п╩я▄п╫п╬пЁп╬ я┌я─п╣п╢п╟: п╥п╟п╪п╣я─я▐п╣п╪,
+	// п╫я┐п╤п╣п╫ п╩п╦ п╬п╫ п╡п╬п╬п╠я┴п╣ (я│п╪. п╩п╬пЁ п╡я─п╣п╪п╣п╫п╦ п╫п╦п╤п╣). п╖п╣я─п╣п╥ .tmp + rename п╢п╩я▐
+	// п╟я┌п╬п╪п╟я─п╫п╬я│я┌п╦.
 	const std::string filename = MUD::StateManager().Path(state::EStateFile::kMobStatBin);
 	const std::string tmp = filename + ".tmp";
 	{
@@ -394,14 +394,14 @@ void ClearZoneStat(ZoneVnum zone_vnum) {
 
 void ShowStats(CharData *ch) {
 	std::stringstream out;
-	out << "  Всего уникальных мобов в статистике убийств: "
+	out << "  п▓я│п╣пЁп╬ я┐п╫п╦п╨п╟п╩я▄п╫я▀я┘ п╪п╬п╠п╬п╡ п╡ я│я┌п╟я┌п╦я│я┌п╦п╨п╣ я┐п╠п╦п╧я│я┌п╡: "
 		<< mob_stat_register.size() << "\r\n"
-		<< "  Количество уникальных мобов по месяцам:";
+		<< "  п п╬п╩п╦я┤п╣я│я┌п╡п╬ я┐п╫п╦п╨п╟п╩я▄п╫я▀я┘ п╪п╬п╠п╬п╡ п©п╬ п╪п╣я│я▐я├п╟п╪:";
 	for (auto & count_stat : count_stats) {
 		out << " " << std::setw(2) << std::setfill('0') << count_stat.first << ":" << count_stat.second;
 	}
 
-	out << "\r\n" << "  Количество убитых мобов по месяцам:";
+	out << "\r\n" << "  п п╬п╩п╦я┤п╣я│я┌п╡п╬ я┐п╠п╦я┌я▀я┘ п╪п╬п╠п╬п╡ п©п╬ п╪п╣я│я▐я├п╟п╪:";
 	for (auto & kill_stat : kill_stats) {
 		out << " " << std::setw(2) << std::setfill('0') << kill_stat.first << ":" << kill_stat.second;
 	}
@@ -414,7 +414,7 @@ void UpdateMobNode(std::list<MobMonthKillStat> &node_list, int members) {
 	auto date = GetDate();
 	auto k = node_list.rbegin();
 	const int months = k->month + k->year * 12;
-	// сравнение номера месяца с переключением на следующий
+	// я│я─п╟п╡п╫п╣п╫п╦п╣ п╫п╬п╪п╣я─п╟ п╪п╣я│я▐я├п╟ я│ п©п╣я─п╣п╨п╩я▌я┤п╣п╫п╦п╣п╪ п╫п╟ я│п╩п╣п╢я┐я▌я┴п╦п╧
 	if (months == date.first + date.second * 12) {
 		k->kills.at(members) += 1;
 	} else {
@@ -423,7 +423,7 @@ void UpdateMobNode(std::list<MobMonthKillStat> &node_list, int members) {
 		node.year = date.second;
 		node.kills.at(members) += 1;
 		node_list.push_back(node);
-		// проверка на переполнение кол-ва месяцев
+		// п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п©п╣я─п╣п©п╬п╩п╫п╣п╫п╦п╣ п╨п╬п╩-п╡п╟ п╪п╣я│я▐я├п╣п╡
 		if (node_list.size() > kMobStatHistorySize + 1) {
 			node_list.erase(node_list.begin());
 		}
@@ -446,7 +446,7 @@ void GetLastMobKill(CharData *mob, std::string &result) {
 		const auto killtime = i->second.date;
 		result = asctime(localtime(&killtime));
 	} else {
-		result = "никогда!\r\n";
+		result = "п╫п╦п╨п╬пЁп╢п╟!\r\n";
 	}
 
 }
@@ -519,9 +519,9 @@ void ShowZoneMobKillsStat(CharData *ch, ZoneVnum zone_vnum, int months) {
 	}
 
 	std::stringstream out;
-	out << "Статистика убийств мобов в зоне номер " << zone_vnum
-		<< ", месяцев: " << months << "\r\n"
-									  "   vnum : имя : pk : группа = убийств (n3=100 моба убили 100 раз втроем)\r\n\r\n";
+	out << "п║я┌п╟я┌п╦я│я┌п╦п╨п╟ я┐п╠п╦п╧я│я┌п╡ п╪п╬п╠п╬п╡ п╡ п╥п╬п╫п╣ п╫п╬п╪п╣я─ " << zone_vnum
+		<< ", п╪п╣я│я▐я├п╣п╡: " << months << "\r\n"
+									  "   vnum : п╦п╪я▐ : pk : пЁя─я┐п©п©п╟ = я┐п╠п╦п╧я│я┌п╡ (n3=100 п╪п╬п╠п╟ я┐п╠п╦п╩п╦ 100 я─п╟п╥ п╡я┌я─п╬п╣п╪)\r\n\r\n";
 
 	for (auto & i : sort_list) {
 		out << i.first << " : " << fmt::format("{:>20}", PrintMobName(i.first, 20)) << " : "
