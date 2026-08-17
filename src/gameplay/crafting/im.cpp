@@ -1050,8 +1050,11 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	// Locate the last quote and lowercase the magic words (if any)
 
-	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
-		argument[qend] = LOWER(argument[qend]);
+	// Шагаем по символу: под UTF-8 русская буква занимает два байта (issue #3681).
+	for (qend = 1; argument[qend] && argument[qend] != '\'';
+		 qend += static_cast<int>(native_text::char_bytes(argument + qend))) {
+		native_text::copy_lower_char(argument + qend, argument + qend);
+	}
 
 	if (argument[qend] != '\'') {
 		SendMsgToChar("Рецепт должен быть заключен в символы : ''\r\n", ch);
@@ -1217,8 +1220,11 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Рецепт надо заключить в символы : ' * или !\r\n", ch);
 		return;
 	}
-	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
-		argument[qend] = LOWER(argument[qend]);
+	// Шагаем по символу: под UTF-8 русская буква занимает два байта (issue #3681).
+	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]);
+		 qend += static_cast<int>(native_text::char_bytes(argument + qend))) {
+		native_text::copy_lower_char(argument + qend, argument + qend);
+	}
 	if (!IS_RECIPE_DELIM(argument[qend])) {
 		SendMsgToChar("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
 		return;
@@ -1537,8 +1543,10 @@ void compose_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 		return;
 	}
 
-	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++) {
-		argument[qend] = LOWER(argument[qend]);
+	// Шагаем по символу: под UTF-8 русская буква занимает два байта (issue #3681).
+	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]);
+		 qend += static_cast<int>(native_text::char_bytes(argument + qend))) {
+		native_text::copy_lower_char(argument + qend, argument + qend);
 	}
 
 	if (!IS_RECIPE_DELIM(argument[qend])) {
@@ -1595,8 +1603,11 @@ void forget_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 		SendMsgToChar("Рецепт надо заключить в символы : ' * или !\r\n", ch);
 		return;
 	}
-	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
-		argument[qend] = LOWER(argument[qend]);
+	// Шагаем по символу: под UTF-8 русская буква занимает два байта (issue #3681).
+	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]);
+		 qend += static_cast<int>(native_text::char_bytes(argument + qend))) {
+		native_text::copy_lower_char(argument + qend, argument + qend);
+	}
 	if (!IS_RECIPE_DELIM(argument[qend])) {
 		SendMsgToChar("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
 		return;

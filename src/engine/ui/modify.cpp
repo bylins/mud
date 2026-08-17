@@ -930,8 +930,11 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	// Locate the last quote and lowercase the magic words (if any) //
 
-	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
-		argument[qend] = LOWER(argument[qend]);
+	// Шагаем по символу: под UTF-8 русская буква занимает два байта (issue #3681).
+	for (qend = 1; argument[qend] && argument[qend] != '\'';
+		 qend += static_cast<int>(native_text::char_bytes(argument + qend))) {
+		native_text::copy_lower_char(argument + qend, argument + qend);
+	}
 
 	if (argument[qend] != '\'') {
 		SendMsgToChar("Название способности должно быть заключено в символы : ''\r\n", ch);
@@ -1040,8 +1043,10 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	// Locate the last quote and lowercase the magic words (if any)
 
-	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++) {
-		argument[qend] = LOWER(argument[qend]);
+	// Шагаем по символу: под UTF-8 русская буква занимает два байта (issue #3681).
+	for (qend = 1; argument[qend] && argument[qend] != '\'';
+		 qend += static_cast<int>(native_text::char_bytes(argument + qend))) {
+		native_text::copy_lower_char(argument + qend, argument + qend);
 	}
 
 	if (argument[qend] != '\'') {
