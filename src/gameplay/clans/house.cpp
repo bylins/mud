@@ -133,8 +133,10 @@ void prepare_write_mod(CharData *ch, std::string &param) {
 * и перевод всего слова в нижний регистр.
 */
 void check_rank(std::string &rank) {
-	if (rank.size() > MAX_RANK_LENGHT) {
-		rank = rank.substr(0, MAX_RANK_LENGHT);
+	// Предел -- в символах (так и сказано игроку), а с UTF-8 кириллица занимает по два байта:
+	// по size() десятибуквенное звание резалось до пяти букв, да ещё и посреди символа (issue #3681).
+	if (native_text::char_count(rank) > MAX_RANK_LENGHT) {
+		rank = rank.substr(0, native_text::char_offset(rank, MAX_RANK_LENGHT));
 	}
 	utils::ConvertToLow(rank);
 }
@@ -1872,7 +1874,8 @@ void Clan::hcontrol_rank(CharData *ch, std::string &text) {
 		SendMsgToChar(HCONTROL_FORMAT, ch);
 		return;
 	}
-	if (rank_male.size() > MAX_RANK_LENGHT || rank_female.size() > MAX_RANK_LENGHT) {
+	if (native_text::char_count(rank_male) > MAX_RANK_LENGHT
+		|| native_text::char_count(rank_female) > MAX_RANK_LENGHT) {
 		SendMsgToChar(ch, "Звание не должно быть длиннее %d символов.\r\n", MAX_RANK_LENGHT);
 		return;
 	}
@@ -2546,8 +2549,18 @@ void Clan::ChestLoad() {
 		}
 		fclose(fl);
 
+		// Граница чтения: сундук лежит на диске в кодировке мира, в память идёт нативным --
+		// зеркало к to_disk в ChestSaver. Без этого имена и метки вещей в сундуке уезжают
+		// в транслит при первом же сохранении дружины (issue #3681).
+		{
+			const std::string native = native_text::from_disk_text(std::string(databuf, static_cast<std::size_t>(fsize)));
+			delete[] databuf;
+			databuf = new char[native.size() + 1];
+			std::memcpy(databuf, native.data(), native.size());
+			databuf[native.size()] = '\0';
+		}
+
 		data = databuf;
-		*(data + fsize) = '\0';
 
 		for (fsize = 0; *data && *data != '$'; fsize++) {
 			const auto obj = read_one_object_new(&data, &error);
