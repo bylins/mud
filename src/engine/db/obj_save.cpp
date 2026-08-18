@@ -1594,10 +1594,21 @@ int Crash_load(CharData *ch) {
 	};
 	fclose(fl);
 	// Сверка CRC из уже прочитанного буфера, без повторного чтения файла.
+	// Считается по дисковым байтам -- до перевода в нативную кодировку, иначе сумма не сойдётся.
 	FileCRC::verify_from_content(ch->get_uid(), FileCRC::kTextObjs, readdata, fsize);
 
+	// Граница чтения: файл лежит в кодировке мира (сейчас KOI8-R), в память вещи идут
+	// нативными -- зеркало к to_disk на записи. Без этого имена, алиасы и метки вещей
+	// уезжают в транслит при первом же сохранении (issue #3681).
+	{
+		const std::string native = native_text::from_disk_text(std::string(readdata, static_cast<std::size_t>(fsize)));
+		free(readdata);
+		CREATE(readdata, native.size() + 1);
+		std::memcpy(readdata, native.data(), native.size());
+		readdata[native.size()] = '\0';
+	}
+
 	data = readdata;
-	*(data + fsize) = '\0';
 
 	//Создание объектов
 	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
