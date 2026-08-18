@@ -470,4 +470,21 @@ TEST(NativeText, CharOffsetCutsOnCharacterBoundaries) {
 	EXPECT_EQ(native_text::char_offset("abcdef", 4), 4u);
 }
 
+TEST(NativeText, ToDiskNeverTransliteratesDiskBytes) {
+	// Пара к границе чтения. Если строка не проходила from_disk, она держит кои-восьмые байты,
+	// и старый to_disk разбирал их как Latin-1 и гнал через словарь транслита: 'верий.свет'
+	// становился 'AIEUAxAOA.OxAO' -- необратимо. Так были съедены метки вещей, сундуки дружин
+	// и списки имён (issue #3681). Теперь такие байты уходят на диск как есть.
+	const std::string koi8_bytes = "\xD7\xC5\xD2\xC9\xCA.\xD3\xD7\xC5\xD4";   // 'верий.свет' в KOI8-R
+	EXPECT_EQ(native_text::to_disk(koi8_bytes), koi8_bytes) << "дисковые байты не должны меняться";
+
+	// А нативный текст по-прежнему переводится в кодировку диска.
+	const std::string native = native_text::from_koi8(koi8_bytes);
+	EXPECT_NE(native, koi8_bytes) << "проверка построена на том, что кодировки различаются";
+	EXPECT_EQ(native_text::to_disk(native), koi8_bytes);
+
+	// Чистая латиница одинакова в обеих кодировках и не трогается ни в одном из случаев.
+	EXPECT_EQ(native_text::to_disk("plain ascii"), "plain ascii");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
