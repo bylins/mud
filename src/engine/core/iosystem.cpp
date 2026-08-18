@@ -457,8 +457,12 @@ int process_input(DescriptorData *t) {
 		if (t->keytable != kCodePageUTF8) {
 			const size_t len_i = strlen(tmp);
 			const std::string native = native_text::from_koi8(tmp);
-			strncpy(tmp, native.c_str(), kMaxInputLength - 1);
-			tmp[kMaxInputLength - 1] = '\0';
+			// После конверсии строка длиннее (кириллица идёт по два байта), так что в буфер
+			// она может не влезть. Отступаем до границы символа: обрезать посреди символа --
+			// значит отдать движку битый UTF-8 (issue #3681).
+			const std::size_t fits = native_text::truncate_offset(native, kMaxInputLength - 1);
+			std::memcpy(tmp, native.data(), fits);
+			tmp[fits] = '\0';
 			space_left = space_left + len_i - strlen(tmp);
 		}
 
@@ -583,6 +587,8 @@ int perform_subst(DescriptorData *t, char *orig, char *subst) {
 
 	// terminate the string in case of an overflow from strncat
 	newsub[kMaxInputLength - 1] = '\0';
+	// ...и, если strncat оборвал строку посреди символа, отступаем до его границы (issue #3681).
+	newsub[native_text::truncate_offset(newsub, strlen(newsub))] = '\0';
 	strcpy(subst, newsub);
 
 	return (0);

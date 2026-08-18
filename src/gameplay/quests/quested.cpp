@@ -8,6 +8,7 @@
 #include "utils/buffered_file_writer.h"
 
 #include "engine/entities/char_data.h"
+#include "utils/native_text.h"
 
 void smash_tilde(char *str);
 
@@ -19,8 +20,10 @@ void Quested::add(CharData *ch, int vnum, char *text) {
 		skip_spaces(&text);
 		std::string text_node = *text ? text : "";
 
+		// Предел байтовый (это бюджет буфера триггерной строки), но рубить символ
+		// пополам нельзя -- truncate_offset отступает до границы (issue #3681).
 		if (text_node.size() > kMaxTrglineLength) {
-			text_node = text_node.substr(0, kMaxTrglineLength);
+			text_node = text_node.substr(0, native_text::truncate_offset(text_node, kMaxTrglineLength));
 		}
 		quested_[vnum] = text_node;
 	}
