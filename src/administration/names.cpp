@@ -129,11 +129,8 @@ static void NewNames::save() {
 	for (const auto &it : NewNameList) {
 		lines.push_back(it.first);
 	}
-	// Граница записи: имена уходят на диск в кодировке мира (сейчас KOI8-R), зеркально
-	// чтению (issue #3681).
-	for (auto &line : lines) {
-		line = native_text::to_disk(line);
-	}
+	// Кодировку диска держит сам StateManager -- здесь конвертировать уже не надо,
+	// иначе получилась бы двойная конверсия (issue #3681).
 	MUD::StateManager().SaveLines(state::EStateFile::kPendingNames, lines);
 }
 
