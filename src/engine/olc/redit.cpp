@@ -679,8 +679,9 @@ void redit_parse(DescriptorData *d, char *arg) {
 		case REDIT_NAME:
 			if (OLC_ROOM(d)->name)
 				free(OLC_ROOM(d)->name);
-			if (strlen(arg) > MAX_ROOM_NAME)
-				arg[MAX_ROOM_NAME - 1] = '\0';
+			// Предел -- в символах, и режем по границе символа (issue #3681).
+			if (native_text::char_count(arg) > MAX_ROOM_NAME)
+				arg[native_text::char_offset(arg, MAX_ROOM_NAME - 1)] = '\0';
 			OLC_ROOM(d)->name = str_dup((arg && *arg) ? arg : "неопределено");
 			break;
 

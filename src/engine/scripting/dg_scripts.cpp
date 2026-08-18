@@ -2427,8 +2427,8 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "iname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kNom] = subfield;
 			}
 			else
@@ -2436,8 +2436,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "rname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kGen] = subfield;
 			}
 			else
@@ -2445,8 +2445,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "dname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kDat] = subfield;
 			}
 			else
@@ -2454,8 +2454,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "vname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kAcc] = subfield;
 			}
 			else
@@ -2463,8 +2463,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "tname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kIns] = subfield;
 			}
 			else
@@ -2472,8 +2472,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "pname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kPre] = subfield;
 			}
 			else
@@ -2481,8 +2481,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "name")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->set_name(subfield);
 			}
 			else {
@@ -3926,8 +3926,8 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (room->name)
 					free(room->name);
-				if (strlen(subfield) > MAX_ROOM_NAME)
-					subfield[MAX_ROOM_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_ROOM_NAME)
+					subfield[native_text::char_offset(subfield, MAX_ROOM_NAME - 1)] = '\0';
 				room->name = str_dup(subfield);
 			} else
 				snprintf(str, str_size, "%s", room->name);
