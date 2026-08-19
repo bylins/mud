@@ -2490,10 +2490,19 @@ void Clan::ChestLoad() {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		for (auto chest : world[GetRoomRnum((*clan)->chest_room)]->contents) {
 			if (Clan::is_clan_chest(chest)) {
+				int wiped = 0;
 				for (temp = chest->get_contains(); temp; temp = obj_next) {
 					obj_next = temp->get_next_content();
 					RemoveObjFromObj(temp);
 					ExtractObjFromWorld(temp);
+					++wiped;
+				}
+				// issue #3737: зачистка молчала, и потерю содержимого сундука нельзя было связать
+				// с релоадом. Штатно она безобидна -- вещи тут же читаются обратно из файла,
+				// но если файл отстал, в логе останется след, с чего всё началось.
+				if (wiped > 0) {
+					log("<Clan> ChestLoad: сундук дружины %s очищен перед перечитыванием, предметов: %d",
+						(*clan)->abbrev.c_str(), wiped);
 				}
 				ExtractObjFromWorld(chest);
 				break;
