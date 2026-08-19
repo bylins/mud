@@ -236,6 +236,10 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	  debuf += AFF_FLAGGED(k, EAffect::kBlind) ? "&YБ" : " ";
 	  debuf += AFF_FLAGGED(k, EAffect::kCurse) ? "&mП" : " ";
 	  debuf += IsAffected(k, EAffect::kFever) ? "&cЛ" : " ";
+	  // issue #3745: параплегия (обычная и магическая) в дебафах не показывалась вовсе, хотя
+	  // держит игрока не хуже оцепенения. Обе под одной буквой -- для группы разницы нет.
+	  debuf += (AFF_FLAGGED(k, EAffect::kStopFight)
+		  || AFF_FLAGGED(k, EAffect::kMagicStopFight)) ? "&WЖ" : " ";
 
 	  return debuf;
 	};
@@ -270,7 +274,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	if (k->IsNpc()) {
 		std::ostringstream buffer;
 		if (!header)
-			buffer << "Персонаж            | Здоровье | Рядом | Аффект  |  Дебаф  | Положение\r\n";
+			buffer << "Персонаж            | Здоровье | Рядом | Аффект  |  Дебаф   | Положение\r\n";
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, 20));
 
@@ -283,7 +287,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		buffer << fmt::format("{:<1} &n|", IsCharmExpiring(k) ? "&nТ" : " ");
 
 		// ДЕБАФЫ
-		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
+		buffer << fmt::format(" {:<8} &n|", generate_debuf_string(k));
 
 		buffer << fmt::format(" {:<10}\r\n", position_types[(int) k->GetPosition()]);
 
@@ -292,7 +296,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	} else {
 		std::ostringstream buffer;
 		if (!header)
-			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект  |  Дебаф  |  Кто  | Строй | Положение \r\n";
+			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект  |  Дебаф   |  Кто  | Строй | Положение \r\n";
 
 		std::string health_color = GetWarmValueColor(k->get_hit(), k->get_real_max_hit());
 		std::string move_color = GetWarmValueColor(k->get_move(), k->get_real_max_move());
@@ -309,7 +313,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format(" {:^5} &n|", generate_mem_string(k));
 		buffer << fmt::format(" {:<5}  &n|", generate_affects_string(k));
-		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
+		buffer << fmt::format(" {:<8} &n|", generate_debuf_string(k));
 
 		buffer << fmt::format(" {:^5} &n|", leader ? "Лидер" : "");
 		buffer << fmt::format(" {:^5} &n|", k->IsFlagged(EPrf::kSkirmisher) ? " &gДа  " : "Нет");
