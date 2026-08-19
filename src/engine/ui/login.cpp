@@ -511,7 +511,10 @@ void do_entergame(DescriptorData *d) {
 		load_room = r_named_start_room;
 	else if (d->character->IsFlagged(EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
-	else if (!check_dupes_host(d))
+	// Зарегистрированного в комнату незарегистрированных не сажаем: проверка по IP отказывает
+	// и ему (лимит коннектов с адреса считается для всех), но метка регистрации важнее -- иначе
+	// он окажется в комнате, из которой сам уже не выберется.
+	else if (!check_dupes_host(d) && !RegisterSystem::IsRegistered(d->character.get()))
 		load_room = r_unreg_start_room;
 	else {
 		if ((load_room = GET_LOADROOM(d->character)) == kNowhere) {
