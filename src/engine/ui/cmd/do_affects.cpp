@@ -32,17 +32,16 @@ int AffectDisplayMod(const Affect<EApply>::shared_ptr &aff) {
 	return aff->duration;
 }
 
-void FormatAffectDuration(int mod, char *out, size_t out_sz) {
+std::string FormatAffectDuration(int mod) {
 	// A permanent affect (mod < 0) reads as unlimited, not "less than an hour".
 	if (mod < 0) {
-		snprintf(out, out_sz, "(постоянно)");
-	} else if ((mod + 1) / kSecsPerMudHour) {
-		snprintf(out, out_sz, "(%d %s)",
-				 (mod + 1) / kSecsPerMudHour + 1,
-				 grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour));
-	} else {
-		snprintf(out, out_sz, "(менее часа)");
+		return "(постоянно)";
 	}
+	const int hours = (mod + 1) / kSecsPerMudHour;
+	if (hours > 0) {
+		return fmt::format("({} {})", hours + 1, grammar::GetDeclensionInNumber(hours + 1, grammar::EWhat::kHour));
+	}
+	return "(менее часа)";
 }
 
 // issue.affects-squash: one displayed row, aggregating every affect that renders under the same name.
@@ -118,16 +117,23 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		for (const auto &r : rows) {
 			// A permanent source wins the label; otherwise show the longest remaining time.
-			FormatAffectDuration(r.permanent ? -1 : r.best_mod, buf2, sizeof(buf2));
 			// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
 			// точках, printf мерил бы в байтах (issue #3681).
-			strcpy(buf, fmt::format("{}{}{:<21} {:<12}{}",
-					 (!r.name.empty() && r.name[0] == '!') ? "Состояние  : " : "Заклинание : ",
-					 kColorBoldCyn, r.name.c_str(), buf2, kColorNrm).c_str());
+			std::string line = fmt::format("{}{}{:<21} {:<12}{}",
+										   (!r.name.empty() && r.name[0] == '!') ? "Состояние  : " : "Заклинание : ",
+										   kColorBoldCyn, r.name,
+										   FormatAffectDuration(r.permanent ? -1 : r.best_mod), kColorNrm);
 			if (r.count > 1) {
-				snprintf(buf + strlen(buf), kMaxStringLength - strlen(buf), " [x%d]", r.count);
+				line += fmt::format(" [x{}]", r.count);
 			}
-			SendMsgToChar(strcat(buf, "\r\n"), ch);
+			// issue #3739: a permanent source used to swallow the timed cast collapsed into the same
+			// row, so "(постоянно) [x2]" told the player neither whether the spell was cast at all,
+			// nor how long it had left. Show the timed remainder next to the permanent label.
+			if (r.permanent && r.has_timed) {
+				line += fmt::format(" временный {}", FormatAffectDuration(r.best_mod));
+			}
+			line += "\r\n";
+			SendMsgToChar(line.c_str(), ch);
 		}
 		return;
 	}
@@ -142,12 +148,12 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// fall back to the casting spell's name for affects not yet migrated off Affect::type.
 		snprintf(sp_name, sizeof(sp_name), "%s",
 				affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
-		FormatAffectDuration(AffectDisplayMod(aff), buf2, sizeof(buf2));
-			// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
-			// точках, printf мерил бы в байтах (issue #3681).
-			strcpy(buf, fmt::format("{}{}{:<21} {:<12}{} ",
-				 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
-				 kColorBoldCyn, sp_name, buf2, kColorNrm).c_str());
+		const std::string duration = FormatAffectDuration(AffectDisplayMod(aff));
+		// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
+		// точках, printf мерил бы в байтах (issue #3681).
+		strcpy(buf, fmt::format("{}{}{:<21} {:<12}{} ",
+								*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
+								kColorBoldCyn, sp_name, duration, kColorNrm).c_str());
 		*buf2 = '\0';
 		if (immortal) {
 			if (aff->modifier) {

@@ -1594,10 +1594,17 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	}
 // damage mtrigger срабатывает всегда
 	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_DEATH))) {
+		// issue #3740: add_flag ("выполнять команды моба в неподвижном состоянии") -- аварийный
+		// выход для триггеров, которым обязательно надо доработать до конца, даже если моба
+		// захолдили. Без него скрипт откладывается по кругу: hang_trig_wait перевешивает его
+		// каждую секунду, и пока группа держит моба, до конца триггера дело не доходит. Так
+		// освобожденные души в 756 зоне перестали доходить до mpurge и жили сотни тиков вместо
+		// двух. trig может быть nullptr, поэтому проверка через &&.
 		if (!use_in_stoped && !mob_cmd_info[cmd].use_in_stoped
 				&& (AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
-				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
+				&& !(trig && trig->add_flag)) {
 			// issue #3523: моб в стане -> команду не теряем: вешаем триггеру wait
 			// 0.025 RL sec, после стана script_driver повторит её (TRIG_FROM_LINE).
 			hang_trig_wait(ch, trig, MOB_TRIGGER, kPassesPerSec, true);

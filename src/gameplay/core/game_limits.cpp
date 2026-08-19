@@ -1398,6 +1398,20 @@ void obj_point_update() {
 									 char_get_custom_label(j->get_in_obj(), cont_owner).c_str());
 							act(buf, false, cont_owner, j, nullptr, kToChar);
 					}
+				} else if (j->get_in_obj()->get_in_room() != kNowhere
+						   && !world[j->get_in_obj()->get_in_room()]->people.empty()
+						   && !Clan::is_clan_chest(j->get_in_obj())
+						   && !Clan::is_ingr_chest(j->get_in_obj())) {
+					// issue #3737: контейнер лежит в комнате и ничей -- сообщения не было вовсе, вещь
+					// пропадала совершенно молча. Сундук дружины сюда не идёт: о нём уже сказал
+					// clan_chest_invoice, второе сообщение было бы дублем. Ингр-хран молчит намеренно --
+					// там тысячи ингредиентов, распад каждого превратился бы в спам.
+					char buf[kMaxStringLength];
+					snprintf(buf, kMaxStringLength, "$o рассыпал$U в прах в %s...",
+							 j->get_in_obj()->get_PName(grammar::ECase::kPre).c_str());
+					CharData *witness = world[j->get_in_obj()->get_in_room()]->first_character();
+					act(buf, false, witness, j, nullptr, kToChar);
+					act(buf, false, witness, j, nullptr, kToRoom);
 				}
 				RemoveObjFromObj(j);
 			}
