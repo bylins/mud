@@ -349,6 +349,15 @@ endif
 subdir('src/third_party_libs/libfort')
 dependencies += [fmt_dep, fort_dep]
 
+# Исходники обязаны быть в UTF-8 (issue #3681). Дерево, выкаченное до флипа, при
+# переключении ветки остаётся в KOI8-R -- git молчит, дерево числится чистым, а
+# собранный отсюда бинарь получает кои-восьмые строковые литералы, и движок расходится
+# сам с собой. Ловим это здесь, а не по кракозябрам в логе боевого сервера.
+encoding_check = run_command(py3, files('tools/meson/check_sources_utf8.py'), meson.project_source_root(), check: false)
+if encoding_check.returncode() != 0
+    error(encoding_check.stdout().strip())
+endif
+
 git = find_program('git', required: false)
 git_rev = 'unknown'
 if git.found()

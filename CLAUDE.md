@@ -406,6 +406,18 @@ Sources are UTF-8. Edit `.cpp`/`.h` directly with the Edit tool — the KOI8-R c
 gone (issue #3681). Git always stored these blobs as UTF-8; what changed is that the working tree
 no longer converts them on checkout.
 
+**Переключились на ветку с флипом в уже существующем дереве — перевыкачайте исходники:**
+
+```bash
+rm -rf src tests && git checkout -- src tests
+```
+
+`working-tree-encoding` применяется во время checkout'а, а содержимое блоба при флипе не менялось,
+поэтому git оставляет ранее выкаченные файлы в KOI8-R и считает дерево чистым — `git status` молчит.
+Собранный из такого дерева бинарь получает кои-восьмые строковые литералы при движке, который
+считает весь текст UTF-8: расходятся сравнения имён, доски, кодировка лога, а запись на диск гонит
+такие литералы через словарь транслита. `meson setup` теперь это проверяет и отказывается собирать.
+
 Still KOI8-R on disk, and still needing care: the world and configs (`lib/`, `lib.template/`,
 `/lib/cfg/**`, `/lib/misc/**`, `/lib/text/help/**`, `/lib/etc/board/**`). For those the old rule
 holds — convert, edit, convert back:
