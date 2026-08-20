@@ -44,7 +44,10 @@ const unsigned int MAX_PWD_LENGTH = 50;
 // * Генерация хэша с более-менее рандомным сальтом
 std::string generate_md5_hash(const std::string &pwd) {
 #ifdef NOCRYPT
-	return pwd;
+	// И здесь дисковая форма: сравнение всё равно приводит пароль к ней, а хранить
+	// нативную значило бы, что кириллический пароль не сойдётся сам с собой. Сборки
+	// без crypt() -- это Windows, macOS и -Dnocrypt=true (issue #3681).
+	return password_bytes(pwd);
 #else
 	char key[14];
 	key[0] = '$';
