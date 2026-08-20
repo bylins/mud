@@ -992,7 +992,10 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	// склеивается через separator (first остаётся true -- первое слово идёт
 	// сразу за префиксом без ", "). Видимую длину считаем без цветокодов.
 	std::string result = prefix;
-	size_t line_length = GetStringWithoutColors(prefix).size();
+	// Ширина -- в символах, а не в байтах: в UTF-8 русская буква занимает два, и счёт по
+	// size() рвал бы строку вдвое раньше запрошенного (issue #3681).
+	size_t line_length = native_text::char_count(GetStringWithoutColors(prefix));
+	const size_t separator_len = native_text::char_count(separator);
 	bool first = true;
 	// separator -- это и есть то, что стоит между словами на одной строке
 	// (", " для списка, " " для обычного переноса по словам). На переносе
@@ -1006,14 +1009,14 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	for (const auto &word : words) {
 		// ширину считаем по видимой длине -- цветокоды (&R, &n и т.п.) на экране
 		// места не занимают, иначе строки с цветом переносятся раньше времени
-		const size_t word_len = GetStringWithoutColors(word).size();
+		const size_t word_len = native_text::char_count(GetStringWithoutColors(word));
 		if (!first) {
-			if (line_length + separator.size() + word_len > max_length) {
+			if (line_length + separator_len + word_len > max_length) {
 				result += eol_separator + "\r\n";
 				line_length = 0;
 			} else {
 				result += separator;
-				line_length += separator.size();
+				line_length += separator_len;
 			}
 		}
 		result += word;
