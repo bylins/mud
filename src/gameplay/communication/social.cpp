@@ -235,9 +235,8 @@ int find_action(char *cmd) {
 	if (!cmd || !*cmd) {
 		return -1;
 	}
-	const std::size_t len = std::strlen(cmd);
 	for (const auto &entry : g_social_index) {
-		if (strn_cmp(cmd, entry.first.c_str(), len) == 0) {
+		if (utils::IsAbbr(cmd, entry.first.c_str())) {
 			return entry.second;
 		}
 	}

@@ -32,10 +32,6 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 			}
 		}
 	} else {
-		size_t l = strlen(arg);
-		if (!l) {
-			l = 1;    // Avoid "" to match the first available string
-		}
 		for (i = j = 0, o = 1; j != 1; i++) {
 			if (**(list + i) == '\n') {
 				o = 1;
@@ -50,7 +46,7 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 						break;
 				}
 			} else {
-				if (!strn_cmp(arg, *(list + i), l)) {
+				if (utils::IsAbbr(arg, *(list + i))) {
 					return j | o;
 				} else {
 					o <<= 1;

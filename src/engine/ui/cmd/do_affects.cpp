@@ -57,9 +57,8 @@ struct SquashRow {
 
 void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char sp_name[kMaxStringLength];
-	const size_t agr_length = strlen(argument);
 
-	if (*argument && !strn_cmp(argument, "краткий", agr_length)) {
+	if (*argument && utils::IsAbbr(argument, "краткий")) {
 		if (!ch->get_master()) {
 			group::print_one_line(ch, ch, true, 0);
 		} else {
@@ -71,7 +70,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// issue.affects-squash: "аффекты все" forces the full, un-collapsed per-source list. Mortals
 	// otherwise get one row per distinct effect (duplicate sources collapsed, longest duration shown);
 	// immortals always see every slot (with modifier/potency detail).
-	const bool show_all = (*argument && !strn_cmp(argument, "все", agr_length));
+	const bool show_all = (*argument && utils::IsAbbr(argument, "все"));
 	const bool squash = !privilege::IsImmortal(ch) && !show_all;
 
 	// Show the bitset without "hiding" etc.

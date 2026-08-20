@@ -1013,7 +1013,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 
 			if (IS_SET(GET_TRIG_NARG(t), type)
 				&& (t->arglist[0] == '*'
-				|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size()))) {
+				|| utils::IsAbbr(t->arglist.c_str(), cmd))) {
 				if (!actor->IsNpc()
 					&& (actor->GetPosition() == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
 				{

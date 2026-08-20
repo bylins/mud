@@ -877,7 +877,7 @@ int find_all_dots(char *arg) {
 	// жёсткая четвёрка отрезала полторы буквы, оставляя "е.<имя>" (issue #3681).
 	for (const char *prefix : {"all.", "все."}) {
 		const size_t prefix_len = strlen(prefix);
-		if (!strn_cmp(arg, prefix, prefix_len)) {
+		if (utils::IsAbbr(prefix, arg)) {
 			strl_cpy(tmpname, arg + prefix_len, kMaxInputLength);
 			strl_cpy(arg, tmpname, kMaxInputLength);
 			return (kFindAlldot);

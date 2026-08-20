@@ -68,7 +68,7 @@ int im_get_type_by_name(char *name, int mode) {
 	for (i = 0; i <= top_imtypes; ++i) {
 		if (mode == 0 && imtypes[i].proto_vnum == -1)
 			continue;
-		if (!strn_cmp(name, imtypes[i].name, strlen(imtypes[i].name)))
+		if (utils::IsAbbr(imtypes[i].name, name))
 			return i;
 	}
 	return -1;
@@ -1618,7 +1618,7 @@ void forget_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 
 	size_t i = strlen(name);
 	for (rcpt = top_imrecipes; rcpt >= 0; --rcpt) {
-		if (!strn_cmp(name, imrecipes[rcpt].name, i)) {
+		if (utils::IsAbbr(name, imrecipes[rcpt].name)) {
 			break;
 		}
 	}

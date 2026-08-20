@@ -423,7 +423,6 @@ char *fname(const char *namelist) {
 // issue.interpreter-cleaning: generic argument/token parsing helpers moved from interpreter.cpp.
 int search_block(const char *target_string, const char **list, int exact) {
 	int i;
-	size_t l = strlen(target_string);
 
 	if (exact) {
 		for (i = 0; **(list + i) != '\n'; i++) {
@@ -432,11 +431,8 @@ int search_block(const char *target_string, const char **list, int exact) {
 			}
 		}
 	} else {
-		if (0 == l) {
-			l = 1;    // Avoid "" to match the first available string
-		}
 		for (i = 0; **(list + i) != '\n'; i++) {
-			if (!strn_cmp(target_string, *(list + i), l)) {
+			if (utils::IsAbbr(target_string, *(list + i))) {
 				return i;
 			}
 		}
@@ -447,17 +443,14 @@ int search_block(const char *target_string, const char **list, int exact) {
 
 int search_block(const std::string &block, const char **list, int exact) {
 	int i;
-	std::string::size_type l = block.length();
 
 	if (exact) {
 		for (i = 0; **(list + i) != '\n'; i++)
 			if (!str_cmp(block, *(list + i)))
 				return (i);
 	} else {
-		if (!l)
-			l = 1;    // Avoid "" to match the first available string
 		for (i = 0; **(list + i) != '\n'; i++)
-			if (!strn_cmp(block, *(list + i), l))
+			if (utils::IsAbbr(block, *(list + i)))
 				return (i);
 	}
 

@@ -3144,7 +3144,7 @@ void find_replacement(void *go,
 				int num;
 				int sum  = 0;
 				for (num = 0; num < EApply::kNumberApplies; num++) {
-					if (!strn_cmp(subfield, apply_types[num], strlen(subfield)))
+					if (utils::IsAbbr(subfield, apply_types[num]))
 						break;
 				}
 				if (num == EApply::kNumberApplies) {
@@ -4393,7 +4393,7 @@ int eval_lhs_op_rhs(const char *expr, char *result, size_t result_size, void *go
 
 	for (i = 0; *ops[i] != '\n'; i++)
 		for (j = 0; tokens[j]; j++)
-			if (!strn_cmp(ops[i], tokens[j], strlen(ops[i]))) {
+			if (utils::IsAbbr(ops[i], tokens[j])) {
 				*tokens[j] = '\0';
 				p = tokens[j] + strlen(ops[i]);
 
