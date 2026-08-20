@@ -704,7 +704,7 @@ bool exchange_setfilter(CharData *ch, char *argument) {
 	if (!correct_filter_length(ch, argument)) {
 		return false;
 	}
-	if (!strncmp(argument, "нет", 3)) {
+	if (!strncmp(argument, "нет", strlen("нет"))) {
 		if (EXCHANGE_FILTER(ch)) {
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = nullptr;
