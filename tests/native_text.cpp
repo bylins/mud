@@ -479,4 +479,22 @@ TEST(NativeText, ToDiskNeverTransliteratesDiskBytes) {
 	EXPECT_EQ(native_text::to_disk("plain ascii"), "plain ascii");
 }
 
+TEST(NativeText, DiskRoundTripIsByteIdentical) {
+	// Правило пары: что прочитано через границу, должно уйти обратно теми же байтами.
+	// Нарушение этой пары -- одностороннее чтение или одностороння запись -- и съело
+	// метки вещей, сундуки дружин и списки имён (issue #3681).
+	const std::string on_disk = "\xD7\xC5\xD2\xC9\xCA.\xD3\xD7\xC5\xD4";   // 'верий.свет' в KOI8-R
+
+	const std::string native = native_text::from_disk_text(on_disk);
+	EXPECT_EQ(native_text::to_disk(native), on_disk) << "чтение и запись обязаны быть зеркальны";
+
+	// Повторное чтение уже нативного текста ничего не меняет: именно на этом держится
+	// идемпотентность цикла загрузка-сохранение.
+	EXPECT_EQ(native_text::from_disk_text(native), native);
+
+	// И то же самое для чистой латиницы -- она одинакова в обеих кодировках.
+	const std::string ascii = "plain ascii line";
+	EXPECT_EQ(native_text::to_disk(native_text::from_disk_text(ascii)), ascii);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

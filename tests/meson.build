@@ -39,6 +39,7 @@ test_sources = files(
     'obj.copy.cpp',
     'obj.liquid_core.cpp',
     'spell_item_convert.cpp',
+    'password.encoding.cpp',
     'act.makefood.cpp',
     'utils.editor.cpp',
     'utils.string.cpp',
