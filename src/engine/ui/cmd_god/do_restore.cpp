@@ -11,6 +11,33 @@
 #include "administration/privilege.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_messages.h"
+
+#include <vector>
+
+namespace {
+
+// Что restore считает отрицательным аффектом и снимает.
+bool IsHarmfulAffect(const Affect<EApply>::shared_ptr &aff) {
+	const auto kind = affects::AffectBuffKind(aff->affect_type);
+	if (kind == affects::EBuff::kYes) {
+		return false;
+	}
+	if (kind == affects::EBuff::kNo) {
+		return true;
+	}
+	// buff в affects.xml не указан вовсе (kAmbiguous) -- у 46 аффектов из 139, в том числе у
+	// обычной параплегии. Из них вредными считаем те, что лечит первая помощь (kAfCurable) и
+	// которые не помечены категорией баффов: так снимаются параплегии, кровотечение и рваные
+	// раны, но остаются увеличение/уменьшение, скрытность, чармис, езда и прочее полезное.
+	return IS_SET(aff->battleflag, kAfCurable)
+		&& !IS_SET(aff->battleflag, kAfBoon)
+		&& !IS_SET(aff->battleflag, kAfWarding)
+		&& !IS_SET(aff->battleflag, kAfAegis);
+}
+
+}  // namespace
 
 void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *vict;
@@ -51,14 +78,28 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		RemoveAffectFromChar(vict, EAffect::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
-		ch->timed_skill.clear();
-		ch->timed_feat.clear();
+		vict->timed_skill.clear();
+		vict->timed_feat.clear();
 		if (subcmd == kScmdRestoreGod) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			act("Вы были полностью восстановлены $N4!",
 				false, vict, nullptr, ch, kToChar);
 		}
 		vict->setGloryRespecTime(0);
+		// restore -- это "полностью восстановить", но раньше он чинил только хиты, движение и мем.
+		// Оцепенение и параплегия его переживали, и восстановленный игрок не мог даже двинуться с
+		// места: interpreter.cpp режет любую команду по kHold/kStopFight/kMagicStopFight. Снимаем
+		// все отрицательные аффекты. Аффекты от надетых вещей не трогаем -- их все равно вернет
+		// affect_total, а проклятую вещь надо снимать, а не ресторить.
+		std::vector<EAffect> harmful;
+		for (const auto &aff : vict->affected) {
+			if (aff && IsHarmfulAffect(aff)) {
+				harmful.push_back(aff->affect_type);
+			}
+		}
+		for (const auto affect_type : harmful) {
+			RemoveAffectFromCharExceptEquipment(vict, affect_type);
+		}
 		affect_total(vict);
 	}
 }
