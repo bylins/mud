@@ -53,9 +53,14 @@ TEST(PasswordEncoding, HashIsTakenOverTheOnDiskForm) {
 
 TEST(PasswordEncoding, AsciiIsUnaffected) {
 	// Латиница в обеих кодировках одинакова -- на ней баг и не проявлялся.
+	//
+	// Неверный пароль отличается ПЕРВОЙ буквой, а не последней, нарочно: на macOS crypt() --
+	// классический DES, он смотрит только первые восемь символов. Пара, различающаяся
+	// десятым символом, там даёт один и тот же хэш, и проверка «неверный пароль отвергнут»
+	// молча превращается в свою противоположность.
 	const std::string hash = Password::generate_md5_hash("parolparol");
 	EXPECT_TRUE(Password::compare_password(hash, "parolparol"));
-	EXPECT_FALSE(Password::compare_password(hash, "parolparo1"));
+	EXPECT_FALSE(Password::compare_password(hash, "xarolparol"));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
