@@ -6,6 +6,11 @@
 \details Константы и функции для работы с цветами telnet.
 */
 
+#include "utils/native_text.h"
+
+#include <algorithm>
+#include <string>
+
 #include "engine/ui/color.h"
 
 #include "utils/utils.h"
@@ -228,13 +233,26 @@ size_t count_colors(const char *str, size_t len) {
 //возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
 //left_align выравнивание строки влево
 char *colored_name(const char *str, size_t len, const bool left_align) {
-	static char cstr[128];
-	static char fmt[7];
-	size_t cc = len + count_colors(str) * 2;
+	static char cstr[256];
 
-	if (strlen(str) < cc) {
-		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align ? "-" : ""), static_cast<int>(cc));
-		snprintf(cstr, sizeof(cstr), fmt, str);
+	// Ширину колонки меряем в символах: в UTF-8 буква занимает два байта, и printf-ширина,
+	// которая считает байты, обрезала бы поле примерно вдвое -- на базаре из-за этого разъезжались
+	// все колонки (issue #3681). Цветокоды на экране места не занимают, поэтому из видимой длины
+	// они вычитаются, а не прибавляются к ширине поля, как было в байтовом варианте.
+	const size_t colors = count_colors(str) * 2;
+	const size_t chars = native_text::char_count(str);
+	const size_t visible = chars > colors ? chars - colors : 0;
+	// ширина не может быть больше буфера: отдельные вызовы передают отрицательную len,
+	// которая в size_t превращается в астрономическую величину
+	const size_t width = std::min(len, sizeof(cstr) - 1);
+
+	if (visible < width) {
+		const std::string padding(width - visible, ' ');
+		if (left_align) {
+			snprintf(cstr, sizeof(cstr), "%s%s", str, padding.c_str());
+		} else {
+			snprintf(cstr, sizeof(cstr), "%s%s", padding.c_str(), str);
+		}
 	} else {
 		snprintf(cstr, sizeof(cstr), "%s", str);
 	}
