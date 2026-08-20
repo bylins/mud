@@ -336,9 +336,14 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	// MUD::Spell().IsValid() here -- ConvertObjValues runs before the spell registry is populated, so
 	// it would reject every spell. It isn't needed either: an out-of-range/undefined spell number is
 	// silently ignored at cast, exactly as the m_vals path already does.
-	const auto set_spell = [obj](ObjVal::EValueKey key, int num) {
+	// Помечать зону на сохранение имеет смысл, только если ключи действительно появились:
+	// у предмета с нулевыми val[] писать нечего, guard выше на следующем буте снова окажется
+	// ложным, и зона переписывалась бы вхолостую каждый старт (issue #3749).
+	bool migrated = false;
+	const auto set_spell = [obj, &migrated](ObjVal::EValueKey key, int num) {
 		if (num > 0) {
 			obj->SetPotionValueKey(key, num);
+			migrated = true;
 		}
 	};
 	set_spell(ObjVal::EValueKey::kSpell1Num, v1);
@@ -353,10 +358,11 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	}
 	if (brewed) {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, v3);
+		migrated = true;
 	} else {
 		set_spell(ObjVal::EValueKey::kSpell3Num, v3);
 	}
-	return 1;
+	return migrated ? 1 : 0;
 }
 
 /// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
@@ -402,8 +408,10 @@ int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
 		|| obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill) >= 0) {
 		return 0;  // already migrated
 	}
-	const auto set_pos = [obj](ObjVal::EValueKey key, int num) {
-		if (num > 0) { obj->SetPotionValueKey(key, num); }
+	// Как и у зелий: без единого выставленного ключа сохранять нечего (issue #3749).
+	bool migrated = false;
+	const auto set_pos = [obj, &migrated](ObjVal::EValueKey key, int num) {
+		if (num > 0) { obj->SetPotionValueKey(key, num); migrated = true; }
 	};
 	if (type == EObjType::kScroll) {
 		set_pos(ObjVal::EValueKey::kSpell1Num, obj->get_val(1));
@@ -414,7 +422,7 @@ int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
 		set_pos(ObjVal::EValueKey::kMaxCharges, obj->get_val(1));
 		set_pos(ObjVal::EValueKey::kCurCharges, obj->get_val(2));
 	}
-	return 1;
+	return migrated ? 1 : 0;
 }
 
 // issue.magic-items-hotfix: the liquid core is stored in the kLiquid* keys (get_val/set_val redirect
@@ -447,11 +455,15 @@ int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool proto) {
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity, capacity);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCurrent, obj->get_val(1));
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidType, obj->get_val(2));
-	return 1;
+	// Зону не помечаем. Жидкостное ядро уходит на диск как обычные values (get_val/set_val
+	// перенаправлены в эти же ключи), нового на диске не появляется, а сам засев по замыслу
+	// повторяется на каждой загрузке -- иначе зона переписывалась бы вечно (issue #3749).
+	return 0;
 }
 
 void ConvertObjValues() {
 	int save = 0;
+	std::set<int> marked;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
 		save = std::max(save, ConvertDrinkPoisonField(i.get(), true));
@@ -468,9 +480,20 @@ void ConvertObjValues() {
 		}
 		// ...
 		if (save) {
-			olc_add_to_save_list(i->get_vnum() / 100, OLC_SAVE_OBJ);
+			const int zone = i->get_vnum() / 100;
+			olc_add_to_save_list(zone, OLC_SAVE_OBJ);
+			marked.insert(zone);
 			save = 0;
 		}
+	}
+	// Молчит, когда помечать нечего. Если зоны в этом списке повторяются от бута к буту --
+	// значит миграция снова не персистится, как было в issue #3749.
+	if (!marked.empty()) {
+		std::string zones;
+		for (const int zone : marked) {
+			zones += std::to_string(zone) + " ";
+		}
+		log("Converted obj values, zones queued for save: %s", zones.c_str());
 	}
 }
 
