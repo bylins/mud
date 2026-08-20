@@ -130,13 +130,15 @@ bool PlayersIndex::equal_to::operator()(const std::string &left, const std::stri
 bool IsPlayerExists(const long id) { return player_table.IsPlayerExists(id); }
 
 long CmpPtableByName(char *name, int len) {
-	len = std::min(len, static_cast<int>(strlen(name)));
+	// len -- в символах: вызывающие передают kMinNameLength, то есть «столько букв».
+	len = std::min(len, static_cast<int>(native_text::char_count(name)));
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here.
 	 * TODO: make map helper (MAPHELPER). */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		std::string_view pname = player_table[i].name();
-		if (!strn_cmp(pname.data(), arg, std::min(len, static_cast<int>(pname.length())))) {
+		if (utils::IsSamePrefix(pname.data(), arg,
+								std::min<std::size_t>(len, native_text::char_count(pname)))) {
 			return static_cast<long>(i);
 		}
 	}

@@ -114,6 +114,23 @@ void DelegatedStringWriter::clear() {
 	m_delegated_string_ = nullptr;
 }
 
+bool IsSamePrefix(const char *arg1, const char *arg2, std::size_t chars) {
+	if (arg1 == nullptr || arg2 == nullptr) {
+		return false;
+	}
+	for (std::size_t i = 0; i < chars; ++i) {
+		if (!*arg1 || !*arg2) {
+			return false;   // символы кончились раньше, чем набралось chars
+		}
+		if (!native_text::chars_equal_ci(arg1, arg2)) {
+			return false;
+		}
+		arg1 += native_text::char_bytes(arg1);
+		arg2 += native_text::char_bytes(arg2);
+	}
+	return true;
+}
+
 bool IsAbbr(const char *arg1, const char *arg2) {
 	if (!*arg1) {
 		return false;
@@ -572,7 +589,7 @@ char *delete_doubledollar(char *string) {
 }
 
 // Moved from utils.cpp
-// The str_cmp/strn_cmp family folds case per *character*: under KOI8-R that is the original
+// The str_cmp family folds case per *character*: under KOI8-R that is the original
 // byte-wise LOWER() loop kept verbatim below, under UTF-8 it is native_text's code-point fold
 // (issue #3681). The KOI8-R path is untouched so behaviour is bit-identical until the flip.
 int str_cmp(const char *arg1, const char *arg2) {
@@ -603,33 +620,6 @@ int str_cmp(const std::string &arg1, const std::string &arg2) {
 	return native_text::compare_ci(arg1, arg2);
 }
 
-int strn_cmp(const char *arg1, const char *arg2, size_t n) {
-	if (arg1 == nullptr || arg2 == nullptr) {
-		log("SYSERR: strn_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
-		return (0);
-	}
-	return native_text::ncompare_ci(arg1, arg2, n);
-}
-
-int strn_cmp(const std::string &arg1, const char *arg2, size_t n) {
-	if (arg2 == nullptr) {
-		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg2);
-		return (0);
-	}
-	return native_text::ncompare_ci(arg1, arg2, n);
-}
-
-int strn_cmp(const char *arg1, const std::string &arg2, size_t n) {
-	if (arg1 == nullptr) {
-		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg1);
-		return (0);
-	}
-	return native_text::ncompare_ci(arg1, arg2, n);
-}
-
-int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n) {
-	return native_text::ncompare_ci(arg1, arg2, n);
-}
 
 void StringReplace(std::string &buffer, char s, const std::string &d) {
 	for (size_t index = 0; index = buffer.find(s, index), index != std::string::npos;) {

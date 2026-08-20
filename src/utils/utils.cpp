@@ -91,7 +91,7 @@ return result;
 
 
 
-// str_cmp, strn_cmp moved to utils_string.cpp
+// str_cmp moved to utils_string.cpp
 
 // the "touch" command, essentially.
 int touch(const char *path) {

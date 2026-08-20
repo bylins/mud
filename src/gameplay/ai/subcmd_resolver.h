@@ -15,7 +15,7 @@ class CharData;
 // row), so the hint can never drift from the actual subcommands. Strings live in code for now; later
 // they move to special_msg.xml and this table is built from there -- the API stays the same.
 //
-// Lookup is currently a linear, case-insensitive scan (str_cmp/strn_cmp, KOI8-aware) -- correct and
+// Lookup is currently a linear, case-insensitive scan (str_cmp/IsAbbr, KOI8-aware) -- correct and
 // cheap for the handful of subcommands a spec proc has; the same API can be backed by a shared
 // prefix-tree later (and reused for socials/command abbreviation).
 class SubCmdResolver {

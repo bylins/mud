@@ -85,10 +85,19 @@ TEST(TextSemantics, StrCmpOrdersConsistently) {
 	EXPECT_GT(str_cmp("abc", "ab"), 0);
 }
 
-TEST(TextSemantics, StrnCmpComparesPrefixOnly) {
-	EXPECT_EQ(strn_cmp("abcdef", "abcXXX", 3), 0);
-	EXPECT_NE(strn_cmp("abcdef", "abXXXX", 3), 0);
-	EXPECT_EQ(strn_cmp("МЕЧ", "меч", 6), 0);
+TEST(TextSemantics, IsSamePrefixCountsCharactersNotBytes) {
+	EXPECT_TRUE(utils::IsSamePrefix("abcdef", "abcXXX", 3));
+	EXPECT_FALSE(utils::IsSamePrefix("abcdef", "abXXXX", 3));
+
+	// Три буквы -- это три, а не шесть байт: пределы вроде kMinNameLength означают
+	// именно буквы, и байтовый счёт под UTF-8 давал вдвое короче (issue #3681).
+	EXPECT_TRUE(utils::IsSamePrefix("МЕЧ", "меч", 3));
+	EXPECT_TRUE(utils::IsSamePrefix("мечник", "МЕЧТА", 3));
+	EXPECT_FALSE(utils::IsSamePrefix("мечник", "МЕЧТА", 4));
+
+	// Строка короче запрошенного -- не совпадение, а не «совпало по остатку».
+	EXPECT_FALSE(utils::IsSamePrefix("ме", "меч", 3));
+	EXPECT_TRUE(utils::IsSamePrefix("ме", "меч", 2));
 }
 
 // ---------------------------------------------------------------------------- argument splitting

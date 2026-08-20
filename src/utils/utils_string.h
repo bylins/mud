@@ -112,6 +112,11 @@ std::string GetStringWithoutColors(const std::string &string);
 bool IsEquivalent(const std::string &abbr, const std::string &words);
 // поиск abbr  без пропусков слов в строке words
 bool IsEqual(const std::string &abbr, const std::string &words);
+// Совпадают ли первые chars символов у обеих строк (без учёта регистра). Если символов
+// в какой-то из строк меньше -- не совпадают. Единица счёта -- символ, а не байт: пределы
+// вроде kMinNameLength означают буквы, и под UTF-8 байтовый счёт давал вдвое короче (#3681).
+bool IsSamePrefix(const char *arg1, const char *arg2, std::size_t chars);
+
 // arg1 аббревиатура в arg2 тексте\фразе
 bool IsAbbr(const char *arg1, const char *arg2);
 inline int IsAbbr(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
@@ -325,13 +330,6 @@ int str_cmp(const char *arg1, const char *arg2);
 int str_cmp(const std::string &arg1, const char *arg2);
 int str_cmp(const char *arg1, const std::string &arg2);
 int str_cmp(const std::string &arg1, const std::string &arg2);
-
-/// Сравнение строк без учета регистра с ограничением длины (аналог strncmp).
-/// Возвращает: 0 если равны, >0 если arg1 > arg2, <0 если arg1 < arg2.
-int strn_cmp(const char *arg1, const char *arg2, size_t n);
-int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
-int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
-int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 
 /// Удаление завершающих \r\n из C-строки.
 /// Дубль: utils::TrimRight - похожий функционал но для пробелов.

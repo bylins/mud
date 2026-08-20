@@ -10,7 +10,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
 #include "utils/utils.h"   // a_isdigit
-#include "utils/utils_string.h"   // str_cmp/strn_cmp (search_block)
+#include "utils/utils_string.h"   // str_cmp/IsAbbr (search_block)
 
 //extern ObjRnum GetObjRnum(ObjVnum vnum) { return obj_proto.rnum(vnum);
 

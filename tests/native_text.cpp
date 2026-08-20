@@ -86,14 +86,6 @@ TEST(NativeText, CompareCiAscii) {
 	EXPECT_LT(native_text::compare_ci("", "a"), 0);
 }
 
-TEST(NativeText, NCompareCiAscii) {
-	EXPECT_EQ(native_text::ncompare_ci("abcdef", "abcXXX", 3), 0);  // only first 3 bytes matter
-	EXPECT_NE(native_text::ncompare_ci("abcdef", "abXXXX", 3), 0);
-	EXPECT_EQ(native_text::ncompare_ci("ABC", "abc", 3), 0);
-	EXPECT_EQ(native_text::ncompare_ci("anything", "other", 0), 0);  // zero budget: equal
-	EXPECT_LT(native_text::ncompare_ci("ab", "abc", 10), 0);         // budget beyond the strings
-}
-
 TEST(NativeText, CompareCiCyrillicIsCaseInsensitive) {
 	// "PRIVET" vs "privet" in Cyrillic: must compare equal in BOTH encodings -- under KOI8-R via
 	// the byte table, under UTF-8 via the code-point fold. This is the property that a naive

@@ -5,7 +5,7 @@
 #include "engine/core/comm.h"        // SendMsgToChar
 #include "utils/mud_string.h"        // one_argument
 #include "utils/utils.h"             // skip_spaces, kMaxInputLength
-#include "utils/utils_string.h"      // str_cmp, strn_cmp
+#include "utils/utils_string.h"      // str_cmp, IsAbbr
 
 #include <cstring>
 #include <utility>

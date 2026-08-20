@@ -1503,11 +1503,9 @@ static void HandleNameCase(DescriptorData *d, char *argument, int step) {
 		&& static_cast<int>(native_text::char_count(tmp_name)) <= kMaxNameLength
 		// Падеж принимается, если первые kMinNameLength символов совпали с именем. Считать
 		// это в байтах нельзя: под UTF-8 пятёрка -- две с половиной русские буквы (#3681).
-		&& !strn_cmp(tmp_name,
-					 GET_PC_NAME(d->character),
-					 native_text::char_offset(GET_PC_NAME(d->character),
-											  std::min<std::size_t>(kMinNameLength,
-																	native_text::char_count(GET_PC_NAME(d->character)) - 1)))) {
+		&& utils::IsSamePrefix(tmp_name, GET_PC_NAME(d->character),
+							   std::min<std::size_t>(kMinNameLength,
+													 native_text::char_count(GET_PC_NAME(d->character)) - 1))) {
 		d->character->player_data.PNames[cur.ecase] = std::string(utils::CAP(tmp_name));
 		if (step < kLast) {
 			const auto &next = kSteps[step + 1];

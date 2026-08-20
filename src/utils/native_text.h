@@ -63,10 +63,8 @@ char32_t first_char_code_upper(const char *s);
 // the shorter string orders first, returns the signed difference at the first mismatch (0 when
 // equal). KOI8-R: per byte, via LOWER() -- matches str_cmp/str/str semantics. UTF-8: per code
 // point, folded via utf8::to_lower (so the sign is meaningful; the magnitude is a code-point
-// difference). In ncompare_ci, `n` is a byte budget -- the callers pass strlen()/length() -- and
-// the comparison stops (as a match) once that many bytes of equal text have been consumed.
+// difference).
 int compare_ci(std::string_view a, std::string_view b);
-int ncompare_ci(std::string_view a, std::string_view b, std::size_t n);
 
 // Is the character starting at `s` alphanumeric? KOI8-R: the a_isalnum byte table. UTF-8: ASCII
 // letters/digits plus the Russian Cyrillic block -- so a multibyte letter is classified as one

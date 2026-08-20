@@ -113,7 +113,6 @@ namespace {
 
 // Shared driver for the two case-insensitive comparisons. `limit` caps how many bytes of `a` may
 // be consumed (npos = unlimited): once that budget is spent the strings count as equal, which is
-// what the strn_cmp callers -- who pass a prefix length in bytes -- expect.
 int compare_folded(std::string_view a, std::string_view b, std::size_t limit) {
 	std::size_t pa = 0;
 	std::size_t pb = 0;
@@ -150,9 +149,6 @@ int compare_ci(std::string_view a, std::string_view b) {
 	return compare_folded(a, b, std::string_view::npos);
 }
 
-int ncompare_ci(std::string_view a, std::string_view b, std::size_t n) {
-	return compare_folded(a, b, n);
-}
 
 bool is_alnum_char(const char *s) {
 	const unsigned char lead = static_cast<unsigned char>(*s);
