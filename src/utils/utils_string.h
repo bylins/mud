@@ -333,6 +333,18 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 
+/// Начинается ли строка с указанного префикса (без учёта регистра).
+/// Длину префикса функция берёт из него самого, поэтому задать её неверно негде --
+/// в отличие от strn_cmp, где её писали числом. С UTF-8 такие числа разъехались с
+/// длиной русских литералов: strn_cmp("кун", arg, 3) сравнивает полтора символа и
+/// совпадает с «куртка» (issue #3681).
+bool starts_with(const char *str, const char *prefix);
+bool starts_with(const std::string &str, const char *prefix);
+
+/// Сколько байт префикса совпало (0 -- не совпало). Нужно там, где префикс после
+/// сравнения ещё и отрезают: длина берётся из одного места и разъехаться не может.
+std::size_t skip_prefix(const char *str, const char *prefix);
+
 /// Удаление завершающих \r\n из C-строки.
 /// Дубль: utils::TrimRight - похожий функционал но для пробелов.
 void PruneCrlf(char *txt);

@@ -162,28 +162,28 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 	skip_spaces(&ptr);
 
 	// ptr содержит строку без первых пробелов.
-	if (!strn_cmp("case ", ptr, 5) || !strn_cmp("default", ptr, 7)) {
+	if (starts_with(ptr, "case ") || starts_with(ptr, "default")) {
 		// последовательные case (или default после case) без break
 		if (!indent_stack.empty()
-			&& !strn_cmp("case ", indent_stack.top().c_str(), 5)) {
+			&& starts_with(indent_stack.top().c_str(), "case ")) {
 			--currlev;
 		} else {
 			indent_stack.push(ptr);
 		}
 		nextlev = currlev + 1;
-	} else if (!strn_cmp("if ", ptr, 3) || !strn_cmp("while ", ptr, 6)
-		|| !strn_cmp("foreach ", ptr, 8) || !strn_cmp("switch ", ptr, 7)) {
+	} else if (starts_with(ptr, "if ") || starts_with(ptr, "while ")
+		|| starts_with(ptr, "foreach ") || starts_with(ptr, "switch ")) {
 		++nextlev;
 		indent_stack.push(ptr);
-	} else if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4)) {
+	} else if (starts_with(ptr, "elseif ") || starts_with(ptr, "else")) {
 		--currlev;
-	} else if (!strn_cmp("break", ptr, 5) || !strn_cmp("end", ptr, 3)
-		|| !strn_cmp("done", ptr, 4)) {
+	} else if (starts_with(ptr, "break") || starts_with(ptr, "end")
+		|| starts_with(ptr, "done")) {
 		// в switch завершающий break можно опускать и сразу писать done|end
-		if ((!strn_cmp("done", ptr, 4) || !strn_cmp("end", ptr, 3))
+		if ((starts_with(ptr, "done") || starts_with(ptr, "end"))
 			&& !indent_stack.empty()
-			&& (!strn_cmp("case ", indent_stack.top().c_str(), 5)
-				|| !strn_cmp("default", indent_stack.top().c_str(), 7))) {
+			&& (starts_with(indent_stack.top().c_str(), "case ")
+				|| starts_with(indent_stack.top().c_str(), "default"))) {
 			--currlev;
 			--nextlev;
 			indent_stack.pop();
