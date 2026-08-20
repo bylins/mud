@@ -575,24 +575,6 @@ char *delete_doubledollar(char *string) {
 // The str_cmp/strn_cmp family folds case per *character*: under KOI8-R that is the original
 // byte-wise LOWER() loop kept verbatim below, under UTF-8 it is native_text's code-point fold
 // (issue #3681). The KOI8-R path is untouched so behaviour is bit-identical until the flip.
-bool starts_with(const char *str, const char *prefix) {
-	if (str == nullptr || prefix == nullptr) {
-		return false;
-	}
-	return 0 == strn_cmp(str, prefix, std::strlen(prefix));
-}
-
-bool starts_with(const std::string &str, const char *prefix) {
-	return starts_with(str.c_str(), prefix);
-}
-
-std::size_t skip_prefix(const char *str, const char *prefix) {
-	if (!starts_with(str, prefix)) {
-		return 0;
-	}
-	return std::strlen(prefix);
-}
-
 int str_cmp(const char *arg1, const char *arg2) {
 	if (arg1 == nullptr || arg2 == nullptr) {
 		log("SYSERR: str_cmp() passed a nullptr pointer, %p or %p.", arg1, arg2);

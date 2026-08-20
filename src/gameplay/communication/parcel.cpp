@@ -291,7 +291,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 
 	if (is_number(tmp_arg)) {
 		int amount = atoi(tmp_arg);
-		if (starts_with(tmp_arg2, "coin") || starts_with(tmp_arg2, "кун") || !str_cmp("денег", tmp_arg2)) {
+		if (utils::IsAbbr("coin", tmp_arg2) || utils::IsAbbr("кун", tmp_arg2) || !str_cmp("денег", tmp_arg2)) {
 			act("$n сказал$g вам : 'Для перевода денег воспользуйтесь услугами банка.'",
 				false,
 				mailman,

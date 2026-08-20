@@ -305,9 +305,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	// Find the value of the argument
 	bool on_off_mode{false};
 	if (set_fields[mode].type == ESetValue::kBinary) {
-		if (starts_with(val_arg, "on") || starts_with(val_arg, "yes") || starts_with(val_arg, "вкл")) {
+		if (utils::IsAbbr("on", val_arg) || utils::IsAbbr("yes", val_arg) || utils::IsAbbr("вкл", val_arg)) {
 			on_off_mode = true;
-		} else if (starts_with(val_arg, "off") || starts_with(val_arg, "no") || starts_with(val_arg, "выкл")) {
+		} else if (utils::IsAbbr("off", val_arg) || utils::IsAbbr("no", val_arg) || utils::IsAbbr("выкл", val_arg)) {
 			on_off_mode = false;
 		} else {
 			SendMsgToChar("Значение может быть 'on' или 'off'.\r\n", ch);

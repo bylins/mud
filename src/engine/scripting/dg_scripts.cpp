@@ -4762,7 +4762,7 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 	if (!*arg) {
 		snprintf(buf2, sizeof(buf2), "wait w/o an arg: '%s'", cl->cmd.c_str());
 		trig_log(trig, buf2);
-	} else if (starts_with(arg, "until "))    // valid forms of time are 14:30 and 1430
+	} else if (utils::IsAbbr("until ", arg))    // valid forms of time are 14:30 and 1430
 	{
 		if (sscanf(arg, "until %ld:%ld", &hr, &min) == 2)
 			min += (hr * 60);

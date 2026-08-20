@@ -162,28 +162,28 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 	skip_spaces(&ptr);
 
 	// ptr содержит строку без первых пробелов.
-	if (starts_with(ptr, "case ") || starts_with(ptr, "default")) {
+	if (utils::IsAbbr("case ", ptr) || utils::IsAbbr("default", ptr)) {
 		// последовательные case (или default после case) без break
 		if (!indent_stack.empty()
-			&& starts_with(indent_stack.top().c_str(), "case ")) {
+			&& utils::IsAbbr("case ", indent_stack.top().c_str())) {
 			--currlev;
 		} else {
 			indent_stack.push(ptr);
 		}
 		nextlev = currlev + 1;
-	} else if (starts_with(ptr, "if ") || starts_with(ptr, "while ")
-		|| starts_with(ptr, "foreach ") || starts_with(ptr, "switch ")) {
+	} else if (utils::IsAbbr("if ", ptr) || utils::IsAbbr("while ", ptr)
+		|| utils::IsAbbr("foreach ", ptr) || utils::IsAbbr("switch ", ptr)) {
 		++nextlev;
 		indent_stack.push(ptr);
-	} else if (starts_with(ptr, "elseif ") || starts_with(ptr, "else")) {
+	} else if (utils::IsAbbr("elseif ", ptr) || utils::IsAbbr("else", ptr)) {
 		--currlev;
-	} else if (starts_with(ptr, "break") || starts_with(ptr, "end")
-		|| starts_with(ptr, "done")) {
+	} else if (utils::IsAbbr("break", ptr) || utils::IsAbbr("end", ptr)
+		|| utils::IsAbbr("done", ptr)) {
 		// в switch завершающий break можно опускать и сразу писать done|end
-		if ((starts_with(ptr, "done") || starts_with(ptr, "end"))
+		if ((utils::IsAbbr("done", ptr) || utils::IsAbbr("end", ptr))
 			&& !indent_stack.empty()
-			&& (starts_with(indent_stack.top().c_str(), "case ")
-				|| starts_with(indent_stack.top().c_str(), "default"))) {
+			&& (utils::IsAbbr("case ", indent_stack.top().c_str())
+				|| utils::IsAbbr("default", indent_stack.top().c_str()))) {
 			--currlev;
 			--nextlev;
 			indent_stack.pop();
