@@ -3494,22 +3494,26 @@ int ReadFileToBuffer(const char *name, char *destination_buf) {
 		sprintf(destination_buf + strlen(destination_buf), "Error: file '%s' is empty.\r\n", name);
 		return (0);
 	}
-	do {
-		const char *dummy = fgets(tmp, READ_SIZE, fl);
-		UNUSED_ARG(dummy);
-
-		tmp[strlen(tmp) - 1] = '\0';    // take off the trailing \n
+	// Цикл идёт по результату fgets. Прежний do/while обрабатывал tmp и после неудачного чтения:
+	// на пустом файле strlen() шёл по неинициализированной памяти, а при нулевой длине
+	// tmp[strlen(tmp) - 1] писал байт ПЕРЕД началом буфера.
+	while (fgets(tmp, READ_SIZE, fl)) {
+		const size_t len = strlen(tmp);
+		// перевод строки снимаем, только если он есть: у строки длиннее READ_SIZE и у последней
+		// строки файла без \n прежний код съедал значащий символ
+		if (len > 0 && tmp[len - 1] == '\n') {
+			tmp[len - 1] = '\0';
+		}
 		strcat(tmp, "\r\n");
 
-		if (!feof(fl)) {
-			if (strlen(destination_buf) + strlen(tmp) + 1 > kMaxExtendLength) {
-				log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
-				*destination_buf = '\0';
-				return (-1);
-			}
-			strcat(destination_buf, tmp);
+		if (strlen(destination_buf) + strlen(tmp) + 1 > kMaxExtendLength) {
+			log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
+			*destination_buf = '\0';
+			fclose(fl);
+			return (-1);
 		}
-	} while (!feof(fl));
+		strcat(destination_buf, tmp);
+	}
 
 	fclose(fl);
 
