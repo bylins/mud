@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "engine/ui/modify.h"
 #include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/world_objects.h"
@@ -64,7 +65,7 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 				}
 			}
 		}
-		SendMsgToChar(ss.str(), ch);
+		page_string(ch->desc, ss.str());   // список игроков тоже бывает длинным
 	} else {
 		std::vector<where_format::WhereRow> rows;
 		target_resolver::Query q;
@@ -87,7 +88,12 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 			found = 1;
 		}
 		if (found) {
-			SendMsgToChar(where_format::FormatWhere(rows), ch);
+			// Постранично, а не одним куском: буфер вывода дескриптора ограничен байтами
+			// (kLargeBufSize, около 48 КБ), а под UTF-8 русский текст занимает вдвое больше,
+			// чем занимал в KOI8-R. Поиск по частому слову перестал влезать, и игрок получал
+			// "***ПЕРЕПОЛНЕНИЕ***" вместо списка. Так же выводят свои длинные списки склад,
+			// обменник и "кто" (issue #3681).
+			page_string(ch->desc, where_format::FormatWhere(rows));
 		} else {
 			SendMsgToChar("Нет ничего похожего.\r\n", ch);
 		}
