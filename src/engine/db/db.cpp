@@ -1,5 +1,8 @@
 #include <fstream>
+// malloc.h и malloc_trim есть только у glibc: на macOS заголовок называется иначе
+#ifdef __GLIBC__
 #include <malloc.h>
+#endif
 #include <filesystem>
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
