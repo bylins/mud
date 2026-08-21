@@ -37,7 +37,6 @@
 #include <sstream>
 #include <sstream>
 
-extern std::pair<int, int> TotalMemUse();
 
 
 const char *ACTNULL = "<NULL>";
@@ -831,9 +830,9 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, size_t 
 
 void MemLeakInfo() {
 	static int last_pmem_used = 0;
-	auto get_mem = TotalMemUse();
-	int vmem_used = get_mem.first;
-	int pmem_used = get_mem.second;
+	const auto mem = TotalMemUse();
+	int vmem_used = static_cast<int>(mem.virt_kb);
+	int pmem_used = static_cast<int>(mem.rss_kb);
 	char buf [256];
 
 	if (pmem_used != last_pmem_used) {
