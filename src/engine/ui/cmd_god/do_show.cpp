@@ -2,6 +2,7 @@
 // Created by Sventovit on 08.05.2022.
 //
 
+#include <cstdlib>   // std::strtol
 #include <fstream>
 // malloc.h есть только у glibc: на macOS это <malloc/malloc.h> и без mallinfo2
 #ifdef __GLIBC__
@@ -447,7 +448,7 @@ struct MemUsage {
 };
 
 MemUsage TotalMemUse() {
-	MemUsage usage;
+	MemUsage usage;   // на не-linux остаётся с -1 во всех полях: печатать нечего
 #ifdef __linux__
 	std::ifstream status("/proc/self/status");
 	std::string line;
