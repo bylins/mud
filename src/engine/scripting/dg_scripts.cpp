@@ -173,18 +173,16 @@ const char uid_replace_table[] = {
 };
 
 void script_log(const char *msg, LogMode type) {
-	char tmpbuf[kMaxStringLength];
-
-	snprintf(tmpbuf, kMaxStringLength, "SCRIPT LOG %s", msg);
-
-	char *pos = tmpbuf;
-	while (*pos != '\0') {
-		*pos = uid_replace_table[static_cast<unsigned char>(*pos)];
-		++pos;
+	std::string text = fmt::format("SCRIPT LOG {}", msg);
+	// Замена маркеров UID (0x1C/0x1D/0x1E) на пробел -- побайтно, но безопасно: таблица трогает
+	// только эти три кода, а они меньше 0x80 и внутри многобайтовых UTF-8 последовательностей
+	// не встречаются.
+	for (char &c : text) {
+		c = uid_replace_table[static_cast<unsigned char>(c)];
 	}
 
-	log("%s", tmpbuf);
-	mudlog(tmpbuf, type ? type : NRM, kLvlBuilder, ERRLOG, true);
+	log("%s", text.c_str());
+	mudlog(text, type ? type : NRM, kLvlBuilder, ERRLOG, true);
 }
 
 /*
@@ -192,10 +190,9 @@ void script_log(const char *msg, LogMode type) {
  *  Will eventually allow on-line view of script errors.
  */
 void trig_log(Trigger *trig, std::string msg, LogMode type) {
-	char tmpbuf[kMaxStringLength];
-	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s [строка: %d]", GET_TRIG_NAME(trig), 
-			GET_TRIG_VNUM(trig), msg.c_str(), last_trig_line_num);
-	script_log(tmpbuf, type);
+	script_log(fmt::format("(Trigger: {}, VNum: {}) : {} [строка: {}]",
+						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg, last_trig_line_num).c_str(),
+			   type);
 }
 
 cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr cl);
