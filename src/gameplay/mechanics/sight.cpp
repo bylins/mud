@@ -1343,10 +1343,12 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " %s ", diag_obj_to_char(object, 1));
 					if (object->get_type() == EObjType::kLiquidContainer) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
-						char tmp2[128];
 						native_text::copy_lower_char(tmp, tmp);
-						sprintf(tmp2, "(%s)", tmp);
-						strcat(buf2, tmp2);
+						// Без промежуточного буфера: описание наполнения -- длинная фраза ("наполнен
+						// меньше, чем на четверть черной вязкой *отравленной* жидкостью"), и в UTF-8
+						// она не влезала в 128 байт: fortify ловил переполнение и валил процесс на
+						// осмотре ёмкости (issue #3752).
+						strcat(buf2, fmt::format("({})", tmp).c_str());
 					}
 				}
 			}
