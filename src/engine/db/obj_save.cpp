@@ -2271,32 +2271,27 @@ void Crash_report_rent_item(CharData *ch,
 							int factor,
 							int equip,
 							int recursive) {
-	static char buf[256];
-	char bf[80], bf2[14];
-
-	if (obj) {
-		if (CAN_WEAR_ANY(obj)) {
-			if (equip) {
-				sprintf(bf, " (%d если снять)", obj->get_rent_off() * factor * count);
-			} else {
-				sprintf(bf, " (%d если надеть)", obj->get_rent_on() * factor * count);
-			}
-		} else {
-			*bf = '\0';
-		}
-
-		if (count > 1) {
-			sprintf(bf2, " [%d]", count);
-		}
-
-		sprintf(buf, "%s - %d %s%s за %s%s %s",
-				recursive ? "" : kColorWht,
-				(equip ? obj->get_rent_on() * count : obj->get_rent_off()) *
-					factor * count,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount((equip ? obj->get_rent_on() * count : obj->get_rent_off()) * factor * count, grammar::ECase::kNom).c_str(),
-				bf, OBJN(obj, ch, grammar::ECase::kAcc), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
-		act(buf, false, recep, 0, ch, kToVict);
+	if (!obj) {
+		return;
 	}
+	// Строка собирается через fmt, а не в буфер на 256 байт: в неё входит название предмета в
+	// винительном падеже, а в UTF-8 русский текст занимает вдвое больше места -- длинного имени
+	// вместе с ценой и валютой хватало, чтобы вылезти за край (тот же класс, что #3751 и #3752).
+	std::string bf;
+	if (CAN_WEAR_ANY(obj)) {
+		bf = equip
+			 ? fmt::format(" ({} если снять)", obj->get_rent_off() * factor * count)
+			 : fmt::format(" ({} если надеть)", obj->get_rent_on() * factor * count);
+	}
+	const std::string bf2 = count > 1 ? fmt::format(" [{}]", count) : std::string();
+	const int cost = (equip ? obj->get_rent_on() * count : obj->get_rent_off()) * factor * count;
+
+	const std::string line = fmt::format("{} - {} {}{} за {}{} {}",
+			recursive ? "" : kColorWht,
+			cost,
+			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom),
+			bf, OBJN(obj, ch, grammar::ECase::kAcc), bf2, recursive ? "" : kColorNrm);
+	act(line.c_str(), false, recep, 0, ch, kToVict);
 }
 // end by WorM
 
