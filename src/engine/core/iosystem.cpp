@@ -146,6 +146,15 @@ void write_to_output(const char *txt, DescriptorData *t) {
 	if (size + t->bufptr > kLargeBufSize - 1) {
 		t->bufptr = ~0ull;
 		buf_overflows++;
+		// Дальше и до конца такта весь вывод этому дескриптору молча выбрасывается (проверка
+		// bufptr == ~0ull в начале функции), а игрок об этом не узнает. Пишем в сислог, кому и
+		// на какой команде не хватило буфера -- иначе такие случаи видны только счётчиком в
+		// "показать статистика", без единой подробности.
+		log("SYSERR: output overflow: %s [%s], команда '%s', в буфере %zu б, отброшено %zu б",
+			t->character ? GET_NAME(t->character) : "<без персонажа>",
+			*t->host ? t->host : "?",
+			t->last_input,
+			t->bufspace, size);
 		return;
 	}
 	buf_switches++;
