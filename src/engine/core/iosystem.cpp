@@ -153,10 +153,20 @@ void write_to_output(const char *txt, DescriptorData *t) {
 		// bufptr == ~0ull в начале функции), а игрок об этом не узнает. Пишем в сислог, кому и
 		// на какой команде не хватило буфера -- иначе такие случаи видны только счётчиком в
 		// "показать статистика", без единой подробности.
+		// last_input заполняется на ЛЮБОЙ строке от клиента -- проверки состояния над той
+		// записью нет, -- так что в парольных состояниях там лежит сам пароль. В лог его
+		// отдавать нельзя: сислог читают и хранят.
+		const bool secret_input = t->state == EConState::kPassword
+			|| t->state == EConState::kNewpasswd
+			|| t->state == EConState::kCnfpasswd
+			|| t->state == EConState::kChpwdGetOld
+			|| t->state == EConState::kChpwdGetNew
+			|| t->state == EConState::kChpwdVrfy
+			|| t->state == EConState::kDelcnf1;
 		log("SYSERR: output overflow: %s [%s], команда '%s', в буфере %zu б, отброшено %zu б",
 			t->character ? GET_NAME(t->character) : "<без персонажа>",
 			*t->host ? t->host : "?",
-			t->last_input,
+			secret_input ? "<ввод скрыт>" : t->last_input,
 			t->bufspace, size);
 		return;
 	}
