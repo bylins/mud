@@ -1616,7 +1616,6 @@ void forget_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 	argument += qend + 1;
 	name[qend - 1] = '\0';
 
-	size_t i = strlen(name);
 	for (rcpt = top_imrecipes; rcpt >= 0; --rcpt) {
 		if (utils::IsAbbr(name, imrecipes[rcpt].name)) {
 			break;

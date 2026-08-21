@@ -38,6 +38,7 @@ test_sources = files(
     'char.morph.copy.cpp',
     'obj.copy.cpp',
     'obj.liquid_core.cpp',
+    'liquid.name_roundtrip.cpp',
     'spell_item_convert.cpp',
     'password.encoding.cpp',
     'act.makefood.cpp',
