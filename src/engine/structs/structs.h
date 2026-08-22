@@ -105,7 +105,11 @@ const int kZonesReset = 1;    // number of zones to reset at one time //
 
 // Variables for the output buffering system //
 constexpr uint16_t kMaxSockBuf = 48 * 1024;	// Size of kernel's sock buf   //
-const uint16_t kMaxPromptLength = 256;		// Max length of prompt        //
+// Сколько байт отводится промпту. В бою он содержит состояние всей группы и цели -- по
+// "[имя:состояние]" на каждого, плюс цветовые последовательности по 7 байт. Группа из трёх
+// упирается в прежние 256 байт: строка обрезалась посреди слова, а под UTF-8 ещё и посреди
+// буквы, и игрок видел хвост из вопросительных знаков (issue #3761).
+const uint16_t kMaxPromptLength = 1024;		// Max length of prompt        //
 const uint8_t kGarbageSpace = 32;				// Space for **OVERFLOW** etc  //
 const uint16_t kSmallBufsize = 1024;			// Static output buffer size   //
 // Max amount of output that can be buffered //
