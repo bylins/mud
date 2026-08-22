@@ -382,9 +382,13 @@ void Player::save_char(bool update_save_time) {
 	saved.printf("Levl: %d\n", this->GetLevel());
 	saved.printf("Clas: %d\n", to_underlying(this->GetClass()));
 	saved.printf("LstL: %ld\n", static_cast<long int>(this->get_last_logon()));
-	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
+	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа.
+	// Если в индексе пусто -- персонажа загрузили мимо входа в игру (правка богом, миграция,
+	// служебный проход), и записывать заглушку поверх реального адреса нельзя: берём то, что
+	// уже прочитано из файла. Заглушка только когда адреса нет нигде.
 	if (player_table[this->get_pfilepos()].last_ip.empty()) {
-		player_table[this->get_pfilepos()].last_ip = "Unknown";
+		player_table[this->get_pfilepos()].last_ip =
+				*player_specials->saved.LastIP ? player_specials->saved.LastIP : "НеВедется";
 	}
 	saved.printf("Host: %s\n", player_table[this->get_pfilepos()].last_ip.c_str());
 	saved.printf("Id  : %ld\n", this->get_uid());
@@ -975,7 +979,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'H':
 				if (!strcmp(tag, "Host")) {
-					strcpy(this->player_specials->saved.LastIP, line);
+					// Старые файлы несут английскую заглушку "Unknown" -- это отсутствие адреса,
+					// а не адрес. Держим её как пустоту, чтобы она не расползалась дальше.
+					strcpy(this->player_specials->saved.LastIP, strcmp(line, "Unknown") ? line : "");
 				}
 				break;
 			case 'I':

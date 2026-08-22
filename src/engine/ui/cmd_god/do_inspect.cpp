@@ -21,6 +21,8 @@ const int kRequestKindPos{0};
 const int kRequestTextPos{1};
 
 const char *kUndefined{"undefined"};
+// Адрес последнего входа не сохранялся до 2008 года -- у старых персонажей его нет вовсе.
+const char *kIpNotTracked{"НеВедется"};
 const std::set<std::string_view> kIgnoredIpChecklist = {"135.181.219.76"};
 
 const PlayerIndexElement &GetCharIndex(std::string_view char_name) {
@@ -100,7 +102,7 @@ void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &inde
 	online_ = (DescriptorByUid(index.uid()) != nullptr);
 	name_ = (index.name().empty() ? kUndefined : index.name());
 	mail_ = (index.mail.empty() ? kUndefined : index.mail);
-	last_ip_ = (index.last_ip.empty() ? kUndefined : index.last_ip);
+	last_ip_ = (index.last_ip.empty() ? kIpNotTracked : index.last_ip);
 	class_name_ = MUD::Class(index.plr_class).GetName();
 	level_ = index.level;
 	remort_ = index.remorts;
@@ -454,7 +456,7 @@ InspectRequestChar::InspectRequestChar(const CharData *author, const std::vector
 
 void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
 	mail_ = (index.mail.empty() ? kUndefined : index.mail);
-	last_ip_ = (index.last_ip.empty() ? kUndefined : index.last_ip);
+	last_ip_ = (index.last_ip.empty() ? kIpNotTracked : index.last_ip);
 	report_generator_.SetReportHeader(fmt::format(
 		"Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
 		kColorWht,
