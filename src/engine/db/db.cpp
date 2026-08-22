@@ -3535,6 +3535,7 @@ int ReadFileToBuffer(const char *name, char *destination_buf) {
 	// Цикл идёт по результату fgets. Прежний do/while обрабатывал tmp и после неудачного чтения:
 	// на пустом файле strlen() шёл по неинициализированной памяти, а при нулевой длине
 	// tmp[strlen(tmp) - 1] писал байт ПЕРЕД началом буфера.
+	std::string text;
 	while (fgets(tmp, READ_SIZE, fl)) {
 		const size_t len = strlen(tmp);
 		// перевод строки снимаем, только если он есть: у строки длиннее READ_SIZE и у последней
@@ -3542,18 +3543,21 @@ int ReadFileToBuffer(const char *name, char *destination_buf) {
 		if (len > 0 && tmp[len - 1] == '\n') {
 			tmp[len - 1] = '\0';
 		}
-		strcat(tmp, "\r\n");
-
-		if (strlen(destination_buf) + strlen(tmp) + 1 > kMaxExtendLength) {
-			log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
-			*destination_buf = '\0';
-			fclose(fl);
-			return (-1);
-		}
-		strcat(destination_buf, tmp);
+		text += tmp;
+		text += "\r\n";
 	}
 
 	fclose(fl);
+
+	// Тексты лежат на диске в KOI8-R, движок держит их в нативной кодировке. Без перевода
+	// экран справки уезжал игроку сырыми байтами и выглядел кашей (issue #3681).
+	const std::string native = native_text::from_disk_text(text);
+	if (native.size() + 1 > kMaxExtendLength) {
+		log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
+		*destination_buf = '\0';
+		return (-1);
+	}
+	memcpy(destination_buf, native.c_str(), native.size() + 1);
 
 	return (0);
 }
