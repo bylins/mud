@@ -6,6 +6,7 @@
 \detail Сюда нужно поместить весь код, связанный с теллми. реплиами в комнату и т.п.
 */
 
+#include <fmt/format.h>
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -114,8 +115,17 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	if (ch->IsFlagged(EPrf::kNoRepeat)) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	} else {
-		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", kColorBoldCyn,
-				 tell_can_see(vict, ch) ? vict->player_data.PNames[grammar::ECase::kDat].c_str() : "кому-то", arg, kColorNrm);
+		// Эхо отправителю переносим по ЕГО ширине экрана -- так же, как выше переносится копия
+		// получателя. Раньше эхо уходило одной строкой, и длинный телл у клиентов без переноса
+		// обрезался по краю окна.
+		std::string echo = fmt::format("Вы сказали {} : '{}'",
+									   tell_can_see(vict, ch)
+											   ? vict->player_data.PNames[grammar::ECase::kDat] : "кому-то",
+									   arg);
+		if (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0) {
+			echo = utils::OutWordsList(echo, ch->player_specials->saved.stringLength, " ");
+		}
+		snprintf(buf, kMaxStringLength, "%s%s%s\r\n", kColorBoldCyn, echo.c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
 		if (!ch->IsNpc()) {
 			ch->remember_add(buf, Remember::ALL);
