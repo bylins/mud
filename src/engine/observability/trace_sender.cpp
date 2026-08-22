@@ -36,13 +36,13 @@ void OtelSpan::End() {
 
 void OtelSpan::AddEvent(const std::string& name) {
 	if (m_span) {
-		m_span->AddEvent(observability::koi8r_to_utf8(name));
+		m_span->AddEvent(name);
 	}
 }
 
 void OtelSpan::SetAttribute(const std::string& key, const std::string& value) {
 	if (m_span) {
-		m_span->SetAttribute(key, observability::koi8r_to_utf8(value));
+		m_span->SetAttribute(key, value);
 	}
 }
 
@@ -73,7 +73,7 @@ std::unique_ptr<ISpan> OtelTraceSender::StartSpan(const std::string& name) {
 	if (observability::OtelProvider::Instance().IsEnabled()) {
 		auto tracer = trace_api::Provider::GetTracerProvider()->GetTracer("bylins-tracer", "1.0.0");
 		if (tracer) {
-			auto span = tracer->StartSpan(observability::koi8r_to_utf8(name));
+			auto span = tracer->StartSpan(name);
 			return std::make_unique<OtelSpan>(span);
 		}
 	}
@@ -96,7 +96,7 @@ std::unique_ptr<ISpan> OtelTraceSender::StartChildSpan(
 			opentelemetry::trace::StartSpanOptions options;
 			options.parent = otel_parent->GetContext();
 
-			auto span = tracer->StartSpan(observability::koi8r_to_utf8(name), {}, options);
+			auto span = tracer->StartSpan(name, {}, options);
 			return std::make_unique<OtelSpan>(span);
 		}
 	}

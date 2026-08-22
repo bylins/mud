@@ -24,26 +24,26 @@ char *TriggerIndenter::indent(char *cmd, int *level) {
 	char *ptr = cmd;
 	skip_spaces(&ptr);
 
-	if (!strn_cmp("case ", ptr, 5) || !strn_cmp("default", ptr, 7)) {
+	if (utils::IsAbbr("case ", ptr) || utils::IsAbbr("default", ptr)) {
 		if (!indent_stack_.empty()
-			&& !strn_cmp("case ", indent_stack_.top().c_str(), 5)) {
+			&& utils::IsAbbr("case ", indent_stack_.top().c_str())) {
 			--currlev;
 		} else {
 			indent_stack_.push(ptr);
 		}
 		nextlev = currlev + 1;
-	} else if (!strn_cmp("if ", ptr, 3) || !strn_cmp("while ", ptr, 6)
-		|| !strn_cmp("foreach ", ptr, 8) || !strn_cmp("switch ", ptr, 7)) {
+	} else if (utils::IsAbbr("if ", ptr) || utils::IsAbbr("while ", ptr)
+		|| utils::IsAbbr("foreach ", ptr) || utils::IsAbbr("switch ", ptr)) {
 		++nextlev;
 		indent_stack_.push(ptr);
-	} else if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4)) {
+	} else if (utils::IsAbbr("elseif ", ptr) || utils::IsAbbr("else", ptr)) {
 		--currlev;
-	} else if (!strn_cmp("break", ptr, 5) || !strn_cmp("end", ptr, 3)
-		|| !strn_cmp("done", ptr, 4)) {
-		if ((!strn_cmp("done", ptr, 4) || !strn_cmp("end", ptr, 3))
+	} else if (utils::IsAbbr("break", ptr) || utils::IsAbbr("end", ptr)
+		|| utils::IsAbbr("done", ptr)) {
+		if ((utils::IsAbbr("done", ptr) || utils::IsAbbr("end", ptr))
 			&& !indent_stack_.empty()
-			&& (!strn_cmp("case ", indent_stack_.top().c_str(), 5)
-				|| !strn_cmp("default", indent_stack_.top().c_str(), 7))) {
+			&& (utils::IsAbbr("case ", indent_stack_.top().c_str())
+				|| utils::IsAbbr("default", indent_stack_.top().c_str()))) {
 			--currlev;
 			--nextlev;
 			indent_stack_.pop();

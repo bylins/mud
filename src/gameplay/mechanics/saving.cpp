@@ -5,6 +5,7 @@
 */
 
 #include "gameplay/mechanics/saving.h"
+#include <fmt/format.h>
 #include "utils/logger.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -183,19 +184,30 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 	}
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
-	char smallbuf[256];
+	// абсолютный фейл
+	const bool crit_fail = (number(1, 100) <= 5
+			|| (AFF_FLAGGED(victim, EAffect::kHold) && type == ESaving::kReflex));
+	if (crit_fail) {
+		save /= 2;
+	}
 	// Saving-throw debug trace: the 3 hardcoded immortal-name
 	// short-circuits (Верий/Кудояр/Рогоза) were removed -- send_to_TC already gates the
 	// message on EPrf::kTester / kCoderinfo / IsImpl, which is the correct way to opt in.
-	if (number(1, 100) <= 5 || (AFF_FLAGGED(victim, EAffect::kHold) && type == ESaving::kReflex)) { //абсолютный фейл
-		save /= 2;
-		sprintf(smallbuf, "&RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n",
-				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		spell_trace::Line(killer, nullptr, "%s", smallbuf);
-	} else {
-		sprintf(smallbuf, "Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n",
-				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		spell_trace::Line(killer, nullptr, "%s", smallbuf);
+	//
+	// Строка собирается через fmt::format и только если её кто-то увидит: sprintf клал русский
+	// текст в буфер на 256 байт, а в UTF-8 одна эта фраза с длинным именем моба в него не влезает
+	// -- fortify ловил переполнение и валил процесс (issue #3751).
+	if (spell_trace::Active(killer, nullptr)) {
+		const std::string trace = fmt::format(
+				"{}Противник {} ({}), ваш бонус: {}, спас '{}' противника: {}, "
+				"random -200..200: {}, критудача: {}, шанс успеха: {:.2f}%.\r\n{}",
+				crit_fail ? "&R" : "",
+				GET_NAME(victim), GetRealLevel(victim), ext_apply,
+				saving_name.find(type)->second, save, rnd,
+				crit_fail ? "ДА" : "НЕТ",
+				((std::clamp(save + ext_apply, -200, 200) + 200) / 400.) * 100.,
+				crit_fail ? "&n" : "");
+		spell_trace::Line(killer, nullptr, "%s", trace.c_str());
 	}
 	save += ext_apply;    // внешний модификатор (обычно +каст)
 

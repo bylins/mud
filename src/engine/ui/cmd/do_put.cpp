@@ -158,7 +158,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (isname(theplace, "экипировка equipment"))
 		where_bits = EFind::kObjEquip;
 
-	if (theobj && (!strn_cmp("coin", theobj, 4) || !strn_cmp("кун", theobj, 3))) {
+	if (theobj && (utils::IsAbbr("coin", theobj) || utils::IsAbbr("кун", theobj))) {
 		money_mode = true;
 		if (howmany <= 0) {
 			SendMsgToChar("Следует указать чиста конкретную сумму.\r\n", ch);

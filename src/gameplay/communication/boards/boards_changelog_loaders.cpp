@@ -1,4 +1,5 @@
 #include "boards_changelog_loaders.h"
+#include "utils/native_text.h"
 
 #include "utils/logger.h"
 #include "boards_constants.h"
@@ -42,7 +43,7 @@ void ChangeLogLoaderImplementation::add_message(const std::string &author,
 	std::string subj(message->text.begin(), std::find(message->text.begin(), message->text.end(), '\n'));
 /*		if (subj.size() > 40)
 		{
-			subj = subj.substr(0, 40);
+			subj = subj.substr(0, native_text::char_offset(subj, 40));
 		} */
 	utils::Trim(subj);
 	message->subject = subj;
@@ -203,6 +204,9 @@ bool GitChangeLogLoader::GitCommitReader::next_line(std::string &buffer, std::is
 	if (!std::getline(is, buffer)) {
 		return false;
 	}
+	// Changelog лежит на диске в KOI8-R и читается потоком; границу кодировки проходим здесь
+	// (issue #3681). Под KOI8-R это тождество.
+	buffer = native_text::from_disk_line(buffer.c_str());
 	++line;
 
 	return true;
@@ -221,6 +225,7 @@ bool GitChangeLogLoader::load(std::istream &is) {
 	int line = 0;
 	std::string buffer;
 	while (std::getline(is, buffer)) {
+		buffer = native_text::from_disk_line(buffer.c_str());
 		++line;
 		switch (parser_state) {
 			case REVISION:

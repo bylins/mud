@@ -1,7 +1,9 @@
 // Copyright (c) 2012 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <sstream>
 #include "sets_drop.h"
+#include "utils/native_text.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -216,7 +218,10 @@ void create_clone_miniset(int vnum) {
 // * Инициализация списка сетов на лоад.
 void init_obj_list() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_sets_drop = native_text::read_data_file(CONFIG_FILE);
+	pugi::xml_parse_result result = doc.load_buffer(xml_sets_drop.data(), xml_sets_drop.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -960,7 +965,11 @@ void save_unique_mobs() {
 		mob_node.append_attribute("vnum") = it->first;
 		mob_node.append_attribute("level") = it->second;
 	}
-	doc.save_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs).c_str());
+	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
+	// (issue #3681).
+	std::ostringstream xml;
+	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	native_text::write_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs), xml.str());
 }
 
 void save_drop_table() {

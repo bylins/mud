@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/native_text.h"
 #include "gameplay/clans/house.h"
 #include "engine/db/player_index.h"
 #include "gameplay/core/remort.h"
@@ -29,7 +30,7 @@ void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		const int god_level = (ch)->player_specials->saved.NameGod > 1000 ? (ch)->player_specials->saved.NameGod - 1000 : (ch)->player_specials->saved.NameGod;
 		sprintf(buf1, "%s", GetNameById((ch)->player_specials->saved.NameIDGod).c_str());
-		*buf1 = UPPER(*buf1);
+		native_text::capitalize_first(buf1);
 
 		static const char *by_rank_god = "Богом";
 		static const char *by_rank_privileged = "привилегированным игроком";

@@ -10,6 +10,9 @@
 **************************************************************************/
 
 #include <sys/stat.h>
+#include <string>
+#include <cstring>
+#include "utils/native_text.h"
 #include "engine/core/sysdep.h"
 #include "utils/utils.h"
 #include "diskio.h"
@@ -146,6 +149,24 @@ FBFILE *fbopen_for_read(char *fname) {
 	strcpy(fbfl->name, fname);
 
 	auto dummy = fread(fbfl->buf, sizeof(char), fbfl->size, fl);
+	fbfl->raw = fbfl->buf;
+	fbfl->raw_size = fbfl->size;
+
+	// Данные на диске лежат в KOI8-R. Поднимаем весь буфер до нативной кодировки движка здесь,
+	// где размер под нашим контролем -- построчная конверсия рисковала бы переполнить буфер
+	// вызывающего, ведь кириллица при перекодировке удлиняется. Исходные байты остаются в raw
+	// для CRC.
+	{
+		const std::string native = native_text::from_disk_line(fbfl->buf);
+		if (native.size() != static_cast<size_t>(fbfl->size)) {
+			char *converted = nullptr;
+			CREATE(converted, native.size() + 1);
+			memcpy(converted, native.c_str(), native.size() + 1);
+			fbfl->buf = converted;
+			fbfl->size = static_cast<int>(native.size());
+			fbfl->ptr = fbfl->buf;
+		}
+	}
 	UNUSED_ARG(dummy);
 
 	fclose(fl);
@@ -193,6 +214,10 @@ size_t fbclose_for_read(FBFILE *fbfl) {
 		return 0;
 	}
 
+	// buf мог быть перекодирован в отдельный буфер; raw при этом указывает на исходный.
+	if (fbfl->raw && fbfl->raw != fbfl->buf) {
+		free(fbfl->raw);
+	}
 	if (fbfl->buf) {
 		free(fbfl->buf);
 	}

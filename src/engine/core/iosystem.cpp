@@ -7,6 +7,9 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "utils/native_text.h"
+#include <cstring>
+#include <string_view>
 #include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "utils/utils_encoding.h"
@@ -150,10 +153,20 @@ void write_to_output(const char *txt, DescriptorData *t) {
 		// bufptr == ~0ull в начале функции), а игрок об этом не узнает. Пишем в сислог, кому и
 		// на какой команде не хватило буфера -- иначе такие случаи видны только счётчиком в
 		// "показать статистика", без единой подробности.
+		// last_input заполняется на ЛЮБОЙ строке от клиента -- проверки состояния над той
+		// записью нет, -- так что в парольных состояниях там лежит сам пароль. В лог его
+		// отдавать нельзя: сислог читают и хранят.
+		const bool secret_input = t->state == EConState::kPassword
+			|| t->state == EConState::kNewpasswd
+			|| t->state == EConState::kCnfpasswd
+			|| t->state == EConState::kChpwdGetOld
+			|| t->state == EConState::kChpwdGetNew
+			|| t->state == EConState::kChpwdVrfy
+			|| t->state == EConState::kDelcnf1;
 		log("SYSERR: output overflow: %s [%s], команда '%s', в буфере %zu б, отброшено %zu б",
 			t->character ? GET_NAME(t->character) : "<без персонажа>",
 			*t->host ? t->host : "?",
-			t->last_input,
+			secret_input ? "<ввод скрыт>" : t->last_input,
 			t->bufspace, size);
 		return;
 	}
@@ -435,8 +448,20 @@ int process_input(DescriptorData *t) {
 			// Увы, это кое-что ломает, напр. wizhelp, или "г я использую zMUD"
 			if  (t->state == EConState::kPlaying ||  (t->state == EConState::kExdesc)) {
 				if (t->keytable == kCodePageWinzZ || t->keytable == kCodePageWinzOld) {
-					if (*(write_point - 1) == 'z') {
-						*(write_point - 1) = 'я';
+					// Буква задана СТРОКОВЫМ литералом: он байт-прозрачен, поэтому один и тот
+					// же код верен и для KOI8-R (1 байт), и для UTF-8 (2 байта) -- в отличие от
+					// символьного литерала, который под UTF-8 не помещается в char (issue #3681).
+					// В этой точке буфер содержит KOI8-R (таблицы легаси-кодировок выше отдают
+					// именно его), поэтому букву тоже берём в KOI8-R. Под KOI8-R-рантаймом
+					// to_koi8 - тождество, под UTF-8 - перекодировка литерала.
+					static const std::string kYaStorage = native_text::to_koi8("я");
+					const std::string_view kYaLetter = kYaStorage;
+					if (*(write_point - 1) == 'z' && space_left + 1 >= kYaLetter.size()) {
+						--write_point;
+						++space_left;
+						std::memcpy(write_point, kYaLetter.data(), kYaLetter.size());
+						write_point += kYaLetter.size();
+						space_left -= kYaLetter.size();
 					}
 				}
 			}
@@ -445,20 +470,19 @@ int process_input(DescriptorData *t) {
 
 		*write_point = '\0';
 
-		if (t->keytable == kCodePageUTF8) {
-			int i;
-			char utf8_tmp[kMaxSockBuf * 2 * 3];
-			size_t len_i, len_o;
-
-			len_i = strlen(tmp);
-
-			for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
-				utf8_tmp[i] = 0;
-			}
-			codepages::utf8_to_koi(tmp, utf8_tmp);
-			len_o = strlen(utf8_tmp);
-			strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
-			space_left = space_left + len_i - len_o;
+		// Приводим собранную строку к нативной кодировке движка (issue #3681). После разбора
+		// выше в tmp лежит либо UTF-8 (клиент UTF-8), либо KOI8-R (все остальные кодировки
+		// клиентов - их таблицы отдают именно KOI8-R).
+		if (t->keytable != kCodePageUTF8) {
+			const size_t len_i = strlen(tmp);
+			const std::string native = native_text::from_koi8(tmp);
+			// После конверсии строка длиннее (кириллица идёт по два байта), так что в буфер
+			// она может не влезть. Отступаем до границы символа: обрезать посреди символа --
+			// значит отдать движку битый UTF-8 (issue #3681).
+			const std::size_t fits = native_text::truncate_offset(native, kMaxInputLength - 1);
+			std::memcpy(tmp, native.data(), fits);
+			tmp[fits] = '\0';
+			space_left = space_left + len_i - strlen(tmp);
 		}
 
 		if ((space_left <= 0) && (ptr < nl_pos)) {
@@ -582,6 +606,8 @@ int perform_subst(DescriptorData *t, char *orig, char *subst) {
 
 	// terminate the string in case of an overflow from strncat
 	newsub[kMaxInputLength - 1] = '\0';
+	// ...и, если strncat оборвал строку посреди символа, отступаем до его границы (issue #3681).
+	newsub[native_text::truncate_offset(newsub, strlen(newsub))] = '\0';
 	strcpy(subst, newsub);
 
 	return (0);

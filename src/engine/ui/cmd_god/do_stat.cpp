@@ -1,5 +1,6 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/affects/obj_affects.h"   // issue.obj-affects: Diag
+#include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
@@ -615,13 +616,15 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {
 		for (const auto &aff : k->affected) {
-			std::string sline = fmt::sprintf("Заклинания: (%3d%s|%s) %s%-21s%s ",
+			std::string sline = fmt::sprintf("Заклинания: (%3d%s|%s) %s%s%s ",
 					aff->duration + 1,
 					(aff->battleflag.get(kAfPulsedec)) || (aff->battleflag.get(kAfSameTime)) ? "плс" : "мин",
 					(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин",
 					kColorCyn,
 					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
-					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(),
+					// Ширина поля -- в символах: printf меряет %-21s в байтах (issue #3681).
+					native_text::pad_right(
+						affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc), 21).c_str(),
 					kColorNrm);
 			bool has_modifier = aff->modifier != 0;
 			if (has_modifier) {
@@ -858,7 +861,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		}
 	}
 	if (!str.empty()) {
-		str[0] = UPPER(str[0]);
+		native_text::capitalize_first(str);
 		SendMsgToChar(ch, "&C%s&n", str.c_str());
 	} else {
 		auto room = get_room_where_obj(j);
@@ -1278,8 +1281,8 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 						GET_ROOM_VNUM(rm->dir_option[i]->to_room()), kColorNrm);
 			sprintbit(rm->dir_option[i]->exit_info.get_plane(0), exit_bits, tmpBuf, sizeof(tmpBuf));
 			snprintf(buf, sizeof(buf),
-					"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
-					kColorCyn, dirs[i], kColorNrm, smallBuf,
+					"Выход %s%s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
+					kColorCyn, native_text::pad_right(dirs[i], 5).c_str(), kColorNrm, smallBuf,
 					rm->dir_option[i]->key,
 					rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)",
 					rm->dir_option[i]->vkeyword ? rm->dir_option[i]->vkeyword : "Нет(дверь)", tmpBuf);

@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include <fmt/format.h>
 #include "engine/ui/alias.h"
 
 void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -24,8 +25,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(" Нет алиасов.\r\n", ch);
 		else {
 			while (a != nullptr) {
-				sprintf(buf, "%-15s %s\r\n", a->alias, a->replacement);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("{:<15} {}\r\n", a->alias, a->replacement), ch);
 				a = a->next;
 			}
 		}

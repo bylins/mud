@@ -4,12 +4,13 @@
 #include "utils_parse.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
-#include "utils/parser_wrapper.h"   // issue.xml-parse-cleaning: AttrInt/AttrStr over DataNode
+#include "utils/parser_wrapper.h"
+#include "utils/native_text.h"   // issue.xml-parse-cleaning: AttrInt/AttrStr over DataNode
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
 #include "utils/utils.h"   // a_isdigit
-#include "utils/utils_string.h"   // str_cmp/strn_cmp (search_block)
+#include "utils/utils_string.h"   // str_cmp/IsAbbr (search_block)
 
 //extern ObjRnum GetObjRnum(ObjVnum vnum) { return obj_proto.rnum(vnum);
 
@@ -351,6 +352,11 @@ int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def) {
 
 std::string AttrStr(const parser_wrapper::DataNode &node, const char *key, const char *def) {
 	const char *v = node.GetValue(key);
+	// Перекодировки здесь НЕТ и быть не должно: DataNode приводит содержимое файла к нативной
+	// кодировке один раз на документ, поэтому значение уже нативное. Пока перекодировка стояла
+	// ещё и здесь, каждое поле переводилось дважды, а так как конфиги движок ещё и пишет
+	// обратно, файл рос на каждой загрузке -- cfg/mechanics/obj_sets.xml так дорос со 120 КБ
+	// до 6,7 ГБ и убивал загрузку по памяти (issue #3681).
 	return (v && *v) ? std::string(v) : std::string(def);
 }
 
@@ -393,10 +399,21 @@ int get_number(std::string &name) {
 // issue.handler-cleaning: first keyword of a name list (moved from handler).
 char *fname(const char *namelist) {
 	static char holder[30];
-	char *point;
+	char *point = holder;
 
-	for (point = holder; a_isalpha(*namelist); namelist++, point++)
-		*point = *namelist;
+	// Copy the leading word one whole character at a time (issue #3681): a byte-wise copy stops
+	// in the middle of a multibyte letter. The bounds check is new -- the previous loop could
+	// already run past holder[] on a long keyword, and multibyte text reaches the end twice as
+	// fast, so leave room for the terminator.
+	while (native_text::is_alpha_char(namelist)) {
+		const size_t bytes = native_text::char_bytes(namelist);
+		if (point + bytes >= holder + sizeof(holder)) {
+			break;
+		}
+		for (size_t i = 0; i < bytes; ++i) {
+			*point++ = *namelist++;
+		}
+	}
 
 	*point = '\0';
 
@@ -406,7 +423,6 @@ char *fname(const char *namelist) {
 // issue.interpreter-cleaning: generic argument/token parsing helpers moved from interpreter.cpp.
 int search_block(const char *target_string, const char **list, int exact) {
 	int i;
-	size_t l = strlen(target_string);
 
 	if (exact) {
 		for (i = 0; **(list + i) != '\n'; i++) {
@@ -415,11 +431,8 @@ int search_block(const char *target_string, const char **list, int exact) {
 			}
 		}
 	} else {
-		if (0 == l) {
-			l = 1;    // Avoid "" to match the first available string
-		}
 		for (i = 0; **(list + i) != '\n'; i++) {
-			if (!strn_cmp(target_string, *(list + i), l)) {
+			if (utils::IsAbbr(target_string, *(list + i))) {
 				return i;
 			}
 		}
@@ -430,17 +443,14 @@ int search_block(const char *target_string, const char **list, int exact) {
 
 int search_block(const std::string &block, const char **list, int exact) {
 	int i;
-	std::string::size_type l = block.length();
 
 	if (exact) {
 		for (i = 0; **(list + i) != '\n'; i++)
 			if (!str_cmp(block, *(list + i)))
 				return (i);
 	} else {
-		if (!l)
-			l = 1;    // Avoid "" to match the first available string
 		for (i = 0; **(list + i) != '\n'; i++)
-			if (!strn_cmp(block, *(list + i), l))
+			if (utils::IsAbbr(block, *(list + i)))
 				return (i);
 	}
 
@@ -488,11 +498,16 @@ bool CompareParam(const std::string &buffer, const char *str, bool full) {
 		return false;
 	}
 
+	// Посимвольно, а не побайтово: под UTF-8 регистр русской буквы по одному байту не берётся
+	// (issue #3681). Шаг обеих строк -- на длину символа, они здесь всегда в одной кодировке.
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && *str; ++i, ++str) {
-		if (LOWER(buffer[i]) != LOWER(*str)) {
+	for (i = 0; i != buffer.length() && *str;) {
+		if (!native_text::chars_equal_ci(buffer.c_str() + i, str)) {
 			return false;
 		}
+		const std::size_t step = native_text::char_bytes(str);
+		i += step;
+		str += step;
 	}
 
 	if (i == buffer.length()) {
@@ -509,11 +524,13 @@ bool CompareParam(const std::string &buffer, const std::string &buffer2, bool fu
 		return false;
 	}
 
+	// Посимвольно, как и в перегрузке выше (issue #3681).
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i) {
-		if (LOWER(buffer[i]) != LOWER(buffer2[i])) {
+	for (i = 0; i != buffer.length() && i != buffer2.length();) {
+		if (!native_text::chars_equal_ci(buffer.c_str() + i, buffer2.c_str() + i)) {
 			return false;
 		}
+		i += native_text::char_bytes(buffer.c_str() + i);
 	}
 
 	if (i == buffer.length()) {

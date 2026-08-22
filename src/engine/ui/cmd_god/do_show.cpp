@@ -9,6 +9,7 @@
 #include <malloc.h>
 #endif
 #include "administration/accounts.h"
+#include "utils/native_text.h"
 #include "administration/ban.h"
 #include "administration/privilege.h"
 #include "engine/ui/cmd/do_features.h"
@@ -258,12 +259,12 @@ void print_mob_bosses(CharData *ch, bool lvl_sort) {
 
 		const auto mob = mob_proto + mob_rnum;
 		const auto vnum = GET_MOB_VNUM(mob);
-		out += fmt::format("{:<3} {:<31}s [{:<2}][{:<6}] {:<31}s\r\n",
+		out += fmt::format("{:<3} {:<31.31} [{:<2}][{:<6}] {:<31.31}\r\n",
 							  ++cnt,
-							  mob->get_name_str().substr(0, 31),
+							  mob->get_name_str(),
 							  zone_table[mob_index[mob_rnum].zone].mob_level,
 							  vnum,
-							  zone_name_str.substr(0, 31));
+							  zone_name_str);
 	}
 	page_string(ch->desc, out);
 }
@@ -462,9 +463,9 @@ void ListSpellCreate(CharData *ch) {
 			if (r > 0) runes_str += '|';
 			runes_str += std::to_string(info.runes[r]);
 		}
-		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %s level %d\r\n",
+		SendMsgToChar(fmt::format("{:3}) Rune spell [{:3}] &W{:<30}&n runes: {} level {}\r\n",
 				++i, to_underlying(spell_id), MUD::Spell(spell_id).GetCName(),
-				runes_str.c_str(), info.min_caster_level);
+				runes_str, info.min_caster_level), ch);
 	}
 }
 
@@ -596,11 +597,11 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf + strlen(buf), "Имя никем не одобрено!\r\n");
 			} else if ((vict)->player_specials->saved.NameGod < 1000) {
 				sprintf(buf1, "%s", GetNameById((vict)->player_specials->saved.NameIDGod).c_str());
-				*buf1 = UPPER(*buf1);
+				native_text::capitalize_first(buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
 				sprintf(buf1, "%s", GetNameById((vict)->player_specials->saved.NameIDGod).c_str());
-				*buf1 = UPPER(*buf1);
+				native_text::capitalize_first(buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
 			if (remort::GetRealRemort(vict) < 4)
@@ -724,18 +725,19 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& d->character->in_room != kNowhere
 					&& ((sight::CanSee(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
-					sprintf(buf + strlen(buf),
-							"%-10s - подслушивается %s (map %s).\r\n",
+					strcat(buf, fmt::format(
+							"{:<10} - подслушивается {} (map {}).\r\n",
 							GET_NAME(d->snooping->character),
 							GET_PAD(d->character, 4),
-							d->snoop_with_map ? "on" : "off");
+							d->snoop_with_map ? "on" : "off").c_str());
 				}
 			}
 			SendMsgToChar(*buf ? buf : "Никто не подслушивается.\r\n", ch);
 			break;        // snoop
 		case 9:        // show linkdrop
 			SendMsgToChar("  Список игроков в состоянии 'link drop'\r\n", ch);
-			sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
+			strcpy(buf, fmt::format("{:<50}{:<16}   {}\r\n", "   Имя",
+					"Комната", "Бездействие (тики)").c_str());
 			SendMsgToChar(buf, ch);
 			i = 0;
 			for (const auto &character : character_list) {
@@ -744,9 +746,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 				++i;
-				sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
-						character->GetNameWithTitleOrRace().c_str(), GET_ROOM_VNUM(character->in_room),
-						GET_ROOM_VNUM(character->get_was_in_room()), character->char_specials.timer);
+				strcpy(buf, fmt::format("{:<50}[{:6}][{:6}]   {}\r\n",
+						character->GetNameWithTitleOrRace(), GET_ROOM_VNUM(character->in_room),
+						GET_ROOM_VNUM(character->get_was_in_room()), character->char_specials.timer).c_str());
 				SendMsgToChar(buf, ch);
 			}
 			sprintf(buf, "Всего - %d\r\n", i);

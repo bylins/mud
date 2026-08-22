@@ -821,8 +821,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		ev.name = "damage";
 		ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch()).count();
-		ev.attrs["attacker_name"] = observability::EngineStringToUtf8(GET_NAME(ch) ? GET_NAME(ch) : "");
-		ev.attrs["victim_name"] = observability::EngineStringToUtf8(GET_NAME(victim) ? GET_NAME(victim) : "");
+		ev.attrs["attacker_name"] = GET_NAME(ch) ? GET_NAME(ch) : "";
+		ev.attrs["victim_name"] = GET_NAME(victim) ? GET_NAME(victim) : "";
 		ev.attrs["dam"] = static_cast<std::int64_t>(dam);
 		ev.attrs["real_dam"] = static_cast<std::int64_t>(real_dam);
 		ev.attrs["over_dam"] = static_cast<std::int64_t>(over_dam);
@@ -837,9 +837,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		// Чармис/поднятая нежить -- атаковал не сам PC, а его подчинённый.
 		// Визуализатору это нужно, чтобы отделить вклад хозяина и слуг.
 		ev.attrs["attacker_is_charmie"] = IsCharmice(ch);
-		ev.attrs["attacker_master_name"] = observability::EngineStringToUtf8(
+		ev.attrs["attacker_master_name"] = 
 			(IsCharmice(ch) && ch->has_master() && GET_NAME(ch->get_master()))
-				? GET_NAME(ch->get_master()) : "");
+				? GET_NAME(ch->get_master()) : "";
 		observability::EmitToAllSinks(ev);
 	}
 	SendToTC(victim, false, true, true, "&MПолучен урон = %d&n\r\n", dam);

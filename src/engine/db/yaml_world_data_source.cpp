@@ -4,6 +4,7 @@
 #ifdef HAVE_YAML
 
 #include "yaml_world_data_source.h"
+#include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
 #include "db.h"
@@ -730,8 +731,12 @@ std::string YamlWorldDataSource::GetText(const YAML::Node &node, const std::stri
 {
 	if (node[key])
 	{
-		// YAML files are already in KOI8-R, no conversion needed
-		std::string text = node[key].as<std::string>();
+		// Файлы мира лежат на диске в KOI8-R; переводим в нативную кодировку движка
+		// (под KOI8-R это тождество, под UTF-8 - перекодировка). Issue #3681.
+		// from_disk_text, а не from_koi8: он распознаёт уже-нативный текст и не перекодирует
+		// его повторно, поэтому зона, которую предыдущая сборка успела записать в UTF-8,
+		// читается как есть, а не превращается в кракозябры.
+		std::string text = native_text::from_disk_text(node[key].as<std::string>());
 
 		// Convert line endings if configured for DOS format
 		if (m_convert_lf_to_crlf) {
@@ -1419,7 +1424,7 @@ RoomData* YamlWorldDataSource::ParseRoomNode(const YAML::Node &root, int vnum, i
 	room->zone_rn = zone_rnum;
 
 	std::string name = GetText(root, "name", "Untitled Room");
-	if (!name.empty()) { name[0] = UPPER(name[0]); }
+	if (!name.empty()) { native_text::capitalize_first(name); }
 	room->set_name(name);
 
 	std::string description = GetText(root, "description", "");
@@ -2738,14 +2743,18 @@ bool YamlWorldDataSource::WriteYamlAtomic(const std::string &filepath, const YAM
 		YAML::Emitter emitter;
 		emitter << node;
 
-		std::ofstream out(temp_filepath);
-		if (!out.is_open())
+		// Файл мира на диске -- KOI8-R, а движок держит текст в нативной кодировке. Собираем
+		// в память и перекодируем один раз при записи через native_text::write_file: иначе
+		// первое же сохранение (OLC или очередь "Reboot saving" из ConvertObjValues) молча
+		// переписывает зону в UTF-8, а загрузка прогоняет её через from_koi8 второй раз --
+		// и мир превращается в кракозябры (issue #3681).
+		std::ostringstream out;
+		out << emitter.c_str();
+		if (!native_text::write_file(temp_filepath, out.str()))
 		{
 			log("SYSERR: Failed to open temp file for writing: %s", temp_filepath.c_str());
 			return false;
 		}
-		out << emitter.c_str();
-		out.close();
 
 		std::rename(temp_filepath.c_str(), filepath.c_str());
 		return true;
@@ -2768,12 +2777,7 @@ bool YamlWorldDataSource::WriteIndexYaml(const std::string &filepath,
 		fs::create_directories(fs::path(filepath).parent_path());
 
 		std::string temp_filepath = filepath + ".tmp";
-		std::ofstream out(temp_filepath);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open temp file for index: %s", temp_filepath.c_str());
-			return false;
-		}
+		std::ostringstream out;
 		// Match the layout the Python converter emits and the loader expects:
 		//   <top_key>:
 		//   - <v>
@@ -2790,7 +2794,11 @@ bool YamlWorldDataSource::WriteIndexYaml(const std::string &filepath,
 				out << "- " << v << "\n";
 			}
 		}
-		out.close();
+		if (!native_text::write_file(temp_filepath, out.str()))
+		{
+			log("SYSERR: Failed to open temp file for index: %s", temp_filepath.c_str());
+			return false;
+		}
 		std::rename(temp_filepath.c_str(), filepath.c_str());
 		return true;
 	}
@@ -2876,12 +2884,7 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 		fs::create_directories(zone_dir);
 	}
 
-	std::ofstream out(temp_file);
-	if (!out.is_open())
-	{
-		log("SYSERR: Failed to open temp file for writing: %s", temp_file.c_str());
-		return;
-	}
+	std::ostringstream out;
 
 	Koi8rYamlEmitter yaml(out);
 
@@ -3188,7 +3191,11 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 		yaml.DecreaseIndent();
 	}
 
-	out.close();
+	if (!native_text::write_file(temp_file, out.str()))
+	{
+		log("SYSERR: Failed to open temp file for writing: %s", temp_file.c_str());
+		return;
+	}
 	std::rename(temp_file.c_str(), zone_file.c_str());
 
 	log("Saved zone %d to YAML file", zone.vnum);
@@ -3363,12 +3370,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		// from the in-memory prototypes (which already reflect the edit).
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/triggers.yaml";
 		const std::string temp_file = flat_path + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			return false;
-		}
+		std::ostringstream out;
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Triggers for zone " + std::to_string(zone.vnum));
 		for (const auto &[trig_vnum, trig] : entries)
@@ -3380,7 +3382,11 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 			EmitTriggerBody(yaml, trig);
 			yaml.DecreaseIndent();
 		}
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return false;
+		}
 		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
@@ -3407,19 +3413,18 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		trig_file_ss << trig_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
 		const std::string trig_file = trig_file_ss.str();
 		const std::string temp_file = trig_file + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			continue;
-		}
+		std::ostringstream out;
 
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Trigger #" + std::to_string(trig_vnum));
 		yaml.EmptyLine();
 		EmitTriggerBody(yaml, trig);
 
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
+		}
 		if (std::rename(temp_file.c_str(), trig_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), trig_file.c_str());
@@ -3671,12 +3676,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	{
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms.yaml";
 		const std::string temp_file = flat_path + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			return;
-		}
+		std::ostringstream out;
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Rooms for zone " + std::to_string(zone.vnum));
 		for (const auto &[vnum, room] : entries)
@@ -3688,7 +3688,11 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 			EmitRoomBody(yaml, out, room);
 			yaml.DecreaseIndent();
 		}
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
+		}
 		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
@@ -3713,19 +3717,18 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 		int rel_num = vnum % 100;
 		std::string room_file = rooms_dir + "/" + fmt::format("{:02d}", rel_num) + ".yaml";
 		std::string temp_file = room_file + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			continue;
-		}
+		std::ostringstream out;
 
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Room #" + std::to_string(vnum));
 		yaml.EmptyLine();
 		EmitRoomBody(yaml, out, room);
 
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
+		}
 		if (std::rename(temp_file.c_str(), room_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), room_file.c_str());
@@ -4320,12 +4323,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	{
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/mobs.yaml";
 		const std::string temp_file = flat_path + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			return;
-		}
+		std::ostringstream out;
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Mobs for zone " + std::to_string(zone.vnum));
 		for (const auto &[vnum, mob] : entries)
@@ -4337,7 +4335,11 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			EmitMobBody(yaml, out, *mob);
 			yaml.DecreaseIndent();
 		}
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
+		}
 		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
@@ -4364,19 +4366,18 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		mob_file_ss << mobs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
 		std::string mob_file = mob_file_ss.str();
 		std::string temp_file = mob_file + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			continue;
-		}
+		std::ostringstream out;
 
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Mob #" + std::to_string(vnum));
 		yaml.EmptyLine();
 		EmitMobBody(yaml, out, *mob);
 
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
+		}
 		if (std::rename(temp_file.c_str(), mob_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), mob_file.c_str());
@@ -4797,12 +4798,7 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 	{
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/objects.yaml";
 		const std::string temp_file = flat_path + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			return;
-		}
+		std::ostringstream out;
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Objects for zone " + std::to_string(zone.vnum));
 		for (const auto &[vnum, obj] : entries)
@@ -4814,7 +4810,11 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			EmitObjectBody(yaml, out, obj);
 			yaml.DecreaseIndent();
 		}
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
+		}
 		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
@@ -4841,19 +4841,18 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		obj_file_ss << objs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
 		std::string obj_file = obj_file_ss.str();
 		std::string temp_file = obj_file + ".tmp";
-		std::ofstream out(temp_file);
-		if (!out.is_open())
-		{
-			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
-			continue;
-		}
+		std::ostringstream out;
 
 		Koi8rYamlEmitter yaml(out);
 		yaml.Comment("Object #" + std::to_string(vnum));
 		yaml.EmptyLine();
 		EmitObjectBody(yaml, out, obj);
 
-		out.close();
+		if (!native_text::write_file(temp_file, out.str()))
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
+		}
 		if (std::rename(temp_file.c_str(), obj_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), obj_file.c_str());

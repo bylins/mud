@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import os
 import subprocess
 from datetime import datetime
 
@@ -20,6 +21,11 @@ try:
 except Exception:
     pass
 
+# Сборка может идти там, где git недоступен или бесполезен: контейнер, worktree (у него .git --
+# файл-ссылка наружу контекста), распакованный архив. Тогда значения пробрасываются окружением.
+if not git_rev or git_rev == 'unknown':
+    git_rev = os.environ.get('BYLINS_GIT_REV', '') or git_rev or 'unknown'
+
 # issue.versioning: the 4th version part ("release") = total commit count -- monotonic,
 # +1 per commit. Computed at build time like the revision hash. If git is unavailable
 # (e.g. build from an unpacked archive) it falls back to 0, mirroring git_rev above.
@@ -34,6 +40,9 @@ try:
 except Exception:
     pass
 
+if commit_count == "0":
+    commit_count = os.environ.get('BYLINS_COMMIT_COUNT', '') or "0"
+
 # major.minor.patch: explicit, from the repo-root VERSION file (single source of truth).
 try:
     with open(f'{source_root}/VERSION.txt', encoding='ascii') as vf:
@@ -44,7 +53,7 @@ except Exception:
 engine_name = "BRusMUD"
 engine_version = f'{mmp}.{commit_count}'
 
-with open(input_file, encoding='koi8-r') as f:
+with open(input_file, encoding='utf-8') as f:
     content = f.read()
 
 content = content.replace('${REVISION}', f'{git_rev} ({buildtype})')
@@ -54,5 +63,5 @@ content = content.replace('${BUILD_DATETIME}', datetime.now().strftime('%b %d %Y
 content = content.replace('${ENGINE_NAME}', engine_name)
 content = content.replace('${ENGINE_VERSION}', engine_version)
 
-with open(output_file, 'w', encoding='koi8-r') as f:
+with open(output_file, 'w', encoding='utf-8') as f:
     f.write(content)

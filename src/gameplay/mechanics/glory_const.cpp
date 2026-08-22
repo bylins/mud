@@ -3,7 +3,10 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <sstream>
 #include "glory_const.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
@@ -226,7 +229,8 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 	*buf = '\0';
 	for (auto i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i) {
 		if ((i->first >= 0) && (i->first < (int) sizeof(olc_stat_name))) {
-			sprintf(buf + strlen(buf), "%-16s: +%d", olc_stat_name[i->first], i->second * stat_multi(i->first));
+			strcat(buf, fmt::format("{:<16}: +{}", olc_stat_name[i->first],
+					i->second * stat_multi(i->first)).c_str());
 			if (stat_multi(i->first) > 1)
 				sprintf(buf + strlen(buf), "(%d)", i->second);
 			strcat(buf, "\r\n");
@@ -465,32 +469,32 @@ int olc_real_stat(CharData *ch, int stat) {
 }
 
 bool parse_spend_glory_menu(CharData *ch, char *arg) {
-	switch (LOWER(*arg)) {
-		case 'а': olc_del_stat(ch, GLORY_STR);
+	switch (native_text::first_char_code_lower(arg)) {
+		case rus::kA: olc_del_stat(ch, GLORY_STR);
 			break;
-		case 'б': olc_del_stat(ch, GLORY_DEX);
+		case rus::kBe: olc_del_stat(ch, GLORY_DEX);
 			break;
-		case 'г': olc_del_stat(ch, GLORY_INT);
+		case rus::kGe: olc_del_stat(ch, GLORY_INT);
 			break;
-		case 'д': olc_del_stat(ch, GLORY_WIS);
+		case rus::kDe: olc_del_stat(ch, GLORY_WIS);
 			break;
-		case 'е': olc_del_stat(ch, GLORY_CON);
+		case rus::kIe: olc_del_stat(ch, GLORY_CON);
 			break;
-		case 'ж': olc_del_stat(ch, GLORY_CHA);
+		case rus::kZhe: olc_del_stat(ch, GLORY_CHA);
 			break;
-		case 'з': olc_del_stat(ch, GLORY_HIT);
+		case rus::kZe: olc_del_stat(ch, GLORY_HIT);
 			break;
-		case 'и': olc_del_stat(ch, GLORY_SUCCESS);
+		case rus::kI: olc_del_stat(ch, GLORY_SUCCESS);
 			break;
-		case 'к': olc_del_stat(ch, GLORY_WILL);
+		case rus::kKa: olc_del_stat(ch, GLORY_WILL);
 			break;
-		case 'л': olc_del_stat(ch, GLORY_STABILITY);
+		case rus::kEl: olc_del_stat(ch, GLORY_STABILITY);
 			break;
-		case 'м': olc_del_stat(ch, GLORY_REFLEX);
+		case rus::kEm: olc_del_stat(ch, GLORY_REFLEX);
 			break;
-		case 'н': olc_del_stat(ch, GLORY_MIND);
+		case rus::kEn: olc_del_stat(ch, GLORY_MIND);
 			break;
-		case 'э': olc_del_stat(ch, GLORY_MANAREG);
+		case rus::kE: olc_del_stat(ch, GLORY_MANAREG);
 			break;
 		case 'x': olc_add_stat(ch, GLORY_BONUSPSYS);
 			break;
@@ -500,33 +504,33 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			break;
 		case 'd': olc_del_stat(ch, GLORY_BONUSMAG);
 			break;
-		case 'о': olc_add_stat(ch, GLORY_STR);
+		case rus::kO: olc_add_stat(ch, GLORY_STR);
 			break;
-		case 'п': olc_add_stat(ch, GLORY_DEX);
+		case rus::kPe: olc_add_stat(ch, GLORY_DEX);
 			break;
-		case 'р': olc_add_stat(ch, GLORY_INT);
+		case rus::kEr: olc_add_stat(ch, GLORY_INT);
 			break;
-		case 'с': olc_add_stat(ch, GLORY_WIS);
+		case rus::kEs: olc_add_stat(ch, GLORY_WIS);
 			break;
-		case 'т': olc_add_stat(ch, GLORY_CON);
+		case rus::kTe: olc_add_stat(ch, GLORY_CON);
 			break;
-		case 'у': olc_add_stat(ch, GLORY_CHA);
+		case rus::kU: olc_add_stat(ch, GLORY_CHA);
 			break;
-		case 'ф': olc_add_stat(ch, GLORY_HIT);
+		case rus::kEf: olc_add_stat(ch, GLORY_HIT);
 			break;
-		case 'х': olc_add_stat(ch, GLORY_SUCCESS);
+		case rus::kHa: olc_add_stat(ch, GLORY_SUCCESS);
 			break;
-		case 'ц': olc_add_stat(ch, GLORY_WILL);
+		case rus::kTse: olc_add_stat(ch, GLORY_WILL);
 			break;
-		case 'ч': olc_add_stat(ch, GLORY_STABILITY);
+		case rus::kChe: olc_add_stat(ch, GLORY_STABILITY);
 			break;
-		case 'ш': olc_add_stat(ch, GLORY_REFLEX);
+		case rus::kSha: olc_add_stat(ch, GLORY_REFLEX);
 			break;
-		case 'щ': olc_add_stat(ch, GLORY_MIND);
+		case rus::kScha: olc_add_stat(ch, GLORY_MIND);
 			break;
-		case 'ю': olc_add_stat(ch, GLORY_MANAREG);
+		case rus::kYu: olc_add_stat(ch, GLORY_MANAREG);
 			break;
-		case 'в': {
+		case rus::kVe: {
 			// получившиеся статы
 			ch->set_str(olc_real_stat(ch, GLORY_STR));
 			ch->set_dex(olc_real_stat(ch, GLORY_DEX));
@@ -572,7 +576,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			save();
 			return 1;
 		}
-		case 'я': ch->desc->glory_const.reset();
+		case rus::kYa: ch->desc->glory_const.reset();
 			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar("Редактирование прервано.\r\n", ch);
 			return 1;
@@ -891,13 +895,20 @@ void save() {
 	spent_node.set_name("total_spent");
 	spent_node.append_attribute("amount") = total_spent;
 
-	doc.save_file(LIB_USERDATA"glory_const.xml");
+	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
+	// (issue #3681).
+	std::ostringstream xml;
+	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	native_text::write_file(LIB_USERDATA"glory_const.xml", xml.str());
 }
 
 void load() {
 	int ver = 0;
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_USERDATA"glory_const.xml");
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_glory_const = native_text::read_data_file(LIB_USERDATA"glory_const.xml");
+	pugi::xml_parse_result result = doc.load_buffer(xml_glory_const.data(), xml_glory_const.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "WARNING: glory_const.xml not found or unreadable (%s), skipping (non-fatal)", result.description());
 		perror(buf);
@@ -1126,7 +1137,7 @@ void PrintGloryChart(CharData *ch) {
 		 t_it != playerGloryList.end() && i < kPlayerChartSize; ++t_it, ++i) {
 
 		std::string name = GetNameByUnique(t_it->get()->uid);
-		name[0] = UPPER(name[0]);
+		native_text::capitalize_first(name);
 		if (name.length() == 0) {
 			name = "*скрыто*";
 		}

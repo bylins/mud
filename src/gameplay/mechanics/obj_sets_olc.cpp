@@ -2,6 +2,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_sets.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "utils/grammar/declensions.h"
 
 #include <string>
@@ -525,19 +527,19 @@ void sedit::save_olc(CharData *ch) {
 
 void parse_main_exit(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
-	switch (*arg) {
+	switch (native_text::first_char_code(arg)) {
 		case 'y':
 		case 'Y':
-		case 'д':
-		case 'Д': ch->desc->state = EConState::kPlaying;
+		case rus::kDe:
+		case rus::kDeUpper: ch->desc->state = EConState::kPlaying;
 			ch->desc->sedit->save_olc(ch);
 			ch->desc->sedit.reset();
 			SendMsgToChar("Изменения сохранены.\r\n", ch);
 			break;
 		case 'n':
 		case 'N':
-		case 'н':
-		case 'Н': ch->desc->sedit.reset();
+		case rus::kEn:
+		case rus::kEnUpper: ch->desc->sedit.reset();
 			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			break;
@@ -551,11 +553,11 @@ void parse_main_exit(CharData *ch, const char *arg) {
 
 void parse_set_remove(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
-	switch (*arg) {
+	switch (native_text::first_char_code(arg)) {
 		case 'y':
 		case 'Y':
-		case 'д':
-		case 'Д': {
+		case rus::kDe:
+		case rus::kDeUpper: {
 			for (auto i = sets_list.begin(); i != sets_list.end(); ++i) {
 				if ((*i)->uid == ch->desc->sedit->olc_set.uid) {
 					sets_list.erase(i);
@@ -571,8 +573,8 @@ void parse_set_remove(CharData *ch, const char *arg) {
 		}
 		case 'n':
 		case 'N':
-		case 'н':
-		case 'Н': SendMsgToChar("Удаление отменено.\r\n", ch);
+		case rus::kEn:
+		case rus::kEnUpper: SendMsgToChar("Удаление отменено.\r\n", ch);
 			ch->desc->sedit->show_main(ch);
 			break;
 		default:
@@ -585,11 +587,11 @@ void parse_set_remove(CharData *ch, const char *arg) {
 
 void sedit::parse_obj_remove(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
-	switch (*arg) {
+	switch (native_text::first_char_code(arg)) {
 		case 'y':
 		case 'Y':
-		case 'д':
-		case 'Д': {
+		case rus::kDe:
+		case rus::kDeUpper: {
 			auto i = olc_set.obj_list.find(obj_edit);
 			if (i != olc_set.obj_list.end()) {
 				olc_set.obj_list.erase(i);
@@ -601,8 +603,8 @@ void sedit::parse_obj_remove(CharData *ch, const char *arg) {
 		}
 		case 'n':
 		case 'N':
-		case 'н':
-		case 'Н': SendMsgToChar("Удаление отменено.\r\n", ch);
+		case rus::kEn:
+		case rus::kEnUpper: SendMsgToChar("Удаление отменено.\r\n", ch);
 			show_obj_edit(ch);
 			break;
 		default: SendMsgToChar("Неверный выбор!\r\n", ch);
@@ -613,11 +615,11 @@ void sedit::parse_obj_remove(CharData *ch, const char *arg) {
 
 void sedit::parse_activ_remove(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
-	switch (*arg) {
+	switch (native_text::first_char_code(arg)) {
 		case 'y':
 		case 'Y':
-		case 'д':
-		case 'Д': {
+		case rus::kDe:
+		case rus::kDeUpper: {
 			auto i = olc_set.activ_list.find(activ_edit);
 			if (i != olc_set.activ_list.end()) {
 				olc_set.activ_list.erase(i);
@@ -629,8 +631,8 @@ void sedit::parse_activ_remove(CharData *ch, const char *arg) {
 		}
 		case 'n':
 		case 'N':
-		case 'н':
-		case 'Н': SendMsgToChar("Удаление отменено.\r\n", ch);
+		case rus::kEn:
+		case rus::kEnUpper: SendMsgToChar("Удаление отменено.\r\n", ch);
 			show_activ_edit(ch);
 			break;
 		default: SendMsgToChar("Неверный выбор!\r\n", ch);
@@ -667,11 +669,11 @@ void sedit::parse_global_msg(CharData *ch, const char *arg) {
 		return;
 	}
 	if (!a_isdigit(*arg)) {
-		switch (*arg) {
+		switch (native_text::first_char_code(arg)) {
 			case 'Q':
 			case 'q':
-			case 'В':
-			case 'в':
+			case rus::kVeUpper:
+			case rus::kVe:
 				if (msg_edit != global_msg) {
 					SendMsgToChar("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 					state = STATE_GLOBAL_MSG_EXIT;
@@ -721,11 +723,11 @@ void sedit::parse_global_msg(CharData *ch, const char *arg) {
 
 void parse_global_msg_exit(CharData *ch, const char *arg) {
 	skip_spaces(&arg);
-	switch (*arg) {
+	switch (native_text::first_char_code(arg)) {
 		case 'y':
 		case 'Y':
-		case 'д':
-		case 'Д': ch->desc->state = EConState::kPlaying;
+		case rus::kDe:
+		case rus::kDeUpper: ch->desc->state = EConState::kPlaying;
 			global_msg = ch->desc->sedit->msg_edit;
 			obj_sets::save();
 			ch->desc->sedit.reset();
@@ -733,8 +735,8 @@ void parse_global_msg_exit(CharData *ch, const char *arg) {
 			break;
 		case 'n':
 		case 'N':
-		case 'н':
-		case 'Н': ch->desc->sedit.reset();
+		case rus::kEn:
+		case rus::kEnUpper: ch->desc->sedit.reset();
 			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			break;
@@ -754,11 +756,11 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 		return;
 	}
 	if (!a_isdigit(*arg)) {
-		switch (*arg) {
+		switch (native_text::first_char_code(arg)) {
 			case 'Q':
 			case 'q':
-			case 'В':
-			case 'в':
+			case rus::kVeUpper:
+			case rus::kVe:
 				if (new_entry || changed()) {
 					SendMsgToChar("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
 					state = STATE_MAIN_EXIT;
@@ -895,7 +897,7 @@ void sedit::parse_setcomment(CharData *ch, const char *arg) {
 		olc_set.comment.clear();
 	} else {
 		olc_set.comment = arg;
-		olc_set.comment = olc_set.comment.substr(0, 40);
+		olc_set.comment = olc_set.comment.substr(0, native_text::char_offset(olc_set.comment, 40));
 	}
 	show_main(ch);
 }
@@ -1132,11 +1134,11 @@ void sedit::parse_obj_edit(CharData *ch, const char *arg) {
 		return;
 	}
 	if (!a_isdigit(*arg)) {
-		switch (*arg) {
+		switch (native_text::first_char_code(arg)) {
 			case 'Q':
 			case 'q':
-			case 'В':
-			case 'в': show_main(ch);
+			case rus::kVeUpper:
+			case rus::kVe: show_main(ch);
 				break;
 			default: SendMsgToChar("Неверный выбор!\r\n", ch);
 				show_obj_edit(ch);
@@ -1337,11 +1339,11 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 		return;
 	}
 	if (!a_isdigit(*arg)) {
-		switch (*arg) {
+		switch (native_text::first_char_code(arg)) {
 			case 'Q':
 			case 'q':
-			case 'В':
-			case 'в': show_main(ch);
+			case rus::kVeUpper:
+			case rus::kVe: show_main(ch);
 				break;
 			default: SendMsgToChar("Неверный выбор!\r\n", ch);
 				show_activ_edit(ch);

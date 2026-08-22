@@ -203,4 +203,53 @@ TEST(PotencyFromProto, LegacyStoredPotencyIsNotProto) {
 	EXPECT_FALSE(IsPotencyFromProto(p.get()));
 }
 
+// ------------------------------------------------------------- issue #3749: пометка зон
+//
+// Возврат конвертера -- это ответ на вопрос «надо ли сохранять зону». Раньше он был
+// безусловной единицей, и предмет, которому мигрировать нечего, помечал свою зону на
+// каждом буте: ключей у него не появляется, guard «уже мигрировано» снова ложен, зона
+// снова в очереди. На боевом так вечно переписывались зоны 1, 40, 498, 735 и 830.
+
+TEST(MigrationMarksZone, ScrollWithNothingToMigrateDoesNotMarkZone) {
+	auto p = make_proto(EObjType::kScroll, 0, 0, 0, 0);
+	EXPECT_EQ(0, ConvertSpellItemToEValueKey(p.get(), true)) << "сохранять нечего -- метить зону незачем";
+	EXPECT_LT(key(p, ObjVal::EValueKey::kSpell1Num), 0) << "ключей и правда не появилось";
+	// И на следующем буте ответ тот же, иначе зона метилась бы вечно.
+	EXPECT_EQ(0, ConvertSpellItemToEValueKey(p.get(), true));
+}
+
+TEST(MigrationMarksZone, PotionWithNothingToMigrateDoesNotMarkZone) {
+	auto p = make_proto(EObjType::kPotion, 0, 0, 0, 0);
+	EXPECT_EQ(0, ConvertPotionToEValueKey(p.get(), true));
+	EXPECT_EQ(0, ConvertPotionToEValueKey(p.get(), true));
+}
+
+TEST(MigrationMarksZone, RealMigrationStillMarksZoneOnce) {
+	auto p = make_proto(EObjType::kPotion, 30, 28, -1, -1);
+	EXPECT_EQ(1, ConvertPotionToEValueKey(p.get(), true)) << "ключ появился -- зону сохранить надо";
+	EXPECT_EQ(28, key(p, ObjVal::EValueKey::kSpell1Num));
+	EXPECT_EQ(0, ConvertPotionToEValueKey(p.get(), true)) << "но ровно один раз";
+}
+
+TEST(MigrationMarksZone, LiquidCoreSeedingNeverMarksZone) {
+	// Ядро сосуда уходит на диск как обычные values (get_val/set_val перенаправлены в эти же
+	// ключи), а засев по замыслу повторяется на каждой загрузке -- значит помечать зону нельзя
+	// никогда, иначе она переписывается вечно.
+	//
+	// Воспроизводим именно загрузку мимо set_val: значения кладём, пока тип ещё не жидкостный,
+	// так они попадают в сырой val[], а ключей не появляется. Если задать их сразу сосуду,
+	// set_val запишет ключи сам, guard сработает, и до засева дело не дойдёт -- тест окажется
+	// пустым.
+	auto p = std::make_shared<CObjectPrototype>(100601);
+	p->set_type(EObjType::kOther);
+	p->set_val(0, 6);
+	p->set_val(1, 6);
+	p->set_val(2, 0);
+	p->set_type(EObjType::kLiquidContainer);
+	ASSERT_LT(key(p, ObjVal::EValueKey::kLiquidCapacity), 0) << "ключей до засева быть не должно";
+
+	EXPECT_EQ(0, ConvertDrinkconLiquidCore(p.get(), true)) << "засев есть, а метить зону нельзя";
+	EXPECT_EQ(6, key(p, ObjVal::EValueKey::kLiquidCapacity)) << "но ключи при этом засеяны";
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

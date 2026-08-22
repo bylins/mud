@@ -25,11 +25,10 @@ void BindTextKoi(sqlite3_stmt *stmt, int col, const char *koi8)
 		sqlite3_bind_null(stmt, col);
 		return;
 	}
-	const std::string in(koi8);
-	// koi_to_utf8 can roughly double the byte count; size generously.
-	std::vector<char> out(in.size() * 2 + 4, '\0');
-	codepages::koi_to_utf8(const_cast<char *>(in.c_str()), out.data());
-	sqlite3_bind_text(stmt, col, out.data(), -1, SQLITE_TRANSIENT);
+	// Движок держит текст в UTF-8, потребитель тоже ждёт UTF-8 -- границы здесь больше нет.
+	// Перекодировка, оставшаяся с байтовых времён, теперь разбирала бы готовый UTF-8 как
+	// KOI8-R и удваивала каждую букву (issue #3681).
+	sqlite3_bind_text(stmt, col, koi8, -1, SQLITE_TRANSIENT);
 }
 
 void SqliteWorldDataSource::EnsureSyncTables()

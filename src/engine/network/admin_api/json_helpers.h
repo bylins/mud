@@ -209,8 +209,6 @@ inline std::optional<json> ParseNested(const json& j, const char* key)
  *
  * Used when serializing entity data to JSON (which requires UTF-8)
  */
-std::string Koi8rToUtf8(const char* koi8r);
-std::string Koi8rToUtf8(const std::string& koi8r);
 
 /**
  * \brief Convert UTF-8 string to KOI8-R for game data

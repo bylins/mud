@@ -26,7 +26,7 @@ class CharData;    // to avoid inclusion of "char.hpp"
 
 void DoMove(CharData *ch, char *, int, int subcmd);
 
-#define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
+#define CMD_IS(cmd_name) (utils::IsAbbr(cmd_name, cmd_info[cmd].command))
 
 void command_interpreter(CharData *ch, char *argument);
 // fill_word, half_chop moved to mud_string.h

@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "utils.h"
+#include "native_text.h"
 #include "utils/grammar/declensions.h"
 
 #include <algorithm>
@@ -89,7 +90,7 @@ return result;
 
 
 
-// str_cmp, strn_cmp moved to utils_string.cpp
+// str_cmp moved to utils_string.cpp
 
 // the "touch" command, essentially.
 int touch(const char *path) {
@@ -265,7 +266,7 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 				flow++;
 			}
 
-			if ((total_chars + (flow - start) + 1) > 79) {
+			if ((total_chars + native_text::char_count(start, flow) + 1) > 79) {
 				strcpy(pos, "\r\n");
 				total_chars = 0;
 				pos += 2;
@@ -279,11 +280,11 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 				}
 			}
 
-			total_chars += flow - start;
+			total_chars += native_text::char_count(start, flow);
 			strncpy(pos, start, flow - start);
 			if (cap_next) {
 				cap_next = false;
-				*pos = UPPER(*pos);
+				native_text::capitalize_first(pos);
 			}
 			pos += flow - start;
 		}
@@ -303,17 +304,19 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 	strcpy(pos, "\r\n");
 
 	if (static_cast<size_t>(pos - formatted) > maxlen) {
-		formatted[maxlen] = '\0';
+		formatted[native_text::truncate_offset(formatted, maxlen)] = '\0';
 	}
 	writer->set_string(formatted);
 }
 
 
 char *rustime(const struct tm *timeptr) {
-	static char mon_name[12][10] =
+	// Массив указателей, а не char[12][10]: ширина ячейки зависела бы от кодировки
+	// (в UTF-8 русская буква занимает два байта, и названия перестают влезать).
+	static const char *const mon_name[12] =
 		{
-			"Января\0", "Февраля\0", "Марта\0", "Апреля\0", "Мая\0", "Июня\0",
-			"Июля\0", "Августа\0", "Сентября\0", "Октября\0", "Ноября\0", "Декабря\0"
+			"Января", "Февраля", "Марта", "Апреля", "Мая", "Июня",
+			"Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"
 		};
 	static char result[100];
 

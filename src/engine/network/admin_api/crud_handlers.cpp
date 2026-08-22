@@ -180,11 +180,11 @@ void HandleListZones(DescriptorData* d)
 		const ZoneData &zone = zone_table[zrn];
 		json zone_obj;
 		zone_obj["vnum"] = zone.vnum;
-		zone_obj["name"] = admin_api::json::Koi8rToUtf8(zone.name);
+		zone_obj["name"] = zone.name;
 		zone_obj["level"] = zone.level;
 		if (!zone.author.empty())
 		{
-			zone_obj["author"] = admin_api::json::Koi8rToUtf8(zone.author);
+			zone_obj["author"] = zone.author;
 		}
 		response["zones"].push_back(zone_obj);
 	}
@@ -275,9 +275,9 @@ void HandleListMobs(DescriptorData* d, const char* zone_vnum_str)
 
 		json mob_data;
 		mob_data["vnum"] = mob_vnum;
-		mob_data["name"] = admin_api::json::Koi8rToUtf8(mob_proto[i].player_data.PNames[grammar::ECase::kNom]);
-		mob_data["aliases"] = admin_api::json::Koi8rToUtf8(mob_proto[i].get_npc_name());
-		mob_data["short_desc"] = admin_api::json::Koi8rToUtf8(mob_proto[i].player_data.long_descr);
+		mob_data["name"] = mob_proto[i].player_data.PNames[grammar::ECase::kNom];
+		mob_data["aliases"] = mob_proto[i].get_npc_name();
+		mob_data["short_desc"] = mob_proto[i].player_data.long_descr;
 		mob_data["level"] = mob_proto[i].GetLevel();
 
 		response["mobs"].push_back(mob_data);
@@ -430,9 +430,9 @@ void HandleListObjects(DescriptorData* d, const char* zone_vnum_str)
 
 		json obj_data;
 		obj_data["vnum"] = obj->get_vnum();
-		obj_data["name"] = admin_api::json::Koi8rToUtf8(obj->get_short_description());
-		obj_data["aliases"] = admin_api::json::Koi8rToUtf8(obj->get_aliases());
-		obj_data["short_desc"] = admin_api::json::Koi8rToUtf8(obj->get_short_description());
+		obj_data["name"] = obj->get_short_description();
+		obj_data["aliases"] = obj->get_aliases();
+		obj_data["short_desc"] = obj->get_short_description();
 		obj_data["type"] = static_cast<int>(obj->get_type());
 
 		response["objects"].push_back(obj_data);
@@ -657,7 +657,7 @@ void HandleListRooms(DescriptorData* d, const char* zone_vnum_str)
 
 		json room_obj;
 		room_obj["vnum"] = world[rnum]->vnum;
-		room_obj["name"] = admin_api::json::Koi8rToUtf8(world[rnum]->name);
+		room_obj["name"] = world[rnum]->name;
 
 		response["rooms"].push_back(room_obj);
 	}
@@ -876,7 +876,7 @@ void HandleListTriggers(DescriptorData* d, const char* zone_vnum_str)
 
 		json trig_data;
 		trig_data["vnum"] = trig_vnum;
-		trig_data["name"] = admin_api::json::Koi8rToUtf8(trig->get_name());
+		trig_data["name"] = trig->get_name();
 		trig_data["attach_type"] = static_cast<int>(trig->get_attach_type());
 
 		response["triggers"].push_back(trig_data);
@@ -908,7 +908,6 @@ void HandleGetTrigger(DescriptorData* d, int trig_vnum)
 void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data)
 {
 	using admin_api::json::Utf8ToKoi8r;
-	using admin_api::json::Koi8rToUtf8;
 
 	int rnum = find_trig_rnum(trig_vnum);
 	if (rnum < 0 || !trig_index[rnum] || !trig_index[rnum]->proto)
@@ -1000,7 +999,6 @@ void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data
 void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data)
 {
 	using admin_api::json::Utf8ToKoi8r;
-	using admin_api::json::Koi8rToUtf8;
 
 	try
 	{
@@ -1110,7 +1108,7 @@ void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data
 		std::string olc_output;
 		if (temp_d->output && temp_d->bufptr > 0)
 		{
-			olc_output = Koi8rToUtf8(std::string(temp_d->output, temp_d->bufptr));
+			olc_output = std::string(temp_d->output, temp_d->bufptr);
 		}
 
 		// Clean up
@@ -1197,10 +1195,10 @@ void HandleGetPlayers(DescriptorData* d)
 		}
 
 		json player;
-		player["name"] = admin_api::json::Koi8rToUtf8(ch->get_name().c_str());
+		player["name"] = ch->get_name().c_str();
 		player["level"] = ch->GetLevel();
 		player["remort"] = ch->get_remort();
-		player["class"] = admin_api::json::Koi8rToUtf8(MUD::Class(ch->GetClass()).GetName().c_str());
+		player["class"] = MUD::Class(ch->GetClass()).GetName().c_str();
 		player["room"] = GET_ROOM_VNUM(ch->in_room);
 		player["is_immortal"] = (ch->GetLevel() >= kLvlImmortal);
 
@@ -1219,7 +1217,6 @@ void HandleGetPlayers(DescriptorData* d)
 // Helper: convert rnum args back to vnums for a single command
 static json SerializeZoneCommand(const reset_com &cmd, int index)
 {
-	using admin_api::json::Koi8rToUtf8;
 
 	json obj;
 	obj["index"] = index;
@@ -1233,34 +1230,34 @@ static json SerializeZoneCommand(const reset_com &cmd, int index)
 			obj["max_in_world"] = cmd.arg2;
 			obj["room_vnum"] = world[cmd.arg3]->vnum;
 			obj["max_in_room"] = cmd.arg4;
-			obj["comment"] = Koi8rToUtf8(mob_proto[cmd.arg1].get_npc_name());
+			obj["comment"] = mob_proto[cmd.arg1].get_npc_name();
 			break;
 		case 'O':
 			obj["obj_vnum"] = obj_proto[cmd.arg1]->get_vnum();
 			obj["max_in_world"] = cmd.arg2;
 			obj["room_vnum"] = world[cmd.arg3]->vnum;
 			obj["load_percent"] = cmd.arg4;
-			obj["comment"] = Koi8rToUtf8(obj_proto[cmd.arg1]->get_short_description());
+			obj["comment"] = obj_proto[cmd.arg1]->get_short_description();
 			break;
 		case 'G':
 			obj["obj_vnum"] = obj_proto[cmd.arg1]->get_vnum();
 			obj["max_in_world"] = cmd.arg2;
 			obj["load_percent"] = cmd.arg4;
-			obj["comment"] = Koi8rToUtf8(obj_proto[cmd.arg1]->get_short_description());
+			obj["comment"] = obj_proto[cmd.arg1]->get_short_description();
 			break;
 		case 'E':
 			obj["obj_vnum"] = obj_proto[cmd.arg1]->get_vnum();
 			obj["max_in_world"] = cmd.arg2;
 			obj["eq_position"] = cmd.arg3;
 			obj["load_percent"] = cmd.arg4;
-			obj["comment"] = Koi8rToUtf8(obj_proto[cmd.arg1]->get_short_description());
+			obj["comment"] = obj_proto[cmd.arg1]->get_short_description();
 			break;
 		case 'P':
 			obj["obj_vnum"] = obj_proto[cmd.arg1]->get_vnum();
 			obj["max_in_world"] = cmd.arg2;
 			obj["target_obj_vnum"] = obj_proto[cmd.arg3]->get_vnum();
 			obj["load_percent"] = cmd.arg4;
-			obj["comment"] = Koi8rToUtf8(obj_proto[cmd.arg1]->get_short_description());
+			obj["comment"] = obj_proto[cmd.arg1]->get_short_description();
 			break;
 		case 'D':
 			obj["room_vnum"] = world[cmd.arg1]->vnum;
@@ -1282,8 +1279,8 @@ static json SerializeZoneCommand(const reset_com &cmd, int index)
 		case 'V':
 			obj["trigger_type"] = cmd.arg1;
 			obj["context"] = cmd.arg2;
-			if (cmd.sarg1) obj["var_name"] = Koi8rToUtf8(cmd.sarg1);
-			if (cmd.sarg2) obj["var_value"] = Koi8rToUtf8(cmd.sarg2);
+			if (cmd.sarg1) obj["var_name"] = cmd.sarg1;
+			if (cmd.sarg2) obj["var_value"] = cmd.sarg2;
 			break;
 		case 'F':
 			obj["room_vnum"] = world[cmd.arg1]->vnum;
@@ -1697,7 +1694,7 @@ void HandleResetZone(DescriptorData* d, int zone_vnum)
 	response["status"] = "ok";
 	response["message"] = "Zone reset successfully";
 	response["zone_vnum"] = zone_vnum;
-	response["zone_name"] = admin_api::json::Koi8rToUtf8(zone_table[zrn].name);
+	response["zone_name"] = zone_table[zrn].name;
 	SendJsonResponse(d, response);
 }
 

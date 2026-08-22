@@ -6,7 +6,10 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
 #include "engine/entities/char_data.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
@@ -34,8 +37,8 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char tmpbuf[kMaxInputLength];
 	bool find_param = false;
 	while (*argument) {
-		switch (*argument) {
-			case 'М': argument = one_argument(++argument, tmpbuf);
+		switch (native_text::first_char_code(argument)) {
+			case rus::kEmUpper: argument = one_argument(argument + native_text::char_bytes(argument), tmpbuf);
 				if (utils::IsAbbr(tmpbuf, "булат")) {
 					filter.material = EObjMaterial::kBulat;
 				} else if (utils::IsAbbr(tmpbuf, "бронза")) {
@@ -78,7 +81,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				find_param = true;
 				break;
-			case 'Т': argument = one_argument(++argument, tmpbuf);
+			case rus::kTeUpper: argument = one_argument(argument + native_text::char_bytes(argument), tmpbuf);
 				if (utils::IsAbbr(tmpbuf, "броня") || utils::IsAbbr(tmpbuf, "armor")) {
 					filter.type = EObjType::kArmor;
 				} else if (utils::IsAbbr(tmpbuf, "легкие") || utils::IsAbbr(tmpbuf, "легкая")) {
@@ -93,7 +96,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				find_param = true;
 				break;
-			case 'О': argument = one_argument(++argument, tmpbuf);
+			case rus::kOUpper: argument = one_argument(argument + native_text::char_bytes(argument), tmpbuf);
 				if (utils::IsAbbr(tmpbuf, "тело")) {
 					filter.wear = EWearFlag::kBody;
 					filter.wear_message = 3;
@@ -118,9 +121,9 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				find_param = true;
 				break;
-			case 'А': {
+			case rus::kAUpper: {
 				bool tmp_find = false;
-				argument = one_argument(++argument, tmpbuf);
+				argument = one_argument(argument + native_text::char_bytes(argument), tmpbuf);
 				if (!strlen(tmpbuf)) {
 					SendMsgToChar("Неверный аффект предмета.\r\n", ch);
 					return;
@@ -194,7 +197,8 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				find_param = true;
 				break;
 			}
-			default: ++argument;
+			// Незнакомая буква тоже пропускается целиком, иначе разбор съезжает на полсимвола.
+			default: argument += native_text::char_bytes(argument);
 		}
 	}
 	if (!find_param) {
@@ -312,7 +316,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		out << "   "
 			<< std::setw(2) << it->first << " | "
 			<< std::setw(7) << obj->get_vnum() << " | "
-			<< std::setw(14) << material_name[obj->get_material()] << " | "
+			<< fmt::format("{:>14}", material_name[obj->get_material()]) << " | "
 			<< obj->get_PName(grammar::ECase::kNom) << "\r\n";
 
 		for (int i = 0; i < kMaxObjAffect; i++) {

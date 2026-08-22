@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 // Base class for world data sources - implementation
 
+#include "utils/native_text.h"
 #include "world_data_source_base.h"
 #include "db.h"
 #include "obj_prototypes.h"
@@ -57,7 +58,9 @@ void WorldDataSourceBase::ParseTriggerScript(Trigger *trig, const std::string &s
 			// lowercase the command (first word) for faster comparison at runtime
 			auto it = cmd->cmd.begin();
 			while (it != cmd->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
-			while (it != cmd->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
+			for (; it != cmd->cmd.end() && *it != ' '; it += native_text::char_bytes(&*it)) {
+				native_text::copy_lower_char(&*it, &*it);
+			}
 
 			if (!head)
 			{

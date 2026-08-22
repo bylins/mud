@@ -1,3 +1,4 @@
+#include <fmt/format.h>
 #include "commands.h"
 #include "utils/utils.h"
 #include "engine/core/comm.h"
@@ -233,7 +234,7 @@ void CommandEmbranchmentImplementation::print_branches_list(std::stringstream &s
 	ss << "\r\n";
 	for (const auto &branch : m_branches.trie()) {
 		const std::string &prefix = branch.prefix();
-		ss << "    " << std::setw(m_branches.max_length()) << prefix
+		ss << "    " << fmt::format("{:>{}}", prefix, m_branches.max_length())
 		   << " - " << m_branches.handlers().at(prefix)->get_help_line() << "\r\n";
 	}
 	ss << "\r\n";

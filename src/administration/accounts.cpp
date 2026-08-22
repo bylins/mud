@@ -3,6 +3,7 @@
 * 2018 (c) bodrich
 */
 #include "accounts.h"
+#include "utils/native_text.h"
 #include "password.h"
 #include "engine/entities/zone.h"
 #include <sstream>
@@ -85,7 +86,7 @@ void Account::show_players(CharData *ch) {
 	ss << "Данные аккаунта: " << this->email << "\r\n";
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
-		name[0] = UPPER(name[0]);
+		native_text::capitalize_first(name);
 		ss << count << ") " << name << "\r\n";
 		count++;
 	}
@@ -101,7 +102,7 @@ void Account::list_players(DescriptorData *d) {
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
 		iosystem::write_to_output((std::to_string(count) + ") ").c_str(), d);
-		name[0] = UPPER(name[0]);
+		native_text::capitalize_first(name);
 		iosystem::write_to_output(name.c_str(), d);
 		iosystem::write_to_output("\r\n", d);
 		count++;
@@ -244,7 +245,10 @@ void Account::set_password(const std::string &password) {
 }
 
 bool Account::compare_password(const std::string &password) {
-	return CompareParam(this->hash_password, CRYPT(password.c_str(), this->hash_password.c_str()), true);
+	// Тот же приём, что в Password::compare_password: хэш посчитан по дисковым байтам,
+	// поэтому пароль приводим к дисковой кодировке перед crypt (issue #3681).
+	return CompareParam(this->hash_password,
+						CRYPT(native_text::to_disk(password).c_str(), this->hash_password.c_str()), true);
 }
 
 bool Account::quest_is_available(int id) {

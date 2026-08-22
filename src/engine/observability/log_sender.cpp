@@ -62,7 +62,7 @@ static void AddAttributesToLogRecord(
 		baggage->GetAllEntries([&log_record](opentelemetry::nostd::string_view key,
 		                                      opentelemetry::nostd::string_view value) {
 			std::string key_str(key.data(), key.size());
-			std::string value_str(koi8r_to_utf8(std::string(value.data(), value.size())));
+			std::string value_str(value.data(), value.size());
 			log_record->SetAttribute(key_str, value_str);
 			return true; // continue iteration
 		});
@@ -70,7 +70,7 @@ static void AddAttributesToLogRecord(
 
 	// Add user attributes
 	for (const auto& [key, value] : user_attributes) {
-		log_record->SetAttribute(key, koi8r_to_utf8(value));
+		log_record->SetAttribute(key, value);
 	}
 }
 
@@ -99,7 +99,7 @@ static void LogWithLevel(logging::LogLevel level,
 				// OTEL log records carry their own timestamp metadata.
 				const auto sep = message.find(" :: ");
 				const std::string body = (sep != std::string::npos) ? message.substr(sep + 4) : message;
-				log_record->SetBody(koi8r_to_utf8(body));
+				log_record->SetBody(body);
 
 				// Automatically add trace context + user attributes
 				AddAttributesToLogRecord(log_record, attributes);

@@ -1,4 +1,5 @@
 #include "boot_data_files.h"
+#include "utils/native_text.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/scripting/dg_olc.h"
@@ -24,7 +25,7 @@ class DataFile : public BaseDataFile {
 	void close() override;
 	[[nodiscard]] const std::string &file_name() const { return m_file_name; }
 	[[nodiscard]] const auto &file() const { return m_file; }
-	void get_one_line(char *buf);
+	void get_one_line(char *buf, std::size_t buf_size);
 
  private:
 	FILE *m_file;
@@ -44,14 +45,26 @@ void DataFile::close() {
 	fclose(m_file);
 }
 
-void DataFile::get_one_line(char *buf) {
-	if (fgets(buf, READ_SIZE, file()) == nullptr) {
+void DataFile::get_one_line(char *buf, std::size_t buf_size) {
+	char raw[READ_SIZE];
+	if (fgets(raw, sizeof(raw), file()) == nullptr) {
 		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, kLvlImmortal, SYSLOG, true);
 		buf[0] = '$';
 		buf[1] = 0;
 		return;
 	}
-	buf[strlen(buf) - 1] = '\0';    // take off the trailing \n
+	size_t len = strlen(raw);
+	while (len > 0 && (raw[len - 1] == '\n' || raw[len - 1] == '\r')) {
+		raw[--len] = '\0';    // take off the trailing \r\n
+	}
+
+	// Граница кодировки (issue #3681): файлы справки лежат на диске в KOI8-R, а движок под
+	// UTF-8 ждёт нативный текст -- без этого ключи разделов не совпадали бы с тем, что ввёл
+	// игрок, а тело раздела уезжало бы клиенту байтами чужой кодировки. Строка может при этом
+	// вырасти (KOI8-R байт -> до трёх байт UTF-8), поэтому размер буфера передаётся явно.
+	const std::string native = native_text::from_disk_line(raw);
+	strncpy(buf, native.c_str(), buf_size - 1);
+	buf[buf_size - 1] = '\0';
 }
 
 class DiscreteFile : public DataFile {
@@ -330,7 +343,9 @@ void TriggersFile::LoadDgTriggerScript(Trigger *trig, const std::string &cmds, i
 			// lowercase the command (first word) for faster comparison at runtime
 			auto it = (*ptr)->cmd.begin();
 			while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
-			while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
+			for (; it != (*ptr)->cmd.end() && *it != ' '; it += native_text::char_bytes(&*it)) {
+				native_text::copy_lower_char(&*it, &*it);
+			}
 			ptr = &(*ptr)->next;
 		}
 		if (pos_end != std::string::npos)
@@ -397,7 +412,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_realnum]->zone_rn = zone;
 	world[room_realnum]->vnum = virtual_nr;
 	std::string tmpstr = fread_string();
-	tmpstr[0] = UPPER(tmpstr[0]);
+	native_text::capitalize_first(tmpstr);
 	world[room_realnum]->set_name(tmpstr);
 //	if (zone_table[zone].RnumRoomsLocation.first == -1) {
 //		zone_table[zone].RnumRoomsLocation.first = room_realnum;
@@ -1729,20 +1744,23 @@ class HelpFile : public DataFile {
 };
 
 bool HelpFile::load_help() {
+	// В нативной кодировке строка может быть втрое длиннее прочитанной с диска (KOI8-R байт
+	// разворачивается в UTF-8 максимум в три), поэтому буферы с запасом (issue #3681).
+	constexpr size_t kLineBufSize = 3 * READ_SIZE + 1;
 #if defined(CIRCLE_MACINTOSH)
-	static char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];	// ?
+	static char key[kLineBufSize], next_key[kLineBufSize], entry[32384];	// ?
 #else
-	char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];
+	char key[kLineBufSize], next_key[kLineBufSize], entry[32384];
 #endif
-	char line[READ_SIZE + 1];
+	char line[kLineBufSize];
 	const char *scan;
 
 	// get the first keyword line
-	get_one_line(key);
+	get_one_line(key, sizeof(key));
 	while (*key != '$')    // read in the corresponding help entry
 	{
 		snprintf(entry, sizeof(entry), "%s\r\n", key);
-		get_one_line(line);
+		get_one_line(line, sizeof(line));
 		while (*line != '#') {
 			// если вдруг файл внезапно закончился и '#' так и не встретился
 			// логаем ошибку и заканчиваем парсинг во избежание зацикливания
@@ -1754,7 +1772,7 @@ bool HelpFile::load_help() {
 			}
 			size_t entry_len = strlen(entry);
 			snprintf(entry + entry_len, sizeof(entry) - entry_len, "%s\r\n", line);
-			get_one_line(line);
+			get_one_line(line, sizeof(line));
 		}
 		// Assign read level
 		int min_level = 0;
@@ -1772,7 +1790,7 @@ bool HelpFile::load_help() {
 		}
 
 		// get next keyword line (or $)
-		get_one_line(key);
+		get_one_line(key, sizeof(key));
 	}
 
 	return true;

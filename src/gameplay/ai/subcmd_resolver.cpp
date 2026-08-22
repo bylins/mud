@@ -5,7 +5,7 @@
 #include "engine/core/comm.h"        // SendMsgToChar
 #include "utils/mud_string.h"        // one_argument
 #include "utils/utils.h"             // skip_spaces, kMaxInputLength
-#include "utils/utils_string.h"      // str_cmp, strn_cmp
+#include "utils/utils_string.h"      // str_cmp, IsAbbr
 
 #include <cstring>
 #include <utility>
@@ -48,7 +48,7 @@ const SubCmdResolver::Row *SubCmdResolver::Resolve(const char *word, bool &ambig
 	const size_t len = std::strlen(word);
 	for (const auto &row : rows_) {
 		for (const auto &name : row.names) {
-			if (len <= name.size() && !strn_cmp(word, name.c_str(), len)) {
+			if (len <= name.size() && utils::IsAbbr(word, name.c_str())) {
 				if (match && match != &row) {
 					ambiguous = true;
 					return nullptr;

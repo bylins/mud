@@ -2,6 +2,7 @@
 // Created by Sventovit on 07.09.2024.
 //
 
+#include <fmt/format.h>
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
@@ -11,8 +12,6 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/affects/affect_data.h"
-
-#include <fmt/format.h>
 
 #include <algorithm>
 #include <string>
@@ -58,9 +57,8 @@ struct SquashRow {
 
 void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char sp_name[kMaxStringLength];
-	const size_t agr_length = strlen(argument);
 
-	if (*argument && !strn_cmp(argument, "краткий", agr_length)) {
+	if (*argument && utils::IsAbbr(argument, "краткий")) {
 		if (!ch->get_master()) {
 			group::print_one_line(ch, ch, true, 0);
 		} else {
@@ -72,7 +70,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// issue.affects-squash: "аффекты все" forces the full, un-collapsed per-source list. Mortals
 	// otherwise get one row per distinct effect (duplicate sources collapsed, longest duration shown);
 	// immortals always see every slot (with modifier/potency detail).
-	const bool show_all = (*argument && !strn_cmp(argument, "все", agr_length));
+	const bool show_all = (*argument && utils::IsAbbr(argument, "все"));
 	const bool squash = !privilege::IsImmortal(ch) && !show_all;
 
 	// Show the bitset without "hiding" etc.
@@ -118,6 +116,8 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		for (const auto &r : rows) {
 			// A permanent source wins the label; otherwise show the longest remaining time.
+			// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
+			// точках, printf мерил бы в байтах (issue #3681).
 			std::string line = fmt::format("{}{}{:<21} {:<12}{}",
 										   (!r.name.empty() && r.name[0] == '!') ? "Состояние  : " : "Заклинание : ",
 										   kColorBoldCyn, r.name,
@@ -148,9 +148,11 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		snprintf(sp_name, sizeof(sp_name), "%s",
 				affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 		const std::string duration = FormatAffectDuration(AffectDisplayMod(aff));
-		snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
-				 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
-				 kColorBoldCyn, sp_name, duration.c_str(), kColorNrm);
+		// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
+		// точках, printf мерил бы в байтах (issue #3681).
+		strcpy(buf, fmt::format("{}{}{:<21} {:<12}{} ",
+								*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
+								kColorBoldCyn, sp_name, duration, kColorNrm).c_str());
 		*buf2 = '\0';
 		if (immortal) {
 			if (aff->modifier) {

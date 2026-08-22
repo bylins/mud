@@ -185,11 +185,11 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				return;
 		}
 	} else if (!a_isdigit(*buf1)) {
-		if (strn_cmp("save", buf1, 4) == 0
-			|| (lock = !strn_cmp("lock", buf1, 4)) == true
-			|| (unlock = !strn_cmp("unlock", buf1, 6)) == true) {
+		if (utils::IsAbbr("save", buf1)
+			|| (lock = utils::IsAbbr("lock", buf1)) == true
+			|| (unlock = utils::IsAbbr("unlock", buf1)) == true) {
 			// issue #3582: "save all" -- записать на диск все зоны данного типа.
-			if (strn_cmp("save", buf1, 4) == 0 && *buf2 && !str_cmp(buf2, "all")) {
+			if (utils::IsAbbr("save", buf1) && *buf2 && !str_cmp(buf2, "all")) {
 				olc_save_all(ch, subcmd);
 				return;
 			}

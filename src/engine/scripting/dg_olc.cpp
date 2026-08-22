@@ -14,6 +14,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include "utils/native_text.h"
 #include "dg_olc.h"
 
 #include <memory>
@@ -153,9 +154,8 @@ void TrigeditCompileDgCmdlist(Trigger *trig, const std::string &storage_str)
 		while (it != str.end() && (*it == ' ' || *it == '\t')) {
 			++it;
 		}
-		while (it != str.end() && *it != ' ') {
-			*it = LOWER(*it);
-			++it;
+		for (; it != str.end() && *it != ' '; it += native_text::char_bytes(&*it)) {
+			native_text::copy_lower_char(&*it, &*it);
 		}
 	};
 

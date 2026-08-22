@@ -9,6 +9,8 @@
  ************************************************************************/
 
 #include "engine/db/world_objects.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "gameplay/fight/fight_messages.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/conf.h"
@@ -1478,11 +1480,11 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 	switch (OLC_MODE(d)) {
 		case OEDIT_CONFIRM_SAVESTRING:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д': SendMsgToChar("Объект сохранен.\r\n", d->character.get());
+				case rus::kDe:
+				case rus::kDeUpper: SendMsgToChar("Объект сохранен.\r\n", d->character.get());
 					OLC_OBJ(d)->remove_incorrect_values_keys(OLC_OBJ(d)->get_type());
 					oedit_save_internally(d);
 					snprintf(buf, sizeof(buf), "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
@@ -1493,8 +1495,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': cleanup_olc(d, CLEANUP_ALL);
+				case rus::kEn:
+				case rus::kEnUpper: cleanup_olc(d, CLEANUP_ALL);
 					break;
 
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());

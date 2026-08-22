@@ -556,6 +556,11 @@ size_t find_liquid_name(const char *name) {
 	return result;
 }
 
+// Разделитель между названием ёмкости и названием жидкости: "древний череп" + " с " + "зельем".
+// Длину берём отсюда же -- в KOI8-R это три байта, в UTF-8 четыре, а зашитая тройка срезала
+// разделитель не целиком и оставляла в названии лишний пробел (issue #3681).
+static const std::string kLiquidSeparator = " с ";
+
 void name_from_drinkcon(ObjData *obj) {
 	char new_name[kMaxStringLength];
 	std::string tmp;
@@ -568,8 +573,8 @@ void name_from_drinkcon(ObjData *obj) {
 	obj->set_aliases(new_name);
 
 	pos = find_liquid_name(obj->get_short_description().c_str());
-	if (pos == std::string::npos) return;
-	tmp = obj->get_short_description().substr(0, pos - 3);
+	if (pos == std::string::npos || pos < kLiquidSeparator.length()) return;
+	tmp = obj->get_short_description().substr(0, pos - kLiquidSeparator.length());
 
 	sprintf(new_name, "%s", tmp.c_str());
 	obj->set_short_description(new_name);
@@ -577,8 +582,8 @@ void name_from_drinkcon(ObjData *obj) {
 	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
 		auto name_case = static_cast<grammar::ECase>(c);
 		pos = find_liquid_name(obj->get_PName(name_case).c_str());
-		if (pos == std::string::npos) return;
-		tmp = obj->get_PName(name_case).substr(0, pos - 3);
+		if (pos == std::string::npos || pos < kLiquidSeparator.length()) return;
+		tmp = obj->get_PName(name_case).substr(0, pos - kLiquidSeparator.length());
 		sprintf(new_name, "%s", tmp.c_str());
 		obj->set_PName(name_case, new_name);
 	}
@@ -595,12 +600,14 @@ void name_to_drinkcon(ObjData *obj, int type) {
 
 	snprintf(new_name, kMaxInputLength, "%s %s", obj->get_aliases().c_str(), potion_name);
 	obj->set_aliases(new_name);
-	snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_short_description().c_str(), potion_name);
+	snprintf(new_name, kMaxInputLength, "%s%s%s", obj->get_short_description().c_str(),
+			 kLiquidSeparator.c_str(), potion_name);
 	obj->set_short_description(new_name);
 
 	for (c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
 		auto name_case = static_cast<grammar::ECase>(c);
-		snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_PName(name_case).c_str(), potion_name);
+		snprintf(new_name, kMaxInputLength, "%s%s%s", obj->get_PName(name_case).c_str(),
+				 kLiquidSeparator.c_str(), potion_name);
 		obj->set_PName(name_case, new_name);
 	}
 	// issue #3620: имя сосуда больше не совпадает с прототипом -- без этой пометки olc при правке
