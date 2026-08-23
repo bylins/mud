@@ -619,6 +619,18 @@ void Clan::ClanLoadSingle(const std::string &index) {
 void Clan::ClanLoad() {
 	const bool reload = Clan::ClanList.empty() ? false : true;
 
+	// issue #3737: перед перезагрузкой сбрасываем на диск всё, что ещё не сохранено. ChestLoad()
+	// первым делом выбрасывает из памяти содержимое всех клановых сундуков и читает его заново из
+	// файлов, а сейверы сундуков -- dirty-трекеры и ходят раз в десять минут. Из-за этого
+	// "reload clan" уничтожал всё, что положили после последнего сейва: в файле этого ещё не было,
+	// а из памяти уже стёрли, и вещь пропадала молча -- при распаде внутри контейнера сообщение
+	// не выводится. Сохранение ниже по коду не спасает: оно записывает уже опустевшее состояние.
+	// Делать это надо именно здесь, до ClanList.clear(): сейверы ходят по этому самому списку.
+	if (reload) {
+		Clan::SaveChestAll();
+		save_ingr_chests();
+	}
+
 	init_chest_rnum();
 	// на случай релоада
 	Clan::ClanList.clear();
@@ -2478,10 +2490,19 @@ void Clan::ChestLoad() {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		for (auto chest : world[GetRoomRnum((*clan)->chest_room)]->contents) {
 			if (Clan::is_clan_chest(chest)) {
+				int wiped = 0;
 				for (temp = chest->get_contains(); temp; temp = obj_next) {
 					obj_next = temp->get_next_content();
 					RemoveObjFromObj(temp);
 					ExtractObjFromWorld(temp);
+					++wiped;
+				}
+				// issue #3737: зачистка молчала, и потерю содержимого сундука нельзя было связать
+				// с релоадом. Штатно она безобидна -- вещи тут же читаются обратно из файла,
+				// но если файл отстал, в логе останется след, с чего всё началось.
+				if (wiped > 0) {
+					log("<Clan> ChestLoad: сундук дружины %s очищен перед перечитыванием, предметов: %d",
+						(*clan)->abbrev.c_str(), wiped);
 				}
 				ExtractObjFromWorld(chest);
 				break;

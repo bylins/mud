@@ -1,3 +1,8 @@
+#include <fstream>
+// malloc.h и malloc_trim есть только у glibc: на macOS заголовок называется иначе
+#ifdef __GLIBC__
+#include <malloc.h>
+#endif
 #include <filesystem>
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
@@ -1062,6 +1067,38 @@ void zone_traffic_load() {
 }
 
 // body of the booting system
+// Отдать системе память, освобождённую за время загрузки.
+//
+// Разбор мира из YAML -- это около трёх тысяч файлов и миллионы мелких аллокаций под узлы
+// парсера. Всё это честно освобождается, но glibc держит освобождённые страницы в аренах про
+// запас и системе не возвращает: RSS так и остаётся на уровне пика. На полном мире это без
+// малого гигабайт -- 1674 МБ после загрузки против 682 МБ сразу после malloc_trim, при том что
+// legacy-загрузчику на тех же данных хватает 529 МБ.
+//
+// Пороги MALLOC_TRIM_THRESHOLD_ тут не помогают: они отдают только верхушку кучи, а свободные
+// блоки разбросаны по всей арене. Нужен явный вызов, и делать его достаточно один раз -- в игре
+// таких всплесков аллокаций больше не бывает.
+void ReturnFreedMemoryToOs() {
+#ifdef __GLIBC__
+	const auto rss_kb = []() -> long {
+		std::ifstream status("/proc/self/status");
+		std::string line;
+		while (std::getline(status, line)) {
+			if (line.rfind("VmRSS:", 0) == 0) {
+				return std::strtol(line.c_str() + 6, nullptr, 10);
+			}
+		}
+		return -1;
+	};
+	const long before = rss_kb();
+	malloc_trim(0);
+	const long after = rss_kb();
+	if (before > 0 && after > 0) {
+		log("Returned freed memory to OS: RSS %ld -> %ld kB (-%ld kB)", before, after, before - after);
+	}
+#endif
+}
+
 void BootMudDataBase() {
 	auto boot_start = std::chrono::high_resolution_clock::now();
 	utils::CSteppedProfiler boot_profiler("MUD booting", 1.1);
@@ -1516,6 +1553,7 @@ void BootMudDataBase() {
 	auto boot_duration = std::chrono::duration<double>(boot_end - boot_start).count();
 	log("Boot db total time: %.3f seconds", boot_duration);
 
+	ReturnFreedMemoryToOs();
 }
 
 // reset the time in the game from file
@@ -3462,22 +3500,26 @@ int ReadFileToBuffer(const char *name, char *destination_buf) {
 		sprintf(destination_buf + strlen(destination_buf), "Error: file '%s' is empty.\r\n", name);
 		return (0);
 	}
-	do {
-		const char *dummy = fgets(tmp, READ_SIZE, fl);
-		UNUSED_ARG(dummy);
-
-		tmp[strlen(tmp) - 1] = '\0';    // take off the trailing \n
+	// Цикл идёт по результату fgets. Прежний do/while обрабатывал tmp и после неудачного чтения:
+	// на пустом файле strlen() шёл по неинициализированной памяти, а при нулевой длине
+	// tmp[strlen(tmp) - 1] писал байт ПЕРЕД началом буфера.
+	while (fgets(tmp, READ_SIZE, fl)) {
+		const size_t len = strlen(tmp);
+		// перевод строки снимаем, только если он есть: у строки длиннее READ_SIZE и у последней
+		// строки файла без \n прежний код съедал значащий символ
+		if (len > 0 && tmp[len - 1] == '\n') {
+			tmp[len - 1] = '\0';
+		}
 		strcat(tmp, "\r\n");
 
-		if (!feof(fl)) {
-			if (strlen(destination_buf) + strlen(tmp) + 1 > kMaxExtendLength) {
-				log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
-				*destination_buf = '\0';
-				return (-1);
-			}
-			strcat(destination_buf, tmp);
+		if (strlen(destination_buf) + strlen(tmp) + 1 > kMaxExtendLength) {
+			log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
+			*destination_buf = '\0';
+			fclose(fl);
+			return (-1);
 		}
-	} while (!feof(fl));
+		strcat(destination_buf, tmp);
+	}
 
 	fclose(fl);
 

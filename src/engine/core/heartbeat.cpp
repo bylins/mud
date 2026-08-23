@@ -576,10 +576,11 @@ void Heartbeat::operator()(const int missed_pulses) {
 	const auto current_heartbeat_number = global_pulse_number();
 	const auto current_pulse_number = pulse_number();
 
-	// Create trace span for this pulse
-	char span_name[64];
-	snprintf(span_name, sizeof(span_name), "Heartbeat #%lu pulse #%d", current_heartbeat_number, current_pulse_number);
-	auto pulse_span = tracing::TraceManager::Instance().StartSpan(span_name);
+	// Create trace span for this pulse.
+	// The name must stay constant: it becomes the span_name label in the metrics
+	// generator, so embedding the counters here produced one metric series per
+	// pulse. Both numbers are recorded as span attributes below instead.
+	auto pulse_span = tracing::TraceManager::Instance().StartSpan("Heartbeat");
 
 	utils::CExecutionTimer timer;
 	pulse(missed_pulses, label);

@@ -406,6 +406,32 @@ int interpolate(int min_value, int pulse) {
 	}
 	return (sign * (int_p + carry));
 }
+// Вернуть игрока из комнаты для незарегистрированных туда, откуда он в нее попал. Общее для двух
+// случаев: игроку разрешили вход (появилась прокси-запись) и игрока зарегистрировали.
+void ReleaseFromUnregRoom(const CharData::shared_ptr &i) {
+	SendMsgToChar("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
+	act(RegisterSystem::IsRegistered(i.get())
+			? "$n появил$u в центре комнаты, показывая всем штампик регистрации.\r\n"
+			: "$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
+		false, i.get(), nullptr, nullptr, kToRoom);
+
+	int restore = i->get_was_in_room();
+	if (restore == kNowhere
+		|| restore == r_unreg_start_room) {
+		restore = GET_LOADROOM(i);
+		if (restore == kNowhere) {
+			restore = calc_loadroom(i.get());
+		}
+		restore = GetRoomRnum(restore);
+	}
+
+	char_from_room(i);
+	char_to_room(i, restore);
+	sight::look_at_room(i.get(), restore);
+
+	i->set_was_in_room(kNowhere);
+}
+
 void beat_punish(const CharData::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
@@ -617,25 +643,17 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			};
 		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, true) && !privilege::IsImmortal(i.get())) {
-			SendMsgToChar("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
-			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
-				false, i.get(), nullptr, nullptr, kToRoom);
-			restore = i->get_was_in_room();
-			if (restore == kNowhere
-				|| restore == r_unreg_start_room) {
-				restore = GET_LOADROOM(i);
-				if (restore == kNowhere) {
-					restore = calc_loadroom(i.get());
-				}
-				restore = GetRoomRnum(restore);
-			}
-
-			char_from_room(i);
-			char_to_room(i, restore);
-			sight::look_at_room(i.get(), restore);
-
-			i->set_was_in_room(kNowhere);
+			ReleaseFromUnregRoom(i);
 		}
+	} else if (i->in_room == r_unreg_start_room
+			   && i->desc
+			   && i->desc->state == EConState::kPlaying
+			   && !privilege::IsImmortal(i.get())) {
+		// Зарегистрированному в комнате незарегистрированных делать нечего. Раньше вытаскивание
+		// жило только в ветке для незарегистрированных, поэтому тот, кого зарегистрировали уже
+		// сидящим там, оставался в ней навсегда: ни регистрация, ни прокси-запись не помогали,
+		// вынести его мог только бог руками.
+		ReleaseFromUnregRoom(i);
 	}
 }
 
@@ -1397,6 +1415,20 @@ void obj_point_update() {
 									 char_get_custom_label(j->get_in_obj(), cont_owner).c_str());
 							act(buf, false, cont_owner, j, nullptr, kToChar);
 					}
+				} else if (j->get_in_obj()->get_in_room() != kNowhere
+						   && !world[j->get_in_obj()->get_in_room()]->people.empty()
+						   && !Clan::is_clan_chest(j->get_in_obj())
+						   && !Clan::is_ingr_chest(j->get_in_obj())) {
+					// issue #3737: контейнер лежит в комнате и ничей -- сообщения не было вовсе, вещь
+					// пропадала совершенно молча. Сундук дружины сюда не идёт: о нём уже сказал
+					// clan_chest_invoice, второе сообщение было бы дублем. Ингр-хран молчит намеренно --
+					// там тысячи ингредиентов, распад каждого превратился бы в спам.
+					char buf[kMaxStringLength];
+					snprintf(buf, kMaxStringLength, "$o рассыпал$U в прах в %s...",
+							 j->get_in_obj()->get_PName(grammar::ECase::kPre).c_str());
+					CharData *witness = world[j->get_in_obj()->get_in_room()]->first_character();
+					act(buf, false, witness, j, nullptr, kToChar);
+					act(buf, false, witness, j, nullptr, kToRoom);
 				}
 				RemoveObjFromObj(j);
 			}

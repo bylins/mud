@@ -254,7 +254,7 @@ bool SetRegister(CharData *ch, CharData *vict, char *reason) {
 	}
 	ClearPundata(pundata);
 	if (vict->IsFlagged(EPlrFlag::kRegistred)) {
-		SendMsgToChar("Вашей жертва уже зарегистрирована.\r\n", ch);
+		SendMsgToChar("Ваша жертва уже зарегистрирована.\r\n", ch);
 		return false;
 	};
 	sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));

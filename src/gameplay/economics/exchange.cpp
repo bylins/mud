@@ -1109,8 +1109,8 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 	SendMsgToChar(fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kFilterYours)), fmt::arg("filter", params.print())) + "\r\n", ch);
 	if (privilege::IsGod(ch)) {
 		buffer =
-			"vnum    Лот      Предмет                                                     Цена  Состояние\r\n"
-			"--------------------------------------------------------------------------------------------\r\n";
+			"vnum      Лот      Предмет                                                     Цена  Состояние\r\n"
+			"----------------------------------------------------------------------------------------------\r\n";
 	} else {
 		buffer =
 			"Лот      Предмет                                                     Цена  Состояние\r\n"
@@ -1177,7 +1177,7 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 		tmstr = (char *) asctime(localtime(&(j->time)));
 		if (privilege::IsGod(ch)) {//asctime добавляет перевод строки лишний
 			snprintf(tmpbuf, sizeof(tmpbuf),
-					"(%5d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
+					"(%7d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
 					colored_name(item.c_str(), 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
 					sight::diag_obj_timer(GET_EXCHANGE_ITEM(j)),

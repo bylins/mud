@@ -2,6 +2,12 @@
 // Created by Sventovit on 08.05.2022.
 //
 
+#include <cstdlib>   // std::strtol
+#include <fstream>
+// malloc.h есть только у glibc: на macOS это <malloc/malloc.h> и без mallinfo2
+#ifdef __GLIBC__
+#include <malloc.h>
+#endif
 #include "administration/accounts.h"
 #include "administration/ban.h"
 #include "administration/privilege.h"
@@ -420,34 +426,30 @@ struct show_struct show_fields[] = {
 	{"\n", 0}
 };
 
-std::pair<int, int> TotalMemUse(){
+MemUsage TotalMemUse() {
+	MemUsage usage;   // на не-linux остаётся с -1 во всех полях: печатать нечего
 #ifdef __linux__
-	FILE *fl;
-	char name[256], line[1024];
-	int mem = 0, vmem = 0, pmem = 0;
-	pid_t pid = getpid();
-
-	sprintf(name, "/proc/%d/status", pid);
-	if (!(fl = fopen(name,"r"))) {
-		log("Cann't open process files...");
-		return std::make_pair(-1, -1);
-	}
-	while (get_line(fl, buf2)) {
-		sscanf(buf2, "%s %d", line, &mem);
-		if (!str_cmp(line, "VmRSS:")) {
-			pmem = mem;
+	std::ifstream status("/proc/self/status");
+	std::string line;
+	while (std::getline(status, line)) {
+		const auto value = [&line]() { return std::strtol(line.c_str() + line.find_first_of("0123456789"), nullptr, 10); };
+		if (line.rfind("VmSize:", 0) == 0) {
+			usage.virt_kb = value();
+		} else if (line.rfind("VmRSS:", 0) == 0) {
+			usage.rss_kb = value();
+		} else if (line.rfind("VmHWM:", 0) == 0) {
+			usage.peak_rss_kb = value();
 		}
-		if (!str_cmp(line, "VmSize:")) {
-			vmem = mem;
-		}
-		if (vmem > 0 && pmem > 0)
-			break;
 	}
-	fclose(fl);
-	return std::make_pair(vmem, pmem);
-#else
-	return std::make_pair(-1, -1);
 #endif
+#if defined(__GLIBC__) && defined(__GLIBC_PREREQ)
+#if __GLIBC_PREREQ(2, 33)
+	const auto info = mallinfo2();
+	usage.heap_used_kb = static_cast<long>(info.uordblks / 1024);
+	usage.heap_free_kb = static_cast<long>(info.fordblks / 1024);
+#endif
+#endif
+	return usage;
 }
 
 void ListSpellCreate(CharData *ch) {
@@ -661,8 +663,13 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					"  Переключенных буферов - %5d, переполненных - %5d\r\n",
 					iosystem::buf_switches,
 					iosystem::buf_overflows);
-			auto getmem = TotalMemUse();
-			sprintf(buf + strlen(buf), "  PID процесса: %d, использовано памяти: виртуальной - %d kB, физической: - %d kB\r\n", getpid(), getmem.first, getmem.second);
+			const auto mem = TotalMemUse();
+			sprintf(buf + strlen(buf), "  PID процесса: %d, память: %ld МБ, пик %ld МБ (адресное пространство %ld МБ)\r\n",
+					getpid(), mem.rss_kb / 1024, mem.peak_rss_kb / 1024, mem.virt_kb / 1024);
+			if (mem.heap_used_kb >= 0) {
+				sprintf(buf + strlen(buf), "  Куча: занято %ld МБ, освобождено но удерживается %ld МБ\r\n",
+						mem.heap_used_kb / 1024, mem.heap_free_kb / 1024);
+			}
 			sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", iosystem::number_of_bytes_written);
 			sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", iosystem::number_of_bytes_read);
 			sprintf(buf + strlen(buf), "  Максимальный Id - %ld\r\n", max_id.current());
