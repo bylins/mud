@@ -34,7 +34,7 @@ void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				MUD::Class(chdata->GetClass()).GetAbbr(),
 				GET_NAME(chdata),
 				chdata->player_specials->saved.LastIP[0]
-					? chdata->player_specials->saved.LastIP : "Unknown",
+					? chdata->player_specials->saved.LastIP : "НеВедется",
 				ctime(&tmp_time)), ch);
 	}
 }
