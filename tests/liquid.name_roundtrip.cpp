@@ -65,4 +65,24 @@ TEST(LiquidNameRoundTrip, RepeatedFillsDoNotAccumulateSpaces) {
 		<< "двойных пробелов в названии быть не должно";
 }
 
+TEST(LiquidNameRoundTrip, StoredExtraSpaceHealsOnReload) {
+	// Имена, испорченные прежней обрезкой, уже лежат в файлах вещей: "огромная дубовая бочка"
+	// с хвостовым пробелом перед разделителем. Правка разделителя такое имя не чинила -- снимала
+	// ровно " с ", получала имя с хвостовым пробелом и приклеивала разделитель обратно, так что
+	// два пробела всплывали снова при каждой загрузке. Загрузка вещи гоняет ту же пару
+	// name_from_drinkcon + name_to_drinkcon, поэтому чиниться такое имя должно само.
+	const std::string original = "огромная дубовая бочка";
+	const std::string liquid = drinknames[kRoundTripLiquid];
+	auto jar = MakeJar(original + "  с " + liquid);
+	jar->set_aliases(original + " " + liquid);
+
+	name_from_drinkcon(jar.get());
+	EXPECT_EQ(jar->get_short_description(), original) << "хвостовой пробел обязан уйти вместе с жидкостью";
+
+	name_to_drinkcon(jar.get(), kRoundTripLiquid);
+	EXPECT_EQ(jar->get_short_description(), original + " с " + liquid);
+	EXPECT_EQ(jar->get_PName(grammar::ECase::kNom), original + " с " + liquid) << "и в падежах тоже";
+	EXPECT_EQ(jar->get_aliases().find("  "), std::string::npos) << "в синонимах двойных пробелов тоже быть не должно";
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
