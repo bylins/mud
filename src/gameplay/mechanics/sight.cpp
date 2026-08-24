@@ -1340,7 +1340,10 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " %s*%s%s", kColorGrn,
 							kColorNrm, diag_obj_to_char(object, 1));
 				} else {
-					sprintf(buf2, " %s ", diag_obj_to_char(object, 1));
+					// diag_obj_to_char сама начинается с пробела, а всё, что дописывается следом,
+					// свой пробел тоже приносит: лишний тут давал "бочка  <великолепно>" и
+					// "сундук <хорошо>  (есть содержимое)".
+					sprintf(buf2, "%s", diag_obj_to_char(object, 1));
 					if (object->get_type() == EObjType::kLiquidContainer) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
 						native_text::copy_lower_char(tmp, tmp);
@@ -1348,7 +1351,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 						// меньше, чем на четверть черной вязкой *отравленной* жидкостью"), и в UTF-8
 						// она не влезала в 128 байт: fortify ловил переполнение и валил процесс на
 						// осмотре ёмкости (issue #3752).
-						strcat(buf2, fmt::format("({})", tmp).c_str());
+						strcat(buf2, fmt::format(" ({})", tmp).c_str());
 					}
 				}
 			}
