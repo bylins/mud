@@ -31,7 +31,7 @@ void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s\r\n",
 				chdata->get_uid(), GetRealLevel(chdata),
 				MUD::Class(chdata->GetClass()).GetAbbr().c_str(), GET_NAME(chdata),
-				chdata->player_specials->saved.LastIP[0] ? chdata->player_specials->saved.LastIP : "Unknown", ctime(&tmp_time));
+				chdata->player_specials->saved.LastIP[0] ? chdata->player_specials->saved.LastIP : "НеВедется", ctime(&tmp_time));
 		SendMsgToChar(buf, ch);
 	}
 }
