@@ -546,6 +546,41 @@ int shop_ext(CharData *ch, void *me, int /*cmd*/, char *argument) {
 	return kShopCmds.Dispatch(ch, me, argument);
 }
 
+namespace {
+
+// Куда торговца ставить не надо. Комната бралась случайно из всего диапазона зоны, без единой
+// проверки, и торговец попадал то в смерть-комнату, то на верхушку дуба (комната 9052 в зоне 90:
+// выходов нет вовсе, лезут туда командным триггером). Оттуда он уже не уйдет -- будет стоять,
+// пока за ним не залезет игрок (issue #3770).
+bool IsGoodRoomForShopKeeper(RoomRnum room_rn) {
+	// Виртуальная комната зоны: служебка, в нее прячут сезонных мобов, игроку она не видна.
+	if (GET_ROOM_VNUM(room_rn) % 100 == 99) {
+		return false;
+	}
+	if (ROOM_FLAGGED(room_rn, ERoomFlag::kNoEntryMob)
+		|| ROOM_FLAGGED(room_rn, ERoomFlag::kDeathTrap)
+		|| ROOM_FLAGGED(room_rn, ERoomFlag::kSlowDeathTrap)
+		|| ROOM_FLAGGED(room_rn, ERoomFlag::kIceTrap)
+		|| ROOM_FLAGGED(room_rn, ERoomFlag::kGodsRoom)
+		|| ROOM_FLAGGED(room_rn, ERoomFlag::kHouse)
+		|| ROOM_FLAGGED(room_rn, ERoomFlag::kHouseEntry)
+		|| ROOM_FLAGGED(room_rn, ERoomFlag::kArena)) {
+		return false;
+	}
+	if (Clan::GetClanByRoom(room_rn)) {
+		return false;
+	}
+	// Ногами в комнату не войти и из нее не выйти -- торговцу там делать нечего.
+	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+		if (world[room_rn]->dir_option[dir]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+} // namespace
+
 // * Лоад странствующих продавцов в каждой ренте.
 void town_shop_keepers() {
 	// список уже оработанных зон, чтобы не грузить двух и более торгашей в одну
@@ -561,9 +596,21 @@ void town_shop_keepers() {
 			&& zone_list.find(world[ch->in_room]->zone_rn) == zone_list.end()) {
 			int rnum_start, rnum_end;
 			if (GetZoneRooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
-				CharData *mob = ReadMobile(1901, kVirtual);
-				if (mob) {
-					PlaceCharToRoom(mob, number(rnum_start, rnum_end));
+				std::vector<RoomRnum> rooms;
+				for (int rnum = rnum_start; rnum <= rnum_end; ++rnum) {
+					if (IsGoodRoomForShopKeeper(rnum)) {
+						rooms.push_back(rnum);
+					}
+				}
+				if (rooms.empty()) {
+					mudlog(fmt::format("Зона {}: странствующего торговца некуда поставить, пропущена.",
+									   zone_table[world[ch->in_room]->zone_rn].vnum).c_str(),
+						   CMP, kLvlGod, SYSLOG, true);
+				} else {
+					CharData *mob = ReadMobile(1901, kVirtual);
+					if (mob) {
+						PlaceCharToRoom(mob, rooms[number(0, static_cast<int>(rooms.size()) - 1)]);
+					}
 				}
 			}
 			zone_list.insert(world[ch->in_room]->zone_rn);
