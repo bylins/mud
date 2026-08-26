@@ -448,10 +448,10 @@ size_t ParseFilter::affects_cnt() const {
 // Совпало ли имя флага с запросом. isname тут не годится: он срезает у запроса ведущие
 // не-буквы, поэтому "!рассыпется" искалось как "рассыпется" и находило противоположный флаг --
 // какой из пары попадётся, решал порядок в таблице, а не запрос (issue #3774). IsEquivalent
-// сравнивает пословно, ведущий "!" остаётся частью имени. FixDot нужен на имени, потому что
-// в apply_types слова разделены точками ("защита.от.стихии.огня"), а Split режет по пробелу.
+// сравнивает пословно, разбирая точки в именах вроде "защита.от.стихии.огня", и ведущий "!"
+// остаётся частью имени.
 static bool MatchAffectName(const char *str, const char *affect_name) {
-	return utils::IsEquivalent(str, utils::FixDot(affect_name));
+	return utils::IsEquivalent(str, affect_name);
 }
 
 bool ParseFilter::init_affect(char *str, size_t str_len) {
