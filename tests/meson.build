@@ -57,6 +57,7 @@ test_sources = files(
     'world_data_source_manager.cpp',
     'bitset_flags.cpp',
     'extra_description.cpp',
+    'filter.affect_name.cpp',
     'trigger_indenter.cpp',
     'trigger_script_parser.cpp',
     'trigger_obj_load_index.cpp',
