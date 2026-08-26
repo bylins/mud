@@ -144,18 +144,26 @@ bool IsEqual(const std::string &abbr, const std::string &words) {
 
 
 bool IsEquivalent(const std::string &abbr, const std::string &words) {
-	std::vector<std::string> words_list = utils::Split(words);
+	// FixDot с обеих сторон: точка и подчёркивание -- такие же разделители слов, как пробел.
+	// Раньше их разбирали только в запросе, поэтому имя вроде "макс.жизнь" оставалось одним
+	// словом, и даже точное "макс.жизнь" с ним не совпадало.
+	std::vector<std::string> words_list = utils::Split(utils::FixDot(words));
 	std::vector<std::string> abbr_list = utils::Split(utils::FixDot(abbr));
 	auto it = words_list.begin();
 
-	for (auto abr : abbr_list) {
-		for (; it != words_list.end(); it++) {
+	for (const auto &abr : abbr_list) {
+		for (; it != words_list.end(); ++it) {
 			if (utils::IsAbbr(abr.c_str(), (*it).c_str())) {
 				break;
 			}
 		}
-		if (it == words_list.end())
+		if (it == words_list.end()) {
 			return false;
+		}
+		// Совпавшее слово имени занято: следующее слово запроса ищем дальше по имени.
+		// Без этого шага одно слово имени закрывало сколько угодно слов запроса, и
+		// "утренняя.утренняя" считалось совпадением с "утренняя звезда".
+		++it;
 	}
 	return true;
 }
