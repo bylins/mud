@@ -153,7 +153,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(extra_bits[counter]))) {
+		if (utils::IsEqual(searchname, extra_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -173,7 +173,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 // --------------------- apply_types
 	f = false;
 	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (utils::IsEqual(searchname, utils::FixDot(apply_types[counter]))) {
+		if (utils::IsEqual(searchname, apply_types[counter])) {
 			f = true;
 			break;
 		}
@@ -200,7 +200,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(equipment_affects[counter]))) {
+		if (utils::IsEqual(searchname, equipment_affects[counter])) {
 			f = true;
 			break;
 		}
@@ -225,7 +225,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(anti_bits[counter]))) {
+		if (utils::IsEqual(searchname, anti_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -250,7 +250,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(no_bits[counter]))) {
+		if (utils::IsEqual(searchname, no_bits[counter])) {
 			f = true;
 			break;
 		}

@@ -17,6 +17,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "engine/db/player_index.h"
 #include "gameplay/classes/pc_classes.h"
+#include "utils/utils_string.h"
 
 #include <set>
 
@@ -446,6 +447,15 @@ size_t ParseFilter::affects_cnt() const {
 	return affect_weap.size() + affect_apply.size() + affect_extra.size();
 }
 
+// Совпало ли имя флага с запросом. isname тут не годится: он срезает у запроса ведущие
+// не-буквы, поэтому "!рассыпется" искалось как "рассыпется" и находило противоположный флаг --
+// какой из пары попадётся, решал порядок в таблице, а не запрос (issue #3774). IsEquivalent
+// сравнивает пословно, разбирая точки в именах вроде "защита.от.стихии.огня", и ведущий "!"
+// остаётся частью имени.
+static bool MatchAffectName(const char *str, const char *affect_name) {
+	return utils::IsEquivalent(str, affect_name);
+}
+
 bool ParseFilter::init_affect(char *str, size_t str_len) {
 	// Аимя!
 	bool strong = false;
@@ -472,7 +482,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 		if (strong && !strcmp(str, apply_types[num])) {
 			affect_apply.push_back(num);
 			return true;
-		} else if (!strong && isname(str, apply_types[num])) {
+		} else if (!strong && MatchAffectName(str, apply_types[num])) {
 			affect_apply.push_back(num);
 			return true;
 		}
@@ -484,7 +494,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 			if (strong && !strcmp(str, equipment_affects[num])) {
 				affect_weap.push_back(num);
 				return true;
-			} else if (!strong && isname(str, equipment_affects[num])) {
+			} else if (!strong && MatchAffectName(str, equipment_affects[num])) {
 				affect_weap.push_back(num);
 				return true;
 			}
@@ -498,7 +508,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 			if (strong && !strcmp(str, extra_bits[num])) {
 				affect_extra.push_back(num);
 				return true;
-			} else if (!strong && isname(str, extra_bits[num])) {
+			} else if (!strong && MatchAffectName(str, extra_bits[num])) {
 				affect_extra.push_back(num);
 				return true;
 			}

@@ -535,6 +535,16 @@ TEST(Utils_String, IsEqual_PrefixAbbrev_ReturnsTrue)
 	EXPECT_TRUE(utils::IsEqual("hel", "hello"));
 }
 
+TEST(Utils_String, IsEqual_DotsSplitBothSides)
+{
+	// Точка в имени -- разделитель слов, как и в запросе.
+	EXPECT_TRUE(utils::IsEqual("макс.жизнь", "макс.жизнь"));
+	EXPECT_TRUE(utils::IsEqual("макс", "макс.жизнь"));
+	EXPECT_TRUE(utils::IsEqual("hel_wor", "hello_world"));
+	// Порядок слов по-прежнему обязателен, пропускать слова имени нельзя.
+	EXPECT_FALSE(utils::IsEqual("жизнь", "макс.жизнь"));
+}
+
 // ===== IsEquivalent =====
 
 TEST(Utils_String, IsEquivalent_AbbreviatedMatch_ReturnsTrue)
@@ -550,6 +560,28 @@ TEST(Utils_String, IsEquivalent_NoMatch_ReturnsFalse)
 TEST(Utils_String, IsEquivalent_SkipsWords_ReturnsTrue)
 {
 	EXPECT_TRUE(utils::IsEquivalent("wor", "hello world"));
+}
+
+TEST(Utils_String, IsEquivalent_EachAbbrTakesItsOwnWord)
+{
+	// Слово имени, которое уже совпало, второй раз не засчитывается.
+	EXPECT_FALSE(utils::IsEquivalent("hel hel", "hello world"));
+	EXPECT_TRUE(utils::IsEquivalent("hel hel", "hello hello"));
+}
+
+TEST(Utils_String, IsEquivalent_DotsSplitBothSides)
+{
+	// Точка в имени -- разделитель слов, как и в запросе.
+	EXPECT_TRUE(utils::IsEquivalent("макс.жизнь", "макс.жизнь"));
+	EXPECT_TRUE(utils::IsEquivalent("жизнь", "макс.жизнь"));
+	EXPECT_TRUE(utils::IsEquivalent("hel_wor", "hello_world"));
+}
+
+TEST(Utils_String, IsEquivalent_OrderMatters)
+{
+	// Слова запроса ищутся по порядку, пропуская лишние слова имени.
+	EXPECT_TRUE(utils::IsEquivalent("hel wor", "hello big world"));
+	EXPECT_FALSE(utils::IsEquivalent("wor hel", "hello big world"));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
