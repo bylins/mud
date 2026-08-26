@@ -130,7 +130,11 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 }
 
 bool IsEqual(const std::string &abbr, const std::string &words) {
-	std::vector<std::string> words_list = utils::Split(words);
+	// FixDot с обеих сторон: точка и подчёркивание -- такие же разделители слов, как пробел.
+	// Раньше их разбирали только в запросе, и вызывающим приходилось помнить про FixDot на
+	// стороне имени (пять мест в do_tabulate.cpp), иначе имя вроде "макс.жизнь" оставалось
+	// одним словом и не совпадало даже само с собой.
+	std::vector<std::string> words_list = utils::Split(utils::FixDot(words));
 	std::vector<std::string> abbr_list = utils::Split(utils::FixDot(abbr));
 	auto it = words_list.begin();
 
