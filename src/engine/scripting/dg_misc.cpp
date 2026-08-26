@@ -214,20 +214,37 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	ObjData *tobj = nullptr;
 	RoomData *troom = nullptr;
 
+	// Причину неудачи ниже пишем один раз: раньше к разобранной причине ("victim not found",
+	// "в разных клетках комнат") добавлялась ещё и общая строка "target not found", и в логе
+	// на одну неудачу приходилось два сообщения.
+	bool reason_logged = false;
+
 	if (!target_name.empty() && target_name[0] == UID_CHAR) {
 		tch = get_char(target_name.c_str());
 		if (tch == nullptr) {
 			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", target_name.c_str() + 1, argument.c_str());
 			trig_log(trig, buf2);
+			reason_logged = true;
 		} else if (kNowhere == caster->in_room) {
 			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", caster->get_name().c_str());
 			trig_log(trig, buf2);
+			reason_logged = true;
+		} else if (kNowhere == tch->in_room) {
+			// Цель успела умереть между "set target" и "dgcast": из комнаты её убирают сразу,
+			// а из character_list -- только на следующем пульсе, поэтому get_char её ещё находит.
+			// Без этой ветки такая цель попадала в "в разных клетках комнат" и уводила разбор
+			// не в ту сторону (issue #3779).
+			sprintf(buf2, "dg_cast: цель (%s) уже мертва, аргумент: %s",
+					tch->get_name().c_str(), argument.c_str());
+			trig_log(trig, buf2);
+			reason_logged = true;
 		} else if (tch->in_room != caster->in_room) {
 			sprintf(buf2,
 					"dg_cast: caster (%s) and victim (%s) в разных клетках комнат",
 					caster->get_name().c_str(),
 					tch->get_name().c_str());
 			trig_log(trig, buf2);
+			reason_logged = true;
 		} else {
 			target = 1;
 			troom = world[caster->in_room];
@@ -237,8 +254,14 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
-	} else if (spell_id != ESpell::kResurrection && spell_id != ESpell::kAnimateDead) {
-		sprintf(buf2, "dg_cast: target not found, аргумент: %s", argument.c_str());
+	} else if (!reason_logged && spell_id != ESpell::kResurrection && spell_id != ESpell::kAnimateDead) {
+		if (target_name.empty()) {
+			// Цели не передали вовсе -- обычно %random.pc% в комнате, где живых игроков не осталось.
+			// Прежнее "target not found" читалось как "цель была, но движок её не нашёл".
+			sprintf(buf2, "dg_cast: цель не указана, аргумент: %s", argument.c_str());
+		} else {
+			sprintf(buf2, "dg_cast: target not found, аргумент: %s", argument.c_str());
+		}
 		trig_log(trig, buf2);
 	}
 	if (dummy_mob)
