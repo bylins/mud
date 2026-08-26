@@ -535,6 +535,16 @@ TEST(Utils_String, IsEqual_PrefixAbbrev_ReturnsTrue)
 	EXPECT_TRUE(utils::IsEqual("hel", "hello"));
 }
 
+TEST(Utils_String, IsEqual_DotsSplitBothSides)
+{
+	// Точка в имени -- разделитель слов, как и в запросе.
+	EXPECT_TRUE(utils::IsEqual("макс.жизнь", "макс.жизнь"));
+	EXPECT_TRUE(utils::IsEqual("макс", "макс.жизнь"));
+	EXPECT_TRUE(utils::IsEqual("hel_wor", "hello_world"));
+	// Порядок слов по-прежнему обязателен, пропускать слова имени нельзя.
+	EXPECT_FALSE(utils::IsEqual("жизнь", "макс.жизнь"));
+}
+
 // ===== IsEquivalent =====
 
 TEST(Utils_String, IsEquivalent_AbbreviatedMatch_ReturnsTrue)
