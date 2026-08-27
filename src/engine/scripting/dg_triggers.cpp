@@ -488,11 +488,13 @@ int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 				}
 
 				if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd)) {
-					if (!actor->IsNpc()
-						&& (actor->GetPosition() == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
-					{
-						SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
-						return 1;
+					// Спящий игрок command-триггеры не запускает. Раньше здесь команда ещё и
+					// съедалась с ответом "Сделать это в ваших снах?", и рядом с триггером на "*"
+					// (он совпадает с любой командой) спящий не мог выполнить вообще ничего -- в том
+					// числе "проснуться", то есть выбирался только реконнектом. Теперь триггер просто
+					// пропускаем, а команду разбирает интерпретатор со своей проверкой позиции.
+					if (!actor->IsNpc() && actor->GetPosition() == EPosition::kSleep) {
+						continue;
 					}
 
 					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
@@ -1014,11 +1016,10 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 			if (IS_SET(GET_TRIG_NARG(t), type)
 				&& (t->arglist[0] == '*'
 				|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size()))) {
-				if (!actor->IsNpc()
-					&& (actor->GetPosition() == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
-				{
-					SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
-					return 1;
+				// Спящий игрок command-триггеры не запускает, но и команду у него не отбираем:
+				// см. комментарий в command_mtrigger.
+				if (!actor->IsNpc() && actor->GetPosition() == EPosition::kSleep) {
+					continue;
 				}
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 				skip_spaces(&argument);
@@ -1397,11 +1398,10 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 		}
 
 		if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd)) {
-			if (!actor->IsNpc()
-				&& (actor->GetPosition() == EPosition::kSleep))   // command триггер не будет срабатывать если игрок спит
-			{
-				SendMsgToChar("Сделать это в ваших снах?\r\n", actor);
-				return 1;
+			// Спящий игрок command-триггеры не запускает, но и команду у него не отбираем:
+			// см. комментарий в command_mtrigger.
+			if (!actor->IsNpc() && actor->GetPosition() == EPosition::kSleep) {
+				continue;
 			}
 // в идеале бы в триггере бой проверять а не хардкодом, ленивые скотины....
 			if (actor->GetPosition() == EPosition::kFight && t->arglist[0] != '*') {
