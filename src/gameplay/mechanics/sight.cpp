@@ -188,7 +188,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		world[ch->in_room]->unset_flag(ERoomFlag::kBfsMark);
 
 		world[ch->in_room]->flags_sprint(buf, sizeof(buf), ";");
-		snprintf(buf2, kMaxStringLength, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
+		snprintf(buf2, kMaxStringLength, "[%7d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
 		SendMsgToChar(buf2, ch);
 
 		if (has_flag) {
@@ -1291,7 +1291,9 @@ void skip_hide_on_look(CharData *ch) {
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how) {
 	*buf = '\0';
 	if ((mode < 5) && (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)))
-		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
+		// Поле под внум -- на всю разрешённую ширину (kMaxProtoNumber = 9999999): предметы из зон
+		// от тысячной уже семизначные, и в пятизначном поле строка съезжала, ломая колонку.
+		sprintf(buf, "[%7d] ", GET_OBJ_VNUM(object));
 
 	if (mode == 0
 		&& !object->get_description().empty()) {
@@ -1887,7 +1889,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& !mount::IsHorse(i)) {
 		*buf = '\0';
 		if (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)) {
-			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
+			sprintf(buf, "[%7d] ", GET_MOB_VNUM(i));
 		}
 
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
