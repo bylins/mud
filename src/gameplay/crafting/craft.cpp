@@ -4,7 +4,9 @@
  * \author Anton Gorev <kvirund@gmail.com>
  */
 
+#include <sstream>
 #include "craft.h"
+#include "utils/native_text.h"
 #include "gameplay/mechanics/magic_item.h"
 
 #include "engine/db/obj_prototypes.h"
@@ -1074,7 +1076,10 @@ bool CCraftModel::load() {
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	pugi::xml_document doc;
-	const auto result = doc.load_file(FILE_NAME.c_str());
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_craft = native_text::read_data_file(FILE_NAME.c_str());
+	const auto result = doc.load_buffer(xml_craft.data(), xml_craft.size());
 
 	if (!result) {
 		logger("Craft load error: '%s' at offset %zu\n",
@@ -1545,7 +1550,11 @@ bool CCraftModel::export_object(const ObjVnum vnum, const char *filename) {
 	decl.append_attribute("version") = "1.0";
 	decl.append_attribute("encoding") = "koi8-r";
 
-	return document.save_file(filename);
+	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной. Объявление выше
+	// так и заявляет koi8-r, значит и байты должны быть koi8-r (issue #3681).
+	std::ostringstream xml;
+	document.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	return native_text::write_file(filename, xml.str());
 }
 
 const std::string CObject::KIND = "simple object";

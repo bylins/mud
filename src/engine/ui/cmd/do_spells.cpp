@@ -1,4 +1,5 @@
 #include "do_spells.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/magic_item.h"
 
@@ -10,6 +11,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/remort.h"
+#include "utils/native_text.h"
 
 #include <cmath>
 
@@ -47,11 +49,17 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 	char names[kMaxMemoryCircle][kMaxStringLength];
 	std::string time_str;
 	int slots[kMaxMemoryCircle], i, max_slot = 0, slot_num, gcount = 0;
+	// Разбивка на колонки считается в символах, а не в байтах: под UTF-8 байт на символ уже не
+	// один, и прежняя арифметика по длине строки разносила колонки (issue #3681). slots[]
+	// остаётся смещением в буфере -- оно по природе байтовое, -- а chars[] хранит, сколько
+	// символов в этот круг уже набрано.
+	int chars[kMaxMemoryCircle];
 	auto have_spells{false};
 	max_slot = 0;
 	for (i = 0; i < kMaxMemoryCircle; i++) {
 		*names[i] = '\0';
 		slots[i] = 0;
+		chars[i] = 0;
 	}
 
 	for (const auto &spl_info : MUD::Spells()) {
@@ -87,16 +95,21 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			if (CalcSpellManacost(ch, spell_id) > Mana(GetRealWis(ch)))
 				continue;
 			if (CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
-				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %s%-38s&n|",
-										   slots[slot_num] % 114 <
-											   10 ? "\r\n" : "  ",
-										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+				const auto line = fmt::format("{}|<...{:4}.> {}{:<38}&n|",
+										   chars[slot_num] % 114 < 10 ? "\r\n" : "  ",
+										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id),
+										   MUD::Spell(spell_id).GetCName());
+				strcpy(names[slot_num] + slots[slot_num], line.c_str());
+				slots[slot_num] += static_cast<int>(line.size());
+				chars[slot_num] += static_cast<int>(native_text::char_count(line));
 			} else {
 				if (all) {
-					slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-							"%s|+--------+ %s%-38s&n|", slots[slot_num] % 114 < 10 ? "\r\n" 
-							: "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+					const auto line = fmt::format("{}|+--------+ {}{:<38}&n|",
+							chars[slot_num] % 114 < 10 ? "\r\n" : "  ", GetSpellColor(spell_id),
+							MUD::Spell(spell_id).GetCName());
+					strcpy(names[slot_num] + slots[slot_num], line.c_str());
+					slots[slot_num] += static_cast<int>(line.size());
+					chars[slot_num] += static_cast<int>(native_text::char_count(line));
 				}
 			}
 		} else {
@@ -114,9 +127,10 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			else {
 				sprintf(buf1, "%s", "K");
 			}
-			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-					"%s|<%s%c%c%c%c%c%c%c>%s%s%-30s %-7s&n|",
-					slots[slot_num] % 116 < 10 ? "\r\n" : "  ",
+			// fmt, а не sprintf: ширину поля с названием заклинания надо мерить в символах.
+			// printf считает %-30s в байтах, и под UTF-8 колонка разъезжалась (issue #3681).
+			const auto line = fmt::format("{}|<{}{}{}{}{}{}{}{}>{}{}{:<30} {:<7}&n|",
+					chars[slot_num] % 116 < 10 ? "\r\n" : "  ",
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow) ? buf1 : ".",
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) ? 'T' : '.',
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kPotionCast) ? 'P' : '.',
@@ -124,11 +138,14 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kScrollCast) ? 'S' : '.',
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast) ? 'I' : '.',
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes) ? 'R' : '.',
-					 '.',
+					'.',
 					(CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch) < 10) ? "  " : " ",
 					GetSpellColor(spell_id),
 					MUD::Spell(spell_id).GetCName(),
-					time_str.c_str());
+					time_str);
+			strcpy(names[slot_num] + slots[slot_num], line.c_str());
+			slots[slot_num] += static_cast<int>(line.size());
+			chars[slot_num] += static_cast<int>(native_text::char_count(line));
 		}
 		have_spells = true;
 	};

@@ -1,4 +1,6 @@
 #include "parser_wrapper.h"
+#include <fstream>
+#include "utils/native_text.h"
 
 #include "utils/logger.h"
 
@@ -20,7 +22,15 @@ DataNode::DataNode() :
 DataNode::DataNode(const std::filesystem::path &file_name) :
 	DataNode()
 {
-	if (auto result = impl_->xml_doc->load_file(file_name.c_str()); !result) {
+	// Содержимое приводится к нативной кодировке движка ОДИН раз на документ, а не на каждое
+	// поле: тогда всё, что читается через DataNode, приходит уже в нужной кодировке. Под KOI8-R
+	// это тождество (issue #3681).
+	//
+	// read_data_file, а не самодельное чтение с from_koi8: конфиг движок не только читает, но и
+	// пишет обратно, а безусловная перекодировка уже сохранённого в UTF-8 файла удваивала бы
+	// каждую кириллическую букву на каждом цикле загрузки-сохранения.
+	const std::string converted = native_text::read_data_file(file_name.string());
+	if (auto result = impl_->xml_doc->load_buffer(converted.data(), converted.size()); !result) {
 		std::ostringstream buffer;
 		buffer << "..." << result.description() << "\r\n" << " (file: " << file_name << ")" << "\r\n";
 		err_log("%s", buffer.str().c_str());
@@ -112,7 +122,18 @@ bool DataNode::Save(const std::filesystem::path &file) const {
 		decl.append_attribute("encoding");
 	}
 	decl.attribute("encoding").set_value("koi8-r");
-	return doc.save_file(file.string().c_str());
+	// Пишем в той же кодировке, в какой файл лежит на диске (сейчас KOI8-R), а не в нативной:
+	// граница записи обязана быть зеркалом границы чтения, иначе первое же сохранение молча
+	// переводит файл в UTF-8 и откат на KOI8-R-сборку становится невозможен (issue #3681).
+	std::ostringstream xml;
+	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	const std::string on_disk = native_text::to_disk(xml.str());
+	std::ofstream out(file, std::ios::binary);
+	if (!out) {
+		return false;
+	}
+	out.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
+	return out.good();
 }
 
 std::string DataNode::ToXmlString() const {

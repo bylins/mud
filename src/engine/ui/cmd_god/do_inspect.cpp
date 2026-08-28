@@ -13,6 +13,7 @@
 #include "fmt/chrono.h"
 #include "utils/utils_time.h"
 #include "engine/db/player_index.h"
+#include "utils/native_text.h"
 
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
@@ -609,11 +610,12 @@ bool InspectRequestDeque::IsBusy(const CharData *ch) {
 
 bool InspectRequestDeque::IsArgsValid(const CharData *ch, const std::vector<std::string> &args) {
 	auto &request_text = args[kRequestTextPos];
-	if (request_text.length() < kMinRequestLength) {
+	// Длина запроса -- в символах: по байтам русский текст считался вдвое длиннее (issue #3681).
+	if (native_text::char_count(request_text) < kMinRequestLength) {
 		SendMsgToChar("Слишком короткий запрос.\r\n", ch);
 		return false;
 	}
-	if (request_text.length() > kMaxRequestLength) {
+	if (native_text::char_count(request_text) > kMaxRequestLength) {
 		SendMsgToChar("Слишком длинный запрос.\r\n", ch);
 		return false;
 	}

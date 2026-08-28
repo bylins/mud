@@ -4,7 +4,10 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
+#include "utils/utils_string.h"
 #include "house.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/utils_encoding.h"
@@ -130,8 +133,10 @@ void prepare_write_mod(CharData *ch, std::string &param) {
 * и перевод всего слова в нижний регистр.
 */
 void check_rank(std::string &rank) {
-	if (rank.size() > MAX_RANK_LENGHT) {
-		rank = rank.substr(0, MAX_RANK_LENGHT);
+	// Предел -- в символах (так и сказано игроку), а с UTF-8 кириллица занимает по два байта:
+	// по size() десятибуквенное звание резалось до пяти букв, да ещё и посреди символа (issue #3681).
+	if (native_text::char_count(rank) > MAX_RANK_LENGHT) {
+		rank = rank.substr(0, native_text::char_offset(rank, MAX_RANK_LENGHT));
 	}
 	utils::ConvertToLow(rank);
 }
@@ -190,8 +195,10 @@ Clan::~Clan() {
 }
 // релоад одного отдельного клана, абр. указывать на латинице!
 void Clan::ClanReload(const std::string &index) {
-	std::ifstream file(LIB_CLANS "index");
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(LIB_CLANS "index"));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", LIB_CLANS "index", __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -199,7 +206,6 @@ void Clan::ClanReload(const std::string &index) {
 	std::list<std::string> clanIndex;
 	while (file >> buffer)
 		clanIndex.push_back(buffer);
-	file.close();
 	// ищем наш клан
 	for (const auto &it : clanIndex) {
 		if (it == index) {
@@ -224,8 +230,10 @@ void Clan::ClanLoadSingle(const std::string &index) {
 	const auto tempClan = std::make_shared<Clan>();
 
 	std::string filename = LIB_CLANS + index + "/" + index;
-	std::ifstream file(filename.c_str());
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -439,7 +447,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 				log("Owner %ld is no longer exist (%s).", unique, filename.c_str());
 				break;
 			}
-			tempMember->name[0] = UPPER(tempMember->name[0]);
+			native_text::capitalize_first(tempMember->name);
 			tempMember->rank_num = 0;
 			tempMember->money = money;
 			tempMember->exp = exp;
@@ -475,7 +483,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 					log("Member %ld is no longer exist (%s).", unique, filename.c_str());
 					continue;
 				}
-				tempMember->name[0] = UPPER(tempMember->name[0]);
+				native_text::capitalize_first(tempMember->name);
 				tempMember->rank_num = rank;
 				tempMember->money = money;
 				tempMember->exp = exp;
@@ -485,7 +493,6 @@ void Clan::ClanLoadSingle(const std::string &index) {
 		}
 
 	}
-	file.close();
 
 	// тут нужно проверить наличие критичных для клана полей
 	// т.к. загрузка без привязки к положению в файле - что-то может не проинициализироваться
@@ -537,8 +544,9 @@ void Clan::ClanLoadSingle(const std::string &index) {
 	}
 
 	// подгружаем пкл/дрл
-	std::ifstream pkFile((filename + ".pkl").c_str());
-	if (pkFile.is_open()) {
+	// Граница чтения: pk-лог лежит на диске в кодировке мира (issue #3681).
+	std::istringstream pkFile(native_text::read_data_file(filename + ".pkl"));
+	if (!pkFile.str().empty()) {
 		int author = 0;
 		while (pkFile >> author) {
 			int victim = 0;
@@ -572,11 +580,11 @@ void Clan::ClanLoadSingle(const std::string &index) {
 					tempClan->frList[victim] = tempRecord;
 			}
 		}
-		pkFile.close();
 	}
 	//подгружаем кланстафф
-	std::ifstream stuffFile((filename + ".stuff").c_str());
-	if (stuffFile.is_open()) {
+	// Граница чтения: названия именных вещей дружины лежат в кодировке мира (issue #3681).
+	std::istringstream stuffFile(native_text::read_data_file(filename + ".stuff"));
+	if (!stuffFile.str().empty()) {
 		int i;
 		while (stuffFile >> i) {
 			ClanStuffName temp;
@@ -636,8 +644,10 @@ void Clan::ClanLoad() {
 	Clan::ClanList.clear();
 
 	// файл со списком кланов
-	std::ifstream file(LIB_CLANS "index");
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(LIB_CLANS "index"));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", LIB_CLANS "index", __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -645,7 +655,6 @@ void Clan::ClanLoad() {
 	std::list<std::string> clanIndex;
 	while (file >> buffer)
 		clanIndex.push_back(buffer);
-	file.close();
 	// собственно грузим кланы
 	for (const auto &it : clanIndex) {
 		Clan::ClanLoadSingle(it);
@@ -793,8 +802,11 @@ bool write_if_changed(const std::string &filename, const std::string &contents,
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return false;
 	}
-	file.write(contents.data(), static_cast<std::streamsize>(contents.size()));
-	file.close();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(contents);
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
 	cache = contents;
 	return true;
@@ -1003,7 +1015,7 @@ void Clan::HouseInfo(CharData *ch) {
 	for (const auto &it : temp_list) {
 		if (temp != ranks[it->rank_num]) {
 			std::string rnk = ranks[it->rank_num];
-			rnk[0] = UPPER(rnk[0]);
+			native_text::capitalize_first(rnk);
 
 			if (temp == "") {
 				buffer << rnk << ": ";
@@ -1128,7 +1140,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 		return;
 	}
 	std::string name = buffer2;
-	name[0] = UPPER(name[0]);
+	native_text::capitalize_first(name);
 	if (unique == ch->get_uid()) {
 		SendMsgToChar("Сам себя повысил, самому себе вынес благодарность?\r\n", ch);
 		return;
@@ -1320,7 +1332,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 		if (d->character
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == this->GetRent()) {
-			name[0] = UPPER(name[0]);
+			native_text::capitalize_first(name);
 			SendMsgToChar(d->character.get(), "%s более не является членом вашей дружины.\r\n", name.c_str());
 		}
 	}
@@ -1438,7 +1450,7 @@ void Clan::hcon_outcast(CharData *ch, std::string &buffer) {
 			char tmpstr[kMaxInputLength];
 			sprintf(tmpstr, "Богом %s", GET_NAME(ch));
 			clan->remove_member(member_uid, tmpstr);
-			name[0] = UPPER(name[0]);
+			native_text::capitalize_first(name);
 			SendMsgToChar(ch, "%s исключен(a) из дружины '%s'.\r\n", name.c_str(), clan->name.c_str());
 			return;
 		}
@@ -1874,7 +1886,8 @@ void Clan::hcontrol_rank(CharData *ch, std::string &text) {
 		SendMsgToChar(HCONTROL_FORMAT, ch);
 		return;
 	}
-	if (rank_male.size() > MAX_RANK_LENGHT || rank_female.size() > MAX_RANK_LENGHT) {
+	if (native_text::char_count(rank_male) > MAX_RANK_LENGHT
+		|| native_text::char_count(rank_female) > MAX_RANK_LENGHT) {
 		SendMsgToChar(ch, "Звание не должно быть длиннее %d символов.\r\n", MAX_RANK_LENGHT);
 		return;
 	}
@@ -2085,7 +2098,7 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 	tempClan->chest_room = rent;
 	tempClan->guard = guard;
 	// пишем воеводу
-	owner[0] = UPPER(owner[0]);
+	native_text::capitalize_first(owner);
 	tempClan->owner = owner;
 	const auto tempMember = std::make_shared<ClanMember>();
 	tempMember->name = owner;
@@ -2446,9 +2459,11 @@ void Clan::save_chest() {
 	log("Save obj: %s", this->abbrev.c_str());
 	ObjSaveSync::check(this->GetRent(), ObjSaveSync::CLAN_SAVE);
 
+	// Имя каталога дружины строится из байтов KOI8-R, как и до миграции: под UTF-8 байтовый
+	// AtoL резал русскую букву пополам, и добро дружины уезжало в каталог с другим именем
+	// (issue #3681).
 	std::string buffer = this->abbrev;
-	for (unsigned i = 0; i != buffer.length(); ++i)
-		buffer[i] = LOWER(codepages::AtoL(buffer[i]));
+	CreateFileName(buffer);
 	std::string filename = LIB_CLANS + buffer + "/" + buffer + ".obj";
 	for (auto chest : world[GetRoomRnum(this->chest_room)]->contents) {
 		if (Clan::is_clan_chest(chest)) {
@@ -2464,8 +2479,11 @@ void Clan::save_chest() {
 				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 				return;
 			}
-			file << out.rdbuf();
-			file.close();
+			// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+			// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+			// прежнюю сборку становится невозможен (issue #3681).
+			const std::string on_disk = native_text::to_disk(out.str());
+			file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 			break;
 		}
 	}
@@ -2517,9 +2535,7 @@ void Clan::ChestLoad() {
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		buffer = (*clan)->abbrev;
-		for (unsigned i = 0; i != buffer.length(); ++i) {
-			buffer[i] = LOWER(codepages::AtoL(buffer[i]));
-		}
+		CreateFileName(buffer);
 		std::string filename = LIB_CLANS + buffer + "/" + buffer + ".obj";
 
 		//лоадим сундук. в зонах его лоадить не нужно.
@@ -2554,8 +2570,18 @@ void Clan::ChestLoad() {
 		}
 		fclose(fl);
 
+		// Граница чтения: сундук лежит на диске в кодировке мира, в память идёт нативным --
+		// зеркало к to_disk в ChestSaver. Без этого имена и метки вещей в сундуке уезжают
+		// в транслит при первом же сохранении дружины (issue #3681).
+		{
+			const std::string native = native_text::from_disk_text(std::string(databuf, static_cast<std::size_t>(fsize)));
+			delete[] databuf;
+			databuf = new char[native.size() + 1];
+			std::memcpy(databuf, native.data(), native.size());
+			databuf[native.size()] = '\0';
+		}
+
 		data = databuf;
-		*(data + fsize) = '\0';
 
 		for (fsize = 0; *data && *data != '$'; fsize++) {
 			const auto obj = read_one_object_new(&data, &error);
@@ -2620,9 +2646,7 @@ void Clan::ChestUpdate() {
 // * Запись сообщения дружины в файл и поле клана.
 void Clan::write_mod(const std::string &arg) {
 	std::string abbrev = this->get_abbrev();
-	for (unsigned i = 0; i != abbrev.length(); ++i) {
-		abbrev[i] = LOWER(codepages::AtoL(abbrev[i]));
-	}
+	CreateFileName(abbrev);
 	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".mod";
 
 	std::ofstream file(filename.c_str());
@@ -2630,8 +2654,10 @@ void Clan::write_mod(const std::string &arg) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << arg;
-	file.close();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	file << native_text::to_disk(arg);
 
 	mod_text = arg;
 }
@@ -2652,8 +2678,10 @@ void Clan::load_mod() {
 	std::string abbrev = this->get_file_abbrev();
 	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".mod";
 
-	std::ifstream file(filename.c_str(), std::ios::binary);
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -2776,9 +2804,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 
 	switch (d->clan_olc->mode) {
 		case CLAN_MAIN_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// есть вариант, что за время в олц в клане изменят кол-во званий
@@ -2858,9 +2886,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_PRIVILEGE_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню
@@ -2903,11 +2931,11 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_SAVE_MENU:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д': d->clan_olc->clan->privileges.clear();
+				case rus::kDe:
+				case rus::kDeUpper: d->clan_olc->clan->privileges.clear();
 					d->clan_olc->clan->privileges = d->clan_olc->privileges;
 					d->clan_olc.reset();
 					// Clan::ClanSave();
@@ -2917,8 +2945,8 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': d->clan_olc.reset();
+				case rus::kEn:
+				case rus::kEnUpper: d->clan_olc.reset();
 					d->state = EConState::kPlaying;
 					SendMsgToChar("Редактирование отменено.\r\n", d->character.get());
 					return;
@@ -2933,9 +2961,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_ADDALL_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню с изменением всех званий
@@ -2987,9 +3015,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 			break;
 
 		case CLAN_DELALL_MENU:
-			switch (*arg) {
-				case 'в':
-				case 'В':
+			switch (native_text::first_char_code(arg)) {
+				case rus::kVe:
+				case rus::kVeUpper:
 				case 'q':
 				case 'Q':
 					// выход в общее меню с изменением всех званий
@@ -3500,7 +3528,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 	else if (CLAN(d->character) && CLAN(ch) != CLAN(d->character))
 		SendMsgToChar("Вы не можете передать свои права члену другой дружины.\r\n", ch);
 	else {
-		buffer2[0] = UPPER(buffer2[0]);
+		native_text::capitalize_first(buffer2);
 		// воевода идет рангом ниже
 		this->m_members.set_rank(ch->get_uid(), 1);
 		Clan::SetClanData(ch);
@@ -3660,7 +3688,6 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 	// т.к. в кои8-р русские буквы не попорядку
 	const char *pSortAlph = "яюэьыъщшчцхфутсрпонмлкизжёедгвба";
 	// первая буква имени
-	char pcFirstChar[2];
 
 	// для избежания путаницы с именами фильтр начинается со знака "!"
 	// формат команды:
@@ -3772,11 +3799,23 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			case SORT_STAT_BY_LOGON: lSortParam = GetLastlogonByUnique(it.first);
 				break;
 			case SORT_STAT_BY_NAME: {
-				pcFirstChar[0] = LOWER(it.second->name[0]);
-				pcFirstChar[1] = '\0';
-				char const *pTmp = strpbrk(pSortAlph, pcFirstChar);
-				if (pTmp) lSortParam = pTmp - pSortAlph; // индекс первой буквы в массиве
-				else lSortParam = pcFirstChar[0]; // или не русская буква или я хз
+				// Индекс первой БУКВЫ имени в алфавите. Под UTF-8 буква занимает два байта, и
+				// strpbrk по одному байту находил бы что попало, а то и вовсе ничего
+				// (issue #3681). Идём по алфавиту символ за символом.
+				char first_letter[8] = {0};
+				native_text::copy_lower_char(it.second->name.c_str(), first_letter);
+				lSortParam = -1;
+				long letter_index = 0;
+				for (const char *p = pSortAlph; *p; p += native_text::char_bytes(p), ++letter_index) {
+					if (native_text::chars_equal_ci(p, first_letter)) {
+						lSortParam = letter_index;
+						break;
+					}
+				}
+				if (lSortParam < 0) {
+					// не русская буква -- пусть уедет в конец, но в стабильном порядке
+					lSortParam = static_cast<long>(native_text::first_char_code(first_letter));
+				}
 				break;
 			}
 				// на всякий случай
@@ -4249,9 +4288,7 @@ std::string Clan::get_remember(unsigned int num, int flag) const {
 
 std::string Clan::get_file_abbrev() const {
 	std::string text = this->get_abbrev();
-	for (unsigned i = 0; i != text.length(); ++i) {
-		text[i] = LOWER(codepages::AtoL(text[i]));
-	}
+	CreateFileName(text);
 	return text;
 }
 
@@ -4567,8 +4604,7 @@ void init_xhelp() {
 		   "  Список сайтов дружин:\r\n\r\n";
 
 	for (const auto &i : Clan::ClanList) {
-		out << "    $COLORW" << std::setw(7) << std::left
-			<< i->GetAbbrev() << "$COLORn --   $COLORC"
+		out << "    $COLORW" << fmt::format("{:<7}", i->GetAbbrev()) << "$COLORn --   $COLORC"
 			<< (i->get_web_url().empty() ? "$COLORW[ НЕТ ИНФОРМАЦИИ ]" : i->get_web_url())
 			<< "$COLORn\r\n";
 	}

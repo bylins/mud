@@ -29,19 +29,19 @@ json SerializeMob(const CharData& mob, int vnum)
 
 	// Names (all 6 Russian cases + aliases)
 	json names;
-	names["aliases"] = Koi8rToUtf8(mob.get_npc_name());
-	names["nominative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kNom]);
-	names["genitive"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kGen]);
-	names["dative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kDat]);
-	names["accusative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kAcc]);
-	names["instrumental"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kIns]);
-	names["prepositional"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kPre]);
+	names["aliases"] = mob.get_npc_name();
+	names["nominative"] = mob.player_data.PNames[grammar::ECase::kNom];
+	names["genitive"] = mob.player_data.PNames[grammar::ECase::kGen];
+	names["dative"] = mob.player_data.PNames[grammar::ECase::kDat];
+	names["accusative"] = mob.player_data.PNames[grammar::ECase::kAcc];
+	names["instrumental"] = mob.player_data.PNames[grammar::ECase::kIns];
+	names["prepositional"] = mob.player_data.PNames[grammar::ECase::kPre];
 	mob_obj["names"] = names;
 
 	// Descriptions
 	json descriptions;
-	descriptions["short_desc"] = Koi8rToUtf8(mob.player_data.long_descr);
-	descriptions["long_desc"] = Koi8rToUtf8(mob.player_data.description);
+	descriptions["short_desc"] = mob.player_data.long_descr;
+	descriptions["long_desc"] = mob.player_data.description;
 	mob_obj["descriptions"] = descriptions;
 
 	// Stats (level, HP, damage, etc.)
@@ -190,10 +190,10 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 {
 	json obj_data;
 	obj_data["vnum"] = vnum;
-	obj_data["aliases"] = Koi8rToUtf8(obj.get_aliases());
-	obj_data["short_desc"] = Koi8rToUtf8(obj.get_short_description());
-	obj_data["description"] = Koi8rToUtf8(obj.get_description());
-	obj_data["action_desc"] = Koi8rToUtf8(obj.get_action_description());
+	obj_data["aliases"] = obj.get_aliases();
+	obj_data["short_desc"] = obj.get_short_description();
+	obj_data["description"] = obj.get_description();
+	obj_data["action_desc"] = obj.get_action_description();
 	obj_data["type"] = static_cast<int>(obj.get_type());
 	obj_data["spec_param"] = obj.get_spec_param();   // symmetry: ParseObjectUpdate reads it
 
@@ -241,7 +241,7 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 			case grammar::ECase::kPre: case_name = "prepositional"; break;
 			default: continue;
 		}
-		names[case_name] = Koi8rToUtf8(obj.get_PName(ecase));
+		names[case_name] = obj.get_PName(ecase);
 	}
 	obj_data["names"] = names;
 
@@ -284,8 +284,8 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 	for (const auto &ed : obj.get_ex_description())
 	{
 		json extra;
-		extra["keywords"] = Koi8rToUtf8(ed.keyword);
-		extra["description"] = Koi8rToUtf8(ed.description);
+		extra["keywords"] = ed.keyword;
+		extra["description"] = ed.description;
 		extra_descs.push_back(extra);
 	}
 	obj_data["extra_descriptions"] = extra_descs;
@@ -309,7 +309,7 @@ json SerializeRoom(RoomData& room, int vnum)
 {
 	json room_data;
 	room_data["vnum"] = vnum;
-	room_data["name"] = Koi8rToUtf8(room.name);
+	room_data["name"] = room.name;
 
 	// Description: temp_description holds a freshly-edited (unsaved) value; the
 	// persisted description lives in the shared pool by description_num. Reading
@@ -317,11 +317,11 @@ json SerializeRoom(RoomData& room, int vnum)
 	// (issue #3401) -- fall back to the pooled text.
 	if (room.temp_description)
 	{
-		room_data["description"] = Koi8rToUtf8(room.temp_description);
+		room_data["description"] = room.temp_description;
 	}
 	else if (room.description_num > 0)
 	{
-		room_data["description"] = Koi8rToUtf8(GlobalObjects::descriptions().get(room.description_num).c_str());
+		room_data["description"] = GlobalObjects::descriptions().get(room.description_num).c_str();
 	}
 	room_data["sector_type"] = static_cast<int>(room.sector_type);
 
@@ -347,11 +347,11 @@ json SerializeRoom(RoomData& room, int vnum)
 				world[room.dir_option[dir]->to_room()]->vnum : -1;
 			if (!room.dir_option[dir]->general_description.empty())
 			{
-				exit_obj["description"] = Koi8rToUtf8(room.dir_option[dir]->general_description);
+				exit_obj["description"] = room.dir_option[dir]->general_description;
 			}
 			if (room.dir_option[dir]->keyword)
 			{
-				exit_obj["keyword"] = Koi8rToUtf8(room.dir_option[dir]->keyword);
+				exit_obj["keyword"] = room.dir_option[dir]->keyword;
 			}
 			// exit_info used to be a byte: a single 30-bit plane serialized as a plain number.
 			// BitsetFlags keeps that flag identity, so the JSON stays a number (get_plane(0)).
@@ -369,11 +369,11 @@ json SerializeRoom(RoomData& room, int vnum)
 		json ed_obj;
 		if (!ed.keyword.empty())
 		{
-			ed_obj["keyword"] = Koi8rToUtf8(ed.keyword);
+			ed_obj["keyword"] = ed.keyword;
 		}
 		if (!ed.description.empty())
 		{
-			ed_obj["description"] = Koi8rToUtf8(ed.description);
+			ed_obj["description"] = ed.description;
 		}
 		extra_descrs.push_back(ed_obj);
 	}
@@ -401,19 +401,19 @@ json SerializeZoneData(const ZoneData& zone, int vnum)
 {
 	json zone_data;
 	zone_data["vnum"] = vnum;
-	zone_data["name"] = Koi8rToUtf8(zone.name);
+	zone_data["name"] = zone.name;
 	
 	if (!zone.comment.empty()) {
-		zone_data["comment"] = Koi8rToUtf8(zone.comment);
+		zone_data["comment"] = zone.comment;
 	}
 	if (!zone.author.empty()) {
-		zone_data["author"] = Koi8rToUtf8(zone.author);
+		zone_data["author"] = zone.author;
 	}
 	if (!zone.location.empty()) {
-		zone_data["location"] = Koi8rToUtf8(zone.location);
+		zone_data["location"] = zone.location;
 	}
 	if (!zone.description.empty()) {
-		zone_data["description"] = Koi8rToUtf8(zone.description);
+		zone_data["description"] = zone.description;
 	}
 	
 	zone_data["level"] = zone.level;
@@ -453,7 +453,7 @@ json SerializeTrigger(const Trigger& trig, int vnum)
 {
 	json trig_data;
 	trig_data["vnum"] = vnum;
-	trig_data["name"] = Koi8rToUtf8(trig.get_name());
+	trig_data["name"] = trig.get_name();
 	trig_data["attach_type"] = static_cast<int>(trig.get_attach_type());
 	trig_data["trigger_type"] = trig.get_trigger_type();
 	trig_data["narg"] = trig.narg;
@@ -463,12 +463,12 @@ json SerializeTrigger(const Trigger& trig, int vnum)
 	// Argument
 	if (!trig.arglist.empty())
 	{
-		trig_data["arglist"] = Koi8rToUtf8(trig.arglist);
+		trig_data["arglist"] = trig.arglist;
 	}
 
 	if (trig.get_script_language() == TriggerScriptLanguage::Lua)
 	{
-		trig_data["script"] = Koi8rToUtf8(trig.get_lua_script_source());
+		trig_data["script"] = trig.get_lua_script_source();
 	}
 	else
 	{
@@ -479,7 +479,7 @@ json SerializeTrigger(const Trigger& trig, int vnum)
 			auto cmd = *trig.cmdlist;
 			while (cmd)
 			{
-				commands.push_back(Koi8rToUtf8(cmd->cmd));
+				commands.push_back(cmd->cmd);
 				cmd = cmd->next;
 			}
 		}

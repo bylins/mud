@@ -3,6 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
@@ -138,8 +140,10 @@ void GloryNode::copy_glory(const GloryNodePtr& k) {
 // * Загрузка общего списка славы, проверка на валидность чара, славы, сверка мд5 файла.
 void load_glory() {
 	const char *glory_file = LIB_USERDATA"glory.lst";
-	std::ifstream file(glory_file);
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(glory_file));
+	if (file.str().empty()) {
 		log("Glory: не удалось открыть файл на чтение: %s", glory_file);
 		return;
 	}
@@ -281,8 +285,11 @@ void save_glory() {
 		log("Glory: не удалось открыть файл на запись: %s", glory_file);
 		return;
 	}
-	file << out.rdbuf();
-	file.close();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 }
 
 // * Аналог бывшего макроса GET_GLORY().
@@ -478,57 +485,57 @@ void parse_add_stat(CharData *ch, int stat) {
 
 // * Парс олц меню 'слава'.
 bool parse_spend_glory_menu(CharData *ch, const char *arg) {
-	switch (*arg) {
-		case 'А':
-		case 'а':
+	switch (native_text::first_char_code(arg)) {
+		case rus::kAUpper:
+		case rus::kA:
 			if (ch->desc->glory->olc_add_str >= 1) {
 				if (!parse_remove_stat(ch, G_STR)) break;
 				ch->desc->glory->olc_str -= 1;
 				ch->desc->glory->olc_add_str -= 1;
 			}
 			break;
-		case 'Б':
-		case 'б':
+		case rus::kBeUpper:
+		case rus::kBe:
 			if (ch->desc->glory->olc_add_dex >= 1) {
 				if (!parse_remove_stat(ch, G_DEX)) break;
 				ch->desc->glory->olc_dex -= 1;
 				ch->desc->glory->olc_add_dex -= 1;
 			}
 			break;
-		case 'Г':
-		case 'г':
+		case rus::kGeUpper:
+		case rus::kGe:
 			if (ch->desc->glory->olc_add_int >= 1) {
 				if (!parse_remove_stat(ch, G_INT)) break;
 				ch->desc->glory->olc_int -= 1;
 				ch->desc->glory->olc_add_int -= 1;
 			}
 			break;
-		case 'Д':
-		case 'д':
+		case rus::kDeUpper:
+		case rus::kDe:
 			if (ch->desc->glory->olc_add_wis >= 1) {
 				if (!parse_remove_stat(ch, G_WIS)) break;
 				ch->desc->glory->olc_wis -= 1;
 				ch->desc->glory->olc_add_wis -= 1;
 			}
 			break;
-		case 'Е':
-		case 'е':
+		case rus::kIeUpper:
+		case rus::kIe:
 			if (ch->desc->glory->olc_add_con >= 1) {
 				if (!parse_remove_stat(ch, G_CON)) break;
 				ch->desc->glory->olc_con -= 1;
 				ch->desc->glory->olc_add_con -= 1;
 			}
 			break;
-		case 'Ж':
-		case 'ж':
+		case rus::kZheUpper:
+		case rus::kZhe:
 			if (ch->desc->glory->olc_add_cha >= 1) {
 				if (!parse_remove_stat(ch, G_CHA)) break;
 				ch->desc->glory->olc_cha -= 1;
 				ch->desc->glory->olc_add_cha -= 1;
 			}
 			break;
-		case 'З':
-		case 'з':
+		case rus::kZeUpper:
+		case rus::kZe:
 			if (ch->desc->glory->olc_node->free_glory >= 1000
 				&& ch->desc->glory->olc_add_spend_glory < MAX_STATS_BY_GLORY) {
 				parse_add_stat(ch, G_STR);
@@ -536,8 +543,8 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				ch->desc->glory->olc_add_str += 1;
 			}
 			break;
-		case 'И':
-		case 'и':
+		case rus::kIUpper:
+		case rus::kI:
 			if (ch->desc->glory->olc_node->free_glory >= 1000
 				&& ch->desc->glory->olc_add_spend_glory < MAX_STATS_BY_GLORY) {
 				parse_add_stat(ch, G_DEX);
@@ -545,8 +552,8 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				ch->desc->glory->olc_add_dex += 1;
 			}
 			break;
-		case 'К':
-		case 'к':
+		case rus::kKaUpper:
+		case rus::kKa:
 			if (ch->desc->glory->olc_node->free_glory >= 1000
 				&& ch->desc->glory->olc_add_spend_glory < MAX_STATS_BY_GLORY) {
 				parse_add_stat(ch, G_INT);
@@ -554,8 +561,8 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				ch->desc->glory->olc_add_int += 1;
 			}
 			break;
-		case 'Л':
-		case 'л':
+		case rus::kElUpper:
+		case rus::kEl:
 			if (ch->desc->glory->olc_node->free_glory >= 1000
 				&& ch->desc->glory->olc_add_spend_glory < MAX_STATS_BY_GLORY) {
 				parse_add_stat(ch, G_WIS);
@@ -563,8 +570,8 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				ch->desc->glory->olc_add_wis += 1;
 			}
 			break;
-		case 'М':
-		case 'м':
+		case rus::kEmUpper:
+		case rus::kEm:
 			if (ch->desc->glory->olc_node->free_glory >= 1000
 				&& ch->desc->glory->olc_add_spend_glory < MAX_STATS_BY_GLORY) {
 				parse_add_stat(ch, G_CON);
@@ -572,8 +579,8 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				ch->desc->glory->olc_add_con += 1;
 			}
 			break;
-		case 'Н':
-		case 'н':
+		case rus::kEnUpper:
+		case rus::kEn:
 			if (ch->desc->glory->olc_node->free_glory >= 1000
 				&& ch->desc->glory->olc_add_spend_glory < MAX_STATS_BY_GLORY) {
 				parse_add_stat(ch, G_CHA);
@@ -581,8 +588,8 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				ch->desc->glory->olc_add_cha += 1;
 			}
 			break;
-		case 'В':
-		case 'в': {
+		case rus::kVeUpper:
+		case rus::kVe: {
 			// проверка, чтобы не записывать зря, а только при изменения
 			// и чтобы нельзя было из стата славу вытащить
 			if ((ch->desc->glory->olc_str == ch->GetInbornStr()
@@ -642,8 +649,8 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 			SendMsgToChar("Ваши изменения сохранены.\r\n", ch);
 			return true;
 		}
-		case 'Х':
-		case 'х': ch->desc->glory.reset();
+		case rus::kHaUpper:
+		case rus::kHa: ch->desc->glory.reset();
 			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar("Редактирование прервано.\r\n", ch);
 			return true;

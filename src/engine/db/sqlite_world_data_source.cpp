@@ -4,6 +4,7 @@
 #ifdef HAVE_SQLITE
 
 #include "sqlite_world_data_source.h"
+#include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "db.h"
 #include "obj_prototypes.h"
@@ -1254,7 +1255,7 @@ std::vector<LoadedRoom> SqliteWorldDataSource::LoadRooms(const std::vector<int> 
 		auto room = new RoomData;
 		room->vnum = vnum;
 		// Apply UPPER to first character (same as Legacy loader)
-		if (!name.empty()) { name[0] = UPPER(name[0]); }
+		if (!name.empty()) { native_text::capitalize_first(name); }
 		room->set_name(name);
 
 		if (!description.empty())

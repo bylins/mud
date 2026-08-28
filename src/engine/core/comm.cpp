@@ -923,9 +923,6 @@ void stop_game(ush_int port) {
 	}
 #endif
 
-	// Shutdown OTEL providers to flush remaining telemetry
-	observability::OtelProvider::Instance().Shutdown();
-
 	FlushPlayerIndex();
 
 	// храны надо сейвить до Crash_save_all_rent(), иначе будем брать бабло у чара при записи
@@ -1020,9 +1017,15 @@ void stop_game(ush_int port) {
 	}
 	if (shutdown_parameters.reboot_after_shutdown()) {
 		log("Rebooting.");
+		// Гасим телеметрию последней: Shutdown() дожимает буфер в коллектор и переводит
+		// вывод на файл. Стояла она раньше в начале stop_game -- и весь хвост выключения
+		// (сохранение ренты, сброс очереди зон, "Closing all sockets", "Rebooting") уходил
+		// в никуда: в файловом сислоге он есть, а в Loki этих строк не было вовсе.
+		observability::OtelProvider::Instance().Shutdown();
 		exit(52);    // what's so great about HHGTTG, anyhow?
 	}
 	log("Normal termination of game.");
+	observability::OtelProvider::Instance().Shutdown();   // см. комментарий выше
 }
 
 /*

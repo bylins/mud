@@ -31,6 +31,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/inventory.h"
 #include "utils/utils_parse.h"
+#include "utils/native_text.h"
 #include "dg_event.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
@@ -49,6 +50,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/stable_objs.h"
+#include <algorithm>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include "gameplay/mechanics/weather.h"
@@ -135,55 +137,21 @@ void do_worldecho(char *msg);
 */
 bool CharacterLinkDrop = false;
 
-//table for replace UID_CHAR, UID_OBJ, UID_ROOM
-const char uid_replace_table[] = {
-	'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d',
-	'\x0e', '\x0f',    //16
-	'\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x20', '\x20',
-	'\x20', '\x1f',    //32
-	'\x20', '\x21', '\x22', '\x23', '\x24', '\x25', '\x26', '\x27', '\x28', '\x29', '\x2a', '\x2b', '\x2c', '\x2d',
-	'\x2e', '\x2f',    //48
-	'\x30', '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38', '\x39', '\x3a', '\x3b', '\x3c', '\x3d',
-	'\x3e', '\x3f',    //64
-	'\x40', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47', '\x48', '\x49', '\x4a', '\x4b', '\x4c', '\x4d',
-	'\x4e', '\x4f',    //80
-	'\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57', '\x58', '\x59', '\x5a', '\x5b', '\x5c', '\x5d',
-	'\x5e', '\x5f',    //96
-	'\x60', '\x61', '\x62', '\x63', '\x64', '\x65', '\x66', '\x67', '\x68', '\x69', '\x6a', '\x6b', '\x6c', '\x6d',
-	'\x6e', '\x6f',    //112
-	'\x70', '\x71', '\x72', '\x73', '\x74', '\x75', '\x76', '\x77', '\x78', '\x79', '\x7a', '\x7b', '\x7c', '\x7d',
-	'\x7e', '\x7f',    //128
-	'\x80', '\x81', '\x82', '\x83', '\x84', '\x85', '\x86', '\x87', '\x88', '\x89', '\x8a', '\x8b', '\x8c', '\x8d',
-	'\x8e', '\x8f',    //144
-	'\x90', '\x91', '\x92', '\x93', '\x94', '\x95', '\x96', '\x97', '\x98', '\x99', '\x9a', '\x9b', '\x9c', '\x9d',
-	'\x9e', '\x9f',    //160
-	'\xa0', '\xa1', '\xa2', '\xa3', '\xa4', '\xa5', '\xa6', '\xa7', '\xa8', '\xa9', '\xaa', '\xab', '\xac', '\xad',
-	'\xae', '\xaf',    //176
-	'\xb0', '\xb1', '\xb2', '\xb3', '\xb4', '\xb5', '\xb6', '\xb7', '\xb8', '\xb9', '\xba', '\xbb', '\xbc', '\xbd',
-	'\xbe', '\xbf',    //192
-	'\xc0', '\xc1', '\xc2', '\xc3', '\xc4', '\xc5', '\xc6', '\xc7', '\xc8', '\xc9', '\xca', '\xcb', '\xcc', '\xcd',
-	'\xce', '\xcf',    //208
-	'\xd0', '\xd1', '\xd2', '\xd3', '\xd4', '\xd5', '\xd6', '\xd7', '\xd8', '\xd9', '\xda', '\xdb', '\xdc', '\xdd',
-	'\xde', '\xdf',    //224
-	'\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7', '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed',
-	'\xee', '\xef',    //240
-	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd',
-	'\xfe', '\xff'    //256
-};
 
 void script_log(const char *msg, LogMode type) {
-	char tmpbuf[kMaxStringLength];
+	std::string text = fmt::format("SCRIPT LOG {}", msg);
+	// Внутри движка ссылка на сущность хранится как <метка UID><номер> (см. dg_scripts.h).
+	// В лог сырые управляющие байты писать нельзя -- меняем метку на пробел, номер остаётся
+	// читаемым. Все четыре метки меньше 0x80, внутри многобайтовых UTF-8 последовательностей
+	// такие значения не встречаются, так что кириллица не задета.
+	std::replace_if(text.begin(), text.end(),
+					[](char c) {
+						return c == UID_OBJ || c == UID_ROOM || c == UID_CHAR || c == UID_CHAR_ALL;
+					},
+					' ');
 
-	snprintf(tmpbuf, kMaxStringLength, "SCRIPT LOG %s", msg);
-
-	char *pos = tmpbuf;
-	while (*pos != '\0') {
-		*pos = uid_replace_table[static_cast<unsigned char>(*pos)];
-		++pos;
-	}
-
-	log("%s", tmpbuf);
-	mudlog(tmpbuf, type ? type : NRM, kLvlBuilder, ERRLOG, true);
+	log("%s", text.c_str());
+	mudlog(text, type ? type : NRM, kLvlBuilder, ERRLOG, true);
 }
 
 /*
@@ -191,10 +159,9 @@ void script_log(const char *msg, LogMode type) {
  *  Will eventually allow on-line view of script errors.
  */
 void trig_log(Trigger *trig, std::string msg, LogMode type) {
-	char tmpbuf[kMaxStringLength];
-	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s [строка: %d]", GET_TRIG_NAME(trig), 
-			GET_TRIG_VNUM(trig), msg.c_str(), last_trig_line_num);
-	script_log(tmpbuf, type);
+	script_log(fmt::format("(Trigger: {}, VNum: {}) : {} [строка: {}]",
+						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg, last_trig_line_num).c_str(),
+			   type);
 }
 
 cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr cl);
@@ -1581,7 +1548,7 @@ void find_replacement(void *go,
 	ObjData *tmp_obj = nullptr, *obj = nullptr;
 	RoomData *tmp_room = nullptr, *room = nullptr;
 	std::string name;
-	int num = 0, count = 0, i;
+	int num = 0, count = 0;
 	char uid_type = '\0';
 	char tmp[kMaxTrglineLength] = {};
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
@@ -2426,8 +2393,8 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "iname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kNom] = subfield;
 			}
 			else
@@ -2435,8 +2402,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "rname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kGen] = subfield;
 			}
 			else
@@ -2444,8 +2411,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "dname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kDat] = subfield;
 			}
 			else
@@ -2453,8 +2420,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "vname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kAcc] = subfield;
 			}
 			else
@@ -2462,8 +2429,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "tname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kIns] = subfield;
 			}
 			else
@@ -2471,8 +2438,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "pname")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->player_data.PNames[grammar::ECase::kPre] = subfield;
 			}
 			else
@@ -2480,8 +2447,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "name")) {
 			if (*subfield) {
-				if (strlen(subfield) > MAX_MOB_NAME)
-					subfield[MAX_MOB_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_MOB_NAME)
+					subfield[native_text::char_offset(subfield, MAX_MOB_NAME - 1)] = '\0';
 				mob->set_name(subfield);
 			}
 			else {
@@ -2776,8 +2743,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "clan")) {
 			if (CLAN(mob)) {
 				snprintf(str, str_size, "%s", CLAN(mob)->GetAbbrev());
-				for (i = 0; str[i]; i++)
-					str[i] = LOWER(str[i]);
+				native_text::to_lower(str);
 			} else
 				snprintf(str, str_size, "0");
 		} else if (!str_cmp(field, "ClanRank")) {
@@ -3144,7 +3110,7 @@ void find_replacement(void *go,
 				int num;
 				int sum  = 0;
 				for (num = 0; num < EApply::kNumberApplies; num++) {
-					if (!strn_cmp(subfield, apply_types[num], strlen(subfield)))
+					if (utils::IsAbbr(subfield, apply_types[num]))
 						break;
 				}
 				if (num == EApply::kNumberApplies) {
@@ -3926,8 +3892,8 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (room->name)
 					free(room->name);
-				if (strlen(subfield) > MAX_ROOM_NAME)
-					subfield[MAX_ROOM_NAME - 1] = '\0';
+				if (native_text::char_count(subfield) > MAX_ROOM_NAME)
+					subfield[native_text::char_offset(subfield, MAX_ROOM_NAME - 1)] = '\0';
 				room->name = str_dup(subfield);
 			} else
 				snprintf(str, str_size, "%s", room->name);
@@ -4379,8 +4345,13 @@ int eval_lhs_op_rhs(const char *expr, char *result, size_t result_size, void *go
 			p = matching_paren(p) + 1;
 		else if (*p == '"')
 			p = matching_quote(p) + 1;
-		else if (a_isalnum(*p))
-			for (p++; *p && (a_isalnum(*p) || isspace(*p)); p++);
+		// Step over whole characters (issue #3681): a byte-wise scan ends a token in the middle
+		// of a multibyte letter. isspace() takes an unsigned value -- a raw char is negative for
+		// any non-ASCII byte, which is undefined behaviour.
+		else if (native_text::is_alnum_char(p))
+			for (p += native_text::char_bytes(p);
+				 *p && (native_text::is_alnum_char(p) || isspace(static_cast<unsigned char>(*p)));
+				 p += native_text::char_bytes(p));
 		else
 			p++;
 	}
@@ -4388,7 +4359,7 @@ int eval_lhs_op_rhs(const char *expr, char *result, size_t result_size, void *go
 
 	for (i = 0; *ops[i] != '\n'; i++)
 		for (j = 0; tokens[j]; j++)
-			if (!strn_cmp(ops[i], tokens[j], strlen(ops[i]))) {
+			if (utils::IsAbbr(ops[i], tokens[j])) {
 				*tokens[j] = '\0';
 				p = tokens[j] + strlen(ops[i]);
 
@@ -4757,7 +4728,7 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 	if (!*arg) {
 		snprintf(buf2, sizeof(buf2), "wait w/o an arg: '%s'", cl->cmd.c_str());
 		trig_log(trig, buf2);
-	} else if (!strn_cmp(arg, "until ", 6))    // valid forms of time are 14:30 and 1430
+	} else if (utils::IsAbbr("until ", arg))    // valid forms of time are 14:30 and 1430
 	{
 		if (sscanf(arg, "until %ld:%ld", &hr, &min) == 2)
 			min += (hr * 60);
@@ -6318,8 +6289,8 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char trgtypes[256];
 	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		std::string out = "";
-		snprintf(buf, sizeof(buf), "%2d) [%5d] %-50s ", ++found,
-				trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
+		strcpy(buf, fmt::format("{:2}) [{:5}] {:<50} ", ++found,
+				trig_index[nr]->vnum, trig_index[nr]->proto->get_name()).c_str());
 		out += buf;
 		if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
 			sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes, sizeof(trgtypes));

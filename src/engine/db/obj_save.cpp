@@ -11,6 +11,7 @@
 
 #include "engine/core/char_handler.h"
 #include "gameplay/affects/obj_affects.h"
+#include "utils/native_text.h"
 #include "gameplay/mechanics/equipment.h"
 #include "obj_save.h"
 #include "gameplay/mechanics/groups.h"
@@ -1593,10 +1594,21 @@ int Crash_load(CharData *ch) {
 	};
 	fclose(fl);
 	// Сверка CRC из уже прочитанного буфера, без повторного чтения файла.
+	// Считается по дисковым байтам -- до перевода в нативную кодировку, иначе сумма не сойдётся.
 	FileCRC::verify_from_content(ch->get_uid(), FileCRC::kTextObjs, readdata, fsize);
 
+	// Граница чтения: файл лежит в кодировке мира (сейчас KOI8-R), в память вещи идут
+	// нативными -- зеркало к to_disk на записи. Без этого имена, алиасы и метки вещей
+	// уезжают в транслит при первом же сохранении (issue #3681).
+	{
+		const std::string native = native_text::from_disk_text(std::string(readdata, static_cast<std::size_t>(fsize)));
+		free(readdata);
+		CREATE(readdata, native.size() + 1);
+		std::memcpy(readdata, native.data(), native.size());
+		readdata[native.size()] = '\0';
+	}
+
 	data = readdata;
-	*(data + fsize) = '\0';
 
 	//Создание объектов
 	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
@@ -1662,7 +1674,7 @@ int Crash_load(CharData *ch) {
 		}
 
 		std::string cap = obj->get_PName(grammar::ECase::kNom);
-		cap[0] = UPPER(cap[0]);
+		native_text::capitalize_first(cap);
 
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0) {
@@ -2126,7 +2138,10 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 				Crash_delete_files(iplayer);
 				return false;
 			}
-			file.write(obj_content.data(), static_cast<std::streamsize>(obj_content.size()));
+			// Граница записи: рента уходит на диск в кодировке мира (сейчас KOI8-R), зеркально
+			// чтению -- иначе первое сохранение переводит файл в UTF-8 (issue #3681).
+			const std::string on_disk = native_text::to_disk(obj_content);
+			file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 			file.close();
 /* оставил как пример
 #ifndef _WIN32
@@ -2139,7 +2154,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 */
 			utils::CExecutionTimer crc_timer;
 			FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
-				obj_content.data(), obj_content.size());
+				on_disk.data(), on_disk.size());
 			crc_sec = crc_timer.delta().count();
 			g_obj_crash_save_hash[ch->get_uid()] = content_hash;
 		}
@@ -2256,32 +2271,27 @@ void Crash_report_rent_item(CharData *ch,
 							int factor,
 							int equip,
 							int recursive) {
-	static char buf[256];
-	char bf[80], bf2[14];
-
-	if (obj) {
-		if (CAN_WEAR_ANY(obj)) {
-			if (equip) {
-				sprintf(bf, " (%d если снять)", obj->get_rent_off() * factor * count);
-			} else {
-				sprintf(bf, " (%d если надеть)", obj->get_rent_on() * factor * count);
-			}
-		} else {
-			*bf = '\0';
-		}
-
-		if (count > 1) {
-			sprintf(bf2, " [%d]", count);
-		}
-
-		sprintf(buf, "%s - %d %s%s за %s%s %s",
-				recursive ? "" : kColorWht,
-				(equip ? obj->get_rent_on() * count : obj->get_rent_off()) *
-					factor * count,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount((equip ? obj->get_rent_on() * count : obj->get_rent_off()) * factor * count, grammar::ECase::kNom).c_str(),
-				bf, OBJN(obj, ch, grammar::ECase::kAcc), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
-		act(buf, false, recep, 0, ch, kToVict);
+	if (!obj) {
+		return;
 	}
+	// Строка собирается через fmt, а не в буфер на 256 байт: в неё входит название предмета в
+	// винительном падеже, а в UTF-8 русский текст занимает вдвое больше места -- длинного имени
+	// вместе с ценой и валютой хватало, чтобы вылезти за край (тот же класс, что #3751 и #3752).
+	std::string bf;
+	if (CAN_WEAR_ANY(obj)) {
+		bf = equip
+			 ? fmt::format(" ({} если снять)", obj->get_rent_off() * factor * count)
+			 : fmt::format(" ({} если надеть)", obj->get_rent_on() * factor * count);
+	}
+	const std::string bf2 = count > 1 ? fmt::format(" [{}]", count) : std::string();
+	const int cost = (equip ? obj->get_rent_on() * count : obj->get_rent_off()) * factor * count;
+
+	const std::string line = fmt::format("{} - {} {}{} за {}{} {}",
+			recursive ? "" : kColorWht,
+			cost,
+			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom),
+			bf, OBJN(obj, ch, grammar::ECase::kAcc), bf2, recursive ? "" : kColorNrm);
+	act(line.c_str(), false, recep, 0, ch, kToVict);
 }
 // end by WorM
 

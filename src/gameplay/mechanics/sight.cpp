@@ -7,6 +7,7 @@
 
 #include "engine/core/char_movement.h"
 #include "gameplay/affects/obj_affects.h"
+#include "utils/native_text.h"
 #include "engine/core/target_resolver.h"
 #include "sight.h"
 #include "gameplay/mechanics/hide.h"
@@ -912,12 +913,18 @@ void do_auto_exits(CharData *ch) {
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere) {
 			if (EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
+				// Печатаем первую БУКВУ направления: под UTF-8 у русской буквы два байта, и %c
+				// выводил половину (issue #3681).
+				slen += sprintf(buf + slen, "(");
+				slen += static_cast<int>(native_text::copy_lower_char(dirs[door], buf + slen));
+				slen += sprintf(buf + slen, ") ");
 			} else if (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kHidden)) {
 				if (world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn) {
-					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
+					slen += static_cast<int>(native_text::copy_lower_char(dirs[door], buf + slen));
+					slen += sprintf(buf + slen, " ");
 				} else {
-					slen += sprintf(buf + slen, "%c ", UPPER(*dirs[door]));
+					slen += static_cast<int>(native_text::copy_upper_char(dirs[door], buf + slen));
+					slen += sprintf(buf + slen, " ");
 				}
 			}
 		}
@@ -1333,13 +1340,20 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " %s*%s%s", kColorGrn,
 							kColorNrm, diag_obj_to_char(object, 1));
 				} else {
-					sprintf(buf2, " %s ", diag_obj_to_char(object, 1));
-					if (object->get_type() == EObjType::kLiquidContainer) {
+					// diag_obj_to_char сама начинается с пробела, а всё, что дописывается следом,
+					// свой пробел тоже приносит: лишний тут давал "бочка  <великолепно>" и
+					// "сундук <хорошо>  (есть содержимое)".
+					sprintf(buf2, "%s", diag_obj_to_char(object, 1));
+					// В списке предметов от наполнения остаётся только пометка "(пусто)". Полная
+					// фраза ("наполнена меньше, чем на четверть черной вязкой жидкостью") удлиняла
+					// строку вдвое, а посмотреть её можно, осмотрев ёмкость.
+					if (object->get_type() == EObjType::kLiquidContainer
+						&& GET_OBJ_VAL(object, 1) <= 0) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
-						char tmp2[128];
-						*tmp = LOWER(*tmp);
-						sprintf(tmp2, "(%s)", tmp);
-						strcat(buf2, tmp2);
+						native_text::copy_lower_char(tmp, tmp);
+						// Без промежуточного буфера: fortify ловил переполнение на длинной фразе
+						// и валил процесс на осмотре ёмкости (issue #3752).
+						strcat(buf2, fmt::format(" ({})", tmp).c_str());
 					}
 				}
 			}
@@ -1358,7 +1372,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 			}
 		} else if (mode >= 2 && how <= 1) {
 			std::string obj_name = OBJN(object, ch, grammar::ECase::kNom);
-			obj_name[0] = UPPER(obj_name[0]);
+			native_text::capitalize_first(obj_name);
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());

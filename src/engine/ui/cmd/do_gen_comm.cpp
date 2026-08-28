@@ -8,6 +8,7 @@
 
 #include "do_gen_comm.h"
 #include "administration/privilege.h"
+#include "utils/native_text.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 
@@ -156,17 +157,25 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
 		// фильтруем верхний регистр
-		for (int k = 0; argument[k] != '\0'; k++) {
-			if (a_isupper(argument[k])) {
+		// Counted and folded per character (issue #3681): a byte-wise scan cannot see an
+		// uppercase Cyrillic letter at all, so the filter silently stopped working for Russian.
+		// The denominator is the character count for the same reason -- with byte lengths the
+		// percentage would be halved for Russian text.
+		const size_t total_chars = native_text::char_count(argument);
+		for (auto letter : native_text::chars(argument)) {
+			if (native_text::is_upper_char(letter.data())) {
 				bad_simb_cnt++;
 				bad_seq_cnt++;
 			} else
 				bad_seq_cnt = 0;
 
 			if ((bad_seq_cnt > 1) &&
-				(((bad_simb_cnt * 100 / strlen(argument)) > bad_smb_procent) ||
-					(bad_seq_cnt > MAX_UPPERS_SEQ_CHAR)))
-				argument[k] = a_lcc(argument[k]);
+				(((bad_simb_cnt * 100 / total_chars) > bad_smb_procent) ||
+					(bad_seq_cnt > MAX_UPPERS_SEQ_CHAR))) {
+				// letter указывает внутрь argument; свёртка регистра не меняет длину.
+				char *at = argument + (letter.data() - argument);
+				native_text::copy_lower_char(at, at);
+			}
 		}
 		// фильтруем одинаковые сообщения в эфире
 		if (!str_cmp(ch->get_last_tell().c_str(), argument)) {
@@ -293,7 +302,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 		return "";
 	}
 	std::string name = privilege::IsImmortal(ch) ? GET_NAME(ch) : sight::PersonName(ch, vict, 0);
-	name[0] = UPPER(name[0]);
+	native_text::capitalize_first(name);
 	return name;
 }
 

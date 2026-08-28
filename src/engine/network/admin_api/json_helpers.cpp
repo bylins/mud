@@ -36,33 +36,7 @@ json SerializeBitvector(Bitvector bits, size_t plane)
 // String Conversion (KOI8-R <-> UTF-8)
 // ============================================================================
 
-std::string Koi8rToUtf8(const char* koi8r)
-{
-	if (!koi8r)
-	{
-		return "";
-	}
 
-	char utf8_buf[kMaxStringLength];
-	codepages::koi_to_utf8(const_cast<char*>(koi8r), utf8_buf);
-	return std::string(utf8_buf);
-}
-
-std::string Koi8rToUtf8(const std::string& koi8r)
-{
-	char utf8_buf[kMaxSockBuf * 6];
-	char koi8r_buf[kMaxSockBuf * 6];
-
-	// Initialize buffers to prevent returning garbage if conversion fails
-	utf8_buf[0] = '\0';
-
-	strncpy(koi8r_buf, koi8r.c_str(), sizeof(koi8r_buf) - 1);
-	koi8r_buf[sizeof(koi8r_buf) - 1] = '\0';
-
-	codepages::koi_to_utf8(koi8r_buf, utf8_buf);
-
-	return std::string(utf8_buf);
-}
 
 std::string Utf8ToKoi8r(const std::string& utf8)
 {

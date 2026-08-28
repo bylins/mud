@@ -6,6 +6,7 @@
 \detail Группы, вступление, покидание, дележка опыта - должно быть тут.
 */
 
+#include "utils/native_text.h"
 #include "gameplay/mechanics/groups.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
@@ -276,7 +277,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		if (!header)
 			buffer << "Персонаж            | Здоровье | Рядом | Аффект  |  Дебаф   | Положение\r\n";
 
-		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, 20));
+		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, native_text::char_offset(k->get_name(), 20)));
 
 		buffer << fmt::format("{}", GetWarmValueColor(k->get_hit(), k->get_real_max_hit()));
 		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(k->get_hit(), k->get_real_max_hit()) + 1]);

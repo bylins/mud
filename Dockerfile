@@ -34,6 +34,12 @@ ARG WITH_OTEL=false
 ARG WITH_ADMIN_API=false
 ARG WITH_YAML=true
 ARG WITH_SQLITE=false
+# Ревизия и счётчик коммитов: внутри контейнера git бесполезен (контекст может быть worktree,
+# где .git -- файл-ссылка наружу, или распакованный архив), поэтому пробрасываем их снаружи:
+#   --build-arg GIT_REV=$(git rev-parse --short HEAD) \
+#   --build-arg GIT_COUNT=$(git rev-list --count HEAD)
+ARG GIT_REV=
+ARG GIT_COUNT=
 
 RUN apk add --no-cache \
     build-base make meson ninja git cmake samurai \
@@ -60,6 +66,9 @@ RUN if [ "$WITH_SQLITE" = "true" ]; then apk add --no-cache sqlite-dev; fi
 
 WORKDIR /mud/mud
 COPY . /mud/mud
+
+ENV BYLINS_GIT_REV=${GIT_REV} \
+    BYLINS_COMMIT_COUNT=${GIT_COUNT}
 
 RUN OTEL_OPT=$([ "$WITH_OTEL" = "true" ] && echo system || echo disabled); \
     ADMIN_OPT=$([ "$WITH_ADMIN_API" = "true" ] && echo true || echo false); \

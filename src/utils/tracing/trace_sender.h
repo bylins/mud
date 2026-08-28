@@ -30,7 +30,7 @@ public:
 
 	virtual void End() = 0;
 	virtual void AddEvent(const std::string& name) = 0;
-	// String values are auto-converted from KOI8-R to UTF-8 -- pass raw KOI8-R, never call koi8r_to_utf8() first.
+	// String values go out as they are: the engine holds UTF-8 and OTLP wants UTF-8.
 	virtual void SetAttribute(const std::string& key, const std::string& value) = 0;
 	virtual void SetAttribute(const std::string& key, int64_t value) = 0;
 	virtual void SetAttribute(const std::string& key, double value) = 0;

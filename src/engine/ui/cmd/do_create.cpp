@@ -24,16 +24,15 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	size_t i = strlen(arg);
 	ESpellType itemnum;
-	if (!strn_cmp(arg, "potion", i) || !strn_cmp(arg, "напиток", i))
+	if (utils::IsAbbr(arg, "potion") || utils::IsAbbr(arg, "напиток"))
 		itemnum = ESpellType::kPotionCast;
-	else if (!strn_cmp(arg, "wand", i) || !strn_cmp(arg, "палочка", i))
+	else if (utils::IsAbbr(arg, "wand") || utils::IsAbbr(arg, "палочка"))
 		itemnum = ESpellType::kWandCast;
-	else if (!strn_cmp(arg, "scroll", i) || !strn_cmp(arg, "свиток", i))
+	else if (utils::IsAbbr(arg, "scroll") || utils::IsAbbr(arg, "свиток"))
 		itemnum = ESpellType::kScrollCast;
-	else if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
-		!strn_cmp(arg, "отвар", i)) {
+	else if (utils::IsAbbr(arg, "recipe") || utils::IsAbbr(arg, "рецепт") ||
+		utils::IsAbbr(arg, "отвар")) {
 		if (subcmd != SCMD_RECIPE) {
 			SendMsgToChar("Магическую смесь необходимо СМЕШАТЬ.\r\n", ch);
 			return;
@@ -41,7 +40,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 //		itemnum = SPELL_ITEMS;
 		compose_recipe(ch, argument, 0);
 		return;
-	} else if (!strn_cmp(arg, "runes", i) || !strn_cmp(arg, "руны", i)) {
+	} else if (utils::IsAbbr(arg, "runes") || utils::IsAbbr(arg, "руны")) {
 		if (subcmd != SCMD_RECIPE) {
 			SendMsgToChar("Руны требуется сложить.\r\n", ch);
 			return;

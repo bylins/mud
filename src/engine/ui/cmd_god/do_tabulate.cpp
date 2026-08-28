@@ -96,10 +96,10 @@ int TabulateObjsByFilter(char *argument, CharData *ch) {
 	for (const auto &i : obj_proto) {
 		// ch не передаём: у прототипов нет наносимых меток (custom label).
 		if (filter.check(i.get(), nullptr)) {
-			snprintf(line, sizeof(line), "%3d. [%7d] %-50s %s\r\n",
+			strcpy(line, fmt::format("{:3}. [{:7}] {:<50} {}\r\n",
 					 ++found, i->get_vnum(),
-					 utils::RemoveColors(i->get_short_description()).c_str(),
-					 filter.show_obj_aff(i.get()).c_str());
+					 utils::RemoveColors(i->get_short_description()),
+					 filter.show_obj_aff(i.get())).c_str());
 			out += line;
 		}
 	}
@@ -117,8 +117,9 @@ int TabulateMobsByName(char *searchname, CharData *ch) {
 
 	for (nr = 0; nr <= top_of_mobt; nr++) {
 		if (isname(searchname, mob_proto[nr].GetCharAliases())) {
-			sprintf(buf, "%3d. [%5d] %-30s (%s)\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str(),
-					npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]);
+			strcpy(buf, fmt::format("{:3}. [{:5}] {:<30} ({})\r\n", ++found, mob_index[nr].vnum,
+					mob_proto[nr].get_npc_name(),
+					npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]).c_str());
 			SendMsgToChar(buf, ch);
 		}
 	}

@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "utils/logger.h"
+#include "utils/native_text.h"
 
 namespace state {
 
@@ -61,7 +62,10 @@ std::vector<std::string> StateManager::LoadLines(EStateFile file) const {
 		if (!line.empty() && line.back() == '\r') {
 			line.pop_back();   // tolerate CRLF files
 		}
-		lines.push_back(std::move(line));
+		// Граница чтения: списки лежат на диске в кодировке мира (сейчас KOI8-R), в память
+		// идут нативными. Здесь же имена персонажей, титулы и баны, и без пары к to_disk
+		// на записи они уезжали в транслит при первой же перезаписи файла (issue #3681).
+		lines.push_back(native_text::from_disk_line(line.c_str()));
 	}
 	return lines;
 }
@@ -76,7 +80,7 @@ bool StateManager::SaveLines(EStateFile file, const std::vector<std::string> &li
 			return false;
 		}
 		for (const auto &l : lines) {
-			out << l << '\n';
+			out << native_text::to_disk(l) << '\n';   // граница записи, зеркало к LoadLines
 		}
 		out.flush();
 		if (!out.good()) {
@@ -105,7 +109,7 @@ bool StateManager::AppendLine(EStateFile file, const std::string &line) const {
 		log("SYSERR: StateManager: cannot open '%s' for append", path.c_str());
 		return false;
 	}
-	out << line << '\n';
+	out << native_text::to_disk(line) << '\n';   // граница записи, зеркало к LoadLines
 	return out.good();
 }
 

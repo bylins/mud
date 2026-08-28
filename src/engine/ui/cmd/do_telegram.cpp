@@ -44,8 +44,10 @@ void do_telegram([[maybe_unused]] CharData *ch, [[maybe_unused]] char *argument,
 	}
 
 	snprintf(smallBuf, kMaxInputLength, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
-	codepages::koi_to_utf8(const_cast<char *>(smallBuf), utfBuf);
-	if (strlen(utfBuf) < 10) {
+	// Движок держит текст в UTF-8, потребитель тоже ждёт UTF-8 -- границы здесь больше нет.
+	// Перекодировка, оставшаяся с байтовых времён, теперь разбирала бы готовый UTF-8 как
+	// KOI8-R и удваивала каждую букву (issue #3681).
+	if (strlen(smallBuf) < 10) {
 		SendMsgToChar("Ошибочка вышла..\r\n", ch);
 		return;
 	}

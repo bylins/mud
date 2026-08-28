@@ -124,9 +124,9 @@ public:
 			e.ts_unix_ms = NowUnixMs();
 			e.attrs["round"] = static_cast<std::int64_t>(round_no);
 			e.attrs["role"] = std::string(role);
-			e.attrs["target_name"] = observability::EngineStringToUtf8(
-				GET_NAME(ch_) ? GET_NAME(ch_) : "");
-			e.attrs["text"] = observability::EngineStringToUtf8(text);
+			e.attrs["target_name"] = 
+				GET_NAME(ch_) ? GET_NAME(ch_) : "";
+			e.attrs["text"] = text;
 			observability::EmitToAllSinks(e);
 		}
 		ResetBuffer();
@@ -379,7 +379,7 @@ void AddParticipantAttrs(observability::Event& e, const char* role, const Partic
 		using T = std::decay_t<decltype(s)>;
 		if constexpr (std::is_same_v<T, PlayerSpec>) {
 			e.attrs[std::string(role) + "_type"] = std::string("player");
-			e.attrs[std::string(role) + "_class"] = observability::EngineStringToUtf8(s.class_name);
+			e.attrs[std::string(role) + "_class"] = s.class_name;
 			e.attrs[std::string(role) + "_level"] = static_cast<std::int64_t>(s.level);
 		} else if constexpr (std::is_same_v<T, MobSpec>) {
 			e.attrs[std::string(role) + "_type"] = std::string("mob");
@@ -399,16 +399,16 @@ void EmitCharState(const char* role,
 	e.ts_unix_ms = NowUnixMs();
 	e.attrs["round"] = static_cast<std::int64_t>(round_no);
 	e.attrs["role"] = std::string(role);
-	e.attrs["target_name"] = observability::EngineStringToUtf8(
-		GET_NAME(ch) ? GET_NAME(ch) : "");
+	e.attrs["target_name"] = 
+		GET_NAME(ch) ? GET_NAME(ch) : "";
 	// Identity: PC vs NPC + display fields. У PC имя задано simulator'ом
 	// ('attacker' / 'victim'), уровень и класс полезны для контекста.
 	// У моба важен vnum + short_descr (полное имя из прототипа).
 	e.attrs["is_npc"] = ch->IsNpc();
 	if (ch->IsNpc()) {
 		e.attrs["vnum"] = static_cast<std::int64_t>(GET_MOB_VNUM(ch));
-		e.attrs["short_descr"] = observability::EngineStringToUtf8(
-			ch->get_npc_name());
+		e.attrs["short_descr"] = 
+			ch->get_npc_name();
 	} else {
 		e.attrs["vnum"] = static_cast<std::int64_t>(-1);
 		e.attrs["short_descr"] = std::string();
@@ -417,8 +417,8 @@ void EmitCharState(const char* role,
 	// Реморт PC -- часть "уровня прокачки", влияет на выданные скиллы
 	// и фиты. Веб-UI показывает рядом с уровнем.
 	e.attrs["remort"] = static_cast<std::int64_t>(ch->IsNpc() ? 0 : ch->get_remort());
-	e.attrs["class_name"] = observability::EngineStringToUtf8(
-		ch->IsNpc() ? std::string() : MUD::Class(ch->GetClass()).GetName());
+	e.attrs["class_name"] = 
+		ch->IsNpc() ? std::string() : MUD::Class(ch->GetClass()).GetName();
 	e.attrs["hp"] = static_cast<std::int64_t>(ch->get_hit());
 	e.attrs["max_hp"] = static_cast<std::int64_t>(ch->get_max_hit());
 	e.attrs["move"] = static_cast<std::int64_t>(ch->get_move());
@@ -467,7 +467,7 @@ void EmitCharState(const char* role,
 			feats_list += feat.GetName();
 		}
 	}
-	e.attrs["feats_list"] = observability::EngineStringToUtf8(feats_list);
+	e.attrs["feats_list"] = feats_list;
 	// Список активных аффектов с их типом (spell name) и оставшейся
 	// длительностью; '|'-разделитель -- web-UI парсит и рисует chip'ами.
 	std::string aff_list;
@@ -479,7 +479,7 @@ void EmitCharState(const char* role,
 		aff_list += fmt::format(" ({}t)", a->duration);
 	}
 	e.attrs["affects_count"] = static_cast<std::int64_t>(aff_count);
-	e.attrs["affects_list"] = observability::EngineStringToUtf8(aff_list);
+	e.attrs["affects_list"] = aff_list;
 	// Список одетых предметов: 'slot:vnum:name', разделители '|'. Веб-UI
 	// рендерит их в state-панели чтобы было видно, чем именно бьётся /
 	// защищается персонаж.
@@ -498,7 +498,7 @@ void EmitCharState(const char* role,
 			obj->get_vnum(),
 			obj->get_short_description());
 	}
-	e.attrs["equip_list"] = observability::EngineStringToUtf8(equip_list);
+	e.attrs["equip_list"] = equip_list;
 	e.attrs["aff_silence"] = AFF_FLAGGED(ch, EAffect::kSilence) ? true : false;
 	e.attrs["aff_charmed"] = AFF_FLAGGED(ch, EAffect::kCharmed) ? true : false;
 	e.attrs["aff_sleep"] = AFF_FLAGGED(ch, EAffect::kSleep) ? true : false;
@@ -517,7 +517,7 @@ void EmitCharState(const char* role,
 		// FlagData::sprintbits пишет nothing_string ("ничего") когда
 		// ни одного флага не выставлено -- для UI пустая строка лучше.
 		if (s == "ничего") s.clear();
-		e.attrs["flags_list"] = observability::EngineStringToUtf8(s);
+		e.attrs["flags_list"] = s;
 	}
 	observability::EmitToAllSinks(e);
 }

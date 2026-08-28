@@ -8,6 +8,8 @@
 ***************************************************************************/
 
 #include "engine/db/world_characters.h"
+#include "utils/native_text.h"
+#include "utils/russian_keys.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "engine/entities/obj_data.h"
@@ -1289,11 +1291,11 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_CONFIRM_SAVESTRING:
 			// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
 			OLC_MOB(d)->SetFlag(EMobFlag::kNpc);
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д':
+				case rus::kDe:
+				case rus::kDeUpper:
 					// * Save the mob in memory and to disk.
 //					SendMsgToChar("Saving mobile to memory a.\r\n", d->character.get());
 					medit_save_internally(d);
@@ -1307,8 +1309,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': cleanup_olc(d, CLEANUP_ALL);
+				case rus::kEn:
+				case rus::kEnUpper: cleanup_olc(d, CLEANUP_ALL);
 					break;
 
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
@@ -1320,7 +1322,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			//-------------------------------------------------------------------
 		case MEDIT_MAIN_MENU: i = 0;
 			olc_log("%s command %c", GET_NAME(d->character), *arg);
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'q':
 				case 'Q':
 					if (OLC_VAL(d))    // Anything been changed?
@@ -1536,118 +1538,118 @@ void medit_parse(DescriptorData *d, char *arg) {
 					medit_disp_helpers(d);
 					return;
 
-				case 'а':
-				case 'А': OLC_MODE(d) = MEDIT_SKILLS;
+				case rus::kA:
+				case rus::kAUpper: OLC_MODE(d) = MEDIT_SKILLS;
 					medit_disp_skills(d);
 					return;
 
-				case 'б':
-				case 'Б': OLC_MODE(d) = MEDIT_SPELLS;
+				case rus::kBe:
+				case rus::kBeUpper: OLC_MODE(d) = MEDIT_SPELLS;
 					medit_disp_spells(d);
 					return;
 
-				case 'в':
-				case 'В': OLC_MODE(d) = MEDIT_STR;
+				case rus::kVe:
+				case rus::kVeUpper: OLC_MODE(d) = MEDIT_STR;
 					i++;
 					break;
 
-				case 'г':
-				case 'Г': OLC_MODE(d) = MEDIT_DEX;
+				case rus::kGe:
+				case rus::kGeUpper: OLC_MODE(d) = MEDIT_DEX;
 					i++;
 					break;
 
-				case 'д':
-				case 'Д': OLC_MODE(d) = MEDIT_CON;
+				case rus::kDe:
+				case rus::kDeUpper: OLC_MODE(d) = MEDIT_CON;
 					i++;
 					break;
 
-				case 'е':
-				case 'Е': OLC_MODE(d) = MEDIT_WIS;
+				case rus::kIe:
+				case rus::kIeUpper: OLC_MODE(d) = MEDIT_WIS;
 					i++;
 					break;
 
-				case 'ж':
-				case 'Ж': OLC_MODE(d) = MEDIT_INT;
+				case rus::kZhe:
+				case rus::kZheUpper: OLC_MODE(d) = MEDIT_INT;
 					i++;
 					break;
 
-				case 'з':
-				case 'З': OLC_MODE(d) = MEDIT_CHA;
+				case rus::kZe:
+				case rus::kZeUpper: OLC_MODE(d) = MEDIT_CHA;
 					i++;
 					break;
 
-				case 'и':
-				case 'И': OLC_MODE(d) = MEDIT_HEIGHT;
+				case rus::kI:
+				case rus::kIUpper: OLC_MODE(d) = MEDIT_HEIGHT;
 					i++;
 					break;
 
-				case 'к':
-				case 'К': OLC_MODE(d) = MEDIT_WEIGHT;
+				case rus::kKa:
+				case rus::kKaUpper: OLC_MODE(d) = MEDIT_WEIGHT;
 					i++;
 					break;
 
-				case 'л':
-				case 'Л': OLC_MODE(d) = MEDIT_SIZE;
+				case rus::kEl:
+				case rus::kElUpper: OLC_MODE(d) = MEDIT_SIZE;
 					i++;
 					break;
 
-				case 'м':
-				case 'М': OLC_MODE(d) = MEDIT_EXTRA;
+				case rus::kEm:
+				case rus::kEmUpper: OLC_MODE(d) = MEDIT_EXTRA;
 					i++;
 					break;
 
-				case 'х':
-				case 'Х': OLC_MODE(d) = MEDIT_REMORT;
+				case rus::kHa:
+				case rus::kHaUpper: OLC_MODE(d) = MEDIT_REMORT;
 					i++;
 					break;
 
-				case 'Ю':
-				case 'ю': OLC_MODE(d) = MEDIT_MAXFACTOR;
+				case rus::kYuUpper:
+				case rus::kYu: OLC_MODE(d) = MEDIT_MAXFACTOR;
 					i++;
 					break;
 
-				case 'н':
-				case 'Н': SendMsgToChar(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
+				case rus::kEn:
+				case rus::kEnUpper: SendMsgToChar(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
 					OLC_MODE(d) = MEDIT_LIKE;
 					return;
 
-				case 'п':
-				case 'П': OLC_MODE(d) = MEDIT_DLIST_MENU;
+				case rus::kPe:
+				case rus::kPeUpper: OLC_MODE(d) = MEDIT_DLIST_MENU;
 					disp_dl_list(d);
 					return;
 
-				case 'р':
-				case 'Р': OLC_MODE(d) = MEDIT_ROLE;
+				case rus::kEr:
+				case rus::kErUpper: OLC_MODE(d) = MEDIT_ROLE;
 					medit_disp_role(d);
 					return;
 
-				case 'с':
-				case 'С': OLC_MODE(d) = MEDIT_RESISTANCES;
+				case rus::kEs:
+				case rus::kEsUpper: OLC_MODE(d) = MEDIT_RESISTANCES;
 					medit_disp_resistances(d);
 					return;
 
-				case 'т':
-				case 'Т': OLC_MODE(d) = MEDIT_SAVES;
+				case rus::kTe:
+				case rus::kTeUpper: OLC_MODE(d) = MEDIT_SAVES;
 					medit_disp_saves(d);
 					return;
 
-				case 'у':
-				case 'У': OLC_MODE(d) = MEDIT_ADD_PARAMETERS;
+				case rus::kU:
+				case rus::kUUpper: OLC_MODE(d) = MEDIT_ADD_PARAMETERS;
 					medit_disp_add_parameters(d);
 					return;
 
-				case 'ф':
-				case 'Ф': OLC_MODE(d) = MEDIT_FEATURES;
+				case rus::kEf:
+				case rus::kEfUpper: OLC_MODE(d) = MEDIT_FEATURES;
 					medit_disp_features(d);
 					return;
 
-				case 'ц':
-				case 'Ц': OLC_MODE(d) = MEDIT_RACE;
+				case rus::kTse:
+				case rus::kTseUpper: OLC_MODE(d) = MEDIT_RACE;
 					medit_disp_race(d);
 					return;
 
-				case 'ч':
-				case 'Ч': OLC_MODE(d) = MEDIT_CLONE;
+				case rus::kChe:
+				case rus::kCheUpper: OLC_MODE(d) = MEDIT_CLONE;
 					medit_disp_clone_menu(d);
 					return;
 
@@ -2165,9 +2167,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_DLIST_MENU:
 			if (*arg) {
 				// Обрабатываем комнады добавить удалить и.т.п
-				switch (*arg) {
-					case 'а':
-					case 'А':
+				switch (native_text::first_char_code(arg)) {
+					case rus::kA:
+					case rus::kAUpper:
 						// Добавляем запись.
 						OLC_MODE(d) = MEDIT_DLIST_ADD;
 						SendMsgToChar("\r\nVNUM - виртуальный номер прототипа\r\n"
@@ -2186,8 +2188,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 						return;
 
-					case 'б':
-					case 'Б':
+					case rus::kBe:
+					case rus::kBeUpper:
 						// Удаляем запись.
 						OLC_MODE(d) = MEDIT_DLIST_DEL;
 						SendMsgToChar("\r\nВведите номер удаляемой записи:", d->character.get());

@@ -1,9 +1,11 @@
+#include <sstream>
 #include <fstream>
 // malloc.h и malloc_trim есть только у glibc: на macOS заголовок называется иначе
 #ifdef __GLIBC__
 #include <malloc.h>
 #endif
 #include <filesystem>
+#include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
 #include "utils/utils_encoding.h"
@@ -339,9 +341,14 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	// MUD::Spell().IsValid() here -- ConvertObjValues runs before the spell registry is populated, so
 	// it would reject every spell. It isn't needed either: an out-of-range/undefined spell number is
 	// silently ignored at cast, exactly as the m_vals path already does.
-	const auto set_spell = [obj](ObjVal::EValueKey key, int num) {
+	// Помечать зону на сохранение имеет смысл, только если ключи действительно появились:
+	// у предмета с нулевыми val[] писать нечего, guard выше на следующем буте снова окажется
+	// ложным, и зона переписывалась бы вхолостую каждый старт (issue #3749).
+	bool migrated = false;
+	const auto set_spell = [obj, &migrated](ObjVal::EValueKey key, int num) {
 		if (num > 0) {
 			obj->SetPotionValueKey(key, num);
+			migrated = true;
 		}
 	};
 	set_spell(ObjVal::EValueKey::kSpell1Num, v1);
@@ -356,10 +363,11 @@ int ConvertPotionToEValueKey(CObjectPrototype *obj, bool proto) {
 	}
 	if (brewed) {
 		obj->SetPotionValueKey(ObjVal::EValueKey::kPotionPotency, v3);
+		migrated = true;
 	} else {
 		set_spell(ObjVal::EValueKey::kSpell3Num, v3);
 	}
-	return 1;
+	return migrated ? 1 : 0;
 }
 
 /// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
@@ -405,8 +413,10 @@ int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
 		|| obj->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill) >= 0) {
 		return 0;  // already migrated
 	}
-	const auto set_pos = [obj](ObjVal::EValueKey key, int num) {
-		if (num > 0) { obj->SetPotionValueKey(key, num); }
+	// Как и у зелий: без единого выставленного ключа сохранять нечего (issue #3749).
+	bool migrated = false;
+	const auto set_pos = [obj, &migrated](ObjVal::EValueKey key, int num) {
+		if (num > 0) { obj->SetPotionValueKey(key, num); migrated = true; }
 	};
 	if (type == EObjType::kScroll) {
 		set_pos(ObjVal::EValueKey::kSpell1Num, obj->get_val(1));
@@ -417,7 +427,7 @@ int ConvertSpellItemToEValueKey(CObjectPrototype *obj, bool /*proto*/) {
 		set_pos(ObjVal::EValueKey::kMaxCharges, obj->get_val(1));
 		set_pos(ObjVal::EValueKey::kCurCharges, obj->get_val(2));
 	}
-	return 1;
+	return migrated ? 1 : 0;
 }
 
 // issue.magic-items-hotfix: the liquid core is stored in the kLiquid* keys (get_val/set_val redirect
@@ -450,11 +460,15 @@ int ConvertDrinkconLiquidCore(CObjectPrototype *obj, bool proto) {
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCapacity, capacity);
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidCurrent, obj->get_val(1));
 	obj->SetPotionValueKey(ObjVal::EValueKey::kLiquidType, obj->get_val(2));
-	return 1;
+	// Зону не помечаем. Жидкостное ядро уходит на диск как обычные values (get_val/set_val
+	// перенаправлены в эти же ключи), нового на диске не появляется, а сам засев по замыслу
+	// повторяется на каждой загрузке -- иначе зона переписывалась бы вечно (issue #3749).
+	return 0;
 }
 
 void ConvertObjValues() {
 	int save = 0;
+	std::set<int> marked;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
 		save = std::max(save, ConvertDrinkPoisonField(i.get(), true));
@@ -471,9 +485,20 @@ void ConvertObjValues() {
 		}
 		// ...
 		if (save) {
-			olc_add_to_save_list(i->get_vnum() / 100, OLC_SAVE_OBJ);
+			const int zone = i->get_vnum() / 100;
+			olc_add_to_save_list(zone, OLC_SAVE_OBJ);
+			marked.insert(zone);
 			save = 0;
 		}
+	}
+	// Молчит, когда помечать нечего. Если зоны в этом списке повторяются от бута к буту --
+	// значит миграция снова не персистится, как было в issue #3749.
+	if (!marked.empty()) {
+		std::string zones;
+		for (const int zone : marked) {
+			zones += std::to_string(zone) + " ";
+		}
+		log("Converted obj values, zones queued for save: %s", zones.c_str());
 	}
 }
 
@@ -1034,11 +1059,18 @@ void ZoneTrafficSave() {
 		zone_node.append_attribute("traffic") = i.traffic;
 	}
 
-	doc.save_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic).c_str());
+	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
+	// (issue #3681).
+	std::ostringstream xml;
+	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
+	native_text::write_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic), xml.str());
 }
 void zone_traffic_load() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic).c_str());
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_db = native_text::read_data_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic));
+	pugi::xml_parse_result result = doc.load_buffer(xml_db.data(), xml_db.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -3503,6 +3535,7 @@ int ReadFileToBuffer(const char *name, char *destination_buf) {
 	// Цикл идёт по результату fgets. Прежний do/while обрабатывал tmp и после неудачного чтения:
 	// на пустом файле strlen() шёл по неинициализированной памяти, а при нулевой длине
 	// tmp[strlen(tmp) - 1] писал байт ПЕРЕД началом буфера.
+	std::string text;
 	while (fgets(tmp, READ_SIZE, fl)) {
 		const size_t len = strlen(tmp);
 		// перевод строки снимаем, только если он есть: у строки длиннее READ_SIZE и у последней
@@ -3510,18 +3543,21 @@ int ReadFileToBuffer(const char *name, char *destination_buf) {
 		if (len > 0 && tmp[len - 1] == '\n') {
 			tmp[len - 1] = '\0';
 		}
-		strcat(tmp, "\r\n");
-
-		if (strlen(destination_buf) + strlen(tmp) + 1 > kMaxExtendLength) {
-			log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
-			*destination_buf = '\0';
-			fclose(fl);
-			return (-1);
-		}
-		strcat(destination_buf, tmp);
+		text += tmp;
+		text += "\r\n";
 	}
 
 	fclose(fl);
+
+	// Тексты лежат на диске в KOI8-R, движок держит их в нативной кодировке. Без перевода
+	// экран справки уезжал игроку сырыми байтами и выглядел кашей (issue #3681).
+	const std::string native = native_text::from_disk_text(text);
+	if (native.size() + 1 > kMaxExtendLength) {
+		log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
+		*destination_buf = '\0';
+		return (-1);
+	}
+	memcpy(destination_buf, native.c_str(), native.size() + 1);
 
 	return (0);
 }
@@ -3661,7 +3697,7 @@ Rooms::~Rooms() {
 
 int get_filename(const char *orig_name, char *filename, int mode) {
 	const char *prefix, *middle, *suffix;
-	char name[64], *ptr;
+	char name[64];
 
 	if (orig_name == nullptr || *orig_name == '\0' || filename == nullptr) {
 		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
@@ -3696,13 +3732,9 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 		default: return (0);
 	}
 
-	strcpy(name, orig_name);
-	for (ptr = name; *ptr; ptr++) {
-		if (*ptr == 'Ё' || *ptr == 'ё')
-			*ptr = '9';
-		else
-			*ptr = LOWER(codepages::AtoL(*ptr));
-	}
+	// Транслитерация вынесена в native_text: имя файла игрока обязано совпадать до и после
+	// смены кодировки, иначе сохранёнки перестанут находиться (issue #3681).
+	strcpy(name, native_text::translit_to_filename(orig_name).c_str());
 
 	switch (LOWER(*name)) {
 		case 'a':

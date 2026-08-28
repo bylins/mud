@@ -20,6 +20,10 @@
 #include "engine/db/global_objects.h"
 #include "poison.h"
 
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
+
 #include <cmath>
 #include <limits>
 
@@ -556,52 +560,58 @@ size_t find_liquid_name(const char *name) {
 	return result;
 }
 
+// Разделитель между названием ёмкости и названием жидкости: "древний череп" + " с " + "зельем".
+// Длину берём отсюда же -- в KOI8-R это три байта, в UTF-8 четыре, а зашитая тройка срезала
+// разделитель не целиком и оставляла в названии лишний пробел (issue #3681).
+static const std::string kLiquidSeparator = " с ";
+
+// Имена, которые прежняя обрезка успела испортить, оканчиваются пробелом -- он остался от
+// недорезанного разделителя и уехал в файлы вещей. Приписав к такому имени " с ", получаем
+// "огромная дубовая бочка  с черным колдовским зельем", и так при каждой загрузке. Поэтому
+// хвостовые пробелы срезаем с обеих сторон -- и когда название жидкости снимаем, и когда
+// добавляем: уже испорченные вещи чинятся сами, а описки билдеров не всплывают в игре.
+static std::string CutLiquidName(const std::string &name, size_t pos, size_t separator_len) {
+	return utils::TrimRightCopy(name.substr(0, pos - separator_len));
+}
+
 void name_from_drinkcon(ObjData *obj) {
-	char new_name[kMaxStringLength];
-	std::string tmp;
-
 	size_t pos = find_liquid_name(obj->get_aliases().c_str());
-	if (pos == std::string::npos) return;
-	tmp = obj->get_aliases().substr(0, pos - 1);
-
-	sprintf(new_name, "%s", tmp.c_str());
-	obj->set_aliases(new_name);
+	if (pos == std::string::npos || pos < 1) {
+		return;
+	}
+	obj->set_aliases(CutLiquidName(obj->get_aliases(), pos, 1));
 
 	pos = find_liquid_name(obj->get_short_description().c_str());
-	if (pos == std::string::npos) return;
-	tmp = obj->get_short_description().substr(0, pos - 3);
-
-	sprintf(new_name, "%s", tmp.c_str());
-	obj->set_short_description(new_name);
+	if (pos == std::string::npos || pos < kLiquidSeparator.length()) {
+		return;
+	}
+	obj->set_short_description(CutLiquidName(obj->get_short_description(), pos, kLiquidSeparator.length()));
 
 	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
 		auto name_case = static_cast<grammar::ECase>(c);
 		pos = find_liquid_name(obj->get_PName(name_case).c_str());
-		if (pos == std::string::npos) return;
-		tmp = obj->get_PName(name_case).substr(0, pos - 3);
-		sprintf(new_name, "%s", tmp.c_str());
-		obj->set_PName(name_case, new_name);
+		if (pos == std::string::npos || pos < kLiquidSeparator.length()) {
+			return;
+		}
+		obj->set_PName(name_case, CutLiquidName(obj->get_PName(name_case), pos, kLiquidSeparator.length()));
 	}
 }
 
 void name_to_drinkcon(ObjData *obj, int type) {
-	int c;
-	char new_name[kMaxInputLength], potion_name[kMaxInputLength];
-	if (type >= NUM_LIQ_TYPES) {
-		snprintf(potion_name, kMaxInputLength, "%s", "непонятной бормотухой, сообщите БОГАМ");
-	} else {
-		snprintf(potion_name, kMaxInputLength, "%s", drinknames[type]);
-	}
+	const std::string potion_name = (type < 0 || type >= NUM_LIQ_TYPES)
+									? "непонятной бормотухой, сообщите БОГАМ"
+									: drinknames[type];
 
-	snprintf(new_name, kMaxInputLength, "%s %s", obj->get_aliases().c_str(), potion_name);
-	obj->set_aliases(new_name);
-	snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_short_description().c_str(), potion_name);
-	obj->set_short_description(new_name);
+	obj->set_aliases(fmt::format("{} {}", utils::TrimRightCopy(obj->get_aliases()), potion_name));
+	obj->set_short_description(fmt::format("{}{}{}",
+										   utils::TrimRightCopy(obj->get_short_description()),
+										   kLiquidSeparator, potion_name));
 
-	for (c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
+	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
 		auto name_case = static_cast<grammar::ECase>(c);
-		snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_PName(name_case).c_str(), potion_name);
-		obj->set_PName(name_case, new_name);
+		obj->set_PName(name_case, fmt::format("{}{}{}",
+											  utils::TrimRightCopy(obj->get_PName(name_case)),
+											  kLiquidSeparator, potion_name));
 	}
 	// issue #3620: имя сосуда больше не совпадает с прототипом -- без этой пометки olc при правке
 	// прототипа восстановит исходное имя, и сосуд перестанет показывать свое содержимое.

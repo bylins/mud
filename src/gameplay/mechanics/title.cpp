@@ -2,6 +2,7 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.bylins.su
 
+#include "utils/native_text.h"
 #include "title.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/player_index.h"
@@ -134,8 +135,8 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			utils::Trim(title);
 			utils::Trim(pre_title);
 			if (!pre_title.empty()) {
-				sprintf(buf2, "%c%s", UPPER(pre_title.substr(0, 1).c_str()[0]), pre_title.substr(1).c_str());
-				pre_title = buf2;
+				// Поднимаем первую букву целиком, а не первый байт (issue #3681).
+				native_text::capitalize_first(pre_title);
 			}
 			if (!pre_title.empty() && !check_pre_title(pre_title, ch)) return;
 			if (!title.empty() && !check_title(title, ch)) return;
@@ -259,15 +260,23 @@ bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 * \return 0 не сканало, 1 сканало
 */
 bool TitleSystem::check_alphabet(const std::string &text, CharData *ch, const std::string &allowed) {
-	int i = 0;
-	std::string::size_type idx;
-	for (std::string::const_iterator it = text.begin(); it != text.end(); ++it, ++i) {
-		unsigned char c = static_cast<char>(*it);
-		idx = allowed.find(*it);
-		if (c < 192 && idx == std::string::npos) {
-			SendMsgToChar(ch, "Недопустимый символ '%c' в позиции %d.\r\n", *it, ++i);
-			return false;
+	// Проверяем по символам, а не по байтам. Раньше условие было "байт >= 192", то есть
+	// кириллица KOI8-R; под UTF-8 у русской буквы два байта, и хвостовой (0x80..0xBF) попадал
+	// в "меньше 192" -- титул с кириллицей отвергался на второй позиции (issue #3681).
+	//
+	// Набор букв оставлен ровно прежним: диапазон 0xC0..0xFF в KOI8-R -- это а-я и А-Я без "ё",
+	// поэтому "ё" по-прежнему допустима только если перечислена в allowed.
+	int position = 0;
+	for (const std::string_view symbol : native_text::chars(text)) {
+		++position;
+		const char32_t code = native_text::first_char_code(std::string(symbol).c_str());
+		const bool russian_letter = (code >= 0x0410 && code <= 0x044F);
+		if (russian_letter || native_text::list_contains_char(allowed, symbol)) {
+			continue;
 		}
+		SendMsgToChar(ch, "Недопустимый символ '%.*s' в позиции %d.\r\n",
+					  static_cast<int>(symbol.size()), symbol.data(), position);
+		return false;
 	}
 	return true;
 }
@@ -412,9 +421,15 @@ void TitleSystem::save_title_list() {
 		log("Error open file: %s! (%s %s %d)", title_file.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
+	std::ostringstream out;
 	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
-		file << it->first << " " << it->second->unique << "\n" << it->second->pre_title << "\n" << it->second->title
-			 << "\n";
+		out << it->first << " " << it->second->unique << "\n" << it->second->pre_title << "\n" << it->second->title
+			<< "\n";
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
 
@@ -435,10 +450,11 @@ void TitleSystem::load_title_list() {
 		std::getline(file, pre_title);
 		std::getline(file, title);
 		WaitingTitlePtr temp(new waiting_title);
-		temp->title = title;
-		temp->pre_title = pre_title;
+		// Граница чтения: список лежит на диске в кодировке мира (issue #3681).
+		temp->title = native_text::from_disk_line(title.c_str());
+		temp->pre_title = native_text::from_disk_line(pre_title.c_str());
 		temp->unique = unique;
-		title_list[name] = temp;
+		title_list[native_text::from_disk_line(name.c_str())] = temp;
 	}
 	file.close();
 }

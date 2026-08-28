@@ -6,7 +6,9 @@
 *  $Date$                                          *
 *  $Revision$                                                     *
 ************************************************************************ */
+#include "utils/native_text.h"
 #include "item_creation.h"
+#include <fmt/format.h>
 #include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "administration/privilege.h"
@@ -324,7 +326,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		trec = make_recepts[i];
 		auto obj = GetObjectPrototype(trec->obj_proto);
 		if (obj) {
-			obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 39));
+			obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, native_text::char_offset(obj->get_PName(grammar::ECase::kNom), 39)));
 		}
 		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
@@ -333,18 +335,18 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			}
 			j++;
 		}
-		sprintf(tmpbuf, "%3zd  %-1s  %-6s  %-40s(%5d) :",
-				i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), obj_name.c_str(), trec->obj_proto);
-		tmpstr += string(tmpbuf);
+		tmpstr += fmt::format("{:3}  {:<1}  {:<6}  {:<40}({:5}) :",
+				i + 1, (trec->locked ? "*" : " "), skill_name,
+				obj_name, trec->obj_proto);
 		for (int j = 0; j < MAX_PARTS; j++) {
 			if (trec->parts[j].proto != 0) {
 				obj = GetObjectPrototype(trec->parts[j].proto);
 				if (obj) {
-					obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 34));
+					obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, native_text::char_offset(obj->get_PName(grammar::ECase::kNom), 34)));
 				} else {
 					obj_name = "Нет";
 				}
-				sprintf(tmpbuf, " %-35s(%5d)", obj_name.c_str(), trec->parts[j].proto);
+				strcpy(tmpbuf, fmt::format(" {:<35}({:5})", obj_name, trec->parts[j].proto).c_str());
 				if (j > 0) {
 					if (j % 2 == 0) {
 						// разбиваем строчки если ингров больше 2;

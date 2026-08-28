@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "mob_stat.h"
+#include "utils/native_text.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/utils_parse.h"
@@ -57,7 +58,7 @@ void AddClassExp(ECharClass class_id, int exp) {
 
 std::string PrintClassExpStat(const ECharClass id, unsigned long long top_exp) {
 	std::ostringstream out;
-	out << std::left << std::setw(15) << MUD::Class(id).GetPluralName() << " " << std::left << kColorBoldCyn;
+	out << fmt::format("{:<15}", MUD::Class(id).GetPluralName()) << " " << std::left << kColorBoldCyn;
 	const int points_amount{10};
 	int stars{0};
 	if (top_exp > 0) {
@@ -272,7 +273,10 @@ static void LoadXmlLegacy() {
 	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MUD::StateManager().Path(state::EStateFile::kMobStat).c_str());
+	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
+	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
+	const std::string xml_mob_stat = native_text::read_data_file(MUD::StateManager().Path(state::EStateFile::kMobStat));
+	pugi::xml_parse_result result = doc.load_buffer(xml_mob_stat.data(), xml_mob_stat.size());
 	if (!result) {
 		snprintf(buf_, sizeof(buf_), "...%s", result.description());
 		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
@@ -520,8 +524,7 @@ void ShowZoneMobKillsStat(CharData *ch, ZoneVnum zone_vnum, int months) {
 									  "   vnum : имя : pk : группа = убийств (n3=100 моба убили 100 раз втроем)\r\n\r\n";
 
 	for (auto & i : sort_list) {
-		out << i.first << " : " << std::setw(20)
-			<< PrintMobName(i.first, 20) << " : "
+		out << i.first << " : " << fmt::format("{:>20}", PrintMobName(i.first, 20)) << " : "
 			<< i.second.kills.at(0) << " :";
 		for (int g = 1; g <= kMaxGroupSize; ++g) {
 			if (i.second.kills.at(g) > 0) {

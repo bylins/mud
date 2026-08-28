@@ -52,13 +52,6 @@ void FlushAllSinks() {
 	}
 }
 
-std::string EngineStringToUtf8(const std::string& koi8r) {
-	std::array<char, 4096> buf{};
-	std::string mut = koi8r;  // codepages::koi_to_utf8 takes char*, not const
-	mut.push_back('\0');
-	codepages::koi_to_utf8(mut.data(), buf.data());
-	return std::string(buf.data());
-}
 
 }  // namespace observability
 

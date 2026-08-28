@@ -13,8 +13,8 @@
 
 inline bool in_mem(char *arg) {
 	return (strlen(arg) != 0) &&
-		(!strn_cmp("часослов", arg, strlen(arg)) ||
-			!strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
+		(utils::IsAbbr(arg, "часослов") ||
+			utils::IsAbbr(arg, "резы") || utils::IsAbbr(arg, "book"));
 }
 
 void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -28,14 +28,13 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	size_t i = strlen(arg);
-	if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
-		!strn_cmp(arg, "отвар", i)) {
+	if (utils::IsAbbr(arg, "recipe") || utils::IsAbbr(arg, "рецепт") ||
+		utils::IsAbbr(arg, "отвар")) {
 		forget_recipe(ch, argument, 0);
 		return;
 	}
 
-	if (!strn_cmp(arg, "все", i) || !strn_cmp(arg, "all", i)) {
+	if (utils::IsAbbr(arg, "все") || utils::IsAbbr(arg, "all")) {
 		char arg2[kMaxInputLength];
 		two_arguments(argument, arg, arg2);
 		if (in_mem(arg2)) {

@@ -51,11 +51,6 @@ bool HasAnyEventSink();
 void EmitToAllSinks(const Event& ev);
 void FlushAllSinks();
 
-// Engine-side strings (character names, room descriptions, etc.) live in
-// KOI8-R; nlohmann::json validates UTF-8 on serialization and rejects KOI8-R
-// bytes. Emitters must convert text fields through this helper before putting
-// them into Event.attrs.
-std::string EngineStringToUtf8(const std::string& koi8r);
 
 }  // namespace observability
 

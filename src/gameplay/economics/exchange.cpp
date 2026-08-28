@@ -8,7 +8,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <vector>
 #include "exchange.h"
+#include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
@@ -472,7 +474,7 @@ int exchange_information(CharData *ch, char *arg) {
 	}
 	auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
 	snprintf(buf2, sizeof(buf2), "%s", seller_name.empty() ? "(сожран долгоносиком)" : seller_name.c_str());
-	*buf2 = UPPER(*buf2);
+	native_text::capitalize_first(buf2);
 	out += fmt::sprintf("Продавец %s\n", buf2);
 	if (GET_EXCHANGE_ITEM_COMMENT(item)) {
 		out += fmt::sprintf("Берестовая наклейка на лоте гласит: '%s'.\n", GET_EXCHANGE_ITEM_COMMENT(item));
@@ -668,7 +670,7 @@ int exchange_offers(const CharData *ch, const char *arg) {
 		filter += GET_NAME(ch);
 	} else {
 		while (*arg1) {
-			arg1[0] = UPPER(arg1[0]);
+			native_text::capitalize_first(arg1);
 			filter += arg1;
 			filter += ' ';
 			arg = one_argument(arg, arg1);
@@ -702,7 +704,7 @@ bool exchange_setfilter(CharData *ch, char *argument) {
 	if (!correct_filter_length(ch, argument)) {
 		return false;
 	}
-	if (!strncmp(argument, "нет", 3)) {
+	if (!strncmp(argument, "нет", strlen("нет"))) {
 		if (EXCHANGE_FILTER(ch)) {
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = nullptr;
@@ -869,19 +871,24 @@ int LoadExchange() {
 	fseek(fl, 0L, SEEK_END);
 	fsize = ftell(fl);
 
-	CREATE(readdata, fsize + 1);
+	std::vector<char> raw(fsize + 1, '\0');
 	fseek(fl, 0L, SEEK_SET);
-	auto actual_size = fread(readdata, 1, fsize, fl);
+	auto actual_size = fread(raw.data(), 1, fsize, fl);
 	if (!actual_size || ferror(fl)) {
 		fclose(fl);
 		log("SYSERR: Memory error or cann't read exchange database file. (exchange.cpp)");
-		free(readdata);
 		return (0);
 	};
 	fclose(fl);
 
+	// Граница чтения: база лежит на диске в KOI8-R, а движок работает с текстом в нативной
+	// кодировке. Без этого названия лотов оставались бы байтами чужой кодировки -- и на экране,
+	// и при обратной записи через to_disk, которая приняла бы их за UTF-8 (issue #3681).
+	const std::string native = native_text::from_disk_text(std::string(raw.data(), actual_size));
+	CREATE(readdata, native.size() + 1);
+	memcpy(readdata, native.c_str(), native.size() + 1);
+
 	data = readdata;
-	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
@@ -907,7 +914,7 @@ int LoadExchange() {
 		// Предмет разваливается от старости
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0) {
 			std::string cap = GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom);
-			cap[0] = UPPER(cap[0]);
+			native_text::capitalize_first(cap);
 			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
 				cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 2));
 			extract_exchange_item(item);
@@ -955,22 +962,25 @@ int exchange_database_reload(bool loadbackup) {
 	fseek(fl, 0L, SEEK_END);
 	fsize = ftell(fl);
 
-	CREATE(readdata, fsize + 1);
+	std::vector<char> raw(fsize + 1, '\0');
 	fseek(fl, 0L, SEEK_SET);
-	auto actual_size = fread(readdata, 1, fsize, fl);
+	auto actual_size = fread(raw.data(), 1, fsize, fl);
 	if (!actual_size || ferror(fl)) {
 		fclose(fl);
 		if (loadbackup)
 			log("SYSERR: Memory error or cann't read exchange database backup file. (exchange.cpp)");
 		else
 			log("SYSERR: Memory error or cann't read exchange database file. (exchange.cpp)");
-		free(readdata);
 		return (0);
 	};
 	fclose(fl);
 
+	// Граница чтения, как и выше (issue #3681).
+	const std::string native = native_text::from_disk_text(std::string(raw.data(), actual_size));
+	CREATE(readdata, native.size() + 1);
+	memcpy(readdata, native.c_str(), native.size() + 1);
+
 	data = readdata;
-	*(data + actual_size) = '\0';
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
@@ -1002,7 +1012,7 @@ int exchange_database_reload(bool loadbackup) {
 		// Предмет разваливается от старости
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0) {
 			std::string cap = GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom);
-			cap[0] = UPPER(cap[0]);
+			native_text::capitalize_first(cap);
 			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
 				cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 2));
 			extract_exchange_item(item);
@@ -1048,7 +1058,11 @@ void exchange_database_save(bool backup) {
 		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		return;
 	}
-	file << out.rdbuf();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 
 	log("Exchange: done saving database.");

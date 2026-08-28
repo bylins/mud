@@ -12,6 +12,7 @@
 #include "engine/db/world_objects.h"
 #include "gameplay/mechanics/liquid.h"
 #include "utils/logger.h"
+#include <fmt/format.h>
 #include <cstdio>
 
 namespace handlers {
@@ -19,9 +20,11 @@ namespace handlers {
 EStageResult AlterRemovePoison(ActionContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (obj->get_rnum() < 0) {
-		char message[100];
-		sprintf(message, "неизвестный прототип объекта : %s (VNUM=%d)", obj->get_PName(grammar::ECase::kNom).c_str(), obj->get_vnum());
-		mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
+		// fmt, а не sprintf в буфер на 100 байт: сам текст занимает 69 байт в UTF-8, на имя
+		// предмета оставалось 31 -- меньше шестнадцати русских букв (issue #3681, ср. #3751).
+		mudlog(fmt::format("неизвестный прототип объекта : {} (VNUM={})",
+						   obj->get_PName(grammar::ECase::kNom), obj->get_vnum()),
+			   BRF, kLvlBuilder, SYSLOG, 1);
 		return AlterMsg(ctx, ESpellMsg::kRemovePoisonUnknown);
 	}
 	// issue.potion-hotfix: remove-poison on a drink/food clears its poison LEVEL (kLiquidPoison) and

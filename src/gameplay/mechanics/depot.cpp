@@ -2,6 +2,8 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <vector>
+#include "utils/native_text.h"
 #include "depot.h"
 #include "engine/db/player_index.h"
 #include "administration/privilege.h"
@@ -215,20 +217,19 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 		return out.str();
 	}
 
-	const std::shared_ptr<char> databuf(new char[fsize + 1], std::default_delete<char[]>());
+	std::vector<char> raw(fsize + 1, '\0');
 
 	fseek(fl, 0L, SEEK_SET);
-	if (!databuf
-		|| !fread(databuf.get(), fsize, 1, fl)
-		|| ferror(fl)) {
+	if (!fread(raw.data(), fsize, 1, fl) || ferror(fl)) {
 		fclose(fl);
 		log("Хранилище: ошибка чтения файла предметов (%s).", filename);
 		return out.str();
 	}
 	fclose(fl);
 
-	char *data = databuf.get();
-	data[fsize] = '\0';
+	// Граница чтения: файлы хранилищ лежат на диске в KOI8-R (issue #3681).
+	std::string databuf = native_text::from_disk_text(std::string(raw.data(), fsize));
+	char *data = databuf.data();
 	int error = 0;
 
 	for (fsize = 0; *data && *data != '$'; fsize++) {
@@ -272,7 +273,10 @@ void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid) {
 		log("Хранилище: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << generate_purged_text(uid, obj_vnum, obj_uid);
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	file << native_text::to_disk(generate_purged_text(uid, obj_vnum, obj_uid));
 }
 
 void delete_purged_entry(long uid) {
@@ -304,8 +308,9 @@ bool show_purged_message(CharData *ch) {
 			return true;
 		}
 		std::ostringstream out;
-		out << "\r\n" << file.rdbuf();
-		SendMsgToChar(out.str(), ch);
+		out << file.rdbuf();
+		// Граница чтения: файл записан в кодировке мира (issue #3681).
+		SendMsgToChar("\r\n" + native_text::from_disk_text(out.str()), ch);
 		remove(name.c_str());
 		purged_list.erase(it);
 		need_save_purged_list = true;
@@ -546,7 +551,11 @@ void save_timedata() {
 		log("Хранилище: error open file: %s! (%s %s %d)", depot_file, __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << out.rdbuf();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
 
@@ -586,7 +595,11 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << out.rdbuf();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
 

@@ -16,17 +16,6 @@ namespace observability {
 #ifdef WITH_OTEL
 static std::unordered_map<std::string, std::unique_ptr<opentelemetry::metrics::Histogram<double>>> histogram_cache;
 
-// Convert all string attribute values from KOI8-R to UTF-8 at the API boundary.
-// Callers MUST pass raw KOI8-R strings -- do NOT call koi8r_to_utf8() before passing attrs here,
-// that would cause double-conversion and produce garbage.
-// NOTE: ISpan::SetAttribute(string) also auto-converts -- same rule applies there.
-static std::map<std::string, std::string> ToUtf8Attrs(const std::map<std::string, std::string>& attrs) {
-    std::map<std::string, std::string> result;
-    for (const auto& [k, v] : attrs) {
-        result[k] = koi8r_to_utf8(v);
-    }
-    return result;
-}
 #endif
 
 void OtelMetrics::RecordCounter(const std::string& name, int64_t value) {
@@ -54,7 +43,7 @@ void OtelMetrics::RecordCounter(const std::string& name, int64_t value,
         if (meter) {
             if (value >= 0) {
                 auto counter = meter->CreateUInt64Counter(name);
-                counter->Add(static_cast<uint64_t>(value), ToUtf8Attrs(attributes));
+                counter->Add(static_cast<uint64_t>(value), attributes);
             }
         }
     }
@@ -98,7 +87,7 @@ void OtelMetrics::RecordHistogram(const std::string& name, double value,
                 histogram = it->second.get();
             }
             auto context = opentelemetry::context::Context{};
-            histogram->Record(value, ToUtf8Attrs(attributes), context);
+            histogram->Record(value, attributes, context);
         }
     }
 #else
@@ -133,7 +122,7 @@ void OtelMetrics::RecordGauge(const std::string& name, double value,
         if (meter) {
             auto histogram = meter->CreateDoubleHistogram(name + ".gauge");
             auto context = opentelemetry::context::Context{};
-            histogram->Record(value, ToUtf8Attrs(attributes), context);
+            histogram->Record(value, attributes, context);
         }
     }
 #else

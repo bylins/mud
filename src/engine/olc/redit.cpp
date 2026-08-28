@@ -9,6 +9,8 @@
  ************************************************************************/
 
 #include "engine/entities/obj_data.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
 #include "engine/db/world_data_source_manager.h"
@@ -556,11 +558,11 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 	switch (OLC_MODE(d)) {
 		case REDIT_CONFIRM_SAVESTRING:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д': redit_save_internally(d);
+				case rus::kDe:
+				case rus::kDeUpper: redit_save_internally(d);
 					snprintf(buf, sizeof(buf), "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
 					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
@@ -571,8 +573,8 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н':
+				case rus::kEn:
+				case rus::kEnUpper:
 					// * Free everything up, including strings, etc.
 					cleanup_olc(d, CLEANUP_ALL);
 					break;
@@ -677,8 +679,9 @@ void redit_parse(DescriptorData *d, char *arg) {
 		case REDIT_NAME:
 			if (OLC_ROOM(d)->name)
 				free(OLC_ROOM(d)->name);
-			if (strlen(arg) > MAX_ROOM_NAME)
-				arg[MAX_ROOM_NAME - 1] = '\0';
+			// Предел -- в символах, и режем по границе символа (issue #3681).
+			if (native_text::char_count(arg) > MAX_ROOM_NAME)
+				arg[native_text::char_offset(arg, MAX_ROOM_NAME - 1)] = '\0';
 			OLC_ROOM(d)->name = str_dup((arg && *arg) ? arg : "неопределено");
 			break;
 

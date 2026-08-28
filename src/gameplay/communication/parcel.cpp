@@ -2,7 +2,9 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <vector>
 #include "parcel.h"
+#include "utils/native_text.h"
 #include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
@@ -289,7 +291,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 
 	if (is_number(tmp_arg)) {
 		int amount = atoi(tmp_arg);
-		if (!strn_cmp("coin", tmp_arg2, 4) || !strn_cmp("кун", tmp_arg2, 5) || !str_cmp("денег", tmp_arg2)) {
+		if (utils::IsAbbr("coin", tmp_arg2) || utils::IsAbbr("кун", tmp_arg2) || !str_cmp("денег", tmp_arg2)) {
 			act("$n сказал$g вам : 'Для перевода денег воспользуйтесь услугами банка.'",
 				false,
 				mailman,
@@ -456,8 +458,8 @@ void fill_ex_desc(CharData *ch, ObjData *obj, std::string sender) {
 		   "неуклюжего взлома - царская служба безопасности бдит...\r\n"
 		   "На табличке сбоку видны надписи:\r\n\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
-	out << "| Отправитель: " << std::setw(size) << sender
-		<< " |\r\n|  Получатель: " << std::setw(size) << GET_NAME(ch) << " |\r\n";
+	out << "| Отправитель: " << fmt::format("{:>{}}", sender, size)
+		<< " |\r\n|  Получатель: " << fmt::format("{:>{}}", GET_NAME(ch), size) << " |\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
 
 	obj->set_ex_description("посылка бандероль пакет ящик parcel box case chest", out.str().c_str());
@@ -668,18 +670,22 @@ void load() {
 	int fsize = ftell(fl);
 
 	char *data, *readdata;
-	CREATE(readdata, fsize + 1);
+	std::vector<char> raw(fsize + 1, '\0');
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(readdata, fsize, 1, fl) || ferror(fl)) {
+	if (!fread(raw.data(), fsize, 1, fl) || ferror(fl)) {
 		fclose(fl);
 		log("SYSERR: Memory error or cann't read parcel database file.");
-		free(readdata);
 		return;
 	};
 	fclose(fl);
 
+	// Граница чтения: база лежит на диске в KOI8-R, движок держит текст в нативной кодировке
+	// (issue #3681).
+	const std::string native = native_text::from_disk_text(std::string(raw.data(), fsize));
+	CREATE(readdata, native.size() + 1);
+	memcpy(readdata, native.c_str(), native.size() + 1);
+
 	data = readdata;
-	*(data + fsize) = '\0';
 
 	for (fsize = 0; *data && *data != '$'; fsize++) {
 		int error;
@@ -724,7 +730,11 @@ void save() {
 		log("SYSERR: error opening file: %s! (%s %s %d)", FILE_NAME, __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << out.rdbuf();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 
 	return;
@@ -828,13 +838,13 @@ bool print_imm_where_obj(CharData *ch, const ObjData *arg, int num) {
 					std::string sender = GetNameByUnique(it2->first);
 
 					found = true;
-					SendMsgToChar(ch, "%2d. [%6d] %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
+					SendMsgToChar(fmt::format("{:2}. [{:6}] {:<25} - наход{}ся на почте (отправитель: {}, получатель: {}).\r\n",
 								  num++,
 								  GET_OBJ_VNUM(it3->obj_.get()),
-								  it3->obj_->get_short_description().c_str(),
+								  it3->obj_->get_short_description(),
 								  grammar::ObjPluralVerbEnding((it3->obj_)->get_sex()),
-								  sender.c_str(),
-								  target.c_str());
+								  sender,
+								  target), ch);
 				}
 			}
 		}
@@ -852,8 +862,8 @@ std::string FindParcelObj(const ObjData *obj) {
 					std::string target = GetNameByUnique(it->first);
 					std::string sender = GetNameByUnique(it2->first);
 					
-					target[0] = UPPER(target[0]);
-					sender[0] = UPPER(sender[0]);
+					native_text::capitalize_first(target);
+					native_text::capitalize_first(sender);
 					str = fmt::format("наход{}ся на почте (отправитель: {}, получатель: {}).\r\n",
 							grammar::ObjPluralVerbEnding((it3->obj_)->get_sex()),
 							sender.c_str(),
