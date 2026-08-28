@@ -213,46 +213,14 @@ Access world state via `MUD::` namespace functions:
 - Telnet protocol with MSDP (Mud Server Data Protocol) and MCCP compression
 - Multiple codepage support (Alt, Win, UTF-8, KOI8-R)
 
-## Development Guidelines (from CONTRIBUTING.md)
+## Development Guidelines
 
-### Code Style
-- **Standard**: C++20 (C++17 minimum)
-- **Indentation**: Tabs (size 4), no spaces for indentation
-- **Braces**: An opening brace on the same line separated by a space
-```cpp
-if (condition) {
-    // code here
-}
-```
-- **One statement per line** (applies to variable declarations too)
-- **Always use braces** for if/else/for/while bodies, even single statements
-- **Pointers/References**: `*` and `&` attached to type, space after
-```cpp
-const char* message = "example";
-const auto& reference = message;
-```
+**Правила разработки живут в [CONTRIBUTING.md](CONTRIBUTING.md) — читай его перед тем, как
+править код, и следуй ему.** Здесь их копии нет намеренно: две копии расходятся, и потом
+непонятно, какая верна.
 
-### File Management
-- All new files must be added to `meson.build` (sources go into `main_sources` / `library_sources`, depending on the section)
-- Include vim modeline at end of files:
-```cpp
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-```
-
-### Memory Management
-- Prefer `new`/`delete` over `malloc`/`free`
-- Use smart pointers (`CharData::shared_ptr`, `ObjData::shared_ptr`) where possible
-- Avoid raw pointers for ownership
-
-### Testing
-- Run unit tests before committing: `./build/tests/tests`
-- Write tests for new code using GoogleTest framework
-- Tests are in `tests/` directory, named by module (e.g., `char.affects.cpp`, `fight.penalties.cpp`)
-
-### Compiler Warnings
-- Must compile on Windows, Linux, and Cygwin
-- Fix all compiler warnings, especially in new code
-- Build with `-Wall -Wextra` enabled
+Там про стиль (отступы табами, скобки, по одному объявлению в строке), добавление новых файлов
+в `meson.build`, работу с памятью, unit-тесты и требование к сборке без предупреждений.
 
 ## Common Development Patterns
 
