@@ -1,4 +1,5 @@
 #include "utils/utils_string.h"
+#include "utils/mud_string.h"
 
 #include <gtest/gtest.h>
 
@@ -582,6 +583,51 @@ TEST(Utils_String, IsEquivalent_OrderMatters)
 	// Слова запроса ищутся по порядку, пропуская лишние слова имени.
 	EXPECT_TRUE(utils::IsEquivalent("hel wor", "hello big world"));
 	EXPECT_FALSE(utils::IsEquivalent("wor hel", "hello big world"));
+}
+
+// ===== ChopWord =====
+
+TEST(Utils_String, ChopWord_SplitsFirstWordAndRest)
+{
+	const auto [word, rest] = ChopWord("frozen 30 за спам");
+	EXPECT_EQ(word, "frozen");
+	EXPECT_EQ(rest, "30 за спам");
+}
+
+TEST(Utils_String, ChopWord_LowercasesTheWord)
+{
+	// Слово приводится к нижнему регистру, как это делает half_chop.
+	EXPECT_EQ(ChopWord("FROZEN xxx").first, "frozen");
+	EXPECT_EQ(ChopWord("БОГИ").first, "боги");
+}
+
+TEST(Utils_String, ChopWord_SkipsSurroundingSpaces)
+{
+	const auto [word, rest] = ChopWord("   первое    второе третье  ");
+	EXPECT_EQ(word, "первое");
+	EXPECT_EQ(rest, "второе третье  ") << "остаток берётся с первого непробельного символа";
+}
+
+TEST(Utils_String, ChopWord_SingleWordLeavesEmptyRest)
+{
+	const auto [word, rest] = ChopWord("  одно  ");
+	EXPECT_EQ(word, "одно");
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ChopWord_EmptyInputGivesEmptyParts)
+{
+	const auto [word, rest] = ChopWord("   ");
+	EXPECT_TRUE(word.empty());
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ChopWord_KeepsMultibyteLettersIntact)
+{
+	// Русское слово не должно рубиться по байтам.
+	const auto [word, rest] = ChopWord("волчица съела кролика");
+	EXPECT_EQ(word, "волчица");
+	EXPECT_EQ(rest, "съела кролика");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

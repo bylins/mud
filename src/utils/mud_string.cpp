@@ -115,6 +115,27 @@ void SplitArgument(const char *arguments, std::vector<int> &out) {
 	}
 }
 
+std::pair<std::string, std::string> ChopWord(std::string_view line) {
+	constexpr std::string_view kSpaces = " \t\r\n\v\f";
+
+	const auto word_begin = line.find_first_not_of(kSpaces);
+	if (word_begin == std::string_view::npos) {
+		return {};
+	}
+	const auto word_end = line.find_first_of(kSpaces, word_begin);
+
+	std::string word{line.substr(word_begin,
+								 word_end == std::string_view::npos ? std::string_view::npos : word_end - word_begin)};
+	native_text::to_lower(word);
+	if (word_end == std::string_view::npos) {
+		return {std::move(word), {}};
+	}
+
+	const auto rest_begin = line.find_first_not_of(kSpaces, word_end);
+	return {std::move(word),
+			rest_begin == std::string_view::npos ? std::string() : std::string(line.substr(rest_begin))};
+}
+
 void half_chop(const char *string, char *arg1, char *arg2) {
 	const char *temp = any_one_arg_template(string, arg1);
 	skip_spaces(&temp);
