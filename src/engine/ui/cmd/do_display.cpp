@@ -38,8 +38,12 @@ void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		set_display_bits(ch, false);
 
+		// Аргумент перебираем посимвольно, а не побайтно: под UTF-8 русская буква занимает два
+		// байта, и шаг в один байт приводил ко второму, хвостовому байту буквы. Он не совпадал
+		// ни с одной меткой и уводил в default, то есть свой набор букв поставить было нельзя
+		// вовсе -- работали только "статус все" и "статус нет".
 		const size_t len = strlen(argument);
-		for (size_t i = 0; i < len; i++) {
+		for (size_t i = 0; i < len; i += native_text::char_bytes(argument + i)) {
 			switch (native_text::first_char_code_lower(argument + i)) {
 				case 'h':
 				case rus::kZhe: ch->SetFlag(EPrf::kDispHp);
