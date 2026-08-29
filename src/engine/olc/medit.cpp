@@ -705,8 +705,7 @@ void medit_disp_positions(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *position_types[i] != '\n'; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, position_types[i]);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n", grn, i, nrm, position_types[i]), d->character.get());
 	}
 	SendMsgToChar("Выберите положение : ", d->character.get());
 }
@@ -747,9 +746,9 @@ void medit_disp_resistances(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *resistance_types[i] != '\n'; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {} : {}{}{}\r\n",
+									  grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm),
+					  d->character.get());
 	}
 	SendMsgToChar("Введите номер и величину сопротивления (-100..100%) (0 - конец) : ", d->character.get());
 }
@@ -762,9 +761,9 @@ void medit_disp_saves(DescriptorData *d) {
 #endif
 	for (auto i: apply_negative) {
 		if (i.savetype != ESaving::kNone) {
-			snprintf(buf, sizeof(buf), "%s%2d%s) %s : %s%d%s\r\n",
-					grn, num++, nrm, i.name.c_str(), cyn, GetSave(OLC_MOB(d), i.savetype), nrm);
-			SendMsgToChar(buf, d->character.get());
+			SendMsgToChar(fmt::format("{}{:2d}{}) {} : {}{}{}\r\n",
+										  grn, num++, nrm, i.name.c_str(), cyn, GetSave(OLC_MOB(d), i.savetype), nrm),
+						  d->character.get());
 		}
 	}
 	SendMsgToChar("Введите номер и величину спас-броска, отрицательное улучшает (0 - конец) : ", d->character.get());
@@ -881,8 +880,7 @@ void medit_disp_sex(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i <= NUM_GENDERS; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, genders[i]);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n", grn, i, nrm, genders[i]), d->character.get());
 	}
 	SendMsgToChar("Выберите пол : ", d->character.get());
 }
@@ -931,9 +929,9 @@ void medit_disp_features(DescriptorData *d) {
 			snprintf(buf1, sizeof(buf1), "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(feat.GetId()), nrm,
-				 feat.GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
+									  grn, to_underlying(feat.GetId()), nrm, feat.GetCName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 
 	SendMsgToChar("\r\nУкажите номер способности. (0 - конец) : ", d->character.get());
@@ -945,8 +943,7 @@ void medit_disp_race(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < ENpcRace::kLastNpcRace - ENpcRace::kBasic + 1; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n", grn, i, nrm, npc_race_types[i]), d->character.get());
 	}
 	SendMsgToChar("Выберите расу моба : ", d->character.get());
 }
@@ -958,8 +955,9 @@ void medit_disp_attack_types(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < NUM_ATTACK_TYPES; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, fight::GetAttackTypeDescription(i).c_str());
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n",
+									  grn, i, nrm, fight::GetAttackTypeDescription(i).c_str()),
+					  d->character.get());
 	}
 	SendMsgToChar("Выберите тип удара : ", d->character.get());
 }
@@ -972,12 +970,12 @@ void medit_disp_helpers(DescriptorData *d) {
 #endif
 	SendMsgToChar("Установлены мобы-помощники :\r\n", d->character.get());
 	for (auto helper : OLC_MOB(d)->summon_helpers) {
-		snprintf(buf, sizeof(buf), "%s%6d%s %s", grn, helper, nrm, !(++columns % 6) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:6d}{} {}",
+									  grn, helper, nrm, !(++columns % 6) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	if (!columns) {
-		snprintf(buf, sizeof(buf), "%sНЕТ%s", cyn, nrm);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}НЕТ{}", cyn, nrm), d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите vnum моба-помощника (0 - конец) : ", d->character.get());
 }
@@ -998,9 +996,9 @@ void medit_disp_skills(DescriptorData *d) {
 			snprintf(buf1, sizeof(buf1), "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill.GetId()), nrm,
-				 skill.GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
+									  grn, to_underlying(skill.GetId()), nrm, skill.GetName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
 }
@@ -1019,9 +1017,9 @@ void medit_disp_spells(DescriptorData *d) {
 		} else {
 			snprintf(buf1, sizeof(buf1), "     ");
 		}
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(spell_id), nrm,
-				 MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
+									  grn, to_underlying(spell_id), nrm, MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
 }
@@ -1030,15 +1028,17 @@ void medit_disp_spells(DescriptorData *d) {
 void medit_disp_mob_flags(DescriptorData *d) {
 	disp_planes_values(d, action_bits, 2);
 	OLC_MOB(d)->char_specials.saved.mob_flags.sprintbits(action_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nТекущие флаги : {}{}{}\r\nВыберите флаг (0 - выход) : ",
+								  cyn, buf1, nrm),
+				  d->character.get());
 }
 
 void medit_disp_npc_flags(DescriptorData *d) {
 	disp_planes_values(d, function_bits, 2);
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nТекущие флаги : {}{}{}\r\nВыберите флаг (0 - выход) : ",
+								  cyn, buf1, nrm),
+				  d->character.get());
 }
 
 // * Display affection flags menu.
@@ -1046,17 +1046,17 @@ void medit_disp_aff_flags(DescriptorData *d) {
 	const auto &order = affects::MenuOrder();
 	int col = 0;
 	for (size_t i = 0; i < order.size(); ++i) {
-		snprintf(buf1, sizeof(buf1), "%s%3zu%s) %-25.25s", grn, i + 1, nrm,
-				affects::AffectMsg(order[i], affects::EAffectMsgType::kShortDesc).c_str());
-		SendMsgToChar(buf1, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:<25.25}", grn, i + 1, nrm,
+								  affects::AffectMsg(order[i], affects::EAffectMsgType::kShortDesc)),
+					  d->character.get());
 		if (++col % 2 == 0) {
 			SendMsgToChar("\r\n", d->character.get());
 		}
 	}
 	const std::string cur = affects::DescribeActive(OLC_MOB(d)->char_specials.saved.affected_by, ", ");
-	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flag number (0 to quit) : ",
-			cyn, cur.c_str(), nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nCurrent flags   : {}{}{}\r\nEnter aff flag number (0 to quit) : ",
+								  cyn, cur.c_str(), nrm),
+				  d->character.get());
 }
 
 // * Display main menu.
@@ -1070,7 +1070,7 @@ void medit_disp_menu(DescriptorData *d) {
 		"[H[J"
 #endif
 			"-- МОБ:  [%s%d%s]\r\n"
-			"%s1%s) Пол: %s%-7.7s%s\r\n"
+			"%s1%s) Пол: %s%s%s\r\n"
 			"%s2%s) Синонимы: %s&S%s&s\r\n"
 			"%s3&n) Именительный (это кто)         : %s&e\r\n"
 			"%s4&n) Родительный (нет кого)         : %s&e\r\n"
@@ -1087,7 +1087,9 @@ void medit_disp_menu(DescriptorData *d) {
 			"%sK%s) Класс защиты: [%s%4d%s],%sL%s) Опыт        : [%s%9ld%s],\r\n"
 			"%sM%s) Куны        : [%s%4ld%s],%sN%s) NumGoldDice : [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 			cyn, OLC_NUM(d), nrm,
-			grn, nrm, yel, genders[(int) mob->get_sex()], nrm,
+			// Поле пола ровняем по символам: printf меряет ширину в байтах, и русское "женский"
+			// занимало вдвое больше, чем показывал %-7.7s (issue #3797).
+			grn, nrm, yel, fmt::format("{:<7.7}", genders[(int) mob->get_sex()]).c_str(), nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
 			grn, GET_PAD(mob, 0),
 			grn, GET_PAD(mob, 1),
