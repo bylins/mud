@@ -198,15 +198,18 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::string line;
 		num_can_see++;
 		if (short_list) {
-			const std::string colored_name = fmt::format("{}{}{}", GetPkNameColor(tch), GET_NAME(tch), kColorNrm);
+			// Ширину добираем ВНУТРИ цветовых кодов, а не поверх них: код цвета -- семь невидимых
+			// символов, и "{:<30}" по строке вместе с ними давал колонку не в 30 знаков, а в 16.
+			const std::string colored_name =
+				fmt::format("{}{:<30}{}", GetPkNameColor(tch), GET_NAME(tch), kColorNrm);
 			if (privilege::IsImpl(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-				line = fmt::format("{}[{:2} {}] {:<30}{}",
+				line = fmt::format("{}[{:2} {}] {}{}",
 								   privilege::IsGod(tch.get()) ? kColorWht : "",
 								   GetRealLevel(tch), MUD::Class(tch->GetClass()).GetCName(),
 								   colored_name,
 								   privilege::IsGod(tch.get()) ? kColorNrm : "");
 			} else {
-				line = fmt::format("{}{:<30}{}",
+				line = fmt::format("{}{}{}",
 								   privilege::IsImmortal(tch.get()) ? kColorWht : "",
 								   colored_name,
 								   privilege::IsImmortal(tch.get()) ? kColorNrm : "");
