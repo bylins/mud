@@ -338,14 +338,16 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 	char tmpstr[BUFFER_SIZE];
 	snprintf(tmpstr, BUFFER_SIZE,
 			 "%3d %s\r\n"
-			 "Уровнь зоны %2d, Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+			 "Уровнь зоны %2d, Средний уровень мобов: %2d; Type: %s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
 			 "First: %7d, Top: %7d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
 			 "Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d, вход в зону: %d\r\n",
 			 zone_table[zone].vnum,
 			 zone_table[zone].name.c_str(),
 			 zone_table[zone].level,
 			 zone_table[zone].mob_level,
-			 MUD::ZoneTypes()[zone_table[zone].type].GetName().c_str(),
+			 // Тип зоны по-русски: ширину поля печатаем сами, через fmt, -- printf мерил бы её
+			 // в байтах (issue #3797).
+			 fmt::format("{:<20.20}", MUD::ZoneTypes()[zone_table[zone].type].GetName()).c_str(),
 			 zone_table[zone].age, zone_table[zone].lifespan,
 			 zone_table[zone].reset_mode,
 			 (zone_table[zone].reset_mode == 3) ? (CanBeReset(zone) ? 1 : 0) : (IsZoneEmpty(zone) ? 1 : 0),
