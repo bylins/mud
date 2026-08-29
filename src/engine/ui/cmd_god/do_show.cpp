@@ -286,7 +286,7 @@ std::string print_zone_enters(ZoneRnum zone) {
 					&& world[world[n]->dir_option[dir]->to_room()]->vnum > 0) {
 					// Ширину колонки направления считает fmt: printf меряет её в байтах, и русское
 					// "северо-восток" занимало вдвое больше, чем показывал %6s (issue #3797).
-					out += fmt::format("  Номер комнаты:{:5d} Направление:{:>6} Вход в комнату:{:5d}\r\n",
+					out += fmt::format("  Номер комнаты:{:7d} Направление:{:>6} Вход в комнату:{:7d}\r\n",
 									   world[n]->vnum, dirs_rus[dir],
 									   world[world[n]->dir_option[dir]->to_room()]->vnum);
 					found = true;
@@ -314,7 +314,7 @@ std::string print_zone_exits(ZoneRnum zone) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn != zone
 					&& world[world[n]->dir_option[dir]->to_room()]->vnum > 0) {
-					out += fmt::format("  Номер комнаты:{:5d} Направление:{:>6} Выход в комнату:{:5d}\r\n",
+					out += fmt::format("  Номер комнаты:{:7d} Направление:{:>6} Выход в комнату:{:7d}\r\n",
 									   world[n]->vnum, dirs_rus[dir],
 									   world[world[n]->dir_option[dir]->to_room()]->vnum);
 					found = true;
@@ -339,7 +339,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 	snprintf(tmpstr, BUFFER_SIZE,
 			 "%3d %s\r\n"
 			 "Уровнь зоны %2d, Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			 "First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
+			 "First: %7d, Top: %7d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
 			 "Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d, вход в зону: %d\r\n",
 			 zone_table[zone].vnum,
 			 zone_table[zone].name.c_str(),
@@ -692,7 +692,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				for (j = 0; j < EDirection::kMaxDirNum; j++) {
 					if (world[i]->dir_option[j]
 						&& world[i]->dir_option[j]->to_room() == 0) {
-						sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
+						sprintf(buf + strlen(buf), "%2d: [%7d] %s\r\n", ++k,
 								GET_ROOM_VNUM(i), world[i]->name);
 					}
 				}
@@ -704,13 +704,13 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 6: strcpy(buf, "Смертельных выходов\r\n" "-------------------\r\n");
 			for (i = kFirstRoom, j = 0; i <= top_of_world; i++)
 				if (ROOM_FLAGGED(i, ERoomFlag::kDeathTrap))
-					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
+					sprintf(buf + strlen(buf), "%2d: [%7d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
 			page_string(ch->desc, buf, true);
 			break;
 		case 7: strcpy(buf, "Комнаты для богов\r\n" "-----------------\r\n");
 			for (i = kFirstRoom, j = 0; i <= top_of_world; i++)
 				if (ROOM_FLAGGED(i, ERoomFlag::kGodsRoom))
-					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
+					sprintf(buf + strlen(buf), "%2d: [%7d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
 			page_string(ch->desc, buf, true);
 			break;
 		case 8: *buf = '\0';

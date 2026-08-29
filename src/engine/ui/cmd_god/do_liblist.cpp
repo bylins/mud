@@ -96,7 +96,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			out += buf_;
 			for (nr = kFirstRoom; nr <= top_of_world && (world[nr]->vnum <= last); nr++) {
 				if (world[nr]->vnum >= first) {
-					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
+					snprintf(buf_, sizeof(buf_), "%5d. [%7d] (%3d) %s",
 							 ++found, world[nr]->vnum, nr, world[nr]->name);
 					out += buf_;
 					if (!world[nr]->proto_script->empty()) {

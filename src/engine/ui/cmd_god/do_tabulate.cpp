@@ -132,7 +132,7 @@ int TabulateObjsByAliases(char *searchname, CharData *ch) {
 	for (const auto &nr : obj_proto) {
 		if (isname(searchname, nr->get_aliases())) {
 			++found;
-			sprintf(buf, "%3d. [%5d] %s\r\n",
+			sprintf(buf, "%3d. [%7d] %s\r\n",
 					found, nr->get_vnum(),
 					nr->get_short_description().c_str());
 			SendMsgToChar(buf, ch);

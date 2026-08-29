@@ -296,11 +296,11 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& sight::CanSee(ch, ci)
 					&& ci->in_room != kNowhere) {
 					if (d->original && d->character) {
-						sprintf(line2, " [%5d] %s (in %s)",
+						sprintf(line2, " [%7d] %s (in %s)",
 								GET_ROOM_VNUM(d->character->in_room),
 								world[d->character->in_room]->name, GET_NAME(d->character));
 					} else {
-						sprintf(line2, " [%5d] %s",
+						sprintf(line2, " [%7d] %s",
 								GET_ROOM_VNUM(ci->in_room), world[ci->in_room]->name);
 					}
 				}

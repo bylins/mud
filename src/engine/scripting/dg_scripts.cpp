@@ -832,7 +832,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 		return;
 	}
 
-	snprintf(sb, sizeof(sb), "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
+	snprintf(sb, sizeof(sb), "Name: '%s%s%s',  VNum: [%s%7d%s], RNum: [%7d]\r\n",
 			kColorYel, trig->get_name().c_str(), kColorNrm,
 			kColorGrn, trig_index[(trig)->get_rnum()]->vnum,
 			kColorNrm, trig->get_rnum());
@@ -963,7 +963,7 @@ void script_stat(CharData *ch, Script *sc) {
 	}
 
 	for (auto t : sc->script_trig_list) {
-		snprintf(buf, sizeof(buf), "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d], Context: [%ld]\r\n",
+		snprintf(buf, sizeof(buf), "\r\n  Trigger: %s%s%s, VNum: [%s%7d%s], RNum: [%7d], Context: [%ld]\r\n",
 				kColorYel, GET_TRIG_NAME(t), kColorNrm,
 				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t), t->context);
 		SendMsgToChar(buf, ch);
