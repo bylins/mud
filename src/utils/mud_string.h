@@ -1,8 +1,6 @@
 #ifndef BYLINS_SRC_UTILS_MUD_STRING_H_
 #define BYLINS_SRC_UTILS_MUD_STRING_H_
 
-#include <utility>
-#include <string_view>
 #include <string>
 #include <vector>
 
@@ -35,13 +33,10 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 }
 
 /// Разделить строку на первое слово (arg1) и остаток (arg2).
-/// ВНИМАНИЕ: остаток копируется с оглядкой на kMaxStringLength, буфер меньшего размера
-/// передавать нельзя. В новом коде вместо этого используйте ChopWord (issue #3807).
+/// ВНИМАНИЕ: остаток копируется с оглядкой на kMaxStringLength, а one_argument внутри вообще не
+/// проверяет длину -- буфер меньшего размера передавать нельзя. В новом коде берите
+/// utils::ExtractFirstArgument: тот же разбор на std::string, без фиксированных буферов (#3807).
 void half_chop(const char *string, char *arg1, char *arg2);
-
-/// Первое слово строки (в нижнем регистре) и остаток после него -- то же, что делает half_chop,
-/// но без фиксированных буферов. Пустая строка на входе даёт две пустые строки на выходе.
-std::pair<std::string, std::string> ChopWord(std::string_view line);
 
 /// Разбить строку на отдельные аргументы.
 void SplitArgument(const char *arguments, std::vector<std::string> &out);

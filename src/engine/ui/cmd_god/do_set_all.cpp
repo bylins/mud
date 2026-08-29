@@ -8,9 +8,9 @@
 
 #include "engine/ui/cmd_god/do_set_all.h"
 #include "utils/native_text.h"
+#include "utils/utils_string.h"
 #include "engine/db/player_index.h"
 #include <fmt/format.h>
-#include "utils/mud_string.h"
 
 #include "administration/karma.h"
 #include "engine/entities/char_data.h"
@@ -237,10 +237,18 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	// Разбор идёт по своим строкам, а не по глобальным buf/buf1/buf2 (issue #3807).
-	auto [mail, after_mail] = ChopWord(argument ? argument : "");
-	auto [action, after_action] = ChopWord(after_mail);
-	auto [param, reason] = ChopWord(after_action);
+	// Разбор идёт через utils::ExtractFirstArgument -- строковый аналог one_argument, без
+	// глобальных buf/buf1/buf2 (issue #3807). Слова приводим к нижнему регистру сами: почта
+	// сверяется с player_table подстрокой, то есть с учётом регистра.
+	std::string remains = argument ? argument : "";
+	std::string mail = utils::ExtractFirstArgument(remains, remains);
+	std::string action = utils::ExtractFirstArgument(remains, remains);
+	std::string param = utils::ExtractFirstArgument(remains, remains);
+	native_text::to_lower(mail);
+	native_text::to_lower(action);
+	native_text::to_lower(param);
+	utils::TrimLeft(remains);
+	const std::string &reason = remains;
 
 	SetAllInspReqPtr req(new setall_inspect_request);
 	req->newmail = nullptr;
