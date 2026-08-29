@@ -85,4 +85,17 @@ TEST(LiquidNameRoundTrip, StoredExtraSpaceHealsOnReload) {
 	EXPECT_EQ(jar->get_aliases().find("  "), std::string::npos) << "в синонимах двойных пробелов тоже быть не должно";
 }
 
+TEST(LiquidNameRoundTrip, EmptyJarLosesTheStrayTrailingSpace) {
+	// Пустую ёмкость снятие названия жидкости раньше не трогало вовсе: снимать нечего, разбор
+	// выходил на первом же поле. Пробел, оставшийся в имени от старой обрезки, так и жил в файле
+	// вещей, и "бросить" показывал "древний череп  ." -- с дырой перед точкой.
+	auto jar = MakeJar("древний череп ");
+
+	name_from_drinkcon(jar.get());
+
+	EXPECT_EQ(jar->get_short_description(), "древний череп");
+	EXPECT_EQ(jar->get_PName(grammar::ECase::kAcc), "древний череп") << "падежи тоже";
+	EXPECT_EQ(jar->get_aliases(), "древний череп") << "и синонимы";
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

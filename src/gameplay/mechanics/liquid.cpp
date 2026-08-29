@@ -574,26 +574,26 @@ static std::string CutLiquidName(const std::string &name, size_t pos, size_t sep
 	return utils::TrimRightCopy(name.substr(0, pos - separator_len));
 }
 
-void name_from_drinkcon(ObjData *obj) {
-	size_t pos = find_liquid_name(obj->get_aliases().c_str());
-	if (pos == std::string::npos || pos < 1) {
-		return;
+// Снять с одного поля название жидкости. Если снимать нечего -- всё равно срезать хвостовые
+// пробелы: у пустой ёмкости название жидкости уже снято, а пробел от старой обрезки в имени
+// остался, и "бросить" показывал "древний череп  ." с дырой перед точкой.
+static std::string StripLiquidName(const std::string &name, size_t separator_len) {
+	const size_t pos = find_liquid_name(name.c_str());
+	if (pos == std::string::npos || pos < separator_len) {
+		return utils::TrimRightCopy(name);
 	}
-	obj->set_aliases(CutLiquidName(obj->get_aliases(), pos, 1));
+	return CutLiquidName(name, pos, separator_len);
+}
 
-	pos = find_liquid_name(obj->get_short_description().c_str());
-	if (pos == std::string::npos || pos < kLiquidSeparator.length()) {
-		return;
-	}
-	obj->set_short_description(CutLiquidName(obj->get_short_description(), pos, kLiquidSeparator.length()));
+void name_from_drinkcon(ObjData *obj) {
+	// Каждое поле обрабатываем независимо: раньше первое же поле без названия жидкости
+	// прерывало разбор остальных, и падежи расходились между собой.
+	obj->set_aliases(StripLiquidName(obj->get_aliases(), 1));
+	obj->set_short_description(StripLiquidName(obj->get_short_description(), kLiquidSeparator.length()));
 
 	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
 		auto name_case = static_cast<grammar::ECase>(c);
-		pos = find_liquid_name(obj->get_PName(name_case).c_str());
-		if (pos == std::string::npos || pos < kLiquidSeparator.length()) {
-			return;
-		}
-		obj->set_PName(name_case, CutLiquidName(obj->get_PName(name_case), pos, kLiquidSeparator.length()));
+		obj->set_PName(name_case, StripLiquidName(obj->get_PName(name_case), kLiquidSeparator.length()));
 	}
 }
 
