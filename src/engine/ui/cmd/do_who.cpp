@@ -5,8 +5,8 @@
 #include "engine/ui/cmd/do_who.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
+#include "utils/utils_string.h"
 #include <string>
-#include <string_view>
 #include <utility>
 #include <fmt/format.h>
 #include "administration/privilege.h"
@@ -28,28 +28,15 @@ const char *IMM_WHO_FORMAT =
 
 const char *MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
 
-// Первое слово строки (в нижнем регистре) и остаток -- то же, что делает half_chop, но без
-// фиксированных буферов: half_chop копирует остаток с оглядкой на kMaxStringLength, поэтому
-// буфер меньше этого размера ему передавать нельзя (issue #3807).
-std::pair<std::string, std::string> ChopWord(std::string_view line) {
-	constexpr std::string_view kSpaces = " \t\r\n\v\f";
-
-	const auto word_begin = line.find_first_not_of(kSpaces);
-	if (word_begin == std::string_view::npos) {
-		return {};
-	}
-	const auto word_end = line.find_first_of(kSpaces, word_begin);
-
-	std::string word{line.substr(word_begin,
-								 word_end == std::string_view::npos ? std::string_view::npos : word_end - word_begin)};
+// Первое слово в нижнем регистре и остаток -- utils::ExtractFirstArgument плюс то, что
+// half_chop делал сам: понижение регистра (сравнения ниже рассчитывают на него) и срез
+// ведущих пробелов в остатке.
+std::pair<std::string, std::string> ChopWord(const std::string &line) {
+	std::string rest;
+	std::string word = utils::ExtractFirstArgument(line, rest);
 	native_text::to_lower(word);
-	if (word_end == std::string_view::npos) {
-		return {std::move(word), {}};
-	}
-
-	const auto rest_begin = line.find_first_not_of(kSpaces, word_end);
-	return {std::move(word),
-			rest_begin == std::string_view::npos ? std::string() : std::string(line.substr(rest_begin))};
+	utils::TrimLeft(rest);
+	return {std::move(word), std::move(rest)};
 }
 
 } // namespace
