@@ -832,7 +832,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 		return;
 	}
 
-	snprintf(sb, sizeof(sb), "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
+	snprintf(sb, sizeof(sb), "Name: '%s%s%s',  VNum: [%s%7d%s], RNum: [%7d]\r\n",
 			kColorYel, trig->get_name().c_str(), kColorNrm,
 			kColorGrn, trig_index[(trig)->get_rnum()]->vnum,
 			kColorNrm, trig->get_rnum());
@@ -953,14 +953,17 @@ void script_stat(CharData *ch, Script *sc) {
 		snprintf(namebuf, sizeof(namebuf), "%s:%ld", tv.name.c_str(), tv.context);
 		if (tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM || tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL) {
 			find_uid_name(tv.value.c_str(), name, sizeof(name));
-			snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", tv.context ? namebuf : tv.name.c_str(), name);
+			// Ширину колонки имени считает fmt: printf меряет её в байтах, и русское имя
+			// переменной ломало столбец (issue #3797).
+			SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
+									  tv.context ? namebuf : tv.name.c_str(), name), ch);
 		} else
-			snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", tv.context ? namebuf : tv.name.c_str(), tv.value.c_str());
-		SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
+									  tv.context ? namebuf : tv.name.c_str(), tv.value), ch);
 	}
 
 	for (auto t : sc->script_trig_list) {
-		snprintf(buf, sizeof(buf), "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d], Context: [%ld]\r\n",
+		snprintf(buf, sizeof(buf), "\r\n  Trigger: %s%s%s, VNum: [%s%7d%s], RNum: [%7d], Context: [%ld]\r\n",
 				kColorYel, GET_TRIG_NAME(t), kColorNrm,
 				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t), t->context);
 		SendMsgToChar(buf, ch);
@@ -1007,11 +1010,10 @@ void script_stat(CharData *ch, Script *sc) {
 				if (!var_name.empty()) {
 					if (tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM || tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL) {
 						find_uid_name(tv.value.c_str(), name, sizeof(name));
-						snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", var_name.c_str(), name);
+						SendMsgToChar(fmt::format("    {:>15}:  {}\r\n", var_name, name), ch);
 					} else {
-						snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", var_name.c_str(), tv.value.c_str());
+						SendMsgToChar(fmt::format("    {:>15}:  {}\r\n", var_name, tv.value), ch);
 					}
-					SendMsgToChar(buf, ch);
 				}
 			}
 		}

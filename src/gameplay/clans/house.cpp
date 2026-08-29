@@ -1947,7 +1947,8 @@ void Clan::hcontrol_exphistory(CharData *ch, std::string &text) {
 	}
 	for (std::multimap<long long, std::string>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend();
 		 i != iend; ++i) {
-		SendMsgToChar(ch, "%5s - %s\r\n", i->second.c_str(), ExpFormat(i->first).c_str());
+		// Аббревиатура клана русская, ширину поля считает fmt (issue #3797).
+		SendMsgToChar(fmt::format("{:>5} - {}\r\n", i->second, ExpFormat(i->first)), ch);
 	}
 }
 

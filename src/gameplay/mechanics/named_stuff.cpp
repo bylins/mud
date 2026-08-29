@@ -176,7 +176,10 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 	if ((*buf1 < '1' || *buf1 > '8') && (native_text::first_char_code_lower(buf1) != rus::kVe
 			&& native_text::first_char_code_lower(buf1) != rus::kHa
 			&& native_text::first_char_code_lower(buf1) != rus::kU)) {
-		SendMsgToChar(ch, "Неверный параметр %c!\r\n", *buf1);
+		// Печатаем символ целиком, а не первый байт: под UTF-8 русская буква в char не влезает,
+		// и игрок получал в ответ обломок вместо своей буквы (issue #3797).
+		SendMsgToChar(fmt::format("Неверный параметр {}!\r\n",
+								  std::string_view(buf1, native_text::char_bytes(buf1))), ch);
 		return false;
 	}
 	if (!*buf2 && native_text::first_char_code_lower(buf1) != rus::kVe

@@ -1323,7 +1323,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 			//-------------------------------------------------------------------
 		case MEDIT_MAIN_MENU: i = 0;
-			olc_log("%s command %c", GET_NAME(d->character), *arg);
+			olc_log("%s command %s", GET_NAME(d->character),
+					std::string(arg, native_text::char_bytes(arg)).c_str());
 			switch (native_text::first_char_code(arg)) {
 				case 'q':
 				case 'Q':

@@ -669,7 +669,8 @@ void redit_parse(DescriptorData *d, char *arg) {
 					redit_disp_menu(d);
 					break;
 			}
-			olc_log("%s command %c", GET_NAME(d->character), *arg);
+			olc_log("%s command %s", GET_NAME(d->character),
+					std::string(arg, native_text::char_bytes(arg)).c_str());
 			return;
 
 		case OLC_SCRIPT_EDIT:

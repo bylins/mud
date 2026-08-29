@@ -137,7 +137,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (k->IsNpc()) {
 		snprintf(buf, sizeof(buf),
-				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
+				"Синонимы: &S%s&s, VNum: [%7d], RNum: [%7d]\r\n",
 				k->GetCharAliases().c_str(),
 				GET_MOB_VNUM(k),
 				k->get_rnum());
@@ -670,16 +670,17 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			for (auto tv : k->script->global_vars) {
 				if (tv.value[0] == UID_CHAR) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [CharUID]: %s\r\n", tv.name.c_str(), name);
+					// Ширину колонки имени считает fmt: printf меряет её в байтах (issue #3797).
+					SendMsgToChar(fmt::format("    {:>10}:  [CharUID]: {}\r\n", tv.name, name), ch);
 				} else if (tv.value[0] == UID_OBJ) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [ObjUID]: %s\r\n", tv.name.c_str(), name);
+					SendMsgToChar(fmt::format("    {:>10}:  [ObjUID]: {}\r\n", tv.name, name), ch);
 				} else if (tv.value[0] == UID_ROOM) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [RoomUID]: %s\r\n", tv.name.c_str(), name);
-				} else
-					snprintf(buf, sizeof(buf), "    %10s:  %s\r\n", tv.name.c_str(), tv.value.c_str());
-				SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("    {:>10}:  [RoomUID]: {}\r\n", tv.name, name), ch);
+				} else {
+					SendMsgToChar(fmt::format("    {:>10}:  {}\r\n", tv.name, tv.value), ch);
+				}
 			}
 		}
 
@@ -735,7 +736,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		snprintf(buf2, sizeof(buf2), "None");
 	}
 
-	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UniqueID: [%ld], Id: [%ld]\r\n",
+	SendMsgToChar(ch, "VNum: [%s%7d%s], RNum: [%7d], UniqueID: [%ld], Id: [%ld]\r\n",
 				  kColorGrn, vnum, kColorNrm, j->get_rnum(), j->get_unique_id(), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
@@ -1205,7 +1206,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 
 	sprinttype(rm->sector_type, sector_types, smallBuf);
 	snprintf(buf, sizeof(buf),
-			"Зона: [%3d], VNum: [%s%5d%s], RNum: [%5d], Тип  сектора: %s\r\n",
+			"Зона: [%3d], VNum: [%s%7d%s], RNum: [%7d], Тип  сектора: %s\r\n",
 			zone_table[rm->zone_rn].vnum, kColorGrn, rm->vnum, kColorNrm, rnum, smallBuf);
 	SendMsgToChar(buf, ch);
 
@@ -1277,7 +1278,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			if (rm->dir_option[i]->to_room() == kNowhere)
 				snprintf(smallBuf, sizeof(smallBuf), " %sNONE%s", kColorCyn, kColorNrm);
 			else
-				snprintf(smallBuf, sizeof(smallBuf), "%s%5d%s", kColorCyn,
+				snprintf(smallBuf, sizeof(smallBuf), "%s%7d%s", kColorCyn,
 						GET_ROOM_VNUM(rm->dir_option[i]->to_room()), kColorNrm);
 			sprintbit(rm->dir_option[i]->exit_info.get_plane(0), exit_bits, tmpBuf, sizeof(tmpBuf));
 			snprintf(buf, sizeof(buf),

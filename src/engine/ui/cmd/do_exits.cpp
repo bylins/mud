@@ -40,7 +40,7 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
 					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
-						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
+						sprintf(buf2 + strlen(buf2), "[%7d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
 						strcat(buf2, world[rnum_exit_room]->name);
 					}

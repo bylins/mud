@@ -16,6 +16,13 @@
 
 #include <fmt/format.h>
 
+// Ширину колонок считает fmt: printf меряет её в байтах, и русское имя бога в графе
+// "Banned By" ломало столбец, а обрезка по .16 могла разрубить букву пополам (issue #3797).
+namespace {
+constexpr auto kBanRow = "{:<25.25}  {:<8.8}  {:<10.10}  {:<16.16} {:<8.8}\r\n";
+constexpr auto kProxyRow = "{:<25.25}  {:<16.16}\r\n";
+}  // namespace
+
 const std::string &BanList::ban_filename() { return MUD::StateManager().Path(state::EStateFile::kBannedSites); }
 const std::string &BanList::proxy_ban_filename() { return MUD::StateManager().Path(state::EStateFile::kBannedProxies); }
 const char *BanList::ban_types[] = {
@@ -312,26 +319,20 @@ void BanList::ShowBannedIp(int sort_mode, CharData *ch) {
 	}
 
 	SortIp(sort_mode);
-	char format[kMaxInputLength], to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = nullptr, *timestr;
-	strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s %-8.8s\r\n");
-	sprintf(buf, format, "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
-
-	listbuf = str_add(listbuf, buf);
-	sprintf(buf, format,
-			"---------------------------------",
-			"---------------------------------",
-			"---------------------------------",
-			"---------------------------------", "---------------------------------");
-	listbuf = str_add(listbuf, buf);
+	char to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = nullptr, *timestr;
+	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
+										   "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban").c_str());
+	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
+										   "-------------------------", "--------", "----------",
+										   "----------------", "--------").c_str());
 
 	for (auto &i : ban_list_) {
 		timestr = asctime(localtime(&(i->BanDate)));
 		*(timestr + 10) = 0;
 		strcpy(to_unban, timestr);
 		sprintf(buff, "%ldh", static_cast<long int>(i->UnbanDate - time(nullptr)) / 3600);
-		sprintf(buf, format, i->BannedIp.c_str(), ban_types[i->BanType],
-				to_unban, i->BannerName.c_str(), buff);
-		listbuf = str_add(listbuf, buf);
+		listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow), i->BannedIp, ban_types[i->BanType],
+											   to_unban, i->BannerName, buff).c_str());
 		strcpy(buf, i->BanReason.c_str());
 		strcat(buf, "\r\n");
 		listbuf = str_add(listbuf, buf);
@@ -348,17 +349,12 @@ void BanList::ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask) 
 	}
 
 	SortIp(sort_mode);
-	char format[kMaxInputLength], to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = nullptr, *timestr;
-	strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s %-8.8s\r\n");
-	sprintf(buf, format, "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
-
-	listbuf = str_add(listbuf, buf);
-	sprintf(buf, format,
-			"---------------------------------",
-			"---------------------------------",
-			"---------------------------------",
-			"---------------------------------", "---------------------------------");
-	listbuf = str_add(listbuf, buf);
+	char to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = nullptr, *timestr;
+	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
+										   "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban").c_str());
+	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
+										   "-------------------------", "--------", "----------",
+										   "----------------", "--------").c_str());
 
 	for (auto &i : ban_list_) {
 		if (strncmp(i->BannedIp.c_str(), mask, strlen(mask)) == 0) {
@@ -366,9 +362,8 @@ void BanList::ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask) 
 			*(timestr + 10) = 0;
 			strcpy(to_unban, timestr);
 			sprintf(buff, "%ldh", static_cast<long int>(i->UnbanDate - time(nullptr)) / 3600);
-			sprintf(buf, format, i->BannedIp.c_str(), ban_types[i->BanType],
-					to_unban, i->BannerName.c_str(), buff);
-			listbuf = str_add(listbuf, buf);
+			listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow), i->BannedIp, ban_types[i->BanType],
+												   to_unban, i->BannerName, buff).c_str());
 			strcpy(buf, i->BanReason.c_str());
 			strcat(buf, "\r\n");
 			listbuf = str_add(listbuf, buf);
@@ -390,14 +385,12 @@ void BanList::ShowBannedProxy(int sort_mode, CharData *ch) {
 		return;
 	}
 	SortProxy(sort_mode);
-	char format[kMaxInputLength], *listbuf = nullptr;
-	strcpy(format, "%-25.25s  %-16.16s\r\n");
-	sprintf(buf, format, "Banned Site Name", "Banned By");
-	SendMsgToChar(buf, ch);
-	sprintf(buf, format, "---------------------------------", "---------------------------------");
-	listbuf = str_add(listbuf, buf);
+	char *listbuf = nullptr;
+	SendMsgToChar(fmt::format(fmt::runtime(kProxyRow), "Banned Site Name", "Banned By"), ch);
+	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kProxyRow),
+										   "-------------------------", "----------------").c_str());
 	for (auto &i : proxy_ban_list_) {
-		sprintf(buf, format, i->BannedIp.c_str(), i->BannerName.c_str());
+		snprintf(buf, kMaxStringLength, "%s", fmt::format(fmt::runtime(kProxyRow), i->BannedIp, i->BannerName).c_str());
 		listbuf = str_add(listbuf, buf);
 	}
 	page_string(ch->desc, listbuf, 1);

@@ -595,8 +595,10 @@ void pk_list_sprintf(CharData *ch, char *buff) {
 	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
 	for (const auto &[uid, pk] : ch->pk_map) {
 		auto temp = GetPlayerNameByUnique(uid);
-		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp.empty() ? "<УДАЛЕН>" : temp.c_str(),
-				pk.kill_num, pk.revenge_num);
+		// Ширину имени считает fmt: printf меряет её в байтах, и русское имя ломало столбец
+		// (issue #3797).
+		strcat(buff, fmt::format("{:>20} {:4d} {:4d}",
+								 temp.empty() ? "<УДАЛЕН>" : temp, pk.kill_num, pk.revenge_num).c_str());
 
 		if (pk.clan_exp > time(nullptr)) {
 			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk.clan_exp - time(nullptr)));

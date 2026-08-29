@@ -119,8 +119,11 @@ void LogClassesExpStat() {
 
 	log("Saving class exp stats.");
 	for (const auto & i : (*tmp_array)) {
-		log("class_exp: %13s   %15lld   %3llu%%",
-			MUD::Class(i.first).GetPluralCName(), i.second, top_exp != 0 ? i.second * 100 / top_exp : 0);
+		// Ширину колонки считает fmt: log печатает printf-ом, а тот меряет её в байтах, и
+		// русское название профессии ломало столбец в логе (issue #3797).
+		log("%s", fmt::format("class_exp: {:>13}   {:>15}   {:>3}%",
+							  MUD::Class(i.first).GetPluralCName(), i.second,
+							  top_exp != 0 ? i.second * 100 / top_exp : 0).c_str());
 	}
 }
 

@@ -98,7 +98,7 @@ void print_event_list(CharData *ch)
 		if (!wed || !wed->trigger) {
 			continue;
 		}
-		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%5d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
+		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%7d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
 //		if (wed->trigger->wait_line != nullptr) {
 		if (wed->trigger->wait_event.time_remaining > 0 && wed->trigger->wait_line != nullptr) {
 			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s (num line: %d)\r\n", GET_TRIG_WAIT(wed->trigger).time_remaining, 

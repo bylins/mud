@@ -78,7 +78,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				 GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
-		snprintf(buf, kMaxStringLength, "&R[%5d] %s воззвал%s к богам с сообщением : '%s'&n\r\n",
+		snprintf(buf, kMaxStringLength, "&R[%7d] %s воззвал%s к богам с сообщением : '%s'&n\r\n",
 				 world[ch->in_room]->vnum, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), argument);
 	}
 
