@@ -5,6 +5,9 @@
 #include "engine/ui/cmd/do_who.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
+#include <string>
+#include <string_view>
+#include <utility>
 #include <fmt/format.h>
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -25,11 +28,34 @@ const char *IMM_WHO_FORMAT =
 
 const char *MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
 
+// Первое слово строки (в нижнем регистре) и остаток -- то же, что делает half_chop, но без
+// фиксированных буферов: half_chop копирует остаток с оглядкой на kMaxStringLength, поэтому
+// буфер меньше этого размера ему передавать нельзя (issue #3807).
+std::pair<std::string, std::string> ChopWord(std::string_view line) {
+	constexpr std::string_view kSpaces = " \t\r\n\v\f";
+
+	const auto word_begin = line.find_first_not_of(kSpaces);
+	if (word_begin == std::string_view::npos) {
+		return {};
+	}
+	const auto word_end = line.find_first_of(kSpaces, word_begin);
+
+	std::string word{line.substr(word_begin,
+								 word_end == std::string_view::npos ? std::string_view::npos : word_end - word_begin)};
+	native_text::to_lower(word);
+	if (word_end == std::string_view::npos) {
+		return {std::move(word), {}};
+	}
+
+	const auto rest_begin = line.find_first_not_of(kSpaces, word_end);
+	return {std::move(word),
+			rest_begin == std::string_view::npos ? std::string() : std::string(line.substr(rest_begin))};
+}
+
 } // namespace
 
 void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char name_search[kMaxInputLength];
-	name_search[0] = '\0';
+	std::string name_search;
 
 	// Флаги для опций
 	int low = 0, high = kLvlImplementator;
@@ -40,64 +66,69 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ECharClass showclass{ECharClass::kUndefined};
 
 	skip_spaces(&argument);
-	// Разбор идёт по своим буферам, а не по глобальным buf/arg/buf1: те общие на весь процесс,
+	// Разбор идёт по своим строкам, а не по глобальным buf/arg/buf1: те общие на весь процесс,
 	// и любой вызов посреди разбора затирал бы разобранное (issue #3807).
-	char rest[kMaxInputLength];
-	char token[kMaxInputLength];
-	char tail[kMaxInputLength];
-	strncpy(rest, argument, sizeof(rest) - 1);
-	rest[sizeof(rest) - 1] = '\0';
+	std::string rest = argument ? argument : "";
 
 	// Проверка аргументов команды "кто"
-	while (*rest) {
-		half_chop(rest, token, tail);
-		if (!str_cmp(token, "боги") && strlen(token) == 4) {
+	while (!rest.empty()) {
+		auto [token, tail] = ChopWord(rest);
+		if (token.empty()) {
+			break;
+		}
+		if (token == "боги") {
 			low = kLvlImmortal;
 			high = kLvlImplementator;
-			strcpy(rest, tail);
-		} else if (a_isdigit(*token)) {
+			rest = tail;
+		} else if (a_isdigit(token.front())) {
 			if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
-				sscanf(token, "%d-%d", &low, &high);
-			strcpy(rest, tail);
-		} else if (*token == '-') {
-			const char32_t mode = native_text::first_char_code(token + 1);    // just in case; we destroy token in the switch
+				sscanf(token.c_str(), "%d-%d", &low, &high);
+			rest = tail;
+		} else if (token.front() == '-') {
+			const char32_t mode = native_text::first_char_code(token.c_str() + 1);
 			switch (mode) {
 				case 'b':
 				case rus::kI:
 					if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kDemigod) || ch->IsFlagged(EPrf::kCoderinfo))
 						showname = true;
-					strcpy(rest, tail);
+					rest = tail;
 					break;
 				case 'z':
 					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						localwho = true;
-					strcpy(rest, tail);
+					rest = tail;
 					break;
 				case 's':
 					if (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						short_list = true;
-					strcpy(rest, tail);
+					rest = tail;
 					break;
-				case 'l': half_chop(tail, token, rest);
+				case 'l': {
+					auto [value, next] = ChopWord(tail);
+					rest = next;
 					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
-						sscanf(token, "%d-%d", &low, &high);
+						sscanf(value.c_str(), "%d-%d", &low, &high);
 					break;
-				case 'n': half_chop(tail, name_search, rest);
+				}
+				case 'n': {
+					auto [value, next] = ChopWord(tail);
+					name_search = value;
+					rest = next;
 					break;
+				}
 				case 'r':
 					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						who_room = true;
-					strcpy(rest, tail);
+					rest = tail;
 					break;
-				case 'c': half_chop(tail, token, rest);
+				case 'c': {
+					auto [value, next] = ChopWord(tail);
+					rest = next;
 					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-/*						const size_t len = strlen(token);
-						for (size_t i = 0; i < len; i++) {
-							showclass |= FindCharClassMask(token[i]);
-						}*/
-						showclass = FindAvailableCharClassId(token);
+						showclass = FindAvailableCharClassId(value.c_str());
 					}
 					break;
+				}
 				case 'h':
 				case '?':
 				default:
@@ -109,13 +140,12 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}    // end of switch
 		} else    // endif
 		{
-			strcpy(name_search, token);
-			strcpy(rest, tail);
-
+			name_search = token;
+			rest = tail;
 		}
 	}            // end while (parser)
 
-	if (PerformWhoSpamcontrol(ch, strlen(name_search) ? kWhoListname : kWhoListall))
+	if (PerformWhoSpamcontrol(ch, name_search.empty() ? kWhoListall : kWhoListname))
 		return;
 
 	// Строки содержащие имена
@@ -138,7 +168,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			++all;
 		}
 
-		if (*name_search && !(isname(name_search, GET_NAME(tch)))) {
+		if (!name_search.empty() && !isname(name_search, GET_NAME(tch))) {
 			continue;
 		}
 
