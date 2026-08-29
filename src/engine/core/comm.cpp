@@ -33,6 +33,7 @@
 #include "gameplay/fight/arena.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/magic_item.h"
+#include "utils/native_text.h"
 
 #include "comm.h"
 
@@ -2727,9 +2728,17 @@ void perform_act(const char *orig,
 					*buf = *(i++);
 					buf++;
 				}
-				*buf = a_ucc(*i);
-				i++;
-				buf++;
+				// Заглавной делаем букву целиком, а не первый байт: в UTF-8 русская буква
+				// двухбайтовая, и a_ucc(*i) портил ведущий байт -- "Волчица" приезжала как
+				// "?олчица" (issue #3797/#3681).
+				const std::size_t letter_bytes = native_text::char_bytes(i);
+				std::string first(i, letter_bytes);
+				native_text::capitalize_first(first);
+				for (const char symbol : first) {
+					*buf = symbol;
+					++buf;
+				}
+				i += letter_bytes;
 				cap = 0;
 			}
 			while ((*buf = *(i++)))
