@@ -5,6 +5,7 @@
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
+#include <fmt/format.h>
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"
@@ -172,24 +173,16 @@ void GlobalDropLoader::Load(parser_wrapper::DataNode data) {
 			day_end = 360;
 
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0) {
-			snprintf(buf, kMaxStringLength,
-					 "...bad drop attributes (ObjVnum=%d, mob_lvl=%d, drop_chance=%d, max_mob_lvl=%d)",
-					 obj_vnum, mob_lvl, count_mob, max_mob_lvl);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...bad drop attributes (ObjVnum={}, mob_lvl={}, drop_chance={}, max_mob_lvl={})",
+							   obj_vnum, mob_lvl, count_mob, max_mob_lvl),
+				   CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
-		snprintf(buf,
-				 kMaxStringLength,
-				 "GLOBALDROP: (ObjVnum=%d, mob_lvl=%d, count_mob=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, drop_chance=%d)",
-				 obj_vnum,
-				 mob_lvl,
-				 count_mob,
-				 max_mob_lvl,
-				 day_start,
-				 day_end,
-				 race_mob,
-				 chance);
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("GLOBALDROP: (ObjVnum={}, mob_lvl={}, count_mob={}, max_mob_lvl={}, "
+						   "day_start={}, day_end={}, race_mob={}, drop_chance={})",
+						   obj_vnum, mob_lvl, count_mob, max_mob_lvl,
+						   day_start, day_end, race_mob, chance),
+			   CMP, kLvlImmortal, SYSLOG, true);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
 		tmp_node.mob_lvl = mob_lvl;
@@ -203,8 +196,7 @@ void GlobalDropLoader::Load(parser_wrapper::DataNode data) {
 		if (obj_vnum >= 0) {
 			const int obj_rnum = GetObjRnum(obj_vnum);
 			if (obj_rnum < 0) {
-				snprintf(buf, kMaxStringLength, "...incorrect ObjVnum=%d", obj_vnum);
-				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("...incorrect ObjVnum={}", obj_vnum), CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 			tmp_node.rnum = obj_rnum;
@@ -213,23 +205,20 @@ void GlobalDropLoader::Load(parser_wrapper::DataNode data) {
 			for (auto &item : node.Children("obj")) {
 				const int item_vnum = AttrInt(item, "vnum", 0);
 				if (item_vnum <= 0) {
-					snprintf(buf, kMaxStringLength,
-							 "...bad shop attributes (item_vnum=%d)", item_vnum);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...bad shop attributes (item_vnum={})", item_vnum),
+						   CMP, kLvlImmortal, SYSLOG, true);
 					return;
 				}
 				// проверяем шмотку
 				const int item_rnum = GetObjRnum(item_vnum);
 				if (item_rnum < 0) {
-					snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...incorrect item_vnum={}", item_vnum), CMP, kLvlImmortal, SYSLOG, true);
 					return;
 				}
 				tmp_node.olist[item_vnum] = item_rnum;
 			}
 			if (tmp_node.olist.empty()) {
-				snprintf(buf, kMaxStringLength, "...item list empty (ObjVnum=%d)", obj_vnum);
-				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("...item list empty (ObjVnum={})", obj_vnum), CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 		}
@@ -341,12 +330,12 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 						|| (obj_rnum >= 0
 							&& obj_proto.actual_count(obj_rnum) < GetObjMIW(obj_rnum)))) {
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, kToRoom);
-					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d (%d lvl)",
-							obj_proto[obj_rnum]->get_short_description().c_str(),
-							obj_proto[obj_rnum]->get_vnum(),
-							GET_NAME(mob),
-							GET_MOB_VNUM(mob), GetRealLevel(mob));
-					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+					mudlog(fmt::format("Фридроп: упал предмет {} VNUM {} с моба {} VNUM {} ({} lvl)",
+									   obj_proto[obj_rnum]->get_short_description(),
+									   obj_proto[obj_rnum]->get_vnum(),
+									   GET_NAME(mob),
+									   GET_MOB_VNUM(mob), GetRealLevel(mob)),
+						   CMP, kLvlGreatGod, SYSLOG, true);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
 				i->mobs = 0;
@@ -363,26 +352,18 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	auto corpse = world_objects.create_blank();
 	corpse->set_sex(EGender::kPoly);
 
-	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
-	corpse->set_description(buf2);
+	const std::string owner = GET_PAD(ch, 1);
+	const std::string nominative = fmt::format("останки {}", owner);
 
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->set_short_description(buf2);
-
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kNom, buf2);
-	corpse->set_aliases(buf2);
-
-	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kGen, buf2);
-	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kDat, buf2);
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kAcc, buf2);
-	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kIns, buf2);
-	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kPre, buf2);
+	corpse->set_description(fmt::format("Останки {} лежат на земле.", owner));
+	corpse->set_short_description(nominative);
+	corpse->set_PName(grammar::ECase::kNom, nominative);
+	corpse->set_aliases(nominative);
+	corpse->set_PName(grammar::ECase::kGen, fmt::format("останков {}", owner));
+	corpse->set_PName(grammar::ECase::kDat, fmt::format("останкам {}", owner));
+	corpse->set_PName(grammar::ECase::kAcc, nominative);
+	corpse->set_PName(grammar::ECase::kIns, fmt::format("останками {}", owner));
+	corpse->set_PName(grammar::ECase::kPre, fmt::format("останках {}", owner));
 
 	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);
@@ -400,12 +381,9 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	}
 	ExtraDescription exdesc;
 	exdesc.keyword = corpse->get_PName(grammar::ECase::kNom);    // косметика
-	if (killer) {
-		sprintf(buf, "Убит%s на арене %s.\r\n", grammar::SexEnding((ch)->get_sex(), 6), GET_PAD(killer, 4));
-	} else {
-		sprintf(buf, "Умер%s на арене.\r\n", grammar::SexEnding((ch)->get_sex(), 4));
-	}
-	exdesc.description = buf;    // косметика
+	exdesc.description = killer    // косметика
+					   ? fmt::format("Убит{} на арене {}.\r\n", grammar::SexEnding((ch)->get_sex(), 6), GET_PAD(killer, 4))
+					   : fmt::format("Умер{} на арене.\r\n", grammar::SexEnding((ch)->get_sex(), 4));
 	corpse->ex_descriptions().push_back(std::move(exdesc));
 	PlaceObjToRoom(corpse.get(), ch->in_room);
 }
@@ -417,25 +395,19 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kCorpse))
 		return nullptr;
 	auto corpse = world_objects.create_blank();
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_aliases(buf2);
+	const std::string owner = GET_PAD(ch, 1);
+	const std::string nominative = fmt::format("труп {}", owner);
+
+	corpse->set_aliases(nominative);
 	corpse->set_sex(EGender::kMale);
-	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
-	corpse->set_description(buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_short_description(buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kNom, buf2);
-	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kGen, buf2);
-	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kDat, buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kAcc, buf2);
-	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kIns, buf2);
-	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
-	corpse->set_PName(grammar::ECase::kPre, buf2);
+	corpse->set_description(fmt::format("Труп {} лежит здесь.", owner));
+	corpse->set_short_description(nominative);
+	corpse->set_PName(grammar::ECase::kNom, nominative);
+	corpse->set_PName(grammar::ECase::kGen, fmt::format("трупа {}", owner));
+	corpse->set_PName(grammar::ECase::kDat, fmt::format("трупу {}", owner));
+	corpse->set_PName(grammar::ECase::kAcc, nominative);
+	corpse->set_PName(grammar::ECase::kIns, fmt::format("трупом {}", owner));
+	corpse->set_PName(grammar::ECase::kPre, fmt::format("трупе {}", owner));
 
 	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);
