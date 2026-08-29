@@ -584,4 +584,68 @@ TEST(Utils_String, IsEquivalent_OrderMatters)
 	EXPECT_FALSE(utils::IsEquivalent("wor hel", "hello big world"));
 }
 
+// ===== ExtractFirstArgument =====
+
+TEST(Utils_String, ExtractFirstArgument_SplitsWordAndRest)
+{
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgument("frozen 30 за спам", rest), "frozen");
+	EXPECT_EQ(rest, "30 за спам");
+}
+
+TEST(Utils_String, ExtractFirstArgument_TabIsASeparator)
+{
+	// Раньше резали только по пробелу, и табуляция склеивала два аргумента в один.
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgument("frozen\t30 спам", rest), "frozen");
+	EXPECT_EQ(rest, "30 спам");
+}
+
+TEST(Utils_String, ExtractFirstArgument_RestHasNoLeadingSpaces)
+{
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgument("email   Vasya@Mail.RU", rest), "email");
+	EXPECT_EQ(rest, "Vasya@Mail.RU") << "остаток отдаётся уже подчищенным";
+}
+
+TEST(Utils_String, ExtractFirstArgument_SingleWordLeavesEmptyRest)
+{
+	std::string rest = "мусор";
+	EXPECT_EQ(utils::ExtractFirstArgument("  одно  ", rest), "одно");
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ExtractFirstArgument_EmptyInputGivesEmptyParts)
+{
+	std::string rest = "мусор";
+	EXPECT_TRUE(utils::ExtractFirstArgument("   ", rest).empty());
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ExtractFirstArgument_KeepsCaseAndFillWords)
+{
+	// В отличие от one_argument: регистр не понижается, служебные слова не пропускаются.
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgument("FROZEN xxx", rest), "FROZEN");
+	EXPECT_EQ(utils::ExtractFirstArgument("to кто", rest), "to");
+	EXPECT_EQ(rest, "кто");
+}
+
+TEST(Utils_String, ExtractFirstArgument_SameVariableForInputAndRest)
+{
+	// Основной способ применения: разбор по одному слову в цикле.
+	std::string remains = "dgaffect цель свойство";
+	EXPECT_EQ(utils::ExtractFirstArgument(remains, remains), "dgaffect");
+	EXPECT_EQ(utils::ExtractFirstArgument(remains, remains), "цель");
+	EXPECT_EQ(utils::ExtractFirstArgument(remains, remains), "свойство");
+	EXPECT_TRUE(remains.empty());
+}
+
+TEST(Utils_String, ExtractFirstArgument_KeepsMultibyteLettersIntact)
+{
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgument("волчица съела кролика", rest), "волчица");
+	EXPECT_EQ(rest, "съела кролика");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
