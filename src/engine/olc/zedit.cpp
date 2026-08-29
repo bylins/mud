@@ -1900,15 +1900,20 @@ void zedit_parse(DescriptorData *d, char *arg) {
 
 		case ZEDIT_RESET_IDLE:
 			// * Parse and add new reset_idle and return to main menu.
-			if (!arg[0] || !strchr("YyNnДдНн", arg[0])) {
-				SendMsgToChar("Повторите ввод (y или n) : ", d->character.get());
-			} else {
-				if (strchr("YyДд", arg[0]))
-					OLC_ZONE(d)->reset_idle = 1;
-				else
-					OLC_ZONE(d)->reset_idle = 0;
-				OLC_ZONE(d)->vnum = 1;
-				zedit_disp_menu(d);
+			{
+				// Ответ сверяем по символу, а не по байту: в UTF-8 "Д", "д", "Н" и "н" начинаются
+				// с одного и того же байта 0xD0, поэтому strchr по строке с кириллицей находил
+				// любой из них в обоих списках -- и "нет" срабатывало как "да".
+				const char32_t answer = native_text::first_char_code_lower(arg);
+				const bool yes = (answer == 'y' || answer == rus::kDe);
+				const bool no = (answer == 'n' || answer == rus::kEn);
+				if (!yes && !no) {
+					SendMsgToChar("Повторите ввод (y или n) : ", d->character.get());
+				} else {
+					OLC_ZONE(d)->reset_idle = yes ? 1 : 0;
+					OLC_ZONE(d)->vnum = 1;
+					zedit_disp_menu(d);
+				}
 			}
 			break;
 
