@@ -25,6 +25,7 @@
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
 #include <sys/stat.h>
+#include <fmt/format.h>
 
 #include <vector>
 
@@ -933,15 +934,15 @@ void zedit_disp_menu(DescriptorData *d) {
 				 grn, nrm, ired, type1_zones, nrm, grn, nrm, grn, type2_zones, nrm);
 		SendMsgToChar(buf, d->character.get());
 	}
-	snprintf(buf, kMaxStringLength, "%sT%s) Режим            : %s%s%s\r\n",
-			 grn, nrm, yel, OLC_ZONE(d)->under_construction ? "ТЕСТИРУЕТСЯ" : "подключена", nrm);
-	SendMsgToChar(buf, d->character.get());
-	snprintf(buf, kMaxStringLength, "%sG%s) Оптимальное число игроков  : %s%d%s\r\n",
-			 grn, nrm, yel, OLC_ZONE(d)->group, nrm);
-	SendMsgToChar(buf, d->character.get());
-	snprintf(buf, kMaxStringLength, "%sV%s) Стартовая комната зоны     : %s%d%s\r\n",
-			 grn, nrm, yel, OLC_ZONE(d)->entrance, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("{}T{}) Режим            : {}{}{}\r\n",
+								  grn, nrm, yel, OLC_ZONE(d)->under_construction ? "ТЕСТИРУЕТСЯ" : "подключена", nrm),
+				  d->character.get());
+	SendMsgToChar(fmt::format("{}G{}) Оптимальное число игроков  : {}{}{}\r\n",
+								  grn, nrm, yel, OLC_ZONE(d)->group, nrm),
+				  d->character.get());
+	SendMsgToChar(fmt::format("{}V{}) Стартовая комната зоны     : {}{}{}\r\n",
+								  grn, nrm, yel, OLC_ZONE(d)->entrance, nrm),
+				  d->character.get());
 	
 	// Print the commands into display buffer.
 	zedit_disp_commands(d);
@@ -988,9 +989,9 @@ void zedit_disp_type_menu(DescriptorData *d) {
 	// of vnums is the configuration author's responsibility (the legacy ztypes.lst
 	// loader implicitly assumed 0..N-1 contiguous slots, the registry doesn't).
 	for (const auto &zone_type : MUD::ZoneTypes()) {
-		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, zone_type.GetId(), nrm,
-				zone_type.GetName().c_str(), !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {:<20.20} {}", grn, zone_type.GetId(), nrm,
+								  zone_type.GetName(), !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	SendMsgToChar("\r\nВыберите тип зоны : ", d->character.get());
 }

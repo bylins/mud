@@ -9,6 +9,7 @@
 ***************************************************************************/
 
 #include "olc.h"
+#include <fmt/format.h>
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/entities/obj_data.h"
@@ -444,8 +445,9 @@ void disp_planes_values(DescriptorData *d, const char *names[], short num_column
 			c++;
 		if (d->character->GetLevel() < kLvlImplementator && *names[counter] == '*')
 			continue;
-		sprintf(buf, "&g%c%d&n) %-30.30s %s", c, plane, names[counter], !(++column % num_column) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("&g{}{}&n) {:<30.30} {}",
+								  c, plane, names[counter], !(++column % num_column) ? "\r\n" : ""),
+					  d->character.get());
 	}
 }
 

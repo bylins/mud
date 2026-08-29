@@ -5,6 +5,7 @@
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
 #include "utils/grammar/declensions.h"
+#include <fmt/format.h>
 
 #include <string>
 #include <vector>
@@ -1191,16 +1192,14 @@ void sedit::show_activ_skill(CharData *ch) {
 
 	int col = 0;
 	std::string out;
-	char buf_[128];
 
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsInvalid(i)) {
 			continue;
 		}
-		snprintf(buf_, sizeof(buf_), "%s%3d%s) %25s     %s",
-				 kColorGrn, to_underlying(i), kColorNrm,
-				 MUD::Skill(i).GetName(), !(++col % 2) ? "\r\n" : "");
-		out += buf_;
+		out += fmt::format("{}{:3d}{}) {:>25}     {}",
+						   kColorGrn, to_underlying(i), kColorNrm,
+						   MUD::Skill(i).GetName(), !(++col % 2) ? "\r\n" : "");
 	}
 	SendMsgToChar(out, ch);
 	SendMsgToChar(
