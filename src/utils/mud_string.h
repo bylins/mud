@@ -33,6 +33,9 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 }
 
 /// Разделить строку на первое слово (arg1) и остаток (arg2).
+/// ВНИМАНИЕ: остаток копируется с оглядкой на kMaxStringLength, а one_argument внутри вообще не
+/// проверяет длину -- буфер меньшего размера передавать нельзя. В новом коде берите
+/// utils::ExtractFirstArgument: тот же разбор на std::string, без фиксированных буферов (#3807).
 void half_chop(const char *string, char *arg1, char *arg2);
 
 /// Разбить строку на отдельные аргументы.
