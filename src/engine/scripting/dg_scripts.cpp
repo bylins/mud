@@ -953,10 +953,13 @@ void script_stat(CharData *ch, Script *sc) {
 		snprintf(namebuf, sizeof(namebuf), "%s:%ld", tv.name.c_str(), tv.context);
 		if (tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM || tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL) {
 			find_uid_name(tv.value.c_str(), name, sizeof(name));
-			snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", tv.context ? namebuf : tv.name.c_str(), name);
+			// Ширину колонки имени считает fmt: printf меряет её в байтах, и русское имя
+			// переменной ломало столбец (issue #3797).
+			SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
+									  tv.context ? namebuf : tv.name.c_str(), name), ch);
 		} else
-			snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", tv.context ? namebuf : tv.name.c_str(), tv.value.c_str());
-		SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
+									  tv.context ? namebuf : tv.name.c_str(), tv.value), ch);
 	}
 
 	for (auto t : sc->script_trig_list) {
@@ -1007,11 +1010,10 @@ void script_stat(CharData *ch, Script *sc) {
 				if (!var_name.empty()) {
 					if (tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM || tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL) {
 						find_uid_name(tv.value.c_str(), name, sizeof(name));
-						snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", var_name.c_str(), name);
+						SendMsgToChar(fmt::format("    {:>15}:  {}\r\n", var_name, name), ch);
 					} else {
-						snprintf(buf, sizeof(buf), "    %15s:  %s\r\n", var_name.c_str(), tv.value.c_str());
+						SendMsgToChar(fmt::format("    {:>15}:  {}\r\n", var_name, tv.value), ch);
 					}
-					SendMsgToChar(buf, ch);
 				}
 			}
 		}

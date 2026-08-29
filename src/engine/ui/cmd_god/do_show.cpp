@@ -284,11 +284,11 @@ std::string print_zone_enters(ZoneRnum zone) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn == zone
 					&& world[world[n]->dir_option[dir]->to_room()]->vnum > 0) {
-					snprintf(tmp, sizeof(tmp),
-							 "  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
-							 world[n]->vnum, dirs_rus[dir],
-							 world[world[n]->dir_option[dir]->to_room()]->vnum);
-					out += tmp;
+					// Ширину колонки направления считает fmt: printf меряет её в байтах, и русское
+					// "северо-восток" занимало вдвое больше, чем показывал %6s (issue #3797).
+					out += fmt::format("  Номер комнаты:{:5d} Направление:{:>6} Вход в комнату:{:5d}\r\n",
+									   world[n]->vnum, dirs_rus[dir],
+									   world[world[n]->dir_option[dir]->to_room()]->vnum);
 					found = true;
 				}
 			}
@@ -314,11 +314,9 @@ std::string print_zone_exits(ZoneRnum zone) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn != zone
 					&& world[world[n]->dir_option[dir]->to_room()]->vnum > 0) {
-					snprintf(tmp, sizeof(tmp),
-							 "  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
-							 world[n]->vnum, dirs_rus[dir],
-							 world[world[n]->dir_option[dir]->to_room()]->vnum);
-					out += tmp;
+					out += fmt::format("  Номер комнаты:{:5d} Направление:{:>6} Выход в комнату:{:5d}\r\n",
+									   world[n]->vnum, dirs_rus[dir],
+									   world[world[n]->dir_option[dir]->to_room()]->vnum);
 					found = true;
 				}
 			}

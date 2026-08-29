@@ -670,16 +670,17 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			for (auto tv : k->script->global_vars) {
 				if (tv.value[0] == UID_CHAR) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [CharUID]: %s\r\n", tv.name.c_str(), name);
+					// Ширину колонки имени считает fmt: printf меряет её в байтах (issue #3797).
+					SendMsgToChar(fmt::format("    {:>10}:  [CharUID]: {}\r\n", tv.name, name), ch);
 				} else if (tv.value[0] == UID_OBJ) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [ObjUID]: %s\r\n", tv.name.c_str(), name);
+					SendMsgToChar(fmt::format("    {:>10}:  [ObjUID]: {}\r\n", tv.name, name), ch);
 				} else if (tv.value[0] == UID_ROOM) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [RoomUID]: %s\r\n", tv.name.c_str(), name);
-				} else
-					snprintf(buf, sizeof(buf), "    %10s:  %s\r\n", tv.name.c_str(), tv.value.c_str());
-				SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("    {:>10}:  [RoomUID]: {}\r\n", tv.name, name), ch);
+				} else {
+					SendMsgToChar(fmt::format("    {:>10}:  {}\r\n", tv.name, tv.value), ch);
+				}
 			}
 		}
 

@@ -1011,7 +1011,9 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (MUD::Spell(spell_id).IsInvalid()) {    // This is valid.
 				continue;
 			}
-			sprintf(help + strlen(help), "%30s", MUD::Spell(spell_id).GetCName());
+			// Ширину поля считает fmt: printf меряет её в байтах, и русское название заклинания
+			// занимало вдвое больше, чем показывал %30s -- колонки разъезжались (issue #3797).
+			strcat(help, fmt::format("{:>30}", MUD::Spell(spell_id).GetCName()).c_str());
 			if (qend++ % 4 == 3) {
 				strcat(help, "\r\n");
 				SendMsgToChar(help, ch);

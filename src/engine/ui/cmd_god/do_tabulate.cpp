@@ -162,11 +162,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->has_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 extra_bits[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), extra_bits[counter]);
 			}
 		}
 	}
@@ -182,11 +179,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 		for (const auto &i : obj_proto) {
 			for (plane = 0; plane < kMaxObjAffect; plane++) {
 				if (i->get_affected(plane).location == static_cast<EApply>(counter)) {
-					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
-							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description()).c_str(),
-							 apply_types[counter], i->get_affected(plane).modifier);
-					out += buf;
+					out += fmt::format("{:3d}. [{:7d}] {:>60} : {}, значение: {}\r\n",
+									   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), apply_types[counter], i->get_affected(plane).modifier);
 					continue;
 				}
 			}
@@ -209,11 +203,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 equipment_affects[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), equipment_affects[counter]);
 			}
 		}
 	}
@@ -234,11 +225,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : запрещен для: %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 anti_bits[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : запрещен для: {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), anti_bits[counter]);
 			}
 		}
 	}
@@ -259,11 +247,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : неудобен для: %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 no_bits[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : неудобен для: {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), no_bits[counter]);
 			}
 		}
 	}
@@ -281,11 +266,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			if (i->has_skills()) {
 				auto it = i->get_skills().find(skill_id);
 				if (it != i->get_skills().end()) {
-					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
-							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description()).c_str(),
-							 MUD::Skill(skill_id).GetName(), it->second);
-					out += buf;
+					out += fmt::format("{:3d}. [{:7d}] {:>60} : {}, значение: {}\r\n",
+									   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), MUD::Skill(skill_id).GetName(), it->second);
 				}
 			}
 		}

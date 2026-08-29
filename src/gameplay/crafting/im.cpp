@@ -1018,7 +1018,9 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Формат: rset <игрок> '<рецепт>' <значение>\r\n", ch);
 		strcpy(help, "Зарегистрированные рецепты:\r\n");
 		for (qend = 0, i = 0; i <= top_imrecipes; i++) {
-			sprintf(help + strlen(help), "%30s", imrecipes[i].name);
+			// Ширину поля считает fmt: printf меряет её в байтах, и русское название рецепта
+			// занимало вдвое больше, чем показывал %30s -- колонки разъезжались (issue #3797).
+			strcat(help, fmt::format("{:>30}", imrecipes[i].name).c_str());
 			if (qend++ % 2 == 1) {
 				strcat(help, "\r\n");
 				SendMsgToChar(help, ch);
