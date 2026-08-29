@@ -62,6 +62,24 @@ extern CharData *mob_proto;
 namespace world_loader
 {
 
+namespace {
+
+// Мир на диске -- UTF-8, то есть та же кодировка, в которой движок держит текст (issue #3787).
+// Поэтому пишем как есть: native_text::write_file здесь не годится, он переводит текст
+// в кодировку диска и вернул бы зону в KOI8-R. Загрузка принимает обе кодировки
+// (from_disk_text), так что мир, переведённый не целиком, читается и таким.
+bool WriteWorldFile(const std::string &path, const std::string &text) {
+	std::ofstream out(path, std::ios::binary);
+	if (!out) {
+		return false;
+	}
+	out.write(text.data(), static_cast<std::streamsize>(text.size()));
+	return out.good();
+}
+
+}  // namespace
+
+
 namespace
 {
 
@@ -2743,14 +2761,10 @@ bool YamlWorldDataSource::WriteYamlAtomic(const std::string &filepath, const YAM
 		YAML::Emitter emitter;
 		emitter << node;
 
-		// Файл мира на диске -- KOI8-R, а движок держит текст в нативной кодировке. Собираем
-		// в память и перекодируем один раз при записи через native_text::write_file: иначе
-		// первое же сохранение (OLC или очередь "Reboot saving" из ConvertObjValues) молча
-		// переписывает зону в UTF-8, а загрузка прогоняет её через from_koi8 второй раз --
-		// и мир превращается в кракозябры (issue #3681).
+		// Мир пишется как есть, в нативной кодировке -- см. WriteWorldFile выше (issue #3787).
 		std::ostringstream out;
 		out << emitter.c_str();
-		if (!native_text::write_file(temp_filepath, out.str()))
+		if (!WriteWorldFile(temp_filepath, out.str()))
 		{
 			log("SYSERR: Failed to open temp file for writing: %s", temp_filepath.c_str());
 			return false;
@@ -2794,7 +2808,7 @@ bool YamlWorldDataSource::WriteIndexYaml(const std::string &filepath,
 				out << "- " << v << "\n";
 			}
 		}
-		if (!native_text::write_file(temp_filepath, out.str()))
+		if (!WriteWorldFile(temp_filepath, out.str()))
 		{
 			log("SYSERR: Failed to open temp file for index: %s", temp_filepath.c_str());
 			return false;
@@ -3191,7 +3205,7 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 		yaml.DecreaseIndent();
 	}
 
-	if (!native_text::write_file(temp_file, out.str()))
+	if (!WriteWorldFile(temp_file, out.str()))
 	{
 		log("SYSERR: Failed to open temp file for writing: %s", temp_file.c_str());
 		return;
@@ -3382,7 +3396,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 			EmitTriggerBody(yaml, trig);
 			yaml.DecreaseIndent();
 		}
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			return false;
@@ -3420,7 +3434,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		yaml.EmptyLine();
 		EmitTriggerBody(yaml, trig);
 
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			continue;
@@ -3688,7 +3702,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 			EmitRoomBody(yaml, out, room);
 			yaml.DecreaseIndent();
 		}
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			return;
@@ -3724,7 +3738,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 		yaml.EmptyLine();
 		EmitRoomBody(yaml, out, room);
 
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			continue;
@@ -4335,7 +4349,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			EmitMobBody(yaml, out, *mob);
 			yaml.DecreaseIndent();
 		}
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			return;
@@ -4373,7 +4387,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.EmptyLine();
 		EmitMobBody(yaml, out, *mob);
 
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			continue;
@@ -4810,7 +4824,7 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			EmitObjectBody(yaml, out, obj);
 			yaml.DecreaseIndent();
 		}
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			return;
@@ -4848,7 +4862,7 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		yaml.EmptyLine();
 		EmitObjectBody(yaml, out, obj);
 
-		if (!native_text::write_file(temp_file, out.str()))
+		if (!WriteWorldFile(temp_file, out.str()))
 		{
 			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
 			continue;
