@@ -249,8 +249,6 @@ void olc_update_objects(int robj_num, ObjData *olc_obj) {
 
 //------------------------------------------------------------------------
 
-#define ZCMD zone_table[zone].cmd[cmd_no]
-
 void oedit_save_internally(DescriptorData *d) {
 	int robj_num;
 

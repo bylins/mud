@@ -518,6 +518,10 @@ void medit_save_internally(DescriptorData *d) {
 	data_source->SaveMobs(OLC_ZNUM(d), OLC_NUM(d));
 }
 
+// Макрос живёт только внутри medit_save_internally: в unity-сборке файлы склеиваются,
+// и оставленное определение переопределялось в redit.cpp.
+#undef ZCMD
+
 //-------------------------------------------------------------------
 
 /*
