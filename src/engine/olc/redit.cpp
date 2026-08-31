@@ -9,6 +9,8 @@
  ************************************************************************/
 
 #include "engine/entities/obj_data.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
 #include "engine/db/world_data_source_manager.h"
@@ -32,6 +34,7 @@
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
 #include "gameplay/mechanics/dungeons.h"
+#include <fmt/format.h>
 
 #include <sys/stat.h>
 
@@ -484,9 +487,9 @@ void redit_disp_sector_menu(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (counter = 0; counter < NUM_ROOM_SECTORS; counter++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %-20.20s %s", grn, counter, nrm,
-				sector_types[counter], !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {:<20.20} {}",
+									  grn, counter, nrm, sector_types[counter], !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	SendMsgToChar("\r\nТип поверхности в комнате : ", d->character.get());
 	OLC_MODE(d) = REDIT_SECTOR;
@@ -556,11 +559,11 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 	switch (OLC_MODE(d)) {
 		case REDIT_CONFIRM_SAVESTRING:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д': redit_save_internally(d);
+				case rus::kDe:
+				case rus::kDeUpper: redit_save_internally(d);
 					snprintf(buf, sizeof(buf), "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
 					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
@@ -571,8 +574,8 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н':
+				case rus::kEn:
+				case rus::kEnUpper:
 					// * Free everything up, including strings, etc.
 					cleanup_olc(d, CLEANUP_ALL);
 					break;
@@ -666,7 +669,8 @@ void redit_parse(DescriptorData *d, char *arg) {
 					redit_disp_menu(d);
 					break;
 			}
-			olc_log("%s command %c", GET_NAME(d->character), *arg);
+			olc_log("%s command %s", GET_NAME(d->character),
+					std::string(arg, native_text::char_bytes(arg)).c_str());
 			return;
 
 		case OLC_SCRIPT_EDIT:
@@ -677,8 +681,9 @@ void redit_parse(DescriptorData *d, char *arg) {
 		case REDIT_NAME:
 			if (OLC_ROOM(d)->name)
 				free(OLC_ROOM(d)->name);
-			if (strlen(arg) > MAX_ROOM_NAME)
-				arg[MAX_ROOM_NAME - 1] = '\0';
+			// Предел -- в символах, и режем по границе символа (issue #3681).
+			if (native_text::char_count(arg) > MAX_ROOM_NAME)
+				arg[native_text::char_offset(arg, MAX_ROOM_NAME - 1)] = '\0';
 			OLC_ROOM(d)->name = str_dup((arg && *arg) ? arg : "неопределено");
 			break;
 

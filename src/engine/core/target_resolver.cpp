@@ -872,13 +872,18 @@ int find_all_dots(char *arg) {
 
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
 		return (kFindAll);
-	} else if (!strn_cmp(arg, "all.", 4) || !strn_cmp(arg, "все.", 4)) {
-		strl_cpy(tmpname, arg + 4, kMaxInputLength);
-		strl_cpy(arg, tmpname, kMaxInputLength);
-		return (kFindAlldot);
-	} else {
-		return (kFindIndiv);
 	}
+	// Длину префикса берём из самого литерала: в UTF-8 "все." -- семь байт, а не четыре, и
+	// жёсткая четвёрка отрезала полторы буквы, оставляя "е.<имя>" (issue #3681).
+	for (const char *prefix : {"all.", "все."}) {
+		const size_t prefix_len = strlen(prefix);
+		if (utils::IsAbbr(prefix, arg)) {
+			strl_cpy(tmpname, arg + prefix_len, kMaxInputLength);
+			strl_cpy(arg, tmpname, kMaxInputLength);
+			return (kFindAlldot);
+		}
+	}
+	return (kFindIndiv);
 }
 
 RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {

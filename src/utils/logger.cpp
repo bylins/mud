@@ -6,6 +6,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils_encoding.h"
+#include "utils/native_text.h"
 #include "utils/utils_string.h"
 #include "engine/ui/color.h"
 #include "backtrace.h"
@@ -30,6 +31,25 @@
 // дескрипторы открытых файлов логов для сброса буфера при креше
 std::list<FILE *> opened_files;
 
+namespace {
+// Граница записи для логов, которые пишутся прямо в файл мимо LogManager (shop/olc/imm
+// и персональные). Логи -- внешне видимые файлы и остаются в кодировке мира, KOI8-R,
+// поэтому текст переводится здесь, а не уходит нативным (issue #3681).
+void vfprintf_on_disk(FILE *file, const char *format, va_list args) {
+	va_list measure;
+	va_copy(measure, args);
+	const int need = vsnprintf(nullptr, 0, format, measure);
+	va_end(measure);
+	if (need < 0) {
+		return;
+	}
+	std::string text(static_cast<std::size_t>(need) + 1, '\0');
+	vsnprintf(&text[0], text.size(), format, args);
+	text.resize(static_cast<std::size_t>(need));
+	fputs(native_text::to_disk(text).c_str(), file);
+}
+}  // namespace
+
 void pers_log(CharData *ch, const char *format, ...) {
 	if (!ch) {
 		log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
@@ -41,12 +61,12 @@ void pers_log(CharData *ch, const char *format, ...) {
 	}
 
 	if (!ch->desc->pers_log) {
-		char filename[128], name[64], *ptr;
-		strcpy(name, GET_NAME(ch));
-		for (ptr = name; *ptr; ptr++) {
-			*ptr = LOWER(codepages::AtoL(*ptr));
-		}
-		sprintf(filename, "%s/perslog/%s.log", runtime_config.log_dir().c_str(), name);
+		char filename[128];
+		// Имя файла персонального лога строится из байтов KOI8-R, как и до миграции
+		// (issue #3681).
+		std::string name = GET_NAME(ch);
+		CreateFileName(name);
+		sprintf(filename, "%s/perslog/%s.log", runtime_config.log_dir().c_str(), name.c_str());
 		ch->desc->pers_log = fopen(filename, "a");
 		if (!ch->desc->pers_log) {
 			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
@@ -58,7 +78,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 	write_time(ch->desc->pers_log);
 	va_list args;
 	va_start(args, format);
-	vfprintf(ch->desc->pers_log, format, args);
+	vfprintf_on_disk(ch->desc->pers_log, format, args);
 	va_end(args);
 	fprintf(ch->desc->pers_log, "\n");
 }
@@ -232,7 +252,7 @@ void shop_log(const char *format, ...) {
 	write_time(file);
 	va_list args;
 	va_start(args, format);
-	vfprintf(file, format, args);
+	vfprintf_on_disk(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
 
@@ -254,7 +274,7 @@ void olc_log(const char *format, ...) {
 	write_time(file);
 	va_list args;
 	va_start(args, format);
-	vfprintf(file, format, args);
+	vfprintf_on_disk(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
 
@@ -276,7 +296,7 @@ void imm_log(const char *format, ...) {
 	write_time(file);
 	va_list args;
 	va_start(args, format);
-	vfprintf(file, format, args);
+	vfprintf_on_disk(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
 

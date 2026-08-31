@@ -5,6 +5,7 @@
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/utils_char_obj.inl"
+#include "utils/native_text.h"
 
 // чтоб не абузили длину. персональные пофиг, а клановые не надо.
 const int kMaxLabelLength = 32;
@@ -72,8 +73,10 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						GET_NAME(ch), target->get_short_description().c_str(), GET_OBJ_VNUM(target));
 				act("Вы затерли надписи на $o5.", false, ch, target, nullptr, kToChar);
 			} else if (labels) {
-				if (strlen(labels) > kMaxLabelLength)
-					labels[kMaxLabelLength] = '\0';
+				// Предел -- в символах: по байтам русская метка обрезалась вдвое короче
+				// и могла разрубить символ пополам (issue #3681).
+				if (native_text::char_count(labels) > static_cast<std::size_t>(kMaxLabelLength))
+					labels[native_text::char_offset(labels, kMaxLabelLength)] = '\0';
 
 				// убираем тильды
 				for (int i = 0; labels[i] != '\0'; i++)

@@ -213,46 +213,14 @@ Access world state via `MUD::` namespace functions:
 - Telnet protocol with MSDP (Mud Server Data Protocol) and MCCP compression
 - Multiple codepage support (Alt, Win, UTF-8, KOI8-R)
 
-## Development Guidelines (from CONTRIBUTING.md)
+## Development Guidelines
 
-### Code Style
-- **Standard**: C++20 (C++17 minimum)
-- **Indentation**: Tabs (size 4), no spaces for indentation
-- **Braces**: An opening brace on the same line separated by a space
-```cpp
-if (condition) {
-    // code here
-}
-```
-- **One statement per line** (applies to variable declarations too)
-- **Always use braces** for if/else/for/while bodies, even single statements
-- **Pointers/References**: `*` and `&` attached to type, space after
-```cpp
-const char* message = "example";
-const auto& reference = message;
-```
+**Правила разработки живут в [CONTRIBUTING.md](CONTRIBUTING.md) — читай его перед тем, как
+править код, и следуй ему.** Здесь их копии нет намеренно: две копии расходятся, и потом
+непонятно, какая верна.
 
-### File Management
-- All new files must be added to `meson.build` (sources go into `main_sources` / `library_sources`, depending on the section)
-- Include vim modeline at end of files:
-```cpp
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-```
-
-### Memory Management
-- Prefer `new`/`delete` over `malloc`/`free`
-- Use smart pointers (`CharData::shared_ptr`, `ObjData::shared_ptr`) where possible
-- Avoid raw pointers for ownership
-
-### Testing
-- Run unit tests before committing: `./build/tests/tests`
-- Write tests for new code using GoogleTest framework
-- Tests are in `tests/` directory, named by module (e.g., `char.affects.cpp`, `fight.penalties.cpp`)
-
-### Compiler Warnings
-- Must compile on Windows, Linux, and Cygwin
-- Fix all compiler warnings, especially in new code
-- Build with `-Wall -Wextra` enabled
+Там про стиль (отступы табами, скобки, по одному объявлению в строке), добавление новых файлов
+в `meson.build`, работу с памятью, unit-тесты и требование к сборке без предупреждений.
 
 ## Common Development Patterns
 
@@ -367,12 +335,12 @@ The heartbeat system includes built-in profiling:
 
 ## Critical Notes
 
-- **File Encoding**: All project source files MUST be in KOI8-R encoding (not UTF-8). This is critical for proper Russian text handling in the codebase. Use `iconv` to convert if needed: `iconv -f utf8 -t koi8-r input.cpp > output.cpp`
+- **File Encoding**: All project source files are UTF-8 (issue #3681). Edit them directly — no iconv dance. The world data on disk (`lib/`, `lib.template/`) is still KOI8-R; see `.gitattributes` for exactly which trees.
 - **Thread Safety**: Main game loop is single-threaded; use `BlockingQueue` for cross-thread communication
 - **Shared Pointers**: Always use `CharData::shared_ptr` and `ObjData::shared_ptr` to prevent use-after-free
 - **Pulse Timing**: Never use wall-clock delays; register actions with heartbeat system
 - **Script Depth**: DG Scripts limited to 512 recursion depth to prevent stack overflow
-- **Runtime Encoding**: While source files are KOI8-R, runtime text can be multiple encodings (Alt, Win, UTF-8, KOI8-R) based on client settings
+- **Runtime Encoding**: The engine holds text in UTF-8 and works on it per character (`utils/native_text.*`). Client codepages (Alt, Win, KOI8-R, UTF-8) are converted at the network boundary only; the disk boundary (`from_disk_text` / `to_disk`) keeps world files in KOI8-R.
 
 ## Claude Code Workflow Rules
 
@@ -401,33 +369,40 @@ meson setup build_otel \
 ninja -C build_otel -j$(($(nproc)/2))
 ```
 
-### File Encoding - CRITICAL
-**Proper workflow for editing KOI8-R files:**
+### File Encoding
+Sources are UTF-8. Edit `.cpp`/`.h` directly with the Edit tool — the KOI8-R conversion dance is
+gone (issue #3681). Git always stored these blobs as UTF-8; what changed is that the working tree
+no longer converts them on checkout.
 
-For files marked as `working-tree-encoding=KOI8-R` in .gitattributes (all files in /src/**, /tests/**):
+**Переключились на ветку с флипом в уже существующем дереве — перевыкачайте исходники:**
 
 ```bash
-# 1. Convert to UTF-8 for editing
-iconv -f koi8-r -t utf-8 src/file.cpp > /tmp/file_utf8.cpp
-
-# 2. Edit the UTF-8 version with Edit tool or text editor
-# (make your changes here)
-
-# 3. Convert back to KOI8-R
-iconv -f utf-8 -t koi8-r /tmp/file_utf8.cpp > src/file.cpp
+rm -rf src tests && git checkout -- src tests
 ```
 
-**NEVER use the Edit tool directly on existing .cpp/.h files that contain Russian text.**
-Only use Edit for:
-- Newly created files that will be pure ASCII/English
-- Temporary UTF-8 converted files (in /tmp)
-- Files in .gitattributes marked as UTF-8 (e.g., Python files)
+`working-tree-encoding` применяется во время checkout'а, а содержимое блоба при флипе не менялось,
+поэтому git оставляет ранее выкаченные файлы в KOI8-R и считает дерево чистым — `git status` молчит.
+Собранный из такого дерева бинарь получает кои-восьмые строковые литералы при движке, который
+считает весь текст UTF-8: расходятся сравнения имён, доски, кодировка лога, а запись на диск гонит
+такие литералы через словарь транслита. `meson setup` теперь это проверяет и отказывается собирать.
+
+Still KOI8-R on disk, and still needing care: the world and configs (`lib/`, `lib.template/`,
+`/lib/cfg/**`, `/lib/misc/**`, `/lib/text/help/**`, `/lib/etc/board/**`). For those the old rule
+holds — convert, edit, convert back:
+
+```bash
+iconv -f koi8-r -t utf-8 lib/cfg/some.xml > /tmp/some_utf8.xml
+# edit /tmp/some_utf8.xml
+iconv -f utf-8 -t koi8-r /tmp/some_utf8.xml > lib/cfg/some.xml
+```
+
+The pre-commit hook enforces both directions: sources must parse as UTF-8, world files must stay
+in the encoding `.gitattributes` declares.
 
 **NEVER use sed for editing source files.** Sed has tendency to:
 - Modify files in unexpected places (matching wrong lines)
 - Lead to file corruption detection and accidental `git checkout` (losing all uncommitted work)
 - Cause cumulative errors from multiple sed operations
-- Corrupt KOI8-R encoding
 
 **Alternative: unified diff patches** - for small targeted changes:
 ```bash

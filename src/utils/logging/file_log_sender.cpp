@@ -2,15 +2,20 @@
 #include "utils/logger.h"
 #include "engine/core/config.h"
 #include "engine/db/global_objects.h"
+#include "utils/native_text.h"
 
 #include <cstring>
 
 namespace logging {
 
-static void write_log_message(const std::string& message, FILE* file) {
+static void write_log_message(const std::string& native_message, FILE* file) {
 	if (!file) {
 		return;
 	}
+	// Граница записи: логи -- внешне видимый файл, и кодировка у них прежняя, KOI8-R.
+	// Дальше syslog_converter (koi_to_win/koi_to_alt) правит буфер на месте, считая
+	// байты кои-восьмыми, так что перевести надо именно здесь (issue #3681).
+	const std::string message = native_text::to_disk(native_message);
 	if (!runtime_config.output_thread() && runtime_config.log_stderr().empty()) {
 		fputs(message.c_str(), file);
 		fputs("\n", file);

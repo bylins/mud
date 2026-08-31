@@ -1,5 +1,6 @@
 // Part of Bylins http://www.mud.ru
 
+#include "utils/native_text.h"
 #include "chest_saver.h"
 
 #include "house.h"
@@ -52,7 +53,11 @@ bool save_one_clan_chest(ObjData *chest, const std::string &filename) {
 	}
 	const auto written = out.tellp();
 	const auto contents = out.str();
-	file.write(contents.data(), static_cast<std::streamsize>(written));
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(contents.substr(0, static_cast<std::size_t>(written)));
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 	return true;
 }

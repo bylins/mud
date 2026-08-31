@@ -58,6 +58,18 @@ if cpp.get_argument_syntax() == 'gcc'
         project_args += ['-Ofast']
     endif
     project_args += ['-Wno-format-truncation']
+
+    # Переполнение буфера строкой формата -- ошибка, а не предупреждение. Компилятор считает,
+    # сколько байт запишет sprintf, и сравнивает с размером буфера; предупреждение об этом
+    # входит в -Wall и лежало в логе сборки, пока по нему не начали падать боевые процессы
+    # (#3751, #3752): русский текст в UTF-8 занимает вдвое больше, чем занимал в KOI8-R,
+    # и фразы, укладывавшиеся впритык, перестали влезать. Числа в коде при этом нет -- растёт
+    # сам литерал, поэтому глазами и грепом такое не ищется, а компилятором ищется даром.
+    #
+    # Уровень по умолчанию, не =2: тот цепляется к теоретической оценке ширины %f.
+    if cpp.has_argument('-Werror=format-overflow')
+        project_args += ['-Werror=format-overflow']
+    endif
     if fortify_source
         # -U на случай, если тулчейн уже определил _FORTIFY_SOURCE (иначе redefine-варнинг)
         project_args += ['-U_FORTIFY_SOURCE', '-D_FORTIFY_SOURCE=3']
@@ -88,9 +100,6 @@ if host_system == 'windows'
     endif
 endif
 
-if cpp.get_id() == 'clang'
-    project_args += '-Wno-invalid-source-encoding'
-endif
 
 cpu = host_machine.cpu_family()
 # GNU-driver compilers only. clang-cl (get_id()=='clang-cl') takes its arch from the MSVC
@@ -108,12 +117,7 @@ if host_system == 'windows'
     if cpp.get_argument_syntax() == 'msvc'   # MSVC and clang-cl
         project_args += ['/MP', '/bigobj', '-DFMT_UNICODE=0', '/external:anglebrackets', '/external:W0']
         if cpp.get_id() == 'msvc'
-            # MSVC accepts the KOI8-R codepage (20866) for source/exec charset.
-            project_args += ['/source-charset:koi8-r', '/execution-charset:koi8-r']
-        else
-            # clang-cl rejects non-UTF-8 /source-charset ('invalid value koi8-r'); it keeps narrow-literal
-            # bytes as-is, so just silence the KOI8-R source-encoding warnings (as for the GNU clang driver).
-            project_args += ['-Wno-invalid-source-encoding']
+            project_args += ['/source-charset:utf-8', '/execution-charset:utf-8']
         endif
     elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
         project_args += ['-Wa,-mbig-obj', '-D__USE_MINGW_ANSI_STDIO=1']
@@ -356,6 +360,15 @@ endif
 
 subdir('src/third_party_libs/libfort')
 dependencies += [fmt_dep, fort_dep]
+
+# Исходники обязаны быть в UTF-8 (issue #3681). Дерево, выкаченное до флипа, при
+# переключении ветки остаётся в KOI8-R -- git молчит, дерево числится чистым, а
+# собранный отсюда бинарь получает кои-восьмые строковые литералы, и движок расходится
+# сам с собой. Ловим это здесь, а не по кракозябрам в логе боевого сервера.
+encoding_check = run_command(py3, files('tools/meson/check_sources_utf8.py'), meson.project_source_root(), check: false)
+if encoding_check.returncode() != 0
+    error(encoding_check.stdout().strip())
+endif
 
 git = find_program('git', required: false)
 git_rev = 'unknown'
@@ -645,7 +658,10 @@ main_sources = files(
   'src/gameplay/mechanics/title.cpp',
   'src/gameplay/statistics/top.cpp',
   'src/utils/utils.cpp',
+  'src/utils/utf8.cpp',
+  'src/utils/native_text.cpp',
   'src/utils/utils_encoding.cpp',
+  'src/utils/translit_koi8.cpp',
   'src/gameplay/mechanics/weather.cpp',
   'src/engine/olc/zedit.cpp',
   'src/utils/utils_string.cpp',

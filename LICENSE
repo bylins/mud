@@ -265,3 +265,10 @@ time. We have so far put extremely many programming hours into this project.
 If you make any major improvements on DikuMud we would be happy to
 hear from you. As you will naturally honor the above rules, you will receive
 new updates and improvements made to the game.
+
+-------------------------------------------------------------------------------
+
+Сторонние библиотеки, входящие в сборку (libfort, pugixml, nlohmann/json, fmt,
+yaml-cpp, zlib, LuaJIT, sol2, GoogleTest, EmmyLuaCodeStyle), распространяются на
+условиях своих авторов. Список с версиями, правообладателями и перечнем внесённых
+нами изменений -- в файле THIRD-PARTY.md.

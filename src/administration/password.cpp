@@ -9,6 +9,7 @@
 #include "engine/ui/interpreter.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
+#include "utils/native_text.h"
 // для ручного отключения крипования (на локалке лучше собирайте через make test и не парьтесь)
 //#define NOCRYPT
 // в случае сборки без криптования просто пишем пароль в открытом виде
@@ -28,6 +29,14 @@
 
 namespace Password {
 
+// Хэш пароля -- сохранённые данные, и посчитан он когда-то по дисковым байтам (KOI8-R).
+// Движок теперь держит текст нативным, поэтому кириллический пароль дал бы другие байты
+// и не сошёлся бы с сохранённым хэшем. Приводим к дисковой форме перед crypt: старые хэши
+// продолжают сходиться, а новые остаются пригодными для отката (issue #3681).
+static std::string password_bytes(const std::string &pwd) {
+	return native_text::to_disk(pwd);
+}
+
 const char *BAD_PASSWORD = "Пароль должен быть от 8 до 50 символов и не должен быть именем персонажа.";
 const unsigned int MIN_PWD_LENGTH = 8;
 const unsigned int MAX_PWD_LENGTH = 50;
@@ -35,7 +44,10 @@ const unsigned int MAX_PWD_LENGTH = 50;
 // * Генерация хэша с более-менее рандомным сальтом
 std::string generate_md5_hash(const std::string &pwd) {
 #ifdef NOCRYPT
-	return pwd;
+	// И здесь дисковая форма: сравнение всё равно приводит пароль к ней, а хранить
+	// нативную значило бы, что кириллический пароль не сойдётся сам с собой. Сборки
+	// без crypt() -- это Windows, macOS и -Dnocrypt=true (issue #3681).
+	return password_bytes(pwd);
 #else
 	char key[14];
 	key[0] = '$';
@@ -54,7 +66,7 @@ std::string generate_md5_hash(const std::string &pwd) {
 	}
 	key[12] = '$';
 	key[13] = '\0';
-	return CRYPT(pwd.c_str(), key);
+	return CRYPT(password_bytes(pwd).c_str(), key);
 #endif
 }
 
@@ -108,10 +120,10 @@ bool get_password_type(const CharData *ch) {
 bool compare_password(CharData *ch, const std::string &pwd) {
 	bool result = 0;
 	if (get_password_type(ch))
-		result = CompareParam(ch->get_passwd(), CRYPT(pwd.c_str(), ch->get_passwd().c_str()), 1);
+		result = CompareParam(ch->get_passwd(), CRYPT(password_bytes(pwd).c_str(), ch->get_passwd().c_str()), 1);
 	else {
 		// если пароль des сошелся - конвертим сразу в md5 (10 - бывший MAX_PWD_LENGTH)
-		char *s = (char *) CRYPT(pwd.c_str(), ch->get_passwd().c_str());
+		char *s = (char *) CRYPT(password_bytes(pwd).c_str(), ch->get_passwd().c_str());
 		if (s && !strncmp(s, ch->get_passwd().c_str(), 10)) {
 			set_password(ch, pwd);
 			result = 1;
@@ -131,7 +143,13 @@ bool compare_password(CharData *ch, const std::string &pwd) {
 bool check_password(const CharData *ch, const char *pwd) {
 // при вырубленном криптовании на локалке пароль можно ставить любой
 #ifndef NOCRYPT
-	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
+	if (!pwd) {
+		return 0;
+	}
+	// Длина считается в символах: с UTF-8 кириллица занимает по два байта, и по strlen
+	// восьмибуквенный русский пароль выглядел бы шестнадцатисимвольным (issue #3681).
+	const std::size_t length = native_text::char_count(pwd);
+	if (!str_cmp(pwd, GET_PC_NAME(ch)) || length > MAX_PWD_LENGTH || length < MIN_PWD_LENGTH)
 		return 0;
 #else
 	UNUSED_ARG(ch);
@@ -145,7 +163,7 @@ bool check_password(const CharData *ch, const char *pwd) {
 * \return 0 - не сошлось, 1 - сошлось
 */
 bool compare_password(std::string const &hash, std::string const &pass) {
-	return CompareParam(hash.c_str(), CRYPT(pass.c_str(), hash.c_str()), 1);
+	return CompareParam(hash.c_str(), CRYPT(password_bytes(pass).c_str(), hash.c_str()), 1);
 }
 
 } // namespace Password

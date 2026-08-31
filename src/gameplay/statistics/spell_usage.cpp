@@ -6,6 +6,7 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
 #include "spell_usage.h"
 
 #include "engine/boot/boot_data_files.h"
@@ -31,9 +32,9 @@ std::string SpellUsage::StatToPrint() {
 	char *end_time = str_dup(rustime(localtime(&now)));
 	out << rustime(localtime(&SpellUsage::start)) << " - " << end_time << "\n";
 	for (auto & it : SpellUsage::usage) {
-		out << std::setw(35) << MUD::Class(it.first).GetName() << "\r\n";
+		out << fmt::format("{:>35}", MUD::Class(it.first).GetName()) << "\r\n";
 		for (auto & itt : it.second) {
-			out << std::setw(25) << MUD::Spell(itt.first).GetName() << " : " << itt.second << "\r\n";
+			out << fmt::format("{:>25}", MUD::Spell(itt.first).GetName()) << " : " << itt.second << "\r\n";
 		}
 	}
 	return out.str();

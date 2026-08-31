@@ -96,10 +96,10 @@ int TabulateObjsByFilter(char *argument, CharData *ch) {
 	for (const auto &i : obj_proto) {
 		// ch не передаём: у прототипов нет наносимых меток (custom label).
 		if (filter.check(i.get(), nullptr)) {
-			snprintf(line, sizeof(line), "%3d. [%7d] %-50s %s\r\n",
+			strcpy(line, fmt::format("{:3}. [{:7}] {:<50} {}\r\n",
 					 ++found, i->get_vnum(),
-					 utils::RemoveColors(i->get_short_description()).c_str(),
-					 filter.show_obj_aff(i.get()).c_str());
+					 utils::RemoveColors(i->get_short_description()),
+					 filter.show_obj_aff(i.get())).c_str());
 			out += line;
 		}
 	}
@@ -117,8 +117,9 @@ int TabulateMobsByName(char *searchname, CharData *ch) {
 
 	for (nr = 0; nr <= top_of_mobt; nr++) {
 		if (isname(searchname, mob_proto[nr].GetCharAliases())) {
-			sprintf(buf, "%3d. [%5d] %-30s (%s)\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str(),
-					npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]);
+			strcpy(buf, fmt::format("{:3}. [{:5}] {:<30} ({})\r\n", ++found, mob_index[nr].vnum,
+					mob_proto[nr].get_npc_name(),
+					npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]).c_str());
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -131,7 +132,7 @@ int TabulateObjsByAliases(char *searchname, CharData *ch) {
 	for (const auto &nr : obj_proto) {
 		if (isname(searchname, nr->get_aliases())) {
 			++found;
-			sprintf(buf, "%3d. [%5d] %s\r\n",
+			sprintf(buf, "%3d. [%7d] %s\r\n",
 					found, nr->get_vnum(),
 					nr->get_short_description().c_str());
 			SendMsgToChar(buf, ch);
@@ -152,7 +153,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(extra_bits[counter]))) {
+		if (utils::IsEqual(searchname, extra_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -161,18 +162,15 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->has_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 extra_bits[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), extra_bits[counter]);
 			}
 		}
 	}
 // --------------------- apply_types
 	f = false;
 	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (utils::IsEqual(searchname, utils::FixDot(apply_types[counter]))) {
+		if (utils::IsEqual(searchname, apply_types[counter])) {
 			f = true;
 			break;
 		}
@@ -181,11 +179,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 		for (const auto &i : obj_proto) {
 			for (plane = 0; plane < kMaxObjAffect; plane++) {
 				if (i->get_affected(plane).location == static_cast<EApply>(counter)) {
-					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
-							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description()).c_str(),
-							 apply_types[counter], i->get_affected(plane).modifier);
-					out += buf;
+					out += fmt::format("{:3d}. [{:7d}] {:>60} : {}, значение: {}\r\n",
+									   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), apply_types[counter], i->get_affected(plane).modifier);
 					continue;
 				}
 			}
@@ -199,7 +194,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(equipment_affects[counter]))) {
+		if (utils::IsEqual(searchname, equipment_affects[counter])) {
 			f = true;
 			break;
 		}
@@ -208,11 +203,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 equipment_affects[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), equipment_affects[counter]);
 			}
 		}
 	}
@@ -224,7 +216,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(anti_bits[counter]))) {
+		if (utils::IsEqual(searchname, anti_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -233,11 +225,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : запрещен для: %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 anti_bits[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : запрещен для: {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), anti_bits[counter]);
 			}
 		}
 	}
@@ -249,7 +238,7 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			plane_offset = 0;
 			continue;
 		}
-		if (utils::IsEqual(searchname, utils::FixDot(no_bits[counter]))) {
+		if (utils::IsEqual(searchname, no_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -258,11 +247,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : неудобен для: %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 no_bits[counter]);
-				out += buf;
+				out += fmt::format("{:3d}. [{:7d}] {:>60} : неудобен для: {}\r\n",
+								   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), no_bits[counter]);
 			}
 		}
 	}
@@ -280,11 +266,8 @@ int TabulateObjsByFlagName(char *searchname, CharData *ch) {
 			if (i->has_skills()) {
 				auto it = i->get_skills().find(skill_id);
 				if (it != i->get_skills().end()) {
-					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
-							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description()).c_str(),
-							 MUD::Skill(skill_id).GetName(), it->second);
-					out += buf;
+					out += fmt::format("{:3d}. [{:7d}] {:>60} : {}, значение: {}\r\n",
+									   ++found, i->get_vnum(), utils::RemoveColors(i->get_short_description()).c_str(), MUD::Skill(skill_id).GetName(), it->second);
 				}
 			}
 		}

@@ -112,6 +112,11 @@ std::string GetStringWithoutColors(const std::string &string);
 bool IsEquivalent(const std::string &abbr, const std::string &words);
 // поиск abbr  без пропусков слов в строке words
 bool IsEqual(const std::string &abbr, const std::string &words);
+// Совпадают ли первые chars символов у обеих строк (без учёта регистра). Если символов
+// в какой-то из строк меньше -- не совпадают. Единица счёта -- символ, а не байт: пределы
+// вроде kMinNameLength означают буквы, и под UTF-8 байтовый счёт давал вдвое короче (#3681).
+bool IsSamePrefix(const char *arg1, const char *arg2, std::size_t chars);
+
 // arg1 аббревиатура в arg2 тексте\фразе
 bool IsAbbr(const char *arg1, const char *arg2);
 inline int IsAbbr(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
@@ -139,9 +144,23 @@ std::vector<std::string> Split(const std::string s, char delimiter = ' ');
  */
 std::vector<std::string> SplitAny(const std::string s, std::string any);
 
-// аналог one_argument для string
-// s - разделяемая строка
-// возвращает первое слово, в remains остаток, если нет пробелов то строки пустые
+/**
+ * Отделить первое слово строки от остатка -- разбор аргументов на std::string, без фиксированных
+ * буферов (в отличие от one_argument и half_chop, которым нужен буфер на kMaxStringLength).
+ *
+ * Возвращает первое слово, в remains кладёт всё, что после него, уже без ведущих пробелов.
+ * Строка из одного слова даёт это слово и пустой остаток; пустая или из одних пробелов -- две
+ * пустые строки. Передавать одну и ту же переменную и как s, и как remains можно: слово
+ * копируется раньше, чем перезаписывается остаток.
+ *
+ * Разделителями считаются пробел, табуляция и переводы строки -- то же, что у a_isspace.
+ *
+ * ВАЖНО, чем это НЕ является: one_argument вдобавок понижает регистр слова и пропускает
+ * служебные слова (in, from, with, the, on, at, to -- см. fill_word). Здесь ни того, ни другого
+ * нет: слово возвращается как есть. При переносе кода с one_argument/half_chop понижайте регистр
+ * сами через native_text::to_lower, если дальше слово сравнивается с учётом регистра или уходит
+ * в данные.
+ */
 std::string ExtractFirstArgument(const std::string &s, std::string &remains);
 
 // первое слово разделенное маской
@@ -325,13 +344,6 @@ int str_cmp(const char *arg1, const char *arg2);
 int str_cmp(const std::string &arg1, const char *arg2);
 int str_cmp(const char *arg1, const std::string &arg2);
 int str_cmp(const std::string &arg1, const std::string &arg2);
-
-/// Сравнение строк без учета регистра с ограничением длины (аналог strncmp).
-/// Возвращает: 0 если равны, >0 если arg1 > arg2, <0 если arg1 < arg2.
-int strn_cmp(const char *arg1, const char *arg2, size_t n);
-int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
-int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
-int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 
 /// Удаление завершающих \r\n из C-строки.
 /// Дубль: utils::TrimRight - похожий функционал но для пробелов.

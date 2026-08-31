@@ -1,5 +1,4 @@
 #include "helpers.h"
-#include "utils/utils_encoding.h"
 
 namespace observability {
 
@@ -19,28 +18,6 @@ ScopedMetric::~ScopedMetric() {
 
 double ScopedMetric::elapsed_seconds() const {
 	return m_timer.delta().count();
-}
-
-std::string koi8r_to_utf8(const std::string& input) {
-	if (input.empty()) {
-		return input;
-	}
-	// Fast path: ASCII-only strings need no conversion
-	bool has_high = false;
-	for (unsigned char c : input) {
-		if (c >= 128) {
-			has_high = true;
-			break;
-		}
-	}
-	if (!has_high) {
-		return input;
-	}
-	// Each KOI8-R byte expands to at most 3 UTF-8 bytes, plus null terminator
-	std::string output(input.size() * 3 + 1, '\0');
-	codepages::koi_to_utf8(const_cast<char*>(input.c_str()), &output[0]);
-	output.resize(strlen(output.c_str()));
-	return output;
 }
 
 } // namespace observability

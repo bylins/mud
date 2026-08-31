@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/illumination.h"
@@ -29,17 +30,17 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
 			if (privilege::IsGod(ch))
-				sprintf(buf2, "%-6s - [%5d] %s\r\n", dirs_rus[door],
-						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
+				strcpy(buf2, fmt::format("{:<6} - [{:5}] {}\r\n", dirs_rus[door],
+						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name).c_str());
 			else {
-				sprintf(buf2, "%-6s - ", dirs_rus[door]);
+				strcpy(buf2, fmt::format("{:<6} - ", dirs_rus[door]).c_str());
 				if (is_dark(EXIT(ch, door)->to_room()) && !sight::CanSeeInDark(ch))
 					strcat(buf2, "слишком темно\r\n");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
 					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
-						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
+						sprintf(buf2 + strlen(buf2), "[%7d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
 						strcat(buf2, world[rnum_exit_room]->name);
 					}

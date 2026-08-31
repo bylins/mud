@@ -1,6 +1,7 @@
 #include "mud_string.h"
 
 #include "utils.h"
+#include "utils/native_text.h"
 
 int search_block(const char *target_string, const char **list, int exact);
 
@@ -45,9 +46,13 @@ T one_argument_template(T argument, char *first_arg) {
 	do {
 		skip_spaces(&argument);
 		first_arg = begin;
+		// Lowercase one whole character at a time (issue #3681). The a_isspace() test stays
+		// byte-based on purpose: it only ever runs at a character boundary, and every
+		// whitespace character is ASCII, so no multibyte lead byte can be mistaken for one.
 		while (*argument && !a_isspace(*argument)) {
-			*(first_arg++) = a_lcc(*argument);
-			argument++;
+			const size_t n = native_text::copy_lower_char(argument, first_arg);
+			first_arg += n;
+			argument += n;
 		}
 		*first_arg = '\0';
 	} while (fill_word(begin));
@@ -64,11 +69,12 @@ T any_one_arg_template(T argument, char *first_arg) {
 	skip_spaces(&argument);
 
 	int num = 0;
+	// As above: one character per step, `num` still counts bytes so it remains a buffer guard.
 	while (*argument && !a_isspace(*argument) && num < kMaxStringLength - 1) {
-		*first_arg = a_lcc(*argument);
-		++first_arg;
-		++argument;
-		++num;
+		const size_t n = native_text::copy_lower_char(argument, first_arg);
+		first_arg += n;
+		argument += n;
+		num += static_cast<int>(n);
 	}
 	*first_arg = '\0';
 	skip_spaces(&argument);

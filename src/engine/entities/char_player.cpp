@@ -2,6 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "utils/native_text.h"
 #include "char_player.h"
 #include "gameplay/core/experience.h"
 #include "administration/privilege.h"
@@ -382,9 +383,13 @@ void Player::save_char(bool update_save_time) {
 	saved.printf("Levl: %d\n", this->GetLevel());
 	saved.printf("Clas: %d\n", to_underlying(this->GetClass()));
 	saved.printf("LstL: %ld\n", static_cast<long int>(this->get_last_logon()));
-	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
+	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа.
+	// Если в индексе пусто -- персонажа загрузили мимо входа в игру (правка богом, миграция,
+	// служебный проход), и записывать заглушку поверх реального адреса нельзя: берём то, что
+	// уже прочитано из файла. Заглушка только когда адреса нет нигде.
 	if (player_table[this->get_pfilepos()].last_ip.empty()) {
-		player_table[this->get_pfilepos()].last_ip = "Unknown";
+		player_table[this->get_pfilepos()].last_ip =
+				*player_specials->saved.LastIP ? player_specials->saved.LastIP : "НеВедется";
 	}
 	saved.printf("Host: %s\n", player_table[this->get_pfilepos()].last_ip.c_str());
 	saved.printf("Id  : %ld\n", this->get_uid());
@@ -830,7 +835,9 @@ void Player::save_char(bool update_save_time) {
 	// Накопленный буфер пишем на диск в бинарном режиме (байты файла == байты
 	// буфера на всех платформах) и из него же считаем CRC -- без перечитывания
 	// только что записанного файла.
-	const std::string &pfile = saved.str();
+	// Граница записи: сейв уходит на диск в той же кодировке, в какой лежит остальной мир
+	// (сейчас KOI8-R), а не в нативной -- зеркало от from_disk_line на чтении (issue #3681).
+	const std::string pfile = native_text::to_disk(saved.str());
 	utils::CExecutionTimer wt;
 	FILE *pf = fopen(filename, "wb");
 	if (!pf) {
@@ -975,7 +982,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'H':
 				if (!strcmp(tag, "Host")) {
-					strcpy(this->player_specials->saved.LastIP, line);
+					// Старые файлы несут английскую заглушку "Unknown" -- это отсутствие адреса,
+					// а не адрес. Держим её как пустоту, чтобы она не расползалась дальше.
+					strcpy(this->player_specials->saved.LastIP, strcmp(line, "Unknown") ? line : "");
 				}
 				break;
 			case 'I':
@@ -1859,7 +1868,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
-		FileCRC::verify_from_content(this->get_uid(), FileCRC::kPlayer, fl->buf, fl->size);
+		FileCRC::verify_from_content(this->get_uid(), FileCRC::kPlayer, fl->raw, fl->raw_size);
 	}
 	fbclose(fl);
 

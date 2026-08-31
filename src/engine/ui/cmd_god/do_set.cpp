@@ -30,6 +30,7 @@
 #include <fmt/format.h>
 
 #include <memory>
+#include "utils/native_text.h"
 
 enum class ESetVict {
   kPc,
@@ -304,9 +305,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	// Find the value of the argument
 	bool on_off_mode{false};
 	if (set_fields[mode].type == ESetValue::kBinary) {
-		if (!strn_cmp(val_arg, "on", 2) || !strn_cmp(val_arg, "yes", 3) || !strn_cmp(val_arg, "вкл", 3)) {
+		if (utils::IsAbbr("on", val_arg) || utils::IsAbbr("yes", val_arg) || utils::IsAbbr("вкл", val_arg)) {
 			on_off_mode = true;
-		} else if (!strn_cmp(val_arg, "off", 3) || !strn_cmp(val_arg, "no", 2) || !strn_cmp(val_arg, "выкл", 4)) {
+		} else if (utils::IsAbbr("off", val_arg) || utils::IsAbbr("no", val_arg) || utils::IsAbbr("выкл", val_arg)) {
 			on_off_mode = false;
 		} else {
 			SendMsgToChar("Значение может быть 'on' или 'off'.\r\n", ch);
@@ -626,7 +627,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar(buf, ch);
 			} else {
 				for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
-					if (strlen(npad[i]) < kMinNameLength || strlen(npad[i]) > kMaxNameLength) {
+					if (static_cast<int>(native_text::char_count(npad[i])) < kMinNameLength || static_cast<int>(native_text::char_count(npad[i])) > kMaxNameLength) {
 						sprintf(buf, "Падеж номер %d некорректен.\r\n", ++i);
 						SendMsgToChar(buf, ch);
 						return (0);
@@ -634,8 +635,8 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				}
 
 				if (_parse_name(npad[0], npad[0]) ||
-					strlen(npad[0]) < kMinNameLength ||
-					strlen(npad[0]) > kMaxNameLength ||
+					static_cast<int>(native_text::char_count(npad[0])) < kMinNameLength ||
+					static_cast<int>(native_text::char_count(npad[0])) > kMaxNameLength ||
 					!IsNameAvailable(npad[0]) || reserved_word(npad[0]) || fill_word(npad[0])) {
 					SendMsgToChar("Некорректное имя.\r\n", ch);
 					return (0);

@@ -173,7 +173,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (is_number(arg)) {
 		auto amount = std::stoi(arg);
 		argument = one_argument(argument, arg);
-		if (!strn_cmp("coin", arg, 4) || !strn_cmp("кун", arg, 3) || !str_cmp("денег", arg)) {
+		if (utils::IsAbbr("coin", arg) || utils::IsAbbr("кун", arg) || !str_cmp("денег", arg)) {
 			one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)) != nullptr)
 				perform_give_gold(ch, vict, amount);

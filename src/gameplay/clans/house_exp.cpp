@@ -2,6 +2,8 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <sstream>
+#include "utils/native_text.h"
 #include "house_exp.h"
 #include "utils/grammar/gender.h"
 
@@ -55,14 +57,20 @@ void ClanExp::save(const std::string &abbrev) const {
 	for (ExpListType::const_iterator it = list_.begin(); it != list_.end(); ++it) {
 		out << *it << "\n";
 	}
-	file << out.rdbuf();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 }
 
 // * Загрузка списка экспы и буффера конкретного клана (по аббревиатуре).
 void ClanExp::load(const std::string &abbrev) {
 	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".exp";
-	std::ifstream file(filename.c_str());
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -146,19 +154,26 @@ void ClanPkLog::save(const std::string &abbrev) {
 		return;
 	}
 
+	std::ostringstream out;
 	for (std::list<std::string>::const_iterator i = pk_log.begin(); i != pk_log.end(); ++i) {
-		file << *i;
+		out << *i;
 	}
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
-	file.close();
 	need_save = false;
 }
 
 void ClanPkLog::load(const std::string &abbrev) {
 	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".war";
 
-	std::ifstream file(filename.c_str(), std::ios::binary);
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -169,7 +184,6 @@ void ClanPkLog::load(const std::string &abbrev) {
 		buffer += "\r\n";
 		pk_log.push_back(buffer);
 	}
-	file.close();
 }
 
 void ClanPkLog::check(CharData *ch, CharData *victim) {
@@ -223,8 +237,10 @@ void ClanExpHistory::add_exp(long exp) {
 void ClanExpHistory::load(const std::string &abbrev) {
 	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + "-history.exp";
 
-	std::ifstream file(filename.c_str(), std::ios::binary);
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -234,7 +250,6 @@ void ClanExpHistory::load(const std::string &abbrev) {
 	while (file >> buffer >> exp) {
 		list_[buffer] = exp;
 	}
-	file.close();
 }
 
 void ClanExpHistory::save(const std::string &abbrev) const {
@@ -252,10 +267,15 @@ void ClanExpHistory::save(const std::string &abbrev) const {
 		return;
 	}
 
+	std::ostringstream out;
 	for (HistoryExpListType::const_iterator i = list_.begin(); i != list_.end(); ++i) {
-		file << i->first << " " << i->second << "\n";
+		out << i->first << " " << i->second << "\n";
 	}
-	file.close();
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 }
 
 /**
@@ -376,20 +396,27 @@ void ClanChestLog::save(const std::string &abbrev) {
 		return;
 	}
 
+	std::ostringstream out;
 	for (std::list<std::string>::const_iterator i = chest_log_.begin(),
 			 iend = chest_log_.end(); i != iend; ++i) {
-		file << *i;
+		out << *i;
 	}
+	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
+	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
+	// прежнюю сборку становится невозможен (issue #3681).
+	const std::string on_disk = native_text::to_disk(out.str());
+	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
-	file.close();
 	need_save_ = false;
 }
 
 void ClanChestLog::load(const std::string &abbrev) {
 	std::string filename = LIB_CLANS + abbrev + "/" + abbrev + ".log";
 
-	std::ifstream file(filename.c_str(), std::ios::binary);
-	if (!file.is_open()) {
+	// Граница чтения: файл лежит на диске в кодировке мира, поднимаем его целиком --
+	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
+	std::istringstream file(native_text::read_data_file(filename.c_str()));
+	if (file.str().empty()) {
 		return;
 	}
 
@@ -399,7 +426,6 @@ void ClanChestLog::load(const std::string &abbrev) {
 		buffer += "\r\n";
 		chest_log_.push_back(buffer);
 	}
-	file.close();
 }
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "utils/native_text.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/affects/affect_data.h"   // issue.mob-flag-affect-materialization: restore re-materialize
 #include "administration/privilege.h"
@@ -1172,7 +1173,7 @@ void exchange_point_update() {
 
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() == 0) {
 			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(grammar::ECase::kNom);
-			cap[0] = UPPER(cap[0]);
+			native_text::capitalize_first(cap);
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(exch_item))->get_sex(), 2));
 			log("%s", buf);
@@ -1257,7 +1258,7 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 	   короче, рефакторинг приветствуется, если кто-нибудь придумает лучше.
 	*/
 	std::string cap = obj->get_PName(grammar::ECase::kNom);
-	cap[0] = UPPER(cap[0]);
+	native_text::capitalize_first(cap);
 	snprintf(local_buf, kMaxStringLength, "%s сказал%s вам : '%s%s рассыпал%s %s...'",
 			 GET_NAME(charmee),
 			 grammar::SexEnding((charmee)->get_sex(), 1),

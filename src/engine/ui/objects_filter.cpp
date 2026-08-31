@@ -6,6 +6,8 @@
 */
 
 #include "objects_filter.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "gameplay/mechanics/sight.h"
 
 #include "gameplay/economics/exchange.h"
@@ -15,6 +17,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "engine/db/player_index.h"
 #include "gameplay/classes/pc_classes.h"
+#include "utils/utils_string.h"
 
 #include <set>
 
@@ -444,6 +447,15 @@ size_t ParseFilter::affects_cnt() const {
 	return affect_weap.size() + affect_apply.size() + affect_extra.size();
 }
 
+// Совпало ли имя флага с запросом. isname тут не годится: он срезает у запроса ведущие
+// не-буквы, поэтому "!рассыпется" искалось как "рассыпется" и находило противоположный флаг --
+// какой из пары попадётся, решал порядок в таблице, а не запрос (issue #3774). IsEquivalent
+// сравнивает пословно, разбирая точки в именах вроде "защита.от.стихии.огня", и ведущий "!"
+// остаётся частью имени.
+static bool MatchAffectName(const char *str, const char *affect_name) {
+	return utils::IsEquivalent(str, affect_name);
+}
+
 bool ParseFilter::init_affect(char *str, size_t str_len) {
 	// Аимя!
 	bool strong = false;
@@ -470,7 +482,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 		if (strong && !strcmp(str, apply_types[num])) {
 			affect_apply.push_back(num);
 			return true;
-		} else if (!strong && isname(str, apply_types[num])) {
+		} else if (!strong && MatchAffectName(str, apply_types[num])) {
 			affect_apply.push_back(num);
 			return true;
 		}
@@ -482,7 +494,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 			if (strong && !strcmp(str, equipment_affects[num])) {
 				affect_weap.push_back(num);
 				return true;
-			} else if (!strong && isname(str, equipment_affects[num])) {
+			} else if (!strong && MatchAffectName(str, equipment_affects[num])) {
 				affect_weap.push_back(num);
 				return true;
 			}
@@ -496,7 +508,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 			if (strong && !strcmp(str, extra_bits[num])) {
 				affect_extra.push_back(num);
 				return true;
-			} else if (!strong && isname(str, extra_bits[num])) {
+			} else if (!strong && MatchAffectName(str, extra_bits[num])) {
 				affect_extra.push_back(num);
 				return true;
 			}
@@ -825,46 +837,49 @@ bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const ch
 		return false;
 	}
 	while (*argument) {
-		switch (*argument) {
-			case 'И': argument = one_argument(++argument, buf_tmp);
+		// Буква фильтра съедается целиком: first_char_code читает символ, а шаг должен быть на
+		// столько же байт. В UTF-8 русская буква занимает два, и "++argument" оставлял в потоке
+		// хвостовой байт -- он приклеивался к значению, и "базар ф Имеч" искал не "меч".
+		switch (native_text::first_char_code(argument)) {
+			case rus::kIUpper: argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (strlen(buf_tmp) == 0) {
 					SendMsgToChar("Укажите имя предмета.\r\n", ch);
 					return false;
 				}
 				filter.name = buf_tmp;
 				break;
-			case 'Т': argument = one_argument(++argument, buf_tmp);
+			case rus::kTeUpper: argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_type(buf_tmp)) {
 					SendMsgToChar("Неверный тип предмета.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'С': argument = one_argument(++argument, buf_tmp);
+			case rus::kEsUpper: argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_state(buf_tmp)) {
 					SendMsgToChar("Неверное состояние предмета.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'О': argument = one_argument(++argument, buf_tmp);
+			case rus::kOUpper: argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_wear(buf_tmp)) {
 					SendMsgToChar("Неверное место одевания предмета.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'Ц': argument = one_argument(++argument, buf_tmp);
+			case rus::kTseUpper: argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_cost(buf_tmp)) {
 					SendMsgToChar("Неверный формат в фильтре: Ц<цена><+->.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'К': argument = one_argument(++argument, buf_tmp);
+			case rus::kKaUpper: argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_weap_class(buf_tmp)) {
 					SendMsgToChar("Неверный класс оружия.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'А': {
-				argument = one_argument(++argument, buf_tmp);
+			case rus::kAUpper: {
+				argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				size_t len = strlen(buf_tmp);
 				if (len == 0) {
 					SendMsgToChar("Укажите аффект предмета.\r\n", ch);
@@ -878,38 +893,38 @@ bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const ch
 					return false;
 				}
 				break;
-			} // case 'А'
-			case 'Р':// стоимость ренты
-				argument = one_argument(++argument, buf_tmp);
+			} // case rus::kAUpper
+			case rus::kErUpper:// стоимость ренты
+				argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_rent(buf_tmp)) {
 					SendMsgToChar("Неверный формат в фильтре: Р<стоимость><+->.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'М':// количество мортов
-				argument = one_argument(++argument, buf_tmp);
+			case rus::kEmUpper:// количество мортов
+				argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_remorts(buf_tmp)) {
 					SendMsgToChar("Неверный формат в фильтре: М<количество мортов><+->.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'У':// умения
-				argument = one_argument(++argument, buf_tmp);
+			case rus::kUUpper:// умения
+				argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_skill(buf_tmp)) {
 					SendMsgToChar("Неверное умение.\r\n", ch);
 					return false;
 				}
 				break;
-			case 'В':// имя выставившего на базаре
-				argument = one_argument(++argument, buf_tmp);
+			case rus::kVeUpper:// имя выставившего на базаре
+				argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (filter_type != EXCHANGE) {
 					SendMsgToChar("Только для базара.\r\n", ch);
 					return false;
 				}
 				owner = buf_tmp;
 				break;
-			case 'П':// профессия (отсечь предметы запрещенные данному классу)
-				argument = one_argument(++argument, buf_tmp);
+			case rus::kPeUpper:// профессия (отсечь предметы запрещенные данному классу)
+				argument = one_argument(argument + native_text::char_bytes(argument), buf_tmp);
 				if (!filter.init_profession(buf_tmp)) {
 					SendMsgToChar("Неверное название профессии.\r\n", ch);
 					return false;

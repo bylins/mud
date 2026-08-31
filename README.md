@@ -322,3 +322,12 @@ meson setup build -Ddependency1=builtin -Ddependency2=system -Ddependency3=disab
 | `gtest` | `builtin` | Google Test (используется при `build_tests=true`) |
 
 Стандартные опции Meson также доступны, например `-Db_coverage=true` для покрытия кода.
+
+## Лицензии
+
+Код «Былин» — под условиями из [LICENSE](LICENSE) (наследие CircleMUD и DikuMUD).
+
+Сторонние библиотеки остаются под лицензиями своих авторов: libfort, pugixml, nlohmann/json
+лежат в дереве, fmt, yaml-cpp, zlib, LuaJIT, sol2, GoogleTest и EmmyLuaCodeStyle выкачиваются
+при сборке. Полный список с версиями, правообладателями и перечнем наших изменений —
+в [THIRD-PARTY.md](THIRD-PARTY.md).

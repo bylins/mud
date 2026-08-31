@@ -4,6 +4,11 @@
         extracted from interpreter.cpp. Entry point ProcessLoginInput (was nanny).
 */
 #include "interpreter.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
+#include "engine/boot/boot_constants.h"
+
+#include <sstream>
 #include "engine/ui/system_messages.h"
 #include "engine/core/config.h"
 #include "gameplay/mechanics/condition.h"
@@ -181,18 +186,28 @@ std::map<std::string, int> new_loc_codes;
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
 
+// Посимвольно, а не побайтно (issue #3681): у многобайтной буквы хвостовой байт не проходит
+// проверку "это буква", и раньше здесь отвергалось любое русское имя. Условие "*argument > 0"
+// означало "символ не ASCII" (у старших байтов знаковый char отрицателен) - теперь это прямая
+// проверка кодовой точки. Регистр тоже сворачивается по символу: первая буква заглавная,
+// остальные строчные; длина при этом не меняется, поэтому буфер name не переполняется.
 int _parse_name(char *argument, char *name) {
-	int i;
+	int i = 0;
 
-	// skip whitespaces
-	for (i = 0; (*name = (i ? LOWER(*argument) : UPPER(*argument))); argument++, i++, name++) {
-		if (*argument == 'ё'
-			|| *argument == 'Ё'
-			|| !a_isalpha(*argument)
-			|| *argument > 0) {
+	while (*argument) {
+		const char32_t code = native_text::first_char_code(argument);
+		if (code == rus::kYo || code == rus::kYoUpper
+			|| !native_text::is_alpha_char(argument)
+			|| code < 0x80) {
 			return (1);
 		}
+		const size_t bytes = i ? native_text::copy_lower_char(argument, name)
+							   : native_text::copy_upper_char(argument, name);
+		argument += bytes;
+		name += bytes;
+		++i;
 	}
+	*name = '\0';
 
 	if (!i) {
 		return (1);
@@ -206,12 +221,19 @@ int _parse_name(char *argument, char *name) {
 * чтобы их в игру вообще пускало, а новых с Ё/ё соответственно брило.
 */
 int parse_exist_name(char *argument, char *name) {
-	int i;
+	int i = 0;
 
-	// skip whitespaces
-	for (i = 0; (*name = (i ? LOWER(*argument) : UPPER(*argument))); argument++, i++, name++)
-		if (!a_isalpha(*argument) || *argument > 0)
+	while (*argument) {
+		if (!native_text::is_alpha_char(argument) || native_text::first_char_code(argument) < 0x80) {
 			return (1);
+		}
+		const size_t bytes = i ? native_text::copy_lower_char(argument, name)
+							   : native_text::copy_upper_char(argument, name);
+		argument += bytes;
+		name += bytes;
+		++i;
+	}
+	*name = '\0';
 
 	if (!i)
 		return (1);
@@ -1115,8 +1137,8 @@ static void HandleGetName(DescriptorData *d, char *argument) {
 			return;
 		} else {
 			if (parse_exist_name(argument, tmp_name) ||
-				strlen(tmp_name) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
-				strlen(tmp_name) > kMaxNameLength ||
+				static_cast<int>(native_text::char_count(tmp_name)) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
+				static_cast<int>(native_text::char_count(tmp_name)) > kMaxNameLength ||
 				!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
@@ -1147,7 +1169,7 @@ static void HandleGetName(DescriptorData *d, char *argument) {
 					return;
 				}
 
-				if (strlen(tmp_name) < (kMinNameLength)) {
+				if (static_cast<int>(native_text::char_count(tmp_name)) < (kMinNameLength)) {
 					iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
 				}
@@ -1181,7 +1203,7 @@ static void HandleGetName(DescriptorData *d, char *argument) {
 		} else    // player unknown -- make new character
 		{
 			// еще одна проверка
-			if (strlen(tmp_name) < (kMinNameLength)) {
+			if (static_cast<int>(native_text::char_count(tmp_name)) < (kMinNameLength)) {
 				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
 			}
@@ -1226,8 +1248,8 @@ static void HandleNewChar(DescriptorData *d, char *argument) {
 	}
 
 	if (_parse_name(argument, tmp_name) ||
-		strlen(tmp_name) < kMinNameLength ||
-		strlen(tmp_name) > kMaxNameLength ||
+		static_cast<int>(native_text::char_count(tmp_name)) < kMinNameLength ||
+		static_cast<int>(native_text::char_count(tmp_name)) > kMaxNameLength ||
 		!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 		iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 		return;
@@ -1477,11 +1499,13 @@ static void HandleNameCase(DescriptorData *d, char *argument, int step) {
 		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), cur.idx, argument);
 	}
 	if (!_parse_name(argument, tmp_name)
-		&& strlen(tmp_name) >= kMinNameLength
-		&& strlen(tmp_name) <= kMaxNameLength
-		&& !strn_cmp(tmp_name,
-					 GET_PC_NAME(d->character),
-					 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
+		&& static_cast<int>(native_text::char_count(tmp_name)) >= kMinNameLength
+		&& static_cast<int>(native_text::char_count(tmp_name)) <= kMaxNameLength
+		// Падеж принимается, если первые kMinNameLength символов совпали с именем. Считать
+		// это в байтах нельзя: под UTF-8 пятёрка -- две с половиной русские буквы (#3681).
+		&& utils::IsSamePrefix(tmp_name, GET_PC_NAME(d->character),
+							   std::min<std::size_t>(kMinNameLength,
+													 native_text::char_count(GET_PC_NAME(d->character)) - 1))) {
 		d->character->player_data.PNames[cur.ecase] = std::string(utils::CAP(tmp_name));
 		if (step < kLast) {
 			const auto &next = kSteps[step + 1];
@@ -1541,7 +1565,8 @@ static void HandleGetKeytable(DescriptorData *d, char *argument) {
 
 static void HandleNameConfirm(DescriptorData *d, char *argument) {
 	char buffer[kMaxStringLength];
-	if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
+	if (native_text::first_char_code_upper(argument) == 'Y'
+		|| native_text::first_char_code_upper(argument) == rus::kDeUpper) {
 		if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
 			sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 					GET_PC_NAME(d->character), d->host);
@@ -1579,7 +1604,8 @@ static void HandleNameConfirm(DescriptorData *d, char *argument) {
 		d->state = EConState::kQsex;
 		return;
 
-	} else if (UPPER(*argument) == 'N' || UPPER(*argument) == 'Н') {
+	} else if (native_text::first_char_code_upper(argument) == 'N'
+		|| native_text::first_char_code_upper(argument) == rus::kEnUpper) {
 		iosystem::write_to_output("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
 		d->character->SetCharAliases(nullptr);
 		d->state = EConState::kGetName;
@@ -1686,12 +1712,12 @@ static void HandleQuerySex(DescriptorData *d, char *argument) {
 		return;
 	}
 
-	switch (UPPER(*argument)) {
-		case 'М':
+	switch (native_text::first_char_code_upper(argument)) {
+		case rus::kEmUpper:
 		case 'M': d->character->set_sex(EGender::kMale);
 			break;
 
-		case 'Ж':
+		case rus::kZheUpper:
 		case 'F': d->character->set_sex(EGender::kFemale);
 			break;
 
@@ -1715,9 +1741,9 @@ static void HandleQueryReligion(DescriptorData *d, char *argument) {
 		return;
 	}
 
-	switch (UPPER(*argument)) {
-		case 'Я':
-		case 'З':
+	switch (native_text::first_char_code_upper(argument)) {
+		case rus::kYaUpper:
+		case rus::kZeUpper:
 		case 'P':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 				iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
@@ -1727,7 +1753,7 @@ static void HandleQueryReligion(DescriptorData *d, char *argument) {
 			GET_RELIGION(d->character) = kReligionPoly;
 			break;
 
-		case 'Х':
+		case rus::kHaUpper:
 		case 'C':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 				iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
@@ -2058,9 +2084,9 @@ static void HandleResetReligion(DescriptorData *d, char *argument) {
 		return;
 	}
 
-	switch (UPPER(*argument)) {
-		case 'Я':
-		case 'З':
+	switch (native_text::first_char_code_upper(argument)) {
+		case rus::kYaUpper:
+		case rus::kZeUpper:
 		case 'P':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
 				iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
@@ -2070,7 +2096,7 @@ static void HandleResetReligion(DescriptorData *d, char *argument) {
 			GET_RELIGION(d->character) = kReligionPoly;
 			break;
 
-		case 'Х':
+		case rus::kHaUpper:
 		case 'C':
 			if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
 				iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"

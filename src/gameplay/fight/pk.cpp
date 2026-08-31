@@ -12,6 +12,8 @@
 ************************************************************************ */
 
 #include "pk.h"
+#include "utils/native_text.h"
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -593,8 +595,10 @@ void pk_list_sprintf(CharData *ch, char *buff) {
 	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
 	for (const auto &[uid, pk] : ch->pk_map) {
 		auto temp = GetPlayerNameByUnique(uid);
-		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp.empty() ? "<УДАЛЕН>" : temp.c_str(),
-				pk.kill_num, pk.revenge_num);
+		// Ширину имени считает fmt: printf меряет её в байтах, и русское имя ломало столбец
+		// (issue #3797).
+		strcat(buff, fmt::format("{:>20} {:4d} {:4d}",
+								 temp.empty() ? "<УДАЛЕН>" : temp, pk.kill_num, pk.revenge_num).c_str());
 
 		if (pk.clan_exp > time(nullptr)) {
 			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk.clan_exp - time(nullptr)));
@@ -652,7 +656,7 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			temp[0] = UPPER(temp[0]);
+			native_text::capitalize_first(temp);
 			// если нада исключаем тех, кто находится оффлайн
 			if (bOnlineOnly) {
 				for (const auto &tch : character_list) {
@@ -663,9 +667,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (tch->get_uid() == uid) {
 						found = true;
 						if (pk.battle_exp > time(nullptr)) {
-							sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp.c_str());
+							strcat(buf, fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp).c_str());
 						} else {
-							sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp.c_str(), pk.kill_num, pk.revenge_num);
+							strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num).c_str());
 						}
 						break;
 					}
@@ -673,9 +677,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				found = true;
 				if (pk.battle_exp > time(nullptr)) {
-					sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp.c_str());
+					strcat(buf, fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp).c_str());
 				} else {
-					sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp.c_str(), pk.kill_num, pk.revenge_num);
+					strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num).c_str());
 				}
 			}
 		}
@@ -708,12 +712,12 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			// Сначала проверка клан флага
 			if (CLAN(ch) && pk.clan_exp > time(nullptr)) {
-				sprintf(buf + strlen(buf), "  %-40s <ВОЙНА>\r\n", GET_NAME(tch));
+				strcat(buf, fmt::format("  {:<40} <ВОЙНА>\r\n", GET_NAME(tch)).c_str());
 			} else if (pk.clan_exp > time(nullptr)) {
-				sprintf(buf + strlen(buf), "  %-40s <ВРЕМЕННЫЙ ФЛАГ>\r\n", GET_NAME(tch));
+				strcat(buf, fmt::format("  {:<40} <ВРЕМЕННЫЙ ФЛАГ>\r\n", GET_NAME(tch)).c_str());
 			} else if (pk.kill_num + pk.revenge_num > 0) {
-				sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n",
-						GET_NAME(tch), pk.kill_num, pk.revenge_num);
+				strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n",
+						GET_NAME(tch), pk.kill_num, pk.revenge_num).c_str());
 			} else {
 				continue;
 			}

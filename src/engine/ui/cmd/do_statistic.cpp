@@ -6,6 +6,7 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
@@ -63,7 +64,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	const int class_name_col_width{15};
 	const int number_col_width{3};
 	for (const auto &it : players) {
-		out << std::left << std::setw(class_name_col_width) << MUD::Class(it.first).GetPluralName() << " "
+		out << fmt::format("{:<{}}", MUD::Class(it.first).GetPluralName(), class_name_col_width) << " "
 			<< kColorBoldRed << "[" << kColorBoldCyn
 			<< std::setw(number_col_width) << std::right << it.second.first + it.second.second
 			<< kColorBoldRed << "|" << kColorBoldCyn
@@ -82,22 +83,22 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	const int headline_width{33};
 
-	out << std::left << std::setw(headline_width) << " Всего игроков:";
+	out << fmt::format("{:<{}}", " Всего игроков:", headline_width);
 	PrintValue(out, number_col_width, total);
 
-	out << std::left << std::setw(headline_width) << " Игроков выше|ниже 25 уровня:";
+	out << fmt::format("{:<{}}", " Игроков выше|ниже 25 уровня:", headline_width);
 	PrintPair(out, number_col_width, hilvl, lowlvl);
 
-	out << std::left << std::setw(headline_width) << " Игроков с перевоплощениями|без:";
+	out << fmt::format("{:<{}}", " Игроков с перевоплощениями|без:", headline_width);
 	PrintPair(out, number_col_width, rem, norem);
 
-	out << std::left << std::setw(headline_width) << " Клановых|внеклановых игроков:";
+	out << fmt::format("{:<{}}", " Клановых|внеклановых игроков:", headline_width);
 	PrintPair(out, number_col_width, clan, noclan);
 
-	out << std::left << std::setw(headline_width) << " Игроков с флагами ПК|без ПК:";
+	out << fmt::format("{:<{}}", " Игроков с флагами ПК|без ПК:", headline_width);
 	PrintPair(out, number_col_width, pk, nopk);
 
-	out << std::left << std::setw(headline_width) << " Героев (без ПК) | Тварей убито:";
+	out << fmt::format("{:<{}}", " Героев (без ПК) | Тварей убито:", headline_width);
 	const int kills_col_width{5};
 	PrintPair(out, kills_col_width, char_stat::players_killed, char_stat::mobs_killed);
 	out << "\r\n";

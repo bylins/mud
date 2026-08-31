@@ -6,6 +6,14 @@
 */
 
 #include "descriptor_data.h"
+
+#include <atomic>
+#include <cstdio>
+#include "utils/logger.h"
+#include "utils/utf8.h"
+#include <string>
+#include <cstring>
+#include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 
 #include "engine/entities/char_player.h"
@@ -164,6 +172,40 @@ void DescriptorData::msdp_report_changed_vars() {
 }
 
 void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str) const {
+	// Легаси-кодировки клиентов заданы таблицами "байт KOI8-R -> байт целевой кодировки",
+	// поэтому перед ними текст надо привести к KOI8-R. Под KOI8-R-рантаймом это тождество,
+	// под UTF-8 - настоящая перекодировка (issue #3681). Для UTF-8-клиента ничего приводить
+	// не нужно: см. case kCodePageUTF8 ниже.
+	// Зеркало предохранителя из to_disk. Всё нативное -- валидный UTF-8; если сюда пришло
+	// иное, значит текст прочитан с диска мимо границы и игрок увидит кашу. Так уже уезжали
+	// экран справки и список синонимов (issue #3681).
+	//
+	// Проверка -- полный разбор строки, быстрого выхода на латинице в is_valid нет. Замерено:
+	// 436 нс на строку в 208 байт, около 477 МБ/с. Для легаси-клиентов это заметно дешевле
+	// того, что тут и так делается (to_koi8 разбирает ту же строку, дальше побайтная таблица),
+	// а объёмы вывода мада от такой скорости далеки.
+	if (!utf8::is_valid(in_str)) {
+		static std::atomic<unsigned long> seen{0};
+		const unsigned long n = seen.fetch_add(1);
+		if (n < 10 || n % 10000 == 0) {
+			std::string head;
+			char byte[4];
+			for (std::size_t i = 0; in_str[i] && i < 16; ++i) {
+				std::snprintf(byte, sizeof(byte), "%02x", static_cast<unsigned char>(in_str[i]));
+				head += byte;
+				head += ' ';
+			}
+			log("SYSERR: клиенту уходит не-UTF-8 (#%lu) -- где-то пропущена граница чтения. "
+				"Первые байты: %s", n + 1, head.c_str());
+		}
+	}
+
+	std::string koi8_text;
+	if (keytable != kCodePageUTF8) {
+		koi8_text = native_text::to_koi8(in_str);
+		in_str = koi8_text.c_str();
+	}
+
 	switch (keytable) {
 		case kCodePageAlt:
 			for (; *in_str; *out_str = codepages::KtoA(*in_str), in_str++, out_str++);
@@ -204,7 +246,9 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 			// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
 			// contain character with code 0xff which telnet interprets as IAC.
 			// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
-			codepages::koi_to_utf8(const_cast<char *>(in_str), out_str);
+			// Рантайм в UTF-8 - отдаём как есть. Перекодировка тут испортила бы текст
+			// (именно так и выглядела первая флип-сборка).
+			strcpy(out_str, in_str);
 			break;
 
 		default:

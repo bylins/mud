@@ -9,6 +9,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "utils/native_text.h"
 #include "names.h"
 #include "utils/grammar/gender.h"
 
@@ -128,6 +129,8 @@ static void NewNames::save() {
 	for (const auto &it : NewNameList) {
 		lines.push_back(it.first);
 	}
+	// Кодировку диска держит сам StateManager -- здесь конвертировать уже не надо,
+	// иначе получилась бы двойная конверсия (issue #3681).
 	MUD::StateManager().SaveLines(state::EStateFile::kPendingNames, lines);
 }
 
@@ -397,9 +400,7 @@ int IsValidName(char *newname) {
 	// change to lowercase
 	char tempname[kMaxInputLength];
 	strcpy(tempname, newname);
-	for (std::size_t i = 0; tempname[i]; i++) {
-		tempname[i] = LOWER(tempname[i]);
-	}
+	native_text::to_lower(tempname);
 
 	// Does the desired name contain a string in the invalid list?
 	for (std::size_t i = 0; i < num_invalid; i++) {

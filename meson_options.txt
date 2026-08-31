@@ -10,6 +10,9 @@ option('lua_formatter', type: 'boolean', value: true, description: 'Build the em
 option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
 option('use_pch', type: 'boolean', value: true, description: 'Use precompiled headers for circle.library')
 
+# KOI8-R -> UTF-8 migration (issue #3681). Selects the engine's native runtime string encoding.
+# koi8r = current byte semantics (default); utf8 = character semantics via the utf8:: helpers.
+
 # Options for Admin API and Web features
 option('admin_api', type: 'boolean', value: false, description: 'Enable Admin API and JSON-related features')
 

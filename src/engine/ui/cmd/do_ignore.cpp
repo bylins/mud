@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/native_text.h"
 #include "utils/utils_string.h"
 #include "utils/utils.h"
 #include "engine/core/comm.h"
@@ -43,7 +44,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				strcpy(name, "Все");
 			} else {
 				strcpy(name, ign_find_name(ignore->id));
-				name[0] = UPPER(name[0]);
+				native_text::capitalize_first(name);
 			}
 			sprintf(buf, "  %s: ", name);
 			SendMsgToChar(buf, ch);
@@ -146,7 +147,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Вы и так не игнорируете всех сразу.\r\n", ch);
 			} else {
 				strcpy(name, ign_find_name(vict_id));
-				name[0] = UPPER(name[0]);
+				native_text::capitalize_first(name);
 				sprintf(buf,
 						"Вы и так не игнорируете "
 						"персонажа %s%s%s.\r\n", kColorWht, name, kColorNrm);
@@ -173,7 +174,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf, ch);
 		} else {
 			strcpy(name, ign_find_name(ignore->id));
-			name[0] = UPPER(name[0]);
+			native_text::capitalize_first(name);
 			sprintf(buf, "Для персонажа %s%s%s вы игнорируете:%s.\r\n",
 					kColorWht, name, kColorNrm, text_ignore_modes(ignore->mode, buf1));
 			SendMsgToChar(buf, ch);
@@ -183,7 +184,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы больше не игнорируете всех сразу.\r\n", ch);
 		} else {
 			strcpy(name, ign_find_name(vict_id));
-			name[0] = UPPER(name[0]);
+			native_text::capitalize_first(name);
 			sprintf(buf, "Вы больше не игнорируете персонажа %s%s%s.\r\n",
 					kColorWht, name, kColorNrm);
 			SendMsgToChar(buf, ch);

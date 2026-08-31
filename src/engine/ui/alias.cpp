@@ -19,6 +19,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/ui/alias.h"
+#include "utils/native_text.h"
 
 void WriteAliases(CharData *ch) {
 	FILE *file;
@@ -39,16 +40,19 @@ void WriteAliases(CharData *ch) {
 	}
 
 	for (temp = GET_ALIASES(ch); temp; temp = temp->next) {
-		size_t aliaslen = strlen(temp->alias);
-		size_t repllen = strlen(temp->replacement);
+		// Файл синонимов лежит на диске в кодировке мира, а движок держит текст в нативной.
+		// Длины в формате -- байтовые, поэтому считаем их уже по перекодированным строкам,
+		// иначе чтение разъедется на первом же русском синониме (issue #3681).
+		const std::string alias_on_disk = native_text::to_disk(temp->alias);
+		const std::string repl_on_disk = native_text::to_disk(temp->replacement);
 
 		fprintf(file, "%d\n%s\n"    // Alias
 					  "%d\n%s\n"    // Replacement
 					  "%d\n",    // Type
-				static_cast<int>(aliaslen),
-				temp->alias,
-				static_cast<int>(repllen),
-				temp->replacement,
+				static_cast<int>(alias_on_disk.size()),
+				alias_on_disk.c_str(),
+				static_cast<int>(repl_on_disk.size()),
+				repl_on_disk.c_str(),
 				temp->type);
 	}
 
@@ -81,11 +85,13 @@ void ReadAliases(CharData *ch) {
 	{
 		dummyi = fscanf(file, "%d\n", &length);
 		dummyc = fgets(xbuf, length + 1, file);
-		t2->alias = str_dup(xbuf);
+		// from_disk_line, а не from_koi8: он распознаёт уже нативный текст и не перекодирует
+		// повторно -- файлы, записанные сборкой без перекодировки, читаются как есть.
+		t2->alias = str_dup(native_text::from_disk_line(xbuf).c_str());
 		// Build the replacement.
 		dummyi = fscanf(file, "%d\n", &length);
 		dummyc = fgets(xbuf, length + 1, file);
-		t2->replacement = str_dup(xbuf);
+		t2->replacement = str_dup(native_text::from_disk_line(xbuf).c_str());
 		// Figure out the alias type.
 		dummyi = fscanf(file, "%d\n", &length);
 		t2->type = length;

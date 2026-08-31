@@ -8,6 +8,8 @@
 ***************************************************************************/
 
 #include "engine/db/world_characters.h"
+#include "utils/native_text.h"
+#include "utils/russian_keys.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "engine/entities/obj_data.h"
@@ -516,6 +518,10 @@ void medit_save_internally(DescriptorData *d) {
 	data_source->SaveMobs(OLC_ZNUM(d), OLC_NUM(d));
 }
 
+// Макрос живёт только внутри medit_save_internally: в unity-сборке файлы склеиваются,
+// и оставленное определение переопределялось в redit.cpp.
+#undef ZCMD
+
 //-------------------------------------------------------------------
 
 /*
@@ -703,8 +709,7 @@ void medit_disp_positions(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *position_types[i] != '\n'; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, position_types[i]);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n", grn, i, nrm, position_types[i]), d->character.get());
 	}
 	SendMsgToChar("Выберите положение : ", d->character.get());
 }
@@ -745,9 +750,9 @@ void medit_disp_resistances(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *resistance_types[i] != '\n'; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {} : {}{}{}\r\n",
+									  grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm),
+					  d->character.get());
 	}
 	SendMsgToChar("Введите номер и величину сопротивления (-100..100%) (0 - конец) : ", d->character.get());
 }
@@ -760,9 +765,9 @@ void medit_disp_saves(DescriptorData *d) {
 #endif
 	for (auto i: apply_negative) {
 		if (i.savetype != ESaving::kNone) {
-			snprintf(buf, sizeof(buf), "%s%2d%s) %s : %s%d%s\r\n",
-					grn, num++, nrm, i.name.c_str(), cyn, GetSave(OLC_MOB(d), i.savetype), nrm);
-			SendMsgToChar(buf, d->character.get());
+			SendMsgToChar(fmt::format("{}{:2d}{}) {} : {}{}{}\r\n",
+										  grn, num++, nrm, i.name.c_str(), cyn, GetSave(OLC_MOB(d), i.savetype), nrm),
+						  d->character.get());
 		}
 	}
 	SendMsgToChar("Введите номер и величину спас-броска, отрицательное улучшает (0 - конец) : ", d->character.get());
@@ -879,8 +884,7 @@ void medit_disp_sex(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i <= NUM_GENDERS; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, genders[i]);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n", grn, i, nrm, genders[i]), d->character.get());
 	}
 	SendMsgToChar("Выберите пол : ", d->character.get());
 }
@@ -929,9 +933,9 @@ void medit_disp_features(DescriptorData *d) {
 			snprintf(buf1, sizeof(buf1), "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(feat.GetId()), nrm,
-				 feat.GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
+									  grn, to_underlying(feat.GetId()), nrm, feat.GetCName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 
 	SendMsgToChar("\r\nУкажите номер способности. (0 - конец) : ", d->character.get());
@@ -943,8 +947,7 @@ void medit_disp_race(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < ENpcRace::kLastNpcRace - ENpcRace::kBasic + 1; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n", grn, i, nrm, npc_race_types[i]), d->character.get());
 	}
 	SendMsgToChar("Выберите расу моба : ", d->character.get());
 }
@@ -956,8 +959,9 @@ void medit_disp_attack_types(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < NUM_ATTACK_TYPES; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, fight::GetAttackTypeDescription(i).c_str());
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {}\r\n",
+									  grn, i, nrm, fight::GetAttackTypeDescription(i).c_str()),
+					  d->character.get());
 	}
 	SendMsgToChar("Выберите тип удара : ", d->character.get());
 }
@@ -970,12 +974,12 @@ void medit_disp_helpers(DescriptorData *d) {
 #endif
 	SendMsgToChar("Установлены мобы-помощники :\r\n", d->character.get());
 	for (auto helper : OLC_MOB(d)->summon_helpers) {
-		snprintf(buf, sizeof(buf), "%s%6d%s %s", grn, helper, nrm, !(++columns % 6) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:6d}{} {}",
+									  grn, helper, nrm, !(++columns % 6) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	if (!columns) {
-		snprintf(buf, sizeof(buf), "%sНЕТ%s", cyn, nrm);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}НЕТ{}", cyn, nrm), d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите vnum моба-помощника (0 - конец) : ", d->character.get());
 }
@@ -996,9 +1000,9 @@ void medit_disp_skills(DescriptorData *d) {
 			snprintf(buf1, sizeof(buf1), "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill.GetId()), nrm,
-				 skill.GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
+									  grn, to_underlying(skill.GetId()), nrm, skill.GetName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
 }
@@ -1017,9 +1021,9 @@ void medit_disp_spells(DescriptorData *d) {
 		} else {
 			snprintf(buf1, sizeof(buf1), "     ");
 		}
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(spell_id), nrm,
-				 MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
+									  grn, to_underlying(spell_id), nrm, MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
 }
@@ -1028,15 +1032,17 @@ void medit_disp_spells(DescriptorData *d) {
 void medit_disp_mob_flags(DescriptorData *d) {
 	disp_planes_values(d, action_bits, 2);
 	OLC_MOB(d)->char_specials.saved.mob_flags.sprintbits(action_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nТекущие флаги : {}{}{}\r\nВыберите флаг (0 - выход) : ",
+								  cyn, buf1, nrm),
+				  d->character.get());
 }
 
 void medit_disp_npc_flags(DescriptorData *d) {
 	disp_planes_values(d, function_bits, 2);
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nТекущие флаги : {}{}{}\r\nВыберите флаг (0 - выход) : ",
+								  cyn, buf1, nrm),
+				  d->character.get());
 }
 
 // * Display affection flags menu.
@@ -1044,17 +1050,17 @@ void medit_disp_aff_flags(DescriptorData *d) {
 	const auto &order = affects::MenuOrder();
 	int col = 0;
 	for (size_t i = 0; i < order.size(); ++i) {
-		snprintf(buf1, sizeof(buf1), "%s%3zu%s) %-25.25s", grn, i + 1, nrm,
-				affects::AffectMsg(order[i], affects::EAffectMsgType::kShortDesc).c_str());
-		SendMsgToChar(buf1, d->character.get());
+		SendMsgToChar(fmt::format("{}{:3d}{}) {:<25.25}", grn, i + 1, nrm,
+								  affects::AffectMsg(order[i], affects::EAffectMsgType::kShortDesc)),
+					  d->character.get());
 		if (++col % 2 == 0) {
 			SendMsgToChar("\r\n", d->character.get());
 		}
 	}
 	const std::string cur = affects::DescribeActive(OLC_MOB(d)->char_specials.saved.affected_by, ", ");
-	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flag number (0 to quit) : ",
-			cyn, cur.c_str(), nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nCurrent flags   : {}{}{}\r\nEnter aff flag number (0 to quit) : ",
+								  cyn, cur.c_str(), nrm),
+				  d->character.get());
 }
 
 // * Display main menu.
@@ -1068,7 +1074,7 @@ void medit_disp_menu(DescriptorData *d) {
 		"[H[J"
 #endif
 			"-- МОБ:  [%s%d%s]\r\n"
-			"%s1%s) Пол: %s%-7.7s%s\r\n"
+			"%s1%s) Пол: %s%s%s\r\n"
 			"%s2%s) Синонимы: %s&S%s&s\r\n"
 			"%s3&n) Именительный (это кто)         : %s&e\r\n"
 			"%s4&n) Родительный (нет кого)         : %s&e\r\n"
@@ -1085,7 +1091,9 @@ void medit_disp_menu(DescriptorData *d) {
 			"%sK%s) Класс защиты: [%s%4d%s],%sL%s) Опыт        : [%s%9ld%s],\r\n"
 			"%sM%s) Куны        : [%s%4ld%s],%sN%s) NumGoldDice : [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 			cyn, OLC_NUM(d), nrm,
-			grn, nrm, yel, genders[(int) mob->get_sex()], nrm,
+			// Поле пола ровняем по символам: printf меряет ширину в байтах, и русское "женский"
+			// занимало вдвое больше, чем показывал %-7.7s (issue #3797).
+			grn, nrm, yel, fmt::format("{:<7.7}", genders[(int) mob->get_sex()]).c_str(), nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
 			grn, GET_PAD(mob, 0),
 			grn, GET_PAD(mob, 1),
@@ -1289,11 +1297,11 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_CONFIRM_SAVESTRING:
 			// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
 			OLC_MOB(d)->SetFlag(EMobFlag::kNpc);
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д':
+				case rus::kDe:
+				case rus::kDeUpper:
 					// * Save the mob in memory and to disk.
 //					SendMsgToChar("Saving mobile to memory a.\r\n", d->character.get());
 					medit_save_internally(d);
@@ -1307,8 +1315,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': cleanup_olc(d, CLEANUP_ALL);
+				case rus::kEn:
+				case rus::kEnUpper: cleanup_olc(d, CLEANUP_ALL);
 					break;
 
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
@@ -1319,8 +1327,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 			//-------------------------------------------------------------------
 		case MEDIT_MAIN_MENU: i = 0;
-			olc_log("%s command %c", GET_NAME(d->character), *arg);
-			switch (*arg) {
+			olc_log("%s command %s", GET_NAME(d->character),
+					std::string(arg, native_text::char_bytes(arg)).c_str());
+			switch (native_text::first_char_code(arg)) {
 				case 'q':
 				case 'Q':
 					if (OLC_VAL(d))    // Anything been changed?
@@ -1536,118 +1545,118 @@ void medit_parse(DescriptorData *d, char *arg) {
 					medit_disp_helpers(d);
 					return;
 
-				case 'а':
-				case 'А': OLC_MODE(d) = MEDIT_SKILLS;
+				case rus::kA:
+				case rus::kAUpper: OLC_MODE(d) = MEDIT_SKILLS;
 					medit_disp_skills(d);
 					return;
 
-				case 'б':
-				case 'Б': OLC_MODE(d) = MEDIT_SPELLS;
+				case rus::kBe:
+				case rus::kBeUpper: OLC_MODE(d) = MEDIT_SPELLS;
 					medit_disp_spells(d);
 					return;
 
-				case 'в':
-				case 'В': OLC_MODE(d) = MEDIT_STR;
+				case rus::kVe:
+				case rus::kVeUpper: OLC_MODE(d) = MEDIT_STR;
 					i++;
 					break;
 
-				case 'г':
-				case 'Г': OLC_MODE(d) = MEDIT_DEX;
+				case rus::kGe:
+				case rus::kGeUpper: OLC_MODE(d) = MEDIT_DEX;
 					i++;
 					break;
 
-				case 'д':
-				case 'Д': OLC_MODE(d) = MEDIT_CON;
+				case rus::kDe:
+				case rus::kDeUpper: OLC_MODE(d) = MEDIT_CON;
 					i++;
 					break;
 
-				case 'е':
-				case 'Е': OLC_MODE(d) = MEDIT_WIS;
+				case rus::kIe:
+				case rus::kIeUpper: OLC_MODE(d) = MEDIT_WIS;
 					i++;
 					break;
 
-				case 'ж':
-				case 'Ж': OLC_MODE(d) = MEDIT_INT;
+				case rus::kZhe:
+				case rus::kZheUpper: OLC_MODE(d) = MEDIT_INT;
 					i++;
 					break;
 
-				case 'з':
-				case 'З': OLC_MODE(d) = MEDIT_CHA;
+				case rus::kZe:
+				case rus::kZeUpper: OLC_MODE(d) = MEDIT_CHA;
 					i++;
 					break;
 
-				case 'и':
-				case 'И': OLC_MODE(d) = MEDIT_HEIGHT;
+				case rus::kI:
+				case rus::kIUpper: OLC_MODE(d) = MEDIT_HEIGHT;
 					i++;
 					break;
 
-				case 'к':
-				case 'К': OLC_MODE(d) = MEDIT_WEIGHT;
+				case rus::kKa:
+				case rus::kKaUpper: OLC_MODE(d) = MEDIT_WEIGHT;
 					i++;
 					break;
 
-				case 'л':
-				case 'Л': OLC_MODE(d) = MEDIT_SIZE;
+				case rus::kEl:
+				case rus::kElUpper: OLC_MODE(d) = MEDIT_SIZE;
 					i++;
 					break;
 
-				case 'м':
-				case 'М': OLC_MODE(d) = MEDIT_EXTRA;
+				case rus::kEm:
+				case rus::kEmUpper: OLC_MODE(d) = MEDIT_EXTRA;
 					i++;
 					break;
 
-				case 'х':
-				case 'Х': OLC_MODE(d) = MEDIT_REMORT;
+				case rus::kHa:
+				case rus::kHaUpper: OLC_MODE(d) = MEDIT_REMORT;
 					i++;
 					break;
 
-				case 'Ю':
-				case 'ю': OLC_MODE(d) = MEDIT_MAXFACTOR;
+				case rus::kYuUpper:
+				case rus::kYu: OLC_MODE(d) = MEDIT_MAXFACTOR;
 					i++;
 					break;
 
-				case 'н':
-				case 'Н': SendMsgToChar(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
+				case rus::kEn:
+				case rus::kEnUpper: SendMsgToChar(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
 					OLC_MODE(d) = MEDIT_LIKE;
 					return;
 
-				case 'п':
-				case 'П': OLC_MODE(d) = MEDIT_DLIST_MENU;
+				case rus::kPe:
+				case rus::kPeUpper: OLC_MODE(d) = MEDIT_DLIST_MENU;
 					disp_dl_list(d);
 					return;
 
-				case 'р':
-				case 'Р': OLC_MODE(d) = MEDIT_ROLE;
+				case rus::kEr:
+				case rus::kErUpper: OLC_MODE(d) = MEDIT_ROLE;
 					medit_disp_role(d);
 					return;
 
-				case 'с':
-				case 'С': OLC_MODE(d) = MEDIT_RESISTANCES;
+				case rus::kEs:
+				case rus::kEsUpper: OLC_MODE(d) = MEDIT_RESISTANCES;
 					medit_disp_resistances(d);
 					return;
 
-				case 'т':
-				case 'Т': OLC_MODE(d) = MEDIT_SAVES;
+				case rus::kTe:
+				case rus::kTeUpper: OLC_MODE(d) = MEDIT_SAVES;
 					medit_disp_saves(d);
 					return;
 
-				case 'у':
-				case 'У': OLC_MODE(d) = MEDIT_ADD_PARAMETERS;
+				case rus::kU:
+				case rus::kUUpper: OLC_MODE(d) = MEDIT_ADD_PARAMETERS;
 					medit_disp_add_parameters(d);
 					return;
 
-				case 'ф':
-				case 'Ф': OLC_MODE(d) = MEDIT_FEATURES;
+				case rus::kEf:
+				case rus::kEfUpper: OLC_MODE(d) = MEDIT_FEATURES;
 					medit_disp_features(d);
 					return;
 
-				case 'ц':
-				case 'Ц': OLC_MODE(d) = MEDIT_RACE;
+				case rus::kTse:
+				case rus::kTseUpper: OLC_MODE(d) = MEDIT_RACE;
 					medit_disp_race(d);
 					return;
 
-				case 'ч':
-				case 'Ч': OLC_MODE(d) = MEDIT_CLONE;
+				case rus::kChe:
+				case rus::kCheUpper: OLC_MODE(d) = MEDIT_CLONE;
 					medit_disp_clone_menu(d);
 					return;
 
@@ -2165,9 +2174,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_DLIST_MENU:
 			if (*arg) {
 				// Обрабатываем комнады добавить удалить и.т.п
-				switch (*arg) {
-					case 'а':
-					case 'А':
+				switch (native_text::first_char_code(arg)) {
+					case rus::kA:
+					case rus::kAUpper:
 						// Добавляем запись.
 						OLC_MODE(d) = MEDIT_DLIST_ADD;
 						SendMsgToChar("\r\nVNUM - виртуальный номер прототипа\r\n"
@@ -2186,8 +2195,8 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 						return;
 
-					case 'б':
-					case 'Б':
+					case rus::kBe:
+					case rus::kBeUpper:
 						// Удаляем запись.
 						OLC_MODE(d) = MEDIT_DLIST_DEL;
 						SendMsgToChar("\r\nВведите номер удаляемой записи:", d->character.get());

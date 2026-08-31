@@ -5,6 +5,8 @@
  ************************************************************************/
 
 #include "engine/db/obj_prototypes.h"
+#include "utils/russian_keys.h"
+#include "utils/native_text.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
@@ -23,6 +25,7 @@
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
 #include <sys/stat.h>
+#include <fmt/format.h>
 
 #include <vector>
 
@@ -931,15 +934,15 @@ void zedit_disp_menu(DescriptorData *d) {
 				 grn, nrm, ired, type1_zones, nrm, grn, nrm, grn, type2_zones, nrm);
 		SendMsgToChar(buf, d->character.get());
 	}
-	snprintf(buf, kMaxStringLength, "%sT%s) Режим            : %s%s%s\r\n",
-			 grn, nrm, yel, OLC_ZONE(d)->under_construction ? "ТЕСТИРУЕТСЯ" : "подключена", nrm);
-	SendMsgToChar(buf, d->character.get());
-	snprintf(buf, kMaxStringLength, "%sG%s) Оптимальное число игроков  : %s%d%s\r\n",
-			 grn, nrm, yel, OLC_ZONE(d)->group, nrm);
-	SendMsgToChar(buf, d->character.get());
-	snprintf(buf, kMaxStringLength, "%sV%s) Стартовая комната зоны     : %s%d%s\r\n",
-			 grn, nrm, yel, OLC_ZONE(d)->entrance, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("{}T{}) Режим            : {}{}{}\r\n",
+								  grn, nrm, yel, OLC_ZONE(d)->under_construction ? "ТЕСТИРУЕТСЯ" : "подключена", nrm),
+				  d->character.get());
+	SendMsgToChar(fmt::format("{}G{}) Оптимальное число игроков  : {}{}{}\r\n",
+								  grn, nrm, yel, OLC_ZONE(d)->group, nrm),
+				  d->character.get());
+	SendMsgToChar(fmt::format("{}V{}) Стартовая комната зоны     : {}{}{}\r\n",
+								  grn, nrm, yel, OLC_ZONE(d)->entrance, nrm),
+				  d->character.get());
 	
 	// Print the commands into display buffer.
 	zedit_disp_commands(d);
@@ -986,9 +989,9 @@ void zedit_disp_type_menu(DescriptorData *d) {
 	// of vnums is the configuration author's responsibility (the legacy ztypes.lst
 	// loader implicitly assumed 0..N-1 contiguous slots, the registry doesn't).
 	for (const auto &zone_type : MUD::ZoneTypes()) {
-		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, zone_type.GetId(), nrm,
-				zone_type.GetName().c_str(), !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {:<20.20} {}", grn, zone_type.GetId(), nrm,
+								  zone_type.GetName(), !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 	SendMsgToChar("\r\nВыберите тип зоны : ", d->character.get());
 }
@@ -1362,11 +1365,11 @@ void zedit_parse(DescriptorData *d, char *arg) {
 
 	switch (OLC_MODE(d)) {
 		case ZEDIT_CONFIRM_SAVESTRING:
-			switch (*arg) {
+			switch (native_text::first_char_code(arg)) {
 				case 'y':
 				case 'Y':
-				case 'д':
-				case 'Д':
+				case rus::kDe:
+				case rus::kDeUpper:
 					// * Save the zone in memory, hiding invisible people.
 					SendMsgToChar("Зона сохранена.\r\n", d->character.get());
 					zedit_save_internally(d);
@@ -1376,8 +1379,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 					// FALL THROUGH
 				case 'n':
 				case 'N':
-				case 'н':
-				case 'Н': cleanup_olc(d, CLEANUP_ALL);
+				case rus::kEn:
+				case rus::kEnUpper: cleanup_olc(d, CLEANUP_ALL);
 					break;
 				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
 					SendMsgToChar("Вы желаете сохранить зону? : ", d->character.get());
@@ -1898,15 +1901,20 @@ void zedit_parse(DescriptorData *d, char *arg) {
 
 		case ZEDIT_RESET_IDLE:
 			// * Parse and add new reset_idle and return to main menu.
-			if (!arg[0] || !strchr("YyNnДдНн", arg[0])) {
-				SendMsgToChar("Повторите ввод (y или n) : ", d->character.get());
-			} else {
-				if (strchr("YyДд", arg[0]))
-					OLC_ZONE(d)->reset_idle = 1;
-				else
-					OLC_ZONE(d)->reset_idle = 0;
-				OLC_ZONE(d)->vnum = 1;
-				zedit_disp_menu(d);
+			{
+				// Ответ сверяем по символу, а не по байту: в UTF-8 "Д", "д", "Н" и "н" начинаются
+				// с одного и того же байта 0xD0, поэтому strchr по строке с кириллицей находил
+				// любой из них в обоих списках -- и "нет" срабатывало как "да".
+				const char32_t answer = native_text::first_char_code_lower(arg);
+				const bool yes = (answer == 'y' || answer == rus::kDe);
+				const bool no = (answer == 'n' || answer == rus::kEn);
+				if (!yes && !no) {
+					SendMsgToChar("Повторите ввод (y или n) : ", d->character.get());
+				} else {
+					OLC_ZONE(d)->reset_idle = yes ? 1 : 0;
+					OLC_ZONE(d)->vnum = 1;
+					zedit_disp_menu(d);
+				}
 			}
 			break;
 

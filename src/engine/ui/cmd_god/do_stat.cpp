@@ -1,5 +1,6 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/affects/obj_affects.h"   // issue.obj-affects: Diag
+#include "utils/native_text.h"
 #include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
@@ -136,7 +137,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (k->IsNpc()) {
 		snprintf(buf, sizeof(buf),
-				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
+				"Синонимы: &S%s&s, VNum: [%7d], RNum: [%7d]\r\n",
 				k->GetCharAliases().c_str(),
 				GET_MOB_VNUM(k),
 				k->get_rnum());
@@ -615,13 +616,15 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {
 		for (const auto &aff : k->affected) {
-			std::string sline = fmt::sprintf("Заклинания: (%3d%s|%s) %s%-21s%s ",
+			std::string sline = fmt::sprintf("Заклинания: (%3d%s|%s) %s%s%s ",
 					aff->duration + 1,
 					(aff->battleflag.get(kAfPulsedec)) || (aff->battleflag.get(kAfSameTime)) ? "плс" : "мин",
 					(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин",
 					kColorCyn,
 					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
-					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(),
+					// Ширина поля -- в символах: printf меряет %-21s в байтах (issue #3681).
+					native_text::pad_right(
+						affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc), 21).c_str(),
 					kColorNrm);
 			bool has_modifier = aff->modifier != 0;
 			if (has_modifier) {
@@ -667,16 +670,17 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			for (auto tv : k->script->global_vars) {
 				if (tv.value[0] == UID_CHAR) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [CharUID]: %s\r\n", tv.name.c_str(), name);
+					// Ширину колонки имени считает fmt: printf меряет её в байтах (issue #3797).
+					SendMsgToChar(fmt::format("    {:>10}:  [CharUID]: {}\r\n", tv.name, name), ch);
 				} else if (tv.value[0] == UID_OBJ) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [ObjUID]: %s\r\n", tv.name.c_str(), name);
+					SendMsgToChar(fmt::format("    {:>10}:  [ObjUID]: {}\r\n", tv.name, name), ch);
 				} else if (tv.value[0] == UID_ROOM) {
 					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					snprintf(buf, sizeof(buf), "    %10s:  [RoomUID]: %s\r\n", tv.name.c_str(), name);
-				} else
-					snprintf(buf, sizeof(buf), "    %10s:  %s\r\n", tv.name.c_str(), tv.value.c_str());
-				SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("    {:>10}:  [RoomUID]: {}\r\n", tv.name, name), ch);
+				} else {
+					SendMsgToChar(fmt::format("    {:>10}:  {}\r\n", tv.name, tv.value), ch);
+				}
 			}
 		}
 
@@ -732,7 +736,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		snprintf(buf2, sizeof(buf2), "None");
 	}
 
-	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UniqueID: [%ld], Id: [%ld]\r\n",
+	SendMsgToChar(ch, "VNum: [%s%7d%s], RNum: [%7d], UniqueID: [%ld], Id: [%ld]\r\n",
 				  kColorGrn, vnum, kColorNrm, j->get_rnum(), j->get_unique_id(), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
@@ -858,7 +862,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		}
 	}
 	if (!str.empty()) {
-		str[0] = UPPER(str[0]);
+		native_text::capitalize_first(str);
 		SendMsgToChar(ch, "&C%s&n", str.c_str());
 	} else {
 		auto room = get_room_where_obj(j);
@@ -1202,7 +1206,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 
 	sprinttype(rm->sector_type, sector_types, smallBuf);
 	snprintf(buf, sizeof(buf),
-			"Зона: [%3d], VNum: [%s%5d%s], RNum: [%5d], Тип  сектора: %s\r\n",
+			"Зона: [%3d], VNum: [%s%7d%s], RNum: [%7d], Тип  сектора: %s\r\n",
 			zone_table[rm->zone_rn].vnum, kColorGrn, rm->vnum, kColorNrm, rnum, smallBuf);
 	SendMsgToChar(buf, ch);
 
@@ -1274,12 +1278,12 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			if (rm->dir_option[i]->to_room() == kNowhere)
 				snprintf(smallBuf, sizeof(smallBuf), " %sNONE%s", kColorCyn, kColorNrm);
 			else
-				snprintf(smallBuf, sizeof(smallBuf), "%s%5d%s", kColorCyn,
+				snprintf(smallBuf, sizeof(smallBuf), "%s%7d%s", kColorCyn,
 						GET_ROOM_VNUM(rm->dir_option[i]->to_room()), kColorNrm);
 			sprintbit(rm->dir_option[i]->exit_info.get_plane(0), exit_bits, tmpBuf, sizeof(tmpBuf));
 			snprintf(buf, sizeof(buf),
-					"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
-					kColorCyn, dirs[i], kColorNrm, smallBuf,
+					"Выход %s%s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
+					kColorCyn, native_text::pad_right(dirs[i], 5).c_str(), kColorNrm, smallBuf,
 					rm->dir_option[i]->key,
 					rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)",
 					rm->dir_option[i]->vkeyword ? rm->dir_option[i]->vkeyword : "Нет(дверь)", tmpBuf);

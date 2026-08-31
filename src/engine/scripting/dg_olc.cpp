@@ -14,7 +14,9 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include "utils/native_text.h"
 #include "dg_olc.h"
+#include <fmt/format.h>
 
 #include <memory>
 #include <string>
@@ -153,9 +155,8 @@ void TrigeditCompileDgCmdlist(Trigger *trig, const std::string &storage_str)
 		while (it != str.end() && (*it == ' ' || *it == '\t')) {
 			++it;
 		}
-		while (it != str.end() && *it != ' ') {
-			*it = LOWER(*it);
-			++it;
+		for (; it != str.end() && *it != ' '; it += native_text::char_bytes(&*it)) {
+			native_text::copy_lower_char(&*it, &*it);
 		}
 	};
 
@@ -401,13 +402,15 @@ void trigedit_disp_types(DescriptorData *d) {
 #endif
 
 	for (i = 0; i < NUM_TRIG_TYPE_FLAGS; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %-20.20s  %s", grn, i + 1, nrm, types[i], !(++columns % 2) ? "\r\n" : "");
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}{:2d}{}) {:<20.20}  {}",
+									  grn, i + 1, nrm, types[i], !(++columns % 2) ? "\r\n" : ""),
+					  d->character.get());
 	}
 
 	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1, sizeof(buf1), 2);
-	snprintf(buf, kMaxStringLength, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nCurrent types : {}{}{}\r\nEnter type (0 to quit) : ",
+								  cyn, buf1, nrm),
+				  d->character.get());
 }
 
 void trigedit_parse(DescriptorData *d, char *arg) {
@@ -990,9 +993,9 @@ void dg_script_menu(DescriptorData *d) {
 #undef FMT
 
 	for (const auto trigger_vnum : OLC_SCRIPT(d)) {
-		snprintf(buf, sizeof(buf), "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
-				trigger_vnum, nrm, cyn, trig_index[GetTriggerRnum(trigger_vnum)]->proto->get_name().c_str(), nrm);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("     {:2d}) [{}{}{}] {}{}{}",
+									  ++i, cyn, trigger_vnum, nrm, cyn, trig_index[GetTriggerRnum(trigger_vnum)]->proto->get_name().c_str(), nrm),
+					  d->character.get());
 		if (trig_index[GetTriggerRnum(trigger_vnum)]->proto->get_attach_type() != OLC_ITEM_TYPE(d)) {
 			snprintf(buf, sizeof(buf), "   %s** Mis-matched Trigger Type **%s\r\n", grn, nrm);
 		} else {

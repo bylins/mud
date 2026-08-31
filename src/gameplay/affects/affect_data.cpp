@@ -53,8 +53,8 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	ev.name = kind;
 	ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 		std::chrono::system_clock::now().time_since_epoch()).count();
-	ev.attrs["target_name"] = observability::EngineStringToUtf8(
-		GET_NAME(ch) ? GET_NAME(ch) : "");
+	ev.attrs["target_name"] = 
+		GET_NAME(ch) ? GET_NAME(ch) : "";
 	ev.attrs["duration"] = static_cast<std::int64_t>(af.duration);
 	ev.attrs["modifier"] = static_cast<std::int64_t>(af.modifier);
 	ev.attrs["location"] = static_cast<std::int64_t>(af.location);
