@@ -30,7 +30,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "> **\u0414\u0430\u0448\u0431\u043e\u0440\u0434 \u0442\u043e\u043b\u044c\u043a\u043e \u0434\u043b\u044f \u0447\u0442\u0435\u043d\u0438\u044f.** \u0423\u043f\u0440\u0430\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0438\u0437 \u0444\u0430\u0439\u043b\u0430 \u0432 \u0440\u0435\u043f\u043e\u0437\u0438\u0442\u043e\u0440\u0438\u0438. \u0427\u0442\u043e\u0431\u044b \u0432\u043d\u0435\u0441\u0442\u0438 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u2014 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 **Save As** (\u0441\u043e\u0437\u0434\u0430\u0439\u0442\u0435 \u043a\u043e\u043f\u0438\u044e).\n>\n> \u041f\u0430\u043d\u0435\u043b\u0438 \u0430\u0443\u043a\u0446\u0438\u043e\u043d\u0430 \u0438 \u043a\u0440\u0430\u0444\u0442\u0430 \u043f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u044e\u0442 \u0434\u0430\u043d\u043d\u044b\u0435 \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u043e\u0441\u043b\u0435 \u0441\u043e\u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u044e\u0449\u0438\u0445 \u0438\u0433\u0440\u043e\u0432\u044b\u0445 \u0441\u043e\u0431\u044b\u0442\u0438\u0439."
+        "content": "> **Дашборд только для чтения.** Управляется из файла в репозитории. Чтобы внести изменения — используйте **Save As** (создайте копию).\n>\n> Панели аукциона и крафта показывают данные только после соответствующих игровых событий."
       },
       "transparent": true
     },
@@ -111,7 +111,7 @@
           "refId": "A"
         }
       ],
-      "title": "\u0422\u043e\u043f 10 \u0441\u0430\u043c\u044b\u0445 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0435\u043c\u044b\u0445 \u0437\u0430\u043a\u043b\u0438\u043d\u0430\u043d\u0438\u0439 (\u0447\u0430\u0441\u0442\u043e\u0442\u0430)",
+      "title": "Топ 10 самых используемых заклинаний (частота)",
       "type": "timeseries"
     },
     {
@@ -192,11 +192,11 @@
         },
         {
           "expr": "histogram_quantile(0.99, rate(spell_cast_duration_bucket{job=~\"$service\"}[5m]))",
-          "legendFormat": "p99 (\u0432\u0441\u0435)",
+          "legendFormat": "p99 (все)",
           "refId": "B"
         }
       ],
-      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u0438\u044f \u0437\u0430\u043a\u043b\u0438\u043d\u0430\u043d\u0438\u044f",
+      "title": "Длительность выполнения заклинания",
       "type": "timeseries"
     },
     {
@@ -276,7 +276,7 @@
           "refId": "A"
         }
       ],
-      "title": "\u0417\u0430\u043a\u043b\u0438\u043d\u0430\u043d\u0438\u044f \u043f\u043e \u043a\u043b\u0430\u0441\u0441\u0443 (\u0447\u0430\u0441\u0442\u043e\u0442\u0430)",
+      "title": "Заклинания по классу (частота)",
       "type": "timeseries"
     },
     {
@@ -361,7 +361,7 @@
           "refId": "B"
         }
       ],
-      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0442\u0440\u0438\u0433\u0433\u0435\u0440\u043e\u0432 DG Scripts (\u043f\u043e \u0442\u0438\u043f\u0443)",
+      "title": "Длительность триггеров DG Scripts (по типу)",
       "type": "timeseries"
     },
     {
@@ -437,11 +437,11 @@
       "targets": [
         {
           "expr": "rate(player_deaths_total{job=~\"$service\"}[5m])",
-          "legendFormat": "\u0421\u043c\u0435\u0440\u0442\u0435\u0439/\u0441\u0435\u043a ({{death_type}})",
+          "legendFormat": "Смертей/сек ({{death_type}})",
           "refId": "A"
         }
       ],
-      "title": "\u0421\u043c\u0435\u0440\u0442\u0438 \u0438\u0433\u0440\u043e\u043a\u043e\u0432 (PvP / PvE)",
+      "title": "Смерти игроков (PvP / PvE)",
       "type": "timeseries"
     },
     {
@@ -517,16 +517,16 @@
       "targets": [
         {
           "expr": "rate(craft_completed_total{job=~\"$service\"}[5m])",
-          "legendFormat": "\u0423\u0441\u043f\u0435\u0448\u043d\u043e ({{recipe_id}})",
+          "legendFormat": "Успешно ({{recipe_id}})",
           "refId": "A"
         },
         {
           "expr": "rate(craft_failures_total{job=~\"$service\"}[5m])",
-          "legendFormat": "\u041d\u0435\u0443\u0434\u0430\u0447\u0430 ({{failure_reason}})",
+          "legendFormat": "Неудача ({{failure_reason}})",
           "refId": "B"
         }
       ],
-      "title": "\u041a\u0440\u0430\u0444\u0442: \u0443\u0441\u043f\u0435\u0445\u0438 \u0438 \u043d\u0435\u0443\u0434\u0430\u0447\u0438 (\u043f\u043e\u044f\u0432\u0438\u0442\u0441\u044f \u043f\u0440\u0438 \u043f\u0435\u0440\u0432\u043e\u043c \u043a\u0440\u0430\u0444\u0442\u0435)",
+      "title": "Крафт: успехи и неудачи (появится при первом крафте)",
       "type": "timeseries"
     },
     {
@@ -581,11 +581,11 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "rate(auction_lots_active_gauge_sum{job=~\"$service\"}[5m]) / rate(auction_lots_active_gauge_count{job=~\"$service\"}[5m])",
+          "expr": "sum(rate(trade_lots_active_gauge_sum{job=~\"$service\"}[5m]) / rate(trade_lots_active_gauge_count{job=~\"$service\"}[5m]))",
           "refId": "A"
         }
       ],
-      "title": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0435 \u043b\u043e\u0442\u044b \u0430\u0443\u043a\u0446\u0438\u043e\u043d\u0430",
+      "title": "Лотов на витрине (базар + аукцион)",
       "type": "gauge"
     },
     {
@@ -660,17 +660,17 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "rate(auction_lots_active_gauge_sum{job=~\"$service\"}[5m]) / rate(auction_lots_active_gauge_count{job=~\"$service\"}[5m])",
-          "legendFormat": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0435 \u043b\u043e\u0442\u044b",
+          "expr": "sum by (market) (rate(trade_sale_total{job=~\"$service\"}[$__rate_interval]))",
+          "legendFormat": "{{market}}: сделок/сек",
           "refId": "A"
         },
         {
-          "expr": "rate(auction_sale_total{job=~\"$service\"}[5m])",
-          "legendFormat": "\u041f\u0440\u043e\u0434\u0430\u0436/\u0441\u0435\u043a",
+          "expr": "sum by (market) (rate(trade_turnover_total{job=~\"$service\"}[$__rate_interval]))",
+          "legendFormat": "{{market}}: кун/сек",
           "refId": "B"
         }
       ],
-      "title": "\u0410\u0443\u043a\u0446\u0438\u043e\u043d (\u043f\u0440\u043e\u0434\u0430\u0436\u0438 \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f \u043f\u043e\u0441\u043b\u0435 \u043f\u0435\u0440\u0432\u043e\u0439 \u0441\u0434\u0435\u043b\u043a\u0438)",
+      "title": "Торговля: сделки и оборот",
       "type": "timeseries"
     },
     {
@@ -745,12 +745,17 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(auction_duration_seconds_bucket{job=~\"$service\"}[5m]))",
-          "legendFormat": "p95 \u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c (\u043e\u0442 \u0432\u044b\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u0434\u043e \u043f\u0440\u043e\u0434\u0430\u0436\u0438)",
+          "expr": "histogram_quantile(0.5, sum by (market, le) (rate(trade_time_to_sale_seconds_bucket{job=~\"$service\"}[$__rate_interval])))",
+          "legendFormat": "{{market}} p50",
           "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (market, le) (rate(trade_time_to_sale_seconds_bucket{job=~\"$service\"}[$__rate_interval])))",
+          "legendFormat": "{{market}} p95",
+          "refId": "B"
         }
       ],
-      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0430\u0443\u043a\u0446\u0438\u043e\u043d\u043e\u0432 (\u043f\u043e\u044f\u0432\u0438\u0442\u0441\u044f \u043f\u043e\u0441\u043b\u0435 \u043f\u0435\u0440\u0432\u043e\u0439 \u043f\u0440\u043e\u0434\u0430\u0436\u0438)",
+      "title": "Время от выставления до продажи",
       "type": "timeseries"
     },
     {
@@ -826,11 +831,11 @@
       "targets": [
         {
           "expr": "rate(zone_reset_total{job=~\"$service\"}[5m])",
-          "legendFormat": "\u0421\u0431\u0440\u043e\u0441\u043e\u0432/\u0441\u0435\u043a ({{reset_mode}})",
+          "legendFormat": "Сбросов/сек ({{reset_mode}})",
           "refId": "A"
         }
       ],
-      "title": "\u0421\u0431\u0440\u043e\u0441\u044b \u0437\u043e\u043d (\u043f\u043e \u0440\u0435\u0436\u0438\u043c\u0443)",
+      "title": "Сбросы зон (по режиму)",
       "type": "timeseries"
     }
   ],
@@ -877,8 +882,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Bylins MUD - \u0414\u0430\u0448\u0431\u043e\u0440\u0434 \u0438\u0433\u0440\u043e\u0432\u043e\u0439 \u043b\u043e\u0433\u0438\u043a\u0438",
-  "description": "\u0422\u043e\u043b\u044c\u043a\u043e \u0434\u043b\u044f \u0447\u0442\u0435\u043d\u0438\u044f. \u0427\u0442\u043e\u0431\u044b \u0432\u043d\u0435\u0441\u0442\u0438 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u2014 \u043a\u043b\u043e\u043d\u0438\u0440\u0443\u0439\u0442\u0435 \u0434\u0430\u0448\u0431\u043e\u0440\u0434 \u0432 Grafana (\u043a\u043d\u043e\u043f\u043a\u0430 Save As).",
+  "title": "Bylins MUD - Дашборд игровой логики",
+  "description": "Только для чтения. Чтобы внести изменения — клонируйте дашборд в Grafana (кнопка Save As).",
   "uid": "bylins-business-logic",
   "version": 0
 }

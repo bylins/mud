@@ -26,9 +26,7 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/ai/spec_procs.h"
-#include "engine/observability/helpers.h"
-#include "engine/observability/metrics.h"
-#include "utils/tracing/trace_manager.h"
+#include "gameplay/economics/trade_log.h"
 
 const int kMaxAuctionLot = 3;
 const int kMaxAuctionTactBuy = 5;
@@ -67,6 +65,34 @@ const char *auction_cmd[] = {"поставить", "set",
 							 "характеристики", "identify",
 							 "\n"
 };
+
+// Лот на аукционе живёт тактами, а не с отметкой времени: восстанавливаем
+// момент выставления, чтобы время до продажи считалось так же, как на базаре.
+static time_t auction_listed_at(int lot) {
+	return time(nullptr) - static_cast<time_t>((GET_LOT(lot)->tact * kAuctionPulses) / 10);
+}
+
+static void auction_sold(int lot) {
+	trade_log::Sold(trade_log::EMarket::kAuction, lot, GET_LOT(lot)->item, GET_LOT(lot)->cost,
+					GET_LOT(lot)->seller_unique, GET_LOT(lot)->buyer_unique, auction_listed_at(lot));
+}
+
+static void auction_withdrawn(int lot, const char *reason) {
+	trade_log::Withdrawn(trade_log::EMarket::kAuction, lot, GET_LOT(lot)->item, GET_LOT(lot)->cost,
+						 GET_LOT(lot)->seller_unique, reason);
+}
+
+static void record_active_lots() {
+	int count = 0;
+	long value = 0;
+	for (int j = 0; j < kMaxAuctionLot; j++) {
+		if (GET_LOT(j)->seller && GET_LOT(j)->item) {
+			++count;
+			value += GET_LOT(j)->cost;
+		}
+	}
+	trade_log::ActiveLots(trade_log::EMarket::kAuction, count, value);
+}
 
 void showlots(CharData *ch) {
 	char tmpbuf[kMaxInputLength];
@@ -214,6 +240,7 @@ bool auction_drive(CharData *ch, char *argument) {
 					"Аукцион : новый лот %d - %s - начальная ставка %d %s. \r\n",
 					lot, obj->get_PName(grammar::ECase::kNom).c_str(), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 			message_auction(tmpbuf, nullptr);
+			trade_log::Listed(trade_log::EMarket::kAuction, lot, obj, value, ch->get_uid());
 			SetWait(ch, 1, false);
 			return true;
 			break;
@@ -233,6 +260,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			act("Вы сняли $O3 с аукциона.\r\n", false, ch, 0, GET_LOT(lot)->item, kToChar);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) снят%s с аукциона владельцем.\r\n", lot,
 					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((GET_LOT(lot)->item)->get_sex(), 6));
+			auction_withdrawn(lot, "owner");
 			clear_auction(lot);
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
@@ -265,6 +293,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Вещь утеряна владельцем.\r\n", ch);
 				sprintf(tmpbuf, "Аукцион : лот %d (%s) снят, ввиду смены владельца.", lot,
 						GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str());
+				auction_withdrawn(lot, "owner_changed");
 				clear_auction(lot);
 				message_auction(tmpbuf, nullptr);
 				return true;
@@ -296,6 +325,8 @@ bool auction_drive(CharData *ch, char *argument) {
 					value,
 					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 			SendMsgToChar(tmpbuf, GET_LOT(lot)->seller);
+			trade_log::Bid(trade_log::EMarket::kAuction, lot, GET_LOT(lot)->item, value,
+						   GET_LOT(lot)->seller_unique, ch->get_uid());
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) - новая ставка %d %s.", lot,
 					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 			message_auction(tmpbuf, nullptr);
@@ -520,6 +551,7 @@ int check_sell(int lot) {
 	if (obj->get_carried_by() != ch) {
 		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят, ввиду смены владельца", lot, obj->get_PName(grammar::ECase::kNom).c_str());
 		message_auction(tmpbuf, nullptr);
+		auction_withdrawn(lot, "owner_changed");
 		clear_auction(lot);
 		return (false);
 	}
@@ -533,6 +565,7 @@ int check_sell(int lot) {
 					lot,
 					obj->get_PName(grammar::ECase::kNom).c_str());
 			message_auction(tmpbuf, nullptr);
+			auction_withdrawn(lot, "trader");
 			clear_auction(lot);
 			return (false);
 		}
@@ -545,6 +578,7 @@ int check_sell(int lot) {
 		SendMsgToChar(tmpbuf, ch);
 		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.", lot, obj->get_PName(grammar::ECase::kNom).c_str());
 		message_auction(tmpbuf, nullptr);
+		auction_withdrawn(lot, "no_money");
 		clear_auction(lot);
 		return (false);
 	}
@@ -690,45 +724,9 @@ void trans_auction(int lot) {
 	currencies::AddBank(*ch, currencies::kGold, GET_LOT(lot)->cost);
 	currencies::RemoveTotal(*tch, currencies::kGold, GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
 
+	auction_sold(lot);
 	clear_auction(lot);
 	return;
-}
-
-class AuctionSaleMetrics {
-public:
-	explicit AuctionSaleMetrics(int lot)
-		: m_span(tracing::TraceManager::Instance().StartSpan("Auction Sale"))
-		, m_cost(GET_LOT(lot)->cost)
-		, m_duration((GET_LOT(lot)->tact * kAuctionPulses) / 10.0)
-	{
-		m_span->SetAttribute("lot",              static_cast<int64_t>(lot));
-		m_span->SetAttribute("seller_id",        static_cast<int64_t>(GET_LOT(lot)->seller_unique));
-		m_span->SetAttribute("buyer_id",         static_cast<int64_t>(GET_LOT(lot)->buyer_unique));
-		m_span->SetAttribute("cost",             static_cast<int64_t>(m_cost));
-		m_span->SetAttribute("item_id",          static_cast<int64_t>(GET_LOT(lot)->item_id));
-		m_span->SetAttribute("duration_seconds", m_duration);
-	}
-
-	void send() {
-		observability::OtelMetrics::RecordCounter("auction.sale.total",    1);
-		observability::OtelMetrics::RecordCounter("auction.revenue.total", m_cost);
-		observability::OtelMetrics::RecordHistogram("auction.duration.seconds", m_duration);
-	}
-
-private:
-	std::unique_ptr<tracing::ISpan> m_span;
-	int m_cost;
-	double m_duration;
-};
-
-static void record_active_lots() {
-	int count = 0;
-	for (int j = 0; j < kMaxAuctionLot; j++) {
-		if (GET_LOT(j)->seller && GET_LOT(j)->item) {
-			++count;
-		}
-	}
-	observability::OtelMetrics::RecordGauge("auction.lots.active", count);
 }
 
 void sell_auction(int lot) {
@@ -744,8 +742,6 @@ void sell_auction(int lot) {
 	if (!check_sell(lot))
 		return;
 
-	AuctionSaleMetrics metrics(lot);
-
 	if (ch->in_room != tch->in_room
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)) {
 		if (GET_LOT(lot)->tact >= kMaxAuctionTact) {
@@ -755,6 +751,7 @@ void sell_auction(int lot) {
 					obj->get_PName(grammar::ECase::kNom).c_str());
 
 			message_auction(tmpbuff, nullptr);
+			auction_withdrawn(lot, "trader");
 			clear_auction(lot);
 			return;
 		}
@@ -789,7 +786,7 @@ void sell_auction(int lot) {
 	currencies::RemoveTotal(*tch, currencies::kGold, GET_LOT(lot)->cost);
 
 
-	metrics.send();
+	auction_sold(lot);
 	clear_auction(lot);
 	return;
 }
@@ -807,6 +804,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, ch);
+				auction_withdrawn(i, "trader");
 				clear_auction(i);
 			}
 		}
@@ -818,6 +816,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, obj->get_carried_by());
+				auction_withdrawn(i, "trader");
 				clear_auction(i);
 			}
 		}
@@ -833,6 +832,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, nullptr);
+				auction_withdrawn(i, "trader");
 				clear_auction(i);
 			}
 		}
@@ -859,6 +859,7 @@ void tact_auction(void) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят распорядителем ввиду отсутствия спроса.",
 						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, nullptr);
+				auction_withdrawn(i, "no_demand");
 				clear_auction(i);
 				continue;
 			}
