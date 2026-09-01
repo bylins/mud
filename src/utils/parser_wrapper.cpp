@@ -106,9 +106,9 @@ bool DataNode::RemoveValue(const std::string &key) {
 
 bool DataNode::Save(const std::filesystem::path &file) const {
 	// pugixml's default parser does not retain the <?xml ...?> declaration, so a plain
-	// re-save (e.g. a Vedun edit) would re-emit a bare <?xml version="1.0"?> and drop
-	// encoding="koi8-r" -- the project convention for every cfg file. Restore it here so
-	// editing a cfg file through Vedun no longer silently strips the encoding declaration.
+	// re-save (e.g. a Vedun edit) would re-emit a bare <?xml version="1.0"?> and drop the
+	// encoding -- то, что объявлено в шапке каждого cfg-файла. Восстанавливаем её здесь,
+	// чтобы правка через ведуна не стирала объявление кодировки.
 	auto &doc = *impl_->xml_doc;
 	pugi::xml_node decl = doc.first_child();
 	if (decl.type() != pugi::node_declaration) {
@@ -121,13 +121,14 @@ bool DataNode::Save(const std::filesystem::path &file) const {
 	if (!decl.attribute("encoding")) {
 		decl.append_attribute("encoding");
 	}
-	decl.attribute("encoding").set_value("koi8-r");
-	// Пишем в той же кодировке, в какой файл лежит на диске (сейчас KOI8-R), а не в нативной:
-	// граница записи обязана быть зеркалом границы чтения, иначе первое же сохранение молча
-	// переводит файл в UTF-8 и откат на KOI8-R-сборку становится невозможен (issue #3681).
+	decl.attribute("encoding").set_value("utf-8");
+	// Пишем в нативной кодировке. Чтение (read_data_file -> from_disk_text) принимает и KOI8-R,
+	// и UTF-8, а запись раньше всегда переводила в KOI8-R -- то есть конфиг, сохранённый через
+	// ведуна, откатывался в старую кодировку, и cfg никогда не сошёлся бы к одной (#3787).
+	// Так же сделан мир: см. native-запись в yaml-сериализаторе.
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	const std::string on_disk = native_text::to_disk(xml.str());
+	const std::string on_disk = xml.str();
 	std::ofstream out(file, std::ios::binary);
 	if (!out) {
 		return false;
