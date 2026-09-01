@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.thing-names: shared display names for simple-name entity types that have no message
     container of their own. One section per type; each <name id=".." val=".."/> is keyed by that

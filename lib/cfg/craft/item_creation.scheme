@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   issue.makeitems: Vedun editor scheme for cfg/craft/item_creation.xml (item-creation recipes).
   A <recipe> is keyed by an integer vnum (its identity). The vnum is editable: the author may change

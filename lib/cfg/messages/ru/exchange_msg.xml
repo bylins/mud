@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: exchange / базар messages (exchange.cpp). Discrete command replies,
     guards, act confirmations ($O3) and the message_exchange broadcasts (kBcast*/kSellerSold).

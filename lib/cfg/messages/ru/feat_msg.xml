@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.thing-names: feat display names, moved out of cfg/feats.xml. Keyed by EFeat (kDefault =
     the kUndefined feat). Loaded (feat_messages) BEFORE feats. Feats get a dedicated message

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.sml-cdata-msg: the game's static "system texts", migrated from lib/text/*.
      One msg_sheaf (id="kDefault"); each message body is multi-line preformatted text in a
      CDATA block, read verbatim. Exposed via MUD::SystemMessages() / system_messages::GetText.

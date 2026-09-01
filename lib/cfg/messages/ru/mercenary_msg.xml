@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: mercenary boss messages (do_mercenary.cpp). tell_to_char + act +
     SendMsgToChar lines. List headers stored as full short/full x role sentences. {amount}/{currency}

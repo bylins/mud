@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.cities: vnum-keyed city registry (InfoContainer). Display names live in
      cfg/messages/ru/cities_msg.xml (keyed by the same vnum). Each city owns a list of zones;
      suburb="true" marks an outer/suburb zone (absent = inner). <rent vnums="a|b"/> lists the

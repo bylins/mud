@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.socials: socials moved out of the legacy lib/misc/socials flat file into the messaging
     system. vnum-keyed (like guilds); keywords = pipe-separated command synonyms; ch_*/vict_* are

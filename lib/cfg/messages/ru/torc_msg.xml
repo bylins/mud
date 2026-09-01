@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: torc / гривна exchange messages (ext_money.cpp). Opened by `менять` as a
     stateful menu. Parse responses + menu pieces. {amount}/{from}/{to}/{rate} are fmt args; kRow is the

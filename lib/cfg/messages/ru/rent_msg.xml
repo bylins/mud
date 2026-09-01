@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: rent receptionist messages (obj_save.cpp gen_receptionist / Crash_*).
     act ($n/$N codes) + printf SendMsgToChar. {amount}/{currency}/{day}/{item}/{recep}/{max}/{count}/

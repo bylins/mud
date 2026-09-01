@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: shop keeper messages (shop_ext.cpp / shops_implementation.cpp).
     tell_to_char (keeper -> char), printf SendMsgToChar (code appends the trailing \r\n) and one act

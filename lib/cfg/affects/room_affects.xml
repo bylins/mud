@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.affect-migration: the room-affect registry. id = the room_spells::ERoomAffect enumerator
     (the identity, kept in C++). Parallels cfg/affects.xml for character affects. Per-room-affect

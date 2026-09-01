@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.grouping: per-remort group exp-handicap thresholds. For a player of the given remort
      count and class, joining a group is penalty-free while (max_group_level - player_level) does
      not exceed level_greater; beyond it the exp handicap kicks in. class id = ECharClass token. -->
