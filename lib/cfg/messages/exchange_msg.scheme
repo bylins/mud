@@ -1,5 +1,5 @@
 <!--
-  issue.specials Phase 2: Vedun scheme for exchange_msg.xml (п╠п╟п╥п╟я─ command replies + broadcasts).
+  issue.specials Phase 2: Vedun scheme for exchange_msg.xml (базар command replies + broadcasts).
   Structure: <exchange_msg> -> <msg_sheaf id="kDefault"> -> <message type="<EExchMsg>" val="text"/>.
   "kDefault" is the shared sheaf (info_container::kUndefinedVnum). Optional sidecar.
 -->
