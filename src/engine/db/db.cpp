@@ -1059,17 +1059,17 @@ void ZoneTrafficSave() {
 		zone_node.append_attribute("traffic") = i.traffic;
 	}
 
-	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
-	// (issue #3681).
+	// Граница записи: state/ хранится в нативной кодировке, поэтому пишем как есть
+	// (issue #3787). SaveText кладёт файл атомарно, зеркально LoadText.
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	native_text::write_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic), xml.str());
+	MUD::StateManager().SaveText(state::EStateFile::kZoneTraffic, xml.str());
 }
 void zone_traffic_load() {
 	pugi::xml_document doc;
-	// Файл лежит на диске в KOI8-R; читаем через границу кодировки, а разбираем уже
-	// буфер в нативной кодировке движка (issue #3681). Под KOI8-R это тождество.
-	const std::string xml_db = native_text::read_data_file(MUD::StateManager().Path(state::EStateFile::kZoneTraffic));
+	// Граница чтения: LoadText принимает файл в любой из двух кодировок и отдаёт нативный
+	// буфер, разбираем уже его (issue #3787).
+	const std::string xml_db = MUD::StateManager().LoadText(state::EStateFile::kZoneTraffic);
 	pugi::xml_parse_result result = doc.load_buffer(xml_db.data(), xml_db.size());
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
