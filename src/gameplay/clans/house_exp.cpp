@@ -57,10 +57,10 @@ void ClanExp::save(const std::string &abbrev) const {
 	for (ExpListType::const_iterator it = list_.begin(); it != list_.end(); ++it) {
 		out << *it << "\n";
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(out.str());
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 }
 
@@ -158,10 +158,10 @@ void ClanPkLog::save(const std::string &abbrev) {
 	for (std::list<std::string>::const_iterator i = pk_log.begin(); i != pk_log.end(); ++i) {
 		out << *i;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(out.str());
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
 	need_save = false;
@@ -271,10 +271,10 @@ void ClanExpHistory::save(const std::string &abbrev) const {
 	for (HistoryExpListType::const_iterator i = list_.begin(); i != list_.end(); ++i) {
 		out << i->first << " " << i->second << "\n";
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(out.str());
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 }
 
@@ -401,10 +401,10 @@ void ClanChestLog::save(const std::string &abbrev) {
 			 iend = chest_log_.end(); i != iend; ++i) {
 		out << *i;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(out.str());
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
 	need_save_ = false;

@@ -143,9 +143,9 @@ void Board::Save() {
 		log("Error open file: %s! (%s %s %d)", file_.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	// Собираем всё в строку и приводим к кодировке диска одним куском: граница записи -- зеркало
-	// границы чтения (доски читаются через from_disk_line), иначе первое же сохранение доски
-	// переводит её файл в UTF-8, а мир вокруг остаётся в KOI8-R (issue #3681).
+	// Граница записи: доски лежат в нативной кодировке, поэтому текст уходит на диск как есть.
+	// Чтение (from_disk_line) принимает и старый KOI8-R, так что не переведённые доски
+	// читаются по-прежнему (issue #3787).
 	std::ostringstream out;
 	out << "Type: " << type_ << " "
 		<< "Clan: " << clan_rent_ << " "
@@ -161,7 +161,7 @@ void Board::Save() {
 			<< (*message)->subject << "~\n"
 			<< (*message)->text << "~\n";
 	}
-	const std::string on_disk = native_text::to_disk(out.str());
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }

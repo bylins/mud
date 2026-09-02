@@ -802,10 +802,10 @@ bool write_if_changed(const std::string &filename, const std::string &contents,
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return false;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(contents);
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = contents;
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 
 	cache = contents;
@@ -2480,10 +2480,8 @@ void Clan::save_chest() {
 				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 				return;
 			}
-			// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-			// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-			// прежнюю сборку становится невозможен (issue #3681).
-			const std::string on_disk = native_text::to_disk(out.str());
+			// Граница записи: userdata хранится в нативной кодировке, пишем как есть (#3787).
+			const std::string on_disk = out.str();
 			file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 			break;
 		}
@@ -2655,10 +2653,10 @@ void Clan::write_mod(const std::string &arg) {
 		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	file << native_text::to_disk(arg);
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	file << arg;
 
 	mod_text = arg;
 }

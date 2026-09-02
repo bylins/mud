@@ -40,11 +40,12 @@ void WriteAliases(CharData *ch) {
 	}
 
 	for (temp = GET_ALIASES(ch); temp; temp = temp->next) {
-		// Файл синонимов лежит на диске в кодировке мира, а движок держит текст в нативной.
-		// Длины в формате -- байтовые, поэтому считаем их уже по перекодированным строкам,
-		// иначе чтение разъедется на первом же русском синониме (issue #3681).
-		const std::string alias_on_disk = native_text::to_disk(temp->alias);
-		const std::string repl_on_disk = native_text::to_disk(temp->replacement);
+		// Файл синонимов лежит в нативной кодировке, пишем как есть (issue #3787). Длины в
+		// формате -- байтовые, и считаются ниже по этим же строкам: читатель берёт ровно
+		// столько байт, сколько записано, а уже потом зовёт from_disk_line. Поэтому файл,
+		// оставшийся в KOI8-R, читается по-прежнему -- там и длины koi8-байтовые.
+		const std::string alias_on_disk = temp->alias;
+		const std::string repl_on_disk = temp->replacement;
 
 		fprintf(file, "%d\n%s\n"    // Alias
 					  "%d\n%s\n"    // Replacement
