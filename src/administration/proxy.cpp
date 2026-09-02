@@ -15,6 +15,7 @@
 #include "engine/core/comm.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils.h"
+#include "utils/native_text.h"
 
 #include <sstream>
 #include "utils/logger.h"
@@ -243,7 +244,11 @@ void RegisterSystem::load() {
 	while (file >> email) {
 		ReadEndString(file);
 		std::getline(file, comment);
-		email_list[email] = comment;
+		// Границы чтения тут не было вовсе: комментарий держит имя того, кто регистрировал,
+		// и причину -- то есть русский текст, который уходил в память дисковыми байтами и
+		// показывался богам в "stat" мусором. Запись всегда шла нативной, так что файл ещё и
+		// расходился сам с собой по мере добавления записей (issue #3787).
+		email_list[email] = native_text::from_disk_line(comment.c_str());
 	}
 	file.close();
 }
@@ -260,6 +265,7 @@ void RegisterSystem::save() {
 		return;
 	}
 	for (auto &it : email_list) {
+		// Зеркало к чтению: state/ хранится в нативной кодировке, пишем как есть.
 		file << it.first << "\n" << it.second << "\n";
 	}
 	file.close();
