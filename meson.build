@@ -253,7 +253,9 @@ if luajit_opt != 'disabled'
         emmy_dep = dependency(
             'emmyluacodestyle',
             fallback: ['emmyluacodestyle', 'emmyluacodestyle_dep'],
-            default_options: ['warning_level=0'],
+            # optimization выставляем явно: верхний уровень собирается с buildtype=plain,
+            # и без этого подпроект получает вообще никакого -O (issue: см. tools/check_build_optimization.py)
+            default_options: ['warning_level=0', 'optimization=2'],
         )
         dependencies += emmy_dep
         project_args += '-DWITH_LUA_FORMATTER'
