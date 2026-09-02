@@ -32,10 +32,9 @@
 std::list<FILE *> opened_files;
 
 namespace {
-// Граница записи для логов, которые пишутся прямо в файл мимо LogManager (shop/olc/imm
-// и персональные). Логи -- внешне видимые файлы и остаются в кодировке мира, KOI8-R,
-// поэтому текст переводится здесь, а не уходит нативным (issue #3681).
-void vfprintf_on_disk(FILE *file, const char *format, va_list args) {
+// Запись логов, которые идут прямо в файл мимо LogManager (shop/olc/imm и персональные).
+// Лог лежит в нативной кодировке, поэтому текст уходит как есть (issue #3787).
+void vfprintf_native(FILE *file, const char *format, va_list args) {
 	va_list measure;
 	va_copy(measure, args);
 	const int need = vsnprintf(nullptr, 0, format, measure);
@@ -46,7 +45,7 @@ void vfprintf_on_disk(FILE *file, const char *format, va_list args) {
 	std::string text(static_cast<std::size_t>(need) + 1, '\0');
 	vsnprintf(&text[0], text.size(), format, args);
 	text.resize(static_cast<std::size_t>(need));
-	fputs(native_text::to_disk(text).c_str(), file);
+	fputs(text.c_str(), file);
 }
 }  // namespace
 
@@ -78,7 +77,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 	write_time(ch->desc->pers_log);
 	va_list args;
 	va_start(args, format);
-	vfprintf_on_disk(ch->desc->pers_log, format, args);
+	vfprintf_native(ch->desc->pers_log, format, args);
 	va_end(args);
 	fprintf(ch->desc->pers_log, "\n");
 }
@@ -274,7 +273,7 @@ void shop_log(const char *format, ...) {
 	write_time(file);
 	va_list args;
 	va_start(args, format);
-	vfprintf_on_disk(file, format, args);
+	vfprintf_native(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
 
@@ -296,7 +295,7 @@ void olc_log(const char *format, ...) {
 	write_time(file);
 	va_list args;
 	va_start(args, format);
-	vfprintf_on_disk(file, format, args);
+	vfprintf_native(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
 
@@ -318,7 +317,7 @@ void imm_log(const char *format, ...) {
 	write_time(file);
 	va_list args;
 	va_start(args, format);
-	vfprintf_on_disk(file, format, args);
+	vfprintf_native(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
 
@@ -520,10 +519,14 @@ void Logger::operator()(const char *format, ...) {
 		// instead of output just onto console:
 		const auto syslog_converter = runtime_config.syslog_converter();
 		if (syslog_converter) {
-			syslog_converter(buffer, static_cast<int>(length));
+			// Таблицы koi_to_win/koi_to_alt индексируются koi8-байтами, а текст у нас
+			// нативный, поэтому приводим его к KOI8-R прямо перед подстановкой (#3787).
+			std::string legacy = native_text::to_koi8(std::string(buffer, length));
+			syslog_converter(legacy.data(), static_cast<int>(legacy.size()));
+			std::cerr << legacy;
+		} else {
+			std::cerr << buffer;
 		}
-
-		std::cerr << buffer;
 	}
 }
 
@@ -554,7 +557,11 @@ void OutputThread::output_loop() {
 			if (!runtime_config.log_stderr().empty()) {
 				const auto syslog_converter = runtime_config.syslog_converter();
 				if (syslog_converter) {
-					syslog_converter(message.text.get(), static_cast<int>(message.size));
+					// То же, что и выше: таблица ждёт koi8-байты, текст в очереди нативный.
+					std::string legacy = native_text::to_koi8(std::string(message.text.get(), message.size));
+					syslog_converter(legacy.data(), static_cast<int>(legacy.size()));
+					output_message(legacy.c_str(), message.channel);
+					continue;
 				}
 			}
 

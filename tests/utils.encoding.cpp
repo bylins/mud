@@ -1,5 +1,6 @@
 #include "utils/utils.h"
 #include "utils/utils_encoding.h"
+#include "utils/native_text.h"
 
 #include <gtest/gtest.h>
 
@@ -136,4 +137,32 @@ TEST(Utils_Encoding, Utf8ToKoi_BoxDrawingChars)
 	EXPECT_EQ(HexToString({0xA0}), koi_box);
 }
 
+// Вывод лога в клиентской кодировке (log_stderr = cp1251/alt) -- issue #3787.
+//
+// Таблицы koi_to_win/koi_to_alt индексируются koi8-байтами и правят буфер побайтно.
+// Движок держит текст нативным (UTF-8), где русская буква занимает два байта, поэтому
+// нативный текст обязан пройти через to_koi8 ПЕРЕД таблицей. Отдай его таблице как есть --
+// и на выходе будет мусор двойной длины, а не cp1251.
+TEST(Utils_Encoding, NativeLogLineConvertsToWindowsCodepage)
+{
+	// "Ага" в UTF-8 -- три русские буквы, шесть байт.
+	const std::string native = native_text::from_koi8(Utf8ToKoi("\xD0\x90\xD0\xB3\xD0\xB0"));
+
+	std::string legacy = native_text::to_koi8(native);
+	ASSERT_EQ(legacy.size(), 3u) << "к таблице текст должен приходить однобайтным koi8";
+
+	codepages::koi_to_win(legacy.data(), static_cast<int>(legacy.size()));
+
+	// cp1251: А = 0xC0, г = 0xE3, а = 0xE0.
+	EXPECT_EQ(legacy, HexToString({0xC0, 0xE3, 0xE0}));
+}
+
+TEST(Utils_Encoding, NativeLogLineKeepsAsciiIntact)
+{
+	// Ровно тот случай, ради которого конверсия и включается: латиница и цифры в логе
+	// не должны меняться ни на шаг.
+	std::string legacy = native_text::to_koi8("SYSERR: boot failed (code 42)");
+	codepages::koi_to_win(legacy.data(), static_cast<int>(legacy.size()));
+	EXPECT_EQ(legacy, "SYSERR: boot failed (code 42)");
+}
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
