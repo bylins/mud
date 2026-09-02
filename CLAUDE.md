@@ -13,17 +13,9 @@ The engine is named **BRusMUD** and carries an explicit four-part version **`maj
 - **major.minor.patch** are declared explicitly in the repo-root **`VERSION.txt`** file — the single source of truth.
 - **release** (the 4th number) is generated automatically at build time from the git commit count (`git rev-list --count HEAD`, via `tools/meson/generate_version.py`). It is never stored in the tree and never edited by hand — it advances on its own with every commit.
 
-### When to bump (rules for Claude Code)
+### Who changes `VERSION.txt`
 
-**`VERSION.txt` is NOT bumped automatically, and NOT on every fix or merge.** An earlier policy bumped patch on every merge; that made the file conflict in nearly every branch and made PRs to `master` painful (the number even went backwards when a merge/revert resolved the conflict in favour of a branch). So the file now changes rarely and only on purpose:
-
-- **Do not touch `VERSION.txt` for bug fixes, refactors, or ordinary branch merges.** Routine work leaves the version unchanged — there is nothing to bump when finishing a fix or a merge.
-- The version is bumped **only manually, by the author**, and only when **a major new feature lands** or **a release is cut**:
-  - **minor** — a major new feature. Reset patch to `0`.
-  - **major** — a release. Reset minor and patch to `0`.
-  - **patch** — optional, at the author's discretion (e.g. to mark a notable standalone change); never required.
-
-Because bumps are deliberate and infrequent, `VERSION.txt` rarely appears in a diff and rarely conflicts. Only the `VERSION.txt` file changes for a bump; `release` and the build-date stamp update themselves on the next build.
+**Claude Code never edits `VERSION.txt`.** The version is changed by hand, by whoever needs it, in a dedicated branch — never as part of a fix, feature, or merge. Bumping it in ordinary branches made the file conflict in nearly every PR. Only the `VERSION.txt` file changes for a bump; `release` and the build-date stamp update themselves on the next build.
 
 ## Build Commands
 
