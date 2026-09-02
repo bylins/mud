@@ -359,10 +359,10 @@ Reconfigure an existing dir with `meson configure build_dir -Dyaml=builtin` inst
 **Always warn the user when changing build directories or running `meson setup`/`meson configure`/`ninja` in a different directory.**
 
 ### OpenTelemetry Build (`-Dotel=builtin`)
-opentelemetry-cpp is installed via vcpkg at `~/repos/vcpkg`. Point meson at the vcpkg pkg-config / cmake search paths:
+opentelemetry-cpp is installed via vcpkg at `~/vcpkg`. The dependency is resolved via pkg-config only
+(no cmake), so it's enough to point meson at the vcpkg pkg-config dir:
 ```bash
-PKG_CONFIG_PATH=~/repos/vcpkg/installed/x64-linux/lib/pkgconfig \
-CMAKE_PREFIX_PATH=~/repos/vcpkg/installed/x64-linux \
+PKG_CONFIG_PATH=~/vcpkg/installed/x64-linux/lib/pkgconfig \
 meson setup build_otel \
   -Dbuild_profile=release \
   -Dotel=system

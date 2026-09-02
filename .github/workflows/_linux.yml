@@ -76,9 +76,9 @@ jobs:
           cmake --build otel-build -j$(nproc)
           sudo cmake --install otel-build
 
-      - name: Set otel cmake prefix
+      - name: Set otel pkg-config path
         if: matrix.config.with_otel
-        run: echo "CMAKE_PREFIX_PATH=/opt/opentelemetry-cpp" >> $GITHUB_ENV
+        run: echo "PKG_CONFIG_PATH=/opt/opentelemetry-cpp/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
       - name: Configure meson
         run: |
