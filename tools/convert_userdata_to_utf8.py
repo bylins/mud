@@ -30,6 +30,14 @@ import os
 import sys
 
 
+def is_ascii(raw: bytes) -> bool:
+    try:
+        raw.decode('ascii')
+        return True
+    except UnicodeDecodeError:
+        return False
+
+
 def convert_bytes(raw: bytes) -> tuple[bytes, bool]:
     """Перевести строку (без перевода строки). Возвращает (байты, менялось ли)."""
     try:
@@ -45,10 +53,10 @@ def convert_bytes(raw: bytes) -> tuple[bytes, bool]:
     return raw.decode('koi8-r').encode('utf-8'), True
 
 
-def convert_lines(data: bytes) -> tuple[bytes, int]:
-    """Построчный перевод. Возвращает (данные, сколько строк переведено)."""
+def convert_lines(data: bytes) -> tuple[bytes, int, int]:
+    """Построчный перевод. Возвращает (данные, переведено строк, уже нативных строк)."""
     out = bytearray()
-    recoded = 0
+    recoded = native = 0
     for index, line in enumerate(data.split(b'\n')):
         if index:
             out += b'\n'
@@ -57,11 +65,14 @@ def convert_lines(data: bytes) -> tuple[bytes, int]:
             line, tail = line[:-1], b'\r'
         converted, changed = convert_bytes(line)
         out += converted + tail
-        recoded += changed
-    return bytes(out), recoded
+        if changed:
+            recoded += 1
+        elif not is_ascii(line):
+            native += 1
+    return bytes(out), recoded, native
 
 
-def convert_alias(data: bytes) -> tuple[bytes, int]:
+def convert_alias(data: bytes) -> tuple[bytes, int, int]:
     """Перевод файла синонимов с пересчётом байтовых длин.
 
     Формат (см. WriteAliases/ReadAliases в alias.cpp), повторяется до конца файла:
@@ -71,7 +82,7 @@ def convert_alias(data: bytes) -> tuple[bytes, int]:
     посмотреть руками, чем угадывать.
     """
     out = bytearray()
-    recoded = 0
+    recoded = native = 0
     pos = 0
     while pos < len(data):
         if data[pos:] == b'\n':                     # хвостовой перевод строки
@@ -92,7 +103,10 @@ def convert_alias(data: bytes) -> tuple[bytes, int]:
                 raise ValueError('после строки нет перевода строки')
             pos += 1
             converted, changed = convert_bytes(value)
-            recoded += changed
+            if changed:
+                recoded += 1
+            elif not is_ascii(value):
+                native += 1
             fields.append(converted)
         end = data.find(b'\n', pos)
         if end < 0:
@@ -102,7 +116,7 @@ def convert_alias(data: bytes) -> tuple[bytes, int]:
         for value in fields:
             out += str(len(value)).encode('ascii') + b'\n' + value + b'\n'
         out += str(kind).encode('ascii') + b'\n'
-    return bytes(out), recoded
+    return bytes(out), recoded, native
 
 
 def write_atomically(path: str, data: bytes) -> None:
@@ -111,6 +125,30 @@ def write_atomically(path: str, data: bytes) -> None:
     with open(temp, 'wb') as handle:
         handle.write(data)
     os.replace(temp, path)
+
+
+def verify(path: str, is_alias: bool) -> str:
+    """Перечитать записанный файл и убедиться, что он цел. Пустая строка -- всё хорошо.
+
+    Проверка идёт по факту, а не по вере в разбор: данные на боевом сервере живут своей
+    жизнью, и файл, которого не было в момент написания скрипта, обязан либо пройти
+    проверку, либо откатиться.
+    """
+    try:
+        with open(path, 'rb') as handle:
+            data = handle.read()
+    except OSError as error:
+        return f'не перечитать: {error}'
+    try:
+        data.decode('utf-8')
+    except UnicodeDecodeError as error:
+        return f'после записи не UTF-8: {error}'
+    if is_alias:
+        try:
+            convert_alias(data)          # разбор по объявленным длинам обязан пройти
+        except ValueError as error:
+            return f'после записи не разбирается как файл синонимов: {error}'
+    return ''
 
 
 def main() -> int:
@@ -128,6 +166,8 @@ def main() -> int:
     lines_recoded = 0
     aliases = 0
     unparsed = []
+    with_native = []
+    failed = []
 
     for dirpath, _, names in os.walk(args.root):
         for name in sorted(names):
@@ -140,17 +180,22 @@ def main() -> int:
                 print(f'  не прочитать {relative}: {error}', file=sys.stderr)
                 continue
 
-            if b'\0' in data:
+            # Двоичное отсеиваем и по имени, и по нулевому байту. Нулевой байт в .timeobjs
+            # гарантирован (SaveRentInfo держит семь обнулённых полей spare), но полагаться
+            # на одну эвристику для двоичного формата не стоит.
+            if name.endswith('.timeobjs') or b'\0' in data:
                 binary += 1
                 continue
 
             is_alias = name.endswith('.alias')
             try:
-                converted, recoded = convert_alias(data) if is_alias else convert_lines(data)
+                converted, recoded, native = convert_alias(data) if is_alias else convert_lines(data)
             except ValueError as error:
                 unparsed.append((relative, str(error)))
                 continue
 
+            if native:
+                with_native.append((relative, native))
             if converted == data:
                 already += 1
                 continue
@@ -162,6 +207,10 @@ def main() -> int:
                 print(f'  {relative}  [строк: {recoded}]' + ('  [синонимы: длины пересчитаны]' if is_alias else ''))
             if args.apply:
                 write_atomically(path, converted)
+                problem = verify(path, is_alias)
+                if problem:
+                    write_atomically(path, data)      # откатываем именно этот файл
+                    failed.append((relative, problem))
 
     print()
     print(f"{'переведено файлов:' if args.apply else 'будет переведено файлов:':<26} {touched}")
@@ -170,6 +219,23 @@ def main() -> int:
     print(f"{'уже в UTF-8:':<26} {already}")
     print(f"{'двоичных (пропущено):':<26} {binary}")
 
+    if with_native:
+        total = sum(n for _, n in with_native)
+        print()
+        print(f'Строк, уже лежавших нативными, {total} в {len(with_native)} файлах -- оставлены как есть:')
+        for relative, count in with_native[:20]:
+            print(f'    {relative}  ({count})')
+        if len(with_native) > 20:
+            print(f'    ... и ещё {len(with_native) - 20}')
+        print('Обычно это метки вещей (Clbl/ClCl), их дописывал уже нативный движок. Список')
+        print('короткий нарочно: если он вдруг разрастётся, стоит глянуть, что туда попало.')
+
+    if failed:
+        print()
+        print(f'ОТКАЧЕНО {len(failed)} файлов -- проверка после записи не прошла, они остались прежними:')
+        for relative, why in failed:
+            print(f'    {relative}: {why}')
+
     if unparsed:
         print()
         print(f'НЕ РАЗОБРАЛ {len(unparsed)} файлов -- они НЕ тронуты, посмотрите руками:')
@@ -177,6 +243,8 @@ def main() -> int:
             print(f'    {relative}: {why}')
         if len(unparsed) > 20:
             print(f'    ... и ещё {len(unparsed) - 20}')
+
+    if failed or unparsed:
         return 1
 
     if not args.apply and touched:
