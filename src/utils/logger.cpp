@@ -144,18 +144,24 @@ static std::string format_log_message(const char *format, va_list args) {
     return ts + " :: " + msg;
 }
 
+// Имя потока, которое уезжает в атрибут log_type: по нему FileLogSender выбирает
+// файл, а Loki кладёт его в structured metadata (фильтр `| log_type="trade"`).
+static const char* stream_name_for_stream(EOutputStream stream) {
+	switch (stream) {
+		case SYSLOG:    return "syslog";
+		case ERRLOG:    return "errlog";
+		case IMLOG:     return "imlog";
+		case MSDP_LOG:  return "msdp";
+		case MONEY_LOG: return "money";
+		default:        return "syslog";
+	}
+}
+
 static const char* stream_name_for_file(FILE* file) {
 	for (int i = 0; i <= LAST_LOG; i++) {
 		const auto stream = static_cast<EOutputStream>(i);
 		if (runtime_config.logs(stream).handle() == file) {
-			switch (stream) {
-				case SYSLOG:    return "syslog";
-				case ERRLOG:    return "errlog";
-				case IMLOG:     return "imlog";
-				case MSDP_LOG:  return "msdp";
-				case MONEY_LOG: return "money";
-				default:        return "syslog";
-			}
+			return stream_name_for_stream(stream);
 		}
 	}
 	return "syslog";
@@ -207,16 +213,32 @@ void vlog(const EOutputStream steam, const char *format, va_list rargs) {
 		return;
 	}
 
-	const char* stream_name;
-	switch (steam) {
-		case SYSLOG:    stream_name = "syslog"; break;
-		case ERRLOG:    stream_name = "errlog"; break;
-		case IMLOG:     stream_name = "imlog"; break;
-		case MSDP_LOG:  stream_name = "msdp"; break;
-		case MONEY_LOG: stream_name = "money"; break;
-		default:        stream_name = "syslog"; break;
+	logging::LogManager::Info(message, {{"log_type", stream_name_for_stream(steam)}});
+}
+
+void log_event(const char *log_type, const std::map<std::string, std::string> &attributes, const char *format, ...) {
+	if (!runtime_config.logging_enabled()) {
+		return;
 	}
-	logging::LogManager::Info(message, {{"log_type", stream_name}});
+
+	if (format == nullptr) {
+		format = "SYSERR: log_event() received a NULL format.";
+	}
+
+	va_list args;
+	va_start(args, format);
+	const std::string message = format_log_message(format, args);
+	va_end(args);
+	if (message.empty()) {
+		return;
+	}
+
+	// Атрибуты уходят в OTLP как structured metadata (Loki умеет по ним фильтровать
+	// и агрегировать без regex). Пишется ли событие ещё и в файл, решает
+	// FileLogSender по log_type: у чисто телеметрических типов файла нет.
+	std::map<std::string, std::string> attrs(attributes);
+	attrs["log_type"] = log_type ? log_type : "syslog";
+	logging::LogManager::Info(message, attrs);
 }
 
 void log(std::string format) {

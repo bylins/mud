@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <list>
+#include <map>
 #include <string>
 #include <thread>
 
@@ -19,6 +20,11 @@ void log(std::string format);
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void vlog(const char *format, va_list args) __attribute__((format(printf, 1, 0)));
 void vlog(const EOutputStream steam, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
+// Строка в лог + произвольные атрибуты. Атрибуты доезжают до Loki как structured
+// metadata, поэтому машиночитаемые поля события надо класть туда, а не в текст.
+// log_type задаёт назначение: типы из logging::kOtlpOnlyLogTypes на диск не пишутся.
+void log_event(const char *log_type, const std::map<std::string, std::string> &attributes,
+			   const char *format, ...) __attribute__((format(printf, 3, 4)));
 void shop_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void imm_log(const char *format, ...) __attribute__((format(printf, 1, 2)));

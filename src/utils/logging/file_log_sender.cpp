@@ -1,4 +1,5 @@
 #include "file_log_sender.h"
+#include "log_sender.h"
 #include "utils/logger.h"
 #include "engine/core/config.h"
 #include "engine/db/global_objects.h"
@@ -82,6 +83,10 @@ void FileLogSender::write_to_file(const std::string& message,
 FILE* FileLogSender::get_log_file(const std::map<std::string, std::string>& attributes) {
     auto it = attributes.find("log_type");
     const std::string& log_type = (it != attributes.end()) ? it->second : "syslog";
+
+    if (logging::kOtlpOnlyLogTypes.contains(log_type)) {
+        return nullptr;
+    }
 
     if (log_type == "syslog")  return runtime_config.logs(SYSLOG).handle();
     if (log_type == "errlog")  return runtime_config.logs(ERRLOG).handle();

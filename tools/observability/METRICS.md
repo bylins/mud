@@ -134,18 +134,58 @@ Prometheus: `combat_active_count_gauge_{bucket,sum,count}`
 
 ---
 
-## Аукцион
+## Торговля (базар и аукцион)
+
+Обе площадки инструментированы одним механизмом (`gameplay/economics/trade_log.h`).
+Атрибут `market` разделяет их: `bazaar` — команда `базар`, `auction` — команда `аукцион`.
 
 | Метрика | Тип | Атрибуты | Описание |
 |---------|-----|----------|----------|
-| `auction_lots_active` | gauge | — | Количество активных лотов |
-| `auction_sale_total` | counter | — | Количество завершённых продаж |
-| `auction_revenue_total` | counter | — | Суммарная выручка (в кунах) |
-| `auction_duration_seconds` | histogram | — | Время от выставления лота до продажи |
+| `trade_sale_total` | counter | `market`, `obj_type` | Завершённые сделки |
+| `trade_turnover_total` | counter | `market`, `obj_type` | Оборот в кунах |
+| `trade_price` | histogram | `market`, `obj_type` | Распределение цен сделок |
+| `trade_time_to_sale_seconds` | histogram | `market` | Время от выставления до продажи (ликвидность) |
+| `trade_listed_total` | counter | `market`, `obj_type` | Выставлено лотов |
+| `trade_repriced_total` | counter | `market`, `obj_type` | Смен цены владельцем |
+| `trade_withdrawn_total` | counter | `market`, `obj_type`, `reason` | Снято без продажи |
+| `trade_bid_total` | counter | `market`, `obj_type` | Ставки (только аукцион) |
+| `trade_lots_active` | gauge | `market` | Лотов на витрине |
+| `trade_lots_value` | gauge | `market` | Суммарный ценник витрины |
 
-Prometheus: `auction_lots_active_gauge_{bucket,sum,count}`
+Prometheus: `trade_lots_active_gauge_{bucket,sum,count}`, `trade_lots_value_gauge_{bucket,sum,count}`.
 
-> Детали по конкретным сделкам (продавец, покупатель, предмет, стоимость) доступны через трейсы (спан `"Auction Sale"`).
+`reason`: `owner` (снял владелец), `god` (снято Богами), `trader` (снято распорядителем),
+`no_demand` (не нашлось покупателя), `no_money` (у покупателя не хватило денег),
+`owner_changed` (предмет ушёл от продавца).
+
+**Почему в метриках нет названия предмета.** Каждое уникальное значение лейбла — это
+отдельная серия в TSDB навсегда. `item`/`vnum` дали бы тысячи серий, поэтому в Prometheus
+уходит только тип предмета (`obj_type`, десятки значений). Аналитика по конкретным товарам
+живёт в логах — см. ниже.
+
+### Лог сделок (Loki)
+
+Каждое событие уходит только по OTLP в Loki (в файлы на диске не пишется -- это
+телеметрия, а не syslog) с атрибутами в structured metadata: `market`, `event`, `lot`, `vnum`, `item`, `obj_type`, `price`,
+`seller_id`, `buyer_id`, `listed_seconds`, `old_price`, `reason`.
+Фильтровать и агрегировать по ним можно без regex:
+
+```logql
+# лента сделок
+{service_name="bylins-bylins-new-4000"} | log_type="trade" | event="sold"
+
+# топ товаров по обороту за сутки
+topk(20, sum by (item) (sum_over_time(
+  {service_name="bylins-bylins-new-4000"} | log_type="trade" | event="sold" | unwrap price [24h])))
+
+# динамика цены конкретного предмета
+avg_over_time({service_name="bylins-bylins-new-4000"} | log_type="trade"
+  | event="sold" | item=~"$item" | unwrap price [$__auto])
+
+# что выставляют, но не покупают
+topk(20, sum by (item) (count_over_time(
+  {service_name="bylins-bylins-new-4000"} | log_type="trade" | event="withdrawn" [7d])))
+```
 
 ---
 

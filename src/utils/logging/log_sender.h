@@ -1,10 +1,16 @@
 #ifndef BYLINS_LOG_SENDER_H
 #define BYLINS_LOG_SENDER_H
 
-#include <string>
 #include <map>
+#include <set>
+#include <string>
 
 namespace logging {
+
+// Типы логов, у которых нет файла на диске: событие уходит только по OTLP
+// (в Loki). Это чистая телеметрия -- машиночитаемые события, которые нужны для
+// аналитики, а не для чтения глазами в syslog. FileLogSender их пропускает.
+inline const std::set<std::string> kOtlpOnlyLogTypes{"trade"};
 
 enum class LogLevel {
     kDebug,
