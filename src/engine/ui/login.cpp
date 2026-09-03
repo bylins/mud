@@ -143,6 +143,8 @@
 #endif
 
 #include <fmt/format.h>
+#include "engine/ui/cmd/do_mode.h"
+#include "utils/utils_string.h"
 
 #include <memory>
 #include <stdexcept>
@@ -1896,7 +1898,7 @@ static void HandleGetEmail(DescriptorData *d, char *argument) {
 	strncpy(GET_EMAIL(d->character), argument, 127);
 	  *(GET_EMAIL(d->character) + 127) = '\0';
 	  utils::ConvertToLow(GET_EMAIL(d->character));
-	  DoAfterEmailConfirm(d);
+	  AskScreenWidth(d);
 	  return;
 #endif
 	{
@@ -1913,6 +1915,43 @@ static void HandleGetEmail(DescriptorData *d, char *argument) {
 		d->state = EConState::kRandomNumber;
 	}
 	return;
+}
+
+// issue.3822: спрашиваем реальную ширину окна сразу после подтверждения почты. Полоска
+// ровно в kDefaultScreenWidth знаков -- по ней игрок и видит, шире у него окно или уже.
+static void AskScreenWidth(DescriptorData *d) {
+	iosystem::write_to_output(
+		// Строки пояснения нарочно короче самой полоски: если они начнут переноситься, игрок
+		// увидит несколько переносов сразу и не поймёт, который из них показывает край экрана.
+		fmt::format("\r\nПолоска ниже -- ровно {} знаков.\r\n"
+					"Перенеслась на вторую строку -- экран уже. Осталось место справа -- шире."
+					"\r\n\r\n{}\r\n\r\n"
+					"Укажите ширину экрана в знаках, от {} до {}.\r\n"
+					"Просто ENTER -- оставить {}; поменять потом: режим ширина <число>\r\n"
+					"Ширина экрана: ",
+					kDefaultScreenWidth, ScreenRuler(kDefaultScreenWidth),
+					kMinScreenWidth, kMaxScreenWidth, kDefaultScreenWidth).c_str(), d);
+	d->state = EConState::kGetScreenWidth;
+}
+
+static void HandleGetScreenWidth(DescriptorData *d, char *argument) {
+	skip_spaces(&argument);
+	int width = kDefaultScreenWidth;
+	if (*argument) {
+		width = atoi(argument);
+		if (width < kMinScreenWidth || width > kMaxScreenWidth) {
+			iosystem::write_to_output(
+				fmt::format("\r\nШирина экрана должна быть в пределах {} - {} символов.\r\n"
+							"Ширина экрана: ", kMinScreenWidth, kMaxScreenWidth).c_str(), d);
+			return;
+		}
+	}
+
+	// Персонаж заводится внутри DoAfterEmailConfirm, и init_char там ставит ширину по
+	// умолчанию -- поэтому выбранную выставляем после него, а не до.
+	DoAfterEmailConfirm(d);
+	d->character->player_specials->saved.stringLength = width;
+	d->character->save_char();
 }
 
 static void HandleReadMotd(DescriptorData *d, char * /*argument*/) {
@@ -1936,7 +1975,7 @@ static void HandleRandomNumber(DescriptorData *d, char *argument) {
 			return;
 		}
 		new_char_codes.erase(d->character->GetCharAliases());
-		DoAfterEmailConfirm(d);
+		AskScreenWidth(d);
 		return;
 	}
 
@@ -2256,6 +2295,10 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 
 		case EConState::kRandomNumber:
 			HandleRandomNumber(d, argument);
+			break;
+
+		case EConState::kGetScreenWidth:
+			HandleGetScreenWidth(d, argument);
 			break;
 
 		case EConState::kMenu:    // get selection from main menu

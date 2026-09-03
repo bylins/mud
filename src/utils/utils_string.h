@@ -1,6 +1,8 @@
 #ifndef UTILS_STRING_HPP_
 #define UTILS_STRING_HPP_
 
+#include <cstddef>
+
 #include <cstring>
 #include <fstream>
 #include <list>
@@ -443,6 +445,11 @@ void name_convert(std::string &text);
 
 /// Compact experience formatting (e.g. 1234567 -> "1 тыс"): thousands/millions/billions suffix.
 std::string ExpFormat(long long exp);
+
+/// Тестовая полоска ширины экрана: точки с числовой меткой каждые пять знаков
+/// ("....5...10...15..."). Метка ЗАКАНЧИВАЕТСЯ на своей позиции, поэтому строка выходит
+/// ровно `width` знаков -- по ней и меряют реальную ширину окна. Чистый ASCII.
+std::string ScreenRuler(std::size_t width);
 
 #endif // UTILS_STRING_HPP_
 

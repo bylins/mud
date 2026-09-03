@@ -5,9 +5,11 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
+#include "do_mode.h"
 #include "do_toggle.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/table_wrapper.h"
+#include "utils/utils_string.h"
 #include "gameplay/communication/remember.h"
 
 const int kToggleOff{0};
@@ -560,20 +562,15 @@ void SetScreen(CharData *ch, char *argument, int flag) {
 	skip_spaces(&argument);
 	int size = atoi(argument);
 
-	if (!flag && (size < 30 || size > 300))
-		SendMsgToChar("Ширина экрана должна быть в пределах 30 - 300 символов.\r\n", ch);
+	if (!flag && (size < kMinScreenWidth || size > kMaxScreenWidth))
+		SendMsgToChar(ch, "Ширина экрана должна быть в пределах %d - %d символов.\r\n",
+					  kMinScreenWidth, kMaxScreenWidth);
 	else if (flag == 1 && (size < 10 || size > 100))
 		SendMsgToChar("Высота экрана должна быть в пределах 10 - 100 строк.\r\n", ch);
 	else if (!flag) {
-		std::string out(size, '.');
-
 		ch->player_specials->saved.stringLength = size;
 		SendMsgToChar("Выводим тестовую строку:\r\n", ch);
-		for (auto i = 5; i <= size; i +=5) {
-			const auto num = std::to_string(i);
-			out.replace(i - 1, num.length(), num);   // длина строки не меняется -- позиции не уползают
-		}
-		SendMsgToChar(ch, "%s\r\n", out.c_str());
+		SendMsgToChar(ch, "%s\r\n", ScreenRuler(static_cast<std::size_t>(size)).c_str());
 		ch->save_char();
 	} else if (flag == 1) {
 		(ch)->player_specials->saved.stringWidth = size;
