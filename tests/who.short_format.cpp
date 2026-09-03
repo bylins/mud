@@ -72,6 +72,33 @@ TEST(WhoShortFormat, NamesStartAtTheSameColumn) {
 	EXPECT_EQ(positions[1], positions[2]);
 }
 
+TEST(WhoShortColumns, CountComesFromTheScreenWidth) {
+	// Ячейка в 39 знаков: в 80 знаков влезают две, в 160 -- четыре, в 175 (окно со скриншота
+	// в issue) -- тоже четыре, пятая уже не помещается.
+	EXPECT_EQ(who_format::ShortColumns(80, kCellWidth), 2);
+	EXPECT_EQ(who_format::ShortColumns(160, kCellWidth), 4);
+	EXPECT_EQ(who_format::ShortColumns(175, kCellWidth), 4);
+	EXPECT_EQ(who_format::ShortColumns(300, kCellWidth), 7);
+}
+
+TEST(WhoShortColumns, UnsetWidthKeepsTheOldFourColumns) {
+	// Ширина 0 -- "не задана", так её трактует и остальной вывод. Прибитые гвоздями четыре
+	// колонки остаются поведением по умолчанию, чтобы никому не сузило список молча.
+	EXPECT_EQ(who_format::ShortColumns(0, kCellWidth), who_format::kDefaultColumns);
+	EXPECT_EQ(who_format::ShortColumns(-1, kCellWidth), who_format::kDefaultColumns);
+}
+
+TEST(WhoShortColumns, NarrowScreenStillGetsOneColumn) {
+	// Экран уже ячейки: список в один столбец, а не строка без переносов вовсе.
+	EXPECT_EQ(who_format::ShortColumns(30, kCellWidth), 1);
+	EXPECT_EQ(who_format::ShortColumns(1, kCellWidth), 1);
+}
+
+TEST(WhoShortColumns, NameOnlyCellIsDenser) {
+	// У богов без коддинфо в ячейке только имя, значит колонок влезает больше.
+	EXPECT_EQ(who_format::ShortColumns(160, kNameWidth), 7);
+}
+
 TEST(WhoShortFormat, ColorCodesDoNotEatTheWidth) {
 	// Цветовой код -- невидимые символы, и ширина добирается внутри них: ячейка с цветом
 	// отличается от бесцветной ровно на длину кодов, а не на добитые пробелы.

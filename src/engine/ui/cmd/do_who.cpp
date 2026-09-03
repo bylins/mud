@@ -6,6 +6,7 @@
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
 #include "utils/utils_string.h"
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <fmt/format.h>
@@ -65,6 +66,13 @@ std::string FormatShortCell(int level, const std::string &class_name, std::size_
 	return fmt::format("{:<{}} {}{:<{}}{}",
 					   prefix, PrefixWidth(class_width),
 					   name_color, name, kNameWidth, color_end);
+}
+
+int ShortColumns(int screen_width, std::size_t cell_width) {
+	if (screen_width <= 0 || cell_width == 0) {
+		return kDefaultColumns;
+	}
+	return std::max(1, static_cast<int>(static_cast<std::size_t>(screen_width) / cell_width));
 }
 
 } // namespace who_format
@@ -163,6 +171,17 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (PerformWhoSpamcontrol(ch, name_search.empty() ? kWhoListall : kWhoListname))
 		return;
 
+	// Колонок в короткий список -- сколько влезает в ширину экрана игрока ("режим ширина").
+	// Ширина ячейки зависит от того, показывать ли уровень с классом: у остальных в ячейке
+	// только имя.
+	const bool detailed_short = privilege::IsImpl(ch) || ch->IsFlagged(EPrf::kCoderinfo);
+	const std::size_t short_cell = detailed_short
+									   ? who_format::PrefixWidth(MaxClassNameWidth()) + 1
+										   + who_format::kNameWidth
+									   : who_format::kNameWidth;
+	const int short_columns =
+		who_format::ShortColumns(ch->IsNpc() ? 0 : ch->player_specials->saved.stringLength, short_cell);
+
 	// Строки содержащие имена
 	std::string imms = fmt::format("{}БОГИ{}\r\n", kColorBoldCyn, kColorNrm);
 	std::string demigods = fmt::format("{}Привилегированные{}\r\n", kColorCyn, kColorNrm);
@@ -213,7 +232,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::string line;
 		num_can_see++;
 		if (short_list) {
-			if (privilege::IsImpl(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
+			if (detailed_short) {
 				const bool god = privilege::IsGod(tch.get());
 				line = fmt::format("{}{}{}",
 								   god ? kColorWht : "",
@@ -303,20 +322,20 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (privilege::IsImmortal(tch.get())) {
 			imms_num++;
 			imms += line;
-			if (!short_list || !(imms_num % 4)) {
+			if (!short_list || !(imms_num % short_columns)) {
 				imms += "\r\n";
 			}
 		} else if (GET_GOD_FLAG(tch, EGf::kDemigod)
 			&& (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo) || GET_GOD_FLAG(tch, EGf::kDemigod))) {
 			demigods_num++;
 			demigods += line;
-			if (!short_list || !(demigods_num % 4)) {
+			if (!short_list || !(demigods_num % short_columns)) {
 				demigods += "\r\n";
 			}
 		} else {
 			morts_num++;
 			morts += line;
-			if (!short_list || !(morts_num % 4))
+			if (!short_list || !(morts_num % short_columns))
 				morts += "\r\n";
 		}
 	}            // end of for

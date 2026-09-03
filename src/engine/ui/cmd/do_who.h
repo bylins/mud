@@ -18,6 +18,10 @@ namespace who_format {
 // Колонка имени: kMaxNameLength (20) плюс пробел-разделитель.
 inline constexpr std::size_t kNameWidth = 21;
 
+// Сколько колонок ставить, если ширина экрана у игрока не задана (в "режим ширина" её
+// выставляют не все). Ровно столько их и было прибито гвоздями до появления расчёта.
+inline constexpr int kDefaultColumns = 4;
+
 // Ширина префикса "[<уровень> <класс>]": скобки, два знака уровня и пробел.
 [[nodiscard]] constexpr std::size_t PrefixWidth(std::size_t class_width) {
 	return class_width + 5;
@@ -30,6 +34,12 @@ inline constexpr std::size_t kNameWidth = 21;
 										  std::size_t class_width, const std::string &name,
 										  const std::string &name_color,
 										  const std::string &color_end);
+
+// Сколько ячеек ставить в строку при ширине экрана screen_width. Ширина 0 означает "не задана"
+// (так её и трактует остальной вывод -- перенос тогда не делается), для неё берётся
+// kDefaultColumns. Меньше одной колонки не бывает: узкий экран даст список в один столбец,
+// а не пустую строку.
+[[nodiscard]] int ShortColumns(int screen_width, std::size_t cell_width);
 
 } // namespace who_format
 
