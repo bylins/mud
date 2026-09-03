@@ -28,6 +28,19 @@ const char *IMM_WHO_FORMAT =
 
 const char *MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
 
+// Ширина под самое длинное название класса -- по конфигу, а не константой: новый класс иначе
+// снова разъедет колонку короткого списка.
+std::size_t MaxClassNameWidth() {
+	static const std::size_t width = []() {
+		std::size_t widest = 0;
+		for (const auto &char_class : MUD::Classes()) {
+			widest = std::max(widest, native_text::char_count(char_class.GetCName()));
+		}
+		return widest;
+	}();
+	return width;
+}
+
 // Первое слово в нижнем регистре и остаток -- utils::ExtractFirstArgument плюс то, что
 // half_chop делал сам: понижение регистра (сравнения ниже рассчитывают на него) и срез
 // ведущих пробелов в остатке.
@@ -40,6 +53,21 @@ std::pair<std::string, std::string> ChopWord(const std::string &line) {
 }
 
 } // namespace
+
+namespace who_format {
+
+static_assert(kNameWidth == kMaxNameLength + 1, "колонка имени должна вмещать самое длинное имя");
+
+std::string FormatShortCell(int level, const std::string &class_name, std::size_t class_width,
+							const std::string &name, const std::string &name_color,
+							const std::string &color_end) {
+	const std::string prefix = fmt::format("[{:2} {}]", level, class_name);
+	return fmt::format("{:<{}} {}{:<{}}{}",
+					   prefix, PrefixWidth(class_width),
+					   name_color, name, kNameWidth, color_end);
+}
+
+} // namespace who_format
 
 void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string name_search;
@@ -185,21 +213,25 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::string line;
 		num_can_see++;
 		if (short_list) {
-			// Ширину добираем ВНУТРИ цветовых кодов, а не поверх них: код цвета -- семь невидимых
-			// символов, и "{:<30}" по строке вместе с ними давал колонку не в 30 знаков, а в 16.
-			const std::string colored_name =
-				fmt::format("{}{:<30}{}", GetPkNameColor(tch), GET_NAME(tch), kColorNrm);
 			if (privilege::IsImpl(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-				line = fmt::format("{}[{:2} {}] {}{}",
-								   privilege::IsGod(tch.get()) ? kColorWht : "",
-								   GetRealLevel(tch), MUD::Class(tch->GetClass()).GetCName(),
-								   colored_name,
-								   privilege::IsGod(tch.get()) ? kColorNrm : "");
-			} else {
+				const bool god = privilege::IsGod(tch.get());
 				line = fmt::format("{}{}{}",
-								   privilege::IsImmortal(tch.get()) ? kColorWht : "",
-								   colored_name,
-								   privilege::IsImmortal(tch.get()) ? kColorNrm : "");
+								   god ? kColorWht : "",
+								   who_format::FormatShortCell(GetRealLevel(tch),
+															   MUD::Class(tch->GetClass()).GetCName(),
+															   MaxClassNameWidth(),
+															   GET_NAME(tch),
+															   GetPkNameColor(tch), kColorNrm),
+								   god ? kColorNrm : "");
+			} else {
+				// Ширину добираем ВНУТРИ цветовых кодов, а не поверх них: код цвета -- семь
+				// невидимых символов, и "{:<21}" по строке вместе с ними дал бы колонку в семь.
+				const bool imm = privilege::IsImmortal(tch.get());
+				line = fmt::format("{}{}{:<{}}{}{}",
+								   imm ? kColorWht : "",
+								   GetPkNameColor(tch), GET_NAME(tch), who_format::kNameWidth,
+								   kColorNrm,
+								   imm ? kColorNrm : "");
 			}
 		} else {
 			if (privilege::IsImpl(ch)
