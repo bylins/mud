@@ -1886,37 +1886,6 @@ static void HandleRollStats(DescriptorData *d, char *argument) {
 	return;
 }
 
-static void HandleGetEmail(DescriptorData *d, char *argument) {
-	if (!*argument) {
-		iosystem::write_to_output("\r\nВаш E-mail : ", d);
-		return;
-	} else if (!IsValidEmail(argument)) {
-		iosystem::write_to_output("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
-		return;
-	}
-#ifdef TEST_BUILD
-	strncpy(GET_EMAIL(d->character), argument, 127);
-	  *(GET_EMAIL(d->character) + 127) = '\0';
-	  utils::ConvertToLow(GET_EMAIL(d->character));
-	  AskScreenWidth(d);
-	  return;
-#endif
-	{
-		int random_number = number(1000000, 9999999);
-		new_char_codes[d->character->GetCharAliases()] = random_number;
-		strncpy(GET_EMAIL(d->character), argument, 127);
-		*(GET_EMAIL(d->character) + 127) = '\0';
-		utils::ConvertToLow(GET_EMAIL(d->character));
-		std::string cmd_line =
-			fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
-		auto result = system(cmd_line.c_str());
-		UNUSED_ARG(result);
-		iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
-		d->state = EConState::kRandomNumber;
-	}
-	return;
-}
-
 // issue.3822: спрашиваем реальную ширину окна сразу после подтверждения почты. Полоска
 // ровно в kDefaultScreenWidth знаков -- по ней игрок и видит, шире у него окно или уже.
 static void AskScreenWidth(DescriptorData *d) {
@@ -1952,6 +1921,37 @@ static void HandleGetScreenWidth(DescriptorData *d, char *argument) {
 	DoAfterEmailConfirm(d);
 	d->character->player_specials->saved.stringLength = width;
 	d->character->save_char();
+}
+
+static void HandleGetEmail(DescriptorData *d, char *argument) {
+	if (!*argument) {
+		iosystem::write_to_output("\r\nВаш E-mail : ", d);
+		return;
+	} else if (!IsValidEmail(argument)) {
+		iosystem::write_to_output("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
+		return;
+	}
+#ifdef TEST_BUILD
+	strncpy(GET_EMAIL(d->character), argument, 127);
+	  *(GET_EMAIL(d->character) + 127) = '\0';
+	  utils::ConvertToLow(GET_EMAIL(d->character));
+	  AskScreenWidth(d);
+	  return;
+#endif
+	{
+		int random_number = number(1000000, 9999999);
+		new_char_codes[d->character->GetCharAliases()] = random_number;
+		strncpy(GET_EMAIL(d->character), argument, 127);
+		*(GET_EMAIL(d->character) + 127) = '\0';
+		utils::ConvertToLow(GET_EMAIL(d->character));
+		std::string cmd_line =
+			fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
+		auto result = system(cmd_line.c_str());
+		UNUSED_ARG(result);
+		iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+		d->state = EConState::kRandomNumber;
+	}
+	return;
 }
 
 static void HandleReadMotd(DescriptorData *d, char * /*argument*/) {
