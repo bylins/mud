@@ -107,16 +107,33 @@ TEST(AliasEncoding, DeclaredLengthMatchesWhatWasWritten) {
 	const std::string body = ReadFileBytes(file.path());
 	ASSERT_FALSE(body.empty()) << "файл синонимов не записался";
 
+	// Разделитель пропускаем по факту, а не считая его одним байтом: движок открывает файл
+	// синонимов в текстовом режиме (fopen "w"/"r"), и на Windows на диск уходит \r\n. Самому
+	// движку это безразлично -- он и пишет, и читает в одном режиме, -- а тест смотрит байты.
+	const auto skip_eol = [&body](std::size_t pos) {
+		if (pos < body.size() && body[pos] == '\r') {
+			++pos;
+		}
+		if (pos < body.size() && body[pos] == '\n') {
+			++pos;
+		}
+		return pos;
+	};
+
 	std::size_t pos = 0;
 	for (const std::string *expected : {&alias, &replacement}) {
 		const std::size_t eol = body.find('\n', pos);
 		ASSERT_NE(eol, std::string::npos) << "нет длины";
-		const int declared = std::stoi(body.substr(pos, eol - pos));
+		std::string digits = body.substr(pos, eol - pos);
+		if (!digits.empty() && digits.back() == '\r') {
+			digits.pop_back();
+		}
+		const int declared = std::stoi(digits);
 		pos = eol + 1;
 		EXPECT_EQ(static_cast<std::size_t>(declared), expected->size())
 				<< "длина в файле должна совпадать с длиной записанной строки в байтах";
 		EXPECT_EQ(body.substr(pos, static_cast<std::size_t>(declared)), *expected);
-		pos += static_cast<std::size_t>(declared) + 1;
+		pos = skip_eol(pos + static_cast<std::size_t>(declared));
 	}
 }
 
