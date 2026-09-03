@@ -13,10 +13,11 @@ static void write_log_message(const std::string& native_message, FILE* file) {
 	if (!file) {
 		return;
 	}
-	// Граница записи: логи -- внешне видимый файл, и кодировка у них прежняя, KOI8-R.
-	// Дальше syslog_converter (koi_to_win/koi_to_alt) правит буфер на месте, считая
-	// байты кои-восьмыми, так что перевести надо именно здесь (issue #3681).
-	const std::string message = native_text::to_disk(native_message);
+	// Граница записи: лог лежит в нативной кодировке, поэтому уходит на диск как есть
+	// (issue #3787). Отдельный случай -- вывод в клиентской кодировке (log_stderr =
+	// cp1251/alt): его таблицы индексируются koi8-байтами, поэтому такой вывод приводится
+	// к KOI8-R прямо перед подстановкой в таблицу, а не хранится в ней.
+	const std::string &message = native_message;
 	if (!runtime_config.output_thread() && runtime_config.log_stderr().empty()) {
 		fputs(message.c_str(), file);
 		fputs("\n", file);
