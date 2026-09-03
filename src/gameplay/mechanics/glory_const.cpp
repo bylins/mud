@@ -895,11 +895,11 @@ void save() {
 	spent_node.set_name("total_spent");
 	spent_node.append_attribute("amount") = total_spent;
 
-	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
-	// (issue #3681).
+	// Граница записи: XML лежит в нативной кодировке, пишем как есть. Чтение
+	// (read_data_file) принимает и старый KOI8-R (issue #3787).
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	native_text::write_file(LIB_USERDATA"glory_const.xml", xml.str());
+	native_text::write_file_native(LIB_USERDATA"glory_const.xml", xml.str());
 }
 
 void load() {

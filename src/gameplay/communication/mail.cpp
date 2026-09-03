@@ -590,11 +590,11 @@ void save() {
 		msg_n.append_attribute("t") = i->second.text.c_str();
 	}
 
-	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
-	// (issue #3681).
+	// Граница записи: XML лежит в нативной кодировке, пишем как есть. Чтение
+	// (read_data_file) принимает и старый KOI8-R (issue #3787).
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	native_text::write_file(MAIL_XML_FILE, xml.str());
+	native_text::write_file_native(MAIL_XML_FILE, xml.str());
 	need_save = false;
 }
 

@@ -273,10 +273,10 @@ void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid) {
 		log("Хранилище: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	file << native_text::to_disk(generate_purged_text(uid, obj_vnum, obj_uid));
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	file << generate_purged_text(uid, obj_vnum, obj_uid);
 }
 
 void delete_purged_entry(long uid) {
@@ -551,10 +551,10 @@ void save_timedata() {
 		log("Хранилище: error open file: %s! (%s %s %d)", depot_file, __FILE__, __func__, __LINE__);
 		return;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(out.str());
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }
@@ -595,10 +595,10 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 		return;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(out.str());
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 	file.close();
 }

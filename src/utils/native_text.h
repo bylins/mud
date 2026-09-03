@@ -205,6 +205,11 @@ std::string to_disk(const std::string &text);
 // false, если файл не открылся (issue #3681).
 bool write_file(const std::string &path, const std::string &text);
 
+// То же, но без перевода: для деревьев, которые уже хранятся в нативной кодировке (userdata,
+// state, мир). Отдельная функция, а не флаг у write_file, чтобы в месте вызова было видно, в
+// какой кодировке лежит файл, и чтобы граница записи читалась рядом с чтением (issue #3787).
+bool write_file_native(const std::string &path, const std::string &text);
+
 // Pad `s` on the right with spaces to `width` CHARACTERS. The replacement for printf's "%-Ns"
 // wherever the value can hold Russian: printf counts the field width in bytes, so under UTF-8 a
 // Cyrillic word ate twice its share and the column drifted. Under KOI8-R this is byte-for-byte
