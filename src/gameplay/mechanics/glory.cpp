@@ -285,10 +285,10 @@ void save_glory() {
 		log("Glory: не удалось открыть файл на запись: %s", glory_file);
 		return;
 	}
-	// Граница записи: на диск уходит кодировка мира (сейчас KOI8-R), зеркально
-	// чтению -- иначе первое же сохранение переводит файл в UTF-8, и откат на
-	// прежнюю сборку становится невозможен (issue #3681).
-	const std::string on_disk = native_text::to_disk(out.str());
+	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
+	// Чтение (from_disk_text/from_disk_line) принимает и старый KOI8-R, так что файлы,
+	// ещё не переведённые, читаются по-прежнему (issue #3787).
+	const std::string on_disk = out.str();
 	file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 }
 

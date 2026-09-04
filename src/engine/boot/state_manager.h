@@ -60,6 +60,11 @@ class StateManager {
 	[[nodiscard]] std::vector<std::string> LoadLines(EStateFile file) const;
 	// Atomically replace the whole file (write a .tmp then rename).
 	bool SaveLines(EStateFile file, const std::vector<std::string> &lines) const;
+	// То же для файлов, которые читаются и пишутся целиком (XML-кэши статистики). Пара к
+	// LoadLines/SaveLines для тех, кому строки не подходят: границу кодировки держит здесь же,
+	// а не каждый вызывающий у себя.
+	[[nodiscard]] std::string LoadText(EStateFile file) const;
+	bool SaveText(EStateFile file, const std::string &text) const;
 	// Append one line (creating the file if absent).
 	bool AppendLine(EStateFile file, const std::string &line) const;
 	// Load, drop every line for which drop(line) is true, then SaveLines the rest atomically.

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.equipment-affects-cfg: the equipment_affect table (EEquipmentAffect -> imposed EAffect flag + on-equip ESpell).
      "weapon"/"equipment" affect = an affect a worn item confers. GetApplyByEquipmentAffect (the EApply magnitudes)
      stays in C++ for now. -->

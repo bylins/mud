@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.equipment-affects-cfg: display names for the equipment affects (sprintbits labels).
      Flat list keyed by EEquipmentAffect id; the runtime plane-padded array is rebuilt at load. -->
 <equipment_affect_msg>

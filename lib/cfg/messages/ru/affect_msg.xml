@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.ext-affects: affect short names (kShortDesc -> affected_bits) and ListOneChar aura look text,
     one <msg_sheaf> per affect. The shared kDefault sheaf holds the merged shield/aura line structure:

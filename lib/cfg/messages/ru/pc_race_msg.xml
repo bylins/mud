@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.player-races-rework: PC race display names, keyed by race vnum (matches pc_races.xml).
      <name> is the menu label; the four <message> forms are the gendered name (kNeutral/kMale/
      kFemale/kPoly) selected by the character sex. Loaded (pc_race_messages) BEFORE pc_races. -->

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 	Сообщения игрокам для умений (issue #3310).
 	Загружается через cfg_manager (LoadCfg/ReloadCfg "skill_messages"),

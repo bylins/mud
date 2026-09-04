@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.criterion: undecayable-object ("stable objs") criteria, per equipment position.
      <position val="EEquipPos|..."> groups slots that share criteria. <apply id=EApply> weighs an
      object stat; <affect id=EWeaponAffect> weighs an object weapon-affect. value = weight. -->

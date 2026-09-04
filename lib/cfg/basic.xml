@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Базовые модификаторы характеристик (бывший misc/basic.lst + таблицы из constants.cpp).
      cha_mod  - по обаянию (charisma)
      int_mod  - по интеллекту (intelligence), mana_gain - бывший mana_gain_cs[]

@@ -2138,9 +2138,9 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 				Crash_delete_files(iplayer);
 				return false;
 			}
-			// Граница записи: рента уходит на диск в кодировке мира (сейчас KOI8-R), зеркально
-			// чтению -- иначе первое сохранение переводит файл в UTF-8 (issue #3681).
-			const std::string on_disk = native_text::to_disk(obj_content);
+			// Граница записи: рента лежит в нативной кодировке, пишем как есть. Чтение
+			// (from_disk_text) принимает и старый KOI8-R (issue #3787).
+			const std::string on_disk = obj_content;
 			file.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
 			file.close();
 /* оставил как пример

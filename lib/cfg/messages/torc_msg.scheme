@@ -1,5 +1,5 @@
 <!--
-  issue.specials Phase 2: Vedun scheme for torc_msg.xml (пЁя─п╦п╡п╫п╟ exchange menu + responses).
+  issue.specials Phase 2: Vedun scheme for torc_msg.xml (гривна exchange menu + responses).
   Structure: <torc_msg> -> <msg_sheaf id="kDefault"> -> <message type="<ETorcMsg>" val="text"/>.
   "kDefault" is the shared sheaf (info_container::kUndefinedVnum). Optional sidecar.
 -->

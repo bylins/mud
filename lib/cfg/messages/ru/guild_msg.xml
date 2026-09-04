@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.thing-names: guild messages, moved out of GuildInfo::GetMsg (guilds.cpp). The container is
     vnum-keyed (MsgContainer<int, guilds::EMsg>); these shared messages live in the default sheaf

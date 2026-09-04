@@ -7,6 +7,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <system_error>
 #include <utility>
 
@@ -62,26 +63,43 @@ std::vector<std::string> StateManager::LoadLines(EStateFile file) const {
 		if (!line.empty() && line.back() == '\r') {
 			line.pop_back();   // tolerate CRLF files
 		}
-		// Граница чтения: списки лежат на диске в кодировке мира (сейчас KOI8-R), в память
-		// идут нативными. Здесь же имена персонажей, титулы и баны, и без пары к to_disk
-		// на записи они уезжали в транслит при первой же перезаписи файла (issue #3681).
+		// Граница чтения: строка принимается в любой из двух кодировок -- валидный UTF-8
+		// считается уже нативным, всё остальное разбирается как KOI8-R. Так файл, переведённый
+		// не целиком, читается правильно, и старые списки живут рядом с новыми (issue #3787).
 		lines.push_back(native_text::from_disk_line(line.c_str()));
 	}
 	return lines;
 }
 
+std::string StateManager::LoadText(EStateFile file) const {
+	std::ifstream in(Path(file), std::ios::binary);
+	if (!in.is_open()) {
+		return {};   // absent file == empty (normal on first boot)
+	}
+	const std::string raw((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	// Граница чтения, та же что в LoadLines, но на весь файл сразу (issue #3787).
+	return native_text::from_disk_text(raw);
+}
+
 bool StateManager::SaveLines(EStateFile file, const std::vector<std::string> &lines) const {
+	std::string body;
+	for (const auto &l : lines) {
+		body += l;   // граница записи, зеркало к LoadLines: пишем нативное как есть
+		body += '\n';
+	}
+	return SaveText(file, body);
+}
+
+bool StateManager::SaveText(EStateFile file, const std::string &text) const {
 	const std::string &path = Path(file);
 	const std::string tmp = path + ".tmp";
 	{
-		std::ofstream out(tmp, std::ios::trunc);
+		std::ofstream out(tmp, std::ios::binary | std::ios::trunc);
 		if (!out.is_open()) {
 			log("SYSERR: StateManager: cannot open '%s' for writing", tmp.c_str());
 			return false;
 		}
-		for (const auto &l : lines) {
-			out << native_text::to_disk(l) << '\n';   // граница записи, зеркало к LoadLines
-		}
+		out.write(text.data(), static_cast<std::streamsize>(text.size()));
 		out.flush();
 		if (!out.good()) {
 			log("SYSERR: StateManager: write error on '%s'", tmp.c_str());
@@ -109,7 +127,7 @@ bool StateManager::AppendLine(EStateFile file, const std::string &line) const {
 		log("SYSERR: StateManager: cannot open '%s' for append", path.c_str());
 		return false;
 	}
-	out << native_text::to_disk(line) << '\n';   // граница записи, зеркало к LoadLines
+	out << line << '\n';   // граница записи, зеркало к LoadLines: пишем нативное как есть
 	return out.good();
 }
 

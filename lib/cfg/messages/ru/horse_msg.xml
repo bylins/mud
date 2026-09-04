@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: horse keeper messages (spec_procs.cpp). All act() lines ($n/$N codes, to
     char/room). {amount} {currency} = horse price; {horse} = padded horse name (case 3); {pronoun} =

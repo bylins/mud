@@ -143,6 +143,8 @@
 #endif
 
 #include <fmt/format.h>
+#include "engine/ui/cmd/do_mode.h"
+#include "utils/utils_string.h"
 
 #include <memory>
 #include <stdexcept>
@@ -1884,6 +1886,46 @@ static void HandleRollStats(DescriptorData *d, char *argument) {
 	return;
 }
 
+// issue.3822: спрашиваем реальную ширину экрана сразу после подтверждения почты. Полоска
+// по ней игрок и определяет ширину своего экрана.
+static void AskScreenWidth(DescriptorData *d) {
+	iosystem::write_to_output(
+		// Полоска рисуется на всю допустимую ширину, а не на 80: восьмидесятизначная отвечает
+		// только "шире или уже", а число не даёт. Трёхсотзначная переносится у всех, и по
+		// последнему уместившемуся числу ширина экрана читается прямо с него.
+		fmt::format("\r\nНиже -- полоска в {} знаков: точки с числом через каждые пять.\r\n"
+					"Скорее всего она перенесётся на несколько строк. Последнее число, целиком\r\n"
+					"видное в первой строке, и есть ширина экрана.\r\n"
+					"\r\n{}\r\n\r\n"
+					"Укажите ширину экрана в знаках, от {} до {}.\r\n"
+					"Просто ENTER -- оставить {}.\r\n"
+					"Ширину всегда можно изменить командой: режим ширина <число>\r\n"
+					"Ширина экрана: ",
+					kMaxScreenWidth, ScreenRuler(kMaxScreenWidth),
+					kMinScreenWidth, kMaxScreenWidth, kDefaultScreenWidth).c_str(), d);
+	d->state = EConState::kGetScreenWidth;
+}
+
+static void HandleGetScreenWidth(DescriptorData *d, char *argument) {
+	skip_spaces(&argument);
+	int width = kDefaultScreenWidth;
+	if (*argument) {
+		width = atoi(argument);
+		if (width < kMinScreenWidth || width > kMaxScreenWidth) {
+			iosystem::write_to_output(
+				fmt::format("\r\nШирина экрана должна быть в пределах {} - {} символов.\r\n"
+							"Ширина экрана: ", kMinScreenWidth, kMaxScreenWidth).c_str(), d);
+			return;
+		}
+	}
+
+	// Персонаж заводится внутри DoAfterEmailConfirm, и init_char там ставит ширину по
+	// умолчанию -- поэтому выбранную выставляем после него, а не до.
+	DoAfterEmailConfirm(d);
+	d->character->player_specials->saved.stringLength = width;
+	d->character->save_char();
+}
+
 static void HandleGetEmail(DescriptorData *d, char *argument) {
 	if (!*argument) {
 		iosystem::write_to_output("\r\nВаш E-mail : ", d);
@@ -1896,7 +1938,7 @@ static void HandleGetEmail(DescriptorData *d, char *argument) {
 	strncpy(GET_EMAIL(d->character), argument, 127);
 	  *(GET_EMAIL(d->character) + 127) = '\0';
 	  utils::ConvertToLow(GET_EMAIL(d->character));
-	  DoAfterEmailConfirm(d);
+	  AskScreenWidth(d);
 	  return;
 #endif
 	{
@@ -1936,7 +1978,7 @@ static void HandleRandomNumber(DescriptorData *d, char *argument) {
 			return;
 		}
 		new_char_codes.erase(d->character->GetCharAliases());
-		DoAfterEmailConfirm(d);
+		AskScreenWidth(d);
 		return;
 	}
 
@@ -2256,6 +2298,10 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 
 		case EConState::kRandomNumber:
 			HandleRandomNumber(d, argument);
+			break;
+
+		case EConState::kGetScreenWidth:
+			HandleGetScreenWidth(d, argument);
 			break;
 
 		case EConState::kMenu:    // get selection from main menu

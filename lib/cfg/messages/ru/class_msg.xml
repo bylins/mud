@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.thing-names: class display names + abbreviations, moved out of cfg/classes/pc_*.xml.
     Keyed by class id (ECharClass token). Loaded (class_messages) BEFORE classes.

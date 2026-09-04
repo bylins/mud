@@ -889,7 +889,10 @@ void init_xhelp_full() {
 
 bool load_unique_mobs() {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs).c_str());
+	// Граница чтения: файл берём через StateManager, а не pugi::load_file -- тот читает байты
+	// мимо границы кодировки и под UTF-8 отдал бы дисковые байты как нативные (issue #3787).
+	const std::string xml_mobs = MUD::StateManager().LoadText(state::EStateFile::kUniqueMobs);
+	pugi::xml_parse_result result = doc.load_buffer(xml_mobs.data(), xml_mobs.size());
 	int vnum = 0;
 	int level = 0;
 	if (!result) {
@@ -965,11 +968,11 @@ void save_unique_mobs() {
 		mob_node.append_attribute("vnum") = it->first;
 		mob_node.append_attribute("level") = it->second;
 	}
-	// Граница записи: XML уходит на диск в кодировке мира, а не в нативной
-	// (issue #3681).
+	// Граница записи: state/ хранится в нативной кодировке, поэтому пишем как есть
+	// (issue #3787). SaveText кладёт файл атомарно, зеркально LoadText.
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	native_text::write_file(MUD::StateManager().Path(state::EStateFile::kUniqueMobs), xml.str());
+	MUD::StateManager().SaveText(state::EStateFile::kUniqueMobs, xml.str());
 }
 
 void save_drop_table() {

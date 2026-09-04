@@ -1,4 +1,10 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    issue.ext-affects: the affect registry. id = the EAffect enumerator (the identity, kept in C++).
+    Short display names + aura look text live in cfg/messages/ru/affect_msg.xml (per-affect sheaves).
+    This file is the scaffold for future per-affect data (handlers/actions, so an affect can
+    self-process instead of needing a marker-spell).
+-->
 <affects>
 	<affect id="kBlind" buff="N">
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable" />

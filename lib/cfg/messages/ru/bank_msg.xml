@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: bank (spec_procs.cpp) + clan treasury / казна (clans/house.cpp) messages.
     Money lines use {amount} {currency} named fmt args; transfer lines add {color} {nocolor} and the

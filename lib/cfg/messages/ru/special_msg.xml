@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: messages SHARED by the special-procedure dispatch framework.
     kAmbiguous is a prefix; the resolver appends the dynamic tooltip and the newline. kUnknownCommand

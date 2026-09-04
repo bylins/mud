@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.specials Phase 2: notice board messages (boards.cpp DoBoard / message_no_* / do_list /
     report_on_board / login + new-post notifications). All SendMsgToChar (code appends the trailing

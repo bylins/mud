@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.runestones: runestone display text. Per-stone sheaf (id = stone vnum) holds kName; the
     kDefault sheaf holds the shared text ({name}/{count}/{limit}). ("рунные метки" -> "рунные камни".)

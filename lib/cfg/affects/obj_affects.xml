@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     issue.obj-affects: the obj-affect registry. id = the obj_affects::EObjAffect enumerator (the
     identity, kept in C++). These are affects that live ON an item, distinct from character affects:

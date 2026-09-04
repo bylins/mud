@@ -590,6 +590,15 @@ bool write_file(const std::string &path, const std::string &text) {
 	return out.good();
 }
 
+bool write_file_native(const std::string &path, const std::string &text) {
+	std::ofstream out(path, std::ios::binary);
+	if (!out) {
+		return false;
+	}
+	out.write(text.data(), static_cast<std::streamsize>(text.size()));
+	return out.good();
+}
+
 std::string pad_right(std::string_view s, std::size_t width) {
 	const std::size_t len = char_count(s);
 	std::string out(s);

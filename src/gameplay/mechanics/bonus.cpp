@@ -7,6 +7,7 @@
 #include "engine/ui/modify.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
+#include "utils/native_text.h"
 #include "gameplay/core/remort.h"
 
 namespace Bonus {
@@ -212,7 +213,10 @@ void bonus_log_load() {
 	std::string temp_buf;
 	bonus_log.clear();
 	while (std::getline(fin, temp_buf)) {
-		bonus_log.push_back(temp_buf);
+		// Граница чтения: в строке дата через rustime и имя игрока, то есть русский текст.
+		// Записывается он нативным, а читался дисковыми байтами -- и показывался мусором
+		// всё, что осталось от старой сборки (issue #3787).
+		bonus_log.push_back(native_text::from_disk_line(temp_buf.c_str()));
 	}
 	fin.close();
 }

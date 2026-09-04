@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 	issue.thing-names: currency display names, moved out of currencies.xml.
 	Keyed by currency text_id. Loaded (currency_messages) BEFORE currencies.xml.

@@ -1129,4 +1129,20 @@ void name_convert(std::string &text) {
 	}
 }
 
+std::string ScreenRuler(std::size_t width) {
+	// Метка ставится так, чтобы её последняя цифра пришлась НА свою позицию: "5" на пятый
+	// знак, "80" на восьмидесятый. Раньше метка начиналась с позиции и хвост последней
+	// вылезал за край -- полоска в 80 знаков печаталась 81-м, и игрок с окном ровно в 80
+	// видел перенос и заключал, что у него 79.
+	std::string ruler(width, '.');
+	for (std::size_t mark = 5; mark <= width; mark += 5) {
+		const std::string label = std::to_string(mark);
+		if (label.size() > mark) {
+			continue;                       // метка не помещается от начала строки
+		}
+		ruler.replace(mark - label.size(), label.size(), label);
+	}
+	return ruler;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

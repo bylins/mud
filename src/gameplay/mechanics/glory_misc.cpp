@@ -12,6 +12,7 @@
 #include "engine/entities/char_player.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "utils/native_text.h"
 #include "gameplay/core/remort.h"
 
 namespace GloryMisc {
@@ -76,7 +77,10 @@ void load_log() {
 		GloryLogPtr temp_node(new GloryLog);
 		temp_node->type = type;
 		temp_node->num = num;
-		temp_node->karma = buffer;
+		// Границы чтения тут не было вовсе, хотя в karma лежит русский текст наказания:
+		// он уходил в память дисковыми байтами и показывался богам мусором. Запись при этом
+		// всегда шла нативной, так что файл ещё и расходился сам с собой (issue #3787).
+		temp_node->karma = native_text::from_disk_line(buffer.c_str());
 		glory_log.insert(std::make_pair(time, temp_node));
 	}
 }
@@ -94,6 +98,7 @@ void save_log() {
 		log("GloryLog: не удалось открыть файл на запись: %s", glory_file.c_str());
 		return;
 	}
+	// Зеркало к чтению: лог лежит в нативной кодировке, пишем как есть.
 	file << out.rdbuf();
 	file.close();
 }

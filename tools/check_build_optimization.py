@@ -18,7 +18,8 @@ import os
 import sys
 
 # Кого проверяем и какой оптимизации ждём как минимум.
-WANT = {"fmt": 2, "yaml-cpp": 2, "zlib": 2, "gtest": 2, "luajit": 2, "sol2": 2}
+WANT = {"fmt": 2, "yaml-cpp": 2, "zlib": 2, "gtest": 2, "luajit": 2, "sol2": 2,
+        "emmyluacodestyle": 2}
 
 LEVELS = {"0": 0, "1": 1, "2": 2, "3": 3, "g": 1, "s": 2, "fast": 3}
 

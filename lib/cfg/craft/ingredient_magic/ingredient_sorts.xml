@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ingredient_sorts>
 	<sort type="HealingHerbs" power="1" gender="kMale">
 		<case id="kNom" name="одуванчик"/>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8-r"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- "Make item" recipes - full production set, generated from misc/makeitems.lst.
      recipe: unique vnum + skill (ESkill) + crafted item vnum + up to 3 ingredients
      (vnum, min_weight, min_power). locked="true" disables a recipe. vnum is the Vedun key. -->
