@@ -72,7 +72,7 @@ void save() {
 	// (read_data_file) принимает и старый KOI8-R (issue #3787).
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	native_text::write_file_native(LIB_USERDATA"named_items.xml", xml.str());
+	native_text::write_file(LIB_USERDATA"named_items.xml", xml.str());
 }
 
 bool check_named(CharData *ch, const ObjData *obj, const bool simple) {

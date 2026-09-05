@@ -594,7 +594,7 @@ void save() {
 	// (read_data_file) принимает и старый KOI8-R (issue #3787).
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	native_text::write_file_native(MAIL_XML_FILE, xml.str());
+	native_text::write_file(MAIL_XML_FILE, xml.str());
 	need_save = false;
 }
 

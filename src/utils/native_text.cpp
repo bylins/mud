@@ -409,10 +409,6 @@ std::string to_koi8(const std::string &text) {
 	return codepages::Utf8ToKoi8(text);
 }
 
-std::string from_utf8(const std::string &text) {
-	return text;   // the native encoding already is UTF-8
-}
-
 std::string translit_to_filename(std::string_view name) {
 	// Code point -> the very same Latin character the KOI8-R byte table yields, so a player's
 	// file name is identical before and after the flip. Upper and lower case collapse together
@@ -580,17 +576,8 @@ std::size_t char_offset(std::string_view s, std::size_t chars) {
 	return utf8::byte_offset(s, chars);
 }
 
-bool write_file(const std::string &path, const std::string &text) {
-	const std::string on_disk = to_disk(text);
-	std::ofstream out(path, std::ios::binary);
-	if (!out) {
-		return false;
-	}
-	out.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
-	return out.good();
-}
 
-bool write_file_native(const std::string &path, const std::string &text) {
+bool write_file(const std::string &path, const std::string &text) {
 	std::ofstream out(path, std::ios::binary);
 	if (!out) {
 		return false;
@@ -606,39 +593,6 @@ std::string pad_right(std::string_view s, std::size_t width) {
 		out.append(width - len, ' ');
 	}
 	return out;
-}
-
-std::string to_disk(const std::string &text) {
-	// Предохранитель. Всё нативное -- валидный UTF-8; если сюда пришло что-то другое, значит
-	// строка не проходила границу чтения и держит дисковые байты (KOI8-R) как есть.
-	// Транслитерировать их нельзя: to_koi8 разберёт такие байты как Latin-1 и прогонит через
-	// словарь замен, а это необратимо -- 'верий.свет' превращается в 'AIEUAxAOA.OxAO'. Именно
-	// так были съедены метки вещей, сундуки дружин и списки имён (issue #3681).
-	//
-	// Поэтому пишем байты как есть -- для диска они уже в нужной кодировке, файл остаётся цел, --
-	// и жалуемся в лог: дыру видно сразу, без нагрузочного прогона и без потери данных.
-	if (!utf8::is_valid(text)) {
-		static std::atomic<unsigned long> seen{0};
-		const unsigned long n = seen.fetch_add(1);
-		if (n < 10 || n % 10000 == 0) {
-			// Байты печатаются шестнадцатеричными нарочно: сунуть их в сообщение как есть
-			// значило бы отдать логгеру невалидный UTF-8, а он пишет через этот же to_disk --
-			// и жалоба принялась бы жаловаться сама на себя без конца.
-			std::string head;
-			const std::size_t show = std::min<std::size_t>(text.size(), 16);
-			char byte[4];
-			for (std::size_t i = 0; i < show; ++i) {
-				std::snprintf(byte, sizeof(byte), "%02x", static_cast<unsigned char>(text[i]));
-				head += byte;
-				head += ' ';
-			}
-			log("SYSERR: to_disk got non-UTF-8 text (#%lu, %zu bytes) -- a read boundary is missing "
-				"somewhere; writing the bytes through unchanged. First bytes: %s",
-				n + 1, text.size(), head.c_str());
-		}
-		return text;
-	}
-	return to_koi8(text);
 }
 
 std::string read_data_file(const std::string &path) {
