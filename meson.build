@@ -299,33 +299,41 @@ if yaml_opt != 'disabled'
 endif
 
 otel_opt = get_option('otel')
+if otel_opt == 'builtin'
+    error('-Dotel=builtin не поддерживается: subproject opentelemetry-cpp отсутствует, используйте -Dotel=system')
+endif
 if otel_opt != 'disabled'
-    otel_modules = [
-        'opentelemetry-cpp::api', 'opentelemetry-cpp::sdk', 'opentelemetry-cpp::ext',
-        'opentelemetry-cpp::resources', 'opentelemetry-cpp::otlp_http_exporter', 'opentelemetry-cpp::otlp_http_metric_exporter',
-        'opentelemetry-cpp::otlp_http_log_record_exporter', 'opentelemetry-cpp::http_client_curl'
+    # opentelemetry-cpp ищется через pkg-config, а не через cmake-конфиги:
+    # в них есть generator expressions ($<LINK_ONLY:...>, $<PLATFORM_ID:...>),
+    # которые meson не умеет раскрывать и на которые ругается при setup.
+    # У upstream .pc-файлов неполные Requires (нет protobuf и curl), а для
+    # opentelemetry_proto и opentelemetry_http_client_curl .pc не ставится
+    # вовсе -- эти зависимости добираем ниже вручную. Порядок важен для
+    # статической линковки: сначала экспортёры, потом то, от чего они зависят.
+    otel_pc_modules = [
+        'opentelemetry_exporter_otlp_http',
+        'opentelemetry_exporter_otlp_http_metric',
+        'opentelemetry_exporter_otlp_http_log',
+        'opentelemetry_otlp_recordable',
+        'opentelemetry_trace',
+        'opentelemetry_metrics',
+        'opentelemetry_logs',
+        'opentelemetry_resources',
+        'opentelemetry_common',
+        'opentelemetry_api',
     ]
-    
-    if otel_opt == 'builtin'
-        otel_sub = subproject('opentelemetry-cpp')
-        otel_dep = otel_sub.get_variable('opentelemetry_cpp_dep')
-    elif otel_opt == 'system'
-        otel_dep = dependency('opentelemetry-cpp', modules: otel_modules, required: true, allow_fallback: false)
-    else
-        otel_dep = dependency('opentelemetry-cpp', modules: otel_modules, required: true, fallback: ['opentelemetry-cpp', 'opentelemetry_cpp_dep'])
-    endif
-    project_args += '-DWITH_OTEL'
-    dependencies += [otel_dep, dependency('libcurl', required: true, allow_fallback: false)]
-    # protobuf >= 22 splits utf8_range into a separate library; add it when present.
+    otel_deps = []
+    foreach otel_module : otel_pc_modules
+        otel_deps += dependency(otel_module, method: 'pkg-config', required: true)
+    endforeach
+    otel_libdir = otel_deps[-1].get_variable(pkgconfig: 'libdir')
     cxx = meson.get_compiler('cpp')
-    utf8_range_dep = cxx.find_library('utf8_range', required: false)
-    if utf8_range_dep.found()
-        dependencies += utf8_range_dep
-    endif
-    utf8_validity_dep = cxx.find_library('utf8_validity', required: false)
-    if utf8_validity_dep.found()
-        dependencies += utf8_validity_dep
-    endif
+    otel_proto_dep = cxx.find_library('opentelemetry_proto', dirs: [otel_libdir], required: true)
+    otel_curl_client_dep = cxx.find_library('opentelemetry_http_client_curl', dirs: [otel_libdir], required: true)
+    protobuf_dep = dependency('protobuf', method: 'pkg-config', required: true)
+    curl_dep = dependency('libcurl', required: true, allow_fallback: false)
+    project_args += '-DWITH_OTEL'
+    dependencies += otel_deps + [otel_proto_dep, otel_curl_client_dep, protobuf_dep, curl_dep]
 endif
 
 has_epoll_opt = get_option('has_epoll')
