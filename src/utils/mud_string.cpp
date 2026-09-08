@@ -3,37 +3,6 @@
 #include "utils.h"
 #include "utils/native_text.h"
 
-int search_block(const char *target_string, const char **list, int exact);
-
-static const char *dir_fill[] = {"in",
-	"from",
-	"with",
-	"the",
-	"on",
-	"at",
-	"to",
-	"\n"
-};
-
-static const char *reserved[] = {"a",
-	"an",
-	"self",
-	"me",
-	"all",
-	"room",
-	"someone",
-	"something",
-	"\n"
-};
-
-int fill_word(const char *argument) {
-	return (search_block(argument, dir_fill, true) >= 0);
-}
-
-int reserved_word(const char *argument) {
-	return (search_block(argument, reserved, true) >= 0);
-}
-
 template<typename T>
 T one_argument_template(T argument, char *first_arg) {
 	if (!argument) {

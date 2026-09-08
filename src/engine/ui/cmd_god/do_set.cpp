@@ -131,7 +131,6 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg);
 void RenamePlayer(CharData *ch, char *oname);
 
 extern int _parse_name(char *arg, char *name);
-extern int reserved_word(const char *argument);
 
 void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = nullptr;
@@ -637,7 +636,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				if (_parse_name(npad[0], npad[0]) ||
 					static_cast<int>(native_text::char_count(npad[0])) < kMinNameLength ||
 					static_cast<int>(native_text::char_count(npad[0])) > kMaxNameLength ||
-					!IsNameAvailable(npad[0]) || reserved_word(npad[0]) || fill_word(npad[0])) {
+					!IsNameAvailable(npad[0])) {
 					SendMsgToChar("Некорректное имя.\r\n", ch);
 					return (0);
 				}

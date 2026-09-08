@@ -289,7 +289,6 @@ void trigedit_parse(DescriptorData *d, char *arg);
 extern void check_max_hp(CharData *ch);
 // local functions
 int perform_dupe_check(DescriptorData *d);
-int reserved_word(const char *argument);
 int _parse_name(char *argument, char *name);
 int find_action(char *cmd);
 int do_social(CharData *ch, char *argument);
@@ -1005,7 +1004,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"\n", EPosition::kDead, nullptr, 0, 0, 0}
 	};
 
-// dir_fill, reserved moved to mud_string.cpp
 
 void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
