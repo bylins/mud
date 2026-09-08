@@ -16,6 +16,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/core/remort.h"
+#include "utils/utils_string.h"
 
 int GetBackstabMultiplier(int level);
 int CalcCritBackstabPercent(CharData *ch);
@@ -28,9 +29,8 @@ void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	CharData * vict = nullptr;
-	vict = target_resolver::FindCharInRoom(ch, arg);
+	const std::string target_name = utils::ExtractOneArgument(argument);
+	CharData *vict = target_resolver::FindCharInRoom(ch, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -38,7 +38,7 @@ void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!may_kill_here(ch, vict, argument))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 
 	do_backstab(ch, vict);

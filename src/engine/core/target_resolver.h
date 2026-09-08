@@ -264,7 +264,11 @@ inline ObjData *get_obj_vis_for_locate(CharData *ch, const std::string &name) {
 	return get_obj_vis_for_locate(ch, name.c_str());
 }
 bool try_locate_obj(CharData *ch, ObjData *i);
-int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj);
+int generic_find(const char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj);
+inline int generic_find(const std::string &arg, Bitvector bitvector, CharData *ch,
+						CharData **tar_ch, ObjData **tar_obj) {
+	return generic_find(arg.c_str(), bitvector, ch, tar_ch, tar_obj);
+}
 int find_all_dots(char *arg);
 RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 

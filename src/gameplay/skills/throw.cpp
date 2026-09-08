@@ -198,7 +198,8 @@ void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 
-	CharData *victim = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *victim = FindVictim(ch, argument, target_name);
 	if (!victim) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrow, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -207,7 +208,7 @@ void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!may_kill_here(ch, victim, argument)) {
 		return;
 	}
-	if (!check_pkill(ch, victim, arg)) {
+	if (!check_pkill(ch, victim, target_name)) {
 		return;
 	}
 

@@ -14,6 +14,7 @@
 #include "gameplay/magic/magic_utils.h"          // IsRoomBlocked (issue.no-teleport-out)
 #include "engine/db/global_objects.h"            // MUD::Spell
 #include "gameplay/core/remort.h"
+#include "utils/utils_string.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 
@@ -35,13 +36,13 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	RoomRnum to_room, fnd_room;
-	one_argument(argument, arg);
-	if (!*arg) {
+	const std::string target_name = utils::ExtractOneArgument(argument);
+	if (target_name.empty()) {
 		SendMsgToChar("Переместиться на кого?", ch);
 		return;
 	}
 
-	CharData *victim = target_resolver::FindPlayerVis(ch, arg);
+	CharData *victim = target_resolver::FindPlayerVis(ch, target_name);
 
 	if (!victim) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);

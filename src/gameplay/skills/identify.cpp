@@ -34,14 +34,12 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-
 	if (IsTimedBySkill(ch, ESkill::kIdentify)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIdentify, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
-	k = generic_find(arg, EFind::kCharInRoom | EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, caster, &cvict, &ovict);
+	k = generic_find(argument, EFind::kCharInRoom | EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, caster, &cvict, &ovict);
 	if (!k) {
 		SendMsgToChar("Похоже, здесь этого нет.\r\n", ch);
 		return;

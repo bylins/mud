@@ -27,7 +27,8 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -35,7 +36,7 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!may_kill_here(ch, vict, argument))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 
 	do_disarm(ch, vict);

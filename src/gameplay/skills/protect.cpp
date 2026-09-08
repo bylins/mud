@@ -9,6 +9,7 @@
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "utils/grammar/gender.h"
+#include "utils/utils_string.h"
 
 // Stop covering one's protectee, announcing it to both parties. The message is a
 // protect-skill concern; CharData::remove_protecting() is a silent data primitive
@@ -37,8 +38,8 @@ void go_protect(CharData *ch, CharData *vict) {
 }
 
 void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	one_argument(argument, arg);
-	if (!*arg) {
+	const std::string target_name = utils::ExtractOneArgument(argument);
+	if (target_name.empty()) {
 		if (ch->get_protecting()) {
 			StopProtecting(ch);
 		} else {
@@ -56,9 +57,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CharData * vict = nullptr;
-
-	vict = target_resolver::FindCharInRoom(ch, arg);
+	CharData *vict = target_resolver::FindCharInRoom(ch, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;

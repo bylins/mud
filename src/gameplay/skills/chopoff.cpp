@@ -72,8 +72,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kChopoff, success, vict);
 	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kChopoff).name, percent, prob, success);
 	if (!success) {
-		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", kColorWht, kColorNrm);
-		act(buf, false, ch, nullptr, vict, kToChar);
+		act("&WВы попытались подсечь $N3, но упали сами...&n", false, ch, nullptr, vict, kToChar);
 		act("$n попытал$u подсечь вас, но упал$g сам$g.", false, ch, nullptr, vict, kToVict);
 		act("$n попытал$u подсечь $N3, но упал$g сам$g.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		ch->SetPosition(EPosition::kSit);
@@ -139,7 +138,8 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -147,7 +147,7 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!may_kill_here(ch, vict, argument))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 
 	do_chopoff(ch, vict);

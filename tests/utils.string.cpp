@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "utils/utils.h"
+#include "utils/mud_string.h"
 
 struct
 {
@@ -681,6 +682,62 @@ TEST(Utils_String, ScreenRulerHandlesWidthsBelowFirstMark) {
 	// Меньше пяти знаков -- меток нет вовсе, но длина всё равно запрошенная.
 	EXPECT_EQ(ScreenRuler(0), "");
 	EXPECT_EQ(ScreenRuler(4), "....");
+}
+
+// ===== ExtractOneArgument =====
+// Полный строковый аналог one_argument: сверяемся именно с ним -- на нём держится вся замена
+// глобального arg в командах (#3807).
+
+TEST(Utils_String, ExtractOneArgument_MatchesOneArgumentOnPlainWords)
+{
+	char legacy[kMaxInputLength];
+	std::string rest;
+	const char *legacy_rest = one_argument("сбить гоблина палкой", legacy);
+
+	EXPECT_EQ(utils::ExtractOneArgument("сбить гоблина палкой", rest), legacy);
+	EXPECT_EQ(rest, legacy_rest);
+}
+
+TEST(Utils_String, ExtractOneArgument_LowersCase)
+{
+	// one_argument понижает регистр, ExtractFirstArgument -- нет.
+	EXPECT_EQ(utils::ExtractOneArgument("ГОБЛИН"), "гоблин");
+	EXPECT_EQ(utils::ExtractOneArgument("FROZEN"), "frozen");
+}
+
+TEST(Utils_String, ExtractOneArgument_SkipsFillWords)
+{
+	// in from with the on at to -- служебные, one_argument их проглатывает.
+	std::string rest;
+	EXPECT_EQ(utils::ExtractOneArgument("the goblin палкой", rest), "goblin");
+	EXPECT_EQ(rest, "палкой");
+}
+
+TEST(Utils_String, ExtractOneArgument_AllFillWordsGiveEmptyResult)
+{
+	std::string rest;
+	EXPECT_TRUE(utils::ExtractOneArgument("the on at", rest).empty()) << "разбор не должен зациклиться";
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ExtractOneArgument_EmptyInput)
+{
+	std::string rest = "мусор";
+	EXPECT_TRUE(utils::ExtractOneArgument("   ", rest).empty());
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ExtractOneArgument_TabIsASeparator)
+{
+	std::string rest;
+	EXPECT_EQ(utils::ExtractOneArgument("сбить\tгоблина", rest), "сбить");
+	EXPECT_EQ(rest, "гоблина");
+}
+
+TEST(Utils_String, ExtractOneArgument_KeepsMultibyteLettersIntact)
+{
+	// Понижение регистра идёт посимвольно: русская буква не должна развалиться на байты.
+	EXPECT_EQ(utils::ExtractOneArgument("ВОЛЧИЦА съела"), "волчица");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

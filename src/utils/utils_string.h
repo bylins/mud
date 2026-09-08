@@ -165,6 +165,20 @@ std::vector<std::string> SplitAny(const std::string s, std::string any);
  */
 std::string ExtractFirstArgument(const std::string &s, std::string &remains);
 
+/**
+ * Полный строковый аналог one_argument: первое слово в нижнем регистре, служебные слова
+ * (in, from, with, the, on, at, to -- см. fill_word) пропускаются, остаток кладётся в remains.
+ *
+ * Ровно это и делает one_argument, только без буфера на kMaxStringLength -- поэтому при
+ * переносе кода со связки `one_argument(argument, arg)` через глобальный буфер (#3807) берите
+ * эту функцию: поведение команды не поменяется. Если пропуск служебных слов и понижение
+ * регистра не нужны, ExtractFirstArgument дешевле.
+ *
+ * Перегрузка без remains -- когда нужно только первое слово.
+ */
+std::string ExtractOneArgument(const std::string &s, std::string &remains);
+std::string ExtractOneArgument(const std::string &s);
+
 // первое слово разделенное маской
 std::string FirstWordOnString(std::string s, std::string mask);
 

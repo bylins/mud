@@ -774,7 +774,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 	}
 }
 
-int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
+int generic_find(const char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
 	char name[kMaxInputLength];
 
 	*tar_ch = nullptr;

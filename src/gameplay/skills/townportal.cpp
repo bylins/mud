@@ -11,12 +11,13 @@
 #include "gameplay/mechanics/portal.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
+#include "utils/utils_string.h"
 
 #include <fmt/format.h>
 
-void GoTownportal(CharData *ch, char *argument);
+void GoTownportal(CharData *ch, const std::string &argument);
 void TryOpenTownportal(CharData *ch, const Runestone &stone);
-void TryOpenLabelPortal(CharData *ch, char *argument);
+void TryOpenLabelPortal(CharData *ch, const std::string &argument);
 void OpenTownportal(CharData *ch, const Runestone &stone);
 void SetSkillTownportalTimer(CharData *ch);
 Runestone GetLabelPortal(CharData *ch);
@@ -34,8 +35,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	GoTownportal(ch, arg);
+	GoTownportal(ch, utils::ExtractOneArgument(argument));
 }
 
 // "камень"/"stone": runestone management. Bare or "список" -> the memorised-stones list;
@@ -46,10 +46,10 @@ void DoRunestone(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	char arg2[kMaxInputLength];
-	two_arguments(argument, arg, arg2);
-	if (!str_cmp(arg, "забыть")) {
-		auto &stone = MUD::Runestones().FindRunestone(arg2);
+	std::string remains;
+	const std::string subcommand = utils::ExtractOneArgument(argument, remains);
+	if (!str_cmp(subcommand, "забыть")) {
+		auto &stone = MUD::Runestones().FindRunestone(utils::ExtractOneArgument(remains));
 		RemoveRunestone(ch, stone);
 		return;
 	}
@@ -57,7 +57,7 @@ void DoRunestone(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	PageRunestonesToChar(ch);
 }
 
-void GoTownportal(CharData *ch, char *argument) {
+void GoTownportal(CharData *ch, const std::string &argument) {
 	auto &stone = MUD::Runestones().FindRunestone(argument);
 	if (stone.IsAllowed() && IsRunestoneKnown(ch, stone)) {
 		TryOpenTownportal(ch, stone);
@@ -99,8 +99,8 @@ void TryOpenTownportal(CharData *ch, const Runestone &stone) {
 	OpenTownportal(ch, stone);
 }
 
-void TryOpenLabelPortal(CharData *ch, char *argument) {
-	if (name_cmp(ch, argument)) {
+void TryOpenLabelPortal(CharData *ch, const std::string &argument) {
+	if (name_cmp(ch, argument.c_str())) {
 		const auto &stone = GetLabelPortal(ch);
 		if (stone.IsAllowed()) {
 			TryOpenTownportal(ch, stone);

@@ -88,7 +88,8 @@ void go_slay(CharData *ch, CharData *vict) {
 }
 
 void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 
 	if (!GetSkill(ch, ESkill::kSlay)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
@@ -120,7 +121,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!may_kill_here(ch, vict, argument))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		go_slay(ch, vict);

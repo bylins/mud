@@ -1966,13 +1966,12 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	if ((victim && skill_is <= GetRealInt(ch) * GetRealLevel(victim) / GetRealLevel(ch))
 		|| (!victim && skill_is <= GetRealInt(ch))) {
 		if (success) {
-			sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
-					kColorBoldCyn, MUD::Skill(skill).GetName(), kColorNrm);
+			SendMsgToChar(fmt::format("&CВы повысили уровень умения \"{}\".&n\r\n",
+									  MUD::Skill(skill).GetName()), ch);
 		} else {
-			sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
-					kColorBoldCyn, MUD::Skill(skill).GetName(), kColorNrm);
+			SendMsgToChar(fmt::format("&CПоняв свои ошибки, вы повысили уровень умения \"{}\".&n\r\n",
+									  MUD::Skill(skill).GetName()), ch);
 		}
-		SendMsgToChar(buf, ch);
 		SetSkill(ch, skill, (trained_skill + number(1, 2)));
 		if (!privilege::IsImmortal(ch)) {
 			SetSkill(ch, skill, (std::min(CalcSkillRemortCap(ch), GetSkillBonus(ch, skill))));

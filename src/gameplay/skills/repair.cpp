@@ -5,6 +5,9 @@
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/abilities/timed_abilities.h"
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
 
 void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!GetSkill(ch, ESkill::kRepair)) {
@@ -16,22 +19,21 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
+	const std::string obj_name = utils::ExtractOneArgument(argument);
 
 	if (ch->GetEnemy()) {
 		SendMsgToChar("Вы не можете сделать это в бою!\r\n", ch);
 		return;
 	}
 
-	if (!*arg) {
+	if (obj_name.empty()) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRepair, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
 	ObjData *obj;
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+	if (!(obj = get_obj_in_list_vis(ch, obj_name, ch->carrying))) {
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", obj_name), ch);
 		return;
 	};
 

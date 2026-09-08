@@ -7,6 +7,9 @@
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/inventory.h"
 #include "gameplay/mechanics/meat_maker.h"
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
 
 extern std::array<int, kMaxMobLevel / 11 + 1> animals_levels;
 
@@ -188,8 +191,8 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Ваше умение слишком низкое, чтобы содрать шкуру {}.\r\n",
+										  GET_PAD(mob, 1)), ch);
 				return false;
 			}
 
@@ -200,8 +203,8 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Ваше умение слишком низкое, чтобы содрать шкуру {}.\r\n",
+										  GET_PAD(mob, 1)), ch);
 				return false;
 			}
 			break;
@@ -212,8 +215,8 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Ваше умение слишком низкое, чтобы содрать шкуру {}.\r\n",
+										  GET_PAD(mob, 1)), ch);
 				return false;
 			}
 			break;
@@ -224,8 +227,8 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Ваше умение слишком низкое, чтобы содрать шкуру {}.\r\n",
+										  GET_PAD(mob, 1)), ch);
 				return false;
 			}
 			break;
@@ -308,21 +311,17 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if (!*arg) {
+	const std::string corpse_name = utils::ExtractOneArgument(argument);
+	if (corpse_name.empty()) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSkinning, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
-//	auto obj = get_obj_in_list_vis(ch, arg, ch->carrying);
-//	if (!obj) {
-	auto obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
+	auto obj = get_obj_in_list_vis(ch, corpse_name, world[ch->in_room]->contents);
 	if (!obj) {
-		snprintf(buf, kMaxInputLength, "Вы не видите здесь '%s'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Вы не видите здесь '{}'.\r\n", corpse_name), ch);
 		return;
 	}
-//	}
 
 	const auto mobn = GET_OBJ_VAL(obj, 2);
 	if (!IS_CORPSE(obj) || mobn < 0) {

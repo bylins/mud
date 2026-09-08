@@ -147,7 +147,8 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -162,7 +163,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 }
 	}
-	if (!may_kill_here(ch, vict, argument) || !check_pkill(ch, vict, arg)) {
+	if (!may_kill_here(ch, vict, argument) || !check_pkill(ch, vict, target_name)) {
 		return;
 	}
 	if (!IsHaveNoExtraAttack(ch)) {

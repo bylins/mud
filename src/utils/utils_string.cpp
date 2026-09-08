@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "utils.h"
+#include "utils/mud_string.h"
 #include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "gameplay/core/constants.h"
@@ -270,6 +271,24 @@ std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
 	const auto rest_begin = s.find_first_not_of(kSpaces, word_end);
 	remains = (rest_begin == std::string::npos) ? std::string() : s.substr(rest_begin);
 	return word;
+}
+
+std::string ExtractOneArgument(const std::string &s, std::string &remains) {
+	std::string word = ExtractFirstArgument(s, remains);
+	// one_argument крутит тот же цикл: служебное слово выбрасывается и разбор идёт дальше.
+	while (fill_word(word.c_str())) {
+		word = ExtractFirstArgument(remains, remains);
+		if (word.empty()) {
+			break;
+		}
+	}
+	native_text::to_lower(word);
+	return word;
+}
+
+std::string ExtractOneArgument(const std::string &s) {
+	std::string remains;
+	return ExtractOneArgument(s, remains);
 }
 
 std::string SubstToLow(std::string s) {
