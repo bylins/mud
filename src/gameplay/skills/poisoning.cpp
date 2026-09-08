@@ -16,7 +16,7 @@ void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::string remains;
-	const std::string weapon_name = utils::ExtractOneArgument(argument, remains);
+	const std::string weapon_name = utils::ExtractFirstArgumentLower(argument, remains);
 
 	if (weapon_name.empty()) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kPoisoning, ESkillMsg::kNoTarget) + "\r\n", ch);

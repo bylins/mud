@@ -311,7 +311,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const std::string corpse_name = utils::ExtractOneArgument(argument);
+	const std::string corpse_name = utils::ExtractFirstArgumentLower(argument);
 	if (corpse_name.empty()) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSkinning, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;

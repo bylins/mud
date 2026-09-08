@@ -26,7 +26,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	};
 
 	std::string remains;
-	const std::string obj_name = utils::ExtractOneArgument(argument, remains);
+	const std::string obj_name = utils::ExtractFirstArgumentLower(argument, remains);
 
 	if (obj_name.empty()) {
 		SendMsgToChar("Что вы хотите переделать?\r\n", ch);
@@ -38,7 +38,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 
-	vict = target_resolver::FindCharInRoom(ch, utils::ExtractOneArgument(remains));
+	vict = target_resolver::FindCharInRoom(ch, utils::ExtractFirstArgumentLower(remains));
 	if (!vict) {
 		SendMsgToChar("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;

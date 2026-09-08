@@ -102,7 +102,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	calc_track = CalcCurrentSkill(ch, ESkill::kTrack, nullptr);
 	act("Похоже, $n кого-то выслеживает.", false, ch, nullptr, nullptr, kToRoom);
-	const std::string target_name = utils::ExtractOneArgument(argument);
+	const std::string target_name = utils::ExtractFirstArgumentLower(argument);
 
 	// No argument - show all
 	if (target_name.empty()) {

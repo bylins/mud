@@ -56,7 +56,7 @@ void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses) {
 }
 
 CharData *FindVictim(CharData *ch, const std::string &argument, std::string &target_name) {
-	target_name = utils::ExtractOneArgument(argument);
+	target_name = utils::ExtractFirstArgumentLower(argument);
 	CharData *victim = target_resolver::FindCharInRoom(ch, target_name);
 	if (!victim && target_name.empty() && ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())) {
 		victim = ch->GetEnemy();

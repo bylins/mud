@@ -29,7 +29,7 @@ void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const std::string target_name = utils::ExtractOneArgument(argument);
+	const std::string target_name = utils::ExtractFirstArgumentLower(argument);
 	CharData *vict = target_resolver::FindCharInRoom(ch, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kNoTarget) + "\r\n", ch);

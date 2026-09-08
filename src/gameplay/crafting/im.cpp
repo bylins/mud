@@ -108,13 +108,13 @@ int im_get_recipe_by_name(char *name) {
 			break;
 
 		ok = true;
-		temp = any_one_arg(imrecipes[rid].name, first);
-		temp2 = any_one_arg(name, first2);
+		temp = one_argument(imrecipes[rid].name, first);
+		temp2 = one_argument(name, first2);
 		while (*first && *first2 && ok) {
 			if (!utils::IsAbbr(first2, first))
 				ok = false;
-			temp = any_one_arg(temp, first);
-			temp2 = any_one_arg(temp2, first2);
+			temp = one_argument(temp, first);
+			temp2 = one_argument(temp2, first2);
 		}
 		if (ok && !*first2)
 			break;

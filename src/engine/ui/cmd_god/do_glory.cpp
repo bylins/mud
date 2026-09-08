@@ -62,7 +62,7 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mode = kSubTrans;
 	} else if (utils::IsAbbr(num, "hide")) {
 		// а тут в num hide, в arg1 on|off и в reason причина
-		reason = any_one_arg(reason, arg1);
+		reason = one_argument(reason, arg1);
 		skip_spaces(&reason);
 		mode = kSubHide;
 	}

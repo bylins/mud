@@ -19,7 +19,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const std::string obj_name = utils::ExtractOneArgument(argument);
+	const std::string obj_name = utils::ExtractFirstArgumentLower(argument);
 
 	if (ch->GetEnemy()) {
 		SendMsgToChar("Вы не можете сделать это в бою!\r\n", ch);

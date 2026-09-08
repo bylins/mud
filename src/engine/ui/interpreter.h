@@ -111,7 +111,7 @@ struct SortStruct {
 extern SortStruct *cmd_sort_info;
 extern int num_of_cmds;
 
-// one_argument, any_one_arg, two_arguments, three_arguments, SplitArgument moved to mud_string.h
+// one_argument, two_arguments, three_arguments, SplitArgument moved to mud_string.h
 
 void SortCommands();
 

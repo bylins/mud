@@ -120,7 +120,7 @@ void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd, Trigger *
 	char buf[kMaxInputLength], *msg;
 	CharData *ch;
 
-	msg = any_one_arg(argument, buf);
+	msg = one_argument(argument, buf);
 
 	if (!*buf) {
 		wld_log(room, trig, "wsend called with no args");
@@ -155,7 +155,7 @@ void do_wzoneecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
-	msg = any_one_arg(argument, zone_name);
+	msg = one_argument(argument, zone_name);
 	skip_spaces(&msg);
 
 	if (!*zone_name || !*msg)
@@ -997,7 +997,7 @@ void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig) {
 	if (!*argument)
 		return;
 
-	line = any_one_arg(argument, arg);
+	line = one_argument(argument, arg);
 
 	// find the command
 	int cmd = 0;

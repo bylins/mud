@@ -35,7 +35,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	GoTownportal(ch, utils::ExtractOneArgument(argument));
+	GoTownportal(ch, utils::ExtractFirstArgumentLower(argument));
 }
 
 // "камень"/"stone": runestone management. Bare or "список" -> the memorised-stones list;
@@ -47,9 +47,9 @@ void DoRunestone(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::string remains;
-	const std::string subcommand = utils::ExtractOneArgument(argument, remains);
+	const std::string subcommand = utils::ExtractFirstArgumentLower(argument, remains);
 	if (!str_cmp(subcommand, "забыть")) {
-		auto &stone = MUD::Runestones().FindRunestone(utils::ExtractOneArgument(remains));
+		auto &stone = MUD::Runestones().FindRunestone(utils::ExtractFirstArgumentLower(remains));
 		RemoveRunestone(ch, stone);
 		return;
 	}

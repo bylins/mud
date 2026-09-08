@@ -157,27 +157,22 @@ std::vector<std::string> SplitAny(const std::string s, std::string any);
  *
  * Разделителями считаются пробел, табуляция и переводы строки -- то же, что у a_isspace.
  *
- * ВАЖНО, чем это НЕ является: one_argument вдобавок понижает регистр слова и пропускает
- * служебные слова (in, from, with, the, on, at, to -- см. fill_word). Здесь ни того, ни другого
- * нет: слово возвращается как есть. При переносе кода с one_argument/half_chop понижайте регистр
- * сами через native_text::to_lower, если дальше слово сравнивается с учётом регистра или уходит
- * в данные.
+ * Отличие от one_argument ровно одно: тот вдобавок приводит слово к нижнему регистру. Если
+ * это нужно (слово дальше сравнивается с учётом регистра), берите ExtractFirstArgumentLower --
+ * она и есть полный строковый аналог one_argument.
  */
 std::string ExtractFirstArgument(const std::string &s, std::string &remains);
 
 /**
- * Полный строковый аналог one_argument: первое слово в нижнем регистре, служебные слова
- * (in, from, with, the, on, at, to -- см. fill_word) пропускаются, остаток кладётся в remains.
- *
- * Ровно это и делает one_argument, только без буфера на kMaxStringLength -- поэтому при
- * переносе кода со связки `one_argument(argument, arg)` через глобальный буфер (#3807) берите
- * эту функцию: поведение команды не поменяется. Если пропуск служебных слов и понижение
- * регистра не нужны, ExtractFirstArgument дешевле.
+ * То же, что ExtractFirstArgument, только слово приводится к нижнему регистру -- полный
+ * строковый аналог one_argument, но без буфера на kMaxStringLength. При переносе кода со
+ * связки `one_argument(argument, arg)` через глобальный буфер (#3807) берите её: поведение
+ * команды не поменяется.
  *
  * Перегрузка без remains -- когда нужно только первое слово.
  */
-std::string ExtractOneArgument(const std::string &s, std::string &remains);
-std::string ExtractOneArgument(const std::string &s);
+std::string ExtractFirstArgumentLower(const std::string &s, std::string &remains);
+std::string ExtractFirstArgumentLower(const std::string &s);
 
 // первое слово разделенное маской
 std::string FirstWordOnString(std::string s, std::string mask);

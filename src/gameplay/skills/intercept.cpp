@@ -35,7 +35,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const std::string target_name = utils::ExtractOneArgument(argument);
+	const std::string target_name = utils::ExtractFirstArgumentLower(argument);
 	CharData *vict = target_resolver::FindCharInRoom(ch, target_name);
 	if (!vict) {
 		for (const auto i : world[ch->in_room]->people) {

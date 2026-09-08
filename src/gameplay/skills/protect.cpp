@@ -38,7 +38,7 @@ void go_protect(CharData *ch, CharData *vict) {
 }
 
 void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	const std::string target_name = utils::ExtractOneArgument(argument);
+	const std::string target_name = utils::ExtractFirstArgumentLower(argument);
 	if (target_name.empty()) {
 		if (ch->get_protecting()) {
 			StopProtecting(ch);

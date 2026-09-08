@@ -18,7 +18,7 @@
 #include "gameplay/mechanics/sight.h"
 
 extern DescriptorData *descriptor_list;
-// same as any_one_arg except that it stops at punctuation 
+// same as one_argument except that it stops at punctuation 
 char *any_one_name(char *argument, char *first_arg) {
 	char *arg;
 

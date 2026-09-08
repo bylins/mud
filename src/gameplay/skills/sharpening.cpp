@@ -20,7 +20,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const std::string obj_name = utils::ExtractOneArgument(argument);
+	const std::string obj_name = utils::ExtractFirstArgumentLower(argument);
 
 	// Раньше здесь не было return, и на пустой аргумент игрок получал сразу два сообщения:
 	// "укажите цель" и следом "У вас нет ''" (#3807).

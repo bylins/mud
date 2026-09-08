@@ -36,7 +36,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	RoomRnum to_room, fnd_room;
-	const std::string target_name = utils::ExtractOneArgument(argument);
+	const std::string target_name = utils::ExtractFirstArgumentLower(argument);
 	if (target_name.empty()) {
 		SendMsgToChar("Переместиться на кого?", ch);
 		return;

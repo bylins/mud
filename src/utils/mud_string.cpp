@@ -36,40 +36,18 @@ int reserved_word(const char *argument) {
 
 template<typename T>
 T one_argument_template(T argument, char *first_arg) {
-	char *begin = first_arg;
-
 	if (!argument) {
 		log("SYSERR: one_argument received a NULL pointer!");
 		*first_arg = '\0';
 		return (nullptr);
 	}
-	do {
-		skip_spaces(&argument);
-		first_arg = begin;
-		// Lowercase one whole character at a time (issue #3681). The a_isspace() test stays
-		// byte-based on purpose: it only ever runs at a character boundary, and every
-		// whitespace character is ASCII, so no multibyte lead byte can be mistaken for one.
-		while (*argument && !a_isspace(*argument)) {
-			const size_t n = native_text::copy_lower_char(argument, first_arg);
-			first_arg += n;
-			argument += n;
-		}
-		*first_arg = '\0';
-	} while (fill_word(begin));
-	skip_spaces(&argument);
-	return (argument);
-}
-
-template<typename T>
-T any_one_arg_template(T argument, char *first_arg) {
-	if (!argument) {
-		log("SYSERR: any_one_arg() passed a NULL pointer.");
-		return 0;
-	}
 	skip_spaces(&argument);
 
 	int num = 0;
-	// As above: one character per step, `num` still counts bytes so it remains a buffer guard.
+	// Lowercase one whole character at a time (issue #3681). The a_isspace() test stays
+	// byte-based on purpose: it only ever runs at a character boundary, and every
+	// whitespace character is ASCII, so no multibyte lead byte can be mistaken for one.
+	// `num` counts bytes, so it stays a buffer guard.
 	while (*argument && !a_isspace(*argument) && num < kMaxStringLength - 1) {
 		const size_t n = native_text::copy_lower_char(argument, first_arg);
 		first_arg += n;
@@ -83,8 +61,6 @@ T any_one_arg_template(T argument, char *first_arg) {
 
 char *one_argument(char *argument, char *first_arg) { return one_argument_template(argument, first_arg); }
 const char *one_argument(const char *argument, char *first_arg) { return one_argument_template(argument, first_arg); }
-char *any_one_arg(char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
-const char *any_one_arg(const char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
 
 void SplitArgument(const char *arguments, std::vector<std::string> &out) {
 	char local_buf[kMaxTrglineLength];
@@ -116,7 +92,7 @@ void SplitArgument(const char *arguments, std::vector<int> &out) {
 }
 
 void half_chop(const char *string, char *arg1, char *arg2) {
-	const char *temp = any_one_arg_template(string, arg1);
+	const char *temp = one_argument_template(string, arg1);
 	skip_spaces(&temp);
 	strl_cpy(arg2, temp, kMaxStringLength);
 }

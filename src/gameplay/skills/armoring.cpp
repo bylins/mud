@@ -19,8 +19,8 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::string arg2;
-	const std::string obj_name = utils::ExtractOneArgument(argument, arg2);
-	arg2 = utils::ExtractOneArgument(arg2);
+	const std::string obj_name = utils::ExtractFirstArgumentLower(argument, arg2);
+	arg2 = utils::ExtractFirstArgumentLower(arg2);
 
 	// Раньше здесь не было return, и на пустой аргумент игрок получал сразу два сообщения:
 	// "укажите цель" и следом "У вас нет ''" (#3807).

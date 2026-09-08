@@ -239,7 +239,7 @@ void do_osend(ObjData *obj, char *argument, int/* cmd*/, int subcmd, Trigger *tr
 	char buf[kMaxInputLength], *msg;
 	CharData *ch;
 
-	msg = any_one_arg(argument, buf);
+	msg = one_argument(argument, buf);
 
 	if (!*buf) {
 		obj_log(obj, trig, "osend called with no args");
@@ -1021,7 +1021,7 @@ void do_ozoneecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
-	msg = any_one_arg(argument, zone_name);
+	msg = one_argument(argument, zone_name);
 	skip_spaces(&msg);
 
 	if (!*zone_name || !*msg)
@@ -1104,7 +1104,7 @@ void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig) {
 	if (!*argument)
 		return;
 
-	line = any_one_arg(argument, arg);
+	line = one_argument(argument, arg);
 
 	// find the command
 	int cmd = 0;

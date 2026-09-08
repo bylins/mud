@@ -45,7 +45,7 @@ void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const std::string direction_name = utils::ExtractOneArgument(argument);
+	const std::string direction_name = utils::ExtractFirstArgumentLower(argument);
 	if ((direction = search_block(direction_name, dirs, false)) >= 0 ||
 		(direction = search_block(direction_name, dirs_rus, false)) >= 0) {
 		GoCharge(ch, direction);

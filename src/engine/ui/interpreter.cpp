@@ -1112,9 +1112,9 @@ void command_interpreter(CharData *ch, char *argument) {
 		arg[1] = '\0';
 		line = argument + 1;
 	} else {
-		line = any_one_arg(argument, arg);
+		line = one_argument(argument, arg);
 	}
-// все тримат теперь any_one_arg
+// все тримат теперь one_argument
 //	std::string line2 = line;
 //	utils::Trim(line2);
 //	line = strdup(line2.c_str());
