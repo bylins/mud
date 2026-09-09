@@ -585,6 +585,29 @@ TEST(Utils_String, IsEquivalent_OrderMatters)
 	EXPECT_FALSE(utils::IsEquivalent("wor hel", "hello big world"));
 }
 
+TEST(Utils_String, IsEquivalent_MatchesIsname)
+{
+	// Это строковый аналог isname, которым ищут предметы и персонажей по алиасам. Так что
+	// на том, как игрок набирает цель, обе функции обязаны отвечать одинаково.
+	const char *aliases = "книга возникновении огня огненная";
+	for (const char *query : {"кни.огн", "кни огн", "огн.кни", "книга", "кни.нет", "огненная"}) {
+		EXPECT_EQ(utils::IsEquivalent(query, aliases), isname(query, aliases)) << "запрос: " << query;
+	}
+}
+
+TEST(Utils_String, IsEquivalent_DiffersFromIsnameOnHyphenAndEmpty)
+{
+	// Два известных расхождения с isname -- зафиксированы, чтобы не считались совпадением.
+	const char *aliases = "книга возникновении огня огненная";
+	// дефис: isname режет по любому не-буквенно-цифровому знаку, здесь разделители только
+	// пробел, точка и подчёркивание.
+	EXPECT_TRUE(isname("кни-огн", aliases));
+	EXPECT_FALSE(utils::IsEquivalent("кни-огн", aliases));
+	// пустой запрос: пустому списку аббревиатур соответствует что угодно.
+	EXPECT_FALSE(isname("", aliases));
+	EXPECT_TRUE(utils::IsEquivalent("", aliases));
+}
+
 // ===== ExtractFirstArgument =====
 
 TEST(Utils_String, ExtractFirstArgument_SplitsWordAndRest)
