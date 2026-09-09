@@ -595,19 +595,20 @@ TEST(Utils_String, IsEquivalent_MatchesIsname)
 	}
 }
 
-TEST(Utils_String, IsEquivalent_HyphenIsNotASeparatorHere)
+TEST(Utils_String, IsEquivalent_HyphenStaysInsideTheWord)
 {
-	// Единственное расхождение с isname на реальных данных: дефис. isname режет запрос и имя
-	// по любому не-буквенно-цифровому знаку (дикумадовское наследие), здесь разделителями
-	// служат точка, подчёркивание и пробел. На дефисных именах из мира это видно сразу.
+	// Разделитель у нас точка, дефис -- часть слова, поэтому правильный запрос к дефисному
+	// имени выглядит так, и обе функции находят по нему одинаково.
 	const char *aliases = "фехтовальный металлический веер шань-цзы";
-	EXPECT_TRUE(isname("цзы", aliases));
-	EXPECT_FALSE(utils::IsEquivalent("цзы", aliases)) << "\"цзы\" -- не префикс слова \"шань-цзы\"";
-	EXPECT_TRUE(isname("веер.шань.цзы", aliases));
-	EXPECT_FALSE(utils::IsEquivalent("веер.шань.цзы", aliases));
-	// Целиком с дефисом обе находят одинаково.
-	EXPECT_TRUE(isname("веер.шань-цзы", aliases));
 	EXPECT_TRUE(utils::IsEquivalent("веер.шань-цзы", aliases));
+	EXPECT_TRUE(isname("веер.шань-цзы", aliases));
+	EXPECT_TRUE(utils::IsEquivalent("шань-цзы", aliases));
+	EXPECT_TRUE(isname("шань-цзы", aliases));
+
+	// А вот дробление имени по дефису -- дикумадовская добавка isname, у которого разделитель
+	// любой не-буквенно-цифровой знак. Правилу она не соответствует, и на std::string её нет.
+	EXPECT_TRUE(isname("цзы", aliases));
+	EXPECT_FALSE(utils::IsEquivalent("цзы", aliases));
 }
 
 // ===== ExtractFirstArgument =====
