@@ -595,17 +595,19 @@ TEST(Utils_String, IsEquivalent_MatchesIsname)
 	}
 }
 
-TEST(Utils_String, IsEquivalent_DiffersFromIsnameOnHyphenAndEmpty)
+TEST(Utils_String, IsEquivalent_HyphenIsNotASeparatorHere)
 {
-	// Два известных расхождения с isname -- зафиксированы, чтобы не считались совпадением.
-	const char *aliases = "книга возникновении огня огненная";
-	// дефис: isname режет по любому не-буквенно-цифровому знаку, здесь разделители только
-	// пробел, точка и подчёркивание.
-	EXPECT_TRUE(isname("кни-огн", aliases));
-	EXPECT_FALSE(utils::IsEquivalent("кни-огн", aliases));
-	// пустой запрос: пустому списку аббревиатур соответствует что угодно.
-	EXPECT_FALSE(isname("", aliases));
-	EXPECT_TRUE(utils::IsEquivalent("", aliases));
+	// Единственное расхождение с isname на реальных данных: дефис. isname режет запрос и имя
+	// по любому не-буквенно-цифровому знаку (дикумадовское наследие), здесь разделителями
+	// служат точка, подчёркивание и пробел. На дефисных именах из мира это видно сразу.
+	const char *aliases = "фехтовальный металлический веер шань-цзы";
+	EXPECT_TRUE(isname("цзы", aliases));
+	EXPECT_FALSE(utils::IsEquivalent("цзы", aliases)) << "\"цзы\" -- не префикс слова \"шань-цзы\"";
+	EXPECT_TRUE(isname("веер.шань.цзы", aliases));
+	EXPECT_FALSE(utils::IsEquivalent("веер.шань.цзы", aliases));
+	// Целиком с дефисом обе находят одинаково.
+	EXPECT_TRUE(isname("веер.шань-цзы", aliases));
+	EXPECT_TRUE(utils::IsEquivalent("веер.шань-цзы", aliases));
 }
 
 // ===== ExtractFirstArgument =====
