@@ -18,6 +18,8 @@
 #include "gameplay/ai/mobact.h"
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/minions.h"
+#include "utils/utils_string.h"
 
 void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;
@@ -43,9 +45,9 @@ void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if ((direction = search_block(arg, dirs, false)) >= 0 ||
-		(direction = search_block(arg, dirs_rus, false)) >= 0) {
+	const std::string direction_name = utils::ExtractFirstArgumentLower(argument);
+	if ((direction = search_block(direction_name, dirs, false)) >= 0 ||
+		(direction = search_block(direction_name, dirs_rus, false)) >= 0) {
 		GoCharge(ch, direction);
 	} else {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kNoTarget) + "\r\n", ch);
@@ -100,7 +102,14 @@ void GoCharge(CharData *ch, int direction) {
 	for (const auto target: roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;
-		if (target->IsFlagged(EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !sight::CanSee(ch,target)) {
+		// Натиск бьёт по площади: имени жертвы игрок не вводит, поэтому проверка чармисов
+		// "введите имя жертвы полностью" тут неприменима -- в неё уходил глобальный arg, то есть
+		// направление натиска, и чармис игрока просто всегда выпадал из целей (#3807). Оставляем
+		// это в силе, но прямо: без ложного сообщения игроку.
+		const bool is_player_charmice = IsCharmice(target)
+			&& target->has_master() && !target->get_master()->IsNpc();
+		if (target->IsFlagged(EMobFlag::kProtect) || is_player_charmice || target == ch
+			|| !sight::CanSee(ch, target)) {
 			--victims_amount;
 		} else {
 			if (IsAffectedWithCasterId(ch, target, EAffect::kNoCharge)) {

@@ -4,21 +4,16 @@
 #include <string>
 #include <vector>
 
-/// Проверить является ли слово служебным (in, from, with, the, on, at, to).
-int fill_word(const char *argument);
-
-/// Проверить является ли слово зарезервированным (a, an, self, me, all, room, ...).
-int reserved_word(const char *argument);
-
-/// Извлечь первый аргумент из строки, пропуская служебные слова.
-/// Приводит к нижнему регистру.
+/// Извлечь первый аргумент из строки, приведя его к нижнему регистру.
+/// Вернуть остаток строки, уже без ведущих пробелов.
+///
+/// Служебные слова (in from with the on at to) НЕ пропускаются: раньше их глотал разбор, и
+/// аргумент-ключ вроде "hide on" молча исчезал. Английского синтаксиса с предлогами
+/// ("put sword in bag") в русском мире нет -- имён предметов латиницей не бывает, а русские
+/// предлоги в том списке и не значились (#3814). Прежний any_one_arg делал ровно это же и
+/// потому слит сюда.
 char *one_argument(char *argument, char *first_arg);
 const char *one_argument(const char *argument, char *first_arg);
-
-/// Извлечь первый аргумент из строки БЕЗ пропуска служебных слов.
-/// Приводит к нижнему регистру.
-char *any_one_arg(char *argument, char *first_arg);
-const char *any_one_arg(const char *argument, char *first_arg);
 
 /// Разбор строки на два аргумента через one_argument.
 template<typename T>
@@ -33,9 +28,9 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 }
 
 /// Разделить строку на первое слово (arg1) и остаток (arg2).
-/// ВНИМАНИЕ: остаток копируется с оглядкой на kMaxStringLength, а one_argument внутри вообще не
-/// проверяет длину -- буфер меньшего размера передавать нельзя. В новом коде берите
-/// utils::ExtractFirstArgument: тот же разбор на std::string, без фиксированных буферов (#3807).
+/// ВНИМАНИЕ: обе половины копируются с оглядкой на kMaxStringLength -- буфер меньшего размера
+/// передавать нельзя. В новом коде берите utils::ExtractFirstArgumentLower: тот же разбор на
+/// std::string, без фиксированных буферов (#3807).
 void half_chop(const char *string, char *arg1, char *arg2);
 
 /// Разбить строку на отдельные аргументы.

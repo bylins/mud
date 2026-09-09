@@ -17,7 +17,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	repl = any_one_arg(argument, arg);
+	repl = one_argument(argument, arg);
 
 	if (!*arg) {
 		SendMsgToChar("Определены следующие алиасы:\r\n", ch);

@@ -4724,7 +4724,7 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 	}
 
-	arg = any_one_arg(cmd, buf);
+	arg = one_argument(cmd, buf);
 	skip_spaces(&arg);
 
 	if (!*arg) {
@@ -5507,7 +5507,7 @@ void ClearContextVar(Trigger *trig,char *cmd) {
 	char arg[kMaxInputLength], *var;
 	int id;
 
-	var = any_one_arg(cmd, arg);
+	var = one_argument(cmd, arg);
 
 	if (!*var) {
 		snprintf(buf2, sizeof(buf2), "clearcontext w/o an arg, команда: '%s'", cmd);
@@ -5531,7 +5531,7 @@ void ClearContextVar(Trigger *trig,char *cmd) {
 void process_unset(Script *sc, Trigger *trig, char *cmd) {
 	char arg[kMaxInputLength], *var;
 
-	var = any_one_arg(cmd, arg);
+	var = one_argument(cmd, arg);
 
 	skip_spaces(&var);
 
@@ -5559,7 +5559,7 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 	CharData *mob;
 	ObjData *obj;
 
-	line = any_one_arg(cmd, arg);
+	line = one_argument(cmd, arg);
 	two_arguments(line, buf, buf2);
 	var = buf;
 	uid_p = buf2;
@@ -5698,7 +5698,7 @@ void process_rdelete(Script * /*sc*/, Trigger *trig, char *cmd) {
 	CharData *mob;
 	ObjData *obj;
 
-	line = any_one_arg(cmd, arg);
+	line = one_argument(cmd, arg);
 	two_arguments(line, buf, buf2);
 	var = buf;
 	uid_p = buf2;
@@ -5747,7 +5747,7 @@ void process_rdelete(Script * /*sc*/, Trigger *trig, char *cmd) {
 void process_global(Script *sc, Trigger *trig, char *cmd, long id) {
 	char arg[kMaxInputLength], *var;
 
-	var = any_one_arg(cmd, arg);
+	var = one_argument(cmd, arg);
 
 	skip_spaces(&var);
 
@@ -5773,7 +5773,7 @@ void process_global(Script *sc, Trigger *trig, char *cmd, long id) {
 void process_worlds(Script * /*sc*/, Trigger *trig, char *cmd, long id) {
 	char arg[kMaxInputLength], *var;
 
-	var = any_one_arg(cmd, arg);
+	var = one_argument(cmd, arg);
 
 	skip_spaces(&var);
 
@@ -5799,7 +5799,7 @@ void process_worlds(Script * /*sc*/, Trigger *trig, char *cmd, long id) {
 void process_context(Script * /*sc*/, Trigger *trig, char *cmd) {
 	char arg[kMaxInputLength], *var;
 
-	var = any_one_arg(cmd, arg);
+	var = one_argument(cmd, arg);
 
 	skip_spaces(&var);
 
@@ -5817,7 +5817,7 @@ void extract_value(Script * /*sc*/, Trigger *trig, char *cmd) {
 	char to[128];
 	int num;
 
-	buf3 = any_one_arg(cmd, buf);
+	buf3 = one_argument(cmd, buf);
 	half_chop(buf3, buf2, buf);
 	snprintf(to, sizeof(to), "%s", buf2);
 

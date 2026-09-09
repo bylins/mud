@@ -13,6 +13,8 @@
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/core/remort.h"
 
+#include <fmt/format.h>
+
 // ******************  KICK PROCEDURES
 void go_kick(CharData *ch, CharData *vict) {
 	const char *to_char = nullptr, *to_vict = nullptr, *to_room = nullptr;
@@ -133,16 +135,13 @@ void go_kick(CharData *ch, CharData *vict) {
 
 			if (to_char) {
 				if (!ch->IsNpc()) {
-					sprintf(buf, "&G&q%s&Q&n", to_char);
-					act(buf, false, ch, nullptr, vict, kToChar);
-					sprintf(buf, "%s", to_room);
-					act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+					act(fmt::format("&G&q{}&Q&n", to_char), false, ch, nullptr, vict, kToChar);
+					act(to_room, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 				}
 			}
 			if (to_vict) {
 				if (!vict->IsNpc()) {
-					sprintf(buf, "&R&q%s&Q&n", to_vict);
-					act(buf, false, ch, nullptr, vict, kToVict);
+					act(fmt::format("&R&q{}&Q&n", to_vict), false, ch, nullptr, vict, kToVict);
 				}
 			}
 			ImposeAffect(vict, af, true, false, true, false);
@@ -162,14 +161,11 @@ void go_kick(CharData *ch, CharData *vict) {
 					to_vict = "Мощный удар $n1 свалил вас с ног.";
 					to_room = "Мощный пинок $n1 усадил $N1 на землю!";
 					if (!ch->IsNpc()) {
-						sprintf(buf, "&G&q%s&Q&n", to_char);
-						act(buf, false, ch, nullptr, vict, kToChar);
-						sprintf(buf, "%s", to_room);
-						act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+						act(fmt::format("&G&q{}&Q&n", to_char), false, ch, nullptr, vict, kToChar);
+						act(to_room, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 					}
 					if (!vict->IsNpc()) {
-						sprintf(buf, "&R&q%s&Q&n", to_vict);
-						act(buf, false, ch, nullptr, vict, kToVict);
+						act(fmt::format("&R&q{}&Q&n", to_vict), false, ch, nullptr, vict, kToVict);
 					}
 				}
 			}
@@ -189,7 +185,8 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -197,7 +194,7 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!may_kill_here(ch, vict, argument))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 
 	do_kick(ch, vict);

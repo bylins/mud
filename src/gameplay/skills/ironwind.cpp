@@ -31,15 +31,17 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, nullptr, victim, kToChar);
 	ObjData *weapon;
+	const char *to_room;
+	const char *to_vict;
 	if ((weapon = GET_EQ(ch, EEquipPos::kWield)) || (weapon = GET_EQ(ch, EEquipPos::kBoths))) {
-		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
-		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешено размахивая $o4!");
+		to_room = "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!";
+		to_vict = "$N взревел$G и ринул$U на вас, бешено размахивая $o4!";
 	} else {
-		strcpy(buf, "$n бешено взревел$g и ринул$u на $N3!");
-		strcpy(buf2, "$N бешено взревел$G и ринул$U на вас!");
+		to_room = "$n бешено взревел$g и ринул$u на $N3!";
+		to_vict = "$N бешено взревел$G и ринул$U на вас!";
 	};
-	act(buf, false, ch, weapon, victim, kToNotVict | kToArenaListen);
-	act(buf2, false, victim, weapon, ch, kToChar);
+	act(to_room, false, ch, weapon, victim, kToNotVict | kToArenaListen);
+	act(to_vict, false, victim, weapon, ch, kToChar);
 
 	if (!ch->GetEnemy()) {
 		ch->SetFlag(EPrf::kIronWind);
@@ -73,7 +75,8 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -87,7 +90,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
-	if (!check_pkill(ch, vict, arg)) {
+	if (!check_pkill(ch, vict, target_name)) {
 		return;
 	}
 

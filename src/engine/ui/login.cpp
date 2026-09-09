@@ -1141,7 +1141,7 @@ static void HandleGetName(DescriptorData *d, char *argument) {
 			if (parse_exist_name(argument, tmp_name) ||
 				static_cast<int>(native_text::char_count(tmp_name)) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
 				static_cast<int>(native_text::char_count(tmp_name)) > kMaxNameLength ||
-				!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
+				!IsValidName(tmp_name)) {
 				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
 			} else if (!IsNameOffline(tmp_name)) {
@@ -1252,7 +1252,7 @@ static void HandleNewChar(DescriptorData *d, char *argument) {
 	if (_parse_name(argument, tmp_name) ||
 		static_cast<int>(native_text::char_count(tmp_name)) < kMinNameLength ||
 		static_cast<int>(native_text::char_count(tmp_name)) > kMaxNameLength ||
-		!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
+		!IsValidName(tmp_name)) {
 		iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 		return;
 	}

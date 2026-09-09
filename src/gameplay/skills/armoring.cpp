@@ -4,10 +4,12 @@
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/utils_char_obj.inl"
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
 
 void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
-	char arg2[kMaxInputLength];
 	int add_ac, prob, percent, i, armorvalue;
 	const auto &strengthening = GlobalObjects::strengthening();
 
@@ -16,14 +18,19 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	two_arguments(argument, arg, arg2);
+	std::string arg2;
+	const std::string obj_name = utils::ExtractFirstArgumentLower(argument, arg2);
+	arg2 = utils::ExtractFirstArgumentLower(arg2);
 
-	if (!*arg)
+	// Раньше здесь не было return, и на пустой аргумент игрок получал сразу два сообщения:
+	// "укажите цель" и следом "У вас нет ''" (#3807).
+	if (obj_name.empty()) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kArmoring, ESkillMsg::kNoTarget) + "\r\n", ch);
+		return;
+	}
 
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+	if (!(obj = get_obj_in_list_vis(ch, obj_name, ch->carrying))) {
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", obj_name), ch);
 		return;
 	}
 
@@ -57,7 +64,7 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(ch, "Укрепить можно только лично сделанный предмет.\r\n");
 		return;
 	}
-	if (!*arg2 && (GetSkill(ch, ESkill::kArmoring) >= 100)) {
+	if (arg2.empty() && (GetSkill(ch, ESkill::kArmoring) >= 100)) {
 		SendMsgToChar(ch,
 					  "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление),"
 					  " стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
@@ -85,8 +92,9 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			break;
 
-		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, grammar::ECase::kNom));
-			SendMsgToChar(buf, ch);
+		default:
+			SendMsgToChar(fmt::format("К сожалению, {} сделан из неподходящего материала.\r\n",
+									  OBJN(obj, ch, grammar::ECase::kNom)), ch);
 			return;
 	}
 

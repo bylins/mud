@@ -21,6 +21,8 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/mechanics/equipment.h"
 
+#include <fmt/format.h>
+
 void ImposeHaemorrhage(CharData *ch, int percent);
 void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data);
 
@@ -599,51 +601,49 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 			break;
 	}
 	if (to_char) {
-		sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
-		act(buf, false, ch, nullptr, victim, kToChar);
-		sprintf(buf, "Точное попадание $n1 %s.", to_char);
-		act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+		act(fmt::format("&G&qВаше точное попадание {}.&Q&n", to_char), false, ch, nullptr, victim, kToChar);
+		act(fmt::format("Точное попадание $n1 {}.", to_char),
+			true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	}
 
 	if (to_vict) {
-		sprintf(buf, "&R&qМеткое попадание $n1 %s.&Q&n", to_vict);
-		act(buf, false, ch, nullptr, victim, kToVict);
+		act(fmt::format("&R&qМеткое попадание $n1 {}.&Q&n", to_vict), false, ch, nullptr, victim, kToVict);
 	}
 	if (unequip_pos && GET_EQ(victim, unequip_pos)) {
 		obj = UnequipChar(victim, unequip_pos, CharEquipFlags());
+		// Четыре ветки различались только глаголом и хвостом фразы, всё остальное совпадало.
+		const char *unequip_to_vict = nullptr;
+		const char *unequip_to_room = nullptr;
 		switch (unequip_pos) {
 			case 6:        //WEAR_HEAD
-				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s слетел%s с головы $N1.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToChar);
-				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+				unequip_to_vict = "{} слетел{} с вашей головы.";
+				unequip_to_room = "{} слетел{} с головы $N1.";
 				break;
 
 			case 11:    //WEAR_SHIELD
-				sprintf(buf, "%s слетел%s с вашей руки.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s слетел%s с руки $N1.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToChar);
-				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+				unequip_to_vict = "{} слетел{} с вашей руки.";
+				unequip_to_room = "{} слетел{} с руки $N1.";
 				break;
 
 			case 16:    //WEAR_WIELD
 			case 17:    //WEAR_HOLD
-				sprintf(buf, "%s выпал%s из вашей руки.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s выпал%s из руки $N1.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToChar);
-				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+				unequip_to_vict = "{} выпал{} из вашей руки.";
+				unequip_to_room = "{} выпал{} из руки $N1.";
 				break;
 
 			case 18:    //WEAR_BOTHS
-				sprintf(buf, "%s выпал%s из ваших рук.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s выпал%s из рук $N1.", obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
-				act(buf, false, ch, nullptr, victim, kToChar);
-				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+				unequip_to_vict = "{} выпал{} из ваших рук.";
+				unequip_to_room = "{} выпал{} из рук $N1.";
 				break;
+		}
+		if (unequip_to_vict) {
+			const std::string name = obj->get_PName(grammar::ECase::kNom);
+			const char *ending = grammar::ObjSexEnding(obj->get_sex(), 1);
+			act(fmt::format(fmt::runtime(unequip_to_vict), name, ending),
+				false, ch, nullptr, victim, kToVict);
+			const std::string to_room = fmt::format(fmt::runtime(unequip_to_room), name, ending);
+			act(to_room, false, ch, nullptr, victim, kToChar);
+			act(to_room, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 		}
 		if (!victim->IsNpc() && ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 			PlaceObjToInventory(obj, victim);

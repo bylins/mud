@@ -1274,7 +1274,7 @@ void show_string(DescriptorData *d, char *input) {
 	char buffer[kMaxStringLength];
 	int diff;
 
-	any_one_arg(input, buf);
+	one_argument(input, buf);
 
 	//* Q is for quit. :)
 	if (native_text::first_char_code_lower(buf) == 'q'
