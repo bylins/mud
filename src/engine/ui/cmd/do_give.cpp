@@ -208,7 +208,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!(vict = give_find_vict(ch, utils::ExtractFirstArgumentLower(remains)))) {
 		return;
 	}
-	auto dotmode = find_all_dots(what);
+	auto dotmode = ParseAllPrefix(what);
 	if (dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, what, ch->carrying))) {
 			SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", what), ch);

@@ -313,7 +313,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Что вы собрались надеть?\r\n", ch);
 		return;
 	}
-	dotmode = find_all_dots(arg1);
+	dotmode = ParseAllPrefix(arg1);
 
 	if (*arg2 && (dotmode != kFindIndiv)) {
 		SendMsgToChar("И на какую часть тела вы желаете это надеть?!\r\n", ch);

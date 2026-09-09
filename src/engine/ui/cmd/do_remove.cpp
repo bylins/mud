@@ -51,7 +51,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Снять что?\r\n", ch);
 		return;
 	}
-	dotmode = find_all_dots(arg);
+	dotmode = ParseAllPrefix(arg);
 
 	if (dotmode == kFindAll) {
 		found = 0;

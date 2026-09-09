@@ -177,7 +177,7 @@ void DoDrop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	const auto dotmode = find_all_dots(what);
+	const auto dotmode = ParseAllPrefix(what);
 	// Can't junk or donate all
 	if (dotmode == kFindAll) {
 		if (!ch->carrying) {

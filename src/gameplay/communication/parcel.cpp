@@ -321,7 +321,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 			}
 		}
 	} else {
-		int dotmode = find_all_dots(tmp_arg);
+		int dotmode = ParseAllPrefix(tmp_arg);
 		if (dotmode == kFindIndiv) {
 			if (!(obj = get_obj_in_list_vis(ch, tmp_arg, ch->carrying))) {
 				SendMsgToChar(ch, "У вас нет '%s'.\r\n", tmp_arg);

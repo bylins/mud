@@ -170,9 +170,9 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		obj_dotmode = kFindIndiv;
 	} else
-		obj_dotmode = find_all_dots(theobj);
+		obj_dotmode = ParseAllPrefix(theobj);
 
-	cont_dotmode = find_all_dots(thecont);
+	cont_dotmode = ParseAllPrefix(thecont);
 
 	if (!*theobj)
 		SendMsgToChar("Положить что и куда?\r\n", ch);

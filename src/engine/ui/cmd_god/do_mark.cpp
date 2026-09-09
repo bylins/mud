@@ -18,7 +18,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!*arg2 || !is_number(arg2)) {
 		SendMsgToChar("Не указан или неверный маркер.\r\n", ch);
 	} else {
-		cont_dotmode = find_all_dots(arg1);
+		cont_dotmode = ParseAllPrefix(arg1);
 		if (cont_dotmode == kFindIndiv) {
 			generic_find(arg1, EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, ch, &tmp_char, &cont);
 			if (!cont) {

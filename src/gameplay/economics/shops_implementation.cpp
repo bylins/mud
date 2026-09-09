@@ -600,7 +600,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 		}
 	} else {
 		skip_spaces(&argument);
-		int i, dotmode = find_all_dots(argument);
+		int i, dotmode = ParseAllPrefix(argument);
 		std::string buffer2(argument);
 		switch (dotmode) {
 			case kFindIndiv: {

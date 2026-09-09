@@ -172,7 +172,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 	ObjData *obj, *next_obj;
 	int obj_dotmode, found = 0;
 
-	obj_dotmode = find_all_dots(local_arg);
+	obj_dotmode = ParseAllPrefix(local_arg);
 	if (IS_SET(GET_OBJ_VAL((cont), 1), (EContainerFlag::kShutted)))
 		act("$o закрыт$A.", false, ch, cont, nullptr, kToChar);
 	else if (obj_dotmode == kFindIndiv) {
@@ -258,7 +258,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 		return;
 	}
 
-	dotmode = find_all_dots(local_arg);
+	dotmode = ParseAllPrefix(local_arg);
 
 	if (dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, local_arg, world[ch->in_room]->contents))) {
@@ -344,7 +344,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else if (isname(theplace, "экипировка equipment"))
 			where_bits = EFind::kObjEquip;
 
-		cont_dotmode = find_all_dots(thecont);
+		cont_dotmode = ParseAllPrefix(thecont);
 		if (cont_dotmode == kFindIndiv) {
 			mode = generic_find(thecont, where_bits, ch, &tmp_char, &cont);
 			if (!cont) {
