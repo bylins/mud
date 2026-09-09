@@ -867,6 +867,19 @@ int generic_find(const char *arg, Bitvector bitvector, CharData *ch, CharData **
 	return (0);
 }
 
+int find_all_dots(std::string &arg) {
+	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
+		return kFindAll;
+	}
+	for (const char *prefix : {"all.", "все."}) {
+		if (utils::IsAbbr(prefix, arg.c_str())) {
+			arg.erase(0, strlen(prefix));
+			return kFindAlldot;
+		}
+	}
+	return kFindIndiv;
+}
+
 int find_all_dots(char *arg) {
 	char tmpname[kMaxInputLength];
 

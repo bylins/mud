@@ -270,6 +270,8 @@ inline int generic_find(const std::string &arg, Bitvector bitvector, CharData *c
 	return generic_find(arg.c_str(), bitvector, ch, tar_ch, tar_obj);
 }
 int find_all_dots(char *arg);
+// Строковая форма: префикс "все."/"all." срезается у самой строки, буфер не нужен (#3807).
+int find_all_dots(std::string &arg);
 RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 
 }; // namespace target_resolver
