@@ -585,6 +585,32 @@ TEST(Utils_String, IsEquivalent_OrderMatters)
 	EXPECT_FALSE(utils::IsEquivalent("wor hel", "hello big world"));
 }
 
+TEST(Utils_String, IsEquivalent_MatchesIsname)
+{
+	// Это строковый аналог isname, которым ищут предметы и персонажей по алиасам. Так что
+	// на том, как игрок набирает цель, обе функции обязаны отвечать одинаково.
+	const char *aliases = "книга возникновении огня огненная";
+	for (const char *query : {"кни.огн", "кни огн", "огн.кни", "книга", "кни.нет", "огненная"}) {
+		EXPECT_EQ(utils::IsEquivalent(query, aliases), isname(query, aliases)) << "запрос: " << query;
+	}
+}
+
+TEST(Utils_String, IsEquivalent_HyphenStaysInsideTheWord)
+{
+	// Разделитель у нас точка, дефис -- часть слова, поэтому правильный запрос к дефисному
+	// имени выглядит так, и обе функции находят по нему одинаково.
+	const char *aliases = "фехтовальный металлический веер шань-цзы";
+	EXPECT_TRUE(utils::IsEquivalent("веер.шань-цзы", aliases));
+	EXPECT_TRUE(isname("веер.шань-цзы", aliases));
+	EXPECT_TRUE(utils::IsEquivalent("шань-цзы", aliases));
+	EXPECT_TRUE(isname("шань-цзы", aliases));
+
+	// А вот дробление имени по дефису -- дикумадовская добавка isname, у которого разделитель
+	// любой не-буквенно-цифровой знак. Правилу она не соответствует, и на std::string её нет.
+	EXPECT_TRUE(isname("цзы", aliases));
+	EXPECT_FALSE(utils::IsEquivalent("цзы", aliases));
+}
+
 // ===== ExtractFirstArgument =====
 
 TEST(Utils_String, ExtractFirstArgument_SplitsWordAndRest)
