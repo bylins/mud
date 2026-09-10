@@ -456,6 +456,11 @@ void disp_planes_values(DescriptorData *d, const char *names[], short num_column
  * saved to a file.  Use it only on buffers, not on the original
  * strings.
  */
+std::string strip_string(std::string text) {
+	std::erase(text, '\r');
+	return text;
+}
+
 void strip_string(char *buffer) {
 	char *ptr, *str;
 

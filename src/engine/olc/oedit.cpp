@@ -300,8 +300,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	}
 	// Локальные буферы: запись legacy-файла шла через глобальные buf/buf1/buf2 (#3814).
 	const std::string tmp_path = fmt::format("{}/{}.new", OBJ_PREFIX, zone_table[zone_num].vnum);
-	char action_desc[kMaxStringLength];
-	char flags[kMaxStringLength];
+	char flags[kMaxStringLength];   // приёмник tascii, ему нужен char *
 	if (!(fp = fopen(tmp_path.c_str(), "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
@@ -310,12 +309,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	for (counter = zone_table[zone_num].vnum * 100; counter <= zone_table[zone_num].top; counter++) {
 		if ((realcounter = GetObjRnum(counter)) >= 0) {
 			const auto &obj = obj_proto[realcounter];
-			if (!obj->get_action_description().empty()) {
-				snprintf(action_desc, sizeof(action_desc), "%s", obj->get_action_description().c_str());
-				strip_string(action_desc);
-			} else {
-				*action_desc = '\0';
-			}
+			const std::string action_desc = strip_string(obj->get_action_description());
 			*flags = '\0';
 			obj->get_affect_flags().tascii(kFlagPlanes, flags, sizeof(flags));
 			obj->get_anti_flags().tascii(kFlagPlanes, flags, sizeof(flags));
@@ -351,7 +345,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 					!obj->get_PName(grammar::ECase::kIns).empty() ? obj->get_PName(grammar::ECase::kIns).c_str() : "чем-то",
 					!obj->get_PName(grammar::ECase::kPre).empty() ? obj->get_PName(grammar::ECase::kPre).c_str() : "о чем-то",
 					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
-					action_desc,
+					action_desc.c_str(),
 					obj->get_spec_param(), obj->get_maximum_durability(), obj->get_current_durability(),
 					obj->get_material(), to_underlying(GET_OBJ_SEX(obj)),
 					obj->get_timer(), to_underlying(obj->get_spell()),
@@ -379,9 +373,8 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 						   BRF, kLvlBuilder, SYSLOG, true);
 					continue;
 				}
-				snprintf(action_desc, sizeof(action_desc), "%s", ex_desc.description.c_str());
-				strip_string(action_desc);
-				fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc.keyword.c_str(), action_desc);
+				fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc.keyword.c_str(),
+						strip_string(ex_desc.description).c_str());
 			}
 			// * Do we have affects?
 			for (counter2 = 0; counter2 < kMaxObjAffect; counter2++) {
