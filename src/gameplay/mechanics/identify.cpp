@@ -38,21 +38,21 @@ int CalcHitroll(CharData *ch);
 /* It's not used yet, so I commented it out.
 static void ShowWeapon(CharData *ch, ObjData *obj) {
 	if (obj->get_type() == EObjType::kWeapon) {
-		*buf = '\0';
+		std::string line;
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
-			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
+			line = fmt::format("Можно взять {} в правую руку.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kHold)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
+			line += fmt::format("Можно взять {} в левую руку.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
+			line += fmt::format("Можно взять {} в обе руки.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
 		}
 
-		if (*buf) {
-			SendMsgToChar(buf, ch);
+		if (!line.empty()) {
+			SendMsgToChar(line, ch);
 		}
 	}
 }
@@ -74,6 +74,7 @@ static void PrintBookUpgradeSkill(CharData *ch, const ObjData *obj) {
 }
 
 static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
+	std::string line;
 	int i, j, drndice = 0, drsdice = 0;
 	long int li;
 	(void) i; (void) j; (void) li;  // some branches do not touch all of them
@@ -93,20 +94,17 @@ switch (obj->get_type()) {
 		break;
 	}
 	case EObjType::kWand:
-	case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
-		sprintf(buf + strlen(buf), " %s\r\n",
-				MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num))).GetCName());
-		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
-				obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges),
-				obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges));
-		SendMsgToChar(buf, ch);
+	case EObjType::kStaff: line = fmt::format("Вызывает заклинания: ");
+		line += fmt::format(" {}\r\n", MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(ObjVal::EValueKey::kSpell1Num))).GetCName());
+		line += fmt::format("Зарядов {} (осталось {}).\r\n", obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges), obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges));
+		SendMsgToChar(line, ch);
 		break;
 
 	case EObjType::kWeapon: drndice = GET_OBJ_VAL(obj, 1);
 		drsdice = GET_OBJ_VAL(obj, 2);
-		sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
-		sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
-		SendMsgToChar(buf, ch);
+		line = fmt::format("Наносимые повреждения '{}D{}'", drndice, drsdice);
+		line += fmt::format(" среднее {:.1f}.\r\n", ((drsdice + 1) * drndice / 2.0));
+		SendMsgToChar(line, ch);
 		break;
 
 	case EObjType::kArmor:
@@ -114,10 +112,8 @@ switch (obj->get_type()) {
 	case EObjType::kMediumArmor:
 	case EObjType::kHeavyArmor: drndice = GET_OBJ_VAL(obj, 0);
 		drsdice = GET_OBJ_VAL(obj, 1);
-		sprintf(buf, "защита (AC) : %d\r\n", drndice);
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "броня       : %d\r\n", drsdice);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("защита (AC) : {}\r\n", drndice), ch);
+		SendMsgToChar(fmt::format("броня       : {}\r\n", drsdice), ch);
 		break;
 
 	case EObjType::kBook:
@@ -131,10 +127,8 @@ switch (obj->get_type()) {
 					} else {
 						drsdice = kLvlImplementator;
 					}
-					sprintf(buf, "содержит заклинание        : \"%s\"\r\n", MUD::Spell(spell_id).GetCName());
-					SendMsgToChar(buf, ch);
-					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("содержит заклинание        : \"{}\"\r\n", MUD::Spell(spell_id).GetCName()), ch);
+					SendMsgToChar(fmt::format("уровень изучения (для вас) : {}\r\n", drsdice), ch);
 				}
 				break;
 			}
@@ -147,10 +141,8 @@ switch (obj->get_type()) {
 					} else {
 						drsdice = kLvlImplementator;
 					}
-					sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skill(skill_id).GetName());
-					SendMsgToChar(buf, ch);
-					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("содержит секрет умения     : \"{}\"\r\n", MUD::Skill(skill_id).GetName()), ch);
+					SendMsgToChar(fmt::format("уровень изучения (для вас) : {}\r\n", drsdice), ch);
 				}
 				break;
 			}
@@ -162,15 +154,12 @@ switch (obj->get_type()) {
 					// issue.class-recipes: требования к рецепту берём у класса игрока.
 					{
 						const auto *req = MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[drndice].str_id);
-						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-						SendMsgToChar(buf, ch);
+						SendMsgToChar(fmt::format("содержит рецепт отвара     : \"{}\"\r\n", imrecipes[drndice].name), ch);
 						if (!req) {
-							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", kLvlImplementator);
-							SendMsgToChar(buf, ch);
+							SendMsgToChar(fmt::format("уровень изучения (количество ремортов) : {} (--)\r\n", kLvlImplementator), ch);
 						} else {
 							drsdice = std::max(GET_OBJ_VAL(obj, 2), req->level);
-							sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, req->remort);
-							SendMsgToChar(buf, ch);
+							SendMsgToChar(fmt::format("уровень изучения (количество ремортов) : {} ({})\r\n", drsdice, req->remort), ch);
 						}
 					}
 				}
@@ -184,10 +173,8 @@ switch (obj->get_type()) {
 					} else {
 						drsdice = kLvlImplementator;
 					}
-					sprintf(buf, "содержит секрет способности : \"%s\"\r\n", MUD::Feat(feat_id).GetCName());
-					SendMsgToChar(buf, ch);
-					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("содержит секрет способности : \"{}\"\r\n", MUD::Feat(feat_id).GetCName()), ch);
+					SendMsgToChar(fmt::format("уровень изучения (для вас) : {}\r\n", drsdice), ch);
 				}
 			}
 				break;
@@ -199,35 +186,30 @@ switch (obj->get_type()) {
 		}
 		break;
 
-	case EObjType::kMagicIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
-		snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
-		SendMsgToChar(buf, ch);
+	case EObjType::kMagicIngredient:
+		SendMsgToChar(sprintbit(obj->get_spec_param(), ingradient_bits) + "\r\n", ch);
 
 		if (IS_SET(obj->get_spec_param(), kItemCheckUses)) {
-			sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("можно применить {} раз\r\n", GET_OBJ_VAL(obj, 2)), ch);
 		}
 
 		if (IS_SET(obj->get_spec_param(), kItemCheckLag)) {
-			sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
-			if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(nullptr))
-				strcat(buf, "(можно применять).\r\n");
-			else {
+			line = fmt::format("можно применить 1 раз в {} сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
+			if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(nullptr)) {
+				line += "(можно применять).\r\n";
+			} else {
 				li = GET_OBJ_VAL(obj, 3) + i - time(nullptr);
-				sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
+				line += fmt::format("(осталось {} сек).\r\n", li);
 			}
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(line, ch);
 		}
 
 		if (IS_SET(obj->get_spec_param(), kItemCheckLevel)) {
-			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("можно применить с {} уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F), ch);
 		}
 
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
-			sprintf(buf, "прототип %s%s%s.\r\n",
-					kColorBoldCyn, obj_proto[i]->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("прототип {}{}{}.\r\n", kColorBoldCyn, obj_proto[i]->get_PName(grammar::ECase::kNom), kColorNrm), ch);
 		}
 		break;
 
@@ -235,38 +217,34 @@ switch (obj->get_type()) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 			j++;
 		}
-		sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", kColorCyn, imtypes[j].name, kColorNrm);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Это ингредиент вида '{}{}{}'\r\n", kColorCyn, imtypes[j].name, kColorNrm), ch);
 		i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
 		if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
 			SendMsgToChar("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
 		} else {
-			sprintf(buf, "Качество ингредиента ");
-			if (i > 40)
-				strcat(buf, "божественное.\r\n");
-			else if (i > 35)
-				strcat(buf, "идеальное.\r\n");
-			else if (i > 30)
-				strcat(buf, "наилучшее.\r\n");
-			else if (i > 25)
-				strcat(buf, "превосходное.\r\n");
-			else if (i > 20)
-				strcat(buf, "отличное.\r\n");
-			else if (i > 15)
-				strcat(buf, "очень хорошее.\r\n");
-			else if (i > 10)
-				strcat(buf, "выше среднего.\r\n");
-			else if (i > 5)
-				strcat(buf, "весьма посредственное.\r\n");
-			else
-				strcat(buf, "хуже не бывает.\r\n");
-			SendMsgToChar(buf, ch);
+			// пороги и фразы -- одной таблицей вместо девяти веток со strcat
+			static const std::pair<int, const char *> kQuality[] = {
+				{40, "божественное.\r\n"},   {35, "идеальное.\r\n"},
+				{30, "наилучшее.\r\n"},      {25, "превосходное.\r\n"},
+				{20, "отличное.\r\n"},       {15, "очень хорошее.\r\n"},
+				{10, "выше среднего.\r\n"},  {5, "весьма посредственное.\r\n"},
+			};
+			line = "Качество ингредиента ";
+			const char *quality = "хуже не бывает.\r\n";
+			for (const auto &[threshold, text] : kQuality) {
+				if (i > threshold) {
+					quality = text;
+					break;
+				}
+			}
+			line += quality;
+			SendMsgToChar(line, ch);
 		}
 		break;
 
 		//Информация о контейнерах (Купала)
-	case EObjType::kContainer: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
-		SendMsgToChar(buf, ch);
+	case EObjType::kContainer: line = fmt::format("Максимально вместимый вес: {}.\r\n", GET_OBJ_VAL(obj, 0));
+		SendMsgToChar(line, ch);
 		break;
 
 		//Информация о емкостях (Купала)
@@ -274,10 +252,8 @@ switch (obj->get_type()) {
 		break;
 
 	case EObjType::kMagicArrow:
-	case EObjType::kMagicContaner: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
-		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
-				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
-		SendMsgToChar(buf, ch);
+	case EObjType::kMagicContaner: line = fmt::format("Может вместить стрел: {}.\r\n", GET_OBJ_VAL(obj, 1));
+		SendMsgToChar(fmt::format("Осталось стрел: {}{}&n.\r\n", GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2)), ch);
 		break;
 
 	default: break;
@@ -285,6 +261,7 @@ switch (obj->get_type()) {
 }
 
 void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
+	std::string line;
 	int i;
 	bool found;
 	bool enhansed_scroll = false;
@@ -293,31 +270,28 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 		enhansed_scroll = true;
 	}
 	SendMsgToChar("Вы узнали следующее:\r\n", ch);
-	sprintf(buf, "Предмет \"%s\", тип : ", obj->get_short_description().c_str());
-	sprinttype(obj->get_type(), item_types, buf2);
-	strcat(buf, buf2);
-	strcat(buf, "\r\n");
-	SendMsgToChar(buf, ch);
+	line = fmt::format("Предмет \"{}\", тип : ", obj->get_short_description());
+	line += GetTypeName(obj->get_type(), item_types);
+	line += "\r\n";
+	SendMsgToChar(line, ch);
 
-	strcpy(buf, sight::diag_weapon_to_char(obj, 2));
-	if (*buf)
-		SendMsgToChar(buf, ch);
+	line = sight::diag_weapon_to_char(obj, 2);
+	if (!line.empty())
+		SendMsgToChar(line, ch);
 
 	if (fullness < 20)
 		return;
 
 	//ShowWeapon(ch, obj);
 
-	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-			obj->get_weight(), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Вес: {}, Цена: {}, Рента: {}({})\r\n", obj->get_weight(), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on()), ch);
 
 	if (fullness < 30)
 		return;
-	sprinttype(obj->get_material(), material_name, buf2);
-	snprintf(buf, kMaxStringLength, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2,
+	line = fmt::format("Материал : {}, макс.прочность : {}, тек.прочность : {}\r\n",
+					   GetTypeName(obj->get_material(), material_name),
 			 obj->get_maximum_durability(), obj->get_current_durability());
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(line, ch);
 	SendMsgToChar(kColorNrm, ch);
 
 	if (fullness < 40)
@@ -325,9 +299,8 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Неудобен : ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_no_flags().sprintbits(no_bits, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
-	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-	SendMsgToChar(buf, ch);
+	line = obj->get_no_flags().sprintbits(no_bits, ",", privilege::IsImmortal(ch) ? 4 : 0) + "\r\n";
+	SendMsgToChar(line, ch);
 	SendMsgToChar(kColorNrm, ch);
 
 	if (fullness < 50)
@@ -335,9 +308,8 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Недоступен : ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_anti_flags().sprintbits(anti_bits, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
-	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-	SendMsgToChar(buf, ch);
+	line = obj->get_anti_flags().sprintbits(anti_bits, ",", privilege::IsImmortal(ch) ? 4 : 0) + "\r\n";
+	SendMsgToChar(line, ch);
 	SendMsgToChar(kColorNrm, ch);
 
 	if (obj->get_auto_mort_req() > 0) {
@@ -353,25 +325,23 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Имеет экстрафлаги: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_extra_flags().sprintbits(extra_bits, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
-	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-	SendMsgToChar(buf, ch);
+	line = obj->get_extra_flags().sprintbits(extra_bits, ",", privilege::IsImmortal(ch) ? 4 : 0) + "\r\n";
+	SendMsgToChar(line, ch);
 	SendMsgToChar(kColorNrm, ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
+		std::string timer_line;
 		if (stable_objs::IsTimerUnlimited(obj))
-			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[obj->get_rnum()]->get_timer());
+			timer_line = fmt::format("Таймер: {}/нерушимо.", obj_proto[obj->get_rnum()]->get_timer());
 		else
-			sprintf(buf2, "Таймер: %d/%d.", obj_proto[obj->get_rnum()]->get_timer(), obj->get_timer());
-		char miw[128];
-		if (GetObjMIW(obj->get_rnum()) < 0) {
-			sprintf(miw, "%s", "бесконечно");
-		} else {
-			sprintf(miw, "%d", GetObjMIW(obj->get_rnum()));
-		}
-		snprintf(buf, kMaxStringLength, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n",
-				 obj_proto.total_online(obj->get_rnum()), obj_proto.stored(obj->get_rnum()), miw, buf2);
-		SendMsgToChar(buf, ch);
+			timer_line = fmt::format("Таймер: {}/{}.", obj_proto[obj->get_rnum()]->get_timer(), obj->get_timer());
+		const std::string miw = GetObjMIW(obj->get_rnum()) < 0
+			? std::string("бесконечно")
+			: std::to_string(GetObjMIW(obj->get_rnum()));
+		line = fmt::format("&GСейчас в мире : {}. На постое : {}. Макс. в мире : {}. {}&n\r\n",
+						   obj_proto.total_online(obj->get_rnum()), obj_proto.stored(obj->get_rnum()),
+						   miw, timer_line);
+		SendMsgToChar(line, ch);
 	}
 	if (fullness < 75)
 		return;
@@ -384,9 +354,8 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Накладывает на вас аффекты: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", privilege::IsImmortal(ch) ? 4 : 0);
-	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-	SendMsgToChar(buf, ch);
+	line = obj->get_affect_flags().sprintbits(equipment_affects, ",", privilege::IsImmortal(ch) ? 4 : 0) + "\r\n";
+	SendMsgToChar(line, ch);
 	SendMsgToChar(kColorNrm, ch);
 	if (obj->has_suppressed_affects()) {
 		SendMsgToChar("Временно подавлены     :\r\n", ch);
@@ -442,11 +411,7 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 			if (percent == 0) // TODO: такого не должно быть?
 				continue;
 
-			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					kColorCyn, MUD::Skill(skill_id).GetName(), kColorNrm,
-					kColorCyn,
-					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), kColorNrm);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("   {}{}{}{}{}{}%{}\r\n", kColorCyn, MUD::Skill(skill_id).GetName(), kColorNrm, kColorCyn, percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), kColorNrm), ch);
 		}
 	}
 
@@ -454,20 +419,15 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	if (obj->has_flag(EObjFlag::kSetItem)) {
 		for (; it != ObjData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
-				sprintf(buf,
-						"Часть набора предметов: %s%s%s\r\n",
-						kColorNrm,
-						it->second.get_name().c_str(),
-						kColorNrm);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Часть набора предметов: &n{}&n\r\n",
+										  it->second.get_name()), ch);
 				for (auto & vnum : it->second) {
 					const int r_num = GetObjRnum(vnum.first);
 					if (r_num < 0) {
 						SendMsgToChar("Неизвестный объект!!!\r\n", ch);
 						continue;
 					}
-					sprintf(buf, "   %s\r\n", obj_proto[r_num]->get_short_description().c_str());
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("   {}\r\n", obj_proto[r_num]->get_short_description()), ch);
 				}
 				break;
 			}
@@ -481,6 +441,7 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 }
 
 void MobShowValues(CharData *ch, CharData *victim, int skill) {
+	std::string line;
 	std::stringstream ss;
 
 	if (skill > 1) {
@@ -550,26 +511,21 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 }
 
 void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
+	std::string line;
 	int val0, val1, val2;
 
 	if (victim->IsNpc()) {
 		MobShowValues(ch, victim, fullness);
 		return;
 	}
-	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Имя: {}\r\n", GET_NAME(victim)), ch);
 	if (!victim->IsNpc() && victim == ch) {
-		sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
-				GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
-				GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Написание : {}/{}/{}/{}/{}/{}\r\n", GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2), GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5)), ch);
 	}
 
 	if (!victim->IsNpc() && victim == ch) {
 		const auto &victimAge = CalcCharAge(victim);
-		sprintf(buf, "Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
-				GET_PAD(victim, 1), victimAge->year, victimAge->month, victimAge->day, victimAge->hours);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Возраст {}  : {} лет, {} месяцев, {} дней и {} часов.\r\n", GET_PAD(victim, 1), victimAge->year, victimAge->month, victimAge->day, victimAge->hours), ch);
 	}
 	if (fullness < 20 && ch != victim)
 		return;
@@ -577,27 +533,20 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 	val0 = GET_HEIGHT(victim);
 	val1 = GET_WEIGHT(victim);
 	val2 = GET_SIZE(victim);
-	sprintf(buf, "Вес %d, Размер %d\r\n", val1,
-			val2);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Вес {}, Размер {}\r\n", val1, val2), ch);
 	if (fullness < 60 && ch != victim)
 		return;
 
 	val0 = GetRealLevel(victim);
 	val1 = victim->get_hit();
 	val2 = victim->get_real_max_hit();
-	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Уровень : {}, может выдержать повреждений : {}({}), ", val0, val1, val2), ch);
 	SendMsgToChar(ch, "Перевоплощений : %d\r\n", remort::GetRealRemort(victim));
 	val0 = std::min(GET_AR(victim), 100);
 	val1 = std::min(GET_MR(victim), 100);
 	val2 = std::min(GET_PR(victim), 100);
-	sprintf(buf,
-			"Защита от чар : %d, Защита от магических повреждений : %d, Защита от физических повреждений : %d\r\n",
-			val0,
-			val1,
-			val2);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Защита от чар : {}, Защита от магических повреждений : {}, "
+							  "Защита от физических повреждений : {}\r\n", val0, val1, val2), ch);
 	if (fullness < 90 && ch != victim)
 		return;
 
@@ -612,12 +561,12 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 	val0 = victim->get_str();
 	val1 = victim->get_int();
 	val2 = victim->get_wis();
-	sprintf(buf, "Сила: %d, Ум: %d, Муд: %d, ", val0, val1, val2);
+	line = fmt::format("Сила: {}, Ум: {}, Муд: {}, ", val0, val1, val2);
 	val0 = victim->get_dex();
 	val1 = victim->get_con();
 	val2 = victim->get_cha();
-	sprintf(buf + strlen(buf), "Ловк: %d, Тел: %d, Обаян: %d\r\n", val0, val1, val2);
-	SendMsgToChar(buf, ch);
+	line += fmt::format("Ловк: {}, Тел: {}, Обаян: {}\r\n", val0, val1, val2);
+	SendMsgToChar(line, ch);
 
 	if (fullness < 120 || (ch != victim && !victim->IsNpc()))
 		return;
@@ -630,23 +579,17 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 				found = true;
 				SendMsgToChar(kColorBoldRed, ch);
 			}
-			sprinttype(aff->location, apply_types, buf2);
-			snprintf(buf,
-					 kMaxStringLength,
-					 "   %s изменяет на %s%d\r\n",
-					 buf2,
-					 aff->modifier > 0 ? "+" : "",
-					 aff->modifier);
-			SendMsgToChar(buf, ch);
+
+			SendMsgToChar(fmt::format("   {} изменяет на {}{}\r\n",
+									  GetTypeName(aff->location, apply_types),
+									  aff->modifier > 0 ? "+" : "", aff->modifier), ch);
 		}
 	}
 	SendMsgToChar(kColorNrm, ch);
 
 	SendMsgToChar("Аффекты :\r\n", ch);
 	SendMsgToChar(kColorBoldCyn, ch);
-	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(victim->char_specials.saved.affected_by, "\r\n").c_str());
-	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(affects::DescribeActive(victim->char_specials.saved.affected_by, "\r\n") + "\r\n", ch);
 	SendMsgToChar(kColorNrm, ch);
 }
 
