@@ -2243,18 +2243,20 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 }
 
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
-	char buf[128];
 	int has_norents = 0;
 
 	if (obj) {
 		if (Crash_is_unrentable(ch, obj)) {
 			has_norents = 1;
-			if (SetSystem::is_norent_set(ch, obj)) {
-				snprintf(buf, sizeof(buf), "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kUnrentSet)), fmt::arg("item", OBJN(obj, ch, grammar::ECase::kAcc))).c_str());
-			} else {
-				snprintf(buf, sizeof(buf), "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kUnrent)), fmt::arg("item", OBJN(obj, ch, grammar::ECase::kAcc))).c_str());
-			}
-			act(buf, false, recep, 0, ch, kToVict);
+			// Фраза собирается в строку, а не в буфер на 128 байт: под UTF-8 в него не влезало
+			// длинное имя предмета, и snprintf резал по байтам -- игрок получал оборванную
+			// фразу с половиной буквы в конце ("...лесной деревн?").
+			const auto message = SetSystem::is_norent_set(ch, obj)
+								 ? specials::ERentMsg::kUnrentSet
+								 : specials::ERentMsg::kUnrent;
+			act(fmt::format(fmt::runtime(specials::RentMsg(message)),
+							fmt::arg("item", OBJN(obj, ch, grammar::ECase::kAcc))),
+				false, recep, 0, ch, kToVict);
 		}
 		has_norents += Crash_report_unrentables(ch, recep, obj->get_contains());
 		has_norents += Crash_report_unrentables(ch, recep, obj->get_next_content());
