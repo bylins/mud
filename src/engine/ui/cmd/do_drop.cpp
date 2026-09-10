@@ -9,6 +9,9 @@
 #include "gameplay/mechanics/inventory.h"
 #include "gameplay/fight/pk.h"
 #include "engine/db/global_objects.h"
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
 
 extern ObjData::shared_ptr CreateCurrencyObj(long quantity);
 extern ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum);
@@ -50,16 +53,13 @@ void PerformDropGold(CharData *ch, int amount) {
 		if (!ch->IsNpc() || !ch->IsFlagged(EMobFlag::kCorpse)) {
 			SendMsgToChar(ch, "Вы бросили %d %s на землю.\r\n",
 						  amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
-			sprintf(buf,
-					"<%s> {%d} выбросил %d %s на землю.",
-					ch->get_name().c_str(),
-					GET_ROOM_VNUM(ch->in_room),
-					amount,
-					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
-			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-			sprintf(buf, "$n бросил$g %s на землю.",
-					MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc));
-			act(buf, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			mudlog(fmt::format("<{}> {{{}}} выбросил {} {} на землю.",
+							   ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount,
+							   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom)),
+				   NRM, kLvlGreatGod, MONEY_LOG, true);
+			act(fmt::format("$n бросил$g {} на землю.",
+							MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc)),
+				true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		PlaceObjToRoom(obj.get(), ch->in_room);
 
@@ -103,12 +103,12 @@ void PerformDropCurrency(CharData *ch, const currencies::CurrencyInfo &cur, int 
 	if (!ch->IsNpc() || !ch->IsFlagged(EMobFlag::kCorpse)) {
 		SendMsgToChar(ch, "Вы бросили %d %s на землю.\r\n",
 					  amount, cur.GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
-		sprintf(buf, "<%s> {%d} выбросил %d %s на землю.",
-				ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), amount,
-				cur.GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		sprintf(buf, "$n бросил$g %s на землю.", cur.GetObjCName(amount, grammar::ECase::kAcc));
-		act(buf, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		mudlog(fmt::format("<{}> {{{}}} выбросил {} {} на землю.",
+						   ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount,
+						   cur.GetNameWithAmount(amount, grammar::ECase::kNom)),
+			   NRM, kLvlGreatGod, MONEY_LOG, true);
+		act(fmt::format("$n бросил$g {} на землю.", cur.GetObjCName(amount, grammar::ECase::kAcc)),
+			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 	PlaceObjToRoom(obj.get(), ch->in_room);
 	currencies::RemoveHand(*ch, currency_vnum, amount);
@@ -128,14 +128,11 @@ void PerformDrop(CharData *ch, ObjData *obj) {
 		return;
 
 	if (obj->has_flag(EObjFlag::kNodrop)) {
-		sprintf(buf, "Вы не можете %s $o3!", drop_op[0]);
-		act(buf, false, ch, obj, nullptr, kToChar);
+		act(fmt::format("Вы не можете {} $o3!", drop_op[0]), false, ch, obj, nullptr, kToChar);
 		return;
 	}
-	sprintf(buf, "Вы %s $o3.", drop_op[1]);
-	act(buf, false, ch, obj, nullptr, kToChar);
-	sprintf(buf, "$n %s$g $o3.", drop_op[2]);
-	act(buf, true, ch, obj, nullptr, kToRoom | kToArenaListen);
+	act(fmt::format("Вы {} $o3.", drop_op[1]), false, ch, obj, nullptr, kToChar);
+	act(fmt::format("$n {}$g $o3.", drop_op[2]), true, ch, obj, nullptr, kToRoom | kToArenaListen);
 	RemoveObjFromChar(obj);
 	PlaceObjToRoom(obj, ch->in_room);
 	RunObjAffectTrigger(obj, ch, talents_actions::EActionTrigger::kDrop);   // issue.obj-affects
@@ -145,73 +142,78 @@ void PerformDrop(CharData *ch, ObjData *obj) {
 void DoDrop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ObjData *obj, *next_obj;
 
-	argument = one_argument(argument, arg);
+	std::string remains;
+	std::string what = utils::ExtractFirstArgumentLower(argument, remains);
 
-	if (!*arg) {
-		sprintf(buf, "Что вы хотите %s?\r\n", drop_op[0]);
-		SendMsgToChar(buf, ch);
+	if (what.empty()) {
+		SendMsgToChar(fmt::format("Что вы хотите {}?\r\n", drop_op[0]), ch);
 		return;
-	} else if (is_number(arg)) {
-		auto multi = std::stoi(arg);
-		one_argument(argument, arg);
-		if (!str_cmp("coins", arg) || !str_cmp("coin", arg) || !str_cmp("кун", arg) || !str_cmp("денег", arg))
+	}
+
+	if (is_number(what.c_str())) {
+		auto multi = std::stoi(what);
+		what = utils::ExtractFirstArgumentLower(remains, remains);
+		if (!str_cmp("coins", what) || !str_cmp("coin", what) || !str_cmp("кун", what) || !str_cmp("денег", what)) {
 			PerformDropGold(ch, multi);
-		else if (const auto *cur = currencies::FindBySearch(arg); cur && cur->IsObjectable())
+		} else if (const auto *cur = currencies::FindBySearch(what); cur && cur->IsObjectable()) {
 			PerformDropCurrency(ch, *cur, multi);
-		else if (multi <= 0)
+		} else if (multi <= 0) {
 			SendMsgToChar("Не имеет смысла.\r\n", ch);
-		else if (!*arg) {
-			sprintf(buf, "%s %d чего?\r\n", drop_op[0], multi);
-			SendMsgToChar(buf, ch);
-		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			if (const auto *cur = currencies::FindBySearch(arg); cur && !cur->IsObjectable()) {
+		} else if (what.empty()) {
+			SendMsgToChar(fmt::format("{} {} чего?\r\n", drop_op[0], multi), ch);
+		} else if (!(obj = get_obj_in_list_vis(ch, what, ch->carrying))) {
+			if (const auto *cur = currencies::FindBySearch(what); cur && !cur->IsObjectable()) {
 				SendMsgToChar("Эту валюту нельзя бросить на землю.\r\n", ch);
 			} else {
-				snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на %s.\r\n", arg);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("У вас нет ничего похожего на {}.\r\n", what), ch);
 			}
 		} else {
 			do {
-				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
+				next_obj = get_obj_in_list_vis(ch, what, obj->get_next_content());
 				PerformDrop(ch, obj);
 				obj = next_obj;
 			} while (obj && --multi);
 		}
-	} else {
-		const auto dotmode = find_all_dots(arg);
-		// Can't junk or donate all
-		if (dotmode == kFindAll) {
-			if (!ch->carrying)
-				SendMsgToChar("А у вас ничего и нет.\r\n", ch);
-			else
-				for (obj = ch->carrying; obj; obj = next_obj) {
-					next_obj = obj->get_next_content();
-					if (obj->get_extracted_list())
-						continue;
-					PerformDrop(ch, obj);
-				}
-		} else if (dotmode == kFindAlldot) {
-			if (!*arg) {
-				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", drop_op[0]);
-				SendMsgToChar(buf, ch);
-				return;
-			}
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
-				SendMsgToChar(buf, ch);
-			}
-			while (obj) {
-				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
-				PerformDrop(ch, obj);
-				obj = next_obj;
-			}
-		} else {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-				SendMsgToChar(buf, ch);
-			} else
-				PerformDrop(ch, obj);
+		return;
+	}
+
+	const auto dotmode = ParseAllPrefix(what);
+	// Can't junk or donate all
+	if (dotmode == kFindAll) {
+		if (!ch->carrying) {
+			SendMsgToChar("А у вас ничего и нет.\r\n", ch);
+			return;
 		}
+		for (obj = ch->carrying; obj; obj = next_obj) {
+			next_obj = obj->get_next_content();
+			if (obj->get_extracted_list()) {
+				continue;
+			}
+			PerformDrop(ch, obj);
+		}
+		return;
+	}
+
+	if (dotmode == kFindAlldot) {
+		if (what.empty()) {
+			SendMsgToChar(fmt::format("{} \"все\" какого типа предметов?\r\n", drop_op[0]), ch);
+			return;
+		}
+		if (!(obj = get_obj_in_list_vis(ch, what, ch->carrying))) {
+			SendMsgToChar(fmt::format("У вас нет ничего похожего на '{}'.\r\n", what), ch);
+		}
+		while (obj) {
+			next_obj = get_obj_in_list_vis(ch, what, obj->get_next_content());
+			PerformDrop(ch, obj);
+			obj = next_obj;
+		}
+		return;
+	}
+
+	if (!(obj = get_obj_in_list_vis(ch, what, ch->carrying))) {
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", what), ch);
+	} else {
+		PerformDrop(ch, obj);
 	}
 }
 

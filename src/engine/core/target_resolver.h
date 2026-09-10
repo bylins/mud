@@ -269,7 +269,13 @@ inline int generic_find(const std::string &arg, Bitvector bitvector, CharData *c
 						CharData **tar_ch, ObjData **tar_obj) {
 	return generic_find(arg.c_str(), bitvector, ch, tar_ch, tar_obj);
 }
-int find_all_dots(char *arg);
+// Разобрать префикс выборки: "все"/"all" -> kFindAll, "все.<имя>"/"all.<имя>" -> kFindAlldot
+// (префикс при этом срезается, в arg остаётся само имя), иначе kFindIndiv. Прежнее имя
+// find_all_dots досталось от дику и говорило про точки, а не про то, что тут решается (#3814).
+// Форма с char * срезает префикс прямо в буфере вызывающего, с оглядкой на kMaxInputLength;
+// строковой буфер не нужен.
+int ParseAllPrefix(char *arg);
+int ParseAllPrefix(std::string &arg);
 RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 
 }; // namespace target_resolver
@@ -280,7 +286,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 using target_resolver::get_obj_vis_for_locate;
 using target_resolver::try_locate_obj;
 using target_resolver::generic_find;
-using target_resolver::find_all_dots;
+using target_resolver::ParseAllPrefix;
 using target_resolver::FindRoomRnum;
 
 const int kFindIndiv = 0;

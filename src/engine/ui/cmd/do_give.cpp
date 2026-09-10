@@ -10,6 +10,9 @@
 #include "engine/core/utils_char_obj.inl"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
 
 extern void get_check_money(CharData *ch, ObjData *obj, ObjData *cont);
 extern void split_or_clan_tax(CharData *ch, long amount);
@@ -30,9 +33,9 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	if (vict->IsNpc() && mob_index[vict->get_rnum()].func && mob_index[vict->get_rnum()].func != guilds::GuildInfo::DoGuildLearn) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.",
 			false, ch, nullptr, vict, kToChar);
-		sprintf(buf, "Попытка мобу с спецпроцедурой дать предмет: Моб %s (%d) в комнате #%d, игрок: %s", 
-			GET_NAME(vict), GET_MOB_VNUM(vict), GET_ROOM_VNUM(vict->in_room), GET_NAME(ch));
-		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+		mudlog(fmt::format("Попытка мобу с спецпроцедурой дать предмет: Моб {} #{} в комнате #{}, игрок: {}",
+						   GET_NAME(vict), GET_MOB_VNUM(vict), GET_ROOM_VNUM(vict->in_room), GET_NAME(ch)),
+			   CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (obj->has_flag(EObjFlag::kNodrop)) {
@@ -77,10 +80,10 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 }
 
 // utility function for give
-CharData *give_find_vict(CharData *ch, char *local_arg) {
+CharData *give_find_vict(CharData *ch, const std::string &local_arg) {
 	CharData *vict;
 
-	if (!*local_arg) {
+	if (local_arg.empty()) {
 		SendMsgToChar("Кому?\r\n", ch);
 		return (nullptr);
 	} else if (!(vict = target_resolver::FindCharInRoom(ch, local_arg))) {
@@ -107,21 +110,16 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	sprintf(buf, "Вы дали %d %s $N2.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
-	act(buf, false, ch, nullptr, vict, kToChar);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
-	act(buf, false, ch, nullptr, vict, kToVict);
-	sprintf(buf, "$n дал$g %s $N2.",
-			MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc));
-	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+	const std::string gold = MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kAcc);
+	act(fmt::format("Вы дали {} {} $N2.", amount, gold), false, ch, nullptr, vict, kToChar);
+	act(fmt::format("$n дал$g вам {} {}.", amount, gold), false, ch, nullptr, vict, kToVict);
+	act(fmt::format("$n дал$g {} $N2.",
+					MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc)),
+		true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (!(ch->IsNpc() || vict->IsNpc())) {
-		sprintf(buf,
-				"<%s> {%d} передал %d кун при личной встрече c %s.",
-				ch->get_name().c_str(),
-				GET_ROOM_VNUM(ch->in_room),
-				amount,
-				GET_PAD(vict, 4));
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+		mudlog(fmt::format("<{}> {{{}}} передал {} кун при личной встрече c {}.",
+						   ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 4)),
+			   NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
 	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		currencies::RemoveHand(*ch, currencies::kGold, amount);
@@ -150,12 +148,10 @@ void perform_give_currency(CharData *ch, CharData *vict, const currencies::Curre
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	sprintf(buf, "Вы дали %d %s $N2.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
-	act(buf, false, ch, nullptr, vict, kToChar);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
-	act(buf, false, ch, nullptr, vict, kToVict);
-	sprintf(buf, "$n дал$g %d %s $N2.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
-	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+	const std::string money = cur.GetNameWithAmount(amount, grammar::ECase::kAcc);
+	act(fmt::format("Вы дали {} {} $N2.", amount, money), false, ch, nullptr, vict, kToChar);
+	act(fmt::format("$n дал$g вам {} {}.", amount, money), false, ch, nullptr, vict, kToVict);
+	act(fmt::format("$n дал$g {} {} $N2.", amount, money), true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		currencies::RemoveHand(*ch, cur.GetTextId(), amount);
 	}
@@ -166,81 +162,87 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	ObjData *obj, *next_obj;
 
-	argument = one_argument(argument, arg);
+	std::string remains;
+	std::string what = utils::ExtractFirstArgumentLower(argument, remains);
 
-	if (!*arg)
+	if (what.empty()) {
 		SendMsgToChar("Дать что и кому?\r\n", ch);
-	else if (is_number(arg)) {
-		auto amount = std::stoi(arg);
-		argument = one_argument(argument, arg);
-		if (utils::IsAbbr("coin", arg) || utils::IsAbbr("кун", arg) || !str_cmp("денег", arg)) {
-			one_argument(argument, arg);
-			if ((vict = give_find_vict(ch, arg)) != nullptr)
+		return;
+	}
+
+	if (is_number(what.c_str())) {
+		auto amount = std::stoi(what);
+		what = utils::ExtractFirstArgumentLower(remains, remains);
+		if (utils::IsAbbr("coin", what.c_str()) || utils::IsAbbr("кун", what.c_str()) || !str_cmp("денег", what)) {
+			if ((vict = give_find_vict(ch, utils::ExtractFirstArgumentLower(remains))) != nullptr) {
 				perform_give_gold(ch, vict, amount);
+			}
 			return;
 		}
-		if (const auto *cur = currencies::FindBySearch(arg); cur && cur->IsGiveable()) {
-			one_argument(argument, arg);
-			if ((vict = give_find_vict(ch, arg)) != nullptr)
+		if (const auto *cur = currencies::FindBySearch(what); cur && cur->IsGiveable()) {
+			if ((vict = give_find_vict(ch, utils::ExtractFirstArgumentLower(remains))) != nullptr) {
 				perform_give_currency(ch, vict, *cur, amount);
+			}
 			return;
 		}
-		if (!*arg) {
-			sprintf(buf, "Чего %d вы хотите дать?\r\n", amount);
-			SendMsgToChar(buf, ch);
-		} else if (!(vict = give_find_vict(ch, argument))) {
+		if (what.empty()) {
+			SendMsgToChar(fmt::format("Чего {} вы хотите дать?\r\n", amount), ch);
+		} else if (!(vict = give_find_vict(ch, remains))) {
 			return;
-		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			if (const auto *cur = currencies::FindBySearch(arg); cur && !cur->IsGiveable()) {
+		} else if (!(obj = get_obj_in_list_vis(ch, what, ch->carrying))) {
+			if (const auto *cur = currencies::FindBySearch(what); cur && !cur->IsGiveable()) {
 				SendMsgToChar("Эту валюту нельзя передать другому.\r\n", ch);
 			} else {
-				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", what), ch);
 			}
 		} else {
 			while (obj && amount--) {
-				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
+				next_obj = get_obj_in_list_vis(ch, what, obj->get_next_content());
 				perform_give(ch, vict, obj);
 				obj = next_obj;
 			}
 		}
-	} else {
-		one_argument(argument, buf1);
-		if (!(vict = give_find_vict(ch, buf1)))
-			return;
-		auto dotmode = find_all_dots(arg);
-		if (dotmode == kFindIndiv) {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-				SendMsgToChar(buf, ch);
-			} else
-				perform_give(ch, vict, obj);
+		return;
+	}
+
+	if (!(vict = give_find_vict(ch, utils::ExtractFirstArgumentLower(remains)))) {
+		return;
+	}
+	auto dotmode = ParseAllPrefix(what);
+	if (dotmode == kFindIndiv) {
+		if (!(obj = get_obj_in_list_vis(ch, what, ch->carrying))) {
+			SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", what), ch);
 		} else {
-			if (dotmode == kFindAlldot && !*arg) {
-				SendMsgToChar("Дать \"все\" какого типа предметов?\r\n", ch);
-				return;
-			}
-			if (!ch->carrying)
-				SendMsgToChar("У вас ведь ничего нет.\r\n", ch);
-			else {
-				bool has_items = false;
-				for (obj = ch->carrying; obj; obj = next_obj) {
-					next_obj = obj->get_next_content();
-					if (obj->get_extracted_list())
-						continue;
-					if (sight::CanSeeObj(ch, obj)
-						&& (dotmode == kFindAll
-							|| isname(arg, obj->get_aliases())
-							|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {
-						perform_give(ch, vict, obj);
-						has_items = true;
-					}
-				}
-				if (!has_items) {
-					SendMsgToChar(ch, "У вас нет '%s'.\r\n", arg);
-				}
-			}
+			perform_give(ch, vict, obj);
 		}
+		return;
+	}
+
+	if (dotmode == kFindAlldot && what.empty()) {
+		SendMsgToChar("Дать \"все\" какого типа предметов?\r\n", ch);
+		return;
+	}
+	if (!ch->carrying) {
+		SendMsgToChar("У вас ведь ничего нет.\r\n", ch);
+		return;
+	}
+
+	bool has_items = false;
+	for (obj = ch->carrying; obj; obj = next_obj) {
+		next_obj = obj->get_next_content();
+		if (obj->get_extracted_list()) {
+			continue;
+		}
+		if (sight::CanSeeObj(ch, obj)
+			&& (dotmode == kFindAll
+				|| isname(what, obj->get_aliases())
+				|| CHECK_CUSTOM_LABEL(what.c_str(), obj, ch))) {
+			perform_give(ch, vict, obj);
+			has_items = true;
+		}
+	}
+	if (!has_items) {
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", what), ch);
 	}
 }
 

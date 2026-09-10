@@ -1138,7 +1138,7 @@ bool CharNode::obj_from_obj_list(char *name, CharData *vict) {
 void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 	ObjListType &cont = pers_online;
 
-	int obj_dotmode = find_all_dots(arg);
+	int obj_dotmode = ParseAllPrefix(arg);
 	if (obj_dotmode == kFindIndiv) {
 		bool result = obj_from_obj_list(arg, vict);
 		if (!result) {
