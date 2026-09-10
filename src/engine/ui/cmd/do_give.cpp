@@ -114,7 +114,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 	act(fmt::format("Вы дали {} {} $N2.", amount, gold), false, ch, nullptr, vict, kToChar);
 	act(fmt::format("$n дал$g вам {} {}.", amount, gold), false, ch, nullptr, vict, kToVict);
 	act(fmt::format("$n дал$g {} $N2.",
-					MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc)),
+					MUD::Currency(currencies::kGoldVnum).GetObjName(amount, grammar::ECase::kAcc)),
 		true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (!(ch->IsNpc() || vict->IsNpc())) {
 		mudlog(fmt::format("<{}> {{{}}} передал {} кун при личной встрече c {}.",

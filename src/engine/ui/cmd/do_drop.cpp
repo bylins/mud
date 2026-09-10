@@ -58,7 +58,7 @@ void PerformDropGold(CharData *ch, int amount) {
 							   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom)),
 				   NRM, kLvlGreatGod, MONEY_LOG, true);
 			act(fmt::format("$n бросил$g {} на землю.",
-							MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc)),
+							MUD::Currency(currencies::kGoldVnum).GetObjName(amount, grammar::ECase::kAcc)),
 				true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		PlaceObjToRoom(obj.get(), ch->in_room);
@@ -107,7 +107,7 @@ void PerformDropCurrency(CharData *ch, const currencies::CurrencyInfo &cur, int 
 						   ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount,
 						   cur.GetNameWithAmount(amount, grammar::ECase::kNom)),
 			   NRM, kLvlGreatGod, MONEY_LOG, true);
-		act(fmt::format("$n бросил$g {} на землю.", cur.GetObjCName(amount, grammar::ECase::kAcc)),
+		act(fmt::format("$n бросил$g {} на землю.", cur.GetObjName(amount, grammar::ECase::kAcc)),
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 	PlaceObjToRoom(obj.get(), ch->in_room);

@@ -283,18 +283,17 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum) {
 	}
 	obj->set_aliases(aliases);
 
-	obj->set_short_description(cur.GetObjCName(quantity, grammar::ECase::kNom));
+	obj->set_short_description(cur.GetObjName(quantity, grammar::ECase::kNom));
 	for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; ++i) {
 		const auto name_case = static_cast<grammar::ECase>(i);
-		obj->set_PName(name_case, cur.GetObjCName(quantity, name_case));
+		obj->set_PName(name_case, cur.GetObjName(quantity, name_case));
 	}
 
-	char descr_buf[256];
-	snprintf(descr_buf, sizeof(descr_buf), "Здесь лежит %s.", cur.GetObjCName(quantity, grammar::ECase::kNom));
-	obj->set_description(utils::CAP(descr_buf));
+	obj->set_description(utils::CAP(fmt::format("Здесь лежит {}.",
+												cur.GetObjName(quantity, grammar::ECase::kNom))));
 
 	new_descr.keyword = aliases;
-	new_descr.description = cur.GetObjCName(quantity, grammar::ECase::kNom);
+	new_descr.description = cur.GetObjName(quantity, grammar::ECase::kNom);
 	obj->ex_descriptions().assign(1, std::move(new_descr));
 
 	obj->set_type(EObjType::kMoney);
@@ -314,8 +313,6 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum) {
 }
 
 ObjData::shared_ptr CreateCurrencyObj(long quantity) {
-	char buf[200];
-
 	if (quantity <= 0) {
 		log("SYSERR: Try to create negative or 0 money. (%ld)", quantity);
 		return (nullptr);
@@ -324,9 +321,8 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 	ExtraDescription new_descr;
 
 	if (quantity == 1) {
-		sprintf(buf, "coin gold кун деньги денег монет %s",
-				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
-		obj->set_aliases(buf);
+		obj->set_aliases(fmt::format("coin gold кун деньги денег монет {}",
+									 MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, grammar::ECase::kNom)));
 		obj->set_short_description("куна");
 		obj->set_description("Одна куна лежит здесь.");
 		new_descr.keyword = "coin gold монет кун денег";
@@ -334,21 +330,20 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 			auto name_case = static_cast<grammar::ECase>(i);
 			obj->set_PName(name_case,
-						   MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, name_case));
+						   MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, name_case));
 		}
 	} else {
-		sprintf(buf, "coins gold кун денег %s",
-				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
-		obj->set_aliases(buf);
-		obj->set_short_description(MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
+		obj->set_aliases(fmt::format("coins gold кун денег {}",
+									 MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, grammar::ECase::kNom)));
+		obj->set_short_description(MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, grammar::ECase::kNom));
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 			auto name_case = static_cast<grammar::ECase>(i);
-			obj->set_PName(name_case, MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, name_case));
+			obj->set_PName(name_case, MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, name_case));
 		}
 
-		sprintf(buf, "Здесь лежит %s.",
-				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
-		obj->set_description(utils::CAP(buf));
+		obj->set_description(utils::CAP(fmt::format("Здесь лежит {}.",
+													MUD::Currency(currencies::kGoldVnum).GetObjName(quantity,
+																								   grammar::ECase::kNom))));
 
 		new_descr.keyword = "coins gold кун денег";
 	}

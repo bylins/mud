@@ -187,7 +187,6 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	 * @return - строка-описание объекта.
 	 */
 	[[nodiscard]] std::string GetObjName(long amount, grammar::ECase gram_case) const;
-	[[nodiscard]] const char *GetObjCName(long amount, grammar::ECase gram_case) const;
 
 	void Print(CharData */*ch*/, std::ostringstream &buffer) const;
 };
