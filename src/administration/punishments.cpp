@@ -18,6 +18,8 @@
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/sight.h"
 
+#include <fmt/format.h>
+
 
 namespace punishments {
 
@@ -26,7 +28,10 @@ const Punish &Get(const CharData *ch, EType type) { return ch->player_specials->
 
 bool IsVictimIncorrect(CharData *ch, CharData *vict);
 bool IsPunishmentIncorrect(CharData *ch, Punish *pundata, const char *reason);
-void SendPunishmentActMessages(CharData *ch, CharData *vict);
+// Сообщения передаются параметрами: раньше вызывающий складывал их в глобальные buf и buf2,
+// а SetPunisherParamsToPundata между делом затирала buf своей строкой (#3814).
+void SendPunishmentActMessages(CharData *ch, CharData *vict,
+							   const std::string &to_vict, const std::string &to_room);
 void SetPunisherParamsToPundata(CharData *ch, Punish *pundata, const char *reason);
 void ClearPundata(Punish *pundata);
 void MoveToStartRoom(CharData *vict);
@@ -34,6 +39,7 @@ RoomRnum GetStartRoomRnum(CharData *vict);
 inline bool IsPunishCannotBeApplied(CharData *ch, CharData *vict, Punish *pundata, const char *reason);
 
 bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
+	std::string to_vict, to_room;
 	auto pundata = &Get(vict, EType::kMute);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
@@ -45,30 +51,31 @@ bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
 			return false;
 		};
 		vict->UnsetFlag(EPlrFlag::kMuted);
-		sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%s%s разрешил$G вам кричать.%s", kColorBoldGrn, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n2 вернулся голос.");
+		const std::string log_line = fmt::format("Mute OFF for {} by {}.", GET_NAME(vict), GET_NAME(ch));
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Mute OFF by {}", GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = fmt::format("&G{} разрешил$G вам кричать.&n", GET_NAME(ch));
+		to_room = "$n2 вернулся голос.";
 	} else {
 		vict->SetFlag(EPlrFlag::kMuted);
 		pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
-		sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Mute ON (%ldh) by %s", times, GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%s%s запретил$G вам кричать.%s", kColorBoldRed, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n подавился своим криком.");
+		const std::string log_line = fmt::format("Mute ON for {} by {}({}h).", GET_NAME(vict), GET_NAME(ch), times);
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Mute ON ({}h) by {}", times, GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = fmt::format("&R{} запретил$G вам кричать.&n", GET_NAME(ch));
+		to_room = "$n подавился своим криком.";
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
-	SendPunishmentActMessages(ch, vict);
+	SendPunishmentActMessages(ch, vict, to_vict, to_room);
 	return true;
 }
 
 bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
+	std::string to_vict, to_room;
 	auto pundata = &Get(vict, EType::kDumb);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
@@ -80,30 +87,31 @@ bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
 			return false;
 		};
 		vict->UnsetFlag(EPlrFlag::kDumbed);
-		sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%s%s разрешил$G вам издавать звуки.%s", kColorBoldGrn, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n нарушил$g обет молчания.");
+		const std::string log_line = fmt::format("Dumb OFF for {} by {}.", GET_NAME(vict), GET_NAME(ch));
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Dumb OFF by {}", GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = fmt::format("&G{} разрешил$G вам издавать звуки.&n", GET_NAME(ch));
+		to_room = "$n нарушил$g обет молчания.";
 	} else {
 		vict->SetFlag(EPlrFlag::kDumbed);
 		pundata->duration = (times > 0) ? time(nullptr) + times * 60 : MAX_TIME;
-		sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Dumb ON (%ldm) by %s", times, GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%s%s запретил$G вам издавать звуки.%s", kColorBoldRed, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n дал$g обет молчания.");
+		const std::string log_line = fmt::format("Dumb ON for {} by {}({}m).", GET_NAME(vict), GET_NAME(ch), times);
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Dumb ON ({}m) by {}", times, GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = fmt::format("&R{} запретил$G вам издавать звуки.&n", GET_NAME(ch));
+		to_room = "$n дал$g обет молчания.";
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
-	SendPunishmentActMessages(ch, vict);
+	SendPunishmentActMessages(ch, vict, to_vict, to_room);
 	return true;
 }
 
 bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
+	std::string to_vict, to_room;
 	auto pundata = &Get(vict, EType::kHell);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
@@ -115,17 +123,17 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 			return false;
 		};
 		vict->UnsetFlag(EPlrFlag::kHelled);
-		sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
-		AddKarma(vict, buf, reason);
+		const std::string log_line = fmt::format("{} removed FROM hell by {}.", GET_NAME(vict), GET_NAME(ch));
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Removed FROM hell by {}", GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
 		if (vict->in_room != kNowhere) {
 			act("$n выпущен$a из темницы!", false, vict, nullptr, nullptr, kToRoom);
 			MoveToStartRoom(vict);
 		};
-		sprintf(buf, "%s%s выпустил$G вас из темницы.%s", kColorBoldGrn, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n выпущен$a из темницы!");
+		to_vict = fmt::format("&G{} выпустил$G вас из темницы.&n", GET_NAME(ch));
+		to_room = "$n выпущен$a из темницы!";
 	} else {
 		vict->SetFlag(EPlrFlag::kHelled);
 		pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
@@ -136,20 +144,21 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 			sight::look_at_room(vict, r_helled_start_room);
 		};
 		vict->set_was_in_room(kNowhere);
-		sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%s%s поместил$G вас в темницу.%s", GET_NAME(ch), kColorBoldRed, kColorNrm);
-		sprintf(buf2, "$n водворен$a в темницу!");
+		const std::string log_line = fmt::format("{} moved TO hell by {}({}h).", GET_NAME(vict), GET_NAME(ch), times);
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Moved TO hell ({}h) by {}", times, GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = fmt::format("&R{} поместил$G вас в темницу.&n", GET_NAME(ch));
+		to_room = "$n водворен$a в темницу!";
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
-	SendPunishmentActMessages(ch, vict);
+	SendPunishmentActMessages(ch, vict, to_vict, to_room);
 	return true;
 }
 
 bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
+	std::string to_vict, to_room;
 	auto pundata = &Get(vict, EType::kFreeze);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
@@ -165,30 +174,30 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 		if (vict->IsFlagged(EPlrFlag::kHelled)) {
 			vict->UnsetFlag(EPlrFlag::kHelled);
 		}
-		sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
-		AddKarma(vict, buf, reason);
+		const std::string log_line = fmt::format("Freeze OFF for {} by {}.", GET_NAME(vict), GET_NAME(ch));
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Freeze OFF by {}", GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
 		if (vict->in_room != kNowhere) {
 			act("$n выпущен$a из темницы!", false, vict, nullptr, nullptr, kToRoom);
 			MoveToStartRoom(vict);
 		};
-		sprintf(buf, "%s%s выпустил$G вас из темницы.%s", kColorBoldGrn, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n выпущен$a из темницы!");
-		sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s", kColorBoldYel, kColorNrm);
-		sprintf(buf2, "$n освободил$u из ледяного плена.");
+		to_vict = fmt::format("&G{} выпустил$G вас из темницы.&n", GET_NAME(ch));
+		to_room = "$n выпущен$a из темницы!";
+		to_vict = "&YЛедяные оковы растаяли под добрым взглядом $N1.&n";
+		to_room = "$n освободил$u из ледяного плена.";
 	} else {
 		vict->SetFlag(EPlrFlag::kFrozen);
 		Glory::set_freeze(vict->get_uid());
 		pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
-		sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Freeze ON (%ldh) by %s", times, GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s", kColorBoldBlu, kColorNrm);
-		sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
+		const std::string log_line = fmt::format("Freeze ON for {} by {}({}h).", GET_NAME(vict), GET_NAME(ch), times);
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Freeze ON ({}h) by {}", times, GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = "&BАдский холод сковал ваше тело ледяным панцирем.\r\n&n";
+		to_room = "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.";
 		if (vict->in_room != kNowhere) {
 			act("$n водворен$a в темницу!", false, vict, nullptr, nullptr, kToRoom);
 			RemoveCharFromRoom(vict);
@@ -197,11 +206,12 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 		};
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
-	SendPunishmentActMessages(ch, vict);
+	SendPunishmentActMessages(ch, vict, to_vict, to_room);
 	return true;
 }
 
 bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
+	std::string to_vict, to_room;
 	auto pundata = &Get(vict, EType::kName);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
@@ -213,17 +223,17 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 			return false;
 		};
 		vict->UnsetFlag(EPlrFlag::kNameDenied);
-		sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
-		AddKarma(vict, buf, reason);
+		const std::string log_line = fmt::format("{} removed FROM name room by {}.", GET_NAME(vict), GET_NAME(ch));
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Removed FROM name room by {}", GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
 		if (vict->in_room != kNowhere) {
 			MoveToStartRoom(vict);
 			act("$n выпущен$a из комнаты имени!", false, vict, nullptr, nullptr, kToRoom);
 		};
-		sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s", kColorBoldGrn, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n выпущен$a из комнаты имени!");
+		to_vict = fmt::format("&G{} выпустил$G вас из комнаты имени.&n", GET_NAME(ch));
+		to_room = "$n выпущен$a из комнаты имени!";
 	} else {
 		vict->SetFlag(EPlrFlag::kNameDenied);
 		pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
@@ -234,16 +244,16 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 			sight::look_at_room(vict, r_named_start_room);
 		};
 		vict->set_was_in_room(kNowhere);
-		sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%s%s поместил$G вас в комнату имени.%s", kColorBoldRed, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n помещен$a в комнату имени!");
+		const std::string log_line = fmt::format("{} removed to nameroom by {}({}h).", GET_NAME(vict), GET_NAME(ch), times);
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Removed TO nameroom ({}h) by {}", times, GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = fmt::format("&R{} поместил$G вас в комнату имени.&n", GET_NAME(ch));
+		to_room = "$n помещен$a в комнату имени!";
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
-	SendPunishmentActMessages(ch, vict);
+	SendPunishmentActMessages(ch, vict, to_vict, to_room);
 	return true;
 }
 
@@ -257,23 +267,24 @@ bool SetRegister(CharData *ch, CharData *vict, char *reason) {
 		SendMsgToChar("Ваша жертва уже зарегистрирована.\r\n", ch);
 		return false;
 	};
-	sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));
-	mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-	imm_log("%s", buf);
-	sprintf(buf, "Registered by %s", GET_NAME(ch));
-	RegisterSystem::add(vict, buf, reason);
-	AddKarma(vict, buf, reason);
+	const std::string log_line = fmt::format("{} registered by {}.", GET_NAME(vict), GET_NAME(ch));
+	mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+	imm_log("%s", log_line.c_str());
+	const std::string karma = fmt::format("Registered by {}", GET_NAME(ch));
+	RegisterSystem::add(vict, karma.c_str(), reason);
+	AddKarma(vict, karma.c_str(), reason);
 	if (vict->in_room != kNowhere) {
 		act("$n зарегистрирован$a!", false, vict, nullptr, nullptr, kToRoom);
 		MoveToStartRoom(vict);
 	};
-	sprintf(buf, "%s%s зарегистрировал$G вас.%s", kColorBoldGrn, GET_NAME(ch), kColorNrm);
-	sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
-	SendPunishmentActMessages(ch, vict);
+	SendPunishmentActMessages(ch, vict,
+							  fmt::format("&G{} зарегистрировал$G вас.&n", GET_NAME(ch)),
+							  "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
 	return true;
 }
 
 bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
+	std::string to_vict, to_room;
 	auto pundata = &Get(vict, EType::kUnreg);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
@@ -284,17 +295,17 @@ bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
 			SendMsgToChar("Ваша цель и так не зарегистрирована.\r\n", ch);
 			return false;
 		};
-		sprintf(buf, "%s unregistered by %s.", GET_NAME(vict), GET_NAME(ch));
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Unregistered by %s", GET_NAME(ch));
+		const std::string log_line = fmt::format("{} unregistered by {}.", GET_NAME(vict), GET_NAME(ch));
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Unregistered by {}", GET_NAME(ch));
 		RegisterSystem::remove(vict);
-		AddKarma(vict, buf, reason);
+		AddKarma(vict, karma.c_str(), reason);
 		if (vict->in_room != kNowhere) {
 			act("C $n1 снята метка регистрации!", false, vict, nullptr, nullptr, kToRoom);
 		}
-		sprintf(buf, "&W%s снял$G с вас метку регистрации.&n", GET_NAME(ch));
-		sprintf(buf2, "$n лишен$g регистрации!");
+		to_vict = fmt::format("&W{} снял$G с вас метку регистрации.&n", GET_NAME(ch));
+		to_room = "$n лишен$g регистрации!";
 	} else {
 		pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 		RegisterSystem::remove(vict);
@@ -308,16 +319,16 @@ bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
 			}
 		}
 		vict->set_was_in_room(kNowhere);
-		sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s", buf);
-		sprintf(buf, "Unregistered (%ldh) by %s", times, GET_NAME(ch));
-		AddKarma(vict, buf, reason);
-		sprintf(buf, "%s%s снял$G с вас... регистрацию :).%s", kColorBoldRed, GET_NAME(ch), kColorNrm);
-		sprintf(buf2, "$n лишен$a регистрации!");
+		const std::string log_line = fmt::format("{} unregistred by {}({}h).", GET_NAME(vict), GET_NAME(ch), times);
+		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s", log_line.c_str());
+		const std::string karma = fmt::format("Unregistered ({}h) by {}", times, GET_NAME(ch));
+		AddKarma(vict, karma.c_str(), reason);
+		to_vict = fmt::format("&R{} снял$G с вас... регистрацию :).&n", GET_NAME(ch));
+		to_room = "$n лишен$a регистрации!";
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
-	SendPunishmentActMessages(ch, vict);
+	SendPunishmentActMessages(ch, vict, to_vict, to_room);
 	return true;
 }
 
@@ -350,18 +361,18 @@ bool IsPunishmentIncorrect(CharData *ch, Punish *pundata, const char *reason) {
 	return false;
 }
 
-void SendPunishmentActMessages(CharData *ch, CharData *vict) {
+void SendPunishmentActMessages(CharData *ch, CharData *vict,
+							   const std::string &to_vict, const std::string &to_room) {
 	if (ch->in_room != kNowhere) {
-		act(buf, false, vict, nullptr, ch, kToChar);
-		act(buf2, false, vict, nullptr, ch, kToRoom);
+		act(to_vict, false, vict, nullptr, ch, kToChar);
+		act(to_room, false, vict, nullptr, ch, kToRoom);
 	};
 }
 
 void SetPunisherParamsToPundata(CharData *ch, Punish *pundata, const char *reason) {
 	pundata->level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	pundata->godid = ch->get_uid();
-	sprintf(buf, "%s : %s", ch->get_name().c_str(), reason);
-	pundata->reason = buf;
+	pundata->reason = fmt::format("{} : {}", ch->get_name(), reason);
 }
 
 void ClearPundata(Punish *pundata) {
