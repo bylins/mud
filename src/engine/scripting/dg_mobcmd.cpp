@@ -64,7 +64,7 @@ struct mob_command_info {
 extern int reloc_target;
 extern Trigger *cur_trig;
 
-void sub_write(char *arg, CharData *ch, byte find_invis, int targets);
+void sub_write(char *arg, CharData *ch, int find_invis, int targets);
 RoomData *get_room(const char *name);
 ObjData *get_obj_by_char(CharData *ch, char *name);
 // * Local functions.

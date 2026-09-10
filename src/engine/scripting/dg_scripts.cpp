@@ -6697,7 +6697,7 @@ Trigger::Trigger() :
 	halted(false) {
 }
 
-Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const long trigger_type) :
+Trigger::Trigger(const int rnum, const char *name, const int attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	add_flag{false},
@@ -6713,7 +6713,7 @@ Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const
 	halted(false) {
 }
 
-Trigger::Trigger(const int rnum, std::string &&name, const byte attach_type, const long trigger_type) :
+Trigger::Trigger(const int rnum, std::string &&name, const int attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	add_flag{false},

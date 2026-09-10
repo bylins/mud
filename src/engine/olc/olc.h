@@ -68,10 +68,10 @@ inline constexpr int kScmdOlcSaveinfo{5};
 void strip_string(char *);
 // Строковая форма: та же чистка от '\r', но без буфера у вызывающего (#3814).
 std::string strip_string(std::string text);
-void cleanup_olc(DescriptorData *d, byte cleanup_type);
+void cleanup_olc(DescriptorData *d, int cleanup_type);
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column);
-void olc_add_to_save_list(int zone, byte type);
-void olc_remove_from_save_list(int zone, byte type);
+void olc_add_to_save_list(int zone, int type);
+void olc_remove_from_save_list(int zone, int type);
 
 // * OLC structures.
 
@@ -159,14 +159,14 @@ extern struct olc_save_info *olc_save_list;
 #define GET_OLC_ZONE(c)    ((c)->player_specials->saved.olc_zone)
 
 // * Cleanup types.
-#define CLEANUP_ALL        (byte)    1    // Free the whole lot.
-#define CLEANUP_STRUCTS    (byte)    2    // Don't free strings.
+#define CLEANUP_ALL        1    // Free the whole lot.
+#define CLEANUP_STRUCTS    2    // Don't free strings.
 
 // * Add/Remove save list types.
-#define OLC_SAVE_ROOM        (byte)    0
-#define OLC_SAVE_OBJ        (byte)    1
-#define OLC_SAVE_ZONE        (byte)    2
-#define OLC_SAVE_MOB        (byte)    3
+#define OLC_SAVE_ROOM        0
+#define OLC_SAVE_OBJ        1
+#define OLC_SAVE_ZONE        2
+#define OLC_SAVE_MOB        3
 
 // * Submodes of OEDIT connectedness.
 #define OEDIT_MAIN_MENU                 1

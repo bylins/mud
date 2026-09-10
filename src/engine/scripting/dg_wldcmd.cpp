@@ -35,7 +35,7 @@
 extern const char *dirs[];
 
 void die(CharData *ch, CharData *killer);
-void sub_write(char *arg, CharData *ch, byte find_invis, int targets);
+void sub_write(char *arg, CharData *ch, int find_invis, int targets);
 void send_to_zone(char *messg, int zone_rnum);
 CharData *get_char_by_room(RoomData *room, const char *name);
 RoomData *get_room(const char *name);

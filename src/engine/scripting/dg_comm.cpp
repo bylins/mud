@@ -116,7 +116,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 	SendMsgToChar(sb, ch);
 }
 
-void sub_write(char *arg, CharData *ch, byte find_invis, int targets) {
+void sub_write(char *arg, CharData *ch, int find_invis, int targets) {
 	char str[kMaxInputLength * 2];
 	char type[kMaxInputLength], name[kMaxInputLength];
 	char *tokens[kMaxInputLength], *s, *p;

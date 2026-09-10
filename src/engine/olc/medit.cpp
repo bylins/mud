@@ -580,8 +580,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 				flags, alignment::GetAlignment(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
-				mob->mem_queue.stored, mob->get_hit(), static_cast<int>(GET_NDD(mob)), static_cast<int>(GET_SDD(mob)), GET_DR(mob), static_cast<int>(GET_GOLD_NoDs(mob)),
-				static_cast<int>(GET_GOLD_SiDs(mob)), currencies::GetHand(*mob, currencies::kGold), mob->get_exp(), static_cast<int>(mob->GetPosition()),
+				mob->mem_queue.stored, mob->get_hit(), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
+				GET_GOLD_SiDs(mob), currencies::GetHand(*mob, currencies::kGold), mob->get_exp(), static_cast<int>(mob->GetPosition()),
 				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(mob->get_sex()));
 		// * Deal with Extra stats in case they are there.
 		sum = 0;
@@ -1082,11 +1082,11 @@ void medit_disp_menu(DescriptorData *d) {
 			GET_LDESC(mob), GET_DDESC(mob),
 			mob->GetLevel(), alignment::GetAlignment(mob),
 			GET_HR(mob), GET_DR(mob),
-			static_cast<int>(GET_NDD(mob)), static_cast<int>(GET_SDD(mob)),
+			GET_NDD(mob), GET_SDD(mob),
 			mob->mem_queue.total, mob->mem_queue.stored, mob->get_hit(),
 			GET_AC(mob), mob->get_exp(),
 			currencies::GetHand(*mob, currencies::kGold),
-			static_cast<int>(GET_GOLD_NoDs(mob)), static_cast<int>(GET_GOLD_SiDs(mob))), d->character.get());
+			GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)), d->character.get());
 
 	const std::string mob_flags = mob->char_specials.saved.mob_flags.sprintbits(action_bits, ",", 4);
 	const std::string aff_flags = affects::DescribeActive(mob->char_specials.saved.affected_by, ",");
@@ -1150,14 +1150,14 @@ void medit_disp_menu(DescriptorData *d) {
 			mob->get_str(), mob->get_dex(), mob->get_con(),
 			mob->get_wis(), mob->get_int(), mob->get_cha(),
 			static_cast<int>(GET_HEIGHT(mob)), static_cast<int>(GET_WEIGHT(mob)), static_cast<int>(GET_SIZE(mob)),
-			static_cast<int>(mob->mob_specials.extra_attack),
+			mob->mob_specials.extra_attack,
 			static_cast<int>(mob->get_remort()),
-			static_cast<int>(mob->mob_specials.like_work),
+			mob->mob_specials.like_work,
 			mob->dl_list.empty() ? "Нет" : "Есть",
 			roles_str,
 			npc_race_types[GET_RACE(mob) - ENpcRace::kBasic],
 			!mob->proto_script->empty() ? "Set." : "Not Set.",
-			static_cast<int>(mob->mob_specials.MaxFactor)), d->character.get());
+			mob->mob_specials.MaxFactor), d->character.get());
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
 }

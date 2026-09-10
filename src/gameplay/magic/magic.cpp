@@ -72,7 +72,7 @@
 
 extern int interpolate(int min_value, int pulse);
 
-byte GetSavingThrows(ECharClass class_id, ESaving type, int level);    // class.cpp
+int GetSavingThrows(ECharClass class_id, ESaving type, int level);    // class.cpp
 void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool IsRoomForbidden(RoomData *room) {

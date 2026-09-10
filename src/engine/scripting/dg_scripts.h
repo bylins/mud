@@ -172,14 +172,14 @@ class Trigger {
 	Trigger(const Trigger &from);
 	Trigger &operator=(const Trigger &right);
 	Trigger(int rnum, const char *name, long trigger_type);
-	Trigger(int rnum, const char *name, byte attach_type, long trigger_type);
-	Trigger(int rnum, std::string &&name, byte attach_type, long trigger_type);
+	Trigger(int rnum, const char *name, int attach_type, long trigger_type);
+	Trigger(int rnum, std::string &&name, int attach_type, long trigger_type);
 
 	virtual ~Trigger() = default;    // make constructor virtual to be able to create a mock for this class
 
 	[[nodiscard]] auto get_rnum() const { return nr; }
 	void set_rnum(const sh_int _) { nr = _; }
-	void set_attach_type(const byte _) { attach_type = _; }
+	void set_attach_type(const int _) { attach_type = _; }
 	[[nodiscard]] auto get_attach_type() const { return attach_type; }
 	[[nodiscard]] const auto &get_name() const { return name; }
 	void set_name(const std::string &_) { name = _; }
@@ -210,7 +210,7 @@ class Trigger {
 	void reset();
 
 	int nr;            // trigger's rnum                  //
-	byte attach_type;    // mob/obj/wld intentions          //
+	int attach_type;    // mob/obj/wld intentions          //
 	std::string name;    // name of trigger
 	long trigger_type;    // type of trigger (for bitvector) //
 	TriggerScriptLanguage script_language = TriggerScriptLanguage::Dg;

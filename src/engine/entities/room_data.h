@@ -88,9 +88,9 @@ struct RoomData {
 	std::array<exit_data_ptr, EDirection::kMaxDirNum> dir_option;    // Directions //
 	std::array<exit_data_ptr, EDirection::kMaxDirNum> dir_option_proto;
 
-	byte light;        // Number of lightsources in room //
-	byte glight;        // Number of lightness person     //
-	byte gdark;        // Number of darkness  person     //
+	int light;        // Number of lightsources in room //
+	int glight;        // Number of lightness person     //
+	int gdark;        // Number of darkness  person     //
 	struct WeatherControl weather;        // Weather state for room //
 	int (*func)(CharData *, void *, int, char *);
 

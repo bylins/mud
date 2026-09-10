@@ -15,7 +15,7 @@
 #include "gameplay/skills/skills.h"
 #include "gameplay/classes/classes_constants.h"
 #include "spells_constants.h"
-#include "engine/structs/structs.h"    // there was defined type "byte" if it had been missing
+#include "engine/structs/structs.h"
 
 class ActionContext;   // defined in magic.h (issue.spell-pipeline)
 enum class EStageResult;  // defined in magic.h; manual handlers return it (issue.manual-cast)

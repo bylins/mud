@@ -200,11 +200,11 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		}
 		if (HasNumber(physical, "extra_attack"))
 		{
-			mob->mob_specials.extra_attack = static_cast<byte>(physical["extra_attack"].get<int>());
+			mob->mob_specials.extra_attack = physical["extra_attack"].get<int>();
 		}
 		if (HasNumber(physical, "like_work"))
 		{
-			mob->mob_specials.like_work = static_cast<byte>(physical["like_work"].get<int>());
+			mob->mob_specials.like_work = physical["like_work"].get<int>();
 		}
 		if (HasNumber(physical, "maxfactor"))
 		{
@@ -886,7 +886,7 @@ void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
 	}
 	if (data.contains("attach_type"))
 	{
-		trig->set_attach_type(static_cast<byte>(data["attach_type"].get<int>()));
+		trig->set_attach_type(data["attach_type"].get<int>());
 	}
 
 	// Boolean flags

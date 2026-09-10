@@ -48,9 +48,9 @@
 extern int siteok_everyone;
 
 // local functions
-byte saving_throws(int class_num, int type, int level);
+int saving_throws(int class_num, int type, int level);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
-byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
+int GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
 extern bool char_to_pk_clan(CharData *ch);
 // Names first
@@ -96,7 +96,7 @@ ECharClass FindAvailableCharClassId(const std::string &class_name) {
 
 // Таблицы бызовых спасбросков
 
-const byte sav_01[50] =
+const int sav_01[50] =
 	{
 		90, 90, 90, 90, 90, 89, 89, 88, 88, 87,    // 00-09
 		86, 85, 84, 83, 81, 79, 78, 75, 73, 71,    // 10-19
@@ -104,7 +104,7 @@ const byte sav_01[50] =
 		30, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_02[50] =
+const int sav_02[50] =
 	{
 		90, 90, 90, 90, 90, 89, 89, 88, 87, 87,    // 00-09
 		86, 84, 83, 81, 80, 78, 75, 73, 70, 68,    // 10-19
@@ -112,7 +112,7 @@ const byte sav_02[50] =
 		20, 15, 10, 9, 8, 7, 6, 5, 4, 3,    // 30-39
 		2, 1, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_03[50] =
+const int sav_03[50] =
 	{
 		90, 90, 90, 90, 90, 89, 89, 88, 88, 87,    // 00-09
 		86, 85, 83, 82, 80, 79, 76, 74, 72, 69,    // 10-19
@@ -120,7 +120,7 @@ const byte sav_03[50] =
 		25, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_04[50] =
+const int sav_04[50] =
 	{
 		90, 90, 90, 90, 90, 90, 89, 89, 89, 88,    // 00-09
 		87, 87, 86, 85, 84, 83, 82, 80, 79, 77,    // 10-19
@@ -128,7 +128,7 @@ const byte sav_04[50] =
 		50, 45, 40, 35, 30, 25, 20, 15, 10, 5,    // 30-39
 		4, 3, 2, 1, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_05[50] =
+const int sav_05[50] =
 	{
 		90, 90, 90, 90, 90, 89, 89, 89, 88, 87,    // 00-09
 		86, 86, 84, 83, 82, 80, 79, 77, 75, 72,    // 10-19
@@ -137,7 +137,7 @@ const byte sav_05[50] =
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
 //kClassMob
-const byte sav_06[100] =
+const int sav_06[100] =
 	{
 		90, 90, 90, 90, 90, 90, 89, 89, 88, 88,    // 00-09
 		87, 86, 85, 84, 82, 80, 78, 76, 74, 72,    // 10-19
@@ -150,7 +150,7 @@ const byte sav_06[100] =
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,            // 80-89
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0            // 90-99
 	};
-const byte sav_08[50] =
+const int sav_08[50] =
 	{
 		90, 90, 90, 90, 90, 89, 89, 89, 88, 88,    // 00-09
 		87, 86, 85, 84, 83, 81, 80, 78, 76, 74,    // 10-19
@@ -158,7 +158,7 @@ const byte sav_08[50] =
 		40, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_09[50] =
+const int sav_09[50] =
 	{
 		90, 75, 73, 71, 69, 67, 65, 63, 61, 60,    // 00-09
 		59, 57, 55, 53, 51, 50, 49, 47, 45, 43,    // 10-19
@@ -166,7 +166,7 @@ const byte sav_09[50] =
 		23, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_10[50] =
+const int sav_10[50] =
 	{
 		90, 80, 79, 78, 76, 75, 73, 70, 67, 65,    // 00-09
 		64, 63, 61, 60, 59, 57, 56, 55, 54, 53,    // 10-19
@@ -174,7 +174,7 @@ const byte sav_10[50] =
 		37, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_11[50] =
+const int sav_11[50] =
 	{
 		90, 80, 79, 78, 77, 76, 75, 74, 73, 72,    // 00-09
 		71, 70, 69, 68, 67, 66, 65, 64, 63, 62,    // 10-19
@@ -182,7 +182,7 @@ const byte sav_11[50] =
 		51, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-const byte sav_12[50] =
+const int sav_12[50] =
 	{
 		90, 85, 83, 82, 80, 75, 70, 65, 63, 62,    // 00-09
 		60, 55, 50, 45, 43, 42, 40, 37, 33, 30,    // 10-19
@@ -191,7 +191,7 @@ const byte sav_12[50] =
 		7, 6, 5, 4, 3, 2, 1, 0, 0, 0    // 40-49
 	};
 //kClassMob
-const byte sav_13[100] =
+const int sav_13[100] =
 	{
 		90, 83, 81, 79, 77, 75, 72, 68, 65, 63,    // 00-09
 		61, 58, 56, 53, 50, 47, 45, 43, 42, 41,    // 10-19
@@ -204,7 +204,7 @@ const byte sav_13[100] =
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,            // 80-89
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0            // 90-99
 	};
-const byte sav_14[50] =
+const int sav_14[50] =
 	{
 		100, 100, 100, 100, 100, 100, 100, 100, 100, 100,    // 00-09
 		100, 100, 100, 100, 100, 100, 100, 100, 100, 100,    // 10-19
@@ -212,7 +212,7 @@ const byte sav_14[50] =
 		100, 70, 70, 70, 70, 70, 70, 70, 70, 70,    // 30-39
 		70, 70, 70, 70, 70, 70, 70, 70, 70, 70    // 40-49
 	};
-const byte sav_15[50] =
+const int sav_15[50] =
 	{
 		100, 99, 98, 97, 96, 95, 94, 93, 92, 91,    // 00-09
 		90, 89, 88, 87, 86, 85, 84, 83, 82, 81,    // 10-19
@@ -220,7 +220,7 @@ const byte sav_15[50] =
 		70, 50, 50, 50, 50, 50, 50, 50, 50, 50,    // 30-39
 		50, 50, 50, 50, 50, 50, 50, 50, 50, 50    // 40-49
 	};
-const byte sav_16[50] =
+const int sav_16[50] =
 	{
 		100, 99, 97, 96, 95, 94, 92, 91, 89, 88,    // 00-09
 		86, 85, 84, 83, 81, 80, 79, 77, 76, 75,    // 10-19
@@ -228,7 +228,7 @@ const byte sav_16[50] =
 		60, 58, 57, 56, 54, 52, 51, 49, 47, 46,    // 30-39
 		45, 43, 42, 41, 39, 37, 35, 34, 32, 31    // 40-49
 	};
-const byte sav_17[50] =
+const int sav_17[50] =
 	{
 		100, 99, 97, 96, 95, 94, 92, 91, 89, 88,    // 00-09
 		86, 84, 82, 80, 78, 76, 74, 72, 70, 68,    // 10-19
@@ -237,7 +237,7 @@ const byte sav_17[50] =
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
 //kClassMob
-const byte sav_18[100] =
+const int sav_18[100] =
 	{
 		100, 100, 100, 100, 100, 99, 99, 99, 99, 99,    // 00-09
 		98, 98, 98, 98, 98, 97, 97, 97, 97, 97,            // 10-19
@@ -254,7 +254,7 @@ const byte sav_18[100] =
 // {CLASS,{PARA,ROD,AFFECT,BREATH,SPELL,BASIC}}
 struct ClassSavings {
 	ECharClass chclass;
-	const byte *saves[to_underlying(ESaving::kLast) + 1];
+	const int *saves[to_underlying(ESaving::kLast) + 1];
 };
 
 const ClassSavings std_saving[] = {
@@ -276,11 +276,11 @@ const ClassSavings std_saving[] = {
 	{ECharClass::kUndefined, {sav_02, sav_12, sav_02, sav_16}}
 };
 
-byte GetSavingThrows(ECharClass class_id, ESaving type, int level) {
+int GetSavingThrows(ECharClass class_id, ESaving type, int level) {
 	return GetExtendSavingThrows(class_id, type, level);
 }
 
-byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level) {
+int GetExtendSavingThrows(ECharClass class_id, ESaving save, int level) {
 	int i;
 	if (save < ESaving::kFirst || save > ESaving::kLast) {
 		return 100; // Что за 100? Почему 100? kMaxSaving равен 400. Идиотизм.
