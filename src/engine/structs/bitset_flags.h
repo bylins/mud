@@ -256,6 +256,15 @@ class BitsetFlags {
 											   result_size, div, print_flag);
 	}
 
+	// Строковая форма: список флагов без буфера у вызывающего (#3814). Размер задан здесь же,
+	// чтобы заголовок не тянул за собой structs.h ради одной константы.
+	[[nodiscard]] std::string sprintbits(const char *names[], const char *div,
+										 int print_flag = 0) const {
+		char result[8192];
+		sprintbits(names, result, sizeof(result), div, print_flag);
+		return result;
+	}
+
 	// DG-script style getter/setter by flag name (mirrors FlagData::gm_flag).
 	int gm_flag(const char *subfield, const char *const *list, char *res) {
 		if ('\0' == *subfield) {
