@@ -899,7 +899,7 @@ int ParseAllPrefix(char *arg) {
 	return (kFindIndiv);
 }
 
-RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
+RoomRnum FindRoomRnum(CharData *ch, const char *rawroomstr, int trig) {
 	RoomVnum tmp;
 	RoomRnum location;
 	CharData *target_mob;

@@ -348,6 +348,9 @@ struct script_memory {
 	struct script_memory *next;
 };
 
+// Имя того, на кого указывает UID переменной триггера; если не нашли -- сам UID.
+std::string find_uid_name(const char *uid);
+
 // function prototypes from triggers.cpp (and others) //
 void act_mtrigger(CharData *ch,
 				  char *str,

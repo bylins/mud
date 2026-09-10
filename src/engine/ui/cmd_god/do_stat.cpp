@@ -530,22 +530,20 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	} else        // this is a PC, display their global variables
 	{
 		if (!SCRIPT(k)->global_vars.empty()) {
-			char name[kMaxInputLength];
-			void find_uid_name(const char *uid, char *name, size_t name_size);
 			SendMsgToChar("Глобальные переменные:\r\n", ch);
 			// currently, variable context for players is always 0, so it is
 			// not displayed here. in the future, this might change
 			for (auto tv : k->script->global_vars) {
 				if (tv.value[0] == UID_CHAR) {
-					find_uid_name(tv.value.c_str(), name, sizeof(name));
 					// Ширину колонки имени считает fmt: printf меряет её в байтах (issue #3797).
-					SendMsgToChar(fmt::format("    {:>10}:  [CharUID]: {}\r\n", tv.name, name), ch);
+					SendMsgToChar(fmt::format("    {:>10}:  [CharUID]: {}\r\n",
+											  tv.name, find_uid_name(tv.value.c_str())), ch);
 				} else if (tv.value[0] == UID_OBJ) {
-					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					SendMsgToChar(fmt::format("    {:>10}:  [ObjUID]: {}\r\n", tv.name, name), ch);
+					SendMsgToChar(fmt::format("    {:>10}:  [ObjUID]: {}\r\n",
+											  tv.name, find_uid_name(tv.value.c_str())), ch);
 				} else if (tv.value[0] == UID_ROOM) {
-					find_uid_name(tv.value.c_str(), name, sizeof(name));
-					SendMsgToChar(fmt::format("    {:>10}:  [RoomUID]: {}\r\n", tv.name, name), ch);
+					SendMsgToChar(fmt::format("    {:>10}:  [RoomUID]: {}\r\n",
+											  tv.name, find_uid_name(tv.value.c_str())), ch);
 				} else {
 					SendMsgToChar(fmt::format("    {:>10}:  {}\r\n", tv.name, tv.value), ch);
 				}

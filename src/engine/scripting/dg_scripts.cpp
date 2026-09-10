@@ -824,87 +824,78 @@ EVENT(trig_wait_event) {
 }
 
 void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
-	char sb[kMaxExtendLength];
-	char smallbuf[10];
-
 	if (!trig) {
 		log("SYSERR: NULL trigger passed to do_stat_trigger.");
 		return;
 	}
 
-	snprintf(sb, sizeof(sb), "Name: '%s%s%s',  VNum: [%s%7d%s], RNum: [%7d]\r\n",
-			kColorYel, trig->get_name().c_str(), kColorNrm,
-			kColorGrn, trig_index[(trig)->get_rnum()]->vnum,
-			kColorNrm, trig->get_rnum());
-	SendMsgToChar(sb, ch);
+	SendMsgToChar(fmt::format("Name: '&y{}&n',  VNum: [&g{:7}&n], RNum: [{:7}]\r\n",
+							  trig->get_name(), trig_index[(trig)->get_rnum()]->vnum, trig->get_rnum()),
+				  ch);
 
+	std::string types;
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		SendMsgToChar("Trigger Intended Assignment: Mobiles\r\n", ch);
-		sprintbit(GET_TRIG_TYPE(trig), trig_types, buf, sizeof(buf));
+		types = sprintbit(GET_TRIG_TYPE(trig), trig_types);
 	} else if (trig->get_attach_type() == OBJ_TRIGGER) {
 		SendMsgToChar("Trigger Intended Assignment: Objects\r\n", ch);
-		sprintbit(GET_TRIG_TYPE(trig), otrig_types, buf, sizeof(buf));
+		types = sprintbit(GET_TRIG_TYPE(trig), otrig_types);
 	} else if (trig->get_attach_type() == WLD_TRIGGER) {
 		SendMsgToChar("Trigger Intended Assignment: Rooms\r\n", ch);
-		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, buf, sizeof(buf));
+		types = sprintbit(GET_TRIG_TYPE(trig), wtrig_types);
 	} else {
 		SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
 					  static_cast<int>(trig->get_attach_type()));
 	}
 
+	const std::string arglist = !trig->arglist.empty() ? trig->arglist : "None";
+	std::string out;
 	if (trig->get_attach_type() == MOB_TRIGGER) {
-		snprintf(sb, sizeof(sb), "Trigger Type: %s, Numeric Arg: %d, Execute mob command: %s, Arg list: %s\r\n",
-				buf, GET_TRIG_NARG(trig), trig->add_flag ? "ДА" : "НЕТ", !trig->arglist.empty() ? trig->arglist.c_str() : "None");
+		out = fmt::format("Trigger Type: {}, Numeric Arg: {}, Execute mob command: {}, Arg list: {}\r\n",
+						  types, GET_TRIG_NARG(trig), trig->add_flag ? "ДА" : "НЕТ", arglist);
 	} else {
-		snprintf(sb, sizeof(sb), "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-				buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
+		out = fmt::format("Trigger Type: {}, Numeric Arg: {}, Arg list: {}\r\n",
+						  types, GET_TRIG_NARG(trig), arglist);
 	}
-	size_t sb_len = strlen(sb);
+
 	if (trig->get_script_language() == TriggerScriptLanguage::Lua) {
-		std::string output(sb);
-		output += "Lua script:\r\n";
+		out += "Lua script:\r\n";
 		const auto &lua_source = trig->get_lua_script_source();
 		if (!lua_source.empty()) {
-			output += need_num
-				? lua_scripting::FormatNumberedSource(lua_source, 1, std::numeric_limits<int>::max())
-				: lua_source;
-			output += "\r\n";
+			out += need_num
+				   ? lua_scripting::FormatNumberedSource(lua_source, 1, std::numeric_limits<int>::max())
+				   : lua_source;
+			out += "\r\n";
 		}
-		page_string(ch->desc, output);
+		page_string(ch->desc, out);
 		return;
 	}
 
-	strncat(sb, "Commands:\r\n", sizeof(sb) - sb_len - 1);
-
+	out += "Commands:\r\n";
 	auto cmd_list = trig->cmdlist ? *trig->cmdlist : nullptr;
 	while (cmd_list) {
 		if (!cmd_list->cmd.empty()) {
 			if (need_num) {
-				snprintf(smallbuf, sizeof(smallbuf), "%4d:  ", cmd_list->line_num);
-				strncat(sb, smallbuf, sizeof(sb) - strlen(sb) - 1);
+				out += fmt::format("{:4}:  ", cmd_list->line_num);
 			}
-			size_t sb_len = strlen(sb);
-			snprintf(sb + sb_len, sizeof(sb) - sb_len, "%s\r\n", cmd_list->cmd.c_str());
+			out += cmd_list->cmd;
+			out += "\r\n";
 		}
-
 		cmd_list = cmd_list->next;
 	}
 
-	page_string(ch->desc, sb, 1);
+	page_string(ch->desc, out);
 }
 
 // find the name of what the uid points to
-void find_uid_name(const char *uid, char *name, size_t name_size) {
-	CharData *ch;
-	ObjData *obj;
-
-	if ((ch = get_char(uid))) {
-		snprintf(name, name_size, "%s", ch->GetCharAliases().c_str());
-	} else if ((obj = get_obj(uid))) {
-		snprintf(name, name_size, "%s", obj->get_aliases().c_str());
-	} else {
-		snprintf(name, name_size, "uid = %s, (not found)", uid + 1);
+std::string find_uid_name(const char *uid) {
+	if (CharData *ch = get_char(uid)) {
+		return ch->GetCharAliases();
 	}
+	if (ObjData *obj = get_obj(uid)) {
+		return obj->get_aliases();
+	}
+	return fmt::format("uid = {}, (not found)", uid + 1);
 }
 
 const auto FOREACH_LIST_GUID = "{18B3D8D1-240E-4D60-AEAB-6748580CA460}";
@@ -944,77 +935,65 @@ static std::string print_variable_name(const std::string &name) {
 
 // general function to display stats on script sc
 void script_stat(CharData *ch, Script *sc) {
-	char name[kMaxInputLength];
-	char namebuf[kMaxInputLength];
-
-	snprintf(buf, sizeof(buf), "Global Variables: %s\r\n", sc->global_vars.empty() ? "" : "None");
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Global Variables: {}\r\n", sc->global_vars.empty() ? "" : "None"), ch);
 	for (auto tv : sc->global_vars) {
-		snprintf(namebuf, sizeof(namebuf), "%s:%ld", tv.name.c_str(), tv.context);
-		if (tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM || tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL) {
-			find_uid_name(tv.value.c_str(), name, sizeof(name));
-			// Ширину колонки имени считает fmt: printf меряет её в байтах, и русское имя
-			// переменной ломало столбец (issue #3797).
-			SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
-									  tv.context ? namebuf : tv.name.c_str(), name), ch);
-		} else
-			SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
-									  tv.context ? namebuf : tv.name.c_str(), tv.value), ch);
+		const std::string var_name = tv.context ? fmt::format("{}:{}", tv.name, tv.context) : tv.name;
+		const bool is_uid = tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM
+			|| tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL;
+		// Ширину колонки имени считает fmt: printf меряет её в байтах, и русское имя
+		// переменной ломало столбец (issue #3797).
+		SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
+								  var_name, is_uid ? find_uid_name(tv.value.c_str()) : tv.value), ch);
 	}
 
 	for (auto t : sc->script_trig_list) {
-		snprintf(buf, sizeof(buf), "\r\n  Trigger: %s%s%s, VNum: [%s%7d%s], RNum: [%7d], Context: [%ld]\r\n",
-				kColorYel, GET_TRIG_NAME(t), kColorNrm,
-				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t), t->context);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("\r\n  Trigger: &y{}&n, VNum: [&g{:7}&n], RNum: [{:7}], Context: [{}]\r\n",
+								  GET_TRIG_NAME(t), GET_TRIG_VNUM(t), GET_TRIG_RNUM(t), t->context), ch);
 
+		std::string types;
 		if (t->get_attach_type() == MOB_TRIGGER) {
 			SendMsgToChar("  Trigger Intended Assignment: Mobiles\r\n", ch);
-			sprintbit(GET_TRIG_TYPE(t), trig_types, buf1, sizeof(buf1));
+			types = sprintbit(GET_TRIG_TYPE(t), trig_types);
 		} else if (t->get_attach_type() == OBJ_TRIGGER) {
 			SendMsgToChar("  Trigger Intended Assignment: Objects\r\n", ch);
-			sprintbit(GET_TRIG_TYPE(t), otrig_types, buf1, sizeof(buf1));
+			types = sprintbit(GET_TRIG_TYPE(t), otrig_types);
 		} else if (t->get_attach_type() == WLD_TRIGGER) {
 			SendMsgToChar("  Trigger Intended Assignment: Rooms\r\n", ch);
-			sprintbit(GET_TRIG_TYPE(t), wtrig_types, buf1, sizeof(buf1));
+			types = sprintbit(GET_TRIG_TYPE(t), wtrig_types);
 		} else {
 			SendMsgToChar(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
 						  static_cast<int>(t->get_attach_type()));
 		}
-		std::stringstream buffer;
+
+		const std::string arglist = !t->arglist.empty() ? t->arglist : "None";
 		if (t->get_attach_type() == MOB_TRIGGER) {
-			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
-				   << " , Execute mob command: " << (t->add_flag ? "ДА" : "НЕТ")
-				   << " , Arg list:" << (!t->arglist.empty() ? t->arglist.c_str() : "None");
+			SendMsgToChar(fmt::format("  Trigger Type: {}, Numeric Arg:{} , Execute mob command: {} , Arg list:{}",
+									  types, GET_TRIG_NARG(t), t->add_flag ? "ДА" : "НЕТ", arglist), ch);
 		} else {
-			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
-				   << " , Arg list:" << (!t->arglist.empty() ? t->arglist.c_str() : "None");
+			SendMsgToChar(fmt::format("  Trigger Type: {}, Numeric Arg:{} , Arg list:{}",
+									  types, GET_TRIG_NARG(t), arglist), ch);
 		}
-		SendMsgToChar(buffer.str(), ch);
 
 		if (GET_TRIG_WAIT(t).time_remaining > 0) {
 			if (t->wait_line != nullptr) {
-				snprintf(buf, sizeof(buf), "    Wait: %d, Current line: %s (num line: %d)\r\n",
-						GET_TRIG_WAIT(t).time_remaining, t->wait_line->cmd.c_str(), t->wait_line->line_num);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("    Wait: {}, Current line: {} (num line: {})\r\n",
+										  GET_TRIG_WAIT(t).time_remaining, t->wait_line->cmd,
+										  t->wait_line->line_num), ch);
 			} else {
-				snprintf(buf, sizeof(buf), "    Wait: %d\r\n", GET_TRIG_WAIT(t).time_remaining);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("    Wait: {}\r\n", GET_TRIG_WAIT(t).time_remaining), ch);
 			}
 
-			snprintf(buf, sizeof(buf), "  Variables: %s\r\n", t->var_list.empty() ? "" : "None");
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("  Variables: {}\r\n", t->var_list.empty() ? "" : "None"), ch);
 
-			for (auto tv :  t->var_list) {
+			for (auto tv : t->var_list) {
 				const std::string var_name = print_variable_name(tv.name.c_str());
-				if (!var_name.empty()) {
-					if (tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM || tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL) {
-						find_uid_name(tv.value.c_str(), name, sizeof(name));
-						SendMsgToChar(fmt::format("    {:>15}:  {}\r\n", var_name, name), ch);
-					} else {
-						SendMsgToChar(fmt::format("    {:>15}:  {}\r\n", var_name, tv.value), ch);
-					}
+				if (var_name.empty()) {
+					continue;
 				}
+				const bool is_uid = tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM
+					|| tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL;
+				SendMsgToChar(fmt::format("    {:>15}:  {}\r\n",
+										  var_name, is_uid ? find_uid_name(tv.value.c_str()) : tv.value), ch);
 			}
 		}
 	}
@@ -1100,45 +1079,49 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	ObjData *object;
 	Trigger *trig;
-	char targ_name[kMaxInputLength], trig_name[kMaxInputLength];
-	char loc_name[kMaxInputLength];
 	int loc, room, tn, rn;
 
-	argument = two_arguments(argument, arg, trig_name);
-	two_arguments(argument, targ_name, loc_name);
+	std::string rest(argument ? argument : "");
+	const std::string type_name = utils::ExtractFirstArgumentLower(rest, rest);
+	const std::string trig_name = utils::ExtractFirstArgumentLower(rest, rest);
+	const std::string targ_name = utils::ExtractFirstArgumentLower(rest, rest);
+	const std::string loc_name = utils::ExtractFirstArgumentLower(rest, rest);
 
-	if (!*arg || !*targ_name || !*trig_name) {
+	if (type_name.empty() || targ_name.empty() || trig_name.empty()) {
 		SendMsgToChar("Usage: attach { mtr | otr | wtr } { trigger } { name } [ location ]\r\n", ch);
 		return;
 	}
 
-	tn = atoi(trig_name);
-	loc = (*loc_name) ? atoi(loc_name) : -1;
+	tn = atoi(trig_name.c_str());
+	loc = !loc_name.empty() ? atoi(loc_name.c_str()) : -1;
+
+	const bool is_mtr = utils::IsAbbr(type_name.c_str(), "mtr");
+	const bool is_otr = utils::IsAbbr(type_name.c_str(), "otr");
+	const bool is_wtr = utils::IsAbbr(type_name.c_str(), "wtr");
 
 	rn = GetTriggerRnum(tn);
 	if (rn >= 0
-		&& ((utils::IsAbbr(arg, "mtr") && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
-			|| (utils::IsAbbr(arg, "otr") && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
-			|| (utils::IsAbbr(arg, "wtr") && trig_index[rn]->proto->get_attach_type() != WLD_TRIGGER))) {
-		tn = (utils::IsAbbr(arg, "mtr") ? 0 : utils::IsAbbr(arg, "otr") ? 1 : utils::IsAbbr(arg, "wtr") ? 2 : 3);
-		snprintf(buf, sizeof(buf),
-				"Trigger %d (%s) has wrong attach_type %s expected %s.\r\n",
-				tn,
-				GET_TRIG_NAME(trig_index[rn]->proto),
-				attach_name[(int) trig_index[rn]->proto->get_attach_type()],
-				attach_name[tn]);
-		SendMsgToChar(buf, ch);
+		&& ((is_mtr && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
+			|| (is_otr && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
+			|| (is_wtr && trig_index[rn]->proto->get_attach_type() != WLD_TRIGGER))) {
+		tn = (is_mtr ? 0 : is_otr ? 1 : is_wtr ? 2 : 3);
+		SendMsgToChar(fmt::format("Trigger {} ({}) has wrong attach_type {} expected {}.\r\n",
+								  tn,
+								  GET_TRIG_NAME(trig_index[rn]->proto),
+								  attach_name[(int) trig_index[rn]->proto->get_attach_type()],
+								  attach_name[tn]),
+					  ch);
 		return;
 	}
-	if (utils::IsAbbr(arg, "mtr")) {
+	if (is_mtr) {
 		victim = target_resolver::FindCharInWorld(ch, targ_name);
 		if (victim) {
 			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
 				rn = GetTriggerRnum(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
-					snprintf(buf, sizeof(buf), "Trigger %d (%s) attached to %s.\r\n", tn, GET_TRIG_NAME(trig), GET_SHORT(victim));
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("Trigger {} ({}) attached to {}.\r\n",
+											  tn, GET_TRIG_NAME(trig), GET_SHORT(victim)), ch);
 					if (add_trigger(SCRIPT(victim).get(), trig, loc)) {
 						add_trig_to_owner(-1, tn, GET_MOB_VNUM(victim));
 						timechange_register_mob(victim);
@@ -1153,16 +1136,15 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			SendMsgToChar("That mob does not exist.\r\n", ch);
 		}
-	} else if (utils::IsAbbr(arg, "otr")) {
+	} else if (is_otr) {
 		if ((object = target_resolver::FindObjAround(ch, targ_name)))    // have a valid obj, now get trigger
 		{
 			rn = GetTriggerRnum(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn))) {
-				snprintf(buf, sizeof(buf), "Trigger %d (%s) attached to %s.\r\n",
-						tn, GET_TRIG_NAME(trig),
-						(!object->get_short_description().empty() ? object->get_short_description().c_str()
-																  : object->get_aliases().c_str()));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Trigger {} ({}) attached to {}.\r\n",
+										  tn, GET_TRIG_NAME(trig),
+										  !object->get_short_description().empty()
+										  ? object->get_short_description() : object->get_aliases()), ch);
 				if (add_trigger(object->get_script().get(), trig, loc)) {
 					add_trig_to_owner(-1, tn, GET_OBJ_VNUM(object));
 						timechange_register_obj(object);
@@ -1174,15 +1156,14 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("That trigger does not exist.\r\n", ch);
 		} else
 			SendMsgToChar("That object does not exist.\r\n", ch);
-	} else if (utils::IsAbbr(arg, "wtr")) {
-		if (a_isdigit(*targ_name) && !strchr(targ_name, '.')) {
-			if ((room = FindRoomRnum(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
+	} else if (is_wtr) {
+		if (a_isdigit(targ_name[0]) && targ_name.find('.') == std::string::npos) {
+			if ((room = FindRoomRnum(ch, targ_name.c_str(), 0)) != kNowhere)    // have a valid room, now get trigger
 			{
 				rn = GetTriggerRnum(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
-					snprintf(buf, sizeof(buf), "Trigger %d (%s) attached to room %d.\r\n",
-							tn, GET_TRIG_NAME(trig), world[room]->vnum);
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("Trigger {} ({}) attached to room {}.\r\n",
+											  tn, GET_TRIG_NAME(trig), world[room]->vnum), ch);
 					if (add_trigger(world[room]->script.get(), trig, loc)) {
 						add_trig_to_owner(-1, tn, world[room]->vnum);
 						timechange_register_room(world[room]);
@@ -1268,9 +1249,8 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("That mob doesn't have any triggers.\r\n", ch);
 			} else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все")) {
 				victim->cleanup_script();
-				snprintf(buf, sizeof(buf), "All triggers removed from %s.\r\n", GET_SHORT(victim));
 				timechange_unregister_mob(victim);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("All triggers removed from {}.\r\n", GET_SHORT(victim)), ch);
 			} else if (trigger
 				&& SCRIPT(victim)->remove_trigger(atoi(trigger))) {
 				owner_trig[atoi(trigger)][-1].erase(GET_MOB_VNUM(victim));
@@ -1284,10 +1264,9 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("That object doesn't have any triggers.\r\n", ch);
 			} else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все")) {
 				object->cleanup_script();
-				snprintf(buf, sizeof(buf), "All triggers removed from %s.\r\n",
-						!object->get_short_description().empty() ? object->get_short_description().c_str()
-																 : object->get_aliases().c_str());
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("All triggers removed from {}.\r\n",
+										  !object->get_short_description().empty()
+										  ? object->get_short_description() : object->get_aliases()), ch);
 				timechange_unregister_obj(object);
 			} else if (trigger &&  object->get_script()->remove_trigger(atoi(trigger))) {
 				owner_trig[atoi(trigger)][-1].erase(GET_OBJ_VNUM(object));
@@ -1386,8 +1365,7 @@ bool CheckSript(const RoomData *go, const long type) {
 long gm_char_field(CharData *ch, char *field, char *subfield, long val) {
 	int tmpval;
 	if (*subfield) {
-		snprintf(buf, sizeof(buf), "DG_Script: Set %s with <%s> for %s.", field, subfield, GET_NAME(ch));
-		log("%s", buf);
+		log(fmt::format("DG_Script: Set {} with <{}> for {}.", field, subfield, GET_NAME(ch)));
 		if (*subfield == '-')
 			return (val - atoi(subfield + 1));
 		else if (*subfield == '+')
@@ -2236,8 +2214,7 @@ void find_replacement(void *go,
 				std::vector<std::string> tokens = utils::Split(arg, ',');
 
 				if (tokens.size() < 2 || tokens.size() > 3) {
-					snprintf(buf, sizeof(buf), "array.find: путанница в количестве аргументов");
-					trig_log(trig, buf);
+					trig_log(trig, "array.find: путанница в количестве аргументов");
 					return;
 				}
 				if (tokens.size() == 3) {
@@ -2245,21 +2222,18 @@ void find_replacement(void *go,
 						index = std::stoi(tokens.at(2));
 					}
 					catch (const std::invalid_argument &) {
-						snprintf(buf, sizeof(buf), "array.find: index кривой, указано '%s'", tokens.at(2).c_str());
-						trig_log(trig, buf);
+						trig_log(trig, fmt::format("array.find: index кривой, указано '{}'", tokens.at(2)));
 						return;
 					}
 					if (index < 0) {
-						snprintf(buf, sizeof(buf), "array.find: index меньше нуля, указано '%s'", tokens.at(2).c_str());
-						trig_log(trig, buf);
+						trig_log(trig, fmt::format("array.find: index меньше нуля, указано '{}'", tokens.at(2)));
 						return;
 					}
 				}
 				std::vector<std::string> arr = utils::Split(tokens.at(0));
 				std::string elem = tokens.at(1);
 				if (index > static_cast<int>(arr.size())) {
-					snprintf(buf, sizeof(buf), "%s", "array.find: index больше размера массива");
-					trig_log(trig, buf);
+					trig_log(trig, "array.find: index больше размера массива");
 					return;
 				}
 				std::vector<std::string>::iterator result;
@@ -2281,27 +2255,23 @@ void find_replacement(void *go,
 				int index = 0;
 
 				if (tokens.size() != 2) {
-					snprintf(buf, sizeof(buf), "array.remove: путанница в количестве аргументов");
-					trig_log(trig, buf);
+					trig_log(trig, "array.remove: путанница в количестве аргументов");
 					return;
 				}
 				try {
 					index = std::stoi(tokens.at(1));
 				}
 				catch (const std::invalid_argument &) {
-					snprintf(buf, sizeof(buf), "array.remove: index кривой или отсуствует, указано '%s'", tokens.at(1).c_str());
-					trig_log(trig, buf);
+					trig_log(trig, fmt::format("array.remove: index кривой или отсуствует, указано '{}'", tokens.at(1)));
 					return;
 				}
 				if (index < 1) {
-					snprintf(buf, sizeof(buf), "array.remove: index меньше единицы, указано '%s'", tokens.at(1).c_str());
-					trig_log(trig, buf);
+					trig_log(trig, fmt::format("array.remove: index меньше единицы, указано '{}'", tokens.at(1)));
 					return;
 				}
 				std::vector<std::string> arr = utils::Split(tokens.at(0));
 				if (index > static_cast<int>(arr.size())) {
-					snprintf(buf, sizeof(buf), "%s", "array.remove: index больше размера массива");
-					trig_log(trig, buf);
+					trig_log(trig, "array.remove: index больше размера массива");
 					return;
 				}
 				index--; // в DG массивы с 1
@@ -2459,8 +2429,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "description")) {
 			if (*subfield) {
-				snprintf(buf, sizeof(buf), "%s\r\n", std::string(subfield).c_str());
-				mob->player_data.long_descr = buf;
+				mob->player_data.long_descr = fmt::format("{}\r\n", subfield);
 			}
 			else {
 				snprintf(str, str_size, "%s", mob->player_data.long_descr.c_str());
@@ -2664,15 +2633,14 @@ void find_replacement(void *go,
 				int value;
 				currencies::SetHand(*mob, currencies::kGold, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetHand(*mob, currencies::kGold))));
 				value = currencies::GetHand(*mob, currencies::kGold) - before;
-				snprintf(buf, sizeof(buf),
-						"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-						GET_PAD(mob, 0),
-						GET_ROOM_VNUM(mob->in_room),
-						value,
-						MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str(),
-						GET_TRIG_NAME(trig),
-						GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+				mudlog(fmt::format("<{}> {{{}}} получил триггером {} {}. [Trigger: {}, Vnum: {}]",
+								   GET_PAD(mob, 0),
+								   GET_ROOM_VNUM(mob->in_room),
+								   value,
+								   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom),
+								   GET_TRIG_NAME(trig),
+								   GET_TRIG_VNUM(trig)),
+					   NRM, kLvlGreatGod, MONEY_LOG, true);
 				// клан-налог
 				const long diff = currencies::GetHand(*mob, currencies::kGold) - before;
 				split_or_clan_tax(mob, diff);
@@ -2711,27 +2679,18 @@ void find_replacement(void *go,
 				if (*subfield) {
 					if (*subfield == '-') {
 						experience::EndowExpToChar(mob, -std::max(1, atoi(subfield + 1)));
-						snprintf(buf, sizeof(buf),
-								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
-								GET_NAME(mob),
-								std::max(1, atoi(subfield + 1)),
-								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
+						mudlog(fmt::format("SCRIPT_LOG (exp) у {} уменьшен опыт на {} в триггере {}",
+										   GET_NAME(mob), std::max(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig)),
+							   BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
 						experience::EndowExpToChar(mob, +std::max(1, atoi(subfield + 1)));
-						snprintf(buf, sizeof(buf),
-								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
-								GET_NAME(mob),
-								std::max(1, atoi(subfield + 1)),
-								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
+						mudlog(fmt::format("SCRIPT_LOG (exp) у {} увеличен опыт на {} в триггере {}",
+										   GET_NAME(mob), std::max(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig)),
+							   BRF, kLvlGreatGod, ERRLOG, 1);
 					} else {
-						snprintf(buf, sizeof(buf),
-								"SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d",
-								GET_NAME(mob),
-								atoi(subfield + 1),
-								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
+						mudlog(fmt::format("SCRIPT_LOG (exp) ОШИБКА! у {} напрямую указан опыт {} в триггере {}",
+										   GET_NAME(mob), atoi(subfield + 1), GET_TRIG_VNUM(trig)),
+							   BRF, kLvlGreatGod, ERRLOG, 1);
 					}
 				} else
 					snprintf(str, str_size, "%ld", mob->get_exp());
@@ -2840,8 +2799,7 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "0");
 				}
 			} else {
-				snprintf(buf, sizeof(buf), "wrong skill name '%s'!", subfield);
-				trig_log(trig, buf);
+				trig_log(trig, fmt::format("wrong skill name '{}'!", subfield));
 				snprintf(str, str_size, "0");
 			}
 		} else if (!str_cmp(field, "cangetspell")) {
@@ -2853,8 +2811,7 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "0");
 				}
 			} else {
-				snprintf(buf, sizeof(buf), "wrong spell name '%s'!", subfield);
-				trig_log(trig, buf);
+				trig_log(trig, fmt::format("wrong spell name '{}'!", subfield));
 				snprintf(str, str_size, "0");
 			}
 		} else if (!str_cmp(field, "cangetfeat")) {
@@ -2864,8 +2821,7 @@ void find_replacement(void *go,
 				else
 					snprintf(str, str_size, "0");
 			} else {
-				snprintf(buf, sizeof(buf), "wrong feature name '%s'!", subfield);
-				trig_log(trig, buf);
+				trig_log(trig, fmt::format("wrong feature name '{}'!", subfield));
 				snprintf(str, str_size, "0");
 			}
 		} else if (!str_cmp(field, "agressor")) {
@@ -3007,16 +2963,16 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "setquest")) {
 				if (*subfield) {
-					subfield = one_argument(subfield, buf);
+					subfield = one_argument(subfield, tmp);
 					skip_spaces(&subfield);
-					if ((num = atoi(buf)) > 0) {
+					if ((num = atoi(tmp)) > 0) {
 						mob->quested_add(mob, num, subfield);
 					}
 				}
 			} else if (!str_cmp(field, "alliance")) {
 				if (*subfield) {
-					subfield = one_argument(subfield, buf);
-					if (ClanSystem::is_alliance(mob, buf))
+					subfield = one_argument(subfield, tmp);
+					if (ClanSystem::is_alliance(mob, tmp))
 						snprintf(str, str_size, "1");
 					else
 						snprintf(str, str_size, "0");
@@ -3116,8 +3072,7 @@ void find_replacement(void *go,
 						break;
 				}
 				if (num == EApply::kNumberApplies) {
-					snprintf(buf, sizeof(buf), "Не найден апплай '%s' в списке ApplyTypes", subfield);
-					trig_log(trig, buf);
+					trig_log(trig, fmt::format("Не найден апплай '{}' в списке ApplyTypes", subfield));
 					return;
 				}
 				if (!mob->affected.empty()) {
@@ -3158,8 +3113,7 @@ void find_replacement(void *go,
 				if (!p) {
 					EAffect aff_id;
 					if (!resolve_affect(subfield, aff_id)) {
-						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
-						trig_log(trig, buf);
+						trig_log(trig, fmt::format("Не найден аффект {} в списке AffectedBy", subfield));
 						return;
 					}
 					for (const auto &affect : mob->affected) {
@@ -3174,8 +3128,7 @@ void find_replacement(void *go,
 					*(p++) = '\0';
 					EAffect aff_id;
 					if (!resolve_affect(subfield, aff_id)) {
-						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
-						trig_log(trig, buf);
+						trig_log(trig, fmt::format("Не найден аффект {} в списке AffectedBy", subfield));
 						return;
 					}
 					for (num = 0; num < EApply::kNumberApplies; num++) {
@@ -3183,8 +3136,7 @@ void find_replacement(void *go,
 						break;
 					}
 					if (num == EApply::kNumberApplies) {
-						snprintf(buf, sizeof(buf), "Не найден апплай '%s' в списке AffectedBy", p);
-						trig_log(trig, buf);
+						trig_log(trig, fmt::format("Не найден апплай '{}' в списке AffectedBy", p));
 						return;
 					}
 					for (const auto &affect : mob->affected) {
@@ -3356,8 +3308,7 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "%s", vd.value.c_str());
 				}
 				else {
-					snprintf(buf2, sizeof(buf2), "unknown char field: '%s'", field);
-					trig_log(trig, buf2);
+					trig_log(trig, fmt::format("unknown char field: '{}'", field));
 				}
 			}
 		} // if (!char_handled)
@@ -3510,14 +3461,12 @@ void find_replacement(void *go,
 				if (!obj->get_dgscript_field().empty()) {
 					saved_info = utils::Split(obj->get_dgscript_field(), '#');
 				} else {
-					snprintf(buf, sizeof(buf), "Нет сохраненных переменных");
-					trig_log(trig, buf);
+					trig_log(trig, "Нет сохраненных переменных");
 				}
 				for (auto &it : saved_info) {
 					name = utils::ExtractFirstArgument(it, value);
 					if (name.empty() || value.empty()) {
-						snprintf(buf, sizeof(buf), "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
-						trig_log(trig, buf);
+						trig_log(trig, fmt::format("Кривая переменная (нужно 'value text') сейчас '{}'", it));
 						continue;
 					}
 					if (!str_cmp(subfield, name)) {
@@ -3526,8 +3475,7 @@ void find_replacement(void *go,
 					}
 				}
 			} else {
-				snprintf(buf, sizeof(buf), "Нет аргумента в команде LoadVar");
-				trig_log(trig, buf);
+				trig_log(trig, "Нет аргумента в команде LoadVar");
 			}
 		} else if (!str_cmp(field, "savevar")) {
 			if (*subfield) {
@@ -3545,8 +3493,7 @@ void find_replacement(void *go,
 						vd = find_var_cntx(worlds_vars, subfield, trig->context);
 				}
 				if (vd_tmp.name.empty()) {
-					snprintf(buf, sizeof(buf), "Не найдена переменная %s", subfield);
-					trig_log(trig, buf);
+					trig_log(trig, fmt::format("Не найдена переменная {}", subfield));
 					return;
 				}
 				if (!obj->get_dgscript_field().empty()) {
@@ -3556,8 +3503,7 @@ void find_replacement(void *go,
 				for (auto &it : saved_info) {
 					name = utils::ExtractFirstArgument(it, value);
 					if (name.empty() || value.empty()) {
-						snprintf(buf, sizeof(buf), "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
-						trig_log(trig, buf);
+						trig_log(trig, fmt::format("Кривая переменная (нужно 'value text') сейчас '{}'", it));
 						continue;
 					}
 					if (vd_tmp.name == name) {
@@ -3572,13 +3518,11 @@ void find_replacement(void *go,
 					out << it << "#";
 				}
 				if (out.str().size() > kMaxInputLength) {
-					snprintf(buf, sizeof(buf), "Список переменных переполнен, сократите на %zu символов", out.str().size() - kMaxInputLength);
-					trig_log(trig, buf);
+					trig_log(trig, fmt::format("Список переменных переполнен, сократите на {} символов", out.str().size() - kMaxInputLength));
 				} else
 					obj->set_dgscript_field(out.str());
 			} else {
-				snprintf(buf, sizeof(buf), "Нет аргумента в команде SaveVar");
-				trig_log(trig, buf);
+				trig_log(trig, "Нет аргумента в команде SaveVar");
 			}
 		} else if (!str_cmp(field, "maker")) {
 			snprintf(str, str_size, "%d", obj->get_crafter_uid());
@@ -3597,8 +3541,7 @@ void find_replacement(void *go,
 				break;
 			}
 			if (num == EApply::kNumberApplies) {
-				snprintf(buf, sizeof(buf), "Не найден апплай '%s' в списке apply_types", subfield);
-				trig_log(trig, buf);
+				trig_log(trig, fmt::format("Не найден апплай '{}' в списке apply_types", subfield));
 				return;
 			}
 			if (!p) {
@@ -3632,8 +3575,7 @@ void find_replacement(void *go,
 					break;
 			}
 			if (skill_id == ESkill::kLast) {
-				snprintf(buf, sizeof(buf), "Не найдено умение '%s'", subfield);
-				trig_log(trig, buf);
+				trig_log(trig, fmt::format("Не найдено умение '{}'", subfield));
 				return;
 			}
 			if (!p) {
@@ -3764,10 +3706,9 @@ void find_replacement(void *go,
 			else if (room_to)
 				PlaceObjToRoom(obj, GetRoomRnum(room_to->vnum));
 			else {
-				snprintf(buf2, sizeof(buf2),
-						"object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в kNowhere",
-						obj->get_short_description().c_str());
-				trig_log(trig, buf2);
+				trig_log(trig, fmt::format("object.put: ATTENTION! за время подготовки объекта >{}< к передаче "
+										   "перестал существовать адресат. Объект сейчас в kNowhere",
+										   obj->get_short_description()));
 				return;
 			}
 		}
@@ -3854,14 +3795,12 @@ void find_replacement(void *go,
 					strncpy(str + str_length, tmp, str_size - str_length - 1);
 					str_length += n;
 					} else {
-						snprintf(buf2, sizeof(buf2), "Предмет VNUM %d данные переполнены, далее содержимое не учитывается", GET_OBJ_VNUM(obj));
-						trig_log(trig, buf2);
+						trig_log(trig, fmt::format("Предмет VNUM {} данные переполнены, далее содержимое не учитывается", GET_OBJ_VNUM(obj)));
 						break; // too many carying objects
 					}
 				}
 			} else {
-				snprintf(buf2, sizeof(buf2), "Предмет VNUM %d не контейнер, поля 'objs' нет.", GET_OBJ_VNUM(obj));
-				trig_log(trig, buf2);
+				trig_log(trig, fmt::format("Предмет VNUM {} не контейнер, поля 'objs' нет.", GET_OBJ_VNUM(obj)));
 			}
 		} else //get global var. obj.varname
 		{
@@ -3869,8 +3808,7 @@ void find_replacement(void *go,
 			if (!vd.name.empty()) {
 				snprintf(str, str_size, "%s", vd.value.c_str());
 			} else {
-				snprintf(buf2, sizeof(buf2), "Type: %d. unknown object field: '%s'", type, field);
-				trig_log(trig, buf2);
+				trig_log(trig, fmt::format("Type: {}. unknown object field: '{}'", type, field));
 			}
 		}
 	} else if (room) {
@@ -4048,8 +3986,7 @@ void find_replacement(void *go,
 			if (vd.name.empty()) {
 				snprintf(str, str_size, "%s", vd.value.c_str());
 			} else {
-				snprintf(buf2, sizeof(buf2), "Type: %d. unknown room field: '%s'", type, field);
-				trig_log(trig, buf2);
+				trig_log(trig, fmt::format("Type: {}. unknown room field: '{}'", type, field));
 			}
 		}
 	} else if (text_processed(field, subfield, vd, str, str_size)) {
@@ -4581,8 +4518,7 @@ cmdlist_element::shared_ptr find_else_end(Trigger *trig,
 
 #ifdef DG_CODE_ANALYZE
 	if (!cl) {
-		snprintf(buf, sizeof(buf), "closing 'else/end' is not found for '%s'", cmd);
-		trig_log(trig, buf);
+		trig_log(trig, fmt::format("closing 'else/end' is not found for '{}'", cmd));
 	}
 #endif
 
@@ -4629,8 +4565,7 @@ cmdlist_element::shared_ptr find_done(Trigger *trig, cmdlist_element::shared_ptr
 
 #ifdef DG_CODE_ANALYZE
 	if (!cl) {
-		snprintf(buf, sizeof(buf), "closing 'done' is not found for '%s'", cmd);
-		trig_log(trig, buf);
+		trig_log(trig, fmt::format("closing 'done' is not found for '{}'", cmd));
 	}
 #endif
 
@@ -4677,8 +4612,7 @@ cmdlist_element::shared_ptr find_case(Trigger *trig,
 
 #ifdef DG_CODE_ANALYZE
 	if (!cl) {
-		snprintf(buf, sizeof(buf), "closing 'done' not found for '%s'", cmd);
-		trig_log(trig, buf);
+		trig_log(trig, fmt::format("closing 'done' not found for '{}'", cmd));
 	}
 #endif
 
@@ -4717,19 +4651,18 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 
 	if ((trig->get_attach_type() == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
 		||(trig->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), OTRIG_PURGE))) {
-		snprintf(buf, sizeof(buf), "&YВНИМАНИЕ&G Используется wait в триггере '%s' (VNUM=%d).",
-				GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
-		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
-		snprintf(buf, sizeof(buf), "&GКод триггера после wait выполнен НЕ БУДЕТ!");
-		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+		mudlog(fmt::format("&YВНИМАНИЕ&G Используется wait в триггере '{}' (VNUM={}).",
+						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig)),
+			   BRF, kLvlBuilder, ERRLOG, true);
+		mudlog("&GКод триггера после wait выполнен НЕ БУДЕТ!", BRF, kLvlBuilder, ERRLOG, true);
 	}
 
-	arg = one_argument(cmd, buf);
+	char cmd_name[kMaxInputLength];
+	arg = one_argument(cmd, cmd_name);
 	skip_spaces(&arg);
 
 	if (!*arg) {
-		snprintf(buf2, sizeof(buf2), "wait w/o an arg: '%s'", cl->cmd.c_str());
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("wait w/o an arg: '{}'", cl->cmd));
 	} else if (utils::IsAbbr("until ", arg))    // valid forms of time are 14:30 and 1430
 	{
 		if (sscanf(arg, "until %ld:%ld", &hr, &min) == 2)
@@ -4770,13 +4703,11 @@ void process_set(Script * /*sc*/, Trigger *trig, char *cmd) {
 
 	value = two_arguments(cmd, arg, name);
 	if (!*name) {
-		snprintf(buf2, sizeof(buf2), "set w/o an argument, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("set w/o an argument, команда: '{}'", cmd));
 		return;
 	}
 	if (strlen(name) > kMaxTrglineLength) {
-		snprintf(buf2, sizeof(buf2), "eval result превышает максимальную длину триггерной строки (%zu), команда: '%s'", strlen(name), cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("eval result превышает максимальную длину триггерной строки ({}), команда: '{}'", strlen(name), cmd));
 	}
 	add_var_cntx(trig->var_list, name, value, 0);
 }
@@ -4788,15 +4719,13 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 
 	expr = two_arguments(cmd, arg, name);
 	if (!*name) {
-		snprintf(buf2, sizeof(buf2), "eval w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("eval w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 	size_t len_expr = strlen(expr);
 
 	if (len_expr > kMaxTrglineLength) {
-		snprintf(buf2, sizeof(buf2), "eval: expr превышает максимальную длину триггерной строки (%zu), команда: '%s'", len_expr, cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("eval: expr превышает максимальную длину триггерной строки ({}), команда: '{}'", len_expr, cmd));
 	}
 	eval_expr(expr, result, sizeof(result), go, sc, trig, type);
 	add_var_cntx(trig->var_list, name, result, 0);
@@ -4816,14 +4745,12 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	skip_spaces(&id_p);
 
 	if (!*trignum_s || atoi(trignum_s) == 0) {
-		snprintf(buf2, sizeof(buf2), "attach: нет или ошибка в аргументе 1: аргумент '%s', команда: '%s'", trignum_s, cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("attach: нет или ошибка в аргументе 1: аргумент '{}', команда: '{}'", trignum_s, cmd));
 		return;
 	}
 
 	if (!id_p || !*id_p || atoi(id_p + 1) == 0) {
-		snprintf(buf2, sizeof(buf2), "attach: нет или ошибка в аргументе 2, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("attach: нет или ошибка в аргументе 2, команда: '{}'", cmd));
 		return;
 	}
 
@@ -4831,10 +4758,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
 	if (is_plain_vnum_string(id_p)) {
-		snprintf(buf2, sizeof(buf2),
-				 "attach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
-				 id_p, cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("attach: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'", id_p, cmd));
 		return;
 	}
 
@@ -4844,15 +4768,13 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				snprintf(buf2, sizeof(buf2), "attach: не найден аргумент 2 (кому), команда: '%s'", cmd);
-				trig_log(trig, buf2);
+				trig_log(trig, fmt::format("attach: не найден аргумент 2 (кому), команда: '{}'", cmd));
 				return;
 			}
 		}
 	} else {
 		if (!c->IsNpc()) {
-				snprintf(buf2, sizeof(buf2), "attach: триггер нельзя прикрепить к игроку");
-				trig_log(trig, buf2);
+				trig_log(trig, "attach: триггер нельзя прикрепить к игроку");
 				return;
 		}
 	}
@@ -4863,16 +4785,15 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 		&& (((c) && trig_index[trignum]->proto->get_attach_type() != MOB_TRIGGER)
 			|| ((o) && trig_index[trignum]->proto->get_attach_type() != OBJ_TRIGGER)
 			|| ((r) && trig_index[trignum]->proto->get_attach_type() != WLD_TRIGGER))) {
-				snprintf(buf2, sizeof(buf2), "attach trigger : '%s' invalid attach_type: %s expected %s", trignum_s,
-				attach_name[(int) trig_index[trignum]->proto->get_attach_type()],
-				attach_name[(c ? 0 : (o ? 1 : (r ? 2 : 3)))]);
-		trig_log(trig, buf2);
+				trig_log(trig, fmt::format("attach trigger : '{}' invalid attach_type: {} expected {}",
+										   trignum_s,
+										   attach_name[(int) trig_index[trignum]->proto->get_attach_type()],
+										   attach_name[(c ? 0 : (o ? 1 : (r ? 2 : 3)))]));
 		return;
 	}
 
 	if (trignum < 0 || !(newtrig = read_trigger(trignum))) {
-		snprintf(buf2, sizeof(buf2), "attach: invalid trigger: '%s'", trignum_s);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("attach: invalid trigger: '{}'", trignum_s));
 		return;
 	}
 
@@ -4919,14 +4840,12 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	skip_spaces(&id_p);
 
 	if (!*trignum_s) {
-		snprintf(buf2, sizeof(buf2), "detach w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("detach w/o an arg, команда: '{}'", cmd));
 		return retval;
 	}
 
 	if (!id_p || !*id_p || atoi(id_p + 1) == 0) {
-		snprintf(buf2, sizeof(buf2), "detach invalid id arg(1), команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("detach invalid id arg(1), команда: '{}'", cmd));
 		return retval;
 	}
 
@@ -4934,10 +4853,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
 	if (is_plain_vnum_string(id_p)) {
-		snprintf(buf2, sizeof(buf2),
-				 "detach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
-				 id_p, cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("detach: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'", id_p, cmd));
 		return retval;
 	}
 
@@ -4947,8 +4863,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				snprintf(buf2, sizeof(buf2), "detach invalid id arg(2), команда: '%s'", cmd);
-				trig_log(trig, buf2);
+				trig_log(trig, fmt::format("detach invalid id arg(2), команда: '{}'", cmd));
 				return retval;
 			}
 		}
@@ -4956,8 +4871,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	int tvnum = atoi(trignum_s);
 	int trn = GetTriggerRnum(tvnum);
 	if (trn == -1) {
-		snprintf(buf2, sizeof(buf2), "detach попытка удалить несуществующий триггер, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("detach попытка удалить несуществующий триггер, команда: '{}'", cmd));
 		return retval;
 	}
 	if (c && SCRIPT(c)->has_triggers()) {
@@ -5009,7 +4923,8 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 bool process_halt(Trigger *trig, char *cmd) {
 	char *value;
 
-	value = one_argument(cmd, buf);
+	char cmd_name[kMaxInputLength];
+	value = one_argument(cmd, cmd_name);
 	if (!*value) {
 		return true;
 	}
@@ -5017,13 +4932,11 @@ bool process_halt(Trigger *trig, char *cmd) {
 	TrgRnum trn = GetTriggerRnum(tvn);
 
 	if (tvn == 0) {
-		snprintf(buf2, sizeof(buf2), "halt: кривой аргумент, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("halt: кривой аргумент, команда: '{}'", cmd));
 		return false;
 	}
 	if (trn == -1) {
-		snprintf(buf2, sizeof(buf2), "halt: такой триггер не существует, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("halt: такой триггер не существует, команда: '{}'", cmd));
 		return false;
 	}
 	if (trigger_list.has_triggers_with_rnum(trn)) { 
@@ -5055,14 +4968,12 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	skip_spaces(&id_p);
 
 	if (!*trignum_s) {
-		snprintf(buf2, sizeof(buf2), "run w/o an arg, команда: '%s'", cmd);
-		trig_log(*trig, buf2);
+		trig_log(*trig, fmt::format("run w/o an arg, команда: '{}'", cmd));
 		return (false);
 	}
 
 	if (!id_p || !*id_p) {
-		snprintf(buf2, sizeof(buf2), "run invalid id arg(2), команда: '%s'", cmd);
-		trig_log(*trig, buf2);
+		trig_log(*trig, fmt::format("run invalid id arg(2), команда: '{}'", cmd));
 		return (false);
 	}
 
@@ -5070,10 +4981,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	eval_expr(id_p, result, sizeof(result), go, *sc, *trig, type);
 
 	if (is_plain_vnum_string(id_p)) {
-		snprintf(buf2, sizeof(buf2),
-				 "run: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
-				 id_p, cmd);
-		trig_log(*trig, buf2);
+		trig_log(*trig, fmt::format("run: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'", id_p, cmd));
 		return false;
 	}
 
@@ -5083,16 +4991,14 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				snprintf(buf2, sizeof(buf2), "id not found - arg(2), команда: '%s'", cmd);
-				trig_log(*trig, buf2);
+				trig_log(*trig, fmt::format("id not found - arg(2), команда: '{}'", cmd));
 				return (false);
 			}
 		}
 	}
 	num = atoi(trignum_s);
 	if (num == 0) {
-		snprintf(buf2, sizeof(buf2), "run invalid trignum, команда: '%s'", cmd);
-		trig_log(*trig, buf2);
+		trig_log(*trig, fmt::format("run invalid trignum, команда: '{}'", cmd));
 		return (false);
 	}
 	if (c && SCRIPT(c)->has_triggers()) {
@@ -5124,8 +5030,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		}
 	}
 	if (!runtrig) {
-		snprintf(buf2, sizeof(buf2), "Не найден триггер, команда: '%s'", cmd);
-		trig_log(*trig, buf2);
+		trig_log(*trig, fmt::format("Не найден триггер, команда: '{}'", cmd));
 		return false;
 	}
 	// copy variables
@@ -5177,8 +5082,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		ObjData::shared_ptr object;
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			snprintf(buf2, sizeof(buf2), "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("Add stuf: wrong ObjVnum {}, команда: '{}'", obj_vnum, cmd));
 			return;
 		}
 		room_rnum = GetRoomRnum(vnumum);
@@ -5191,8 +5095,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		vnumum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			snprintf(buf2, sizeof(buf2), "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("Add stuf: wrong ObjVnum {}, команда: '{}'", obj_vnum, cmd));
 			return;
 		}
 		room_rnum = GetRoomRnum(vnumum);
@@ -5205,8 +5108,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 		vnumum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			snprintf(buf2, sizeof(buf2), "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("Add stuf: wrong ObjVnum {}, команда: '{}'", obj_vnum, cmd));
 			return;
 		}
 		room_rnum = GetRoomRnum(vnumum);
@@ -5226,14 +5128,12 @@ void makeuid_var(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	skip_spaces(&uid_p);
 
 	if (!*varname) {
-		snprintf(buf2, sizeof(buf2), "makeuid w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("makeuid w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (!uid_p || !*uid_p || atoi(uid_p + 1) == 0) {
-		snprintf(buf2, sizeof(buf2), "makeuid invalid id arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("makeuid invalid id arg, команда: '{}'", cmd));
 		return;
 	}
 
@@ -5259,20 +5159,17 @@ void calcuid_var(void *go, Trigger *trig, int type, char *cmd) {
 	three_arguments(t, vnum, what, count);
 
 	if (!*varname) {
-		snprintf(buf2, sizeof(buf2), "calcuid w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuid w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (!*vnum || (result = atoi(vnum)) == 0) {
-		snprintf(buf2, sizeof(buf2), "calcuid invalid VNUM arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuid invalid VNUM arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (!*what) {
-		snprintf(buf2, sizeof(buf2), "calcuid exceed TYPE arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuid exceed TYPE arg, команда: '{}'", cmd));
 		return;
 	}
 
@@ -5281,8 +5178,7 @@ void calcuid_var(void *go, Trigger *trig, int type, char *cmd) {
 		count_num = atoi(count) - 1;    //В dg индексация с 1
 		if (count_num < 0) {
 			//Произойдет, если в dg пришел индекс 0 (ошибка)
-			snprintf(buf2, sizeof(buf2), "calcuid invalid count: '%s'", count);
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("calcuid invalid count: '{}'", count));
 			return;
 		}
 	}
@@ -5296,14 +5192,12 @@ void calcuid_var(void *go, Trigger *trig, int type, char *cmd) {
 		uid_type = UID_OBJ;
 		result = find_obj_by_id_vnum__calcuid(result, count_num, type, go);
 	} else {
-		snprintf(buf2, sizeof(buf2), "calcuid unknown TYPE arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuid unknown TYPE arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (result <= -1) {
-		snprintf(buf2, sizeof(buf2), "calcuid target not found vnum: %s, count: %d.", vnum, count_num + 1);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuid target not found vnum: {}, count: {}.", vnum, count_num + 1));
 
 		*uid = '\0';
 
@@ -5328,14 +5222,12 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 	three_arguments(cmd, arg, varname, who);
 
 	if (!*varname) {
-		snprintf(buf2, sizeof(buf2), "charuid w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("charuid w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (!*who) {
-		snprintf(buf2, sizeof(buf2), "charuid name is missing, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("charuid name is missing, команда: '{}'", cmd));
 		return;
 	}
 	for (auto d = descriptor_list; d; d = d->next) {
@@ -5370,14 +5262,12 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 	three_arguments(cmd, arg, varname, who);
 
 	if (!*varname) {
-		snprintf(buf2, sizeof(buf2), "charuidall w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("charuidall w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (!*who) {
-		snprintf(buf2, sizeof(buf2), "charuidall name is missing, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("charuidall name is missing, команда: '{}'", cmd));
 		return;
 	}
 	for (const auto &tch : character_list) {
@@ -5450,20 +5340,17 @@ void calcuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* type*/,
 	two_arguments(t, str_vnum, what);
 
 	if (!*varname) {
-		snprintf(buf2, sizeof(buf2), "calcuidall w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuidall w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (!*str_vnum || (vnum = atoi(str_vnum)) == 0) {
-		snprintf(buf2, sizeof(buf2), "calcuidall invalid VNUM arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuidall invalid VNUM arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (!*what) {
-		snprintf(buf2, sizeof(buf2), "calcuidall exceed TYPE arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuidall exceed TYPE arg, команда: '{}'", cmd));
 		return;
 	}
 
@@ -5472,14 +5359,12 @@ void calcuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* type*/,
 	} else if (!str_cmp(what, "obj")) {
 		result = ListAllObjsByVnum(vnum);
 	} else {
-		snprintf(buf2, sizeof(buf2), "calcuidall unknown TYPE arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuidall unknown TYPE arg, команда: '{}'", cmd));
 		return;
 	}
 
 	if (result.empty()) {
-		snprintf(buf2, sizeof(buf2), "calcuidall target not found '%d'", vnum);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("calcuidall target not found '{}'", vnum));
 		return;
 	}
 	add_var_cntx(trig->var_list, varname, result, 0);
@@ -5495,8 +5380,7 @@ int process_return(Trigger *trig, char *cmd) {
 	two_arguments(cmd, arg1, arg2);
 
 	if (!*arg2) {
-		snprintf(buf2, sizeof(buf2), "return w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("return w/o an arg, команда: '{}'", cmd));
 		return 1;
 	}
 
@@ -5510,15 +5394,13 @@ void ClearContextVar(Trigger *trig,char *cmd) {
 	var = one_argument(cmd, arg);
 
 	if (!*var) {
-		snprintf(buf2, sizeof(buf2), "clearcontext w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("clearcontext w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 	id = atoi(var);
 
 	if (id == 0) {
-		snprintf(buf2, sizeof(buf2), "clearcontext попытка удалить в 0 контексте, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("clearcontext попытка удалить в 0 контексте, команда: '{}'", cmd));
 		return;
 	}
 	std::erase_if(worlds_vars, [id](TriggerVar vd) { return (vd.context == id); });
@@ -5536,8 +5418,7 @@ void process_unset(Script *sc, Trigger *trig, char *cmd) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		snprintf(buf2, sizeof(buf2), "unset w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("unset w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
@@ -5554,21 +5435,21 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 	Script *sc_remote = nullptr;
 	char *line, *var, *uid_p;
 	char arg[kMaxInputLength];
+	char var_name[kMaxInputLength], uid_str[kMaxInputLength];
 	long uid, context;
 	RoomData *room;
 	CharData *mob;
 	ObjData *obj;
 
 	line = one_argument(cmd, arg);
-	two_arguments(line, buf, buf2);
-	var = buf;
-	uid_p = buf2;
+	two_arguments(line, var_name, uid_str);
+	var = var_name;
+	uid_p = uid_str;
 	skip_spaces(&var);
 	skip_spaces(&uid_p);
 
-	if (!*buf || !*buf2) {
-		snprintf(buf2, sizeof(buf2), "remote: invalid arguments, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+	if (!*var_name || !*uid_str) {
+		trig_log(trig, fmt::format("remote: invalid arguments, команда: '{}'", cmd));
 		return;
 	}
 
@@ -5578,19 +5459,14 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 		vd = find_var_cntx(sc->global_vars, var, trig->context);
 
 	if (vd.name.empty()) {
-		snprintf(buf2, kMaxStringLength, "local var '%s' not found in remote call", buf);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("local var '{}' not found in remote call", var_name));
 		return;
 	}
 
 	// find the target script from the uid number
-	uid = atoi(buf2 + 1);
+	uid = atoi(uid_str + 1);
 	if (uid <= 0) {
-//		std::stringstream buffer;
-//		buffer << "remote: illegal uid " << buf2;
-//		sprintf(buf, buffer.str());
-		snprintf(buf, kMaxStringLength, "remote: illegal uid '%s'", buf2);
-		trig_log(trig, buf);
+		trig_log(trig, fmt::format("remote: illegal uid '{}'", uid_str));
 		return;
 	}
 
@@ -5606,18 +5482,17 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 // "покрывает" отсутствующие контексты
 	context = trig->context;
 
-	if ((room = get_room(buf2))) {
+	if ((room = get_room(uid_str))) {
 		sc_remote = SCRIPT(room).get();
-	} else if ((mob = get_char(buf2))) {
+	} else if ((mob = get_char(uid_str))) {
 		sc_remote = SCRIPT(mob).get();
 		if (!mob->IsNpc()) {
 			context = 0;
 		}
-	} else if ((obj = get_obj(buf2))) {
+	} else if ((obj = get_obj(uid_str))) {
 		sc_remote = obj->get_script().get();
 	} else {
-		snprintf(buf, sizeof(buf), "remote: uid '%ld' invalid", uid);
-		trig_log(trig, buf);
+		trig_log(trig, fmt::format("remote: uid '{}' invalid", uid));
 		return;
 	}
 
@@ -5641,30 +5516,31 @@ void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *mob;
 	ObjData *obj;
 
-	argument = two_arguments(argument, buf, buf2);
-	var = buf;
-	uid_p = buf2;
+	char var_name[kMaxInputLength], uid_str[kMaxInputLength];
+	argument = two_arguments(argument, var_name, uid_str);
+	var = var_name;
+	uid_p = uid_str;
 	skip_spaces(&var);
 	skip_spaces(&uid_p);
 
-	if (!*buf || !*buf2) {
+	if (!*var_name || !*uid_str) {
 		SendMsgToChar("Usage: vdelete <variablename> <id>\r\n", ch);
 		return;
 	}
 
 
 	// find the target script from the uid number
-	uid = atoi(buf2 + 1);
+	uid = atoi(uid_str + 1);
 	if (uid <= 0) {
 		SendMsgToChar("vdelete: illegal id specified.\r\n", ch);
 		return;
 	}
 
-	if ((room = get_room(buf2))) {
+	if ((room = get_room(uid_str))) {
 		sc_remote = SCRIPT(room).get();
-	} else if ((mob = get_char(buf2))) {
+	} else if ((mob = get_char(uid_str))) {
 		sc_remote = SCRIPT(mob).get();
-	} else if ((obj = get_obj(buf2))) {
+	} else if ((obj = get_obj(uid_str))) {
 		sc_remote = obj->get_script().get();
 	} else {
 		SendMsgToChar("vdelete: cannot resolve specified id.\r\n", ch);
@@ -5698,37 +5574,35 @@ void process_rdelete(Script * /*sc*/, Trigger *trig, char *cmd) {
 	CharData *mob;
 	ObjData *obj;
 
+	char var_name[kMaxInputLength], uid_str[kMaxInputLength];
 	line = one_argument(cmd, arg);
-	two_arguments(line, buf, buf2);
-	var = buf;
-	uid_p = buf2;
+	two_arguments(line, var_name, uid_str);
+	var = var_name;
+	uid_p = uid_str;
 	skip_spaces(&var);
 	skip_spaces(&uid_p);
 
-	if (!*buf || !*buf2) {
-		snprintf(buf2, sizeof(buf2), "rdelete: invalid arguments, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+	if (!*var_name || !*uid_str) {
+		trig_log(trig, fmt::format("rdelete: invalid arguments, команда: '{}'", cmd));
 		return;
 	}
 
 
 	// find the target script from the uid number
-	uid = atoi(buf2 + 1);
+	uid = atoi(uid_str + 1);
 	if (uid <= 0) {
-		snprintf(buf, kMaxStringLength, "rdelete: illegal uid '%s'", buf2);
-		trig_log(trig, buf);
+		trig_log(trig, fmt::format("rdelete: illegal uid '{}'", uid_str));
 		return;
 	}
 
-	if ((room = get_room(buf2))) {
+	if ((room = get_room(uid_str))) {
 		sc_remote = SCRIPT(room).get();
-	} else if ((mob = get_char(buf2))) {
+	} else if ((mob = get_char(uid_str))) {
 		sc_remote = SCRIPT(mob).get();
-	} else if ((obj = get_obj(buf2))) {
+	} else if ((obj = get_obj(uid_str))) {
 		sc_remote = obj->get_script().get();
 	} else {
-		snprintf(buf, sizeof(buf), "remote: uid '%ld' invalid", uid);
-		trig_log(trig, buf);
+		trig_log(trig, fmt::format("remote: uid '{}' invalid", uid));
 		return;
 	}
 
@@ -5752,16 +5626,14 @@ void process_global(Script *sc, Trigger *trig, char *cmd, long id) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		snprintf(buf2, sizeof(buf2), "global w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("global w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
 	auto vd = find_var_cntx(trig->var_list, var, 0);
 
 	if (vd.name.empty()) {
-		snprintf(buf2, sizeof(buf2), "local var '%s' not found in global call", var);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("local var '{}' not found in global call", var));
 		return;
 	}
 
@@ -5778,16 +5650,14 @@ void process_worlds(Script * /*sc*/, Trigger *trig, char *cmd, long id) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		snprintf(buf2, sizeof(buf2), "worlds w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("worlds w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 
 	auto vd = find_var_cntx(trig->var_list, var, 0);
 
 	if (vd.name.empty()) {
-		snprintf(buf2, sizeof(buf2), "local var '%s' not found in worlds call", var);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("local var '{}' not found in worlds call", var));
 		return;
 	}
 
@@ -5804,8 +5674,7 @@ void process_context(Script * /*sc*/, Trigger *trig, char *cmd) {
 	skip_spaces(&var);
 
 	if (!*var) {
-		snprintf(buf2, sizeof(buf2), "context w/o an arg, команда: '%s'", cmd);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("context w/o an arg, команда: '{}'", cmd));
 		return;
 	}
 	trig->context = atol(var);
@@ -5813,28 +5682,31 @@ void process_context(Script * /*sc*/, Trigger *trig, char *cmd) {
 
 void extract_value(Script * /*sc*/, Trigger *trig, char *cmd) {
 	char buf2[kMaxTrglineLength];
+	// раньше здесь работали через глобальный buf; порядок разбора не тронут,
+	// буфер просто стал локальным того же размера
+	char word[kMaxStringLength];
 	char *buf3;
 	char to[128];
 	int num;
 
-	buf3 = one_argument(cmd, buf);
-	half_chop(buf3, buf2, buf);
+	buf3 = one_argument(cmd, word);
+	half_chop(buf3, buf2, word);
 	snprintf(to, sizeof(to), "%s", buf2);
 
-	num = atoi(buf);
+	num = atoi(word);
 	if (num < 1) {
 		trig_log(trig, "extract number < 1!");
 		return;
 	}
 
-	half_chop(buf, buf3, buf2);
+	half_chop(word, buf3, buf2);
 
 	while (num > 0) {
-		half_chop(buf2, buf, buf2);
+		half_chop(buf2, word, buf2);
 		num--;
 	}
 
-	add_var_cntx(trig->var_list, to, buf, 0);
+	add_var_cntx(trig->var_list, to, word, 0);
 }
 
 //  This is the core driver for scripts.
@@ -5859,8 +5731,8 @@ int script_driver(void *go, Trigger *trig, int type, int mode) {
 
 	long timediff = end.count() - start.count();
 	if (timediff > timewarning) { 
-		snprintf(buf, kMaxStringLength, "[TrigVNum: %d] : work time overflow %ld ms, warning > %d ms.", vnum, timediff, timewarning);
-		mudlog(buf, BRF, -1, ERRLOG, true);
+		mudlog(fmt::format("[TrigVNum: {}] : work time overflow {} ms, warning > {} ms.",
+						   vnum, timediff, timewarning), BRF, -1, ERRLOG, true);
 	}
 	// Stop time
 	return return_code;
@@ -5877,20 +5749,17 @@ void do_dg_add_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* scr
 	half_chop(cmd, value_c, cmd);
 
 	if (!*charname || !*cur_id || !*value_c) {
-		snprintf(buf2, sizeof(buf2), "dg_addcurrency usage: <target> <currency_id> <value>");
-		trig_log(trig, buf2);
+		trig_log(trig, "dg_addcurrency usage: <target> <currency_id> <value>");
 		return;
 	}
 	const auto *cur = &currencies::FindByTextIdNoCase(cur_id);
 	if (cur->GetId() < 0) {
-		snprintf(buf2, sizeof(buf2), "dg_addcurrency: unknown currency '%s'!", cur_id);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("dg_addcurrency: unknown currency '{}'!", cur_id));
 		return;
 	}
 	ch = get_char(charname);
 	if (!ch) {
-		snprintf(buf2, sizeof(buf2), "dg_addcurrency: cannot locate target!");
-		trig_log(trig, buf2);
+		trig_log(trig, "dg_addcurrency: cannot locate target!");
 		return;
 	}
 	currencies::AddHand(*ch, cur->GetTextId(), atoi(value_c));
@@ -5971,8 +5840,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		last_trig_line_num = cl->line_num;
 		trig->curr_line = cl;
 		if (CharacterLinkDrop) {
-			snprintf(buf, sizeof(buf), "[TrigVnum: %d] Character in LinkDrop in 'Drive go'.", last_trig_vnum);
-			mudlog(buf, BRF, -1, ERRLOG, true);
+			mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop in 'Drive go'.", last_trig_vnum), BRF, -1, ERRLOG, true);
 			break;
 		}
 		const char *p = nullptr;
@@ -5987,16 +5855,14 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				cl = find_else_end(trig, cl, go, sc, type);
 			}
 			if (CharacterLinkDrop) {
-				snprintf(buf, sizeof(buf), "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "elseif ", 7) || !strncmp(p, "else", 4)) {
 			cl = find_end(trig, cl);
 			GET_TRIG_DEPTH(trig)--;
 			if (CharacterLinkDrop) {
-				snprintf(buf, sizeof(buf), "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "while ", 6)) {
@@ -6009,8 +5875,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				cl = temp;
 			}
 			if (CharacterLinkDrop) {
-				snprintf(buf, sizeof(buf), "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "foreach ", 8)) {
@@ -6023,15 +5888,13 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				cl = temp;
 			}
 			if (CharacterLinkDrop) {
-				snprintf(buf, sizeof(buf), "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "switch ", 7)) {
 			cl = find_case(trig, cl, go, sc, type, p + 7);
 			if (CharacterLinkDrop) {
-				snprintf(buf, sizeof(buf), "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "end", 3)) {
@@ -6056,8 +5919,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					GET_TRIG_LOOPS(trig)++;
 
 					if (loops == 30) {
-						snprintf(buf2, kMaxStringLength, "wait 1");
-						process_wait(go, trig, type, buf2, cl);
+						char wait_cmd[] = "wait 1";
+						process_wait(go, trig, type, wait_cmd, cl);
 						depth--;
 						cur_trig = prev_trig;
 						return ret_val;
@@ -6084,8 +5947,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		} else {
 			var_subst(go, sc, trig, type, p, cmd, sizeof(cmd));
 			if (CharacterLinkDrop) {
-				snprintf(buf, sizeof(buf), "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 			if (!strncmp(cmd, "eval ", 5)) {
@@ -6242,26 +6104,26 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char pagebuf[65536];
 	pagebuf[0] = '\0';;
 
-	two_arguments(argument, buf, buf2);
+	char first_arg[kMaxInputLength], last_arg[kMaxInputLength];
+	two_arguments(argument, first_arg, last_arg);
 
-	if (!*buf) {
+	if (!*first_arg) {
 		SendMsgToChar("Usage: tlist <начальный номер или зона> [<конечный номер>]\r\n", ch);
 		return;
 	}
 
 	// Один аргумент -- номер зоны: листаем все её триггеры (vnum / 100 == зона).
 	// Два аргумента -- диапазон vnum [first, last].
-	first = atoi(buf);
-	if (*buf2) {
-		last = atoi(buf2);
+	first = atoi(first_arg);
+	if (*last_arg) {
+		last = atoi(last_arg);
 	} else {
 		first *= 100;
 		last = first + 99;
 	}
 
 	if ((first < 0) || (first > kMaxProtoNumber) || (last < 0) || (last > kMaxProtoNumber)) {
-		snprintf(buf, sizeof(buf), "Значения должны быть между 0 и %d.\n\r", kMaxProtoNumber);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Значения должны быть между 0 и {}.\n\r", kMaxProtoNumber), ch);
 		return;
 	}
 
@@ -6291,9 +6153,8 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char trgtypes[256];
 	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		std::string out = "";
-		strcpy(buf, fmt::format("{:2}) [{:5}] {:<50} ", ++found,
-				trig_index[nr]->vnum, trig_index[nr]->proto->get_name()).c_str());
-		out += buf;
+		out += fmt::format("{:2}) [{:5}] {:<50} ", ++found,
+						   trig_index[nr]->vnum, trig_index[nr]->proto->get_name());
 		if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
 			sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes, sizeof(trgtypes));
 			out += "[MOB] ";
@@ -6316,8 +6177,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 //				out += "[";
 				std::string out_tmp = "";
 				for (const auto trigger_vnum : it->second) {
-					snprintf(buf, sizeof(buf), "%d ", trigger_vnum);
-					out_tmp += buf;
+					out_tmp += fmt::format("{} ", trigger_vnum);
 				}
 				if (it->first != -1) {
 					out += "attach из " + std::to_string(it->first) + " к: ";

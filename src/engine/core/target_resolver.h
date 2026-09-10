@@ -276,7 +276,7 @@ inline int generic_find(const std::string &arg, Bitvector bitvector, CharData *c
 // строковой буфер не нужен.
 int ParseAllPrefix(char *arg);
 int ParseAllPrefix(std::string &arg);
-RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
+RoomRnum FindRoomRnum(CharData *ch, const char *rawroomstr, int trig);
 
 }; // namespace target_resolver
 
