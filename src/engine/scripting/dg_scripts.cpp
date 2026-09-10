@@ -4645,7 +4645,6 @@ void hang_trig_wait(void *go, Trigger *trig, int type, long time, bool from_curr
 }
 
 void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_element::shared_ptr &cl, bool from_current = false) {
-	char *arg;
 	long time = 0, hr, min, ntime;
 	char c;
 
@@ -4657,11 +4656,11 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 		mudlog("&GКод триггера после wait выполнен НЕ БУДЕТ!", BRF, kLvlBuilder, ERRLOG, true);
 	}
 
-	char cmd_name[kMaxInputLength];
-	arg = one_argument(cmd, cmd_name);
-	skip_spaces(&arg);
+	std::string rest(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(rest, rest);    // имя команды нам не нужно
+	const char *arg = rest.c_str();
 
-	if (!*arg) {
+	if (rest.empty()) {
 		trig_log(trig, fmt::format("wait w/o an arg: '{}'", cl->cmd));
 	} else if (utils::IsAbbr("until ", arg))    // valid forms of time are 14:30 and 1430
 	{
@@ -4921,14 +4920,12 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 }
 
 bool process_halt(Trigger *trig, char *cmd) {
-	char *value;
-
-	char cmd_name[kMaxInputLength];
-	value = one_argument(cmd, cmd_name);
-	if (!*value) {
+	std::string rest(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(rest, rest);    // имя команды нам не нужно
+	if (rest.empty()) {
 		return true;
 	}
-	TrgVnum tvn = atoi(value);
+	TrgVnum tvn = atoi(rest.c_str());
 	TrgRnum trn = GetTriggerRnum(tvn);
 
 	if (tvn == 0) {
@@ -5433,30 +5430,25 @@ void process_unset(Script *sc, Trigger *trig, char *cmd) {
  */
 void process_remote(Script *sc, Trigger *trig, char *cmd) {
 	Script *sc_remote = nullptr;
-	char *line, *var, *uid_p;
-	char arg[kMaxInputLength];
-	char var_name[kMaxInputLength], uid_str[kMaxInputLength];
 	long uid, context;
 	RoomData *room;
 	CharData *mob;
 	ObjData *obj;
 
-	line = one_argument(cmd, arg);
-	two_arguments(line, var_name, uid_str);
-	var = var_name;
-	uid_p = uid_str;
-	skip_spaces(&var);
-	skip_spaces(&uid_p);
+	std::string rest(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(rest, rest);    // имя команды нам не нужно
+	const std::string var_name = utils::ExtractFirstArgumentLower(rest, rest);
+	const std::string uid_str = utils::ExtractFirstArgumentLower(rest, rest);
 
-	if (!*var_name || !*uid_str) {
+	if (var_name.empty() || uid_str.empty()) {
 		trig_log(trig, fmt::format("remote: invalid arguments, команда: '{}'", cmd));
 		return;
 	}
 
 	// find the locally owned variable
-	auto vd = find_var_cntx(trig->var_list, var, 0);
+	auto vd = find_var_cntx(trig->var_list, var_name, 0);
 	if (vd.name.empty())
-		vd = find_var_cntx(sc->global_vars, var, trig->context);
+		vd = find_var_cntx(sc->global_vars, var_name, trig->context);
 
 	if (vd.name.empty()) {
 		trig_log(trig, fmt::format("local var '{}' not found in remote call", var_name));
@@ -5464,7 +5456,7 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 	}
 
 	// find the target script from the uid number
-	uid = atoi(uid_str + 1);
+	uid = atoi(uid_str.c_str() + 1);
 	if (uid <= 0) {
 		trig_log(trig, fmt::format("remote: illegal uid '{}'", uid_str));
 		return;
@@ -5482,14 +5474,14 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 // "покрывает" отсутствующие контексты
 	context = trig->context;
 
-	if ((room = get_room(uid_str))) {
+	if ((room = get_room(uid_str.c_str()))) {
 		sc_remote = SCRIPT(room).get();
-	} else if ((mob = get_char(uid_str))) {
+	} else if ((mob = get_char(uid_str.c_str()))) {
 		sc_remote = SCRIPT(mob).get();
 		if (!mob->IsNpc()) {
 			context = 0;
 		}
-	} else if ((obj = get_obj(uid_str))) {
+	} else if ((obj = get_obj(uid_str.c_str()))) {
 		sc_remote = obj->get_script().get();
 	} else {
 		trig_log(trig, fmt::format("remote: uid '{}' invalid", uid));
@@ -5510,37 +5502,32 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//  struct TriggerVar *vd, *vd_prev=NULL;
 	Script *sc_remote = nullptr;
-	char *var, *uid_p;
 	long uid; //, context;
 	RoomData *room;
 	CharData *mob;
 	ObjData *obj;
 
-	char var_name[kMaxInputLength], uid_str[kMaxInputLength];
-	argument = two_arguments(argument, var_name, uid_str);
-	var = var_name;
-	uid_p = uid_str;
-	skip_spaces(&var);
-	skip_spaces(&uid_p);
+	std::string rest(argument ? argument : "");
+	const std::string var_name = utils::ExtractFirstArgumentLower(rest, rest);
+	const std::string uid_str = utils::ExtractFirstArgumentLower(rest, rest);
 
-	if (!*var_name || !*uid_str) {
+	if (var_name.empty() || uid_str.empty()) {
 		SendMsgToChar("Usage: vdelete <variablename> <id>\r\n", ch);
 		return;
 	}
 
-
 	// find the target script from the uid number
-	uid = atoi(uid_str + 1);
+	uid = atoi(uid_str.c_str() + 1);
 	if (uid <= 0) {
 		SendMsgToChar("vdelete: illegal id specified.\r\n", ch);
 		return;
 	}
 
-	if ((room = get_room(uid_str))) {
+	if ((room = get_room(uid_str.c_str()))) {
 		sc_remote = SCRIPT(room).get();
-	} else if ((mob = get_char(uid_str))) {
+	} else if ((mob = get_char(uid_str.c_str()))) {
 		sc_remote = SCRIPT(mob).get();
-	} else if ((obj = get_obj(uid_str))) {
+	} else if ((obj = get_obj(uid_str.c_str()))) {
 		sc_remote = obj->get_script().get();
 	} else {
 		SendMsgToChar("vdelete: cannot resolve specified id.\r\n", ch);
@@ -5553,7 +5540,7 @@ void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	// find the global
-	if (remove_var_cntx(sc_remote->global_vars, var, 0)) {
+	if (remove_var_cntx(sc_remote->global_vars, var_name, 0)) {
 		SendMsgToChar("Deleted.\r\n", ch);
 	} else {
 		SendMsgToChar("That variable cannot be located.\r\n", ch);
@@ -5567,39 +5554,33 @@ void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void process_rdelete(Script * /*sc*/, Trigger *trig, char *cmd) {
 	//  struct TriggerVar *vd, *vd_prev=NULL;
 	Script *sc_remote = nullptr;
-	char *line, *var, *uid_p;
-	char arg[kMaxInputLength];
 	long uid; //, context;
 	RoomData *room;
 	CharData *mob;
 	ObjData *obj;
 
-	char var_name[kMaxInputLength], uid_str[kMaxInputLength];
-	line = one_argument(cmd, arg);
-	two_arguments(line, var_name, uid_str);
-	var = var_name;
-	uid_p = uid_str;
-	skip_spaces(&var);
-	skip_spaces(&uid_p);
+	std::string rest(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(rest, rest);    // имя команды нам не нужно
+	const std::string var_name = utils::ExtractFirstArgumentLower(rest, rest);
+	const std::string uid_str = utils::ExtractFirstArgumentLower(rest, rest);
 
-	if (!*var_name || !*uid_str) {
+	if (var_name.empty() || uid_str.empty()) {
 		trig_log(trig, fmt::format("rdelete: invalid arguments, команда: '{}'", cmd));
 		return;
 	}
 
-
 	// find the target script from the uid number
-	uid = atoi(uid_str + 1);
+	uid = atoi(uid_str.c_str() + 1);
 	if (uid <= 0) {
 		trig_log(trig, fmt::format("rdelete: illegal uid '{}'", uid_str));
 		return;
 	}
 
-	if ((room = get_room(uid_str))) {
+	if ((room = get_room(uid_str.c_str()))) {
 		sc_remote = SCRIPT(room).get();
-	} else if ((mob = get_char(uid_str))) {
+	} else if ((mob = get_char(uid_str.c_str()))) {
 		sc_remote = SCRIPT(mob).get();
-	} else if ((obj = get_obj(uid_str))) {
+	} else if ((obj = get_obj(uid_str.c_str()))) {
 		sc_remote = obj->get_script().get();
 	} else {
 		trig_log(trig, fmt::format("remote: uid '{}' invalid", uid));
@@ -5614,7 +5595,7 @@ void process_rdelete(Script * /*sc*/, Trigger *trig, char *cmd) {
 	}
 
 	// find the global
-	remove_var_cntx(sc_remote->global_vars, var, trig->context);
+	remove_var_cntx(sc_remote->global_vars, var_name, trig->context);
 }
 
 // * makes a local variable into a global variable
@@ -5680,30 +5661,22 @@ void process_context(Script * /*sc*/, Trigger *trig, char *cmd) {
 	trig->context = atol(var);
 }
 
+// extract <имя переменной> <номер> <текст> -- кладёт в переменную N-е слово текста
 void extract_value(Script * /*sc*/, Trigger *trig, char *cmd) {
-	char buf2[kMaxTrglineLength];
-	// раньше здесь работали через глобальный buf; порядок разбора не тронут,
-	// буфер просто стал локальным того же размера
-	char word[kMaxStringLength];
-	char *buf3;
-	char to[128];
-	int num;
+	std::string rest(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(rest, rest);    // имя команды нам не нужно
+	const std::string to = utils::ExtractFirstArgumentLower(rest, rest);
 
-	buf3 = one_argument(cmd, word);
-	half_chop(buf3, buf2, word);
-	snprintf(to, sizeof(to), "%s", buf2);
-
-	num = atoi(word);
+	const int num = atoi(rest.c_str());
 	if (num < 1) {
 		trig_log(trig, "extract number < 1!");
 		return;
 	}
+	utils::ExtractFirstArgumentLower(rest, rest);    // сам номер уже прочитан выше
 
-	half_chop(word, buf3, buf2);
-
-	while (num > 0) {
-		half_chop(buf2, word, buf2);
-		num--;
+	std::string word;
+	for (int i = 0; i < num; ++i) {
+		word = utils::ExtractFirstArgumentLower(rest, rest);
 	}
 
 	add_var_cntx(trig->var_list, to, word, 0);
@@ -6101,22 +6074,21 @@ void do_worldecho(char *msg) {
 
 void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	int first, last, nr, found = 0;
-	char pagebuf[65536];
-	pagebuf[0] = '\0';;
 
-	char first_arg[kMaxInputLength], last_arg[kMaxInputLength];
-	two_arguments(argument, first_arg, last_arg);
+	std::string rest(argument ? argument : "");
+	const std::string first_arg = utils::ExtractFirstArgumentLower(rest, rest);
+	const std::string last_arg = utils::ExtractFirstArgumentLower(rest, rest);
 
-	if (!*first_arg) {
+	if (first_arg.empty()) {
 		SendMsgToChar("Usage: tlist <начальный номер или зона> [<конечный номер>]\r\n", ch);
 		return;
 	}
 
 	// Один аргумент -- номер зоны: листаем все её триггеры (vnum / 100 == зона).
 	// Два аргумента -- диапазон vnum [first, last].
-	first = atoi(first_arg);
-	if (*last_arg) {
-		last = atoi(last_arg);
+	first = atoi(first_arg.c_str());
+	if (!last_arg.empty()) {
+		last = atoi(last_arg.c_str());
 	} else {
 		first *= 100;
 		last = first + 99;
@@ -6150,25 +6122,22 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		[](const IndexData *trig, int vnum) { return trig->vnum < vnum; });
 	nr = start - trig_index;
 
-	char trgtypes[256];
+	std::string pagebuf;
 	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
-		std::string out = "";
+		std::string out;
 		out += fmt::format("{:2}) [{:5}] {:<50} ", ++found,
 						   trig_index[nr]->vnum, trig_index[nr]->proto->get_name());
 		if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
-			sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes, sizeof(trgtypes));
 			out += "[MOB] ";
-			out += trgtypes;
+			out += sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types);
 		}
 		if (trig_index[nr]->proto->get_attach_type() == OBJ_TRIGGER) {
-			sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), otrig_types, trgtypes, sizeof(trgtypes));
 			out += "[OBJ] ";
-			out += trgtypes;
+			out += sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), otrig_types);
 		}
 		if (trig_index[nr]->proto->get_attach_type() == WLD_TRIGGER) {
-			sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), wtrig_types, trgtypes, sizeof(trgtypes));
 			out += "[WLD] ";
-			out += trgtypes;
+			out += sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), wtrig_types);
 		}
 		out += "\r\nПрикреплен к: ";
 		if (!owner_trig[trig_index[nr]->vnum].empty()) {
@@ -6188,13 +6157,13 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		} else {
 			out += "-\r\n";
 		}
-		strncat(pagebuf, out.c_str(), sizeof(pagebuf) - strlen(pagebuf) - 1);
+		pagebuf += out;
 	}
 
 	if (!found) {
 		SendMsgToChar("В этом промежутке триггеров нет.\n\r", ch);
 	} else {
-		page_string(ch->desc, pagebuf, true);
+		page_string(ch->desc, pagebuf);
 	}
 }
 
