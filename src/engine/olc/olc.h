@@ -66,6 +66,8 @@ inline constexpr int kScmdOlcSaveinfo{5};
 
 // * Utilities exported from olc.c.
 void strip_string(char *);
+// Строковая форма: та же чистка от '\r', но без буфера у вызывающего (#3814).
+std::string strip_string(std::string text);
 void cleanup_olc(DescriptorData *d, byte cleanup_type);
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column);
 void olc_add_to_save_list(int zone, byte type);
