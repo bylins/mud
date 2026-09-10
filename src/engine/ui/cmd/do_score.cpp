@@ -44,7 +44,7 @@ void PrintScoreList(CharData *ch);
 void PrintScoreAll(CharData *ch);
 void PrintRentableInfo(CharData *ch, std::ostringstream &out);
 std::string GetPositionStr(CharData *ch);
-const char *GetShortPositionStr(CharData *ch);
+std::string_view GetShortPositionStr(CharData *ch);
 int CalcHitroll(CharData *ch);
 
 /* extern */
@@ -523,7 +523,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	}
 	table[++row][col] = MUD::Currency(currencies::kGoldVnum).GetPluralName(grammar::ECase::kGen) + ": " + PrintNumberByDigits(currencies::GetHand(*ch, currencies::kGold));
 	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(currencies::GetBank(*ch, currencies::kGold));
-	table[++row][col] = GetShortPositionStr(ch);
+	table[++row][col] = std::string(GetShortPositionStr(ch));
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, condition::kFull) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (condition::GetCondAboveNorm(ch, condition::kThirst) ? "Наливай!" : "Нет");
 	if (GET_COND(ch, condition::kDrunk) >= kDrunked) {
@@ -1055,7 +1055,9 @@ std::string GetPositionStr(CharData *ch) {
 	return "Вы незнамо что делаете!!!\r\n";
 }
 
-const char *GetShortPositionStr(CharData *ch) {
+// Только литералы, поэтому string_view: копий не делаем, но тип строковый -- как у
+// соседней GetPositionStr, которой пришлось стать std::string (там собиралась фраза).
+std::string_view GetShortPositionStr(CharData *ch) {
 	if (!mount::IsOnHorse(ch)) {
 		switch (ch->GetPosition()) {
 			case EPosition::kDead: return "Вы МЕРТВЫ!";
