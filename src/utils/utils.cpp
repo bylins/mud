@@ -105,6 +105,15 @@ int touch(const char *path) {
 	}
 }
 
+const char *GetTypeName(int type, const char *names[]) {
+	int nr = 0;
+	while (type && *names[nr] != '\n') {
+		type--;
+		nr++;
+	}
+	return *names[nr] != '\n' ? names[nr] : "UNDEF";
+}
+
 void sprinttype(int type, const char *names[], char *result) {
 	int nr = 0;
 

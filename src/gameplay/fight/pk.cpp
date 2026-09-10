@@ -589,37 +589,28 @@ void AddPkAuraDescription(CharData *victim, char *s) {
 }
 
 // Печать списка пк
-void pk_list_sprintf(CharData *ch, char *buff) {
-	*buff = '\0';
-	strcat(buff, "ПК список:\r\n");
-	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
+std::string pk_list_sprintf(CharData *ch) {
+	std::string out("ПК список:\r\n"
+					"              Имя    Kill Rvng Clan Batl Thif\r\n");
 	for (const auto &[uid, pk] : ch->pk_map) {
 		auto temp = GetPlayerNameByUnique(uid);
 		// Ширину имени считает fmt: printf меряет её в байтах, и русское имя ломало столбец
 		// (issue #3797).
-		strcat(buff, fmt::format("{:>20} {:4d} {:4d}",
-								 temp.empty() ? "<УДАЛЕН>" : temp, pk.kill_num, pk.revenge_num).c_str());
+		out += fmt::format("{:>20} {:4d} {:4d}",
+						   temp.empty() ? "<УДАЛЕН>" : temp, pk.kill_num, pk.revenge_num);
 
-		if (pk.clan_exp > time(nullptr)) {
-			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk.clan_exp - time(nullptr)));
-		} else {
-			strcat(buff, "    -");
+		// три счётчика печатаются одинаково: сколько секунд осталось, либо прочерк
+		for (const auto expire : {pk.clan_exp, pk.battle_exp, pk.thief_exp}) {
+			if (expire > time(nullptr)) {
+				out += fmt::format(" {:4}", static_cast<long>(expire - time(nullptr)));
+			} else {
+				out += "    -";
+			}
 		}
 
-		if (pk.battle_exp > time(nullptr)) {
-			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk.battle_exp - time(nullptr)));
-		} else {
-			strcat(buff, "    -");
-		}
-
-		if (pk.thief_exp > time(nullptr)) {
-			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk.thief_exp - time(nullptr)));
-		} else {
-			strcat(buff, "    -");
-		}
-
-		strcat(buff, "\r\n");
+		out += "\r\n";
 	}
+	return out;
 }
 
 void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

@@ -102,7 +102,7 @@ const char *GetPkNameColor(CharData *victim);
 inline const char *GetPkNameColor(const std::shared_ptr<CharData> &victim) {
 	return GetPkNameColor(victim.get());
 }
-void pk_list_sprintf(CharData *ch, char *buff);
+std::string pk_list_sprintf(CharData *ch);
 void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void UpdatePkLogs(CharData *ch, CharData *victim);
 

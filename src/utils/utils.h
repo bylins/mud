@@ -126,6 +126,9 @@ int number(int from, int to);
 int RollDices(int number, int size);
 
 void sprinttype(int type, const char *names[], char *result);
+// То же имя из таблицы, но без копирования в буфер: таблицы статические, строка живёт вечно,
+// и звать sprinttype ради strcpy в char[] незачем (#3814).
+const char *GetTypeName(int type, const char *names[]);
 int get_line(FILE *fl, char *buf);
 int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const char *pattern, const char *replacement, int rep_all, int max_size);
 void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
@@ -775,6 +778,17 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, size_t 
 
 inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, size_t result_size, const int print_flag = 0) {
 	return sprintbitwd(bitvector, names, result, result_size, ",", print_flag);
+}
+
+// Строковые формы: список флагов без буфера у вызывающего (#3814).
+inline std::string sprintbitwd(Bitvector bitvector, const char *names[], const char *div, int print_flag = 0) {
+	char result[kMaxStringLength];
+	sprintbitwd(bitvector, names, result, sizeof(result), div, print_flag);
+	return result;
+}
+
+inline std::string sprintbit(Bitvector bitvector, const char *names[], const int print_flag = 0) {
+	return sprintbitwd(bitvector, names, ",", print_flag);
 }
 
 #endif // UTILS_H_
