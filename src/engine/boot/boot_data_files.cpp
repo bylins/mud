@@ -303,7 +303,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	int trigger_type = 0;
 	asciiflag_conv(flags, &trigger_type);
 	const auto rnum = top_of_trigt;
-	Trigger *trig = new Trigger(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
+	Trigger *trig = new Trigger(rnum, std::move(name), attach_type, trigger_type);
 	if (k == 5 && !strcmp(language, "lua")) {
 		trig->set_script_language(TriggerScriptLanguage::Lua);
 	}
@@ -1333,23 +1333,23 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Size") {
-		mob_proto[i].real_abils.size = std::clamp<byte>(num_arg, 0, 100);
+		mob_proto[i].real_abils.size = std::clamp<int>(num_arg, 0, 100);
 	}
 
 	CASE("LikeWork") {
-		mob_proto[i].mob_specials.like_work = std::clamp<byte>(num_arg, 0, 100);
+		mob_proto[i].mob_specials.like_work = std::clamp<int>(num_arg, 0, 100);
 	}
 
 	CASE("MaxFactor") {
-		mob_proto[i].mob_specials.MaxFactor = std::clamp<byte>(num_arg, 0, 127);
+		mob_proto[i].mob_specials.MaxFactor = std::clamp<int>(num_arg, 0, 127);
 	}
 
 	CASE("ExtraAttack") {
-		mob_proto[i].mob_specials.extra_attack = std::clamp<byte>(num_arg, 0, 127);
+		mob_proto[i].mob_specials.extra_attack = std::clamp<int>(num_arg, 0, 127);
 	}
 
 	CASE("MobRemort") {
-		mob_proto[i].set_remort(std::clamp<byte>(num_arg, 0, 100));
+		mob_proto[i].set_remort(std::clamp<int>(num_arg, 0, 100));
 	}
 
 	CASE("Height") {

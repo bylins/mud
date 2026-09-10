@@ -1276,7 +1276,7 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 	const auto script_language = ParseTriggerScriptLanguage(root);
 
 	// Create trigger (note: rnum will be assigned during merge)
-	auto trig = new Trigger(-1, std::move(name), static_cast<byte>(attach_type), trigger_type);
+	auto trig = new Trigger(-1, std::move(name), attach_type, trigger_type);
 	GET_TRIG_NARG(trig) = narg;
 	trig->add_flag = GetInt(root, "add_flag", 0) != 0;
 	trig->arglist = arglist;
@@ -1842,7 +1842,7 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 
 	// Physical attributes -- bounds mirror legacy interpret_espec.
-	GET_SIZE(&mob) = std::clamp<byte>(GetInt(root, "size", 0), 0, 100);
+	GET_SIZE(&mob) = std::clamp<int>(GetInt(root, "size", 0), 0, 100);
 	GET_HEIGHT(&mob) = std::clamp(GetInt(root, "height", 0), 0, 200);
 	GET_WEIGHT(&mob) = std::clamp(GetInt(root, "weight", 0), 0, 200);
 
@@ -1927,10 +1927,10 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 		mob.add_abils.mresist = std::clamp(GetInt(enhanced, "mresist", 0), 0, 100);
 		mob.add_abils.presist = std::clamp(GetInt(enhanced, "presist", 0), 0, 100);
 		mob.mob_specials.attack_type = std::clamp(GetInt(enhanced, "bare_hand_attack", 0), 0, 99);
-		mob.mob_specials.like_work = std::clamp<byte>(GetInt(enhanced, "like_work", 0), 0, 100);
-		mob.mob_specials.MaxFactor = std::clamp<byte>(GetInt(enhanced, "max_factor", 0), 0, 127);
-		mob.mob_specials.extra_attack = std::clamp<byte>(GetInt(enhanced, "extra_attack", 0), 0, 127);
-		mob.set_remort(std::clamp<byte>(GetInt(enhanced, "mob_remort", 0), 0, 100));
+		mob.mob_specials.like_work = std::clamp<int>(GetInt(enhanced, "like_work", 0), 0, 100);
+		mob.mob_specials.MaxFactor = std::clamp<int>(GetInt(enhanced, "max_factor", 0), 0, 127);
+		mob.mob_specials.extra_attack = std::clamp<int>(GetInt(enhanced, "extra_attack", 0), 0, 127);
+		mob.set_remort(std::clamp<int>(GetInt(enhanced, "mob_remort", 0), 0, 100));
 
 		if (enhanced["special_bitvector"])
 		{
@@ -3828,10 +3828,10 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	yaml.IncreaseIndent();
 
 	yaml.Key("dice_count");
-	yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte -> int
+	yaml.Value(mob.mem_queue.total);
 
 	yaml.Key("dice_size");
-	yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte -> int
+	yaml.Value(mob.mem_queue.stored);
 
 	yaml.Key("bonus");
 	yaml.Value(mob.get_hit());
@@ -3844,10 +3844,10 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	yaml.IncreaseIndent();
 
 	yaml.Key("dice_count");
-	yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte -> int
+	yaml.Value(mob.mob_specials.damnodice);
 
 	yaml.Key("dice_size");
-	yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte -> int
+	yaml.Value(mob.mob_specials.damsizedice);
 
 	yaml.Key("bonus");
 	yaml.Value(mob.real_abils.damroll);
@@ -3861,10 +3861,10 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	yaml.IncreaseIndent();
 
 	yaml.Key("dice_count");
-	yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte -> int
+	yaml.Value(mob.mob_specials.GoldNoDs);
 
 	yaml.Key("dice_size");
-	yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
+	yaml.Value(mob.mob_specials.GoldSiDs);
 
 	yaml.Key("bonus");
 	yaml.Value(currencies::GetHand(mob, currencies::kGold));

@@ -1086,7 +1086,7 @@ void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data
 		}
 		if (data.contains("attach_type"))
 		{
-			trig->set_attach_type(static_cast<byte>(data["attach_type"].get<int>()));
+			trig->set_attach_type(data["attach_type"].get<int>());
 		}
 
 		// Script

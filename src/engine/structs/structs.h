@@ -54,10 +54,6 @@ using MobRnum = Rnum;
 using ZoneRnum = Rnum;
 using TrgRnum = Rnum;
 
-#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)    // Hm, sysdep.h?
-using byte = char;
-#endif
-
 const int kMinRemort = 0;
 const int kMaxRemort = 99;
 const int kMaxPlayerLevel = 30;

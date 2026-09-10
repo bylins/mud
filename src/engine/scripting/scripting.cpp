@@ -332,12 +332,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		ch->set_cha(v);
 	}
 
-	byte get_sex() const {
+	int get_sex() const {
 		Ensurer ch(*this);
 		return to_underlying(ch->get_sex());
 	}
 
-	void set_sex(const byte v) {
+	void set_sex(const int v) {
 		Ensurer ch(*this);
 		ch->set_sex(static_cast<EGender>(v));
 	}
@@ -2483,13 +2483,13 @@ struct PythonUserCommand {
 	std::string command;
 	std::string command_koi8r;
 	object callable;
-	byte minimum_position;
+	int minimum_position;
 	sh_int minimum_level;
 	int unhide_percent;
 	PythonUserCommand(const std::string &command_,
 					  const std::string &command____,
 					  const object &callable_,
-					  byte minimum_position_,
+					  int minimum_position_,
 					  sh_int minimum_level_,
 					  int unhide_percent_) :
 		command(command_),

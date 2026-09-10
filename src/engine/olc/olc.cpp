@@ -400,7 +400,7 @@ void olc_saveinfo(CharData *ch) {
 // ------------------------------------------------------------
 
 // * Add an entry to the 'to be saved' list.
-void olc_add_to_save_list(int zone, byte type) {
+void olc_add_to_save_list(int zone, int type) {
 	struct olc_save_info *lnew;
 
 	// * Return if it's already in the list.
@@ -416,7 +416,7 @@ void olc_add_to_save_list(int zone, byte type) {
 }
 
 // * Remove an entry from the 'to be saved' list.
-void olc_remove_from_save_list(int zone, byte type) {
+void olc_remove_from_save_list(int zone, int type) {
 	struct olc_save_info **entry;
 	struct olc_save_info *temp;
 
@@ -480,7 +480,7 @@ void strip_string(char *buffer) {
  * attatched to a descriptor, sets all flags back to how they
  * should be.
  */
-void cleanup_olc(DescriptorData *d, byte cleanup_type) {
+void cleanup_olc(DescriptorData *d, int cleanup_type) {
 	if (d->olc) {
 		TrigeditSavePendingLuaOnCleanup(d);
 

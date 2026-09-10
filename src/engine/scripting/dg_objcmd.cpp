@@ -38,7 +38,7 @@ extern int reloc_target;
 
 CharData *get_char_by_obj(ObjData *obj, const char *name);
 ObjData *get_obj_by_obj(ObjData *obj, const char *name);
-void sub_write(char *arg, CharData *ch, byte find_invis, int targets);
+void sub_write(char *arg, CharData *ch, int find_invis, int targets);
 void die(CharData *ch, CharData *killer);
 void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig);
 void send_to_zone(char *messg, int zone_rnum);

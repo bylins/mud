@@ -19,7 +19,7 @@
 #include <cstdio>
 
 // Defined in pc_classes.cpp (no header); the class/level base saving table.
-byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
+int GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 
 typedef std::map<ESaving, std::string> ESaving_name_by_value_t;
 typedef std::map<const std::string, ESaving> ESaving_value_by_name_t;
