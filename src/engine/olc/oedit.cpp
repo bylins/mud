@@ -294,12 +294,15 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	FILE *fp;
 
 	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
-			snprintf(buf, sizeof(buf), "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			mudlog(fmt::format("Отказ сохранения зоны {} на диск.", zone_table[zone_num].vnum),
+				   CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-	snprintf(buf, sizeof(buf), "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].vnum);
-	if (!(fp = fopen(buf, "w+"))) {
+	// Локальные буферы: запись legacy-файла шла через глобальные buf/buf1/buf2 (#3814).
+	const std::string tmp_path = fmt::format("{}/{}.new", OBJ_PREFIX, zone_table[zone_num].vnum);
+	char action_desc[kMaxStringLength];
+	char flags[kMaxStringLength];
+	if (!(fp = fopen(tmp_path.c_str(), "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
 	}
@@ -308,21 +311,21 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 		if ((realcounter = GetObjRnum(counter)) >= 0) {
 			const auto &obj = obj_proto[realcounter];
 			if (!obj->get_action_description().empty()) {
-				snprintf(buf1, sizeof(buf1), "%s", obj->get_action_description().c_str());
-				strip_string(buf1);
+				snprintf(action_desc, sizeof(action_desc), "%s", obj->get_action_description().c_str());
+				strip_string(action_desc);
 			} else {
-				*buf1 = '\0';
+				*action_desc = '\0';
 			}
-			*buf2 = '\0';
-			obj->get_affect_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
-			obj->get_anti_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
-			obj->get_no_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
-			size_t buf2_len = strlen(buf2);
-			snprintf(buf2 + buf2_len, sizeof(buf2) - buf2_len, "\n%d ", obj->get_type());
-			obj->get_extra_flags().tascii(kFlagPlanes, buf2, sizeof(buf2));
+			*flags = '\0';
+			obj->get_affect_flags().tascii(kFlagPlanes, flags, sizeof(flags));
+			obj->get_anti_flags().tascii(kFlagPlanes, flags, sizeof(flags));
+			obj->get_no_flags().tascii(kFlagPlanes, flags, sizeof(flags));
+			size_t flags_len = strlen(flags);
+			snprintf(flags + flags_len, sizeof(flags) - flags_len, "\n%d ", obj->get_type());
+			obj->get_extra_flags().tascii(kFlagPlanes, flags, sizeof(flags));
 			const auto wear_flags = obj->get_wear_flags();
-			tascii(&wear_flags, 1, buf2, sizeof(buf2));
-			strncat(buf2, "\n", sizeof(buf2) - strlen(buf2) - 1);
+			tascii(&wear_flags, 1, flags, sizeof(flags));
+			strncat(flags, "\n", sizeof(flags) - strlen(flags) - 1);
 
 			fprintf(fp, "#%d\n"
 						"%s~\n"
@@ -348,11 +351,11 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 					!obj->get_PName(grammar::ECase::kIns).empty() ? obj->get_PName(grammar::ECase::kIns).c_str() : "чем-то",
 					!obj->get_PName(grammar::ECase::kPre).empty() ? obj->get_PName(grammar::ECase::kPre).c_str() : "о чем-то",
 					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
-					buf1,
+					action_desc,
 					obj->get_spec_param(), obj->get_maximum_durability(), obj->get_current_durability(),
 					obj->get_material(), to_underlying(GET_OBJ_SEX(obj)),
 					obj->get_timer(), to_underlying(obj->get_spell()),
-					obj->get_level(), buf2, GET_OBJ_VAL(obj, 0),
+					obj->get_level(), flags, GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 					GET_OBJ_VAL(obj, 3), obj->get_weight(),
 					obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
@@ -376,9 +379,9 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 						   BRF, kLvlBuilder, SYSLOG, true);
 					continue;
 				}
-				snprintf(buf1, sizeof(buf1), "%s", ex_desc.description.c_str());
-				strip_string(buf1);
-				fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc.keyword.c_str(), buf1);
+				snprintf(action_desc, sizeof(action_desc), "%s", ex_desc.description.c_str());
+				strip_string(action_desc);
+				fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc.keyword.c_str(), action_desc);
 			}
 			// * Do we have affects?
 			for (counter2 = 0; counter2 < kMaxObjAffect; counter2++) {
@@ -409,10 +412,10 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	// * Write the final line, close the file.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
-	snprintf(buf2, sizeof(buf2), "%s/%d.obj", OBJ_PREFIX, zone_table[zone_num].vnum);
+	const std::string final_path = fmt::format("{}/{}.obj", OBJ_PREFIX, zone_table[zone_num].vnum);
 	// * We're fubar'd if we crash between the two lines below.
-	remove(buf2);
-	rename(buf, buf2);
+	remove(final_path.c_str());
+	rename(tmp_path.c_str(), final_path.c_str());
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_OBJ);
 }
 
@@ -422,18 +425,17 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 
 // * For container flags.
 void oedit_disp_container_flags_menu(DescriptorData *d) {
-	sprintbit(GET_OBJ_VAL(OLC_OBJ(d), 1), container_bits, buf1, sizeof(buf1));
+
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	snprintf(buf, kMaxStringLength,
-			 "%s1%s) Закрываем\r\n"
-			 "%s2%s) Нельзя взломать\r\n"
-			 "%s3%s) Закрыт\r\n"
-			 "%s4%s) Заперт\r\n"
-			 "Флаги контейнера: %s%s%s\r\n"
-			 "Выберите флаг, 0 - выход : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("{}1{}) Закрываем\r\n"
+			 "{}2{}) Нельзя взломать\r\n"
+			 "{}3{}) Закрыт\r\n"
+			 "{}4{}) Заперт\r\n"
+			 "Флаги контейнера: {}{}{}\r\n"
+			 "Выберите флаг, 0 - выход : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, cyn,
+			 sprintbit(GET_OBJ_VAL(OLC_OBJ(d), 1), container_bits), nrm), d->character.get());
 }
 
 // * For extra descriptions.
@@ -442,21 +444,16 @@ void oedit_disp_extradesc_menu(DescriptorData *d) {
 	const int idx = OLC_DESC(d);
 	const ExtraDescription &extra_desc = descs[idx];
 	const bool has_next = (idx + 1 < static_cast<int>(descs.size()));
-	snprintf(buf1, sizeof(buf1), "%s", !has_next ? "<Not set>\r\n" : "Set.");
+	const char *next_desc = !has_next ? "<Not set>\r\n" : "Set.";
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	snprintf(buf, kMaxStringLength,
-			 "Меню экстрадескрипторов\r\n"
-			 "%s1%s) Ключ: %s%s\r\n"
-			 "%s2%s) Описание:\r\n%s%s\r\n"
-			 "%s3%s) Следующий дескриптор: %s\r\n"
-			 "%s0%s) Выход\r\n"
-			 "Ваш выбор : ",
-			 grn, nrm, yel, !extra_desc.keyword.empty() ? extra_desc.keyword.c_str() : "<NONE>",
-			 grn, nrm, yel, !extra_desc.description.empty() ? extra_desc.description.c_str() : "<NONE>",
-			 grn, nrm, buf1, grn, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("Меню экстрадескрипторов\r\n"
+			 "{}1{}) Ключ: {}{}\r\n"
+			 "{}2{}) Описание:\r\n{}{}\r\n"
+			 "{}3{}) Следующий дескриптор: {}\r\n"
+			 "{}0{}) Выход\r\n"
+			 "Ваш выбор : ", grn, nrm, yel, !extra_desc.keyword.empty() ? extra_desc.keyword : "<NONE>", grn, nrm, yel, !extra_desc.description.empty() ? extra_desc.description : "<NONE>", grn, nrm, next_desc, grn, nrm), d->character.get());
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
 }
 
@@ -468,13 +465,14 @@ void oedit_disp_prompt_apply_menu(DescriptorData *d) {
 #endif
 	for (counter = 0; counter < kMaxObjAffect; counter++) {
 		if (OLC_OBJ(d)->get_affected(counter).modifier) {
-			sprinttype(OLC_OBJ(d)->get_affected(counter).location, apply_types, buf2);
-			snprintf(buf, kMaxStringLength, " %s%d%s) %+d to %s", grn, counter + 1, nrm,
-					 OLC_OBJ(d)->get_affected(counter).modifier, buf2);
+			std::string apply_line =
+				fmt::format(" {}{}{}) {:+} to {}", grn, counter + 1, nrm,
+							OLC_OBJ(d)->get_affected(counter).modifier,
+							GetTypeName(OLC_OBJ(d)->get_affected(counter).location, apply_types));
 			if (IsNegativeApply(OLC_OBJ(d)->get_affected(counter).location)) {
-				strncat(buf, "   &g(в + ухудшает)&n", sizeof(buf) - strlen(buf) - 1);
-			} 
-			SendMsgToChar(buf, d->character.get());
+				apply_line += "   &g(в + ухудшает)&n";
+			}
+			SendMsgToChar(apply_line, d->character.get());
 			SendMsgToChar("\r\n", d->character.get());
 		} else {
 			SendMsgToChar(fmt::format("{}{}{}) Ничего.\r\n", grn, counter + 1, nrm), d->character.get());
@@ -602,6 +600,7 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	int percent;
+	std::string percent_str;
 	for (auto skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
 		if (MUD::Skills().IsInvalid(skill_id)) {
 			continue;
@@ -609,12 +608,12 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 
 		percent = OLC_OBJ(d)->get_skill(skill_id);
 		if (percent != 0) {
-			snprintf(buf1, sizeof(buf1), "%s[%3d]%s", cyn, percent, nrm);
+			percent_str = fmt::format("{}[{:3}]{}", cyn, percent, nrm);
 		} else {
-			strncpy(buf1, "     ", sizeof(buf1) - strlen(buf1) - 1);
+			percent_str = "     ";
 		}
 		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
-									  grn, to_underlying(skill_id), nrm, MUD::Skill(skill_id).GetName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+									  grn, to_underlying(skill_id), nrm, MUD::Skill(skill_id).GetName(), percent_str, !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -665,13 +664,12 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 
 		case EObjType::kBook: {
 			// названия типов книг -- из единого источника GetBookTypeName (enum EBook)
-			buf[0] = '\0';
+			std::string menu;
 			for (int bt = EBook::kSpell; bt <= EBook::kFeat; ++bt) {
-				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s%d%s) %s%s\r\n",
-						grn, bt, nrm, yel, GetBookTypeName(static_cast<EBook>(bt)));
+				menu += fmt::format("{}{}{}) {}{}\r\n", grn, bt, nrm, yel, GetBookTypeName(static_cast<EBook>(bt)));
 			}
-			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%sВыберите тип книги : ", nrm);
-			SendMsgToChar(buf, d->character.get());
+			menu += fmt::format("{}Выберите тип книги : ", nrm);
+			SendMsgToChar(menu, d->character.get());
 			break;
 		}
 
@@ -726,18 +724,11 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 			break;
 
 		case EObjType::kMoney:
-			snprintf(buf, sizeof(buf),
-					"%s0%s) %sКуны\r\n"
-					"%s1%s) %sСлава\r\n"
-					"%s2%s) %sГривны\r\n"
-					"%s3%s) %sСнежинки\r\n"
-					"%sВыберите тип валюты : ",
-					grn, nrm, yel,
-					grn, nrm, yel,
-					grn, nrm, yel,
-					grn, nrm, yel,
-					nrm);
-			SendMsgToChar(buf, d->character.get());
+			SendMsgToChar(fmt::format("{}0{}) {}Куны\r\n"
+					"{}1{}) {}Слава\r\n"
+					"{}2{}) {}Гривны\r\n"
+					"{}3{}) {}Снежинки\r\n"
+					"{}Выберите тип валюты : ", grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, nrm), d->character.get());
 			break;
 
 		case EObjType::kContainer:
@@ -914,46 +905,27 @@ void oedit_disp_type_menu(DescriptorData *d) {
 // * Object extra flags.
 void oedit_disp_extra_menu(DescriptorData *d) {
 	disp_planes_values(d, extra_bits, 2);
-	OLC_OBJ(d)->get_extra_flags().sprintbits(extra_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf,
-			 kMaxStringLength,
-			 "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг: (помеченное '*' пользоваться вдумчиво. 0 - выход) : ",
-			 cyn,
-			 buf1,
-			 nrm);
-	SendMsgToChar(buf, d->character.get());
+	const std::string flags_line = OLC_OBJ(d)->get_extra_flags().sprintbits(extra_bits, ",", 5);
+	SendMsgToChar(fmt::format("\r\nЭкстрафлаги: {}{}{}\r\n" "Выберите экстрафлаг: (помеченное '*' пользоваться вдумчиво. 0 - выход) : ", cyn, flags_line, nrm), d->character.get());
 }
 
 void oedit_disp_anti_menu(DescriptorData *d) {
 	disp_planes_values(d, anti_bits, 2);
-	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf,
-			 kMaxStringLength,
-			 "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ",
-			 cyn,
-			 buf1,
-			 nrm);
-	SendMsgToChar(buf, d->character.get());
+	const std::string flags_line = OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, ",", 5);
+	SendMsgToChar(fmt::format("\r\nПредмет запрещен для : {}{}{}\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, flags_line, nrm), d->character.get());
 }
 
 void oedit_disp_no_menu(DescriptorData *d) {
 	disp_planes_values(d, no_bits, 2);
-	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf,
-			 kMaxStringLength,
-			 "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ",
-			 cyn,
-			 buf1,
-			 nrm);
-	SendMsgToChar(buf, d->character.get());
+	const std::string flags_line = OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, ",", 5);
+	SendMsgToChar(fmt::format("\r\nПредмет неудобен для : {}{}{}\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, flags_line, nrm), d->character.get());
 }
 
 void show_equipment_affects_olc(DescriptorData *d, const BitsetFlags<EEquipmentAffect> &flags) {
 	disp_planes_values(d, equipment_affects, 2);
-	flags.sprintbits(equipment_affects, buf1, sizeof(buf1), ",", 5);
-	snprintf(buf, kMaxStringLength, "\r\nНакладываемые аффекты : %s%s%s\r\n"
-									 "Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	const std::string flags_line = flags.sprintbits(equipment_affects, ",", 5);
+	SendMsgToChar(fmt::format("\r\nНакладываемые аффекты : {}{}{}\r\n"
+									 "Выберите аффект (0 - выход) : ", cyn, flags_line, nrm), d->character.get());
 }
 
 void oedit_disp_affects_menu(DescriptorData *d) {
@@ -971,14 +943,8 @@ void oedit_disp_wear_menu(DescriptorData *d) {
 									  grn, counter + 1, nrm, wear_bits[counter], !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
-	sprintbit(OLC_OBJ(d)->get_wear_flags(), wear_bits, buf1, sizeof(buf1));
-	snprintf(buf,
-			 kMaxStringLength,
-			 "\r\nМожет быть одет : %s%s%s\r\n" "Выберите позицию (0 - выход) : ",
-			 cyn,
-			 buf1,
-			 nrm);
-	SendMsgToChar(buf, d->character.get());
+	const std::string flags_line = sprintbit(OLC_OBJ(d)->get_wear_flags(), wear_bits);
+	SendMsgToChar(fmt::format("\r\nМожет быть одет : {}{}{}\r\n" "Выберите позицию (0 - выход) : ", cyn, flags_line, nrm), d->character.get());
 }
 
 void oedit_disp_mater_menu(DescriptorData *d) {
@@ -991,9 +957,8 @@ void oedit_disp_mater_menu(DescriptorData *d) {
 									  grn, counter + 1, nrm, material_name[counter], !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
-	snprintf(buf, sizeof(buf), "\r\nСделан из : %s%s%s\r\n"
-				 "Выберите материал (0 - выход) : ", cyn, material_name[OLC_OBJ(d)->get_material()], nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("\r\nСделан из : {}{}{}\r\n"
+				 "Выберите материал (0 - выход) : ", cyn, material_name[OLC_OBJ(d)->get_material()], nrm), d->character.get());
 }
 
 void oedit_disp_ingradient_menu(DescriptorData *d) {
@@ -1006,9 +971,8 @@ void oedit_disp_ingradient_menu(DescriptorData *d) {
 									  grn, counter + 1, nrm, ingradient_bits[counter], !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
-	sprintbit(OLC_OBJ(d)->get_spec_param(), ingradient_bits, buf1, sizeof(buf1));
-	snprintf(buf, kMaxStringLength, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	const std::string flags_line = sprintbit(OLC_OBJ(d)->get_spec_param(), ingradient_bits);
+	SendMsgToChar(fmt::format("\r\nТип ингредиента : {}{}{}\r\n" "Дополните тип (0 - выход) : ", cyn, flags_line, nrm), d->character.get());
 }
 
 void oedit_disp_magic_container_menu(DescriptorData *d) {
@@ -1018,9 +982,8 @@ void oedit_disp_magic_container_menu(DescriptorData *d) {
 									  grn, counter + 1, nrm, magic_container_bits[counter], !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
-	sprintbit(OLC_OBJ(d)->get_spec_param(), magic_container_bits, buf1, sizeof(buf1));
-	snprintf(buf, kMaxStringLength, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
-	SendMsgToChar(buf, d->character.get());
+	const std::string flags_line = sprintbit(OLC_OBJ(d)->get_spec_param(), magic_container_bits);
+	SendMsgToChar(fmt::format("\r\nТип контейнера : {}{}{}\r\n" "Дополните тип (0 - выход) : ", cyn, flags_line, nrm), d->character.get());
 }
 
 std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1,
@@ -1203,11 +1166,8 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 									  grn, static_cast<int>(counter + 1), nrm, wskill_bits[counter], !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
-	snprintf(buf, sizeof(buf),
-			"%sТренируемое умение : %s%d%s\r\n"
-			"Выберите умение (0 - выход) : ",
-			(columns % 2 == 1 ? "\r\n" : ""), cyn, OLC_OBJ(d)->get_spec_param(), nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("{}Тренируемое умение : {}{}{}\r\n"
+			"Выберите умение (0 - выход) : ", (columns % 2 == 1 ? "\r\n" : ""), cyn, OLC_OBJ(d)->get_spec_param(), nrm), d->character.get());
 }
 
 std::string print_values2_menu(ObjData *obj) {
@@ -1272,25 +1232,23 @@ void oedit_disp_menu(DescriptorData *d) {
 	ObjData *obj;
 
 	obj = OLC_OBJ(d);
-	sprinttype(obj->get_type(), item_types, buf1);
-	obj->get_extra_flags().sprintbits(extra_bits, buf2, sizeof(buf2), ",", 4);
 
-	snprintf(buf, kMaxStringLength,
+	SendMsgToChar(fmt::format(
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-			 "-- Предмет : [%s%d%s]\r\n"
-			 "%s1%s) Синонимы : %s&S%s&s\r\n"
-			 "%s2&n) Именительный (это ЧТО)             : %s&e\r\n"
-			 "%s3&n) Родительный  (нету ЧЕГО)           : %s&e\r\n"
-			 "%s4&n) Дательный    (прикрепить к ЧЕМУ)   : %s&e\r\n"
-			 "%s5&n) Винительный  (держать ЧТО)         : %s&e\r\n"
-			 "%s6&n) Творительный (вооружиться ЧЕМ)     : %s&e\r\n"
-			 "%s7&n) Предложный   (писать на ЧЕМ)       : %s&e\r\n"
-			 "%s8&n) Краткое описание  :-\r\n&Y&q%s&e&Q\r\n"
-			 "%s9&n) Опис.при действии :-\r\n%s%s\r\n"
-			 "%sA%s) Тип предмета      :-\r\n%s%s\r\n"
-			 "%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
+			 "-- Предмет : [{}{}{}]\r\n"
+			 "{}1{}) Синонимы : {}&S{}&s\r\n"
+			 "{}2&n) Именительный (это ЧТО)             : {}&e\r\n"
+			 "{}3&n) Родительный  (нету ЧЕГО)           : {}&e\r\n"
+			 "{}4&n) Дательный    (прикрепить к ЧЕМУ)   : {}&e\r\n"
+			 "{}5&n) Винительный  (держать ЧТО)         : {}&e\r\n"
+			 "{}6&n) Творительный (вооружиться ЧЕМ)     : {}&e\r\n"
+			 "{}7&n) Предложный   (писать на ЧЕМ)       : {}&e\r\n"
+			 "{}8&n) Краткое описание  :-\r\n&Y&q{}&e&Q\r\n"
+			 "{}9&n) Опис.при действии :-\r\n{}{}\r\n"
+			 "{}A{}) Тип предмета      :-\r\n{}{}\r\n"
+			 "{}B{}) Экстрафлаги       :-\r\n{}{}\r\n",
 			 cyn, OLC_NUM(d), nrm,
 			 grn, nrm, yel, not_empty(obj->get_aliases()),
 			 grn, not_empty(obj->get_PName(grammar::ECase::kNom)),
@@ -1301,59 +1259,36 @@ void oedit_disp_menu(DescriptorData *d) {
 			 grn, not_empty(obj->get_PName(grammar::ECase::kPre)),
 			 grn, not_empty(obj->get_description()),
 			 grn, yel, not_empty(obj->get_action_description(), "<not set>\r\n"),
-			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
-	// * Send first half.
-	SendMsgToChar(buf, d->character.get());
+			 grn, nrm, cyn, GetTypeName(obj->get_type(), item_types),
+			 grn, nrm, cyn, obj->get_extra_flags().sprintbits(extra_bits, ",", 4)), d->character.get());
 
-	sprintbit(obj->get_wear_flags(), wear_bits, buf1, sizeof(buf1));
-	obj->get_no_flags().sprintbits(no_bits, buf2, sizeof(buf2), ",");
-	snprintf(buf, kMaxStringLength,
-			 "%sC%s) Одевается  : %s%s\r\n"
-			 "%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("{}C{}) Одевается  : {}{}\r\n"
+							  "{}D{}) Неудобен    : {}{}\r\n",
+							  grn, nrm, cyn, sprintbit(obj->get_wear_flags(), wear_bits),
+							  grn, nrm, cyn, obj->get_no_flags().sprintbits(no_bits, ",")), d->character.get());
 
-	obj->get_anti_flags().sprintbits(anti_bits, buf1, sizeof(buf1), ",", 4);
-	obj->get_affect_flags().sprintbits(equipment_affects, buf2, sizeof(buf2), ",", 4);
+	const std::string anti = obj->get_anti_flags().sprintbits(anti_bits, ",", 4);
+	const std::string affects = obj->get_affect_flags().sprintbits(equipment_affects, ",", 4);
 	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
-	snprintf(buf, kMaxStringLength,
-			 "%sE%s) Запрещен    : %s%s\r\n"
-			 "%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
-			 "%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
-			 "%sJ%s) Макс.проч.  : %s%8d   %sK%s) Тек.проч    : %s%d\r\n"
-			 "%sL%s) Материал    : %s%s\r\n"
-			 "%sM%s) Таймер      : %s%8d\r\n"
-			 "%sN%s) %s\r\n"
-			 "%s"
-			 "%sP%s) Аффекты     : %s%s\r\n"
-			 "%sR%s) Меню наводимых аффектов\r\n"
-			 "%sT%s) Меню экстраописаний\r\n"
-			 "%sS%s) Скрипт      : %s%s\r\n"
-			 "%sU%s) Пол         : %s%s\r\n"
-			 "%sV%s) Макс.в мире : %s%d\r\n"
-			 "%sW%s) Меню умений\r\n"
-			 "%sX%s) Требует перевоплощений: %s%d\r\n"
-			 "%sZ%s) Клонирование\r\n"
-			 "%sQ%s) Quit\r\n"
-			 "Ваш выбор : ",
-			 grn, nrm, cyn, buf1,
-			 grn, nrm, cyn, obj->get_weight(),
-			 grn, nrm, cyn, obj->get_cost(),
-			 grn, nrm, cyn, obj->get_rent_off(),
-			 grn, nrm, cyn, obj->get_rent_on(),
-			 grn, nrm, cyn, obj->get_maximum_durability(),
-			 grn, nrm, cyn, obj->get_current_durability(),
-			 grn, nrm, cyn, material_name[obj->get_material()],
-			 grn, nrm, cyn, obj->get_timer(),
-			 grn, nrm, print_values2_menu(obj).c_str(),
-			 print_obj_values_line(obj).c_str(), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
-			 nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют",
-			 grn, nrm, cyn, genders[gender],
-			 grn, nrm, cyn, obj->get_max_in_world(),
-			 grn, nrm,
-			 grn, nrm, cyn, obj->get_minimum_remorts(),
-			 grn, nrm,
-			 grn, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("{}E{}) Запрещен    : {}{}\r\n"
+			 "{}F{}) Вес         : {}{:8}   {}G{}) Цена        : {}{}\r\n"
+			 "{}H{}) Рента(снято): {}{:8}   {}I{}) Рента(одето): {}{}\r\n"
+			 "{}J{}) Макс.проч.  : {}{:8}   {}K{}) Тек.проч    : {}{}\r\n"
+			 "{}L{}) Материал    : {}{}\r\n"
+			 "{}M{}) Таймер      : {}{:8}\r\n"
+			 "{}N{}) {}\r\n"
+			 "{}"
+			 "{}P{}) Аффекты     : {}{}\r\n"
+			 "{}R{}) Меню наводимых аффектов\r\n"
+			 "{}T{}) Меню экстраописаний\r\n"
+			 "{}S{}) Скрипт      : {}{}\r\n"
+			 "{}U{}) Пол         : {}{}\r\n"
+			 "{}V{}) Макс.в мире : {}{}\r\n"
+			 "{}W{}) Меню умений\r\n"
+			 "{}X{}) Требует перевоплощений: {}{}\r\n"
+			 "{}Z{}) Клонирование\r\n"
+			 "{}Q{}) Quit\r\n"
+			 "Ваш выбор : ", grn, nrm, cyn, anti, grn, nrm, cyn, obj->get_weight(), grn, nrm, cyn, obj->get_cost(), grn, nrm, cyn, obj->get_rent_off(), grn, nrm, cyn, obj->get_rent_on(), grn, nrm, cyn, obj->get_maximum_durability(), grn, nrm, cyn, obj->get_current_durability(), grn, nrm, cyn, material_name[obj->get_material()], grn, nrm, cyn, obj->get_timer(), grn, nrm, print_values2_menu(obj), print_obj_values_line(obj), grn, nrm, grn, affects, grn, nrm, grn, nrm, grn, nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют", grn, nrm, cyn, genders[gender], grn, nrm, cyn, obj->get_max_in_world(), grn, nrm, grn, nrm, cyn, obj->get_minimum_remorts(), grn, nrm, grn, nrm), d->character.get());
 
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
 }
@@ -1444,19 +1379,17 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 }
 
 void oedit_disp_clone_menu(DescriptorData *d) {
-	snprintf(buf, sizeof(buf),
+	SendMsgToChar(fmt::format(
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-			"%s1%s) Заменить триггеры\r\n"
-			"%s2%s) Не заменять триггеры\r\n"
-			"%s3%s) Quit\r\n"
+			"{}1{}) Заменить триггеры\r\n"
+			"{}2{}) Не заменять триггеры\r\n"
+			"{}3{}) Quit\r\n"
 			"Ваш выбор : ",
 			grn, nrm,
 			grn, nrm,
-			grn, nrm);
-
-	SendMsgToChar(buf, d->character.get());
+			grn, nrm), d->character.get());
 }
 
 void oedit_parse(DescriptorData *d, char *arg) {
@@ -1474,9 +1407,9 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case rus::kDeUpper: SendMsgToChar("Объект сохранен.\r\n", d->character.get());
 					OLC_OBJ(d)->remove_incorrect_values_keys(OLC_OBJ(d)->get_type());
 					oedit_save_internally(d);
-					snprintf(buf, sizeof(buf), "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
-					olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+										olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
+					mudlog(fmt::format("OLC: {} edits obj {}", GET_NAME(d->character), OLC_NUM(d)),
+						   NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					break;
 
@@ -1783,8 +1716,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				return;
 			} else {
 				OLC_OBJ(d)->set_type(static_cast<EObjType>(number));
-				snprintf(buf, sizeof(buf), "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
-				mudlog(buf, BRF, kLvlGod, SYSLOG, true);
+								mudlog(fmt::format("{}  меняет тип предмета для {}!!!", GET_NAME(d->character), OLC_NUM(d)),
+					   BRF, kLvlGod, SYSLOG, true);
 				if (number != EObjType::kWeapon && number != EObjType::kMagicIngredient) {
 					OLC_OBJ(d)->set_spec_param(0);
 				}
