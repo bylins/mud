@@ -538,8 +538,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	ZoneVnum zone = zone_table[zone_num].vnum;
 	MobVnum top = zone_table[zone_num].top;
 	if (zone >= dungeons::kZoneStartDungeons) {
-			snprintf(buf, sizeof(buf), "Отказ сохранения зоны %d на диск.", zone);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			mudlog(fmt::format("Отказ сохранения зоны {} на диск.", zone),
+				   CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
 	snprintf(fname, sizeof(fname), "%s/%d.new", MOB_PREFIX, zone);
@@ -561,12 +561,10 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			// * Clean up strings.
 		if (mob->player_data.long_descr.empty())
 			mob->player_data.long_descr = "неопределен";
-		snprintf(buf1, sizeof(buf1), "%s", mob->player_data.long_descr.c_str());
-		strip_string(buf1);
+		const std::string long_descr = strip_string(mob->player_data.long_descr);
 		if (mob->player_data.description.empty())
 			mob->player_data.description = "неопределен";
-		snprintf(buf2, sizeof(buf2), "%s", mob->player_data.description.c_str());
-		strip_string(buf2);
+		const std::string description = strip_string(mob->player_data.description);
 		fprintf(mob_file, "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
 				(GET_ALIAS(mob) && *GET_ALIAS(mob)) ? GET_ALIAS(mob) : "неопределен",
 				not_empty(mob->player_data.PNames[grammar::ECase::kNom], "кто"),
@@ -574,20 +572,16 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 				not_empty(mob->player_data.PNames[grammar::ECase::kDat], "кому"),
 				not_empty(mob->player_data.PNames[grammar::ECase::kAcc], "кого"),
 				not_empty(mob->player_data.PNames[grammar::ECase::kIns], "кем"),
-				not_empty(mob->player_data.PNames[grammar::ECase::kPre], "о ком"), buf1, buf2);
-		if (mob->mob_specials.Questor)
-			snprintf(buf1, sizeof(buf1), "%s", mob->mob_specials.Questor);
-		else
-			buf1[0] = '\0';
-		strip_string(buf1);
-		*buf2 = 0;
-		mob->PrintFlagsToAscii(buf2, sizeof(buf2));
-		AFF_FLAGS(mob).tascii(kFlagPlanes, buf2, sizeof(buf2));
+				not_empty(mob->player_data.PNames[grammar::ECase::kPre], "о ком"),
+				long_descr.c_str(), description.c_str());
+		char flags[kMaxStringLength] = {};   // приёмник PrintFlagsToAscii/tascii, им нужен char *
+		mob->PrintFlagsToAscii(flags, sizeof(flags));
+		AFF_FLAGS(mob).tascii(kFlagPlanes, flags, sizeof(flags));
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
-				buf2, alignment::GetAlignment(mob),
+				flags, alignment::GetAlignment(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
-				mob->mem_queue.stored, mob->get_hit(), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-				GET_GOLD_SiDs(mob), currencies::GetHand(*mob, currencies::kGold), mob->get_exp(), static_cast<int>(mob->GetPosition()),
+				mob->mem_queue.stored, mob->get_hit(), static_cast<int>(GET_NDD(mob)), static_cast<int>(GET_SDD(mob)), GET_DR(mob), static_cast<int>(GET_GOLD_NoDs(mob)),
+				static_cast<int>(GET_GOLD_SiDs(mob)), currencies::GetHand(*mob, currencies::kGold), mob->get_exp(), static_cast<int>(mob->GetPosition()),
 				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(mob->get_sex()));
 		// * Deal with Extra stats in case they are there.
 		sum = 0;
@@ -656,9 +650,10 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			fprintf(mob_file, "Height: %d\n", GET_HEIGHT(mob));
 		if (GET_WEIGHT(mob))
 			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
-		snprintf(buf1, sizeof(buf1), "Special_Bitvector: ");
-		mob->mob_specials.npc_flags.tascii(kFlagPlanes, buf1, sizeof(buf1));
-		fprintf(mob_file, "%s\n", buf1);
+		char npc_flags[kMaxStringLength];
+		snprintf(npc_flags, sizeof(npc_flags), "Special_Bitvector: ");
+		mob->mob_specials.npc_flags.tascii(kFlagPlanes, npc_flags, sizeof(npc_flags));
+		fprintf(mob_file, "%s\n", npc_flags);
 		for (const auto &feat : MUD::Feats()) {
 			if (mob->HaveFeat(feat.GetId())) {
 				fprintf(mob_file, "Feat: %d\n", to_underlying(feat.GetId()));
@@ -691,10 +686,10 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	}
 	fprintf(mob_file, "$\n");
 	fclose(mob_file);
-	snprintf(buf2, sizeof(buf2), "%s/%d.mob", MOB_PREFIX, zone);
+	const std::string final_path = fmt::format("{}/{}.mob", MOB_PREFIX, zone);
 	// * We're fubar'd if we crash between the two lines below.
-	remove(buf2);
-	rename(fname, buf2);
+	remove(final_path.c_str());
+	rename(fname, final_path.c_str());
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_MOB);
 }
 
@@ -718,28 +713,16 @@ void medit_disp_add_parameters(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	snprintf(buf, sizeof(buf),
-			"%s1%s ) Регенерация : %s%d%s\r\n"
-			"%s2%s ) Броня : %s%d%s\r\n"
-			"%s3%s ) Запоминание : %s%d%s\r\n"
-			"%s4%s ) Успех колдовства : %s%d%s\r\n"
-			"%s5%s ) Удача : %s%d%s\r\n"
-			"%s6%s ) Инициатива : %s%d%s\r\n"
-			"%s7%s ) Поглощение : %s%d%s\r\n"
-			"%s8%s ) Иммунитет к магическим аффектам : %s%d%s\r\n"
-			"%s9%s ) Иммунитет к магическим повреждениям : %s%d%s\r\n"
-			"%s10%s) Иммунитет к физическим повреждениям : %s%d%s\r\n",
-			grn, nrm, cyn, (OLC_MOB(d)->get_hitreg()), nrm,
-			grn, nrm, cyn, GET_ARMOUR((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_MANAREG((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_CAST_SUCCESS((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_MORALE((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_INITIATIVE((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_ABSORBE((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_AR((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm,
-			grn, nrm, cyn, GET_PR((OLC_MOB(d))), nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format("{}1{} ) Регенерация : {}{}{}\r\n"
+			"{}2{} ) Броня : {}{}{}\r\n"
+			"{}3{} ) Запоминание : {}{}{}\r\n"
+			"{}4{} ) Успех колдовства : {}{}{}\r\n"
+			"{}5{} ) Удача : {}{}{}\r\n"
+			"{}6{} ) Инициатива : {}{}{}\r\n"
+			"{}7{} ) Поглощение : {}{}{}\r\n"
+			"{}8{} ) Иммунитет к магическим аффектам : {}{}{}\r\n"
+			"{}9{} ) Иммунитет к магическим повреждениям : {}{}{}\r\n"
+			"{}10{}) Иммунитет к физическим повреждениям : {}{}{}\r\n", grn, nrm, cyn, (OLC_MOB(d)->get_hitreg()), nrm, grn, nrm, cyn, GET_ARMOUR((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_MANAREG((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_CAST_SUCCESS((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_MORALE((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_INITIATIVE((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_ABSORBE((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_AR((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm, grn, nrm, cyn, GET_PR((OLC_MOB(d))), nrm), d->character.get());
 	SendMsgToChar("Введите номер и величину параметра (0 - конец) : ", d->character.get());
 }
 
@@ -819,17 +802,13 @@ void medit_disp_mprog(DescriptorData * d)
 #endif
 	while (mprog)
 	{
-		snprintf(buf, sizeof(buf), "%d) %s %s\r\n", OLC_MTOTAL(d),
-			medit_get_mprog_type(mprog), (mprog->arglist ? mprog->arglist : "NONE"));
-		SendMsgToChar(buf, d->character);
+		SendMsgToChar(fmt::format("{}) {} {}\r\n", OLC_MTOTAL(d), medit_get_mprog_type(mprog), (mprog->arglist ? mprog->arglist : "NONE")), d->character);
 		OLC_MTOTAL(d)++;
 		mprog = mprog->next;
 	}
-	snprintf(buf, sizeof(buf),
-		"%d) Создать новую Mob Prog\r\n"
-		"%d) Очистить Mob Prog\r\n"
-		"Введите номер для редактирования [0 - выход]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1);
-	SendMsgToChar(buf, d->character);
+	SendMsgToChar(fmt::format("{}) Создать новую Mob Prog\r\n"
+		"{}) Очистить Mob Prog\r\n"
+		"Введите номер для редактирования [0 - выход]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1), d->character);
 	OLC_MODE(d) = MEDIT_MPROG;
 }
 
@@ -841,16 +820,14 @@ void medit_change_mprog(DescriptorData * d)
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("^[[H^[[J", d->character);
 #endif
-	snprintf(buf, sizeof(buf),
-		"1) Type: %s\r\n"
-		"2) Args: %s\r\n"
-		"3) Commands:\r\n%s\r\n\r\n"
+	SendMsgToChar(fmt::format(
+		"1) Type: {}\r\n"
+		"2) Args: {}\r\n"
+		"3) Commands:\r\n{}\r\n\r\n"
 		"Введите номер для редактирования [0 - выход]: ",
 		medit_get_mprog_type(OLC_MPROG(d)),
 		(OLC_MPROG(d)->arglist ? OLC_MPROG(d)->arglist : "NONE"),
-		(OLC_MPROG(d)->comlist ? OLC_MPROG(d)->comlist : "NONE"));
-
-	SendMsgToChar(buf, d->character);
+		(OLC_MPROG(d)->comlist ? OLC_MPROG(d)->comlist : "NONE")), d->character);
 	OLC_MODE(d) = MEDIT_CHANGE_MPROG;
 }
 
@@ -867,8 +844,7 @@ void medit_disp_mprog_types(DescriptorData * d)
 
 	for (i = 0; i < NUM_PROGS - 1; i++)
 	{
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, mobprog_types[i]);
-		SendMsgToChar(buf, d->character);
+		SendMsgToChar(fmt::format("{}{:2}{}) {}\r\n", grn, i, nrm, mobprog_types[i]), d->character);
 	}
 	SendMsgToChar("Введите тип mob prog : ", d->character);
 	OLC_MODE(d) = MEDIT_MPROG_TYPE;
@@ -917,6 +893,7 @@ void medit_disp_role(DescriptorData *d) {
 }
 
 void medit_disp_features(DescriptorData *d) {
+	std::string mark;
 	int columns = 0;
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -928,13 +905,13 @@ void medit_disp_features(DescriptorData *d) {
 		}
 
 		if (OLC_MOB(d)->HaveFeat(feat.GetId())) {
-			snprintf(buf1, sizeof(buf1), " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
+			mark = fmt::format(" {}[{}*{}]{} ", cyn, grn, cyn, nrm);
 		} else {
-			snprintf(buf1, sizeof(buf1), "     ");
+			mark = "     ";
 		}
 
 		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
-									  grn, to_underlying(feat.GetId()), nrm, feat.GetCName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+									  grn, to_underlying(feat.GetId()), nrm, feat.GetCName(), mark, !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
 
@@ -985,6 +962,7 @@ void medit_disp_helpers(DescriptorData *d) {
 }
 
 void medit_disp_skills(DescriptorData *d) {
+	std::string mark;
 	int columns = 0;
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -995,19 +973,20 @@ void medit_disp_skills(DescriptorData *d) {
 		}
 
 		if (GetSkill(OLC_MOB(d), skill.GetId())) {
-			snprintf(buf1, sizeof(buf1), "%s[%3d]%s", cyn, GetSkill(OLC_MOB(d), skill.GetId()), nrm);
+			mark = fmt::format("{}[{:3}]{}", cyn, GetSkill(OLC_MOB(d), skill.GetId()), nrm);
 		} else {
-			snprintf(buf1, sizeof(buf1), "     ");
+			mark = "     ";
 		}
 
 		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
-									  grn, to_underlying(skill.GetId()), nrm, skill.GetName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+									  grn, to_underlying(skill.GetId()), nrm, skill.GetName(), mark, !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
 }
 
 void medit_disp_spells(DescriptorData *d) {
+	std::string mark;
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1017,12 +996,12 @@ void medit_disp_spells(DescriptorData *d) {
 			continue;
 		}
 		if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
-			snprintf(buf1, sizeof(buf1), "%s[%3d]%s", cyn, GET_SPELL_MEM(OLC_MOB(d), spell_id), nrm);
+			mark = fmt::format("{}[{:3}]{}", cyn, static_cast<int>(GET_SPELL_MEM(OLC_MOB(d), spell_id)), nrm);
 		} else {
-			snprintf(buf1, sizeof(buf1), "     ");
+			mark = "     ";
 		}
 		SendMsgToChar(fmt::format("{}{:3d}{}) {:>25}{}{}",
-									  grn, to_underlying(spell_id), nrm, MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : ""),
+									  grn, to_underlying(spell_id), nrm, MUD::Spell(spell_id).GetCName(), mark, !(++columns % 2) ? "\r\n" : ""),
 					  d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
@@ -1031,17 +1010,17 @@ void medit_disp_spells(DescriptorData *d) {
 // * Display mob-flags menu.
 void medit_disp_mob_flags(DescriptorData *d) {
 	disp_planes_values(d, action_bits, 2);
-	OLC_MOB(d)->char_specials.saved.mob_flags.sprintbits(action_bits, buf1, sizeof(buf1), ",", 5);
+	const std::string flags_line = OLC_MOB(d)->char_specials.saved.mob_flags.sprintbits(action_bits, ",", 5);
 	SendMsgToChar(fmt::format("\r\nТекущие флаги : {}{}{}\r\nВыберите флаг (0 - выход) : ",
-								  cyn, buf1, nrm),
+								  cyn, flags_line, nrm),
 				  d->character.get());
 }
 
 void medit_disp_npc_flags(DescriptorData *d) {
 	disp_planes_values(d, function_bits, 2);
-	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 5);
+	const std::string flags_line = OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, ",", 5);
 	SendMsgToChar(fmt::format("\r\nТекущие флаги : {}{}{}\r\nВыберите флаг (0 - выход) : ",
-								  cyn, buf1, nrm),
+								  cyn, flags_line, nrm),
 				  d->character.get());
 }
 
@@ -1069,79 +1048,71 @@ void medit_disp_menu(DescriptorData *d) {
 	CharData *mob;
 
 	mob = OLC_MOB(d);
-	snprintf(buf, sizeof(buf),
+	// Цвета -- кодами движка (&g/&c/&y/&n), а не подстановкой kColor*: раньше на каждую
+	// строчку меню уходило по три-четыре аргумента-цвета, и в хвосте вызова нельзя было
+	// разглядеть сами значения. Часть строк тут и так была на кодах (&S, &R&q, &e).
+	SendMsgToChar(fmt::format(
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+		"[H[J"
 #endif
-			"-- МОБ:  [%s%d%s]\r\n"
-			"%s1%s) Пол: %s%s%s\r\n"
-			"%s2%s) Синонимы: %s&S%s&s\r\n"
-			"%s3&n) Именительный (это кто)         : %s&e\r\n"
-			"%s4&n) Родительный (нет кого)         : %s&e\r\n"
-			"%s5&n) Дательный  (дать кому)         : %s&e\r\n"
-			"%s6&n) Винительный (ударить кого)     : %s&e\r\n"
-			"%s7&n) Творительный (сражаться с кем) : %s&e\r\n"
-			"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
-			"%s9&n) Короткое :-\r\n&R&q%s&e&Q"
-			"%sA&n) Полное (при осмотреть):-\r\n%s&e"
-			"%sB%s) Уровень     : [%s%4d%s],%sC%s) Наклонности : [%s%4d%s]\r\n"
-			"%sD%s) Попадание   : [%s%4d%s],%sE%s) Повреждение : [%s%4d%s]\r\n"
-			"%sF%s) NumDamDice  : [%s%4d%s],%sG%s) SizeDamDice : [%s%4d%s]\r\n"
-			"%sH%s) NumHPDice   : [%s%4d%s],%sI%s) SizeHPDice  : [%s%4d%s],%sJ%s) Доп. Жизнь: [%s%5d%s]\r\n"
-			"%sK%s) Класс защиты: [%s%4d%s],%sL%s) Опыт        : [%s%9ld%s],\r\n"
-			"%sM%s) Куны        : [%s%4ld%s],%sN%s) NumGoldDice : [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
-			cyn, OLC_NUM(d), nrm,
+			"-- МОБ:  [&c{}&n]\r\n"
 			// Поле пола ровняем по символам: printf меряет ширину в байтах, и русское "женский"
 			// занимало вдвое больше, чем показывал %-7.7s (issue #3797).
-			grn, nrm, yel, fmt::format("{:<7.7}", genders[(int) mob->get_sex()]).c_str(), nrm,
-			grn, nrm, yel, GET_ALIAS(mob),
-			grn, GET_PAD(mob, 0),
-			grn, GET_PAD(mob, 1),
-			grn, GET_PAD(mob, 2),
-			grn, GET_PAD(mob, 3),
-			grn, GET_PAD(mob, 4),
-			grn, GET_PAD(mob, 5),
-			grn, GET_LDESC(mob).c_str(),
-			grn, GET_DDESC(mob).c_str(),
-			grn, nrm, cyn, mob->GetLevel(), nrm,
-			grn, nrm, cyn, alignment::GetAlignment(mob), nrm,
-			grn, nrm, cyn, GET_HR(mob), nrm,
-			grn, nrm, cyn, GET_DR(mob), nrm,
-			grn, nrm, cyn, GET_NDD(mob), nrm,
-			grn, nrm, cyn, GET_SDD(mob), nrm,
-			grn, nrm, cyn, mob->mem_queue.total, nrm,
-			grn, nrm, cyn, mob->mem_queue.stored, nrm,
-			grn, nrm, cyn, mob->get_hit(), nrm,
-			grn, nrm, cyn, GET_AC(mob), nrm,
-			grn, nrm, cyn, mob->get_exp(), nrm,
-			grn, nrm, cyn, currencies::GetHand(*mob, currencies::kGold), nrm,
-			grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
-	SendMsgToChar(buf, d->character.get());
+			"&g1&n) Пол: &y{:<7.7}&n\r\n"
+			"&g2&n) Синонимы: &y&S{}&s\r\n"
+			"&g3&n) Именительный (это кто)         : {}&e\r\n"
+			"&g4&n) Родительный (нет кого)         : {}&e\r\n"
+			"&g5&n) Дательный  (дать кому)         : {}&e\r\n"
+			"&g6&n) Винительный (ударить кого)     : {}&e\r\n"
+			"&g7&n) Творительный (сражаться с кем) : {}&e\r\n"
+			"&g8&n) Предложный (ехать на ком)      : {}&e\r\n"
+			"&g9&n) Короткое :-\r\n&R&q{}&e&Q"
+			"&gA&n) Полное (при осмотреть):-\r\n{}&e"
+			"&gB&n) Уровень     : [&c{:4}&n],&gC&n) Наклонности : [&c{:4}&n]\r\n"
+			"&gD&n) Попадание   : [&c{:4}&n],&gE&n) Повреждение : [&c{:4}&n]\r\n"
+			"&gF&n) NumDamDice  : [&c{:4}&n],&gG&n) SizeDamDice : [&c{:4}&n]\r\n"
+			"&gH&n) NumHPDice   : [&c{:4}&n],&gI&n) SizeHPDice  : [&c{:4}&n],&gJ&n) Доп. Жизнь: [&c{:5}&n]\r\n"
+			"&gK&n) Класс защиты: [&c{:4}&n],&gL&n) Опыт        : [&c{:9}&n],\r\n"
+			"&gM&n) Куны        : [&c{:4}&n],&gN&n) NumGoldDice : [&c{:4}&n],&gO&n) SizeGoldDice: [&c{:4}&n]\r\n",
+			OLC_NUM(d),
+			genders[(int) mob->get_sex()],
+			GET_ALIAS(mob),
+			GET_PAD(mob, 0), GET_PAD(mob, 1), GET_PAD(mob, 2),
+			GET_PAD(mob, 3), GET_PAD(mob, 4), GET_PAD(mob, 5),
+			GET_LDESC(mob), GET_DDESC(mob),
+			mob->GetLevel(), alignment::GetAlignment(mob),
+			GET_HR(mob), GET_DR(mob),
+			static_cast<int>(GET_NDD(mob)), static_cast<int>(GET_SDD(mob)),
+			mob->mem_queue.total, mob->mem_queue.stored, mob->get_hit(),
+			GET_AC(mob), mob->get_exp(),
+			currencies::GetHand(*mob, currencies::kGold),
+			static_cast<int>(GET_GOLD_NoDs(mob)), static_cast<int>(GET_GOLD_SiDs(mob))), d->character.get());
 
-	mob->char_specials.saved.mob_flags.sprintbits(action_bits, buf1, sizeof(buf1), ",", 4);
-	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(mob->char_specials.saved.affected_by, ",").c_str());
-	snprintf(buf, kMaxStringLength,
-			 "%sP%s) Положение     : %s%s\r\n"
-			 "%sR%s) По умолчанию  : %s%s\r\n"
-			 "%sT%s) Тип атаки     : %s%s\r\n"
-			 "%sU%s) Флаги   (MOB) : %s%s\r\n"
-			 "%sV%s) Аффекты (AFF) : %s%s\r\n",
-			 grn, nrm, yel, position_types[(int) mob->GetPosition()],
-			 grn, nrm, yel, position_types[(int) GET_DEFAULT_POS(mob)],
-			 grn, nrm, yel, fight::GetAttackTypeDescription(GET_ATTACK(mob)).c_str(), grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
-	SendMsgToChar(buf, d->character.get());
+	const std::string mob_flags = mob->char_specials.saved.mob_flags.sprintbits(action_bits, ",", 4);
+	const std::string aff_flags = affects::DescribeActive(mob->char_specials.saved.affected_by, ",");
+	SendMsgToChar(fmt::format(
+			"&gP&n) Положение     : &y{}\r\n"
+			"&gR&n) По умолчанию  : &y{}\r\n"
+			"&gT&n) Тип атаки     : &y{}\r\n"
+			"&gU&n) Флаги   (MOB) : &c{}\r\n"
+			"&gV&n) Аффекты (AFF) : &c{}\r\n",
+			position_types[(int) mob->GetPosition()],
+			position_types[(int) GET_DEFAULT_POS(mob)],
+			fight::GetAttackTypeDescription(GET_ATTACK(mob)),
+			mob_flags, aff_flags), d->character.get());
 
-	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 4);
-	*buf2 = '\0';
+	const std::string npc_flags = mob->mob_specials.npc_flags.sprintbits(function_bits, ",", 4);
+	std::string route;
 	if (GET_DEST(mob) == kNowhere) {
-		snprintf(buf2, sizeof(buf2), "-1,");
+		route = "-1";
 	} else {
 		for (i = 0; i < mob->mob_specials.dest_count; i++) {
-			size_t buf2_len = strlen(buf2);
-			snprintf(buf2 + buf2_len, sizeof(buf2) - buf2_len, "%d,", mob->mob_specials.dest[i]);
+			if (!route.empty()) {
+				route += ",";
+			}
+			route += std::to_string(mob->mob_specials.dest[i]);
 		}
 	}
-	*(buf2 + strlen(buf2) - 1) = '\0';
 
 	std::string roles_str;
 	if (mob->get_role_bits().any()) {
@@ -1150,57 +1121,43 @@ void medit_disp_menu(DescriptorData *d) {
 		roles_str += "нет";
 	}
 
-	snprintf(buf, kMaxStringLength, "%sW%s) Флаги   (NPC) : %s%s\r\n"
-									 "%sY%s) Маршрут движения: %s%s\r\n"
-									 "%sZ%s) Помогают   : %s%s\r\n"
-									 "%sА%s) Умения     : \r\n"
-									 "%sБ%s) Заклинания : \r\n"
-									 "%sВ%s) Сила : [%s%4d%s],%sГ%s) Ловк : [%s%4d%s],%sД%s) Тело : [%s%4d%s]\r\n"
-									 "%sЕ%s) Мудр : [%s%4d%s],%sЖ%s) Ум   : [%s%4d%s],%sЗ%s) Обая : [%s%4d%s]\r\n"
-									 "%sИ%s) Рост : [%s%4d%s],%sК%s) Вес  : [%s%4d%s],%sЛ%s) Разм : [%s%4d%s]\r\n"
-									 "%sМ%s) Дополнительные атаки: [%s%4d%s]\r\n"
-									 "%sХ%s) Перевоплощений: [%s%4d%s]\r\n"
-									 "%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
-									 "%sП%s) Загружаемые объекты: %s%s\r\n"
-									 "%sР%s) Роли моба: %s%s\r\n"
-									 "%sС%s) Сопротивления:\r\n"
-									 "%sТ%s) Спас-броски:\r\n"
-									 "%sУ%s) Дополнительные параметры:\r\n"
-									 "%sФ%s) Способности:\r\n"
-									 "%sЦ%s) Раса моба: %s%s\r\n"
-									 "%sЧ%s) Клонирование:%s\r\n"
-									 "%sS%s) Триггера: %s%s\r\n"
-									 "%sЮ%s) Через сколько мобов замакс: [%s%4d%s]\r\n"
-									 "%sQ%s) Выход:\r\n" "Ваш выбор: ",
-			 grn, nrm, cyn, buf1,
-			 grn, nrm, cyn, buf2,
-			 grn, nrm, cyn, mob->summon_helpers.empty() ? "No" : "Yes",
-			 grn, nrm,
-			 grn, nrm,
-			 grn, nrm, cyn, mob->get_str(), nrm,
-			 grn, nrm, cyn, mob->get_dex(), nrm,
-			 grn, nrm, cyn, mob->get_con(), nrm,
-			 grn, nrm, cyn, mob->get_wis(), nrm,
-			 grn, nrm, cyn, mob->get_int(), nrm,
-			 grn, nrm, cyn, mob->get_cha(), nrm,
-			 grn, nrm, cyn, GET_HEIGHT(mob), nrm,
-			 grn, nrm, cyn, GET_WEIGHT(mob), nrm,
-			 grn, nrm, cyn, GET_SIZE(mob), nrm,
-			 grn, nrm, cyn, mob->mob_specials.extra_attack, nrm,
-			 grn, nrm, cyn, mob->get_remort(), nrm,
-			 grn, nrm, cyn, mob->mob_specials.like_work, nrm,
-			 grn, nrm, cyn, mob->dl_list.empty() ? "Нет" : "Есть",
-			 grn, nrm, cyn, roles_str.c_str(),
-			 grn, nrm,
-			 grn, nrm,
-			 grn, nrm,
-			 grn, nrm,
-			 grn, nrm, cyn, npc_race_types[GET_RACE(mob) - ENpcRace::kBasic],
-			 grn, nrm, cyn,
-			 grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.",
-			 grn, nrm, cyn, mob->mob_specials.MaxFactor, nrm,
-			 grn, nrm);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(fmt::format(
+			"&gW&n) Флаги   (NPC) : &c{}\r\n"
+			"&gY&n) Маршрут движения: &c{}\r\n"
+			"&gZ&n) Помогают   : &c{}\r\n"
+			"&gА&n) Умения     : \r\n"
+			"&gБ&n) Заклинания : \r\n"
+			"&gВ&n) Сила : [&c{:4}&n],&gГ&n) Ловк : [&c{:4}&n],&gД&n) Тело : [&c{:4}&n]\r\n"
+			"&gЕ&n) Мудр : [&c{:4}&n],&gЖ&n) Ум   : [&c{:4}&n],&gЗ&n) Обая : [&c{:4}&n]\r\n"
+			"&gИ&n) Рост : [&c{:4}&n],&gК&n) Вес  : [&c{:4}&n],&gЛ&n) Разм : [&c{:4}&n]\r\n"
+			"&gМ&n) Дополнительные атаки: [&c{:4}&n]\r\n"
+			"&gХ&n) Перевоплощений: [&c{:4}&n]\r\n"
+			"&gН&n) Шансы использования умений: [&c{:4}&n]\r\n"
+			"&gП&n) Загружаемые объекты: &c{}\r\n"
+			"&gР&n) Роли моба: &c{}\r\n"
+			"&gС&n) Сопротивления:\r\n"
+			"&gТ&n) Спас-броски:\r\n"
+			"&gУ&n) Дополнительные параметры:\r\n"
+			"&gФ&n) Способности:\r\n"
+			"&gЦ&n) Раса моба: &c{}\r\n"
+			"&gЧ&n) Клонирование:&c\r\n"
+			"&gS&n) Триггера: &c{}\r\n"
+			"&gЮ&n) Через сколько мобов замакс: [&c{:4}&n]\r\n"
+			"&gQ&n) Выход:\r\n"
+			"Ваш выбор: ",
+			npc_flags, route,
+			mob->summon_helpers.empty() ? "No" : "Yes",
+			mob->get_str(), mob->get_dex(), mob->get_con(),
+			mob->get_wis(), mob->get_int(), mob->get_cha(),
+			static_cast<int>(GET_HEIGHT(mob)), static_cast<int>(GET_WEIGHT(mob)), static_cast<int>(GET_SIZE(mob)),
+			static_cast<int>(mob->mob_specials.extra_attack),
+			static_cast<int>(mob->get_remort()),
+			static_cast<int>(mob->mob_specials.like_work),
+			mob->dl_list.empty() ? "Нет" : "Есть",
+			roles_str,
+			npc_race_types[GET_RACE(mob) - ENpcRace::kBasic],
+			!mob->proto_script->empty() ? "Set." : "Not Set.",
+			static_cast<int>(mob->mob_specials.MaxFactor)), d->character.get());
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
 }
@@ -1216,14 +1173,12 @@ void disp_dl_list(DescriptorData *d) {
 	CharData *mob;
 
 	mob = OLC_MOB(d);
-	snprintf(buf, sizeof(buf),
+	SendMsgToChar(fmt::format(
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-			"\r\n-- Объекты загружаемые посмертно в моба [%s%d%s]\r\n"
-			"-- Предмет (VNUM,Вероятность,Тип загрузки,Спец.параметр) -- \r\n", cyn, OLC_NUM(d), nrm);
-
-	SendMsgToChar(buf, d->character.get());
+			"\r\n-- Объекты загружаемые посмертно в моба [{}{}{}]\r\n"
+			"-- Предмет (VNUM,Вероятность,Тип загрузки,Спец.параметр) -- \r\n" , cyn, OLC_NUM(d), nrm), d->character.get());
 
 	if (!mob->dl_list.empty()) {
 		i = 0;
@@ -1239,10 +1194,9 @@ void disp_dl_list(DescriptorData *d) {
 				objname = "Нет";
 			}
 
-			snprintf(buf, sizeof(buf), "%d. %s (%d,%d,%d,%d)\r\n",
-					i, objname, p->obj_vnum, p->load_prob, p->load_type, p->spec_param);
-
-			SendMsgToChar(buf, d->character.get());
+			SendMsgToChar(fmt::format("{}. {} ({},{},{},{})\r\n",
+									  i, objname, p->obj_vnum, p->load_prob,
+									  p->load_type, p->spec_param), d->character.get());
 			p++;
 		}
 	} else {
@@ -1253,30 +1207,23 @@ void disp_dl_list(DescriptorData *d) {
 	// B) Удалить.
 	// C) Изменить.
 	// Q) Выход.
-	snprintf(buf, sizeof(buf),
+	SendMsgToChar(fmt::format(
 			"\r\n"
-			"%sА%s) Добавить\r\n"
-			"%sБ%s) Удалить\r\n" "%sQ%s) Выход\r\n" "Ваш выбор:", grn, nrm, grn, nrm, grn, nrm);
-
-	SendMsgToChar(buf, d->character.get());
+			"{}А{}) Добавить\r\n"
+			"{}Б{}) Удалить\r\n" "{}Q{}) Выход\r\n" "Ваш выбор:",
+			grn, nrm, grn, nrm, grn, nrm), d->character.get());
 }
 
 void medit_disp_clone_menu(DescriptorData *d) {
-	snprintf(buf, sizeof(buf),
+	SendMsgToChar(fmt::format(
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-			"%s1%s) Заменить триггеры\r\n"
-			"%s2%s) Не заменять триггеры\r\n"
-			"%s3%s) Не заменять падежи, описания, триггеры и если есть destination, помогают, загр.объекты\r\n"
-			"%s4%s) Quit\r\n"
-			"Ваш выбор : ",
-			grn, nrm,
-			grn, nrm,
-			grn, nrm,
-			grn, nrm);
-
-	SendMsgToChar(buf, d->character.get());
+			"{}1{}) Заменить триггеры\r\n"
+			"{}2{}) Не заменять триггеры\r\n"
+			"{}3{}) Не заменять падежи, описания, триггеры и если есть destination, помогают, загр.объекты\r\n"
+			"{}4{}) Quit\r\n"
+			"Ваш выбор : " , grn, nrm, grn, nrm, grn, nrm, grn, nrm), d->character.get());
 }
 
 // ************************************************************************
@@ -1305,9 +1252,9 @@ void medit_parse(DescriptorData *d, char *arg) {
 					// * Save the mob in memory and to disk.
 //					SendMsgToChar("Saving mobile to memory a.\r\n", d->character.get());
 					medit_save_internally(d);
-					snprintf(buf, sizeof(buf), "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
+					mudlog(fmt::format("OLC: {} edits mob {}", GET_NAME(d->character), OLC_NUM(d)),
+						   NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					SendMsgToChar("Моб сохранен.\r\n", d->character.get());
@@ -1806,8 +1753,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			//-------------------------------------------------------------------
 		case MEDIT_L_DESC:
 			if (arg && *arg) {
-				snprintf(buf, sizeof(buf), "%s\r\n", arg);
-				OLC_MOB(d)->player_data.long_descr = std::string(buf);
+				OLC_MOB(d)->player_data.long_descr = std::string(arg) + "\r\n";
 			} else {
 				OLC_MOB(d)->player_data.long_descr = std::string("неопределен\r\n");
 			}
