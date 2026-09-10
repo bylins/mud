@@ -1048,38 +1048,58 @@ void medit_disp_menu(DescriptorData *d) {
 	CharData *mob;
 
 	mob = OLC_MOB(d);
+	// Цвета -- кодами движка (&g/&c/&y/&n), а не подстановкой kColor*: раньше на каждую
+	// строчку меню уходило по три-четыре аргумента-цвета, и в хвосте вызова нельзя было
+	// разглядеть сами значения. Часть строк тут и так была на кодах (&S, &R&q, &e).
 	SendMsgToChar(fmt::format(
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+		"[H[J"
 #endif
-			"-- МОБ:  [{}{}{}]\r\n"
-			"{}1{}) Пол: {}{}{}\r\n"
-			"{}2{}) Синонимы: {}&S{}&s\r\n"
-			"{}3&n) Именительный (это кто)         : {}&e\r\n"
-			"{}4&n) Родительный (нет кого)         : {}&e\r\n"
-			"{}5&n) Дательный  (дать кому)         : {}&e\r\n"
-			"{}6&n) Винительный (ударить кого)     : {}&e\r\n"
-			"{}7&n) Творительный (сражаться с кем) : {}&e\r\n"
-			"{}8&n) Предложный (ехать на ком)      : {}&e\r\n"
-			"{}9&n) Короткое :-\r\n&R&q{}&e&Q"
-			"{}A&n) Полное (при осмотреть):-\r\n{}&e"
-			"{}B{}) Уровень     : [{}{:4}{}],{}C{}) Наклонности : [{}{:4}{}]\r\n"
-			"{}D{}) Попадание   : [{}{:4}{}],{}E{}) Повреждение : [{}{:4}{}]\r\n"
-			"{}F{}) NumDamDice  : [{}{:4}{}],{}G{}) SizeDamDice : [{}{:4}{}]\r\n"
-			"{}H{}) NumHPDice   : [{}{:4}{}],{}I{}) SizeHPDice  : [{}{:4}{}],{}J{}) Доп. Жизнь: [{}{:5}{}]\r\n"
-			"{}K{}) Класс защиты: [{}{:4}{}],{}L{}) Опыт        : [{}{:9}{}],\r\n"
-			"{}M{}) Куны        : [{}{:4}{}],{}N{}) NumGoldDice : [{}{:4}{}],{}O{}) SizeGoldDice: [{}{:4}{}]\r\n", cyn, OLC_NUM(d), nrm,
+			"-- МОБ:  [&c{}&n]\r\n"
 			// Поле пола ровняем по символам: printf меряет ширину в байтах, и русское "женский"
 			// занимало вдвое больше, чем показывал %-7.7s (issue #3797).
-			grn, nrm, yel, fmt::format("{:<7.7}", genders[(int) mob->get_sex()]), nrm, grn, nrm, yel, GET_ALIAS(mob), grn, GET_PAD(mob, 0), grn, GET_PAD(mob, 1), grn, GET_PAD(mob, 2), grn, GET_PAD(mob, 3), grn, GET_PAD(mob, 4), grn, GET_PAD(mob, 5), grn, GET_LDESC(mob), grn, GET_DDESC(mob), grn, nrm, cyn, mob->GetLevel(), nrm, grn, nrm, cyn, alignment::GetAlignment(mob), nrm, grn, nrm, cyn, GET_HR(mob), nrm, grn, nrm, cyn, GET_DR(mob), nrm, grn, nrm, cyn, static_cast<int>(GET_NDD(mob)), nrm, grn, nrm, cyn, static_cast<int>(GET_SDD(mob)), nrm, grn, nrm, cyn, mob->mem_queue.total, nrm, grn, nrm, cyn, mob->mem_queue.stored, nrm, grn, nrm, cyn, mob->get_hit(), nrm, grn, nrm, cyn, GET_AC(mob), nrm, grn, nrm, cyn, mob->get_exp(), nrm, grn, nrm, cyn, currencies::GetHand(*mob, currencies::kGold), nrm, grn, nrm, cyn, static_cast<int>(GET_GOLD_NoDs(mob)), nrm, grn, nrm, cyn, static_cast<int>(GET_GOLD_SiDs(mob)), nrm), d->character.get());
+			"&g1&n) Пол: &y{:<7.7}&n\r\n"
+			"&g2&n) Синонимы: &y&S{}&s\r\n"
+			"&g3&n) Именительный (это кто)         : {}&e\r\n"
+			"&g4&n) Родительный (нет кого)         : {}&e\r\n"
+			"&g5&n) Дательный  (дать кому)         : {}&e\r\n"
+			"&g6&n) Винительный (ударить кого)     : {}&e\r\n"
+			"&g7&n) Творительный (сражаться с кем) : {}&e\r\n"
+			"&g8&n) Предложный (ехать на ком)      : {}&e\r\n"
+			"&g9&n) Короткое :-\r\n&R&q{}&e&Q"
+			"&gA&n) Полное (при осмотреть):-\r\n{}&e"
+			"&gB&n) Уровень     : [&c{:4}&n],&gC&n) Наклонности : [&c{:4}&n]\r\n"
+			"&gD&n) Попадание   : [&c{:4}&n],&gE&n) Повреждение : [&c{:4}&n]\r\n"
+			"&gF&n) NumDamDice  : [&c{:4}&n],&gG&n) SizeDamDice : [&c{:4}&n]\r\n"
+			"&gH&n) NumHPDice   : [&c{:4}&n],&gI&n) SizeHPDice  : [&c{:4}&n],&gJ&n) Доп. Жизнь: [&c{:5}&n]\r\n"
+			"&gK&n) Класс защиты: [&c{:4}&n],&gL&n) Опыт        : [&c{:9}&n],\r\n"
+			"&gM&n) Куны        : [&c{:4}&n],&gN&n) NumGoldDice : [&c{:4}&n],&gO&n) SizeGoldDice: [&c{:4}&n]\r\n",
+			OLC_NUM(d),
+			genders[(int) mob->get_sex()],
+			GET_ALIAS(mob),
+			GET_PAD(mob, 0), GET_PAD(mob, 1), GET_PAD(mob, 2),
+			GET_PAD(mob, 3), GET_PAD(mob, 4), GET_PAD(mob, 5),
+			GET_LDESC(mob), GET_DDESC(mob),
+			mob->GetLevel(), alignment::GetAlignment(mob),
+			GET_HR(mob), GET_DR(mob),
+			static_cast<int>(GET_NDD(mob)), static_cast<int>(GET_SDD(mob)),
+			mob->mem_queue.total, mob->mem_queue.stored, mob->get_hit(),
+			GET_AC(mob), mob->get_exp(),
+			currencies::GetHand(*mob, currencies::kGold),
+			static_cast<int>(GET_GOLD_NoDs(mob)), static_cast<int>(GET_GOLD_SiDs(mob))), d->character.get());
 
 	const std::string mob_flags = mob->char_specials.saved.mob_flags.sprintbits(action_bits, ",", 4);
 	const std::string aff_flags = affects::DescribeActive(mob->char_specials.saved.affected_by, ",");
-	SendMsgToChar(fmt::format("{}P{}) Положение     : {}{}\r\n"
-			 "{}R{}) По умолчанию  : {}{}\r\n"
-			 "{}T{}) Тип атаки     : {}{}\r\n"
-			 "{}U{}) Флаги   (MOB) : {}{}\r\n"
-			 "{}V{}) Аффекты (AFF) : {}{}\r\n", grn, nrm, yel, position_types[(int) mob->GetPosition()], grn, nrm, yel, position_types[(int) GET_DEFAULT_POS(mob)], grn, nrm, yel, fight::GetAttackTypeDescription(GET_ATTACK(mob)), grn, nrm, cyn, mob_flags, grn, nrm, cyn, aff_flags), d->character.get());
+	SendMsgToChar(fmt::format(
+			"&gP&n) Положение     : &y{}\r\n"
+			"&gR&n) По умолчанию  : &y{}\r\n"
+			"&gT&n) Тип атаки     : &y{}\r\n"
+			"&gU&n) Флаги   (MOB) : &c{}\r\n"
+			"&gV&n) Аффекты (AFF) : &c{}\r\n",
+			position_types[(int) mob->GetPosition()],
+			position_types[(int) GET_DEFAULT_POS(mob)],
+			fight::GetAttackTypeDescription(GET_ATTACK(mob)),
+			mob_flags, aff_flags), d->character.get());
 
 	const std::string npc_flags = mob->mob_specials.npc_flags.sprintbits(function_bits, ",", 4);
 	std::string route;
@@ -1101,28 +1121,43 @@ void medit_disp_menu(DescriptorData *d) {
 		roles_str += "нет";
 	}
 
-	SendMsgToChar(fmt::format("{}W{}) Флаги   (NPC) : {}{}\r\n"
-									 "{}Y{}) Маршрут движения: {}{}\r\n"
-									 "{}Z{}) Помогают   : {}{}\r\n"
-									 "{}А{}) Умения     : \r\n"
-									 "{}Б{}) Заклинания : \r\n"
-									 "{}В{}) Сила : [{}{:4}{}],{}Г{}) Ловк : [{}{:4}{}],{}Д{}) Тело : [{}{:4}{}]\r\n"
-									 "{}Е{}) Мудр : [{}{:4}{}],{}Ж{}) Ум   : [{}{:4}{}],{}З{}) Обая : [{}{:4}{}]\r\n"
-									 "{}И{}) Рост : [{}{:4}{}],{}К{}) Вес  : [{}{:4}{}],{}Л{}) Разм : [{}{:4}{}]\r\n"
-									 "{}М{}) Дополнительные атаки: [{}{:4}{}]\r\n"
-									 "{}Х{}) Перевоплощений: [{}{:4}{}]\r\n"
-									 "{}Н{}) Шансы использования умений: [{}{:4}{}]\r\n"
-									 "{}П{}) Загружаемые объекты: {}{}\r\n"
-									 "{}Р{}) Роли моба: {}{}\r\n"
-									 "{}С{}) Сопротивления:\r\n"
-									 "{}Т{}) Спас-броски:\r\n"
-									 "{}У{}) Дополнительные параметры:\r\n"
-									 "{}Ф{}) Способности:\r\n"
-									 "{}Ц{}) Раса моба: {}{}\r\n"
-									 "{}Ч{}) Клонирование:{}\r\n"
-									 "{}S{}) Триггера: {}{}\r\n"
-									 "{}Ю{}) Через сколько мобов замакс: [{}{:4}{}]\r\n"
-									 "{}Q{}) Выход:\r\n" "Ваш выбор: ", grn, nrm, cyn, npc_flags, grn, nrm, cyn, route, grn, nrm, cyn, mob->summon_helpers.empty() ? "No" : "Yes", grn, nrm, grn, nrm, grn, nrm, cyn, mob->get_str(), nrm, grn, nrm, cyn, mob->get_dex(), nrm, grn, nrm, cyn, mob->get_con(), nrm, grn, nrm, cyn, mob->get_wis(), nrm, grn, nrm, cyn, mob->get_int(), nrm, grn, nrm, cyn, mob->get_cha(), nrm, grn, nrm, cyn, static_cast<int>(GET_HEIGHT(mob)), nrm, grn, nrm, cyn, static_cast<int>(GET_WEIGHT(mob)), nrm, grn, nrm, cyn, static_cast<int>(GET_SIZE(mob)), nrm, grn, nrm, cyn, static_cast<int>(mob->mob_specials.extra_attack), nrm, grn, nrm, cyn, static_cast<int>(mob->get_remort()), nrm, grn, nrm, cyn, static_cast<int>(mob->mob_specials.like_work), nrm, grn, nrm, cyn, mob->dl_list.empty() ? "Нет" : "Есть", grn, nrm, cyn, roles_str, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, cyn, npc_race_types[GET_RACE(mob) - ENpcRace::kBasic], grn, nrm, cyn, grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.", grn, nrm, cyn, static_cast<int>(mob->mob_specials.MaxFactor), nrm, grn, nrm), d->character.get());
+	SendMsgToChar(fmt::format(
+			"&gW&n) Флаги   (NPC) : &c{}\r\n"
+			"&gY&n) Маршрут движения: &c{}\r\n"
+			"&gZ&n) Помогают   : &c{}\r\n"
+			"&gА&n) Умения     : \r\n"
+			"&gБ&n) Заклинания : \r\n"
+			"&gВ&n) Сила : [&c{:4}&n],&gГ&n) Ловк : [&c{:4}&n],&gД&n) Тело : [&c{:4}&n]\r\n"
+			"&gЕ&n) Мудр : [&c{:4}&n],&gЖ&n) Ум   : [&c{:4}&n],&gЗ&n) Обая : [&c{:4}&n]\r\n"
+			"&gИ&n) Рост : [&c{:4}&n],&gК&n) Вес  : [&c{:4}&n],&gЛ&n) Разм : [&c{:4}&n]\r\n"
+			"&gМ&n) Дополнительные атаки: [&c{:4}&n]\r\n"
+			"&gХ&n) Перевоплощений: [&c{:4}&n]\r\n"
+			"&gН&n) Шансы использования умений: [&c{:4}&n]\r\n"
+			"&gП&n) Загружаемые объекты: &c{}\r\n"
+			"&gР&n) Роли моба: &c{}\r\n"
+			"&gС&n) Сопротивления:\r\n"
+			"&gТ&n) Спас-броски:\r\n"
+			"&gУ&n) Дополнительные параметры:\r\n"
+			"&gФ&n) Способности:\r\n"
+			"&gЦ&n) Раса моба: &c{}\r\n"
+			"&gЧ&n) Клонирование:&c\r\n"
+			"&gS&n) Триггера: &c{}\r\n"
+			"&gЮ&n) Через сколько мобов замакс: [&c{:4}&n]\r\n"
+			"&gQ&n) Выход:\r\n"
+			"Ваш выбор: ",
+			npc_flags, route,
+			mob->summon_helpers.empty() ? "No" : "Yes",
+			mob->get_str(), mob->get_dex(), mob->get_con(),
+			mob->get_wis(), mob->get_int(), mob->get_cha(),
+			static_cast<int>(GET_HEIGHT(mob)), static_cast<int>(GET_WEIGHT(mob)), static_cast<int>(GET_SIZE(mob)),
+			static_cast<int>(mob->mob_specials.extra_attack),
+			static_cast<int>(mob->get_remort()),
+			static_cast<int>(mob->mob_specials.like_work),
+			mob->dl_list.empty() ? "Нет" : "Есть",
+			roles_str,
+			npc_race_types[GET_RACE(mob) - ENpcRace::kBasic],
+			!mob->proto_script->empty() ? "Set." : "Not Set.",
+			static_cast<int>(mob->mob_specials.MaxFactor)), d->character.get());
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
 }
