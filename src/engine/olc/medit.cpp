@@ -634,22 +634,22 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			fprintf(mob_file, "Con: %d\n", mob->get_con());
 		if (mob->get_cha() != 11)
 			fprintf(mob_file, "Cha: %d\n", mob->get_cha());
-		if (static_cast<int>(GET_SIZE(mob)))
-			fprintf(mob_file, "Size: %d\n", static_cast<int>(GET_SIZE(mob)));
-		if (static_cast<int>(mob->mob_specials.like_work))
-			fprintf(mob_file, "LikeWork: %d\n", static_cast<int>(mob->mob_specials.like_work));
-		if (static_cast<int>(mob->mob_specials.MaxFactor))
-			fprintf(mob_file, "MaxFactor: %d\n", static_cast<int>(mob->mob_specials.MaxFactor));
-		if (static_cast<int>(mob->mob_specials.extra_attack))
-			fprintf(mob_file, "ExtraAttack: %d\n", static_cast<int>(mob->mob_specials.extra_attack));
-		if (static_cast<int>(mob->get_remort()))
-			fprintf(mob_file, "MobRemort: %d\n", static_cast<int>(mob->get_remort()));
+		if (GET_SIZE(mob))
+			fprintf(mob_file, "Size: %d\n", GET_SIZE(mob));
+		if (mob->mob_specials.like_work)
+			fprintf(mob_file, "LikeWork: %d\n", mob->mob_specials.like_work);
+		if (mob->mob_specials.MaxFactor)
+			fprintf(mob_file, "MaxFactor: %d\n", mob->mob_specials.MaxFactor);
+		if (mob->mob_specials.extra_attack)
+			fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.extra_attack);
+		if (mob->get_remort())
+			fprintf(mob_file, "MobRemort: %d\n", mob->get_remort());
 		if (GET_RACE(mob))
 			fprintf(mob_file, "Race: %d\n", GET_RACE(mob));
-		if (static_cast<int>(GET_HEIGHT(mob)))
-			fprintf(mob_file, "Height: %d\n", static_cast<int>(GET_HEIGHT(mob)));
-		if (static_cast<int>(GET_WEIGHT(mob)))
-			fprintf(mob_file, "Weight: %d\n", static_cast<int>(GET_WEIGHT(mob)));
+		if (GET_HEIGHT(mob))
+			fprintf(mob_file, "Height: %d\n", GET_HEIGHT(mob));
+		if (GET_WEIGHT(mob))
+			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 		char npc_flags[kMaxStringLength];
 		snprintf(npc_flags, sizeof(npc_flags), "Special_Bitvector: ");
 		mob->mob_specials.npc_flags.tascii(kFlagPlanes, npc_flags, sizeof(npc_flags));
@@ -995,7 +995,7 @@ void medit_disp_spells(DescriptorData *d) {
 		if (MUD::Spell(spell_id).IsUnavailable()) {
 			continue;
 		}
-		if (static_cast<int>(GET_SPELL_MEM(OLC_MOB(d), spell_id))) {
+		if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
 			mark = fmt::format("{}[{:3}]{}", cyn, static_cast<int>(GET_SPELL_MEM(OLC_MOB(d), spell_id)), nrm);
 		} else {
 			mark = "     ";
@@ -2027,7 +2027,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					if (MUD::Spell(spell_id).IsUnavailable()) {
 						continue;
 					}
-					if (static_cast<int>(GET_SPELL_MEM(OLC_MOB(d), spell_id))) {
+					if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
 						OLC_MOB(d)->mob_specials.have_spell = true;
 						break;
 					}
