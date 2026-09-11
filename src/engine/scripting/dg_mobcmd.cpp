@@ -73,12 +73,11 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 void send_to_zone(char *messg, int zone_rnum);
 
 // attaches mob's name and vnum to msg_set and sends it to script_log
-void mob_log(CharData *mob, Trigger *trig, const char *msg, LogMode type = LogMode::OFF) {
-	char small_buf[kMaxInputLength + 100];
-
-	snprintf(small_buf,kMaxInputLength + 100, "(Mob: '%s', VNum: %d, trig: %d): %s [строка: %d]", 
-			GET_SHORT(mob), GET_MOB_VNUM(mob), trig_index[(trig)->get_rnum()]->vnum, msg, last_trig_line_num);
-	script_log(small_buf, type);
+void mob_log(CharData *mob, Trigger *trig, const std::string &msg, LogMode type = LogMode::OFF) {
+	script_log(fmt::format("(Mob: '{}', VNum: {}, trig: {}): {} [строка: {}]",
+						   GET_SHORT(mob), GET_MOB_VNUM(mob),
+						   trig_index[(trig)->get_rnum()]->vnum, msg, last_trig_line_num).c_str(),
+			   type);
 }
 
 //returns the real room number, or kNowhere if not found or invalid
@@ -90,8 +89,7 @@ RoomRnum dg_find_target_room(CharData *ch, Trigger *trig,char *rawroomstr) {
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr) {
-		sprintf(buf, "Undefined mteleport room: %s", rawroomstr);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("Undefined mteleport room: {}", rawroomstr));
 		return kNowhere;
 	}
 
@@ -99,8 +97,7 @@ RoomRnum dg_find_target_room(CharData *ch, Trigger *trig,char *rawroomstr) {
 	if (tmp > 0) {
 		location = GetRoomRnum(tmp);
 	} else {
-		sprintf(buf, "Undefined mteleport room: %s", roomstr);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("Undefined mteleport room: {}", roomstr));
 		return kNowhere;
 	}
 
@@ -185,13 +182,11 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg))) {
-			sprintf(buf, "mkill: victim (%s) not found, команда: %s", arg + 1, argument);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, команда: {}", arg + 1, argument));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
-		sprintf(buf, "mkill: victim (%s) not found, , команда: %s", arg, argument);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, , команда: {}", arg, argument));
 		return;
 	}
 
@@ -255,19 +250,17 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 	}
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg))) {
-			sprintf(buf, "mechoaround: victim (%s) UID does not exist, команда: %s", arg + 1, argument);
-			mob_log(ch, trig, buf, LGH);
+			mob_log(ch, trig, fmt::format("mechoaround: victim ({}) UID does not exist, команда: {}", arg + 1, argument), LGH);
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
-		sprintf(buf, "mechoaround: victim (%s) does not exist, команда: %s", arg, argument);
-		mob_log(ch, trig, buf, LGH);
+		mob_log(ch, trig, fmt::format("mechoaround: victim ({}) does not exist, команда: {}", arg, argument), LGH);
 		return;
 	}
 
 	if (reloc_target != -1 && reloc_target != victim->in_room) {
-		sprintf(buf, "&YВНИМАНИЕ&G Неверное использование команды mat, target room %d. vict room  %d", world[reloc_target]->vnum, world[victim->in_room]->vnum);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("&YВНИМАНИЕ&G Неверное использование команды mat, target room {}. vict room  {}",
+							  world[reloc_target]->vnum, world[victim->in_room]->vnum));
 	}
 
 	sub_write(p, victim, true, kToRoom);
@@ -297,14 +290,13 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
-		sprintf(buf, "msend: victim (%s) does not exist, команда: %s", arg, argument);
-		mob_log(ch, trig, buf, LGH);
+		mob_log(ch, trig, fmt::format("msend: victim ({}) does not exist, команда: {}", arg, argument), LGH);
 		return;
 	}
 
 	if (reloc_target != -1 && reloc_target != victim->in_room) {
-		sprintf(buf, "&YВНИМАНИЕ&G Неверное использование команды mat, target room %d, vict room  %d", world[reloc_target]->vnum, world[victim->in_room]->vnum);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("&YВНИМАНИЕ&G Неверное использование команды mat, target room {}, vict room  {}",
+							  world[reloc_target]->vnum, world[victim->in_room]->vnum));
 	}
 
 	sub_write(p, victim, true, kToChar);
@@ -325,8 +317,8 @@ void do_mecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	skip_spaces(&p);
 
 	if (reloc_target != -1 && reloc_target != ch->in_room) {
-		sprintf(buf, "&YВНИМАНИЕ&G Неверное использование команды mat, target room %d, vict room  %d", world[reloc_target]->vnum, world[ch->in_room]->vnum);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("&YВНИМАНИЕ&G Неверное использование команды mat, target room {}, vict room  {}",
+							  world[reloc_target]->vnum, world[ch->in_room]->vnum));
 	}
 
 	sub_write(p, ch, true, kToRoom);
@@ -372,8 +364,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
 			if (!stable_objs::IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
-				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
-				mob_log(ch, trig, buf);
+				mob_log(ch, trig, fmt::format("mload: Попытка загрузить предмет больше чем в MIW для #{}.", number));
 //				extract_obj(object.get());
 //				return;
 			}
@@ -524,8 +515,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	skip_spaces(&argument);
 
 	if (!*arg1 || !*arg2) {
-		sprintf(buf, "mteleport: bad syntax, arg: %s", textstr);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mteleport: bad syntax, arg: {}", textstr));
 		return;
 	}
 
@@ -597,13 +587,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	} else {
 		if (*arg1 == UID_CHAR) {
 			if (!(vict = get_char(arg1))) {
-				sprintf(buf, "mteleport: victim (%s) UID does not exist", arg1 + 1);
-				mob_log(ch, trig, buf);
+				mob_log(ch, trig, fmt::format("mteleport: victim ({}) UID does not exist", arg1 + 1));
 				return;
 			}
 		} else if (!(vict = target_resolver::FindCharInWorld(ch, arg1))) {
-			sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mteleport: victim ({}) does not exist", arg1));
 			return;
 		}
 		if (target == vict->in_room) {
@@ -672,8 +660,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg))) {
-			sprintf(buf, "mforce: victim (%s) UID does not exist", arg + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mforce: victim ({}) UID does not exist", arg + 1));
 			return;
 		}
 	} else if ((victim = target_resolver::FindCharInRoomOrSelf(ch, arg)) == nullptr) {
@@ -728,17 +715,14 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mexp: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mexp: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mexp: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mexp: victim ({}) does not exist", name));
 		return;
 	}
-	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
-	mob_log(ch, trig, buf);
+	mob_log(ch, trig, fmt::format("mexp: victim ({}) получил опыт {}", name, atoi(amount)));
 	experience::EndowExpToChar(victim, atoi(amount));
 }
 
@@ -761,13 +745,11 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mgold: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mgold: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mgold: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mgold: victim ({}) does not exist", name));
 		return;
 	}
 
@@ -789,7 +771,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	char arg[kMaxInputLength];
 	CharData *m;
 	bool keep_hp = true;    // new mob keeps the old mob's hp/max hp/exp
-	char buf[500];
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -802,11 +783,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		sprintf(buf, "mtransform: missing argument: %s", argument);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mtransform: missing argument: {}", argument));
 	} else if (!a_isdigit(*arg) && *arg != '-') {
-		sprintf(buf, "mtransform: bad argument: %s", argument);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mtransform: bad argument: {}", argument));
 	} else {
 		if (a_isdigit(*arg))
 			m = ReadMobile(atoi(arg), kVirtual);
@@ -913,7 +892,10 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	char field[kMaxInputLength], *value;
 	RoomData *rm;
 	int dir, fd, to_room, lock;
-	char error[kMaxInputLength];
+	// Раньше здесь был char error[kMaxInputLength], который нигде не заполнялся: все четыре
+	// сообщения об ошибке печатали неинициализированный стек ("mdoor argument:  !!\u04ceY").
+	// Логируем то, ради чего строка явно и задумывалась -- сами аргументы команды.
+	const std::string command_args = argument ? argument : "";
 	const char *door_field[] = {
 			"purge",
 			"description",
@@ -934,29 +916,25 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	if (!*target || !*direction || !*field) {
 		mob_log(ch, trig, "mdoor called with too few args");
-		sprintf(buf, "mdoor argument: %s", error);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mdoor argument: {}", command_args));
 		return;
 	}
 
 	if ((rm = get_room(target)) == nullptr) {
 		mob_log(ch, trig, "mdoor: invalid target");
-		sprintf(buf, "mdoor argument: %s", error);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mdoor argument: {}", command_args));
 		return;
 	}
 
 	if ((dir = search_block(direction, dirs, false)) == -1) {
 		mob_log(ch, trig, "mdoor: invalid direction");
-		sprintf(buf, "mdoor argument: %s", error);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mdoor argument: {}", command_args));
 		return;
 	}
 
 	if ((fd = search_block(field, door_field, false)) == -1) {
 		mob_log(ch, trig, "mdoor: invalid field");
-		sprintf(buf, "mdoor argument: %s", error);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mdoor argument: {}", command_args));
 		return;
 	}
 
@@ -1053,13 +1031,11 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mfeatturn: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mfeatturn: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mfeatturn: victim ({}) does not exist", name));
 		return;
 	};
 
@@ -1089,8 +1065,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	if (MUD::Skills().IsValid(skill_id)) {
 		is_skill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skill_name)) < 0) {
-		sprintf(buf, "mskillturn: %s skill not found", skill_name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mskillturn: {} skill not found", skill_name));
 		return;
 	}
 
@@ -1105,13 +1080,11 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mskillturn: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mskillturn: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mskillturn: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mskillturn: victim ({}) does not exist", name));
 		return;
 	}
 
@@ -1119,8 +1092,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		if (MUD::Class(victim->GetClass()).skills[skill_id].IsAvailable()) {
 			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
-			sprintf(buf, "mskillturn: skill and character class mismatch");
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, "mskillturn: skill and character class mismatch");
 		}
 	} else {
 		trg_recipeturn(victim, recipenum, skilldiff);
@@ -1148,8 +1120,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	if (MUD::Skills().IsValid(skill_id)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
-		sprintf(buf, "mskilladd: %s skill/recipe not found", skillname);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mskilladd: {} skill/recipe not found", skillname));
 		return;
 	}
 
@@ -1157,13 +1128,11 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mskilladd: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mskilladd: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mskilladd: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mskilladd: victim ({}) does not exist", name));
 		return;
 	};
 
@@ -1211,13 +1180,11 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mspellturn: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mspellturn: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mspellturn: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mspellturn: victim ({}) does not exist", name));
 		return;
 	};
 
@@ -1255,13 +1222,11 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mspellturntemp: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mspellturntemp: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mspellturntemp: victim ({}) does not exist", name));
 		return;
 	};
 
@@ -1289,13 +1254,11 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	CharData *victim;
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mspelladd: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mspelladd: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mspelladd: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mspelladd: victim ({}) does not exist", name));
 		return;
 	};
 
@@ -1351,13 +1314,11 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 
 	if (*name == UID_CHAR) {
 		if (!(victim = get_char(name))) {
-			sprintf(buf, "mspellitem: victim (%s) UID does not exist", name + 1);
-			mob_log(ch, trig, buf);
+			mob_log(ch, trig, fmt::format("mspellitem: victim ({}) UID does not exist", name + 1));
 			return;
 		}
 	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
-		sprintf(buf, "mspellitem: victim (%s) does not exist", name);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mspellitem: victim ({}) does not exist", name));
 		return;
 	};
 
@@ -1381,8 +1342,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	three_arguments(argument, name, amount, damage_type);
 
 	if (!*name || !*amount || !a_isdigit(*amount)) {
-		sprintf(buf, "mdamage: bad syntax, команда: %s", argument);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mdamage: bad syntax, команда: {}", argument));
 		return;
 	}
 
@@ -1416,10 +1376,14 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			char_dam_message(dam, victim, victim, 0);
 			if (victim->GetPosition() == EPosition::kDead) {
 				if (!victim->IsNpc()) {
-					sprintf(buf2, "%s killed by mobdamage at %s [%d], trigger [%d]",GET_NAME(victim),
-						victim->in_room == kNowhere ? "kNowhere" : world[victim->in_room]->name,
-						GET_ROOM_VNUM(victim->in_room), GET_TRIG_VNUM(trig));
-				mudlog(buf2, BRF, 0, SYSLOG, true);
+					mudlog(fmt::format("{} killed by mobdamage at {} [{}], trigger [{}]",
+									   GET_NAME(victim),
+									   // имя комнаты бывает нулевым (конструктор RoomData), а fmt на нуле
+									   // бросает исключение -- раньше printf печатал "(null)"
+									   victim->in_room == kNowhere || !world[victim->in_room]->name
+										   ? "kNowhere" : world[victim->in_room]->name,
+									   GET_ROOM_VNUM(victim->in_room), GET_TRIG_VNUM(trig)),
+						   BRF, 0, SYSLOG, true);
 				}
 				die(victim, ch);
 			}
@@ -1437,8 +1401,7 @@ void do_mzoneecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	skip_spaces(&msg);
 
 	if (!*zone_name || !*msg) {
-		sprintf(buf, "mzoneecho called with too few args, команда: %s", argument);
-		mob_log(ch, trig, buf);
+		mob_log(ch, trig, fmt::format("mzoneecho called with too few args, команда: {}", argument));
 	}
 	else if ((zone = get_zone_rnum_by_vnumum(atoi(zone_name))) < 0) {
 		std::stringstream str_log;
