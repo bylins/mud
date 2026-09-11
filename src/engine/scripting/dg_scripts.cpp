@@ -4951,8 +4951,7 @@ bool process_halt(Trigger *trig, char *cmd) {
 		  false  - trigger not runned
 */
 int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int *retval) {
-	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
-	char result[kMaxInputLength], *id_p;
+	char result[kMaxInputLength];
 	Trigger *runtrig = nullptr;
 	//	Script *runsc = NULL;
 	CharData *c = nullptr;
@@ -4961,39 +4960,43 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	void *trggo = nullptr;
 	int trgtype = 0, num = 0;
 
-	id_p = two_arguments(cmd, arg, trignum_s);
-	skip_spaces(&id_p);
+	std::string rest(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(rest, rest);    // имя команды нам не нужно
+	const std::string trignum_s = utils::ExtractFirstArgumentLower(rest, rest);
+	// цель -- весь остаток строки, регистр у неё не понижается
+	const std::string id_str = rest;
 
-	if (!*trignum_s) {
+	if (trignum_s.empty()) {
 		trig_log(*trig, fmt::format("run w/o an arg, команда: '{}'", cmd));
 		return (false);
 	}
 
-	if (!id_p || !*id_p) {
+	if (id_str.empty()) {
 		trig_log(*trig, fmt::format("run invalid id arg(2), команда: '{}'", cmd));
 		return (false);
 	}
 
 	// parse and locate the id specified
-	eval_expr(id_p, result, sizeof(result), go, *sc, *trig, type);
+	eval_expr(id_str.c_str(), result, sizeof(result), go, *sc, *trig, type);
 
-	if (is_plain_vnum_string(id_p)) {
-		trig_log(*trig, fmt::format("run: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'", id_p, cmd));
+	if (is_plain_vnum_string(id_str.c_str())) {
+		trig_log(*trig, fmt::format("run: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'",
+								   id_str, cmd));
 		return false;
 	}
 
-	c = get_char(id_p);
+	c = get_char(id_str.c_str());
 	if (!c) {
-		o = get_obj(id_p);
+		o = get_obj(id_str.c_str());
 		if (!o) {
-			r = get_room(id_p);
+			r = get_room(id_str.c_str());
 			if (!r) {
 				trig_log(*trig, fmt::format("id not found - arg(2), команда: '{}'", cmd));
 				return (false);
 			}
 		}
 	}
-	num = atoi(trignum_s);
+	num = atoi(trignum_s.c_str());
 	if (num == 0) {
 		trig_log(*trig, fmt::format("run invalid trignum, команда: '{}'", cmd));
 		return (false);
@@ -5408,13 +5411,12 @@ void ClearContextVar(Trigger *trig,char *cmd) {
  * or the local vars of trig if not found in global list.
  */
 void process_unset(Script *sc, Trigger *trig, char *cmd) {
-	char arg[kMaxInputLength], *var;
+	// var -- это весь остаток строки после имени команды, а не первое слово,
+	// и регистр у него не понижается: one_argument правит только first_arg.
+	std::string var(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(var, var);
 
-	var = one_argument(cmd, arg);
-
-	skip_spaces(&var);
-
-	if (!*var) {
+	if (var.empty()) {
 		trig_log(trig, fmt::format("unset w/o an arg, команда: '{}'", cmd));
 		return;
 	}
@@ -5600,13 +5602,12 @@ void process_rdelete(Script * /*sc*/, Trigger *trig, char *cmd) {
 
 // * makes a local variable into a global variable
 void process_global(Script *sc, Trigger *trig, char *cmd, long id) {
-	char arg[kMaxInputLength], *var;
+	// var -- это весь остаток строки после имени команды, а не первое слово,
+	// и регистр у него не понижается: one_argument правит только first_arg.
+	std::string var(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(var, var);
 
-	var = one_argument(cmd, arg);
-
-	skip_spaces(&var);
-
-	if (!*var) {
+	if (var.empty()) {
 		trig_log(trig, fmt::format("global w/o an arg, команда: '{}'", cmd));
 		return;
 	}
@@ -5624,13 +5625,12 @@ void process_global(Script *sc, Trigger *trig, char *cmd, long id) {
 
 // * makes a local variable into a world variable
 void process_worlds(Script * /*sc*/, Trigger *trig, char *cmd, long id) {
-	char arg[kMaxInputLength], *var;
+	// var -- это весь остаток строки после имени команды, а не первое слово,
+	// и регистр у него не понижается: one_argument правит только first_arg.
+	std::string var(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(var, var);
 
-	var = one_argument(cmd, arg);
-
-	skip_spaces(&var);
-
-	if (!*var) {
+	if (var.empty()) {
 		trig_log(trig, fmt::format("worlds w/o an arg, команда: '{}'", cmd));
 		return;
 	}
@@ -5648,17 +5648,16 @@ void process_worlds(Script * /*sc*/, Trigger *trig, char *cmd, long id) {
 
 // set the current context for a script
 void process_context(Script * /*sc*/, Trigger *trig, char *cmd) {
-	char arg[kMaxInputLength], *var;
+	// var -- это весь остаток строки после имени команды, а не первое слово,
+	// и регистр у него не понижается: one_argument правит только first_arg.
+	std::string var(cmd ? cmd : "");
+	utils::ExtractFirstArgumentLower(var, var);
 
-	var = one_argument(cmd, arg);
-
-	skip_spaces(&var);
-
-	if (!*var) {
+	if (var.empty()) {
 		trig_log(trig, fmt::format("context w/o an arg, команда: '{}'", cmd));
 		return;
 	}
-	trig->context = atol(var);
+	trig->context = atol(var.c_str());
 }
 
 // extract <имя переменной> <номер> <текст> -- кладёт в переменную N-е слово текста
