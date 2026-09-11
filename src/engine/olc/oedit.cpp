@@ -628,8 +628,9 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			break;
 
 		case EObjType::kWeapon:
-			// val[0] у оружия в бою не читается (см. fight_hit.cpp).
-			SendMsgToChar("Не используется : ", d->character.get());
+			// val[0] у оружия в бою не читается (см. fight_hit.cpp), так что и спрашивать
+			// его незачем -- сразу к кубикам урона, как это сделано для источников света.
+			oedit_disp_val2_menu(d);
 			break;
 
 		case EObjType::kArmor:
