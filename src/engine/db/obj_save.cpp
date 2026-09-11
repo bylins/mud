@@ -192,6 +192,7 @@ int get_buf_lines(char **source, char *target) {
 ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	char buffer[kMaxStringLength];
 	char read_line[kMaxStringLength];
+	char flags_buf[kMaxStringLength];    // приёмник sscanf для строк флагов аффекта
 	int t[2];
 	int vnum;
 	ObjRnum rnum = -1;    // vnum->rnum считаем один раз: для создания и для проверки прототипа
@@ -534,25 +535,25 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 							break;
 						}
 						case 'F':
-							if (sscanf(tmp_buf.c_str(), "F %s", buf2) != 1) {
+							if (sscanf(tmp_buf.c_str(), "F %s", flags_buf) != 1) {
 								*error = 54;
 								return object;
 							}
-							tmp_aff.affects_flags_.from_string(buf2);
+							tmp_aff.affects_flags_.from_string(flags_buf);
 							break;
 						case 'E':
-							if (sscanf(tmp_buf.c_str(), "E %s", buf2) != 1) {
+							if (sscanf(tmp_buf.c_str(), "E %s", flags_buf) != 1) {
 								*error = 55;
 								return object;
 							}
-							tmp_aff.extra_flags_.from_string(buf2);
+							tmp_aff.extra_flags_.from_string(flags_buf);
 							break;
 						case 'N':
-							if (sscanf(tmp_buf.c_str(), "N %s", buf2) != 1) {
+							if (sscanf(tmp_buf.c_str(), "N %s", flags_buf) != 1) {
 								*error = 56;
 								return object;
 							}
-							tmp_aff.no_flags_.from_string(buf2);
+							tmp_aff.no_flags_.from_string(flags_buf);
 							break;
 						case 'W':
 							if (sscanf(tmp_buf.c_str(), "W %d", &tmp_aff.weight_) != 1) {
@@ -622,9 +623,9 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				*error = 66;
 				object->set_vnum_zone_from(atoi(buffer));
 			} else {
-				snprintf(buf, kMaxStringLength, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
-						 read_line, buffer);
-				mudlog(buf, NRM, kLvlGreatGod, ERRLOG, true);
+				mudlog(fmt::format("WARNING: \"{}\" is not valid key for character items! [value=\"{}\"]",
+								   read_line, buffer),
+					   NRM, kLvlGreatGod, ERRLOG, true);
 			}
 		}
 	}
@@ -1185,29 +1186,26 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 		content.data(), content.size());
 
 	std::memcpy(&rent, content.data(), sizeof(struct SaveRentInfo));
-	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name.c_str());
+	const char *rentcode_name = nullptr;
 	switch (rent.rentcode) {
-		case RENT_RENTED: strncat(buf, " Rent ", sizeof(buf) - strlen(buf) - 1);
+		case RENT_RENTED: rentcode_name = " Rent ";
 			break;
 		case RENT_CRASH:
 			//           if (rent.time<1001651000L) //креш-сейв до Sep 28 00:26:20 2001
 			rent.net_cost_per_diem = 0;    //бесплатно!
-			strncat(buf, " Crash ", sizeof(buf) - strlen(buf) - 1);
+			rentcode_name = " Crash ";
 			break;
-		case RENT_CRYO: strncat(buf, " Cryo ", sizeof(buf) - strlen(buf) - 1);
+		case RENT_CRYO: rentcode_name = " Cryo ";
 			break;
-		case RENT_TIMEDOUT: strncat(buf, " TimedOut ", sizeof(buf) - strlen(buf) - 1);
+		case RENT_TIMEDOUT: rentcode_name = " TimedOut ";
 			break;
-		case RENT_FORCED: strncat(buf, " Forced ", sizeof(buf) - strlen(buf) - 1);
+		case RENT_FORCED: rentcode_name = " Forced ";
 			break;
 		default: log("[ReadTimer] Error reading %s timer file - undefined rent code.", name.c_str());
 			return false;
-			//strcat(buf, " Undef ");
-			//rent.rentcode = RENT_CRASH;
 			break;
 	}
-	strncat(buf, "rent code.", sizeof(buf) - strlen(buf) - 1);
-	log("%s", buf);
+	log(fmt::format("[ReadTimer] Reading timer file {} for {} :{}rent code.", fname, name, rentcode_name));
 	Crash_create_timer(index, rent.n_items);
 	player_table[index].timer->rent = rent;
 
@@ -1248,8 +1246,8 @@ void Crash_reload_timer(int index) {
 	}
 
 	if (!ReadCrashTimerFile(index, false)) {
-		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name().c_str());
-		mudlog(buf, BRF, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
+		mudlog(fmt::format("SYSERR: Unable to read timer file for {}.", player_table[index].name()),
+			   BRF, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
 	}
 }
 
@@ -1312,7 +1310,6 @@ void Crash_timer_obj(const std::size_t index, long time) {
 		return;
 	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * kSecsPerRealDay) {
 		ClearCrashSavedObjects(index);
-		buf[0] = '\0';
 		switch (rentcode) {
 			case RENT_CRASH: log("[TO] Deleting crash rent info for %s  - time outed.", name.c_str());
 				break;
@@ -1361,8 +1358,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	//если появились новые просроченные объекты, обновляем файл таймеров
 	if (idelete) {
 		if (!Crash_write_timer(index)) {
-			sprintf(buf, "SYSERR: [TO] Error writing timer file for %s.", name.c_str());
-			mudlog(buf, CMP, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
+			mudlog(fmt::format("SYSERR: [TO] Error writing timer file for {}.", name.c_str()), CMP, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
 		}
 	}
 }
@@ -1380,21 +1376,19 @@ void Crash_list_objects(CharData *ch, int index) {
 	num_of_days = (float) timer_dec / kSecsPerRealDay;
 	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
-	snprintf(buf, sizeof(buf), "Код ренты - ");
+	// Строка с кодом ренты собиралась в общий буфер и терялась: следующий же sprintf
+	// затирал её, игрок этой строки никогда не видел. Теперь она доходит до адресата.
+	const char *rentcode_name = "UNDEF!";
 	switch (SAVEINFO(index)->rent.rentcode) {
-		case RENT_RENTED: strncat(buf, "Rented.\r\n", sizeof(buf) - strlen(buf) - 1);
-			break;
-		case RENT_CRASH: strncat(buf, "Crash.\r\n", sizeof(buf) - strlen(buf) - 1);
-			break;
-		case RENT_CRYO: strncat(buf, "Cryo.\r\n", sizeof(buf) - strlen(buf) - 1);
-			break;
-		case RENT_TIMEDOUT: strncat(buf, "TimedOut.\r\n", sizeof(buf) - strlen(buf) - 1);
-			break;
-		case RENT_FORCED: strncat(buf, "Forced.\r\n", sizeof(buf) - strlen(buf) - 1);
-			break;
-		default: strncat(buf, "UNDEF!\r\n", sizeof(buf) - strlen(buf) - 1);
-			break;
+		case RENT_RENTED: rentcode_name = "Rented."; break;
+		case RENT_CRASH: rentcode_name = "Crash."; break;
+		case RENT_CRYO: rentcode_name = "Cryo."; break;
+		case RENT_TIMEDOUT: rentcode_name = "TimedOut."; break;
+		case RENT_FORCED: rentcode_name = "Forced."; break;
+		default: break;
 	}
+	SendMsgToChar(fmt::format("Код ренты - {}\r\n", rentcode_name), ch);
+
 	std::stringstream ss;
 	for (int i = 0; i < SAVEINFO(index)->rent.n_items; i++) {
 		data = SAVEINFO(index)->time[i];
@@ -1410,13 +1404,14 @@ void Crash_list_objects(CharData *ch, int index) {
 		}
 	}
 	SendMsgToChar(ss.str().c_str(), ch);
-	sprintf(buf, "Время в ренте: %ld тиков.\r\n", timer_dec);
-	SendMsgToChar(buf, ch);
-	sprintf(buf, "Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d. ИНГРИДИЕНТЫ НЕ ВЫВОДЯТСЯ.\r\n",
-			SAVEINFO(index)->rent.n_items,
-			SAVEINFO(index)->rent.net_cost_per_diem, num_of_days,
-			(int) (num_of_days * SAVEINFO(index)->rent.net_cost_per_diem));
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Время в ренте: {} тиков.\r\n", timer_dec), ch);
+	SendMsgToChar(fmt::format("Предметов: {}. Стоимость: ({} в день) * ({:1.2f} дней) = {}."
+							  " ИНГРИДИЕНТЫ НЕ ВЫВОДЯТСЯ.\r\n",
+							  SAVEINFO(index)->rent.n_items,
+							  SAVEINFO(index)->rent.net_cost_per_diem,
+							  num_of_days,
+							  (int) (num_of_days * SAVEINFO(index)->rent.net_cost_per_diem)),
+				  ch);
 }
 
 void Crash_listrent(CharData *ch, char *name) {
@@ -1428,20 +1423,16 @@ void Crash_listrent(CharData *ch, char *name) {
 
 	if (!SAVEINFO(index)) {
 		if (!ReadCrashTimerFile(index, true)) {
-			sprintf(buf, "Ubable to read %s timer file.\r\n", name);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Ubable to read {} timer file.\r\n", name), ch);
 		} else if (!SAVEINFO(index)) {
-			sprintf(buf, "%s не имеет файла ренты.\r\n", utils::CAP(name));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{} не имеет файла ренты.\r\n", utils::CAP(name)), ch);
 		} else {
-			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", utils::CAP(name));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{} находится в игре. Содержимое файла ренты:\r\n", utils::CAP(name)), ch);
 			Crash_list_objects(ch, index);
 			ClearSaveinfo(index);
 		}
 	} else {
-		sprintf(buf, "%s находится в ренте. Содержимое файла ренты:\r\n", utils::CAP(name));
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("{} находится в ренте. Содержимое файла ренты:\r\n", utils::CAP(name)), ch);
 		Crash_list_objects(ch, index);
 	}
 }
@@ -1469,24 +1460,26 @@ int Crash_load(CharData *ch) {
 	Crash_reload_timer(index);
 
 	if (!SAVEINFO(index)) {
-		sprintf(buf, "%s entering game with no equipment.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(fmt::format("{} entering game with no equipment.", GET_NAME(ch)), NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		return (1);
 	}
 
+	const char *what_happened = nullptr;
 	switch (RENTCODE(index)) {
-		case RENT_RENTED: sprintf(buf, "%s un-renting and entering game.", GET_NAME(ch));
+		case RENT_RENTED: what_happened = "un-renting and entering game.";
 			break;
-		case RENT_CRASH: sprintf(buf, "%s retrieving crash-saved items and entering game.", GET_NAME(ch));
+		case RENT_CRASH: what_happened = "retrieving crash-saved items and entering game.";
 			break;
-		case RENT_CRYO: sprintf(buf, "%s un-cryo'ing and entering game.", GET_NAME(ch));
+		case RENT_CRYO: what_happened = "un-cryo'ing and entering game.";
 			break;
-		case RENT_FORCED: sprintf(buf, "%s retrieving force-saved items and entering game.", GET_NAME(ch));
+		case RENT_FORCED: what_happened = "retrieving force-saved items and entering game.";
 			break;
-		case RENT_TIMEDOUT: sprintf(buf, "%s retrieving auto-saved items and entering game.", GET_NAME(ch));
+		case RENT_TIMEDOUT: what_happened = "retrieving auto-saved items and entering game.";
 			break;
-		default: sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", GET_NAME(ch), RENTCODE(index));
-			mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		default:
+			mudlog(fmt::format("SYSERR: {} entering game with undefined rent code {}.",
+							   GET_NAME(ch), RENTCODE(index)),
+				   BRF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 			SendMsgToChar("\r\n** Неизвестный код ренты **\r\n"
 						  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 						  "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1494,12 +1487,11 @@ int Crash_load(CharData *ch) {
 			return (1);
 			break;
 	}
-	mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(fmt::format("{} {}", GET_NAME(ch), what_happened), NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 	//Деньги за постой
 	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / kSecsPerRealDay;
-	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
-	mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(fmt::format("{} was {:1.2f} days in rent.", GET_NAME(ch), num_of_days), LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 	cost = (int) (SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
@@ -1516,45 +1508,51 @@ int Crash_load(CharData *ch) {
 	// Бесплатная рента, если выйти в течение 2 часов после ребута или креша
 	if (((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
 		&& SAVEINFO(index)->rent.time + free_crashrent_period * kSecsPerRealHour > time(0)) || free_rent) {
-		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", kColorWht, kColorNrm);
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		SendMsgToChar(fmt::format("{}** На сей раз постой был бесплатным **{}\r\n", kColorWht, kColorNrm), ch);
+		mudlog(fmt::format("{} entering game, free crashrent.", GET_NAME(ch)),
+			   NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	} else if (cost > currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold)) {
-		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
-					 "%s"
-					 "Вам предъявили счет на %d %s за постой (%d %s в день).\r\n"
-					 "Но все, что у вас было - %ld %s... Увы. Все ваши вещи переданы мобам.%s\n\r",
-				kColorWht,
-				num_of_days,
-				RENTCODE(index) ==
-					RENT_TIMEDOUT ?
-				"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
-								  : "", cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str(),
-				SAVEINFO(index)->rent.net_cost_per_diem,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(SAVEINFO(index)->rent.net_cost_per_diem, grammar::ECase::kNom).c_str(), currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold),
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold), grammar::ECase::kNom).c_str(), kColorNrm);
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
-		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		const auto &gold = MUD::Currency(currencies::kGoldVnum);
+		const long on_hand = currencies::GetHand(*ch, currencies::kGold)
+			+ currencies::GetBank(*ch, currencies::kGold);
+		SendMsgToChar(fmt::format("{}Вы находились на постое {:1.2f} дней.\n\r"
+								  "{}Вам предъявили счет на {} {} за постой ({} {} в день).\r\n"
+								  "Но все, что у вас было - {} {}... Увы. Все ваши вещи переданы мобам.{}\n\r",
+								  kColorWht,
+								  num_of_days,
+								  RENTCODE(index) == RENT_TIMEDOUT
+									  ? "Вас пришлось тащить до кровати, за это постой был дороже.\r\n" : "",
+								  cost,
+								  gold.GetNameWithAmount(cost, grammar::ECase::kNom),
+								  SAVEINFO(index)->rent.net_cost_per_diem,
+								  gold.GetNameWithAmount(SAVEINFO(index)->rent.net_cost_per_diem,
+														 grammar::ECase::kNom),
+								  on_hand,
+								  gold.GetNameWithAmount(on_hand, grammar::ECase::kNom),
+								  kColorNrm),
+					  ch);
+		mudlog(fmt::format("{}: rented equipment lost (no $).", GET_NAME(ch)),
+			   LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		currencies::SetBank(*ch, currencies::kGold, 0);
 		currencies::SetHand(*ch, currencies::kGold, 0);
 		ClearCrashSavedObjects(index);
 		return (2);
 	} else {
 		if (cost) {
-			sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
-						 "%s"
-						 "С вас содрали %d %s за постой (%d %s в день).%s\r\n",
-					kColorWht,
-					num_of_days,
-					RENTCODE(index) ==
-						RENT_TIMEDOUT ?
-					"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
-									  : "", cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str(),
-					SAVEINFO(index)->rent.net_cost_per_diem,
-					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(SAVEINFO(index)->rent.net_cost_per_diem, grammar::ECase::kNom).c_str(), kColorNrm);
-			SendMsgToChar(buf, ch);
+			const auto &gold = MUD::Currency(currencies::kGoldVnum);
+			SendMsgToChar(fmt::format("{}Вы находились на постое {:1.2f} дней.\n\r"
+									  "{}С вас содрали {} {} за постой ({} {} в день).{}\r\n",
+									  kColorWht,
+									  num_of_days,
+									  RENTCODE(index) == RENT_TIMEDOUT
+										  ? "Вас пришлось тащить до кровати, за это постой был дороже.\r\n" : "",
+									  cost,
+									  gold.GetNameWithAmount(cost, grammar::ECase::kNom),
+									  SAVEINFO(index)->rent.net_cost_per_diem,
+									  gold.GetNameWithAmount(SAVEINFO(index)->rent.net_cost_per_diem,
+															 grammar::ECase::kNom),
+									  kColorNrm),
+						  ch);
 		}
 		currencies::RemoveTotal(*ch, currencies::kGold, cost);
 	}
@@ -1623,19 +1621,13 @@ int Crash_load(CharData *ch) {
 		if (!obj) {
 			//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 			SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
-			sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
-			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("SYSERR: Objects reading fail for {} error {}, stop reading.", GET_NAME(ch), error), BRF, kLvlImmortal, SYSLOG, true);
 			continue;    //Ann
 		}
 		if (error) {
-			snprintf(buf,
-					 kMaxStringLength,
-					 "WARNING: Error #%d reading item vnum #%d num #%d from %s.",
-					 error,
-					 obj->get_vnum(),
-					 i,
-					 fname);
-			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("WARNING: Error #{} reading item vnum #{} num #{} from {}.",
+							   error, obj->get_vnum(), i, fname),
+				   BRF, kLvlImmortal, SYSLOG, true);
 		}
 /*
 		if (SAVEINFO(index)->time[fsize].vnum >= dungeons::kZoneStartDungeons * 100) {
@@ -1645,8 +1637,7 @@ int Crash_load(CharData *ch) {
 */
 		if (obj->get_vnum() != SAVEINFO(index)->time[fsize].vnum) {
 			SendMsgToChar("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
-			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
-			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("SYSERR: Objects reading fail for {} (2), stop reading.", GET_NAME(ch)), BRF, kLvlImmortal, SYSLOG, true);
 			ExtractObjFromWorld(obj.get());
 			break;
 		}
@@ -1678,12 +1669,10 @@ int Crash_load(CharData *ch) {
 
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0) {
-			snprintf(buf, kMaxStringLength, "%s%s%s рассыпал%s от длительного использования.\r\n",
-					 kColorWht,
-					 cap.c_str(),
-					 char_get_custom_label(obj.get(), ch).c_str(),
-					 grammar::ObjSexEnding((obj)->get_sex(), 2));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{}{}{} рассыпал{} от длительного использования.\r\n",
+									  kColorWht, cap, char_get_custom_label(obj.get(), ch),
+									  grammar::ObjSexEnding(obj->get_sex(), 2)),
+						  ch);
 			ExtractObjFromWorld(obj.get());
 
 			continue;
@@ -1691,14 +1680,12 @@ int Crash_load(CharData *ch) {
 
 		//очищаем ZoneDecay объедки
 		if (obj->has_flag(EObjFlag::kZonedecay)) {
-			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{} рассыпал{} в прах.\r\n", cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2)), ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 		if (obj->has_flag(EObjFlag::kRepopDecay)) {
-			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{} рассыпал{} в прах.\r\n", cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2)), ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
@@ -1707,9 +1694,10 @@ int Crash_load(CharData *ch) {
 		if (invalid_anti_class(ch, obj.get())
 			|| invalid_unique(ch, obj.get())
 			|| NamedStuff::check_named(ch, obj.get(), 0)) {
-			sprintf(buf, "%s рассыпал%s, как запрещенн%s для вас.\r\n",
-					cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2), grammar::ObjSexEnding((obj)->get_sex(), 3));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{} рассыпал{}, как запрещенн{} для вас.\r\n",
+									  cap, grammar::ObjSexEnding(obj->get_sex(), 2),
+									  grammar::ObjSexEnding(obj->get_sex(), 3)),
+						  ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
@@ -1983,8 +1971,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		return false;
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
-		sprintf(buf, "[SYSERR] Store file '%s' - INVALID Id %d", GET_NAME(ch), iplayer);
-		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("[SYSERR] Store file '{}' - INVALID Id {}", GET_NAME(ch), iplayer), BRF, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 
@@ -2133,8 +2120,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		} else {
 			std::ofstream file(fname, std::ios::binary);
 			if (!file.is_open()) {
-				snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
-				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("[SYSERR] Store objects file '{}'- MAY BE LOCKED.", fname), BRF, kLvlImmortal, SYSLOG, true);
 				Crash_delete_files(iplayer);
 				return false;
 			}
@@ -2384,7 +2370,6 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 }
 
 int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int factor, int *totalcost) {
-	char buf[kMaxExtendLength];
 	int i;
 	long numitems = 0, norent;
 // added by Dikiy (Лель)
@@ -2431,8 +2416,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 	}
 
 	if (numitems > kMaxSavedItems) {
-		snprintf(buf, kMaxExtendLength, "%s", (fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTooManyItems1)), fmt::arg("max", kMaxSavedItems)) + "\r\n" + fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTooManyItems2)), fmt::arg("count", numitems))).c_str());
-		act(buf, false, receptionist, 0, ch, kToVict);
+		act((fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTooManyItems1)), fmt::arg("max", kMaxSavedItems)) + "\r\n" + fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTooManyItems2)), fmt::arg("count", numitems))), false, receptionist, 0, ch, kToVict);
 		return (false);
 	}
 
@@ -2443,12 +2427,10 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	if (rentshow) {
 		if (min_rent_cost(ch) > 0) {
-			snprintf(buf, kMaxExtendLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTipForBeer)), fmt::arg("amount", min_rent_cost(ch) * factor), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(min_rent_cost(ch) * factor, grammar::ECase::kNom).c_str())).c_str());
-			act(buf, false, receptionist, 0, ch, kToVict);
+			act(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTipForBeer)), fmt::arg("amount", min_rent_cost(ch) * factor), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(min_rent_cost(ch) * factor, grammar::ECase::kNom).c_str())), false, receptionist, 0, ch, kToVict);
 		}
 
-		snprintf(buf, kMaxExtendLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTotalCost)), fmt::arg("amount", *totalcost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(*totalcost, grammar::ECase::kNom).c_str()), fmt::arg("perday", (factor == RENT_FACTOR ? "в день " : ""))).c_str());
-		act(buf, false, receptionist, 0, ch, kToVict);
+		act(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTotalCost)), fmt::arg("amount", *totalcost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(*totalcost, grammar::ECase::kNom).c_str()), fmt::arg("perday", (factor == RENT_FACTOR ? "в день " : ""))), false, receptionist, 0, ch, kToVict);
 
 		if (MAX(0, *totalcost / divide) > currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold)) {
 			act(specials::RentMsg(specials::ERentMsg::kNoMoneyEver), false, receptionist, 0, ch, kToVict);
@@ -2473,13 +2455,13 @@ enum class ERentAction { kRent, kOffer, kSettle };
 
 int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode) {
 	RoomRnum save_room;
+	std::string rent_log;
 	int cost, rentshow = true;
 
 	save_room = ch->in_room;
 
 	if (!AWAKE(recep)) {
-		snprintf(buf, kMaxStringLength, "%s", (fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kRecepAsleep)), fmt::arg("recep", grammar::PersonalPronoun((recep)->get_sex()))) + "\r\n").c_str());
-		SendMsgToChar(buf, ch);
+		SendMsgToChar((fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kRecepAsleep)), fmt::arg("recep", grammar::PersonalPronoun((recep)->get_sex()))) + "\r\n"), ch);
 		return (true);
 	}
 	if (!sight::CanSee(recep, ch)) {
@@ -2508,10 +2490,14 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 
 		if (rentshow) {
 			if (mode == RENT_FACTOR)
-				snprintf(buf, kMaxStringLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDailyCost)), fmt::arg("amount", cost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str())).c_str());
+				act(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDailyCost)),
+								fmt::arg("amount", cost),
+								fmt::arg("currency",
+										 MUD::Currency(currencies::kGoldVnum)
+											 .GetNameWithAmount(cost, grammar::ECase::kNom))),
+					false, recep, 0, ch, kToVict);
 			else if (mode == CRYO_FACTOR)
-				snprintf(buf, kMaxStringLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDailyCostCryo)), fmt::arg("amount", cost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str())).c_str());
-			act(buf, false, recep, 0, ch, kToVict);
+				act(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDailyCostCryo)), fmt::arg("amount", cost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str())), false, recep, 0, ch, kToVict);
 
 			if (cost > currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold)) {
 				act(specials::RentMsg(specials::ERentMsg::kCantAfford), false, recep, 0, ch, kToVict);
@@ -2526,17 +2512,18 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 		if (mode == RENT_FACTOR) {
 			act(specials::RentMsg(specials::ERentMsg::kLockedAway), false, recep, 0, ch, kToVict);
 			Crash_rentsave(ch, cost);
-			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
-					GET_NAME(ch), cost, currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold));
+			rent_log = fmt::format("{} has rented ({}/day, {} tot.)", GET_NAME(ch), cost,
+								   currencies::GetHand(*ch, currencies::kGold)
+									   + currencies::GetBank(*ch, currencies::kGold));
 		} else    // cryo
 		{
 			act(specials::RentMsg(specials::ERentMsg::kLockedAway) + "\r\n" + specials::RentMsg(specials::ERentMsg::kCryoGhost) + "\r\n" + specials::RentMsg(specials::ERentMsg::kCryoLostTouch), false, recep, 0, ch, kToVict);
 			Crash_cryosave(ch, cost);
-			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
+			rent_log = fmt::format("{} has cryo-rented.", GET_NAME(ch));
 			ch->SetFlag(EPlrFlag::kCryo);
 		}
 
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(rent_log, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		if ((save_room == r_helled_start_room)
 			|| (save_room == r_named_start_room)
@@ -2560,13 +2547,10 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 		else {
 			act(specials::RentMsg(specials::ERentMsg::kSettleOffer), false, recep, 0, ch, kToNotVict);
 			act(specials::RentMsg(specials::ERentMsg::kSettleWelcome), false, ch, 0, recep, kToChar);
-			sprintf(buf,
-					"%s has changed loadroom from %d to %d.",
-					GET_NAME(ch),
-					GET_LOADROOM(ch),
-					GET_ROOM_VNUM(save_room));
+			mudlog(fmt::format("{} has changed loadroom from {} to {}.",
+							   GET_NAME(ch), GET_LOADROOM(ch), GET_ROOM_VNUM(save_room)),
+				   NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
-			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			SetBattleLag(ch, 1);
 			ch->save_char();
 		}
