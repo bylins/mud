@@ -9,8 +9,8 @@ LOWER(*s) or s[0] = UPPER(s[0]) is wrong on a multibyte letter and was the singl
 of bugs in the migration.
 
 The conversions at the bottom of this header are boundaries, not helpers for everyday code:
-from_disk_* / to_disk for the world files (still KOI8-R on disk), to_koi8 for legacy client code
-pages (their tables are indexed by KOI8-R bytes).
+to_koi8 / from_koi8 for legacy client code pages (their tables are indexed by KOI8-R bytes), and
+from_disk_* for files written before the UTF-8 migration.
 */
 
 #ifndef BYLINS_SRC_UTILS_NATIVE_TEXT_H_
@@ -155,11 +155,6 @@ std::string from_koi8(const std::string &text);
 // equivalent at all becomes the converter's placeholder.
 std::string to_koi8(const std::string &text);
 
-// Bring text that is UTF-8 on disk into the native encoding. The counterpart of from_koi8 for
-// the files that are deliberately kept in UTF-8 rather than KOI8-R (the login screen). Identity
-// under UTF-8; under KOI8-R it goes through the same reduction as to_koi8, so a file written
-// with the full Unicode repertoire still renders sensibly on a KOI8-R build.
-std::string from_utf8(const std::string &text);
 
 // Collation key for sorting Russian text. The Russian letters are not in alphabetical order in
 // KOI8-R, so sorting has always gone through Windows-1251 bytes, where they are. The key
@@ -189,26 +184,11 @@ std::string from_disk_line(const char *line);
 // exactly what happened to cfg/mechanics/obj_sets.xml, issue #3681).
 std::string from_disk_text(const std::string &text);
 
-// The write side of the same boundary, and the exact mirror of from_disk_text: whatever the
-// engine puts on disk goes out in the encoding the disk format is in, which during the migration
-// is still KOI8-R. Identity under KOI8-R; under UTF-8 the text is reduced and transcoded exactly
-// as it is for a legacy client (see to_koi8).
-//
-// Read and write MUST stay symmetric. If the engine writes the native encoding while the rest of
-// the world is KOI8-R, then the first save quietly converts every file it touches, rolling back
-// to a KOI8-R build stops being possible, and the world is no longer the world we started with.
-// (issue #3681).
-std::string to_disk(const std::string &text);
 
-// Записать текст в файл в кодировке мира. Однострочная обёртка над to_disk для тех, кто иначе
-// звал бы pugi::save_file или свой ofstream и уносил бы на диск нативную кодировку. Возвращает
-// false, если файл не открылся (issue #3681).
+// Записать текст в файл как есть. Диск и движок в одной кодировке, переводить нечего;
+// функция существует ради тех, кто иначе звал бы pugi::save_file или свой ofstream.
+// Возвращает false, если файл не открылся.
 bool write_file(const std::string &path, const std::string &text);
-
-// То же, но без перевода: для деревьев, которые уже хранятся в нативной кодировке (userdata,
-// state, мир). Отдельная функция, а не флаг у write_file, чтобы в месте вызова было видно, в
-// какой кодировке лежит файл, и чтобы граница записи читалась рядом с чтением (issue #3787).
-bool write_file_native(const std::string &path, const std::string &text);
 
 // Pad `s` on the right with spaces to `width` CHARACTERS. The replacement for printf's "%-Ns"
 // wherever the value can hold Russian: printf counts the field width in bytes, so under UTF-8 a

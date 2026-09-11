@@ -245,10 +245,11 @@ void Account::set_password(const std::string &password) {
 }
 
 bool Account::compare_password(const std::string &password) {
-	// Тот же приём, что в Password::compare_password: хэш посчитан по дисковым байтам,
-	// поэтому пароль приводим к дисковой кодировке перед crypt (issue #3681).
+	// Тот же приём, что в Password::compare_password: хэши посчитаны по кои-восьмым байтам,
+	// поэтому пароль приводим к той же форме перед crypt. Это формат сохранённых хэшей,
+	// а не кодировка диска.
 	return CompareParam(this->hash_password,
-						CRYPT(native_text::to_disk(password).c_str(), this->hash_password.c_str()), true);
+						CRYPT(native_text::to_koi8(password).c_str(), this->hash_password.c_str()), true);
 }
 
 bool Account::quest_is_available(int id) {
