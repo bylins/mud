@@ -4731,9 +4731,9 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 }
 
 // script attaching a trigger to something
-void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
+void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/, char *cmd) {
 	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
-	char result[kMaxInputLength], *id_p;
+	char *id_p;
 	Trigger *newtrig;
 	CharData *c = nullptr;
 	ObjData *o = nullptr;
@@ -4752,9 +4752,6 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 		trig_log(trig, fmt::format("attach: нет или ошибка в аргументе 2, команда: '{}'", cmd));
 		return;
 	}
-
-	// parse and locate the id specified
-	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
 	if (is_plain_vnum_string(id_p)) {
 		trig_log(trig, fmt::format("attach: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'", id_p, cmd));
@@ -4827,9 +4824,9 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 }
 
 // script detaching a trigger from something
-Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
+Trigger *process_detach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/, char *cmd) {
 	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
-	char result[kMaxInputLength], *id_p;
+	char *id_p;
 	CharData *c = nullptr;
 	ObjData *o = nullptr;
 	RoomData *r = nullptr;
@@ -4847,9 +4844,6 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		trig_log(trig, fmt::format("detach invalid id arg(1), команда: '{}'", cmd));
 		return retval;
 	}
-
-	// parse and locate the id specified
-	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
 	if (is_plain_vnum_string(id_p)) {
 		trig_log(trig, fmt::format("detach: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'", id_p, cmd));
@@ -4950,8 +4944,7 @@ bool process_halt(Trigger *trig, char *cmd) {
    return true   - trigger find and runned
 		  false  - trigger not runned
 */
-int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int *retval) {
-	char result[kMaxInputLength];
+int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, char *cmd, int *retval) {
 	Trigger *runtrig = nullptr;
 	//	Script *runsc = NULL;
 	CharData *c = nullptr;
@@ -4975,9 +4968,6 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		trig_log(*trig, fmt::format("run invalid id arg(2), команда: '{}'", cmd));
 		return (false);
 	}
-
-	// parse and locate the id specified
-	eval_expr(id_str.c_str(), result, sizeof(result), go, *sc, *trig, type);
 
 	if (is_plain_vnum_string(id_str.c_str())) {
 		trig_log(*trig, fmt::format("run: 2-й аргумент '{}' -- голый vnum, используйте UID, строка отменена. Команда: '{}'",
