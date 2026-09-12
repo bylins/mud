@@ -36,9 +36,8 @@ int other_pc_in_group(CharData *ch) {
 void split_or_clan_tax(CharData *ch, long amount) {
 	if (AFF_FLAGGED(ch, EAffect::kGroup) && (other_pc_in_group(ch) > 0) &&
 		ch->IsFlagged(EPrf::kAutosplit)) {
-		char buf_[kMaxInputLength];
-		snprintf(buf_, sizeof(buf_), "%ld", amount);
-		group::do_split(ch, buf_, 0, 0);
+		std::string share = std::to_string(amount);
+		group::do_split(ch, share.data(), 0, 0);
 	} else {
 		long tax = ClanSystem::do_gold_tax(ch, amount);
 		currencies::RemoveHand(*ch, currencies::kGold, tax);
@@ -62,20 +61,17 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	const auto &money_cur = MUD::Currency(curr_type);
 	if (money_cur.GetId() >= 0 && money_cur.GetTextId() != currencies::kGold) {
 		// Не-золотая валюта (напр. событийная): зачисляем; force_split - делим всегда.
-		sprintf(buf, "Это составило %d %s.\r\n", value, money_cur.GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Это составило {} {}.\r\n", value, money_cur.GetNameWithAmount(value, grammar::ECase::kAcc).c_str()), ch);
 		currencies::AddHand(*ch, curr_type, value);
 		if (money_cur.ForceSplit() && AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
-			char local_buf[256];
-			sprintf(local_buf, "%d", value);
-			group::do_split(ch, local_buf, 0, 0, curr_type);
+			std::string share = std::to_string(value);
+			group::do_split(ch, share.data(), 0, 0, curr_type);
 		}
 		ExtractObjFromWorld(obj);
 		return;
 	}
 
-	sprintf(buf, "Это составило %d %s.\r\n", value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Это составило {} {}.\r\n", value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str()), ch);
 	if (InTestZone(ch)) {
 		ExtractObjFromWorld(obj);
 		return;
@@ -86,39 +82,22 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
 		currencies::AddHand(*ch, currencies::kGold, value);
-		sprintf(buf,
-				"<%s> {%d} заработал %d %s в группе.",
-				ch->get_name().c_str(),
-				GET_ROOM_VNUM(ch->in_room),
-				value,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		char local_buf[256];
-		sprintf(local_buf, "%d", value);
-		group::do_split(ch, local_buf, 0, 0);
+		mudlog(fmt::format("<{}> {{{}}} заработал {} {} в группе.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str()), NRM, kLvlGreatGod, MONEY_LOG, true);
+		std::string share = std::to_string(value);
+		group::do_split(ch, share.data(), 0, 0);
 	} else if (cont && system_obj::is_purse(cont)) {
 		// лут кошелька с баблом
 		// налогом не облагается, т.к. уже все уплочено
 		// на данном этапе cont уже не содержит владельца
-		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+		mudlog(fmt::format("{} взял деньги из кошелька: {}  {}.", ch->get_name().c_str(), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str()), NRM, kLvlGreatGod, MONEY_LOG, true);
 		currencies::AddHand(*ch, currencies::kGold, value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
-		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+		mudlog(fmt::format("{} заработал {}  {}.", ch->get_name().c_str(), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str()), NRM, kLvlGreatGod, MONEY_LOG, true);
 		currencies::AddHand(*ch, currencies::kGold, value - ClanSystem::do_gold_tax(ch, value), false, true);
 	} else {
-		sprintf(buf,
-				"<%s> {%d} как-то получил %d  %s.",
-				ch->get_name().c_str(),
-				GET_ROOM_VNUM(ch->in_room),
-				value,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+		mudlog(fmt::format("<{}> {{{}}} как-то получил {}  {}.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str()), NRM, kLvlGreatGod, MONEY_LOG, true);
 		currencies::AddHand(*ch, currencies::kGold, value);
 	}
 	RemoveObjFromChar(obj);
@@ -177,8 +156,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 		act("$o закрыт$A.", false, ch, cont, nullptr, kToChar);
 	else if (obj_dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, local_arg, cont->get_contains()))) {
-			sprintf(buf, "Вы не видите '%s' в $o5.", local_arg);
-			act(buf, false, ch, cont, nullptr, kToChar);
+			act(fmt::format("Вы не видите '{}' в $o5.", local_arg), false, ch, cont, nullptr, kToChar);
 		} else {
 			ObjData *obj_next;
 			while (obj && amount--) {
@@ -215,8 +193,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 			if (obj_dotmode == kFindAll)
 				act("$o пуст$A.", false, ch, cont, nullptr, kToChar);
 			else {
-				sprintf(buf, "Вы не видите ничего похожего на '%s' в $o5.", local_arg);
-				act(buf, false, ch, cont, nullptr, kToChar);
+				act(fmt::format("Вы не видите ничего похожего на '{}' в $o5.", local_arg), false, ch, cont, nullptr, kToChar);
 			}
 		}
 	}
@@ -262,8 +239,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 
 	if (dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, local_arg, world[ch->in_room]->contents))) {
-			sprintf(buf, "Вы не видите здесь '%s'.\r\n", local_arg);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы не видите здесь '{}'.\r\n", local_arg), ch);
 		} else {
 			ObjData *obj_next;
 			while (obj && howmany--) {
@@ -292,8 +268,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 			if (dotmode == kFindAll) {
 				SendMsgToChar("Похоже, здесь ничего нет.\r\n", ch);
 			} else {
-				sprintf(buf, "Вы не нашли здесь '%s'.\r\n", local_arg);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Вы не нашли здесь '{}'.\r\n", local_arg), ch);
 			}
 		}
 	}
@@ -348,8 +323,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (cont_dotmode == kFindIndiv) {
 			mode = generic_find(thecont, where_bits, ch, &tmp_char, &cont);
 			if (!cont) {
-				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Вы не видите '{}'.\r\n", arg2), ch);
 			} else if (cont->get_type() != EObjType::kContainer) {
 				act("$o - не контейнер.", false, ch, cont, nullptr, kToChar);
 			} else {
@@ -393,8 +367,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (cont_dotmode == kFindAll) {
 					SendMsgToChar("Вы не смогли найти ни одного контейнера.\r\n", ch);
 				} else {
-					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", thecont);
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("Вы что-то не видите здесь '{}'.\r\n", thecont), ch);
 				}
 			}
 		}
