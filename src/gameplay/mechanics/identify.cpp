@@ -127,19 +127,63 @@ std::string GetBookContents(const CObjectPrototype *obj, CharData *ch) {
 	}
 }
 
-static void PrintBookUpgradeSkill(CharData *ch, const ObjData *obj) {
-	const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
-	if (MUD::Skills().IsInvalid(skill_id)) {
-		log("SYSERR: invalid skill_id: %d, ch_name=%s, ObjVnum=%d (%s %s %d)",
-			GET_OBJ_VAL(obj, 1), ch->get_name().c_str(), GET_OBJ_VNUM(obj), __FILE__, __func__, __LINE__);
-		return;
+// Порог изучения. Прочерк вместо числа -- когда класс этого таланта не получает вовсе:
+// раньше сюда писали kLvlImplementator, и игрок читал "уровень изучения (для вас) : 34",
+// где 34 означало не порог, а "никогда" (#3877).
+std::string GetBookLearnLevel(const CObjectPrototype *obj, CharData *ch) {
+	if (!obj || !ch || obj->get_type() != EObjType::kBook) {
+		return "";
 	}
-	if (GET_OBJ_VAL(obj, 3) > 0) {
-		SendMsgToChar(ch, "повышает умение \"%s\" (максимум %d)\r\n",
-					  MUD::Skill(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
-	} else {
-		SendMsgToChar(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
-					  MUD::Skill(skill_id).GetName());
+	static const char *kNever = "--";
+	switch (GET_OBJ_VAL(obj, 0)) {
+		case EBook::kSpell: {
+			const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
+			if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+				return "";
+			}
+			if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id)) {
+				return fmt::format("уровень изучения (для вас) : {}", kNever);
+			}
+			return fmt::format("уровень изучения (для вас) : {}",
+							   CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2)));
+		}
+		case EBook::kSkill:
+		case EBook::kSkillUpgrade: {
+			const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
+			if (MUD::Skills().IsInvalid(skill_id)) {
+				return "";
+			}
+			if (MUD::Class(ch->GetClass()).skills.IsUnavailable(skill_id)) {
+				return fmt::format("уровень изучения (для вас) : {}", kNever);
+			}
+			return fmt::format("уровень изучения (для вас) : {}",
+							   GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2)));
+		}
+		case EBook::kReceipt: {
+			const int recipe = im_get_recipe(GET_OBJ_VAL(obj, 1));
+			if (recipe < 0) {
+				return "";
+			}
+			// issue.class-recipes: требования к рецепту берём у класса игрока.
+			const auto *req = MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[recipe].str_id);
+			if (!req) {
+				return fmt::format("уровень изучения (количество ремортов) : {} (--)", kNever);
+			}
+			return fmt::format("уровень изучения (количество ремортов) : {} ({})",
+							   std::max(GET_OBJ_VAL(obj, 2), req->level), req->remort);
+		}
+		case EBook::kFeat: {
+			const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
+			if (!MUD::Feat(feat_id).IsValid()) {
+				return "";
+			}
+			if (!CanGetFeat(ch, feat_id)) {
+				return fmt::format("уровень изучения (для вас) : {}", kNever);
+			}
+			return fmt::format("уровень изучения (для вас) : {}",
+							   MUD::Class(ch->GetClass()).feats[feat_id].GetSlot());
+		}
+		default: return "";
 	}
 }
 
@@ -186,75 +230,31 @@ switch (obj->get_type()) {
 		SendMsgToChar(fmt::format("броня       : {}\r\n", drsdice), ch);
 		break;
 
-	case EObjType::kBook:
-		switch (GET_OBJ_VAL(obj, 0)) {
-			case EBook::kSpell: {
-				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
-				if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
-					drndice = GET_OBJ_VAL(obj, 1);
-					if (MUD::Class(ch->GetClass()).spells.IsAvailable(spell_id)) {
-						drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
-					} else {
-						drsdice = kLvlImplementator;
-					}
-					SendMsgToChar(fmt::format("содержит заклинание        : \"{}\"\r\n", MUD::Spell(spell_id).GetCName()), ch);
-					SendMsgToChar(fmt::format("уровень изучения (для вас) : {}\r\n", drsdice), ch);
-				}
-				break;
-			}
-			case EBook::kSkill: {
-				auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
-				if (MUD::Skills().IsValid(skill_id)) {
-					drndice = GET_OBJ_VAL(obj, 1);
-					if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
-						drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
-					} else {
-						drsdice = kLvlImplementator;
-					}
-					SendMsgToChar(fmt::format("содержит секрет умения     : \"{}\"\r\n", MUD::Skill(skill_id).GetName()), ch);
-					SendMsgToChar(fmt::format("уровень изучения (для вас) : {}\r\n", drsdice), ch);
-				}
-				break;
-			}
-			case EBook::kSkillUpgrade: PrintBookUpgradeSkill(ch, obj);
-				break;
-
-			case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-				if (drndice >= 0) {
-					// issue.class-recipes: требования к рецепту берём у класса игрока.
-					{
-						const auto *req = MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[drndice].str_id);
-						SendMsgToChar(fmt::format("содержит рецепт отвара     : \"{}\"\r\n", imrecipes[drndice].name), ch);
-						if (!req) {
-							SendMsgToChar(fmt::format("уровень изучения (количество ремортов) : {} (--)\r\n", kLvlImplementator), ch);
-						} else {
-							drsdice = std::max(GET_OBJ_VAL(obj, 2), req->level);
-							SendMsgToChar(fmt::format("уровень изучения (количество ремортов) : {} ({})\r\n", drsdice, req->remort), ch);
-						}
-					}
-				}
-				break;
-
-			case EBook::kFeat: {
-				const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-				if (MUD::Feat(feat_id).IsValid()) {
-					if (CanGetFeat(ch, feat_id)) {
-						drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
-					} else {
-						drsdice = kLvlImplementator;
-					}
-					SendMsgToChar(fmt::format("содержит секрет способности : \"{}\"\r\n", MUD::Feat(feat_id).GetCName()), ch);
-					SendMsgToChar(fmt::format("уровень изучения (для вас) : {}\r\n", drsdice), ch);
-				}
-			}
-				break;
-
-			default: SendMsgToChar(kColorBoldRed, ch);
-				SendMsgToChar("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-				SendMsgToChar(kColorNrm, ch);
-				break;
+	case EObjType::kBook: {
+		// Тексты и пороги -- в GetBookContents/GetBookLearnLevel, общих с осмотром (#3877):
+		// раньше те же шесть строк лежали здесь вторым экземпляром и успели разъехаться
+		// (лишний пробел перед двоеточием у способностей, GetCName вместо GetName).
+		const std::string contents = GetBookContents(obj, ch);
+		if (contents.empty()) {
+			// Пустая строка значит одно из двух: тип книги вне списка либо содержимое битое
+			// (заклинание с номером 0, рецепт, которого нет в таблице). Раньше про первое
+			// говорили игроку, а про второе молча писали в syslog -- и то, и другое нужно.
+			const int book_type = GET_OBJ_VAL(obj, 0);
+			const bool known_type = book_type >= EBook::kSpell && book_type <= EBook::kFeat;
+			log("SYSERR: broken book #%d: type=%d val1=%d", GET_OBJ_VNUM(obj), book_type, GET_OBJ_VAL(obj, 1));
+			SendMsgToChar(kColorBoldRed, ch);
+			SendMsgToChar(known_type ? "СОДЕРЖИМОЕ КНИГИ НЕ ОПРЕДЕЛЕНО - сообщите Богам\r\n"
+									 : "НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+			SendMsgToChar(kColorNrm, ch);
+			break;
+		}
+		SendMsgToChar(contents + "\r\n", ch);
+		const std::string learn_level = GetBookLearnLevel(obj, ch);
+		if (!learn_level.empty()) {
+			SendMsgToChar(learn_level + "\r\n", ch);
 		}
 		break;
+	}
 
 	case EObjType::kMagicIngredient:
 		SendMsgToChar(sprintbit(obj->get_spec_param(), ingradient_bits) + "\r\n", ch);
