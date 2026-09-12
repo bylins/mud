@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/hide.h"
 #include "administration/privilege.h"
@@ -180,20 +182,15 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 
 				if (gold > 0) {
 					if (gold > 1) {
-						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
-								gold, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom).c_str());
-						SendMsgToChar(buf, ch);
+						SendMsgToChar(fmt::format("УР-Р-Р-А! Вы таки сперли {} {}.\r\n", gold,
+												  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom)), ch);
 					} else {
 						SendMsgToChar("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
 					}
 					currencies::AddHand(*ch, currencies::kGold, gold);
-					sprintf(buf,
-							"<%s> {%d} нагло спер %d кун у %s.",
-							ch->get_name().c_str(),
-							GET_ROOM_VNUM(ch->in_room),
-							gold,
-							GET_PAD(vict, 0));
-					mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+					mudlog(fmt::format("<{}> {{{}}} нагло спер {} кун у {}.",
+									   ch->get_name(), GET_ROOM_VNUM(ch->in_room), gold, GET_PAD(vict, 0)),
+						   NRM, kLvlGreatGod, MONEY_LOG, true);
 					split_or_clan_tax(ch, gold);
 					currencies::RemoveHand(*vict, currencies::kGold, gold);
 				} else

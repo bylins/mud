@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 
 void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -15,20 +17,20 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	one_argument(argument, arg);
+	char level_arg[kMaxInputLength];
+	one_argument(argument, level_arg);
 
-	if (!*arg) {
+	if (!*level_arg) {
 		if (GET_WIMP_LEV(ch)) {
-			sprintf(buf, "Вы попытаетесь бежать при %d ХП.\r\n", GET_WIMP_LEV(ch));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы попытаетесь бежать при {} ХП.\r\n", GET_WIMP_LEV(ch)), ch);
 			return;
 		} else {
 			SendMsgToChar("Вы будете драться, драться и драться (пока не помрете, ессно...).\r\n", ch);
 			return;
 		}
 	}
-	if (a_isdigit(*arg)) {
-		if ((wimp_lev = atoi(arg)) != 0) {
+	if (a_isdigit(*level_arg)) {
+		if ((wimp_lev = atoi(level_arg)) != 0) {
 			if (wimp_lev < 0)
 				SendMsgToChar("Да, перегрев похоже. С такими хитами вы и так помрете :)\r\n", ch);
 			else if (wimp_lev > ch->get_real_max_hit())
@@ -36,8 +38,7 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if (wimp_lev > (ch->get_real_max_hit() / 2))
 				SendMsgToChar("Размечтались. Сбечь то можно, но не более половины максимальных ХП.\r\n", ch);
 			else {
-				sprintf(buf, "Ладушки. Вы сбегите (или сбежите) по достижению %d ХП.\r\n", wimp_lev);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Ладушки. Вы сбегите (или сбежите) по достижению {} ХП.\r\n", wimp_lev), ch);
 				GET_WIMP_LEV(ch) = wimp_lev;
 			}
 		} else {
