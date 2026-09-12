@@ -57,6 +57,55 @@ static void ShowWeapon(CharData *ch, ObjData *obj) {
 	}
 }
 */
+std::string GetBookContents(const CObjectPrototype *obj) {
+	if (!obj || obj->get_type() != EObjType::kBook) {
+		return "";
+	}
+	switch (GET_OBJ_VAL(obj, 0)) {
+		case EBook::kSpell: {
+			const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
+			if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+				return "";
+			}
+			return fmt::format("содержит заклинание        : \"{}\"", MUD::Spell(spell_id).GetName());
+		}
+		case EBook::kSkill: {
+			const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
+			if (MUD::Skills().IsInvalid(skill_id)) {
+				return "";
+			}
+			return fmt::format("содержит секрет умения     : \"{}\"", MUD::Skill(skill_id).GetName());
+		}
+		case EBook::kSkillUpgrade: {
+			const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
+			if (MUD::Skills().IsInvalid(skill_id)) {
+				return "";
+			}
+			if (GET_OBJ_VAL(obj, 3) > 0) {
+				return fmt::format("повышает умение            : \"{}\" (максимум {})",
+								   MUD::Skill(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
+			}
+			return fmt::format("повышает умение            : \"{}\" (не больше максимума текущего перевоплощения)",
+							   MUD::Skill(skill_id).GetName());
+		}
+		case EBook::kReceipt: {
+			const int recipe = im_get_recipe(GET_OBJ_VAL(obj, 1));
+			if (recipe < 0) {
+				return "";
+			}
+			return fmt::format("содержит рецепт отвара     : \"{}\"", imrecipes[recipe].name);
+		}
+		case EBook::kFeat: {
+			const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
+			if (!MUD::Feat(feat_id).IsValid()) {
+				return "";
+			}
+			return fmt::format("содержит секрет способности: \"{}\"", MUD::Feat(feat_id).GetName());
+		}
+		default: return "";
+	}
+}
+
 static void PrintBookUpgradeSkill(CharData *ch, const ObjData *obj) {
 	const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 	if (MUD::Skills().IsInvalid(skill_id)) {
