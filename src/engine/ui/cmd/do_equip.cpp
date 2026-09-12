@@ -7,6 +7,9 @@
 */
 
 #include "engine/ui/cmd/do_equip.h"
+
+#include <fmt/format.h>
+
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
@@ -170,8 +173,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		equip_pos = search_block(local_arg, keywords, false);
 		if (equip_pos < 0
 			|| *local_arg == '!') {
-			sprintf(buf, "'%s'? Странная анатомия у этих русских!\r\n", local_arg);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("'{}'? Странная анатомия у этих русских!\r\n", local_arg), ch);
 			return -1;
 		}
 	}
@@ -209,7 +211,11 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos, bool skip_total = f
 		EWearFlag::kQuiver
 	};
 
-	const std::array<const char *, sizeof(wear_bitvectors)> already_wearing =
+	// Массив задавался размером sizeof(wear_bitvectors) -- это байты, а не число
+	// элементов, -- а перед сообщением про колчан не хватало запятой, так что оно
+	// склеивалось с предыдущим. В итоге already_wearing[kQuiver] был nullptr, и
+	// попытка надеть второй колчан уезжала в SendMsgToChar(nullptr).
+	const std::array<const char *, EEquipPos::kNumEquipPos> already_wearing =
 		{
 			"Вы уже используете свет.\r\n",
 			"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
@@ -229,7 +235,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos, bool skip_total = f
 			"У вас уже что-то надето на запястья.\r\n",
 			"Вы уже что-то держите в правой руке.\r\n",
 			"Вы уже что-то держите в левой руке.\r\n",
-			"Вы уже держите оружие в обеих руках.\r\n"
+			"Вы уже держите оружие в обеих руках.\r\n",
 			"Вы уже используете колчан.\r\n"
 		};
 
@@ -341,8 +347,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("У вас нет ничего похожего на '{}'.\r\n", arg1), ch);
 		} else {
 			while (obj && !AFF_FLAGGED(ch, EAffect::kHold) && ch->GetPosition() > EPosition::kSleep) {
 				next_obj = get_obj_in_list_vis(ch, arg1, obj->get_next_content());
@@ -361,8 +366,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("У вас нет ничего похожего на '{}'.\r\n", arg1), ch);
 		} else {
 			if ((equip_pos = find_eq_pos(ch, obj, arg2)) >= 0)
 				perform_wear(ch, obj, equip_pos);
@@ -375,18 +379,18 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int wear;
+	char name[kMaxInputLength];
 
 	if (ch->IsNpc() && (AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || ch->IsFlagged(EMobFlag::kResurrected))))
 		return;
 
-	argument = one_argument(argument, arg);
+	argument = one_argument(argument, name);
 
-	if (!*arg)
+	if (!*name)
 		SendMsgToChar("Вооружиться чем?\r\n", ch);
-	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, kMaxInputLength, "Вы не видите ничего похожего на \'%s\'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+	else if (!(obj = get_obj_in_list_vis(ch, name, ch->carrying))) {
+		SendMsgToChar(fmt::format("Вы не видите ничего похожего на '{}'.\r\n", name), ch);
 	} else {
 		if (!CAN_WEAR(obj, EWearFlag::kWield)
 			&& !CAN_WEAR(obj, EWearFlag::kBoth)) {
@@ -398,8 +402,9 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& ch->IsFlagged(EMobFlag::kCorpse)) {
 			SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 		} else {
-			one_argument(argument, arg);
-			if (!str_cmp(arg, "обе")
+			char both_arg[kMaxInputLength];
+			one_argument(argument, both_arg);
+			if (!str_cmp(both_arg, "обе")
 				&& CAN_WEAR(obj, EWearFlag::kBoth)) {
 				// иногда бывает надо
 				if (!privilege::IsImmortal(ch) && !CanBeTakenInBothHands(ch, obj)) {
@@ -444,16 +449,16 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto equip_pos{EEquipPos::kHold};
 	ObjData *obj;
-	one_argument(argument, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 
 	if (ch->IsNpc() && !NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
 
-	if (!*arg)
+	if (!*name)
 		SendMsgToChar("Вы заорали : 'Держи его!!! Хватай его!!!'\r\n", ch);
-	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+	else if (!(obj = get_obj_in_list_vis(ch, name, ch->carrying))) {
+		SendMsgToChar(fmt::format("У вас нет ничего похожего на '{}'.\r\n", name), ch);
 	} else {
 		if (obj->get_type() == EObjType::kLightSource) {
 			perform_wear(ch, obj, EEquipPos::kLight);
