@@ -117,9 +117,10 @@ void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (CanUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
-		one_argument(argument, arg);
-		if ((direction = search_block(arg, dirs, false)) >= 0 ||
-			(direction = search_block(arg, dirs_rus, false)) >= 0) {
+		char dir_arg[kMaxInputLength];
+		one_argument(argument, dir_arg);
+		if ((direction = search_block(dir_arg, dirs, false)) >= 0 ||
+			(direction = search_block(dir_arg, dirs_rus, false)) >= 0) {
 			GoDirectFlee(ch, direction);
 			return;
 		}

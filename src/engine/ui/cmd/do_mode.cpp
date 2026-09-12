@@ -237,16 +237,16 @@ void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	argument = one_argument(argument, arg);
-//	skip_spaces(&argument);
+	char mode_arg[kMaxInputLength];
+	argument = one_argument(argument, mode_arg);
 	int i{0};
 	bool showhelp{false};
-	if (!*arg) {
+	if (!*mode_arg) {
 		do_toggle(ch, argument, 0, 0);
 		return;
-	} else if (*arg == '?') {
+	} else if (*mode_arg == '?') {
 		showhelp = true;
-	} else if ((i = search_block(arg, gen_tog_type, false)) < 0) {
+	} else if ((i = search_block(mode_arg, gen_tog_type, false)) < 0) {
 		showhelp = true;
 	} else if ((GetRealLevel(ch) < gen_tog_param[i >> 1].level)
 		|| (!GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && gen_tog_param[i >> 1].tester)) {

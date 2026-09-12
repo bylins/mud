@@ -13,10 +13,11 @@
 void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 
-	one_argument(argument, buf);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 
-	if (*buf) {
-		vict = target_resolver::FindCharInRoom(ch, buf);
+	if (*name) {
+		vict = target_resolver::FindCharInRoom(ch, name);
 		if (!vict)
 			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		else

@@ -16,12 +16,13 @@ void PerformDropGold(CharData *ch, int amount);
 
 void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *leader;
-	one_argument(argument, smallBuf);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed) && ch->GetEnemy())
 		return;
-	if (*smallBuf) {
-		if (!str_cmp(smallBuf, "я") || !str_cmp(smallBuf, "self") || !str_cmp(smallBuf, "me")) {
+	if (*name) {
+		if (!str_cmp(name, "я") || !str_cmp(name, "self") || !str_cmp(name, "me")) {
 			if (!ch->has_master()) {
 				SendMsgToChar("Но вы ведь ни за кем не следуете...\r\n", ch);
 			} else {
@@ -29,7 +30,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		leader = target_resolver::FindCharInRoom(ch, smallBuf);
+		leader = target_resolver::FindCharInRoom(ch, name);
 		if (!leader) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 			return;
