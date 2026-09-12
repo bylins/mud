@@ -1224,7 +1224,11 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 		if (!ch->IsNpc() && ch->in_room != kNowhere && ch->check_aggressive) {
 			ch->check_aggressive = false;
-			mob_ai::do_aggressive_room(ch, false);
+			// Кражу здесь учитываем так же, как при самом шаге (#3887): иначе два вызова в одной
+			// команде отвечали по-разному -- движение сообщало "вам удалось прокрасться незаметно",
+			// а эта проверка тут же била игрока, потому что про кражу не знала. Пульс активности
+			// мобов кражу по-прежнему не смотрит, так что стоять в комнате с агром крадучись нельзя.
+			mob_ai::do_aggressive_room(ch, true);
 			if (ch->purged()) {
 				return;
 			}
