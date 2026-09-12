@@ -1182,8 +1182,9 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 								  kColorWht,
 								  (*it).c_str(),
 								  kColorNrm);
-					sprintf(buf, "Звание в дружине изменено на %s", (*it).c_str());
-					AddKarma(d->character.get(), buf, ch->get_name().c_str());
+					AddKarma(d->character.get(),
+							 fmt::format("Звание в дружине изменено на {}", *it).c_str(),
+							 ch->get_name().c_str());
 				}
 
 				// оповещение соклановцев о изменении звания
@@ -1303,8 +1304,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 	if (k && k->character) {
 		Clan::SetClanData(k->character.get());
 		SendMsgToChar(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
-		sprintf(buf, "Исключен(а) из дружины '%s'", this->name.c_str());
-		AddKarma(k->character.get(), buf, reason);
+		AddKarma(k->character.get(), fmt::format("Исключен(а) из дружины '{}'", this->name).c_str(), reason);
 		const auto clan = Clan::GetClanByRoom(k->character->in_room);
 		if (clan) {
 			char_from_room(k->character);
@@ -1323,8 +1323,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 		Player p_vict;
 		CharData *vict = &p_vict;
 		if (LoadPlayerCharacter(name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
-			sprintf(buf, "Исключен(а) из дружины '%s'", this->name.c_str());
-			AddKarma(vict, buf, reason);
+			AddKarma(vict, fmt::format("Исключен(а) из дружины '{}'", this->name).c_str(), reason);
 			vict->save_char();
 		}
 	}
@@ -1541,10 +1540,11 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 
 	switch (subcmd) {
 		// своей дружине
-		case kScmdChannel:
+		case kScmdChannel: {
 			// вспомнить
-			snprintf(buf, kMaxStringLength, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
-			CLAN(ch)->add_remember(buf, Remember::CLAN);
+			CLAN(ch)->add_remember(fmt::format("{} дружине: &R'{}'.&n\r\n", GET_NAME(ch), text), Remember::CLAN);
+			const std::string clan_text =
+				fmt::format("{} дружине: {}'{}'.{}\r\n", GET_NAME(ch), kColorBoldRed, text, kColorNrm);
 
 			for (auto d = descriptor_list; d; d = d->next) {
 				if (d->character
@@ -1553,38 +1553,31 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 					&& CLAN(d->character) == CLAN(ch)
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& !ignores(d->character.get(), ch, EIgnore::kClan)) {
-					snprintf(buf,
-							 kMaxStringLength,
-							 "%s дружине: %s'%s'.%s\r\n",
-							 GET_NAME(ch),
-							 kColorBoldRed,
-							 text.c_str(),
-							 kColorNrm);
-					d->character->remember_add(buf, Remember::ALL);
-					SendMsgToChar(buf, d->character.get());
+					d->character->remember_add(clan_text, Remember::ALL);
+					SendMsgToChar(clan_text, d->character.get());
 				}
 			}
 
-			snprintf(buf,
-					 kMaxStringLength,
-					 "Вы дружине: %s'%s'.%s\r\n",
-					 kColorBoldRed,
-					 text.c_str(),
-					 kColorNrm);
-			ch->remember_add(buf, Remember::ALL);
-			SendMsgToChar(buf, ch);
+			const std::string clan_self =
+				fmt::format("Вы дружине: {}'{}'.{}\r\n", kColorBoldRed, text, kColorNrm);
+			ch->remember_add(clan_self, Remember::ALL);
+			SendMsgToChar(clan_self, ch);
 
 			break;
+		}
 
 			// союзникам
-		case kScmdAchannel:
+		case kScmdAchannel: {
 			// вспомнить
-			snprintf(buf, kMaxStringLength, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
+			const std::string ally_remember =
+				fmt::format("{} союзникам: &G'{}'.&n\r\n", GET_NAME(ch), text);
+			const std::string ally_text =
+				fmt::format("{} союзникам: {}'{}'.{}\r\n", GET_NAME(ch), kColorBoldGrn, text, kColorNrm);
 			for (auto &clan : Clan::ClanList) {
 				if ((CLAN(ch)->CheckPolitics(clan->GetRent()) == kPoliticsAlliance
 					&& clan->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance)
 					|| CLAN(ch) == clan) {
-					clan->add_remember(buf, Remember::ALLY);
+					clan->add_remember(ally_remember, Remember::ALLY);
 				}
 			}
 
@@ -1600,30 +1593,20 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 						// проверка на альянс с обеих сторон, шоб не спамили друг другу на зло
 						if ((CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance)
 							|| CLAN(ch) == CLAN(d->character)) {
-							snprintf(buf,
-									 kMaxStringLength,
-									 "%s союзникам: %s'%s'.%s\r\n",
-									 GET_NAME(ch),
-									 kColorBoldGrn,
-									 text.c_str(),
-									 kColorNrm);
-							d->character->remember_add(buf, Remember::ALL);
-							SendMsgToChar(buf, d->character.get());
+							d->character->remember_add(ally_text, Remember::ALL);
+							SendMsgToChar(ally_text, d->character.get());
 						}
 					}
 				}
 			}
 
-			snprintf(buf,
-					 kMaxStringLength,
-					 "Вы союзникам: %s'%s'.%s\r\n",
-					 kColorBoldGrn,
-					 text.c_str(),
-					 kColorNrm);
-			ch->remember_add(buf, Remember::ALL);
-			SendMsgToChar(buf, ch);
+			const std::string ally_self =
+				fmt::format("Вы союзникам: {}'{}'.{}\r\n", kColorBoldGrn, text, kColorNrm);
+			ch->remember_add(ally_self, Remember::ALL);
+			SendMsgToChar(ally_self, ch);
 
 			break;
+		}
 	} // switch
 }
 
@@ -2207,8 +2190,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 			delete cbuf;
 		}
 
-		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s [%s]", player_table[i].name().c_str(), clan->name.c_str());
-		log("%s", buf);
+		log(fmt::format("CLAN: Роспуск, удаляю игрока {} [{}]", player_table[i].name().c_str(), clan->name.c_str()));
 	}
 }
 
@@ -2359,8 +2341,8 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		&& obj->get_contains()) {
 		act("В $o5 что-то лежит.", false, ch, obj, nullptr, kToChar);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && obj->has_flag(EObjFlag::kNotOneInClanChest)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
-		SendMsgToChar(utils::CAP(buf), ch);
+		SendMsgToChar(utils::CAP(fmt::format("{} - требуется две и более вещи из набора.\r\n",
+											 obj->get_PName(grammar::ECase::kNom))), ch);
 		return false;
 	} else {
 		if ((chest->get_weight() + obj->get_weight()) > CLAN(ch)->ChestMaxWeight()
@@ -3504,8 +3486,9 @@ void Clan::ClanAddMember(CharData *ch, int rank, std::string invite_name) {
 
 	SendMsgToChar(ch, "%sВас приписали к дружине '%s', статус - '%s'.%s\r\n",
 				  kColorWht, this->name.c_str(), (this->ranks[rank]).c_str(), kColorNrm);
-	sprintf(buf, "Принят в дружину '%s', статус - '%s'", this->name.c_str(), (this->ranks[rank]).c_str());
-	AddKarma(ch, buf, invite_name.c_str());
+	AddKarma(ch,
+			 fmt::format("Принят в дружину '{}', статус - '{}'", this->name, this->ranks[rank]).c_str(),
+			 invite_name.c_str());
 	return;
 }
 
@@ -3540,19 +3523,14 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 		}
 		this->owner = buffer2;
 		SendMsgToChar(ch, "Поздравляем, вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
-		if (IsMale(ch))
-			sprintf(buf,
-					"&RВнимание!!!&n %s ушел на пенсию и добровольно передал руководство дружины %s игроку %s.\r\n",
-					GET_NAME(ch),
-					CLAN(d->character)->GetAbbrev(),
-					GET_PAD(d->character, 2));
-		else
-			sprintf(buf,
-					"&RВнимание!!!&n %s ушла на пенсию и добровольно передала руководство дружины %s игроку %s.\r\n",
-					GET_NAME(ch),
-					CLAN(d->character)->GetAbbrev(),
-					GET_PAD(d->character, 2));
-		SendMsgToAll(buf);
+		// Формат строки выбираем целиком: тернарник внутри fmt::format не годится,
+		// формат проверяется на этапе компиляции и должен быть константой.
+		const std::string retirement = IsMale(ch)
+			? fmt::format("&RВнимание!!!&n {} ушел на пенсию и добровольно передал руководство дружины {} игроку {}.\r\n",
+						  GET_NAME(ch), CLAN(d->character)->GetAbbrev(), GET_PAD(d->character, 2))
+			: fmt::format("&RВнимание!!!&n {} ушла на пенсию и добровольно передала руководство дружины {} игроку {}.\r\n",
+						  GET_NAME(ch), CLAN(d->character)->GetAbbrev(), GET_PAD(d->character, 2));
+		SendMsgToAll(retirement.c_str());
 	}
 }
 
@@ -4186,17 +4164,15 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 						continue;
 					}
 
-					sprintf(buf, "%s наход%sся в хранилище дружины '%s'.",
-							temp->get_short_description().c_str(),
-							grammar::ObjPluralVerbEnding((temp)->get_sex()),
-							(*clan)->GetAbbrev());
-//					CAP(buf);
+					std::string line = fmt::format("{} наход{}ся в хранилище дружины '{}'.",
+												   temp->get_short_description(),
+												   grammar::ObjPluralVerbEnding((temp)->get_sex()),
+												   (*clan)->GetAbbrev());
 					if (privilege::IsGrGod(ch)) {
-						sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(temp));
-						strcat(buf, buf2);
+						line += fmt::format(" Vnum предмета: {}", GET_OBJ_VNUM(temp));
 					}
-					strcat(buf, "\r\n");
-					SendMsgToChar(buf, ch);
+					line += "\r\n";
+					SendMsgToChar(line, ch);
 					if (--count <= 0) {
 						return count;
 					}
@@ -4705,8 +4681,7 @@ void Clan::house_web_url(CharData *ch, const std::string &buffer) {
 		SendMsgToChar("Адрес сайта вашей дружины установлен.\r\n"
 					  "Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
 
-		snprintf(buf, sizeof(buf), "%s sets new clan website: %s", GET_NAME(ch), url.c_str());
-		mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("{} sets new clan website: {}", GET_NAME(ch), url.c_str()), LGH, kLvlImmortal, SYSLOG, true);
 	}
 
 	HelpSystem::need_update = true;
@@ -5508,9 +5483,10 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Ваш воевода зажал денег и отключил эту возможность! :(\r\n", ch);
 		return;
 	}
-	char *stufina = one_argument(argument, arg);
+	char mode[kMaxInputLength];
+	char *stufina = one_argument(argument, mode);
 
-	if (!str_cmp(arg, "все") || !str_cmp(arg, "all")) {
+	if (!str_cmp(mode, "все") || !str_cmp(mode, "all")) {
 		for (auto chest : world[GetRoomRnum(CLAN(ch)->chest_room)]->contents) {
 			if (Clan::is_clan_chest(chest)) {
 				Clan::ChestShow(chest, ch);
@@ -5518,7 +5494,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	}
-	if (utils::IsAbbr(arg, "характеристики") || utils::IsAbbr(arg, "identify") || utils::IsAbbr(arg, "опознать")) {
+	if (utils::IsAbbr(mode, "характеристики") || utils::IsAbbr(mode, "identify") || utils::IsAbbr(mode, "опознать")) {
 		if ((currencies::GetBank(*ch, currencies::kGold) < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
 			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
@@ -5541,8 +5517,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 		}
-		sprintf(buf1, "Ничего похожего на %s в хранилище ненайдено! Будьте внимательнее.\r\n", stufina);
-		SendMsgToChar(buf1, ch);
+		SendMsgToChar(fmt::format("Ничего похожего на {} в хранилище ненайдено! Будьте внимательнее.\r\n", stufina), ch);
 		return;
 	}
 
@@ -5588,7 +5563,8 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	std::string title = CLAN(ch)->GetClanTitle();
 
-	half_chop(argument, arg, buf);
+	char name_filter[kMaxInputLength], rest[kMaxInputLength];
+	half_chop(argument, name_filter, rest);
 
 	auto it = CLAN(ch)->clanstuff.begin();
 	for (; it != CLAN(ch)->clanstuff.end(); it++) {
@@ -5603,12 +5579,11 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 
-		if (*arg && !strstr(obj_proto[rnum]->get_short_description().c_str(), arg)) {
+		if (*name_filter && !strstr(obj_proto[rnum]->get_short_description().c_str(), name_filter)) {
 			continue;
 		}
 
-		sprintf(buf, "%s %s clan%d!", it->name.c_str(), title.c_str(), CLAN(ch)->GetRent());
-		obj->set_aliases(buf);
+		obj->set_aliases(fmt::format("{} {} clan{}!", it->name, title, CLAN(ch)->GetRent()));
 		obj->set_short_description(it->PNames[0] + " " + title);
 
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
@@ -5642,17 +5617,18 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		PlaceObjToInventory(obj.get(), ch);
 		cnt++;
 
-		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(grammar::ECase::kNom).c_str());
-		sprintf(buf2, "Вы взяли %s из сундука", obj->get_PName(grammar::ECase::kNom).c_str());
-		act(buf, false, ch, 0, 0, kToRoom);
-		act(buf2, false, ch, 0, 0, kToChar);
+		act(fmt::format("$n взял$g {} из сундука", obj->get_PName(grammar::ECase::kNom)).c_str(),
+			false, ch, 0, 0, kToRoom);
+		act(fmt::format("Вы взяли {} из сундука", obj->get_PName(grammar::ECase::kNom)).c_str(),
+			false, ch, 0, 0, kToChar);
 	}
 
 	if (cnt) {
-		sprintf(buf2, "\r\nЭкипировка обошлась вам в %d %s.", gold_total,
-				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold_total, grammar::ECase::kNom).c_str());
+		const std::string cost = fmt::format("\r\nЭкипировка обошлась вам в {} {}.", gold_total,
+											 MUD::Currency(currencies::kGoldVnum)
+												 .GetNameWithAmount(gold_total, grammar::ECase::kNom));
 		act("\r\n$n закрыл$g крышку сундука", false, ch, 0, 0, kToRoom);
-		act(buf2, false, ch, 0, 0, kToChar);
+		act(cost.c_str(), false, ch, 0, 0, kToChar);
 	} else {
 		act("\r\n$n порыл$u в сундуке со стандартной экипировкой, но ничего не наш$y", false, ch, 0, 0, kToRoom);
 		act("\r\nВы порылись в сундуке со стандартной экипировкой, но не нашли ничего подходящего",
