@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "do_forget.h"
 #include "administration/privilege.h"
 
@@ -21,22 +23,23 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int is_in_mem;
 
 	// проверка на аргумент рецепт|отвар
-	one_argument(argument, arg);
+	char what[kMaxInputLength];
+	one_argument(argument, what);
 
-	if (!*arg) {
+	if (!*what) {
 		SendMsgToChar("Что вы хотите забыть?\r\n", ch);
 		return;
 	}
 
-	if (utils::IsAbbr(arg, "recipe") || utils::IsAbbr(arg, "рецепт") ||
-		utils::IsAbbr(arg, "отвар")) {
+	if (utils::IsAbbr(what, "recipe") || utils::IsAbbr(what, "рецепт") ||
+		utils::IsAbbr(what, "отвар")) {
 		forget_recipe(ch, argument, 0);
 		return;
 	}
 
-	if (utils::IsAbbr(arg, "все") || utils::IsAbbr(arg, "all")) {
+	if (utils::IsAbbr(what, "все") || utils::IsAbbr(what, "all")) {
 		char arg2[kMaxInputLength];
-		two_arguments(argument, arg, arg2);
+		two_arguments(argument, what, arg2);
 		if (in_mem(arg2)) {
 			MemQ_flush(ch);
 			SendMsgToChar("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
@@ -44,10 +47,8 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 				GET_SPELL_MEM(ch, spell_id) = 0;
 			}
-			sprintf(buf,
-					"Вы удалили все заклинания из %s.\r\n",
-					GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы удалили все заклинания из {}.\r\n",
+									  GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез"), ch);
 		}
 		return;
 	}
@@ -85,8 +86,8 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (quote2 != std::string::npos && quote2 + 1 < arg_str.size()) {
 		std::string rest_str = arg_str.substr(quote2 + 1);
 		utils::TrimLeft(rest_str);
-		one_argument(rest_str.data(), arg);
-		is_in_mem = in_mem(arg);
+		one_argument(rest_str.data(), what);
+		is_in_mem = in_mem(what);
 	}
 	if (!is_in_mem)
 		if (!GET_SPELL_MEM(ch, spell_id)) {
@@ -95,10 +96,9 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			--GET_SPELL_MEM(ch, spell_id);
 			ch->caster_level -= MUD::Spell(spell_id).GetDanger();
-			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
-					kColorBoldCyn, MUD::Spell(spell_id).GetCName(),
-					kColorNrm, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы удалили заклинание '{}{}{}' из {}.\r\n",
+									  kColorBoldCyn, MUD::Spell(spell_id).GetName(), kColorNrm,
+									  GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез"), ch);
 		}
 	else
 		MemQ_forget(ch, spell_id);
