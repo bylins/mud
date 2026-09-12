@@ -70,7 +70,7 @@ ObjData *get_obj_by_char(CharData *ch, char *name);
 // * Local functions.
 void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
-void send_to_zone(char *messg, int zone_rnum);
+void send_to_zone(const char *messg, int zone_rnum);
 
 // attaches mob's name and vnum to msg_set and sends it to script_log
 void mob_log(CharData *mob, Trigger *trig, const std::string &msg, LogMode type = LogMode::OFF) {
