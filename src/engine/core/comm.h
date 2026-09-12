@@ -34,6 +34,7 @@ void send_stat_char(const CharData *ch);
 void SendMsgToRoom(const char *msg, RoomRnum room, int to_awake);
 void SendMsgToOutdoor(const char *msg, int control);
 void SendMsgToGods(const char *msg);
+void SendMsgToGods(const std::string &text, bool include_demigod);
 void perform_to_all(const char *messg, CharData *ch);
 #ifdef HAS_EPOLL
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev);

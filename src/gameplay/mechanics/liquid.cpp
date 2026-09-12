@@ -710,31 +710,29 @@ void identify(CharData *ch, const ObjData *obj) {
 	}
 	if (amount > 0) //если что-то плескается
 	{
-		sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
-		out += buf1;
+		out += fmt::format("Качество: {} \r\n", diag_liquid_timer(obj)); // состояние жижки
 	}
 	SendMsgToChar(out, ch);
 }
 
-char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
+// Возвращала указатель на глобальный buf1: следующий вызов затирал ответ предыдущего,
+// а вызывающий в sight.cpp ещё и правил эту память на месте (#3814).
+std::string daig_filling_drink(const ObjData *obj, const CharData *ch) {
 	char tmp[256];
 	if (GET_OBJ_VAL(obj, 1) <= 0) {
-		sprintf(buf1, "Пусто");
-		return buf1;
+		return "Пусто";
 	}
 	else {
 		if (GET_OBJ_VAL(obj, 0) <= 0 || GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
-			sprintf(buf1, "Заполнен%s вакуумом?!", grammar::ObjSexEnding((obj)->get_sex(), 6));    // BUG
-			return buf1;
+			return fmt::format("Заполнен{} вакуумом?!", grammar::ObjSexEnding((obj)->get_sex(), 6));    // BUG
 		}
 		else {
 			const char *msg = AFF_FLAGGED(ch, EAffect::kDetectPoison)
 				&& obj->GetPotionValueKey(ObjVal::EValueKey::kLiquidPoison) > 0 ? " *отравленной*" : "";
 			int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 			sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
-			snprintf(buf1, kMaxStringLength,
-					 "Наполнен%s %s%s%s жидкостью", grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt], tmp, msg);
-			return buf1;
+			return fmt::format("Наполнен{} {}{}{} жидкостью",
+							   grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt], tmp, msg);
 		}
 	}
 }

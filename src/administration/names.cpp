@@ -25,7 +25,7 @@ namespace NewNames {
 static void save();
 static void cache_add(CharData *ch);
 }
-extern void SendMsgToGods(char *text, bool demigod);
+extern void SendMsgToGods(const std::string &text, bool demigod);
 
 // Check if name agree (name must be parsed)
 int was_agree_name(DescriptorData *d) {

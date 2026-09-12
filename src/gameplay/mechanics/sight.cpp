@@ -1255,7 +1255,7 @@ void look_in_obj(CharData *ch, char *arg) {
 			}
 		} else {
 			// item must be a fountain or drink container
-			SendMsgToChar(ch, "%s.\r\n", drinkcon::daig_filling_drink(obj, ch));
+			SendMsgToChar(fmt::format("{}.\r\n", drinkcon::daig_filling_drink(obj, ch)), ch);
 
 		}
 	}
@@ -1330,8 +1330,8 @@ std::string show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					// строку вдвое, а посмотреть её можно, осмотрев ёмкость.
 					if (object->get_type() == EObjType::kLiquidContainer
 						&& GET_OBJ_VAL(object, 1) <= 0) {
-						char *tmp = drinkcon::daig_filling_drink(object, ch);
-						native_text::copy_lower_char(tmp, tmp);
+						std::string tmp = drinkcon::daig_filling_drink(object, ch);
+						native_text::copy_lower_char(tmp.data(), tmp.data());
 						state += fmt::format(" ({})", tmp);
 					}
 				}

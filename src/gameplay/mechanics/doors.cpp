@@ -9,6 +9,8 @@
  Тогда и scmd тут не понадобится и его можно будет либо убрать в do_gen_door, либо вообще удалить.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/obj_data.h"
 #include "gameplay/magic/magic.h"
 #include "engine/entities/room_data.h"
@@ -324,12 +326,10 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			}
 			// вываливание и пурж кошелька
 			if (obj && system_obj::is_purse(obj)) {
-				sprintf(buf,
-						"<%s> {%d} открыл трупный кошелек %s.",
-						ch->get_name().c_str(),
-						GET_ROOM_VNUM(ch->in_room),
-						GetPlayerNameByUnique(GET_OBJ_VAL(obj, 3)).c_str());
-				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+				mudlog(fmt::format("<{}> {{{}}} открыл трупный кошелек {}.",
+								   ch->get_name(), GET_ROOM_VNUM(ch->in_room),
+								   GetPlayerNameByUnique(GET_OBJ_VAL(obj, 3))),
+					   NRM, kLvlGreatGod, MONEY_LOG, true);
 				system_obj::process_open_purse(ch, obj);
 				return;
 			} else {
@@ -443,17 +443,17 @@ void go_gen_door(CharData *ch, char *type, char *dir, int where_bits, int subcmd
 			switch (door.error) {
 				case EDoorError::kWrongDir: SendMsgToChar("Уточните направление.\r\n", ch);
 					break;
-				case EDoorError::kWrongDirDoorName: sprintf(buf, "Вы не видите '%s' в этой комнате.\r\n", type);
-					SendMsgToChar(buf, ch);
+				case EDoorError::kWrongDirDoorName:
+					SendMsgToChar(fmt::format("Вы не видите '{}' в этой комнате.\r\n", type), ch);
 					break;
-				case EDoorError::kNoDoorGivenDir: sprintf(buf, "Вы не можете это '%s'.\r\n", a_cmd_door[subcmd]);
-					SendMsgToChar(buf, ch);
+				case EDoorError::kNoDoorGivenDir:
+					SendMsgToChar(fmt::format("Вы не можете это '{}'.\r\n", a_cmd_door[subcmd]), ch);
 					break;
-				case EDoorError::kDoorNameIsEmpty: sprintf(buf, "Что вы хотите '%s'?\r\n", a_cmd_door[subcmd]);
-					SendMsgToChar(buf, ch);
+				case EDoorError::kDoorNameIsEmpty:
+					SendMsgToChar(fmt::format("Что вы хотите '{}'?\r\n", a_cmd_door[subcmd]), ch);
 					break;
-				case EDoorError::kWrongDoorName: sprintf(buf, "Вы не видите здесь '%s'.\r\n", type);
-					SendMsgToChar(buf, ch);
+				case EDoorError::kWrongDoorName:
+					SendMsgToChar(fmt::format("Вы не видите здесь '{}'.\r\n", type), ch);
 					break;
 				default: SendMsgToChar("Что-то с дверью произошло непнятное, сообщите богам.", ch);
 					break;
