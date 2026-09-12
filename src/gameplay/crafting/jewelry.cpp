@@ -124,9 +124,7 @@ void JewelryCfg::Show(CharData *ch, int vnum) const {
 	}
 	SendMsgToChar("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
 	for (const auto &eff : it->second) {
-		char buf[kMaxInputLength];
-		sprintf(buf, " %s\r\n", eff.key.c_str());
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format(" {}\r\n", eff.key), ch);
 	}
 }
 
@@ -177,9 +175,7 @@ void JewelryLoader::Load(parser_wrapper::DataNode data) {
 						continue;   // неизвестный тег внутри <gem>
 					}
 				} catch (const std::exception &) {
-					snprintf(buf, kMaxStringLength, "jewelry: gem %d: bad <%s id='%s'>",
-							 vnum, kind.c_str(), id_str ? id_str : "");
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("jewelry: gem {}: bad <{} id='{}'>", vnum, kind.c_str(), id_str ? id_str : ""), CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 				const char *alias = eff_node.GetValue("alias");
@@ -189,10 +185,7 @@ void JewelryLoader::Load(parser_wrapper::DataNode data) {
 					eff.key = EffectName(eff.type, eff.id);   // игровое название эффекта
 					if (eff.key.empty()) {
 						eff.key = id_str ? id_str : "";   // запасной вариант: id-токен
-						snprintf(buf, kMaxStringLength,
-								 "jewelry: gem %d: no display name for <%s id='%s'>, using id token as key",
-								 vnum, kind.c_str(), id_str ? id_str : "");
-						mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+						mudlog(fmt::format("jewelry: gem {}: no display name for <{} id='{}'>, using id token as key", vnum, kind.c_str(), id_str ? id_str : ""), CMP, kLvlImmortal, SYSLOG, true);
 					}
 				}
 				effects.push_back(eff);
@@ -267,14 +260,12 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		strcpy(gem, arg1);
 
 	if (!(gemobj = get_obj_in_list_vis(ch, gem, ch->carrying))) {
-		sprintf(buf, "У вас нет '%s'.\r\n", gem);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", gem), ch);
 		return;
 	}
 
 	if (!is_dig_stone(gemobj)) {
-		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str());
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Вы не умеете вплавлять {}.\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str()), ch);
 		return;
 	}
 
@@ -285,14 +276,12 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		strcpy(item, arg2);
 
 	if (!(itemobj = get_obj_in_list_vis(ch, item, ch->carrying))) {
-		sprintf(buf, "У вас нет '%s'.\r\n", item);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", item), ch);
 		return;
 	}
 	if (itemobj->get_material() == EObjMaterial::kMaterialUndefined || (itemobj->get_material() > EObjMaterial::kPreciousMetel)) {
 		if (!(itemobj->get_material() == EObjMaterial::kBone || itemobj->get_material() == EObjMaterial::kStone)) {
-			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(grammar::ECase::kNom).c_str());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{} состоит из неподходящего материала.\r\n", itemobj->get_PName(grammar::ECase::kNom).c_str()), ch);
 			return;
 		}
 	}
@@ -330,35 +319,25 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		ImproveSkill(ch, ESkill::kJewelry, 0, nullptr);
 
 		if (percent > prob / std::max(1, jewelry::cfg.skill_divisor)) {
-			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
-					gemobj->get_short_description().c_str(),
-					itemobj->get_PName(grammar::ECase::kAcc).c_str());
-			SendMsgToChar(buf, ch);
-			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
-					gemobj->get_PName(grammar::ECase::kAcc).c_str(),
-					itemobj->get_PName(grammar::ECase::kAcc).c_str());
-			act(buf, false, ch, nullptr, nullptr, kToRoom);
+			SendMsgToChar(fmt::format("Вы неудачно попытались вплавить {} в {}, испортив камень...\r\n", gemobj->get_short_description().c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str()), ch);
+			act(fmt::format("$n испортил$g {}, вплавляя его в {}!\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str()), false, ch, nullptr, nullptr, kToRoom);
 			ExtractObjFromWorld(gemobj);
 			if (number(1, 100) <= jewelry::cfg.target_obj_crash_percent) {
-				sprintf(buf, "...и испортив хорошую вещь!\r\n");
-				SendMsgToChar(buf, ch);
-				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(grammar::ECase::kAcc).c_str());
-				act(buf, false, ch, nullptr, nullptr, kToRoom);
+				SendMsgToChar("...и испортив хорошую вещь!\r\n", ch);
+				act(fmt::format("$n испортил$g {}!\r\n", itemobj->get_PName(grammar::ECase::kAcc).c_str()), false, ch, nullptr, nullptr, kToRoom);
 				ExtractObjFromWorld(itemobj);
 			}
 			return;
 		}
 	} else {
 		if (GetSkill(ch, ESkill::kJewelry) < jewelry::cfg.desired_min_skill) {
-			sprintf(buf, "Вы должны достигнуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
-			SendMsgToChar(buf, ch);
+			SendMsgToChar("Вы должны достигнуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n", ch);
 			return;
 
 		}
 		if (itemobj->get_owner() != ch->get_uid()
 			&& (GetSkill(ch, ESkill::kJewelry) < jewelry::cfg.desired_foreign_min_skill)) {
-			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
-			SendMsgToChar(buf, ch);
+			SendMsgToChar("Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n", ch);
 			return;
 		}
 
@@ -373,23 +352,15 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
 		if (number(1, GetSkill(ch, ESkill::kJewelry))
 			> (GetSkill(ch, ESkill::kJewelry) - jewelry::cfg.desired_success_offset)) {
-			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
-					gemobj->get_short_description().c_str(),
-					itemobj->get_PName(grammar::ECase::kAcc).c_str());
-			SendMsgToChar(buf, ch);
-			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
-					gemobj->get_PName(grammar::ECase::kAcc).c_str(),
-					itemobj->get_PName(grammar::ECase::kAcc).c_str());
-			act(buf, false, ch, nullptr, nullptr, kToRoom);
+			SendMsgToChar(fmt::format("Вы неудачно попытались вплавить {} в {}, испортив камень...\r\n", gemobj->get_short_description().c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str()), ch);
+			act(fmt::format("$n испортил$g {}, вплавляя его в {}!\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str()), false, ch, nullptr, nullptr, kToRoom);
 			ExtractObjFromWorld(gemobj);
 			return;
 		}
 	}
 
-	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str());
-	SendMsgToChar(buf, ch);
-	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str());
-	act(buf, false, ch, nullptr, nullptr, kToRoom);
+	SendMsgToChar(fmt::format("Вы вплавили {} в {}!\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str()), ch);
+	act(fmt::format("$n вплавил$g {} в {}.\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str()), false, ch, nullptr, nullptr, kToRoom);
 
 	if (itemobj->get_owner() == ch->get_uid()) {
 		int timer = itemobj->get_timer() + itemobj->get_timer() / 100 * jewelry::cfg.target_obj_timer_increment_percent;

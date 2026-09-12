@@ -11,12 +11,13 @@
 
 
 void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	one_argument(argument, buf);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 	if (ch->has_master() || !(AFF_FLAGGED(ch, EAffect::kGroup))) {
 		SendMsgToChar("Вы же не лидер группы!\r\n", ch);
 		return;
 	}
-	group::GoUngroup(ch, buf);
+	group::GoUngroup(ch, name);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

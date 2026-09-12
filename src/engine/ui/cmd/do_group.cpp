@@ -10,14 +10,15 @@
 #include "gameplay/mechanics/groups.h"
 
 void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	argument = one_argument(argument, buf);
+	char mode[kMaxInputLength];
+	argument = one_argument(argument, mode);
 
-	if (!*buf) {
+	if (!*mode) {
 		group::print_group(ch);
 		return;
 	}
 
-	if (!str_cmp(buf, "список")) {
+	if (!str_cmp(mode, "список")) {
 		group::print_list_group(ch);
 		return;
 	}
@@ -37,7 +38,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	group::GoGroup(ch, argument);
+	group::GoGroup(ch, mode, argument);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
