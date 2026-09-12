@@ -29,18 +29,20 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	*/
 
-	half_chop(argument, buf, buf2);
+	char name[kMaxInputLength];
+	char message[kMaxStringLength];
+	half_chop(argument, name, message);
 
-	if (!*buf || !*buf2) {
+	if (!*name || !*message) {
 		SendMsgToChar("Что и кому вы хотите сказать?\r\n", ch);
-	} else if (!(vict = target_resolver::FindPlayerVis(ch, buf))) {
+	} else if (!(vict = target_resolver::FindPlayerVis(ch, name))) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	} else if (vict->IsNpc())
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (is_tell_ok(ch, vict)) {
 		if (ch->IsFlagged(EPrf::kNoTell))
 			SendMsgToChar("Ответить вам не смогут!\r\n", ch);
-		perform_tell(ch, vict, buf2);
+		perform_tell(ch, vict, message);
 	}
 }
 

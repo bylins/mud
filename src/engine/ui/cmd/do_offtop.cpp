@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/communication/offtop.h"
@@ -55,8 +57,9 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->set_last_tell(argument);
 	if (ch->IsFlagged(EPlrFlag::kSpamer)) // а вот фиг, еще проверка :)
 		return;
-	snprintf(buf, kMaxStringLength, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
-	snprintf(buf1, kMaxStringLength, "&c%s&n", buf);
+	// Одна строка на всех: в буферном виде текст канала жил в buf, а его же цветная
+	// копия -- в buf1, и любой вызов внутри цикла мог затереть и то, и другое.
+	const std::string message = fmt::format("&c[оффтоп] {} : '{}'&n\r\n", GET_NAME(ch), argument);
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
@@ -67,11 +70,11 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& i->character->IsFlagged(EPrf::kOfftopMode)
 			&& !i->character->IsFlagged(EPrf::kStopOfftop)
 			&& !ignores(i->character.get(), ch, EIgnore::kOfftop)) {
-			SendMsgToChar(i->character.get(), "%s%s%s", kColorCyn, buf, kColorNrm);
-			i->character->remember_add(buf1, Remember::ALL);
+			SendMsgToChar(message, i->character.get());
+			i->character->remember_add(message, Remember::ALL);
 		}
 	}
-	ch->remember_add(buf1, Remember::OFFTOP);
+	ch->remember_add(message, Remember::OFFTOP);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
