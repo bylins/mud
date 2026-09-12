@@ -24,9 +24,10 @@ void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 	int tp;
-	one_argument(argument, arg);
+	char style_arg[kMaxInputLength];
+	one_argument(argument, style_arg);
 
-	if (!*arg) {
+	if (!*style_arg) {
 		SendMsgToChar(ch, "Вы сражаетесь %s стилем.\r\n",
 					  ch->IsFlagged(EPrf::kPunctual) ? "точным" : ch->IsFlagged(EPrf::kAwake) ? "осторожным"
 																									  : "обычным");
@@ -35,7 +36,7 @@ void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (TryFlipActivatedFeature(ch, argument)) {
 		return;
 	}
-	if ((tp = search_block(arg, cstyles, false)) == -1) {
+	if ((tp = search_block(style_arg, cstyles, false)) == -1) {
 		SendMsgToChar("Формат: стиль { название стиля }\r\n", ch);
 		return;
 	}

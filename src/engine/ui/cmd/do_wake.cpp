@@ -10,21 +10,22 @@ void do_wake(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *vict;
 	int self = 0;
 
-	one_argument(argument, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 
 	if (subcmd == kScmdWakeUp) {
-		if (!(*arg)) {
+		if (!(*name)) {
 			SendMsgToChar("Кого будить то будем???\r\n", ch);
 			return;
 		}
 	} else {
-		*arg = 0;
+		*name = 0;
 	}
 
-	if (*arg) {
+	if (*name) {
 		if (ch->GetPosition() == EPosition::kSleep)
 			SendMsgToChar("Может быть вам лучше проснуться?\r\n", ch);
-		else if ((vict = target_resolver::FindCharInRoom(ch, arg)) == nullptr)
+		else if ((vict = target_resolver::FindCharInRoom(ch, name)) == nullptr)
 			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		else if (vict == ch)
 			self = 1;
