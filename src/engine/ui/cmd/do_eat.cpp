@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "do_eat.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
@@ -90,15 +92,16 @@ void feed_charmice(CharData *ch, char *local_arg) {
 void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ObjData *food;
 	int amount;
+	char name[kMaxInputLength];
 
-	one_argument(argument, arg);
+	one_argument(argument, name);
 
 	if (subcmd == kScmdDevour) {
 		// kUndead покрывает и умертвий (animate dead), и оживлённых (kResurrection):
 		// раньше тут было kResurrected, но animate dead его больше не ставит (issue #3482)
 		if (ch->IsFlagged(EMobFlag::kUndead)
 			&& CanUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
-			feed_charmice(ch, arg);
+			feed_charmice(ch, name);
 			return;
 		}
 	}
@@ -111,7 +114,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->IsNpc())        // Cannot use GET_COND() on mobs.
 		return;
 
-	if (!*arg) {
+	if (!*name) {
 		SendMsgToChar("Чем вы собрались закусить?\r\n", ch);
 		return;
 	}
@@ -120,9 +123,8 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!(food = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+	if (!(food = get_obj_in_list_vis(ch, name, ch->carrying))) {
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", name), ch);
 		return;
 	}
 	if (subcmd == kScmdTaste

@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/core/target_resolver.h"
 #include "do_drink.h"
 #include "gameplay/mechanics/condition.h"
@@ -29,19 +31,20 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount);
 void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ObjData *jar;
 	int amount;
+	char name[kMaxInputLength];
 
 	if (ch->IsNpc()) {
 		return;
 	}
 
-	one_argument(argument, arg);
+	one_argument(argument, name);
 
-	if (!*arg) {
+	if (!*name) {
 		SendMsgToChar("Пить из чего?\r\n", ch);
 		return;
 	}
 
-	if (!(jar = GetDrinkingJar(ch, arg))) {
+	if (!(jar = GetDrinkingJar(ch, name))) {
 		return;
 	}
 
@@ -59,14 +62,12 @@ void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == kScmdDrink) {
-		sprintf(buf, "$n выпил$g %s из $o1.", drinks[GET_OBJ_VAL(jar, 2)]);
-		act(buf, true, ch, jar, nullptr, kToRoom);
-		sprintf(buf, "Вы выпили %s из %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)], OBJN(jar, ch, grammar::ECase::kGen));
-		SendMsgToChar(buf, ch);
+		act(fmt::format("$n выпил$g {} из $o1.", drinks[GET_OBJ_VAL(jar, 2)]), true, ch, jar, nullptr, kToRoom);
+		SendMsgToChar(fmt::format("Вы выпили {} из {}.\r\n",
+								  drinks[GET_OBJ_VAL(jar, 2)], OBJN(jar, ch, grammar::ECase::kGen)), ch);
 	} else {
 		act("$n отхлебнул$g из $o1.", true, ch, jar, nullptr, kToRoom);
-		sprintf(buf, "Вы узнали вкус %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)]);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Вы узнали вкус {}.\r\n", drinks[GET_OBJ_VAL(jar, 2)]), ch);
 	}
 
 	if (jar->get_type() != EObjType::kFountain) {
@@ -117,7 +118,7 @@ void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 ObjData *GetDrinkingJar(CharData *ch, char *jar_name) {
 	ObjData *jar = nullptr;
 	if (!(jar = get_obj_in_list_vis(ch, jar_name, ch->carrying))) {
-		if (!(jar = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
+		if (!(jar = get_obj_in_list_vis(ch, jar_name, world[ch->in_room]->contents))) {
 			SendMsgToChar("Вы не смогли это найти!\r\n", ch);
 			return jar;
 		}
