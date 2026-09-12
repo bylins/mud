@@ -81,40 +81,26 @@ meson configure build_yaml                  # list current options
 
 **CRITICAL**: Build directories must ALWAYS be out-of-source (outside the source tree). Never run `meson setup`/`ninja` or binaries from within the src/ directory or repository root.
 
-**CRITICAL**: With `-Dsmall_world=true` meson copies test world data into `small/` inside the build directory (see `tools/meson/setup_world.py`). All world data and configs live in `small/` itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in meson-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
-
-**CRITICAL**: The `small/` world is **YAML-only** (`lib.template` ships flat YAML, no legacy files). YAML is the default build format, so a plain build boots it; a Legacy/SQLite build (`-Dyaml=disabled`) cannot load `-d small`.
+**Мир для запуска даёт автор.** Не изобретайте тестовый мирок и не считайте его частью уклада:
+если для задачи нужен запущенный сервер, скажите об этом — вам положат рядом настоящий мир и
+скажут, каким каталогом его звать. (Опция `-Dsmall_world=true` в проекте есть, но она существует
+ради `tools/run_load_tests.sh`, а не ради ручных запусков.)
 
 **Correct usage**:
 ```bash
-cd build_debug       # Or build_yaml, build_sqlite, etc.
-./circle [-W] -d small <port>
+cd build             # именно из каталога сборки
+./circle [-W] -d <world_directory> <port>
 ```
 
 **Parameters**:
 - `-W` - Enable world checksum calculation (optional)
-- `-d <world_directory>` - Specify world data directory (e.g., `small`)
+- `-d <world_directory>` - каталог мира внутри каталога сборки
 - `<port>` - Port number to listen on (e.g., `4000`)
 
-**Example**:
-```bash
-cd build_debug
-./circle -d small 4000
-```
-
-**World Structure (meson-generated):**
-```
-build_debug/
-├── circle           # Binary
-└── small/           # Test world (created by meson with -Dsmall_world=true)
-    ├── misc/
-    │   └── configuration.xml
-    ├── world/       # Zone files
-    ├── etc/         # Additional configs
-    └── admin_api.sock  # Unix socket (if Admin API enabled)
-```
-
-**NOTE**: Do NOT confuse with repository's `lib/` directory - that is completely separate and used only for production deployments.
+**Устройство каталога мира** (то же, что в `lib/`): `cfg/` — конфиги, включая
+`cfg/configuration.xml`; `help/` — справка; `state/` — служебные списки; `worlddata/world/` —
+сам мир; `userdata/` сервер заводит сам при старте. Все пути в `configuration.xml`
+отсчитываются от корня этого каталога.
 
 ### Running Tests
 Тесты используют относительные пути к данным (`data/boards/...`, `misc/grouping`, `data/mob_classes/...`), которые meson копирует в `meson.project_build_root()`. Поэтому запускать тесты надо из самой `build_dir`, иначе `Boards_Changelog`, `FightPenalties` и `MobClassesLoaderTest` упадут с «file not found».
@@ -290,11 +276,11 @@ room->contents;  // List of objects in room
 Game content is stored in `lib/`:
 ```
 lib/
-├── cfg/           # Configuration files
-├── world/         # Zone files (rooms/objects/mobs)
-├── etc/           # Equipment, misc data
-├── text/          # Help files, greetings
-└── misc/          # Miscellaneous (grouping, noob_help.xml, configuration.xml)
+├── cfg/           # Конфиги, включая configuration.xml
+├── help/          # Справка
+├── state/         # Служебные списки (баны, прокси, globaluid)
+├── worlddata/     # stuff.lst и сам мир в worlddata/world
+└── userdata/      # Сейвы игроков, аккаунты, доски -- сервер заводит сам
 ```
 
 Copy template data: `cp -n -r lib.template/* lib`
@@ -446,16 +432,15 @@ see `src/engine/db/db.cpp`).
 2. **SQLite** - World data in SQLite database (requires `-Dsqlite=builtin` or `-Dsqlite=system`, plus `-Dyaml=disabled` so it wins the format pick)
 3. **Legacy** - Original CircleMUD text format (full-world archives only; no longer shipped in `lib.template/`). Requires `-Dyaml=disabled -Dsqlite=disabled`.
 
-**The template/small world is YAML-only.** `lib.template/world` contains flat YAML
-(`zones/`, `dictionaries/`, `world_config.yaml`); the legacy `mob/obj/wld/zon/trg/shp`
-files were removed. Since YAML is the default build format, a plain build boots it;
-a Legacy/SQLite build (`-Dyaml=disabled`) can **no longer** load the small/template
-world. Shops come from `cfg/economics/shops.xml`, not `world/shp`.
+**Мир в репозитории — YAML.** `lib.template/worlddata/world` содержит плоский YAML
+(`zones/`, `dictionaries/`, `world_config.yaml`); легаси-файлы `mob/obj/wld/zon/trg/shp`
+оттуда убраны. YAML — формат сборки по умолчанию, так что обычная сборка его читает, а
+сборка с `-Dyaml=disabled` — уже нет. Лавки берутся из `cfg/economics/shops.xml`, а не из
+`world/shp`.
 
-**CRITICAL: Never use lib/ from repository directly!**
-- `lib/` contains base configuration files only (NOT complete world data)
-- `lib.template/` overlays the YAML world files, player data, and additional configs
-- To get a working world: copy lib/ to build directory, then overlay lib.template/
+**В репозитории мира нет.** Под git лежат только базовые конфиги (`lib/`) и шаблон
+(`lib.template/`); сам `lib/` в `.gitignore`, и настоящий мир в него кладёт автор
+отдельным репозиторием в `lib/worlddata/world`.
 
 **Conversion Tool (full world only):**
 The converter is kept for **full worlds**, which are distributed as legacy archives.
