@@ -183,7 +183,7 @@ void sub_write(char *arg, CharData *ch, int find_invis, int targets) {
 	}
 }
 
-void send_to_zone(char *messg, int zone_rnum) {
+void send_to_zone(const char *messg, int zone_rnum) {
 	DescriptorData *i;
 
 	if (!messg || !*messg)
