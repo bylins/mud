@@ -284,7 +284,6 @@ void TriggersFile::parse_trigger(int vnum) {
 	}
 	zone_table[zrn].RnumTrigsLocation.second = top_of_trigt;
 
-	snprintf(buf2, sizeof(buf2), "trig vnum %d", vnum);
 	std::string name(fread_string());
 	get_line(file(), line);
 
@@ -451,11 +450,13 @@ void WorldFile::parse_room(int virtual_nr) {
 
 	world[room_realnum]->ex_description.clear();
 
-	snprintf(buf, sizeof(buf), "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
+	// Сообщение лежало в общем буфере и затиралось ошибкой про extradesc ниже: после
+	// первого битого E-блока комната падала с чужим текстом.
+	const std::string format_error = fmt::format("SYSERR: Format error in room #{} (expecting D/E/S)", virtual_nr);
 
 	for (;;) {
 		if (!get_line(file(), line)) {
-			fatal_log("%s", buf);
+			fatal_log("%s", format_error.c_str());
 		}
 		switch (*line) {
 			case 'D': setup_dir(room_realnum, atoi(line + 1));
@@ -468,8 +469,7 @@ void WorldFile::parse_room(int virtual_nr) {
 				if (!new_descr.keyword.empty() && !new_descr.description.empty()) {
 					world[room_realnum]->ex_description.push_back(std::move(new_descr));
 				} else {
-					snprintf(buf, sizeof(buf), "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
-					log("%s", buf);
+					log("SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
 				}
 			}
 				break;
@@ -493,7 +493,7 @@ void WorldFile::parse_room(int virtual_nr) {
 				} while (letter != 0);
 				return;
 
-			default: fatal_log("%s", buf);
+			default: fatal_log("%s", format_error.c_str());
 		}
 	}
 }
@@ -507,7 +507,7 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	int t[5];
 	char line[256];
 
-	snprintf(buf2, sizeof(buf2), "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
+	const std::string where = fmt::format("room #{}, direction D{}", GET_ROOM_VNUM(room), dir);
 
 	world[room]->dir_option_proto[dir] = std::make_shared<ExitData>();
 	world[room]->dir_option_proto[dir]->general_description = fread_string();
@@ -534,7 +534,7 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 		world[room]->dir_option_proto[dir]->exit_info.set_plane(0, t[0]);
 		world[room]->dir_option_proto[dir]->lock_complexity = t[3];
 	} else {
-		fatal_log("SYSERR: Format error, %s", buf2);
+		fatal_log("SYSERR: Format error, %s", where.c_str());
 	}
 
 	world[room]->dir_option_proto[dir]->key = t[1];
@@ -614,8 +614,9 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_aliases(aliases);
 	tobj->set_short_description(utils::colorLOW(fread_string()));
 
-	snprintf(buf, sizeof(buf), "%s", tobj->get_short_description().c_str());
-	tobj->set_PName(grammar::ECase::kNom, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
+	//именительный падеж равен короткому описанию
+	std::string nominative(tobj->get_short_description());
+	tobj->set_PName(grammar::ECase::kNom, utils::colorLOW(nominative));
 
 	for (j = grammar::ECase::kGen; j <= grammar::ECase::kLastCase; j++) {
 		tobj->set_PName(static_cast<grammar::ECase>(j), utils::colorLOW(fread_string()));
@@ -750,11 +751,7 @@ void ObjectFile::parse_object(const int nr) {
 				if (!new_descr.keyword.empty() && !new_descr.description.empty()) {
 					tobj->ex_descriptions().push_back(std::move(new_descr));
 				} else {
-					const auto written =
-						snprintf(buf, sizeof(buf), "SYSERR: Format error in %s (Corrupt extradesc)", m_buffer);
-					buf[written] = '\0';
-
-					log("%s", buf);
+					log("SYSERR: Format error in %s (Corrupt extradesc)", m_buffer);
 				}
 			}
 				break;
@@ -836,23 +833,24 @@ bool ObjectFile::check_object(ObjData *obj) {
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), obj->get_rent_off());
 	}
 */
-	sprintbit(obj->get_wear_flags(), wear_bits, buf, sizeof(buf));
-	if (strstr(buf, "UNDEFINED")) {
+	char flags[kMaxStringLength];
+	sprintbit(obj->get_wear_flags(), wear_bits, flags, sizeof(flags));
+	if (strstr(flags, "UNDEFINED")) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	obj->get_extra_flags().sprintbits(extra_bits, buf, sizeof(buf), ",", 4);
-	if (strstr(buf, "UNDEFINED")) {
+	obj->get_extra_flags().sprintbits(extra_bits, flags, sizeof(flags), ",", 4);
+	if (strstr(flags, "UNDEFINED")) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.",
 			GET_OBJ_VNUM(obj),
 			obj->get_short_description().c_str());
 	}
 
-	obj->get_affect_flags().sprintbits(equipment_affects, buf, sizeof(buf), ",", 4);
+	obj->get_affect_flags().sprintbits(equipment_affects, flags, sizeof(flags), ",", 4);
 
-	if (strstr(buf, "UNDEFINED")) {
+	if (strstr(flags, "UNDEFINED")) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown affection flags.",
 			GET_OBJ_VNUM(obj),
@@ -1509,13 +1507,13 @@ bool ZoneFile::load_zone() {
 bool ZoneFile::load_regular_zone() {
 	auto &zone = zone_table[s_zone_number];
 
-	snprintf(buf2, sizeof(buf2), "beginning of zone #%d", zone.vnum);
+	char line[kMaxStringLength];
 
 	rewind(file());
 	char *ptr;
 	auto num_of_cmds = 0;
-	while (get_line(file(), buf)) {
-		ptr = buf;
+	while (get_line(file(), line)) {
+		ptr = line;
 		skip_spaces(&ptr);
 
 		if (*ptr == 'A') {
@@ -1550,67 +1548,67 @@ bool ZoneFile::load_regular_zone() {
 		CREATE(zone.cmd, num_of_cmds);
 	}
 
-	auto line_num = get_line(file(), buf);    // skip already processed "#<zone number> [<zone type>]" line
+	auto line_num = get_line(file(), line);    // skip already processed "#<zone number> [<zone type>]" line
 
-	line_num += get_line(file(), buf);
-	if ((ptr = strchr(buf, '~')) != nullptr)    // take off the '~' if it's there
+	line_num += get_line(file(), line);
+	if ((ptr = strchr(line, '~')) != nullptr)    // take off the '~' if it's there
 	{
 		*ptr = '\0';
 	}
-	zone.name = buf;
+	zone.name = line;
 
 	log("Читаем zon файл: %s", full_file_name().c_str());
-	while (*buf != 'S' && !feof(file())) {
-		line_num += get_line(file(), buf);
+	while (*line != 'S' && !feof(file())) {
+		line_num += get_line(file(), line);
 
-		if (*buf == '#') {
+		if (*line == '#') {
 			break;
 		}
 
-		if (*buf == '^') {
-			std::string comment = buf;
+		if (*line == '^') {
+			std::string comment = line;
 			utils::TrimIf(comment, "^~");
 			zone.comment = comment;
 		}
 
-		if (*buf == '&') {
-			std::string location = buf;
+		if (*line == '&') {
+			std::string location = line;
 			utils::TrimIf(location, "&~");
 			zone.location = location;
 		}
 
-		if (*buf == '!') {
-			std::string autor = buf;
+		if (*line == '!') {
+			std::string autor = line;
 			utils::TrimIf(autor, "!~");
 			zone.author = autor;
 		}
 
-		if (*buf == '$') {
-			std::string description = buf ;
+		if (*line == '$') {
+			std::string description = line ;
 			utils::TrimIf(description, "$~");
 			zone.description = description;
 		}
 	}
 
-	if (*buf != '#') {
+	if (*line != '#') {
 		fatal_log("SYSERR: ERROR!!! not # in file %s", full_file_name().c_str());
 	}
 	auto group = 0;
-	const auto count = sscanf(buf, "#%d %d %d %d", &zone.level, &zone.type, &group, &zone.entrance);
+	const auto count = sscanf(line, "#%d %d %d %d", &zone.level, &zone.type, &group, &zone.entrance);
 	if (count < 2) {
-		fatal_log("SYSERR: ошибка чтения z.level, z.type, z.group, z.entrance: %s", buf);
+		fatal_log("SYSERR: ошибка чтения z.level, z.type, z.group, z.entrance: %s", line);
 	}
 	zone.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
-	line_num += get_line(file(), buf);
+	line_num += get_line(file(), line);
 
 	char t1[80];
 	char t2[80];
 	*t1 = 0;
 	*t2 = 0;
 	auto tmp_reset_idle = 0;
-	if (sscanf(buf, " %d %d %d %d %s %s", &zone.top, &zone.lifespan, &zone.reset_mode, &tmp_reset_idle, t1, t2) < 4) {
+	if (sscanf(line, " %d %d %d %d %s %s", &zone.top, &zone.lifespan, &zone.reset_mode, &tmp_reset_idle, t1, t2) < 4) {
 		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
-		const auto count = sscanf(buf, " %d %d %d %s %s",
+		const auto count = sscanf(line, " %d %d %d %s %s",
 								  &zone.top,
 								  &zone.lifespan,
 								  &zone.reset_mode,
@@ -1628,14 +1626,14 @@ bool ZoneFile::load_regular_zone() {
 	auto cmd_no = 0;
 
 	for (;;) {
-		const auto lines_read = get_line(file(), buf);
+		const auto lines_read = get_line(file(), line);
 
 		if (lines_read == 0) {
 			fatal_log("SYSERR: Format error in %s - premature end of file", full_file_name().c_str());
 		}
 
 		line_num += lines_read;
-		ptr = buf;
+		ptr = line;
 		skip_spaces(&ptr);
 
 		if ((zone.cmd[cmd_no].command = *ptr) == '*') {
@@ -1713,7 +1711,7 @@ bool ZoneFile::load_regular_zone() {
 		zone.cmd[cmd_no].if_flag = if_flag;
 
 		if (error) {
-			fatal_log("SYSERR: Format error in %s, line %d: '%s'", full_file_name().c_str(), line_num, buf);
+			fatal_log("SYSERR: Format error in %s, line %d: '%s'", full_file_name().c_str(), line_num, line);
 		}
 		zone.cmd[cmd_no].line = line_num;
 		cmd_no++;
@@ -1723,10 +1721,6 @@ bool ZoneFile::load_regular_zone() {
 }
 
 bool ZoneFile::load_generated_zone() const {
-	auto &zone = zone_table[s_zone_number];
-
-	snprintf(buf2, sizeof(buf2), "beginning of generated zone #%d", zone.vnum);
-
 	return true;
 }
 

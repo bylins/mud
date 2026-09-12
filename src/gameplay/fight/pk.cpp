@@ -615,26 +615,29 @@ std::string pk_list_sprintf(CharData *ch) {
 
 void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int found = false;
-	char arg2[kMaxInputLength];
 	bool bOnlineOnly;
 
 	if (ch->IsNpc())
 		return;
 
-	*buf = '\0';
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
+	*arg1 = '\0';
 	*arg2 = '\0';
-	two_arguments(argument, arg, arg2);
+	two_arguments(argument, arg1, arg2);
 
 	// отображать только находящихся онлайн
 	bOnlineOnly = !(utils::IsAbbr(arg2, "все") || utils::IsAbbr(arg2, "all"));
 
+	std::string out;
+
 	// "месть мне [все]"
 	// кто может мне отомстить
-	if (utils::IsAbbr(arg, "мне") || utils::IsAbbr(arg, "me")) {
+	if (utils::IsAbbr(arg1, "мне") || utils::IsAbbr(arg1, "me")) {
 		if (bOnlineOnly) {
-			strcat(buf, "Вам имеют право отомстить (находятся сейчас онлайн):\r\n");
+			out += "Вам имеют право отомстить (находятся сейчас онлайн):\r\n";
 		} else {
-			strcat(buf, "Вам имеют право отомстить (полный список):\r\n");
+			out += "Вам имеют право отомстить (полный список):\r\n";
 		}
 		for (const auto &[uid, pk] : ch->pk_map) {
 			// если местей нет, проверяем на БД
@@ -658,9 +661,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (tch->get_uid() == uid) {
 						found = true;
 						if (pk.battle_exp > time(nullptr)) {
-							strcat(buf, fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp).c_str());
+							out += fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
 						} else {
-							strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num).c_str());
+							out += fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num);
 						}
 						break;
 					}
@@ -668,15 +671,15 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				found = true;
 				if (pk.battle_exp > time(nullptr)) {
-					strcat(buf, fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp).c_str());
+					out += fmt::format("  {:<40} <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
 				} else {
-					strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num).c_str());
+					out += fmt::format("  {:<40} {:3} {:3}\r\n", temp, pk.kill_num, pk.revenge_num);
 				}
 			}
 		}
 
 		if (found) {
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(out, ch);
 		} else {
 			SendMsgToChar("Ни у кого нет права мести вам.\r\n", ch);
 		}
@@ -685,12 +688,12 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	found = false;
-	*buf = '\0';
+	out.clear();
 	for (const auto &tch : character_list) {
 		if (tch->IsNpc()) {
 			continue;
 		}
-		if (*arg && !isname(GET_NAME(tch), arg)) {
+		if (*arg1 && !isname(GET_NAME(tch), arg1)) {
 			continue;
 		}
 
@@ -703,24 +706,26 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			// Сначала проверка клан флага
 			if (CLAN(ch) && pk.clan_exp > time(nullptr)) {
-				strcat(buf, fmt::format("  {:<40} <ВОЙНА>\r\n", GET_NAME(tch)).c_str());
+				out += fmt::format("  {:<40} <ВОЙНА>\r\n", GET_NAME(tch));
 			} else if (pk.clan_exp > time(nullptr)) {
-				strcat(buf, fmt::format("  {:<40} <ВРЕМЕННЫЙ ФЛАГ>\r\n", GET_NAME(tch)).c_str());
+				out += fmt::format("  {:<40} <ВРЕМЕННЫЙ ФЛАГ>\r\n", GET_NAME(tch));
 			} else if (pk.kill_num + pk.revenge_num > 0) {
-				strcat(buf, fmt::format("  {:<40} {:3} {:3}\r\n",
-						GET_NAME(tch), pk.kill_num, pk.revenge_num).c_str());
+				out += fmt::format("  {:<40} {:3} {:3}\r\n",
+						GET_NAME(tch), pk.kill_num, pk.revenge_num);
 			} else {
 				continue;
 			}
 
-			if (!found)
-				SendMsgToChar("Вы имеете право отомстить :\r\n", ch);
-			SendMsgToChar(buf, ch);
 			found = true;
 		}
 	}
 
-	if (!found) {
+	// Раньше строка списка дописывалась в общий буфер и он отправлялся прямо в цикле:
+	// второй враг приезжал вместе с первым, третий -- вместе с первыми двумя. Шлём один раз.
+	if (found) {
+		SendMsgToChar("Вы имеете право отомстить :\r\n", ch);
+		SendMsgToChar(out, ch);
+	} else {
 		SendMsgToChar("Вам некому мстить.\r\n", ch);
 	}
 }
@@ -736,19 +741,18 @@ void do_forgive(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if (!*arg) {
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (!*name) {
 		SendMsgToChar("Кого вы хотите простить?\r\n", ch);
 		return;
 	}
-
-	*buf = '\0';
 
 	CharData *found = nullptr;
 	for (const auto &tch : character_list) {
 		if (tch->IsNpc()
 			|| !sight::CanSeeIgnoringLight(ch, tch)
-			|| !isname(GET_NAME(tch), arg)) {
+			|| !isname(GET_NAME(tch), name)) {
 			continue;
 		}
 
@@ -1170,22 +1174,27 @@ bool bloody::CatchBloodyCorpse(ObjData *l) {
 
 void UpdatePkLogs(CharData *ch, CharData *victim) {
 	ClanPkLog::check(ch, victim);
-	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
-			victim->in_room != kNowhere ? world[victim->in_room]->name : "kNowhere", GET_ROOM_VNUM(victim->in_room));
-	mudlog(buf2, CMP, kLvlImmortal, SYSLOG, true);
+	const char *room_name = "kNowhere";
+	if (victim->in_room != kNowhere && world[victim->in_room]->name) {
+		room_name = world[victim->in_room]->name;
+	}
+	const std::string kill_log = fmt::format("{} killed by {} at {} [{}] ",
+											 GET_NAME(victim), GET_NAME(ch), room_name,
+											 GET_ROOM_VNUM(victim->in_room));
+	mudlog(kill_log, CMP, kLvlImmortal, SYSLOG, true);
 
 	if ((!ch->IsNpc()
 		|| (ch->has_master()
 			&& !ch->get_master()->IsNpc()))
 		&& NORENTABLE(victim)
 		&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
-		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, false);
+		mudlog(kill_log, BRF, kLvlImplementator, SYSLOG, false);
 		if (ch->IsNpc()
 			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || mount::IsHorse(ch))
 			&& ch->has_master()
 			&& !ch->get_master()->IsNpc()) {
-			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));
-			mudlog(buf2, BRF, kLvlImplementator, SYSLOG, true);
+			mudlog(fmt::format("{} is following {}.", GET_NAME(ch), GET_PAD(ch->get_master(), 2)),
+				   BRF, kLvlImplementator, SYSLOG, true);
 		}
 	}
 }

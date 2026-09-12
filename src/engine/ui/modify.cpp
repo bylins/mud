@@ -142,7 +142,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 	//log("[PA] Start %d(%s)", command, string);
 	switch (command) {
 		case PARSE_HELP:
-			sprintf(buf,
+			iosystem::write_to_output(
 					"Формат команд редактора: /<letter>\r\n\r\n"
 					"/a         -  прекратить редактирование\r\n"
 					"/c         -  очистить буфер\r\n"
@@ -156,8 +156,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					"/n         -  пролистать буфер с номерами строк\r\n"
 					"/r 'a' 'b' -  заменить первое вхождение текста <a> в буфере на текст <b>\r\n"
 					"/ra 'a' 'b'-  заменить все вхождения текста <a> в буфере на текст <b>\r\n"
-					"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n");
-			iosystem::write_to_output(buf, d);
+					"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n", d);
 			break;
 
 		case PARSE_FORMAT:
@@ -176,8 +175,8 @@ void parse_action(int command, char *string, DescriptorData *d) {
 
 			format_text(d->writer, flags, d, d->max_str);
 
-			sprintf(buf, "Текст отформатирован %s\r\n", (indent ? "WITH INDENT." : "."));
-			iosystem::write_to_output(buf, d);
+			iosystem::write_to_output(indent ? "Текст отформатирован WITH INDENT.\r\n"
+										    : "Текст отформатирован .\r\n", d);
 			break;
 
 		case PARSE_REPLACE:
@@ -220,11 +219,10 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				if (total_len <= d->max_str) {
 					replaced = replace_str(d->writer, old_text.c_str(), new_text.c_str(), rep_all, static_cast<int>(d->max_str));
 					if (replaced > 0) {
-						sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", old_text.c_str(), new_text.c_str(), replaced);
-						iosystem::write_to_output(buf, d);
+						iosystem::write_to_output(fmt::format("Заменено вхождений '{}' на '{}' - {}.\r\n",
+															  old_text, new_text, replaced), d);
 					} else if (replaced == 0) {
-						sprintf(buf, "Шаблон '%s' не найден.\r\n", old_text.c_str());
-						iosystem::write_to_output(buf, d);
+						iosystem::write_to_output(fmt::format("Шаблон '{}' не найден.\r\n", old_text), d);
 					} else {
 						iosystem::write_to_output("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
 					}
@@ -287,8 +285,8 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					*t = '\0';
 					d->writer->set_string(buffer);
 
-					sprintf(buf, "%u line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
-					iosystem::write_to_output(buf, d);
+					iosystem::write_to_output(fmt::format("{} line{}deleted.\r\n",
+														  total_len, total_len != 1 ? "s " : " "), d);
 				} else {
 					iosystem::write_to_output("Отрицательный или нулевой номер строки для удаления.\r\n", d);
 					return;
@@ -297,9 +295,6 @@ void parse_action(int command, char *string, DescriptorData *d) {
 			break;
 
 		case PARSE_LIST_NORM:
-			// * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
-			// * they are probly ok for what to do here.
-			*buf = '\0';
 			if (*string != '\0')
 				switch (sscanf(string, " %d - %d ", &line_low, &line_high)) {
 					case 0: line_low = 1;
@@ -320,11 +315,12 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				iosystem::write_to_output("Неверный диапазон.\r\n", d);
 				return;
 			}
-			*buf = '\0';
-			if ((line_high < 999999) || (line_low > 1))
-				sprintf(buf, "Текущий диапазон [%d - %d]:\r\n", line_low, line_high);
 			i = 1;
 			{
+				std::string out;
+				if ((line_high < 999999) || (line_low > 1)) {
+					out = fmt::format("Текущий диапазон [{} - {}]:\r\n", line_low, line_high);
+				}
 				const char *pos = d->writer->get_string();
 
 				unsigned int total_len = 0;
@@ -350,20 +346,17 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				}
 
 				if (pos) {
-					strncat(buf, beginning, pos - beginning);
+					out.append(beginning, pos - beginning);
 				} else {
-					strcat(buf, beginning);
+					out += beginning;
 				}
 
-				page_string(d, buf, true);
+				page_string(d, out);
 			}
 
 			break;
 
 		case PARSE_LIST_NUM:
-			// * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
-			// * they are probly ok for what to do here.
-			*buf = '\0';
 			if (*string != '\0') {
 				switch (sscanf(string, " %d - %d ", &line_low, &line_high)) {
 					case 0: line_low = 1;
@@ -398,9 +391,9 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				page_string(d, numbered);
 				break;
 			}
-			*buf = '\0';
 			i = 1;
 			{
+				std::string out;
 				const char *pos = d->writer->get_string();
 				unsigned int total_len = 0;
 
@@ -422,34 +415,35 @@ void parse_action(int command, char *string, DescriptorData *d) {
 						i++;
 						total_len++;
 						pos++;
-						sprintf(buf1, "%s", buf);
-						snprintf(buf, kMaxStringLength, "%s%4d:\r\n", buf1, (i - 1));
-						strncat(buf, beginning, pos - beginning);
+						out += fmt::format("{:4}:\r\n", i - 1);
+						out.append(beginning, pos - beginning);
 						beginning = pos;
 					}
 				}
 
 				if (pos && beginning) {
-					strncat(buf, beginning, pos - beginning);
+					out.append(beginning, pos - beginning);
 				} else if (beginning) {
-					strcat(buf, beginning);
+					out += beginning;
 				}
-			}
 
-			page_string(d, buf, true);
+				page_string(d, out);
+			}
 			break;
 
-		case PARSE_INSERT: half_chop(string, buf, buf2);
-			if (*buf == '\0') {
+		case PARSE_INSERT: {
+			std::string new_line;
+			const std::string line_arg = utils::ExtractFirstArgumentLower(string ? string : "", new_line);
+			if (line_arg.empty()) {
 				iosystem::write_to_output("Вы должны указать номер строки, после которой вставить текст.\r\n", d);
 				return;
 			}
-			line_low = atoi(buf);
-			strcat(buf2, "\r\n");
+			line_low = atoi(line_arg.c_str());
+			new_line += "\r\n";
 
 			i = 1;
-			*buf = '\0';
 			{
+				std::string out;
 				const char *pos = d->writer->get_string();
 				const char *beginning = pos;
 				if (pos == nullptr) {
@@ -467,18 +461,18 @@ void parse_action(int command, char *string, DescriptorData *d) {
 						iosystem::write_to_output("Номер строки вне диапазона - прервано.\r\n", d);
 						return;
 					}
-					if ((pos - beginning + strlen(buf2) + strlen(pos) + 3) > d->max_str) {
+					if ((pos - beginning + new_line.size() + strlen(pos) + 3) > d->max_str) {
 						iosystem::write_to_output("Превышение размеров буфера - прервано.\r\n", d);
 						return;
 					}
 					if (beginning && (*beginning != '\0')) {
-						strncat(buf, beginning, pos - beginning);
+						out.append(beginning, pos - beginning);
 					}
-					strcat(buf, buf2);
+					out += new_line;
 					if (*pos != '\0') {
-						strcat(buf, pos);
+						out += pos;
 					}
-					d->writer->set_string(buf);
+					d->writer->set_string(out.c_str());
 					iosystem::write_to_output("Строка вставлена.\r\n", d);
 				} else {
 					iosystem::write_to_output("Номер строки должен быть больше 0.\r\n", d);
@@ -486,18 +480,21 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				}
 			}
 			break;
+		}
 
-		case PARSE_EDIT: half_chop(string, buf, buf2);
-			if (*buf == '\0') {
+		case PARSE_EDIT: {
+			std::string new_line;
+			const std::string line_arg = utils::ExtractFirstArgumentLower(string ? string : "", new_line);
+			if (line_arg.empty()) {
 				iosystem::write_to_output("Вы должны указать номер строки изменяемого текста.\r\n", d);
 				return;
 			}
-			line_low = atoi(buf);
-			strcat(buf2, "\r\n");
+			line_low = atoi(line_arg.c_str());
+			new_line += "\r\n";
 
 			i = 1;
-			*buf = '\0';
 			{
+				std::string out;
 				const char *s = d->writer->get_string();
 				const char *beginning = s;
 				if (s == nullptr) {
@@ -523,10 +520,10 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					// message text and I don't need to put that into the changed buffer.
 					if (s != beginning) {    // First things first .. we get this part into the buffer.
 						// Put the first 'good' half of the text into storage.
-						strncat(buf, beginning, s - beginning);
+						out.append(beginning, s - beginning);
 					}
 					// Put the new 'good' line into place.
-					strcat(buf, buf2);
+					out += new_line;
 					if ((s = strchr(s, '\n')) != nullptr) {
 						/*
 						* This means that we are at the END of the line, we want out of
@@ -535,17 +532,17 @@ void parse_action(int command, char *string, DescriptorData *d) {
 						*/
 						s++;
 						// * Now put the last 'good' half of buffer into storage.
-						strcat(buf, s);
+						out += s;
 					}
 
 					// * Check for buffer overflow.
-					if (strlen(buf) > d->max_str) {
+					if (out.size() > d->max_str) {
 						iosystem::write_to_output("Превышение максимального размера буфера - прервано.\r\n", d);
 						return;
 					}
 
 					// * Change the size of the REAL buffer to fit the new text.
-					d->writer->set_string(buf);
+					d->writer->set_string(out.c_str());
 					iosystem::write_to_output("Строка изменена.\r\n", d);
 				} else {
 					iosystem::write_to_output("Номер строки должен быть больше 0.\r\n", d);
@@ -553,6 +550,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				}
 			}
 			break;
+		}
 
 		default: iosystem::write_to_output("Неверная опция.\r\n", d);
 			mudlog("SYSERR: invalid command passed to parse_action", BRF, kLvlImplementator, SYSLOG, true);
@@ -882,8 +880,8 @@ void string_add(DescriptorData *d, char *str) {
 
 void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
-	char name[kMaxInputLength], buf2[128];
-	char buf[kMaxInputLength], help[kMaxStringLength];
+	char name[kMaxInputLength];
+	char value_arg[kMaxInputLength], help[kMaxStringLength];
 	int value, qend;
 
 	argument = one_argument(argument, name);
@@ -954,13 +952,13 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	argument += qend + 1;    // skip to next parameter //
-	argument = one_argument(argument, buf);
+	argument = one_argument(argument, value_arg);
 
-	if (!*buf) {
+	if (!*value_arg) {
 		SendMsgToChar("Не указан числовой параметр (0 или 1).\r\n", ch);
 		return;
 	}
-	value = atoi(buf);
+	value = atoi(value_arg);
 	if (value < 0 || value > 1) {
 		SendMsgToChar("Допустимые значения: 0 (снять), 1 (установить).\r\n", ch);
 		return;
@@ -971,23 +969,25 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
-			MUD::Feat(feat_id).GetCName(), value ? "enabled" : "disabled");
-	mudlog(buf2, BRF, -1, SYSLOG, true);
-	imm_log("%s", buf2);
+	// Лог собирался в 128-байтный буфер: два длинных имени и название способности
+	// в него не помещались.
+	const std::string log_line = fmt::format("{} changed {}'s {} to '{}'.", GET_NAME(ch), GET_NAME(vict),
+											 MUD::Feat(feat_id).GetName(), value ? "enabled" : "disabled");
+	mudlog(log_line, BRF, -1, SYSLOG, true);
+	imm_log("%s", log_line.c_str());
 	if (value) {
 		vict->SetFeat(feat_id);
 	} else {
 		vict->UnsetFeat(feat_id);
 	}
 
-	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
-			MUD::Feat(feat_id).GetCName(), value ? "доступно" : "недоступно");
+	const std::string report = fmt::format("Вы изменили для {} '{}' на '{}'.\r\n", GET_PAD(vict, 1),
+										   MUD::Feat(feat_id).GetName(), value ? "доступно" : "недоступно");
 	if (!CanGetFeat(vict, feat_id) && value == 1) {
 		SendMsgToChar("Эта способность недоступна персонажу и будет удалена при повторном входе в игру.\r\n",
 					 ch);
 	}
-	SendMsgToChar(buf2, ch);
+	SendMsgToChar(report, ch);
 }
 
 // **********************************************************************
@@ -996,8 +996,8 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
-	char name[kMaxInputLength], buf2[128];
-	char buf[kMaxInputLength], help[kMaxStringLength];
+	char name[kMaxInputLength];
+	char value_arg[kMaxInputLength], help[kMaxStringLength];
 	int value;
 
 	argument = one_argument(argument, name);
@@ -1069,13 +1069,13 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	argument += qend + 1;    // skip to next parameter
-	argument = one_argument(argument, buf);
+	argument = one_argument(argument, value_arg);
 
-	if (!*buf) {
+	if (!*value_arg) {
 		SendMsgToChar("Пропущен уровень умения.\r\n", ch);
 		return;
 	}
-	value = atoi(buf);
+	value = atoi(value_arg);
 	if (value < 0) {
 		SendMsgToChar("Минимальное значение умения 0.\r\n", ch);
 		return;
@@ -1089,9 +1089,12 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		value = MUD::Skill(skill_id).cap;
 	}
 
-	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell_id >= ESpell::kFirst ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
-	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
+	// Лог собирался в 128-байтный буфер: два длинных имени и название умения в него не влезали.
+	const std::string ability_name = spell_id >= ESpell::kFirst
+									 ? MUD::Spell(spell_id).GetName()
+									 : MUD::Skill(skill_id).GetName();
+	mudlog(fmt::format("{} changed {}'s {} to {}.", GET_NAME(ch), GET_NAME(vict), ability_name, value),
+		   BRF, kLvlImmortal, SYSLOG, true);
 	if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell_id), ESpellType::kTemp)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
@@ -1108,9 +1111,9 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (ESkill::kUndefined != skill_id && skill_id <= ESkill::kLast) {
 		SetSkill(vict, skill_id, value);
 	}
-	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-			spell_id > ESpell::kUndefined ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
-	SendMsgToChar(buf2, ch);
+	SendMsgToChar(fmt::format("Вы изменили для {} '{}' на {}.\r\n", GET_PAD(vict, 1),
+							  spell_id > ESpell::kUndefined ? MUD::Spell(spell_id).GetName()
+														    : MUD::Skill(skill_id).GetName(), value), ch);
 }
 
 
@@ -1255,16 +1258,16 @@ void page_string(DescriptorData *d, char *str, int keep_internal) {
 		paginate_string(str, d);
 	}
 
-	buf2[0] = '\0';
-	show_string(d, buf2);
+	char no_input[1] = {'\0'};
+	show_string(d, no_input);
 }
 
 // TODO типа временно для стрингов
-void page_string(DescriptorData *d, const std::string &buf) {
+void page_string(DescriptorData *d, const std::string &text) {
 	// TODO: при keep_internal == true (а в 99% случаев так оно есть)
 	// получаем дальше в page_string повторный str_dup.
 	// как бы собраться с силами и переписать все это :/
-	char *str = str_dup(buf.c_str());
+	char *str = str_dup(text.c_str());
 	page_string(d, str, true);
 	free(str);
 }
@@ -1272,13 +1275,14 @@ void page_string(DescriptorData *d, const std::string &buf) {
 // The call that displays the next page.
 void show_string(DescriptorData *d, char *input) {
 	char buffer[kMaxStringLength];
+	char key[kMaxInputLength];
 	int diff;
 
-	one_argument(input, buf);
+	one_argument(input, key);
 
 	//* Q is for quit. :)
-	if (native_text::first_char_code_lower(buf) == 'q'
-		|| native_text::first_char_code_lower(buf) == rus::kKa) {
+	if (native_text::first_char_code_lower(key) == 'q'
+		|| native_text::first_char_code_lower(key) == rus::kKa) {
 		free(d->showstr_vector);
 		d->showstr_count = 0;
 		if (d->showstr_head) {
@@ -1290,21 +1294,21 @@ void show_string(DescriptorData *d, char *input) {
 	}
 		// R is for refresh, so back up one page internally so we can display
 		// it again.
-	else if (native_text::first_char_code_lower(buf) == 'r'
-		|| native_text::first_char_code_lower(buf) == rus::kPe) {
+	else if (native_text::first_char_code_lower(key) == 'r'
+		|| native_text::first_char_code_lower(key) == rus::kPe) {
 		d->showstr_page = MAX(0, d->showstr_page - 1);
 	}
 		// B is for back, so back up two pages internally so we can display the
 		// correct page here.
-	else if (native_text::first_char_code_lower(buf) == 'b'
-		|| native_text::first_char_code_lower(buf) == rus::kEn) {
+	else if (native_text::first_char_code_lower(key) == 'b'
+		|| native_text::first_char_code_lower(key) == rus::kEn) {
 		d->showstr_page = MAX(0, d->showstr_page - 2);
 	}
 		// Feature to 'goto' a page.  Just type the number of the page and you
 		// are there!
-	else if (a_isdigit(*buf)) {
-		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
-	} else if (*buf) {
+	else if (a_isdigit(*key)) {
+		d->showstr_page = MAX(0, MIN(atoi(key) - 1, d->showstr_count - 1));
+	} else if (*key) {
 		SendMsgToChar("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character.get());
 		return;
 	}
