@@ -160,19 +160,17 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		|| obj->is_unrentable()
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| obj->get_owner()) {
-		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
-				 obj->get_PName(grammar::ECase::kNom).c_str());
-		act(buf, false, mailman, 0, ch, kToVict);
+		act(fmt::format("$n сказал$g вам : '{} - мы не отправляем такие вещи!'\r\n",
+						obj->get_PName(grammar::ECase::kNom)), false, mailman, 0, ch, kToVict);
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
-		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(grammar::ECase::kPre).c_str());
-		act(buf, false, mailman, 0, ch, kToVict);
+		act(fmt::format("$n сказал$g вам : 'В {} что-то лежит.'\r\n", obj->get_PName(grammar::ECase::kPre)),
+			false, mailman, 0, ch, kToVict);
 		return 0;
 	} else if (SetSystem::is_big_set(obj)) {
-		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
-				 obj->get_PName(grammar::ECase::kNom).c_str());
-		act(buf, false, mailman, 0, ch, kToVict);
+		act(fmt::format("$n сказал$g вам : '{} является частью большого набора предметов.'\r\n",
+						obj->get_PName(grammar::ECase::kNom)), false, mailman, 0, ch, kToVict);
 		return 0;
 	}
 	Player t_vict;
@@ -244,8 +242,9 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	}
 	if (SetSystem::is_norent_set(ch, obj)
 		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(ch->get_uid()))) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
-		SendMsgToChar(utils::CAP(buf), ch);
+		// CAP(std::string) возвращает копию, а не правит на месте
+		SendMsgToChar(utils::CAP(fmt::format("{} - требуется две и более вещи из набора.\r\n",
+											 obj->get_PName(grammar::ECase::kNom))), ch);
 		return;
 	}
 	name_convert(name);
@@ -253,8 +252,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	if (send_buffer.empty())
 		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
 
-	snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorWht, obj->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
-	send_buffer += buf;
+	send_buffer += fmt::format("{}{}{}\r\n", kColorWht, obj->get_PName(grammar::ECase::kNom), kColorNrm);
 	obj = dungeons::SwapOriginalObject(obj);
 	const auto object_ptr = world_objects.get_by_raw_ptr(obj);
 	Node tmp_node(reserved_cost, object_ptr);
@@ -353,10 +351,11 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 	}
 
 	if (!send_buffer.empty()) {
-		snprintf(buf, sizeof(buf), "с вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
-				 send_cost_buffer, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_cost_buffer, grammar::ECase::kNom).c_str(),
-				 send_reserved_buffer, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_reserved_buffer, grammar::ECase::kNom).c_str());
-		send_buffer += buf;
+		send_buffer += fmt::format("с вас удержано {} {} и еще {} {} зарезервировано на 3 дня хранения.\r\n",
+								   send_cost_buffer,
+								   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_cost_buffer, grammar::ECase::kNom),
+								   send_reserved_buffer,
+								   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_reserved_buffer, grammar::ECase::kNom));
 		SendMsgToChar(send_buffer.c_str(), ch);
 
 		send_buffer = "";
@@ -525,8 +524,7 @@ void receive(CharData *ch, CharData *mailman) {
 			return_money(name, money, RETURN_WITH_MONEY);
 
 			PlaceObjToInventory(obj, ch);
-			snprintf(buf, kMaxStringLength, "$n дал$g вам посылку (отправитель %s).", name.c_str());
-			act(buf, false, mailman, 0, ch, kToVict);
+			act(fmt::format("$n дал$g вам посылку (отправитель {}).", name), false, mailman, 0, ch, kToVict);
 			act("$N дал$G $n2 посылку.", false, ch, 0, mailman, kToRoom);
 			++was_sended;
 		}
@@ -574,11 +572,11 @@ void return_parcel() {
 
 // * Дикей предмета на почте и уведомление об этом отправителя и получателя через письма.
 void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::iterator &it) {
-	snprintf(buf, kMaxStringLength, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
-			 it->obj_->get_short_description().c_str(),
-			 grammar::ObjSexEnding((it->obj_)->get_sex(), 2));
+	const std::string notice = fmt::format("С прискорбием сообщаем вам: {} рассыпал{} в прах.\r\n",
+										   it->obj_->get_short_description(),
+										   grammar::ObjSexEnding((it->obj_)->get_sex(), 2));
 
-	char *tmp = str_dup(buf);
+	char *tmp = str_dup(notice.c_str());
 	// -1 в качестве ид отправителя при получении подставит в имя почтовую службу
 	create_mail(sender_uid, -1, tmp);
 	create_mail(target_uid, -1, tmp);
@@ -596,9 +594,9 @@ void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::itera
 
 // * Генерация письма о возврате посылки.
 void return_invoice(int uid, ObjData *obj) {
-	snprintf(buf, kMaxStringLength, "Посылка возвращена отправителю: %s.\r\n",
-			 obj->get_short_description().c_str());
-	char *tmp = str_dup(buf);
+	const std::string notice = fmt::format("Посылка возвращена отправителю: {}.\r\n",
+										   obj->get_short_description());
+	char *tmp = str_dup(notice.c_str());
 	create_mail(uid, -1, tmp);
 	free(tmp);
 }
@@ -921,8 +919,7 @@ void bring_back(CharData *ch, CharData *mailman) {
 			PlaceObjIntoObj(l->obj_.get(), obj);
 		}
 		PlaceObjToInventory(obj, ch);
-		snprintf(buf, kMaxStringLength, "$n дал$g вам посылку.");
-		act(buf, false, mailman, 0, ch, kToVict);
+		act("$n дал$g вам посылку.", false, mailman, 0, ch, kToVict);
 		act("$N дал$G $n2 посылку.", false, ch, 0, mailman, kToRoom);
 
 		i->second.erase(k);

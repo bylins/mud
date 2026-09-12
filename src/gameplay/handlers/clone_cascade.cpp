@@ -3,6 +3,8 @@
  \brief issue.spellhandlers: CloneCascade kClone post-spawn handler (extracted from magic.cpp).
 */
 
+#include <fmt/format.h>
+
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/entities/char_data.h"
@@ -15,23 +17,15 @@
 
 // ApplyCloneCosmetics: single-use helper for CloneCascade (kept file-local).
 static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
-	sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
-	mob->SetCharAliases(buf2);
-	sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-	mob->set_npc_name(buf2);
+	mob->SetCharAliases(fmt::format("двойник {} {}", GET_PAD(ch, 1), GET_NAME(ch)));
+	mob->set_npc_name(fmt::format("двойник {}", GET_PAD(ch, 1)));
 	mob->player_data.long_descr = "";
-	sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[grammar::ECase::kNom] = std::string(buf2);
-	sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[grammar::ECase::kGen] = std::string(buf2);
-	sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[grammar::ECase::kDat] = std::string(buf2);
-	sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[grammar::ECase::kAcc] = std::string(buf2);
-	sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[grammar::ECase::kIns] = std::string(buf2);
-	sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[grammar::ECase::kPre] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kNom] = fmt::format("двойник {}", GET_PAD(ch, 1));
+	mob->player_data.PNames[grammar::ECase::kGen] = fmt::format("двойника {}", GET_PAD(ch, 1));
+	mob->player_data.PNames[grammar::ECase::kDat] = fmt::format("двойнику {}", GET_PAD(ch, 1));
+	mob->player_data.PNames[grammar::ECase::kAcc] = fmt::format("двойника {}", GET_PAD(ch, 1));
+	mob->player_data.PNames[grammar::ECase::kIns] = fmt::format("двойником {}", GET_PAD(ch, 1));
+	mob->player_data.PNames[grammar::ECase::kPre] = fmt::format("двойнике {}", GET_PAD(ch, 1));
 
 	mob->set_str(ch->get_str());
 	mob->set_dex(ch->get_dex());
