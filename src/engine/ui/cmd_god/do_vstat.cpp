@@ -19,15 +19,17 @@ void DoVstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	MobVnum number;    // or ObjVnum ...
 	MobRnum r_num;        // or ObjRnum ...
 
-	two_arguments(argument, buf, buf2);
-	int first = atoi(buf2) / 100;
+	char kind[kMaxInputLength];
+	char arg_vnum[kMaxInputLength];
+	two_arguments(argument, kind, arg_vnum);
+	int first = atoi(arg_vnum) / 100;
 
 	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
 
-	if (!*buf || !*buf2 || !a_isdigit(*buf2)) {
+	if (!*kind || !*arg_vnum || !a_isdigit(*arg_vnum)) {
 		SendMsgToChar("Usage: vstat { obj | mob } <number>\r\n", ch);
 		return;
 	}
@@ -38,11 +40,11 @@ void DoVstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 
-	if ((number = atoi(buf2)) < 0) {
+	if ((number = atoi(arg_vnum)) < 0) {
 		SendMsgToChar("Отрицательный номер? Оригинально!\r\n", ch);
 		return;
 	}
-	if (utils::IsAbbr(buf, "mob")) {
+	if (utils::IsAbbr(kind, "mob")) {
 		if ((r_num = GetMobRnum(number)) < 0) {
 			SendMsgToChar("Обратитесь в Арктику - там ОН живет.\r\n", ch);
 			return;
@@ -51,7 +53,7 @@ void DoVstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		PlaceCharToRoom(mob, 1);
 		do_stat_character(ch, mob, 1);
 		ExtractCharFromWorld(mob, false);
-	} else if (utils::IsAbbr(buf, "obj")) {
+	} else if (utils::IsAbbr(kind, "obj")) {
 		if ((r_num = GetObjRnum(number)) < 0) {
 			SendMsgToChar("Этот предмет явно перенесли в РМУД.\r\n", ch);
 			return;
