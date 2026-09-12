@@ -2,6 +2,8 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <fmt/format.h>
+
 #include "poison.h"
 #include "gameplay/affects/obj_affects.h"
 #include "administration/privilege.h"
@@ -369,10 +371,8 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 		ImposeAffect(vict, i, false, false, false, false);
 	}
 
-	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", kColorBoldGrn, kColorCyn);
-	act(buf, false, ch, nullptr, vict, kToChar);
-	snprintf(buf, sizeof(buf), "%s$n отравил$g вас.%s", kColorBoldRed, kColorCyn);
-	act(buf, false, ch, nullptr, vict, kToVict);
+	act(fmt::format("{}Вы отравили $N3.{}", kColorBoldGrn, kColorCyn), false, ch, nullptr, vict, kToChar);
+	act(fmt::format("{}$n отравил$g вас.{}", kColorBoldRed, kColorCyn), false, ch, nullptr, vict, kToVict);
 }
 
 // issue.obj-affects: weapon-poison is now the first obj-affect trigger. The kPoisoned affect on the
@@ -414,20 +414,18 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 				SendMsgToChar(ch, "Кровоточащие язвы покрыли тело %s.\r\n",
 							  sight::PersonName(vict, ch, 1));
 			} else if (spell_id == ESpell::kScopolaPoison) {
-				strcpy(buf1, sight::PersonName(vict, ch, 0));
-				utils::CAP(buf1);
-				SendMsgToChar(ch, "%s скрючил%s от нестерпимой боли.\r\n",
-							  buf1, grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 2));
+				// CAP(std::string) возвращает копию, а не правит на месте
+				SendMsgToChar(fmt::format("{} скрючил{} от нестерпимой боли.\r\n",
+										  utils::CAP(sight::PersonName(vict, ch, 0)),
+										  grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 2)), ch);
 				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
-				strcpy(buf1, sight::PersonName(vict, ch, 3));
-				utils::CAP(buf1);
-				SendMsgToChar(ch, "%s перестали слушаться руки.\r\n", buf1);
+				SendMsgToChar(fmt::format("{} перестали слушаться руки.\r\n",
+										  utils::CAP(sight::PersonName(vict, ch, 3))), ch);
 				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
-				strcpy(buf1, sight::PersonName(vict, ch, 2));
-				utils::CAP(buf1);
-				SendMsgToChar(ch, "%s стало труднее плести заклинания.\r\n", buf1);
+				SendMsgToChar(fmt::format("{} стало труднее плести заклинания.\r\n",
+										  utils::CAP(sight::PersonName(vict, ch, 2))), ch);
 				vict->battle_affects.set(kEafFirstPoison);
 			} else {
 				SendMsgToChar(ch, "Вы отравили %s.\r\n", sight::PersonName(ch, vict, 3));
