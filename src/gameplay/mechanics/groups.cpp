@@ -331,16 +331,14 @@ void group::print_list_group(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		SendMsgToChar("Ваша группа состоит из:\r\n", ch);
 		if (AFF_FLAGGED(k, EAffect::kGroup)) {
-			sprintf(buf1, "Лидер: %s\r\n", GET_NAME(k));
-			SendMsgToChar(buf1, ch);
+			SendMsgToChar(fmt::format("Лидер: {}\r\n", GET_NAME(k)), ch);
 		}
 
 		for (auto *f : k->followers) {
 			if (!AFF_FLAGGED(f, EAffect::kGroup)) {
 				continue;
 			}
-			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f));
-			SendMsgToChar(buf1, ch);
+			SendMsgToChar(fmt::format("{}. Согруппник: {}\r\n", count, GET_NAME(f)), ch);
 			count++;
 		}
 	} else {
@@ -431,7 +429,7 @@ void group::print_group(CharData *ch) {
 	}
 }
 
-void group::GoGroup(CharData *ch, char *argument) {
+void group::GoGroup(CharData *ch, const char *mode, char *argument) {
 	int f_number = 0;
 	for (auto *f : ch->followers) {
 		if (AFF_FLAGGED(f, EAffect::kGroup)) {
@@ -440,8 +438,8 @@ void group::GoGroup(CharData *ch, char *argument) {
 	}
 
 	CharData *vict;
-	if (!str_cmp(buf, "all")
-		|| !str_cmp(buf, "все")) {
+	if (!str_cmp(mode, "all")
+		|| !str_cmp(mode, "все")) {
 		int found = 0;
 		for (auto *f : ch->followers) {
 			if ((f_number + found) >= group::max_group_size(ch)) {
@@ -461,7 +459,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 		}
 
 		return;
-	} else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер")) {
+	} else if (!str_cmp(mode, "leader") || !str_cmp(mode, "лидер")) {
 		vict = target_resolver::FindPlayerVis(ch, argument);
 		if (vict
 			&& vict->IsNpc()
@@ -491,7 +489,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 		return;
 	}
 
-	vict = target_resolver::FindCharInRoom(ch, buf);
+	vict = target_resolver::FindCharInRoom(ch, mode);
 
 	if (!vict) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
@@ -521,16 +519,16 @@ void group::GoGroup(CharData *ch, char *argument) {
 	}
 }
 
-void group::GoUngroup(CharData *ch, char *argument) {
+void group::GoUngroup(CharData *ch, const char *name) {
 	CharData *tch;
-	if (!*argument) {
-		sprintf(buf2, "Вы исключены из группы %s.\r\n", GET_PAD(ch, 1));
+	if (!*name) {
+		const std::string msg = fmt::format("Вы исключены из группы {}.\r\n", GET_PAD(ch, 1));
 		auto copy = ch->followers;
 		for (auto *f : copy) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
 				group::RemoveGroupFlags(f);
-				SendMsgToChar(buf2, f);
+				SendMsgToChar(msg, f);
 				if (!AFF_FLAGGED(f, EAffect::kCharmed)
 					&& !(f->IsNpc()
 						&& AFF_FLAGGED(f, EAffect::kHorse))) {
@@ -546,7 +544,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 	auto copy2 = ch->followers;
 	for (auto *f : copy2) {
 		tch = f;
-		if (isname(argument, tch->GetCharAliases())
+		if (isname(name, tch->GetCharAliases())
 			&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 			&& !mount::IsHorse(tch)) {
 			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
@@ -569,12 +567,13 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("И перед кем вы отчитываетесь?\r\n", ch);
 			return;
 		}
+		std::string report;
 		if (IS_MANA_CASTER(ch)) {
-			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
-					GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
-					ch->get_hit(), ch->get_real_max_hit(),
-					ch->get_move(), ch->get_real_max_move(),
-					ch->mem_queue.stored, Mana(GetRealWis(ch)));
+			report = fmt::format("{} доложил{} : {}({})H, {}({})V, {}({})M\r\n",
+								 GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
+								 ch->get_hit(), ch->get_real_max_hit(),
+								 ch->get_move(), ch->get_real_max_move(),
+								 ch->mem_queue.stored, Mana(GetRealWis(ch)));
 		} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 			int loyalty = 0;
 
@@ -584,28 +583,29 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					break;
 				}
 			}
-			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
-					GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
-					ch->get_hit(), ch->get_real_max_hit(),
-					ch->get_move(), ch->get_real_max_move(),
-					loyalty);
+			report = fmt::format("{} доложил{} : {}({})H, {}({})V, {}L\r\n",
+								 GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
+								 ch->get_hit(), ch->get_real_max_hit(),
+								 ch->get_move(), ch->get_real_max_move(),
+								 loyalty);
 		} else {
-			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
-					GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
-					ch->get_hit(), ch->get_real_max_hit(),
-					ch->get_move(), ch->get_real_max_move());
+			report = fmt::format("{} доложил{} : {}({})H, {}({})V\r\n",
+								 GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
+								 ch->get_hit(), ch->get_real_max_hit(),
+								 ch->get_move(), ch->get_real_max_move());
 		}
-		utils::CAP(buf);
+		// CAP(std::string) возвращает копию, а не правит на месте
+		report = utils::CAP(report);
 		k = ch->has_master() ? ch->get_master() : ch;
 		for (auto *f : k->followers) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)
 				&& f != ch
 				&& !AFF_FLAGGED(f, EAffect::kDeafness)) {
-				SendMsgToChar(buf, f);
+				SendMsgToChar(report, f);
 			}
 		}
 		if (k != ch && !AFF_FLAGGED(k, EAffect::kDeafness)) {
-			SendMsgToChar(buf, k);
+			SendMsgToChar(report, k);
 		}
 		SendMsgToChar("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 	} else {
@@ -647,11 +647,11 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 	if (ch->IsNpc())
 		return;
 
-	one_argument(argument, buf);
+	char amount_arg[kMaxInputLength];
+	one_argument(argument, amount_arg);
 
-
-	if (is_number(buf)) {
-		amount = atoi(buf);
+	if (is_number(amount_arg)) {
+		amount = atoi(amount_arg);
 		if (amount <= 0) {
 			SendMsgToChar("И как вы это планируете сделать?\r\n", ch);
 			return;
@@ -711,10 +711,12 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 
 		currencies::RemoveHand(*ch, currency_vnum, share * (num - 1));
 
-		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), share);
+		const std::string to_others =
+			fmt::format("{} разделил{} {} {}; вам досталось {}.\r\n",
+						GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount,
+						MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc), share);
 		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
-			SendMsgToChar(buf, k);
+			SendMsgToChar(to_others, k);
 			currencies::AddHand(*k, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(k, share) : 0), false, true);
 		}
 		for (auto *f : k->followers) {
@@ -722,26 +724,25 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 				&& !f->IsNpc()
 				&& f->in_room == ch->in_room
 				&& f != ch) {
-				SendMsgToChar(buf, f);
+				SendMsgToChar(to_others, f);
 				currencies::AddHand(*f, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(f, share) : 0), false, true);
 			}
 		}
-		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-				amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), num, share);
+		std::string to_self =
+			fmt::format("Вы разделили {} {} на {}  -  по {} каждому.\r\n",
+						amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc), num, share);
 		if (rest) {
-			sprintf(buf + strlen(buf),
-					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-					rest, MUD::Currency(currency_vnum).GetNameWithAmount(rest, grammar::ECase::kAcc).c_str());
+			to_self += fmt::format("Как истинный еврей вы оставили {} {} (которые не смогли разделить нацело) себе.\r\n",
+								   rest, MUD::Currency(currency_vnum).GetNameWithAmount(rest, grammar::ECase::kAcc));
 		}
 
 		// issue #3669: делится только на тех, кто рядом. Иначе непонятно, почему
 		// в группе народу больше, чем долей.
 		if (absent > 0) {
-			sprintf(buf + strlen(buf),
-					"Членов группы вне комнаты: %d -- доля им не досталась.\r\n", absent);
+			to_self += fmt::format("Членов группы вне комнаты: {} -- доля им не досталась.\r\n", absent);
 		}
 
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(to_self, ch);
 		// клан-налог лутера с той части, которая пошла каждому в группе
 		if (currency_vnum == currencies::kGoldVnum) {
 			const long clan_tax = ClanSystem::do_gold_tax(ch, share);

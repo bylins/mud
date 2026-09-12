@@ -109,8 +109,9 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 
 	out << obj->get_PName(grammar::ECase::kNom) << "\r\n";
 
-	if (obj->get_no_flags().sprintbits(no_bits, buf2, sizeof(buf2), ",")) {
-		out << "Неудобства : " << buf2 << "\r\n";
+	char flags[kMaxStringLength];
+	if (obj->get_no_flags().sprintbits(no_bits, flags, sizeof(flags), ",")) {
+		out << "Неудобства : " << flags << "\r\n";
 	}
 
 	if (obj->get_type() == EObjType::kWeapon) {
@@ -126,8 +127,8 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 		out << "Вес : " << obj->get_weight() << "\r\n";
 	}
 
-	if (obj->get_affect_flags().sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
-		out << "Аффекты : " << buf2 << "\r\n";
+	if (obj->get_affect_flags().sprintbits(equipment_affects, flags, sizeof(flags), ",")) {
+		out << "Аффекты : " << flags << "\r\n";
 	}
 
 	std::string tmp_str;
@@ -178,8 +179,9 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	out << "\r\n";
 
 	auto affects = activ->second.get_affects();
-	if (affects.sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
-		out << " + Аффекты : " << buf2 << "\r\n";
+	char flags[kMaxStringLength];
+	if (affects.sprintbits(equipment_affects, flags, sizeof(flags), ",")) {
+		out << " + Аффекты : " << flags << "\r\n";
 	}
 
 	std::array<obj_affected_type, kMaxObjAffect> affected = activ->second.get_affected();
@@ -298,8 +300,9 @@ std::string activators_obj::print() {
 
 		// affects
 		cls_it.second.total_affects += native_affects;
-		if (cls_it.second.total_affects.sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
-			node.afct += " + Аффекты : " + std::string(buf2) + "\r\n";
+		char flags[kMaxStringLength];
+		if (cls_it.second.total_affects.sprintbits(equipment_affects, flags, sizeof(flags), ",")) {
+			node.afct += " + Аффекты : " + std::string(flags) + "\r\n";
 		}
 		// affected
 		sum_apply(cls_it.second.affected, native_affected);
@@ -370,8 +373,9 @@ std::string print_fullset_stats(const set_info &set) {
 	// печатаем все, что получилось
 	out << "Суммарные свойства набора: \r\n";
 
-	if (activ.native_no_flag.sprintbits(no_bits, buf2, sizeof(buf2), ",")) {
-		out << "Неудобства : " << buf2 << "\r\n";
+	char flags[kMaxStringLength];
+	if (activ.native_no_flag.sprintbits(no_bits, flags, sizeof(flags), ",")) {
+		out << "Неудобства : " << flags << "\r\n";
 	}
 
 	out << activ.print();
@@ -1370,8 +1374,7 @@ bool help_compare(const std::string &arg, const std::string &text, bool strong) 
 
 	if (strong) {
 
-		snprintf(buf, sizeof(buf), "strong arg=%s| text=%s|",arg.c_str(), text.c_str());
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("strong arg={}| text={}|", arg, text), CMP, kLvlGreatGod, SYSLOG, true);
 		return arg == text;
 	}
 	return utils::IsAbbr(name, text);
@@ -1388,18 +1391,14 @@ void UserSearch::process(int flag) {
 }
 
 void UserSearch::print_not_found() const {
-	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (not found)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
-	snprintf(buf, sizeof(buf),
-			 "&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n"
-			 "\r\n&cИнформация:&n\r\n"
-			 "Если применять команду \"справка\" без параметров, будут отображены основные команды,\r\n"
-			 "особенно необходимые новичкам. Кроме того полезно ознакомиться с разделом &CНОВИЧОК&n.\r\n\r\n"
-			 "Справочная система позволяет использовать в запросе индексацию разделов и строгий поиск.\r\n\r\n"
-			 "%s",
-			 arg_str.c_str(),
-			 HELP_USE_EXMAPLES);
-	SendMsgToChar(buf, ch);
+	mudlog(fmt::format("{} uses command HELP: {} (not found)", GET_NAME(ch), arg_str), LGH, kLvlImmortal, SYSLOG, true);
+	SendMsgToChar(fmt::format("&WПо вашему запросу '&w{}&W' ничего не было найдено.&n\r\n"
+							  "\r\n&cИнформация:&n\r\n"
+							  "Если применять команду \"справка\" без параметров, будут отображены основные команды,\r\n"
+							  "особенно необходимые новичкам. Кроме того полезно ознакомиться с разделом &CНОВИЧОК&n.\r\n\r\n"
+							  "Справочная система позволяет использовать в запросе индексацию разделов и строгий поиск.\r\n\r\n"
+							  "{}",
+							  arg_str, HELP_USE_EXMAPLES), ch);
 }
 
 void UserSearch::print_curr_topic(const help_node &node) const {
@@ -1408,9 +1407,7 @@ void UserSearch::print_curr_topic(const help_node &node) const {
 		SetsDrop::print_timer_str(ch);
 	}
 	if (!node.no_immlog) {
-		snprintf(buf, sizeof(buf), "%s uses command HELP: %s (read)",
-				 GET_NAME(ch), arg_str.c_str());
-		mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("{} uses command HELP: {} (read)", GET_NAME(ch), arg_str), LGH, kLvlImmortal, SYSLOG, true);
 	}
 	page_string(ch->desc, node.entry);
 }
@@ -1438,8 +1435,7 @@ void UserSearch::print_key_list() const {
 		   "либо воспользуйтесь индексацией или строгим поиском.\r\n\r\n"
 		<< HELP_USE_EXMAPLES;
 
-	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (list)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
+	mudlog(fmt::format("{} uses command HELP: {} (list)", GET_NAME(ch), arg_str), LGH, kLvlImmortal, SYSLOG, true);
 	page_string(ch->desc, out.str());
 }
 

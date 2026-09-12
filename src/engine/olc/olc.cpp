@@ -143,11 +143,9 @@ static void olc_save_all(CharData *ch, int subcmd) {
 		}
 	}
 	const int count = static_cast<int>(zone_table.size());
-	snprintf(buf, kMaxStringLength, "OLC: %s saves all %ss (%d zones).", GET_NAME(ch), type, count);
-	mudlog(buf, LGH, std::max(kLvlImplementator, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(fmt::format("OLC: {} saves all {}s ({} zones).", GET_NAME(ch), type, count), LGH, std::max(kLvlImplementator, GET_INVIS_LEV(ch)), SYSLOG, true);
 	olc_log("%s save all %s (%d zones)", GET_NAME(ch), type, count);
-	snprintf(buf, kMaxStringLength, "Записаны на диск все зоны (%s): %d.\r\n", type, count);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Записаны на диск все зоны ({}): {}.\r\n", type, count), ch);
 }
 
 /*
@@ -172,8 +170,9 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 
 	// * Parse any arguments.
-	two_arguments(argument, buf1, buf2);
-	if (!*buf1)        // No argument given.
+	char first[kMaxInputLength], second[kMaxInputLength];
+	two_arguments(argument, first, second);
+	if (!*first)        // No argument given.
 	{
 		switch (subcmd) {
 			case kScmdOlcZedit:
@@ -181,20 +180,19 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				break;
 			case kScmdOlcTrigedit:
 			case kScmdOlcOedit:
-			case kScmdOlcMedit: sprintf(buf, "Укажите %s VNUM для редактирования.\r\n", olc_scmd_info[subcmd].text);
-				SendMsgToChar(buf, ch);
+			case kScmdOlcMedit: SendMsgToChar(fmt::format("Укажите {} VNUM для редактирования.\r\n", olc_scmd_info[subcmd].text), ch);
 				return;
 		}
-	} else if (!a_isdigit(*buf1)) {
-		if (utils::IsAbbr("save", buf1)
-			|| (lock = utils::IsAbbr("lock", buf1)) == true
-			|| (unlock = utils::IsAbbr("unlock", buf1)) == true) {
+	} else if (!a_isdigit(*first)) {
+		if (utils::IsAbbr("save", first)
+			|| (lock = utils::IsAbbr("lock", first)) == true
+			|| (unlock = utils::IsAbbr("unlock", first)) == true) {
 			// issue #3582: "save all" -- записать на диск все зоны данного типа.
-			if (utils::IsAbbr("save", buf1) && *buf2 && !str_cmp(buf2, "all")) {
+			if (utils::IsAbbr("save", first) && *second && !str_cmp(second, "all")) {
 				olc_save_all(ch, subcmd);
 				return;
 			}
-			if (!*buf2) {
+			if (!*second) {
 				if (GET_OLC_ZONE(ch)) {
 					save = 1;
 					number = (GET_OLC_ZONE(ch) * 100);
@@ -204,7 +202,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				}
 			} else {
 				save = 1;
-				number = atoi(buf2) * 100;
+				number = atoi(second) * 100;
 			}
 		} else if (subcmd == kScmdOlcZedit && (GetRealLevel(ch) >= kLvlBuilder || ch->IsFlagged(EPrf::kCoderinfo))) {
 			SendMsgToChar("Создание новых зон отключено.\r\n", ch);
@@ -216,16 +214,14 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 	// * If a numeric argument was given, get it.
 	if (number == -1) {
-		number = atoi(buf1);
+		number = atoi(first);
 	}
 
 	// * Check that whatever it isn't already being edited.
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->state == olc_scmd_info[subcmd].con_type) {
 			if (d->olc && OLC_NUM(d) == number) {
-				sprintf(buf, "%s в настоящий момент редактируется %s.\r\n",
-						olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("{} в настоящий момент редактируется {}.\r\n", olc_scmd_info[subcmd].text, GET_PAD(d->character, 4)), ch);
 				return;
 			}
 		}
@@ -251,9 +247,9 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (lock) {
 		zone_table[OLC_ZNUM(d)].locked = true;
 		SendMsgToChar("Защищаю зону от записи.\r\n", ch);
-		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
+		mudlog(fmt::format("(GC) {} has locked zone {}", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum),
+			   LGH, kLvlImplementator, SYSLOG, true);
 		
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 			data_source->SaveZone(OLC_ZNUM(d));
@@ -264,9 +260,9 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (unlock) {
 		zone_table[OLC_ZNUM(d)].locked = false;
 		SendMsgToChar("Снимаю защиту от записи.\r\n", ch);
-		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
+		mudlog(fmt::format("(GC) {} has unlocked zone {}", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum),
+			   LGH, kLvlImplementator, SYSLOG, true);
 		
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 			data_source->SaveZone(OLC_ZNUM(d));
@@ -307,11 +303,10 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			SendMsgToChar("Родной(ая,ое), объясни по людски - что записать.\r\n", ch);
 			return;
 		}
-		sprintf(buf, "Saving all %ss in zone %d.\r\n", type, zone_table[OLC_ZNUM(d)].vnum);
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
+		SendMsgToChar(fmt::format("Saving all {}s in zone {}.\r\n", type, zone_table[OLC_ZNUM(d)].vnum), ch);
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, std::max(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(fmt::format("OLC: {} saves {} info for zone {}.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum),
+			   LGH, std::max(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 
@@ -390,8 +385,7 @@ void olc_saveinfo(CharData *ch) {
 	}
 
 	for (entry = olc_save_list; entry; entry = entry->next) {
-		sprintf(buf, " - %s for zone %d.\r\n", save_info_msg[(int) entry->type], entry->zone);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format(" - {} for zone {}.\r\n", save_info_msg[(int) entry->type], entry->zone), ch);
 	}
 }
 
