@@ -229,64 +229,64 @@ char *get_im_alias(im_memb *s, const char *name) {
 }
 
 // Функция заменяет alias в названиях ингредиентов
-const char *replace_alias(const char *ptr, im_memb *sample, int rnum, const char *std) {
-	char *dst, *al;
+std::string replace_alias(const char *ptr, im_memb *sample, int rnum, const char *std) {
+	char *al;
 	char aname[16];
 
 	if (!sample && rnum == -1)
 		return ptr;
 
-	// Строю соответствуюжую строку в buf
+	std::string out;
 	if (sample) {
 		// поиск в образце
 		if (std && (al = get_im_alias(sample, std)) != nullptr) {
-			ptr = al;
-		} else {
-			// Посимвольный разбор строки
-			dst = buf;
-			do {
-				if (*ptr == VAR_CHAR) {
-					int k;
-					++ptr;
-					// One whole character per step (issue #3681), with a bounds check: the
-					// previous loop had none, and multibyte text fills aname[] twice as fast.
-					for (k = 0; *ptr && native_text::is_alnum_char(ptr);) {
-						const size_t bytes = native_text::char_bytes(ptr);
-						if (static_cast<size_t>(k) + bytes >= sizeof(aname)) {
-							break;
-						}
-						for (size_t i = 0; i < bytes; ++i) {
-							aname[k++] = *ptr++;
-						}
+			return al;
+		}
+		// Посимвольный разбор строки
+		for (;;) {
+			if (*ptr == VAR_CHAR) {
+				int k;
+				++ptr;
+				// One whole character per step (issue #3681), with a bounds check: the
+				// previous loop had none, and multibyte text fills aname[] twice as fast.
+				for (k = 0; *ptr && native_text::is_alnum_char(ptr);) {
+					const size_t bytes = native_text::char_bytes(ptr);
+					if (static_cast<size_t>(k) + bytes >= sizeof(aname)) {
+						break;
 					}
-					aname[k] = 0;
-					al = get_im_alias(sample, aname);
-					strcpy(dst, al ? al : aname);
-					while (*dst != 0)
-						++dst;
+					for (size_t i = 0; i < bytes; ++i) {
+						aname[k++] = *ptr++;
+					}
 				}
-			} while ((*dst++ = *ptr++) != 0);
-			ptr = buf;
+				aname[k] = 0;
+				al = get_im_alias(sample, aname);
+				out += al ? al : aname;
+			}
+			if (*ptr == '\0') {
+				break;
+			}
+			out += *ptr++;
 		}
 	} else {
 		// поиск в мобе (только p0-p5)
 		// Посимвольный разбор строки
-		for (dst = buf; (*dst++ = *ptr++) != 0;) {
-			int k;
+		while (*ptr != '\0') {
+			out += *ptr++;
+			// k раньше не инициализировался: если sscanf ничего не разобрал, ветка
+			// выбиралась по мусору на стеке.
+			int k = -1;
 			if (*ptr != VAR_CHAR)
 				continue;
-			sscanf(ptr + 1, "p%d", &k);
+			if (sscanf(ptr + 1, "p%d", &k) != 1)
+				continue;
 			if (k < 0 || k > 5)
 				continue;
 			ptr += 3;
-			strcpy(dst, GET_PAD(mob_proto + rnum, k));
-			while (*dst != 0)
-				++dst;
+			out += GET_PAD(mob_proto + rnum, k);
 		}
-		ptr = buf;
 	}
 
-	return ptr;
+	return out;
 }
 
 int im_type_rnum(int vnum) {
@@ -376,15 +376,16 @@ ObjData *load_ingredient(int index, int power, int rnum)
 {
 	int err;
 
+	std::string error;
 	while (1) {
 		if (imtypes[index].proto_vnum < 0) {
-			sprintf(buf, "IM METATYPE ingredient loading %d", imtypes[index].id);
+			error = fmt::format("IM METATYPE ingredient loading {}", imtypes[index].id);
 			break;
 		}
 
 		const auto ing = world_objects.create_from_prototype_by_vnum(imtypes[index].proto_vnum);
 		if (!ing) {
-			sprintf(buf, "IM ingredient prototype %d not found", imtypes[index].proto_vnum);
+			error = fmt::format("IM ingredient prototype {} not found", imtypes[index].proto_vnum);
 			break;
 		}
 
@@ -395,14 +396,14 @@ ObjData *load_ingredient(int index, int power, int rnum)
 		err = im_assign_power(ing.get());
 		if (err != 0) {
 			ExtractObjFromWorld(ing.get());
-			sprintf(buf, "IM power assignment error %d", err);
+			error = fmt::format("IM power assignment error {}", err);
 			break;
 		}
 
 		return ing.get();
 	}
 
-	imlog(CMP, buf);
+	imlog(CMP, error.c_str());
 	return nullptr;
 }
 
@@ -923,22 +924,23 @@ void list_recipes(CharData *ch, bool all_recipes) {
 	int i = 0, sortpos;
 	im_rskill *rs;
 
+	std::string out;
+
 	if (all_recipes) {
 		if (!ch->IsFlagged(EPrf::kBlindMode)) {
-			sprintf(buf, " Список доступных рецептов.\r\n"
-						 " Зеленым цветом выделены уже изученные рецепты.\r\n"
-						 " Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
-						 "\r\n     Рецепт                Уровень (реморт)\r\n"
-						 "------------------------------------------------\r\n");
+			out = " Список доступных рецептов.\r\n"
+				  " Зеленым цветом выделены уже изученные рецепты.\r\n"
+				  " Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
+				  "\r\n     Рецепт                Уровень (реморт)\r\n"
+				  "------------------------------------------------\r\n";
 		} else {
-			sprintf(buf, " Список доступных рецептов.\r\n"
-						 " Пометкой [И] выделены уже изученные рецепты.\r\n"
-						 " Пометкой [Д] выделены доступные для изучения рецепты.\r\n"
-						 " Пометкой [Н] выделены рецепты, недоступные вам в настоящий момент.\r\n"
-						 "\r\n     Рецепт                Уровень (реморт)\r\n"
-						 "------------------------------------------------\r\n");
+			out = " Список доступных рецептов.\r\n"
+				  " Пометкой [И] выделены уже изученные рецепты.\r\n"
+				  " Пометкой [Д] выделены доступные для изучения рецепты.\r\n"
+				  " Пометкой [Н] выделены рецепты, недоступные вам в настоящий момент.\r\n"
+				  "\r\n     Рецепт                Уровень (реморт)\r\n"
+				  "------------------------------------------------\r\n";
 		}
-		strcpy(buf1, buf);
 		// issue.class-recipes: доступность рецепта классу спрашиваем у самого класса.
 		const auto &char_class = MUD::Class(ch->GetClass());
 		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++) {
@@ -947,51 +949,38 @@ void list_recipes(CharData *ch, bool all_recipes) {
 				continue;
 			}
 
-			if (strlen(buf1) >= kMaxStringLength - 60) {
-				strcat(buf1, "***ПЕРЕПОЛНЕНИЕ***\r\n");
-				break;
-			}
 			rs = im_get_char_rskill(ch, sortpos);
 			const bool unavailable = req->level > GetRealLevel(ch) || req->remort > remort::GetRealRemort(ch);
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
-				strcpy(buf, fmt::format("     {}{:<30}{} {:2} ({:2}){}\r\n",
-						unavailable ? kColorRed : rs ? kColorGrn : kColorNrm,
-						imrecipes[sortpos].name, kColorCyn,
-						req->level, req->remort, kColorNrm).c_str());
+				out += fmt::format("     {}{:<30}&c {:2} ({:2})&n\r\n",
+						unavailable ? "&r" : rs ? "&g" : "&n",
+						imrecipes[sortpos].name, req->level, req->remort);
 			} else {
-				strcpy(buf, fmt::format(" {} {:<30} {:2} ({:2})\r\n",
+				out += fmt::format(" {} {:<30} {:2} ({:2})\r\n",
 						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
-						req->level, req->remort).c_str());
+						req->level, req->remort);
 			}
-			strcat(buf1, buf);
 			++i;
 		}
 		if (!i)
-			sprintf(buf1 + strlen(buf1), "Нет рецептов.\r\n");
-		page_string(ch->desc, buf1, 1);
+			out += "Нет рецептов.\r\n";
+		page_string(ch->desc, out);
 		return;
 	}
 
-	sprintf(buf, "Вы владеете следующими рецептами :\r\n");
-
-	strcpy(buf2, buf);
+	out = "Вы владеете следующими рецептами :\r\n";
 
 	for (rs = GET_RSKILL(ch), i = 0; rs; rs = rs->link) {
-		if (strlen(buf2) >= kMaxStringLength - 60) {
-			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
-			break;
-		}
 		if (rs->perc <= 0)
 			continue;
-		strcpy(buf, fmt::format("{:<30} {}{}\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel), kColorBoldBlk).c_str());
-		strcat(buf2, buf);
+		out += fmt::format("{:<30} {}&K\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel));
 		++i;
 	}
 
 	if (!i)
-		sprintf(buf2 + strlen(buf2), "Нет рецептов.\r\n");
+		out += "Нет рецептов.\r\n";
 
-	page_string(ch->desc, buf2, 1);
+	page_string(ch->desc, out);
 }
 
 void do_recipes(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1006,8 +995,7 @@ void do_recipes(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
-	char name[kMaxInputLength], buf2[128];
-	char buf[kMaxInputLength], help[kMaxStringLength];
+	char name[kMaxInputLength], help[kMaxStringLength];
 	int rcpt = -1, value, i, qend;
 	im_rskill *rs;
 
@@ -1072,13 +1060,14 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	argument += qend + 1;    // skip to next parameter
-	argument = one_argument(argument, buf);
+	char value_arg[kMaxInputLength];
+	argument = one_argument(argument, value_arg);
 
-	if (!*buf) {
+	if (!*value_arg) {
 		SendMsgToChar("Пропущен уровень рецепта.\r\n", ch);
 		return;
 	}
-	value = atoi(buf);
+	value = atoi(value_arg);
 	if (value < 0) {
 		SendMsgToChar("Минимальное значение рецепта 0.\r\n", ch);
 		return;
@@ -1101,10 +1090,11 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	rs->perc = value;
 
-	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
-	mudlog(buf2, BRF, -1, SYSLOG, true);
-	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
-	SendMsgToChar(buf2, ch);
+	const std::string log_line = fmt::format("{} changed {}'s {} to {}.",
+											 GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
+	mudlog(log_line, BRF, -1, SYSLOG, true);
+	imm_log("%s", log_line.c_str());
+	SendMsgToChar(log_line, ch);
 }
 
 void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
@@ -1129,14 +1119,11 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 		prob += number(1, rs->perc * 5);
 		if (number(1, MAX(1, prob)) <= GetRealInt(ch)) {
 			if (success)
-				sprintf(buf,
-						"%sВы постигли тонкости приготовления рецепта \"%s\".%s\r\n",
-						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
+				SendMsgToChar(fmt::format("&CВы постигли тонкости приготовления рецепта \"{}\".&n\r\n",
+										  imrecipes[rs->rid].name), ch);
 			else
-				sprintf(buf,
-						"%sНеудача позволила вам осознать тонкости приготовления рецепта \"%s\".%s\r\n",
-						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
-			SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("&CНеудача позволила вам осознать тонкости приготовления "
+										  "рецепта \"{}\".&n\r\n", imrecipes[rs->rid].name), ch);
 			rs->perc += number(1, 2);
 			if (!privilege::IsImmortal(ch))
 				rs->perc = MIN(CalcSkillRemortCap(ch), rs->perc);
@@ -1145,7 +1132,8 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 }
 
 ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
-	char name[kMaxInputLength], buf[kMaxInputLength];
+	char name[kMaxInputLength];
+	std::string error;
 	ObjData **array = nullptr;
 	ObjData *o;
 	int i, n = 0;
@@ -1161,21 +1149,22 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 		}
 		o = get_obj_in_list_vis(ch, name, ch->carrying);
 		if (!o) {
-			snprintf(buf, kMaxInputLength, "У вас нет %s.\r\n", name);
+			error = fmt::format("У вас нет {}.\r\n", name);
 			break;
 		}
 		if (o->get_type() != EObjType::kMagicComponent) {
-			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
+			error = "Вы должны использовать только магические ингредиенты.\r\n";
 			break;
 		}
 		if (im_type_rnum(GET_OBJ_VAL(o, IM_TYPE_SLOT)) < 0) {
-			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(grammar::ECase::kGen).c_str());
+			error = fmt::format("Магическая сила {} утеряна, похоже, безвозвратно.\r\n",
+								o->get_PName(grammar::ECase::kGen));
 			break;
 		}
 		for (i = 0; i < n; ++i) {
 			if (array[i] != o)
 				continue;
-			sprintf(buf, "Один и тот же ингредиент нельзя использовать дважды.\r\n");
+			error = "Один и тот же ингредиент нельзя использовать дважды.\r\n";
 			break;
 		}
 		if (i != n) {
@@ -1190,8 +1179,8 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 	}
 	if (array)
 		free(array);
-	imlog(NRM, buf);
-	SendMsgToChar(buf, ch);
+	imlog(NRM, error.c_str());
+	SendMsgToChar(error, ch);
 	return nullptr;
 }
 
@@ -1593,7 +1582,8 @@ void forget_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 	int qend, rcpt = -1;
 	im_rskill *rs;
 
-	argument = one_argument(argument, arg);
+	char skip_word[kMaxInputLength];
+	argument = one_argument(argument, skip_word);
 
 	skip_spaces(&argument);
 	if (!*argument) {
@@ -1635,8 +1625,7 @@ void forget_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 		return;
 	}
 	rs->perc = 0;
-	sprintf(buf, "Вы забыли рецепт отвара '%s'.\r\n", imrecipes[rcpt].name);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Вы забыли рецепт отвара '{}'.\r\n", imrecipes[rcpt].name), ch);
 }
 
 int im_ing_dump(int *ping, char *s) {
@@ -1700,8 +1689,7 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 	if (rs) {
 		if (recipediff)
 			return;
-		sprintf(buf, "Вас лишили рецепта '%s'.\r\n", imrecipes[rid].name);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Вас лишили рецепта '{}'.\r\n", imrecipes[rid].name), ch);
 		rs->perc = 0;
 	} else {
 		if (!recipediff)
@@ -1713,10 +1701,8 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 			GET_RSKILL(ch) = rs;
 			rs->perc = 5;
 		}
-		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);
-		log("%s", buf);
+		SendMsgToChar(fmt::format("Вы изучили рецепт '{}'.\r\n", imrecipes[rid].name), ch);
+		log("RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);
 	}
 }
 
@@ -1731,13 +1717,15 @@ void AddRecipe(CharData *ch, int rid, int recipediff) {
 	skill = rs->perc;
 	rs->perc = MAX(1, MIN(skill + recipediff, kMaxRecipeLevel));
 
-	if (skill > rs->perc)
-		sprintf(buf, "Ваше знание рецепта '%s' понизилось.\r\n", imrecipes[rid].name);
-	else if (skill < rs->perc)
-		sprintf(buf, "Вы повысили знание рецепта '%s'.\r\n", imrecipes[rid].name);
-	else
-		sprintf(buf, "Ваше знание рецепта '%s' осталось неизменным.\r\n", imrecipes[rid].name);
-	SendMsgToChar(buf, ch);
+	std::string msg;
+	if (skill > rs->perc) {
+		msg = fmt::format("Ваше знание рецепта '{}' понизилось.\r\n", imrecipes[rid].name);
+	} else if (skill < rs->perc) {
+		msg = fmt::format("Вы повысили знание рецепта '{}'.\r\n", imrecipes[rid].name);
+	} else {
+		msg = fmt::format("Ваше знание рецепта '{}' осталось неизменным.\r\n", imrecipes[rid].name);
+	}
+	SendMsgToChar(msg, ch);
 }
 
 void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {

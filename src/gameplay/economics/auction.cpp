@@ -9,6 +9,9 @@
 ************************************************************************ */
 
 #include "auction.h"
+
+#include <fmt/format.h>
+
 #include "administration/privilege.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
@@ -424,39 +427,40 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 			obj = GET_LOT(lot)->item;
-			sprintf(buf, "Предмет \"%s\", ", obj->get_short_description().c_str());
-			if ((obj->get_type() == EObjType::kWand)
-				|| (obj->get_type() == EObjType::kStaff)) {
-				if (obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges)
-					< obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges)) {
-					strcat(buf, "(б/у), ");
+			{
+				std::string out = fmt::format("Предмет \"{}\", ", obj->get_short_description());
+				if ((obj->get_type() == EObjType::kWand)
+					|| (obj->get_type() == EObjType::kStaff)) {
+					if (obj->GetPotionValueKey(ObjVal::EValueKey::kCurCharges)
+						< obj->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges)) {
+						out += "(б/у), ";
+					}
 				}
+				out += " тип ";
+				const char *type_name = GetTypeName(to_underlying(obj->get_type()), item_types);
+				if (*type_name) {
+					out += type_name;
+					out += "\n";
+				}
+				out += sight::diag_weapon_to_char(obj, true);
+				out += sight::diag_timer_to_char(obj);
+				out += "\r\n";
+				// obj_info дописывает в конец переданного буфера, поэтому даём ей свой.
+				char info[kMaxStringLength];
+				info[0] = '\0';
+				sight::obj_info(ch, obj, info);
+				out += info;
+				out += "\n";
+				if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0)) {
+					out += "Эта вещь вам недоступна!\n";
+				}
+				if ((!ch->IsNpc() && HaveIncompatibleAlign(ch, obj))
+					|| invalid_no_class(ch, obj)) {
+					out += "Вы не сможете пользоваться этой вещью.\n";
+				}
+				SendMsgToChar(out, ch);
 			}
-			strcat(buf, " тип ");
-			sprinttype(obj->get_type(), item_types, buf2);
-			if (*buf2) {
-				strcat(buf, buf2);
-				strcat(buf, "\n");
-			};
-			strcat(buf, sight::diag_weapon_to_char(obj, true));
-			strcat(buf, sight::diag_timer_to_char(obj));
-			strcat(buf, "\r\n");
-			sight::obj_info(ch, obj, buf);
-			strcat(buf, "\n");
-			if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0)) {
-				sprintf(buf2, "Эта вещь вам недоступна!");
-				strcat(buf, buf2);
-				strcat(buf, "\n");
-			}
-			if ((!ch->IsNpc() && HaveIncompatibleAlign(ch, obj))
-				|| invalid_no_class(ch, obj)) {
-				sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
-				strcat(buf, buf2);
-				strcat(buf, "\n");
-			}
-			SendMsgToChar(buf, ch);
 			return true;
-			break;
 		case 6:        //Identify
 			ObjData *iobj;
 			if (!sscanf(argument, "%d", &lot)) {

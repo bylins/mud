@@ -292,10 +292,9 @@ int perform_dupe_check(DescriptorData *d) {
 		if (k->original && (k->original->get_uid() == id))    // switched char
 		{
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
-						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
-				//send_to_gods(buf);
+				mudlog(fmt::format("ПОВТОРНЫЙ ВХОД! Id = {} Персонаж = {} Хост = {}(был {})",
+								   d->character->get_uid(), GET_NAME(d->character), k->host, d->host),
+					   BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
 
 			iosystem::write_to_output("\r\nПопытка второго входа - отключаемся.\r\n", k);
@@ -314,10 +313,9 @@ int perform_dupe_check(DescriptorData *d) {
 			k->original = nullptr;
 		} else if (k->character && (k->character->get_uid() == id)) {
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
-						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
-				//send_to_gods(buf);
+				mudlog(fmt::format("ПОВТОРНЫЙ ВХОД! Id = {} Name = {} Host = {}(был {})",
+								   d->character->get_uid(), GET_NAME(d->character), k->host, d->host),
+					   BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
 
 			if (!target &&  k->state == EConState::kPlaying) {
@@ -395,8 +393,8 @@ int perform_dupe_check(DescriptorData *d) {
 			CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 1);
 			act("$n восстановил$g связь.",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
-			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(fmt::format("{} [{}] has reconnected.", GET_NAME(d->character), d->host),
+				   NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
 			break;
 
@@ -404,13 +402,13 @@ int perform_dupe_check(DescriptorData *d) {
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
 				"Тело $s было захвачено новым духом!",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
-			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(fmt::format("{} has re-logged in ... disconnecting old socket.", GET_NAME(d->character)),
+				   NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		case UNSWITCH: iosystem::write_to_output("Пересоединяемся для перевключения игрока.", d);
-			sprintf(buf, "%s [%s] has reconnected (UNSWITCH).", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(fmt::format("{} [{}] has reconnected (UNSWITCH).", GET_NAME(d->character), d->host),
+				   NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		default:
@@ -729,18 +727,20 @@ void do_entergame(DescriptorData *d) {
 		REMOVE_BIT(d->character->player_specials->saved.GodsLike, EGf::kDemigod);
 	}
 
+	const char *entered = "вошло";
 	switch (d->character->get_sex()) {
 		case EGender::kLast: [[fallthrough]];
-		case EGender::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		case EGender::kNeutral: entered = "вошло";
 			break;
-		case EGender::kMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		case EGender::kMale: entered = "вошел";
 			break;
-		case EGender::kFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		case EGender::kFemale: entered = "вошла";
 			break;
-		case EGender::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		case EGender::kPoly: entered = "вошли";
 			break;
 	}
-	mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+	mudlog(fmt::format("{} {} в игру.", GET_NAME(d->character), entered),
+		   NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
@@ -807,15 +807,15 @@ void DoAfterPassword(DescriptorData *d) {
 	if (ban->IsBanned(d->host) == BanList::BAN_SELECT && !d->character->IsFlagged(EPlrFlag::kSiteOk)) {
 		iosystem::write_to_output("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		d->state = EConState::kClose;
-		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
+		mudlog(fmt::format("Connection attempt for {} denied from {}", GET_NAME(d->character), d->host),
+			   NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (GetRealLevel(d->character) < circle_restrict) {
 		iosystem::write_to_output("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		d->state = EConState::kClose;
-		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
+		mudlog(fmt::format("Request for login denied for {} [{}] (wizlock)", GET_NAME(d->character), d->host),
+			   NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0) {
@@ -834,8 +834,8 @@ void DoAfterPassword(DescriptorData *d) {
 
 	if (!subnets.empty()) {
 		if (subnets.count(inet_addr(d->host) & MASK) == 0) {
-			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
-			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+			mudlog(fmt::format("Персонаж {} вошел с необычного места!", GET_NAME(d->character)),
+				   CMP, kLvlGod, SYSLOG, true);
 			if (d->character->IsFlagged(EPrf::kIpControl)) {
 				int random_number = number(1000000, 9999999);
 				new_loc_codes[GET_EMAIL(d->character)] = random_number;
@@ -861,16 +861,15 @@ void DoAfterPassword(DescriptorData *d) {
 	log("%s [%s] has connected.", GET_NAME(d->character), d->host);
 
 	if (load_result) {
-		sprintf(buf, "\r\n\r\n\007\007\007"
-					 "%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
-				kColorRed, load_result, (load_result > 1) ? "S" : "", kColorNrm);
-		iosystem::write_to_output(buf, d);
+		iosystem::write_to_output(fmt::format("\r\n\r\n\007\007\007"
+											  "&r{} LOGIN FAILURE{} SINCE LAST SUCCESSFUL LOGIN.&n\r\n",
+											  load_result, load_result > 1 ? "S" : "").c_str(), d);
 		GET_BAD_PWS(d->character) = 0;
 	}
 	time_t tmp_time = d->character->get_last_logon();
-	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
-			rustime(localtime(&tmp_time)), d->character->player_specials->saved.LastIP);
-	iosystem::write_to_output(buf, d);
+	iosystem::write_to_output(fmt::format("\r\nПоследний раз вы заходили к нам в {} с адреса ({}).\r\n",
+										  rustime(localtime(&tmp_time)),
+										  d->character->player_specials->saved.LastIP).c_str(), d);
 
 	//if (!GloryMisc::check_stats(d->character))
 	if (!ValidateStats(d)) {
@@ -1009,14 +1008,10 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	d->character->get_account()->add_player(d->character->get_uid());
 
 	// добавляем в список ждущих одобрения
+	// Здесь собиралась строка "<имя> - новый игрок ... ждет одобрения имени" -- по
+	// оформлению (". ]\r\n[ ") она писалась под mudlog, но её никто никуда не отправлял
+	// за всю видимую историю. Мёртвую сборку убрали, сообщение так и не заведено.
 	if (!(int) NAME_FINE(d->character)) {
-		sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
-					 "[ %s ждет одобрения имени.",
-				GET_NAME(d->character), GET_PAD(d->character, 0),
-				GET_PAD(d->character, 1), GET_PAD(d->character, 2),
-				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
-				GET_PAD(d->character, 5), GET_EMAIL(d->character),
-				genders[(int) d->character->get_sex()], GET_NAME(d->character));
 		NewNames::add(d->character.get());
 	}
 
