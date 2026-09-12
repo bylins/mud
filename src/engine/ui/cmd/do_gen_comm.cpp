@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "do_gen_comm.h"
 #include "administration/privilege.h"
 #include "utils/native_text.h"
@@ -121,10 +123,8 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (GetRealLevel(ch) < com_msgs[subcmd].min_lev && !remort::GetRealRemort(ch)) {
-		sprintf(buf1,
-				"Вам стоит достичь хотя бы %d уровня, чтобы вы могли %s.\r\n",
-				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
-		SendMsgToChar(buf1, ch);
+		SendMsgToChar(fmt::format("Вам стоит достичь хотя бы {} уровня, чтобы вы могли {}.\r\n",
+								  com_msgs[subcmd].min_lev, com_msgs[subcmd].action), ch);
 		return;
 	}
 
@@ -139,8 +139,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	// make sure that there is something there to say!
 	if (!*argument && subcmd != kScmdAuction) {
-		sprintf(buf1, "ЛЕГКО! Но, Ярило вас побери, ЧТО %s???\r\n", com_msgs[subcmd].action);
-		SendMsgToChar(buf1, ch);
+		SendMsgToChar(fmt::format("ЛЕГКО! Но, Ярило вас побери, ЧТО {}???\r\n", com_msgs[subcmd].action), ch);
 		return;
 	}
 
@@ -193,7 +192,6 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	// first, set up strings to be given to the communicator
 	if (subcmd == kScmdAuction) {
-		*buf = '\0';
 		auction_drive(ch, argument);
 		return;
 	} else {
@@ -207,13 +205,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (ch->IsFlagged(EPrf::kNoRepeat))
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
-			snprintf(buf1, kMaxStringLength, "%sВы %s : '%s'%s", color_on,
-					 com_msgs[subcmd].you_action, argument, kColorNrm);
-			act(buf1, false, ch, nullptr, nullptr, kToChar | kToSleep);
+			const std::string echo = fmt::format("{}Вы {} : '{}'{}", color_on,
+												 com_msgs[subcmd].you_action, argument, kColorNrm);
+			act(echo, false, ch, nullptr, nullptr, kToChar | kToSleep);
 
 			if (!ch->IsNpc()) {
-				strcat(buf1, "\r\n");
-				ch->remember_add(buf1, Remember::ALL);
+				ch->remember_add(echo + "\r\n", Remember::ALL);
 			}
 		}
 		switch (subcmd) {
@@ -232,24 +229,13 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			default: ign_flag = 0;
 		}
 		snprintf(out_str, kMaxStringLength, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
-		if (IsFemale(ch)) {
-			if (!ch->IsNpc() && (subcmd == kScmdGossip)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заметила :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
-				ch->remember_add(buf1, Remember::GOSSIP);
-			}
-			if (!ch->IsNpc() && (subcmd == kScmdHoller)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заорала :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
-				ch->remember_add(buf1, Remember::GOSSIP);
-			}
-		} else {
-			if (!ch->IsNpc() && (subcmd == kScmdGossip)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заметил :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
-				ch->remember_add(buf1, Remember::GOSSIP);
-			}
-			if (!ch->IsNpc() && (subcmd == kScmdHoller)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заорал :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
-				ch->remember_add(buf1, Remember::GOSSIP);
-			}
+		if (!ch->IsNpc() && (subcmd == kScmdGossip || subcmd == kScmdHoller)) {
+			// Четыре почти одинаковые ветки (пол x канал) свёрнуты в одну: различаются
+			// только глагол и окончание.
+			const char *verb = subcmd == kScmdGossip ? "заметил" : "заорал";
+			ch->remember_add(fmt::format("{}{} {}{} :'{}'{}\r\n", color_on, GET_NAME(ch), verb,
+										 IsFemale(ch) ? "а" : "", argument, kColorNrm),
+							 Remember::GOSSIP);
 		}
 	}
 	// now send all the strings out

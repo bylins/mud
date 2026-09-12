@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
@@ -42,37 +44,37 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			k = ch;
 		}
 
-		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
+		const std::string to_group = fmt::format("$n сообщил$g группе : '{}'", argument);
 
 		if (AFF_FLAGGED(k, EAffect::kGroup)
 			&& k != ch
 			&& !ignores(k, ch, EIgnore::kGroup)) {
-			act(buf, false, ch, nullptr, k, kToVict | kToSleep | kToNotDeaf);
+			act(to_group, false, ch, nullptr, k, kToVict | kToSleep | kToNotDeaf);
 			if (!AFF_FLAGGED(k, EAffect::kDeafness)
 				&& k->GetPosition() > EPosition::kDead) {
-				sprintf(buf1,
-						"%s сообщил%s группе : '%s'\r\n",
-						tell_can_see(ch, k) ? ch->get_name().c_str() : "Кто-то",
-						grammar::VisSexEnding(sight::CanSee((k), (ch)), (ch)->get_sex(), 1),
-						argument);
-				k->remember_add(buf1, Remember::ALL);
-				k->remember_add(buf1, Remember::GROUP);
+				const std::string remembered =
+					fmt::format("{} сообщил{} группе : '{}'\r\n",
+								tell_can_see(ch, k) ? ch->get_name() : "Кто-то",
+								grammar::VisSexEnding(sight::CanSee((k), (ch)), (ch)->get_sex(), 1),
+								argument);
+				k->remember_add(remembered, Remember::ALL);
+				k->remember_add(remembered, Remember::GROUP);
 			}
 		}
 		for (auto *f : k->followers) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)
 				&& (f != ch)
 				&& !ignores(f, ch, EIgnore::kGroup)) {
-				act(buf, false, ch, nullptr, f, kToVict | kToSleep | kToNotDeaf);
+				act(to_group, false, ch, nullptr, f, kToVict | kToSleep | kToNotDeaf);
 				if (!AFF_FLAGGED(f, EAffect::kDeafness)
 					&& f->GetPosition() > EPosition::kDead) {
-					sprintf(buf1,
-							"%s сообщил%s группе : '%s'\r\n",
-							tell_can_see(ch, f) ? ch->get_name().c_str() : "Кто-то",
-							grammar::VisSexEnding(sight::CanSee((f), (ch)), (ch)->get_sex(), 1),
-							argument);
-					f->remember_add(buf1, Remember::ALL);
-					f->remember_add(buf1, Remember::GROUP);
+					const std::string remembered =
+						fmt::format("{} сообщил{} группе : '{}'\r\n",
+									tell_can_see(ch, f) ? ch->get_name() : "Кто-то",
+									grammar::VisSexEnding(sight::CanSee((f), (ch)), (ch)->get_sex(), 1),
+									argument);
+					f->remember_add(remembered, Remember::ALL);
+					f->remember_add(remembered, Remember::GROUP);
 				}
 			}
 		}
@@ -80,10 +82,10 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (ch->IsFlagged(EPrf::kNoRepeat))
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
-			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
-			SendMsgToChar(buf, ch);
-			ch->remember_add(buf, Remember::ALL);
-			ch->remember_add(buf, Remember::GROUP);
+			const std::string echo = fmt::format("Вы сообщили группе : '{}'\r\n", argument);
+			SendMsgToChar(echo, ch);
+			ch->remember_add(echo, Remember::ALL);
+			ch->remember_add(echo, Remember::GROUP);
 		}
 	}
 }
