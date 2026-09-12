@@ -3386,7 +3386,12 @@ int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
 	*first = zone_table[zrn].RnumRoomsLocation.first;
 	*last = zone_table[zrn].RnumRoomsLocation.second;
 
-	if (*first <= 0)
+	// Пустая зона выглядит не как first == -1, а как перевёрнутый диапазон. Каждой зоне
+	// AddVirtualRoomsToAllZones() добавляет виртуальную комнату X99, а CalculateFirstAndLastRooms()
+	// тут же выбрасывает её из диапазона (second--). Если своих комнат у зоны нет -- а у системных
+	// зон вроде книг заклинаний их нет, -- виртуалка была единственной, и после вычитания
+	// получается first == last + 1, причём last указывает в ПРЕДЫДУЩУЮ зону.
+	if (*first <= 0 || *first > *last)
 		return 0;
 	return 1;
 }
