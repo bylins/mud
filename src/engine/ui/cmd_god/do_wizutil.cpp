@@ -8,6 +8,8 @@
 
 #include "do_wizutil.h"
 
+#include <fmt/format.h>
+
 #include "administration/punishments.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
@@ -19,14 +21,14 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	long result;
 	int times = 0;
 	char *reason;
+	char name[kMaxInputLength];
 	char num[kMaxInputLength];
 
-	//  one_argument(argument, arg);
-	reason = two_arguments(argument, arg, num);
+	reason = two_arguments(argument, name, num);
 
-	if (!*arg)
+	if (!*name)
 		SendMsgToChar("Для кого?\r\n", ch);
-	else if (!(vict = target_resolver::FindPlayer(ch, arg)))
+	else if (!(vict = target_resolver::FindPlayer(ch, name)))
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, EGf::kDemigod)
 		&& !ch->IsFlagged(EPrf::kCoderinfo))
@@ -52,11 +54,13 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				vict->IsFlagged(EPlrFlag::kNoTitle) ? vict->UnsetFlag(EPlrFlag::kNoTitle)
 													: vict->SetFlag(EPlrFlag::kNoTitle);
 				result = vict->IsFlagged(EPlrFlag::kNoTitle);
-				sprintf(buf, "(GC) Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-				imm_log("Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
-				strcat(buf, "\r\n");
-				SendMsgToChar(buf, ch);
+				{
+					const std::string log_line = fmt::format("(GC) Notitle {} for {} by {}.",
+															 result ? "ON" : "OFF", GET_NAME(vict), GET_NAME(ch));
+					mudlog(log_line, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+					imm_log("Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
+					SendMsgToChar(log_line + "\r\n", ch);
+				}
 				break;
 			case kScmdSquelch: break;
 			case kScmdMute: if (*num) times = atol(num);

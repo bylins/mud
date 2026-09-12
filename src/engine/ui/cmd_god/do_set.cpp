@@ -535,7 +535,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			Password::set_password(vict, val_arg);
 			Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
-			AddKarma(vict, fmt::format("{} заменен пароль богом.", GET_PAD(vict, 2)).c_str(), GET_NAME(ch));
+			AddKarma(vict, fmt::format("{} заменен пароль богом.", GET_PAD(vict, 2)), GET_NAME(ch));
 			sprintf(output, "Пароль изменен на '%s'.", val_arg);
 			break;
 		case 37: on_off_mode ? vict->SetFlag(EPlrFlag::kNoDelete) : vict->UnsetFlag(EPlrFlag::kNoDelete);
@@ -661,7 +661,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				}
 				const std::string rename_note = fmt::format("Name changed from {} to {}", GET_NAME(vict), npad[0]);
 				vict->set_name(npad[0]);
-				AddKarma(vict, rename_note.c_str(), GET_NAME(ch));
+				AddKarma(vict, rename_note, GET_NAME(ch));
 
 				if (!vict->IsFlagged(EPlrFlag::kFrozen)
 					&& !vict->IsFlagged(EPlrFlag::kDeleted)
@@ -746,7 +746,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 50:
 			if (IsValidEmail(val_arg)) {
 				utils::ConvertToLow(val_arg);
-				AddKarma(vict, fmt::format("Email changed from {} to {}", GET_EMAIL(vict), val_arg).c_str(), GET_NAME(ch));
+				AddKarma(vict, fmt::format("Email changed from {} to {}", GET_EMAIL(vict), val_arg), GET_NAME(ch));
 				strncpy(GET_EMAIL(vict), val_arg, 127);
 				*(GET_EMAIL(vict) + 127) = '\0';
 			} else {
@@ -834,7 +834,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					act("Вы отпустили $N2 все грехи.", false, ch, nullptr, vict, kToChar);
 					AddKarma(vict, "Очистка грехов", GET_NAME(ch));
 
-				} else AddKarma(vict, karma_source.c_str(), reason);
+				} else AddKarma(vict, karma_source, reason);
 			} else {
 				SendMsgToChar("Формат команды: set [ file | player ] <character> karma <reason>\r\n", ch);
 				return (0);
@@ -864,8 +864,8 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			if (value > 1 && value < 75) {
 				const std::string remort_note =
 					fmt::format("Иммортал {} установил реморт {}  для игрока {} ", GET_NAME(ch), value, GET_NAME(vict));
-				AddKarma(vict, remort_note.c_str(), GET_NAME(ch));
-				AddKarma(ch, remort_note.c_str(), GET_NAME(vict));
+				AddKarma(vict, remort_note, GET_NAME(ch));
+				AddKarma(ch, remort_note, GET_NAME(vict));
 				vict->set_remort(value);
 				SendMsgToGods(remort_note.c_str());
 			} else {

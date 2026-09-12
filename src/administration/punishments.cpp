@@ -55,7 +55,7 @@ bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Mute OFF by {}", GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = fmt::format("&G{} разрешил$G вам кричать.&n", GET_NAME(ch));
 		to_room = "$n2 вернулся голос.";
 	} else {
@@ -65,7 +65,7 @@ bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Mute ON ({}h) by {}", times, GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = fmt::format("&R{} запретил$G вам кричать.&n", GET_NAME(ch));
 		to_room = "$n подавился своим криком.";
 		SetPunisherParamsToPundata(ch, pundata, reason);
@@ -91,7 +91,7 @@ bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Dumb OFF by {}", GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = fmt::format("&G{} разрешил$G вам издавать звуки.&n", GET_NAME(ch));
 		to_room = "$n нарушил$g обет молчания.";
 	} else {
@@ -101,7 +101,7 @@ bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Dumb ON ({}m) by {}", times, GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = fmt::format("&R{} запретил$G вам издавать звуки.&n", GET_NAME(ch));
 		to_room = "$n дал$g обет молчания.";
 		SetPunisherParamsToPundata(ch, pundata, reason);
@@ -127,7 +127,7 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Removed FROM hell by {}", GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		if (vict->in_room != kNowhere) {
 			act("$n выпущен$a из темницы!", false, vict, nullptr, nullptr, kToRoom);
 			MoveToStartRoom(vict);
@@ -148,7 +148,7 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Moved TO hell ({}h) by {}", times, GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = fmt::format("&R{} поместил$G вас в темницу.&n", GET_NAME(ch));
 		to_room = "$n водворен$a в темницу!";
 		SetPunisherParamsToPundata(ch, pundata, reason);
@@ -178,7 +178,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Freeze OFF by {}", GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		if (vict->in_room != kNowhere) {
 			act("$n выпущен$a из темницы!", false, vict, nullptr, nullptr, kToRoom);
 			MoveToStartRoom(vict);
@@ -195,7 +195,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Freeze ON ({}h) by {}", times, GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = "&BАдский холод сковал ваше тело ледяным панцирем.\r\n&n";
 		to_room = "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.";
 		if (vict->in_room != kNowhere) {
@@ -227,7 +227,7 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Removed FROM name room by {}", GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		if (vict->in_room != kNowhere) {
 			MoveToStartRoom(vict);
 			act("$n выпущен$a из комнаты имени!", false, vict, nullptr, nullptr, kToRoom);
@@ -248,7 +248,7 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Removed TO nameroom ({}h) by {}", times, GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = fmt::format("&R{} поместил$G вас в комнату имени.&n", GET_NAME(ch));
 		to_room = "$n помещен$a в комнату имени!";
 		SetPunisherParamsToPundata(ch, pundata, reason);
@@ -272,7 +272,7 @@ bool SetRegister(CharData *ch, CharData *vict, char *reason) {
 	imm_log("%s", log_line.c_str());
 	const std::string karma = fmt::format("Registered by {}", GET_NAME(ch));
 	RegisterSystem::add(vict, karma.c_str(), reason);
-	AddKarma(vict, karma.c_str(), reason);
+	AddKarma(vict, karma, reason);
 	if (vict->in_room != kNowhere) {
 		act("$n зарегистрирован$a!", false, vict, nullptr, nullptr, kToRoom);
 		MoveToStartRoom(vict);
@@ -300,7 +300,7 @@ bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Unregistered by {}", GET_NAME(ch));
 		RegisterSystem::remove(vict);
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		if (vict->in_room != kNowhere) {
 			act("C $n1 снята метка регистрации!", false, vict, nullptr, nullptr, kToRoom);
 		}
@@ -323,7 +323,7 @@ bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
 		mudlog(log_line, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s", log_line.c_str());
 		const std::string karma = fmt::format("Unregistered ({}h) by {}", times, GET_NAME(ch));
-		AddKarma(vict, karma.c_str(), reason);
+		AddKarma(vict, karma, reason);
 		to_vict = fmt::format("&R{} снял$G с вас... регистрацию :).&n", GET_NAME(ch));
 		to_room = "$n лишен$a регистрации!";
 		SetPunisherParamsToPundata(ch, pundata, reason);
