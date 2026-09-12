@@ -3,6 +3,8 @@
  \brief issue.spellhandlers: SpellLocateObject manual-cast handler (extracted from spells.cpp).
 */
 
+#include <fmt/format.h>
+
 #include "gameplay/handlers/spell_handlers.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -43,8 +45,7 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 	const auto result = world_objects.find_if_and_dec_number([ch, name, &bloody_corpse](const ObjData::shared_ptr &i) {
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
 		if (!obj_ptr) {
-			sprintf(buf, "SYSERR: Illegal object iterator while locate");
-			mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+			mudlog("SYSERR: Illegal object iterator while locate", BRF, kLvlImplementator, SYSLOG, true);
 
 			return false;
 		}
@@ -77,17 +78,15 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			const auto carried_by_ptr = character_list.get_character_by_address(carried_by);
 
 			if (!carried_by_ptr) {
-				sprintf(buf, "SYSERR: Illegal carried_by ptr. Создана кора для исследований");
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+				mudlog("SYSERR: Illegal carried_by ptr. Создана кора для исследований",
+					   BRF, kLvlImplementator, SYSLOG, true);
 				return false;
 			}
 
 			if (!ValidRnum(carried_by->in_room)) {
-				sprintf(buf,
-						"SYSERR: Illegal room %d, char %s. Создана кора для исследований",
-						carried_by->in_room,
-						carried_by->get_name().c_str());
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+				mudlog(fmt::format("SYSERR: Illegal room {}, char {}. Создана кора для исследований",
+								   carried_by->in_room, carried_by->get_name()),
+					   BRF, kLvlImplementator, SYSLOG, true);
 				return false;
 			}
 
@@ -100,13 +99,14 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			return false;
 		}
 		std::string locate_msg;
+		std::string where;
 
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
 			if (!carried_by->IsNpc() || same_zone || bloody_corpse) {
-				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
-						grammar::ObjPluralVerbEnding((i)->get_sex()), sight::PersonName(carried_by, ch, 1));
+				where = fmt::format("{} наход{}ся у {} в инвентаре.\r\n", i->get_short_description(),
+									grammar::ObjPluralVerbEnding((i)->get_sex()), sight::PersonName(carried_by, ch, 1));
 			} else {
 				return false;
 			}
@@ -114,8 +114,10 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			const auto room = i->get_in_room();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[room]->zone_rn;
 			if (same_zone) {
-				sprintf(buf, "%s наход%sся в комнате '%s'\r\n",
-						i->get_short_description().c_str(), grammar::ObjPluralVerbEnding((i)->get_sex()), world[room]->name);
+				// Имя комнаты бывает нулевым, а fmt на нуле бросает исключение
+				where = fmt::format("{} наход{}ся в комнате '{}'\r\n",
+									i->get_short_description(), grammar::ObjPluralVerbEnding((i)->get_sex()),
+									world[room]->name ? world[room]->name : "");
 			} else {
 				return false;
 			}
@@ -142,17 +144,17 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 						}
 					}
 				}
-				sprintf(buf, "%s наход%sся в %s.\r\n",
-						i->get_short_description().c_str(),
-						grammar::ObjPluralVerbEnding((i)->get_sex()),
-						i->get_in_obj()->get_PName(grammar::ECase::kPre).c_str());
+				where = fmt::format("{} наход{}ся в {}.\r\n",
+									i->get_short_description(),
+									grammar::ObjPluralVerbEnding((i)->get_sex()),
+									i->get_in_obj()->get_PName(grammar::ECase::kPre));
 			}
 		} else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[worn_by->in_room]->zone_rn;
 			if (!worn_by->IsNpc() || same_zone || bloody_corpse) {
-				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
-						grammar::ObjSexEnding((i)->get_sex(), 6), sight::PersonName(worn_by, ch, 3));
+				where = fmt::format("{} надет{} на {}.\r\n", i->get_short_description(),
+									grammar::ObjSexEnding((i)->get_sex(), 6), sight::PersonName(worn_by, ch, 3));
 			} else {
 				return false;
 			}
@@ -163,9 +165,9 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			SendMsgToChar(locate_msg.c_str(), ch);
 			return true;
 		} else {
-			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, grammar::ECase::kGen));
+			where = fmt::format("Местоположение {} неопределимо.\r\n", OBJN(i.get(), ch, grammar::ECase::kGen));
 		}
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(where, ch);
 		return true;
 	}, count);
 

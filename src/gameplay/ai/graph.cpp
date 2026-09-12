@@ -12,6 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <fmt/format.h>
+
 #include "engine/core/char_movement.h"
 #include "engine/entities/char_data.h"
 #include "utils/logger.h"
@@ -163,9 +165,9 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch, bool complain) 
 	}
 	bfs_queue.clear();
 	if (complain && ch->IsNpc()) {
-		sprintf(buf, "[%d] Mob (mob: %s vnum: %d) can't find path to room [%d].",
-				GET_ROOM_VNUM(ch->in_room), GET_NAME(ch), GET_MOB_VNUM(ch), GET_ROOM_VNUM(target));
-		mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
+		mudlog(fmt::format("[{}] Mob (mob: {} vnum: {}) can't find path to room [{}].",
+						   GET_ROOM_VNUM(ch->in_room), GET_NAME(ch), GET_MOB_VNUM(ch), GET_ROOM_VNUM(target)),
+			   NRM, kLvlBuilder, ERRLOG, true);
 	}
 	return (kBfsNoPath);
 }
@@ -208,14 +210,15 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_moves(ch, CanUseFeat(ch, EFeat::kTracker) ? kSenseMoves / 2 : kSenseMoves))
 		return;
 
-	one_argument(argument, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 
-	if (!*arg) {
+	if (!*name) {
 		SendMsgToChar("Кого вы хотите найти?\r\n", ch);
 		return;
 	}
 	// The person can't see the victim.
-	vict = target_resolver::FindCharInWorld(ch, arg);
+	vict = target_resolver::FindCharInWorld(ch, name);
 	if (!vict) {
 		SendMsgToChar("Ваши чувства молчат.\r\n", ch);
 		return;
@@ -231,19 +234,20 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	dir = go_sense(ch, vict);
 
+	std::string message;
 	switch (dir) {
-		case kBfsError: strcpy(buf, "Хммм... Ваше чувство подвело вас.");
+		case kBfsError: message = "Хммм... Ваше чувство подвело вас.";
 			break;
-		case kBfsAlreadyThere: strcpy(buf, "Вы же в одной комнате с $N4!");
+		case kBfsAlreadyThere: message = "Вы же в одной комнате с $N4!";
 			break;
-		case kBfsNoPath: strcpy(buf, "Ваши чувства молчат.");
+		case kBfsNoPath: message = "Ваши чувства молчат.";
 			break;
 		default:        // Success!
 			ImproveSkill(ch, ESkill::kSense, true, vict);
-			sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
+			message = fmt::format("Чувство подсказало вам : \"Ступай {}.\"\r\n", DirsTo[dir]);
 			break;
 	}
-	act(buf, false, ch, 0, vict, kToChar);
+	act(message, false, ch, 0, vict, kToChar);
 }
 
 
