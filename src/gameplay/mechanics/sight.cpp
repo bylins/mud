@@ -81,7 +81,7 @@ void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, i
 void do_auto_exits(CharData *ch);
 void show_extend_room(const char *description, CharData *ch);
 void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch);
-int paste_description(char *string, const char *tag, int need);
+bool paste_description(char *string, const char *tag, int need, std::string &out);
 void show_room_affects(CharData *ch);
 bool quest_item(ObjData *obj);
 void look_at_char(CharData *i, CharData *ch);
@@ -180,16 +180,19 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		ch->map_print_to_snooper(ch->desc->snoop_by->character.get());
 	}
 
-	SendMsgToChar(kColorBoldCyn, ch);
+	SendMsgToChar("&C", ch);
 
+	// имя комнаты бывает нулевым (конструктор RoomData ставит nullptr), а fmt на нулевом
+	// char* бросает исключение -- печатаем пустую строку, как printf печатал "(null)"
+	const char *room_name = world[ch->in_room]->name ? world[ch->in_room]->name : "";
 	if (!ch->IsNpc() && (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch))) {
 		// иммам рандомная * во флагах ломает мапер грят
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ERoomFlag::kBfsMark) ? true : false;
 		world[ch->in_room]->unset_flag(ERoomFlag::kBfsMark);
 
-		world[ch->in_room]->flags_sprint(buf, sizeof(buf), ";");
-		snprintf(buf2, kMaxStringLength, "[%7d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
-		SendMsgToChar(buf2, ch);
+		char room_flags[kMaxInputLength];
+		world[ch->in_room]->flags_sprint(room_flags, sizeof(room_flags), ";");
+		SendMsgToChar(fmt::format("[{:7}] {} [{}]", GET_ROOM_VNUM(ch->in_room), room_name, room_flags), ch);
 
 		if (has_flag) {
 			world[ch->in_room]->set_flag(ERoomFlag::kBfsMark);
@@ -203,14 +206,12 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			} else {
 				rvn =  world[ch->in_room]->vnum;
 			}
-			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, rvn);
-			SendMsgToChar(buf2, ch);
+			SendMsgToChar(fmt::format("{} [{}]", room_name, rvn), ch);
 		} else
-			SendMsgToChar(world[ch->in_room]->name, ch);
+			SendMsgToChar(room_name, ch);
 	}
 
-	SendMsgToChar(kColorNrm, ch);
-	SendMsgToChar("\r\n", ch);
+	SendMsgToChar("&n\r\n", ch);
 
 	if (is_dark(ch->in_room) && !ch->IsFlagged(EPrf::kHolylight)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
@@ -229,8 +230,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	// now list characters & objects
 	if (world[ch->in_room]->fires) {
-		sprintf(buf, "%sВ центре %s.%s\r\n", kColorRed, Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], kColorNrm);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("&rВ центре {}.&n\r\n", Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)]), ch);
 	}
 	// kPortalTimer rendering (regular + PK variant + immortal/tester timer suffix)
 	// moved into show_room_affects (issue.affect-flags): the PK uid lives on the
@@ -238,47 +238,32 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	if (world[ch->in_room]->holes) {
 		const int ar = round_up(world[ch->in_room]->holes / kHolesTime);
-		sprintf(buf, "%sЗдесь выкопана ямка глубиной примерно в %i аршин%s.%s\r\n",
-				kColorYel, ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (kColorNrm));
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("&yЗдесь выкопана ямка глубиной примерно в {} аршин{}.&n\r\n",
+								  ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов"))), ch);
 	}
 
 	if (ch->in_room != kNowhere && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather)
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors)) {
-		*buf = '\0';
+		std::string ground;
 		switch (real_sector(ch->in_room)) {
 			case ESector::kFieldSnow:
 			case ESector::kForestSnow:
 			case ESector::kHillsSnow:
-			case ESector::kMountainSnow:
-				sprintf(buf, "%sСнежный ковер лежит у вас под ногами.%s\r\n",
-						kColorWht, kColorNrm);
+			case ESector::kMountainSnow: ground = "&WСнежный ковер лежит у вас под ногами.&n\r\n";
 				break;
 			case ESector::kFieldRain:
 			case ESector::kForestRain:
-			case ESector::kHillsRain:
-				sprintf(buf,
-						"%sВы просто увязаете в грязи.%s\r\n",
-						kColorBoldBlk,
-						kColorNrm);
+			case ESector::kHillsRain: ground = "&KВы просто увязаете в грязи.&n\r\n";
 				break;
-			case ESector::kThickIce:
-				sprintf(buf,
-						"%sУ вас под ногами толстый лед.%s\r\n",
-						kColorBoldBlu,
-						kColorNrm);
+			case ESector::kThickIce: ground = "&BУ вас под ногами толстый лед.&n\r\n";
 				break;
-			case ESector::kNormalIce:
-				sprintf(buf, "%sУ вас под ногами достаточно толстый лед.%s\r\n",
-						kColorBoldBlu, kColorNrm);
+			case ESector::kNormalIce: ground = "&BУ вас под ногами достаточно толстый лед.&n\r\n";
 				break;
-			case ESector::kThinIce:
-				sprintf(buf, "%sТоненький ледок вот-вот проломится под вами.%s\r\n",
-						kColorBoldCyn, kColorNrm);
+			case ESector::kThinIce: ground = "&CТоненький ледок вот-вот проломится под вами.&n\r\n";
 				break;
 		};
-		if (*buf) {
-			SendMsgToChar(buf, ch);
+		if (!ground.empty()) {
+			SendMsgToChar(ground, ch);
 		}
 	}
 	SendMsgToChar("&Y&q", ch);
@@ -338,53 +323,53 @@ void show_extend_room(const char *const description, CharData *ch) {
 	strcpy(string, description);
 	if ((pos = strchr(string, '<')))
 		*pos = '\0';
-	strcpy(buf, string);
+	std::string text = string;
 	if (pos)
 		*pos = '<';
 
 	found = found || paste_description(string, TAG_WINTERNIGHT,
 									   (weather_info.season == ESeason::kWinter
-										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)), text);
 	found = found || paste_description(string, TAG_WINTERDAY,
 									   (weather_info.season == ESeason::kWinter
 										   && (weather_info.sunlight == kSunRise
-											   || weather_info.sunlight == kSunLight)));
+											   || weather_info.sunlight == kSunLight)), text);
 	found = found || paste_description(string, TAG_SPRINGNIGHT,
 									   (weather_info.season == ESeason::kSpring
-										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)), text);
 	found = found || paste_description(string, TAG_SPRINGDAY,
 									   (weather_info.season == ESeason::kSpring
 										   && (weather_info.sunlight == kSunRise
-											   || weather_info.sunlight == kSunLight)));
+											   || weather_info.sunlight == kSunLight)), text);
 	found = found || paste_description(string, TAG_SUMMERNIGHT,
 									   (weather_info.season == ESeason::kSummer
-										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)), text);
 	found = found || paste_description(string, TAG_SUMMERDAY,
 									   (weather_info.season == ESeason::kSummer
 										   && (weather_info.sunlight == kSunRise
-											   || weather_info.sunlight == kSunLight)));
+											   || weather_info.sunlight == kSunLight)), text);
 	found = found || paste_description(string, TAG_AUTUMNNIGHT,
 									   (weather_info.season == ESeason::kAutumn
-										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)), text);
 	found = found || paste_description(string, TAG_AUTUMNDAY,
 									   (weather_info.season == ESeason::kAutumn
 										   && (weather_info.sunlight == kSunRise
-											   || weather_info.sunlight == kSunLight)));
+											   || weather_info.sunlight == kSunLight)), text);
 	found = found || paste_description(string, TAG_NIGHT,
-									   (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark));
+									   (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark), text);
 	found = found || paste_description(string, TAG_DAY,
-									   (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight));
+									   (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight), text);
 
 	// Trim any LF/CRLF at the end of description
-	pos = buf + strlen(buf);
-	while (pos > buf && *--pos == '\n') {
-		*pos = '\0';
-		if (pos > buf && *(pos - 1) == '\r')
-			*--pos = '\0';
+	while (!text.empty() && text.back() == '\n') {
+		text.pop_back();
+		if (!text.empty() && text.back() == '\r') {
+			text.pop_back();
+		}
 	}
 
-	SendMsgToChar(buf, ch);
-	SendMsgToChar("\r\n", ch);
+	text += "\r\n";
+	SendMsgToChar(text, ch);
 }
 
 /*
@@ -538,9 +523,10 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 			show_obj_to_char(found_obj, ch, 6, true, 1);    // Find hum, glow etc
 		}
 
-		*buf = '\0';
-		obj_info(ch, found_obj, buf);
-		SendMsgToChar(buf, ch);
+		char info[kMaxStringLength];
+		*info = '\0';
+		obj_info(ch, found_obj, info);
+		SendMsgToChar(info, ch);
 	} else
 		SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 
@@ -560,81 +546,81 @@ void look_at_char(CharData *i, CharData *ch) {
 		else
 			SendMsgToChar(ch, "*\r\n%s*\r\n", AddLeadingStringSpace(i->player_data.description).c_str());
 	} else if (!i->IsNpc()) {
-		strcpy(buf, "\r\nЭто");
+		std::string look = "\r\nЭто";
 		if (IsFemale(i)) {
 			if (GET_HEIGHT(i) <= 151) {
 				if (GET_WEIGHT(i) >= 140)
-					strcat(buf, " маленькая плотная дамочка.\r\n");
+					look += " маленькая плотная дамочка.\r\n";
 				else if (GET_WEIGHT(i) >= 125)
-					strcat(buf, " маленькая женщина.\r\n");
+					look += " маленькая женщина.\r\n";
 				else
-					strcat(buf, " миниатюрная дамочка.\r\n");
+					look += " миниатюрная дамочка.\r\n";
 			} else if (GET_HEIGHT(i) <= 159) {
 				if (GET_WEIGHT(i) >= 145)
-					strcat(buf, " невысокая плотная мадам.\r\n");
+					look += " невысокая плотная мадам.\r\n";
 				else if (GET_WEIGHT(i) >= 130)
-					strcat(buf, " невысокая женщина.\r\n");
+					look += " невысокая женщина.\r\n";
 				else
-					strcat(buf, " изящная леди.\r\n");
+					look += " изящная леди.\r\n";
 			} else if (GET_HEIGHT(i) <= 165) {
 				if (GET_WEIGHT(i) >= 145)
-					strcat(buf, " среднего роста женщина.\r\n");
+					look += " среднего роста женщина.\r\n";
 				else
-					strcat(buf, " среднего роста изящная красавица.\r\n");
+					look += " среднего роста изящная красавица.\r\n";
 			} else if (GET_HEIGHT(i) <= 175) {
 				if (GET_WEIGHT(i) >= 150)
-					strcat(buf, " высокая дородная баба.\r\n");
+					look += " высокая дородная баба.\r\n";
 				else if (GET_WEIGHT(i) >= 135)
-					strcat(buf, " высокая стройная женщина.\r\n");
+					look += " высокая стройная женщина.\r\n";
 				else
-					strcat(buf, " высокая изящная женщина.\r\n");
+					look += " высокая изящная женщина.\r\n";
 			} else {
 				if (GET_WEIGHT(i) >= 155)
-					strcat(buf, " очень высокая крупная дама.\r\n");
+					look += " очень высокая крупная дама.\r\n";
 				else if (GET_WEIGHT(i) >= 140)
-					strcat(buf, " очень высокая стройная женщина.\r\n");
+					look += " очень высокая стройная женщина.\r\n";
 				else
-					strcat(buf, " очень высокая худощавая женщина.\r\n");
+					look += " очень высокая худощавая женщина.\r\n";
 			}
 		} else {
 			if (GET_HEIGHT(i) <= 165) {
 				if (GET_WEIGHT(i) >= 170)
-					strcat(buf, " маленький, похожий на колобок, мужчина.\r\n");
+					look += " маленький, похожий на колобок, мужчина.\r\n";
 				else if (GET_WEIGHT(i) >= 150)
-					strcat(buf, " маленький плотный мужчина.\r\n");
+					look += " маленький плотный мужчина.\r\n";
 				else
-					strcat(buf, " маленький плюгавенький мужичонка.\r\n");
+					look += " маленький плюгавенький мужичонка.\r\n";
 			} else if (GET_HEIGHT(i) <= 175) {
 				if (GET_WEIGHT(i) >= 175)
-					strcat(buf, " невысокий коренастый крепыш.\r\n");
+					look += " невысокий коренастый крепыш.\r\n";
 				else if (GET_WEIGHT(i) >= 160)
-					strcat(buf, " невысокий крепкий мужчина.\r\n");
+					look += " невысокий крепкий мужчина.\r\n";
 				else
-					strcat(buf, " невысокий худощавый мужчина.\r\n");
+					look += " невысокий худощавый мужчина.\r\n";
 			} else if (GET_HEIGHT(i) <= 185) {
 				if (GET_WEIGHT(i) >= 180)
-					strcat(buf, " среднего роста коренастый мужчина.\r\n");
+					look += " среднего роста коренастый мужчина.\r\n";
 				else if (GET_WEIGHT(i) >= 165)
-					strcat(buf, " среднего роста крепкий мужчина.\r\n");
+					look += " среднего роста крепкий мужчина.\r\n";
 				else
-					strcat(buf, " среднего роста худощавый мужчина.\r\n");
+					look += " среднего роста худощавый мужчина.\r\n";
 			} else if (GET_HEIGHT(i) <= 195) {
 				if (GET_WEIGHT(i) >= 185)
-					strcat(buf, " высокий крупный мужчина.\r\n");
+					look += " высокий крупный мужчина.\r\n";
 				else if (GET_WEIGHT(i) >= 170)
-					strcat(buf, " высокий стройный мужчина.\r\n");
+					look += " высокий стройный мужчина.\r\n";
 				else
-					strcat(buf, " длинный, худощавый мужчина.\r\n");
+					look += " длинный, худощавый мужчина.\r\n";
 			} else {
 				if (GET_WEIGHT(i) >= 190)
-					strcat(buf, " огромный мужик.\r\n");
+					look += " огромный мужик.\r\n";
 				else if (GET_WEIGHT(i) >= 180)
-					strcat(buf, " очень высокий, крупный амбал.\r\n");
+					look += " очень высокий, крупный амбал.\r\n";
 				else
-					strcat(buf, " длиннющий, похожий на жердь мужчина.\r\n");
+					look += " длиннющий, похожий на жердь мужчина.\r\n";
 			}
 		}
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(look, ch);
 	} else
 		act("\r\nНичего необычного в $n5 вы не заметили.", false, i, nullptr, ch, kToVict);
 
@@ -652,11 +638,13 @@ void look_at_char(CharData *i, CharData *ch) {
 		} else {
 			for (const auto &aff : i->affected) {
 				if (IS_SET(aff->battleflag, kAfCharmBond)) {
-					sprintf(buf,
-							IsPoly(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
-							aff->duration/2,
-							grammar::GetDeclensionInNumber(aff->duration/2, grammar::EWhat::kHour));
-					act(buf, false, i, nullptr, ch, kToVict);
+					// Формат выбираем целиком: fmt проверяет строку формата на этапе компиляции
+					const std::string charm_msg = IsPoly(i)
+						? fmt::format("$n будут слушаться вас еще {} {}.", aff->duration/2,
+									  grammar::GetDeclensionInNumber(aff->duration/2, grammar::EWhat::kHour))
+						: fmt::format("$n будет слушаться вас еще {} {}.", aff->duration/2,
+									  grammar::GetDeclensionInNumber(aff->duration/2, grammar::EWhat::kHour));
+					act(charm_msg.c_str(), false, i, nullptr, ch, kToVict);
 					break;
 				}
 			}
@@ -665,16 +653,16 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	if (mount::IsHorse(i)
 		&& i->get_master() == ch) {
-		strcpy(buf, "\r\nЭто ваш скакун. Он ");
+		std::string horse = "\r\nЭто ваш скакун. Он ";
 		if (GET_HORSESTATE(i) <= 0)
-			strcat(buf, "загнан.\r\n");
+			horse += "загнан.\r\n";
 		else if (GET_HORSESTATE(i) <= 20)
-			strcat(buf, "весь в мыле.\r\n");
+			horse += "весь в мыле.\r\n";
 		else if (GET_HORSESTATE(i) <= 80)
-			strcat(buf, "в хорошем состоянии.\r\n");
+			horse += "в хорошем состоянии.\r\n";
 		else
-			strcat(buf, "выглядит совсем свежим.\r\n");
-		SendMsgToChar(buf, ch);
+			horse += "выглядит совсем свежим.\r\n";
+		SendMsgToChar(horse, ch);
 	};
 
 	diag_char_to_char(i, ch);
@@ -867,9 +855,12 @@ void show_room_affects(CharData *ch) {
 	}
 }
 
-int paste_description(char *string, const char *tag, int need) {
+// Дописывает в out кусок описания под тегом tag; 'R' сразу после тега означает,
+// что кусок заменяет собой всё собранное ранее. Хвост после следующего такого же
+// тега отрезается.
+bool paste_description(char *string, const char *tag, int need, std::string &out) {
 	if (!*string || !*tag) {
-		return (false);
+		return false;
 	}
 
 	char *pos = str_str(string, tag);
@@ -877,10 +868,6 @@ int paste_description(char *string, const char *tag, int need) {
 		return false;
 	}
 	if (!need) {
-/*		*pos = '\0';
-		if ((pos = str_str(pos + 1, tag)))
-			strcat(buf, pos + strlen(tag));
-*/
 		return false;
 	}
 
@@ -892,16 +879,17 @@ int paste_description(char *string, const char *tag, int need) {
 
 	if (*pos == 'R') {
 		pos++;
-		buf[0] = '\0';
+		out.clear();
 	}
 
-	strcat(buf, pos);
-	pos = str_str(buf, tag);
-	if (pos) {
-		*pos = '\0';
+	out += pos;
+	// str_str ищет без учёта регистра и по символам, а не байтам -- поэтому не find()
+	const auto cut = str_str(out, tag);
+	if (cut != std::string::npos) {
+		out.erase(cut);
 	}
 
-	return (true);
+	return true;
 }
 
 void do_auto_exits(CharData *ch) {
@@ -929,9 +917,7 @@ void do_auto_exits(CharData *ch) {
 			}
 		}
 	}
-	sprintf(buf2, "%s[ Exits: %s]%s\r\n", kColorCyn, *buf ? buf : "None! ", kColorNrm);
-
-	SendMsgToChar(buf2, ch);
+	SendMsgToChar(fmt::format("&c[ Exits: {}]&n\r\n", *buf ? buf : "None! "), ch);
 }
 
 
@@ -1105,38 +1091,37 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 		|| (EXIT(ch, dir)
 			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
-		count += sprintf(buf, "%s%s:%s ", kColorYel, dirs_rus[dir], kColorNrm);
+		std::string out = fmt::format("&y{}:&n ", dirs_rus[dir]);
 		if (EXIT_FLAGGED(rdata, EExitFlag::kClosed)) {
 			if (rdata->keyword) {
-				count += sprintf(buf + count, " закрыто (%s).\r\n", rdata->keyword);
+				out += fmt::format(" закрыто ({}).\r\n", rdata->keyword);
 			} else {
-				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
+				out += " закрыто (вероятно дверь).\r\n";
 			}
 
 			const int skill_pick = GetSkill(ch, ESkill::kPickLock);
 			if (EXIT_FLAGGED(rdata, EExitFlag::kLocked) && skill_pick) {
+				// Продолжение пишется поверх последнего CRLF -- как и раньше с buf + count - 2
+				out.erase(out.size() - 2);
 				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
-					count += sprintf(buf + count - 2,
-									 "%s вы никогда не сможете ЭТО взломать!%s\r\n",
-									 kColorBoldCyn,
-									 kColorNrm);
+					out += "&C вы никогда не сможете ЭТО взломать!&n\r\n";
 				} else if (EXIT_FLAGGED(rdata, EExitFlag::kBrokenLock)) {
-					count += sprintf(buf + count - 2, "%s Замок сломан... %s\r\n", kColorRed, kColorNrm);
+					out += "&r Замок сломан... &n\r\n";
 				} else {
 					const PickProbabilityInformation &pbi = get_pick_probability(ch, rdata->lock_complexity);
-					count += sprintf(buf + count - 2, "%s\r\n", pbi.text.c_str());
+					out += pbi.text + "\r\n";
 				}
 			}
 
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(out, ch);
 			// issue.room-affect-trigger-improve (door affects): show any visible enchantment on the door.
 			if (const std::string da = DoorAffectLook(ch, rdata); !da.empty()) { SendMsgToChar(da.c_str(), ch); }
 			return;
 		}
 
 		if (is_dark(rdata->to_room())) {
-			count += sprintf(buf + count, " слишком темно.\r\n");
-			SendMsgToChar(buf, ch);
+			out += " слишком темно.\r\n";
+			SendMsgToChar(out, ch);
 			if (info_is & EXIT_SHOW_LOOKING) {
 				SendMsgToChar("&R&q", ch);
 				count = 0;
@@ -1161,11 +1146,14 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 			}
 		} else {
 			if (!rdata->general_description.empty()) {
-				count += sprintf(buf + count, "%s\r\n", rdata->general_description.c_str());
+				out += rdata->general_description + "\r\n";
 			} else {
-				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room()]->name);
+				// имя комнаты бывает нулевым (конструктор RoomData)
+				const char *name = world[rdata->to_room()]->name;
+				out += name ? name : "";
+				out += "\r\n";
 			}
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(out, ch);
 			// issue.room-affect-trigger-improve (door affects): show any visible enchantment on the exit.
 			if (const std::string da = DoorAffectLook(ch, rdata); !da.empty()) { SendMsgToChar(da.c_str(), ch); }
 			SendMsgToChar("&R&q", ch);
@@ -1205,8 +1193,7 @@ void look_in_obj(CharData *ch, char *arg) {
 	bits = generic_find(arg, where_bits, ch, &dummy, &obj);
 
 	if ((obj == nullptr) || !bits) {
-		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Вы не видите здесь '{}'.\r\n", arg), ch);
 	} else if (obj->get_type() != EObjType::kLiquidContainer
 		&& obj->get_type() != EObjType::kFountain
 		&& obj->get_type() != EObjType::kContainer) {
@@ -1227,20 +1214,17 @@ void look_in_obj(CharData *ch, char *arg) {
 			if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
 				const int skill_pick = GetSkill(ch, ESkill::kPickLock);
-				int count = sprintf(buf, "Заперт%s.", grammar::ObjSexEnding((obj)->get_sex(), 6));
+				std::string locked = fmt::format("Заперт{}.", grammar::ObjSexEnding((obj)->get_sex(), 6));
 				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp)) && skill_pick) {
 					if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)))
-						count += sprintf(buf + count,
-										 "%s Вы никогда не сможете ЭТО взломать!%s\r\n",
-										 kColorBoldCyn,
-										 kColorNrm);
+						locked += "&C Вы никогда не сможете ЭТО взломать!&n\r\n";
 					else if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockIsBroken)))
-						count += sprintf(buf + count, "%s Замок сломан... %s\r\n", kColorRed, kColorNrm);
+						locked += "&r Замок сломан... &n\r\n";
 					else {
 						const PickProbabilityInformation &pbi = get_pick_probability(ch, GET_OBJ_VAL(obj, 3));
-						count += sprintf(buf + count, "%s\r\n", pbi.text.c_str());
+						locked += pbi.text + "\r\n";
 					}
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(locked, ch);
 				}
 			} else {
 				SendMsgToChar(OBJN(obj, ch, grammar::ECase::kNom), ch);
@@ -1263,8 +1247,8 @@ void look_in_obj(CharData *ch, char *arg) {
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/
 						amt = std::clamp((obj->get_weight() * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
-						sprintf(buf, "Заполнен%s содержимым %s:\r\n", grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt]);
-						SendMsgToChar(buf, ch);
+						SendMsgToChar(fmt::format("Заполнен{} содержимым {}:\r\n",
+												  grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt]), ch);
 					}
 					list_obj_to_char(obj->get_contains(), ch, 1, bits != EFind::kObjRoom);
 				}
@@ -1288,64 +1272,59 @@ void skip_hide_on_look(CharData *ch) {
 }
 
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
-const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how) {
-	*buf = '\0';
+std::string show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how) {
+	std::string out;
 	if ((mode < 5) && (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)))
 		// Поле под внум -- на всю разрешённую ширину (kMaxProtoNumber = 9999999): предметы из зон
 		// от тысячной уже семизначные, и в пятизначном поле строка съезжала, ломая колонку.
-		sprintf(buf, "[%7d] ", GET_OBJ_VNUM(object));
+		out = fmt::format("[{:7}] ", GET_OBJ_VNUM(object));
 
 	if (mode == 0
 		&& !object->get_description().empty()) {
-		strcat(buf, object->get_description().c_str());
-		strcat(buf, char_get_custom_label(object, ch).c_str());
+		out += object->get_description();
+		out += char_get_custom_label(object, ch);
 	} else if (!object->get_short_description().empty() && ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4))) {
-		strcat(buf, object->get_short_description().c_str());
-		strcat(buf, char_get_custom_label(object, ch).c_str());
+		out += object->get_short_description();
+		out += char_get_custom_label(object, ch);
 	} else if (mode == 5) {
 		if (object->get_type() == EObjType::kNote) {
 			if (!object->get_action_description().empty()) {
-				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
-				strcat(buf, AddLeadingStringSpace(object->get_action_description()).c_str());
-				strcat(buf, "\r\n");
-				page_string(ch->desc, buf, 1);
+				page_string(ch->desc, "Вы прочитали следующее :\r\n\r\n"
+									  + AddLeadingStringSpace(object->get_action_description()) + "\r\n");
 			} else {
 				SendMsgToChar("Чисто.\r\n", ch);
 			}
-			return nullptr;
+			return "";
 		} else if (object->get_type() == EObjType::kBandage) {
-			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
-			snprintf(buf2, kMaxStringLength, "Осталось применений: %d, восстановление: %d",
-					 object->get_weight(), GET_OBJ_VAL(object, 0) * 10);
-			strcat(buf, buf2);
+			out = fmt::format("Бинты для перевязки ран ('перевязать').\r\nОсталось применений: {}, восстановление: {}",
+							  object->get_weight(), GET_OBJ_VAL(object, 0) * 10);
 		} else if (object->get_type() != EObjType::kLiquidContainer) {
-			strcpy(buf, "Вы не видите ничего необычного.");
+			out = "Вы не видите ничего необычного.";
 		} else        // ITEM_TYPE == kLiquidContainer||FOUNTAIN
 		{
-			strcpy(buf, "Это емкость для жидкости.");
+			out = "Это емкость для жидкости.";
 		}
 	}
 
 	if (show_state && show_state != 3 && show_state != 4) {
-		*buf2 = '\0';
+		std::string state;
 		if (mode == 1 && how <= 1) {
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1)
-					strcpy(buf2, " (вечный свет)");
+					state = " (вечный свет)";
 				else if (GET_OBJ_VAL(object, 2) == 0)
-					sprintf(buf2, " (погас%s)", grammar::ObjSexEnding((object)->get_sex(), 4));
+					state = fmt::format(" (погас{})", grammar::ObjSexEnding((object)->get_sex(), 4));
 				else
-					sprintf(buf2, " (%d %s)",
-							GET_OBJ_VAL(object, 2), grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
+					state = fmt::format(" ({} {})", GET_OBJ_VAL(object, 2),
+										grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 			} else {
 				if (obj_affects::PoisonSpell(object) != ESpell::kUndefined) {
-					sprintf(buf2, " %s*%s%s", kColorGrn,
-							kColorNrm, diag_obj_to_char(object, 1));
+					state = fmt::format(" &g*&n{}", diag_obj_to_char(object, 1));
 				} else {
 					// diag_obj_to_char сама начинается с пробела, а всё, что дописывается следом,
 					// свой пробел тоже приносит: лишний тут давал "бочка  <великолепно>" и
 					// "сундук <хорошо>  (есть содержимое)".
-					sprintf(buf2, "%s", diag_obj_to_char(object, 1));
+					state = diag_obj_to_char(object, 1);
 					// В списке предметов от наполнения остаётся только пометка "(пусто)". Полная
 					// фраза ("наполнена меньше, чем на четверть черной вязкой жидкостью") удлиняла
 					// строку вдвое, а посмотреть её можно, осмотрев ёмкость.
@@ -1353,9 +1332,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 						&& GET_OBJ_VAL(object, 1) <= 0) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
 						native_text::copy_lower_char(tmp, tmp);
-						// Без промежуточного буфера: fortify ловил переполнение на длинной фразе
-						// и валил процесс на осмотре ёмкости (issue #3752).
-						strcat(buf2, fmt::format(" ({})", tmp).c_str());
+						state += fmt::format(" ({})", tmp);
 					}
 				}
 			}
@@ -1363,96 +1340,95 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				&& !IS_SET(GET_OBJ_VAL((object), 1), (EContainerFlag::kShutted))) // если закрыто, содержимое не показываем
 			{
 				if (object->get_contains()) {
-					strcat(buf2, " (есть содержимое)");
+					state += " (есть содержимое)";
 				} else {
 					if (GET_OBJ_VAL(object, 3) < 1) // есть ключ для открытия, пустоту не показываем2
-						sprintf(buf2 + strlen(buf2), " (пуст%s)", grammar::ObjSexEnding((object)->get_sex(), 6));
+						state += fmt::format(" (пуст{})", grammar::ObjSexEnding((object)->get_sex(), 6));
 				}
 			}
 			if ((object->get_type() == EObjType::kNote) && !object->get_action_description().empty()) {
-				strcat(buf2, " (что-то накарябано)");
+				state += " (что-то накарябано)";
 			}
 		} else if (mode >= 2 && how <= 1) {
 			std::string obj_name = OBJN(object, ch, grammar::ECase::kNom);
 			native_text::capitalize_first(obj_name);
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
-					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
+					state = fmt::format("\r\n{} дает вечный свет.", obj_name);
 				} else if (GET_OBJ_VAL(object, 2) == 0) {
-					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), grammar::ObjSexEnding((object)->get_sex(), 4));
+					state = fmt::format("\r\n{} погас{}.", obj_name, grammar::ObjSexEnding((object)->get_sex(), 4));
 				} else {
-					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
-							grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
+					state = fmt::format("\r\n{} будет светить {} {}.", obj_name, GET_OBJ_VAL(object, 2),
+										grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 				}
 			} else if (object->get_current_durability() < object->get_maximum_durability()) {
-				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(object, 2));
+				state = fmt::format("\r\n{} {}.", obj_name, diag_obj_to_char(object, 2));
 			}
 		}
-		strcat(buf, buf2);
+		out += state;
 	}
 	if (how > 1) {
-		sprintf(buf + strlen(buf), " [%d]", how);
+		out += fmt::format(" [{}]", how);
 	}
 	// issue.obj-suppressor-affect: brief marker when a worn item's conferred magic is currently
 	// suppressed (dispelled + auto-returning); the full list with timers shows on examine/identify.
 	if (mode != 3 && how <= 1 && object->has_suppressed_affects()) {
-		strcat(buf, " <магия подавлена>");
+		out += " <магия подавлена>";
 	}
 	if (mode != 3 && how <= 1) {
 		if (object->has_flag(EObjFlag::kInvisible)) {
-			sprintf(buf2, " (невидим%s)", grammar::ObjSexEnding((object)->get_sex(), 6));
-			strcat(buf, buf2);
+			out += fmt::format(" (невидим{})", grammar::ObjSexEnding((object)->get_sex(), 6));
 		}
 		if (object->has_flag(EObjFlag::kBless)
 			&& AFF_FLAGGED(ch, EAffect::kDetectAlign))
-			strcat(buf, " ..голубая аура!");
+			out += " ..голубая аура!";
 		if (object->has_flag(EObjFlag::kMagic)
 			&& AFF_FLAGGED(ch, EAffect::kDetectMagic))
-			strcat(buf, " ..желтая аура!");
+			out += " ..желтая аура!";
 		if (object->has_flag(EObjFlag::kPoisoned)
 			&& AFF_FLAGGED(ch, EAffect::kDetectPoison)) {
-			sprintf(buf2, "..отравлен%s!", grammar::ObjSexEnding((object)->get_sex(), 6));
-			strcat(buf, buf2);
+			out += fmt::format("..отравлен{}!", grammar::ObjSexEnding((object)->get_sex(), 6));
 		}
 		if (object->has_flag(EObjFlag::kGlow))
-			strcat(buf, " ..блестит!");
+			out += " ..блестит!";
 		if (object->has_flag(EObjFlag::kHum) && !AFF_FLAGGED(ch, EAffect::kDeafness))
-			strcat(buf, " ..шумит!");
+			out += " ..шумит!";
 		if (object->has_flag(EObjFlag::kFire))
-			strcat(buf, " ..горит!");
+			out += " ..горит!";
 		if (object->has_flag(EObjFlag::kBloody)) {
-			sprintf(buf2, " %s..покрыт%s кровью!%s", kColorBoldRed, grammar::ObjSexEnding((object)->get_sex(), 6), kColorNrm);
-			strcat(buf, buf2);
+			out += fmt::format(" &R..покрыт{} кровью!&n", grammar::ObjSexEnding((object)->get_sex(), 6));
 		}
 	}
 
 	if (mode == 1) {
 		// клан-сундук, выводим список разом постранично
 		if (show_state == 3) {
-			sprintf(buf + strlen(buf), " [%d %s]\r\n",
-					object->get_rent_on() * kClanStorehouseCoeff / 100,
-					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(object->get_rent_on() * kClanStorehouseCoeff / 100, grammar::ECase::kNom).c_str());
-			return buf;
+			out += fmt::format(" [{} {}]\r\n",
+							   object->get_rent_on() * kClanStorehouseCoeff / 100,
+							   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(
+								   object->get_rent_on() * kClanStorehouseCoeff / 100, grammar::ECase::kNom));
+			return out;
 		}
 			// ингры
 		else if (show_state == 4) {
-			sprintf(buf + strlen(buf), " [%d %s]\r\n", object->get_rent_off(),
-					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(object->get_rent_off(), grammar::ECase::kNom).c_str());
-			return buf;
+			out += fmt::format(" [{} {}]\r\n", object->get_rent_off(),
+							   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(
+								   object->get_rent_off(), grammar::ECase::kNom));
+			return out;
 		}
 	}
 
-	strcat(buf, "\r\n");
+	out += "\r\n";
 	if (mode >= 5) {
-		strcat(buf, diag_weapon_to_char(object, true));
-		strcat(buf, diag_armor_type_to_char(object).c_str());
-		strcat(buf, diag_timer_to_char(object));
-		strcat(buf, "\r\n");
+		out += diag_weapon_to_char(object, true);
+		out += diag_armor_type_to_char(object);
+		out += diag_timer_to_char(object);
+		out += "\r\n";
 		//strcat(buf, diag_uses_to_char(object, ch)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
-		strcat(buf, obj_affects::Diag(object, ch).c_str());
+		out += obj_affects::Diag(object, ch);
 	}
-	page_string(ch->desc, buf, true);
-	return nullptr;
+	page_string(ch->desc, out);
+	return "";
 }
 
 void print_zone_info(CharData *ch) {
@@ -1562,75 +1538,68 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	else
 		percent = -1;    // How could MAX_HIT be < 1??
 
-	strcpy(buf, PersonName(i, ch, 0));
-	utils::CAP(buf);
+	// CAP(std::string) возвращает копию, а не правит на месте
+	std::string out = utils::CAP(PersonName(i, ch, 0));
 
 	// Состояние жизни красим тем же градиентом, каким показаны хиты в бою -- в промпте
 	// (iosystem.cpp) и в списке группы (groups.cpp). Без цвета строка при осмотре сливается
 	// с описанием персонажа. Красится только само состояние, имя и поза остаются как были.
-	strcat(buf, GetWarmValueColor(i->get_hit(), i->get_real_max_hit()));
+	out += GetWarmValueColor(i->get_hit(), i->get_real_max_hit());
 
 	if (percent >= 100) {
-		sprintf(buf2, " невредим%s", grammar::SexEnding((i)->get_sex(), 6));
-		strcat(buf, buf2);
+		out += fmt::format(" невредим{}", grammar::SexEnding((i)->get_sex(), 6));
 	} else if (percent >= 90) {
-		sprintf(buf2, " слегка поцарапан%s", grammar::SexEnding((i)->get_sex(), 6));
-		strcat(buf, buf2);
+		out += fmt::format(" слегка поцарапан{}", grammar::SexEnding((i)->get_sex(), 6));
 	} else if (percent >= 75) {
-		sprintf(buf2, " легко ранен%s", grammar::SexEnding((i)->get_sex(), 6));
-		strcat(buf, buf2);
+		out += fmt::format(" легко ранен{}", grammar::SexEnding((i)->get_sex(), 6));
 	} else if (percent >= 50) {
-		sprintf(buf2, " ранен%s", grammar::SexEnding((i)->get_sex(), 6));
-		strcat(buf, buf2);
+		out += fmt::format(" ранен{}", grammar::SexEnding((i)->get_sex(), 6));
 	} else if (percent >= 30) {
-		sprintf(buf2, " тяжело ранен%s", grammar::SexEnding((i)->get_sex(), 6));
-		strcat(buf, buf2);
+		out += fmt::format(" тяжело ранен{}", grammar::SexEnding((i)->get_sex(), 6));
 	} else if (percent >= 15) {
-		sprintf(buf2, " смертельно ранен%s", grammar::SexEnding((i)->get_sex(), 6));
-		strcat(buf, buf2);
+		out += fmt::format(" смертельно ранен{}", grammar::SexEnding((i)->get_sex(), 6));
 	} else if (percent >= 0)
-		strcat(buf, " в ужасном состоянии");
+		out += " в ужасном состоянии";
 	else
-		strcat(buf, " умирает");
+		out += " умирает";
 
-	strcat(buf, kColorNrm);
+	out += "&n";
 
 	if (!mount::IsOnHorse(i))
 		switch (i->GetPosition()) {
-			case EPosition::kPerish: strcat(buf, ".");
+			case EPosition::kPerish: out += ".";
 				break;
-			case EPosition::kIncap: strcat(buf, IsPoly(i) ? ", лежат без сознания." : ", лежит без сознания.");
+			case EPosition::kIncap: out += IsPoly(i) ? ", лежат без сознания." : ", лежит без сознания.";
 				break;
-			case EPosition::kStun: strcat(buf, IsPoly(i) ? ", лежат в обмороке." : ", лежит в обмороке.");
+			case EPosition::kStun: out += IsPoly(i) ? ", лежат в обмороке." : ", лежит в обмороке.";
 				break;
-			case EPosition::kSleep: strcat(buf, IsPoly(i) ? ", спят." : ", спит.");
+			case EPosition::kSleep: out += IsPoly(i) ? ", спят." : ", спит.";
 				break;
-			case EPosition::kRest: strcat(buf, IsPoly(i) ? ", отдыхают." : ", отдыхает.");
+			case EPosition::kRest: out += IsPoly(i) ? ", отдыхают." : ", отдыхает.";
 				break;
-			case EPosition::kSit: strcat(buf, IsPoly(i) ? ", сидят." : ", сидит.");
+			case EPosition::kSit: out += IsPoly(i) ? ", сидят." : ", сидит.";
 				break;
-			case EPosition::kStand: strcat(buf, IsPoly(i) ? ", стоят." : ", стоит.");
+			case EPosition::kStand: out += IsPoly(i) ? ", стоят." : ", стоит.";
 				break;
 			case EPosition::kFight:
 				if (i->GetEnemy())
-					strcat(buf, IsPoly(i) ? ", сражаются." : ", сражается.");
+					out += IsPoly(i) ? ", сражаются." : ", сражается.";
 				else
-					strcat(buf, IsPoly(i) ? ", махают кулаками." : ", махает кулаками.");
+					out += IsPoly(i) ? ", махают кулаками." : ", махает кулаками.";
 				break;
 			default: return;
 				break;
 		}
 	else
-		strcat(buf, IsPoly(i) ? ", сидят верхом." : ", сидит верхом.");
+		out += IsPoly(i) ? ", сидят верхом." : ", сидит верхом.";
 
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
 		if (AFF_FLAGGED(i, EAffect::kPoisoned)) {
-			sprintf(buf2, " (отравлен%s)", grammar::SexEnding((i)->get_sex(), 6));
-			strcat(buf, buf2);
+			out += fmt::format(" (отравлен{})", grammar::SexEnding((i)->get_sex(), 6));
 		}
 
-	strcat(buf, "\r\n");
-	SendMsgToChar(buf, ch);
+	out += "\r\n";
+	SendMsgToChar(out, ch);
 
 }
 
@@ -1702,8 +1671,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	if (((obj->get_type() == EObjType::kLiquidContainer)
 		&& (GET_OBJ_VAL(obj, 1) > 0))
 		|| (obj->get_type() == EObjType::kFood)) {
-		sprintf(buf1, "Качество: %s\r\n", drinkcon::diag_liquid_timer(obj));
-		strcat(buf, buf1);
+		sprintf(buf + strlen(buf), "Качество: %s\r\n", drinkcon::diag_liquid_timer(obj));
 	}
 }
 
@@ -1833,11 +1801,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	if (mode == ESkill::kLooking) {
 		if (HERE(i) && InvisOk(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
 			if (GET_RACE(i) == ENpcRace::kConstruct && privilege::IsImmortal(ch)) {
-				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
+				SendMsgToChar(fmt::format("Вы разглядели {}.(предмет)\r\n", GET_PAD(i, 3)), ch);
 			} else {
-				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+				SendMsgToChar(fmt::format("Вы разглядели {}.\r\n", GET_PAD(i, 3)), ch);
 			}
-			SendMsgToChar(buf, ch);
 		}
 		return;
 	}
@@ -1846,38 +1813,38 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	if (!CanSee(ch, i)) {
 		mode_flags =
 			check_awake(i, kAcheckAffects | kAcheckLight | kAcheckHumming | kAcheckGlowing | kAcheckWeight);
-		*buf = 0;
+		std::string presence;
 		if (IS_SET(mode_flags, kAcheckAffects)) {
 			REMOVE_BIT(mode_flags, kAcheckAffects);
-			sprintf(buf + strlen(buf), "магический ореол%s", mode_flags ? ", " : " ");
+			presence += fmt::format("магический ореол{}", mode_flags ? ", " : " ");
 		}
 		if (IS_SET(mode_flags, kAcheckLight)) {
 			REMOVE_BIT(mode_flags, kAcheckLight);
-			sprintf(buf + strlen(buf), "яркий свет%s", mode_flags ? ", " : " ");
+			presence += fmt::format("яркий свет{}", mode_flags ? ", " : " ");
 		}
 		if (IS_SET(mode_flags, kAcheckGlowing)
 			&& IS_SET(mode_flags, kAcheckHumming)
 			&& !AFF_FLAGGED(ch, EAffect::kDeafness)) {
 			REMOVE_BIT(mode_flags, kAcheckGlowing);
 			REMOVE_BIT(mode_flags, kAcheckHumming);
-			sprintf(buf + strlen(buf), "шум и блеск экипировки%s", mode_flags ? ", " : " ");
+			presence += fmt::format("шум и блеск экипировки{}", mode_flags ? ", " : " ");
 		}
 		if (IS_SET(mode_flags, kAcheckGlowing)) {
 			REMOVE_BIT(mode_flags, kAcheckGlowing);
-			sprintf(buf + strlen(buf), "блеск экипировки%s", mode_flags ? ", " : " ");
+			presence += fmt::format("блеск экипировки{}", mode_flags ? ", " : " ");
 		}
 		if (IS_SET(mode_flags, kAcheckHumming)
 			&& !AFF_FLAGGED(ch, EAffect::kDeafness)) {
 			REMOVE_BIT(mode_flags, kAcheckHumming);
-			sprintf(buf + strlen(buf), "шум экипировки%s", mode_flags ? ", " : " ");
+			presence += fmt::format("шум экипировки{}", mode_flags ? ", " : " ");
 		}
 		if (IS_SET(mode_flags, kAcheckWeight)
 			&& !AFF_FLAGGED(ch, EAffect::kDeafness)) {
 			REMOVE_BIT(mode_flags, kAcheckWeight);
-			sprintf(buf + strlen(buf), "бряцание металла%s", mode_flags ? ", " : " ");
+			presence += fmt::format("бряцание металла{}", mode_flags ? ", " : " ");
 		}
-		strcat(buf, "выдает чье-то присутствие.\r\n");
-		SendMsgToChar(utils::CAP(buf), ch);
+		presence += "выдает чье-то присутствие.\r\n";
+		SendMsgToChar(utils::CAP(presence), ch);
 		return;
 	}
 
@@ -1887,45 +1854,40 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffect::kCharmed)
 		&& !mount::IsHorse(i)) {
-		*buf = '\0';
+		std::string line;
 		if (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)) {
-			sprintf(buf, "[%7d] ", GET_MOB_VNUM(i));
+			line = fmt::format("[{:7}] ", GET_MOB_VNUM(i));
 		}
 
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 			&& !AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 			if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) {
-				strcat(buf, "(черная аура) ");
+				line += "(черная аура) ";
 			}
 		}
 		if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 			if (i->IsNpc()) {
 				if (NPC_FLAGGED(i, ENpcFlag::kAirCreature))
-					sprintf(buf + strlen(buf), "%s(аура воздуха)%s ",
-							kColorBoldBlu, kColorBoldRed);
+					line += "&B(аура воздуха)&R ";
 				else if (NPC_FLAGGED(i, ENpcFlag::kWaterCreature))
-					sprintf(buf + strlen(buf), "%s(аура воды)%s ",
-							kColorBoldCyn, kColorBoldRed);
+					line += "&C(аура воды)&R ";
 				else if (NPC_FLAGGED(i, ENpcFlag::kFireCreature))
-					sprintf(buf + strlen(buf), "%s(аура огня)%s ",
-							kColorBoldMag, kColorBoldRed);
+					line += "&M(аура огня)&R ";
 				else if (NPC_FLAGGED(i, ENpcFlag::kEarthCreature))
-					sprintf(buf + strlen(buf), "%s(аура земли)%s ",
-							kColorBoldGrn, kColorBoldRed);
+					line += "&G(аура земли)&R ";
 			}
 		}
 		if (AFF_FLAGGED(i, EAffect::kInvisible))
-			sprintf(buf + strlen(buf), "(невидим%s) ", grammar::SexEnding((i)->get_sex(), 6));
+			line += fmt::format("(невидим{}) ", grammar::SexEnding((i)->get_sex(), 6));
 		if (AFF_FLAGGED(i, EAffect::kHide))
-			sprintf(buf + strlen(buf), "(спрятал%s) ", grammar::SexEnding((i)->get_sex(), 2));
+			line += fmt::format("(спрятал{}) ", grammar::SexEnding((i)->get_sex(), 2));
 		if (AFF_FLAGGED(i, EAffect::kDisguise))
-			sprintf(buf + strlen(buf), "(замаскировал%s) ", grammar::SexEnding((i)->get_sex(), 2));
+			line += fmt::format("(замаскировал{}) ", grammar::SexEnding((i)->get_sex(), 2));
 		if (AFF_FLAGGED(i, EAffect::kFly))
-			strcat(buf, IsPoly(i) ? "(летят) " : "(летит) ");
+			line += IsPoly(i) ? "(летят) " : "(летит) ";
 		if (AFF_FLAGGED(i, EAffect::kHorse))
-			strcat(buf, "(под седлом) ");
+			line += "(под седлом) ";
 
-		std::string line = buf;
 		line += i->player_data.long_descr;
 		AppendCompactShieldSuffix(line, ch, i);
 		SendMsgToChar(line, ch);
@@ -1935,27 +1897,29 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		return;
 	}
 
+	std::string name;
 	if (i->IsNpc()) {
-		strcpy(buf1, i->get_npc_name().c_str());
-		strcat(buf1, " ");
+		name = i->get_npc_name() + " ";
 		if (AFF_FLAGGED(i, EAffect::kHorse))
-			strcat(buf1, "(под седлом) ");
-		utils::CAP(buf1);
+			name += "(под седлом) ";
+		// CAP(std::string) возвращает копию, а не правит на месте
+		name = utils::CAP(name);
 	} else {
-		sprintf(buf1, "%s%s ", i->race_or_title().c_str(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
+		name = fmt::format("{}{} ", i->race_or_title(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
 
-	snprintf(buf, kMaxStringLength, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
+	std::string line = AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "";
+	line += name;
 	if (AFF_FLAGGED(i, EAffect::kInvisible))
-		sprintf(buf + strlen(buf), "(невидим%s) ", grammar::SexEnding((i)->get_sex(), 6));
+		line += fmt::format("(невидим{}) ", grammar::SexEnding((i)->get_sex(), 6));
 	if (AFF_FLAGGED(i, EAffect::kHide))
-		sprintf(buf + strlen(buf), "(спрятал%s) ", grammar::SexEnding((i)->get_sex(), 2));
+		line += fmt::format("(спрятал{}) ", grammar::SexEnding((i)->get_sex(), 2));
 	if (AFF_FLAGGED(i, EAffect::kDisguise))
-		sprintf(buf + strlen(buf), "(замаскировал%s) ", grammar::SexEnding((i)->get_sex(), 2));
+		line += fmt::format("(замаскировал{}) ", grammar::SexEnding((i)->get_sex(), 2));
 	if (!i->IsNpc() && !i->desc)
-		sprintf(buf + strlen(buf), "(потерял%s связь) ", grammar::SexEnding((i)->get_sex(), 1));
+		line += fmt::format("(потерял{} связь) ", grammar::SexEnding((i)->get_sex(), 1));
 	if (!i->IsNpc() && i->IsFlagged(EPlrFlag::kWriting))
-		strcat(buf, "(пишет) ");
+		line += "(пишет) ";
 
 	if (i->GetPosition() != EPosition::kFight) {
 		if (mount::IsOnHorse(i)) {
@@ -1963,84 +1927,82 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			if (horse) {
 				const char *msg =
 					AFF_FLAGGED(horse, EAffect::kFly) ? "летает" : "сидит";
-				sprintf(buf + strlen(buf), "%s здесь верхом на %s. ",
+				line += fmt::format("{} здесь верхом на {}. ",
 						msg, PersonName(horse, ch, 5));
 			}
 		} else if (mount::IsHorse(i) && AFF_FLAGGED(i, EAffect::kTethered))
-			sprintf(buf + strlen(buf), "привязан%s здесь. ", grammar::SexEnding((i)->get_sex(), 6));
+			line += fmt::format("привязан{} здесь. ", grammar::SexEnding((i)->get_sex(), 6));
 		else if ((sector = real_sector(i->in_room)) == ESector::kOnlyFlying)
-			strcat(buf, IsPoly(i) ? "летают здесь. " : "летает здесь. ");
+			line += IsPoly(i) ? "летают здесь. " : "летает здесь. ";
 		else if (sector == ESector::kUnderwater)
-			strcat(buf, IsPoly(i) ? "плавают здесь. " : "плавает здесь. ");
+			line += IsPoly(i) ? "плавают здесь. " : "плавает здесь. ";
 		else if (i->GetPosition() > EPosition::kSleep && AFF_FLAGGED(i, EAffect::kFly))
-			strcat(buf, IsPoly(i) ? "летают здесь. " : "летает здесь. ");
+			line += IsPoly(i) ? "летают здесь. " : "летает здесь. ";
 		else if (sector == ESector::kWaterSwim || sector == ESector::kWaterNoswim)
-			strcat(buf, IsPoly(i) ? "плавают здесь. " : "плавает здесь. ");
+			line += IsPoly(i) ? "плавают здесь. " : "плавает здесь. ";
 		else
-			strcat(buf,
-				   IsPoly(i) ? poly_positions[static_cast<int>(i->GetPosition())] : positions[static_cast<int>(i->GetPosition())]);
+			line += IsPoly(i) ? poly_positions[static_cast<int>(i->GetPosition())] : positions[static_cast<int>(i->GetPosition())];
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffected(i, EAffect::kCapable))
-			sprintf(buf + strlen(buf), "(аура магии) ");
+			line += "(аура магии) ";
 	} else {
 		if (i->GetEnemy()) {
-			strcat(buf, IsPoly(i) ? "сражаются с " : "сражается с ");
+			line += IsPoly(i) ? "сражаются с " : "сражается с ";
 			if (i->in_room != i->GetEnemy()->in_room)
-				strcat(buf, "чьей-то тенью");
+				line += "чьей-то тенью";
 			else if (i->GetEnemy() == ch)
-				strcat(buf, "ВАМИ");
+				line += "ВАМИ";
 			else
-				strcat(buf, GET_PAD(i->GetEnemy(), 4));
+				line += GET_PAD(i->GetEnemy(), 4);
 			if (mount::IsOnHorse(i))
-				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PersonName(mount::GetHorse(i), ch, 5));
+				line += fmt::format(", сидя верхом на {}! ", PersonName(mount::GetHorse(i), ch, 5));
 			else
-				strcat(buf, "! ");
+				line += "! ";
 		} else        // NIL fighting pointer
 		{
-			strcat(buf, IsPoly(i) ? "колотят по воздуху" : "колотит по воздуху");
+			line += IsPoly(i) ? "колотят по воздуху" : "колотит по воздуху";
 			if (mount::IsOnHorse(i))
-				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PersonName(mount::GetHorse(i), ch, 5));
+				line += fmt::format(", сидя верхом на {}. ", PersonName(mount::GetHorse(i), ch, 5));
 			else
-				strcat(buf, ". ");
+				line += ". ";
 		}
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 		&& !AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 		if (AFF_FLAGGED(i, EAffect::kForcesOfEvil))
-			strcat(buf, "(черная аура) ");
+			line += "(черная аура) ";
 	}
 	if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 		if (i->IsNpc()) {
 			if (alignment::IsEvil(i)) {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
-					strcat(buf, "(иссиня-черная аура) ");
+					line += "(иссиня-черная аура) ";
 				else
-					strcat(buf, "(темная аура) ");
+					line += "(темная аура) ";
 			} else if (alignment::IsGood(i)) {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
-					strcat(buf, "(серая аура) ");
+					line += "(серая аура) ";
 				else
-					strcat(buf, "(светлая аура) ");
+					line += "(светлая аура) ";
 			} else {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
-					strcat(buf, "(черная аура) ");
+					line += "(черная аура) ";
 			}
 		} else {
 			AddPkAuraDescription(i, aura_txt);
-			strcat(buf, aura_txt);
-			strcat(buf, " ");
+			line += aura_txt;
+			line += " ";
 		}
 	}
 	// issue.affect-migration: one affect-category test (kAfPoison) instead of enumerating every poison
 	// affect/spell -- every poison affect_type carries the kAfPoison flag (affects.xml; aconitum via poison.cpp).
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
 		if (IsAffectedWithFlag(i, kAfPoison))
-			sprintf(buf + strlen(buf), "(отравлен%s) ", grammar::SexEnding((i)->get_sex(), 6));
+			line += fmt::format("(отравлен{}) ", grammar::SexEnding((i)->get_sex(), 6));
 
-	std::string line = buf;
 	AppendCompactShieldSuffix(line, ch, i);
 	line += "\r\n";
 	SendMsgToChar(line, ch);

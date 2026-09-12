@@ -74,7 +74,7 @@ extern void sight::list_obj_to_char(ObjData *list, CharData *ch, int mode, int s
 extern int AllocateBufferForFile(const char *name, char **destination_buf);
 // TODO: думать надо с этим, или глобально следить за спамом, или игноров напихать на все случаи жизни, или так и оставить
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
-extern const char *sight::show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
+extern std::string sight::show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 extern bool char_to_pk_clan(CharData *ch);
 
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
