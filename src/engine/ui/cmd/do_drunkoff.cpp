@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/condition.h"
 #include "engine/entities/char_data.h"
@@ -47,9 +49,10 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 
-	if (!*arg) {
+	if (!*name) {
 		for (obj = ch->carrying; obj; obj = obj->get_next_content()) {
 			if (obj->get_type() == EObjType::kLiquidContainer) {
 				break;
@@ -59,8 +62,8 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("У вас нет подходящего напитка для похмелья.\r\n", ch);
 			return;
 		}
-	} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
+	} else if (!(obj = get_obj_in_list_vis(ch, name, ch->carrying))) {
+		if (!(obj = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents))) {
 			SendMsgToChar("Вы не смогли это найти!\r\n", ch);
 			return;
 		} else {
@@ -121,8 +124,8 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (percent > prob) {
-		sprintf(buf, "Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
-		act(buf, false, ch, obj, 0, kToChar);
+		act(fmt::format("Вы отхлебнули {} из $o1, но ваша голова стала еще тяжелее...",
+						drinks[GET_OBJ_VAL(obj, 2)]), false, ch, obj, 0, kToChar);
 		duration = std::max(1, amount / 3);
 		Affect<EApply> af[3];
 		af[0].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
@@ -159,9 +162,8 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		gain_condition(ch, condition::kDrunk, amount);
 		EmitAffectImpose(ch, nullptr, EAffect::kAbstinent, false);
 	} else {
-		sprintf(buf, "Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
-				drinks[GET_OBJ_VAL(obj, 2)]);
-		act(buf, false, ch, obj, 0, kToChar);
+		act(fmt::format("Вы отхлебнули {} из $o1 и почувствовали приятную легкость во всем теле...",
+						drinks[GET_OBJ_VAL(obj, 2)]), false, ch, obj, 0, kToChar);
 		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, nullptr, nullptr, kToRoom);
 		RemoveAffectFromCharAndRecalculate(ch, EAffect::kAbstinent);
 	}
