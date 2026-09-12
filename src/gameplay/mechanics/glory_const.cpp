@@ -126,11 +126,9 @@ void glory_hide(CharData *ch,
 		 ++t_it) {
 		if (ch->get_uid() == t_it->get()->uid) {
 			if (mode == true) {
-				sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				mudlog(fmt::format("Проставляю hide славы для {}", GET_NAME(ch)), CMP, kLvlGreatGod, SYSLOG, true);
 			} else {
-				sprintf(buf, "Убираю hide славы для %s", GET_NAME(ch));
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				mudlog(fmt::format("Убираю hide славы для {}", GET_NAME(ch)), CMP, kLvlGreatGod, SYSLOG, true);
 			}
 			t_it->get()->hide = mode;
 		}
@@ -226,21 +224,21 @@ int calculate_glory_in_stats(GloryListType::const_iterator &i) {
 // * Распечатка 'слава информация'.
 void print_glory(CharData *ch, GloryListType::iterator &it) {
 	int spent = 0;
-	*buf = '\0';
+	std::string out;
 	for (auto i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i) {
 		if ((i->first >= 0) && (i->first < (int) sizeof(olc_stat_name))) {
-			strcat(buf, fmt::format("{:<16}: +{}", olc_stat_name[i->first],
-					i->second * stat_multi(i->first)).c_str());
-			if (stat_multi(i->first) > 1)
-				sprintf(buf + strlen(buf), "(%d)", i->second);
-			strcat(buf, "\r\n");
+			out += fmt::format("{:<16}: +{}", olc_stat_name[i->first], i->second * stat_multi(i->first));
+			if (stat_multi(i->first) > 1) {
+				out += fmt::format("({})", i->second);
+			}
+			out += "\r\n";
 		} else {
 			log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
 		}
 		spent = spent + 1000 * i->second + 200 * (i->second - 1);
 	}
-	sprintf(buf + strlen(buf), "Свободных очков: %d. Вложено: %d\r\n", it->second->free_glory, spent);
-	SendMsgToChar(buf, ch);
+	out += fmt::format("Свободных очков: {}. Вложено: {}\r\n", it->second->free_glory, spent);
+	SendMsgToChar(out, ch);
 }
 
 // * Показ свободной и вложенной славы у чара (glory имя).
@@ -649,12 +647,8 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		remove_glory(ch->get_uid(), amount);
 		add_glory(vict->get_uid(), total_amount);
 
-		snprintf(buf, kMaxStringLength,
-				 "Transfer %d const glory from %s", total_amount, GET_NAME(ch));
-		AddKarma(vict, buf, "командой");
-
-		snprintf(buf, kMaxStringLength, "Transfer %d const glory to %s", amount, GET_NAME(vict));
-		AddKarma(ch, buf, "командой");
+		AddKarma(vict, fmt::format("Transfer {} const glory from {}", total_amount, GET_NAME(ch)).c_str(), "командой");
+		AddKarma(ch, fmt::format("Transfer {} const glory to {}", amount, GET_NAME(vict)).c_str(), "командой");
 
 		total_charge += tax;
 		transfer_log("%s -> %s transfered %d (%d tax)", GET_NAME(ch), GET_NAME(vict), total_amount, tax);
@@ -769,10 +763,10 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	enum { SHOW_GLORY, ADD_GLORY, SUB_GLORY, RESET_GLORY };
 
-	char num[kMaxInputLength];
+	char name[kMaxInputLength], num[kMaxInputLength];
 	int mode = 0;
 
-	char *reason = two_arguments(argument, arg, num);
+	char *reason = two_arguments(argument, name, num);
 	skip_spaces(&reason);
 
 	if (!*num) {
@@ -792,14 +786,14 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = target_resolver::FindPlayerVis(ch, arg);
+	CharData *vict = target_resolver::FindPlayerVis(ch, name);
 	if (vict && vict->desc && vict->desc->state == EConState::kGloryConst) {
 		SendMsgToChar("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;
 	}
 	Player t_vict; // TODO: мутно
 	if (!vict) {
-		if (LoadPlayerCharacter(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
+		if (LoadPlayerCharacter(name, &t_vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
@@ -813,12 +807,13 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(ch, "%s добавлено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
 						  GET_PAD(vict, 2), amount, get_glory(vict->get_uid()));
 			// запись в карму, логи
-			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-			imm_log("%s", buf);
-			sprintf(buf, "Change const glory +%d by %s", amount, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
+			const std::string log_line =
+				fmt::format("(GC) {} sets +{} const glory to {}.", GET_NAME(ch), amount, GET_NAME(vict));
+			mudlog(log_line, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			imm_log("%s", log_line.c_str());
+			const std::string karma_line = fmt::format("Change const glory +{} by {}", amount, GET_NAME(ch));
+			AddKarma(vict, karma_line.c_str(), reason);
+			GloryMisc::add_log(mode, amount, karma_line, std::string(reason), vict);
 			break;
 		}
 		case SUB_GLORY: {
@@ -830,24 +825,26 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(ch, "У %s вычтено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
 						  GET_PAD(vict, 1), amount, get_glory(vict->get_uid()));
 			// запись в карму, логи
-			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-			imm_log("%s", buf);
-			sprintf(buf, "Change const glory -%d by %s", amount, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
+			const std::string log_line =
+				fmt::format("(GC) {} sets -{} const glory to {}.", GET_NAME(ch), amount, GET_NAME(vict));
+			mudlog(log_line, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			imm_log("%s", log_line.c_str());
+			const std::string karma_line = fmt::format("Change const glory -{} by {}", amount, GET_NAME(ch));
+			AddKarma(vict, karma_line.c_str(), reason);
+			GloryMisc::add_log(mode, amount, karma_line, std::string(reason), vict);
 			break;
 		}
 		case RESET_GLORY: {
 			if (reset_glory(vict)) {
 				SendMsgToChar(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
 				// запись в карму, логи
-				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-				imm_log("%s", buf);
-				sprintf(buf, "Reset stats and const glory by %s", GET_NAME(ch));
-				AddKarma(vict, buf, reason);
-				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
+				const std::string log_line =
+					fmt::format("(GC) {} reset const glory to {}.", GET_NAME(ch), GET_NAME(vict));
+				mudlog(log_line, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+				imm_log("%s", log_line.c_str());
+				const std::string karma_line = fmt::format("Reset stats and const glory by {}", GET_NAME(ch));
+				AddKarma(vict, karma_line.c_str(), reason);
+				GloryMisc::add_log(mode, 0, karma_line, std::string(reason), vict);
 			} else {
 				SendMsgToChar(ch, "%s - запись постоянной славы и так пустая.\r\n", vict->get_name().c_str());
 			}
@@ -910,20 +907,16 @@ void load() {
 	const std::string xml_glory_const = native_text::read_data_file(LIB_USERDATA"glory_const.xml");
 	pugi::xml_parse_result result = doc.load_buffer(xml_glory_const.data(), xml_glory_const.size());
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "WARNING: glory_const.xml not found or unreadable (%s), skipping (non-fatal)", result.description());
-		perror(buf);
+		perror(fmt::format("WARNING: glory_const.xml not found or unreadable ({}), skipping (non-fatal)",
+						   result.description()).c_str());
 		return;
 	}
 	pugi::xml_node char_list = doc.child("glory_list");
 	if (char_list.attribute("version")) {
 		ver = std::stoi(char_list.attribute("version").value(), nullptr, 10);
 		if (ver > cur_ver) {
-			snprintf(buf,
-					 kMaxStringLength,
-					 "SYSERR: error reading glory_const.xml: unsupported version: %d, current version: %d",
-					 ver,
-					 cur_ver);
-			perror(buf);
+			perror(fmt::format("SYSERR: error reading glory_const.xml: unsupported version: {}, current version: {}",
+							   ver, cur_ver).c_str());
 			return;
 		}
 	}
