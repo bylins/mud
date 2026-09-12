@@ -167,47 +167,47 @@ bool wear_msg(CharData *ch, ObjData *obj) {
 bool parse_nedit_menu(CharData *ch, char *arg) {
 	int num;
 	StuffNodePtr tmp_node(new stuff_node);
-	char i[256];
-	half_chop(arg, buf1, buf2);
-	i[0] = 0;
-	if (!*buf1) {
+	char param[kMaxInputLength], value[kMaxInputLength];
+	half_chop(arg, param, value);
+	if (!*param) {
 		return false;
 	}
-	if ((*buf1 < '1' || *buf1 > '8') && (native_text::first_char_code_lower(buf1) != rus::kVe
-			&& native_text::first_char_code_lower(buf1) != rus::kHa
-			&& native_text::first_char_code_lower(buf1) != rus::kU)) {
+	if ((*param < '1' || *param > '8') && (native_text::first_char_code_lower(param) != rus::kVe
+			&& native_text::first_char_code_lower(param) != rus::kHa
+			&& native_text::first_char_code_lower(param) != rus::kU)) {
 		// Печатаем символ целиком, а не первый байт: под UTF-8 русская буква в char не влезает,
 		// и игрок получал в ответ обломок вместо своей буквы (issue #3797).
 		SendMsgToChar(fmt::format("Неверный параметр {}!\r\n",
-								  std::string_view(buf1, native_text::char_bytes(buf1))), ch);
+								  std::string_view(param, native_text::char_bytes(param))), ch);
 		return false;
 	}
-	if (!*buf2 && native_text::first_char_code_lower(buf1) != rus::kVe
-		&& native_text::first_char_code_lower(buf1) != rus::kHa
-		&& native_text::first_char_code_lower(buf1) != rus::kU) {
-		if (*buf1 < '5' || *buf1 > '8') {
+	if (!*value && native_text::first_char_code_lower(param) != rus::kVe
+		&& native_text::first_char_code_lower(param) != rus::kHa
+		&& native_text::first_char_code_lower(param) != rus::kU) {
+		if (*param < '5' || *param > '8') {
 			SendMsgToChar("Не указан второй параметр!\r\n", ch);
 		} else {
-			switch (*buf1) {
-				case '5': snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->wear_msg_v.c_str());
+			std::string msg;
+			switch (*param) {
+				case '5': msg = fmt::format("&S{}&s\r\n", ch->desc->named_obj->wear_msg_v);
 					break;
-				case '6': snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->wear_msg_a.c_str());
+				case '6': msg = fmt::format("&S{}&s\r\n", ch->desc->named_obj->wear_msg_a);
 					break;
-				case '7': snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->cant_msg_v.c_str());
+				case '7': msg = fmt::format("&S{}&s\r\n", ch->desc->named_obj->cant_msg_v);
 					break;
-				case '8': snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->cant_msg_a.c_str());
+				case '8': msg = fmt::format("&S{}&s\r\n", ch->desc->named_obj->cant_msg_a);
 					break;
-				default: snprintf(i, 256, "&RОшибка.&n\r\n");
+				default: msg = "&RОшибка.&n\r\n";
 					break;
 			}
-			SendMsgToChar(i, ch);
+			SendMsgToChar(msg, ch);
 		}
 		return false;
 	}
 
-	switch (native_text::first_char_code_lower(buf1)) {
+	switch (native_text::first_char_code_lower(param)) {
 		case '1':
-			if (a_isdigit(*buf2) && sscanf(buf2, "%d", &num)) {
+			if (a_isdigit(*value) && sscanf(value, "%d", &num)) {
 				if (GetObjRnum(num) < 0) {
 					SendMsgToChar(ch, "Такого объекта не существует.\r\n");
 					return false;
@@ -216,7 +216,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			}
 			break;
 
-		case '2': num = GetUniqueByName(buf2);
+		case '2': num = GetUniqueByName(value);
 			if (0 >= num) {
 				SendMsgToChar(ch, "Такого персонажа не существует.\r\n");
 				return false;
@@ -226,20 +226,20 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			break;
 
 		case '3':
-			if (*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num)) {
+			if (*value && a_isdigit(*value) && sscanf(value, "%d", &num)) {
 				ch->desc->named_obj->can_clan = 0 == num ? 0 : 1;
 			}
 			break;
 
 		case '4':
-			if (*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num)) {
+			if (*value && a_isdigit(*value) && sscanf(value, "%d", &num)) {
 				ch->desc->named_obj->can_alli = 0 == num ? 0 : 1;
 			}
 			break;
 
 		case '5':
-			if (*buf2) {
-				ch->desc->named_obj->wear_msg_v = delete_doubledollar(buf2);
+			if (*value) {
+				ch->desc->named_obj->wear_msg_v = delete_doubledollar(value);
 				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->wear_msg_v.c_str(), "_"))
 					ch->desc->named_obj->wear_msg_v == "";
@@ -248,8 +248,8 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			break;
 
 		case '6':
-			if (*buf2) {
-				ch->desc->named_obj->wear_msg_a = delete_doubledollar(buf2);
+			if (*value) {
+				ch->desc->named_obj->wear_msg_a = delete_doubledollar(value);
 				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->wear_msg_a.c_str(), "_"))
 					ch->desc->named_obj->wear_msg_a == "";
@@ -258,8 +258,8 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			break;
 
 		case '7':
-			if (*buf2) {
-				ch->desc->named_obj->cant_msg_v = delete_doubledollar(buf2);
+			if (*value) {
+				ch->desc->named_obj->cant_msg_v = delete_doubledollar(value);
 				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->cant_msg_v.c_str(), "_"))
 					ch->desc->named_obj->cant_msg_v == "";
@@ -268,8 +268,8 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			break;
 
 		case '8':
-			if (*buf2) {
-				ch->desc->named_obj->cant_msg_a = delete_doubledollar(buf2);
+			if (*value) {
+				ch->desc->named_obj->cant_msg_a = delete_doubledollar(value);
 				/* TODO: review me
 				if(!strcmp(ch->desc->named_obj->cant_msg_a.c_str(), "_"))
 					ch->desc->named_obj->cant_msg_a == "";
@@ -345,88 +345,92 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 	bool have_missed_items = false;
 	int first = 0, last = 0, found = 0, uid = -1;
 
-	two_arguments(argument, buf, buf2);
+	char arg_first[kMaxInputLength], arg_second[kMaxInputLength];
+	two_arguments(argument, arg_first, arg_second);
+	// Фильтр по владельцу: либо почта найденного персонажа, либо то, что ввели,
+	// -- тогда ищем подстроку в почте. При поиске по номерам фильтр пустой.
+	std::string mail_filter;
 
-	if (*buf) {
-		if (is_number(buf)) {
-			first = atoi(buf);
-			if (*buf2)
-				last = atoi(buf2);
-			else
-				last = first;
-			*buf = '\0';
+	if (*arg_first) {
+		if (is_number(arg_first)) {
+			first = atoi(arg_first);
+			last = *arg_second ? atoi(arg_second) : first;
 		} else {
 			last = 1;
 			first = 0x7fffffff;
-			uid = GetUniqueByName(buf);
-			//*buf = '\0';
+			uid = GetUniqueByName(arg_first);
+			mail_filter = arg_first;
 			if (uid > 0) {
-				strcpy(buf, player_table[GetPtableByUnique(uid)].mail.c_str());
+				mail_filter = player_table[GetPtableByUnique(uid)].mail;
 			}
 		}
 	}
 
 	switch (subcmd) {
-		case SCMD_NAMED_LIST: sprintf(buf1, "Список именных предметов:\r\n");
-			if (stuff_list.size() == 0) {
-				out += buf1;
+		case SCMD_NAMED_LIST: {
+			const std::string header = "Список именных предметов:\r\n";
+			if (stuff_list.empty()) {
+				out += header;
 				out += " Пока что пусто.\r\n";
 			} else {
 				for (StuffListType::iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
+					const bool by_mail = !mail_filter.empty()
+						&& it->second->mail.find(mail_filter) != std::string::npos;
 					if ((r_num = GetObjRnum(it->first)) < 0) {
-						if ((*buf && strstr(it->second->mail.c_str(), buf))
+						if (by_mail
 							|| (uid != -1
 								&& uid == it->second->uid)
 							|| (uid == -1
 								&& it->first >= first
 								&& it->first <= last)) {
 							if (found == 0) {
-								out += buf1;
+								out += header;
 							}
 							found++;
-							strcpy(buf2, fmt::format("{:6}) &R*&n{:<31} Владелец:{:<16} e-mail:&S{}&s\r\n",
-									it->first + 1,
-									"Несуществующий предмет",
-									GetNameByUnique(it->second->uid, false),
-									it->second->mail
-							).c_str());
-							out += buf2;
+							out += fmt::format("{:6}) &R*&n{:<31} Владелец:{:<16} e-mail:&S{}&s\r\n",
+											   it->first + 1,
+											   "Несуществующий предмет",
+											   GetNameByUnique(it->second->uid, false),
+											   it->second->mail);
 						}
 					} else {
-						if ((*buf && strstr(it->second->mail.c_str(), buf))
+						if (by_mail
 							|| (uid != -1
 								&& uid == it->second->uid)
 							|| (uid == -1
 								&& obj_proto[r_num]->get_vnum() >= first
 								&& obj_proto[r_num]->get_vnum() <= last)) {
-							sprintf(buf1, "%6d) %s",
-									obj_proto[r_num]->get_vnum(),
-									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
-							if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-								strcpy(buf2, fmt::format("{} Игра:{} Пост:{} Владелец:{:<16} e-mail:&S{}&s\r\n", buf1,
-										 obj_proto.total_online(r_num), obj_proto.stored(r_num),
-										 GetNameByUnique(it->second->uid, false), it->second->mail).c_str());
-							} else {
-								snprintf(buf2, kMaxStringLength, "%s\r\n", buf1);
-							}
+							// Колонка с названием -- 32 символа влево, как и в ветке выше:
+							// раньше сюда передавали -32, и ширина превращалась в 255 пробелов.
+							const std::string line =
+								fmt::format("{:6}) {}",
+											obj_proto[r_num]->get_vnum(),
+											colored_name(obj_proto[r_num]->get_short_description().c_str(), 32, true));
 							if (found == 0) {
-								out += buf1;
+								out += header;
 							}
 							found++;
-							out += buf2;
+							if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
+								out += fmt::format("{} Игра:{} Пост:{} Владелец:{:<16} e-mail:&S{}&s\r\n",
+												   line,
+												   obj_proto.total_online(r_num), obj_proto.stored(r_num),
+												   GetNameByUnique(it->second->uid, false), it->second->mail);
+							} else {
+								out += line + "\r\n";
+							}
 						}
 					}
 				}
 			}
 			if (!found) {
-				sprintf(buf, "Нет таких именных вещей.\r\nСинтаксис %s [vnum [vnum] | имя | email]\r\n",
-						cmd_info[cmd].command);
-				out += buf;
+				out += fmt::format("Нет таких именных вещей.\r\nСинтаксис {} [vnum [vnum] | имя | email]\r\n",
+								   cmd_info[cmd].command);
 			}
 			SendMsgToChar(out.c_str(), ch);
 			break;
+		}
 		case SCMD_NAMED_EDIT: int found = 0;
-			if ((first > 0 && first < 0x7fffffff) || uid != -1 || *buf) {
+			if ((first > 0 && first < 0x7fffffff) || uid != -1 || !mail_filter.empty()) {
 				if (first > 0 && first < 0x7fffffff && GetObjRnum(first) < 0) {
 					SendMsgToChar(ch, "Такого объекта не существует.\r\n");
 					return;
@@ -438,18 +442,16 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 					it != iend;
 					++it) {
 					if ((uid == -1 && it->first == first) || it->second->uid == uid
-						|| !str_cmp(it->second->mail.c_str(), buf)) {
+						|| !str_cmp(it->second->mail.c_str(), mail_filter.c_str())) {
 						if (GetObjRnum(it->first) < 0) {
 							if (!have_missed_items) {
 								out += "&RВнимание!!!&n\r\nНесуществующие объекты в списке именых вещей:\r\n";
 								have_missed_items = true;
 							}
-							sprintf(buf2, "vnum:%9ld uid:%9d mail:%s\r\n",
-									it->first,
-									it->second->uid,
-									str_dup(it->second->mail.c_str())
-							);
-							out += buf2;
+							out += fmt::format("vnum:{:9} uid:{:9} mail:{}\r\n",
+											   it->first,
+											   it->second->uid,
+											   it->second->mail);
 							continue;
 						}
 						ch->desc->old_vnum = it->first;
@@ -457,11 +459,11 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 						tmp_node->uid = it->second->uid;
 						tmp_node->can_clan = it->second->can_clan;
 						tmp_node->can_alli = it->second->can_alli;
-						tmp_node->mail = str_dup(it->second->mail.c_str());
-						tmp_node->wear_msg_v = str_dup(it->second->wear_msg_v.c_str());
-						tmp_node->wear_msg_a = str_dup(it->second->wear_msg_a.c_str());
-						tmp_node->cant_msg_v = str_dup(it->second->cant_msg_v.c_str());
-						tmp_node->cant_msg_a = str_dup(it->second->cant_msg_a.c_str());
+						tmp_node->mail = it->second->mail;
+						tmp_node->wear_msg_v = it->second->wear_msg_v;
+						tmp_node->wear_msg_a = it->second->wear_msg_a;
+						tmp_node->cant_msg_v = it->second->cant_msg_v;
+						tmp_node->cant_msg_a = it->second->cant_msg_a;
 						found++;
 						break;
 					}
@@ -472,11 +474,11 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 					tmp_node->uid = 0;
 					tmp_node->can_clan = 0;
 					tmp_node->can_alli = 0;
-					tmp_node->mail = str_dup("");
-					tmp_node->wear_msg_v = str_dup("");
-					tmp_node->wear_msg_a = str_dup("");
-					tmp_node->cant_msg_v = str_dup("");
-					tmp_node->cant_msg_a = str_dup("");
+					tmp_node->mail.clear();
+					tmp_node->wear_msg_v.clear();
+					tmp_node->wear_msg_a.clear();
+					tmp_node->cant_msg_v.clear();
+					tmp_node->cant_msg_a.clear();
 					found++;
 				}
 				if (have_missed_items) {
@@ -510,22 +512,22 @@ void receive_items(CharData *ch, CharData *mailman) {
 	MobRnum r_num;
 	int found = 0;
 	int in_world = 0;
-	snprintf(buf1, kMaxStringLength, "не найден именной предмет");
+	std::string reason = "не найден именной предмет";
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
 		if ((it->second->uid == ch->get_uid()) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))) {
 			if ((r_num = GetObjRnum(it->first)) < 0) {
 				SendMsgToChar("Странно, но такого объекта не существует.\r\n", ch);
-				snprintf(buf1, kMaxStringLength, "объект не существует!!!");
+				reason = "объект не существует!!!";
 				continue;
 			}
 			if ((GetObjMIW(r_num) > obj_proto.actual_count(r_num))    //Проверка на макс в мире
 				|| (obj_proto.actual_count(r_num) < 1))//Пока что если в мире нету то тоже загрузить
 			{
 				found++;
-				snprintf(buf1, kMaxStringLength, "выдаем именной предмет %s Max:%d > Current:%d",
-						 obj_proto[r_num]->get_short_description().c_str(),
-						 GetObjMIW(r_num),
-						 obj_proto.actual_count(r_num));
+				reason = fmt::format("выдаем именной предмет {} Max:{} > Current:{}",
+									 obj_proto[r_num]->get_short_description(),
+									 GetObjMIW(r_num),
+									 obj_proto.actual_count(r_num));
 				const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 				obj->set_extra_flag(EObjFlag::kNamed);
 				PlaceObjToInventory(obj.get(), ch);
@@ -535,14 +537,14 @@ void receive_items(CharData *ch, CharData *mailman) {
 				act("$n дал$g вам $o3.", false, mailman, obj.get(), ch, kToVict);
 				act("$N дал$G $n2 $o3.", false, ch, obj.get(), mailman, kToRoom);
 			} else {
-				snprintf(buf1, kMaxStringLength, "не выдаем именной предмет %s Max:%d <= Current:%d",
-						 obj_proto[r_num]->get_short_description().c_str(),
-						 GetObjMIW(r_num),
-						 obj_proto.actual_count(r_num));
+				reason = fmt::format("не выдаем именной предмет {} Max:{} <= Current:{}",
+									 obj_proto[r_num]->get_short_description(),
+									 GetObjMIW(r_num),
+									 obj_proto.actual_count(r_num));
 				in_world++;
 			}
-			snprintf(buf, kMaxStringLength, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch, 0), it->first, buf1);
-			mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("NamedStuff: {} vnum:{} {}", GET_PAD(ch, 0), it->first, reason),
+				   LGH, kLvlImmortal, SYSLOG, true);
 		}
 	}
 
@@ -573,26 +575,22 @@ void load() {
 			long vnum = std::stol(node.attribute("vnum").value(), nullptr, 10);
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end()) {
-				snprintf(buf, kMaxStringLength, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
-				mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
+				mudlog(fmt::format("NamedStuff: дубликат записи vnum={} пропущен", vnum),
+					   NRM, kLvlBuilder, SYSLOG, true);
 				continue;
 			}
 
 			if (GetObjRnum(vnum) < 0) {
-				snprintf(buf, kMaxStringLength,
-						 "NamedStuff: предмет vnum=%ld не существует.", vnum);
-				mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
+				mudlog(fmt::format("NamedStuff: предмет vnum={} не существует.", vnum),
+					   NRM, kLvlBuilder, SYSLOG, true);
 			}
 			if (node.attribute("uid")) {
 				tmp_node->uid = std::stol(node.attribute("uid").value(), nullptr, 10);
 				name = GetNameByUnique(tmp_node->uid, false);// Ищем персонажа с указанным уид(богов игнорируем)
 				if (name.empty()) {
-					snprintf(buf,
-							 kMaxStringLength,
-							 "NamedStuff: Unique=%d - персонажа не существует(владелец предмета vnum=%ld).",
-							 tmp_node->uid,
-							 vnum);
-					mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
+					mudlog(fmt::format("NamedStuff: Unique={} - персонажа не существует(владелец предмета vnum={}).",
+									   tmp_node->uid, vnum),
+						   NRM, kLvlBuilder, SYSLOG, true);
 				}
 			}
 			if (node.attribute("mail")) {
@@ -618,13 +616,11 @@ void load() {
 			}
 			if (!IsValidEmail(tmp_node->mail.c_str())) {
 				std::string name = GetNameByUnique(tmp_node->uid, false);
-				snprintf(buf,
-						 kMaxStringLength,
-						 "NamedStuff: указан не корректный e-mail=&S%s&s для предмета vnum=%ld (владелец=%s).",
-						 tmp_node->mail.c_str(),
-						 vnum,
-						 (name.empty() ? "неизвестен" : name.c_str()));
-				mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
+				mudlog(fmt::format("NamedStuff: указан не корректный e-mail=&S{}&s для предмета vnum={} (владелец={}).",
+								   tmp_node->mail,
+								   vnum,
+								   name.empty() ? std::string("неизвестен") : name),
+					   NRM, kLvlBuilder, SYSLOG, true);
 			}
 			if (node.attribute("can_clan"))
 				tmp_node->can_clan = std::stoi(node.attribute("can_clan").value(), nullptr, 10);
@@ -640,10 +636,8 @@ void load() {
 			log("NamedStuff : exception %s (%s %s %d)", e.what(), __FILE__, __func__, __LINE__);
 		}
 	}
-	snprintf(buf, kMaxStringLength,
-			 "NamedStuff: список именных вещей загружен, всего объектов: %lu.",
-			 static_cast<unsigned long>(stuff_list.size()));
-	mudlog(buf, CMP, kLvlBuilder, SYSLOG, true);
+	mudlog(fmt::format("NamedStuff: список именных вещей загружен, всего объектов: {}.", stuff_list.size()),
+		   CMP, kLvlBuilder, SYSLOG, true);
 }
 
 } // namespace NamedStuff
