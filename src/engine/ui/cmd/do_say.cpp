@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/core/constants.h"
 
@@ -23,7 +25,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument)
 		SendMsgToChar("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
 	else {
-		sprintf(buf, "$n сказал$g : '%s'", argument);
+		const std::string to_room = fmt::format("$n сказал$g : '{}'", argument);
 
 // для возможности игнорирования теллов в клетку
 // пришлось изменить act в клетку на проход по клетке
@@ -31,15 +33,14 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (ch == to || ignores(to, ch, EIgnore::kSay)) {
 				continue;
 			}
-			act(buf, false, ch, nullptr, to, kToVict | DG_NO_TRIG | kToNotDeaf);
+			act(to_room, false, ch, nullptr, to, kToVict | DG_NO_TRIG | kToNotDeaf);
 		}
 
 		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		} else {
 			delete_doubledollar(argument);
-			sprintf(buf, "Вы сказали : '%s'\r\n", argument);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы сказали : '{}'\r\n", argument), ch);
 		}
 		speech_mtrigger(ch, argument);
 		speech_wtrigger(ch, argument);

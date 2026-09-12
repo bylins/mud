@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "do_order.h"
 #include "administration/privilege.h"
 
@@ -45,8 +47,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !utils::IsAbbr(name, "все")
 			&& !utils::IsAbbr(name, "всем")
 			&& !utils::IsAbbr(name, "followers")) {
-			sprintf(buf, "$N приказал$g вам '%s'", message);
-			act(buf, false, vict, 0, ch, kToChar | kToNotDeaf);
+			act(fmt::format("$N приказал$g вам '{}'", message), false, vict, 0, ch, kToChar | kToNotDeaf);
 			act("$n отдал$g приказ $N2.", false, ch, 0, vict, kToRoom | kToNotDeaf);
 
 			if (vict->get_master() != ch
