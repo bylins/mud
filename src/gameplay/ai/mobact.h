@@ -18,7 +18,8 @@ extern const short kCharacterHpForMobPriorityAttack;
 
 void mobile_activity(int activity_level, int missed_pulses);
 int perform_mob_switch(CharData *ch);
-void do_aggressive_room(CharData *ch, int check_sneak);
+// respect_sneak: true -- крадущихся моб пропускает, false -- кража не учитывается вовсе.
+void do_aggressive_room(CharData *ch, bool respect_sneak);
 bool find_master_charmice(CharData *charmice);
 int attack_best(CharData *ch, CharData *victim, bool do_mode = false);
 bool drop_mob_objects_to_box(CharData *ch);
