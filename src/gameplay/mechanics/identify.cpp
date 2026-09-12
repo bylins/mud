@@ -57,7 +57,14 @@ static void ShowWeapon(CharData *ch, ObjData *obj) {
 	}
 }
 */
-std::string GetBookContents(const CObjectPrototype *obj) {
+// "Недоступно" здесь -- это про класс, а не про уровень: класс либо получает талант когда-нибудь,
+// либо не получает никогда. Нехватка уровня или ремортов временна, и молчать о ней честнее, чем
+// пугать игрока словом "недоступно" (#3877).
+static const char *UnavailableTail(bool unavailable) {
+	return unavailable ? " (вам недоступно)" : "";
+}
+
+std::string GetBookContents(const CObjectPrototype *obj, CharData *ch) {
 	if (!obj || obj->get_type() != EObjType::kBook) {
 		return "";
 	}
@@ -67,40 +74,54 @@ std::string GetBookContents(const CObjectPrototype *obj) {
 			if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 				return "";
 			}
-			return fmt::format("содержит заклинание        : \"{}\"", MUD::Spell(spell_id).GetName());
+			const bool unavailable = ch && MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id);
+			return fmt::format("содержит заклинание        : \"{}\"{}",
+							   MUD::Spell(spell_id).GetName(), UnavailableTail(unavailable));
 		}
 		case EBook::kSkill: {
 			const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 			if (MUD::Skills().IsInvalid(skill_id)) {
 				return "";
 			}
-			return fmt::format("содержит секрет умения     : \"{}\"", MUD::Skill(skill_id).GetName());
+			const bool unavailable = ch && MUD::Class(ch->GetClass()).skills.IsUnavailable(skill_id);
+			return fmt::format("содержит секрет умения     : \"{}\"{}",
+							   MUD::Skill(skill_id).GetName(), UnavailableTail(unavailable));
 		}
 		case EBook::kSkillUpgrade: {
 			const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 			if (MUD::Skills().IsInvalid(skill_id)) {
 				return "";
 			}
+			const bool unavailable = ch && MUD::Class(ch->GetClass()).skills.IsUnavailable(skill_id);
 			if (GET_OBJ_VAL(obj, 3) > 0) {
-				return fmt::format("повышает умение            : \"{}\" (максимум {})",
-								   MUD::Skill(skill_id).GetName(), GET_OBJ_VAL(obj, 3));
+				return fmt::format("повышает умение            : \"{}\" (максимум {}){}",
+								   MUD::Skill(skill_id).GetName(), GET_OBJ_VAL(obj, 3),
+								   UnavailableTail(unavailable));
 			}
-			return fmt::format("повышает умение            : \"{}\" (не больше максимума текущего перевоплощения)",
-							   MUD::Skill(skill_id).GetName());
+			return fmt::format("повышает умение            : \"{}\" (не больше максимума текущего перевоплощения){}",
+							   MUD::Skill(skill_id).GetName(), UnavailableTail(unavailable));
 		}
 		case EBook::kReceipt: {
 			const int recipe = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (recipe < 0) {
 				return "";
 			}
-			return fmt::format("содержит рецепт отвара     : \"{}\"", imrecipes[recipe].name);
+			const bool unavailable =
+				ch && !MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[recipe].str_id);
+			return fmt::format("содержит рецепт отвара     : \"{}\"{}",
+							   imrecipes[recipe].name, UnavailableTail(unavailable));
 		}
 		case EBook::kFeat: {
 			const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
 			if (!MUD::Feat(feat_id).IsValid()) {
 				return "";
 			}
-			return fmt::format("содержит секрет способности: \"{}\"", MUD::Feat(feat_id).GetName());
+			// У способностей доступность даёт не только класс, но и раса -- как в CanGetFeat.
+			const bool unavailable = ch
+				&& MUD::Class(ch->GetClass()).feats.IsUnavailable(feat_id)
+				&& !MUD::PcRaces()[GET_RACE(ch)].HasFeature(feat_id);
+			return fmt::format("содержит секрет способности: \"{}\"{}",
+							   MUD::Feat(feat_id).GetName(), UnavailableTail(unavailable));
 		}
 		default: return "";
 	}

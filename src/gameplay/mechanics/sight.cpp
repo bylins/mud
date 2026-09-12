@@ -1299,11 +1299,11 @@ std::string show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		} else if (object->get_type() == EObjType::kBandage) {
 			out = fmt::format("Бинты для перевязки ран ('перевязать').\r\nОсталось применений: {}, восстановление: {}",
 							  object->get_weight(), GET_OBJ_VAL(object, 0) * 10);
-		} else if (object->get_type() == EObjType::kBook && !GetBookContents(object).empty()) {
+		} else if (object->get_type() == EObjType::kBook && !GetBookContents(object, ch).empty()) {
 			// issue #3877: осмотр книги не говорил о ней ничего -- что внутри, знало только
 			// опознание. Заголовок берём из общего справочника типов книг.
 			out = fmt::format("{}.\r\n{}", GetBookTypeName(static_cast<EBook>(GET_OBJ_VAL(object, 0))),
-							  GetBookContents(object));
+							  GetBookContents(object, ch));
 		} else if (object->get_type() != EObjType::kLiquidContainer) {
 			out = "Вы не видите ничего необычного.";
 		} else        // ITEM_TYPE == kLiquidContainer||FOUNTAIN
