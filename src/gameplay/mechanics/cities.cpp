@@ -2,6 +2,8 @@
 // Created by Sventovit on 07.09.2024. Reworked for issue.cities (InfoContainer + cfg_manager).
 //
 
+#include <fmt/format.h>
+
 #include "cities.h"
 
 #include "cities_messages.h"
@@ -162,7 +164,7 @@ void DoCities(CharData *ch, char *, int, int) {
 			continue;
 		}
 		++n;
-		sprintf(buf, "%3d.", n);
+		std::string line = fmt::format("{:3}.", n);
 		if (privilege::IsImmortal(ch)) {
 			std::string rents;
 			for (const int rent_vnum : city.GetRentVnums()) {
@@ -171,15 +173,11 @@ void DoCities(CharData *ch, char *, int, int) {
 				}
 				rents += std::to_string(rent_vnum);
 			}
-			sprintf(buf1, " [vnum: %d, rent: %s]", city.GetId(), rents.c_str());
-			strcat(buf, buf1);
+			line += fmt::format(" [vnum: {}, rent: {}]", city.GetId(), rents);
 		}
-		sprintf(buf1,
-				" %s: %s\r\n",
-				city.GetName().c_str(),
-				(ch->check_city(city.GetTextId()) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
-		strcat(buf, buf1);
-		SendMsgToChar(buf, ch);
+		line += fmt::format(" {}: {}\r\n", city.GetName(),
+							ch->check_city(city.GetTextId()) ? "&gВы были там.&n" : "&rВы еще не были там.&n");
+		SendMsgToChar(line, ch);
 	}
 }
 
