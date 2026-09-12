@@ -7,6 +7,8 @@
 
 #include "engine/entities/char_data.h"
 #include <fmt/format.h>
+
+#include <string>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/illumination.h"
@@ -16,9 +18,6 @@ void do_blind_exits(CharData *ch);
 void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int door;
 
-	*buf = '\0';
-	*buf2 = '\0';
-
 	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		do_blind_exits(ch);
 		return;
@@ -27,31 +26,37 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
+
+	std::string out;
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (privilege::IsGod(ch))
-				strcpy(buf2, fmt::format("{:<6} - [{:5}] {}\r\n", dirs_rus[door],
-						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name).c_str());
-			else {
-				strcpy(buf2, fmt::format("{:<6} - ", dirs_rus[door]).c_str());
-				if (is_dark(EXIT(ch, door)->to_room()) && !sight::CanSeeInDark(ch))
-					strcat(buf2, "слишком темно\r\n");
-				else {
-					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
+			const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
+			// имя комнаты бывает нулевым (конструктор RoomData), а fmt на нуле бросает исключение
+			const char *room_name = world[rnum_exit_room]->name ? world[rnum_exit_room]->name : "";
+			std::string line;
+			if (privilege::IsGod(ch)) {
+				line = fmt::format("{:<6} - [{:5}] {}\r\n", dirs_rus[door],
+								   GET_ROOM_VNUM(rnum_exit_room), room_name);
+			} else {
+				line = fmt::format("{:<6} - ", dirs_rus[door]);
+				if (is_dark(rnum_exit_room) && !sight::CanSeeInDark(ch)) {
+					line += "слишком темно\r\n";
+				} else {
 					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
-						sprintf(buf2 + strlen(buf2), "[%7d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
+						line += fmt::format("[{:7}] {}", GET_ROOM_VNUM(rnum_exit_room), room_name);
 					} else {
-						strcat(buf2, world[rnum_exit_room]->name);
+						line += room_name;
 					}
-					strcat(buf2, "\r\n");
+					line += "\r\n";
 				}
 			}
-			strcat(buf, utils::CAP(buf2));
+			// CAP(std::string) возвращает копию, а не правит на месте
+			out += utils::CAP(line);
 		}
 	SendMsgToChar("Видимые выходы:\r\n", ch);
-	if (*buf)
-		SendMsgToChar(buf, ch);
+	if (!out.empty())
+		SendMsgToChar(out, ch);
 	else
 		SendMsgToChar(" Замуровали, ДЕМОНЫ!\r\n", ch);
 }
@@ -59,38 +64,38 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 void do_blind_exits(CharData *ch) {
 	int door;
 
-	*buf = '\0';
-	*buf2 = '\0';
-
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
+
+	std::string out;
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (privilege::IsGod(ch))
-				sprintf(buf2, "&W%s - [%d] %s ", dirs_rus[door],
-						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
-			else {
-				sprintf(buf2, "&W%s - ", dirs_rus[door]);
-				if (is_dark(EXIT(ch, door)->to_room()) && !sight::CanSeeInDark(ch))
-					strcat(buf2, "слишком темно");
-				else {
-					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
+			const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
+			const char *room_name = world[rnum_exit_room]->name ? world[rnum_exit_room]->name : "";
+			std::string line;
+			if (privilege::IsGod(ch)) {
+				line = fmt::format("&W{} - [{}] {} ", dirs_rus[door],
+								   GET_ROOM_VNUM(rnum_exit_room), room_name);
+			} else {
+				line = fmt::format("&W{} - ", dirs_rus[door]);
+				if (is_dark(rnum_exit_room) && !sight::CanSeeInDark(ch)) {
+					line += "слишком темно";
+				} else {
 					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
-						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
+						line += fmt::format("[{}] {}", GET_ROOM_VNUM(rnum_exit_room), room_name);
 					} else {
-						strcat(buf2, world[rnum_exit_room]->name);
+						line += room_name;
 					}
-					strcat(buf2, "");
 				}
 			}
-			strcat(buf, utils::CAP(buf2));
+			out += utils::CAP(line);
 		}
 	SendMsgToChar("Видимые выходы:\r\n", ch);
-	if (*buf)
-		SendMsgToChar(ch, "%s&n\r\n", buf);
+	if (!out.empty())
+		SendMsgToChar(out + "&n\r\n", ch);
 	else
 		SendMsgToChar("&W Замуровали, ДЕМОНЫ!&n\r\n", ch);
 }

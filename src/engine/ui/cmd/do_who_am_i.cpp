@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "utils/native_text.h"
 #include "gameplay/clans/house.h"
@@ -13,37 +15,37 @@
 #include "gameplay/core/remort.h"
 
 void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
-	sprintf(buf + strlen(buf),
-			"Падежи : &W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n\r\n",
-			ch->get_name().c_str(), GET_PAD(ch, 1), GET_PAD(ch, 2),
-			GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5));
-
-	sprintf(buf + strlen(buf), "Ваш e-mail : &S%s&s\r\n", GET_EMAIL(ch));
 	time_t birt = ch->player_data.time.birth;
-	sprintf(buf + strlen(buf), "Дата вашего рождения : %s\r\n", rustime(localtime(&birt)));
-	sprintf(buf + strlen(buf), "Ваш IP-адрес : %s\r\n", ch->desc ? ch->desc->host : "Unknown");
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Персонаж : {}\r\n"
+							  "Падежи : &W{}&n/&W{}&n/&W{}&n/&W{}&n/&W{}&n/&W{}&n\r\n"
+							  "Ваш e-mail : &S{}&s\r\n"
+							  "Дата вашего рождения : {}\r\n"
+							  "Ваш IP-адрес : {}\r\n",
+							  GET_NAME(ch),
+							  ch->get_name(), GET_PAD(ch, 1), GET_PAD(ch, 2),
+							  GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5),
+							  GET_EMAIL(ch),
+							  rustime(localtime(&birt)),
+							  ch->desc ? ch->desc->host : "Unknown"), ch);
 	if (!(ch)->player_specials->saved.NameGod) {
-		sprintf(buf, "Имя никем не одобрено!\r\n");
-		SendMsgToChar(buf, ch);
+		SendMsgToChar("Имя никем не одобрено!\r\n", ch);
 	} else {
 		const int god_level = (ch)->player_specials->saved.NameGod > 1000 ? (ch)->player_specials->saved.NameGod - 1000 : (ch)->player_specials->saved.NameGod;
-		sprintf(buf1, "%s", GetNameById((ch)->player_specials->saved.NameIDGod).c_str());
-		native_text::capitalize_first(buf1);
+		std::string god_name = GetNameById((ch)->player_specials->saved.NameIDGod);
+		native_text::capitalize_first(god_name);
 
 		static const char *by_rank_god = "Богом";
 		static const char *by_rank_privileged = "привилегированным игроком";
 		const char *by_rank = god_level < kLvlImmortal ? by_rank_privileged : by_rank_god;
 
+		// Строка о запрете собиралась в общий буфер и никуда не отправлялась -- игрок
+		// видел одобрение, а про запрет не узнавал вовсе. Печатаем обе ветки.
 		if ((ch)->player_specials->saved.NameGod < 1000)
-			snprintf(buf, kMaxStringLength, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
+			SendMsgToChar(fmt::format("&RИмя запрещено {} {}&n\r\n", by_rank, god_name), ch);
 		else
-			snprintf(buf, kMaxStringLength, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
-		SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("&WИмя одобрено {} {}&n\r\n", by_rank, god_name), ch);
 	}
-	sprintf(buf, "Перевоплощений: %d\r\n", remort::GetRealRemort(ch));
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Перевоплощений: {}\r\n", remort::GetRealRemort(ch)), ch);
 	Clan::CheckPkList(ch);
 	if (ch->player_specials->saved.telegram_id != 0) { //тут прямое обращение, ибо базовый класс, а не наследник
 		SendMsgToChar(ch, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
