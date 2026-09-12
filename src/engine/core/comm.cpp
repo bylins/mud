@@ -988,18 +988,14 @@ void stop_game(ush_int port) {
 		for (entry = olc_save_list; entry; entry = next_entry) {
 			next_entry = entry->next;
 			if (entry->type < 0 || entry->type > 4) {
-				sprintf(buf, "OLC: Illegal save type %d!", entry->type);
-				log("%s", buf);
+				log("OLC: Illegal save type %d!", entry->type);
 			} else if ((rznum = GetZoneRnum(entry->zone)) == -1) {
-				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
-				log("%s", buf);
+				log("OLC: Illegal save zone %d!", entry->zone);
 			} else if (rznum < 0 || rznum >= static_cast<int>(zone_table.size())) {
-				sprintf(buf, "OLC: Invalid real zone number %d!", rznum);
-				log("%s", buf);
+				log("OLC: Invalid real zone number %d!", rznum);
 			} else {
-				sprintf(buf, "OLC: Reboot saving %s for zone %d.",
-						save_info_msg[(int) entry->type], zone_table[rznum].vnum);
-				log("%s", buf);
+				log("OLC: Reboot saving %s for zone %d.",
+					save_info_msg[(int) entry->type], zone_table[rznum].vnum);
 				auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 				switch (entry->type) {
 					case OLC_SAVE_ROOM: data_source->SaveRooms(rznum);
@@ -1257,18 +1253,12 @@ int shutting_down(void) {
 	wait = shutdown_parameters.get_shutdown_timeout() - time(nullptr);
 
 	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0) {
-		if (shutdown_parameters.reboot_after_shutdown()) {
-			remove("../.crash");
-			sprintf(buf, "ПЕРЕЗАГРУЗКА через ");
-		} else {
-			remove("../.crash");
-			sprintf(buf, "ОСТАНОВКА через ");
-		}
-		if (wait < 60)
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, grammar::GetDeclensionInNumber(wait, grammar::EWhat::kSec));
-		else
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, grammar::GetDeclensionInNumber(wait / 60, grammar::EWhat::kMinU));
-		SendMsgToAll(buf);
+		remove("../.crash");
+		const char *what = shutdown_parameters.reboot_after_shutdown() ? "ПЕРЕЗАГРУЗКА" : "ОСТАНОВКА";
+		const std::string left = wait < 60
+			? fmt::format("{} {}", wait, grammar::GetDeclensionInNumber(wait, grammar::EWhat::kSec))
+			: fmt::format("{} {}", wait / 60, grammar::GetDeclensionInNumber(wait / 60, grammar::EWhat::kMinU));
+		SendMsgToAll(fmt::format("{} через {}.\r\n", what, left).c_str());
 		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог
 		if (wait == 10)
@@ -1279,8 +1269,7 @@ int shutting_down(void) {
 
 void log_zone_count_reset() {
 	for (auto & i : zone_table) {
-		sprintf(buf, "Zone: %d, count_reset: %d", i.vnum, i.count_reset);
-		log("%s", buf);
+		log("Zone: %d, count_reset: %d", i.vnum, i.count_reset);
 	}
 }
 
@@ -1906,17 +1895,15 @@ int new_descriptor(socket_t s)
 	 * Note that your immortals may wonder if they see a connection from
 	 * your site, but you are wizinvis upon login.
 	 */
-	sprintf(buf2, "New connection from [%s]", newd->host);
-	mudlog(buf2, CMP, kLevelGod, SYSLOG, false);
+	mudlog(fmt::format("New connection from [{}]", newd->host), CMP, kLevelGod, SYSLOG, false);
 #endif
 	if (ban->IsBanned(newd->host) == BanList::BAN_ALL) {
 		time_t bantime = ban->GetBanDate(newd->host);
-		sprintf(buf, "Sorry, your IP is banned till %s",
-				bantime == -1 ? "Infinite duration\r\n" : asctime(localtime(&bantime)));
-		iosystem::write_to_descriptor(desc, buf, strlen(buf));
+		const std::string reject = fmt::format("Sorry, your IP is banned till {}",
+											   bantime == -1 ? "Infinite duration\r\n"
+															 : asctime(localtime(&bantime)));
+		iosystem::write_to_descriptor(desc, reject.c_str(), reject.length());
 		CLOSE_SOCKET(desc);
-		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
-		// mudlog(buf2, CMP, kLevelGod, SYSLOG, true);
 		delete newd;
 		return (-3);
 	}
@@ -2110,16 +2097,16 @@ void close_socket(DescriptorData * d, int direct)
 		if (d->state == EConState::kPlaying || d->state == EConState::kDisconnect) {
 			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 			if (d->character->GetEnemy() && d->character->IsFlagged(EPrf::kAntiDcMode)) {
-				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
-				command_interpreter(d->character.get(), buf2);
+				char recall[] = "зачитать свиток.возврата";
+				command_interpreter(d->character.get(), recall);
 			}
 			if (!d->character->IsNpc()) {
 				d->character->save_char();
 				CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, -1);
 				Crash_ldsave(d->character.get());
 
-				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
-				mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(fmt::format("Closing link to: {}.", GET_NAME(d->character)),
+					   NRM, std::max(kLvlGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
 			d->character->desc = nullptr;
 		} else {
@@ -2127,8 +2114,7 @@ void close_socket(DescriptorData * d, int direct)
 				Depot::exit_char(d->character.get());
 			}
 			if (character_list.get_character_by_address(d->character.get())) {
-				sprintf(buf, "Remove from character list to: %s.", GET_NAME(d->character));
-				log("%s", buf);
+				log("Remove from character list to: %s.", GET_NAME(d->character));
 				character_list.remove(d->character);
 			}
 		}
@@ -2486,14 +2472,14 @@ void perform_act(const char *orig,
 				 const std::string &kick_type) {
 	const char *i = nullptr;
 	char nbuf[256];
-	char lbuf[kMaxStringLength], *buf;
+	char lbuf[kMaxStringLength], *out;
 	ubyte padis;
 	int stopbyte, cap = 0;
 	CharData *dg_victim = nullptr;
 	ObjData *dg_target = nullptr;
 	char *dg_arg = nullptr;
 
-	buf = lbuf;
+	out = lbuf;
 
 	if (orig == nullptr)
 		return mudlog("perform_act: NULL *orig string", BRF, -1, ERRLOG, true);
@@ -2723,10 +2709,10 @@ void perform_act(const char *orig,
 			}
 			if (cap) {
 				if (*i == '&') {
-					*buf = *(i++);
-					buf++;
-					*buf = *(i++);
-					buf++;
+					*out = *(i++);
+					out++;
+					*out = *(i++);
+					out++;
 				}
 				// Заглавной делаем букву целиком, а не первый байт: в UTF-8 русская буква
 				// двухбайтовая, и a_ucc(*i) портил ведущий байт -- "Волчица" приезжала как
@@ -2735,35 +2721,35 @@ void perform_act(const char *orig,
 				std::string first(i, letter_bytes);
 				native_text::capitalize_first(first);
 				for (const char symbol : first) {
-					*buf = symbol;
-					++buf;
+					*out = symbol;
+					++out;
 				}
 				i += letter_bytes;
 				cap = 0;
 			}
-			while ((*buf = *(i++)))
-				buf++;
+			while ((*out = *(i++)))
+				out++;
 			orig++;
 		} else if (*orig == '\\') {
 			if (*(orig + 1) == 'r') {
-				*(buf++) = '\r';
+				*(out++) = '\r';
 				orig += 2;
 			} else if (*(orig + 1) == 'n') {
-				*(buf++) = '\n';
+				*(out++) = '\n';
 				orig += 2;
 			} else if (*(orig + 1) == 'u')//Следующая подстановка $... будет с большой буквы
 			{
 				cap = 1;
 				orig += 2;
 			} else
-				*(buf++) = *(orig++);
-		} else if (!(*(buf++) = *(orig++)))
+				*(out++) = *(orig++);
+		} else if (!(*(out++) = *(orig++)))
 			break;
 	}
 
-	*(--buf) = '\r';
-	*(++buf) = '\n';
-	*(++buf) = '\0';
+	*(--out) = '\r';
+	*(++out) = '\n';
+	*(++out) = '\0';
 
 	if (to->desc) {
 		// Делаем первый символ большим, учитывая &X
