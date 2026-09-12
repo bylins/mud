@@ -2,6 +2,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_enchant.h"
+
+#include <fmt/format.h>
 #include "engine/entities/obj_data.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
@@ -43,19 +45,19 @@ void enchant::print(CharData *ch) const {
 		print_obj_affects(ch, *i);
 	}
 
-	if (affects_flags_.sprintbits(equipment_affects, buf2, sizeof(buf2), ",")) {
-		SendMsgToChar(ch, "%s   аффекты: %s%s\r\n",
-					  kColorCyn, buf2, kColorNrm);
+	// Буфер здесь нужен: строковая форма sprintbits подставляет "ничего" и пустой не бывает,
+	// а печатать строку надо только когда флаги есть -- это знает только bool-форма.
+	char flags[kMaxStringLength];
+	if (affects_flags_.sprintbits(equipment_affects, flags, sizeof(flags), ",")) {
+		SendMsgToChar(fmt::format("&c   аффекты: {}&n\r\n", flags), ch);
 	}
 
-	if (extra_flags_.sprintbits(extra_bits, buf2, sizeof(buf2), ",")) {
-		SendMsgToChar(ch, "%s   экстрафлаги: %s%s\r\n",
-					  kColorCyn, buf2, kColorNrm);
+	if (extra_flags_.sprintbits(extra_bits, flags, sizeof(flags), ",")) {
+		SendMsgToChar(fmt::format("&c   экстрафлаги: {}&n\r\n", flags), ch);
 	}
 
-	if (no_flags_.sprintbits(no_bits, buf2, sizeof(buf2), ",")) {
-		SendMsgToChar(ch, "%s   неудобен: %s%s\r\n",
-					  kColorCyn, buf2, kColorNrm);
+	if (no_flags_.sprintbits(no_bits, flags, sizeof(flags), ",")) {
+		SendMsgToChar(fmt::format("&c   неудобен: {}&n\r\n", flags), ch);
 	}
 
 	if (weight_ != 0) {
@@ -87,17 +89,9 @@ std::string enchant::print_to_file() const {
 		out << " A " << i->location << " " << i->modifier << "\n";
 	}
 
-	*buf = '\0';
-	affects_flags_.tascii(kFlagPlanes, buf, sizeof(buf));
-	out << " F " << buf << "\n";
-
-	*buf = '\0';
-	extra_flags_.tascii(kFlagPlanes, buf, sizeof(buf));
-	out << " E " << buf << "\n";
-
-	*buf = '\0';
-	no_flags_.tascii(kFlagPlanes, buf, sizeof(buf));
-	out << " N " << buf << "\n";
+	out << " F " << affects_flags_.tascii(kFlagPlanes) << "\n";
+	out << " E " << extra_flags_.tascii(kFlagPlanes) << "\n";
+	out << " N " << no_flags_.tascii(kFlagPlanes) << "\n";
 
 	out << " W " << weight_ << "\n";
 	out << " B " << ndice_ << "\n";

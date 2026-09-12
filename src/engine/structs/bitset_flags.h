@@ -250,6 +250,16 @@ class BitsetFlags {
 									num_planes, ascii, ascii_size);
 	}
 
+	// Строковая форма: без буфера у вызывающего (#3814). Буферный tascii дописывает в конец,
+	// поэтому строку начинаем с пустой -- иначе вызывающему пришлось бы помнить про *buf = '\0'.
+	// На плоскость приходится не больше 30 бит по два символа, так что 512 с запасом.
+	[[nodiscard]] std::string tascii(int num_planes) const {
+		char ascii[512];
+		ascii[0] = '\0';
+		tascii(num_planes, ascii, sizeof(ascii));
+		return ascii;
+	}
+
 	bool sprintbits(const char *names[], char *result, std::size_t result_size, const char *div,
 					int print_flag = 0) const {
 		return bitset_flags_detail::sprintbits(extract_planes(kLegacyPlanes), names, result,
@@ -258,6 +268,9 @@ class BitsetFlags {
 
 	// Строковая форма: список флагов без буфера у вызывающего (#3814). Размер задан здесь же,
 	// чтобы заголовок не тянул за собой structs.h ради одной константы.
+	// ВНИМАНИЕ: пустой не бывает -- на пустом наборе флагов вернёт слово "ничего". Если надо
+	// печатать строку только при наличии флагов, берите форму с буфером: она отдаёт признак
+	// "флаги были" отдельно от текста.
 	[[nodiscard]] std::string sprintbits(const char *names[], const char *div,
 										 int print_flag = 0) const {
 		char result[8192];
