@@ -98,11 +98,12 @@ int CalcMoveCost(CharData *ch, int dir) {
 }
 
 bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_msg) {
-	buf2[0] = '\0';
 	if (dir == EDirection::kUndefinedDir) {
 		return false;
 	}
-	if (check_specials && special(ch, dir + 1, buf2, 1)) {
+	// спецпроцедурам движение передаётся без аргумента команды
+	char no_argument[kMaxInputLength] = "";
+	if (check_specials && special(ch, dir + 1, no_argument, 1)) {
 		return false;
 	}
 
@@ -311,11 +312,11 @@ void PerformDunkSong(CharData *ch) {
 	};
 	// орем песни
 	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, condition::kDrunk)) {
-		sprintf(buf, "%s", drunk_songs[number(0, kMaxDrunkSong - 1)]);
-		SendMsgToChar(buf, ch);
+		std::string song = drunk_songs[number(0, kMaxDrunkSong - 1)];
+		SendMsgToChar(song, ch);
 		SendMsgToChar("\r\n", ch);
-		strcat(buf, drunk_voice[number(0, kMaxDrunkVoice - 1)]);
-		act(buf, false, ch, nullptr, nullptr, kToRoom | kToNotDeaf);
+		song += drunk_voice[number(0, kMaxDrunkVoice - 1)];
+		act(song.c_str(), false, ch, nullptr, nullptr, kToRoom | kToNotDeaf);
 		RemoveAffectFromChar(ch, EAffect::kHide);
 		RemoveAffectFromChar(ch, EAffect::kSneak);
 		RemoveAffectFromChar(ch, EAffect::kDisguise);
@@ -428,12 +429,12 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	if (move_type == EMoveType::kDefault) {
-		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
-		act(buf, false, ch, nullptr, leader, kToChar);
+		act(fmt::format("Вы поплелись {}{}.", leader ? "следом за $N4 " : "", DirsTo[dir]).c_str(),
+			false, ch, nullptr, leader, kToChar);
 	}
 	if (move_type == EMoveType::kThrowOut) {
-		sprintf(buf, "Вы со свистом улетели %s.", DirsTo[dir]);
-		act(buf, false, ch, nullptr, leader, kToChar);
+		act(fmt::format("Вы со свистом улетели {}.", DirsTo[dir]).c_str(),
+			false, ch, nullptr, leader, kToChar);
 	}
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) &&
 	!IsCharmice(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
@@ -449,43 +450,44 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			|| ch->get_master()->in_room == go_to);
 
 	if (!invis && !is_horse) {
+		std::string verb;
 		if (move_type == EMoveType::kFlee)
-			strcpy(smallBuf, "сбежал$g");
+			verb = "сбежал$g";
 		else if (move_type == EMoveType::kThrowOut)
-			strcpy(smallBuf, "со свистом полетел$g");
+			verb = "со свистом полетел$g";
 		else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveRun))
-			strcpy(smallBuf, "убежал$g");
+			verb = "убежал$g";
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffect::kFly))
 			|| (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
-			strcpy(smallBuf, "улетел$g");
+			verb = "улетел$g";
 		} else if (ch->IsNpc()
 			&& NPC_FLAGGED(ch, ENpcFlag::kMoveSwim)
 			&& (real_sector(was_in) == ESector::kWaterSwim
 				|| real_sector(was_in) == ESector::kWaterNoswim
 				|| real_sector(was_in) == ESector::kUnderwater)) {
-			strcpy(smallBuf, "уплыл$g");
+			verb = "уплыл$g";
 		} else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveJump))
-			strcpy(smallBuf, "ускакал$g");
+			verb = "ускакал$g";
 		else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveCreep))
-			strcpy(smallBuf, "уполз$q");
+			verb = "уполз$q";
 		else if (real_sector(was_in) == ESector::kWaterSwim
 			|| real_sector(was_in) == ESector::kWaterNoswim
 			|| real_sector(was_in) == ESector::kUnderwater) {
-			strcpy(smallBuf, "уплыл$g");
+			verb = "уплыл$g";
 		} else if (use_horse) {
 			horse = mount::GetHorse(ch);
 			if (horse && AFF_FLAGGED(horse, EAffect::kFly))
-				strcpy(smallBuf, "улетел$g");
+				verb = "улетел$g";
 			else
-				strcpy(smallBuf, "уехал$g");
+				verb = "уехал$g";
 		} else
-			strcpy(smallBuf, "уш$y");
+			verb = "уш$y";
 
-		if (move_type == EMoveType::kFlee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
-			sprintf(buf2, "$n %s.", smallBuf);
-		else
-			sprintf(buf2, "$n %s %s.", smallBuf, DirsTo[dir]);
-		act(buf2, true, ch, nullptr, nullptr, kToRoom);
+		const std::string leave_msg =
+			(move_type == EMoveType::kFlee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
+			? fmt::format("$n {}.", verb)
+			: fmt::format("$n {} {}.", verb, DirsTo[dir]);
+		act(leave_msg.c_str(), true, ch, nullptr, nullptr, kToRoom);
 	}
 
 	if (invis && !is_horse) {
@@ -533,44 +535,41 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	if (!invis && !is_horse) {
+		std::string verb;
 		if (move_type == EMoveType::kFlee
 			|| (ch->IsNpc()
 				&& NPC_FLAGGED(ch, ENpcFlag::kMoveRun))) {
-			strcpy(smallBuf, "прибежал$g");
+			verb = "прибежал$g";
 		} else if (move_type == EMoveType::kThrowOut)
-			strcpy(smallBuf, "со свистом прилетел$g");
+			verb = "со свистом прилетел$g";
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffect::kFly))
 			|| (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
-			strcpy(smallBuf, "прилетел$g");
+			verb = "прилетел$g";
 		} else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveSwim)
 			&& (real_sector(go_to) == ESector::kWaterSwim
 				|| real_sector(go_to) == ESector::kWaterNoswim
 				|| real_sector(go_to) == ESector::kUnderwater)) {
-			strcpy(smallBuf, "приплыл$g");
+			verb = "приплыл$g";
 		} else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveJump))
-			strcpy(smallBuf, "прискакал$g");
+			verb = "прискакал$g";
 		else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveCreep))
-			strcpy(smallBuf, "приполз$q");
+			verb = "приполз$q";
 		else if (real_sector(go_to) == ESector::kWaterSwim
 			|| real_sector(go_to) == ESector::kWaterNoswim
 			|| real_sector(go_to) == ESector::kUnderwater) {
-			strcpy(smallBuf, "приплыл$g");
+			verb = "приплыл$g";
 		} else if (use_horse) {
 			horse = mount::GetHorse(ch);
 			if (horse && AFF_FLAGGED(horse, EAffect::kFly)) {
-				strcpy(smallBuf, "прилетел$g");
+				verb = "прилетел$g";
 			} else {
-				strcpy(smallBuf, "приехал$g");
+				verb = "приехал$g";
 			}
 
 		} else
-			strcpy(smallBuf, "приш$y");
+			verb = "приш$y";
 
-		//log("%s-%d",GET_NAME(ch),ch->in_room);
-		sprintf(buf2, "$n %s %s.", smallBuf, DirsFrom[dir]);
-		//log(buf2);
-		act(buf2, true, ch, nullptr, nullptr, kToRoom);
-		//log("ACT OK !");
+		act(fmt::format("$n {} {}.", verb, DirsFrom[dir]).c_str(), true, ch, nullptr, nullptr, kToRoom);
 	};
 
 	if (invis && !is_horse) {
@@ -724,8 +723,7 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 		SendMsgToChar("Вы не сможете туда пройти...\r\n", ch);
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed)) {
 		if (EXIT(ch, dir)->keyword) {
-			sprintf(buf2, "Закрыто (%s).\r\n", EXIT(ch, dir)->keyword);
-			SendMsgToChar(buf2, ch);
+			SendMsgToChar(fmt::format("Закрыто ({}).\r\n", EXIT(ch, dir)->keyword), ch);
 		} else
 			SendMsgToChar("Закрыто.\r\n", ch);
 	} else {
@@ -800,19 +798,20 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
-		sprintf(buf,
-				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
-				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				kColorNrm, kColorBoldBlk, room,
-				kColorRed, kColorBoldRed, world[room]->light,
-				kColorGrn, kColorBoldGrn, world[room]->glight,
-				kColorYel, kColorBoldYel, world[room]->fires,
-				kColorYel, kColorBoldYel, world[room]->ices,
-				kColorBlu, kColorBoldBlu, world[room]->gdark,
-				kColorMag, kColorBoldCyn, weather_info.sky,
-				kColorWht, kColorBoldBlk, weather_info.sunlight,
-				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
-		SendMsgToChar(buf, ch);
+		// Значения под метками "Солнце" и "Небо" стоят наоборот -- так было и с printf,
+		// поведение не меняю.
+		SendMsgToChar(fmt::format("&nКомната=&K{} &rСвет=&R{} &gОсвещ=&G{} &yКостер=&Y{} &yЛед=&Y{} "
+								  "&bТьма=&B{} &mСолнце=&C{} &WНебо=&K{} &yЛуна=&Y{}&n.\r\n",
+								  room,
+								  world[room]->light,
+								  world[room]->glight,
+								  world[room]->fires,
+								  world[room]->ices,
+								  world[room]->gdark,
+								  weather_info.sky,
+								  weather_info.sunlight,
+								  weather_info.moon_day),
+					  ch);
 	}
 	// Stop fighting now, if we left.
 	if (ch->GetEnemy() && ch->in_room != ch->GetEnemy()->in_room) {
