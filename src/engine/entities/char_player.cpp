@@ -396,9 +396,10 @@ void Player::save_char(bool update_save_time) {
 	saved.printf("Exp : %ld\n", this->get_exp());
 	saved.printf("Rmrt: %d\n", this->get_remort());
 	// флаги
-	*buf = '\0';
-	char_specials.saved.plr_flags.tascii(4, buf, sizeof(buf));
-	saved.printf("Act : %s\n", buf);
+	char flags[kMaxInputLength];
+	flags[0] = '\0';
+	char_specials.saved.plr_flags.tascii(4, flags, sizeof(flags));
+	saved.printf("Act : %s\n", flags);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
 		saved.printf("EMal: %s\n", GET_EMAIL(this));
@@ -421,9 +422,9 @@ void Player::save_char(bool update_save_time) {
 	if (!this->player_data.title.empty())
 		saved.printf("Titl: %s\n", this->player_data.title.c_str());
 	if (!this->player_data.description.empty()) {
-		snprintf(buf, sizeof(buf), "%s", this->player_data.description.c_str());
-		kill_ems(buf);
-		saved.printf("Desc:\n%s~\n", buf);
+		std::string description = this->player_data.description;
+		kill_ems(description);
+		saved.printf("Desc:\n%s~\n", description.c_str());
 	}
 	if (POOFIN(this))
 		saved.printf("PfIn: %s\n", POOFIN(this));
@@ -443,9 +444,9 @@ void Player::save_char(bool update_save_time) {
 	saved.printf("Size: %d\n", GET_SIZE(this));
 	// структуры
 	saved.printf("Alin: %d\n", alignment::GetAlignment(this));
-	*buf = '\0';
-	AFF_FLAGS(this).tascii(kFlagPlanes, buf, sizeof(buf));
-	saved.printf("Aff : %s\n", buf);
+	flags[0] = '\0';
+	AFF_FLAGS(this).tascii(kFlagPlanes, flags, sizeof(flags));
+	saved.printf("Aff : %s\n", flags);
 
 	// дальше не по порядку
 	// статсы
@@ -601,9 +602,9 @@ void Player::save_char(bool update_save_time) {
 			MUD::RaceMessages().GetMessage(GET_RACE(this), this->get_sex()).c_str());
 	saved.printf("DrSt: %d\n", GET_DRUNK_STATE(this));
 	saved.printf("Olc : %d\n", GET_OLC_ZONE(this));
-	*buf = '\0';
-	this->player_specials->saved.pref.tascii(kFlagPlanes, buf, sizeof(buf));
-	saved.printf("Pref: %s\n", buf);
+	flags[0] = '\0';
+	this->player_specials->saved.pref.tascii(kFlagPlanes, flags, sizeof(flags));
+	saved.printf("Pref: %s\n", flags);
 	saved.printf("MgSh: %d\n", static_cast<int>(GetBriefShieldsMode()));
 
 	if (punishments::Get(this, punishments::EType::kMute).duration > 0 && this->IsFlagged(EPlrFlag::kMuted))
@@ -657,9 +658,9 @@ void Player::save_char(bool update_save_time) {
 				punishments::Get(this, punishments::EType::kUnreg).reason.c_str());
 
 	if (KARMA(this)) {
-		snprintf(buf, sizeof(buf), "%s", KARMA(this));
-		kill_ems(buf);
-		saved.printf("Karm:\n%s~\n", buf);
+		std::string karma = KARMA(this);
+		kill_ems(karma);
+		saved.printf("Karm:\n%s~\n", karma.c_str());
 	}
 	if (!LOGON_LIST(this).empty()) {
 		log("Saving logon list.");
@@ -902,6 +903,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	FBFILE *fl = nullptr;
 	char filename[40];
 	char line[kMaxStringLength], tag[6];
+	// сюда разбираются текстовые хвосты строк пфайла (причины наказаний, квесты, логоны)
+	char text[kMaxStringLength];
 	char line1[kMaxStringLength];
 	TimedFeat timed_feat;
 	*filename = '\0';
@@ -1013,7 +1016,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					set_remort(num);
 				}
 				break;
-			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
+			// Неизвестный тег молча пропускаем. Раньше здесь собиралась строка
+			// "SYSERR: Unknown tag ... in pfile ...", но её никто не печатал.
+			default: break;
 		}
 	} while (!skip_file);
 
@@ -1458,9 +1463,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					long lnum, lnum2;
 					do {
 						fbgetline(fl, line);
-						sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
-						if (buf[0] != '~') {
-							const network::Logon cur_log = {buf, lnum, lnum2, false};
+						sscanf(line, "%s %ld %ld", &text[0], &lnum, &lnum2);
+						if (text[0] != '~') {
+							const network::Logon cur_log = {text, lnum, lnum2, false};
 							LOGON_LIST(this).push_back(cur_log);
 						} else break;
 					} while (true);
@@ -1587,56 +1592,56 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					}
 					// Loads Here new punishment strings
 				} else if (!strcmp(tag, "PMut")) {
-					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &text[0]);
 					punishments::Get(this, punishments::EType::kMute).duration = lnum;
 					punishments::Get(this, punishments::EType::kMute).level = num2;
 					punishments::Get(this, punishments::EType::kMute).godid = lnum3;
-					punishments::Get(this, punishments::EType::kMute).reason = buf;
+					punishments::Get(this, punishments::EType::kMute).reason = text;
 				} else if (!strcmp(tag, "PHel")) {
-					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &text[0]);
 					punishments::Get(this, punishments::EType::kHell).duration = lnum;
 					punishments::Get(this, punishments::EType::kHell).level = num2;
 					punishments::Get(this, punishments::EType::kHell).godid = lnum3;
-					punishments::Get(this, punishments::EType::kHell).reason = buf;
+					punishments::Get(this, punishments::EType::kHell).reason = text;
 				} else if (!strcmp(tag, "PDum")) {
-					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &text[0]);
 					punishments::Get(this, punishments::EType::kDumb).duration = lnum;
 					punishments::Get(this, punishments::EType::kDumb).level = num2;
 					punishments::Get(this, punishments::EType::kDumb).godid = lnum3;
-					punishments::Get(this, punishments::EType::kDumb).reason = buf;
+					punishments::Get(this, punishments::EType::kDumb).reason = text;
 				} else if (!strcmp(tag, "PNam")) {
-					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &text[0]);
 					punishments::Get(this, punishments::EType::kName).duration = lnum;
 					punishments::Get(this, punishments::EType::kName).level = num2;
 					punishments::Get(this, punishments::EType::kName).godid = lnum3;
-					punishments::Get(this, punishments::EType::kName).reason = buf;
+					punishments::Get(this, punishments::EType::kName).reason = text;
 				} else if (!strcmp(tag, "PFrz")) {
-					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &text[0]);
 					punishments::Get(this, punishments::EType::kFreeze).duration = lnum;
 					punishments::Get(this, punishments::EType::kFreeze).level = num2;
 					punishments::Get(this, punishments::EType::kFreeze).godid = lnum3;
-					punishments::Get(this, punishments::EType::kFreeze).reason = buf;
+					punishments::Get(this, punishments::EType::kFreeze).reason = text;
 				} else if (!strcmp(tag, "PGcs")) {
-					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &text[0]);
 					punishments::Get(this, punishments::EType::kGcurse).duration = lnum;
 					punishments::Get(this, punishments::EType::kGcurse).level = num2;
 					punishments::Get(this, punishments::EType::kGcurse).godid = lnum3;
-					punishments::Get(this, punishments::EType::kGcurse).reason = buf;
+					punishments::Get(this, punishments::EType::kGcurse).reason = text;
 				} else if (!strcmp(tag, "PUnr")) {
-					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &text[0]);
 					punishments::Get(this, punishments::EType::kUnreg).duration = lnum;
 					punishments::Get(this, punishments::EType::kUnreg).level = num2;
 					punishments::Get(this, punishments::EType::kUnreg).godid = lnum3;
-					punishments::Get(this, punishments::EType::kUnreg).reason = buf;
+					punishments::Get(this, punishments::EType::kUnreg).reason = text;
 				}
 
 				break;
 
 			case 'Q':
 				if (!strcmp(tag, "Qst ")) {
-					buf[0] = '\0';
-					sscanf(line, "%d %[^~]", &num, &buf[0]);
-					this->quested_add(this, num, buf);
+					text[0] = '\0';
+					sscanf(line, "%d %[^~]", &num, &text[0]);
+					this->quested_add(this, num, text);
 				}
 				break;
 
@@ -1821,7 +1826,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					this->set_who_mana(num);
 				break;
 
-			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
+			// Неизвестный тег молча пропускаем. Раньше здесь собиралась строка
+			// "SYSERR: Unknown tag ... in pfile ...", но её никто не печатал.
+			default: break;
 		}
 	}
 	this->SetFlag(EPrf::kColor2); //всегда цвет полный
