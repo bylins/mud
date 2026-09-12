@@ -27,9 +27,10 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	two_arguments(argument, arg, where);
+	char name[kMaxInputLength];
+	two_arguments(argument, name, where);
 
-	if (!*arg) {
+	if (!*name) {
 		SendMsgToChar("Что вы желаете осмотреть?\r\n", ch);
 		return;
 	}
@@ -46,7 +47,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	{
 		ObjData *supp_obj = nullptr;
 		CharData *supp_ch = nullptr;
-		generic_find(arg, where_bits, ch, &supp_ch, &supp_obj);
+		generic_find(name, where_bits, ch, &supp_ch, &supp_obj);
 		const bool did_look = sight::look_at_target(ch, argument, subcmd);
 		if (supp_obj && supp_obj->has_suppressed_affects()) {
 			// One suppressed affect per indented line -- a single comma-joined line is unreadable with 2+.
@@ -65,14 +66,14 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	if (isname(arg, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
+	if (isname(name, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 				return;
 			}
 		}
 	}
-	generic_find(arg, where_bits, ch, &tmp_char, &tmp_object);
+	generic_find(name, where_bits, ch, &tmp_char, &tmp_object);
 	if (tmp_object) {
 		if (tmp_object->get_type() == EObjType::kLiquidContainer
 			|| tmp_object->get_type() == EObjType::kFountain
