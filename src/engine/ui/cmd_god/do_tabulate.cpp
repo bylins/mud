@@ -30,51 +30,52 @@ static bool IsFilterKey(const char *str) {
 }
 
 void DoTabulate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	half_chop(argument, buf, buf2);
+	char what[kMaxInputLength], name[kMaxInputLength];
+	half_chop(argument, what, name);
 
-	if (!*buf || !*buf2
-		|| (!utils::IsAbbr(buf, "mob")
-			&& !utils::IsAbbr(buf, "obj")
-			&& !utils::IsAbbr(buf, "room")
-			&& !utils::IsAbbr(buf, "flag")
-			&& !IsFilterKey(buf)
-			&& !utils::IsAbbr(buf, "существо")
-			&& !utils::IsAbbr(buf, "предмет")
-			&& !utils::IsAbbr(buf, "флаг")
-			&& !utils::IsAbbr(buf, "комната")
-			&& !utils::IsAbbr(buf, "trig")
-			&& !utils::IsAbbr(buf, "триггер")
-			&& !utils::IsAbbr(buf, "load"))) {
+	if (!*what || !*name
+		|| (!utils::IsAbbr(what, "mob")
+			&& !utils::IsAbbr(what, "obj")
+			&& !utils::IsAbbr(what, "room")
+			&& !utils::IsAbbr(what, "flag")
+			&& !IsFilterKey(what)
+			&& !utils::IsAbbr(what, "существо")
+			&& !utils::IsAbbr(what, "предмет")
+			&& !utils::IsAbbr(what, "флаг")
+			&& !utils::IsAbbr(what, "комната")
+			&& !utils::IsAbbr(what, "trig")
+			&& !utils::IsAbbr(what, "триггер")
+			&& !utils::IsAbbr(what, "load"))) {
 		SendMsgToChar("Usage: vnum { obj | mob | flag | f | room | trig | load} <name>\r\n"
 					  "  f <фильтр> -- поиск предметов по фильтру (как в хранилище клана),\r\n"
 					  "                например: vnum f Адлительность\r\n", ch);
 		return;
 	}
 
-	if ((utils::IsAbbr(buf, "mob")) || (utils::IsAbbr(buf, "существо"))) {
-		if (!TabulateMobsByName(buf2, ch)) {
+	if ((utils::IsAbbr(what, "mob")) || (utils::IsAbbr(what, "существо"))) {
+		if (!TabulateMobsByName(name, ch)) {
 			SendMsgToChar("Нет существа с таким именем.\r\n", ch);
 		}
-	} else if ((utils::IsAbbr(buf, "obj")) || (utils::IsAbbr(buf, "предмет"))) {
-		if (!TabulateObjsByAliases(buf2, ch)) {
+	} else if ((utils::IsAbbr(what, "obj")) || (utils::IsAbbr(what, "предмет"))) {
+		if (!TabulateObjsByAliases(name, ch)) {
 			SendMsgToChar("Нет предмета с таким названием.\r\n", ch);
 		}
-	} else if (IsFilterKey(buf)) {
-		TabulateObjsByFilter(buf2, ch);
-	} else if ((utils::IsAbbr(buf, "flag")) || (utils::IsAbbr(buf, "флаг"))) {
-		if (!TabulateObjsByFlagName(buf2, ch)) {
+	} else if (IsFilterKey(what)) {
+		TabulateObjsByFilter(name, ch);
+	} else if ((utils::IsAbbr(what, "flag")) || (utils::IsAbbr(what, "флаг"))) {
+		if (!TabulateObjsByFlagName(name, ch)) {
 			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
 		}
-	} else if ((utils::IsAbbr(buf, "room")) || (utils::IsAbbr(buf, "комната"))) {
-		if (!TabulateRoomsByName(buf2, ch)) {
+	} else if ((utils::IsAbbr(what, "room")) || (utils::IsAbbr(what, "комната"))) {
+		if (!TabulateRoomsByName(name, ch)) {
 			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
 		}
-	} else if (utils::IsAbbr(buf, "trig") || utils::IsAbbr(buf, "триггер")) {
-		if (!TabulateTrigsByObjLoad(buf2, ch)) {
+	} else if (utils::IsAbbr(what, "trig") || utils::IsAbbr(what, "триггер")) {
+		if (!TabulateTrigsByObjLoad(name, ch)) {
 			SendMsgToChar("Нет триггеров, загружающих такой объект.\r\n", ch);
 		}
-	} else if (utils::IsAbbr(buf, "load") || utils::IsAbbr(buf, "загрузка")) {
-		if (!TabulateMobsByDeadLoad(buf2, ch)) {
+	} else if (utils::IsAbbr(what, "load") || utils::IsAbbr(what, "загрузка")) {
+		if (!TabulateMobsByDeadLoad(name, ch)) {
 			SendMsgToChar("Нет мобов, загружаюющих такой объект по списку dead load.\r\n", ch);
 		}
 	}
@@ -117,10 +118,9 @@ int TabulateMobsByName(char *searchname, CharData *ch) {
 
 	for (nr = 0; nr <= top_of_mobt; nr++) {
 		if (isname(searchname, mob_proto[nr].GetCharAliases())) {
-			strcpy(buf, fmt::format("{:3}. [{:5}] {:<30} ({})\r\n", ++found, mob_index[nr].vnum,
-					mob_proto[nr].get_npc_name(),
-					npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]).c_str());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{:3}. [{:5}] {:<30} ({})\r\n", ++found, mob_index[nr].vnum,
+									  mob_proto[nr].get_npc_name(),
+									  npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]), ch);
 		}
 	}
 	return (found);
@@ -132,10 +132,8 @@ int TabulateObjsByAliases(char *searchname, CharData *ch) {
 	for (const auto &nr : obj_proto) {
 		if (isname(searchname, nr->get_aliases())) {
 			++found;
-			sprintf(buf, "%3d. [%7d] %s\r\n",
-					found, nr->get_vnum(),
-					nr->get_short_description().c_str());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{:3}. [{:7}] {}\r\n",
+									  found, nr->get_vnum(), nr->get_short_description()), ch);
 		}
 	}
 	return (found);
