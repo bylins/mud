@@ -30,7 +30,7 @@ void look_in_direction(CharData *ch, int dir, int info_is);
 void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
 void print_zone_info(CharData *ch);
 const char *find_exdesc(const char *word, const std::vector<ExtraDescription> &list);
-const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
+std::string show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
 void print_zone_info(CharData *ch);
 const char *print_obj_state(int tm_pct);
