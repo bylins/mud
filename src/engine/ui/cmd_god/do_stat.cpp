@@ -245,7 +245,10 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				}
 			}
 			if (GetRealLevel(ch) >= kLvlImmortal) {
-				parts.push_back(fmt::sprintf("%sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm));
+				// Цвет короткими кодами: ширину строки OutWordsList меряет через
+				// GetStringWithoutColors, а она снимает только "&X". ANSI-константы
+				// попадали в счёт как 14 видимых символов, и строка переносилась раньше.
+				parts.push_back(fmt::sprintf("&gOLC[%d]&n", GET_OLC_ZONE(k)));
 			}
 			const size_t width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
 					? ch->player_specials->saved.stringLength : 120;
@@ -817,11 +820,11 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 		case EObjType::kScroll: {
 			// issue.magic-items: заклинания свитка лежат в extra_values, сила -- умение мастера
-			line = fmt::format("{}", utils::OutWordsList(SpellItemSpellsWithPotency(j), ch->player_specials->saved.stringLength, ", ", std::string(kColorGrn) + "Заклинания:" + kColorNrm + " "));
+			line = fmt::format("{}", utils::OutWordsList(SpellItemSpellsWithPotency(j), ch->player_specials->saved.stringLength, ", ", "&gЗаклинания:&n "));
 			break;
 		}
 		case EObjType::kPotion: {
-			line = fmt::format("{}", utils::OutWordsList(SpellItemSpellsWithPotency(j), ch->player_specials->saved.stringLength, ", ", std::string(kColorGrn) + "Заклинания:" + kColorNrm + " "));
+			line = fmt::format("{}", utils::OutWordsList(SpellItemSpellsWithPotency(j), ch->player_specials->saved.stringLength, ", ", "&gЗаклинания:&n "));
 			break;
 		}
 		case EObjType::kWand:
