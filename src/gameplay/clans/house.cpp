@@ -1541,10 +1541,9 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 	switch (subcmd) {
 		// своей дружине
 		case kScmdChannel: {
+			const std::string clan_text = fmt::format("{} дружине: &R'{}'.&n\r\n", GET_NAME(ch), text);
 			// вспомнить
-			CLAN(ch)->add_remember(fmt::format("{} дружине: &R'{}'.&n\r\n", GET_NAME(ch), text), Remember::CLAN);
-			const std::string clan_text =
-				fmt::format("{} дружине: {}'{}'.{}\r\n", GET_NAME(ch), kColorBoldRed, text, kColorNrm);
+			CLAN(ch)->add_remember(clan_text, Remember::CLAN);
 
 			for (auto d = descriptor_list; d; d = d->next) {
 				if (d->character
@@ -1558,8 +1557,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 				}
 			}
 
-			const std::string clan_self =
-				fmt::format("Вы дружине: {}'{}'.{}\r\n", kColorBoldRed, text, kColorNrm);
+			const std::string clan_self = fmt::format("Вы дружине: &R'{}'.&n\r\n", text);
 			ch->remember_add(clan_self, Remember::ALL);
 			SendMsgToChar(clan_self, ch);
 
@@ -1568,16 +1566,13 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 
 			// союзникам
 		case kScmdAchannel: {
-			// вспомнить
-			const std::string ally_remember =
-				fmt::format("{} союзникам: &G'{}'.&n\r\n", GET_NAME(ch), text);
-			const std::string ally_text =
-				fmt::format("{} союзникам: {}'{}'.{}\r\n", GET_NAME(ch), kColorBoldGrn, text, kColorNrm);
+			const std::string ally_text = fmt::format("{} союзникам: &G'{}'.&n\r\n", GET_NAME(ch), text);
 			for (auto &clan : Clan::ClanList) {
 				if ((CLAN(ch)->CheckPolitics(clan->GetRent()) == kPoliticsAlliance
 					&& clan->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance)
 					|| CLAN(ch) == clan) {
-					clan->add_remember(ally_remember, Remember::ALLY);
+					// вспомнить
+					clan->add_remember(ally_text, Remember::ALLY);
 				}
 			}
 
@@ -1600,8 +1595,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 				}
 			}
 
-			const std::string ally_self =
-				fmt::format("Вы союзникам: {}'{}'.{}\r\n", kColorBoldGrn, text, kColorNrm);
+			const std::string ally_self = fmt::format("Вы союзникам: &G'{}'.&n\r\n", text);
 			ch->remember_add(ally_self, Remember::ALL);
 			SendMsgToChar(ally_self, ch);
 
