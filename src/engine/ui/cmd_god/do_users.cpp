@@ -17,8 +17,7 @@
 "Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
 const int kMaxListLen = 200;
 void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char idletime[10], classname[128];
-	char state[30] = "\0", *timeptr, mode;
+	char mode;
 	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
 	char host_by_name[kMaxInputLength] = "\0";
 	DescriptorData *list_players[kMaxListLen];
@@ -176,6 +175,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (cycle_i = 0; cycle_i < count_pl; cycle_i++) {
 		d = list_players[cycle_i];
 
+		std::string classname;
 		if (d->state != EConState::kPlaying && playing)
 			continue;
 		if (d->state == EConState::kPlaying && deadweight)
@@ -205,66 +205,45 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			if (d->original) {
-				if (showremorts) {
-					sprintf(classname,
-							"[%2d %2d %s]",
-							GetRealLevel(d->original),
-							remort::GetRealRemort(d->original),
-							MUD::Class(d->original->GetClass()).GetAbbr().c_str());
-				} else {
-					sprintf(classname,
-							"[%2d %s]   ",
-							GetRealLevel(d->original),
-							MUD::Class(d->original->GetClass()).GetAbbr().c_str());
-				}
-			} else if (showremorts) {
-				sprintf(classname,
-						"[%2d %2d %s]",
-						GetRealLevel(d->character),
-						remort::GetRealRemort(d->character),
-						MUD::Class(d->character->GetClass()).GetAbbr().c_str());
-			} else {
-				sprintf(classname,
-						"[%2d %s]   ",
-						GetRealLevel(d->character),
-						MUD::Class(d->character->GetClass()).GetAbbr().c_str());
-			}
+			// В switched-состоянии показываем того, кем игрок был до вселения.
+			const CharData *shown = d->original ? d->original.get() : d->character.get();
+			classname = showremorts
+						? fmt::format("[{:2} {:2} {}]",
+									  GetRealLevel(shown), remort::GetRealRemort(shown),
+									  MUD::Class(shown->GetClass()).GetAbbr())
+						: fmt::format("[{:2} {}]   ",
+									  GetRealLevel(shown), MUD::Class(shown->GetClass()).GetAbbr());
 		} else {
-			strcpy(classname, "      -      ");
+			classname = "      -      ";
 		}
 
 		if (GetRealLevel(ch) < kLvlImplementator && !ch->IsFlagged(EPrf::kCoderinfo)) {
-			strcpy(classname, "      -      ");
+			classname = "      -      ";
 		}
 
-		timeptr = asctime(localtime(&d->login_time));
-		timeptr += 11;
-		*(timeptr + 8) = '\0';
+		// asctime отдаёт "Www Mmm dd hh:mm:ss yyyy"; берём часы-минуты-секунды, не затирая
+		// нулём статический буфер библиотеки, как делал прежний код.
+		const std::string login_time = std::string(asctime(localtime(&d->login_time))).substr(11, 8);
 
-		if (d->state == EConState::kPlaying && d->original) {
-			strcpy(state, "Switched");
-		} else {
-			strcpy(state, GetConDescription(d->state));
-		}
+		const std::string state = (d->state == EConState::kPlaying && d->original)
+								  ? "Switched"
+								  : GetConDescription(d->state);
 
-		if (d->character
-			&& d->state == EConState::kPlaying
-			&& !privilege::IsGod(d->character.get())) {
-			sprintf(idletime, "%-3d", d->character->char_specials.timer *
-				kSecsPerMudHour / kSecsPerRealMin);
-		} else {
-			strcpy(idletime, "   ");
-		}
+		const std::string idletime = (d->character
+									  && d->state == EConState::kPlaying
+									  && !privilege::IsGod(d->character.get()))
+									 ? fmt::format("{:<3}", d->character->char_specials.timer
+												   * kSecsPerMudHour / kSecsPerRealMin)
+									 : "   ";
 
 		std::string line;
 		if (d->character) {
 			line = fmt::format(fmt::runtime(format), d->desc_num, classname,
 							   d->original ? d->original->GetCharAliases() : d->character->GetCharAliases(),
-							   state, idletime, timeptr);
+							   state, idletime, login_time);
 		} else {
 			line = fmt::format(fmt::runtime(format), d->desc_num, "   -   ", "UNDEFINED",
-							   state, idletime, timeptr);
+							   state, idletime, login_time);
 		}
 
 		if (*d->host) {
