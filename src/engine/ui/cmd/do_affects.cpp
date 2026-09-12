@@ -56,7 +56,6 @@ struct SquashRow {
 }  // namespace
 
 void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char sp_name[kMaxStringLength];
 
 	if (*argument && utils::IsAbbr(argument, "краткий")) {
 		if (!ch->get_master()) {
@@ -79,14 +78,12 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		aff_copy.unset(j);
 	}
 
-	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(aff_copy, ", ").c_str());
-	std::vector<std::string> out_str = utils::Split(buf2, ',');
+	std::vector<std::string> out_str = utils::Split(affects::DescribeActive(aff_copy, ", "), ',');
 	// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
 	// склеивается через ", " (иначе после метки была бы лишняя запятая).
-	snprintf(buf, kMaxStringLength, "%s%s%s\r\n", kColorYel,
-			 utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "Аффекты: ").c_str(),
-			 kColorNrm);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("&y{}&n\r\n",
+							  utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "Аффекты: ")),
+				  ch);
 
 	if (ch->affected.empty()) {
 		return;
@@ -118,10 +115,10 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// A permanent source wins the label; otherwise show the longest remaining time.
 			// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
 			// точках, printf мерил бы в байтах (issue #3681).
-			std::string line = fmt::format("{}{}{:<21} {:<12}{}",
+			std::string line = fmt::format("{}&C{:<21} {:<12}&n",
 										   (!r.name.empty() && r.name[0] == '!') ? "Состояние  : " : "Заклинание : ",
-										   kColorBoldCyn, r.name,
-										   FormatAffectDuration(r.permanent ? -1 : r.best_mod), kColorNrm);
+										   r.name,
+										   FormatAffectDuration(r.permanent ? -1 : r.best_mod));
 			if (r.count > 1) {
 				line += fmt::format(" [x{}]", r.count);
 			}
@@ -142,49 +139,41 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i) {
 		const auto aff = *affect_i;
 
-		*buf2 = '\0';
 		// issue.affect-migration: name the affect by its own identity (affect_type kShortDesc);
 		// fall back to the casting spell's name for affects not yet migrated off Affect::type.
-		snprintf(sp_name, sizeof(sp_name), "%s",
-				affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
+		const std::string sp_name = affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc);
 		const std::string duration = FormatAffectDuration(AffectDisplayMod(aff));
 		// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
 		// точках, printf мерил бы в байтах (issue #3681).
-		strcpy(buf, fmt::format("{}{}{:<21} {:<12}{} ",
-								*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
-								kColorBoldCyn, sp_name, duration, kColorNrm).c_str());
-		*buf2 = '\0';
+		std::string line = fmt::format("{}&C{:<21} {:<12}&n ",
+									   !sp_name.empty() && sp_name[0] == '!' ? "Состояние  : " : "Заклинание : ",
+									   sp_name, duration);
 		if (immortal) {
+			bool has_modifier = false;
 			if (aff->modifier) {
-				sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
-				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
+				line += fmt::format("{:<3} к параметру: {}", aff->modifier, apply_types[(int) aff->location]);
+				has_modifier = true;
 			}
 			// Show the affect's short-desc; an anonymous affect (kDefault/kUndefined) resolves
 			// via the shared kDefault sheaf fallback to "странное ощущение".
-			if (!affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).empty()) {
-				if (*buf2) {
-					strncat(buf, ", устанавливает ", sizeof(buf) - strlen(buf) - 1);
-				} else {
-					strncat(buf, "устанавливает ", sizeof(buf) - strlen(buf) - 1);
-				}
-				strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
-				snprintf(buf2, sizeof(buf2), "%s", affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
-				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
-				strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
+			if (!sp_name.empty()) {
+				line += has_modifier ? ", устанавливает " : "устанавливает ";
+				line += fmt::format("&R{}&n", sp_name);
 			}
 		}
 		// Stack count (issue.affect-stacks): show [xN] for a multi-stack affect.
 		if (aff->stacks > 1) {
-			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [x%d]", aff->stacks);
+			line += fmt::format(" [x{}]", aff->stacks);
 		}
 		// Potency for immortals / testers: the cast-roll strength (dice+skill+stat)
 		// recorded on the affect at impose time; drives the dispel comparison in
 		// CastUnaffects::DispelSucceeds. 0 means "not recorded" (charms, name-tied
 		// affects, etc.).
 		if (immortal || ch->IsFlagged(EPrf::kTester)) {
-			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [p: %.1f]", aff->potency);
+			line += fmt::format(" [p: {:.1f}]", aff->potency);
 		}
-		SendMsgToChar(strcat(buf, "\r\n"), ch);
+		line += "\r\n";
+		SendMsgToChar(line, ch);
 	}
 }
 
