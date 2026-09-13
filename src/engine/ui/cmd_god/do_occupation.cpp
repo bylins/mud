@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "engine/entities/zone.h"
 
@@ -27,20 +29,16 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 			continue;
 		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
-		sprintf(buf2,
-				"Проверка по дискрипторам: В зоне (vnum: %d клетка: %d) находится персонаж: %s.\r\n",
-				zone_table[zone_nr].vnum,
-				GET_ROOM_VNUM(i->character->in_room),
-				GET_NAME(i->character));
-		SendMsgToChar(buf2, ch);
+		SendMsgToChar(fmt::format("Проверка по дискрипторам: В зоне (vnum: {} клетка: {}) находится персонаж: {}.\r\n",
+								  zone_table[zone_nr].vnum, GET_ROOM_VNUM(i->character->in_room),
+								  GET_NAME(i->character)), ch);
 		found = true;
 	}
 	if (found)
 		return;
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!GetZoneRooms(zone_nr, &rnum_start, &rnum_stop)) {
-		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_table[zone_nr].vnum));
-		SendMsgToChar(buf2, ch);
+		SendMsgToChar(fmt::format("Нет комнат в зоне {}.", static_cast<int>(zone_table[zone_nr].vnum)), ch);
 		return;    // в зоне нет комнат :)
 	}
 
@@ -49,12 +47,8 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 		{
 			for (const auto c : world[rnum_start]->people) {
 				if (!c->IsNpc() && (GetRealLevel(c) < kLvlImmortal)) {
-					sprintf(buf2,
-							"Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n",
-							zone_table[zone_nr].vnum,
-							GET_ROOM_VNUM(c->in_room),
-							GET_NAME(c));
-					SendMsgToChar(buf2, ch);
+					SendMsgToChar(fmt::format("Проверка по списку чаров (с учетом linkdrop): в зоне vnum: {} клетка: {} находится персонаж: {}.\r\n",
+											  zone_table[zone_nr].vnum, GET_ROOM_VNUM(c->in_room), GET_NAME(c)), ch);
 					found = true;
 				}
 			}
@@ -70,32 +64,28 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 			continue;
 		}
 
-		sprintf(buf2,
-				"В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n",
-				GET_NAME(c),
-				zone_table[zone_nr].vnum,
-				GET_ROOM_VNUM(c->in_room));
-		SendMsgToChar(buf2, ch);
+		SendMsgToChar(fmt::format("В прокси руме сидит игрок {} находящийся в зоне vnum: {} клетка: {}\r\n",
+								  GET_NAME(c), zone_table[zone_nr].vnum, GET_ROOM_VNUM(c->in_room)), ch);
 		found = true;
 	}
 
 	if (!found) {
-		sprintf(buf2, "В зоне %d даже мышь не пробегала.\r\n", zone_table[zone_nr].vnum);
-		SendMsgToChar(buf2, ch);
+		SendMsgToChar(fmt::format("В зоне {} даже мышь не пробегала.\r\n", zone_table[zone_nr].vnum), ch);
 	}
 }
 
 void DoCheckZoneOccupation(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int number;
 	ZoneRnum zrn;
-	one_argument(argument, buf);
+	char vnum_arg[kMaxInputLength];
+	one_argument(argument, vnum_arg);
 	bool is_found = false;
-	if (!*buf || !a_isdigit(*buf)) {
+	if (!*vnum_arg || !a_isdigit(*vnum_arg)) {
 		SendMsgToChar("Usage: занятость внумзоны\r\n", ch);
 		return;
 	}
 
-	if ((number = atoi(buf)) < 0) {
+	if ((number = atoi(vnum_arg)) < 0) {
 		SendMsgToChar("Такого внума не может быть!\r\n", ch);
 		return;
 	}
