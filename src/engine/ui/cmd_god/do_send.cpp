@@ -6,29 +6,32 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 
 void DoSendMsgToChar(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 
-	half_chop(argument, arg, buf);
+	char name[kMaxInputLength];
+	char message[kMaxStringLength];
+	half_chop(argument, name, message);
 
-	if (!*arg) {
+	if (!*name) {
 		SendMsgToChar("Послать что и кому (не путать с куда и кого :)\r\n", ch);
 		return;
 	}
-	if (!(vict = target_resolver::FindPlayerVis(ch, arg))) {
+	if (!(vict = target_resolver::FindPlayerVis(ch, name))) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return;
 	}
-	SendMsgToChar(buf, vict);
+	SendMsgToChar(message, vict);
 	SendMsgToChar("\r\n", vict);
 	if (ch->IsFlagged(EPrf::kNoRepeat))
 		SendMsgToChar("Послано.\r\n", ch);
 	else {
-		snprintf(buf2, kMaxStringLength, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
-		SendMsgToChar(buf2, ch);
+		SendMsgToChar(fmt::format("Вы послали '{}' {}.\r\n", message, GET_PAD(vict, 2)), ch);
 	}
 }
 
