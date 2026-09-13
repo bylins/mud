@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
@@ -30,19 +32,16 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (*penname) {
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying))) {
-			sprintf(buf, "У вас нет %s.\r\n", papername);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("У вас нет {}.\r\n", papername), ch);
 			return;
 		}
 		if (!(pen = get_obj_in_list_vis(ch, penname, ch->carrying))) {
-			sprintf(buf, "У вас нет %s.\r\n", penname);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("У вас нет {}.\r\n", penname), ch);
 			return;
 		}
 	} else {
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying))) {
-			sprintf(buf, "Вы не видите %s в инвентаре.\r\n", papername);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы не видите {} в инвентаре.\r\n", papername), ch);
 			return;
 		}
 		if (paper->get_type() == EObjType::kPen)    // oops, a pen..
@@ -55,8 +54,7 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (!GET_EQ(ch, kHold)) {
-			sprintf(buf, "Вам нечем писать!\r\n");
-			SendMsgToChar(buf, ch);
+			SendMsgToChar("Вам нечем писать!\r\n", ch);
 			return;
 		}
 		if (!sight::CanSeeObj(ch, GET_EQ(ch, kHold))) {

@@ -17,9 +17,10 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	repl = one_argument(argument, arg);
+	char name[kMaxInputLength];
+	repl = one_argument(argument, name);
 
-	if (!*arg) {
+	if (!*name) {
 		SendMsgToChar("Определены следующие алиасы:\r\n", ch);
 		if ((a = GET_ALIASES(ch)) == nullptr)
 			SendMsgToChar(" Нет алиасов.\r\n", ch);
@@ -30,7 +31,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	} else {
-		if ((a = FindAlias(GET_ALIASES(ch), arg)) != nullptr) {
+		if ((a = FindAlias(GET_ALIASES(ch), name)) != nullptr) {
 			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
 			FreeAlias(a);
 		}
@@ -41,12 +42,12 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				SendMsgToChar("Алиас успешно удален.\r\n", ch);
 		} else {
-			if (!str_cmp(arg, "alias")) {
+			if (!str_cmp(name, "alias")) {
 				SendMsgToChar("Вы не можете определить алиас 'alias'.\r\n", ch);
 				return;
 			}
 			CREATE(a, 1);
-			a->alias = str_dup(arg);
+			a->alias = str_dup(name);
 			delete_doubledollar(repl);
 			a->replacement = str_dup(repl);
 			if (strchr(repl, kAliasSepChar) || strchr(repl, kAliasVarChar))

@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
 #include "administration/privilege.h"
@@ -24,9 +26,10 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
+	char target_arg[kMaxInputLength];
+	one_argument(argument, target_arg);
 
-	if ((!*arg) || ((tp = search_block(arg, targets, false)) == -1)) {
+	if ((!*target_arg) || ((tp = search_block(target_arg, targets, false)) == -1)) {
 		SendMsgToChar("Что вы хотите затоптать?\r\n", ch);
 		return;
 	}
@@ -90,10 +93,9 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					caster = find_char(aff->caster_id);
 					if (caster && !group::same_group(ch, caster)) {
 						pk_thiefs_action(ch, caster);
-						sprintf(buf,
-								"Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n",
-								GET_PAD(ch, 1));
-						SendMsgToChar(buf, caster);
+						SendMsgToChar(fmt::format("Послышался далекий звук лопнувшей струны, "
+												  "и перед вами промельнул призрачный облик {}.\r\n",
+												  GET_PAD(ch, 1)), caster);
 					}
 				}
 				room_spells::RoomRemoveAffect(world[ch->in_room], aff_i);

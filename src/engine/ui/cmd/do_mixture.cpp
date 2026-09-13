@@ -86,12 +86,13 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// Find the target
-	if (!target_str.empty())
-		one_argument(target_str.data(), arg);
-	else
-		*arg = '\0';
+	char target_name[kMaxInputLength];
+	*target_name = '\0';
+	if (!target_str.empty()) {
+		one_argument(target_str.data(), target_name);
+	}
 
-	target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
+	target = FindCastTarget(spell_id, target_name, ch, &tch, &tobj, &troom);
 
 	if (target && (tch == ch) && MUD::Spell(spell_id).IsViolent()) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
