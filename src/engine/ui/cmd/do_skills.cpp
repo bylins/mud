@@ -36,9 +36,9 @@ void DoSkills(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/) {
 	int i = 0;
+	std::string line;
 
-	sprintf(buf, "Вы владеете следующими умениями:\r\n");
-	strcpy(buf2, buf);
+	std::string out = "Вы владеете следующими умениями:\r\n";
 	std::list<std::string> skills_names;
 
 	for (const auto &skill : MUD::Skills()) {
@@ -53,12 +53,12 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 			auto skill_id = skill.GetId();
 			switch (skill_id) {
 				case ESkill::kWarcry:
-					sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
+					line = fmt::format("[-{}-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
 				case ESkill::kTurnUndead: {
 					auto bonus = CanUseFeat(ch, EFeat::kExorcist) ? -2 : 0;
 					bonus = std::max(1, kHoursPerTurnUndead + bonus);
-					sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / bonus);
+					line = fmt::format("[-{}-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / bonus);
 					break;
 				}
 				case ESkill::kFirstAid:
@@ -71,46 +71,34 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 				case ESkill::kStun:
 				case ESkill::kRepair:
 					if (IsTimedBySkill(ch, skill_id) > 0)
-						sprintf(buf, "[%3d] ", IsTimedBySkill(ch, skill_id));
+						line = fmt::format("[{:3}] ", IsTimedBySkill(ch, skill_id));
 					else
-						sprintf(buf, "[-!-] ");
+						line = "[-!-] ";
 					break;
-				default: sprintf(buf, "      ");
+				default: line = "      ";
 			}
 
 			// Ширина колонки - в символах, а не в байтах (issue #3681).
-			strcat(buf, fmt::format("{:<23} {} ({}){} \r\n",
+			line += fmt::format("{:<23} {} ({}){} \r\n",
 					skill.GetName(),
 					how_good(GetSkill(ch, skill_id), CalcSkillHardCap(ch, skill_id)),
 					GetTrainedSkill(ch, skill_id) == 0 ? GetEquippedSkill(ch, skill_id) : 
 					std::min(CalcSkillMinCap(ch, skill_id) + GetEquippedSkill(ch, skill_id), MUD::Skill(skill_id).cap),
-					kColorNrm).c_str());
-			skills_names.emplace_back(buf);
+					kColorNrm);
+			skills_names.emplace_back(line);
 			i++;
 		}
 	}
 
 	if (!i) {
-		if (nullptr == filter) {
-			sprintf(buf2 + strlen(buf2), "Нет умений.\r\n");
-		} else {
-			sprintf(buf2 + strlen(buf2), "Нет умений, удовлетворяющих фильтру.\r\n");
-		}
+		out += (nullptr == filter) ? "Нет умений.\r\n" : "Нет умений, удовлетворяющих фильтру.\r\n";
 	} else {
-		// output set of skills
-		size_t buf2_length = strlen(buf2);
+		// Сторож переполнения снят вместе с буфером: список умений растёт сам.
 		for (const auto &skill_name : skills_names) {
-			// why 60?
-			if (buf2_length + skill_name.length() >= kMaxStringLength - 60) {
-				strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
-				break;
-			}
-
-			strncat(buf2 + buf2_length, skill_name.c_str(), skill_name.length());
-			buf2_length += skill_name.length();
+			out += skill_name;
 		}
 	}
-	SendMsgToChar(buf2, vict);
+	SendMsgToChar(out, vict);
 
 }
 
