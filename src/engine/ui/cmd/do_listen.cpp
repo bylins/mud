@@ -5,6 +5,8 @@
 \brief description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
@@ -55,9 +57,9 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		|| (EXIT(ch, dir)
 			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
-		count += sprintf(buf, "%s%s:%s ", kColorYel, dirs_rus[dir], kColorNrm);
-		count += sprintf(buf + count, "\r\n%s", kColorGrn);
-		SendMsgToChar(buf, ch);
+		// Цвет кодами, а не константами kColor*: их раскрывает proc_color на выходе,
+		// и настройка цвета игрока перестаёт игнорироваться.
+		SendMsgToChar(fmt::format("&Y{}:&n \r\n&G", dirs_rus[dir]), ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
 			percent = number(1, MUD::Skill(ESkill::kHearing).difficulty);
@@ -121,7 +123,8 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 			SendMsgToChar(tmpstr.c_str(), ch);
 		}
 
-		SendMsgToChar(kColorNrm, ch);
+		// Закрывающая половина той же пары: открывали &G, закрываем &n.
+		SendMsgToChar("&n", ch);
 	} else {
 		if (info_is & sight::EXIT_SHOW_WALL) {
 			SendMsgToChar("И что вы там хотите услышать?\r\n", ch);
