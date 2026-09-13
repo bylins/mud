@@ -2,6 +2,8 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.bylins.su
 
+#include <fmt/format.h>
+
 #include "utils/native_text.h"
 #include "title.h"
 #include "gameplay/economics/currencies.h"
@@ -16,7 +18,7 @@
 #include "gameplay/core/remort.h"
 #include "gameplay/economics/currencies.h"
 
-extern void SendMsgToGods(char *text, bool demigod);
+extern void SendMsgToGods(const std::string &text, bool demigod);
 
 namespace TitleSystem {
 
@@ -99,8 +101,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 				return;
 			}
 			if (!vict->GetTitleStr().empty()) {
-				sprintf(buf, "&c%s удалил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-				SendMsgToGods(buf, true);
+				SendMsgToGods(fmt::format("&c{} удалил титул игрока {}.&n\r\n", GET_NAME(ch), GET_NAME(vict)), true);
 				vict->SetTitleStr("");
 				//SendMsgToChar("Титул удален.\r\n", ch);
 			} else
@@ -308,8 +309,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 			// Что внизу за хрень ?
 			if (d) {
 				set_player_title(d->character.get(), it->second->pre_title, it->second->title, GET_NAME(ch));
-				sprintf(buf, "&c%s одобрил титул игрока %s!&n\r\n", GET_NAME(ch), GET_NAME(d->character));
-				SendMsgToGods(buf, true);
+				SendMsgToGods(fmt::format("&c{} одобрил титул игрока {}!&n\r\n", GET_NAME(ch), GET_NAME(d->character)), true);
 			} else {
 				Player victim;
 				if (LoadPlayerCharacter(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
@@ -318,8 +318,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 					return TITLE_FIND_CHAR;
 				}
 				set_player_title(&victim, it->second->pre_title, it->second->title, GET_NAME(ch));
-				sprintf(buf, "&c%s одобрил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim));
-				SendMsgToGods(buf, true);
+				SendMsgToGods(fmt::format("&c{} одобрил титул игрока {}[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim)), true);
 				victim.save_char();
 			}
 		} else {
@@ -327,8 +326,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 
 			DescriptorData *d = send_result_message(it->second->unique, action);
 			if (d) {
-				sprintf(buf, "&c%s запретил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(d->character));
-				SendMsgToGods(buf, true);
+				SendMsgToGods(fmt::format("&c{} запретил титул игрока {}.&n\r\n", GET_NAME(ch), GET_NAME(d->character)), true);
 			} else {
 				Player victim;
 				if (LoadPlayerCharacter(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
@@ -336,8 +334,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 					title_list.erase(it);
 					return TITLE_FIND_CHAR;
 				}
-				sprintf(buf, "&c%s запретил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim));
-				SendMsgToGods(buf, true);
+				SendMsgToGods(fmt::format("&c{} запретил титул игрока {}[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim)), true);
 				victim.save_char();
 			}
 		}

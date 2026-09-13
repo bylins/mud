@@ -66,7 +66,7 @@ namespace drinkcon {
 void identify(CharData *ch, const ObjData *obj);
 std::string print_spells(const ObjData *obj);
 void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj);
-char *daig_filling_drink(const ObjData *obj, const CharData *ch);
+std::string daig_filling_drink(const ObjData *obj, const CharData *ch);
 const char *diag_liquid_timer(const ObjData *obj);
 void reset_potion_values(CObjectPrototype *obj);
 int check_equal_potions(ObjData *from_obj, ObjData *to_obj);

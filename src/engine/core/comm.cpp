@@ -2416,7 +2416,8 @@ void SendMsgToOutdoor(const char *msg, int control) {
 	}
 }
 
-void SendMsgToGods(char *text, bool include_demigod) {
+// Принимала char *: ей всегда передавали глобальный buf, и другого вызывающего не было (#3814).
+void SendMsgToGods(const std::string &text, bool include_demigod) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->state == EConState::kPlaying) {
