@@ -1033,14 +1033,13 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 	vict_it->second->copy_glory(it->second);
 	vict_it->second->denial = DISPLACE_TIMER;
 
-	snprintf(buf, kMaxStringLength,
-			 "%s: перекинуто (%s -> %s) славы: %d, статов: %d",
-			 GET_NAME(god), GET_NAME(ch), GET_NAME(vict), it->second->free_glory,
-			 vict_it->second->spend_glory - was_stats);
-	imm_log("%s", buf);
-	mudlog(buf, DEF, kLvlImmortal, SYSLOG, true);
-	AddKarma(ch, buf, reason);
-	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, buf, std::string(reason), vict.get());
+	const std::string log_line = fmt::format("{}: перекинуто ({} -> {}) славы: {}, статов: {}",
+											 GET_NAME(god), GET_NAME(ch), GET_NAME(vict), it->second->free_glory,
+											 vict_it->second->spend_glory - was_stats);
+	imm_log("%s", log_line.c_str());
+	mudlog(log_line, DEF, kLvlImmortal, SYSLOG, true);
+	AddKarma(ch, log_line.c_str(), reason);
+	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, log_line, std::string(reason), vict.get());
 
 	// если принимающий чар онлайн - сетим сразу ему статы
 	if (d_vict) {
@@ -1068,7 +1067,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 			}
 		}
 	}
-	AddKarma(vict.get(), buf, reason);
+	AddKarma(vict.get(), log_line.c_str(), reason);
 	vict->save_char();
 
 	// удаляем запись чара, с которого перекидывали
