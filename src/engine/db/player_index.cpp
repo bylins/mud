@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "player_index.h"
 #include "utils/native_text.h"
 
@@ -132,12 +134,13 @@ bool IsPlayerExists(const long id) { return player_table.IsPlayerExists(id); }
 long CmpPtableByName(char *name, int len) {
 	// len -- в символах: вызывающие передают kMinNameLength, то есть «столько букв».
 	len = std::min(len, static_cast<int>(native_text::char_count(name)));
-	one_argument(name, arg);
+	char search_name[kMaxInputLength];
+	one_argument(name, search_name);
 	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here.
 	 * TODO: make map helper (MAPHELPER). */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		std::string_view pname = player_table[i].name();
-		if (utils::IsSamePrefix(pname.data(), arg,
+		if (utils::IsSamePrefix(pname.data(), search_name,
 								std::min<std::size_t>(len, native_text::char_count(pname)))) {
 			return static_cast<long>(i);
 		}
@@ -146,8 +149,9 @@ long CmpPtableByName(char *name, int len) {
 }
 
 long GetPlayerTablePosByName(const char *name) {
-	one_argument(name, arg);
-	std::string_view search_arg(arg);
+	char search_name[kMaxInputLength];
+	one_argument(name, search_name);
+	std::string_view search_arg(search_name);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		std::string_view pname = player_table[i].name();
@@ -155,11 +159,9 @@ long GetPlayerTablePosByName(const char *name) {
 			return static_cast<long>(i);
 		}
 	}
-	std::stringstream buffer;
-	buffer << "Char " << name << " (" << arg << ") not found !!! Сброшен стек в сислог";
 	debug::backtrace(runtime_config.logs(SYSLOG).handle());
-//	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
-	mudlog(buffer.str().c_str(), CMP, kLvlImmortal, SYSLOG, false);
+	mudlog(fmt::format("Char {} ({}) not found !!! Сброшен стек в сислог", name, search_name),
+		   CMP, kLvlImmortal, SYSLOG, false);
 	return (-1);
 }
 
@@ -174,10 +176,11 @@ long GetPtableByUnique(long unique) {
 }
 
 long GetPlayerIdByName(char *name) {
-	one_argument(name, arg);
+	char search_name[kMaxInputLength];
+	one_argument(name, search_name);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
-		if (!str_cmp(i.name(), arg)) {
+		if (!str_cmp(i.name(), search_name)) {
 			return (i.uid());
 		}
 	}

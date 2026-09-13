@@ -123,8 +123,9 @@ int MailCheck(CharData *ch, void *me, char *rest) {
 	return 1;
 }
 int MailReceive(CharData *ch, void *me, char *rest) {
-	one_argument(rest, arg);
-	if (utils::IsAbbr(arg, "вещи")) {
+	char mode[kMaxInputLength];
+	one_argument(rest, mode);
+	if (utils::IsAbbr(mode, "вещи")) {
 		NamedStuff::receive_items(ch, reinterpret_cast<CharData *>(me));
 	} else {
 		postmaster_receive_mail(ch, reinterpret_cast<CharData *>(me), 0, rest);
@@ -605,14 +606,12 @@ void load() {
 	const std::string xml_mail = native_text::read_data_file(MAIL_XML_FILE);
 	pugi::xml_parse_result result = doc.load_buffer(xml_mail.data(), xml_mail.size());
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("...{}", result.description()), CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node mail_n = doc.child("mail");
 	if (!mail_n) {
-		snprintf(buf, kMaxStringLength, "...<mail> read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog("...<mail> read fail", CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
