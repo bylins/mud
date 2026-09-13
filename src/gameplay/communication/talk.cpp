@@ -80,6 +80,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 }
 
 void perform_tell(CharData *ch, CharData *vict, char *arg) {
+	std::string tell_text;
 	if (vict->IsFlagged(EPrf::kNoInvistell)
 		&& !sight::CanSee(vict, ch)
 		&& GetRealLevel(ch) < kLvlImmortal
@@ -90,26 +91,26 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 
 	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
 	if (tell_can_see(ch, vict)) {
-		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), arg);
+		tell_text = fmt::format("{} сказал{} вам : '{}'", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), arg);
 	} else {
-		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
+		tell_text = fmt::format("Кто-то сказал вам : '{}'", arg);
 	}
 	// перенос длинного телла по словам на ширину экрана получателя
 	// (stringLength == 0 -- лимит не задан, не переносим; NPC -- player_specials нет)
-	std::string tell_line = utils::CAP(buf);
+	std::string tell_line = utils::CAP(tell_text);
 	if (!vict->IsNpc() && vict->player_specials->saved.stringLength > 0) {
 		tell_line = utils::OutWordsList(tell_line, vict->player_specials->saved.stringLength, " ");
 	}
-	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", kColorBoldCyn, tell_line.c_str(), kColorNrm);
-	SendMsgToChar(buf1, vict);
+	const std::string to_vict = fmt::format("{}{}{}\r\n", kColorBoldCyn, tell_line, kColorNrm);
+	SendMsgToChar(to_vict, vict);
 	if (!vict->IsNpc()) {
-		vict->remember_add(buf1, Remember::ALL);
+		vict->remember_add(to_vict, Remember::ALL);
 	}
 
 	if (!vict->IsNpc() && !ch->IsNpc()) {
-		snprintf(buf, kMaxStringLength, "%s%s : '%s'%s\r\n", kColorBoldCyn,
-				 tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, kColorNrm);
-		vict->remember_add(buf, Remember::PERSONAL);
+		vict->remember_add(fmt::format("{}{} : '{}'{}\r\n", kColorBoldCyn,
+									   tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, kColorNrm),
+						   Remember::PERSONAL);
 	}
 
 	if (ch->IsFlagged(EPrf::kNoRepeat)) {
@@ -125,10 +126,10 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 		if (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0) {
 			echo = utils::OutWordsList(echo, ch->player_specials->saved.stringLength, " ");
 		}
-		snprintf(buf, kMaxStringLength, "%s%s%s\r\n", kColorBoldCyn, echo.c_str(), kColorNrm);
-		SendMsgToChar(buf, ch);
+		const std::string to_char = fmt::format("{}{}{}\r\n", kColorBoldCyn, echo, kColorNrm);
+		SendMsgToChar(to_char, ch);
 		if (!ch->IsNpc()) {
-			ch->remember_add(buf, Remember::ALL);
+			ch->remember_add(to_char, Remember::ALL);
 		}
 	}
 
