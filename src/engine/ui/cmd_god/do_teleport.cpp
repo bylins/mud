@@ -16,19 +16,21 @@ void DoTeleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	RoomRnum target;
 
-	two_arguments(argument, buf, buf2);
+	char name[kMaxInputLength];
+	char room_arg[kMaxInputLength];
+	two_arguments(argument, name, room_arg);
 
-	if (!*buf)
+	if (!*name)
 		SendMsgToChar("Кого вы хотите переместить?\r\n", ch);
-	else if (!(victim = target_resolver::FindCharInWorld(ch, buf)))
+	else if (!(victim = target_resolver::FindCharInWorld(ch, name)))
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (victim == ch)
 		SendMsgToChar("Используйте 'прыжок' для собственного перемещения.\r\n", ch);
 	else if (GetRealLevel(victim) >= GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo))
 		SendMsgToChar("Попробуйте придумать что-то другое.\r\n", ch);
-	else if (!*buf2)
+	else if (!*room_arg)
 		act("Куда вы хотите $S переместить?", false, ch, nullptr, victim, kToChar);
-	else if ((target = FindRoomRnum(ch, buf2, 0)) != kNowhere) {
+	else if ((target = FindRoomRnum(ch, room_arg, 0)) != kNowhere) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		act("$n растворил$u в клубах дыма.", false, victim, nullptr, nullptr, kToRoom);
 		RemoveCharFromRoom(victim);
