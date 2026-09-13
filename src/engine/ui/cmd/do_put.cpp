@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "gameplay/mechanics/depot.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/sight.h"
@@ -179,13 +181,11 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (cont_dotmode != kFindIndiv)
 		SendMsgToChar("Вы можете положить вещь только в один контейнер.\r\n", ch);
 	else if (!*thecont) {
-		sprintf(buf, "Куда вы хотите положить '%s'?\r\n", theobj);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Куда вы хотите положить '{}'?\r\n", theobj), ch);
 	} else {
 		generic_find(thecont, where_bits, ch, &tmp_char, &cont);
 		if (!cont) {
-			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы не видите здесь '{}'.\r\n", thecont), ch);
 		} else if (cont->get_type() != EObjType::kContainer) {
 			act("В $o3 нельзя ничего положить.", false, ch, cont, nullptr, kToChar);
 		} else if (IS_SET(GET_OBJ_VAL((cont), 1), (EContainerFlag::kShutted))) {
@@ -219,8 +219,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				} else {
 					auto obj = get_obj_in_list_vis(ch, theobj, ch->carrying);
 					if (!obj) {
-						sprintf(buf, "У вас нет '%s'.\r\n", theobj);
-						SendMsgToChar(buf, ch);
+						SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", theobj), ch);
 					} else if (obj == cont) {
 						SendMsgToChar("Вам будет трудно запихнуть вещь саму в себя.\r\n", ch);
 					} else {
@@ -254,8 +253,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (obj_dotmode == kFindAll)
 						SendMsgToChar("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n", ch);
 					else {
-						sprintf(buf, "Вы не видите ничего похожего на '%s'.\r\n", theobj);
-						SendMsgToChar(buf, ch);
+						SendMsgToChar(fmt::format("Вы не видите ничего похожего на '{}'.\r\n", theobj), ch);
 					}
 				}
 			}
