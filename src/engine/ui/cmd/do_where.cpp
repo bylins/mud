@@ -352,16 +352,17 @@ void DoFindObjByRnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	int num = 1;
 	std::list<ObjData *> objs;
 
-	one_argument(argument, buf);
-	if (!str_cmp(buf, "error")) {
+	char rnum_arg[kMaxInputLength];
+	one_argument(argument, rnum_arg);
+	if (!str_cmp(rnum_arg, "error")) {
 		FindErrorCountObj(ch);
 		return;
 	}
-	if (!*buf || !a_isdigit(*buf)) {
+	if (!*rnum_arg || !a_isdigit(*rnum_arg)) {
 		SendMsgToChar("Usage: objfind <rnum number> - найти предметы по RNUM\r\n", ch);
 		return;
 	}
-	if ((orn = atoi(buf)) < 0 || (size_t)orn > (world_objects.size() - 1)) {
+	if ((orn = atoi(rnum_arg)) < 0 || (size_t)orn > (world_objects.size() - 1)) {
 		SendMsgToChar("Указан неверный RNUM объекта !\r\n", ch);
 		return;
 	}

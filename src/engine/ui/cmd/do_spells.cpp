@@ -48,7 +48,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 
 	char names[kMaxMemoryCircle][kMaxStringLength];
 	std::string time_str;
-	int slots[kMaxMemoryCircle], i, max_slot = 0, slot_num, gcount = 0;
+	int slots[kMaxMemoryCircle], i, max_slot = 0, slot_num;
 	// Разбивка на колонки считается в символах, а не в байтах: под UTF-8 байт на символ уже не
 	// один, и прежняя арифметика по длине строки разносила колонки (issue #3681). slots[]
 	// остаётся смещением в буфере -- оно по природе байтовое, -- а chars[] хранит, сколько
@@ -121,17 +121,18 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 						/ kSecsPerMudHour)))));
 				time_str.append("]");
 			}
+			std::string threshold;
 			if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow)) {
-				sprintf(buf1, "%d", CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch));
+				threshold = std::to_string(CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch));
 			}
 			else {
-				sprintf(buf1, "%s", "K");
+				threshold = "K";
 			}
 			// fmt, а не sprintf: ширину поля с названием заклинания надо мерить в символах.
 			// printf считает %-30s в байтах, и под UTF-8 колонка разъезжалась (issue #3681).
 			const auto line = fmt::format("{}|<{}{}{}{}{}{}{}{}>{}{}{:<30} {:<7}&n|",
 					chars[slot_num] % 116 < 10 ? "\r\n" : "  ",
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow) ? buf1 : ".",
+					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow) ? threshold.c_str() : ".",
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) ? 'T' : '.',
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kPotionCast) ? 'P' : '.',
 					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kWandCast) ? 'W' : '.',
@@ -149,24 +150,21 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		}
 		have_spells = true;
 	};
-	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", kColorCyn, kColorNrm);
+	std::string out = fmt::format("  {}Вам доступна следующая магия :{}", kColorCyn, kColorNrm);
 	if (have_spells) {
 		for (i = 0; i < max_slot; i++) {
 			if (slots[i] != 0) {
 				if (!IS_MANA_CASTER(ch))
-					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
+					out += fmt::format("\r\nКруг {}", i + 1);
 			}
 			if (slots[i])
-				gcount += sprintf(buf2 + gcount, "%s", names[i]);
-			//else
-			//gcount += sprintf(buf2+gcount,"\n\rПусто.");
+				out += names[i];
 		}
 	} else {
-		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна!");
+		out += "\r\nВ настоящее время магия вам недоступна!";
 	}
-	gcount += sprintf(buf2 + gcount, "\r\n");
-	//page_string(ch->desc, buf2, 1);
-	SendMsgToChar(buf2, vict);
+	out += "\r\n";
+	SendMsgToChar(out, vict);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
