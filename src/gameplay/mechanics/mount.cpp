@@ -1,5 +1,7 @@
 // обслуживание функций езды на всяческих жовтоне
 //
+#include <fmt/format.h>
+
 #include "mount.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -66,8 +68,8 @@ bool DropFromHorse(CharData *ch) {
 	} else {  // не лошадь и не всадник
 		return false;
 	}
-	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), grammar::SexEnding((plr)->get_sex(), 2));
-	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
+	act(fmt::format("{} свалил{} со своего скакуна.", GET_PAD(plr, 0), grammar::SexEnding((plr)->get_sex(), 2)),
+		false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	SetBattleLag(plr, 3);
 	if (plr->GetPosition() > EPosition::kSit) {
@@ -199,9 +201,10 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if (*arg)
-		horse = target_resolver::FindCharInRoom(ch, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (*name)
+		horse = target_resolver::FindCharInRoom(ch, name);
 	else
 		horse = mount::GetHorse(ch);
 
@@ -267,9 +270,10 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if (*arg)
-		horse = target_resolver::FindCharInRoom(ch, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (*name)
+		horse = target_resolver::FindCharInRoom(ch, name);
 	else
 		horse = mount::GetHorse(ch);
 
@@ -305,9 +309,10 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if (*arg)
-		horse = target_resolver::FindCharInRoom(ch, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (*name)
+		horse = target_resolver::FindCharInRoom(ch, name);
 	else
 		horse = mount::GetHorse(ch);
 	if (horse == nullptr)
@@ -338,9 +343,10 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if (*arg) {
-		horse = target_resolver::FindCharInRoom(ch, arg);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (*name) {
+		horse = target_resolver::FindCharInRoom(ch, name);
 	}
 
 	if (horse == nullptr) {
@@ -393,12 +399,13 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 		return;
 	}
-	one_argument(argument, arg);
-	if (!*arg) {
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (!*name) {
 		SendMsgToChar("Кому вы хотите передать скакуна?\r\n", ch);
 		return;
 	}
-	victim = target_resolver::FindCharInRoom(ch, arg);
+	victim = target_resolver::FindCharInRoom(ch, name);
 	if (!victim) {
 		SendMsgToChar("Вам некому передать скакуна.\r\n", ch);
 		return;

@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
@@ -26,48 +28,49 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 							   "Убывающий серп луны."
 	};
 	if (OUTSIDE(ch)) {
-		*buf = '\0';
+		std::string out;
 		if (world[ch->in_room]->weather.duration > 0) {
 			sky = world[ch->in_room]->weather.sky;
 			weather_type = world[ch->in_room]->weather.weather_type;
 		}
-		sprintf(buf + strlen(buf),
-				"Небо %s. %s\r\n%s\r\n", sky_look[sky],
-				get_moon(sky) ? moon_look[get_moon(sky) - 1] : "",
-				(weather_info.change >=
-					0 ? "Атмосферное давление повышается." : "Атмосферное давление понижается."));
-		sprintf(buf + strlen(buf), "На дворе %d %s.\r\n",
-				weather_info.temperature, grammar::GetDeclensionInNumber(weather_info.temperature, grammar::EWhat::kDegree));
+		out += fmt::format("Небо {}. {}\r\n{}\r\n", sky_look[sky],
+						   get_moon(sky) ? moon_look[get_moon(sky) - 1] : "",
+						   weather_info.change >= 0 ? "Атмосферное давление повышается."
+													: "Атмосферное давление понижается.");
+		out += fmt::format("На дворе {} {}.\r\n", weather_info.temperature,
+						   grammar::GetDeclensionInNumber(weather_info.temperature, grammar::EWhat::kDegree));
 
 		if (IS_SET(weather_info.weather_type, kWeatherBigwind))
-			strcat(buf, "Сильный ветер.\r\n");
+			out += "Сильный ветер.\r\n";
 		else if (IS_SET(weather_info.weather_type, kWeatherMediumwind))
-			strcat(buf, "Умеренный ветер.\r\n");
+			out += "Умеренный ветер.\r\n";
 		else if (IS_SET(weather_info.weather_type, kWeatherLightwind))
-			strcat(buf, "Легкий ветерок.\r\n");
+			out += "Легкий ветерок.\r\n";
 
 		if (IS_SET(weather_type, kWeatherBigsnow))
-			strcat(buf, "Валит снег.\r\n");
+			out += "Валит снег.\r\n";
 		else if (IS_SET(weather_type, kWeatherMediumsnow))
-			strcat(buf, "Снегопад.\r\n");
+			out += "Снегопад.\r\n";
 		else if (IS_SET(weather_type, kWeatherLightsnow))
-			strcat(buf, "Легкий снежок.\r\n");
+			out += "Легкий снежок.\r\n";
 
 		if (IS_SET(weather_type, kWeatherHail))
-			strcat(buf, "Дождь с градом.\r\n");
+			out += "Дождь с градом.\r\n";
 		else if (IS_SET(weather_type, kWeatherBigrain))
-			strcat(buf, "Льет, как из ведра.\r\n");
+			out += "Льет, как из ведра.\r\n";
 		else if (IS_SET(weather_type, kWeatherMediumrain))
-			strcat(buf, "Идет дождь.\r\n");
+			out += "Идет дождь.\r\n";
 		else if (IS_SET(weather_type, kWeatherLightrain))
-			strcat(buf, "Моросит дождик.\r\n");
+			out += "Моросит дождик.\r\n";
 
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(out, ch);
 	} else {
 		SendMsgToChar("Вы ничего не можете сказать о погоде сегодня.\r\n", ch);
 	}
 	if (privilege::IsGod(ch)) {
-		sprintf(buf, "День: %d Месяц: %s Час: %d Такт = %d\r\n"
+		// Ширины полей у богов оставлены printf-формами: значения числовые, байт равен символу.
+		char out[kMaxStringLength];
+		snprintf(out, sizeof(out), "День: %d Месяц: %s Час: %d Такт = %d\r\n"
 					 "Температура =%-5d, за день = %-8d, за неделю = %-8d\r\n"
 					 "Давление    =%-5d, за день = %-8d, за неделю = %-8d\r\n"
 					 "Выпало дождя = %d(%d), снега = %d(%d). Лед = %d(%d). Погода = %08x(%08x).\r\n",
@@ -80,7 +83,7 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				world[ch->in_room]->weather.snowlevel, weather_info.icelevel,
 				world[ch->in_room]->weather.icelevel,
 				weather_info.weather_type, world[ch->in_room]->weather.weather_type);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(out, ch);
 	}
 }
 
