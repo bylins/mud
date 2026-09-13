@@ -1183,8 +1183,8 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 								  (*it).c_str(),
 								  kColorNrm);
 					AddKarma(d->character.get(),
-							 fmt::format("Звание в дружине изменено на {}", *it).c_str(),
-							 ch->get_name().c_str());
+							 fmt::format("Звание в дружине изменено на {}", *it),
+							 ch->get_name());
 				}
 
 				// оповещение соклановцев о изменении звания
@@ -1304,7 +1304,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 	if (k && k->character) {
 		Clan::SetClanData(k->character.get());
 		SendMsgToChar(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
-		AddKarma(k->character.get(), fmt::format("Исключен(а) из дружины '{}'", this->name).c_str(), reason);
+		AddKarma(k->character.get(), fmt::format("Исключен(а) из дружины '{}'", this->name), reason);
 		const auto clan = Clan::GetClanByRoom(k->character->in_room);
 		if (clan) {
 			char_from_room(k->character);
@@ -1323,7 +1323,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 		Player p_vict;
 		CharData *vict = &p_vict;
 		if (LoadPlayerCharacter(name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
-			AddKarma(vict, fmt::format("Исключен(а) из дружины '{}'", this->name).c_str(), reason);
+			AddKarma(vict, fmt::format("Исключен(а) из дружины '{}'", this->name), reason);
 			vict->save_char();
 		}
 	}
@@ -3481,8 +3481,8 @@ void Clan::ClanAddMember(CharData *ch, int rank, std::string invite_name) {
 	SendMsgToChar(ch, "%sВас приписали к дружине '%s', статус - '%s'.%s\r\n",
 				  kColorWht, this->name.c_str(), (this->ranks[rank]).c_str(), kColorNrm);
 	AddKarma(ch,
-			 fmt::format("Принят в дружину '{}', статус - '{}'", this->name, this->ranks[rank]).c_str(),
-			 invite_name.c_str());
+			 fmt::format("Принят в дружину '{}', статус - '{}'", this->name, this->ranks[rank]),
+			 invite_name);
 	return;
 }
 

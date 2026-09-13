@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "utils/utils_string.h"
 #include "gameplay/mechanics/glory.h"
@@ -28,6 +30,7 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Без параметров выводит славу у игрока
 	// + cлава прибавляет славу
 	// - cлава убавляет славу
+	char name[kMaxInputLength];
 	char num[kMaxInputLength];
 	char arg1[kMaxInputLength];
 	int mode = 0;
@@ -41,7 +44,7 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					  "   glory <имя> hide on|off причина (показывать или нет чара в топе славы)\r\n", ch);
 		return;
 	}
-	reason = two_arguments(argument, arg, num);
+	reason = two_arguments(argument, name, num);
 	skip_spaces(&reason);
 
 	if (!*num)
@@ -77,10 +80,10 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	CharData *vict = target_resolver::FindPlayerVis(ch, arg);
+	CharData *vict = target_resolver::FindPlayerVis(ch, name);
 	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict) {
-		if (LoadPlayerCharacter(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
+		if (LoadPlayerCharacter(name, &t_vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
@@ -105,16 +108,16 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						  GET_PAD(vict, 1), amount, Glory::get_glory(vict->get_uid()));
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
-			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
+			const std::string punish = fmt::format("Change glory -{} by {}", amount, GET_NAME(ch));
+			AddKarma(vict, punish, reason);
+			GloryMisc::add_log(mode, amount, punish, reason, vict);
 			break;
 		}
 		case kSubStats: {
 			if (Glory::remove_stats(vict, ch, atoi(arg1))) {
-				sprintf(buf, "Remove stats %s by %s", arg1, GET_NAME(ch));
-				AddKarma(vict, buf, reason);
-				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
+				const std::string punish = fmt::format("Remove stats {} by {}", arg1, GET_NAME(ch));
+				AddKarma(vict, punish, reason);
+				GloryMisc::add_log(mode, 0, punish, reason, vict);
 			}
 			break;
 		}
@@ -124,9 +127,9 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		case kSubHide: {
 			Glory::hide_char(vict, ch, arg1);
-			sprintf(buf, "Hide %s by %s", arg1, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
+			const std::string punish = fmt::format("Hide {} by {}", arg1, GET_NAME(ch));
+			AddKarma(vict, punish, reason);
+			GloryMisc::add_log(mode, 0, punish, reason, vict);
 			break;
 		}
 		default: Glory::show_glory(vict, ch);

@@ -647,8 +647,8 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		remove_glory(ch->get_uid(), amount);
 		add_glory(vict->get_uid(), total_amount);
 
-		AddKarma(vict, fmt::format("Transfer {} const glory from {}", total_amount, GET_NAME(ch)).c_str(), "командой");
-		AddKarma(ch, fmt::format("Transfer {} const glory to {}", amount, GET_NAME(vict)).c_str(), "командой");
+		AddKarma(vict, fmt::format("Transfer {} const glory from {}", total_amount, GET_NAME(ch)), "командой");
+		AddKarma(ch, fmt::format("Transfer {} const glory to {}", amount, GET_NAME(vict)), "командой");
 
 		total_charge += tax;
 		transfer_log("%s -> %s transfered %d (%d tax)", GET_NAME(ch), GET_NAME(vict), total_amount, tax);
@@ -812,7 +812,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mudlog(log_line, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", log_line.c_str());
 			const std::string karma_line = fmt::format("Change const glory +{} by {}", amount, GET_NAME(ch));
-			AddKarma(vict, karma_line.c_str(), reason);
+			AddKarma(vict, karma_line, reason);
 			GloryMisc::add_log(mode, amount, karma_line, std::string(reason), vict);
 			break;
 		}
@@ -830,7 +830,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mudlog(log_line, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", log_line.c_str());
 			const std::string karma_line = fmt::format("Change const glory -{} by {}", amount, GET_NAME(ch));
-			AddKarma(vict, karma_line.c_str(), reason);
+			AddKarma(vict, karma_line, reason);
 			GloryMisc::add_log(mode, amount, karma_line, std::string(reason), vict);
 			break;
 		}
@@ -843,7 +843,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mudlog(log_line, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", log_line.c_str());
 				const std::string karma_line = fmt::format("Reset stats and const glory by {}", GET_NAME(ch));
-				AddKarma(vict, karma_line.c_str(), reason);
+				AddKarma(vict, karma_line, reason);
 				GloryMisc::add_log(mode, 0, karma_line, std::string(reason), vict);
 			} else {
 				SendMsgToChar(ch, "%s - запись постоянной славы и так пустая.\r\n", vict->get_name().c_str());

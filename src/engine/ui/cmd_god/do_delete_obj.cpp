@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/mechanics/depot.h"
@@ -15,13 +17,14 @@
 
 void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
-	one_argument(argument, buf);
+	char arg_vnum[kMaxInputLength];
+	one_argument(argument, arg_vnum);
 	int num = 0;
-	if (!*buf || !a_isdigit(*buf)) {
+	if (!*arg_vnum || !a_isdigit(*arg_vnum)) {
 		SendMsgToChar("Usage: delete <number>\r\n", ch);
 		return;
 	}
-	if ((vnum = atoi(buf)) < 0) {
+	if ((vnum = atoi(arg_vnum)) < 0) {
 		SendMsgToChar("Указан неверный VNUM объекта !\r\n", ch);
 		return;
 	}
@@ -34,8 +37,7 @@ void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //	num += Clan::delete_obj(vnum);
 	num += Depot::delete_obj(vnum);
 	num += Parcel::delete_obj(vnum);
-	sprintf(buf2, "Удалено всего предметов: %d, смотрим ренту.\r\n", num);
-	SendMsgToChar(buf2, ch);
+	SendMsgToChar(fmt::format("Удалено всего предметов: {}, смотрим ренту.\r\n", num), ch);
 	num = 0;
 	for (std::size_t pt_num = 0; pt_num< player_table.size(); pt_num++) {
 		bool need_save = false;
@@ -45,8 +47,8 @@ void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
 				if (i->vnum == vnum && i->timer > 0) {
 					num++;
-					sprintf(buf2, "Player %s : item [%d] deleted\r\n", player_table[pt_num].name().c_str(), i->vnum);;
-					SendMsgToChar(buf2, ch);
+					SendMsgToChar(fmt::format("Player {} : item [{}] deleted\r\n",
+											  player_table[pt_num].name(), i->vnum), ch);
 					i->timer = -1;
 					int rnum = GetObjRnum(i->vnum);
 					if (rnum >= 0) {
@@ -58,13 +60,14 @@ void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (need_save) {
 			if (!Crash_write_timer(pt_num)) {
-				sprintf(buf, "SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name().c_str());
-				SendMsgToChar(buf2, ch);
+				// Сообщение собиралось в buf, а богу уходил buf2 -- то есть предыдущая
+				// строка "item deleted" вместо ошибки записи файла таймеров.
+				SendMsgToChar(fmt::format("SYSERROR: [TO] Error writing timer file for {}\r\n",
+										  player_table[pt_num].name()), ch);
 			}
 		}
 	}
-	sprintf(buf2, "Удалено еще предметов: %d.\r\n", num);
-	SendMsgToChar(buf2, ch);
+	SendMsgToChar(fmt::format("Удалено еще предметов: {}.\r\n", num), ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

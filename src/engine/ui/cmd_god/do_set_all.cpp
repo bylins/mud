@@ -111,7 +111,7 @@ void setall_inspect() {
 										player_table[it->second->pos].name(),
 										player_table[it->second->pos].mail,
 										it->second->newmail);
-						AddKarma(d_vict->character.get(), mail_note.c_str(), GET_NAME(imm_d->character));
+						AddKarma(d_vict->character.get(), mail_note, GET_NAME(imm_d->character));
 						it->second->out += mail_note;
 
 					} else {
@@ -138,7 +138,7 @@ void setall_inspect() {
 											player_table[it->second->pos].mail,
 											it->second->newmail);
 							it->second->out += mail_note;
-							AddKarma(vict, mail_note.c_str(), GET_NAME(imm_d->character));
+							AddKarma(vict, mail_note, GET_NAME(imm_d->character));
 							vict->save_char();
 						}
 					}
@@ -155,7 +155,7 @@ void setall_inspect() {
 							fmt::format("У персонажа {} изменен пароль (setall).", player_table[it->second->pos].name());
 						it->second->out += pwd_note;
 						it->second->out += "\r\n";
-						AddKarma(d_vict->character.get(), pwd_note.c_str(), GET_NAME(imm_d->character));
+						AddKarma(d_vict->character.get(), pwd_note, GET_NAME(imm_d->character));
 					} else {
 						if (LoadPlayerCharacter(player_table[it->second->pos].name().c_str(), vict,
 												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
@@ -175,7 +175,7 @@ void setall_inspect() {
 							fmt::format("У персонажа {} изменен пароль (setall).", player_table[it->second->pos].name());
 						it->second->out += pwd_note;
 						it->second->out += "\r\n";
-						AddKarma(vict, pwd_note.c_str(), GET_NAME(imm_d->character));
+						AddKarma(vict, pwd_note, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
 				} else if (it->second->type_req == kSetallHell) {

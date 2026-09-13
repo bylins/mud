@@ -9,8 +9,15 @@
 #ifndef BYLINS_SRC_ADMINISTRATION_KARMA_H_
 #define BYLINS_SRC_ADMINISTRATION_KARMA_H_
 
+#include <string>
+
 class CharData;
-void AddKarma(CharData *ch, const char *punish, const char *reason);
+
+/**
+ * Дописать строку в карму персонажа.
+ * Причина, начинающаяся с точки, означает "не писать" -- так команды богов гасят запись.
+ */
+void AddKarma(CharData *ch, const std::string &punish, const std::string &reason);
 
 #endif //BYLINS_SRC_ADMINISTRATION_KARMA_H_
 
