@@ -226,15 +226,16 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		return;
 	}
 
-	one_argument(argument, arg);
+	char region_arg[kMaxInputLength];
+	one_argument(argument, region_arg);
 	int place_of_destination;
-	if (!*arg) {
+	if (!*region_arg) {
 		const auto msg = fmt::format("Укажите, где вы хотите заново начать свой путь:\r\n{}",
 									 player_races::FormatStartRegionsMenu(GET_RACE(ch)));
 		SendMsgToChar(msg, ch);
 		return;
 	} else {
-		const int region = player_races::StartRegionByMenuChoice(GET_RACE(ch), arg);
+		const int region = player_races::StartRegionByMenuChoice(GET_RACE(ch), region_arg);
 		place_of_destination = player_races::StartRoomForRaceRegion(GET_RACE(ch), region);
 		if (region == player_races::kRaceUndefined || place_of_destination == kNowhere) {
 			SendMsgToChar("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
@@ -384,10 +385,8 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	ch->UnsetFlag(EPrf::kCanRemort);
 
-	snprintf(buf, sizeof(buf),
-			 "remort from %d to %d", ch->get_remort() - 1, ch->get_remort());
-	snprintf(buf2, sizeof(buf2), "dest=%d", place_of_destination);
-	AddKarma(ch, buf, buf2);
+	AddKarma(ch, fmt::format("remort from {} to {}", ch->get_remort() - 1, ch->get_remort()).c_str(),
+			 fmt::format("dest={}", place_of_destination).c_str());
 
 	act("$n вступил$g в игру.", true, ch, nullptr, nullptr, kToRoom);
 	act("Вы перевоплотились! Желаем удачи!", false, ch, nullptr, nullptr, kToChar);

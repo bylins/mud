@@ -152,13 +152,11 @@ void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 	// issue.damage-change: the ice-shield "sank into the icy veil" crit flavor now lives in the ice
 	// crit-absorb <damage_change>'s kTransformCrit* sheaf message (shown on the 94% absorb). This is just
 	// the plain crit line for a crit that lands.
-	sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
-			sight::PersonName(victim, ch, 3));
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("&G&qВаше меткое попадание тяжело ранило {}.&Q&n\r\n",
+							  sight::PersonName(victim, ch, 3)), ch);
 
-	sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
-			sight::PersonName(ch, victim, 1));
-	SendMsgToChar(buf, victim);
+	SendMsgToChar(fmt::format("&r&qМеткое попадание {} тяжело ранило вас.&Q&n\r\n",
+							  sight::PersonName(ch, victim, 1)), victim);
 	// Закомментил чтобы не спамило, сделать потом в виде режима
 	//act("Меткое попадание $N1 заставило $n3 пошатнуться.", true, victim, nullptr, ch, TO_NOTVICT);
 }
@@ -197,9 +195,8 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	if (ch->calc_morale() > number(1, 100)) // удача
 		bottom = 10;
 	if (number(bottom, blink) >= number(1, 100)) {
-		sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-				kColorBoldBlk, kColorNrm);
-		SendMsgToChar(buf, victim);
+		SendMsgToChar(fmt::format("{}На мгновение вы исчезли из поля зрения противника.{}\r\n",
+								  kColorBoldBlk, kColorNrm), victim);
 		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
 		dam = 0;
