@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "engine/db/obj_prototypes.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
@@ -62,8 +64,7 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("На чем царапаем?\r\n", ch);
 	} else {
 		if (!(target = get_obj_in_list_vis(ch, objname, ch->carrying))) {
-			sprintf(buf, "У вас нет \'%s\'.\r\n", objname);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", objname), ch);
 		} else {
 			if (erase_only) {
 				target->remove_custom_label();
