@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/communication/ignores.h"
 
@@ -22,6 +24,7 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!*argument) {
 		SendMsgToChar("И что вы хотите выразить столь красочно?\r\n", ch);
 	} else {
+		std::string out;
 		if (subcmd == kScmdEmote) {
 			if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				if (ch->get_master()->IsFlagged(EPlrFlag::kDumbed)) {
@@ -29,9 +32,9 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					return;
 				}
 			}
-			sprintf(buf, "&K$n %s.&n", argument);
+			out = fmt::format("&K$n {}.&n", argument);
 		} else {
-			strcpy(buf, argument);
+			out = argument;
 		}
 
 		for (const auto to : world[ch->in_room]->people) {
@@ -40,14 +43,14 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			}
 
-			act(buf, false, ch, nullptr, to, kToVict | kToNotDeaf);
+			act(out, false, ch, nullptr, to, kToVict | kToNotDeaf);
 			act(deaf_social, false, ch, nullptr, to, kToVict | kToDeaf);
 		}
 
 		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		} else {
-			act(buf, false, ch, nullptr, nullptr, kToChar);
+			act(out, false, ch, nullptr, nullptr, kToChar);
 		}
 	}
 }
