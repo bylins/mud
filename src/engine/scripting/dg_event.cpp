@@ -13,6 +13,8 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
+#include <fmt/format.h>
+
 #include "dg_event.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
@@ -74,8 +76,9 @@ void process_events(void) {
 			long timediff = end.count() - start.count();
 			if (timediff > timewarning) {
 				// Выводим номер триггера который переполнил время работы.
-				sprintf(buf, "[TrigVNum: %d]: process_events overflow %ld ms.  warning  > %d ms", trig_vnum, timediff, timewarning);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+				mudlog(fmt::format("[TrigVNum: {}]: process_events overflow {} ms.  warning  > {} ms",
+								   trig_vnum, timediff, timewarning),
+					   BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else {
@@ -87,8 +90,7 @@ void process_events(void) {
 
 void print_event_list(CharData *ch)
 {
-	sprintf(buf, "В данный момент выполняются следующие триггеры:\r\n");
-	SendMsgToChar(buf, ch);
+	SendMsgToChar("В данный момент выполняются следующие триггеры:\r\n", ch);
 
 	TriggerEventList_t &event_list = GlobalObjects::trigger_event_list();
 
@@ -98,17 +100,17 @@ void print_event_list(CharData *ch)
 		if (!wed || !wed->trigger) {
 			continue;
 		}
-		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%7d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
-//		if (wed->trigger->wait_line != nullptr) {
+		std::string msg = fmt::format("[{:<3}] Trigger: {}, VNum: [{:7}]\r\n",
+									  trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
 		if (wed->trigger->wait_event.time_remaining > 0 && wed->trigger->wait_line != nullptr) {
-			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s (num line: %d)\r\n", GET_TRIG_WAIT(wed->trigger).time_remaining, 
-					wed->trigger->wait_line->cmd.c_str(), wed->trigger->wait_line->line_num);
+			msg += fmt::format("    Wait: {}, Current line: {} (num line: {})\r\n",
+							   GET_TRIG_WAIT(wed->trigger).time_remaining,
+							   wed->trigger->wait_line->cmd, wed->trigger->wait_line->line_num);
 		}
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(msg, ch);
 		++trig_counter;
 	}
-	sprintf(buf, "Итого триггеров %d.\r\n", trig_counter - 1);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Итого триггеров {}.\r\n", trig_counter - 1), ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
