@@ -7,6 +7,7 @@
 #include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/world_objects.h"
+#include "utils/utils_string.h"
 #include "gameplay/economics/exchange.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/depot.h"
@@ -34,12 +35,13 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows);
 
 void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	one_argument(argument, arg);
+	std::string remains;
+	std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
 
 	if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
-		PerformImmortWhere(ch, arg);
+		PerformImmortWhere(ch, arg.data());
 	else
-		PerformMortalWhere(ch, arg);
+		PerformMortalWhere(ch, arg.data());
 }
 
 void PerformImmortWhere(CharData *ch, char *arg) {
