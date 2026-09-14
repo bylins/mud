@@ -16,6 +16,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <fmt/chrono.h>
+#include <fmt/format.h>
 
 #if defined(__clang__) || defined(__CYGWIN__)
 #define HAS_TIME_ZONE 0
@@ -575,8 +576,7 @@ void SendToTC(CharData *ch, bool to_impl, bool to_tester, bool to_coder, const c
 	bool needSend = false;
 	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
 	if (IsCharmice(ch) && !ch->has_master()) {
-		sprintf(buf, "[WARNING] SendToTC. Чармис без хозяина: %s", ch->get_name().c_str());
-		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+		mudlog(fmt::format("[WARNING] SendToTC. Чармис без хозяина: {}", ch->get_name()), CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if ((IsCharmice(ch) && ch->get_master()->IsNpc()) //если это чармис у нпц
@@ -603,8 +603,7 @@ void SendToTC(CharData *ch, bool to_impl, bool to_tester, bool to_coder, const c
 	va_end(args);
 
 	if (tmpbuf[0] == '\0') {
-		sprintf(buf, "[WARNING] SendToTC. Передано пустое сообщение");
-		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
+		mudlog("[WARNING] SendToTC. Передано пустое сообщение", BRF, kLvlGod, SYSLOG, true);
 		return;
 	}
 	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
