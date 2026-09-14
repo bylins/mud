@@ -1,6 +1,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include <fmt/format.h>
+
 #include "administration/privilege.h"
 #include "utils/logger.h"
 #include "gameplay/core/experience.h"
@@ -281,8 +283,8 @@ void die(CharData *ch, CharData *killer) {
 					/ (3 + std::min(3, remort::GetRealRemort(ch) / 5));
 			experience::EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - ch->get_exp();
-			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, grammar::GetDeclensionInNumber(dec_exp, grammar::EWhat::kPoint));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы потеряли {} {} опыта.\r\n",
+									  dec_exp, grammar::GetDeclensionInNumber(dec_exp, grammar::EWhat::kPoint)), ch);
 		}
 
 		// Вычисляем замакс по мобам
@@ -639,9 +641,8 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 
 			if (dam > 0
 				&& victim->get_hit() < (victim->get_real_max_hit() / 4)) {
-				sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
-						kColorRed, kColorNrm);
-				SendMsgToChar(buf2, victim);
+				SendMsgToChar(fmt::format("{} Вы желаете, чтобы ваши раны не кровоточили так сильно! {}\r\n",
+										  kColorRed, kColorNrm), victim);
 			}
 
 			if (ch != victim

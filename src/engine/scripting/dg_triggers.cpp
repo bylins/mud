@@ -13,6 +13,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include <fmt/format.h>
+
 #include "dg_scripts.h"
 #include "dg_triggers.h"
 #include "engine/entities/char_data.h"
@@ -367,6 +369,7 @@ void greet_mtrigger(CharData *actor, int dir) {
 }
 
 void income_mtrigger(CharData *ch, int dir) {
+	char buf[kMaxInputLength];
 	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 	int ispcinroom = 0;
 	CharData *actor = nullptr;
@@ -861,8 +864,7 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 		if (TRIGGER_CHECK(t, MTRIG_CAST)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
-			sprintf(buf, "%d", to_underlying(spell_id));
-			add_var_cntx(t->var_list, "castnum", buf, 0);
+			add_var_cntx(t->var_list, "castnum", fmt::format("{}", to_underlying(spell_id)), 0);
 			add_var_cntx(t->var_list, "castname", MUD::Spell(spell_id).GetCName(), 0);
 			// (issue.ambiguous-spells) %violent% reflects the resolved sign of the cast
 			// from the trigger owner's standpoint -- A spells set "1" for an outsider-cast
@@ -1425,6 +1427,7 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 }
 
 void kill_pc_wtrigger(CharData *killer, CharData *victim) {
+	char buf[kMaxInputLength];
 	if (!killer || !victim || !CheckSript(world[killer->in_room], WTRIG_KILL_PC) || GET_INVIS_LEV(killer))
 		return;
 	auto room = world[victim->in_room];
