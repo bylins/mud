@@ -12,6 +12,8 @@
 *  $Date$                                           *
 *  $Revision$                                                   *
 ************************************************************************ */
+#include <fmt/format.h>
+
 #include "dg_db_scripts.h"
 #include "gameplay/mechanics/magic_item.h"
 
@@ -395,16 +397,14 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 		if (featdiff)
 			return;
 		else {
-			sprintf(buf, "Вы утратили способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы утратили способность '{}'.\r\n", MUD::Feat(feat_id).GetCName()), ch);
 			log("Remove %s to %s (trigfeatturn) trigvnum %d", MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
 			ch->UnsetFeat(feat_id);
 		}
 	} else {
 		if (featdiff) {
 			if (MUD::Class(ch->GetClass()).feats.IsAvailable(feat_id)) {
-				sprintf(buf, "Вы обрели способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Вы обрели способность '{}'.\r\n", MUD::Feat(feat_id).GetCName()), ch);
 				log("Add %s to %s (trigfeatturn) trigvnum %d",
 					MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
 				ch->SetFeat(feat_id);
@@ -495,16 +495,17 @@ void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	GET_SPELL_MEM(ch, spell_id) = std::max(0, MIN(spell + spelldiff, 50));
 
 	if (spell > GET_SPELL_MEM(ch, spell_id)) {
+		std::string msg;
 		if (GET_SPELL_MEM(ch, spell_id)) {
 			log("Remove custom spell %s to %s (trigspell) trigvnum %d",
 				MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
-			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+			msg = fmt::format("Вы забыли часть заклинаний '{}'.\r\n", MUD::Spell(spell_id).GetCName());
 		} else {
-			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+			msg = fmt::format("Вы забыли все заклинания '{}'.\r\n", MUD::Spell(spell_id).GetCName());
 			log("Remove all spells %s to %s (trigspell) trigvnum %d",
 				MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 		}
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(msg, ch);
 	} else if (spell < GET_SPELL_MEM(ch, spell_id)) {
 		SendMsgToChar(ch, "Вы выучили несколько заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
