@@ -985,8 +985,9 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(grammar::ECase::kPre).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
-		SendMsgToChar(utils::CAP(buf), ch);
+		// CAP(std::string) возвращает копию, а не правит на месте
+		SendMsgToChar(utils::CAP(fmt::format("{} - требуется две и более вещи из набора.\r\n",
+											 obj->get_PName(grammar::ECase::kNom))), ch);
 		return 0;
 	}
 	return 1;
@@ -1424,9 +1425,9 @@ void reload_char(long uid, CharData *ch) {
 		}
 	}
 
-	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
-	mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-	imm_log("%s", buf);
+	const std::string msg = fmt::format("Depot: {} reload items for {}.", GET_NAME(ch), it->second.name);
+	mudlog(msg, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+	imm_log("%s", msg.c_str());
 }
 
 /**
@@ -1544,10 +1545,9 @@ int report_unrentables(CharData *ch, CharData *recep) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 				 obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it) {
 			if (SetSystem::is_norent_set(ch, obj_it->get())) {
-				snprintf(buf, kMaxStringLength,
-						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj_it->get(), ch, grammar::ECase::kAcc));
-				act(buf, false, recep, 0, ch, kToVict);
+				act(fmt::format("$n сказал$g вам : \"Я не приму на постой {} - требуется две и более вещи из набора.\"",
+								OBJN(obj_it->get(), ch, grammar::ECase::kAcc)),
+					false, recep, 0, ch, kToVict);
 				return 1;
 			}
 		}
