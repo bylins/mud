@@ -4,6 +4,8 @@
  \brief Умение "горное дело" - код.
 */
 
+#include <fmt/format.h>
+
 #include "mining.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
@@ -253,8 +255,8 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		SendMsgToChar(textbuf, ch);
 		currencies::AddHand(*ch, currencies::kGold, gold);
-		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), gold);
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+		mudlog(fmt::format("<{}> {{{}}} нарыл {} кун.", ch->get_name(), GET_ROOM_VNUM(ch->in_room), gold),
+			   NRM, kLvlGreatGod, MONEY_LOG, true);
 		split_or_clan_tax(ch, gold);
 		return;
 	}

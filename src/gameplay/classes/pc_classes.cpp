@@ -18,6 +18,8 @@
  * you should go through this entire file from beginning to end and add
  * the appropriate new special cases for your new class.
  */
+#include <fmt/format.h>
+
 #include "pc_classes.h"
 #include "gameplay/core/experience.h"
 #include "administration/privilege.h"
@@ -1047,8 +1049,7 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	}
 
 	experience::advance_level(ch);
-	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
-	mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+	mudlog(fmt::format("{} advanced to level {}", GET_NAME(ch), GetRealLevel(ch)), BRF, kLvlImplementator, SYSLOG, true);
 
 	ch->set_hit(ch->get_real_max_hit());
 	ch->set_move(ch->get_real_max_move());
