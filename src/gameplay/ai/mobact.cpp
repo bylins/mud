@@ -955,8 +955,8 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				  GET_NAME(ch), GET_MOB_VNUM(ch));
 			  ch->UnsetFlag(EMobFlag::kSpec);
 		  } else {
-			  buf2[0] = '\0';
-			  if ((mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, buf2)) {
+			  char empty_arg[kMaxStringLength] = "";
+			  if ((mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, empty_arg)) {
 				  continue;    // go to next char
 			  }
 		  }
