@@ -212,7 +212,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			SendMsgToChar(room_name, ch);
 	}
 
-	SendMsgToChar("&n\r\n", ch);
+	SendMsgToChar("&w\r\n", ch);
 
 	if (is_dark(ch->in_room) && !ch->IsFlagged(EPrf::kHolylight)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
@@ -231,7 +231,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	// now list characters & objects
 	if (world[ch->in_room]->fires) {
-		SendMsgToChar(fmt::format("&rВ центре {}.&n\r\n", Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)]), ch);
+		SendMsgToChar(fmt::format("&rВ центре {}.&w\r\n", Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)]), ch);
 	}
 	// kPortalTimer rendering (regular + PK variant + immortal/tester timer suffix)
 	// moved into show_room_affects (issue.affect-flags): the PK uid lives on the
@@ -239,7 +239,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	if (world[ch->in_room]->holes) {
 		const int ar = round_up(world[ch->in_room]->holes / kHolesTime);
-		SendMsgToChar(fmt::format("&yЗдесь выкопана ямка глубиной примерно в {} аршин{}.&n\r\n",
+		SendMsgToChar(fmt::format("&yЗдесь выкопана ямка глубиной примерно в {} аршин{}.&w\r\n",
 								  ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов"))), ch);
 	}
 
@@ -250,17 +250,17 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			case ESector::kFieldSnow:
 			case ESector::kForestSnow:
 			case ESector::kHillsSnow:
-			case ESector::kMountainSnow: ground = "&WСнежный ковер лежит у вас под ногами.&n\r\n";
+			case ESector::kMountainSnow: ground = "&WСнежный ковер лежит у вас под ногами.&w\r\n";
 				break;
 			case ESector::kFieldRain:
 			case ESector::kForestRain:
-			case ESector::kHillsRain: ground = "&KВы просто увязаете в грязи.&n\r\n";
+			case ESector::kHillsRain: ground = "&KВы просто увязаете в грязи.&w\r\n";
 				break;
-			case ESector::kThickIce: ground = "&BУ вас под ногами толстый лед.&n\r\n";
+			case ESector::kThickIce: ground = "&BУ вас под ногами толстый лед.&w\r\n";
 				break;
-			case ESector::kNormalIce: ground = "&BУ вас под ногами достаточно толстый лед.&n\r\n";
+			case ESector::kNormalIce: ground = "&BУ вас под ногами достаточно толстый лед.&w\r\n";
 				break;
-			case ESector::kThinIce: ground = "&CТоненький ледок вот-вот проломится под вами.&n\r\n";
+			case ESector::kThinIce: ground = "&CТоненький ледок вот-вот проломится под вами.&w\r\n";
 				break;
 		};
 		if (!ground.empty()) {
@@ -918,7 +918,7 @@ void do_auto_exits(CharData *ch) {
 			}
 		}
 	}
-	SendMsgToChar(fmt::format("&c[ Exits: {}]&n\r\n", *buf ? buf : "None! "), ch);
+	SendMsgToChar(fmt::format("&c[ Exits: {}]&w\r\n", *buf ? buf : "None! "), ch);
 }
 
 
@@ -1092,7 +1092,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 		|| (EXIT(ch, dir)
 			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
-		std::string out = fmt::format("&y{}:&n ", dirs_rus[dir]);
+		std::string out = fmt::format("&y{}:&w ", dirs_rus[dir]);
 		if (EXIT_FLAGGED(rdata, EExitFlag::kClosed)) {
 			if (rdata->keyword) {
 				out += fmt::format(" закрыто ({}).\r\n", rdata->keyword);
@@ -1105,9 +1105,9 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				// Продолжение пишется поверх последнего CRLF -- как и раньше с buf + count - 2
 				out.erase(out.size() - 2);
 				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
-					out += "&C вы никогда не сможете ЭТО взломать!&n\r\n";
+					out += "&C вы никогда не сможете ЭТО взломать!&w\r\n";
 				} else if (EXIT_FLAGGED(rdata, EExitFlag::kBrokenLock)) {
-					out += "&r Замок сломан... &n\r\n";
+					out += "&r Замок сломан... &w\r\n";
 				} else {
 					const PickProbabilityInformation &pbi = get_pick_probability(ch, rdata->lock_complexity);
 					out += pbi.text + "\r\n";
@@ -1218,9 +1218,9 @@ void look_in_obj(CharData *ch, char *arg) {
 				std::string locked = fmt::format("Заперт{}.", grammar::ObjSexEnding((obj)->get_sex(), 6));
 				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp)) && skill_pick) {
 					if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)))
-						locked += "&C Вы никогда не сможете ЭТО взломать!&n\r\n";
+						locked += "&C Вы никогда не сможете ЭТО взломать!&w\r\n";
 					else if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockIsBroken)))
-						locked += "&r Замок сломан... &n\r\n";
+						locked += "&r Замок сломан... &w\r\n";
 					else {
 						const PickProbabilityInformation &pbi = get_pick_probability(ch, GET_OBJ_VAL(obj, 3));
 						locked += pbi.text + "\r\n";
@@ -1325,7 +1325,7 @@ std::string show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 										grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 			} else {
 				if (obj_affects::PoisonSpell(object) != ESpell::kUndefined) {
-					state = fmt::format(" &g*&n{}", diag_obj_to_char(object, 1));
+					state = fmt::format(" &g*&w{}", diag_obj_to_char(object, 1));
 				} else {
 					// diag_obj_to_char сама начинается с пробела, а всё, что дописывается следом,
 					// свой пробел тоже приносит: лишний тут давал "бочка  <великолепно>" и
@@ -1402,7 +1402,7 @@ std::string show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (object->has_flag(EObjFlag::kFire))
 			out += " ..горит!";
 		if (object->has_flag(EObjFlag::kBloody)) {
-			out += fmt::format(" &R..покрыт{} кровью!&n", grammar::ObjSexEnding((object)->get_sex(), 6));
+			out += fmt::format(" &R..покрыт{} кровью!&w", grammar::ObjSexEnding((object)->get_sex(), 6));
 		}
 	}
 
@@ -1569,7 +1569,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	else
 		out += " умирает";
 
-	out += "&n";
+	out += "&w";
 
 	if (!mount::IsOnHorse(i))
 		switch (i->GetPosition()) {

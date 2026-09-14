@@ -800,8 +800,8 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		// Значения под метками "Солнце" и "Небо" стоят наоборот -- так было и с printf,
 		// поведение не меняю.
-		SendMsgToChar(fmt::format("&nКомната=&K{} &rСвет=&R{} &gОсвещ=&G{} &yКостер=&Y{} &yЛед=&Y{} "
-								  "&bТьма=&B{} &mСолнце=&C{} &WНебо=&K{} &yЛуна=&Y{}&n.\r\n",
+		SendMsgToChar(fmt::format("&wКомната=&K{} &rСвет=&R{} &gОсвещ=&G{} &yКостер=&Y{} &yЛед=&Y{} "
+								  "&bТьма=&B{} &mСолнце=&C{} &WНебо=&K{} &yЛуна=&Y{}&w.\r\n",
 								  room,
 								  world[room]->light,
 								  world[room]->glight,

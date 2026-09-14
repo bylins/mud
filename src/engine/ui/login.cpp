@@ -862,7 +862,7 @@ void DoAfterPassword(DescriptorData *d) {
 
 	if (load_result) {
 		iosystem::write_to_output(fmt::format("\r\n\r\n\007\007\007"
-											  "&r{} LOGIN FAILURE{} SINCE LAST SUCCESSFUL LOGIN.&n\r\n",
+											  "&r{} LOGIN FAILURE{} SINCE LAST SUCCESSFUL LOGIN.&w\r\n",
 											  load_result, load_result > 1 ? "S" : "").c_str(), d);
 		GET_BAD_PWS(d->character) = 0;
 	}

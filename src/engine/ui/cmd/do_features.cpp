@@ -78,8 +78,8 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			std::string line;
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				const char *color = ch->HaveFeat(feat.GetId()) ? "&g"
-									: CanGetFeat(ch, feat.GetId()) ? "&n" : "&r";
-				line = fmt::format("        {}{} {:<30}&n\r\n", color, mark, MUD::Feat(feat.GetId()).GetCName());
+									: CanGetFeat(ch, feat.GetId()) ? "&w" : "&r";
+				line = fmt::format("        {}{} {:<30}&w\r\n", color, mark, MUD::Feat(feat.GetId()).GetCName());
 			} else {
 				line = fmt::format("    {} {:<30}\r\n", mark, MUD::Feat(feat.GetId()).GetCName());
 			}
@@ -138,7 +138,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				case EFeat::kTripleThrower:
 				case EFeat::kSerratedBlade:
 					if (ch->IsFlagged(GetPrfWithFeatNumber(feat.GetId()))) {
-						line = "[-&G*&n-] ";
+						line = "[-&G*&w-] ";
 					} else {
 						line = "[-:-] ";
 					}
@@ -146,7 +146,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				default: line = "      ";
 			}
 			if (CanUseFeat(ch, feat.GetId())) {
-				line += fmt::format("&Y{}&n\r\n", MUD::Feat(feat.GetId()).GetCName());
+				line += fmt::format("&Y{}&w\r\n", MUD::Feat(feat.GetId()).GetCName());
 			} else if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				line += fmt::format("{}\r\n", MUD::Feat(feat.GetId()).GetCName());
 			} else {
@@ -162,7 +162,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				sfound = false;
 				while (slot < max_slot) {
 					if (names[slot].empty()) {
-						names[slot] = fmt::format(" &g{:<2}&n) ", slot + 1) + line;
+						names[slot] = fmt::format(" &g{:<2}&w) ", slot + 1) + line;
 						sfound = true;
 						break;
 					} else {
@@ -184,7 +184,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 	auto max_slot_per_lvl = CalcMaxFeatSlotPerLvl(ch);
 	for (i = 0; i < max_slot; i++) {
 		if (names[i].empty()) {
-			names[i] = fmt::format(" &g{:<2}&n)       &K[пусто]&n\r\n", i + 1);
+			names[i] = fmt::format(" &g{:<2}&w)       &K[пусто]&w\r\n", i + 1);
 		}
 		if (i >= max_slot_per_lvl)
 			break;

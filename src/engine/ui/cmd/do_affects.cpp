@@ -81,7 +81,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::vector<std::string> out_str = utils::Split(affects::DescribeActive(aff_copy, ", "), ',');
 	// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
 	// склеивается через ", " (иначе после метки была бы лишняя запятая).
-	SendMsgToChar(fmt::format("&y{}&n\r\n",
+	SendMsgToChar(fmt::format("&y{}&w\r\n",
 							  utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "Аффекты: ")),
 				  ch);
 
@@ -115,7 +115,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// A permanent source wins the label; otherwise show the longest remaining time.
 			// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
 			// точках, printf мерил бы в байтах (issue #3681).
-			std::string line = fmt::format("{}&C{:<21} {:<12}&n",
+			std::string line = fmt::format("{}&C{:<21} {:<12}&w",
 										   (!r.name.empty() && r.name[0] == '!') ? "Состояние  : " : "Заклинание : ",
 										   r.name,
 										   FormatAffectDuration(r.permanent ? -1 : r.best_mod));
@@ -145,7 +145,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const std::string duration = FormatAffectDuration(AffectDisplayMod(aff));
 		// Ширина колонок -- в символах: fmt для корректного UTF-8 меряет её в кодовых
 		// точках, printf мерил бы в байтах (issue #3681).
-		std::string line = fmt::format("{}&C{:<21} {:<12}&n ",
+		std::string line = fmt::format("{}&C{:<21} {:<12}&w ",
 									   !sp_name.empty() && sp_name[0] == '!' ? "Состояние  : " : "Заклинание : ",
 									   sp_name, duration);
 		if (immortal) {
@@ -158,7 +158,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// via the shared kDefault sheaf fallback to "странное ощущение".
 			if (!sp_name.empty()) {
 				line += has_modifier ? ", устанавливает " : "устанавливает ";
-				line += fmt::format("&R{}&n", sp_name);
+				line += fmt::format("&R{}&w", sp_name);
 			}
 		}
 		// Stack count (issue.affect-stacks): show [xN] for a multi-stack affect.
