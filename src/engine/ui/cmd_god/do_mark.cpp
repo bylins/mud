@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/target_resolver.h"
@@ -22,8 +24,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (cont_dotmode == kFindIndiv) {
 			generic_find(arg1, EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip, ch, &tmp_char, &cont);
 			if (!cont) {
-				sprintf(buf, "У вас нет '%s'.\r\n", arg1);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", arg1), ch);
 				return;
 			}
 			cont->set_owner(atoi(arg2));
@@ -55,8 +56,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (cont_dotmode == kFindAll) {
 					SendMsgToChar("Вы не смогли найти ничего для маркировки.\r\n", ch);
 				} else {
-					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", arg1);
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("Вы что-то не видите здесь '{}'.\r\n", arg1), ch);
 				}
 			}
 		}
