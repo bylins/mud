@@ -421,16 +421,9 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 
 	if (obj) {
 		if ((obj->get_cost() * bought) > total_money) {
-
-			snprintf(buf,
-					 kMaxStringLength,
-					 "Персонаж %s купил предмет %d за %d при его стоимости %d и прайсе %ld.",
-					 ch->get_name().c_str(),
-					 GET_OBJ_VNUM(obj),
-					 total_money,
-					 obj->get_cost(),
-					 price);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("Персонаж {} купил предмет {} за {} при его стоимости {} и прайсе {}.",
+							   ch->get_name(), GET_OBJ_VNUM(obj), total_money, obj->get_cost(), price),
+				   CMP, kLvlImmortal, SYSLOG, true);
 		}
 		SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(IsMale(ch) ? ESM::kHappyOwnerMale : ESM::kHappyOwnerFemale)),
 				fmt::arg("item", obj->item_count_message(bought, grammar::ECase::kGen))) + "\r\n", ch);
@@ -495,7 +488,6 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 	std::string print_value;
 	std::string name_value;
 
-	one_argument(argument, arg);
 	ParseFilter filter(ParseFilter::CLAN);
 
 	if (!filter.parse_filter(ch, filter, argument)) {
@@ -792,8 +784,8 @@ ObjData *shop_node::get_from_shelve(const size_t index) const {
 	const auto node = m_items_list.node(index);
 	const auto uid = node->uid();
 	if (ItemNode::NO_UID == uid) {
-		sprintf(buf, "ERROR: get_from_shelve: вернул NULL, index: %zu", index);
-		mudlog(buf, LogMode::BRF, kLvlImplementator, SYSLOG, true);
+		mudlog(fmt::format("ERROR: get_from_shelve: вернул NULL, index: {}", index),
+			   LogMode::BRF, kLvlImplementator, SYSLOG, true);
 		return nullptr;
 	}
 
