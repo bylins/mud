@@ -19,6 +19,12 @@ class CObjectPrototype;
 // его класс не получает вовсе.
 std::string GetBookContents(const CObjectPrototype *obj, CharData *ch = nullptr);
 
+// Строка "уровень изучения" для книги: что и с каким порогом персонаж сможет из неё выучить.
+// Пусто, если предмет не книга или содержимое битое. При недоступности класса вместо числа
+// ставится прочерк -- раньше на его месте печатался kLvlImplementator, то есть уровень бога
+// как код "никогда" (#3877).
+std::string GetBookLearnLevel(const CObjectPrototype *obj, CharData *ch);
+
 // Render an object's full stat block to `ch` (detail level scaled by `fullness`).
 void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness);
 // Render a character's stat block to `ch` (detail level scaled by `fullness`).
