@@ -318,24 +318,22 @@ void BanList::ShowBannedIp(int sort_mode, CharData *ch) {
 	}
 
 	SortIp(sort_mode);
-	char to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = nullptr, *timestr;
-	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
-										   "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban").c_str());
-	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
-										   "-------------------------", "--------", "----------",
-										   "----------------", "--------").c_str());
+	std::string listbuf = fmt::format(fmt::runtime(kBanRow),
+									  "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
+	listbuf += fmt::format(fmt::runtime(kBanRow),
+						   "-------------------------", "--------", "----------",
+						   "----------------", "--------");
 
 	for (auto &i : ban_list_) {
-		timestr = asctime(localtime(&(i->BanDate)));
-		*(timestr + 10) = 0;
-		strcpy(to_unban, timestr);
-		sprintf(buff, "%ldh", static_cast<long int>(i->UnbanDate - time(nullptr)) / 3600);
-		listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow), i->BannedIp, ban_types[i->BanType],
-											   to_unban, i->BannerName, buff).c_str());
-		listbuf = str_add(listbuf, (i->BanReason + "\r\n").c_str());
+		// asctime отдаёт "Www Mmm dd hh:mm:ss yyyy\n", в списке нужны только первые 10 символов
+		std::string to_unban = asctime(localtime(&(i->BanDate)));
+		to_unban.resize(10);
+		const std::string buff = fmt::format("{}h", static_cast<long int>(i->UnbanDate - time(nullptr)) / 3600);
+		listbuf += fmt::format(fmt::runtime(kBanRow), i->BannedIp, ban_types[i->BanType],
+							   to_unban, i->BannerName, buff);
+		listbuf += i->BanReason + "\r\n";
 	}
-	page_string(ch->desc, listbuf, 1);
-	free(listbuf);
+	page_string(ch->desc, listbuf);
 }
 
 void BanList::ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask) {
@@ -346,32 +344,30 @@ void BanList::ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask) 
 	}
 
 	SortIp(sort_mode);
-	char to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = nullptr, *timestr;
-	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
-										   "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban").c_str());
-	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow),
-										   "-------------------------", "--------", "----------",
-										   "----------------", "--------").c_str());
+	std::string listbuf = fmt::format(fmt::runtime(kBanRow),
+									  "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
+	listbuf += fmt::format(fmt::runtime(kBanRow),
+						   "-------------------------", "--------", "----------",
+						   "----------------", "--------");
 
 	for (auto &i : ban_list_) {
 		if (strncmp(i->BannedIp.c_str(), mask, strlen(mask)) == 0) {
-			timestr = asctime(localtime(&(i->BanDate)));
-			*(timestr + 10) = 0;
-			strcpy(to_unban, timestr);
-			sprintf(buff, "%ldh", static_cast<long int>(i->UnbanDate - time(nullptr)) / 3600);
-			listbuf = str_add(listbuf, fmt::format(fmt::runtime(kBanRow), i->BannedIp, ban_types[i->BanType],
-												   to_unban, i->BannerName, buff).c_str());
-			listbuf = str_add(listbuf, (i->BanReason + "\r\n").c_str());
+			// asctime отдаёт "Www Mmm dd hh:mm:ss yyyy\n", в списке нужны только первые 10 символов
+			std::string to_unban = asctime(localtime(&(i->BanDate)));
+			to_unban.resize(10);
+			const std::string buff = fmt::format("{}h", static_cast<long int>(i->UnbanDate - time(nullptr)) / 3600);
+			listbuf += fmt::format(fmt::runtime(kBanRow), i->BannedIp, ban_types[i->BanType],
+								   to_unban, i->BannerName, buff);
+			listbuf += i->BanReason + "\r\n";
 			is_find = true;
 		};
 
 	}
 	if (is_find) {
-		page_string(ch->desc, listbuf, 1);
+		page_string(ch->desc, listbuf);
 	} else {
 		SendMsgToChar("No sites are banned.\r\n", ch);
 	}
-	free(listbuf);
 }
 
 void BanList::ShowBannedProxy(int sort_mode, CharData *ch) {
@@ -380,14 +376,13 @@ void BanList::ShowBannedProxy(int sort_mode, CharData *ch) {
 		return;
 	}
 	SortProxy(sort_mode);
-	char *listbuf = nullptr;
 	SendMsgToChar(fmt::format(fmt::runtime(kProxyRow), "Banned Site Name", "Banned By"), ch);
-	listbuf = str_add(listbuf, fmt::format(fmt::runtime(kProxyRow),
-										   "-------------------------", "----------------").c_str());
+	std::string listbuf = fmt::format(fmt::runtime(kProxyRow),
+									  "-------------------------", "----------------");
 	for (auto &i : proxy_ban_list_) {
-		listbuf = str_add(listbuf, fmt::format(fmt::runtime(kProxyRow), i->BannedIp, i->BannerName).c_str());
+		listbuf += fmt::format(fmt::runtime(kProxyRow), i->BannedIp, i->BannerName);
 	}
-	page_string(ch->desc, listbuf, 1);
+	page_string(ch->desc, listbuf);
 }
 
 int BanList::IsBanned(std::string Ip) {
