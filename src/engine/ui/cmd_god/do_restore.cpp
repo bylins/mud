@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/utils_string.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 #include "engine/core/target_resolver.h"
@@ -42,10 +43,11 @@ bool IsHarmfulAffect(const Affect<EApply>::shared_ptr &aff) {
 void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *vict;
 
-	one_argument(argument, buf);
-	if (!*buf)
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
+	if (arg.empty())
 		SendMsgToChar("Кого вы хотите восстановить?\r\n", ch);
-	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)))
+	else if (!(vict = target_resolver::FindCharInWorld(ch, arg)))
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
