@@ -59,7 +59,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		rdata = EXIT(ch, dir);
 		// Цвет кодами, а не константами kColor*: их раскрывает proc_color на выходе,
 		// и настройка цвета игрока перестаёт игнорироваться.
-		SendMsgToChar(fmt::format("&Y{}:&n \r\n&G", dirs_rus[dir]), ch);
+		SendMsgToChar(fmt::format("&Y{}:&w \r\n&G", dirs_rus[dir]), ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
 			percent = number(1, MUD::Skill(ESkill::kHearing).difficulty);
@@ -124,7 +124,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		}
 
 		// Закрывающая половина той же пары: открывали &G, закрываем &n.
-		SendMsgToChar("&n", ch);
+		SendMsgToChar("&w", ch);
 	} else {
 		if (info_is & sight::EXIT_SHOW_WALL) {
 			SendMsgToChar("И что вы там хотите услышать?\r\n", ch);

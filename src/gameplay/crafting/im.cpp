@@ -952,8 +952,8 @@ void list_recipes(CharData *ch, bool all_recipes) {
 			rs = im_get_char_rskill(ch, sortpos);
 			const bool unavailable = req->level > GetRealLevel(ch) || req->remort > remort::GetRealRemort(ch);
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
-				out += fmt::format("     {}{:<30}&c {:2} ({:2})&n\r\n",
-						unavailable ? "&r" : rs ? "&g" : "&n",
+				out += fmt::format("     {}{:<30}&c {:2} ({:2})&w\r\n",
+						unavailable ? "&r" : rs ? "&g" : "&w",
 						imrecipes[sortpos].name, req->level, req->remort);
 			} else {
 				out += fmt::format(" {} {:<30} {:2} ({:2})\r\n",
@@ -1119,11 +1119,11 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 		prob += number(1, rs->perc * 5);
 		if (number(1, MAX(1, prob)) <= GetRealInt(ch)) {
 			if (success)
-				SendMsgToChar(fmt::format("&CВы постигли тонкости приготовления рецепта \"{}\".&n\r\n",
+				SendMsgToChar(fmt::format("&CВы постигли тонкости приготовления рецепта \"{}\".&w\r\n",
 										  imrecipes[rs->rid].name), ch);
 			else
 				SendMsgToChar(fmt::format("&CНеудача позволила вам осознать тонкости приготовления "
-										  "рецепта \"{}\".&n\r\n", imrecipes[rs->rid].name), ch);
+										  "рецепта \"{}\".&w\r\n", imrecipes[rs->rid].name), ch);
 			rs->perc += number(1, 2);
 			if (!privilege::IsImmortal(ch))
 				rs->perc = MIN(CalcSkillRemortCap(ch), rs->perc);

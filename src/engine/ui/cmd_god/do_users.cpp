@@ -275,7 +275,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		line += "\r\n";
 		if (d->state != EConState::kPlaying) {
-			line = fmt::format("&g{}&n", line);
+			line = fmt::format("&g{}&w", line);
 		}
 
 		if (d->state != EConState::kPlaying || (d->state == EConState::kPlaying && d->character && sight::CanSee(ch, d->character))) {

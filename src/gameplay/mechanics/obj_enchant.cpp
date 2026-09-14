@@ -49,15 +49,15 @@ void enchant::print(CharData *ch) const {
 	// а печатать строку надо только когда флаги есть -- это знает только bool-форма.
 	char flags[kMaxStringLength];
 	if (affects_flags_.sprintbits(equipment_affects, flags, sizeof(flags), ",")) {
-		SendMsgToChar(fmt::format("&c   аффекты: {}&n\r\n", flags), ch);
+		SendMsgToChar(fmt::format("&c   аффекты: {}&w\r\n", flags), ch);
 	}
 
 	if (extra_flags_.sprintbits(extra_bits, flags, sizeof(flags), ",")) {
-		SendMsgToChar(fmt::format("&c   экстрафлаги: {}&n\r\n", flags), ch);
+		SendMsgToChar(fmt::format("&c   экстрафлаги: {}&w\r\n", flags), ch);
 	}
 
 	if (no_flags_.sprintbits(no_bits, flags, sizeof(flags), ",")) {
-		SendMsgToChar(fmt::format("&c   неудобен: {}&n\r\n", flags), ch);
+		SendMsgToChar(fmt::format("&c   неудобен: {}&w\r\n", flags), ch);
 	}
 
 	if (weight_ != 0) {
