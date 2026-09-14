@@ -19,6 +19,7 @@
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
+#include "utils/utils_string.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/ai/special_messages.h"
 
@@ -295,8 +296,8 @@ int npc_scavenge(CharData *ch) {
 					PlaceObjToInventory(best_obj, ch);
 				}
 			} else {
-				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(grammar::ECase::kGen).c_str());
-				act(buf, false, ch, best_obj, 0, kToRoom);
+				act(fmt::format("$n достал$g $o3 из {}.", cont->get_PName(grammar::ECase::kGen)),
+					false, ch, best_obj, 0, kToRoom);
 				if (best_obj->get_type() == EObjType::kMoney) {
 					currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(best_obj, 0));
 					ExtractObjFromWorld(best_obj);
@@ -329,8 +330,8 @@ int npc_loot(CharData *ch) {
 						|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj)) {
-						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
-						act(buf, false, ch, loot_obj, 0, kToRoom);
+						act(fmt::format("$n вытащил$g $o3 из {}.", obj->get_PName(grammar::ECase::kGen)),
+							false, ch, loot_obj, 0, kToRoom);
 						if (loot_obj->get_type() == EObjType::kMoney) {
 							currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(loot_obj, 0));
 							ExtractObjFromWorld(loot_obj);
@@ -356,8 +357,8 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
-								act(buf, false, ch, cobj, 0, kToRoom);
+								act(fmt::format("$n вытащил$g $o3 из {}.", obj->get_PName(grammar::ECase::kGen)),
+									false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(cobj, 0));
 									ExtractObjFromWorld(cobj);
@@ -402,8 +403,8 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
-								act(buf, false, ch, cobj, 0, kToRoom);
+								act(fmt::format("$n вытащил$g $o3 из {}.", obj->get_PName(grammar::ECase::kGen)),
+									false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(cobj, 0));
 									ExtractObjFromWorld(cobj);
@@ -1313,7 +1314,6 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 #define PET_PRICE(pet) (GetRealLevel(pet) * 300)
 
 int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
-	char buf[kMaxStringLength], pet_name[256];
 	RoomRnum pet_room;
 	CharData *pet;
 
@@ -1322,17 +1322,18 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("list")) {
 		SendMsgToChar("Available pets are:\r\n", ch);
 		for (const auto pet : world[pet_room]->people) {
-			sprintf(buf, "%8d - %s\r\n", PET_PRICE(pet), GET_NAME(pet));
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("{:>8} - {}\r\n", PET_PRICE(pet), GET_NAME(pet)), ch);
 		}
 
 		return (true);
 	} else if (CMD_IS("buy")) {
-		two_arguments(argument, buf, pet_name);
+		std::string remains;
+		const std::string name_arg = utils::ExtractFirstArgument(argument, remains);
+		const std::string pet_name = utils::ExtractFirstArgument(remains, remains);
 
 		target_resolver::Query q;
 		q.scopes = {target_resolver::Scope::kRoom};
-		q.name = buf;
+		q.name = name_arg;
 		q.room_override = pet_room;
 		q.visible_only = false;
 		if (!(pet = target_resolver::ResolveChar(ch, q))) {
@@ -1350,17 +1351,15 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
 		pet->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 
-		if (*pet_name) {
-			sprintf(buf, "%s %s", pet->GetCharAliases().c_str(), pet_name);
+		if (!pet_name.empty()) {
 			// free(pet->GetCharAliases()); don't free the prototype!
-			pet->SetCharAliases(buf);
+			pet->SetCharAliases(fmt::format("{} {}", pet->GetCharAliases(), pet_name));
 
-			sprintf(buf,
-					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
-					pet->player_data.description.c_str(), pet_name);
 			// player_data.description -- std::string со своим владением: прямое
 			// присваивание заменяет собственную копию, прототип не затрагивается.
-			pet->player_data.description = buf;
+			pet->player_data.description = fmt::format(
+				"{}A small sign on a chain around the neck says 'My name is {}'\r\n",
+				pet->player_data.description, pet_name);
 		}
 		PlaceCharToRoom(pet, ch->in_room);
 		follow::AddFollower(ch, pet);
@@ -1471,14 +1470,15 @@ int BankWithdraw(CharData *ch, void * /*me*/, char *argument) {
 int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 	int amount;
 	CharData *vict;
-	argument = one_argument(argument, arg);
-	amount = atoi(argument);
+	std::string remains;
+	const std::string recipient_arg = utils::ExtractFirstArgument(argument, remains);
+	amount = atoi(remains.c_str());
 	if (privilege::IsGod(ch) && !privilege::IsImpl(ch)) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kImmCant) + "\r\n", ch);
 		return (1);
 
 	}
-	if (!*arg) {
+	if (recipient_arg.empty()) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kTransferToWhom) + "\r\n", ch);
 		return (1);
 	}
@@ -1502,7 +1502,7 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 		return (1);
 	}
 
-	if ((vict = get_player_of_name(arg))) {
+	if ((vict = get_player_of_name(recipient_arg.c_str()))) {
 		currencies::RemoveBank(*ch, currencies::kGold, amount);
 		if (amount <= 100) currencies::RemoveBank(*ch, currencies::kGold, 5);
 		else currencies::RemoveBank(*ch, currencies::kGold, ((amount * 5) / 100));
@@ -1513,18 +1513,14 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferReceived)),
 				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
 				fmt::arg("sender", GET_PAD(ch, 1)), fmt::arg("nocolor", kColorNrm)) + "\r\n", vict);
-		sprintf(buf,
-				"<%s> {%d} перевел %d кун банковским переводом %s.",
-				ch->get_name().c_str(),
-				GET_ROOM_VNUM(ch->in_room),
-				amount,
-				GET_PAD(vict, 2));
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+		mudlog(fmt::format("<{}> {{{}}} перевел {} кун банковским переводом {}.",
+						   ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2)),
+			   NRM, kLvlGreatGod, MONEY_LOG, true);
 		return (1);
 
 	} else {
 		vict = new Player; // TODO: переделать на стек
-		if (LoadPlayerCharacter(arg, vict, ELoadCharFlags::kFindId) < 0) {
+		if (LoadPlayerCharacter(recipient_arg.c_str(), vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoSuchPlayer) + "\r\n", ch);
 			delete vict;
 			return (1);
@@ -1536,13 +1532,9 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferSent)),
 				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
 				fmt::arg("recipient", GET_PAD(vict, 2)), fmt::arg("nocolor", kColorNrm)) + "\r\n", ch);
-		sprintf(buf,
-				"<%s> {%d} перевел %d кун банковским переводом %s.",
-				ch->get_name().c_str(),
-				GET_ROOM_VNUM(ch->in_room),
-				amount,
-				GET_PAD(vict, 2));
-		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
+		mudlog(fmt::format("<{}> {{{}}} перевел {} кун банковским переводом {}.",
+						   ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2)),
+			   NRM, kLvlGreatGod, MONEY_LOG, true);
 		currencies::AddBank(*vict, currencies::kGold, amount);
 		Depot::add_offline_money(vict->get_uid(), amount);
 		vict->save_char();

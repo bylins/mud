@@ -13,6 +13,9 @@
 ************************************************************************ */
 
 #include "magic.h"
+
+#include <fmt/format.h>
+
 #include "gameplay/affects/obj_affects.h"   // issue.obj-affects: RunObjAffectWeaponHit
 #include "gameplay/affects/obj_affect_messages.h"   // issue.obj-affects: obj-affect trigger flavor
 #include "administration/privilege.h"
@@ -1529,23 +1532,15 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 		mob->UnsetFlag(EMobFlag::kNoGroup);
 	}
 
-	sprintf(buf2, "умертвие %s %s", GET_PAD(mob, 1), GET_NAME(mob));
-	mob->SetCharAliases(buf2);
-	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-	mob->set_npc_name(buf2);
+	mob->SetCharAliases(fmt::format("умертвие {} {}", GET_PAD(mob, 1), GET_NAME(mob)));
+	mob->set_npc_name(fmt::format("умертвие {}", GET_PAD(mob, 1)));
 	mob->player_data.long_descr = "";
-	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[grammar::ECase::kNom] = std::string(buf2);
-	sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[grammar::ECase::kDat] = std::string(buf2);
-	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[grammar::ECase::kAcc] = std::string(buf2);
-	sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[grammar::ECase::kIns] = std::string(buf2);
-	sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[grammar::ECase::kPre] = std::string(buf2);
-	sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[grammar::ECase::kGen] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kNom] = fmt::format("умертвие {}", GET_PAD(mob, 1));
+	mob->player_data.PNames[grammar::ECase::kDat] = fmt::format("умертвию {}", GET_PAD(mob, 1));
+	mob->player_data.PNames[grammar::ECase::kAcc] = fmt::format("умертвие {}", GET_PAD(mob, 1));
+	mob->player_data.PNames[grammar::ECase::kIns] = fmt::format("умертвием {}", GET_PAD(mob, 1));
+	mob->player_data.PNames[grammar::ECase::kPre] = fmt::format("умертвии {}", GET_PAD(mob, 1));
+	mob->player_data.PNames[grammar::ECase::kGen] = fmt::format("умертвия {}", GET_PAD(mob, 1));
 	mob->set_sex(EGender::kNeutral);
 	mob->SetFlag(EMobFlag::kResurrected);
 	mob->SetFlag(EMobFlag::kUndead);	// issue.npc-races: resurrected => undead

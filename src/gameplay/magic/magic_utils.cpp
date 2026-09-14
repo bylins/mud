@@ -40,6 +40,7 @@
 #include "utils/backtrace.h"
 
 #include <fmt/format.h>
+#include <fmt/printf.h>
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/utils_time.h"
@@ -75,10 +76,7 @@ static void EmitCastIncantBanner(CharData *ch, ESpell spell_id, const CharData *
 	SendMsgToChar(incant + "\r\n", ch);
 }
 
-// SaySpell erodes buf, buf1, buf2
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
-	char lbuf[256];
-
 	// Silenced caster can't speak the phrase regardless of whether the spell
 	// is verbal. A verbal spell shouldn't even reach SaySpell while silenced
 	// (do_cast / CastSpell / process_player_attack bail out earlier), but
@@ -89,8 +87,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		return;
 	}
 
-	*buf = '\0';
-	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
+	std::string cast_phrase; // роль старого buf -- фраза для тех, кто заклинание не знает
 	const auto &cast_phrase_sheaf = MUD::SpellMessages()[spell_id];
 	if (!cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseHeathen)
 		&& !cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseChristian)) {
@@ -100,8 +97,8 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		// (cast phrase is decorative for non-verbal
 		// spells. Speak it if present; stay silent otherwise.)
 		if (MUD::Spell(spell_id).IsVerbal()) {
-			sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
-			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+			mudlog(fmt::format("[ERROR]: SaySpell: для спелла {} не объявлена cast_phrase", to_underlying(spell_id)),
+				   CMP, kLvlGod, SYSLOG, true);
 		}
 		return;
 	}
@@ -115,10 +112,10 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		const int religion = ch->IsNpc()
 				? number(kReligionPoly, kReligionMono)
 				: GET_RELIGION(ch);
-		const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(
+		const std::string &phrase = cast_phrase_sheaf.GetMessage(
 				religion ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
-		if (!cast_phrase.empty()) {
-			strcpy(buf, cast_phrase.c_str());
+		if (!phrase.empty()) {
+			cast_phrase = phrase;
 		}
 	}
 
@@ -147,11 +144,12 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	const std::string &room_format = MUD::SpellMessages().GetMessage(
 			spell_id, verbal ? room_key : ESpellMsg::kCastSaySound);
 
-	// The %s slot (when present) is filled by sprintf with the spell name for
-	// viewers who Know the cast, or the cast phrase for everyone else. Sound-voice
-	// narration has no %s and the argument is ignored, which is safe in standard C.
-	sprintf(buf1, room_format.c_str(), MUD::Spell(spell_id).GetCName());
-	sprintf(buf2, room_format.c_str(), buf);
+	// The %s slot (when present) is filled with the spell name for viewers who
+	// Know the cast, or the cast phrase for everyone else. Sound-voice narration
+	// has no %s and the argument is ignored, which is safe printf semantics
+	// (fmt::sprintf follows the same rule for an unused trailing argument).
+	const std::string room_msg_known = fmt::sprintf(room_format, MUD::Spell(spell_id).GetCName());
+	const std::string room_msg_unknown = fmt::sprintf(room_format, cast_phrase);
 
 	for (const auto i : world[ch->in_room]->people) {
 		if (i == ch || i == tch || !i->desc || !AWAKE(i) || AFF_FLAGGED(i, EAffect::kDeafness)) {
@@ -159,13 +157,13 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		}
 
 		if (IS_SET(GET_SPELL_TYPE(i, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
-			perform_act(buf1, ch, tobj, tch, i);
+			perform_act(room_msg_known.c_str(), ch, tobj, tch, i);
 		} else {
-			perform_act(buf2, ch, tobj, tch, i);
+			perform_act(room_msg_unknown.c_str(), ch, tobj, tch, i);
 		}
 	}
 
-	act(buf1, 1, ch, tobj, tch, kToArenaListen);
+	act(room_msg_known, 1, ch, tobj, tch, kToArenaListen);
 
 	if (tch != nullptr && tch != ch && tch->in_room == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
 		const ESpellMsg vict_key = !verbal
@@ -174,10 +172,10 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 						? ESpellMsg::kCastSayDamageeToVict
 						: ESpellMsg::kCastSayHelpeeToVict);
 		const std::string &vict_format = MUD::SpellMessages().GetMessage(spell_id, vict_key);
-		sprintf(buf1, vict_format.c_str(),
+		const std::string vict_msg = fmt::sprintf(vict_format,
 				IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
-				MUD::Spell(spell_id).GetCName() : buf);
-		act(buf1, false, ch, nullptr, tch, kToVict);
+				MUD::Spell(spell_id).GetCName() : cast_phrase);
+		act(vict_msg, false, ch, nullptr, tch, kToVict);
 	}
 }
 
