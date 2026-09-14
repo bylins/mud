@@ -3,6 +3,8 @@
 \brief issue.handler-cleaning: split out of handler.cpp.
 */
 
+#include <fmt/format.h>
+
 #include "engine/core/obj_handler.h"
 #include "engine/core/char_movement.h"
 #include "engine/core/char_handler.h"
@@ -104,9 +106,9 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d (backtrace в syslog)",
-					object->get_vnum(), object->get_PName(grammar::ECase::kNom).c_str(), world[room]->vnum);
-			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+			mudlog(fmt::format("Попытка поместить объект в виртуальную комнату: objvnum {}, objname {}, roomvnum {} (backtrace в syslog)",
+							   object->get_vnum(), object->get_PName(grammar::ECase::kNom), world[room]->vnum),
+				   CMP, kLvlGod, SYSLOG, true);
 		}
 	}
 	object->set_in_room(room);

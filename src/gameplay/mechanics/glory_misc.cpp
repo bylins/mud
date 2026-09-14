@@ -2,6 +2,8 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <fmt/format.h>
+
 #include "glory_misc.h"
 #include "administration/privilege.h"
 #include "glory.h"
@@ -209,9 +211,9 @@ bool check_stats(CharData *ch) {
 
 	// чар со старым роллом статов или после попыток поправить статы в файле
 	if (bad_start_stats(ch)) {
-		snprintf(buf, kMaxStringLength, "\r\n%sВаши стартовые параметры:\r\n"
-										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
-										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
+		iosystem::write_to_output(fmt::format("\r\n{}Ваши стартовые параметры:\r\n"
+											 "Сила: {}, Ловкость: {}, Ум: {}, Мудрость: {}, Телосложение: {}, Обаяние: {}\r\n"
+											 "Просим вас заново распределить основные параметры персонажа.{}\r\n",
 				 kColorBoldGrn,
 				 ch->get_start_stat(G_STR),
 				 ch->get_start_stat(G_DEX),
@@ -219,8 +221,7 @@ bool check_stats(CharData *ch) {
 				 ch->get_start_stat(G_WIS),
 				 ch->get_start_stat(G_CON),
 				 ch->get_start_stat(G_CHA),
-				 kColorNrm);
-	iosystem::write_to_output(buf, ch->desc);
+				 kColorNrm), ch->desc);
 
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
 		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя

@@ -3,6 +3,8 @@
 \brief issue.handler-cleaning: split out of handler.cpp.
 */
 
+#include <fmt/format.h>
+
 #include "engine/core/char_handler.h"
 #include "engine/core/obj_handler.h"
 #include "administration/privilege.h"
@@ -111,9 +113,9 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
-		sprintf(buf,
-				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
-				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+		SendMsgToChar(fmt::format(
+				"{}Комната={}{} {}Свет={}{} {}Освещ={}{} {}Костер={}{} {}Лед={}{} "
+				"{}Тьма={}{} {}Солнце={}{} {}Небо={}{} {}Луна={}{}{}.\r\n",
 				kColorNrm, kColorBoldBlk, room,
 				kColorRed, kColorBoldRed, world[room]->light,
 				kColorGrn, kColorBoldGrn, world[room]->glight,
@@ -122,8 +124,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 				kColorBlu, kColorBoldBlu, world[room]->gdark,
 				kColorMag, kColorBoldCyn, weather_info.sky,
 				kColorWht, kColorBoldBlk, weather_info.sunlight,
-				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
-		SendMsgToChar(buf, ch);
+				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm), ch);
 	}
 	// Stop fighting now, if we left.
 	if (ch->GetEnemy() && ch->in_room != ch->GetEnemy()->in_room) {
