@@ -334,12 +334,17 @@ std::string print_zone_exits(ZoneRnum zone) {
 void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 	const size_t BUFFER_SIZE = 1024;
 	int rfirst, rlast;
-	GetZoneRooms(zone, &rfirst, &rlast);
+	// У зоны без собственных комнат диапазон пуст, и его края показывать нельзя: rfirst -- это
+	// виртуальная комната X99, которую из диапазона выбросили, а rlast лежит уже в предыдущей
+	// зоне. Печатали их как есть, и системная зона 5 показывала "First: 599, Top: 499".
+	const std::string rooms_line = GetZoneRooms(zone, &rfirst, &rlast)
+								   ? fmt::format("First: {:7}, Top: {:7}", world[rfirst]->vnum, world[rlast]->vnum)
+								   : std::string("Собственных комнат нет");
 	char tmpstr[BUFFER_SIZE];
 	snprintf(tmpstr, BUFFER_SIZE,
 			 "%3d %s\r\n"
-			 "Уровнь зоны %2d, Средний уровень мобов: %2d; Type: %s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			 "First: %7d, Top: %7d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
+			 "Уровень зоны %2d, Средний уровень мобов: %2d; Type: %s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+			 "%s %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
 			 "Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d, вход в зону: %d\r\n",
 			 zone_table[zone].vnum,
 			 zone_table[zone].name.c_str(),
@@ -351,8 +356,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].age, zone_table[zone].lifespan,
 			 zone_table[zone].reset_mode,
 			 (zone_table[zone].reset_mode == 3) ? (CanBeReset(zone) ? 1 : 0) : (IsZoneEmpty(zone) ? 1 : 0),
-			 world[rfirst]->vnum,
-			 world[rlast]->vnum,
+			 rooms_line.c_str(),
 			 zone_table[zone].under_construction ? "&GТестовая!&n" : " ",
 			 zone_table[zone].locked ? "&RРедактирование запрещено!&n" : " ",
 			 zone_table[zone].reset_idle ? "Y" : "N",
