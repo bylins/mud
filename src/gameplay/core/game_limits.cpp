@@ -151,7 +151,7 @@ void handle_recall_spells(CharData *ch) {
 					ch->mem_queue.stored = 0;
 				}
 				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, i->spell_id));
-				SendMsgToChar(fmt::format("Вы вспомнили заклинание \"&C{}&w\".\r\n",
+				SendMsgToChar(fmt::format("Вы вспомнили заклинание \"&C{}&n\".\r\n",
 										  MUD::Spell(i->spell_id).GetCName()), ch);
 				GET_SPELL_MEM(ch, i->spell_id)++;
 				free(i);
@@ -1037,7 +1037,7 @@ int up_obj_where(ObjData *obj) {
 
 void hour_update() {
 	DescriptorData *i;
-	const std::string msg = "&RМинул час.&w\r\n";
+	const std::string msg = "&RМинул час.&n\r\n";
 
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state != EConState::kPlaying || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
