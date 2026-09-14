@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
+#include "utils/utils_string.h"
 
 void StopSnooping(CharData *ch) {
 	if (!ch->desc->snooping)
@@ -25,9 +26,10 @@ void DoSnoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->desc)
 		return;
 
-	argument = one_argument(argument, arg);
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
 
-	if (!*arg)
+	if (arg.empty())
 		StopSnooping(ch);
 	else if (!(victim = target_resolver::FindPlayerVis(ch, arg)))
 		SendMsgToChar("Нет такого создания в игре.\r\n", ch);
@@ -56,9 +58,8 @@ void DoSnoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 
 		ch->desc->snoop_with_map = false;
-		if (god_level >= kLvlImplementator && argument && *argument) {
-			skip_spaces(&argument);
-			if (isname(argument, "map") || isname(argument, "карта")) {
+		if (god_level >= kLvlImplementator && !remains.empty()) {
+			if (isname(remains, "map") || isname(remains, "карта")) {
 				ch->desc->snoop_with_map = true;
 			}
 		}

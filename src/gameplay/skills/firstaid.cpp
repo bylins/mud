@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "firstaid.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
@@ -277,11 +279,10 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act("$n оказал$g первую помощь $N2.",
 				true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			if (ch->get_sex() == EGender::kMale) {
-				sprintf(buf, "%s оказал вам первую помощь.\r\n", ch->get_name().c_str());
+				SendMsgToChar(fmt::format("{} оказал вам первую помощь.\r\n", ch->get_name()), vict);
 			} else {
-				sprintf(buf, "%s оказала вам первую помощь.\r\n", ch->get_name().c_str());
+				SendMsgToChar(fmt::format("{} оказала вам первую помощь.\r\n", ch->get_name()), vict);
 			}
-			SendMsgToChar(buf, vict);
 			vict->zero_wait();
 			update_pos(vict);
 		} else {
