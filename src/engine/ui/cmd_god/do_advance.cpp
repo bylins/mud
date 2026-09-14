@@ -6,7 +6,10 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
+#include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/classes/pc_classes.h"
 #include "engine/core/target_resolver.h"
@@ -14,12 +17,13 @@
 
 void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
-	char *name = arg, *level = buf2;
 	int newlevel, oldlevel;
 
-	two_arguments(argument, name, level);
+	std::string remains;
+	const std::string name = utils::ExtractFirstArgumentLower(argument, remains);
+	const std::string level = utils::ExtractFirstArgumentLower(remains, remains);
 
-	if (*name) {
+	if (!name.empty()) {
 		if (!(victim = target_resolver::FindPlayerVis(ch, name))) {
 			SendMsgToChar("Не найду такого игрока.\r\n", ch);
 			return;
@@ -33,13 +37,12 @@ void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Нелогично.\r\n", ch);
 		return;
 	}
-	if (!*level || (newlevel = atoi(level)) <= 0) {
+	if (level.empty() || (newlevel = atoi(level.c_str())) <= 0) {
 		SendMsgToChar("Это не похоже на уровень.\r\n", ch);
 		return;
 	}
 	if (newlevel > kLvlImplementator) {
-		sprintf(buf, "%d - максимальный возможный уровень.\r\n", kLvlImplementator);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("{} - максимальный возможный уровень.\r\n", kLvlImplementator), ch);
 		return;
 	}
 	if (newlevel > GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
