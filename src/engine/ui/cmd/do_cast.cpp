@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "do_cast.h"
 #include "administration/privilege.h"
 
@@ -121,19 +123,19 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 
+	std::string target_arg;
 	if (quote2 != std::string::npos && quote2 + 1 < arg_str.size()) {
 		std::string target_str = arg_str.substr(quote2 + 1);
 		utils::TrimLeft(target_str);
-		one_argument(target_str.data(), arg);
-	} else {
-		*arg = '\0';
+		std::string remains;
+		target_arg = utils::ExtractFirstArgumentLower(target_str, remains);
 	}
 
 	CharData *tch;
 	ObjData *tobj;
 	RoomData *troom;
 	int dir = -1;   // issue.room-affect-trigger-improve: kTarDirection casts carry the parsed direction
-	auto target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom, &dir);
+	auto target = FindCastTarget(spell_id, target_arg.c_str(), ch, &tch, &tobj, &troom, &dir);
 	if (target && (tch == ch) && MUD::Spell(spell_id).IsViolent()) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
@@ -165,10 +167,10 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	} else {
 		if (ch->GetEnemy() && !privilege::IsImpl(ch)) {
 			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
-			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
-					kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
-					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
-			act(buf, false, ch, tobj, tch, kToChar);
+			act(fmt::format("Вы приготовились применить заклинание {}'{}'{}{}.\r\n",
+							kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
+							tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : ""),
+				false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id, dir) != ECastResult::kTargetDied) {
 			if (!(privilege::IsImmortal(ch) || ch->get_wait() > 0))
 				SetBattleLag(ch, 1);

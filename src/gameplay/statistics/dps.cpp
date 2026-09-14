@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "utils/native_text.h"
+#include "utils/utils_string.h"
 #include "dps.h"
 #include "gameplay/core/remort.h"
 #include "gameplay/mechanics/minions.h"
@@ -487,13 +488,14 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	char name[kMaxInputLength];
-	two_arguments(argument, arg, name);
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
+	const std::string name = utils::ExtractFirstArgumentLower(remains, remains);
 
-	if (!*arg) {
+	if (arg.empty()) {
 		ch->dps_print_stats();
 	} else if (isname(arg, "очистить")) {
-		if (!*name) {
+		if (name.empty()) {
 			ch->dps_clear(DpsSystem::PERS_DPS);
 			SendMsgToChar("Персональная статистика очищена.\r\n", ch);
 		} else if (isname(name, "группа")) {
