@@ -9,6 +9,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <fmt/format.h>
+
 #include "utils/native_text.h"
 #include "names.h"
 #include "utils/grammar/gender.h"
@@ -51,10 +53,8 @@ int was_agree_name(DescriptorData *d) {
 			d->character->set_sex(static_cast<EGender>(sex));
 			(d->character)->player_specials->saved.NameGod = immlev + 1000;
 			(d->character)->player_specials->saved.NameIDGod = GetPlayerIdByName(immname);
-			sprintf(buf, "\r\nВаше имя одобрено!\r\n");
-			iosystem::write_to_output(buf, d);
-			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
-			log(buf, d);
+			iosystem::write_to_output("\r\nВаше имя одобрено!\r\n", d);
+			log("AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log("was_agree_name end");
 			return (0);
 		}
@@ -75,10 +75,8 @@ int was_disagree_name(DescriptorData *d) {
 		}
 		sscanf(line.c_str(), "%s %s %d", mortname, immname, &immlev);
 		if (!strcmp(mortname, GET_NAME(d->character))) {
-			sprintf(buf, "\r\nВаше имя запрещено!\r\n");
-			iosystem::write_to_output(buf, d);
-			sprintf(buf, "AUTOAGREE: %s was disagreed by %s", GET_PC_NAME(d->character), immname);
-			log(buf, d);
+			iosystem::write_to_output("\r\nВаше имя запрещено!\r\n", d);
+			log("AUTOAGREE: %s was disagreed by %s", GET_PC_NAME(d->character), immname);
 			log("was_disagree_name end");
 			return (0);
 		}
@@ -306,8 +304,8 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 		//SendMsgToChar("Имя одобрено!\r\n", ch);
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
-		SendMsgToGods(buf, true);
+		SendMsgToGods(fmt::format("&c{} одобрил{} имя игрока {}.&n\r\n",
+								  GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict)), true);
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
@@ -317,8 +315,8 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 		//SendMsgToChar("Имя запрещено!\r\n", ch);
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
-		SendMsgToGods(buf, true);
+		SendMsgToGods(fmt::format("&c{} запретил{} имя игрока {}.&n\r\n",
+								  GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict)), true);
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
 	}
