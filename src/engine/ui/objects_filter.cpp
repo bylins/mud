@@ -5,6 +5,8 @@
 \details Фильтр поиска предметов на базаре, в хранилищах и так далее.
 */
 
+#include <fmt/format.h>
+
 #include "objects_filter.h"
 #include "utils/russian_keys.h"
 #include "utils/native_text.h"
@@ -980,18 +982,15 @@ std::string ParseFilter::print() const {
 		buffer += ", ";
 	}
 	if (cost >= 0) {
-		sprintf(buf, "Ц%d%c", cost, cost_sign);
 		buffer += ", ";
-		buffer += buf;
+		buffer += fmt::format("Ц{}{}", cost, cost_sign);
 	}
 	if (rent >= 0) {
-		sprintf(buf, "Р%d%c", rent, rent_sign);
-		buffer += buf;
+		buffer += fmt::format("Р{}{}", rent, rent_sign);
 		buffer += ", ";
 	}
 	if (skill_id != ESkill::kUndefined) {
-		sprintf(buf, "К%s", MUD::Skill(skill_id).GetName());
-		buffer += buf;
+		buffer += fmt::format("К{}", MUD::Skill(skill_id).GetName());
 		buffer += ", ";
 	}
 	if (profession != ECharClass::kUndefined) {
@@ -1000,8 +999,7 @@ std::string ParseFilter::print() const {
 		buffer += ", ";
 	}
 	if (remorts >= 0) {
-		sprintf(buf, "М%d%c", remorts, remorts_sign);
-		buffer += buf;
+		buffer += fmt::format("М{}{}", remorts, remorts_sign);
 		buffer += ", ";
 	}
 	if (!affect_weap.empty()) {
