@@ -145,8 +145,7 @@ void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd, Trigger *
 			sub_write(msg, ch, true, kToRoom);
 	} else {
 		if (*buf != UID_CHAR && *buf != UID_CHAR_ALL) {
-			sprintf(buf1, "no target (%s) found for wsend", buf);
-			wld_log(room, trig, buf1);
+			wld_log(room, trig, fmt::format("no target ({}) found for wsend", buf).c_str());
 		}
 	}
 }
@@ -193,26 +192,22 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	skip_spaces(&value);
 	if (!*target || !*direction || !*field) {
 		wld_log(room, trig, "wdoor called with too few args");
-		sprintf(buf, "wdoor argument: %s", error);
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("wdoor argument: {}", error).c_str());
 		return;
 	}
 	if ((rm = get_room(target)) == nullptr) {
 		wld_log(room, trig, "wdoor: invalid target");
-		sprintf(buf, "wdoor target %s, argument: %s", target, error);
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("wdoor target {}, argument: {}", target, error).c_str());
 		return;
 	}
 	if ((dir = search_block(direction, dirs, false)) == -1) {
 		wld_log(room, trig, "wdoor: invalid direction");
-		sprintf(buf, "wdoor direction %s, argument: %s", direction, error);
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("wdoor direction {}, argument: {}", direction, error).c_str());
 		return;
 	}
 	if ((fd = search_block(field, door_field, false)) == -1) {
 		wld_log(room, trig, "wdoor: invalid field");
-		sprintf(buf, "wdoor field %s, argument: %s", field, error);
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("wdoor field {}, argument: {}", field, error).c_str());
 		return;
 	}
 
@@ -279,8 +274,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 	if (nr > 0) {
 		target = GetRoomRnum(nr);
 	} else {
-		sprintf(buf, "Undefined wteleport room: %s", arg2);
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("Undefined wteleport room: {}", arg2).c_str());
 		return;
 	}
 
@@ -441,8 +435,7 @@ void do_wexp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if ((ch = get_char_by_room(room, name))) {
 		experience::EndowExpToChar(ch, atoi(amount));
-		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("wexp: victim ({}) получил опыт {}", GET_NAME(ch), atoi(amount)).c_str());
 	} else {
 		wld_log(room, trig, "wexp: target not found");
 		return;
@@ -512,8 +505,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
 			if (!stable_objs::IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
-				sprintf(buf, "wload: количество больше чем в MIW для #%d.", number);
-				wld_log(room, trig, buf);
+				wld_log(room, trig, fmt::format("wload: количество больше чем в MIW для #{}.", number).c_str());
 //				extract_obj(object.get());
 //				return;
 			}
@@ -583,9 +575,10 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			char_dam_message(dam, ch, ch, 0);
 			if (ch->GetPosition() == EPosition::kDead) {
 				if (!ch->IsNpc()) {
-					sprintf(buf2, "%s killed by wdamage at %s [%d], trigger [%d]", GET_NAME(ch),
-							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room), GET_TRIG_VNUM(trig));
-					mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
+					mudlog(fmt::format("{} killed by wdamage at {} [{}], trigger [{}]", GET_NAME(ch),
+									   ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name,
+									   GET_ROOM_VNUM(ch->in_room), GET_TRIG_VNUM(trig)),
+						   BRF, kLvlBuilder, SYSLOG, true);
 				}
 				die(ch, nullptr);
 			}
@@ -688,8 +681,7 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 	if (MUD::Skills().IsValid(skill_id)) {
 		is_skill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skill_name)) < 0) {
-		sprintf(buf, "wskillturn: %s skill not found", skill_name);
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("wskillturn: {} skill not found", skill_name).c_str());
 		return;
 	}
 
@@ -711,8 +703,7 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, 
 		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
 			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
-			sprintf(buf, "wskillturn: skill and character class mismatch");
-			wld_log(room, trig, buf);
+			wld_log(room, trig, "wskillturn: skill and character class mismatch");
 		}
 	} else {
 		trg_recipeturn(ch, recipenum, skilldiff);
@@ -737,8 +728,7 @@ void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 	if (MUD::Skills().IsValid(skill_id)) {
 		is_skill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
-		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);
-		wld_log(room, trig, buf);
+		wld_log(room, trig, fmt::format("wskillturn: {} skill/recipe not found", skillname).c_str());
 		return;
 	}
 
@@ -1009,8 +999,7 @@ void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig) {
 	}
 
 	if (*wld_cmd_info[cmd].command == '\n') {
-		sprintf(buf2, "Unknown world cmd: '%s'", argument);
-		wld_log(room, trig, buf2, LGH);
+		wld_log(room, trig, fmt::format("Unknown world cmd: '{}'", argument).c_str(), LGH);
 	} else {
 		const wld_command_info::handler_f &command = wld_cmd_info[cmd].command_pointer;
 		command(room, line, cmd, wld_cmd_info[cmd].subcmd, trig);
