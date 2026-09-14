@@ -265,9 +265,12 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 
 #define KILL_FIGHTING   (1 << 0)
 #define CHECK_HITS      (1 << 10)
-#define SKIP_HIDING     (1 << 11)
-#define SKIP_CAMOUFLAGE (1 << 12)
-#define SKIP_SNEAKING   (1 << 13)
+// Эти три флага значат "проверить маскировку такого-то вида и уважить её результат", а не
+// "пропустить проверку", как читались прежние имена SKIP_*. Крадущегося при CHECK_SNEAK моб
+// обходит стороной; спрятавшегося защищает не отдельная ветка, а проверка видимости ниже.
+#define CHECK_HIDE      (1 << 11)
+#define CHECK_CAMOUFLAGE (1 << 12)
+#define CHECK_SNEAK     (1 << 13)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
@@ -408,7 +411,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		}
 
 		// skip sneaking, hiding and camouflaging pc
-		if (IS_SET(extmode, SKIP_SNEAKING)) {
+		if (IS_SET(extmode, CHECK_SNEAK)) {
 			SkipSneaking(vict, ch);
 			if (((vict)->Temporary.get(ECharExtraFlag::kFailSneak))) {
 				AFF_FLAGS(vict).unset(EAffect::kSneak);
@@ -417,14 +420,14 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 				continue;
 		}
 
-		if (IS_SET(extmode, SKIP_HIDING)) {
+		if (IS_SET(extmode, CHECK_HIDE)) {
 			SkipHiding(vict, ch);
 			if ((vict)->Temporary.get(ECharExtraFlag::kFailHide)) {
 				AFF_FLAGS(vict).unset(EAffect::kHide);
 			}
 		}
 
-		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
+		if (IS_SET(extmode, CHECK_CAMOUFLAGE)) {
 			SkipCamouflage(vict, ch);
 			if ((vict)->Temporary.get(ECharExtraFlag::kFailCamouflage)) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
@@ -556,7 +559,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 			return false;
 		}
 	}
-	if (IS_SET(extmode, SKIP_SNEAKING)) {
+	if (IS_SET(extmode, CHECK_SNEAK)) {
 		SkipSneaking(vict, ch);
 		if ((vict)->Temporary.get(ECharExtraFlag::kFailSneak)) {
 			AFF_FLAGS(vict).unset(EAffect::kSneak);
@@ -566,14 +569,14 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 			return false;
 		}
 	}
-	if (IS_SET(extmode, SKIP_HIDING)) {
+	if (IS_SET(extmode, CHECK_HIDE)) {
 		SkipHiding(vict, ch);
 		if ((vict)->Temporary.get(ECharExtraFlag::kFailHide)) {
 			AFF_FLAGS(vict).unset(EAffect::kHide);
 		}
 	}
 
-	if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
+	if (IS_SET(extmode, CHECK_CAMOUFLAGE)) {
 		SkipCamouflage(vict, ch);
 		if ((vict)->Temporary.get(ECharExtraFlag::kFailCamouflage)) {
 			AFF_FLAGS(vict).unset(EAffect::kDisguise);
@@ -775,7 +778,7 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 
 int perform_mob_switch(CharData *ch) {
 	CharData *best;
-	best = find_best_mob_victim(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | CHECK_OPPONENT);
+	best = find_best_mob_victim(ch, CHECK_HIDE | CHECK_CAMOUFLAGE | CHECK_SNEAK | CHECK_OPPONENT);
 
 	if (!best)
 		return false;
@@ -798,14 +801,17 @@ int perform_mob_switch(CharData *ch) {
 	return true;
 }
 
-void do_aggressive_mob(CharData *ch, int check_sneak, bool skip_hide_camouflage_checks) {
+// respect_sneak / respect_hide_and_camouflage: оба параметра положительные -- true значит
+// "учитывать". Раньше второй был инвертирован (skip_hide_camouflage_checks), и вызов
+// do_aggressive_mob(vict, check_sneak, false) читался как "не проверять", хотя проверял.
+void do_aggressive_mob(CharData *ch, bool respect_sneak, bool respect_hide_and_camouflage) {
 	if (!ch || ch->in_room == kNowhere || !ch->IsNpc() || !MayAttack(ch) || AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return;
 	}
 
-	int mode = check_sneak ? SKIP_SNEAKING : 0;
-	if (!skip_hide_camouflage_checks) {
-		mode |= SKIP_HIDING | SKIP_CAMOUFLAGE;
+	int mode = respect_sneak ? CHECK_SNEAK : 0;
+	if (respect_hide_and_camouflage) {
+		mode |= CHECK_HIDE | CHECK_CAMOUFLAGE;
 	}
 	// ****************  Horde
 	if (ch->IsFlagged(EMobFlag::kHorde)) {
@@ -833,16 +839,16 @@ void do_aggressive_mob(CharData *ch, int check_sneak, bool skip_hide_camouflage_
 	}
 
 	if (ch->IsFlagged(EMobFlag::kCityGuardian)) {
-		int guard_mode = GUARD_ATTACK | SKIP_SNEAKING;
-		if (!skip_hide_camouflage_checks) {
-			guard_mode |= SKIP_HIDING | SKIP_CAMOUFLAGE;
+		int guard_mode = GUARD_ATTACK | CHECK_SNEAK;
+		if (respect_hide_and_camouflage) {
+			guard_mode |= CHECK_HIDE | CHECK_CAMOUFLAGE;
 		}
 		perform_best_mob_attack(ch, guard_mode);
 		return;
 	}
 
 	if (ch->IsFlagged(EMobFlag::kMemory)) {
-		auto victim = FimdRememberedEnemyInRoom(ch, check_sneak, skip_hide_camouflage_checks);
+		auto victim = FimdRememberedEnemyInRoom(ch, respect_sneak, respect_hide_and_camouflage);
 		AttackToRememberedVictim(ch, victim);
 		return;
 	}
@@ -859,7 +865,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak, bool skip_hide_camouflage_
 * в результате агра на себя кого-то в комнате и начале атаки
 * например с глуша.
 */
-void do_aggressive_room(CharData *ch, int check_sneak) {
+void do_aggressive_room(CharData *ch, bool respect_sneak) {
 	if (!ch || ch->in_room == kNowhere) {
 		return;
 	}
@@ -869,7 +875,8 @@ void do_aggressive_room(CharData *ch, int check_sneak) {
 	for (const auto &vict : people) {
 		// здесь не надо преварително запоминать next_in_room, потому что как раз
 		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
-		do_aggressive_mob(vict, check_sneak, vict == ch);
+		// Себе самому прятки и маскировку не проверяем -- третий аргумент сменил полярность
+		do_aggressive_mob(vict, respect_sneak, vict != ch);
 	}
 }
 
@@ -1059,7 +1066,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  // look at room before moving
-	  do_aggressive_mob(ch.get(), false, false);
+	  do_aggressive_mob(ch.get(), false, true);
 
 	  // if mob attack something
 	  if (ch->GetEnemy()
@@ -1183,7 +1190,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  if (door == kBfsAlreadyThere) {
-		  do_aggressive_mob(ch.get(), false, false);
+		  do_aggressive_mob(ch.get(), false, true);
 		  continue;
 	  }
 
