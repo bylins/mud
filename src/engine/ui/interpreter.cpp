@@ -1081,6 +1081,10 @@ void do_receive(CharData *ch, char *argument, int cmd, int /*subcmd*/) {
 void command_interpreter(CharData *ch, char *argument) {
 	int cmd, social = false, hardcopy = false;
 	char *line;
+	// command_wtrigger/mtrigger/otrigger, find_action и strncmp/strcmp ниже требуют
+	// настоящий изменяемый char* (arg мутируется напрямую по индексам) -- локальный
+	// буфер того же размера, что был у глобального (issue #3814).
+	char arg[kMaxInputLength];
 
 	// just drop to next line for hitting CR
 	ch->check_aggressive = false;
