@@ -89,7 +89,6 @@ const int kLvlBuilder = 33;
 const int kLvlGod = 32;
 const int kLvlImmortal = 31;
 const int kLvlFreeze = kLvlGreatGod; // Level of the 'freeze' command //
-const uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
 
 constexpr long long kOptUsec = 40000;    // 25 passes per second //
 constexpr long long kPassesPerSec = 1000000 / kOptUsec;

@@ -291,7 +291,6 @@ Heartbeat::steps_t &pulse_steps() {
 							PULSE_DG_SCRIPT, 
 							10, 
 							std::make_shared<SimpleCall>([]() { script_trigger_check(WLD_TRIGGER); })),
-		Heartbeat::PulseStep("Sanity check", 60 * kPassesPerSec, 2, std::make_shared<SimpleCall>(sanity_check)),
 		Heartbeat::PulseStep("Check idle passwords",
 							 40 * kPassesPerSec,
 							 0,

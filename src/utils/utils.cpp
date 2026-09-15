@@ -405,31 +405,6 @@ std::string FormatTimeToStr(long in_timer, bool flag) {
 
 // strl_cpy, PrintNumberByDigits, thousands_sep moved to utils_string.cpp
 
-void sanity_check() {
-	int ok = true;
-
-	// * If any line is false, 'ok' will become false also.
-	ok &= (test_magic(buf) == kMagicNumber || test_magic(buf) == '\0');
-	ok &= (test_magic(buf1) == kMagicNumber || test_magic(buf1) == '\0');
-	ok &= (test_magic(buf2) == kMagicNumber || test_magic(buf2) == '\0');
-	ok &= (test_magic(arg) == kMagicNumber || test_magic(arg) == '\0');
-
-	/*
-	* This isn't exactly the safest thing to do (referencing known bad memory)
-	* but we're doomed to crash eventually, might as well try to get something
-	* useful before we go down. -gg
-	* However, lets fix the problem so we don't spam the logs. -gg 11/24/98
-	*/
-	if (!ok) {
-		log("SYSERR: *** Buffer overflow! ***\n" "buf: %s\nbuf1: %s\nbuf2: %s\narg: %s", buf, buf1, buf2, arg);
-
-		plant_magic(buf);
-		plant_magic(buf1);
-		plant_magic(buf2);
-		plant_magic(arg);
-	}
-}
-
 // isname, one_word moved to utils_string.cpp
 
 const char a_ucc_table[256] = {

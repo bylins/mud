@@ -115,12 +115,6 @@ const long kBeginningOfTime = -1561789232;
 const long kBeginningOfTime = 650336715;
 #endif
 
-char buf[kMaxStringLength];
-char buf1[kMaxStringLength];
-char buf2[kMaxStringLength];
-char arg[kMaxInputLength];
-char smallBuf[kMaxRawInputLength];
-
 Rooms &world = GlobalObjects::world();
 
 RoomRnum top_of_world = 0;    // ref to top element of world

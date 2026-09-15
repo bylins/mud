@@ -42,7 +42,6 @@
 #include <tuple>
 
 void ExtractTrigger(Trigger *trig);
-extern char arg[kMaxInputLength];
 
 namespace lua_scripting {
 
@@ -979,10 +978,7 @@ bool ForceCharCommand(LuaRuntimeContext runtime, const LuaEntityHandle &handle, 
 	std::array<char, kMaxInputLength> command_buffer{};
 	std::copy(text.begin(), text.end(), command_buffer.begin());
 
-	std::array<char, kMaxInputLength> saved_arg{};
-	std::copy(arg, arg + kMaxInputLength, saved_arg.begin());
 	command_interpreter(ch, command_buffer.data());
-	std::copy(saved_arg.begin(), saved_arg.end(), arg);
 	return true;
 }
 

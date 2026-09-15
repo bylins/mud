@@ -637,27 +637,6 @@ private:
 };
 #endif
 
-// global buffering system
-extern char buf[kMaxStringLength];
-extern char buf1[kMaxStringLength];
-extern char buf2[kMaxStringLength];
-extern char arg[kMaxInputLength];
-extern char smallBuf[kMaxRawInputLength];
-
-#define plant_magic(x)    do { (x)[sizeof(x) - 1] = kMagicNumber; } while (0)
-#define test_magic(x)    ((x)[sizeof(x) - 1])
-
-/*
-* This function is called every 30 seconds from heartbeat().  It checks
-* the four global buffers in CircleMUD to ensure that no one has written
-* past their bounds.  If our check digit is not there (and the position
-* doesn't have a NUL which may result from snprintf) then we gripe that
-* someone has overwritten our buffer.  This could cause a false positive
-* if someone uses the buffer as a non-terminated character array but that
-* is not likely. -gg
-*/
-void sanity_check();
-
 inline void graceful_exit(int retcode) {
 	log("Exit with code %d (%s %s %d)", retcode, __FILE__, __func__, __LINE__);
 	_exit(retcode);
