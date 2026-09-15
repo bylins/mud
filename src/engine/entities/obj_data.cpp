@@ -723,7 +723,6 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 * \param time по дефолту 1.
 */
 void ObjData::dec_timer(int time, bool ignore_utimer, bool /*exchange*/) {
-	*buf2 = '\0';
 	if (has_obj_affects()) {
 		// issue.obj-suppressor-affect: dec_timer's obj-affect tick is the OFFLINE catch-up on rent-load
 		// (time = rented mud-hours). Suppressions pause offline ("N hours of play"), so exclude them here;
@@ -1306,40 +1305,32 @@ void ObjVal::remove_incorrect_keys(int type) {
 	}
 }
 
-std::string print_obj_affects(const obj_affected_type &affect) {
-	sprinttype(affect.location, apply_types, buf2);
-	if (buf2[0] == '*')
-		memmove(buf2, buf2 + 1, strlen(buf2) - 1);
+namespace {
+// &w, не &n: тот же паттерн "&C<тип аффекта>&w&C ухудшает/улучшает..." что в obj_enchant.cpp/
+// identify.cpp -- мэппер-чувствительный вывод аффектов, задетый регрессией из PR #3897.
+std::string FormatObjAffect(const obj_affected_type &affect, const char *indent) {
+	std::string type_name = GetTypeName(affect.location, apply_types);
+	if (!type_name.empty() && type_name[0] == '*') {
+		type_name.erase(0, 1);
+	}
 	bool negative = IsNegativeApply(affect.location);
 	if (!negative && affect.modifier < 0) {
 		negative = true;
 	} else if (negative && affect.modifier < 0) {
 		negative = false;
 	}
+	return fmt::format("{}&C{}&w&C{}{}&w\r\n",
+					   indent, type_name,
+					   (negative ? " ухудшает на " : " улучшает на "), abs(affect.modifier));
+}
+}  // namespace
 
-	snprintf(buf, kMaxStringLength, "%s%s%s%s%s%d%s\r\n",
-			 kColorCyn, buf2, kColorNrm,
-			 kColorCyn, (negative ? " ухудшает на " : " улучшает на "),
-			 abs(affect.modifier), kColorNrm);
-
-	return std::string(buf);
+std::string print_obj_affects(const obj_affected_type &affect) {
+	return FormatObjAffect(affect, "");
 }
 
 void print_obj_affects(CharData *ch, const obj_affected_type &affect) {
-	sprinttype(affect.location, apply_types, buf2);
-	if (buf2[0] == '*')
-		memmove(buf2, buf2 + 1, strlen(buf2) - 1);
-	bool negative = IsNegativeApply(affect.location);
-	if (!negative && affect.modifier < 0) {
-		negative = true;
-	} else if (negative && affect.modifier < 0) {
-		negative = false;
-	}
-	snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
-			 kColorCyn, buf2, kColorNrm,
-			 kColorCyn,
-			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), kColorNrm);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(FormatObjAffect(affect, "   "), ch);
 }
 
 namespace SetSystem {
