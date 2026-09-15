@@ -541,7 +541,6 @@ RETSIGTYPE checkpointing(int sig);
 RETSIGTYPE hupsig(int sig);
 ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left);
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length);
-void sanity_check(void);
 void circle_sleep(struct timeval *timeout);
 void stop_game(ush_int port);
 void signal_setup(void);
@@ -642,12 +641,6 @@ int main_function(int argc, char **argv) {
 	const char *save_target = nullptr;
 	const char *save_format = nullptr;
 	char cwd[256];
-
-	// Initialize these to check for overruns later.
-	plant_magic(buf);
-	plant_magic(buf1);
-	plant_magic(buf2);
-	plant_magic(arg);
 
 	port = DFLT_PORT;
 	dir = "lib";
