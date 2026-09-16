@@ -107,7 +107,8 @@ enum EScmd {
   kScmdBlind,
   kScmdMapper,
   kScmdTester,
-  kScmdIpcontrol
+  kScmdIpcontrol,
+  kScmdLineWrap
 };
 
 const char *gen_tog_type[] = {"автовыходы", "autoexits",
@@ -141,6 +142,7 @@ const char *gen_tog_type[] = {"автовыходы", "autoexits",
 							  "брать куны", "automoney",
 							  "арена", "arena",
 							  "ширина", "length",
+							  "перенос строк", "linewrap",
 							  "высота", "width",
 							  "экран", "screen",
 							  "новости", "news",
@@ -206,6 +208,7 @@ struct gen_tog_param_type {
 			0, kScmdAutomoney, false}, {
 			0, kScmdNoarena, false}, {
 			0, kScmdLength, false}, {
+			0, kScmdLineWrap, false}, {
 			0, kScmdWidth, false}, {
 			0, kScmdScreen, false}, {
 			0, kScmdNewsMode, false}, {
@@ -381,7 +384,9 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			{"Режим вывода тестовой информации выключен.\r\n",
 			 "Режим вывода тестовой информации включен.\r\n"},
 			{"Режим контроля смены IP-адреса персонажа выключен.\r\n",
-			 "Режим контроля смены IP-адреса персонажа включен.\r\n"}
+			 "Режим контроля смены IP-адреса персонажа включен.\r\n"},
+			{"Перенос длинных строк по ширине экрана выключен.\r\n",
+			 "Перенос длинных строк по ширине экрана включен.\r\n"}
 		};
 
 	if (ch->IsNpc())
@@ -449,6 +454,10 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			//}
 			break;
 		case kScmdIpcontrol: result = TogglePrfFlag(ch, EPrf::kIpControl);
+			break;
+			// Флаг -- выключатель, поэтому включённому режиму отвечает снятый флаг:
+			// перенос работает у всех, кто его не отключал, старым персонажам в том числе.
+		case kScmdLineWrap: result = !TogglePrfFlag(ch, EPrf::kNoLineWrap);
 			break;
 #if defined(HAVE_ZLIB)
 		case kScmdCompress: result = iosystem::toggle_compression(ch->desc);

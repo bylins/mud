@@ -2755,7 +2755,21 @@ void perform_act(const char *orig,
 				tmp += 2;
 			utils::CAP(tmp);
 		}
-		iosystem::write_to_output(utils::CAP(lbuf), to->desc);
+		// Перенос по ширине экрана получателя. У клиентов без собственного переноса длинная
+		// строка просто уезжала за край окна -- так терялись хвосты болтовни и криков, где
+		// текст пишет игрок и длина ничем не ограничена. Флаг kNoLineWrap -- выключатель,
+		// поэтому режим работает у всех, кто его не снимал, включая старых персонажей.
+		char *text = utils::CAP(lbuf);
+		if (!to->IsNpc()
+			&& !to->IsFlagged(EPrf::kNoLineWrap)
+			&& to->player_specials->saved.stringLength > 0) {
+			// WrapText съедает хвостовой \r\n -- возвращаем его обратно
+			const std::string wrapped =
+					utils::WrapText(text, to->player_specials->saved.stringLength) + "\r\n";
+			iosystem::write_to_output(wrapped.c_str(), to->desc);
+		} else {
+			iosystem::write_to_output(text, to->desc);
+		}
 	}
 
 	if ((to->IsNpc() && dg_act_check) && (to != ch))

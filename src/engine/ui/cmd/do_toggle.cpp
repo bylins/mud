@@ -128,13 +128,16 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Магщиты (вид) : %s"
 			 " Автопризыв    : %-5s   "
 			 " Маппер        : %-3s   \r\n"
-			 " Контроль IP   : %-6s  ",
+			 " Контроль IP   : %-6s  "
+			 " Перенос строк : %-3s   ",
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kDrawMap)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)),
 			 native_text::pad_right(ch->IsFlagged(EPrf::kBriefShields) ? "краткий" : "полный", 8).c_str(),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutonosummon)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)),
+			 // флаг -- выключатель, поэтому показываем обратное ему
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoLineWrap)));
 	SendMsgToChar(out, ch);
 	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
 		snprintf(out, sizeof(out), " Тестер        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
