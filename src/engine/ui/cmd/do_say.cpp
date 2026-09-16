@@ -40,7 +40,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		} else {
 			delete_doubledollar(argument);
-			SendMsgToChar(fmt::format("Вы сказали : '{}'\r\n", argument), ch);
+			SendWrappedToChar(fmt::format("Вы сказали : '{}'\r\n", argument), ch);
 		}
 		speech_mtrigger(ch, argument);
 		speech_wtrigger(ch, argument);

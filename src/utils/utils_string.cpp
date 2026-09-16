@@ -1104,8 +1104,12 @@ std::string utils::WrapText(const std::string &text, size_t max_length) {
 			result += "\r\n";
 		}
 		first = false;
-		// max_length == 0 -- без переноса; иначе пустая строка вернётся пустой
-		result += (max_length == 0) ? line : OutWordsList(line, max_length, " ");
+		// Влезающую строку не трогаем: OutWordsList собирает её заново из слов и схлопывает
+		// подряд идущие пробелы, а короткие строки бывают выровнены именно ими. max_length == 0 --
+		// без переноса вовсе.
+		result += (max_length == 0 || VisibleWidth(line) <= max_length)
+				  ? line
+				  : OutWordsList(line, max_length, " ");
 	}
 	return result;
 }

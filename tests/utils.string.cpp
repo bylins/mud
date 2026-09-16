@@ -816,4 +816,19 @@ TEST(Utils_String, OutWordsList_AnsiPrefixDoesNotEatWidth)
 	EXPECT_EQ(colored.find("\r\n"), std::string::npos);
 }
 
+TEST(Utils_String, WrapText_LeavesFittingLinesUntouched)
+{
+	// Перенос теперь стоит на всём выводе act и каналов, а короткие строки бывают выровнены
+	// пробелами. Собирать их заново из слов нельзя -- подряд идущие пробелы схлопнутся.
+	EXPECT_EQ(utils::WrapText("a    b", 20), "a    b");
+	EXPECT_EQ(utils::WrapText("  отступ", 20), "  отступ");
+	EXPECT_EQ(utils::WrapText("x  y\r\nz   w", 20), "x  y\r\nz   w");
+}
+
+TEST(Utils_String, WrapText_WrapsOnlyTheLongLine)
+{
+	const std::string wrapped = utils::WrapText("коротко  тут\r\nдлинная строка из слов", 12);
+	EXPECT_EQ(wrapped, "коротко  тут\r\nдлинная\r\nстрока из\r\nслов");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

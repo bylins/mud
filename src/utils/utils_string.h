@@ -352,7 +352,8 @@ std::string OutWordsList(const std::string &words_str, size_t max_length,
 		const std::string &separator = ", ", const std::string &prefix = "");
 // переносит многострочный текст по словам на ширину max_length, сохраняя
 // авторские переносы строк и пустые строки (абзацы): каждая исходная строка
-// переносится независимо через OutWordsList(line, max_length, " ").
+// длиннее max_length переносится независимо через OutWordsList(line, max_length, " "),
+// а влезающая остаётся нетронутой -- с её пробелами.
 // max_length == 0 -- перенос не выполняется (текст возвращается как есть с \r\n)
 std::string WrapText(const std::string &text, size_t max_length);
 

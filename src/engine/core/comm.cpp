@@ -2370,6 +2370,28 @@ void SendMsgToChar(const std::string &msg, const CharData *ch) {
 		SendMsgToChar(msg.c_str(), ch);
 }
 
+std::size_t LineWrapWidth(const CharData *ch) {
+	// Флаг kNoLineWrap -- выключатель: режим работает у всех, кто его не снимал.
+	if (ch->IsNpc() || ch->IsFlagged(EPrf::kNoLineWrap)) {
+		return 0;
+	}
+	return ch->player_specials->saved.stringLength;
+}
+
+void SendWrappedToChar(const std::string &msg, const CharData *ch) {
+	const std::size_t width = LineWrapWidth(ch);
+	if (width == 0 || msg.empty()) {
+		SendMsgToChar(msg, ch);
+		return;
+	}
+	// WrapText съедает хвостовой перевод строки -- возвращаем его
+	std::string wrapped = utils::WrapText(msg, width);
+	if (msg.back() == '\n') {
+		wrapped += "\r\n";
+	}
+	SendMsgToChar(wrapped, ch);
+}
+
 void SendMsgToAll(const char *msg) {
 	if (msg == nullptr) {
 		return;
@@ -2760,12 +2782,9 @@ void perform_act(const char *orig,
 		// текст пишет игрок и длина ничем не ограничена. Флаг kNoLineWrap -- выключатель,
 		// поэтому режим работает у всех, кто его не снимал, включая старых персонажей.
 		char *text = utils::CAP(lbuf);
-		if (!to->IsNpc()
-			&& !to->IsFlagged(EPrf::kNoLineWrap)
-			&& to->player_specials->saved.stringLength > 0) {
+		if (const auto width = LineWrapWidth(to); width > 0) {
 			// WrapText съедает хвостовой \r\n -- возвращаем его обратно
-			const std::string wrapped =
-					utils::WrapText(text, to->player_specials->saved.stringLength) + "\r\n";
+			const std::string wrapped = utils::WrapText(text, width) + "\r\n";
 			iosystem::write_to_output(wrapped.c_str(), to->desc);
 		} else {
 			iosystem::write_to_output(text, to->desc);
