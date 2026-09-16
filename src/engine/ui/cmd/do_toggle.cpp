@@ -105,7 +105,9 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	table_wrapper::Table table;
 	for (std::size_t i = 0; i < rows.size(); ++i) {
-		table << rows[i].first << rows[i].second;
+		// Двоеточие -- отдельной колонкой: так они выстраиваются по вертикали, и глазу
+		// есть за что зацепиться. Приписанное к подписи, оно ездило бы вслед за её длиной.
+		table << rows[i].first << ":" << rows[i].second;
 		if ((i + 1) % kPairsPerRow == 0) {
 			table << table_wrapper::kEndRow;
 		}
