@@ -20,7 +20,7 @@ namespace sight {
 
 const int EXIT_SHOW_WALL = (1 << 0);
 const int EXIT_SHOW_LOOKING = (1 << 1);
-void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode = true);
+void look_at_room(CharData *ch, int ignore_brief);
 void skip_hide_on_look(CharData *ch);
 void list_char_to_char(const RoomData::people_t &list, CharData *ch);
 bool look_at_target(CharData *ch, char *arg, int subcmd);
