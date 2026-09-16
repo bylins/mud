@@ -235,6 +235,19 @@ struct gen_tog_param_type {
 			0, kScmdIpcontrol, false}
 	};
 
+// Поиск режима по названию. Не search_block: тот сравнивает строку целиком, посимвольно,
+// и на многословном названии понимает только сокращение первого слова ("флаги" вместо
+// "флаги комнат"). IsEqual разбирает точку и подчёркивание как разделители слов, поэтому
+// работает привычное по остальным командам "фл.ком" -- как "меч.неизв" у предметов.
+static int FindModeIndex(const char *name) {
+	for (int i = 0; *gen_tog_type[i] != '\n'; ++i) {
+		if (utils::IsEqual(name, gen_tog_type[i])) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
@@ -249,7 +262,7 @@ void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	} else if (*mode_arg == '?') {
 		showhelp = true;
-	} else if ((i = search_block(mode_arg, gen_tog_type, false)) < 0) {
+	} else if ((i = FindModeIndex(mode_arg)) < 0) {
 		showhelp = true;
 	} else if ((GetRealLevel(ch) < gen_tog_param[i >> 1].level)
 		|| (!GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && gen_tog_param[i >> 1].tester)) {

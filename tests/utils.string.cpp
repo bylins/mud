@@ -546,6 +546,18 @@ TEST(Utils_String, IsEqual_DotsSplitBothSides)
 	EXPECT_FALSE(utils::IsEqual("жизнь", "макс.жизнь"));
 }
 
+TEST(Utils_String, IsEqual_MultiWordNameTakesDottedAbbrev)
+{
+	// Так ищется режим в "реж": название из двух слов сокращается через точку,
+	// как цель у предметов ("меч.неизв"). search_block этого не умеет -- он сверяет
+	// строку целиком и спотыкается на точке.
+	EXPECT_TRUE(utils::IsEqual("перенос строк", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("пер.стро", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("перенос", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("фл.ком", "флаги комнат"));
+	EXPECT_FALSE(utils::IsEqual("строк", "перенос строк"));
+}
+
 // ===== IsEquivalent =====
 
 TEST(Utils_String, IsEquivalent_AbbreviatedMatch_ReturnsTrue)
