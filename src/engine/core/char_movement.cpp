@@ -577,7 +577,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	if (ch->desc != nullptr)
-		sight::look_at_room(ch, 0, move_type != EMoveType::kFlee);
+		sight::look_at_room(ch, 0);
 
 	// issue.room-affect-trigger-improve: AFTER placement on the walk path -- run the non-blocking
 	// on-entry effects (e.g. kHypnoticPattern's sleep) in the destination room. The blocking-capable

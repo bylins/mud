@@ -157,7 +157,7 @@ void AppendCompactShieldSuffix(std::string &text, const CharData *viewer, const 
 
 } // namespace
 
-void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
+void look_at_room(CharData *ch, int ignore_brief) {
 	if (!ch->desc)
 		return;
 	if (is_dark(ch->in_room) && !CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
@@ -170,9 +170,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	} else if (ch->GetPosition() < EPosition::kSleep) {
 		return;
 	}
-	if (msdp_mode) {
-		ch->desc->msdp_report("ROOM");
-	}
+	ch->desc->msdp_report("ROOM");
 	if (ch->IsFlagged(EPrf::kDrawMap) && !ch->IsFlagged(EPrf::kBlindMode)) {
 		MapSystem::print_map(ch);
 	} else if (ch->desc->snoop_by
