@@ -1010,6 +1010,34 @@ void kill_ems(std::string &str) {
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 }
 
+std::size_t utils::VisibleWidth(std::string_view text) {
+	std::size_t width = 0;
+	std::size_t pos = 0;
+	while (pos < text.size()) {
+		if (text[pos] == '&' && pos + 1 < text.size()) {
+			pos += 2;                      // наш цветокод: & и буква
+			continue;
+		}
+		if (text[pos] == '\x1B') {
+			++pos;
+			if (pos < text.size() && text[pos] == '[') {
+				++pos;
+				// тело CSI -- цифры и ';', завершает его буква (для цвета это 'm')
+				while (pos < text.size() && !std::isalpha(static_cast<unsigned char>(text[pos]))) {
+					++pos;
+				}
+			}
+			if (pos < text.size()) {
+				++pos;                     // завершающая буква (или одиночный ESC)
+			}
+			continue;
+		}
+		pos += native_text::char_bytes(text.data() + pos);
+		++width;
+	}
+	return width;
+}
+
 std::string utils::OutWordsList(const std::vector<std::string> &words, size_t max_length,
 		const std::string &separator, const std::string &prefix) {
 	// prefix печатается один раз и занимает место на первой строке, но не
@@ -1018,7 +1046,7 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	std::string result = prefix;
 	// Ширина -- в символах, а не в байтах: в UTF-8 русская буква занимает два, и счёт по
 	// size() рвал бы строку вдвое раньше запрошенного (issue #3681).
-	size_t line_length = native_text::char_count(GetStringWithoutColors(prefix));
+	size_t line_length = VisibleWidth(prefix);
 	const size_t separator_len = native_text::char_count(separator);
 	bool first = true;
 	// separator -- это и есть то, что стоит между словами на одной строке
@@ -1033,7 +1061,7 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	for (const auto &word : words) {
 		// ширину считаем по видимой длине -- цветокоды (&R, &n и т.п.) на экране
 		// места не занимают, иначе строки с цветом переносятся раньше времени
-		const size_t word_len = native_text::char_count(GetStringWithoutColors(word));
+		const size_t word_len = VisibleWidth(word);
 		if (!first) {
 			if (line_length + separator_len + word_len > max_length) {
 				result += eol_separator + "\r\n";
