@@ -28,6 +28,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/ui/modify.h"
+#include "engine/ui/cmd/do_mode.h"
 #include "engine/db/global_objects.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/depot.h"
@@ -999,7 +1000,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 void do_stat_room(CharData *ch, const int rnum = 0) {
 	RoomData *rm = world[ch->in_room];
-	int i, found;
+	int i;
 	CharData *k;
 
 	if (rnum != 0) {
@@ -1030,51 +1031,32 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		sline += "\r\n";
 		SendMsgToChar(sline, ch);
 	}
+	// Списки живых и предметов переносит OutWordsList по ширине экрана: раньше строки резались
+	// вручную по 62 байтам, а под UTF-8 это вдвое меньше символов, и с номерами тем более.
+	// Номер у сущности -- чтобы не прыгать по ним отдельными командами.
+	const std::size_t list_width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
+		? ch->player_specials->saved.stringLength : kDefaultScreenWidth;
 	{
-		std::string sline = fmt::sprintf("Живые существа:%s", kColorYel);
-		found = 0;
-		size_t counter = 0;
-		for (auto k_i = rm->people.begin(); k_i != rm->people.end(); ++k_i) {
-			const auto k = *k_i;
-			++counter;
+		std::vector<std::string> people;
+		for (const auto k : rm->people) {
 			if (!sight::CanSee(ch, k)) {
 				continue;
 			}
-			sline += fmt::sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-					(!k->IsNpc() ? "PC" : "MOB"));
-			if (sline.size() >= 62) {
-				sline += (counter != rm->people.size()) ? ",\r\n" : "\r\n";
-				SendMsgToChar(sline, ch);
-				sline.clear();
-				found = 0;
-			}
+			people.push_back(k->IsNpc()
+							 ? fmt::format("{} #{} (MOB)", GET_NAME(k), GET_MOB_VNUM(k))
+							 : fmt::format("{} (PC)", GET_NAME(k)));
 		}
-		if (!sline.empty()) {
-			sline += "\r\n";
-			SendMsgToChar(sline, ch);
-		}
-		SendMsgToChar(kColorNrm, ch);
+		SendMsgToChar(utils::OutWordsList(people, list_width, ", ", "Живые существа: &y") + "&w\r\n", ch);
 	}
 	if (!rm->contents.empty()) {
-		std::string sline = fmt::sprintf("Предметы:%s", kColorGrn);
-		found = 0;
-		for (auto it = rm->contents.begin(); it != rm->contents.end(); ++it) {
-			auto j = *it;
-			if (!sight::CanSeeObj(ch, j))
+		std::vector<std::string> objects;
+		for (const auto j : rm->contents) {
+			if (!sight::CanSeeObj(ch, j)) {
 				continue;
-			sline += fmt::sprintf("%s %s", found++ ? "," : "", j->get_short_description().c_str());
-			if (sline.size() >= 62) {
-				sline += (std::next(it) != rm->contents.end()) ? ",\r\n" : "\r\n";
-				SendMsgToChar(sline, ch);
-				sline.clear();
-				found = 0;
 			}
+			objects.push_back(fmt::format("{} #{}", j->get_short_description(), GET_OBJ_VNUM(j)));
 		}
-		if (!sline.empty()) {
-			sline += "\r\n";
-			SendMsgToChar(sline, ch);
-		}
-		SendMsgToChar(kColorNrm, ch);
+		SendMsgToChar(utils::OutWordsList(objects, list_width, ", ", "Предметы: &g") + "&w\r\n", ch);
 	}
 	for (i = 0; i < EDirection::kMaxDirNum; i++) {
 		if (rm->dir_option[i]) {
