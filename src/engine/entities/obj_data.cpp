@@ -1306,7 +1306,7 @@ void ObjVal::remove_incorrect_keys(int type) {
 }
 
 namespace {
-// &w, не &n: тот же паттерн "&C<тип аффекта>&w&C ухудшает/улучшает..." что в obj_enchant.cpp/
+// &w, не &n: тот же паттерн "&c<тип аффекта>&w&c ухудшает/улучшает..." что в obj_enchant.cpp/
 // identify.cpp -- мэппер-чувствительный вывод аффектов, задетый регрессией из PR #3897.
 std::string FormatObjAffect(const obj_affected_type &affect, const char *indent) {
 	std::string type_name = GetTypeName(affect.location, apply_types);
@@ -1319,7 +1319,7 @@ std::string FormatObjAffect(const obj_affected_type &affect, const char *indent)
 	} else if (negative && affect.modifier < 0) {
 		negative = false;
 	}
-	return fmt::format("{}&C{}&w&C{}{}&w\r\n",
+	return fmt::format("{}&c{}&w&c{}{}&w\r\n",
 					   indent, type_name,
 					   (negative ? " ухудшает на " : " улучшает на "), abs(affect.modifier));
 }
