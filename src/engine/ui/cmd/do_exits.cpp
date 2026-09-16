@@ -35,7 +35,7 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			const char *room_name = world[rnum_exit_room]->name ? world[rnum_exit_room]->name : "";
 			std::string line;
 			if (privilege::IsGod(ch)) {
-				line = fmt::format("{:<6} - [{:5}] {}\r\n", dirs_rus[door],
+				line = fmt::format("{:<6} - [{}] {}\r\n", dirs_rus[door],
 								   GET_ROOM_VNUM(rnum_exit_room), room_name);
 			} else {
 				line = fmt::format("{:<6} - ", dirs_rus[door]);
@@ -44,7 +44,7 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				} else {
 					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
-						line += fmt::format("[{:7}] {}", GET_ROOM_VNUM(rnum_exit_room), room_name);
+						line += fmt::format("[{}] {}", GET_ROOM_VNUM(rnum_exit_room), room_name);
 					} else {
 						line += room_name;
 					}
