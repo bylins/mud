@@ -63,7 +63,8 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Арена         : %-3s \r\n"
 			 " Трусость      : %-3s     "
 			 " Ширина экрана : %-3d     "
-			 " Высота экрана : %-3d \r\n"
+			 " Перенос строк : %-3s \r\n"
+			 " Высота экрана : %-3d     "
 			 " Сжатие        : %s  "
 			 " Новости (вид) : %-5s   "
 			 " Доски         : %-3s \r\n"
@@ -98,6 +99,8 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)),
 			 wimpy,
 			 (ch)->player_specials->saved.stringLength,
+			 // флаг -- выключатель, поэтому показываем обратное ему
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoLineWrap)),
 			 (ch)->player_specials->saved.stringWidth,
 #if defined(HAVE_ZLIB)
 			 native_text::pad_right(ch->desc->deflate == nullptr ? "нет" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"), 6).c_str(),
@@ -128,16 +131,13 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Магщиты (вид) : %s"
 			 " Автопризыв    : %-5s   "
 			 " Маппер        : %-3s   \r\n"
-			 " Контроль IP   : %-6s  "
-			 " Перенос строк : %-3s   ",
+			 " Контроль IP   : %-6s  ",
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kDrawMap)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)),
 			 native_text::pad_right(ch->IsFlagged(EPrf::kBriefShields) ? "краткий" : "полный", 8).c_str(),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutonosummon)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)),
-			 // флаг -- выключатель, поэтому показываем обратное ему
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoLineWrap)));
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
 	SendMsgToChar(out, ch);
 	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
 		snprintf(out, sizeof(out), " Тестер        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
