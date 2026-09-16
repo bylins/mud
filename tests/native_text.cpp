@@ -112,6 +112,26 @@ TEST(NativeText, IsAlnumChar) {
 	EXPECT_TRUE(native_text::is_alnum_char("\xD1\x91"));  // yo
 }
 
+TEST(NativeText, IsAlnumChar_ByteFastPathMatchesDecoding) {
+	// is_alnum_char разбирает ASCII и кириллицу по байтам, is_alpha_char -- через
+	// декодирование. Цифр вне ASCII движок не знает, поэтому на всём не-ASCII их ответы
+	// обязаны совпадать: так байтовые диапазоны сверяются с кодовыми точками (issue #3924).
+	char buf[5] = {0};
+	for (char32_t cp = 0x80; cp <= 0x7FF; ++cp) {
+		buf[0] = static_cast<char>(0xC0 | (cp >> 6));
+		buf[1] = static_cast<char>(0x80 | (cp & 0x3F));
+		buf[2] = '\0';
+		EXPECT_EQ(native_text::is_alnum_char(buf), native_text::is_alpha_char(buf))
+			<< "code point U+" << std::hex << static_cast<unsigned>(cp);
+	}
+
+	// Трёх- и четырёхбайтовые уходят общим путём и алфавитными не считаются.
+	EXPECT_FALSE(native_text::is_alnum_char("\xE2\x82\xAC"));          // U+20AC, знак евро
+	EXPECT_FALSE(native_text::is_alnum_char("\xE4\xB8\xAD"));          // U+4E2D, иероглиф
+	EXPECT_FALSE(native_text::is_alnum_char("\xF0\x9F\x98\x80"));      // U+1F600, смайл
+	EXPECT_FALSE(native_text::is_alnum_char("\xD0"));                  // обрезанный ведущий байт
+}
+
 TEST(NativeText, IsAlphaChar) {
 	EXPECT_TRUE(native_text::is_alpha_char("a"));
 	EXPECT_TRUE(native_text::is_alpha_char("Z"));
