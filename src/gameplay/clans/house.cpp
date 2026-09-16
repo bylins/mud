@@ -1475,15 +1475,11 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 					&& d->state == EConState::kPlaying
 					&& CLAN(d->character).get() == this
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)) {
-					SendMsgToChar(d->character.get(),
-								  "%s ВАШЕЙ дружине: %s'%s'%s\r\n",
-								  GET_NAME(ch),
-								  kColorBoldRed,
-								  text.c_str(),
-								  kColorNrm);
+					SendWrappedToChar(fmt::format("{} ВАШЕЙ дружине: &R'{}'&w\r\n", GET_NAME(ch), text),
+									  d->character.get());
 				}
 			}
-			SendMsgToChar(ch, "Вы дружине %s: %s'%s'.%s\r\n", this->abbrev.c_str(), kColorBoldRed, text.c_str(), kColorNrm);
+			SendWrappedToChar(fmt::format("Вы дружине {}: &R'{}'.&w\r\n", this->abbrev, text), ch);
 			break;
 
 			// он же в канал союзников этой дружины, если они вообще есть
@@ -1499,23 +1495,21 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 						// проверка на альянс с обеих сторон, иначе это не альянс
 						if (CLAN(d->character).get() != this) {
 							if (CLAN(d->character)->CheckPolitics(this->rent) == kPoliticsAlliance) {
-								SendMsgToChar(d->character.get(),
-											  "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
-											  GET_NAME(ch),
-											  kColorBoldGrn,
-											  text.c_str(),
-											  kColorNrm);
+								SendWrappedToChar(fmt::format("{} ВАШИМ СОЮЗНИКАМ: &G'{}'&w\r\n",
+															  GET_NAME(ch), text),
+												  d->character.get());
 							}
 						}
 							// первоначальному клану выдается всегда
 						else {
-							SendMsgToChar(d->character.get(),
-										  "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n", GET_NAME(ch), kColorBoldGrn, text.c_str(), kColorNrm);
+							SendWrappedToChar(fmt::format("{} ВАШИМ СОЮЗНИКАМ: &G'{}'&w\r\n",
+														  GET_NAME(ch), text),
+											  d->character.get());
 						}
 					}
 				}
 			}
-			SendMsgToChar(ch, "Вы союзникам %s: %s'%s'.%s\r\n", abbrev.c_str(), kColorBoldGrn, text.c_str(), kColorNrm);
+			SendWrappedToChar(fmt::format("Вы союзникам {}: &G'{}'.&w\r\n", abbrev, text), ch);
 			break;
 	}
 }
@@ -1553,13 +1547,13 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& !ignores(d->character.get(), ch, EIgnore::kClan)) {
 					d->character->remember_add(clan_text, Remember::ALL);
-					SendMsgToChar(clan_text, d->character.get());
+					SendWrappedToChar(clan_text, d->character.get());
 				}
 			}
 
 			const std::string clan_self = fmt::format("Вы дружине: &R'{}'.&w\r\n", text);
 			ch->remember_add(clan_self, Remember::ALL);
-			SendMsgToChar(clan_self, ch);
+			SendWrappedToChar(clan_self, ch);
 
 			break;
 		}
@@ -1589,7 +1583,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 						if ((CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == kPoliticsAlliance)
 							|| CLAN(ch) == CLAN(d->character)) {
 							d->character->remember_add(ally_text, Remember::ALL);
-							SendMsgToChar(ally_text, d->character.get());
+							SendWrappedToChar(ally_text, d->character.get());
 						}
 					}
 				}
@@ -1597,7 +1591,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 
 			const std::string ally_self = fmt::format("Вы союзникам: &G'{}'.&w\r\n", text);
 			ch->remember_add(ally_self, Remember::ALL);
-			SendMsgToChar(ally_self, ch);
+			SendWrappedToChar(ally_self, ch);
 
 			break;
 		}

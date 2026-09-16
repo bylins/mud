@@ -83,7 +83,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
 			const std::string echo = fmt::format("Вы сообщили группе : '{}'\r\n", argument);
-			SendMsgToChar(echo, ch);
+			SendWrappedToChar(echo, ch);
 			ch->remember_add(echo, Remember::ALL);
 			ch->remember_add(echo, Remember::GROUP);
 		}
