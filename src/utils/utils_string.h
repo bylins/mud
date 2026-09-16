@@ -453,6 +453,12 @@ inline bool isname(const std::string &str, const std::string &namelist) {
 	return isname(str.c_str(), namelist.c_str());
 }
 
+/// Дешёвый предфильтр под isname: false означает, что isname заведомо не совпадёт.
+/// true ничего не обещает -- решение всё равно за isname. Смысл в цене: isname
+/// разбирает обе строки посимвольно через native_text, а здесь ищется подстрока
+/// в один-два байта. Нужен там, где isname зовут на весь список предметов мира.
+bool MayMatchName(const char *str, const std::string &namelist);
+
 /// Извлечение первого слова из C-строки с приведением к нижнему регистру.
 /// Поддерживает кавычки для слов с пробелами.
 /// Дубль: utils::ExtractFirstArgument - похожий функционал через std::string.

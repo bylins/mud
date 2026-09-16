@@ -779,4 +779,77 @@ TEST(Utils_String, ThousandsSep_NoTrailingNul)
 	EXPECT_EQ(value.size(), strlen(value.c_str()));
 }
 
+// ===== MayMatchName (предфильтр под isname) =====
+
+namespace {
+
+struct NameCase {
+	const char *query;
+	const char *aliases;
+};
+
+// Пары "запрос -- список алиасов" вперемешку: совпадающие, несовпадающие,
+// в разном регистре, с аббревиатурами и служебными символами.
+const NameCase kNameCases[] = {
+	{"меч", "меч клинок"},
+	{"меч", "мечта грёза"},
+	{"фридр", "посох фридриха"},
+	{"посох", "посох фридриха"},
+	{"МЕЧ", "меч клинок"},
+	{"меч", "МЕЧ КЛИНОК"},
+	{"Фридр", "ПОСОХ ФРИДРИХА"},
+	{"топор", "меч клинок"},
+	{"sword", "sword blade"},
+	{"SWORD", "sword blade"},
+	{"sword", "shield"},
+	{"", "меч клинок"},
+	{"меч", ""},
+	{".меч", "меч клинок"},
+	{"меч.клинок", "меч клинок"},
+	{"!меч", "меч клинок"},
+	{"чет", "четвёртый стилет"},
+	{"стилет", "четвёртый стилет"},
+	{"ё", "четвёртый стилет"},
+	{"я", "меч клинок"},
+};
+
+}  // namespace
+
+TEST(Utils_String, MayMatchName_NeverLosesAnIsnameMatch)
+{
+	// Единственное обещание предфильтра: false => isname тоже false.
+	for (const auto &c : kNameCases) {
+		if (isname(c.query, c.aliases)) {
+			EXPECT_TRUE(MayMatchName(c.query, c.aliases))
+				<< "запрос '" << c.query << "', алиасы '" << c.aliases << "'";
+		}
+	}
+}
+
+TEST(Utils_String, MayMatchName_CutsOffMissingLetters)
+{
+	// Буквы запроса нет в списке -- отсеиваем, не заходя в isname.
+	EXPECT_FALSE(MayMatchName("топор", "меч клинок"));
+	EXPECT_FALSE(MayMatchName("sword", "blade"));
+}
+
+TEST(Utils_String, MayMatchName_IgnoresLetterCase)
+{
+	EXPECT_TRUE(MayMatchName("МЕЧ", "меч клинок"));
+	EXPECT_TRUE(MayMatchName("меч", "МЕЧ КЛИНОК"));
+}
+
+TEST(Utils_String, MayMatchName_SkipsLeadingPunctuation)
+{
+	// isname пропускает ведущие не-буквы, предфильтр обязан вести себя так же.
+	EXPECT_TRUE(MayMatchName(".меч", "меч клинок"));
+	EXPECT_TRUE(MayMatchName("!меч", "меч клинок"));
+}
+
+TEST(Utils_String, MayMatchName_EmptyInputDefersToIsname)
+{
+	EXPECT_TRUE(MayMatchName("", "меч клинок"));
+	EXPECT_TRUE(MayMatchName("меч", ""));
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

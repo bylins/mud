@@ -25,17 +25,9 @@ namespace handlers {
 EStageResult SpellLocateObject(ActionContext &ctx) {
 	const int level = abs(ctx.level);
 	CharData *ch = ctx.caster();
-	ObjData *obj = ctx.ovict;
-	/*
-	   * FIXME: This is broken.  The spell parser routines took the argument
-	   * the player gave to the spell and located an object with that keyword.
-	   * Since we're passed the object and not the keyword we can only guess
-	   * at what the player originally meant to search for. -gg
-	   */
-	if (!obj) {
-		return EStageResult::kSuccess;
-	}
-
+	// Цель заклинанию не нужна: ищем по строке запроса. Раньше её всё равно искали
+	// заранее, гоняя весь список предметов мира впустую и отбирая по другим
+	// правилам, чем здесь (issue #3924).
 	char name[kMaxInputLength];
 	bool bloody_corpse = false;
 	strcpy(name, cast_argument);
@@ -43,13 +35,6 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 	int tmp_lvl = (privilege::IsGod(ch)) ? 300 : level;
 	int count = tmp_lvl;
 	const auto result = world_objects.find_if_and_dec_number([ch, name, &bloody_corpse](const ObjData::shared_ptr &i) {
-		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
-		if (!obj_ptr) {
-			mudlog("SYSERR: Illegal object iterator while locate", BRF, kLvlImplementator, SYSLOG, true);
-
-			return false;
-		}
-
 		bloody_corpse = false;
 		if (!privilege::IsGod(ch)) {
 			if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
@@ -95,7 +80,9 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			}
 		}
 
-		if (!isname(name, i->get_aliases())) {
+		// Предфильтр перед isname: тот разбирает строки посимвольно и на полном
+		// списке предметов мира стоит ощутимо дороже поиска подстроки (issue #3924).
+		if (!MayMatchName(name, i->get_aliases()) || !isname(name, i->get_aliases())) {
 			return false;
 		}
 		std::string locate_msg;
