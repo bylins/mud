@@ -3,12 +3,13 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
 
 void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ObjData *obj;
 	CharData *vict;
-	char arg1[kMaxInputLength];
-	char arg2[kMaxInputLength];
 
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		SendMsgToChar("Вы не можете этого.", ch);
@@ -24,21 +25,20 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 
-	argument = one_argument(argument, arg1);
+	std::string remains;
+	const std::string obj_name = utils::ExtractFirstArgumentLower(argument, remains);
 
-	if (!*arg1) {
+	if (obj_name.empty()) {
 		SendMsgToChar("Что вы хотите переделать?\r\n", ch);
 		return;
 	};
 
-	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-		sprintf(buf, "У вас нет \'%s\'.\r\n", arg1);
-		SendMsgToChar(buf, ch);
+	if (!(obj = get_obj_in_list_vis(ch, obj_name, ch->carrying))) {
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", obj_name), ch);
 		return;
 	};
 
-	argument = one_argument(argument, arg2);
-	vict = target_resolver::FindCharInRoom(ch, arg2);
+	vict = target_resolver::FindCharInRoom(ch, utils::ExtractFirstArgumentLower(remains));
 	if (!vict) {
 		SendMsgToChar("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;
@@ -67,9 +67,9 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kWood
 				&& obj->get_material() != EObjMaterial::kHardWood
 				&& obj->get_material() != EObjMaterial::kGlass) {
-				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("К сожалению {} сделан{} из неподходящего материала.\r\n",
+										  obj->get_PName(grammar::ECase::kNom),
+										  grammar::ObjSexEnding((obj)->get_sex(), 6)), ch);
 				return;
 			}
 			break;
@@ -78,9 +78,9 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kCloth
 				&& obj->get_material() != EObjMaterial::kSkin
 				&& obj->get_material() != EObjMaterial::kOrganic) {
-				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("К сожалению {} сделан{} из неподходящего материала.\r\n",
+										  obj->get_PName(grammar::ECase::kNom),
+										  grammar::ObjSexEnding((obj)->get_sex(), 6)), ch);
 				return;
 			}
 			break;
@@ -89,12 +89,10 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 	};
 	obj->set_owner(vict->get_uid());
-	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
-	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
-	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
-			obj->get_PName(grammar::ECase::kAcc).c_str(), GET_PAD(vict, 1));
-
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n"
+							  "Вы извели кучу времени и 10000 кун золотом.\r\n"
+							  "В конце-концов подогнали {} точно по мерке {}.\r\n",
+							  obj->get_PName(grammar::ECase::kAcc), GET_PAD(vict, 1)), ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

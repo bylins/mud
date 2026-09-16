@@ -22,7 +22,7 @@ void mobRemember(CharData *ch, CharData *victim);
 void mobForget(CharData *ch, CharData *victim);
 void clearMemory(CharData *ch);
 void update_mob_memory(CharData *ch, CharData *victim);
-CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hide_camouflage_checks);
+CharData *FimdRememberedEnemyInRoom(CharData *mob, bool respect_sneak, bool respect_hide_and_camouflage);
 void AttackToRememberedVictim(CharData *mob, CharData *victim);
 
 } //namespace mob_ai

@@ -13,6 +13,8 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
+#include <fmt/format.h>
+
 #include "dg_scripts.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/lua/lua_script_engine.h"
@@ -76,8 +78,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 		return retval;
 	}
 	if ((skill_id == ESkill::kUndefined) && (rid < 0)) {
-		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("Wrong skill\recipe name: {}", skill));
 	}
 	return ("0");
 }
@@ -89,8 +90,7 @@ bool feat_owner(Trigger *trig, CharData *ch, char *feat) {
 			return true;
 		}
 	} else {
-		sprintf(buf2, "Wrong feat name: %s", feat);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("Wrong feat name: {}", feat));
 	}
 	return false;
 }
@@ -100,8 +100,7 @@ const char *spell_count(Trigger *trig, CharData *ch, char *spell) {
 
 	auto spell_id = FixNameAndFindSpellId(spell);
 	if (spell_id == ESpell::kUndefined) {
-		sprintf(buf2, "Wrong spell name: %s", spell);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("Wrong spell name: {}", spell));
 		return ("0");
 	}
 
@@ -118,8 +117,7 @@ const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell) {
 
 	auto spell_id = FixNameAndFindSpellId(spell);
 	if (spell_id == ESpell::kUndefined) {
-		sprintf(buf2, "Wrong spell name: %s", spell);
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("Wrong spell name: {}", spell));
 		return ("0");
 	}
 

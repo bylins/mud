@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "do_shutdown.h"
 #include "utils/grammar/declensions.h"
 
@@ -30,8 +32,8 @@ bool Shutdown::parse_arguments() {
 
 void Shutdown::reboot() const {
 	const auto timeout = std::max(30, m_timeout);
-	sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", timeout, grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec));
-	SendMsgToAll(buf);
+	SendMsgToAll(fmt::format("[ПЕРЕЗАГРУЗКА через {} {}]\r\n", timeout,
+							 grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec)).c_str());
 	log("(GC) Reboot by %s.", GET_NAME(m_character));
 	imm_log("Reboot by %s.", GET_NAME(m_character));
 	touch(FASTBOOT_FILE);
@@ -40,8 +42,8 @@ void Shutdown::reboot() const {
 
 void Shutdown::die() const {
 	const auto timeout = std::max(30, m_timeout);
-	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec));
-	SendMsgToAll(buf);
+	SendMsgToAll(fmt::format("[ОСТАНОВКА через {} {}]\r\n", timeout,
+							 grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec)).c_str());
 	log("(GC) Shutdown die by %s.", GET_NAME(m_character));
 	imm_log("Shutdown die by %s.", GET_NAME(m_character));
 	touch(KILLSCRIPT_FILE);
@@ -50,8 +52,8 @@ void Shutdown::die() const {
 
 void Shutdown::pause() const {
 	const auto timeout = std::max(30, m_timeout);
-	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec));
-	SendMsgToAll(buf);
+	SendMsgToAll(fmt::format("[ОСТАНОВКА через {} {}]\r\n", timeout,
+							 grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec)).c_str());
 	log("(GC) Shutdown pause by %s.", GET_NAME(m_character));
 	imm_log("Shutdown pause by %s.", GET_NAME(m_character));
 	touch(PAUSE_FILE);
@@ -59,8 +61,7 @@ void Shutdown::pause() const {
 }
 
 void Shutdown::shutdown_now() const {
-	sprintf(buf, "(GC) Shutdown NOW by %s.", GET_NAME(m_character));
-	log("%s", buf);
+	log("(GC) Shutdown NOW by %s.", GET_NAME(m_character));
 	imm_log("Shutdown NOW by %s.", GET_NAME(m_character));
 	SendMsgToAll("ПЕРЕЗАГРУЗКА.. Вернетесь через пару минут.\r\n");
 	m_shutdown_parameters.shutdown_now();

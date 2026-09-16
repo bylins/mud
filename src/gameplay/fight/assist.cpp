@@ -2,6 +2,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
+#include "utils/utils_string.h"
 #include "pk.h"
 #include "fight.h"
 #include "gameplay/mechanics/sight.h"
@@ -14,9 +15,10 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
 	CharData *helpee, *opponent;
-	if (!*arg) {
+	if (arg.empty()) {
 		helpee = nullptr;
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() && i->GetEnemy() != ch

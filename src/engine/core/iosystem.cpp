@@ -73,7 +73,7 @@ void zlib_free(void *opaque, void *address);
 ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left);
 int perform_subst(DescriptorData *t, char *orig, char *subst);
 std::string MakePrompt(DescriptorData *d);
-char *show_state(CharData *ch, CharData *victim);
+std::string show_state(CharData *ch, CharData *victim);
 
 void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased) {
 	struct TextBlock *newt;
@@ -114,12 +114,13 @@ int get_from_q(struct TextBlocksQueue *queue, char *dest, int *aliased) {
 // Empty the queues before closing connection
 void flush_queues(DescriptorData *d) {
 	int dummy;
+	char discard[kMaxStringLength];
 
 	if (d->large_outbuf) {
 		d->large_outbuf->next = bufpool;
 		bufpool = d->large_outbuf;
 	}
-	while (get_from_q(&d->input, buf2, &dummy));
+	while (get_from_q(&d->input, discard, &dummy));
 }
 
 // Add a new string to a player's output queue
@@ -502,8 +503,9 @@ int process_input(DescriptorData *t) {
 		if ((tmp[0] == '~') && (tmp[1] == 0)) {
 			// очистка входной очереди
 			int dummy;
+			char discard[kMaxStringLength];
 			tilde = 1;
-			while (get_from_q(&t->input, buf2, &dummy));
+			while (get_from_q(&t->input, discard, &dummy));
 		iosystem::write_to_output("Очередь очищена.\r\n", t);
 			tmp[0] = 0;
 		} else if (*tmp == '!' && !(*(tmp + 1)))
@@ -812,12 +814,11 @@ int process_output(DescriptorData *t) {
 	// easy color
 	int pos;
 	if ((t->character) && (pos = proc_color(i))) {
-		sprintf(buf,
-				"SYSERR: %s pos:%d player:%s in proc_color!",
-				(pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
-				pos,
-				GET_NAME(t->character));
-		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
+		mudlog(fmt::format("SYSERR: {} pos:{} player:{} in proc_color!",
+						   (pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
+						   pos,
+						   GET_NAME(t->character)),
+			   BRF, kLvlGod, SYSLOG, true);
 	}
 
 	t->string_to_client_encoding(pi, po);
@@ -1268,7 +1269,7 @@ std::string MakePrompt(DescriptorData *d) {
 	return to_string(out);
 }
 
-char *show_state(CharData *ch, CharData *victim) {
+std::string show_state(CharData *ch, CharData *victim) {
 	static const char *WORD_STATE[12] = {"Смертельно ранен",
 										 "О.тяжело ранен",
 										 "О.тяжело ранен",
@@ -1284,10 +1285,11 @@ char *show_state(CharData *ch, CharData *victim) {
 	};
 
 	const int ch_hp = posi_value(victim->get_hit(), victim->get_real_max_hit()) + 1;
-	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
-			GetWarmValueColor(victim->get_hit(), victim->get_real_max_hit()),
-			sight::PersonName(victim, ch, 0), WORD_STATE[ch_hp], grammar::SexEnding((victim)->get_sex(), 6), kColorNrm);
-	return buf;
+	// &w, не &n: тот же &q[...]&w&Q статус-блок, что в do_affects.cpp -- один из
+	// мэппер-чувствительных мест из PR #3897, closing-цвет там должен остаться белым.
+	return fmt::format("{}&q[{}:{}{}]&w&Q ",
+					   GetWarmValueColor(victim->get_hit(), victim->get_real_max_hit()),
+					   sight::PersonName(victim, ch, 0), WORD_STATE[ch_hp], grammar::SexEnding((victim)->get_sex(), 6));
 }
 
 } // namespace iosystem

@@ -8,6 +8,7 @@
 
 #include <sstream>
 #include <string>
+#include <fmt/format.h>
 
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
@@ -48,8 +49,7 @@ void DoForcetime(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	SendMsgToChar(ch, "Вы перевели игровое время на %d сек вперед.\r\n", t);
-	sprintf(buf, "(GC) %s перевел игровое время на %d сек вперед.", GET_NAME(ch), t);
-	mudlog(buf, NRM, kLvlImmortal, IMLOG, false);
+	mudlog(fmt::format("(GC) {} перевел игровое время на {} сек вперед.", GET_NAME(ch), t), NRM, kLvlImmortal, IMLOG, false);
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 
 }

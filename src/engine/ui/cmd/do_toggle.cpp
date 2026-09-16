@@ -12,13 +12,17 @@ const char *BoolToOnOffStr(bool value);
 void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
+	// Вёрстка таблицы считается printf'ом в байтах; перевод на fmt сдвинул бы колонки,
+	// поэтому здесь меняются только буферы -- формат оставлен как есть (#3814).
+	char out[kMaxStringLength];
+	char wimpy[kMaxInputLength];
 	if (GET_WIMP_LEV(ch) == 0)
-		strcpy(buf2, "нет");
+		strcpy(wimpy, "нет");
 	else
-		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
+		snprintf(wimpy, sizeof(wimpy), "%-3d", GET_WIMP_LEV(ch));
 
 	if (GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kCoderinfo)) {
-		snprintf(buf, kMaxStringLength,
+		snprintf(out, sizeof(out),
 				 " Нет агров     : %-3s     "
 				 " Супервидение  : %-3s     "
 				 " Флаги комнат  : %-3s \r\n"
@@ -33,10 +37,10 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				 BoolToOnOffStr(nameserver_is_slow),
 				 BoolToOnOffStr(ch->IsFlagged(EPrf::kCoderinfo)),
 				 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowUnread)));
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(out, ch);
 	}
 
-	snprintf(buf, kMaxStringLength,
+	snprintf(out, sizeof(out),
 			 " Автовыходы    : %-3s     "
 			 " Краткий режим : %-3s     "
 			 " Сжатый режим  : %-3s \r\n"
@@ -92,7 +96,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 ch->IsFlagged(EPrf::kAutoloot) ? ch->IsFlagged(EPrf::kNoIngrLoot) ? "NO-INGR" : "ALL    " : "OFF    ",
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomoney)),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)),
-			 buf2,
+			 wimpy,
 			 (ch)->player_specials->saved.stringLength,
 			 (ch)->player_specials->saved.stringWidth,
 #if defined(HAVE_ZLIB)
@@ -111,14 +115,14 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAntiDcMode)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoIngrMode)),
 			 ch->remember_get_num());
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(out, ch);
 	if ((ch)->player_specials->saved.ntfyExchangePrice > 0) {
-		sprintf(buf, " Уведомления   : %-7ld ", (ch)->player_specials->saved.ntfyExchangePrice);
+		snprintf(out, sizeof(out), " Уведомления   : %-7ld ", (ch)->player_specials->saved.ntfyExchangePrice);
 	} else {
-		sprintf(buf, " Уведомления   : %s ", native_text::pad_right("Нет", 7).c_str());
+		snprintf(out, sizeof(out), " Уведомления   : %s ", native_text::pad_right("Нет", 7).c_str());
 	}
-	SendMsgToChar(buf, ch);
-	snprintf(buf, kMaxStringLength,
+	SendMsgToChar(out, ch);
+	snprintf(out, sizeof(out),
 			 " Карта         : %-3s     "
 			 " Вход в зону   : %-3s   \r\n"
 			 " Магщиты (вид) : %s"
@@ -131,12 +135,12 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutonosummon)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(out, ch);
 	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
-		sprintf(buf, " Тестер        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
+		snprintf(out, sizeof(out), " Тестер        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
 	else
-		sprintf(buf, "\r\n");
-	SendMsgToChar(buf, ch);
+		snprintf(out, sizeof(out), "\r\n");
+	SendMsgToChar(out, ch);
 }
 
 const char *BoolToOnOffStr(bool value) {

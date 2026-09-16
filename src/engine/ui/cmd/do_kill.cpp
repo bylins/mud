@@ -8,7 +8,8 @@
 #include "gameplay/fight/common.h"
 
 void DoHit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar("Вы не видите цели.\r\n", ch);
 		return;
@@ -32,7 +33,7 @@ void DoHit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (subcmd != kScmdMurder && !check_pkill(ch, vict, arg)) {
+	if (subcmd != kScmdMurder && !check_pkill(ch, vict, target_name)) {
 		return;
 	}
 

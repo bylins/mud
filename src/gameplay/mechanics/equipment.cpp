@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "equipment.h"
 
 #include "engine/entities/obj_data.h"
@@ -91,13 +93,13 @@ void DamageObj(ObjData *obj, int dam, int chance) {
 		obj->sub_current(dam);
 		if (obj->get_current_durability() <= 0) {
 			if (obj->get_worn_by()) {
-				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
-						 char_get_custom_label(obj, obj->get_worn_by()).c_str());
-				act(buf, false, obj->get_worn_by(), obj, nullptr, kToChar);
+				act(fmt::format("$o{} рассыпал$U, не выдержав повреждений.",
+								char_get_custom_label(obj, obj->get_worn_by())),
+					false, obj->get_worn_by(), obj, nullptr, kToChar);
 			} else if (obj->get_carried_by()) {
-				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
-						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
-				act(buf, false, obj->get_carried_by(), obj, nullptr, kToChar);
+				act(fmt::format("$o{} рассыпал$U, не выдержав повреждений.",
+								char_get_custom_label(obj, obj->get_carried_by())),
+					false, obj->get_carried_by(), obj, nullptr, kToChar);
 			}
 			// issue #3563: логируем пропажу до отложенного удаления, пока владелец известен.
 			LogPlayerObjLoss(obj, "рассыпалась по прочности");

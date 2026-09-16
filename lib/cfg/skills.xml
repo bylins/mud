@@ -106,7 +106,7 @@ mode - режим умения.
     <skill id="kThrowout"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kFrenzy"	saving="kWill"  	difficulty="200"	cap="1000"/>
     <skill id="kMakeAmulet"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kCutting"	saving="kStability"	difficulty="200"	cap="200"	mode="kDisabled"/>
+    <skill id="kCutting"	saving="kStability"	difficulty="200"	cap="200"	mode="kTesting"/>
     <skill id="kCreateBow"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
     <skill id="kCreatePotion"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
     <skill id="kCreateScroll"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>

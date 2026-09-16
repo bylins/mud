@@ -37,16 +37,14 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 
 	if (spell_id == ESpell::kControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
-			sprintf(buf2, "dg_cast (Не указан тип погоды)");
-			script_log(buf2);
+			script_log("dg_cast (Не указан тип погоды)");
 			return false;
 		} else
 			what_sky >>= 1;
 	}
 	if (spell_id == ESpell::kCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
-			sprintf(buf2, "dg_cast (Не указан тип оружия)");
-			script_log(buf2);
+			script_log("dg_cast (Не указан тип оружия)");
 			return false;
 		} else
 			what_sky = 5 + (what_sky >> 1);
@@ -167,8 +165,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 
 	auto spell_id = FixNameAndFindSpellId(spell_name.data());
 	if (spell_id == ESpell::kUndefined) {
-		sprintf(buf2, "dg_cast: invalid spell name, аргумент: (%s)", argument.c_str());
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("dg_cast: invalid spell name, аргумент: ({})", argument.c_str()));
 		return;
 	}
 
@@ -182,20 +179,15 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 		// take select pieces from char_to_room();
 		dummy_mob = true;
 		if (type == OBJ_TRIGGER) {
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
-			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
-			caster->player_data.PNames[grammar::ECase::kNom] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
-			caster->player_data.PNames[grammar::ECase::kGen] = std::string(buf);
-			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
-			caster->player_data.PNames[grammar::ECase::kDat] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
-			caster->player_data.PNames[grammar::ECase::kAcc] = std::string(buf);
-			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
-			caster->player_data.PNames[grammar::ECase::kIns] = std::string(buf);
-			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
-			caster->player_data.PNames[grammar::ECase::kPre] = std::string(buf);
+			// Имя духа во всех падежах строится от родительного падежа предмета
+			const std::string &obj_gen = ((ObjData *) go)->get_PName(grammar::ECase::kGen);
+			caster->set_npc_name(fmt::format("дух {}", obj_gen));
+			caster->player_data.PNames[grammar::ECase::kNom] = fmt::format("дух {}", obj_gen);
+			caster->player_data.PNames[grammar::ECase::kGen] = fmt::format("духа {}", obj_gen);
+			caster->player_data.PNames[grammar::ECase::kDat] = fmt::format("духу {}", obj_gen);
+			caster->player_data.PNames[grammar::ECase::kAcc] = fmt::format("духа {}", obj_gen);
+			caster->player_data.PNames[grammar::ECase::kIns] = fmt::format("духом {}", obj_gen);
+			caster->player_data.PNames[grammar::ECase::kPre] = fmt::format("духе {}", obj_gen);
 		} else if (type == WLD_TRIGGER) {
 			caster->set_npc_name("Боги");
 			caster->player_data.PNames[grammar::ECase::kNom] = "Боги";
@@ -222,28 +214,20 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	if (!target_name.empty() && target_name[0] == UID_CHAR) {
 		tch = get_char(target_name.c_str());
 		if (tch == nullptr) {
-			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", target_name.c_str() + 1, argument.c_str());
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("dg_cast: victim ({}) not found, аргумент: {}", target_name.c_str() + 1, argument.c_str()));
 			reason_logged = true;
 		} else if (kNowhere == caster->in_room) {
-			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", caster->get_name().c_str());
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("dg_cast: caster ({}) in kNowhere", caster->get_name().c_str()));
 			reason_logged = true;
 		} else if (kNowhere == tch->in_room) {
 			// Цель успела умереть между "set target" и "dgcast": из комнаты её убирают сразу,
 			// а из character_list -- только на следующем пульсе, поэтому get_char её ещё находит.
 			// Без этой ветки такая цель попадала в "в разных клетках комнат" и уводила разбор
 			// не в ту сторону (issue #3779).
-			sprintf(buf2, "dg_cast: цель (%s) уже мертва, аргумент: %s",
-					tch->get_name().c_str(), argument.c_str());
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("dg_cast: цель ({}) уже мертва, аргумент: {}", tch->get_name().c_str(), argument.c_str()));
 			reason_logged = true;
 		} else if (tch->in_room != caster->in_room) {
-			sprintf(buf2,
-					"dg_cast: caster (%s) and victim (%s) в разных клетках комнат",
-					caster->get_name().c_str(),
-					tch->get_name().c_str());
-			trig_log(trig, buf2);
+			trig_log(trig, fmt::format("dg_cast: caster ({}) and victim ({}) в разных клетках комнат", caster->get_name().c_str(), tch->get_name().c_str()));
 			reason_logged = true;
 		} else {
 			target = 1;
@@ -255,14 +239,11 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
 	} else if (!reason_logged && spell_id != ESpell::kResurrection && spell_id != ESpell::kAnimateDead) {
-		if (target_name.empty()) {
-			// Цели не передали вовсе -- обычно %random.pc% в комнате, где живых игроков не осталось.
-			// Прежнее "target not found" читалось как "цель была, но движок её не нашёл".
-			sprintf(buf2, "dg_cast: цель не указана, аргумент: %s", argument.c_str());
-		} else {
-			sprintf(buf2, "dg_cast: target not found, аргумент: %s", argument.c_str());
-		}
-		trig_log(trig, buf2);
+		// Цели не передали вовсе -- обычно %random.pc% в комнате, где живых игроков не осталось.
+		// Прежнее "target not found" читалось как "цель была, но движок её не нашёл".
+		trig_log(trig, target_name.empty()
+					   ? fmt::format("dg_cast: цель не указана, аргумент: {}", argument)
+					   : fmt::format("dg_cast: target not found, аргумент: {}", argument));
 	}
 	if (dummy_mob)
 		ExtractCharFromWorld(caster, false);
@@ -320,16 +301,14 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 
 	if (!type)        // property not found
 	{
-		sprintf(buf2, "dg_affect: unknown property '%s'!", property.c_str());
-		trig_log(trig, buf2);
+		trig_log(trig, fmt::format("dg_affect: unknown property '{}'!", property.c_str()));
 		return;
 	}
 
 	// locate the target
 	ch = get_char(charname.c_str());
 	if (!ch) {
-		sprintf(buf2, "dg_affect: cannot locate target!");
-		trig_log(trig, buf2);
+		trig_log(trig, "dg_affect: cannot locate target!");
 		return;
 	}
 

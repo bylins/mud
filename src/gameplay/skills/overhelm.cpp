@@ -12,6 +12,8 @@
 #include "protect.h"
 #include "engine/db/global_objects.h"
 
+#include <fmt/format.h>
+
 void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data);
 [[nodiscard]] int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg);
 
@@ -53,7 +55,8 @@ void DoOverhelm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -61,7 +64,7 @@ void DoOverhelm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!may_kill_here(ch, vict, argument))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 
 	DoOverhelm(ch, vict);
@@ -128,10 +131,8 @@ void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
 		}
 	}
 	else {
-		sprintf(buf, "&c&qВы оказались без оружия, а пальцем оглушить нельзя.&Q&n\r\n");
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "&c&q%s оказался без оружия и не смог вас оглушить.&Q&n\r\n", GET_NAME(ch));
-		SendMsgToChar(buf, victim);
+		SendMsgToChar("&c&qВы оказались без оружия, а пальцем оглушить нельзя.&Q&n\r\n", ch);
+		SendMsgToChar(fmt::format("&c&q{} оказался без оружия и не смог вас оглушить.&Q&n\r\n", GET_NAME(ch)), victim);
 	}
 }
 
@@ -151,13 +152,11 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 	}
 
 	if (prob < percent || dmg == 0 || victim->IsFlagged(EMobFlag::kNoOverwhelm)) {
-		sprintf(buf, "&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n", sight::PersonName(victim, ch, 3));
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("&c&qВы попытались оглушить {}, но не смогли.&Q&n\r\n", sight::PersonName(victim, ch, 3)), ch);
 		lag = 3;
 		dmg = 0;
 	} else if (prob * 100 / percent < 300) {
-		sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("&g&qВаша мощная атака оглушила {}.&Q&n\r\n", sight::PersonName(victim, ch, 3)), ch);
 		lag = 2;
 		int k = GetSkill(ch, ESkill::kOverwhelm) / 30;
 		if (!victim->IsNpc()) {
@@ -165,16 +164,16 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		}
 		dmg *= std::max(2, number(1, k));
 		SetBattleLag(victim, 3);
-		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
-		SendMsgToChar(buf, victim);
+		SendMsgToChar(fmt::format("&R&qВаше сознание слегка помутилось после удара {}.&Q&n\r\n", sight::PersonName(ch, victim, 1)), victim);
 		act("$n оглушил$a $N3.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	} else {
 		if (victim->IsFlagged(EMobFlag::kNoBash)) {
-			sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
+			SendMsgToChar(fmt::format("&G&qВаш мощнейший удар оглушил {}.&Q&n\r\n",
+									  sight::PersonName(victim, ch, 3)), ch);
 		} else {
-			sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n", sight::PersonName(victim, ch, 3));
+			SendMsgToChar(fmt::format("&G&qВаш мощнейший удар сбил {} с ног.&Q&n\r\n",
+									  sight::PersonName(victim, ch, 3)), ch);
 		}
-		SendMsgToChar(buf, ch);
 		if (victim->IsFlagged(EMobFlag::kNoBash)) {
 			act("$n мощным ударом оглушил$a $N3.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 		} else {
@@ -190,11 +189,9 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		if (victim->GetPosition() > EPosition::kSit && !victim->IsFlagged(EMobFlag::kNoBash)) {
 			victim->SetPosition(EPosition::kSit);
 			mount::DropFromHorse(victim);
-			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", sight::PersonName(ch, victim, 1));
-			SendMsgToChar(buf, victim);
+			SendMsgToChar(fmt::format("&R&qОглушающий удар {} сбил вас с ног.&Q&n\r\n", sight::PersonName(ch, victim, 1)), victim);
 		} else {
-			sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
-			SendMsgToChar(buf, victim);
+			SendMsgToChar(fmt::format("&R&qВаше сознание слегка помутилось после удара {}.&Q&n\r\n", sight::PersonName(ch, victim, 1)), victim);
 		}
 	}
 	//set_wait(ch, lag, true);

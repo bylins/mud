@@ -314,15 +314,15 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 		mob->set_max_hit(hp);
 		mob->set_hit(hp);
 	}
-	// Damage dice count (additive; guard the signed-byte damnodice).
+	// Damage dice count (additive).
 	if (s.damage_dice.beta != 0.0) {
 		const int dice = std::clamp(up(s.damage_dice, mob->mob_specials.damnodice), 1, 100);
-		mob->mob_specials.damnodice = static_cast<ubyte>(dice);
+		mob->mob_specials.damnodice = dice;
 	}
-	// Damage die SIZE / magnitude (additive; same signed-byte guard as the count).
+	// Damage die SIZE / magnitude (additive).
 	if (s.damage_size.beta != 0.0) {
 		const int size = std::clamp(up(s.damage_size, mob->mob_specials.damsizedice), 1, 100);
-		mob->mob_specials.damsizedice = static_cast<ubyte>(size);
+		mob->mob_specials.damsizedice = size;
 	}
 	// Flat damage bonus (+B added to every hit): the mob's damroll.
 	if (s.damage_bonus.beta != 0.0) {

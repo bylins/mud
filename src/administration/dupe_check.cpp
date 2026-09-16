@@ -3,6 +3,8 @@
  \brief issue.interpreter-cleaning (Bucket 2): same-IP / same-email duplicate-login detection,
         extracted from interpreter.cpp.
 */
+#include <fmt/format.h>
+
 #include "administration/dupe_check.h"
 
 #include "administration/proxy.h"
@@ -75,12 +77,12 @@ int check_dupes_host(DescriptorData *d, bool autocheck) {
 						  "Вам необходимо обратиться к Богам для регистрации.\r\n"
 						  "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
 						  GET_PAD(i->character, 4), i->host);
-			sprintf(buf,
+			mudlog(fmt::format(
 					"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
-					"Вошел - %s, в игре - %s, IP - %s.\r\n"
+					"Вошел - {}, в игре - {}, IP - {}.\r\n"
 					"Игрок помещен в комнату незарегистрированных игроков.",
-					GET_NAME(d->character), GET_NAME(i->character), d->host);
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					GET_NAME(d->character), GET_NAME(i->character), d->host),
+				   NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 		}
 	}
@@ -101,8 +103,8 @@ int check_dupes_email(DescriptorData *d) {
 
 		if (!privilege::IsImmortal(ch.get())
 			&& (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character)))) {
-			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
-			SendMsgToChar(buf, d->character.get());
+			SendMsgToChar("Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!",
+						  d->character.get());
 			return (0);
 		}
 	}

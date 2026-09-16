@@ -12,19 +12,17 @@
 #include "gameplay/communication/social.h"
 #include "engine/db/global_objects.h"
 
-void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_commands(CharData *ch, char */*argument*/, int/* cmd*/, int subcmd) {
 	int no, i, cmd_num, num_of;
 	int wizhelp = 0, socials = 0;
 	CharData *vict = ch;
-
-	one_argument(argument, arg);
 
 	if (subcmd == kScmdSocials)
 		socials = 1;
 	else if (subcmd == kScmdWizhelp)
 		wizhelp = 1;
 
-	sprintf(buf, "Следующие %s%s доступны %s:\r\n",
+	std::string out = fmt::format("Следующие {}{} доступны {}:\r\n",
 			wizhelp ? "привилегированные " : "",
 			socials ? "социалы" : "команды", vict == ch ? "вам" : GET_PAD(vict, 2));
 
@@ -38,9 +36,9 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			}
 			for (const auto &kw : soc.GetKeywords()) {
-				strcat(buf, fmt::format("{:<19}", kw).c_str());
+				out += fmt::format("{:<19}", kw);
 				if (!(no % 4))
-					strcat(buf, "\r\n");
+					out += "\r\n";
 				no++;
 			}
 		}
@@ -50,22 +48,22 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (wizhelp) {
 				if (privilege::HasPrivilege(vict, std::string(cmd_info[i].command), 0, 0, 0)) {
-					strcat(buf, fmt::format("{:<15}", cmd_info[i].command).c_str());
+					out += fmt::format("{:<15}", cmd_info[i].command);
 					if (!(no % 5))
-						strcat(buf, "\r\n");
+						out += "\r\n";
 					no++;
 				}
 			} else if (cmd_info[i].minimum_level >= 0 && (static_cast<bool>(socials) == cmd_sort_info[i].is_social)) {
-				strcat(buf, fmt::format("{:<15}", cmd_info[i].command).c_str());
+				out += fmt::format("{:<15}", cmd_info[i].command);
 				if (!(no % 5))
-					strcat(buf, "\r\n");
+					out += "\r\n";
 				no++;
 			}
 		}
 	}
 
-	strcat(buf, "\r\n");
-	SendMsgToChar(buf, ch);
+	out += "\r\n";
+	SendMsgToChar(out, ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

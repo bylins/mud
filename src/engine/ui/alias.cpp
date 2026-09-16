@@ -215,7 +215,7 @@ int PerformAlias(DescriptorData *d, char *orig) {
 		return (0);
 
 	// find the alias we're supposed to match //
-	ptr = any_one_arg(orig, first_arg);
+	ptr = one_argument(orig, first_arg);
 
 	// bail out if it's null //
 	if (!*first_arg)

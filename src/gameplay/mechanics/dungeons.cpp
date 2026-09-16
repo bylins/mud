@@ -78,8 +78,7 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 	bool find;
 
 	if (zone_table[zrn_from].vnum < 100) {
-		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog("Номер зоны меньше 100, текст триггера не изменяется!", LGH, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
 	for(int i = trn_start; i <= trn_stop; i++) {
@@ -538,8 +537,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	MobRnum rrn_first = zone_table[zrn_to].RnumMobsLocation.first;
 
 	if (mrn_from == -1) {
-		sprintf(buf, "В зоне нет мобов, копируем остальное");
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog("В зоне нет мобов, копируем остальное", LGH, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
 	for (int i = mrn_from; i <= mrn_last; i++) {
@@ -728,41 +726,30 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 	ZoneVnum zvn_from = zone_table[zrn_from].vnum;
 
 	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
-		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zvn_from));
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Нет комнат в зоне {}.", static_cast<int>(zvn_from)), LGH, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
 	if (world[rnum_start]->vnum % 100 != 0) {
-		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Нет 00 комнаты в зоне источнике {}", zvn_from), LGH, kLvlGreatGod, SYSLOG, true);
 	}
 	if (zvn_from < 100) {
-		sprintf(buf, "Попытка склонировать двухзначную зону.");
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog("Попытка склонировать двухзначную зону.", LGH, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
 	if (zvn_from >= kZoneStartDungeons) {
-		sprintf(buf, "Попытка склонировать данж.");
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog("Попытка склонировать данж.", LGH, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
 	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
 		auto zrn_to = GetZoneRnum(zvn_to);
 		if (zone_table[zrn_to].copy_from_zone == 0) {
 			zone_table[zrn_to].copy_from_zone = zvn_from;
-			sprintf(buf,
-					"Клонирую зону %s (%d) в %d, осталось мест: %d",
-					zone_table[zrn_from].name.c_str(),
-					zvn_from,
-					zvn_to,
-					kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
-			mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+			mudlog(fmt::format("Клонирую зону {} ({}) в {}, осталось мест: {}", zone_table[zrn_from].name.c_str(), zvn_from, zvn_to, kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1), LGH, kLvlGreatGod, SYSLOG, true);
 			break;
 		}
 	}
 	if (zvn_to == kZoneStartDungeons + kNumberOfZoneDungeons) {
-		sprintf(buf, "Нет свободного места.");
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog("Нет свободного места.", LGH, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
 	return zvn_to;
@@ -772,62 +759,30 @@ void DungeonReset(int zrn) {
 	utils::CExecutionTimer timer;
 
 	if (zrn < 0) {
-		sprintf(buf, "Неправильный номер зоны");
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog("Неправильный номер зоны", LGH, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
 	if (zone_table[zrn].copy_from_zone > 0) {
 		utils::CExecutionTimer timer1;
 		RoomDataFree(zrn);
-		sprintf(buf,
-				"Free rooms. zone %s %d, delta %f",
-				zone_table[zrn].name.c_str(),
-				zone_table[zrn].vnum,
-				timer1.delta().count());
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Free rooms. zone {} {}, delta {:.6f}", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer1.delta().count()), LGH, kLvlGreatGod, SYSLOG, true);
 		timer1.restart();
 		MobDataFree(zrn);
-		sprintf(buf,
-				"Free mobs. zone %s %d, delta %f",
-				zone_table[zrn].name.c_str(),
-				zone_table[zrn].vnum,
-				timer1.delta().count());
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Free mobs. zone {} {}, delta {:.6f}", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer1.delta().count()), LGH, kLvlGreatGod, SYSLOG, true);
 		timer1.restart();
 		ObjDataFree(zrn);
-		sprintf(buf,
-				"Free objs. zone %s %d, delta %f",
-				zone_table[zrn].name.c_str(),
-				zone_table[zrn].vnum,
-				timer1.delta().count());
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Free objs. zone {} {}, delta {:.6f}", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer1.delta().count()), LGH, kLvlGreatGod, SYSLOG, true);
 		timer1.restart();
 		ZoneDataFree(zrn);
-		sprintf(buf,
-				"Free zone data. zone %s %d, delta %f",
-				zone_table[zrn].name.c_str(),
-				zone_table[zrn].vnum,
-				timer1.delta().count());
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Free zone data. zone {} {}, delta {:.6f}", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer1.delta().count()), LGH, kLvlGreatGod, SYSLOG, true);
 		timer1.restart();
 		TrigDataFree(zrn);
-		sprintf(buf,
-				"Free trigs. zone %s %d, delta %f",
-				zone_table[zrn].name.c_str(),
-				zone_table[zrn].vnum,
-				timer1.delta().count());
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
-		sprintf(buf,
-				"Free all dungeons %s %d, delta %f",
-				zone_table[zrn].name.c_str(),
-				zone_table[zrn].vnum,
-				timer.delta().count());
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Free trigs. zone {} {}, delta {:.6f}", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer1.delta().count()), LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Free all dungeons {} {}, delta {:.6f}", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer.delta().count()), LGH, kLvlGreatGod, SYSLOG, true);
 		zone_table[zrn].copy_from_zone = 0;
 		return;
 	} else {
-		sprintf(buf, "Попытка сбросить обычныю зону: %d", zone_table[zrn].vnum);
-		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("Попытка сбросить обычныю зону: {}", zone_table[zrn].vnum), LGH, kLvlGreatGod, SYSLOG, true);
 	}
 }
 void ClearRoom(RoomData *room) {
@@ -1033,16 +988,16 @@ void RemoveShopSeller(MobRnum mrn) {
 	}
 }
 
-#define TRANS_MOB(arg) \
-    if (mob_index[zone_table[zrn_to].cmd[subcmd].arg].vnum / 100 == zone_table[zrn_from].vnum) { \
-        zone_table[zrn_to].cmd[subcmd].arg = GetMobRnum(mob_index[zone_table[zrn_from].cmd[subcmd].arg].vnum % 100 + zone_table[zrn_to].vnum * 100); }
-#define TRANS_OBJ(arg) \
-    if (obj_proto[zone_table[zrn_to].cmd[subcmd].arg]->get_vnum() / 100 == zone_table[zrn_from].vnum) { \
-        zone_table[zrn_to].cmd[subcmd].arg = GetObjRnum(obj_proto[zone_table[zrn_from].cmd[subcmd].arg]->get_vnum() % 100 + zone_table[zrn_to].vnum * 100); \
+#define TRANS_MOB(field) \
+    if (mob_index[zone_table[zrn_to].cmd[subcmd].field].vnum / 100 == zone_table[zrn_from].vnum) { \
+        zone_table[zrn_to].cmd[subcmd].field = GetMobRnum(mob_index[zone_table[zrn_from].cmd[subcmd].field].vnum % 100 + zone_table[zrn_to].vnum * 100); }
+#define TRANS_OBJ(field) \
+    if (obj_proto[zone_table[zrn_to].cmd[subcmd].field]->get_vnum() / 100 == zone_table[zrn_from].vnum) { \
+        zone_table[zrn_to].cmd[subcmd].field = GetObjRnum(obj_proto[zone_table[zrn_from].cmd[subcmd].field]->get_vnum() % 100 + zone_table[zrn_to].vnum * 100); \
     }
-#define TRANS_ROOM(arg) \
-    if (world[zone_table[zrn_to].cmd[subcmd].arg]->vnum / 100 == zone_table[zrn_from].vnum) { \
-        zone_table[zrn_to].cmd[subcmd].arg = GetRoomRnum(world[zone_table[zrn_from].cmd[subcmd].arg]->vnum % 100 + zone_table[zrn_to].vnum * 100); }
+#define TRANS_ROOM(field) \
+    if (world[zone_table[zrn_to].cmd[subcmd].field]->vnum / 100 == zone_table[zrn_from].vnum) { \
+        zone_table[zrn_to].cmd[subcmd].field = GetRoomRnum(world[zone_table[zrn_from].cmd[subcmd].field]->vnum % 100 + zone_table[zrn_to].vnum * 100); }
 
 void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from, std::vector<ZrnComplexList> dungeon_list) {
 	for (int subcmd = 0; zone_table[zrn_to].cmd[subcmd].command != 'S'; ++subcmd) {

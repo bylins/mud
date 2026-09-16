@@ -243,7 +243,7 @@ std::string FirstWordOnString(std::string s, std::string mask) {
 	return s;
 }
 
-// аналог one_argument для string
+// аналог one_argument для string (тот вдобавок понижает регистр -- см. ExtractFirstArgumentLower)
 // пропускает ведущие пробелы, возвращает первое слово, в remains остаток после пробела
 // безопасно вызывать как ExtractFirstArgument(str, str) - нет проблем с алиасингом
 std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
@@ -270,6 +270,17 @@ std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
 	const auto rest_begin = s.find_first_not_of(kSpaces, word_end);
 	remains = (rest_begin == std::string::npos) ? std::string() : s.substr(rest_begin);
 	return word;
+}
+
+std::string ExtractFirstArgumentLower(const std::string &s, std::string &remains) {
+	std::string word = ExtractFirstArgument(s, remains);
+	native_text::to_lower(word);
+	return word;
+}
+
+std::string ExtractFirstArgumentLower(const std::string &s) {
+	std::string remains;
+	return ExtractFirstArgumentLower(s, remains);
 }
 
 std::string SubstToLow(std::string s) {
@@ -718,7 +729,7 @@ std::string thousands_sep(long long n) {
 		negative = true;
 	}
 	int size = 50;
-	int curr_pos = size - 1;
+	int curr_pos = size;
 	const int comma = ',';
 	std::string buffer;
 	buffer.resize(size);
@@ -740,8 +751,7 @@ std::string thousands_sep(long long n) {
 		log("SYSERROR : string.at() (%s:%d)", __FILE__, __LINE__);
 		return "<OutOfRange>";
 	}
-	buffer = buffer.substr(curr_pos, size - 1);
-	return buffer;
+	return buffer.substr(curr_pos);
 }
 
 void skip_dots(char **string) {

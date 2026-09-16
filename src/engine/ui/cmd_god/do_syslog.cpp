@@ -6,7 +6,10 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
+#include "utils/utils_string.h"
 
 const char *logtypes[] =
 	{
@@ -26,9 +29,10 @@ void DoSyslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (tp < 0)
 		tp = 0;
 
-	one_argument(argument, arg);
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
 
-	if (*arg) {
+	if (!arg.empty()) {
 		if (GetRealLevel(ch) == kLvlImmortal)
 			logtypes[2] = "\n";
 		else
@@ -49,11 +53,9 @@ void DoSyslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		GET_LOGS(ch)[subcmd] = tp;
 	}
-	sprintf(buf,
-			"Тип вашего лога (%s) сейчас %s.\r\n",
-			runtime_config.logs(static_cast<EOutputStream>(subcmd)).title().c_str(),
-			logtypes[tp]);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Тип вашего лога ({}) сейчас {}.\r\n",
+							  runtime_config.logs(static_cast<EOutputStream>(subcmd)).title(),
+							  logtypes[tp]), ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

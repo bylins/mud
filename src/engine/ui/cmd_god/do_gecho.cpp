@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 
 void DoGlobalEcho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -17,19 +19,19 @@ void DoGlobalEcho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
 		SendMsgToChar("Это, пожалуй, ошибка...\r\n", ch);
 	} else {
-		sprintf(buf, "%s\r\n", argument);
+		const std::string msg = fmt::format("{}\r\n", argument);
 		for (pt = descriptor_list; pt; pt = pt->next) {
 			if (pt->state == EConState::kPlaying
 				&& pt->character
 				&& pt->character.get() != ch) {
-				SendMsgToChar(buf, pt->character.get());
+				SendMsgToChar(msg, pt->character.get());
 			}
 		}
 
 		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		} else {
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(msg, ch);
 		}
 	}
 }

@@ -24,8 +24,8 @@ CharData *findMercboss(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people)
 		if (specials::IsMobSpecial(GET_MOB_VNUM(tch), specials::ESpecial::kMercenary))
 			return tch;
-	sprintf(buf1, "[ERROR] MERC::doList - вызвана команда, не найден моб, room %d", room_rnum);
-	mudlog(buf1, LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
+	mudlog(fmt::format("[ERROR] MERC::doList - вызвана команда, не найден моб, room {}", room_rnum),
+		   LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
 	return nullptr;
 };
 
@@ -65,8 +65,9 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	SendMsgToChar(ch, "------------------------------------------------------------\r\n");
 	tell_to_char(boss, ch, fmt::format(fmt::runtime(specials::MercMsg(specials::EMercMsg::kListTotal)),
 			fmt::arg("amount", 1000 * (remort::GetRealRemort(ch) + 1))).c_str());
-	snprintf(buf, kMaxInputLength, "ухмы %s", GET_NAME(ch));
-	do_social(boss, buf);
+	char social_cmd[kMaxInputLength];
+	snprintf(social_cmd, sizeof(social_cmd), "ухмы %s", GET_NAME(ch));
+	do_social(boss, social_cmd);
 };
 
 void doStat(CharData *ch) {
@@ -98,8 +99,8 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 
 		if ((rnum = GetMobRnum(it->first)) < 0) {
 			tell_to_char(boss, ch, specials::MercMsg(specials::EMercMsg::kCantFind).c_str());
-			sprintf(buf1, "[ERROR] MERC::doBring, не найден моб, vnum: %d", it->first);
-			mudlog(buf1, LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
+			mudlog(fmt::format("[ERROR] MERC::doBring, не найден моб, vnum: {}", it->first),
+				   LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
 			return;
 		}
 		mob = ReadMobile(rnum, kReal);
@@ -145,8 +146,8 @@ void doForget(CharData *ch, CharData *boss, unsigned int pos) {
 				fmt::arg("mob", mob_stat::PrintMobName(it->first, 54))).c_str());
 		return;
 	}
-	sprintf(buf1, "[ERROR] MERC::doForget, не найден моб, pos: %d", pos);
-	mudlog(buf1, LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
+	mudlog(fmt::format("[ERROR] MERC::doForget, не найден моб, pos: {}", pos),
+		   LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
 };
 
 unsigned int getPos(char *arg, CharData *ch, CharData *boss) {

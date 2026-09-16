@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"
@@ -16,9 +18,8 @@ void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (amount == 0) {
 		SendMsgToChar("Вы разорены!\r\n", ch);
 	} else {
-		sprintf(buf, "У Вас есть %ld %s.\r\n", amount,
-			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("У Вас есть {} {}.\r\n", amount,
+								  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom)), ch);
 	}
 }
 

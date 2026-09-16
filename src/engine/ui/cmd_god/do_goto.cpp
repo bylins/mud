@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/core/char_handler.h"
@@ -18,21 +20,14 @@ void DoGoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((location = FindRoomRnum(ch, argument, 0)) == kNowhere)
 		return;
 
-	if (POOFOUT(ch))
-		sprintf(buf, "$n %s", POOFOUT(ch));
-	else
-		strcpy(buf, "$n растворил$u в клубах дыма.");
-
-	act(buf, true, ch, nullptr, nullptr, kToRoom);
+	act(POOFOUT(ch) ? fmt::format("$n {}", POOFOUT(ch)) : "$n растворил$u в клубах дыма.",
+		true, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, location);
 	mount::Dismount(ch);
 
-	if (POOFIN(ch))
-		sprintf(buf, "$n %s", POOFIN(ch));
-	else
-		strcpy(buf, "$n возник$q посреди комнаты.");
-	act(buf, true, ch, nullptr, nullptr, kToRoom);
+	act(POOFIN(ch) ? fmt::format("$n {}", POOFIN(ch)) : "$n возник$q посреди комнаты.",
+		true, ch, nullptr, nullptr, kToRoom);
 	sight::look_at_room(ch, 0);
 }
 

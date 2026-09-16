@@ -6,15 +6,19 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
+#include "utils/utils_string.h"
 #include "engine/core/comm.h"
 #include "gameplay/mechanics/sight.h"
 
 void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
 	int num_to_dc;
-	one_argument(argument, arg);
-	if (!(num_to_dc = atoi(arg))) {
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
+	if (!(num_to_dc = atoi(arg.c_str()))) {
 		SendMsgToChar("Usage: DC <user number> (type USERS for a list)\r\n", ch);
 		return;
 	}
@@ -63,8 +67,7 @@ void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			d->state = EConState::kClose;
 		}
 
-		sprintf(buf, "Соединение #%d закрыто.\r\n", num_to_dc);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Соединение #{} закрыто.\r\n", num_to_dc), ch);
 		imm_log("Connect closed by %s.", GET_NAME(ch));
 	}
 }

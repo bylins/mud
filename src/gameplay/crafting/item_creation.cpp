@@ -502,8 +502,8 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 						tobj->get_timer() / 100 * GetSkill(ch, skill) - number(0, tobj->get_timer() / 100 * 25);
 					const int timer = MAX(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
-					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
-					act(buf, false, ch, tobj.get(), 0, kToChar);
+					act(fmt::format("Ваше изделие продержится примерно {} дней\n", tobj->get_timer() / 24 / 60),
+						false, ch, tobj.get(), 0, kToChar);
 					tobj->set_material(obj->get_material());
 					// Карачун. Так логичнее.
 					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
@@ -572,8 +572,8 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 						tobj->get_timer() / 100 * GetSkill(ch, skill) - number(0, tobj->get_timer() / 100 * 25);
 					const int timer = MAX(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
-					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
-					act(buf, false, ch, tobj.get(), 0, kToChar);
+					act(fmt::format("Ваше изделие продержится примерно {} дней\n", tobj->get_timer() / 24 / 60),
+						false, ch, tobj.get(), 0, kToChar);
 					tobj->set_material(obj->get_material());
 					// Карачун. Так логичнее.
 					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
@@ -666,8 +666,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 		}
 		for (obj_type = 0; *create_item_name[obj_type] != '\n'; obj_type++) {
 			if (created_item[obj_type].skill == skill_id) {
-				sprintf(buf, "- %s\r\n", create_item_name[obj_type]);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("- {}\r\n", create_item_name[obj_type]), ch);
 			}
 		}
 		return;
@@ -689,8 +688,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 		return;
 	}
 	if (!(obj = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
-		sprintf(buf, "У Вас нет '%s'.\r\n", arg2);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", arg2), ch);
 		return;
 	}
 	if (obj->get_contains()) {
@@ -1223,34 +1221,35 @@ float MakeRecept::count_affect_weight(int num, int mod) {
 void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS], int ingr_cnt) {
 	int i, j;
 	//ставим именительные именительные падежи в алиасы
-	sprintf(buf, "%s %s %s %s",
-			obj->get_PName(grammar::ECase::kNom).c_str(),
-			ingrs[0]->get_PName(grammar::ECase::kGen).c_str(),
-			ingrs[1]->get_PName(grammar::ECase::kIns).c_str(),
-			ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
-	obj->set_aliases(buf);
+	obj->set_aliases(fmt::format("{} {} {} {}",
+								 obj->get_PName(grammar::ECase::kNom),
+								 ingrs[0]->get_PName(grammar::ECase::kGen),
+								 ingrs[1]->get_PName(grammar::ECase::kIns),
+								 ingrs[2]->get_PName(grammar::ECase::kIns)));
 	for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) // ставим падежи в имя с учетов ингров
 	{
 		auto name_case = static_cast<grammar::ECase>(i);
-		sprintf(buf, "%s", obj->get_PName(name_case).c_str());
-		strcat(buf, " из ");
-		strcat(buf, ingrs[0]->get_PName(grammar::ECase::kGen).c_str());
-		strcat(buf, " с ");
-		strcat(buf, ingrs[1]->get_PName(grammar::ECase::kIns).c_str());
-		strcat(buf, " и ");
-		strcat(buf, ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
-		obj->set_PName(name_case, buf);
+		const std::string name = fmt::format("{} из {} с {} и {}",
+											 obj->get_PName(name_case),
+											 ingrs[0]->get_PName(grammar::ECase::kGen),
+											 ingrs[1]->get_PName(grammar::ECase::kIns),
+											 ingrs[2]->get_PName(grammar::ECase::kIns));
+		obj->set_PName(name_case, name);
 		if (i == 0) // именительный падеж
 		{
-			obj->set_short_description(buf);
-			if (GET_OBJ_SEX(obj) == EGender::kMale) {
-				snprintf(buf2, kMaxStringLength, "Брошенный %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == EGender::kFemale) {
-				snprintf(buf2, kMaxStringLength, "Брошенная %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == EGender::kPoly) {
-				snprintf(buf2, kMaxStringLength, "Брошенные %s лежат тут.", buf);
+			obj->set_short_description(name);
+			// Средний род раньше не разбирался, и на землю уезжало описание от прошлого
+			// изделия -- то, что осталось в общем буфере.
+			std::string on_ground;
+			switch (GET_OBJ_SEX(obj)) {
+				case EGender::kFemale: on_ground = fmt::format("Брошенная {} лежит тут.", name);
+					break;
+				case EGender::kPoly: on_ground = fmt::format("Брошенные {} лежат тут.", name);
+					break;
+				default: on_ground = fmt::format("Брошенный {} лежит тут.", name);
+					break;
 			}
-			obj->set_description(buf2); // описание на земле
+			obj->set_description(on_ground); // описание на земле
 		}
 	}
 	obj->set_is_rename(true); // ставим флаг что объект переименован
@@ -1961,13 +1960,13 @@ int MakeRecept::add_affects(CharData *ch,
 // output act format//
 char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj) {
 	const char *i = nullptr;
-	char *buf, *lbuf;
+	char *out, *lbuf;
 	ubyte padis;
 	int stopbyte;
 //	CharacterData *dg_victim = nullptr;
 
-	buf = (char *) malloc(kMaxStringLength);
-	lbuf = buf;
+	out = (char *) malloc(kMaxStringLength);
+	lbuf = out;
 
 	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
 		if (*orig == '$') {
@@ -2116,25 +2115,25 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 					i = "";
 					break;
 			}
-			while ((*buf = *(i++)))
-				buf++;
+			while ((*out = *(i++)))
+				out++;
 			orig++;
 		} else if (*orig == '\\') {
 			if (*(orig + 1) == 'r') {
-				*(buf++) = '\r';
+				*(out++) = '\r';
 				orig += 2;
 			} else if (*(orig + 1) == 'n') {
-				*(buf++) = '\n';
+				*(out++) = '\n';
 				orig += 2;
 			} else
-				*(buf++) = *(orig++);
-		} else if (!(*(buf++) = *(orig++)))
+				*(out++) = *(orig++);
+		} else if (!(*(out++) = *(orig++)))
 			break;
 	}
 
-	*(--buf) = '\r';
-	*(++buf) = '\n';
-	*(++buf) = '\0';
+	*(--out) = '\r';
+	*(++out) = '\n';
+	*(++out) = '\0';
 	return (lbuf);
 }
 

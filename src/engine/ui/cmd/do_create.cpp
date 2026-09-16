@@ -1,4 +1,6 @@
 #include "do_create.h"
+
+#include <fmt/format.h>
 #include "administration/privilege.h"
 #include "gameplay/mechanics/magic_item.h"
 
@@ -13,10 +15,11 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	// get: blank, spell name, target name
-	argument = one_argument(argument, arg);
+	char item_kind[kMaxInputLength];
+	argument = one_argument(argument, item_kind);
 	skip_spaces(&argument);
 
-	if (!*arg) {
+	if (!*item_kind) {
 		if (subcmd == SCMD_RECIPE)
 			SendMsgToChar("Состав ЧЕГО вы хотите узнать?\r\n", ch);
 		else
@@ -25,14 +28,14 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	ESpellType itemnum;
-	if (utils::IsAbbr(arg, "potion") || utils::IsAbbr(arg, "напиток"))
+	if (utils::IsAbbr(item_kind, "potion") || utils::IsAbbr(item_kind, "напиток"))
 		itemnum = ESpellType::kPotionCast;
-	else if (utils::IsAbbr(arg, "wand") || utils::IsAbbr(arg, "палочка"))
+	else if (utils::IsAbbr(item_kind, "wand") || utils::IsAbbr(item_kind, "палочка"))
 		itemnum = ESpellType::kWandCast;
-	else if (utils::IsAbbr(arg, "scroll") || utils::IsAbbr(arg, "свиток"))
+	else if (utils::IsAbbr(item_kind, "scroll") || utils::IsAbbr(item_kind, "свиток"))
 		itemnum = ESpellType::kScrollCast;
-	else if (utils::IsAbbr(arg, "recipe") || utils::IsAbbr(arg, "рецепт") ||
-		utils::IsAbbr(arg, "отвар")) {
+	else if (utils::IsAbbr(item_kind, "recipe") || utils::IsAbbr(item_kind, "рецепт") ||
+		utils::IsAbbr(item_kind, "отвар")) {
 		if (subcmd != SCMD_RECIPE) {
 			SendMsgToChar("Магическую смесь необходимо СМЕШАТЬ.\r\n", ch);
 			return;
@@ -40,7 +43,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 //		itemnum = SPELL_ITEMS;
 		compose_recipe(ch, argument, 0);
 		return;
-	} else if (utils::IsAbbr(arg, "runes") || utils::IsAbbr(arg, "руны")) {
+	} else if (utils::IsAbbr(item_kind, "runes") || utils::IsAbbr(item_kind, "руны")) {
 		if (subcmd != SCMD_RECIPE) {
 			SendMsgToChar("Руны требуется сложить.\r\n", ch);
 			return;
@@ -48,15 +51,13 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		itemnum = ESpellType::kRunes;
 	} else {
 		if (subcmd == SCMD_RECIPE)
-			snprintf(buf, kMaxInputLength, "Состав '%s' уже давно утерян.\r\n", arg);
+			SendMsgToChar(fmt::format("Состав '{}' уже давно утерян.\r\n", item_kind), ch);
 		else
-			snprintf(buf, kMaxInputLength, "Создание '%s' доступно только Великим Богам.\r\n", arg);
-		SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Создание '{}' доступно только Великим Богам.\r\n", item_kind), ch);
 		return;
 	}
 	if (!*argument) {
-		sprintf(buf, "Уточните тип состава!\r\n");
-		SendMsgToChar(buf, ch);
+		SendMsgToChar("Уточните тип состава!\r\n", ch);
 		return;
 	}
 	std::string arg_str(argument);

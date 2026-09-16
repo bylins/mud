@@ -774,7 +774,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 	}
 }
 
-int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
+int generic_find(const char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
 	char name[kMaxInputLength];
 
 	*tar_ch = nullptr;
@@ -867,7 +867,20 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	return (0);
 }
 
-int find_all_dots(char *arg) {
+int ParseAllPrefix(std::string &arg) {
+	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
+		return kFindAll;
+	}
+	for (const char *prefix : {"all.", "все."}) {
+		if (utils::IsAbbr(prefix, arg.c_str())) {
+			arg.erase(0, strlen(prefix));
+			return kFindAlldot;
+		}
+	}
+	return kFindIndiv;
+}
+
+int ParseAllPrefix(char *arg) {
 	char tmpname[kMaxInputLength];
 
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
@@ -886,7 +899,7 @@ int find_all_dots(char *arg) {
 	return (kFindIndiv);
 }
 
-RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
+RoomRnum FindRoomRnum(CharData *ch, const char *rawroomstr, int trig) {
 	RoomVnum tmp;
 	RoomRnum location;
 	CharData *target_mob;

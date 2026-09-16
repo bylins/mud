@@ -120,10 +120,9 @@ static void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 			&& GET_OBJ_VAL(obj, 2) > 0
 			&& GET_OBJ_VAL(obj, 2) < kRuneCrackCharge) {
 			// issue #3422: руна на исходе -- предупреждаем волхва
-			snprintf(buf, kMaxStringLength,
-					 "$o%s покрыл$U трещинами и скоро рассыплется в тлен.",
-					 char_get_custom_label(obj, ch).c_str());
-			act(buf, false, ch, obj, nullptr, kToChar);
+			act(fmt::format("$o{} покрыл$U трещинами и скоро рассыплется в тлен.",
+							char_get_custom_label(obj, ch)).c_str(),
+				false, ch, obj, nullptr, kToChar);
 		}
 	} else if (spelltype != ESpellType::kRunes) {
 		extract = true;
@@ -131,9 +130,8 @@ static void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 
 	if (extract) {
 		if (spelltype == ESpellType::kRunes) {
-			snprintf(buf, kMaxStringLength, "$o%s рассыпал$U у вас в руках.",
-					 char_get_custom_label(obj, ch).c_str());
-			act(buf, false, ch, obj, nullptr, kToChar);
+			act(fmt::format("$o{} рассыпал$U у вас в руках.", char_get_custom_label(obj, ch)).c_str(),
+				false, ch, obj, nullptr, kToChar);
 		}
 		RemoveObjFromChar(obj);
 		ExtractObjFromWorld(obj);
@@ -176,38 +174,26 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 	if (!showrecipe)
 		return (true);
 	else {
-		strcpy(buf, "Вам потребуется :\r\n");
+		std::string recipe = "Вам потребуется :\r\n";
 		if (item0 >= 0) {
-			strcat(buf, kColorBoldRed);
-			strcat(buf, obj_proto[item0]->get_PName(grammar::ECase::kNom).c_str());
-			strcat(buf, "\r\n");
+			recipe += fmt::format("&R{}&n\r\n", obj_proto[item0]->get_PName(grammar::ECase::kNom));
 		}
 		if (item1 >= 0) {
-			strcat(buf, kColorBoldYel);
-			strcat(buf, obj_proto[item1]->get_PName(grammar::ECase::kNom).c_str());
-			strcat(buf, "\r\n");
+			recipe += fmt::format("&Y{}&n\r\n", obj_proto[item1]->get_PName(grammar::ECase::kNom));
 		}
 		if (item2 >= 0) {
-			strcat(buf, kColorBoldGrn);
-			strcat(buf, obj_proto[item2]->get_PName(grammar::ECase::kNom).c_str());
-			strcat(buf, "\r\n");
+			recipe += fmt::format("&G{}&n\r\n", obj_proto[item2]->get_PName(grammar::ECase::kNom));
 		}
 		if (obj_num >= 0 && (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes)) {
-			strcat(buf, kColorBoldBlu);
-			strcat(buf, obj_proto[obj_num]->get_PName(grammar::ECase::kNom).c_str());
-			strcat(buf, "\r\n");
+			recipe += fmt::format("&B{}&n\r\n", obj_proto[obj_num]->get_PName(grammar::ECase::kNom));
 		}
 
-		strcat(buf, kColorNrm);
 		if (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes) {
-			strcat(buf, "для создания магии '");
-			strcat(buf, MUD::Spell(spell_id).GetCName());
-			strcat(buf, "'.");
+			recipe += fmt::format("для создания магии '{}'.", MUD::Spell(spell_id).GetCName());
 		} else {
-			strcat(buf, "для создания ");
-			strcat(buf, obj_proto[obj_num]->get_PName(grammar::ECase::kGen).c_str());
+			recipe += fmt::format("для создания {}", obj_proto[obj_num]->get_PName(grammar::ECase::kGen));
 		}
-		act(buf, false, ch, nullptr, nullptr, kToChar);
+		act(recipe.c_str(), false, ch, nullptr, nullptr, kToChar);
 	}
 
 	return (true);
@@ -360,11 +346,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 	}
 
 	if (extract) {
-		if (spell_type == ESpellType::kRunes) {
-			strcpy(buf, "Вы сложили ");
-		} else {
-			strcpy(buf, "Вы взяли ");
-		}
+		std::string used = (spell_type == ESpellType::kRunes) ? "Вы сложили " : "Вы взяли ";
 
 		ObjData::shared_ptr obj;
 		if (create) {
@@ -382,65 +364,56 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 		}
 
 		if (item0 == -2) {
-			strcat(buf, kColorWht);
-			strcat(buf, obj0->get_PName(grammar::ECase::kAcc).c_str());
-			strcat(buf, ", ");
+			used += fmt::format("&W{}&n, ", obj0->get_PName(grammar::ECase::kAcc));
 			AddRuneStats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
 		}
 
 		if (item1 == -2) {
-			strcat(buf, kColorWht);
-			strcat(buf, obj1->get_PName(grammar::ECase::kAcc).c_str());
-			strcat(buf, ", ");
+			used += fmt::format("&W{}&n, ", obj1->get_PName(grammar::ECase::kAcc));
 			AddRuneStats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
 		}
 
 		if (item2 == -2) {
-			strcat(buf, kColorWht);
-			strcat(buf, obj2->get_PName(grammar::ECase::kAcc).c_str());
-			strcat(buf, ", ");
+			used += fmt::format("&W{}&n, ", obj2->get_PName(grammar::ECase::kAcc));
 			AddRuneStats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
 		}
 
 		if (item3 == -2) {
-			strcat(buf, kColorWht);
-			strcat(buf, obj3->get_PName(grammar::ECase::kAcc).c_str());
-			strcat(buf, ", ");
+			used += fmt::format("&W{}&n, ", obj3->get_PName(grammar::ECase::kAcc));
 			AddRuneStats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
 		}
 
-		strcat(buf, kColorNrm);
 
 		if (create) {
 			if (percent >= 0) {
-				strcat(buf, " и создали $o3.");
-				act(buf, false, ch, obj.get(), nullptr, kToChar);
+				used += " и создали $o3.";
+				act(used.c_str(), false, ch, obj.get(), nullptr, kToChar);
 				act("$n создал$g $o3.", false, ch, obj.get(), nullptr, kToRoom | kToArenaListen);
 				PlaceObjToInventory(obj.get(), ch);
 			} else {
-				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
-				act(buf, false, ch, obj.get(), nullptr, kToChar);
+				used += " и попытались создать $o3.\r\n" "Ничего не вышло.";
+				act(used.c_str(), false, ch, obj.get(), nullptr, kToChar);
 				ExtractObjFromWorld(obj.get());
 			}
 		} else {
 			if (spell_type == ESpellType::kItemCast) {
-				strcat(buf, "и создали магическую смесь.\r\n");
-				act(buf, false, ch, nullptr, nullptr, kToChar);
+				used += "и создали магическую смесь.\r\n";
+				act(used.c_str(), false, ch, nullptr, nullptr, kToChar);
 				act("$n смешал$g что-то в своей ноше.\r\n"
 					"Вы почувствовали резкий запах.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			} else if (spell_type == ESpellType::kRunes) {
-				sprintf(buf + strlen(buf),
-						"котор%s вспыхнул%s ярким светом.%s",
-						num > 1 ? "ые" : grammar::ObjSexEnding((objo)->get_sex(), 3), num > 1 ? "и" : grammar::ObjSexEnding((objo)->get_sex(), 1),
-						ch->IsFlagged(EPrf::kCompact) ? "" : "\r\n");
-				act(buf, false, ch, nullptr, nullptr, kToChar);
+				used += fmt::format("котор{} вспыхнул{} ярким светом.{}",
+									num > 1 ? "ые" : grammar::ObjSexEnding((objo)->get_sex(), 3),
+									num > 1 ? "и" : grammar::ObjSexEnding((objo)->get_sex(), 1),
+									ch->IsFlagged(EPrf::kCompact) ? "" : "\r\n");
+				act(used.c_str(), false, ch, nullptr, nullptr, kToChar);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					true, ch, nullptr, nullptr, kToRoom);
-				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
-						MUD::Spell(spell_id).GetCName(),
-						(tch && tch != ch ? " на " : ""),
-						(tch && tch != ch ? GET_PAD(tch, 1) : ""));
-				act(buf, true, ch, nullptr, nullptr, kToArenaListen);
+				act(fmt::format("$n сложил$g руны в заклинание '{}'{}{}.",
+								MUD::Spell(spell_id).GetCName(),
+								(tch && tch != ch ? " на " : ""),
+								(tch && tch != ch ? GET_PAD(tch, 1) : "")).c_str(),
+					true, ch, nullptr, nullptr, kToArenaListen);
 				auto magic_skill = MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill();
 				if (MUD::Skills().IsValid(magic_skill)) {
 					TrainSkill(ch, magic_skill, true, tch);

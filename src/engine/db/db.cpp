@@ -115,12 +115,6 @@ const long kBeginningOfTime = -1561789232;
 const long kBeginningOfTime = 650336715;
 #endif
 
-char buf[kMaxStringLength];
-char buf1[kMaxStringLength];
-char buf2[kMaxStringLength];
-char arg[kMaxInputLength];
-char smallBuf[kMaxRawInputLength];
-
 Rooms &world = GlobalObjects::world();
 
 RoomRnum top_of_world = 0;    // ref to top element of world
@@ -1072,8 +1066,7 @@ void zone_traffic_load() {
 	const std::string xml_db = MUD::StateManager().LoadText(state::EStateFile::kZoneTraffic);
 	pugi::xml_parse_result result = doc.load_buffer(xml_db.data(), xml_db.size());
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("...{}", result.description()), CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("zone_traffic");
@@ -1088,10 +1081,8 @@ void zone_traffic_load() {
 		zrn = GetZoneRnum(zone_vnum);
 		int num = atoi(node.attribute("traffic").value());
 		if (zrn == kNoZone) {
-			snprintf(buf, kMaxStringLength,
-					 "zone_traffic: несуществующий номер зоны %d ее траффик %d ",
-					 zone_vnum, num);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("zone_traffic: несуществующий номер зоны {} ее траффик {} ", zone_vnum, num),
+				   CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 		zone_table[zrn].traffic = atoi(node.attribute("traffic").value());
@@ -2947,9 +2938,9 @@ void ZoneReset::ResetZoneEssential() {
 					// 'M' <flag> <MobVnum> <max_in_world> <RoomVnum> <max_in_room|-1>
 
 					if (reset_cmd.arg3 < kFirstRoom) {
-						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
-								mob_index[reset_cmd.arg1].vnum, zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
+						mudlog(fmt::format("&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = {}, ZONE = {})",
+										   mob_index[reset_cmd.arg1].vnum, zone_table[m_zone_rnum].vnum),
+							   BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 
@@ -2958,11 +2949,9 @@ void ZoneReset::ResetZoneEssential() {
 						(reset_cmd.arg4 < 0 || CountMobsInRoom(reset_cmd.arg1, reset_cmd.arg3) < reset_cmd.arg4)) {
 						mob = ReadMobile(reset_cmd.arg1, kReal);
 						if (!mob) {
-							sprintf(buf,
-									"ZRESET: ошибка! моб %d  в зоне %d не существует",
-									reset_cmd.arg1,
-									zone_table[m_zone_rnum].vnum);
-							mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
+							mudlog(fmt::format("ZRESET: ошибка! моб {}  в зоне {} не существует",
+											   reset_cmd.arg1, zone_table[m_zone_rnum].vnum),
+								   BRF, kLvlBuilder, SYSLOG, true);
 							return;
 						}
 						if (!(mob_proto[mob->get_rnum()].get_role_bits().any() || ROOM_FLAGGED(reset_cmd.arg3, ERoomFlag::kArena))) {
@@ -3025,9 +3014,9 @@ void ZoneReset::ResetZoneEssential() {
 					// 'O' <flag> <ObjVnum> <max_in_world> <RoomVnum|-1> <load%|-1>
 					// Проверка  - сколько всего таких же обьектов надо на эту клетку
 					if (reset_cmd.arg3 < kFirstRoom) {
-						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
-								obj_proto[reset_cmd.arg1]->get_vnum(), zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
+						mudlog(fmt::format("&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = {}, ZONE = {})",
+										   obj_proto[reset_cmd.arg1]->get_vnum(), zone_table[m_zone_rnum].vnum),
+							   BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 					for (cmd_tmp = 0, obj_in_room_max = 0; zone_data.cmd[cmd_tmp].command != 'S'; cmd_tmp++)
@@ -3062,9 +3051,9 @@ void ZoneReset::ResetZoneEssential() {
 						curr_state = 1;
 
 						if (!obj->has_flag(EObjFlag::kNodecay)) {
-							sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
-									obj->get_PName(grammar::ECase::kNom).c_str(), obj->get_vnum());
-							mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+							mudlog(fmt::format("&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : {} (VNUM={})",
+											   obj->get_PName(grammar::ECase::kNom), obj->get_vnum()),
+								   BRF, kLvlBuilder, ERRLOG, true);
 						}
 					}
 					tmob = nullptr;
@@ -3184,9 +3173,9 @@ void ZoneReset::ResetZoneEssential() {
 					// 'R' <flag> <RoomVnum> <ObjVnum>
 
 					if (reset_cmd.arg1 < kFirstRoom) {
-						sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
-								obj_proto[reset_cmd.arg2]->get_vnum(), zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
+						mudlog(fmt::format("&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = {}, ZONE = {})",
+										   obj_proto[reset_cmd.arg2]->get_vnum(), zone_table[m_zone_rnum].vnum),
+							   BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 
@@ -3203,9 +3192,9 @@ void ZoneReset::ResetZoneEssential() {
 					// 'D' <flag> <RoomVnum> <door_pos> <door_state>
 
 					if (reset_cmd.arg1 < kFirstRoom) {
-						sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
-								zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
+						mudlog(fmt::format("&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = {})",
+										   zone_table[m_zone_rnum].vnum),
+							   BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 					if (reset_cmd.arg2 < 0 || reset_cmd.arg2 >= EDirection::kMaxDirNum ||
@@ -3386,7 +3375,12 @@ int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
 	*first = zone_table[zrn].RnumRoomsLocation.first;
 	*last = zone_table[zrn].RnumRoomsLocation.second;
 
-	if (*first <= 0)
+	// Пустая зона выглядит не как first == -1, а как перевёрнутый диапазон. Каждой зоне
+	// AddVirtualRoomsToAllZones() добавляет виртуальную комнату X99, а CalculateFirstAndLastRooms()
+	// тут же выбрасывает её из диапазона (second--). Если своих комнат у зоны нет -- а у системных
+	// зон вроде книг заклинаний их нет, -- виртуалка была единственной, и после вычитания
+	// получается first == last + 1, причём last указывает в ПРЕДЫДУЩУЮ зону.
+	if (*first <= 0 || *first > *last)
 		return 0;
 	return 1;
 }
@@ -3434,8 +3428,8 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 		return false;
 	}
 	if (debug) {
-		sprintf(buf, "is_empty чек по клеткам зоны. Зона %d в зоне НИКОГО!!!", zone_table[zone_nr].vnum);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		mudlog(fmt::format("is_empty чек по клеткам зоны. Зона {} в зоне НИКОГО!!!", zone_table[zone_nr].vnum),
+			   CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	return true;
 }

@@ -2,6 +2,8 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <fmt/format.h>
+
 #include "deathtrap.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
@@ -113,19 +115,18 @@ int deathtrap::check_death_trap(CharData *ch) {
 			deathtrap::log_death_trap(ch);
 
 			if (check_tester_death(ch, nullptr)) {
-				sprintf(buf1,
-						"Player %s died in DT (room %d) but zone is under construction.",
-						GET_NAME(ch),
-						GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("Player {} died in DT (room {}) but zone is under construction.",
+								   GET_NAME(ch), GET_ROOM_VNUM(ch->in_room)),
+					   LGH, kLvlImmortal, SYSLOG, true);
 				return false;
 			}
 
-			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
-			mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("Player {} died in DT (room {})", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room)),
+				   LGH, kLvlImmortal, SYSLOG, true);
 			if (!ch->IsNpc() && stone_rebirth(ch, nullptr)) {
-				sprintf(buf1, "Player %s saved by rebirth stone in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("Player {} saved by rebirth stone in DT (room {})",
+								   GET_NAME(ch), GET_ROOM_VNUM(ch->in_room)),
+					   LGH, kLvlImmortal, SYSLOG, true);
 				return true;
 			}
 			death_cry(ch, nullptr);

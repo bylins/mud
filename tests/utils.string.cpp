@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "utils/utils.h"
+#include "utils/mud_string.h"
 
 struct
 {
@@ -584,6 +585,32 @@ TEST(Utils_String, IsEquivalent_OrderMatters)
 	EXPECT_FALSE(utils::IsEquivalent("wor hel", "hello big world"));
 }
 
+TEST(Utils_String, IsEquivalent_MatchesIsname)
+{
+	// Это строковый аналог isname, которым ищут предметы и персонажей по алиасам. Так что
+	// на том, как игрок набирает цель, обе функции обязаны отвечать одинаково.
+	const char *aliases = "книга возникновении огня огненная";
+	for (const char *query : {"кни.огн", "кни огн", "огн.кни", "книга", "кни.нет", "огненная"}) {
+		EXPECT_EQ(utils::IsEquivalent(query, aliases), isname(query, aliases)) << "запрос: " << query;
+	}
+}
+
+TEST(Utils_String, IsEquivalent_HyphenStaysInsideTheWord)
+{
+	// Разделитель у нас точка, дефис -- часть слова, поэтому правильный запрос к дефисному
+	// имени выглядит так, и обе функции находят по нему одинаково.
+	const char *aliases = "фехтовальный металлический веер шань-цзы";
+	EXPECT_TRUE(utils::IsEquivalent("веер.шань-цзы", aliases));
+	EXPECT_TRUE(isname("веер.шань-цзы", aliases));
+	EXPECT_TRUE(utils::IsEquivalent("шань-цзы", aliases));
+	EXPECT_TRUE(isname("шань-цзы", aliases));
+
+	// А вот дробление имени по дефису -- дикумадовская добавка isname, у которого разделитель
+	// любой не-буквенно-цифровой знак. Правилу она не соответствует, и на std::string её нет.
+	EXPECT_TRUE(isname("цзы", aliases));
+	EXPECT_FALSE(utils::IsEquivalent("цзы", aliases));
+}
+
 // ===== ExtractFirstArgument =====
 
 TEST(Utils_String, ExtractFirstArgument_SplitsWordAndRest)
@@ -681,6 +708,75 @@ TEST(Utils_String, ScreenRulerHandlesWidthsBelowFirstMark) {
 	// Меньше пяти знаков -- меток нет вовсе, но длина всё равно запрошенная.
 	EXPECT_EQ(ScreenRuler(0), "");
 	EXPECT_EQ(ScreenRuler(4), "....");
+}
+
+// ===== ExtractFirstArgumentLower =====
+// Полный строковый аналог one_argument: сверяемся именно с ним -- на нём держится вся замена
+// глобального arg в командах (#3807).
+
+TEST(Utils_String, ExtractFirstArgumentLower_MatchesOneArgumentOnPlainWords)
+{
+	char legacy[kMaxInputLength];
+	std::string rest;
+	const char *legacy_rest = one_argument("сбить гоблина палкой", legacy);
+
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("сбить гоблина палкой", rest), legacy);
+	EXPECT_EQ(rest, legacy_rest);
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_LowersCase)
+{
+	// one_argument понижает регистр, ExtractFirstArgument -- нет.
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("ГОБЛИН"), "гоблин");
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("FROZEN"), "frozen");
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_KeepsFillWords)
+{
+	// in from with the on at to больше не пропускаются -- ни здесь, ни в one_argument (#3814):
+	// из-за пропуска молча исчезал аргумент-ключ вроде "hide on".
+	char legacy[kMaxInputLength];
+	one_argument("on причина", legacy);
+	EXPECT_STREQ(legacy, "on");
+
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("the goblin палкой", rest), "the");
+	EXPECT_EQ(rest, "goblin палкой");
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_EmptyInput)
+{
+	std::string rest = "мусор";
+	EXPECT_TRUE(utils::ExtractFirstArgumentLower("   ", rest).empty());
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_TabIsASeparator)
+{
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("сбить\tгоблина", rest), "сбить");
+	EXPECT_EQ(rest, "гоблина");
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_KeepsMultibyteLettersIntact)
+{
+	// Понижение регистра идёт посимвольно: русская буква не должна развалиться на байты.
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("ВОЛЧИЦА съела"), "волчица");
+}
+
+TEST(Utils_String, ThousandsSep)
+{
+	EXPECT_EQ(thousands_sep(0), "0");
+	EXPECT_EQ(thousands_sep(20), "20");
+	EXPECT_EQ(thousands_sep(1000), "1,000");
+	EXPECT_EQ(thousands_sep(-1234567), "-1,234,567");
+}
+
+TEST(Utils_String, ThousandsSep_NoTrailingNul)
+{
+	// Хвостовой '\0' уезжал в сокет и обрубал строку у клиента (команда "уровни").
+	const auto value = thousands_sep(20);
+	EXPECT_EQ(value.size(), strlen(value.c_str()));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

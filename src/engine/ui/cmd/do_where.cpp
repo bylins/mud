@@ -7,6 +7,7 @@
 #include "utils/native_text.h"
 #include "administration/privilege.h"
 #include "engine/db/world_objects.h"
+#include "utils/utils_string.h"
 #include "gameplay/economics/exchange.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/depot.h"
@@ -34,12 +35,13 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows);
 
 void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	one_argument(argument, arg);
+	std::string remains;
+	std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
 
 	if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
-		PerformImmortWhere(ch, arg);
+		PerformImmortWhere(ch, arg.data());
 	else
-		PerformMortalWhere(ch, arg);
+		PerformMortalWhere(ch, arg.data());
 }
 
 void PerformImmortWhere(CharData *ch, char *arg) {
@@ -352,16 +354,17 @@ void DoFindObjByRnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	int num = 1;
 	std::list<ObjData *> objs;
 
-	one_argument(argument, buf);
-	if (!str_cmp(buf, "error")) {
+	char rnum_arg[kMaxInputLength];
+	one_argument(argument, rnum_arg);
+	if (!str_cmp(rnum_arg, "error")) {
 		FindErrorCountObj(ch);
 		return;
 	}
-	if (!*buf || !a_isdigit(*buf)) {
+	if (!*rnum_arg || !a_isdigit(*rnum_arg)) {
 		SendMsgToChar("Usage: objfind <rnum number> - найти предметы по RNUM\r\n", ch);
 		return;
 	}
-	if ((orn = atoi(buf)) < 0 || (size_t)orn > (world_objects.size() - 1)) {
+	if ((orn = atoi(rnum_arg)) < 0 || (size_t)orn > (world_objects.size() - 1)) {
 		SendMsgToChar("Указан неверный RNUM объекта !\r\n", ch);
 		return;
 	}

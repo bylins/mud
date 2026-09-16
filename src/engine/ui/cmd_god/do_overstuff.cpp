@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 
@@ -30,8 +32,7 @@ void DoPageClanOverstuff(CharData *ch, char *, int, int) {
 	}
 
 	for (auto & object : objects) {
-		sprintf(buf, "Дружина: %s, количество объектов: %d\r\n", object.first.c_str(), object.second);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Дружина: {}, количество объектов: {}\r\n", object.first, object.second), ch);
 	}
 }
 

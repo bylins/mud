@@ -6,12 +6,15 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/ui/color.h"
 #include "gameplay/communication/remember.h"
 #include "gameplay/mechanics/sight.h"
+#include "utils/utils_string.h"
 
 void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
@@ -36,41 +39,44 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (GET_GOD_FLAG(ch, EGf::kDemigod))
 		level = kLvlImmortal;
 
+	std::string text = argument;
+
 	// использование доп. аргументов
 	switch (*argument) {
 		case '*': emote = true;
 			break;
-		case '#':
+		case '#': {
 			// Установить уровень имм канала
-			one_argument(argument + 1, buf1);
-			if (is_number(buf1)) {
-				half_chop(argument + 1, buf1, argument);
-				level = std::max(atoi(buf1), kLvlImmortal);
+			std::string tail;
+			const std::string level_arg = utils::ExtractFirstArgumentLower(argument + 1, tail);
+			if (is_number(level_arg)) {
+				level = std::max(atoi(level_arg.c_str()), kLvlImmortal);
 				if (level > GetRealLevel(ch)) {
 					SendMsgToChar("Вы не можете изрекать выше вашего уровня.\r\n", ch);
 					return;
 				}
-			} else if (emote)
-				argument++;
+				text = tail;
+			}
 			break;
-		case '@':
+		}
+		case '@': {
 			// Обнаруживаем всех кто может (теоретически) нас услышать
+			std::string out;
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->state == EConState::kPlaying &&
 					(privilege::IsImmortal(d->character.get()) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
 					!d->character->IsFlagged(EPrf::kNoWiz) && (sight::CanSee(ch, d->character) || privilege::IsImpl(ch))) {
 					if (!bookmark1) {
-						strcpy(buf1,
-							   "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n");
+						out += "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n";
 						bookmark1 = true;
 					}
-					sprintf(buf1 + strlen(buf1), "  %s", GET_NAME(d->character));
+					out += fmt::format("  {}", GET_NAME(d->character));
 					if (d->character->IsFlagged(EPlrFlag::kWriting))
-						strcat(buf1, " (пишет)\r\n");
+						out += " (пишет)\r\n";
 					else if (d->character->IsFlagged(EPlrFlag::kMailing))
-						strcat(buf1, " (пишет письмо)\r\n");
+						out += " (пишет письмо)\r\n";
 					else
-						strcat(buf1, "\r\n");
+						out += "\r\n";
 				}
 			}
 			for (d = descriptor_list; d; d = d->next) {
@@ -78,41 +84,33 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					(privilege::IsImmortal(d->character.get()) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
 					d->character->IsFlagged(EPrf::kNoWiz) && sight::CanSee(ch, d->character)) {
 					if (!bookmark2) {
-						if (!bookmark1)
-							strcpy(buf1,
-								   "Боги/привилегированные которые не смогут вас услышать:\r\n");
-						else
-							strcat(buf1,
-								   "Боги/привилегированные которые не смогут вас услышать:\r\n");
-
+						out += "Боги/привилегированные которые не смогут вас услышать:\r\n";
 						bookmark2 = true;
 					}
-					sprintf(buf1 + strlen(buf1), "  %s\r\n", GET_NAME(d->character));
+					out += fmt::format("  {}\r\n", GET_NAME(d->character));
 				}
 			}
-			SendMsgToChar(buf1, ch);
+			SendMsgToChar(out, ch);
 
 			return;
+		}
 		default: break;
 	}
 	if (ch->IsFlagged(EPrf::kNoWiz)) {
 		SendMsgToChar("Вы вне игры!\r\n", ch);
 		return;
 	}
-	skip_spaces(&argument);
+	utils::TrimLeft(text);
 
-	if (!*argument) {
+	if (text.empty()) {
 		SendMsgToChar("Не думаю, что Боги одобрят это.\r\n", ch);
 		return;
 	}
-	if (level != kLvlGod) {
-		sprintf(buf1, "%s%s: <%d> %s%s\r\n", GET_NAME(ch),
-				emote ? "" : " богам", level, emote ? "<--- " : "", argument);
-	} else {
-		sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), emote ? "" : " богам", emote ? "<--- " : "", argument);
-	}
-	snprintf(buf2, kMaxStringLength, "&c%s&n", buf1);
-	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
+	const std::string level_tag = level != kLvlGod ? fmt::format("<{}> ", level) : "";
+	const std::string message = fmt::format("&c{}{}: {}{}{}\r\n&n",
+											GET_NAME(ch), emote ? "" : " богам",
+											level_tag, emote ? "<--- " : "", text);
+	Remember::add_to_flaged_cont(Remember::wiznet_, message, level);
 
 	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
 	for (d = descriptor_list; d; d = d->next) {
@@ -124,13 +122,11 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			(!d->character->IsFlagged(EPlrFlag::kMailing)))    // отправляющий письмо не видит имм канала
 		{
 			// отправляем сообщение чару
-			snprintf(buf2, kMaxStringLength, "%s%s%s",
-					 kColorCyn, buf1, kColorNrm);
-			d->character->remember_add(buf2, Remember::ALL);
+			d->character->remember_add(message, Remember::ALL);
 			// не видино своих мессаг если 'режим repeat'
 			if (d != ch->desc
 				|| !(d->character->IsFlagged(EPrf::kNoRepeat))) {
-				SendMsgToChar(buf2, d->character.get());
+				SendMsgToChar(message, d->character.get());
 			}
 		}
 	}

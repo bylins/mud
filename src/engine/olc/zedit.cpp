@@ -441,14 +441,14 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	FILE *zfile;
 
 	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
-			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			mudlog(fmt::format("Отказ сохранения зоны {} на диск.", zone_table[zone_num].vnum),
+				   CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
 	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].vnum);
 	if (!(zfile = fopen(fname, "w"))) {
-		sprintf(buf, "SYSERR: OLC: zedit_save_to_disk:  Can't write zone %d.", zone_table[zone_num].vnum);
-		mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
+		mudlog(fmt::format("SYSERR: OLC: zedit_save_to_disk:  Can't write zone {}.",
+						   zone_table[zone_num].vnum), BRF, kLvlBuilder, SYSLOG, true);
 		return;
 	}
 
@@ -581,8 +581,9 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 				// * Invalid commands are replaced with '*' - Ignore them.
 				continue;
 
-			default: sprintf(buf, "SYSERR: OLC: z_save_to_disk(): Unknown cmd '%c' - NOT saving", ZCMD.command);
-				mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
+			default:
+				mudlog(fmt::format("SYSERR: OLC: z_save_to_disk(): Unknown cmd '{}' - NOT saving",
+								   ZCMD.command), BRF, kLvlBuilder, SYSLOG, true);
 				continue;
 		}
 
@@ -596,10 +597,10 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	}
 	fprintf(zfile, "S\n$\n");
 	fclose(zfile);
-	sprintf(buf2, "%s/%d.zon", ZON_PREFIX, zone_table[zone_num].vnum);
+	const std::string final_name = fmt::format("{}/{}.zon", ZON_PREFIX, zone_table[zone_num].vnum);
 	// * We're fubar'd if we crash between the two lines below.
-	remove(buf2);
-	rename(fname, buf2);
+	remove(final_name.c_str());
+	rename(fname, final_name.c_str());
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ZONE);
 }
 
@@ -639,7 +640,10 @@ const char *name_by_vnum(int vnum, int type) {
 			break;
 
 		case ROOM_NAME: rnum = GetRoomRnum(vnum);
-			if (rnum >= 0) {
+			// У комнаты без имени name остаётся нулевым (см. конструктор RoomData). Раньше такой
+			// указатель уходил в printf("%s") и печатался как "(null)", а fmt на нём бросает
+			// исключение -- отдаём документированное "???".
+			if (rnum >= 0 && world[rnum]->name) {
 				return world[rnum]->name;
 			}
 			break;
@@ -683,7 +687,7 @@ void zedit_disp_commands(DescriptorData *d) {
 
 	// Проверка допустимости индекса start
 	stop = zedit_count_cmdlist(head);    // количество элементов
-	sprintf(buf, "[Command list (0:%d)]\r\n", stop - 1);
+	std::string out = fmt::format("[Command list (0:{})]\r\n", stop - 1);
 	if (show_all) {
 		if (start > stop - CMD_PAGE_SIZE)
 			start = stop - CMD_PAGE_SIZE;
@@ -696,21 +700,22 @@ void zedit_disp_commands(DescriptorData *d) {
 
 	// Вывод всех команд зоны
 	// Подсветка команд, относящихся к данной комнате
+	std::string cmd_text;   // описание одной команды зоны
 	for (item = head->next; item != head; item = item->next, ++counter) {
 		// Разбор аргументов, выяснение подсветки
 		// if_flag и подсветка с номером - ниже
 		switch (item->cmd.command) {
 			case 'M':
-				sprintf(buf2,
-						"загрузить моба %d [%s] в комнату %d [%s], Max(игра/комната) : %d/%d",
+				cmd_text = fmt::format(
+						"загрузить моба {} [{}] в комнату {} [{}], Max(игра/комната) : {}/{}",
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME),
 						item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
 				hl = (item->cmd.arg3 == room);
 				break;
 
 			case 'F':
-				sprintf(buf2,
-						"%d [%s] следует за %d [%s] в комнате %d [%s]",
+				cmd_text = fmt::format(
+						"{} [{}] следует за {} [{}] в комнате {} [{}]",
 						item->cmd.arg3, name_by_vnum(item->cmd.arg3, MOB_NAME),
 						item->cmd.arg2, name_by_vnum(item->cmd.arg2, MOB_NAME),
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
@@ -718,24 +723,24 @@ void zedit_disp_commands(DescriptorData *d) {
 				break;
 
 			case 'Q':
-				sprintf(buf2,
-						"убрать всех мобов %d [%s]",
+				cmd_text = fmt::format(
+						"убрать всех мобов {} [{}]",
 						item->cmd.arg1,
 						name_by_vnum(item->cmd.arg1, MOB_NAME));
 				hl = 0;
 				break;
 
 			case 'O':
-				sprintf(buf2,
-						"загрузить объект %d [%s] в комнату %d [%s], Load%% %d",
+				cmd_text = fmt::format(
+						"загрузить объект {} [{}] в комнату {} [{}], Load% {}",
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
 						item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg4);
 				hl = (item->cmd.arg3 == room);
 				break;
 
 			case 'P':
-				sprintf(buf2,
-						"поместить %d [%s] в %d [%s] (в комнате %d [%s]), Load%% %d",
+				cmd_text = fmt::format(
+						"поместить {} [{}] в {} [{}] (в комнате {} [{}]), Load% {}",
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
 						item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), 
 						item->cmd.arg2, item->cmd.arg2 == 0? "везде" : name_by_vnum(item->cmd.arg2, ROOM_NAME),
@@ -744,8 +749,8 @@ void zedit_disp_commands(DescriptorData *d) {
 				break;
 
 			case 'G':
-				sprintf(buf2,
-						"дать %d [%s], Load%% %d",
+				cmd_text = fmt::format(
+						"дать {} [{}], Load% {}",
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), item->cmd.arg4);
 				// hl - не изменяется
 				break;
@@ -755,23 +760,23 @@ void zedit_disp_commands(DescriptorData *d) {
 				const char *str = equipment_types[rnum];
 				if (*str == '\n')
 					str = "???";
-				sprintf(buf2,
-						"экипировать %d [%s], %s, Load%% %d",
+				cmd_text = fmt::format(
+						"экипировать {} [{}], {}, Load% {}",
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), str, item->cmd.arg4);
 				// hl - не изменяется
 				break;
 			}
 			case 'R':
-				sprintf(buf2,
-						"удалить %d [%s] из комнаты %d [%s]",
+				cmd_text = fmt::format(
+						"удалить {} [{}] из комнаты {} [{}]",
 						item->cmd.arg2, name_by_vnum(item->cmd.arg2, OBJ_NAME),
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
 				hl = (item->cmd.arg1 == room);
 				break;
 
 			case 'D':
-				sprintf(buf2,
-						"для комнаты %d [%s] установить выход %s как %s",
+				cmd_text = fmt::format(
+						"для комнаты {} [{}] установить выход {} как {}",
 						item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME),
 						dirs[item->cmd.arg2],
 						item->cmd.arg3 == 0 ? "открытый" :
@@ -782,101 +787,99 @@ void zedit_disp_commands(DescriptorData *d) {
 				break;
 
 			case 'T':
-				sprintf(buf2,
-						"привязать тригер %d [%s] к ",
+				cmd_text = fmt::format(
+						"привязать тригер {} [{}] к ",
 						item->cmd.arg2,
 						name_by_vnum(item->cmd.arg2, TRIG_NAME));
 				switch (item->cmd.arg1) {
-					case MOB_TRIGGER: strcat(buf2, "мобу");
+					case MOB_TRIGGER: cmd_text += "мобу";
 						break;
-					case OBJ_TRIGGER: strcat(buf2, "предмету");
+					case OBJ_TRIGGER: cmd_text += "предмету";
 						break;
 					case WLD_TRIGGER:
-						sprintf(buf2 + strlen(buf2),
-								"комнате %d [%s]", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
+						cmd_text += fmt::format(
+								"комнате {} [{}]", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
 						hl = (item->cmd.arg3 == room);
 						break;
-					default: strcat(buf2, "???");
+					default: cmd_text += "???";
 						break;
 				}
 				break;
 
 			case 'V':
 				switch (item->cmd.arg1) {
-					case MOB_TRIGGER: strcpy(buf2, "для моба ");
+					case MOB_TRIGGER: cmd_text = "для моба ";
 						break;
-					case OBJ_TRIGGER: strcpy(buf2, "для предмета ");
+					case OBJ_TRIGGER: cmd_text = "для предмета ";
 						break;
 					case WLD_TRIGGER:
-						sprintf(buf2,
-								"для комнаты %d [%s] ",
+						cmd_text = fmt::format(
+								"для комнаты {} [{}] ",
 								item->cmd.arg2,
 								name_by_vnum(item->cmd.arg2, ROOM_NAME));
 						hl = (item->cmd.arg2 == room);
 						break;
-					default: strcpy(buf2, "для??? ");
+					default: cmd_text = "для??? ";
 						break;
 				}
-				sprintf(buf2 + strlen(buf2),
-						"установить глобальную переменную %s:%d = %s",
-						item->cmd.sarg1, item->cmd.arg3, item->cmd.sarg2);
+				cmd_text += fmt::format(
+						"установить глобальную переменную {}:{} = {}",
+						item->cmd.sarg1 ? item->cmd.sarg1 : "",
+						item->cmd.arg3,
+						item->cmd.sarg2 ? item->cmd.sarg2 : "");
 				break;
 
-			default: strcpy(buf2, "<Неизвестная команда>");
+			default: cmd_text = "<Неизвестная команда>";
 				break;
 
 		}
 
 		// Build the display buffer for this command
 		if ((show_all && start <= counter && stop > counter) || (!show_all && hl)) {
-			snprintf(buf1, kMaxStringLength, "%s%d - %s%s%s\r\n", nrm, counter, hl ? iyel : yel,
-					 if_flag_text(item->cmd.if_flag), buf2);
-			strcat(buf, buf1);
+			out += fmt::format("{}{} - {}{}{}\r\n", nrm, counter, hl ? iyel : yel,
+					 if_flag_text(item->cmd.if_flag), cmd_text);
 		}
 	}
 
 	// Последняя команда
 	if (!show_all || (start <= counter && stop > counter)) {
-		sprintf(buf1, "%s%d - <END>\r\n", nrm, counter);
-		strcat(buf, buf1);
+		out += fmt::format("{}{} - <END>\r\n", nrm, counter);
 	}
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(out, d->character.get());
 	return;
 }
 
 // the main menu
 void zedit_disp_menu(DescriptorData *d) {
-//	char *buf = (char *) malloc(32 * 1024);
-	char *type1_zones = (char *) malloc(1024);
-	char *type2_zones = (char *) malloc(1024);
+	std::string menu;
 	int i;
-	type1_zones[0] = '\0';
-	type2_zones[0] = '\0';
+	// Списки зон собирались перекладыванием через общий буфер (buf -> type1_zones и обратно),
+	// причём буферы брались из malloc и освобождались в конце. Теперь просто строки.
+	std::string type1_zones;
+	std::string type2_zones;
 	for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
-		sprintf(buf, "%s %d", type1_zones, OLC_ZONE(d)->typeA_list[i]);
-		snprintf(type1_zones, 1024, "%s", buf);
+		type1_zones += fmt::format(" {}", OLC_ZONE(d)->typeA_list[i]);
 	}
 	for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
-		sprintf(buf, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
-		snprintf(type2_zones, 1024, "%s", buf);
+		type2_zones += fmt::format(" {}", OLC_ZONE(d)->typeB_list[i]);
 	}
 
 	// Menu header
-	sprintf(buf,
+	SendMsgToChar(fmt::format(
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-			"Room number: %s%d%s		Room zone: %s%d\r\n"
-			"%sZ%s) Имя зоны         : %s%s\r\n"
-			"%sC%s) Комментарий      : %s%s\r\n"
-			"%sW%s) Местоположение   : %s%s\r\n"
-			"%sO%s) Описание         : %s%s\r\n"
-			"%sU%s) Автор зоны       : %s%s\r\n"
-			"%sS%s) Уровень зоны     : %s%d (качество ингридиентов)\r\n"
-			"%sY%s) Тип зоны         : %s%s\r\n"
-			"%sL%s) Время жизни      : %s%d minutes\r\n"
-			"%sR%s) Тип очистки      : %s%s\r\n"
-			"%sI%s) Оч. никто не был : %s%s%s\r\n",
+			"Room number: {}{}{}		Room zone: {}{}\r\n"
+			"{}Z{}) Имя зоны         : {}{}\r\n"
+			"{}C{}) Комментарий      : {}{}\r\n"
+			"{}W{}) Местоположение   : {}{}\r\n"
+			"{}O{}) Описание         : {}{}\r\n"
+			"{}U{}) Автор зоны       : {}{}\r\n"
+			"{}S{}) Уровень зоны     : {}{} (качество ингридиентов)\r\n"
+			"{}Y{}) Тип зоны         : {}{}\r\n"
+			"{}L{}) Время жизни      : {}{} minutes\r\n"
+			"{}R{}) Тип очистки      : {}{}\r\n"
+			"{}I{}) Оч. никто не был : {}{}{}\r\n",
 			cyn,
 			OLC_NUM(d),
 			nrm,
@@ -926,13 +929,14 @@ void zedit_disp_menu(DescriptorData *d) {
 			nrm,
 			yel,
 			OLC_ZONE(d)->reset_idle ? "Да" : "Нет",
-			nrm);
-	SendMsgToChar(buf, d->character.get());
+			nrm),
+				  d->character.get());
 	if (OLC_ZONE(d)->reset_mode == 3) {
-		snprintf(buf, kMaxStringLength, "%sA%s) Зоны первого типа       : %s%s%s\r\n"
-										 "%sB%s) Зоны второго типа       : %s%s%s\r\n",
-				 grn, nrm, ired, type1_zones, nrm, grn, nrm, grn, type2_zones, nrm);
-		SendMsgToChar(buf, d->character.get());
+		SendMsgToChar(fmt::format("{}A{}) Зоны первого типа       : {}{}{}\r\n"
+								  "{}B{}) Зоны второго типа       : {}{}{}\r\n",
+								  grn, nrm, ired, type1_zones, nrm,
+								  grn, nrm, grn, type2_zones, nrm),
+					  d->character.get());
 	}
 	SendMsgToChar(fmt::format("{}T{}) Режим            : {}{}{}\r\n",
 								  grn, nrm, yel, OLC_ZONE(d)->under_construction ? "ТЕСТИРУЕТСЯ" : "подключена", nrm),
@@ -949,31 +953,29 @@ void zedit_disp_menu(DescriptorData *d) {
 	// Finish off menu
 	if (d->olc->bitmask & OLC_BM_SHOWALLCMD) {
 		// Режим отображения всех команд
-		sprintf(buf1,
-				"%sF%s) Фильтр - ВСЕ КОМАНДЫ   %s8%s) Вверх\r\n"
-				"%sN%s) Добавить команду       %s2%s) Вниз\r\n"
-				"%sE%s) Редактировать команду  %s9%s) Страница вверх\r\n"
-				"%sM%s) Перенести команду      %s3%s) Страница вниз\r\n"
-				"%sD%s) Удалить команду        %s7%s) В начало списка\r\n"
-				"%sX%s) Выход                  %s1%s) В конец списка\r\n"
+		menu = fmt::format(
+				"{}F{}) Фильтр - ВСЕ КОМАНДЫ   {}8{}) Вверх\r\n"
+				"{}N{}) Добавить команду       {}2{}) Вниз\r\n"
+				"{}E{}) Редактировать команду  {}9{}) Страница вверх\r\n"
+				"{}M{}) Перенести команду      {}3{}) Страница вниз\r\n"
+				"{}D{}) Удалить команду        {}7{}) В начало списка\r\n"
+				"{}X{}) Выход                  {}1{}) В конец списка\r\n"
 				"Ваш выбор : ",
 				grn, nrm, grn, nrm,
 				grn, nrm, grn, nrm,
 				grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	} else {
 		// Режим отображения команд комнаты
-		sprintf(buf1,
-				"%sF%s) Фильтр - КОМАНДЫ КОМНАТЫ\r\n"
-				"%sN%s) Добавить команду\r\n"
-				"%sE%s) Редактировать команду\r\n"
-				"%sM%s) Перенести команду\r\n"
-				"%sD%s) Удалить команду\r\n"
-				"%sX%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+		menu = fmt::format(
+				"{}F{}) Фильтр - КОМАНДЫ КОМНАТЫ\r\n"
+				"{}N{}) Добавить команду\r\n"
+				"{}E{}) Редактировать команду\r\n"
+				"{}M{}) Перенести команду\r\n"
+				"{}D{}) Удалить команду\r\n"
+				"{}X{}) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	}
 
-	SendMsgToChar(buf1, d->character.get());
-	free(type1_zones);
-	free(type2_zones);
+	SendMsgToChar(menu, d->character.get());
 
 	OLC_MODE(d) = ZEDIT_MAIN_MENU;
 }
@@ -1001,23 +1003,24 @@ void zedit_disp_type_menu(DescriptorData *d) {
 
 // * Print the command type menu and setup response catch.
 void zedit_disp_comtype(DescriptorData *d) {
+	std::string buf_out;
 	pzcmd item = SEEK_CMD(d);
 	SendMsgToChar("\r\n", d->character.get());
-	sprintf(buf,
+	buf_out = fmt::format(
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-			"%sM%s) Загрузить моба в комнату        %sO%s) Загрузить предмет в комнату\r\n"
-			"%sE%s) Экипировать моба                %sG%s) Дать предмет мобу\r\n"
-			"%sP%s) Поместить предмет в контейнер   %sD%s) Установить выход\r\n"
-			"%sR%s) Удалить предмет из комнаты      %sQ%s) Удалить всех мобов данного типа\r\n"
-			"%sF%s) Создать цепочку последователей\r\n"
-			"%sT%s) Назначить тригер                %sV%s) Установить глобальную переменную\r\n"
-			"Редактируемая команда : %c\r\n"
+			"{}M{}) Загрузить моба в комнату        {}O{}) Загрузить предмет в комнату\r\n"
+			"{}E{}) Экипировать моба                {}G{}) Дать предмет мобу\r\n"
+			"{}P{}) Поместить предмет в контейнер   {}D{}) Установить выход\r\n"
+			"{}R{}) Удалить предмет из комнаты      {}Q{}) Удалить всех мобов данного типа\r\n"
+			"{}F{}) Создать цепочку последователей\r\n"
+			"{}T{}) Назначить тригер                {}V{}) Установить глобальную переменную\r\n"
+			"Редактируемая команда : {}\r\n"
 			"Укажите тип команды   : ",
 			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm,
 			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, item->cmd.command);
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(buf_out, d->character.get());
 	OLC_MODE(d) = ZEDIT_COMMAND_TYPE;
 }
 
@@ -1027,6 +1030,7 @@ void zedit_disp_comtype(DescriptorData *d) {
  * up the input catch clause
  */
 void zedit_disp_arg1(DescriptorData *d) {
+	std::string buf_out;
 	pzcmd item = SEEK_CMD(d);
 
 	SendMsgToChar("\r\n", d->character.get());
@@ -1034,9 +1038,9 @@ void zedit_disp_arg1(DescriptorData *d) {
 	switch (item->cmd.command) {
 		case 'M':
 		case 'Q':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор моба\r\n"
-					"Текущий моб  : %d [%s]\r\n" "Введите номер: ",
+					"Текущий моб  : {} [{}]\r\n" "Введите номер: ",
 					item->cmd.arg1,
 					name_by_vnum(item->cmd.arg1, MOB_NAME));
 			break;
@@ -1045,9 +1049,9 @@ void zedit_disp_arg1(DescriptorData *d) {
 		case 'E':
 		case 'P':
 		case 'G':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор предмета\r\n"
-					"Текущий предмет: %d [%s]\r\n" "Введите номер  : ",
+					"Текущий предмет: {} [{}]\r\n" "Введите номер  : ",
 					item->cmd.arg1,
 					name_by_vnum(item->cmd.arg1, OBJ_NAME));
 			break;
@@ -1057,19 +1061,19 @@ void zedit_disp_arg1(DescriptorData *d) {
 		case 'F':
 			if (item->cmd.arg1 == -1)
 				item->cmd.arg1 = OLC_NUM(d);
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор комнаты\r\n"
-					"Текущая комната: %d [%s]\r\n" "Введите номер  : ",
+					"Текущая комната: {} [{}]\r\n" "Введите номер  : ",
 					item->cmd.arg1,
 					name_by_vnum(item->cmd.arg1, ROOM_NAME));
 			break;
 
 		case 'T':
 		case 'V':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор типа триггера\r\n"
 					"  0 - моб\r\n"
-					"  1 - предмет\r\n" "  2 - комната\r\n" "Текущий тип: %d\r\n" "Введите тип: ", item->cmd.arg1);
+					"  1 - предмет\r\n" "  2 - комната\r\n" "Текущий тип: {}\r\n" "Введите тип: ", item->cmd.arg1);
 			break;
 
 		default:
@@ -1079,7 +1083,7 @@ void zedit_disp_arg1(DescriptorData *d) {
 			SendMsgToChar("Oops...\r\n", d->character.get());
 			return;
 	}
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(buf_out, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG1;
 }
 
@@ -1089,6 +1093,7 @@ void zedit_disp_arg1(DescriptorData *d) {
  * up the input catch clause.
  */
 void zedit_disp_arg2(DescriptorData *d) {
+	std::string buf_out;
 	pzcmd item = SEEK_CMD(d);
 
 	int i = 0;
@@ -1096,45 +1101,45 @@ void zedit_disp_arg2(DescriptorData *d) {
 	SendMsgToChar("\r\n", d->character.get());
 
 	switch (item->cmd.command) {
-		case 'P':sprintf(buf, "Комната в которой искать контейнер (0 искать по всему миру)\r\n"
-					"Текущее значение: %d\r\n" "Введите номер: ", item->cmd.arg2);
+		case 'P':buf_out = fmt::format("Комната в которой искать контейнер (0 искать по всему миру)\r\n"
+					"Текущее значение: {}\r\n" "Введите номер: ", item->cmd.arg2);
 			break;
 		case 'M':
 		case 'O':
 		case 'E':
 		case 'G':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Максимальное количество в мире\r\n"
-					"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg2);
+					"Текущее значение: {}\r\n" "Введите значение: ", item->cmd.arg2);
 			break;
 
-		case 'D': sprintf(buf, "Выбор направления выхода\r\n");
+		case 'D': buf_out = fmt::format("Выбор направления выхода\r\n");
 			for (i = 0; *dirs[i] != '\n'; ++i)
-				sprintf(buf + strlen(buf), "   %d - %s\r\n", i, dirs[i]);
-			sprintf(buf + strlen(buf),
-					"Текущее направление выхода: %d\r\n" "Введите направление выхода: ", item->cmd.arg2);
+				buf_out += fmt::format("   {} - {}\r\n", i, dirs[i]);
+			buf_out += fmt::format(
+					"Текущее направление выхода: {}\r\n" "Введите направление выхода: ", item->cmd.arg2);
 			break;
 
 		case 'R':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор предмета\r\n"
-					"Текущий предмет: %d [%s]\r\n" "Введите номер: ",
+					"Текущий предмет: {} [{}]\r\n" "Введите номер: ",
 					item->cmd.arg2,
 					name_by_vnum(item->cmd.arg2, OBJ_NAME));
 			break;
 
 		case 'F':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор моба-лидера\r\n"
-					"Текущий моб  : %d [%s]\r\n" "Введите номер: ",
+					"Текущий моб  : {} [{}]\r\n" "Введите номер: ",
 					item->cmd.arg2,
 					name_by_vnum(item->cmd.arg2, MOB_NAME));
 			break;
 
 		case 'T':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор триггера\r\n"
-					"Текущий триггер: %d [%s]\r\n" "Введите номер: ",
+					"Текущий триггер: {} [{}]\r\n" "Введите номер: ",
 					item->cmd.arg2,
 					name_by_vnum(item->cmd.arg2, TRIG_NAME));
 			break;
@@ -1142,9 +1147,9 @@ void zedit_disp_arg2(DescriptorData *d) {
 		case 'V':
 			if (item->cmd.arg2 == -1)
 				item->cmd.arg2 = OLC_NUM(d);
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор комнаты\r\n"
-					"Текущая комната: %d [%s]\r\n" "Введите номер: ",
+					"Текущая комната: {} [{}]\r\n" "Введите номер: ",
 					item->cmd.arg2,
 					name_by_vnum(item->cmd.arg2, ROOM_NAME));
 			break;
@@ -1158,7 +1163,7 @@ void zedit_disp_arg2(DescriptorData *d) {
 			return;
 	}
 
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(buf_out, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG2;
 }
 
@@ -1169,6 +1174,7 @@ void zedit_disp_arg2(DescriptorData *d) {
  * up the input catch clause.
  */
 void zedit_disp_arg3(DescriptorData *d) {
+	std::string buf_out;
 	pzcmd item = SEEK_CMD(d);
 
 	int i = 0;
@@ -1176,40 +1182,40 @@ void zedit_disp_arg3(DescriptorData *d) {
 	SendMsgToChar("\r\n", d->character.get());
 
 	switch (item->cmd.command) {
-		case 'E': sprintf(buf, "Выбор позиции\r\n");
+		case 'E': buf_out = fmt::format("Выбор позиции\r\n");
 			for (i = 0; *equipment_types[i] != '\n'; ++i)
-				sprintf(buf + strlen(buf), "   %2d - %s\r\n", i, equipment_types[i]);
-			sprintf(buf + strlen(buf), "Текущая позиция: %d\r\n" "Введите позицию: ", item->cmd.arg3);
+				buf_out += fmt::format("   {:2} - {}\r\n", i, equipment_types[i]);
+			buf_out += fmt::format("Текущая позиция: {}\r\n" "Введите позицию: ", item->cmd.arg3);
 			break;
 
 		case 'P':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор контейнера\r\n"
-					"Текущий предмет: %d [%s]\r\n" "Введите номер  : ",
+					"Текущий предмет: {} [{}]\r\n" "Введите номер  : ",
 					item->cmd.arg3,
 					name_by_vnum(item->cmd.arg3, OBJ_NAME));
 			break;
 
 		case 'D':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор состояния двери\r\n"
 					"  0 - Дверь открыта\r\n"
 					"  1 - Дверь закрыта\r\n"
 					"  2 - Дверь заперта\r\n"
 					"  3 - Выход скрыт\r\n"
-					"  4 - Выход явный\r\n" "Текущее состояние: %d\r\n" "Введите состояние: ", item->cmd.arg3);
+					"  4 - Выход явный\r\n" "Текущее состояние: {}\r\n" "Введите состояние: ", item->cmd.arg3);
 			break;
 
 		case 'V':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор контекста переменной\r\n"
-					"Текущий контекст: %d\r\n" "Введите контекст: ", item->cmd.arg3);
+					"Текущий контекст: {}\r\n" "Введите контекст: ", item->cmd.arg3);
 			break;
 
 		case 'F':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор моба-последователя\r\n"
-					"Текущий моб  : %d [%s]\r\n" "Введите номер: ",
+					"Текущий моб  : {} [{}]\r\n" "Введите номер: ",
 					item->cmd.arg3,
 					name_by_vnum(item->cmd.arg3, MOB_NAME));
 			break;
@@ -1219,9 +1225,9 @@ void zedit_disp_arg3(DescriptorData *d) {
 		case 'T':
 			if (item->cmd.arg3 == -1)
 				item->cmd.arg3 = OLC_NUM(d);
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор комнаты\r\n"
-					"Текущая комната: %d [%s]\r\n" "Введите номер  : ",
+					"Текущая комната: {} [{}]\r\n" "Введите номер  : ",
 					item->cmd.arg3,
 					name_by_vnum(item->cmd.arg3, ROOM_NAME));
 			break;
@@ -1237,29 +1243,30 @@ void zedit_disp_arg3(DescriptorData *d) {
 			return;
 	}
 
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(buf_out, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG3;
 }
 
 void zedit_disp_arg4(DescriptorData *d) {
+	std::string buf_out;
 	pzcmd item = SEEK_CMD(d);
 
 	SendMsgToChar("\r\n", d->character.get());
 
 	switch (item->cmd.command) {
 		case 'M':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Максимальное количество в комнате\r\n"
-					"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg4);
+					"Текущее значение: {}\r\n" "Введите значение: ", item->cmd.arg4);
 			break;
 
 		case 'O':
 		case 'E':
 		case 'P':
 		case 'G':
-			sprintf(buf,
-					"Вероятность загрузки (-1 = 100%%)\r\n"
-					"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg4);
+			buf_out = fmt::format(
+					"Вероятность загрузки (-1 = 100%)\r\n"
+					"Текущее значение: {}\r\n" "Введите значение: ", item->cmd.arg4);
 			break;
 
 		case 'Q':
@@ -1276,20 +1283,21 @@ void zedit_disp_arg4(DescriptorData *d) {
 			return;
 	}
 
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(buf_out, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG4;
 }
 
 void zedit_disp_sarg1(DescriptorData *d) {
+	std::string buf_out;
 	pzcmd item = SEEK_CMD(d);
 
 	SendMsgToChar("\r\n", d->character.get());
 
 	switch (item->cmd.command) {
 		case 'V':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор имени глобальной переменной\r\n"
-					"Текущее имя: %s\r\n" "Введите имя: ", item->cmd.sarg1 ? item->cmd.sarg1 : "<NULL>");
+					"Текущее имя: {}\r\n" "Введите имя: ", item->cmd.sarg1 ? item->cmd.sarg1 : "<NULL>");
 			break;
 
 		case 'M':
@@ -1310,20 +1318,21 @@ void zedit_disp_sarg1(DescriptorData *d) {
 			return;
 	}
 
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(buf_out, d->character.get());
 	OLC_MODE(d) = ZEDIT_SARG1;
 }
 
 void zedit_disp_sarg2(DescriptorData *d) {
+	std::string buf_out;
 	pzcmd item = SEEK_CMD(d);
 
 	SendMsgToChar("\r\n", d->character.get());
 
 	switch (item->cmd.command) {
 		case 'V':
-			sprintf(buf,
+			buf_out = fmt::format(
 					"Выбор значения глобальной переменной\r\n"
-					"Текущее значение: %s\r\n" "Введите значение: ", item->cmd.sarg2 ? item->cmd.sarg2 : "<NULL>");
+					"Текущее значение: {}\r\n" "Введите значение: ", item->cmd.sarg2 ? item->cmd.sarg2 : "<NULL>");
 			break;
 
 		case 'M':
@@ -1344,7 +1353,7 @@ void zedit_disp_sarg2(DescriptorData *d) {
 			return;
 	}
 
-	SendMsgToChar(buf, d->character.get());
+	SendMsgToChar(buf_out, d->character.get());
 	OLC_MODE(d) = ZEDIT_SARG2;
 }
 
@@ -1373,9 +1382,10 @@ void zedit_parse(DescriptorData *d, char *arg) {
 					// * Save the zone in memory, hiding invisible people.
 					SendMsgToChar("Зона сохранена.\r\n", d->character.get());
 					zedit_save_internally(d);
-					sprintf(buf, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
+					mudlog(fmt::format("OLC: {} edits zone info for room {}.",
+									   GET_NAME(d->character), OLC_NUM(d)),
+						   NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					olc_log("%s edit zone %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// FALL THROUGH
 				case 'n':
 				case 'N':
@@ -1579,14 +1589,14 @@ void zedit_parse(DescriptorData *d, char *arg) {
 			if (!item->cmd.command || (strchr("MFQOPEDGRTV", item->cmd.command) == nullptr))
 				SendMsgToChar("Неверный выбор, повторите : ", d->character.get());
 			else {
-				sprintf(buf,
+				SendMsgToChar(fmt::format(
 						"Режимы исполнения команды:\r\n"
 						"  0 - выполняется всегда\r\n"
 						"  1 - выполняется только в случае успешного выполнения предыдущей\r\n"
 						"  2 - выполняется всегда, не изменяет признак успешного выполнения\r\n"
 						"  3 - выполняется только в случае успешного выполнения предыдущей, не изменяет признак успешного выполнения\r\n"
-						"Текущий режим  : %d\r\n" "Выберите режим : ", item->cmd.if_flag);
-				SendMsgToChar(buf, d->character.get());
+						"Текущий режим  : {}\r\n" "Выберите режим : ", item->cmd.if_flag),
+							  d->character.get());
 				OLC_MODE(d) = ZEDIT_IF_FLAG;
 			}
 			break;

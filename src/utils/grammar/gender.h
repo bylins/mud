@@ -11,8 +11,9 @@
 
 // Grammatical gender of a character or object. Lives here (the grammar module) because gender is
 // a language concept the rest of the engine reads from -- entities_constants.h re-exports it by
-// including this header. Underlying type `char` matches the engine's `byte` alias (byte = char).
-enum class EGender : char {
+// including this header. Underlying type is int: a char-sized underlying type turns every
+// to_underlying()/cast into a character for fmt, which is the trap the `byte` alias used to be.
+enum class EGender : int {
 	kNeutral = 0,
 	kMale = 1,
 	kFemale = 2,

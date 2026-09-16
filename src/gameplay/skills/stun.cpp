@@ -36,7 +36,8 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kNeedWeapon) + "\r\n", ch);
 		return;
 	}
-	CharData *vict = FindVictim(ch, argument);
+	std::string target_name;
+	CharData *vict = FindVictim(ch, argument, target_name);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -49,7 +50,7 @@ void do_stun(CharData *ch, char *argument, int, int) {
 
 	if (!may_kill_here(ch, vict, argument))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 
 	go_stun(ch, vict);

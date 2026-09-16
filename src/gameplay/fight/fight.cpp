@@ -82,7 +82,7 @@ void go_autoassist(CharData *ch) {
 		ch_lider = ch;    // Создаем ссылку на лидера
 	}
 
-	buf2[0] = '\0';
+	char no_arg[1] = {'\0'};
 	for (auto *k : ch_lider->followers) {
 		if (k->IsFlagged(EPrf::kAutoassist) &&
 			(k->in_room == ch->in_room) && !k->GetEnemy() &&
@@ -93,9 +93,9 @@ void go_autoassist(CharData *ch) {
 				for (auto *d : k->followers)
 					if ((d->in_room == ch->in_room) && !d->GetEnemy() &&
 						(d->GetPosition() == EPosition::kStand) && d->get_wait() <= 0)
-						do_assist(d, buf2, 0, 0);
+						do_assist(d, no_arg, 0, 0);
 			} else {
-				do_assist(k, buf2, 0, 0);
+				do_assist(k, no_arg, 0, 0);
 			}
 		}
 	}
@@ -1181,8 +1181,8 @@ void mob_casting(CharData *ch) {
 	// angel not cast if master not in room
 	if (ch->IsFlagged(EMobFlag::kTutelar)) {
 		if (ch->has_master() && ch->in_room != ch->get_master()->in_room) {
-			sprintf(buf, "%s тоскливо сморит по сторонам. Кажется ищет кого-то.", ch->get_name_str().c_str());
-			act(buf, false, ch, 0, 0, kToRoom | kToArenaListen);
+			act(fmt::format("{} тоскливо сморит по сторонам. Кажется ищет кого-то.", ch->get_name_str()),
+				false, ch, 0, 0, kToRoom | kToArenaListen);
 			return;
 		}
 	}
@@ -1927,8 +1927,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
 		&& ch->battle_affects.get(kEafStand)) {
-		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", kColorWht, kColorNrm);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("{}Вам лучше встать на ноги!{}\r\n", kColorWht, kColorNrm), ch);
 		ch->battle_affects.unset(kEafStand);
 	}
 
@@ -2098,7 +2097,6 @@ void perform_violence() {
 	std::unordered_set<CharData *> msdp_report_chars;
 
 	//* суммон хелперов
-	sprintf(buf, "Check mob helpers");
 	check_mob_helpers();
 	//* действия до раунда и расчет инициативы
 	// почистим удаленных между раундами боя

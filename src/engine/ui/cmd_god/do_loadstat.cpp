@@ -26,9 +26,10 @@ void DoLoadstat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	istream.seekg(0, std::ifstream::end);
 	length = istream.tellg();
 	istream.seekg(0, std::ifstream::beg);
-	istream.read(buf, std::min(length, kMaxStringLength - 1));
-	buf[istream.gcount()] = '\0';
-	SendMsgToChar(buf, ch);
+	std::string content(std::min(length, kMaxStringLength - 1), '\0');
+	istream.read(content.data(), static_cast<std::streamsize>(content.size()));
+	content.resize(istream.gcount());
+	SendMsgToChar(content, ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

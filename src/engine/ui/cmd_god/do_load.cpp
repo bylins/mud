@@ -6,7 +6,10 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
+#include "utils/utils_string.h"
 #include "administration/privilege.h"
 #include "engine/olc/olc.h"
 #include "engine/core/char_handler.h"
@@ -23,30 +26,32 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	CharData *mob;
 	MobVnum number;
 	MobRnum r_num;
-	char *iname;
 
-	iname = two_arguments(argument, buf, buf2);
+	std::string remains;
+	const std::string type_word = utils::ExtractFirstArgumentLower(argument, remains);
+	std::string iname;
+	const std::string number_word = utils::ExtractFirstArgumentLower(remains, iname);
 
 	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
-	int first = atoi(buf2) / 100;
+	int first = atoi(number_word.c_str()) / 100;
 
 	if (!privilege::IsImmortal(ch) && GET_OLC_ZONE(ch) != first) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}
-	if (!*buf || !*buf2 || !a_isdigit(*buf2)) {
+	if (type_word.empty() || number_word.empty() || !a_isdigit(number_word.front())) {
 		SendMsgToChar("Usage: load { obj | mob } <number>\r\n"
 					  "       load ing { <сила> | <VNUM> } <имя>\r\n", ch);
 		return;
 	}
-	if ((number = atoi(buf2)) < 0) {
+	if ((number = atoi(number_word.c_str())) < 0) {
 		SendMsgToChar("Отрицательный моб опасен для вашего здоровья!\r\n", ch);
 		return;
 	}
-	if (utils::IsAbbr(buf, "mob")) {
+	if (utils::IsAbbr(type_word.c_str(), "mob")) {
 		if ((r_num = GetMobRnum(number)) < 0) {
 			SendMsgToChar("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
@@ -62,7 +67,7 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		act("Вы создали $N3.", false, ch, nullptr, mob, kToChar);
 		load_mtrigger(mob);
 		olc_log("%s load mob %s #%d", GET_NAME(ch), GET_NAME(mob), number);
-	} else if (utils::IsAbbr(buf, "obj")) {
+	} else if (utils::IsAbbr(type_word.c_str(), "obj")) {
 		if ((r_num = GetObjRnum(number)) < 0) {
 			SendMsgToChar("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
@@ -93,11 +98,10 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		load_otrigger(obj.get());
 		CheckObjDecay(obj.get());
 		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
-	} else if (utils::IsAbbr(buf, "ing")) {
+	} else if (utils::IsAbbr(type_word.c_str(), "ing")) {
 		int power, i;
-		power = atoi(buf2);
-		skip_spaces(&iname);
-		i = im_get_type_by_name(iname, 0);
+		power = atoi(number_word.c_str());
+		i = im_get_type_by_name(iname.data(), 0);
 		if (i < 0) {
 			SendMsgToChar("Неверное имя типа\r\n", ch);
 			return;
@@ -111,8 +115,7 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		act("$n покопал$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $o3!", false, ch, obj, nullptr, kToRoom);
 		act("Вы создали $o3.", false, ch, obj, nullptr, kToChar);
-		sprintf(buf, "%s load ing %d %s", GET_NAME(ch), power, iname);
-		mudlog(buf, NRM, kLvlBuilder, IMLOG, true);
+		mudlog(fmt::format("{} load ing {} {}", GET_NAME(ch), power, iname), NRM, kLvlBuilder, IMLOG, true);
 		load_otrigger(obj);
 		CheckObjDecay(obj);
 		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), power);

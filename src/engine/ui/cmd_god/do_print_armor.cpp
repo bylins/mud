@@ -190,8 +190,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 				if (!tmp_find) {
-					sprintf(buf, "Неверный аффект предмета: '%s'.\r\n", tmpbuf);
-					SendMsgToChar(buf, ch);
+					SendMsgToChar(fmt::format("Неверный аффект предмета: '{}'.\r\n", tmpbuf), ch);
 					return;
 				}
 				find_param = true;
@@ -325,18 +324,17 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (drndice == EApply::kNone || !drsdice) {
 				continue;
 			}
-			sprinttype(drndice, apply_types, buf2);
 			bool negative = IsNegativeApply(drndice);
 			if (!negative && drsdice < 0) {
 				negative = true;
 			} else if (negative && drsdice < 0) {
 				negative = false;
 			}
-			snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
-					 kColorCyn, buf2, kColorNrm,
-					 kColorCyn,
-					 negative ? " ухудшает на " : " улучшает на ", abs(drsdice), kColorNrm);
-			out << "      |         |                | " << buf;
+			out << "      |         |                | "
+				<< fmt::format("   {}{}{}{}{}{}{}\r\n",
+							   kColorCyn, GetTypeName(drndice, apply_types), kColorNrm,
+							   kColorCyn,
+							   negative ? " ухудшает на " : " улучшает на ", abs(drsdice), kColorNrm);
 		}
 	}
 	if (!out.str().empty()) {

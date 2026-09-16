@@ -151,9 +151,8 @@ void handle_recall_spells(CharData *ch) {
 					ch->mem_queue.stored = 0;
 				}
 				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, i->spell_id));
-				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
-						kColorBoldCyn, MUD::Spell(i->spell_id).GetCName(), kColorNrm);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("Вы вспомнили заклинание \"&C{}&n\".\r\n",
+										  MUD::Spell(i->spell_id).GetCName()), ch);
 				GET_SPELL_MEM(ch, i->spell_id)++;
 				free(i);
 			} else prev = i;
@@ -917,14 +916,14 @@ void underwater_check() {
 			&& SECT(d->character->in_room) == ESector::kUnderwater
 			&& !privilege::IsGod(d->character.get())
 			&& !AFF_FLAGGED(d->character, EAffect::kWaterBreath)) {
-			sprintf(buf, "Player %s died under water (room %d)",
-					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
+			const std::string msg = fmt::format("Player {} died under water (room {})",
+												GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
 			Damage dmg(SimpleDmg(fight::EDamageSource::kUnderwaterDeathTrap), std::max(1, d->character->get_real_max_hit() >> 2), fight::kUndefDmg);
 			dmg.flags.set(fight::kNoFleeDmg);
 
 			if (dmg.Process(d->character.get(), d->character.get()) < 0) {
-				log("%s", buf);
+				log("%s", msg.c_str());
 			}
 		}
 	}
@@ -989,8 +988,7 @@ void check_idling(CharData *ch) {
 				d_clan = tmr.delta().count();
 				log("idle-rent %s: remove=%.4f place=%.4f charmice=%.4f save=%.4f depot=%.4f clan=%.4f",
 					GET_NAME(ch), d_remove, d_place, d_charmice, d_save, d_depot, d_clan);
-				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
-				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
+				mudlog(fmt::format("{} force-rented and extracted (idle).", GET_NAME(ch)), NRM, kLvlGod, SYSLOG, true);
 				character_list.AddToExtractedList(ch);
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc) {
@@ -1039,12 +1037,12 @@ int up_obj_where(ObjData *obj) {
 
 void hour_update() {
 	DescriptorData *i;
+	const std::string msg = "&RМинул час.&n\r\n";
 
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state != EConState::kPlaying || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
 			continue;
-		sprintf(buf, "%sМинул час.%s\r\n", kColorBoldRed, kColorNrm);
-		iosystem::write_to_output(buf, i);
+		iosystem::write_to_output(msg, i);
 	}
 }
 
@@ -1174,9 +1172,8 @@ void exchange_point_update() {
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() == 0) {
 			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(grammar::ECase::kNom);
 			native_text::capitalize_first(cap);
-			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
-					cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(exch_item))->get_sex(), 2));
-			log("%s", buf);
+			log("%s", fmt::format("Exchange: - {} рассыпал{} от длительного использования.\r\n",
+								  cap, grammar::ObjSexEnding((GET_EXCHANGE_ITEM(exch_item))->get_sex(), 2)).c_str());
 			extract_exchange_item(exch_item);
 		}
 	}
@@ -1188,9 +1185,8 @@ void clan_chest_invoice(ObjData *j) {
 	const int room = GET_ROOM_VNUM(j->get_in_obj()->get_in_room());
 
 	if (room <= 0) {
-		snprintf(buf, sizeof(buf), "clan_chest_invoice: room=%d, ObjVnum=%d",
-				 room, GET_OBJ_VNUM(j));
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("clan_chest_invoice: room={}, ObjVnum={}", room, GET_OBJ_VNUM(j)),
+			   CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1365,18 +1361,18 @@ void obj_point_update() {
 						if (IsCharmice(j->get_worn_by())) {
 							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kHandsOrEquip);
 						} else {
-							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
-									 char_get_custom_label(j, j->get_worn_by()).c_str());
-							act(buf, false, j->get_worn_by(), j, nullptr, kToChar);
+							act(fmt::format("$o{} рассыпал$U в ваших руках...",
+											char_get_custom_label(j, j->get_worn_by())),
+								false, j->get_worn_by(), j, nullptr, kToChar);
 						}
 						break;
 						default:
 						if (IsCharmice(j->get_worn_by())) {
 							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kInventory);
 						} else {
-							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U прямо на вас...",
-									 char_get_custom_label(j, j->get_worn_by()).c_str());
-							act(buf, false, j->get_worn_by(), j, nullptr, kToChar);
+							act(fmt::format("$o{} рассыпал$U прямо на вас...",
+											char_get_custom_label(j, j->get_worn_by())),
+								false, j->get_worn_by(), j, nullptr, kToChar);
 						}
 						break;
 				}
@@ -1385,9 +1381,9 @@ void obj_point_update() {
 				if (IsCharmice(j->get_carried_by())) {
 					charmee_obj_decay_tell(j->get_carried_by(), j, ECharmeeObjPos::kHandsOrEquip);
 				} else {
-					snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
-							 char_get_custom_label(j, j->get_carried_by()).c_str());
-					act(buf, false, j->get_carried_by(), j, nullptr, kToChar);
+					act(fmt::format("$o{} рассыпал$U в ваших руках...",
+									char_get_custom_label(j, j->get_carried_by())),
+						false, j->get_carried_by(), j, nullptr, kToChar);
 				}
 				RemoveObjFromChar(j);
 			} else if (j->get_in_room() != kNowhere) {

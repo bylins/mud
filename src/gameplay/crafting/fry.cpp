@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "engine/db/world_objects.h"
 #include "engine/core/obj_handler.h"
@@ -8,8 +10,9 @@
 
 void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ObjData *meet;
-	one_argument(argument, arg);
-	if (!*arg) {
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (!*name) {
 		SendMsgToChar("Что вы собрались поджарить?\r\n", ch);
 		return;
 	}
@@ -17,9 +20,8 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
-	if (!(meet = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, kMaxStringLength, "У вас нет '%s'.\r\n", arg);
-		SendMsgToChar(buf, ch);
+	if (!(meet = get_obj_in_list_vis(ch, name, ch->carrying))) {
+		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", name), ch);
 		return;
 	}
 	if (!world[ch->in_room]->fires) {
