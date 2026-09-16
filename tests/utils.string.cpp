@@ -764,4 +764,19 @@ TEST(Utils_String, ExtractFirstArgumentLower_KeepsMultibyteLettersIntact)
 	EXPECT_EQ(utils::ExtractFirstArgumentLower("ВОЛЧИЦА съела"), "волчица");
 }
 
+TEST(Utils_String, ThousandsSep)
+{
+	EXPECT_EQ(thousands_sep(0), "0");
+	EXPECT_EQ(thousands_sep(20), "20");
+	EXPECT_EQ(thousands_sep(1000), "1,000");
+	EXPECT_EQ(thousands_sep(-1234567), "-1,234,567");
+}
+
+TEST(Utils_String, ThousandsSep_NoTrailingNul)
+{
+	// Хвостовой '\0' уезжал в сокет и обрубал строку у клиента (команда "уровни").
+	const auto value = thousands_sep(20);
+	EXPECT_EQ(value.size(), strlen(value.c_str()));
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

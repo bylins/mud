@@ -729,7 +729,7 @@ std::string thousands_sep(long long n) {
 		negative = true;
 	}
 	int size = 50;
-	int curr_pos = size - 1;
+	int curr_pos = size;
 	const int comma = ',';
 	std::string buffer;
 	buffer.resize(size);
@@ -751,8 +751,7 @@ std::string thousands_sep(long long n) {
 		log("SYSERROR : string.at() (%s:%d)", __FILE__, __LINE__);
 		return "<OutOfRange>";
 	}
-	buffer = buffer.substr(curr_pos, size - 1);
-	return buffer;
+	return buffer.substr(curr_pos);
 }
 
 void skip_dots(char **string) {
