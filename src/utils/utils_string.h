@@ -356,6 +356,11 @@ std::string OutWordsList(const std::string &words_str, size_t max_length,
 // max_length == 0 -- перенос не выполняется (текст возвращается как есть с \r\n)
 std::string WrapText(const std::string &text, size_t max_length);
 
+// Видимая ширина строки в символах: пропускает и наши цветокоды (&R, &n), и готовые
+// ANSI-последовательности (\x1B[1;33m). Вторые попадают в текст из констант kColor*, и
+// счёт без них переносил строку раньше времени -- ровно на длину escape-последовательности.
+std::size_t VisibleWidth(std::string_view text);
+
 /// Вернуть строку пола персонажа по числовому значению (to_underlying(ch->get_sex())).
 std::string sprintGender(int gender_value);
 

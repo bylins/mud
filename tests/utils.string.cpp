@@ -546,6 +546,18 @@ TEST(Utils_String, IsEqual_DotsSplitBothSides)
 	EXPECT_FALSE(utils::IsEqual("жизнь", "макс.жизнь"));
 }
 
+TEST(Utils_String, IsEqual_MultiWordNameTakesDottedAbbrev)
+{
+	// Так ищется режим в "реж": название из двух слов сокращается через точку,
+	// как цель у предметов ("меч.неизв"). search_block этого не умеет -- он сверяет
+	// строку целиком и спотыкается на точке.
+	EXPECT_TRUE(utils::IsEqual("перенос строк", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("пер.стро", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("перенос", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("фл.ком", "флаги комнат"));
+	EXPECT_FALSE(utils::IsEqual("строк", "перенос строк"));
+}
+
 // ===== IsEquivalent =====
 
 TEST(Utils_String, IsEquivalent_AbbreviatedMatch_ReturnsTrue)
@@ -777,6 +789,31 @@ TEST(Utils_String, ThousandsSep_NoTrailingNul)
 	// Хвостовой '\0' уезжал в сокет и обрубал строку у клиента (команда "уровни").
 	const auto value = thousands_sep(20);
 	EXPECT_EQ(value.size(), strlen(value.c_str()));
+}
+
+TEST(Utils_String, VisibleWidth_SkipsBothColorForms)
+{
+	EXPECT_EQ(utils::VisibleWidth("abc"), 3u);
+	EXPECT_EQ(utils::VisibleWidth("&Rabc&n"), 3u);          // наши цветокоды
+	EXPECT_EQ(utils::VisibleWidth("\x1B[1;33mabc\x1B[0;37m"), 3u);  // готовый ANSI
+	EXPECT_EQ(utils::VisibleWidth("\x1B[1;33m&Rabc&n\x1B[0m"), 3u); // вперемешку
+}
+
+TEST(Utils_String, VisibleWidth_CountsCharactersNotBytes)
+{
+	// Русская буква в UTF-8 занимает два байта, а на экране -- одно место.
+	EXPECT_EQ(utils::VisibleWidth("меч"), 3u);
+	EXPECT_EQ(utils::VisibleWidth("\x1B[1;33mмеч\x1B[0;37m"), 3u);
+}
+
+TEST(Utils_String, OutWordsList_AnsiPrefixDoesNotEatWidth)
+{
+	// Регрессия: цвет из констант kColor* -- это готовый ANSI, а не "&X". Пока его считали
+	// за видимые символы, строка с цветом переносилась на длину escape раньше срока.
+	const std::string plain = utils::OutWordsList(std::string("aaa bbb ccc"), 11, " ");
+	const std::string colored = utils::OutWordsList(std::string("\x1B[1;33maaa bbb ccc\x1B[0;37m"), 11, " ");
+	EXPECT_EQ(plain.find("\r\n"), std::string::npos);
+	EXPECT_EQ(colored.find("\r\n"), std::string::npos);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

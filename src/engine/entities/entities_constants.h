@@ -243,7 +243,8 @@ enum EPrf : Bitvector {
 	kShadowThrow = kIntTwo | 1 << 16,        // применяет "теневой бросок"
 	kDispCooldowns = kIntTwo | 1 << 17,        // Показывать кулдауны скиллов в промпте
 	kTelegram = kIntTwo | 1 << 18,           // Активирует телеграм-канал у персонажа
-	kPerformSerratedBlade = kIntTwo | 1 << 19 // Активирована "воровская заточка".
+	kPerformSerratedBlade = kIntTwo | 1 << 19, // Активирована "воровская заточка".
+	kNoLineWrap = kIntTwo | 1 << 20          // НЕ переносить длинные строки по ширине экрана
 };
 
 template<>

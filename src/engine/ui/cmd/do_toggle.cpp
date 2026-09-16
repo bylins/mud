@@ -63,18 +63,19 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Арена         : %-3s \r\n"
 			 " Трусость      : %-3s     "
 			 " Ширина экрана : %-3d     "
-			 " Высота экрана : %-3d \r\n"
+			 " Перенос строк : %-3s \r\n"
+			 " Высота экрана : %-3d     "
 			 " Сжатие        : %s  "
-			 " Новости (вид) : %-5s   "
-			 " Доски         : %-3s \r\n"
+			 " Новости (вид) : %-5s \r\n"
+			 " Доски         : %-3s     "
 			 " Хранилище     : %-8s"
-			 " Пклист        : %-3s     "
-			 " Политика      : %-3s \r\n"
+			 " Пклист        : %-3s \r\n"
+			 " Политика      : %-3s     "
 			 " Пкформат      : %s  "
-			 " Соклановцы    : %-8s"
-			 " Оффтоп        : %-3s \r\n"
+			 " Соклановцы    : %-8s\r\n"
+			 " Оффтоп        : %-3s     "
 			 " Потеря связи  : %-3s     "
-			 " Ингредиенты   : %-3s     "
+			 " Ингредиенты   : %-3s \r\n"
 			 " Вспомнить     : %-3u \r\n",
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoexit)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kBrief)),
@@ -98,6 +99,8 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)),
 			 wimpy,
 			 (ch)->player_specials->saved.stringLength,
+			 // флаг -- выключатель, поэтому показываем обратное ему
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoLineWrap)),
 			 (ch)->player_specials->saved.stringWidth,
 #if defined(HAVE_ZLIB)
 			 native_text::pad_right(ch->desc->deflate == nullptr ? "нет" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"), 6).c_str(),
