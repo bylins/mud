@@ -4,146 +4,118 @@
 
 #include "utils/native_text.h"
 #include "engine/entities/char_data.h"
+#include "engine/ui/table_wrapper.h"
 #include "gameplay/clans/house.h"
+
+#include <string>
+#include <utility>
+#include <vector>
 
 extern int nameserver_is_slow; //config.cpp
 const char *BoolToOnOffStr(bool value);
 
+namespace {
+
+// Настройка экрана "режимы": подпись и её значение. Раскладка по колонкам больше не
+// считается вручную -- добавить режим значит добавить сюда одну строку.
+using ModeRow = std::pair<std::string, std::string>;
+
+// Сколько пар "подпись: значение" в строке. Три пары -- шесть колонок таблицы.
+constexpr std::size_t kPairsPerRow = 3;
+
+void AddModes(CharData *ch, std::vector<ModeRow> &rows) {
+	if (GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kCoderinfo)) {
+		rows.emplace_back("Нет агров", BoolToOnOffStr(ch->IsFlagged(EPrf::kNohassle)));
+		rows.emplace_back("Супервидение", BoolToOnOffStr(ch->IsFlagged(EPrf::kHolylight)));
+		rows.emplace_back("Флаги комнат", BoolToOnOffStr(ch->IsFlagged(EPrf::kRoomFlags)));
+		rows.emplace_back("Частный режим", BoolToOnOffStr(ch->IsFlagged(EPrf::kNoWiz)));
+		rows.emplace_back("Замедление", BoolToOnOffStr(nameserver_is_slow));
+		rows.emplace_back("Кодер", BoolToOnOffStr(ch->IsFlagged(EPrf::kCoderinfo)));
+		rows.emplace_back("Опечатки", BoolToOnOffStr(ch->IsFlagged(EPrf::kShowUnread)));
+	}
+
+	rows.emplace_back("Автовыходы", BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoexit)));
+	rows.emplace_back("Краткий режим", BoolToOnOffStr(ch->IsFlagged(EPrf::kBrief)));
+	rows.emplace_back("Сжатый режим", BoolToOnOffStr(ch->IsFlagged(EPrf::kCompact)));
+	rows.emplace_back("Повтор команд", ch->IsFlagged(EPrf::kNoRepeat) ? "NO" : "YES");
+	rows.emplace_back("Обращения", BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoTell)));
+	rows.emplace_back("Кто-то", ch->IsFlagged(EPrf::kNoInvistell) ? "нельзя" : "можно");
+	rows.emplace_back("Болтать", BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoGossip)));
+	rows.emplace_back("Орать", BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoHoller)));
+	rows.emplace_back("Аукцион", BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoAuction)));
+	rows.emplace_back("Базар", BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoExchange)));
+	rows.emplace_back("Автозаучивание", BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomem)));
+	rows.emplace_back("Призыв", BoolToOnOffStr(ch->IsFlagged(EPrf::KSummonable)));
+	rows.emplace_back("Автозавершение", BoolToOnOffStr(ch->IsFlagged(EPrf::kGoAhead)));
+	rows.emplace_back("Группа (вид)", ch->IsFlagged(EPrf::kShowGroup) ? "полный" : "краткий");
+	rows.emplace_back("Без двойников", BoolToOnOffStr(ch->IsFlagged(EPrf::kNoClones)));
+	rows.emplace_back("Автопомощь", BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoassist)));
+	rows.emplace_back("Автодележ", BoolToOnOffStr(ch->IsFlagged(EPrf::kAutosplit)));
+	rows.emplace_back("Автограбеж", ch->IsFlagged(EPrf::kAutoloot)
+									? (ch->IsFlagged(EPrf::kNoIngrLoot) ? "NO-INGR" : "ALL")
+									: "OFF");
+	rows.emplace_back("Брать куны", BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomoney)));
+	rows.emplace_back("Арена", BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)));
+	rows.emplace_back("Трусость", GET_WIMP_LEV(ch) == 0 ? "нет" : std::to_string(GET_WIMP_LEV(ch)));
+	rows.emplace_back("Ширина экрана", std::to_string(ch->player_specials->saved.stringLength));
+	// флаг -- выключатель, поэтому показываем обратное ему
+	rows.emplace_back("Перенос строк", BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoLineWrap)));
+	rows.emplace_back("Высота экрана", std::to_string(ch->player_specials->saved.stringWidth));
+#if defined(HAVE_ZLIB)
+	rows.emplace_back("Сжатие", ch->desc->deflate == nullptr
+							   ? "нет"
+							   : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"));
+#else
+	rows.emplace_back("Сжатие", "N/A");
+#endif
+	rows.emplace_back("Новости (вид)", ch->IsFlagged(EPrf::kNewsMode) ? "доска" : "лента");
+	rows.emplace_back("Доски", BoolToOnOffStr(ch->IsFlagged(EPrf::kBoardMode)));
+	rows.emplace_back("Хранилище", GetChestMode(ch));
+	rows.emplace_back("Пклист", BoolToOnOffStr(ch->IsFlagged(EPrf::kPklMode)));
+	rows.emplace_back("Политика", BoolToOnOffStr(ch->IsFlagged(EPrf::kPolitMode)));
+	rows.emplace_back("Пкформат", ch->IsFlagged(EPrf::kPkFormatMode) ? "краткий" : "полный");
+	rows.emplace_back("Соклановцы", BoolToOnOffStr(ch->IsFlagged(EPrf::kClanmembersMode)));
+	rows.emplace_back("Оффтоп", BoolToOnOffStr(ch->IsFlagged(EPrf::kOfftopMode)));
+	rows.emplace_back("Потеря связи", BoolToOnOffStr(ch->IsFlagged(EPrf::kAntiDcMode)));
+	rows.emplace_back("Ингредиенты", BoolToOnOffStr(ch->IsFlagged(EPrf::kNoIngrMode)));
+	rows.emplace_back("Вспомнить", std::to_string(ch->remember_get_num()));
+	rows.emplace_back("Уведомления", ch->player_specials->saved.ntfyExchangePrice > 0
+									 ? std::to_string(ch->player_specials->saved.ntfyExchangePrice)
+									 : "Нет");
+	rows.emplace_back("Карта", BoolToOnOffStr(ch->IsFlagged(EPrf::kDrawMap)));
+	rows.emplace_back("Вход в зону", BoolToOnOffStr(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)));
+	rows.emplace_back("Магщиты (вид)", ch->IsFlagged(EPrf::kBriefShields) ? "краткий" : "полный");
+	rows.emplace_back("Автопризыв", BoolToOnOffStr(ch->IsFlagged(EPrf::kAutonosummon)));
+	rows.emplace_back("Маппер", BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)));
+	rows.emplace_back("Контроль IP", BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
+
+	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode)) {
+		rows.emplace_back("Тестер", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
+	}
+}
+
+}  // namespace
+
 void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
-	// Вёрстка таблицы считается printf'ом в байтах; перевод на fmt сдвинул бы колонки,
-	// поэтому здесь меняются только буферы -- формат оставлен как есть (#3814).
-	char out[kMaxStringLength];
-	char wimpy[kMaxInputLength];
-	if (GET_WIMP_LEV(ch) == 0)
-		strcpy(wimpy, "нет");
-	else
-		snprintf(wimpy, sizeof(wimpy), "%-3d", GET_WIMP_LEV(ch));
 
-	if (GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kCoderinfo)) {
-		snprintf(out, sizeof(out),
-				 " Нет агров     : %-3s     "
-				 " Супервидение  : %-3s     "
-				 " Флаги комнат  : %-3s \r\n"
-				 " Частный режим : %-3s     "
-				 " Замедление    : %-3s     "
-				 " Кодер         : %-3s \r\n"
-				 " Опечатки      : %-3s \r\n",
-				 BoolToOnOffStr(ch->IsFlagged(EPrf::kNohassle)),
-				 BoolToOnOffStr(ch->IsFlagged(EPrf::kHolylight)),
-				 BoolToOnOffStr(ch->IsFlagged(EPrf::kRoomFlags)),
-				 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoWiz)),
-				 BoolToOnOffStr(nameserver_is_slow),
-				 BoolToOnOffStr(ch->IsFlagged(EPrf::kCoderinfo)),
-				 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowUnread)));
-		SendMsgToChar(out, ch);
+	std::vector<ModeRow> rows;
+	AddModes(ch, rows);
+
+	table_wrapper::Table table;
+	for (std::size_t i = 0; i < rows.size(); ++i) {
+		table << rows[i].first << rows[i].second;
+		if ((i + 1) % kPairsPerRow == 0) {
+			table << table_wrapper::kEndRow;
+		}
+	}
+	if (rows.size() % kPairsPerRow != 0) {
+		table << table_wrapper::kEndRow;
 	}
 
-	snprintf(out, sizeof(out),
-			 " Автовыходы    : %-3s     "
-			 " Краткий режим : %-3s     "
-			 " Сжатый режим  : %-3s \r\n"
-			 " Повтор команд : %-3s     "
-			 " Обращения     : %-3s     "
-			 " Кто-то        : %s \r\n"
-			 " Болтать       : %-3s     "
-			 " Орать         : %-3s \r\n"
-			 " Аукцион       : %-3s     "
-			 " Базар         : %-3s     "
-			 " Автозаучивание: %-3s \r\n"
-			 " Призыв        : %-3s     "
-			 " Автозавершение: %-3s     "
-			 " Группа (вид)  : %s \r\n"
-			 " Без двойников : %-3s     "
-			 " Автопомощь    : %-3s     "
-			 " Автодележ     : %-3s \r\n"
-			 " Автограбеж    : %-7s "
-			 " Брать куны    : %-3s     "
-			 " Арена         : %-3s \r\n"
-			 " Трусость      : %-3s     "
-			 " Ширина экрана : %-3d     "
-			 " Перенос строк : %-3s \r\n"
-			 " Высота экрана : %-3d     "
-			 " Сжатие        : %s  "
-			 " Новости (вид) : %-5s \r\n"
-			 " Доски         : %-3s     "
-			 " Хранилище     : %-8s"
-			 " Пклист        : %-3s \r\n"
-			 " Политика      : %-3s     "
-			 " Пкформат      : %s  "
-			 " Соклановцы    : %-8s\r\n"
-			 " Оффтоп        : %-3s     "
-			 " Потеря связи  : %-3s     "
-			 " Ингредиенты   : %-3s \r\n"
-			 " Вспомнить     : %-3u \r\n",
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoexit)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kBrief)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kCompact)),
-			 (ch->IsFlagged(EPrf::kNoRepeat) ? "NO" : "YES"),
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoTell)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kNoInvistell) ? "нельзя" : "можно", 6).c_str(),
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoGossip)),
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoHoller)),
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoAuction)),
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoExchange)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomem)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::KSummonable)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kGoAhead)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kShowGroup) ? "полный" : "краткий", 7).c_str(),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoClones)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoassist)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutosplit)),
-			 ch->IsFlagged(EPrf::kAutoloot) ? ch->IsFlagged(EPrf::kNoIngrLoot) ? "NO-INGR" : "ALL    " : "OFF    ",
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomoney)),
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)),
-			 wimpy,
-			 (ch)->player_specials->saved.stringLength,
-			 // флаг -- выключатель, поэтому показываем обратное ему
-			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoLineWrap)),
-			 (ch)->player_specials->saved.stringWidth,
-#if defined(HAVE_ZLIB)
-			 native_text::pad_right(ch->desc->deflate == nullptr ? "нет" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"), 6).c_str(),
-#else
-		"N/A",
-#endif
-			 ch->IsFlagged(EPrf::kNewsMode) ? "доска" : "лента",
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kBoardMode)),
-			 GetChestMode(ch).c_str(),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kPklMode)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kPolitMode)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kPkFormatMode) ? "краткий" : "полный", 6).c_str(),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kClanmembersMode)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kOfftopMode)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAntiDcMode)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoIngrMode)),
-			 ch->remember_get_num());
-	SendMsgToChar(out, ch);
-	if ((ch)->player_specials->saved.ntfyExchangePrice > 0) {
-		snprintf(out, sizeof(out), " Уведомления   : %-7ld ", (ch)->player_specials->saved.ntfyExchangePrice);
-	} else {
-		snprintf(out, sizeof(out), " Уведомления   : %s ", native_text::pad_right("Нет", 7).c_str());
-	}
-	SendMsgToChar(out, ch);
-	snprintf(out, sizeof(out),
-			 " Карта         : %-3s     "
-			 " Вход в зону   : %-3s   \r\n"
-			 " Магщиты (вид) : %s"
-			 " Автопризыв    : %-5s   "
-			 " Маппер        : %-3s   \r\n"
-			 " Контроль IP   : %-6s  ",
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kDrawMap)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)),
-			 native_text::pad_right(ch->IsFlagged(EPrf::kBriefShields) ? "краткий" : "полный", 8).c_str(),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutonosummon)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)),
-			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
-	SendMsgToChar(out, ch);
-	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
-		snprintf(out, sizeof(out), " Тестер        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
-	else
-		snprintf(out, sizeof(out), "\r\n");
-	SendMsgToChar(out, ch);
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToChar(ch, table);
 }
 
 const char *BoolToOnOffStr(bool value) {
