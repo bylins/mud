@@ -5,6 +5,8 @@
 
 #include <fmt/format.h>
 
+#include <unordered_set>
+
 #include "gameplay/handlers/spell_handlers.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -39,6 +41,9 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 	// видно, что игрок ввёл бессмыслицу или опечатался. shown -- сколько реально показано.
 	int matched = 0;
 	int shown = 0;
+	std::unordered_set<long> depot_ids;
+	std::unordered_set<long> parcel_ids;
+	bool storages_collected = false;
 	const auto locate = [&](const ObjData::shared_ptr &i) -> bool {
 		bloody_corpse = false;
 
@@ -96,7 +101,6 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			return false;
 		}
 
-		std::string locate_msg;
 		std::string where;
 
 		if (i->get_carried_by()) {
@@ -121,7 +125,17 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			}
 		} else if (i->get_in_obj()) {
 			if (Clan::is_clan_chest(i->get_in_obj())) {
-				return false; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
+				// Содержимое сундуков дружин лежит в общем списке предметов, так что печатаем его
+				// здесь же -- отдельный проход по сундукам всех дружин больше не нужен.
+				const auto chest_room = i->get_in_obj()->get_in_room();
+				const auto clan = chest_room != kNowhere ? Clan::GetClanByRoom(chest_room) : nullptr;
+				where = fmt::format("{} наход{}ся в хранилище дружины '{}'.",
+									i->get_short_description(), grammar::ObjPluralVerbEnding((i)->get_sex()),
+									clan ? clan->GetAbbrev() : "");
+				if (privilege::IsGrGod(ch)) {
+					where += fmt::format(" Vnum предмета: {}", GET_OBJ_VNUM(i.get()));
+				}
+				where += "\r\n";
 			} else {
 				if (!privilege::IsGod(ch)) {
 					if (i->get_in_obj()->get_carried_by()) {
@@ -156,14 +170,24 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			} else {
 				return false;
 			}
-		} else if (!(locate_msg = Depot::PrintSpellLocateObject(ch, i.get())).empty()) {
-			SendMsgToChar(locate_msg.c_str(), ch);
-			return true;
-		} else if (!(locate_msg = Parcel::PrintSpellLocateObject(ch, i.get())).empty()) {
-			SendMsgToChar(locate_msg.c_str(), ch);
-			return true;
 		} else {
-			where = fmt::format("Местоположение {} неопределимо.\r\n", OBJN(i.get(), ch, grammar::ECase::kGen));
+			// Ни владельца, ни места: вещь лежит в персональном хранилище или на почте. Оба
+			// списка собираем один раз на каст, при первой такой вещи, -- раньше на каждую
+			// перебирались все хранилища и вся почта, да ещё с повторным броском шанса.
+			if (!storages_collected) {
+				Depot::CollectOnlineObjIds(depot_ids);
+				Parcel::CollectObjIds(parcel_ids);
+				storages_collected = true;
+			}
+			if (depot_ids.contains(i->get_id())) {
+				where = fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n",
+									i->get_short_description(), grammar::ObjPluralVerbEnding((i)->get_sex()));
+			} else if (parcel_ids.contains(i->get_id())) {
+				where = fmt::format("{} наход{}ся у почтового голубя в инвентаре.\r\n",
+									i->get_short_description(), grammar::ObjPluralVerbEnding((i)->get_sex()));
+			} else {
+				where = fmt::format("Местоположение {} неопределимо.\r\n", OBJN(i.get(), ch, grammar::ECase::kGen));
+			}
 		}
 		SendMsgToChar(where, ch);
 		return true;
@@ -176,14 +200,7 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 		return false;
 	}, count);
 
-	// Лимит считаем по показанному: счётчик find_if_and_dec_number не опускается ниже
-	// единицы, и хранилища дружин добавляли одну находку сверх уровня.
-	int clan_matched = 0;
-	if (const int remaining = tmp_lvl - shown; remaining > 0) {
-		shown += remaining - Clan::print_spell_locate_object(ch, remaining, name, clan_matched);
-	}
-
-	if (matched + clan_matched == 0) {
+	if (matched == 0) {
 		// Такого предмета нет вовсе -- опечатка или бессмыслица.
 		SendMsgToChar("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 	} else if (shown == 0) {

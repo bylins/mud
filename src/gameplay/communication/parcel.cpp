@@ -391,25 +391,14 @@ void print_sending_stuff(CharData *ch) {
 }
 
 // * Для учитывания предметов на почте в локейте.
-std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
-	for (auto i : parcel_list) {
-		for (auto k : i.second) {
-			for (auto o : k.second) {
-				if (!privilege::IsGod(ch)) {
-					if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
-						continue;
-					}
-				}
-				if (o.obj_->has_flag(EObjFlag::kNolocate) && !privilege::IsGod(ch)) {
-					continue;
-				}
-				if (obj->get_id() == o.obj_->get_id()) {
-					return fmt::format("{} наход{}ся у почтового голубя в инвентаре.\r\n", o.obj_->get_short_description().c_str(), grammar::ObjPluralVerbEnding((o.obj_)->get_sex()));
-				}
+void CollectObjIds(std::unordered_set<long> &ids) {
+	for (const auto &receiver : parcel_list) {
+		for (const auto &sender : receiver.second) {
+			for (const auto &node : sender.second) {
+				ids.insert(node.obj_->get_id());
 			}
 		}
 	}
-	return {};
 }
 
 // * Есть ли на чара какие-нить посылки.
@@ -885,20 +874,6 @@ void olc_update_from_proto(int robj_num, ObjData *olc_proto) {
 			}
 		}
 	}
-}
-
-// * Поиск цели для каста локейта.
-ObjData *locate_object(const char *str) {
-	for (ParcelListType::const_iterator i = parcel_list.begin(); i != parcel_list.end(); ++i) {
-		for (SenderListType::const_iterator k = i->second.begin(); k != i->second.end(); ++k) {
-			for (std::list<Node>::const_iterator o = k->second.begin(); o != k->second.end(); ++o) {
-				if (isname(str, o->obj_->get_aliases())) {
-					return o->obj_.get();
-				}
-			}
-		}
-	}
-	return nullptr;
 }
 
 // * Возврат всех ждущих посылок их отправителю.
