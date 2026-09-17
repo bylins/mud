@@ -194,7 +194,9 @@ class Clan {
   static void SyncTopExp();
   static bool ChestShow(ObjData *list, CharData *ch);
   static void remove_from_clan(long unique);
-  static int print_spell_locate_object(CharData *ch, int count, std::string name);
+  // Печатает найденное в хранилищах дружин, не больше count штук, и возвращает остаток лимита.
+  // В matched прибавляет, сколько там нашлось предметов с таким именем, которые разрешено искать.
+  static int print_spell_locate_object(CharData *ch, int count, const std::string &name, int &matched);
   static std::string print_imm_where_obj(const ObjData *obj);
   static int GetClanWars(CharData *ch);
   static void init_chest_rnum();

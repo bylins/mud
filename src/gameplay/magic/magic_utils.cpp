@@ -29,8 +29,6 @@
 #include "utils/utils_parse.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
-#include "gameplay/mechanics/depot.h"
-#include "gameplay/communication/parcel.h"
 #include "magic.h"
 #include "magic_internal.h"
 #include "gameplay/classes/pc_classes.h"
@@ -695,22 +693,6 @@ const char *what_weapon[] = {"плеть",
 							 "\n"
 };
 
-/**
-* Поиск предмета для каста локейта (без учета видимости для чара и с поиском
-* как в основном списке, так и в личных хранилищах с почтой).
-*/
-ObjData *FindObjForLocate(CharData *ch, const char *name) {
-//	ObjectData *obj = ObjectAlias::locate_object(name);
-	ObjData *obj = get_obj_vis_for_locate(ch, name);
-	if (!obj) {
-		obj = Depot::locate_object(name);
-		if (!obj) {
-			obj = Parcel::locate_object(name);
-		}
-	}
-	return obj;
-}
-
 // Sends the kNoTarget message to `ch` keyed on the cast spell with the {target}
 // placeholder resolved against the spell's accepted target classes
 // Object-accepting spells get "ЧТО" ("what"); char-only
@@ -804,11 +786,14 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
 //			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 //				return true;
+			// Локейт ищет сам, по строке запроса: предварительный поиск цели гонял
+			// список предметов мира второй раз и отбирал по другим правилам, чем
+			// обработчик, из-за чего одни предметы терялись, а другие показывались
+			// вопреки отказу (issue #3924).
 			if (spell_id == ESpell::kLocateObject) {
-				*tobj = FindObjForLocate(ch, t);
-			} else {
-				*tobj = target_resolver::FindObjAround(ch, t);
+				return true;
 			}
+			*tobj = target_resolver::FindObjAround(ch, t);
 			if (*tobj) {
 				return true;
 			}

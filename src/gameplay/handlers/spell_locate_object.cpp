@@ -25,51 +25,37 @@ namespace handlers {
 EStageResult SpellLocateObject(ActionContext &ctx) {
 	const int level = abs(ctx.level);
 	CharData *ch = ctx.caster();
-	ObjData *obj = ctx.ovict;
-	/*
-	   * FIXME: This is broken.  The spell parser routines took the argument
-	   * the player gave to the spell and located an object with that keyword.
-	   * Since we're passed the object and not the keyword we can only guess
-	   * at what the player originally meant to search for. -gg
-	   */
-	if (!obj) {
-		return EStageResult::kSuccess;
-	}
-
+	// Цель заклинанию не нужна: ищем по строке запроса. Раньше её всё равно искали
+	// заранее, гоняя весь список предметов мира впустую и отбирая по другим
+	// правилам, чем здесь (issue #3924).
 	char name[kMaxInputLength];
 	bool bloody_corpse = false;
 	strcpy(name, cast_argument);
 
-	int tmp_lvl = (privilege::IsGod(ch)) ? 300 : level;
+	const bool is_god = privilege::IsGod(ch);
+	const int tmp_lvl = is_god ? 300 : level;
 	int count = tmp_lvl;
-	const auto result = world_objects.find_if_and_dec_number([ch, name, &bloody_corpse](const ObjData::shared_ptr &i) {
-		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
-		if (!obj_ptr) {
-			mudlog("SYSERR: Illegal object iterator while locate", BRF, kLvlImplementator, SYSLOG, true);
-
-			return false;
-		}
-
+	// matched -- предметы с таким именем, которые разрешено искать: по нулю совпадений
+	// видно, что игрок ввёл бессмыслицу или опечатался. shown -- сколько реально показано.
+	int matched = 0;
+	int shown = 0;
+	const auto locate = [&](const ObjData::shared_ptr &i) -> bool {
 		bloody_corpse = false;
-		if (!privilege::IsGod(ch)) {
-			if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
-				return false;
-			}
 
-			if (IS_CORPSE(i)) {
-				bloody_corpse = bloody::CatchBloodyCorpse(i.get());
-				if (!bloody_corpse) {
-					return false;
-				}
-			}
-		}
-
+		// Сначала запреты. Запрещённое к поиску не считается совпадением, иначе заклинание
+		// выдавало бы, что предмет с таким именем где-то существует.
 		if (i->has_flag(EObjFlag::kNolocate) && i->get_carried_by() != ch) {
 			// !локейт стаф может локейтить только имм или тот кто его держит
 			return false;
 		}
 
 		if (SECT(i->get_in_room()) == ESector::kSecret) {
+			return false;
+		}
+
+		// Предфильтр перед isname: тот разбирает строки посимвольно и на полном
+		// списке предметов мира стоит ощутимо дороже поиска подстроки (issue #3924).
+		if (!MayMatchName(name, i->get_aliases()) || !isname(name, i->get_aliases())) {
 			return false;
 		}
 
@@ -95,9 +81,21 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			}
 		}
 
-		if (!isname(name, i->get_aliases())) {
+		if (!is_god && IS_CORPSE(i)) {
+			bloody_corpse = bloody::CatchBloodyCorpse(i.get());
+			if (!bloody_corpse) {
+				return false;
+			}
+		}
+
+		++matched;
+
+		// Шанс -- после имени: вероятность для каждого предмета та же, что была, а
+		// совпадение уже учтено и неудачный бросок не выглядит бессмыслицей.
+		if (!is_god && number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 			return false;
 		}
+
 		std::string locate_msg;
 		std::string where;
 
@@ -169,14 +167,26 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 		}
 		SendMsgToChar(where, ch);
 		return true;
+	};
+	world_objects.find_if_and_dec_number([&](const ObjData::shared_ptr &i) {
+		if (locate(i)) {
+			++shown;
+			return true;
+		}
+		return false;
 	}, count);
 
-	int j = count;
-	if (j > 0) {
-		j = Clan::print_spell_locate_object(ch, j, std::string(name));
+	// Лимит считаем по показанному: счётчик find_if_and_dec_number не опускается ниже
+	// единицы, и хранилища дружин добавляли одну находку сверх уровня.
+	int clan_matched = 0;
+	if (const int remaining = tmp_lvl - shown; remaining > 0) {
+		shown += remaining - Clan::print_spell_locate_object(ch, remaining, name, clan_matched);
 	}
 
-	if (j == tmp_lvl) {
+	if (matched + clan_matched == 0) {
+		// Такого предмета нет вовсе -- опечатка или бессмыслица.
+		SendMsgToChar("Тяжеловато найти цель вашего заклинания!\r\n", ch);
+	} else if (shown == 0) {
 		// "nothing felt" on kLocateObject's sheaf as kCustomMsgOne.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kLocateObject, ESpellMsg::kCustomMsgOne) + "\r\n", ch);

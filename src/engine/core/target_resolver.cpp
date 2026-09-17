@@ -670,40 +670,6 @@ RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room) {
 
 // issue.handler-cleaning (Bucket 4): generic target-search helpers moved from handler.cpp.
 
-ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
-	ObjData *i;
-	int number;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	// scan items carried //
-	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != nullptr) {
-		return i;
-	}
-
-	// scan room //
-	if ((i = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) != nullptr) {
-		return i;
-	}
-
-	strcpy(tmp, name);
-	number = get_number(&tmp);
-	if (number != 1) {
-		return nullptr;
-	}
-
-	// ok.. no luck yet. scan the entire obj list   //
-	const WorldObjects::predicate_f locate_predicate = [&](const ObjData::shared_ptr &i) -> bool {
-		const auto result = sight::CanSeeObj(ch, i.get())
-			&& (isname(tmp, i->get_aliases())
-				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
-			&& try_locate_obj(ch, i.get());
-		return result;
-	};
-
-	return world_objects.find_if(locate_predicate).get();
-}
-
 bool try_locate_obj(CharData *ch, ObjData *i) {
 	if (IS_CORPSE(i) || privilege::IsGod(ch)) //имм может локейтить и можно локейтить трупы
 	{

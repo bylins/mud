@@ -875,6 +875,30 @@ bool IsValidEmail(const char *address) {
 // unit instead of a lead byte plus trail bytes that the byte tables would read as punctuation.
 // Under KOI8-R every helper is the original byte operation and char_bytes() == 1, so the state
 // machine below -- including each `curstr = laststr` backtrack -- behaves exactly as before.
+bool MayMatchName(const char *str, const std::string &namelist) {
+	if (!str || namelist.empty()) {
+		return true;   // решать нечего -- пусть разбирается isname
+	}
+	// isname сопоставляет первую значащую букву запроса с началом слова в списке,
+	// поэтому сама эта буква обязана в списке встретиться. Регистр isname не
+	// различает, так что ищем обе формы.
+	const char *begin = str;
+	while (*begin && !native_text::is_alnum_char(begin)) {
+		begin += native_text::char_bytes(begin);
+	}
+	if (!*begin) {
+		return true;
+	}
+
+	char lower[8];
+	char upper[8];
+	const std::size_t lower_bytes = native_text::copy_lower_char(begin, lower);
+	const std::size_t upper_bytes = native_text::copy_upper_char(begin, upper);
+
+	return namelist.find(std::string_view(lower, lower_bytes)) != std::string::npos
+		|| namelist.find(std::string_view(upper, upper_bytes)) != std::string::npos;
+}
+
 bool isname(const char *str, const char *namelist) {
 	bool once_ok = false;
 	const char *curname, *curstr, *laststr;
