@@ -19,6 +19,7 @@
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/clans/house.h"
 #include "utils/utils.h"
+#include "utils/backtrace.h"
 #include "gameplay/communication/parcel.h"
 #include "engine/core/utils_char_obj.inl"
 
@@ -69,15 +70,19 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			const auto carried_by_ptr = character_list.get_character_by_address(carried_by);
 
 			if (!carried_by_ptr) {
-				mudlog("SYSERR: Illegal carried_by ptr. Создана кора для исследований",
+				// Кору тут когда-то снимали, но вызов debug::coredump() убрали ещё в 2021-м,
+				// а строчка про неё осталась врать. Печатаем стек -- он для того же и нужен.
+				mudlog("SYSERR: Illegal carried_by ptr. Стек будет распечатан ниже",
 					   BRF, kLvlImplementator, SYSLOG, true);
+				debug::backtrace(runtime_config.logs(SYSLOG).handle());
 				return false;
 			}
 
 			if (!ValidRnum(carried_by->in_room)) {
-				mudlog(fmt::format("SYSERR: Illegal room {}, char {}. Создана кора для исследований",
+				mudlog(fmt::format("SYSERR: Illegal room {}, char {}. Стек будет распечатан ниже",
 								   carried_by->in_room, carried_by->get_name()),
 					   BRF, kLvlImplementator, SYSLOG, true);
+				debug::backtrace(runtime_config.logs(SYSLOG).handle());
 				return false;
 			}
 
