@@ -44,10 +44,42 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes);
 // split a character in two (issue #3681).
 std::size_t char_offset(std::string_view s, std::size_t chars);
 
+// Две функции ниже зовутся на каждый символ всякого разбора имени -- isname, IsAbbr,
+// IsSamePrefix, str_str, -- то есть на поиске предмета или персонажа по имени, на разборе
+// аргументов команды, на досках. Работы в них на несколько инструкций, и вызов через границу
+// модуля стоил дороже неё самой, поэтому они живут в заголовке (issue #3924).
+//
+// always_inline здесь не блажь: движок собирается с -Og (meson.build, профиль release), а там
+// обычный inline компилятор вправе не слушать -- и не слушал, половина выигрыша появилась
+// только с этим атрибутом.
+#if defined(__GNUC__) || defined(__clang__)
+#define NATIVE_TEXT_HOT inline __attribute__((always_inline))
+#else
+#define NATIVE_TEXT_HOT inline
+#endif
+
 // Byte length of the character that starts at `s` (KOI8-R: 1), for stepping over a whole
 // character byte-by-byte. Always >= 1; on a malformed/truncated UTF-8 lead it returns only the
 // bytes actually present (never counts past a terminator or a non-continuation byte).
-std::size_t char_bytes(const char *s);
+NATIVE_TEXT_HOT std::size_t char_bytes(const char *s) {
+	const unsigned char lead = static_cast<unsigned char>(*s);
+	if (lead < 0x80) {
+		return 1;
+	}
+	std::size_t want = 1;
+	if (lead >= 0xC0 && lead <= 0xDF) {
+		want = 2;
+	} else if (lead >= 0xE0 && lead <= 0xEF) {
+		want = 3;
+	} else if (lead >= 0xF0 && lead <= 0xF7) {
+		want = 4;
+	}
+	std::size_t n = 1;
+	while (n < want && (static_cast<unsigned char>(s[n]) & 0xC0) == 0x80) {
+		++n;
+	}
+	return n;
+}
 
 // Numeric identity of the character starting at `s`, for dispatching a switch on a letter:
 // the raw byte under KOI8-R, the code point under UTF-8. Compare against the constants in
@@ -69,7 +101,24 @@ int compare_ci(std::string_view a, std::string_view b);
 // Is the character starting at `s` alphanumeric? KOI8-R: the a_isalnum byte table. UTF-8: ASCII
 // letters/digits plus the Russian Cyrillic block -- so a multibyte letter is classified as one
 // alphanumeric character rather than a lead byte followed by "punctuation" trail bytes.
-bool is_alnum_char(const char *s);
+//
+// ASCII и кириллица разбираются прямо по байтам, теми же диапазонами, что в fold_fast; всё
+// остальное уходит в is_alnum_char_slow с прежним декодированием (см. комментарий выше).
+bool is_alnum_char_slow(const char *s);
+NATIVE_TEXT_HOT bool is_alnum_char(const char *s) {
+	const unsigned char c0 = static_cast<unsigned char>(*s);
+	if (c0 < 0x80) {
+		return (c0 >= '0' && c0 <= '9') || (c0 >= 'A' && c0 <= 'Z') || (c0 >= 'a' && c0 <= 'z');
+	}
+	const unsigned char c1 = static_cast<unsigned char>(s[1]);
+	if (c0 == 0xD0) {                 // А-Я, а-п, Ё
+		return (c1 >= 0x90 && c1 <= 0xBF) || c1 == 0x81;
+	}
+	if (c0 == 0xD1) {                 // р-я, ё
+		return (c1 >= 0x80 && c1 <= 0x8F) || c1 == 0x91;
+	}
+	return is_alnum_char_slow(s);
+}
 
 // Is the character starting at `s` a letter? Same contract as is_alnum_char, minus the digits.
 bool is_alpha_char(const char *s);
