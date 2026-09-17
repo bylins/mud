@@ -2935,7 +2935,9 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	} else if (breaking
 			|| (!MUD::Spell(spell_id).IsFlagged(kMagAffects)
 				&& (!unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()))) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		// issue.unaffect-msg: nothing on the target matched the <unaffect> filter at all --
+		// distinct from the kNoeffect above (something matched, the dispel roll failed).
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kUnaffectNoMatch) + "\r\n", ch);
 	}
 
 	return break_chain ? EStageResult::kBreak : EStageResult::kSuccess;

@@ -26,6 +26,7 @@
 		<message type="kCantCastNotMinion" val="Только на ваших последователей!" />
 		<message type="kCantCastSilenced" val="Вы не смогли вымолвить и слова." />
 		<message type="kNoeffect" val="Ваши потуги оказались напрасными." />
+		<message type="kUnaffectNoMatch" val="Ваша магия не нашла подходящих чар." />
 		<message type="kTargetUnavailable" val="Цель заклинания недоступна." />
 		<message type="kCantCastPeaceful" val="Ваша душа полна смирения, и вы не желаете творить зло." />
 		<message type="kObjResist" val="$o устойчив$A к вашей магии." />
@@ -763,6 +764,7 @@
 		<message type="kAlterObjToChar" val="$o стал$G вполне пригодным к применению." />
 		<message type="kRemovePoisonUnknown" val="Ничего не случилось." />
 		<message type="kRemovePoisonRotten" val="Содержимое $o1 протухло и не поддается магии." />
+		<message type="kUnaffectNoMatch" val="Вы не чувствуете здесь яда." />
 		<message type="kCastPhraseHeathen" val="изыде трутизна" />
 		<message type="kCastPhraseChristian" val="... именем Божьим, изгнати сгниенье из тела." />
 	</msg_sheaf>
