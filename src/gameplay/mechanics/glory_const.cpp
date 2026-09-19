@@ -857,7 +857,6 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void save() {
 	pugi::xml_document doc;
-	doc.append_attribute("encoding") = "koi8-r";
 	doc.append_child().set_name("glory_list");
 	pugi::xml_node char_list = doc.child("glory_list");
 
@@ -896,7 +895,7 @@ void save() {
 	// (read_data_file) принимает и старый KOI8-R (issue #3787).
 	std::ostringstream xml;
 	doc.save(xml, "\t", pugi::format_default, pugi::encoding_utf8);
-	native_text::write_file_native(LIB_USERDATA"glory_const.xml", xml.str());
+	native_text::write_file(LIB_USERDATA"glory_const.xml", xml.str());
 }
 
 void load() {
