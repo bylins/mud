@@ -4863,27 +4863,36 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (const auto &clan : Clan::ClanList) {
 			sort_clan.insert(std::make_pair(clan->exp, clan));
 		}
-		std::ostringstream out;
-		// \todo Тут нужно использовать table_wrapper::Table а не формат.
-		std::string_view clanTopFormat{" {:5}  {:6}   {:<30} {:14}{:14} {:9}\r\n"};
-		out << "В игре зарегистрированы следующие дружины:\r\n"
-			<< "     #           Название                       Всего опыта   За 30 дней         Человек\r\n\r\n";
+		SendMsgToChar("В игре зарегистрированы следующие дружины:\r\n", ch);
+		table_wrapper::Table table;
+		table << table_wrapper::kHeader
+			  << "#" << "Аббр" << "Название" << "Всего опыта" << "За 30 дней" << "Человек"
+			  << table_wrapper::kEndRow;
 		int count = 1;
 		for (const auto &it : reverse(sort_clan)) {
 			if (it.second->m_members.size() == 0) {
 				continue;
 			}
 			const auto &clan = it.second;
-			if (clan->is_pk())
-				out << fmt::format(fmt::runtime(clanTopFormat), count, clan->abbrev, clan->name, ExpFormat(clan->exp),
-								   ExpFormat(clan->last_exp.get_exp()), clan->m_members.size());
-			else
-				out << "&g"
-					<< fmt::format(fmt::runtime(clanTopFormat), count, clan->abbrev, clan->name, ExpFormat(clan->exp),
-								   ExpFormat(clan->last_exp.get_exp()), clan->m_members.size()) << "&n";
+			// Цвет у не-пк дружин прежний, только ставится на каждую ячейку: таблица считает
+			// ширину по видимым символам, а строку целиком в цвет обернуть уже негде.
+			const std::string color = clan->is_pk() ? "" : "&g";
+			const std::string nrm = clan->is_pk() ? "" : "&n";
+			table << color + std::to_string(count) + nrm
+				  << color + clan->abbrev + nrm
+				  << color + clan->name + nrm
+				  << color + ExpFormat(clan->exp) + nrm
+				  << color + ExpFormat(clan->last_exp.get_exp()) + nrm
+				  << color + std::to_string(clan->m_members.size()) + nrm
+				  << table_wrapper::kEndRow;
 			++count;
 		}
-		SendMsgToChar(out.str(), ch);
+		table.SetColumnAlign(0, table_wrapper::align::kRight);
+		table.SetColumnAlign(3, table_wrapper::align::kRight);
+		table.SetColumnAlign(4, table_wrapper::align::kRight);
+		table.SetColumnAlign(5, table_wrapper::align::kRight);
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToChar(ch, table);
 		return;
 	}
 
@@ -4929,20 +4938,29 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// до кучи сортировка по рангам
 	std::sort(temp_list.begin(), temp_list.end(), SortRank());
 
-	std::ostringstream buffer2;
-	buffer2 << "В игре зарегистрированы следующие дружины:\r\n" << "     #                  Глава Название\r\n\r\n";
-	std::string_view clanFormat{" {:5}  {:6} {:15} {}\r\n"};
-	std::string_view memberFormat{" {:>10} {}{}{} {}{}{}\r\n"};
+	SendMsgToChar("В игре зарегистрированы следующие дружины:\r\n", ch);
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader
+		  << "#" << "Аббр" << "Глава" << "Название" << table_wrapper::kEndRow;
+
+	// Члены дружины идут строками той же таблицы: звание в колонке главы, имя -- в колонке
+	// названия. Так ширины считает таблица, а не расставленные руками пробелы.
+	const auto add_member = [&table](const Clan::shared_ptr &member_clan, CharData *member, bool by_sex) {
+		const auto &rank = (by_sex && !IsMale(member))
+						   ? member_clan->ranks_female[CLAN_MEMBER(member)->rank_num]
+						   : member_clan->ranks[CLAN_MEMBER(member)->rank_num];
+		std::string name = fmt::format("{}{}&n", GetPkNameColor(member), member->GetNameWithTitleOrRace());
+		if (member->IsFlagged(EPlrFlag::kKiller)) {
+			name += " &R(ДУШЕГУБ)&n";
+		}
+		table << "" << "" << rank << name << table_wrapper::kEndRow;
+	};
+
 	// если искали конкретную дружину - выводим ее
 	if (!all) {
-		buffer2 << fmt::format(fmt::runtime(clanFormat), 1, (*clan)->abbrev, (*clan)->owner, (*clan)->name);
+		table << "1" << (*clan)->abbrev << (*clan)->owner << (*clan)->name << table_wrapper::kEndRow;
 		for (const auto &it : temp_list) {
-			buffer2 << fmt::format(fmt::runtime(memberFormat), (IsMale(it) ? (*clan)->ranks[CLAN_MEMBER(it)->rank_num]
-																			: (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num]),
-								   GetPkNameColor(it), (it)->GetNameWithTitleOrRace(),
-								   kColorNrm, kColorBoldRed,
-								   (it->IsFlagged(EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
-								   kColorNrm);
+			add_member(*clan, it.get(), true);
 		}
 	}
 		// просто выводим все дружины и всех членов (без параметра 'все' в списке будут только дружины)
@@ -4953,23 +4971,22 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			buffer2 << fmt::format(fmt::runtime(clanFormat),
-								   count, (*clan_i)->abbrev, (*clan_i)->owner, (*clan_i)->name);
+			table << std::to_string(count) << (*clan_i)->abbrev << (*clan_i)->owner << (*clan_i)->name
+				  << table_wrapper::kEndRow;
 			for (const auto &it : temp_list) {
 				if (CLAN(it) == *clan_i) {
-					buffer2 << fmt::format(fmt::runtime(memberFormat), (*clan_i)->ranks[CLAN_MEMBER(it)->rank_num],
-										   GetPkNameColor(it), it->GetNameWithTitleOrRace(),
-										   kColorNrm, kColorBoldRed,
-										   (it->IsFlagged(EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
-										   kColorNrm);
+					add_member(*clan_i, it.get(), false);
 				}
 			}
 			++count;
 		}
 	}
 
-	buffer2 << "\r\nВсего игроков - " << temp_list.size() << "\r\n";
-	SendMsgToChar(buffer2.str(), ch);
+	table.SetColumnAlign(0, table_wrapper::align::kRight);
+	table.SetColumnAlign(2, table_wrapper::align::kRight);
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToChar(ch, table);
+	SendMsgToChar(fmt::format("\r\nВсего игроков - {}\r\n", temp_list.size()), ch);
 }
 
 void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
