@@ -18,8 +18,6 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 	int drained_mana, prob, percent, skill;
 
-	one_argument(argument, arg);
-
 	if (ch->IsNpc() || !GetSkill(ch, ESkill::kJinx)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kJinx, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;

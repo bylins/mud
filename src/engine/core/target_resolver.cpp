@@ -670,40 +670,6 @@ RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room) {
 
 // issue.handler-cleaning (Bucket 4): generic target-search helpers moved from handler.cpp.
 
-ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
-	ObjData *i;
-	int number;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	// scan items carried //
-	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != nullptr) {
-		return i;
-	}
-
-	// scan room //
-	if ((i = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) != nullptr) {
-		return i;
-	}
-
-	strcpy(tmp, name);
-	number = get_number(&tmp);
-	if (number != 1) {
-		return nullptr;
-	}
-
-	// ok.. no luck yet. scan the entire obj list   //
-	const WorldObjects::predicate_f locate_predicate = [&](const ObjData::shared_ptr &i) -> bool {
-		const auto result = sight::CanSeeObj(ch, i.get())
-			&& (isname(tmp, i->get_aliases())
-				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
-			&& try_locate_obj(ch, i.get());
-		return result;
-	};
-
-	return world_objects.find_if(locate_predicate).get();
-}
-
 bool try_locate_obj(CharData *ch, ObjData *i) {
 	if (IS_CORPSE(i) || privilege::IsGod(ch)) //имм может локейтить и можно локейтить трупы
 	{
@@ -774,7 +740,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 	}
 }
 
-int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
+int generic_find(const char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
 	char name[kMaxInputLength];
 
 	*tar_ch = nullptr;
@@ -867,7 +833,20 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	return (0);
 }
 
-int find_all_dots(char *arg) {
+int ParseAllPrefix(std::string &arg) {
+	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
+		return kFindAll;
+	}
+	for (const char *prefix : {"all.", "все."}) {
+		if (utils::IsAbbr(prefix, arg.c_str())) {
+			arg.erase(0, strlen(prefix));
+			return kFindAlldot;
+		}
+	}
+	return kFindIndiv;
+}
+
+int ParseAllPrefix(char *arg) {
 	char tmpname[kMaxInputLength];
 
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
@@ -886,7 +865,7 @@ int find_all_dots(char *arg) {
 	return (kFindIndiv);
 }
 
-RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
+RoomRnum FindRoomRnum(CharData *ch, const char *rawroomstr, int trig) {
 	RoomVnum tmp;
 	RoomRnum location;
 	CharData *target_mob;

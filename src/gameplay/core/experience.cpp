@@ -3,6 +3,8 @@
 \brief issue.chardata-cleaning: experience-gain rules (see experience.h).
 */
 
+#include <fmt/format.h>
+
 #include "gameplay/core/experience.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/statistics/zone_exp.h"
@@ -329,18 +331,17 @@ void gain_exp_regardless(CharData *ch, int gain) {
 				   && ch->get_exp() >= experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->GetLevel() + 1);
 				num_levels++;
-				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
-						kColorWht, kColorNrm);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("{}Вы достигли следующего уровня!{}\r\n",
+										  kColorWht, kColorNrm), ch);
 
 				experience::advance_level(ch);
 				is_altered = true;
 			}
 
 			if (is_altered) {
-				sprintf(buf, "%s advanced %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+				mudlog(fmt::format("{} advanced {} level{} to level {}.",
+								   GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch)),
+					   BRF, kLvlImplementator, SYSLOG, true);
 			}
 		} else if (gain < 0) {
 			// Pereplut: глупый участок кода.
@@ -352,17 +353,14 @@ void gain_exp_regardless(CharData *ch, int gain) {
 				   && ch->get_exp() < experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 				ch->set_level(ch->GetLevel() - 1);
 				num_levels++;
-				sprintf(buf,
-						"%sВы потеряли уровень!%s\r\n",
-						kColorBoldRed, kColorNrm);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("{}Вы потеряли уровень!{}\r\n", kColorBoldRed, kColorNrm), ch);
 				experience::decrease_level(ch);
 				is_altered = true;
 			}
 			if (is_altered) {
-				sprintf(buf, "%s decreases %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+				mudlog(fmt::format("{} decreases {} level{} to level {}.",
+								   GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch)),
+					   BRF, kLvlImplementator, SYSLOG, true);
 			}
 		}
 

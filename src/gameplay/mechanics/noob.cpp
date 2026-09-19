@@ -1,6 +1,8 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <fmt/format.h>
+
 #include "noob.h"
 
 #include "engine/entities/char_data.h"
@@ -66,8 +68,7 @@ void NoobLoader::Load(parser_wrapper::DataNode data) {
 		try {
 			id = parse::ReadAsConstant<ECharClass>(id_str);
 		} catch (const std::exception &) {
-			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str ? id_str : "");
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...<class id='{}'> convert fail", id_str ? id_str : ""), CMP, kLvlImmortal, SYSLOG, true);
 			return;   // откат: рабочий class_list/MAX_LEVEL не трогаем
 		}
 		for (auto &obj_node : class_node.Children("obj")) {

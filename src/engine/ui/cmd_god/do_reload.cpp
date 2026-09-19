@@ -34,12 +34,13 @@
 extern char *help;
 
 void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	argument = one_argument(argument, arg);
+	char target[kMaxInputLength];
+	argument = one_argument(argument, target);
 
 	// issue.thing-names: list the available reload targets when called with no argument. Option names
 	// avoid '_' on purpose -- the client renders '_' as a space, which is ambiguous (is "spell
 	// messages" one option or two?), so e.g. spellmsg / skillmsg / hitmsg / mobclasses.
-	if (!*arg) {
+	if (!*target) {
 		SendMsgToChar(
 			"Usage: reload <what>. Available targets:\r\n"
 			"  all  *  -- everything below\r\n"
@@ -54,7 +55,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!str_cmp(arg, "all") || *arg == '*') {
+	if (!str_cmp(target, "all") || *target == '*') {
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
 		MUD::CfgManager().ReloadCfg("system_msg");
 		MUD::CfgManager().ReloadCfg("affect_msg");
@@ -85,72 +86,72 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Bonus::bonus_log_load();
 		MUD::CfgManager().ReloadCfg("daily_quest");   // issue.daily-quest
 		MUD::CfgManager().ReloadCfg("obj_affects");   // issue.obj-affects
-	} else if (!str_cmp(arg, "portals")) {
+	} else if (!str_cmp(target, "portals")) {
 		MUD::CfgManager().ReloadCfg("rune_stone_msg");
 		MUD::CfgManager().ReloadCfg("rune_stones");
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
-	} else if (!str_cmp(arg, "abilities")) {
+	} else if (!str_cmp(target, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
-	} else if (!str_cmp(arg, "stableobjs")) {
+	} else if (!str_cmp(target, "stableobjs")) {
 		MUD::CfgManager().ReloadCfg("stable_objs");
-	} else if (!str_cmp(arg, "skills")) {
+	} else if (!str_cmp(target, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
-	} else if (!str_cmp(arg, "spells")) {
+	} else if (!str_cmp(target, "spells")) {
 		MUD::CfgManager().ReloadCfg("spells");
-	} else if (!str_cmp(arg, "spellmsg")) {
+	} else if (!str_cmp(target, "spellmsg")) {
 		MUD::CfgManager().ReloadCfg("spell_msg");
-	} else if (!str_cmp(arg, "objaffects")) {
+	} else if (!str_cmp(target, "objaffects")) {
 		MUD::CfgManager().ReloadCfg("obj_affects");   // issue.obj-affects
-	} else if (!str_cmp(arg, "skillmsg")) {
+	} else if (!str_cmp(target, "skillmsg")) {
 		MUD::CfgManager().ReloadCfg("skill_msg");
-    } else if (!str_cmp(arg, "hitmsg")) {
+    } else if (!str_cmp(target, "hitmsg")) {
         MUD::CfgManager().ReloadCfg("hit_msg");
-	} else if (!str_cmp(arg, "affectmsg")) {
+	} else if (!str_cmp(target, "affectmsg")) {
 		MUD::CfgManager().ReloadCfg("affect_msg");
-	} else if (!str_cmp(arg, "roomaffectmsg")) {
+	} else if (!str_cmp(target, "roomaffectmsg")) {
 		MUD::CfgManager().ReloadCfg("room_affect_msg");
-	} else if (!str_cmp(arg, "feats")) {
+	} else if (!str_cmp(target, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
-	} else if (!str_cmp(arg, "animatedead")) {
+	} else if (!str_cmp(target, "animatedead")) {
 		MUD::CfgManager().ReloadCfg("animate_dead");   // issue.animate-dead
-	} else if (!str_cmp(arg, "classes")) {
+	} else if (!str_cmp(target, "classes")) {
 		MUD::CfgManager().ReloadCfg("pc_classes");
-	} else if (!str_cmp(arg, "mobclasses")) {
+	} else if (!str_cmp(target, "mobclasses")) {
 		MUD::CfgManager().ReloadCfg("mob_classes");
-	} else if (!str_cmp(arg, "guilds")) {
+	} else if (!str_cmp(target, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
-	} else if (!str_cmp(arg, "cities")) {
+	} else if (!str_cmp(target, "cities")) {
 		MUD::CfgManager().ReloadCfg("cities_msg");
 		MUD::CfgManager().ReloadCfg("cities");
-	} else if (!str_cmp(arg, "regions")) {
+	} else if (!str_cmp(target, "regions")) {
 		MUD::CfgManager().ReloadCfg("region_msg");
 		MUD::CfgManager().ReloadCfg("regions");
-	} else if (!str_cmp(arg, "pcraces")) {
+	} else if (!str_cmp(target, "pcraces")) {
 		MUD::CfgManager().ReloadCfg("pc_race_msg");
 		MUD::CfgManager().ReloadCfg("pc_races");
-	} else if (!str_cmp(arg, "currencies")) {
+	} else if (!str_cmp(target, "currencies")) {
 		MUD::CfgManager().ReloadCfg("currencies");
-	} else if (!str_cmp(arg, "imagic"))
+	} else if (!str_cmp(target, "imagic"))
 		initIngredientsMagic();
-	else if (!str_cmp(arg, "ztypes"))
+	else if (!str_cmp(target, "ztypes"))
 		MUD::CfgManager().ReloadCfg("zone_types");
-	else if (!str_cmp(arg, "runes"))
+	else if (!str_cmp(target, "runes"))
 		MUD::CfgManager().ReloadCfg("rune_spells");
-	else if (!str_cmp(arg, "oloadtable"))
+	else if (!str_cmp(target, "oloadtable"))
 		oload_table.init();
-	else if (!str_cmp(arg, "systemmsg"))
+	else if (!str_cmp(target, "systemmsg"))
 		MUD::CfgManager().ReloadCfg("system_msg");
-	else if (!str_cmp(arg, "help"))
+	else if (!str_cmp(target, "help"))
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	else if (!str_cmp(arg, "xhelp")) {
+	else if (!str_cmp(target, "xhelp")) {
 		HelpSystem::reload_all();
-	} else if (!str_cmp(arg, "socials"))
+	} else if (!str_cmp(target, "socials"))
 		MUD::CfgManager().ReloadCfg("social_msg");
-	else if (!str_cmp(arg, "specials"))
+	else if (!str_cmp(target, "specials"))
 		ReloadSpecProcs();
-	else if (!str_cmp(arg, "schedule"))
+	else if (!str_cmp(target, "schedule"))
 		LoadSheduledReboot();
-	else if (!str_cmp(arg, "clan")) {
+	else if (!str_cmp(target, "clan")) {
 		skip_spaces(&argument);
 		if (!*argument) {
 			Clan::ClanLoad();
@@ -166,20 +167,20 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 			}
 		}
-	} else if (!str_cmp(arg, "proxy"))
+	} else if (!str_cmp(target, "proxy"))
 		RegisterSystem::LoadProxyList();
-	else if (!str_cmp(arg, "boards"))
+	else if (!str_cmp(target, "boards"))
 		Boards::Static::reload_all();
-	else if (!str_cmp(arg, "titles"))
+	else if (!str_cmp(target, "titles"))
 		TitleSystem::load_title_list();
-	else if (!str_cmp(arg, "emails"))
+	else if (!str_cmp(target, "emails"))
 		RegisterSystem::load();
-	else if (!str_cmp(arg, "privilege")) {
+	else if (!str_cmp(target, "privilege")) {
 		MUD::CfgManager().ReloadCfg("privilege");
 	}
-	else if (!str_cmp(arg, "mobraces"))
+	else if (!str_cmp(target, "mobraces"))
 		MUD::CfgManager().ReloadCfg("mob_races");
-	else if (!str_cmp(arg, "depot") && ch->IsFlagged(EPrf::kCoderinfo)) {
+	else if (!str_cmp(target, "depot") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
 			long uid = GetUniqueByName(argument);
@@ -192,49 +193,49 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			SendMsgToChar("Формат команды: reload depot <имя чара>.\r\n", ch);
 		}
-	} else if (!str_cmp(arg, "globaldrop")) {
+	} else if (!str_cmp(target, "globaldrop")) {
 		GlobalDrop::init();
-	} else if (!str_cmp(arg, "grouping")) {
+	} else if (!str_cmp(target, "grouping")) {
 		MUD::CfgManager().ReloadCfg("group_exp_handicap");
-	} else if (!str_cmp(arg, "offtop")) {
+	} else if (!str_cmp(target, "offtop")) {
 		offtop_system::Init();
-	} else if (!str_cmp(arg, "shop")) {
+	} else if (!str_cmp(target, "shop")) {
 		// Каталог наборов, а следом магазины: ShopItemSetsLoader::Reload сам зовет
 		// ShopExt::load(true). Звать load(true) отсюда мало -- внумы и цены живут в
 		// наборах, и правка в них иначе не доедет (issue #3700).
 		MUD::CfgManager().ReloadCfg("shop_item_sets");
-	} else if (!str_cmp(arg, "named")) {
+	} else if (!str_cmp(target, "named")) {
 		NamedStuff::load();
-	} else if (!str_cmp(arg, "celebrates")) {
+	} else if (!str_cmp(target, "celebrates")) {
 		MUD::CfgManager().ReloadCfg("celebrates");
-	} else if (!str_cmp(arg, "setsdrop") && ch->IsFlagged(EPrf::kCoderinfo)) {
+	} else if (!str_cmp(target, "setsdrop") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {
 			SetsDrop::reload(atoi(argument));
 		} else {
 			SetsDrop::reload();
 		}
-	} else if (!str_cmp(arg, "noobhelp")) {
+	} else if (!str_cmp(target, "noobhelp")) {
 		MUD::CfgManager().ReloadCfg("noob");
-	} else if (!str_cmp(arg, "resetstats")) {
+	} else if (!str_cmp(target, "resetstats")) {
 		MUD::CfgManager().ReloadCfg("reset_stats");
-	} else if (!str_cmp(arg, "remort")) {
+	} else if (!str_cmp(target, "remort")) {
 		MUD::CfgManager().ReloadCfg("remort");
-	} else if (!str_cmp(arg, "digging")) {
+	} else if (!str_cmp(target, "digging")) {
 		MUD::CfgManager().ReloadCfg("digging");
-	} else if (!str_cmp(arg, "guards")) {
+	} else if (!str_cmp(target, "guards")) {
 		MUD::CfgManager().ReloadCfg("guards");
-	} else if (!str_cmp(arg, "jewelry")) {
+	} else if (!str_cmp(target, "jewelry")) {
 		MUD::CfgManager().ReloadCfg("jewelry");
-	} else if (!str_cmp(arg, "makeitems")) {
+	} else if (!str_cmp(target, "makeitems")) {
 		MUD::CfgManager().ReloadCfg("item_creation");
-	} else if (!str_cmp(arg, "basic")) {
+	} else if (!str_cmp(target, "basic")) {
 		MUD::CfgManager().ReloadCfg("basic");
-	} else if (!str_cmp(arg, "objsets")) {
+	} else if (!str_cmp(target, "objsets")) {
 		MUD::CfgManager().ReloadCfg("obj_sets");
-	} else if (!str_cmp(arg, "cases")) {
+	} else if (!str_cmp(target, "cases")) {
 		MUD::CfgManager().ReloadCfg("cases");
-	} else if (!str_cmp(arg, "daily")) {
+	} else if (!str_cmp(target, "daily")) {
 		MUD::CfgManager().ReloadCfg("daily_quest");
 		SendMsgToChar(DailyQuest::GetLastLoadMessage(), ch);
 		SendMsgToChar("\r\n", ch);
@@ -243,8 +244,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	std::string str = fmt::format("{} reload {}.", ch->get_name(), arg);
-	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
+	mudlog(fmt::format("{} reload {}.", ch->get_name(), target), NRM, kLvlImmortal, SYSLOG, true);
 
 	// issue.thing-names: some containers cache data from another file at build time, so reloading the
 	// source string file alone is not enough -- remind the admin to reload the dependent file too.
@@ -253,7 +253,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		{"spellmsg", "Reminder: spell names are cached when spells.xml is loaded. "
 		                   "Run 'reload spells' as well for the name changes to take effect."},
 	};
-	if (const auto it = kReloadReminders.find(arg); it != kReloadReminders.end()) {
+	if (const auto it = kReloadReminders.find(target); it != kReloadReminders.end()) {
 		SendMsgToChar(it->second + "\r\n", ch);
 	}
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);

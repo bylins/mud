@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "administration/punishments.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
@@ -43,28 +45,24 @@ void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 	email = tokens[0];
 	reason = tokens[1];
-	sprintf(buf, "Начинаем масс.разфриз\r\nEmail:%s\r\nПричина:%s\r\n", email.c_str(), reason.c_str());
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Начинаем масс.разфриз\r\nEmail:{}\r\nПричина:{}\r\n", email, reason), ch);
 	reason_c = new char[reason.length() + 1];
 	strcpy(reason_c, reason.c_str());
 
 	for (std::size_t i = 2; i < tokens.size(); ++i) {
 		name_buffer = tokens[i];
 		if (LoadPlayerCharacter(name_buffer.c_str(), &t_vict, ELoadCharFlags::kFindId) < 0) {
-			sprintf(buf, "Чара с именем %s не существует !\r\n", name_buffer.c_str());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Чара с именем {} не существует !\r\n", name_buffer), ch);
 			continue;
 		}
 		vict = &t_vict;
 		if (GET_EMAIL(vict) != email) {
-			sprintf(buf, "У чара %s другой емайл.\r\n", name_buffer.c_str());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("У чара {} другой емайл.\r\n", name_buffer), ch);
 			continue;
 		}
 		punishments::SetFreeze(ch, vict, reason_c, 0);
 		vict->save_char();
-		sprintf(buf, "Чар %s разморожен.\r\n", name_buffer.c_str());
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Чар {} разморожен.\r\n", name_buffer), ch);
 	}
 
 	delete[] reason_c;

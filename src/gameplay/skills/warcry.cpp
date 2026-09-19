@@ -10,6 +10,8 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
 
+#include <fmt/format.h>
+
 void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -30,8 +32,8 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	wc_name.erase(wc_name.begin(), std::find_if_not(wc_name.begin(), wc_name.end(), isspace));
 
 	if (wc_name.empty()) {
-		sprintf(buf, "Вам доступны :\r\n");
-		auto cnt{0};;
+		std::string out("Вам доступны :\r\n");
+		auto cnt{0};
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			const char *realname = MUD::Spell(spell_id).GetCName();
 
@@ -44,15 +46,14 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// reflects the spell's intrinsic kind: red for Y, green for N, yellow for A.
 				const char *row_color;
 				switch (MUD::Spell(spell_id).GetViolent()) {
-					case spells::EViolent::kYes:       row_color = kColorBoldRed; break;
-					case spells::EViolent::kAmbiguous: row_color = kColorBoldYel; break;
-					default:                           row_color = kColorBoldGrn; break;
+					case spells::EViolent::kYes:       row_color = "&R"; break;
+					case spells::EViolent::kAmbiguous: row_color = "&Y"; break;
+					default:                           row_color = "&G"; break;
 				}
-				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
-						kColorGrn, cnt++, kColorNrm, row_color, realname, kColorNrm);
+				out += fmt::format("&g{:2}&n) {}{}&n\r\n", cnt++, row_color, realname);
 			}
 		}
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(out, ch);
 		return;
 	}
 

@@ -18,7 +18,7 @@
 #include "gameplay/mechanics/sight.h"
 
 extern DescriptorData *descriptor_list;
-// same as any_one_arg except that it stops at punctuation 
+// same as one_argument except that it stops at punctuation 
 char *any_one_name(char *argument, char *first_arg) {
 	char *arg;
 
@@ -116,7 +116,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 	SendMsgToChar(sb, ch);
 }
 
-void sub_write(char *arg, CharData *ch, byte find_invis, int targets) {
+void sub_write(char *arg, CharData *ch, int find_invis, int targets) {
 	char str[kMaxInputLength * 2];
 	char type[kMaxInputLength], name[kMaxInputLength];
 	char *tokens[kMaxInputLength], *s, *p;
@@ -183,7 +183,7 @@ void sub_write(char *arg, CharData *ch, byte find_invis, int targets) {
 	}
 }
 
-void send_to_zone(char *messg, int zone_rnum) {
+void send_to_zone(const char *messg, int zone_rnum) {
 	DescriptorData *i;
 
 	if (!messg || !*messg)

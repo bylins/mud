@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/ui/cmd/do_pray.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
@@ -44,9 +46,11 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	half_chop(argument, arg, buf);
+	char whom[kMaxInputLength];
+	char gift[kMaxStringLength];
+	half_chop(argument, whom, gift);
 
-	if (!*arg || (metter = search_block(arg, pray_whom, false)) < 0) {
+	if (!*whom || (metter = search_block(whom, pray_whom, false)) < 0) {
 		if (subcmd == SCMD_DONATE) {
 			SendMsgToChar("Вы можете принести жертву :\r\n", ch);
 			for (metter = 0; *(pray_metter[metter]) != '\n'; metter++) {
@@ -79,7 +83,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_DONATE) {
-		if (!*buf || !(obj = get_obj_in_list_vis(ch, buf, ch->carrying))) {
+		if (!*gift || !(obj = get_obj_in_list_vis(ch, gift, ch->carrying))) {
 			SendMsgToChar("Вы должны пожертвовать что-то стоящее.\r\n", ch);
 			return;
 		}
@@ -129,16 +133,16 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_PRAY) {
-		sprintf(buf, "$n затеплил$g свечку и вознес$q молитву %s.", pray_whom[metter]);
-		act(buf, false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		sprintf(buf, "Вы затеплили свечку и вознесли молитву %s.", pray_whom[metter]);
-		act(buf, false, ch, nullptr, nullptr, kToChar);
+		act(fmt::format("$n затеплил$g свечку и вознес$q молитву {}.", pray_whom[metter]),
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		act(fmt::format("Вы затеплили свечку и вознесли молитву {}.", pray_whom[metter]),
+			false, ch, nullptr, nullptr, kToChar);
 		currencies::RemoveHand(*ch, currencies::kGold, 10);
 	} else if (subcmd == SCMD_DONATE && obj) {
-		sprintf(buf, "$n принес$q $o3 в жертву %s.", pray_whom[metter]);
-		act(buf, false, ch, obj, nullptr, kToRoom | kToArenaListen);
-		sprintf(buf, "Вы принесли $o3 в жертву %s.", pray_whom[metter]);
-		act(buf, false, ch, obj, nullptr, kToChar);
+		act(fmt::format("$n принес$q $o3 в жертву {}.", pray_whom[metter]),
+			false, ch, obj, nullptr, kToRoom | kToArenaListen);
+		act(fmt::format("Вы принесли $o3 в жертву {}.", pray_whom[metter]),
+			false, ch, obj, nullptr, kToChar);
 		RemoveObjFromChar(obj);
 		ExtractObjFromWorld(obj);
 	}

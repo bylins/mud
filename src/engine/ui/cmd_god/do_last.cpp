@@ -9,19 +9,21 @@
 #include "engine/entities/char_data.h"
 #include <fmt/format.h>
 #include "administration/privilege.h"
+#include "utils/utils_string.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
 
 void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	one_argument(argument, arg);
-	if (!*arg) {
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
+	if (arg.empty()) {
 		SendMsgToChar("Кого вы хотите найти?\r\n", ch);
 		return;
 	}
 
 	Player t_chdata;
 	Player *chdata = &t_chdata;
-	if (LoadPlayerCharacter(arg, chdata, ELoadCharFlags::kFindId) < 0) {
+	if (LoadPlayerCharacter(arg.c_str(), chdata, ELoadCharFlags::kFindId) < 0) {
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}

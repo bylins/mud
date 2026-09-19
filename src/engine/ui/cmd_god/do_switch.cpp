@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/utils_string.h"
 #include "administration/privilege.h"
 #include "engine/ui/cmd/do_recall.h"
 #include "engine/db/world_characters.h"
@@ -14,11 +15,12 @@
 #include "engine/core/target_resolver.h"
 
 void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	one_argument(argument, arg);
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
 
 	if (ch->desc->original) {
 		SendMsgToChar("Вы уже в чьем-то теле.\r\n", ch);
-	} else if (!*arg) {
+	} else if (arg.empty()) {
 		SendMsgToChar("Стать кем?\r\n", ch);
 	} else {
 		CharData *visible_character = nullptr;

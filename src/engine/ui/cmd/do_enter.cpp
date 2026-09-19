@@ -5,6 +5,8 @@
 \brief 'Do enter' command.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
@@ -27,15 +29,16 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const char *p_str = "пентаграмма";
 	char *pnumber;
 
-	one_argument(argument, smallBuf);
-	pnumber = smallBuf;
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	pnumber = name;
 	if (!(fnum = get_number(&pnumber))) {
 		SendMsgToChar("Здесь такой нет!\r\n", ch);
 		return;
 	}
 
-	if (*smallBuf) {
-		if (isname(smallBuf, p_str)) {
+	if (*name) {
+		if (isname(name, p_str)) {
 
 			int i = 0;
 			for (const auto &aff : world[ch->in_room]->affected) {
@@ -89,10 +92,12 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
 						|| (room_spells::FindRoomPkPortalUid(world[door]) != 0
 							&& (ROOM_FLAGGED(door, ERoomFlag::kArena) || ROOM_FLAGGED(door, ERoomFlag::kHouse))))) {
-					sprintf(smallBuf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
-							kColorWht, kColorNrm);
-					act(smallBuf, true, ch, nullptr, nullptr, kToChar);
-					act(smallBuf, true, ch, nullptr, nullptr, kToRoom);
+					// Сообщение писалось в smallBuf поверх аргумента команды -- а ниже по
+					// функции этот же аргумент ещё нужен для приказа спутникам (#3814).
+					const std::string flash = fmt::format("{}Пентаграмма ослепительно вспыхнула!{}\r\n",
+														  kColorWht, kColorNrm);
+					act(flash, true, ch, nullptr, nullptr, kToChar);
+					act(flash, true, ch, nullptr, nullptr, kToRoom);
 
 					SendMsgToChar("Мощным ударом вас отшвырнуло от пентаграммы.\r\n", ch);
 					act("$n с визгом отлетел$g от пентаграммы.\r\n", true, ch,
@@ -148,12 +153,14 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!AFF_FLAGGED(k, EAffect::kHold) &&
 						k->GetPosition() == EPosition::kStand &&
 						k->in_room == from_room) {
+						// command_interpreter правит строку на месте, поэтому своя копия на каждого
+						char order[kMaxInputLength];
 						if (fnum > 1) {
-							snprintf(buf2, kMaxStringLength, "enter %d.%s", fnum, smallBuf);
+							snprintf(order, sizeof(order), "enter %d.%s", fnum, name);
 						} else {
-							snprintf(buf2, kMaxStringLength, "enter %s", smallBuf);
+							snprintf(order, sizeof(order), "enter %s", name);
 						}
-						command_interpreter(k, buf2);
+						command_interpreter(k, order);
 					}
 				}
 				if (ch->desc != nullptr)
@@ -162,14 +169,13 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {    // an argument was supplied, search for door keyword
 			for (door = 0; door < EDirection::kMaxDirNum; door++) {
 				if (EXIT(ch, door)
-					&& (isname(smallBuf, EXIT(ch, door)->keyword)
-						|| isname(smallBuf, EXIT(ch, door)->vkeyword))) {
+					&& (isname(name, EXIT(ch, door)->keyword)
+						|| isname(name, EXIT(ch, door)->vkeyword))) {
 					PerformMove(ch, door, 1, true, nullptr);
 					return;
 				}
 			}
-			sprintf(buf2, "Вы не нашли здесь '%s'.\r\n", smallBuf);
-			SendMsgToChar(buf2, ch);
+			SendMsgToChar(fmt::format("Вы не нашли здесь '{}'.\r\n", name), ch);
 		}
 	} else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors))
 		SendMsgToChar("Вы уже внутри.\r\n", ch);

@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/ui/cmd/do_quit.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
@@ -62,8 +64,8 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		if (!GET_INVIS_LEV(ch))
 			act("$n покинул$g игру.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		sprintf(buf, "%s quit the game.", GET_NAME(ch));
-		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(fmt::format("{} quit the game.", GET_NAME(ch)),
+			   NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		SendMsgToChar("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 
 		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));

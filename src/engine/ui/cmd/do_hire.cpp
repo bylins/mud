@@ -135,9 +135,10 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	argument = one_argument(argument, arg);
+	char name[kMaxInputLength];
+	argument = one_argument(argument, name);
 
-	if (!*arg) {
+	if (!*name) {
 		CharData *hired = nullptr;
 		for (auto *k : ch->followers) {
 			if (AFF_FLAGGED(k, EAffect::kHelper) && AFF_FLAGGED(k, EAffect::kCharmed)) {
@@ -156,7 +157,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	CharData *helpee = nullptr;
 
-	helpee = target_resolver::FindCharInRoom(ch, arg);
+	helpee = target_resolver::FindCharInRoom(ch, name);
 	if (!helpee) {
 		SendMsgToChar("Вы не видите никого похожего.\r\n", ch);
 		return;
@@ -192,15 +193,15 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// Вы издеваетесь? Блок else на три экрана, реально?
 		// Svent TODO: Вынести проверку на корректность чармиса в отдельную функицю.
 		char isbank[kMaxStringLength];
-		two_arguments(argument, arg, isbank);
+		two_arguments(argument, name, isbank);
 
 		unsigned int times = 0;
-		times = atoi(arg);
-		if (!*arg || times == 0) {
+		times = atoi(name);
+		if (!*name || times == 0) {
 			const auto cost = CalcHirePrice(ch, helpee);
-			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
-					cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
-			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
+			act(fmt::format("$n сказал$g вам : \"Один час моих услуг стоит {} {}\".\r\n", cost,
+							MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom)),
+				false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
 		if (hired && helpee != hired) {
@@ -219,11 +220,10 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if ((!isname(isbank, "банк bank") && cost > currencies::GetHand(*ch, currencies::kGold)) ||
 			(isname(isbank, "банк bank") && cost > currencies::GetBank(*ch, currencies::kGold))) {
-			sprintf(buf,
-					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
-					times,
-					grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
-			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
+			act(fmt::format("$n сказал$g вам : \" Мои услуги за {} {} стоят {} {} - это тебе не по карману.\"",
+							times, grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost,
+							MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom)),
+				false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
 
@@ -284,8 +284,8 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.battleflag = {kAfCharmBond};
 		affect_to_char(helpee, af);
 
-		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IsFemale(ch) ? "хозяйка" : "хозяин");
-		act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
+		act(fmt::format("$n сказал$g вам : \"Приказывай, {}!\"", IsFemale(ch) ? "хозяйка" : "хозяин"),
+			false, helpee, 0, ch, kToVict | kToNotDeaf);
 
 		if (helpee->IsNpc()) {
 			for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {

@@ -97,7 +97,7 @@ void clearMemory(CharData *ch) {
 	MEMORY(ch) = nullptr;
 }
 
-CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hide_camouflage_checks) {
+CharData *FimdRememberedEnemyInRoom(CharData *mob, bool respect_sneak, bool respect_hide_and_camouflage) {
 	if (!mob->mob_specials.memory) {
 		return nullptr;
 	}
@@ -115,7 +115,7 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hi
 				if (!sight::MaySee(mob, mob, vict) || !may_kill_here(mob, vict, NoArgument)) {
 					continue;
 				}
-				if (check_sneak) {
+				if (respect_sneak) {
 					SkipSneaking(vict, mob);
 					if ((vict)->Temporary.get(ECharExtraFlag::kFailSneak)) {
 						AFF_FLAGS(vict).unset(EAffect::kSneak);
@@ -123,7 +123,7 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hi
 					if (AFF_FLAGGED(vict, EAffect::kSneak))
 						continue;
 				}
-				if (!skip_hide_camouflage_checks) {
+				if (respect_hide_and_camouflage) {
 					SkipHiding(vict, mob);
 					if ((vict)->Temporary.get(ECharExtraFlag::kFailHide)) {
 						AFF_FLAGS(vict).unset(EAffect::kHide);

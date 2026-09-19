@@ -40,6 +40,7 @@ void flush_queues(DescriptorData *d);
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
 bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t byffer_size, int &written);
 void write_to_output(const char *txt, DescriptorData *d);
+inline void write_to_output(const std::string &txt, DescriptorData *d) { write_to_output(txt.c_str(), d); }
 void string_add(DescriptorData *d, char *str);
 int toggle_compression(DescriptorData *d);
 int process_input(DescriptorData *t);

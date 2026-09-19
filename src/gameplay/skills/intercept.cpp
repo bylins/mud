@@ -14,6 +14,7 @@
 #include "gameplay/fight/common.h"
 #include "parry.h"
 #include "engine/core/target_resolver.h"
+#include "utils/utils_string.h"
 
 void GoIntercept(CharData *ch, CharData *vict);
 void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data);
@@ -34,9 +35,8 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict{nullptr};
-	one_argument(argument, arg);
-	vict = target_resolver::FindCharInRoom(ch, arg);
+	const std::string target_name = utils::ExtractFirstArgumentLower(argument);
+	CharData *vict = target_resolver::FindCharInRoom(ch, target_name);
 	if (!vict) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() == ch) {
@@ -69,7 +69,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, target_name))
 		return;
 
 	CheckParryOverride(ch);

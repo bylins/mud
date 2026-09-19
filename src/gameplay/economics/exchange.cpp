@@ -130,8 +130,8 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 				}
 		*/
 		if (GetRealLevel(ch) < EXCHANGE_MIN_CHAR_LEV && !remort::GetRealRemort(ch)) {
-			snprintf(buf1, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kLevelTooLow)), fmt::arg("level", EXCHANGE_MIN_CHAR_LEV)) + "\r\n").c_str());
-			SendMsgToChar(buf1, ch);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kLevelTooLow)),
+									  fmt::arg("level", EXCHANGE_MIN_CHAR_LEV)) + "\r\n", ch);
 			return 1;
 		}
 		if (NORENTABLE(ch)) {
@@ -238,8 +238,9 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		SendMsgToChar(tmpbuf, ch);
 		return false;
 	} else if (SetSystem::is_big_set(obj, true)) {
-		snprintf(buf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBigSet)), fmt::arg("item", obj->get_PName(grammar::ECase::kNom))) + "\r\n").c_str());
-		SendMsgToChar(utils::CAP(buf), ch);
+		// CAP(std::string) возвращает копию, а не правит на месте
+		SendMsgToChar(utils::CAP(fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBigSet)),
+											 fmt::arg("item", obj->get_PName(grammar::ECase::kNom))) + "\r\n"), ch);
 		return false;
 	}
 
@@ -714,7 +715,6 @@ bool exchange_setfilter(CharData *ch, char *argument) {
 	}
 	char filter[kMaxInputLength];
 	strcpy(filter, argument);
-	one_argument(argument, arg);
 	if (!correct_filter_length(ch, argument)) {
 		return false;
 	}
@@ -729,10 +729,11 @@ bool exchange_setfilter(CharData *ch, char *argument) {
 	ParseFilter params(ParseFilter::EXCHANGE);
 	if (!params.parse_filter(ch, params, argument)) {
 		SendMsgToChar(specials::ExchMsg(specials::EExchMsg::kFilterBadFormat) + "\r\n", ch);
-		snprintf(buf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kFilterCurrentShort)), fmt::arg("filter", params.print())) + "\r\n").c_str());
+		const std::string msg = fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kFilterCurrentShort)),
+											fmt::arg("filter", params.print())) + "\r\n";
 		char tmps[1] = ""; //обход варнинга
 		params.parse_filter(ch, params, tmps);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(msg, ch);
 		free(EXCHANGE_FILTER(ch));
 		EXCHANGE_FILTER(ch) = nullptr;
 		return false;
@@ -1077,8 +1078,7 @@ void exchange_database_save(bool backup) {
 	const char *filename = backup ? EXCHANGE_DATABASE_BACKUPFILE : EXCHANGE_DATABASE_FILE;
 	std::ofstream file(filename);
 	if (!file.is_open()) {
-		sprintf(buf, "[SYSERROR] open exchange db ('%s')", filename);
-		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("[SYSERROR] open exchange db ('{}')", filename), BRF, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	// Граница записи: userdata хранится в нативной кодировке, поэтому пишем как есть.
@@ -1183,8 +1183,8 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 						bool negative = IsNegativeApply(drndice);
 						if (drsdice < 0)
 							negative = !negative;
-						sprinttype(drndice, apply_types, buf2);
-						fmt::format_to(std::back_inserter(aff), "{} {}{}", buf2, negative ? "-" : "+", abs(drsdice));
+						fmt::format_to(std::back_inserter(aff), "{} {}{}",
+									  GetTypeName(drndice, apply_types), negative ? "-" : "+", abs(drsdice));
 						break;
 					}
 				}

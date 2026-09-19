@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "do_learn.h"
 
 #include "engine/core/obj_handler.h"
@@ -229,15 +231,16 @@ bool IncorrectBookType(ObjData *obj) {
 }
 
 ObjData *FindBook(CharData *ch, char *argument) {
-	one_argument(argument, arg);
-	if (!*arg) {
+	char name[kMaxInputLength];
+	one_argument(argument, name);
+	if (!*name) {
 		SendMsgToChar("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
 		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.",
 			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		return nullptr;
 	}
 
-	auto book = get_obj_in_list_vis(ch, arg, ch->carrying);
+	auto book = get_obj_in_list_vis(ch, name, ch->carrying);
 	if (!book) {
 		SendMsgToChar("А у вас этого нет.\r\n", ch);
 		return nullptr;
@@ -264,22 +267,21 @@ void ProcessLowRemortOrLevelException(CharData *ch, ObjData *book) {
 	const char *what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
 	const char
 		*whom = book->get_sex() == EGender::kFemale ? "нее" : (book->get_sex() == EGender::kPoly ? "них" : "него");
-	sprintf(buf,
-			"- \"Какие интересные буковки! Особенно %s, похожая на %s\".\r\n"
-			"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
-			"долга закрыли %s. До %s вы еще не доросли.\r\n",
-			positon, what, book->get_PName(grammar::ECase::kAcc).c_str(), whom);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format(
+		"- \"Какие интересные буковки! Особенно {}, похожая на {}\".\r\n"
+		"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
+		"долга закрыли {}. До {} вы еще не доросли.\r\n",
+		positon, what, book->get_PName(grammar::ECase::kAcc), whom), ch);
 	act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.",
 		false, ch, book, nullptr, kToRoom);
 }
 
 void ProcessLearningFailException(CharData *ch, ObjData *book) {
-	sprintf(buf, "Вы взяли в руки %s и начали изучать.\r\n"
-				 "Непослушные буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
-				 "Промучившись несколько минут, вы бросили это унылое занятие, с удивлением отметив исчезновение %s.\r\n",
-			book->get_PName(grammar::ECase::kAcc).c_str(), book->get_PName(grammar::ECase::kGen).c_str());
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format(
+		"Вы взяли в руки {} и начали изучать.\r\n"
+		"Непослушные буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
+		"Промучившись несколько минут, вы бросили это унылое занятие, с удивлением отметив исчезновение {}.\r\n",
+		book->get_PName(grammar::ECase::kAcc), book->get_PName(grammar::ECase::kGen)), ch);
 	act("$n взял$g в руки $o3 и принял$u изучать, но промучившись несколько минут, бросил$g это занятие.\r\n"
 		"Вы с удивлением увидели, как $o замерцал$G и растаял$G.",
 		false, ch, book, nullptr, kToRoom);
@@ -287,10 +289,10 @@ void ProcessLearningFailException(CharData *ch, ObjData *book) {
 }
 
 void ProcessLearningNotAvailable(CharData *ch, ObjData *book) {
-	sprintf(buf, "Вы взяли в руки %s и начали изучать.\r\n"
-			"Какая-то бормотуха получится, решили вы.\r\n",
-			book->get_PName(grammar::ECase::kAcc).c_str());
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format(
+		"Вы взяли в руки {} и начали изучать.\r\n"
+		"Какая-то бормотуха получится, решили вы.\r\n",
+		book->get_PName(grammar::ECase::kAcc)), ch);
 	act("$n взял$g в руки $o3 и принял$u изучать, но почесав макушку, бросил$g это занятие.\r\n",
 			false, ch, book, nullptr, kToRoom);
 }

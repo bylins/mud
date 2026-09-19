@@ -5,6 +5,8 @@
 \brief description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
@@ -46,8 +48,7 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						continue;
 				}
 				SendMsgToChar(where[i], ch);
-				sprintf(buf, "%s[ Ничего ]%s\r\n", kColorBoldBlk, kColorNrm);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("{}[ Ничего ]{}\r\n", kColorBoldBlk, kColorNrm), ch);
 				found = true;
 			}
 		}

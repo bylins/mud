@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "gameplay/skills/skills.h"
 #include "utils/grammar/gender.h"
 #include "utils/utils.h"
@@ -46,9 +48,9 @@ void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {
 
 					SendMsgToChar(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
 								  GET_PAD(keeper, 0), grammar::SexEnding((keeper)->get_sex(), 1));
-					snprintf(buf, kMaxStringLength, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
-							 GET_PAD(keeper, 0), grammar::SexEnding((keeper)->get_sex(), 1), GET_PAD(victim, 3));
-					act(buf, false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+					act(fmt::format("{} пожертвовал{} своей жизнью, вытаскивая {} с того света!",
+									GET_PAD(keeper, 0), grammar::SexEnding((keeper)->get_sex(), 1), GET_PAD(victim, 3)),
+						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 
 					ExtractCharFromWorld(keeper, 0);
 					victim->set_hit(std::min(300, victim->get_max_hit() / 2));

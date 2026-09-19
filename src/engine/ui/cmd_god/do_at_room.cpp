@@ -12,11 +12,12 @@
 #include "engine/core/target_resolver.h"
 
 void DoAtRoom(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	char room_arg[kMaxInputLength];
 	char command[kMaxInputLength];
 	RoomRnum location, original_loc;
 
-	half_chop(argument, buf, command);
-	if (!*buf) {
+	half_chop(argument, room_arg, command);
+	if (!*room_arg) {
 		SendMsgToChar("Необходимо указать номер или название комнаты.\r\n", ch);
 		return;
 	}
@@ -26,7 +27,7 @@ void DoAtRoom(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((location = FindRoomRnum(ch, buf, 0)) == kNowhere) {
+	if ((location = FindRoomRnum(ch, room_arg, 0)) == kNowhere) {
 		return;
 	}
 

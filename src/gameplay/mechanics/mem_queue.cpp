@@ -5,6 +5,8 @@
 \details Весь код по работе с очередью заучивания заклинаний должен располагаться в данном модуле.
 */
 
+#include <fmt/format.h>
+
 #include "mem_queue.h"
 #include "utils/logger.h"
 #include "administration/privilege.h"
@@ -210,9 +212,8 @@ ESpell MemQ_learn(CharData *ch) {
 	i = ch->mem_queue.queue;
 	ch->mem_queue.queue = i->next;
 	free(i);
-	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
-			kColorBoldCyn, MUD::Spell(spell_id).GetCName(), kColorNrm);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Вы выучили заклинание \"{}{}{}\".\r\n",
+							  kColorBoldCyn, MUD::Spell(spell_id).GetName(), kColorNrm), ch);
 	return spell_id;
 }
 
@@ -232,13 +233,15 @@ void MemQ_remember(CharData *ch, ESpell spell_id) {
 		return;
 	}
 
-	if (GET_RELIGION(ch) == kReligionMono)
-		sprintf(buf, "Вы дописали заклинание \"%s%s%s\" в свой часослов.\r\n",
-				kColorBoldMag, MUD::Spell(spell_id).GetCName(), kColorNrm);
-	else
-		sprintf(buf, "Вы занесли заклинание \"%s%s%s\" в свои резы.\r\n",
-				kColorBoldMag, MUD::Spell(spell_id).GetCName(), kColorNrm);
-	SendMsgToChar(buf, ch);
+	// Формат у fmt должен быть известен на компиляции, поэтому ветвим не строку формата,
+	// а готовое сообщение.
+	if (GET_RELIGION(ch) == kReligionMono) {
+		SendMsgToChar(fmt::format("Вы дописали заклинание \"{}{}{}\" в свой часослов.\r\n",
+								  kColorBoldMag, MUD::Spell(spell_id).GetName(), kColorNrm), ch);
+	} else {
+		SendMsgToChar(fmt::format("Вы занесли заклинание \"{}{}{}\" в свои резы.\r\n",
+								  kColorBoldMag, MUD::Spell(spell_id).GetName(), kColorNrm), ch);
+	}
 
 	ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 	while (*pi)
@@ -267,10 +270,8 @@ void MemQ_forget(CharData *ch, ESpell spell_id) {
 		ptr = q[0];
 		q[0] = q[0]->next;
 		free(ptr);
-		sprintf(buf,
-				"Вы вычеркнули заклинание \"%s%s%s\" из списка для запоминания.\r\n",
-				kColorBoldMag, MUD::Spell(spell_id).GetCName(), kColorNrm);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Вы вычеркнули заклинание \"{}{}{}\" из списка для запоминания.\r\n",
+								  kColorBoldMag, MUD::Spell(spell_id).GetName(), kColorNrm), ch);
 	}
 }
 

@@ -154,15 +154,13 @@ void load_item_desc() {
 	const std::string xml_shop_ext = native_text::read_data_file(LIB_CLANS"item_desc.xml");
 	pugi::xml_parse_result result = doc.load_buffer(xml_shop_ext.data(), xml_shop_ext.size());
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("...{}", result.description()), CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node node_list = doc.child("templates");
 	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...templates list read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog("...templates list read fail", CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	item_descriptions.clear();
@@ -174,9 +172,7 @@ void load_item_desc() {
 
 			int item_vnum = parse::ReadAttrAsInt(item, "vnum");
 			if (item_vnum <= 0) {
-				snprintf(buf, kMaxStringLength,
-						 "...bad item description attributes (item_vnum=%d)", item_vnum);
-				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("...bad item description attributes (item_vnum={})", item_vnum), CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 			item_desc_node desc_node;
@@ -212,22 +208,12 @@ void load_item_desc() {
 					trig_vnum = std::stoi(tmp_value, nullptr, 10);
 				}
 				catch (const std::invalid_argument &) {
-					snprintf(buf,
-							 kMaxStringLength,
-							 "...error while casting to num (item_vnum=%d, casting value=%s)",
-							 item_vnum,
-							 tmp_value.c_str());
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...error while casting to num (item_vnum={}, casting value={})", item_vnum, tmp_value.c_str()), CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 
 				if (trig_vnum <= 0) {
-					snprintf(buf,
-							 kMaxStringLength,
-							 "...error while parsing triggers (item_vnum=%d, parsed value=%s)",
-							 item_vnum,
-							 tmp_value.c_str());
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...error while parsing triggers (item_vnum={}, parsed value={})", item_vnum, tmp_value.c_str()), CMP, kLvlImmortal, SYSLOG, true);
 					return;
 				}
 				trig_vnums.push_back(trig_vnum);
@@ -275,8 +261,7 @@ void ShopsLoader::Load(parser_wrapper::DataNode data) {
 				const int mob_vnum = std::atoi(child.GetValue("mob_vnum"));
 				const std::string templateId = child.GetValue("template");
 				if (mob_vnum < 0) {
-					snprintf(buf, kMaxStringLength, "...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...bad shop attributes (mob_vnum={} shop id={})", mob_vnum, shop_id.c_str()), CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 				if (!templateId.empty()) {
@@ -287,14 +272,12 @@ void ShopsLoader::Load(parser_wrapper::DataNode data) {
 				const int item_vnum = std::atoi(child.GetValue("vnum"));
 				const int price = std::atoi(child.GetValue("price"));
 				if (item_vnum < 0 || price < 0) {
-					snprintf(buf, kMaxStringLength, "...bad shop attributes (item_vnum=%d, price=%d)", item_vnum, price);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...bad shop attributes (item_vnum={}, price={})", item_vnum, price), CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 				const int item_rnum = GetObjRnum(item_vnum);
 				if (item_rnum < 0) {
-					snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...incorrect item_vnum={}", item_vnum), CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 				const auto item_price = price == 0 ? obj_proto[item_rnum]->get_cost() : price;
@@ -308,8 +291,7 @@ void ShopsLoader::Load(parser_wrapper::DataNode data) {
 					for (const auto &entry : set->item_list) {
 						const int item_rnum = GetObjRnum(entry.item_vnum);
 						if (item_rnum < 0) {
-							snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d in item_set=%s", (int) entry.item_vnum, set->_id.c_str());
-							mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+							mudlog(fmt::format("...incorrect item_vnum={} in item_set={}", (int) entry.item_vnum, set->_id.c_str()), CMP, kLvlImmortal, SYSLOG, true);
 							continue;
 						}
 						const auto item_price = entry.item_price == 0 ? obj_proto[item_rnum]->get_cost() : entry.item_price;
@@ -320,8 +302,7 @@ void ShopsLoader::Load(parser_wrapper::DataNode data) {
 		}
 
 		if (tmp_shop->empty()) {
-			snprintf(buf, kMaxStringLength, "...item list empty (shop_id=%s)", shop_id.c_str());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...item list empty (shop_id={})", shop_id.c_str()), CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -345,13 +326,11 @@ void ShopsLoader::Load(parser_wrapper::DataNode data) {
 		for (const auto &mob_vnum : tmp_shop->mob_vnums()) {
 			const auto keeper_rnum = GetMobRnum(mob_vnum);
 			if (keeper_rnum < 0) {
-				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);
-				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("...incorrect mob_vnum={}", mob_vnum), CMP, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 			if (mob_index[keeper_rnum].func && mob_index[keeper_rnum].func != shop_ext) {
-				snprintf(buf, kMaxStringLength, "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
-				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				mudlog(fmt::format("...shopkeeper already with special (mob_vnum={})", mob_vnum), CMP, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 			specials::RegisterMob(mob_vnum, specials::ESpecial::kShop);
@@ -632,9 +611,10 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Чего хотим? Могу пока только характерстики.\r\n", ch);
 		return;
 	}
-	char *stufina = one_argument(argument, arg);
+	char mode[kMaxInputLength];
+	char *stufina = one_argument(argument, mode);
 
-	if (utils::IsAbbr(arg, "характеристики") || utils::IsAbbr(arg, "identify") || utils::IsAbbr(arg, "опознать")) {
+	if (utils::IsAbbr(mode, "характеристики") || utils::IsAbbr(mode, "identify") || utils::IsAbbr(mode, "опознать")) {
 		if ((currencies::GetBank(*ch, currencies::kGold) < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
 			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;

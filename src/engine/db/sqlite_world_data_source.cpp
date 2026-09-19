@@ -1157,7 +1157,7 @@ std::vector<LoadedTrigger> SqliteWorldDataSource::LoadTriggers(const std::vector
 		std::string script = GetText(stmt, 6);
 		int add_flag = sqlite3_column_int(stmt, 7);
 
-		byte attach_type = static_cast<byte>(attach_type_id);
+		int attach_type = attach_type_id;
 
 		// Compute trigger_type bitmask from type_chars
 		long trigger_type = 0;
@@ -1520,7 +1520,7 @@ LoadedMob SqliteWorldDataSource::LoadMobRow(sqlite3_stmt *stmt)
 
 	// Physical attributes -- bounds mirror MobileFile::interpret_espec
 	// (boot_data_files.cpp). Без них старые данные расходятся с легаси.
-	GET_SIZE(&mob) = std::clamp<byte>(sqlite3_column_int(stmt, 28), 0, 100);
+	GET_SIZE(&mob) = std::clamp<int>(sqlite3_column_int(stmt, 28), 0, 100);
 	GET_HEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 29), 0, 200);
 	GET_WEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 30), 0, 200);
 
@@ -1551,10 +1551,10 @@ LoadedMob SqliteWorldDataSource::LoadMobRow(sqlite3_stmt *stmt)
 	mob.add_abils.mresist = std::clamp(sqlite3_column_int(stmt, 48), 0, 100);
 	mob.add_abils.presist = std::clamp(sqlite3_column_int(stmt, 49), 0, 100);
 	mob.mob_specials.attack_type = std::clamp(sqlite3_column_int(stmt, 50), 0, 99);
-	mob.mob_specials.like_work = std::clamp<byte>(sqlite3_column_int(stmt, 51), 0, 100);
-	mob.mob_specials.MaxFactor = std::clamp<byte>(sqlite3_column_int(stmt, 52), 0, 127);
-	mob.mob_specials.extra_attack = std::clamp<byte>(sqlite3_column_int(stmt, 53), 0, 127);
-	mob.set_remort(std::clamp<byte>(sqlite3_column_int(stmt, 54), 0, 100));
+	mob.mob_specials.like_work = std::clamp<int>(sqlite3_column_int(stmt, 51), 0, 100);
+	mob.mob_specials.MaxFactor = std::clamp<int>(sqlite3_column_int(stmt, 52), 0, 127);
+	mob.mob_specials.extra_attack = std::clamp<int>(sqlite3_column_int(stmt, 53), 0, 127);
+	mob.set_remort(std::clamp<int>(sqlite3_column_int(stmt, 54), 0, 100));
 
 	// special_bitvector (TEXT - FlagData)
 	std::string special_bv = GetText(stmt, 55);

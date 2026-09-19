@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 
@@ -39,36 +41,31 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		action_others = "$n задал$g $N2 вопрос.";
 	}
 
-	half_chop(argument, buf, buf2);
+	char name[kMaxInputLength];
+	char message[kMaxStringLength];
+	half_chop(argument, name, message);
 
-	if (!*buf || !*buf2) {
-		sprintf(buf, "Что вы хотите %s.. и %s?\r\n", action_sing, vict1);
-		SendMsgToChar(buf, ch);
-	} else if (!(vict = target_resolver::FindCharInRoom(ch, buf)))
+	if (!*name || !*message) {
+		SendMsgToChar(fmt::format("Что вы хотите {}.. и {}?\r\n", action_sing, vict1), ch);
+	} else if (!(vict = target_resolver::FindCharInRoom(ch, name)))
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (vict == ch)
 		SendMsgToChar("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
 	else if (ignores(vict, ch, subcmd == kScmdWhisper ? EIgnore::kWhisper : EIgnore::kAsk)) {
-		sprintf(buf, "%s не желает вас слышать.\r\n", GET_NAME(vict));
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("{} не желает вас слышать.\r\n", GET_NAME(vict)), ch);
 	} else {
 		if (subcmd == kScmdWhisper)
 			sprintf(vict3, "%s", GET_PAD(vict, 2));
 		else
 			sprintf(vict3, "у %s", GET_PAD(vict, 1));
 
-		std::stringstream buffer;
-		buffer << "$n " << action_plur << "$g " << vict2 << " : " << buf2;
-//		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
-		act(buffer.str().c_str(), false, ch, nullptr, vict, kToVict | kToNotDeaf);
+		act(fmt::format("$n {}$g {} : {}", action_plur, vict2, message),
+			false, ch, nullptr, vict, kToVict | kToNotDeaf);
 
 		if (ch->IsFlagged(EPrf::kNoRepeat))
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
-			std::stringstream buffer;
-			buffer << "Вы " << action_plur << "и " << vict3 << " : '" << buf2 << "'" << "\r\n";
-//			sprintf(buf, "Вы %sи %s : '%s'\r\n", action_plur, vict3, buf2);
-			SendMsgToChar(buffer.str(), ch);
+			SendMsgToChar(fmt::format("Вы {}и {} : '{}'\r\n", action_plur, vict3, message), ch);
 		}
 
 		act(action_others, false, ch, nullptr, vict, kToNotVict);

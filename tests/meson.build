@@ -91,6 +91,7 @@ test_sources = files(
     'file_crc.cpp',
     'buffered_file_writer.cpp',
     'where.format.cpp',
+    'who.short_format.cpp',
     # Balance simulator (issue #2967)
     'random.seed.cpp',
     'file_event_sink.cpp',

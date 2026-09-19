@@ -985,8 +985,9 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(grammar::ECase::kPre).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
-		SendMsgToChar(utils::CAP(buf), ch);
+		// CAP(std::string) возвращает копию, а не правит на месте
+		SendMsgToChar(utils::CAP(fmt::format("{} - требуется две и более вещи из набора.\r\n",
+											 obj->get_PName(grammar::ECase::kNom))), ch);
 		return 0;
 	}
 	return 1;
@@ -1138,7 +1139,7 @@ bool CharNode::obj_from_obj_list(char *name, CharData *vict) {
 void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 	ObjListType &cont = pers_online;
 
-	int obj_dotmode = find_all_dots(arg);
+	int obj_dotmode = ParseAllPrefix(arg);
 	if (obj_dotmode == kFindIndiv) {
 		bool result = obj_from_obj_list(arg, vict);
 		if (!result) {
@@ -1424,33 +1425,18 @@ void reload_char(long uid, CharData *ch) {
 		}
 	}
 
-	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
-	mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-	imm_log("%s", buf);
+	const std::string msg = fmt::format("Depot: {} reload items for {}.", GET_NAME(ch), it->second.name);
+	mudlog(msg, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+	imm_log("%s", msg.c_str());
 }
 
-/**
-* Учет локейт в персональных хранилищах.
-* \param count - оставшееся кол-во возможных показываемых шмоток после прохода по основному обж-списку.
-*/
-std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
-	for (auto it : depot_list) {
-		for (auto obj_it : it.second.pers_online) {
-			if (!privilege::IsGod(ch)) {
-				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
-					continue;
-				}
-				if (obj_it->has_flag(EObjFlag::kNolocate)
-					&& !privilege::IsGod(ch)) {
-					continue;
-				}
-			}
-			if (obj->get_id() == obj_it->get_id()) {
-				return fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n", obj_it->get_short_description().c_str(), grammar::ObjPluralVerbEnding((obj_it)->get_sex()));
-			}
+// * Для учитывания предметов в персональных хранилищах в локейте.
+void CollectOnlineObjIds(std::unordered_set<long> &ids) {
+	for (const auto &it : depot_list) {
+		for (const auto &obj : it.second.pers_online) {
+			ids.insert(obj->get_id());
 		}
 	}
-	return {};
 }
 
 std::string print_imm_where_obj(const ObjData *obj) {
@@ -1503,18 +1489,6 @@ void rename_char(CharData *ch) {
 	}
 }
 
-// * Поиск цели для каста локейта.
-ObjData *locate_object(const char *str) {
-	for (DepotListType::const_iterator i = depot_list.begin(); i != depot_list.end(); ++i) {
-		for (ObjListType::const_iterator k = i->second.pers_online.begin(); k != i->second.pers_online.end(); ++k) {
-			if (isname(str, (*k)->get_aliases())) {
-				return k->get();
-			}
-		}
-	}
-	return 0;
-}
-
 // * Добавление денег чару, находящемуся оффлайн при переводе кун (типа временное решение).
 void add_offline_money(long uid, int money) {
 	DepotListType::iterator it = depot_list.find(uid);
@@ -1544,10 +1518,9 @@ int report_unrentables(CharData *ch, CharData *recep) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 				 obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it) {
 			if (SetSystem::is_norent_set(ch, obj_it->get())) {
-				snprintf(buf, kMaxStringLength,
-						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj_it->get(), ch, grammar::ECase::kAcc));
-				act(buf, false, recep, 0, ch, kToVict);
+				act(fmt::format("$n сказал$g вам : \"Я не приму на постой {} - требуется две и более вещи из набора.\"",
+								OBJN(obj_it->get(), ch, grammar::ECase::kAcc)),
+					false, recep, 0, ch, kToVict);
 				return 1;
 			}
 		}

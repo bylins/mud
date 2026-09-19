@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "do_pour.h"
 #include "engine/core/target_resolver.h"
 
@@ -60,8 +62,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		if (!(from_obj = get_obj_in_list_vis(ch, arg2, world[ch->in_room]->contents))) {
-			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg2);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы не видите здесь '{}'.\r\n", arg2), ch);
 			return;
 		}
 		if (from_obj->get_type() != EObjType::kFountain) {

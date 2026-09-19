@@ -13,6 +13,9 @@
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/remort.h"
+#include "utils/utils_string.h"
+
+#include <fmt/format.h>
 
 const char *track_when[] = {"совсем свежие",
 							"свежие",
@@ -99,10 +102,10 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	calc_track = CalcCurrentSkill(ch, ESkill::kTrack, nullptr);
 	act("Похоже, $n кого-то выслеживает.", false, ch, nullptr, nullptr, kToRoom);
-	one_argument(argument, arg);
+	const std::string target_name = utils::ExtractFirstArgumentLower(argument);
 
 	// No argument - show all
-	if (!*arg) {
+	if (target_name.empty()) {
 		for (track = world[ch->in_room]->track; track; track = track->next) {
 			*name = '\0';
 			if (IS_SET(track->track_info, TRACK_NPC)) {
@@ -122,9 +125,8 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					track_t |= track->time_outgone[i];
 					track_t |= track->time_income[i];
 				}
-				sprintf(buf, "%s : следы %s.\r\n", name,
-						track_when[age_track(ch, track_t, calc_track)]);
-				SendMsgToChar(buf, ch);
+				SendMsgToChar(fmt::format("{} : следы {}.\r\n", name,
+										  track_when[age_track(ch, track_t, calc_track)]), ch);
 				found = true;
 			}
 		}
@@ -133,7 +135,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	vict = target_resolver::FindCharInRoom(ch, arg);
+	vict = target_resolver::FindCharInRoom(ch, target_name);
 
 	if (vict) {
 		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, kToChar);
@@ -154,7 +156,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		if (*name && isname(arg, name))
+		if (*name && isname(target_name, name))
 			break;
 		else
 			*name = '\0';
@@ -167,36 +169,36 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	ch->track_dirs = 0;
 	utils::CAP(name);
-	sprintf(buf, "%s:\r\n", name);
+	std::string out = fmt::format("{}:\r\n", name);
 
 	for (int c = 0; c < EDirection::kMaxDirNum; c++) {
 		if ((track && track->time_income[c]
 			&& calc_track >= number(0, MUD::Skill(ESkill::kTrack).difficulty))
 			|| (!track && calc_track < number(0, MUD::Skill(ESkill::kTrack).difficulty))) {
 			found = true;
-			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
-					track_when[age_track
-						(ch,
-						 track ? track->
-							 time_income[c] : (1 << number(0, 25)), calc_track)], DirsFrom[Reverse[c]]);
+			out += fmt::format("- {} следы ведут {}\r\n",
+							   track_when[age_track(ch,
+													track ? track->time_income[c] : (1 << number(0, 25)),
+													calc_track)],
+							   DirsFrom[Reverse[c]]);
 		}
 		if ((track && track->time_outgone[c]
 			&& calc_track >= number(0, MUD::Skill(ESkill::kTrack).difficulty))
 			|| (!track && calc_track < number(0, MUD::Skill(ESkill::kTrack).difficulty))) {
 			found = true;
 			SET_BIT(ch->track_dirs, 1 << c);
-			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
-					track_when[age_track
-						(ch,
-						 track ? track->
-							 time_outgone[c] : (1 << number(0, 25)), calc_track)], DirsTo[c]);
+			out += fmt::format("- {} следы ведут {}\r\n",
+							   track_when[age_track(ch,
+													track ? track->time_outgone[c] : (1 << number(0, 25)),
+													calc_track)],
+							   DirsTo[c]);
 		}
 	}
 
 	if (!found) {
-		sprintf(buf, "След неожиданно оборвался.\r\n");
+		out = "След неожиданно оборвался.\r\n";
 	}
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(out, ch);
 }
 
 void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {

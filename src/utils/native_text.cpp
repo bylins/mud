@@ -75,42 +75,6 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
 
 namespace {
 
-// Local copy of the lead-byte length table. utf8::sequence_length lives in another translation
-// unit, and this runs once per character in every scan -- a cross-module call there costs more
-// than the work itself.
-inline std::size_t lead_len(unsigned char c) {
-	if (c < 0x80) {
-		return 1;
-	}
-	if (c >= 0xC0 && c <= 0xDF) {
-		return 2;
-	}
-	if (c >= 0xE0 && c <= 0xEF) {
-		return 3;
-	}
-	if (c >= 0xF0 && c <= 0xF7) {
-		return 4;
-	}
-	return 1;
-}
-
-}  // namespace
-
-std::size_t char_bytes(const char *s) {
-	const unsigned char lead = static_cast<unsigned char>(*s);
-	if (lead < 0x80) {
-		return 1;
-	}
-	const std::size_t want = lead_len(lead);
-	std::size_t n = 1;
-	while (n < want && (static_cast<unsigned char>(s[n]) & 0xC0) == 0x80) {
-		++n;
-	}
-	return n;
-}
-
-namespace {
-
 // Shared driver for the two case-insensitive comparisons. `limit` caps how many bytes of `a` may
 // be consumed (npos = unlimited): once that budget is spent the strings count as equal, which is
 int compare_folded(std::string_view a, std::string_view b, std::size_t limit) {
@@ -150,7 +114,7 @@ int compare_ci(std::string_view a, std::string_view b) {
 }
 
 
-bool is_alnum_char(const char *s) {
+bool is_alnum_char_slow(const char *s) {
 	const unsigned char lead = static_cast<unsigned char>(*s);
 	if (lead < 0x80) {
 		return (lead >= '0' && lead <= '9') || (lead >= 'A' && lead <= 'Z') || (lead >= 'a' && lead <= 'z');

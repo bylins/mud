@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include "gameplay/mechanics/depot.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/sight.h"
@@ -170,22 +172,20 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		obj_dotmode = kFindIndiv;
 	} else
-		obj_dotmode = find_all_dots(theobj);
+		obj_dotmode = ParseAllPrefix(theobj);
 
-	cont_dotmode = find_all_dots(thecont);
+	cont_dotmode = ParseAllPrefix(thecont);
 
 	if (!*theobj)
 		SendMsgToChar("Положить что и куда?\r\n", ch);
 	else if (cont_dotmode != kFindIndiv)
 		SendMsgToChar("Вы можете положить вещь только в один контейнер.\r\n", ch);
 	else if (!*thecont) {
-		sprintf(buf, "Куда вы хотите положить '%s'?\r\n", theobj);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format("Куда вы хотите положить '{}'?\r\n", theobj), ch);
 	} else {
 		generic_find(thecont, where_bits, ch, &tmp_char, &cont);
 		if (!cont) {
-			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вы не видите здесь '{}'.\r\n", thecont), ch);
 		} else if (cont->get_type() != EObjType::kContainer) {
 			act("В $o3 нельзя ничего положить.", false, ch, cont, nullptr, kToChar);
 		} else if (IS_SET(GET_OBJ_VAL((cont), 1), (EContainerFlag::kShutted))) {
@@ -219,8 +219,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				} else {
 					auto obj = get_obj_in_list_vis(ch, theobj, ch->carrying);
 					if (!obj) {
-						sprintf(buf, "У вас нет '%s'.\r\n", theobj);
-						SendMsgToChar(buf, ch);
+						SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", theobj), ch);
 					} else if (obj == cont) {
 						SendMsgToChar("Вам будет трудно запихнуть вещь саму в себя.\r\n", ch);
 					} else {
@@ -254,8 +253,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (obj_dotmode == kFindAll)
 						SendMsgToChar("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n", ch);
 					else {
-						sprintf(buf, "Вы не видите ничего похожего на '%s'.\r\n", theobj);
-						SendMsgToChar(buf, ch);
+						SendMsgToChar(fmt::format("Вы не видите ничего похожего на '{}'.\r\n", theobj), ch);
 					}
 				}
 			}
@@ -283,18 +281,17 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum) {
 	}
 	obj->set_aliases(aliases);
 
-	obj->set_short_description(cur.GetObjCName(quantity, grammar::ECase::kNom));
+	obj->set_short_description(cur.GetObjName(quantity, grammar::ECase::kNom));
 	for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; ++i) {
 		const auto name_case = static_cast<grammar::ECase>(i);
-		obj->set_PName(name_case, cur.GetObjCName(quantity, name_case));
+		obj->set_PName(name_case, cur.GetObjName(quantity, name_case));
 	}
 
-	char descr_buf[256];
-	snprintf(descr_buf, sizeof(descr_buf), "Здесь лежит %s.", cur.GetObjCName(quantity, grammar::ECase::kNom));
-	obj->set_description(utils::CAP(descr_buf));
+	obj->set_description(utils::CAP(fmt::format("Здесь лежит {}.",
+												cur.GetObjName(quantity, grammar::ECase::kNom))));
 
 	new_descr.keyword = aliases;
-	new_descr.description = cur.GetObjCName(quantity, grammar::ECase::kNom);
+	new_descr.description = cur.GetObjName(quantity, grammar::ECase::kNom);
 	obj->ex_descriptions().assign(1, std::move(new_descr));
 
 	obj->set_type(EObjType::kMoney);
@@ -314,8 +311,6 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum) {
 }
 
 ObjData::shared_ptr CreateCurrencyObj(long quantity) {
-	char buf[200];
-
 	if (quantity <= 0) {
 		log("SYSERR: Try to create negative or 0 money. (%ld)", quantity);
 		return (nullptr);
@@ -324,9 +319,8 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 	ExtraDescription new_descr;
 
 	if (quantity == 1) {
-		sprintf(buf, "coin gold кун деньги денег монет %s",
-				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
-		obj->set_aliases(buf);
+		obj->set_aliases(fmt::format("coin gold кун деньги денег монет {}",
+									 MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, grammar::ECase::kNom)));
 		obj->set_short_description("куна");
 		obj->set_description("Одна куна лежит здесь.");
 		new_descr.keyword = "coin gold монет кун денег";
@@ -334,21 +328,20 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 			auto name_case = static_cast<grammar::ECase>(i);
 			obj->set_PName(name_case,
-						   MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, name_case));
+						   MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, name_case));
 		}
 	} else {
-		sprintf(buf, "coins gold кун денег %s",
-				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
-		obj->set_aliases(buf);
-		obj->set_short_description(MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
+		obj->set_aliases(fmt::format("coins gold кун денег {}",
+									 MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, grammar::ECase::kNom)));
+		obj->set_short_description(MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, grammar::ECase::kNom));
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 			auto name_case = static_cast<grammar::ECase>(i);
-			obj->set_PName(name_case, MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, name_case));
+			obj->set_PName(name_case, MUD::Currency(currencies::kGoldVnum).GetObjName(quantity, name_case));
 		}
 
-		sprintf(buf, "Здесь лежит %s.",
-				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
-		obj->set_description(utils::CAP(buf));
+		obj->set_description(utils::CAP(fmt::format("Здесь лежит {}.",
+													MUD::Currency(currencies::kGoldVnum).GetObjName(quantity,
+																								   grammar::ECase::kNom))));
 
 		new_descr.keyword = "coins gold кун денег";
 	}

@@ -114,8 +114,7 @@ void ParseTrigList(DataNode node, TrigList *triggers) {
 	for (auto &trig : node.Children("trig")) {
 		int vnum = AttrInt(trig, "vnum");
 		if (!vnum) {
-			snprintf(buf, kMaxStringLength, "...celebrates - bad trig (node = %s)", node.GetName());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...celebrates - bad trig (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		triggers->push_back(vnum);
@@ -126,8 +125,7 @@ void ParseLoadData(const DataNode &node, const LoadPtr &node_data) {
 	int vnum = AttrInt(node, "vnum");
 	int max = AttrInt(node, "max");
 	if (!vnum || !max) {
-		snprintf(buf, kMaxStringLength, "...celebrates - bad data (node = %s)", node.GetName());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("...celebrates - bad data (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	node_data->vnum = vnum;
@@ -138,11 +136,8 @@ void ParseLoadSection(DataNode node, const CelebrateDataPtr &holiday) {
 	for (auto &room : node.Children("room")) {
 		int vnum = AttrInt(room, "vnum");
 		if (!vnum) {
-			snprintf(buf,
-					 kMaxStringLength,
-					 "...celebrates - bad room (celebrate = %s)",
-					 node.GetValue("name"));
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...celebrates - bad room (celebrate = {})", node.GetValue("name")),
+				   CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		CelebrateRoomPtr tmp_room(new CelebrateRoom);
@@ -183,8 +178,7 @@ void ParseAttachSection(DataNode node, const CelebrateDataPtr &holiday) {
 	for (auto &mob : node.Children("mob")) {
 		vnum = AttrInt(mob, "vnum");
 		if (!vnum) {
-			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.GetName());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...celebrates - bad attach data (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		ParseTrigList(mob, &holiday->mobsToAttach[vnum / 100][vnum]);
@@ -192,8 +186,7 @@ void ParseAttachSection(DataNode node, const CelebrateDataPtr &holiday) {
 	for (auto &obj : node.Children("obj")) {
 		vnum = AttrInt(obj, "vnum");
 		if (!vnum) {
-			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.GetName());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...celebrates - bad attach data (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		ParseTrigList(obj, &holiday->objsToAttach[vnum / 100][vnum]);
@@ -231,8 +224,7 @@ void LoadCelebrates(DataNode node_list, CelebrateList &celebrates, bool is_real)
 		std::string name = name_attr ? name_attr : "";
 		int baseDay;
 		if (!day || !month || name.empty()) {
-			snprintf(buf, kMaxStringLength, "...celebrates - bad node struct");
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+			mudlog("...celebrates - bad node struct", CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		CelebrateDataPtr tmp_holiday(new CelebrateData);

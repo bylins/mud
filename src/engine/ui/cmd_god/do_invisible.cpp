@@ -6,8 +6,11 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "engine/ui/cmd/do_visible.h"
+#include "utils/utils_string.h"
 
 void perform_immort_invis(CharData *ch, int level);
 
@@ -19,8 +22,9 @@ void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	one_argument(argument, arg);
-	if (!*arg) {
+	std::string remains;
+	const std::string arg = utils::ExtractFirstArgumentLower(argument, remains);
+	if (arg.empty()) {
 		if (GET_INVIS_LEV(ch) > 0)
 			perform_immort_vis(ch);
 		else {
@@ -30,7 +34,7 @@ void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				perform_immort_invis(ch, GetRealLevel(ch));
 		}
 	} else {
-		level = MIN(atoi(arg), kLvlImplementator);
+		level = MIN(atoi(arg.c_str()), kLvlImplementator);
 		if (level > GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo))
 			SendMsgToChar("Вы не можете достичь невидимости выше вашего уровня.\r\n", ch);
 		else if (GetRealLevel(ch) < kLvlImplementator && level > kLvlImmortal && !ch->IsFlagged(EPrf::kCoderinfo))
@@ -64,8 +68,7 @@ void perform_immort_invis(CharData *ch, int level) {
 	}
 
 	SET_INVIS_LEV(ch, level);
-	sprintf(buf, "Ваш уровень невидимости - %d.\r\n", level);
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(fmt::format("Ваш уровень невидимости - {}.\r\n", level), ch);
 }
 
 

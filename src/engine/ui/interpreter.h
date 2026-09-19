@@ -29,7 +29,7 @@ void DoMove(CharData *ch, char *, int, int subcmd);
 #define CMD_IS(cmd_name) (utils::IsAbbr(cmd_name, cmd_info[cmd].command))
 
 void command_interpreter(CharData *ch, char *argument);
-// fill_word, half_chop moved to mud_string.h
+// half_chop moved to mud_string.h
 
 // is_number moved to utils_string.h
 int find_command(const char *command);
@@ -111,7 +111,7 @@ struct SortStruct {
 extern SortStruct *cmd_sort_info;
 extern int num_of_cmds;
 
-// one_argument, any_one_arg, two_arguments, three_arguments, SplitArgument moved to mud_string.h
+// one_argument, two_arguments, three_arguments, SplitArgument moved to mud_string.h
 
 void SortCommands();
 

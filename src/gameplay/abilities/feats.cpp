@@ -45,7 +45,16 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 		case EFeat::kGreatPowerAttack: return (GetRealStr(ch) > 21);
 		case EFeat::kAimingAttack: return (GetRealDex(ch) > 15);
 		case EFeat::kGreatAimingAttack: return (GetRealDex(ch) > 17);
-		case EFeat::kDoubleShot: return (GetSkill(ch, ESkill::kBows) > 39);
+			// Обе способности требуют парного "любимого оружия" -- так написано и в справке,
+			// и так их проверяет CanGetFeat при изучении. Раньше требование жило только на
+			// входе: выучить без "любимого оружия" было нельзя, но если способность всё же
+			// оказалась у персонажа, список способностей красил её жёлтым, как рабочую.
+		case EFeat::kDoubleShot:
+			return ch->HaveFeat(EFeat::kBowsFocus) && GetSkill(ch, ESkill::kBows) > 39;
+			// Допудар двуручем и так срабатывает только вместе с "любимым оружием"
+			// (см. fight.cpp), здесь это условие просто оказывается в одном месте с прочими.
+		case EFeat::kSlashMaster:
+			return ch->HaveFeat(EFeat::kTwohandsFocus);
 		case EFeat::kJeweller: return (GetSkill(ch, ESkill::kJewelry) > 59);
 		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + remort::GetRealRemort(ch) / 3) > 19);
 		case EFeat::kMagicUser: return (GetRealLevel(ch) < 25);

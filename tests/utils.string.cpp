@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "utils/utils.h"
+#include "utils/mud_string.h"
 
 struct
 {
@@ -545,6 +546,18 @@ TEST(Utils_String, IsEqual_DotsSplitBothSides)
 	EXPECT_FALSE(utils::IsEqual("жизнь", "макс.жизнь"));
 }
 
+TEST(Utils_String, IsEqual_MultiWordNameTakesDottedAbbrev)
+{
+	// Так ищется режим в "реж": название из двух слов сокращается через точку,
+	// как цель у предметов ("меч.неизв"). search_block этого не умеет -- он сверяет
+	// строку целиком и спотыкается на точке.
+	EXPECT_TRUE(utils::IsEqual("перенос строк", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("пер.стро", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("перенос", "перенос строк"));
+	EXPECT_TRUE(utils::IsEqual("фл.ком", "флаги комнат"));
+	EXPECT_FALSE(utils::IsEqual("строк", "перенос строк"));
+}
+
 // ===== IsEquivalent =====
 
 TEST(Utils_String, IsEquivalent_AbbreviatedMatch_ReturnsTrue)
@@ -582,6 +595,32 @@ TEST(Utils_String, IsEquivalent_OrderMatters)
 	// Слова запроса ищутся по порядку, пропуская лишние слова имени.
 	EXPECT_TRUE(utils::IsEquivalent("hel wor", "hello big world"));
 	EXPECT_FALSE(utils::IsEquivalent("wor hel", "hello big world"));
+}
+
+TEST(Utils_String, IsEquivalent_MatchesIsname)
+{
+	// Это строковый аналог isname, которым ищут предметы и персонажей по алиасам. Так что
+	// на том, как игрок набирает цель, обе функции обязаны отвечать одинаково.
+	const char *aliases = "книга возникновении огня огненная";
+	for (const char *query : {"кни.огн", "кни огн", "огн.кни", "книга", "кни.нет", "огненная"}) {
+		EXPECT_EQ(utils::IsEquivalent(query, aliases), isname(query, aliases)) << "запрос: " << query;
+	}
+}
+
+TEST(Utils_String, IsEquivalent_HyphenStaysInsideTheWord)
+{
+	// Разделитель у нас точка, дефис -- часть слова, поэтому правильный запрос к дефисному
+	// имени выглядит так, и обе функции находят по нему одинаково.
+	const char *aliases = "фехтовальный металлический веер шань-цзы";
+	EXPECT_TRUE(utils::IsEquivalent("веер.шань-цзы", aliases));
+	EXPECT_TRUE(isname("веер.шань-цзы", aliases));
+	EXPECT_TRUE(utils::IsEquivalent("шань-цзы", aliases));
+	EXPECT_TRUE(isname("шань-цзы", aliases));
+
+	// А вот дробление имени по дефису -- дикумадовская добавка isname, у которого разделитель
+	// любой не-буквенно-цифровой знак. Правилу она не соответствует, и на std::string её нет.
+	EXPECT_TRUE(isname("цзы", aliases));
+	EXPECT_FALSE(utils::IsEquivalent("цзы", aliases));
 }
 
 // ===== ExtractFirstArgument =====
@@ -681,6 +720,188 @@ TEST(Utils_String, ScreenRulerHandlesWidthsBelowFirstMark) {
 	// Меньше пяти знаков -- меток нет вовсе, но длина всё равно запрошенная.
 	EXPECT_EQ(ScreenRuler(0), "");
 	EXPECT_EQ(ScreenRuler(4), "....");
+}
+
+// ===== ExtractFirstArgumentLower =====
+// Полный строковый аналог one_argument: сверяемся именно с ним -- на нём держится вся замена
+// глобального arg в командах (#3807).
+
+TEST(Utils_String, ExtractFirstArgumentLower_MatchesOneArgumentOnPlainWords)
+{
+	char legacy[kMaxInputLength];
+	std::string rest;
+	const char *legacy_rest = one_argument("сбить гоблина палкой", legacy);
+
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("сбить гоблина палкой", rest), legacy);
+	EXPECT_EQ(rest, legacy_rest);
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_LowersCase)
+{
+	// one_argument понижает регистр, ExtractFirstArgument -- нет.
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("ГОБЛИН"), "гоблин");
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("FROZEN"), "frozen");
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_KeepsFillWords)
+{
+	// in from with the on at to больше не пропускаются -- ни здесь, ни в one_argument (#3814):
+	// из-за пропуска молча исчезал аргумент-ключ вроде "hide on".
+	char legacy[kMaxInputLength];
+	one_argument("on причина", legacy);
+	EXPECT_STREQ(legacy, "on");
+
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("the goblin палкой", rest), "the");
+	EXPECT_EQ(rest, "goblin палкой");
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_EmptyInput)
+{
+	std::string rest = "мусор";
+	EXPECT_TRUE(utils::ExtractFirstArgumentLower("   ", rest).empty());
+	EXPECT_TRUE(rest.empty());
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_TabIsASeparator)
+{
+	std::string rest;
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("сбить\tгоблина", rest), "сбить");
+	EXPECT_EQ(rest, "гоблина");
+}
+
+TEST(Utils_String, ExtractFirstArgumentLower_KeepsMultibyteLettersIntact)
+{
+	// Понижение регистра идёт посимвольно: русская буква не должна развалиться на байты.
+	EXPECT_EQ(utils::ExtractFirstArgumentLower("ВОЛЧИЦА съела"), "волчица");
+}
+
+TEST(Utils_String, ThousandsSep)
+{
+	EXPECT_EQ(thousands_sep(0), "0");
+	EXPECT_EQ(thousands_sep(20), "20");
+	EXPECT_EQ(thousands_sep(1000), "1,000");
+	EXPECT_EQ(thousands_sep(-1234567), "-1,234,567");
+}
+
+TEST(Utils_String, ThousandsSep_NoTrailingNul)
+{
+	// Хвостовой '\0' уезжал в сокет и обрубал строку у клиента (команда "уровни").
+	const auto value = thousands_sep(20);
+	EXPECT_EQ(value.size(), strlen(value.c_str()));
+}
+
+// ===== MayMatchName (предфильтр под isname) =====
+
+namespace {
+
+struct NameCase {
+	const char *query;
+	const char *aliases;
+};
+
+// Пары "запрос -- список алиасов" вперемешку: совпадающие, несовпадающие,
+// в разном регистре, с аббревиатурами и служебными символами.
+const NameCase kNameCases[] = {
+	{"меч", "меч клинок"},
+	{"меч", "мечта грёза"},
+	{"фридр", "посох фридриха"},
+	{"посох", "посох фридриха"},
+	{"МЕЧ", "меч клинок"},
+	{"меч", "МЕЧ КЛИНОК"},
+	{"Фридр", "ПОСОХ ФРИДРИХА"},
+	{"топор", "меч клинок"},
+	{"sword", "sword blade"},
+	{"SWORD", "sword blade"},
+	{"sword", "shield"},
+	{"", "меч клинок"},
+	{"меч", ""},
+	{".меч", "меч клинок"},
+	{"меч.клинок", "меч клинок"},
+	{"!меч", "меч клинок"},
+	{"чет", "четвёртый стилет"},
+	{"стилет", "четвёртый стилет"},
+	{"ё", "четвёртый стилет"},
+	{"я", "меч клинок"},
+};
+
+}  // namespace
+
+TEST(Utils_String, MayMatchName_NeverLosesAnIsnameMatch)
+{
+	// Единственное обещание предфильтра: false => isname тоже false.
+	for (const auto &c : kNameCases) {
+		if (isname(c.query, c.aliases)) {
+			EXPECT_TRUE(MayMatchName(c.query, c.aliases))
+				<< "запрос '" << c.query << "', алиасы '" << c.aliases << "'";
+		}
+	}
+}
+
+TEST(Utils_String, MayMatchName_CutsOffMissingLetters)
+{
+	// Буквы запроса нет в списке -- отсеиваем, не заходя в isname.
+	EXPECT_FALSE(MayMatchName("топор", "меч клинок"));
+	EXPECT_FALSE(MayMatchName("sword", "blade"));
+}
+
+TEST(Utils_String, MayMatchName_IgnoresLetterCase)
+{
+	EXPECT_TRUE(MayMatchName("МЕЧ", "меч клинок"));
+	EXPECT_TRUE(MayMatchName("меч", "МЕЧ КЛИНОК"));
+}
+
+TEST(Utils_String, MayMatchName_SkipsLeadingPunctuation)
+{
+	// isname пропускает ведущие не-буквы, предфильтр обязан вести себя так же.
+	EXPECT_TRUE(MayMatchName(".меч", "меч клинок"));
+	EXPECT_TRUE(MayMatchName("!меч", "меч клинок"));
+}
+
+TEST(Utils_String, MayMatchName_EmptyInputDefersToIsname)
+{
+	EXPECT_TRUE(MayMatchName("", "меч клинок"));
+	EXPECT_TRUE(MayMatchName("меч", ""));
+}
+
+TEST(Utils_String, VisibleWidth_SkipsBothColorForms)
+{
+	EXPECT_EQ(utils::VisibleWidth("abc"), 3u);
+	EXPECT_EQ(utils::VisibleWidth("&Rabc&n"), 3u);          // наши цветокоды
+	EXPECT_EQ(utils::VisibleWidth("\x1B[1;33mabc\x1B[0;37m"), 3u);  // готовый ANSI
+	EXPECT_EQ(utils::VisibleWidth("\x1B[1;33m&Rabc&n\x1B[0m"), 3u); // вперемешку
+}
+
+TEST(Utils_String, VisibleWidth_CountsCharactersNotBytes)
+{
+	// Русская буква в UTF-8 занимает два байта, а на экране -- одно место.
+	EXPECT_EQ(utils::VisibleWidth("меч"), 3u);
+	EXPECT_EQ(utils::VisibleWidth("\x1B[1;33mмеч\x1B[0;37m"), 3u);
+}
+
+TEST(Utils_String, OutWordsList_AnsiPrefixDoesNotEatWidth)
+{
+	// Регрессия: цвет из констант kColor* -- это готовый ANSI, а не "&X". Пока его считали
+	// за видимые символы, строка с цветом переносилась на длину escape раньше срока.
+	const std::string plain = utils::OutWordsList(std::string("aaa bbb ccc"), 11, " ");
+	const std::string colored = utils::OutWordsList(std::string("\x1B[1;33maaa bbb ccc\x1B[0;37m"), 11, " ");
+	EXPECT_EQ(plain.find("\r\n"), std::string::npos);
+	EXPECT_EQ(colored.find("\r\n"), std::string::npos);
+}
+
+TEST(Utils_String, WrapText_LeavesFittingLinesUntouched)
+{
+	// Перенос теперь стоит на всём выводе act и каналов, а короткие строки бывают выровнены
+	// пробелами. Собирать их заново из слов нельзя -- подряд идущие пробелы схлопнутся.
+	EXPECT_EQ(utils::WrapText("a    b", 20), "a    b");
+	EXPECT_EQ(utils::WrapText("  отступ", 20), "  отступ");
+	EXPECT_EQ(utils::WrapText("x  y\r\nz   w", 20), "x  y\r\nz   w");
+}
+
+TEST(Utils_String, WrapText_WrapsOnlyTheLongLine)
+{
+	const std::string wrapped = utils::WrapText("коротко  тут\r\nдлинная строка из слов", 12);
+	EXPECT_EQ(wrapped, "коротко  тут\r\nдлинная\r\nстрока из\r\nслов");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

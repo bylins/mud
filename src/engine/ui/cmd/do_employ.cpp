@@ -1,5 +1,7 @@
 #include "do_employ.h"
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/obj_handler.h"
@@ -13,11 +15,11 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text);
 void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 	ObjData *mag_item;
 	int do_hold = 0;
-	two_arguments(argument, arg, buf);
-	char *buf_temp = str_dup(buf);
-	if (!*arg) {
-		snprintf(buf2, sizeof(buf2), "Что вы хотите %s?\r\n", cmd_info[cmd].command);
-		SendMsgToChar(buf2, ch);
+	char name[kMaxInputLength];
+	char rest[kMaxInputLength];
+	two_arguments(argument, name, rest);
+	if (!*name) {
+		SendMsgToChar(fmt::format("Что вы хотите {}?\r\n", cmd_info[cmd].command), ch);
 		return;
 	}
 
@@ -28,21 +30,19 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	mag_item = GET_EQ(ch, kHold);
 	if (!mag_item
-		|| !isname(arg, mag_item->get_aliases())) {
+		|| !isname(name, mag_item->get_aliases())) {
 		switch (subcmd) {
 			case SCMD_RECITE:
 			case SCMD_QUAFF:
-				if (!(mag_item = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-					snprintf(buf2, kMaxStringLength, "Окститесь, нет у вас %s.\r\n", arg);
-					SendMsgToChar(buf2, ch);
+				if (!(mag_item = get_obj_in_list_vis(ch, name, ch->carrying))) {
+					SendMsgToChar(fmt::format("Окститесь, нет у вас {}.\r\n", name), ch);
 					return;
 				}
 				break;
-			case SCMD_USE: mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
+			case SCMD_USE: mag_item = get_obj_in_list_vis(ch, name, ch->carrying);
 				if (!mag_item
 					|| mag_item->get_type() != EObjType::kEnchant) {
-					snprintf(buf2, kMaxStringLength, "Возьмите в руку '%s' перед применением!\r\n", arg);
-					SendMsgToChar(buf2, ch);
+					SendMsgToChar(fmt::format("Возьмите в руку '{}' перед применением!\r\n", name), ch);
 					return;
 				}
 				break;
@@ -71,7 +71,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 			break;
 		case SCMD_USE:
 			if (mag_item->get_type() == EObjType::kEnchant) {
-				apply_enchant(ch, mag_item, buf);
+				apply_enchant(ch, mag_item, rest);
 				return;
 			}
 			if (mag_item->get_type() != EObjType::kWand
@@ -110,9 +110,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 		EquipObj(ch, mag_item, EEquipPos::kHold, CharEquipFlags());
 	}
 	if ((do_hold && GET_EQ(ch, EEquipPos::kHold) == mag_item) || (!do_hold))
-		EmployMagicItem(ch, mag_item, buf_temp);
-	free(buf_temp);
-
+		EmployMagicItem(ch, mag_item, rest);
 }
 
 void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
@@ -159,8 +157,10 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 	} else {
 		int slots = obj->get_wear_flags();
 		REMOVE_BIT(slots, EWearFlag::kTake);
-		if (sprintbit(slots, wear_bits, buf2, sizeof(buf2))) {
-			SendMsgToChar(ch, "Это зачарование применяется к предметам со слотами надевания: %s\r\n", buf2);
+		const std::string slot_names = sprintbit(slots, wear_bits);
+		if (!slot_names.empty()) {
+			SendMsgToChar(fmt::format("Это зачарование применяется к предметам со слотами надевания: {}\r\n",
+									  slot_names), ch);
 		} else {
 			SendMsgToChar(ch, "Некорретное зачарование, не проставлены слоты надевания.\r\n");
 		}

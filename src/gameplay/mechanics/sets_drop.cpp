@@ -223,8 +223,7 @@ void init_obj_list() {
 	const std::string xml_sets_drop = native_text::read_data_file(CONFIG_FILE);
 	pugi::xml_parse_result result = doc.load_buffer(xml_sets_drop.data(), xml_sets_drop.size());
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("...{}", result.description()), CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("set_list");
@@ -255,9 +254,8 @@ void init_obj_list() {
 				const int obj_vnum = parse::ReadAttrAsInt(obj_node, "vnum");
 				const int obj_rnum = GetObjRnum(obj_vnum);
 				if (obj_rnum < 0) {
-					snprintf(buf, sizeof(buf),
-							 "...bad obj_node attributes (vnum=%d)", obj_vnum);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...bad obj_node attributes (vnum={})", obj_vnum),
+						   CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 
@@ -295,9 +293,8 @@ void init_obj_list() {
 			for (pugi::xml_node obj_node = set_node.child("obj"); obj_node; obj_node = obj_node.next_sibling("obj")) {
 				const int obj_vnum = parse::ReadAttrAsInt(obj_node, "vnum");
 				if (GetObjRnum(obj_vnum) < 0) {
-					snprintf(buf, sizeof(buf),
-							 "...bad obj_node attributes (vnum=%d)", obj_vnum);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					mudlog(fmt::format("...bad obj_node attributes (vnum={})", obj_vnum),
+						   CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 				// заполнение списка активаторов
@@ -896,15 +893,13 @@ bool load_unique_mobs() {
 	int vnum = 0;
 	int level = 0;
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("...{}", result.description()), CMP, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 
 	pugi::xml_node node_list = doc.child("mobs");
 	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...<mobs> read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog("...<mobs> read fail", CMP, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 
@@ -1135,9 +1130,7 @@ int check_mob(int mob_rnum) {
 
 void renumber_obj_rnum(const int mob_rnum) {
 	if (mob_rnum < 0) {
-		snprintf(buf, kMaxStringLength,
-				 "SetsDrop: renumber_obj_rnum wrong parameters...");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+		mudlog("SetsDrop: renumber_obj_rnum wrong parameters...", CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 

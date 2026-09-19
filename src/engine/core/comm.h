@@ -30,10 +30,17 @@ void SendMsgToAll(const char *msg);
 void SendMsgToChar(const char *msg, const CharData *ch);
 void SendMsgToChar(const CharData *ch, const char *msg, ...) __attribute__((format(printf, 2, 3)));
 void SendMsgToChar(const std::string &msg, const CharData *ch);
+// Ширина, по которой переносить вывод для ch: 0 -- не переносить (NPC, ширина экрана не
+// задана или режим "перенос строк" выключен).
+std::size_t LineWrapWidth(const CharData *ch);
+// Отправить текст, перенеся длинные строки по ширине экрана ch (режим "перенос строк").
+// Многострочный текст переносится построчно, авторские переводы строк сохраняются.
+void SendWrappedToChar(const std::string &msg, const CharData *ch);
 void send_stat_char(const CharData *ch);
 void SendMsgToRoom(const char *msg, RoomRnum room, int to_awake);
 void SendMsgToOutdoor(const char *msg, int control);
 void SendMsgToGods(const char *msg);
+void SendMsgToGods(const std::string &text, bool include_demigod);
 void perform_to_all(const char *messg, CharData *ch);
 #ifdef HAS_EPOLL
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev);

@@ -13,9 +13,10 @@ void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	int diff;
 
-	one_argument(argument, buf);
+	char name[kMaxInputLength];
+	one_argument(argument, name);
 
-	victim = target_resolver::FindCharInRoom(ch, buf);
+	victim = target_resolver::FindCharInRoom(ch, name);
 
 	if (!victim) {
 		SendMsgToChar("Кого вы хотите оценить?\r\n", ch);

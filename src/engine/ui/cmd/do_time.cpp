@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/weather.h"
@@ -14,15 +16,15 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int day, month, days_go;
 	if (ch->IsNpc())
 		return;
-	sprintf(buf, "Сейчас ");
+	std::string out = "Сейчас ";
 	switch (time_info.hours % 24) {
-		case 0: sprintf(buf + strlen(buf), "полночь, ");
+		case 0: out += "полночь, ";
 			break;
-		case 1: sprintf(buf + strlen(buf), "1 час ночи, ");
+		case 1: out += "1 час ночи, ";
 			break;
 		case 2:
 		case 3:
-		case 4: sprintf(buf + strlen(buf), "%d часа ночи, ", time_info.hours);
+		case 4: out += fmt::format("{} часа ночи, ", time_info.hours);
 			break;
 		case 5:
 		case 6:
@@ -30,15 +32,15 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		case 8:
 		case 9:
 		case 10:
-		case 11: sprintf(buf + strlen(buf), "%d часов утра, ", time_info.hours);
+		case 11: out += fmt::format("{} часов утра, ", time_info.hours);
 			break;
-		case 12: sprintf(buf + strlen(buf), "полдень, ");
+		case 12: out += "полдень, ";
 			break;
-		case 13: sprintf(buf + strlen(buf), "1 час пополудни, ");
+		case 13: out += "1 час пополудни, ";
 			break;
 		case 14:
 		case 15:
-		case 16: sprintf(buf + strlen(buf), "%d часа пополудни, ", time_info.hours - 12);
+		case 16: out += fmt::format("{} часа пополудни, ", time_info.hours - 12);
 			break;
 		case 17:
 		case 18:
@@ -46,58 +48,57 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		case 20:
 		case 21:
 		case 22:
-		case 23: sprintf(buf + strlen(buf), "%d часов вечера, ", time_info.hours - 12);
+		case 23: out += fmt::format("{} часов вечера, ", time_info.hours - 12);
 			break;
 	}
 
-	if (GET_RELIGION(ch) == kReligionPoly)
-		strcat(buf, weekdays_poly[weather_info.week_day_poly]);
-	else
-		strcat(buf, weekdays[weather_info.week_day_mono]);
+	if (GET_RELIGION(ch) == kReligionPoly) {
+		out += weekdays_poly[weather_info.week_day_poly];
+	} else {
+		out += weekdays[weather_info.week_day_mono];
+	}
 	switch (weather_info.sunlight) {
-		case kSunDark: strcat(buf, ", ночь");
+		case kSunDark: out += ", ночь";
 			break;
-		case kSunSet: strcat(buf, ", закат");
+		case kSunSet: out += ", закат";
 			break;
-		case kSunLight: strcat(buf, ", день");
+		case kSunLight: out += ", день";
 			break;
-		case kSunRise: strcat(buf, ", рассвет");
+		case kSunRise: out += ", рассвет";
 			break;
 	}
-	strcat(buf, ".\r\n");
-	SendMsgToChar(buf, ch);
+	out += ".\r\n";
+	SendMsgToChar(out, ch);
 
 	day = time_info.day + 1;    // day in [1..30]
-	*buf = '\0';
+	out.clear();
 	if (GET_RELIGION(ch) == kReligionPoly || privilege::IsImmortal(ch)) {
 		days_go = time_info.month * kDaysPerMonth + time_info.day;
 		month = days_go / 40;
 		days_go = (days_go % 40) + 1;
-		sprintf(buf + strlen(buf), "%s, %dй День, Год %d%s",
-				month_name_poly[month], days_go, time_info.year, privilege::IsImmortal(ch) ? ".\r\n" : "");
+		out += fmt::format("{}, {}й День, Год {}{}",
+						   month_name_poly[month], days_go, time_info.year, privilege::IsImmortal(ch) ? ".\r\n" : "");
 	}
-	if (GET_RELIGION(ch) == kReligionMono || privilege::IsImmortal(ch))
-		sprintf(buf + strlen(buf), "%s, %dй День, Год %d",
-				month_name[static_cast<int>(time_info.month)], day, time_info.year);
-	if (privilege::IsImmortal(ch))
-		sprintf(buf + strlen(buf),
-				"\r\n%d.%d.%d, дней с начала года: %d",
-				day,
-				time_info.month + 1,
-				time_info.year,
-				(time_info.month * kDaysPerMonth) + day);
+	if (GET_RELIGION(ch) == kReligionMono || privilege::IsImmortal(ch)) {
+		out += fmt::format("{}, {}й День, Год {}",
+						   month_name[static_cast<int>(time_info.month)], day, time_info.year);
+	}
+	if (privilege::IsImmortal(ch)) {
+		out += fmt::format("\r\n{}.{}.{}, дней с начала года: {}",
+						   day, time_info.month + 1, time_info.year, (time_info.month * kDaysPerMonth) + day);
+	}
 	switch (weather_info.season) {
-		case ESeason::kWinter: strcat(buf, ", зима");
+		case ESeason::kWinter: out += ", зима";
 			break;
-		case ESeason::kSpring: strcat(buf, ", весна");
+		case ESeason::kSpring: out += ", весна";
 			break;
-		case ESeason::kSummer: strcat(buf, ", лето");
+		case ESeason::kSummer: out += ", лето";
 			break;
-		case ESeason::kAutumn: strcat(buf, ", осень");
+		case ESeason::kAutumn: out += ", осень";
 			break;
 	}
-	strcat(buf, ".\r\n");
-	SendMsgToChar(buf, ch);
+	out += ".\r\n";
+	SendMsgToChar(out, ch);
 	gods_day_now(ch);
 }
 

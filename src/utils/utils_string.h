@@ -108,11 +108,23 @@ std::string RemoveColors(std::string string);
 shared_string_ptr GetStringWithoutColors(const char *string);
 std::string GetStringWithoutColors(const std::string &string);
 
-// Аналог isstring для std::string
-// поиск аббревиатур по тексту с пропуском слов
+// Строковый аналог isname (никакого isstring в коде нет и не было -- опечатка).
+// Слова abbr ищутся среди слов words по порядку, лишние слова words пропускаются; каждое
+// слово сравнивается по префиксу и без учёта регистра. Так игрок и набирает цель: "кни.огн"
+// находит "книга возникновении огня", а "огн.кни" -- уже нет, порядок значим.
+//
+// Разделитель слов -- точка (а также подчёркивание и пробел). Дефис остаётся частью слова, как
+// и положено: правильный запрос к "вееру шань-цзы" -- "веер.шань-цзы", и его находят обе
+// функции. isname вдобавок режет по любому не-буквенно-цифровому знаку, дефис включая, поэтому
+// у него срабатывает ещё и "цзы" -- это дикумадовское наследие, а не наше правило, полагаться
+// на него не стоит.
+//
+// Пустой abbr сюда не приходит: вызывающие отсекают его сами (do_style, show featinfo,
+// currencies::FindBySearch). Вернёт он на нём true -- совпадение с чем угодно, тогда как
+// isname отвечает "нет"; это следствие реализации, а не обещание.
 // abbr - список кратких аббревиатур, words текст\фраза
 bool IsEquivalent(const std::string &abbr, const std::string &words);
-// поиск abbr  без пропусков слов в строке words
+// То же, но без пропусков: слова abbr должны совпасть с первыми словами words подряд.
 bool IsEqual(const std::string &abbr, const std::string &words);
 // Совпадают ли первые chars символов у обеих строк (без учёта регистра). Если символов
 // в какой-то из строк меньше -- не совпадают. Единица счёта -- символ, а не байт: пределы
@@ -157,13 +169,22 @@ std::vector<std::string> SplitAny(const std::string s, std::string any);
  *
  * Разделителями считаются пробел, табуляция и переводы строки -- то же, что у a_isspace.
  *
- * ВАЖНО, чем это НЕ является: one_argument вдобавок понижает регистр слова и пропускает
- * служебные слова (in, from, with, the, on, at, to -- см. fill_word). Здесь ни того, ни другого
- * нет: слово возвращается как есть. При переносе кода с one_argument/half_chop понижайте регистр
- * сами через native_text::to_lower, если дальше слово сравнивается с учётом регистра или уходит
- * в данные.
+ * Отличие от one_argument ровно одно: тот вдобавок приводит слово к нижнему регистру. Если
+ * это нужно (слово дальше сравнивается с учётом регистра), берите ExtractFirstArgumentLower --
+ * она и есть полный строковый аналог one_argument.
  */
 std::string ExtractFirstArgument(const std::string &s, std::string &remains);
+
+/**
+ * То же, что ExtractFirstArgument, только слово приводится к нижнему регистру -- полный
+ * строковый аналог one_argument, но без буфера на kMaxStringLength. При переносе кода со
+ * связки `one_argument(argument, arg)` через глобальный буфер (#3807) берите её: поведение
+ * команды не поменяется.
+ *
+ * Перегрузка без remains -- когда нужно только первое слово.
+ */
+std::string ExtractFirstArgumentLower(const std::string &s, std::string &remains);
+std::string ExtractFirstArgumentLower(const std::string &s);
 
 // первое слово разделенное маской
 std::string FirstWordOnString(std::string s, std::string mask);
@@ -331,9 +352,15 @@ std::string OutWordsList(const std::string &words_str, size_t max_length,
 		const std::string &separator = ", ", const std::string &prefix = "");
 // переносит многострочный текст по словам на ширину max_length, сохраняя
 // авторские переносы строк и пустые строки (абзацы): каждая исходная строка
-// переносится независимо через OutWordsList(line, max_length, " ").
+// длиннее max_length переносится независимо через OutWordsList(line, max_length, " "),
+// а влезающая остаётся нетронутой -- с её пробелами.
 // max_length == 0 -- перенос не выполняется (текст возвращается как есть с \r\n)
 std::string WrapText(const std::string &text, size_t max_length);
+
+// Видимая ширина строки в символах: пропускает и наши цветокоды (&R, &n), и готовые
+// ANSI-последовательности (\x1B[1;33m). Вторые попадают в текст из констант kColor*, и
+// счёт без них переносил строку раньше времени -- ровно на длину escape-последовательности.
+std::size_t VisibleWidth(std::string_view text);
 
 /// Вернуть строку пола персонажа по числовому значению (to_underlying(ch->get_sex())).
 std::string sprintGender(int gender_value);
@@ -431,6 +458,12 @@ inline bool isname(const char *str, const std::string &namelist) { return isname
 inline bool isname(const std::string &str, const std::string &namelist) {
 	return isname(str.c_str(), namelist.c_str());
 }
+
+/// Дешёвый предфильтр под isname: false означает, что isname заведомо не совпадёт.
+/// true ничего не обещает -- решение всё равно за isname. Смысл в цене: isname
+/// разбирает обе строки посимвольно через native_text, а здесь ищется подстрока
+/// в один-два байта. Нужен там, где isname зовут на весь список предметов мира.
+bool MayMatchName(const char *str, const std::string &namelist);
 
 /// Извлечение первого слова из C-строки с приведением к нижнему регистру.
 /// Поддерживает кавычки для слов с пробелами.

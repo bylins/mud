@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <fmt/format.h>
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"
@@ -274,8 +275,8 @@ void generate_warrior_enchant(ObjData *obj) {
 			set_obj_eff(obj, stat, get_stat_mod(stat));
 			break;
 		}
-		default: sprintf(buf2, "SYSERR: Unknown vnum warrior enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
+		default: mudlog(fmt::format("SYSERR: Unknown vnum warrior enchant object: {}", GET_OBJ_VNUM(obj)),
+						BRF, kLvlImmortal, SYSLOG, true);
 			break;
 	}
 }
@@ -321,8 +322,8 @@ void generate_magic_enchant(ObjData *obj) {
 			}
 			break;
 		}
-		default: sprintf(buf2, "SYSERR: Unknown vnum magic enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
+		default: mudlog(fmt::format("SYSERR: Unknown vnum magic enchant object: {}", GET_OBJ_VNUM(obj)),
+						BRF, kLvlImmortal, SYSLOG, true);
 			break;
 	}
 }

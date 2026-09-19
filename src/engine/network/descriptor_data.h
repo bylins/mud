@@ -119,8 +119,8 @@ struct DescriptorData {
 
 	socket_t descriptor{};    // file descriptor for socket    //
 	char host[kHostLength + 1]{};    // hostname          //
-	byte bad_pws;        // number of bad pw attemps this login //
-	byte idle_tics;        // tics idle at password prompt     //
+	int bad_pws;        // number of bad pw attemps this login //
+	int idle_tics;        // tics idle at password prompt     //
 	EConState state;        // state of 'connectedness'    //
 	int desc_num;        // unique num assigned to desc      //
 	time_t input_time;

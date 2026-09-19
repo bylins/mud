@@ -405,12 +405,6 @@ std::string CurrencyInfo::GetObjName(long amount, grammar::ECase gram_case) cons
 	fill("{currency_name}", GetPluralName(grammar::ECase::kGen));
 	return result;
 }
-const char *CurrencyInfo::GetObjCName(long amount, grammar::ECase gram_case) const {
-	static char buf[128];
-	sprintf(buf, "%s", GetObjName(amount, gram_case).c_str());
-	return buf;
-}
-
 // EPurse is an internal hand/bank selector; the public API is GetHand/GetBank/etc.
 enum class EPurse { kHand, kBank };
 

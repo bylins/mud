@@ -243,7 +243,7 @@ std::string FirstWordOnString(std::string s, std::string mask) {
 	return s;
 }
 
-// аналог one_argument для string
+// аналог one_argument для string (тот вдобавок понижает регистр -- см. ExtractFirstArgumentLower)
 // пропускает ведущие пробелы, возвращает первое слово, в remains остаток после пробела
 // безопасно вызывать как ExtractFirstArgument(str, str) - нет проблем с алиасингом
 std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
@@ -270,6 +270,17 @@ std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
 	const auto rest_begin = s.find_first_not_of(kSpaces, word_end);
 	remains = (rest_begin == std::string::npos) ? std::string() : s.substr(rest_begin);
 	return word;
+}
+
+std::string ExtractFirstArgumentLower(const std::string &s, std::string &remains) {
+	std::string word = ExtractFirstArgument(s, remains);
+	native_text::to_lower(word);
+	return word;
+}
+
+std::string ExtractFirstArgumentLower(const std::string &s) {
+	std::string remains;
+	return ExtractFirstArgumentLower(s, remains);
 }
 
 std::string SubstToLow(std::string s) {
@@ -718,7 +729,7 @@ std::string thousands_sep(long long n) {
 		negative = true;
 	}
 	int size = 50;
-	int curr_pos = size - 1;
+	int curr_pos = size;
 	const int comma = ',';
 	std::string buffer;
 	buffer.resize(size);
@@ -740,8 +751,7 @@ std::string thousands_sep(long long n) {
 		log("SYSERROR : string.at() (%s:%d)", __FILE__, __LINE__);
 		return "<OutOfRange>";
 	}
-	buffer = buffer.substr(curr_pos, size - 1);
-	return buffer;
+	return buffer.substr(curr_pos);
 }
 
 void skip_dots(char **string) {
@@ -865,6 +875,30 @@ bool IsValidEmail(const char *address) {
 // unit instead of a lead byte plus trail bytes that the byte tables would read as punctuation.
 // Under KOI8-R every helper is the original byte operation and char_bytes() == 1, so the state
 // machine below -- including each `curstr = laststr` backtrack -- behaves exactly as before.
+bool MayMatchName(const char *str, const std::string &namelist) {
+	if (!str || namelist.empty()) {
+		return true;   // решать нечего -- пусть разбирается isname
+	}
+	// isname сопоставляет первую значащую букву запроса с началом слова в списке,
+	// поэтому сама эта буква обязана в списке встретиться. Регистр isname не
+	// различает, так что ищем обе формы.
+	const char *begin = str;
+	while (*begin && !native_text::is_alnum_char(begin)) {
+		begin += native_text::char_bytes(begin);
+	}
+	if (!*begin) {
+		return true;
+	}
+
+	char lower[8];
+	char upper[8];
+	const std::size_t lower_bytes = native_text::copy_lower_char(begin, lower);
+	const std::size_t upper_bytes = native_text::copy_upper_char(begin, upper);
+
+	return namelist.find(std::string_view(lower, lower_bytes)) != std::string::npos
+		|| namelist.find(std::string_view(upper, upper_bytes)) != std::string::npos;
+}
+
 bool isname(const char *str, const char *namelist) {
 	bool once_ok = false;
 	const char *curname, *curstr, *laststr;
@@ -1000,6 +1034,34 @@ void kill_ems(std::string &str) {
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 }
 
+std::size_t utils::VisibleWidth(std::string_view text) {
+	std::size_t width = 0;
+	std::size_t pos = 0;
+	while (pos < text.size()) {
+		if (text[pos] == '&' && pos + 1 < text.size()) {
+			pos += 2;                      // наш цветокод: & и буква
+			continue;
+		}
+		if (text[pos] == '\x1B') {
+			++pos;
+			if (pos < text.size() && text[pos] == '[') {
+				++pos;
+				// тело CSI -- цифры и ';', завершает его буква (для цвета это 'm')
+				while (pos < text.size() && !std::isalpha(static_cast<unsigned char>(text[pos]))) {
+					++pos;
+				}
+			}
+			if (pos < text.size()) {
+				++pos;                     // завершающая буква (или одиночный ESC)
+			}
+			continue;
+		}
+		pos += native_text::char_bytes(text.data() + pos);
+		++width;
+	}
+	return width;
+}
+
 std::string utils::OutWordsList(const std::vector<std::string> &words, size_t max_length,
 		const std::string &separator, const std::string &prefix) {
 	// prefix печатается один раз и занимает место на первой строке, но не
@@ -1008,7 +1070,7 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	std::string result = prefix;
 	// Ширина -- в символах, а не в байтах: в UTF-8 русская буква занимает два, и счёт по
 	// size() рвал бы строку вдвое раньше запрошенного (issue #3681).
-	size_t line_length = native_text::char_count(GetStringWithoutColors(prefix));
+	size_t line_length = VisibleWidth(prefix);
 	const size_t separator_len = native_text::char_count(separator);
 	bool first = true;
 	// separator -- это и есть то, что стоит между словами на одной строке
@@ -1023,7 +1085,7 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	for (const auto &word : words) {
 		// ширину считаем по видимой длине -- цветокоды (&R, &n и т.п.) на экране
 		// места не занимают, иначе строки с цветом переносятся раньше времени
-		const size_t word_len = native_text::char_count(GetStringWithoutColors(word));
+		const size_t word_len = VisibleWidth(word);
 		if (!first) {
 			if (line_length + separator_len + word_len > max_length) {
 				result += eol_separator + "\r\n";
@@ -1066,8 +1128,12 @@ std::string utils::WrapText(const std::string &text, size_t max_length) {
 			result += "\r\n";
 		}
 		first = false;
-		// max_length == 0 -- без переноса; иначе пустая строка вернётся пустой
-		result += (max_length == 0) ? line : OutWordsList(line, max_length, " ");
+		// Влезающую строку не трогаем: OutWordsList собирает её заново из слов и схлопывает
+		// подряд идущие пробелы, а короткие строки бывают выровнены именно ими. max_length == 0 --
+		// без переноса вовсе.
+		result += (max_length == 0 || VisibleWidth(line) <= max_length)
+				  ? line
+				  : OutWordsList(line, max_length, " ");
 	}
 	return result;
 }

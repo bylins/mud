@@ -5,6 +5,8 @@
  utils_char_obj.inl (CanTakeObj), base_stats (CAN_CARRY_N/W) and the do_inventory command.
 */
 
+#include <fmt/format.h>
+
 #include "gameplay/mechanics/inventory.h"
 
 #include "engine/entities/char_data.h"
@@ -198,14 +200,14 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 
 				if (inworld > 1) // У объекта есть как минимум одна копия
 				{
-					sprintf(buf,
-							"Copy detected and prepared to extract! Object %s (UID=%ld, VNUM=%d), holder %s. In world %d.",
-							object->get_PName(grammar::ECase::kNom).c_str(),
+					mudlog(fmt::format(
+							"Copy detected and prepared to extract! Object {} (UID={}, VNUM={}), holder {}. In world {}.",
+							object->get_PName(grammar::ECase::kNom),
 							object->get_unique_id(),
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
-							inworld);
-					mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+							inworld),
+						   BRF, kLvlImmortal, SYSLOG, true);
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", false, ch, object, nullptr, kToChar);
 					object->set_timer(0);
 					object->set_extra_flag(EObjFlag::kNosell); // Ибо нефиг
@@ -280,8 +282,7 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
 		CheckObjDecay(obj);
 	} else {
 		if (obj->get_weight() + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
-			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(grammar::ECase::kAcc).c_str());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(fmt::format("Вам слишком тяжело нести еще и {}.", obj->get_PName(grammar::ECase::kAcc)), ch);
 			PlaceObjToRoom(obj, ch->in_room);
 			// obj_decay(obj);
 		} else {

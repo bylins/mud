@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include <fmt/format.h>
+
 #include "engine/entities/char_data.h"
 #include "gameplay/communication/remember.h"
 
@@ -17,7 +19,7 @@ void DoSendMsgToDemigods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 		SendMsgToChar("Что Вы хотите сообщить ?\r\n", ch);
 		return;
 	}
-	sprintf(buf1, "&c%s демигодам: '%s'&n\r\n", GET_NAME(ch), argument);
+	const std::string msg = fmt::format("&c{} демигодам: '{}'&n\r\n", GET_NAME(ch), argument);
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->state == EConState::kPlaying) {
@@ -25,8 +27,8 @@ void DoSendMsgToDemigods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 				if ((!d->character->IsFlagged(EPlrFlag::kWriting)) &&
 					(!d->character->IsFlagged(EPlrFlag::kMailing)) &&
 					(!d->character->IsFlagged(EPrf::kDemigodChat))) {
-					d->character->remember_add(buf1, Remember::ALL);
-					SendMsgToChar(buf1, d->character.get());
+					d->character->remember_add(msg, Remember::ALL);
+					SendWrappedToChar(msg, d->character.get());
 				}
 			}
 		}

@@ -153,20 +153,20 @@ struct char_special_data {
 
 // Specials used by NPCs, not PCs
 struct mob_special_data {
-	byte last_direction;    // The last direction the monster went
+	int last_direction;    // The last direction the monster went
 	int attack_type;        // The Attack Type Bitvector for NPC's
 	EPosition default_pos;    // Default position for NPC
 	mob_ai::MemoryRecord *memory;    // List of attackers to remember
-	byte damnodice;        // The number of damage dice's
-	byte damsizedice;    // The size of the damage dice's
+	int damnodice;        // The number of damage dice's
+	int damsizedice;    // The size of the damage dice's
 	std::array<int, kMaxDest> dest;
 	int dest_dir;
 	int dest_pos;
 	int dest_count;
 	int activity;
 	BitsetFlags<ENpcFlag> npc_flags;
-	byte extra_attack;
-	byte like_work;
+	int extra_attack;
+	int like_work;
 	int MaxFactor;
 	int GoldNoDs;
 	int GoldSiDs;
