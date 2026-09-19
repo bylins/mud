@@ -857,7 +857,6 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void save() {
 	pugi::xml_document doc;
-	doc.append_attribute("encoding") = "koi8-r";
 	doc.append_child().set_name("glory_list");
 	pugi::xml_node char_list = doc.child("glory_list");
 

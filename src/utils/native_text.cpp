@@ -542,6 +542,31 @@ std::size_t char_offset(std::string_view s, std::size_t chars) {
 
 
 bool write_file(const std::string &path, const std::string &text) {
+	// Предохранитель, переехавший сюда из to_disk. Всё нативное -- валидный UTF-8; если
+	// сюда пришло иное, значит строка не проходила границу чтения и держит дисковые байты
+	// (KOI8-R) как есть. Пишем их всё равно -- файл остаётся цел, -- но жалуемся в лог:
+	// граница чтения ещё нужна, файл до миграции всё ещё может попасться, а без этой
+	// жалобы пропущенная граница уезжает на диск молча.
+	if (!utf8::is_valid(text)) {
+		static std::atomic<unsigned long> seen{0};
+		const unsigned long n = seen.fetch_add(1);
+		if (n < 10 || n % 10000 == 0) {
+			// Байты печатаются шестнадцатеричными нарочно: невалидный UTF-8 в сообщении
+			// логгер погнал бы обратно через эту же запись.
+			std::string head;
+			const std::size_t show = std::min<std::size_t>(text.size(), 16);
+			char byte[4];
+			for (std::size_t i = 0; i < show; ++i) {
+				std::snprintf(byte, sizeof(byte), "%02x", static_cast<unsigned char>(text[i]));
+				head += byte;
+				head += ' ';
+			}
+			log("SYSERR: write_file got non-UTF-8 text (#%lu, %zu bytes, %s) -- a read boundary "
+				"is missing somewhere; writing the bytes through unchanged. First bytes: %s",
+				n + 1, text.size(), path.c_str(), head.c_str());
+		}
+	}
+
 	std::ofstream out(path, std::ios::binary);
 	if (!out) {
 		return false;
