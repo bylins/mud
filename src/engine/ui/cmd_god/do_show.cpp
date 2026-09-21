@@ -816,8 +816,12 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				out += print_zone_enters(world[ch->in_room]->zone_rn);
 				page_string(ch->desc, out);
 			} else if (*value && is_number(value)) {
+				// Порядок условий важен: проверка границы идёт первой. Иначе на последнем
+				// шаге читается zone_table[size] -- с _GLIBCXX_ASSERTIONS это падение
+				// (issue #3938, "show path 506" на несуществующей зоне). Строкой 547
+				// тот же поиск написан правильно.
 				for (zvn = atoi(value), zrn = 0;
-					 zone_table[zrn].vnum != zvn && zrn < static_cast<ZoneRnum>(zone_table.size());
+					 zrn < static_cast<ZoneRnum>(zone_table.size()) && zone_table[zrn].vnum != zvn;
 					 zrn++) {
 					// empty
 				}
