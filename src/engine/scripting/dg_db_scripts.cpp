@@ -393,38 +393,59 @@ void assign_triggers(void *i, int type) {
 }
 
 void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
+	const char *feat_name = MUD::Feat(feat_id).GetCName();
 	if (ch->HaveFeat(feat_id)) {
-		if (featdiff)
+		if (featdiff) {
+			// Раньше выходили молча: ни игроку, ни в лог. Со стороны это выглядело как
+			// неработающая команда, и разбираться приходилось чтением кода.
+			SendMsgToChar(fmt::format("Вы уже владеете способностью '{}'.\r\n", feat_name), ch);
+			log("featturn: %s уже владеет способностью '%s', триггер #%d",
+				GET_NAME(ch), feat_name, vnum);
 			return;
-		else {
-			SendMsgToChar(fmt::format("Вы утратили способность '{}'.\r\n", MUD::Feat(feat_id).GetCName()), ch);
-			log("Remove %s to %s (trigfeatturn) trigvnum %d", MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
+		} else {
+			SendMsgToChar(fmt::format("Вы утратили способность '{}'.\r\n", feat_name), ch);
+			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_name, GET_NAME(ch), vnum);
 			ch->UnsetFeat(feat_id);
 		}
 	} else {
 		if (featdiff) {
 			if (MUD::Class(ch->GetClass()).feats.IsAvailable(feat_id)) {
-				SendMsgToChar(fmt::format("Вы обрели способность '{}'.\r\n", MUD::Feat(feat_id).GetCName()), ch);
-				log("Add %s to %s (trigfeatturn) trigvnum %d",
-					MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
+				SendMsgToChar(fmt::format("Вы обрели способность '{}'.\r\n", feat_name), ch);
+				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_name, GET_NAME(ch), vnum);
 				ch->SetFeat(feat_id);
+			} else {
+				// Второй тихий случай: способность не положена классу. Для билдера он
+				// выглядел точно так же -- команда есть, эффекта нет.
+				SendMsgToChar(fmt::format("Способность '{}' недоступна вашему классу.\r\n", feat_name), ch);
+				log("featturn: способность '%s' недоступна классу %s (%s), триггер #%d",
+					feat_name, MUD::Class(ch->GetClass()).GetCName(), GET_NAME(ch), vnum);
 			}
 		};
 	}
 }
 
 void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum) {
+	const char *skill_name = MUD::Skill(skill_id).GetName();
 	if (GetSkillBonus(ch, skill_id)) {
 		if (skilldiff) {
+			// Те же тихие выходы, что и у способностей, -- с тем же итогом для билдера.
+			SendMsgToChar(ch, "Вы уже владеете умением '%s'.\r\n", skill_name);
+			log("skillturn: %s уже владеет умением '%s', триггер #%d", GET_NAME(ch), skill_name, vnum);
 			return;
 		}
 		SetSkill(ch, skill_id, 0);
-		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skill(skill_id).GetName());
-		log("Remove %s from %s (trigskillturn)", MUD::Skill(skill_id).GetName(), GET_NAME(ch));
-	} else if (skilldiff && MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
-		SetSkill(ch, skill_id, 5);
-		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skill(skill_id).GetName());
-		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skill(skill_id).GetName(), GET_NAME(ch), vnum);
+		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", skill_name);
+		log("Remove %s from %s (trigskillturn)", skill_name, GET_NAME(ch));
+	} else if (skilldiff) {
+		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
+			SetSkill(ch, skill_id, 5);
+			SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", skill_name);
+			log("Add %s to %s (trigskillturn) trigvnum %d", skill_name, GET_NAME(ch), vnum);
+		} else {
+			SendMsgToChar(ch, "Умение '%s' недоступно вашему классу.\r\n", skill_name);
+			log("skillturn: умение '%s' недоступно классу %s (%s), триггер #%d",
+				skill_name, MUD::Class(ch->GetClass()).GetCName(), GET_NAME(ch), vnum);
+		}
 	}
 }
 
