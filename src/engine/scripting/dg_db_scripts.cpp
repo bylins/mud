@@ -477,13 +477,20 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	int spell = GET_SPELL_TYPE(ch, spell_id);
 
 	if (!CanGetSpell(ch, spell_id)) {
-		log("Error trying to add %s to %s (trigspell) trigvnum %d",
+		// Молчало для игрока, а в логе стояло невнятное "Error trying to add".
+		SendMsgToChar(ch, "Заклинание '%s' вам сейчас недоступно.\r\n", MUD::Spell(spell_id).GetCName());
+		log("spellturn: заклинание '%s' недоступно %s (класс, уровень или реморт), триггер #%d",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 		return;
 	}
 
 	if (spell & ESpellType::kKnow) {
-		if (spelldiff) return;
+		if (spelldiff) {
+			SendMsgToChar(ch, "Вы уже знаете заклинание '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+			log("spellturn: %s уже знает заклинание '%s', триггер #%d",
+				GET_NAME(ch), MUD::Spell(spell_id).GetCName(), vnum);
+			return;
+		}
 
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
 		if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp))
@@ -499,7 +506,8 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	if (!CanGetSpell(ch, spell_id)) {
-		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d",
+		SendMsgToChar(ch, "Заклинание '%s' вам сейчас недоступно.\r\n", MUD::Spell(spell_id).GetCName());
+		log("spellturntemp: заклинание '%s' недоступно %s (класс, уровень или реморт), триггер #%d",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 		return;
 	}
@@ -530,6 +538,13 @@ void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	} else if (spell < GET_SPELL_MEM(ch, spell_id)) {
 		SendMsgToChar(ch, "Вы выучили несколько заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+	} else {
+		// Ноль в аргументе или упёрлись в предел (0 снизу, 50 сверху). У умений про это
+		// говорят ("не изменилось"), у заклинаний молчали.
+		SendMsgToChar(ch, "Число заученных заклинаний '%s' не изменилось.\r\n",
+					  MUD::Spell(spell_id).GetCName());
+		log("spelladd: число заклинаний '%s' у %s не изменилось (осталось %d), триггер #%d",
+			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), GET_SPELL_MEM(ch, spell_id), vnum);
 	}
 }
 
@@ -537,8 +552,13 @@ void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spel
 	char type[kMaxStringLength];
 
 	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type)) ||
-		(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type)))
+		(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type))) {
+		// Состояние уже такое, какое просят. Раньше выходили молча -- со стороны это
+		// неотличимо от неработающей команды.
+		log("spellitem: умение с заклинанием '%s' у %s уже %s",
+			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), spelldiff ? "есть" : "снято");
 		return;
+	}
 	if (!spelldiff) {
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), spell_type);
 		switch (spell_type) {
