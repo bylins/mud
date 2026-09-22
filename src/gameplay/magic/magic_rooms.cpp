@@ -17,6 +17,7 @@
 #include "engine/db/player_index.h"
 #include "engine/db/db.h"           // chardata_by_uid
 #include "gameplay/fight/pk.h"          // pk_agro_action
+#include "gameplay/clans/house.h"     // Clan::GetClanByRoom (свой замок)
 #include "room_affects_loader.h"   // RoomAffectsLoader
 #include "gameplay/affects/affect_contants.h"   // EAffFlag
 #include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
@@ -934,6 +935,17 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id) {
 	}
 	if (author && group::same_group(ch, author)) {
 		return {true, author};
+	}
+	// Соклановец для комнатных заклятий -- свой: перекрыть печать, наложенную однокланцем,
+	// не нападение. В своём замке это верно и для ушедшего из игры автора -- комната
+	// принадлежит клану, а не тому, кто накладывал.
+	if (!ch->IsNpc() && CLAN(ch)) {
+		if (author && !author->IsNpc() && CLAN(author) == CLAN(ch)) {
+			return {true, author};
+		}
+		if (ch->in_room != kNowhere && Clan::GetClanByRoom(ch->in_room) == CLAN(ch)) {
+			return {true, author};
+		}
 	}
 	return {false, author};
 }
