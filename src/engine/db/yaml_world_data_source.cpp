@@ -7,6 +7,7 @@
 #include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
+#include "trigger_type_names.h"
 #include "db.h"
 #include "obj_prototypes.h"
 #include "global_objects.h"
@@ -1261,9 +1262,31 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 		for (const auto &type_node : root["trigger_types"])
 		{
 			std::string type_str = type_node.as<std::string>();
-			auto &dm = DictionaryManager::Instance();
-			long type_bit = dm.Lookup("trigger_types", type_str, -1);
-			if (type_bit >= 0)
+			long type_bit = -1;
+			char *end = nullptr;
+			const long as_bit = std::strtol(type_str.c_str(), &end, 10);
+			if (!type_str.empty() && *end == '\0')
+			{
+				// Номер бита, записанный как есть: имени для него в словаре нет, но тип
+				// при перезаписи мира терять нельзя.
+				type_bit = as_bit;
+			}
+			else
+			{
+				auto &dm = DictionaryManager::Instance();
+				type_bit = dm.Lookup("trigger_types", type_str, -1);
+				if (type_bit < 0)
+				{
+					log("SYSERR: trigger %s: unknown trigger type '%s' -- the type is lost",
+						name.c_str(), type_str.c_str());
+				}
+				else if (!world_format::TriggerTypeNameFitsAttach(type_str, attach_type))
+				{
+					log("SYSERR: trigger %s: trigger type '%s' belongs to another attach type",
+						name.c_str(), type_str.c_str());
+				}
+			}
+			if (type_bit >= 0 && type_bit < 32)
 			{
 				trigger_type |= (1L << type_bit);
 			}
@@ -3305,11 +3328,19 @@ void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
 		{
 			if (GET_TRIG_TYPE(trig) & (1L << bit))
 			{
-				std::string type_name = ReverseLookupEnum("trigger_types", bit);
-				if (!type_name.empty() && type_name != std::to_string(bit))
+				// Имя зависит от attach_type: один и тот же бит у моба, предмета и комнаты
+				// значит разное. Имени нет -- пишем номер бита, иначе тип молча пропадёт.
+				const auto *dict = DictionaryManager::Instance().GetDictionary("trigger_types");
+				std::string type_name = dict
+					? world_format::PickTriggerTypeName(dict->GetEntries(), trig->get_attach_type(), bit)
+					: std::string();
+				if (type_name.empty())
 				{
-					yaml.SequenceItem(type_name);
+					type_name = std::to_string(bit);
+					log("SYSERR: trigger %s: no name for trigger type bit %d, writing the number",
+						trig->get_name().c_str(), bit);
 				}
+				yaml.SequenceItem(type_name);
 			}
 		}
 
