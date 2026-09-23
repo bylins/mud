@@ -13,7 +13,6 @@
 
 #include "administration/accounts.h"
 #include "global_objects.h"
-#include "utils/backtrace.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/statistics/top.h"
 #include "engine/network/descriptor_data.h"
@@ -151,18 +150,15 @@ long CmpPtableByName(char *name, int len) {
 long GetPlayerTablePosByName(const char *name) {
 	char search_name[kMaxInputLength];
 	one_argument(name, search_name);
-	std::string_view search_arg(search_name);
-	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		std::string_view pname = player_table[i].name();
-		if (pname == search_arg) {
-			return static_cast<long>(i);
-		}
+	// Ищем по имени в хэше индекса, а не линейным перебором всей таблицы (MAPHELPER).
+	// «Нет в индексе» -- обычный ответ, а не ошибка: запись в индексе заводится только
+	// после подтверждения почты (DoAfterEmailConfirm), поэтому недосозданный персонаж
+	// сюда попадает штатно. Места, где отсутствие действительно ошибка, пишут в лог сами.
+	const auto index = player_table.GetIndexByName(search_name);
+	if (index == PlayersIndex::NOT_FOUND) {
+		return -1;
 	}
-	debug::backtrace(runtime_config.logs(SYSLOG).handle());
-	mudlog(fmt::format("Char {} ({}) not found !!! Сброшен стек в сислог", name, search_name),
-		   CMP, kLvlImmortal, SYSLOG, false);
-	return (-1);
+	return static_cast<long>(index);
 }
 
 long GetPtableByUnique(long unique) {
