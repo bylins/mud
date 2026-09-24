@@ -421,6 +421,14 @@ compiler_id = '@0@ @1@ (@2@-@3@)'.format(
     host_machine.system(),
 )
 
+# Ревизия попадала в бинарь на одну сборку позже. version.cpp -- сгенерированный
+# исходник, а meson включает такие в unity-блок и вешает их на объект ЗАВИСИМОСТЬЮ
+# ПОРЯДКА (`|| version.cpp`): «сначала сгенерируй», но не «пересоберись, если
+# изменилось». Дальше всё решал момент: ninja считает объект чистым на разборе
+# графа, когда version.cpp ещё со старой ревизией, и только потом запускает
+# генератор. Изменение уезжало в следующую сборку -- отсюда «ревизия старая, пока
+# не сотрёшь бинарь». Лечится ниже отдельной целью с выключенным unity: там
+# version.cpp -- настоящий вход компиляции, и порядок внутри одной сборки верный.
 version_cpp = custom_target('version_gen',
   input: 'src/version.cpp.in',
   output: 'version.cpp',
@@ -1049,12 +1057,26 @@ if use_pch
     pch_headers = ['src/pch.h']
 endif
 
+# Отдельная цель ради unity=off: только так сгенерированный version.cpp становится
+# прямым входом компиляции, а не зависимостью порядка (см. version_gen выше).
+# link_whole вкладывает объект прямо в libcircle -- иначе две статические библиотеки
+# ссылались бы друг на друга (version.cpp зовёт SendMsgToChar, а ShowBuildInfo зовут
+# из команд), и порядок архивов при линковке стал бы важен.
+version_lib = static_library('circle_version',
+    version_cpp,
+    include_directories: include_directories('src'),
+    dependencies: dependencies,
+    cpp_args: project_args,
+    override_options: profile_target_opts + ['unity=off']
+)
+
 circle_lib = static_library('circle',
-    [main_sources, msdp_sources, version_cpp],
+    [main_sources, msdp_sources],
     include_directories: include_directories('src'),
     dependencies: dependencies,
     cpp_args: project_args,
     override_options: profile_target_opts,
+    link_whole: version_lib,
     cpp_pch: pch_headers
 )
 
