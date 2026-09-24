@@ -77,6 +77,7 @@ test_sources = files(
     'dg_string_matching.cpp',
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
+    'yaml_error_context.cpp',
     'mob_classes.loader.cpp',
     'world_load_order.cpp',
     'obj_decay_manager.cpp',
