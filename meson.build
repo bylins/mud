@@ -996,6 +996,7 @@ main_sources = files(
   'src/engine/db/legacy_world_data_source.cpp',
   'src/engine/db/world_data_source_base.cpp',
   'src/engine/db/trigger_type_names.cpp',
+  'src/engine/db/yaml_error_context.cpp',
   'src/engine/db/composite_world_data_source.cpp',
   # Crafting
   'src/gameplay/crafting/craft_commands.cpp',

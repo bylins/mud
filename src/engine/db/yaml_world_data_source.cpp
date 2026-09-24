@@ -8,6 +8,7 @@
 #include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
 #include "trigger_type_names.h"
+#include "yaml_error_context.h"
 #include "db.h"
 #include "obj_prototypes.h"
 #include "global_objects.h"
@@ -656,8 +657,9 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 					}
 					catch (const YAML::Exception &e)
 					{
-						log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
-							sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
+						log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s%s",
+							sub.c_str(), zone_vnum, flat_path.c_str(), e.what(),
+							world_format::DescribeYamlErrorInFile(flat_path, e.mark.line + 1).c_str());
 						++result.failures;
 						continue;
 					}
@@ -698,8 +700,9 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 				}
 				catch (const YAML::Exception &e)
 				{
-					log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
-						sub.c_str(), zone_vnum, index_path.c_str(), e.what());
+					log("SYSERR: Failed to load %s index for zone %d ('%s'): %s%s",
+						sub.c_str(), zone_vnum, index_path.c_str(), e.what(),
+						world_format::DescribeYamlErrorInFile(index_path, e.mark.line + 1).c_str());
 					++result.failures;
 				}
 			}
@@ -966,7 +969,8 @@ void YamlWorldDataSource::LoadZonesParallel()
 				}
 				catch (const YAML::Exception &e)
 				{
-					log("SYSERR: Failed to load zone %d from '%s': %s", zone_vnum, zone_path.c_str(), e.what());
+					log("SYSERR: Failed to load zone %d from '%s': %s%s", zone_vnum, zone_path.c_str(), e.what(),
+						world_format::DescribeYamlErrorInFile(zone_path, e.mark.line + 1).c_str());
 					error_count++;
 				}
 				catch (const std::exception &e)
