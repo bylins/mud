@@ -44,8 +44,12 @@ const int MAX_DEPTH_ROOM_STANDART = 5;
 const size_t MAX_LINES_STANDART = MAX_DEPTH_ROOM_STANDART * 4 + 1;
 const size_t MAX_LENGTH_STANDART = MAX_DEPTH_ROOM_STANDART * 8 + 1;
 
-// увеличенная карта
-const int MAX_DEPTH_ROOM_BIG = 10;
+// Увеличенная карта (города). Глубина 10 давала поле в 41 строку -- больше, чем
+// показывает окно у обычного игрока: при высоте строки в 24 точки на FHD в окно
+// клиента влезает около 29 строк. Каждый шаг по городу вытеснял экран целиком, и
+// это читалось как рывок. Семь -- это 29 строк, ровно под окно; в зоне карта как
+// была, обычная (21 строка).
+const int MAX_DEPTH_ROOM_BIG = 7;
 const size_t MAX_LINES_BIG = MAX_DEPTH_ROOM_BIG * 4 + 1;
 const size_t MAX_LENGTH_BIG = MAX_DEPTH_ROOM_BIG * 8 + 1;
 
