@@ -552,6 +552,25 @@ void draw_map_bfs(CharData *ch) {
 }
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
+std::string_view SignColor(std::string_view sign) {
+	if (sign.size() >= 2 && sign[0] == '&') {
+		return sign.substr(0, 2);
+	}
+	return {};
+}
+
+std::string_view SignGlyph(std::string_view sign) {
+	auto glyph = sign;
+	if (!SignColor(glyph).empty()) {
+		glyph.remove_prefix(2);
+	}
+	// Завершающий сброс печатается один раз на строку, а не после каждой клетки
+	while (glyph.size() >= 2 && glyph[glyph.size() - 2] == '&' && glyph.back() == 'n') {
+		glyph.remove_suffix(2);
+	}
+	return glyph;
+}
+
 void print_map(CharData *ch, CharData *imm) {
 	if (!privilege::IsImpl(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
 		return;
@@ -689,12 +708,24 @@ void print_map(CharData *ch, CharData *imm) {
 
 	for (int i = start_line; i < end_line; ++i) {
 		out += ": ";
+		// Цвет ставим только при смене, сбрасываем раз в конце строки: сброс после каждой
+		// клетки разворачивался в семь байт на проводе, а клеток в карте сотни
+		std::string_view line_color;
 		for (unsigned k = left_margin; k <= right_margin; ++k) {
 			if (screen[i][k] <= -1) {
 				out += " ";
 			} else if (screen[i][k] < SCREEN_TOTAL && screen[i][k] != SCREEN_EMPTY) {
-				out += signs[screen[i][k]];
+				const std::string_view sign = signs[screen[i][k]];
+				const auto color = SignColor(sign);
+				if (!color.empty() && color != line_color) {
+					out += color;
+					line_color = color;
+				}
+				out += SignGlyph(sign);
 			}
+		}
+		if (!line_color.empty()) {
+			out += "&n";
 		}
 		out += "\r\n";
 	}
