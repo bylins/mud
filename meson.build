@@ -995,6 +995,7 @@ main_sources = files(
   'src/engine/db/world_data_source_manager.cpp',
   'src/engine/db/legacy_world_data_source.cpp',
   'src/engine/db/world_data_source_base.cpp',
+  'src/engine/network/naws.cpp',
   'src/engine/db/trigger_type_names.cpp',
   'src/engine/db/yaml_error_context.cpp',
   'src/engine/db/composite_world_data_source.cpp',
