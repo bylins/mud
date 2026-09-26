@@ -904,4 +904,63 @@ TEST(Utils_String, WrapText_WrapsOnlyTheLongLine)
 	EXPECT_EQ(wrapped, "коротко  тут\r\nдлинная\r\nстрока из\r\nслов");
 }
 
+
+// Разбор ANSI-последовательностей на вводе: игрок присылает обратно строку, перехваченную
+// триггером клиента вместе с цветом, и в канал уходил печатный остаток "[1;35m".
+namespace {
+std::size_t EscapeLength(const std::string &text)
+{
+	return utils::AnsiEscapeLength(text.data(), text.data() + text.size());
+}
+
+// Так ввод чистит process_input: последовательности выбрасываются целиком, прочее остаётся.
+std::string StripEscapes(const std::string &text)
+{
+	std::string result;
+	const char *end = text.data() + text.size();
+	for (const char *ptr = text.data(); ptr < end; ++ptr) {
+		const auto escape = utils::AnsiEscapeLength(ptr, end);
+		if (escape > 0) {
+			ptr += escape - 1;
+			continue;
+		}
+		result += *ptr;
+	}
+	return result;
+}
+}  // namespace
+
+TEST(Utils_String, AnsiEscapeLength_NoEscapeAtAll)
+{
+	EXPECT_EQ(EscapeLength(""), 0u);
+	EXPECT_EQ(EscapeLength("наручи"), 0u);
+	EXPECT_EQ(EscapeLength("[1;35m"), 0u);
+}
+
+TEST(Utils_String, AnsiEscapeLength_ColorSequence)
+{
+	EXPECT_EQ(EscapeLength("\x1B[1;35m"), 7u);
+	EXPECT_EQ(EscapeLength("\x1B[0m наручи"), 4u);
+	EXPECT_EQ(EscapeLength("\x1B[m"), 3u);
+}
+
+TEST(Utils_String, AnsiEscapeLength_UnterminatedDropsEscapeOnly)
+{
+	// Завершающего байта нет -- выбрасываем только ESC, остальное отдаём общей чистке.
+	EXPECT_EQ(EscapeLength("\x1B"), 1u);
+	EXPECT_EQ(EscapeLength("\x1B["), 1u);
+	EXPECT_EQ(EscapeLength("\x1B[1;35"), 1u);
+	EXPECT_EQ(EscapeLength("\x1B[1;35наручи"), 1u);
+	EXPECT_EQ(EscapeLength("\x1BX"), 1u);
+}
+
+TEST(Utils_String, AnsiEscapeLength_StripsWholeSequenceFromInput)
+{
+	// Строка из issue: раньше от неё оставалось "[1;35mПарадные наручи ...".
+	EXPECT_EQ(StripEscapes("\x1B[1;35mПарадные наручи \x1B[1;34mзащитник небес\x1B[0;0m рассыпались"),
+			  "Парадные наручи защитник небес рассыпались");
+	EXPECT_EQ(StripEscapes("наручи"), "наручи");
+	EXPECT_EQ(StripEscapes("\x1B[1;35m"), "");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

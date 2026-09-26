@@ -24,6 +24,27 @@ std::string remove_colors_template(T string, int &new_length) {
 	return {};
 }
 
+std::size_t AnsiEscapeLength(const char *begin, const char *end) {
+	if (begin >= end || *begin != '\x1B') {
+		return 0;
+	}
+	if (begin + 1 >= end || begin[1] != '[') {
+		return 1;
+	}
+
+	for (const char *ptr = begin + 2; ptr < end; ++ptr) {
+		const auto symbol = static_cast<unsigned char>(*ptr);
+		if (0x40 <= symbol && symbol <= 0x7E) {
+			return static_cast<std::size_t>(ptr - begin) + 1;
+		}
+		if (symbol < 0x20 || 0x3F < symbol) {
+			break;
+		}
+	}
+
+	return 1;
+}
+
 std::string RemoveColors(char *string) {
 	if (string) {
 		int new_length = 0;
