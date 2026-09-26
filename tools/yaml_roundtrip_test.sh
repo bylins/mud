@@ -3,7 +3,7 @@
 # YAML world round-trip diagnostic.
 #
 # Loads the YAML world from <data_dir>/world, re-emits it via the C++
-# Koi8rYamlEmitter into <data_dir>/world_v2, then runs a structural diff
+# YamlScalarSafeEmitter into <data_dir>/world_v2, then runs a structural diff
 # (tools/yaml_world_diff.py) between v1 and v2. Used to catch save -> reload
 # inconsistencies in YamlWorldDataSource::Save* methods.
 #
