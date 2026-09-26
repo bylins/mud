@@ -1,5 +1,7 @@
 // Part of Bylins http://www.mud.ru
-// Koi8rYamlEmitter - Custom YAML emitter that preserves KOI8-R encoding.
+// YamlScalarSafeEmitter -- пишет скаляры так, чтобы цикл сохранение -> загрузка
+// возвращал их в точности теми же. Кодировку текста класс не трогает вовсе:
+// это дело write_file.
 //
 // Scalars whose first character is a YAML indicator (&, *, !, ,, ...) are
 // single-quoted, otherwise yaml-cpp interprets the prefix as anchor / alias /
@@ -7,8 +9,8 @@
 // like "&Yfoo &Wbar&n" in object/mob names saved unquoted produce
 // "cannot assign multiple anchors to the same node" on next boot).
 
-#ifndef KOI8R_YAML_EMITTER_H_
-#define KOI8R_YAML_EMITTER_H_
+#ifndef YAML_SCALAR_SAFE_EMITTER_H_
+#define YAML_SCALAR_SAFE_EMITTER_H_
 
 #include <algorithm>
 #include <ostream>
@@ -16,7 +18,7 @@
 #include <sstream>
 #include <string>
 
-class Koi8rYamlEmitter
+class YamlScalarSafeEmitter
 {
 	std::ostream &out_;
 	int indent_;
@@ -32,7 +34,7 @@ class Koi8rYamlEmitter
 	bool pending_keep_block_ = false;
 
 public:
-	explicit Koi8rYamlEmitter(std::ostream &out) : out_(out), indent_(0) {}
+	explicit YamlScalarSafeEmitter(std::ostream &out) : out_(out), indent_(0) {}
 
 	std::string GetIndent() const { return std::string(indent_, ' '); }
 
@@ -203,6 +205,6 @@ public:
 	void EndBlock() { indent_ -= 2; }
 };
 
-#endif  // KOI8R_YAML_EMITTER_H_
+#endif  // YAML_SCALAR_SAFE_EMITTER_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -19,12 +19,12 @@
 //
 // Guarded by HAVE_YAML: yaml-cpp is only available when the YAML world format
 // is enabled, so in non-YAML builds this file compiles to nothing (same pattern
-// as koi8r.yaml.emitter.cpp).
+// as yaml_scalar_safe_emitter.cpp).
 
 #ifdef HAVE_YAML
 
 #include "engine/entities/entities_constants.h"
-#include "engine/db/koi8r_yaml_emitter.h"
+#include "engine/db/yaml_scalar_safe_emitter.h"
 #include "engine/structs/structs.h"
 
 #include <yaml-cpp/yaml.h>
@@ -99,7 +99,7 @@ std::string EmitResistances(const std::array<int, kNumResist> &vals) {
 	}
 	std::ostringstream oss;
 	if (any) {
-		Koi8rYamlEmitter yaml(oss);
+		YamlScalarSafeEmitter yaml(oss);
 		yaml.Key("resistances");
 		yaml.BeginBlock();
 		for (std::size_t i = 0; i < vals.size(); ++i) {
