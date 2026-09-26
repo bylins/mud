@@ -26,6 +26,7 @@
 #include "engine/ui/color.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/utils_string.h"
 #include "engine/db/global_objects.h"
 #include "engine/network/msdp/msdp_constants.h"
 #include "gameplay/classes/pc_classes.h"
@@ -403,6 +404,16 @@ int process_input(DescriptorData *t) {
 		space_left = kMaxInputLength - 1;
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
+			// ANSI-последовательность целиком, а не один байт ESC. Клиентские триггеры
+			// отдают перехваченную строку вместе с цветом, игрок отправляет её обратно, и
+			// раньше непечатный ESC отбрасывался ниже, а печатный остаток "[1;35m" уходил
+			// в текст и был виден всем в канале (точку с запятой в нём ещё и заменяло на
+			// запятую правило строкой ниже).
+			if (const auto escape = utils::AnsiEscapeLength(ptr, nl_pos); escape > 0) {
+				ptr += escape - 1;
+				continue;
+			}
+
 			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
 			if (*ptr == ';'
 				&&  (t->state == EConState::kPlaying
