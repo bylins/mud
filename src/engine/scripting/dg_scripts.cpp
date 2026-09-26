@@ -3566,6 +3566,16 @@ void find_replacement(void *go,
 			if (p) {
 				*p = '\0';
 			}
+			if (!*subfield) {
+				// %obj.skill% без параметра -- умение оружия (в oedit это «Выберите умение»).
+				// Для прочих типов предметов spec_param значит другое, поэтому возвращаем пусто.
+				if (obj->get_type() == EObjType::kWeapon) {
+					snprintf(str, str_size, "%d", obj->get_spec_param());
+				} else {
+					*str = '\0';
+				}
+				return;
+			}
 			ESkill skill_id;
 
 			for (skill_id = ESkill::kFirst; skill_id < ESkill::kLast; ++skill_id) {

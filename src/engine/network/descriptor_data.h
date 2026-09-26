@@ -184,6 +184,12 @@ struct DescriptorData {
 	long admin_user_id{}; // Authenticated user ID (UID)
 	std::string admin_user_name; // Authenticated user name
 
+	// Размер окна клиента, присланный по NAWS (telnet window size). Нули -- клиент
+	// не сообщал. Держим на соединении: NAWS приходит до входа в игру, а применять
+	// его есть к кому только после выбора персонажа.
+	int naws_width{};
+	int naws_height{};
+
  private:
 	bool m_msdp_support;
 	std::unordered_set<std::string> m_msdp_requested_report;

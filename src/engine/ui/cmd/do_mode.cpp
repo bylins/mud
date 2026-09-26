@@ -6,6 +6,7 @@
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "do_mode.h"
+#include "engine/network/descriptor_data.h"
 #include "do_toggle.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/table_wrapper.h"
@@ -665,6 +666,22 @@ bool TogglePrfFlag(CharData *ch, EPrf flag) {
 	const auto flagged = ch->IsFlagged(flag);
 	ch->IsFlagged(flag) ? ch->UnsetFlag(flag) : ch->SetFlag(flag);
 	return (!flagged);
+}
+
+// Размер окна, присланный клиентом по NAWS: ширина уходит в перенос текста, высота --
+// в постраничный вывод. Клиент присылает его при подключении и при каждом изменении окна,
+// поэтому руками ширину задавать больше не нужно -- но команда остаётся для клиентов,
+// которые NAWS не умеют.
+void ApplyNawsScreenSize(DescriptorData *d) {
+	if (!d || !d->character || d->character->IsNpc()) {
+		return;
+	}
+	if (d->naws_width >= kMinScreenWidth && d->naws_width <= kMaxScreenWidth) {
+		d->character->player_specials->saved.stringLength = d->naws_width;
+	}
+	if (d->naws_height >= kMinScreenHeight && d->naws_height <= kMaxScreenHeight) {
+		d->character->player_specials->saved.stringWidth = d->naws_height;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -485,7 +485,6 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, j, l, con;    // i, j, k to specifics?
 
 	ZoneRnum zrn;
-	ZoneVnum zvn;
 	char self = 0;
 	CharData *vict;
 	DescriptorData *d;
@@ -543,13 +542,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 			} else if (*value && is_number(value)) {
-				for (zvn = atoi(value), zrn = 0;
-					 zrn < static_cast<ZoneRnum>(zone_table.size()) && zone_table[zrn].vnum != zvn;
-					 zrn++) {
-					/* empty loop */
-				}
-
-				if (zrn < static_cast<ZoneRnum>(zone_table.size())) {
+				zrn = GetZoneRnum(atoi(value));
+				if (zrn != kNoZone) {
 					print_zone_to_buf(&bf, zrn);
 				} else {
 					SendMsgToChar("Нет такой зоны.\r\n", ch);
@@ -816,13 +810,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				out += print_zone_enters(world[ch->in_room]->zone_rn);
 				page_string(ch->desc, out);
 			} else if (*value && is_number(value)) {
-				for (zvn = atoi(value), zrn = 0;
-					 zone_table[zrn].vnum != zvn && zrn < static_cast<ZoneRnum>(zone_table.size());
-					 zrn++) {
-					// empty
-				}
-
-				if (zrn < static_cast<ZoneRnum>(zone_table.size())) {
+				zrn = GetZoneRnum(atoi(value));
+				if (zrn != kNoZone) {
 					auto out = print_zone_exits(zrn);
 					out += print_zone_enters(zrn);
 					page_string(ch->desc, out);

@@ -6,6 +6,7 @@
 #define MAP_HPP_INCLUDED
 
 #include <string>
+#include <string_view>
 #include "engine/ui/map_options.h"
 
 class CharData;
@@ -16,6 +17,17 @@ namespace MapSystem {
 
 void print_map(CharData *ch, CharData *imm = 0);
 void do_command(CharData *ch, const std::string &arg);
+
+// Клетка карты хранится строкой вида "&K - &n": цвет, видимая часть, сброс. Сброс после
+// каждой клетки стоит дорого -- на проводе это ещё семь байт, а клеток в карте сотни
+// (у имма в городе выходило под шесть килобайт на шаг). Эти две функции разбирают клетку
+// на части, чтобы печатать цвет только при смене, а сбрасывать раз в конце строки.
+
+// Цветовой ключ клетки ("&K") или пусто, если клетка без цвета.
+std::string_view SignColor(std::string_view sign);
+
+// Видимая часть клетки (" - ") -- без ведущего цвета и завершающего "&n".
+std::string_view SignGlyph(std::string_view sign);
 
 } // namespace MapSystem
 

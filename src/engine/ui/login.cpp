@@ -387,6 +387,7 @@ int perform_dupe_check(DescriptorData *d) {
 	d->character->UnsetFlag(EPlrFlag::kMailing);
 	d->character->UnsetFlag(EPlrFlag::kWriting);
 	d->state = EConState::kPlaying;
+	ApplyNawsScreenSize(d);   // размер окна пришёл до выбора персонажа
 
 	switch (mode) {
 		case RECON: iosystem::write_to_output("Пересоединяемся.\r\n", d);
@@ -686,6 +687,9 @@ void do_entergame(DescriptorData *d) {
 	greet_mtrigger(d->character.get(), -1);
 	greet_otrigger(d->character.get(), -1);
 	d->state = EConState::kPlaying;
+	// Размер окна клиент присылает при подключении, то есть до выбора персонажа --
+	// применяем, когда персонаж появился (NAWS, см. engine/network/naws.h)
+	ApplyNawsScreenSize(d);
 	d->character->SetFlag(EPrf::kColor2); // цвет всегда полный
 // режимы по дефолту у нового чара
 	const bool new_char = d->character->GetLevel() <= 0;
