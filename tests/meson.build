@@ -77,6 +77,7 @@ test_sources = files(
     'dg_string_matching.cpp',
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
+    'naws.parse.cpp',
     'yaml_error_context.cpp',
     'map.sign.cpp',
     'mob_classes.loader.cpp',
