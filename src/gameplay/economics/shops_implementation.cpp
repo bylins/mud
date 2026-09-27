@@ -317,7 +317,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		return;
 	}
 
-	const long price = item->get_price();
+	long price = CalcSalePrice(*item, tmp_obj);
 	if (!check_money(ch, price, currency)) {
 		tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kCantAfford)),
 				fmt::arg("currency", MUD::Currencies().FindAvailableItem(currency).GetPluralName(grammar::ECase::kGen))).c_str());
@@ -350,6 +350,14 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		if (!item->empty()) {
 			obj = get_from_shelve(item_index);
 			if (obj != nullptr) {
+				// Каждый экземпляр на полке стоит своё: цена берётся у той вещи, что
+				// уходит покупателю, а не у узла, иначе шкура за 405 уезжает по цене
+				// соседней за 90 (issue #3953).
+				price = CalcSalePrice(*item, obj);
+				if (!check_money(ch, price, currency)) {
+					break;
+				}
+
 				item->remove_uid(obj->get_unique_id());
 				if (item->empty()) {
 					m_items_list.remove(item_index);
@@ -459,7 +467,6 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 			if (tmp_obj) {
 				print_value = tmp_obj->get_short_description();
 				name_value = tmp_obj->get_aliases();
-				item->set_price(tmp_obj->get_cost());
 			}
 		}
 
@@ -472,7 +479,7 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 				&& isname(arg, name_value))) {
 			auto color_count = std::count(print_value.begin(), print_value.end(), '&')*2 + 45;
 			auto format_str = fmt::format("{}{}{}",  "{:4})  {:10}  {:<", color_count,"} {:8}\r\n");
-			out << fmt::format(fmt::runtime(format_str), num++, numToShow, print_value, item->get_price());
+			out << fmt::format(fmt::runtime(format_str), num++, numToShow, print_value, get_sale_price(k));
 		} else {
 			num++;
 		}
@@ -520,7 +527,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 			auto tmp_obj = world_objects.create_from_prototype_by_rnum(rnum);
 			if (tmp_obj && filter.check(tmp_obj.get(), ch)) {
 				out << fmt::format("{:>4})  {:>10}  {:<47} {:>8}\r\n",
-						 num, numToShow, print_value, item->get_price());
+						 num, numToShow, print_value, get_sale_price(k));
 			} 
 			if (tmp_obj) {
 				world_objects.remove(tmp_obj);
@@ -531,9 +538,8 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 				if (filter.check(tmp_obj, ch)) {
 					print_value = tmp_obj->get_short_description();
 					name_value = tmp_obj->get_aliases();
-					item->set_price(tmp_obj->get_cost());
 					out << fmt::format("{:>4})  {:>10}  {:<47} {:>8}\r\n",
-							   num, numToShow, print_value, item->get_price());
+							   num, numToShow, print_value, CalcSalePrice(*item, tmp_obj));
 				}
 			} else {
 				m_items_list.remove(k);    // remove from shop object that we cannot instantiate
@@ -778,6 +784,19 @@ void shop_node::remove_from_storage(ObjData *object) {
 
 ObjData *shop_node::GetObjFromShop(uid_t uid) const {
 	return m_storage.get_by_uid(uid);
+}
+
+long CalcSalePrice(const ItemNode &node, const CObjectPrototype *shelf_item) {
+	if (node.empty() || !shelf_item) {
+		return node.get_price();
+	}
+
+	return shelf_item->get_cost();
+}
+
+long shop_node::get_sale_price(const size_t index) const {
+	const auto &node = m_items_list.node(index);
+	return CalcSalePrice(*node, node->empty() ? nullptr : get_from_shelve(index));
 }
 
 ObjData *shop_node::get_from_shelve(const size_t index) const {
