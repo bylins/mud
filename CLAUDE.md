@@ -355,9 +355,9 @@ ninja -C build_otel -j$(($(nproc)/2))
 meson configure build_otel -Dpkg_config_path=~/vcpkg/installed/x64-linux/lib/pkgconfig
 ```
 
-Экспортёры (`opentelemetry_exporter_otlp_http*`, `opentelemetry_otlp_recordable`) ищутся сперва через
-pkg-config, а если `.pc` для них нет — как библиотеки рядом с ядром SDK: в 1.24 эти `.pc` не
-устанавливались, а `.a` лежат. Ядру SDK `.pc` нужны всегда.
+Нужна opentelemetry-cpp **≥ 1.25**: `.pc`-файлы для экспортёров появились только в ней, и с 1.24
+`meson setup` падает на `opentelemetry_exporter_otlp_http not found`. Наличие `.a`-библиотек
+экспортёров при этом ни о чём не говорит — ищем мы именно `.pc`.
 
 ### File Encoding
 Sources are UTF-8. Edit `.cpp`/`.h` directly with the Edit tool — the KOI8-R conversion dance is
