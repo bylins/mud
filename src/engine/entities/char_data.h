@@ -548,6 +548,11 @@ class CharData : public ProtectedCharData {
 
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
+	// Экземпляр, созданный мимо счётчика mob_index[].total_online (подъём нежити, оживление
+	// трупа и прочие союзники -- ReadMobile с отрицательным внумом). Такой при удалении не
+	// должен счётчик уменьшать, иначе он уходит в минус и врёт резетам зон.
+	bool IsUncountedInstance() const { return uncounted_instance_; }
+	void SetUncountedInstance(bool _) { uncounted_instance_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
 
  private:
@@ -572,6 +577,7 @@ class CharData : public ProtectedCharData {
 	std::string short_descr_;  // имя моба (им.падеж)
 	ECharClass chclass_;  // профессия чара/класс моба
 	bool is_npc_;
+	bool uncounted_instance_{false};
 	int level_;  // уровень
 	int level_add_;  // плюс на уровень
 	long uid_;  // id чара (не тот, что для тригов), у мобов -1

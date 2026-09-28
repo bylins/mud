@@ -296,10 +296,13 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		// A warlock-revived corpse (kResurrected) reuses a real mob's vnum but is loaded without
-		// bumping total_online (see ReadMobile is_corpse), so it must not decrement it either --
-		// otherwise reviving e.g. a zone boss would block that boss's normal respawn.
-		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kResurrected)) {
+		// Союзник, созданный ReadMobile с отрицательным внумом (поднятая нежить, оживлённый
+		// труп и прочие призванные), счётчик total_online не увеличивал -- значит и уменьшать
+		// его не должен. Иначе счётчик уходит в минус (vstat показывал "Сейчас в мире : -4"),
+		// а на нём держатся резеты зон: оживление того же зонного босса ломало бы его респаун.
+		if ((ch->get_rnum() >= 0)
+			&& !ch->IsUncountedInstance()
+			&& !ch->IsFlagged(EMobFlag::kResurrected)) {
 			mob_index[ch->get_rnum()].total_online--;
 		}
 	}
