@@ -306,15 +306,13 @@ if otel_opt != 'disabled'
     # opentelemetry-cpp ищется через pkg-config, а не через cmake-конфиги:
     # в них есть generator expressions ($<LINK_ONLY:...>, $<PLATFORM_ID:...>),
     # которые meson не умеет раскрывать и на которые ругается при setup.
-    # У upstream .pc-файлов неполные Requires (нет protobuf и curl), а для
-    # opentelemetry_proto и opentelemetry_http_client_curl .pc не ставится
-    # вовсе -- эти зависимости добираем ниже вручную. Порядок важен для
-    # статической линковки: сначала экспортёры, потом то, от чего они зависят.
+    # У upstream .pc-файлов неполные Requires (нет protobuf и curl), для
+    # opentelemetry_proto и opentelemetry_http_client_curl .pc не ставится вовсе,
+    # а .pc экспортёров есть только с 1.25 -- всё это добираем ниже вручную.
+    # Порядок важен для статической линковки: сначала экспортёры, потом то, от
+    # чего они зависят.
+    # Ядро SDK: его .pc ставятся любой сборкой opentelemetry-cpp.
     otel_pc_modules = [
-        'opentelemetry_exporter_otlp_http',
-        'opentelemetry_exporter_otlp_http_metric',
-        'opentelemetry_exporter_otlp_http_log',
-        'opentelemetry_otlp_recordable',
         'opentelemetry_trace',
         'opentelemetry_metrics',
         'opentelemetry_logs',
@@ -328,12 +326,39 @@ if otel_opt != 'disabled'
     endforeach
     otel_libdir = otel_deps[-1].get_variable(pkgconfig: 'libdir')
     cxx = meson.get_compiler('cpp')
+    # Экспортёры: .pc для них ставит 1.25, а 1.24 кладёт одни .a -- на боевой машине
+    # стоит именно такая сборка. Поэтому сначала pkg-config, а если .pc нет, берём
+    # библиотеку рядом с ядром SDK.
+    otel_exporter_modules = [
+        'opentelemetry_exporter_otlp_http',
+        'opentelemetry_exporter_otlp_http_metric',
+        'opentelemetry_exporter_otlp_http_log',
+        'opentelemetry_otlp_recordable',
+    ]
+    otel_exporter_deps = []
+    foreach otel_module : otel_exporter_modules
+        otel_module_dep = dependency(otel_module, method: 'pkg-config', required: false)
+        if not otel_module_dep.found()
+            otel_module_dep = cxx.find_library(otel_module, dirs: [otel_libdir], required: true)
+        endif
+        otel_exporter_deps += otel_module_dep
+    endforeach
+    # Части экспортёра, которые в одних версиях выделены в отдельную библиотеку,
+    # а в других лежат внутри основной -- берём, если есть.
+    foreach otel_module : ['opentelemetry_exporter_otlp_http_client']
+        otel_module_dep = cxx.find_library(otel_module, dirs: [otel_libdir], required: false)
+        if otel_module_dep.found()
+            otel_exporter_deps += otel_module_dep
+        endif
+    endforeach
     otel_proto_dep = cxx.find_library('opentelemetry_proto', dirs: [otel_libdir], required: true)
     otel_curl_client_dep = cxx.find_library('opentelemetry_http_client_curl', dirs: [otel_libdir], required: true)
     protobuf_dep = dependency('protobuf', method: 'pkg-config', required: true)
     curl_dep = dependency('libcurl', required: true, allow_fallback: false)
     project_args += '-DWITH_OTEL'
-    dependencies += otel_deps + [otel_proto_dep, otel_curl_client_dep, protobuf_dep, curl_dep]
+    dependencies += otel_exporter_deps
+    dependencies += otel_deps
+    dependencies += [otel_proto_dep, otel_curl_client_dep, protobuf_dep, curl_dep]
 endif
 
 has_epoll_opt = get_option('has_epoll')

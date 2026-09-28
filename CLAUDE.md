@@ -347,6 +347,18 @@ meson setup build_otel \
 ninja -C build_otel -j$(($(nproc)/2))
 ```
 
+Переменная окружения действует только на этот `meson setup`. Когда `ninja` сам перезапускает meson
+(после правки `meson.build`), её уже нет, и поиск падает. Чтобы путь жил в каталоге сборки, его
+задают опцией:
+
+```bash
+meson configure build_otel -Dpkg_config_path=~/vcpkg/installed/x64-linux/lib/pkgconfig
+```
+
+Экспортёры (`opentelemetry_exporter_otlp_http*`, `opentelemetry_otlp_recordable`) ищутся сперва через
+pkg-config, а если `.pc` для них нет — как библиотеки рядом с ядром SDK: в 1.24 эти `.pc` не
+устанавливались, а `.a` лежат. Ядру SDK `.pc` нужны всегда.
+
 ### File Encoding
 Sources are UTF-8. Edit `.cpp`/`.h` directly with the Edit tool — the KOI8-R conversion dance is
 gone (issue #3681). Git always stored these blobs as UTF-8; what changed is that the working tree
