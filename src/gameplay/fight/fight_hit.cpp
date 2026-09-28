@@ -1178,18 +1178,31 @@ int CalcNpcDamrollBonus(CharData *ch) {
 /**
 * еще есть рандом дамролы, в данный момент максимум 30d127
 */
+// Предел дамролла подчинённого. У поднятой нежити (хозяин + флаг kCorpse) он выше -- так
+// заведено в GetRealDamroll, и автоатака теперь считает по тому же правилу.
+static int CharmiceDamrollCap(CharData *ch) {
+	return IsMortifier(ch) ? 100 : 50;
+}
+
 int GetRealDamroll(CharData *ch) {
 	if (ch->IsNpc() && !IsCharmice(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
 
 	int bonus = CalcPcDamrollBonus(ch);
-	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, (IsMortifier(ch) ? 100 : 50) + 2 * bonus);
+	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, CharmiceDamrollCap(ch) + 2 * bonus);
 }
 
 int GetAutoattackDamroll(CharData *ch, int weapon_skill) {
 	if (ch->IsNpc() && !IsCharmice(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
+	}
+	if (IsCharmice(ch)) {
+		// Кап от умения оружия подчинённому не годится: его дамролл приходит из прототипа,
+		// подъёма и баффов, а не из прокачки. У костяка велета кулачный бой 80 давал кап 40,
+		// и обрезались как его собственные 50 из прототипа, так и весь бонус сил зла
+		// (issue #3958, разбор в #3670). Предел -- тот же, что в GetRealDamroll.
+		return std::max(0, std::min(GET_DR(ch) + GET_DR_ADD(ch), CharmiceDamrollCap(ch)));
 	}
 	return std::min(GET_DR(ch) + GET_DR_ADD(ch) + 2 * CalcPcDamrollBonus(ch), weapon_skill / 2); //попробюуем так
 }
