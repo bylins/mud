@@ -3,6 +3,7 @@
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/animate_dead.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 
@@ -1179,8 +1180,19 @@ int CalcNpcDamrollBonus(CharData *ch) {
 * еще есть рандом дамролы, в данный момент максимум 30d127
 */
 // Предел дамролла подчинённого. У поднятой нежити (хозяин + флаг kCorpse) он выше -- так
-// заведено в GetRealDamroll, и автоатака теперь считает по тому же правилу.
+// заведено в GetRealDamroll, и автоатака считает по тому же правилу. Своему виду нежити
+// предел можно задать в cfg/mechanics/animate_dead.xml (damroll_cap): у верхних видов бонусы
+// от подъёма и «сил зла» иначе упираются в общий потолок.
 static int CharmiceDamrollCap(CharData *ch) {
+	// rnum < 0 -- моб без прототипа в памяти (так бывает в тестах и у служебных существ),
+	// GET_MOB_VNUM на таком читать нельзя: он лезет в mob_index по отрицательному индексу.
+	if (ch->IsNpc() && ch->get_rnum() >= 0) {
+		const int tier_cap = MUD::AnimateDead().DamrollCapOf(GET_MOB_VNUM(ch));
+		if (tier_cap > 0) {
+			return tier_cap;
+		}
+	}
+
 	return IsMortifier(ch) ? 100 : 50;
 }
 

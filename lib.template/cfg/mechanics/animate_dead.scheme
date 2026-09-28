@@ -19,6 +19,7 @@
 		<attr name="id" type="string" desc="Tier id, e.g. kSkeleton"/>
 		<attr name="proto_vnum" type="int" desc="Summoned mob prototype vnum"/>
 		<attr name="weight" type="int" desc="Control-budget cost of one of this tier"/>
+		<attr name="damroll_cap" type="int" desc="п÷я─п╣п╢п╣п╩ п╢п╟п╪я─п╬п╩п╩п╟ я█я┌п╬пЁп╬ п╡п╦п╢п╟ п╡ п╠п╬я▌: п©я─п╬я┌п╬я┌п╦п© + п©п╬п╢я┼я▒п╪ + п╠п╟я└я└я▀. 0/п╫п╣я┌ -- п╬п╠я┴п╦п╧ п©я─п╣п╢п╣п╩ п©п╬п╢я┤п╦п╫я▒п╫п╫п╬пЁп╬"/>
 		<child tag="cost"/>
 		<child tag="scaling"/>
 	</tag>

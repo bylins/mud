@@ -88,6 +88,8 @@ void AnimateDeadInfo::Load(DataNode data) {
 				ci.min_rating = (mr && *mr) ? parse::ReadAsInt(mr) : 0;
 				const char *pk = node.GetValue("pick");
 				ci.pick = (pk && *pk) ? parse::ReadAsInt(pk) : 0;
+				const char *dc = node.GetValue("damroll_cap");
+				ci.damroll_cap = (dc && *dc) ? parse::ReadAsInt(dc) : 0;
 				node.GoToParent();
 			}
 			if (node.GoToChild("scaling")) {
@@ -123,6 +125,11 @@ const CreatureInfo *AnimateDeadInfo::ByProtoVnum(int proto_vnum) const {
 int AnimateDeadInfo::WeightOf(int proto_vnum) const {
 	const auto *c = ByProtoVnum(proto_vnum);
 	return c ? c->weight : 0;   // non-tier followers do not consume the budget
+}
+
+int AnimateDeadInfo::DamrollCapOf(int proto_vnum) const {
+	const auto *c = ByProtoVnum(proto_vnum);
+	return c ? c->damroll_cap : 0;
 }
 
 int AnimateDeadInfo::LadderIndex(int proto_vnum) const {
