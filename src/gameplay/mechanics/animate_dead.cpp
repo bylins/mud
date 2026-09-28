@@ -5,6 +5,7 @@
 
 #include "animate_dead.h"
 
+#include "engine/db/db.h"               // mob_proto
 #include "engine/db/global_objects.h"   // MUD::AnimateDead()
 #include "engine/entities/char_data.h"
 #include "gameplay/skills/skills.h"
@@ -271,6 +272,51 @@ int FitUndeadTier(CharData *ch, int desired) {
 	return 0;   // even the weakest tier does not fit -> caller reports "too many minions"
 }
 
+// Броня, спасы, удача и инициатива живут в add_abils, а affect_total у NPC копирует этот
+// блок из прототипа заново -- то есть всё, что выдал подъём, стирается на первом же
+// наложенном аффекте. Поэтому эта группа вынесена отдельно: её ставят ещё раз, уже после
+// чар и аффектов. Счёт идёт от прототипа, так что повтор даёт тот же результат.
+void ApplyVolatileUndeadStats(CharData *mob, double competence) {
+	const auto *info = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(mob));
+	if (!info) {
+		return;
+	}
+	const auto rnum = mob->get_rnum();
+	const CharData *base = (rnum >= 0) ? &mob_proto[rnum] : mob;
+	const double c = std::max(0.0, competence);
+	const CreatureScaling &s = info->scaling;
+
+	auto up = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur + RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::min(v, static_cast<int>(sc.cap));
+		}
+		return v;
+	};
+	auto down = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur - RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::max(v, static_cast<int>(sc.cap));
+		}
+		return v;
+	};
+
+	GET_ARMOUR(mob)     = up(s.armor, GET_ARMOUR(base));
+	GET_MORALE(mob)     = up(s.morale, GET_MORALE(base));
+	GET_INITIATIVE(mob) = up(s.initiative, GET_INITIATIVE(base));
+	if (s.saving.beta != 0.0) {
+		for (auto sv = ESaving::kFirst; sv <= ESaving::kLast; ++sv) {
+			SetSave(mob, sv, down(s.saving, GetSave(const_cast<CharData *>(base), sv)));
+		}
+	}
+}
+
 void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 	const auto *info = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(mob));
 	if (!info) {
@@ -336,15 +382,8 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 		GET_DR(mob) = up(s.damage_bonus, GET_DR(mob));
 	}
 	GET_HR(mob)         = up(s.hitroll, GET_HR(mob));
-	GET_ARMOUR(mob)     = up(s.armor, GET_ARMOUR(mob));
-	GET_MORALE(mob)     = up(s.morale, GET_MORALE(mob));
-	GET_INITIATIVE(mob) = up(s.initiative, GET_INITIATIVE(mob));
 	GET_AC(mob)         = down(s.ac, GET_AC(mob));   // lower AC = better
-	if (s.saving.beta != 0.0) {
-		for (auto sv = ESaving::kFirst; sv <= ESaving::kLast; ++sv) {
-			SetSave(mob, sv, down(s.saving, GetSave(mob, sv)));
-		}
-	}
+	ApplyVolatileUndeadStats(mob, competence);
 	if (s.skills.beta != 0.0) {
 		// scale every skill the prototype already has, uniformly.
 		std::vector<ESkill> ids;
