@@ -364,10 +364,25 @@
 	<affect id="kForcesOfEvil" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod"/>
 		<apply location="kDamroll">
-			<modifier min="19" beta="0" factor="1" />
+			<modifier min="10" beta="3.0" factor="1" cap="190" />
 		</apply>
 		<apply location="kHitroll">
-			<modifier min="11" beta="0" factor="1" />
+			<modifier min="6" beta="0.3" factor="1" cap="40" />
+		</apply>
+		<apply location="kAc">
+			<modifier min="10" beta="0.4" factor="-1" cap="60" />
+		</apply>
+		<apply location="kArmour">
+			<modifier min="10" beta="0.3" factor="1" cap="50" />
+		</apply>
+		<apply location="kSavingWill">
+			<modifier min="10" beta="0.8" factor="-1" cap="80" />
+		</apply>
+		<apply location="kSavingReflex">
+			<modifier min="10" beta="0.8" factor="-1" cap="80" />
+		</apply>
+		<apply location="kSavingStability">
+			<modifier min="10" beta="0.8" factor="-1" cap="80" />
 		</apply>
 	</affect>
 	<affect id="kAirAura" buff="Y" dispel_mod="-35">
