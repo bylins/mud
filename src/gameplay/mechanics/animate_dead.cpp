@@ -82,14 +82,16 @@ void AnimateDeadInfo::Load(DataNode data) {
 			ci.id = parse::ReadAsStr(node.GetValue("id"));
 			ci.proto_vnum = parse::ReadAsInt(node.GetValue("proto_vnum"));
 			ci.weight = parse::ReadAsInt(node.GetValue("weight"));
+			// Атрибут висит на самом <creature>, а не в дочернем <cost> -- читать его надо
+			// здесь, пока node указывает на вид.
+			const char *dc = node.GetValue("damroll_cap");
+			ci.damroll_cap = (dc && *dc) ? parse::ReadAsInt(dc) : 0;
 			if (node.GoToChild("cost")) {
 				ci.corpse_max_level = parse::ReadAsInt(node.GetValue("corpse_max_level"));
 				const char *mr = node.GetValue("min_rating");
 				ci.min_rating = (mr && *mr) ? parse::ReadAsInt(mr) : 0;
 				const char *pk = node.GetValue("pick");
 				ci.pick = (pk && *pk) ? parse::ReadAsInt(pk) : 0;
-				const char *dc = node.GetValue("damroll_cap");
-				ci.damroll_cap = (dc && *dc) ? parse::ReadAsInt(dc) : 0;
 				node.GoToParent();
 			}
 			if (node.GoToChild("scaling")) {
