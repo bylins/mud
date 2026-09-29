@@ -1756,10 +1756,9 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	const int duration = FinalizeSummonedMob(ch, mob, spell_id, false);
 	if (!resurrection) {
 		EnhanceAnimateDead(ch, mob, mob_num, spell_id, duration);
-		// Чары и аффекты выше прогнали affect_total, а он у NPC заново копирует add_abils из
-		// прототипа -- вместе с бронёй, спасами, удачей и инициативой, выданными подъёмом.
-		// Ставим эту группу заново; счёт идёт от прототипа, поэтому повтор ничего не удваивает.
-		animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase());
+		// Броня, спасы, удача и инициатива выдаются аффектами: прямую запись в бонусы
+		// affect_total стирает при каждом пересчёте, а аффекты возвращает сам.
+		animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	SpillCorpseContents(ch, obj);

@@ -95,9 +95,10 @@ class AnimateDeadLoader : virtual public cfg_manager::IEditableCfgLoader {
 // Scale a freshly-read construct's stats off the caster's cast competence C, per the tier's
 // <scaling>. No-op for a mob whose vnum is not a configured tier.
 void SetupUndeadStats(CharData *ch, CharData *mob, double competence);
-// Только группа add_abils (броня, спасы, удача, инициатива): её стирает affect_total,
-// поэтому после наложения чар и аффектов её ставят заново. Повтор безопасен.
-void ApplyVolatileUndeadStats(CharData *mob, double competence);
+// Группа бонусов (броня, спасы, удача, инициатива), которую affect_total очищает до
+// прототипной: выдаётся аффектами, поэтому возвращается сама при каждом пересчёте.
+// duration -- срок жизни прибавок, обычно равный сроку чар.
+void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration);
 
 }  // namespace animate_dead
 
