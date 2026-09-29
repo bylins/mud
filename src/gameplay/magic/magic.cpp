@@ -1756,6 +1756,9 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	const int duration = FinalizeSummonedMob(ch, mob, spell_id, false);
 	if (!resurrection) {
 		EnhanceAnimateDead(ch, mob, mob_num, spell_id, duration);
+		// Броня, спасы, удача и инициатива выдаются аффектами: прямую запись в бонусы
+		// affect_total стирает при каждом пересчёте, а аффекты возвращает сам.
+		animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	SpillCorpseContents(ch, obj);

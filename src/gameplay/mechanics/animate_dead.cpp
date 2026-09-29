@@ -5,9 +5,11 @@
 
 #include "animate_dead.h"
 
+#include "engine/db/db.h"               // mob_proto
 #include "engine/db/global_objects.h"   // MUD::AnimateDead()
 #include "engine/entities/char_data.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/affects/affect_data.h"   // Affect / affect_to_char
 #include "gameplay/mechanics/saving.h"  // ESaving, GetSave/SetSave
 #include "gameplay/core/remort.h"       // remort::SkillCapStart / SkillCapIncrement
 #include "utils/utils.h"                // GET_* macros, err_log, number, GetRealLevel
@@ -82,6 +84,10 @@ void AnimateDeadInfo::Load(DataNode data) {
 			ci.id = parse::ReadAsStr(node.GetValue("id"));
 			ci.proto_vnum = parse::ReadAsInt(node.GetValue("proto_vnum"));
 			ci.weight = parse::ReadAsInt(node.GetValue("weight"));
+			// Атрибут висит на самом <creature>, а не в дочернем <cost> -- читать его надо
+			// здесь, пока node указывает на вид.
+			const char *dc = node.GetValue("damroll_cap");
+			ci.damroll_cap = (dc && *dc) ? parse::ReadAsInt(dc) : 0;
 			if (node.GoToChild("cost")) {
 				ci.corpse_max_level = parse::ReadAsInt(node.GetValue("corpse_max_level"));
 				const char *mr = node.GetValue("min_rating");
@@ -123,6 +129,11 @@ const CreatureInfo *AnimateDeadInfo::ByProtoVnum(int proto_vnum) const {
 int AnimateDeadInfo::WeightOf(int proto_vnum) const {
 	const auto *c = ByProtoVnum(proto_vnum);
 	return c ? c->weight : 0;   // non-tier followers do not consume the budget
+}
+
+int AnimateDeadInfo::DamrollCapOf(int proto_vnum) const {
+	const auto *c = ByProtoVnum(proto_vnum);
+	return c ? c->damroll_cap : 0;
 }
 
 int AnimateDeadInfo::LadderIndex(int proto_vnum) const {
@@ -264,6 +275,76 @@ int FitUndeadTier(CharData *ch, int desired) {
 	return 0;   // even the weakest tier does not fit -> caller reports "too many minions"
 }
 
+// Броня, спасы, удача и инициатива живут в add_abils, а affect_total у NPC очищает этот
+// блок до прототипного и заново навешивает аффекты. Значит прямая запись не живёт: её
+// стирает первый же наложенный бафф. Поэтому подъём выдаёт эту группу аффектами -- их
+// affect_total возвращает сам, сколько бы раз ни пересчитывал.
+void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration) {
+	const auto *info = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(mob));
+	if (!info) {
+		return;
+	}
+	const auto rnum = mob->get_rnum();
+	const CharData *base = (rnum >= 0) ? &mob_proto[rnum] : mob;
+	const double c = std::max(0.0, competence);
+	const CreatureScaling &s = info->scaling;
+
+	auto up = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur + RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::min(v, static_cast<int>(sc.cap));
+		}
+		return v;
+	};
+	auto down = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur - RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::max(v, static_cast<int>(sc.cap));
+		}
+		return v;
+	};
+
+	// Аффект без флага (affect_type kUndefined) -- он ничего не сообщает игроку и не виден
+	// в списке, только несёт прибавку. Нулевые прибавки не навешиваем вовсе.
+	auto grant = [mob, duration](EApply location, int modifier) {
+		if (modifier == 0) {
+			return;
+		}
+		Affect<EApply> af;
+		af.duration = duration;
+		af.modifier = modifier;
+		af.location = location;
+		af.affect_type = EAffect::kUndefined;
+		af.battleflag = {};
+		affect_to_char(mob, af);
+	};
+
+	const int armour_base = GET_ARMOUR(base);
+	grant(EApply::kArmour, up(s.armor, armour_base) - armour_base);
+	const int morale_base = GET_MORALE(base);
+	grant(EApply::kMorale, up(s.morale, morale_base) - morale_base);
+	const int initiative_base = GET_INITIATIVE(base);
+	grant(EApply::kInitiative, up(s.initiative, initiative_base) - initiative_base);
+	if (s.saving.beta != 0.0) {
+		static const std::pair<ESaving, EApply> kSaves[] = {
+			{ESaving::kWill, EApply::kSavingWill},
+			{ESaving::kCritical, EApply::kSavingCritical},
+			{ESaving::kStability, EApply::kSavingStability},
+			{ESaving::kReflex, EApply::kSavingReflex},
+		};
+		for (const auto &[saving, location] : kSaves) {
+			const int save_base = GetSave(const_cast<CharData *>(base), saving);
+			grant(location, down(s.saving, save_base) - save_base);
+		}
+	}
+}
+
 void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 	const auto *info = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(mob));
 	if (!info) {
@@ -329,15 +410,7 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 		GET_DR(mob) = up(s.damage_bonus, GET_DR(mob));
 	}
 	GET_HR(mob)         = up(s.hitroll, GET_HR(mob));
-	GET_ARMOUR(mob)     = up(s.armor, GET_ARMOUR(mob));
-	GET_MORALE(mob)     = up(s.morale, GET_MORALE(mob));
-	GET_INITIATIVE(mob) = up(s.initiative, GET_INITIATIVE(mob));
 	GET_AC(mob)         = down(s.ac, GET_AC(mob));   // lower AC = better
-	if (s.saving.beta != 0.0) {
-		for (auto sv = ESaving::kFirst; sv <= ESaving::kLast; ++sv) {
-			SetSave(mob, sv, down(s.saving, GetSave(mob, sv)));
-		}
-	}
 	if (s.skills.beta != 0.0) {
 		// scale every skill the prototype already has, uniformly.
 		std::vector<ESkill> ids;
