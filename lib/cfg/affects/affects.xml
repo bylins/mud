@@ -364,7 +364,7 @@
 	<affect id="kForcesOfEvil" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod"/>
 		<apply location="kDamroll">
-			<modifier min="10" beta="1.0" factor="1" cap="120" />
+			<modifier min="10" beta="3.0" factor="1" cap="190" />
 		</apply>
 		<apply location="kHitroll">
 			<modifier min="6" beta="0.3" factor="1" cap="40" />
