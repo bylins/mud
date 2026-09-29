@@ -4,7 +4,11 @@
 /tests/**         eol=lf
 *.md              working-tree-encoding=UTF-8 eol=lf
 /.githooks/**     working-tree-encoding=UTF-8 eol=lf
-/lib.template/**  working-tree-encoding=KOI8-R eol=lf
+# lib.template в UTF-8: в git блобы и так UTF-8, working-tree-encoding лишь выворачивал
+# их в KOI8-R при выкладке. Движок читает данные через from_disk_text -- он распознаёт
+# уже нативный текст и перекодирует только KOI8-R, так что боевой lib может оставаться
+# в прежней кодировке.
+/lib.template/**  eol=lf
 /lib/cfg/** eol=lf
 /bin.win/**       working-tree-encoding=windows-1251 eol=crlf
 *.dll             -diff -working-tree-encoding

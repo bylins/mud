@@ -313,7 +313,7 @@ The heartbeat system includes built-in profiling:
 
 ## Critical Notes
 
-- **File Encoding**: All project source files are UTF-8 (issue #3681). Edit them directly — no iconv dance. The world data on disk (`lib/`, `lib.template/`) is still KOI8-R; see `.gitattributes` for exactly which trees.
+- **File Encoding**: All project source files are UTF-8 (issue #3681), and so is `lib.template/`. Edit both directly — no iconv dance. Only the working `lib/` (the world an author puts there, plus `lib/cfg/**`) is still KOI8-R on disk; see `.gitattributes` for exactly which trees.
 - **Thread Safety**: Main game loop is single-threaded; use `BlockingQueue` for cross-thread communication
 - **Shared Pointers**: Always use `CharData::shared_ptr` and `ObjData::shared_ptr` to prevent use-after-free
 - **Pulse Timing**: Never use wall-clock delays; register actions with heartbeat system
@@ -376,9 +376,14 @@ rm -rf src tests && git checkout -- src tests
 считает весь текст UTF-8: расходятся сравнения имён, доски, кодировка лога, а запись на диск гонит
 такие литералы через словарь транслита. `meson setup` теперь это проверяет и отказывается собирать.
 
-Still KOI8-R on disk, and still needing care: the world and configs (`lib/`, `lib.template/`,
-`/lib/cfg/**`, `/lib/misc/**`, `/lib/text/help/**`, `/lib/etc/board/**`). For those the old rule
-holds — convert, edit, convert back:
+`lib.template/` тоже переведён на UTF-8: в git его блобы всегда были UTF-8, а
+`working-tree-encoding=KOI8-R` лишь выворачивал их при выкладке — атрибут снят, содержимое
+файлов не менялось. Правьте шаблон напрямую.
+
+Still KOI8-R on disk, and still needing care: the working `lib/` — the world an author puts in
+`lib/worlddata/world`, plus `/lib/cfg/**`, `/lib/misc/**`, `/lib/text/help/**`, `/lib/etc/board/**`.
+Движок читает оба варианта (`from_disk_text` распознаёт уже нативный текст), так что переводить
+боевой мир не требуется. For those the old rule holds — convert, edit, convert back:
 
 ```bash
 iconv -f koi8-r -t utf-8 lib/cfg/some.xml > /tmp/some_utf8.xml
