@@ -370,6 +370,12 @@ no longer converts them on checkout.
 rm -rf src tests && git checkout -- src tests
 ```
 
+То же и с `lib.template` при переходе через ветку, где он ещё в KOI8-R:
+
+```bash
+rm -rf lib.template && git checkout -- lib.template
+```
+
 `working-tree-encoding` применяется во время checkout'а, а содержимое блоба при флипе не менялось,
 поэтому git оставляет ранее выкаченные файлы в KOI8-R и считает дерево чистым — `git status` молчит.
 Собранный из такого дерева бинарь получает кои-восьмые строковые литералы при движке, который
