@@ -9,6 +9,7 @@
 #include "engine/db/global_objects.h"   // MUD::AnimateDead()
 #include "engine/entities/char_data.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/affects/affect_data.h"   // Affect / affect_to_char
 #include "gameplay/mechanics/saving.h"  // ESaving, GetSave/SetSave
 #include "gameplay/core/remort.h"       // remort::SkillCapStart / SkillCapIncrement
 #include "utils/utils.h"                // GET_* macros, err_log, number, GetRealLevel
@@ -265,11 +266,11 @@ int FitUndeadTier(CharData *ch, int desired) {
 	return 0;   // even the weakest tier does not fit -> caller reports "too many minions"
 }
 
-// Броня, спасы, удача и инициатива живут в add_abils, а affect_total у NPC копирует этот
-// блок из прототипа заново -- то есть всё, что выдал подъём, стирается на первом же
-// наложенном аффекте. Поэтому эта группа вынесена отдельно: её ставят ещё раз, уже после
-// чар и аффектов. Счёт идёт от прототипа, так что повтор даёт тот же результат.
-void ApplyVolatileUndeadStats(CharData *mob, double competence) {
+// Броня, спасы, удача и инициатива живут в add_abils, а affect_total у NPC очищает этот
+// блок до прототипного и заново навешивает аффекты. Значит прямая запись не живёт: её
+// стирает первый же наложенный бафф. Поэтому подъём выдаёт эту группу аффектами -- их
+// affect_total возвращает сам, сколько бы раз ни пересчитывал.
+void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration) {
 	const auto *info = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(mob));
 	if (!info) {
 		return;
@@ -300,12 +301,37 @@ void ApplyVolatileUndeadStats(CharData *mob, double competence) {
 		return v;
 	};
 
-	GET_ARMOUR(mob)     = up(s.armor, GET_ARMOUR(base));
-	GET_MORALE(mob)     = up(s.morale, GET_MORALE(base));
-	GET_INITIATIVE(mob) = up(s.initiative, GET_INITIATIVE(base));
+	// Аффект без флага (affect_type kUndefined) -- он ничего не сообщает игроку и не виден
+	// в списке, только несёт прибавку. Нулевые прибавки не навешиваем вовсе.
+	auto grant = [mob, duration](EApply location, int modifier) {
+		if (modifier == 0) {
+			return;
+		}
+		Affect<EApply> af;
+		af.duration = duration;
+		af.modifier = modifier;
+		af.location = location;
+		af.affect_type = EAffect::kUndefined;
+		af.battleflag = {};
+		affect_to_char(mob, af);
+	};
+
+	const int armour_base = GET_ARMOUR(base);
+	grant(EApply::kArmour, up(s.armor, armour_base) - armour_base);
+	const int morale_base = GET_MORALE(base);
+	grant(EApply::kMorale, up(s.morale, morale_base) - morale_base);
+	const int initiative_base = GET_INITIATIVE(base);
+	grant(EApply::kInitiative, up(s.initiative, initiative_base) - initiative_base);
 	if (s.saving.beta != 0.0) {
-		for (auto sv = ESaving::kFirst; sv <= ESaving::kLast; ++sv) {
-			SetSave(mob, sv, down(s.saving, GetSave(const_cast<CharData *>(base), sv)));
+		static const std::pair<ESaving, EApply> kSaves[] = {
+			{ESaving::kWill, EApply::kSavingWill},
+			{ESaving::kCritical, EApply::kSavingCritical},
+			{ESaving::kStability, EApply::kSavingStability},
+			{ESaving::kReflex, EApply::kSavingReflex},
+		};
+		for (const auto &[saving, location] : kSaves) {
+			const int save_base = GetSave(const_cast<CharData *>(base), saving);
+			grant(location, down(s.saving, save_base) - save_base);
 		}
 	}
 }
@@ -376,7 +402,6 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 	}
 	GET_HR(mob)         = up(s.hitroll, GET_HR(mob));
 	GET_AC(mob)         = down(s.ac, GET_AC(mob));   // lower AC = better
-	ApplyVolatileUndeadStats(mob, competence);
 	if (s.skills.beta != 0.0) {
 		// scale every skill the prototype already has, uniformly.
 		std::vector<ESkill> ids;
