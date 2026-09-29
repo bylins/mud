@@ -104,6 +104,10 @@ class CfgManager {
 
 	void LoadCfg(const std::string &id);
 	void ReloadCfg(const std::string &id);
+	// Перечитать все зарегистрированные конфиги в порядке регистрации -- он же порядок
+	// загрузки при старте, поэтому зависимости между файлами не ломаются. Нужен команде
+	// `reload all`: её прежний список был написан руками и отставал от реестра.
+	void ReloadAll();
 
 	// issue.cfg-manager: запись конфига по запросу - вызывающий не знает ни пути, ни имени файла,
 	// только свой строковый id. CfgManager сам решает, в какой файл писать (по таблице регистрации),
@@ -134,6 +138,8 @@ class CfgManager {
 	void Apply(const std::string &id, bool reload);
 
 	std::unordered_map<std::string, LoaderInfo> loaders_;
+	// Порядок регистрации: карта его не хранит, а он значим при перезагрузке всего.
+	std::vector<std::string> order_;
 
 };
 

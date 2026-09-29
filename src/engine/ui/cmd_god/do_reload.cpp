@@ -45,7 +45,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"Usage: reload <what>. Available targets:\r\n"
 			"  all  *  -- everything below\r\n"
 			"  cfg data : abilities skills spells feats classes mobclasses guilds currencies\r\n"
-			"             ztypes runes mobraces objsets\r\n"
+			"             ztypes runes mobraces objsets affects animatedead\r\n"
 			"  messages : spellmsg skillmsg hitmsg affectmsg roomaffectmsg\r\n"
 			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
@@ -56,36 +56,19 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!str_cmp(target, "all") || *target == '*') {
+		// Все зарегистрированные конфиги разом и в порядке регистрации: прежний список
+		// перечислял их руками и отставал от реестра -- из 71 файла перезагружалось 20.
+		MUD::CfgManager().ReloadAll();
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-		MUD::CfgManager().ReloadCfg("system_msg");
-		MUD::CfgManager().ReloadCfg("affect_msg");
-		MUD::CfgManager().ReloadCfg("room_affect_msg");
-		MUD::CfgManager().ReloadCfg("social_msg");
 		initIngredientsMagic();
-		MUD::CfgManager().ReloadCfg("zone_types");
-		MUD::CfgManager().ReloadCfg("rune_spells");
 		ReloadSpecProcs();
-		MUD::CfgManager().ReloadCfg("rune_stone_msg");
-		MUD::CfgManager().ReloadCfg("rune_stones");
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 		LoadSheduledReboot();
 		oload_table.init();
-		MUD::CfgManager().ReloadCfg("mob_races");
-		MUD::CfgManager().ReloadCfg("stable_objs");
-		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 		GlobalDrop::init();
 		offtop_system::Init();
-		MUD::CfgManager().ReloadCfg("celebrates");   // issue.celebrates
 		HelpSystem::reload_all();
-		MUD::CfgManager().ReloadCfg("noob");
-		MUD::CfgManager().ReloadCfg("reset_stats");
-		MUD::CfgManager().ReloadCfg("digging");
-		MUD::CfgManager().ReloadCfg("jewelry");
-		MUD::CfgManager().ReloadCfg("item_creation");
-		MUD::CfgManager().ReloadCfg("basic");
 		Bonus::bonus_log_load();
-		MUD::CfgManager().ReloadCfg("daily_quest");   // issue.daily-quest
-		MUD::CfgManager().ReloadCfg("obj_affects");   // issue.obj-affects
 	} else if (!str_cmp(target, "portals")) {
 		MUD::CfgManager().ReloadCfg("rune_stone_msg");
 		MUD::CfgManager().ReloadCfg("rune_stones");
@@ -112,6 +95,9 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("room_affect_msg");
 	} else if (!str_cmp(target, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
+	} else if (!str_cmp(target, "affects")) {
+		// Аффекты крутят при настройке баланса, а перечитать их можно было только перезапуском.
+		MUD::CfgManager().ReloadCfg("affects");
 	} else if (!str_cmp(target, "animatedead")) {
 		MUD::CfgManager().ReloadCfg("animate_dead");   // issue.animate-dead
 	} else if (!str_cmp(target, "classes")) {
