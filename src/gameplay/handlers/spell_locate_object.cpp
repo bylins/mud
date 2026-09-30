@@ -91,7 +91,11 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 			}
 		}
 
-		if (!is_god && IS_CORPSE(i)) {
+		// issue #3970: труп моба разыскивается свободно -- так проверяют, убит ли уже
+		// хозяин зоны, и ничего, кроме этого, поиск не даёт. Труп игрока по-прежнему
+		// виден только по кровавому следу: в нём лежат чужие вещи, и находить его
+		// поиском -- это уже охота за добычей.
+		if (!is_god && IS_CORPSE(i) && !IS_MOB_CORPSE(i)) {
 			bloody_corpse = bloody::CatchBloodyCorpse(i.get());
 			if (!bloody_corpse) {
 				return false;
