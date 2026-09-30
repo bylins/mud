@@ -67,6 +67,23 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 [[nodiscard]] bool AffectHasIdentity(const Affect<EApply>::shared_ptr &af) {
 	return af->affect_type != EAffect::kUndefined;
 }
+
+// issue #3973: об окончании аффекта сообщаем, только когда не осталось ни одного живого
+// экземпляра того же аффекта. Экземпляры лежат в списке вперемешку -- постоянные приходят
+// от экипировки, временный от заклинания, -- поэтому прежний взгляд на одного соседа врал:
+// игрок читал «Вы приземлились на землю», продолжая лететь под десятком оставшихся «летит».
+// Живым считается всё, что не истекает прямо сейчас: и постоянный аффект (-1), и временный.
+[[nodiscard]] bool NoLiveTwinLeft(const CharData *ch, const Affect<EApply>::shared_ptr &expiring) {
+	for (const auto &other : ch->affected) {
+		if (other == expiring) {
+			continue;
+		}
+		if (other->affect_type == expiring->affect_type && other->duration != 0) {
+			return false;
+		}
+	}
+	return true;
+}
 }  // namespace
 
 // "Same affect" for the multi-slot dedup (one spell -> several slots announces once): same affect_type,
@@ -350,6 +367,7 @@ void player_affect_update() {
 		std::set<EAffect> ticked_types;
 		// issue.drunked-migration (Gap B): kExpired likewise fires at most once per affect TYPE per pass.
 		std::set<EAffect> expired_types;
+		std::set<EAffect> announced_types;
 		auto affect_i = i->affected.begin();
 
 		while (affect_i != i->affected.end()) {
@@ -366,12 +384,10 @@ void player_affect_update() {
 			}
 			if (affect->duration == 0) {
 				if (AffectHasIdentity(affect)) {
-					auto next_affect_i = affect_i;
-
-					++next_affect_i;
-					if (next_affect_i == i->affected.end()	//костыль на спадение 1 закла накладывающего несколько аффектов
-							|| !SameAffectIdentity(affect, *next_affect_i)
-							|| (*next_affect_i)->duration > 0) {
+					// Одно заклинание вешает несколько аффектов одного типа -- сообщаем один раз
+					// за проход и только когда у персонажа не осталось живого такого же (issue #3973).
+					if (NoLiveTwinLeft(i.get(), affect)
+							&& announced_types.insert(affect->affect_type).second) {
 						//чтобы не выдавалось, "что теперь вы можете сражаться",
 						//хотя на самом деле не можете :)
 						// issue.affect-migration: suppress the "you can fight again" line while the OTHER stun
@@ -480,6 +496,7 @@ void battle_affect_update(CharData *ch) {
 	// round, even if it has several stacked applies (e.g. poison's kPoison + kStr) -- mirrors how the
 	// hardcoded ProcessPoisonDmg damages once (its location gate).
 	std::set<EAffect> ticked_types;
+	std::set<EAffect> announced_types;
 	if (ch->purged()) {
 		char tmpbuf[256];
 		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", GET_NAME(ch), GET_MOB_VNUM(ch));
@@ -506,15 +523,10 @@ void battle_affect_update(CharData *ch) {
 			continue;
 		}
 		if (affect->duration == 0) {
-			if (AffectHasIdentity(affect)) {
-				auto next_affect_i = affect_i;
-
-				++next_affect_i;
-				if (next_affect_i == ch->affected.end()
-						|| !SameAffectIdentity(affect, *next_affect_i)
-						|| (*next_affect_i)->duration > 0) {
-					ShowAffExpiredMsg(affect->affect_type, ch);
-				}
+			if (AffectHasIdentity(affect)
+					&& NoLiveTwinLeft(ch, affect)
+					&& announced_types.insert(affect->affect_type).second) {
+				ShowAffExpiredMsg(affect->affect_type, ch);
 			}
 			// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout in combat.
 			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
@@ -573,6 +585,7 @@ void mobile_affect_update() {
 		bool need_recalc = false;
 		// issue.damage-over-time: out-of-combat data-driven DoT ticks once per affect type per pass.
 		std::set<EAffect> ticked_types;
+		std::set<EAffect> announced_types;
 		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
 //		if (!ch->in_used_zone()) {
 //			return;
@@ -601,11 +614,8 @@ void mobile_affect_update() {
 					if (IS_SET(affect->battleflag, kAfCharmBond)) {
 						was_charmed = true;
 					}
-					auto next_affect_i = affect_i;
-					++next_affect_i;
-					if (next_affect_i == ch->affected.end()
-							|| !SameAffectIdentity(affect, *next_affect_i)
-							|| (*next_affect_i)->duration > 0) {
+					if (NoLiveTwinLeft(ch, affect)
+							&& announced_types.insert(affect->affect_type).second) {
 						ShowAffExpiredMsg(affect->affect_type, ch);
 					}
 				}
