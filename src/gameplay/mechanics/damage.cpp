@@ -546,25 +546,37 @@ void Damage::SelectMagicShield(CharData *victim) {
 	// unifies PCs and NPCs (both: all shields active, one applies per hit) and is decided up-front so
 	// BOTH the retaliation pass and the reduction pass gate on the same choice. The pool is every shield
 	// the victim has, independent of the hit -- so e.g. a crit is absorbed only when ice is the pick.
+	// issue #3971: вес щита -- свойство самого щита, а не каждого его экземпляра. Один и тот же
+	// щит от вещи и накастованный поверх удваивал бы свою долю в рулетке и вытеснял остальные,
+	// поэтому каждый тип попадает в колесо однажды.
+	BitsetFlags<EAffect> counted;
 	int total = 0;
 	for (const auto &aff : victim->affected) {
-		if (aff) {
-			total += affects::AffectShieldWeight(aff->affect_type);
-		}
-	}
-	if (total <= 0) {
-		return;   // no shields -> selected_shield_ stays -1
-	}
-	int roll = number(1, total);
-	int acc = 0;
-	for (const auto &aff : victim->affected) {
-		if (!aff) {
+		if (!aff || counted.get(aff->affect_type)) {
 			continue;
 		}
 		const int w = affects::AffectShieldWeight(aff->affect_type);
 		if (w <= 0) {
 			continue;
 		}
+		counted.set(aff->affect_type);
+		total += w;
+	}
+	if (total <= 0) {
+		return;   // no shields -> selected_shield_ stays -1
+	}
+	int roll = number(1, total);
+	int acc = 0;
+	BitsetFlags<EAffect> spun;
+	for (const auto &aff : victim->affected) {
+		if (!aff || spun.get(aff->affect_type)) {
+			continue;
+		}
+		const int w = affects::AffectShieldWeight(aff->affect_type);
+		if (w <= 0) {
+			continue;
+		}
+		spun.set(aff->affect_type);
 		acc += w;
 		if (acc >= roll) {
 			selected_shield_ = static_cast<int>(aff->affect_type);
