@@ -2,6 +2,8 @@
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/abilities/talents_actions.h"   // issue.character-affect-triggers: kExpired trigger
 #include <set>   // issue.character-affect-triggers: per-round dedup of multi-instance affects
+#include <map>   // issue #3971: сильнейший экземпляр аффекта на параметр
+#include <cstdlib>   // std::abs
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -1004,13 +1006,38 @@ void affect_total(CharData *ch) {
 	}
 
 	// move affect modifiers
+	// issue #3971: один аффект -- одна прибавка. Из нескольких экземпляров одного аффекта на
+	// одном параметре берём сильнейший, а не сумму: мигание с вещи (+8 к волшебному уклонению)
+	// и накастованное поверх (+76) дают 76, а не 84. Экземпляры сосуществуют с тех пор, как
+	// накастованный баф перестал затирать вещевой и врождённый, и складывать их прибавки --
+	// значит награждать за два источника одного и того же. Стеки (stacks) не при чём: они
+	// накапливают прибавку внутри одного экземпляра, и он здесь по-прежнему один.
+	std::map<std::pair<EAffect, EApply>, int> strongest;
+	for (const auto &af : ch->affected) {
+		if (af->location == EApply::kNone || af->modifier == 0) {
+			continue;
+		}
+		const auto key = std::make_pair(af->affect_type, af->location);
+		const auto it = strongest.find(key);
+		if (it == strongest.end() || std::abs(af->modifier) > std::abs(it->second)) {
+			strongest[key] = af->modifier;
+		}
+	}
+	std::set<std::pair<EAffect, EApply>> applied;
 	for (const auto &af : ch->affected) {
 		// Failed-attempt markers (kAfFailed) keep the success affect_type for identity/display,
 		// but must NOT raise the affected_by flag bit -- otherwise a botched hide/berserk would
 		// read as the real effect everywhere AFF_FLAGGED is checked. Apply the modifier (a no-op
 		// for these markers: location kNone) without the flag.
 		const EAffect bitv = IS_SET(af->battleflag, kAfFailed) ? EAffect::kUndefined : af->affect_type;
-		affect_modify(ch, af->location, af->modifier, bitv, true);
+		int modifier = af->modifier;
+		if (af->location != EApply::kNone && af->modifier != 0) {
+			const auto key = std::make_pair(af->affect_type, af->location);
+			// Прибавку даёт только сильнейший экземпляр; остальные проходят с нулём, чтобы
+			// флаг аффекта всё равно встал.
+			modifier = applied.insert(key).second ? strongest[key] : 0;
+		}
+		affect_modify(ch, af->location, modifier, bitv, true);
 	}
 
 	// move race and class modifiers
