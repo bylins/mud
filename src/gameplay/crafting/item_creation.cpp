@@ -442,7 +442,11 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	return;
 }
 void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
-	char txtbuff[100];
+	// issue #3978: строка качества собирается в std::string, а не в char[100]. Под KOI8-R она
+	// умещалась в сотню байт, под UTF-8 кириллица весит вдвое -- «качества, лучшего чем то,
+	// которое знали древние титаны» это уже 99 байт сама по себе, и sprintf ронял сервер
+	// по fortify («buffer overflow detected») прямо на перековке.
+	std::string forged_msg;
 	const char *to_char = nullptr, *to_room = nullptr;
 	int prob, percent, ndice, sdice, weight;
 	float average;
@@ -530,13 +534,13 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 						to_room = "$n выковал$g $o3.";
 						average = (((float) sdice + 1) * (float) ndice / 2.0);
 						if (average < 3.0) {
-							sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int) (2.5 * 2)]);
+							forged_msg = fmt::format("Вы выковали $o3 {}.", create_weapon_quality[static_cast<int>(2.5 * 2)]);
 						} else if (average <= 27.5) {
-							sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int) (average * 2)]);
+							forged_msg = fmt::format("Вы выковали $o3 {}.", create_weapon_quality[static_cast<int>(average * 2)]);
 						} else {
-							sprintf(txtbuff, "Вы выковали $o3 %s!", create_weapon_quality[56]);
+							forged_msg = fmt::format("Вы выковали $o3 {}!", create_weapon_quality[56]);
 						}
-						to_char = (char *) txtbuff;
+						to_char = forged_msg.c_str();
 					} else {
 						to_room = "$n смастерил$g $o3.";
 						to_char = "Вы смастерили $o3.";
