@@ -212,6 +212,10 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 	if (dam <= 0 || !victim || victim->affected.empty()) {
 		return;
 	}
+	// issue #3971: один аффект -- одно ослабление удара, сколько бы экземпляров его ни висело.
+	// Освящение от двух вещей -- это по-прежнему одно освящение: до этой проверки его 50%
+	// применялись дважды, и из 100 физического урона доходило 23 вместо 49.
+	BitsetFlags<EAffect> warded;
 	for (const auto &aff : victim->affected) {
 		if (!aff) {
 			continue;
@@ -221,6 +225,10 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
 			continue;
 		}
+		if (warded.get(aff->affect_type)) {
+			continue;
+		}
+		warded.set(aff->affect_type);
 		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
 			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
 				continue;
@@ -291,6 +299,8 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 	if (flags[fight::kMagicReflect]) {
 		return;
 	}
+	// issue #3971: ответный удар тоже один на аффект, а не по экземпляру.
+	BitsetFlags<EAffect> retaliated;
 	for (const auto &aff : victim->affected) {
 		if (!aff) {
 			continue;
@@ -300,6 +310,10 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
 			continue;
 		}
+		if (retaliated.get(aff->affect_type)) {
+			continue;
+		}
+		retaliated.set(aff->affect_type);
 		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
 			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
 				continue;
