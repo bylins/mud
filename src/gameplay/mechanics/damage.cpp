@@ -212,6 +212,10 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 	if (dam <= 0 || !victim || victim->affected.empty()) {
 		return;
 	}
+	// issue #3971: один аффект -- одно ослабление удара, сколько бы экземпляров его ни висело.
+	// Освящение от двух вещей -- это по-прежнему одно освящение: до этой проверки его 50%
+	// применялись дважды, и из 100 физического урона доходило 23 вместо 49.
+	BitsetFlags<EAffect> warded;
 	for (const auto &aff : victim->affected) {
 		if (!aff) {
 			continue;
@@ -221,6 +225,10 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
 			continue;
 		}
+		if (warded.get(aff->affect_type)) {
+			continue;
+		}
+		warded.set(aff->affect_type);
 		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
 			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
 				continue;
@@ -291,6 +299,8 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 	if (flags[fight::kMagicReflect]) {
 		return;
 	}
+	// issue #3971: ответный удар тоже один на аффект, а не по экземпляру.
+	BitsetFlags<EAffect> retaliated;
 	for (const auto &aff : victim->affected) {
 		if (!aff) {
 			continue;
@@ -300,6 +310,10 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
 			continue;
 		}
+		if (retaliated.get(aff->affect_type)) {
+			continue;
+		}
+		retaliated.set(aff->affect_type);
 		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
 			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
 				continue;
@@ -532,25 +546,37 @@ void Damage::SelectMagicShield(CharData *victim) {
 	// unifies PCs and NPCs (both: all shields active, one applies per hit) and is decided up-front so
 	// BOTH the retaliation pass and the reduction pass gate on the same choice. The pool is every shield
 	// the victim has, independent of the hit -- so e.g. a crit is absorbed only when ice is the pick.
+	// issue #3971: вес щита -- свойство самого щита, а не каждого его экземпляра. Один и тот же
+	// щит от вещи и накастованный поверх удваивал бы свою долю в рулетке и вытеснял остальные,
+	// поэтому каждый тип попадает в колесо однажды.
+	BitsetFlags<EAffect> counted;
 	int total = 0;
 	for (const auto &aff : victim->affected) {
-		if (aff) {
-			total += affects::AffectShieldWeight(aff->affect_type);
-		}
-	}
-	if (total <= 0) {
-		return;   // no shields -> selected_shield_ stays -1
-	}
-	int roll = number(1, total);
-	int acc = 0;
-	for (const auto &aff : victim->affected) {
-		if (!aff) {
+		if (!aff || counted.get(aff->affect_type)) {
 			continue;
 		}
 		const int w = affects::AffectShieldWeight(aff->affect_type);
 		if (w <= 0) {
 			continue;
 		}
+		counted.set(aff->affect_type);
+		total += w;
+	}
+	if (total <= 0) {
+		return;   // no shields -> selected_shield_ stays -1
+	}
+	int roll = number(1, total);
+	int acc = 0;
+	BitsetFlags<EAffect> spun;
+	for (const auto &aff : victim->affected) {
+		if (!aff || spun.get(aff->affect_type)) {
+			continue;
+		}
+		const int w = affects::AffectShieldWeight(aff->affect_type);
+		if (w <= 0) {
+			continue;
+		}
+		spun.set(aff->affect_type);
 		acc += w;
 		if (acc >= roll) {
 			selected_shield_ = static_cast<int>(aff->affect_type);

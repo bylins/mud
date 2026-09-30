@@ -1078,6 +1078,17 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stac
 		const auto existing = *it;
 		// issue.affect-migration: stacking is keyed on affect_type (the effect identity).
 		const bool same_id = existing->affect_type == af.affect_type;
+		// issue #3971: аффект от вещи (или от набора) и любой постоянный аффект живут своей
+		// жизнью и в слияние не идут -- накастованный баф ложится рядом. Иначе вещевое
+		// освящение исчезало от собственного заклинания: слияние снимало его экземпляр,
+		// а std::max(срок, -1) обращал вечное во временное. Вещь после этого своей магии
+		// не возвращала -- она материализует её только при надевании, а подавление на
+		// предмет уже не ставилось, ведь экземпляра с kAfFromEquipment не осталось.
+		if (existing->duration < 0
+				|| IS_SET(existing->battleflag, EAffFlag::kAfFromEquipment)
+				|| IS_SET(existing->battleflag, EAffFlag::kAfFromSet)) {
+			continue;
+		}
 		if (same_id && existing->location == af.location) {
 			if (accum_dur) {
 				af.duration += existing->duration;
