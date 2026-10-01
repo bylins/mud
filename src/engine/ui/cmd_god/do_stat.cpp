@@ -26,6 +26,7 @@
 #include "gameplay/mechanics/liquid.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/ui/color.h"
+#include "engine/ui/table_wrapper.h"   // issue #3980: аффекты печатаются таблицей
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/ui/modify.h"
 #include "engine/ui/cmd/do_mode.h"
@@ -491,33 +492,147 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	SendMsgToChar(fmt::format("&GПеревоплощений: {}\r\n&n", remort::GetRealRemort(k)), ch);
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {
+		// issue #3980: аффекты печатаются таблицей. Строкой они и до флагов не умещались в экран
+		// (одно имя аффекта занимало 21 знак плюс прибавка и потенция), а с флагами разъезжались
+		// совсем. Ширину берём из настройки игрока, а длинные ячейки переносим внутри колонки.
+		struct AffectRow {
+			std::string duration;
+			std::string name;
+			std::string modifier;
+			std::string flags;
+			std::string potency;
+		};
+		std::vector<AffectRow> rows;
+		rows.reserve(k->affected.size());
+		std::set<EAffFlag> seen_flags;
 		for (const auto &aff : k->affected) {
-			std::string sline = fmt::sprintf("Заклинания: (%3d%s|%s) %s%s%s ",
+			AffectRow row;
+			row.duration = fmt::format("{}{}|{}",
 					aff->duration + 1,
 					(aff->battleflag.get(kAfPulsedec)) || (aff->battleflag.get(kAfSameTime)) ? "плс" : "мин",
-					(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин",
-					kColorCyn,
-					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
-					// Ширина поля -- в символах: printf меряет %-21s в байтах (issue #3681).
-					native_text::pad_right(
-						affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc), 21).c_str(),
-					kColorNrm);
-			bool has_modifier = aff->modifier != 0;
-			if (has_modifier) {
-				sline += fmt::sprintf("%+d to %s", aff->modifier, apply_types[(int) aff->location]);
+					(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин");
+			row.name = affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc);
+			if (aff->modifier != 0) {
+				row.modifier = fmt::format("{:+d} к {}", aff->modifier, apply_types[static_cast<int>(aff->location)]);
 			}
-			if (aff->affect_type != EAffect::kUndefined) {
-				sline += has_modifier ? ", sets " : "sets ";
-				sline += affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc);
+			// Флаги печатаем трёхбуквенными кодами через точку: полными именами одна строка щита
+			// («Battledec, UpdateDuration, UpdateMod, Dispellable, ...») занимала больше места,
+			// чем все остальные колонки вместе. Расшифровка встреченных кодов идёт под таблицей.
+			for (const auto &[bit, name] : NAMES_OF<EAffFlag>()) {
+				if (!aff->battleflag.get(bit)) {
+					continue;
+				}
+				if (!row.flags.empty()) {
+					row.flags += ".";
+				}
+				row.flags += ShortName(bit);
+				seen_flags.insert(bit);
 			}
 			if (aff->potency != 0.0f) {
 				const auto bk = affects::AffectBuffKind(aff->affect_type);
-				const char *kind = bk == affects::EBuff::kYes ? "buff"
-						: bk == affects::EBuff::kNo ? "debuff" : "ambiguous";
-				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, kind);
+				row.potency = fmt::format("{:.1f} {}", aff->potency,
+						bk == affects::EBuff::kYes ? "баф" : bk == affects::EBuff::kNo ? "дебаф" : "?");
 			}
-			sline += "\r\n";
-			SendMsgToChar(sline, ch);
+			rows.push_back(std::move(row));
+		}
+
+		// Узкие колонки занимают столько, сколько просят их данные; весь остаток экрана отдаём
+		// флагам и прибавке, иначе при 80 знаках на флаги оставалось по одному имени в строке.
+		const auto column_width = [&rows](std::string AffectRow::*field, std::size_t header) {
+			std::size_t width = header;
+			for (const auto &row : rows) {
+				width = std::max(width, utils::VisibleWidth(row.*field));
+			}
+			return width;
+		};
+		const auto screen = ch->player_specials->saved.stringLength > 40
+				? static_cast<std::size_t>(ch->player_specials->saved.stringLength)
+				: std::size_t{80};
+		// По три знака на колонку съедают отступы и разделители libfort.
+		const std::size_t kDecorWidth = 3 * 5;
+		const std::size_t known = column_width(&AffectRow::duration, 4)
+				+ column_width(&AffectRow::name, 6)
+				+ column_width(&AffectRow::potency, 4)
+				+ kDecorWidth;
+		const std::size_t rest = screen > known + 20 ? screen - known : 20;
+		// Флаги теперь трёхбуквенные, так что сперва отдаём им их настоящую ширину (у щита это
+		// восемь кодов, 31 знак), а прибавке -- остаток. Если экран тесный, делим пополам.
+		const std::size_t flag_width = std::min(column_width(&AffectRow::flags, 5),
+				std::max(std::size_t{12}, rest / 2));
+		const std::size_t mod_width = std::max(std::size_t{12}, rest - flag_width);
+		// Перенос внутри ячейки: libfort делит её по \n, а колонку растягивает по самой длинной
+		// строке -- значит рубить надо самим. Прибавку переносим по пробелам, флаги по точкам,
+		// чтобы трёхбуквенный код не разрывался посередине; слово, которое длиннее колонки,
+		// всё же режем -- иначе таблица уезжает за край экрана.
+		const auto wrap = [](const std::string &text, std::size_t width, char sep) {
+			std::string out;
+			std::size_t line = 0;
+			const auto parts = utils::Split(text, sep);
+			for (std::size_t i = 0; i < parts.size(); ++i) {
+				if (parts[i].empty()) {
+					continue;
+				}
+				// Разделитель остаётся при куске: точка -- на конце, пробел -- перед следующим.
+				std::string piece = parts[i];
+				if (sep == '.' && i + 1 < parts.size()) {
+					piece += '.';
+				}
+				const std::size_t len = utils::VisibleWidth(piece);
+				if (line != 0) {
+					const std::size_t gap = sep == ' ' ? 1 : 0;
+					if (line + gap + len > width) {
+						out += "\n";
+						line = 0;
+					} else if (gap != 0) {
+						out += ' ';
+						++line;
+					}
+				}
+				if (len <= width) {
+					out += piece;
+					line += len;
+					continue;
+				}
+				// Кусок длиннее колонки (например «защита.от.магии.тьмы» в прибавке) -- режем.
+				std::string rest = piece;
+				while (!rest.empty()) {
+					const std::size_t take = width - line;
+					const std::size_t bytes = native_text::char_offset(rest, take);
+					out += rest.substr(0, bytes);
+					rest = rest.substr(bytes);
+					if (!rest.empty()) {
+						out += "\n";
+						line = 0;
+					} else {
+						line += utils::VisibleWidth(rest);
+					}
+				}
+			}
+			return out;
+		};
+
+		table_wrapper::Table table;
+		table << table_wrapper::kHeader
+			  << "Срок" << "Аффект" << "Прибавка" << "Флаги" << "Сила" << table_wrapper::kEndRow;
+		for (const auto &row : rows) {
+			table << row.duration << row.name << wrap(row.modifier, mod_width, ' ')
+				  << wrap(row.flags, flag_width, '.') << row.potency << table_wrapper::kEndRow;
+		}
+		table.SetColumnAlign(0, table_wrapper::align::kRight);
+		table_wrapper::DecorateServiceTable(ch, table);
+		table_wrapper::PrintTableToChar(ch, table);
+		// Расшифровка кодов -- только те, что встретились в таблице: полный список из двадцати
+		// девяти занял бы больше места, чем сами аффекты.
+		if (!seen_flags.empty()) {
+			std::vector<std::string> legend;
+			legend.reserve(seen_flags.size());
+			for (const auto bit : seen_flags) {
+				legend.emplace_back(fmt::format("{}={}", ShortName(bit), NAME_BY_ITEM<EAffFlag>(bit)));
+			}
+			// Двойка в запас: OutWordsList считает длину без хвостового разделителя, и строка
+			// выходила на знак шире экрана.
+			SendMsgToChar(utils::OutWordsList(legend, screen > 10 ? screen - 2 : screen, ", ", "Флаги: ")
+					+ "\r\n", ch);
 		}
 	}
 
