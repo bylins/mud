@@ -300,6 +300,9 @@ bool SpellInfo::IsViolentAgainst(const CharData *caster, const CharData *target)
 	// helpful side. A PC's charmed pet has a PC root and falls into the cases below.
 	if (cr->IsNpc() && tr->IsNpc()) return false;
 	if (group::same_group(const_cast<CharData *>(cr), const_cast<CharData *>(tr))) return false;
+	// Содружинники -- свои: слово возврата, групповой рекол и прочие "смотря по отношениям"
+	// заклинания внутри дружины не нападение, даже когда ратники идут разными группами.
+	if (group::same_clan(const_cast<CharData *>(cr), const_cast<CharData *>(tr))) return false;
 	return true;
 }
 
