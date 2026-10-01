@@ -12,6 +12,10 @@
 class CharData;
 namespace group {
 bool same_group(CharData *ch, CharData *tch);
+// Содружинники -- свои, даже когда идут разными группами: помощь им не считается
+// нападением, и боевые действия за неё не выдаются. Ратник сам разберётся, с кем он
+// в одной дружине. Для NPC и для бездружинных -- ложь.
+bool same_clan(CharData *ch, CharData *tch);
 int perform_group(CharData *ch, CharData *vict);
 int max_group_size(CharData *ch);
 void RemoveGroupFlags(CharData *ch);
