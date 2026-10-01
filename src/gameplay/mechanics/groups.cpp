@@ -72,6 +72,13 @@ bool group::same_group(CharData *ch, CharData *tch) {
 	return false;
 }
 
+bool group::same_clan(CharData *ch, CharData *tch) {
+	if (!ch || !tch || ch->IsNpc() || tch->IsNpc()) {
+		return false;
+	}
+	return CLAN(ch) && CLAN(ch) == CLAN(tch);
+}
+
 int group::max_group_size(CharData *ch) {
 	return kMaxGroupedFollowers + CalcLeadershipGroupSizeBonus(ch);
 }

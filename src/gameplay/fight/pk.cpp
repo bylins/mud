@@ -213,7 +213,10 @@ void pk_update_revenge(CharData *agressor, CharData *victim, int attime, int ren
 	auto &pk = agressor->pk_map[uid];
 	pk.unique = uid;
 	pk.battle_exp = time(nullptr) + attime * 60;
-	if (!group::same_group(agressor, victim)) {
+	// Боевые действия не выдаются своим: ни согруппникам, ни содружинникам. Внутри дружины
+	// ратники разберутся сами, а запирать им постой из-за того, что кто-то задел чужого
+	// подчинённого или бросил на согруппника слово возврата, незачем.
+	if (!group::same_group(agressor, victim) && !group::same_clan(agressor, victim)) {
 		agressor->player_specials->may_rent = MAX(NORENTABLE(agressor), time(nullptr) + renttime * 60);
 	}
 	return;
