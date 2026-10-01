@@ -50,6 +50,7 @@ test_sources = files(
     'accounts.storage.cpp',
     'translit_koi8.cpp',
     'parser_wrapper.encoding.cpp',
+    'parser_wrapper.comments.cpp',
     'alias.encoding.cpp',
     'state_manager.encoding.cpp',
     'utf8.cpp',
