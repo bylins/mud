@@ -321,7 +321,7 @@ void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration) {
 		af.modifier = modifier;
 		af.location = location;
 		af.affect_type = EAffect::kUndefined;
-		af.battleflag = {};
+		af.battleflag = {kAfCharmBond};   // issue #3971: прибавки нежити -- часть её пакета, снятию не подлежат
 		affect_to_char(mob, af);
 	};
 
