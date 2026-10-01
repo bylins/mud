@@ -1593,7 +1593,7 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kIceShield;
-		af.battleflag.clear();
+		af.battleflag = {kAfCharmBond};   // issue #3971: щит нежити -- часть её пакета, снятию не подлежит
 		affect_to_char(mob, af);
 	}
 }
@@ -2114,7 +2114,18 @@ namespace {
 // CheckNodispel blacklist). An affect with no matching flag -- charm/quest effects, or anything
 // applied outside <affects> in code -- is irremovable.
 bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flags) {
-	return affect && (affect->battleflag.get_plane(0) & flags) != 0;
+	if (!affect) {
+		return false;
+	}
+	// issue #3971: аффекты из пакета призванного существа снятию не подлежат. kAfCharmBond помечает
+	// весь пакет -- и саму привязку, и бафы, которые движок выдаёт вместе с ней, -- так что ни диспел,
+	// ни призматическая аура со своим <remove> их не трогают: это не игроцкие чары, а свойства самого
+	// существа. Разрыв чар работает как раньше -- RemoveCharmBond снимает их по флагу напрямую,
+	// минуя эту проверку.
+	if (IS_SET(affect->battleflag, kAfCharmBond)) {
+		return false;
+	}
+	return (affect->battleflag.get_plane(0) & flags) != 0;
 }
 
 // True if the victim carries a removable affect of the given spell type (one matching `flags`).

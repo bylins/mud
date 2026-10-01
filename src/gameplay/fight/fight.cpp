@@ -805,8 +805,11 @@ bool HasHostileRoomWard(CharData *ch) {
 // buffs; stripping them would help the target, so an offensive dispel ignores them.
 bool HasDispellableBuff(const CharData *vict) {
 	for (const auto &aff : vict->affected) {
+		// issue #3971: пакет призванного существа (kAfCharmBond) снять нельзя, и целиться в него
+		// мобу незачем -- каст уйдёт впустую.
 		if (aff && affects::AffectBuffKind(aff->affect_type) == affects::EBuff::kYes
-				&& IS_SET(aff->battleflag, kAfDispellable)) {
+				&& IS_SET(aff->battleflag, kAfDispellable)
+				&& !IS_SET(aff->battleflag, kAfCharmBond)) {
 			return true;
 		}
 	}
