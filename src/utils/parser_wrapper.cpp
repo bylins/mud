@@ -10,6 +10,37 @@
 
 namespace parser_wrapper {
 
+namespace {
+
+// issue.xml-comments: комментарии живут в дереве, чтобы вернуться в файл при сохранении, но для
+// читателя конфига их нет -- шагаем только по элементам. Иначе Children() отдавал бы узлы без
+// имени, а MoveChildUp/Down считали бы комментарий соседом.
+[[nodiscard]] pugi::xml_node FirstElement(const pugi::xml_node &node) {
+	auto child = node.first_child();
+	while (child && child.type() != pugi::node_element) {
+		child = child.next_sibling();
+	}
+	return child;
+}
+
+[[nodiscard]] pugi::xml_node NextElement(const pugi::xml_node &node) {
+	auto next = node.next_sibling();
+	while (next && next.type() != pugi::node_element) {
+		next = next.next_sibling();
+	}
+	return next;
+}
+
+[[nodiscard]] pugi::xml_node PreviousElement(const pugi::xml_node &node) {
+	auto prev = node.previous_sibling();
+	while (prev && prev.type() != pugi::node_element) {
+		prev = prev.previous_sibling();
+	}
+	return prev;
+}
+
+}  // namespace
+
 struct DataNode::Impl {
 	std::shared_ptr<pugi::xml_document> xml_doc{std::make_shared<pugi::xml_document>()};
 	pugi::xml_node curren_xml_node{};
@@ -30,7 +61,12 @@ DataNode::DataNode(const std::filesystem::path &file_name) :
 	// пишет обратно, а безусловная перекодировка уже сохранённого в UTF-8 файла удваивала бы
 	// каждую кириллическую букву на каждом цикле загрузки-сохранения.
 	const std::string converted = native_text::read_data_file(file_name.string());
-	if (auto result = impl_->xml_doc->load_buffer(converted.data(), converted.size()); !result) {
+	// parse_comments: без него pugixml выбрасывает комментарии ещё при разборе, и первое же
+	// сохранение из ведуна стирало пояснения, которые писали люди (в shops.xml их 57, в
+	// affects.xml 15, вместе с блоками в шапке). Наружу комментарии не видны: навигация по
+	// DataNode шагает только по элементам -- см. NextElement ниже.
+	constexpr unsigned kParseOptions = pugi::parse_default | pugi::parse_comments;
+	if (auto result = impl_->xml_doc->load_buffer(converted.data(), converted.size(), kParseOptions); !result) {
 		std::ostringstream buffer;
 		buffer << "..." << result.description() << "\r\n" << " (file: " << file_name << ")" << "\r\n";
 		err_log("%s", buffer.str().c_str());
@@ -156,7 +192,7 @@ bool DataNode::RemoveChild(const DataNode &child) {
 
 bool DataNode::MoveChildUp(const DataNode &child) {
 	auto node = child.impl_->curren_xml_node;
-	auto prev = node.previous_sibling();
+	auto prev = PreviousElement(node);
 	if (!prev) {
 		return false;
 	}
@@ -165,7 +201,7 @@ bool DataNode::MoveChildUp(const DataNode &child) {
 
 bool DataNode::MoveChildDown(const DataNode &child) {
 	auto node = child.impl_->curren_xml_node;
-	auto next = node.next_sibling();
+	auto next = NextElement(node);
 	if (!next) {
 		return false;
 	}
@@ -201,19 +237,19 @@ bool DataNode::GoToSibling(const std::string &key) {
 }
 
 bool DataNode::HavePrevious() {
-	return impl_->curren_xml_node.previous_sibling();
+	return PreviousElement(impl_->curren_xml_node);
 }
 
 void DataNode::GoToPrevious() {
-	impl_->curren_xml_node = impl_->curren_xml_node.previous_sibling();
+	impl_->curren_xml_node = PreviousElement(impl_->curren_xml_node);
 }
 
 bool DataNode::HaveNext() {
-	return impl_->curren_xml_node.next_sibling();
+	return NextElement(impl_->curren_xml_node);
 }
 
 void DataNode::GoToNext() {
-	impl_->curren_xml_node = impl_->curren_xml_node.next_sibling();
+	impl_->curren_xml_node = NextElement(impl_->curren_xml_node);
 }
 
 DataNode::operator bool() const {
@@ -238,7 +274,7 @@ DataNode::pointer DataNode::operator->() {
 
 DataNode &DataNode::operator++() {
 	if (impl_->filter_name.empty()) {
-		impl_->curren_xml_node = impl_->curren_xml_node.next_sibling();
+		impl_->curren_xml_node = NextElement(impl_->curren_xml_node);
 	} else {
 		impl_->curren_xml_node = impl_->curren_xml_node.next_sibling(impl_->filter_name.c_str());
 	}
@@ -252,7 +288,7 @@ const DataNode DataNode::operator++(int) {
 }
 
 DataNode &DataNode::operator--() {
-	impl_->curren_xml_node = impl_->curren_xml_node.previous_sibling();
+	impl_->curren_xml_node = PreviousElement(impl_->curren_xml_node);
 	return *this;
 }
 
@@ -266,7 +302,7 @@ const DataNode DataNode::operator--(int) {
 	auto node = *this;
 	node.impl_->filter_name.clear();   // a no-arg Children() iterates ALL children, regardless of any
 	                                   // filter inherited from a node copied out of a Children(key) range.
-	node.impl_->curren_xml_node = node.impl_->curren_xml_node.first_child();
+	node.impl_->curren_xml_node = FirstElement(node.impl_->curren_xml_node);
 	return iterators::Range(node);
 }
 
