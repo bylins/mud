@@ -435,6 +435,47 @@ void init_EAffFlag_ITEM_NAMES() {
 	}
 }
 
+// issue #3980: трёхбуквенные коды флагов для stat -- полные имена в строку не влезали:
+// у щита их восемь, и «Battledec, UpdateDuration, UpdateMod, Dispellable, ...» занимало
+// больше экрана, чем все остальные колонки вместе.
+const std::map<EAffFlag, std::string> kAffFlagShortNames = {
+	{EAffFlag::kAfBattledec,			"bat"},   // тикает в раундах боя
+	{EAffFlag::kAfDeadkeep,				"ded"},   // остаётся после смерти
+	{EAffFlag::kAfPulsedec,				"pls"},   // тикает по пульсам
+	{EAffFlag::kAfSameTime,				"smt"},   // тикает единым темпом
+	{EAffFlag::kAfUpdateDuration,		"udu"},   // повторный каст обновляет срок
+	{EAffFlag::kAfAccumulateDuration,	"adu"},   // повторный каст копит срок
+	{EAffFlag::kAfUpdateMod,			"umo"},   // повторный каст обновляет прибавку
+	{EAffFlag::kAfDispellable,			"dsp"},   // снимается магией
+	{EAffFlag::kAfCurable,				"cur"},   // лечится
+	{EAffFlag::kAfMustBeHandled,		"hnd"},   // есть периодический обработчик
+	{EAffFlag::kAfUnique,				"unq"},   // только один в мире от этого кастера
+	{EAffFlag::kAfFailed,				"fal"},   // метка неудачной попытки
+	{EAffFlag::kAfPoison,				"poi"},   // разряд: отрава
+	{EAffFlag::kAfEntanglement,			"ent"},   // разряд: помеха движению
+	{EAffFlag::kAfCharmBond,			"chb"},   // пакет призванного существа
+	{EAffFlag::kAfNeedControl,			"ctl"},   // комнатный: один на кастера
+	{EAffFlag::kAfCasterInRoom,			"cir"},   // комнатный: кастер в комнате
+	{EAffFlag::kAfCasterInWorld,		"ciw"},   // комнатный: кастер в мире
+	{EAffFlag::kAfCasterInWorldDelay,	"cwd"},   // комнатный: кастер в мире, с отсрочкой
+	{EAffFlag::kAfIgnoreBlink,			"ibl"},   // урон проходит мимо мигания
+	{EAffFlag::kAfNoPositionBonus,		"npb"},   // нет надбавки за положение жертвы
+	{EAffFlag::kAfNoCritBonus,			"ncb"},   // нет надбавки за крит
+	{EAffFlag::kAfMaterialize,			"mat"},   // флаг моба разворачивается в аффект
+	{EAffFlag::kAfFullAbsorb,			"abs"},   // поглощает урон целиком
+	{EAffFlag::kAfBoon,					"bon"},   // разряд: мелкие блага
+	{EAffFlag::kAfWarding,				"war"},   // разряд: обычная защита
+	{EAffFlag::kAfAegis,				"aeg"},   // разряд: сильная защита
+	{EAffFlag::kAfFromEquipment,		"equ"},   // дан надетой вещью
+	{EAffFlag::kAfFromSet,				"set"},   // дан набором вещей
+};
+
+const std::string &ShortName(const EAffFlag item) {
+	static const std::string unknown{"???"};
+	const auto it = kAffFlagShortNames.find(item);
+	return it == kAffFlagShortNames.end() ? unknown : it->second;
+}
+
 template<>
 EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name) {
 	if (EAffFlag_name_by_value.empty()) {

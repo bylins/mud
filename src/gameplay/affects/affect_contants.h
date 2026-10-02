@@ -353,6 +353,10 @@ EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name);
 template<>
 const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>();  // issue.vedun-editor: editor enum pick-list
 
+// issue #3980: трёхбуквенный код флага для stat -- полные имена в строку не влезают.
+// Для неизвестного значения возвращает "???".
+const std::string &ShortName(EAffFlag item);
+
 // issue.ext-affects: built at boot from cfg/affects/affects.xml (see affects_loader.h), indexed positionally by
 // the EAffect bit so sprintbits keeps working unchanged; null until the "affects" cfg is loaded.
 extern const char *apply_types[];
