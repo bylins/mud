@@ -376,6 +376,10 @@ std::size_t VisibleWidth(std::string_view text);
 /// Вернуть строку пола персонажа по числовому значению (to_underlying(ch->get_sex())).
 std::string sprintGender(int gender_value);
 
+// По укладу мада буква "ё" в игре не употребляется: в именах её отвергает _parse_name при входе,
+// а остальной ввод игрока положено приводить к "е". Регистр сохраняется: "Ё" -> "Е", "ё" -> "е".
+std::string ReplaceYo(std::string text);
+
 } // namespace utils
 
 /// Сравнение строк без учета регистра (аналог strcmp).
