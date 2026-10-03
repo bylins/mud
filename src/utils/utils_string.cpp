@@ -1168,19 +1168,6 @@ std::string sprintGender(int gender_value) {
 	}
 	return (*genders[nr] != '\n') ? genders[nr] : "UNDEF";
 }
-std::string ReplaceYo(std::string text) {
-	static const std::pair<std::string_view, std::string_view> kPairs[] = {
-		{"\u0451", "\u0435"},   // ё -> е
-		{"\u0401", "\u0415"},   // Ё -> Е
-	};
-	for (const auto &[from, to] : kPairs) {
-		for (std::string::size_type pos = text.find(from); pos != std::string::npos;
-				pos = text.find(from, pos + to.size())) {
-			text.replace(pos, from.size(), to);
-		}
-	}
-	return text;
-}
 
 } // namespace utils
 

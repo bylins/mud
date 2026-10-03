@@ -5,7 +5,6 @@
 #include <fmt/format.h>
 
 #include "utils/native_text.h"
-#include "utils/utils_string.h"
 #include "title.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/player_index.h"
@@ -127,15 +126,6 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			return;
 		}
 
-		// Буква "ё" в игре не употребляется -- в именах её отвергает _parse_name, а титулу она
-		// досталась по инерции, через список разрешённых символов. Не отказываем игроку, а
-		// заменяем на "е" и говорим об этом: правило про замену, а не про запрет ввода.
-		const std::string without_yo = utils::ReplaceYo(buffer);
-		if (without_yo != buffer) {
-			buffer = without_yo;
-			SendMsgToChar("Буква \"ё\" в титулах не используется, заменена на \"е\".\r\n", ch);
-		}
-
 		std::string pre_title, title;
 		std::string::size_type beg_idx = buffer.find('!');
 		if (beg_idx != std::string::npos) {
@@ -218,7 +208,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 * \return 0 не сканало, 1 сканало
 */
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
-	if (!check_alphabet(text, ch, " ,.-?")) return false;
+	if (!check_alphabet(text, ch, " ,.-?Ёё")) return false;
 
 	if (GetRealLevel(ch) < 25 && !remort::GetRealRemort(ch) && !privilege::IsGod(ch) && !privilege::CheckFlag(ch, privilege::kTitle)) {
 		SendMsgToChar(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
@@ -235,7 +225,7 @@ bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 * \return 0 не сканало, 1 сканало
 */
 bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
-	if (!check_alphabet(text, ch, " .-?")) 
+	if (!check_alphabet(text, ch, " .-?Ёё")) 
 		return false;
 
 	if (privilege::IsGod(ch) || privilege::CheckFlag(ch, privilege::kTitle)) 
