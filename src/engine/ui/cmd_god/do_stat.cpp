@@ -507,10 +507,15 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		std::set<EAffFlag> seen_flags;
 		for (const auto &aff : k->affected) {
 			AffectRow row;
-			row.duration = fmt::format("{}{}|{}",
-					aff->duration + 1,
-					(aff->battleflag.get(kAfPulsedec)) || (aff->battleflag.get(kAfSameTime)) ? "плс" : "мин",
-					(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин");
+			// Вечный аффект (вещевой, врождённый, пакет призванного) носит duration -1, и срок у него
+			// печатался как "0мин|мин" -- то есть выглядел истекающим. Пишем словом, как это делает
+			// мортальский вид команды «аффекты».
+			row.duration = aff->duration < 0
+					? std::string("постоянно")
+					: fmt::format("{}{}|{}",
+							aff->duration + 1,
+							(aff->battleflag.get(kAfPulsedec)) || (aff->battleflag.get(kAfSameTime)) ? "плс" : "мин",
+							(aff->battleflag.get(kAfBattledec)) || (aff->battleflag.get(kAfSameTime)) ? "рнд" : "мин");
 			row.name = affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc);
 			if (aff->modifier != 0) {
 				row.modifier = fmt::format("{:+d} к {}", aff->modifier, apply_types[static_cast<int>(aff->location)]);
@@ -532,6 +537,32 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				const auto bk = affects::AffectBuffKind(aff->affect_type);
 				row.potency = fmt::format("{:.1f} {}", aff->potency,
 						bk == affects::EBuff::kYes ? "баф" : bk == affects::EBuff::kNo ? "дебаф" : "?");
+			}
+			rows.push_back(std::move(row));
+		}
+
+		// Один и тот же аффект могут давать несколько вещей, и тогда таблица показывала одинаковые
+		// строки подряд (два "летит", два "ускорение"). Строки, совпадающие целиком, слипаем в одну
+		// с пометкой [xN] -- так же, как мортальский вид команды «аффекты». Строки с разной
+		// прибавкой (ускорение +3 и +1) остаются раздельными: прибавку даёт сильнейший экземпляр,
+		// и видеть остальные полезно.
+		std::vector<std::pair<AffectRow, int>> squashed;
+		for (auto &row : rows) {
+			const auto same = std::find_if(squashed.begin(), squashed.end(), [&row](const auto &kept) {
+				return kept.first.duration == row.duration && kept.first.name == row.name
+						&& kept.first.modifier == row.modifier && kept.first.flags == row.flags
+						&& kept.first.potency == row.potency;
+			});
+			if (same == squashed.end()) {
+				squashed.emplace_back(std::move(row), 1);
+			} else {
+				++same->second;
+			}
+		}
+		rows.clear();
+		for (auto &[row, count] : squashed) {
+			if (count > 1) {
+				row.name += fmt::format(" [x{}]", count);
 			}
 			rows.push_back(std::move(row));
 		}
