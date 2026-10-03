@@ -902,6 +902,36 @@ void RemoveCurableAffects(CharData *ch) {
 	}
 }
 
+// issue #3988: снять все чары, которые снимаются магией -- то, за чем ходят в поле .dispel
+// dg-триггеров ("магическое равновесие" в Стиксе и прочие чистки комнаты). Отбор тот же, что у
+// заклинаний снятия (kAfCurable | kAfDispellable), с двумя исключениями:
+//   * kAfFromEquipment / kAfFromSet -- волшебство надетого. Эти узлы заводит надевание вещи, и
+//     affect_total их заново не создаёт: он пересчитывает прибавки и флаги без таймера, а
+//     материализованный аффект (определение невидимости с браслета и прочие с timer=) после
+//     чистки списка пропадал до перенадевания вещи.
+//   * kAfCharmBond -- пакет призванного существа: это не игроцкие чары, а свойства самого
+//     существа, и снятию они не подлежат (см. AffectMatchesFlags).
+// Остальное, что не помечено к снятию (квестовые и врождённые аффекты), не трогалось и прежним
+// списочным clear() трогаться не должно было.
+bool RemoveDispellableAffects(CharData *ch) {
+	constexpr Bitvector kRemovable = kAfCurable | kAfDispellable;
+	constexpr Bitvector kKept = kAfCharmBond | kAfFromEquipment | kAfFromSet;
+	bool removed = false;
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		const auto af = *it;
+		const Bitvector flags = af->battleflag.get_plane(0);
+		if ((flags & kRemovable) != 0 && (flags & kKept) == 0) {
+			EmitAffectEvent("affect_removed", ch, *af);
+			it = RemoveAffect(ch, it);
+			removed = true;
+		} else {
+			++it;
+		}
+	}
+	return removed;
+}
+
 
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
