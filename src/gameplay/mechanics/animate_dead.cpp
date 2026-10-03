@@ -246,12 +246,21 @@ int PickTier(CharData *ch, int corpse_mob_level) {
 		}
 	}
 	// 3) caster-rating gate: demote down the ladder until min_rating is met. The rating is
-	// level + a skill-derived remort-equivalent + 4 -- NOT the actual remort count (issue.animate-dead:
-	// the control skill, not remort, gates tiers). The remort-equivalent inverts CalcSkillCap: a remort
-	// R has skill cap SkillCapStart + R*SkillCapIncrement, so R = (skill - SkillCapStart) / increment.
+	// level + remort + 4. The remort term takes the HIGHER of the actual remort count and a
+	// skill-derived equivalent, which inverts CalcSkillCap: a remort R has skill cap
+	// SkillCapStart + R*SkillCapIncrement, so R = (skill - SkillCapStart) / increment. The equivalent
+	// still matters for a caster whose control skill was pushed past its cap.
+	//
+	// issue #3992: раньше тут стоял только скилл-эквивалент, и фактические перевоплощения не
+	// учитывались вовсе. Для хайморта это выходило так: сразу после сброса умений уровень низкий,
+	// магия тьмы ограничена уровнем и быстро не качается, рейтинг получался 8-10 -- и с любого
+	// трупа поднимался мертвяк. Нежить становилась бесполезной, чернокнижник бил сильнее сам.
+	// Морты набраны игроком, их и считаем: вид теперь открыт по мортам, а СИЛА поднятого
+	// по-прежнему целиком идёт от процента магии тьмы (SetupUndeadStats по компетенции каста),
+	// и бюджет на свиту тоже остаётся скилловым.
 	const int inc = std::max(1, remort::SkillCapIncrement());
-	const int pseudo_remort = std::max(0, (GetSkill(ch, cfg.ControlSkill()) - remort::SkillCapStart()) / inc);
-	const int rating = GetRealLevel(ch) + pseudo_remort + 4;
+	const int skill_remort = std::max(0, (GetSkill(ch, cfg.ControlSkill()) - remort::SkillCapStart()) / inc);
+	const int rating = GetRealLevel(ch) + std::max(remort::GetRealRemort(ch), skill_remort) + 4;
 	int idx = cfg.LadderIndex(chosen->proto_vnum);
 	while (idx > 0 && rating < cr[idx].min_rating) {
 		--idx;
