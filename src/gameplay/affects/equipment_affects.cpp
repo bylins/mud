@@ -114,6 +114,14 @@ static std::vector<const char *> g_equipment_affect_name_ptrs;
 static const char *g_empty_equipment_affect_names[] = {"\n", "\n", "\n", "\n"};
 const char **equipment_affects = g_empty_equipment_affect_names;
 
+namespace {
+BitsetFlags<EEquipmentAffect> g_materializable;
+}
+
+const BitsetFlags<EEquipmentAffect> &MaterializableEquipAffects() {
+	return g_materializable;
+}
+
 // issue.equipment-affects-cfg: build the equipment_affect table from cfg/affects/equipment_affects.xml.
 void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 	std::vector<EquipmentAffect> table;
@@ -144,6 +152,12 @@ void EquipmentAffectsLoader::Load(parser_wrapper::DataNode data) {
 		table.push_back(EquipmentAffect{pos, flag, spell, timer, power_percent});
 	}
 	equipment_affect = std::move(table);
+	g_materializable.clear();
+	for (const auto &e : equipment_affect) {
+		if (e.timer != kEquipmentAffectNoTimer && e.aff_affect != EAffect::kUndefined) {
+			g_materializable.set(e.aff_pos);
+		}
+	}
 }
 
 void EquipmentAffectsLoader::Reload(parser_wrapper::DataNode data) {
