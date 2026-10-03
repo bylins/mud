@@ -1787,9 +1787,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				if (!strcmp(tag, "Thir"))
 					GET_COND(this, condition::kThirst) = num;
 				else if (!strcmp(tag, "Titl"))
-					// Буква "ё" в игре не употребляется, а в старых сейвах титулы с ней есть:
-					// правим при загрузке, чтобы титул не ждал, пока игрок переставит его сам.
-					this->SetTitleStr(utils::ReplaceYo(line));
+					this->SetTitleStr(line);
 				else if (!strcmp(tag, "Tglo")) {
 					this->setGloryRespecTime(static_cast<time_t>(num));
 				} else if (!strcmp(tag, "Tlgr")) {

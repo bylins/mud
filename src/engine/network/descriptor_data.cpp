@@ -171,6 +171,20 @@ void DescriptorData::msdp_report_changed_vars() {
 	}
 }
 
+// Буква "ё" на раскладке ЙЦУКЕН сидит на месте апострофа, набрать ее игроку неудобно, и в игре ее
+// не показывают: на границе вывода она превращается в "е". Замена живет здесь, внутри проходов
+// перекодировки, которые тут и так делаются, поэтому отдельного прохода по тексту не появляется.
+// KOI8-R: ё = 0xA3, Ё = 0xB3, е = 0xC5, Е = 0xE5.
+namespace {
+inline char NoYoKoi8(char c) {
+	switch (static_cast<unsigned char>(c)) {
+		case 0xA3: return static_cast<char>(0xC5);
+		case 0xB3: return static_cast<char>(0xE5);
+		default: return c;
+	}
+}
+}   // namespace
+
 void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str) const {
 	// Легаси-кодировки клиентов заданы таблицами "байт KOI8-R -> байт целевой кодировки",
 	// поэтому перед ними текст надо привести к KOI8-R. Под KOI8-R-рантаймом это тождество,
@@ -208,11 +222,11 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 
 	switch (keytable) {
 		case kCodePageAlt:
-			for (; *in_str; *out_str = codepages::KtoA(*in_str), in_str++, out_str++);
+			for (; *in_str; *out_str = codepages::KtoA(NoYoKoi8(*in_str)), in_str++, out_str++);
 			break;
 		case kCodePageWin:
 			for (; *in_str; in_str++, out_str++) {
-				*out_str = codepages::KtoW(*in_str);
+				*out_str = codepages::KtoW(NoYoKoi8(*in_str));
 
 				// 0xFF is cp1251 'я' and Telnet IAC, so escape it with another IAC
 				if (*out_str == '\xFF') {
@@ -224,13 +238,13 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 		case kCodePageWinzOld:
 		case kCodePageWinzZ:
 			// zMUD before 6.39 or after for backward compatibility  - replace я with z
-			for (; *in_str; *out_str = codepages::KtoW2(*in_str), in_str++, out_str++);
+			for (; *in_str; *out_str = codepages::KtoW2(NoYoKoi8(*in_str)), in_str++, out_str++);
 			break;
 
 		case kCodePageWinz:
 			// zMUD after 6.39 and CMUD support 'я' but with some issues
 			for (; *in_str; in_str++, out_str++) {
-				*out_str = codepages::KtoW(*in_str);
+				*out_str = codepages::KtoW(NoYoKoi8(*in_str));
 
 				// 0xFF is cp1251 'я' and Telnet IAC, so escape it with antother IAC
 				// also there is a bug in zMUD, meaning we need to add an extra byte
@@ -247,12 +261,25 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 			// contain character with code 0xff which telnet interprets as IAC.
 			// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
 			// Рантайм в UTF-8 - отдаём как есть. Перекодировка тут испортила бы текст
-			// (именно так и выглядела первая флип-сборка).
-			strcpy(out_str, in_str);
+			// (именно так и выглядела первая флип-сборка). Копируем сами, а не strcpy, чтобы по
+			// дороге сменить "ё" на "е" (D1 91 -> D0 B5, D0 81 -> D0 95): длины совпадают, буфер
+			// вызывающего не растет, лишнего прохода по строке нет -- копирование тут и так было.
+			for (; *in_str; ++in_str, ++out_str) {
+				const auto first = static_cast<unsigned char>(in_str[0]);
+				const auto second = static_cast<unsigned char>(in_str[1]);
+				if ((first == 0xD1 && second == 0x91) || (first == 0xD0 && second == 0x81)) {
+					*out_str++ = static_cast<char>(0xD0);
+					*out_str = static_cast<char>(second == 0x91 ? 0xB5 : 0x95);
+					++in_str;
+					continue;
+				}
+				*out_str = *in_str;
+			}
+			*out_str = '\0';
 			break;
 
 		default:
-			for (; *in_str; *out_str = *in_str, in_str++, out_str++);
+			for (; *in_str; *out_str = NoYoKoi8(*in_str), in_str++, out_str++);
 			break;
 	}
 
