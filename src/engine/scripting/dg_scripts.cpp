@@ -797,28 +797,10 @@ EVENT(trig_wait_event) {
 	go = wait_event_obj->go;
 	type = wait_event_obj->type;
 	GET_TRIG_WAIT(trig).time_remaining = 0;
-	// issue #3523: from_current выставляется только при паузе триггера из-за стана
-	// моба. Логируем возобновление лишь когда триггер РЕАЛЬНО продолжится, иначе
-	// лог о "продолжил работу" был бы ложным. Проверять надо ДО script_driver:
-	// после него trig может быть уже удалён (remove_trigger -> ExtractTrigger).
-	//  - цикл script_driver зайдёт только если есть строка (curr_line), триггер
-	//    не свёрнут (GET_TRIG_DEPTH) и не остановлен (is_halted);
-	//  - моб не выведен из мира (in_room != kNowhere: extract_char уже вынул бы
-	//    его из комнаты, а script_driver ничего не выполнит);
-	//  - моб вышел из стана: иначе интерпретатор снова повесит wait и команда
-	//    опять не выполнится.
-	if (wait_event_obj->from_current && type == MOB_TRIGGER && go && trig
-			&& trig->curr_line && GET_TRIG_DEPTH(trig) && !trig->is_halted()) {
-		auto *mob = static_cast<CharData *>(go);
-		if (mob->in_room != kNowhere
-				&& !AFF_FLAGGED(mob, EAffect::kHold)
-				&& !AFF_FLAGGED(mob, EAffect::kStopFight)
-				&& !AFF_FLAGGED(mob, EAffect::kMagicStopFight)) {
-			mudlog(fmt::format("DG: триггер {} #{} продолжил работу после лага моба {} #{}",
-					GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), GET_SHORT(mob), GET_MOB_VNUM(mob)),
-					CMP, kLvlGod, SYSLOG, true);
-		}
-	}
+	// issue #3523: здесь стоял лог "триггер продолжил работу после лага моба" -- он показывал, что
+	// снятый стан действительно возобновляет триггер. Разбор закончен, а в игре это шло богам в
+	// поток и забивало его: возобновление -- рядовое событие, по нескольку раз в минуту. Вместе с
+	// логом убраны и проверки, которые считались только ради него.
 	script_driver(go, trig, type, wait_event_obj->from_current ? TRIG_FROM_LINE : TRIG_CONTINUE);
 	free(wait_event_obj);
 }
