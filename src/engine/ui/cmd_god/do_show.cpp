@@ -685,7 +685,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			Parcel::show_stats(ch);
 			SendMsgToChar(ch, "  Сообщений на почте: %zu\r\n", mail::get_msg_count());
 			SendMsgToChar(ch, "  Передвижения: %d\r\n", motion);
-			SendMsgToChar(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
+			SendMsgToChar(fmt::format("  Потрачено кун в магазинах за ребут: {}\r\n",
+									  ShopExt::get_spent_since_boot()), ch);
 			mob_stat::ShowStats(ch);
 			break;
 		}

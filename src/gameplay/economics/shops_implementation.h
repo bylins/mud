@@ -12,7 +12,7 @@
 #include <list>
 
 namespace ShopExt {
-extern int spent_today;
+extern int spent_since_boot;
 
 class GoodsStorage {
  public:
