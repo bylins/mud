@@ -36,7 +36,6 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/abilities/abilities_constants.h"   // issue.duration-scale: kNoviceSkillThreshold
 #include "gameplay/fight/fight.h"
-#include "utils/backtrace.h"
 
 #include <chrono>
 #include "gameplay/core/remort.h"
@@ -862,6 +861,70 @@ void RemoveEquipmentAffects(CharData *ch, long source_id) {
 			++it;
 		}
 	}
+}
+
+// issue #3988: сверка "вещь надета, волшебство не подавлено, а узла на хозяине нет" -- вернуть
+// пропавшее. Узел материализованного вещевого аффекта заводит надевание, а affect_total его заново
+// не создаёт, и это намеренно: иначе подавление не работало бы вовсе -- рассеянный аффект вставал
+// бы обратно тем же пересчётом. Поэтому законный способ убрать его один -- подавить на самом
+// предмете (SuppressSourceEquipmentAffect), и аффект вернётся сам, когда подавление истечёт. Всё
+// остальное, что сносит узел мимо подавления, оставляло надетую вещь без её волшебства до
+// перенадевания. Здесь такая потеря залечивается: у наборов то же делает reconcile_set_affects,
+// а у аффектов самой вещи сверки до сих пор не было. Возвращает true, если что-то восстановлено;
+// пересчёт делается здесь же. Молча: аффект и не должен был исчезать, объявлять его нечего.
+bool ReconcileEquipmentAffects(CharData *ch) {
+	if (!ch) {
+		return false;
+	}
+	// Цена обхода: таблица аффектов снаряжения перебирается один раз за вызов -- собираем маску
+	// тех, что вообще материализуются (с timer=), и дальше на каждую надетую вещь приходится одно
+	// пересечение битов. Полный перебор таблицы достаётся только вещи, у которой такой аффект есть
+	// (их у персонажа единицы), а affect_total зовётся лишь когда что-то действительно пропало --
+	// в обычном тике пересчёта не происходит вовсе.
+	BitsetFlags<EEquipmentAffect> timered;
+	for (const auto &j : equipment_affect) {
+		if (j.timer != kEquipmentAffectNoTimer && j.aff_affect != EAffect::kUndefined) {
+			timered.set(j.aff_pos);
+		}
+	}
+	if (timered.none()) {
+		return false;
+	}
+	bool restored = false;
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *obj = GET_EQ(ch, i);
+		if (!obj || !obj->get_affect_flags().intersects(timered)) {
+			continue;
+		}
+		for (const auto &j : equipment_affect) {
+			if (j.timer == kEquipmentAffectNoTimer || j.aff_affect == EAffect::kUndefined
+					|| !obj->GetEEquipmentAffect(j.aff_pos) || obj->is_affect_suppressed(j.aff_affect)) {
+				continue;
+			}
+			// Ищем ровно тот узел, который завело бы надевание: от этой вещи (caster_id) и с её
+			// пометкой. Аффекты набора (kAfFromSet) живут своей сверкой и сюда не относятся.
+			bool present = false;
+			for (const auto &af : ch->affected) {
+				if (af && af->affect_type == j.aff_affect && af->caster_id == obj->get_id()
+						&& IS_SET(af->battleflag, EAffFlag::kAfFromEquipment)
+						&& !IS_SET(af->battleflag, EAffFlag::kAfFromSet)) {
+					present = true;
+					break;
+				}
+			}
+			if (present) {
+				continue;
+			}
+			for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+				affect_to_char_no_recalc(ch, af);
+			}
+			restored = true;
+		}
+	}
+	if (restored) {
+		affect_total(ch);
+	}
+	return restored;
 }
 
 // issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
