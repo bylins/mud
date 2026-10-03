@@ -62,7 +62,8 @@ class ShopsLoader : virtual public cfg_manager::IEditableCfgLoader {
 void do_shops_list(CharData *ch);
 void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void load(bool reload);
-int get_spent_today();
+// Сумма кун, потраченных в лавках с запуска сервера: счётчик никуда не сбрасывается.
+int get_spent_since_boot();
 void update_timers();
 
 } // namespace ShopExt

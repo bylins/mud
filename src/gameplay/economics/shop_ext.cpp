@@ -402,8 +402,8 @@ void load(bool reload) {
 	}
 }
 
-int get_spent_today() {
-	return spent_today;
+int get_spent_since_boot() {
+	return spent_since_boot;
 }
 
 } // namespace ShopExt

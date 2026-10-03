@@ -64,7 +64,7 @@ static void KeeperNoMoneyReaction(CharData *keeper, CharData *ch) {
 	}
 }
 
-int spent_today = 0;
+int spent_since_boot = 0;
 
 bool check_money(CharData *ch, long price, const std::string &currency) {
 	return currencies::GetHand(*ch, currency) >= price;
@@ -388,7 +388,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				GloryConst::transfer_log("%s bought %s for %ld const glory",
 										 GET_NAME(ch), proto->get_PName(grammar::ECase::kNom).c_str(), price);
 			} else if (currency == currencies::kGold) {
-				spent_today += price;
+				spent_since_boot += price;
 			}
 			// трата валюты может затронуть систему дейликов
 			if (DailyQuest::OnCurrencySpent(ch, currency, price)) {
