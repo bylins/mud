@@ -2591,9 +2591,12 @@ void find_replacement(void *go,
 				trig_log(trig, "был произведен вызов DoRestore!");
 			}
 		} else if (!str_cmp(field, "dispel")) {
-			if (!mob->affected.empty()) {
+			// issue #3988: снимаем то же, что снимает магия, а не весь список подряд: иначе
+			// вместе с бафами уходило волшебство надетого (аффекты с kAfFromEquipment заводит
+			// надевание вещи, и affect_total их не воссоздаёт -- браслет оставался без своего
+			// определения невидимости до перенадевания) и привязка призванного существа.
+			if (RemoveDispellableAffects(mob)) {
 				SendMsgToChar("Вы словно заново родились!\r\n", mob);
-				mob->affected.clear();
 				affect_total(mob);
 			}
 		} else if (!str_cmp(field, "Currency")) {

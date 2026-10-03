@@ -163,6 +163,11 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).
 void RemoveCharmBond(CharData *ch, bool recalculate = false);
 void RemoveCurableAffects(CharData *ch);
+// issue #3988: снять всё, что снимается магией. Отбор тот же, что у заклинаний снятия: аффекту
+// нужен kAfCurable или kAfDispellable. Волшебство надетого (kAfFromEquipment, kAfFromSet) и пакет
+// призванного существа (kAfCharmBond) остаются на месте. Возвращает true, если что-то снято;
+// пересчёт параметров -- за вызывающим.
+bool RemoveDispellableAffects(CharData *ch);
 // True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
 bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
 // True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE

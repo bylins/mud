@@ -28,6 +28,7 @@ test_sources = files(
     'msdp.parser.cpp',
     'msdp.builder.cpp',
     'char.affects.cpp',
+    'dispellable.affects.cpp',
     'char.offline_timer.cpp',
     'state_manager.cpp',
     'dot.death.credit.cpp',
