@@ -1450,7 +1450,7 @@ void point_update() {
 	// Профайлер частей цикла: копим время по каждой части за весь цикл и выводим 1 раз после.
 	utils::CExecutionTimer point_update_timer;    // весь цикл целиком
 	utils::CExecutionTimer prof;                  // переиспользуем для замера частей
-	double t_cond = 0.0, t_hp = 0.0, t_mob = 0.0, t_move = 0.0, t_pos = 0.0, t_idle = 0.0;
+	double t_cond = 0.0, t_hp = 0.0, t_mob = 0.0, t_move = 0.0, t_pos = 0.0, t_idle = 0.0, t_eqaff = 0.0;
 	std::size_t scanned = 0, profiled_chars = 0;
 
 	// #3414: вместо скана всего character_list -- только активные мобы (их
@@ -1472,6 +1472,13 @@ void point_update() {
 				MaterializeMobFlagAffects(i);
 			}
 		}
+		// issue #3988: волшебство надетых вещей живёт отдельными узлами аффектов, и вернуть их
+		// после потери мимо подавления на предмете (чистка аффектов, смерть, обнуление) больше
+		// нечему -- affect_total их не воссоздаёт. Сверяем раз в игровой час, молча. Своя секция
+		// в профиле ниже: проход идёт по всем просмотренным, и его цену видно отдельно.
+		prof.restart();
+		ReconcileEquipmentAffects(i);
+		t_eqaff += prof.delta().count();
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, EAffect::kSleep) && i->GetPosition() > EPosition::kSleep) {
@@ -1587,8 +1594,8 @@ void point_update() {
 	}
 
 	const double point_update_total = point_update_timer.delta().count();
-	log("Point updating (просмотрено %zu, обработано %zu, всего %.4f сек): условия=%.4f hp=%.4f мобы=%.4f move=%.4f update_pos=%.4f idle=%.4f",
-		scanned, profiled_chars, point_update_total, t_cond, t_hp, t_mob, t_move, t_pos, t_idle);
+	log("Point updating (просмотрено %zu, обработано %zu, всего %.4f сек): условия=%.4f hp=%.4f мобы=%.4f move=%.4f update_pos=%.4f idle=%.4f вещи=%.4f",
+		scanned, profiled_chars, point_update_total, t_cond, t_hp, t_mob, t_move, t_pos, t_idle, t_eqaff);
 }
 void ExtractRepopDecayObject(ObjData *obj) {
 	if (obj->get_worn_by()) {

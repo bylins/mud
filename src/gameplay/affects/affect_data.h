@@ -152,6 +152,10 @@ class ObjData;
 void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce = true);
 void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce = true);
 void RemoveEquipmentAffects(CharData *ch, long source_id);
+// issue #3988: вернуть аффекты надетых вещей, узлы которых пропали мимо подавления на предмете
+// (чистка списка аффектов, смерть, обнуление). Зовётся с тика point_update; у наборов ту же работу
+// делает reconcile_set_affects. Возвращает true, если что-то восстановлено (пересчёт внутри).
+bool ReconcileEquipmentAffects(CharData *ch);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 // issue.equipment-affects-improve: like RemoveAffectFromChar, but keeps affects materialized
 // from worn equipment (kAfFromEquipment) -- used by Appear() so an aggressive action strips
