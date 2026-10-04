@@ -166,6 +166,9 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
 // for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).
 void RemoveCharmBond(CharData *ch, bool recalculate = false);
+// issue #4002: продлить ВЕСЬ пакет призванного до указанного срока, а не только саму привязку.
+// Флаг kAfCharmBond носят и прибавки существа, поэтому продлевать надо их вместе с привязкой.
+void ExtendCharmBond(CharData *ch, int duration);
 void RemoveCurableAffects(CharData *ch);
 // issue #3988: снять всё, что снимается магией. Отбор тот же, что у заклинаний снятия: аффекту
 // нужен kAfCurable или kAfDispellable. Волшебство надетого (kAfFromEquipment, kAfFromSet) и пакет

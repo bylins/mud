@@ -946,6 +946,23 @@ void RemoveCharmBond(CharData *ch, bool recalculate) {
 	}
 }
 
+// issue #4002: продлить весь пакет призванного существа. У поднятой нежити флаг kAfCharmBond носит
+// не только сама привязка (kCharmed), но и прибавки, которые выдаёт ApplyVolatileUndeadStats --
+// броня, мораль, инициатива и штрафы, узлами с affect_type kUndefined. Поедание трупа продлевало
+// только привязку, и получалось двоякое: прибавки доживали до истечения и исчезали, а индикатор
+// «скоро уйдёт» (IsCharmExpiring смотрит ЛЮБОЙ узел пакета) горел до ближайшего тика, хотя
+// привязка была уже продлена. Срок берём как максимум: укорачивать пакет кормление не должно.
+void ExtendCharmBond(CharData *ch, int duration) {
+	if (!ch || duration <= 0) {
+		return;
+	}
+	for (const auto &af : ch->affected) {
+		if (af && IS_SET(af->battleflag, kAfCharmBond) && af->duration >= 0 && af->duration < duration) {
+			af->duration = duration;
+		}
+	}
+}
+
 // issue.affect-migration: remove every curable affect (kAfCurable). Replaces the old
 // GetRemovableSpellId sweep.
 void RemoveCurableAffects(CharData *ch) {
