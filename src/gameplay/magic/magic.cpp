@@ -2125,6 +2125,16 @@ bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flag
 	if (IS_SET(affect->battleflag, kAfCharmBond)) {
 		return false;
 	}
+	// issue #3971: врождённый баф моба тоже не снимается. Отдельного флага у него нет, но признак
+	// есть готовый: BuildMaterializedAffect заводит такой узел вечным и без автора -- duration -1 и
+	// caster_id 0 (magic.cpp:288-309). У накастованного caster_id -- uid заклинателя, у вещевого --
+	// id предмета плюс kAfFromEquipment, так что спутать не с чем. Иначе накастованное поверх
+	// освящение делало врождённое снимаемым: призма находила накастованный экземпляр и сносила весь
+	// тип, вместе со свойством самого моба.
+	if (affect->duration < 0 && affect->caster_id == 0
+			&& !IS_SET(affect->battleflag, EAffFlag::kAfFromEquipment)) {
+		return false;
+	}
 	return (affect->battleflag.get_plane(0) & flags) != 0;
 }
 
