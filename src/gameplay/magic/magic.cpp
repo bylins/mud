@@ -2226,21 +2226,41 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 // for every affect of `spell` with stacks > 1, reduce the stack count by 1
 // and the accumulated modifier proportionally (~modifier/stacks), re-applying so the character's
 // stats update. If no affect of the spell has more than one stack, remove it outright.
+// issue #3971: снимаем только те экземпляры, которые подлежат снятию. Решение «снимать» принимается
+// по ОДНОМУ подходящему экземпляру (HasDispellableAffect), а снятие шло по всему типу -- и вместе с
+// накастованным бафом улетали врождённый аффект моба (его battleflag пуст, фильтр снятия он не
+// проходит) и пакет призванного существа (kAfCharmBond). Отсюда жалоба: накастовали групповое
+// освящение, групповая призма сняла заодно и врождённое, и вещевое.
+// Вещевой экземпляр снимается по-прежнему -- он подавляется на предмете (SuppressSourceEquipmentAffect
+// зовётся выше по стеку) и возвращается сам, когда подавление истечёт.
+constexpr Bitvector kDispellableInstance = kAfCurable | kAfDispellable;
+
 void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
+	const auto removable = [affect_type](const Affect<EApply>::shared_ptr &aff) {
+		return aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, kDispellableInstance);
+	};
 	bool any_multi = false;
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->affect_type == affect_type && aff->stacks > 1) {
+		if (removable(aff) && aff->stacks > 1) {
 			any_multi = true;
 			break;
 		}
 	}
 	if (!any_multi) {
-		RemoveAffectFromCharAndRecalculate(victim, affect_type);
+		auto it = victim->affected.begin();
+		while (it != victim->affected.end()) {
+			if (removable(*it)) {
+				it = RemoveAffect(victim, it);
+			} else {
+				++it;
+			}
+		}
+		affect_total(victim);
 		return;
 	}
 	std::vector<Affect<EApply>> rebuilt;
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->affect_type == affect_type) {
+		if (removable(aff)) {
 			Affect<EApply> peeled = *aff;
 			if (peeled.stacks > 1) {
 				peeled.modifier = static_cast<int>(
@@ -2250,10 +2270,19 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 			rebuilt.push_back(peeled);
 		}
 	}
-	RemoveAffectFromChar(victim, affect_type);    // strip all of the affect's instances (deltas undone)
+	// Снимаем только снимаемые экземпляры: врождённый и пакет призванного остаются на месте.
+	auto it = victim->affected.begin();
+	while (it != victim->affected.end()) {
+		if (removable(*it)) {
+			it = RemoveAffect(victim, it);
+		} else {
+			++it;
+		}
+	}
 	for (auto &peeled : rebuilt) {
 		affect_to_char(victim, peeled);           // re-add with the reduced modifier (stats recalced)
 	}
+	affect_total(victim);
 }
 
 // Remove one affect (or peel a stack of it) and emit its dispel narration. Lookup is keyed by
