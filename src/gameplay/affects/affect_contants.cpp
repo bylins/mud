@@ -429,6 +429,7 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfBoon] = "kAfBoon";
 	EAffFlag_name_by_value[EAffFlag::kAfWarding] = "kAfWarding";
 	EAffFlag_name_by_value[EAffFlag::kAfAegis] = "kAfAegis";
+	EAffFlag_name_by_value[EAffFlag::kAfInnate] = "kAfInnate";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
@@ -468,6 +469,7 @@ const std::map<EAffFlag, std::string> kAffFlagShortNames = {
 	{EAffFlag::kAfAegis,				"aeg"},   // разряд: сильная защита
 	{EAffFlag::kAfFromEquipment,		"equ"},   // дан надетой вещью
 	{EAffFlag::kAfFromSet,				"set"},   // дан набором вещей
+	{EAffFlag::kAfInnate,				"inn"},   // врождённое свойство носителя
 };
 
 const std::string &ShortName(const EAffFlag item) {

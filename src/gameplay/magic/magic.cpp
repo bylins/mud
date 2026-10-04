@@ -285,8 +285,8 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 // ComputeApplyModifier (ActionContext::CompetenceBase). An affect with <apply> children (kCloudly ->
 // blink+AC, kBlink -> blink) materializes WITH its stat applies -- one node per apply; an applies-less
 // buff (sanctuary/shields/prism/glass) gets a single bare flag-carrier node (location kNone). Every node
-// is permanent (duration -1) and uncredited (caster_id 0). No same-named spell -> zero roll (flat mins,
-// potency 0).
+// is permanent (duration -1), uncredited (caster_id 0) and flagged kAfInnate -- the mob's own property,
+// which no dispel strips (issue #3971). No same-named spell -> zero roll (flat mins, potency 0).
 std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type) {
 	RollResult roll;   // stays zero if no same-named spell -> potency 0, competence 0 (flat apply mins)
 	try {
@@ -307,6 +307,7 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 		af.location = loc;
 		af.modifier = mod;
 		af.caster_id = 0;
+		af.battleflag = {kAfInnate};   // issue #3971: врождённое, снятию не подлежит
 		af.potency = cast_potency;
 		nodes.push_back(af);
 	};
@@ -2117,22 +2118,17 @@ bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flag
 	if (!affect) {
 		return false;
 	}
-	// issue #3971: аффекты из пакета призванного существа снятию не подлежат. kAfCharmBond помечает
-	// весь пакет -- и саму привязку, и бафы, которые движок выдаёт вместе с ней, -- так что ни диспел,
-	// ни призматическая аура со своим <remove> их не трогают: это не игроцкие чары, а свойства самого
-	// существа. Разрыв чар работает как раньше -- RemoveCharmBond снимает их по флагу напрямую,
-	// минуя эту проверку.
-	if (IS_SET(affect->battleflag, kAfCharmBond)) {
-		return false;
-	}
-	// issue #3971: врождённый баф моба тоже не снимается. Отдельного флага у него нет, но признак
-	// есть готовый: BuildMaterializedAffect заводит такой узел вечным и без автора -- duration -1 и
-	// caster_id 0 (magic.cpp:288-309). У накастованного caster_id -- uid заклинателя, у вещевого --
-	// id предмета плюс kAfFromEquipment, так что спутать не с чем. Иначе накастованное поверх
-	// освящение делало врождённое снимаемым: призма находила накастованный экземпляр и сносила весь
-	// тип, вместе со свойством самого моба.
-	if (affect->duration < 0 && affect->caster_id == 0
-			&& !IS_SET(affect->battleflag, EAffFlag::kAfFromEquipment)) {
+	// issue #3971: два вида узлов снятию не подлежат вовсе, какие бы флаги снятия у них ни стояли.
+	// Это не игроцкие чары, а свойства самого существа, поэтому ни диспел, ни призматическая аура со
+	// своим <remove> их не трогают:
+	//   * kAfCharmBond -- пакет призванного существа: и сама привязка, и бафы, которые движок выдаёт
+	//     вместе с ней. Разрыв чар работает как раньше -- RemoveCharmBond снимает пакет по флагу
+	//     напрямую, минуя эту проверку.
+	//   * kAfInnate -- врождённый баф моба (BuildMaterializedAffect). Иначе накастованное поверх
+	//     освящение делало врождённое снимаемым: призма находила накастованный экземпляр и сносила
+	//     весь тип, вместе со свойством самого моба.
+	constexpr Bitvector kIrremovable = kAfCharmBond | kAfInnate;
+	if ((affect->battleflag.get_plane(0) & kIrremovable) != 0) {
 		return false;
 	}
 	return (affect->battleflag.get_plane(0) & flags) != 0;

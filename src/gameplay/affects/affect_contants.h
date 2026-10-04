@@ -65,11 +65,21 @@ enum EAffFlag : Bitvector {
   kAfWarding			= 1u << 25,	// ordinary combat/defense buffs (erode)
   kAfAegis				= 1u << 26,	// strong defensive magic: shields/auras/sanctuary (aegis rift)
   kAfFromEquipment		= 1u << 27,	// issue.equipment-affects-improve: materialized from a worn item (never saved)
-  kAfFromSet			= 1u << 28	// issue.equipment-affects-improve: materialized from an object SET (broadcast suppress)
+  kAfFromSet			= 1u << 28,	// issue.equipment-affects-improve: materialized from an object SET (broadcast suppress)
+  // issue #3971: PER-INSTANCE (not a category, never in affects.xml): the affect is an INNATE property
+  // of its bearer, not applied magic -- a mob's prototype buff materialized by BuildMaterializedAffect.
+  // Neither a dispel (AffectMatchesFlags) nor the dg .dispel field (RemoveDispellableAffects) may strip
+  // such a node: the mob's own sanctuary is nobody's spell. Caller-set, preserved by the affect_to_char
+  // funnel (like kAfFailed / kAfCharmBond). Replaces inferring "innate" from duration -1 + caster_id 0.
+  kAfInnate				= 1u << 29
 };
 
 // issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags; single plane
-// (max kAfAegis=1<<26), serialized in player files as a plain int via get_plane(0)/set_plane(0).
+// (max kAfInnate=1<<29), serialized in player files as a plain int via get_plane(0)/set_plane(0).
+// ВНИМАНИЕ: плоскость 0 этим флагом заполнена целиком (30 бит, kPlaneSize). Следующий флаг уедет в
+// плоскость 1, и одним count дело не кончится: флаги аффектов ходят по движку 32-битным Bitvector
+// (affects::AffectFlagsByType, TalentAffect::GetBattleflags, маски per-instance в affect_to_char) и
+// пишутся в сейв одним числом (поле battleflag блока Aff3) -- всё это видит только плоскость 0.
 template<>
 struct flag_traits<EAffFlag> {
 	static constexpr std::size_t count = 30;
