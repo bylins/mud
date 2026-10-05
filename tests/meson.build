@@ -29,6 +29,7 @@ test_sources = files(
     'msdp.builder.cpp',
     'char.affects.cpp',
     'dispellable.affects.cpp',
+    'affect.flag.planes.cpp',
     'charm.bond.extend.cpp',
     'char.offline_timer.cpp',
     'state_manager.cpp',

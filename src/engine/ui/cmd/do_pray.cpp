@@ -127,7 +127,8 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.modifier = i.modifier;
 			af.location = i.location;
 			af.affect_type = static_cast<EAffect>(i.bitvector);
-			af.battleflag.set_plane(0, i.battleflag);
+			// issue #4005: поле battleflag таблицы pray_affect всюду нулевое, а свойства аффекта
+			// воронка всё равно берёт из affects.xml по affect_type -- писать тут нечего.
 			ImposeAffect(ch, af, false, false, false, false);
 		}
 	}

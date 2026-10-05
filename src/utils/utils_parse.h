@@ -10,6 +10,7 @@
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
+#include "engine/structs/bitset_flags.h"
 #include "engine/core/comm.h"
 #include "utils/logger.h"
 
@@ -85,6 +86,26 @@ void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
 			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
 		}
 	}
+}
+
+// issue #4005: тот же разбор "A|B|C", но в типизированный набор флагов. Нужен тем наборам, которые
+// уже не влезают в одно 32-битное слово: в упакованном виде старшие два бита слова заняты номером
+// плоскости, поэтому ORить такие значения в один Bitvector нельзя -- биты плоскости сложатся с
+// битами флагов. BitsetFlags хранит флаги плоско, а плоскости знает только его сериализация.
+template<typename T>
+BitsetFlags<T> ReadAsConstantsFlags(const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("string is empty");
+	}
+	BitsetFlags<T> result;
+	for (const auto &str : utils::Split(value, '|')) {
+		try {
+			result.set(ITEM_BY_NAME<T>(str));
+		} catch (...) {
+			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
+		}
+	}
+	return result;
 }
 
 template<typename T>

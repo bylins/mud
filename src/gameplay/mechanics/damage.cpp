@@ -124,7 +124,7 @@ static bool VictimAffectDeclares(int selected_shield, CharData *victim, EAffFlag
 			continue;
 		}
 		const EAffect at = aff->affect_type;
-		if ((affects::AffectFlagsByType(at) & flag) == 0) {
+		if (!affects::AffectFlagsByType(at).get(flag)) {
 			continue;
 		}
 		if (affects::AffectShieldWeight(at) > 0 && static_cast<int>(at) != selected_shield) {

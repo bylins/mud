@@ -99,7 +99,10 @@ enum class EAffectMsgType {
 
 // Direct affect-system queries (replacing the legacy affected_bits[] projection):
 [[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect
-[[nodiscard]] Bitvector AffectFlagsByType(EAffect affect_type);   // issue.affect-migration: per-affect behavior flags from affects.xml (0 if none)
+// issue.affect-migration: per-affect behavior flags from affects.xml (empty set if none).
+// issue #4005: типизированный набор вместо 32-битного слова -- флаги аффектов живут в четырёх
+// плоскостях, а в одно слово влезает только нулевая.
+[[nodiscard]] const AffectFlags &AffectFlagsByType(EAffect affect_type);
 [[nodiscard]] const talents_actions::Actions &AffectActions(EAffect affect_type);   // issue.character-affect-triggers: per-affect pulse <actions>
 [[nodiscard]] bool AffectFlagsLoaded();   // issue.affect-migration: affects.xml flags loaded yet?
 

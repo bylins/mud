@@ -68,17 +68,16 @@ enum EAffFlag : Bitvector {
   kAfFromSet			= 1u << 28	// issue.equipment-affects-improve: materialized from an object SET (broadcast suppress)
 };
 
-// issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags; single plane
-// (max kAfFromSet=1<<28), serialized in player files as a plain int via get_plane(0)/set_plane(0).
-// В плоскости 0 остался один свободный бит (1<<29). Следующий за ним уедет в плоскость 1, а туда
-// ведёт не только count: разбор пути флага аффекта описан в issue #4005.
-// ВНИМАНИЕ: плоскость 0 этим флагом заполнена целиком (30 бит, kPlaneSize). Следующий флаг уедет в
-// плоскость 1, и одним count дело не кончится: флаги аффектов ходят по движку 32-битным Bitvector
-// (affects::AffectFlagsByType, TalentAffect::GetBattleflags, маски per-instance в affect_to_char) и
-// пишутся в сейв одним числом (поле battleflag блока Aff3) -- всё это видит только плоскость 0.
+// issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags.
+// issue #4005: весь путь флага аффекта типизирован (AffectFlags, см. ниже) -- одиночного 32-битного
+// Bitvector, который держал только плоскость 0, на этом пути больше нет. Поэтому новые флаги можно
+// заводить и в плоскостях 1-3, маркерами kIntOne/kIntTwo/kIntThree, как давно живёт EMobFlag; в самой
+// плоскости 0 пока свободен бит 1<<29. В сейве игрока поле battleflag блока Aff3 остаётся числом
+// плоскости 0 (так его читает и прежний бинарь), а при флагах из старших плоскостей дописывается
+// поле с меткой '@' и формой tascii -- см. save_char/load_char_ascii.
 template<>
 struct flag_traits<EAffFlag> {
-	static constexpr std::size_t count = 30;
+	static constexpr std::size_t count = 4 * bitset_flags_detail::kPlaneSize;   // 4 плоскости по 30 бит
 };
 template<>
 struct flag_index_mapping<EAffFlag> {
@@ -86,6 +85,11 @@ struct flag_index_mapping<EAffFlag> {
 		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
 	}
 };
+
+// issue #4005: набор флагов аффекта -- то, что лежит в Affect::battleflag и что отдают
+// affects.xml (AffectFlagsByType) и описания талантов. Отдельное имя, чтобы сигнатуры читались и
+// чтобы случайно не вернуться к Bitvector, который держит только плоскость 0.
+using AffectFlags = BitsetFlags<EAffFlag>;
 
 /**
  * Affect bits: used in char_data.char_specials.saved.affected_by //

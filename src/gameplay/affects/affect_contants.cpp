@@ -570,7 +570,7 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
 constexpr std::size_t kAffectFlagTableSize = 138;  // EAffect max (kBurning=137) + 1
-std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
+std::array<AffectFlags, kAffectFlagTableSize> g_affect_flags{};
 std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
 // issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from
 // affects.xml. Built here but NOT yet read by the impose path (that switch is P3).
@@ -604,7 +604,7 @@ static affects::EBuff ParseAffectBuff(const char *raw) {
 }
 
 void BuildAffectFlagTable(parser_wrapper::DataNode data) {
-	g_affect_flags.fill(0);
+	g_affect_flags.fill(AffectFlags{});
 	g_affect_buff.fill(affects::EBuff::kAmbiguous);
 	g_affect_shield_weight.fill(0);
 	g_affect_dispel_mod.fill(0);
@@ -630,7 +630,7 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 		auto fnode = node;
 		if (fnode.GoToChild("flags")) {
 			if (const char *flags = fnode.GetValue("val"); flags && *flags) {
-				g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+				g_affect_flags[idx] = parse::ReadAsConstantsFlags<EAffFlag>(flags);
 			}
 		}
 		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
@@ -683,10 +683,10 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	// issue.damage-change: cache the kAfFullAbsorb affect types (total-immunity flag scan).
 	g_full_absorb_affects.clear();
 	for (std::size_t i = 0; i < kAffectFlagTableSize; ++i) {
-		if (g_affect_flags[i] & to_underlying(EAffFlag::kAfMaterialize)) {
+		if (g_affect_flags[i].get(EAffFlag::kAfMaterialize)) {
 			g_materializable_affects.push_back(static_cast<EAffect>(i));
 		}
-		if (g_affect_flags[i] & to_underlying(EAffFlag::kAfFullAbsorb)) {
+		if (g_affect_flags[i].get(EAffFlag::kAfFullAbsorb)) {
 			g_full_absorb_affects.push_back(static_cast<EAffect>(i));
 		}
 	}
@@ -799,11 +799,11 @@ const std::vector<EAffect> &MenuOrder() {
 }
 
 // issue.affect-migration: the affect's intrinsic behavior flags (cure/dispel/refresh/decrement/...)
-// from affects.xml, keyed by affect_type. 0 for affects with no row/flags. Not yet wired into the
-// apply path (Phase 1 -- table built, sourcing switched in Phase 2).
-Bitvector AffectFlagsByType(EAffect affect_type) {
+// from affects.xml, keyed by affect_type. Пустой набор, если строки/флагов нет.
+const AffectFlags &AffectFlagsByType(EAffect affect_type) {
+	static const AffectFlags kNone;
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
-	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
+	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : kNone;
 }
 
 // issue.character-affect-triggers: the affect's own pulse/battle-pulse <actions> from affects.xml.
@@ -937,7 +937,7 @@ cfg_manager::ValidationResult AffectsLoader::Validate(parser_wrapper::DataNode &
 		if (auto fnode = affect; fnode.GoToChild("flags")) {
 			if (const char *fv = fnode.GetValue("val"); fv && *fv) {
 				try {
-					(void) parse::ReadAsConstantsBitvector<EAffFlag>(fv);
+					(void) parse::ReadAsConstantsFlags<EAffFlag>(fv);
 				} catch (const std::exception &) {
 					return {false, std::string("affect '") + id + "': unknown flag in '" + fv + "'."};
 				}

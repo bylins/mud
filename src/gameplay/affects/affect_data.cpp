@@ -210,12 +210,19 @@ std::array<EAffect, 3> char_stealth_aff =
 		EAffect::kDisguise
 	};
 
+AffectFlags PerInstanceAffectFlags(const AffectFlags &caller_flags) {
+	static const AffectFlags kPerInstance{kAfFailed, kAfCharmBond, kAfFromEquipment, kAfFromSet};
+	AffectFlags kept = caller_flags;
+	kept.mask(kPerInstance);
+	return kept;
+}
+
 bool IsStandaloneAffectInstance(const Affect<EApply>::shared_ptr &affect) {
 	if (!affect) {
 		return false;
 	}
-	constexpr Bitvector kStandalone = kAfCharmBond | kAfFromEquipment | kAfFromSet;
-	return affect->duration < 0 || (affect->battleflag.get_plane(0) & kStandalone) != 0;
+	static const AffectFlags kStandalone{kAfCharmBond, kAfFromEquipment, kAfFromSet};
+	return affect->duration < 0 || affect->battleflag.intersects(kStandalone);
 }
 
 template<>
@@ -999,14 +1006,13 @@ void RemoveCurableAffects(CharData *ch) {
 // Остальное, что не помечено к снятию (квестовые аффекты), не трогалось и прежним списочным clear()
 // трогаться не должно было.
 bool RemoveDispellableAffects(CharData *ch) {
-	constexpr Bitvector kRemovable = kAfCurable | kAfDispellable;
-	constexpr Bitvector kKept = kAfCharmBond | kAfFromEquipment | kAfFromSet;
+	static const AffectFlags kRemovable{kAfCurable, kAfDispellable};
+	static const AffectFlags kKept{kAfCharmBond, kAfFromEquipment, kAfFromSet};
 	bool removed = false;
 	auto it = ch->affected.begin();
 	while (it != ch->affected.end()) {
 		const auto af = *it;
-		const Bitvector flags = af->battleflag.get_plane(0);
-		if ((flags & kRemovable) != 0 && (flags & kKept) == 0) {
+		if (af->battleflag.intersects(kRemovable) && !af->battleflag.intersects(kKept)) {
 			EmitAffectEvent("affect_removed", ch, *af);
 			it = RemoveAffect(ch, it);
 			removed = true;
@@ -1370,15 +1376,18 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
-void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag) {
+void affect_to_char(CharData *ch, const Affect<EApply> &af, const AffectFlags &extra_battleflag) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 	// issue.affect-migration Phase 2: effect behavior flags are sourced from affects.xml by
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet))
-				| extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
+		// issue #4005: набор собираем типизированно -- свойства аффекта из affects.xml плюс
+		// per-instance пометки вызывающего плюс запрошенные действием.
+		AffectFlags flags = affects::AffectFlagsByType(af.affect_type);
+		flags.merge(PerInstanceAffectFlags(af.battleflag));
+		flags.merge(extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
+		affected_alloc->battleflag = flags;
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
@@ -1405,8 +1414,9 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet)));
+		AffectFlags flags = affects::AffectFlagsByType(af.affect_type);
+		flags.merge(PerInstanceAffectFlags(af.battleflag));
+		affected_alloc->battleflag = flags;
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.

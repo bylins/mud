@@ -29,7 +29,9 @@ void CheckDeathRage(CharData *ch) {
 		prob = ch->IsNpc() ? 601 : (751 - GetRealLevel(ch) * 5);
 		const bool berserk_failed = !(number(1, 1000) < prob);
 		af.affect_type = EAffect::kBerserk;
-		af.battleflag.set_plane(0, berserk_failed ? static_cast<Bitvector>(kAfFailed) : 0);
+		if (berserk_failed) {
+			af.battleflag.set(kAfFailed);
+		}
 		ImposeAffect(ch, af, true, false, true, false);
 		// issue.affect-migration: success/fail narration on kBerserk; vict = the combat foe (external $N).
 		EmitAffectImpose(ch, vict, EAffect::kBerserk, berserk_failed);

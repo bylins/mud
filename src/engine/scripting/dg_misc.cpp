@@ -315,7 +315,9 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if (duration > 0) {
 		// add the affect
 		Affect<EApply> af;
-		af.battleflag.set_plane(0, battle);
+		// issue #4005: число из триггера -- упакованный флаг ((плоскость << 30) | (1 << бит)),
+		// поэтому разбираем его from_string: плоскости 1-3 так тоже доходят, а не обрезаются.
+		af.battleflag.from_string(battle_p.c_str());
 		if (battle == kAfPulsedec) {
 			af.duration = duration;
 		} else {

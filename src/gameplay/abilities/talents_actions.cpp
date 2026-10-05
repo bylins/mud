@@ -691,7 +691,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// action grant an affect with kAfBattledec (round-decrementing) though the affect TYPE is tick-based;
 	// with kAfBattledec set, the <duration> below is read as raw combat rounds (no PC hour->tick scaling).
 	const char *bf = node.GetValue("battleflag");
-	extra_battleflags_ = (bf && *bf) ? parse::ReadAsConstantsBitvector<EAffFlag>(bf) : 0;
+	extra_battleflags_ = (bf && *bf) ? parse::ReadAsConstantsFlags<EAffFlag>(bf) : AffectFlags{};
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		if (strcmp(name, "duration") == 0) {
@@ -824,8 +824,8 @@ TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 	const char *db = node.GetValue("dispel_bonus");
 	dispel_bonus_ = (db && *db) ? parse::ReadAsInt(db) : 50;
 	const char *af = node.GetValue("affect_flags");
-	affect_flags_ = (af && *af) ? parse::ReadAsConstantsBitvector<EAffFlag>(af)
-								 : (kAfCurable | kAfDispellable);
+	affect_flags_ = (af && *af) ? parse::ReadAsConstantsFlags<EAffFlag>(af)
+								 : AffectFlags{kAfCurable, kAfDispellable};
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	const char *dec = node.GetValue("decay");
@@ -883,7 +883,7 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		buffer << "\r\n";
 	};
 	buffer << " Unaffect:" << " dispel_bonus=" << kColorGrn << dispel_bonus_ << kColorNrm
-		   << " affect_flags=" << kColorGrn << affect_flags_ << kColorNrm
+		   << " affect_flags=" << kColorGrn << affect_flags_.to_numeric_string() << kColorNrm
 		   << " decay=" << kColorGrn << decay_ << kColorNrm
 		   << " debuff_only=" << kColorGrn << (debuff_only_ ? "yes" : "no") << kColorNrm
 		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
