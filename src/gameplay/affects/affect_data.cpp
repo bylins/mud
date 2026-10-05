@@ -214,7 +214,7 @@ bool IsStandaloneAffectInstance(const Affect<EApply>::shared_ptr &affect) {
 	if (!affect) {
 		return false;
 	}
-	constexpr Bitvector kStandalone = kAfInnate | kAfCharmBond | kAfFromEquipment | kAfFromSet;
+	constexpr Bitvector kStandalone = kAfCharmBond | kAfFromEquipment | kAfFromSet;
 	return affect->duration < 0 || (affect->battleflag.get_plane(0) & kStandalone) != 0;
 }
 
@@ -993,14 +993,14 @@ void RemoveCurableAffects(CharData *ch) {
 //     affect_total их заново не создаёт: он пересчитывает прибавки и флаги без таймера, а
 //     материализованный аффект (определение невидимости с браслета и прочие с timer=) после
 //     чистки списка пропадал до перенадевания вещи.
-//   * kAfCharmBond / kAfInnate -- пакет призванного существа и врождённый баф моба: это не игроцкие
-//     чары, а свойства самого существа, и снятию они не подлежат (см. AffectMatchesFlags). До
-//     issue #3971 врождённое тут снималось, хотя заклинания снятия его уже не брали.
+//   * kAfCharmBond -- пакет призванного существа: это не игроцкие чары, а то, с чем существо пришло,
+//     и ставит его код, поэтому снятию он не подлежит (см. AffectMatchesFlags). Врождённые бафы из
+//     флагов прототипа мобов тут не исключение -- они снимаются, на то и «разлом».
 // Остальное, что не помечено к снятию (квестовые аффекты), не трогалось и прежним списочным clear()
 // трогаться не должно было.
 bool RemoveDispellableAffects(CharData *ch) {
 	constexpr Bitvector kRemovable = kAfCurable | kAfDispellable;
-	constexpr Bitvector kKept = kAfCharmBond | kAfInnate | kAfFromEquipment | kAfFromSet;
+	constexpr Bitvector kKept = kAfCharmBond | kAfFromEquipment | kAfFromSet;
 	bool removed = false;
 	auto it = ch->affected.begin();
 	while (it != ch->affected.end()) {
@@ -1051,6 +1051,14 @@ void affect_total(CharData *ch) {
 		saved = ch->char_specials.saved.affected_by;
 		if (ch->IsNpc()) {
 			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
+			// issue #3971: материализуемый баф (kAfMaterialize) ведёт его узел, а не флаг прототипа.
+			// Иначе снятое магией освящение возвращалось флагом на первом же пересчёте: ward-действия
+			// уходили вместе с узлом, а защита от подчинения и призыва (spell_charm, summon) и строка
+			// описания оставались -- «разлом» выходил половинчатым. Узел вернёт материализация: на
+			// выходе моба из боя (game_limits, inc_restore_timer) или при пробуждении зоны.
+			for (const EAffect at : affects::MaterializableAffects()) {
+				AFF_FLAGS(ch).unset(at);
+			}
 		} else {
 			ch->char_specials.saved.affected_by.clear();
 		}
@@ -1369,7 +1377,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_batt
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
 		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfInnate | kAfFromEquipment | kAfFromSet))
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet))
 				| extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
 	}
 
@@ -1398,7 +1406,7 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
 		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfInnate | kAfFromEquipment | kAfFromSet)));
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet)));
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
