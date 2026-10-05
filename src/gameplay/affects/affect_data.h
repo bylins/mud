@@ -102,10 +102,9 @@ struct obj_affected_type {
 };
 
 // issue #3971: экземпляр аффекта, который живёт своей жизнью и в слияние с накастованным не идёт --
-// накастованное ложится рядом отдельным узлом. Таких четыре вида:
-//   * вечный (duration < 0) -- врождённое свойство носителя: std::max(срок, -1) обратил бы его во
-//     временное, а слияние сняло бы сам узел;
-//   * kAfInnate -- то же самое, но заявленное флагом (BuildMaterializedAffect);
+// накастованное ложится рядом отдельным узлом. Таких три вида:
+//   * вечный (duration < 0) -- врождённый баф моба из флагов прототипа: std::max(срок, -1) обратил
+//     бы его во временное, а слияние сняло бы сам узел (снимается он при этом как обычно -- «разлом»);
 //   * kAfFromEquipment / kAfFromSet -- волшебство надетого: вещь возвращает его только при
 //     надевании, а слияние сняло бы узел, не поставив подавление на предмет;
 //   * kAfCharmBond -- пакет призванного существа: слияние превращало его в обычный накастованный
@@ -182,8 +181,8 @@ void RemoveCharmBond(CharData *ch, bool recalculate = false);
 void ExtendCharmBond(CharData *ch, int duration);
 void RemoveCurableAffects(CharData *ch);
 // issue #3988: снять всё, что снимается магией. Отбор тот же, что у заклинаний снятия: аффекту
-// нужен kAfCurable или kAfDispellable. Волшебство надетого (kAfFromEquipment, kAfFromSet), пакет
-// призванного существа (kAfCharmBond) и врождённый баф моба (kAfInnate) остаются на месте.
+// нужен kAfCurable или kAfDispellable. Волшебство надетого (kAfFromEquipment, kAfFromSet) и пакет
+// призванного существа (kAfCharmBond) остаются на месте; врождённые бафы моба снимаются.
 // Возвращает true, если что-то снято; пересчёт параметров -- за вызывающим.
 bool RemoveDispellableAffects(CharData *ch);
 // True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.

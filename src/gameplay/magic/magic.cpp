@@ -285,8 +285,11 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 // ComputeApplyModifier (ActionContext::CompetenceBase). An affect with <apply> children (kCloudly ->
 // blink+AC, kBlink -> blink) materializes WITH its stat applies -- one node per apply; an applies-less
 // buff (sanctuary/shields/prism/glass) gets a single bare flag-carrier node (location kNone). Every node
-// is permanent (duration -1), uncredited (caster_id 0) and flagged kAfInnate -- the mob's own property,
-// which no dispel strips (issue #3971). No same-named spell -> zero roll (flat mins, potency 0).
+// is permanent (duration -1) and uncredited (caster_id 0). No same-named spell -> zero roll (flat mins,
+// potency 0). Такой узел СНИМАЕТСЯ магией -- на то и заклинание «разлом»: снятие идёт состязанием по
+// силе (potency роллится по статам моба), а при следующем пробуждении зоны материализация вернёт его
+// из флагов прототипа. Неснимаемо только то, что ставит код: пакет призванного существа
+// (kAfCharmBond) и волшебство надетого.
 std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type) {
 	RollResult roll;   // stays zero if no same-named spell -> potency 0, competence 0 (flat apply mins)
 	try {
@@ -307,7 +310,6 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 		af.location = loc;
 		af.modifier = mod;
 		af.caster_id = 0;
-		af.battleflag = {kAfInnate};   // issue #3971: врождённое, снятию не подлежит
 		af.potency = cast_potency;
 		nodes.push_back(af);
 	};
@@ -1081,7 +1083,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stac
 		const bool same_id = existing->affect_type == af.affect_type;
 		// issue #3971: отдельно живущий экземпляр в слияние не идёт -- накастованный баф ложится
 		// рядом. Перечень видов и причины -- у IsStandaloneAffectInstance. Слияние снимает узел и
-		// заводит новый из данных каста, а per-instance пометки (kAfCharmBond, kAfInnate) при этом
+		// заводит новый из данных каста, а per-instance пометки (kAfCharmBond, вещевые) при этом
 		// не переносятся, поэтому пакет призванного и вещевое волшебство после слияния становились
 		// обычным бафом -- и следующее снятие уносило их насовсем.
 		if (IsStandaloneAffectInstance(existing)) {
@@ -2115,17 +2117,16 @@ bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flag
 	if (!affect) {
 		return false;
 	}
-	// issue #3971: два вида узлов снятию не подлежат вовсе, какие бы флаги снятия у них ни стояли.
-	// Это не игроцкие чары, а свойства самого существа, поэтому ни диспел, ни призматическая аура со
-	// своим <remove> их не трогают:
-	//   * kAfCharmBond -- пакет призванного существа: и сама привязка, и бафы, которые движок выдаёт
-	//     вместе с ней. Разрыв чар работает как раньше -- RemoveCharmBond снимает пакет по флагу
-	//     напрямую, минуя эту проверку.
-	//   * kAfInnate -- врождённый баф моба (BuildMaterializedAffect). Иначе накастованное поверх
-	//     освящение делало врождённое снимаемым: призма находила накастованный экземпляр и сносила
-	//     весь тип, вместе со свойством самого моба.
-	constexpr Bitvector kIrremovable = kAfCharmBond | kAfInnate;
-	if ((affect->battleflag.get_plane(0) & kIrremovable) != 0) {
+	// issue #3971: пакет призванного существа снятию не подлежит вовсе, какие бы флаги снятия у его
+	// узлов ни стояли. kAfCharmBond помечает весь пакет -- и саму привязку, и бафы, которые движок
+	// выдаёт вместе с ней: это не игроцкие чары, а то, с чем существо пришло, и ставит их код.
+	// Разрыв чар работает как раньше -- RemoveCharmBond снимает пакет по флагу напрямую, минуя эту
+	// проверку.
+	// Врождённые бафы моба из флагов прототипа (BuildMaterializedAffect) здесь НЕ исключение: они
+	// снимаются, на то и заклинание «разлом». Решение «снимать» принимается по одному подходящему
+	// экземпляру, а снимаются только прошедшие фильтр (см. ReduceStackOrRemove), так что
+	// накастованный баф и врождённый узел уходят каждый по своему праву.
+	if (IS_SET(affect->battleflag, kAfCharmBond)) {
 		return false;
 	}
 	return (affect->battleflag.get_plane(0) & flags) != 0;
