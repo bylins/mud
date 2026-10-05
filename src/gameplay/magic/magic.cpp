@@ -1079,15 +1079,12 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stac
 		const auto existing = *it;
 		// issue.affect-migration: stacking is keyed on affect_type (the effect identity).
 		const bool same_id = existing->affect_type == af.affect_type;
-		// issue #3971: аффект от вещи (или от набора) и любой постоянный аффект живут своей
-		// жизнью и в слияние не идут -- накастованный баф ложится рядом. Иначе вещевое
-		// освящение исчезало от собственного заклинания: слияние снимало его экземпляр,
-		// а std::max(срок, -1) обращал вечное во временное. Вещь после этого своей магии
-		// не возвращала -- она материализует её только при надевании, а подавление на
-		// предмет уже не ставилось, ведь экземпляра с kAfFromEquipment не осталось.
-		if (existing->duration < 0
-				|| IS_SET(existing->battleflag, EAffFlag::kAfFromEquipment)
-				|| IS_SET(existing->battleflag, EAffFlag::kAfFromSet)) {
+		// issue #3971: отдельно живущий экземпляр в слияние не идёт -- накастованный баф ложится
+		// рядом. Перечень видов и причины -- у IsStandaloneAffectInstance. Слияние снимает узел и
+		// заводит новый из данных каста, а per-instance пометки (kAfCharmBond, kAfInnate) при этом
+		// не переносятся, поэтому пакет призванного и вещевое волшебство после слияния становились
+		// обычным бафом -- и следующее снятие уносило их насовсем.
+		if (IsStandaloneAffectInstance(existing)) {
 			continue;
 		}
 		if (same_id && existing->location == af.location) {
@@ -2361,6 +2358,14 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
 	SuppressSourceEquipmentAffect(victim, affect_type, competence);
 	ReduceStackOrRemove(victim, affect_type);
+	// issue #3971: если экземпляр этого аффекта остался (врождённый, пакет призванного), эффект
+	// никуда не делся -- рассказывать про «угасло» нельзя. Раньше призма на небесную защитницу
+	// снимала накастованное освящение и объявляла, что белая аура угасла, хотя её собственная
+	// оставалась на месте. У истечения по таймеру такая проверка есть с issue #3973
+	// (NoLiveTwinLeft в affect_data.cpp), у снятия заклинанием её не было.
+	if (IsAffected(victim, affect_type)) {
+		return;
+	}
 	const std::string &to_vict = affects::AffectDispelMsg(affect_type, /*to_room=*/false);
 	if (!to_vict.empty()) {
 		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
