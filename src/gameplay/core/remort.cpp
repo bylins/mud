@@ -307,7 +307,6 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		ch->clear_skills();
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(ch, spell_id) = (IS_MANA_CASTER(ch) ? ESpellType::kRunes : 0);
-			GET_SPELL_MEM(ch, spell_id) = 0;
 		}
 	} else {
 		SetSkillAfterRemort(ch);
@@ -316,16 +315,25 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 			} else if (MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
-				GET_SPELL_MEM(ch, spell_id) = 0;
 			}
 		}
+	}
+	// Заученные заклинания сбрасываются при ЛЮБОМ перевоплощении: уровень уходит в 0, круги
+	// открываются заново, слотов под заученное нет. Обнулялись они только у восьмого круга и выше
+	// (и при обязательном сбросе способностей), поэтому заученное на тридцатом уровне персонаж
+	// уносил в новую жизнь и кастовал с первого.
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_MEM(ch, spell_id) = 0;
 	}
 
 	ch->set_max_hit(RemortHp());
 	ch->set_hit(RemortHp());
 	ch->set_max_move(RemortMoves());
 	ch->set_move(RemortMoves());
-	ch->mem_queue.total = ch->mem_queue.stored = 0;
+	// Очередь заучивания: мало обнулить счётчики -- надо освободить сами узлы очереди, иначе
+	// персонаж после перевоплощения продолжает доучивать старую. Clear() заодно обнуляет
+	// stored/total, так что отдельного присваивания не нужно.
+	ch->mem_queue.Clear();
 	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
