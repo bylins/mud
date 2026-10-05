@@ -171,9 +171,9 @@ void RemoveCharmBond(CharData *ch, bool recalculate = false);
 void ExtendCharmBond(CharData *ch, int duration);
 void RemoveCurableAffects(CharData *ch);
 // issue #3988: снять всё, что снимается магией. Отбор тот же, что у заклинаний снятия: аффекту
-// нужен kAfCurable или kAfDispellable. Волшебство надетого (kAfFromEquipment, kAfFromSet) и пакет
-// призванного существа (kAfCharmBond) остаются на месте. Возвращает true, если что-то снято;
-// пересчёт параметров -- за вызывающим.
+// нужен kAfCurable или kAfDispellable. Волшебство надетого (kAfFromEquipment, kAfFromSet), пакет
+// призванного существа (kAfCharmBond) и врождённый баф моба (kAfInnate) остаются на месте.
+// Возвращает true, если что-то снято; пересчёт параметров -- за вызывающим.
 bool RemoveDispellableAffects(CharData *ch);
 // True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
 bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);

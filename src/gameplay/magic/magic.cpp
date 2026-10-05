@@ -285,8 +285,8 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 // ComputeApplyModifier (ActionContext::CompetenceBase). An affect with <apply> children (kCloudly ->
 // blink+AC, kBlink -> blink) materializes WITH its stat applies -- one node per apply; an applies-less
 // buff (sanctuary/shields/prism/glass) gets a single bare flag-carrier node (location kNone). Every node
-// is permanent (duration -1) and uncredited (caster_id 0). No same-named spell -> zero roll (flat mins,
-// potency 0).
+// is permanent (duration -1), uncredited (caster_id 0) and flagged kAfInnate -- the mob's own property,
+// which no dispel strips (issue #3971). No same-named spell -> zero roll (flat mins, potency 0).
 std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type) {
 	RollResult roll;   // stays zero if no same-named spell -> potency 0, competence 0 (flat apply mins)
 	try {
@@ -307,6 +307,7 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 		af.location = loc;
 		af.modifier = mod;
 		af.caster_id = 0;
+		af.battleflag = {kAfInnate};   // issue #3971: врождённое, снятию не подлежит
 		af.potency = cast_potency;
 		nodes.push_back(af);
 	};
@@ -2117,12 +2118,17 @@ bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flag
 	if (!affect) {
 		return false;
 	}
-	// issue #3971: аффекты из пакета призванного существа снятию не подлежат. kAfCharmBond помечает
-	// весь пакет -- и саму привязку, и бафы, которые движок выдаёт вместе с ней, -- так что ни диспел,
-	// ни призматическая аура со своим <remove> их не трогают: это не игроцкие чары, а свойства самого
-	// существа. Разрыв чар работает как раньше -- RemoveCharmBond снимает их по флагу напрямую,
-	// минуя эту проверку.
-	if (IS_SET(affect->battleflag, kAfCharmBond)) {
+	// issue #3971: два вида узлов снятию не подлежат вовсе, какие бы флаги снятия у них ни стояли.
+	// Это не игроцкие чары, а свойства самого существа, поэтому ни диспел, ни призматическая аура со
+	// своим <remove> их не трогают:
+	//   * kAfCharmBond -- пакет призванного существа: и сама привязка, и бафы, которые движок выдаёт
+	//     вместе с ней. Разрыв чар работает как раньше -- RemoveCharmBond снимает пакет по флагу
+	//     напрямую, минуя эту проверку.
+	//   * kAfInnate -- врождённый баф моба (BuildMaterializedAffect). Иначе накастованное поверх
+	//     освящение делало врождённое снимаемым: призма находила накастованный экземпляр и сносила
+	//     весь тип, вместе со свойством самого моба.
+	constexpr Bitvector kIrremovable = kAfCharmBond | kAfInnate;
+	if ((affect->battleflag.get_plane(0) & kIrremovable) != 0) {
 		return false;
 	}
 	return (affect->battleflag.get_plane(0) & flags) != 0;
@@ -2226,21 +2232,41 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 // for every affect of `spell` with stacks > 1, reduce the stack count by 1
 // and the accumulated modifier proportionally (~modifier/stacks), re-applying so the character's
 // stats update. If no affect of the spell has more than one stack, remove it outright.
+// issue #3971: снимаем только те экземпляры, которые подлежат снятию. Решение «снимать» принимается
+// по ОДНОМУ подходящему экземпляру (HasDispellableAffect), а снятие шло по всему типу -- и вместе с
+// накастованным бафом улетали врождённый аффект моба (его battleflag пуст, фильтр снятия он не
+// проходит) и пакет призванного существа (kAfCharmBond). Отсюда жалоба: накастовали групповое
+// освящение, групповая призма сняла заодно и врождённое, и вещевое.
+// Вещевой экземпляр снимается по-прежнему -- он подавляется на предмете (SuppressSourceEquipmentAffect
+// зовётся выше по стеку) и возвращается сам, когда подавление истечёт.
+constexpr Bitvector kDispellableInstance = kAfCurable | kAfDispellable;
+
 void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
+	const auto removable = [affect_type](const Affect<EApply>::shared_ptr &aff) {
+		return aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, kDispellableInstance);
+	};
 	bool any_multi = false;
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->affect_type == affect_type && aff->stacks > 1) {
+		if (removable(aff) && aff->stacks > 1) {
 			any_multi = true;
 			break;
 		}
 	}
 	if (!any_multi) {
-		RemoveAffectFromCharAndRecalculate(victim, affect_type);
+		auto it = victim->affected.begin();
+		while (it != victim->affected.end()) {
+			if (removable(*it)) {
+				it = RemoveAffect(victim, it);
+			} else {
+				++it;
+			}
+		}
+		affect_total(victim);
 		return;
 	}
 	std::vector<Affect<EApply>> rebuilt;
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->affect_type == affect_type) {
+		if (removable(aff)) {
 			Affect<EApply> peeled = *aff;
 			if (peeled.stacks > 1) {
 				peeled.modifier = static_cast<int>(
@@ -2250,10 +2276,19 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 			rebuilt.push_back(peeled);
 		}
 	}
-	RemoveAffectFromChar(victim, affect_type);    // strip all of the affect's instances (deltas undone)
+	// Снимаем только снимаемые экземпляры: врождённый и пакет призванного остаются на месте.
+	auto it = victim->affected.begin();
+	while (it != victim->affected.end()) {
+		if (removable(*it)) {
+			it = RemoveAffect(victim, it);
+		} else {
+			++it;
+		}
+	}
 	for (auto &peeled : rebuilt) {
 		affect_to_char(victim, peeled);           // re-add with the reduced modifier (stats recalced)
 	}
+	affect_total(victim);
 }
 
 // Remove one affect (or peel a stack of it) and emit its dispel narration. Lookup is keyed by

@@ -985,13 +985,14 @@ void RemoveCurableAffects(CharData *ch) {
 //     affect_total их заново не создаёт: он пересчитывает прибавки и флаги без таймера, а
 //     материализованный аффект (определение невидимости с браслета и прочие с timer=) после
 //     чистки списка пропадал до перенадевания вещи.
-//   * kAfCharmBond -- пакет призванного существа: это не игроцкие чары, а свойства самого
-//     существа, и снятию они не подлежат (см. AffectMatchesFlags).
-// Остальное, что не помечено к снятию (квестовые и врождённые аффекты), не трогалось и прежним
-// списочным clear() трогаться не должно было.
+//   * kAfCharmBond / kAfInnate -- пакет призванного существа и врождённый баф моба: это не игроцкие
+//     чары, а свойства самого существа, и снятию они не подлежат (см. AffectMatchesFlags). До
+//     issue #3971 врождённое тут снималось, хотя заклинания снятия его уже не брали.
+// Остальное, что не помечено к снятию (квестовые аффекты), не трогалось и прежним списочным clear()
+// трогаться не должно было.
 bool RemoveDispellableAffects(CharData *ch) {
 	constexpr Bitvector kRemovable = kAfCurable | kAfDispellable;
-	constexpr Bitvector kKept = kAfCharmBond | kAfFromEquipment | kAfFromSet;
+	constexpr Bitvector kKept = kAfCharmBond | kAfInnate | kAfFromEquipment | kAfFromSet;
 	bool removed = false;
 	auto it = ch->affected.begin();
 	while (it != ch->affected.end()) {
@@ -1364,7 +1365,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_batt
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
 		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet))
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfInnate | kAfFromEquipment | kAfFromSet))
 				| extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
 	}
 
@@ -1393,7 +1394,7 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
 		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet)));
+				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfInnate | kAfFromEquipment | kAfFromSet)));
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
