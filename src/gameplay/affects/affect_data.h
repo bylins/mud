@@ -101,6 +101,17 @@ struct obj_affected_type {
 	}
 };
 
+// issue #3971: экземпляр аффекта, который живёт своей жизнью и в слияние с накастованным не идёт --
+// накастованное ложится рядом отдельным узлом. Таких четыре вида:
+//   * вечный (duration < 0) -- врождённое свойство носителя: std::max(срок, -1) обратил бы его во
+//     временное, а слияние сняло бы сам узел;
+//   * kAfInnate -- то же самое, но заявленное флагом (BuildMaterializedAffect);
+//   * kAfFromEquipment / kAfFromSet -- волшебство надетого: вещь возвращает его только при
+//     надевании, а слияние сняло бы узел, не поставив подавление на предмет;
+//   * kAfCharmBond -- пакет призванного существа: слияние превращало его в обычный накастованный
+//     баф, и следующее снятие уносило то, с чем существо пришло (освящение небесной защитницы).
+[[nodiscard]] bool IsStandaloneAffectInstance(const Affect<EApply>::shared_ptr &affect);
+
 // issue.affect-migration: "same affect" by IDENTITY (affect_type) rather than by casting spell -- for
 // callers that dedup or look up affects (do_affects display, remove_random_affects).
 [[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);

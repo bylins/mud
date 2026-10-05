@@ -210,6 +210,14 @@ std::array<EAffect, 3> char_stealth_aff =
 		EAffect::kDisguise
 	};
 
+bool IsStandaloneAffectInstance(const Affect<EApply>::shared_ptr &affect) {
+	if (!affect) {
+		return false;
+	}
+	constexpr Bitvector kStandalone = kAfInnate | kAfCharmBond | kAfFromEquipment | kAfFromSet;
+	return affect->duration < 0 || (affect->battleflag.get_plane(0) & kStandalone) != 0;
+}
+
 template<>
 bool Affect<EApply>::removable() const {
 	// issue.affect-migration: curability is the kAfCurable battleflag (single source of truth),
@@ -1293,11 +1301,9 @@ void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
 		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
 		// to the legacy ESpell type only for affects that have no affect_type yet.
-		// issue #3971: аффект от вещи, от набора и любой постоянный в слияние не идут --
-		// накастованный ложится рядом. См. подробный разбор у ApplyTalentAffect.
-		if (affect->duration < 0
-				|| IS_SET(affect->battleflag, EAffFlag::kAfFromEquipment)
-				|| IS_SET(affect->battleflag, EAffFlag::kAfFromSet)) {
+		// issue #3971: отдельно живущие экземпляры в слияние не идут -- накастованный ложится
+		// рядом. Перечень видов и причины -- у IsStandaloneAffectInstance.
+		if (IsStandaloneAffectInstance(affect)) {
 			continue;
 		}
 		const bool same_id = affect->affect_type == af.affect_type;
@@ -1324,10 +1330,8 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
 			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
-			// issue #3971: вещевые, наборные и постоянные аффекты в слияние не идут (см. ApplyTalentAffect).
-			if (affect->duration < 0
-					|| IS_SET(affect->battleflag, EAffFlag::kAfFromEquipment)
-					|| IS_SET(affect->battleflag, EAffFlag::kAfFromSet)) {
+			// issue #3971: отдельно живущие экземпляры в слияние не идут (см. IsStandaloneAffectInstance).
+			if (IsStandaloneAffectInstance(affect)) {
 				++it;
 				continue;
 			}
@@ -1446,10 +1450,8 @@ void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool m
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
 			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
-			// issue #3971: вещевые, наборные и постоянные аффекты в слияние не идут (см. ApplyTalentAffect).
-			if (affect->duration < 0
-					|| IS_SET(affect->battleflag, EAffFlag::kAfFromEquipment)
-					|| IS_SET(affect->battleflag, EAffFlag::kAfFromSet)) {
+			// issue #3971: отдельно живущие экземпляры в слияние не идут (см. IsStandaloneAffectInstance).
+			if (IsStandaloneAffectInstance(affect)) {
 				++it;
 				continue;
 			}
