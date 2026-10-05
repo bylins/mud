@@ -1937,8 +1937,9 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 			|| (victim->get_master() && !victim->get_master()->IsNpc()))) {
 		// issue #4001: один просвет на одного моба -- правило держится флагом kNoSkillTrain на самом
 		// мобе, общим для всех источников прокачки. Споры «просветов больше, чем мобов» упираются в
-		// то, что по логу не видно, какой моб отказал и почему. Для тестера и кодера печатаем причину
-		// отказа с именем и uid моба -- одного лога становится достаточно.
+		// то, что по логу не видно, какой моб отказал и почему. Причину отказа печатаем тестеру и
+		// кодеру; в сислог отказы не пишем -- ImproveSkill зовётся на каждом ударе, и файл бы
+		// утонул. Для разбора достаточно строк о выданных просветах ниже.
 		SendToTC(ch, true, true, true,
 				 "ImprooveSkill: отказ по цели %s [uid %ld], умение '%s': notrain=%d mounting=%d okexp=%d charmice=%d\r\n",
 				 GET_NAME(victim), victim->get_uid(), MUD::Skill(skill).GetName(),
@@ -1987,12 +1988,21 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		if (!privilege::IsImmortal(ch)) {
 			SetSkill(ch, skill, (std::min(CalcSkillRemortCap(ch), GetSkillBonus(ch, skill))));
 		}
+		// issue #4001: выданный просвет пишем в сислог -- с тестером бегают единицы, а по сислогу
+		// потом видно и кто прокачался, и за какого моба. Два просвета одного умения за один uid
+		// означают, что правило «один просвет на одного моба» протекло.
+		if (victim) {
+			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' за {} #{} uid {}",
+							   GET_NAME(ch), MUD::Skill(skill).GetName(), GET_NAME(victim),
+							   victim->IsNpc() ? GET_MOB_VNUM(victim) : -1, victim->get_uid()),
+				   LogMode::CMP, kLvlImmortal, SYSLOG, true);
+		} else {
+			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' без цели",
+							   GET_NAME(ch), MUD::Skill(skill).GetName()),
+				   LogMode::CMP, kLvlImmortal, SYSLOG, true);
+		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
-			// issue #4001: сразу видно, за какого моба выдан просвет -- с ним спор про «просветов
-			// больше, чем мобов» решается по одному логу.
-			SendToTC(ch, true, true, true, "ImprooveSkill: просвет '%s' за %s [uid %ld], моб помечен\r\n",
-					 MUD::Skill(skill).GetName(), GET_NAME(victim), victim->get_uid());
 		}
 	}
 }
