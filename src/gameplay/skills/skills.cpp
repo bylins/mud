@@ -1935,6 +1935,17 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 			|| victim->IsFlagged(EMobFlag::kMounting)
 			|| !experience::OkGainExp(ch, victim)
 			|| (victim->get_master() && !victim->get_master()->IsNpc()))) {
+		// issue #4001: один просвет на одного моба -- правило держится флагом kNoSkillTrain на самом
+		// мобе, общим для всех источников прокачки. Споры «просветов больше, чем мобов» упираются в
+		// то, что по логу не видно, какой моб отказал и почему. Для тестера и кодера печатаем причину
+		// отказа с именем и uid моба -- одного лога становится достаточно.
+		SendToTC(ch, true, true, true,
+				 "ImprooveSkill: отказ по цели %s [uid %ld], умение '%s': notrain=%d mounting=%d okexp=%d charmice=%d\r\n",
+				 GET_NAME(victim), victim->get_uid(), MUD::Skill(skill).GetName(),
+				 victim->IsFlagged(EMobFlag::kNoSkillTrain) ? 1 : 0,
+				 victim->IsFlagged(EMobFlag::kMounting) ? 1 : 0,
+				 experience::OkGainExp(ch, victim) ? 1 : 0,
+				 (victim->get_master() && !victim->get_master()->IsNpc()) ? 1 : 0);
 		return;
 	}
 
@@ -1978,6 +1989,10 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
+			// issue #4001: сразу видно, за какого моба выдан просвет -- с ним спор про «просветов
+			// больше, чем мобов» решается по одному логу.
+			SendToTC(ch, true, true, true, "ImprooveSkill: просвет '%s' за %s [uid %ld], моб помечен\r\n",
+					 MUD::Skill(skill).GetName(), GET_NAME(victim), victim->get_uid());
 		}
 	}
 }
