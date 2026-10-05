@@ -1992,13 +1992,14 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		// потом видно и кто прокачался, и за какого моба. Два просвета одного умения за один uid
 		// означают, что правило «один просвет на одного моба» протекло.
 		if (victim) {
-			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' за {} #{} uid {}",
+			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' за {} #{} uid {} в комнате {}",
 							   GET_NAME(ch), MUD::Skill(skill).GetName(), GET_NAME(victim),
-							   victim->IsNpc() ? GET_MOB_VNUM(victim) : -1, victim->get_uid()),
+							   victim->IsNpc() ? GET_MOB_VNUM(victim) : -1, victim->get_uid(),
+							   GET_ROOM_VNUM(ch->in_room)),
 				   LogMode::CMP, kLvlImmortal, SYSLOG, true);
 		} else {
-			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' без цели",
-							   GET_NAME(ch), MUD::Skill(skill).GetName()),
+			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' без цели в комнате {}",
+							   GET_NAME(ch), MUD::Skill(skill).GetName(), GET_ROOM_VNUM(ch->in_room)),
 				   LogMode::CMP, kLvlImmortal, SYSLOG, true);
 		}
 		if (victim && victim->IsNpc()) {
