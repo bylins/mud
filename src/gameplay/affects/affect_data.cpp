@@ -1051,6 +1051,14 @@ void affect_total(CharData *ch) {
 		saved = ch->char_specials.saved.affected_by;
 		if (ch->IsNpc()) {
 			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
+			// issue #3971: материализуемый баф (kAfMaterialize) ведёт его узел, а не флаг прототипа.
+			// Иначе снятое магией освящение возвращалось флагом на первом же пересчёте: ward-действия
+			// уходили вместе с узлом, а защита от подчинения и призыва (spell_charm, summon) и строка
+			// описания оставались -- «разлом» выходил половинчатым. Узел вернёт материализация: на
+			// выходе моба из боя (game_limits, inc_restore_timer) или при пробуждении зоны.
+			for (const EAffect at : affects::MaterializableAffects()) {
+				AFF_FLAGS(ch).unset(at);
+			}
 		} else {
 			ch->char_specials.saved.affected_by.clear();
 		}
