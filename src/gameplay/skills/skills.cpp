@@ -1935,18 +1935,6 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 			|| victim->IsFlagged(EMobFlag::kMounting)
 			|| !experience::OkGainExp(ch, victim)
 			|| (victim->get_master() && !victim->get_master()->IsNpc()))) {
-		// issue #4001: один просвет на одного моба -- правило держится флагом kNoSkillTrain на самом
-		// мобе, общим для всех источников прокачки. Споры «просветов больше, чем мобов» упираются в
-		// то, что по логу не видно, какой моб отказал и почему. Причину отказа печатаем тестеру и
-		// кодеру; в сислог отказы не пишем -- ImproveSkill зовётся на каждом ударе, и файл бы
-		// утонул. Для разбора достаточно строк о выданных просветах ниже.
-		SendToTC(ch, true, true, true,
-				 "ImprooveSkill: отказ по цели %s [uid %ld], умение '%s': notrain=%d mounting=%d okexp=%d charmice=%d\r\n",
-				 GET_NAME(victim), victim->get_uid(), MUD::Skill(skill).GetName(),
-				 victim->IsFlagged(EMobFlag::kNoSkillTrain) ? 1 : 0,
-				 victim->IsFlagged(EMobFlag::kMounting) ? 1 : 0,
-				 experience::OkGainExp(ch, victim) ? 1 : 0,
-				 (victim->get_master() && !victim->get_master()->IsNpc()) ? 1 : 0);
 		return;
 	}
 
@@ -1987,20 +1975,6 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		SetSkill(ch, skill, (trained_skill + number(1, 2)));
 		if (!privilege::IsImmortal(ch)) {
 			SetSkill(ch, skill, (std::min(CalcSkillRemortCap(ch), GetSkillBonus(ch, skill))));
-		}
-		// issue #4001: выданный просвет пишем в сислог -- с тестером бегают единицы, а по сислогу
-		// потом видно и кто прокачался, и за какого моба. Два просвета одного умения за один uid
-		// означают, что правило «один просвет на одного моба» протекло.
-		// Пишем через log(), а не mudlog(): mudlog кроме файла выводит строку на экран всем иммам с
-		// подходящим режимом сислога, а просветы идут потоком -- в канал богов им не место.
-		if (victim) {
-			log("ImproveSkill: %s улучшил '%s' за %s #%d uid %ld в комнате %d",
-				GET_NAME(ch), MUD::Skill(skill).GetName(), GET_NAME(victim),
-				victim->IsNpc() ? GET_MOB_VNUM(victim) : -1, victim->get_uid(),
-				GET_ROOM_VNUM(ch->in_room));
-		} else {
-			log("ImproveSkill: %s улучшил '%s' без цели в комнате %d",
-				GET_NAME(ch), MUD::Skill(skill).GetName(), GET_ROOM_VNUM(ch->in_room));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
