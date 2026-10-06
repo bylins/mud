@@ -1991,16 +1991,16 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		// issue #4001: выданный просвет пишем в сислог -- с тестером бегают единицы, а по сислогу
 		// потом видно и кто прокачался, и за какого моба. Два просвета одного умения за один uid
 		// означают, что правило «один просвет на одного моба» протекло.
+		// Пишем через log(), а не mudlog(): mudlog кроме файла выводит строку на экран всем иммам с
+		// подходящим режимом сислога, а просветы идут потоком -- в канал богов им не место.
 		if (victim) {
-			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' за {} #{} uid {} в комнате {}",
-							   GET_NAME(ch), MUD::Skill(skill).GetName(), GET_NAME(victim),
-							   victim->IsNpc() ? GET_MOB_VNUM(victim) : -1, victim->get_uid(),
-							   GET_ROOM_VNUM(ch->in_room)),
-				   LogMode::CMP, kLvlImmortal, SYSLOG, true);
+			log("ImproveSkill: %s улучшил '%s' за %s #%d uid %ld в комнате %d",
+				GET_NAME(ch), MUD::Skill(skill).GetName(), GET_NAME(victim),
+				victim->IsNpc() ? GET_MOB_VNUM(victim) : -1, victim->get_uid(),
+				GET_ROOM_VNUM(ch->in_room));
 		} else {
-			mudlog(fmt::format("ImproveSkill: {} улучшил '{}' без цели в комнате {}",
-							   GET_NAME(ch), MUD::Skill(skill).GetName(), GET_ROOM_VNUM(ch->in_room)),
-				   LogMode::CMP, kLvlImmortal, SYSLOG, true);
+			log("ImproveSkill: %s улучшил '%s' без цели в комнате %d",
+				GET_NAME(ch), MUD::Skill(skill).GetName(), GET_ROOM_VNUM(ch->in_room));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
