@@ -212,6 +212,12 @@ bool StopFollower(CharData *ch, int mode) {
 		return (false);
 	}
 
+	// issue #4001: служба бывает только под игроком -- подчинить, нанять и сделать скакуном может
+	// лишь он. В группе мобов (FOLLOW в резетах зоны) никто ничего не снимал, значит и возвращать
+	// нечего: там прототипные флаги только затёрли бы прижитое за жизнь. Лидера запоминаем сейчас,
+	// ниже его уже обнулят.
+	const bool served_player = !ch->get_master()->IsNpc();
+
 	// для смены лидера без лишнего спама
 	if (!IS_SET(mode, kSfSilence)) {
 		act("Вы прекратили следовать за $N4.", false, ch, 0, ch->get_master(), kToChar);
@@ -296,7 +302,7 @@ bool StopFollower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
+	if (served_player && ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
 		RestoreServiceFlagsFromProto(ch, mob_proto + i);
 	}
 
