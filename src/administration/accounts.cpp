@@ -111,27 +111,41 @@ void Account::list_players(DescriptorData *d) {
 }
 
 void Account::save_to_file() {
-	std::ofstream out;
-	out.open(LIB_ACCOUNTS + this->email);
-	if (out.is_open()) {
-		for (const auto &x : this->dquests) {
-			out << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
-		}
-		for (const auto &x : this->history_logins) {
-			out << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
-		}
-		for (const auto &x : this->players_list) {
-			out << "p: " << x << "\n";
-		}
-		out << "Pwd: " << this->hash_password << "\n";
-		out << "ll: " << this->last_login << "\n";
-		for (const auto &[id, amounts] : this->account_currencies_.data()) {
-			if (amounts.hand != 0 || amounts.bank != 0) {
-				out << "Cur: " << id << " " << amounts.hand << " " << amounts.bank << "\n";
-			}
+	// issue #4014: сперва собираем содержимое в памяти и сверяем с тем, что уже лежит в файле.
+	// save_to_file() зовётся на каждом сейве персонажа, а запись файла на бою стоила 20-35 мс
+	// (см. save_char prof: account=...) -- в секции idle это был почти весь её расход. Данные
+	// аккаунта меняются редко, так что в большинстве сейвов писать нечего.
+	std::ostringstream text;
+	for (const auto &x : this->dquests) {
+		text << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
+	}
+	for (const auto &x : this->history_logins) {
+		text << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
+	}
+	for (const auto &x : this->players_list) {
+		text << "p: " << x << "\n";
+	}
+	text << "Pwd: " << this->hash_password << "\n";
+	text << "ll: " << this->last_login << "\n";
+	for (const auto &[id, amounts] : this->account_currencies_.data()) {
+		if (amounts.hand != 0 || amounts.bank != 0) {
+			text << "Cur: " << id << " " << amounts.hand << " " << amounts.bank << "\n";
 		}
 	}
+
+	std::string content = text.str();
+	if (content == this->last_saved_text_) {
+		return;   // содержимое то же -- файл не трогаем
+	}
+
+	std::ofstream out;
+	out.open(LIB_ACCOUNTS + this->email);
+	if (!out.is_open()) {
+		return;   // не записали -- и запомненным считать нечего, попробуем в следующий раз
+	}
+	out << content;
 	out.close();
+	this->last_saved_text_ = std::move(content);
 }
 
 void Account::read_from_file() {
