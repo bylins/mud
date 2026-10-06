@@ -51,6 +51,16 @@
 
 
 
+namespace {
+
+// issue #4005: метка поля с полным набором флагов аффекта в блоке Aff3 (см. save_char и
+// load_char_ascii). Поле дописывается только тогда, когда у аффекта есть флаги из плоскостей 1-3 --
+// в число плоскости 0 они не влезают. Метка нужна, чтобы отличить это поле от следующего за ним
+// читаемого комментария с именем аффекта: с '@' имя начаться не может.
+constexpr const char *kAffectFlagsMark = "@";
+
+}  // namespace
+
 Player::Player() :
 	pfilepos_(-1),
 	was_in_room_(kNowhere),
@@ -696,13 +706,28 @@ void Player::save_char(bool update_save_time) {
 		// the casting spell. Fields: affect_type duration modifier location battleflag potency
 		// stacks, then the affect's name as a readable comment (ignored on load). The Aff3 tag replaces
 		// the spell-keyed Aff2 block; old Aff2 blocks are dropped on load -- active buffs recast in game.
+		// issue #4005: поле battleflag остаётся числом плоскости 0 -- так его читает и прежний
+		// бинарь, если на него откатятся. Флаги из плоскостей 1-3 в число не влезают, поэтому при
+		// их наличии дописывается ещё одно поле: kAffectFlagsMark плюс форма tascii всего набора.
+		// Прежний бинарь это поле просто не читает (он разбирает семь полей, дальше -- комментарий),
+		// а новый, увидев метку, берёт набор целиком из неё. Пока таких флагов нет, строка сейва
+		// побайтово та же, что была.
 		saved.printf("Aff3:\n");
 		for (auto &aff : tmp_aff) {
 			// issue.equipment-affects-improve: item-materialized affects are re-created on equip, never saved.
 			if (aff->affect_type != EAffect::kUndefined && !IS_SET(aff->battleflag, EAffFlag::kAfFromEquipment)) {
-				saved.printf("%d %d %d %d %d %f %d %s\n", static_cast<int>(aff->affect_type),
+				std::string upper_planes;
+				for (std::size_t plane = 1; plane < kFlagPlanes; ++plane) {
+					if (aff->battleflag.get_plane(plane) != 0) {
+						upper_planes = aff->battleflag.tascii(kFlagPlanes);
+						utils::Trim(upper_planes);   // tascii дописывает пробел в конец
+						upper_planes = std::string{kAffectFlagsMark} + upper_planes + " ";
+						break;
+					}
+				}
+				saved.printf("%d %d %d %d %d %f %d %s%s\n", static_cast<int>(aff->affect_type),
 						aff->duration, aff->modifier, aff->location, aff->battleflag.get_plane(0),
-						aff->potency, aff->stacks,
+						aff->potency, aff->stacks, upper_planes.c_str(),
 						NAME_BY_ITEM<EAffect>(aff->affect_type).c_str());
 			}
 		}
@@ -1225,10 +1250,15 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						// The trailing affect name is a readable comment, ignored here. af.type is gone --
 						// the affect is identified by affect_type; the funnel re-sources battleflag from it
 						// (preserving the per-instance kAfFailed / kAfCharmBond bits from the saved value).
+						// issue #4005: число -- это плоскость 0. Если дальше идёт поле с меткой
+						// kAffectFlagsMark, в нём лежит весь набор формой tascii (флаги из плоскостей
+						// 1-3 в число не влезают) -- тогда берём набор оттуда. Без метки восьмое поле --
+						// это читаемый комментарий с именем аффекта, и его мы по-прежнему пропускаем.
 						float af_potency = 0.0f;
 						int af_stacks = 1;
-						const int parsed = sscanf(line, "%d %d %d %d %d %f %d",
-								&num, &num2, &num3, &num4, &num6, &af_potency, &af_stacks);
+						char af_flags[64] = {0};
+						const int parsed = sscanf(line, "%d %d %d %d %d %f %d %63s",
+								&num, &num2, &num3, &num4, &num6, &af_potency, &af_stacks, af_flags);
 						if (num > 0) {
 							Affect<EApply> af;
 							af.affect_type = static_cast<EAffect>(num);
@@ -1236,6 +1266,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
 							af.battleflag.set_plane(0, num6);
+							if (parsed >= 8 && af_flags[0] == kAffectFlagsMark[0]) {
+								af.battleflag.from_string(af_flags + 1);
+							}
 							if (parsed >= 6) {
 								af.potency = af_potency;
 							}

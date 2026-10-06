@@ -350,7 +350,8 @@ std::vector<Affect<EApply>> BuildEquipmentMaterializedAffect(const ObjData *obj,
 		af.modifier = mod;
 		af.caster_id = obj->get_id();
 		af.potency = cast_potency;
-		af.battleflag.set_plane(0, affects::AffectFlagsByType(affect_type) | EAffFlag::kAfFromEquipment);
+		af.battleflag = affects::AffectFlagsByType(affect_type);
+		af.battleflag.set(EAffFlag::kAfFromEquipment);
 		nodes.push_back(af);
 	};
 	const auto &applies = affects::AffectApplies(affect_type);
@@ -1071,12 +1072,13 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 // affect's duration, kAfUpdateDuration refreshes it to the longer value, and
 // kAfUpdateMod replaces the modifier only when the new magnitude is larger. The
 // caller runs affect_total() afterwards.
-static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks, Bitvector extra_battleflag = 0) {
+static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks,
+							  const AffectFlags &extra_battleflag = {}) {
 	// issue.affect-migration: stack/update behavior comes from affects.xml by affect_type.
-	const Bitvector eff_flags = affects::AffectFlagsByType(af.affect_type);
-	const bool accum_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfAccumulateDuration));
-	const bool update_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateDuration));
-	const bool update_mod = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateMod));
+	const AffectFlags &eff_flags = affects::AffectFlagsByType(af.affect_type);
+	const bool accum_dur = eff_flags.get(EAffFlag::kAfAccumulateDuration);
+	const bool update_dur = eff_flags.get(EAffFlag::kAfUpdateDuration);
+	const bool update_mod = eff_flags.get(EAffFlag::kAfUpdateMod);
 	for (auto it = victim->affected.begin(); it != victim->affected.end(); ++it) {
 		const auto existing = *it;
 		// issue.affect-migration: stacking is keyed on affect_type (the effect identity).
@@ -1159,16 +1161,16 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	}
 	// issue.affect-migration: the re-apply gate reads update/accumulate behavior from affects.xml
 	// (per affect_type); the casting spell no longer carries affect flags.
-	Bitvector reapply_flags = 0;
+	AffectFlags reapply_flags;
 	bool already_affected = false;
 	for (const auto &apply : talent.GetApplies()) {
 		if (apply.id != EAffect::kUndefined) {
-			reapply_flags |= affects::AffectFlagsByType(apply.id);
+			reapply_flags.merge(affects::AffectFlagsByType(apply.id));
 			already_affected = already_affected || IsAffected(victim, apply.id);
 		}
 	}
-	const bool can_reapply = IS_SET(reapply_flags, to_underlying(EAffFlag::kAfAccumulateDuration))
-		|| IS_SET(reapply_flags, to_underlying(EAffFlag::kAfUpdateDuration));
+	const bool can_reapply = reapply_flags.get(EAffFlag::kAfAccumulateDuration)
+		|| reapply_flags.get(EAffFlag::kAfUpdateDuration);
 	if (ch != victim && already_affected && !can_reapply) {
 		if (ch->in_room == victim->in_room) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
@@ -1188,7 +1190,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	}
 	// issue.vampirism-haste: a battle-decrementing grant (battleflag="kAfBattledec") is measured in
 	// combat rounds, so its duration must NOT get the PC hours->ticks conversion.
-	const bool raw_rounds = (talent.GetBattleflags() & to_underlying(EAffFlag::kAfBattledec)) != 0;
+	const bool raw_rounds = talent.GetBattleflags().get(EAffFlag::kAfBattledec);
 	// issue.duration-scale: resistances resist VIOLENT effects only -- a beneficial cast's duration is
 	// never shortened by the target's resistance. Gate ApplyResist on the per-cast violence verdict.
 	int duration = CalcDuration(ch, victim, duration_skill,
@@ -2113,7 +2115,7 @@ namespace {
 // that unaffect; this is the single source of truth for "can this be removed" (it replaced the old
 // CheckNodispel blacklist). An affect with no matching flag -- charm/quest effects, or anything
 // applied outside <affects> in code -- is irremovable.
-bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flags) {
+bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, const AffectFlags &flags) {
 	if (!affect) {
 		return false;
 	}
@@ -2126,14 +2128,14 @@ bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flag
 	// снимаются, на то и заклинание «разлом». Решение «снимать» принимается по одному подходящему
 	// экземпляру, а снимаются только прошедшие фильтр (см. ReduceStackOrRemove), так что
 	// накастованный баф и врождённый узел уходят каждый по своему праву.
-	if (IS_SET(affect->battleflag, kAfCharmBond)) {
+	if (affect->battleflag.get(kAfCharmBond)) {
 		return false;
 	}
-	return (affect->battleflag.get_plane(0) & flags) != 0;
+	return affect->battleflag.intersects(flags);
 }
 
 // True if the victim carries a removable affect of the given spell type (one matching `flags`).
-bool HasDispellableAffect(CharData *victim, EAffect affect_type, Bitvector flags) {
+bool HasDispellableAffect(CharData *victim, EAffect affect_type, const AffectFlags &flags) {
 	for (const auto &aff : victim->affected) {
 		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
 			return true;
@@ -2182,7 +2184,7 @@ struct RemovalCandidate {
 // kDispellMagic code path and enable generic "strip-by-flag" dispels (e.g.
 // future sphere-specific dispels added by tagging affects with kAfXSphere flags).
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<RemovalCandidate> &out, Bitvector flags, bool debuff_only = false) {
+					 std::vector<RemovalCandidate> &out, const AffectFlags &flags, bool debuff_only = false) {
 	// issue.affect-migration: candidates are keyed by affect_type (no spell read at all -- the dispel
 	// downstream and the PK classification both work off the affect's own identity/flags).
 	// issue.new-unaffect-spells: debuff_only skips affects that are clearly buffs (EBuff::kYes) so a
@@ -2237,7 +2239,7 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 // освящение, групповая призма сняла заодно и врождённое, и вещевое.
 // Вещевой экземпляр снимается по-прежнему -- он подавляется на предмете (SuppressSourceEquipmentAffect
 // зовётся выше по стеку) и возвращается сам, когда подавление истечёт.
-constexpr Bitvector kDispellableInstance = kAfCurable | kAfDispellable;
+static const AffectFlags kDispellableInstance{kAfCurable, kAfDispellable};
 
 void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 	const auto removable = [affect_type](const Affect<EApply>::shared_ptr &aff) {
@@ -2455,11 +2457,11 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect
 // (room->affected vs victim->affected) and the apply/remove APIs differ. PK gating is intentionally
 // NOT replicated here -- concurrency rules for room dispel are deferred (no clear policy yet).
 
-bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, Bitvector flags) {
-	return affect && (affect->battleflag.get_plane(0) & flags) != 0;
+bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, const AffectFlags &flags) {
+	return affect && affect->battleflag.intersects(flags);
 }
 
-bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, Bitvector flags) {
+bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, const AffectFlags &flags) {
 	for (const auto &aff : room->affected) {
 		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
 			return true;
@@ -2498,7 +2500,7 @@ bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect:
 }
 
 void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<RemovalCandidate> &out, Bitvector flags, bool /*debuff_only*/ = false) {
+					 std::vector<RemovalCandidate> &out, const AffectFlags &flags, bool /*debuff_only*/ = false) {
 	// issue.new-unaffect-spells: debuff_only is a no-op for room affects (no buff/debuff notion);
 	// the parameter exists only so RunCastUnaffects can call this from the shared template.
 	if (set.wildcard_any) {
@@ -2627,7 +2629,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	const bool breaking = UnaffectConditionMet(target, unaffect.GetBreaking());
 	bool break_chain = breaking;
 
-	const Bitvector flags = unaffect.GetAffectFlags();
+	const AffectFlags &flags = unaffect.GetAffectFlags();
 	std::vector<RemovalCandidate> to_remove;
 	CollectRemovals(target, unaffect.GetRemoveAnyway(), to_remove, flags, unaffect.GetDebuffOnly());
 	if (!blocking) {

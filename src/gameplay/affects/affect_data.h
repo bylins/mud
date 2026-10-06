@@ -154,7 +154,14 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
-void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
+// issue #4005: per-instance пометки передаются типизированным набором (AffectFlags), а не словом:
+// флаги аффектов живут в четырёх плоскостях, и в 32-битное слово влезает только нулевая.
+void affect_to_char(CharData *ch, const Affect<EApply> &af, const AffectFlags &extra_battleflag = {});
+
+// issue #4005: пометки, которые ставит ВЫЗЫВАЮЩИЙ и которые воронка обязана сохранить, в отличие от
+// свойств аффекта -- те приходят из affects.xml по affect_type. Возвращает их подмножество из
+// набора, принесённого вызывающим. Перечень: kAfFailed, kAfCharmBond, kAfFromEquipment, kAfFromSet.
+[[nodiscard]] AffectFlags PerInstanceAffectFlags(const AffectFlags &caller_flags);
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);   // caller MUST affect_total after
 class ObjData;
 // issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as

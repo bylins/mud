@@ -26,7 +26,7 @@ namespace {
 // renderers agree on the arithmetic.
 int AffectDisplayMod(const Affect<EApply>::shared_ptr &aff) {
 	// Pulse-decayed affects count down in ~1/25.5s pulses; convert to the tick scale used below.
-	if (aff->battleflag.get_plane(0) == static_cast<Bitvector>(kAfPulsedec)) {
+	if (aff->battleflag == AffectFlags{kAfPulsedec}) {
 		return aff->duration / 51;
 	}
 	return aff->duration;

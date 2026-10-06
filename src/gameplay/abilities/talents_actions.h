@@ -680,7 +680,7 @@ class TalentAffect : public IAction {
 	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
 	// issue.vampirism-haste: extra per-instance battle flags (EAffFlag bits) OR'd onto every affect this
 	// block imposes -- e.g. kAfBattledec to make a normally tick-based buff decrement per combat round.
-	[[nodiscard]] Bitvector GetBattleflags() const { return extra_battleflags_; }
+	[[nodiscard]] const AffectFlags &GetBattleflags() const { return extra_battleflags_; }
 
  private:
 	ESaving saving_{ESaving::kReflex};
@@ -708,8 +708,9 @@ class TalentAffect : public IAction {
 	bool reposition_stop_fight_{false};
 	// Stored-potency scale (issue.affects-potency-weight); see GetPotencyWeight().
 	float potency_weight_{1.0f};
-	// issue.vampirism-haste: see GetBattleflags(). 0 = impose with the affect type's own flags only.
-	Bitvector extra_battleflags_{0};
+	// issue.vampirism-haste: see GetBattleflags(). Пустой набор = накладываем только со свойствами
+	// самого аффекта. issue #4005: типизированный набор -- флаги аффектов живут в четырёх плоскостях.
+	AffectFlags extra_battleflags_{};
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or
@@ -762,7 +763,7 @@ class TalentUnaffect : public IAction {
 	// of these EAffFlag bits (issue.affect-dispell-flags). Default kAfCurable|kAfDispellable -- a
 	// generic unaffect removes anything curable or dispellable. kRemovePoison narrows it to
 	// kAfCurable (cures, doesn't dispel); kDispellMagic to kAfDispellable (dispels, doesn't cure).
-	[[nodiscard]] Bitvector GetAffectFlags() const { return affect_flags_; }
+	[[nodiscard]] const AffectFlags &GetAffectFlags() const { return affect_flags_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
 	// issue.debuff-decay: percent of THIS dispel's potency by which a SURVIVING affect's potency
 	// shifts when a removal attempt fails (positive weakens it, negative strengthens it; 0 = none).
@@ -777,7 +778,7 @@ class TalentUnaffect : public IAction {
 	Set remove_anyway_;  // dispelled even when blocking is true
 	Set remove_;         // dispelled only when blocking is false
 	int dispel_bonus_{50};  // issue.random-noise-rework: % win at competence parity (was potency_weight multiplier)
-	Bitvector affect_flags_{kAfCurable | kAfDispellable};
+	AffectFlags affect_flags_{kAfCurable, kAfDispellable};
 	int prob_{100};      // percent chance the unaffect block fires at all (default always)
 	int decay_{0};       // issue.debuff-decay: % of dispel potency to shift a surviving affect on a failed removal
 	bool debuff_only_{false};  // issue.new-unaffect-spells: wildcard removal restricted to debuffs
