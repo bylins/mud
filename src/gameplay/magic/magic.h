@@ -165,6 +165,10 @@ class ActionContext {
 	CharData *cvict{nullptr};
 	ObjData  *ovict{nullptr};
 	RoomData *rvict{nullptr};
+	// issue #4000: остаток строки каста после цели -- то, что игрок дописал сверх имени цели
+	// ("оживить скелет труп свирепого" -> "свирепого"). Нужен заклинаниям, у которых цель не
+	// определяет результат; пустая строка у всех остальных.
+	std::string cast_extra;
 
 	// --- Action cursor (issue.spell-pipeline multi-action) ---
 	// The context owns the walk over the spell's <action> list so a stage cannot
@@ -341,9 +345,11 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		float fixed_potency = -1.0f,   // fixed_potency>=0 (item/potion): use it as the whole cast potency, skip caster roll
 		double fixed_noise_z = std::numeric_limits<double>::quiet_NaN(),  // not-NaN (brewed potion): frozen brew-luck z replayed at cast
 		int fixed_skill = -1,  // >=0 (potion): the MAKER skill used for buff DURATION
-		int dir = -1);  // issue.room-affect-trigger-improve: dir>=0 + kMagRoom -> cast on EXIT(caster,dir) (door affect)
+		int dir = -1,  // issue.room-affect-trigger-improve: dir>=0 + kMagRoom -> cast on EXIT(caster,dir) (door affect)
+		const std::string &cast_extra = {});   // issue #4000: остаток строки каста после цели
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst,
-		int dir = -1);  // dir>=0: kTarDirection cast on the exit in that direction
+		int dir = -1,  // dir>=0: kTarDirection cast on the exit in that direction
+		const std::string &cast_extra = {});   // issue #4000: остаток строки каста после цели
 // issue.character-affect-triggers: run the bearer's affect actions whose trigger matches event.trigger,
 // threading `event` onto the context so manual_cast handlers can read its rich data. Called from trigger
 // fire-sites (the per-hit kPreHit / post-damage kPostHit points in fight_hit.cpp). True if any ran.

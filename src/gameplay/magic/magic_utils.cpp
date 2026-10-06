@@ -535,7 +535,7 @@ ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, f
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir, const std::string &cast_extra) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -617,6 +617,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
+	ctx.cast_extra = cast_extra;
 	// issue.perk-action-patching: if the caster holds a perk that patches this spell, build the per-cast
 	// modified action chain now, before dispatch. No-op for every other caster / every unpatched spell.
 	ctx.ApplyTalentPatches();
@@ -839,7 +840,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir) {
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir, const std::string &cast_extra) {
 	if (spell_id == ESpell::kUndefined) {
 		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
 		return ECastResult::kNotCast;
@@ -967,7 +968,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, std::numeric_limits<double>::quiet_NaN(), -1, dir));
+	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, std::numeric_limits<double>::quiet_NaN(), -1, dir, cast_extra));
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {

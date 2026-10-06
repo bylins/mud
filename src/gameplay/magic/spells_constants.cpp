@@ -288,6 +288,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kToils] = "kToils";
 	ESpell_name_by_value[ESpell::kCleanseArea] = "kCleanseArea";
 	ESpell_name_by_value[ESpell::kWeaveRestoration] = "kWeaveRestoration";
+	ESpell_name_by_value[ESpell::kAnimateSkeleton] = "kAnimateSkeleton";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;

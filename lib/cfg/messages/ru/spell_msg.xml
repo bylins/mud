@@ -818,6 +818,14 @@
 		<message type="kCastPhraseHeathen" val="воскресе из мертвых" />
 		<message type="kCastPhraseChristian" val="... оживут мертвецы Твои, восстанут мертвые тела!" />
 	</msg_sheaf>
+	<msg_sheaf id="kAnimateSkeleton">
+		<name val="оживить скелет" />
+		<message type="kSummonToRoom" val="$n склонил$u над трупом, и плоть осыпалась прахом, обнажив белые кости." />
+		<message type="kSummonToRoom" val="Кости мертвеца со скрипом сошлись, повинуясь слову $n1." />
+		<message type="kSummonToRoom" val="$n поднял$g костяного прислужника!" />
+		<message type="kCastPhraseHeathen" val="костию восстани" />
+		<message type="kCastPhraseChristian" val="... и кости сухие оживут." />
+	</msg_sheaf>
 	<msg_sheaf id="kSummonKeeper">
 		<name val="защитник" />
 		<message type="kSummonToRoom" val="$n призвал$g защитника!" />

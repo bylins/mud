@@ -301,8 +301,11 @@ enum class ESpell {
 	kToils = 370,        // "toils" -- strip fly/waterwalk/waterbreath from an enemy
 	kCleanseArea = 371,  // "cleanse area" -- strip dispellable room affects
 	kWeaveRestoration = 372,  // "weave restoration" -- lift a magic-suppression from an item (or a char's first suppressed worn item)
+	// issue #4000: "оживить скелет" -- поднимает из человекоподобного трупа скелета-прислужника.
+	// Виды скелетов живут в animate_dead.xml как ярусы этого заклинания (spell="kAnimateSkeleton").
+	kAnimateSkeleton = 373,
 	kFirst = kArmor,
-	kLast = 372	// Не забываем менять
+	kLast = 373	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);

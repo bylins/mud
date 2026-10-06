@@ -62,6 +62,7 @@ int UsedBudget(CharData *ch) {
 
 void AnimateDeadInfo::Load(DataNode data) {
 	creatures_.clear();
+	skeletons_.clear();
 	for (auto &node : data.Children()) {
 		const std::string name = node.GetName();
 		if (name == "control") {
@@ -88,8 +89,14 @@ void AnimateDeadInfo::Load(DataNode data) {
 			// здесь, пока node указывает на вид.
 			const char *dc = node.GetValue("damroll_cap");
 			ci.damroll_cap = (dc && *dc) ? parse::ReadAsInt(dc) : 0;
+			const char *sp = node.GetValue("spell");
+			if (sp && *sp) {
+				ci.spell = parse::ReadAsConstant<ESpell>(sp);
+			}
 			if (node.GoToChild("cost")) {
 				ci.corpse_max_level = parse::ReadAsInt(node.GetValue("corpse_max_level"));
+				const char *cmin = node.GetValue("corpse_min_level");
+				ci.corpse_min_level = (cmin && *cmin) ? parse::ReadAsInt(cmin) : 0;
 				const char *mr = node.GetValue("min_rating");
 				ci.min_rating = (mr && *mr) ? parse::ReadAsInt(mr) : 0;
 				const char *pk = node.GetValue("pick");
@@ -110,7 +117,14 @@ void AnimateDeadInfo::Load(DataNode data) {
 				ci.scaling.initiative  = ParseStat(node, "initiative");
 				node.GoToParent();
 			}
-			creatures_.push_back(std::move(ci));
+			// Ярусы чужого заклинания держим отдельно: лестница нежити ходит по индексам своего
+			// вектора (PickTier понижает вид, FitUndeadTier подбирает по бюджету), и посторонний
+			// элемент в нём означал бы, что "поднять труп" может выдать скелета.
+			if (ci.spell == ESpell::kAnimateSkeleton) {
+				skeletons_.push_back(std::move(ci));
+			} else {
+				creatures_.push_back(std::move(ci));
+			}
 		} catch (std::exception &e) {
 			err_log("animate_dead creature parse error: %s", e.what());
 		}
@@ -118,7 +132,14 @@ void AnimateDeadInfo::Load(DataNode data) {
 }
 
 const CreatureInfo *AnimateDeadInfo::ByProtoVnum(int proto_vnum) const {
+	// Ищем в обоих списках: по этому поиску работают масштаб статов (SetupUndeadStats) и потолок
+	// дамролла, а они нужны и скелетам.
 	for (const auto &c : creatures_) {
+		if (c.proto_vnum == proto_vnum) {
+			return &c;
+		}
+	}
+	for (const auto &c : skeletons_) {
 		if (c.proto_vnum == proto_vnum) {
 			return &c;
 		}
@@ -160,6 +181,9 @@ std::string AnimateDeadLoader::EditableWhat() const {
 std::vector<cfg_manager::EditableElement> AnimateDeadLoader::ListElements() const {
 	std::vector<cfg_manager::EditableElement> out;
 	for (const auto &c : MUD::AnimateDead().Creatures()) {
+		out.push_back({std::to_string(c.vnum), c.id});
+	}
+	for (const auto &c : MUD::AnimateDead().Skeletons()) {
 		out.push_back({std::to_string(c.vnum), c.id});
 	}
 	return out;

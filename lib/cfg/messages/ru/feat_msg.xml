@@ -396,6 +396,9 @@
 	<msg_sheaf id="kScirmisher">
 		<name val="держать строй" />
 	</msg_sheaf>
+	<msg_sheaf id="kBoneCommander">
+		<name val="костяной полководец" />
+	</msg_sheaf>
 	<msg_sheaf id="kTactician">
 		<name val="десяцкий" />
 	</msg_sheaf>
