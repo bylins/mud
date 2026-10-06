@@ -112,6 +112,9 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kDaturaPoison] = "kDaturaPoison";
 	EAffectFlag_name_by_value[EAffect::kSkillReduce] = "kSkillReduce";
 	EAffectFlag_name_by_value[EAffect::kNoBattleSwitch] = "kNoBattleSwitch";
+	EAffectFlag_name_by_value[EAffect::kBoneServant] = "kBoneServant";
+	EAffectFlag_name_by_value[EAffect::kCorrodedArmor] = "kCorrodedArmor";
+	EAffectFlag_name_by_value[EAffect::kCorrodedWard] = "kCorrodedWard";
 	EAffectFlag_name_by_value[EAffect::kBelenaPoison] = "kBelenaPoison";
 	EAffectFlag_name_by_value[EAffect::kNoTeleport] = "kNoTeleport";
 	EAffectFlag_name_by_value[EAffect::kCombatLuck] = "kCombatLuck";
@@ -569,7 +572,7 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
 // source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
-constexpr std::size_t kAffectFlagTableSize = 138;  // EAffect max (kBurning=137) + 1
+constexpr std::size_t kAffectFlagTableSize = 141;  // EAffect max (kCorrodedWard=140) + 1
 std::array<AffectFlags, kAffectFlagTableSize> g_affect_flags{};
 std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
 // issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from

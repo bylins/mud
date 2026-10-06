@@ -590,6 +590,7 @@ main_sources = files(
   'src/gameplay/handlers/summon_tutelar.cpp',
   'src/gameplay/handlers/setup_keeper_stats.cpp',
   'src/gameplay/handlers/setup_firekeeper_stats.cpp',
+  'src/gameplay/handlers/bone_commander.cpp',
   'src/gameplay/handlers/clone_cascade.cpp',
   'src/gameplay/handlers/handle_thunderstorm_tick.cpp',
   'src/gameplay/handlers/spell_create_water.cpp',

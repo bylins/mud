@@ -237,6 +237,12 @@ enum class EAffect : Bitvector {
 	kWebbed = 135,          // issue.affects-improve: kWeb's own affect (AC/hitroll penalty + kBind)
 	kInsidiousWound = 136,  // issue.affects-improve: punctual-style wound debuff
 	kBurning = 137,         // issue.damage-over-time: fully data-driven fire DoT (kFireBlast); ticks its own <damage>
+	// issue #4000: костяная свита чернокнижника. kBoneServant -- врождённая метка на прототипах
+	// скелетов: её <actions> стреляют на удар и зовут обработчик, который по виду скелета решает,
+	// какой дебафф положить. kCorrodedArmor/kCorrodedWard -- сами дебаффы на жертве.
+	kBoneServant = 138,
+	kCorrodedArmor = 139,
+	kCorrodedWard = 140,
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -246,7 +252,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 138;   // kBurning=137 + 1
+	static constexpr std::size_t count = 141;   // kCorrodedWard=140 + 1
 };
 template<>
 struct flag_index_mapping<EAffect> {

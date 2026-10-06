@@ -1898,6 +1898,19 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 	mob->SetFlag(EMobFlag::kUndead);
 	// Броня, спасы и инициатива держатся аффектами: affect_total стирает прямую запись.
 	animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
+	if (mob_num != kMobSkeleton) {
+		// issue #4000: метка особого вида. Вешаем именно аффектом, а не флагом в файле моба:
+		// действия на удар (kPostHit) движок ищет в списке аффектов, а флаг из affect_flags
+		// кладёт только бит в affected_by и ничего не запускает. Часть пакета нежити
+		// (kAfCharmBond), поэтому снятию не подлежит.
+		Affect<EApply> mark;
+		mark.affect_type = EAffect::kBoneServant;
+		mark.location = EApply::kNone;
+		mark.modifier = 0;
+		mark.duration = duration;
+		mark.battleflag = {kAfCharmBond};
+		affect_to_char(mob, mark);
+	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	SpillCorpseContents(ch, obj);
 	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment;
@@ -3122,6 +3135,7 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
 	// issue.obj-affects: kWeaponHit obj-affect handler -- a poisoned weapon poisons its strike victim.
 	{"WeaponPoisonHit", handlers::WeaponPoisonHit},
+	{"SkeletonHit", handlers::SkeletonHit},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).
