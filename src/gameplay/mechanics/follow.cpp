@@ -19,9 +19,35 @@
 #include "engine/entities/obj_data.h"
 
 #include <fmt/format.h>
+#include <array>
 #include <sstream>
 
 namespace follow {
+
+// issue #4001: подчинение, найм и превращение в скакуна снимают мобу несколько флагов на время
+// службы -- kNoGroup/kAgressive/kSpec (spell_charm, do_hire), kWimpy/kSentinel/kHelper/kMounting
+// (mount). По окончании службы их возвращают из прототипа.
+const std::array<EMobFlag, 7> kServiceFlags = {
+	EMobFlag::kNoGroup,
+	EMobFlag::kAgressive,
+	EMobFlag::kSpec,
+	EMobFlag::kWimpy,
+	EMobFlag::kSentinel,
+	EMobFlag::kHelper,
+	EMobFlag::kMounting
+};
+
+// Возвращает мобу прототипные значения флагов службы, не трогая остальные. Раньше тут копировалось
+// слово флагов целиком, и вместе со службой моб терял всё, что движок поставил ему за жизнь:
+// kNoSkillTrain (просвет за него уже выдан), kSummoned/kCompanion (вызванный союзник),
+// kUndead/kResurrected (поднятый), kTutelar, kClone, kMentalShadow. Доставалось и мобам, которых
+// никто не подчинял: StopFollower зовётся на каждого последователя при смерти вожака, в том числе
+// в обычных зонных группах (FOLLOW в резетах зоны).
+void RestoreServiceFlagsFromProto(CharData *ch, const CharData *proto) {
+	for (const auto flag : kServiceFlags) {
+		proto->IsFlagged(flag) ? ch->SetFlag(flag) : ch->UnsetFlag(flag);
+	}
+}
 
 bool MakesLoop(CharData *ch, CharData *master) {
 	while (master) {
@@ -271,7 +297,7 @@ bool StopFollower(CharData *ch, int mode) {
 	
 	 
 	if (ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
-		ch->CopyFlagsFrom(mob_proto + i);
+		RestoreServiceFlagsFromProto(ch, mob_proto + i);
 	}
 
 	return (false);

@@ -644,7 +644,6 @@ class CharData : public ProtectedCharData {
 	// Костыльная функция, которая пока нужна, потому что загрузчик файлов не часть чардаты и не friend class.
 	void SetFlagsFromString(const std::string &string) { char_specials.saved.mob_flags.from_string(string.c_str()); };
   	void PrintFlagsToAscii(char *sink, size_t sink_size) const { char_specials.saved.mob_flags.tascii(4, sink, sink_size); };
-  	void CopyFlagsFrom(CharData *source) { char_specials.saved.mob_flags = source->char_specials.saved.mob_flags ; };
 	void SetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.mob_flags.set(flag); }; };
   	void UnsetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.mob_flags.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const EMobFlag flag) const { return (IsNpc() && char_specials.saved.mob_flags.get(flag)); };
