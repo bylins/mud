@@ -42,9 +42,15 @@ def percentile(values, share):
 
 
 def measure(path, count, size, do_fsync):
-	"""Делает count записей по size байт, возвращает список задержек в секундах."""
+	"""Делает count записей по size байт.
+
+	Возвращает список пар (смещение от начала прогона, задержка) в секундах. Смещение нужно,
+	чтобы увидеть периодичность: если выбросы идут примерно раз в пять секунд, это коммит
+	журнала файловой системы, а не свойство каталога или размера записи.
+	"""
 	payload = "x" * size
-	delays = []
+	measured = []
+	begin = time.perf_counter()
 	for _ in range(count):
 		start = time.perf_counter()
 		with open(path, "w") as handle:
@@ -52,8 +58,9 @@ def measure(path, count, size, do_fsync):
 			if do_fsync:
 				handle.flush()
 				os.fsync(handle.fileno())
-		delays.append(time.perf_counter() - start)
-	return delays
+		done = time.perf_counter()
+		measured.append((start - begin, done - start))
+	return measured
 
 
 def main():
@@ -76,7 +83,7 @@ def main():
 	path = os.path.join(args.directory, "_fs_write_latency_probe")
 	started = time.perf_counter()
 	try:
-		delays = measure(path, args.count, args.size, args.fsync)
+		measured = measure(path, args.count, args.size, args.fsync)
 	except OSError as error:
 		print(f"Не вышло писать в {path}: {error}", file=sys.stderr)
 		return 1
@@ -87,8 +94,8 @@ def main():
 			pass
 	wall = time.perf_counter() - started
 
-	delays.sort()
-	outliers = [d for d in delays if d > args.threshold]
+	outliers = [(at, delay) for at, delay in measured if delay > args.threshold]
+	delays = sorted(delay for _, delay in measured)
 	print(f"каталог      : {args.directory}")
 	print(f"записей      : {args.count} по {args.size} байт"
 		  + (" (с fsync)" if args.fsync else ""))
@@ -98,8 +105,11 @@ def main():
 	print(f"выбросов     : {len(outliers)} из {args.count} дольше {args.threshold * 1000:.0f} мс")
 	print(f"всего времени: {wall:.3f} с")
 	if outliers:
-		worst = ", ".join(f"{d * 1000:.1f}" for d in sorted(outliers, reverse=True)[:10])
-		print(f"худшие (мс)  : {worst}")
+		print(f"выбросов в секунду прогона: {len(outliers) / wall:.2f}")
+		# Время выброса от начала прогона: если они идут с ровным шагом (обычно около пяти
+		# секунд), причина периодическая -- коммит журнала, а не каталог и не размер записи.
+		points = ", ".join(f"{at:.2f}с/{delay * 1000:.0f}мс" for at, delay in outliers[:12])
+		print(f"когда случались: {points}")
 	return 0
 
 
