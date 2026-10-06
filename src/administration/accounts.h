@@ -46,6 +46,12 @@ class Account {
 	std::unordered_map<std::string, login_index> history_logins;
 	// issue.currency-storage: shared balances for currencies flagged account_shared.
 	currencies::CurrencyStorage account_currencies_;
+	// issue #4014: что было записано в файл аккаунта в последний раз. Файл перезаписывается только
+	// когда содержимое изменилось: save_to_file() зовётся на КАЖДОМ сейве персонажа, а сама запись
+	// мелкого файла на бою стоила 20-35 мс и целиком съедала секцию idle в профиле point_update.
+	// Сверка по содержимому, а не флагом «грязно»: флаг пришлось бы ставить во всех мутаторах, и
+	// забытый мутатор означал бы потерю данных аккаунта.
+	std::string last_saved_text_;
 
  public:
 	void purge_erased();
