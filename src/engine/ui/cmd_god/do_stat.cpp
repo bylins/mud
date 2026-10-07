@@ -462,22 +462,25 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	}
 
 	if (god_level >= kLvlGreatGod) {
-		std::string fl_str;
-
 		// "Ведущий: X, Ведомые: " передаём префиксом -- его длина (с именем
 		// ведущего) учитывается в ширине строки автоматически, без магического -30.
 		const std::string lead_prefix =
 			fmt::format("Ведущий: {}, Ведомые: ", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
+		// issue #4022: имя моба бывает из нескольких слов, а строковая перегрузка OutWordsList
+		// делит вход по пробелам -- "богатырский конь" выходил двумя элементами списка:
+		// "богатырский, конь #13400". Собираем список готовыми именами, а не словами; подчёркивание
+		// перед номером тоже больше не нужно, оно держало номер при имени как раз от такого деления.
+		std::vector<std::string> followers_list;
+		followers_list.reserve(k->followers.size());
 		for (auto &it : k->followers) {
-			if (!it->IsNpc()) {
-				fl_str += " " + it->get_name();
-			} else {
-				fl_str += " " + it->get_name() + "_#" + std::to_string(GET_MOB_VNUM(it));
-			}
+			followers_list.push_back(it->IsNpc()
+										 ? fmt::format("{} #{}", it->get_name(), GET_MOB_VNUM(it))
+										 : it->get_name());
 		}
-		SendMsgToChar(utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength, ", ", lead_prefix) + "\r\n", ch);
+		SendMsgToChar(utils::OutWordsList(followers_list, ch->player_specials->saved.stringLength, ", ", lead_prefix)
+						  + "\r\n", ch);
 		if (ch->IsNpc()) {
-			fl_str.clear();
+			std::string fl_str;
 			for (auto &helper : k->summon_helpers) {
 				fl_str += " " +  std::to_string(helper);
 			}
