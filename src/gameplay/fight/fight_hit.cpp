@@ -852,9 +852,27 @@ BreathAttack GetBreathAttack(CharData *ch) {
 // GET_MR keeps its legacy role as a flat chance to fully resist the elemental hit.
 // CalcMagicElementCoeff is deliberately NOT applied -- breath is magic melee, not a
 // spell; the element alone drives the resist channel inside Damage::Process.
-void DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath) {
-	if (!pk_agro_action(ch, victim)) {
+// issue #4000: дыхание -- тоже удар мобом, и триггеры аффектов на удар должны стрелять и для него.
+// Раньше ветка дыхания уходила из hit() до блока kPreHit/kPostHit, поэтому дышащий моб не запускал
+// ни одного действия своих аффектов на удар (у дышащего вампира, например, не срабатывало лечение).
+// Стреляем после нанесения урона: только если урон дошёл и жертва жива (-1 -- погибла).
+static void RunBreathHitTriggers(CharData *ch, CharData *victim, int dam) {
+	if (dam <= 0 || !victim || victim->purged() || ch->purged()) {
 		return;
+	}
+	EventContext event;
+	event.trigger = talents_actions::EActionTrigger::kPostHit;
+	event.amount = dam;
+	event.actor = victim;
+	event.skill = ESkill::kUndefined;
+	RunCharEventTriggers(ch, event);
+}
+
+// issue #4000: возвращает нанесённый урон (-1, если жертва погибла, 0 если сопротивилась) --
+// по нему вызывающий решает, стрелять ли триггерам аффектов на удар.
+int DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath) {
+	if (!pk_agro_action(ch, victim)) {
+		return 0;
 	}
 	int dam = 0;
 	const int max_resist = ch->IsNpc() ? kMaxNpcResist : kMaxPcResist;
@@ -865,7 +883,7 @@ void DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath
 	}
 	Damage breath_dmg(SimpleDmg(breath.source), dam, fight::kMagicDmg);
 	breath_dmg.element = breath.element;
-	breath_dmg.Process(ch, victim);
+	return breath_dmg.Process(ch, victim);
 }
 }  // namespace
 
@@ -938,14 +956,18 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 					if (privilege::IsImmortal(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
 					if (tch != ch && !group::same_group(ch, tch)) {
-						DealBreathDamage(ch, tch, breath);
+						const int breath_dam = DealBreathDamage(ch, tch, breath);
+						if (ch->purged())
+							return;
+						RunBreathHitTriggers(ch, tch, breath_dam);
 						if (ch->purged())
 							return;
 					}
 				}
 				return;
 			}
-			DealBreathDamage(ch, victim, breath);
+			const int breath_dam = DealBreathDamage(ch, victim, breath);
+			RunBreathHitTriggers(ch, victim, breath_dam);
 			return;
 		}
 	}

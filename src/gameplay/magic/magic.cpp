@@ -31,6 +31,7 @@
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
 #include "gameplay/mechanics/animate_dead.h"
+#include "gameplay/mechanics/mob_races.h"   // issue #4000: ENpcRace::kHuman -- труп человекоподобного
 
 #include <functional>
 #include <map>
@@ -1779,6 +1780,143 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	return EStageResult::kSuccess;
 }
 
+// issue #4000: "оживить скелет" -- третье корпусное заклинание чернокнижника. Особые виды скелетов
+// (свирепый, ловкий, зловонный) описаны в animate_dead.xml ярусами spell="kAnimateSkeleton" и
+// открываются способностью "костяной полководец". Без способности, с трупа ниже порога или с
+// нечеловекоподобного встаёт обычный скелет -- то же понижение, что у лестницы нежити.
+// Бюджета свиты у скелетов нет (weight="0"): ограничение другое -- по одному каждого вида.
+static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
+	CharData *const ch = ctx.caster();
+	ObjData *const obj = ctx.ovict;
+	const ESpell spell_id = ctx.spell_id();
+	if (ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonCharmed) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
+	if (obj == nullptr || !IS_CORPSE(obj)) {
+		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(),
+			false, ch, nullptr, nullptr, kToChar);
+		return EStageResult::kSuccess;
+	}
+
+	// Труп помнит, чей он: по прототипу берём уровень (порог вида), расу (человекоподобие) и
+	// телосложение (шанс провала) -- так же, как это делает "поднять труп".
+	const MobVnum corpse_mob = GET_OBJ_VAL(obj, 2);
+	int corpse_level = 0;
+	bool humanoid = false;
+	int pfail = 0;
+	if (corpse_mob > 0 && GetMobRnum(corpse_mob) >= 0) {
+		CharData *proto = mob_proto + GetMobRnum(corpse_mob);
+		corpse_level = GetRealLevel(proto);
+		humanoid = (GET_RACE(proto) == ENpcRace::kHuman);
+		pfail = 10 + proto->get_con() * 2
+			- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - remort::GetRealRemort(ch) * 5;
+	}
+
+	MobVnum mob_num = kMobSkeleton;
+	const auto &tiers = MUD::AnimateDead().Skeletons();
+	if (CanUseFeat(ch, EFeat::kBoneCommander) && !tiers.empty()) {
+		// Вид называет игрок: это слово, дописанное после трупа. Сверяем со всеми падежными
+		// формами прототипа -- игрок пишет "свирепого", а в именительном стоит "свирепый".
+		const std::string &arg = ctx.cast_extra;
+		std::string names;
+		const animate_dead::CreatureInfo *chosen = nullptr;
+		for (const auto &tier : tiers) {
+			const auto rnum = GetMobRnum(tier.proto_vnum);
+			if (rnum < 0) {
+				continue;
+			}
+			CharData *tier_proto = mob_proto + rnum;
+			if (!names.empty()) {
+				names += ", ";
+			}
+			names += tier_proto->player_data.PNames[grammar::ECase::kAcc];
+			if (arg.empty()) {
+				continue;
+			}
+			for (const auto &form : tier_proto->player_data.PNames) {
+				if (isname(arg, form)) {
+					chosen = &tier;
+					break;
+				}
+			}
+			if (chosen) {
+				break;
+			}
+		}
+		if (arg.empty()) {
+			SendMsgToChar(fmt::format("Какого скелета вы желаете оживить? Вам подвластны: {}.\r\n", names), ch);
+			return EStageResult::kSuccess;
+		}
+		if (!chosen) {
+			SendMsgToChar(fmt::format("Такого скелета вы оживить не умеете. Вам подвластны: {}.\r\n", names), ch);
+			return EStageResult::kSuccess;
+		}
+		if (corpse_level < chosen->corpse_min_level || !humanoid) {
+			SendMsgToChar("Эти кости не годятся для такого скелета, из них встанет лишь обычный.\r\n", ch);
+		} else {
+			// По одному каждого вида: потолок суммарной силы свиты держится этим, а не отдельным
+			// счётом урона -- виды разной силы, и каждый бывает только один.
+			for (const auto *follower : ch->followers) {
+				if (follower->IsNpc() && GET_MOB_VNUM(follower) == chosen->proto_vnum) {
+					SendMsgToChar(fmt::format("У вас уже служит {}.\r\n",
+											  follower->player_data.PNames[grammar::ECase::kNom]), ch);
+					return EStageResult::kSuccess;
+				}
+			}
+			mob_num = chosen->proto_vnum;
+		}
+	}
+
+	if (!privilege::IsImmortal(ch) && number(0, 101) < pfail) {
+		const bool fail_sticks = !CanUseFeat(ch, EFeat::kFavorOfDarkness) || number(0, 3) == 0;
+		if (fail_sticks) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
+			ExtractObjFromWorld(obj);
+			return EStageResult::kSuccess;
+		}
+	}
+
+	CharData *mob = ReadMobile(-mob_num, kVirtual);
+	if (!mob) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
+	if (IsSummonTargetProtected(ch, mob, spell_id)) {
+		return EStageResult::kSuccess;
+	}
+	animate_dead::SetupUndeadStats(ch, mob, ctx.CompetenceBase());
+	if (!CheckCharmices(ch, mob, spell_id)) {
+		ExtractCharFromWorld(mob, false);
+		ExtractObjFromWorld(obj);
+		return EStageResult::kSuccess;
+	}
+	const int duration = FinalizeSummonedMob(ch, mob, spell_id, false);
+	mob->SetFlag(EMobFlag::kUndead);
+	// Броня, спасы и инициатива держатся аффектами: affect_total стирает прямую запись.
+	animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
+	if (mob_num != kMobSkeleton) {
+		// issue #4000: метка особого вида. Вешаем именно аффектом, а не флагом в файле моба:
+		// действия на удар (kPostHit) движок ищет в списке аффектов, а флаг из affect_flags
+		// кладёт только бит в affected_by и ничего не запускает. Часть пакета нежити
+		// (kAfCharmBond), поэтому снятию не подлежит.
+		Affect<EApply> mark;
+		mark.affect_type = EAffect::kBoneServant;
+		mark.location = EApply::kNone;
+		mark.modifier = 0;
+		mark.duration = duration;
+		mark.battleflag = {kAfCharmBond};
+		affect_to_char(mob, mark);
+	}
+	mob->SetFlag(EMobFlag::kNoSkillTrain);
+	SpillCorpseContents(ch, obj);
+	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment;
+	return EStageResult::kSuccess;
+}
+
 static EStageResult SpellAnimateDead(ActionContext &ctx) { return CorpseSummon(ctx, false); }
 static EStageResult SpellResurrection(ActionContext &ctx) { return CorpseSummon(ctx, true); }
 
@@ -2991,11 +3129,13 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"SummonTutelar",       handlers::SummonTutelar},
 	{"SpellMentalShadow",   handlers::SpellMentalShadow},
 	{"SpellAnimateDead",    SpellAnimateDead},
+	{"SpellAnimateSkeleton", SpellAnimateSkeleton},
 	{"SpellResurrection",   SpellResurrection},
 	// issue.affect-migration: room-affect per-tick manual handler (was the room_affects tick_handler).
 	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
 	// issue.obj-affects: kWeaponHit obj-affect handler -- a poisoned weapon poisons its strike victim.
 	{"WeaponPoisonHit", handlers::WeaponPoisonHit},
+	{"SkeletonHit", handlers::SkeletonHit},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).

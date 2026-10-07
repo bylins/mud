@@ -535,6 +535,27 @@
 	<affect id="kLacerations">
 		<flags val="kAfBattledec|kAfCurable"/>
 	</affect>
+	<!-- issue #4000: врождённая метка костяных скелетов чернокнижника. Сама ничего не даёт: её
+	     действие стреляет на удар носителя и зовёт обработчик, который по виду скелета кладёт на
+	     жертву нужный дебафф (разъеденный доспех, разъеденный оберег или порезы). Снятию не
+	     подлежит -- это часть вида, а не наложенные чары. -->
+	<affect id="kBoneServant">
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kPostHit"/>
+				<manual_cast handler="SkeletonHit"/>
+			</action>
+		</actions>
+	</affect>
+	<!-- issue #4000: дебаффы костяной свиты. Копятся стаками по удару, потолок стаков считается в
+	     момент наложения по числу живых скелетов хозяина (один скелет -- 12%, два -- 10%, три -- 8%).
+	     Срок в боевых раундах: вне боя дебафф сходит сам. -->
+	<affect id="kCorrodedArmor">
+		<flags val="kAfBattledec|kAfCurable"/>
+	</affect>
+	<affect id="kCorrodedWard">
+		<flags val="kAfBattledec|kAfCurable"/>
+	</affect>
 	<affect id="kCommander"/>
 	<affect id="kEarthAura" buff="Y" dispel_mod="-35">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>

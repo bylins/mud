@@ -195,8 +195,9 @@ enum class EFeat {
 	kCinderburst = 161,		// issue.perk-action-patching P2: block-replace kBurningHands (x3 damage)
 	kPyromancer = 162,		// issue.perk-action-patching P1-selectors: kBurning on all fire damage spells
 	kMaledictor = 163,		// issue.perk-action-patching P3-selectors: category="curse" pilot
+	kBoneCommander = 164,	// issue #4000: костяной полководец -- открывает особые виды скелетов
 	kFirst = kBerserker,
-	kLast = kMaledictor				// !!! Не забываем менять !!!
+	kLast = kBoneCommander				// !!! Не забываем менять !!!
 };
 
 template<>

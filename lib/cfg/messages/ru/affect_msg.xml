@@ -512,6 +512,15 @@
 	<msg_sheaf id="kLacerations">
 		<message type="kShortDesc" val="рваные раны"/>
 	</msg_sheaf>
+	<msg_sheaf id="kBoneServant">
+		<message type="kShortDesc" val="костяной прислужник"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCorrodedArmor">
+		<message type="kShortDesc" val="разъеденный доспех"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCorrodedWard">
+		<message type="kShortDesc" val="разъеденный оберег"/>
+	</msg_sheaf>
 	<msg_sheaf id="kCommander">
 		<message type="kShortDesc" val="полководец"/>
 		<message type="kLook" val="...реет стяг над головой"/>
