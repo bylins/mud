@@ -17,7 +17,6 @@ BOARD_DIR="$WORLD_DIR/etc/board"
 
 CIRCLE_PID=""
 trap 'kill $CIRCLE_PID 2>/dev/null; exit' TERM INT
-
 #############################################################################
 while ( : ) do
   DATE=`date`
