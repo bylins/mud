@@ -1818,18 +1818,32 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 
 	MobVnum mob_num = kMobSkeleton;
 	const auto &tiers = MUD::AnimateDead().Skeletons();
-	if (CanUseFeat(ch, EFeat::kBoneCommander) && !tiers.empty()) {
+	// Ярус без прототипа в мире не предлагаем: движок и мир обновляются порознь, и пока прототипов
+	// нет, заклинание должно поднимать обычного скелета, а не отказывать игроку пустым списком видов.
+	std::vector<const animate_dead::CreatureInfo *> usable;
+	for (const auto &tier : tiers) {
+		if (GetMobRnum(tier.proto_vnum) >= 0) {
+			usable.push_back(&tier);
+		}
+	}
+	if (!tiers.empty() && usable.size() < tiers.size()) {
+		// Раз за перезагрузку: это не ошибка игрока, а недоложенный мир, и знать о нём должны боги.
+		static bool reported = false;
+		if (!reported) {
+			reported = true;
+			log("SYSERR: 'оживить скелет': в мире нет прототипов %zu из %zu видов скелетов "
+				"(первый ярус -- моб #%d), поднимается обычный скелет",
+				tiers.size() - usable.size(), tiers.size(), tiers.front().proto_vnum);
+		}
+	}
+	if (CanUseFeat(ch, EFeat::kBoneCommander) && !usable.empty()) {
 		// Вид называет игрок: это слово, дописанное после трупа. Сверяем со всеми падежными
 		// формами прототипа -- игрок пишет "свирепого", а в именительном стоит "свирепый".
 		const std::string &arg = ctx.cast_extra;
 		std::string names;
 		const animate_dead::CreatureInfo *chosen = nullptr;
-		for (const auto &tier : tiers) {
-			const auto rnum = GetMobRnum(tier.proto_vnum);
-			if (rnum < 0) {
-				continue;
-			}
-			CharData *tier_proto = mob_proto + rnum;
+		for (const auto *tier : usable) {
+			CharData *tier_proto = mob_proto + GetMobRnum(tier->proto_vnum);
 			if (!names.empty()) {
 				names += ", ";
 			}
@@ -1839,7 +1853,7 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 			}
 			for (const auto &form : tier_proto->player_data.PNames) {
 				if (isname(arg, form)) {
-					chosen = &tier;
+					chosen = tier;
 					break;
 				}
 			}
