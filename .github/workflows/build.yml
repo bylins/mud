@@ -3,8 +3,26 @@ name: Build
 on:
   push:
     branches: [ master, world-load-refactoring ]
+    # Правка только документации собирать нечего. paths-ignore пропускает запуск, когда ВСЕ
+    # изменённые файлы попали под список: правка кода вместе с .md соберётся как обычно.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'lib/cfg/**'
+      # Единственный конфиг, который читают юнит-тесты, из пропуска исключаем: правка в нём
+      # должна гонять сборку. Восклицательный знак отменяет предыдущий шаблон (порядок важен).
+      - '!lib/cfg/mechanics/group_exp_handicap.xml'
   pull_request:
     branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'lib/cfg/**'
+      # Единственный конфиг, который читают юнит-тесты, из пропуска исключаем: правка в нём
+      # должна гонять сборку. Восклицательный знак отменяет предыдущий шаблон (порядок важен).
+      - '!lib/cfg/mechanics/group_exp_handicap.xml'
   workflow_dispatch:
 
 concurrency:
