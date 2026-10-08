@@ -1237,8 +1237,15 @@
 		</success_roll>
 		<talent_actions>
 			<action>
+				<!-- Яд наёмника -- связка из нескольких узлов с РАЗНЫМИ типами: сам яд
+				     (kBelenaPoison и прочие), снижение умений (kSkillReduce) и запрет переключения
+				     (kNoBattleSwitch). Снятие идёт по типам, поэтому без двух последних в списке
+				     "удалить яд" убирало только строчку с ядом, а минус к умениям и невозможность
+				     переключиться оставались до конца срока. Все шесть типов помечены kAfPoison в
+				     affects.xml, так что список именно ядовитый и чужих дебаффов не касается.
+				     all_of снимает каждый из перечисленных, который найдётся, а не требует их все. -->
 				<unaffect dispel_bonus="80" affect_flags="kAfCurable" decay="25">
-					<remove all_of="kPoisoned|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
+					<remove all_of="kPoisoned|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison|kSkillReduce|kNoBattleSwitch" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
 			</action>
