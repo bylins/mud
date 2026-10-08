@@ -11,6 +11,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/handlers/bone_commander.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_data.h"
@@ -18,6 +19,8 @@
 #include "gameplay/mechanics/animate_dead.h"
 #include "engine/db/global_objects.h"
 #include "utils/utils.h"
+
+#include <cmath>
 
 namespace {
 
@@ -144,5 +147,72 @@ EStageResult SkeletonHit(ActionContext &ctx) {
 }
 
 }  // namespace handlers
+
+namespace bone_commander {
+
+void RefreshLevy(CharData *master) {
+	if (!master || master->purged()) {
+		return;
+	}
+	// Сумма долей живых скелетов: сколько процентов урона нежить отдаёт свите.
+	double share = 0.0;
+	for (const auto *follower : master->followers) {
+		if (!follower->IsNpc() || follower->purged() || !AFF_FLAGGED(follower, EAffect::kBoneServant)) {
+			continue;
+		}
+		const auto *tier = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(follower));
+		if (tier) {
+			share += tier->damage_share;
+		}
+	}
+	const int levy = static_cast<int>(std::lround(share));
+
+	for (auto *follower : master->followers) {
+		if (!follower->IsNpc() || follower->purged()) {
+			continue;
+		}
+		// Слабеет только нежить от "поднять труп": у её ярусов spell == kAnimateDead. Умертвие от
+		// "оживить труп" поднимается по внуму трупа и в ярусах не числится, его это не касается.
+		const auto *tier = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(follower));
+		if (!tier || tier->spell != ESpell::kAnimateDead) {
+			continue;
+		}
+		int had = 0;
+		for (const auto &af : follower->affected) {
+			if (af->affect_type == EAffect::kBoneLevy && af->location == EApply::kPhysicDamagePercent) {
+				had = -af->modifier;
+				break;
+			}
+		}
+		if (had == levy) {
+			continue;   // ничего не поменялось -- не трогаем и не сообщаем
+		}
+		if (had > 0) {
+			RemoveAffectFromCharAndRecalculate(follower, EAffect::kBoneLevy);
+		}
+		if (levy > 0) {
+			// Срок не тикает: подать держится кодом и живёт, пока жива свита.
+			Affect<EApply> af;
+			af.affect_type = EAffect::kBoneLevy;
+			af.duration = -1;
+			af.caster_id = master->get_uid();
+			af.battleflag = {kAfDeadkeep};
+			af.modifier = -levy;
+			af.location = EApply::kPhysicDamagePercent;
+			affect_to_char(follower, af);
+			af.location = EApply::kMagicDamagePercent;
+			affect_to_char(follower, af);
+		}
+		if (levy > had) {
+			act("$n поник$q, отдав часть своей силы костяной свите.",
+				false, follower, nullptr, nullptr, kToRoom | kToArenaListen);
+		} else if (levy < had) {
+			act("$n расправил$u: костяная свита убыла, и сила вернулась.",
+				false, follower, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
+	}
+}
+
+}  // namespace bone_commander
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

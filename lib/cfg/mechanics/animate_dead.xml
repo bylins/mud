@@ -144,7 +144,7 @@
 	     атаки за раунд (extra_attack="1" в прототипе), поэтому в cap идёт доля на один удар, а
 	     beta выводит вид на свой cap к той же компетенции (около 51), что и василиска. -->
 	<!-- свирепый: ядовитые когти, 33d6 за удар -- 231 за раунд, 6.3% василиска -->
-	<creature vnum="8" id="kFierceSkeleton" spell="kAnimateSkeleton" proto_vnum="3011" weight="0" damroll_cap="50">
+	<creature vnum="8" id="kFierceSkeleton" spell="kAnimateSkeleton" damage_share="6.3" proto_vnum="3011" weight="0" damroll_cap="50">
 		<cost corpse_min_level="26" corpse_max_level="127" min_rating="0" />
 		<scaling>
 			<hp          beta="0.12"  mode="mult" cap="4.0" />
@@ -161,7 +161,7 @@
 		</scaling>
 	</creature>
 	<!-- ловкий: порезы, 26d6 за удар -- 182 за раунд, 4.9% василиска -->
-	<creature vnum="9" id="kNimbleSkeleton" spell="kAnimateSkeleton" proto_vnum="3012" weight="0" damroll_cap="50">
+	<creature vnum="9" id="kNimbleSkeleton" spell="kAnimateSkeleton" damage_share="4.9" proto_vnum="3012" weight="0" damroll_cap="50">
 		<cost corpse_min_level="26" corpse_max_level="127" min_rating="0" />
 		<scaling>
 			<hp          beta="0.12"  mode="mult" cap="4.0" />
@@ -178,7 +178,7 @@
 		</scaling>
 	</creature>
 	<!-- зловонный: дыхание (kGasBreath), 20d6 за удар -- 140 за раунд, 3.8% василиска -->
-	<creature vnum="10" id="kFetidSkeleton" spell="kAnimateSkeleton" proto_vnum="3013" weight="0" damroll_cap="50">
+	<creature vnum="10" id="kFetidSkeleton" spell="kAnimateSkeleton" damage_share="3.8" proto_vnum="3013" weight="0" damroll_cap="50">
 		<cost corpse_min_level="26" corpse_max_level="127" min_rating="0" />
 		<scaling>
 			<hp          beta="0.12"  mode="mult" cap="4.0" />

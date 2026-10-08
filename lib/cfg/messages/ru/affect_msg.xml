@@ -521,6 +521,9 @@
 	<msg_sheaf id="kCorrodedWard">
 		<message type="kShortDesc" val="разъеденный оберег"/>
 	</msg_sheaf>
+	<msg_sheaf id="kBoneLevy">
+		<message type="kShortDesc" val="костяная подать"/>
+	</msg_sheaf>
 	<msg_sheaf id="kCommander">
 		<message type="kShortDesc" val="полководец"/>
 		<message type="kLook" val="...реет стяг над головой"/>

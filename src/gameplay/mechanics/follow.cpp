@@ -16,6 +16,7 @@
 #include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/handlers/bone_commander.h"   // issue #4032: пересчёт костяной подати
 #include "engine/entities/obj_data.h"
 
 #include <fmt/format.h>
@@ -171,6 +172,15 @@ bool CircleFollow(CharData *ch, CharData *victim) {
 // Called when a character that follows/is followed dies.
 // Detaches ch from its master (if any) and dismisses all of ch's followers.
 void DieFollower(CharData *ch) {
+	// issue #4032: костяной слуга выбыл -- нежить хозяина забирает свою силу назад. Считаем до
+	// отцепления, пока лидер ещё известен; сам выбывший в сумму не попадёт, он уже помечен purged
+	// либо уходит из списка следом.
+	if (ch->IsNpc() && ch->has_master() && AFF_FLAGGED(ch, EAffect::kBoneServant)) {
+		CharData *master = ch->get_master();
+		AFF_FLAGS(ch).unset(EAffect::kBoneServant);
+		bone_commander::RefreshLevy(master);
+	}
+
 	if (ch->has_master()) {
 		if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
 			mount::DropFromHorse(ch);
@@ -243,9 +253,18 @@ bool StopFollower(CharData *ch, int mode) {
 		}
 	}
 
-	ch->set_master(nullptr);
-	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-	group::RemoveGroupFlags(ch);
+	// issue #4032: тот же пересчёт при отпускании или истечении чар -- лидера надо знать до обнуления.
+	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kBoneServant)) {
+		CharData *master = ch->get_master();
+		AFF_FLAGS(ch).unset(EAffect::kBoneServant);
+		ch->set_master(nullptr);
+		group::RemoveGroupFlags(ch);
+		bone_commander::RefreshLevy(master);
+	} else {
+		ch->set_master(nullptr);
+		//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		group::RemoveGroupFlags(ch);
+	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
