@@ -21,6 +21,7 @@
 #include "utils/utils.h"
 
 #include <cmath>
+#include <vector>
 
 namespace {
 
@@ -150,33 +151,34 @@ EStageResult SkeletonHit(ActionContext &ctx) {
 
 namespace bone_commander {
 
-void RefreshLevy(CharData *master) {
+void RefreshLevy(CharData *master, const CharData *leaving) {
 	if (!master || master->purged()) {
 		return;
 	}
-	// Сумма долей живых скелетов: сколько процентов урона нежить отдаёт свите.
+	// Сумма долей живых скелетов -- сколько процентов урона свита забирает у нежити, и список самой
+	// нежити, между которой эта цена делится. Слабеет только нежить от "поднять труп": у её ярусов
+	// spell == kAnimateDead. Умертвие от "оживить труп" поднимается по внуму трупа и в ярусах не
+	// числится, его это не касается.
 	double share = 0.0;
-	for (const auto *follower : master->followers) {
-		if (!follower->IsNpc() || follower->purged() || !AFF_FLAGGED(follower, EAffect::kBoneServant)) {
+	std::vector<CharData *> undead;
+	for (auto *follower : master->followers) {
+		if (!follower->IsNpc() || follower->purged() || follower == leaving) {
 			continue;
 		}
 		const auto *tier = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(follower));
-		if (tier) {
+		if (!tier) {
+			continue;
+		}
+		if (AFF_FLAGGED(follower, EAffect::kBoneServant)) {
 			share += tier->damage_share;
+		} else if (tier->spell == ESpell::kAnimateDead) {
+			undead.push_back(follower);
 		}
 	}
-	const int levy = static_cast<int>(std::lround(share));
+	// Подать платится один раз со всей свиты: цену делим между нежитью, а не берём с каждой целиком.
+	const int levy = undead.empty() ? 0 : static_cast<int>(std::lround(share / undead.size()));
 
-	for (auto *follower : master->followers) {
-		if (!follower->IsNpc() || follower->purged()) {
-			continue;
-		}
-		// Слабеет только нежить от "поднять труп": у её ярусов spell == kAnimateDead. Умертвие от
-		// "оживить труп" поднимается по внуму трупа и в ярусах не числится, его это не касается.
-		const auto *tier = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(follower));
-		if (!tier || tier->spell != ESpell::kAnimateDead) {
-			continue;
-		}
+	for (auto *follower : undead) {
 		int had = 0;
 		for (const auto &af : follower->affected) {
 			if (af->affect_type == EAffect::kBoneLevy && af->location == EApply::kPhysicDamagePercent) {

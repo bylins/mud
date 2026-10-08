@@ -172,13 +172,12 @@ bool CircleFollow(CharData *ch, CharData *victim) {
 // Called when a character that follows/is followed dies.
 // Detaches ch from its master (if any) and dismisses all of ch's followers.
 void DieFollower(CharData *ch) {
-	// issue #4032: костяной слуга выбыл -- нежить хозяина забирает свою силу назад. Считаем до
-	// отцепления, пока лидер ещё известен; сам выбывший в сумму не попадёт, он уже помечен purged
-	// либо уходит из списка следом.
-	if (ch->IsNpc() && ch->has_master() && AFF_FLAGGED(ch, EAffect::kBoneServant)) {
-		CharData *master = ch->get_master();
-		AFF_FLAGS(ch).unset(EAffect::kBoneServant);
-		bone_commander::RefreshLevy(master);
+	// issue #4032: выбыл кто-то из свиты -- костяную подать надо пересчитать, пока лидер ещё
+	// известен. Выбывающего передаём отдельно: в списке последователей он пока числится, а в счёте
+	// участвовать не должен. Пересчитываем и на скелете (меняется сумма долей), и на нежити
+	// (меняется делитель).
+	if (ch->IsNpc() && ch->has_master()) {
+		bone_commander::RefreshLevy(ch->get_master(), ch);
 	}
 
 	if (ch->has_master()) {
@@ -254,16 +253,12 @@ bool StopFollower(CharData *ch, int mode) {
 	}
 
 	// issue #4032: тот же пересчёт при отпускании или истечении чар -- лидера надо знать до обнуления.
-	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kBoneServant)) {
-		CharData *master = ch->get_master();
-		AFF_FLAGS(ch).unset(EAffect::kBoneServant);
-		ch->set_master(nullptr);
-		group::RemoveGroupFlags(ch);
-		bone_commander::RefreshLevy(master);
-	} else {
-		ch->set_master(nullptr);
-		//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-		group::RemoveGroupFlags(ch);
+	CharData *levy_master = ch->IsNpc() ? ch->get_master() : nullptr;
+	ch->set_master(nullptr);
+	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+	group::RemoveGroupFlags(ch);
+	if (levy_master) {
+		bone_commander::RefreshLevy(levy_master, ch);
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
