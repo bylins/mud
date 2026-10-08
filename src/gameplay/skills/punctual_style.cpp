@@ -681,16 +681,13 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 // воинов. При теле выше 30 верхняя граница уходила в минус, number() менял границы местами и
 // возвращал отрицательное, а CalcDuration принимал base беззнаковым: минус оборачивался в
 // 2147483618 тиков, и у игрока светилось "кровотечение (35790110 часов)" без всякой возможности
-// снять. Теперь шкала считается от настоящего капа профессии, а размах оставлен прежним -- до 30,
-// как было при капе 30, чтобы сроки не выросли втрое у воинских профессий.
+// снять. Считаем от капа профессии: (кап + 10) - тело, то есть у самого крепкого остаётся десятка,
+// а не единица. Нижняя граница держится на всякий случай -- тело бывает выше капа (боги, мобы).
 int CalcHaemorrhageBand(CharData *victim) {
 	const int cap = victim->IsNpc()
 						? kDefaultBaseStatCap
 						: MUD::Class(victim->GetClass()).GetBaseStatCap(EBaseStat::kCon);
-	const int lowest_con = 10;   // ниже этого тела не бывает даже при генерации
-	const int span = std::max(1, cap - lowest_con);
-	const int left = std::max(0, cap - GetRealCon(victim));
-	return std::max(1, 30 * left / span);
+	return std::max(1, cap + 10 - GetRealCon(victim));
 }
 
 void ImposeHaemorrhage(CharData *ch, int percent) {
