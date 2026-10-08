@@ -232,7 +232,10 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result);
 // skips the skill bonus entirely (flat duration). min/max keep OLD-style semantics: a 0 means
 // "no clamp on that side", a positive value clamps the bonus accordingly. The previous level-based
 // overload was removed once every caller migrated to this one.
+// base приходит int намеренно: раньше он был unsigned, и подсчитанная вызывающим отрицательная
+// база (например number(1, 31 - тело) при теле выше 31) оборачивалась в четыре миллиарда вместо
+// нуля -- аффект получал вечный срок. Отрицательную базу считаем нулевой.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max, int skill_override = -1, bool raw_rounds = false);
+				 int base, unsigned skill_divisor, int min, int max, int skill_override = -1, bool raw_rounds = false);
 
 #endif //BYLINS_AFFECT_DATA_H

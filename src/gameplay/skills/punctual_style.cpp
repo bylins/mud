@@ -678,10 +678,15 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 void ImposeHaemorrhage(CharData *ch, int percent) {
 	Affect<EApply> af[3];
 
+	// Чем крепче телом жертва, тем короче кровотечение. При теле 31 и выше верхняя граница уходила
+	// в ноль или минус: number() просто меняет границы местами и возвращает отрицательное, а
+	// CalcDuration принимает base как unsigned -- минус оборачивался в астрономический срок, игрок
+	// видел "кровотечение (35790110 часов)", и снять его было нельзя. Крепкому телу оставляем
+	// самый короткий срок, а не вечный.
+	const int band = std::max(1, 31 - GetRealCon(ch));
 	af[0].location = EApply::kHpRegen;
 	af[0].modifier = -percent;
-	//TODO: Отрицательное время, если тело больше 31?
-	af[0].duration = CalcDuration(ch, ch, ESkill::kUndefined, number(1, 31 - GetRealCon(ch)), 0, 0, 0);
+	af[0].duration = CalcDuration(ch, ch, ESkill::kUndefined, number(1, band), 0, 0, 0);
 	af[0].affect_type = EAffect::kHaemorrhage;
 	af[0].battleflag = {kAfCurable};
 	af[1].location = EApply::kMoveRegen;

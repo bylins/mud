@@ -1798,10 +1798,14 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 // skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
 // a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max, int skill_override, bool raw_rounds) {
+				 int base, unsigned skill_divisor, int min, int max, int skill_override, bool raw_rounds) {
 	// issue.vampirism-haste: raw_rounds keeps the value in combat-round units (as for NPCs) instead of
 	// converting hours->ticks for PCs -- used by battle-decrementing affects, which are round-measured.
 	const bool no_convert = victim->IsNpc() || raw_rounds;
+	// Отрицательную базу считаем нулевой. Пока base был unsigned, минус от вызывающего (скажем,
+	// number(1, 31 - тело) у кровотечения при теле выше 31) превращался в четыре миллиарда, и аффект
+	// получал вечный срок -- в списке у игрока светилось "35790110 часов".
+	base = std::max(0, base);
 	if (skill_divisor == 0 && min == 0 && max == 0) {
 		return (no_convert ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}
