@@ -38,16 +38,19 @@ int CountBoneServants(CharData *master) {
 // Накопить дебафф на жертве: свой стак добавляется, пока не достигнут потолок. Прибавку правим на
 // месте и перекладываем аффект заново -- affect_total считает итоги по списку, иначе правка не
 // попадёт в статы (тот же приём, что у ядов в poison_affect_join).
-// Возвращает true, если дебафф лёг на жертву впервые -- по этому вызывающий решает, писать ли
-// сообщение в комнату: на каждый удар писать нельзя, потоком зальёт бой.
-bool StackDebuff(CharData *mob, CharData *victim, EAffect type, EApply location,
-				 int per_stack, int max_stacks, int duration) {
+// Что случилось с дебаффом на этом ударе. На каждый удар сообщений не пишем -- потоком зальёт бой,
+// -- но две точки игроку видеть надо: когда дебафф лёг и когда дошёл до потолка.
+enum class EDebuffStep { kStacked, kFirst, kCapped };
+
+EDebuffStep StackDebuff(CharData *mob, CharData *victim, EAffect type, EApply location,
+						int per_stack, int max_stacks, int duration) {
 	for (auto affect_i = victim->affected.begin(); affect_i != victim->affected.end(); ++affect_i) {
 		const auto affect = *affect_i;
 		if (affect->affect_type != type || affect->location != location) {
 			continue;
 		}
-		if (affect->stacks < max_stacks) {
+		const bool was_below_cap = affect->stacks < max_stacks;
+		if (was_below_cap) {
 			++affect->stacks;
 			affect->modifier += per_stack;
 		} else {
@@ -55,10 +58,11 @@ bool StackDebuff(CharData *mob, CharData *victim, EAffect type, EApply location,
 			affect->stacks = max_stacks;
 			affect->modifier = per_stack * max_stacks;
 		}
+		const bool just_capped = was_below_cap && affect->stacks >= max_stacks;
 		affect->duration = duration;
 		RemoveAffect(victim, affect_i);
 		affect_to_char(victim, *affect);
-		return false;
+		return just_capped ? EDebuffStep::kCapped : EDebuffStep::kStacked;
 	}
 
 	Affect<EApply> af;
@@ -70,7 +74,7 @@ bool StackDebuff(CharData *mob, CharData *victim, EAffect type, EApply location,
 	af.caster_id = mob->get_uid();
 	af.battleflag = {kAfBattledec, kAfCurable};
 	affect_to_char(victim, af);
-	return true;
+	return max_stacks > 1 ? EDebuffStep::kFirst : EDebuffStep::kCapped;
 }
 
 // Сколько стаков порезов уже на жертве.
@@ -114,18 +118,37 @@ EStageResult SkeletonHit(ActionContext &ctx) {
 	const int duration = 10;
 
 	if (tier->id == "kFierceSkeleton") {
-		if (StackDebuff(mob, victim, EAffect::kCorrodedArmor, EApply::kPhysicResist, -1, depth, duration)) {
-			act("Ядовитые когти $n1 разъедают доспехи $N1.",
-				false, mob, nullptr, victim, kToRoom | kToArenaListen);
+		switch (StackDebuff(mob, victim, EAffect::kCorrodedArmor, EApply::kPhysicResist, -1, depth, duration)) {
+			case EDebuffStep::kFirst:
+				act("Ядовитые когти $n1 разъедают доспехи $N1.",
+					false, mob, nullptr, victim, kToRoom | kToArenaListen);
+				break;
+			case EDebuffStep::kCapped:
+				act("Доспехи $N1 расползаются под когтями $n1.",
+					false, mob, nullptr, victim, kToRoom | kToArenaListen);
+				break;
+			default: break;
 		}
 	} else if (tier->id == "kFetidSkeleton") {
-		if (StackDebuff(mob, victim, EAffect::kCorrodedWard, EApply::kMagicResist, -1, depth, duration)) {
-			act("Смрадное дыхание $n1 разъедает оберег $N1.",
-				false, mob, nullptr, victim, kToRoom | kToArenaListen);
+		switch (StackDebuff(mob, victim, EAffect::kCorrodedWard, EApply::kMagicResist, -1, depth, duration)) {
+			case EDebuffStep::kFirst:
+				act("Смрадное дыхание $n1 разъедает оберег $N1.",
+					false, mob, nullptr, victim, kToRoom | kToArenaListen);
+				break;
+			case EDebuffStep::kCapped:
+				act("Оберег $N1 истлел в смраде $n1.",
+					false, mob, nullptr, victim, kToRoom | kToArenaListen);
+				break;
+			default: break;
 		}
 	} else if (tier->id == "kNimbleSkeleton") {
 		// Порезы копятся по удару; набралось нужное число -- жертва обессилела и не переключается.
-		StackDebuff(mob, victim, EAffect::kLacerations, EApply::kNone, 0, cuts_needed, duration);
+		// Про сам порог сообщает строка ниже, поэтому здесь говорим только о начале.
+		if (StackDebuff(mob, victim, EAffect::kLacerations, EApply::kNone, 0, cuts_needed, duration)
+				== EDebuffStep::kFirst) {
+			act("Удары $n1 оставляют рваные раны на теле $N1.",
+				false, mob, nullptr, victim, kToRoom | kToArenaListen);
+		}
 		if (CountLacerations(victim) >= cuts_needed && !AFF_FLAGGED(victim, EAffect::kNoBattleSwitch)) {
 			Affect<EApply> af;
 			af.affect_type = EAffect::kNoBattleSwitch;
