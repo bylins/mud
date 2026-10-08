@@ -1064,7 +1064,13 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		spell_id = FixNameAndFindSpellId(help);
 	}
 
-	if (skill_id == ESkill::kUndefined && spell_id == ESpell::kFirst) {
+	// Сравнивать надо с kUndefined: именно его возвращают FindSkillId и FindSpellId, когда названия
+	// не узнали. Проверка стояла на kFirst, под неё неузнанное имя не попадало, и команда шла дальше
+	// с двумя неопределёнными значениями: писала "Превышено максимально возможное значение умения"
+	// (у kUndefined cap=1), объявляла "Вы изменили для X '!UNDEF!' на 1" и клала такую же строку в
+	// лог богов. Само умение при этом не менялось -- запись до SetSkill не доходила, врало только
+	// сообщение.
+	if (skill_id == ESkill::kUndefined && spell_id == ESpell::kUndefined) {
 		SendMsgToChar("Неизвестное умение/заклинание.\r\n", ch);
 		return;
 	}
