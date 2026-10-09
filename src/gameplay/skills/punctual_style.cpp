@@ -19,6 +19,7 @@
 #include "engine/core/obj_handler.h"
 #include "gameplay/mechanics/inventory.h"
 #include "gameplay/magic/magic_utils.h"
+#include "engine/db/global_objects.h"   // MUD::Class -- кап тела профессии для срока кровотечения
 #include "gameplay/mechanics/equipment.h"
 
 #include <fmt/format.h>
@@ -675,13 +676,27 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 	}
 }
 
+// Размах срока кровотечения: чем крепче телом жертва, тем короче. Формула писалась под кап тела 30
+// (оттуда и "31 - тело"), а кап давно зависит от профессии -- 50 у колдунов, 75 у ловкачей, 90 у
+// воинов. При теле выше 30 верхняя граница уходила в минус, number() менял границы местами и
+// возвращал отрицательное, а CalcDuration принимал base беззнаковым: минус оборачивался в
+// 2147483618 тиков, и у игрока светилось "кровотечение (35790110 часов)" без всякой возможности
+// снять. Считаем от капа профессии: (кап + 10) - тело, то есть у самого крепкого остаётся десятка,
+// а не единица. Нижняя граница держится на всякий случай -- тело бывает выше капа (боги, мобы).
+int CalcHaemorrhageBand(CharData *victim) {
+	const int cap = victim->IsNpc()
+						? kDefaultBaseStatCap
+						: MUD::Class(victim->GetClass()).GetBaseStatCap(EBaseStat::kCon);
+	return std::max(1, cap + 10 - GetRealCon(victim));
+}
+
 void ImposeHaemorrhage(CharData *ch, int percent) {
 	Affect<EApply> af[3];
 
+	const int band = CalcHaemorrhageBand(ch);
 	af[0].location = EApply::kHpRegen;
 	af[0].modifier = -percent;
-	//TODO: Отрицательное время, если тело больше 31?
-	af[0].duration = CalcDuration(ch, ch, ESkill::kUndefined, number(1, 31 - GetRealCon(ch)), 0, 0, 0);
+	af[0].duration = CalcDuration(ch, ch, ESkill::kUndefined, number(1, band), 0, 0, 0);
 	af[0].affect_type = EAffect::kHaemorrhage;
 	af[0].battleflag = {kAfCurable};
 	af[1].location = EApply::kMoveRegen;
