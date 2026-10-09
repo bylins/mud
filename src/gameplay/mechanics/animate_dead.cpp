@@ -89,6 +89,8 @@ void AnimateDeadInfo::Load(DataNode data) {
 			// здесь, пока node указывает на вид.
 			const char *dc = node.GetValue("damroll_cap");
 			ci.damroll_cap = (dc && *dc) ? parse::ReadAsInt(dc) : 0;
+			const char *ds = node.GetValue("damage_share");
+			ci.damage_share = (ds && *ds) ? parse::ReadAsDouble(ds) : 0.0;
 			const char *sp = node.GetValue("spell");
 			if (sp && *sp) {
 				ci.spell = parse::ReadAsConstant<ESpell>(sp);

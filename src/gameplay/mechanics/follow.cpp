@@ -16,6 +16,7 @@
 #include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/handlers/bone_commander.h"   // issue #4032: пересчёт костяной подати
 #include "engine/entities/obj_data.h"
 
 #include <fmt/format.h>
@@ -171,6 +172,14 @@ bool CircleFollow(CharData *ch, CharData *victim) {
 // Called when a character that follows/is followed dies.
 // Detaches ch from its master (if any) and dismisses all of ch's followers.
 void DieFollower(CharData *ch) {
+	// issue #4032: выбыл кто-то из свиты -- костяную подать надо пересчитать, пока лидер ещё
+	// известен. Выбывающего передаём отдельно: в списке последователей он пока числится, а в счёте
+	// участвовать не должен. Пересчитываем и на скелете (меняется сумма долей), и на нежити
+	// (меняется делитель).
+	if (ch->IsNpc() && ch->has_master()) {
+		bone_commander::RefreshLevy(ch->get_master(), ch);
+	}
+
 	if (ch->has_master()) {
 		if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
 			mount::DropFromHorse(ch);
@@ -243,9 +252,14 @@ bool StopFollower(CharData *ch, int mode) {
 		}
 	}
 
+	// issue #4032: тот же пересчёт при отпускании или истечении чар -- лидера надо знать до обнуления.
+	CharData *levy_master = ch->IsNpc() ? ch->get_master() : nullptr;
 	ch->set_master(nullptr);
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 	group::RemoveGroupFlags(ch);
+	if (levy_master) {
+		bone_commander::RefreshLevy(levy_master, ch);
+	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)

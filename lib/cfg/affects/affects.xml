@@ -556,6 +556,12 @@
 	<affect id="kCorrodedWard">
 		<flags val="kAfBattledec|kAfCurable"/>
 	</affect>
+	<!-- issue #4032: костяная подать. Пока у чернокнижника жива костяная свита, его нежить от
+	     "поднять труп" теряет столько процентов урона, сколько сумма долей живых скелетов. Срок не
+	     тикает (kAfDeadkeep): штраф снимается и пересчитывается кодом, когда свита меняется. -->
+	<affect id="kBoneLevy">
+		<flags val="kAfDeadkeep"/>
+	</affect>
 	<affect id="kCommander"/>
 	<affect id="kEarthAura" buff="Y" dispel_mod="-35">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfAegis"/>

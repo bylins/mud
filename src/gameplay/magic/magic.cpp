@@ -32,6 +32,7 @@
 #include "gameplay/mechanics/summon.h"
 #include "gameplay/mechanics/animate_dead.h"
 #include "gameplay/mechanics/mob_races.h"   // issue #4000: ENpcRace::kHuman -- труп человекоподобного
+#include "gameplay/handlers/bone_commander.h"   // issue #4032: пересчёт костяной подати
 
 #include <functional>
 #include <map>
@@ -1924,10 +1925,14 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 		mark.duration = duration;
 		mark.battleflag = {kAfCharmBond};
 		affect_to_char(mob, mark);
+		// issue #4032: свита выросла -- нежить хозяина отдаёт ей часть урона.
+		bone_commander::RefreshLevy(ch);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	SpillCorpseContents(ch, obj);
 	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment;
+	// issue #4032: нежить, поднятая при живой костяной свите, приходит уже ослабленной.
+	bone_commander::RefreshLevy(ch);
 	return EStageResult::kSuccess;
 }
 

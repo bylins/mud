@@ -243,6 +243,8 @@ enum class EAffect : Bitvector {
 	kBoneServant = 138,
 	kCorrodedArmor = 139,
 	kCorrodedWard = 140,
+	// issue #4032: нежить "поднять труп" слабеет, пока у хозяина жива костяная свита.
+	kBoneLevy = 141,
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -252,7 +254,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 141;   // kCorrodedWard=140 + 1
+	static constexpr std::size_t count = 142;   // kBoneLevy=141 + 1
 };
 template<>
 struct flag_index_mapping<EAffect> {
