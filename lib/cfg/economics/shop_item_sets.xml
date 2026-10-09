@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <shop_item_sets>
 	<shop_item_set id="AssasineShop" comment="всякая хрень">
 		<item vnum="1992" price="0" />

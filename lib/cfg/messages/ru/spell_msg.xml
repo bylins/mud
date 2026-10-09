@@ -103,7 +103,6 @@
 		<message type="kCastDisappearToRoom" val="$n исчез$q." />
 		<message type="kCastAppearToRoom" val="$n появил$u." />
 	</msg_sheaf>
-
 	<msg_sheaf id="kCureLight">
 		<name val="легкое исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
@@ -799,7 +798,7 @@
 	<msg_sheaf id="kClone">
 		<name val="клонирование" />
 		<message type="kSummonToRoom" val="$n раздвоил$u!" />
-		<message type="kSummonToRoom" val="$n моргнул$g - из воздуха выпала тень $s	." />
+		<message type="kSummonToRoom" val="$n моргнул$g - из воздуха выпала тень $s ." />
 		<message type="kSummonToRoom" val="$n плечом повел$g, и народился $s двойник." />
 		<message type="kSummonFail" val="Разве что плюнуть с досады - ничего не вышло." />
 		<message type="kSummonFail" val="Морок бессильно рассеялся." />
@@ -2300,7 +2299,6 @@
 		<!-- Caster-side rejection when effective Int is too low to summon the shadow. -->
 		<message type="kCustomMsgOne" val="Головные боли мешают работать!" />
 	</msg_sheaf>
-
 	<msg_sheaf id="kIdentify">
 		<name val="идентификация" />
 		<!-- Per-spell override (issue.spell-msg-improve) of the generic kWrongTarget line. -->

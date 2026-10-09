@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!-- issue.animate-dead: warlock construct (animate-dead) parameters. Loaded via CfgManager
      as 'animate_dead'; reload live with `reload animatedead`. See the design in
      claude_1/OUTPUT. Stat scaling is per-creature off the cast competence C (skill_coeff +
@@ -5,193 +6,224 @@
 <animate_dead>
 	<!-- headcount budget = min(<skill>, budget_cap) - sum of held-undead weights -->
 	<control skill="kDarkMagic" budget_cap="75" />
-
 	<creature vnum="0" id="kSkeleton" proto_vnum="3001" weight="8">
 		<cost corpse_max_level="5" min_rating="0" />
 		<scaling>
-			<hp          beta="0.25" mode="mult" cap="2.0" />
-			<damage_dice beta="1.5"  mode="add"  cap="25" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0"    mode="add" />
-			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0"    mode="add" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.25" mode="mult" cap="2.0" />
+			<damage_dice beta="1.5" mode="add" cap="25" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0" mode="add" />
+			<ac beta="0" mode="add" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<creature vnum="1" id="kZombie" proto_vnum="3002" weight="10" damroll_cap="50">
 		<cost corpse_max_level="10" min_rating="0" />
 		<scaling>
-			<hp          beta="0.25" mode="mult" cap="2.0" />
-			<damage_dice beta="1.5"  mode="add"  cap="25" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0"    mode="add" />
-			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0"    mode="add" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.25" mode="mult" cap="2.0" />
+			<damage_dice beta="1.5" mode="add" cap="25" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0" mode="add" />
+			<ac beta="0" mode="add" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<creature vnum="2" id="kBonedog" proto_vnum="3003" weight="11" damroll_cap="50">
 		<cost corpse_max_level="15" min_rating="15" />
 		<scaling>
-			<hp          beta="0.25" mode="mult" cap="2.0" />
-			<damage_dice beta="1.5"  mode="add"  cap="25" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0"    mode="add" />
-			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0"    mode="add" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.25" mode="mult" cap="2.0" />
+			<damage_dice beta="1.5" mode="add" cap="25" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0" mode="add" />
+			<ac beta="0" mode="add" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<creature vnum="3" id="kBonedragon" proto_vnum="3004" weight="17" damroll_cap="100">
 		<cost corpse_max_level="20" min_rating="25" />
 		<scaling>
-			<hp          beta="0.25" mode="mult" cap="2.0" />
-			<damage_dice beta="1.5"  mode="add"  cap="25" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0"    mode="add" />
-			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0"    mode="add" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.25" mode="mult" cap="2.0" />
+			<damage_dice beta="1.5" mode="add" cap="25" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0" mode="add" />
+			<ac beta="0" mode="add" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<creature vnum="4" id="kBonespirit" proto_vnum="3005" weight="25" damroll_cap="100">
 		<cost corpse_max_level="25" min_rating="32" />
 		<scaling>
-			<hp          beta="0.25" mode="mult" cap="2.0" />
-			<damage_dice beta="1.5"  mode="add"  cap="25" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0"    mode="add" />
-			<ac          beta="0"    mode="add" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0"    mode="add" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.25" mode="mult" cap="2.0" />
+			<damage_dice beta="1.5" mode="add" cap="25" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0" mode="add" />
+			<ac beta="0" mode="add" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<creature vnum="5" id="kNecrotank" proto_vnum="3008" weight="75" damroll_cap="200">
 		<cost corpse_max_level="34" min_rating="32" />
 		<scaling>
-			<hp          beta="0.154" mode="mult" cap="9.0" />
-			<damage_dice beta="1.58"  mode="add"  cap="82" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0.3"   mode="add"  cap="40" />
-			<ac          beta="1.0"   mode="add"  cap="-250" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="1.0"   mode="add"  cap="-250" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0.5"   mode="add"  cap="100" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.154" mode="mult" cap="9.0" />
+			<damage_dice beta="1.58" mode="add" cap="82" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0.3" mode="add" cap="40" />
+			<ac beta="1.0" mode="add" cap="-250" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="1.0" mode="add" cap="-250" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0.5" mode="add" cap="100" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<creature vnum="6" id="kNecrodamager" proto_vnum="3007" weight="25" damroll_cap="200">
 		<cost corpse_max_level="127" min_rating="32" pick="50" />
 		<scaling>
-			<hp          beta="0.154" mode="mult" cap="9.0" />
-			<damage_dice beta="1.58"  mode="add"  cap="82" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0.3"   mode="add"  cap="40" />
-			<ac          beta="1.0"   mode="add"  cap="-250" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="1.0"   mode="add"  cap="-250" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0.5"   mode="add"  cap="100" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.154" mode="mult" cap="9.0" />
+			<damage_dice beta="1.58" mode="add" cap="82" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0.3" mode="add" cap="40" />
+			<ac beta="1.0" mode="add" cap="-250" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="1.0" mode="add" cap="-250" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0.5" mode="add" cap="100" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<creature vnum="7" id="kNecrobreather" proto_vnum="3009" weight="75" damroll_cap="200">
 		<cost corpse_max_level="127" min_rating="32" pick="50" />
 		<scaling>
-			<hp          beta="0.154" mode="mult" cap="9.0" />
-			<damage_dice beta="1.15"  mode="add"  cap="60" />
-			<damage_size beta="0"    mode="add" />        <!-- die SIZE / magnitude (dN); 0 = off -->
-			<damage_bonus beta="0"   mode="add" />        <!-- flat +B added to every hit (damroll); 0 = off -->
-			<hitroll     beta="0.3"   mode="add"  cap="40" />
-			<ac          beta="1.0"   mode="add"  cap="-250" />        <!-- lower AC = better; add a cap= to bound -->
-			<skills      beta="0"    mode="add"  cap="200" />
-			<saving      beta="1.0"   mode="add"  cap="-250" />        <!-- all 4 saves; lower = better -->
-			<armor       beta="0.5"   mode="add"  cap="100" />
-			<morale      beta="0"    mode="add" />
-			<initiative  beta="0"    mode="add" />
+			<hp beta="0.154" mode="mult" cap="9.0" />
+			<damage_dice beta="1.15" mode="add" cap="60" />
+			<damage_size beta="0" mode="add" />
+			<!-- die SIZE / magnitude (dN); 0 = off -->
+			<damage_bonus beta="0" mode="add" />
+			<!-- flat +B added to every hit (damroll); 0 = off -->
+			<hitroll beta="0.3" mode="add" cap="40" />
+			<ac beta="1.0" mode="add" cap="-250" />
+			<!-- lower AC = better; add a cap= to bound -->
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="1.0" mode="add" cap="-250" />
+			<!-- all 4 saves; lower = better -->
+			<armor beta="0.5" mode="add" cap="100" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 	<!-- kNecrocaster (3010) intentionally omitted: currently disabled. -->
 	<!-- issue #4000: виды скелетов заклинания "оживить скелет". Лежат тут же, но отдельным
 	     списком: spell="kAnimateSkeleton" уводит их из лестницы "поднять труп", чтобы она их не
-	     выбирала. weight="0" -- скелеты не тратят бюджет свиты, их число ограничено иначе: по
-	     одному каждого вида. corpse_min_level="26" -- труп слабее даёт обычного скелета.
+	     выбирала. weight="0" - скелеты не тратят бюджет свиты, их число ограничено иначе: по
+	     одному каждого вида. corpse_min_level="26" - труп слабее даёт обычного скелета.
 	     Кубики подобраны от суммарного урона чёрного василиска за раунд (3 атаки по 60d40, в
 	     среднем 3690): свирепый 6.3%, ловкий 4.9%, зловонный 3.8%, вместе 15%. У скелетов две
 	     атаки за раунд (extra_attack="1" в прототипе), поэтому в cap идёт доля на один удар, а
 	     beta выводит вид на свой cap к той же компетенции (около 51), что и василиска. -->
-	<!-- свирепый: ядовитые когти, 33d6 за удар -- 231 за раунд, 6.3% василиска -->
+	<!-- свирепый: ядовитые когти, 33d6 за удар - 231 за раунд, 6.3% василиска -->
 	<creature vnum="8" id="kFierceSkeleton" spell="kAnimateSkeleton" damage_share="6.3" proto_vnum="3011" weight="0" damroll_cap="50">
 		<cost corpse_min_level="26" corpse_max_level="127" min_rating="0" />
 		<scaling>
-			<hp          beta="0.12"  mode="mult" cap="4.0" />
-			<damage_dice beta="0.624" mode="add"  cap="33" />
-			<damage_size beta="0"     mode="add" />
-			<damage_bonus beta="0"    mode="add" />
-			<hitroll     beta="0.3"   mode="add"  cap="30" />
-			<ac          beta="0"     mode="add" />
-			<skills      beta="0"     mode="add"  cap="200" />
-			<saving      beta="0"     mode="add" />
-			<armor       beta="0"     mode="add" />
-			<morale      beta="0"     mode="add" />
-			<initiative  beta="0"     mode="add" />
+			<hp beta="0.12" mode="mult" cap="4.0" />
+			<damage_dice beta="0.624" mode="add" cap="33" />
+			<damage_size beta="0" mode="add" />
+			<damage_bonus beta="0" mode="add" />
+			<hitroll beta="0.3" mode="add" cap="30" />
+			<ac beta="0" mode="add" />
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
-	<!-- ловкий: порезы, 26d6 за удар -- 182 за раунд, 4.9% василиска -->
+	<!-- ловкий: порезы, 26d6 за удар - 182 за раунд, 4.9% василиска -->
 	<creature vnum="9" id="kNimbleSkeleton" spell="kAnimateSkeleton" damage_share="4.9" proto_vnum="3012" weight="0" damroll_cap="50">
 		<cost corpse_min_level="26" corpse_max_level="127" min_rating="0" />
 		<scaling>
-			<hp          beta="0.12"  mode="mult" cap="4.0" />
-			<damage_dice beta="0.487" mode="add"  cap="26" />
-			<damage_size beta="0"     mode="add" />
-			<damage_bonus beta="0"    mode="add" />
-			<hitroll     beta="0.3"   mode="add"  cap="30" />
-			<ac          beta="0"     mode="add" />
-			<skills      beta="0"     mode="add"  cap="200" />
-			<saving      beta="0"     mode="add" />
-			<armor       beta="0"     mode="add" />
-			<morale      beta="0"     mode="add" />
-			<initiative  beta="0"     mode="add" />
+			<hp beta="0.12" mode="mult" cap="4.0" />
+			<damage_dice beta="0.487" mode="add" cap="26" />
+			<damage_size beta="0" mode="add" />
+			<damage_bonus beta="0" mode="add" />
+			<hitroll beta="0.3" mode="add" cap="30" />
+			<ac beta="0" mode="add" />
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
-	<!-- зловонный: дыхание (kGasBreath), 20d6 за удар -- 140 за раунд, 3.8% василиска -->
+	<!-- зловонный: дыхание (kGasBreath), 20d6 за удар - 140 за раунд, 3.8% василиска -->
 	<creature vnum="10" id="kFetidSkeleton" spell="kAnimateSkeleton" damage_share="3.8" proto_vnum="3013" weight="0" damroll_cap="50">
 		<cost corpse_min_level="26" corpse_max_level="127" min_rating="0" />
 		<scaling>
-			<hp          beta="0.12"  mode="mult" cap="4.0" />
-			<damage_dice beta="0.370" mode="add"  cap="20" />
-			<damage_size beta="0"     mode="add" />
-			<damage_bonus beta="0"    mode="add" />
-			<hitroll     beta="0.3"   mode="add"  cap="30" />
-			<ac          beta="0"     mode="add" />
-			<skills      beta="0"     mode="add"  cap="200" />
-			<saving      beta="0"     mode="add" />
-			<armor       beta="0"     mode="add" />
-			<morale      beta="0"     mode="add" />
-			<initiative  beta="0"     mode="add" />
+			<hp beta="0.12" mode="mult" cap="4.0" />
+			<damage_dice beta="0.370" mode="add" cap="20" />
+			<damage_size beta="0" mode="add" />
+			<damage_bonus beta="0" mode="add" />
+			<hitroll beta="0.3" mode="add" cap="30" />
+			<ac beta="0" mode="add" />
+			<skills beta="0" mode="add" cap="200" />
+			<saving beta="0" mode="add" />
+			<armor beta="0" mode="add" />
+			<morale beta="0" mode="add" />
+			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
 </animate_dead>

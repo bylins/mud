@@ -420,7 +420,7 @@
 	</msg_sheaf>
 	<!-- Урон от сервера (ловушки, кровотечение): нет наносящего, есть только
 	     сообщения жертве и комнате. Скопировано из lib/misc/messages 495-499. -->
-	<msg_sheaf id="kTriggerDeath"></msg_sheaf>
+	<msg_sheaf id="kTriggerDeath" />
 	<msg_sheaf id="kTunnelDeath">
 		<message type="kFightDeathToVict" val="Пущенная с небес молния оказалась для вас последней. Не стоило гневить Богов." />
 		<message type="kFightDeathToRoom" val="Пущенная с небес молния оказалась для $N1 последней. Не стоило гневить Богов." />

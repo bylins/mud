@@ -8,221 +8,221 @@
 	<msg_sheaf id="kKuna">
 		<name gender="kFemale" search="куны">
 			<singular>
-				<case id="kNom" val="куна"/>
-				<case id="kGen" val="куны"/>
-				<case id="kDat" val="куне"/>
-				<case id="kAcc" val="куну"/>
-				<case id="kIns" val="куной"/>
-				<case id="kPre" val="куне"/>
+				<case id="kNom" val="куна" />
+				<case id="kGen" val="куны" />
+				<case id="kDat" val="куне" />
+				<case id="kAcc" val="куну" />
+				<case id="kIns" val="куной" />
+				<case id="kPre" val="куне" />
 			</singular>
 			<plural>
-				<case id="kNom" val="куны"/>
-				<case id="kGen" val="кун"/>
-				<case id="kDat" val="кунам"/>
-				<case id="kAcc" val="куны"/>
-				<case id="kIns" val="кунами"/>
-				<case id="kPre" val="кунах"/>
+				<case id="kNom" val="куны" />
+				<case id="kGen" val="кун" />
+				<case id="kDat" val="кунам" />
+				<case id="kAcc" val="куны" />
+				<case id="kIns" val="кунами" />
+				<case id="kPre" val="кунах" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kGlory">
 		<name gender="kNeutral" search="слава">
 			<singular>
-				<case id="kNom" val="очко славы"/>
-				<case id="kGen" val="очка славы"/>
-				<case id="kDat" val="очку славы"/>
-				<case id="kAcc" val="очко славы"/>
-				<case id="kIns" val="очком славы"/>
-				<case id="kPre" val="очке славы"/>
+				<case id="kNom" val="очко славы" />
+				<case id="kGen" val="очка славы" />
+				<case id="kDat" val="очку славы" />
+				<case id="kAcc" val="очко славы" />
+				<case id="kIns" val="очком славы" />
+				<case id="kPre" val="очке славы" />
 			</singular>
 			<plural>
-				<case id="kNom" val="очки славы"/>
-				<case id="kGen" val="очков славы"/>
-				<case id="kDat" val="очкам славы"/>
-				<case id="kAcc" val="очки славы"/>
-				<case id="kIns" val="очками славы"/>
-				<case id="kPre" val="очках славы"/>
+				<case id="kNom" val="очки славы" />
+				<case id="kGen" val="очков славы" />
+				<case id="kDat" val="очкам славы" />
+				<case id="kAcc" val="очки славы" />
+				<case id="kIns" val="очками славы" />
+				<case id="kPre" val="очках славы" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kCopperGrivna">
 		<name gender="kFemale" search="медная гривна">
 			<singular>
-				<case id="kNom" val="медная гривна"/>
-				<case id="kGen" val="медной гривны"/>
-				<case id="kDat" val="медной гривне"/>
-				<case id="kAcc" val="медную гривну"/>
-				<case id="kIns" val="медной гривной"/>
-				<case id="kPre" val="медной гривне"/>
+				<case id="kNom" val="медная гривна" />
+				<case id="kGen" val="медной гривны" />
+				<case id="kDat" val="медной гривне" />
+				<case id="kAcc" val="медную гривну" />
+				<case id="kIns" val="медной гривной" />
+				<case id="kPre" val="медной гривне" />
 			</singular>
 			<plural>
-				<case id="kNom" val="медные гривны"/>
-				<case id="kGen" val="медных гривен"/>
-				<case id="kDat" val="медным гривнам"/>
-				<case id="kAcc" val="медные гривны"/>
-				<case id="kIns" val="медными гривнами"/>
-				<case id="kPre" val="медных гривнах"/>
+				<case id="kNom" val="медные гривны" />
+				<case id="kGen" val="медных гривен" />
+				<case id="kDat" val="медным гривнам" />
+				<case id="kAcc" val="медные гривны" />
+				<case id="kIns" val="медными гривнами" />
+				<case id="kPre" val="медных гривнах" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kBronzeGrivna">
 		<name gender="kFemale" search="бронзовая гривна">
 			<singular>
-				<case id="kNom" val="бронзовая гривна"/>
-				<case id="kGen" val="бронзовой гривны"/>
-				<case id="kDat" val="бронзовой гривне"/>
-				<case id="kAcc" val="бронзовую гривну"/>
-				<case id="kIns" val="бронзовой гривной"/>
-				<case id="kPre" val="бронзовой гривне"/>
+				<case id="kNom" val="бронзовая гривна" />
+				<case id="kGen" val="бронзовой гривны" />
+				<case id="kDat" val="бронзовой гривне" />
+				<case id="kAcc" val="бронзовую гривну" />
+				<case id="kIns" val="бронзовой гривной" />
+				<case id="kPre" val="бронзовой гривне" />
 			</singular>
 			<plural>
-				<case id="kNom" val="бронзовые гривны"/>
-				<case id="kGen" val="бронзовых гривен"/>
-				<case id="kDat" val="бронзовым гривнам"/>
-				<case id="kAcc" val="бронзовые гривны"/>
-				<case id="kIns" val="бронзовыми гривнами"/>
-				<case id="kPre" val="бронзовых гривнах"/>
+				<case id="kNom" val="бронзовые гривны" />
+				<case id="kGen" val="бронзовых гривен" />
+				<case id="kDat" val="бронзовым гривнам" />
+				<case id="kAcc" val="бронзовые гривны" />
+				<case id="kIns" val="бронзовыми гривнами" />
+				<case id="kPre" val="бронзовых гривнах" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kSilverGrivna">
 		<name gender="kFemale" search="серебряная гривна">
 			<singular>
-				<case id="kNom" val="серебряная гривна"/>
-				<case id="kGen" val="серебряной гривны"/>
-				<case id="kDat" val="серебряной гривне"/>
-				<case id="kAcc" val="серебряную гривну"/>
-				<case id="kIns" val="серебряной гривной"/>
-				<case id="kPre" val="серебряной гривне"/>
+				<case id="kNom" val="серебряная гривна" />
+				<case id="kGen" val="серебряной гривны" />
+				<case id="kDat" val="серебряной гривне" />
+				<case id="kAcc" val="серебряную гривну" />
+				<case id="kIns" val="серебряной гривной" />
+				<case id="kPre" val="серебряной гривне" />
 			</singular>
 			<plural>
-				<case id="kNom" val="серебряные гривны"/>
-				<case id="kGen" val="серебряных гривен"/>
-				<case id="kDat" val="серебряным гривнам"/>
-				<case id="kAcc" val="серебряные гривны"/>
-				<case id="kIns" val="серебряными гривнами"/>
-				<case id="kPre" val="серебряных гривнах"/>
+				<case id="kNom" val="серебряные гривны" />
+				<case id="kGen" val="серебряных гривен" />
+				<case id="kDat" val="серебряным гривнам" />
+				<case id="kAcc" val="серебряные гривны" />
+				<case id="kIns" val="серебряными гривнами" />
+				<case id="kPre" val="серебряных гривнах" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kGoldGrivna">
 		<name gender="kFemale" search="золотая гривна">
 			<singular>
-				<case id="kNom" val="золотая гривна"/>
-				<case id="kGen" val="золотой гривны"/>
-				<case id="kDat" val="золотой гривне"/>
-				<case id="kAcc" val="золотую гривну"/>
-				<case id="kIns" val="золотой гривной"/>
-				<case id="kPre" val="золотой гривне"/>
+				<case id="kNom" val="золотая гривна" />
+				<case id="kGen" val="золотой гривны" />
+				<case id="kDat" val="золотой гривне" />
+				<case id="kAcc" val="золотую гривну" />
+				<case id="kIns" val="золотой гривной" />
+				<case id="kPre" val="золотой гривне" />
 			</singular>
 			<plural>
-				<case id="kNom" val="золотые гривны"/>
-				<case id="kGen" val="золотых гривен"/>
-				<case id="kDat" val="золотым гривнам"/>
-				<case id="kAcc" val="золотые гривны"/>
-				<case id="kIns" val="золотыми гривнами"/>
-				<case id="kPre" val="золотых гривнах"/>
+				<case id="kNom" val="золотые гривны" />
+				<case id="kGen" val="золотых гривен" />
+				<case id="kDat" val="золотым гривнам" />
+				<case id="kAcc" val="золотые гривны" />
+				<case id="kIns" val="золотыми гривнами" />
+				<case id="kPre" val="золотых гривнах" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kMagicIce">
 		<name gender="kMale" search="волшебный лед">
 			<singular>
-				<case id="kNom" val="осколок волшебного льда"/>
-				<case id="kGen" val="осколка волшебного льда"/>
-				<case id="kDat" val="осколку волшебного льда"/>
-				<case id="kAcc" val="осколок волшебного льда"/>
-				<case id="kIns" val="осколком волшебного льда"/>
-				<case id="kPre" val="осколком волшебного льда"/>
+				<case id="kNom" val="осколок волшебного льда" />
+				<case id="kGen" val="осколка волшебного льда" />
+				<case id="kDat" val="осколку волшебного льда" />
+				<case id="kAcc" val="осколок волшебного льда" />
+				<case id="kIns" val="осколком волшебного льда" />
+				<case id="kPre" val="осколком волшебного льда" />
 			</singular>
 			<plural>
-				<case id="kNom" val="осколки волшебного льда"/>
-				<case id="kGen" val="осколков волшебного льда"/>
-				<case id="kDat" val="осколкам волшебного льда"/>
-				<case id="kAcc" val="осколки волшебного льда"/>
-				<case id="kIns" val="осколками волшебного льда"/>
-				<case id="kPre" val="осколками волшебного льда"/>
+				<case id="kNom" val="осколки волшебного льда" />
+				<case id="kGen" val="осколков волшебного льда" />
+				<case id="kDat" val="осколкам волшебного льда" />
+				<case id="kAcc" val="осколки волшебного льда" />
+				<case id="kIns" val="осколками волшебного льда" />
+				<case id="kPre" val="осколками волшебного льда" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kNogata">
 		<name gender="kFemale" search="ногата">
 			<singular>
-				<case id="kNom" val="ногата"/>
-				<case id="kGen" val="ногаты"/>
-				<case id="kDat" val="ногате"/>
-				<case id="kAcc" val="ногату"/>
-				<case id="kIns" val="ногатой"/>
-				<case id="kPre" val="ногате"/>
+				<case id="kNom" val="ногата" />
+				<case id="kGen" val="ногаты" />
+				<case id="kDat" val="ногате" />
+				<case id="kAcc" val="ногату" />
+				<case id="kIns" val="ногатой" />
+				<case id="kPre" val="ногате" />
 			</singular>
 			<plural>
-				<case id="kNom" val="ногаты"/>
-				<case id="kGen" val="ногат"/>
-				<case id="kDat" val="ногатам"/>
-				<case id="kAcc" val="ногаты"/>
-				<case id="kIns" val="ногатами"/>
-				<case id="kPre" val="ногатах"/>
+				<case id="kNom" val="ногаты" />
+				<case id="kGen" val="ногат" />
+				<case id="kDat" val="ногатам" />
+				<case id="kAcc" val="ногаты" />
+				<case id="kIns" val="ногатами" />
+				<case id="kPre" val="ногатах" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kZlatnik">
 		<name gender="kMale" search="златник">
 			<singular>
-				<case id="kNom" val="златник"/>
-				<case id="kGen" val="златника"/>
-				<case id="kDat" val="златнику"/>
-				<case id="kAcc" val="златник"/>
-				<case id="kIns" val="златником"/>
-				<case id="kPre" val="златнике"/>
+				<case id="kNom" val="златник" />
+				<case id="kGen" val="златника" />
+				<case id="kDat" val="златнику" />
+				<case id="kAcc" val="златник" />
+				<case id="kIns" val="златником" />
+				<case id="kPre" val="златнике" />
 			</singular>
 			<plural>
-				<case id="kNom" val="златники"/>
-				<case id="kGen" val="златников"/>
-				<case id="kDat" val="златникам"/>
-				<case id="kAcc" val="златники"/>
-				<case id="kIns" val="златниками"/>
-				<case id="kPre" val="златниках"/>
+				<case id="kNom" val="златники" />
+				<case id="kGen" val="златников" />
+				<case id="kDat" val="златникам" />
+				<case id="kAcc" val="златники" />
+				<case id="kIns" val="златниками" />
+				<case id="kPre" val="златниках" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kSnowflake">
 		<name gender="kFemale" search="снежинка">
 			<singular>
-				<case id="kNom" val="искристая снежинка"/>
-				<case id="kGen" val="искристой снежинки"/>
-				<case id="kDat" val="искристой снежинке"/>
-				<case id="kAcc" val="искристую снежинку"/>
-				<case id="kIns" val="искристой снежинкой"/>
-				<case id="kPre" val="искристой снежинке"/>
+				<case id="kNom" val="искристая снежинка" />
+				<case id="kGen" val="искристой снежинки" />
+				<case id="kDat" val="искристой снежинке" />
+				<case id="kAcc" val="искристую снежинку" />
+				<case id="kIns" val="искристой снежинкой" />
+				<case id="kPre" val="искристой снежинке" />
 			</singular>
 			<plural>
-				<case id="kNom" val="искристые снежинки"/>
-				<case id="kGen" val="искристых снежинок"/>
-				<case id="kDat" val="искристым снежинкам"/>
-				<case id="kAcc" val="искристые снежинки"/>
-				<case id="kIns" val="искристыми снежинками"/>
-				<case id="kPre" val="искристых снежинках"/>
+				<case id="kNom" val="искристые снежинки" />
+				<case id="kGen" val="искристых снежинок" />
+				<case id="kDat" val="искристым снежинкам" />
+				<case id="kAcc" val="искристые снежинки" />
+				<case id="kIns" val="искристыми снежинками" />
+				<case id="kPre" val="искристых снежинках" />
 			</plural>
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kDefault">
 		<obj_names>
 			<!-- default size tiers for money objects (GetObjName); a currency may override any id -->
-			<obj_name id="kTinyAmountDesc" from="2" val="малюсеньк{adjective_ending} горстк{noun_ending} {currency_name}"/>
-			<obj_name id="kVerySmallAmountDesc" from="21" val="маленьк{adjective_ending} горстк{noun_ending} {currency_name}"/>
-			<obj_name id="kSmallAmountDesc" from="51" val="небольш{adjective_ending} горстк{noun_ending} {currency_name}"/>
-			<obj_name id="kModestAmountDesc" from="151" val="маленьк{adjective_ending} кучк{noun_ending} {currency_name}"/>
-			<obj_name id="kBelowAverageAmountDesc" from="301" val="небольш{adjective_ending} кучк{noun_ending} {currency_name}"/>
-			<obj_name id="kAverageAmountDesc" from="1001" val="кучк{noun_ending} {currency_name}"/>
-			<obj_name id="kAboveAverageAmountDesc" from="5001" val="больш{adjective_ending} кучк{noun_ending} {currency_name}"/>
-			<obj_name id="kBigAmountDesc" from="20001" val="небольш{adjective_ending} горк{noun_ending} {currency_name}"/>
-			<obj_name id="kLargeAmountDesc" from="50001" val="горк{noun_ending} {currency_name}"/>
-			<obj_name id="kVeryLargeAmountDesc" from="75001" val="больш{adjective_ending} горк{noun_ending} {currency_name}"/>
-			<obj_name id="kHugeAmountDesc" from="100001" val="груд{noun_ending_hard} {currency_name}"/>
-			<obj_name id="kEnormousAmountDesc" from="150001" val="больш{adjective_ending} груд{noun_ending_hard} {currency_name}"/>
-			<obj_name id="kGiganticAmountDesc" from="250001" val="гор{noun_ending} {currency_name}"/>
-			<obj_name id="kColossalAmountDesc" from="500001" val="больш{adjective_ending} гор{noun_ending_hard} {currency_name}"/>
-			<obj_name id="kImmenseAmountDesc" from="1000001" val="огромн{adjective_ending} гор{noun_ending_hard} {currency_name}"/>
+			<obj_name id="kTinyAmountDesc" from="2" val="малюсеньк{adjective_ending} горстк{noun_ending} {currency_name}" />
+			<obj_name id="kVerySmallAmountDesc" from="21" val="маленьк{adjective_ending} горстк{noun_ending} {currency_name}" />
+			<obj_name id="kSmallAmountDesc" from="51" val="небольш{adjective_ending} горстк{noun_ending} {currency_name}" />
+			<obj_name id="kModestAmountDesc" from="151" val="маленьк{adjective_ending} кучк{noun_ending} {currency_name}" />
+			<obj_name id="kBelowAverageAmountDesc" from="301" val="небольш{adjective_ending} кучк{noun_ending} {currency_name}" />
+			<obj_name id="kAverageAmountDesc" from="1001" val="кучк{noun_ending} {currency_name}" />
+			<obj_name id="kAboveAverageAmountDesc" from="5001" val="больш{adjective_ending} кучк{noun_ending} {currency_name}" />
+			<obj_name id="kBigAmountDesc" from="20001" val="небольш{adjective_ending} горк{noun_ending} {currency_name}" />
+			<obj_name id="kLargeAmountDesc" from="50001" val="горк{noun_ending} {currency_name}" />
+			<obj_name id="kVeryLargeAmountDesc" from="75001" val="больш{adjective_ending} горк{noun_ending} {currency_name}" />
+			<obj_name id="kHugeAmountDesc" from="100001" val="груд{noun_ending_hard} {currency_name}" />
+			<obj_name id="kEnormousAmountDesc" from="150001" val="больш{adjective_ending} груд{noun_ending_hard} {currency_name}" />
+			<obj_name id="kGiganticAmountDesc" from="250001" val="гор{noun_ending} {currency_name}" />
+			<obj_name id="kColossalAmountDesc" from="500001" val="больш{adjective_ending} гор{noun_ending_hard} {currency_name}" />
+			<obj_name id="kImmenseAmountDesc" from="1000001" val="огромн{adjective_ending} гор{noun_ending_hard} {currency_name}" />
 		</obj_names>
 	</msg_sheaf>
 </currency_msg>
