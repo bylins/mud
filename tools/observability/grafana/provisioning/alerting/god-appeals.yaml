@@ -17,6 +17,12 @@ apiVersion: 1
 # Якорь \[возз — минимальное однозначное сокращение "воззвать" (4 символа;
 # конфликт "возврат" расходится на 4-м символе возв/возз).
 #
+# Текст обязателен: \s+(?P<msg>\S.*) — хотя бы один пробел после команды и первый
+# непробельный символ. "воззвать" без аргумента do_pray_gods не отправляет никому
+# (отвечает "С чем вы хотите обратиться к Богам?" и выходит), а эхо команды в syslog
+# всё равно пишется — на \s*(?P<msg>.*) такая строка матчилась и в канал уходило
+# обращение с пустым текстом. Без метки who строку отбрасывает фильтр who =~ `.+`.
+#
 # parse_mode HTML — имя/VNUM в <code> (тап = копирование по отдельности). Текст —
 # произвольный ввод игрока, поэтому HTML-экранируем его в LogQL (label_format text
 # = regexReplaceAll & < >), т.к. в шаблонах алёртинга Grafana нет функции экранирования.
@@ -94,7 +100,7 @@ groups:
                 type: loki
                 uid: loki
               editorMode: code
-              expr: 'sum by (who, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s*(?P<msg>.*)\]` | who =~ `.+` | who !~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель|Ярило)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
+              expr: 'sum by (who, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s+(?P<msg>\S.*)\]` | who =~ `.+` | who !~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель|Ярило)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
               queryType: instant
               intervalMs: 1000
               maxDataPoints: 43200
@@ -158,7 +164,7 @@ groups:
                 type: loki
                 uid: loki
               editorMode: code
-              expr: 'sum by (who, to, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s+(?P<to>\S+)\s+(?P<msg>.*)\]` | who =~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель|Ярило)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
+              expr: 'sum by (who, to, room, text) (count_over_time({service_name="bylins-bylins-new-4000"} |~ `\[возз` | regexp `^<(?P<who>[^>]+)> \{\s*(?P<room>\d+)\} \[возз\S*\s+(?P<to>\S+)\s+(?P<msg>\S.*)\]` | who =~ `^(Стрибог|Сквиз|Сварог|Магни|Свентовит|Переплут|Бодрич|Числобог|Спорыш|Хорс|Белун|Руевит|Купала|Бальдр|Хмель|Ярило)$` | label_format text=`{{ regexReplaceAll ">" (regexReplaceAll "<" (regexReplaceAll "&" .msg "&amp;") "&lt;") "&gt;" }}` [5m]))'
               queryType: instant
               intervalMs: 1000
               maxDataPoints: 43200
