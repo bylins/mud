@@ -4,15 +4,15 @@
      id="kDefault" is the shared fallback sheaf. -->
 <region_msg>
 	<msg_sheaf id="kDefault">
-		<message type="kName" val="неизвестная область"/>
-		<message type="kShortDesc" val="неизвестно"/>
+		<message type="kName" val="неизвестная область" />
+		<message type="kShortDesc" val="неизвестно" />
 	</msg_sheaf>
 	<msg_sheaf id="0">
-		<message type="kName" val="Киевское княжество"/>
-		<message type="kShortDesc" val="Киев"/>
+		<message type="kName" val="Киевское княжество" />
+		<message type="kShortDesc" val="Киев" />
 	</msg_sheaf>
 	<msg_sheaf id="1">
-		<message type="kName" val="Новгородские земли"/>
-		<message type="kShortDesc" val="Новгород"/>
+		<message type="kName" val="Новгородские земли" />
+		<message type="kShortDesc" val="Новгород" />
 	</msg_sheaf>
 </region_msg>
