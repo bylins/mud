@@ -10,8 +10,33 @@
 #include "administration/ban.h"
 #include "engine/entities/char_data.h"
 
+namespace {
+
+// Что команда умеет. Печатается на пустой вызов и на непонятый ввод: раньше формат не
+// показывался вовсе, пока игрок не угадает полуправильный набор слов.
+void ShowBanUsage(CharData *ch) {
+	SendMsgToChar("&WЗапреты по адресу.&n Формат:\r\n"
+				  "  запрет                             -- список запретов (он же: запрет список)\r\n"
+				  "  запрет -n | -d | -i                -- он же, по богу, по дате, по адресу\r\n"
+				  "  запрет <адрес>                     -- запреты, начинающиеся с этого адреса\r\n"
+				  "  запрет <all|select|new> <адрес> <часов> [причина]   -- поставить запрет\r\n"
+				  "  запрет прокси                      -- список запретов на прокси\r\n"
+				  "  запрет прокси <адрес>              -- запретить прокси\r\n"
+				  "Виды: &Gnew&n -- нельзя создать нового героя, &Gselect&n -- только с меткой site-ok,\r\n"
+				  "      &Gall&n -- вход закрыт всем.\r\n"
+				  "Снять запрет: &Wunban <адрес>&n. То же, что \"запрет <адрес>\", даёт &Wshow ban <адрес>&n.\r\n", ch);
+}
+
+// Слова, которые команда понимает как указание вида запрета, а не как адрес.
+bool IsBanTypeWord(const char *word) {
+	return !str_cmp(word, "all") || !str_cmp(word, "select") || !str_cmp(word, "new");
+}
+
+}  // namespace
+
 void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
+		ShowBanUsage(ch);
 		ban->ShowBannedIp(BanList::SORT_BY_DATE, ch);
 		return;
 	}
@@ -19,7 +44,14 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char flag[kMaxInputLength], site[kMaxInputLength];
 	argument = two_arguments(argument, flag, site);
 
-	if (!str_cmp(flag, "proxy")) {
+	// "запрет список" -- то, что бог набирает первым делом; раньше это слово уходило в разбор
+	// вида запрета и отвечало "Flag must be ALL, SELECT, or NEW".
+	if (!str_cmp(flag, "список") || !str_cmp(flag, "list")) {
+		ban->ShowBannedIp(BanList::SORT_BY_DATE, ch);
+		return;
+	}
+
+	if (!str_cmp(flag, "proxy") || !str_cmp(flag, "прокси")) {
 		if (!*site) {
 			ban->ShowBannedProxy(BanList::SORT_BY_NAME, ch);
 			return;
@@ -32,9 +64,9 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case 'i':
 				case 'I': ban->ShowBannedProxy(BanList::SORT_BY_NAME, ch);
 					return;
-				default: SendMsgToChar("Usage: ban proxy [[-N | -I] | ip] \r\n", ch);
-					SendMsgToChar(" -N : Sort by banner name \r\n", ch);
-					SendMsgToChar(" -I : Sort by banned ip \r\n", ch);
+				default: SendMsgToChar("Формат: запрет прокси [-n | -i | <адрес>]\r\n"
+									   "  -n : по имени бога\r\n"
+									   "  -i : по адресу\r\n", ch);
 					return;
 			};
 		std::string banned_ip(site);
@@ -62,19 +94,21 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			default:;
 		};
 
-	if (!*flag || !*site) {
-		SendMsgToChar("Usage: ban [[-N | -D | -I] | {all | select | new } ip duration [reason]] \r\n", ch);
-		SendMsgToChar("or\r\n", ch);
-		SendMsgToChar(" ban proxy [[-N | -I] | ip] \r\n", ch);
-		SendMsgToChar(" -N : Sort by banner name \r\n", ch);
-		SendMsgToChar(" -D : Sort by ban date \r\n", ch);
-		SendMsgToChar(" -I : Sort by bannd ip \r\n", ch);
+	// Один аргумент, и он не вид запрета -- значит адрес: показываем, что по нему есть. Это
+	// ровно то, что делает "show ban <адрес>"; раньше такой ввод отвечал только форматом.
+	if (*flag && !*site && flag[0] != '-' && !IsBanTypeWord(flag)) {
+		ban->ShowBannedIpByMask(BanList::SORT_BY_DATE, ch, flag);
 		return;
 	}
 
-	if (!(!str_cmp(flag, "select") || !str_cmp(flag, "all")
-		|| !str_cmp(flag, "new"))) {
-		SendMsgToChar("Flag must be ALL, SELECT, or NEW.\r\n", ch);
+	if (!*flag || !*site) {
+		ShowBanUsage(ch);
+		return;
+	}
+
+	if (!IsBanTypeWord(flag)) {
+		SendMsgToChar("Вид запрета бывает all, select или new.\r\n", ch);
+		ShowBanUsage(ch);
 		return;
 	}
 
@@ -84,7 +118,8 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&reason);
 	len = atoi(length);
 	if (!*length || len == 0) {
-		SendMsgToChar("Usage: ban {all | select | new } ip duration [reason]\r\n", ch);
+		SendMsgToChar("Сколько часов держать запрет?\r\n", ch);
+		ShowBanUsage(ch);
 		return;
 	}
 	std::string banned_ip(site);
