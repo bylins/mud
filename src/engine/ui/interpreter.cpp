@@ -732,9 +732,12 @@ cpp_extern const struct command_info cmd_info[] =
 		{"auction", EPosition::kRest, do_gen_comm, 0, kScmdAuction, -1},
 		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
 		{"backstab", EPosition::kStand, DoBackstab, 1, 0, 1},
+		// ВАЖНО: "ban" обязан стоять ПЕРЕД "bank". Поиск команды идёт по префиксу и берёт
+		// первое совпадение, поэтому при обратном порядке "ban" уезжал в банкира и бог
+		// получал "Это нельзя сделать здесь" вместо списка запретов.
+		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"bank", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"balance", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
-		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"bash", EPosition::kFight, do_bash, 1, 0, -1},
 		{"beep", EPosition::kDead, do_beep, kLvlImmortal, 0, 0},
 		{"block", EPosition::kFight, do_block, 0, 0, -1},
