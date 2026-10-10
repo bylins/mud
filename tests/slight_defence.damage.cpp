@@ -24,9 +24,10 @@ TEST(SlightDefenceDamage, NeverSwallowsTheWholeHit) {
 	}
 }
 
-TEST(SlightDefenceDamage, SingleHitPointRoundsAwayAsItAlwaysDid) {
-	// Удар в одну единицу округляется в ноль -- так считала и формула до рефакторинга
-	// (`*dam = *dam * 10 / 15`), так что это не баг, а давняя кромка округления.
+TEST(SlightDefenceDamage, SingleHitPointIsEatenOnPurpose) {
+	// Удар в одну единицу округляется в ноль. Так считала и формула до рефакторинга
+	// (`*dam = *dam * 10 / 15`), и так решено оставить: единица урона ни на что не влияет,
+	// отдельную оговорку ради неё не вводим. Чинить тут нечего.
 	EXPECT_EQ(SlightDefenceDamage(1), 0);
 }
 
