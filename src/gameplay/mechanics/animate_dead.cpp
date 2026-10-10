@@ -63,6 +63,7 @@ int UsedBudget(CharData *ch) {
 void AnimateDeadInfo::Load(DataNode data) {
 	creatures_.clear();
 	skeletons_.clear();
+	grants_.clear();
 	for (auto &node : data.Children()) {
 		const std::string name = node.GetName();
 		if (name == "control") {
@@ -73,6 +74,31 @@ void AnimateDeadInfo::Load(DataNode data) {
 			const char *bc = node.GetValue("budget_cap");
 			if (bc && *bc) {
 				budget_cap_ = parse::ReadAsInt(bc);
+			}
+			continue;
+		}
+		// issue #4038: даровые аффекты. Список один на весь файл, а не на вид: порог называет
+		// заклинание, а не ярус -- "оживить скелет" даёт их и обычному скелету тоже.
+		if (name == "grants") {
+			for (auto &grant : node.Children()) {
+				if (std::string(grant.GetName()) != "grant") {
+					continue;
+				}
+				const std::string affect = parse::AttrStr(grant, "affect");
+				const std::string spell = parse::AttrStr(grant, "spell");
+				if (affect.empty() || spell.empty()) {
+					err_log("animate_dead grant: both spell= and affect= are required");
+					continue;
+				}
+				try {
+					AffectGrant g;
+					g.spell = parse::ReadAsConstant<ESpell>(spell.c_str());
+					g.affect = parse::ReadAsConstant<EAffect>(affect.c_str());
+					g.min_skill = parse::AttrInt(grant, "min_skill");
+					grants_.push_back(g);
+				} catch (std::exception &e) {
+					err_log("animate_dead grant parse error: %s", e.what());
+				}
 			}
 			continue;
 		}
@@ -377,6 +403,26 @@ void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration) {
 			const int save_base = GetSave(const_cast<CharData *>(base), saving);
 			grant(location, down(s.saving, save_base) - save_base);
 		}
+	}
+}
+
+// issue #4038: костяная свита крепчает вместе с хозяином. Аффекты даровые -- ни маны, ни
+// каста: заклинатель перешагнул порог магии тьмы, и поднятый встаёт уже с ними. Часть пакета
+// нежити (kAfCharmBond), поэтому снятию не подлежат и живут столько же, сколько чары.
+void ApplyGrantedAffects(CharData *ch, CharData *mob, ESpell spell_id, int duration) {
+	const auto &cfg = MUD::AnimateDead();
+	const int skill = GetSkill(ch, cfg.ControlSkill());
+	for (const auto &grant : cfg.Grants()) {
+		if (grant.spell != spell_id || skill < grant.min_skill) {
+			continue;
+		}
+		Affect<EApply> af;
+		af.duration = duration;
+		af.modifier = 0;
+		af.location = EApply::kNone;
+		af.affect_type = grant.affect;
+		af.battleflag = {kAfCharmBond};
+		affect_to_char(mob, af);
 	}
 }
 

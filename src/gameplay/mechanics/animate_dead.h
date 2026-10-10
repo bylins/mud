@@ -13,6 +13,7 @@
 #include "engine/boot/cfg_manager.h"
 #include "gameplay/skills/skills.h"   // ESkill
 #include "gameplay/magic/spells_constants.h"   // ESpell -- чьи ярусы описывает <creature>
+#include "gameplay/affects/affect_contants.h"   // EAffect -- что выдаёт <grant>
 
 #include <string>
 #include <vector>
@@ -63,11 +64,20 @@ struct CreatureInfo {
 	CreatureScaling scaling;
 };
 
+// issue #4038: аффект, который поднятый получает даром, когда умение контроля дотянуто до
+// порога. Пороги подбираются на боевом, поэтому живут в данных, а не в коде.
+struct AffectGrant {
+	ESpell spell = ESpell::kAnimateDead;
+	int min_skill = 0;
+	EAffect affect = EAffect::kUndefined;
+};
+
 class AnimateDeadInfo {
 	ESkill control_skill_ = ESkill::kDarkMagic;
 	int budget_cap_ = 75;
 	std::vector<CreatureInfo> creatures_;   // ladder order, weakest -> strongest
 	std::vector<CreatureInfo> skeletons_;   // issue #4000: виды заклинания "оживить скелет"
+	std::vector<AffectGrant> grants_;       // issue #4038: даровые аффекты по порогу умения
 
  public:
 	void Load(parser_wrapper::DataNode data);
@@ -76,6 +86,7 @@ class AnimateDeadInfo {
 	[[nodiscard]] int BudgetCap() const { return budget_cap_; }
 	[[nodiscard]] const std::vector<CreatureInfo> &Creatures() const { return creatures_; }
 	[[nodiscard]] const std::vector<CreatureInfo> &Skeletons() const { return skeletons_; }
+	[[nodiscard]] const std::vector<AffectGrant> &Grants() const { return grants_; }
 	[[nodiscard]] bool empty() const { return creatures_.empty(); }
 	// Tier lookups keyed by the summoned mob's proto vnum.
 	[[nodiscard]] const CreatureInfo *ByProtoVnum(int proto_vnum) const;
@@ -114,6 +125,9 @@ void SetupUndeadStats(CharData *ch, CharData *mob, double competence);
 // прототипной: выдаётся аффектами, поэтому возвращается сама при каждом пересчёте.
 // duration -- срок жизни прибавок, обычно равный сроку чар.
 void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration);
+// issue #4038: навесить на поднятого даровые аффекты своего заклинания -- те, чей порог умения
+// контроля заклинатель уже перешагнул. duration -- срок жизни, обычно равный сроку чар.
+void ApplyGrantedAffects(CharData *ch, CharData *mob, ESpell spell_id, int duration);
 
 }  // namespace animate_dead
 

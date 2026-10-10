@@ -6,6 +6,16 @@
 <animate_dead>
 	<!-- headcount budget = min(<skill>, budget_cap) - sum of held-undead weights -->
 	<control skill="kDarkMagic" budget_cap="75" />
+	<!-- issue #4038: даровые аффекты поднятого. Порог называет само заклинание, а не вид, -->
+	<!-- так что "оживить скелет" выдаёт их и обычному скелету тоже. min_skill считается по -->
+	<!-- умению из <control> (магия тьмы). Снятию не подлежат, живут столько же, сколько чары. -->
+	<grants>
+		<grant spell="kAnimateSkeleton" min_skill="100" affect="kDetectInvisible" />
+		<grant spell="kAnimateSkeleton" min_skill="100" affect="kInfravision" />
+		<grant spell="kAnimateSkeleton" min_skill="120" affect="kFly" />
+		<grant spell="kAnimateSkeleton" min_skill="140" affect="kDetectLife" />
+		<grant spell="kAnimateSkeleton" min_skill="200" affect="kIceShield" />
+	</grants>
 	<creature vnum="0" id="kSkeleton" proto_vnum="3001" weight="8">
 		<cost corpse_max_level="5" min_rating="0" />
 		<scaling>
