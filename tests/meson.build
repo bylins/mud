@@ -36,6 +36,7 @@ test_sources = files(
     'state_manager.cpp',
     'dot.death.credit.cpp',
     'affects.loader.cpp',
+    'animate_dead.grants.cpp',
     'random.noise.cpp',
     'potion.duration.cpp',
     'char.leaders.cpp',

@@ -1774,6 +1774,8 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 		// Броня, спасы, удача и инициатива выдаются аффектами: прямую запись в бонусы
 		// affect_total стирает при каждом пересчёте, а аффекты возвращает сам.
 		animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
+		// issue #4038: даровые аффекты своего заклинания -- по порогу умения контроля.
+		animate_dead::ApplyGrantedAffects(ch, mob, spell_id, duration);
 		// issue #4032: нежить, поднятая при живой костяной свите, приходит уже ослабленной.
 		// Пересчёт нужен именно здесь: свита не изменилась, зато прибавилась нежить, между
 		// которой делится подать, -- и новая должна встать уже со своей долей.
@@ -1917,6 +1919,8 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 	mob->SetFlag(EMobFlag::kUndead);
 	// Броня, спасы и инициатива держатся аффектами: affect_total стирает прямую запись.
 	animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
+	// issue #4038: даровые аффекты по порогу магии тьмы (видеть невидимых, полёт и прочее).
+	animate_dead::ApplyGrantedAffects(ch, mob, spell_id, duration);
 	if (mob_num != kMobSkeleton) {
 		// issue #4000: метка особого вида. Вешаем именно аффектом, а не флагом в файле моба:
 		// действия на удар (kPostHit) движок ищет в списке аффектов, а флаг из affect_flags
