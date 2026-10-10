@@ -49,6 +49,7 @@ test_sources = files(
     'act.makefood.cpp',
     'charmice.damroll.cpp',
     'shop.sale_price.cpp',
+    'slight_defence.damage.cpp',
     'utils.editor.cpp',
     'utils.string.cpp',
     'utils.encoding.cpp',

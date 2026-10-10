@@ -4,6 +4,7 @@
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
+#include "gameplay/fight/common.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/equipment.h"
 
@@ -70,7 +71,7 @@ void ProcessShieldBlock(CharData *ch, CharData *victim, HitData &hit_data) {
 			act("$N немного отразил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
 			act("$n немного отразил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
 			DamageEquipment(victim, EEquipPos::kShield, hit_data.dam, 10);
-			hit_data.dam *= 10 / 15;
+			hit_data.dam = SlightDefenceDamage(hit_data.dam);
 		} else if (prob < 250) {
 			act("Вы частично отразили атаку $N1.", false, victim, nullptr, ch, kToChar);
 			act("$N частично отразил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
