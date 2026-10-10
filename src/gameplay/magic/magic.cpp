@@ -1774,6 +1774,10 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 		// Броня, спасы, удача и инициатива выдаются аффектами: прямую запись в бонусы
 		// affect_total стирает при каждом пересчёте, а аффекты возвращает сам.
 		animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
+		// issue #4032: нежить, поднятая при живой костяной свите, приходит уже ослабленной.
+		// Пересчёт нужен именно здесь: свита не изменилась, зато прибавилась нежить, между
+		// которой делится подать, -- и новая должна встать уже со своей долей.
+		bone_commander::RefreshLevy(ch);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	SpillCorpseContents(ch, obj);
@@ -1931,8 +1935,6 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	SpillCorpseContents(ch, obj);
 	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment;
-	// issue #4032: нежить, поднятая при живой костяной свите, приходит уже ослабленной.
-	bone_commander::RefreshLevy(ch);
 	return EStageResult::kSuccess;
 }
 
