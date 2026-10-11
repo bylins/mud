@@ -16,6 +16,21 @@
 // \TODO Слвбо понятно, зачем тут проверять скиллы. По идее, скилл должен наложить на чара аффект.
 // Дальше мы просто проверяем силу этого аффекта. Потрейнить скилл можно и отдельно.
 
+// Удача скрытности объявляется один раз, а не на каждого моба. Сверку ниже зовут на каждого, кто
+// может напасть, и за одну команду она идёт дважды -- на шаге и в проверке агра после команды
+// (#3887), -- так что в комнате с тремя мобами игрок читал подряд несколько одинаковых строк, а
+// сколько именно, зависело от того, кто из мобов дошёл до этой ветки. Бросок на каждого моба
+// остаётся свой, молчит только повторное сообщение. Метка снимается при входе в комнату
+// (PlaceCharToRoom), при новой попытке умения и тут же при провале -- настоящая новость до игрока
+// доходит всегда.
+static void ActOnce(CharData *ch, CharData *vict, ECharExtraFlag told, const char *msg) {
+	if (ch->Temporary.get(told)) {
+		return;
+	}
+	ch->Temporary.set(told);
+	act(msg, false, ch, nullptr, vict, kToChar);
+}
+
 int SkipHiding(CharData *ch, CharData *vict) {
 	int percent, prob;
 
@@ -35,10 +50,11 @@ int SkipHiding(CharData *ch, CharData *vict) {
 			if (percent > prob) {
 				RemoveAffectFromChar(ch, EAffect::kHide);
 				AFF_FLAGS(ch).unset(EAffect::kHide);
+				ch->Temporary.unset(ECharExtraFlag::kToldHide);
 				act("Вы не сумели остаться незаметным.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kHide, true, vict);
-				act("Вам удалось остаться незаметным.", false, ch, nullptr, vict, kToChar);
+				ActOnce(ch, vict, ECharExtraFlag::kToldHide, "Вам удалось остаться незаметным.");
 				return true;
 			}
 		}
@@ -65,11 +81,12 @@ int SkipCamouflage(CharData *ch, CharData *vict) {
 			if (percent > prob) {
 				RemoveAffectFromChar(ch, EAffect::kDisguise);
 				AFF_FLAGS(ch).unset(EAffect::kDisguise);
+				ch->Temporary.unset(ECharExtraFlag::kToldCamouflage);
 				ImproveSkill(ch, ESkill::kDisguise, false, vict);
 				act("Вы не сумели правильно замаскироваться.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kDisguise, true, vict);
-				act("Ваша маскировка оказалась на высоте.", false, ch, nullptr, vict, kToChar);
+				ActOnce(ch, vict, ECharExtraFlag::kToldCamouflage, "Ваша маскировка оказалась на высоте.");
 				return true;
 			}
 		}
@@ -108,11 +125,13 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 				RemoveAffectFromChar(ch, EAffect::kHide);
 				AFF_FLAGS(ch).unset(EAffect::kHide);
 				AFF_FLAGS(ch).unset(EAffect::kSneak);
+				ch->Temporary.unset(ECharExtraFlag::kToldSneak);
+				ch->Temporary.unset(ECharExtraFlag::kToldHide);
 				ImproveSkill(ch, ESkill::kSneak, false, vict);
 				act("Вы не сумели пробраться незаметно.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kSneak, true, vict);
-				act("Вам удалось прокрасться незаметно.", false, ch, nullptr, vict, kToChar);
+				ActOnce(ch, vict, ECharExtraFlag::kToldSneak, "Вам удалось прокрасться незаметно.");
 				return true;
 			}
 		}

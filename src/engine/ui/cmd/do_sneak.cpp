@@ -31,6 +31,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	RemoveAffectFromCharExceptEquipment(ch, EAffect::kSneak);
 	SendMsgToChar("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
+	ch->Temporary.unset(ECharExtraFlag::kToldSneak);
 	percent = number(1, MUD::Skill(ESkill::kSneak).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
