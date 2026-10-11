@@ -30,29 +30,6 @@ std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	}
 	return nullptr;
 }
-int Account::zero_hryvn(CharData *ch, int val) {
-	const int zone_lvl = zone_table[world[ch->in_room]->zone_rn].mob_level;
-	for (auto &plr : this->players_list) {
-		std::string name = GetNameByUnique(plr);
-		if (name.empty()) {
-			continue;
-		}
-		const auto &player = player_table[GetPtableByUnique(plr)];
-		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
-			if (ch->IsFlagged(EPrf::kTester)) {
-				SendMsgToChar(ch,
-							  "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n",
-							  player.name().c_str(),
-							  val,
-							  player.level,
-							  player.remorts);
-			}
-			val = 0;
-		}
-	}
-	return val;
-}
-
 void Account::complete_quest(int id) {
 	for (auto &x : this->dquests) {
 		if (x.id == id) {

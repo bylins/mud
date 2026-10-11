@@ -60,7 +60,6 @@ class Account {
 	void read_from_file();
 	std::string get_email();
 	bool quest_is_available(int id);
-	int zero_hryvn(CharData *ch, int val);
 	void complete_quest(int id);
 	static std::shared_ptr<Account> get_account(const std::string &email);
 	void show_players(CharData *ch);
