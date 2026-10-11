@@ -197,6 +197,11 @@ const CurrencyInfo *FindBySearch(const std::string &word);
 // Every currency the character effectively holds (per-character container merged with the shared
 // account container for account_shared currencies); non-zero entries only. For display commands.
 [[nodiscard]] std::map<std::string, OwnerCurrencyInfo> HeldByChar(const CharData &ch);
+// Проверка прототипов предметов-денег при загрузке мира: у kMoney номинал задан числом в
+// values[1], и ошибку там некому было заметить -- предмет годами выдавал не ту валюту. Пишет в
+// SYSLOG о номинале несуществующей валютой и о номинале валютой, которую не принимает ни одна
+// лавка. Зовётся из boot_db после загрузки мира и лавок.
+void CheckMoneyPrototypes();
 
 class CurrencyInfoBuilder : public info_container::IItemBuilder<CurrencyInfo> {
  public:
