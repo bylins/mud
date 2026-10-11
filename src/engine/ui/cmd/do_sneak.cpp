@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 
@@ -25,7 +26,9 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы бесшумно крадетесь, отбрасывая тысячи солнечных зайчиков...\r\n", ch);
 		return;
 	}
-	RemoveAffectFromChar(ch, EAffect::kSneak);
+	// Та же беда, что в Appear до правки: снимать весь кража-аффект заодно значило убивать узел
+	// надетой вещи, и её волшебство не возвращалось до перенадевания. Вещевое не трогаем.
+	RemoveAffectFromCharExceptEquipment(ch, EAffect::kSneak);
 	SendMsgToChar("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	percent = number(1, MUD::Skill(ESkill::kSneak).difficulty);
