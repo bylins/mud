@@ -35,7 +35,11 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
 void print_zone_info(CharData *ch);
 const char *print_obj_state(int tm_pct);
 void diag_char_to_char(CharData *i, CharData *ch);
-void Appear(CharData *ch);
+// Раскрыть персонажа: снять незаметность (невидимость, прятки, кража, маскировка) и объявить
+// появление. keep_equipment_stealth=true (по умолчанию) означает "вне боя оставить то, что даёт
+// надетая вещь": её волшебство подавляется только боем, и раскрывать им чара насовсем нельзя.
+// Осознанное раскрытие ("появиться") зовёт с false -- там именно это и просили.
+void Appear(CharData *ch, bool keep_equipment_stealth = true);
 
 
 // issue.chardata-cleaning: "who can see whom" predicates (moved off CharData).
