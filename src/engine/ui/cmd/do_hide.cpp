@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/skills/skills.h"
 #include "engine/db/global_objects.h"
@@ -25,11 +26,6 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsAffectedOrAttempting(ch, EAffect::kHide)) {
-		SendMsgToChar("Вы уже пытаетесь спрятаться.\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Вы слепы и не видите куда прятаться.\r\n", ch);
 		return;
@@ -39,6 +35,16 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Спрятаться?! Да вы сверкаете как корчма во время гулянки!.\r\n", ch);
 		return;
 	}
+
+	// Повторная попытка спрятаться разрешена, и так было всегда: прежний узел прятки снимается, и
+	// бросок идёт заново -- как это делает "подкрасться". Запрет повтора, стоявший здесь с
+	// issue.affect-migration, держала метка неудачной попытки: она живёт столько же, сколько
+	// успех (до ~5 минут на навыке 200), флага не поднимает, и выходило "вы уже пытаетесь
+	// спрятаться" у персонажа, который в "кто" ничего не прячет и спрятаться не может. Если
+	// антиспам на прятку когда-нибудь понадобится, его место -- таймер умения, как IsTimedBySkill
+	// у маскировки, а не метка неудачи.
+	// Волшебство надетой вещи (kAfFromEquipment) не трогаем: его подавляет только бой.
+	RemoveAffectFromCharExceptEquipment(ch, EAffect::kHide);
 
 	SendMsgToChar("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	ch->Temporary.unset(ECharExtraFlag::kFailHide);
