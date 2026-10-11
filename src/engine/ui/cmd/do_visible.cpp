@@ -22,7 +22,9 @@ void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide)
 		|| AFF_FLAGGED(ch, EAffect::kSneak)) {
-		sight::Appear(ch);
+		// Раскрытие по просьбе игрока: вещевую незаметность вне боя тоже снимаем, иначе команда
+		// ничего не делает. Вернуть её можно перенадеванием вещи.
+		sight::Appear(ch, false);
 		SendMsgToChar("Вы перестали быть невидимым.\r\n", ch);
 	} else
 		SendMsgToChar("Вы и так видимы.\r\n", ch);
@@ -37,7 +39,7 @@ void perform_immort_vis(CharData *ch) {
 	}
 
 	SET_INVIS_LEV(ch, 0);
-	sight::Appear(ch);
+	sight::Appear(ch, false);
 	SendMsgToChar("Вы теперь полностью видны.\r\n", ch);
 }
 
