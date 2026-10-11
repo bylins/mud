@@ -24,7 +24,7 @@
 //   1. Бессмертные - всегда OK
 //   2. Нет дубликатов IP - OK
 //   3. Есть proxy запись - проверяем лимит (даже для зарегистрированных)
-//   4. Нет proxy записи - проверяем регистрацию персонажа/email
+//   4. Нет proxy записи - проверяем регистрацию персонажа/email (и на входе, и на автопроверке)
 //   5. Не зарегистрирован - в комнату незарегов
 int check_dupes_host(DescriptorData *d, bool autocheck) {
 	if (!d->character || privilege::IsImmortal(d->character.get()) || d->character->desc->original) {
@@ -54,14 +54,11 @@ int check_dupes_host(DescriptorData *d, bool autocheck) {
 			break;
 	}
 
-	if (!autocheck) {
-		if (RegisterSystem::IsRegistered(d->character.get())) {
-			return 1;
-		}
-		if (RegisterSystem::IsRegisteredEmail(GET_EMAIL(d->character))) {
-			d->registered_email = true;
-			return 1;
-		}
+	// Регистрацию уважает и секундная проверка (autocheck). Прежде она шла только на входе, и
+	// зарегистрированного по мылу, который зашёл с адреса первым, эта же проверка потом уносила
+	// в комнату для незарегистрированных и не выпускала обратно.
+	if (RegisterSystem::IsRegistered(d->character.get())) {
+		return 1;
 	}
 
 	if (d->character->in_room == r_unreg_start_room
