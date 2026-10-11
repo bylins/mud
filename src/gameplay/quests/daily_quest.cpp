@@ -105,17 +105,28 @@ void DoQuest(CharData *ch, int id) {
 	if (zone_lvl < 25 && zone_lvl <= (GetRealLevel(ch) + remort::GetRealRemort(ch) / 5)) {
 		value /= 2;
 	}
+	// Задание считается полученным только если гривны и вправду начислены. Иначе выходило так:
+	// награду отсекали (морт ниже шестого, тестовая зона или обнуление в zero_hryvn), а задание
+	// всё равно списывалось на сутки -- и на следующем заходе игрок читал "сегодня вы уже
+	// получали гривны за выполнение этого задания", не получив ни одной. Предмет с триггера
+	// выдаёт сам триггер и от этого счётчика не зависит, так что не списывать здесь нечем
+	// навредить.
 	if (remort::GetRealRemort(ch) < 6) {
-		SendMsgToChar(ch, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
-	} else if (zone_table[world[ch->in_room]->zone_rn].under_construction) {
-		SendMsgToChar(ch, "Зона тестовая, вашу гривну отобрали боги.\r\n");
-	} else {
-		// валюта дейлика жёстко задана до переписывания системы квестов
-		const long added = currencies::AddHand(*ch, currencies::kCopperGrivnaId, value, true);
-		if (added > 0) {
-			log("Персонаж %s получил %ld единиц награды дневного задания.", GET_NAME(ch), added);
-		}
+		SendMsgToChar(ch, "Глянув на непонятный слиток, вы решили выкинуть его...\r\n");
+		return;
 	}
+	if (zone_table[world[ch->in_room]->zone_rn].under_construction) {
+		SendMsgToChar(ch, "Зона тестовая, вашу гривну отобрали боги.\r\n");
+		return;
+	}
+	// валюта дейлика жёстко задана до переписывания системы квестов
+	const long added = currencies::AddHand(*ch, currencies::kCopperGrivnaId, value, true);
+	if (added <= 0) {
+		// Награду обнулил zero_hryvn (прокачанный чар на аккаунте в низкоуровневой зоне) или
+		// деление пополам. Начислять нечего -- и списывать задание тоже.
+		return;
+	}
+	log("Персонаж %s получил %ld единиц награды дневного задания.", GET_NAME(ch), added);
 	account->complete_quest(id);
 }
 
