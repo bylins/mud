@@ -123,6 +123,10 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 	ch->Temporary.unset(ECharExtraFlag::kFailHide);
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
+	// Новая комната -- новая сверка скрытности, значит про удачу можно сказать снова.
+	ch->Temporary.unset(ECharExtraFlag::kToldHide);
+	ch->Temporary.unset(ECharExtraFlag::kToldSneak);
+	ch->Temporary.unset(ECharExtraFlag::kToldCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar(fmt::format(
 				"{}Комната={}{} {}Свет={}{} {}Освещ={}{} {}Костер={}{} {}Лед={}{} "

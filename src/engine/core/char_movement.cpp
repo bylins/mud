@@ -797,6 +797,10 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	ch->Temporary.unset(ECharExtraFlag::kFailHide);
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
+	// Новая комната -- новая сверка скрытности, значит про удачу можно сказать снова.
+	ch->Temporary.unset(ECharExtraFlag::kToldHide);
+	ch->Temporary.unset(ECharExtraFlag::kToldSneak);
+	ch->Temporary.unset(ECharExtraFlag::kToldCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		// Значения под метками "Солнце" и "Небо" стоят наоборот -- так было и с printf,
 		// поведение не меняю.
