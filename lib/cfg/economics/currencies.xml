@@ -19,7 +19,7 @@
 	</currency>
 	<currency text_id="kSilverGrivna" vnum="4" mode="kEnabled">
 		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
-		<flags account_shared="N" locked="N" />
+		<flags account_shared="N" locked="N" logged="Y" />
 	</currency>
 	<currency text_id="kGoldGrivna" vnum="5" mode="kEnabled">
 		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
