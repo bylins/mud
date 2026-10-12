@@ -481,7 +481,10 @@ void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = 
 	const long change = amount - before;
 	if (with_log && !ch.IsNpc()) {
 		if (info.IsLogged()) {
-			log("Gold: %s %s %ld", ch.get_name().c_str(), change > 0 ? "add" : "remove", change > 0 ? change : -change);
+			// Валюту называем в самой строке: логируемой может быть любая, и без имени куны от
+			// гривен в логе не отличить. Начало строки оставлено как было -- по "Gold:" ищут.
+			log("Gold: %s %s %ld (%s, %s)", ch.get_name().c_str(), change > 0 ? "add" : "remove",
+				change > 0 ? change : -change, id.c_str(), purse == EPurse::kHand ? "hand" : "bank");
 		}
 		if (info.TracksMoneyDrop() && purse == EPurse::kHand && ch.in_room > 0) {
 			MoneyDropStat::add(zone_table[world[ch.in_room]->zone_rn].vnum, change);
