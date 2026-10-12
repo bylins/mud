@@ -1569,6 +1569,11 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
 
+	// В самом конце: нужны и мир, и лавки. Проверяет номинал предметов-денег -- он задан числом
+	// в values[1], и ошибку там некому было заметить.
+	boot_profiler.next_step("Checking money prototypes");
+	currencies::CheckMoneyPrototypes();
+
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
 
