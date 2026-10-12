@@ -33,6 +33,7 @@ test_sources = files(
     'dispellable.affects.cpp',
     'affect.flag.planes.cpp',
     'appear.equipment.stealth.cpp',
+    'register.by_email.cpp',
     'charm.bond.extend.cpp',
     'char.offline_timer.cpp',
     'state_manager.cpp',
