@@ -37,6 +37,7 @@
 #include "gameplay/abilities/abilities_constants.h"   // issue.duration-scale: kNoviceSkillThreshold
 #include "gameplay/fight/fight.h"
 
+#include <algorithm>
 #include <chrono>
 #include "gameplay/core/remort.h"
 
@@ -936,6 +937,45 @@ bool ReconcileEquipmentAffects(CharData *ch) {
 		affect_total(ch);
 	}
 	return restored;
+}
+
+std::vector<ObjData *> FindEquipmentAffectSources(CharData *ch, EAffect affect_type) {
+	std::vector<ObjData *> items;
+	if (!ch || affect_type == EAffect::kUndefined) {
+		return items;
+	}
+	const auto remember = [&items](ObjData *obj) {
+		if (obj && std::find(items.begin(), items.end(), obj) == items.end()) {
+			items.push_back(obj);
+		}
+	};
+	// Сперва узлы: материализованный вещевой аффект помнит вещь в caster_id.
+	for (const auto &af : ch->affected) {
+		if (!af || af->affect_type != affect_type || !IS_SET(af->battleflag, EAffFlag::kAfFromEquipment)) {
+			continue;
+		}
+		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+			ObjData *obj = GET_EQ(ch, i);
+			if (obj && obj->get_id() == af->caster_id) {
+				remember(obj);
+			}
+		}
+	}
+	// Затем сами вещи: беструбный вещевой аффект узла не заводит, его выводит каждый пересчёт
+	// из флагов предмета (см. affect_total). Подавленные не считаем -- они сейчас не действуют.
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *obj = GET_EQ(ch, i);
+		if (!obj || obj->is_affect_suppressed(affect_type)) {
+			continue;
+		}
+		for (const auto &j : equipment_affect) {
+			if (j.aff_affect == affect_type && obj->GetEEquipmentAffect(j.aff_pos)) {
+				remember(obj);
+				break;
+			}
+		}
+	}
+	return items;
 }
 
 // issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
