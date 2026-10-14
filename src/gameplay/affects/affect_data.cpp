@@ -938,6 +938,38 @@ bool ReconcileEquipmentAffects(CharData *ch) {
 	return restored;
 }
 
+ObjData *FindEquipmentStealthSource(CharData *ch, EAffect affect_type) {
+	if (!ch || affect_type == EAffect::kUndefined) {
+		return nullptr;
+	}
+	// Сперва узлы: материализованный вещевой аффект помнит вещь в caster_id.
+	for (const auto &af : ch->affected) {
+		if (!af || af->affect_type != affect_type || !IS_SET(af->battleflag, EAffFlag::kAfFromEquipment)) {
+			continue;
+		}
+		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+			ObjData *obj = GET_EQ(ch, i);
+			if (obj && obj->get_id() == af->caster_id) {
+				return obj;
+			}
+		}
+	}
+	// Затем сами вещи: беструбный вещевой аффект узла не заводит, его выводит каждый пересчёт
+	// из флагов предмета (см. affect_total). Подавленные не считаем -- они сейчас не действуют.
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *obj = GET_EQ(ch, i);
+		if (!obj || obj->is_affect_suppressed(affect_type)) {
+			continue;
+		}
+		for (const auto &j : equipment_affect) {
+			if (j.aff_affect == affect_type && obj->GetEEquipmentAffect(j.aff_pos)) {
+				return obj;
+			}
+		}
+	}
+	return nullptr;
+}
+
 // issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
 // companion buffs that share the per-instance kAfCharmBond flag) and, for an NPC, schedules its
 // extraction and clears the hire price -- the behavior the old RemoveAffectFromChar(ESpell::kCharm)

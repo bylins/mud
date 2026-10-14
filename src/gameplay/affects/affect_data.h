@@ -173,6 +173,11 @@ void RemoveEquipmentAffects(CharData *ch, long source_id);
 // (чистка списка аффектов, смерть, обнуление). Зовётся с тика point_update; у наборов ту же работу
 // делает reconcile_set_affects. Возвращает true, если что-то восстановлено (пересчёт внутри).
 bool ReconcileEquipmentAffects(CharData *ch);
+// Надетая вещь, дающая персонажу эту незаметность -- узлом с kAfFromEquipment или своими флагами
+// волшебства (у беструбных аффектов узла нет, их выводит каждый пересчёт). nullptr, если такой
+// вещи нет. Нужна команде "появиться": волшебство вещи ей не подчиняется, и вместо "вы теперь
+// видны" честнее назвать вещь.
+ObjData *FindEquipmentStealthSource(CharData *ch, EAffect affect_type);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 // issue.equipment-affects-improve: like RemoveAffectFromChar, but keeps affects materialized
 // from worn equipment (kAfFromEquipment) -- used by Appear() so an aggressive action strips
