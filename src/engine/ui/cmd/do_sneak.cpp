@@ -36,7 +36,11 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
 	Affect<EApply> af;
-	af.duration = CalcDuration(ch, ch, ESkill::kSneak, 0, 20, 0, 1);
+	// Нижняя граница 1, иначе при навыке меньше делителя срок выходит нулевым и кража слетает на
+	// первом же тике -- через пару секунд после "вы попытаетесь двигаться бесшумно". Старая
+	// формула (до перехода на навык) считала в секундах и до нуля не доходила: на первом уровне
+	// давала около семи секунд. Новая считает целыми игровыми часами, и 19/20 часа = 0.
+	af.duration = CalcDuration(ch, ch, ESkill::kSneak, 0, 20, 1, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag.clear();
