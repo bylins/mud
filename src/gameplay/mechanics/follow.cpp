@@ -252,14 +252,21 @@ bool StopFollower(CharData *ch, int mode) {
 		}
 	}
 
-	// issue #4032: тот же пересчёт при отпускании или истечении чар -- лидера надо знать до обнуления.
+	// issue #4032: тот же пересчёт при отпускании или истечении чар -- лидера надо знать до
+	// обнуления. Сам пересчёт зовём ниже, не здесь: он объявляет "костяная свита убыла, и сила
+	// вернулась", и эта строка должна идти ПОСЛЕ сообщения об уходе скелета, иначе выходило
+	// задом наперёд -- нежить уже расправилась, а скелета ещё не развеяло.
 	CharData *levy_master = ch->IsNpc() ? ch->get_master() : nullptr;
 	ch->set_master(nullptr);
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 	group::RemoveGroupFlags(ch);
-	if (levy_master) {
-		bone_commander::RefreshLevy(levy_master, ch);
-	}
+	// Зовётся один раз, какой бы ветвью функция ни ушла.
+	const auto refresh_levy = [&levy_master, ch]() {
+		if (levy_master) {
+			bone_commander::RefreshLevy(levy_master, ch);
+			levy_master = nullptr;
+		}
+	};
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
@@ -277,6 +284,7 @@ bool StopFollower(CharData *ch, int mode) {
 		if (ch->IsNpc()) {
 			if (ch->IsFlagged(EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
+				refresh_levy();   // после строки об уходе, пока персонаж ещё в мире
 				GET_LASTROOM(ch) = ch->in_room;
 				PerformDropGold(ch, currencies::GetHand(*ch, currencies::kGold));
 				currencies::SetHand(*ch, currencies::kGold, 0);
@@ -320,6 +328,7 @@ bool StopFollower(CharData *ch, int mode) {
 		RestoreServiceFlagsFromProto(ch, mob_proto + i);
 	}
 
+	refresh_levy();
 	return (false);
 }
 
