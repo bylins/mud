@@ -79,8 +79,11 @@ void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 						  worn.size() > 1 ? "снимите эти вещи." : "снимите вещь.");
 			return;
 		}
+		// О невидимости говорим только тогда, когда она была: прятка, подкрадывание и маскировка
+		// невидимым не делают, и прежняя строка на них врала.
+		const bool was_invisible = AFF_FLAGGED(ch, EAffect::kInvisible);
 		sight::Appear(ch, false);
-		SendMsgToChar("Вы перестали быть невидимым.\r\n", ch);
+		SendMsgToChar(was_invisible ? "Вы перестали быть невидимым.\r\n" : "Вы перестали скрываться.\r\n", ch);
 	} else
 		SendMsgToChar("Вы и так видимы.\r\n", ch);
 }

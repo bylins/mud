@@ -608,7 +608,10 @@ cpp_extern const struct command_info cmd_info[] =
 		{"почта", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"пополнить", EPosition::kStand, do_refill, 0, 0, 300},
 		{"поручения", EPosition::kRest, do_quest, 1, 0, -1},
-		{"появиться", EPosition::kRest, do_visible, 1, 0, -1},
+		// Снятие прятки (последнее поле) оставлено нулём намеренно: раскрытием занимается сама
+		// команда. С -1 check_hiding_cmd успевал снять прятку до вызова do_visible, и игрок
+		// читал "вы прекратили прятаться" и тут же "вы и так видимы".
+		{"появиться", EPosition::kRest, do_visible, 1, 0, 0},
 		{"правила", EPosition::kDead, DoGenericPage, 0, kScmdPolicies, 0},
 		{"предложение", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), 500},
 		//{"призвать", EPosition::kStand, do_summon, 1, 0, -1},
@@ -951,7 +954,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"value", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"vedun", EPosition::kDead, vedun::do_vedun, kLvlImplementator, 0, 0},
 		{"version", EPosition::kDead, DoGenericPage, 0, kScmdVersion, 0},
-		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
+		{"visible", EPosition::kRest, do_visible, 1, 0, 0},  // ноль -- см. "появиться"
 		{"vnum", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},
 		{"вномер", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
 		{"vstat", EPosition::kDead, DoVstat, 0, 0, 0},
