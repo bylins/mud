@@ -477,9 +477,9 @@
 		<message type="kFightMissToChar" val="$N избежал$G вашего огненного дыхания." />
 		<message type="kFightMissToVict" val="$n дыхнул$g на вас огнем, но вы избежали этой &quot;радости&quot;." />
 		<message type="kFightMissToRoom" val="$N избежал$G огненного дыхания $n1." />
-		<message type="kFightHitToChar" val="Вы поджарили $N3." />
-		<message type="kFightHitToVict" val="$n поджарил$g вас." />
-		<message type="kFightHitToRoom" val="$N подгорел$G в нескольких местах, когда $n дыхнул$g на н$S огнем." />
+		<message type="kFightHitToChar" val="Вы {intensity}поджарили $N3 огненным дыханием." />
+		<message type="kFightHitToVict" val="$n {intensity}поджарил$g вас огненным дыханием." />
+		<message type="kFightHitToRoom" val="$n {intensity}поджарил$g $N3 огненным дыханием." />
 		<message type="kFightGodToChar" val="$N - бессмертн$W. Это бесполезно." />
 		<message type="kFightGodToVict" val="$n согрел$g вас." />
 		<message type="kFightGodToRoom" val="$n согрел$g $N3." />
@@ -492,9 +492,9 @@
 		<message type="kFightMissToChar" val="Вы дыхнули на $N3, но вонь не достигла цели." />
 		<message type="kFightMissToVict" val="$n дыхнул$g на вас, но это не возымело эффекта." />
 		<message type="kFightMissToRoom" val="$N избежал$G газовой атаки от $n1." />
-		<message type="kFightHitToChar" val="Вы ударили по $N2 газовым дыханием." />
-		<message type="kFightHitToVict" val="$n напустил$g на вас газ." />
-		<message type="kFightHitToRoom" val="$n напустил$g газ на $N3." />
+		<message type="kFightHitToChar" val="Вы {intensity}отравили $N3 зловонным дыханием." />
+		<message type="kFightHitToVict" val="$n {intensity}отравил$g вас зловонным дыханием." />
+		<message type="kFightHitToRoom" val="$n {intensity}отравил$g $N3 зловонным дыханием." />
 		<message type="kFightGodToChar" val="$N бессмертн$W... так что..." />
 		<message type="kFightGodToVict" val="$n захотел$g пустить на вас газ, но не смог$q." />
 		<message type="kFightGodToRoom" val="$n попытал$u пустить газ на $N3, но не смог$q." />
@@ -507,9 +507,9 @@
 		<message type="kFightMissToChar" val="$n промахнул$u, попытавшись заморозить вас своим ледяным дыханием." />
 		<message type="kFightMissToVict" val="$n дыхнул$g на вас холодом, но вы слишком разгорячились и не почувствовали этого." />
 		<message type="kFightMissToRoom" val="$N избежал$G участи стать ледышкой от холодного дыхания $n1." />
-		<message type="kFightHitToChar" val="$N согнул$U от вашего холода." />
-		<message type="kFightHitToVict" val="$n заморозил$g вас, сильно дунув." />
-		<message type="kFightHitToRoom" val="$N медленно покрывается льдом, после морозного дыхания $n1." />
+		<message type="kFightHitToChar" val="Вы {intensity}обморозили $N3 ледяным дыханием." />
+		<message type="kFightHitToVict" val="$n {intensity}обморозил$g вас ледяным дыханием." />
+		<message type="kFightHitToRoom" val="$n {intensity}обморозил$g $N3 ледяным дыханием." />
 		<message type="kFightGodToChar" val="$N - бессмертн$W. Зря вы так..." />
 		<message type="kFightGodToVict" val="$n согрел$g вас." />
 		<message type="kFightGodToRoom" val="$n согрел$g $N3." />
@@ -522,9 +522,9 @@
 		<message type="kFightMissToChar" val="Вы дыхнули на $N3 кислотой, но $E избежал$G попадания!" />
 		<message type="kFightMissToVict" val="$n вздумал$g убить вас своим кислотным дыханием, но вам еще мила жизнь." />
 		<message type="kFightMissToRoom" val="Кислотное дыхание $n1 прошло мимо $N1." />
-		<message type="kFightHitToChar" val="$N пропитывается кислотой." />
-		<message type="kFightHitToVict" val="$n заставил$g вас быстро заткнуть нос от кислотного запаха." />
-		<message type="kFightHitToRoom" val="$N бьется в судорогах от кислотного дыхания $n1." />
+		<message type="kFightHitToChar" val="Вы {intensity}разъели $N3 кислотным дыханием." />
+		<message type="kFightHitToVict" val="$n {intensity}разъел$g вас кислотным дыханием." />
+		<message type="kFightHitToRoom" val="$n {intensity}разъел$g $N3 кислотным дыханием." />
 		<message type="kFightGodToChar" val="$N - бессмертн$W и $M все нипочем." />
 		<message type="kFightGodToVict" val="$n помог$q вам избавиться от кислотного отравления." />
 		<message type="kFightGodToRoom" val="$n помог$q $N2 очиститься от кислоты." />
@@ -537,9 +537,9 @@
 		<message type="kFightMissToChar" val="Вы не попали в $N3 своим ослепляющим дыханием." />
 		<message type="kFightMissToVict" val="$n дыхнул$g на вас слепотой, но зачем вам терять зрение в самом расцвете сил?" />
 		<message type="kFightMissToRoom" val="$N избежал$G воздействия ослепляющего дыхания $n1." />
-		<message type="kFightHitToChar" val="Вы ослепили $N3 своим дыханием." />
-		<message type="kFightHitToVict" val="$n ослепил$g вас своим дыханием." />
-		<message type="kFightHitToRoom" val="$N ослеплен$A дыханием $n1." />
+		<message type="kFightHitToChar" val="Вы {intensity}опалили $N3 дыханием тьмы." />
+		<message type="kFightHitToVict" val="$n {intensity}опалил$g вас дыханием тьмы." />
+		<message type="kFightHitToRoom" val="$n {intensity}опалил$g $N3 дыханием тьмы." />
 		<message type="kFightGodToChar" val="$N - бессмертн$W, у н$S есть иммунитет к ослепляющему дыханию." />
 		<message type="kFightGodToVict" val="$n попытался ослепить вас своим дыханием." />
 		<message type="kFightGodToRoom" val="$n попытался ослепить $N3 своим дыханием." />
