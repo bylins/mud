@@ -1836,9 +1836,14 @@ void process_npc_attack(CharData *ch) {
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	// переключение
+	// Безумный моб держится за ту же жертву, как отравленный татью (#4057): помутившийся разум
+	// нового врага не выбирает. Готовый признак kNoBattleSwitch здесь не взять -- он из отравного
+	// набора (kAfPoison в affects.xml), и безумие снималось бы противоядием, а цель светилась бы
+	// "(отравлен)" тому, кто видит отраву.
 	if (MAY_LIKES(ch)
 		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& !AFF_FLAGGED(ch, EAffect::kNoBattleSwitch)
+		&& !AFF_FLAGGED(ch, EAffect::kMadness)
 		&& GetRealInt(ch) > number(15, 25)) {
 		mob_ai::perform_mob_switch(ch);
 	}
