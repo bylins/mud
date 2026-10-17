@@ -870,7 +870,7 @@ static void RunBreathHitTriggers(CharData *ch, CharData *victim, int dam) {
 
 // issue #4000: возвращает нанесённый урон (-1, если жертва погибла, 0 если сопротивилась) --
 // по нему вызывающий решает, стрелять ли триггерам аффектов на удар.
-int DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath) {
+int DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath, fight::AttackType weapon) {
 	if (!pk_agro_action(ch, victim)) {
 		return 0;
 	}
@@ -883,6 +883,19 @@ int DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath)
 	}
 	Damage breath_dmg(SimpleDmg(breath.source), dam, fight::kMagicDmg);
 	breath_dmg.element = breath.element;
+	// issue #4067: дыхание не проверяет попадание, поэтому каждая атака дышащего за раунд
+	// печатала комнате свою строку, и в групповом бою из этого выходил столбик одинаковых
+	// строк. Озвучивает первый удар раунда, прочие дыхания наносят урон молча -- тем же
+	// приёмом, каким молчит ответ магического зеркала. Первый удар -- это тот, которым моб
+	// бьёт первой рукой: обычно правой, а при отбитой правой (kStopRight вешает пинок)
+	// первой идёт левая. Ту же руку и тем же способом выбирают stun.cpp и backstab.cpp.
+	// Смертельный удар озвучивается всегда: в Process урон может только уменьшиться,
+	// поэтому dam меньше текущих хитов -- верный признак, что жертва выживет и строка о
+	// смерти с молчанием не потеряется.
+	const auto first_hand = AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand;
+	if (weapon != first_hand && dam < victim->get_hit()) {
+		breath_dmg.SilenceGenericMsg();
+	}
 	return breath_dmg.Process(ch, victim);
 }
 }  // namespace
@@ -956,7 +969,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 					if (privilege::IsImmortal(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
 					if (tch != ch && !group::same_group(ch, tch)) {
-						const int breath_dam = DealBreathDamage(ch, tch, breath);
+						const int breath_dam = DealBreathDamage(ch, tch, breath, weapon);
 						if (ch->purged())
 							return;
 						RunBreathHitTriggers(ch, tch, breath_dam);
@@ -966,7 +979,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				}
 				return;
 			}
-			const int breath_dam = DealBreathDamage(ch, victim, breath);
+			const int breath_dam = DealBreathDamage(ch, victim, breath, weapon);
 			RunBreathHitTriggers(ch, victim, breath_dam);
 			return;
 		}
