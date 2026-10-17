@@ -4878,6 +4878,13 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 			const bool can_block = action.GetTriggerReturn().has_value() || !action.GetManualHandler().empty();
 			if (phase == EEntryTriggerPhase::kBlockCheck && !can_block) { continue; }
 			if (phase == EEntryTriggerPhase::kEffectsNonBlocking && can_block) { continue; }
+			// Действию без следствий в проходе за следствиями делать нечего. Печать -- ровно
+			// такая: один вердикт <trigger return="0"/> и больше ничего. А принудительный вход
+			// (перенос скакуна за седоком, телепорт, бегство) вердикта не смотрит -- отменить
+			// его нечем, -- и печать печатала "незримая преграда не пускает коня внутрь" тому,
+			// кто уже вошёл, на каждом шаге. Вердикт никуда не делся: его по-прежнему
+			// спрашивают в kBlockCheck, когда вход ещё можно отменить.
+			if (phase != EEntryTriggerPhase::kBlockCheck && !action.HasEffects()) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast this entry
 			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength,
