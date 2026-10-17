@@ -892,7 +892,7 @@
 	<msg_sheaf id="kStunning">
 		<name val="каменное проклятие" />
 		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
-		<message type="kKnockdownToRoom" val="Каменное проклятие отшибло сознание у $n2." />
+		<message type="kKnockdownToRoom" val="Каменное проклятие отшибло сознание у $n1." />
 		<message type="kFightDeathToChar" val="Ваше каменное проклятие оглушило $N3, после чего $E умер$Q." />
 		<message type="kFightDeathToVict" val="$n проклял$g вас своим каменным проклятием. Вы умираете." />
 		<message type="kFightDeathToRoom" val="$n превратил$g $N3 в камень. Пусть земля будет $M пухом." />
@@ -911,7 +911,7 @@
 	<msg_sheaf id="kVacuum">
 		<name val="круг пустоты" />
 		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
-		<message type="kKnockdownToRoom" val="Круг пустоты отшиб сознание у $n2." />
+		<message type="kKnockdownToRoom" val="Круг пустоты отшиб сознание у $n1." />
 		<message type="kFightDeathToChar" val="Ваш круг пустоты покрыл $N3, котор$W так и не смог$Q из него выбраться." />
 		<message type="kFightDeathToChar" val="$N задохнул$U, когда не смог$Q выбраться из вашего круга пустоты." />
 		<message type="kFightDeathToVict" val="$n наложил$g на вас круг пустоты. В глазах стало темно..." />
