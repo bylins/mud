@@ -888,6 +888,13 @@ class Action {
 	[[nodiscard]] int GetTriggerPointsCategory() const { return trigger_points_category_; }
 	[[nodiscard]] std::optional<int> GetTriggerReturn() const { return trigger_return_; }
 	[[nodiscard]] std::optional<int> GetTriggerProb() const { return trigger_prob_; }
+	// Есть ли у действия хоть одно следствие: проявление (урон, аффект, вызов, ...), рукописный
+	// обработчик или вложенный каст. Действие без следствий живёт ради одного вердикта
+	// <trigger return=> -- такова печать, которая просто не пускает. Там, где вердикт не смотрят,
+	// такому действию делать нечего.
+	[[nodiscard]] bool HasEffects() const {
+		return !manifestations_.empty() || !manual_handler_.empty() || !side_spells_.empty();
+	}
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster
