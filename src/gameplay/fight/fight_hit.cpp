@@ -531,7 +531,11 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kHold)) {
-		bool success = CalcCurrentSkill(ch, ESkill::kAwake, victim)
+		// Бросок делает тот, кто защищается осторожкой, -- victim. С разделения train_skill на
+		// CalcCurrentSkill + TrainSkill (2021) сюда попал ch, то есть нападающий: у мобов осторожки
+		// нет, CalcCurrentSkill возвращал 0, и штраф не срабатывал вовсе, а в pvp доставался тому,
+		// кто бьёт. TrainSkill ниже всё это время качал victim -- по нему и выправляем.
+		bool success = CalcCurrentSkill(victim, ESkill::kAwake, ch)
 			>= number(1, MUD::Skill(ESkill::kAwake).difficulty);
 		if (success) {
 			// > и зачем так? кто балансом занимается поправте.
