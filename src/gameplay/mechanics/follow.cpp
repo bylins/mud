@@ -200,7 +200,22 @@ void DieFollower(CharData *ch) {
 	}
 
 	while (!ch->followers.empty()) {
-		StopFollower(ch->followers.front(), kSfMasterdie);
+		CharData *follower = ch->followers.front();
+		// Имя и внум снимаем до вызова: в части веток StopFollower доводит ведомого до
+		// extract_char, и после возврата читать из него уже нельзя.
+		const std::string follower_name = follower->get_name();
+		const auto follower_vnum = GET_MOB_VNUM(follower);
+		StopFollower(follower, kSfMasterdie);
+		// issue #4083: StopFollower снимает ведомого с того, кого тот САМ считает хозяином.
+		// Если список и указатель разошлись -- у ведомого хозяина нет вовсе или это кто-то
+		// другой, -- из нашего списка он не уйдёт, и цикл крутится вечно, заваливая лог
+		// строками "stop_follower(...) without master". Сервер при этом встаёт колом.
+		// Рассогласование рвём здесь: ведомый всё равно уходит вместе с хозяином.
+		if (!ch->followers.empty() && ch->followers.front() == follower) {
+			log("SYSERR: DieFollower: %s #%d числится в свите %s #%d, а сам того хозяином не считает.",
+				follower_name.c_str(), follower_vnum, GET_NAME(ch), GET_MOB_VNUM(ch));
+			ch->followers.remove(follower);
+		}
 	}
 }
 
