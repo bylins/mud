@@ -136,6 +136,29 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 	return save;
 }
 
+// Осторожный стиль добавляет к спас-броскам. Отдельной функцией, а не формулой по месту:
+// добавку надо не только вычесть, но и показать в подсчёте умения, а раньше её там не было
+// видно вовсе. Порядок действий и целочисленные усечения сохранены как были: перковая часть
+// вычитается отдельным шагом (у kShadowStrike делитель дробный), и только потом основная.
+static int ApplyAwakeSaving(CharData *victim, int save) {
+	if (!victim->IsFlagged(EPrf::kAwake)) {
+		return save;
+	}
+	if (CanUseFeat(victim, EFeat::kImpregnable)) {
+		save -= std::max(0, GetSkill(victim, ESkill::kAwake) - 80) / 2;
+	// справка танцующая: "Осторожный стиль" добавочно увеличивает спас-броски персонажа. почему-то было давно убрано с комментом "фикс осторожки дружинника"
+	} else if (CanUseFeat(victim, EFeat::kShadowStrike)) {
+		save -= std::max(0, GetSkill(victim, ESkill::kAwake) - 80) / 2.5;
+	}
+	save -= GetSkill(victim, ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
+	return save;
+}
+
+int CalcAwakeSaving(CharData *victim, ESaving saving) {
+	const int base = GetBasicSave(victim, saving, true);
+	return base - ApplyAwakeSaving(victim, base);
+}
+
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log) {
 	auto class_sav = victim->GetClass();
 	int save = GetBasicSave(victim, saving, true); //отрицательное лучше
@@ -149,16 +172,9 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 	}
 
 	// Учет осторожного стиля
-	if (victim->IsFlagged(EPrf::kAwake)) {
-		if (CanUseFeat(victim, EFeat::kImpregnable)) {
-			save -= std::max(0, GetSkill(victim, ESkill::kAwake) - 80) / 2;
-		// справка танцующая: "Осторожный стиль" добавочно увеличивает спас-броски персонажа. почему-то было давно убрано с комментом "фикс осторожки дружинника"
-		} else if (CanUseFeat(victim, EFeat::kShadowStrike)) {
-			save -= std::max(0, GetSkill(victim, ESkill::kAwake) - 80) / 2.5;
-		}
-
-		save -= GetSkill(victim, ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
-	}
+	const int save_before_awake = save;
+	save = ApplyAwakeSaving(victim, save);
+	const int save_awake = save_before_awake - save;
 	save += round(GetSave(victim, saving) * abilities::kSaveWeight);    // одежда бафы и слава
 	if (need_log) {
 		spell_trace::Line(killer, victim,
@@ -166,7 +182,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 				saving_name.find(saving)->second.c_str(),
 				GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GetRealLevel(victim),
 				GetBasicSave(victim, saving, false), GetSave(victim, saving),
-				GetSkill(victim, ESkill::kAwake) / 5, save);
+				save_awake, save);
 	}
 	// Throwing a 0 is always a failure.
 	return save;

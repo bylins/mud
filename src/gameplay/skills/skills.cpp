@@ -1297,6 +1297,9 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 	int actor_rate, int victim_rate, int /*threshold*/, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
 	int save = CalcSaving(ch, victim, MUD::Skill(skill_id).save_type, false);
+	// Сколько в этом спасе от осторожного стиля: в Saving добавка уже сидит, но слитно с
+	// остальным, и по строке подсчёта было не понять, откуда у жертвы взялось сопротивление.
+	const int awake_save = CalcAwakeSaving(victim, MUD::Skill(skill_id).save_type);
 
 //	sprintf(buf, "Saving2 == %d dex_bouus %d", save, dex_bonus(GetRealDex(victim)));
 //	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -1316,6 +1319,7 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 //		   << " Degree: " << result.degree
 		   << " SavType:" << saving_name.at(MUD::Skill(skill_id).save_type)
 		   << " Saving:" << save
+		   << " Awake:" << awake_save
 		<< kColorNrm << "\r\n";
 	SendToTC(ch, false, true, true, "%s", buffer.str().c_str());
 	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
@@ -1331,7 +1335,8 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 			   << ";Success;" << (result.success ? "yes" : "no")
 			   << ";CritLuck;" << (result.CritLuck ? "yes" : "no")
 			   << ";SaviType;" << saving_name.at(MUD::Skill(skill_id).save_type)
-			   << ";Saving;" << save;
+			   << ";Saving;" << save
+			   << ";Awake;" << awake_save;
 		log("%s",  buffer.str().c_str());
 	}
 }

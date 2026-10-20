@@ -50,6 +50,10 @@ extern const std::map<ESaving, std::string> saving_name;
 // adds cautious-style and equipment/buff bonuses. CalcGeneralSaving: rolls the save (true = saved).
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
+// Вклад осторожного стиля в спас-бросок: сколько пунктов он снимает с базового спаса
+// (0, если стиль не включён). Нужен не только самому расчёту, но и выводу подсчёта
+// умения -- раньше эта добавка сидела формулой внутри CalcSaving и в счёте не значилась.
+int CalcAwakeSaving(CharData *victim, ESaving saving);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 
 #endif  // BYLINS_SRC_GAMEPLAY_MECHANICS_SAVING_H_
