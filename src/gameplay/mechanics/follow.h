@@ -35,7 +35,9 @@ void PrintLeadersChain(const CharData *ch, std::ostream &ss);
 void AddFollower(CharData *leader, CharData *ch);
 
 // Low-level: attach ch to leader's follower list without checks/messages.
-void AddFollowerSilently(CharData *leader, CharData *ch);
+// Возвращает false, если подчинить не вышло: хозяин уже есть, ведомый и лидер -- одно лицо
+// или цепочка лидеров замкнулась бы в кольцо (CharData::set_master такое отклоняет).
+bool AddFollowerSilently(CharData *leader, CharData *ch);
 
 
 // Stop ch following its leader (mode = bitset of kSf* flags). Returns true if ch was extracted.

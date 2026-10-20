@@ -119,20 +119,29 @@ bool IsLeader(CharData *ch) {
 	return false;
 }
 
-void AddFollowerSilently(CharData *leader, CharData *ch) {
+bool AddFollowerSilently(CharData *leader, CharData *ch) {
 	if (ch->has_master()) {
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
 			GET_NAME(ch), leader->get_name().c_str(), GET_NAME(ch->get_master()));
-		return;
+		return false;
 	}
 
 	if (ch == leader) {
-		return;
+		return false;
 	}
 
 	ch->set_master(leader);
+	// issue #4083: set_master молча отказывает, если цепочка лидеров замкнулась бы в кольцо
+	// (CharData::set_master -> MakesLoop -> ReportLoopError -> return). Раньше ведомого всё
+	// равно клали в список, и он оставался там без хозяина. Снять такого нельзя -- StopFollower
+	// на нём сразу выходит с "stop_follower(...) without master", -- а DieFollower, разгоняя
+	// свиту, крутится на нём вечно и вешает сервер. Не взялся хозяин -- в список не кладём.
+	if (ch->get_master() != leader) {
+		return false;
+	}
 
 	leader->followers.push_front(ch);
+	return true;
 }
 
 void AddFollower(CharData *leader, CharData *ch) {
@@ -145,7 +154,9 @@ void AddFollower(CharData *leader, CharData *ch) {
 				leader->get_name(), GET_MOB_VNUM(leader), ch->get_name(), GET_MOB_VNUM(ch)));
 		return;
 	}
-	AddFollowerSilently(leader, ch);
+	if (!AddFollowerSilently(leader, ch)) {
+		return;
+	}
 
 	if (!mount::IsHorse(ch)) {
 		act("Вы начали следовать за $N4.", false, ch, 0, leader, kToChar);
