@@ -736,7 +736,7 @@
 			<weave />
 		</components>
 		<misc pos="kFight" violent="Y" danger="5" />
-		<mana max="110" min="100" change="2" />
+		<mana max="110" min="80" change="2" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<tags val="curse" />
@@ -2647,7 +2647,7 @@
 			<weave />
 		</components>
 		<misc pos="kFight" violent="Y" danger="2" />
-		<mana max="85" min="55" change="4" />
+		<mana max="50" min="30" change="4" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>
@@ -2678,7 +2678,7 @@
 			<weave />
 		</components>
 		<misc pos="kFight" violent="Y" danger="3" />
-		<mana max="100" min="90" change="1" />
+		<mana max="100" min="70" change="1" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
 		<potency_roll>

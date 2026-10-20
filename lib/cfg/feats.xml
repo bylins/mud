@@ -55,6 +55,11 @@
     <feat id="kLightWalk" mode="kEnabled">
     </feat>
     <feat id="kWriggler" mode="kEnabled">
+        <talent_effects>
+            <skill_mods>
+                <skill id="kSideAttack" val="20"/>
+            </skill_mods>
+        </talent_effects>
     </feat>
     <feat id="kSpellSubstitute" mode="kEnabled">
     </feat>
@@ -114,7 +119,7 @@
     <feat id="kLightingReflex" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kSavingReflex" val="-10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kSavingReflex" val="-10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
             </applies>
         </talent_effects>
     </feat>
