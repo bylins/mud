@@ -1932,7 +1932,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		return;
 	}
 
-	if ((skill == ESkill::kSteal) && (!victim->IsNpc())) {
+	if ((skill == ESkill::kSteal) && (!victim || !victim->IsNpc())) {
 		return;
 	}
 
@@ -1990,15 +1990,23 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 
 void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) {
 	if (!ch->IsNpc()) {
+		// issue.self-train: применение на себя -- это та же "цели-моба нет", что и пустая цель, но
+		// раньше оно отсекалось правилом "цель-игрок не качает" (писавшимся против накрутки об
+		// напарника) и не качало вовсе. Теперь решает конфиг умения: с self_train самокаст идёт
+		// по той же ветке, что и применение без цели.
+		const bool self_cast = (vict == ch) && MUD::Skill(skill).self_train;
 		if (skill != ESkill::kSideAttack
 			&& GetSkillBonus(ch, skill) > 0
 			&& (!vict
+				|| self_cast
 				|| (vict->IsNpc()
 					&& !vict->IsFlagged(EMobFlag::kProtect)
 					&& !vict->IsFlagged(EMobFlag::kNoSkillTrain)
 					&& !AFF_FLAGGED(vict, EAffect::kCharmed)
 					&& !mount::IsHorse(vict)))) {
-			ImproveSkill(ch, skill, success, vict);
+			// Проверки ImproveSkill про цель (OkGainExp, хозяин-игрок, флаги моба) о самом себе
+			// говорить нечего, да и прок у них тот же: int * level / level. Отдаём пустую цель.
+			ImproveSkill(ch, skill, success, self_cast ? nullptr : vict);
 		}
 	} else if (!IsCharmice(ch)) {
 		if (GetSkill(ch, skill) > 0

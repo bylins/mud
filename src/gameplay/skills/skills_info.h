@@ -32,6 +32,9 @@ class SkillInfo : public info_container::BaseItem<ESkill> {
 	int difficulty{200};
 	int cap{1000};
 	bool autosuccess{false};
+	// issue.self-train: умение качается и при применении на себя, когда цели-моба нет вовсе.
+	// Без флага самокаст прока не даёт: TrainSkill пропускает только моба или пустую цель.
+	bool self_train{false};
 
 	/*
 	 * Имя скилла в виде C-строки. По возможности используйте std::string

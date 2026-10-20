@@ -8,6 +8,9 @@ abbr - аббревиатура (показывается в строке ста
 saving - тип используемого спас-броска.
 difficulty - сложность, используется при расчете успеха/провала умения.
 cap - планка развития умения.
+self_train - умение качается и при применении на себя (когда цели-моба нет вовсе).
+    По умолчанию 0: самокаст прока не даёт. Применение совсем без цели качает всегда,
+    независимо от этого флага.
 mode - режим умения.
     kDisabled - элемент отключен полностью. При обнаружении у персонажа - удаляется.
     kService - элемент служебный. Не показывается через команды игрока, не должно быть возможно поставить вручную.
@@ -91,14 +94,14 @@ mode - режим умения.
     <skill id="kTurnUndead"	saving="kStability"	difficulty="100"	cap="1000"/>
     <skill id="kIronwind"	saving="kReflex"	difficulty="150"	cap="1000"/>
     <skill id="kStrangle"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kAirMagic"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kFireMagic"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kWaterMagic"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kEarthMagic"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kLightMagic"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kDarkMagic"	saving="kReflex"	difficulty="1000"	cap="1000"/>
-    <skill id="kMindMagic"	saving="kWill"		difficulty="1000"	cap="1000"/>
-    <skill id="kLifeMagic"	saving="kStability"	difficulty="1000"	cap="1000"/>
+    <skill id="kAirMagic"	saving="kReflex"	difficulty="200"	cap="1000"	self_train="1"/>
+    <skill id="kFireMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
+    <skill id="kWaterMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
+    <skill id="kEarthMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
+    <skill id="kLightMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
+    <skill id="kDarkMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
+    <skill id="kMindMagic"	saving="kWill"		difficulty="1000"	cap="1000"	self_train="1"/>
+    <skill id="kLifeMagic"	saving="kStability"	difficulty="1000"	cap="1000"	self_train="1"/>
     <skill id="kStun"	saving="kStability"	difficulty="200"	cap="200"/>
     <skill id="kSlay"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kCharge"	saving="kReflex"	difficulty="200"	cap="1000"/>
