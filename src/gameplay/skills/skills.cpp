@@ -777,7 +777,9 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kPunctual: {
-			rate -= IntApp(GetRealInt(vict)).observation;
+			// Наблюдательность жертвы повышает её сопротивление: rate здесь вычитается из
+			// броска нападающего, так что знак обратный тому, что в CalcCurrentSkill.
+			rate += IntApp(GetRealInt(vict)).observation;
 			break;
 		}
 
