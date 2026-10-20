@@ -175,6 +175,13 @@ void RestoreHorseState(CharData *horse) {
 }  // namespace mount
 
 void mount::MakeHorse(CharData *horse, CharData *ch) {
+	// issue #4083: всадник мог сам следовать за будущим скакуном -- команда "следовать" это
+	// разрешает, цель она ищет без проверки на NPC. Тогда AddFollower ниже замкнул бы кольцо
+	// в цепочке лидеров, set_master отказал бы, и седловка прошла бы наполовину: сообщение
+	// выведено и аффект выставлен, а подчинения нет. Сначала снимаем всадника со следования.
+	if (ch->get_master() == horse) {
+		follow::StopFollower(ch, follow::kSfEmpty);
+	}
 	AFF_FLAGS(horse).set(EAffect::kHorse);
 	follow::AddFollower(ch, horse);
 	horse->UnsetFlag(EMobFlag::kWimpy);
