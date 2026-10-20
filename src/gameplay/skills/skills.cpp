@@ -638,6 +638,10 @@ int GetRealSave(CharData *ch, const ESkill skill_id) {
 }
 */ 
 
+// Здесь считается СОПРОТИВЛЕНИЕ жертвы: в MakeSkillTest порог успеха равен actor_rate - victim_rate,
+// так что чем больше rate, тем умение проходит хуже. Знак у модификаторов жертвы здесь обратный
+// тому, что в CalcCurrentSkill, где victim_modi попадает в сумму со знаком плюс (percent =
+// base_percent + bonus + victim_sav + victim_modi/2) и потому уменьшается.
 int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!vict) {
 		return 0;
@@ -658,7 +662,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kCharge: {
 			if (vict->IsFlagged(EPrf::kAwake)) {
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
@@ -668,13 +672,13 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				rate -= 20;
 			}
 			if (vict->IsFlagged(EPrf::kAwake)) {
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 		case ESkill::kSlay: {
 			if (vict->IsFlagged(EPrf::kAwake)) {
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
@@ -736,7 +740,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (GET_EQ(vict, EEquipPos::kBoths))
 				rate -= 10;
 			if (vict->IsFlagged(EPrf::kAwake))
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
 
@@ -755,7 +759,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || vict->IsFlagged(EMobFlag::kMobAwake))
 				rate -= 20;
 			if (vict->IsFlagged(EPrf::kAwake))
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
 
@@ -791,21 +795,21 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kStrangle: {
 			if (sight::CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kDazzle: {
 			if (sight::CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kStun: {
 			if (vict->IsFlagged(EPrf::kAwake))
-				rate -= CalculateSkillAwakeModifier(ch, vict);
+				rate += CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
 		default: {
