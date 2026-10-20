@@ -64,7 +64,7 @@ std::string Quested::get_text(int vnum) const {
 std::string Quested::print() const {
 	std::stringstream text;
 	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it) {
-		text << " " << it->first << " " << it->second << "\r\n";
+		text << it->first << " " << it->second << "\r\n";
 	}
 	return text.str();
 }
