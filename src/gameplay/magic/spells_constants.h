@@ -456,11 +456,10 @@ enum EExtraAttackFlag : Bitvector {
 	kEafAutoblock = 1 << 19,	// автоматический блок щитом в осторожном стиле
 	kEafPoisoned = 1 << 20,		// отравление с пушек раз в раунд
 	kEafFirstPoison = 1 << 21,	// отравление цели первый раз за бой
-	kEafInvisible = 1 << 22,	// одет автоинвиз
 };
 
 // issue.flags-migration P2/battle_affects: transient combat flags -> BitsetFlags<EExtraAttackFlag>
-// (single plane, max kEafInvisible=1<<22; not persisted). Packed mapping.
+// (single plane, max kEafFirstPoison=1<<21; not persisted). Packed mapping.
 template<>
 struct flag_traits<EExtraAttackFlag> {
 	static constexpr std::size_t count = 30;
