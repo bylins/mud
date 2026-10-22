@@ -231,9 +231,6 @@ void SetFighting(CharData *ch, CharData *vict) {
 	ch->SetEnemy(vict);
 
 	ch->battle_affects.clear();
-	if (AFF_FLAGGED(ch, EAffect::kInvisible)) {
-		ch->battle_affects.set(kEafInvisible);
-	}
 	ch->set_touching(nullptr);
 	ch->initiative = 0;
 	ch->battle_counter = 0;
@@ -296,10 +293,20 @@ void stop_fighting(CharData *ch, int switch_others) {
 	ch->SetExtraAttack(kExtraAttackUnused, nullptr);
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	restore_battle_pos(ch);
-	if (ch->battle_affects.get(kEafInvisible)) {
-		AFF_FLAGS(ch).set(EAffect::kInvisible);
-	}
+	// issue #4091: флаги незаметности в бою подавляет affect_total по GET_ENEMY, и вернуть их
+	// надо тем же пересчётом, а не защёлкой. Защёлка kEafInvisible запоминала только "на входе
+	// в бой инвиз был" и ставила флаг обратно безусловно: после боя возвращался инвиз от
+	// заклинания, которое Appear уже снёс на первом уроне, а надетый или наложенный посреди
+	// боя наоборот не возвращался вовсе. Пересчёт поднимает флаги из живых источников -- вещь
+	// и живой аффект вернёт, снятое заклинанием не вернёт. GET_ENEMY здесь уже пуст, так что
+	// подавлять нечего. Мобам пересчёт не нужен: им незаметность заново поднимает их же пульс
+	// в mobile_activity по ENpcFlag::kInvis. Чармиса пересчитываем вместе с игроком: тот же
+	// пульс поднимает мобу только прототипный флаг, а наложенную или надетую на чармиса
+	// незаметность вернуть ему больше нечем.
 	ch->battle_affects.clear();
+	if (!ch->IsNpc() || IsCharmice(ch)) {
+		affect_total(ch);
+	}
 	DpsSystem::check_round(ch);
 	if (switch_others != 2) {
 		for (auto &temp : combat_list) {
