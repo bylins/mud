@@ -811,8 +811,10 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 		return;
 	}
 
+	// Имя, аргументы и тело печатаем через RawText: иначе proc_color покажет подчеркивания
+	// пробелами, и скопированный из игры скрипт вернется в редактор уже сломанным.
 	SendMsgToChar(fmt::format("Name: '&y{}&n',  VNum: [&g{:7}&n], RNum: [{:7}]\r\n",
-							  trig->get_name(), trig_index[(trig)->get_rnum()]->vnum, trig->get_rnum()),
+							  RawText(trig->get_name()), trig_index[(trig)->get_rnum()]->vnum, trig->get_rnum()),
 				  ch);
 
 	std::string types;
@@ -830,7 +832,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 					  static_cast<int>(trig->get_attach_type()));
 	}
 
-	const std::string arglist = !trig->arglist.empty() ? trig->arglist : "None";
+	const std::string arglist = !trig->arglist.empty() ? RawText(trig->arglist) : "None";
 	std::string out;
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		out = fmt::format("Trigger Type: {}, Numeric Arg: {}, Execute mob command: {}, Arg list: {}\r\n",
@@ -844,9 +846,9 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 		out += "Lua script:\r\n";
 		const auto &lua_source = trig->get_lua_script_source();
 		if (!lua_source.empty()) {
-			out += need_num
-				   ? lua_scripting::FormatNumberedSource(lua_source, 1, std::numeric_limits<int>::max())
-				   : lua_source;
+			out += RawText(need_num
+						   ? lua_scripting::FormatNumberedSource(lua_source, 1, std::numeric_limits<int>::max())
+						   : lua_source);
 			out += "\r\n";
 		}
 		page_string(ch->desc, out);
@@ -860,7 +862,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 			if (need_num) {
 				out += fmt::format("{:4}:  ", cmd_list->line_num);
 			}
-			out += cmd_list->cmd;
+			out += RawText(cmd_list->cmd);
 			out += "\r\n";
 		}
 		cmd_list = cmd_list->next;
