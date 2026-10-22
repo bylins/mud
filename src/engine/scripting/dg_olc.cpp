@@ -24,6 +24,7 @@
 
 #include "engine/entities/obj_data.h"
 #include "engine/olc/olc.h"
+#include "engine/ui/color.h"
 #include "dg_event.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/zone.h"
@@ -360,15 +361,17 @@ void trigedit_disp_menu(DescriptorData *d) {
 		attach_type = "undefined";
 		trgtypes[0] = '\0';
 	}
+	// Название, аргументы и тело печатаем через RawText: иначе proc_color покажет подчеркивания
+	// пробелами, и скопированный из игры скрипт вернется в редактор уже сломанным.
 	std::stringstream out;
 	out << "Редактирование триггера " << "[&y" << OLC_NUM(d) << "&n]\r\n\r\n"
-			<< "&g1)&n Название         : " << "&y" <<GET_TRIG_NAME(trig) << "\r\n"
+			<< "&g1)&n Название         : " << "&y" << RawText(trig->get_name()) << "\r\n"
 			<< "&g2)&n Тип: " << "&y" << attach_type << "\r\n"
 			<< "&g3)&n События: " << "&y" << trgtypes << "\r\n"
 			<< "&g4)&n Числовой Аргумент : " << "&y" << trig->narg << "\r\n"
-			<< "&g5)&n Аргументы    : " << "&y" << trig->arglist.c_str() << "\r\n"
+			<< "&g5)&n Аргументы    : " << "&y" << RawText(trig->arglist) << "\r\n"
 			<< "&g6)&n " << (TrigeditIsLuaTrigger(trig) ? "Lua-скрипт" : "Команды") << ":\r\n"
-			<< "&c" << OLC_STORAGE(d);
+			<< "&c" << RawText(OLC_STORAGE(d) ? OLC_STORAGE(d) : "");
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		out << "&g7)&n Обрабатывать команды моба в стане? : &y" << (trig->add_flag ? "ДА" : "НЕТ") << "&n\r\n";
 	}

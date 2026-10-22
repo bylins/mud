@@ -133,6 +133,12 @@ void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_p
 	d->mail_to = mailto;
 }
 
+// Правим скрипт триггера? Его листинг печатаем как есть (RawText): иначе proc_color покажет
+// подчеркивания пробелами, и скопированный из игры код вернется в редактор уже сломанным.
+static bool IsEditingScript(DescriptorData *d) {
+	return d->olc && OLC_MODE(d) == TRIGEDIT_COMMANDS;
+}
+
 // * Handle some editor commands.
 void parse_action(int command, char *string, DescriptorData *d) {
 	int indent = 0, rep_all = 0, flags = 0, replaced;
@@ -345,10 +351,12 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					}
 				}
 
-				if (pos) {
-					out.append(beginning, pos - beginning);
+				const std::string_view listing =
+					pos ? std::string_view(beginning, pos - beginning) : std::string_view(beginning);
+				if (IsEditingScript(d)) {
+					out += RawText(listing);
 				} else {
-					out += beginning;
+					out += listing;
 				}
 
 				page_string(d, out);
@@ -388,7 +396,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					iosystem::write_to_output("Requested line range does not exist.\r\n", d);
 					return;
 				}
-				page_string(d, numbered);
+				page_string(d, RawText(numbered));
 				break;
 			}
 			i = 1;
@@ -396,6 +404,13 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				std::string out;
 				const char *pos = d->writer->get_string();
 				unsigned int total_len = 0;
+				const auto append_line = [&out, as_is = IsEditingScript(d)](std::string_view line) {
+					if (as_is) {
+						out += RawText(line);
+					} else {
+						out += line;
+					}
+				};
 
 				while (pos && (i < line_low)) {
 					if ((pos = strchr(pos, '\n')) != nullptr) {
@@ -416,15 +431,15 @@ void parse_action(int command, char *string, DescriptorData *d) {
 						total_len++;
 						pos++;
 						out += fmt::format("{:4}:\r\n", i - 1);
-						out.append(beginning, pos - beginning);
+						append_line(std::string_view(beginning, pos - beginning));
 						beginning = pos;
 					}
 				}
 
 				if (pos && beginning) {
-					out.append(beginning, pos - beginning);
+					append_line(std::string_view(beginning, pos - beginning));
 				} else if (beginning) {
-					out += beginning;
+					append_line(std::string_view(beginning));
 				}
 
 				page_string(d, out);
