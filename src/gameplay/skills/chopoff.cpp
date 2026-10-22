@@ -46,12 +46,13 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if ((vict->GetPosition() < EPosition::kFight)) {
-		if (number(1, 100) < GetSkill(ch, ESkill::kChopoff)) {
-			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
-			return;
-		}
+	// Цель ниже боевой стойки подсечке не поддается, и ниже это давало prob = 0, то есть
+	// гарантированное падение. Отказываем сразу, как и неподсекаемой цели: бросок на умение
+	// тут спасал только тех, у кого умение выше 100, а остальных просто сажал на землю.
+	if (vict->GetPosition() < EPosition::kFight) {
+		SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
+		ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
+		return;
 	}
 
 	if (!pk_agro_action(ch, vict))
@@ -69,11 +70,12 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob = percent;
 	}
 
-	// Флаг "нельзя подсечь" сюда уже не доходит: такую цель отсекает проверка в начале
-	// go_chopoff и в do_chopoff, чтобы подсекающий не падал сам с сообщением об обычном промахе.
+	// Флаг "нельзя подсечь" и позиция ниже боевой стойки сюда уже не доходят: такую цель
+	// отсекают проверки в начале go_chopoff (и в do_chopoff), чтобы подсекающий не падал сам
+	// с сообщением об обычном промахе.
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || privilege::IsImmortal(vict))
+		mount::IsOnHorse(vict) || privilege::IsImmortal(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
