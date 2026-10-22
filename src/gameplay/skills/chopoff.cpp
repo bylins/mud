@@ -41,7 +41,8 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 
 	if (vict->IsFlagged(EMobFlag::kNoUndercut)) {
-		act("Подсечь $N3 невозможно.", false, ch, nullptr, vict, kToChar);
+		act("Вы собрались подсечь $N3, но это оказалось невозможно.", false, ch, nullptr, vict, kToChar);
+		ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
 		return;
 	}
 
@@ -184,7 +185,8 @@ void do_chopoff(CharData *ch, CharData *vict) {
 	// Проверяем здесь же, а не только в go_chopoff: иначе в бою приказ уйдет в довесок к удару
 	// и игрок узнает о неподсекаемой цели лишь раундом позже, потеряв этот раунд.
 	if (vict->IsFlagged(EMobFlag::kNoUndercut)) {
-		act("Подсечь $N3 невозможно.", false, ch, nullptr, vict, kToChar);
+		act("Вы собрались подсечь $N3, но это оказалось невозможно.", false, ch, nullptr, vict, kToChar);
+		ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
 		return;
 	}
 
