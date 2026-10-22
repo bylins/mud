@@ -40,6 +40,11 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (mount::IsBlockedByHorse(ch))
 		return;
 
+	if (vict->IsFlagged(EMobFlag::kNoUndercut)) {
+		act("Подсечь $N3 невозможно.", false, ch, nullptr, vict, kToChar);
+		return;
+	}
+
 	if ((vict->GetPosition() < EPosition::kFight)) {
 		if (number(1, 100) < GetSkill(ch, ESkill::kChopoff)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
@@ -63,9 +68,11 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob = percent;
 	}
 
+	// Флаг "нельзя подсечь" сюда уже не доходит: такую цель отсекает проверка в начале
+	// go_chopoff и в do_chopoff, чтобы подсекающий не падал сам с сообщением об обычном промахе.
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || privilege::IsImmortal(vict))
+		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || privilege::IsImmortal(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -171,6 +178,13 @@ void do_chopoff(CharData *ch, CharData *vict) {
 
 	if (vict == ch) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
+		return;
+	}
+
+	// Проверяем здесь же, а не только в go_chopoff: иначе в бою приказ уйдет в довесок к удару
+	// и игрок узнает о неподсекаемой цели лишь раундом позже, потеряв этот раунд.
+	if (vict->IsFlagged(EMobFlag::kNoUndercut)) {
+		act("Подсечь $N3 невозможно.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
 
