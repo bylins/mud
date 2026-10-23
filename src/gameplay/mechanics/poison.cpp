@@ -407,6 +407,18 @@ EStageResult WeaponPoisonHit(ActionContext &ctx) {
 }
 }  // namespace handlers
 
+// Опознавательный аффект кластера: по нему видно, что этот же яд на цели уже висит.
+// У аконита это узел kPoisoned, он же носитель урона; у остальных трех -- свой флаг.
+static EAffect PoisonClusterAffect(ESpell spell_id) {
+	switch (spell_id) {
+		case ESpell::kAconitumPoison: return EAffect::kAconitumPoison;
+		case ESpell::kScopolaPoison: return EAffect::kScopolaPoison;
+		case ESpell::kBelenaPoison: return EAffect::kBelenaPoison;
+		case ESpell::kDaturaPoison: return EAffect::kDaturaPoison;
+		default: return EAffect::kPoisoned;
+	}
+}
+
 // * Попытка травануть с пушки при ударе.
 void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	if (spell_id < ESpell::kFirst) {
@@ -415,8 +427,14 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kPoisoning, vict);
 	bool success = result.success;
 
+	// Гарантированное наложение -- только пока этого яда на цели нет. Раньше условие висело на
+	// боевой защелке kEafFirstPoison, а battle_affects чистятся и при входе в бой, и при выходе
+	// из него. Поэтому каждый новый бой был для цели "первым": отбежал, вернулся, ударил -- и
+	// снова гарантированный прок, до предельного стака, хотя сам яд висит еще минуты. Аконит
+	// этим не страдал: его узел kPoisoned виден в AFF_FLAGGED, и вторая половина условия
+	// не проходила.
 	if (((success) && (number(1, 100) <= 25)) ||
-		(!vict->battle_affects.get(kEafFirstPoison) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
+		(!AFF_FLAGGED(vict, PoisonClusterAffect(spell_id)) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
 		ImproveSkill(ch, ESkill::kPoisoning, true, vict);
 		if (PoisonVictWithWeapon(ch, vict, spell_id)) {
 			if (spell_id == ESpell::kAconitumPoison) {
@@ -427,15 +445,12 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 				SendMsgToChar(fmt::format("{} скрючил{} от нестерпимой боли.\r\n",
 										  utils::CAP(sight::PersonName(vict, ch, 0)),
 										  grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 2)), ch);
-				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
 				SendMsgToChar(fmt::format("{} перестали слушаться руки.\r\n",
 										  utils::CAP(sight::PersonName(vict, ch, 3))), ch);
-				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
 				SendMsgToChar(fmt::format("{} стало труднее плести заклинания.\r\n",
 										  utils::CAP(sight::PersonName(vict, ch, 2))), ch);
-				vict->battle_affects.set(kEafFirstPoison);
 			} else {
 				SendMsgToChar(ch, "Вы отравили %s.\r\n", sight::PersonName(ch, vict, 3));
 			}

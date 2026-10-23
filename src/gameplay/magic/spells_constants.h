@@ -455,11 +455,13 @@ enum EExtraAttackFlag : Bitvector {
 	kEafIronWind = 1 << 18,
 	kEafAutoblock = 1 << 19,	// автоматический блок щитом в осторожном стиле
 	kEafPoisoned = 1 << 20,		// отравление с пушек раз в раунд
-	kEafFirstPoison = 1 << 21,	// отравление цели первый раз за бой
+	// kEafFirstPoison = 1 << 21,  // было "отравление цели первый раз за бой": защелка жила
+	// в battle_affects, которые чистятся вместе с боем, и давала гарантированный прок яда
+	// заново после каждой отбежки. Теперь гарантия проверяет сам аффект яда на цели.
 };
 
 // issue.flags-migration P2/battle_affects: transient combat flags -> BitsetFlags<EExtraAttackFlag>
-// (single plane, max kEafFirstPoison=1<<21; not persisted). Packed mapping.
+// (single plane, max kEafPoisoned=1<<20; not persisted). Packed mapping.
 template<>
 struct flag_traits<EExtraAttackFlag> {
 	static constexpr std::size_t count = 30;
