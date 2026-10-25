@@ -1987,7 +1987,12 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		if (!privilege::IsImmortal(ch)) {
 			SetSkill(ch, skill, (std::min(CalcSkillRemortCap(ch), GetSkillBonus(ch, skill))));
 		}
-		if (victim && victim->IsNpc()) {
+		// Пометку ставим только живому экземпляру. Освежевание качается с ТРУПА, а труп помнит
+		// лишь внум покойника, поэтому целью туда приходит ПРОТОТИП моба (skinning.cpp). Пометка
+		// на прототипе переходила на всех будущих мобов этого вида: умение качалось с вида один
+		// раз за перезагрузку, и репоп не помогал. Экземпляр отличаем по uid -- у прототипа он
+		// нулевой, живому его выдаёт ReadMobile.
+		if (victim && victim->IsNpc() && victim->get_uid() > 0) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
 		}
 	}
