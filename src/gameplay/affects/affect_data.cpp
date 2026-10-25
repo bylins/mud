@@ -823,7 +823,17 @@ void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce) {
 				break;
 			}
 		}
-		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+		// issue.equipment-affect-conflicts: решает надевание. На живой надевке (announce -- признак
+		// настоящей, не внутренней) волшебство вещи вытесняет несовместимое; внутреннее переодевание
+		// (сейв, загрузка) своего мнения не имеет и уступает уже висящему.
+		const auto nodes = BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent);
+		if (HasConflictingAffect(ch, j.aff_affect)) {
+			if (!announce) {
+				continue;
+			}
+			DisplaceConflictingAffects(ch, j.aff_affect, nodes.empty() ? 0.0 : nodes.front().potency);
+		}
+		for (const auto &af : nodes) {
 			affect_to_char_no_recalc(ch, af);
 		}
 		// issue.affect-suppression-dispell: announce the impose narration ONLY on a genuine wear, not on
@@ -843,6 +853,11 @@ void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type,
 	for (const auto &j : equipment_affect) {
 		if (j.aff_affect != affect_type || j.timer == kEquipmentAffectNoTimer
 				|| !obj->GetEEquipmentAffect(j.aff_pos)) {
+			continue;
+		}
+		// issue.equipment-affect-conflicts: возврат -- не надевание: пока висит несовместимое,
+		// вещевой аффект ждёт. Освободится место -- вернёт сверка с тика.
+		if (HasConflictingAffect(ch, j.aff_affect)) {
 			continue;
 		}
 		bool was_present = false;
@@ -925,6 +940,11 @@ bool ReconcileEquipmentAffects(CharData *ch) {
 				}
 			}
 			if (present) {
+				continue;
+			}
+			// issue.equipment-affect-conflicts: сверка возвращает пропавшие узлы, а не спорит за
+			// место -- иначе вытесненный аффект вернулся бы на первом же тике.
+			if (HasConflictingAffect(ch, j.aff_affect)) {
 				continue;
 			}
 			for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {

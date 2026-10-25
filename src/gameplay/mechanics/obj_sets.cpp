@@ -1270,6 +1270,11 @@ static void reconcile_set_affects(CharData *ch, const BitsetFlags<EEquipmentAffe
 		if (suppressed) {
 			continue;
 		}
+		// issue.equipment-affect-conflicts: сверка набора -- не надевание: пока висит несовместимое,
+		// аффект набора не ложится. Освободится место -- та же сверка его и выдаст.
+		if (HasConflictingAffect(ch, at)) {
+			continue;
+		}
 		for (auto &af : BuildEquipmentMaterializedAffect(rep, at, entry->timer, entry->power_percent)) {
 			af.battleflag.set(EAffFlag::kAfFromSet);
 			affect_to_char_no_recalc(ch, af);

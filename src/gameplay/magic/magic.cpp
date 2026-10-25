@@ -34,6 +34,7 @@
 #include "gameplay/mechanics/mob_races.h"   // issue #4000: ENpcRace::kHuman -- труп человекоподобного
 #include "gameplay/handlers/bone_commander.h"   // issue #4032: пересчёт костяной подати
 
+#include <algorithm>
 #include <functional>
 #include <map>
 #include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch
@@ -2466,7 +2467,12 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 // Constant for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
 constexpr int kEquipmentAffectSuppressHours = 10;
 
-void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double competence) {
+// issue.equipment-affect-conflicts: displaced -- аффект не развеяли, а вытеснили надетой вещью
+// с несовместимым волшебством. Срок возврата такому обещать нельзя: подавление истечёт, а место
+// всё ещё будет занято, и аффект вернётся лишь когда вытеснившие чары уйдут. Поэтому сообщение
+// называет причину, а не время.
+void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double competence,
+								   bool displaced = false) {
 	// A set-conferred affect (kAfFromSet) has no single owning item, so the suppression is BROADCAST to
 	// every worn set piece (one shared timer, survives anchor swaps); a single-item affect suppresses on
 	// its own source item.
@@ -2501,16 +2507,21 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double
 		if (obj && obj->get_id() == src_id) {
 			obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours, static_cast<float>(competence));
 			// The affect's own dispel narration already fired; tell the wearer when the item magic returns.
-			snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
-					 kEquipmentAffectSuppressHours,
-					 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));
+			if (displaced) {
+				snprintf(msg, sizeof(msg), "Волшебство $o2 уступило несовместимым чарам.");
+			} else {
+				snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
+						 kEquipmentAffectSuppressHours,
+						 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));
+			}
 			act(msg, false, victim, obj, nullptr, kToChar);
 			return;
 		}
 	}
 }
 
-void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type, double competence) {
+void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type, double competence,
+							 bool displaced = false) {
 	// issue.character-affect-triggers: kDispell -- fire the affect's own kDispell <actions> BEFORE it is
 	// stripped, run with the DISPELLER (ch) as BOTH the caster and the actor. This makes the retaliation
 	// SELF-INFLICTED by the dispeller (their choice to dispel, their consequence): a <damage>/<affects>
@@ -2522,7 +2533,7 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	// the AFFECT (its sheaf, with the kDefault generic fallback).
 	// issue.equipment-affects-improve (Phase 3): if a worn item conferred this affect, suppress it on
 	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
-	SuppressSourceEquipmentAffect(victim, affect_type, competence);
+	SuppressSourceEquipmentAffect(victim, affect_type, competence, displaced);
 	ReduceStackOrRemove(victim, affect_type);
 	// issue #3971: если экземпляр этого аффекта остался (врождённый, пакет призванного), эффект
 	// никуда не делся -- рассказывать про «угасло» нельзя. Раньше призма на небесную защитницу
@@ -2917,6 +2928,61 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 }
 
 }  // namespace
+
+// issue.equipment-affect-conflicts: правило берём у одноимённого заклинания аффекта, как это делает
+// материализация. Смотрим оба списка запрета: у взаимоисключающих пар они совпадают, но заклинание
+// вправе перечислить в них разное.
+std::vector<EAffect> ConflictingAffects(EAffect incoming) {
+	std::vector<EAffect> out;
+	ESpell spell_id = ESpell::kUndefined;
+	try {
+		spell_id = ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<EAffect>(incoming));
+	} catch (const std::out_of_range &) {
+		return out;   // у аффекта нет одноимённого заклинания -- правила взаимоисключения нет
+	}
+	const auto &actions = MUD::Spell(spell_id).actions;
+	if (!actions.Contains(talents_actions::EAction::kUnaffect)) {
+		return out;
+	}
+	const auto &unaffect = actions.GetUnaffect();
+	for (const auto *set : {&unaffect.GetBreaking(), &unaffect.GetRemove()}) {
+		for (const auto affect_type : set->any_of.chars) {
+			if (affect_type == incoming
+					|| std::find(out.begin(), out.end(), affect_type) != out.end()) {
+				continue;
+			}
+			out.push_back(affect_type);
+		}
+	}
+	return out;
+}
+
+bool HasConflictingAffect(CharData *ch, EAffect incoming) {
+	if (!ch) {
+		return false;
+	}
+	for (const auto affect_type : ConflictingAffects(incoming)) {
+		if (IsAffected(ch, affect_type)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void DisplaceConflictingAffects(CharData *ch, EAffect incoming, double potency) {
+	if (!ch) {
+		return;
+	}
+	for (const auto affect_type : ConflictingAffects(incoming)) {
+		if (!IsAffected(ch, affect_type)) {
+			continue;
+		}
+		// Тот же путь, которым вытесняет каст: kDispell, подавление вещевого источника (иначе узел
+		// вернула бы сверка), снятие узлов, сообщение. Вытесняет волшебство надетого, поэтому
+		// снимающим идёт сам носитель.
+		RemoveAffectAndAnnounce(ch, ch, affect_type, potency, /*displaced=*/true);
+	}
+}
 
 // issue.affect-suppression-dispell: the standard d100 dispel contest against a potency supplied DIRECTLY
 // (obj-affect suppressions are not on a char's ->affected). Same math as DispelSucceeds but no per-affect
