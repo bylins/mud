@@ -301,12 +301,12 @@ void Player::dps_clear(int type) {
 	dps_.Clear(type);
 }
 
-void Player::dps_print_stats(CharData *coder) {
-	dps_.PrintStats(this, coder);
+void Player::dps_print_stats(CharData *coder, bool hide_over_dmg) {
+	dps_.PrintStats(this, coder, hide_over_dmg);
 }
 
-void Player::dps_print_group_stats(CharData *ch, CharData *coder) {
-	dps_.PrintGroupStats(ch, coder);
+void Player::dps_print_group_stats(CharData *ch, CharData *coder, bool hide_over_dmg) {
+	dps_.PrintGroupStats(ch, coder, hide_over_dmg);
 }
 
 // * Для dps_copy.

@@ -166,7 +166,7 @@ void Dps::AddTmpGroupList(CharData *ch) {
 * \param ch - игрок, которому идет распечатка.
 * \param coder - случай вывода статистики другому персонажу, по умолчанию = 0
 */
-void Dps::PrintStats(CharData *ch, CharData *coder) {
+void Dps::PrintStats(CharData *ch, CharData *coder, bool hide_over_dmg) {
 	if (!coder) {
 		coder = ch;
 	}
@@ -174,11 +174,11 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
 	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		tmp_total_dmg = 0;
 		CharData *leader = ch->has_master() ? ch->get_master() : ch;
-		leader->dps_print_group_stats(ch, coder);
+		leader->dps_print_group_stats(ch, coder, hide_over_dmg);
 	}
 
 	std::ostringstream out;
-	PrintPersonalDpsStat(ch, out);
+	PrintPersonalDpsStat(ch, out, hide_over_dmg);
 	out << "\r\n";
 	PrintPersonalExpStat(out);
 
@@ -190,17 +190,23 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
  * @param ch - персонаж, для которого формируется статистика.
  * @param out - поток для вывода.
  */
-void Dps::PrintPersonalDpsStat(CharData *ch, std::ostringstream &out) {
+void Dps::PrintPersonalDpsStat(CharData *ch, std::ostringstream &out, bool hide_over_dmg) {
 	out << " Персональная статистика урона:" << "\r\n";
 	table_wrapper::Table table;
-	table << table_wrapper::kHeader	<<
-		"Имя" << "Урон" << "В раунд" << "Макс." << "Лишний урон" << table_wrapper::kEndRow;
+	table << table_wrapper::kHeader	<< "Имя" << "Урон" << "В раунд" << "Макс.";
+	if (!hide_over_dmg) {
+		table << "Лишний урон";
+	}
+	table << table_wrapper::kEndRow;
 	table << ch->get_name()
 		  << pers_dps_.get_dmg()
 		  << pers_dps_.get_stat()
-		  << pers_dps_.get_round_dmg()
-		  << pers_dps_.get_over_dmg() << table_wrapper::kEndRow;
-	pers_dps_.print_charm_stats(table);
+		  << pers_dps_.get_round_dmg();
+	if (!hide_over_dmg) {
+		table << pers_dps_.get_over_dmg();
+	}
+	table << table_wrapper::kEndRow;
+	pers_dps_.print_charm_stats(table, hide_over_dmg);
 
 	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::color::kBlue);
 	table_wrapper::PrintTableToStream(out, table);
@@ -231,7 +237,7 @@ void Dps::PrintPersonalExpStat(std::ostringstream &out) const {
 * \param ch - игрок, которому идет распечатка.
 * \param coder - случай вывода статистики другому персонажу, по умолчанию = nullptr
 */
-void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
+void Dps::PrintGroupStats(CharData *ch, CharData *coder, bool hide_over_dmg) {
 	if (!coder) {
 		coder = ch;
 	}
@@ -254,16 +260,22 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	out << " Статистика урона вашей группы:" << "\r\n";
 
 	table_wrapper::Table table;
-	table << table_wrapper::kHeader <<
-		"Имя" << "Урон" << "(%)" << "В раунд" << "Макс." << "Лишний урон" << table_wrapper::kEndRow;
+	table << table_wrapper::kHeader << "Имя" << "Урон" << "(%)" << "В раунд" << "Макс.";
+	if (!hide_over_dmg) {
+		table << "Лишний урон";
+	}
+	table << table_wrapper::kEndRow;
 	for (auto it = tmp_group_list.rbegin(); it != tmp_group_list.rend(); ++it) {
 		double percent = tmp_total_dmg ? it->first * 100.0 / tmp_total_dmg : 0.0;
 		table << it->second.name
 			<< (unsigned) it->first
 			<< std::setprecision(2) << (unsigned) percent
 			<< (unsigned) it->second.dps
-			<< (unsigned) it->second.round_dmg
-			<< (unsigned) it->second.over_dmg << table_wrapper::kEndRow;
+			<< (unsigned) it->second.round_dmg;
+		if (!hide_over_dmg) {
+			table << (unsigned) it->second.over_dmg;
+		}
+		table << table_wrapper::kEndRow;
 	}
 	tmp_group_list.clear();
 
@@ -383,15 +395,18 @@ void PlayerDpsNode::end_charm_round(CharData *ch) {
 }
 
 // * Чармисы в персональной статистике выводятся без сортировки.
-void PlayerDpsNode::print_charm_stats(table_wrapper::Table &table) const {
+void PlayerDpsNode::print_charm_stats(table_wrapper::Table &table, bool hide_over_dmg) const {
 	for (const auto & it : charm_list_) {
 		if (it.get_dmg() > 0) {
 			table
 				<< it.get_name()
 				<< it.get_dmg()
 				<< it.get_stat()
-				<< it.get_round_dmg()
-				<< it.get_over_dmg() << table_wrapper::kEndRow;
+				<< it.get_round_dmg();
+			if (!hide_over_dmg) {
+				table << it.get_over_dmg();
+			}
+			table << table_wrapper::kEndRow;
 		}
 	}
 }
@@ -473,6 +488,7 @@ namespace {
 const char *DMETR_FORMAT =
 	"Формат команды:\r\n"
 	"дметр - вывод всей статистики\r\n"
+	"дметр -d - то же, но без графы лишнего урона\r\n"
 	"дметр очистить - очистка персональной статистики\r\n"
 	"дметр очистить группа - очистка групповой статистики (только лидер)\r\n";
 
@@ -480,6 +496,7 @@ const char *DMETR_FORMAT =
 
 /**
 * 'дметр' - вывод своей статистики и групповой, если в группе.
+* 'дметр -d' - то же без графы лишнего урона.
 * 'дметр очистить' - очистка своей статистики.
 * 'дметр очистить группа' - очистка групповой статистики (только лидер).
 */
@@ -494,6 +511,10 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (arg.empty()) {
 		ch->dps_print_stats();
+	} else if (arg == "-d") {
+		// Перебой по умирающей цели копится у того, кто ударил последним, и сравнивать
+		// бойцов по нему нечестно -- этот вид его просто не печатает.
+		ch->dps_print_stats(nullptr, /*hide_over_dmg=*/true);
 	} else if (isname(arg, "очистить")) {
 		if (name.empty()) {
 			ch->dps_clear(DpsSystem::PERS_DPS);
