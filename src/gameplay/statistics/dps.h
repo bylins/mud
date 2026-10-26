@@ -52,7 +52,7 @@ typedef std::list<DpsNode> CharmListType;
 class PlayerDpsNode : public DpsNode {
  public:
 	void add_charm_dmg(CharData *ch, int dmg, int over_dmg);
-	void print_charm_stats(table_wrapper::Table &table) const;
+	void print_charm_stats(table_wrapper::Table &table, bool hide_over_dmg) const;
 	void print_group_charm_stats(CharData *ch) const;
 	void end_charm_round(CharData *ch);
 
@@ -73,8 +73,10 @@ class Dps {
 
 	void AddDmg(int type, CharData *ch, int dmg, int over_dmg);
 	void Clear(int type);
-	void PrintStats(CharData *ch, CharData *coder = nullptr);
-	void PrintGroupStats(CharData *ch, CharData *coder = nullptr);
+	// hide_over_dmg -- печать без графы перебоя ("дметр -d"): перебой по уже умирающей цели
+	// копится у того, кто ударил последним, и в сравнении бойцов между собой только мешает.
+	void PrintStats(CharData *ch, CharData *coder = nullptr, bool hide_over_dmg = false);
+	void PrintGroupStats(CharData *ch, CharData *coder = nullptr, bool hide_over_dmg = false);
 	void EndRound(int type, CharData *ch);
 
 	void AddExp(int exp);
@@ -86,7 +88,7 @@ class Dps {
 	void EndGroupRound(CharData *ch);
 	void AddGroupCharmDmg(CharData *ch, int dmg, int over_dmg);
 	void EndGroupCharmRound(CharData *ch);
-	void PrintPersonalDpsStat(CharData *ch, std::ostringstream &out);
+	void PrintPersonalDpsStat(CharData *ch, std::ostringstream &out, bool hide_over_dmg);
 	void PrintPersonalExpStat(std::ostringstream &out) const;
 
 	GroupListType group_dps_;	// групповая статистика

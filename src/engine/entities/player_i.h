@@ -85,8 +85,9 @@ class PlayerI {
 
 	virtual void dps_add_dmg(int/* type*/, int/* dmg*/, int/* over_dmg*/ = 0, CharData * /*ch*/ = nullptr) {};
 	virtual void dps_clear(int/* type*/) {};
-	virtual void dps_print_stats(CharData * /*coder*/ = nullptr) {};
-	virtual void dps_print_group_stats(CharData * /*ch*/, CharData * /*coder*/ = nullptr) {};
+	virtual void dps_print_stats(CharData * /*coder*/ = nullptr, bool /*hide_over_dmg*/ = false) {};
+	virtual void dps_print_group_stats(CharData * /*ch*/, CharData * /*coder*/ = nullptr,
+									   bool /*hide_over_dmg*/ = false) {};
 	virtual void dps_set(DpsSystem::Dps * /*dps*/) {};
 	virtual void dps_copy(CharData * /*ch*/) {};
 	virtual void dps_end_round(int/* type*/, CharData * /*ch*/ = nullptr) {};
