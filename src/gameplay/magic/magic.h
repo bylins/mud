@@ -74,6 +74,15 @@ struct RollResult {
 [[nodiscard]] std::vector<Affect<EApply>> BuildEquipmentMaterializedAffect(const ObjData *obj,
 		EAffect affect_type, int timer, int power_percent);
 
+// issue.equipment-affect-conflicts: взаимоисключение аффектов прописано в <unaffect> одноимённого
+// заклинания (освящение против призматической ауры), и читала его только кастовая цепочка -- надетая
+// вещь свой аффект не кастует, а материализует, и носила оба. Правило берём у того же заклинания.
+[[nodiscard]] std::vector<EAffect> ConflictingAffects(EAffect incoming);
+[[nodiscard]] bool HasConflictingAffect(CharData *ch, EAffect incoming);
+// Вытеснить несовместимое в пользу `incoming`: вещевой источник подавляется на самой вещи,
+// носителю и комнате уходит сообщение об угасании. `potency` -- сила входящего аффекта.
+void DisplaceConflictingAffects(CharData *ch, EAffect incoming, double potency);
+
 // ActionContext (issue.spell-pipeline): the single object threaded through the whole
 // cast handler chain (CallMagic -> CastToSingleTarget -> the per-stage Cast* fns).
 // It carries the cast parameters, the targets, and the accumulating results so that
