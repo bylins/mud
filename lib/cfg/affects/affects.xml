@@ -943,9 +943,15 @@
 				<!-- issue.damage-over-time: per-tick damage = amount.min + ceil(stored_potency * dices_weight).
 				     dices_weight is the DAMAGE scale; it is independent of the dispel strength (the stored
 				     potency itself, set by kFireBlast's <affects potency_weight>). Raise dices_weight for a
-				     harder-hitting burn without making it any harder to dispel. -->
+				     harder-hitting burn without making it any harder to dispel.
+				     beta взята так, чтобы все горение целиком снимало около трети разового урона самого
+				     заклинания: урон масштабируется beta=63 на единицу компетентности, а горение видит
+				     половину компетентности (potency_weight 0.5), поэтому beta=6 за 7 тиков дает ~35%.
+				     Прежняя beta=0.6 давала долю хита за тик, которая при любой достижимой
+				     компетентности усекалась в ноль: горение тикало, не снимая ни одного хита.
+				     min=1 оставляет слабому кастующему хотя бы хит за тик вместо нуля. -->
 				<damage saving="kNone">
-					<amount min="0" beta="0.6" weight="0" />
+					<amount min="1" beta="6" weight="0" />
 				</damage>
 			</action>
 		</actions>
