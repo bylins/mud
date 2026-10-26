@@ -1100,6 +1100,12 @@ void mob_casting(CharData *ch) {
 	int spells = 0, sp_num;
 	ObjData *item;
 
+	// Сюда могли войти с покойником (боевые триггеры вызывающего), а функция читает статы
+	// кастующего -- GetRealInt ниже. Проверяем до первого обращения.
+	if (ch->in_room == kNowhere) {
+		return;
+	}
+
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kSilence)
@@ -1841,6 +1847,15 @@ void process_npc_attack(CharData *ch) {
 	}
 	// Срабатывание батл-триггеров амуниции
 	Bitvector trigger_code = fight_otrigger(ch);
+
+	// Боевые триггеры (mtrigger выше и otrigger только что) могли моба убить: в логе боевого
+	// это SYSERR "Using purged character (get_int)" со стеком
+	// mob_casting <- process_npc_attack <- perform_violence. Отсечка стояла только ПОСЛЕ
+	// mob_casting (ниже, с пометкой про зеркало), поэтому покойник успевал дойти до каста, и
+	// там читались его статы. Признак тот же, что везде: вне мира -- значит дальше не идем.
+	if (ch->in_room == kNowhere) {
+		return;
+	}
 
 	// переключение
 	// Безумный моб держится за ту же жертву, как отравленный татью (#4057): помутившийся разум
