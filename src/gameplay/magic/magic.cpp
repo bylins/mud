@@ -684,6 +684,10 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return EStageResult::kSuccess;
 
+	// Урон по ЭТОЙ цели: у площадного каста стадия идет по целям по очереди, и без сброса
+	// на входе значение от предыдущей цели утекало бы в проверки по следующей.
+	ctx.result.damage = 0;
+
 	// issue.damage-over-time: a poison-sourced <damage> tick reproduces ProcessPoisonDmg's kPoison branch
 	// exactly and returns before the general damage machinery: GET_POISON-based amount dealt as kPoisonDmg,
 	// no-flee, self-inflicted, credited to the poisoner (the affect's caster). Poison never had MR/area/
@@ -1405,6 +1409,16 @@ EStageResult CastAffect(ActionContext &ctx) {
 	const ESpell spell_id = ctx.spell_id();
 	const RollResult &potency = ctx.potency();
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+	// issue #4103: урон и аффект в одном действии -- одно попадание, а не два независимых броска.
+	// Отбили урон в ноль (спасброском, резистом, поглощением, затуханием по площади) -- значит
+	// заклинание по этой цели не прошло, и аффекту взяться не от чего: раньше горение ложилось на
+	// того, кто не потерял ни хита, а ослепление и глухота -- на отбивших удар целиком.
+	// Проверяем только действия, у которых урон вообще есть: чистые бафы и дебафы без <damage>
+	// идут как прежде. Смерть цели (-1) здесь не при чем -- цепочку останавливает is_vict_dead.
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
+			&& ctx.result.damage == 0) {
 		return EStageResult::kSuccess;
 	}
 	ctx.ResetArApplied();   // issue.shadow-cloak-bug: affect-resist gates once per affect delivery
