@@ -146,9 +146,9 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				for (int flag = 0; flag < 4; ++flag) {
 					for (/* тут ничего не надо */; *equipment_affects[num] != '\n'; ++num) {
-						if (strlen(equipment_affects[num]) < len)
-							continue;
-						if (!strncmp(equipment_affects[num], tmpbuf, len)) {
+						// issue #4113: сверяем по словам -- имена многословные, а запрос пишут
+						// через точку. Побайтный префикс спотыкался о разные разделители.
+						if (utils::IsEqual(tmpbuf, equipment_affects[num])) {
 							filter.affect.push_back(num);
 							tmp_find = true;
 							break;
@@ -161,9 +161,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				if (!tmp_find) {
 					for (num = 0; *apply_types[num] != '\n'; ++num) {
-						if (strlen(apply_types[num]) < len)
-							continue;
-						if (!strncmp(apply_types[num], tmpbuf, len)) {
+						if (utils::IsEqual(tmpbuf, apply_types[num])) {
 							filter.affect2.push_back(num);
 							tmp_find = true;
 							break;

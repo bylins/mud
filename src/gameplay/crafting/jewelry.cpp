@@ -16,6 +16,7 @@
 #include "mining.h"
 #include "utils/random.h"
 #include "utils/utils_parse.h"
+#include "utils/utils_string.h"   // FixDot
 #include "utils/parser_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_contants.h"
@@ -102,7 +103,10 @@ const GemEffect *JewelryCfg::Find(int vnum, const std::string &key) const {
 		return nullptr;
 	}
 	for (const auto &eff : it->second) {
-		if (!str_cmp(eff.key.c_str(), key.c_str())) {   // регистронезависимо
+		// issue #4113: ключ -- игровое название эффекта, а оно многословное; игрок набирает его
+		// одним словом через точку (третий аргумент команды). FixDot приводит к словам обе
+		// стороны, поэтому точка, пробел и подчёркивание в наборе равнозначны.
+		if (!str_cmp(utils::FixDot(eff.key), utils::FixDot(key))) {   // регистронезависимо
 			return &eff;
 		}
 	}

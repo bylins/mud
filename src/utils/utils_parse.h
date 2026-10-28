@@ -199,8 +199,8 @@ int get_number(std::string &name);
 int search_block(const char *target_string, const char **list, int exact);
 int search_block(const std::string &block, const char **list, int exact);
 // issue #4113: то же, но сверяя имя по словам (utils::IsEqual), а не как одну строку.
-// Нужно там, где имена в таблице многословные и записаны через точку ("макс.жизнь"):
-// посимвольный IsAbbr спотыкается, когда разделитель в запросе и в имени разный.
+// Нужно там, где имена в таблице многословные ("максимальная жизнь"), а запрос приходит одним
+// словом через точку: посимвольный IsAbbr спотыкается, когда разделитель с двух сторон разный.
 int search_block_by_words(const std::string &block, const char **list);
 void GetOneParam(std::string &buffer, std::string &buffer2);
 bool CompareParam(const std::string &buffer, const char *str, bool full = false);
