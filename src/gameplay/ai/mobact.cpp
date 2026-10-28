@@ -918,7 +918,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (ch->purged()  || !ch->IsNpc() || !ch->in_used_zone()) {
 		continue;
 	  }
-	  UpdateAffectOnPulse(ch.get(), missed_pulses);
+	  UpdateAffectOnPulse(ch.get(), activity_level, missed_pulses);
 	  if (ch->punctual_wait > 0)
 		  ch->punctual_wait -= missed_pulses;
 	  else

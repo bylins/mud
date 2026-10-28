@@ -115,7 +115,9 @@ struct obj_affected_type {
 // callers that dedup or look up affects (do_affects display, remove_random_affects).
 [[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);
 
-void UpdateAffectOnPulse(CharData *ch, int count);
+// issue #4111: вне боя тикает аффекты мобов. kAfPulsedec считает пульсы, kAfBattledec --
+// раунды боя, поэтому нужен номер пульса: раундовая единица снимается раз в kBattleRound.
+void UpdateAffectOnPulse(CharData *ch, int pulse_number, int count);
 // issue.3678-affect-timer: age affect + cooldown/feat timers by the offline interval at login.
 void ApplyOfflineTimerAging(CharData *ch, time_t now);
 void player_timed_update();
