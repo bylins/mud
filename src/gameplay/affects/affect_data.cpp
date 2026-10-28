@@ -234,7 +234,7 @@ bool Affect<EApply>::removable() const {
 }
 // 
 // для мобов раз в 10 пульсов
-void UpdateAffectOnPulse(CharData *ch, int count) {
+void UpdateAffectOnPulse(CharData *ch, int pulse_number, int count) {
 	bool pulse_aff = false;
 
 	if (ch->GetEnemy()) {
@@ -245,6 +245,13 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		return;
 	}
 
+	// Аффект с kAfBattledec меряет длительность раундами боя, а не пульсами. В бою его тикает
+	// battle_affect_update -- по единице за раунд; вне боя он попадает сюда, и единицу надо
+	// снимать тем же темпом, иначе шкала меняется на ходу (раунд -- 50 пульсов, проход -- 10,
+	// и весь остаток сгорал за первый же вызов). Условие верно при любом смещении шага, лишь
+	// бы вызовы шли через count пульсов.
+	const bool round_tick = (pulse_number % kBattleRound) < count;
+
 	auto affect_i = ch->affected.begin();
 	while (affect_i != ch->affected.end()) {
 		const auto &affect = *affect_i;
@@ -253,6 +260,8 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 			++affect_i;
 			continue;
 		}
+		// Шкала длительности: раунды, если стоит kAfBattledec, иначе пульсы.
+		const bool battle_scale = IS_SET(affect->battleflag, kAfBattledec);
 		pulse_aff = true;
 
 		if (affect->duration == 0) { //-1 вечный таймер по задумке
@@ -261,8 +270,8 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
 			affect_i = RemoveAffect(ch, affect_i);
 		} else {
-			if (affect->duration > 0) {
-				affect->duration -= count;
+			if (affect->duration > 0 && (!battle_scale || round_tick)) {
+				affect->duration -= battle_scale ? 1 : count;
 				affect->duration = std::max(0, affect->duration);
 			}
 			++affect_i;
