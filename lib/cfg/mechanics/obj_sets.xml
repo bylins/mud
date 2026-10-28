@@ -1,0 +1,3000 @@
+<?xml version="1.0" encoding="utf-8"?>
+<obj_sets>
+	<messages char_on="&amp;W$o0 засветил$U мягким сиянием.&amp;n" char_off="&amp;WСияние $o1 медленно угасло.&amp;n" room_on="&amp;W$o0 $n1 засветил$U мягким сиянием.&amp;n" room_off="&amp;WСияние $o1 $n1 медленно угасло.&amp;n" />
+	<set name="Справа старого кметя" alias="справастарогокметя" comment="Первая родовая - посыльная и кладбище">
+		<messages char_on="&amp;K$o0 слегка шевельнул$U и по телу прошла волна тепла.&amp;n" char_off="&amp;K$o0 слегка шевельнул$U и на вас повеяло прохладой.&amp;n" />
+		<obj vnum="4408" />
+		<obj vnum="4409" />
+		<obj vnum="14501" />
+		<obj vnum="14502" />
+		<obj vnum="14505" />
+		<obj vnum="14509" />
+		<activ size="2">
+			<apply loc="13" mod="10" />
+		</activ>
+		<activ size="4">
+			<apply loc="25" mod="15" />
+			<apply loc="26" mod="15" />
+			<apply loc="41" mod="2" />
+		</activ>
+		<activ size="5">
+			<apply loc="18" mod="1" />
+		</activ>
+		<activ size="6" affects="v0">
+			<apply loc="5" mod="1" />
+		</activ>
+	</set>
+	<set name="Доспехи морского витязя" alias="дмв,доспехиморскоговитязя" comment="Застава Черномора">
+		<messages char_on="&amp;Y$o0 засверкал$G как жар из печи.&amp;n" char_off="&amp;Y$o0 вспыхнул$G и медленно угас$Q, словно выпавший из огня уголек.&amp;n" room_on="&amp;Y$o0 на теле $n1 засверкал$G как жар из печи.&amp;n" room_off="&amp;Y$o0 вспыхнул$G и медленно угас$Q, словно выпавший из огня уголек.&amp;n" />
+		<obj vnum="38400" />
+		<obj vnum="38401" />
+		<obj vnum="38402" />
+		<obj vnum="38403" />
+		<obj vnum="38404" />
+		<obj vnum="38405" />
+		<obj vnum="38406" />
+		<obj vnum="38407" />
+		<obj vnum="38408" />
+		<obj vnum="38409" />
+		<obj vnum="38410" />
+		<obj vnum="38414" />
+		<activ size="2" affects="y0a1" />
+		<activ size="4">
+			<apply loc="36" mod="5" />
+			<apply loc="37" mod="10" />
+		</activ>
+		<activ size="6">
+			<phys_dmg pct="2" />
+		</activ>
+		<activ size="8" affects="d0">
+			<apply loc="51" mod="2" />
+			<apply loc="41" mod="5" />
+			<apply loc="44" mod="15" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Броня из больших стальных колец" alias="броняизбольшихстальныхколец,бск" comment="Крепость Слободка у Переяславля">
+		<messages char_on="&amp;Y$o0 вспыхнул$G солнечным светом и угас$Q.&amp;n" char_off="&amp;y$o0 тускло засветил$U и медленно погас$Q.&amp;n" room_on="&amp;Y$o0 $n1 вспыхнул$G солнечным светом и угас$Q.&amp;n" room_off="&amp;y$o0 $n1 тускло засветил$U и медленно погас$Q.&amp;n" />
+		<obj vnum="68800" />
+		<obj vnum="68801" />
+		<obj vnum="68802" />
+		<obj vnum="68803" />
+		<obj vnum="68804" />
+		<obj vnum="68805" />
+		<obj vnum="68806" />
+		<activ size="4" prof="00101000101000" affects="i1">
+			<apply loc="1" mod="2" />
+			<apply loc="13" mod="30" />
+			<apply loc="20" mod="-5" />
+			<apply loc="24" mod="-5" />
+			<apply loc="37" mod="6" />
+		</activ>
+		<activ size="6" prof="00101000101000">
+			<apply loc="1" mod="1" />
+			<apply loc="13" mod="20" />
+			<apply loc="19" mod="2" />
+			<apply loc="20" mod="-5" />
+			<apply loc="24" mod="-5" />
+			<apply loc="37" mod="6" />
+			<enchant vnum="68805" weight="2" />
+		</activ>
+	</set>
+	<set name="Мухоярское облачение" alias="мо,мухоярскоеоблачение" comment="Торговый тракт">
+		<messages char_on="&amp;WВолна искр пробежала по $o2 и угасла.&amp;n " char_off="&amp;WВолна искр пробежала по $o2 и угасла.&amp;n " room_on="&amp;WВолна искр пробежала по $o2 и угасла.&amp;n " room_off="&amp;WВолна искр пробежала по $o2 и угасла.&amp;n " />
+		<obj vnum="34609" />
+		<obj vnum="34610" />
+		<obj vnum="34611" />
+		<activ size="3">
+			<apply loc="4" mod="1" />
+			<apply loc="12" mod="10" />
+			<mage_dmg pct="4" />
+		</activ>
+	</set>
+	<set name="Кости морского змея" alias="кмз,костиморскогозмея" comment="Рыбацкая деревня" enabled="0">
+		<messages char_on="&amp;KКостяные пластины $n1 зашуршали, притираясь друг к другу." char_off="&amp;KКостяные пластины $n1 зашуршали и затрещаои." room_on="&amp;KКостяные пластины $n1 зашуршали, притираясь друг к другу." room_off="&amp;KКостяные пластины $n1 зашуршали и затрещаои." />
+		<obj vnum="33005" />
+		<obj vnum="33010" />
+		<activ size="2">
+			<apply loc="41" mod="3" />
+		</activ>
+		<activ size="3" prof="11010000010100" affects="D0">
+			<apply loc="2" mod="1" />
+			<apply loc="46" mod="10" />
+			<enchant vnum="33010" sdice="1" />
+		</activ>
+	</set>
+	<set name="Роскошный латный доспех" alias="рлд,роскошныйлатныйдоспех" comment="Новгородский гостинный двор" enabled="0">
+		<messages char_on="&amp;CОтблески света весело заиграли на полированной стали $o1.&amp;n" char_off="&amp;CБлеск $o1 угас.&amp;n" room_on="&amp;CОтблески света весело заиграли на полированной стали $o1.&amp;n" room_off="&amp;CБлеск $o1 угас.&amp;n" />
+		<obj vnum="66812" />
+		<obj vnum="66813" />
+		<obj vnum="66814" />
+		<obj vnum="66815" />
+		<obj vnum="66816" />
+		<obj vnum="66817" />
+		<obj vnum="66818" />
+		<obj vnum="66821" />
+		<obj vnum="66823" />
+		<obj vnum="66824" />
+		<obj vnum="66829" />
+		<activ size="2" affects="e0" />
+		<activ size="4">
+			<apply loc="13" mod="20" />
+			<apply loc="41" mod="2" />
+		</activ>
+		<activ size="5" prof="00000000001000" />
+		<activ size="6">
+			<apply loc="5" mod="1" />
+			<apply loc="36" mod="6" />
+		</activ>
+		<activ size="7" prof="00000000001000" />
+		<activ size="8">
+			<apply loc="41" mod="3" />
+			<apply loc="1" mod="2" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="10">
+			<apply loc="21" mod="10" />
+			<apply loc="22" mod="10" />
+			<apply loc="47" mod="10" />
+			<apply loc="46" mod="10" />
+			<apply loc="5" mod="2" />
+		</activ>
+	</set>
+	<set name="Одежды старой колдуньи" alias="оск,одеждыстаройколдуньи" comment="Владимирская усадьба">
+		<obj vnum="47729" />
+		<obj vnum="47730" />
+		<obj vnum="47731" />
+		<activ size="3" affects="t0">
+			<apply loc="4" mod="1" />
+			<apply loc="40" mod="10" />
+			<mage_dmg pct="4" />
+		</activ>
+	</set>
+	<set name="Доспехи дворцового стражника" alias="ддс,доспехидворцовогостражника">
+		<obj vnum="47713" />
+		<obj vnum="47714" />
+		<obj vnum="47715" />
+		<obj vnum="47716" />
+		<activ size="2">
+			<apply loc="18" mod="3" />
+			<apply loc="42" mod="4" />
+			<phys_dmg pct="3" />
+		</activ>
+		<activ size="4" prof="00001000000000">
+			<apply loc="1" mod="2" />
+			<apply loc="19" mod="3" />
+			<apply loc="40" mod="10" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Одежды рыбьего пастуха" alias="орп,одеждырыбьегопастуха" comment="Южный берег озера Ильмень">
+		<obj vnum="35539" />
+		<obj vnum="35540" />
+		<obj vnum="35541" />
+		<activ size="3" prof="11000001000000" affects="g0v0w0a1">
+			<apply loc="6" mod="1" />
+			<apply loc="12" mod="15" />
+		</activ>
+	</set>
+	<set name="Снаряжение молодого викинга" alias="смв,снаряжениемолодоговитязя" comment="Северный хутор">
+		<obj vnum="35904" />
+		<obj vnum="35905" />
+		<obj vnum="35907" />
+		<obj vnum="35908" />
+		<obj vnum="35909" />
+		<obj vnum="35910" />
+		<obj vnum="35912" />
+		<activ size="2">
+			<apply loc="37" mod="5" />
+			<apply loc="5" mod="1" />
+		</activ>
+		<activ size="3">
+			<apply loc="18" mod="1" />
+			<apply loc="41" mod="2" />
+		</activ>
+		<activ size="5" affects="v0">
+			<apply loc="1" mod="2" />
+			<apply loc="18" mod="2" />
+			<apply loc="41" mod="2" />
+			<enchant vnum="35909" weight="2" sdice="2" />
+		</activ>
+		<activ size="6" prof="00001000100000" affects="y0">
+			<apply loc="5" mod="2" />
+			<apply loc="44" mod="6" />
+			<apply loc="20" mod="-8" />
+			<apply loc="39" mod="-8" />
+			<skill num="158" val="7" />
+		</activ>
+	</set>
+	<set name="Удобные одежды меткого лучника" alias="сетмл,сетметкоголучника" comment="Охот-5">
+		<messages char_on="&amp;gНа поверхности $o1 возникли сложные узоры из листьев.&amp;n" char_off="&amp;rУзоры из листьев пропали с поверхности $o1.&amp;n" room_on="&amp;g$o0 $n1 покрыл$U узорами из листьев.&amp;n" room_off="&amp;r$o0 $n1 потускнел$G, лишившись узоров из листьев.&amp;n" />
+		<obj vnum="1276" />
+		<obj vnum="1277" />
+		<obj vnum="1278" />
+		<obj vnum="1279" />
+		<obj vnum="2342" />
+		<activ size="3" prof="00010000000000" affects="d0t0D0">
+			<apply loc="1" mod="6" />
+			<apply loc="2" mod="4" />
+			<apply loc="48" mod="25" />
+			<apply loc="18" mod="12" />
+			<apply loc="20" mod="-30" />
+			<apply loc="39" mod="-35" />
+		</activ>
+		<activ size="4" prof="00010000000000" affects="e0p0v0w0a1">
+			<apply loc="24" mod="-35" />
+			<apply loc="2" mod="6" />
+			<apply loc="5" mod="6" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="26" />
+			<apply loc="41" mod="23" />
+			<enchant vnum="1279" weight="14" />
+		</activ>
+		<activ size="5" prof="00010000000000" affects="k1l1m1">
+			<apply loc="49" mod="25" />
+			<apply loc="13" mod="100" />
+			<apply loc="44" mod="30" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="22" mod="25" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Одежды слуги чернобога" alias="сетсч,сетслугичернобога" comment="Чернок-5">
+		<messages char_on="Лютый холод источаемый $o4 пронизал вас до самых костей." char_off="Морозный воздух вокруг $o1 осыпался кристалликами льда. " room_on="Вы ощутили могильный холод исходящий от $o1." room_off="Морозный воздух вокруг $o1 осыпался кристалликами льда." />
+		<obj vnum="1280" />
+		<obj vnum="1281" />
+		<obj vnum="1282" />
+		<obj vnum="1283" />
+		<obj vnum="2341" />
+		<activ size="3" prof="00000100000000" affects="d0t0">
+			<apply loc="4" mod="4" />
+			<apply loc="48" mod="25" />
+			<apply loc="42" mod="20" />
+			<apply loc="39" mod="-35" />
+			<apply loc="40" mod="10" />
+			<apply loc="44" mod="20" />
+		</activ>
+		<activ size="4" prof="00000100000000" affects="c0e0a1">
+			<apply loc="4" mod="4" />
+			<apply loc="40" mod="20" />
+			<apply loc="12" mod="85" />
+			<apply loc="24" mod="-25" />
+			<apply loc="20" mod="-30" />
+			<apply loc="13" mod="25" />
+		</activ>
+		<activ size="5" prof="00000100000000" affects="b0p0v0w0D0k1l1m1">
+			<apply loc="4" mod="5" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="40" mod="25" />
+			<apply loc="13" mod="100" />
+			<apply loc="23" mod="-25" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Одеяние танцующей тени" alias="сеттт сеттанцующейтени" comment="Тать-5">
+		<messages char_on="&amp;KТемные тени&amp;n окружили $o3 и закружились в быстром танце, скрывая ваши очертания." char_off="&amp;KТемные тени&amp;n прекратили свой танец и рассеялись вокруг $o1 снова открыв ваши очертания." room_on="&amp;KТемные танцующие тени&amp;n заплясали вокруг $o1, скрывая очертания $n1." room_off="&amp;KТемные танцующие тени&amp;n рассеялись вокруг $o1 и очертания $n1 стали прежними." />
+		<obj vnum="1284" />
+		<obj vnum="1285" />
+		<obj vnum="1286" />
+		<obj vnum="1287" />
+		<obj vnum="1298" />
+		<activ size="3" prof="00000000000100" affects="b0d0e0p0t0D0a1m1">
+			<apply loc="2" mod="7" />
+			<apply loc="14" mod="100" />
+			<apply loc="13" mod="30" />
+			<apply loc="41" mod="10" />
+			<apply loc="39" mod="-40" />
+			<apply loc="20" mod="-25" />
+			<skill num="135" val="15" />
+		</activ>
+		<activ size="4" prof="00000000000100" affects="k1l1">
+			<apply loc="18" mod="10" />
+			<apply loc="42" mod="20" />
+			<apply loc="19" mod="10" />
+			<apply loc="2" mod="5" />
+			<apply loc="24" mod="-30" />
+			<apply loc="48" mod="15" />
+			<enchant vnum="1284" ndice="2" sdice="1" />
+		</activ>
+		<activ size="5" prof="00000000000100" affects="v0A0">
+			<apply loc="13" mod="80" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="2" mod="6" />
+			<apply loc="49" mod="15" />
+			<apply loc="22" mod="35" />
+			<apply loc="18" mod="5" />
+			<apply loc="19" mod="10" />
+			<enchant vnum="1285" ndice="2" sdice="2" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Одежды неизведанных дорог" alias="сетнд сетнеизведанныхдорог неизведанных дорог" comment="Волш-5">
+		<messages char_on="&amp;mПурпурное сияние&amp;n вспыхнуло вокруг $o1, наделяя вас &amp;Yволшебной силой&amp;n." char_off="&amp;mПурпурное сияние&amp;n вокруг $o1 угасло и &amp;Yволшебная сила&amp;n покинула вас." room_on="&amp;mПурпурное сияние&amp;n осветило $o3, наделяя $n3 &amp;Yволшебной силой&amp;n." room_off="&amp;mПурпурное сияние&amp;n угасло вокруг $o1 и &amp;Yволшебная сила&amp;n покинула $n3. " />
+		<obj vnum="1288" />
+		<obj vnum="1289" />
+		<obj vnum="1290" />
+		<obj vnum="1291" />
+		<obj vnum="1292" />
+		<activ size="3" prof="00000010000000" affects="b0d0e0t0v0D0">
+			<apply loc="3" mod="3" />
+			<apply loc="6" mod="3" />
+			<apply loc="44" mod="25" />
+			<apply loc="40" mod="20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="48" mod="20" />
+		</activ>
+		<activ size="4" prof="00000010000000" affects="j0p0a1">
+			<apply loc="3" mod="4" />
+			<apply loc="6" mod="6" />
+			<apply loc="40" mod="10" />
+			<apply loc="13" mod="45" />
+			<apply loc="39" mod="-15" />
+			<apply loc="12" mod="75" />
+		</activ>
+		<activ size="5" prof="00000010000000" affects="k1l1m1">
+			<apply loc="13" mod="75" />
+			<apply loc="40" mod="25" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="одежды с лебедями" alias="одеждылебедями">
+		<messages char_on="&amp;WБелые лебеди&amp;n на $o5 захлопали крыльями и вас наполнила жизненная энергия." char_off="&amp;WБелые лебеди&amp;n на $o5 замерли и энергия покинула вас." room_on="&amp;WБелые лебеди&amp;n на $o5 захлопали крыльями и &amp;Wнебесный луч&amp;n на мгновение озарил $n3." room_off="&amp;WБелые лебеди&amp;n на $o5 замерли и &amp;Wнебесный луч&amp;n покинул тело $n1." />
+		<obj vnum="24279" />
+		<obj vnum="24280" />
+		<obj vnum="24281" />
+		<obj vnum="24282" />
+		<obj vnum="24283" />
+		<obj vnum="24284" />
+		<activ size="2" prof="00011000101000" affects="t0">
+			<apply loc="19" mod="1" />
+			<apply loc="18" mod="1" />
+		</activ>
+		<activ size="4" prof="00011000101000" affects="j0">
+			<apply loc="1" mod="1" />
+			<apply loc="14" mod="15" />
+			<apply loc="19" mod="1" />
+		</activ>
+		<activ size="6" prof="00011000101000" affects="w0D0">
+			<apply loc="5" mod="1" />
+			<apply loc="13" mod="15" />
+			<apply loc="2" mod="1" />
+			<apply loc="19" mod="1" />
+			<apply loc="18" mod="2" />
+			<enchant vnum="24283" weight="1" />
+			<phys_dmg pct="2" />
+		</activ>
+	</set>
+	<set name="Доспехи с клеймом Китовраса" alias="сеткк сетсклеймомкитовраса сеткитовраса" comment="Батыр-5">
+		<messages char_on="&amp;KКлеймо&amp;n &amp;WКитовраса вспыхнуло&amp;n &amp;Kи вы почувствовали небывалый прилив сил.&amp;n" char_off="&amp;KКлеймо&amp;n &amp;WКитовраса погасло&amp;n &amp;Kи силы оставили вас.&amp;n" room_on="&amp;KКлеймо&amp;n &amp;WКитовраса вспыхнуло&amp;n &amp;Kи $n3 наполнила сила.&amp;n" room_off="&amp;KКлеймо&amp;n &amp;WКитовраса погасло&amp;n &amp;Kи сила оставила $n3.&amp;n" />
+		<obj vnum="1293" />
+		<obj vnum="1294" />
+		<obj vnum="1295" />
+		<obj vnum="1296" />
+		<obj vnum="1297" />
+		<activ size="3" prof="00000000001000" affects="b0c0d0j0">
+			<apply loc="1" mod="4" />
+			<apply loc="5" mod="2" />
+			<apply loc="41" mod="20" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-35" />
+			<apply loc="19" mod="10" />
+		</activ>
+		<activ size="4" prof="00000000001000" affects="t0D0a1">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="39" mod="-25" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="10" />
+			<apply loc="48" mod="20" />
+			<apply loc="36" mod="20" />
+		</activ>
+		<activ size="5" prof="00000000001000" affects="e0p0v0w0i1">
+			<apply loc="1" mod="4" />
+			<apply loc="5" mod="2" />
+			<apply loc="18" mod="15" />
+			<apply loc="52" mod="10" />
+			<apply loc="51" mod="10" />
+			<apply loc="13" mod="100" />
+			<apply loc="19" mod="10" />
+			<skill num="1" val="15" />
+			<enchant vnum="1297" weight="5" />
+		</activ>
+	</set>
+	<set name="Одежды ремесленника" alias="сетремесленника сетор" comment="мини сет">
+		<messages char_on="&amp;KВолшебная сила ремесла&amp;n окутала $o3." char_off="&amp;KВолшебная сила ремесла&amp;n исезла с $o3." room_on="&amp;KВолшебная сила ремесла&amp;n окутала $o3." room_off="&amp;KВолшебная сила ремесла&amp;n исезла с $o3." />
+		<obj vnum="77855" />
+		<obj vnum="77856" />
+		<obj vnum="77857" />
+		<obj vnum="77858" />
+		<activ size="2" affects="d0t0v0">
+			<skill num="177" val="10" />
+		</activ>
+		<activ size="3">
+			<apply loc="12" mod="75" />
+			<skill num="176" val="15" />
+		</activ>
+		<activ size="4" affects="c0e0f0j0">
+			<apply loc="59" mod="10" />
+			<skill num="172" val="10" />
+		</activ>
+	</set>
+	<set name="Одежды великого целителя" alias="сетвц сетвеликогоцелителя" comment="Клер-5">
+		<messages char_on="&amp;KТайные знания&amp;n &amp;Wцелителей озарили ваш разум.&amp;n" char_off="&amp;KДревние заветы&amp;n &amp;Wцелителей&amp;n &amp;Kулетучились&amp;n &amp;Wс вашей головы.&amp;n" room_on="&amp;WОслепительный белый свет озарил $o3&amp;n, &amp;Kтайные знания целителей&amp;n &amp;Wполонили ум $n1.&amp;n" room_off="&amp;KТайные знания целителей&amp;n &amp;Wоставили разум $n1 в покое.&amp;n" />
+		<obj vnum="2300" />
+		<obj vnum="2301" />
+		<obj vnum="2302" />
+		<obj vnum="2303" />
+		<obj vnum="2304" />
+		<activ size="3" prof="00000000000001" affects="d0e0j0t0">
+			<apply loc="3" mod="3" />
+			<apply loc="4" mod="4" />
+			<apply loc="13" mod="40" />
+			<apply loc="12" mod="40" />
+			<apply loc="24" mod="-30" />
+			<apply loc="42" mod="20" />
+		</activ>
+		<activ size="4" prof="00000000000001" affects="b0p0a1">
+			<apply loc="3" mod="5" />
+			<apply loc="40" mod="45" />
+			<apply loc="12" mod="80" />
+			<apply loc="20" mod="-30" />
+			<apply loc="48" mod="20" />
+			<apply loc="39" mod="-30" />
+		</activ>
+		<activ size="5" prof="00000000000001" affects="k1l1m1">
+			<apply loc="32" mod="6" />
+			<apply loc="13" mod="75" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="34" mod="4" />
+			<apply loc="4" mod="4" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Одежды абсолютного повиновения" alias="сетап сетповиновения сетабсолютногоповиновения" comment="Кудес-5">
+		<messages char_on="&amp;GЗеленоватый отблеск&amp;n покрыл $o3 и вам стало проще доносить силу своей мысли окружающим." char_off="&amp;GЗеленоватое свечение&amp;n вокруг $o1 угасло, магическая сила, наполнявшая ваш разум, пропала. " room_on="&amp;GЗеленоватое свечение&amp;n покрыло $o3 и в глазах $n1 промелькнул таинственный блеск." room_off="&amp;GЗеленоватое свечение&amp;n вокруг $o1 угасло, таинственный блеск в глазах $n1 пропал." />
+		<obj vnum="2305" />
+		<obj vnum="2306" />
+		<obj vnum="2307" />
+		<obj vnum="2308" />
+		<obj vnum="2309" />
+		<activ size="3" prof="00000001000000" affects="b0d0e0t0">
+			<apply loc="6" mod="4" />
+			<apply loc="3" mod="2" />
+			<apply loc="13" mod="15" />
+			<apply loc="40" mod="15" />
+			<apply loc="20" mod="-25" />
+			<apply loc="48" mod="20" />
+			<skill num="188" val="15" />
+		</activ>
+		<activ size="4" prof="00000001000000" affects="c0v0D0a1">
+			<apply loc="13" mod="40" />
+			<apply loc="51" mod="10" />
+			<apply loc="44" mod="20" />
+			<apply loc="22" mod="20" />
+			<apply loc="39" mod="-30" />
+			<apply loc="24" mod="-25" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="00000001000000" affects="f0k1l1m1">
+			<apply loc="40" mod="45" />
+			<apply loc="6" mod="11" />
+			<apply loc="3" mod="5" />
+			<apply loc="13" mod="95" />
+			<apply loc="12" mod="75" />
+			<apply loc="52" mod="10" />
+		</activ>
+	</set>
+	<set name="Доспехи коварного наемника" alias="сеткн сетковарного сетнаемника сетковарногонаемника коварного наемника" comment="Наем-5">
+		<messages char_on="&amp;RКапли крови&amp;n проступили на $o5 и вы почувствовали жажду убийства." char_off="&amp;RКапли крови&amp;n всосались в $o3 и ваша жажда убийства отступила." room_on="&amp;RКапли крови&amp;n проступили на $o5 и вам захотелось убежать подальше от $n1." room_off="&amp;RКапли крови&amp;n всосались в $o3 и вы перестали бояться $n1." />
+		<obj vnum="2310" />
+		<obj vnum="2311" />
+		<obj vnum="2312" />
+		<obj vnum="2313" />
+		<obj vnum="2314" />
+		<activ size="2" prof="00000000010000">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="14" mod="130" />
+		</activ>
+		<activ size="3" prof="00000000010000" affects="b0d0f0t0D0a1">
+			<apply loc="2" mod="5" />
+			<apply loc="13" mod="50" />
+			<apply loc="41" mod="5" />
+			<apply loc="18" mod="5" />
+			<apply loc="23" mod="-20" />
+			<apply loc="19" mod="10" />
+		</activ>
+		<activ size="4" prof="00000000010000" affects="v0w0">
+			<apply loc="2" mod="5" />
+			<apply loc="1" mod="3" />
+			<apply loc="13" mod="50" />
+			<apply loc="18" mod="10" />
+			<apply loc="41" mod="15" />
+			<apply loc="39" mod="-20" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="00000000010000" affects="e0k1l1m1">
+			<apply loc="1" mod="4" />
+			<apply loc="13" mod="25" />
+			<apply loc="42" mod="25" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="доспехи Непорочной души" alias="сетнепорочнойдуши" comment="Нубосет файтерский">
+		<messages char_on="&amp;WБелый свет&amp;n озарил вас, наполнив божественной силой." char_off="&amp;WБожественная сила&amp;n покинула вас." room_on="&amp;WБелый свет&amp;n озарил $n3, наполнив тело &amp;Wбожественной силой&amp;n." room_off="&amp;WБожественная сила&amp;n покинула тело $n1." />
+		<obj vnum="75947" />
+		<obj vnum="75950" />
+		<obj vnum="75951" />
+		<obj vnum="75952" />
+		<activ size="2" prof="00111000111100" affects="d0p0t0">
+			<apply loc="1" mod="1" />
+			<apply loc="2" mod="2" />
+			<apply loc="5" mod="1" />
+			<apply loc="18" mod="3" />
+			<apply loc="19" mod="3" />
+		</activ>
+		<activ size="3" prof="00111000111100" affects="j0D0a1i1">
+			<apply loc="18" mod="3" />
+			<apply loc="19" mod="3" />
+			<apply loc="13" mod="40" />
+			<apply loc="39" mod="-10" />
+			<apply loc="20" mod="-10" />
+			<apply loc="44" mod="15" />
+			<apply loc="1" mod="1" />
+		</activ>
+		<activ size="4" prof="00111000111100" affects="v0w0k1l1m1">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="2" mod="2" />
+			<apply loc="18" mod="4" />
+			<apply loc="19" mod="4" />
+			<enchant vnum="75952" weight="1" />
+			<phys_dmg pct="8" />
+		</activ>
+	</set>
+	<set name="доспехи магического равновесия" alias="сетмагическогоравновесия" comment="Нубосет кастерский">
+		<messages char_on="Таинственный знак засиял на $o5 и вас наполнила &amp;Mколдовская сила&amp;n." char_off="Таинственный знак на $o5 потускнел и угас - &amp;Mколдовская сила&amp;n покинула вас." room_on="Таинственный знак засиял на $o5 и $n3 наполнила &amp;Mколдовская сила&amp;n." room_off="Таинственный знак на $o5 потускнел и угас - &amp;Mколдовская сила&amp;n покинула $n3." />
+		<obj vnum="75962" />
+		<obj vnum="75963" />
+		<obj vnum="75964" />
+		<obj vnum="75965" />
+		<activ size="2" prof="11000111000011" affects="d0e0j0t0">
+			<apply loc="3" mod="1" />
+			<apply loc="4" mod="1" />
+			<apply loc="12" mod="25" />
+			<apply loc="13" mod="25" />
+			<apply loc="6" mod="1" />
+		</activ>
+		<activ size="3" prof="11000111000011" affects="p0t0v0w0">
+			<apply loc="13" mod="15" />
+			<apply loc="12" mod="25" />
+			<apply loc="40" mod="15" />
+			<apply loc="39" mod="-10" />
+			<apply loc="24" mod="-10" />
+			<apply loc="20" mod="-10" />
+			<apply loc="3" mod="1" />
+		</activ>
+		<activ size="4" prof="11000111000011" affects="D0a1k1l1m1">
+			<apply loc="3" mod="2" />
+			<apply loc="4" mod="3" />
+			<apply loc="6" mod="2" />
+			<apply loc="40" mod="20" />
+			<apply loc="12" mod="25" />
+			<apply loc="13" mod="30" />
+			<apply loc="1" mod="3" />
+			<apply loc="2" mod="3" />
+			<mage_dmg pct="8" />
+		</activ>
+	</set>
+	<set name="Доспехи лунной тени" alias="сетлуннойтени сетлт" comment="микросет колд чернок">
+		<messages char_on="Отблески призрачного света скользнули по $o2." char_off="отблески, покрывавшие $o0, растаяли." room_on="Тусклые отблески скользнули по $o2, скрыв $n1 в призрачной мгле." room_off="Мгла $o1 растаяла." />
+		<obj vnum="1200" />
+		<obj vnum="1201" />
+		<obj vnum="1202" />
+		<activ size="3" prof="00000100000010" affects="d0e0t0v0x0a1">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="3" />
+			<apply loc="13" mod="100" />
+			<apply loc="40" mod="45" />
+			<apply loc="20" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="24" mod="-15" />
+			<apply loc="44" mod="10" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Дорожные одежды странствующего целителя" alias="сетсц сц сетстранствующегоцелителя" comment="микросет клер волхв">
+		<obj vnum="1272" />
+		<obj vnum="1273" />
+		<obj vnum="1274" />
+		<activ size="2">
+			<apply loc="12" mod="100" />
+			<apply loc="32" mod="3" />
+			<apply loc="34" mod="3" />
+		</activ>
+		<activ size="3" prof="10000000000001" affects="b0d0e0j0t0x0a1">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="6" />
+			<apply loc="13" mod="150" />
+			<apply loc="40" mod="40" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-30" />
+			<apply loc="42" mod="15" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="набор адского пламени" alias="сетадскогопламени" comment="автор Магни">
+		<messages char_on="&amp;rАдское пламя&amp;n &amp;Rвспыхнуло&amp;n вокруг $o1 и &amp;rкровь&amp;n закипела в ваших жилах." char_off="&amp;rАдское пламя&amp;n вокруг $o1 &amp;Rугасло&amp;n и &amp;Rсила огня&amp;n покинула вас." room_on="&amp;rАдское пламя&amp;n &amp;Rвспыхнуло&amp;n вокруг $o1 и &amp;Rсила огня&amp;n наполнила тело $n1." room_off="&amp;rАдское пламя&amp;n вокруг $o1 &amp;Rугасло&amp;n и &amp;Rсила огня&amp;n покинула тело $n1." />
+		<obj vnum="75520" />
+		<obj vnum="75521" />
+		<activ size="2" prof="00101000100000" affects="d0j0w0y0D0l1">
+			<apply loc="1" mod="6" />
+			<apply loc="5" mod="7" />
+			<apply loc="51" mod="5" />
+			<apply loc="52" mod="5" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<phys_dmg pct="8" />
+		</activ>
+	</set>
+	<set name="Доспехи Непоколебимой Стойкости" alias="сетнепоколебимойстойкости сетстойкости сетднс" comment="дружинник">
+		<messages char_on="Неведомая &amp;Wсила&amp;n наполнила ваше тело, которое стало &amp;Kтвердым&amp;n, словно &amp;yгранит&amp;n." char_off="&amp;WСила&amp;n покинула ваше тело, которое утратило свою твердость." room_on="Ослепительный &amp;Wбелый свет&amp;n озарил $o3, тело $n1 стало &amp;Kтвердым&amp;n, словно &amp;Kгранит&amp;n." room_off="Ослепительный &amp;Wбелый свет&amp;n вокруг $o1 угас, тело $n1 утратило твердость &amp;Kгранита&amp;n." />
+		<obj vnum="2316" />
+		<obj vnum="2317" />
+		<obj vnum="2318" />
+		<obj vnum="2319" />
+		<obj vnum="2320" />
+		<activ size="3" prof="00000000100000" affects="d0j0t0">
+			<apply loc="41" mod="20" />
+			<apply loc="5" mod="2" />
+			<apply loc="23" mod="-25" />
+			<apply loc="44" mod="45" />
+			<apply loc="46" mod="20" />
+			<apply loc="22" mod="20" />
+			<apply loc="2" mod="5" />
+			<skill num="137" val="20" />
+		</activ>
+		<activ size="4" prof="00000000100000" affects="w0y0D0a1">
+			<apply loc="48" mod="25" />
+			<apply loc="21" mod="20" />
+			<apply loc="49" mod="15" />
+			<apply loc="39" mod="-40" />
+			<apply loc="13" mod="100" />
+			<apply loc="20" mod="-40" />
+			<skill num="12" val="20" />
+			<enchant vnum="2318" weight="8" />
+		</activ>
+		<activ size="5" prof="00000000100000" affects="d0e0p0v0x0k1l1m1">
+			<apply loc="51" mod="12" />
+			<apply loc="52" mod="12" />
+			<apply loc="5" mod="12" />
+			<apply loc="1" mod="8" />
+			<apply loc="24" mod="-40" />
+			<apply loc="23" mod="-40" />
+			<apply loc="62" mod="12" />
+			<apply loc="19" mod="10" />
+			<skill num="158" val="20" />
+			<enchant vnum="2318" weight="10" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Одежды четырех Стихий" alias="сетчетырехстихий сетчс" comment="колдун">
+		<messages char_on="Элементы &amp;Rогня&amp;n, &amp;Cводы&amp;n, &amp;Wвоздуха&amp;n и &amp;yземли&amp;n закружились в бешеном танце, соединившись в &amp;Rсокрушительную силу&amp;n, которая наполнила вас." char_off="Элементы &amp;Mчетырех стихий&amp;n исчезли, наполнявшая вас &amp;Rсила&amp;n, исчезла вместе с ними." room_on="Элементы &amp;Rогня&amp;n, &amp;Cводы&amp;n, &amp;Wвоздуха&amp;n и &amp;yземли&amp;n &amp;Wзакружились в бешенном танце&amp;n, &amp;Rсила четырех стихий&amp;n &amp;Wнаполнила $n3&amp;n." room_off="&amp;WЭлементы четырех стихий растворились&amp;n, &amp;Rсила&amp;n &amp;Wнаполнявшая $n3 исчезла&amp;n." />
+		<obj vnum="2321" />
+		<obj vnum="2322" />
+		<obj vnum="2323" />
+		<obj vnum="2324" />
+		<obj vnum="2325" />
+		<activ size="3" prof="00000000000010" affects="d0e0j0t0a1">
+			<apply loc="4" mod="5" />
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="42" mod="20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="23" mod="-20" />
+		</activ>
+		<activ size="4" prof="00000000000010" affects="b0p0v0w0D0">
+			<apply loc="13" mod="25" />
+			<apply loc="12" mod="75" />
+			<apply loc="40" mod="30" />
+			<apply loc="48" mod="20" />
+			<apply loc="49" mod="20" />
+			<apply loc="3" mod="5" />
+		</activ>
+		<activ size="5" prof="00000000000010" affects="k1l1m1">
+			<apply loc="40" mod="30" />
+			<apply loc="13" mod="100" />
+			<apply loc="4" mod="5" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="39" mod="-15" />
+			<mage_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Доспехи святого слова" alias="сетсс сетсвятогослова" comment="витязь">
+		<messages char_on="&amp;WБожественное благословение&amp;n озарило вас." char_off="Вы утратили &amp;Wбожественное благословение&amp;n." room_on="&amp;WЯркий белый свет&amp;n озарил $o3, тело и душа $n1 обрели &amp;Wзащиту Всевышнего&amp;n." room_off="&amp;WЯркий белый свет&amp;n вокруг $o1 угас, $n3 покинуло &amp;Wпокровительство Всевышнего.&amp;n" />
+		<obj vnum="2326" />
+		<obj vnum="2327" />
+		<obj vnum="2328" />
+		<obj vnum="2329" />
+		<obj vnum="2330" />
+		<activ size="3" prof="00001000000000" affects="d0e0j0t0">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="42" mod="20" />
+			<apply loc="48" mod="15" />
+			<apply loc="50" mod="15" />
+			<apply loc="41" mod="20" />
+			<apply loc="63" mod="10" />
+		</activ>
+		<activ size="4" prof="00001000000000" affects="p0v0w0y0D0a1">
+			<apply loc="18" mod="12" />
+			<apply loc="13" mod="100" />
+			<apply loc="39" mod="-35" />
+			<apply loc="20" mod="-35" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-30" />
+			<apply loc="36" mod="20" />
+			<enchant vnum="2327" weight="5" />
+		</activ>
+		<activ size="5" prof="00001000000000" affects="k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="5" mod="7" />
+			<apply loc="1" mod="4" />
+			<apply loc="19" mod="18" />
+			<apply loc="40" mod="25" />
+			<phys_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Латы железного вихря" alias="сетжв сетжелезноговихря" comment="кузнец">
+		<messages char_on="Неистовая сила &amp;yЖелезного Вихря&amp;n наполнила ваше тело." char_off="Неистовая сила &amp;yЖелезного Вихря&amp;n покинула ваше тело." room_on="Сила &amp;yЖелезного Вихря&amp;n наполнила тело $n1." room_off="Сила &amp;yЖелезного Вихря&amp;n покинула тело $n1." />
+		<obj vnum="2331" />
+		<obj vnum="2332" />
+		<obj vnum="2333" />
+		<obj vnum="2334" />
+		<obj vnum="2335" />
+		<activ size="3" prof="00100000000000" affects="d0j0p0t0">
+			<apply loc="18" mod="10" />
+			<apply loc="19" mod="15" />
+			<apply loc="39" mod="-35" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="23" mod="-30" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="4" prof="00100000000000" affects="e0v0w0D0a1">
+			<apply loc="44" mod="30" />
+			<apply loc="22" mod="20" />
+			<apply loc="5" mod="5" />
+			<apply loc="41" mod="20" />
+			<apply loc="48" mod="20" />
+			<apply loc="42" mod="20" />
+			<apply loc="36" mod="20" />
+			<enchant vnum="2335" weight="5" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="5" prof="00100000000000" affects="k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="19" mod="15" />
+			<apply loc="13" mod="100" />
+			<apply loc="1" mod="10" />
+			<apply loc="14" mod="120" />
+		</activ>
+	</set>
+	<set name="Одежды тайных рун" alias="сеттр одеждытайныхрун" comment="волхв">
+		<messages char_on="&amp;RРуны&amp;n &amp;Wвспыхнули и знания предков наполнили вас&amp;n." char_off="&amp;RРуны&amp;n &amp;Wпогасли и знания предков покинули вас&amp;n." room_on="&amp;RРуны&amp;n &amp;Wвспыхнули на&amp;n $o5, &amp;Wнаделяя $n3 древними знаниями&amp;n." room_off="&amp;RРуны&amp;n &amp;Wпогасли на&amp;n $o5, &amp;Wдревние знания покинули $n3&amp;n." />
+		<obj vnum="2336" />
+		<obj vnum="2337" />
+		<obj vnum="2338" />
+		<obj vnum="2339" />
+		<obj vnum="2340" />
+		<activ size="3" prof="10000000000000" affects="b0c0d0e0j0t0">
+			<apply loc="3" mod="5" />
+			<apply loc="4" mod="5" />
+			<apply loc="40" mod="20" />
+			<apply loc="39" mod="-30" />
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+		</activ>
+		<activ size="4" prof="10000000000000" affects="p0v0w0D0a1">
+			<apply loc="3" mod="5" />
+			<apply loc="24" mod="-30" />
+			<apply loc="48" mod="20" />
+			<apply loc="44" mod="25" />
+			<apply loc="13" mod="75" />
+			<apply loc="22" mod="25" />
+		</activ>
+		<activ size="5" prof="10000000000000" affects="k1l1m1">
+			<apply loc="13" mod="50" />
+			<apply loc="40" mod="35" />
+			<apply loc="21" mod="25" />
+			<apply loc="47" mod="25" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Доспехи полной Луны" alias="сетпл сетполнойлуны" comment="микросет кудес волш">
+		<obj vnum="1203" />
+		<obj vnum="1204" />
+		<obj vnum="1205" />
+		<activ size="3" prof="00000011000000" affects="d0e0j0t0x0a1">
+			<apply loc="3" mod="3" />
+			<apply loc="6" mod="6" />
+			<apply loc="13" mod="125" />
+			<apply loc="40" mod="40" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-15" />
+			<apply loc="42" mod="5" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Одежды торговой смекалки" alias="сетторговойсмекалки сеттс" comment="купцы">
+		<messages char_on="&amp;WЛукавый огонек блеснул у Вас в глазах.&amp;n" char_off="&amp;WНемного поубавилось огня в Ваших глазах.&amp;n" room_on="&amp;WЛукавый огонек блеснул в глазах $o5, и Вам захотелось посмотреть его товары.&amp;n" room_off="&amp;WНемного поубавилось огня в глазах $o3 да и Вам ничего не приглянулось.&amp;n" />
+		<obj vnum="60605" />
+		<obj vnum="60606" />
+		<obj vnum="60607" />
+		<activ size="3" prof="01000000000000" affects="g0">
+			<apply loc="6" mod="3" />
+		</activ>
+	</set>
+	<set name="Одеяние теплого снега" alias="сеттеплогоснега одеяниетеплогоснега теплогоснега">
+		<messages char_on="&amp;CВихрь маленьких снежинок окружил вас.&amp;n" char_off="&amp;CСнежинки, окружавшие вас, растаяли на ветру.&amp;n" room_on="&amp;CВихрь маленьких снежинок закружил $n3&amp;n &amp;Wв зимнем танце.&amp;n " room_off="&amp;CХоровод снежинок вокруг $n1&amp;n &amp;Wмедленно растаял в воздухе.&amp;n " />
+		<obj vnum="2550" />
+		<obj vnum="2551" />
+		<obj vnum="2552" />
+		<obj vnum="2553" />
+		<activ size="2" prof="01111000111100" affects="d0t0w0">
+			<apply loc="5" mod="2" />
+			<apply loc="1" mod="2" />
+			<apply loc="2" mod="2" />
+			<apply loc="48" mod="15" />
+			<apply loc="50" mod="15" />
+			<apply loc="49" mod="15" />
+			<apply loc="18" mod="2" />
+			<apply loc="19" mod="2" />
+		</activ>
+		<activ size="3" prof="01111000111100" affects="e0p0v0a1">
+			<apply loc="1" mod="3" />
+			<apply loc="5" mod="3" />
+			<apply loc="2" mod="4" />
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="41" mod="10" />
+		</activ>
+		<activ size="4" prof="01111000111100" affects="b0D0k1l1m1p1">
+			<apply loc="13" mod="75" />
+			<apply loc="19" mod="12" />
+			<apply loc="18" mod="12" />
+			<apply loc="51" mod="5" />
+			<apply loc="52" mod="5" />
+			<apply loc="44" mod="20" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Сотканные из снега одежды" alias="сотканныеснегаодежды сетсотканныйснега сотканныйснега">
+		<messages char_on="&amp;WПелена снега окутала вас.&amp;n" char_off="&amp;WПелена снега вокруг вас пропала&amp;n" room_on="&amp;WПелена белого снега окутала $n3.&amp;n" room_off="&amp;WПелена белого снега вокруг $n1 растаяла.&amp;n" />
+		<obj vnum="2554" />
+		<obj vnum="2555" />
+		<obj vnum="2556" />
+		<obj vnum="2557" />
+		<activ size="2" prof="10000111000011" affects="b0d0t0w0">
+			<apply loc="40" mod="10" />
+			<apply loc="12" mod="75" />
+			<apply loc="13" mod="20" />
+			<apply loc="22" mod="10" />
+			<apply loc="21" mod="10" />
+			<apply loc="46" mod="10" />
+		</activ>
+		<activ size="3" prof="10000111000011" affects="p0D0a1">
+			<apply loc="20" mod="-15" />
+			<apply loc="39" mod="-15" />
+			<apply loc="24" mod="-15" />
+			<apply loc="23" mod="-15" />
+			<apply loc="49" mod="10" />
+			<apply loc="6" mod="5" />
+			<apply loc="40" mod="10" />
+			<apply loc="13" mod="20" />
+		</activ>
+		<activ size="4" prof="10000111000011" affects="e0v0k1l1m1p1">
+			<apply loc="4" mod="5" />
+			<apply loc="3" mod="5" />
+			<apply loc="13" mod="40" />
+			<apply loc="40" mod="25" />
+			<apply loc="51" mod="5" />
+			<apply loc="52" mod="5" />
+			<mage_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Одеяние вьюги" alias="одеяниевьюги сетзимнейвьюги зимнейвьюги">
+		<messages char_on="&amp;WБелая вьюга укутала вас своим одеялом.&amp;n" char_off="&amp;WОдеяло белой вьюги вокруг вас растаяло.&amp;n" room_on="&amp;WБелая вьюга укутала $n3 вихрем снежинок.&amp;n" room_off="&amp;WСнежный вихрь вокруг $n1 рассеялся.&amp;n" />
+		<obj vnum="2562" />
+		<obj vnum="2563" />
+		<obj vnum="2564" />
+		<obj vnum="2565" />
+		<activ size="2" prof="10000111000011" affects="b0j0t0">
+			<apply loc="6" mod="3" />
+			<apply loc="3" mod="3" />
+			<apply loc="4" mod="3" />
+			<apply loc="40" mod="10" />
+			<apply loc="12" mod="50" />
+			<apply loc="13" mod="30" />
+		</activ>
+		<activ size="3" prof="10000111000011" affects="d0e0p0v0y0a1">
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="20" mod="-25" />
+			<apply loc="3" mod="4" />
+			<apply loc="4" mod="4" />
+			<apply loc="6" mod="4" />
+			<mage_dmg pct="2" />
+		</activ>
+		<activ size="4" prof="10000111000011" affects="D0k1l1m1p1">
+			<apply loc="13" mod="70" />
+			<apply loc="40" mod="40" />
+			<apply loc="51" mod="7" />
+			<apply loc="52" mod="7" />
+			<apply loc="42" mod="20" />
+			<apply loc="23" mod="-20" />
+			<apply loc="12" mod="30" />
+			<mage_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Доспехи северного сияния" alias="доспехисеверногосияния сетсеверногосияния северногосияния">
+		<messages char_on="&amp;cРазноцветные блики северного сияния окружили вас.&amp;n" char_off="&amp;cБлики северного сияния вокруг вас медленно погасли.&amp;n" room_on="&amp;mЯркие блики&amp;n &amp;cсеверного сияния&amp;n &amp;Wозарили&amp;n $n3." room_off="&amp;mЯркие блики&amp;n &amp;cсеверного сияния&amp;n вокруг $n1 угасли." />
+		<obj vnum="2570" />
+		<obj vnum="2571" />
+		<obj vnum="2572" />
+		<obj vnum="2573" />
+		<activ size="2" prof="10000111000011" affects="b0d0t0w0">
+			<apply loc="3" mod="3" />
+			<apply loc="4" mod="3" />
+			<apply loc="6" mod="3" />
+			<apply loc="40" mod="15" />
+			<apply loc="13" mod="35" />
+			<apply loc="12" mod="70" />
+		</activ>
+		<activ size="3" prof="10000111000011" affects="j0p0v0a1">
+			<apply loc="24" mod="-30" />
+			<apply loc="20" mod="-30" />
+			<apply loc="39" mod="-30" />
+			<apply loc="23" mod="-30" />
+			<apply loc="42" mod="10" />
+			<apply loc="6" mod="5" />
+		</activ>
+		<activ size="4" prof="10000111000011" affects="e0k1l1m1p1">
+			<apply loc="3" mod="5" />
+			<apply loc="4" mod="5" />
+			<apply loc="51" mod="10" />
+			<apply loc="13" mod="80" />
+			<apply loc="40" mod="40" />
+			<apply loc="52" mod="10" />
+			<mage_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Зимний наряд" alias="зимнийнаряд сетсинегольда синегольда">
+		<messages char_on="&amp;CЛедяной кокон окутал ваше тело.&amp;n" char_off="&amp;CЛедяной кокон вокруг вашего тела растаял.&amp;n" room_on="&amp;CТело $n1 окутал ледяной кокон.&amp;n" room_off="&amp;CЛедяной кокон вокруг $n1 медленно растаял.&amp;n" />
+		<obj vnum="2558" />
+		<obj vnum="2559" />
+		<obj vnum="2560" />
+		<obj vnum="2561" />
+		<activ size="2" prof="01111000111100" affects="d0p0t0">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="2" mod="2" />
+			<apply loc="42" mod="15" />
+			<apply loc="41" mod="20" />
+			<apply loc="44" mod="20" />
+			<apply loc="18" mod="2" />
+			<apply loc="19" mod="2" />
+		</activ>
+		<activ size="3" prof="01111000111100" affects="e0v0w0D0a1">
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="49" mod="10" />
+			<apply loc="48" mod="10" />
+			<apply loc="13" mod="40" />
+			<phys_dmg pct="2" />
+		</activ>
+		<activ size="4" prof="01111000111100" affects="b0k1l1m1p1">
+			<apply loc="5" mod="5" />
+			<apply loc="1" mod="5" />
+			<apply loc="2" mod="5" />
+			<apply loc="51" mod="7" />
+			<apply loc="52" mod="7" />
+			<apply loc="19" mod="15" />
+			<apply loc="18" mod="15" />
+			<apply loc="13" mod="50" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Украшения зимнего солнца" alias="украшениязимнегосолнца сетзимнегосолнца зимнегосолнца">
+		<messages char_on="&amp;YЗимнее солнце ласково согрело вас.&amp;n" char_off="&amp;YТепло зимнего солнца пропало и мороз снова сковал ваше тело.&amp;n" room_on="$n3 омыло с ног до головы ласковыми лучами зимнего солнца" room_off="&amp;YЗимнее солнце спряталось за тучи и $n снова дрожит как лист на ветру.&amp;n " />
+		<obj vnum="2566" />
+		<obj vnum="2567" />
+		<obj vnum="2568" />
+		<obj vnum="2569" />
+		<activ size="2" prof="01111000111100" affects="d0e0j0t0">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="2" mod="4" />
+			<apply loc="22" mod="15" />
+			<apply loc="21" mod="15" />
+			<apply loc="47" mod="15" />
+			<apply loc="18" mod="10" />
+		</activ>
+		<activ size="3" prof="01111000111100" affects="b0p0v0w0a1">
+			<apply loc="20" mod="-35" />
+			<apply loc="39" mod="-35" />
+			<apply loc="24" mod="-35" />
+			<apply loc="23" mod="-35" />
+			<apply loc="42" mod="10" />
+			<apply loc="48" mod="10" />
+			<phys_dmg pct="3" />
+		</activ>
+		<activ size="4" prof="01111000111100" affects="k1l1m1p1">
+			<apply loc="51" mod="11" />
+			<apply loc="52" mod="11" />
+			<apply loc="19" mod="20" />
+			<apply loc="13" mod="100" />
+			<apply loc="5" mod="6" />
+			<apply loc="1" mod="6" />
+			<apply loc="18" mod="10" />
+			<apply loc="2" mod="4" />
+			<phys_dmg pct="7" />
+		</activ>
+	</set>
+	<set name="Одежды торгового мастерства" alias="сеттм сетторговогомастерства" comment="купец">
+		<messages char_on="&amp;BПо вашей одежде  пробежала волна бликов мягкого сияния!&amp;n" char_off="&amp;bБлики мягкого сияния угасли и волшебная сила покинула вас.&amp;n" room_on="&amp;BВолна бликов мягкого сияния пробежала по $o2 и волшебная сила наполнила $n1.&amp;n" room_off="&amp;bволшебная сила $n1 стала угасать!&amp;n" />
+		<obj vnum="2343" />
+		<obj vnum="2344" />
+		<obj vnum="2345" />
+		<obj vnum="2346" />
+		<obj vnum="2347" />
+		<activ size="3" prof="01000000000000" affects="b0d0j0t0">
+			<apply loc="2" mod="7" />
+			<apply loc="29" mod="3" />
+			<apply loc="30" mod="3" />
+			<apply loc="44" mod="20" />
+			<apply loc="49" mod="30" />
+			<apply loc="20" mod="-30" />
+		</activ>
+		<activ size="4" prof="01000000000000" affects="c0e0v0a1">
+			<apply loc="13" mod="100" />
+			<apply loc="12" mod="100" />
+			<apply loc="52" mod="10" />
+			<apply loc="24" mod="-30" />
+			<apply loc="42" mod="20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="01000000000000" affects="p0w0k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="6" mod="7" />
+			<apply loc="40" mod="55" />
+			<apply loc="48" mod="20" />
+			<apply loc="1" mod="7" />
+			<enchant vnum="2345" weight="15" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Набор пустынного пламени" alias="сетпустынногопламени">
+		<obj vnum="125319" />
+		<obj vnum="125333" />
+		<activ size="2" prof="01000000000001" affects="b0c0d0j0t0v0w0">
+			<apply loc="52" mod="7" />
+			<apply loc="62" mod="7" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-30" />
+			<apply loc="13" mod="140" />
+		</activ>
+	</set>
+	<set name="Доспехи наследие велетов" alias="сетвелетов сетнаследиевелетов сетнаследие доспехивелетов доспехинаследия" comment="Батыр-гривна">
+		<messages char_on="&amp;KСила последних велетов&amp;n &amp;Yнаполнила ваши мышцы&amp;n &amp;Kи вы почувствовали себя великаном.&amp;n" char_off="Сила последних велетов покинула вас и вы стали прежним." room_on="&amp;KСила последних велетов&amp;n &amp;Yсодрогнула воздух&amp;n &amp;Kи $n3 наполнила мощью великанов.&amp;n" room_off="&amp;KСила последних велетов&amp;n &amp;Yразвеялась по ветру&amp;n &amp;Kи мощь великанов покинула $n3.&amp;n" />
+		<obj vnum="201293" />
+		<obj vnum="201294" />
+		<obj vnum="201295" />
+		<obj vnum="201296" />
+		<obj vnum="201297" />
+		<activ size="3" prof="00000000001000" affects="c0d0j0">
+			<apply loc="1" mod="4" />
+			<apply loc="5" mod="2" />
+			<apply loc="41" mod="20" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-35" />
+			<apply loc="19" mod="10" />
+		</activ>
+		<activ size="4" prof="00000000001000" affects="t0D0a1">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="39" mod="-25" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="10" />
+			<apply loc="48" mod="20" />
+			<apply loc="36" mod="20" />
+		</activ>
+		<activ size="5" prof="00000000001000" affects="e0p0v0w0i1">
+			<apply loc="1" mod="4" />
+			<apply loc="5" mod="2" />
+			<apply loc="18" mod="15" />
+			<apply loc="52" mod="10" />
+			<apply loc="51" mod="10" />
+			<apply loc="13" mod="100" />
+			<apply loc="19" mod="10" />
+			<skill num="1" val="15" />
+			<enchant vnum="201297" weight="5" />
+		</activ>
+	</set>
+	<set name="Латы кузнеца-полубога" alias="сетполубога сеткузнецаполубога латыполубога сеткп" comment="Кузнец-гривна">
+		<messages char_on="Неистовое пламя из &amp;yКузни Сварога&amp;n опалило ваше тело, наделив мощью." char_off="Пламя из &amp;yКузни Сварога&amp;n стало медленно угасать, и сила покинула ваше тело." room_on="Неистовое пламя из &amp;yКузни Сварога&amp;n опалило тело $n1, наделив мощью." room_off="Пламя из &amp;yКузни Сварога&amp;n стало медленно угасать, и сила покинула тело $n1." />
+		<obj vnum="201331" />
+		<obj vnum="201332" />
+		<obj vnum="201333" />
+		<obj vnum="201334" />
+		<obj vnum="201335" />
+		<activ size="3" prof="00100000000000" affects="c0d0j0p0t0">
+			<apply loc="18" mod="10" />
+			<apply loc="19" mod="15" />
+			<apply loc="39" mod="-35" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="23" mod="-30" />
+			<apply loc="63" mod="10" />
+		</activ>
+		<activ size="4" prof="00100000000000" affects="e0v0w0D0a1">
+			<apply loc="44" mod="30" />
+			<apply loc="22" mod="20" />
+			<apply loc="5" mod="5" />
+			<apply loc="41" mod="20" />
+			<apply loc="48" mod="20" />
+			<apply loc="42" mod="20" />
+			<apply loc="36" mod="20" />
+			<enchant vnum="201335" weight="5" />
+		</activ>
+		<activ size="5" prof="00100000000000" affects="k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="19" mod="15" />
+			<apply loc="13" mod="100" />
+			<apply loc="1" mod="10" />
+			<apply loc="14" mod="120" />
+			<phys_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Удобные одежды охотничей удали" alias="сетоу сетохотничьейудали сетудали одеждыудали" comment="Охот-гривна">
+		<messages char_on="Где-то раздался волчий вой и ваше сердце стал наполнять первобытный азарт охотника." char_off="Волчий вой затих и ваш &amp;cпервобытный азарт охотника&amp;n стал угасать." room_on="Где-то раздался волчий вой и глаза $n1 стал наполнять &amp;cпервобытный азарт охотника&amp;n." room_off="Волчий вой затих и &amp;cпервобытный азарт охотника&amp;n в глазах $n1 стал угасать." />
+		<obj vnum="201276" />
+		<obj vnum="201277" />
+		<obj vnum="201278" />
+		<obj vnum="201279" />
+		<obj vnum="201342" />
+		<activ size="3" prof="00010000000000" affects="d0t0D0">
+			<apply loc="1" mod="6" />
+			<apply loc="2" mod="4" />
+			<apply loc="48" mod="25" />
+			<apply loc="18" mod="12" />
+			<apply loc="20" mod="-30" />
+			<apply loc="39" mod="-35" />
+		</activ>
+		<activ size="4" prof="00010000000000" affects="e0p0v0w0a1">
+			<apply loc="24" mod="-35" />
+			<apply loc="2" mod="6" />
+			<apply loc="5" mod="6" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="26" />
+			<apply loc="41" mod="23" />
+			<enchant vnum="201279" weight="14" />
+		</activ>
+		<activ size="5" prof="00010000000000" affects="k1l1m1">
+			<apply loc="49" mod="25" />
+			<apply loc="13" mod="100" />
+			<apply loc="44" mod="30" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="22" mod="25" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Одежды повелителя мертвых" alias="сетпм сетповелителямертвых сетмертвых одеждыповелителя" comment="Чернок-гривна">
+		<messages char_on="Сотни душ вырвались из &amp;RЗагробного Мира&amp;n, окутав собой ваше тело." char_off="Окутавшие ваше тело души из &amp;RЗагробного Мира&amp;n рассеялись." room_on="Сотни душ вырвались из &amp;RЗагробного Мира&amp;n, окутав собой тело $n1." room_off="Окутавшие тело $n1 души из &amp;RЗагробного Мира&amp;n рассеялись." />
+		<obj vnum="201280" />
+		<obj vnum="201281" />
+		<obj vnum="201282" />
+		<obj vnum="201283" />
+		<obj vnum="201341" />
+		<activ size="3" prof="00000100000000" affects="d0t0">
+			<apply loc="4" mod="4" />
+			<apply loc="48" mod="25" />
+			<apply loc="42" mod="20" />
+			<apply loc="39" mod="-35" />
+			<apply loc="40" mod="10" />
+			<apply loc="44" mod="20" />
+		</activ>
+		<activ size="4" prof="00000100000000" affects="c0e0a1">
+			<apply loc="4" mod="4" />
+			<apply loc="40" mod="20" />
+			<apply loc="12" mod="85" />
+			<apply loc="24" mod="-25" />
+			<apply loc="20" mod="-30" />
+			<apply loc="13" mod="25" />
+		</activ>
+		<activ size="5" prof="00000100000000" affects="b0p0v0w0D0k1l1m1">
+			<apply loc="4" mod="5" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="40" mod="25" />
+			<apply loc="13" mod="100" />
+			<apply loc="23" mod="-25" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Одеяние мрачного лиходея" alias="сетлиходея сетмрачноголиходея сетомл" comment="Тать-гривна">
+		<messages char_on="&amp;KСгусток сумрака&amp;n медленно обволок вас, сделав ваше тело почти не заметным." char_off="&amp;KСгусток сумрака&amp;n рассеялся, сделав ваше тело опять заметным." room_on="&amp;KСгусток сумрака&amp;n медленно обволок $n1, сделав тело почти не заметным." room_off="&amp;KСгусток сумрака&amp;n рассеялся, сделав тело $n1 опять заметным." />
+		<obj vnum="201284" />
+		<obj vnum="201285" />
+		<obj vnum="201286" />
+		<obj vnum="201287" />
+		<obj vnum="201298" />
+		<activ size="3" prof="00000000000100" affects="b0d0e0p0t0D0a1m1">
+			<apply loc="2" mod="4" />
+			<apply loc="14" mod="30" />
+			<apply loc="13" mod="30" />
+			<apply loc="41" mod="10" />
+			<apply loc="39" mod="-40" />
+			<apply loc="20" mod="-25" />
+			<skill num="135" val="15" />
+		</activ>
+		<activ size="4" prof="00000000000100" affects="w0k1l1p1">
+			<apply loc="18" mod="10" />
+			<apply loc="42" mod="20" />
+			<apply loc="19" mod="10" />
+			<apply loc="2" mod="5" />
+			<apply loc="24" mod="-30" />
+			<apply loc="48" mod="15" />
+			<apply loc="14" mod="70" />
+			<enchant vnum="201284" ndice="2" sdice="1" />
+		</activ>
+		<activ size="5" prof="00000000000100" affects="v0A0">
+			<apply loc="13" mod="80" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="2" mod="9" />
+			<apply loc="49" mod="15" />
+			<apply loc="22" mod="35" />
+			<apply loc="18" mod="5" />
+			<apply loc="19" mod="10" />
+			<enchant vnum="201285" ndice="2" sdice="2" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Одежды хранителя врат" alias="сетхв сетхранителяврат сетхранителя одеждыхранителя" comment="Волш-гривна">
+		<messages char_on="Яркий свет из &amp;MВолшебных врат&amp;n озарил вас, наделив ваше тело магией." char_off="Свет из &amp;MВолшебных врат&amp;n стал угасать, и магия покинула ваше тело." room_on="Яркий свет из &amp;MВолшебных Врат&amp;n озарил $n3, наделив тело магией." room_off="Свет из &amp;MВолшебных врат&amp;n стал угасать, и магия покинула тело $n3." />
+		<obj vnum="201288" />
+		<obj vnum="201289" />
+		<obj vnum="201290" />
+		<obj vnum="201291" />
+		<obj vnum="201292" />
+		<activ size="3" prof="00000010000000" affects="b0d0e0t0v0D0">
+			<apply loc="3" mod="3" />
+			<apply loc="6" mod="3" />
+			<apply loc="44" mod="25" />
+			<apply loc="40" mod="20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="48" mod="20" />
+		</activ>
+		<activ size="4" prof="00000010000000" affects="j0p0a1">
+			<apply loc="3" mod="4" />
+			<apply loc="6" mod="6" />
+			<apply loc="40" mod="10" />
+			<apply loc="13" mod="45" />
+			<apply loc="39" mod="-15" />
+			<apply loc="12" mod="75" />
+		</activ>
+		<activ size="5" prof="00000010000000" affects="k1l1m1">
+			<apply loc="13" mod="75" />
+			<apply loc="40" mod="25" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+		</activ>
+	</set>
+	<set name="Одежды доброго знахаря" alias="сетдз сетдоброгознахаря сетзнахаря одеждызнахаря" comment="Клер-гривна">
+		<messages char_on="&amp;WУчение добрых знахарей&amp;n озарило ваш разум." char_off="&amp;WУчение добрых знахарей&amp;n оставило ваш разум." room_on="&amp;WУчение добрых знахарей&amp;n озарило разум $n1." room_off="&amp;WУчение добрых знахарей&amp;n оставило разум $n1." />
+		<obj vnum="201300" />
+		<obj vnum="201301" />
+		<obj vnum="201302" />
+		<obj vnum="201303" />
+		<obj vnum="201304" />
+		<activ size="3" prof="00000000000001" affects="d0e0j0t0">
+			<apply loc="3" mod="3" />
+			<apply loc="4" mod="4" />
+			<apply loc="13" mod="40" />
+			<apply loc="12" mod="40" />
+			<apply loc="24" mod="-30" />
+			<apply loc="42" mod="20" />
+		</activ>
+		<activ size="4" prof="00000000000001" affects="b0p0a1">
+			<apply loc="3" mod="5" />
+			<apply loc="40" mod="45" />
+			<apply loc="12" mod="80" />
+			<apply loc="20" mod="-30" />
+			<apply loc="48" mod="20" />
+			<apply loc="39" mod="-30" />
+		</activ>
+		<activ size="5" prof="00000000000001" affects="k1l1m1">
+			<apply loc="32" mod="6" />
+			<apply loc="13" mod="75" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="34" mod="4" />
+			<apply loc="4" mod="4" />
+		</activ>
+	</set>
+	<set name="Одежды владыки разумов" alias="сетвр сетвладыкиразумов одеждывладыки" comment="Кудес-гривна">
+		<messages char_on="Ваша голова стала разбухать, как качан, впитывая &amp;Gзнания о разумах всех существ на Земле&amp;n." char_off="Ваша голова приняла прежнюю форму и &amp;Gзнание о разумах других существ&amp;n покинуло вас." room_on="Голова $n1 стала разбухать, как качан, впитывая &amp;Gзнания о разумах всех существ на Земле&amp;n." room_off="Голова $n1 приняла прежнюю форму и &amp;Gзнание о разумах других существ&amp;n покинуло $n1." />
+		<obj vnum="201305" />
+		<obj vnum="201306" />
+		<obj vnum="201307" />
+		<obj vnum="201308" />
+		<obj vnum="201309" />
+		<activ size="3" prof="00000001000000" affects="b0d0e0t0">
+			<apply loc="6" mod="4" />
+			<apply loc="3" mod="2" />
+			<apply loc="13" mod="15" />
+			<apply loc="40" mod="15" />
+			<apply loc="20" mod="-25" />
+			<apply loc="48" mod="20" />
+			<skill num="188" val="15" />
+		</activ>
+		<activ size="4" prof="00000001000000" affects="c0v0D0a1">
+			<apply loc="13" mod="40" />
+			<apply loc="51" mod="10" />
+			<apply loc="44" mod="20" />
+			<apply loc="22" mod="20" />
+			<apply loc="39" mod="-30" />
+			<apply loc="24" mod="-25" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="00000001000000" affects="f0k1l1m1">
+			<apply loc="40" mod="45" />
+			<apply loc="6" mod="11" />
+			<apply loc="3" mod="5" />
+			<apply loc="13" mod="95" />
+			<apply loc="12" mod="75" />
+			<apply loc="52" mod="10" />
+		</activ>
+	</set>
+	<set name="Доспехи собирателя душ" alias="сетсд собирателядуш доспехисобирателя" comment="Наем-гривна">
+		<messages char_on="Сотни &amp;Rневинно убитых душ&amp;n со стоном ворвались в ваше тело, передав свою силу." char_off="Сотни &amp;Rневинно убитых душ&amp;n со стоном вырвались из вашего тело и их сила покинула вас." room_on="Сотни &amp;Rневинно убитых душ&amp;n со стоном ворвались в тело $n1, передав свою силу." room_off="Сотни &amp;Rневинно убитых душ&amp;n со стоном вырвались из тела $n1 и их сила покинула $n3." />
+		<obj vnum="201310" />
+		<obj vnum="201311" />
+		<obj vnum="201312" />
+		<obj vnum="201313" />
+		<obj vnum="201314" />
+		<activ size="3" prof="00000000010000" affects="b0d0f0t0D0a1">
+			<apply loc="2" mod="5" />
+			<apply loc="13" mod="50" />
+			<apply loc="41" mod="5" />
+			<apply loc="18" mod="5" />
+			<apply loc="23" mod="-20" />
+			<apply loc="19" mod="10" />
+		</activ>
+		<activ size="4" prof="00000000010000" affects="v0w0">
+			<apply loc="2" mod="5" />
+			<apply loc="1" mod="3" />
+			<apply loc="13" mod="50" />
+			<apply loc="18" mod="10" />
+			<apply loc="41" mod="15" />
+			<apply loc="39" mod="-20" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="00000000010000" affects="e0k1l1m1">
+			<apply loc="1" mod="4" />
+			<apply loc="13" mod="25" />
+			<apply loc="42" mod="25" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Доспехи хлябей небесных" alias="сетхлябейнебесных сетхн" comment="микро колд чернок - гривна">
+		<messages char_on="Над вами разверзлись Небесные Хляби и сильный дождь, хлынувший из них, наделил $o0 божественной мощью." char_off="Над $n4 разверзлись Небесные Хляби и сильный дождь, хлынувший из них, наделил $o3 божественной мощью." room_on="Над $n4 развезлись Небесные Хляби и сильный дождь, хлынувший из них, наделил $o3 божественной мощью." room_off="Над $n4 иссяк дождь из Небесных Хлябей, а вместе с ним и божественная сила, дарованная $o2." />
+		<obj vnum="201200" />
+		<obj vnum="201201" />
+		<obj vnum="201202" />
+		<activ size="3" prof="00000100000010" affects="d0e0t0v0x0a1">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="3" />
+			<apply loc="13" mod="100" />
+			<apply loc="40" mod="45" />
+			<apply loc="20" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="24" mod="-15" />
+			<apply loc="44" mod="10" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="&amp;gОдежды &amp;Gбоевого костоправа&amp;n" alias="сетбоевогокостоправа сетбоевого сетбк" comment="микро клер волхв - гривна">
+		<obj vnum="201272" />
+		<obj vnum="201273" />
+		<obj vnum="201274" />
+		<activ size="3" prof="10000000000001" affects="b0d0e0j0t0x0">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="3" />
+			<apply loc="13" mod="150" />
+			<apply loc="40" mod="40" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-30" />
+			<apply loc="42" mod="15" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Доспехи решимости отваги" alias="сетрешимостиотваги сетро сетотваги дотспехиотваги доспехирешимости" comment="Друж-гривна">
+		<messages char_on="Отзвуки &amp;WВеликих Сражений&amp;n раздались в ваших ушах, укрепив тело и воодушевив на новые подвиги." char_off="Эхо &amp;WВеликих Сражений&amp;n затихло, ваш дух поник, а тело обмякло." room_on="Отзвуки &amp;WВеликих Сражений&amp;n раздались вокруг $n1, укрепив тело и воодушевив на новые подвиги." room_off="Эхо &amp;WВеликих Сражений&amp;n затихло и тело $n1 снова обмякло." />
+		<obj vnum="201316" />
+		<obj vnum="201317" />
+		<obj vnum="201318" />
+		<obj vnum="201319" />
+		<obj vnum="201320" />
+		<activ size="3" prof="00000000100000" affects="d0j0t0">
+			<apply loc="41" mod="20" />
+			<apply loc="5" mod="2" />
+			<apply loc="23" mod="-25" />
+			<apply loc="44" mod="45" />
+			<apply loc="46" mod="20" />
+			<apply loc="22" mod="20" />
+		</activ>
+		<activ size="4" prof="00000000100000" affects="w0y0D0a1">
+			<apply loc="48" mod="25" />
+			<apply loc="21" mod="20" />
+			<apply loc="49" mod="15" />
+			<apply loc="39" mod="-40" />
+			<apply loc="13" mod="100" />
+			<apply loc="20" mod="-40" />
+			<skill num="158" val="10" />
+			<enchant vnum="201320" weight="6" />
+		</activ>
+		<activ size="5" prof="00000000100000" affects="d0e0p0v0x0k1l1m1">
+			<apply loc="51" mod="12" />
+			<apply loc="52" mod="12" />
+			<apply loc="5" mod="9" />
+			<apply loc="1" mod="4" />
+			<apply loc="24" mod="-40" />
+			<apply loc="23" mod="-15" />
+			<enchant vnum="201318" weight="2" />
+		</activ>
+	</set>
+	<set name="Одежды безумного чародея" alias="сетбезумногочародея сетбч сетчародея одеждычародея" comment="Колд-гривна">
+		<messages char_on="&amp;RБуйство стихийной магии&amp;n обрушилось на вас всей своей мощью, наполняя тело колдовством древних." char_off="&amp;RСтихийная магия&amp;n, бушующая вокруг вас стала медленно угасать, вбирая обратно все колдовство из вашего тела." room_on="&amp;RБуйство стихийной магии&amp;n обрушилось на $n3 всей своей мощью, наполняя тело колдовством древних." room_off="&amp;RСтихийная магия&amp;n, бушующая вокруг $n1 стала медленно угасать, вбирая обратно все колдовство." />
+		<obj vnum="201321" />
+		<obj vnum="201322" />
+		<obj vnum="201323" />
+		<obj vnum="201324" />
+		<obj vnum="201325" />
+		<activ size="3" prof="00000000000010" affects="d0e0j0t0a1">
+			<apply loc="4" mod="5" />
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="42" mod="20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="23" mod="-20" />
+		</activ>
+		<activ size="4" prof="00000000000010" affects="b0p0v0w0D0">
+			<apply loc="13" mod="25" />
+			<apply loc="12" mod="75" />
+			<apply loc="40" mod="30" />
+			<apply loc="48" mod="20" />
+			<apply loc="49" mod="20" />
+			<apply loc="3" mod="5" />
+		</activ>
+		<activ size="5" prof="00000000000010" affects="z0k1l1m1">
+			<apply loc="40" mod="30" />
+			<apply loc="13" mod="100" />
+			<apply loc="4" mod="5" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="39" mod="-15" />
+			<mage_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Доспехи незыблемой веры" alias="сетнв сетнезыблемойверы сетверы доспехиверы" comment="Витязь-гривна">
+		<messages char_on="Небесный свет озарил вас, наделив &amp;WНезыблемой Верой&amp;n и божественным покровительством." char_off="Небесный свет померк, а с ним угасла и ваша &amp;WВера&amp;n." room_on="Небесный свет озарил $n3, наделив &amp;WНезыблемой Верой&amp;n и божественным покровительством." room_off="Небесный свет померк, а с ним угасла и &amp;WВера&amp;n $n1 в божественное покровительство." />
+		<obj vnum="201326" />
+		<obj vnum="201327" />
+		<obj vnum="201328" />
+		<obj vnum="201329" />
+		<obj vnum="201330" />
+		<activ size="3" prof="00001000000000" affects="d0e0j0t0">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="42" mod="20" />
+			<apply loc="48" mod="15" />
+			<apply loc="50" mod="15" />
+			<apply loc="41" mod="20" />
+			<apply loc="63" mod="10" />
+		</activ>
+		<activ size="4" prof="00001000000000" affects="p0v0w0y0D0a1">
+			<apply loc="18" mod="12" />
+			<apply loc="13" mod="100" />
+			<apply loc="39" mod="-35" />
+			<apply loc="20" mod="-35" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-30" />
+			<apply loc="36" mod="20" />
+			<enchant vnum="201327" weight="5" />
+		</activ>
+		<activ size="5" prof="00001000000000" affects="k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="5" mod="7" />
+			<apply loc="1" mod="4" />
+			<apply loc="19" mod="18" />
+			<apply loc="40" mod="25" />
+			<phys_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Одежды ведовского величия" alias="сетвеличия сетведовскоговеличия ведовскиеодежды сетвв" comment="Волхв-гривна">
+		<messages char_on="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n загадочно засверкали, наделив ваш разум и тело невиданной мощью." char_off="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n померкли, вобрав обратно дарованную вам силу." room_on="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n загадочно засверкали, наделив разум и тело $n1 невиданной мощью." room_off="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n померкли, вобрав обратно дарованную $n1 силу." />
+		<obj vnum="201336" />
+		<obj vnum="201337" />
+		<obj vnum="201338" />
+		<obj vnum="201339" />
+		<obj vnum="201340" />
+		<activ size="3" prof="10000000000000" affects="b0c0d0e0j0t0">
+			<apply loc="3" mod="5" />
+			<apply loc="4" mod="5" />
+			<apply loc="40" mod="20" />
+			<apply loc="39" mod="-30" />
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+		</activ>
+		<activ size="4" prof="10000000000000" affects="p0v0w0D0a1">
+			<apply loc="3" mod="5" />
+			<apply loc="24" mod="-30" />
+			<apply loc="48" mod="20" />
+			<apply loc="44" mod="25" />
+			<apply loc="13" mod="75" />
+			<apply loc="22" mod="25" />
+		</activ>
+		<activ size="5" prof="10000000000000" affects="k1l1m1">
+			<apply loc="13" mod="50" />
+			<apply loc="40" mod="35" />
+			<apply loc="21" mod="25" />
+			<apply loc="47" mod="25" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Обжигающий доспех змеиного пламени" alias="сетзп сетзмеиногопламени" comment="микро кудес волш - гривна">
+		<messages char_on="Дым и пламя из пасти возникшего &amp;RЗмея-Горыныча&amp;n обожгло ваше тело, наделив чудовищной мощью." char_off="Смачный плевок возникшего &amp;RЗмея-Горыныча&amp;n затушил горящее в вашем теле пламя." room_on="Дым и пламя из пасти возникшего &amp;RЗмея-Горыныча&amp;n обожгло тело $n1, наделив чудовищной мощью." room_off="Смачный плевок, возникшего Змея-Горыныча, затушил горящее в $n1 пламя." />
+		<obj vnum="201203" />
+		<obj vnum="201204" />
+		<obj vnum="201205" />
+		<activ size="3" prof="00000011000000" affects="d0e0j0t0x0a1">
+			<apply loc="3" mod="3" />
+			<apply loc="6" mod="6" />
+			<apply loc="13" mod="125" />
+			<apply loc="40" mod="40" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-15" />
+			<apply loc="42" mod="5" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Одежды мзды и смекалки" alias="сетмс сетмздысмекалки сетсмекалки одеждымзды одеждысмекалки" comment="Купец-гривна">
+		<messages char_on="&amp;YЗвон падающих монет&amp;n раздался у вас в голове и ваши глаза приобрели алчный и хитрый прищур." char_off="&amp;YЗвон монет&amp;n в вашей голове стал стихать и вы потеряли былую смекалку и алчность." room_on="Заслышав &amp;Yзвон падающих монет&amp;n глаза $n1 приобрели алчный и хитрый прищур." room_off="&amp;YЗвон монет&amp;n рядом с $n4 стал стихать и глаза $n1 потеряли былую алчность." />
+		<obj vnum="201343" />
+		<obj vnum="201344" />
+		<obj vnum="201345" />
+		<obj vnum="201346" />
+		<obj vnum="201347" />
+		<activ size="3" prof="01000000000000" affects="b0d0j0t0">
+			<apply loc="2" mod="7" />
+			<apply loc="29" mod="3" />
+			<apply loc="30" mod="3" />
+			<apply loc="44" mod="20" />
+			<apply loc="49" mod="30" />
+			<apply loc="20" mod="-30" />
+		</activ>
+		<activ size="4" prof="01000000000000" affects="c0e0v0a1">
+			<apply loc="13" mod="100" />
+			<apply loc="12" mod="100" />
+			<apply loc="52" mod="10" />
+			<apply loc="24" mod="-30" />
+			<apply loc="42" mod="20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="01000000000000" affects="p0w0k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="6" mod="7" />
+			<apply loc="40" mod="55" />
+			<apply loc="48" mod="20" />
+			<apply loc="1" mod="7" />
+			<enchant vnum="201345" weight="15" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="доспехи преданности" alias="сетбезграничнойпреданности сетпреданности" comment="чармис (Магни)">
+		<messages room_on="&amp;WСветлая дымка окутала&amp;n $o3, глаза $n1 &amp;Kсверкнули загадочным цветом.&amp;n" room_off="&amp;WСветлая дымка&amp;n вокруг $o1 рассеялась, глаза $n1 &amp;Kснова вернули нормальный оттенок.&amp;n" />
+		<obj vnum="2348" />
+		<obj vnum="2349" />
+		<obj vnum="2350" />
+		<obj vnum="2351" />
+		<activ size="3" prof="00000000000000" npc="true" affects="b0c0d0e0j0">
+			<apply loc="1" mod="6" />
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="51" mod="8" />
+			<phys_dmg pct="7" />
+		</activ>
+		<activ size="4" prof="00000000000000" npc="true" affects="f0p0e1k1l1m1">
+			<apply loc="19" mod="20" />
+			<apply loc="41" mod="15" />
+			<apply loc="18" mod="15" />
+			<apply loc="52" mod="7" />
+			<apply loc="62" mod="10" />
+			<apply loc="13" mod="100" />
+		</activ>
+	</set>
+	<set name="Доспехи безграничного послушания" alias="сетбезграничногопослушания сетбп сетпослушания" comment="Чармис (за гривны)">
+		<messages room_on="&amp;cТемное марево окутало $o3&amp;n, глаза $n1 потускнели и резко потупились." room_off="&amp;cТемное марево вокруг $o1 рассеялось&amp;n, глаза $n1 стали осмысленными и живыми." />
+		<obj vnum="201268" />
+		<obj vnum="201269" />
+		<obj vnum="201270" />
+		<obj vnum="201271" />
+		<activ size="3" prof="00000000000000" npc="true" affects="b0d0j0p0D0a1i1">
+			<apply loc="1" mod="6" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="51" mod="8" />
+			<phys_dmg pct="7" />
+		</activ>
+		<activ size="4" prof="00000000000000" npc="true" affects="f0p0t0e1k1l1m1p1">
+			<apply loc="19" mod="20" />
+			<apply loc="41" mod="15" />
+			<apply loc="18" mod="15" />
+			<apply loc="52" mod="7" />
+			<apply loc="62" mod="10" />
+			<apply loc="13" mod="100" />
+			<enchant vnum="201269" weight="6" />
+		</activ>
+	</set>
+	<set name="Доспехи Полуденного Неба" alias="сетпн сетполуденногонеба" comment="микро богатырь кузнец">
+		<messages char_on="Яркое Полуденное Небо наделило вас своей мощью." char_off="Полуденный зной отступил, а с ним ушла и сила." room_on="Яркое Полуденное Небо наделило $o0 своей мощью." room_off="Полуденный зной отступил, а с ним ушла и сила $o1." />
+		<obj vnum="1213" />
+		<obj vnum="1214" />
+		<obj vnum="1215" />
+		<activ size="3" prof="00100000001000" affects="d0j0t0v0x0a1">
+			<apply loc="1" mod="6" />
+			<apply loc="5" mod="3" />
+			<apply loc="13" mod="125" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-15" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="44" mod="15" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Парные молнии богов прави" alias="сетпарныемолниибоговправи парныемолниибоговправи сетпмб" comment="Перенос старого">
+		<messages char_on="$o5 ярко засверкала в ваших руках." char_off="$o5 вспыхнула и угасла." room_on="$o5 $n1 ярко засверкала." room_off="$o5 $n1 вспыхнула и угасла." />
+		<obj vnum="79913" />
+		<obj vnum="79914" />
+		<activ size="2" prof="00001000100000" affects="c0d0e0j0p0t0w0D0">
+			<apply loc="1" mod="3" />
+			<apply loc="5" mod="4" />
+			<apply loc="20" mod="-15" />
+			<apply loc="39" mod="-15" />
+			<apply loc="42" mod="10" />
+			<apply loc="52" mod="5" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Доспехи Солнечного Затмения" alias="сетсз сетсолнечногозатмения" comment="микро друж витязь">
+		<messages char_on="$o3 засветился мягким сиянием." char_off="Сияние $o1 медленно угасло." room_on="$o0, надетый на $n1, засветился мягким сиянием." room_off="$o0, снятый с $n1, лишился своего мягкого сияния." />
+		<obj vnum="1209" />
+		<obj vnum="1210" />
+		<obj vnum="1211" />
+		<activ size="3" prof="00001000100000" affects="d0j0t0v0x0D0a1">
+			<apply loc="1" mod="3" />
+			<apply loc="5" mod="6" />
+			<apply loc="13" mod="150" />
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="44" mod="25" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="комплект гнева божьего" alias="сетгневабожьего сетгб" comment="мини сет колдун">
+		<messages room_on="&amp;RГнев божий&amp;n охватил $o3." room_off="&amp;RГнев божий&amp;n отступил от $o1." />
+		<obj vnum="99024" />
+		<obj vnum="99025" />
+		<obj vnum="99026" />
+		<activ size="2" prof="00000000000010">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<mage_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000000000010" affects="w0z0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="23" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="13" mod="150" />
+			<apply loc="4" mod="5" />
+			<apply loc="40" mod="35" />
+			<apply loc="12" mod="35" />
+		</activ>
+	</set>
+	<set name="комплект мира мертвых" alias="сетмирамертвых сетмм" comment="мини сет чернок">
+		<messages room_on="&amp;KАура мира мертвых&amp;n окутала $o3." room_off="&amp;KАура мира мертвых&amp;n отступила от $o1." />
+		<obj vnum="99036" />
+		<obj vnum="99037" />
+		<obj vnum="99038" />
+		<activ size="2" prof="00000100000000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<mage_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000100000000" affects="v0D0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="63" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="40" mod="25" />
+			<apply loc="4" mod="5" />
+			<apply loc="12" mod="75" />
+		</activ>
+	</set>
+	<set name="комплект безграничного зова" alias="сетбезграничногозова сетбз" comment="мини сет кудес">
+		<messages room_on="&amp;GБезграниченый&amp;n &amp;Wзов&amp;n очаровал $o3." room_off="&amp;GБезграниченый&amp;n &amp;Wзов&amp;n рассеялся вокруг $o1." />
+		<obj vnum="99027" />
+		<obj vnum="99028" />
+		<obj vnum="99029" />
+		<activ size="2" prof="00000001000000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+		</activ>
+		<activ size="3" prof="00000001000000" affects="j0v0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="23" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="13" mod="150" />
+			<apply loc="6" mod="5" />
+			<apply loc="40" mod="35" />
+			<apply loc="12" mod="35" />
+			<skill num="188" val="20" />
+		</activ>
+	</set>
+	<set name="комплект невиданной силы" alias="сетневиданнойсилы сетнс" comment="мини сет богатырь">
+		<messages room_on="&amp;KНевиданная&amp;n &amp;Cсила&amp;n окутала $o3." room_off="&amp;KНевиданная&amp;n &amp;Cсила&amp;n пропала вокруг $o1." />
+		<obj vnum="99000" />
+		<obj vnum="99001" />
+		<obj vnum="99002" />
+		<activ size="2" prof="00000000001000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000000001000" affects="t0g1i1">
+			<apply loc="20" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="48" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="1" mod="5" />
+			<apply loc="41" mod="15" />
+			<apply loc="19" mod="10" />
+		</activ>
+	</set>
+	<set name="комплект света божьего" alias="сетсветабожьего сетсб" comment="мини сет витязь">
+		<messages room_on="&amp;WСвет божий&amp;n окутал $o3." room_off="&amp;WСвет божий&amp;n покинул $o3." />
+		<obj vnum="99006" />
+		<obj vnum="99007" />
+		<obj vnum="99008" />
+		<activ size="2" prof="00001000000000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<apply loc="19" mod="10" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00001000000000" affects="v0w0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="49" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="5" mod="5" />
+			<apply loc="40" mod="25" />
+			<apply loc="42" mod="15" />
+			<skill num="21" val="10" />
+		</activ>
+	</set>
+	<set name="комплект магической защиты" alias="сетмагическойзащиты сетмз" comment="мини сет волш">
+		<messages room_on="&amp;MМагическая&amp;n &amp;Wзащита&amp;n окутала $o3." room_off="&amp;MМагическая&amp;n &amp;Wзащита&amp;n пропала вокруг $o1." />
+		<obj vnum="99030" />
+		<obj vnum="99031" />
+		<obj vnum="99032" />
+		<activ size="2" prof="00000010000000" affects="d0">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<mage_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000010000000" affects="f0t0z0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="50" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="6" mod="5" />
+			<apply loc="40" mod="35" />
+			<apply loc="12" mod="35" />
+		</activ>
+	</set>
+	<set name="комплект мощи небесной" alias="сетмощинебесной сетмн" comment="мини сет кузнец">
+		<messages room_on="Мощь небесная овладела $o4." room_off="&amp;KМощь&amp;n &amp;yнебесная&amp;n покинула $o3." />
+		<obj vnum="99018" />
+		<obj vnum="99019" />
+		<obj vnum="99020" />
+		<activ size="2" prof="00100000000000" affects="x0y0">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00100000000000" affects="b0f0t0D0a1g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="49" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="1" mod="9" />
+			<apply loc="41" mod="15" />
+			<apply loc="19" mod="10" />
+		</activ>
+	</set>
+	<set name="комплект могучей энергии" alias="сетмогучейэнергии сетмэ" comment="мини сет друж">
+		<messages room_on="&amp;WМогучая энергия&amp;n окутала $o3." room_off="&amp;WМогучая энергия&amp;n покинула $o3." />
+		<obj vnum="99003" />
+		<obj vnum="99004" />
+		<obj vnum="99005" />
+		<activ size="2" prof="00000000100000" affects="d0j0t0x0a1">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000000100000" affects="f0v0w0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="48" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="5" mod="5" />
+			<apply loc="44" mod="15" />
+			<apply loc="25" mod="50" />
+			<phys_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="комплект лесного чутья" alias="сетлесногочутья сетлч" comment="мини сет охот">
+		<messages room_on="&amp;rЛесное чутье&amp;n напитало $o3." room_off="&amp;rЛесное чутье&amp;n пропало вокруг $o1." />
+		<obj vnum="99015" />
+		<obj vnum="99016" />
+		<obj vnum="99017" />
+		<activ size="2" prof="00010000000000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00010000000000" affects="D0a1g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="48" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="2" mod="5" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="10" />
+		</activ>
+	</set>
+	<set name="комплект молниеносной реакции" alias="сетмолниеноснойреакции сетмр" comment="мини сет тать">
+		<messages room_on="&amp;KМолниеносная реакция&amp;n наполнила $o3." room_off="&amp;KМолниеносная реакция&amp;n пропала вокруг $o1." />
+		<obj vnum="99009" />
+		<obj vnum="99010" />
+		<obj vnum="99011" />
+		<activ size="2" prof="00000000000100">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<apply loc="1" mod="3" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000000000100" affects="b0p0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="50" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="2" mod="3" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="10" />
+			<skill num="135" val="10" />
+		</activ>
+	</set>
+	<set name="комплект торговой хитрости" alias="сетторговойхитрости сеттх" comment="мини сет купец">
+		<messages room_on="Магия торговой хитрости впиталась в $o3." room_off="&amp;CТорговая&amp;n &amp;cхитрость&amp;n покинула $o3." />
+		<obj vnum="99021" />
+		<obj vnum="99022" />
+		<obj vnum="99023" />
+		<activ size="2" prof="01000000000000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="01000000000000" affects="b0t0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="49" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="6" mod="5" />
+			<apply loc="40" mod="35" />
+			<apply loc="12" mod="35" />
+		</activ>
+	</set>
+	<set name="комплект алчной коварности" alias="сеталчнойковарности сетак" comment="мини сет наем">
+		<messages room_on="&amp;KАлчная&amp;n &amp;Rковарность&amp;n захватила $o3." room_off="&amp;KАлчная&amp;n &amp;Rковарность&amp;n покинула $o3." />
+		<obj vnum="99012" />
+		<obj vnum="99013" />
+		<obj vnum="99014" />
+		<activ size="2" prof="00000000010000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000000010000" affects="b0f0p0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="49" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="2" mod="5" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="10" />
+		</activ>
+	</set>
+	<set name="комплект божественного дара" alias="сетбожественногодара сетбд" comment="мини сет лекарь">
+		<messages room_on="&amp;KБожественный дар&amp;n напитал $o3." room_off="&amp;KБожественный дар&amp;n пропал вокруг $o1." />
+		<obj vnum="99033" />
+		<obj vnum="99034" />
+		<obj vnum="99035" />
+		<activ size="2" prof="00000000000001">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<mage_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="00000000000001" affects="v0z0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="50" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="4" mod="5" />
+			<apply loc="40" mod="25" />
+			<apply loc="12" mod="75" />
+		</activ>
+	</set>
+	<set name="комплект сложных сочетаний" alias="сетсложныхсочетаний сетсс" comment="мини сет волхв">
+		<messages room_on="&amp;WСложные&amp;n &amp;Rсочетания&amp;n появились на $o3." room_off="&amp;WСложные&amp;n &amp;Rсочетания&amp;n пропали вокруг $o1." />
+		<obj vnum="99039" />
+		<obj vnum="99040" />
+		<obj vnum="99041" />
+		<activ size="2" prof="10000000000000">
+			<apply loc="52" mod="5" />
+			<apply loc="62" mod="5" />
+			<mage_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="10000000000000" affects="b0z0g1">
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="48" mod="20" />
+			<apply loc="13" mod="150" />
+			<apply loc="4" mod="5" />
+			<apply loc="40" mod="35" />
+			<apply loc="49" mod="20" />
+		</activ>
+	</set>
+	<set name="Доспехи верного наемника" alias="сетвн,сетверногонаемника" comment="Чармис">
+		<obj vnum="1268" />
+		<obj vnum="1269" />
+		<obj vnum="1270" />
+		<obj vnum="1271" />
+		<activ size="2" npc="true" affects="b0c0d0j0t0">
+			<apply loc="1" mod="6" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="51" mod="8" />
+			<phys_dmg pct="7" />
+		</activ>
+		<activ size="4" npc="true" affects="f0p0e1k1l1m1">
+			<apply loc="19" mod="20" />
+			<apply loc="41" mod="15" />
+			<apply loc="18" mod="15" />
+			<apply loc="52" mod="7" />
+			<apply loc="62" mod="10" />
+			<apply loc="13" mod="100" />
+			<enchant vnum="1269" weight="6" />
+		</activ>
+	</set>
+	<set name="Доспехи Великой Судьбы" alias="сетвс,великойсудьбы" comment="Перенос, надо отбалансить позже.">
+		<messages char_on="&amp;CДоспехи Великой Судьбы зазвенели, соединившись друг с другом.&amp;n" char_off="&amp;cДоспех Великой Судьбы глухо звякнул, словно жалуясь на что-то.&amp;n" room_on="&amp;CДоспехи Великой Судьбы $n1 тихо зазвенели.&amp;n" room_off="&amp;cДоспехи Великой Судьбы $n1 глухо звякнули, словно жалуясь на что-то.&amp;n" />
+		<obj vnum="1217" />
+		<obj vnum="1218" />
+		<obj vnum="1219" />
+		<obj vnum="1220" />
+		<obj vnum="1221" />
+		<activ size="3" prof="01000000000000" affects="d0j0t0a1">
+			<apply loc="3" mod="5" />
+			<apply loc="6" mod="5" />
+			<apply loc="37" mod="12" />
+			<apply loc="40" mod="26" />
+		</activ>
+		<activ size="5" prof="01000000000000" affects="b0c0e0w0D0">
+			<apply loc="3" mod="10" />
+			<apply loc="6" mod="10" />
+			<apply loc="12" mod="50" />
+			<apply loc="40" mod="40" />
+		</activ>
+	</set>
+	<set name="Доспехи Земного света" alias="земногосвета,сетзс" comment="технический для оценки публикой" enabled="0">
+		<obj vnum="2360" />
+		<obj vnum="2361" />
+		<obj vnum="2362" />
+		<activ size="3" prof="00000100000010" affects="d0e0t0v0x0a1">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="3" />
+			<apply loc="13" mod="100" />
+			<apply loc="40" mod="45" />
+			<apply loc="20" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="24" mod="-15" />
+			<apply loc="42" mod="10" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Доспехи неполной Земли" alias="неполнойземли,сетнз" comment="технический для оценки публикой">
+		<obj vnum="2363" />
+		<obj vnum="2364" />
+		<obj vnum="2365" />
+		<activ size="3" prof="00000011000000" affects="d0e0j0t0x0a1">
+			<apply loc="3" mod="3" />
+			<apply loc="6" mod="6" />
+			<apply loc="13" mod="125" />
+			<apply loc="40" mod="40" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-15" />
+			<apply loc="42" mod="5" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Доспехи заплечных дел мастера" alias="заплечныхделмастера сетздм" comment="микро тать наем охот за гривны">
+		<obj vnum="201206" />
+		<obj vnum="201207" />
+		<obj vnum="201208" />
+		<activ size="3" prof="00010000010100" affects="d0t0v0a1">
+			<apply loc="1" mod="3" />
+			<apply loc="2" mod="6" />
+			<apply loc="13" mod="100" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="42" mod="10" />
+			<apply loc="44" mod="10" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="&amp;cдоспехи &amp;CВсевидящего Ока&amp;n" alias="сетвсевидящегоока, сетво" comment="микро друж/витязь - гривна">
+		<obj vnum="201209" />
+		<obj vnum="201210" />
+		<obj vnum="201211" />
+		<activ size="3" prof="00001000100000" affects="d0j0t0v0x0D0a1">
+			<apply loc="1" mod="3" />
+			<apply loc="5" mod="6" />
+			<apply loc="13" mod="150" />
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="44" mod="25" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="&amp;cДоспехи &amp;BУтренней Звезды&amp;n" alias="утреннейзвезды,сетуз" comment="микро богатырь кузнец - гривна">
+		<obj vnum="201213" />
+		<obj vnum="201214" />
+		<obj vnum="201215" />
+		<activ size="3" prof="00100000001000" affects="d0j0t0v0x0a1">
+			<apply loc="1" mod="6" />
+			<apply loc="5" mod="3" />
+			<apply loc="13" mod="125" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-15" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="44" mod="15" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Облачение домоседствующего губителя" alias="домоседствующегогубителя,сетдг" comment="технический для оценки публикой">
+		<obj vnum="2375" />
+		<obj vnum="2376" />
+		<obj vnum="2377" />
+		<activ size="3" prof="10000000000001" affects="d0j0t0x0D0a1">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="3" />
+			<apply loc="13" mod="150" />
+			<apply loc="40" mod="35" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-30" />
+			<apply loc="42" mod="15" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Доспехи слепого палача" alias="сетсп сетслепогопалача" comment="микросет охот тать наем">
+		<messages char_on="&amp;RДоспехи слепого палача ярко замерцали и покрылись потеками засохшей крови.&amp;n" char_off="&amp;rДоспехи слепого палача тускло вспыхнули, и капли засохшей крови осыпались на землю.&amp;n" room_on="&amp;RДоспехи слепого палача ярко замерцали вокруг $n1 и покрылись потеками засохшей крови.&amp;n" room_off="&amp;rДоспехи слепого палача тускло вспыхнули, и капли засохшей крови осыпались на землю.&amp;n" />
+		<obj vnum="1206" />
+		<obj vnum="1207" />
+		<obj vnum="1208" />
+		<activ size="3" prof="00010000010100" affects="d0f0t0v0a1">
+			<apply loc="1" mod="6" />
+			<apply loc="2" mod="6" />
+			<apply loc="13" mod="100" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="42" mod="10" />
+			<apply loc="44" mod="10" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="одежды покрытые инеем" alias="сетпи сетопи">
+		<obj vnum="11222" />
+		<obj vnum="11223" />
+		<obj vnum="11224" />
+		<activ size="2" prof="11000111000011">
+			<apply loc="20" mod="-20" />
+			<apply loc="23" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="39" mod="-20" />
+		</activ>
+		<activ size="3" prof="11000111000011" affects="b0d0j0p0t0v0w0D0a1k1l1m1p1">
+			<apply loc="3" mod="5" />
+			<apply loc="4" mod="5" />
+			<apply loc="6" mod="5" />
+			<apply loc="12" mod="90" />
+			<apply loc="13" mod="90" />
+			<apply loc="14" mod="50" />
+			<apply loc="40" mod="35" />
+			<mage_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="обледеневшие доспехи" alias="сетод сетобледеневшиедоспехи">
+		<obj vnum="11225" />
+		<obj vnum="11226" />
+		<obj vnum="11227" />
+		<activ size="2" prof="00111000111100">
+			<apply loc="20" mod="-20" />
+			<apply loc="23" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="14" mod="50" />
+			<apply loc="44" mod="20" />
+		</activ>
+		<activ size="3" prof="00111000111100" affects="b0d0j0p0t0v0w0D0a1k1l1m1p1">
+			<apply loc="1" mod="5" />
+			<apply loc="2" mod="5" />
+			<apply loc="5" mod="5" />
+			<apply loc="13" mod="90" />
+			<apply loc="18" mod="10" />
+			<apply loc="19" mod="10" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="гладиатора воина" alias="гв" comment="аренный зона 152">
+		<obj vnum="15220" />
+		<obj vnum="15221" />
+		<obj vnum="15222" />
+		<obj vnum="15223" />
+		<obj vnum="15224" />
+		<obj vnum="15225" />
+		<activ size="2" prof="01111000111100" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="1" mod="2" />
+			<apply loc="2" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="18" mod="20" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="3" prof="01111000111100" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="1" mod="2" />
+			<apply loc="2" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="13" mod="250" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="4" prof="01111000111100" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="1" mod="2" />
+			<apply loc="2" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="19" mod="50" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="5" prof="01111000111100" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="1" mod="2" />
+			<apply loc="2" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="42" mod="25" />
+			<phys_dmg pct="5" />
+		</activ>
+		<activ size="6" prof="01111000111100" npc="true">
+			<apply loc="21" mod="30" />
+			<apply loc="22" mod="30" />
+			<apply loc="46" mod="30" />
+			<apply loc="47" mod="30" />
+			<apply loc="44" mod="50" />
+			<apply loc="49" mod="30" />
+			<apply loc="50" mod="30" />
+			<apply loc="63" mod="30" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="гладиатора мага" alias="гм" comment="аренный зона 152">
+		<obj vnum="15250" />
+		<obj vnum="15251" />
+		<obj vnum="15252" />
+		<obj vnum="15253" />
+		<obj vnum="15254" />
+		<obj vnum="15255" />
+		<activ size="2" prof="10000111000011" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="3" mod="2" />
+			<apply loc="4" mod="2" />
+			<apply loc="6" mod="1" />
+			<apply loc="12" mod="50" />
+		</activ>
+		<activ size="3" prof="10000111000011" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="3" mod="2" />
+			<apply loc="4" mod="2" />
+			<apply loc="6" mod="1" />
+			<apply loc="13" mod="250" />
+		</activ>
+		<activ size="4" prof="10000111000011" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="3" mod="2" />
+			<apply loc="4" mod="2" />
+			<apply loc="6" mod="1" />
+			<apply loc="40" mod="30" />
+		</activ>
+		<activ size="5" prof="10000111000011" npc="true">
+			<apply loc="20" mod="-50" />
+			<apply loc="23" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-50" />
+			<apply loc="3" mod="2" />
+			<apply loc="4" mod="2" />
+			<apply loc="6" mod="1" />
+			<apply loc="42" mod="25" />
+		</activ>
+		<activ size="6" prof="10000111000011" npc="true">
+			<apply loc="21" mod="30" />
+			<apply loc="22" mod="30" />
+			<apply loc="46" mod="30" />
+			<apply loc="47" mod="30" />
+			<apply loc="44" mod="50" />
+			<apply loc="49" mod="30" />
+			<apply loc="50" mod="30" />
+			<apply loc="63" mod="30" />
+		</activ>
+	</set>
+	<set name="комплект мощи и силы" alias="сетмощисилы сетмс" comment="мини сет чармис">
+		<messages room_on="&amp;yМощь&amp;n и &amp;Cсила&amp;n наполнила $o3." room_off="&amp;yМощь&amp;n и &amp;Cсила&amp;n покинула $o3." />
+		<obj vnum="99043" />
+		<obj vnum="99044" />
+		<obj vnum="99045" />
+		<activ size="2" prof="00000000000000" npc="true">
+			<apply loc="62" mod="10" />
+			<apply loc="52" mod="10" />
+			<phys_dmg pct="20" />
+		</activ>
+		<activ size="3" prof="00000000000000" npc="true" affects="f0g1h1">
+			<apply loc="62" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="36" mod="20" />
+			<apply loc="42" mod="20" />
+			<skill num="167" val="100" />
+			<phys_dmg pct="20" />
+		</activ>
+	</set>
+	<set name="Ветхие доспехи наследие велетов" alias="сетвелетов сетнаследиевелетов сетнаследие доспехивелетов доспехинаследия" comment="Батыр-гривна">
+		<messages char_on="&amp;KСила последних велетов&amp;n &amp;Yнаполнила ваши мышцы&amp;n &amp;Kи вы почувствовали себя великаном.&amp;n" char_off="Сила последних велетов покинула вас и вы стали прежним." room_on="&amp;KСила последних велетов&amp;n &amp;Yсодрогнула воздух&amp;n &amp;Kи $n3 наполнила мощью великанов.&amp;n" room_off="&amp;KСила последних велетов&amp;n &amp;Yразвеялась по ветру&amp;n &amp;Kи мощь великанов покинула $n3.&amp;n" />
+		<obj vnum="201400" />
+		<obj vnum="201401" />
+		<obj vnum="201402" />
+		<obj vnum="201403" />
+		<obj vnum="201404" />
+		<activ size="3" prof="00000000001000" affects="c0d0j0">
+			<apply loc="1" mod="4" />
+			<apply loc="5" mod="2" />
+			<apply loc="41" mod="20" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-35" />
+			<apply loc="19" mod="10" />
+		</activ>
+		<activ size="4" prof="00000000001000" affects="t0D0a1">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="39" mod="-25" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="10" />
+			<apply loc="48" mod="20" />
+			<apply loc="36" mod="20" />
+		</activ>
+		<activ size="5" prof="00000000001000" affects="e0p0v0w0i1">
+			<apply loc="1" mod="4" />
+			<apply loc="5" mod="2" />
+			<apply loc="18" mod="15" />
+			<apply loc="52" mod="10" />
+			<apply loc="51" mod="10" />
+			<apply loc="13" mod="100" />
+			<apply loc="19" mod="10" />
+			<skill num="1" val="15" />
+			<enchant vnum="201404" weight="5" />
+		</activ>
+	</set>
+	<set name="Ветхие латы кузнеца-полубога" alias="сетполубога сеткузнецаполубога латыполубога сеткп" comment="Кузнец-гривна">
+		<messages char_on="Неистовое пламя из &amp;yКузни Сварога&amp;n опалило ваше тело, наделив мощью." char_off="Пламя из &amp;yКузни Сварога&amp;n стало медленно угасать, и сила покинула ваше тело." room_on="Неистовое пламя из &amp;yКузни Сварога&amp;n опалило тело $n1, наделив мощью." room_off="Пламя из &amp;yКузни Сварога&amp;n стало медленно угасать, и сила покинула тело $n1." />
+		<obj vnum="201405" />
+		<obj vnum="201406" />
+		<obj vnum="201407" />
+		<obj vnum="201408" />
+		<obj vnum="201409" />
+		<activ size="3" prof="00100000000000" affects="c0d0j0p0t0">
+			<apply loc="18" mod="10" />
+			<apply loc="19" mod="15" />
+			<apply loc="39" mod="-35" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="23" mod="-30" />
+			<apply loc="63" mod="10" />
+		</activ>
+		<activ size="4" prof="00100000000000" affects="e0v0w0D0a1">
+			<apply loc="44" mod="30" />
+			<apply loc="22" mod="20" />
+			<apply loc="5" mod="5" />
+			<apply loc="41" mod="20" />
+			<apply loc="48" mod="20" />
+			<apply loc="42" mod="20" />
+			<apply loc="36" mod="20" />
+			<enchant vnum="201409" weight="5" />
+		</activ>
+		<activ size="5" prof="00100000000000" affects="k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="19" mod="15" />
+			<apply loc="13" mod="100" />
+			<apply loc="1" mod="10" />
+			<apply loc="14" mod="120" />
+			<phys_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды охотничей удали" alias="сетоу сетохотничьейудали сетудали одеждыудали" comment="Охот-гривна">
+		<messages char_on="Где-то раздался волчий вой и ваше сердце стал наполнять первобытный азарт охотника." char_off="Волчий вой затих и ваш &amp;cпервобытный азарт охотника&amp;n стал угасать." room_on="Где-то раздался волчий вой и глаза $n1 стал наполнять &amp;cпервобытный азарт охотника&amp;n." room_off="Волчий вой затих и &amp;cпервобытный азарт охотника&amp;n в глазах $n1 стал угасать." />
+		<obj vnum="201410" />
+		<obj vnum="201411" />
+		<obj vnum="201412" />
+		<obj vnum="201413" />
+		<obj vnum="201414" />
+		<activ size="3" prof="00010000000000" affects="d0t0D0">
+			<apply loc="1" mod="6" />
+			<apply loc="2" mod="4" />
+			<apply loc="48" mod="25" />
+			<apply loc="18" mod="12" />
+			<apply loc="20" mod="-30" />
+			<apply loc="39" mod="-35" />
+		</activ>
+		<activ size="4" prof="00010000000000" affects="e0p0v0w0a1">
+			<apply loc="24" mod="-35" />
+			<apply loc="2" mod="6" />
+			<apply loc="5" mod="6" />
+			<apply loc="42" mod="15" />
+			<apply loc="19" mod="26" />
+			<apply loc="41" mod="23" />
+			<enchant vnum="201413" weight="14" />
+		</activ>
+		<activ size="5" prof="00010000000000" affects="k1l1m1">
+			<apply loc="49" mod="25" />
+			<apply loc="13" mod="100" />
+			<apply loc="44" mod="30" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="22" mod="25" />
+			<phys_dmg pct="5" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды повелителя мертвых" alias="сетпм сетповелителямертвых сетмертвых одеждыповелителя" comment="Чернок-гривна">
+		<messages char_on="Сотни душ вырвались из &amp;RЗагробного Мира&amp;n, окутав собой ваше тело." char_off="Окутавшие ваше тело души из &amp;RЗагробного Мира&amp;n рассеялись." room_on="Сотни душ вырвались из &amp;RЗагробного Мира&amp;n, окутав собой тело $n1." room_off="Окутавшие тело $n1 души из &amp;RЗагробного Мира&amp;n рассеялись." />
+		<obj vnum="201415" />
+		<obj vnum="201416" />
+		<obj vnum="201417" />
+		<obj vnum="201418" />
+		<obj vnum="201419" />
+		<activ size="3" prof="00000100000000" affects="d0t0">
+			<apply loc="4" mod="4" />
+			<apply loc="48" mod="25" />
+			<apply loc="42" mod="20" />
+			<apply loc="39" mod="-35" />
+			<apply loc="40" mod="10" />
+			<apply loc="44" mod="20" />
+		</activ>
+		<activ size="4" prof="00000100000000" affects="c0e0a1">
+			<apply loc="4" mod="4" />
+			<apply loc="40" mod="20" />
+			<apply loc="12" mod="85" />
+			<apply loc="24" mod="-25" />
+			<apply loc="20" mod="-30" />
+			<apply loc="13" mod="25" />
+		</activ>
+		<activ size="5" prof="00000100000000" affects="b0p0v0w0D0k1l1m1">
+			<apply loc="4" mod="5" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="40" mod="25" />
+			<apply loc="13" mod="100" />
+			<apply loc="23" mod="-25" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Ветхое одеяние мрачного лиходея" alias="сетлиходея сетмрачноголиходея сетомл" comment="Тать-гривна">
+		<messages char_on="&amp;KСгусток сумрака&amp;n медленно обволок вас, сделав ваше тело почти не заметным." char_off="&amp;KСгусток сумрака&amp;n рассеялся, сделав ваше тело опять заметным." room_on="&amp;KСгусток сумрака&amp;n медленно обволок $n1, сделав тело почти не заметным." room_off="&amp;KСгусток сумрака&amp;n рассеялся, сделав тело $n1 опять заметным." />
+		<obj vnum="201420" />
+		<obj vnum="201421" />
+		<obj vnum="201422" />
+		<obj vnum="201423" />
+		<obj vnum="201424" />
+		<activ size="3" prof="00000000000100" affects="b0d0e0p0t0D0a1m1">
+			<apply loc="2" mod="4" />
+			<apply loc="14" mod="30" />
+			<apply loc="13" mod="30" />
+			<apply loc="41" mod="10" />
+			<apply loc="39" mod="-40" />
+			<apply loc="20" mod="-25" />
+			<skill num="135" val="15" />
+		</activ>
+		<activ size="4" prof="00000000000100" affects="w0k1l1p1">
+			<apply loc="18" mod="10" />
+			<apply loc="42" mod="20" />
+			<apply loc="19" mod="10" />
+			<apply loc="2" mod="5" />
+			<apply loc="24" mod="-30" />
+			<apply loc="48" mod="15" />
+			<apply loc="14" mod="70" />
+			<enchant vnum="201420" ndice="2" sdice="1" />
+		</activ>
+		<activ size="5" prof="00000000000100" affects="v0A0">
+			<apply loc="13" mod="80" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="2" mod="9" />
+			<apply loc="49" mod="15" />
+			<apply loc="22" mod="35" />
+			<apply loc="18" mod="5" />
+			<apply loc="19" mod="10" />
+			<enchant vnum="201421" ndice="2" sdice="2" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды хранителя врат" alias="сетхв сетхранителяврат сетхранителя одеждыхранителя" comment="Волш-гривна">
+		<messages char_on="Яркий свет из &amp;MВолшебных врат&amp;n озарил вас, наделив ваше тело магией." char_off="Свет из &amp;MВолшебных врат&amp;n стал угасать, и магия покинула ваше тело." room_on="Яркий свет из &amp;MВолшебных Врат&amp;n озарил $n3, наделив тело магией." room_off="Свет из &amp;MВолшебных врат&amp;n стал угасать, и магия покинула тело $n3." />
+		<obj vnum="201425" />
+		<obj vnum="201426" />
+		<obj vnum="201427" />
+		<obj vnum="201428" />
+		<obj vnum="201429" />
+		<activ size="3" prof="00000010000000" affects="b0d0e0t0v0D0">
+			<apply loc="3" mod="3" />
+			<apply loc="6" mod="3" />
+			<apply loc="44" mod="25" />
+			<apply loc="40" mod="20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="48" mod="20" />
+		</activ>
+		<activ size="4" prof="00000010000000" affects="j0p0a1">
+			<apply loc="3" mod="4" />
+			<apply loc="6" mod="6" />
+			<apply loc="40" mod="10" />
+			<apply loc="13" mod="45" />
+			<apply loc="39" mod="-15" />
+			<apply loc="12" mod="75" />
+		</activ>
+		<activ size="5" prof="00000010000000" affects="k1l1m1">
+			<apply loc="13" mod="75" />
+			<apply loc="40" mod="25" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды доброго знахаря" alias="сетдз сетдоброгознахаря сетзнахаря одеждызнахаря" comment="Клер-гривна">
+		<messages char_on="&amp;WУчение добрых знахарей&amp;n озарило ваш разум." char_off="&amp;WУчение добрых знахарей&amp;n оставило ваш разум." room_on="&amp;WУчение добрых знахарей&amp;n озарило разум $n1." room_off="&amp;WУчение добрых знахарей&amp;n оставило разум $n1." />
+		<obj vnum="201430" />
+		<obj vnum="201431" />
+		<obj vnum="201432" />
+		<obj vnum="201433" />
+		<obj vnum="201434" />
+		<activ size="3" prof="00000000000001" affects="d0e0j0t0">
+			<apply loc="3" mod="3" />
+			<apply loc="4" mod="4" />
+			<apply loc="13" mod="40" />
+			<apply loc="12" mod="40" />
+			<apply loc="24" mod="-30" />
+			<apply loc="42" mod="20" />
+		</activ>
+		<activ size="4" prof="00000000000001" affects="b0p0a1">
+			<apply loc="3" mod="5" />
+			<apply loc="40" mod="45" />
+			<apply loc="12" mod="80" />
+			<apply loc="20" mod="-30" />
+			<apply loc="48" mod="20" />
+			<apply loc="39" mod="-30" />
+		</activ>
+		<activ size="5" prof="00000000000001" affects="k1l1m1">
+			<apply loc="32" mod="6" />
+			<apply loc="13" mod="75" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="34" mod="4" />
+			<apply loc="4" mod="4" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды владыки разумов" alias="сетвр сетвладыкиразумов одеждывладыки" comment="Кудес-гривна">
+		<messages char_on="Ваша голова стала разбухать, как качан, впитывая &amp;Gзнания о разумах всех существ на Земле&amp;n." char_off="Ваша голова приняла прежнюю форму и &amp;Gзнание о разумах других существ&amp;n покинуло вас." room_on="Голова $n1 стала разбухать, как качан, впитывая &amp;Gзнания о разумах всех существ на Земле&amp;n." room_off="Голова $n1 приняла прежнюю форму и &amp;Gзнание о разумах других существ&amp;n покинуло $n1." />
+		<obj vnum="201435" />
+		<obj vnum="201436" />
+		<obj vnum="201437" />
+		<obj vnum="201438" />
+		<obj vnum="201439" />
+		<activ size="3" prof="00000001000000" affects="b0d0e0t0">
+			<apply loc="6" mod="4" />
+			<apply loc="3" mod="2" />
+			<apply loc="13" mod="15" />
+			<apply loc="40" mod="15" />
+			<apply loc="20" mod="-25" />
+			<apply loc="48" mod="20" />
+			<skill num="188" val="15" />
+		</activ>
+		<activ size="4" prof="00000001000000" affects="c0v0D0a1">
+			<apply loc="13" mod="40" />
+			<apply loc="51" mod="10" />
+			<apply loc="44" mod="20" />
+			<apply loc="22" mod="20" />
+			<apply loc="39" mod="-30" />
+			<apply loc="24" mod="-25" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="00000001000000" affects="f0k1l1m1">
+			<apply loc="40" mod="45" />
+			<apply loc="6" mod="11" />
+			<apply loc="3" mod="5" />
+			<apply loc="13" mod="95" />
+			<apply loc="12" mod="75" />
+			<apply loc="52" mod="10" />
+		</activ>
+	</set>
+	<set name="Ветхие доспехи собирателя душ" alias="сетсд собирателядуш доспехисобирателя" comment="Наем-гривна">
+		<messages char_on="Сотни &amp;Rневинно убитых душ&amp;n со стоном ворвались в ваше тело, передав свою силу." char_off="Сотни &amp;Rневинно убитых душ&amp;n со стоном вырвались из вашего тело и их сила покинула вас." room_on="Сотни &amp;Rневинно убитых душ&amp;n со стоном ворвались в тело $n1, передав свою силу." room_off="Сотни &amp;Rневинно убитых душ&amp;n со стоном вырвались из тела $n1 и их сила покинула $n3." />
+		<obj vnum="201440" />
+		<obj vnum="201441" />
+		<obj vnum="201442" />
+		<obj vnum="201443" />
+		<obj vnum="201444" />
+		<activ size="3" prof="00000000010000" affects="b0d0f0t0D0a1">
+			<apply loc="2" mod="5" />
+			<apply loc="13" mod="50" />
+			<apply loc="41" mod="5" />
+			<apply loc="18" mod="5" />
+			<apply loc="23" mod="-20" />
+			<apply loc="19" mod="10" />
+		</activ>
+		<activ size="4" prof="00000000010000" affects="v0w0">
+			<apply loc="2" mod="5" />
+			<apply loc="1" mod="3" />
+			<apply loc="13" mod="50" />
+			<apply loc="18" mod="10" />
+			<apply loc="41" mod="15" />
+			<apply loc="39" mod="-20" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="00000000010000" affects="e0k1l1m1">
+			<apply loc="1" mod="4" />
+			<apply loc="13" mod="25" />
+			<apply loc="42" mod="25" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-20" />
+			<apply loc="24" mod="-20" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Ветхие доспехи решимости отваги" alias="сетрешимостиотваги сетро сетотваги дотспехиотваги доспехирешимости" comment="Друж-гривна">
+		<messages char_on="Отзвуки &amp;WВеликих Сражений&amp;n раздались в ваших ушах, укрепив тело и воодушевив на новые подвиги." char_off="Эхо &amp;WВеликих Сражений&amp;n затихло, ваш дух поник, а тело обмякло." room_on="Отзвуки &amp;WВеликих Сражений&amp;n раздались вокруг $n1, укрепив тело и воодушевив на новые подвиги." room_off="Эхо &amp;WВеликих Сражений&amp;n затихло и тело $n1 снова обмякло." />
+		<obj vnum="201445" />
+		<obj vnum="201446" />
+		<obj vnum="201447" />
+		<obj vnum="201448" />
+		<obj vnum="201449" />
+		<activ size="3" prof="00000000100000" affects="d0j0t0">
+			<apply loc="41" mod="20" />
+			<apply loc="5" mod="2" />
+			<apply loc="23" mod="-25" />
+			<apply loc="44" mod="45" />
+			<apply loc="46" mod="20" />
+			<apply loc="22" mod="20" />
+		</activ>
+		<activ size="4" prof="00000000100000" affects="w0y0D0a1">
+			<apply loc="48" mod="25" />
+			<apply loc="21" mod="20" />
+			<apply loc="49" mod="15" />
+			<apply loc="39" mod="-40" />
+			<apply loc="13" mod="100" />
+			<apply loc="20" mod="-40" />
+			<skill num="158" val="10" />
+			<enchant vnum="201449" weight="6" />
+		</activ>
+		<activ size="5" prof="00000000100000" affects="d0e0p0v0x0k1l1m1">
+			<apply loc="51" mod="12" />
+			<apply loc="52" mod="12" />
+			<apply loc="5" mod="9" />
+			<apply loc="1" mod="4" />
+			<apply loc="24" mod="-40" />
+			<apply loc="23" mod="-15" />
+			<enchant vnum="201447" weight="2" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды безумного чародея" alias="сетбезумногочародея сетбч сетчародея одеждычародея" comment="Колд-гривна">
+		<messages char_on="&amp;RБуйство стихийной магии&amp;n обрушилось на вас всей своей мощью, наполняя тело колдовством древних." char_off="&amp;RСтихийная магия&amp;n, бушующая вокруг вас стала медленно угасать, вбирая обратно все колдовство из вашего тела." room_on="&amp;RБуйство стихийной магии&amp;n обрушилось на $n3 всей своей мощью, наполняя тело колдовством древних." room_off="&amp;RСтихийная магия&amp;n, бушующая вокруг $n1 стала медленно угасать, вбирая обратно все колдовство." />
+		<obj vnum="201450" />
+		<obj vnum="201451" />
+		<obj vnum="201452" />
+		<obj vnum="201453" />
+		<obj vnum="201454" />
+		<activ size="3" prof="00000000000010" affects="d0e0j0t0a1">
+			<apply loc="4" mod="5" />
+			<apply loc="20" mod="-20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="42" mod="20" />
+			<apply loc="24" mod="-20" />
+			<apply loc="23" mod="-20" />
+		</activ>
+		<activ size="4" prof="00000000000010" affects="b0p0v0w0D0">
+			<apply loc="13" mod="25" />
+			<apply loc="12" mod="75" />
+			<apply loc="40" mod="30" />
+			<apply loc="48" mod="20" />
+			<apply loc="49" mod="20" />
+			<apply loc="3" mod="5" />
+		</activ>
+		<activ size="5" prof="00000000000010" affects="z0k1l1m1">
+			<apply loc="40" mod="30" />
+			<apply loc="13" mod="100" />
+			<apply loc="4" mod="5" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="39" mod="-15" />
+			<mage_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Ветхие доспехи незыблемой веры" alias="сетнв сетнезыблемойверы сетверы доспехиверы" comment="Витязь-гривна">
+		<messages char_on="Небесный свет озарил вас, наделив &amp;WНезыблемой Верой&amp;n и божественным покровительством." char_off="Небесный свет померк, а с ним угасла и ваша &amp;WВера&amp;n." room_on="Небесный свет озарил $n3, наделив &amp;WНезыблемой Верой&amp;n и божественным покровительством." room_off="Небесный свет померк, а с ним угасла и &amp;WВера&amp;n $n1 в божественное покровительство." />
+		<obj vnum="201455" />
+		<obj vnum="201456" />
+		<obj vnum="201457" />
+		<obj vnum="201458" />
+		<obj vnum="201459" />
+		<activ size="3" prof="00001000000000" affects="d0e0j0t0">
+			<apply loc="1" mod="2" />
+			<apply loc="5" mod="2" />
+			<apply loc="42" mod="20" />
+			<apply loc="48" mod="15" />
+			<apply loc="50" mod="15" />
+			<apply loc="41" mod="20" />
+			<apply loc="63" mod="10" />
+		</activ>
+		<activ size="4" prof="00001000000000" affects="p0v0w0y0D0a1">
+			<apply loc="18" mod="12" />
+			<apply loc="13" mod="100" />
+			<apply loc="39" mod="-35" />
+			<apply loc="20" mod="-35" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-30" />
+			<apply loc="36" mod="20" />
+			<enchant vnum="201456" weight="5" />
+		</activ>
+		<activ size="5" prof="00001000000000" affects="k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="5" mod="7" />
+			<apply loc="1" mod="4" />
+			<apply loc="19" mod="18" />
+			<apply loc="40" mod="25" />
+			<phys_dmg pct="10" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды ведовского величия" alias="сетвеличия сетведовскоговеличия ведовскиеодежды сетвв" comment="Волхв-гривна">
+		<messages char_on="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n загадочно засверкали, наделив ваш разум и тело невиданной мощью." char_off="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n померкли, вобрав обратно дарованную вам силу." room_on="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n загадочно засверкали, наделив разум и тело $n1 невиданной мощью." room_off="Древние руны &amp;RВ&amp;Wедовского&amp;n &amp;RВ&amp;Wеличия&amp;n померкли, вобрав обратно дарованную $n1 силу." />
+		<obj vnum="201460" />
+		<obj vnum="201461" />
+		<obj vnum="201462" />
+		<obj vnum="201463" />
+		<obj vnum="201464" />
+		<activ size="3" prof="10000000000000" affects="b0c0d0e0j0t0">
+			<apply loc="3" mod="5" />
+			<apply loc="4" mod="5" />
+			<apply loc="40" mod="20" />
+			<apply loc="39" mod="-30" />
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+		</activ>
+		<activ size="4" prof="10000000000000" affects="p0v0w0D0a1">
+			<apply loc="3" mod="5" />
+			<apply loc="24" mod="-30" />
+			<apply loc="48" mod="20" />
+			<apply loc="44" mod="25" />
+			<apply loc="13" mod="75" />
+			<apply loc="22" mod="25" />
+		</activ>
+		<activ size="5" prof="10000000000000" affects="k1l1m1">
+			<apply loc="13" mod="50" />
+			<apply loc="40" mod="35" />
+			<apply loc="21" mod="25" />
+			<apply loc="47" mod="25" />
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<mage_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Ветхие одежды мзды и смекалки" alias="сетмс сетмздысмекалки сетсмекалки одеждымзды одеждысмекалки" comment="Купец-гривна">
+		<messages char_on="&amp;YЗвон падающих монет&amp;n раздался у вас в голове и ваши глаза приобрели алчный и хитрый прищур." char_off="&amp;YЗвон монет&amp;n в вашей голове стал стихать и вы потеряли былую смекалку и алчность." room_on="Заслышав &amp;Yзвон падающих монет&amp;n глаза $n1 приобрели алчный и хитрый прищур." room_off="&amp;YЗвон монет&amp;n рядом с $n4 стал стихать и глаза $n1 потеряли былую алчность." />
+		<obj vnum="201465" />
+		<obj vnum="201466" />
+		<obj vnum="201467" />
+		<obj vnum="201468" />
+		<obj vnum="201469" />
+		<activ size="3" prof="01000000000000" affects="b0d0j0t0">
+			<apply loc="2" mod="7" />
+			<apply loc="29" mod="3" />
+			<apply loc="30" mod="3" />
+			<apply loc="44" mod="20" />
+			<apply loc="49" mod="30" />
+			<apply loc="20" mod="-30" />
+		</activ>
+		<activ size="4" prof="01000000000000" affects="c0e0v0a1">
+			<apply loc="13" mod="100" />
+			<apply loc="12" mod="100" />
+			<apply loc="52" mod="10" />
+			<apply loc="24" mod="-30" />
+			<apply loc="42" mod="20" />
+			<apply loc="39" mod="-20" />
+			<apply loc="63" mod="10" />
+			<apply loc="49" mod="10" />
+		</activ>
+		<activ size="5" prof="01000000000000" affects="p0w0k1l1m1">
+			<apply loc="51" mod="10" />
+			<apply loc="52" mod="10" />
+			<apply loc="6" mod="7" />
+			<apply loc="40" mod="55" />
+			<apply loc="48" mod="20" />
+			<apply loc="1" mod="7" />
+			<enchant vnum="201467" weight="15" />
+			<phys_dmg pct="15" />
+		</activ>
+	</set>
+	<set name="Ветхие доспехи безграничного послушания" alias="сетбезграничногопослушания сетбп сетпослушания" comment="Чармис (за гривны)">
+		<messages room_on="&amp;cТемное марево окутало $o3&amp;n, глаза $n1 потускнели и резко потупились." room_off="&amp;cТемное марево вокруг $o1 рассеялось&amp;n, глаза $n1 стали осмысленными и живыми." />
+		<obj vnum="201470" />
+		<obj vnum="201471" />
+		<obj vnum="201472" />
+		<obj vnum="201473" />
+		<activ size="3" prof="00000000000000" npc="true" affects="b0d0j0p0D0a1i1">
+			<apply loc="1" mod="6" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="51" mod="8" />
+			<phys_dmg pct="7" />
+		</activ>
+		<activ size="4" prof="00000000000000" npc="true" affects="f0p0t0e1k1l1m1p1">
+			<apply loc="19" mod="20" />
+			<apply loc="41" mod="15" />
+			<apply loc="18" mod="15" />
+			<apply loc="52" mod="7" />
+			<apply loc="62" mod="10" />
+			<apply loc="13" mod="100" />
+			<enchant vnum="201471" weight="6" />
+		</activ>
+	</set>
+	<set name="Ветхие доспехи хлябей небесных" alias="сетхлябейнебесных сетхн" comment="микро колд чернок - гривна">
+		<messages char_on="Над вами разверзлись Небесные Хляби и сильный дождь, хлынувший из них, наделил $o0 божественной мощью." char_off="Над $n4 разверзлись Небесные Хляби и сильный дождь, хлынувший из них, наделил $o3 божественной мощью." room_on="Над $n4 развезлись Небесные Хляби и сильный дождь, хлынувший из них, наделил $o3 божественной мощью." room_off="Над $n4 иссяк дождь из Небесных Хлябей, а вместе с ним и божественная сила, дарованная $o2." />
+		<obj vnum="201474" />
+		<obj vnum="201475" />
+		<obj vnum="201476" />
+		<activ size="3" prof="00000100000010" affects="d0e0t0v0x0a1">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="3" />
+			<apply loc="13" mod="100" />
+			<apply loc="40" mod="45" />
+			<apply loc="20" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="24" mod="-15" />
+			<apply loc="44" mod="10" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Ветхие &amp;gОдежды &amp;Gбоевого костоправа&amp;n" alias="сетбоевогокостоправа сетбоевого сетбк" comment="микро клер волхв - гривна">
+		<obj vnum="201477" />
+		<obj vnum="201478" />
+		<obj vnum="201479" />
+		<activ size="3" prof="10000000000001" affects="b0d0e0j0t0x0">
+			<apply loc="4" mod="6" />
+			<apply loc="3" mod="3" />
+			<apply loc="13" mod="150" />
+			<apply loc="40" mod="40" />
+			<apply loc="20" mod="-30" />
+			<apply loc="24" mod="-30" />
+			<apply loc="39" mod="-30" />
+			<apply loc="42" mod="15" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Ветхий обжигающий доспех змеиного пламени" alias="сетзп сетзмеиногопламени" comment="микро кудес волш - гривна">
+		<messages char_on="Дым и пламя из пасти возникшего &amp;RЗмея-Горыныча&amp;n обожгло ваше тело, наделив чудовищной мощью." char_off="Смачный плевок возникшего &amp;RЗмея-Горыныча&amp;n затушил горящее в вашем теле пламя." room_on="Дым и пламя из пасти возникшего &amp;RЗмея-Горыныча&amp;n обожгло тело $n1, наделив чудовищной мощью." room_off="Смачный плевок, возникшего Змея-Горыныча, затушил горящее в $n1 пламя." />
+		<obj vnum="201480" />
+		<obj vnum="201481" />
+		<obj vnum="201482" />
+		<activ size="3" prof="00000011000000" affects="d0e0j0t0x0a1">
+			<apply loc="3" mod="3" />
+			<apply loc="6" mod="6" />
+			<apply loc="13" mod="125" />
+			<apply loc="40" mod="40" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-15" />
+			<apply loc="42" mod="5" />
+			<mage_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Ветхие доспехи заплечных дел мастера" alias="заплечныхделмастера сетздм" comment="микро тать наем охот за гривны">
+		<obj vnum="201483" />
+		<obj vnum="201484" />
+		<obj vnum="201485" />
+		<activ size="3" prof="00010000010100" affects="d0t0v0a1">
+			<apply loc="1" mod="3" />
+			<apply loc="2" mod="6" />
+			<apply loc="13" mod="100" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="42" mod="10" />
+			<apply loc="44" mod="10" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Ветхие &amp;cдоспехи &amp;CВсевидящего Ока&amp;n" alias="сетвсевидящегоока, сетво" comment="микро друж/витязь - гривна">
+		<obj vnum="201486" />
+		<obj vnum="201487" />
+		<obj vnum="201488" />
+		<activ size="3" prof="00001000100000" affects="d0j0t0v0x0D0a1">
+			<apply loc="1" mod="3" />
+			<apply loc="5" mod="6" />
+			<apply loc="13" mod="150" />
+			<apply loc="20" mod="-25" />
+			<apply loc="23" mod="-25" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="44" mod="25" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set name="Ветхие &amp;cдоспехи &amp;BУтренней Звезды&amp;n" alias="утреннейзвезды,сетуз" comment="микро богатырь кузнец - гривна">
+		<obj vnum="201489" />
+		<obj vnum="201490" />
+		<obj vnum="201491" />
+		<activ size="3" prof="00100000001000" affects="d0j0t0v0x0a1">
+			<apply loc="1" mod="6" />
+			<apply loc="5" mod="3" />
+			<apply loc="13" mod="125" />
+			<apply loc="19" mod="10" />
+			<apply loc="20" mod="-15" />
+			<apply loc="24" mod="-25" />
+			<apply loc="39" mod="-25" />
+			<apply loc="44" mod="15" />
+			<phys_dmg pct="3" />
+		</activ>
+	</set>
+	<set enabled="0" />
+</obj_sets>
