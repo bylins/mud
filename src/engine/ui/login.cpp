@@ -369,7 +369,7 @@ int perform_dupe_check(DescriptorData *d) {
 		  char_from_room(ch);
 	  }
 		char_to_room(ch, kStrangeRoom);
-		mudlog(fmt::format("Обнаружен дубликат игрока %s, перемещен в ад и очищен.", ch->get_name().c_str()));
+		mudlog(fmt::format("Обнаружен дубликат игрока {}, перемещен в ад и очищен.", ch->get_name().c_str()));
 		character_list.AddToExtractedList(ch.get());
 	});
 
