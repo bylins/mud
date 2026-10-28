@@ -281,8 +281,6 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		return;
 	}
 
-	std::replace(property.begin(), property.end(), '_', ' ');
-
 	value = atoi(value_p.c_str());
 	duration = atoi(duration_p.c_str());
 	battle = atoi(battle_p.c_str());
@@ -292,7 +290,13 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		return;
 	}
 	// find the property -- first search apply_types
-	if ((index = search_block(property.c_str(), apply_types, false)) != -1) {
+	// issue #4113: сверяем по словам. Имена в apply_types многословные и записаны через точку
+	// ("макс.жизнь"), а триггеры пишут их и через точку, и через пробел, и через подчёркивание.
+	// Посимвольный IsAbbr спотыкался на первом же несовпавшем разделителе, из-за чего, например,
+	// "бонус_ко_всем" не находил "бонус.ко.всем.умениям" и аффект молча не вешался. Приведение
+	// подчёркиваний к пробелам, что стояло здесь раньше, -- частный случай того же: FixDot внутри
+	// IsEqual делает это с обеих сторон сразу.
+	if ((index = search_block_by_words(property, apply_types)) != -1) {
 		type = APPLY_TYPE;
 	} else {
 		if (affects::FindByShortDesc(property, dg_affect_type))

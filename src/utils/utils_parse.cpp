@@ -457,6 +457,23 @@ int search_block(const std::string &block, const char **list, int exact) {
 	return (-1);
 }
 
+// Разделитель слов в запросе и в имени может не совпадать: имена таблиц пишут через точку
+// ("макс.жизнь"), а из триггера приходит пробел или подчёркивание. IsEqual приводит к словам
+// обе стороны (FixDot) и сверяет их подряд с начала, каждое как сокращение -- то же, что делал
+// IsAbbr, только на словах, а не на байтах.
+int search_block_by_words(const std::string &block, const char **list) {
+	if (block.empty()) {
+		return -1;   // как IsAbbr: пустой запрос не совпадает ни с чем
+	}
+	for (int i = 0; **(list + i) != '\n'; i++) {
+		if (utils::IsEqual(block, *(list + i))) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
 void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
 	std::string::size_type beg_idx = 0, end_idx = 0;
 	beg_idx = in_buffer.find_first_not_of(' ');

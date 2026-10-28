@@ -198,6 +198,10 @@ int get_number(std::string &name);
 // issue.interpreter-cleaning: generic argument/token parsing helpers moved from interpreter.
 int search_block(const char *target_string, const char **list, int exact);
 int search_block(const std::string &block, const char **list, int exact);
+// issue #4113: то же, но сверяя имя по словам (utils::IsEqual), а не как одну строку.
+// Нужно там, где имена в таблице многословные и записаны через точку ("макс.жизнь"):
+// посимвольный IsAbbr спотыкается, когда разделитель в запросе и в имени разный.
+int search_block_by_words(const std::string &block, const char **list);
 void GetOneParam(std::string &buffer, std::string &buffer2);
 bool CompareParam(const std::string &buffer, const char *str, bool full = false);
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
