@@ -2702,7 +2702,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 				fmt::arg("amount", over),
 				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(over, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
-			std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
+			std::string log_text = fmt::format("{} вложил{} в казну {} {}\r\n",
 											   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), over,
 											   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(over, grammar::ECase::kNom).c_str());
 			CLAN(ch)->chest_log.add(log_text);
@@ -2713,7 +2713,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		CLAN(ch)->m_members.add_money(ch->get_uid(), gold);
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)), fmt::arg("amount", gold), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
-		std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
+		std::string log_text = fmt::format("{} вложил{} в казну {} {}\r\n",
 										   GET_NAME(ch),
 										   grammar::SexEnding((ch)->get_sex(), 1),
 										   gold,
@@ -2747,7 +2747,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 				fmt::arg("amount", over),
 				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(over, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
-			std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
+			std::string log_text = fmt::format("{} получил{} из казны {} {}\r\n",
 											   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), over,
 											   MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(over, grammar::ECase::kNom).c_str());
 			CLAN(ch)->chest_log.add(log_text);
@@ -2758,7 +2758,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		currencies::AddHand(*ch, currencies::kGold, gold);
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)), fmt::arg("amount", gold), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
-		std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
+		std::string log_text = fmt::format("{} получил{} из казны {} {}\r\n",
 										   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
 										   gold, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom).c_str());
 		CLAN(ch)->chest_log.add(log_text);

@@ -1125,7 +1125,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			if (it.second == 0) {
 				continue;
 			}
-			SendMsgToChar(fmt::format(" %+d% to {}", it.second, MUD::Skill(it.first).GetName()), ch);
+			SendMsgToChar(fmt::format(" {:+d}% to {}", it.second, MUD::Skill(it.first).GetName()), ch);
 		}
 	}
 	SendMsgToChar("\r\n", ch);
