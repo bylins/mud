@@ -56,6 +56,7 @@ test_sources = files(
     'slight_defence.damage.cpp',
     'utils.editor.cpp',
     'utils.string.cpp',
+    'utils.parse.search_block_by_words.cpp',
     'utils.encoding.cpp',
     'accounts.storage.cpp',
     'translit_koi8.cpp',
