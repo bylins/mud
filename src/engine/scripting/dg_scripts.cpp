@@ -3052,13 +3052,13 @@ void find_replacement(void *go,
 					}
 				}
 			} else if (!str_cmp(field, "applyvalue")) {
-				int num;
 				int sum  = 0;
-				for (num = 0; num < EApply::kNumberApplies; num++) {
-					if (utils::IsAbbr(subfield, apply_types[num]))
-						break;
-				}
-				if (num == EApply::kNumberApplies) {
+				// Сверяем по словам, как dgaffect после issue #4113. Имена в apply_types
+				// многословные ("*множитель опыта"), а триггеры пишут их через точку:
+				// посимвольный IsAbbr спотыкался на первом же разделителе, подстановка уходила
+				// пустой, и условие вроде "> 2" молча оказывалось ложным.
+				const int num = search_block_by_words(subfield, apply_types);
+				if (num < 0) {
 					trig_log(trig, fmt::format("Не найден апплай '{}' в списке ApplyTypes", subfield));
 					return;
 				}
@@ -3118,11 +3118,9 @@ void find_replacement(void *go,
 						trig_log(trig, fmt::format("Не найден аффект {} в списке AffectedBy", subfield));
 						return;
 					}
-					for (num = 0; num < EApply::kNumberApplies; num++) {
-						if (!str_cmp(p, apply_types[num]))
-						break;
-					}
-					if (num == EApply::kNumberApplies) {
+					// по словам, а не точным str_cmp: см. applyvalue выше
+					num = search_block_by_words(p, apply_types);
+					if (num < 0) {
 						trig_log(trig, fmt::format("Не найден апплай '{}' в списке AffectedBy", p));
 						return;
 					}
@@ -3522,12 +3520,10 @@ void find_replacement(void *go,
 			if (p) {
 				*p++ = '\0';
 			}
-			int num, i;
-			for (num = 0; num < EApply::kNumberApplies; num++) {
-				if (!str_cmp(subfield, apply_types[num]))
-				break;
-			}
-			if (num == EApply::kNumberApplies) {
+			int i;
+			// по словам, а не точным str_cmp: см. applyvalue выше
+			const int num = search_block_by_words(subfield, apply_types);
+			if (num < 0) {
 				trig_log(trig, fmt::format("Не найден апплай '{}' в списке apply_types", subfield));
 				return;
 			}
