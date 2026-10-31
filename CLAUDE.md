@@ -313,12 +313,12 @@ The heartbeat system includes built-in profiling:
 
 ## Critical Notes
 
-- **File Encoding**: All project source files are UTF-8 (issue #3681), and so is `lib.template/`. Edit both directly — no iconv dance. Only the working `lib/` (the world an author puts there, plus `lib/cfg/**`) is still KOI8-R on disk; see `.gitattributes` for exactly which trees.
+- **File Encoding**: Everything we edit is UTF-8 on disk — sources, `tests/`, `lib.template/`, the working `lib/` (configs `lib/cfg/**`, help, boards) and the world in `lib/worlddata/world` (its own `.gitattributes` declares UTF-8 both in git and in the working copy). Edit any of it directly; **no iconv, and never decode a project file as KOI8-R.** Old files in KOI8-R the engine still reads (`from_disk_text` recognises either), so a stale file here and there is not a reason to bring the conversion dance back — we write UTF-8.
 - **Thread Safety**: Main game loop is single-threaded; use `BlockingQueue` for cross-thread communication
 - **Shared Pointers**: Always use `CharData::shared_ptr` and `ObjData::shared_ptr` to prevent use-after-free
 - **Pulse Timing**: Never use wall-clock delays; register actions with heartbeat system
 - **Script Depth**: DG Scripts limited to 512 recursion depth to prevent stack overflow
-- **Runtime Encoding**: The engine holds text in UTF-8 and works on it per character (`utils/native_text.*`). Client codepages (Alt, Win, KOI8-R, UTF-8) are converted at the network boundary only; the disk boundary (`from_disk_text` / `to_disk`) keeps world files in KOI8-R.
+- **Runtime Encoding**: The engine holds text in UTF-8 and works on it per character (`utils/native_text.*`). Client codepages (Alt, Win, KOI8-R, UTF-8) are converted at the network boundary only. On disk the engine writes UTF-8; `from_disk_text` still accepts KOI8-R on read, so files written by older builds keep loading.
 
 ## Claude Code Workflow Rules
 
@@ -360,9 +360,14 @@ meson configure build_otel -Dpkg_config_path=~/vcpkg/installed/x64-linux/lib/pkg
 экспортёров при этом ни о чём не говорит — ищем мы именно `.pc`.
 
 ### File Encoding
-Sources are UTF-8. Edit `.cpp`/`.h` directly with the Edit tool — the KOI8-R conversion dance is
-gone (issue #3681). Git always stored these blobs as UTF-8; what changed is that the working tree
-no longer converts them on checkout.
+**Всё в проекте — UTF-8.** Исходники, `tests/`, `lib.template/`, рабочий `lib/` (включая
+`lib/cfg/**`, справку и доски) и мир в `lib/worlddata/world`. Правьте любой из них напрямую
+Edit'ом. Никакого iconv, и **не читайте файлы проекта как KOI8-R** — ни глазами, ни скриптом:
+koi8-декодер на UTF-8-файле выдаёт мусор, который легко принять за порчу данных.
+
+Исторические файлы в KOI8-R движок по-прежнему читает (`from_disk_text` распознаёт и нативный
+текст, и кои-восьмой), поэтому отдельный невыконвертированный файл в боевом `lib/` — не повод
+возвращать пляску с перекодировкой. Пишем мы UTF-8.
 
 **Переключились на ветку с флипом в уже существующем дереве — перевыкачайте исходники:**
 
@@ -382,23 +387,15 @@ rm -rf lib.template && git checkout -- lib.template
 считает весь текст UTF-8: расходятся сравнения имён, доски, кодировка лога, а запись на диск гонит
 такие литералы через словарь транслита. `meson setup` теперь это проверяет и отказывается собирать.
 
-`lib.template/` тоже переведён на UTF-8: в git его блобы всегда были UTF-8, а
+`lib.template/` и `lib/cfg/**` тоже в UTF-8: в git их блобы всегда были UTF-8, а
 `working-tree-encoding=KOI8-R` лишь выворачивал их при выкладке — атрибут снят, содержимое
-файлов не менялось. Правьте шаблон напрямую.
+файлов не менялось. Правьте напрямую.
 
-Still KOI8-R on disk, and still needing care: the working `lib/` — the world an author puts in
-`lib/worlddata/world`, plus `/lib/cfg/**`, `/lib/misc/**`, `/lib/text/help/**`, `/lib/etc/board/**`.
-Движок читает оба варианта (`from_disk_text` распознаёт уже нативный текст), так что переводить
-боевой мир не требуется. For those the old rule holds — convert, edit, convert back:
+Мир (`lib/worlddata/world`) — отдельный репозиторий, и у него свой `.gitattributes`: YAML в UTF-8
+и в git, и в рабочей копии. Так что и зоны читаются/правятся как обычный UTF-8.
 
-```bash
-iconv -f koi8-r -t utf-8 lib/cfg/some.xml > /tmp/some_utf8.xml
-# edit /tmp/some_utf8.xml
-iconv -f utf-8 -t koi8-r /tmp/some_utf8.xml > lib/cfg/some.xml
-```
-
-The pre-commit hook enforces both directions: sources must parse as UTF-8, world files must stay
-in the encoding `.gitattributes` declares.
+Хук pre-commit проверяет кодировку по `.gitattributes`: исходники и мир должны разбираться как
+UTF-8.
 
 **NEVER use sed for editing source files.** Sed has tendency to:
 - Modify files in unexpected places (matching wrong lines)
