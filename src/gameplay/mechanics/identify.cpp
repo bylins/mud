@@ -546,7 +546,7 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 			victim->get_wis(), GetRealWis(victim), victim->get_cha(), GetRealCha(victim));
 	}
 	if (skill > 119) {
-		ss << fmt::format("Бонусы: маг.урон: {}, физ. урон: {}\r\n",
+		ss << fmt::format("Бонусы: магический урон: {}, физический урон: {}\r\n",
 				victim->add_abils.percent_spellpower_add, victim->add_abils.percent_physdam_add);
 	}
 	if (skill > 149) {
