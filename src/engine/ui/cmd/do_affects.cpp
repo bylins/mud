@@ -82,7 +82,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
 	// склеивается через ", " (иначе после метки была бы лишняя запятая).
 	SendMsgToChar(fmt::format("&y{}&w\r\n",
-							  utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "Аффекты: ")),
+							  utils::OutWordsList(out_str, LineWrapWidth(ch), ", ", "Аффекты: ")),
 				  ch);
 
 	if (ch->affected.empty()) {

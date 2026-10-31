@@ -889,6 +889,24 @@ TEST(Utils_String, OutWordsList_AnsiPrefixDoesNotEatWidth)
 	EXPECT_EQ(colored.find("\r\n"), std::string::npos);
 }
 
+TEST(Utils_String, OutWordsList_ZeroLengthMeansNoWrap)
+{
+	// Нулевая ширина -- это выключенный перенос (флаг kNoLineWrap, см. LineWrapWidth): список
+	// должен уйти одной строкой. Раньше условие переноса было верно для каждого слова, и
+	// "Аффекты: " печатались столбиком по одному.
+	const std::vector<std::string> words{"невидимость", "определение невидимости", "полет"};
+	const std::string out = utils::OutWordsList(words, 0, ", ", "Аффекты: ");
+	EXPECT_EQ(out, "Аффекты: невидимость, определение невидимости, полет");
+	EXPECT_EQ(out.find("\r\n"), std::string::npos);
+}
+
+TEST(Utils_String, OutWordsList_ZeroLengthKeepsSingleWordAndEmptyList)
+{
+	EXPECT_EQ(utils::OutWordsList(std::vector<std::string>{"полет"}, 0, ", ", "Аффекты: "),
+			  "Аффекты: полет");
+	EXPECT_EQ(utils::OutWordsList(std::vector<std::string>{}, 0, ", ", "Аффекты: "), "Аффекты: ");
+}
+
 TEST(Utils_String, WrapText_LeavesFittingLinesUntouched)
 {
 	// Перенос теперь стоит на всём выводе act и каналов, а короткие строки бывают выровнены

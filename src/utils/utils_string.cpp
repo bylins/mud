@@ -1089,6 +1089,21 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	// склеивается через separator (first остаётся true -- первое слово идёт
 	// сразу за префиксом без ", "). Видимую длину считаем без цветокодов.
 	std::string result = prefix;
+	// max_length == 0 -- перенос выключен: так его понимают WrapText, почта, доски и
+	// LineWrapWidth() (флаг EPrf::kNoLineWrap). Без этой ветки условие переноса ниже верно для
+	// каждого слова, и список печатался бы столбиком по одному слову в строке -- ровно наоборот
+	// тому, что просил игрок, отключивший перенос.
+	if (max_length == 0) {
+		bool first_word = true;
+		for (const auto &word : words) {
+			if (!first_word) {
+				result += separator;
+			}
+			result += word;
+			first_word = false;
+		}
+		return result;
+	}
 	// Ширина -- в символах, а не в байтах: в UTF-8 русская буква занимает два, и счёт по
 	// size() рвал бы строку вдвое раньше запрошенного (issue #3681).
 	size_t line_length = VisibleWidth(prefix);
