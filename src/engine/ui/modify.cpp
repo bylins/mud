@@ -781,6 +781,10 @@ void string_add(DescriptorData *d, char *str) {
 					format_news_message(d->message->text);
 				}
 				board->write_message(d->message);
+				if (board->get_type() == Boards::NOTICE_BOARD) {
+					// анонсы дублируются в новости, см. mirror_notice_to_news
+					Boards::Static::mirror_notice_to_news(d->message);
+				}
 				Boards::Static::new_message_notify(board);
 				iosystem::write_to_output("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
 			} else {

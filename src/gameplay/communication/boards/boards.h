@@ -37,6 +37,7 @@ class Static {
 	static bool full_access(CharData *ch, const Board::shared_ptr board);
 	static void clan_delete_message(const std::string &name, int vnum);
 	static void new_message_notify(const Board::shared_ptr board);
+	static void mirror_notice_to_news(const Message::shared_ptr &message);
 
 	static Board::shared_ptr create_board(BoardTypes type, const std::string &name,
 										  const std::string &desc, const std::string &file);
