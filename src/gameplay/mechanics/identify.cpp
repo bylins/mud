@@ -195,7 +195,7 @@ static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
 switch (obj->get_type()) {
 	case EObjType::kScroll: {
 		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
-				ch->player_specials->saved.stringLength, ", ",
+				LineWrapWidth(ch), ", ",
 				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
@@ -203,7 +203,7 @@ switch (obj->get_type()) {
 	// POTENCY (Сила), never a per-spell level -- the drinker's own skill/stats are irrelevant.
 	case EObjType::kPotion: {
 		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
-				ch->player_specials->saved.stringLength, ", ",
+				LineWrapWidth(ch), ", ",
 				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
@@ -575,7 +575,7 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 		std::vector<std::string> aff_list =
 				utils::Split(affects::DescribeActive(victim->char_specials.saved.affected_by, ","), ',');
 		ss << fmt::format("&G{}&n\r\n",
-				utils::OutWordsList(aff_list, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
+				utils::OutWordsList(aff_list, LineWrapWidth(ch), ", ", "Аффекты: "));
 	}
 	SendMsgToChar(ch, "%s", ss.str().c_str());
 }
