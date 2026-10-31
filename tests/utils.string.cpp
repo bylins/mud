@@ -879,6 +879,16 @@ TEST(Utils_String, VisibleWidth_CountsCharactersNotBytes)
 	EXPECT_EQ(utils::VisibleWidth("\x1B[1;33mмеч\x1B[0;37m"), 3u);
 }
 
+TEST(Utils_String, OutWordsList_CyrillicWrapsByCharactersNotBytes)
+{
+	// Список аффектов активатора набора: 43 знака, но 80 байт. Пока ширину считали в байтах
+	// (прежний line_split_str в obj_sets), блок выходил вдвое уже обещанных 80 знаков.
+	const std::vector<std::string> words{"невидимость", "определение невидимости", "полет"};
+	const std::string out = utils::OutWordsList(words, 74, ", ");
+	EXPECT_EQ(out, "невидимость, определение невидимости, полет");
+	EXPECT_EQ(out.find("\r\n"), std::string::npos);
+}
+
 TEST(Utils_String, OutWordsList_AnsiPrefixDoesNotEatWidth)
 {
 	// Регрессия: цвет из констант kColor* -- это готовый ANSI, а не "&X". Пока его считали

@@ -79,29 +79,6 @@ void PrinSetClasses(const std::bitset<kNumPlayerClasses> &bits, std::string &str
 /// форматирование строки с разбиением на строки не длиннее \param len,
 /// строка разбивается полными словами по разделителю \param sep
 /// \param base_offset = 0 - смещение первой строки
-std::string line_split_str(const std::string &str, const std::string &sep,
-						   size_t len, size_t base_offset) {
-	std::string out;
-	out.reserve(str.size());
-	const size_t sep_len = sep.length();
-	size_t idx = 0, cur_line = base_offset, prev_idx = 0;
-
-	while ((idx = str.find(sep, idx)) != std::string::npos) {
-		const size_t tok_len = idx + sep_len - prev_idx;
-		if (cur_line + tok_len > len) {
-			out += "\r\n";
-			cur_line = 0;
-		}
-		out += str.substr(prev_idx, tok_len);
-		cur_line += tok_len;
-		idx += sep_len;
-		prev_idx = idx;
-	}
-	out += str.substr(prev_idx);
-
-	return out;
-}
-
 // приводит внум из дублированных миников к оригинальному внуму
 int normalize_vnum(int vnum) {
 	if (vnum >= DUPLICATE_MINI_SET_VNUM)
@@ -794,7 +771,11 @@ std::string print_activ_affects(const BitsetFlags<EEquipmentAffect> &aff) {
 		// по 80 символов (не разбивая слова), при этом подписать впереди
 		// каждой строки " + " и выделить сами аффекты цветом
 		std::string aff_str(" + Аффекты :\r\n");
-		aff_str += line_split_str(buf_, ",", 74, 0);
+		// 74 -- это 80 знаков минус префикс " +    ", который дописывается ниже. Ширину считает
+		// OutWordsList, и считает в символах: прежний line_split_str резал по байтам, а в UTF-8
+		// русская буква занимает два, так что блок выходил вдвое уже обещанных 80. Разделитель
+		// ", " -- хвостовой пробел перед переносом OutWordsList срезает сам.
+		aff_str += utils::OutWordsList(utils::Split(buf_, ','), 74, ", ");
 		utils::TrimRight(aff_str);
 		char filler[64];
 		snprintf(filler, sizeof(filler), "\n%s +    %s", kColorNrm, kColorCyn);
