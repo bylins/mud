@@ -150,6 +150,14 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
+	// Доска "Анонсы" убрана, объявления переехали в "Новости": там лента удобнее, да и
+	// расходиться двум доскам администрации незачем. Команда оставлена нарочно -- чтобы
+	// по привычке не писали в пустоту, а получали подсказку, куда теперь писать.
+	if (subcmd == NOTICE_BOARD) {
+		SendMsgToChar(BoardMsg(EBM::kNoticeRetired) + "\r\n", ch);
+		return;
+	}
+
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar(BoardMsg(EBM::kBlind) + "\r\n", ch);
 		return;
@@ -635,7 +643,6 @@ void Static::BoardInit() {
 	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", BOARDS_DIR"god-general.board");
 	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", BOARDS_DIR"god-build.board");
 	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", BOARDS_DIR"god-punish.board");
-	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", BOARDS_DIR"notice.board");
 	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", BOARDS_DIR"misprint.board");
 	create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", BOARDS_DIR"suggest.board");
 	create_board(CODER_BOARD, "Кодер", "Изменения в коде Былин", "");
@@ -771,9 +778,13 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			}
 			break;
 		case NEWS_BOARD:
-			// все читают, 34 и по привилегии полный
+			// все читают, 32+ пишут (право перешло от убранных анонсов), 34 и по привилегии полный
 			if (privilege::IsImpl(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
+			} else if (privilege::IsGod(ch)) {
+				access.set(ACCESS_CAN_SEE);
+				access.set(ACCESS_CAN_READ);
+				access.set(ACCESS_CAN_WRITE);
 			} else {
 				access.set(ACCESS_CAN_SEE);
 				access.set(ACCESS_CAN_READ);
