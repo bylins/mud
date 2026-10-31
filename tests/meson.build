@@ -89,6 +89,7 @@ test_sources = files(
     'yaml_mob_saves_resistances.cpp',
     'world_checksum_serialization.cpp',
     'dg_string_matching.cpp',
+    'affect_short_desc_lookup.cpp',
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
     'naws.parse.cpp',
