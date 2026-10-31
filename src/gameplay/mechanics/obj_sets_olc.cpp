@@ -394,7 +394,11 @@ void sedit::show_activ_edit(CharData *ch) {
 
 	char buf_aff[2048];
 	activ.affects.sprintbits(equipment_affects, buf_aff, sizeof(buf_aff), ",");
-	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
+	// Подпись пункта уходит в префикс: OutWordsList считает её видимую ширину (цветокоды не в
+	// счет), поэтому первая строка не вылезает за 80 знаков. Прежний line_split_str считал
+	// ширину в байтах и после перехода на UTF-8 рвал список вдвое раньше срока.
+	const std::string aff_str = utils::OutWordsList(utils::Split(buf_aff, ','), 80, ", ",
+			fmt::format("{} 4{}) Аффекты : {}", kColorGrn, kColorNrm, kColorCyn));
 	std::string prof_str;
 	if (!activ.prof.all()) {
 		PrinSetClasses(activ.prof, prof_str);
@@ -409,14 +413,13 @@ void sedit::show_activ_edit(CharData *ch) {
 			 "%s 1%s) Удалить из набора\r\n"
 			 "%s 2%s) Количество предметов : %s%d%s\r\n"
 			 "%s 3%s) Профессии : %s%s%s\r\n"
-			 "%s 4%s) Аффекты : %s%s%s\r\n",
+			 "%s%s\r\n",
 			 kColorGrn, kColorNrm,
 			 kColorGrn, kColorNrm,
 			 kColorCyn, activ_edit, kColorNrm,
 			 kColorGrn, kColorNrm,
 			 kColorCyn, prof_str.c_str(), kColorNrm,
-			 kColorGrn, kColorNrm,
-			 kColorCyn, aff_str.c_str(), kColorNrm);
+			 aff_str.c_str(), kColorNrm);
 	out += buf_;
 
 	int cnt = 5;
