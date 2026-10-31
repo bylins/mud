@@ -158,7 +158,11 @@ bool chars_equal_ci(const char *a, const char *b) {
 		|| utf8::decode(std::string_view(b, char_bytes(b)), 0, cb) == 0) {
 		return false;
 	}
-	return utf8::to_lower(ca) == utf8::to_lower(cb);
+	// "ё" уходит клиенту всегда как "е" (DescriptorData::string_to_client_encoding), поэтому
+	// игрок физически не может набрать "ё", записанное в данных: без этой складки "резной
+	// конёк" не отзывался на "конек". Складываем в обе стороны -- и набранное "ё" находит "е".
+	const auto fold_yo = [](char32_t c) { return c == 0x0451 ? static_cast<char32_t>(0x0435) : c; };
+	return fold_yo(utf8::to_lower(ca)) == fold_yo(utf8::to_lower(cb));
 }
 
 namespace {
