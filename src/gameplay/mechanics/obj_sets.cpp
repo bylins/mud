@@ -246,12 +246,12 @@ void VerifySet(SetNode &set) {
 			}
 		}
 		if (i->second.bonus.phys_dmg < 0 || i->second.bonus.phys_dmg > 1000) {
-			err_log("Items set #%zu: некорректный бонус физ. урона (activ=%d)",
+			err_log("Items set #%zu: некорректный бонус физического урона (activ=%d)",
 					num, i->first);
 			set.enabled = false;
 		}
 		if (i->second.bonus.mage_dmg < 0 || i->second.bonus.mage_dmg > 1000) {
-			err_log("Items set #%zu: некорректный бонус маг. урона (activ=%d)",
+			err_log("Items set #%zu: некорректный бонус магического урона (activ=%d)",
 					num, i->first);
 			set.enabled = false;
 		}
@@ -808,13 +808,13 @@ std::string print_activ_bonus(const bonus_type &bonus) {
 
 	if (bonus.phys_dmg > 0) {
 		snprintf(buf_, sizeof(buf_),
-				 " +    %sувеличивает физ. урон на %d%%%s\r\n",
+				 " +    %sувеличивает физический урон на %d%%%s\r\n",
 				 kColorCyn, bonus.phys_dmg, kColorNrm);
 		out += buf_;
 	}
 	if (bonus.mage_dmg > 0) {
 		snprintf(buf_, sizeof(buf_),
-				 " +    %sувеличивает маг. урон на %d%%%s\r\n",
+				 " +    %sувеличивает магический урон на %d%%%s\r\n",
 				 kColorCyn, bonus.mage_dmg, kColorNrm);
 		out += buf_;
 	}

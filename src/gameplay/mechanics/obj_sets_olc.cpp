@@ -474,13 +474,13 @@ void sedit::show_activ_edit(CharData *ch) {
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
-			 "%s%2d%s) Увеличение физ. урона : %s%+d%%%s\r\n",
+			 "%s%2d%s) Увеличение физического урона : %s%+d%%%s\r\n",
 			 kColorGrn, cnt++, kColorNrm,
 			 kColorCyn, activ.bonus.phys_dmg, kColorNrm);
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
-			 "%s%2d%s) Увеличение маг. урона : %s%+d%%%s\r\n",
+			 "%s%2d%s) Увеличение магического урона : %s%+d%%%s\r\n",
 			 kColorGrn, cnt++, kColorNrm,
 			 kColorCyn, activ.bonus.mage_dmg, kColorNrm);
 	out += buf_;
@@ -1379,10 +1379,10 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 		show_activ_ench_vnum(ch);
 	} else if (num == offset + activ.apply.size() + 3) {
 		state = STATE_ACTIV_PHYS_DMG;
-		SendMsgToChar("Укажите процент прибавляемого физ. урона :", ch);
+		SendMsgToChar("Укажите процент прибавляемого физического урона :", ch);
 	} else if (num == offset + activ.apply.size() + 4) {
 		state = STATE_ACTIV_MAGE_DMG;
-		SendMsgToChar("Укажите процент прибавляемого маг. урона :", ch);
+		SendMsgToChar("Укажите процент прибавляемого магического урона :", ch);
 	} else if (num == offset + activ.apply.size() + 5) {
 		if (activ.npc) {
 			SendMsgToChar("Теперь НЕ активится на мобах.", ch);
