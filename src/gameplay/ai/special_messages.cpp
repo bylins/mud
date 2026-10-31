@@ -290,7 +290,6 @@ const std::map<specials::EBoardMsg, std::string> kBoardMsgNames{
 		{specials::EBoardMsg::kSpecialAlias, "kSpecialAlias"},
 		{specials::EBoardMsg::kBlind, "kBlind"},
 		{specials::EBoardMsg::kNoBoard, "kNoBoard"},
-		{specials::EBoardMsg::kNoticeRetired, "kNoticeRetired"},
 		{specials::EBoardMsg::kNoUnread, "kNoUnread"},
 		{specials::EBoardMsg::kNoSuchMessage, "kNoSuchMessage"},
 		{specials::EBoardMsg::kSpammer, "kSpammer"},

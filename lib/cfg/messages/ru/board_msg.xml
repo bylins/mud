@@ -15,7 +15,6 @@
 		<message type="kSpecialAlias" val="Команда для быстрого добавления сообщения: {alias} &lt;текст сообщения в одну строку&gt;." />
 		<message type="kBlind" val="Вы ослеплены!" />
 		<message type="kNoBoard" val="Чаво?" />
-		<message type="kNoticeRetired" val="Доски анонсов больше нет, пишите в новости: новости писать &lt;заголовок&gt;." />
 		<message type="kNoUnread" val="У вас нет непрочитанных сообщений." />
 		<message type="kNoSuchMessage" val="Это сообщение может вам только присниться." />
 		<message type="kSpammer" val="Да вы ведь только что писали сюда." />

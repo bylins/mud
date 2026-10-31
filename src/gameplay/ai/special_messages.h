@@ -151,7 +151,7 @@ enum class EShopMsg {
 // layout, and board names/descriptions + server-posted message bodies stay in code as content.
 enum class EBoardMsg {
 	kNoWriteLevel, kNoWriteAccess, kNoReadAccess, kSpecialUsage, kSpecialAlias,
-	kBlind, kNoBoard, kNoticeRetired, kNoUnread, kNoSuchMessage, kSpammer, kClanWriteBan, kOverflow,
+	kBlind, kNoBoard, kNoUnread, kNoSuchMessage, kSpammer, kClanWriteBan, kOverflow,
 	kNeedAuthorName, kSubjectTruncated, kWritingPrompt,
 	kRemoveNeedNumber, kRemoveNoAccess, kRemoved, kBadCommand,
 	kNameCollision1, kNameCollision2,
