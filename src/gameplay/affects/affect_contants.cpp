@@ -885,8 +885,16 @@ std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div) {
 	return result.empty() ? CommonMsg(ECommonMsg::kNothing) : result;
 }
 
-// Resolve an affect by its short description (prefix match, mirroring the old ext_search_block on
-// affected_bits). Iterates in EAffect order for deterministic first-match.
+// Resolve an affect by its short description. Iterates in EAffect order for deterministic
+// first-match.
+//
+// Сверяем по словам, как apply_types после issue #4113. Короткие имена многословные
+// ("мантия теней"), а в триггер и в команду игрока они приходят одним куском -- аргумент
+// читается до пробела, поэтому слова разделяют точкой или подчёркиванием. Прежнее побайтное
+// сравнение на таком разделителе не совпадало никогда: dgaffect с "мантия_теней" молча не
+// вешал аффект, а игрок с 'рваные.раны' не мог назвать аффект в "лечить". IsEqual приводит к
+// словам обе стороны и сверяет их подряд с начала, каждое как сокращение, -- то есть прежний
+// префиксный поиск сохраняется, но на словах и без учета регистра.
 bool FindByShortDesc(const std::string &name, EAffect &out) {
 	if (name.empty()) {
 		return false;
@@ -896,7 +904,7 @@ bool FindByShortDesc(const std::string &name, EAffect &out) {
 			continue;
 		}
 		const std::string &sd = AffectMsg(affect, EAffectMsgType::kShortDesc);
-		if (!sd.empty() && sd.size() >= name.size() && sd.compare(0, name.size(), name) == 0) {
+		if (!sd.empty() && utils::IsEqual(name, sd)) {
 			out = affect;
 			return true;
 		}

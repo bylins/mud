@@ -90,6 +90,7 @@ test_sources = files(
     'world_checksum_serialization.cpp',
     'dg_string_matching.cpp',
     'dg_apply_names.cpp',
+    'affect_short_desc_lookup.cpp',
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
     'naws.parse.cpp',
