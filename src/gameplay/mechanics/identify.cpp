@@ -400,11 +400,21 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	SendMsgToChar(kColorNrm, ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
+		// Таймер экземпляра тикает не всегда: у зонных вещей без своего таймера и у вещей, не
+		// прошедших через руки игрока (нет kTicktimer), срок истления не назначен вовсе, и
+		// get_timer() отдаёт UNLIMITED_TIMER -- в познании вылезало голое 2147483647.
+		const auto proto_timer = obj_proto[obj->get_rnum()]->get_timer();
+		const std::string proto_timer_line = proto_timer >= ObjData::UNLIMITED_TIMER
+											 ? std::string("бесконечен")
+											 : std::to_string(proto_timer);
 		std::string timer_line;
-		if (stable_objs::IsTimerUnlimited(obj))
-			timer_line = fmt::format("Таймер: {}/нерушимо.", obj_proto[obj->get_rnum()]->get_timer());
-		else
-			timer_line = fmt::format("Таймер: {}/{}.", obj_proto[obj->get_rnum()]->get_timer(), obj->get_timer());
+		if (stable_objs::IsTimerUnlimited(obj)) {
+			timer_line = fmt::format("Таймер: {}/нерушимо.", proto_timer_line);
+		} else if (obj->get_timer() >= ObjData::UNLIMITED_TIMER) {
+			timer_line = fmt::format("Таймер: {}/бесконечен.", proto_timer_line);
+		} else {
+			timer_line = fmt::format("Таймер: {}/{}.", proto_timer_line, obj->get_timer());
+		}
 		const std::string miw = GetObjMIW(obj->get_rnum()) < 0
 			? std::string("бесконечно")
 			: std::to_string(GetObjMIW(obj->get_rnum()));
