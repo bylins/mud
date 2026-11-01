@@ -814,6 +814,16 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				rate += CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
+
+		case ESkill::kPoisoning: {
+			// issue #4120: общий хвост функции вычитает спасбросок целиком, а у моба 20+ уровня он
+			// -80...-107 -- на уровне всего умения. Второй и третий стак яда идут только через эту
+			// проверку, и против сильных мобов она давала около нуля. Прибавляем спасбросок здесь:
+			// хвост делит набранный rate на два, поэтому в итоге вычитается его половина.
+			rate += CalcSaving(ch, vict, MUD::Skill(skill_id).save_type, false);
+			break;
+		}
+
 		default: {
 			rate = 0;
 			break;
