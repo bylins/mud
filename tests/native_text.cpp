@@ -166,6 +166,12 @@ TEST(NativeText, CharsEqualCi) {
 	EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x9F", "\xD0\xBF"));   // P vs p
 	EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x81", "\xD1\x91"));   // Yo vs yo
 	EXPECT_FALSE(native_text::chars_equal_ci("\xD0\x9F", "\xD1\x80"));  // P vs r
+	// "ё" клиенту уходит как "е", поэтому набрать записанное в данных "ё" невозможно -- буквы
+	// складываем, иначе "резной конёк" не отзывается на "конек".
+	EXPECT_TRUE(native_text::chars_equal_ci("\xD1\x91", "\xD0\xB5"));   // yo vs ye
+	EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x81", "\xD0\xB5"));   // Yo vs ye
+	EXPECT_TRUE(native_text::chars_equal_ci("\xD1\x91", "\xD0\x95"));   // yo vs Ye
+	EXPECT_FALSE(native_text::chars_equal_ci("\xD1\x91", "\xD0\xB7"));  // yo vs z
 }
 
 TEST(NativeText, CopyLowerChar) {

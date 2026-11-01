@@ -916,8 +916,28 @@ bool MayMatchName(const char *str, const std::string &namelist) {
 	const std::size_t lower_bytes = native_text::copy_lower_char(begin, lower);
 	const std::size_t upper_bytes = native_text::copy_upper_char(begin, upper);
 
-	return namelist.find(std::string_view(lower, lower_bytes)) != std::string::npos
-		|| namelist.find(std::string_view(upper, upper_bytes)) != std::string::npos;
+	if (namelist.find(std::string_view(lower, lower_bytes)) != std::string::npos
+		|| namelist.find(std::string_view(upper, upper_bytes)) != std::string::npos) {
+		return true;
+	}
+	// Сравнение в isname не различает "ё" и "е" (клиенту "ё" всё равно уходит как "е"), значит
+	// и предфильтр обязан искать обе буквы: иначе запрос "елка" отсеется на списке "ёлка", где
+	// буквы "е" нет вовсе, и до isname дело не дойдёт.
+	const std::string_view first(lower, lower_bytes);
+	std::string_view counterpart;
+	if (first == "ё") {
+		counterpart = "е";
+	} else if (first == "е") {
+		counterpart = "ё";
+	} else {
+		return false;
+	}
+	char counterpart_upper[8];
+	const std::size_t counterpart_upper_bytes =
+		native_text::copy_upper_char(counterpart.data(), counterpart_upper);
+
+	return namelist.find(counterpart) != std::string::npos
+		|| namelist.find(std::string_view(counterpart_upper, counterpart_upper_bytes)) != std::string::npos;
 }
 
 bool isname(const char *str, const char *namelist) {

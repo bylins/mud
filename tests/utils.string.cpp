@@ -823,6 +823,10 @@ const NameCase kNameCases[] = {
 	{"стилет", "четвёртый стилет"},
 	{"ё", "четвёртый стилет"},
 	{"я", "меч клинок"},
+	{"конек", "резной конёк теремковый"},
+	{"елка", "ёлка"},
+	{"ёлка", "елка"},
+	{"хорек", "вертлявый хорёк хорёк"},
 };
 
 }  // namespace
@@ -849,6 +853,29 @@ TEST(Utils_String, MayMatchName_IgnoresLetterCase)
 {
 	EXPECT_TRUE(MayMatchName("МЕЧ", "меч клинок"));
 	EXPECT_TRUE(MayMatchName("меч", "МЕЧ КЛИНОК"));
+}
+
+TEST(Utils_String, NameSearch_FoldsYoIntoYe)
+{
+	// Клиенту "ё" уходит как "е" (string_to_client_encoding), так что игрок видит "конек" и
+	// набирает "конек" -- поиск по имени обязан сойтись на алиасе с "ё". Проверяем всю цепочку:
+	// предфильтр, isname и его строковый двойник.
+	EXPECT_TRUE(MayMatchName("конек", "резной конёк теремковый"));
+	EXPECT_TRUE(isname("конек", "резной конёк теремковый"));
+	EXPECT_TRUE(utils::IsEquivalent("конек", "резной конёк теремковый"));
+
+	// "ё" в начале слова -- тот случай, где запрос отсеивался предфильтром, не доходя до isname:
+	// буквы "е" в списке "ёлка" нет вовсе.
+	EXPECT_TRUE(MayMatchName("елка", "ёлка"));
+	EXPECT_TRUE(isname("елка", "ёлка"));
+
+	// И наоборот: набранное "ё" находит данные, где её не писали.
+	EXPECT_TRUE(MayMatchName("ёлка", "елка"));
+	EXPECT_TRUE(isname("ёлка", "елка"));
+
+	// Складка роднит только эти две буквы.
+	EXPECT_FALSE(isname("конез", "резной конёк теремковый"));
+	EXPECT_FALSE(MayMatchName("зима", "ёлка"));
 }
 
 TEST(Utils_String, MayMatchName_SkipsLeadingPunctuation)
