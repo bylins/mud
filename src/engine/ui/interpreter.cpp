@@ -37,6 +37,7 @@
 #include "engine/ui/cmd_god/do_date.h"
 #include "engine/ui/cmd_god/do_dc.h"
 #include "engine/ui/cmd_god/do_delete_obj.h"
+#include "engine/ui/cmd_god/do_rent_search.h"
 #include "engine/ui/cmd_god/do_goto.h"
 #include "engine/ui/cmd_god/do_set.h"
 #include "engine/ui/cmd_god/do_invisible.h"
@@ -644,6 +645,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"рассчитать", EPosition::kRest, DoFreehelpee, 0, 0, -1},
 		{"режим", EPosition::kDead, DoMode, 0, 0, 0},
 		{"ремонт", EPosition::kRest, DoRepair, 0, 0, -1},
+		{"рента", EPosition::kDead, DoRentSearch, kLvlImplementator, 0, 0},
 		{"рецепты", EPosition::kRest, do_recipes, 0, 0, 0},
 		{"рекорды", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 		{"руны", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
