@@ -938,6 +938,7 @@ main_sources = files(
   'src/engine/ui/cmd_god/do_overstuff.cpp',
   'src/engine/ui/cmd_god/do_zclear.cpp',
   'src/engine/ui/cmd_god/do_delete_obj.cpp',
+  'src/engine/ui/cmd_god/do_rent_search.cpp',
   'src/engine/ui/cmd_god/do_show_zone_stat.cpp',
   'src/engine/ui/cmd_god/do_occupation.cpp',
   'src/engine/ui/cmd_god/do_send.cpp',
