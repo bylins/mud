@@ -192,7 +192,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 
 		char room_flags[kMaxInputLength];
 		world[ch->in_room]->flags_sprint(room_flags, sizeof(room_flags), ";");
-		SendMsgToChar(fmt::format("[{:7}] {} [{}]", GET_ROOM_VNUM(ch->in_room), room_name, room_flags), ch);
+		SendMsgToChar(fmt::format("[{}] {} [{}]", GET_ROOM_VNUM(ch->in_room), room_name, room_flags), ch);
 
 		if (has_flag) {
 			world[ch->in_room]->set_flag(ERoomFlag::kBfsMark);
