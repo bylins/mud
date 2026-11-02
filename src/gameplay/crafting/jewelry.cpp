@@ -16,7 +16,7 @@
 #include "mining.h"
 #include "utils/random.h"
 #include "utils/utils_parse.h"
-#include "utils/utils_string.h"   // FixDot
+#include "utils/utils_string.h"   // IsEqual
 #include "utils/parser_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_contants.h"
@@ -93,6 +93,13 @@ int ScalarVal(parser_wrapper::DataNode root, const char *tag, int def) {
 
 } // namespace
 
+std::string EffectKey(std::string name) {
+	if (!name.empty() && name.front() == '*') {
+		name.erase(0, 1);
+	}
+	return name;
+}
+
 bool JewelryCfg::IsGem(int vnum) const {
 	return gems.find(vnum) != gems.end();
 }
@@ -102,15 +109,34 @@ const GemEffect *JewelryCfg::Find(int vnum, const std::string &key) const {
 	if (it == gems.end()) {
 		return nullptr;
 	}
+	if (key.empty()) {
+		return nullptr;   // иначе пустой запрос совпал бы с первым же эффектом
+	}
+	// issue #4138: ключ -- игровое название эффекта, а оно многословное, да еще и с запятой
+	// внутри ("бонус физических повреждений, %"). Прежнее сравнение требовало совпадения
+	// целиком: набрать такое название можно было только дословно, вместе с запятой и
+	// процентом, а точку как разделитель слов игрок пробует первой. utils::IsEqual приводит к
+	// словам обе стороны и сверяет их подряд с начала, каждое как сокращение и без учета
+	// регистра, -- так же, как имена аффектов и apply после issue #4113. Точка, подчёркивание
+	// и пробел в наборе равнозначны, хвост названия можно не писать: "бон.физ.повр".
 	for (const auto &eff : it->second) {
-		// issue #4113: ключ -- игровое название эффекта, а оно многословное; игрок набирает его
-		// одним словом через точку (третий аргумент команды). FixDot приводит к словам обе
-		// стороны, поэтому точка, пробел и подчёркивание в наборе равнозначны.
-		if (!str_cmp(utils::FixDot(eff.key), utils::FixDot(key))) {   // регистронезависимо
+		if (utils::IsEqual(key, eff.key)) {
 			return &eff;
 		}
 	}
-	return nullptr;
+	// Второй проход -- с пропуском слов названия: "физических.повреждений" вместо "бонус
+	// физических повреждений, %". Годится только однозначное совпадение: вплавление
+	// необратимо, и молча вплавить не тот эффект хуже, чем переспросить списком.
+	const GemEffect *found = nullptr;
+	for (const auto &eff : it->second) {
+		if (utils::IsEquivalent(key, eff.key)) {
+			if (found) {
+				return nullptr;
+			}
+			found = &eff;
+		}
+	}
+	return found;
 }
 
 std::string JewelryCfg::RandomKey(int vnum) const {
@@ -130,6 +156,7 @@ void JewelryCfg::Show(CharData *ch, int vnum) const {
 	for (const auto &eff : it->second) {
 		SendMsgToChar(fmt::format(" {}\r\n", eff.key), ch);
 	}
+	SendMsgToChar("Название можно сокращать, слова разделяя точкой.\r\n", ch);
 }
 
 void JewelryLoader::Load(parser_wrapper::DataNode data) {
@@ -186,7 +213,7 @@ void JewelryLoader::Load(parser_wrapper::DataNode data) {
 				if (alias && *alias) {
 					eff.key = alias;
 				} else {
-					eff.key = EffectName(eff.type, eff.id);   // игровое название эффекта
+					eff.key = EffectKey(EffectName(eff.type, eff.id));   // игровое название эффекта
 					if (eff.key.empty()) {
 						eff.key = id_str ? id_str : "";   // запасной вариант: id-токен
 						mudlog(fmt::format("jewelry: gem {}: no display name for <{} id='{}'>, using id token as key", vnum, kind.c_str(), id_str ? id_str : ""), CMP, kLvlImmortal, SYSLOG, true);
