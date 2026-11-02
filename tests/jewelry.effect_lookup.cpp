@@ -77,6 +77,30 @@ TEST(JewelryEffectLookup, UnderscoresAndCaseIgnored) {
 			  static_cast<int>(EApply::kPhysicDamagePercent));
 }
 
+TEST(JewelryEffectLookup, WordsMayBeSkipped) {
+	SetUpJewelryGem();
+	// не с начала названия: "бонус" пропущен
+	EXPECT_EQ(ResolveGemEffect("физических.повреждений"), static_cast<int>(EApply::kPhysicDamagePercent));
+	EXPECT_EQ(ResolveGemEffect("опыта"), static_cast<int>(EApply::kExpPercent));
+	// совпадение с начала важнее: "бонус" есть и в "дополнительный бонус опыта"
+	EXPECT_EQ(ResolveGemEffect("бонус"), static_cast<int>(EApply::kPhysicDamagePercent));
+}
+
+TEST(JewelryEffectLookup, AmbiguousSkipIsNotGuessed) {
+	SetUpJewelryGem();
+	jewelry::GemEffect eff;   // второе название с теми же словами в середине
+	eff.type = 1;
+	eff.id = static_cast<int>(EApply::kPhysicResist);
+	eff.key = jewelry::EffectKey("защита от физических повреждений");
+	jewelry::cfg.gems[kJewelryGem].push_back(eff);
+
+	// подходят оба -- вплавлять наугад нельзя
+	EXPECT_EQ(ResolveGemEffect("физических.повреждений"), -1);
+	// а с начала названия каждое по-прежнему однозначно
+	EXPECT_EQ(ResolveGemEffect("бон.физ"), static_cast<int>(EApply::kPhysicDamagePercent));
+	EXPECT_EQ(ResolveGemEffect("защ.от.физ"), static_cast<int>(EApply::kPhysicResist));
+}
+
 TEST(JewelryEffectLookup, NoSilentMatchOnEmptyOrForeignName) {
 	SetUpJewelryGem();
 	EXPECT_EQ(ResolveGemEffect(""), -1);
