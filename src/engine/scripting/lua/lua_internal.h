@@ -9,6 +9,8 @@
 #include "engine/entities/obj_data.h"
 #include "engine/scripting/dg_scripts.h"
 
+#include <optional>
+
 #include <sol/sol.hpp>
 
 class ObjData;
@@ -31,6 +33,23 @@ struct LuaEntityHandle {
 	long char_uid = 0;
 	RoomRnum required_room = kNowhere;
 	object_id_t obj_id = 0;
+};
+
+enum class LuaTriggerOwnerType {
+	Mob,
+	Object,
+	Room
+};
+
+struct LuaTriggerTarget {
+	LuaTriggerOwnerType type = LuaTriggerOwnerType::Mob;
+	CharData *mob = nullptr;
+	ObjData *object = nullptr;
+	RoomRnum room = kNowhere;
+	Script *script = nullptr;
+	long mob_uid = 0;
+	object_id_t object_id = 0;
+	RoomVnum room_vnum = 0;
 };
 
 struct LuaRuntimeContext {
@@ -79,6 +98,7 @@ CharData *ResolveChar(const LuaEntityHandle &handle);
 ObjData *ResolveObj(const LuaEntityHandle &handle);
 bool IsValidEntity(const LuaEntityHandle &handle);
 bool IsValidRoom(const LuaRoomView &view);
+std::optional<LuaTriggerTarget> ResolveLuaTriggerTarget(const sol::object &target);
 int GetTriggerVnum(const Trigger *trigger);
 const char *GetTriggerName(const Trigger *trigger);
 int GetOwnerVnum(const CharData *owner);
