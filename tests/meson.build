@@ -72,6 +72,7 @@ test_sources = files(
     'quested.cpp',
     'sprintbitwd.cpp',
     'triggers.list.cpp',
+    'fight_otrigger_return_codes.cpp',
     'compact.trie.cpp',
     'compact.trie.iterators.cpp',
     'yaml.save.encoding.cpp',

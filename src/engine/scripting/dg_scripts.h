@@ -117,11 +117,19 @@ const int DG_NO_TRIG = 256;    // don't check act trigger   //
 #define TRIG_CONTINUE            1    // trigger continue after wait       //
 #define TRIG_FROM_LINE            2    // trigger restarting       //
 
+// Код возврата боевого триггера предмета (OTRIG_FIGHT) -- маска того, чего боец в этом раунде
+// НЕ делает. Биты собираются по всем надетым и несомым предметам (fight_otrigger).
+//
+// Бит 0 намеренно не занят: и script_driver, и Lua-движок по умолчанию возвращают 1, поэтому
+// батл-триггер, который не сказал `return` явно, отдаёт единицу -- и она не должна ничего
+// запрещать. Пока kNoCastMagic занимал нулевой бит, такой триггер молча лишал владельца
+// предмета возможности колдовать в бою: заклинание вставало в очередь ("Вы приготовились
+// применить..."), а process_player_attack его не пускал -- бой шёл одними руками (#4141).
 const Bitvector kNormalRound = 0;
-const Bitvector kNoCastMagic = 1 << 0;
-const Bitvector kNoExtraAttack = 1 << 1;
-const Bitvector kNoLeftHandAttack = 1 << 2;
-const Bitvector kNoRightHandAttack = 1 << 3;
+const Bitvector kNoCastMagic = 1 << 1;
+const Bitvector kNoExtraAttack = 1 << 2;
+const Bitvector kNoLeftHandAttack = 1 << 3;
+const Bitvector kNoRightHandAttack = 1 << 4;
 
 const Bitvector kOtrigDropInroom = 1 << 0;
 const Bitvector kOtrigPutContainer = 1 << 1;
