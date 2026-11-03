@@ -3,6 +3,8 @@
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
+#include "engine/scripting/lua/lua_trigger_exec.h"
+
 #include "engine/core/char_handler.h"
 #include "engine/core/obj_handler.h"
 #include "engine/db/global_objects.h"
@@ -1240,6 +1242,9 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	};
 	mud["echoaround"] = [runtime](const sol::object &actor, const sol::object &message) {
 		return MudEchoAround(CurrentRuntime(runtime), actor, message);
+	};
+	mud["exec"] = [runtime](const sol::object &vnum, const sol::object &target) {
+		return MudExec(CurrentRuntime(runtime), vnum, target);
 	};
 	mud["wait"] = sol::yielding([runtime](sol::this_state state, sol::variadic_args args) {
 		return MudWait(CurrentRuntime(runtime), state, args);
