@@ -569,7 +569,7 @@ bool LuaWaitRegistrySchedule(LuaRuntimeContext runtime, int pulses)
 
 #endif // WITH_LUAJIT_PROTOTYPE
 
-int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
+int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx, int exec_depth)
 {
 	if (!trigger)
 	{
@@ -594,6 +594,8 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	state->runtime.owner = ctx.owner;
 	state->runtime.owner_obj = ctx.owner_obj;
 	state->runtime.owner_room = ResolveOwnerRoom(ctx);
+	state->runtime.trigger_context = &state->ctx;
+	state->runtime.exec_depth = exec_depth > 0 ? exec_depth : 1;
 	state->runtime.wait_state = state.get();
 	GET_TRIG_DEPTH(trigger) = 1;
 
@@ -649,6 +651,7 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	return result;
 #else
 	(void) ctx;
+	(void) exec_depth;
 	const auto trigger_rnum = trigger->get_rnum();
 	const auto trigger_vnum = trigger_rnum >= 0 && trigger_rnum < top_of_trigt && trig_index && trig_index[trigger_rnum]
 		? trig_index[trigger_rnum]->vnum

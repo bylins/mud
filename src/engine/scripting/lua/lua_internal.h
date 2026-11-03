@@ -38,6 +38,8 @@ struct LuaRuntimeContext {
 	CharData *owner = nullptr;
 	ObjData *owner_obj = nullptr;
 	RoomRnum owner_room = kNowhere;
+	const LuaTriggerContext *trigger_context = nullptr;
+	int exec_depth = 0;
 	void *wait_state = nullptr;
 };
 
