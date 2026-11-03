@@ -8,6 +8,7 @@
 #include "engine/entities/obj_data.h"
 #include "engine/scripting/dg_event.h"
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -33,6 +34,10 @@ struct LuaWaitState {
 	long actor_uid = 0;
 	long victim_uid = 0;
 	object_id_t object_id = 0;
+	bool is_exec_clone = false;
+	Trigger *exec_clone = nullptr;
+	LuaTriggerOwnerType exec_owner_type = LuaTriggerOwnerType::Mob;
+	RoomVnum exec_owner_room_vnum = 0;
 	bool waiting = false;
 	bool finished = false;
 	bool cancelled = false;
@@ -41,6 +46,14 @@ struct LuaWaitState {
 struct LuaWaitEventData {
 	wait_event_data dg;
 	unsigned long long wait_id = 0;
+};
+
+struct DeferredExecCloneCleanup {
+	Trigger *clone = nullptr;
+	LuaTriggerOwnerType owner_type = LuaTriggerOwnerType::Mob;
+	long owner_uid = 0;
+	object_id_t owner_obj_id = 0;
+	RoomVnum owner_room_vnum = 0;
 };
 
 class LuaWaitTriggerObserver : public TriggerEventObserver {
@@ -56,6 +69,10 @@ CharData *ResolveCharacterByUid(long uid);
 ObjData *ResolveObjectById(object_id_t id);
 RoomRnum ResolveObjectRoom(ObjData *obj, int depth = 0);
 RoomRnum ResolveOwnerRoom(const LuaTriggerContext &ctx);
+Script *ResolveExecCloneOwner(const DeferredExecCloneCleanup &cleanup);
+void RemoveExecClone(const std::shared_ptr<LuaWaitState> &state);
+void RemoveExecClone(const DeferredExecCloneCleanup &cleanup);
+void MarkLuaTriggerFinished(Trigger *trigger);
 
 bool CanTriggerWait(Trigger *trigger)
 {
@@ -163,6 +180,7 @@ void RetireLuaState(const std::shared_ptr<LuaWaitState> &state)
 		return;
 	}
 
+	state->ctx.trigger = nullptr;
 	state->ctx.owner = nullptr;
 	state->ctx.actor = nullptr;
 	state->ctx.victim = nullptr;
@@ -170,6 +188,18 @@ void RetireLuaState(const std::shared_ptr<LuaWaitState> &state)
 	state->ctx.object = nullptr;
 	state->ctx.owner_room = nullptr;
 	state->runtime = LuaRuntimeContext{};
+}
+
+void FinishUnregisteredLuaState(const std::shared_ptr<LuaWaitState> &state)
+{
+	if (!state)
+	{
+		return;
+	}
+
+	MarkLuaTriggerFinished(state->runtime.trigger);
+	RetireLuaState(state);
+	RemoveExecClone(state);
 }
 
 void MarkLuaTriggerFinished(Trigger *trigger)
@@ -203,7 +233,9 @@ class LuaWaitRegistry {
 		return it == m_state_ids.end() ? 0 : it->second;
 	}
 
-	void Remove(unsigned long long id, bool unregister_trigger_observer = true)
+	void Remove(unsigned long long id,
+		bool unregister_trigger_observer = true,
+		bool remove_exec_clone = true)
 	{
 		auto it = m_waits.find(id);
 		if (it == m_waits.end())
@@ -234,6 +266,7 @@ class LuaWaitRegistry {
 			}
 			luaL_unref(LuaVm().lua_state(), LUA_REGISTRYINDEX, state->thread_ref);
 			state->thread_ref = LUA_NOREF;
+			state->thread = nullptr;
 		}
 		if (state->entrypoint_ref != LUA_NOREF)
 		{
@@ -249,9 +282,15 @@ class LuaWaitRegistry {
 		m_state_ids.erase(state.get());
 		m_waits.erase(it);
 		RetireLuaState(state);
+		if (remove_exec_clone)
+		{
+			RemoveExecClone(state);
+		}
 	}
 
-	void Cancel(unsigned long long id, bool unregister_trigger_observer = true)
+	void Cancel(unsigned long long id,
+		bool unregister_trigger_observer = true,
+		bool remove_exec_clone = false)
 	{
 		auto it = m_waits.find(id);
 		if (it == m_waits.end())
@@ -259,7 +298,7 @@ class LuaWaitRegistry {
 			return;
 		}
 		it->second->cancelled = true;
-		Remove(id, unregister_trigger_observer);
+		Remove(id, unregister_trigger_observer, remove_exec_clone);
 	}
 
 	void CancelForOwner(CharData *owner)
@@ -280,7 +319,7 @@ class LuaWaitRegistry {
 		}
 		for (const auto id : ids)
 		{
-			Cancel(id);
+			Cancel(id, true, false);
 		}
 	}
 
@@ -296,7 +335,7 @@ class LuaWaitRegistry {
 		}
 		for (const auto id : ids)
 		{
-			Cancel(id);
+			Cancel(id, true, false);
 		}
 	}
 
@@ -318,7 +357,47 @@ class LuaWaitRegistry {
 		}
 		for (const auto id : ids)
 		{
-			Cancel(id);
+			Cancel(id, true, false);
+		}
+	}
+
+	void CancelForTemporaryTriggerRemoval(unsigned long long id)
+	{
+		auto it = m_waits.find(id);
+		if (it == m_waits.end())
+		{
+			return;
+		}
+
+		const auto &state = it->second;
+		if (state->is_exec_clone && state->exec_clone)
+		{
+			// GlobalTriggersStorage may remove and immediately re-add the same instance
+			// during OLC updates or rnum rebinding. Deleting it from this observer would
+			// recursively enter GlobalTriggersStorage::remove, so defer owner-list cleanup.
+			const auto already_queued = std::find_if(m_deferred_exec_clones.begin(),
+				m_deferred_exec_clones.end(),
+				[clone = state->exec_clone](const auto &cleanup) { return cleanup.clone == clone; });
+			if (already_queued == m_deferred_exec_clones.end())
+			{
+				m_deferred_exec_clones.push_back({state->exec_clone,
+					state->exec_owner_type,
+					state->owner_uid,
+					state->owner_obj_id,
+					state->exec_owner_room_vnum});
+			}
+		}
+
+		Cancel(id, false, false);
+	}
+
+	void CleanupDeferredExecClones()
+	{
+		std::vector<DeferredExecCloneCleanup> pending;
+		pending.swap(m_deferred_exec_clones);
+		for (const auto &cleanup : pending)
+		{
+			RemoveExecClone(cleanup);
 		}
 	}
 
@@ -446,6 +525,7 @@ class LuaWaitRegistry {
 	unsigned long long m_next_id = 0;
 	std::unordered_map<unsigned long long, std::shared_ptr<LuaWaitState>> m_waits;
 	std::unordered_map<const LuaWaitState *, unsigned long long> m_state_ids;
+	std::vector<DeferredExecCloneCleanup> m_deferred_exec_clones;
 };
 
 CharData *ResolveCharacterByUid(long uid)
@@ -509,9 +589,83 @@ RoomRnum ResolveOwnerRoom(const LuaTriggerContext &ctx)
 	return kNowhere;
 }
 
+Script *ResolveExecCloneOwner(const DeferredExecCloneCleanup &cleanup)
+{
+	switch (cleanup.owner_type)
+	{
+		case LuaTriggerOwnerType::Mob:
+		{
+			auto *owner = ResolveCharacterByUid(cleanup.owner_uid);
+			return owner && owner->script && !owner->script->is_purged() ? owner->script.get() : nullptr;
+		}
+		case LuaTriggerOwnerType::Object:
+		{
+			auto *owner = ResolveObjectById(cleanup.owner_obj_id);
+			auto script = owner ? owner->get_script() : nullptr;
+			return script && !script->is_purged() ? script.get() : nullptr;
+		}
+		case LuaTriggerOwnerType::Room:
+		{
+			const auto room = GetRoomRnum(cleanup.owner_room_vnum);
+			if (!IsValidRoom(LuaRoomView{room}) || !world[room]->script || world[room]->script->is_purged())
+			{
+				return nullptr;
+			}
+			return world[room]->script.get();
+		}
+	}
+
+	return nullptr;
+}
+
+void RemoveExecClone(const std::shared_ptr<LuaWaitState> &state)
+{
+	if (!state || !state->is_exec_clone || !state->exec_clone)
+	{
+		return;
+	}
+
+	const DeferredExecCloneCleanup cleanup{state->exec_clone,
+		state->exec_owner_type,
+		state->owner_uid,
+		state->owner_obj_id,
+		state->exec_owner_room_vnum};
+	state->is_exec_clone = false;
+	state->exec_clone = nullptr;
+	RemoveExecClone(cleanup);
+}
+
+void RemoveExecClone(const DeferredExecCloneCleanup &cleanup)
+{
+	if (!cleanup.clone)
+	{
+		return;
+	}
+
+	auto *script = ResolveExecCloneOwner(cleanup);
+	if (!script)
+	{
+		return;
+	}
+
+	bool attached = false;
+	for (auto *trigger : script->script_trig_list)
+	{
+		if (trigger == cleanup.clone)
+		{
+			attached = true;
+			break;
+		}
+	}
+	if (attached)
+	{
+		script->script_trig_list.remove(cleanup.clone);
+	}
+}
+
 void LuaWaitTriggerObserver::notify(Trigger *)
 {
-	LuaWaitRegistry::Instance().Cancel(m_wait_id, false);
+	LuaWaitRegistry::Instance().CancelForTemporaryTriggerRemoval(m_wait_id);
 }
 
 int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
@@ -591,6 +745,24 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx, 
 	state->actor_uid = ctx.actor ? ctx.actor->get_uid() : 0;
 	state->victim_uid = ctx.victim ? ctx.victim->get_uid() : 0;
 	state->object_id = ctx.object ? ctx.object->get_id() : 0;
+	state->is_exec_clone = trigger->is_runned && exec_depth > 1;
+	state->exec_clone = state->is_exec_clone ? trigger : nullptr;
+	if (state->is_exec_clone)
+	{
+		if (ctx.owner_obj)
+		{
+			state->exec_owner_type = LuaTriggerOwnerType::Object;
+		}
+		else if (ctx.owner_room)
+		{
+			state->exec_owner_type = LuaTriggerOwnerType::Room;
+			state->exec_owner_room_vnum = ctx.owner_room->vnum;
+		}
+		else
+		{
+			state->exec_owner_type = LuaTriggerOwnerType::Mob;
+		}
+	}
 	state->runtime.trigger = trigger;
 	state->runtime.owner = ctx.owner;
 	state->runtime.owner_obj = ctx.owner_obj;
@@ -605,32 +777,38 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx, 
 	InstallLuaContextGlobals(lua, environment, lua_ctx);
 	environment["ctx"] = lua_ctx;
 	environment["mud"] = BuildMudNamespace(lua, &state->runtime);
-	LuaExecutionBudget budget;
-	LuaRuntimeLimitsScope limits(lua, budget);
-	const sol::load_result load_result = lua.load(trigger->get_lua_script_source(), GetLuaTriggerChunkName(trigger));
-	if (!load_result.valid())
+	sol::object entrypoint_object = sol::make_object(lua, sol::lua_nil);
 	{
-		const sol::error err = load_result;
-		LogLuaError(state->runtime, "script", err);
-		MarkLuaTriggerFinished(trigger);
-		RetireLuaState(state);
-		return 1;
+		LuaExecutionBudget budget;
+		LuaRuntimeLimitsScope limits(lua, budget);
+		const sol::load_result load_result = lua.load(trigger->get_lua_script_source(), GetLuaTriggerChunkName(trigger));
+		if (!load_result.valid())
+		{
+			const sol::error err = load_result;
+			LogLuaError(state->runtime, "script", err);
+		}
+		else
+		{
+			sol::protected_function chunk = load_result;
+			sol::set_environment(environment, chunk);
+			entrypoint_object = BuildLuaEntrypoint(lua, chunk, state->runtime);
+		}
 	}
-	sol::protected_function chunk = load_result;
-	sol::set_environment(environment, chunk);
-	sol::object entrypoint_object = BuildLuaEntrypoint(lua, chunk, state->runtime);
 	if (entrypoint_object.get_type() != sol::type::function)
 	{
-		MarkLuaTriggerFinished(trigger);
-		RetireLuaState(state);
+		FinishUnregisteredLuaState(state);
 		return 1;
 	}
 	sol::protected_function entrypoint = entrypoint_object;
 	if (!ShouldRunFunctionInCoroutine(trigger))
 	{
-		const auto result = ConvertLuaResult(entrypoint(lua_ctx), state->runtime, lua_ctx, false);
-		MarkLuaTriggerFinished(trigger);
-		RetireLuaState(state);
+		int result = 1;
+		{
+			LuaExecutionBudget budget;
+			LuaRuntimeLimitsScope limits(lua, budget);
+			result = ConvertLuaResult(entrypoint(lua_ctx), state->runtime, lua_ctx, false);
+		}
+		FinishUnregisteredLuaState(state);
 		return result;
 	}
 	entrypoint.push();
@@ -693,6 +871,9 @@ void LuaScriptEngine::CancelWaitsForTrigger(Trigger *trigger)
 
 void LuaScriptEngine::HeartbeatCleanup()
 {
+#if defined(WITH_LUAJIT_PROTOTYPE)
+	LuaWaitRegistry::Instance().CleanupDeferredExecClones();
+#endif
 }
 
 } // namespace lua_scripting
