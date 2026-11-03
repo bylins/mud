@@ -185,9 +185,27 @@ GlobalTriggersStorage::~GlobalTriggersStorage() {
 	}
 }
 
-void GlobalTriggersStorage::add(Trigger *trigger) {
-	m_triggers.insert(trigger);
-	m_rnum2triggers_set[trigger->get_rnum()].insert(trigger);
+bool GlobalTriggersStorage::add(Trigger *trigger) {
+	if (!trigger) {
+		return false;
+	}
+
+	const bool inserted = m_triggers.insert(trigger).second;
+	if (!inserted) {
+		return false;
+	}
+
+	auto &triggers_with_rnum = m_rnum2triggers_set[trigger->get_rnum()];
+	const bool rnum_inserted = triggers_with_rnum.insert(trigger).second;
+	if (!rnum_inserted) {
+		m_triggers.erase(trigger);
+		if (triggers_with_rnum.empty()) {
+			m_rnum2triggers_set.erase(trigger->get_rnum());
+		}
+		return false;
+	}
+
+	return true;
 }
 
 void GlobalTriggersStorage::remove(Trigger *trigger) {

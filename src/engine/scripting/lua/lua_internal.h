@@ -67,6 +67,23 @@ struct LuaExecutionBudget {
 	bool exhausted = false;
 };
 
+class LuaRuntimeLimitsScope {
+ public:
+	LuaRuntimeLimitsScope(sol::state &lua, LuaExecutionBudget &budget);
+	LuaRuntimeLimitsScope(lua_State *state, LuaExecutionBudget &budget);
+	~LuaRuntimeLimitsScope();
+
+	LuaRuntimeLimitsScope(const LuaRuntimeLimitsScope &) = delete;
+	LuaRuntimeLimitsScope &operator=(const LuaRuntimeLimitsScope &) = delete;
+
+ private:
+	lua_State *m_state = nullptr;
+	lua_Hook m_previous_hook = nullptr;
+	int m_previous_hook_mask = 0;
+	int m_previous_hook_count = 0;
+	LuaExecutionBudget *m_previous_budget = nullptr;
+};
+
 constexpr int kLuaMaxTriggerDamage = 1000000;
 constexpr int kLuaInstructionBudget = 200000;
 constexpr int kLuaInstructionHookStep = 1000;
@@ -108,10 +125,6 @@ void LogLuaError(LuaRuntimeContext runtime, const char *phase, const sol::error 
 void LogLuaReturnDiagnostic(LuaRuntimeContext runtime, const sol::object &value);
 void HardenLuaState(sol::state &lua);
 void ConfigureLuaGc(sol::state &lua);
-void InstallLuaRuntimeLimits(sol::state &lua, LuaExecutionBudget &budget);
-void InstallLuaRuntimeLimits(lua_State *state, LuaExecutionBudget &budget);
-void ClearLuaRuntimeLimits(sol::state &lua);
-void ClearLuaRuntimeLimits(lua_State *state);
 sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime, RoomRnum required_room = kNowhere);
 sol::object BuildScriptContextView(sol::state &lua, Script *script, long context);
 sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtime);

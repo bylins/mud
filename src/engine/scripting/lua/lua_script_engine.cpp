@@ -349,10 +349,12 @@ class LuaWaitRegistry {
 		}
 
 		LuaExecutionBudget budget;
-		InstallLuaRuntimeLimits(state->thread, budget);
-		state->waiting = false;
-		const auto status = (lua_resume)(state->thread, 0);
-		ClearLuaRuntimeLimits(state->thread);
+		int status = 0;
+		{
+			LuaRuntimeLimitsScope limits(state->thread, budget);
+			state->waiting = false;
+			status = (lua_resume)(state->thread, 0);
+		}
 		HandleResumeResult(id, *state, status);
 	}
 
@@ -524,9 +526,8 @@ int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
 	lua_xmove(main_state, state->thread, 1);
 
 	LuaExecutionBudget budget;
-	InstallLuaRuntimeLimits(state->thread, budget);
+	LuaRuntimeLimitsScope limits(state->thread, budget);
 	const auto status = (lua_resume)(state->thread, 1);
-	ClearLuaRuntimeLimits(state->thread);
 	if (status == LUA_YIELD)
 	{
 		return 1;
@@ -605,11 +606,10 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx, 
 	environment["ctx"] = lua_ctx;
 	environment["mud"] = BuildMudNamespace(lua, &state->runtime);
 	LuaExecutionBudget budget;
-	InstallLuaRuntimeLimits(lua, budget);
+	LuaRuntimeLimitsScope limits(lua, budget);
 	const sol::load_result load_result = lua.load(trigger->get_lua_script_source(), GetLuaTriggerChunkName(trigger));
 	if (!load_result.valid())
 	{
-		ClearLuaRuntimeLimits(lua);
 		const sol::error err = load_result;
 		LogLuaError(state->runtime, "script", err);
 		MarkLuaTriggerFinished(trigger);
@@ -621,7 +621,6 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx, 
 	sol::object entrypoint_object = BuildLuaEntrypoint(lua, chunk, state->runtime);
 	if (entrypoint_object.get_type() != sol::type::function)
 	{
-		ClearLuaRuntimeLimits(lua);
 		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return 1;
@@ -630,12 +629,10 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx, 
 	if (!ShouldRunFunctionInCoroutine(trigger))
 	{
 		const auto result = ConvertLuaResult(entrypoint(lua_ctx), state->runtime, lua_ctx, false);
-		ClearLuaRuntimeLimits(lua);
 		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return result;
 	}
-	ClearLuaRuntimeLimits(lua);
 	entrypoint.push();
 	state->entrypoint_ref = luaL_ref(lua.lua_state(), LUA_REGISTRYINDEX);
 	lua_ctx.push();
