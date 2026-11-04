@@ -1382,30 +1382,27 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 		snprintf(str, str_size, "%s", utils::TrimCopy(vd.value).c_str());
 		return true;
 	} else if (!str_cmp(field, "fullword")) {
-//не работает с русским
-/*			std::string word = subfield;
-			std::string sentence = vd->value;
-			std::regex rgx("\\b" + word + "\\b"); 
-			if (std::regex_search(sentence, rgx))
-*/
+		// Регистра в DG нет, и сравнивать с его учетом нельзя: add_var_cntx понижает
+		// значение у каждого set/eval/global/worlds, а подполе приходит как написано в
+		// скрипте -- %actor.iname% отдает имя падежом, то есть с большой буквы. Побайтовое
+		// сравнение их не сводило никогда: проверка по списку имен была вечно ложной, молча,
+		// без следа в логе. Из-за этого в зоне 780 не работала вся линейка квестов.
+		// Границу слова ищем разбором по пробелам, а не регулярным выражением: \b в
+		// std::regex на кириллице не работает.
 		std::string sentence = vd.value;
-		std::vector<std::string> tmpstr;
+		utils::ConvertToLow(sentence);
+		std::string needle(subfield ? subfield : "");
+		utils::ConvertToLow(needle);
+
+		std::vector<std::string> words;
 		std::istringstream is(sentence);
-		std::string temp;
-		while(is >> temp)
-			tmpstr.push_back(temp); // перенесем фразу в вектор
-		if (std::find(tmpstr.begin(), tmpstr.end(), subfield) != tmpstr.end())
-// вариант номер два
-/*		std::string sentence = vd->value;
-		std::stringstream parser(sentence);
-		std::istream_iterator<std::string> start(parser);
-		std::istream_iterator<std::string> end;
-		std::vector<std::string> words(start, end);
-		if(find(words.begin(), words.end(), subfield) != words.end())
-*/
-			snprintf(str, str_size, "1");
-		else
-			snprintf(str, str_size, "0");
+		std::string word;
+		while (is >> word) {
+			words.push_back(word);
+		}
+
+		const bool found = std::find(words.begin(), words.end(), needle) != words.end();
+		snprintf(str, str_size, "%s", found ? "1" : "0");
 		return true;
 	} else if (!str_cmp(field, "contains")) {
 		if (str_str(vd.value.c_str(), subfield))
