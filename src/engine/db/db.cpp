@@ -1292,6 +1292,15 @@ void BootMudDataBase() {
 	log("Loading socials.");
 	MUD::CfgManager().LoadCfg("social_msg");
 
+	// Должно идти ДО построения индекса игроков: тот набивает чарт рекордов
+	// (TopPlayer::Refresh из ActualizePlayersIndex), а чарт спрашивает
+	// privilege::IsImmortal. Пока база богов не прочитана, GetDb() пуста и на каждого
+	// бога отвечается "не бог" -- боги оседали в топе игроков. Вообще любая проверка
+	// привилегий до этой строки отвечала бы неверно.
+	boot_profiler.next_step("Loading privileges and gods list");
+	log("Load privilege and god list.");
+	MUD::CfgManager().LoadCfg("privilege");  // membership privilege DB (cfg/privilege.xml)
+
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
 	BuildPlayerIndexNew();
@@ -1435,10 +1444,6 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading emails list");
 	log("Load registered emails list.");
 	RegisterSystem::load();
-
-	boot_profiler.next_step("Loading privileges and gods list");
-	log("Load privilege and god list.");
-	MUD::CfgManager().LoadCfg("privilege");  // membership privilege DB (cfg/privilege.xml)
 
 	// должен идти до резета зон
 	boot_profiler.next_step("Initializing depot system");
