@@ -93,6 +93,11 @@ bool MudExec(LuaRuntimeContext runtime, const sol::object &vnum, const sol::obje
 		return LogLuaApiError(runtime, "mud.exec: current trigger context is unavailable");
 	}
 
+	if (runtime.exec_depth >= kMaxScriptDepth)
+	{
+		return LogLuaApiError(runtime, "mud.exec: recursion limit exceeded");
+	}
+
 	const auto rnum = original->get_rnum();
 	if (!IsValidTriggerRnum(rnum))
 	{
