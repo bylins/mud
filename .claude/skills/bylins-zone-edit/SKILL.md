@@ -95,5 +95,27 @@ The live world is edited through the **web admin panel** (`tools/web_admin/`), w
 - `G`/`E` (give/equip to last mob), `P` (put in container), `D` (door state).
 Commands run in list order; new ones append. **Delete by index** `DELETE /api/zones/<zone>/commands/<index>` — delete the HIGHEST index first (deleting shifts later indices down).
 
+## 9. Quest triggers: the rakes stepped on in zone 780 (Nov 2026)
+
+Four player complaints, one root cause each time — the zone remembered a quest in ONE world variable and every trigger `detach`ed itself after the first success. Whoever came second knocked on an empty room.
+
+- **A command trigger that fires but gets the wrong argument must SAY SO.** Confirm the action, then name what isn't here: «Достать-то вы попытались, да ничего такого тут нет. Разве что в одном из стволов кто-то тихо жужжит.» A joke-brushoff («Да так кого угодно можно достать») doesn't even tell the player the command was caught, so they leave the room and call the quest broken. Hint at the right target in the same breath. (Stribog's rule, applied across zone 780: #78038, #78012, #78024, #78014, #78025, #78051, #78052.)
+- **Quest memory is per player, not per world.** One flag (`gromfl`) is eaten by whoever arrives first — the rest of the party, задание на руках и все, hear «проваливайте». Keep a name list instead, the zone-780 idiom:
+  ```
+  set quest7_chars %quest7_chars% %actor.iname%
+  set quest7_chars %quest7_chars.trim%
+  worlds quest7_chars
+  ...
+  if %quest7_chars.fullword(%actor.iname%)%
+  ```
+  and clear every such list in the zone's WLD_RESET trigger. **`unset` takes the WHOLE rest of the line as the name**, so `unset quest1 chars` unsets a variable named "quest1 chars" — write `unset quest1_chars`.
+- **`detach` on a shared mob/room kills the quest for everyone**, not just the player who finished it. A mob reloads its trigger list only when the instance is re-created (zone `Q`+`M` or a reboot), and a room is never re-created — so a one-shot room trigger must be re-attached by the reset trigger (`calcuid room <vnum> room` / `attach <trig> %room%`) or, better, kept attached and gated by a name list.
+- **A greet monologue that ends with `attach <answer trigger>` loses the answer.** Ten `wait 1s` lines of story, and only then the SPEECH trigger appears: a player who answers right away talks into the void and never learns to repeat himself. Attach the answer trigger first, or before the waits.
+- **COMMAND trigger matching (mob/room):** `narg` is the compare mode, not a chance — `0` = the typed command must contain an arglist word as a whole word, `1` = the typed command must BE one of the arglist words (this is the mode for a list of accepted commands: `arglist: просить попросить спросить спытать`), anything else = exact compare against the whole arglist string. The trigger sees the **raw typed word**, with no abbreviation expansion, so «спр» never matches «спросить». `arglist: '*'` matches any command. (For OBJECT command triggers narg stays the location mask — see §6.) The engine itself refuses command triggers in combat («Вы не можете это сделать в бою», unless the arglist starts with `*`) and skips them for a sleeping player, so don't re-check position in the script.
+- **SPEECH `narg`:** `0` = any listed word somewhere in the phrase (use it for free-form answers), `1` = the player's WHOLE utterance must be exactly one listed word — «я помогу» then fails while «помогу» works. If the mob speaks a dialect, list the dialect answers too: Маричка asks in Ukrainian and heard only «да», not «так»/«допоможу».
+- **`load mob` does not order anyone to attack.** An ambush of three built from peaceful villagers (молодой легинь #78029, женщина с коромыслом #78031, бравый молодец #78033) just stands there watching; only `kAgressive` mobs pile on. Load the aggressive protos (#78079-81) for an ambush.
+- **Two variants of one item need two names.** The full honey barrel #78007 was called «деревянная бочечка», exactly like the empty #78006 — in the inventory and in the room they were indistinguishable, and the player couldn't tell whether he had collected anything. Name the loaded variant «деревянная бочечка с медом» and add the filling to the aliases. And when a trigger drops an object on the floor, say in plain words that it lies there and has to be taken.
+- **An object FIGHT trigger (kObjFight) must start with `return 0`.** Bit 0 of the return code was `kNoCastMagic`, and both `script_driver` and the Lua engine return 1 when the script doesn't say `return` — so a battle trigger without it silently forbids its owner to cast in combat every round (bylins/mud#4141). The engine fix bylins/mud#4142 is merged — once it is live bit 0 is free and forbidding a cast means `return 2` — but writing `return 0` first in every fight trigger stays the right habit: the live world is older than master until a reboot.
+
 ## Related memory
-`reference_web_admin_panel`, `reference_admin_api_mob_flags`, `feedback_room_descriptions`, `reference_seasonal_room_descriptions`.
+`reference_web_admin_panel`, `reference_admin_api_mob_flags`, `feedback_room_descriptions`, `reference_seasonal_room_descriptions`, `feedback_trigger_wrong_arg_message`, `reference_dg_trigger_narg`.
