@@ -70,6 +70,7 @@ test_sources = files(
     'fight.penalties.cpp',
     'bonus.command.parser.cpp',
     'quested.cpp',
+    'top.chart.gods.cpp',
     'sprintbitwd.cpp',
     'triggers.list.cpp',
     'fight_otrigger_return_codes.cpp',
