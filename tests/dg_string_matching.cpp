@@ -1,11 +1,15 @@
 // Part of Bylins http://www.mud.ru
 // Unit tests for DG-script string-matching functions:
-//   is_substring, word_check, compare_cmd, one_phrase
+//   is_substring, word_check, compare_cmd, one_phrase, text_processed (fullword)
 
 #include "engine/scripting/dg_triggers.h"
+#include "engine/scripting/dg_scripts.h"
 
 #include <gtest/gtest.h>
 #include <cstring>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
 // ===========================================================================
 // is_substring
@@ -136,6 +140,78 @@ TEST(DgStringMatching, OnePhrase_EmptyString) {
 	result[0] = '\xAB';  // sentinel
 	one_phrase(arg, result);
 	EXPECT_EQ('\0', result[0]);
+}
+
+
+// ===========================================================================
+// text_processed: %var.fullword(слово)%
+//
+// Регистра в DG нет. add_var_cntx понижает значение переменной у каждого set,
+// eval, global и worlds, а подполе приходит из скрипта как написано: у
+// %actor.iname% это падеж, то есть имя с большой буквы. Побайтовое сравнение
+// их не сводило, и проверка по списку имен была вечно ложной -- молча, без
+// следа в логе (в зоне 780 так не работала вся линейка квестов).
+// ===========================================================================
+
+namespace {
+
+// 1 -- слово в списке найдено, 0 -- нет, -1 -- поле не обработано
+int FullWord(const std::string &list, const std::string &needle) {
+	TriggerVar vd;
+	vd.name = "spisok";
+	vd.value = list;
+	vd.context = 0;
+
+	char field[] = "fullword";
+	std::vector<char> sub(needle.begin(), needle.end());
+	sub.push_back('\0');
+	char result[256] = {0};
+
+	if (!text_processed(field, sub.data(), vd, result, sizeof(result))) {
+		return -1;
+	}
+	return std::atoi(result);
+}
+
+}  // namespace
+
+// То, на чем сломалась зона 780: список лежит в нижнем регистре, имя приходит с большой
+TEST(DgStringMatching, FullWord_CyrillicNameIgnoresCase) {
+	EXPECT_EQ(1, FullWord("вукодраг есгар", "Вукодраг"));
+	EXPECT_EQ(1, FullWord("Вукодраг Есгар", "вукодраг"));
+	EXPECT_EQ(1, FullWord("вукодраг есгар", "ЕСГАР"));
+}
+
+TEST(DgStringMatching, FullWord_LatinIgnoresCase) {
+	EXPECT_EQ(1, FullWord("alpha beta", "BETA"));
+	EXPECT_EQ(1, FullWord("Alpha Beta", "alpha"));
+}
+
+// Совпадать должно слово целиком, а не часть
+TEST(DgStringMatching, FullWord_PartialWordNotFound) {
+	EXPECT_EQ(0, FullWord("вукодраг есгар", "вук"));
+	EXPECT_EQ(0, FullWord("вукодраг есгар", "драг"));
+	EXPECT_EQ(0, FullWord("alpha beta", "alph"));
+}
+
+TEST(DgStringMatching, FullWord_NotInList) {
+	EXPECT_EQ(0, FullWord("вукодраг есгар", "кощиха"));
+}
+
+// Одно имя в списке и имя с лишними пробелами вокруг списка
+TEST(DgStringMatching, FullWord_SingleEntryAndStraySpaces) {
+	EXPECT_EQ(1, FullWord("вукодраг", "Вукодраг"));
+	EXPECT_EQ(1, FullWord("   вукодраг   есгар  ", "Есгар"));
+}
+
+// Пустое подполе не должно находиться ни в каком списке
+TEST(DgStringMatching, FullWord_EmptyNeedleNotFound) {
+	EXPECT_EQ(0, FullWord("вукодраг есгар", ""));
+}
+
+// У пустой переменной поле не обрабатывается -- значение ищется дальше
+TEST(DgStringMatching, FullWord_EmptyListIsNotProcessed) {
+	EXPECT_EQ(-1, FullWord("", "вукодраг"));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -471,6 +471,12 @@ void add_var_cntx(std::list<TriggerVar> &var_list, std::string name, std::string
 TriggerVar find_var_cntx(std::list<TriggerVar>, std::string name, long id);
 int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id);
 
+// Строковые поля переменной: %var.strlen%, %var.trim%, %var.fullword(...)%,
+// %var.contains(...)%, %var.car%, %var.cdr%, %var.words(...)% и прочие.
+// Возвращает false, если поле не строковое или переменной нет -- тогда вызывающий
+// ищет значение дальше. Объявлено здесь ради юнит-тестов (tests/dg_string_matching.cpp).
+int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t str_size);
+
 // Macros for scripts //
 
 #define UID_OBJ    '\x1c'
