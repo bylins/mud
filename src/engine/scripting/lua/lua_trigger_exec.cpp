@@ -13,6 +13,8 @@ namespace lua_scripting {
 
 namespace {
 
+bool g_fail_next_global_registration_for_testing = false;
+
 bool IsValidTriggerRnum(int rnum)
 {
 	return rnum >= 0 && rnum < top_of_trigt && trig_index && trig_index[rnum] && trig_index[rnum]->proto;
@@ -63,6 +65,11 @@ void SetExecOwnerContext(LuaTriggerContext &ctx, const LuaTriggerTarget &target)
 
 } // namespace
 
+void FailNextMudExecGlobalRegistrationForTesting()
+{
+	g_fail_next_global_registration_for_testing = true;
+}
+
 bool MudExec(LuaRuntimeContext runtime, const sol::object &vnum, const sol::object &target_object)
 {
 	int trigger_vnum = 0;
@@ -112,7 +119,9 @@ bool MudExec(LuaRuntimeContext runtime, const sol::object &vnum, const sol::obje
 	}
 
 	++trig_index[rnum]->total_online;
-	if (!trigger_list.add(clone.get()))
+	const bool force_registration_failure = g_fail_next_global_registration_for_testing;
+	g_fail_next_global_registration_for_testing = false;
+	if (force_registration_failure || !trigger_list.add(clone.get()))
 	{
 		auto *failed_clone = clone.release();
 		target->script->script_trig_list.remove(failed_clone);

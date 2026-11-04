@@ -9,6 +9,10 @@ namespace lua_scripting {
 
 bool MudExec(LuaRuntimeContext runtime, const sol::object &vnum, const sol::object &target);
 
+// One-shot test seam for the rollback between owner-list registration and
+// global trigger registration. It is deliberately not exposed to Lua.
+void FailNextMudExecGlobalRegistrationForTesting();
+
 } // namespace lua_scripting
 
 #endif // WITH_LUAJIT_PROTOTYPE
