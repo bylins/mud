@@ -1136,9 +1136,15 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  door = kBfsError;
 
-	  // Помощник идет на шум драки в соседнюю клетку. Направление, выбранное здесь,
-	  // старше маршрута: следующий блок с GET_DEST/npc_walk работает только при
-	  // door == kBfsError, то есть когда помогать некому.
+	  // Помощник идет на шум драки в соседнюю клетку. Ни своей видимости, ни света в
+	  // той клетке мы не спрашиваем: на слух -- значит на слух. Темноту тут когда-то
+	  // проверяли, но больше ни один ход моба ее не проверяет (см. блок Mob Movement
+	  // ниже), так что помощник просто отказывался выручать там, где любой другой моб
+	  // ходит свободно; факел он и так достанет сам, уже на месте, в npc_light.
+	  //
+	  // Направление, выбранное здесь, старше маршрута: следующий блок с
+	  // GET_DEST/npc_walk работает только при door == kBfsError, то есть когда
+	  // помогать некому.
 	  if (ch->IsFlagged(EMobFlag::kHelper)
 		  && !ch->IsFlagged(EMobFlag::kSentinel)
 		  && !AFF_FLAGGED(ch, EAffect::kBlind)
@@ -1151,7 +1157,6 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				  || !IsCorrectDirection(ch.get(), door, true, false)
 				  || (IsRoomForbidden(world[rdata->to_room()])
 					  && !ch->IsFlagged(EMobFlag::kIgnoreForbidden))
-				  || is_dark(rdata->to_room())
 				  || (ch->IsFlagged(EMobFlag::kStayZone)
 					  && world[ch->in_room]->zone_rn != world[rdata->to_room()]->zone_rn)) {
 				  continue;
