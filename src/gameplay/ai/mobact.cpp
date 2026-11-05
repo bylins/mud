@@ -1136,7 +1136,9 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  door = kBfsError;
 
-	  // Helpers go to some dest
+	  // Помощник идет на шум драки в соседнюю клетку. Направление, выбранное здесь,
+	  // старше маршрута: следующий блок с GET_DEST/npc_walk работает только при
+	  // door == kBfsError, то есть когда помогать некому.
 	  if (ch->IsFlagged(EMobFlag::kHelper)
 		  && !ch->IsFlagged(EMobFlag::kSentinel)
 		  && !AFF_FLAGGED(ch, EAffect::kBlind)
@@ -1157,10 +1159,11 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 			  const auto room = world[rdata->to_room()];
 			  for (auto first : room->people) {
+				  // Видимость того, кому помогаем, не проверяем: драку слышно,
+				  // и помощник бежит на шум, а не на то, что разглядел из своей клетки.
 				  if (first->IsNpc()
 					  && !AFF_FLAGGED(first, EAffect::kCharmed)
 					  && !mount::IsHorse(first)
-					  && sight::CanSee(ch, first)
 					  && first->GetEnemy()
 					  && alignment::SameAlign(ch.get(), first)) {
 					  found = true;

@@ -652,7 +652,13 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 	if (!InTestZone(ch)) {
 		experience::EndowExpToChar(ch, exp);
-		alignment::ChangeAlignment(ch, victim);
+		// Наклонности мобу задает билдер, и значение должно остаться тем, что стоит в
+		// прототипе: по нему расходится взаимопомощь (alignment::SameAlign, допуск 10
+		// единиц), а эта функция работает и для NPC, так что моб, убивающий игроков,
+		// незаметно уползал от своих же соседей по зоне.
+		if (!ch->IsNpc()) {
+			alignment::ChangeAlignment(ch, victim);
+		}
 		if (!(victim)->Temporary.get(ECharExtraFlag::kGrpKillCount)
 				&& !ch->IsNpc()
 				&& !privilege::IsImmortal(ch)
