@@ -73,7 +73,7 @@ kOpensDoor: 70  # открывает двери
 kIgnoresNoMob: 71  # игнорирует !моб
 kIgnoresPeaceRoom: 72  # игнорирует мирные
 kResurrected: 73  # *оживлен
-UNUSED_74: 74
+UNUSED_74: 74  # !оживить
 UNUSED_75: 75  # осторожный стиль
 UNUSED_76: 76  # игн.строй
 UNUSED_77: 77
