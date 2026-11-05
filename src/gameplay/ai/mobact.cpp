@@ -900,6 +900,28 @@ bool allow_enter(RoomData *room, CharData *ch) {
 	return true;
 }
 
+// Стоит ли помощнику вступаться за этого бойца. Видимость не спрашиваем -- помощник
+// идет на шум, -- так что условие одно и то же и для своей клетки, и для соседней.
+bool WorthHelping(CharData *helper, CharData *fighter) {
+	return fighter != helper
+		&& fighter->IsNpc()
+		&& !AFF_FLAGGED(fighter, EAffect::kCharmed)
+		&& !mount::IsHorse(fighter)
+		&& fighter->GetEnemy()
+		&& alignment::SameAlign(helper, fighter);
+}
+
+// Есть ли в комнате драка, из которой помощнику уходить не следует.
+bool HoldsRoomForHelp(CharData *helper, RoomRnum room) {
+	for (const auto fighter : world[room]->people) {
+		if (WorthHelping(helper, fighter)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 void mobile_activity(int activity_level, int missed_pulses) {
 	auto activity_span = tracing::TraceManager::Instance().StartSpan("mob.activity");
@@ -1136,39 +1158,42 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  door = kBfsError;
 
-	  // Helpers go to some dest
+	  // Помощник идет на шум драки в соседнюю клетку. Ни своей видимости, ни света в
+	  // той клетке мы не спрашиваем: на слух -- значит на слух. Темноту тут когда-то
+	  // проверяли, но больше ни один ход моба ее не проверяет (см. блок Mob Movement
+	  // ниже), так что помощник просто отказывался выручать там, где любой другой моб
+	  // ходит свободно; факел он и так достанет сам, уже на месте, в npc_light.
+	  //
+	  // Пока драка в своей клетке, помощник из нее не уходит, даже если ударить ему
+	  // пока нечем: в темноте цель не видна (sight::MaySee), и раньше он на следующем
+	  // же ходу спокойно утопывал по маршруту или куда попало. Теперь стоит и ждет --
+	  // осветится комната или подойдет второй такой же.
+	  //
+	  // Направление, выбранное здесь, старше маршрута: следующие блоки с
+	  // GET_DEST/npc_walk и npc_track работают только при door == kBfsError, то есть
+	  // когда помогать некому.
+	  bool holds_room = false;
 	  if (ch->IsFlagged(EMobFlag::kHelper)
 		  && !ch->IsFlagged(EMobFlag::kSentinel)
 		  && !AFF_FLAGGED(ch, EAffect::kBlind)
 		  && !ch->has_master()
 		  && ch->GetPosition() == EPosition::kStand) {
-		  for (found = false, door = 0; door < EDirection::kMaxDirNum; door++) {
+		  holds_room = HoldsRoomForHelp(ch.get(), ch->in_room);
+
+		  for (found = false, door = 0; !holds_room && door < EDirection::kMaxDirNum; door++) {
 			  RoomData::exit_data_ptr rdata = EXIT(ch, door);
 			  if (!rdata
 				  || rdata->to_room() == kNowhere
 				  || !IsCorrectDirection(ch.get(), door, true, false)
 				  || (IsRoomForbidden(world[rdata->to_room()])
 					  && !ch->IsFlagged(EMobFlag::kIgnoreForbidden))
-				  || is_dark(rdata->to_room())
 				  || (ch->IsFlagged(EMobFlag::kStayZone)
 					  && world[ch->in_room]->zone_rn != world[rdata->to_room()]->zone_rn)) {
 				  continue;
 			  }
 
-			  const auto room = world[rdata->to_room()];
-			  for (auto first : room->people) {
-				  if (first->IsNpc()
-					  && !AFF_FLAGGED(first, EAffect::kCharmed)
-					  && !mount::IsHorse(first)
-					  && sight::CanSee(ch, first)
-					  && first->GetEnemy()
-					  && alignment::SameAlign(ch.get(), first)) {
-					  found = true;
-					  break;
-				  }
-			  }
-
-			  if (found) {
+			  if (HoldsRoomForHelp(ch.get(), rdata->to_room())) {
+				  found = true;
 				  break;
 			  }
 		  }
@@ -1178,14 +1203,16 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  }
 	  }
 
-	  if (GET_DEST(ch) != kNowhere
+	  if (!holds_room
+		  && GET_DEST(ch) != kNowhere
 		  && ch->GetPosition() > EPosition::kFight
 		  && door == kBfsError) {
 		  npc_group(ch.get());
 		  door = npc_walk(ch.get());
 	  }
 
-	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && GetSkill(ch.get(), ESkill::kTrack)) {
+	  if (!holds_room && MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight
+		  && GetSkill(ch.get(), ESkill::kTrack)) {
 		  door = npc_track(ch.get());
 	  }
 
@@ -1194,7 +1221,9 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  continue;
 	  }
 
-	  if (door == kBfsError) {
+	  // Помощник, стерегущий драку в своей клетке, никуда не идет: door остается
+	  // kBfsError, и блок Mob Movement ниже его не пропускает (door >= 0).
+	  if (!holds_room && door == kBfsError) {
 		  door = number(0, 18);
 	  }
 
