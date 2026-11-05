@@ -61,6 +61,9 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/fight/fight_stuff.h"
 
+#include <algorithm>
+#include <vector>
+
 // external structs
 extern int no_specials;
 
@@ -84,6 +87,16 @@ const short kStupidMob{10};
 const short kMiddleAi{30};
 const short kHighAi{40};
 const short kCharacterHpForMobPriorityAttack{100};
+// Насколько далеко помощник слышит драку. Обычный -- соседняя клетка, с флагом
+// kGreatHelper ("помогает издали") -- три ближайших.
+const int kHelperRange{1};
+const int kGreatHelperRange{3};
+
+// Сколько времени и клеток ушло на поиск драки за весь обход character_list. Счетчики
+// сбрасываются в начале mobile_activity и печатаются в ее же итоговый лог.
+double helper_search_time = 0.0;
+int helper_search_calls = 0;
+int helper_search_rooms = 0;
 
 struct Target {
     CharData* ch;
@@ -913,6 +926,7 @@ bool WorthHelping(CharData *helper, CharData *fighter) {
 
 // Есть ли в комнате драка, из которой помощнику уходить не следует.
 bool HoldsRoomForHelp(CharData *helper, RoomRnum room) {
+	++helper_search_rooms;
 	for (const auto fighter : world[room]->people) {
 		if (WorthHelping(helper, fighter)) {
 			return true;
@@ -922,6 +936,102 @@ bool HoldsRoomForHelp(CharData *helper, RoomRnum room) {
 	return false;
 }
 
+// Пройдет ли моб из комнаты from в направлении dir. Нужна только для шагов дальше
+// первого: IsCorrectDirection смотрит на ту комнату, в которой моб стоит, и к чужой
+// комнате неприменим. Аптекарской точности тут и не надо -- за тик моб делает один шаг,
+// и этот шаг еще раз проходит все проверки в блоке Mob Movement; промах означает лишь,
+// что на следующем тике помощник никого рядом не найдет и вернется к своим делам.
+bool MobMayStep(CharData *mob, RoomRnum from, int dir) {
+	const auto exit = world[from]->dir_option[dir];
+	if (!exit || exit->to_room() == kNowhere) {
+		return false;
+	}
+
+	if (EXIT_FLAGGED(exit, EExitFlag::kClosed) && !mob->IsFlagged(EMobFlag::kOpensDoor)) {
+		return false;
+	}
+
+	const RoomRnum next = exit->to_room();
+	if (ROOM_FLAGGED(next, ERoomFlag::kNoEntryMob)
+		&& !mob->IsFlagged(EMobFlag::kIgnoresNoMob)
+		&& !mob->IsFlagged(EMobFlag::kCompanion)) {
+		return false;
+	}
+
+	return !ROOM_FLAGGED(next, ERoomFlag::kDeathTrap)
+		&& !ROOM_FLAGGED(next, ERoomFlag::kGodsRoom);
+}
+
+// Направление первого шага к ближайшей драке, за которую помощнику стоит вступиться.
+// Дальше range клеток не смотрим. kBfsError -- такой драки рядом нет.
+//
+// Обход в ширину, так что ближайшая драка выигрывает. Свой маленький обход, а не
+// find_first_step: тому на каждый вызов надо снять метку с каждой комнаты зоны или мира,
+// а здесь клеток от силы десятки, и зовут эту функцию на каждом помощнике каждый тик.
+int FindHelpDirection(CharData *helper, int range) {
+	struct Step {
+		RoomRnum room;
+		int dir;	// первый шаг, которым в эту комнату пришли
+		int depth;
+	};
+
+	// Очереди переиспользуются между вызовами и только очищаются -- аллокации на каждом
+	// тике тут лишние (тот же приём, что в find_first_step).
+	static std::vector<Step> queue;
+	static std::vector<RoomRnum> seen;
+
+	utils::CExecutionTimer timer;
+	++helper_search_calls;
+
+	queue.clear();
+	seen.clear();
+	queue.push_back({helper->in_room, kBfsError, 0});
+	seen.push_back(helper->in_room);
+
+	int found_dir = kBfsError;
+	for (std::size_t i = 0; i < queue.size() && found_dir == kBfsError; ++i) {
+		const Step step = queue[i];
+		if (step.depth >= range) {
+			continue;
+		}
+
+		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
+			const auto exit = world[step.room]->dir_option[dir];
+			if (!exit || exit->to_room() == kNowhere) {
+				continue;
+			}
+
+			const RoomRnum next = exit->to_room();
+			if (std::find(seen.begin(), seen.end(), next) != seen.end()) {
+				continue;
+			}
+
+			const bool passable = (step.depth == 0)
+				? IsCorrectDirection(helper, dir, true, false)
+				: MobMayStep(helper, step.room, dir);
+			if (!passable
+				|| (IsRoomForbidden(world[next]) && !helper->IsFlagged(EMobFlag::kIgnoreForbidden))
+				|| (helper->IsFlagged(EMobFlag::kStayZone)
+					&& world[helper->in_room]->zone_rn != world[next]->zone_rn)) {
+				continue;
+			}
+
+			const int first_step = (step.depth == 0) ? dir : step.dir;
+			if (HoldsRoomForHelp(helper, next)) {
+				found_dir = first_step;
+				break;
+			}
+
+			seen.push_back(next);
+			queue.push_back({next, first_step, step.depth + 1});
+		}
+	}
+
+	helper_search_time += timer.delta().count();
+
+	return found_dir;
+}
+
 
 void mobile_activity(int activity_level, int missed_pulses) {
 	auto activity_span = tracing::TraceManager::Instance().StartSpan("mob.activity");
@@ -929,6 +1039,10 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	utils::CExecutionTimer mobact_timer;
 	int processed_mobs = 0;
+
+	helper_search_time = 0.0;
+	helper_search_calls = 0;
+	helper_search_rooms = 0;
 
 //	int door, max, was_in = -1, activity_lev, i, ch_activity;
 //	int std_lev = activity_level % kPulseMobile;
@@ -1030,7 +1144,6 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  max = false;
-	  bool found = false;
 	  for (const auto vict : world[ch->in_room]->people) {
 		  if (ch.get() == vict) {
 			  continue;
@@ -1180,26 +1293,10 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && ch->GetPosition() == EPosition::kStand) {
 		  holds_room = HoldsRoomForHelp(ch.get(), ch->in_room);
 
-		  for (found = false, door = 0; !holds_room && door < EDirection::kMaxDirNum; door++) {
-			  RoomData::exit_data_ptr rdata = EXIT(ch, door);
-			  if (!rdata
-				  || rdata->to_room() == kNowhere
-				  || !IsCorrectDirection(ch.get(), door, true, false)
-				  || (IsRoomForbidden(world[rdata->to_room()])
-					  && !ch->IsFlagged(EMobFlag::kIgnoreForbidden))
-				  || (ch->IsFlagged(EMobFlag::kStayZone)
-					  && world[ch->in_room]->zone_rn != world[rdata->to_room()]->zone_rn)) {
-				  continue;
-			  }
-
-			  if (HoldsRoomForHelp(ch.get(), rdata->to_room())) {
-				  found = true;
-				  break;
-			  }
-		  }
-
-		  if (!found) {
-			  door = kBfsError;
+		  if (!holds_room) {
+			  door = FindHelpDirection(ch.get(),
+									   ch->IsFlagged(EMobFlag::kGreatHelper)
+										   ? kGreatHelperRange : kHelperRange);
 		  }
 	  }
 
@@ -1278,8 +1375,16 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 	}
 	double mobact_time = mobact_timer.delta().count();
+
+	// Поиск драки для помощников считаем отдельно: с флагом kGreatHelper моб смотрит на
+	// три клетки вокруг, и надо видеть, во что это обходится на весь обход character_list.
+	observability::OtelMetrics::RecordHistogram("mob.helper.search.duration", helper_search_time);
+	observability::OtelMetrics::RecordHistogram("mob.helper.search.rooms", helper_search_rooms);
+	observability::OtelMetrics::RecordHistogram("mob.helper.search.calls", helper_search_calls);
+
 	if (mobact_time > 0.005) {
-		log("mobile_activity: processed=%d time=%f", processed_mobs, mobact_time);
+		log("mobile_activity: processed=%d time=%f helpers=%d help_rooms=%d help_time=%f",
+			processed_mobs, mobact_time, helper_search_calls, helper_search_rooms, helper_search_time);
 	}
 }
 ObjData *create_charmice_box(CharData *ch) {

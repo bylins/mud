@@ -422,10 +422,14 @@ enum EMobFlag : Bitvector {
 	kIgnoresNoMob = kIntTwo | (1 << 11),
 	kIgnoresPeaceRoom = kIntTwo | (1 << 12),
 	kResurrected = kIntTwo | (1 << 13), // !поднять труп! или !оживить труп! только програмно//
-// свободно
+// Биты 14-19 этой плоскости не свободны, хотя имени за ними нет: они выставлены на живых
+// мобах (от 6 до 128 мобов на бит), остались от снятых когда-то флагов и ждут чистки в
+// мире. Пока не вычищены -- занимать их нельзя, флаг заработает сам собой на чужих мобах.
 	kNoResurrection = kIntTwo | (1 << 20),
 	kMobAwake = kIntTwo | (1 << 21),
-	kIgnoresFormation = kIntTwo | (1 << 22)
+	kIgnoresFormation = kIntTwo | (1 << 22),
+
+	kGreatHelper = kIntThree | (1 << 0)	// помогает не только из соседней клетки, а из трех ближайших
 };
 
 template<>
