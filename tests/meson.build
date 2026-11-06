@@ -72,6 +72,7 @@ test_sources = files(
     'quested.cpp',
     'top.chart.gods.cpp',
     'mob.flag.great.helper.cpp',
+    'weapon.class.cpp',
     'sprintbitwd.cpp',
     'triggers.list.cpp',
     'fight_otrigger_return_codes.cpp',

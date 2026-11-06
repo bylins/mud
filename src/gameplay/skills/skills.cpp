@@ -2172,6 +2172,21 @@ std::ostream& operator<<(std::ostream & os, ESkill &s){
 	return os;
 };
 
+bool IsWeaponSkill(ESkill skill) {
+	switch (skill) {
+		case ESkill::kClubs:
+		case ESkill::kAxes:
+		case ESkill::kLongBlades:
+		case ESkill::kShortBlades:
+		case ESkill::kNonstandart:
+		case ESkill::kTwohands:
+		case ESkill::kPicks:
+		case ESkill::kSpades:
+		case ESkill::kBows: return true;
+		default: return false;
+	}
+}
+
 int GetSkillBonus(const CharData *ch, ESkill skill_id) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
