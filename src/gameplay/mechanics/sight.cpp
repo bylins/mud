@@ -2021,8 +2021,14 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 
 	*out_str = '\0';
 	if (obj->get_type() == EObjType::kWeapon) {
+		// Спрашиваем именно про класс оружия, а не про "скилл вообще". Раньше проверка
+		// отсекала только kUndefined (-1), а у оружия с незаданным классом spec_param
+		// равен нулю -- это ESkill::kGlobalCooldown, служебное умение с именем
+		// "!cooldown". Игрок видел 'Принадлежит к классу "!cooldown"', и жалоба об этом
+		// от тестера и пришла, а заготовленное сообщение про неизвестный тип не
+		// показывалось никогда.
 		const auto skill = static_cast<ESkill>(obj->get_spec_param());
-		if (skill != ESkill::kUndefined) {
+		if (IsWeaponSkill(skill)) {
 			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", MUD::Skill(skill).name.c_str());
 		} else {
 			sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_spec_param());

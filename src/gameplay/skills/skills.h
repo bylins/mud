@@ -148,6 +148,12 @@ enum class ESkill : int {
 const ESkill& operator++(ESkill &s);
 std::ostream& operator<<(std::ostream & os, ESkill &s);
 
+// Умение, которым владеют оружием: класс оружия в spec_param прототипа. Нужна, чтобы
+// отличать настоящий класс от любого другого числа в этом поле: незаданный spec_param
+// равен нулю, а ноль -- это ESkill::kGlobalCooldown, служебное умение с именем
+// "!cooldown". Без проверки оно утекало игроку в "познать".
+[[nodiscard]] bool IsWeaponSkill(ESkill skill);
+
 template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
