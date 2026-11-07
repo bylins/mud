@@ -84,6 +84,11 @@ class Applies {
 class Effects::PassiveEffectsImpl {
 	Applies applies_;
 	Mod<ESkill> skill_mods_;
+	// issue.inborn-magic: <skill_base> -- врожденный базовый уровень умения. В отличие от
+	// skill_mods это не прибавка к выученному, а пол: умение считается не ниже указанного
+	// значения, даже если персонаж его вовсе не учил (и не может учить). В файл игрока не
+	// пишется и рембортным капом не срезается -- живет в конфиге способности.
+	Mod<ESkill> skill_base_;
 	Mod<ESkill> skill_timer_mods_;
 	Mod<EFeat> feat_timer_mods_;
 
@@ -92,6 +97,7 @@ class Effects::PassiveEffectsImpl {
 	void ParseSkillTimerMods(parser_wrapper::DataNode &node);
 	void ParseFeatTimerMods(parser_wrapper::DataNode &node);
 	void ParseSkillMods(parser_wrapper::DataNode &node);
+	void ParseSkillBase(parser_wrapper::DataNode &node);
 
  public:
 	PassiveEffectsImpl() = delete;
@@ -99,6 +105,7 @@ class Effects::PassiveEffectsImpl {
 
 	void ImposeApplies(CharData *ch) const;
 	void ImposeSkillsMods(CharData *ch) const;
+	[[nodiscard]] int GetSkillBase(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(EFeat feat_id) const;
 
@@ -124,6 +131,8 @@ void Effects::PassiveEffectsImpl::ParseEffect(parser_wrapper::DataNode &node) {
 		ParseFeatTimerMods(node);
 	} else if (strcmp(node.GetName(), "skill_mods") == 0) {
 		ParseSkillMods(node);
+	} else if (strcmp(node.GetName(), "skill_base") == 0) {
+		ParseSkillBase(node);
 	}
 }
 
@@ -144,6 +153,10 @@ void Effects::PassiveEffectsImpl::ParseSkillMods(parser_wrapper::DataNode &node)
 	skill_mods_ = Mod<ESkill>(node);
 }
 
+void Effects::PassiveEffectsImpl::ParseSkillBase(parser_wrapper::DataNode &node) {
+	skill_base_ = Mod<ESkill>(node);
+}
+
 void Effects::PassiveEffectsImpl::ImposeApplies(CharData *ch) const {
 	applies_.Impose(ch);
 }
@@ -155,6 +168,10 @@ void Effects::PassiveEffectsImpl::ImposeSkillsMods(CharData *ch) const {
 	for (const auto &skill_mod: skill_mods_.GetMods()) {
 		ch->SetAddSkill(skill_mod.first, skill_mod.second);
 	}
+}
+
+int Effects::PassiveEffectsImpl::GetSkillBase(ESkill skill_id) const {
+	return skill_base_.GetMod(skill_id);
 }
 
 int Effects::PassiveEffectsImpl::GetTimerMod(ESkill skill_id) const {
@@ -170,6 +187,10 @@ void Effects::PassiveEffectsImpl::Print(CharData *ch, std::ostringstream &buffer
 	if (!skill_mods_.Empty()) {
 		buffer << " Skill mods:" << "\r\n";
 		skill_mods_.Print(ch, buffer);
+	}
+	if (!skill_base_.Empty()) {
+		buffer << " Inborn skill base:" << "\r\n";
+		skill_base_.Print(ch, buffer);
 	}
 	if (!skill_timer_mods_.Empty()) {
 		buffer << " Skills timer mods:" << "\r\n";
@@ -266,6 +287,13 @@ void Effects::ImposeSkillsMods(CharData *ch) const {
 	if (pimpl_) {
 		pimpl_->ImposeSkillsMods(ch);
 	}
+}
+
+int Effects::GetSkillBase(ESkill skill_id) const {
+	if (pimpl_) {
+		return pimpl_->GetSkillBase(skill_id);
+	}
+	return 0;
 }
 
 int Effects::GetTimerMod(ESkill skill_id) const {

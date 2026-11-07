@@ -399,6 +399,9 @@
 	<msg_sheaf id="kBoneCommander">
 		<name val="костяной полководец" />
 	</msg_sheaf>
+	<msg_sheaf id="kInbornMagic">
+		<name val="ратный дар" />
+	</msg_sheaf>
 	<msg_sheaf id="kTactician">
 		<name val="десяцкий" />
 	</msg_sheaf>

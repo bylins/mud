@@ -25,6 +25,7 @@
 #include "gameplay/mechanics/initiative.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/abilities/feats.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/core/remort.h"
 
@@ -2128,6 +2129,17 @@ int CalcSkillMinCap(const CharData *ch, const ESkill skill) {
 	return std::min(CalcSkillWisdomCap(ch), MUD::Skill(skill).cap);
 }
 
+// Число в скобках в списке умений: до чего это умение можно дотянуть сейчас. Выученное растет
+// до предела по мудре плюс вещевая прибавка, но не выше предела самого умения; невыученное
+// дальше вещевой прибавки не идет; врожденное стоит на своем значении, то есть на пределе по
+// перевоплощениям. Без этого витязь видел бы у школы "(0)" при умении 80.
+int CalcSkillDisplayLimit(const CharData *ch, const ESkill skill) {
+	const int limit = (GetTrainedSkill(ch, skill) == 0)
+			? GetEquippedSkill(ch, skill)
+			: std::min(CalcSkillMinCap(ch, skill) + GetEquippedSkill(ch, skill), MUD::Skill(skill).cap);
+	return std::max(limit, GetInbornSkillBase(ch, skill));
+}
+
 int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
 	if (skill_divisor <= 0) {
 		return 0;
@@ -2187,14 +2199,45 @@ bool IsWeaponSkill(ESkill skill) {
 	}
 }
 
+// issue.inborn-magic: врожденный базовый уровень умения, заданный способностью. Витязю школы
+// магии классом не положены, а сила, длительность, число целей и шанс удачного колдовства его
+// заклинаний считаются именно от умения школы (spells.xml, base_skill), и на нулевом умении
+// все эти прибавки обращаются в ноль: у массового молчания это всегда min целей и min
+// длительности. Способность "ратный дар" задает школам базовый уровень -- пол, ниже которого
+// умение не считается, даже если персонаж его не учил и учить не может. У персонажа при этом
+// ничего не выставляется и не хранится: в файл игрока строка умения не попадает, сбросом
+// способностей не слетает.
+//
+// Режем тем же пределом по перевоплощениям, что и выученное умение (CalcSkillHardCap), а не
+// пределом самого умения. Значение в feats.xml -- это потолок дара, а не выдаваемый уровень:
+// школа у витязя всегда выучена до его собственного предела, как если бы он учил ее наравне
+// со всеми. Иначе плоские 200 отдают новичку всю кривую высоких ремортов сразу: сила
+// заклинания считается как (min(умение,75)*low + max(0,умение-75)*hi)/100, а у его
+// заклинаний low=1 при hi=7, то есть каждое очко выше 75 стоит семи ниже. На 200 коэффициент
+// выходит 9.5 против 1.45 у заклинателя того же первого реморта -- в шесть с лишним раз, и
+// крутизна выше 75, которой вознаграждают реморты, обращается в ничто. Длительность это все
+// равно не трогает: она режется на 75 (min(умение, kNoviceSkillThreshold)).
+// Костыль осознанный -- правильно было бы выдать витязю школы как обычные умения класса.
+int GetInbornSkillBase(const CharData *ch, ESkill skill_id) {
+	// Дешевая отсечка: бит способности есть только у того класса, которому ее выдали врожденной.
+	if (!ch->HaveFeat(EFeat::kInbornMagic) || !CanUseFeat(ch, EFeat::kInbornMagic)) {
+		return 0;
+	}
+	return std::clamp(MUD::Feat(EFeat::kInbornMagic).effects.GetSkillBase(skill_id),
+					  0, CalcSkillHardCap(ch, skill_id));
+}
+
 int GetSkillBonus(const CharData *ch, ESkill skill_id) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
+		// Арена равняет всех: врожденное умение тут такое же, как выученное у остальных.
+		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()
+			|| GetInbornSkillBase(ch, skill_id) > 0) {
 			return 100;
 		}
 	}
 	if (privilege::CheckSkills(ch)) {
-		return std::clamp(GetTrainedSkill(ch, skill_id), 0, MUD::Skill(skill_id).cap);
+		return std::max(GetInbornSkillBase(ch, skill_id),
+						std::clamp(GetTrainedSkill(ch, skill_id), 0, MUD::Skill(skill_id).cap));
 	}
 	return 0;
 }
