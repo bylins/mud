@@ -25,6 +25,7 @@
 #include "gameplay/mechanics/initiative.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/abilities/feats.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/core/remort.h"
 
@@ -2187,14 +2188,34 @@ bool IsWeaponSkill(ESkill skill) {
 	}
 }
 
+// issue.inborn-magic: врожденный базовый уровень умения, заданный способностью. Витязю школы
+// магии классом не положены, а все роллы его заклинаний считаются именно от школы (spells.xml,
+// base_skill), и на нулевом умении школьные слагаемые обнуляются: у массового молчания это
+// всегда min целей и min длительности. Способность "врожденное чародейство" задает школам
+// базовый уровень -- пол, ниже которого умение не считается, даже если персонаж его не учил и
+// учить не может. У персонажа при этом ничего не выставляется и не хранится: в файл игрока
+// строка умения не попадает, ремортный кап ее не срезает, сбросом способностей не слетает.
+// Костыль осознанный -- правильно было бы выдать витязю школы как обычные умения класса.
+int GetInbornSkillBase(const CharData *ch, ESkill skill_id) {
+	// Дешевая отсечка: бит способности есть только у того класса, которому ее выдали врожденной.
+	if (!ch->HaveFeat(EFeat::kInbornMagic) || !CanUseFeat(ch, EFeat::kInbornMagic)) {
+		return 0;
+	}
+	return std::clamp(MUD::Feat(EFeat::kInbornMagic).effects.GetSkillBase(skill_id),
+					  0, MUD::Skill(skill_id).cap);
+}
+
 int GetSkillBonus(const CharData *ch, ESkill skill_id) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
+		// Арена равняет всех: врожденное умение тут такое же, как выученное у остальных.
+		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()
+			|| GetInbornSkillBase(ch, skill_id) > 0) {
 			return 100;
 		}
 	}
 	if (privilege::CheckSkills(ch)) {
-		return std::clamp(GetTrainedSkill(ch, skill_id), 0, MUD::Skill(skill_id).cap);
+		return std::max(GetInbornSkillBase(ch, skill_id),
+						std::clamp(GetTrainedSkill(ch, skill_id), 0, MUD::Skill(skill_id).cap));
 	}
 	return 0;
 }
