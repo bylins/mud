@@ -86,6 +86,28 @@ The live world is edited through the **web admin panel** (`tools/web_admin/`), w
 - Rates: 1 MUD month = **24 real hours**, 1 MUD year = 12 real days (`kTimeKoeff=2`). Winter = Dec/Jan/Feb (Mar & Nov are transitional — season holds its previous value).
 - To see a `<winter…>` description right now, restart the server with the host/container clock shifted so boot lands in a winter month (waiting for the cycle is impractical).
 
+## 7a. `under_construction` does more than mark a zone unfinished
+
+`under_construction: 1` in `zone.yaml` also **takes the zone out of the whole loot machinery**:
+`init_mob_name_list` (`sets_drop.cpp`) puts every under-construction zone into `bad_zones`,
+alongside towns and clan castles, so its mobs never enter the set-drop table. The field's name
+says nothing about that, and builders have no reason to guess it.
+
+So a zone moved to the live world "for testing" with `under_construction: 0` is, as far as the
+engine is concerned, finished content: the moment its author starts placing mobs, an unfinished
+zone starts carrying set drops. **Set it to 1 when a zone goes live for testing, and clear it when
+the zone is actually done.** Converted zones get the same treatment -- see the
+`bylins-world-convert` skill, which already says to keep `under_construction: 1` until somebody
+has walked the zone.
+
+Two more exclusions work the same way and need no field at all: a zone whose rent room belongs to
+a clan (`clan->GetRent() / 100`) and a town (rent + bank + post in one zone, `SetZonesTownFlags`).
+Service and starting zones come from `cfg/mechanics/service_zones.xml`. Anything else is fair game
+for drops -- which is why a holiday zone left connected keeps paying out all year.
+
+(Stribog, 07.11.2026: "ну билдеры таких деталей не знают, а я не проконтролировал, перевёл на
+основной в тестируются" -- about zones 825/826, live with `under_construction: 0`.)
+
 ## 8. Zone reset commands
 
 `POST /api/zones/<zone>/commands` with `command` = one of:
