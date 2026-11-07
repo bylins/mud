@@ -86,6 +86,54 @@ The live world is edited through the **web admin panel** (`tools/web_admin/`), w
 - Rates: 1 MUD month = **24 real hours**, 1 MUD year = 12 real days (`kTimeKoeff=2`). Winter = Dec/Jan/Feb (Mar & Nov are transitional — season holds its previous value).
 - To see a `<winter…>` description right now, restart the server with the host/container clock shifted so boot lands in a winter month (waiting for the cycle is impractical).
 
+## 7a. `under_construction` is the "zone under test" mode, not a label
+
+`under_construction: 1` in `zone.yaml` reads far wider than its name suggests: it is the switch
+that makes a zone safe to open to players **before** it is balanced, so that nothing abusable
+leaks into the world. `show zones` prints such a zone as `Тестовая!`, `liblist` marks it `T`.
+Everything below follows from that one field.
+
+**Items made in the zone** (`world_objects.cpp`, `create_from_prototype_by_rnum`) are stamped on
+creation: `timer = 30`, plus `kNolocate`, `kLimitedTimer`, `kTransformed` and `kNosell`. They rot
+quickly, cannot be located, cannot be sold. That is the main point of the mode -- a broken item
+from a zone under test cannot become loot, money or a permanent part of anyone's gear.
+Separately, `NO_TIMER` treats an item lying in such a zone as having no decay clock of its own.
+
+**A player cannot die there** (`check_tester_death`, `fight_stuff.cpp`). Dying to a mob -- but not
+to a player or a charmice -- is caught: the tester is moved to their load room with 1 hit point,
+all affects stripped, standing, and told "Божественная сила спасла вашу жизнь". No corpse, no
+loss.
+
+**No experience and no alignment shift** (`experience.cpp`, `perform_group_gain` is skipped
+wholesale under `InTestZone`). Kills in a zone under test pay nothing.
+
+**Daily-quest reward is confiscated** (`daily_quest.cpp`): "Зона тестовая, вашу гривну отобрали
+боги."
+
+**Testers see room flags** without the `kRoomFlags` preference (`sight.cpp`), which is why a zone
+under test looks different to the same player elsewhere.
+
+**And it leaves the loot machinery**: `init_mob_name_list` (`sets_drop.cpp`) puts every
+under-construction zone into `bad_zones`, alongside towns and clan castles, so its mobs never
+enter the set-drop table.
+
+So a zone moved to the live world "for testing" with `under_construction: 0` is, as far as the
+engine is concerned, finished content -- with real exp, real deaths, permanent items and set
+drops. **Set it to 1 when a zone goes live for testing, and clear it when the zone is actually
+done.** Converted zones get the same treatment -- see the `bylins-world-convert` skill, which
+already says to keep `under_construction: 1` until somebody has walked the zone.
+
+Two more loot exclusions work without any field: a zone whose rent room belongs to a clan
+(`clan->GetRent() / 100`) and a town (rent + bank + post in one zone, `SetZonesTownFlags`).
+Service and starting zones come from `cfg/mechanics/service_zones.xml`. Anything else is fair game
+for drops -- which is why a holiday zone left connected keeps paying out all year.
+
+(Stribog, 07.11.2026, about zones 825/826 live with `under_construction: 0`: "ну билдеры таких
+деталей не знают, а я не проконтролировал, перевёл на основной в тестируются", and then: "поле
+тестируется читается шире, например таймер у всех предметов 30 и многое еще, например в ней
+нельзя умереть, ее можно подключить для публичного тестирования игроками, чтоб абузные вещи не
+попадали в мир".)
+
 ## 8. Zone reset commands
 
 `POST /api/zones/<zone>/commands` with `command` = one of:
