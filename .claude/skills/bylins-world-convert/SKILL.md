@@ -70,7 +70,11 @@ they live in `cfg/economics/shops.xml`.
    on the mob, not a reset command: `dead_load: [{obj_vnum, load_prob, load_type, spec_param}]`
    (legacy `.mob` files carried it as a `D` line; `dead_load::ParseDeadLoadLine`). Grep the incoming
    `.zon` for `^L ` and move every hit onto the mob of the preceding `M` line, or the zone loses all
-   its drops.
+   its drops. **But `dead_load` is off limits for new content — among the builders loot is handed
+   out from a death trigger with `load obj`.** For a converted zone, write what the `L` lines said
+   into the commit message or the zone's README and let the author place it in triggers; don't
+   invent `dead_load` entries. Equally: a zone with no `dead_load` at all is the norm, so never
+   read that as missing loot.
 3. **Retired equipment-affect bits.** `EEquipmentAffect` bits 11-12 (`kProtectFromDark`,
    `kProtectFromMind`) are gone for good — they were never on/off affects but resist parameters.
    Symptom: `SYSERR: unknown EEquipmentAffect 'kProtectFromMind' on obj vnum N, skipped`. Grant the
