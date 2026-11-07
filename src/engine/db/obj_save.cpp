@@ -1214,6 +1214,15 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	for (; static_cast<std::size_t>(count) < records && count < rent.n_items; count++) {
 		std::memcpy(&info, recptr + count * sizeof(struct SaveTimeInfo), sizeof(struct SaveTimeInfo));
 		if (info.vnum && info.timer >= -1) {
+			// Запись про пропавший прототип принимаем, но сразу гасим ей таймер: вещь все
+			// равно не создастся, а выкинуть запись совсем нельзя -- ниже rent.n_items
+			// сверяется с числом принятых, и файл объявят битым целиком. С таймером -1
+			// запись считается удаленной и уйдет при первой же перезаписи файла.
+			if (info.vnum > 0 && info.timer >= 0 && GetObjRnum(info.vnum) < 0) {
+				log("[ReadTimer] %s: прототипа предмета [%d] больше нет, запись помечена удаленной.",
+					name.c_str(), info.vnum);
+				info.timer = -1;
+			}
 			player_table[index].timer->time.push_back(info);
 			++num;
 		} else {
@@ -1336,6 +1345,18 @@ void Crash_timer_obj(const std::size_t index, long time) {
 			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
 			rnum = GetObjRnum(player_table[index].timer->time[i].vnum);
+			// Прототипа больше нет -- запись в ренте мусор, держать ее не за что. Раньше
+			// rnum тут не проверялся, хотя тремя строками ниже уже проверяется, и два
+			// обращения obj_proto[-1] в строке ниже давали по две жалобы "неизвестный
+			// прототип объекта" на каждый проход -- то есть раз в kObjectSaveActivity
+			// секунд, бесконечно. Такое случается, когда зона переехала на новый номер.
+			if (rnum < 0) {
+				log("[TO] Player %s : item [%d] deleted - prototype is gone",
+					name.c_str(), player_table[index].timer->time[i].vnum);
+				player_table[index].timer->time[i].timer = -1;
+				idelete++;
+				continue;
+			}
 			if ((!stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
 				timer = player_table[index].timer->time[i].timer;
 				if (timer < timer_dec) {
