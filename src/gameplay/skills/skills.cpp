@@ -2129,6 +2129,25 @@ int CalcSkillMinCap(const CharData *ch, const ESkill skill) {
 	return std::min(CalcSkillWisdomCap(ch), MUD::Skill(skill).cap);
 }
 
+// Предел, относительно которого в списке умений печатается оценка ("хорошо", "мастерски"):
+// сколько персонажу вообще отмерено по этому умению. Для обычного умения это его предел по
+// перевоплощениям, для врожденного -- само врожденное значение, потому что учением его не
+// поднять и оно уже есть потолок. Без этого витязь без перевоплощений видел бы школу 200 при
+// пределе 80, то есть оценку "недостижимо" на умении, которое освоено до конца.
+int CalcSkillDisplayCap(const CharData *ch, const ESkill skill) {
+	return std::max(CalcSkillHardCap(ch, skill), GetInbornSkillBase(ch, skill));
+}
+
+// Число в скобках в списке умений: до чего это умение можно дотянуть сейчас. Выученное растет
+// до предела по мудре плюс вещевая прибавка, но не выше предела самого умения; невыученное
+// дальше вещевой прибавки не идет; врожденное стоит на своем значении.
+int CalcSkillDisplayLimit(const CharData *ch, const ESkill skill) {
+	const int limit = (GetTrainedSkill(ch, skill) == 0)
+			? GetEquippedSkill(ch, skill)
+			: std::min(CalcSkillMinCap(ch, skill) + GetEquippedSkill(ch, skill), MUD::Skill(skill).cap);
+	return std::max(limit, GetInbornSkillBase(ch, skill));
+}
+
 int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
 	if (skill_divisor <= 0) {
 		return 0;
