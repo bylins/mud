@@ -73,6 +73,7 @@ test_sources = files(
     'top.chart.gods.cpp',
     'mob.flag.great.helper.cpp',
     'mob.give.intercept.cpp',
+    'target_resolver.pet_master.cpp',
     'weapon.class.cpp',
     'sprintbitwd.cpp',
     'triggers.list.cpp',
