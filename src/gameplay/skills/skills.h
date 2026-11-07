@@ -206,10 +206,10 @@ int CalcDurationSkillBonusForValue(int skill, unsigned skill_divisor);
 // issue.chardata-cleaning: the skill-value accessors moved off CharData. They read the trained
 // level (CharacterSkills) plus equipment/talent/arena bonuses.
 // issue.inborn-magic: врожденный базовый уровень умения из способности (<skill_base> в
-// cfg/feats.xml). 0, если ни одна способность персонажа его не задает.
+// cfg/feats.xml), обрезанный пределом персонажа по перевоплощениям. 0, если ни одна
+// способность персонажа его не задает.
 [[nodiscard]] int GetInbornSkillBase(const CharData *ch, ESkill skill_id);
-// Что видит игрок в списке умений: предел для оценки и достижимый предел в скобках.
-[[nodiscard]] int CalcSkillDisplayCap(const CharData *ch, ESkill skill_id);
+// Достижимый предел умения, который игрок видит в скобках в списке умений.
 [[nodiscard]] int CalcSkillDisplayLimit(const CharData *ch, ESkill skill_id);
 [[nodiscard]] int GetSkillBonus(const CharData *ch, ESkill skill_id);
 [[nodiscard]] int GetSkill(const CharData *ch, ESkill skill_id);

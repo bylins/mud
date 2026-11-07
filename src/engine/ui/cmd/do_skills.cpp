@@ -81,7 +81,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 			// Ширина колонки - в символах, а не в байтах (issue #3681).
 			line += fmt::format("{:<23} {} ({}){} \r\n",
 					skill.GetName(),
-					how_good(GetSkill(ch, skill_id), CalcSkillDisplayCap(ch, skill_id)),
+					how_good(GetSkill(ch, skill_id), CalcSkillHardCap(ch, skill_id)),
 					CalcSkillDisplayLimit(ch, skill_id),
 					kColorNrm);
 			skills_names.emplace_back(line);
