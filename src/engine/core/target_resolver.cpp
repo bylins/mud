@@ -183,6 +183,30 @@ bool MatchesName(ObjData *cand, const std::string &name) {
 	return isname(name.c_str(), cand->get_aliases().c_str());
 }
 
+// issue #4163: имя игрока может указывать и на самого игрока, и на его ведомого НПС -- двойник
+// носит имя владельца прямо в алиасах (clone_cascade.cpp: "двойник <имя_род> <ИМЯ>"), а isname
+// сравнивает по началу слова, так что совпадает и родительный падеж. Кого отдать, раньше решала
+// точка перед именем: "0.<name> means PC with name" в старом get_char_room_vis означало "искать
+// только среди игроков". При переходе на этот резолвер правило не перенесли, а точка в триггерах
+// осталась (1919 строк) -- и цель уезжала на моба, потому что чужие и ведомые НПС стоят в списке
+// комнаты раньше игрока (#3984).
+//
+// Правило вместо точки: нашли ведомого НПС, и тем же именем зовут его хозяина-игрока из той же
+// комнаты -- значит искали хозяина. Срабатывает только когда одно имя указывает на обоих, то
+// есть на двойниках и на питомцах, названных именем владельца; обычного коня или поднятую нежить
+// не задевает. Только для поиска одной цели: массовым заклинаниям подмена не нужна, они бьют
+// всех, кто попал в список.
+CharData *PreferMasterOfPet(CharData *found, const std::optional<std::string> &name) {
+	if (!found || !name || !found->IsNpc() || !found->has_master()) {
+		return found;
+	}
+	CharData *master = found->get_master();
+	if (!master || master->IsNpc() || master->in_room != found->in_room) {
+		return found;
+	}
+	return MatchesName(master, *name) ? master : found;
+}
+
 // Self-reference aliases. Legacy get_char_room_vis resolved these to the
 // searcher up front, so every name-based char lookup (look/examine/diagnose/
 // ... via ResolveChar) could target self. Bytes are KOI8-R ("я"/"меня"/"себя").
@@ -429,7 +453,7 @@ CharData *ResolveChar(CharData *searcher, const Query &q) {
 	auto [name, ordinal] = NameAndOrdinal(qs);
 	OrdinalState ord{ordinal};
 	CollectChars(searcher, qs, name, ord, matches);
-	return matches.empty() ? nullptr : matches.front();
+	return matches.empty() ? nullptr : PreferMasterOfPet(matches.front(), name);
 }
 
 ObjData *ResolveObj(CharData *searcher, const Query &q) {
