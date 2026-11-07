@@ -13,6 +13,7 @@
 #define DG_SCRIPTS_H_
 
 #include <unordered_set>
+#include <string_view>
 #include "gameplay/skills/skills.h"
 #include "engine/structs/structs.h"
 #include "utils/logger.h"
@@ -420,6 +421,11 @@ void print_worlds_vars(CharData *ch, std::optional<long> context);
 void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(Trigger *trig, std::string msg, LogMode type = LogMode::OFF);
+
+// issue #4163: называет место, где цель команды задана текстом, а не UID. Пишет по одной строке
+// на место (внум триггера плюс номер строки) за загрузку -- иначе лог заливает, потому что те же
+// строки исполняются постоянно.
+void script_log_text_target(Trigger *trig, std::string_view command, std::string_view target);
 
 using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
