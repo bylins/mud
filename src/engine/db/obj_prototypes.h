@@ -46,12 +46,16 @@ class CObjectPrototypes {
 
 	const auto &operator[](size_t index) const {
 		if (index >= m_prototypes.size()) {
-			mudlog("неизвестный прототип объекта", BRF, kLvlBuilder, SYSLOG, 1);
+			ReportBadIndex(index, m_prototypes.size());
 			return m_prototypes[0];
 		}
 		return m_prototypes[index];
 	}
 	/** @} */
+
+	// Жалоба на рнум за границами. Живет в .cpp -- логгер с печатью стека не нужен
+	// каждому, кто просто берет прототип по рнуму. Подробности см. там же.
+	static void ReportBadIndex(std::size_t index, std::size_t size);
 
 	size_t add(CObjectPrototype *prototype, const ObjVnum vnum);
 	size_t add(const CObjectPrototype::shared_ptr &prototype, const ObjVnum vnum);
