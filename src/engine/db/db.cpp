@@ -1472,8 +1472,22 @@ void BootMudDataBase() {
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-		log("Resetting %s (rooms %d-%d).", zone_table[i].name.c_str(),
-			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
+		// Печатаем настоящий диапазон комнат зоны, а не промежуток от хвоста предыдущей.
+		// Раньше тут стояло (zone_table[i - 1].top + 1) .. zone_table[i].top, и в логе
+		// выходило, будто зона занимает чужие номера: пока зон 390-399 не существовало,
+		// "Хоромы брянского боярина" печатались как rooms 39000-40099, то есть на
+		// одиннадцать номеров. Своих комнат у зоны ровно столько, сколько их загрузилось,
+		// и границы считает CalculateFirstAndLastRooms (виртуальная комната X99 из
+		// диапазона уже вычтена).
+		int first_rnum, last_rnum;
+		if (GetZoneRooms(i, &first_rnum, &last_rnum)) {
+			log("Resetting %s (rooms %d-%d).", zone_table[i].name.c_str(),
+				world[first_rnum]->vnum, world[last_rnum]->vnum);
+		} else {
+			// Зона без собственных комнат -- только виртуалка. Так живут системные зоны
+			// вроде складов книг заклинаний, это не ошибка.
+			log("Resetting %s (no rooms of its own).", zone_table[i].name.c_str());
+		}
 		ResetZone(i);
 	}
 	reset_q.clear();
