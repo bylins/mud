@@ -9,6 +9,9 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+
+#include <set>
+#include <utility>
 #include "engine/scripting/lua/lua_line_numbers.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/core/experience.h"
@@ -162,6 +165,24 @@ void trig_log(Trigger *trig, std::string msg, LogMode type) {
 	script_log(fmt::format("(Trigger: {}, VNum: {}) : {} [строка: {}]",
 						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg, last_trig_line_num).c_str(),
 			   type);
+}
+
+// issue #4163: цель в триггере положено указывать UID'ом (%actor%, %self%, %obj%), а не текстом
+// (.%actor.iname%). Текст движок ищет заново и сравнивает по началу слова, поэтому имя игрока
+// совпадает с алиасом моба, который с этого имени начинается, а в списке комнаты чужие и ведомые
+// НПС стоят раньше игрока (#3984) -- команда уходит не туда. Переписать 2287 таких строк мира
+// разом нельзя, поэтому места называет сам движок: по одной строке на место за загрузку. Писать
+// на каждое исполнение нельзя -- те же строки выдают награды постоянно, и лог захлебнется.
+void script_log_text_target(Trigger *trig, std::string_view command, std::string_view target) {
+	if (!trig) {
+		return;
+	}
+	static std::set<std::pair<int, int>> reported;
+	if (!reported.emplace(GET_TRIG_VNUM(trig), last_trig_line_num).second) {
+		return;
+	}
+	trig_log(trig, fmt::format("{}: цель задана текстом ({}) -- нужен UID, см. справку по триггерам",
+							   command, target));
 }
 
 cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr cl);

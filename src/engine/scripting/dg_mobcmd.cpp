@@ -187,9 +187,14 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, команда: {}", arg + 1, argument));
 			return;
 		}
-	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
-		mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, , команда: {}", arg, argument));
-		return;
+	} else {
+		// Цель по тексту: ищется заново и по началу слова, поэтому может достаться мобу, который
+		// стоит в комнате раньше игрока. Место называем один раз за загрузку (#4163).
+		script_log_text_target(trig, "mkill", arg);
+		if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
+			mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, команда: {}", arg, argument));
+			return;
+		}
 	}
 
 	if (victim == ch) {
