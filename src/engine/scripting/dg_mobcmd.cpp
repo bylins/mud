@@ -35,6 +35,8 @@
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/char_handler.h"
 #include "engine/ui/cmd/do_stand.h"
+#include "engine/ui/cmd/do_give.h"
+#include "engine/ui/interpreter.h"
 #include "gameplay/affects/affect_data.h"
 #include "engine/core/obj_handler.h"
 #include "gameplay/mechanics/equipment.h"
@@ -1419,6 +1421,78 @@ void MobDgCast(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 	do_dg_cast(ch, trig, MOB_TRIGGER, dg_arg);
 }
 
+// issue #4161: "дать <вещь> .%actor.iname%" -- самый старый способ выдать награду из триггера,
+// и он молча не срабатывал, когда моб не видел игрока (темнота, невидимость игрока, слепота
+// самого моба): текст уже отыгран, а вещь осталась у моба. Передача из триггера -- не поступок
+// моба, а решение билдера, поэтому видимость тут не при чем: получателя ищем в своей комнате и
+// отдаем вещь. Разбор аргументов общий с игроковым "дать" (PerformGiveCommand), так что команда
+// понимает ровно то же: вещь, "все", "все.<метка>", "N кун", "N <валюта>".
+void do_mgive(CharData *ch, char *argument, Trigger *trig) {
+	if (ch->GetPosition() < EPosition::kRest) {
+		if (trig) {
+			mob_log(ch, trig, fmt::format("дать: моб не в том состоянии, чтобы передавать вещи, команда: {}",
+										  argument));
+		}
+		return;
+	}
+
+	PerformGiveCommand(ch, argument, [trig](CharData *mob, const std::string &name) -> CharData * {
+		const auto complain = [mob, trig](const std::string &msg) {
+			if (trig) {
+				mob_log(mob, trig, msg);
+			}
+		};
+
+		if (name.empty()) {
+			complain("дать: не указан получатель");
+			return nullptr;
+		}
+
+		CharData *vict = nullptr;
+		if (name[0] == UID_CHAR || name[0] == UID_CHAR_ALL) {
+			vict = get_char(name.c_str());
+			// Уид однозначен, но из рук в руки передают в одной комнате -- как игрок.
+			if (vict && vict->in_room != mob->in_room) {
+				complain(fmt::format("дать: получатель ({}) не в комнате моба", GET_NAME(vict)));
+				return nullptr;
+			}
+		} else {
+			target_resolver::Query q;
+			q.scopes = {target_resolver::Scope::kRoom};
+			q.name = name;
+			q.visible_only = false;    // ровно то, ради чего команда и перехвачена
+			vict = target_resolver::ResolveChar(mob, q);
+		}
+
+		if (!vict) {
+			complain(fmt::format("дать: получатель ({}) не найден в комнате", name));
+			return nullptr;
+		}
+		if (vict == mob) {
+			complain("дать: получатель -- сам моб");
+			return nullptr;
+		}
+		return vict;
+	});
+}
+
+// Команда триггера -- это "дать" в любом написании? Сокращения и английское "give" разбирает
+// сам interpreter (префиксом по cmd_info), поэтому и спрашиваем у него: в мире встречаются
+// "дать", "дат", "да" и "give", и список написаний не наш, чтобы держать его копию.
+// Возвращает номер команды в cmd_info (нужен за unhide_percent) или -1, если это не "дать".
+int FindGiveCommand(const char *word) {
+	const size_t len = strlen(word);
+	if (len == 0) {
+		return -1;
+	}
+	for (int cmd = 0; *cmd_info[cmd].command != '\n'; ++cmd) {
+		if (!strncmp(cmd_info[cmd].command, word, len)) {
+			return cmd_info[cmd].command_pointer == do_give ? cmd : -1;
+		}
+	}
+	return -1;
+}
+
 const struct mob_command_info mob_cmd_info[] =
 	{
 		// this must be first -- for specprocs
@@ -1590,9 +1664,31 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 
 // *  This is the command interpreter used by mob, include common interpreter's commands
 void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig) {
-	if (!mob_script_command_interpreter(ch, argument, trig)) {
-		command_interpreter(ch, argument);
+	if (mob_script_command_interpreter(ch, argument, trig)) {
+		return;
 	}
+
+	// issue #4161: "дать" у моба идет своим путем (do_mgive) -- без проверки видимости
+	// получателя. В таблицу mob_cmd_info ее не добавить: там сравнение точное, а билдеры
+	// пишут и "дать", и "дат", и "да", и "give".
+	char first_word[kMaxInputLength];
+	char *rest = one_argument(argument, first_word);
+	const int give_cmd = FindGiveCommand(first_word);
+	if (give_cmd >= 0) {
+		// Захваченный моб командой не распоряжается -- так же, как в command_interpreter:
+		// триггер к этому моменту уже перевешен на wait и вернется сюда, когда отпустит.
+		if (AFF_FLAGGED(ch, EAffect::kHold)
+			|| AFF_FLAGGED(ch, EAffect::kStopFight)
+			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
+			return;
+		}
+		// Прячущийся моб выдает себя передачей вещи -- как и на общем пути.
+		check_hiding_cmd(ch, cmd_info[give_cmd].unhide_percent);
+		do_mgive(ch, rest, trig);
+		return;
+	}
+
+	command_interpreter(ch, argument);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
