@@ -97,11 +97,6 @@
 		<activ size="2">
 			<apply loc="41" mod="3" />
 		</activ>
-		<activ size="3" prof="11010000010100" affects="D0">
-			<apply loc="2" mod="1" />
-			<apply loc="46" mod="10" />
-			<enchant vnum="33010" sdice="1" />
-		</activ>
 	</set>
 	<set name="Роскошный латный доспех" alias="рлд,роскошныйлатныйдоспех" comment="Новгородский гостинный двор" enabled="0">
 		<messages char_on="&amp;CОтблески света весело заиграли на полированной стали $o1.&amp;n" char_off="&amp;CБлеск $o1 угас.&amp;n" room_on="&amp;CОтблески света весело заиграли на полированной стали $o1.&amp;n" room_off="&amp;CБлеск $o1 угас.&amp;n" />
@@ -121,12 +116,10 @@
 			<apply loc="13" mod="20" />
 			<apply loc="41" mod="2" />
 		</activ>
-		<activ size="5" prof="00000000001000" />
 		<activ size="6">
 			<apply loc="5" mod="1" />
 			<apply loc="36" mod="6" />
 		</activ>
-		<activ size="7" prof="00000000001000" />
 		<activ size="8">
 			<apply loc="41" mod="3" />
 			<apply loc="1" mod="2" />
@@ -2996,5 +2989,4 @@
 			<phys_dmg pct="3" />
 		</activ>
 	</set>
-	<set enabled="0" />
 </obj_sets>
