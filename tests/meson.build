@@ -30,6 +30,7 @@ test_sources = files(
     'msdp.parser.cpp',
     'msdp.builder.cpp',
     'char.affects.cpp',
+    'glory.const.cpp',
     'dispellable.affects.cpp',
     'affect.flag.planes.cpp',
     'affect.duration.cpp',
