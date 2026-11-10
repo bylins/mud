@@ -5986,7 +5986,12 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			cl = find_done(trig, cl);
 		} else if (!strncmp(p, "continue", 8)) {
 			cl = find_continue_done(trig, cl);
-		} else if (!strncmp(p, "case", 4))    // Do nothing, this allows multiple cases to a single instance
+		} else if (!strncmp(p, "case", 4) || !strncmp(p, "default", 7))
+			// Do nothing, this allows multiple cases to a single instance.
+			// "default" попал сюда вместе с "case": прыжок по switch его понимает
+			// (find_case), но провал из предыдущей ветки без break доводил саму строку
+			// до интерпретатора команд -- в комнатном триггере это "Unknown world cmd:
+			// 'default'". Таких строк в мире 811, и мобий лог ниже закричал бы на каждой.
 		{
 		} else {
 			var_subst(go, sc, trig, type, p, cmd, sizeof(cmd));
@@ -5998,7 +6003,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				// Поле уже отработало внутри var_subst; возвращенное значение не команда.
 			} else if (!strncmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "nop ", 4)) { ;    // nop: do nothing
+			} else if (!strncmp(cmd, "nop ", 4) || !str_cmp(cmd, "nop")) { ;
+				// nop: do nothing. Пробел в образце требовал аргумента, и одинокий "nop"
+				// (в мире три таких) проваливался в интерпретатор как неизвестная команда.
 			} else if (!strncmp(cmd, "add_stuf_zone ", 14)) {
 				add_stuf_zone(trig, cmd);
 			} else if (!strncmp(cmd, "extract ", 8)) {
