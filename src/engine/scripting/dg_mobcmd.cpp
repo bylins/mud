@@ -44,6 +44,7 @@
 #include "engine/core/target_resolver.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/magic/magic_utils.h"
+#include "gameplay/communication/social.h"   // find_action: социалы лежат не в cmd_info
 #include "gameplay/skills/townportal.h"
 #include "utils/id_converter.h"
 #include "engine/db/global_objects.h"
@@ -1485,6 +1486,46 @@ void do_mgive(CharData *ch, char *argument, Trigger *trig) {
 	});
 }
 
+// Знает ли общий интерпретатор такое начало строки: команду (по началу слова, как в
+// command_interpreter) или социал. Нужна только для сислога, поэтому разбор повторяет
+// command_interpreter лишь в том, от чего зависит само существование команды:
+//   - строка, начинающаяся не с буквы, -- команда из одного знака ("'" это "сказать");
+//   - хвостовой "!" у билдеров значит точное написание, на существование не влияет;
+//   - социалы лежат в своей таблице (find_action), в cmd_info их нет.
+static bool IsKnownCharCommand(const char *argument) {
+	if (!argument) {
+		return false;
+	}
+	while (*argument && a_isspace(*argument)) {
+		++argument;
+	}
+	if (!*argument) {
+		return false;
+	}
+
+	std::string word;
+	if (!a_isalpha(*argument)) {
+		word.assign(1, *argument);
+	} else {
+		char buf[kMaxInputLength];
+		one_argument(const_cast<char *>(argument), buf);
+		word = buf;
+	}
+	if (word.size() > 1 && word.back() == '!') {
+		word.pop_back();
+	}
+	if (word.empty()) {
+		return false;
+	}
+
+	for (int cmd = 0; *cmd_info[cmd].command != '\n'; ++cmd) {
+		if (!strncmp(cmd_info[cmd].command, word.c_str(), word.size())) {
+			return true;
+		}
+	}
+	return find_action(word.data()) >= 0;
+}
+
 // Команда триггера -- это "дать" в любом написании? Сокращения и английское "give" разбирает
 // сам interpreter (префиксом по cmd_info), поэтому и спрашиваем у него: в мире встречаются
 // "дать", "дат", "да" и "give", и список написаний не наш, чтобы держать его копию.
@@ -1695,6 +1736,15 @@ void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig) {
 		check_hiding_cmd(ch, cmd_info[give_cmd].unhide_percent);
 		do_mgive(ch, rest, trig);
 		return;
+	}
+
+	// Комнатные и предметные триггеры про неизвестную команду давно пишут в сислог
+	// ("Unknown world cmd", "Unknown object cmd"), а мобий отдавал такую строку общему
+	// интерпретатору, и она тонула в "Чаво?", которое мобу никто не читает. Теперь
+	// неизвестное слово видно с номером триггера и строки. Привилегии и позицию не
+	// смотрим: "нельзя" -- это не "не существует".
+	if (!IsKnownCharCommand(argument)) {
+		mob_log(ch, trig, fmt::format("Unknown mob cmd: '{}'", argument), LGH);
 	}
 
 	command_interpreter(ch, argument);

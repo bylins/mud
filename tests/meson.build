@@ -32,6 +32,7 @@ test_sources = files(
     'char.affects.cpp',
     'glory.const.cpp',
     'mobact.great_helper.cpp',
+    'dg.field_call_statement.cpp',
     'dispellable.affects.cpp',
     'affect.flag.planes.cpp',
     'affect.duration.cpp',
