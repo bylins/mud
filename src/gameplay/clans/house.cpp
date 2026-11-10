@@ -436,16 +436,24 @@ void Clan::ClanLoadSingle(const std::string &index) {
 			int exp_persent = 0; // заглушка
 			long long clan_exp = 0;
 
+			// У дружины может не быть воеводы, и тогда строка "Owner:" пустая, а сразу
+			// за ней идет следующий раздел. Чтение пятерки чисел на таком файле срывалось,
+			// в сислог шла ошибка, а break обрывал разбор целиком -- вместе со списком
+			// дружинников, который лежит ниже; следующий сейв записывал дружину уже без
+			// них. Поэтому откатываемся на начало токена и отдаем его разделу, которому он
+			// принадлежит.
+			const auto owner_pos = file.tellg();
 			if (!(file >> unique >> money >> exp >> exp_persent >> clan_exp)) {
-				log("Error open 'Owner:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-				break;
+				file.clear();
+				file.seekg(owner_pos);
+				continue;
 			}
-			// воеводы тоже уже может не быть
 			const auto tempMember = std::make_shared<ClanMember>();
 			tempMember->name = GetNameByUnique(unique);
 			if (tempMember->name.empty()) {
+				// Воеводу удалили. Дружина остается без него, но остальное читаем.
 				log("Owner %ld is no longer exist (%s).", unique, filename.c_str());
-				break;
+				continue;
 			}
 			native_text::capitalize_first(tempMember->name);
 			tempMember->rank_num = 0;
@@ -752,15 +760,18 @@ std::string Clan::build_clan_file() const {
 		file << " " << (*it) << " " << ranks_female[i] << " " << privileges[i].to_ulong() << "\n";
 	file << "~\n";
 
-	file << "Owner: ";
+	// Перевод строки ставим всегда: у дружины без воеводы тело пустое, и без него
+	// следующий раздел уезжал в ту же строку -- получалось "Owner: Members:".
+	file << "Owner:";
 	for (const auto &it : m_members) {
 		if (it.second->rank_num == 0) {
-			file << it.first << " " << it.second->money
+			file << " " << it.first << " " << it.second->money
 				 << " " << it.second->exp << " " << 0
-				 << " " << it.second->clan_exp << "\n";
+				 << " " << it.second->clan_exp;
 			break;
 		}
 	}
+	file << "\n";
 
 	file << "Members:\n";
 	for (const auto &it : m_members) {
@@ -2651,7 +2662,8 @@ void Clan::load_mod() {
 	// дальше разбор идёт по нативному тексту и не меняется (issue #3681).
 	std::istringstream file(native_text::read_data_file(filename.c_str()));
 	if (file.str().empty()) {
-		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		// Объявления у дружины может не быть вовсе, это обычное дело, а не ошибка:
+		// на загрузке в сислог шла строка по каждой дружине без объявления.
 		return;
 	}
 

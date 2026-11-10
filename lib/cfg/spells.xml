@@ -650,7 +650,6 @@
 		<components>
 			<verbal />
 			<weave />
-			<material any_of="1930" />
 		</components>
 		<success_roll>
 			<base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2" />

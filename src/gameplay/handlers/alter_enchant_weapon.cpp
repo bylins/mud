@@ -12,8 +12,37 @@
 #include "gameplay/magic/magic_internal.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/corpse.h"
+#include "gameplay/mechanics/equipment.h"
 
 namespace handlers {
+
+// issue #4173: знак зачарования не ингредиент, а предмет глобального дропа (kOther с внумом
+// 1930/1931/1932), поэтому через <components><material> он не ищется и трату знака держим
+// здесь, где знак и берется -- из руки. Заряд в val(2): списываем один, при исчерпании знак
+// уничтожается. Отвязка от слота перед удалением -- как в ConsumeMatComponent: освобождение
+// отложенное (AddToExtractedList), чтобы предмет не висел битой ссылкой до конца каста.
+static void ConsumeEnchantSign(CharData *ch, ObjData *sign, ESpell spell_id) {
+	const std::string &use = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kComponentUse);
+	if (!use.empty()) {
+		act(use.c_str(), false, ch, sign, nullptr, kToChar);
+	}
+	sign->dec_val(2);
+	if (GET_OBJ_VAL(sign, 2) >= 1) {
+		return;
+	}
+	const std::string &exhausted =
+			MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kComponentExhausted);
+	if (!exhausted.empty()) {
+		act(exhausted.c_str(), false, ch, sign, nullptr, kToChar);
+	}
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
+		if (GET_EQ(ch, i) == sign) {
+			UnequipChar(ch, i, CharEquipFlags{});
+			break;
+		}
+	}
+	world_objects.AddToExtractedList(sign);
+}
 
 static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 	// Either already enchanted or not a weapon.
@@ -35,16 +64,7 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 			|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 		// у нас имеется доп символ для зачарования
 		obj->set_enchant(GetSkill(ch, ESkill::kLightMagic), reagobj);
-		// kEnchantWeapon's magical-symbol consumption now flows through the
-		// data-driven <components><material> path, so nothing more is needed
-		// here other than the enchant being recorded above.
-		// declared on kEnchantWeapon in spells.xml. Return value (kBreak when
-		// the inventory ingredient is absent) is intentionally ignored at this
-		// point: the enchant has already landed via set_enchant above, so the
-		// "missing" message simply reports the post-hoc shortage to the player
-		// without rolling back -- same UX as the bool overload's old branch
-		// where the held slot was empty.
-		ProcessMatComponents(ch, ch, spell_id);
+		ConsumeEnchantSign(ch, reagobj, spell_id);
 	} else {
 		obj->set_enchant(GetSkill(ch, ESkill::kLightMagic));
 	}

@@ -196,8 +196,9 @@ enum class EFeat {
 	kPyromancer = 162,		// issue.perk-action-patching P1-selectors: kBurning on all fire damage spells
 	kMaledictor = 163,		// issue.perk-action-patching P3-selectors: category="curse" pilot
 	kBoneCommander = 164,	// issue #4000: костяной полководец -- открывает особые виды скелетов
+	kInbornMagic = 165,		// ратный дар -- школы магии как врожденный базовый уровень умения
 	kFirst = kBerserker,
-	kLast = kBoneCommander				// !!! Не забываем менять !!!
+	kLast = kInbornMagic				// !!! Не забываем менять !!!
 };
 
 template<>

@@ -212,11 +212,29 @@ int stat_multi(int stat) {
 	return multi;
 }
 
+// Цена points очков, вложенных в один стат: первое стоит 1000, каждое следующее на 200
+// дороже. Та же возрастающая цена, по которой очки покупаются в редакторе
+// (add_stat_cost/remove_stat_cost), поэтому формула тут одна на всех, кому нужна сумма
+// вложенного: раньше ее повторяли в двух местах, и печать посчитала по-своему.
+int glory_in_stat(int points) {
+	int total = 0;
+	for (int m = 0; m < points; ++m) {
+		total += m * 200 + 1000;
+	}
+	return total;
+}
+
+// Сколько этого стата вложено. Читаем через find: stats[stat] у std::map вставил бы
+// нулевую запись в постоянный список игрока.
+int stat_amount(const GloryNodePtr &node, int stat) {
+	const auto it = node->stats.find(stat);
+	return it == node->stats.end() ? 0 : it->second;
+}
+
 int calculate_glory_in_stats(GloryListType::const_iterator &i) {
 	int total = 0;
 	for (auto k = i->second->stats.begin(), kend = i->second->stats.end(); k != kend; ++k) {
-		for (int m = 0; m < k->second; m++)
-			total += m * 200 + 1000;
+		total += glory_in_stat(k->second);
 	}
 	return total;
 }
@@ -226,7 +244,12 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 	int spent = 0;
 	std::string out;
 	for (auto i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i) {
-		if ((i->first >= 0) && (i->first < (int) sizeof(olc_stat_name))) {
+		// Запись с нулем -- след старой ошибки: вход в редактор заводил ее через stats[stat].
+		// Печатать такую строку нечего, и в сумму она давала минус.
+		if (i->second <= 0) {
+			continue;
+		}
+		if ((i->first >= 0) && (i->first < GLORY_TOTAL)) {
 			out += fmt::format("{:<16}: +{}", olc_stat_name[i->first], i->second * stat_multi(i->first));
 			if (stat_multi(i->first) > 1) {
 				out += fmt::format("({})", i->second);
@@ -235,7 +258,7 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 		} else {
 			log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
 		}
-		spent = spent + 1000 * i->second + 200 * (i->second - 1);
+		spent += glory_in_stat(i->second);
 	}
 	out += fmt::format("Свободных очков: {}. Вложено: {}\r\n", it->second->free_glory, spent);
 	SendMsgToChar(out, ch);
@@ -678,15 +701,15 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->GetInbornWis();
 		tmp_glory_olc->stat_cur[GLORY_CON] = ch->GetInbornCon();
 		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->GetInbornCha();
-		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
-		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
-		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];
-		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
-		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
-		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
-		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
-		tmp_glory_olc->stat_cur[GLORY_BONUSPSYS] = it->second->stats[GLORY_BONUSPSYS];  
-		tmp_glory_olc->stat_cur[GLORY_BONUSMAG] = it->second->stats[GLORY_BONUSMAG];
+		tmp_glory_olc->stat_cur[GLORY_HIT] = stat_amount(it->second, GLORY_HIT);
+		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = stat_amount(it->second, GLORY_SUCCESS);
+		tmp_glory_olc->stat_cur[GLORY_WILL] = stat_amount(it->second, GLORY_WILL);
+		tmp_glory_olc->stat_cur[GLORY_STABILITY] = stat_amount(it->second, GLORY_STABILITY);
+		tmp_glory_olc->stat_cur[GLORY_REFLEX] = stat_amount(it->second, GLORY_REFLEX);
+		tmp_glory_olc->stat_cur[GLORY_MIND] = stat_amount(it->second, GLORY_MIND);
+		tmp_glory_olc->stat_cur[GLORY_MANAREG] = stat_amount(it->second, GLORY_MANAREG);
+		tmp_glory_olc->stat_cur[GLORY_BONUSPSYS] = stat_amount(it->second, GLORY_BONUSPSYS);
+		tmp_glory_olc->stat_cur[GLORY_BONUSMAG] = stat_amount(it->second, GLORY_BONUSMAG);
 
 		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end();
 			 i != iend; ++i) {
@@ -1012,7 +1035,14 @@ void set_stats(CharData *ch) {
 				break;
 			case G_CHA: ch->inc_cha(k->second);
 				break;
-			default: log("Glory: некорректный номер стата %d (uid: %ld)", k->first, ch->get_uid());
+			default:
+				// Хиты, успех колдовства, спасброски, разум, запоминание и два бонуса --
+				// такие же законные вложения, просто накладывает их apply_modifiers, а не
+				// эта функция. Ругаться есть смысл только на номер, которого в перечне
+				// нет вовсе, иначе сислог забивается на каждом входе в игру.
+				if (k->first < 0 || k->first >= GLORY_TOTAL) {
+					log("Glory: некорректный номер стата %d (uid: %ld)", k->first, ch->get_uid());
+				}
 		}
 	}
 }

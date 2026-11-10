@@ -9,6 +9,9 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+
+#include <set>
+#include <utility>
 #include "engine/scripting/lua/lua_line_numbers.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/core/experience.h"
@@ -162,6 +165,24 @@ void trig_log(Trigger *trig, std::string msg, LogMode type) {
 	script_log(fmt::format("(Trigger: {}, VNum: {}) : {} [строка: {}]",
 						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg, last_trig_line_num).c_str(),
 			   type);
+}
+
+// issue #4163: цель в триггере положено указывать UID'ом (%actor%, %self%, %obj%), а не текстом
+// (.%actor.iname%). Текст движок ищет заново и сравнивает по началу слова, поэтому имя игрока
+// совпадает с алиасом моба, который с этого имени начинается, а в списке комнаты чужие и ведомые
+// НПС стоят раньше игрока (#3984) -- команда уходит не туда. Переписать 2287 таких строк мира
+// разом нельзя, поэтому места называет сам движок: по одной строке на место за загрузку. Писать
+// на каждое исполнение нельзя -- те же строки выдают награды постоянно, и лог захлебнется.
+void script_log_text_target(Trigger *trig, std::string_view command, std::string_view target) {
+	if (!trig) {
+		return;
+	}
+	static std::set<std::pair<int, int>> reported;
+	if (!reported.emplace(GET_TRIG_VNUM(trig), last_trig_line_num).second) {
+		return;
+	}
+	trig_log(trig, fmt::format("{}: цель задана текстом ({}) -- нужен UID, см. справку по триггерам",
+							   command, target));
 }
 
 cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr cl);
@@ -1400,30 +1421,27 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 		snprintf(str, str_size, "%s", utils::TrimCopy(vd.value).c_str());
 		return true;
 	} else if (!str_cmp(field, "fullword")) {
-//не работает с русским
-/*			std::string word = subfield;
-			std::string sentence = vd->value;
-			std::regex rgx("\\b" + word + "\\b"); 
-			if (std::regex_search(sentence, rgx))
-*/
+		// Регистра в DG нет, и сравнивать с его учетом нельзя: add_var_cntx понижает
+		// значение у каждого set/eval/global/worlds, а подполе приходит как написано в
+		// скрипте -- %actor.iname% отдает имя падежом, то есть с большой буквы. Побайтовое
+		// сравнение их не сводило никогда: проверка по списку имен была вечно ложной, молча,
+		// без следа в логе. Из-за этого в зоне 780 не работала вся линейка квестов.
+		// Границу слова ищем разбором по пробелам, а не регулярным выражением: \b в
+		// std::regex на кириллице не работает.
 		std::string sentence = vd.value;
-		std::vector<std::string> tmpstr;
+		utils::ConvertToLow(sentence);
+		std::string needle(subfield ? subfield : "");
+		utils::ConvertToLow(needle);
+
+		std::vector<std::string> words;
 		std::istringstream is(sentence);
-		std::string temp;
-		while(is >> temp)
-			tmpstr.push_back(temp); // перенесем фразу в вектор
-		if (std::find(tmpstr.begin(), tmpstr.end(), subfield) != tmpstr.end())
-// вариант номер два
-/*		std::string sentence = vd->value;
-		std::stringstream parser(sentence);
-		std::istream_iterator<std::string> start(parser);
-		std::istream_iterator<std::string> end;
-		std::vector<std::string> words(start, end);
-		if(find(words.begin(), words.end(), subfield) != words.end())
-*/
-			snprintf(str, str_size, "1");
-		else
-			snprintf(str, str_size, "0");
+		std::string word;
+		while (is >> word) {
+			words.push_back(word);
+		}
+
+		const bool found = std::find(words.begin(), words.end(), needle) != words.end();
+		snprintf(str, str_size, "%s", found ? "1" : "0");
 		return true;
 	} else if (!str_cmp(field, "contains")) {
 		if (str_str(vd.value.c_str(), subfield))

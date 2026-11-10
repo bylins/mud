@@ -13,6 +13,7 @@
 #define DG_SCRIPTS_H_
 
 #include <unordered_set>
+#include <string_view>
 #include "gameplay/skills/skills.h"
 #include "engine/structs/structs.h"
 #include "utils/logger.h"
@@ -421,6 +422,11 @@ void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(Trigger *trig, std::string msg, LogMode type = LogMode::OFF);
 
+// issue #4163: называет место, где цель команды задана текстом, а не UID. Пишет по одной строке
+// на место (внум триггера плюс номер строки) за загрузку -- иначе лог заливает, потому что те же
+// строки исполняются постоянно.
+void script_log_text_target(Trigger *trig, std::string_view command, std::string_view target);
+
 using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
 
@@ -470,6 +476,12 @@ void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, std::string cmd
 void add_var_cntx(std::list<TriggerVar> &var_list, std::string name, std::string value, long id);
 TriggerVar find_var_cntx(std::list<TriggerVar>, std::string name, long id);
 int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id);
+
+// Строковые поля переменной: %var.strlen%, %var.trim%, %var.fullword(...)%,
+// %var.contains(...)%, %var.car%, %var.cdr%, %var.words(...)% и прочие.
+// Возвращает false, если поле не строковое или переменной нет -- тогда вызывающий
+// ищет значение дальше. Объявлено здесь ради юнит-тестов (tests/dg_string_matching.cpp).
+int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t str_size);
 
 // Macros for scripts //
 

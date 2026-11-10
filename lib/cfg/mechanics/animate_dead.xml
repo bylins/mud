@@ -136,7 +136,7 @@
 			<initiative beta="0" mode="add" />
 		</scaling>
 	</creature>
-	<creature vnum="6" id="kNecrodamager" proto_vnum="3007" weight="25" damroll_cap="200">
+	<creature vnum="6" id="kNecrodamager" proto_vnum="3007" weight="75" damroll_cap="200">
 		<cost corpse_max_level="127" min_rating="32" pick="50" />
 		<scaling>
 			<hp beta="0.154" mode="mult" cap="9.0" />

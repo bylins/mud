@@ -190,6 +190,7 @@ static std::unordered_map<std::string, Bitvector> mob_action_flag_map = {
 	{"kIgnoresNoMob", EMobFlag::kIgnoresNoMob},
 	{"kIgnoresPeaceRoom", EMobFlag::kIgnoresPeaceRoom},
 	{"kResurrected", EMobFlag::kResurrected},
+	{"kGreatHelper", EMobFlag::kGreatHelper},
 	{"kNoResurrection", EMobFlag::kNoResurrection},
 	{"kMobAwake", EMobFlag::kMobAwake},
 	{"kIgnoresFormation", EMobFlag::kIgnoresFormation},

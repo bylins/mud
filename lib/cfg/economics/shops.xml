@@ -9,15 +9,15 @@
 		<item_set id="Gems" />
 	</shop>
 	<shop id="SpellbooknyShop" currency="kMagicIce" profit="20" waste_time_min="0" can_buy="false">
-		<mob mob_vnum="82951" />
+		<mob mob_vnum="40751" />
 		<item_set id="SpellsBookNy" />
 	</shop>
 	<shop id="RunesShop" currency="kMagicIce" profit="20" waste_time_min="0" can_buy="false">
-		<mob mob_vnum="82908" />
+		<mob mob_vnum="40708" />
 		<item_set id="RunesNyShop" />
 	</shop>
 	<shop id="RunesShop2" currency="kMagicIce" profit="20" waste_time_min="0" can_buy="false">
-		<mob mob_vnum="82952" />
+		<mob mob_vnum="40752" />
 		<item_set id="NySets" />
 	</shop>
 	<shop id="BandageShop" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
@@ -72,7 +72,7 @@
 		<mob mob_vnum="34415" />
 		<mob mob_vnum="32416" />
 		<mob mob_vnum="31206" />
-		<mob mob_vnum="40602" />
+		<mob mob_vnum="39802" />
 		<mob mob_vnum="30405" />
 		<mob mob_vnum="30215" />
 		<mob mob_vnum="27003" />
@@ -104,7 +104,7 @@
 		<mob mob_vnum="6030" />
 		<mob mob_vnum="5007" />
 		<mob mob_vnum="4026" />
-		<mob mob_vnum="82909" />
+		<mob mob_vnum="40709" />
 		<mob mob_vnum="98609" />
 		<item_set id="BasePotions" />
 		<item_set id="BasePotionBottles" />
@@ -114,15 +114,15 @@
 		<item_set id="BasePoisons" />
 	</shop>
 	<shop id="HryvShop1" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
-		<mob mob_vnum="40501" />
+		<mob mob_vnum="39901" />
 		<item_set id="HryvNminiset" />
 	</shop>
 	<shop id="HryvShop2" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
-		<mob mob_vnum="40506" />
+		<mob mob_vnum="39906" />
 		<item_set id="HryvNminiset2" />
 	</shop>
 	<shop id="HryvShop3" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
-		<mob mob_vnum="40507" />
+		<mob mob_vnum="39907" />
 		<item_set id="HryvNminiset3" />
 	</shop>
 	<shop id="AdditionalMagicShop" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
@@ -165,7 +165,7 @@
 		<mob mob_vnum="35712" />
 		<mob mob_vnum="27077" />
 		<mob mob_vnum="25308" />
-		<mob mob_vnum="40606" />
+		<mob mob_vnum="39806" />
 		<mob mob_vnum="25000" />
 		<mob mob_vnum="24057" />
 		<mob mob_vnum="23717" />
@@ -230,7 +230,7 @@
 		<mob mob_vnum="6001" />
 		<mob mob_vnum="5009" />
 		<mob mob_vnum="4009" />
-		<mob mob_vnum="82914" />
+		<mob mob_vnum="40714" />
 		<item_set id="StandartFoodBread" />
 		<item_set id="StandartFoodBerries" />
 		<item_set id="StandartFoodVegetables" />
@@ -365,12 +365,12 @@
 		<mob mob_vnum="13409" />
 		<mob mob_vnum="13106" />
 		<mob mob_vnum="25316" />
-		<mob mob_vnum="40612" />
+		<mob mob_vnum="39812" />
 		<mob mob_vnum="12649" />
 		<mob mob_vnum="12505" template="os" />
 		<mob mob_vnum="19908" />
 		<mob mob_vnum="85107" />
-		<mob mob_vnum="82910" />
+		<mob mob_vnum="40710" />
 		<mob mob_vnum="98607" />
 		<item_set id="StandartClothingHighLevel" />
 		<item_set id="StandartLeatherHighLevel" />
@@ -450,7 +450,7 @@
 		<mob mob_vnum="21205" template="htz" />
 		<mob mob_vnum="21104" template="tz" />
 		<mob mob_vnum="21003" />
-		<mob mob_vnum="40607" />
+		<mob mob_vnum="39807" />
 		<mob mob_vnum="20902" template="rsp" />
 		<mob mob_vnum="18206" />
 		<mob mob_vnum="16001" />
@@ -464,7 +464,7 @@
 		<mob mob_vnum="12603" />
 		<mob mob_vnum="12504" template="os" />
 		<mob mob_vnum="19904" />
-		<mob mob_vnum="82911" />
+		<mob mob_vnum="40711" />
 		<mob mob_vnum="98616" />
 		<item_set id="StandartWeaponHighLevel" />
 		<item_set id="StandartArmorHighLevel" />
@@ -752,7 +752,7 @@
 	</shop>
 	<!-- Магазин ветхих сетов -->
 	<shop id="DilapidatedSetsShop" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
-		<mob mob_vnum="40512" />
+		<mob mob_vnum="39912" />
 		<item_set id="DilapidatedSet" />
 	</shop>
 	<!-- Магазин ветхих шмоток -->

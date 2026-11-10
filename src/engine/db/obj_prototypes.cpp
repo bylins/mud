@@ -4,6 +4,8 @@
 
 #include <fmt/format.h>
 
+#include <unordered_set>
+
 size_t CObjectPrototypes::add(CObjectPrototype *prototype, const ObjVnum vnum) {
 	return add(CObjectPrototype::shared_ptr(prototype, [](auto ptr) { delete (ObjData *) ptr; }), vnum);
 }
@@ -105,3 +107,33 @@ void CObjectPrototypes::set_rnum(const size_t index, CObjectPrototype *new_value
 CObjectPrototypes obj_proto;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
+// Раньше здесь печаталось просто "неизвестный прототип объекта" -- ни номера, ни того,
+// кто спросил, так что по логу нельзя было понять ровно ничего. Причина почти всегда
+// одна: GetObjRnum() не нашел внум и вернул -1, а вызывающий это не проверил, и -1
+// пришел сюда как огромный size_t. Такое бывает, когда внум из данных игрока или клана
+// больше не существует -- например после переноса зоны на новый номер.
+//
+// Печатаем и номер, и стек -- тем же приемом, что поиск предмета (spell_locate_object).
+// Стек по каждому номеру печатаем однажды: в цикле по хранилищу жалоб бывает много, и
+// лог забьется.
+void CObjectPrototypes::ReportBadIndex(std::size_t index, std::size_t size) {
+	static std::unordered_set<std::size_t> already_printed;
+
+	const auto as_signed = static_cast<std::ptrdiff_t>(index);
+	const bool looks_like_minus_one = as_signed < 0;
+	const auto first_time = already_printed.insert(index).second;
+
+	mudlog(fmt::format("SYSERR: неизвестный прототип объекта: рнум {}{}, прототипов всего {}.{}",
+					   index,
+					   looks_like_minus_one
+						   ? fmt::format(" (как знаковое: {} -- похоже, непроверенный GetObjRnum)", as_signed)
+						   : "",
+					   size,
+					   first_time ? " Стек будет распечатан ниже" : ""),
+		   BRF, kLvlBuilder, SYSLOG, true);
+
+	if (first_time) {
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+	}
+}

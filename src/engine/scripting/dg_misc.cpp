@@ -62,12 +62,12 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 				return true;
 			}
 		}
-		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			*tch = target_resolver::FindCharInWorld(ch, t);
-			if ((*tch != nullptr)) {
-				return true;
-			}
-		}
+		// issue #4163: мир из триггерного каста исключен намеренно. Цель, переданную UID'ом,
+		// do_dg_cast в другой клетке брать отказывается ("в разных клетках комнат"), а цель по
+		// тексту уходила искать по всему миру -- то есть текст был разрешен шире, чем UID, хотя
+		// должно быть наоборот, и опечатка билдера в имени уводила заклинание в другую зону.
+		// Дотянуться до мира могли только "призвать", "портал" и "переместить"; ни одного такого
+		// каста в триггерах мира нет, так что запрет ничего не ломает.
 
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjInv)) {
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr) {
@@ -89,10 +89,9 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
-			if ((*tobj = target_resolver::FindObjAround(ch, t)) != nullptr)
-				return true;
-		}
+		// Та же причина, что и для персонажа выше: по миру предмет из триггера не ищем. Этот шаг
+		// разрешало одно "найти предмет", в триггерах мира оно не кастуется. Предмет остается
+		// искать в руках, на себе и в клетке -- шаги выше.
 	} else {
 		if (MUD::Spell(spell_id).AllowTarget(kTarFightSelf))
 			if (ch->GetEnemy() != nullptr) {
@@ -210,6 +209,10 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	// "в разных клетках комнат") добавлялась ещё и общая строка "target not found", и в логе
 	// на одну неудачу приходилось два сообщения.
 	bool reason_logged = false;
+
+	if (!target_name.empty() && target_name[0] != UID_CHAR && target_name[0] != UID_CHAR_ALL) {
+		script_log_text_target(trig, "dgcast", target_name);
+	}
 
 	if (!target_name.empty() && target_name[0] == UID_CHAR) {
 		tch = get_char(target_name.c_str());
