@@ -498,6 +498,10 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		PlaceCharToRoom(mob, GetRoomRnum(room->vnum));
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {
+		if (IsServiceObjVnum(number)) {
+			wld_log(room, trig, fmt::format("wload: #{} -- служебный прототип (трупы, деньги, письма), грузить нельзя", number).c_str());
+			return;
+		}
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			wld_log(room, trig, "wload: bad object vnum");

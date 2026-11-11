@@ -1908,7 +1908,13 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
 				const auto rnum = GetObjRnum(num);
 
-				if (rnum <= 0) {
+				if (rnum == 0) {
+					// rnum 0 -- служебный прототип, из него движок делает трупы и деньги.
+					trig_log(trig, fmt::format("#{} -- служебный прототип, грузить нельзя (canbeloaded)", num).c_str());
+					snprintf(str, str_size, "0");
+					return;
+				}
+				if (rnum < 0) {
 					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в canbeloaded", num).c_str());
 					snprintf(str, str_size, "0");
 					return;
@@ -1929,7 +1935,13 @@ void find_replacement(void *go,
 				// %LoadedUid% (выставляет load-команда).
 				const auto rnum = GetObjRnum(num);
 
-				if (rnum <= 0) {
+				if (rnum == 0) {
+					// rnum 0 -- служебный прототип, из него движок делает трупы и деньги.
+					trig_log(trig, fmt::format("#{} -- служебный прототип, грузить нельзя (loadobj)", num).c_str());
+					snprintf(str, str_size, "0");
+					return;
+				}
+				if (rnum < 0) {
 					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в loadobj", num).c_str());
 					snprintf(str, str_size, "0");
 					return;
@@ -4086,6 +4098,15 @@ void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, 
 			left -= len;
 		}
 	}
+}
+
+// Служебный прототип -- это rnum 0: из него движок делает трупы, кучки кун и прочие
+// безымянные заготовки (WorldObjects::create_blank зовет create_from_prototype_by_rnum(0)).
+// В данных мира это объект #100 с именем "служебный объект". Триггеру его грузить нечего:
+// копия такой заготовки -- мусор, который вдобавок наследует чужой внум, и в логе ее потом
+// не отличить от настоящего трупа или кучки монет.
+bool IsServiceObjVnum(ObjVnum vnum) {
+	return GetObjRnum(vnum) == 0;
 }
 
 // returns 1 if string is all digits, else 0

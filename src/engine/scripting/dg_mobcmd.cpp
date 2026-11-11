@@ -364,6 +364,10 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		PlaceCharToRoom(mob, ch->in_room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {
+		if (IsServiceObjVnum(number)) {
+			mob_log(ch, trig, fmt::format("mload: #{} -- служебный прототип (трупы, деньги, письма), грузить нельзя", number));
+			return;
+		}
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			mob_log(ch, trig, "mload: bad object vnum");
