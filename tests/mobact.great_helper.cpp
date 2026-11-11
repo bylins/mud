@@ -20,6 +20,7 @@
 namespace mob_ai {
 bool WorthHelping(CharData *helper, CharData *fighter);
 bool HoldsRoomForHelp(CharData *helper, RoomRnum room);
+bool CanRunToHelp(CharData *ch);
 int FindHelpDirection(CharData *helper, int range);
 }
 
@@ -161,6 +162,34 @@ TEST(MobActGreatHelper, RangeIsCountedInRooms) {
 	EXPECT_EQ(kBfsError, mob_ai::FindHelpDirection(helper.get(), 1));
 	EXPECT_EQ(static_cast<int>(EDirection::kWest), mob_ai::FindHelpDirection(helper.get(), 2));
 	EXPECT_EQ(static_cast<int>(EDirection::kWest), mob_ai::FindHelpDirection(helper.get(), 3));
+}
+
+// Условия, при которых моб вообще идёт на помощь. Их же проверяет гейт mobile_activity на
+// пометке "иду на помощь", чтобы помеченный моб не остался в быстром режиме навсегда.
+TEST(MobActGreatHelper, PreconditionsForRunningToHelp) {
+	CorridorFixture corridor;
+	auto helper = MakeNpc("ворон");
+	PlaceInRoom(helper, 1);
+	helper->SetFlag(EMobFlag::kHelper);
+	EXPECT_TRUE(mob_ai::CanRunToHelp(helper.get()));
+
+	// Без самого kHelper никакой помощи нет: kGreatHelper только расширяет радиус.
+	auto bystander = MakeNpc("прохожий");
+	PlaceInRoom(bystander, 1);
+	bystander->SetFlag(EMobFlag::kGreatHelper);
+	EXPECT_FALSE(mob_ai::CanRunToHelp(bystander.get()));
+
+	// "Не ходит" сильнее "помогает".
+	helper->SetFlag(EMobFlag::kSentinel);
+	EXPECT_FALSE(mob_ai::CanRunToHelp(helper.get()));
+	helper->UnsetFlag(EMobFlag::kSentinel);
+	EXPECT_TRUE(mob_ai::CanRunToHelp(helper.get()));
+
+	// Сидящий или спящий остаётся на месте.
+	helper->SetPosition(EPosition::kSit);
+	EXPECT_FALSE(mob_ai::CanRunToHelp(helper.get()));
+	helper->SetPosition(EPosition::kStand);
+	EXPECT_TRUE(mob_ai::CanRunToHelp(helper.get()));
 }
 
 TEST(MobActGreatHelper, HelperInTheFightRoomHoldsItInstead) {
