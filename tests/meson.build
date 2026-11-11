@@ -31,6 +31,7 @@ test_sources = files(
     'msdp.builder.cpp',
     'char.affects.cpp',
     'glory.const.cpp',
+    'mobact.great_helper.cpp',
     'dispellable.affects.cpp',
     'affect.flag.planes.cpp',
     'affect.duration.cpp',
