@@ -350,7 +350,7 @@ int TabulateResetsByObjLoad(char *searchname, CharData *ch) {
 			case 'P': where = "в предмет"; break;
 			default: break;
 		}
-		out += fmt::format("{:<3}. зона {:<5} строка {:<5} {} [{}], предел {}, шанс {}%\r\n",
+		out += fmt::format("{:<3}. зона {:<5} строка {:<5} {} [{}], макс {}, шанс {}%\r\n",
 						   ++found, place.zone, place.line, where, place.where_vnum,
 						   place.max, place.chance <= 0 ? 100 : place.chance);
 	}
