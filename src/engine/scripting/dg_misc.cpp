@@ -210,10 +210,6 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	// на одну неудачу приходилось два сообщения.
 	bool reason_logged = false;
 
-	if (!target_name.empty() && target_name[0] != UID_CHAR && target_name[0] != UID_CHAR_ALL) {
-		script_log_text_target(trig, "dgcast", target_name);
-	}
-
 	if (!target_name.empty() && target_name[0] == UID_CHAR) {
 		tch = get_char(target_name.c_str());
 		if (tch == nullptr) {
@@ -238,6 +234,11 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 		}
 	} else {
 		target = find_dg_cast_target(spell_id, target_name.c_str(), caster, &tch, &tobj, &troom);
+		// Цель-предмет текстом -- не огрех билдера: UID-ветка dgcast ищет только персонажа
+		// (get_char), предмет ей не назвать. Поэтому замечание только про цели-персонажей.
+		if (!tobj && !target_name.empty() && target_name[0] != UID_CHAR && target_name[0] != UID_CHAR_ALL) {
+			script_log_text_target(trig, "dgcast", target_name);
+		}
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
