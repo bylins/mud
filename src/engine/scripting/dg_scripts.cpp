@@ -4017,6 +4017,56 @@ void find_replacement(void *go,
 	}
 }
 
+// Строка-одиночка вида "%цель.поле(...)%" -- это вызов поля ради его действия, а не команда.
+// Такие поля ставят ожидание, переносят по комнатам, начисляют куны, грузят предметы, и
+// некоторые при этом еще возвращают значение: world.loadobj отдает "1" или "0". После
+// подстановки в строке остается только это значение, и интерпретатор команд триггера
+// принимает его за команду -- в комнатном триггере получается "Unknown world cmd: '0'".
+// Действие к этому моменту уже сделано внутри var_subst, исполнять нечего.
+//
+// Границу выражения ищем так же, как var_subst: закрывающий процент -- первый, что встретился
+// вне круглых скобок, потому что внутри них живут вложенные подстановки, вида
+// "%world.loadobj(%vnum%, 200)%".
+//
+// Обязательны и точка, и скобки: именно "поле(аргумент)" -- форма действия. Строки без скобок
+// ("%char.dispel%", "%cmd.mudcommand%") и простые переменные ("%dir%", "%purge%", "%echo%")
+// под правило не подпадают -- там подставленное значение как раз и есть команда или слово
+// для нее, и исполнять его надо по-прежнему.
+bool IsFieldCallStatement(const char *line) {
+	const char *p = line;
+	while (*p && a_isspace(*p)) {
+		++p;
+	}
+	if (*p != '%' || p[1] == '%') {
+		return false;
+	}
+	++p;
+	const char *dot = nullptr;
+	int paren = 0;
+	for (; *p; ++p) {
+		if (*p == '.' && !paren && !dot) {
+			dot = p;
+		} else if (*p == '(') {
+			++paren;
+		} else if (*p == ')') {
+			if (paren > 0) {
+				--paren;
+			}
+		} else if (*p == '%' && !paren) {
+			break;
+		}
+	}
+	// Закрывающий процент на месте, перед ним закрытая скобка, а точка была до скобок.
+	if (*p != '%' || !dot || p == line || p[-1] != ')' || dot > p) {
+		return false;
+	}
+	++p;
+	while (*p && a_isspace(*p)) {
+		++p;
+	}
+	return !*p;
+}
+
 // substitutes any variables into line and returns it as buf
 void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, char *buf, size_t buf_size) {
 	char tmp[kMaxTrglineLength], repl_str[kMaxTrglineLength], *var, *field, *p;
@@ -5936,7 +5986,12 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			cl = find_done(trig, cl);
 		} else if (!strncmp(p, "continue", 8)) {
 			cl = find_continue_done(trig, cl);
-		} else if (!strncmp(p, "case", 4))    // Do nothing, this allows multiple cases to a single instance
+		} else if (!strncmp(p, "case", 4) || !strncmp(p, "default", 7))
+			// Do nothing, this allows multiple cases to a single instance.
+			// "default" попал сюда вместе с "case": прыжок по switch его понимает
+			// (find_case), но провал из предыдущей ветки без break доводил саму строку
+			// до интерпретатора команд -- в комнатном триггере это "Unknown world cmd:
+			// 'default'". Таких строк в мире 811, и мобий лог ниже закричал бы на каждой.
 		{
 		} else {
 			var_subst(go, sc, trig, type, p, cmd, sizeof(cmd));
@@ -5944,9 +5999,13 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
-			if (!strncmp(cmd, "eval ", 5)) {
+			if (IsFieldCallStatement(p)) {
+				// Поле уже отработало внутри var_subst; возвращенное значение не команда.
+			} else if (!strncmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "nop ", 4)) { ;    // nop: do nothing
+			} else if (!strncmp(cmd, "nop ", 4) || !str_cmp(cmd, "nop")) { ;
+				// nop: do nothing. Пробел в образце требовал аргумента, и одинокий "nop"
+				// (в мире три таких) проваливался в интерпретатор как неизвестная команда.
 			} else if (!strncmp(cmd, "add_stuf_zone ", 14)) {
 				add_stuf_zone(trig, cmd);
 			} else if (!strncmp(cmd, "extract ", 8)) {
