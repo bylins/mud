@@ -171,6 +171,7 @@ void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message);
 void ResetGameWorldTime();
 int CountMobsInRoom(int m_num, int r_num);
 void SetZoneRnumForObjects();
+void WarnAboutUnloadableObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
 int ReadCrashTimerFile(std::size_t index, int temp);
@@ -930,6 +931,10 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	boot_profiler.next_step("Renumbering Obj_zone");
 	log("Renumbering Obj_zone.");
 	SetZoneRnumForObjects();
+
+	boot_profiler.next_step("Checking objects for zero max_in_world");
+	log("Checking objects for zero max_in_world.");
+	WarnAboutUnloadableObjects();
 
 	boot_profiler.next_step("Renumbering Mob_zone");
 	log("Renumbering Mob_zone.");
@@ -2001,6 +2006,21 @@ void RosolveWorldDoorToRoomVnumsToRnums() {
 void SetZoneRnumForObjects() {
 	for (size_t i = 0; i < obj_proto.size(); ++i) {
 		obj_proto.zone(i, get_zone_rnum_by_obj_vnum(obj_proto[i]->get_vnum()));
+	}
+}
+
+// max_in_world = 0 означает "ни одной в мире": такой предмет не возьмётся ни ресетом зоны,
+// ни load'ом из триггера, ни дроп-листом -- проверки ограничения стоят на каждом пути.
+// Молча это никак не видно: билдер правит прототип, кладёт команду загрузки и не понимает,
+// почему вещи в игре нет. Поэтому говорим об этом на загрузке мира, по одной строке на прототип.
+void WarnAboutUnloadableObjects() {
+	for (size_t i = 0; i < obj_proto.size(); ++i) {
+		if (obj_proto[i]->get_max_in_world() != 0) {
+			continue;
+		}
+		mudlog(fmt::format("Предмет {} #{}: max_in_world = 0, в мир он загружаться не будет",
+						   obj_proto[i]->get_PName(grammar::ECase::kNom), obj_proto[i]->get_vnum()),
+			   CMP, kLvlGreatGod, SYSLOG, true);
 	}
 }
 
