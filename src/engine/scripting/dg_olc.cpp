@@ -789,6 +789,28 @@ void trigedit_save(DescriptorData *d) {
 		// HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM
 		trigger_list.shift_rnums_from(trig_rnum);
 
+		// Команда ресета 'T' держит НОМЕР ТРИГГЕРА В ПАМЯТИ (rnum), а не внум: он
+		// посчитан один раз при загрузке мира (db.cpp, GetTriggerRnum для arg2). Новый
+		// триггер вставляется в середину индекса и сдвигает все номера выше, поэтому без
+		// этой поправки каждая такая команда начинает цеплять СОСЕДНИЙ триггер -- и так на
+		// единицу за каждый созданный триггер, до ближайшей перезагрузки.
+		//
+		// Так же, как это давно делают medit (мобы) и redit (комнаты) для своих команд.
+		// Проявление: мобий триггер оказывается на комнате, а поскольку MTRIG_DEATH и
+		// WTRIG_RESET -- один и тот же бит (1 << 5), он молча отрабатывает на каждом
+		// ресете зоны как комнатный.
+		for (auto zone = 0u; zone < zone_table.size(); zone++) {
+			if (!zone_table[zone].cmd) {
+				continue;
+			}
+			for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; cmd_no++) {
+				if (zone_table[zone].cmd[cmd_no].command == 'T'
+					&& zone_table[zone].cmd[cmd_no].arg2 >= trig_rnum) {
+					zone_table[zone].cmd[cmd_no].arg2++;
+				}
+			}
+		}
+
 		// * Update other trigs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {
 			if (dsc->state == EConState::kTrigedit) {
