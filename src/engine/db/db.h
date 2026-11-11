@@ -78,6 +78,24 @@ struct combat_list_element {
 	bool deleted;
 };
 
+// Индекс "внум предмета -> где его грузит ресет зоны" для команды 'vnum reset'. Строится
+// один раз при загрузке мира, после того как команды зон переведены на рнумы. Нужен затем,
+// что иначе место загрузки предмета ищется только текстовым просмотром всех зон.
+struct ObjResetPlace {
+	ZoneVnum zone;        // зона, чей ресет грузит
+	char command;         // O (в комнату), G (мобу в руки), E (мобу в экипировку), P (в предмет)
+	int where_vnum;       // комната, моб или предмет-вместилище; -1, если определить не удалось
+	int max;              // макс самой команды (второй аргумент), не путать с MIW прототипа
+	int chance;           // процент загрузки; <= 0 означает "всегда"
+	int line;             // строка в файле зоны
+};
+
+using obj2resets_t = std::unordered_map<ObjVnum, std::vector<ObjResetPlace>>;
+extern obj2resets_t obj2resets;
+
+// Собрать индекс заново по текущей zone_table.
+void IndexZoneObjLoads();
+
 struct reset_com {
 	/**
 	 *  Commands:

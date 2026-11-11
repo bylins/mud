@@ -928,6 +928,10 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	log("Renumbering zone table.");
 	ResolveZoneTableCmdVnumArgsToRnums();
 
+	boot_profiler.next_step("Indexing zone object loads");
+	log("Indexing zone object loads.");
+	IndexZoneObjLoads();
+
 	boot_profiler.next_step("Renumbering Obj_zone");
 	log("Renumbering Obj_zone.");
 	SetZoneRnumForObjects();
@@ -2158,6 +2162,59 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 void ResolveZoneTableCmdVnumArgsToRnums() {
 	for (auto &zone : zone_table) {
 		ResolveZoneCmdVnumArgsToRnums(zone);
+	}
+}
+
+obj2resets_t obj2resets;
+
+// Собирает "внум предмета -> места загрузки в ресетах". Зовется после
+// ResolveZoneTableCmdVnumArgsToRnums, поэтому аргументы команд уже рнумы и их надо
+// переводить обратно во внумы -- в выдаче богу нужны именно они.
+//
+// G и E грузят последнему загруженному мобу, своего аргумента с целью у них нет, поэтому
+// моба запоминаем по ходу обхода, как это делает и сам ресет.
+void IndexZoneObjLoads() {
+	obj2resets.clear();
+
+	for (const auto &zone : zone_table) {
+		if (!zone.cmd) {
+			continue;
+		}
+		MobVnum last_mob = -1;
+		for (int cmd_no = 0; zone.cmd[cmd_no].command != 'S'; ++cmd_no) {
+			const auto &cmd = zone.cmd[cmd_no];
+			if (cmd.command == 'M') {
+				last_mob = (cmd.arg1 >= 0 && cmd.arg1 <= top_of_mobt) ? mob_index[cmd.arg1].vnum : -1;
+				continue;
+			}
+			if (cmd.command != 'O' && cmd.command != 'G' && cmd.command != 'E' && cmd.command != 'P') {
+				continue;
+			}
+			// Отрицательный рнум -- команду отключили при загрузке ("Invalid vnum, cmd disabled").
+			if (cmd.arg1 < 0 || static_cast<std::size_t>(cmd.arg1) >= obj_proto.size()) {
+				continue;
+			}
+
+			ObjResetPlace place{};
+			place.zone = zone.vnum;
+			place.command = cmd.command;
+			place.max = cmd.arg2;
+			place.chance = cmd.arg4;
+			place.line = cmd.line;
+			switch (cmd.command) {
+				case 'O':
+					place.where_vnum = (cmd.arg3 >= 0 && cmd.arg3 <= top_of_world) ? world[cmd.arg3]->vnum : -1;
+					break;
+				case 'P':
+					place.where_vnum = (cmd.arg3 >= 0 && static_cast<std::size_t>(cmd.arg3) < obj_proto.size())
+									   ? obj_proto[cmd.arg3]->get_vnum() : -1;
+					break;
+				default:
+					place.where_vnum = last_mob;
+					break;
+			}
+			obj2resets[obj_proto[cmd.arg1]->get_vnum()].push_back(place);
+		}
 	}
 }
 
