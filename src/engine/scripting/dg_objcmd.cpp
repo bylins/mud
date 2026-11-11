@@ -310,6 +310,10 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	} else if (!a_isdigit(*arg)) {
 		obj_log(obj, trig, "otransform: bad argument");
 	} else {
+		if (IsServiceObjVnum(atoi(arg))) {
+			obj_log(obj, trig, fmt::format("otransform: #{} -- служебный прототип, превращать в него нельзя", atoi(arg)));
+			return;
+		}
 		const auto o = world_objects.create_from_prototype_by_vnum(atoi(arg));
 		if (o == nullptr) {
 			obj_log(obj, trig, "otransform: bad object vnum");
@@ -530,6 +534,10 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		PlaceCharToRoom(mob, room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {
+		if (IsServiceObjVnum(number)) {
+			obj_log(obj, trig, fmt::format("oload: #{} -- служебный прототип (трупы, деньги, письма), грузить нельзя", number));
+			return;
+		}
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			obj_log(obj, trig, "oload: bad object vnum");

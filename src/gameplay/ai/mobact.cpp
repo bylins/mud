@@ -92,6 +92,13 @@ const short kCharacterHpForMobPriorityAttack{100};
 const int kHelperRange{1};
 const int kGreatHelperRange{3};
 
+// Через сколько пульсов помощник с пометкой "иду на помощь" делает шаг. Считать надо
+// кратно десяти: mobile_activity зарегистрирована в хербите с модулем 10, то есть зовется
+// раз в 10 пульсов, а пульс -- 40 мс. Отсюда 10 -> 0,4 с на клетку, 20 -> 0,8 с,
+// 30 -> 1,2 с. Ровно секунда не выражается: 25 пульсов не кратно десяти, поэтому берем
+// ближайшее в сторону "успеет" -- 0,8 с на клетку, три клетки за 2,4 секунды.
+const int kHelpStepPulses{20};
+
 // Сколько времени и клеток ушло на поиск драки за весь обход character_list. Счетчики
 // сбрасываются в начале mobile_activity и печатаются в ее же итоговый лог.
 double helper_search_time = 0.0;
@@ -924,6 +931,17 @@ bool WorthHelping(CharData *helper, CharData *fighter) {
 		&& alignment::SameAlign(helper, fighter);
 }
 
+// Условия, при которых моб вообще ходит на помощь. Вынесены из блока помощи, потому что
+// те же условия проверяются раньше -- на пометке "иду на помощь": моб, которого захармили,
+// усадили, ослепили или сделали kSentinel, должен вернуться к общему ритму сразу.
+bool CanRunToHelp(CharData *ch) {
+	return ch->IsFlagged(EMobFlag::kHelper)
+		&& !ch->IsFlagged(EMobFlag::kSentinel)
+		&& !AFF_FLAGGED(ch, EAffect::kBlind)
+		&& !ch->has_master()
+		&& ch->GetPosition() == EPosition::kStand;
+}
+
 // Есть ли в комнате драка, из которой помощнику уходить не следует.
 bool HoldsRoomForHelp(CharData *helper, RoomRnum room) {
 	++helper_search_rooms;
@@ -1076,7 +1094,18 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (ch_activity - activity_lev < missed_pulses && ch_activity - activity_lev >= 0) {
 		  ch_activity = activity_lev;
 	  }
-	  if (ch_activity != activity_lev
+	  // Помощник, идущий на драку, ходит каждый проход, а не раз в свой слот: слот
+	  // приходит раз в kPulseMobile (10 секунд), и три клетки заняли бы полминуты --
+	  // дольше самой драки, отчего помощь и не доходила. Пометка держится только пока
+	  // условия помощи в силе: моб захарменный, усаженный, ослеплённый или ставший
+	  // kSentinel возвращается к общему ритму сразу, не дожидаясь блока помощи.
+	  if (ch->Temporary.get(ECharExtraFlag::kGoesToHelp) && !CanRunToHelp(ch.get())) {
+		  ch->Temporary.unset(ECharExtraFlag::kGoesToHelp);
+	  }
+	  const bool goes_to_help = ch->Temporary.get(ECharExtraFlag::kGoesToHelp)
+		  && (activity_level % kHelpStepPulses == 0);
+
+	  if ((ch_activity != activity_lev && !goes_to_help)
 		  || (was_in = ch->in_room) == kNowhere
 		  || GET_ROOM_VNUM(ch->in_room) % 100 == 99) {
 		  continue;
@@ -1286,17 +1315,25 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  // GET_DEST/npc_walk и npc_track работают только при door == kBfsError, то есть
 	  // когда помогать некому.
 	  bool holds_room = false;
-	  if (ch->IsFlagged(EMobFlag::kHelper)
-		  && !ch->IsFlagged(EMobFlag::kSentinel)
-		  && !AFF_FLAGGED(ch, EAffect::kBlind)
-		  && !ch->has_master()
-		  && ch->GetPosition() == EPosition::kStand) {
+	  if (CanRunToHelp(ch.get())) {
 		  holds_room = HoldsRoomForHelp(ch.get(), ch->in_room);
 
 		  if (!holds_room) {
 			  door = FindHelpDirection(ch.get(),
 									   ch->IsFlagged(EMobFlag::kGreatHelper)
 										   ? kGreatHelperRange : kHelperRange);
+		  }
+
+		  // Пометка "иду на помощь" -- только для kGreatHelper: обычному помощнику идти
+		  // некуда, драка у него в соседней клетке и доходит за один шаг.
+		  if (ch->IsFlagged(EMobFlag::kGreatHelper)) {
+			  if (!holds_room && door != kBfsError) {
+				  ch->Temporary.set(ECharExtraFlag::kGoesToHelp);
+			  } else {
+				  // Либо дошёл (драка в своей клетке), либо помогать больше некому:
+				  // цель убили, пока он шёл, или драка кончилась сама.
+				  ch->Temporary.unset(ECharExtraFlag::kGoesToHelp);
+			  }
 		  }
 	  }
 

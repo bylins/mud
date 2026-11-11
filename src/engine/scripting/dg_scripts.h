@@ -550,6 +550,10 @@ extern std::unordered_set<ObjData *> timechange_objs;
 extern std::unordered_set<RoomData *> timechange_rooms;
 
 // регистрация/снятие при attach/detach триггера
+// Это служебный прототип (rnum 0 -- заготовка для трупов, денег, писем)? Триггерам его
+// грузить нельзя: команды load отказывают и называют место в сислоге.
+bool IsServiceObjVnum(ObjVnum vnum);
+
 void timechange_register_mob(CharData *ch);
 void timechange_unregister_mob(CharData *ch);
 void timechange_register_obj(ObjData *obj);
