@@ -32,6 +32,8 @@
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
+#include "gameplay/fight/common.h"
+#include "gameplay/skills/protect.h"
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/char_handler.h"
 #include "engine/ui/cmd/do_stand.h"
@@ -208,8 +210,19 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		return;
 	}
 
+	// Переключение цели в бою. Игроцкая "убить" это умеет (do_kill.cpp), а циркулевский mkill
+	// отказывал дважды: позицией kStand (дерущийся моб стоит в kFight) и этой проверкой. Боевым
+	// триггерам перевести моба на другого было нечем. Делаем, как у игрока: заслон, разрыв
+	// текущего боя, новый противник и та же задержка -- без игроцкого ограничения "переключаться
+	// можно только на того, кто уже бьет тебя": мобу в триггере цель называет билдер.
 	if (ch->GetEnemy()) {
-		mob_log(ch, trig, "mkill: already fighting");
+		if (victim == ch->GetEnemy()) {
+			return;
+		}
+		victim = TryToFindProtector(victim, ch);
+		stop_fighting(ch, 2);
+		SetFighting(ch, victim);
+		SetWait(ch, 2, true);
 		return;
 	}
 
@@ -1548,7 +1561,9 @@ const struct mob_command_info mob_cmd_info[] =
 		// this must be first -- for specprocs
 		{"RESERVED", EPosition::kDead, nullptr, 0, false},
 		{"masound", EPosition::kDead, do_masound, -1, false},
-		{"mkill", EPosition::kStand, do_mkill, -1, false},
+		// Порог как у игроцкой "убить"/"ударить" (cmd_info: kFight). Циркулевский kStand был
+		// на ступеньку выше: дерущийся моб (kFight) не доходил до обработчика вовсе.
+		{"mkill", EPosition::kFight, do_mkill, -1, false},
 		// issue #3646: cleanup command -- must run in ANY position (paired with mpurge=kDead),
 		// else a stun-lagged mob skips mjunk but still mpurges and leaks worn gear to the room.
 		{"mjunk", EPosition::kDead, do_mjunk, -1, true},
@@ -1576,7 +1591,7 @@ const struct mob_command_info mob_cmd_info[] =
 		{"mportal", EPosition::kDead, do_mportal, -1, false},
 		{"mzoneecho", EPosition::kDead, do_mzoneecho, -1, false},
 		{"asound", EPosition::kDead, do_masound, -1, false},
-		{"kill", EPosition::kStand, do_mkill, -1, false},
+		{"kill", EPosition::kFight, do_mkill, -1, false},
 		{"junk", EPosition::kDead, do_mjunk, -1, true},
 		{"damage", EPosition::kDead, do_mdamage, -1, false},
 		{"door", EPosition::kDead, do_mdoor, -1, false},
