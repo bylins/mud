@@ -3381,6 +3381,27 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "name")) {
 			snprintf(str, str_size, "%s", obj->get_aliases().c_str());
+		} else if (!str_cmp(field, "alias")) {
+			// Вещь, названная так, чтобы ее можно было подставить аргументом в команду.
+			// %object.name% для этого не годится: там весь список алиасов, а команды
+			// разбирают аргументы по словам -- "дать %object.name% %actor%" на вещи
+			// "шкура волка" уходит как "дать шкура волка <uid>", и получателем
+			// оказывается слово "волка".
+			// Отдаем первое слово, а если их несколько -- первые два через точку:
+			// isname понимает такой запрос ("шкура.волка" находит "шкура волка"), а
+			// get_number нечисловую часть до точки не трогает. Двух слов хватает,
+			// чтобы отличить "шкура волка" от "шкура медведя", и они остаются одним
+			// аргументом команды.
+			std::istringstream is(obj->get_aliases());
+			std::string first;
+			std::string second;
+			is >> first;
+			is >> second;
+			if (second.empty()) {
+				snprintf(str, str_size, "%s", first.c_str());
+			} else {
+				snprintf(str, str_size, "%s.%s", first.c_str(), second.c_str());
+			}
 		} else if (!str_cmp(field, "id")) {
 			snprintf(str, str_size, "%c%ld", UID_OBJ, obj->get_id());
 		} else if (!str_cmp(field, "unique")) {
