@@ -5910,7 +5910,10 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		}
 		const char *p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && isspace(*p); p++);
-		if (*p == '*' || *p == '/')    // comment
+		// Пустая строка -- не команда. Триггер без тела (в мире такие есть: 75303 "[m03]
+		// родился коварный карлик") дает ровно одну такую строку, и она доезжала до
+		// интерпретатора команд -- в сислог на каждый ресет шло "Unknown mob cmd: ''".
+		if (!*p || *p == '*' || *p == '/')    // empty line or comment
 		{
 			continue;
 		} else if (!strncmp(p, "if ", 3)) {
