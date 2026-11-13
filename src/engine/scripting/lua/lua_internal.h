@@ -9,6 +9,8 @@
 #include "engine/entities/obj_data.h"
 #include "engine/scripting/dg_scripts.h"
 
+#include <optional>
+
 #include <sol/sol.hpp>
 
 class ObjData;
@@ -33,17 +35,53 @@ struct LuaEntityHandle {
 	object_id_t obj_id = 0;
 };
 
+enum class LuaTriggerOwnerType {
+	Mob,
+	Object,
+	Room
+};
+
+struct LuaTriggerTarget {
+	LuaTriggerOwnerType type = LuaTriggerOwnerType::Mob;
+	CharData *mob = nullptr;
+	ObjData *object = nullptr;
+	RoomRnum room = kNowhere;
+	Script *script = nullptr;
+	long mob_uid = 0;
+	object_id_t object_id = 0;
+	RoomVnum room_vnum = 0;
+};
+
 struct LuaRuntimeContext {
 	Trigger *trigger = nullptr;
 	CharData *owner = nullptr;
 	ObjData *owner_obj = nullptr;
 	RoomRnum owner_room = kNowhere;
+	const LuaTriggerContext *trigger_context = nullptr;
+	int exec_depth = 0;
 	void *wait_state = nullptr;
 };
 
 struct LuaExecutionBudget {
 	int instructions_left = 0;
 	bool exhausted = false;
+};
+
+class LuaRuntimeLimitsScope {
+ public:
+	LuaRuntimeLimitsScope(sol::state &lua, LuaExecutionBudget &budget);
+	LuaRuntimeLimitsScope(lua_State *state, LuaExecutionBudget &budget);
+	~LuaRuntimeLimitsScope();
+
+	LuaRuntimeLimitsScope(const LuaRuntimeLimitsScope &) = delete;
+	LuaRuntimeLimitsScope &operator=(const LuaRuntimeLimitsScope &) = delete;
+
+ private:
+	lua_State *m_state = nullptr;
+	lua_Hook m_previous_hook = nullptr;
+	int m_previous_hook_mask = 0;
+	int m_previous_hook_count = 0;
+	LuaExecutionBudget *m_previous_budget = nullptr;
 };
 
 constexpr int kLuaMaxTriggerDamage = 1000000;
@@ -77,6 +115,7 @@ CharData *ResolveChar(const LuaEntityHandle &handle);
 ObjData *ResolveObj(const LuaEntityHandle &handle);
 bool IsValidEntity(const LuaEntityHandle &handle);
 bool IsValidRoom(const LuaRoomView &view);
+std::optional<LuaTriggerTarget> ResolveLuaTriggerTarget(const sol::object &target);
 int GetTriggerVnum(const Trigger *trigger);
 const char *GetTriggerName(const Trigger *trigger);
 int GetOwnerVnum(const CharData *owner);
@@ -86,10 +125,6 @@ void LogLuaError(LuaRuntimeContext runtime, const char *phase, const sol::error 
 void LogLuaReturnDiagnostic(LuaRuntimeContext runtime, const sol::object &value);
 void HardenLuaState(sol::state &lua);
 void ConfigureLuaGc(sol::state &lua);
-void InstallLuaRuntimeLimits(sol::state &lua, LuaExecutionBudget &budget);
-void InstallLuaRuntimeLimits(lua_State *state, LuaExecutionBudget &budget);
-void ClearLuaRuntimeLimits(sol::state &lua);
-void ClearLuaRuntimeLimits(lua_State *state);
 sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime, RoomRnum required_room = kNowhere);
 sol::object BuildScriptContextView(sol::state &lua, Script *script, long context);
 sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtime);

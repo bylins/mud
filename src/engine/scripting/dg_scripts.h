@@ -439,7 +439,7 @@ class GlobalTriggersStorage {
  public:
 	~GlobalTriggersStorage();
 
-	void add(Trigger *trigger);
+	bool add(Trigger *trigger);
 	void remove(Trigger *trigger);
 	void shift_rnums_from(Rnum rnum);
 	bool has_triggers_with_rnum(const Rnum rnum) const {
