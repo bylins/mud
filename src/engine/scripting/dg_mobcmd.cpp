@@ -1712,9 +1712,38 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	}
 }
 
+// Лежит ли первое слово строки в таблице мобьих команд. Нужна потому, что
+// mob_script_command_interpreter отвечает "false" на две разные вещи: команды он не знает --
+// и команду знает, но сейчас ее не выполнить (моб в стане, строка отложена через
+// hang_trig_wait до отпускания; позиция ниже нужной). По его ответу их не различить, а
+// кричать в сислог надо только про первое.
+static bool IsMobScriptCommand(const char *argument) {
+	char word[kMaxInputLength];
+	one_argument(const_cast<char *>(argument), word);
+	// Ведущий "!" у билдеров означает "выполнять и в стане" -- на существование не влияет.
+	const char *name = (word[0] == '!') ? word + 1 : word;
+	if (!*name) {
+		return false;
+	}
+	for (int cmd = 0; *mob_cmd_info[cmd].command != '\n'; ++cmd) {
+		if (!strcmp(mob_cmd_info[cmd].command, name)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // *  This is the command interpreter used by mob, include common interpreter's commands
 void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig) {
 	if (mob_script_command_interpreter(ch, argument, trig)) {
+		return;
+	}
+
+	// Команда своя, мобья, просто сейчас не выполнилась: не повод кричать "неизвестная" и не
+	// повод отдавать строку игроцкому интерпретатору -- там такой команды тем более нет.
+	// Так в 731 зоне "mload obj 73165" из боевого триггера оглушенного моба попадал в сислог
+	// неизвестной командой, хотя строка всего лишь ждала, когда моба отпустят.
+	if (IsMobScriptCommand(argument)) {
 		return;
 	}
 
