@@ -12,14 +12,14 @@
 
 Формат определяется автоматически по содержимому каталога мира либо задаётся
 ключом --format. Если в одном каталоге присутствуют оба формата (как в
-lib/world), формат нужно указать явно.
+lib/worlddata/world), формат нужно указать явно.
 
 Логика выбора зон повторяет старый скрипт:
   зона копируется, если она есть в --include ЛИБО (её нет в --exclude И она
   попадает в диапазон --min..--max). Списки зон поддерживают диапазоны:
   «4,10-20,40» — это зоны 4, 10..20 включительно и 40.
 
-Примеры (из корня репозитория, мир берётся из lib/world по умолчанию):
+Примеры (из корня репозитория, мир берётся из lib/worlddata/world по умолчанию):
   # тестовый мир из зон 1, 40 и 820 (legacy)
   tools/create_test_world.py --format legacy --include 1,40,820 -o world.test
 
@@ -33,6 +33,25 @@ import re
 import shutil
 import sys
 from pathlib import Path
+
+def copy_tree_contents(src_dir, dst_dir):
+    """Копирует дерево, перенося только содержимое файлов.
+
+    shutil.copytree тащит метаданные: copystat (chmod + utime) делается и на
+    каждом файле, и на самом каталоге, причём каталог идёт мимо copy_function.
+    Если приёмник остался от прошлого запуска под другим пользователем, записать
+    файл мы можем (каталоги 770, файлы 660, общая группа mud), а сменить ему
+    режим и время -- нет, и copytree падает с «Operation not permitted».
+    Тестовому миру метаданные не нужны, поэтому копируем голое содержимое.
+    """
+    src_dir = Path(src_dir)
+    dst_dir = Path(dst_dir)
+    for root, _dirs, files in os.walk(src_dir):
+        out = dst_dir / Path(root).relative_to(src_dir)
+        out.mkdir(parents=True, exist_ok=True)
+        for name in files:
+            shutil.copyfile(Path(root) / name, out / name)
+
 
 # Подпапки legacy-мира: имя подпапки совпадает с расширением файлов внутри неё.
 LEGACY_SUBDIRS = ("wld", "obj", "mob", "zon", "trg")
@@ -116,7 +135,7 @@ def build_legacy(world_dir, out_dir, selected):
         for z in selected:
             src_file = src_dir / f"{z}.{sub}"
             if src_file.is_file():
-                shutil.copy2(src_file, dst_dir / src_file.name)
+                shutil.copyfile(src_file, dst_dir / src_file.name)
                 copied.append(z)
         copied.sort()
         # Формат index как в старом perl-скрипте: список файлов и завершающие «$».
@@ -146,13 +165,13 @@ def build_yaml(world_dir, out_dir, selected):
     # Словари общие для всего мира — копируем целиком.
     src_dict = world_dir / "dictionaries"
     if src_dict.is_dir():
-        shutil.copytree(src_dict, out_dir / "dictionaries", dirs_exist_ok=True)
+        copy_tree_contents(src_dict, out_dir / "dictionaries")
         print("  dictionaries: скопированы")
 
     # Общий конфиг мира, если есть.
     cfg = world_dir / "world_config.yaml"
     if cfg.is_file():
-        shutil.copy2(cfg, out_dir / "world_config.yaml")
+        shutil.copyfile(cfg, out_dir / "world_config.yaml")
 
     zones_out = out_dir / "zones"
     zones_out.mkdir(parents=True, exist_ok=True)
@@ -160,12 +179,12 @@ def build_yaml(world_dir, out_dir, selected):
     for z in selected:
         src = world_dir / "zones" / str(z)
         if src.is_dir():
-            shutil.copytree(src, zones_out / str(z), dirs_exist_ok=True)
+            copy_tree_contents(src, zones_out / str(z))
             copied.append(z)
     copied.sort()
 
     # zones/index.yaml — простой список номеров зон (содержимое чисто ASCII).
-    with open(zones_out / "index.yaml", "w", encoding="koi8-r", newline="\n") as f:
+    with open(zones_out / "index.yaml", "w", encoding="utf-8", newline="\n") as f:
         f.write("zones:\n")
         for z in copied:
             f.write(f"- {z}\n")
@@ -175,15 +194,15 @@ def build_yaml(world_dir, out_dir, selected):
 # --------------------------------------------------------------------------- #
 
 def main(argv=None):
-    # Скрипт лежит в tools/, мир по умолчанию — lib/world рядом с корнем репозитория.
-    default_world = Path(__file__).resolve().parent.parent / "lib" / "world"
+    # Скрипт лежит в tools/, мир по умолчанию — lib/worlddata/world рядом с корнем репозитория.
+    default_world = Path(__file__).resolve().parent.parent / "lib" / "worlddata" / "world"
     parser = argparse.ArgumentParser(
         description="Создаёт тестовый мир из выбранного набора зон.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument("-w", "--world-dir", type=Path, default=default_world,
-                        help="каталог исходного мира (по умолчанию lib/world)")
+                        help="каталог исходного мира (по умолчанию lib/worlddata/world)")
     parser.add_argument("-o", "--output", type=Path, default=Path("world.test"),
                         help="каталог для тестового мира (по умолчанию ./world.test)")
     parser.add_argument("-f", "--format", choices=("auto", "legacy", "yaml"),
