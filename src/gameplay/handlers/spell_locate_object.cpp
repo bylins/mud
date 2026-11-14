@@ -164,6 +164,27 @@ EStageResult SpellLocateObject(ActionContext &ctx) {
 							return false;
 						}
 					}
+					// Остальные три ветки показывают только свою зону: вещь в чужой комнате, у
+					// чужого моба или надетую на нём заклинание просто не печатает. Ветка
+					// контейнера этого не делала, а места она не называет вовсе -- только вид
+					// контейнера ("находится в каменной чаше"). Каменных чаш в мире пять, из них
+					// две в одной зоне, так что игрок шёл смотреть не в ту и находил её пустой.
+					// Зону контейнера берём там же, где он лежит: в комнате, в руках или надет.
+					const auto *container = i->get_in_obj();
+					const auto *holder = container->get_carried_by() ? container->get_carried_by()
+																	 : container->get_worn_by();
+					bool same_zone = false;
+					if (holder) {
+						// Игрока, как и в ветке "в инвентаре", показываем из любой зоны.
+						same_zone = !holder->IsNpc()
+							|| (holder->in_room != kNowhere
+								&& world[ch->in_room]->zone_rn == world[holder->in_room]->zone_rn);
+					} else if (container->get_in_room() != kNowhere && container->get_in_room()) {
+						same_zone = world[ch->in_room]->zone_rn == world[container->get_in_room()]->zone_rn;
+					}
+					if (!same_zone) {
+						return false;
+					}
 				}
 				where = fmt::format("{} наход{}ся в {}.\r\n",
 									i->get_short_description(),
