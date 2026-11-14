@@ -3336,7 +3336,7 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kImmunity">
-					<duration base="5" skill_divisor="5" min="5" max="35" />
+					<duration base="5" skill_divisor="5" min="5" max="0" />
 					<affect id="kFastRegeneration" />
 				</affects>
 			</action>
@@ -3952,7 +3952,7 @@
 			<weave />
 		</components>
 		<misc pos="kFight" violent="Y" danger="1" />
-		<mana max="100" min="90" change="2" />
+		<mana max="100" min="50" change="2" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
