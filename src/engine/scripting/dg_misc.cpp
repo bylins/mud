@@ -22,6 +22,19 @@ extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
 
+// Заклинание, целью которого бывает только предмет: труп, оружие в руках, вещь на себе.
+// Таких в spells.xml пять, и ни одно из них персонажа целью не берет -- пересечения между
+// предметными и персонажными целями в конфиге нет. Для них ненайденная цель -- обычное дело,
+// а UID вместо имени не написать: UID-ветка do_dg_cast ищет только персонажа (get_char).
+//
+// Поиск предмета по миру (kTarObjWorld, "найти предмет") сюда намеренно не входит:
+// find_dg_cast_target его не делает (issue #4163), и промах там стоит отметить в логе.
+bool IsObjectSpell(ESpell spell_id) {
+	return MUD::Spell(spell_id).AllowTarget(kTarObjRoom)
+		|| MUD::Spell(spell_id).AllowTarget(kTarObjInv)
+		|| MUD::Spell(spell_id).AllowTarget(kTarObjEquip);
+}
+
 /*
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия FindCastTarget
@@ -234,17 +247,31 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 		}
 	} else {
 		target = find_dg_cast_target(spell_id, target_name.c_str(), caster, &tch, &tobj, &troom);
-		// Цель-предмет текстом -- не огрех билдера: UID-ветка dgcast ищет только персонажа
-		// (get_char), предмет ей не назвать. Поэтому замечание только про цели-персонажей.
-		if (!tobj && !target_name.empty() && target_name[0] != UID_CHAR && target_name[0] != UID_CHAR_ALL) {
+		// Замечание зовет перевести цель на UID, поэтому оно уместно только там, где UID
+		// вообще можно написать -- то есть у заклинаний, бьющих по персонажу в комнате.
+		// Спрашиваем об этом само заклинание, а не результат поиска: одного "!tobj" мало,
+		// tobj непустой только когда предмет нашелся. Если трупа в комнате уже нет,
+		// "dgcast 'поднять труп' труп" получал замечание "цель задана текстом" -- хотя
+		// UID-ветка do_dg_cast ищет только персонажа (get_char) и труп ей не назвать.
+		//
+		// Заодно отсюда уходят касты, которым цель не нужна вовсе: у kTarIgnore и kMagMasses
+		// (массовые "гнев богов", "ледяной шторм") написанное имя движок не читает, менять
+		// его на UID незачем.
+		if (!tobj && MUD::Spell(spell_id).AllowTarget(kTarCharRoom)
+			&& !target_name.empty() && target_name[0] != UID_CHAR && target_name[0] != UID_CHAR_ALL) {
 			script_log_text_target(trig, "dgcast", target_name);
 		}
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
-	} else if (!reason_logged && spell_id != ESpell::kResurrection && spell_id != ESpell::kAnimateDead) {
+	} else if (!reason_logged && !IsObjectSpell(spell_id)) {
 		// Цели не передали вовсе -- обычно %random.pc% в комнате, где живых игроков не осталось.
 		// Прежнее "target not found" читалось как "цель была, но движок её не нашёл".
+		//
+		// У заклинания по предмету ненайденная цель -- обычное дело (труп сгнил, оружие сняли),
+		// а не огрех триггера. Раньше здесь были поименно перечислены kResurrection и
+		// kAnimateDead; kAnimateSkeleton в список не попал и сорил в лог наравне с ними, а
+		// каждое новое предметное заклинание пришлось бы дописывать руками.
 		trig_log(trig, target_name.empty()
 					   ? fmt::format("dg_cast: цель не указана, аргумент: {}", argument)
 					   : fmt::format("dg_cast: target not found, аргумент: {}", argument));
