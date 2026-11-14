@@ -4088,6 +4088,26 @@ bool IsFieldCallStatement(const char *line) {
 	return !*p;
 }
 
+// Подстановка может не оставить от строки ничего. Поле без скобок делает свое дело прямо в
+// var_subst и возвращает пустоту: "%pc.dispel%" снимает чары и ничего не печатает (таких строк
+// в мире 11, в зонах 150, 152, 972 и 973). Так же подставляется переменная, которой не
+// оказалось. Исполнять тут нечего, а до сих пор такая строка доезжала до интерпретатора
+// команд, и в сислог на каждое исполнение шло "Unknown mob cmd: ''" -- на одном бое Клеопатры
+// (97235, foreach по комнате) девятнадцать строк за секунду.
+//
+// Правило IsFieldCallStatement выше сюда не дотягивается: оно требует скобок, а форма без них
+// ("%char.dispel%", "%cmd.mudcommand%") под него не подпадает намеренно -- там подставленное
+// значение обычно и есть команда. Проверка #4187 тоже мимо: она смотрит строку триггера до
+// подстановки, а эта строка непустая.
+bool IsBlankAfterSubst(const char *cmd) {
+	for (const char *p = cmd; *p; ++p) {
+		if (!a_isspace(*p)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 // substitutes any variables into line and returns it as buf
 void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, char *buf, size_t buf_size) {
 	char tmp[kMaxTrglineLength], repl_str[kMaxTrglineLength], *var, *field, *p;
@@ -6025,6 +6045,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			}
 			if (IsFieldCallStatement(p)) {
 				// Поле уже отработало внутри var_subst; возвращенное значение не команда.
+			} else if (IsBlankAfterSubst(cmd)) {
+				// После подстановки от строки ничего не осталось -- исполнять нечего.
 			} else if (!strncmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
 			} else if (!strncmp(cmd, "nop ", 4) || !str_cmp(cmd, "nop")) { ;
