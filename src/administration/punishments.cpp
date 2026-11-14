@@ -163,6 +163,17 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
+	// Заморозка и разморозка -- только старший имм. Проверка стоит здесь, а не в самих
+	// командах, потому что сюда сходятся все пять путей: "заморозить"/"freeze",
+	// "unfreeze", "set <чар> frozen", "set all frozen" и снятие из do_unfreeze.
+	// Уровень из таблицы команд для иммортальских команд не смотрится вовсе
+	// (privilege.cpp:129 -- проверка уровня работает только при minimum_level <
+	// kLvlImmortal), поэтому до сих пор заморозить мог любой бог с флагом FullAccess,
+	// а kLvlFreeze в structs.h ни на что не влиял.
+	if (!privilege::IsOwner(ch) && GetRealLevel(ch) < kLvlImplementator) {
+		SendMsgToChar("Замораживать и размораживать может только старший бог.\r\n", ch);
+		return false;
+	}
 	if (times == 0) {
 		ClearPundata(pundata);
 		if (!vict->IsFlagged(EPlrFlag::kFrozen)) {
