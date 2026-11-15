@@ -150,29 +150,36 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (vict->battle_affects.get(kEafAwake)) {
 			dam >>= (2 - (mount::IsOnHorse(ch) ? 1 : 0));
 		}
+		// Падение от критической удачи -- следствие удара, поэтому и применяется, и
+		// объявляется ПОСЛЕ самого урона, как это сделано в баше (bash.cpp). Раньше
+		// игрок читал "$N упал на землю!" до строки "Вы пнули $N3", а при смертельном
+		// пинке -- даже до сообщения о смерти.
+		const bool knockdown = result.CritLuck
+			&& !mount::IsOnHorse(ch)
+			&& !vict->IsFlagged(EMobFlag::kNoBash);
 		if (result.CritLuck && !mount::IsOnHorse(ch)) {
 			dam *= 2;
-			if (!vict->IsFlagged(EMobFlag::kNoBash)) {
-				if (vict->GetPosition() > EPosition::kSit) {
-					vict->SetPosition(EPosition::kSit);
-					mount::DropFromHorse(vict);
-					SetBattleLag(vict, 2);
-					to_char = "$N упал$A на землю!";
-					to_vict = "Мощный удар $n1 свалил вас с ног.";
-					to_room = "Мощный пинок $n1 усадил $N1 на землю!";
-					if (!ch->IsNpc()) {
-						act(fmt::format("&G&q{}&Q&n", to_char), false, ch, nullptr, vict, kToChar);
-						act(to_room, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-					}
-					if (!vict->IsNpc()) {
-						act(fmt::format("&R&q{}&Q&n", to_vict), false, ch, nullptr, vict, kToVict);
-					}
-				}
-			}
 		}
 		Damage dmg(SkillDmg(ESkill::kKick), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
+		// У убитого позиция kDead (0), так что проверка сама отсекает случай, когда
+		// пинок оказался смертельным: труп на землю не усаживаем.
+		if (knockdown && vict->GetPosition() > EPosition::kSit) {
+			vict->SetPosition(EPosition::kSit);
+			mount::DropFromHorse(vict);
+			SetBattleLag(vict, 2);
+			to_char = "$N упал$A на землю!";
+			to_vict = "Мощный удар $n1 свалил вас с ног.";
+			to_room = "Мощный пинок $n1 усадил $N1 на землю!";
+			if (!ch->IsNpc()) {
+				act(fmt::format("&G&q{}&Q&n", to_char), false, ch, nullptr, vict, kToChar);
+				act(to_room, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
+			}
+			if (!vict->IsNpc()) {
+				act(fmt::format("&R&q{}&Q&n", to_vict), false, ch, nullptr, vict, kToVict);
+			}
+		}
 		cooldown = 2;
 	}
 	SetSkillCooldownInFight(ch, ESkill::kKick, cooldown);
