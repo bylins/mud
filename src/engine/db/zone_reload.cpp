@@ -528,8 +528,11 @@ Remap RebuildMobs(const ZoneData &zone, DiskZone &disk, Report &report) {
 	IndexData *new_index = nullptr;
 	CREATE(new_index, new_top + 1);
 
+	// Перенос только через CopyMobilePrototypeForMedit: у CharData оператор присваивания
+	// копирует ОДИН лишь рнум (ProtectedCharData::operator=, char_data.cpp:76), так что
+	// new_proto[i] = mob_proto[i] оставило бы в таблице пустых безымянных мобов.
 	for (int rnum = 0; rnum < map.begin; ++rnum) {
-		new_proto[rnum] = mob_proto[rnum];
+		CopyMobilePrototypeForMedit(&new_proto[rnum], &mob_proto[rnum], false);
 		new_index[rnum] = mob_index[rnum];
 		new_proto[rnum].set_rnum(rnum);
 	}
@@ -552,7 +555,7 @@ Remap RebuildMobs(const ZoneData &zone, DiskZone &disk, Report &report) {
 		++pos;
 	}
 	for (int rnum = map.end; rnum <= top_of_mobt; ++rnum) {
-		new_proto[pos] = mob_proto[rnum];
+		CopyMobilePrototypeForMedit(&new_proto[pos], &mob_proto[rnum], false);
 		new_index[pos] = mob_index[rnum];
 		new_proto[pos].set_rnum(pos);
 		++pos;
@@ -799,17 +802,43 @@ void Reindex(ZoneRnum zrn, ZoneVnum zone_vnum, DiskZone &disk, Report &report) {
 	const auto &zone = zone_table[zrn];
 	std::set<int> removed_objects(report.objects.removed.begin(), report.objects.removed.end());
 
-	const auto trigs = RebuildTriggers(zone, disk, report);
-	const auto rooms = RebuildRooms(zone, disk, report);
-	const auto mobs = RebuildMobs(zone, disk, report);
+	// Таблицу трогаем только если состав этого вида сущностей изменился. Иначе правка одних
+	// комнат заставляла бы пересобирать ещё и мобов с триггерами -- лишняя работа и лишний
+	// риск; содержимое же применяется на месте, как в случае без переиндексации.
+	Remap trigs, rooms, mobs;
+	if (report.triggers.Changed()) {
+		trigs = RebuildTriggers(zone, disk, report);
+	} else {
+		ApplyTriggers(disk, report);
+	}
+	if (report.rooms.Changed()) {
+		rooms = RebuildRooms(zone, disk, report);
+	} else {
+		ApplyRooms(zone_vnum, disk, report);
+	}
+	if (report.mobs.Changed()) {
+		mobs = RebuildMobs(zone, disk, report);
+	} else {
+		ApplyMobs(disk, report);
+	}
 	RebuildObjects(disk, report, removed_objects);
 
 	// Комнаты зоны залиты из файла, и выходы в них пока записаны ВНУМАМИ -- так же, как сразу
 	// после чтения мира, до RosolveWorldDoorToRoomVnumsToRnums. Переводим их в рнумы по уже
 	// перестроенной таблице и исключаем этот участок из общего переотображения: иначе рнум,
 	// только что посчитанный, будет сдвинут второй раз.
-	const int zone_begin = rooms.begin;
-	const int zone_end = rooms.begin + static_cast<int>(report.rooms.kept.size() + report.rooms.added.size()) + 1;
+	// Границы блока комнат зоны в уже перестроенной таблице. Считаем по внумам, а не по
+	// rooms.begin: если комнаты не менялись, переотображение для них тождественное, и его
+	// begin ничего не говорит о том, где зона лежит.
+	int zone_begin = top_of_world + 1;
+	int zone_end = kFirstRoom;
+	for (RoomRnum rnum = kFirstRoom; rnum <= top_of_world; ++rnum) {
+		const int vnum = world[rnum]->vnum;
+		if (vnum >= zone.vnum * 100 && vnum <= zone.top) {
+			zone_begin = std::min(zone_begin, static_cast<int>(rnum));
+			zone_end = std::max(zone_end, static_cast<int>(rnum) + 1);
+		}
+	}
 	for (int rnum = zone_begin; rnum < zone_end && rnum <= top_of_world; ++rnum) {
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			auto &exit = world[rnum]->dir_option_proto[dir];
