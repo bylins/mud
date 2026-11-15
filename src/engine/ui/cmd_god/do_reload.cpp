@@ -53,7 +53,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"             digging guards jewelry makeitems basic cases\r\n"
 			"  text     : systemmsg help xhelp socials noobhelp titles emails privilege\r\n"
 			"  depot <char-name>\r\n"
-			"  zone <vnum>  -- разведка: сверить зону на диске с памятью, ничего не меняя\r\n", ch);
+			"  zone <vnum> [применить]  -- сверить зону на диске с памятью; без второго\r\n"
+			"             слова ничего не меняется, с ним зона перечитывается с диска\r\n", ch);
 		return;
 	}
 
@@ -232,12 +233,19 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// её состав отличается от того, что в памяти. Мир не меняется, так что команду
 		// безопасно давать на боевом.
 		char zone_arg[kMaxInputLength];
-		one_argument(argument, zone_arg);
+		argument = one_argument(argument, zone_arg);
 		if (!*zone_arg || !a_isdigit(*zone_arg)) {
 			SendMsgToChar("Укажите внум зоны: reload zone <vnum>.\r\n", ch);
 			return;
 		}
-		const auto report = zone_reload::Inspect(atoi(zone_arg));
+		char mode_arg[kMaxInputLength];
+		one_argument(argument, mode_arg);
+		// Без второго слова -- разведка: только показать разницу. Со словом "применить"
+		// (или "apply") зона действительно перечитывается с диска.
+		const bool apply = *mode_arg
+			&& (!str_cmp(mode_arg, "применить") || !str_cmp(mode_arg, "apply"));
+		const auto zvn = atoi(zone_arg);
+		const auto report = apply ? zone_reload::Apply(zvn) : zone_reload::Inspect(zvn);
 		SendMsgToChar(zone_reload::Format(report), ch);
 		if (!report.ok) {
 			return;
