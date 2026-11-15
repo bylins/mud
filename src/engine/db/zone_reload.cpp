@@ -679,9 +679,15 @@ void RebuildObjects(DiskZone &disk, Report &report, const std::set<int> &removed
 }
 
 // Один проход по всему, что закэшировало рнумы. Порядок внутри не важен: карты уже построены.
-void ApplyRemap(const Remap &rooms, const Remap &mobs, const Remap &trigs) {
-	// Выходы всех комнат мира.
+// zone_begin..zone_end -- новые рнумы комнат перезагруженной зоны: их выходы уже переведены из
+// внумов в рнумы по новой таблице, и переотображать их второй раз нельзя.
+void ApplyRemap(const Remap &rooms, const Remap &mobs, const Remap &trigs,
+				int zone_begin, int zone_end) {
+	// Выходы всех остальных комнат мира.
 	for (RoomRnum rnum = kFirstRoom; rnum <= top_of_world; ++rnum) {
+		if (rnum >= zone_begin && rnum < zone_end) {
+			continue;
+		}
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			auto &exit = world[rnum]->dir_option_proto[dir];
 			if (exit && exit->to_room() != kNowhere) {
@@ -798,23 +804,31 @@ void Reindex(ZoneRnum zrn, ZoneVnum zone_vnum, DiskZone &disk, Report &report) {
 	const auto mobs = RebuildMobs(zone, disk, report);
 	RebuildObjects(disk, report, removed_objects);
 
-	ApplyRemap(rooms, mobs, trigs);
+	// Комнаты зоны залиты из файла, и выходы в них пока записаны ВНУМАМИ -- так же, как сразу
+	// после чтения мира, до RosolveWorldDoorToRoomVnumsToRnums. Переводим их в рнумы по уже
+	// перестроенной таблице и исключаем этот участок из общего переотображения: иначе рнум,
+	// только что посчитанный, будет сдвинут второй раз.
+	const int zone_begin = rooms.begin;
+	const int zone_end = rooms.begin + static_cast<int>(report.rooms.kept.size() + report.rooms.added.size()) + 1;
+	for (int rnum = zone_begin; rnum < zone_end && rnum <= top_of_world; ++rnum) {
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			auto &exit = world[rnum]->dir_option_proto[dir];
+			if (exit && exit->to_room() != kNowhere) {
+				exit->to_room(GetRoomRnum(exit->to_room()));
+			}
+		}
+	}
+
+	ApplyRemap(rooms, mobs, trigs, zone_begin, zone_end);
 
 	// Границы зон: блок уехал, значит у всех зон за нашей first/last другие. Функция считает
 	// их для всего мира разом и заодно подставляет entrance, если он не задан.
 	CalculateFirstAndLastRooms();
 	CalculateFirstAndLastMobs();
 
-	// Выходы новых комнат пришли из файла внумами.
 	for (RoomRnum rnum = zone.RnumRoomsLocation.first; rnum <= zone.RnumRoomsLocation.second + 1; ++rnum) {
 		if (rnum < kFirstRoom || rnum > top_of_world) {
 			continue;
-		}
-		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			auto &exit = world[rnum]->dir_option_proto[dir];
-			if (exit && exit->to_room() != kNowhere && exit->to_room() > top_of_world) {
-				exit->to_room(GetRoomRnum(exit->to_room()));
-			}
 		}
 		RestoreRoomExitData(rnum);
 		CheckRoomForIncompatibleFlags(rnum);
