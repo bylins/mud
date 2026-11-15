@@ -109,6 +109,14 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	ZoneRnum zrn_from = GetZoneRnum(zvn_from);
 	int count = kNumberOfZoneDungeons;
 
+	// Проверка идет первой: несуществующая зона -- это zrn_from == kNoZone (-1), и любое
+	// обращение к zone_table по такому индексу роняет сервер. Раньше она стояла ниже
+	// GetZoneRooms() и сравнивала с нулем, так что до нее дело не доходило.
+	if (zrn_from < 0) {
+		mudlog(fmt::format("Попытка склонировать несуществующую зону {}.", zvn_from),
+			   LGH, kLvlGreatGod, SYSLOG, true);
+		return 0;
+	}
 	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
 		log(fmt::format("Нет комнат в зоне {}.", zvn_from));
 		return 0;
@@ -135,17 +143,13 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		return 0;
 	}
 
-	if (zrn_from  == 0) {
-		mudlog("Попытка склонировать несуществующую зону.", LGH, kLvlGreatGod, SYSLOG, true);
-		return 0;
-	}
 	if (zvn_from >= kZoneStartDungeons) {
 		mudlog("Попытка склонировать данж.", LGH, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
 	ZoneRnum zrn_to = GetZoneRnum(zvn_to);
 
-	if (zrn_to == 0) {
+	if (zrn_to <= 0) {
 		mudlog("Нет такой зоны.", LGH, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
@@ -680,8 +684,12 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 	ZrnComplexList pair{};
 
 	for (const auto &it : tokens) {
-		zrn = GetZoneRnum(stoi(it));
-		if (zrn == 0) {
+		// Номер приходит из триггера, то есть из текста мира: нечисловой токен в stoi() --
+		// это исключение, а несуществующая зона -- kNoZone (-1) и обращение к zone_table
+		// по отрицательному индексу. И то, и другое роняло сервер.
+		zvn = atoi(it.c_str());
+		zrn = zvn > 0 ? GetZoneRnum(zvn) : kNoZone;
+		if (zrn <= 0) {
 			trig_log(trig, fmt::format("Ошибка в создании комплекса, данж {} не найден", it).c_str());
 			return "0";
 		}

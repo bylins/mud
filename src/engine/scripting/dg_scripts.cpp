@@ -1824,7 +1824,7 @@ void find_replacement(void *go,
 				return;
 			}
 			ZoneRnum zrn = GetZoneRnum(atoi(param[0].c_str()));
-			if (zrn == 0) {
+			if (zrn <= 0) {
 				trig_log(trig, "recalc: нет такой зоны");
 				return;
 			}
@@ -1863,14 +1863,18 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "%s", "0");
 				}
 			} else if (!str_cmp(field, "isdungeon") && num > 0) {
-				snprintf(str, str_size, "%d", zone_table[GetZoneRnum(num)].copy_from_zone);
+				// Номер зоны берется из триггера: для несуществующей GetZoneRnum() вернет
+				// kNoZone (-1), а zone_table[-1] роняет сервер.
+				ZoneRnum zrn = GetZoneRnum(num);
+				snprintf(str, str_size, "%d", zrn < 0 ? 0 : zone_table[zrn].copy_from_zone);
 			} else if (!str_cmp(field, "zoneentrance") && num > 0) {
-				snprintf(str, str_size, "%d", zone_table[GetZoneRnum(num)].entrance);
+				ZoneRnum zrn = GetZoneRnum(num);
+				snprintf(str, str_size, "%d", zrn < 0 ? 0 : zone_table[zrn].entrance);
 			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
 				dungeons::DungeonReset(GetZoneRnum(num));
 			} else if (!str_cmp(field, "zonename") && num > 0) {
 				ZoneRnum zrn = GetZoneRnum(num);
-				if (zrn == 0) {
+				if (zrn <= 0) {
 					snprintf(str, str_size, "0");
 				} else {
 					snprintf(str, str_size, "%s", zone_table[zrn].name.c_str());

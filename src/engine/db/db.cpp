@@ -3474,6 +3474,14 @@ void ResetZone(ZoneRnum zone) {
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
 int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
+	// Сюда почти всегда передают результат GetZoneRnum(), а он на несуществующей зоне
+	// возвращает kNoZone (-1). zone_table[-1] -- выход за границы вектора: с проверками
+	// стандартной библиотеки это падение сервера, без них -- чтение чужой памяти.
+	if (zrn < 0 || zrn >= static_cast<ZoneRnum>(zone_table.size())) {
+		*first = 0;
+		*last = -1;
+		return 0;
+	}
 	*first = zone_table[zrn].RnumRoomsLocation.first;
 	*last = zone_table[zrn].RnumRoomsLocation.second;
 
