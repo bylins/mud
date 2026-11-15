@@ -18,11 +18,16 @@
 #include "gameplay/mechanics/obj_sets_stuff.h"
 #include "gameplay/mechanics/rune_stones.h"
 #include "gameplay/mechanics/stuff.h"
+#include "gameplay/clans/house.h"
+#include "gameplay/magic/magic_rooms.h"
 
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <map>
 #include <set>
+#include <unordered_map>
+#include <vector>
 
 // Эти функции живут в OLC и в db.cpp и в заголовки не вынесены. Перезагрузка зоны делает с
 // каждой сущностью ровно то же, что OLC делает при сохранении уже существующей: именно эти
@@ -37,6 +42,10 @@ extern void SetZoneRnumForObjects();
 extern void SetZoneRnumForMobiles();
 extern void SetZoneRnumForTriggers();
 extern void ConvertObjValues();
+extern void CalculateFirstAndLastRooms();
+extern void CalculateFirstAndLastMobs();
+extern ZoneRnum get_zone_rnum_by_obj_vnum(ObjVnum vnum);
+extern RoomRnum r_frozen_start_room;
 
 namespace zone_reload {
 
@@ -349,6 +358,481 @@ void ApplyObjects(DiskZone &disk, Report &report) {
 	}
 }
 
+// --- переиндексация, когда состав изменился (issue #4201, шаг 3) ---------------------------
+
+// Зона занимает непрерывный отрезок рнумов: таблицы отсортированы по внуму (поиск по ним
+// двоичный), а внумы зоны -- сплошной блок N*100..top. Поэтому переотображение получается
+// кусочно-линейным: до блока ничего не меняется, внутри ищем по внуму, за блоком -- сдвиг на
+// дельту. Ни одного прохода «вставили одну запись, обошли весь мир» -- он ровно один.
+struct Remap {
+	int begin{0};                         // первый рнум блока зоны (в старой нумерации)
+	int end{0};                           // за последним рнумом блока (в старой нумерации)
+	int delta{0};                         // насколько изменилось число записей в блоке
+	std::unordered_map<int, int> inside;  // старый рнум -> новый, для уцелевших записей
+
+	int operator()(int rnum) const {
+		if (rnum < begin) {
+			return rnum;
+		}
+		if (rnum >= end) {
+			return rnum + delta;
+		}
+		const auto it = inside.find(rnum);
+		return it == inside.end() ? kNowhere : it->second;
+	}
+};
+
+// Границы блока зоны в таблице: от первого рнума с внумом зоны до последнего.
+template<typename VnumAt>
+void FindBlock(int first_rnum, int last_rnum, int lo_vnum, int hi_vnum, VnumAt vnum_at,
+			   int &block_begin, int &block_end) {
+	block_begin = -1;
+	block_end = -1;
+	for (int rnum = first_rnum; rnum <= last_rnum; ++rnum) {
+		const int vnum = vnum_at(rnum);
+		if (vnum >= lo_vnum && vnum <= hi_vnum) {
+			if (block_begin < 0) {
+				block_begin = rnum;
+			}
+			block_end = rnum + 1;
+		} else if (block_begin >= 0) {
+			break;
+		}
+	}
+	if (block_begin < 0) {
+		// Зона в таблице ещё не представлена -- вставляем блок туда, где он должен стоять
+		// по порядку внумов.
+		block_begin = last_rnum + 1;
+		for (int rnum = first_rnum; rnum <= last_rnum; ++rnum) {
+			if (vnum_at(rnum) > hi_vnum) {
+				block_begin = rnum;
+				break;
+			}
+		}
+		block_end = block_begin;
+	}
+}
+
+Remap RebuildRooms(const ZoneData &zone, DiskZone &disk, Report &report) {
+	Remap map;
+	const int lo = zone.vnum * 100;
+	const int hi = zone.top;
+	FindBlock(kFirstRoom, top_of_world, lo, hi,
+			  [](int rnum) { return static_cast<int>(world[rnum]->vnum); }, map.begin, map.end);
+
+	// Что было: внум -> рнум. Объекты комнат переиспользуем, а не пересоздаём: на RoomData
+	// держат указатели список ловушек и список зачарованных комнат, и если объект уцелел,
+	// их трогать не придётся.
+	std::map<int, RoomData *> old_rooms;
+	std::map<int, int> old_rnum;
+	for (int rnum = map.begin; rnum < map.end; ++rnum) {
+		old_rooms[world[rnum]->vnum] = world[rnum];
+		old_rnum[world[rnum]->vnum] = rnum;
+	}
+
+	// Что станет: комнаты из файла плюс виртуальная X99, если она была. В файле её нет
+	// никогда -- её ставит AddVirtualRoomsToAllZones, и при перезагрузке она просто
+	// остаётся тем же объектом на своём месте в порядке внумов.
+	std::map<int, RoomData *> block;
+	for (auto &it : disk.rooms) {
+		if (IsVirtualRoom(zone.vnum, it.vnum)) {
+			continue;
+		}
+		auto found = old_rooms.find(it.vnum);
+		RoomData *room = (found != old_rooms.end()) ? found->second : new RoomData;
+		if (found != old_rooms.end()) {
+			deathtrap::remove(room);
+			CleanupRoomData(room);
+		}
+		CopyRoom(room, it.room);
+		room->vnum = it.vnum;
+		room->zone_rn = GetZoneRnum(zone.vnum);
+		block[it.vnum] = room;
+		CleanupRoomData(it.room);
+		delete it.room;
+		it.room = nullptr;
+		++report.applied_rooms;
+	}
+	const int virtual_vnum = zone.vnum * 100 + 99;
+	if (old_rooms.count(virtual_vnum)) {
+		block[virtual_vnum] = old_rooms[virtual_vnum];
+	}
+
+	// Комнаты, которых в файле больше нет: выносим живых, снимаем ловушку и чары, удаляем.
+	for (auto &[vnum, room] : old_rooms) {
+		if (block.count(vnum)) {
+			continue;
+		}
+		dungeons::ClearRoom(room);
+		deathtrap::remove(room);
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			room_spells::ClearExitAffects(room, dir);
+		}
+		CleanupRoomData(room);
+		delete room;
+	}
+
+	// Собираем таблицу заново: голова, новый блок, хвост.
+	std::vector<RoomData *> rebuilt;
+	rebuilt.reserve(world.size() + block.size());
+	for (int rnum = 0; rnum < map.begin; ++rnum) {
+		rebuilt.push_back(world[rnum]);
+	}
+	int pos = map.begin;
+	for (auto &[vnum, room] : block) {
+		rebuilt.push_back(room);
+		if (old_rnum.count(vnum)) {
+			map.inside[old_rnum[vnum]] = pos;
+		}
+		++pos;
+	}
+	for (int rnum = map.end; rnum <= top_of_world; ++rnum) {
+		rebuilt.push_back(world[rnum]);
+	}
+	map.delta = static_cast<int>(block.size()) - (map.end - map.begin);
+
+	world.clear();
+	for (auto *room : rebuilt) {
+		world.push_back(room);
+	}
+	top_of_world = static_cast<RoomRnum>(world.size() - 1);
+	return map;
+}
+
+Remap RebuildMobs(const ZoneData &zone, DiskZone &disk, Report &report) {
+	Remap map;
+	const int lo = zone.vnum * 100;
+	const int hi = zone.top;
+	FindBlock(0, top_of_mobt, lo, hi,
+			  [](int rnum) { return static_cast<int>(mob_index[rnum].vnum); }, map.begin, map.end);
+
+	std::map<int, int> old_rnum;
+	for (int rnum = map.begin; rnum < map.end; ++rnum) {
+		old_rnum[mob_index[rnum].vnum] = rnum;
+	}
+	// Старые прототипы блока уходят целиком: для уцелевших внумов тело всё равно берётся из
+	// файла, а для исчезнувших прототипа больше не будет.
+	for (int rnum = map.begin; rnum < map.end; ++rnum) {
+		medit_mobile_free(&mob_proto[rnum]);
+	}
+
+	std::map<int, world_loader::LoadedMob *> block;
+	for (auto &it : disk.mobs) {
+		block[it.vnum] = &it;
+	}
+	const int new_count = static_cast<int>(block.size());
+	map.delta = new_count - (map.end - map.begin);
+
+	const int new_top = top_of_mobt + map.delta;
+	auto *new_proto = new CharData[new_top + 1];
+	IndexData *new_index = nullptr;
+	CREATE(new_index, new_top + 1);
+
+	for (int rnum = 0; rnum < map.begin; ++rnum) {
+		new_proto[rnum] = mob_proto[rnum];
+		new_index[rnum] = mob_index[rnum];
+		new_proto[rnum].set_rnum(rnum);
+	}
+	int pos = map.begin;
+	for (auto &[vnum, loaded] : block) {
+		CopyMobilePrototypeForMedit(&new_proto[pos], loaded->mob, false);
+		new_proto[pos].set_rnum(pos);
+		new_index[pos].vnum = vnum;
+		new_index[pos].total_online = 0;
+		new_index[pos].func = nullptr;
+		new_index[pos].set_idx = -1;
+		if (old_rnum.count(vnum)) {
+			new_index[pos].stored = mob_index[old_rnum[vnum]].stored;
+			map.inside[old_rnum[vnum]] = pos;
+		}
+		medit_mobile_free(loaded->mob);
+		delete loaded->mob;
+		loaded->mob = nullptr;
+		++report.applied_mobs;
+		++pos;
+	}
+	for (int rnum = map.end; rnum <= top_of_mobt; ++rnum) {
+		new_proto[pos] = mob_proto[rnum];
+		new_index[pos] = mob_index[rnum];
+		new_proto[pos].set_rnum(pos);
+		++pos;
+	}
+
+	delete[] mob_proto;
+	free(mob_index);
+	mob_proto = new_proto;
+	mob_index = new_index;
+	top_of_mobt = new_top;
+
+	// Триггеры прототипов навешиваем после того, как таблица встала на место: AttachTriggerToMob
+	// ищет моба по рнуму в новой таблице.
+	for (auto &[vnum, loaded] : block) {
+		const auto rnum = GetMobRnum(vnum);
+		if (rnum < 0) {
+			continue;
+		}
+		for (int trigger_vnum : loaded->triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToMob(rnum, trigger_vnum, vnum);
+		}
+	}
+	return map;
+}
+
+Remap RebuildTriggers(const ZoneData &zone, DiskZone &disk, Report &report) {
+	Remap map;
+	const int lo = zone.vnum * 100;
+	const int hi = zone.top;
+	// top_of_trigt -- это количество триггеров, а не последний индекс.
+	FindBlock(0, top_of_trigt - 1, lo, hi,
+			  [](int rnum) { return trig_index[rnum] ? static_cast<int>(trig_index[rnum]->vnum) : -1; },
+			  map.begin, map.end);
+
+	std::map<int, int> old_rnum;
+	for (int rnum = map.begin; rnum < map.end; ++rnum) {
+		old_rnum[trig_index[rnum]->vnum] = rnum;
+	}
+
+	std::map<int, world_loader::LoadedTrigger *> block;
+	for (auto &it : disk.triggers) {
+		block[it.vnum] = &it;
+	}
+	map.delta = static_cast<int>(block.size()) - (map.end - map.begin);
+	const int new_count = top_of_trigt + map.delta;
+
+	IndexData **rebuilt = nullptr;
+	CREATE(rebuilt, new_count);
+	for (int rnum = 0; rnum < map.begin; ++rnum) {
+		rebuilt[rnum] = trig_index[rnum];
+	}
+	int pos = map.begin;
+	for (auto &[vnum, loaded] : block) {
+		IndexData *index = nullptr;
+		if (old_rnum.count(vnum)) {
+			index = trig_index[old_rnum[vnum]];
+			delete index->proto;
+			map.inside[old_rnum[vnum]] = pos;
+		} else {
+			CREATE(index, 1);
+			index->vnum = vnum;
+			index->func = nullptr;
+		}
+		index->total_online = 0;
+		loaded->trig->set_rnum(pos);
+		index->proto = loaded->trig;
+		loaded->trig = nullptr;
+		rebuilt[pos] = index;
+		// Индекс 'vnum trig' -- какие предметы грузит этот триггер.
+		for (auto &entry : GlobalObjects::obj_triggers()) {
+			entry.second.remove(vnum);
+		}
+		IndexTriggerObjLoads(vnum, index->proto);
+		++report.applied_triggers;
+		++pos;
+	}
+	// Исчезнувшие триггеры: индекс и тело больше не нужны.
+	for (auto &[vnum, rnum] : old_rnum) {
+		if (block.count(vnum)) {
+			continue;
+		}
+		for (auto &entry : GlobalObjects::obj_triggers()) {
+			entry.second.remove(vnum);
+		}
+		delete trig_index[rnum]->proto;
+		free(trig_index[rnum]);
+	}
+	for (int rnum = map.end; rnum < top_of_trigt; ++rnum) {
+		rebuilt[pos++] = trig_index[rnum];
+	}
+
+	free(trig_index);
+	trig_index = rebuilt;
+	top_of_trigt = new_count;
+	return map;
+}
+
+// Предметам переиндексация не нужна: рнум ищется по карте внумов (CObjectPrototypes::get_rnum),
+// а add() кладёт прототип в хвост -- порядок в таблице ничего не значит. Новые дописываем,
+// уцелевшие подменяем на месте, исчезнувшие забываем по внуму.
+void RebuildObjects(DiskZone &disk, Report &report, const std::set<int> &removed) {
+	for (auto &it : disk.objects) {
+		if (!it.obj) {
+			continue;
+		}
+		auto *proto = new ObjData(*it.obj);
+		const auto rnum = GetObjRnum(it.vnum);
+		if (rnum >= 0) {
+			olc_update_objects(rnum, proto);
+			obj_proto.set_rnum(rnum, proto);
+		} else {
+			const auto index = obj_proto.add(proto, it.vnum);
+			obj_proto.zone(index, get_zone_rnum_by_obj_vnum(it.vnum));
+		}
+		const auto placed = GetObjRnum(it.vnum);
+		for (int trigger_vnum : it.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToObject(placed, trigger_vnum, it.vnum);
+		}
+		++report.applied_objects;
+	}
+	for (int vnum : removed) {
+		obj_proto.forget_vnum(vnum);
+	}
+}
+
+// Один проход по всему, что закэшировало рнумы. Порядок внутри не важен: карты уже построены.
+void ApplyRemap(const Remap &rooms, const Remap &mobs, const Remap &trigs) {
+	// Выходы всех комнат мира.
+	for (RoomRnum rnum = kFirstRoom; rnum <= top_of_world; ++rnum) {
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			auto &exit = world[rnum]->dir_option_proto[dir];
+			if (exit && exit->to_room() != kNowhere) {
+				exit->to_room(rooms(exit->to_room()));
+			}
+		}
+	}
+
+	// Живые: где стоят, откуда пришли, из какого прототипа сделаны.
+	for (const auto &ch : character_list) {
+		if (ch->in_room != kNowhere) {
+			ch->in_room = rooms(ch->in_room);
+		}
+		if (ch->get_was_in_room() != kNowhere) {
+			ch->set_was_in_room(rooms(ch->get_was_in_room()));
+		}
+		if (ch->IsNpc() && ch->get_rnum() >= 0) {
+			ch->set_rnum(mobs(ch->get_rnum()));
+		}
+	}
+	world_objects.foreach([&rooms](const ObjData::shared_ptr &obj) {
+		if (obj->get_in_room() != kNowhere) {
+			obj->set_in_room(rooms(obj->get_in_room()));
+		}
+	});
+
+	// Точки входа в мир.
+	r_mortal_start_room = rooms(r_mortal_start_room);
+	r_immort_start_room = rooms(r_immort_start_room);
+	r_frozen_start_room = rooms(r_frozen_start_room);
+	r_helled_start_room = rooms(r_helled_start_room);
+	r_named_start_room = rooms(r_named_start_room);
+	r_unreg_start_room = rooms(r_unreg_start_room);
+
+	// Клановые короба с ингредиентами.
+	for (const auto &clan : Clan::ClanList) {
+		if (clan->get_ingr_chest_room_rnum() > 0) {
+			clan->set_ingr_chest_room_rnum(rooms(clan->get_ingr_chest_room_rnum()));
+		}
+	}
+
+	// Ресеты всех зон мира: аргументы переведены в рнумы при загрузке. Предметные рнумы не
+	// двигаются, поэтому O/G/E/P и arg2 у R не трогаем.
+	for (auto &zone : zone_table) {
+		if (!zone.cmd) {
+			continue;
+		}
+		for (int cmd_no = 0; zone.cmd[cmd_no].command != 'S'; ++cmd_no) {
+			auto &cmd = zone.cmd[cmd_no];
+			switch (cmd.command) {
+				case 'M': cmd.arg1 = mobs(cmd.arg1); cmd.arg3 = rooms(cmd.arg3); break;
+				case 'Q': cmd.arg1 = mobs(cmd.arg1); break;
+				case 'F': cmd.arg1 = rooms(cmd.arg1); cmd.arg2 = mobs(cmd.arg2); cmd.arg3 = mobs(cmd.arg3); break;
+				case 'O': if (cmd.arg3 != kNowhere) cmd.arg3 = rooms(cmd.arg3); break;
+				case 'D': cmd.arg1 = rooms(cmd.arg1); break;
+				case 'R': cmd.arg1 = rooms(cmd.arg1); break;
+				case 'T': cmd.arg2 = trigs(cmd.arg2);
+					if (cmd.arg1 == WLD_TRIGGER) cmd.arg3 = rooms(cmd.arg3);
+					break;
+				case 'V': if (cmd.arg1 == WLD_TRIGGER) cmd.arg2 = rooms(cmd.arg2); break;
+				default: break;
+			}
+			// Команда, потерявшая цель, выключается -- ровно как это делает загрузка, когда
+			// внум не находится ("Invalid vnum, cmd disabled").
+			if (cmd.arg1 == kNowhere && (cmd.command == 'M' || cmd.command == 'Q'
+										 || cmd.command == 'F' || cmd.command == 'D' || cmd.command == 'R')) {
+				cmd.command = '*';
+			}
+		}
+	}
+
+	// Копии триггеров у живых носителей: read_trigger раздаёт копию с рнумом прототипа, и
+	// ExtractTrigger ходит по нему в trig_index.
+	auto remap_script = [&trigs](const Script::shared_ptr &script) {
+		if (!script) {
+			return;
+		}
+		for (auto it = script->script_trig_list.begin(); it != script->script_trig_list.end(); ++it) {
+			const auto rnum = (*it)->get_rnum();
+			if (rnum >= 0) {
+				(*it)->set_rnum(trigs(rnum));
+			}
+		}
+	};
+	for (RoomRnum rnum = kFirstRoom; rnum <= top_of_world; ++rnum) {
+		remap_script(SCRIPT(world[rnum]));
+	}
+	for (const auto &ch : character_list) {
+		remap_script(SCRIPT(ch));
+	}
+	world_objects.foreach([&remap_script](const ObjData::shared_ptr &obj) {
+		remap_script(obj->get_script());
+	});
+
+	// Комнаты в открытых редакторах: там лежат свои ExitData со ссылками на рнумы.
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (d->state == EConState::kRedit && OLC_ROOM(d)) {
+			for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+				auto &exit = OLC_ROOM(d)->dir_option_proto[dir];
+				if (exit && exit->to_room() != kNowhere) {
+					exit->to_room(rooms(exit->to_room()));
+				}
+			}
+		}
+	}
+}
+
+void Reindex(ZoneRnum zrn, ZoneVnum zone_vnum, DiskZone &disk, Report &report) {
+	const auto &zone = zone_table[zrn];
+	std::set<int> removed_objects(report.objects.removed.begin(), report.objects.removed.end());
+
+	const auto trigs = RebuildTriggers(zone, disk, report);
+	const auto rooms = RebuildRooms(zone, disk, report);
+	const auto mobs = RebuildMobs(zone, disk, report);
+	RebuildObjects(disk, report, removed_objects);
+
+	ApplyRemap(rooms, mobs, trigs);
+
+	// Границы зон: блок уехал, значит у всех зон за нашей first/last другие. Функция считает
+	// их для всего мира разом и заодно подставляет entrance, если он не задан.
+	CalculateFirstAndLastRooms();
+	CalculateFirstAndLastMobs();
+
+	// Выходы новых комнат пришли из файла внумами.
+	for (RoomRnum rnum = zone.RnumRoomsLocation.first; rnum <= zone.RnumRoomsLocation.second + 1; ++rnum) {
+		if (rnum < kFirstRoom || rnum > top_of_world) {
+			continue;
+		}
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			auto &exit = world[rnum]->dir_option_proto[dir];
+			if (exit && exit->to_room() != kNowhere && exit->to_room() > top_of_world) {
+				exit->to_room(GetRoomRnum(exit->to_room()));
+			}
+		}
+		RestoreRoomExitData(rnum);
+		CheckRoomForIncompatibleFlags(rnum);
+		SCRIPT(world[rnum])->cleanup();
+	}
+	// Триггеры комнат -- по спискам из файла.
+	for (auto &it : disk.rooms) {
+		const auto rnum = GetRoomRnum(it.vnum);
+		if (rnum <= 0) {
+			continue;
+		}
+		for (int trigger_vnum : it.triggers) {
+			world_loader::WorldDataSourceBase::AttachTriggerToRoom(rnum, trigger_vnum, it.vnum);
+		}
+		assign_triggers(world[rnum], WLD_TRIGGER);
+	}
+}
+
 // Шаги загрузки, которые пришивают содержимое к миру. Порядок тот же, в каком их делает
 // BootWorld и BootMudDataBase; перечень и обоснование -- в issue #4201.
 void Rewire(ZoneRnum zrn) {
@@ -423,22 +907,21 @@ Report Apply(ZoneVnum zone_vnum) {
 	}
 	FillReport(zone_table[zrn], disk, report);
 
-	// Состав изменился -- значит рнумы поедут, а за ними весь мир: выходы, ресеты всех зон,
-	// in_room живых, границы зон. Это шаг 3 из issue #4201, его ещё нет.
-	if (report.Changed()) {
-		FreeUnused(disk, false, false, false);
-		report.ok = true;
-		return report;
-	}
-
-	log("[ZoneReload] перезагружаю зону %d (%s)", zone_vnum, zone_table[zrn].name.c_str());
+	log("[ZoneReload] перезагружаю зону %d (%s)%s", zone_vnum, zone_table[zrn].name.c_str(),
+		report.Changed() ? ", состав изменился" : "");
 	EvictZone(zone_table[zrn]);
 
-	// Триггеры первыми: комнаты, мобы и предметы тут же навесят их на себя по внумам.
-	ApplyTriggers(disk, report);
-	ApplyRooms(zone_vnum, disk, report);
-	ApplyMobs(disk, report);
-	ApplyObjects(disk, report);
+	if (report.Changed()) {
+		// Состав изменился: блок записей зоны сносится целиком и собирается заново, а всё,
+		// что лежит за ним, съезжает на дельту. Подробности -- в Reindex().
+		Reindex(zrn, zone_vnum, disk, report);
+	} else {
+		// Триггеры первыми: комнаты, мобы и предметы тут же навесят их на себя по внумам.
+		ApplyTriggers(disk, report);
+		ApplyRooms(zone_vnum, disk, report);
+		ApplyMobs(disk, report);
+		ApplyObjects(disk, report);
+	}
 	FreeUnused(disk, true, true, true);
 
 	Rewire(zrn);
@@ -474,8 +957,7 @@ std::string Format(const Report &report) {
 						   report.applied_rooms, report.applied_mobs,
 						   report.applied_objects, report.applied_triggers);
 	} else if (report.Changed()) {
-		out += "Состав зоны изменился -- поедут рнумы, а с ними выходы, ресеты всех зон и границы.\r\n"
-			   "Перезагрузка такой зоны (issue #4201, шаг 3) пока не сделана, в мире ничего не изменено.\r\n";
+		out += "Состав изменился, рнумы поедут. Повторите с 'применить', если это то, что нужно.\r\n";
 	} else {
 		out += "Состав совпадает. Разведка: в мире ничего не изменено.\r\n";
 	}
