@@ -1003,6 +1003,7 @@ main_sources = files(
   # World Data Sources
   'src/engine/db/world_checksum.cpp',
   'src/engine/db/world_data_source_manager.cpp',
+  'src/engine/db/zone_reload.cpp',
   'src/engine/db/legacy_world_data_source.cpp',
   'src/engine/db/world_data_source_base.cpp',
   'src/engine/network/naws.cpp',
