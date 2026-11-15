@@ -21,6 +21,8 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/magic/magic_rooms.h"
 
+#include "utils/utils_time.h"
+
 #include <fmt/format.h>
 
 #include <algorithm>
@@ -878,35 +880,72 @@ void Reindex(ZoneRnum zrn, ZoneVnum zone_vnum, DiskZone &disk, Report &report) {
 
 // Шаги загрузки, которые пришивают содержимое к миру. Порядок тот же, в каком их делает
 // BootWorld и BootMudDataBase; перечень и обоснование -- в issue #4201.
-void Rewire(ZoneRnum zrn) {
+// reindexed == false означает, что ни один рнум не сдвинулся: состав зоны тот же, подменено
+// только содержимое прототипов. Тогда всё, что хранит рнумы -- зонные индексы, таблица
+// выпадения, рнумы системных предметов, индексы сетов, карта «предмет -> где грузится
+// ресетами», -- остаётся верным, и пересобирать его незачем. Это те самые 130 мс из 225.
+void Rewire(ZoneRnum zrn, const Report &report, std::string &timings) {
+	// Что именно пересобирать, решается по тому, что изменилось. Рнумы предметов не двигаются
+	// никогда (поиск по карте внумов), рнумы мобов и триггеров -- только когда менялся их
+	// собственный состав, рнумы комнат -- когда менялся состав комнат.
+	const bool rooms_moved = report.rooms.Changed();
+	const bool mobs_moved = report.mobs.Changed();
+	const bool trigs_moved = report.triggers.Changed();
+	const bool objects_touched = report.objects.Changed();
+	utils::CExecutionTimer step;
+	auto mark = [&step, &timings](const char *what) {
+		timings += fmt::format("{} {:.0f}мс, ", what, step.delta().count() * 1000.0);
+		step.restart();
+	};
 	// Значения свитков, палочек и напитков из старого формата -- миграция идемпотентна.
 	ConvertObjValues();
+	mark("values");
 
-	// Зонные рнумы в индексах и таблица «предмет -> где он грузится ресетами».
-	SetZoneRnumForObjects();
-	SetZoneRnumForMobiles();
-	SetZoneRnumForTriggers();
-	IndexZoneObjLoads();
+	// Зонные рнумы в индексах.
+	if (objects_touched) {
+		SetZoneRnumForObjects();
+	}
+	if (mobs_moved) {
+		SetZoneRnumForMobiles();
+	}
+	if (trigs_moved) {
+		SetZoneRnumForTriggers();
+	}
+	// Карта «предмет -> где он грузится ресетами» держит рнумы комнат и предметов.
+	if (rooms_moved || objects_touched) {
+		IndexZoneObjLoads();
+	}
+	if (objects_touched || mobs_moved || trigs_moved || rooms_moved) {
+		mark("индексы");
+	}
 
-	// Таблицы, которые строятся по прототипам. Все они -- полные пересборы.
-	oload_table.init();        // выпадение с мобов, хранит ObjRnum
-	system_obj::init();        // кошелёк и персональный сундук, хранят ObjRnum
-	obj_sets::init_obj_index();  // set_idx по прототипам
+	// Таблицы, построенные по прототипам предметов. Все они хранят ObjRnum, поэтому нужны
+	// ровно тогда, когда у зоны менялся состав предметов.
+	if (objects_touched) {
+		oload_table.init();          // выпадение с мобов, хранит ObjRnum
+		system_obj::init();          // кошелёк и персональный сундук, хранят ObjRnum
+		obj_sets::init_obj_index();  // set_idx по прототипам
+		mark("таблицы");
+	}
 
 	// Спецпроцедуры и лавки: func/farg живут в индексе и затираются подменой прототипа.
 	ReloadSpecProcs();
+	mark("спецпроц");
 
 	// Рунные камни -- физические предметы в комнатах, зона могла их потерять или получить.
 	MUD::Runestones().SpawnStones();
+	mark("камни");
 
 	// Счётчик мобов по уровням и список ловушек -- оба полные пересборы.
 	MobMax::init();
 	deathtrap::load();
+	mark("мобмакс+ловушки");
 
 	UniqueList<ZoneRnum> repop_list;
 	repop_list.push_back(zrn);
 	DecayObjectsOnRepop(repop_list);
 	ResetZone(zrn);
+	mark("ресет");
 }
 
 }  // namespace
@@ -944,15 +983,23 @@ Report Apply(ZoneVnum zone_vnum) {
 	}
 	report.zone_rnum = zrn;
 
+	utils::CExecutionTimer total;
+	utils::CExecutionTimer stage;
+	std::string timings;
+
 	DiskZone disk;
 	if (!ReadZone(zone_vnum, disk, report.error)) {
 		return report;
 	}
 	FillReport(zone_table[zrn], disk, report);
+	timings += fmt::format("чтение {:.0f}мс, ", stage.delta().count() * 1000.0);
+	stage.restart();
 
 	log("[ZoneReload] перезагружаю зону %d (%s)%s", zone_vnum, zone_table[zrn].name.c_str(),
 		report.Changed() ? ", состав изменился" : "");
 	EvictZone(zone_table[zrn]);
+	timings += fmt::format("очистка {:.0f}мс, ", stage.delta().count() * 1000.0);
+	stage.restart();
 
 	if (report.Changed()) {
 		// Состав изменился: блок записей зоны сносится целиком и собирается заново, а всё,
@@ -966,12 +1013,15 @@ Report Apply(ZoneVnum zone_vnum) {
 		ApplyObjects(disk, report);
 	}
 	FreeUnused(disk, true, true, true);
+	timings += fmt::format("заливка {:.0f}мс, ", stage.delta().count() * 1000.0);
+	stage.restart();
 
-	Rewire(zrn);
+	Rewire(zrn, report, timings);
 
-	mudlog(fmt::format("Зона {} перечитана с диска: комнат {}, мобов {}, предметов {}, триггеров {}.",
+	report.timings = fmt::format("{}итого {:.0f}мс", timings, total.delta().count() * 1000.0);
+	mudlog(fmt::format("Зона {} перечитана с диска: комнат {}, мобов {}, предметов {}, триггеров {}. {}",
 					   zone_vnum, report.applied_rooms, report.applied_mobs,
-					   report.applied_objects, report.applied_triggers),
+					   report.applied_objects, report.applied_triggers, report.timings),
 		   NRM, kLvlGreatGod, SYSLOG, true);
 
 	report.applied = true;
@@ -999,6 +1049,7 @@ std::string Format(const Report &report) {
 		out += fmt::format("Перезагружено: комнат {}, мобов {}, предметов {}, триггеров {}. Зона сброшена.\r\n",
 						   report.applied_rooms, report.applied_mobs,
 						   report.applied_objects, report.applied_triggers);
+		out += "Время: " + report.timings + "\r\n";
 	} else if (report.Changed()) {
 		out += "Состав изменился, рнумы поедут. Повторите с 'применить', если это то, что нужно.\r\n";
 	} else {

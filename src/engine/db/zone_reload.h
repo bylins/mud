@@ -57,6 +57,7 @@ struct Report {
 	int applied_mobs{0};
 	int applied_objects{0};
 	int applied_triggers{0};
+	std::string timings;   // разбивка по этапам, заполняет Apply()
 
 	bool Changed() const {
 		return rooms.Changed() || mobs.Changed() || objects.Changed() || triggers.Changed();
