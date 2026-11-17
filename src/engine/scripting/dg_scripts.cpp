@@ -4857,6 +4857,58 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	add_var_cntx(trig->var_list, name, result, 0);
 }
 
+// issue #4207: диагностика attach/exec. В бою attach молча не прикреплял триггер, а следом exec
+// сообщал «Не найден триггер», и по логу было не отличить «цель не та» от «прикрепление не
+// состоялось». Эти две функции описывают цель и перечисляют уже висящие на ней триггеры, чтобы
+// обе команды писали в сислог, что именно они видели. Временная диагностика -- см. issue.
+namespace {
+
+std::string DescribeTriggerTarget(CharData *c, ObjData *o, RoomData *r) {
+	if (c) {
+		return fmt::format("{} '{}' #{} uid {}",
+						   c->IsNpc() ? "моб" : "игрок",
+						   GET_NAME(c) ? GET_NAME(c) : "?",
+						   c->IsNpc() ? GET_MOB_VNUM(c) : -1,
+						   c->get_uid());
+	}
+	if (o) {
+		return fmt::format("предмет '{}' #{} uid {}", o->get_short_description(), GET_OBJ_VNUM(o), o->get_id());
+	}
+	if (r) {
+		return fmt::format("комната #{}", r->vnum);
+	}
+	return "цель не определена";
+}
+
+std::string ListAttachedTriggers(Script *sc) {
+	if (!sc) {
+		return "у цели нет script";
+	}
+	std::string out;
+	for (auto t : sc->script_trig_list) {
+		if (!out.empty()) {
+			out += ", ";
+		}
+		out += std::to_string(GET_TRIG_VNUM(t));
+	}
+	return out.empty() ? "список пуст" : out;
+}
+
+Script *ScriptOfTarget(CharData *c, ObjData *o, RoomData *r) {
+	if (c) {
+		return SCRIPT(c).get();
+	}
+	if (o) {
+		return o->get_script().get();
+	}
+	if (r) {
+		return SCRIPT(r).get();
+	}
+	return nullptr;
+}
+
+}  // namespace
+
 // script attaching a trigger to something
 void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/, char *cmd) {
 	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
@@ -4923,7 +4975,15 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (c) {
 		if (add_trigger(SCRIPT(c).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
+			// issue #4207: временная диагностика
+			trig_log(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
+									   ListAttachedTriggers(SCRIPT(c).get())));
 		} else {
+			// issue #4207: единственная ветка, которая раньше уходила молча
+			trig_log(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
+									   ListAttachedTriggers(SCRIPT(c).get())));
 			ExtractTrigger(newtrig);
 		}
 
@@ -4934,7 +4994,14 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 		if (add_trigger(o->get_script().get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
 			world_objects.update_obj_indices(o);
+			// issue #4207: временная диагностика
+			trig_log(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
+									   ListAttachedTriggers(o->get_script().get())));
 		} else {
+			trig_log(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
+									   ListAttachedTriggers(o->get_script().get())));
 			ExtractTrigger(newtrig);
 		}
 		return;
@@ -4943,7 +5010,14 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (r) {
 		if (add_trigger(SCRIPT(r).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->vnum);
+			// issue #4207: временная диагностика
+			trig_log(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
+									   ListAttachedTriggers(SCRIPT(r).get())));
 		} else {
+			trig_log(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
+									   ListAttachedTriggers(SCRIPT(r).get())));
 			ExtractTrigger(newtrig);
 		}
 		return;
@@ -5118,6 +5192,9 @@ int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, c
 		trig_log(*trig, fmt::format("run invalid trignum, команда: '{}'", cmd));
 		return (false);
 	}
+	// issue #4207: временная диагностика -- по строке на каждый exec: что за цель и что на ней висит
+	trig_log(*trig, fmt::format("exec {}: цель {}, на цели: {}",
+								num, DescribeTriggerTarget(c, o, r), ListAttachedTriggers(ScriptOfTarget(c, o, r))));
 	if (c && SCRIPT(c)->has_triggers()) {
 		auto tmp = SCRIPT(c)->script_trig_list.find_by_vnum(num);
 		if (tmp) {
@@ -5147,7 +5224,10 @@ int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, c
 		}
 	}
 	if (!runtrig) {
-		trig_log(*trig, fmt::format("Не найден триггер, команда: '{}'", cmd));
+		// issue #4207: к сообщению добавлены цель и её список триггеров -- иначе не отличить
+		// «цель не та» от «attach не прикрепил»
+		trig_log(*trig, fmt::format("Не найден триггер, команда: '{}' (цель {}, на цели: {})",
+									cmd, DescribeTriggerTarget(c, o, r), ListAttachedTriggers(ScriptOfTarget(c, o, r))));
 		return false;
 	}
 	// copy variables
