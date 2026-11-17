@@ -64,6 +64,19 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	observability::EmitToAllSinks(ev);
 }
 
+// Аффект выполняет свои <actions> двумя путями: тиком (RunCharAffectTick) и событием истечения
+// (RunCharAffectTrigger/kExpired). Внутри них носителя можно убить -- и он при этом ОСТАЁТСЯ в
+// игре: смерть игрока (raw_kill -> reset_affects_no_recalc), камень возрождения и смерть тестера
+// чистят ch->affected целиком, не пуржа самого персонажа. Проверки ch->purged() такой случай не
+// ловят, а и итератор обхода, и элемент списка к этому моменту уже освобождены -- обращение к
+// ним роняет сервер (SIGSEGV в shared_ptr::get из battle_affect_update).
+// Поэтому после каждого такого вызова итератор ищется заново по живой копии аффекта: нашёлся --
+// идём дальше, не нашёлся -- список перебрали за нас, обход прерываем.
+[[nodiscard]] CharData::char_affects_list_t::iterator FindAffectInList(CharData *ch,
+		const Affect<EApply>::shared_ptr &af) {
+	return std::find(ch->affected.begin(), ch->affected.end(), af);
+}
+
 // issue.affect-migration: an affect announces its natural expiry if it has an IDENTITY -- its
 // affect_type. (Affect::type is gone; affect_type is the sole identity.)
 [[nodiscard]] bool AffectHasIdentity(const Affect<EApply>::shared_ptr &af) {
@@ -399,7 +412,9 @@ void player_affect_update() {
 		while (affect_i != i->affected.end()) {
 			utils::CExecutionTimer affect_timer;
 			++profile.counters[static_cast<std::size_t>(Counter::kAffectEntries)];
-			const auto &affect = *affect_i;
+			// Копия, а не ссылка на элемент списка: тик и kExpired могут вычистить i->affected
+			// целиком, оставив носителя в игре (см. FindAffectInList).
+			const auto affect = *affect_i;
 
 			// нечего тикать аффектам вне раунда боя
 			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
@@ -433,6 +448,15 @@ void player_affect_update() {
 				// now data: its <trigger val="kExpired"> action imposes kAbstinent (was hardcoded set_abstinent).
 				if (expired_types.insert(affect->affect_type).second) {
 					RunCharAffectTrigger(i.get(), affect->affect_type, talents_actions::EActionTrigger::kExpired);
+					if (i->purged()) {
+						was_purged = true;
+						++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+						break;
+					}
+					affect_i = FindAffectInList(i.get(), affect);
+					if (affect_i == i->affected.end()) {
+						break;
+					}
 				}
 				affect_i = RemoveAffect(i.get(), affect_i);
 				need_recalc = true;
@@ -451,6 +475,10 @@ void player_affect_update() {
 						if (i->purged()) {
 							was_purged = true;
 							++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+							break;
+						}
+						affect_i = FindAffectInList(i.get(), affect);
+						if (affect_i == i->affected.end()) {
 							break;
 						}
 					}
@@ -534,7 +562,9 @@ void battle_affect_update(CharData *ch) {
 	}
 	auto affect_i = ch->affected.begin();
 	while (affect_i != ch->affected.end()) {
-		const auto &affect = *affect_i;
+		// Копия, а не ссылка на элемент списка: и тик аффекта, и его kExpired выполняют <actions>,
+		// а те могут вычистить ch->affected целиком, оставив носителя в игре (см. FindAffectInList).
+		const auto affect = *affect_i;
 
 		if (!IS_SET((*affect_i)->battleflag, kAfBattledec) && !IS_SET((*affect_i)->battleflag, kAfSameTime)) {
 			++affect_i;
@@ -556,6 +586,13 @@ void battle_affect_update(CharData *ch) {
 			}
 			// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout in combat.
 			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
+			if (ch->purged()) {
+				return;
+			}
+			affect_i = FindAffectInList(ch, affect);
+			if (affect_i == ch->affected.end()) {
+				break;
+			}
 			affect_i = RemoveAffect(ch, affect_i);
 			need_recalc = true;
 		} else {
@@ -573,6 +610,10 @@ void battle_affect_update(CharData *ch) {
 						// issue #3544: the bearer can be killed/purged by its own affect tick this round --
 						// that is normal, so just stop (the implementor-log message here was pure spam).
 						return;
+					}
+					affect_i = FindAffectInList(ch, affect);
+					if (affect_i == ch->affected.end()) {
+						break;
 					}
 				}
 				if (ch->IsNpc())
@@ -633,7 +674,9 @@ void mobile_affect_update() {
 		while (affect_i != ch->affected.end()) {
 			utils::CExecutionTimer affect_timer;
 			++profile.counters[static_cast<std::size_t>(Counter::kAffectEntries)];
-			const auto &affect = *affect_i;
+			// Копия, а не ссылка на элемент списка: тик и kExpired могут вычистить ch->affected
+			// целиком, оставив носителя в игре (см. FindAffectInList).
+			const auto affect = *affect_i;
 
 			if (affect->duration == 0) {
 				if (AffectHasIdentity(affect)) {
@@ -647,6 +690,15 @@ void mobile_affect_update() {
 				}
 				// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout (mob).
 				RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
+				if (ch->purged()) {
+					was_purged = true;
+					++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
+					break;
+				}
+				affect_i = FindAffectInList(ch, affect);
+				if (affect_i == ch->affected.end()) {
+					break;
+				}
 				affect_i = RemoveAffect(ch, affect_i);
 				need_recalc = true;
 			} else {
@@ -663,6 +715,10 @@ void mobile_affect_update() {
 							if (ch->purged()) {
 								was_purged = true;
 								++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
+								break;
+							}
+							affect_i = FindAffectInList(ch, affect);
+							if (affect_i == ch->affected.end()) {
 								break;
 							}
 						}

@@ -4406,7 +4406,7 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 // (the char-affect analog of RunRoomTick). kPulse fires every tick; kBattlePulse only while the bearer is
 // fighting. The action's effect targets the bearer via kTarSame (caster == bearer here). Threads the
 // affect's duration through so a manual_cast action can end it early. Returns true if any action fired.
-bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
+bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff) {
 	if (!ch || !aff || ch->in_room == kNowhere) {
 		return false;
 	}

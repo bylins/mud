@@ -126,7 +126,9 @@ void battle_affect_update(CharData *ch);
 void mobile_affect_update();
 // issue.character-affect-triggers: run one char affect's pulse/battle-pulse <actions> on its bearer
 // (kPulse always, kBattlePulse only while fighting). Defined in magic.cpp. Returns true if any fired.
-bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff);
+// Аффект берётся ПО ЗНАЧЕНИЮ: внутри тика носителя можно убить, а смерть чистит его список
+// аффектов, и ссылка на элемент этого списка после первого же действия станет висячей.
+bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff);
 
 // issue #3610: кому засчитывать урон тика повреждающего аффекта. Узлов одного типа на персонаже
 // может быть несколько, с разными авторами или вовсе без автора (отравленная еда, dg-триггер,
