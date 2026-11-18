@@ -167,6 +167,24 @@ void trig_log(Trigger *trig, std::string msg, LogMode type) {
 			   type);
 }
 
+// issue #4207: тихий близнец trig_log -- пишет только в файл сислога, без потока богам.
+// Нужен для диагностики, которая выдаёт строку на каждое исполнение: в ERRLOG такое уходит
+// богам на экран и забивает его.
+void trig_log_quiet(Trigger *trig, const std::string &msg) {
+	if (!trig) {
+		return;
+	}
+	std::string text = fmt::format("SCRIPT LOG (Trigger: {}, VNum: {}) : {} [строка: {}]",
+								   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg, last_trig_line_num);
+	// Метки UID -- управляющие байты, в лог их писать нельзя (см. script_log).
+	std::replace_if(text.begin(), text.end(),
+					[](char c) {
+						return c == UID_OBJ || c == UID_ROOM || c == UID_CHAR || c == UID_CHAR_ALL;
+					},
+					' ');
+	log("%s", text.c_str());
+}
+
 // issue #4163: цель в триггере положено указывать UID'ом (%actor%, %self%, %obj%), а не текстом
 // (.%actor.iname%). Текст движок ищет заново и сравнивает по началу слова, поэтому имя игрока
 // совпадает с алиасом моба, который с этого имени начинается, а в списке комнаты чужие и ведомые
@@ -4857,6 +4875,58 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	add_var_cntx(trig->var_list, name, result, 0);
 }
 
+// issue #4207: диагностика attach/exec. В бою attach молча не прикреплял триггер, а следом exec
+// сообщал «Не найден триггер», и по логу было не отличить «цель не та» от «прикрепление не
+// состоялось». Эти две функции описывают цель и перечисляют уже висящие на ней триггеры, чтобы
+// обе команды писали в сислог, что именно они видели. Временная диагностика -- см. issue.
+namespace {
+
+std::string DescribeTriggerTarget(CharData *c, ObjData *o, RoomData *r) {
+	if (c) {
+		return fmt::format("{} '{}' #{} uid {}",
+						   c->IsNpc() ? "моб" : "игрок",
+						   GET_NAME(c) ? GET_NAME(c) : "?",
+						   c->IsNpc() ? GET_MOB_VNUM(c) : -1,
+						   c->get_uid());
+	}
+	if (o) {
+		return fmt::format("предмет '{}' #{} uid {}", o->get_short_description(), GET_OBJ_VNUM(o), o->get_id());
+	}
+	if (r) {
+		return fmt::format("комната #{}", r->vnum);
+	}
+	return "цель не определена";
+}
+
+std::string ListAttachedTriggers(Script *sc) {
+	if (!sc) {
+		return "у цели нет script";
+	}
+	std::string out;
+	for (auto t : sc->script_trig_list) {
+		if (!out.empty()) {
+			out += ", ";
+		}
+		out += std::to_string(GET_TRIG_VNUM(t));
+	}
+	return out.empty() ? "список пуст" : out;
+}
+
+Script *ScriptOfTarget(CharData *c, ObjData *o, RoomData *r) {
+	if (c) {
+		return SCRIPT(c).get();
+	}
+	if (o) {
+		return o->get_script().get();
+	}
+	if (r) {
+		return SCRIPT(r).get();
+	}
+	return nullptr;
+}
+
+}  // namespace
+
 // script attaching a trigger to something
 void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/, char *cmd) {
 	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
@@ -4923,7 +4993,15 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (c) {
 		if (add_trigger(SCRIPT(c).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
+									   ListAttachedTriggers(SCRIPT(c).get())));
 		} else {
+			// issue #4207: единственная ветка, которая раньше уходила молча
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
+									   ListAttachedTriggers(SCRIPT(c).get())));
 			ExtractTrigger(newtrig);
 		}
 
@@ -4934,7 +5012,14 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 		if (add_trigger(o->get_script().get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
 			world_objects.update_obj_indices(o);
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
+									   ListAttachedTriggers(o->get_script().get())));
 		} else {
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
+									   ListAttachedTriggers(o->get_script().get())));
 			ExtractTrigger(newtrig);
 		}
 		return;
@@ -4943,7 +5028,14 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (r) {
 		if (add_trigger(SCRIPT(r).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->vnum);
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
+									   ListAttachedTriggers(SCRIPT(r).get())));
 		} else {
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
+									   ListAttachedTriggers(SCRIPT(r).get())));
 			ExtractTrigger(newtrig);
 		}
 		return;
@@ -5118,6 +5210,10 @@ int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, c
 		trig_log(*trig, fmt::format("run invalid trignum, команда: '{}'", cmd));
 		return (false);
 	}
+	// issue #4207: временная диагностика -- по строке на каждый exec: что за цель и что на ней
+	// висит. Тихо, только в файл сислога: строка на каждое исполнение богам в поток не нужна.
+	trig_log_quiet(*trig, fmt::format("exec {}: цель {}, на цели: {}",
+								num, DescribeTriggerTarget(c, o, r), ListAttachedTriggers(ScriptOfTarget(c, o, r))));
 	if (c && SCRIPT(c)->has_triggers()) {
 		auto tmp = SCRIPT(c)->script_trig_list.find_by_vnum(num);
 		if (tmp) {
@@ -5147,7 +5243,10 @@ int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, c
 		}
 	}
 	if (!runtrig) {
-		trig_log(*trig, fmt::format("Не найден триггер, команда: '{}'", cmd));
+		// issue #4207: к сообщению добавлены цель и её список триггеров -- иначе не отличить
+		// «цель не та» от «attach не прикрепил»
+		trig_log(*trig, fmt::format("Не найден триггер, команда: '{}' (цель {}, на цели: {})",
+									cmd, DescribeTriggerTarget(c, o, r), ListAttachedTriggers(ScriptOfTarget(c, o, r))));
 		return false;
 	}
 	// copy variables

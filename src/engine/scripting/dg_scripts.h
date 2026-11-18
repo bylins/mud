@@ -421,6 +421,9 @@ void print_worlds_vars(CharData *ch, std::optional<long> context);
 void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(Trigger *trig, std::string msg, LogMode type = LogMode::OFF);
+// issue #4207: то же, но только в файл сислога, без потока богам -- для диагностики,
+// которая пишет строку на каждое исполнение.
+void trig_log_quiet(Trigger *trig, const std::string &msg);
 
 // issue #4163: называет место, где цель команды задана текстом, а не UID. Пишет по одной строке
 // на место (внум триггера плюс номер строки) за загрузку -- иначе лог заливает, потому что те же
