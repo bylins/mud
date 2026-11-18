@@ -253,7 +253,13 @@ void GlobalTriggersStorage::shift_rnums_from(const Rnum rnum) {
 	//       Actually we need to get rid of rnums at all.
 	std::list<Trigger *> to_rebind;
 	for (const auto trigger : m_triggers) {
-		if (trigger->get_rnum() > rnum) {
+		// Граница включающая: прототип, стоявший РОВНО на rnum, тоже уезжает на rnum+1
+		// (см. цикл пересборки trig_index в trigedit_save), а новый триггер занимает его
+		// место. Живой экземпляр с таким же rnum надо сдвинуть вместе с прототипом, иначе
+		// он начинает указывать на чужую строку индекса. Остальные поправки на том же
+		// месте вызова (команды 'T' в зонах, триги в чужих trigedit'ах) давно считают
+		// границу по >=.
+		if (trigger->get_rnum() >= rnum) {
 			to_rebind.push_back(trigger);
 		}
 	}
