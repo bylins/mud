@@ -339,7 +339,7 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 			int pct = (rt.pct_min == rt.pct_max) ? rt.pct_min : number(rt.pct_min, rt.pct_max);
 			if (victim->IsNpc() && !IsCharmice(victim)) {
 				pct += rt.npc_bonus;
-				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+				if (victim->get_role(RoleBit(EMobClass::kBoss))) {
 					pct += rt.boss_bonus;
 				}
 			}

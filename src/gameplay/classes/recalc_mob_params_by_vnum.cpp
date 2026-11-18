@@ -27,9 +27,7 @@ inline bool HasRole(const CharData* ch, EMobClass role) {
 	if (role <= EMobClass::kUndefined || role >= EMobClass::kTotal) {
 		return false;
 	}
-	constexpr auto base  = (unsigned)EMobClass::kBoss;
-	const unsigned index = (unsigned)role - base;  // сдвиг к битсету
-	return ch->get_role(index);
+	return ch->get_role(RoleBit(role));
 }
 
 // Заполняет массив ролей, возвращает количество в *count
@@ -64,11 +62,7 @@ static void EnsureTrashRole(CharData *ch) {
 		return;
 	}
 
-	// role_.bitset index = role - kBoss (как в HasRole())
-	constexpr auto base = (unsigned)EMobClass::kBoss;
-	const unsigned index = (unsigned)EMobClass::kTrash - base;
-
-	ch->set_role(index, true);
+	ch->set_role(RoleBit(EMobClass::kTrash), true);
 }
 
 // =====================================
@@ -352,7 +346,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	// Если есть стаб - проставляем роль разбойника
 	if (GetSkill(ch, ESkill::kBackstab) > 0) {
-		ch->set_role(static_cast<unsigned>(EMobClass::kRogue) -1, true);
+		ch->set_role(RoleBit(EMobClass::kRogue), true);
 	}
 
 	// Если ролей нет - реально проставляем kTrash

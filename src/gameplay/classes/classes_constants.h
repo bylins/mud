@@ -54,6 +54,16 @@ enum class EMobClass {
 };
 
 constexpr int MOB_ROLE_COUNT = static_cast<int>(EMobClass::kTotal) - 1;
+
+// Роли моба лежат в битсете на MOB_ROLE_COUNT бит, и под kUndefined места в нём нет: бит 0 --
+// это kBoss. Так их нумеруют и данные мира, и medit, и показ ролей (npc_role_types[0] = "босс").
+// Значение самого перечисления на единицу больше номера бита, поэтому индекс берётся только
+// через RoleBit: подстановка enum'а напрямую сдвигает проверку на одну роль
+// (`get_role(EMobClass::kBoss)` спрашивал про "треш").
+constexpr unsigned RoleBit(EMobClass role) {
+	return static_cast<unsigned>(role) - 1;
+}
+
 EMobClass& operator++(EMobClass &c);
 
 template<>
