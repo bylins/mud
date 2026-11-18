@@ -240,7 +240,7 @@ bool sort_by_zone_mob_level(int rnum1, int rnum2) {
 void print_mob_bosses(CharData *ch, bool lvl_sort) {
 	std::vector<int> tmp_list;
 	for (int i = 0; i <= top_of_mobt; ++i) {
-		if (mob_proto[i].get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+		if (mob_proto[i].get_role(RoleBit(EMobClass::kBoss))) {
 			tmp_list.push_back(i);
 		}
 	}

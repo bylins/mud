@@ -2276,7 +2276,7 @@ int test_levels[] = {
 } // namespace
 
 int calc_boss_value(CharData *mob, int num) {
-	if (mob->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+	if (mob->get_role(RoleBit(EMobClass::kBoss))) {
 		num += num * 25 / 100;
 	}
 	return num;

@@ -737,7 +737,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (ch != victim && ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
 		const auto &id_act = ctx.action_or_default().GetDmg();
 		if (id_act.HasInstantDeath()
-				&& !victim->get_role(static_cast<unsigned>(EMobClass::kBoss))   // never on boss monsters
+				&& !victim->get_role(RoleBit(EMobClass::kBoss))   // never on boss monsters
 				&& !ctx.last_saving_result.value_or(false)   // target failed the (already-rolled) save
 				&& number(1, 100) <= id_act.GetInstantDeathProb()
 				&& abilities_roll::AgainstRivalRoll::OppositeLuckTest(ch, victim)) {
