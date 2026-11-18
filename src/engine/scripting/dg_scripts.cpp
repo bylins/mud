@@ -167,6 +167,24 @@ void trig_log(Trigger *trig, std::string msg, LogMode type) {
 			   type);
 }
 
+// issue #4207: тихий близнец trig_log -- пишет только в файл сислога, без потока богам.
+// Нужен для диагностики, которая выдаёт строку на каждое исполнение: в ERRLOG такое уходит
+// богам на экран и забивает его.
+void trig_log_quiet(Trigger *trig, const std::string &msg) {
+	if (!trig) {
+		return;
+	}
+	std::string text = fmt::format("SCRIPT LOG (Trigger: {}, VNum: {}) : {} [строка: {}]",
+								   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg, last_trig_line_num);
+	// Метки UID -- управляющие байты, в лог их писать нельзя (см. script_log).
+	std::replace_if(text.begin(), text.end(),
+					[](char c) {
+						return c == UID_OBJ || c == UID_ROOM || c == UID_CHAR || c == UID_CHAR_ALL;
+					},
+					' ');
+	log("%s", text.c_str());
+}
+
 // issue #4163: цель в триггере положено указывать UID'ом (%actor%, %self%, %obj%), а не текстом
 // (.%actor.iname%). Текст движок ищет заново и сравнивает по началу слова, поэтому имя игрока
 // совпадает с алиасом моба, который с этого имени начинается, а в списке комнаты чужие и ведомые
@@ -4975,13 +4993,13 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (c) {
 		if (add_trigger(SCRIPT(c).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
-			// issue #4207: временная диагностика
-			trig_log(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
 									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
 									   ListAttachedTriggers(SCRIPT(c).get())));
 		} else {
 			// issue #4207: единственная ветка, которая раньше уходила молча
-			trig_log(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
 									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
 									   ListAttachedTriggers(SCRIPT(c).get())));
 			ExtractTrigger(newtrig);
@@ -4994,12 +5012,12 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 		if (add_trigger(o->get_script().get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
 			world_objects.update_obj_indices(o);
-			// issue #4207: временная диагностика
-			trig_log(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
 									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
 									   ListAttachedTriggers(o->get_script().get())));
 		} else {
-			trig_log(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
 									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
 									   ListAttachedTriggers(o->get_script().get())));
 			ExtractTrigger(newtrig);
@@ -5010,12 +5028,12 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (r) {
 		if (add_trigger(SCRIPT(r).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->vnum);
-			// issue #4207: временная диагностика
-			trig_log(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
 									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
 									   ListAttachedTriggers(SCRIPT(r).get())));
 		} else {
-			trig_log(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
 									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
 									   ListAttachedTriggers(SCRIPT(r).get())));
 			ExtractTrigger(newtrig);
@@ -5192,8 +5210,9 @@ int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, c
 		trig_log(*trig, fmt::format("run invalid trignum, команда: '{}'", cmd));
 		return (false);
 	}
-	// issue #4207: временная диагностика -- по строке на каждый exec: что за цель и что на ней висит
-	trig_log(*trig, fmt::format("exec {}: цель {}, на цели: {}",
+	// issue #4207: временная диагностика -- по строке на каждый exec: что за цель и что на ней
+	// висит. Тихо, только в файл сислога: строка на каждое исполнение богам в поток не нужна.
+	trig_log_quiet(*trig, fmt::format("exec {}: цель {}, на цели: {}",
 								num, DescribeTriggerTarget(c, o, r), ListAttachedTriggers(ScriptOfTarget(c, o, r))));
 	if (c && SCRIPT(c)->has_triggers()) {
 		auto tmp = SCRIPT(c)->script_trig_list.find_by_vnum(num);
