@@ -70,11 +70,11 @@ they live in `cfg/economics/shops.xml`.
    on the mob, not a reset command: `dead_load: [{obj_vnum, load_prob, load_type, spec_param}]`
    (legacy `.mob` files carried it as a `D` line; `dead_load::ParseDeadLoadLine`). Grep the incoming
    `.zon` for `^L ` and move every hit onto the mob of the preceding `M` line, or the zone loses all
-   its drops. **But `dead_load` is off limits for new content — among the builders loot is handed
-   out from a death trigger with `load obj`.** For a converted zone, write what the `L` lines said
-   into the commit message or the zone's README and let the author place it in triggers; don't
-   invent `dead_load` entries. Equally: a zone with no `dead_load` at all is the norm, so never
-   read that as missing loot.
+   its drops. `dead_load` is a **normal way to hand out loot** (Стрибог and Ярило, 17.11.2026),
+   so moving the `L` lines onto the mob is the right fix rather than a workaround; a death trigger
+   with `load obj` does the same job and both are in use. Still say in the commit message what the
+   `L` lines were, so the author can check the drop rates. A zone with no `dead_load` at all is
+   equally normal, so never read that as missing loot.
 3. **Retired equipment-affect bits.** `EEquipmentAffect` bits 11-12 (`kProtectFromDark`,
    `kProtectFromMind`) are gone for good — they were never on/off affects but resist parameters.
    Symptom: `SYSERR: unknown EEquipmentAffect 'kProtectFromMind' on obj vnum N, skipped`. Grant the
@@ -214,8 +214,8 @@ zone's vnums before believing anything.
 6. **Заклинания и квесты.** Каждое имя в `dgcast` есть в `lib/cfg/messages/ru/spell_msg.xml`
    (русские имена там, не в `spells.xml`); номера `setquest`/`quested` не пересекаются с теми,
    что уже заняты в мире -- квесты лежат в сейвах игроков.
-7. **Механика предметов и мобов.** `dead_load` (у билдеров запрещён -- лут выдаётся триггером
-   `load obj`); нереализованные типы предметов (`kWorm`); снятые биты `kProtectFromDark/Mind`;
+7. **Механика предметов и мобов.** Нереализованные типы предметов (`kWorm`); снятые биты
+   `kProtectFromDark/Mind`;
    предметы с нулевым таймером; двери (`exit_flags & 1`) без `keywords` -- такую дверь игрок
    не назовёт; уровни мобов по зонам -- на сверку владельцу мира.
 8. **Поля зоны.** `under_construction` (см. [[project_under_construction_tradeoff]] -- это
