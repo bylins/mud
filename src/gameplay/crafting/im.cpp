@@ -1510,11 +1510,6 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				default: break;
 			}
-			// issue: сообщения рецепта (msg_char/msg_room) уходят ДО создания результата и без
-			// объекта, поэтому $o в них подставить нечего -- что именно сварилось, игрок из них
-			// не узнаёт: половина текстов предмет не называет вовсе. Называем его сами, после
-			// того как вещь легла в руки.
-			act("Готово: $o1.", false, ch, result.get(), nullptr, kToChar);
 			PlaceObjToInventory(result.get(), ch);
 		}
 	}
