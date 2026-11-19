@@ -59,7 +59,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			{"Вы не можете орать.\r\n",    // holler
 			 "орать",
 			 "Вы вне видимости канала.",
-			 kColorBoldYel,
+			 "&Y",
 			 "заорали",
 			 "заорал$g",
 			 4,
@@ -69,7 +69,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			{"Вам запрещено кричать.\r\n",    // shout
 			 "кричать",
 			 "Вы вне видимости канала.\r\n",
-			 kColorBoldYel,
+			 "&Y",
 			 "закричали",
 			 "закричал$g",
 			 2,
@@ -79,7 +79,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			{"Вам недозволено болтать.\r\n",    // gossip
 			 "болтать",
 			 "Вы вне видимости канала.\r\n",
-			 kColorYel,
+			 "&y",
 			 "заметили",
 			 "заметил$g",
 			 3,
@@ -89,7 +89,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			{"Вам не к лицу торговаться.\r\n",    // auction
 			 "торговать",
 			 "Вы вне видимости канала.\r\n",
-			 kColorBoldYel,
+			 "&Y",
 			 "попробовали поторговаться",
 			 "вступил$g в торг",
 			 2,
@@ -206,7 +206,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
 			const std::string echo = fmt::format("{}Вы {} : '{}'{}", color_on,
-												 com_msgs[subcmd].you_action, argument, kColorNrm);
+												 com_msgs[subcmd].you_action, argument, "&w");
 			act(echo, false, ch, nullptr, nullptr, kToChar | kToSleep);
 
 			if (!ch->IsNpc()) {
@@ -234,7 +234,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			// только глагол и окончание.
 			const char *verb = subcmd == kScmdGossip ? "заметил" : "заорал";
 			ch->remember_add(fmt::format("{}{} {}{} :'{}'{}\r\n", color_on, GET_NAME(ch), verb,
-										 IsFemale(ch) ? "а" : "", argument, kColorNrm),
+										 IsFemale(ch) ? "а" : "", argument, "&w"),
 							 Remember::GOSSIP);
 		}
 	}
@@ -257,7 +257,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 			SendMsgToChar(color_on, i->character.get());
 			act(out_str, false, ch, nullptr, i->character.get(), kToVict | kToSleep | kToNotDeaf);
-			SendMsgToChar(kColorNrm, i->character.get());
+			SendMsgToChar("&w", i->character.get());
 			const std::string text = format_gossip(ch, i->character.get(), subcmd, argument);
 			i->character->remember_add(text, Remember::ALL);
 		}
@@ -270,12 +270,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 */
 std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *argument) {
 	return fmt::format("{}{} {}{} : '{}'{}\r\n",
-					   (cmd == kScmdGossip ? kColorYel : kColorBoldYel),
+					   (cmd == kScmdGossip ? "&y" : "&Y"),
 					   format_gossip_name(ch, vict).c_str(),
 					   (cmd == kScmdGossip ? "заметил" : "заорал"),
 					   grammar::VisSexEnding(sight::CanSee((vict), (ch)), (ch)->get_sex(), 1),
 					   argument,
-					   kColorNrm);
+					   "&w");
 }
 
 /**

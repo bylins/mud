@@ -112,6 +112,10 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kDaturaPoison] = "kDaturaPoison";
 	EAffectFlag_name_by_value[EAffect::kSkillReduce] = "kSkillReduce";
 	EAffectFlag_name_by_value[EAffect::kNoBattleSwitch] = "kNoBattleSwitch";
+	EAffectFlag_name_by_value[EAffect::kBoneServant] = "kBoneServant";
+	EAffectFlag_name_by_value[EAffect::kCorrodedArmor] = "kCorrodedArmor";
+	EAffectFlag_name_by_value[EAffect::kCorrodedWard] = "kCorrodedWard";
+	EAffectFlag_name_by_value[EAffect::kBoneLevy] = "kBoneLevy";
 	EAffectFlag_name_by_value[EAffect::kBelenaPoison] = "kBelenaPoison";
 	EAffectFlag_name_by_value[EAffect::kNoTeleport] = "kNoTeleport";
 	EAffectFlag_name_by_value[EAffect::kCombatLuck] = "kCombatLuck";
@@ -223,63 +227,63 @@ const char *apply_types[] = {"ничего",
 							 "вес",
 							 "рост",
 							 "запоминание",
-							 "макс.жизнь",
-							 "макс.энергия",
+							 "максимальная жизнь",
+							 "максимальная энергия",
 							 "деньги",
 							 "опыт",
 							 "защита",
 							 "попадание",
 							 "повреждение",
 							 "воля",
-							 "защита.от.стихии.огня",
-							 "защита.от.стихии.воздуха",
+							 "защита от стихии огня",
+							 "защита от стихии воздуха",
 							 "здоровье",
 							 "стойкость",
-							 "восст.жизни",
-							 "восст.энергии",
-							 "слот.1",
-							 "слот.2",
-							 "слот.3",
-							 "слот.4",
-							 "слот.5",
-							 "слот.6",
-							 "слот.7",
-							 "слот.8",
-							 "слот.9",
+							 "восстановление жизни",
+							 "восстановление энергии",
+							 "слот 1",
+							 "слот 2",
+							 "слот 3",
+							 "слот 4",
+							 "слот 5",
+							 "слот 6",
+							 "слот 7",
+							 "слот 8",
+							 "слот 9",
 							 "размер",
 							 "броня",
 							 "яд",
 							 "реакция",
-							 "успех.колдовства",
+							 "успех колдовства",
 							 "удача",
 							 "инициатива",
 							 "религия(НЕ СТАВИТЬ)",
 							 "поглощение",
 							 "трудолюбие",
-							 "защита.от.стихии.воды",
-							 "защита.от.стихии.земли",
-							 "защита.от.тяжелых.ран",				// живучесть
-							 "защита.от.магии.разума",
-							 "защита.от.ядов.и.болезней",			// иммунитет
-							 "защита.от.чар",
-							 "защита.от.магических.повреждений",
+							 "защита от стихии воды",
+							 "защита от стихии земли",
+							 "защита от тяжелых ран",				// живучесть
+							 "защита от магии разума",
+							 "защита от ядов и болезней",			// иммунитет
+							 "защита от чар",
+							 "защита от магических повреждений",
 							 "яд аконита",
 							 "яд скополии",
 							 "яд белены",
 							 "яд дурмана",
 							 "*не используется",
-							 "*множитель.опыта",
-							 "бонус.ко.всем.умениям",
+							 "*множитель опыта",
+							 "бонус ко всем умениям",
 							 "лихорадка",
-							 "безумное.бормотание",
-							 "защита.от.физических.повреждений",
-							 "защита.от.магии.тьмы",
-							 "роковое.предчувствие",
-							 "*дополнительный.бонус.опыта",
-							 "бонус.физ.повреждений.%",
-							 "волшебное.уклонение.от.физ.урона",
-							 "сила.заклинаний.%",
-							 "волшебное.уклонение.от.маг.урона",
+							 "безумное бормотание",
+							 "защита от физических повреждений",
+							 "защита от магии тьмы",
+							 "роковое предчувствие",
+							 "*дополнительный бонус опыта",
+							 "бонус физических повреждений, %",
+							 "волшебное уклонение от физического урона",
+							 "сила заклинаний, %",
+							 "волшебное уклонение от магического урона",
 							 "путы",
 							 "отравление",
 							 "\n"
@@ -435,6 +439,47 @@ void init_EAffFlag_ITEM_NAMES() {
 	}
 }
 
+// issue #3980: трёхбуквенные коды флагов для stat -- полные имена в строку не влезали:
+// у щита их восемь, и «Battledec, UpdateDuration, UpdateMod, Dispellable, ...» занимало
+// больше экрана, чем все остальные колонки вместе.
+const std::map<EAffFlag, std::string> kAffFlagShortNames = {
+	{EAffFlag::kAfBattledec,			"bat"},   // тикает в раундах боя
+	{EAffFlag::kAfDeadkeep,				"ded"},   // остаётся после смерти
+	{EAffFlag::kAfPulsedec,				"pls"},   // тикает по пульсам
+	{EAffFlag::kAfSameTime,				"smt"},   // тикает единым темпом
+	{EAffFlag::kAfUpdateDuration,		"udu"},   // повторный каст обновляет срок
+	{EAffFlag::kAfAccumulateDuration,	"adu"},   // повторный каст копит срок
+	{EAffFlag::kAfUpdateMod,			"umo"},   // повторный каст обновляет прибавку
+	{EAffFlag::kAfDispellable,			"dsp"},   // снимается магией
+	{EAffFlag::kAfCurable,				"cur"},   // лечится
+	{EAffFlag::kAfMustBeHandled,		"hnd"},   // есть периодический обработчик
+	{EAffFlag::kAfUnique,				"unq"},   // только один в мире от этого кастера
+	{EAffFlag::kAfFailed,				"fal"},   // метка неудачной попытки
+	{EAffFlag::kAfPoison,				"poi"},   // разряд: отрава
+	{EAffFlag::kAfEntanglement,			"ent"},   // разряд: помеха движению
+	{EAffFlag::kAfCharmBond,			"chb"},   // пакет призванного существа
+	{EAffFlag::kAfNeedControl,			"ctl"},   // комнатный: один на кастера
+	{EAffFlag::kAfCasterInRoom,			"cir"},   // комнатный: кастер в комнате
+	{EAffFlag::kAfCasterInWorld,		"ciw"},   // комнатный: кастер в мире
+	{EAffFlag::kAfCasterInWorldDelay,	"cwd"},   // комнатный: кастер в мире, с отсрочкой
+	{EAffFlag::kAfIgnoreBlink,			"ibl"},   // урон проходит мимо мигания
+	{EAffFlag::kAfNoPositionBonus,		"npb"},   // нет надбавки за положение жертвы
+	{EAffFlag::kAfNoCritBonus,			"ncb"},   // нет надбавки за крит
+	{EAffFlag::kAfMaterialize,			"mat"},   // флаг моба разворачивается в аффект
+	{EAffFlag::kAfFullAbsorb,			"abs"},   // поглощает урон целиком
+	{EAffFlag::kAfBoon,					"bon"},   // разряд: мелкие блага
+	{EAffFlag::kAfWarding,				"war"},   // разряд: обычная защита
+	{EAffFlag::kAfAegis,				"aeg"},   // разряд: сильная защита
+	{EAffFlag::kAfFromEquipment,		"equ"},   // дан надетой вещью
+	{EAffFlag::kAfFromSet,				"set"},   // дан набором вещей
+};
+
+const std::string &ShortName(const EAffFlag item) {
+	static const std::string unknown{"???"};
+	const auto it = kAffFlagShortNames.find(item);
+	return it == kAffFlagShortNames.end() ? unknown : it->second;
+}
+
 template<>
 EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name) {
 	if (EAffFlag_name_by_value.empty()) {
@@ -528,8 +573,8 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
 // source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
-constexpr std::size_t kAffectFlagTableSize = 138;  // EAffect max (kBurning=137) + 1
-std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
+constexpr std::size_t kAffectFlagTableSize = 142;  // EAffect max (kBoneLevy=141) + 1
+std::array<AffectFlags, kAffectFlagTableSize> g_affect_flags{};
 std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
 // issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from
 // affects.xml. Built here but NOT yet read by the impose path (that switch is P3).
@@ -563,7 +608,7 @@ static affects::EBuff ParseAffectBuff(const char *raw) {
 }
 
 void BuildAffectFlagTable(parser_wrapper::DataNode data) {
-	g_affect_flags.fill(0);
+	g_affect_flags.fill(AffectFlags{});
 	g_affect_buff.fill(affects::EBuff::kAmbiguous);
 	g_affect_shield_weight.fill(0);
 	g_affect_dispel_mod.fill(0);
@@ -589,7 +634,7 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 		auto fnode = node;
 		if (fnode.GoToChild("flags")) {
 			if (const char *flags = fnode.GetValue("val"); flags && *flags) {
-				g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+				g_affect_flags[idx] = parse::ReadAsConstantsFlags<EAffFlag>(flags);
 			}
 		}
 		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
@@ -642,10 +687,10 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	// issue.damage-change: cache the kAfFullAbsorb affect types (total-immunity flag scan).
 	g_full_absorb_affects.clear();
 	for (std::size_t i = 0; i < kAffectFlagTableSize; ++i) {
-		if (g_affect_flags[i] & to_underlying(EAffFlag::kAfMaterialize)) {
+		if (g_affect_flags[i].get(EAffFlag::kAfMaterialize)) {
 			g_materializable_affects.push_back(static_cast<EAffect>(i));
 		}
-		if (g_affect_flags[i] & to_underlying(EAffFlag::kAfFullAbsorb)) {
+		if (g_affect_flags[i].get(EAffFlag::kAfFullAbsorb)) {
 			g_full_absorb_affects.push_back(static_cast<EAffect>(i));
 		}
 	}
@@ -758,11 +803,11 @@ const std::vector<EAffect> &MenuOrder() {
 }
 
 // issue.affect-migration: the affect's intrinsic behavior flags (cure/dispel/refresh/decrement/...)
-// from affects.xml, keyed by affect_type. 0 for affects with no row/flags. Not yet wired into the
-// apply path (Phase 1 -- table built, sourcing switched in Phase 2).
-Bitvector AffectFlagsByType(EAffect affect_type) {
+// from affects.xml, keyed by affect_type. Пустой набор, если строки/флагов нет.
+const AffectFlags &AffectFlagsByType(EAffect affect_type) {
+	static const AffectFlags kNone;
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
-	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
+	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : kNone;
 }
 
 // issue.character-affect-triggers: the affect's own pulse/battle-pulse <actions> from affects.xml.
@@ -840,8 +885,16 @@ std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div) {
 	return result.empty() ? CommonMsg(ECommonMsg::kNothing) : result;
 }
 
-// Resolve an affect by its short description (prefix match, mirroring the old ext_search_block on
-// affected_bits). Iterates in EAffect order for deterministic first-match.
+// Resolve an affect by its short description. Iterates in EAffect order for deterministic
+// first-match.
+//
+// Сверяем по словам, как apply_types после issue #4113. Короткие имена многословные
+// ("мантия теней"), а в триггер и в команду игрока они приходят одним куском -- аргумент
+// читается до пробела, поэтому слова разделяют точкой или подчёркиванием. Прежнее побайтное
+// сравнение на таком разделителе не совпадало никогда: dgaffect с "мантия_теней" молча не
+// вешал аффект, а игрок с 'рваные.раны' не мог назвать аффект в "лечить". IsEqual приводит к
+// словам обе стороны и сверяет их подряд с начала, каждое как сокращение, -- то есть прежний
+// префиксный поиск сохраняется, но на словах и без учета регистра.
 bool FindByShortDesc(const std::string &name, EAffect &out) {
 	if (name.empty()) {
 		return false;
@@ -851,7 +904,7 @@ bool FindByShortDesc(const std::string &name, EAffect &out) {
 			continue;
 		}
 		const std::string &sd = AffectMsg(affect, EAffectMsgType::kShortDesc);
-		if (!sd.empty() && sd.size() >= name.size() && sd.compare(0, name.size(), name) == 0) {
+		if (!sd.empty() && utils::IsEqual(name, sd)) {
 			out = affect;
 			return true;
 		}
@@ -896,7 +949,7 @@ cfg_manager::ValidationResult AffectsLoader::Validate(parser_wrapper::DataNode &
 		if (auto fnode = affect; fnode.GoToChild("flags")) {
 			if (const char *fv = fnode.GetValue("val"); fv && *fv) {
 				try {
-					(void) parse::ReadAsConstantsBitvector<EAffFlag>(fv);
+					(void) parse::ReadAsConstantsFlags<EAffFlag>(fv);
 				} catch (const std::exception &) {
 					return {false, std::string("affect '") + id + "': unknown flag in '" + fv + "'."};
 				}

@@ -29,8 +29,6 @@
 #include "utils/utils_parse.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
-#include "gameplay/mechanics/depot.h"
-#include "gameplay/communication/parcel.h"
 #include "magic.h"
 #include "magic_internal.h"
 #include "gameplay/classes/pc_classes.h"
@@ -537,7 +535,7 @@ ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, f
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir, const std::string &cast_extra) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -619,6 +617,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
+	ctx.cast_extra = cast_extra;
 	// issue.perk-action-patching: if the caster holds a perk that patches this spell, build the per-cast
 	// modified action chain now, before dispatch. No-op for every other caster / every unpatched spell.
 	ctx.ApplyTalentPatches();
@@ -694,22 +693,6 @@ const char *what_weapon[] = {"плеть",
 							 "club",
 							 "\n"
 };
-
-/**
-* Поиск предмета для каста локейта (без учета видимости для чара и с поиском
-* как в основном списке, так и в личных хранилищах с почтой).
-*/
-ObjData *FindObjForLocate(CharData *ch, const char *name) {
-//	ObjectData *obj = ObjectAlias::locate_object(name);
-	ObjData *obj = get_obj_vis_for_locate(ch, name);
-	if (!obj) {
-		obj = Depot::locate_object(name);
-		if (!obj) {
-			obj = Parcel::locate_object(name);
-		}
-	}
-	return obj;
-}
 
 // Sends the kNoTarget message to `ch` keyed on the cast spell with the {target}
 // placeholder resolved against the spell's accepted target classes
@@ -804,11 +787,14 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
 //			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 //				return true;
+			// Локейт ищет сам, по строке запроса: предварительный поиск цели гонял
+			// список предметов мира второй раз и отбирал по другим правилам, чем
+			// обработчик, из-за чего одни предметы терялись, а другие показывались
+			// вопреки отказу (issue #3924).
 			if (spell_id == ESpell::kLocateObject) {
-				*tobj = FindObjForLocate(ch, t);
-			} else {
-				*tobj = target_resolver::FindObjAround(ch, t);
+				return true;
 			}
+			*tobj = target_resolver::FindObjAround(ch, t);
 			if (*tobj) {
 				return true;
 			}
@@ -854,7 +840,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir) {
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir, const std::string &cast_extra) {
 	if (spell_id == ESpell::kUndefined) {
 		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
 		return ECastResult::kNotCast;
@@ -982,7 +968,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, std::numeric_limits<double>::quiet_NaN(), -1, dir));
+	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, std::numeric_limits<double>::quiet_NaN(), -1, dir, cast_extra));
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {

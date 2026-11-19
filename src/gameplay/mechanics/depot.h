@@ -10,6 +10,8 @@
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
 
+#include <unordered_set>
+
 #include <string>
 #include <set>
 
@@ -35,11 +37,11 @@ void enter_char(CharData *ch);
 void exit_char(CharData *ch);
 void reload_char(long uid, CharData *ch);
 
-std::string PrintSpellLocateObject(CharData *ch, ObjData *obj);
+// Добавить в ids идентификаторы предметов, лежащих в персональных хранилищах игроков онлайн.
+void CollectOnlineObjIds(std::unordered_set<long> &ids);
 bool show_purged_message(CharData *ch);
 std::string print_imm_where_obj(const ObjData *obj);
 ObjData *find_obj_from_depot_and_dec_number(char *arg, int &number);
-ObjData *locate_object(const char *str);
 
 void olc_update_from_proto(int robj_num, ObjData *olc_proto);
 void rename_char(CharData *ch);

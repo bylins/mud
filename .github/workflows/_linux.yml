@@ -57,15 +57,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/opentelemetry-cpp
-          key: otel-cpp-1.24.0-ubuntu-x64
+          key: otel-cpp-1.25.0-ubuntu-x64
 
       - name: Build opentelemetry-cpp
         if: matrix.config.with_otel && steps.cache-otel.outputs.cache-hit != 'true'
         run: |
           sudo apt-get install -y libgrpc++-dev protobuf-compiler-grpc || true
-          wget -q https://github.com/open-telemetry/opentelemetry-cpp/archive/refs/tags/v1.24.0.tar.gz
-          tar xzf v1.24.0.tar.gz
-          cmake -S opentelemetry-cpp-1.24.0 -B otel-build \
+          wget -q https://github.com/open-telemetry/opentelemetry-cpp/archive/refs/tags/v1.25.0.tar.gz
+          tar xzf v1.25.0.tar.gz
+          cmake -S opentelemetry-cpp-1.25.0 -B otel-build \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/opt/opentelemetry-cpp \
             -DWITH_OTLP_HTTP=ON \
@@ -76,9 +76,9 @@ jobs:
           cmake --build otel-build -j$(nproc)
           sudo cmake --install otel-build
 
-      - name: Set otel cmake prefix
+      - name: Set otel pkg-config path
         if: matrix.config.with_otel
-        run: echo "CMAKE_PREFIX_PATH=/opt/opentelemetry-cpp" >> $GITHUB_ENV
+        run: echo "PKG_CONFIG_PATH=/opt/opentelemetry-cpp/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
       - name: Configure meson
         run: |

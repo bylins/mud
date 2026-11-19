@@ -124,11 +124,14 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 
 	std::string target_arg;
+	// issue #4000: остаток строки после имени цели отдаём заклинанию. "Оживить скелет" читает из
+	// него вид скелета; остальным заклинаниям он не нужен и просто пустой.
+	std::string cast_extra;
 	if (quote2 != std::string::npos && quote2 + 1 < arg_str.size()) {
 		std::string target_str = arg_str.substr(quote2 + 1);
 		utils::TrimLeft(target_str);
-		std::string remains;
-		target_arg = utils::ExtractFirstArgumentLower(target_str, remains);
+		target_arg = utils::ExtractFirstArgumentLower(target_str, cast_extra);
+		utils::TrimLeft(cast_extra);
 	}
 
 	CharData *tch;
@@ -166,12 +169,13 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	} else {
 		if (ch->GetEnemy() && !privilege::IsImpl(ch)) {
-			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
+			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom, cast_extra);
 			act(fmt::format("Вы приготовились применить заклинание {}'{}'{}{}.\r\n",
 							kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
 							tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : ""),
 				false, ch, tobj, tch, kToChar);
-		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id, dir) != ECastResult::kTargetDied) {
+		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id, dir, cast_extra)
+			!= ECastResult::kTargetDied) {
 			if (!(privilege::IsImmortal(ch) || ch->get_wait() > 0))
 				SetBattleLag(ch, 1);
 		} else if (ch->get_wait() == 0)

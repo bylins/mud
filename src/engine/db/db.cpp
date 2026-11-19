@@ -171,6 +171,7 @@ void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message);
 void ResetGameWorldTime();
 int CountMobsInRoom(int m_num, int r_num);
 void SetZoneRnumForObjects();
+void WarnAboutUnloadableObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
 int ReadCrashTimerFile(std::size_t index, int temp);
@@ -927,9 +928,17 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	log("Renumbering zone table.");
 	ResolveZoneTableCmdVnumArgsToRnums();
 
+	boot_profiler.next_step("Indexing zone object loads");
+	log("Indexing zone object loads.");
+	IndexZoneObjLoads();
+
 	boot_profiler.next_step("Renumbering Obj_zone");
 	log("Renumbering Obj_zone.");
 	SetZoneRnumForObjects();
+
+	boot_profiler.next_step("Checking objects for zero max_in_world");
+	log("Checking objects for zero max_in_world.");
+	WarnAboutUnloadableObjects();
 
 	boot_profiler.next_step("Renumbering Mob_zone");
 	log("Renumbering Mob_zone.");
@@ -1292,6 +1301,15 @@ void BootMudDataBase() {
 	log("Loading socials.");
 	MUD::CfgManager().LoadCfg("social_msg");
 
+	// Должно идти ДО построения индекса игроков: тот набивает чарт рекордов
+	// (TopPlayer::Refresh из ActualizePlayersIndex), а чарт спрашивает
+	// privilege::IsImmortal. Пока база богов не прочитана, GetDb() пуста и на каждого
+	// бога отвечается "не бог" -- боги оседали в топе игроков. Вообще любая проверка
+	// привилегий до этой строки отвечала бы неверно.
+	boot_profiler.next_step("Loading privileges and gods list");
+	log("Load privilege and god list.");
+	MUD::CfgManager().LoadCfg("privilege");  // membership privilege DB (cfg/privilege.xml)
+
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
 	BuildPlayerIndexNew();
@@ -1436,10 +1454,6 @@ void BootMudDataBase() {
 	log("Load registered emails list.");
 	RegisterSystem::load();
 
-	boot_profiler.next_step("Loading privileges and gods list");
-	log("Load privilege and god list.");
-	MUD::CfgManager().LoadCfg("privilege");  // membership privilege DB (cfg/privilege.xml)
-
 	// должен идти до резета зон
 	boot_profiler.next_step("Initializing depot system");
 	log("Init Depot system.");
@@ -1467,8 +1481,22 @@ void BootMudDataBase() {
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-		log("Resetting %s (rooms %d-%d).", zone_table[i].name.c_str(),
-			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
+		// Печатаем настоящий диапазон комнат зоны, а не промежуток от хвоста предыдущей.
+		// Раньше тут стояло (zone_table[i - 1].top + 1) .. zone_table[i].top, и в логе
+		// выходило, будто зона занимает чужие номера: пока зон 390-399 не существовало,
+		// "Хоромы брянского боярина" печатались как rooms 39000-40099, то есть на
+		// одиннадцать номеров. Своих комнат у зоны ровно столько, сколько их загрузилось,
+		// и границы считает CalculateFirstAndLastRooms (виртуальная комната X99 из
+		// диапазона уже вычтена).
+		int first_rnum, last_rnum;
+		if (GetZoneRooms(i, &first_rnum, &last_rnum)) {
+			log("Resetting %s (rooms %d-%d).", zone_table[i].name.c_str(),
+				world[first_rnum]->vnum, world[last_rnum]->vnum);
+		} else {
+			// Зона без собственных комнат -- только виртуалка. Так живут системные зоны
+			// вроде складов книг заклинаний, это не ошибка.
+			log("Resetting %s (no rooms of its own).", zone_table[i].name.c_str());
+		}
 		ResetZone(i);
 	}
 	reset_q.clear();
@@ -1568,6 +1596,11 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
+
+	// В самом конце: нужны и мир, и лавки. Проверяет номинал предметов-денег -- он задан числом
+	// в values[1], и ошибку там некому было заметить.
+	boot_profiler.next_step("Checking money prototypes");
+	currencies::CheckMoneyPrototypes();
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
@@ -1980,6 +2013,21 @@ void SetZoneRnumForObjects() {
 	}
 }
 
+// max_in_world = 0 означает "ни одной в мире": такой предмет не возьмётся ни ресетом зоны,
+// ни load'ом из триггера, ни дроп-листом -- проверки ограничения стоят на каждом пути.
+// Молча это никак не видно: билдер правит прототип, кладёт команду загрузки и не понимает,
+// почему вещи в игре нет. Поэтому говорим об этом на загрузке мира, по одной строке на прототип.
+void WarnAboutUnloadableObjects() {
+	for (size_t i = 0; i < obj_proto.size(); ++i) {
+		if (obj_proto[i]->get_max_in_world() != 0) {
+			continue;
+		}
+		mudlog(fmt::format("Предмет {} #{}: max_in_world = 0, в мир он загружаться не будет",
+						   obj_proto[i]->get_PName(grammar::ECase::kNom), obj_proto[i]->get_vnum()),
+			   CMP, kLvlGreatGod, SYSLOG, true);
+	}
+}
+
 void SetZoneRnumForMobiles() {
 	int i;
 	for (i = 0; i <= top_of_mobt; ++i) {
@@ -2117,6 +2165,59 @@ void ResolveZoneTableCmdVnumArgsToRnums() {
 	}
 }
 
+obj2resets_t obj2resets;
+
+// Собирает "внум предмета -> места загрузки в ресетах". Зовется после
+// ResolveZoneTableCmdVnumArgsToRnums, поэтому аргументы команд уже рнумы и их надо
+// переводить обратно во внумы -- в выдаче богу нужны именно они.
+//
+// G и E грузят последнему загруженному мобу, своего аргумента с целью у них нет, поэтому
+// моба запоминаем по ходу обхода, как это делает и сам ресет.
+void IndexZoneObjLoads() {
+	obj2resets.clear();
+
+	for (const auto &zone : zone_table) {
+		if (!zone.cmd) {
+			continue;
+		}
+		MobVnum last_mob = -1;
+		for (int cmd_no = 0; zone.cmd[cmd_no].command != 'S'; ++cmd_no) {
+			const auto &cmd = zone.cmd[cmd_no];
+			if (cmd.command == 'M') {
+				last_mob = (cmd.arg1 >= 0 && cmd.arg1 <= top_of_mobt) ? mob_index[cmd.arg1].vnum : -1;
+				continue;
+			}
+			if (cmd.command != 'O' && cmd.command != 'G' && cmd.command != 'E' && cmd.command != 'P') {
+				continue;
+			}
+			// Отрицательный рнум -- команду отключили при загрузке ("Invalid vnum, cmd disabled").
+			if (cmd.arg1 < 0 || static_cast<std::size_t>(cmd.arg1) >= obj_proto.size()) {
+				continue;
+			}
+
+			ObjResetPlace place{};
+			place.zone = zone.vnum;
+			place.command = cmd.command;
+			place.max = cmd.arg2;
+			place.chance = cmd.arg4;
+			place.line = cmd.line;
+			switch (cmd.command) {
+				case 'O':
+					place.where_vnum = (cmd.arg3 >= 0 && cmd.arg3 <= top_of_world) ? world[cmd.arg3]->vnum : -1;
+					break;
+				case 'P':
+					place.where_vnum = (cmd.arg3 >= 0 && static_cast<std::size_t>(cmd.arg3) < obj_proto.size())
+									   ? obj_proto[cmd.arg3]->get_vnum() : -1;
+					break;
+				default:
+					place.where_vnum = last_mob;
+					break;
+			}
+			obj2resets[obj_proto[cmd.arg1]->get_vnum()].push_back(place);
+		}
+	}
+}
+
 namespace {
 
 int test_levels[] = {
@@ -2175,7 +2276,7 @@ int test_levels[] = {
 } // namespace
 
 int calc_boss_value(CharData *mob, int num) {
-	if (mob->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+	if (mob->get_role(RoleBit(EMobClass::kBoss))) {
 		num += num * 25 / 100;
 	}
 	return num;
@@ -2368,6 +2469,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
 		// summoned/revived instance (negative vnum): an ally, loaded without bumping total_online
+		mob->SetUncountedInstance(true);
 		mob->SetFlag(EMobFlag::kCompanion);
 	}
 	chardata_by_uid[mob->get_uid()] = mob;
@@ -3372,6 +3474,14 @@ void ResetZone(ZoneRnum zone) {
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
 int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
+	// Сюда почти всегда передают результат GetZoneRnum(), а он на несуществующей зоне
+	// возвращает kNoZone (-1). zone_table[-1] -- выход за границы вектора: с проверками
+	// стандартной библиотеки это падение сервера, без них -- чтение чужой памяти.
+	if (zrn < 0 || zrn >= static_cast<ZoneRnum>(zone_table.size())) {
+		*first = 0;
+		*last = -1;
+		return 0;
+	}
 	*first = zone_table[zrn].RnumRoomsLocation.first;
 	*last = zone_table[zrn].RnumRoomsLocation.second;
 

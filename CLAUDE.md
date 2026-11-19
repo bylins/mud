@@ -13,17 +13,9 @@ The engine is named **BRusMUD** and carries an explicit four-part version **`maj
 - **major.minor.patch** are declared explicitly in the repo-root **`VERSION.txt`** file — the single source of truth.
 - **release** (the 4th number) is generated automatically at build time from the git commit count (`git rev-list --count HEAD`, via `tools/meson/generate_version.py`). It is never stored in the tree and never edited by hand — it advances on its own with every commit.
 
-### When to bump (rules for Claude Code)
+### Who changes `VERSION.txt`
 
-**`VERSION.txt` is NOT bumped automatically, and NOT on every fix or merge.** An earlier policy bumped patch on every merge; that made the file conflict in nearly every branch and made PRs to `master` painful (the number even went backwards when a merge/revert resolved the conflict in favour of a branch). So the file now changes rarely and only on purpose:
-
-- **Do not touch `VERSION.txt` for bug fixes, refactors, or ordinary branch merges.** Routine work leaves the version unchanged — there is nothing to bump when finishing a fix or a merge.
-- The version is bumped **only manually, by the author**, and only when **a major new feature lands** or **a release is cut**:
-  - **minor** — a major new feature. Reset patch to `0`.
-  - **major** — a release. Reset minor and patch to `0`.
-  - **patch** — optional, at the author's discretion (e.g. to mark a notable standalone change); never required.
-
-Because bumps are deliberate and infrequent, `VERSION.txt` rarely appears in a diff and rarely conflicts. Only the `VERSION.txt` file changes for a bump; `release` and the build-date stamp update themselves on the next build.
+**Claude Code never edits `VERSION.txt`.** The version is changed by hand, by whoever needs it, in a dedicated branch — never as part of a fix, feature, or merge. Bumping it in ordinary branches made the file conflict in nearly every PR. Only the `VERSION.txt` file changes for a bump; `release` and the build-date stamp update themselves on the next build.
 
 ## Build Commands
 
@@ -321,12 +313,12 @@ The heartbeat system includes built-in profiling:
 
 ## Critical Notes
 
-- **File Encoding**: All project source files are UTF-8 (issue #3681). Edit them directly — no iconv dance. The world data on disk (`lib/`, `lib.template/`) is still KOI8-R; see `.gitattributes` for exactly which trees.
+- **File Encoding**: Everything we edit is UTF-8 on disk — sources, `tests/`, `lib.template/`, the working `lib/` (configs `lib/cfg/**`, help, boards) and the world in `lib/worlddata/world` (its own `.gitattributes` declares UTF-8 both in git and in the working copy). Edit any of it directly; **no iconv, and never decode a project file as KOI8-R.** Old files in KOI8-R the engine still reads (`from_disk_text` recognises either), so a stale file here and there is not a reason to bring the conversion dance back — we write UTF-8.
 - **Thread Safety**: Main game loop is single-threaded; use `BlockingQueue` for cross-thread communication
 - **Shared Pointers**: Always use `CharData::shared_ptr` and `ObjData::shared_ptr` to prevent use-after-free
 - **Pulse Timing**: Never use wall-clock delays; register actions with heartbeat system
 - **Script Depth**: DG Scripts limited to 512 recursion depth to prevent stack overflow
-- **Runtime Encoding**: The engine holds text in UTF-8 and works on it per character (`utils/native_text.*`). Client codepages (Alt, Win, KOI8-R, UTF-8) are converted at the network boundary only; the disk boundary (`from_disk_text` / `to_disk`) keeps world files in KOI8-R.
+- **Runtime Encoding**: The engine holds text in UTF-8 and works on it per character (`utils/native_text.*`). Client codepages (Alt, Win, KOI8-R, UTF-8) are converted at the network boundary only. On disk the engine writes UTF-8; `from_disk_text` still accepts KOI8-R on read, so files written by older builds keep loading.
 
 ## Claude Code Workflow Rules
 
@@ -345,25 +337,48 @@ Reconfigure an existing dir with `meson configure build_dir -Dyaml=builtin` inst
 **Always warn the user when changing build directories or running `meson setup`/`meson configure`/`ninja` in a different directory.**
 
 ### OpenTelemetry Build (`-Dotel=builtin`)
-opentelemetry-cpp is installed via vcpkg at `~/repos/vcpkg`. Point meson at the vcpkg pkg-config / cmake search paths:
+opentelemetry-cpp is installed via vcpkg at `~/vcpkg`. The dependency is resolved via pkg-config only
+(no cmake), so it's enough to point meson at the vcpkg pkg-config dir:
 ```bash
-PKG_CONFIG_PATH=~/repos/vcpkg/installed/x64-linux/lib/pkgconfig \
-CMAKE_PREFIX_PATH=~/repos/vcpkg/installed/x64-linux \
+PKG_CONFIG_PATH=~/vcpkg/installed/x64-linux/lib/pkgconfig \
 meson setup build_otel \
   -Dbuild_profile=release \
   -Dotel=system
 ninja -C build_otel -j$(($(nproc)/2))
 ```
 
+Переменная окружения действует только на этот `meson setup`. Когда `ninja` сам перезапускает meson
+(после правки `meson.build`), её уже нет, и поиск падает. Чтобы путь жил в каталоге сборки, его
+задают опцией:
+
+```bash
+meson configure build_otel -Dpkg_config_path=~/vcpkg/installed/x64-linux/lib/pkgconfig
+```
+
+Нужна opentelemetry-cpp **≥ 1.25**: `.pc`-файлы для экспортёров появились только в ней, и с 1.24
+`meson setup` падает на `opentelemetry_exporter_otlp_http not found`. Наличие `.a`-библиотек
+экспортёров при этом ни о чём не говорит — ищем мы именно `.pc`.
+
 ### File Encoding
-Sources are UTF-8. Edit `.cpp`/`.h` directly with the Edit tool — the KOI8-R conversion dance is
-gone (issue #3681). Git always stored these blobs as UTF-8; what changed is that the working tree
-no longer converts them on checkout.
+**Всё в проекте — UTF-8.** Исходники, `tests/`, `lib.template/`, рабочий `lib/` (включая
+`lib/cfg/**`, справку и доски) и мир в `lib/worlddata/world`. Правьте любой из них напрямую
+Edit'ом. Никакого iconv, и **не читайте файлы проекта как KOI8-R** — ни глазами, ни скриптом:
+koi8-декодер на UTF-8-файле выдаёт мусор, который легко принять за порчу данных.
+
+Исторические файлы в KOI8-R движок по-прежнему читает (`from_disk_text` распознаёт и нативный
+текст, и кои-восьмой), поэтому отдельный невыконвертированный файл в боевом `lib/` — не повод
+возвращать пляску с перекодировкой. Пишем мы UTF-8.
 
 **Переключились на ветку с флипом в уже существующем дереве — перевыкачайте исходники:**
 
 ```bash
 rm -rf src tests && git checkout -- src tests
+```
+
+То же и с `lib.template` при переходе через ветку, где он ещё в KOI8-R:
+
+```bash
+rm -rf lib.template && git checkout -- lib.template
 ```
 
 `working-tree-encoding` применяется во время checkout'а, а содержимое блоба при флипе не менялось,
@@ -372,18 +387,15 @@ rm -rf src tests && git checkout -- src tests
 считает весь текст UTF-8: расходятся сравнения имён, доски, кодировка лога, а запись на диск гонит
 такие литералы через словарь транслита. `meson setup` теперь это проверяет и отказывается собирать.
 
-Still KOI8-R on disk, and still needing care: the world and configs (`lib/`, `lib.template/`,
-`/lib/cfg/**`, `/lib/misc/**`, `/lib/text/help/**`, `/lib/etc/board/**`). For those the old rule
-holds — convert, edit, convert back:
+`lib.template/` и `lib/cfg/**` тоже в UTF-8: в git их блобы всегда были UTF-8, а
+`working-tree-encoding=KOI8-R` лишь выворачивал их при выкладке — атрибут снят, содержимое
+файлов не менялось. Правьте напрямую.
 
-```bash
-iconv -f koi8-r -t utf-8 lib/cfg/some.xml > /tmp/some_utf8.xml
-# edit /tmp/some_utf8.xml
-iconv -f utf-8 -t koi8-r /tmp/some_utf8.xml > lib/cfg/some.xml
-```
+Мир (`lib/worlddata/world`) — отдельный репозиторий, и у него свой `.gitattributes`: YAML в UTF-8
+и в git, и в рабочей копии. Так что и зоны читаются/правятся как обычный UTF-8.
 
-The pre-commit hook enforces both directions: sources must parse as UTF-8, world files must stay
-in the encoding `.gitattributes` declares.
+Хук pre-commit проверяет кодировку по `.gitattributes`: исходники и мир должны разбираться как
+UTF-8.
 
 **NEVER use sed for editing source files.** Sed has tendency to:
 - Modify files in unexpected places (matching wrong lines)

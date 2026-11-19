@@ -31,7 +31,10 @@
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
 #include "gameplay/mechanics/animate_dead.h"
+#include "gameplay/mechanics/mob_races.h"   // issue #4000: ENpcRace::kHuman -- труп человекоподобного
+#include "gameplay/handlers/bone_commander.h"   // issue #4032: пересчёт костяной подати
 
+#include <algorithm>
 #include <functional>
 #include <map>
 #include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch
@@ -286,7 +289,10 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 // blink+AC, kBlink -> blink) materializes WITH its stat applies -- one node per apply; an applies-less
 // buff (sanctuary/shields/prism/glass) gets a single bare flag-carrier node (location kNone). Every node
 // is permanent (duration -1) and uncredited (caster_id 0). No same-named spell -> zero roll (flat mins,
-// potency 0).
+// potency 0). Такой узел СНИМАЕТСЯ магией -- на то и заклинание «разлом»: снятие идёт состязанием по
+// силе (potency роллится по статам моба), а при следующем пробуждении зоны материализация вернёт его
+// из флагов прототипа. Неснимаемо только то, что ставит код: пакет призванного существа
+// (kAfCharmBond) и волшебство надетого.
 std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type) {
 	RollResult roll;   // stays zero if no same-named spell -> potency 0, competence 0 (flat apply mins)
 	try {
@@ -347,7 +353,8 @@ std::vector<Affect<EApply>> BuildEquipmentMaterializedAffect(const ObjData *obj,
 		af.modifier = mod;
 		af.caster_id = obj->get_id();
 		af.potency = cast_potency;
-		af.battleflag.set_plane(0, affects::AffectFlagsByType(affect_type) | EAffFlag::kAfFromEquipment);
+		af.battleflag = affects::AffectFlagsByType(affect_type);
+		af.battleflag.set(EAffFlag::kAfFromEquipment);
 		nodes.push_back(af);
 	};
 	const auto &applies = affects::AffectApplies(affect_type);
@@ -677,6 +684,10 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return EStageResult::kSuccess;
 
+	// Урон по ЭТОЙ цели: у площадного каста стадия идет по целям по очереди, и без сброса
+	// на входе значение от предыдущей цели утекало бы в проверки по следующей.
+	ctx.result.damage = 0;
+
 	// issue.damage-over-time: a poison-sourced <damage> tick reproduces ProcessPoisonDmg's kPoison branch
 	// exactly and returns before the general damage machinery: GET_POISON-based amount dealt as kPoisonDmg,
 	// no-flee, self-inflicted, credited to the poisoner (the affect's caster). Poison never had MR/area/
@@ -726,7 +737,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (ch != victim && ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
 		const auto &id_act = ctx.action_or_default().GetDmg();
 		if (id_act.HasInstantDeath()
-				&& !victim->get_role(static_cast<unsigned>(EMobClass::kBoss))   // never on boss monsters
+				&& !victim->get_role(RoleBit(EMobClass::kBoss))   // never on boss monsters
 				&& !ctx.last_saving_result.value_or(false)   // target failed the (already-rolled) save
 				&& number(1, 100) <= id_act.GetInstantDeathProb()
 				&& abilities_roll::AgainstRivalRoll::OppositeLuckTest(ch, victim)) {
@@ -1068,16 +1079,25 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 // affect's duration, kAfUpdateDuration refreshes it to the longer value, and
 // kAfUpdateMod replaces the modifier only when the new magnitude is larger. The
 // caller runs affect_total() afterwards.
-static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks, Bitvector extra_battleflag = 0) {
+static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks,
+							  const AffectFlags &extra_battleflag = {}) {
 	// issue.affect-migration: stack/update behavior comes from affects.xml by affect_type.
-	const Bitvector eff_flags = affects::AffectFlagsByType(af.affect_type);
-	const bool accum_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfAccumulateDuration));
-	const bool update_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateDuration));
-	const bool update_mod = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateMod));
+	const AffectFlags &eff_flags = affects::AffectFlagsByType(af.affect_type);
+	const bool accum_dur = eff_flags.get(EAffFlag::kAfAccumulateDuration);
+	const bool update_dur = eff_flags.get(EAffFlag::kAfUpdateDuration);
+	const bool update_mod = eff_flags.get(EAffFlag::kAfUpdateMod);
 	for (auto it = victim->affected.begin(); it != victim->affected.end(); ++it) {
 		const auto existing = *it;
 		// issue.affect-migration: stacking is keyed on affect_type (the effect identity).
 		const bool same_id = existing->affect_type == af.affect_type;
+		// issue #3971: отдельно живущий экземпляр в слияние не идёт -- накастованный баф ложится
+		// рядом. Перечень видов и причины -- у IsStandaloneAffectInstance. Слияние снимает узел и
+		// заводит новый из данных каста, а per-instance пометки (kAfCharmBond, вещевые) при этом
+		// не переносятся, поэтому пакет призванного и вещевое волшебство после слияния становились
+		// обычным бафом -- и следующее снятие уносило их насовсем.
+		if (IsStandaloneAffectInstance(existing)) {
+			continue;
+		}
 		if (same_id && existing->location == af.location) {
 			if (accum_dur) {
 				af.duration += existing->duration;
@@ -1148,16 +1168,16 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	}
 	// issue.affect-migration: the re-apply gate reads update/accumulate behavior from affects.xml
 	// (per affect_type); the casting spell no longer carries affect flags.
-	Bitvector reapply_flags = 0;
+	AffectFlags reapply_flags;
 	bool already_affected = false;
 	for (const auto &apply : talent.GetApplies()) {
 		if (apply.id != EAffect::kUndefined) {
-			reapply_flags |= affects::AffectFlagsByType(apply.id);
+			reapply_flags.merge(affects::AffectFlagsByType(apply.id));
 			already_affected = already_affected || IsAffected(victim, apply.id);
 		}
 	}
-	const bool can_reapply = IS_SET(reapply_flags, to_underlying(EAffFlag::kAfAccumulateDuration))
-		|| IS_SET(reapply_flags, to_underlying(EAffFlag::kAfUpdateDuration));
+	const bool can_reapply = reapply_flags.get(EAffFlag::kAfAccumulateDuration)
+		|| reapply_flags.get(EAffFlag::kAfUpdateDuration);
 	if (ch != victim && already_affected && !can_reapply) {
 		if (ch->in_room == victim->in_room) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
@@ -1177,7 +1197,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	}
 	// issue.vampirism-haste: a battle-decrementing grant (battleflag="kAfBattledec") is measured in
 	// combat rounds, so its duration must NOT get the PC hours->ticks conversion.
-	const bool raw_rounds = (talent.GetBattleflags() & to_underlying(EAffFlag::kAfBattledec)) != 0;
+	const bool raw_rounds = talent.GetBattleflags().get(EAffFlag::kAfBattledec);
 	// issue.duration-scale: resistances resist VIOLENT effects only -- a beneficial cast's duration is
 	// never shortened by the target's resistance. Gate ApplyResist on the per-cast violence verdict.
 	int duration = CalcDuration(ch, victim, duration_skill,
@@ -1391,6 +1411,16 @@ EStageResult CastAffect(ActionContext &ctx) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
+	// issue #4103: урон и аффект в одном действии -- одно попадание, а не два независимых броска.
+	// Отбили урон в ноль (спасброском, резистом, поглощением, затуханием по площади) -- значит
+	// заклинание по этой цели не прошло, и аффекту взяться не от чего: раньше горение ложилось на
+	// того, кто не потерял ни хита, а ослепление и глухота -- на отбивших удар целиком.
+	// Проверяем только действия, у которых урон вообще есть: чистые бафы и дебафы без <damage>
+	// идут как прежде. Смерть цели (-1) здесь не при чем -- цепочку останавливает is_vict_dead.
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
+			&& ctx.result.damage == 0) {
+		return EStageResult::kSuccess;
+	}
 	ctx.ResetArApplied();   // issue.shadow-cloak-bug: affect-resist gates once per affect delivery
 
 	// Calculate PKILL's affects. issue.spell-ally-aggression: a benign cast is never an
@@ -1582,7 +1612,7 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kIceShield;
-		af.battleflag.clear();
+		af.battleflag = {kAfCharmBond};   // issue #3971: щит нежити -- часть её пакета, снятию не подлежит
 		affect_to_char(mob, af);
 	}
 }
@@ -1756,6 +1786,170 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	const int duration = FinalizeSummonedMob(ch, mob, spell_id, false);
 	if (!resurrection) {
 		EnhanceAnimateDead(ch, mob, mob_num, spell_id, duration);
+		// Броня, спасы, удача и инициатива выдаются аффектами: прямую запись в бонусы
+		// affect_total стирает при каждом пересчёте, а аффекты возвращает сам.
+		animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
+		// issue #4038: даровые аффекты своего заклинания -- по порогу умения контроля.
+		animate_dead::ApplyGrantedAffects(ch, mob, spell_id, duration);
+		// issue #4032: нежить, поднятая при живой костяной свите, приходит уже ослабленной.
+		// Пересчёт нужен именно здесь: свита не изменилась, зато прибавилась нежить, между
+		// которой делится подать, -- и новая должна встать уже со своей долей.
+		bone_commander::RefreshLevy(ch);
+	}
+	mob->SetFlag(EMobFlag::kNoSkillTrain);
+	SpillCorpseContents(ch, obj);
+	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment;
+	return EStageResult::kSuccess;
+}
+
+// issue #4000: "оживить скелет" -- третье корпусное заклинание чернокнижника. Особые виды скелетов
+// (свирепый, ловкий, зловонный) описаны в animate_dead.xml ярусами spell="kAnimateSkeleton" и
+// открываются способностью "костяной полководец". Без способности, с трупа ниже порога или с
+// нечеловекоподобного встаёт обычный скелет -- то же понижение, что у лестницы нежити.
+// Бюджета свиты у скелетов нет (weight="0"): ограничение другое -- по одному каждого вида.
+static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
+	CharData *const ch = ctx.caster();
+	ObjData *const obj = ctx.ovict;
+	const ESpell spell_id = ctx.spell_id();
+	if (ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonCharmed) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
+	if (obj == nullptr || !IS_CORPSE(obj)) {
+		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(),
+			false, ch, nullptr, nullptr, kToChar);
+		return EStageResult::kSuccess;
+	}
+
+	// Труп помнит, чей он: по прототипу берём уровень (порог вида), расу (человекоподобие) и
+	// телосложение (шанс провала) -- так же, как это делает "поднять труп".
+	const MobVnum corpse_mob = GET_OBJ_VAL(obj, 2);
+	int corpse_level = 0;
+	bool humanoid = false;
+	int pfail = 0;
+	if (corpse_mob > 0 && GetMobRnum(corpse_mob) >= 0) {
+		CharData *proto = mob_proto + GetMobRnum(corpse_mob);
+		corpse_level = GetRealLevel(proto);
+		humanoid = (GET_RACE(proto) == ENpcRace::kHuman);
+		pfail = 10 + proto->get_con() * 2
+			- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - remort::GetRealRemort(ch) * 5;
+	}
+
+	MobVnum mob_num = kMobSkeleton;
+	const auto &tiers = MUD::AnimateDead().Skeletons();
+	// Ярус без прототипа в мире не предлагаем: движок и мир обновляются порознь, и пока прототипов
+	// нет, заклинание должно поднимать обычного скелета, а не отказывать игроку пустым списком видов.
+	std::vector<const animate_dead::CreatureInfo *> usable;
+	for (const auto &tier : tiers) {
+		if (GetMobRnum(tier.proto_vnum) >= 0) {
+			usable.push_back(&tier);
+		}
+	}
+	if (!tiers.empty() && usable.size() < tiers.size()) {
+		// Раз за перезагрузку: это не ошибка игрока, а недоложенный мир, и знать о нём должны боги.
+		static bool reported = false;
+		if (!reported) {
+			reported = true;
+			log("SYSERR: 'оживить скелет': в мире нет прототипов %zu из %zu видов скелетов "
+				"(первый ярус -- моб #%d), поднимается обычный скелет",
+				tiers.size() - usable.size(), tiers.size(), tiers.front().proto_vnum);
+		}
+	}
+	if (CanUseFeat(ch, EFeat::kBoneCommander) && !usable.empty()) {
+		// Вид называет игрок: это слово, дописанное после трупа. Сверяем со всеми падежными
+		// формами прототипа -- игрок пишет "свирепого", а в именительном стоит "свирепый".
+		const std::string &arg = ctx.cast_extra;
+		std::string names;
+		const animate_dead::CreatureInfo *chosen = nullptr;
+		for (const auto *tier : usable) {
+			CharData *tier_proto = mob_proto + GetMobRnum(tier->proto_vnum);
+			if (!names.empty()) {
+				names += ", ";
+			}
+			names += tier_proto->player_data.PNames[grammar::ECase::kAcc];
+			if (arg.empty()) {
+				continue;
+			}
+			for (const auto &form : tier_proto->player_data.PNames) {
+				if (isname(arg, form)) {
+					chosen = tier;
+					break;
+				}
+			}
+			if (chosen) {
+				break;
+			}
+		}
+		if (arg.empty()) {
+			SendMsgToChar(fmt::format("Какого скелета вы желаете оживить? Вам подвластны: {}.\r\n", names), ch);
+			return EStageResult::kSuccess;
+		}
+		if (!chosen) {
+			SendMsgToChar(fmt::format("Такого скелета вы оживить не умеете. Вам подвластны: {}.\r\n", names), ch);
+			return EStageResult::kSuccess;
+		}
+		if (corpse_level < chosen->corpse_min_level || !humanoid) {
+			SendMsgToChar("Эти кости не годятся для такого скелета, из них встанет лишь обычный.\r\n", ch);
+		} else {
+			// По одному каждого вида: потолок суммарной силы свиты держится этим, а не отдельным
+			// счётом урона -- виды разной силы, и каждый бывает только один.
+			for (const auto *follower : ch->followers) {
+				if (follower->IsNpc() && GET_MOB_VNUM(follower) == chosen->proto_vnum) {
+					SendMsgToChar(fmt::format("У вас уже служит {}.\r\n",
+											  follower->player_data.PNames[grammar::ECase::kNom]), ch);
+					return EStageResult::kSuccess;
+				}
+			}
+			mob_num = chosen->proto_vnum;
+		}
+	}
+
+	if (!privilege::IsImmortal(ch) && number(0, 101) < pfail) {
+		const bool fail_sticks = !CanUseFeat(ch, EFeat::kFavorOfDarkness) || number(0, 3) == 0;
+		if (fail_sticks) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
+			ExtractObjFromWorld(obj);
+			return EStageResult::kSuccess;
+		}
+	}
+
+	CharData *mob = ReadMobile(-mob_num, kVirtual);
+	if (!mob) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
+	if (IsSummonTargetProtected(ch, mob, spell_id)) {
+		return EStageResult::kSuccess;
+	}
+	animate_dead::SetupUndeadStats(ch, mob, ctx.CompetenceBase());
+	if (!CheckCharmices(ch, mob, spell_id)) {
+		ExtractCharFromWorld(mob, false);
+		ExtractObjFromWorld(obj);
+		return EStageResult::kSuccess;
+	}
+	const int duration = FinalizeSummonedMob(ch, mob, spell_id, false);
+	mob->SetFlag(EMobFlag::kUndead);
+	// Броня, спасы и инициатива держатся аффектами: affect_total стирает прямую запись.
+	animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
+	// issue #4038: даровые аффекты по порогу магии тьмы (видеть невидимых, полёт и прочее).
+	animate_dead::ApplyGrantedAffects(ch, mob, spell_id, duration);
+	if (mob_num != kMobSkeleton) {
+		// issue #4000: метка особого вида. Вешаем именно аффектом, а не флагом в файле моба:
+		// действия на удар (kPostHit) движок ищет в списке аффектов, а флаг из affect_flags
+		// кладёт только бит в affected_by и ничего не запускает. Часть пакета нежити
+		// (kAfCharmBond), поэтому снятию не подлежит.
+		Affect<EApply> mark;
+		mark.affect_type = EAffect::kBoneServant;
+		mark.location = EApply::kNone;
+		mark.modifier = 0;
+		mark.duration = duration;
+		mark.battleflag = {kAfCharmBond};
+		affect_to_char(mob, mark);
+		// issue #4032: свита выросла -- нежить хозяина отдаёт ей часть урона.
+		bone_commander::RefreshLevy(ch);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	SpillCorpseContents(ch, obj);
@@ -2099,12 +2293,27 @@ namespace {
 // that unaffect; this is the single source of truth for "can this be removed" (it replaced the old
 // CheckNodispel blacklist). An affect with no matching flag -- charm/quest effects, or anything
 // applied outside <affects> in code -- is irremovable.
-bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flags) {
-	return affect && (affect->battleflag.get_plane(0) & flags) != 0;
+bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, const AffectFlags &flags) {
+	if (!affect) {
+		return false;
+	}
+	// issue #3971: пакет призванного существа снятию не подлежит вовсе, какие бы флаги снятия у его
+	// узлов ни стояли. kAfCharmBond помечает весь пакет -- и саму привязку, и бафы, которые движок
+	// выдаёт вместе с ней: это не игроцкие чары, а то, с чем существо пришло, и ставит их код.
+	// Разрыв чар работает как раньше -- RemoveCharmBond снимает пакет по флагу напрямую, минуя эту
+	// проверку.
+	// Врождённые бафы моба из флагов прототипа (BuildMaterializedAffect) здесь НЕ исключение: они
+	// снимаются, на то и заклинание «разлом». Решение «снимать» принимается по одному подходящему
+	// экземпляру, а снимаются только прошедшие фильтр (см. ReduceStackOrRemove), так что
+	// накастованный баф и врождённый узел уходят каждый по своему праву.
+	if (affect->battleflag.get(kAfCharmBond)) {
+		return false;
+	}
+	return affect->battleflag.intersects(flags);
 }
 
 // True if the victim carries a removable affect of the given spell type (one matching `flags`).
-bool HasDispellableAffect(CharData *victim, EAffect affect_type, Bitvector flags) {
+bool HasDispellableAffect(CharData *victim, EAffect affect_type, const AffectFlags &flags) {
 	for (const auto &aff : victim->affected) {
 		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
 			return true;
@@ -2153,7 +2362,7 @@ struct RemovalCandidate {
 // kDispellMagic code path and enable generic "strip-by-flag" dispels (e.g.
 // future sphere-specific dispels added by tagging affects with kAfXSphere flags).
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<RemovalCandidate> &out, Bitvector flags, bool debuff_only = false) {
+					 std::vector<RemovalCandidate> &out, const AffectFlags &flags, bool debuff_only = false) {
 	// issue.affect-migration: candidates are keyed by affect_type (no spell read at all -- the dispel
 	// downstream and the PK classification both work off the affect's own identity/flags).
 	// issue.new-unaffect-spells: debuff_only skips affects that are clearly buffs (EBuff::kYes) so a
@@ -2201,21 +2410,41 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 // for every affect of `spell` with stacks > 1, reduce the stack count by 1
 // and the accumulated modifier proportionally (~modifier/stacks), re-applying so the character's
 // stats update. If no affect of the spell has more than one stack, remove it outright.
+// issue #3971: снимаем только те экземпляры, которые подлежат снятию. Решение «снимать» принимается
+// по ОДНОМУ подходящему экземпляру (HasDispellableAffect), а снятие шло по всему типу -- и вместе с
+// накастованным бафом улетали врождённый аффект моба (его battleflag пуст, фильтр снятия он не
+// проходит) и пакет призванного существа (kAfCharmBond). Отсюда жалоба: накастовали групповое
+// освящение, групповая призма сняла заодно и врождённое, и вещевое.
+// Вещевой экземпляр снимается по-прежнему -- он подавляется на предмете (SuppressSourceEquipmentAffect
+// зовётся выше по стеку) и возвращается сам, когда подавление истечёт.
+static const AffectFlags kDispellableInstance{kAfCurable, kAfDispellable};
+
 void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
+	const auto removable = [affect_type](const Affect<EApply>::shared_ptr &aff) {
+		return aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, kDispellableInstance);
+	};
 	bool any_multi = false;
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->affect_type == affect_type && aff->stacks > 1) {
+		if (removable(aff) && aff->stacks > 1) {
 			any_multi = true;
 			break;
 		}
 	}
 	if (!any_multi) {
-		RemoveAffectFromCharAndRecalculate(victim, affect_type);
+		auto it = victim->affected.begin();
+		while (it != victim->affected.end()) {
+			if (removable(*it)) {
+				it = RemoveAffect(victim, it);
+			} else {
+				++it;
+			}
+		}
+		affect_total(victim);
 		return;
 	}
 	std::vector<Affect<EApply>> rebuilt;
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->affect_type == affect_type) {
+		if (removable(aff)) {
 			Affect<EApply> peeled = *aff;
 			if (peeled.stacks > 1) {
 				peeled.modifier = static_cast<int>(
@@ -2225,10 +2454,19 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 			rebuilt.push_back(peeled);
 		}
 	}
-	RemoveAffectFromChar(victim, affect_type);    // strip all of the affect's instances (deltas undone)
+	// Снимаем только снимаемые экземпляры: врождённый и пакет призванного остаются на месте.
+	auto it = victim->affected.begin();
+	while (it != victim->affected.end()) {
+		if (removable(*it)) {
+			it = RemoveAffect(victim, it);
+		} else {
+			++it;
+		}
+	}
 	for (auto &peeled : rebuilt) {
 		affect_to_char(victim, peeled);           // re-add with the reduced modifier (stats recalced)
 	}
+	affect_total(victim);
 }
 
 // Remove one affect (or peel a stack of it) and emit its dispel narration. Lookup is keyed by
@@ -2243,7 +2481,12 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 // Constant for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
 constexpr int kEquipmentAffectSuppressHours = 10;
 
-void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double competence) {
+// issue.equipment-affect-conflicts: displaced -- аффект не развеяли, а вытеснили надетой вещью
+// с несовместимым волшебством. Срок возврата такому обещать нельзя: подавление истечёт, а место
+// всё ещё будет занято, и аффект вернётся лишь когда вытеснившие чары уйдут. Поэтому сообщение
+// называет причину, а не время.
+void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double competence,
+								   bool displaced = false) {
 	// A set-conferred affect (kAfFromSet) has no single owning item, so the suppression is BROADCAST to
 	// every worn set piece (one shared timer, survives anchor swaps); a single-item affect suppresses on
 	// its own source item.
@@ -2278,16 +2521,21 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double
 		if (obj && obj->get_id() == src_id) {
 			obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours, static_cast<float>(competence));
 			// The affect's own dispel narration already fired; tell the wearer when the item magic returns.
-			snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
-					 kEquipmentAffectSuppressHours,
-					 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));
+			if (displaced) {
+				snprintf(msg, sizeof(msg), "Волшебство $o2 уступило несовместимым чарам.");
+			} else {
+				snprintf(msg, sizeof(msg), "Волшебство $o2 рассеяно и восстановится через %d %s.",
+						 kEquipmentAffectSuppressHours,
+						 grammar::GetDeclensionInNumber(kEquipmentAffectSuppressHours, grammar::EWhat::kHour));
+			}
 			act(msg, false, victim, obj, nullptr, kToChar);
 			return;
 		}
 	}
 }
 
-void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type, double competence) {
+void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type, double competence,
+							 bool displaced = false) {
 	// issue.character-affect-triggers: kDispell -- fire the affect's own kDispell <actions> BEFORE it is
 	// stripped, run with the DISPELLER (ch) as BOTH the caster and the actor. This makes the retaliation
 	// SELF-INFLICTED by the dispeller (their choice to dispel, their consequence): a <damage>/<affects>
@@ -2299,8 +2547,16 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	// the AFFECT (its sheaf, with the kDefault generic fallback).
 	// issue.equipment-affects-improve (Phase 3): if a worn item conferred this affect, suppress it on
 	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
-	SuppressSourceEquipmentAffect(victim, affect_type, competence);
+	SuppressSourceEquipmentAffect(victim, affect_type, competence, displaced);
 	ReduceStackOrRemove(victim, affect_type);
+	// issue #3971: если экземпляр этого аффекта остался (врождённый, пакет призванного), эффект
+	// никуда не делся -- рассказывать про «угасло» нельзя. Раньше призма на небесную защитницу
+	// снимала накастованное освящение и объявляла, что белая аура угасла, хотя её собственная
+	// оставалась на месте. У истечения по таймеру такая проверка есть с issue #3973
+	// (NoLiveTwinLeft в affect_data.cpp), у снятия заклинанием её не было.
+	if (IsAffected(victim, affect_type)) {
+		return;
+	}
 	const std::string &to_vict = affects::AffectDispelMsg(affect_type, /*to_room=*/false);
 	if (!to_vict.empty()) {
 		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
@@ -2389,11 +2645,11 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect
 // (room->affected vs victim->affected) and the apply/remove APIs differ. PK gating is intentionally
 // NOT replicated here -- concurrency rules for room dispel are deferred (no clear policy yet).
 
-bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, Bitvector flags) {
-	return affect && (affect->battleflag.get_plane(0) & flags) != 0;
+bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, const AffectFlags &flags) {
+	return affect && affect->battleflag.intersects(flags);
 }
 
-bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, Bitvector flags) {
+bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, const AffectFlags &flags) {
 	for (const auto &aff : room->affected) {
 		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
 			return true;
@@ -2432,7 +2688,7 @@ bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect:
 }
 
 void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<RemovalCandidate> &out, Bitvector flags, bool /*debuff_only*/ = false) {
+					 std::vector<RemovalCandidate> &out, const AffectFlags &flags, bool /*debuff_only*/ = false) {
 	// issue.new-unaffect-spells: debuff_only is a no-op for room affects (no buff/debuff notion);
 	// the parameter exists only so RunCastUnaffects can call this from the shared template.
 	if (set.wildcard_any) {
@@ -2561,7 +2817,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	const bool breaking = UnaffectConditionMet(target, unaffect.GetBreaking());
 	bool break_chain = breaking;
 
-	const Bitvector flags = unaffect.GetAffectFlags();
+	const AffectFlags &flags = unaffect.GetAffectFlags();
 	std::vector<RemovalCandidate> to_remove;
 	CollectRemovals(target, unaffect.GetRemoveAnyway(), to_remove, flags, unaffect.GetDebuffOnly());
 	if (!blocking) {
@@ -2686,6 +2942,61 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 }
 
 }  // namespace
+
+// issue.equipment-affect-conflicts: правило берём у одноимённого заклинания аффекта, как это делает
+// материализация. Смотрим оба списка запрета: у взаимоисключающих пар они совпадают, но заклинание
+// вправе перечислить в них разное.
+std::vector<EAffect> ConflictingAffects(EAffect incoming) {
+	std::vector<EAffect> out;
+	ESpell spell_id = ESpell::kUndefined;
+	try {
+		spell_id = ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<EAffect>(incoming));
+	} catch (const std::out_of_range &) {
+		return out;   // у аффекта нет одноимённого заклинания -- правила взаимоисключения нет
+	}
+	const auto &actions = MUD::Spell(spell_id).actions;
+	if (!actions.Contains(talents_actions::EAction::kUnaffect)) {
+		return out;
+	}
+	const auto &unaffect = actions.GetUnaffect();
+	for (const auto *set : {&unaffect.GetBreaking(), &unaffect.GetRemove()}) {
+		for (const auto affect_type : set->any_of.chars) {
+			if (affect_type == incoming
+					|| std::find(out.begin(), out.end(), affect_type) != out.end()) {
+				continue;
+			}
+			out.push_back(affect_type);
+		}
+	}
+	return out;
+}
+
+bool HasConflictingAffect(CharData *ch, EAffect incoming) {
+	if (!ch) {
+		return false;
+	}
+	for (const auto affect_type : ConflictingAffects(incoming)) {
+		if (IsAffected(ch, affect_type)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void DisplaceConflictingAffects(CharData *ch, EAffect incoming, double potency) {
+	if (!ch) {
+		return;
+	}
+	for (const auto affect_type : ConflictingAffects(incoming)) {
+		if (!IsAffected(ch, affect_type)) {
+			continue;
+		}
+		// Тот же путь, которым вытесняет каст: kDispell, подавление вещевого источника (иначе узел
+		// вернула бы сверка), снятие узлов, сообщение. Вытесняет волшебство надетого, поэтому
+		// снимающим идёт сам носитель.
+		RemoveAffectAndAnnounce(ch, ch, affect_type, potency, /*displaced=*/true);
+	}
+}
 
 // issue.affect-suppression-dispell: the standard d100 dispel contest against a potency supplied DIRECTLY
 // (obj-affect suppressions are not on a char's ->affected). Same math as DispelSucceeds but no per-affect
@@ -2923,11 +3234,13 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"SummonTutelar",       handlers::SummonTutelar},
 	{"SpellMentalShadow",   handlers::SpellMentalShadow},
 	{"SpellAnimateDead",    SpellAnimateDead},
+	{"SpellAnimateSkeleton", SpellAnimateSkeleton},
 	{"SpellResurrection",   SpellResurrection},
 	// issue.affect-migration: room-affect per-tick manual handler (was the room_affects tick_handler).
 	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
 	// issue.obj-affects: kWeaponHit obj-affect handler -- a poisoned weapon poisons its strike victim.
 	{"WeaponPoisonHit", handlers::WeaponPoisonHit},
+	{"SkeletonHit", handlers::SkeletonHit},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).
@@ -4093,7 +4406,7 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 // (the char-affect analog of RunRoomTick). kPulse fires every tick; kBattlePulse only while the bearer is
 // fighting. The action's effect targets the bearer via kTarSame (caster == bearer here). Threads the
 // affect's duration through so a manual_cast action can end it early. Returns true if any action fired.
-bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
+bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff) {
 	if (!ch || !aff || ch->in_room == kNowhere) {
 		return false;
 	}
@@ -4645,6 +4958,13 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 			const bool can_block = action.GetTriggerReturn().has_value() || !action.GetManualHandler().empty();
 			if (phase == EEntryTriggerPhase::kBlockCheck && !can_block) { continue; }
 			if (phase == EEntryTriggerPhase::kEffectsNonBlocking && can_block) { continue; }
+			// Действию без следствий в проходе за следствиями делать нечего. Печать -- ровно
+			// такая: один вердикт <trigger return="0"/> и больше ничего. А принудительный вход
+			// (перенос скакуна за седоком, телепорт, бегство) вердикта не смотрит -- отменить
+			// его нечем, -- и печать печатала "незримая преграда не пускает коня внутрь" тому,
+			// кто уже вошёл, на каждом шаге. Вердикт никуда не делся: его по-прежнему
+			// спрашивают в kBlockCheck, когда вход ещё можно отменить.
+			if (phase != EEntryTriggerPhase::kBlockCheck && !action.HasEffects()) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast this entry
 			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength,

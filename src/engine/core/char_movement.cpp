@@ -577,7 +577,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	if (ch->desc != nullptr)
-		sight::look_at_room(ch, 0, move_type != EMoveType::kFlee);
+		sight::look_at_room(ch, 0);
 
 	// issue.room-affect-trigger-improve: AFTER placement on the walk path -- run the non-blocking
 	// on-entry effects (e.g. kHypnoticPattern's sleep) in the destination room. The blocking-capable
@@ -797,6 +797,10 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	ch->Temporary.unset(ECharExtraFlag::kFailHide);
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
+	// Новая комната -- новая сверка скрытности, значит про удачу можно сказать снова.
+	ch->Temporary.unset(ECharExtraFlag::kToldHide);
+	ch->Temporary.unset(ECharExtraFlag::kToldSneak);
+	ch->Temporary.unset(ECharExtraFlag::kToldCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		// Значения под метками "Солнце" и "Небо" стоят наоборот -- так было и с printf,
 		// поведение не меняю.

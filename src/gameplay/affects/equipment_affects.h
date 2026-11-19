@@ -8,6 +8,7 @@
 #ifndef BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
 #define BYLINS_SRC_AFFECTS_EQUIPMENT_AFFECTS_H_
 
+#include "engine/structs/bitset_flags.h"
 #include "gameplay/magic/spells_constants.h"
 
 #include <array>
@@ -110,6 +111,12 @@ struct EquipmentAffect {
 
 // issue.equipment-affects-cfg: loaded from cfg/affects/equipment_affects.xml at boot (was a hardcoded table).
 extern std::vector<EquipmentAffect> equipment_affect;
+
+// issue #3988: набор позиций, чьи аффекты материализуются в настоящие узлы (у записи задан timer=
+// и указан флаг). Считается один раз при загрузке таблицы: сверке ReconcileEquipmentAffects нужно
+// на каждой надетой вещи одно пересечение битов, а собирать этот набор заново на каждого
+// персонажа стоило на бою около 2 мс за проход point_update.
+const BitsetFlags<EEquipmentAffect> &MaterializableEquipAffects();
 
 // issue.equipment-affects-improve: the apply bridge (EEquipmentAffect -> {EApply, magnitude}) and
 // the flag display names, moved here to complete the module. EApply is forward-declared -- it lives

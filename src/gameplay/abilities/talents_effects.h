@@ -22,6 +22,9 @@ class Effects {
 
 	void ImposeApplies(CharData *ch) const;
 	void ImposeSkillsMods(CharData *ch) const;
+	// issue.inborn-magic: врожденный базовый уровень умения (<skill_base>), 0 если способность
+	// его не задает. Читается на месте, ничего персонажу не выставляет -- см. GetSkillBonus.
+	[[nodiscard]] int GetSkillBase(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(ESkill skill_id) const;
 	[[nodiscard]] int GetTimerMod(EFeat feat_id) const;
 

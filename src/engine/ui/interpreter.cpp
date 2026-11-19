@@ -37,6 +37,7 @@
 #include "engine/ui/cmd_god/do_date.h"
 #include "engine/ui/cmd_god/do_dc.h"
 #include "engine/ui/cmd_god/do_delete_obj.h"
+#include "engine/ui/cmd_god/do_rent_search.h"
 #include "engine/ui/cmd_god/do_goto.h"
 #include "engine/ui/cmd_god/do_set.h"
 #include "engine/ui/cmd_god/do_invisible.h"
@@ -608,7 +609,10 @@ cpp_extern const struct command_info cmd_info[] =
 		{"почта", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"пополнить", EPosition::kStand, do_refill, 0, 0, 300},
 		{"поручения", EPosition::kRest, do_quest, 1, 0, -1},
-		{"появиться", EPosition::kRest, do_visible, 1, 0, -1},
+		// Снятие прятки (последнее поле) оставлено нулём намеренно: раскрытием занимается сама
+		// команда. С -1 check_hiding_cmd успевал снять прятку до вызова do_visible, и игрок
+		// читал "вы прекратили прятаться" и тут же "вы и так видимы".
+		{"появиться", EPosition::kRest, do_visible, 1, 0, 0},
 		{"правила", EPosition::kDead, DoGenericPage, 0, kScmdPolicies, 0},
 		{"предложение", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), 500},
 		//{"призвать", EPosition::kStand, do_summon, 1, 0, -1},
@@ -641,6 +645,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"рассчитать", EPosition::kRest, DoFreehelpee, 0, 0, -1},
 		{"режим", EPosition::kDead, DoMode, 0, 0, 0},
 		{"ремонт", EPosition::kRest, DoRepair, 0, 0, -1},
+		{"рента", EPosition::kDead, DoRentSearch, kLvlImplementator, 0, 0},
 		{"рецепты", EPosition::kRest, do_recipes, 0, 0, 0},
 		{"рекорды", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 		{"руны", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
@@ -732,9 +737,12 @@ cpp_extern const struct command_info cmd_info[] =
 		{"auction", EPosition::kRest, do_gen_comm, 0, kScmdAuction, -1},
 		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
 		{"backstab", EPosition::kStand, DoBackstab, 1, 0, 1},
+		// ВАЖНО: "ban" обязан стоять ПЕРЕД "bank". Поиск команды идёт по префиксу и берёт
+		// первое совпадение, поэтому при обратном порядке "ban" уезжал в банкира и бог
+		// получал "Это нельзя сделать здесь" вместо списка запретов.
+		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"bank", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"balance", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
-		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"bash", EPosition::kFight, do_bash, 1, 0, -1},
 		{"beep", EPosition::kDead, do_beep, kLvlImmortal, 0, 0},
 		{"block", EPosition::kFight, do_block, 0, 0, -1},
@@ -948,7 +956,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"value", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"vedun", EPosition::kDead, vedun::do_vedun, kLvlImplementator, 0, 0},
 		{"version", EPosition::kDead, DoGenericPage, 0, kScmdVersion, 0},
-		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
+		{"visible", EPosition::kRest, do_visible, 1, 0, 0},  // ноль -- см. "появиться"
 		{"vnum", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},
 		{"вномер", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
 		{"vstat", EPosition::kDead, DoVstat, 0, 0, 0},

@@ -6,6 +6,7 @@
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "do_mode.h"
+#include "engine/network/descriptor_data.h"
 #include "do_toggle.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/table_wrapper.h"
@@ -107,7 +108,8 @@ enum EScmd {
   kScmdBlind,
   kScmdMapper,
   kScmdTester,
-  kScmdIpcontrol
+  kScmdIpcontrol,
+  kScmdLineWrap
 };
 
 const char *gen_tog_type[] = {"автовыходы", "autoexits",
@@ -141,6 +143,7 @@ const char *gen_tog_type[] = {"автовыходы", "autoexits",
 							  "брать куны", "automoney",
 							  "арена", "arena",
 							  "ширина", "length",
+							  "перенос строк", "linewrap",
 							  "высота", "width",
 							  "экран", "screen",
 							  "новости", "news",
@@ -206,6 +209,7 @@ struct gen_tog_param_type {
 			0, kScmdAutomoney, false}, {
 			0, kScmdNoarena, false}, {
 			0, kScmdLength, false}, {
+			0, kScmdLineWrap, false}, {
 			0, kScmdWidth, false}, {
 			0, kScmdScreen, false}, {
 			0, kScmdNewsMode, false}, {
@@ -232,6 +236,19 @@ struct gen_tog_param_type {
 			0, kScmdIpcontrol, false}
 	};
 
+// Поиск режима по названию. Не search_block: тот сравнивает строку целиком, посимвольно,
+// и на многословном названии понимает только сокращение первого слова ("флаги" вместо
+// "флаги комнат"). IsEqual разбирает точку и подчёркивание как разделители слов, поэтому
+// работает привычное по остальным командам "фл.ком" -- как "меч.неизв" у предметов.
+static int FindModeIndex(const char *name) {
+	for (int i = 0; *gen_tog_type[i] != '\n'; ++i) {
+		if (utils::IsEqual(name, gen_tog_type[i])) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
@@ -246,7 +263,7 @@ void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	} else if (*mode_arg == '?') {
 		showhelp = true;
-	} else if ((i = search_block(mode_arg, gen_tog_type, false)) < 0) {
+	} else if ((i = FindModeIndex(mode_arg)) < 0) {
 		showhelp = true;
 	} else if ((GetRealLevel(ch) < gen_tog_param[i >> 1].level)
 		|| (!GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && gen_tog_param[i >> 1].tester)) {
@@ -381,7 +398,9 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			{"Режим вывода тестовой информации выключен.\r\n",
 			 "Режим вывода тестовой информации включен.\r\n"},
 			{"Режим контроля смены IP-адреса персонажа выключен.\r\n",
-			 "Режим контроля смены IP-адреса персонажа включен.\r\n"}
+			 "Режим контроля смены IP-адреса персонажа включен.\r\n"},
+			{"Перенос длинных строк по ширине экрана выключен.\r\n",
+			 "Перенос длинных строк по ширине экрана включен.\r\n"}
 		};
 
 	if (ch->IsNpc())
@@ -449,6 +468,10 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			//}
 			break;
 		case kScmdIpcontrol: result = TogglePrfFlag(ch, EPrf::kIpControl);
+			break;
+			// Флаг -- выключатель, поэтому включённому режиму отвечает снятый флаг:
+			// перенос работает у всех, кто его не отключал, старым персонажам в том числе.
+		case kScmdLineWrap: result = !TogglePrfFlag(ch, EPrf::kNoLineWrap);
 			break;
 #if defined(HAVE_ZLIB)
 		case kScmdCompress: result = iosystem::toggle_compression(ch->desc);
@@ -643,6 +666,22 @@ bool TogglePrfFlag(CharData *ch, EPrf flag) {
 	const auto flagged = ch->IsFlagged(flag);
 	ch->IsFlagged(flag) ? ch->UnsetFlag(flag) : ch->SetFlag(flag);
 	return (!flagged);
+}
+
+// Размер окна, присланный клиентом по NAWS: ширина уходит в перенос текста, высота --
+// в постраничный вывод. Клиент присылает его при подключении и при каждом изменении окна,
+// поэтому руками ширину задавать больше не нужно -- но команда остаётся для клиентов,
+// которые NAWS не умеют.
+void ApplyNawsScreenSize(DescriptorData *d) {
+	if (!d || !d->character || d->character->IsNpc()) {
+		return;
+	}
+	if (d->naws_width >= kMinScreenWidth && d->naws_width <= kMaxScreenWidth) {
+		d->character->player_specials->saved.stringLength = d->naws_width;
+	}
+	if (d->naws_height >= kMinScreenHeight && d->naws_height <= kMaxScreenHeight) {
+		d->character->player_specials->saved.stringWidth = d->naws_height;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -112,6 +112,26 @@ TEST(NativeText, IsAlnumChar) {
 	EXPECT_TRUE(native_text::is_alnum_char("\xD1\x91"));  // yo
 }
 
+TEST(NativeText, IsAlnumChar_ByteFastPathMatchesDecoding) {
+	// is_alnum_char разбирает ASCII и кириллицу по байтам, is_alpha_char -- через
+	// декодирование. Цифр вне ASCII движок не знает, поэтому на всём не-ASCII их ответы
+	// обязаны совпадать: так байтовые диапазоны сверяются с кодовыми точками (issue #3924).
+	char buf[5] = {0};
+	for (char32_t cp = 0x80; cp <= 0x7FF; ++cp) {
+		buf[0] = static_cast<char>(0xC0 | (cp >> 6));
+		buf[1] = static_cast<char>(0x80 | (cp & 0x3F));
+		buf[2] = '\0';
+		EXPECT_EQ(native_text::is_alnum_char(buf), native_text::is_alpha_char(buf))
+			<< "code point U+" << std::hex << static_cast<unsigned>(cp);
+	}
+
+	// Трёх- и четырёхбайтовые уходят общим путём и алфавитными не считаются.
+	EXPECT_FALSE(native_text::is_alnum_char("\xE2\x82\xAC"));          // U+20AC, знак евро
+	EXPECT_FALSE(native_text::is_alnum_char("\xE4\xB8\xAD"));          // U+4E2D, иероглиф
+	EXPECT_FALSE(native_text::is_alnum_char("\xF0\x9F\x98\x80"));      // U+1F600, смайл
+	EXPECT_FALSE(native_text::is_alnum_char("\xD0"));                  // обрезанный ведущий байт
+}
+
 TEST(NativeText, IsAlphaChar) {
 	EXPECT_TRUE(native_text::is_alpha_char("a"));
 	EXPECT_TRUE(native_text::is_alpha_char("Z"));
@@ -146,6 +166,12 @@ TEST(NativeText, CharsEqualCi) {
 	EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x9F", "\xD0\xBF"));   // P vs p
 	EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x81", "\xD1\x91"));   // Yo vs yo
 	EXPECT_FALSE(native_text::chars_equal_ci("\xD0\x9F", "\xD1\x80"));  // P vs r
+	// "ё" клиенту уходит как "е", поэтому набрать записанное в данных "ё" невозможно -- буквы
+	// складываем, иначе "резной конёк" не отзывается на "конек".
+	EXPECT_TRUE(native_text::chars_equal_ci("\xD1\x91", "\xD0\xB5"));   // yo vs ye
+	EXPECT_TRUE(native_text::chars_equal_ci("\xD0\x81", "\xD0\xB5"));   // Yo vs ye
+	EXPECT_TRUE(native_text::chars_equal_ci("\xD1\x91", "\xD0\x95"));   // yo vs Ye
+	EXPECT_FALSE(native_text::chars_equal_ci("\xD1\x91", "\xD0\xB7"));  // yo vs z
 }
 
 TEST(NativeText, CopyLowerChar) {
@@ -462,39 +488,25 @@ TEST(NativeText, CharOffsetCutsOnCharacterBoundaries) {
 	EXPECT_EQ(native_text::char_offset("abcdef", 4), 4u);
 }
 
-TEST(NativeText, ToDiskNeverTransliteratesDiskBytes) {
-	// Пара к границе чтения. Если строка не проходила from_disk, она держит кои-восьмые байты,
-	// и старый to_disk разбирал их как Latin-1 и гнал через словарь транслита: 'верий.свет'
-	// становился 'AIEUAxAOA.OxAO' -- необратимо. Так были съедены метки вещей, сундуки дружин
-	// и списки имён (issue #3681). Теперь такие байты уходят на диск как есть.
+TEST(NativeText, ReadBoundaryTakesBothEncodings) {
+	// Граница чтения осталась одна: файлы на диске в UTF-8, но старые, написанные до миграции,
+	// ещё могут попасться. Разделитель -- валидность UTF-8: кириллица в KOI8-R валидным UTF-8
+	// почти никогда не бывает.
 	const std::string koi8_bytes = "\xD7\xC5\xD2\xC9\xCA.\xD3\xD7\xC5\xD4";   // 'верий.свет' в KOI8-R
-	EXPECT_EQ(native_text::to_disk(koi8_bytes), koi8_bytes) << "дисковые байты не должны меняться";
-
-	// А нативный текст по-прежнему переводится в кодировку диска.
 	const std::string native = native_text::from_koi8(koi8_bytes);
-	EXPECT_NE(native, koi8_bytes) << "проверка построена на том, что кодировки различаются";
-	EXPECT_EQ(native_text::to_disk(native), koi8_bytes);
+	ASSERT_NE(native, koi8_bytes) << "проверка построена на том, что кодировки различаются";
 
-	// Чистая латиница одинакова в обеих кодировках и не трогается ни в одном из случаев.
-	EXPECT_EQ(native_text::to_disk("plain ascii"), "plain ascii");
-}
+	EXPECT_EQ(native_text::from_disk_text(koi8_bytes), native) << "старый файл читается как KOI8-R";
+	EXPECT_EQ(native_text::from_disk_text(native), native) << "нативный текст не трогается";
 
-TEST(NativeText, DiskRoundTripIsByteIdentical) {
-	// Правило пары: что прочитано через границу, должно уйти обратно теми же байтами.
-	// Нарушение этой пары -- одностороннее чтение или одностороння запись -- и съело
-	// метки вещей, сундуки дружин и списки имён (issue #3681).
-	const std::string on_disk = "\xD7\xC5\xD2\xC9\xCA.\xD3\xD7\xC5\xD4";   // 'верий.свет' в KOI8-R
+	// Идемпотентность: повторное чтение уже прочитанного ничего не меняет. На этом держится
+	// цикл загрузка-сохранение -- без неё кириллица удваивалась бы на каждом обороте
+	// (так и разросся cfg/mechanics/obj_sets.xml, issue #3681).
+	EXPECT_EQ(native_text::from_disk_text(native_text::from_disk_text(koi8_bytes)), native);
 
-	const std::string native = native_text::from_disk_text(on_disk);
-	EXPECT_EQ(native_text::to_disk(native), on_disk) << "чтение и запись обязаны быть зеркальны";
-
-	// Повторное чтение уже нативного текста ничего не меняет: именно на этом держится
-	// идемпотентность цикла загрузка-сохранение.
-	EXPECT_EQ(native_text::from_disk_text(native), native);
-
-	// И то же самое для чистой латиницы -- она одинакова в обеих кодировках.
+	// Чистая латиница одинакова в обеих кодировках.
 	const std::string ascii = "plain ascii line";
-	EXPECT_EQ(native_text::to_disk(native_text::from_disk_text(ascii)), ascii);
+	EXPECT_EQ(native_text::from_disk_text(ascii), ascii);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

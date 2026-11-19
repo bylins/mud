@@ -394,7 +394,11 @@ void sedit::show_activ_edit(CharData *ch) {
 
 	char buf_aff[2048];
 	activ.affects.sprintbits(equipment_affects, buf_aff, sizeof(buf_aff), ",");
-	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
+	// Подпись пункта уходит в префикс: OutWordsList считает её видимую ширину (цветокоды не в
+	// счет), поэтому первая строка не вылезает за 80 знаков. Прежний line_split_str считал
+	// ширину в байтах и после перехода на UTF-8 рвал список вдвое раньше срока.
+	const std::string aff_str = utils::OutWordsList(utils::Split(buf_aff, ','), 80, ", ",
+			fmt::format("{} 4{}) Аффекты : {}", kColorGrn, kColorNrm, kColorCyn));
 	std::string prof_str;
 	if (!activ.prof.all()) {
 		PrinSetClasses(activ.prof, prof_str);
@@ -409,14 +413,13 @@ void sedit::show_activ_edit(CharData *ch) {
 			 "%s 1%s) Удалить из набора\r\n"
 			 "%s 2%s) Количество предметов : %s%d%s\r\n"
 			 "%s 3%s) Профессии : %s%s%s\r\n"
-			 "%s 4%s) Аффекты : %s%s%s\r\n",
+			 "%s%s\r\n",
 			 kColorGrn, kColorNrm,
 			 kColorGrn, kColorNrm,
 			 kColorCyn, activ_edit, kColorNrm,
 			 kColorGrn, kColorNrm,
 			 kColorCyn, prof_str.c_str(), kColorNrm,
-			 kColorGrn, kColorNrm,
-			 kColorCyn, aff_str.c_str(), kColorNrm);
+			 aff_str.c_str(), kColorNrm);
 	out += buf_;
 
 	int cnt = 5;
@@ -471,13 +474,13 @@ void sedit::show_activ_edit(CharData *ch) {
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
-			 "%s%2d%s) Увеличение физ. урона : %s%+d%%%s\r\n",
+			 "%s%2d%s) Увеличение физического урона : %s%+d%%%s\r\n",
 			 kColorGrn, cnt++, kColorNrm,
 			 kColorCyn, activ.bonus.phys_dmg, kColorNrm);
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
-			 "%s%2d%s) Увеличение маг. урона : %s%+d%%%s\r\n",
+			 "%s%2d%s) Увеличение магического урона : %s%+d%%%s\r\n",
 			 kColorGrn, cnt++, kColorNrm,
 			 kColorCyn, activ.bonus.mage_dmg, kColorNrm);
 	out += buf_;
@@ -1376,10 +1379,10 @@ void sedit::parse_activ_edit(CharData *ch, const char *arg) {
 		show_activ_ench_vnum(ch);
 	} else if (num == offset + activ.apply.size() + 3) {
 		state = STATE_ACTIV_PHYS_DMG;
-		SendMsgToChar("Укажите процент прибавляемого физ. урона :", ch);
+		SendMsgToChar("Укажите процент прибавляемого физического урона :", ch);
 	} else if (num == offset + activ.apply.size() + 4) {
 		state = STATE_ACTIV_MAGE_DMG;
-		SendMsgToChar("Укажите процент прибавляемого маг. урона :", ch);
+		SendMsgToChar("Укажите процент прибавляемого магического урона :", ch);
 	} else if (num == offset + activ.apply.size() + 5) {
 		if (activ.npc) {
 			SendMsgToChar("Теперь НЕ активится на мобах.", ch);

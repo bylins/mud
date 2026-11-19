@@ -168,7 +168,7 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	// Если без аргумента - выдает личные теллы
 	if (!*argument) {
-		SendMsgToChar(ch->remember_get(Remember::PERSONAL), ch);
+		SendWrappedToChar(ch->remember_get(Remember::PERSONAL), ch);
 		return;
 	}
 
@@ -176,40 +176,40 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (utils::IsAbbr(arg, "воззвать")) {
 		if (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
-			SendMsgToChar(ch->remember_get(Remember::PRAY), ch);
+			SendWrappedToChar(ch->remember_get(Remember::PRAY), ch);
 		} else {
-			SendMsgToChar(ch->remember_get(Remember::PRAY_PERSONAL), ch);
+			SendWrappedToChar(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
 	} else if ((GetRealLevel(ch) < kLvlImmortal || privilege::IsImpl(ch)) && utils::IsAbbr(arg, "оффтоп")) {
 		if (!ch->IsFlagged(EPrf::kStopOfftop)) {
-			SendMsgToChar(ch->remember_get(Remember::OFFTOP), ch);
+			SendWrappedToChar(ch->remember_get(Remember::OFFTOP), ch);
 		} else {
 			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");
 		}
 	} else if (utils::IsAbbr(arg, "болтать") || utils::IsAbbr(arg, "орать")) {
-		SendMsgToChar(ch->remember_get(Remember::GOSSIP), ch);
+		SendWrappedToChar(ch->remember_get(Remember::GOSSIP), ch);
 	} else if (utils::IsAbbr(arg, "группа") || utils::IsAbbr(arg, "ггруппа"))
 	{
-		SendMsgToChar(ch->remember_get(Remember::GROUP), ch);
+		SendWrappedToChar(ch->remember_get(Remember::GROUP), ch);
 	} else if (utils::IsAbbr(arg, "клан") || utils::IsAbbr(arg, "гдругам")) {
 		if (CLAN(ch)) {
-			SendMsgToChar(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN), ch);
+			SendWrappedToChar(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN), ch);
 		} else {
 			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");
 		}
 		return;
 	} else if (utils::IsAbbr(arg, "союзники") || utils::IsAbbr(arg, "альянс") || utils::IsAbbr(arg, "гсоюзникам")) {
 		if (CLAN(ch)) {
-			SendMsgToChar(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY), ch);
+			SendWrappedToChar(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY), ch);
 		} else {
 			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");
 		}
 		return;
 	} else if (utils::IsAbbr(arg, "гбогам") && privilege::IsImmortal(ch)) {
-		SendMsgToChar(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GetRealLevel(ch)), ch);
+		SendWrappedToChar(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GetRealLevel(ch)), ch);
 		return;
 	} else if (utils::IsAbbr(arg, "все")) {
-		SendMsgToChar(ch->remember_get(Remember::ALL), ch);
+		SendWrappedToChar(ch->remember_get(Remember::ALL), ch);
 		return;
 	} else {
 		if (privilege::IsImmortal(ch) && !privilege::IsImpl(ch))

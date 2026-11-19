@@ -9,12 +9,15 @@
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 
+#include <unordered_set>
+
 namespace Parcel {
 
 int delete_obj(int vnum);
 void send(CharData *ch, CharData *mailman, long vict_uid, char *arg);
 void print_sending_stuff(CharData *ch);
-std::string PrintSpellLocateObject(CharData *ch, ObjData *obj);
+// Добавить в ids идентификаторы предметов, лежащих в посылках.
+void CollectObjIds(std::unordered_set<long> &ids);
 std::string FindParcelObj(const ObjData *obj);
 bool has_parcel(CharData *ch);
 void receive(CharData *ch, CharData *mailman);
@@ -23,7 +26,6 @@ void show_stats(CharData *ch);
 void load();
 void save();
 void bring_back(CharData *ch, CharData *mailman);
-ObjData *locate_object(const char *str);
 void olc_update_from_proto(int robj_num, ObjData *olc_proto);
 
 } // namespace Parcel

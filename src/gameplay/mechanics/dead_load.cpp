@@ -87,7 +87,7 @@ bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoad
 						break;
 
 					default:
-						auto msg = fmt::format("Неизвестный тип загрузки объекта у моба (VNUM:%d)", GET_MOB_VNUM(ch));
+						auto msg = fmt::format("Неизвестный тип загрузки объекта у моба (VNUM:{})", GET_MOB_VNUM(ch));
 						mudlog(msg, NRM, kLvlBuilder, ERRLOG, true);
 						mudlog("", LGH, kLvlImmortal, SYSLOG, true);
 						break;

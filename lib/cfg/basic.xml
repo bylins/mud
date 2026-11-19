@@ -98,16 +98,16 @@
 		<mod val="88" leadership="78" charms="15445" luck="79" Illusive="76" dam_to_hit_rate="9"/>
 		<mod val="89" leadership="79" charms="15585" luck="80" Illusive="77" dam_to_hit_rate="9"/>
 		<mod val="90" leadership="80" charms="15725" luck="81" Illusive="78" dam_to_hit_rate="9"/>
-		<mod val="91" leadership="76" charms="9000" luck="0" Illusive="81" dam_to_hit_rate="20"/>
-		<mod val="92" leadership="77" charms="9100" luck="0" Illusive="82" dam_to_hit_rate="20"/>
-		<mod val="93" leadership="78" charms="9100" luck="0" Illusive="83" dam_to_hit_rate="20"/>
-		<mod val="94" leadership="79" charms="9100" luck="0" Illusive="84" dam_to_hit_rate="20"/>
-		<mod val="95" leadership="80" charms="9200" luck="0" Illusive="85" dam_to_hit_rate="20"/>
-		<mod val="96" leadership="81" charms="9300" luck="0" Illusive="86" dam_to_hit_rate="20"/>
-		<mod val="97" leadership="82" charms="9400" luck="0" Illusive="87" dam_to_hit_rate="20"/>
-		<mod val="98" leadership="83" charms="9500" luck="0" Illusive="88" dam_to_hit_rate="20"/>
-		<mod val="99" leadership="84" charms="9600" luck="0" Illusive="89" dam_to_hit_rate="20"/>
-		<mod val="100" leadership="85" charms="9700" luck="0" Illusive="90" dam_to_hit_rate="20"/>
+		<mod val="91" leadership="81" charms="15865" luck="82" Illusive="81" dam_to_hit_rate="9"/>
+		<mod val="92" leadership="82" charms="16005" luck="83" Illusive="82" dam_to_hit_rate="9"/>
+		<mod val="93" leadership="83" charms="16145" luck="84" Illusive="83" dam_to_hit_rate="9"/>
+		<mod val="94" leadership="84" charms="16285" luck="85" Illusive="84" dam_to_hit_rate="9"/>
+		<mod val="95" leadership="85" charms="16425" luck="86" Illusive="85" dam_to_hit_rate="9"/>
+		<mod val="96" leadership="86" charms="16565" luck="87" Illusive="86" dam_to_hit_rate="9"/>
+		<mod val="97" leadership="87" charms="16705" luck="88" Illusive="87" dam_to_hit_rate="9"/>
+		<mod val="98" leadership="88" charms="16845" luck="89" Illusive="88" dam_to_hit_rate="9"/>
+		<mod val="99" leadership="89" charms="16985" luck="90" Illusive="89" dam_to_hit_rate="9"/>
+		<mod val="100" leadership="90" charms="17125" luck="91" Illusive="90" dam_to_hit_rate="9"/>
 	</cha_mod>
 	<int_mod>
 		<mod val="0" apell_acknowledge="10" to_skill_use="-10" mana_per_tic="10" fails="34" improove_skill="0" observation="-5" mana_gain="2"/>

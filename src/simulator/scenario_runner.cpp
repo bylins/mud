@@ -187,57 +187,57 @@ int GetMaxHitOverride(const ParticipantSpec& spec) {
 }
 
 // Latin/English aliases for class names so YAML can stay ASCII-friendly.
-// FindAvailableCharClassId compares against the Russian name from pc_*.xml
-// (KOI8-R bytes); for an alias we look it up here and feed the Russian name
-// into the engine resolver. Map values are KOI8-R byte sequences hardcoded
-// as escape sequences to keep this file ASCII-clean.
+// FindAvailableCharClassId сравнивает с русским именем из pc_*.xml. После перехода
+// проекта на UTF-8 (#3709) имена в конфигах -- UTF-8, поэтому и здесь они записаны
+// обычным текстом: прежние koi8-последовательности ни с чем не совпадали, и любой
+// латинский алиас падал с "unknown player class".
 std::string ResolveClassAlias(const std::string& input) {
 	static const std::map<std::string, std::string> kAliases = {
 		// kWarrior -- bogatyr (богатырь)
-		{"bogatyr",       "\xC2\xCF\xC7\xC1\xD4\xD9\xD2\xD8"},
-		{"warrior",       "\xC2\xCF\xC7\xC1\xD4\xD9\xD2\xD8"},
+		{"bogatyr",       "богатырь"},
+		{"warrior",       "богатырь"},
 		// kAssasine -- naemnik (наемник)
-		{"naemnik",       "\xCE\xC1\xC5\xCD\xCE\xC9\xCB"},
-		{"assassin",      "\xCE\xC1\xC5\xCD\xCE\xC9\xCB"},
+		{"naemnik",       "наемник"},
+		{"assassin",      "наемник"},
 		// kCharmer -- kudesnik (кудесник)
-		{"kudesnik",      "\xCB\xD5\xC4\xC5\xD3\xCE\xC9\xCB"},
-		{"charmer",       "\xCB\xD5\xC4\xC5\xD3\xCE\xC9\xCB"},
+		{"kudesnik",      "кудесник"},
+		{"charmer",       "кудесник"},
 		// kConjurer -- koldun (колдун)
-		{"koldun",        "\xCB\xCF\xCC\xC4\xD5\xCE"},
-		{"conjurer",      "\xCB\xCF\xCC\xC4\xD5\xCE"},
+		{"koldun",        "колдун"},
+		{"conjurer",      "колдун"},
 		// kSorcerer -- lekar (лекарь)
-		{"lekar",         "\xCC\xC5\xCB\xC1\xD2\xD8"},
-		{"sorcerer",      "\xCC\xC5\xCB\xC1\xD2\xD8"},
-		{"healer",        "\xCC\xC5\xCB\xC1\xD2\xD8"},
+		{"lekar",         "лекарь"},
+		{"sorcerer",      "лекарь"},
+		{"healer",        "лекарь"},
 		// kRanger -- ohotnik (охотник)
-		{"ohotnik",       "\xCF\xC8\xCF\xD4\xCE\xC9\xCB"},
-		{"ranger",        "\xCF\xC8\xCF\xD4\xCE\xC9\xCB"},
+		{"ohotnik",       "охотник"},
+		{"ranger",        "охотник"},
 		// kMagus -- volkhv (волхв)
-		{"volkhv",        "\xD7\xCF\xCC\xC8\xD7"},
-		{"magus",         "\xD7\xCF\xCC\xC8\xD7"},
+		{"volkhv",        "волхв"},
+		{"magus",         "волхв"},
 		// kGuard -- druzhinnik (дружинник)
-		{"druzhinnik",    "\xC4\xD2\xD5\xD6\xC9\xCE\xCE\xC9\xCB"},
-		{"guard",         "\xC4\xD2\xD5\xD6\xC9\xCE\xCE\xC9\xCB"},
+		{"druzhinnik",    "дружинник"},
+		{"guard",         "дружинник"},
 		// kMerchant -- kupets (купец)
-		{"kupets",        "\xCB\xD5\xD0\xC5\xC3"},
-		{"merchant",      "\xCB\xD5\xD0\xC5\xC3"},
+		{"kupets",        "купец"},
+		{"merchant",      "купец"},
 		// kNecromancer -- chernoknizhnik (чернокнижник)
-		{"chernoknizhnik","\xDE\xC5\xD2\xCE\xCF\xCB\xCE\xC9\xD6\xCE\xC9\xCB"},
-		{"necromancer",   "\xDE\xC5\xD2\xCE\xCF\xCB\xCE\xC9\xD6\xCE\xC9\xCB"},
+		{"chernoknizhnik","чернокнижник"},
+		{"necromancer",   "чернокнижник"},
 		// kPaladine -- vityaz (витязь)
-		{"vityaz",        "\xD7\xC9\xD4\xD1\xDA\xD8"},
-		{"paladine",      "\xD7\xC9\xD4\xD1\xDA\xD8"},
-		{"paladin",       "\xD7\xC9\xD4\xD1\xDA\xD8"},
+		{"vityaz",        "витязь"},
+		{"paladine",      "витязь"},
+		{"paladin",       "витязь"},
 		// kThief -- tat (тать)
-		{"tat",           "\xD4\xC1\xD4\xD8"},
-		{"thief",         "\xD4\xC1\xD4\xD8"},
+		{"tat",           "тать"},
+		{"thief",         "тать"},
 		// kVigilant -- kuznets (кузнец)
-		{"kuznets",       "\xCB\xD5\xDA\xCE\xC5\xC3"},
-		{"vigilant",      "\xCB\xD5\xDA\xCE\xC5\xC3"},
-		{"smith",         "\xCB\xD5\xDA\xCE\xC5\xC3"},
+		{"kuznets",       "кузнец"},
+		{"vigilant",      "кузнец"},
+		{"smith",         "кузнец"},
 		// kWizard -- volshebnik (волшебник)
-		{"volshebnik",    "\xD7\xCF\xCC\xDB\xC5\xC2\xCE\xC9\xCB"},
-		{"wizard",        "\xD7\xCF\xCC\xDB\xC5\xC2\xCE\xC9\xCB"},
+		{"volshebnik",    "волшебник"},
+		{"wizard",        "волшебник"},
 	};
 	const auto it = kAliases.find(input);
 	return it != kAliases.end() ? it->second : input;

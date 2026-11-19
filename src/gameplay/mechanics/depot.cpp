@@ -1430,28 +1430,13 @@ void reload_char(long uid, CharData *ch) {
 	imm_log("%s", msg.c_str());
 }
 
-/**
-* Учет локейт в персональных хранилищах.
-* \param count - оставшееся кол-во возможных показываемых шмоток после прохода по основному обж-списку.
-*/
-std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
-	for (auto it : depot_list) {
-		for (auto obj_it : it.second.pers_online) {
-			if (!privilege::IsGod(ch)) {
-				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
-					continue;
-				}
-				if (obj_it->has_flag(EObjFlag::kNolocate)
-					&& !privilege::IsGod(ch)) {
-					continue;
-				}
-			}
-			if (obj->get_id() == obj_it->get_id()) {
-				return fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n", obj_it->get_short_description().c_str(), grammar::ObjPluralVerbEnding((obj_it)->get_sex()));
-			}
+// * Для учитывания предметов в персональных хранилищах в локейте.
+void CollectOnlineObjIds(std::unordered_set<long> &ids) {
+	for (const auto &it : depot_list) {
+		for (const auto &obj : it.second.pers_online) {
+			ids.insert(obj->get_id());
 		}
 	}
-	return {};
 }
 
 std::string print_imm_where_obj(const ObjData *obj) {
@@ -1502,18 +1487,6 @@ void rename_char(CharData *ch) {
 	if (it != depot_list.end()) {
 		it->second.name = GET_NAME(ch);
 	}
-}
-
-// * Поиск цели для каста локейта.
-ObjData *locate_object(const char *str) {
-	for (DepotListType::const_iterator i = depot_list.begin(); i != depot_list.end(); ++i) {
-		for (ObjListType::const_iterator k = i->second.pers_online.begin(); k != i->second.pers_online.end(); ++k) {
-			if (isname(str, (*k)->get_aliases())) {
-				return k->get();
-			}
-		}
-	}
-	return 0;
 }
 
 // * Добавление денег чару, находящемуся оффлайн при переводе кун (типа временное решение).

@@ -4,17 +4,17 @@
 <equipment_affect_msg>
 	<affect id="kBlindness"><name val="слепота"/></affect>
 	<affect id="kInvisibility"><name val="невидимость"/></affect>
-	<affect id="kDetectAlign"><name val="опр.наклонностей"/></affect>
-	<affect id="kDetectInvisibility"><name val="опр.невидимости"/></affect>
-	<affect id="kDetectMagic"><name val="опр.магии"/></affect>
-	<affect id="kDetectLife"><name val="опр.жизни"/></affect>
+	<affect id="kDetectAlign"><name val="определение наклонностей"/></affect>
+	<affect id="kDetectInvisibility"><name val="определение невидимости"/></affect>
+	<affect id="kDetectMagic"><name val="определение магии"/></affect>
+	<affect id="kDetectLife"><name val="определение жизни"/></affect>
 	<affect id="kWaterWalk"><name val="водохождение"/></affect>
 	<affect id="kSanctuary"><name val="освящение"/></affect>
 	<affect id="kCurse"><name val="проклятие"/></affect>
 	<affect id="kInfravision"><name val="инфравидение"/></affect>
 	<affect id="kPoison"><name val="яд"/></affect>
 	<affect id="kSleep"><name val="сон"/></affect>
-	<affect id="kNoTrack"><name val="не.выследить"/></affect>
+	<affect id="kNoTrack"><name val="не выследить"/></affect>
 	<affect id="kBless"><name val="доблесть"/></affect>
 	<affect id="kSneak"><name val="подкрадывание"/></affect>
 	<affect id="kHide"><name val="спрятаться"/></affect>
@@ -23,28 +23,28 @@
 	<affect id="kSilence"><name val="молчание"/></affect>
 	<affect id="kAwareness"><name val="настороженность"/></affect>
 	<affect id="kBlink"><name val="мигание"/></affect>
-	<affect id="kNoFlee"><name val="не.сбежать"/></affect>
+	<affect id="kNoFlee"><name val="не сбежать"/></affect>
 	<affect id="kSingleLight"><name val="свет"/></affect>
 	<affect id="kHolyLight"><name val="освещение"/></affect>
 	<affect id="kHolyDark"><name val="тьма"/></affect>
-	<affect id="kDetectPoison"><name val="опр.яда"/></affect>
+	<affect id="kDetectPoison"><name val="определение яда"/></affect>
 	<affect id="kSlow"><name val="медлительность"/></affect>
 	<affect id="kHaste"><name val="ускорение"/></affect>
-	<affect id="kWaterBreath"><name val="дыхание.водой"/></affect>
+	<affect id="kWaterBreath"><name val="дыхание водой"/></affect>
 	<affect id="kHaemorrhage"><name val="кровотечение"/></affect>
 	<affect id="kDisguising"><name val="маскировка"/></affect>
-	<affect id="kShield"><name val="защита.богов"/></affect>
-	<affect id="kAirShield"><name val="воздушный.щит"/></affect>
-	<affect id="kFireShield"><name val="огненный.щит"/></affect>
-	<affect id="kIceShield"><name val="ледяной.щит"/></affect>
-	<affect id="kMagicGlass"><name val="зеркало.магии"/></affect>
-	<affect id="kStoneHand"><name val="каменная.рука"/></affect>
-	<affect id="kPrismaticAura"><name val="призматическая.аура"/></affect>
-	<affect id="kAirAura"><name val="воздушная.аура"/></affect>
-	<affect id="kFireAura"><name val="огненная.аура"/></affect>
-	<affect id="kIceAura"><name val="ледяная.аура"/></affect>
+	<affect id="kShield"><name val="защита богов"/></affect>
+	<affect id="kAirShield"><name val="воздушный щит"/></affect>
+	<affect id="kFireShield"><name val="огненный щит"/></affect>
+	<affect id="kIceShield"><name val="ледяной щит"/></affect>
+	<affect id="kMagicGlass"><name val="зеркало магии"/></affect>
+	<affect id="kStoneHand"><name val="каменная рука"/></affect>
+	<affect id="kPrismaticAura"><name val="призматическая аура"/></affect>
+	<affect id="kAirAura"><name val="воздушная аура"/></affect>
+	<affect id="kFireAura"><name val="огненная аура"/></affect>
+	<affect id="kIceAura"><name val="ледяная аура"/></affect>
 	<affect id="kDeafness"><name val="глухота"/></affect>
 	<affect id="kComamnder"><name val="полководец"/></affect>
-	<affect id="kEarthAura"><name val="земной.поклон"/></affect>
+	<affect id="kEarthAura"><name val="земной поклон"/></affect>
 	<affect id="kCloudly"><name val="затуманивание"/></affect>
 </equipment_affect_msg>

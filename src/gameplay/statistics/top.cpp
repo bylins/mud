@@ -16,6 +16,28 @@
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
 
+namespace {
+
+// Кого в чарте игроков быть не должно.
+//
+// Уровень проверяется ОТДЕЛЬНО от privilege::IsImmortal, и это не перестраховка.
+// База богов (cfg/privilege.xml) читается в boot_db ПОЗЖЕ построения индекса игроков,
+// а чарт набивается как раз оттуда -- TopPlayer::Refresh() из ActualizePlayersIndex().
+// На старте мада GetDb() еще пуста, FindGod() не находит никого, и IsImmortal()
+// отвечает "нет" про каждого бога. Единственное исключение -- владелец: его опознают
+// по имени, без базы. Поэтому в "рекордах" боги и оседали: бог 32 уровня стоял седьмым
+// среди колдунов, а Стрибога там не было.
+// kMaxPlayerLevel == 30 < kLvlImmortal == 31, так что уровень разделяет бога и игрока
+// однозначно и порядка загрузки конфигов не требует.
+bool IsOutOfChart(CharData *ch) {
+	return ch->IsFlagged(EPlrFlag::kFrozen)
+		|| ch->IsFlagged(EPlrFlag::kDeleted)
+		|| GetRealLevel(ch) >= kLvlImmortal
+		|| privilege::IsImmortal(ch);
+}
+
+}  // namespace
+
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
@@ -33,10 +55,15 @@ void TopPlayer::Remove(CharData *short_ch) {
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
-	if (short_ch->IsNpc()
-		|| short_ch->IsFlagged(EPlrFlag::kFrozen)
-		|| short_ch->IsFlagged(EPlrFlag::kDeleted)
-		|| privilege::IsImmortal(short_ch)) {
+	if (short_ch->IsNpc()) {
+		return;
+	}
+	if (IsOutOfChart(short_ch)) {
+		// Прежнюю запись все равно снимаем: смертного, которого подняли в боги,
+		// заморозили или удалили, иначе держал бы место в чарте до ребута.
+		if (!reboot) {
+			TopPlayer::Remove(short_ch);
+		}
 		return;
 	}
 	if (!reboot) {
@@ -90,10 +117,7 @@ void TopPlayer::RefreshAll() {
 			continue;
 		}
 		CharData *ch = d->character.get();
-		if (ch->IsNpc()
-			|| ch->IsFlagged(EPlrFlag::kFrozen)
-			|| ch->IsFlagged(EPlrFlag::kDeleted)
-			|| privilege::IsImmortal(ch)) {
+		if (ch->IsNpc() || IsOutOfChart(ch)) {
 			continue;
 		}
 		online[ch->get_uid()] = {ch->get_exp(), remort::GetRealRemort(ch)};

@@ -937,12 +937,14 @@ void check_idling(CharData *ch) {
 			if (ch->get_was_in_room() == kNowhere && ch->in_room != kNowhere) {
 				// Профилировка пути ухода в пустоту (#3440): логируем разбивку,
 				// т.к. он редкий, а в обычном профайлере point_update всё в idle.
+				// issue #4014: полного save_char здесь больше нет. Он стоил всей секции idle:
+				// запись мелкого файла на боевой машине изредка ждёт 30-85 мс (проба
+				// tools/fs_write_latency.py показывает это и без движка), а на уход в пустоту
+				// приходилось по сейву на каждого заснувшего. Сохранять тут нечего: пустота --
+				// это лишь перенос в kStrangeRoom, а состояние персонажа ляжет на автосейве и
+				// при форс-ренте ниже. Предметы по-прежнему пишет Crash_crashsave.
 				utils::CExecutionTimer tmr;
-				double d_save = 0.0, d_crash = 0.0, d_move = 0.0, d_aff = 0.0;
-				if (ch->desc) {
-					ch->save_char();
-				}
-				d_save = tmr.delta().count();
+				double d_crash = 0.0, d_move = 0.0, d_aff = 0.0;
 				ch->set_was_in_room(ch->in_room);
 				if (ch->GetEnemy()) {
 					stop_fighting(ch->GetEnemy(), false);
@@ -951,7 +953,6 @@ void check_idling(CharData *ch) {
 				act("$n растворил$u в пустоте.", true, ch, nullptr, nullptr, kToRoom);
 				SendMsgToChar("Вы пропали в пустоте этого мира.\r\n", ch);
 
-				tmr.restart();
 				Crash_crashsave(ch);
 				d_crash = tmr.delta().count();
 				tmr.restart();
@@ -961,8 +962,8 @@ void check_idling(CharData *ch) {
 				tmr.restart();
 				room_spells::RemoveSingleAffectFromWorld(ch, room_spells::ERoomAffect::kRuneLabel);
 				d_aff = tmr.delta().count();
-				log("idle-void %s: save_char=%.4f crashsave=%.4f move=%.4f rune_aff=%.4f",
-					GET_NAME(ch), d_save, d_crash, d_move, d_aff);
+				log("idle-void %s: crashsave=%.4f move=%.4f rune_aff=%.4f",
+					GET_NAME(ch), d_crash, d_move, d_aff);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				// Профилировка пути форс-ренты (#3440): см. комментарий выше.
 				utils::CExecutionTimer tmr;
@@ -1450,7 +1451,7 @@ void point_update() {
 	// Профайлер частей цикла: копим время по каждой части за весь цикл и выводим 1 раз после.
 	utils::CExecutionTimer point_update_timer;    // весь цикл целиком
 	utils::CExecutionTimer prof;                  // переиспользуем для замера частей
-	double t_cond = 0.0, t_hp = 0.0, t_mob = 0.0, t_move = 0.0, t_pos = 0.0, t_idle = 0.0;
+	double t_cond = 0.0, t_hp = 0.0, t_mob = 0.0, t_move = 0.0, t_pos = 0.0, t_idle = 0.0, t_eqaff = 0.0;
 	std::size_t scanned = 0, profiled_chars = 0;
 
 	// #3414: вместо скана всего character_list -- только активные мобы (их
@@ -1472,6 +1473,13 @@ void point_update() {
 				MaterializeMobFlagAffects(i);
 			}
 		}
+		// issue #3988: волшебство надетых вещей живёт отдельными узлами аффектов, и вернуть их
+		// после потери мимо подавления на предмете (чистка аффектов, смерть, обнуление) больше
+		// нечему -- affect_total их не воссоздаёт. Сверяем раз в игровой час, молча. Своя секция
+		// в профиле ниже: проход идёт по всем просмотренным, и его цену видно отдельно.
+		prof.restart();
+		ReconcileEquipmentAffects(i);
+		t_eqaff += prof.delta().count();
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, EAffect::kSleep) && i->GetPosition() > EPosition::kSleep) {
@@ -1587,8 +1595,8 @@ void point_update() {
 	}
 
 	const double point_update_total = point_update_timer.delta().count();
-	log("Point updating (просмотрено %zu, обработано %zu, всего %.4f сек): условия=%.4f hp=%.4f мобы=%.4f move=%.4f update_pos=%.4f idle=%.4f",
-		scanned, profiled_chars, point_update_total, t_cond, t_hp, t_mob, t_move, t_pos, t_idle);
+	log("Point updating (просмотрено %zu, обработано %zu, всего %.4f сек): условия=%.4f hp=%.4f мобы=%.4f move=%.4f update_pos=%.4f idle=%.4f вещи=%.4f",
+		scanned, profiled_chars, point_update_total, t_cond, t_hp, t_mob, t_move, t_pos, t_idle, t_eqaff);
 }
 void ExtractRepopDecayObject(ObjData *obj) {
 	if (obj->get_worn_by()) {

@@ -195,7 +195,7 @@ static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
 switch (obj->get_type()) {
 	case EObjType::kScroll: {
 		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
-				ch->player_specials->saved.stringLength, ", ",
+				LineWrapWidth(ch), ", ",
 				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
@@ -203,7 +203,7 @@ switch (obj->get_type()) {
 	// POTENCY (Сила), never a per-spell level -- the drinker's own skill/stats are irrelevant.
 	case EObjType::kPotion: {
 		SendMsgToChar(utils::OutWordsList(SpellItemSpellsWithPotency(obj),
-				ch->player_specials->saved.stringLength, ", ",
+				LineWrapWidth(ch), ", ",
 				std::string(kColorGrn) + "Содержит заклинание:" + kColorNrm + " ") + "\r\n", ch);
 		break;
 	}
@@ -400,11 +400,21 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	SendMsgToChar(kColorNrm, ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
+		// Таймер экземпляра тикает не всегда: у зонных вещей без своего таймера и у вещей, не
+		// прошедших через руки игрока (нет kTicktimer), срок истления не назначен вовсе, и
+		// get_timer() отдаёт UNLIMITED_TIMER -- в познании вылезало голое 2147483647.
+		const auto proto_timer = obj_proto[obj->get_rnum()]->get_timer();
+		const std::string proto_timer_line = proto_timer >= ObjData::UNLIMITED_TIMER
+											 ? std::string("бесконечен")
+											 : std::to_string(proto_timer);
 		std::string timer_line;
-		if (stable_objs::IsTimerUnlimited(obj))
-			timer_line = fmt::format("Таймер: {}/нерушимо.", obj_proto[obj->get_rnum()]->get_timer());
-		else
-			timer_line = fmt::format("Таймер: {}/{}.", obj_proto[obj->get_rnum()]->get_timer(), obj->get_timer());
+		if (stable_objs::IsTimerUnlimited(obj)) {
+			timer_line = fmt::format("Таймер: {}/нерушимо.", proto_timer_line);
+		} else if (obj->get_timer() >= ObjData::UNLIMITED_TIMER) {
+			timer_line = fmt::format("Таймер: {}/бесконечен.", proto_timer_line);
+		} else {
+			timer_line = fmt::format("Таймер: {}/{}.", proto_timer_line, obj->get_timer());
+		}
 		const std::string miw = GetObjMIW(obj->get_rnum()) < 0
 			? std::string("бесконечно")
 			: std::to_string(GetObjMIW(obj->get_rnum()));
@@ -546,7 +556,7 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 			victim->get_wis(), GetRealWis(victim), victim->get_cha(), GetRealCha(victim));
 	}
 	if (skill > 119) {
-		ss << fmt::format("Бонусы: маг.урон: {}, физ. урон: {}\r\n",
+		ss << fmt::format("Бонусы: магический урон: {}, физический урон: {}\r\n",
 				victim->add_abils.percent_spellpower_add, victim->add_abils.percent_physdam_add);
 	}
 	if (skill > 149) {
@@ -575,7 +585,7 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 		std::vector<std::string> aff_list =
 				utils::Split(affects::DescribeActive(victim->char_specials.saved.affected_by, ","), ',');
 		ss << fmt::format("&G{}&n\r\n",
-				utils::OutWordsList(aff_list, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
+				utils::OutWordsList(aff_list, LineWrapWidth(ch), ", ", "Аффекты: "));
 	}
 	SendMsgToChar(ch, "%s", ss.str().c_str());
 }

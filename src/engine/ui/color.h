@@ -11,6 +11,9 @@
 
 #include "engine/structs/structs.h"
 
+#include <string>
+#include <string_view>
+
 extern const char *kColorNrm;
 extern const char *kColorRed;
 extern const char *kColorGrn;
@@ -32,6 +35,7 @@ extern const char *kColorBoldWht;
 
 std::size_t strlen_no_colors(const char *str);
 int proc_color(char *inbuf);
+std::string RawText(std::string_view text);
 char *colored_name(const char *str, std::size_t len, bool left_align = false);
 const char *GetWarmValueColor(int current, int max);
 const char *GetColdValueColor(int current, int max);

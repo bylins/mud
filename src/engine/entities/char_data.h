@@ -191,6 +191,9 @@ struct CastAttack {
 	CharData *tch{nullptr};
 	ObjData *tobj{nullptr};
 	RoomData *troom{nullptr};
+	// issue #4000: остаток строки каста. Каст в бою откладывается до своего раунда, и дописанное
+	// игроком слово (вид скелета) должно дожить до него, иначе заклинание сработает как без него.
+	std::string extra;
 };
 
 struct player_special_data_saved {
@@ -355,11 +358,13 @@ class CharData : public ProtectedCharData {
 	CharData *GetEnemy() const;
 	void SetEnemy(CharData *enemy);
 
-	void SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
+	void SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom,
+				 const std::string &extra = {});
 	ESpell GetCastSpell() const;
 	ESpell GetCastSubst() const;
 	CharData *GetCastChar() const;
 	ObjData *GetCastObj() const;
+	[[nodiscard]] const std::string &GetCastExtra() const;
 
 	bool purged() const;
 
@@ -548,6 +553,11 @@ class CharData : public ProtectedCharData {
 
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
+	// Экземпляр, созданный мимо счётчика mob_index[].total_online (подъём нежити, оживление
+	// трупа и прочие союзники -- ReadMobile с отрицательным внумом). Такой при удалении не
+	// должен счётчик уменьшать, иначе он уходит в минус и врёт резетам зон.
+	bool IsUncountedInstance() const { return uncounted_instance_; }
+	void SetUncountedInstance(bool _) { uncounted_instance_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
 
  private:
@@ -572,6 +582,7 @@ class CharData : public ProtectedCharData {
 	std::string short_descr_;  // имя моба (им.падеж)
 	ECharClass chclass_;  // профессия чара/класс моба
 	bool is_npc_;
+	bool uncounted_instance_{false};
 	int level_;  // уровень
 	int level_add_;  // плюс на уровень
 	long uid_;  // id чара (не тот, что для тригов), у мобов -1
@@ -638,7 +649,6 @@ class CharData : public ProtectedCharData {
 	// Костыльная функция, которая пока нужна, потому что загрузчик файлов не часть чардаты и не friend class.
 	void SetFlagsFromString(const std::string &string) { char_specials.saved.mob_flags.from_string(string.c_str()); };
   	void PrintFlagsToAscii(char *sink, size_t sink_size) const { char_specials.saved.mob_flags.tascii(4, sink, sink_size); };
-  	void CopyFlagsFrom(CharData *source) { char_specials.saved.mob_flags = source->char_specials.saved.mob_flags ; };
 	void SetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.mob_flags.set(flag); }; };
   	void UnsetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.mob_flags.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const EMobFlag flag) const { return (IsNpc() && char_specials.saved.mob_flags.get(flag)); };

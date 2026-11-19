@@ -68,11 +68,16 @@ enum EAffFlag : Bitvector {
   kAfFromSet			= 1u << 28	// issue.equipment-affects-improve: materialized from an object SET (broadcast suppress)
 };
 
-// issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags; single plane
-// (max kAfAegis=1<<26), serialized in player files as a plain int via get_plane(0)/set_plane(0).
+// issue.flags-migration P1e: Affect::battleflag (EAffFlag) -> BitsetFlags.
+// issue #4005: весь путь флага аффекта типизирован (AffectFlags, см. ниже) -- одиночного 32-битного
+// Bitvector, который держал только плоскость 0, на этом пути больше нет. Поэтому новые флаги можно
+// заводить и в плоскостях 1-3, маркерами kIntOne/kIntTwo/kIntThree, как давно живёт EMobFlag; в самой
+// плоскости 0 пока свободен бит 1<<29. В сейве игрока поле battleflag блока Aff3 остаётся числом
+// плоскости 0 (так его читает и прежний бинарь), а при флагах из старших плоскостей дописывается
+// поле с меткой '@' и формой tascii -- см. save_char/load_char_ascii.
 template<>
 struct flag_traits<EAffFlag> {
-	static constexpr std::size_t count = 30;
+	static constexpr std::size_t count = 4 * bitset_flags_detail::kPlaneSize;   // 4 плоскости по 30 бит
 };
 template<>
 struct flag_index_mapping<EAffFlag> {
@@ -80,6 +85,11 @@ struct flag_index_mapping<EAffFlag> {
 		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
 	}
 };
+
+// issue #4005: набор флагов аффекта -- то, что лежит в Affect::battleflag и что отдают
+// affects.xml (AffectFlagsByType) и описания талантов. Отдельное имя, чтобы сигнатуры читались и
+// чтобы случайно не вернуться к Bitvector, который держит только плоскость 0.
+using AffectFlags = BitsetFlags<EAffFlag>;
 
 /**
  * Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -227,6 +237,14 @@ enum class EAffect : Bitvector {
 	kWebbed = 135,          // issue.affects-improve: kWeb's own affect (AC/hitroll penalty + kBind)
 	kInsidiousWound = 136,  // issue.affects-improve: punctual-style wound debuff
 	kBurning = 137,         // issue.damage-over-time: fully data-driven fire DoT (kFireBlast); ticks its own <damage>
+	// issue #4000: костяная свита чернокнижника. kBoneServant -- врождённая метка на прототипах
+	// скелетов: её <actions> стреляют на удар и зовут обработчик, который по виду скелета решает,
+	// какой дебафф положить. kCorrodedArmor/kCorrodedWard -- сами дебаффы на жертве.
+	kBoneServant = 138,
+	kCorrodedArmor = 139,
+	kCorrodedWard = 140,
+	// issue #4032: нежить "поднять труп" слабеет, пока у хозяина жива костяная свита.
+	kBoneLevy = 141,
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -236,7 +254,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 138;   // kBurning=137 + 1
+	static constexpr std::size_t count = 142;   // kBoneLevy=141 + 1
 };
 template<>
 struct flag_index_mapping<EAffect> {
@@ -352,6 +370,10 @@ template<>
 EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name);
 template<>
 const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>();  // issue.vedun-editor: editor enum pick-list
+
+// issue #3980: трёхбуквенный код флага для stat -- полные имена в строку не влезают.
+// Для неизвестного значения возвращает "???".
+const std::string &ShortName(EAffFlag item);
 
 // issue.ext-affects: built at boot from cfg/affects/affects.xml (see affects_loader.h), indexed positionally by
 // the EAffect bit so sprintbits keeps working unchanged; null until the "affects" cfg is loaded.

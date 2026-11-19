@@ -203,33 +203,42 @@ namespace {
 			// -каст/мем-рег/дамаг-заклов/скилы
 			// AFF_DATURA_POISON - флаг на снижение дамага с заклов
 
-			Affect<EApply> af[3];
+			// Четыре эффекта -- четыре элемента: -скиллы жили в одном af[0] с -маг.дамагом, и
+			// вторая запись location затирала первую, так что EApply::kDaturaPoison (а это
+			// GET_SKILL_REDUCE) не накладывался вовсе. Флаг kSkillReduce при этом на жертву
+			// вешался, то есть признак был, а снижения умений не было. У белены то же самое
+			// разложено по разным элементам -- делаем как там.
+			Affect<EApply> af[4];
 			// One EAffect per affect now: the poison flag plus its two secondary
 			// flags are spread across sibling entries (same type/duration).
-			af[0].affect_type = EAffect::kDaturaPoison;
-			af[1].affect_type = EAffect::kSkillReduce;
+			af[0].affect_type = EAffect::kSkillReduce;
+			af[1].affect_type = EAffect::kDaturaPoison;
 			af[2].affect_type = EAffect::kNoBattleSwitch;
+			af[3].affect_type = EAffect::kDaturaPoison;
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 			int percent = (std::min(GetSkill(ch, ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
 			// -скиллы
 			af[0].location = EApply::kDaturaPoison;
-			af[0].modifier = std::max(percent, 10);;
+			af[0].modifier = std::max(percent, 10);
 			// -маг.дамаг
-			af[0].location = EApply::kMagicDamagePercent;
-			af[0].modifier = -std::max(percent, 10);;
+			af[1].location = EApply::kMagicDamagePercent;
+			af[1].modifier = -std::max(percent, 10);
 			// -каст
-			af[1].location = EApply::kCastSuccess;
-			af[1].modifier = -(GET_CAST_SUCCESS(vict) * percent) * 0.01;
+			af[2].location = EApply::kCastSuccess;
+			af[2].modifier = -(GET_CAST_SUCCESS(vict) * percent) * 0.01;
 			// -мем
 			int remove_mem = (GET_MANAREG(vict) * percent) * 0.01;
-			af[2].location = EApply::kManaRegen;
-			af[2].modifier = -remove_mem;
+			af[3].location = EApply::kManaRegen;
+			af[3].modifier = -remove_mem;
 
 			bool was_poisoned = true;
 			for (auto & i : af) {
 				i.duration = 7;
-				if (!ch->IsNpc()) {
+				// Множитель на жертву-игрока, как у остальных трех ядов. Тут стояло ch:
+				// длительность зависела от того, кто травит, и дурман от игрока висел на мобе
+				// 210 вместо 7, а дурман от моба на игроке -- 7 вместо 210.
+				if (!vict->IsNpc()) {
 					i.duration *= 30;
 				}
 				i.caster_id = ch->get_uid();
@@ -398,6 +407,18 @@ EStageResult WeaponPoisonHit(ActionContext &ctx) {
 }
 }  // namespace handlers
 
+// Опознавательный аффект кластера: по нему видно, что этот же яд на цели уже висит.
+// У аконита это узел kPoisoned, он же носитель урона; у остальных трех -- свой флаг.
+static EAffect PoisonClusterAffect(ESpell spell_id) {
+	switch (spell_id) {
+		case ESpell::kAconitumPoison: return EAffect::kAconitumPoison;
+		case ESpell::kScopolaPoison: return EAffect::kScopolaPoison;
+		case ESpell::kBelenaPoison: return EAffect::kBelenaPoison;
+		case ESpell::kDaturaPoison: return EAffect::kDaturaPoison;
+		default: return EAffect::kPoisoned;
+	}
+}
+
 // * Попытка травануть с пушки при ударе.
 void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	if (spell_id < ESpell::kFirst) {
@@ -406,8 +427,17 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kPoisoning, vict);
 	bool success = result.success;
 
-	if (((success) && (number(1, 100) <= 25)) ||
-		(!vict->battle_affects.get(kEafFirstPoison) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
+	// Гарантированное наложение -- только пока этого яда на цели нет. Раньше условие висело на
+	// боевой защелке kEafFirstPoison, а battle_affects чистятся и при входе в бой, и при выходе
+	// из него. Поэтому каждый новый бой был для цели "первым": отбежал, вернулся, ударил -- и
+	// снова гарантированный прок, до предельного стака, хотя сам яд висит еще минуты.
+	//
+	// issue #4119: вторая половина условия раньше смотрела еще и на общий kPoisoned. Его вешают
+	// крит яда (30 тиков против 7 у самого яда), узел урона аконита и заклинание "яд", поэтому
+	// гарантия закрывалась всем четырем ядам сразу и дольше, чем живет тот, которым травили.
+	// Признак кластера на цели -- и есть ответ на вопрос "этот яд уже висит", больше ничего
+	// проверять не нужно.
+	if (((success) && (number(1, 100) <= 25)) || !AFF_FLAGGED(vict, PoisonClusterAffect(spell_id))) {
 		ImproveSkill(ch, ESkill::kPoisoning, true, vict);
 		if (PoisonVictWithWeapon(ch, vict, spell_id)) {
 			if (spell_id == ESpell::kAconitumPoison) {
@@ -418,15 +448,12 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 				SendMsgToChar(fmt::format("{} скрючил{} от нестерпимой боли.\r\n",
 										  utils::CAP(sight::PersonName(vict, ch, 0)),
 										  grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 2)), ch);
-				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
 				SendMsgToChar(fmt::format("{} перестали слушаться руки.\r\n",
 										  utils::CAP(sight::PersonName(vict, ch, 3))), ch);
-				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
 				SendMsgToChar(fmt::format("{} стало труднее плести заклинания.\r\n",
 										  utils::CAP(sight::PersonName(vict, ch, 2))), ch);
-				vict->battle_affects.set(kEafFirstPoison);
 			} else {
 				SendMsgToChar(ch, "Вы отравили %s.\r\n", sight::PersonName(ch, vict, 3));
 			}

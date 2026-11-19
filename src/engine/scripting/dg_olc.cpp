@@ -24,6 +24,7 @@
 
 #include "engine/entities/obj_data.h"
 #include "engine/olc/olc.h"
+#include "engine/ui/color.h"
 #include "dg_event.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/zone.h"
@@ -360,15 +361,17 @@ void trigedit_disp_menu(DescriptorData *d) {
 		attach_type = "undefined";
 		trgtypes[0] = '\0';
 	}
+	// Название, аргументы и тело печатаем через RawText: иначе proc_color покажет подчеркивания
+	// пробелами, и скопированный из игры скрипт вернется в редактор уже сломанным.
 	std::stringstream out;
 	out << "Редактирование триггера " << "[&y" << OLC_NUM(d) << "&n]\r\n\r\n"
-			<< "&g1)&n Название         : " << "&y" <<GET_TRIG_NAME(trig) << "\r\n"
+			<< "&g1)&n Название         : " << "&y" << RawText(trig->get_name()) << "\r\n"
 			<< "&g2)&n Тип: " << "&y" << attach_type << "\r\n"
 			<< "&g3)&n События: " << "&y" << trgtypes << "\r\n"
 			<< "&g4)&n Числовой Аргумент : " << "&y" << trig->narg << "\r\n"
-			<< "&g5)&n Аргументы    : " << "&y" << trig->arglist.c_str() << "\r\n"
+			<< "&g5)&n Аргументы    : " << "&y" << RawText(trig->arglist) << "\r\n"
 			<< "&g6)&n " << (TrigeditIsLuaTrigger(trig) ? "Lua-скрипт" : "Команды") << ":\r\n"
-			<< "&c" << OLC_STORAGE(d);
+			<< "&c" << RawText(OLC_STORAGE(d) ? OLC_STORAGE(d) : "");
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		out << "&g7)&n Обрабатывать команды моба в стане? : &y" << (trig->add_flag ? "ДА" : "НЕТ") << "&n\r\n";
 	}
@@ -785,6 +788,28 @@ void trigedit_save(DescriptorData *d) {
 
 		// HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM
 		trigger_list.shift_rnums_from(trig_rnum);
+
+		// Команда ресета 'T' держит НОМЕР ТРИГГЕРА В ПАМЯТИ (rnum), а не внум: он
+		// посчитан один раз при загрузке мира (db.cpp, GetTriggerRnum для arg2). Новый
+		// триггер вставляется в середину индекса и сдвигает все номера выше, поэтому без
+		// этой поправки каждая такая команда начинает цеплять СОСЕДНИЙ триггер -- и так на
+		// единицу за каждый созданный триггер, до ближайшей перезагрузки.
+		//
+		// Так же, как это давно делают medit (мобы) и redit (комнаты) для своих команд.
+		// Проявление: мобий триггер оказывается на комнате, а поскольку MTRIG_DEATH и
+		// WTRIG_RESET -- один и тот же бит (1 << 5), он молча отрабатывает на каждом
+		// ресете зоны как комнатный.
+		for (auto zone = 0u; zone < zone_table.size(); zone++) {
+			if (!zone_table[zone].cmd) {
+				continue;
+			}
+			for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; cmd_no++) {
+				if (zone_table[zone].cmd[cmd_no].command == 'T'
+					&& zone_table[zone].cmd[cmd_no].arg2 >= trig_rnum) {
+					zone_table[zone].cmd[cmd_no].arg2++;
+				}
+			}
+		}
 
 		// * Update other trigs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {

@@ -259,10 +259,6 @@ ObjPredicate  MakeObjVisibleFilter(CharData *viewer); // CanSeeObj-gated
 RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room);
 
 // issue.handler-cleaning (Bucket 4): generic target search (moved from handler).
-ObjData *get_obj_vis_for_locate(CharData *ch, const char *name);
-inline ObjData *get_obj_vis_for_locate(CharData *ch, const std::string &name) {
-	return get_obj_vis_for_locate(ch, name.c_str());
-}
 bool try_locate_obj(CharData *ch, ObjData *i);
 int generic_find(const char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj);
 inline int generic_find(const std::string &arg, Bitvector bitvector, CharData *ch,
@@ -283,7 +279,6 @@ RoomRnum FindRoomRnum(CharData *ch, const char *rawroomstr, int trig);
 // issue.handler-cleaning: global-scope finder API + Find modes (moved from handler.h).
 // These names stay at global scope (and the using-bridges below re-export the
 // namespaced finders unqualified) so existing call sites need no qualification.
-using target_resolver::get_obj_vis_for_locate;
 using target_resolver::try_locate_obj;
 using target_resolver::generic_find;
 using target_resolver::ParseAllPrefix;

@@ -170,6 +170,12 @@ int genchar_parse(CharData *ch, char *arg) {
 	return kGencharContinue;
 }
 
+// Стартовые параметры нового персонажа: все характеристики ставятся в классовые минимумы, а
+// дальше игрок раздаёт очки до суммы kBaseStatsSum. Ровно то же делает перераспределение
+// характеристик (GloryMisc::check_stats), поэтому здесь нельзя задирать отдельные характеристики
+// выше минимума: каждое такое очко тратится из бюджета раздачи, и создание давало бы меньше очков,
+// чем перераспределение того же класса (у богатыря 15 против 17, у наемника 10 против 13, у
+// дружинника 13 против 17 -- обаяние задиралось до 10-12 при минимуме 8-9).
 void SetStartAbils(CharData *ch) {
 	const auto &tmp_class = MUD::Class(ch->GetClass());
 	ch->set_str(tmp_class.GetBaseStatGenMin(EBaseStat::kStr));
@@ -179,7 +185,7 @@ void SetStartAbils(CharData *ch) {
 	ch->set_wis(tmp_class.GetBaseStatGenMin(EBaseStat::kWis));
 	ch->set_cha(tmp_class.GetBaseStatGenMin(EBaseStat::kCha));
 	switch (ch->GetClass()) {
-		case ECharClass::kSorcerer: ch->set_cha(10);
+		case ECharClass::kSorcerer:
 			GET_HEIGHT(ch) = IsFemale(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IsFemale(ch) ? number(120, 170) : number(120, 180);
 			break;
@@ -197,15 +203,15 @@ void SetStartAbils(CharData *ch) {
 			GET_HEIGHT(ch) = IsFemale(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IsFemale(ch) ? number(120, 170) : number(120, 180);
 			break;
-		case ECharClass::kWarrior: ch->set_cha(10);
+		case ECharClass::kWarrior:
 			GET_HEIGHT(ch) = IsFemale(ch) ? number(165, 180) : number(170, 200);
 			GET_WEIGHT(ch) = IsFemale(ch) ? number(160, 180) : number(170, 200);
 			break;
-		case ECharClass::kAssasine: ch->set_cha(12);
+		case ECharClass::kAssasine:
 			GET_HEIGHT(ch) = IsFemale(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IsFemale(ch) ? number(120, 180) : number(150, 200);
 			break;
-		case ECharClass::kGuard: ch->set_cha(12);
+		case ECharClass::kGuard:
 			GET_HEIGHT(ch) = IsFemale(ch) ? number(150, 180) : number(150, 200);
 			GET_WEIGHT(ch) = IsFemale(ch) ? number(140, 170) : number(160, 200);
 			break;
@@ -225,7 +231,7 @@ void SetStartAbils(CharData *ch) {
 			GET_HEIGHT(ch) = IsFemale(ch) ? number(150, 170) : number(150, 190);
 			GET_WEIGHT(ch) = IsFemale(ch) ? number(120, 180) : number(120, 200);
 			break;
-		case ECharClass::kMagus: ch->set_cha(12);
+		case ECharClass::kMagus:
 			GET_HEIGHT(ch) = IsFemale(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IsFemale(ch) ? number(120, 170) : number(120, 180);
 			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {

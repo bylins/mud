@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
+import re
 import subprocess
 from datetime import datetime
 
@@ -62,6 +63,22 @@ content = content.replace('${BUILD_FEATURES}', build_features)
 content = content.replace('${BUILD_DATETIME}', datetime.now().strftime('%b %d %Y %H:%M:%S'))
 content = content.replace('${ENGINE_NAME}', engine_name)
 content = content.replace('${ENGINE_VERSION}', engine_version)
+
+# Файл переписываем, только если изменилось что-то, кроме отметки времени сборки:
+# ninja запускает этот скрипт каждый раз (build_always_stale), и переписывание ради
+# одной лишь новой секунды заставляло бы перелинковывать бинарь на каждую сборку.
+# Побочное следствие: "build from" -- это когда данную ревизию собрали впервые.
+stamp = re.compile(r'(const char\* build_datetime = ")[^"]*(";)')
+
+def without_stamp(text):
+    return stamp.sub(r'\1\2', text)
+
+try:
+    with open(output_file, encoding='utf-8') as f:
+        if without_stamp(f.read()) == without_stamp(content):
+            sys.exit(0)
+except FileNotFoundError:
+    pass
 
 with open(output_file, 'w', encoding='utf-8') as f:
     f.write(content)

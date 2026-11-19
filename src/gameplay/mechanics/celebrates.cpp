@@ -114,7 +114,7 @@ void ParseTrigList(DataNode node, TrigList *triggers) {
 	for (auto &trig : node.Children("trig")) {
 		int vnum = AttrInt(trig, "vnum");
 		if (!vnum) {
-			mudlog(fmt::format("...celebrates - bad trig (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...celebrates - bad trig (node = {})", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		triggers->push_back(vnum);
@@ -125,7 +125,7 @@ void ParseLoadData(const DataNode &node, const LoadPtr &node_data) {
 	int vnum = AttrInt(node, "vnum");
 	int max = AttrInt(node, "max");
 	if (!vnum || !max) {
-		mudlog(fmt::format("...celebrates - bad data (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
+		mudlog(fmt::format("...celebrates - bad data (node = {})", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	node_data->vnum = vnum;
@@ -178,7 +178,7 @@ void ParseAttachSection(DataNode node, const CelebrateDataPtr &holiday) {
 	for (auto &mob : node.Children("mob")) {
 		vnum = AttrInt(mob, "vnum");
 		if (!vnum) {
-			mudlog(fmt::format("...celebrates - bad attach data (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...celebrates - bad attach data (node = {})", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		ParseTrigList(mob, &holiday->mobsToAttach[vnum / 100][vnum]);
@@ -186,7 +186,7 @@ void ParseAttachSection(DataNode node, const CelebrateDataPtr &holiday) {
 	for (auto &obj : node.Children("obj")) {
 		vnum = AttrInt(obj, "vnum");
 		if (!vnum) {
-			mudlog(fmt::format("...celebrates - bad attach data (node = %s)", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("...celebrates - bad attach data (node = {})", node.GetName()), CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		ParseTrigList(obj, &holiday->objsToAttach[vnum / 100][vnum]);

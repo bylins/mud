@@ -90,8 +90,8 @@ class Player : public CharData {
 	// обертка на Dps
 	void dps_add_dmg(int type, int dmg, int over_dmg, CharData *ch = nullptr);
 	void dps_clear(int type);
-	void dps_print_stats(CharData *coder = nullptr);
-	void dps_print_group_stats(CharData *ch, CharData *coder = nullptr);
+	void dps_print_stats(CharData *coder = nullptr, bool hide_over_dmg = false);
+	void dps_print_group_stats(CharData *ch, CharData *coder = nullptr, bool hide_over_dmg = false);
 	void dps_set(DpsSystem::Dps *dps);
 	void dps_copy(CharData *ch);
 	void dps_end_round(int type, CharData *ch = nullptr);

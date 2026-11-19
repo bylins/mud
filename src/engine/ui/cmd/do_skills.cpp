@@ -82,8 +82,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 			line += fmt::format("{:<23} {} ({}){} \r\n",
 					skill.GetName(),
 					how_good(GetSkill(ch, skill_id), CalcSkillHardCap(ch, skill_id)),
-					GetTrainedSkill(ch, skill_id) == 0 ? GetEquippedSkill(ch, skill_id) : 
-					std::min(CalcSkillMinCap(ch, skill_id) + GetEquippedSkill(ch, skill_id), MUD::Skill(skill_id).cap),
+					CalcSkillDisplayLimit(ch, skill_id),
 					kColorNrm);
 			skills_names.emplace_back(line);
 			i++;

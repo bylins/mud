@@ -126,7 +126,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// не видино своих мессаг если 'режим repeat'
 			if (d != ch->desc
 				|| !(d->character->IsFlagged(EPrf::kNoRepeat))) {
-				SendMsgToChar(message, d->character.get());
+				SendWrappedToChar(message, d->character.get());
 			}
 		}
 	}

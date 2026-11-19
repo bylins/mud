@@ -119,7 +119,7 @@ void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data) {
 			act("$n немного отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
 			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, hit_data.dam, 10);
 			prob = 1;
-			hit_data.dam *= 10 / 15;
+			hit_data.dam = SlightDefenceDamage(hit_data.dam);
 			victim->battle_affects.set(kEafUsedleft);
 		} else if (prob < 170) {
 			act("Вы частично отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);

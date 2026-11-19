@@ -40,12 +40,19 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (mount::IsBlockedByHorse(ch))
 		return;
 
-	if ((vict->GetPosition() < EPosition::kFight)) {
-		if (number(1, 100) < GetSkill(ch, ESkill::kChopoff)) {
-			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
-			return;
-		}
+	if (vict->IsFlagged(EMobFlag::kNoUndercut)) {
+		act("Вы собрались подсечь $N3, но это оказалось невозможно.", false, ch, nullptr, vict, kToChar);
+		ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
+		return;
+	}
+
+	// Цель ниже боевой стойки подсечке не поддается, и ниже это давало prob = 0, то есть
+	// гарантированное падение. Отказываем сразу, как и неподсекаемой цели: бросок на умение
+	// тут спасал только тех, у кого умение выше 100, а остальных просто сажал на землю.
+	if (vict->GetPosition() < EPosition::kFight) {
+		SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
+		ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
+		return;
 	}
 
 	if (!pk_agro_action(ch, vict))
@@ -63,9 +70,12 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob = percent;
 	}
 
+	// Флаг "нельзя подсечь" и позиция ниже боевой стойки сюда уже не доходят: такую цель
+	// отсекают проверки в начале go_chopoff (и в do_chopoff), чтобы подсекающий не падал сам
+	// с сообщением об обычном промахе.
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || privilege::IsImmortal(vict))
+		mount::IsOnHorse(vict) || privilege::IsImmortal(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -171,6 +181,14 @@ void do_chopoff(CharData *ch, CharData *vict) {
 
 	if (vict == ch) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
+		return;
+	}
+
+	// Проверяем здесь же, а не только в go_chopoff: иначе в бою приказ уйдет в довесок к удару
+	// и игрок узнает о неподсекаемой цели лишь раундом позже, потеряв этот раунд.
+	if (vict->IsFlagged(EMobFlag::kNoUndercut)) {
+		act("Вы собрались подсечь $N3, но это оказалось невозможно.", false, ch, nullptr, vict, kToChar);
+		ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
 		return;
 	}
 

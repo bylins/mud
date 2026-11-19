@@ -24,7 +24,7 @@ struct RoomData;
 class CharData;
 struct Trigger;
 class CObjectPrototype;
-class Koi8rYamlEmitter;
+class YamlScalarSafeEmitter;
 
 namespace utils {
 	class ThreadPool;
@@ -179,10 +179,10 @@ private:
 	// the filename in per-file layout or the map key in flat layout) at the
 	// emitter's current indent. Shared by the per-file save loops and the flat
 	// save path, which calls them one indent level deeper under a rel-number key.
-	void EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig);
-	void EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out, RoomData *room);
-	void EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out, CharData &mob);
-	void EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &out, CObjectPrototype *obj);
+	void EmitTriggerBody(YamlScalarSafeEmitter &yaml, Trigger *trig);
+	void EmitRoomBody(YamlScalarSafeEmitter &yaml, std::ostream &out, RoomData *room);
+	void EmitMobBody(YamlScalarSafeEmitter &yaml, std::ostream &out, CharData &mob);
+	void EmitObjectBody(YamlScalarSafeEmitter &yaml, std::ostream &out, CObjectPrototype *obj);
 
 	// Remove the artifacts of the layout we did NOT just write for a zone's
 	// sub-type, so a save fully migrates between layouts (no leftovers):

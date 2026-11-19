@@ -69,12 +69,12 @@
     <drop ObjVnum="2622" mob_lvl="1" max_mob_lvl="100" count_mob="10001" drop_chance="500"/>
 
 <!--    дроп снежинок 
-    <drop ObjVnum="82980" mob_lvl="1"  max_mob_lvl="16"  race_mob="201" count_mob="5" drop_chance="20"/>
-    <drop ObjVnum="82981" mob_lvl="15" max_mob_lvl="29"  race_mob="201" count_mob="5" drop_chance="20"/>
-    <drop ObjVnum="82982" mob_lvl="25" max_mob_lvl="39"  race_mob="201" count_mob="5" drop_chance="20"/>
-    <drop ObjVnum="82983" mob_lvl="40" max_mob_lvl="50"  race_mob="201" count_mob="3" drop_chance="500"/>
-    <drop ObjVnum="82984" mob_lvl="40" max_mob_lvl="50"  race_mob="200" count_mob="1" drop_chance="100"/>  
-    <drop ObjVnum="82984" mob_lvl="1" max_mob_lvl="100"  count_mob="20000" drop_chance="1000"/>  
+    <drop ObjVnum="40780" mob_lvl="1"  max_mob_lvl="16"  race_mob="201" count_mob="5" drop_chance="20"/>
+    <drop ObjVnum="40781" mob_lvl="15" max_mob_lvl="29"  race_mob="201" count_mob="5" drop_chance="20"/>
+    <drop ObjVnum="40782" mob_lvl="25" max_mob_lvl="39"  race_mob="201" count_mob="5" drop_chance="20"/>
+    <drop ObjVnum="40783" mob_lvl="40" max_mob_lvl="50"  race_mob="201" count_mob="3" drop_chance="500"/>
+    <drop ObjVnum="40784" mob_lvl="40" max_mob_lvl="50"  race_mob="200" count_mob="1" drop_chance="100"/>  
+    <drop ObjVnum="40784" mob_lvl="1" max_mob_lvl="100"  count_mob="20000" drop_chance="1000"/>  
 -->
 <!--   подарки снеговика 
     <drop ObjVnum="202100" mob_lvl="6"  max_mob_lvl="19"  count_mob="10" drop_chance="20"/>
@@ -85,12 +85,12 @@
 <!-- старый дроп снежинок
     <drop ObjVnum="10670" mob_lvl="1" max_mob_lvl="50" day_start="0" day_end="360" count_mob="100" drop_chance="10"/>
     <drop ObjVnum="10671" mob_lvl="1" max_mob_lvl="50" day_start="0" day_end="360" count_mob="100" drop_chance="20"/>
-    <drop ObjVnum="82966" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
-	<drop ObjVnum="82967" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
-	<drop ObjVnum="82968" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
+    <drop ObjVnum="40766" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
+	<drop ObjVnum="40767" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
+	<drop ObjVnum="40768" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
 -->
-<!--    <drop ObjVnum="82966" mob_lvl="26" max_mob_lvl="30" day_start="0" day_end="360" count_mob="1" drop_chance="10"/>
-    <drop ObjVnum="82966" mob_lvl="31" max_mob_lvl="50" day_start="0" day_end="360" count_mob="1" drop_chance="50"/>
+<!--    <drop ObjVnum="40766" mob_lvl="26" max_mob_lvl="30" day_start="0" day_end="360" count_mob="1" drop_chance="10"/>
+    <drop ObjVnum="40766" mob_lvl="31" max_mob_lvl="50" day_start="0" day_end="360" count_mob="1" drop_chance="50"/>
 -->
 <!-- папоротник на ивана купалу 7.7.2020 
     <drop ObjVnum="97099" mob_lvl="5" max_mob_lvl="50" count_mob="360" />

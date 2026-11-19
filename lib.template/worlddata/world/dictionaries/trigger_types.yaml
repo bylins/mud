@@ -1,7 +1,74 @@
 # Dictionary: trigger_types
+#
+# Биты типов у мобов, предметов и комнат переиспользованы под разный смысл: бит 4 -- это
+# Act у моба, Fighting round у предмета и Enter PC у комнаты. Поэтому имя несёт префикс
+# своего типа, и только у битов с общим смыслом имя остаётся без префикса.
+
+# --- общие для всех типов ---
 kRandomGlobal: 0
 kRandom: 1
 kCommand: 2
+kAuto: 25
+
+# --- мобовые ---
+kMobSpeech: 3
+kMobAct: 4
+kMobDeath: 5
+kMobGreet: 6
+kMobGreetAll: 7
+kMobEntry: 8
+kMobReceive: 9
+kMobFight: 10
+kMobHitPercent: 11
+kMobBribe: 12
+kMobLoad: 13
+kMobKill: 14
+kMobDamage: 15
+kMobGreetPc: 16
+kMobGreetPcAll: 17
+kMobIncome: 18
+kMobIncomePc: 19
+kMobStartFight: 20
+kMobRoundNum: 21
+kMobCast: 22
+kMobTimeChange: 23
+
+# --- предметные ---
+kObjPurge: 3
+kObjFight: 4
+kObjTimer: 5
+kObjGet: 6
+kObjDrop: 7
+kObjGive: 8
+kObjWear: 9
+kObjRemove: 11
+kObjLoad: 13
+kObjUnlock: 14
+kObjOpen: 15
+kObjLock: 16
+kObjClose: 17
+kObjPick: 18
+kObjGreetAllPc: 19
+kObjTimeChange: 20
+kObjPut: 21
+
+# --- комнатные ---
+kWldSpeech: 3
+kWldEnterPc: 4
+kWldReset: 5
+kWldEnter: 6
+kWldDrop: 7
+kWldUnlock: 8
+kWldOpen: 9
+kWldLock: 10
+kWldClose: 11
+kWldPick: 12
+kWldTimeChange: 13
+kWldKillPc: 14
+
+# --- старые имена ---
+# Только для чтения миров, которые ещё не перезаписаны: движок пишет имена с префиксом.
+# После перезаписи мира (oedit save all) этот блок можно убрать.
 kSpeech: 3
 kAct: 4
 kDeath: 5
@@ -24,4 +91,3 @@ kMobTrig21: 21
 kMobTrig22: 22
 kMobTrig23: 23
 kMobTrig24: 24
-kAuto: 25

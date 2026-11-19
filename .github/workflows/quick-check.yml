@@ -3,7 +3,24 @@ name: Quick Check
 on:
   push:
     branches: [ '**' ]  # Все ветки
+    # См. build.yml: на правке одной документации сборку не поднимаем.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'lib/cfg/**'
+      # Единственный конфиг, который читают юнит-тесты, из пропуска исключаем: правка в нём
+      # должна гонять сборку. Восклицательный знак отменяет предыдущий шаблон (порядок важен).
+      - '!lib/cfg/mechanics/group_exp_handicap.xml'
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'lib/cfg/**'
+      # Единственный конфиг, который читают юнит-тесты, из пропуска исключаем: правка в нём
+      # должна гонять сборку. Восклицательный знак отменяет предыдущий шаблон (порядок важен).
+      - '!lib/cfg/mechanics/group_exp_handicap.xml'
 
 # Cancel previous runs if new push to same branch
 concurrency:

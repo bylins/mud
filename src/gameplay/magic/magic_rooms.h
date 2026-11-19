@@ -131,7 +131,7 @@ struct RoomAffectActor {
 RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 
 // issue.affect-migration: per-ERoomAffect behavior flags from room_affects.xml (0 if none) + load gate.
-[[nodiscard]] Bitvector RoomAffectFlagsByType(ERoomAffect affect_type);
+[[nodiscard]] const AffectFlags &RoomAffectFlagsByType(ERoomAffect affect_type);
 [[nodiscard]] bool RoomAffectFlagsLoaded();
 // issue.affects-improve: per-affect seal-strength cap from room_affects.xml (0 if none).
 [[nodiscard]] int RoomAffectSealCap(ERoomAffect affect_type);

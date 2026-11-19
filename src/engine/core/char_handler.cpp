@@ -105,13 +105,28 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
-	world[room]->people.push_front(ch);
+	// issue #3984: порядок в списке комнаты решает, кого найдёт поиск цели по имени. Чужие мобы
+	// встают в начало, свои -- в конец, чтобы «убить богат» бралось за богатого купца, а не за
+	// богатырского коня, который пришёл с тобой: уточнять «богат.куп» под чужими ударами накладно.
+	// Свой -- это игрок и любой НПС, которого ведёт игрок: подчинённый, скакун, поднятая нежить.
+	// НПС, идущий за другим НПС, своим не считается.
+	const bool own_side = !ch->IsNpc()
+			|| (ch->has_master() && !ch->get_master()->IsNpc());
+	if (own_side) {
+		world[room]->people.push_back(ch);
+	} else {
+		world[room]->people.push_front(ch);
+	}
 
 	ch->in_room = room;
 	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
 	ch->Temporary.unset(ECharExtraFlag::kFailHide);
 	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
 	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
+	// Новая комната -- новая сверка скрытности, значит про удачу можно сказать снова.
+	ch->Temporary.unset(ECharExtraFlag::kToldHide);
+	ch->Temporary.unset(ECharExtraFlag::kToldSneak);
+	ch->Temporary.unset(ECharExtraFlag::kToldCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar(fmt::format(
 				"{}Комната={}{} {}Свет={}{} {}Освещ={}{} {}Костер={}{} {}Лед={}{} "
@@ -296,10 +311,13 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		// A warlock-revived corpse (kResurrected) reuses a real mob's vnum but is loaded without
-		// bumping total_online (see ReadMobile is_corpse), so it must not decrement it either --
-		// otherwise reviving e.g. a zone boss would block that boss's normal respawn.
-		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kResurrected)) {
+		// Союзник, созданный ReadMobile с отрицательным внумом (поднятая нежить, оживлённый
+		// труп и прочие призванные), счётчик total_online не увеличивал -- значит и уменьшать
+		// его не должен. Иначе счётчик уходит в минус (vstat показывал "Сейчас в мире : -4"),
+		// а на нём держатся резеты зон: оживление того же зонного босса ломало бы его респаун.
+		if ((ch->get_rnum() >= 0)
+			&& !ch->IsUncountedInstance()
+			&& !ch->IsFlagged(EMobFlag::kResurrected)) {
 			mob_index[ch->get_rnum()].total_online--;
 		}
 	}

@@ -599,6 +599,28 @@ void Static::clan_delete_message(const std::string &name, int vnum) {
 	add_server_message(subj, text);
 }
 
+// Объявление пишется в "Анонсы", но читают его и в "Новостях": анонсы листаются по одному
+// сообщению, а новости вываливаются лентой целиком, и каждому удобно своё. Чтобы два потока
+// не расходились (и чтобы лента на сайте была одна), копию сообщения кладём в новости.
+// Оповещение по маду даётся один раз -- по той доске, куда писали.
+void Static::mirror_notice_to_news(const Message::shared_ptr &message) {
+	const auto news = std::find_if(board_list.begin(), board_list.end(),
+								   [](const Board::shared_ptr &board) {
+									   return board->get_type() == NEWS_BOARD;
+								   });
+	if (news == board_list.end()) {
+		log("SYSERROR: can't find news board (%s:%d)", __FILE__, __LINE__);
+		return;
+	}
+
+	const auto copy = std::make_shared<Message>(*message);
+	// в новостях текст лежит с отступом -- лента печатает его как есть
+	format_news_message(copy->text);
+	(*news)->add_message(copy);
+	(*news)->renumerate_messages();
+	(*news)->Save();
+}
+
 void Static::new_message_notify(const Board::shared_ptr board) {
 	if (board->get_type() != PERS_BOARD
 		&& board->get_type() != CODER_BOARD

@@ -155,8 +155,6 @@ extern const unsigned MAX_OBJ_LIST;
 
 size_t setidx_by_objvnum(int vnum);
 size_t setidx_by_uid(int uid);
-std::string line_split_str(const std::string &str, const std::string &sep,
-						   size_t len, size_t base_offset = 0);
 void init_obj_index();
 bool verify_wear_flag(const CObjectPrototype::shared_ptr &);
 void VerifySet(SetNode &set);

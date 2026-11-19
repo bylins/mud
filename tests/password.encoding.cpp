@@ -34,21 +34,24 @@ TEST(PasswordEncoding, WrongCyrillicPasswordIsRejected) {
 	EXPECT_FALSE(Password::compare_password(hash, other));
 }
 
-TEST(PasswordEncoding, HashIsTakenOverTheOnDiskForm) {
-	// Ключевое свойство. Два разных набора байт в памяти, у которых ОДНА дисковая форма:
-	// длинное тире на диске становится обычным дефисом (в KOI8-R его попросту нет, см.
-	// словарь замен). Если хэш считать по байтам памяти, эти пароли разойдутся; если по
-	// дисковой форме -- совпадут. Именно на этом расхождении и отвалился вход.
+TEST(PasswordEncoding, HashIsTakenOverTheLegacyForm) {
+	// Ключевое свойство. Два разных набора байт в памяти, у которых ОДНА кои-восьмая форма:
+	// длинное тире становится обычным дефисом (в KOI8-R его попросту нет, см. словарь замен).
+	// Если хэш считать по байтам памяти, эти пароли разойдутся; если по кои-восьмой форме --
+	// совпадут. Именно на этом расхождении и отвалился вход.
+	//
+	// Диск тут ни при чём: он давно в UTF-8. Перекодировка осталась потому, что в этой форме
+	// посчитаны СОХРАНЁННЫЕ хэши, и сменить её можно только перехэшированием при входе.
 	const std::string with_em_dash = "pa\xE2\x80\x94rol";   // pa—rol
 	const std::string with_hyphen = "pa-rol";
 
 	ASSERT_NE(with_em_dash, with_hyphen) << "проверка построена на том, что в памяти они разные";
-	ASSERT_EQ(native_text::to_disk(with_em_dash), native_text::to_disk(with_hyphen))
-		<< "...а на диске -- одинаковые";
+	ASSERT_EQ(native_text::to_koi8(with_em_dash), native_text::to_koi8(with_hyphen))
+		<< "...а в кои-восьмой форме -- одинаковые";
 
 	const std::string hash = Password::generate_md5_hash(with_em_dash);
 	EXPECT_TRUE(Password::compare_password(hash, with_hyphen))
-		<< "хэш обязан считаться по дисковой форме, иначе старые хэши не сойдутся";
+		<< "хэш обязан считаться по кои-восьмой форме, иначе старые хэши не сойдутся";
 }
 
 TEST(PasswordEncoding, AsciiIsUnaffected) {

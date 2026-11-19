@@ -458,6 +458,14 @@ static bool MatchAffectName(const char *str, const char *affect_name) {
 	return utils::IsEquivalent(str, affect_name);
 }
 
+// issue #4113: имена аффектов многословные, а в фильтр они приходят одним словом -- значение
+// читается через one_argument, до пробела, поэтому игрок пишет их через точку. Строгий поиск
+// (имя с "!" на конце) сверял строки побайтно и на разных разделителях не совпадал никогда.
+// FixDot приводит к словам обе стороны, так что точка, пробел и подчёркивание равнозначны.
+static bool SameAffectName(const char *str, const char *affect_name) {
+	return utils::FixDot(str) == utils::FixDot(affect_name);
+}
+
 bool ParseFilter::init_affect(char *str, size_t str_len) {
 	// Аимя!
 	bool strong = false;
@@ -481,7 +489,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 	str_len = strlen(str);
 
 	for (int num = 0; *apply_types[num] != '\n'; ++num) {
-		if (strong && !strcmp(str, apply_types[num])) {
+		if (strong && SameAffectName(str, apply_types[num])) {
 			affect_apply.push_back(num);
 			return true;
 		} else if (!strong && MatchAffectName(str, apply_types[num])) {
@@ -493,7 +501,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 	int num = 0;
 	for (int flag = 0; flag < 4; ++flag) {
 		for (/* тут ничего не надо */; *equipment_affects[num] != '\n'; ++num) {
-			if (strong && !strcmp(str, equipment_affects[num])) {
+			if (strong && SameAffectName(str, equipment_affects[num])) {
 				affect_weap.push_back(num);
 				return true;
 			} else if (!strong && MatchAffectName(str, equipment_affects[num])) {
@@ -507,7 +515,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 	num = 0;
 	for (int flag = 0; flag < 4; ++flag) {
 		for (/* тут ничего не надо */; *extra_bits[num] != '\n'; ++num) {
-			if (strong && !strcmp(str, extra_bits[num])) {
+			if (strong && SameAffectName(str, extra_bits[num])) {
 				affect_extra.push_back(num);
 				return true;
 			} else if (!strong && MatchAffectName(str, extra_bits[num])) {

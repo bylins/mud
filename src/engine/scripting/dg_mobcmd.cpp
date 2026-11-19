@@ -32,9 +32,13 @@
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
+#include "gameplay/fight/common.h"
+#include "gameplay/skills/protect.h"
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/char_handler.h"
 #include "engine/ui/cmd/do_stand.h"
+#include "engine/ui/cmd/do_give.h"
+#include "engine/ui/interpreter.h"
 #include "gameplay/affects/affect_data.h"
 #include "engine/core/obj_handler.h"
 #include "gameplay/mechanics/equipment.h"
@@ -42,6 +46,7 @@
 #include "engine/core/target_resolver.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/magic/magic_utils.h"
+#include "gameplay/communication/social.h"   // find_action: социалы лежат не в cmd_info
 #include "gameplay/skills/townportal.h"
 #include "utils/id_converter.h"
 #include "engine/db/global_objects.h"
@@ -185,9 +190,14 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, команда: {}", arg + 1, argument));
 			return;
 		}
-	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
-		mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, , команда: {}", arg, argument));
-		return;
+	} else {
+		// Цель по тексту: ищется заново и по началу слова, поэтому может достаться мобу, который
+		// стоит в комнате раньше игрока. Место называем один раз за загрузку (#4163).
+		script_log_text_target(trig, "mkill", arg);
+		if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
+			mob_log(ch, trig, fmt::format("mkill: victim ({}) not found, команда: {}", arg, argument));
+			return;
+		}
 	}
 
 	if (victim == ch) {
@@ -200,8 +210,19 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		return;
 	}
 
+	// Переключение цели в бою. Игроцкая "убить" это умеет (do_kill.cpp), а циркулевский mkill
+	// отказывал дважды: позицией kStand (дерущийся моб стоит в kFight) и этой проверкой. Боевым
+	// триггерам перевести моба на другого было нечем. Делаем, как у игрока: заслон, разрыв
+	// текущего боя, новый противник и та же задержка -- без игроцкого ограничения "переключаться
+	// можно только на того, кто уже бьет тебя": мобу в триггере цель называет билдер.
 	if (ch->GetEnemy()) {
-		mob_log(ch, trig, "mkill: already fighting");
+		if (victim == ch->GetEnemy()) {
+			return;
+		}
+		victim = TryToFindProtector(victim, ch);
+		stop_fighting(ch, 2);
+		SetFighting(ch, victim);
+		SetWait(ch, 2, true);
 		return;
 	}
 
@@ -357,6 +378,10 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		PlaceCharToRoom(mob, ch->in_room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {
+		if (IsServiceObjVnum(number)) {
+			mob_log(ch, trig, fmt::format("mload: #{} -- служебный прототип (трупы, деньги, письма), грузить нельзя", number));
+			return;
+		}
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			mob_log(ch, trig, "mload: bad object vnum");
@@ -1419,12 +1444,126 @@ void MobDgCast(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 	do_dg_cast(ch, trig, MOB_TRIGGER, dg_arg);
 }
 
+// issue #4161: "дать <вещь> .%actor.iname%" -- самый старый способ выдать награду из триггера,
+// и он молча не срабатывал, когда моб не видел игрока (темнота, невидимость игрока, слепота
+// самого моба): текст уже отыгран, а вещь осталась у моба. Передача из триггера -- не поступок
+// моба, а решение билдера, поэтому видимость тут не при чем: получателя ищем в своей комнате и
+// отдаем вещь. Разбор аргументов общий с игроковым "дать" (PerformGiveCommand), так что команда
+// понимает ровно то же: вещь, "все", "все.<метка>", "N кун", "N <валюта>".
+void do_mgive(CharData *ch, char *argument, Trigger *trig) {
+	if (ch->GetPosition() < EPosition::kRest) {
+		if (trig) {
+			mob_log(ch, trig, fmt::format("дать: моб не в том состоянии, чтобы передавать вещи, команда: {}",
+										  argument));
+		}
+		return;
+	}
+
+	PerformGiveCommand(ch, argument, [trig](CharData *mob, const std::string &name) -> CharData * {
+		const auto complain = [mob, trig](const std::string &msg) {
+			if (trig) {
+				mob_log(mob, trig, msg);
+			}
+		};
+
+		if (name.empty()) {
+			complain("дать: не указан получатель");
+			return nullptr;
+		}
+
+		CharData *vict = nullptr;
+		if (name[0] == UID_CHAR || name[0] == UID_CHAR_ALL) {
+			vict = get_char(name.c_str());
+			// Уид однозначен, но из рук в руки передают в одной комнате -- как игрок.
+			if (vict && vict->in_room != mob->in_room) {
+				complain(fmt::format("дать: получатель ({}) не в комнате моба", GET_NAME(vict)));
+				return nullptr;
+			}
+		} else {
+			target_resolver::Query q;
+			q.scopes = {target_resolver::Scope::kRoom};
+			q.name = name;
+			q.visible_only = false;    // ровно то, ради чего команда и перехвачена
+			vict = target_resolver::ResolveChar(mob, q);
+		}
+
+		if (!vict) {
+			complain(fmt::format("дать: получатель ({}) не найден в комнате", name));
+			return nullptr;
+		}
+		if (vict == mob) {
+			complain("дать: получатель -- сам моб");
+			return nullptr;
+		}
+		return vict;
+	});
+}
+
+// Знает ли общий интерпретатор такое начало строки: команду (по началу слова, как в
+// command_interpreter) или социал. Нужна только для сислога, поэтому разбор повторяет
+// command_interpreter лишь в том, от чего зависит само существование команды:
+//   - строка, начинающаяся не с буквы, -- команда из одного знака ("'" это "сказать");
+//   - хвостовой "!" у билдеров значит точное написание, на существование не влияет;
+//   - социалы лежат в своей таблице (find_action), в cmd_info их нет.
+static bool IsKnownCharCommand(const char *argument) {
+	if (!argument) {
+		return false;
+	}
+	while (*argument && a_isspace(*argument)) {
+		++argument;
+	}
+	if (!*argument) {
+		return false;
+	}
+
+	std::string word;
+	if (!a_isalpha(*argument)) {
+		word.assign(1, *argument);
+	} else {
+		char buf[kMaxInputLength];
+		one_argument(const_cast<char *>(argument), buf);
+		word = buf;
+	}
+	if (word.size() > 1 && word.back() == '!') {
+		word.pop_back();
+	}
+	if (word.empty()) {
+		return false;
+	}
+
+	for (int cmd = 0; *cmd_info[cmd].command != '\n'; ++cmd) {
+		if (!strncmp(cmd_info[cmd].command, word.c_str(), word.size())) {
+			return true;
+		}
+	}
+	return find_action(word.data()) >= 0;
+}
+
+// Команда триггера -- это "дать" в любом написании? Сокращения и английское "give" разбирает
+// сам interpreter (префиксом по cmd_info), поэтому и спрашиваем у него: в мире встречаются
+// "дать", "дат", "да" и "give", и список написаний не наш, чтобы держать его копию.
+// Возвращает номер команды в cmd_info (нужен за unhide_percent) или -1, если это не "дать".
+int FindGiveCommand(const char *word) {
+	const size_t len = strlen(word);
+	if (len == 0) {
+		return -1;
+	}
+	for (int cmd = 0; *cmd_info[cmd].command != '\n'; ++cmd) {
+		if (!strncmp(cmd_info[cmd].command, word, len)) {
+			return cmd_info[cmd].command_pointer == do_give ? cmd : -1;
+		}
+	}
+	return -1;
+}
+
 const struct mob_command_info mob_cmd_info[] =
 	{
 		// this must be first -- for specprocs
 		{"RESERVED", EPosition::kDead, nullptr, 0, false},
 		{"masound", EPosition::kDead, do_masound, -1, false},
-		{"mkill", EPosition::kStand, do_mkill, -1, false},
+		// Порог как у игроцкой "убить"/"ударить" (cmd_info: kFight). Циркулевский kStand был
+		// на ступеньку выше: дерущийся моб (kFight) не доходил до обработчика вовсе.
+		{"mkill", EPosition::kFight, do_mkill, -1, false},
 		// issue #3646: cleanup command -- must run in ANY position (paired with mpurge=kDead),
 		// else a stun-lagged mob skips mjunk but still mpurges and leaks worn gear to the room.
 		{"mjunk", EPosition::kDead, do_mjunk, -1, true},
@@ -1452,7 +1591,7 @@ const struct mob_command_info mob_cmd_info[] =
 		{"mportal", EPosition::kDead, do_mportal, -1, false},
 		{"mzoneecho", EPosition::kDead, do_mzoneecho, -1, false},
 		{"asound", EPosition::kDead, do_masound, -1, false},
-		{"kill", EPosition::kStand, do_mkill, -1, false},
+		{"kill", EPosition::kFight, do_mkill, -1, false},
 		{"junk", EPosition::kDead, do_mjunk, -1, true},
 		{"damage", EPosition::kDead, do_mdamage, -1, false},
 		{"door", EPosition::kDead, do_mdoor, -1, false},
@@ -1588,11 +1727,71 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	}
 }
 
+// Лежит ли первое слово строки в таблице мобьих команд. Нужна потому, что
+// mob_script_command_interpreter отвечает "false" на две разные вещи: команды он не знает --
+// и команду знает, но сейчас ее не выполнить (моб в стане, строка отложена через
+// hang_trig_wait до отпускания; позиция ниже нужной). По его ответу их не различить, а
+// кричать в сислог надо только про первое.
+static bool IsMobScriptCommand(const char *argument) {
+	char word[kMaxInputLength];
+	one_argument(const_cast<char *>(argument), word);
+	// Ведущий "!" у билдеров означает "выполнять и в стане" -- на существование не влияет.
+	const char *name = (word[0] == '!') ? word + 1 : word;
+	if (!*name) {
+		return false;
+	}
+	for (int cmd = 0; *mob_cmd_info[cmd].command != '\n'; ++cmd) {
+		if (!strcmp(mob_cmd_info[cmd].command, name)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // *  This is the command interpreter used by mob, include common interpreter's commands
 void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig) {
-	if (!mob_script_command_interpreter(ch, argument, trig)) {
-		command_interpreter(ch, argument);
+	if (mob_script_command_interpreter(ch, argument, trig)) {
+		return;
 	}
+
+	// Команда своя, мобья, просто сейчас не выполнилась: не повод кричать "неизвестная" и не
+	// повод отдавать строку игроцкому интерпретатору -- там такой команды тем более нет.
+	// Так в 731 зоне "mload obj 73165" из боевого триггера оглушенного моба попадал в сислог
+	// неизвестной командой, хотя строка всего лишь ждала, когда моба отпустят.
+	if (IsMobScriptCommand(argument)) {
+		return;
+	}
+
+	// issue #4161: "дать" у моба идет своим путем (do_mgive) -- без проверки видимости
+	// получателя. В таблицу mob_cmd_info ее не добавить: там сравнение точное, а билдеры
+	// пишут и "дать", и "дат", и "да", и "give".
+	char first_word[kMaxInputLength];
+	char *rest = one_argument(argument, first_word);
+	const int give_cmd = FindGiveCommand(first_word);
+	if (give_cmd >= 0) {
+		// Захваченный моб командой не распоряжается -- так же, как в command_interpreter:
+		// триггер к этому моменту уже перевешен на wait и вернется сюда, когда отпустит.
+		if (AFF_FLAGGED(ch, EAffect::kHold)
+			|| AFF_FLAGGED(ch, EAffect::kStopFight)
+			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
+			return;
+		}
+		// Прячущийся моб выдает себя передачей вещи -- как и на общем пути.
+		check_hiding_cmd(ch, cmd_info[give_cmd].unhide_percent);
+		do_mgive(ch, rest, trig);
+		return;
+	}
+
+	// Комнатные и предметные триггеры про неизвестную команду давно пишут в сислог
+	// ("Unknown world cmd", "Unknown object cmd"), а мобий отдавал такую строку общему
+	// интерпретатору, и она тонула в "Чаво?", которое мобу никто не читает. Теперь
+	// неизвестное слово видно с номером триггера и строки. Привилегии и позицию не
+	// смотрим: "нельзя" -- это не "не существует".
+	if (!IsKnownCharCommand(argument)) {
+		mob_log(ch, trig, fmt::format("Unknown mob cmd: '{}'", argument), LGH);
+	}
+
+	command_interpreter(ch, argument);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

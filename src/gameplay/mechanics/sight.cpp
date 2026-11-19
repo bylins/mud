@@ -20,6 +20,7 @@
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/magic_item.h"
+#include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/magic/room_affect_messages.h"
 
@@ -157,7 +158,7 @@ void AppendCompactShieldSuffix(std::string &text, const CharData *viewer, const 
 
 } // namespace
 
-void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
+void look_at_room(CharData *ch, int ignore_brief) {
 	if (!ch->desc)
 		return;
 	if (is_dark(ch->in_room) && !CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
@@ -170,9 +171,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	} else if (ch->GetPosition() < EPosition::kSleep) {
 		return;
 	}
-	if (msdp_mode) {
-		ch->desc->msdp_report("ROOM");
-	}
+	ch->desc->msdp_report("ROOM");
 	if (ch->IsFlagged(EPrf::kDrawMap) && !ch->IsFlagged(EPrf::kBlindMode)) {
 		MapSystem::print_map(ch);
 	} else if (ch->desc->snoop_by
@@ -193,7 +192,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 		char room_flags[kMaxInputLength];
 		world[ch->in_room]->flags_sprint(room_flags, sizeof(room_flags), ";");
-		SendMsgToChar(fmt::format("[{:7}] {} [{}]", GET_ROOM_VNUM(ch->in_room), room_name, room_flags), ch);
+		SendMsgToChar(fmt::format("[{}] {} [{}]", GET_ROOM_VNUM(ch->in_room), room_name, room_flags), ch);
 
 		if (has_flag) {
 			world[ch->in_room]->set_flag(ERoomFlag::kBfsMark);
@@ -2022,8 +2021,14 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 
 	*out_str = '\0';
 	if (obj->get_type() == EObjType::kWeapon) {
+		// Спрашиваем именно про класс оружия, а не про "скилл вообще". Раньше проверка
+		// отсекала только kUndefined (-1), а у оружия с незаданным классом spec_param
+		// равен нулю -- это ESkill::kGlobalCooldown, служебное умение с именем
+		// "!cooldown". Игрок видел 'Принадлежит к классу "!cooldown"', и жалоба об этом
+		// от тестера и пришла, а заготовленное сообщение про неизвестный тип не
+		// показывалось никогда.
 		const auto skill = static_cast<ESkill>(obj->get_spec_param());
-		if (skill != ESkill::kUndefined) {
+		if (IsWeaponSkill(skill)) {
 			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", MUD::Skill(skill).name.c_str());
 		} else {
 			sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_spec_param());
@@ -2205,10 +2210,11 @@ const char *print_obj_state(int tm_pct) {
 
 // Это не совсем механика зрения, нужен отдельный модуль на тему "кто кого (не)видит"
 // Но пока эти функции распиханы по всему коду, начиная с handler, по этому временно - тут
-void Appear(CharData *ch) {
+void Appear(CharData *ch, bool keep_equipment_stealth) {
 	const bool appear_msg = AFF_FLAGGED(ch, EAffect::kInvisible)
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide);
+	const bool had_stealth = appear_msg || AFF_FLAGGED(ch, EAffect::kSneak);
 
 	// issue.equipment-affects-improve: keep item-sourced (permanent) stealth affects alive -- a
 	// fight only suppresses their flag (see affect_total's GET_ENEMY check); deleting the affect
@@ -2224,7 +2230,25 @@ void Appear(CharData *ch) {
 	AFF_FLAGS(ch).unset(EAffect::kSneak);
 	AFF_FLAGS(ch).unset(EAffect::kDisguise);
 
-	if (appear_msg) {
+	// Вне боя волшебство надетой вещи подавлять нечем, а снятый здесь флаг возвращал только
+	// полный пересчёт -- и с тех пор, как его не стало в хербите, вещевая незаметность лежала до
+	// перенадевания вещи. Защёлка kEafInvisible тут не помогает: её взводит вход в бой
+	// (SetFighting), а подножка зовёт Appear сама, боя не заводя, так что возвращать в
+	// stop_fighting уже нечего. Поэтому вне боя зовём пересчёт сразу: он поднимет флаги заново из
+	// живых источников (узел с kAfFromEquipment/kAfFromSet или флаги самой вещи) и не вернёт
+	// снятое умением или кастом -- их узлов уже нет. В бою флаг так и остаётся снятым: его
+	// подавляет сам affect_total по GET_ENEMY, а после боя возвращает защёлка.
+	if (keep_equipment_stealth && had_stealth && !ch->GetEnemy()) {
+		affect_total(ch);
+	}
+
+	// Объявлять появление, только если персонаж и вправду стал видимым: вещевую незаметность
+	// пересчёт только что вернул, и "появился из пустоты" было бы неправдой.
+	const bool visible_now = !AFF_FLAGGED(ch, EAffect::kInvisible)
+		&& !AFF_FLAGGED(ch, EAffect::kDisguise)
+		&& !AFF_FLAGGED(ch, EAffect::kHide);
+
+	if (appear_msg && visible_now) {
 		if (ch->IsNpc() || GetRealLevel(ch) < kLvlImmortal) {
 			act("$n медленно появил$u из пустоты.", false, ch, nullptr, nullptr, kToRoom);
 		} else {

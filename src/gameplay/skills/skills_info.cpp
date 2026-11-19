@@ -29,6 +29,10 @@ void SkillInfoBuilder::ParseDispensableValues(ItemPtr &item_ptr, DataNode &node)
 		item_ptr->save_type = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 		item_ptr->difficulty = parse::ReadAsInt(node.GetValue("difficulty"));
 		item_ptr->cap = parse::ReadAsInt(node.GetValue("cap"));
+		// issue.self-train: необязательный, по умолчанию умение на себе не качается.
+		if (const char *v = node.GetValue("self_train"); v && *v) {
+			item_ptr->self_train = parse::ReadAsBool(v);
+		}
 	} catch (std::exception &e) {
 		err_log("invalid skill description (incorrect value: %s). Setted by default;", e.what());
 	}
@@ -56,6 +60,7 @@ void SkillInfo::Print(std::ostringstream &buffer) const {
 		   << " Save type: " << kColorGrn << NAME_BY_ITEM<ESaving>(save_type) << kColorNrm << "\r\n"
 		   << " Difficulty: " << kColorGrn << difficulty << kColorNrm << "\r\n"
 		   << " Skill cap: " << kColorGrn << cap << kColorNrm << "\r\n"
+		   << " Trains on self: " << kColorGrn << (self_train ? "yes" : "no") << kColorNrm << "\r\n"
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 }
 

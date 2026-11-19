@@ -12,6 +12,8 @@
 
 #include "engine/boot/cfg_manager.h"
 #include "gameplay/skills/skills.h"   // ESkill
+#include "gameplay/magic/spells_constants.h"   // ESpell -- чьи ярусы описывает <creature>
+#include "gameplay/affects/affect_contants.h"   // EAffect -- что выдаёт <grant>
 
 #include <string>
 #include <vector>
@@ -43,13 +45,39 @@ struct CreatureInfo {
 	int corpse_max_level = 0;  // highest source-corpse level that yields this tier
 	int min_rating = 0;        // smallest caster rating (level + skill-derived remort-equiv + 4)
 	int pick = 0;              // relative odds within a shared top corpse band (0 = the single tier)
+	// issue #4000: чьи это ярусы. kAnimateDead -- лестница "поднять труп" (по умолчанию),
+	// kAnimateSkeleton -- виды скелетов заклинания "оживить скелет". Ярусы разных заклинаний
+	// лежат в отдельных списках и друг друга не выбирают.
+	ESpell spell = ESpell::kAnimateDead;
+	// Нижняя граница уровня трупа. У лестницы нежити её нет (вид выбирается как слабейший, чей
+	// corpse_max_level накрывает труп), а скелетам она нужна: труп слабее -- поднимается обычный.
+	int corpse_min_level = 0;
+	// issue #4032: доля урона вида в процентах от урона нежити "поднять труп". Кубики задают силу
+	// скелета, а это число -- цену: пока скелет жив, столько процентов урона теряет нежить хозяина.
+	// Держим отдельным числом, а не выводим из кубиков: кубики считаются от компетенции каста и
+	// кости прототипа, и обратный пересчёт был бы хрупким.
+	double damage_share = 0.0;
+	// Предел дамролла этого вида нежити в автоатаке. Дамролл приходит из прототипа, подъёма
+	// и баффов (силы зла), и потолок у верхних видов должен быть выше, чем у младших, иначе
+	// бонусы упираются в общий кап подчинённого. 0 = потолок не задан, берётся общий.
+	int damroll_cap = 0;
 	CreatureScaling scaling;
+};
+
+// issue #4038: аффект, который поднятый получает даром, когда умение контроля дотянуто до
+// порога. Пороги подбираются на боевом, поэтому живут в данных, а не в коде.
+struct AffectGrant {
+	ESpell spell = ESpell::kAnimateDead;
+	int min_skill = 0;
+	EAffect affect = EAffect::kUndefined;
 };
 
 class AnimateDeadInfo {
 	ESkill control_skill_ = ESkill::kDarkMagic;
 	int budget_cap_ = 75;
 	std::vector<CreatureInfo> creatures_;   // ladder order, weakest -> strongest
+	std::vector<CreatureInfo> skeletons_;   // issue #4000: виды заклинания "оживить скелет"
+	std::vector<AffectGrant> grants_;       // issue #4038: даровые аффекты по порогу умения
 
  public:
 	void Load(parser_wrapper::DataNode data);
@@ -57,10 +85,14 @@ class AnimateDeadInfo {
 	[[nodiscard]] ESkill ControlSkill() const { return control_skill_; }
 	[[nodiscard]] int BudgetCap() const { return budget_cap_; }
 	[[nodiscard]] const std::vector<CreatureInfo> &Creatures() const { return creatures_; }
+	[[nodiscard]] const std::vector<CreatureInfo> &Skeletons() const { return skeletons_; }
+	[[nodiscard]] const std::vector<AffectGrant> &Grants() const { return grants_; }
 	[[nodiscard]] bool empty() const { return creatures_.empty(); }
 	// Tier lookups keyed by the summoned mob's proto vnum.
 	[[nodiscard]] const CreatureInfo *ByProtoVnum(int proto_vnum) const;
 	[[nodiscard]] int WeightOf(int proto_vnum) const;   // 0 if not a configured tier
+	// Потолок дамролла вида; 0 -- в конфиге не задан (вызывающий берёт общий предел).
+	[[nodiscard]] int DamrollCapOf(int proto_vnum) const;
 	[[nodiscard]] int LadderIndex(int proto_vnum) const;
 };
 
@@ -89,6 +121,13 @@ class AnimateDeadLoader : virtual public cfg_manager::IEditableCfgLoader {
 // Scale a freshly-read construct's stats off the caster's cast competence C, per the tier's
 // <scaling>. No-op for a mob whose vnum is not a configured tier.
 void SetupUndeadStats(CharData *ch, CharData *mob, double competence);
+// Группа бонусов (броня, спасы, удача, инициатива), которую affect_total очищает до
+// прототипной: выдаётся аффектами, поэтому возвращается сама при каждом пересчёте.
+// duration -- срок жизни прибавок, обычно равный сроку чар.
+void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration);
+// issue #4038: навесить на поднятого даровые аффекты своего заклинания -- те, чей порог умения
+// контроля заклинатель уже перешагнул. duration -- срок жизни, обычно равный сроку чар.
+void ApplyGrantedAffects(CharData *ch, CharData *mob, ESpell spell_id, int duration);
 
 }  // namespace animate_dead
 

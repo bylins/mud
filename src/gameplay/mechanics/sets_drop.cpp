@@ -911,21 +911,31 @@ bool load_unique_mobs() {
 	return true;
 }
 
+// Таблица дропа с диска -- машинный кэш, который всегда можно пересобрать (см.
+// save_drop_table). Первая строка -- время следующего пересбора, дальше по строке на
+// сетину: obj_vnum mob_vnum drop_chance solo(0/1) can_drop(0/1).
+//
+// Читаем в свою карту и отдаем ее наружу только при полном успехе. Половина таблицы
+// хуже, чем ее отсутствие: на отказ вызывающий пересобирает список заново, и если в
+// drop_list уже лежат разобранные строки, новые пары лягут поверх старых. Ключ карты --
+// рнум моба, так что старые записи не вытесняются, и сетина оказывается сразу на двух
+// мобах: падает вдвое чаще задуманного, а в справке по сету ее имя печатается дважды.
+// Испорченная таблица потом уходит на диск и живет через перезагрузки, пока ее не
+// пересоберет таймер.
 bool load_drop_table() {
-	// Machine-only regenerable cache -> a flat list (see save_drop_table). First
-	// line is the reset timestamp; each following line is one item:
-	//   obj_vnum mob_vnum drop_chance solo(0/1) can_drop(0/1)
 	const auto lines = MUD::StateManager().LoadLines(state::EStateFile::kDropTable);
 	if (lines.empty()) {
-		return false;  // no saved table -> caller regenerates it
+		return false;  // таблицы нет -- вызывающий соберет новую
 	}
+	time_t loaded_reset_time = 0;
 	try {
-		next_reset_time = std::stoull(lines[0], nullptr, 10);
+		loaded_reset_time = std::stoull(lines[0], nullptr, 10);
 	}
 	catch (...) {
 		mudlog("SetsDrop: bad reset time in drop table, regenerating", CMP, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
+	std::map<int, DropNode> loaded;
 	for (std::size_t n = 1; n < lines.size(); ++n) {
 		if (lines[n].empty()) {
 			continue;
@@ -938,7 +948,9 @@ bool load_drop_table() {
 		const int obj_rnum = GetObjRnum(obj_vnum);
 		const int mob_rnum = GetMobRnum(mob_vnum);
 		if (obj_vnum <= 0 || obj_rnum < 0 || mob_vnum <= 0 || mob_rnum < 0 || chance < 0) {
-			mudlog("SetsDrop: bad drop-table entry, regenerating", CMP, kLvlImmortal, SYSLOG, true);
+			mudlog(fmt::format("SetsDrop: bad drop-table entry (obj {}, mob {}), regenerating",
+							   obj_vnum, mob_vnum),
+				   CMP, kLvlImmortal, SYSLOG, true);
 			return false;
 		}
 		DropNode tmp_node;
@@ -947,8 +959,10 @@ bool load_drop_table() {
 		tmp_node.chance = chance;
 		tmp_node.solo = solo != 0;
 		tmp_node.can_drop = can_drop != 0;
-		drop_list.insert(std::make_pair(mob_rnum, tmp_node));
+		loaded.insert(std::make_pair(mob_rnum, tmp_node));
 	}
+	next_reset_time = loaded_reset_time;
+	drop_list.swap(loaded);
 	return true;
 }
 
@@ -1005,7 +1019,15 @@ void message_for_players() {
 	}
 }
 
+// Сбор таблицы дропа с нуля. Старое содержимое чистим здесь, а не рассчитываем на
+// вызывающего: сюда приходят и со старта мада (где таблица могла частично прочитаться
+// с диска), и из reload. Без чистки новые пары "сетина -- моб" ложатся поверх прежних,
+// потому что ключ -- рнум моба, а не внум сетины, и одна сетина остается сразу на двух
+// носителях. Список уникальных мобов тоже наполняется заново из init_mob_name_list.
 void init_drop_system() {
+	drop_list.clear();
+	unique_mobs.clear();
+
 	init_mob_name_list();
 	init_zone_type();
 	init_mob_type();

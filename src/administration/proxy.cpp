@@ -203,7 +203,22 @@ bool RegisterSystem::IsRegistered(CharData *ch) {
 	if (ch->IsFlagged(EPlrFlag::kRegistred) || (ch->desc && ch->desc->registered_email)) {
 		return true;
 	}
-	return false;
+	if (ch->IsNpc()) {
+		return false;
+	}
+	// Мыло в списке -- это тоже регистрация, "каким-нибудь образом". Прежде её видел только вход:
+	// desc->registered_email ставил check_dupes_host, и только если в тот самый миг с этого IP уже
+	// кто-то играл. Кто заходил с адреса первым, флага не получал и для секундной проверки
+	// оставался незарегистрированным -- а как только с его адреса входил второй, проверка уносила
+	// его в комнату для незарегистрированных. Выйти оттуда он тоже не мог: освобождение идёт через
+	// ту же проверку.
+	if (!RegisterSystem::IsRegisteredEmail(GET_EMAIL(ch))) {
+		return false;
+	}
+	if (ch->desc) {
+		ch->desc->registered_email = true;   // кэш, чтобы не искать по списку каждую секунду
+	}
+	return true;
 }
 
 /**

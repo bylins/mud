@@ -101,11 +101,23 @@ struct obj_affected_type {
 	}
 };
 
+// issue #3971: экземпляр аффекта, который живёт своей жизнью и в слияние с накастованным не идёт --
+// накастованное ложится рядом отдельным узлом. Таких три вида:
+//   * вечный (duration < 0) -- врождённый баф моба из флагов прототипа: std::max(срок, -1) обратил
+//     бы его во временное, а слияние сняло бы сам узел (снимается он при этом как обычно -- «разлом»);
+//   * kAfFromEquipment / kAfFromSet -- волшебство надетого: вещь возвращает его только при
+//     надевании, а слияние сняло бы узел, не поставив подавление на предмет;
+//   * kAfCharmBond -- пакет призванного существа: слияние превращало его в обычный накастованный
+//     баф, и следующее снятие уносило то, с чем существо пришло (освящение небесной защитницы).
+[[nodiscard]] bool IsStandaloneAffectInstance(const Affect<EApply>::shared_ptr &affect);
+
 // issue.affect-migration: "same affect" by IDENTITY (affect_type) rather than by casting spell -- for
 // callers that dedup or look up affects (do_affects display, remove_random_affects).
 [[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);
 
-void UpdateAffectOnPulse(CharData *ch, int count);
+// issue #4111: вне боя тикает аффекты мобов. kAfPulsedec считает пульсы, kAfBattledec --
+// раунды боя, поэтому нужен номер пульса: раундовая единица снимается раз в kBattleRound.
+void UpdateAffectOnPulse(CharData *ch, int pulse_number, int count);
 // issue.3678-affect-timer: age affect + cooldown/feat timers by the offline interval at login.
 void ApplyOfflineTimerAging(CharData *ch, time_t now);
 void player_timed_update();
@@ -114,7 +126,9 @@ void battle_affect_update(CharData *ch);
 void mobile_affect_update();
 // issue.character-affect-triggers: run one char affect's pulse/battle-pulse <actions> on its bearer
 // (kPulse always, kBattlePulse only while fighting). Defined in magic.cpp. Returns true if any fired.
-bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff);
+// Аффект берётся ПО ЗНАЧЕНИЮ: внутри тика носителя можно убить, а смерть чистит его список
+// аффектов, и ссылка на элемент этого списка после первого же действия станет висячей.
+bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff);
 
 // issue #3610: кому засчитывать урон тика повреждающего аффекта. Узлов одного типа на персонаже
 // может быть несколько, с разными авторами или вовсе без автора (отравленная еда, dg-триггер,
@@ -144,7 +158,14 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
-void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
+// issue #4005: per-instance пометки передаются типизированным набором (AffectFlags), а не словом:
+// флаги аффектов живут в четырёх плоскостях, и в 32-битное слово влезает только нулевая.
+void affect_to_char(CharData *ch, const Affect<EApply> &af, const AffectFlags &extra_battleflag = {});
+
+// issue #4005: пометки, которые ставит ВЫЗЫВАЮЩИЙ и которые воронка обязана сохранить, в отличие от
+// свойств аффекта -- те приходят из affects.xml по affect_type. Возвращает их подмножество из
+// набора, принесённого вызывающим. Перечень: kAfFailed, kAfCharmBond, kAfFromEquipment, kAfFromSet.
+[[nodiscard]] AffectFlags PerInstanceAffectFlags(const AffectFlags &caller_flags);
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af);   // caller MUST affect_total after
 class ObjData;
 // issue.equipment-affects-improve: materialize a worn item's timer-bearing equipment affects as
@@ -152,6 +173,16 @@ class ObjData;
 void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce = true);
 void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type, bool announce = true);
 void RemoveEquipmentAffects(CharData *ch, long source_id);
+// issue #3988: вернуть аффекты надетых вещей, узлы которых пропали мимо подавления на предмете
+// (чистка списка аффектов, смерть, обнуление). Зовётся с тика point_update; у наборов ту же работу
+// делает reconcile_set_affects. Возвращает true, если что-то восстановлено (пересчёт внутри).
+bool ReconcileEquipmentAffects(CharData *ch);
+// Надетые вещи, дающие персонажу этот аффект -- узлом с kAfFromEquipment или своими флагами
+// волшебства (у беструбных аффектов узла нет, их выводит каждый пересчёт). Пусто, если таких
+// вещей нет. Заведено для команды "появиться": волшебство вещи ей не подчиняется, и вместо "вы
+// теперь видны" честнее назвать вещи -- все сразу, иначе игрок снимает их по одной. Аффект
+// любой, не только скрывающий.
+std::vector<ObjData *> FindEquipmentAffectSources(CharData *ch, EAffect affect_type);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 // issue.equipment-affects-improve: like RemoveAffectFromChar, but keeps affects materialized
 // from worn equipment (kAfFromEquipment) -- used by Appear() so an aggressive action strips
@@ -162,7 +193,15 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
 // for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).
 void RemoveCharmBond(CharData *ch, bool recalculate = false);
+// issue #4002: продлить ВЕСЬ пакет призванного до указанного срока, а не только саму привязку.
+// Флаг kAfCharmBond носят и прибавки существа, поэтому продлевать надо их вместе с привязкой.
+void ExtendCharmBond(CharData *ch, int duration);
 void RemoveCurableAffects(CharData *ch);
+// issue #3988: снять всё, что снимается магией. Отбор тот же, что у заклинаний снятия: аффекту
+// нужен kAfCurable или kAfDispellable. Волшебство надетого (kAfFromEquipment, kAfFromSet) и пакет
+// призванного существа (kAfCharmBond) остаются на месте; врождённые бафы моба снимаются.
+// Возвращает true, если что-то снято; пересчёт параметров -- за вызывающим.
+bool RemoveDispellableAffects(CharData *ch);
 // True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
 bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
 // True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE
@@ -203,7 +242,10 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result);
 // skips the skill bonus entirely (flat duration). min/max keep OLD-style semantics: a 0 means
 // "no clamp on that side", a positive value clamps the bonus accordingly. The previous level-based
 // overload was removed once every caller migrated to this one.
+// base приходит int намеренно: раньше он был unsigned, и подсчитанная вызывающим отрицательная
+// база (например number(1, 31 - тело) при теле выше 31) оборачивалась в четыре миллиарда вместо
+// нуля -- аффект получал вечный срок. Отрицательную базу считаем нулевой.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max, int skill_override = -1, bool raw_rounds = false);
+				 int base, unsigned skill_divisor, int min, int max, int skill_override = -1, bool raw_rounds = false);
 
 #endif //BYLINS_AFFECT_DATA_H

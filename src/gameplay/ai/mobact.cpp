@@ -61,6 +61,9 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/fight/fight_stuff.h"
 
+#include <algorithm>
+#include <vector>
+
 // external structs
 extern int no_specials;
 
@@ -84,6 +87,23 @@ const short kStupidMob{10};
 const short kMiddleAi{30};
 const short kHighAi{40};
 const short kCharacterHpForMobPriorityAttack{100};
+// Насколько далеко помощник слышит драку. Обычный -- соседняя клетка, с флагом
+// kGreatHelper ("помогает издали") -- три ближайших.
+const int kHelperRange{1};
+const int kGreatHelperRange{3};
+
+// Через сколько пульсов помощник с пометкой "иду на помощь" делает шаг. Считать надо
+// кратно десяти: mobile_activity зарегистрирована в хербите с модулем 10, то есть зовется
+// раз в 10 пульсов, а пульс -- 40 мс. Отсюда 10 -> 0,4 с на клетку, 20 -> 0,8 с,
+// 30 -> 1,2 с. Ровно секунда не выражается: 25 пульсов не кратно десяти, поэтому берем
+// ближайшее в сторону "успеет" -- 0,8 с на клетку, три клетки за 2,4 секунды.
+const int kHelpStepPulses{20};
+
+// Сколько времени и клеток ушло на поиск драки за весь обход character_list. Счетчики
+// сбрасываются в начале mobile_activity и печатаются в ее же итоговый лог.
+double helper_search_time = 0.0;
+int helper_search_calls = 0;
+int helper_search_rooms = 0;
 
 struct Target {
     CharData* ch;
@@ -900,6 +920,136 @@ bool allow_enter(RoomData *room, CharData *ch) {
 	return true;
 }
 
+// Стоит ли помощнику вступаться за этого бойца. Видимость не спрашиваем -- помощник
+// идет на шум, -- так что условие одно и то же и для своей клетки, и для соседней.
+bool WorthHelping(CharData *helper, CharData *fighter) {
+	return fighter != helper
+		&& fighter->IsNpc()
+		&& !AFF_FLAGGED(fighter, EAffect::kCharmed)
+		&& !mount::IsHorse(fighter)
+		&& fighter->GetEnemy()
+		&& alignment::SameAlign(helper, fighter);
+}
+
+// Условия, при которых моб вообще ходит на помощь. Вынесены из блока помощи, потому что
+// те же условия проверяются раньше -- на пометке "иду на помощь": моб, которого захармили,
+// усадили, ослепили или сделали kSentinel, должен вернуться к общему ритму сразу.
+bool CanRunToHelp(CharData *ch) {
+	return ch->IsFlagged(EMobFlag::kHelper)
+		&& !ch->IsFlagged(EMobFlag::kSentinel)
+		&& !AFF_FLAGGED(ch, EAffect::kBlind)
+		&& !ch->has_master()
+		&& ch->GetPosition() == EPosition::kStand;
+}
+
+// Есть ли в комнате драка, из которой помощнику уходить не следует.
+bool HoldsRoomForHelp(CharData *helper, RoomRnum room) {
+	++helper_search_rooms;
+	for (const auto fighter : world[room]->people) {
+		if (WorthHelping(helper, fighter)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Пройдет ли моб из комнаты from в направлении dir. Нужна только для шагов дальше
+// первого: IsCorrectDirection смотрит на ту комнату, в которой моб стоит, и к чужой
+// комнате неприменим. Аптекарской точности тут и не надо -- за тик моб делает один шаг,
+// и этот шаг еще раз проходит все проверки в блоке Mob Movement; промах означает лишь,
+// что на следующем тике помощник никого рядом не найдет и вернется к своим делам.
+bool MobMayStep(CharData *mob, RoomRnum from, int dir) {
+	const auto exit = world[from]->dir_option[dir];
+	if (!exit || exit->to_room() == kNowhere) {
+		return false;
+	}
+
+	if (EXIT_FLAGGED(exit, EExitFlag::kClosed) && !mob->IsFlagged(EMobFlag::kOpensDoor)) {
+		return false;
+	}
+
+	const RoomRnum next = exit->to_room();
+	if (ROOM_FLAGGED(next, ERoomFlag::kNoEntryMob)
+		&& !mob->IsFlagged(EMobFlag::kIgnoresNoMob)
+		&& !mob->IsFlagged(EMobFlag::kCompanion)) {
+		return false;
+	}
+
+	return !ROOM_FLAGGED(next, ERoomFlag::kDeathTrap)
+		&& !ROOM_FLAGGED(next, ERoomFlag::kGodsRoom);
+}
+
+// Направление первого шага к ближайшей драке, за которую помощнику стоит вступиться.
+// Дальше range клеток не смотрим. kBfsError -- такой драки рядом нет.
+//
+// Обход в ширину, так что ближайшая драка выигрывает. Свой маленький обход, а не
+// find_first_step: тому на каждый вызов надо снять метку с каждой комнаты зоны или мира,
+// а здесь клеток от силы десятки, и зовут эту функцию на каждом помощнике каждый тик.
+int FindHelpDirection(CharData *helper, int range) {
+	struct Step {
+		RoomRnum room;
+		int dir;	// первый шаг, которым в эту комнату пришли
+		int depth;
+	};
+
+	// Очереди переиспользуются между вызовами и только очищаются -- аллокации на каждом
+	// тике тут лишние (тот же приём, что в find_first_step).
+	static std::vector<Step> queue;
+	static std::vector<RoomRnum> seen;
+
+	utils::CExecutionTimer timer;
+	++helper_search_calls;
+
+	queue.clear();
+	seen.clear();
+	queue.push_back({helper->in_room, kBfsError, 0});
+	seen.push_back(helper->in_room);
+
+	int found_dir = kBfsError;
+	for (std::size_t i = 0; i < queue.size() && found_dir == kBfsError; ++i) {
+		const Step step = queue[i];
+		if (step.depth >= range) {
+			continue;
+		}
+
+		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
+			const auto exit = world[step.room]->dir_option[dir];
+			if (!exit || exit->to_room() == kNowhere) {
+				continue;
+			}
+
+			const RoomRnum next = exit->to_room();
+			if (std::find(seen.begin(), seen.end(), next) != seen.end()) {
+				continue;
+			}
+
+			const bool passable = (step.depth == 0)
+				? IsCorrectDirection(helper, dir, true, false)
+				: MobMayStep(helper, step.room, dir);
+			if (!passable
+				|| (IsRoomForbidden(world[next]) && !helper->IsFlagged(EMobFlag::kIgnoreForbidden))
+				|| (helper->IsFlagged(EMobFlag::kStayZone)
+					&& world[helper->in_room]->zone_rn != world[next]->zone_rn)) {
+				continue;
+			}
+
+			const int first_step = (step.depth == 0) ? dir : step.dir;
+			if (HoldsRoomForHelp(helper, next)) {
+				found_dir = first_step;
+				break;
+			}
+
+			seen.push_back(next);
+			queue.push_back({next, first_step, step.depth + 1});
+		}
+	}
+
+	helper_search_time += timer.delta().count();
+
+	return found_dir;
+}
+
 
 void mobile_activity(int activity_level, int missed_pulses) {
 	auto activity_span = tracing::TraceManager::Instance().StartSpan("mob.activity");
@@ -907,6 +1057,10 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	utils::CExecutionTimer mobact_timer;
 	int processed_mobs = 0;
+
+	helper_search_time = 0.0;
+	helper_search_calls = 0;
+	helper_search_rooms = 0;
 
 //	int door, max, was_in = -1, activity_lev, i, ch_activity;
 //	int std_lev = activity_level % kPulseMobile;
@@ -918,7 +1072,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (ch->purged()  || !ch->IsNpc() || !ch->in_used_zone()) {
 		continue;
 	  }
-	  UpdateAffectOnPulse(ch.get(), missed_pulses);
+	  UpdateAffectOnPulse(ch.get(), activity_level, missed_pulses);
 	  if (ch->punctual_wait > 0)
 		  ch->punctual_wait -= missed_pulses;
 	  else
@@ -940,7 +1094,18 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (ch_activity - activity_lev < missed_pulses && ch_activity - activity_lev >= 0) {
 		  ch_activity = activity_lev;
 	  }
-	  if (ch_activity != activity_lev
+	  // Помощник, идущий на драку, ходит каждый проход, а не раз в свой слот: слот
+	  // приходит раз в kPulseMobile (10 секунд), и три клетки заняли бы полминуты --
+	  // дольше самой драки, отчего помощь и не доходила. Пометка держится только пока
+	  // условия помощи в силе: моб захарменный, усаженный, ослеплённый или ставший
+	  // kSentinel возвращается к общему ритму сразу, не дожидаясь блока помощи.
+	  if (ch->Temporary.get(ECharExtraFlag::kGoesToHelp) && !CanRunToHelp(ch.get())) {
+		  ch->Temporary.unset(ECharExtraFlag::kGoesToHelp);
+	  }
+	  const bool goes_to_help = ch->Temporary.get(ECharExtraFlag::kGoesToHelp)
+		  && (activity_level % kHelpStepPulses == 0);
+
+	  if ((ch_activity != activity_lev && !goes_to_help)
 		  || (was_in = ch->in_room) == kNowhere
 		  || GET_ROOM_VNUM(ch->in_room) % 100 == 99) {
 		  continue;
@@ -1008,7 +1173,6 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  max = false;
-	  bool found = false;
 	  for (const auto vict : world[ch->in_room]->people) {
 		  if (ch.get() == vict) {
 			  continue;
@@ -1136,56 +1300,53 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  door = kBfsError;
 
-	  // Helpers go to some dest
-	  if (ch->IsFlagged(EMobFlag::kHelper)
-		  && !ch->IsFlagged(EMobFlag::kSentinel)
-		  && !AFF_FLAGGED(ch, EAffect::kBlind)
-		  && !ch->has_master()
-		  && ch->GetPosition() == EPosition::kStand) {
-		  for (found = false, door = 0; door < EDirection::kMaxDirNum; door++) {
-			  RoomData::exit_data_ptr rdata = EXIT(ch, door);
-			  if (!rdata
-				  || rdata->to_room() == kNowhere
-				  || !IsCorrectDirection(ch.get(), door, true, false)
-				  || (IsRoomForbidden(world[rdata->to_room()])
-					  && !ch->IsFlagged(EMobFlag::kIgnoreForbidden))
-				  || is_dark(rdata->to_room())
-				  || (ch->IsFlagged(EMobFlag::kStayZone)
-					  && world[ch->in_room]->zone_rn != world[rdata->to_room()]->zone_rn)) {
-				  continue;
-			  }
+	  // Помощник идет на шум драки в соседнюю клетку. Ни своей видимости, ни света в
+	  // той клетке мы не спрашиваем: на слух -- значит на слух. Темноту тут когда-то
+	  // проверяли, но больше ни один ход моба ее не проверяет (см. блок Mob Movement
+	  // ниже), так что помощник просто отказывался выручать там, где любой другой моб
+	  // ходит свободно; факел он и так достанет сам, уже на месте, в npc_light.
+	  //
+	  // Пока драка в своей клетке, помощник из нее не уходит, даже если ударить ему
+	  // пока нечем: в темноте цель не видна (sight::MaySee), и раньше он на следующем
+	  // же ходу спокойно утопывал по маршруту или куда попало. Теперь стоит и ждет --
+	  // осветится комната или подойдет второй такой же.
+	  //
+	  // Направление, выбранное здесь, старше маршрута: следующие блоки с
+	  // GET_DEST/npc_walk и npc_track работают только при door == kBfsError, то есть
+	  // когда помогать некому.
+	  bool holds_room = false;
+	  if (CanRunToHelp(ch.get())) {
+		  holds_room = HoldsRoomForHelp(ch.get(), ch->in_room);
 
-			  const auto room = world[rdata->to_room()];
-			  for (auto first : room->people) {
-				  if (first->IsNpc()
-					  && !AFF_FLAGGED(first, EAffect::kCharmed)
-					  && !mount::IsHorse(first)
-					  && sight::CanSee(ch, first)
-					  && first->GetEnemy()
-					  && alignment::SameAlign(ch.get(), first)) {
-					  found = true;
-					  break;
-				  }
-			  }
-
-			  if (found) {
-				  break;
-			  }
+		  if (!holds_room) {
+			  door = FindHelpDirection(ch.get(),
+									   ch->IsFlagged(EMobFlag::kGreatHelper)
+										   ? kGreatHelperRange : kHelperRange);
 		  }
 
-		  if (!found) {
-			  door = kBfsError;
+		  // Пометка "иду на помощь" -- только для kGreatHelper: обычному помощнику идти
+		  // некуда, драка у него в соседней клетке и доходит за один шаг.
+		  if (ch->IsFlagged(EMobFlag::kGreatHelper)) {
+			  if (!holds_room && door != kBfsError) {
+				  ch->Temporary.set(ECharExtraFlag::kGoesToHelp);
+			  } else {
+				  // Либо дошёл (драка в своей клетке), либо помогать больше некому:
+				  // цель убили, пока он шёл, или драка кончилась сама.
+				  ch->Temporary.unset(ECharExtraFlag::kGoesToHelp);
+			  }
 		  }
 	  }
 
-	  if (GET_DEST(ch) != kNowhere
+	  if (!holds_room
+		  && GET_DEST(ch) != kNowhere
 		  && ch->GetPosition() > EPosition::kFight
 		  && door == kBfsError) {
 		  npc_group(ch.get());
 		  door = npc_walk(ch.get());
 	  }
 
-	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && GetSkill(ch.get(), ESkill::kTrack)) {
+	  if (!holds_room && MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight
+		  && GetSkill(ch.get(), ESkill::kTrack)) {
 		  door = npc_track(ch.get());
 	  }
 
@@ -1194,7 +1355,9 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  continue;
 	  }
 
-	  if (door == kBfsError) {
+	  // Помощник, стерегущий драку в своей клетке, никуда не идет: door остается
+	  // kBfsError, и блок Mob Movement ниже его не пропускает (door >= 0).
+	  if (!holds_room && door == kBfsError) {
 		  door = number(0, 18);
 	  }
 
@@ -1249,8 +1412,16 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 	}
 	double mobact_time = mobact_timer.delta().count();
+
+	// Поиск драки для помощников считаем отдельно: с флагом kGreatHelper моб смотрит на
+	// три клетки вокруг, и надо видеть, во что это обходится на весь обход character_list.
+	observability::OtelMetrics::RecordHistogram("mob.helper.search.duration", helper_search_time);
+	observability::OtelMetrics::RecordHistogram("mob.helper.search.rooms", helper_search_rooms);
+	observability::OtelMetrics::RecordHistogram("mob.helper.search.calls", helper_search_calls);
+
 	if (mobact_time > 0.005) {
-		log("mobile_activity: processed=%d time=%f", processed_mobs, mobact_time);
+		log("mobile_activity: processed=%d time=%f helpers=%d help_rooms=%d help_time=%f",
+			processed_mobs, mobact_time, helper_search_calls, helper_search_rooms, helper_search_time);
 	}
 }
 ObjData *create_charmice_box(CharData *ch) {

@@ -609,16 +609,6 @@ bool InspectRequestDeque::IsBusy(const CharData *ch) {
 }
 
 bool InspectRequestDeque::IsArgsValid(const CharData *ch, const std::vector<std::string> &args) {
-	auto &request_text = args[kRequestTextPos];
-	// Длина запроса -- в символах: по байтам русский текст считался вдвое длиннее (issue #3681).
-	if (native_text::char_count(request_text) < kMinRequestLength) {
-		SendMsgToChar("Слишком короткий запрос.\r\n", ch);
-		return false;
-	}
-	if (native_text::char_count(request_text) > kMaxRequestLength) {
-		SendMsgToChar("Слишком длинный запрос.\r\n", ch);
-		return false;
-	}
 	if (args.size() < kMinArgsNumber) {
 		std::string request_names;
 		for (const auto &request_kind : request_kinds_) {
@@ -630,6 +620,16 @@ bool InspectRequestDeque::IsArgsValid(const CharData *ch, const std::vector<std:
 	}
 	if (!request_kinds_.contains(args[kRequestKindPos])) {
 		SendMsgToChar("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
+		return false;
+	}
+	auto &request_text = args[kRequestTextPos];
+	// Длина запроса -- в символах: по байтам русский текст считался вдвое длиннее (issue #3681).
+	if (native_text::char_count(request_text) < kMinRequestLength) {
+		SendMsgToChar("Слишком короткий запрос.\r\n", ch);
+		return false;
+	}
+	if (native_text::char_count(request_text) > kMaxRequestLength) {
+		SendMsgToChar("Слишком длинный запрос.\r\n", ch);
 		return false;
 	}
 

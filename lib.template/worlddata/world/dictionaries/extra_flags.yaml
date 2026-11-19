@@ -45,7 +45,7 @@ k3inlaid: 42  # * не используется
 kNopour: 43  # !перелить
 kUnique: 44  # уникальный
 kTransformed: 45  # *изменен кодом
-kNoRentTimer: 46  # *!разруш.постой
+kNoRentTimer: 46  # *не разрушается на постое
 kLimitedTimer: 47  # !нерушима
 kBindOnPurchase: 48  # *уникальная при покупке
 kNotOneInClanChest: 49  # *одну не положить в кланхран

@@ -103,7 +103,6 @@
 		<message type="kCastDisappearToRoom" val="$n исчез$q." />
 		<message type="kCastAppearToRoom" val="$n появил$u." />
 	</msg_sheaf>
-
 	<msg_sheaf id="kCureLight">
 		<name val="легкое исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
@@ -799,7 +798,7 @@
 	<msg_sheaf id="kClone">
 		<name val="клонирование" />
 		<message type="kSummonToRoom" val="$n раздвоил$u!" />
-		<message type="kSummonToRoom" val="$n моргнул$g - из воздуха выпала тень $s	." />
+		<message type="kSummonToRoom" val="$n моргнул$g - из воздуха выпала тень $s ." />
 		<message type="kSummonToRoom" val="$n плечом повел$g, и народился $s двойник." />
 		<message type="kSummonFail" val="Разве что плюнуть с досады - ничего не вышло." />
 		<message type="kSummonFail" val="Морок бессильно рассеялся." />
@@ -817,6 +816,14 @@
 		<message type="kSummonToRoom" val="$n дыхнул гнильцой и мертвец восстал на костях своих, повинуясь хозяину." />
 		<message type="kCastPhraseHeathen" val="воскресе из мертвых" />
 		<message type="kCastPhraseChristian" val="... оживут мертвецы Твои, восстанут мертвые тела!" />
+	</msg_sheaf>
+	<msg_sheaf id="kAnimateSkeleton">
+		<name val="оживить скелет" />
+		<message type="kSummonToRoom" val="$n склонил$u над трупом, и плоть осыпалась прахом, обнажив белые кости." />
+		<message type="kSummonToRoom" val="Кости мертвеца со скрипом сошлись, повинуясь слову $n1." />
+		<message type="kSummonToRoom" val="$n поднял$g костяного прислужника!" />
+		<message type="kCastPhraseHeathen" val="костию восстани" />
+		<message type="kCastPhraseChristian" val="... и кости сухие оживут." />
 	</msg_sheaf>
 	<msg_sheaf id="kSummonKeeper">
 		<name val="защитник" />
@@ -885,7 +892,7 @@
 	<msg_sheaf id="kStunning">
 		<name val="каменное проклятие" />
 		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
-		<message type="kKnockdownToRoom" val="Каменное проклятие отшибло сознание у $n2." />
+		<message type="kKnockdownToRoom" val="Каменное проклятие отшибло сознание у $n1." />
 		<message type="kFightDeathToChar" val="Ваше каменное проклятие оглушило $N3, после чего $E умер$Q." />
 		<message type="kFightDeathToVict" val="$n проклял$g вас своим каменным проклятием. Вы умираете." />
 		<message type="kFightDeathToRoom" val="$n превратил$g $N3 в камень. Пусть земля будет $M пухом." />
@@ -904,7 +911,7 @@
 	<msg_sheaf id="kVacuum">
 		<name val="круг пустоты" />
 		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
-		<message type="kKnockdownToRoom" val="Круг пустоты отшиб сознание у $n2." />
+		<message type="kKnockdownToRoom" val="Круг пустоты отшиб сознание у $n1." />
 		<message type="kFightDeathToChar" val="Ваш круг пустоты покрыл $N3, котор$W так и не смог$Q из него выбраться." />
 		<message type="kFightDeathToChar" val="$N задохнул$U, когда не смог$Q выбраться из вашего круга пустоты." />
 		<message type="kFightDeathToVict" val="$n наложил$g на вас круг пустоты. В глазах стало темно..." />
@@ -2292,7 +2299,6 @@
 		<!-- Caster-side rejection when effective Int is too low to summon the shadow. -->
 		<message type="kCustomMsgOne" val="Головные боли мешают работать!" />
 	</msg_sheaf>
-
 	<msg_sheaf id="kIdentify">
 		<name val="идентификация" />
 		<!-- Per-spell override (issue.spell-msg-improve) of the generic kWrongTarget line. -->

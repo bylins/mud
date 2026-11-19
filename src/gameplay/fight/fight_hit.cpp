@@ -3,6 +3,7 @@
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/animate_dead.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 
@@ -530,7 +531,11 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kHold)) {
-		bool success = CalcCurrentSkill(ch, ESkill::kAwake, victim)
+		// Бросок делает тот, кто защищается осторожкой, -- victim. С разделения train_skill на
+		// CalcCurrentSkill + TrainSkill (2021) сюда попал ch, то есть нападающий: у мобов осторожки
+		// нет, CalcCurrentSkill возвращал 0, и штраф не срабатывал вовсе, а в pvp доставался тому,
+		// кто бьёт. TrainSkill ниже всё это время качал victim -- по нему и выправляем.
+		bool success = CalcCurrentSkill(victim, ESkill::kAwake, ch)
 			>= number(1, MUD::Skill(ESkill::kAwake).difficulty);
 		if (success) {
 			// > и зачем так? кто балансом занимается поправте.
@@ -851,9 +856,27 @@ BreathAttack GetBreathAttack(CharData *ch) {
 // GET_MR keeps its legacy role as a flat chance to fully resist the elemental hit.
 // CalcMagicElementCoeff is deliberately NOT applied -- breath is magic melee, not a
 // spell; the element alone drives the resist channel inside Damage::Process.
-void DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath) {
-	if (!pk_agro_action(ch, victim)) {
+// issue #4000: дыхание -- тоже удар мобом, и триггеры аффектов на удар должны стрелять и для него.
+// Раньше ветка дыхания уходила из hit() до блока kPreHit/kPostHit, поэтому дышащий моб не запускал
+// ни одного действия своих аффектов на удар (у дышащего вампира, например, не срабатывало лечение).
+// Стреляем после нанесения урона: только если урон дошёл и жертва жива (-1 -- погибла).
+static void RunBreathHitTriggers(CharData *ch, CharData *victim, int dam) {
+	if (dam <= 0 || !victim || victim->purged() || ch->purged()) {
 		return;
+	}
+	EventContext event;
+	event.trigger = talents_actions::EActionTrigger::kPostHit;
+	event.amount = dam;
+	event.actor = victim;
+	event.skill = ESkill::kUndefined;
+	RunCharEventTriggers(ch, event);
+}
+
+// issue #4000: возвращает нанесённый урон (-1, если жертва погибла, 0 если сопротивилась) --
+// по нему вызывающий решает, стрелять ли триггерам аффектов на удар.
+int DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath, fight::AttackType weapon) {
+	if (!pk_agro_action(ch, victim)) {
+		return 0;
 	}
 	int dam = 0;
 	const int max_resist = ch->IsNpc() ? kMaxNpcResist : kMaxPcResist;
@@ -864,7 +887,20 @@ void DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath
 	}
 	Damage breath_dmg(SimpleDmg(breath.source), dam, fight::kMagicDmg);
 	breath_dmg.element = breath.element;
-	breath_dmg.Process(ch, victim);
+	// issue #4067: дыхание не проверяет попадание, поэтому каждая атака дышащего за раунд
+	// печатала комнате свою строку, и в групповом бою из этого выходил столбик одинаковых
+	// строк. Озвучивает первый удар раунда, прочие дыхания наносят урон молча -- тем же
+	// приёмом, каким молчит ответ магического зеркала. Первый удар -- это тот, которым моб
+	// бьёт первой рукой: обычно правой, а при отбитой правой (kStopRight вешает пинок)
+	// первой идёт левая. Ту же руку и тем же способом выбирают stun.cpp и backstab.cpp.
+	// Смертельный удар озвучивается всегда: в Process урон может только уменьшиться,
+	// поэтому dam меньше текущих хитов -- верный признак, что жертва выживет и строка о
+	// смерти с молчанием не потеряется.
+	const auto first_hand = AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand;
+	if (weapon != first_hand && dam < victim->get_hit()) {
+		breath_dmg.SilenceGenericMsg();
+	}
+	return breath_dmg.Process(ch, victim);
 }
 }  // namespace
 
@@ -937,14 +973,18 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 					if (privilege::IsImmortal(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
 					if (tch != ch && !group::same_group(ch, tch)) {
-						DealBreathDamage(ch, tch, breath);
+						const int breath_dam = DealBreathDamage(ch, tch, breath, weapon);
+						if (ch->purged())
+							return;
+						RunBreathHitTriggers(ch, tch, breath_dam);
 						if (ch->purged())
 							return;
 					}
 				}
 				return;
 			}
-			DealBreathDamage(ch, victim, breath);
+			const int breath_dam = DealBreathDamage(ch, victim, breath, weapon);
+			RunBreathHitTriggers(ch, victim, breath_dam);
 			return;
 		}
 	}
@@ -1178,18 +1218,42 @@ int CalcNpcDamrollBonus(CharData *ch) {
 /**
 * еще есть рандом дамролы, в данный момент максимум 30d127
 */
+// Предел дамролла подчинённого. У поднятой нежити (хозяин + флаг kCorpse) он выше -- так
+// заведено в GetRealDamroll, и автоатака считает по тому же правилу. Своему виду нежити
+// предел можно задать в cfg/mechanics/animate_dead.xml (damroll_cap): у верхних видов бонусы
+// от подъёма и «сил зла» иначе упираются в общий потолок.
+static int CharmiceDamrollCap(CharData *ch) {
+	// rnum < 0 -- моб без прототипа в памяти (так бывает в тестах и у служебных существ),
+	// GET_MOB_VNUM на таком читать нельзя: он лезет в mob_index по отрицательному индексу.
+	if (ch->IsNpc() && ch->get_rnum() >= 0) {
+		const int tier_cap = MUD::AnimateDead().DamrollCapOf(GET_MOB_VNUM(ch));
+		if (tier_cap > 0) {
+			return tier_cap;
+		}
+	}
+
+	return IsMortifier(ch) ? 100 : 50;
+}
+
 int GetRealDamroll(CharData *ch) {
 	if (ch->IsNpc() && !IsCharmice(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
 
 	int bonus = CalcPcDamrollBonus(ch);
-	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, (IsMortifier(ch) ? 100 : 50) + 2 * bonus);
+	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, CharmiceDamrollCap(ch) + 2 * bonus);
 }
 
 int GetAutoattackDamroll(CharData *ch, int weapon_skill) {
 	if (ch->IsNpc() && !IsCharmice(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
+	}
+	if (IsCharmice(ch)) {
+		// Кап от умения оружия подчинённому не годится: его дамролл приходит из прототипа,
+		// подъёма и баффов, а не из прокачки. У костяка велета кулачный бой 80 давал кап 40,
+		// и обрезались как его собственные 50 из прототипа, так и весь бонус сил зла
+		// (issue #3958, разбор в #3670). Предел -- тот же, что в GetRealDamroll.
+		return std::max(0, std::min(GET_DR(ch) + GET_DR_ADD(ch), CharmiceDamrollCap(ch)));
 	}
 	return std::min(GET_DR(ch) + GET_DR_ADD(ch) + 2 * CalcPcDamrollBonus(ch), weapon_skill / 2); //попробюуем так
 }

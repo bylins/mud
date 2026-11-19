@@ -1,3 +1,5 @@
+#include "engine/ui/cmd/do_give.h"
+
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
@@ -158,7 +160,7 @@ void perform_give_currency(CharData *ch, CharData *vict, const currencies::Curre
 	currencies::AddHand(*vict, cur.GetTextId(), amount, true);
 }
 
-void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void PerformGiveCommand(CharData *ch, char *argument, const GiveVictFinder &find_vict) {
 	CharData *vict;
 	ObjData *obj, *next_obj;
 
@@ -174,20 +176,20 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		auto amount = std::stoi(what);
 		what = utils::ExtractFirstArgumentLower(remains, remains);
 		if (utils::IsAbbr("coin", what.c_str()) || utils::IsAbbr("кун", what.c_str()) || !str_cmp("денег", what)) {
-			if ((vict = give_find_vict(ch, utils::ExtractFirstArgumentLower(remains))) != nullptr) {
+			if ((vict = find_vict(ch, utils::ExtractFirstArgumentLower(remains))) != nullptr) {
 				perform_give_gold(ch, vict, amount);
 			}
 			return;
 		}
 		if (const auto *cur = currencies::FindBySearch(what); cur && cur->IsGiveable()) {
-			if ((vict = give_find_vict(ch, utils::ExtractFirstArgumentLower(remains))) != nullptr) {
+			if ((vict = find_vict(ch, utils::ExtractFirstArgumentLower(remains))) != nullptr) {
 				perform_give_currency(ch, vict, *cur, amount);
 			}
 			return;
 		}
 		if (what.empty()) {
 			SendMsgToChar(fmt::format("Чего {} вы хотите дать?\r\n", amount), ch);
-		} else if (!(vict = give_find_vict(ch, remains))) {
+		} else if (!(vict = find_vict(ch, remains))) {
 			return;
 		} else if (!(obj = get_obj_in_list_vis(ch, what, ch->carrying))) {
 			if (const auto *cur = currencies::FindBySearch(what); cur && !cur->IsGiveable()) {
@@ -205,7 +207,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = give_find_vict(ch, utils::ExtractFirstArgumentLower(remains)))) {
+	if (!(vict = find_vict(ch, utils::ExtractFirstArgumentLower(remains)))) {
 		return;
 	}
 	auto dotmode = ParseAllPrefix(what);
@@ -244,6 +246,10 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!has_items) {
 		SendMsgToChar(fmt::format("У вас нет '{}'.\r\n", what), ch);
 	}
+}
+
+void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	PerformGiveCommand(ch, argument, give_find_vict);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

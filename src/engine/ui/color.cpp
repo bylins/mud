@@ -179,6 +179,36 @@ int proc_color(char *inbuf) {
 	return 0;
 }
 
+// Обернуть текст ключами &S/&s, чтобы он ушел игроку как есть: без разбора цветов и без замены
+// '_' на пробел, которую делает proc_color. Нужно там, где текст копируют из игры и вставляют
+// обратно: исходники скриптов, списки синонимов. Каждая строка обернута отдельно, потому что
+// пейджер режет вывод на страницы и отдает их разными посылками -- ключ, открытый на одной
+// странице, на следующей уже не действует.
+std::string RawText(std::string_view text) {
+	std::string out;
+	out.reserve(text.size() + text.size() / 8 + 4);
+
+	while (!text.empty()) {
+		auto eol = text.find('\n');
+		auto line = text.substr(0, eol == std::string_view::npos ? text.size() : eol + 1);
+		text.remove_prefix(line.size());
+
+		// Сами переводы строки оставляем вне ключей: иначе закрывающий &s уедет на новую страницу.
+		auto body = line.size();
+		while (body > 0 && (line[body - 1] == '\n' || line[body - 1] == '\r')) {
+			body--;
+		}
+		if (body > 0) {
+			out += "&S";
+			out += line.substr(0, body);
+			out += "&s";
+		}
+		out += line.substr(body);
+	}
+
+	return out;
+}
+
 const char *GetWarmValueColor(int current, int max) {
 	switch (posi_value(current, max)) {
 		case -1:

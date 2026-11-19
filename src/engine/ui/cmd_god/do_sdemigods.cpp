@@ -28,7 +28,7 @@ void DoSendMsgToDemigods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 					(!d->character->IsFlagged(EPlrFlag::kMailing)) &&
 					(!d->character->IsFlagged(EPrf::kDemigodChat))) {
 					d->character->remember_add(msg, Remember::ALL);
-					SendMsgToChar(msg, d->character.get());
+					SendWrappedToChar(msg, d->character.get());
 				}
 			}
 		}

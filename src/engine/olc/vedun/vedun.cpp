@@ -9,6 +9,8 @@
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
+#include <fstream>
+
 #include "engine/core/comm.h"                 // SendMsgToChar
 #include "engine/ui/table_wrapper.h"          // table_wrapper::Table
 #include "engine/ui/modify.h"                 // page_string (pager)
@@ -1087,6 +1089,54 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		page_string(d, fmt::format("&WVedun&n -- editable data sets:\r\n{}Usage: vedun <what> [element]\r\n",
+			table.to_string()));
+		return;
+	}
+
+	// `vedun normalize` -- привести файлы к тому виду, в котором их пишет сам редактор. Ведун
+	// сохраняет файл целиком, и первая правка "рукописного" файла переписывает все его строки:
+	// коммит с правкой двух флагов выходил на 400 строк и конфликтовал с любой другой правкой того
+	// же файла. Один прогон этой команды снимает разницу навсегда -- дальше правки с боевого дают
+	// дифф по существу. Смысл файлов не меняется: разбор идёт с parse_comments, то есть комментарии
+	// сохраняются, а запись -- тем же писателем, что и при обычном сохранении.
+	if (!str_cmp(what, "normalize")) {
+		table_wrapper::Table table;
+		table << "набор" << "файл" << "итог" << table_wrapper::kEndRow;
+		for (const auto &e : MUD::CfgManager().EditableEntries()) {
+			if (!privilege::CanEditVedun(ch, e.what)) {
+				continue;   // чего не дано править, того и не трогаем
+			}
+			std::string before;
+			{
+				std::ifstream in(e.file, std::ios::binary);
+				before.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+			}
+			parser_wrapper::DataNode doc(e.file);
+			if (std::string(doc.GetValue("vedun")) == "false") {
+				table << e.what << e.file.filename().string() << "пропущен (vedun=\"false\")"
+					  << table_wrapper::kEndRow;
+				continue;
+			}
+			if (const auto res = e.loader->Validate(doc); !res.ok) {
+				table << e.what << e.file.filename().string() << fmt::format("отказ: {}", res.error)
+					  << table_wrapper::kEndRow;
+				continue;
+			}
+			if (!MUD::CfgManager().Save(e.id, doc)) {
+				table << e.what << e.file.filename().string() << "не записался"
+					  << table_wrapper::kEndRow;
+				continue;
+			}
+			std::string after;
+			{
+				std::ifstream in(e.file, std::ios::binary);
+				after.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+			}
+			table << e.what << e.file.filename().string()
+				  << (before == after ? "уже в формате" : "переписан") << table_wrapper::kEndRow;
+		}
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		page_string(d, fmt::format("&WVedun normalize&n -- приведение файлов к формату редактора:\r\n{}",
 			table.to_string()));
 		return;
 	}

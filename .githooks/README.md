@@ -25,6 +25,7 @@ git config core.hooksPath .githooks
 1. Найден символ замены U+FFFD (Unicode Replacement Character)
 2. Файл должен быть KOI8-R (по .gitattributes), но находится в UTF-8
 3. Найдены типичные паттерны битой кодировки
+4. Файл из `src/`, `tests/` или `lib.template/` не разбирается как UTF-8
 
 **Как исправить ошибки кодировки:**
 

@@ -7,6 +7,8 @@
 #include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
+#include "trigger_type_names.h"
+#include "yaml_error_context.h"
 #include "db.h"
 #include "obj_prototypes.h"
 #include "global_objects.h"
@@ -47,7 +49,7 @@
 #include <sstream>
 #include <set>
 
-#include "koi8r_yaml_emitter.h"
+#include "yaml_scalar_safe_emitter.h"
 
 // External declarations
 extern ZoneTable &zone_table;
@@ -655,8 +657,9 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 					}
 					catch (const YAML::Exception &e)
 					{
-						log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
-							sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
+						log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s%s",
+							sub.c_str(), zone_vnum, flat_path.c_str(), e.what(),
+							world_format::DescribeYamlErrorInFile(flat_path, e.mark.line + 1).c_str());
 						++result.failures;
 						continue;
 					}
@@ -697,8 +700,9 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 				}
 				catch (const YAML::Exception &e)
 				{
-					log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
-						sub.c_str(), zone_vnum, index_path.c_str(), e.what());
+					log("SYSERR: Failed to load %s index for zone %d ('%s'): %s%s",
+						sub.c_str(), zone_vnum, index_path.c_str(), e.what(),
+						world_format::DescribeYamlErrorInFile(index_path, e.mark.line + 1).c_str());
 					++result.failures;
 				}
 			}
@@ -965,7 +969,8 @@ void YamlWorldDataSource::LoadZonesParallel()
 				}
 				catch (const YAML::Exception &e)
 				{
-					log("SYSERR: Failed to load zone %d from '%s': %s", zone_vnum, zone_path.c_str(), e.what());
+					log("SYSERR: Failed to load zone %d from '%s': %s%s", zone_vnum, zone_path.c_str(), e.what(),
+						world_format::DescribeYamlErrorInFile(zone_path, e.mark.line + 1).c_str());
 					error_count++;
 				}
 				catch (const std::exception &e)
@@ -1261,9 +1266,31 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 		for (const auto &type_node : root["trigger_types"])
 		{
 			std::string type_str = type_node.as<std::string>();
-			auto &dm = DictionaryManager::Instance();
-			long type_bit = dm.Lookup("trigger_types", type_str, -1);
-			if (type_bit >= 0)
+			long type_bit = -1;
+			char *end = nullptr;
+			const long as_bit = std::strtol(type_str.c_str(), &end, 10);
+			if (!type_str.empty() && *end == '\0')
+			{
+				// Номер бита, записанный как есть: имени для него в словаре нет, но тип
+				// при перезаписи мира терять нельзя.
+				type_bit = as_bit;
+			}
+			else
+			{
+				auto &dm = DictionaryManager::Instance();
+				type_bit = dm.Lookup("trigger_types", type_str, -1);
+				if (type_bit < 0)
+				{
+					log("SYSERR: trigger %s: unknown trigger type '%s' -- the type is lost",
+						name.c_str(), type_str.c_str());
+				}
+				else if (!world_format::TriggerTypeNameFitsAttach(type_str, attach_type))
+				{
+					log("SYSERR: trigger %s: trigger type '%s' belongs to another attach type",
+						name.c_str(), type_str.c_str());
+				}
+			}
+			if (type_bit >= 0 && type_bit < 32)
 			{
 				trigger_type |= (1L << type_bit);
 			}
@@ -2900,7 +2927,7 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 
 	std::ostringstream out;
 
-	Koi8rYamlEmitter yaml(out);
+	YamlScalarSafeEmitter yaml(out);
 
 	// Header comment
 	yaml.Comment("Zone #" + std::to_string(zone.vnum));
@@ -3250,7 +3277,7 @@ void YamlWorldDataSource::CleanupOtherLayout(int zone_vnum, const std::string &s
 	}
 }
 
-void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
+void YamlWorldDataSource::EmitTriggerBody(YamlScalarSafeEmitter &yaml, Trigger *trig)
 {
 	// Name
 	yaml.Key("name");
@@ -3305,11 +3332,19 @@ void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
 		{
 			if (GET_TRIG_TYPE(trig) & (1L << bit))
 			{
-				std::string type_name = ReverseLookupEnum("trigger_types", bit);
-				if (!type_name.empty() && type_name != std::to_string(bit))
+				// Имя зависит от attach_type: один и тот же бит у моба, предмета и комнаты
+				// значит разное. Имени нет -- пишем номер бита, иначе тип молча пропадёт.
+				const auto *dict = DictionaryManager::Instance().GetDictionary("trigger_types");
+				std::string type_name = dict
+					? world_format::PickTriggerTypeName(dict->GetEntries(), trig->get_attach_type(), bit)
+					: std::string();
+				if (type_name.empty())
 				{
-					yaml.SequenceItem(type_name);
+					type_name = std::to_string(bit);
+					log("SYSERR: trigger %s: no name for trigger type bit %d, writing the number",
+						trig->get_name().c_str(), bit);
 				}
+				yaml.SequenceItem(type_name);
 			}
 		}
 
@@ -3385,7 +3420,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/triggers.yaml";
 		const std::string temp_file = flat_path + ".tmp";
 		std::ostringstream out;
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Triggers for zone " + std::to_string(zone.vnum));
 		for (const auto &[trig_vnum, trig] : entries)
 		{
@@ -3429,7 +3464,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		const std::string temp_file = trig_file + ".tmp";
 		std::ostringstream out;
 
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Trigger #" + std::to_string(trig_vnum));
 		yaml.EmptyLine();
 		EmitTriggerBody(yaml, trig);
@@ -3453,7 +3488,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 	return true;
 }
 
-void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out, RoomData *room)
+void YamlWorldDataSource::EmitRoomBody(YamlScalarSafeEmitter &yaml, std::ostream &out, RoomData *room)
 {
 	// Name
 	if (room->name)
@@ -3541,7 +3576,7 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 			}
 			out << std::endl;
 
-			// Description (optional). Delegate to Koi8rYamlEmitter::Value
+			// Description (optional). Delegate to YamlScalarSafeEmitter::Value
 			// for proper clip-vs-strip chomping based on trailing newline
 			// in the source string (otherwise round-trip silently appends
 			// a CR/LF that wasn't in memory).
@@ -3625,7 +3660,7 @@ void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out
 		for (const auto *exdesc : exdescs)
 		{
 			// keywords may start with '-' (legitimately a single dash);
-			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+			// YamlScalarSafeEmitter::Value handles leading-indicator quoting.
 			out << yaml.GetIndent() << "- keywords:";
 			// IncreaseIndent so yaml.Value's literal-block branch emits content
 			// lines at the correct column for indicator "2" (parent_indent + 2).
@@ -3691,7 +3726,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms.yaml";
 		const std::string temp_file = flat_path + ".tmp";
 		std::ostringstream out;
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Rooms for zone " + std::to_string(zone.vnum));
 		for (const auto &[vnum, room] : entries)
 		{
@@ -3733,7 +3768,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 		std::string temp_file = room_file + ".tmp";
 		std::ostringstream out;
 
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Room #" + std::to_string(vnum));
 		yaml.EmptyLine();
 		EmitRoomBody(yaml, out, room);
@@ -3756,7 +3791,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	CleanupOtherLayout(zone.vnum, "rooms", YamlLayout::PerFile);
 }
 
-void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out, CharData &mob)
+void YamlWorldDataSource::EmitMobBody(YamlScalarSafeEmitter &yaml, std::ostream &out, CharData &mob)
 {
 	// Names
 	yaml.Key("names");
@@ -4290,7 +4325,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	// Dead-load list (legacy L-lines, issue #3291). Top-level, after the
 	// enhanced block so the document layout matches the converter output.
 	// Emitted as raw "- key: value" sequence-of-maps because the
-	// Koi8rYamlEmitter has no Begin/EndMappingItem helpers (the same
+	// YamlScalarSafeEmitter has no Begin/EndMappingItem helpers (the same
 	// pattern is used by the skills block above).
 	if (!mob.dl_list.empty())
 	{
@@ -4338,7 +4373,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/mobs.yaml";
 		const std::string temp_file = flat_path + ".tmp";
 		std::ostringstream out;
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Mobs for zone " + std::to_string(zone.vnum));
 		for (const auto &[vnum, mob] : entries)
 		{
@@ -4382,7 +4417,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		std::string temp_file = mob_file + ".tmp";
 		std::ostringstream out;
 
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Mob #" + std::to_string(vnum));
 		yaml.EmptyLine();
 		EmitMobBody(yaml, out, *mob);
@@ -4404,7 +4439,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	RebuildPerZoneIndex(zone.vnum, "mobs");
 	CleanupOtherLayout(zone.vnum, "mobs", YamlLayout::PerFile);
 }
-void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &out, CObjectPrototype *obj)
+void YamlWorldDataSource::EmitObjectBody(YamlScalarSafeEmitter &yaml, std::ostream &out, CObjectPrototype *obj)
 {
 	// Names
 	yaml.Key("names");
@@ -4718,7 +4753,7 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 		for (const auto *exdesc : exdescs)
 		{
 			// keywords may start with '-' (legitimately a single dash);
-			// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+			// YamlScalarSafeEmitter::Value handles leading-indicator quoting.
 			out << yaml.GetIndent() << "- keywords:";
 			// IncreaseIndent so yaml.Value's literal-block branch emits content
 			// lines at the correct column for indicator "2" (parent_indent + 2).
@@ -4813,7 +4848,7 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/objects.yaml";
 		const std::string temp_file = flat_path + ".tmp";
 		std::ostringstream out;
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Objects for zone " + std::to_string(zone.vnum));
 		for (const auto &[vnum, obj] : entries)
 		{
@@ -4857,7 +4892,7 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		std::string temp_file = obj_file + ".tmp";
 		std::ostringstream out;
 
-		Koi8rYamlEmitter yaml(out);
+		YamlScalarSafeEmitter yaml(out);
 		yaml.Comment("Object #" + std::to_string(vnum));
 		yaml.EmptyLine();
 		EmitObjectBody(yaml, out, obj);

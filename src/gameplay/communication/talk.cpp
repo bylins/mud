@@ -95,11 +95,10 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	} else {
 		tell_text = fmt::format("Кто-то сказал вам : '{}'", arg);
 	}
-	// перенос длинного телла по словам на ширину экрана получателя
-	// (stringLength == 0 -- лимит не задан, не переносим; NPC -- player_specials нет)
+	// перенос длинного телла по словам на ширину экрана получателя (режим "перенос строк")
 	std::string tell_line = utils::CAP(tell_text);
-	if (!vict->IsNpc() && vict->player_specials->saved.stringLength > 0) {
-		tell_line = utils::OutWordsList(tell_line, vict->player_specials->saved.stringLength, " ");
+	if (const auto width = LineWrapWidth(vict); width > 0) {
+		tell_line = utils::WrapText(tell_line, width);
 	}
 	const std::string to_vict = fmt::format("{}{}{}\r\n", kColorBoldCyn, tell_line, kColorNrm);
 	SendMsgToChar(to_vict, vict);
@@ -123,8 +122,8 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 									   tell_can_see(vict, ch)
 											   ? vict->player_data.PNames[grammar::ECase::kDat] : "кому-то",
 									   arg);
-		if (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0) {
-			echo = utils::OutWordsList(echo, ch->player_specials->saved.stringLength, " ");
+		if (const auto width = LineWrapWidth(ch); width > 0) {
+			echo = utils::WrapText(echo, width);
 		}
 		const std::string to_char = fmt::format("{}{}{}\r\n", kColorBoldCyn, echo, kColorNrm);
 		SendMsgToChar(to_char, ch);

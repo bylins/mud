@@ -28,6 +28,10 @@ const int MANAREG_FACTOR = 50;
 const int BONUSPSYS_FACTOR = 3;
 const int BONUSMAG_FACTOR = 3;
 
+// Цена points очков, вложенных в один стат: первое 1000, каждое следующее на 200 дороже.
+// Открыта для теста: ровно на расхождении этой формулы с печатью и жил баг с "Вложено".
+int glory_in_stat(int points);
+
 int get_glory(long uid);
 void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);

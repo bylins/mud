@@ -7,6 +7,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
 
 #include <string_view>
 
@@ -30,6 +31,9 @@ void SpellsLoader::Load(DataNode data) {
 
 void SpellsLoader::Reload(DataNode data) {
 	MUD::Spells().Reload(data.Children());
+	// issue.perk-action-patching: a reload swaps the whole spell register, so the freshly built
+	// SpellInfo carries an empty talent_patches list -- relink the perks' patches onto it.
+	feats::BuildTalentPatchIndex();
 }
 
 // issue.vedun-editor: editor discovery + safe-commit validation.
@@ -300,6 +304,9 @@ bool SpellInfo::IsViolentAgainst(const CharData *caster, const CharData *target)
 	// helpful side. A PC's charmed pet has a PC root and falls into the cases below.
 	if (cr->IsNpc() && tr->IsNpc()) return false;
 	if (group::same_group(const_cast<CharData *>(cr), const_cast<CharData *>(tr))) return false;
+	// Содружинники -- свои: слово возврата, групповой рекол и прочие "смотря по отношениям"
+	// заклинания внутри дружины не нападение, даже когда ратники идут разными группами.
+	if (group::same_clan(const_cast<CharData *>(cr), const_cast<CharData *>(tr))) return false;
 	return true;
 }
 

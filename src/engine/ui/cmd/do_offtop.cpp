@@ -70,7 +70,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& i->character->IsFlagged(EPrf::kOfftopMode)
 			&& !i->character->IsFlagged(EPrf::kStopOfftop)
 			&& !ignores(i->character.get(), ch, EIgnore::kOfftop)) {
-			SendMsgToChar(message, i->character.get());
+			SendWrappedToChar(message, i->character.get());
 			i->character->remember_add(message, Remember::ALL);
 		}
 	}

@@ -22,6 +22,19 @@ extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
 
+// Заклинание, целью которого бывает только предмет: труп, оружие в руках, вещь на себе.
+// Таких в spells.xml пять, и ни одно из них персонажа целью не берет -- пересечения между
+// предметными и персонажными целями в конфиге нет. Для них ненайденная цель -- обычное дело,
+// а UID вместо имени не написать: UID-ветка do_dg_cast ищет только персонажа (get_char).
+//
+// Поиск предмета по миру (kTarObjWorld, "найти предмет") сюда намеренно не входит:
+// find_dg_cast_target его не делает (issue #4163), и промах там стоит отметить в логе.
+bool IsObjectSpell(ESpell spell_id) {
+	return MUD::Spell(spell_id).AllowTarget(kTarObjRoom)
+		|| MUD::Spell(spell_id).AllowTarget(kTarObjInv)
+		|| MUD::Spell(spell_id).AllowTarget(kTarObjEquip);
+}
+
 /*
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия FindCastTarget
@@ -62,12 +75,12 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 				return true;
 			}
 		}
-		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			*tch = target_resolver::FindCharInWorld(ch, t);
-			if ((*tch != nullptr)) {
-				return true;
-			}
-		}
+		// issue #4163: мир из триггерного каста исключен намеренно. Цель, переданную UID'ом,
+		// do_dg_cast в другой клетке брать отказывается ("в разных клетках комнат"), а цель по
+		// тексту уходила искать по всему миру -- то есть текст был разрешен шире, чем UID, хотя
+		// должно быть наоборот, и опечатка билдера в имени уводила заклинание в другую зону.
+		// Дотянуться до мира могли только "призвать", "портал" и "переместить"; ни одного такого
+		// каста в триггерах мира нет, так что запрет ничего не ломает.
 
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjInv)) {
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr) {
@@ -89,10 +102,9 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
-			if ((*tobj = target_resolver::FindObjAround(ch, t)) != nullptr)
-				return true;
-		}
+		// Та же причина, что и для персонажа выше: по миру предмет из триггера не ищем. Этот шаг
+		// разрешало одно "найти предмет", в триггерах мира оно не кастуется. Предмет остается
+		// искать в руках, на себе и в клетке -- шаги выше.
 	} else {
 		if (MUD::Spell(spell_id).AllowTarget(kTarFightSelf))
 			if (ch->GetEnemy() != nullptr) {
@@ -235,12 +247,31 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 		}
 	} else {
 		target = find_dg_cast_target(spell_id, target_name.c_str(), caster, &tch, &tobj, &troom);
+		// Замечание зовет перевести цель на UID, поэтому оно уместно только там, где UID
+		// вообще можно написать -- то есть у заклинаний, бьющих по персонажу в комнате.
+		// Спрашиваем об этом само заклинание, а не результат поиска: одного "!tobj" мало,
+		// tobj непустой только когда предмет нашелся. Если трупа в комнате уже нет,
+		// "dgcast 'поднять труп' труп" получал замечание "цель задана текстом" -- хотя
+		// UID-ветка do_dg_cast ищет только персонажа (get_char) и труп ей не назвать.
+		//
+		// Заодно отсюда уходят касты, которым цель не нужна вовсе: у kTarIgnore и kMagMasses
+		// (массовые "гнев богов", "ледяной шторм") написанное имя движок не читает, менять
+		// его на UID незачем.
+		if (!tobj && MUD::Spell(spell_id).AllowTarget(kTarCharRoom)
+			&& !target_name.empty() && target_name[0] != UID_CHAR && target_name[0] != UID_CHAR_ALL) {
+			script_log_text_target(trig, "dgcast", target_name);
+		}
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
-	} else if (!reason_logged && spell_id != ESpell::kResurrection && spell_id != ESpell::kAnimateDead) {
+	} else if (!reason_logged && !IsObjectSpell(spell_id)) {
 		// Цели не передали вовсе -- обычно %random.pc% в комнате, где живых игроков не осталось.
 		// Прежнее "target not found" читалось как "цель была, но движок её не нашёл".
+		//
+		// У заклинания по предмету ненайденная цель -- обычное дело (труп сгнил, оружие сняли),
+		// а не огрех триггера. Раньше здесь были поименно перечислены kResurrection и
+		// kAnimateDead; kAnimateSkeleton в список не попал и сорил в лог наравне с ними, а
+		// каждое новое предметное заклинание пришлось бы дописывать руками.
 		trig_log(trig, target_name.empty()
 					   ? fmt::format("dg_cast: цель не указана, аргумент: {}", argument)
 					   : fmt::format("dg_cast: target not found, аргумент: {}", argument));
@@ -281,8 +312,6 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		return;
 	}
 
-	std::replace(property.begin(), property.end(), '_', ' ');
-
 	value = atoi(value_p.c_str());
 	duration = atoi(duration_p.c_str());
 	battle = atoi(battle_p.c_str());
@@ -292,7 +321,13 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		return;
 	}
 	// find the property -- first search apply_types
-	if ((index = search_block(property.c_str(), apply_types, false)) != -1) {
+	// issue #4113: сверяем по словам. Имена в apply_types многословные ("максимальная жизнь"),
+	// а триггеры пишут их и через точку, и через пробел, и через подчёркивание.
+	// Посимвольный IsAbbr спотыкался на первом же несовпавшем разделителе, из-за чего, например,
+	// "бонус_ко_всем" не находил "бонус.ко.всем.умениям" и аффект молча не вешался. Приведение
+	// подчёркиваний к пробелам, что стояло здесь раньше, -- частный случай того же: FixDot внутри
+	// IsEqual делает это с обеих сторон сразу.
+	if ((index = search_block_by_words(property, apply_types)) != -1) {
 		type = APPLY_TYPE;
 	} else {
 		if (affects::FindByShortDesc(property, dg_affect_type))
@@ -315,7 +350,9 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if (duration > 0) {
 		// add the affect
 		Affect<EApply> af;
-		af.battleflag.set_plane(0, battle);
+		// issue #4005: число из триггера -- упакованный флаг ((плоскость << 30) | (1 << бит)),
+		// поэтому разбираем его from_string: плоскости 1-3 так тоже доходят, а не обрезаются.
+		af.battleflag.from_string(battle_p.c_str());
 		if (battle == kAfPulsedec) {
 			af.duration = duration;
 		} else {

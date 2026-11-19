@@ -22,6 +22,7 @@ int TabulateObjsByFilter(char *argument, CharData *ch);
 int TabulateRoomsByName(char *searchname, CharData *ch);
 int TabulateTrigsByObjLoad(char *searchname, CharData *ch);
 int TabulateMobsByDeadLoad(char *vnum, CharData *ch);
+int TabulateResetsByObjLoad(char *searchname, CharData *ch);
 
 // Поиск по фильтру (vnum f ...) совпадает с сокращением "f" слова "filter",
 // поэтому проверяется до "flag" -- иначе одиночное "f" ушло бы во флаги.
@@ -45,10 +46,13 @@ void DoTabulate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !utils::IsAbbr(what, "комната")
 			&& !utils::IsAbbr(what, "trig")
 			&& !utils::IsAbbr(what, "триггер")
-			&& !utils::IsAbbr(what, "load"))) {
-		SendMsgToChar("Usage: vnum { obj | mob | flag | f | room | trig | load} <name>\r\n"
+			&& !utils::IsAbbr(what, "load")
+			&& !utils::IsAbbr(what, "reset")
+			&& !utils::IsAbbr(what, "ресет"))) {
+		SendMsgToChar("Usage: vnum { obj | mob | flag | f | room | trig | load | reset } <name>\r\n"
 					  "  f <фильтр> -- поиск предметов по фильтру (как в хранилище клана),\r\n"
-					  "                например: vnum f Адлительность\r\n", ch);
+					  "                например: vnum f Адлительность\r\n"
+					  "  reset <внум предмета> -- где предмет грузится ресетами зон\r\n", ch);
 		return;
 	}
 
@@ -77,6 +81,10 @@ void DoTabulate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (utils::IsAbbr(what, "load") || utils::IsAbbr(what, "загрузка")) {
 		if (!TabulateMobsByDeadLoad(name, ch)) {
 			SendMsgToChar("Нет мобов, загружаюющих такой объект по списку dead load.\r\n", ch);
+		}
+	} else if (utils::IsAbbr(what, "reset") || utils::IsAbbr(what, "ресет")) {
+		if (!TabulateResetsByObjLoad(name, ch)) {
+			SendMsgToChar("Нет ресетов зон, загружающих такой предмет.\r\n", ch);
 		}
 	}
 }
@@ -314,6 +322,39 @@ int TabulateTrigsByObjLoad(char *searchname, CharData *ch) {
 		SendMsgToChar(fmt::format("{:<3}. [{:>5}] {}\r\n",
 								  ++found, trig_index[rnum]->vnum, trig_index[rnum]->proto->get_name()), ch);
 	}
+
+	return found;
+}
+
+// Где предмет грузится ресетами зон -- по индексу obj2resets, собранному при загрузке мира.
+// Раньше такое место искалось только текстовым просмотром всех зон.
+int TabulateResetsByObjLoad(char *searchname, CharData *ch) {
+	const int vnum = atoi(searchname);
+	if (vnum == 0) {
+		return 0;
+	}
+
+	const auto places = obj2resets.find(vnum);
+	if (places == obj2resets.end()) {
+		return 0;
+	}
+
+	int found = 0;
+	std::string out;
+	for (const auto &place : places->second) {
+		const char *where = "неизвестно куда";
+		switch (place.command) {
+			case 'O': where = "в комнату"; break;
+			case 'G': where = "мобу в руки"; break;
+			case 'E': where = "мобу в экипировку"; break;
+			case 'P': where = "в предмет"; break;
+			default: break;
+		}
+		out += fmt::format("{:<3}. зона {:<5} строка {:<5} {} [{}], макс {}, шанс {}%\r\n",
+						   ++found, place.zone, place.line, where, place.where_vnum,
+						   place.max, place.chance <= 0 ? 100 : place.chance);
+	}
+	page_string(ch->desc, out);
 
 	return found;
 }

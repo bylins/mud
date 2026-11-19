@@ -597,6 +597,10 @@ void FeatsLoader::Load(DataNode data) {
 
 void FeatsLoader::Reload(DataNode data) {
 	MUD::Feats().Reload(data.Children());
+	// issue.perk-action-patching: the index holds raw pointers into FeatInfo::talent_patches, and a
+	// reload swaps the whole feat register -- every pointer linked at boot now dangles. Rebuild it
+	// here, so the invariant holds for every caller (reload feats, reload all, the Vedun editor).
+	BuildTalentPatchIndex();
 }
 
 ItemPtr FeatInfoBuilder::Build(DataNode &node) {

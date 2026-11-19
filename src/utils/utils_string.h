@@ -108,6 +108,17 @@ std::string RemoveColors(std::string string);
 shared_string_ptr GetStringWithoutColors(const char *string);
 std::string GetStringWithoutColors(const std::string &string);
 
+// Длина ANSI-последовательности, начинающейся в begin (диапазон [begin, end)). Ноль, если
+// последовательности там нет. Нужна на разборе ввода: клиентские триггеры (jmc, тортилла)
+// отдают перехваченную строку вместе с цветом, и игрок отправляет её обратно в мад. Выбросить
+// один байт ESC мало -- остаток вида "[1;35m" печатный и виден всем в канале (issue #3791
+// сюда не относится, это про ввод).
+//
+// Разбирается CSI ("ESC [" + параметры 0x30..0x3F и промежуточные 0x20..0x2F + завершающий
+// байт 0x40..0x7E) -- именно ею записан цвет. Для одинокого ESC и для оборванной
+// последовательности вернёт 1: выбрасываем сам ESC, как и раньше.
+std::size_t AnsiEscapeLength(const char *begin, const char *end);
+
 // Строковый аналог isname (никакого isstring в коде нет и не было -- опечатка).
 // Слова abbr ищутся среди слов words по порядку, лишние слова words пропускаются; каждое
 // слово сравнивается по префиксу и без учёта регистра. Так игрок и набирает цель: "кни.огн"
@@ -352,12 +363,19 @@ std::string OutWordsList(const std::string &words_str, size_t max_length,
 		const std::string &separator = ", ", const std::string &prefix = "");
 // переносит многострочный текст по словам на ширину max_length, сохраняя
 // авторские переносы строк и пустые строки (абзацы): каждая исходная строка
-// переносится независимо через OutWordsList(line, max_length, " ").
+// длиннее max_length переносится независимо через OutWordsList(line, max_length, " "),
+// а влезающая остаётся нетронутой -- с её пробелами.
 // max_length == 0 -- перенос не выполняется (текст возвращается как есть с \r\n)
 std::string WrapText(const std::string &text, size_t max_length);
 
+// Видимая ширина строки в символах: пропускает и наши цветокоды (&R, &n), и готовые
+// ANSI-последовательности (\x1B[1;33m). Вторые попадают в текст из констант kColor*, и
+// счёт без них переносил строку раньше времени -- ровно на длину escape-последовательности.
+std::size_t VisibleWidth(std::string_view text);
+
 /// Вернуть строку пола персонажа по числовому значению (to_underlying(ch->get_sex())).
 std::string sprintGender(int gender_value);
+
 
 } // namespace utils
 
@@ -452,6 +470,12 @@ inline bool isname(const char *str, const std::string &namelist) { return isname
 inline bool isname(const std::string &str, const std::string &namelist) {
 	return isname(str.c_str(), namelist.c_str());
 }
+
+/// Дешёвый предфильтр под isname: false означает, что isname заведомо не совпадёт.
+/// true ничего не обещает -- решение всё равно за isname. Смысл в цене: isname
+/// разбирает обе строки посимвольно через native_text, а здесь ищется подстрока
+/// в один-два байта. Нужен там, где isname зовут на весь список предметов мира.
+bool MayMatchName(const char *str, const std::string &namelist);
 
 /// Извлечение первого слова из C-строки с приведением к нижнему регистру.
 /// Поддерживает кавычки для слов с пробелами.

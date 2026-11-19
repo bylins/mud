@@ -231,9 +231,6 @@ void SetFighting(CharData *ch, CharData *vict) {
 	ch->SetEnemy(vict);
 
 	ch->battle_affects.clear();
-	if (AFF_FLAGGED(ch, EAffect::kInvisible)) {
-		ch->battle_affects.set(kEafInvisible);
-	}
 	ch->set_touching(nullptr);
 	ch->initiative = 0;
 	ch->battle_counter = 0;
@@ -296,10 +293,20 @@ void stop_fighting(CharData *ch, int switch_others) {
 	ch->SetExtraAttack(kExtraAttackUnused, nullptr);
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	restore_battle_pos(ch);
-	if (ch->battle_affects.get(kEafInvisible)) {
-		AFF_FLAGS(ch).set(EAffect::kInvisible);
-	}
+	// issue #4091: флаги незаметности в бою подавляет affect_total по GET_ENEMY, и вернуть их
+	// надо тем же пересчётом, а не защёлкой. Защёлка kEafInvisible запоминала только "на входе
+	// в бой инвиз был" и ставила флаг обратно безусловно: после боя возвращался инвиз от
+	// заклинания, которое Appear уже снёс на первом уроне, а надетый или наложенный посреди
+	// боя наоборот не возвращался вовсе. Пересчёт поднимает флаги из живых источников -- вещь
+	// и живой аффект вернёт, снятое заклинанием не вернёт. GET_ENEMY здесь уже пуст, так что
+	// подавлять нечего. Мобам пересчёт не нужен: им незаметность заново поднимает их же пульс
+	// в mobile_activity по ENpcFlag::kInvis. Чармиса пересчитываем вместе с игроком: тот же
+	// пульс поднимает мобу только прототипный флаг, а наложенную или надетую на чармиса
+	// незаметность вернуть ему больше нечем.
 	ch->battle_affects.clear();
+	if (!ch->IsNpc() || IsCharmice(ch)) {
+		affect_total(ch);
+	}
 	DpsSystem::check_round(ch);
 	if (switch_others != 2) {
 		for (auto &temp : combat_list) {
@@ -805,8 +812,11 @@ bool HasHostileRoomWard(CharData *ch) {
 // buffs; stripping them would help the target, so an offensive dispel ignores them.
 bool HasDispellableBuff(const CharData *vict) {
 	for (const auto &aff : vict->affected) {
+		// issue #3971: пакет призванного существа (kAfCharmBond) снять нельзя, и целиться в него
+		// мобу незачем -- каст уйдёт впустую.
 		if (aff && affects::AffectBuffKind(aff->affect_type) == affects::EBuff::kYes
-				&& IS_SET(aff->battleflag, kAfDispellable)) {
+				&& IS_SET(aff->battleflag, kAfDispellable)
+				&& !IS_SET(aff->battleflag, kAfCharmBond)) {
 			return true;
 		}
 	}
@@ -1089,6 +1099,12 @@ void mob_casting(CharData *ch) {
 	ESpell battle_spells[kMaxStringLength];
 	int spells = 0, sp_num;
 	ObjData *item;
+
+	// Сюда могли войти с покойником (боевые триггеры вызывающего), а функция читает статы
+	// кастующего -- GetRealInt ниже. Проверяем до первого обращения.
+	if (ch->in_room == kNowhere) {
+		return;
+	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHold)
@@ -1832,10 +1848,24 @@ void process_npc_attack(CharData *ch) {
 	// Срабатывание батл-триггеров амуниции
 	Bitvector trigger_code = fight_otrigger(ch);
 
+	// Боевые триггеры (mtrigger выше и otrigger только что) могли моба убить: в логе боевого
+	// это SYSERR "Using purged character (get_int)" со стеком
+	// mob_casting <- process_npc_attack <- perform_violence. Отсечка стояла только ПОСЛЕ
+	// mob_casting (ниже, с пометкой про зеркало), поэтому покойник успевал дойти до каста, и
+	// там читались его статы. Признак тот же, что везде: вне мира -- значит дальше не идем.
+	if (ch->in_room == kNowhere) {
+		return;
+	}
+
 	// переключение
+	// Безумный моб держится за ту же жертву, как отравленный татью (#4057): помутившийся разум
+	// нового врага не выбирает. Готовый признак kNoBattleSwitch здесь не взять -- он из отравного
+	// набора (kAfPoison в affects.xml), и безумие снималось бы противоядием, а цель светилась бы
+	// "(отравлен)" тому, кто видит отраву.
 	if (MAY_LIKES(ch)
 		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& !AFF_FLAGGED(ch, EAffect::kNoBattleSwitch)
+		&& !AFF_FLAGGED(ch, EAffect::kMadness)
 		&& GetRealInt(ch) > number(15, 25)) {
 		mob_ai::perform_mob_switch(ch);
 	}
@@ -1943,7 +1973,8 @@ void process_player_attack(CharData *ch, int min_init) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(queued_spell, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {
-			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, queued_spell, ch->GetCastSubst());
+			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, queued_spell, ch->GetCastSubst(), -1,
+					  ch->GetCastExtra());
 			if (!(privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
 				SetBattleLag(ch, 1);
 			}

@@ -60,7 +60,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			echo = fmt::format("&RВы воззвали к Богам с сообщением : '{}'&n\r\n", argument);
 			SetWait(ch, 3, false);
 		}
-		SendMsgToChar(echo, ch);
+		SendWrappedToChar(echo, ch);
 		ch->remember_add(echo, Remember::PRAY_PERSONAL);
 	}
 
@@ -69,7 +69,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const std::string to_victim =
 			fmt::format("&R{} ответил{} вам : '{}'&n\r\n",
 						GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), argument);
-		SendMsgToChar(to_victim, victim);
+		SendWrappedToChar(to_victim, victim);
 		victim->remember_add(to_victim, Remember::PRAY_PERSONAL);
 
 		ch->remember_add(fmt::format("&R{} ответил{} {} : '{}&n\r\n",
@@ -106,11 +106,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				const time_t now = time(nullptr);
 				strftime(ts, sizeof(ts), "[%d-%m-%Y %H:%M] ", localtime(&now));
 				std::string line = std::string(ts) + to_gods;
-				if (!god->IsNpc() && god->player_specials->saved.stringLength > 0) {
-					// WrapText съедает хвостовой \r\n -- возвращаем его обратно
-					line = utils::WrapText(line, god->player_specials->saved.stringLength) + "\r\n";
-				}
-				SendMsgToChar(line.c_str(), god);
+				SendWrappedToChar(line, god);
 				god->remember_add(to_gods, Remember::ALL);
 			}
 		}

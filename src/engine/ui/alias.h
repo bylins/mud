@@ -23,6 +23,7 @@ inline constexpr char kAliasVarChar{'='};
 inline constexpr char kAliasGlobChar{'*'};
 
 class CharData;
+struct DescriptorData;
 void WriteAliases(CharData *ch);
 void ReadAliases(CharData *ch);
 void FreeAlias(struct alias_data *a);

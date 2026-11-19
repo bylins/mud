@@ -393,38 +393,59 @@ void assign_triggers(void *i, int type) {
 }
 
 void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
+	const char *feat_name = MUD::Feat(feat_id).GetCName();
 	if (ch->HaveFeat(feat_id)) {
-		if (featdiff)
+		if (featdiff) {
+			// Раньше выходили молча: ни игроку, ни в лог. Со стороны это выглядело как
+			// неработающая команда, и разбираться приходилось чтением кода.
+			SendMsgToChar(fmt::format("Вы уже владеете способностью '{}'.\r\n", feat_name), ch);
+			log("featturn: %s уже владеет способностью '%s', триггер #%d",
+				GET_NAME(ch), feat_name, vnum);
 			return;
-		else {
-			SendMsgToChar(fmt::format("Вы утратили способность '{}'.\r\n", MUD::Feat(feat_id).GetCName()), ch);
-			log("Remove %s to %s (trigfeatturn) trigvnum %d", MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
+		} else {
+			SendMsgToChar(fmt::format("Вы утратили способность '{}'.\r\n", feat_name), ch);
+			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_name, GET_NAME(ch), vnum);
 			ch->UnsetFeat(feat_id);
 		}
 	} else {
 		if (featdiff) {
 			if (MUD::Class(ch->GetClass()).feats.IsAvailable(feat_id)) {
-				SendMsgToChar(fmt::format("Вы обрели способность '{}'.\r\n", MUD::Feat(feat_id).GetCName()), ch);
-				log("Add %s to %s (trigfeatturn) trigvnum %d",
-					MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
+				SendMsgToChar(fmt::format("Вы обрели способность '{}'.\r\n", feat_name), ch);
+				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_name, GET_NAME(ch), vnum);
 				ch->SetFeat(feat_id);
+			} else {
+				// Второй тихий случай: способность не положена классу. Для билдера он
+				// выглядел точно так же -- команда есть, эффекта нет.
+				SendMsgToChar(fmt::format("Способность '{}' недоступна вашему классу.\r\n", feat_name), ch);
+				log("featturn: способность '%s' недоступна классу %s (%s), триггер #%d",
+					feat_name, MUD::Class(ch->GetClass()).GetCName(), GET_NAME(ch), vnum);
 			}
 		};
 	}
 }
 
 void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum) {
+	const char *skill_name = MUD::Skill(skill_id).GetName();
 	if (GetSkillBonus(ch, skill_id)) {
 		if (skilldiff) {
+			// Те же тихие выходы, что и у способностей, -- с тем же итогом для билдера.
+			SendMsgToChar(ch, "Вы уже владеете умением '%s'.\r\n", skill_name);
+			log("skillturn: %s уже владеет умением '%s', триггер #%d", GET_NAME(ch), skill_name, vnum);
 			return;
 		}
 		SetSkill(ch, skill_id, 0);
-		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skill(skill_id).GetName());
-		log("Remove %s from %s (trigskillturn)", MUD::Skill(skill_id).GetName(), GET_NAME(ch));
-	} else if (skilldiff && MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
-		SetSkill(ch, skill_id, 5);
-		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skill(skill_id).GetName());
-		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skill(skill_id).GetName(), GET_NAME(ch), vnum);
+		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", skill_name);
+		log("Remove %s from %s (trigskillturn)", skill_name, GET_NAME(ch));
+	} else if (skilldiff) {
+		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
+			SetSkill(ch, skill_id, 5);
+			SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", skill_name);
+			log("Add %s to %s (trigskillturn) trigvnum %d", skill_name, GET_NAME(ch), vnum);
+		} else {
+			SendMsgToChar(ch, "Умение '%s' недоступно вашему классу.\r\n", skill_name);
+			log("skillturn: умение '%s' недоступно классу %s (%s), триггер #%d",
+				skill_name, MUD::Class(ch->GetClass()).GetCName(), GET_NAME(ch), vnum);
+		}
 	}
 }
 
@@ -456,13 +477,20 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	int spell = GET_SPELL_TYPE(ch, spell_id);
 
 	if (!CanGetSpell(ch, spell_id)) {
-		log("Error trying to add %s to %s (trigspell) trigvnum %d",
+		// Молчало для игрока, а в логе стояло невнятное "Error trying to add".
+		SendMsgToChar(ch, "Заклинание '%s' вам сейчас недоступно.\r\n", MUD::Spell(spell_id).GetCName());
+		log("spellturn: заклинание '%s' недоступно %s (класс, уровень или реморт), триггер #%d",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 		return;
 	}
 
 	if (spell & ESpellType::kKnow) {
-		if (spelldiff) return;
+		if (spelldiff) {
+			SendMsgToChar(ch, "Вы уже знаете заклинание '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+			log("spellturn: %s уже знает заклинание '%s', триггер #%d",
+				GET_NAME(ch), MUD::Spell(spell_id).GetCName(), vnum);
+			return;
+		}
 
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
 		if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp))
@@ -478,7 +506,8 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	if (!CanGetSpell(ch, spell_id)) {
-		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d",
+		SendMsgToChar(ch, "Заклинание '%s' вам сейчас недоступно.\r\n", MUD::Spell(spell_id).GetCName());
+		log("spellturntemp: заклинание '%s' недоступно %s (класс, уровень или реморт), триггер #%d",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 		return;
 	}
@@ -509,6 +538,13 @@ void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	} else if (spell < GET_SPELL_MEM(ch, spell_id)) {
 		SendMsgToChar(ch, "Вы выучили несколько заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+	} else {
+		// Ноль в аргументе или упёрлись в предел (0 снизу, 50 сверху). У умений про это
+		// говорят ("не изменилось"), у заклинаний молчали.
+		SendMsgToChar(ch, "Число заученных заклинаний '%s' не изменилось.\r\n",
+					  MUD::Spell(spell_id).GetCName());
+		log("spelladd: число заклинаний '%s' у %s не изменилось (осталось %d), триггер #%d",
+			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), GET_SPELL_MEM(ch, spell_id), vnum);
 	}
 }
 
@@ -516,8 +552,13 @@ void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spel
 	char type[kMaxStringLength];
 
 	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type)) ||
-		(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type)))
+		(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type))) {
+		// Состояние уже такое, какое просят. Раньше выходили молча -- со стороны это
+		// неотличимо от неработающей команды.
+		log("spellitem: умение с заклинанием '%s' у %s уже %s",
+			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), spelldiff ? "есть" : "снято");
 		return;
+	}
 	if (!spelldiff) {
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), spell_type);
 		switch (spell_type) {

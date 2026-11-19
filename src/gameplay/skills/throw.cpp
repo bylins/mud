@@ -106,6 +106,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 // TODO: Перенести подобную логику в модуль абилок, разделить уровни
 void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage) {
 	damage.dam = fight::kZeroDmg;
+	bool shadow_side_abilities = false;
 	if (technique.IsSuccess()) {
 		damage.dam = technique.CalcDamage();
 		if (technique.IsCriticalSuccess()) {
@@ -121,7 +122,7 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 			}
 		}
 		if (technique.GetAbilityId() == abilities::EAbility::kShadowThrower) {
-			PerformShadowThrowSideAbilities(technique);
+			shadow_side_abilities = true;
 		};
 	} else {
 		if (technique.IsCriticalFail()) {
@@ -132,7 +133,14 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 			};
 		};
 	};
-	damage.Process(technique.GetActor(), technique.GetRival());
+	// Побочная способность теневого броска -- следствие попадания, поэтому и применяется,
+	// и объявляется ПОСЛЕ самого урона. Раньше игрок читал "Попадание копья повалило
+	// наземь" до строки о попадании. Отрицательный возврат Process означает, что жертва
+	// убита (damage.cpp:973), -- на труп эффект не вешаем.
+	const int dmg_result = damage.Process(technique.GetActor(), technique.GetRival());
+	if (shadow_side_abilities && dmg_result >= 0) {
+		PerformShadowThrowSideAbilities(technique);
+	}
 };
 
 void GoThrow(CharData *ch, CharData *victim) {

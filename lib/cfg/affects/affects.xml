@@ -164,6 +164,7 @@
 	</affect>
 	<affect id="kAbstinent" buff="N">
 		<flags val="kAfCurable" />
+		<!-- issue.drunked-migration: hangover applies (were hardcoded in condition::SetAbstinent). -->
 		<apply location="kAc">
 			<modifier min="20" beta="0" factor="1" />
 		</apply>
@@ -345,10 +346,25 @@
 	<affect id="kForcesOfEvil" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod" />
 		<apply location="kDamroll">
-			<modifier min="19" beta="0" factor="1" />
+			<modifier min="10" beta="3.0" factor="1" cap="190" />
 		</apply>
 		<apply location="kHitroll">
-			<modifier min="11" beta="0" factor="1" />
+			<modifier min="6" beta="0.3" factor="1" cap="40" />
+		</apply>
+		<apply location="kAc">
+			<modifier min="10" beta="0.4" factor="-1" cap="60" />
+		</apply>
+		<apply location="kArmour">
+			<modifier min="10" beta="0.3" factor="1" cap="50" />
+		</apply>
+		<apply location="kSavingWill">
+			<modifier min="10" beta="0.8" factor="-1" cap="80" />
+		</apply>
+		<apply location="kSavingReflex">
+			<modifier min="10" beta="0.8" factor="-1" cap="80" />
+		</apply>
+		<apply location="kSavingStability">
+			<modifier min="10" beta="0.8" factor="-1" cap="80" />
 		</apply>
 	</affect>
 	<affect id="kAirAura" buff="Y" dispel_mod="-35">
@@ -446,13 +462,13 @@
 		<flags val="kAfSameTime|kAfCurable|kAfPoison" />
 	</affect>
 	<affect id="kSkillReduce" buff="N">
-		<flags val="kAfSameTime|kAfCurable|kAfPoison" />
+		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison" />
 	</affect>
 	<affect id="kNoBattleSwitch" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison" />
 	</affect>
 	<affect id="kBelenaPoison" buff="N">
-		<flags val="kAfSameTime|kAfCurable|kAfPoison" />
+		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison" />
 	</affect>
 	<affect id="kAconitumPoison" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison" />
@@ -494,6 +510,33 @@
 	</affect>
 	<affect id="kLacerations">
 		<flags val="kAfBattledec|kAfCurable" />
+	</affect>
+	<!-- issue #4000: врождённая метка костяных скелетов чернокнижника. Сама ничего не даёт: её
+	     действие стреляет на удар носителя и зовёт обработчик, который по виду скелета кладёт на
+	     жертву нужный дебафф (разъеденный доспех, разъеденный оберег или порезы). Снятию не
+	     подлежит - это часть вида, а не наложенные чары. -->
+	<affect id="kBoneServant">
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kPostHit" />
+				<manual_cast handler="SkeletonHit" />
+			</action>
+		</actions>
+	</affect>
+	<!-- issue #4000: дебаффы костяной свиты. Копятся стаками по удару, потолок стаков считается в
+	     момент наложения по числу живых скелетов хозяина (один скелет - 12%, два - 10%, три - 8%).
+	     Срок в боевых раундах: вне боя дебафф сходит сам. -->
+	<affect id="kCorrodedArmor">
+		<flags val="kAfBattledec|kAfCurable" />
+	</affect>
+	<affect id="kCorrodedWard">
+		<flags val="kAfBattledec|kAfCurable" />
+	</affect>
+	<!-- issue #4032: костяная подать. Пока у чернокнижника жива костяная свита, его нежить от
+	     "поднять труп" теряет столько процентов урона, сколько сумма долей живых скелетов. Срок не
+	     тикает (kAfDeadkeep): штраф снимается и пересчитывается кодом, когда свита меняется. -->
+	<affect id="kBoneLevy">
+		<flags val="kAfDeadkeep" />
 	</affect>
 	<affect id="kCommander" />
 	<affect id="kEarthAura" buff="Y" dispel_mod="-35">
@@ -861,8 +904,18 @@
 		<actions>
 			<action target="kTarFightSelf">
 				<trigger val="kPulse" />
+				<!-- issue.damage-over-time: per-tick damage = amount.min + ceil(stored_potency * dices_weight).
+				     dices_weight is the DAMAGE scale; it is independent of the dispel strength (the stored
+				     potency itself, set by kFireBlast's <affects potency_weight>). Raise dices_weight for a
+				     harder-hitting burn without making it any harder to dispel.
+				     beta взята так, чтобы все горение целиком снимало около трети разового урона самого
+				     заклинания: урон масштабируется beta=63 на единицу компетентности, а горение видит
+				     половину компетентности (potency_weight 0.5), поэтому beta=6 за 7 тиков дает ~35%.
+				     Прежняя beta=0.6 давала долю хита за тик, которая при любой достижимой
+				     компетентности усекалась в ноль: горение тикало, не снимая ни одного хита.
+				     min=1 оставляет слабому кастующему хотя бы хит за тик вместо нуля. -->
 				<damage saving="kNone">
-					<amount min="0" beta="0.6" weight="0" />
+					<amount min="1" beta="6" weight="0" />
 				</damage>
 			</action>
 		</actions>

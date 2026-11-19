@@ -2,6 +2,8 @@
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/abilities/talents_actions.h"   // issue.character-affect-triggers: kExpired trigger
 #include <set>   // issue.character-affect-triggers: per-round dedup of multi-instance affects
+#include <map>   // issue #3971: сильнейший экземпляр аффекта на параметр
+#include <cstdlib>   // std::abs
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -34,8 +36,8 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/abilities/abilities_constants.h"   // issue.duration-scale: kNoviceSkillThreshold
 #include "gameplay/fight/fight.h"
-#include "utils/backtrace.h"
 
+#include <algorithm>
 #include <chrono>
 #include "gameplay/core/remort.h"
 
@@ -62,10 +64,40 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	observability::EmitToAllSinks(ev);
 }
 
+// Аффект выполняет свои <actions> двумя путями: тиком (RunCharAffectTick) и событием истечения
+// (RunCharAffectTrigger/kExpired). Внутри них носителя можно убить -- и он при этом ОСТАЁТСЯ в
+// игре: смерть игрока (raw_kill -> reset_affects_no_recalc), камень возрождения и смерть тестера
+// чистят ch->affected целиком, не пуржа самого персонажа. Проверки ch->purged() такой случай не
+// ловят, а и итератор обхода, и элемент списка к этому моменту уже освобождены -- обращение к
+// ним роняет сервер (SIGSEGV в shared_ptr::get из battle_affect_update).
+// Поэтому после каждого такого вызова итератор ищется заново по живой копии аффекта: нашёлся --
+// идём дальше, не нашёлся -- список перебрали за нас, обход прерываем.
+[[nodiscard]] CharData::char_affects_list_t::iterator FindAffectInList(CharData *ch,
+		const Affect<EApply>::shared_ptr &af) {
+	return std::find(ch->affected.begin(), ch->affected.end(), af);
+}
+
 // issue.affect-migration: an affect announces its natural expiry if it has an IDENTITY -- its
 // affect_type. (Affect::type is gone; affect_type is the sole identity.)
 [[nodiscard]] bool AffectHasIdentity(const Affect<EApply>::shared_ptr &af) {
 	return af->affect_type != EAffect::kUndefined;
+}
+
+// issue #3973: об окончании аффекта сообщаем, только когда не осталось ни одного живого
+// экземпляра того же аффекта. Экземпляры лежат в списке вперемешку -- постоянные приходят
+// от экипировки, временный от заклинания, -- поэтому прежний взгляд на одного соседа врал:
+// игрок читал «Вы приземлились на землю», продолжая лететь под десятком оставшихся «летит».
+// Живым считается всё, что не истекает прямо сейчас: и постоянный аффект (-1), и временный.
+[[nodiscard]] bool NoLiveTwinLeft(const CharData *ch, const Affect<EApply>::shared_ptr &expiring) {
+	for (const auto &other : ch->affected) {
+		if (other == expiring) {
+			continue;
+		}
+		if (other->affect_type == expiring->affect_type && other->duration != 0) {
+			return false;
+		}
+	}
+	return true;
 }
 }  // namespace
 
@@ -192,6 +224,21 @@ std::array<EAffect, 3> char_stealth_aff =
 		EAffect::kDisguise
 	};
 
+AffectFlags PerInstanceAffectFlags(const AffectFlags &caller_flags) {
+	static const AffectFlags kPerInstance{kAfFailed, kAfCharmBond, kAfFromEquipment, kAfFromSet};
+	AffectFlags kept = caller_flags;
+	kept.mask(kPerInstance);
+	return kept;
+}
+
+bool IsStandaloneAffectInstance(const Affect<EApply>::shared_ptr &affect) {
+	if (!affect) {
+		return false;
+	}
+	static const AffectFlags kStandalone{kAfCharmBond, kAfFromEquipment, kAfFromSet};
+	return affect->duration < 0 || affect->battleflag.intersects(kStandalone);
+}
+
 template<>
 bool Affect<EApply>::removable() const {
 	// issue.affect-migration: curability is the kAfCurable battleflag (single source of truth),
@@ -200,7 +247,7 @@ bool Affect<EApply>::removable() const {
 }
 // 
 // для мобов раз в 10 пульсов
-void UpdateAffectOnPulse(CharData *ch, int count) {
+void UpdateAffectOnPulse(CharData *ch, int pulse_number, int count) {
 	bool pulse_aff = false;
 
 	if (ch->GetEnemy()) {
@@ -211,6 +258,13 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		return;
 	}
 
+	// Аффект с kAfBattledec меряет длительность раундами боя, а не пульсами. В бою его тикает
+	// battle_affect_update -- по единице за раунд; вне боя он попадает сюда, и единицу надо
+	// снимать тем же темпом, иначе шкала меняется на ходу (раунд -- 50 пульсов, проход -- 10,
+	// и весь остаток сгорал за первый же вызов). Условие верно при любом смещении шага, лишь
+	// бы вызовы шли через count пульсов.
+	const bool round_tick = (pulse_number % kBattleRound) < count;
+
 	auto affect_i = ch->affected.begin();
 	while (affect_i != ch->affected.end()) {
 		const auto &affect = *affect_i;
@@ -219,6 +273,8 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 			++affect_i;
 			continue;
 		}
+		// Шкала длительности: раунды, если стоит kAfBattledec, иначе пульсы.
+		const bool battle_scale = IS_SET(affect->battleflag, kAfBattledec);
 		pulse_aff = true;
 
 		if (affect->duration == 0) { //-1 вечный таймер по задумке
@@ -227,8 +283,8 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
 			affect_i = RemoveAffect(ch, affect_i);
 		} else {
-			if (affect->duration > 0) {
-				affect->duration -= count;
+			if (affect->duration > 0 && (!battle_scale || round_tick)) {
+				affect->duration -= battle_scale ? 1 : count;
 				affect->duration = std::max(0, affect->duration);
 			}
 			++affect_i;
@@ -350,12 +406,15 @@ void player_affect_update() {
 		std::set<EAffect> ticked_types;
 		// issue.drunked-migration (Gap B): kExpired likewise fires at most once per affect TYPE per pass.
 		std::set<EAffect> expired_types;
+		std::set<EAffect> announced_types;
 		auto affect_i = i->affected.begin();
 
 		while (affect_i != i->affected.end()) {
 			utils::CExecutionTimer affect_timer;
 			++profile.counters[static_cast<std::size_t>(Counter::kAffectEntries)];
-			const auto &affect = *affect_i;
+			// Копия, а не ссылка на элемент списка: тик и kExpired могут вычистить i->affected
+			// целиком, оставив носителя в игре (см. FindAffectInList).
+			const auto affect = *affect_i;
 
 			// нечего тикать аффектам вне раунда боя
 			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
@@ -366,12 +425,10 @@ void player_affect_update() {
 			}
 			if (affect->duration == 0) {
 				if (AffectHasIdentity(affect)) {
-					auto next_affect_i = affect_i;
-
-					++next_affect_i;
-					if (next_affect_i == i->affected.end()	//костыль на спадение 1 закла накладывающего несколько аффектов
-							|| !SameAffectIdentity(affect, *next_affect_i)
-							|| (*next_affect_i)->duration > 0) {
+					// Одно заклинание вешает несколько аффектов одного типа -- сообщаем один раз
+					// за проход и только когда у персонажа не осталось живого такого же (issue #3973).
+					if (NoLiveTwinLeft(i.get(), affect)
+							&& announced_types.insert(affect->affect_type).second) {
 						//чтобы не выдавалось, "что теперь вы можете сражаться",
 						//хотя на самом деле не можете :)
 						// issue.affect-migration: suppress the "you can fight again" line while the OTHER stun
@@ -391,6 +448,15 @@ void player_affect_update() {
 				// now data: its <trigger val="kExpired"> action imposes kAbstinent (was hardcoded set_abstinent).
 				if (expired_types.insert(affect->affect_type).second) {
 					RunCharAffectTrigger(i.get(), affect->affect_type, talents_actions::EActionTrigger::kExpired);
+					if (i->purged()) {
+						was_purged = true;
+						++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+						break;
+					}
+					affect_i = FindAffectInList(i.get(), affect);
+					if (affect_i == i->affected.end()) {
+						break;
+					}
 				}
 				affect_i = RemoveAffect(i.get(), affect_i);
 				need_recalc = true;
@@ -409,6 +475,10 @@ void player_affect_update() {
 						if (i->purged()) {
 							was_purged = true;
 							++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+							break;
+						}
+						affect_i = FindAffectInList(i.get(), affect);
+						if (affect_i == i->affected.end()) {
 							break;
 						}
 					}
@@ -480,6 +550,7 @@ void battle_affect_update(CharData *ch) {
 	// round, even if it has several stacked applies (e.g. poison's kPoison + kStr) -- mirrors how the
 	// hardcoded ProcessPoisonDmg damages once (its location gate).
 	std::set<EAffect> ticked_types;
+	std::set<EAffect> announced_types;
 	if (ch->purged()) {
 		char tmpbuf[256];
 		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", GET_NAME(ch), GET_MOB_VNUM(ch));
@@ -491,7 +562,9 @@ void battle_affect_update(CharData *ch) {
 	}
 	auto affect_i = ch->affected.begin();
 	while (affect_i != ch->affected.end()) {
-		const auto &affect = *affect_i;
+		// Копия, а не ссылка на элемент списка: и тик аффекта, и его kExpired выполняют <actions>,
+		// а те могут вычистить ch->affected целиком, оставив носителя в игре (см. FindAffectInList).
+		const auto affect = *affect_i;
 
 		if (!IS_SET((*affect_i)->battleflag, kAfBattledec) && !IS_SET((*affect_i)->battleflag, kAfSameTime)) {
 			++affect_i;
@@ -506,18 +579,20 @@ void battle_affect_update(CharData *ch) {
 			continue;
 		}
 		if (affect->duration == 0) {
-			if (AffectHasIdentity(affect)) {
-				auto next_affect_i = affect_i;
-
-				++next_affect_i;
-				if (next_affect_i == ch->affected.end()
-						|| !SameAffectIdentity(affect, *next_affect_i)
-						|| (*next_affect_i)->duration > 0) {
-					ShowAffExpiredMsg(affect->affect_type, ch);
-				}
+			if (AffectHasIdentity(affect)
+					&& NoLiveTwinLeft(ch, affect)
+					&& announced_types.insert(affect->affect_type).second) {
+				ShowAffExpiredMsg(affect->affect_type, ch);
 			}
 			// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout in combat.
 			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
+			if (ch->purged()) {
+				return;
+			}
+			affect_i = FindAffectInList(ch, affect);
+			if (affect_i == ch->affected.end()) {
+				break;
+			}
 			affect_i = RemoveAffect(ch, affect_i);
 			need_recalc = true;
 		} else {
@@ -535,6 +610,10 @@ void battle_affect_update(CharData *ch) {
 						// issue #3544: the bearer can be killed/purged by its own affect tick this round --
 						// that is normal, so just stop (the implementor-log message here was pure spam).
 						return;
+					}
+					affect_i = FindAffectInList(ch, affect);
+					if (affect_i == ch->affected.end()) {
+						break;
 					}
 				}
 				if (ch->IsNpc())
@@ -573,6 +652,7 @@ void mobile_affect_update() {
 		bool need_recalc = false;
 		// issue.damage-over-time: out-of-combat data-driven DoT ticks once per affect type per pass.
 		std::set<EAffect> ticked_types;
+		std::set<EAffect> announced_types;
 		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
 //		if (!ch->in_used_zone()) {
 //			return;
@@ -594,23 +674,31 @@ void mobile_affect_update() {
 		while (affect_i != ch->affected.end()) {
 			utils::CExecutionTimer affect_timer;
 			++profile.counters[static_cast<std::size_t>(Counter::kAffectEntries)];
-			const auto &affect = *affect_i;
+			// Копия, а не ссылка на элемент списка: тик и kExpired могут вычистить ch->affected
+			// целиком, оставив носителя в игре (см. FindAffectInList).
+			const auto affect = *affect_i;
 
 			if (affect->duration == 0) {
 				if (AffectHasIdentity(affect)) {
 					if (IS_SET(affect->battleflag, kAfCharmBond)) {
 						was_charmed = true;
 					}
-					auto next_affect_i = affect_i;
-					++next_affect_i;
-					if (next_affect_i == ch->affected.end()
-							|| !SameAffectIdentity(affect, *next_affect_i)
-							|| (*next_affect_i)->duration > 0) {
+					if (NoLiveTwinLeft(ch, affect)
+							&& announced_types.insert(affect->affect_type).second) {
 						ShowAffExpiredMsg(affect->affect_type, ch);
 					}
 				}
 				// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout (mob).
 				RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
+				if (ch->purged()) {
+					was_purged = true;
+					++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
+					break;
+				}
+				affect_i = FindAffectInList(ch, affect);
+				if (affect_i == ch->affected.end()) {
+					break;
+				}
 				affect_i = RemoveAffect(ch, affect_i);
 				need_recalc = true;
 			} else {
@@ -627,6 +715,10 @@ void mobile_affect_update() {
 							if (ch->purged()) {
 								was_purged = true;
 								++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
+								break;
+							}
+							affect_i = FindAffectInList(ch, affect);
+							if (affect_i == ch->affected.end()) {
 								break;
 							}
 						}
@@ -796,7 +888,17 @@ void MaterializeEquipmentAffects(CharData *ch, ObjData *obj, bool announce) {
 				break;
 			}
 		}
-		for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+		// issue.equipment-affect-conflicts: решает надевание. На живой надевке (announce -- признак
+		// настоящей, не внутренней) волшебство вещи вытесняет несовместимое; внутреннее переодевание
+		// (сейв, загрузка) своего мнения не имеет и уступает уже висящему.
+		const auto nodes = BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent);
+		if (HasConflictingAffect(ch, j.aff_affect)) {
+			if (!announce) {
+				continue;
+			}
+			DisplaceConflictingAffects(ch, j.aff_affect, nodes.empty() ? 0.0 : nodes.front().potency);
+		}
+		for (const auto &af : nodes) {
 			affect_to_char_no_recalc(ch, af);
 		}
 		// issue.affect-suppression-dispell: announce the impose narration ONLY on a genuine wear, not on
@@ -816,6 +918,11 @@ void MaterializeEquipmentAffect(CharData *ch, ObjData *obj, EAffect affect_type,
 	for (const auto &j : equipment_affect) {
 		if (j.aff_affect != affect_type || j.timer == kEquipmentAffectNoTimer
 				|| !obj->GetEEquipmentAffect(j.aff_pos)) {
+			continue;
+		}
+		// issue.equipment-affect-conflicts: возврат -- не надевание: пока висит несовместимое,
+		// вещевой аффект ждёт. Освободится место -- вернёт сверка с тика.
+		if (HasConflictingAffect(ch, j.aff_affect)) {
 			continue;
 		}
 		bool was_present = false;
@@ -852,6 +959,110 @@ void RemoveEquipmentAffects(CharData *ch, long source_id) {
 	}
 }
 
+// issue #3988: сверка "вещь надета, волшебство не подавлено, а узла на хозяине нет" -- вернуть
+// пропавшее. Узел материализованного вещевого аффекта заводит надевание, а affect_total его заново
+// не создаёт, и это намеренно: иначе подавление не работало бы вовсе -- рассеянный аффект вставал
+// бы обратно тем же пересчётом. Поэтому законный способ убрать его один -- подавить на самом
+// предмете (SuppressSourceEquipmentAffect), и аффект вернётся сам, когда подавление истечёт. Всё
+// остальное, что сносит узел мимо подавления, оставляло надетую вещь без её волшебства до
+// перенадевания. Здесь такая потеря залечивается: у наборов то же делает reconcile_set_affects,
+// а у аффектов самой вещи сверки до сих пор не было. Возвращает true, если что-то восстановлено;
+// пересчёт делается здесь же. Молча: аффект и не должен был исчезать, объявлять его нечего.
+bool ReconcileEquipmentAffects(CharData *ch) {
+	if (!ch) {
+		return false;
+	}
+	// Цена обхода: набор материализуемых позиций готов с загрузки таблицы
+	// (MaterializableEquipAffects), так что на каждую надетую вещь приходится одно пересечение
+	// битов. Полный перебор таблицы достаётся только вещи, у которой такой аффект есть (их у
+	// персонажа единицы), а affect_total зовётся лишь когда что-то действительно пропало -- в
+	// обычном тике пересчёта не происходит вовсе. Своя сборка маски на каждого персонажа стоила
+	// на бою около 2 мс за проход point_update -- половину его обычного времени.
+	const auto &timered = MaterializableEquipAffects();
+	if (timered.none()) {
+		return false;
+	}
+	bool restored = false;
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *obj = GET_EQ(ch, i);
+		if (!obj || !obj->get_affect_flags().intersects(timered)) {
+			continue;
+		}
+		for (const auto &j : equipment_affect) {
+			if (j.timer == kEquipmentAffectNoTimer || j.aff_affect == EAffect::kUndefined
+					|| !obj->GetEEquipmentAffect(j.aff_pos) || obj->is_affect_suppressed(j.aff_affect)) {
+				continue;
+			}
+			// Ищем ровно тот узел, который завело бы надевание: от этой вещи (caster_id) и с её
+			// пометкой. Аффекты набора (kAfFromSet) живут своей сверкой и сюда не относятся.
+			bool present = false;
+			for (const auto &af : ch->affected) {
+				if (af && af->affect_type == j.aff_affect && af->caster_id == obj->get_id()
+						&& IS_SET(af->battleflag, EAffFlag::kAfFromEquipment)
+						&& !IS_SET(af->battleflag, EAffFlag::kAfFromSet)) {
+					present = true;
+					break;
+				}
+			}
+			if (present) {
+				continue;
+			}
+			// issue.equipment-affect-conflicts: сверка возвращает пропавшие узлы, а не спорит за
+			// место -- иначе вытесненный аффект вернулся бы на первом же тике.
+			if (HasConflictingAffect(ch, j.aff_affect)) {
+				continue;
+			}
+			for (auto &af : BuildEquipmentMaterializedAffect(obj, j.aff_affect, j.timer, j.power_percent)) {
+				affect_to_char_no_recalc(ch, af);
+			}
+			restored = true;
+		}
+	}
+	if (restored) {
+		affect_total(ch);
+	}
+	return restored;
+}
+
+std::vector<ObjData *> FindEquipmentAffectSources(CharData *ch, EAffect affect_type) {
+	std::vector<ObjData *> items;
+	if (!ch || affect_type == EAffect::kUndefined) {
+		return items;
+	}
+	const auto remember = [&items](ObjData *obj) {
+		if (obj && std::find(items.begin(), items.end(), obj) == items.end()) {
+			items.push_back(obj);
+		}
+	};
+	// Сперва узлы: материализованный вещевой аффект помнит вещь в caster_id.
+	for (const auto &af : ch->affected) {
+		if (!af || af->affect_type != affect_type || !IS_SET(af->battleflag, EAffFlag::kAfFromEquipment)) {
+			continue;
+		}
+		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+			ObjData *obj = GET_EQ(ch, i);
+			if (obj && obj->get_id() == af->caster_id) {
+				remember(obj);
+			}
+		}
+	}
+	// Затем сами вещи: беструбный вещевой аффект узла не заводит, его выводит каждый пересчёт
+	// из флагов предмета (см. affect_total). Подавленные не считаем -- они сейчас не действуют.
+	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *obj = GET_EQ(ch, i);
+		if (!obj || obj->is_affect_suppressed(affect_type)) {
+			continue;
+		}
+		for (const auto &j : equipment_affect) {
+			if (j.aff_affect == affect_type && obj->GetEEquipmentAffect(j.aff_pos)) {
+				remember(obj);
+				break;
+			}
+		}
+	}
+	return items;
+}
+
 // issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
 // companion buffs that share the per-instance kAfCharmBond flag) and, for an NPC, schedules its
 // extraction and clears the hire price -- the behavior the old RemoveAffectFromChar(ESpell::kCharm)
@@ -875,6 +1086,23 @@ void RemoveCharmBond(CharData *ch, bool recalculate) {
 	}
 }
 
+// issue #4002: продлить весь пакет призванного существа. У поднятой нежити флаг kAfCharmBond носит
+// не только сама привязка (kCharmed), но и прибавки, которые выдаёт ApplyVolatileUndeadStats --
+// броня, мораль, инициатива и штрафы, узлами с affect_type kUndefined. Поедание трупа продлевало
+// только привязку, и получалось двоякое: прибавки доживали до истечения и исчезали, а индикатор
+// «скоро уйдёт» (IsCharmExpiring смотрит ЛЮБОЙ узел пакета) горел до ближайшего тика, хотя
+// привязка была уже продлена. Срок берём как максимум: укорачивать пакет кормление не должно.
+void ExtendCharmBond(CharData *ch, int duration) {
+	if (!ch || duration <= 0) {
+		return;
+	}
+	for (const auto &af : ch->affected) {
+		if (af && IS_SET(af->battleflag, kAfCharmBond) && af->duration >= 0 && af->duration < duration) {
+			af->duration = duration;
+		}
+	}
+}
+
 // issue.affect-migration: remove every curable affect (kAfCurable). Replaces the old
 // GetRemovableSpellId sweep.
 void RemoveCurableAffects(CharData *ch) {
@@ -888,6 +1116,36 @@ void RemoveCurableAffects(CharData *ch) {
 			++it;
 		}
 	}
+}
+
+// issue #3988: снять все чары, которые снимаются магией -- то, за чем ходят в поле .dispel
+// dg-триггеров ("магическое равновесие" в Стиксе и прочие чистки комнаты). Отбор тот же, что у
+// заклинаний снятия (kAfCurable | kAfDispellable), с двумя исключениями:
+//   * kAfFromEquipment / kAfFromSet -- волшебство надетого. Эти узлы заводит надевание вещи, и
+//     affect_total их заново не создаёт: он пересчитывает прибавки и флаги без таймера, а
+//     материализованный аффект (определение невидимости с браслета и прочие с timer=) после
+//     чистки списка пропадал до перенадевания вещи.
+//   * kAfCharmBond -- пакет призванного существа: это не игроцкие чары, а то, с чем существо пришло,
+//     и ставит его код, поэтому снятию он не подлежит (см. AffectMatchesFlags). Врождённые бафы из
+//     флагов прототипа мобов тут не исключение -- они снимаются, на то и «разлом».
+// Остальное, что не помечено к снятию (квестовые аффекты), не трогалось и прежним списочным clear()
+// трогаться не должно было.
+bool RemoveDispellableAffects(CharData *ch) {
+	static const AffectFlags kRemovable{kAfCurable, kAfDispellable};
+	static const AffectFlags kKept{kAfCharmBond, kAfFromEquipment, kAfFromSet};
+	bool removed = false;
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		const auto af = *it;
+		if (af->battleflag.intersects(kRemovable) && !af->battleflag.intersects(kKept)) {
+			EmitAffectEvent("affect_removed", ch, *af);
+			it = RemoveAffect(ch, it);
+			removed = true;
+		} else {
+			++it;
+		}
+	}
+	return removed;
 }
 
 
@@ -924,6 +1182,14 @@ void affect_total(CharData *ch) {
 		saved = ch->char_specials.saved.affected_by;
 		if (ch->IsNpc()) {
 			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
+			// issue #3971: материализуемый баф (kAfMaterialize) ведёт его узел, а не флаг прототипа.
+			// Иначе снятое магией освящение возвращалось флагом на первом же пересчёте: ward-действия
+			// уходили вместе с узлом, а защита от подчинения и призыва (spell_charm, summon) и строка
+			// описания оставались -- «разлом» выходил половинчатым. Узел вернёт материализация: на
+			// выходе моба из боя (game_limits, inc_restore_timer) или при пробуждении зоны.
+			for (const EAffect at : affects::MaterializableAffects()) {
+				AFF_FLAGS(ch).unset(at);
+			}
 		} else {
 			ch->char_specials.saved.affected_by.clear();
 		}
@@ -994,13 +1260,38 @@ void affect_total(CharData *ch) {
 	}
 
 	// move affect modifiers
+	// issue #3971: один аффект -- одна прибавка. Из нескольких экземпляров одного аффекта на
+	// одном параметре берём сильнейший, а не сумму: мигание с вещи (+8 к волшебному уклонению)
+	// и накастованное поверх (+76) дают 76, а не 84. Экземпляры сосуществуют с тех пор, как
+	// накастованный баф перестал затирать вещевой и врождённый, и складывать их прибавки --
+	// значит награждать за два источника одного и того же. Стеки (stacks) не при чём: они
+	// накапливают прибавку внутри одного экземпляра, и он здесь по-прежнему один.
+	std::map<std::pair<EAffect, EApply>, int> strongest;
+	for (const auto &af : ch->affected) {
+		if (af->location == EApply::kNone || af->modifier == 0) {
+			continue;
+		}
+		const auto key = std::make_pair(af->affect_type, af->location);
+		const auto it = strongest.find(key);
+		if (it == strongest.end() || std::abs(af->modifier) > std::abs(it->second)) {
+			strongest[key] = af->modifier;
+		}
+	}
+	std::set<std::pair<EAffect, EApply>> applied;
 	for (const auto &af : ch->affected) {
 		// Failed-attempt markers (kAfFailed) keep the success affect_type for identity/display,
 		// but must NOT raise the affected_by flag bit -- otherwise a botched hide/berserk would
 		// read as the real effect everywhere AFF_FLAGGED is checked. Apply the modifier (a no-op
 		// for these markers: location kNone) without the flag.
 		const EAffect bitv = IS_SET(af->battleflag, kAfFailed) ? EAffect::kUndefined : af->affect_type;
-		affect_modify(ch, af->location, af->modifier, bitv, true);
+		int modifier = af->modifier;
+		if (af->location != EApply::kNone && af->modifier != 0) {
+			const auto key = std::make_pair(af->affect_type, af->location);
+			// Прибавку даёт только сильнейший экземпляр; остальные проходят с нулём, чтобы
+			// флаг аффекта всё равно встал.
+			modifier = applied.insert(key).second ? strongest[key] : 0;
+		}
+		affect_modify(ch, af->location, modifier, bitv, true);
 	}
 
 	// move race and class modifiers
@@ -1149,6 +1440,11 @@ void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
 		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
 		// to the legacy ESpell type only for affects that have no affect_type yet.
+		// issue #3971: отдельно живущие экземпляры в слияние не идут -- накастованный ложится
+		// рядом. Перечень видов и причины -- у IsStandaloneAffectInstance.
+		if (IsStandaloneAffectInstance(affect)) {
+			continue;
+		}
 		const bool same_id = affect->affect_type == af.affect_type;
 		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
 		const bool same_type = (af.location != EApply::kNone) && same_id && (affect->location == af.location);
@@ -1173,6 +1469,11 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
 			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
+			// issue #3971: отдельно живущие экземпляры в слияние не идут (см. IsStandaloneAffectInstance).
+			if (IsStandaloneAffectInstance(affect)) {
+				++it;
+				continue;
+			}
 			const bool same_id = affect->affect_type == af.affect_type;
 			if (same_id
 				&& affect->location == af.location) {
@@ -1200,15 +1501,18 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
-void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag) {
+void affect_to_char(CharData *ch, const Affect<EApply> &af, const AffectFlags &extra_battleflag) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 	// issue.affect-migration Phase 2: effect behavior flags are sourced from affects.xml by
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet))
-				| extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
+		// issue #4005: набор собираем типизированно -- свойства аффекта из affects.xml плюс
+		// per-instance пометки вызывающего плюс запрошенные действием.
+		AffectFlags flags = affects::AffectFlagsByType(af.affect_type);
+		flags.merge(PerInstanceAffectFlags(af.battleflag));
+		flags.merge(extra_battleflag);   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
+		affected_alloc->battleflag = flags;
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
@@ -1235,8 +1539,9 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
-		affected_alloc->battleflag.set_plane(0, affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed | kAfCharmBond | kAfFromEquipment | kAfFromSet)));
+		AffectFlags flags = affects::AffectFlagsByType(af.affect_type);
+		flags.merge(PerInstanceAffectFlags(af.battleflag));
+		affected_alloc->battleflag = flags;
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
@@ -1288,6 +1593,11 @@ void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool m
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
 			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
+			// issue #3971: отдельно живущие экземпляры в слияние не идут (см. IsStandaloneAffectInstance).
+			if (IsStandaloneAffectInstance(affect)) {
+				++it;
+				continue;
+			}
 			const bool same_id = affect->affect_type == af.affect_type;
 			if (same_id
 				&& affect->location == af.location) {
@@ -1613,10 +1923,14 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 // skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
 // a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max, int skill_override, bool raw_rounds) {
+				 int base, unsigned skill_divisor, int min, int max, int skill_override, bool raw_rounds) {
 	// issue.vampirism-haste: raw_rounds keeps the value in combat-round units (as for NPCs) instead of
 	// converting hours->ticks for PCs -- used by battle-decrementing affects, which are round-measured.
 	const bool no_convert = victim->IsNpc() || raw_rounds;
+	// Отрицательную базу считаем нулевой. Пока base был unsigned, минус от вызывающего (скажем,
+	// number(1, 31 - тело) у кровотечения при теле выше 31) превращался в четыре миллиарда, и аффект
+	// получал вечный срок -- в списке у игрока светилось "35790110 часов".
+	base = std::max(0, base);
 	if (skill_divisor == 0 && min == 0 && max == 0) {
 		return (no_convert ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}

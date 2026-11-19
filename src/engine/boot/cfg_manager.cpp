@@ -202,6 +202,8 @@ CfgManager::CfgManager() {
 		if (!inserted) {
 			err_log("CfgManager: повторная регистрация загрузчика '%s' - пропущена.",
 					std::string(reg.name).c_str());
+		} else {
+			order_.emplace_back(reg.name);
 		}
 	}
 }
@@ -255,6 +257,12 @@ void CfgManager::ReloadCfg(const std::string &id) {
 
 void CfgManager::LoadCfg(const std::string &id) {
 	Apply(id, /*reload=*/false);
+}
+
+void CfgManager::ReloadAll() {
+	for (const auto &id : order_) {
+		ReloadCfg(id);
+	}
 }
 
 // issue.cfg-manager: атомарная запись готового DOM в файл, зарегистрированный за `id`

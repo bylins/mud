@@ -10,6 +10,7 @@
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
+#include "engine/structs/bitset_flags.h"
 #include "engine/core/comm.h"
 #include "utils/logger.h"
 
@@ -85,6 +86,26 @@ void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
 			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
 		}
 	}
+}
+
+// issue #4005: тот же разбор "A|B|C", но в типизированный набор флагов. Нужен тем наборам, которые
+// уже не влезают в одно 32-битное слово: в упакованном виде старшие два бита слова заняты номером
+// плоскости, поэтому ORить такие значения в один Bitvector нельзя -- биты плоскости сложатся с
+// битами флагов. BitsetFlags хранит флаги плоско, а плоскости знает только его сериализация.
+template<typename T>
+BitsetFlags<T> ReadAsConstantsFlags(const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("string is empty");
+	}
+	BitsetFlags<T> result;
+	for (const auto &str : utils::Split(value, '|')) {
+		try {
+			result.set(ITEM_BY_NAME<T>(str));
+		} catch (...) {
+			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
+		}
+	}
+	return result;
 }
 
 template<typename T>
@@ -177,6 +198,10 @@ int get_number(std::string &name);
 // issue.interpreter-cleaning: generic argument/token parsing helpers moved from interpreter.
 int search_block(const char *target_string, const char **list, int exact);
 int search_block(const std::string &block, const char **list, int exact);
+// issue #4113: то же, но сверяя имя по словам (utils::IsEqual), а не как одну строку.
+// Нужно там, где имена в таблице многословные ("максимальная жизнь"), а запрос приходит одним
+// словом через точку: посимвольный IsAbbr спотыкается, когда разделитель с двух сторон разный.
+int search_block_by_words(const std::string &block, const char **list);
 void GetOneParam(std::string &buffer, std::string &buffer2);
 bool CompareParam(const std::string &buffer, const char *str, bool full = false);
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);

@@ -30,29 +30,6 @@ std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	}
 	return nullptr;
 }
-int Account::zero_hryvn(CharData *ch, int val) {
-	const int zone_lvl = zone_table[world[ch->in_room]->zone_rn].mob_level;
-	for (auto &plr : this->players_list) {
-		std::string name = GetNameByUnique(plr);
-		if (name.empty()) {
-			continue;
-		}
-		const auto &player = player_table[GetPtableByUnique(plr)];
-		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
-			if (ch->IsFlagged(EPrf::kTester)) {
-				SendMsgToChar(ch,
-							  "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n",
-							  player.name().c_str(),
-							  val,
-							  player.level,
-							  player.remorts);
-			}
-			val = 0;
-		}
-	}
-	return val;
-}
-
 void Account::complete_quest(int id) {
 	for (auto &x : this->dquests) {
 		if (x.id == id) {
@@ -111,27 +88,41 @@ void Account::list_players(DescriptorData *d) {
 }
 
 void Account::save_to_file() {
-	std::ofstream out;
-	out.open(LIB_ACCOUNTS + this->email);
-	if (out.is_open()) {
-		for (const auto &x : this->dquests) {
-			out << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
-		}
-		for (const auto &x : this->history_logins) {
-			out << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
-		}
-		for (const auto &x : this->players_list) {
-			out << "p: " << x << "\n";
-		}
-		out << "Pwd: " << this->hash_password << "\n";
-		out << "ll: " << this->last_login << "\n";
-		for (const auto &[id, amounts] : this->account_currencies_.data()) {
-			if (amounts.hand != 0 || amounts.bank != 0) {
-				out << "Cur: " << id << " " << amounts.hand << " " << amounts.bank << "\n";
-			}
+	// issue #4014: сперва собираем содержимое в памяти и сверяем с тем, что уже лежит в файле.
+	// save_to_file() зовётся на каждом сейве персонажа, а запись файла на бою стоила 20-35 мс
+	// (см. save_char prof: account=...) -- в секции idle это был почти весь её расход. Данные
+	// аккаунта меняются редко, так что в большинстве сейвов писать нечего.
+	std::ostringstream text;
+	for (const auto &x : this->dquests) {
+		text << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
+	}
+	for (const auto &x : this->history_logins) {
+		text << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
+	}
+	for (const auto &x : this->players_list) {
+		text << "p: " << x << "\n";
+	}
+	text << "Pwd: " << this->hash_password << "\n";
+	text << "ll: " << this->last_login << "\n";
+	for (const auto &[id, amounts] : this->account_currencies_.data()) {
+		if (amounts.hand != 0 || amounts.bank != 0) {
+			text << "Cur: " << id << " " << amounts.hand << " " << amounts.bank << "\n";
 		}
 	}
+
+	std::string content = text.str();
+	if (content == this->last_saved_text_) {
+		return;   // содержимое то же -- файл не трогаем
+	}
+
+	std::ofstream out;
+	out.open(LIB_ACCOUNTS + this->email);
+	if (!out.is_open()) {
+		return;   // не записали -- и запомненным считать нечего, попробуем в следующий раз
+	}
+	out << content;
 	out.close();
+	this->last_saved_text_ = std::move(content);
 }
 
 void Account::read_from_file() {
@@ -245,10 +236,11 @@ void Account::set_password(const std::string &password) {
 }
 
 bool Account::compare_password(const std::string &password) {
-	// Тот же приём, что в Password::compare_password: хэш посчитан по дисковым байтам,
-	// поэтому пароль приводим к дисковой кодировке перед crypt (issue #3681).
+	// Тот же приём, что в Password::compare_password: хэши посчитаны по кои-восьмым байтам,
+	// поэтому пароль приводим к той же форме перед crypt. Это формат сохранённых хэшей,
+	// а не кодировка диска.
 	return CompareParam(this->hash_password,
-						CRYPT(native_text::to_disk(password).c_str(), this->hash_password.c_str()), true);
+						CRYPT(native_text::to_koi8(password).c_str(), this->hash_password.c_str()), true);
 }
 
 bool Account::quest_is_available(int id) {

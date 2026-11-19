@@ -75,42 +75,6 @@ std::size_t truncate_offset(std::string_view s, std::size_t max_bytes) {
 
 namespace {
 
-// Local copy of the lead-byte length table. utf8::sequence_length lives in another translation
-// unit, and this runs once per character in every scan -- a cross-module call there costs more
-// than the work itself.
-inline std::size_t lead_len(unsigned char c) {
-	if (c < 0x80) {
-		return 1;
-	}
-	if (c >= 0xC0 && c <= 0xDF) {
-		return 2;
-	}
-	if (c >= 0xE0 && c <= 0xEF) {
-		return 3;
-	}
-	if (c >= 0xF0 && c <= 0xF7) {
-		return 4;
-	}
-	return 1;
-}
-
-}  // namespace
-
-std::size_t char_bytes(const char *s) {
-	const unsigned char lead = static_cast<unsigned char>(*s);
-	if (lead < 0x80) {
-		return 1;
-	}
-	const std::size_t want = lead_len(lead);
-	std::size_t n = 1;
-	while (n < want && (static_cast<unsigned char>(s[n]) & 0xC0) == 0x80) {
-		++n;
-	}
-	return n;
-}
-
-namespace {
-
 // Shared driver for the two case-insensitive comparisons. `limit` caps how many bytes of `a` may
 // be consumed (npos = unlimited): once that budget is spent the strings count as equal, which is
 int compare_folded(std::string_view a, std::string_view b, std::size_t limit) {
@@ -150,7 +114,7 @@ int compare_ci(std::string_view a, std::string_view b) {
 }
 
 
-bool is_alnum_char(const char *s) {
+bool is_alnum_char_slow(const char *s) {
 	const unsigned char lead = static_cast<unsigned char>(*s);
 	if (lead < 0x80) {
 		return (lead >= '0' && lead <= '9') || (lead >= 'A' && lead <= 'Z') || (lead >= 'a' && lead <= 'z');
@@ -194,7 +158,11 @@ bool chars_equal_ci(const char *a, const char *b) {
 		|| utf8::decode(std::string_view(b, char_bytes(b)), 0, cb) == 0) {
 		return false;
 	}
-	return utf8::to_lower(ca) == utf8::to_lower(cb);
+	// "ё" уходит клиенту всегда как "е" (DescriptorData::string_to_client_encoding), поэтому
+	// игрок физически не может набрать "ё", записанное в данных: без этой складки "резной
+	// конёк" не отзывался на "конек". Складываем в обе стороны -- и набранное "ё" находит "е".
+	const auto fold_yo = [](char32_t c) { return c == 0x0451 ? static_cast<char32_t>(0x0435) : c; };
+	return fold_yo(utf8::to_lower(ca)) == fold_yo(utf8::to_lower(cb));
 }
 
 namespace {
@@ -409,10 +377,6 @@ std::string to_koi8(const std::string &text) {
 	return codepages::Utf8ToKoi8(text);
 }
 
-std::string from_utf8(const std::string &text) {
-	return text;   // the native encoding already is UTF-8
-}
-
 std::string translit_to_filename(std::string_view name) {
 	// Code point -> the very same Latin character the KOI8-R byte table yields, so a player's
 	// file name is identical before and after the flip. Upper and lower case collapse together
@@ -580,17 +544,33 @@ std::size_t char_offset(std::string_view s, std::size_t chars) {
 	return utf8::byte_offset(s, chars);
 }
 
-bool write_file(const std::string &path, const std::string &text) {
-	const std::string on_disk = to_disk(text);
-	std::ofstream out(path, std::ios::binary);
-	if (!out) {
-		return false;
-	}
-	out.write(on_disk.data(), static_cast<std::streamsize>(on_disk.size()));
-	return out.good();
-}
 
-bool write_file_native(const std::string &path, const std::string &text) {
+bool write_file(const std::string &path, const std::string &text) {
+	// Предохранитель, переехавший сюда из to_disk. Всё нативное -- валидный UTF-8; если
+	// сюда пришло иное, значит строка не проходила границу чтения и держит дисковые байты
+	// (KOI8-R) как есть. Пишем их всё равно -- файл остаётся цел, -- но жалуемся в лог:
+	// граница чтения ещё нужна, файл до миграции всё ещё может попасться, а без этой
+	// жалобы пропущенная граница уезжает на диск молча.
+	if (!utf8::is_valid(text)) {
+		static std::atomic<unsigned long> seen{0};
+		const unsigned long n = seen.fetch_add(1);
+		if (n < 10 || n % 10000 == 0) {
+			// Байты печатаются шестнадцатеричными нарочно: невалидный UTF-8 в сообщении
+			// логгер погнал бы обратно через эту же запись.
+			std::string head;
+			const std::size_t show = std::min<std::size_t>(text.size(), 16);
+			char byte[4];
+			for (std::size_t i = 0; i < show; ++i) {
+				std::snprintf(byte, sizeof(byte), "%02x", static_cast<unsigned char>(text[i]));
+				head += byte;
+				head += ' ';
+			}
+			log("SYSERR: write_file got non-UTF-8 text (#%lu, %zu bytes, %s) -- a read boundary "
+				"is missing somewhere; writing the bytes through unchanged. First bytes: %s",
+				n + 1, text.size(), path.c_str(), head.c_str());
+		}
+	}
+
 	std::ofstream out(path, std::ios::binary);
 	if (!out) {
 		return false;
@@ -606,39 +586,6 @@ std::string pad_right(std::string_view s, std::size_t width) {
 		out.append(width - len, ' ');
 	}
 	return out;
-}
-
-std::string to_disk(const std::string &text) {
-	// Предохранитель. Всё нативное -- валидный UTF-8; если сюда пришло что-то другое, значит
-	// строка не проходила границу чтения и держит дисковые байты (KOI8-R) как есть.
-	// Транслитерировать их нельзя: to_koi8 разберёт такие байты как Latin-1 и прогонит через
-	// словарь замен, а это необратимо -- 'верий.свет' превращается в 'AIEUAxAOA.OxAO'. Именно
-	// так были съедены метки вещей, сундуки дружин и списки имён (issue #3681).
-	//
-	// Поэтому пишем байты как есть -- для диска они уже в нужной кодировке, файл остаётся цел, --
-	// и жалуемся в лог: дыру видно сразу, без нагрузочного прогона и без потери данных.
-	if (!utf8::is_valid(text)) {
-		static std::atomic<unsigned long> seen{0};
-		const unsigned long n = seen.fetch_add(1);
-		if (n < 10 || n % 10000 == 0) {
-			// Байты печатаются шестнадцатеричными нарочно: сунуть их в сообщение как есть
-			// значило бы отдать логгеру невалидный UTF-8, а он пишет через этот же to_disk --
-			// и жалоба принялась бы жаловаться сама на себя без конца.
-			std::string head;
-			const std::size_t show = std::min<std::size_t>(text.size(), 16);
-			char byte[4];
-			for (std::size_t i = 0; i < show; ++i) {
-				std::snprintf(byte, sizeof(byte), "%02x", static_cast<unsigned char>(text[i]));
-				head += byte;
-				head += ' ';
-			}
-			log("SYSERR: to_disk got non-UTF-8 text (#%lu, %zu bytes) -- a read boundary is missing "
-				"somewhere; writing the bytes through unchanged. First bytes: %s",
-				n + 1, text.size(), head.c_str());
-		}
-		return text;
-	}
-	return to_koi8(text);
 }
 
 std::string read_data_file(const std::string &path) {

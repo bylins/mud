@@ -46,12 +46,16 @@ class CObjectPrototypes {
 
 	const auto &operator[](size_t index) const {
 		if (index >= m_prototypes.size()) {
-			mudlog("неизвестный прототип объекта", BRF, kLvlBuilder, SYSLOG, 1);
+			ReportBadIndex(index, m_prototypes.size());
 			return m_prototypes[0];
 		}
 		return m_prototypes[index];
 	}
 	/** @} */
+
+	// Жалоба на рнум за границами. Живет в .cpp -- логгер с печатью стека не нужен
+	// каждому, кто просто берет прототип по рнуму. Подробности см. там же.
+	static void ReportBadIndex(std::size_t index, std::size_t size);
 
 	size_t add(CObjectPrototype *prototype, const ObjVnum vnum);
 	size_t add(const CObjectPrototype::shared_ptr &prototype, const ObjVnum vnum);
@@ -88,6 +92,14 @@ class CObjectPrototypes {
 
 	const auto &proto_script(const size_t rnum) const { return m_prototypes.at(rnum)->get_proto_script(); }
 	const auto &vnum2index() const { return m_vnum2index; }
+
+	// Забыть внум, не трогая сам прототип (issue #4201, перезагрузка зоны). Удалять прототип
+	// из m_prototypes нельзя: рнум -- это индекс в deque, и сдвиг переломал бы его у всех
+	// последующих предметов, у живых экземпляров и у всего, что рнумы закэшировало. Здесь же
+	// рнум ничего не теряет: поиск идёт по этой карте (get_rnum), и без записи предмет для
+	// мира исчезает ровно так же, как если бы его не было в файле при загрузке. Слот
+	// остаётся занятым до ближайшего ребута.
+	void forget_vnum(const ObjVnum vnum) { m_vnum2index.erase(vnum); }
 
  private:
 	using vnum2index_t = std::map<ObjVnum, size_t>;

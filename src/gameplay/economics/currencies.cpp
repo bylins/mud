@@ -13,11 +13,14 @@
 #include "utils/grammar/declensions.h"
 
 #include <unordered_map>
+#include <set>
 #include <algorithm>
 #include <cctype>
 
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "engine/db/obj_prototypes.h"
+#include "gameplay/economics/shops_implementation.h"
 #include "engine/core/comm.h"
 #include "utils/utils_string.h"
 #include "engine/db/db.h"
@@ -481,7 +484,10 @@ void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = 
 	const long change = amount - before;
 	if (with_log && !ch.IsNpc()) {
 		if (info.IsLogged()) {
-			log("Gold: %s %s %ld", ch.get_name().c_str(), change > 0 ? "add" : "remove", change > 0 ? change : -change);
+			// Валюту называем в самой строке: логируемой может быть любая, и без имени куны от
+			// гривен в логе не отличить. Начало строки оставлено как было -- по "Gold:" ищут.
+			log("Gold: %s %s %ld (%s, %s)", ch.get_name().c_str(), change > 0 ? "add" : "remove",
+				change > 0 ? change : -change, id.c_str(), purse == EPurse::kHand ? "hand" : "bank");
 		}
 		if (info.TracksMoneyDrop() && purse == EPurse::kHand && ch.in_room > 0) {
 			MoneyDropStat::add(zone_table[world[ch.in_room]->zone_rn].vnum, change);
@@ -607,6 +613,48 @@ std::map<std::string, OwnerCurrencyInfo> HeldByChar(const CharData &ch) {
 		}
 	}
 	return out;
+}
+
+void CheckMoneyPrototypes() {
+	// Набор валют, которые хоть одна лавка принимает: номинал в валюте без единой лавки
+	// потратить негде, и это почти всегда опечатка в прототипе, а не задумка.
+	std::set<std::string> accepted;
+	for (const auto &shop : MUD::Shops()) {
+		if (shop) {
+			accepted.insert(shop->currency);
+		}
+	}
+
+	int unknown = 0, no_shop = 0;
+	for (const auto &proto : obj_proto) {
+		if (!proto || proto->get_type() != EObjType::kMoney) {
+			continue;
+		}
+		const int amount = proto->get_val(0);
+		const int curr_vnum = proto->get_val(1);
+		const auto &info = MUD::Currency(curr_vnum);
+		if (info.GetId() < 0) {
+			++unknown;
+			mudlog(fmt::format("WARNING: предмет-деньги {} #{}: номинал указан валютой {}, "
+							   "такой валюты нет -- сумма ({}) зачислится кунами",
+							   proto->get_short_description(), proto->get_vnum(), curr_vnum, amount),
+				   BRF, kLvlImmortal, SYSLOG, true);
+			continue;
+		}
+		if (info.GetTextId() == kGold || accepted.count(info.GetTextId()) > 0) {
+			continue;
+		}
+		++no_shop;
+		mudlog(fmt::format("WARNING: предмет-деньги {} #{}: номинал в валюте {}, "
+						   "её не принимает ни одна лавка -- полученное ({}) потратить негде",
+						   proto->get_short_description(), proto->get_vnum(), info.GetTextId(), amount),
+			   BRF, kLvlImmortal, SYSLOG, true);
+	}
+	if (unknown > 0 || no_shop > 0) {
+		mudlog(fmt::format("WARNING: предметов-денег с негодным номиналом: {} (валюты нет) "
+						   "и {} (валюту никто не принимает)", unknown, no_shop),
+			   BRF, kLvlImmortal, SYSLOG, true);
+	}
 }
 } // namespace currencies
 

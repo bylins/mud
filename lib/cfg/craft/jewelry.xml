@@ -80,7 +80,7 @@
 		<gem vnum="907">
 			<apply id="kCastSuccess" val="15"/>
 			<apply id="kManaRegen" val="20"/>
-			<apply id="kPhysicDamagePercent" val="3"/>
+			<apply id="kPhysicDamagePercent" val="5"/>
 			<apply id="kMagicDamagePercent" val="5"/>
 			<apply id="kExpPercent" val="2"/>
 		</gem>

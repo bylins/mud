@@ -72,6 +72,13 @@ bool group::same_group(CharData *ch, CharData *tch) {
 	return false;
 }
 
+bool group::same_clan(CharData *ch, CharData *tch) {
+	if (!ch || !tch || ch->IsNpc() || tch->IsNpc()) {
+		return false;
+	}
+	return CLAN(ch) && CLAN(ch) == CLAN(tch);
+}
+
 int group::max_group_size(CharData *ch) {
 	return kMaxGroupedFollowers + CalcLeadershipGroupSizeBonus(ch);
 }
@@ -625,7 +632,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						}
 					}
 					SendMsgToChar(ch, "&C %s&n\r\n",
-							utils::OutWordsList(skills, ch->player_specials->saved.stringLength).c_str());
+							utils::OutWordsList(skills, LineWrapWidth(ch)).c_str());
 				} else {
 					SendMsgToChar(ch, "%s не подчиняется вам, и не хочет ничего докладывать.\r\n", utils::CAP(f->get_name()).c_str());
 				}

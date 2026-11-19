@@ -7,8 +7,8 @@
 -->
 <special_msg>
 	<msg_sheaf id="kDefault">
-		<message type="kAmbiguous" val="Уточните, что именно:"/>
-		<message type="kUnknownCommand" val="Вам явно в какое-то другое заведение."/>
-		<message type="kNotHere" val="Это нельзя сделать здесь."/>
+		<message type="kAmbiguous" val="Уточните, что именно:" />
+		<message type="kUnknownCommand" val="Вам явно в какое-то другое заведение." />
+		<message type="kNotHere" val="Это нельзя сделать здесь." />
 	</msg_sheaf>
 </special_msg>

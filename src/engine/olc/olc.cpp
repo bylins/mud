@@ -114,7 +114,8 @@ olc_data::olc_data()
 //------------------------------------------------------------
 
 // issue #3582: "<olc> save all" -- перезаписать на диск ВСЕ зоны данного типа
-// (redit->комнаты, oedit->объекты, medit->мобы, zedit->зоны) текущим сериализатором.
+// (redit->комнаты, oedit->объекты, medit->мобы, zedit->зоны, trigedit->триггеры)
+// текущим сериализатором.
 // Массовая операция по всему миру -- только для имплов. Удобно для разовой
 // конвертации формата мира (заменяет отдельную ветку-инструмент).
 static void olc_save_all(CharData *ch, int subcmd) {
@@ -137,6 +138,7 @@ static void olc_save_all(CharData *ch, int subcmd) {
 			case kScmdOlcZedit: data_source->SaveZone(zrn);    type = "zone";   break;
 			case kScmdOlcMedit: data_source->SaveMobs(zrn);    type = "mobile"; break;
 			case kScmdOlcOedit: data_source->SaveObjects(zrn); type = "object"; break;
+			case kScmdOlcTrigedit: data_source->SaveTriggers(zrn, -1, 0); type = "trigger"; break;
 			default:
 				SendMsgToChar("Для этого типа запись всех зон не поддерживается.\r\n", ch);
 				return;

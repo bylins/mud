@@ -80,7 +80,7 @@ void ProcessDeviate(CharData *ch, CharData *victim, HitData &hit_data) {
 		act("Вы немного уклонились от атаки $N1.", false, victim, nullptr, ch, kToChar);
 		act("$N немного уклонил$U от вашей атаки.", false, ch, nullptr, victim, kToChar);
 		act("$n немного уклонил$u от атаки $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-		hit_data.dam *= 10/15;
+		hit_data.dam = SlightDefenceDamage(hit_data.dam);
 		victim->battle_affects.set(kEafDodge);
 	} else if (prob < 200) {
 		act("Вы частично уклонились от атаки $N1.", false, victim, nullptr, ch, kToChar);

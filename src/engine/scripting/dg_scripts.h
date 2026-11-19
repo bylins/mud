@@ -13,6 +13,7 @@
 #define DG_SCRIPTS_H_
 
 #include <unordered_set>
+#include <string_view>
 #include "gameplay/skills/skills.h"
 #include "engine/structs/structs.h"
 #include "utils/logger.h"
@@ -117,11 +118,19 @@ const int DG_NO_TRIG = 256;    // don't check act trigger   //
 #define TRIG_CONTINUE            1    // trigger continue after wait       //
 #define TRIG_FROM_LINE            2    // trigger restarting       //
 
+// Код возврата боевого триггера предмета (OTRIG_FIGHT) -- маска того, чего боец в этом раунде
+// НЕ делает. Биты собираются по всем надетым и несомым предметам (fight_otrigger).
+//
+// Бит 0 намеренно не занят: и script_driver, и Lua-движок по умолчанию возвращают 1, поэтому
+// батл-триггер, который не сказал `return` явно, отдаёт единицу -- и она не должна ничего
+// запрещать. Пока kNoCastMagic занимал нулевой бит, такой триггер молча лишал владельца
+// предмета возможности колдовать в бою: заклинание вставало в очередь ("Вы приготовились
+// применить..."), а process_player_attack его не пускал -- бой шёл одними руками (#4141).
 const Bitvector kNormalRound = 0;
-const Bitvector kNoCastMagic = 1 << 0;
-const Bitvector kNoExtraAttack = 1 << 1;
-const Bitvector kNoLeftHandAttack = 1 << 2;
-const Bitvector kNoRightHandAttack = 1 << 3;
+const Bitvector kNoCastMagic = 1 << 1;
+const Bitvector kNoExtraAttack = 1 << 2;
+const Bitvector kNoLeftHandAttack = 1 << 3;
+const Bitvector kNoRightHandAttack = 1 << 4;
 
 const Bitvector kOtrigDropInroom = 1 << 0;
 const Bitvector kOtrigPutContainer = 1 << 1;
@@ -412,6 +421,14 @@ void print_worlds_vars(CharData *ch, std::optional<long> context);
 void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(Trigger *trig, std::string msg, LogMode type = LogMode::OFF);
+// issue #4207: то же, но только в файл сислога, без потока богам -- для диагностики,
+// которая пишет строку на каждое исполнение.
+void trig_log_quiet(Trigger *trig, const std::string &msg);
+
+// issue #4163: называет место, где цель команды задана текстом, а не UID. Пишет по одной строке
+// на место (внум триггера плюс номер строки) за загрузку -- иначе лог заливает, потому что те же
+// строки исполняются постоянно.
+void script_log_text_target(Trigger *trig, std::string_view command, std::string_view target);
 
 using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
@@ -462,6 +479,12 @@ void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, std::string cmd
 void add_var_cntx(std::list<TriggerVar> &var_list, std::string name, std::string value, long id);
 TriggerVar find_var_cntx(std::list<TriggerVar>, std::string name, long id);
 int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id);
+
+// Строковые поля переменной: %var.strlen%, %var.trim%, %var.fullword(...)%,
+// %var.contains(...)%, %var.car%, %var.cdr%, %var.words(...)% и прочие.
+// Возвращает false, если поле не строковое или переменной нет -- тогда вызывающий
+// ищет значение дальше. Объявлено здесь ради юнит-тестов (tests/dg_string_matching.cpp).
+int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t str_size);
 
 // Macros for scripts //
 
@@ -521,6 +544,11 @@ extern int top_of_trigt;
 extern int last_trig_vnum;//последний триг в котором произошла ошибка
 extern int last_trig_line_num;
 
+// Вся строка -- один вызов поля с аргументом, "%цель.поле(...)%"? Такая строка исполняется
+// ради действия поля, а подставленное значение командой не считается. Открыта для теста:
+// границы правила (простая переменная, поле без скобок, вложенные подстановки) надо держать.
+bool IsFieldCallStatement(const char *line);
+
 void save_char_vars(CharData *ch);
 
 // списки сущностей с триггерами смены времени - для быстрой итерации
@@ -530,6 +558,10 @@ extern std::unordered_set<ObjData *> timechange_objs;
 extern std::unordered_set<RoomData *> timechange_rooms;
 
 // регистрация/снятие при attach/detach триггера
+// Это служебный прототип (rnum 0 -- заготовка для трупов, денег, писем)? Триггерам его
+// грузить нельзя: команды load отказывают и называют место в сислоге.
+bool IsServiceObjVnum(ObjVnum vnum);
+
 void timechange_register_mob(CharData *ch);
 void timechange_unregister_mob(CharData *ch);
 void timechange_register_obj(ObjData *obj);

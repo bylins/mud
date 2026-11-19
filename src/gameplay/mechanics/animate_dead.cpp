@@ -5,9 +5,11 @@
 
 #include "animate_dead.h"
 
+#include "engine/db/db.h"               // mob_proto
 #include "engine/db/global_objects.h"   // MUD::AnimateDead()
 #include "engine/entities/char_data.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/affects/affect_data.h"   // Affect / affect_to_char
 #include "gameplay/mechanics/saving.h"  // ESaving, GetSave/SetSave
 #include "gameplay/core/remort.h"       // remort::SkillCapStart / SkillCapIncrement
 #include "utils/utils.h"                // GET_* macros, err_log, number, GetRealLevel
@@ -60,6 +62,8 @@ int UsedBudget(CharData *ch) {
 
 void AnimateDeadInfo::Load(DataNode data) {
 	creatures_.clear();
+	skeletons_.clear();
+	grants_.clear();
 	for (auto &node : data.Children()) {
 		const std::string name = node.GetName();
 		if (name == "control") {
@@ -73,6 +77,31 @@ void AnimateDeadInfo::Load(DataNode data) {
 			}
 			continue;
 		}
+		// issue #4038: даровые аффекты. Список один на весь файл, а не на вид: порог называет
+		// заклинание, а не ярус -- "оживить скелет" даёт их и обычному скелету тоже.
+		if (name == "grants") {
+			for (auto &grant : node.Children()) {
+				if (std::string(grant.GetName()) != "grant") {
+					continue;
+				}
+				const std::string affect = parse::AttrStr(grant, "affect");
+				const std::string spell = parse::AttrStr(grant, "spell");
+				if (affect.empty() || spell.empty()) {
+					err_log("animate_dead grant: both spell= and affect= are required");
+					continue;
+				}
+				try {
+					AffectGrant g;
+					g.spell = parse::ReadAsConstant<ESpell>(spell.c_str());
+					g.affect = parse::ReadAsConstant<EAffect>(affect.c_str());
+					g.min_skill = parse::AttrInt(grant, "min_skill");
+					grants_.push_back(g);
+				} catch (std::exception &e) {
+					err_log("animate_dead grant parse error: %s", e.what());
+				}
+			}
+			continue;
+		}
 		if (name != "creature") {
 			continue;
 		}
@@ -82,8 +111,20 @@ void AnimateDeadInfo::Load(DataNode data) {
 			ci.id = parse::ReadAsStr(node.GetValue("id"));
 			ci.proto_vnum = parse::ReadAsInt(node.GetValue("proto_vnum"));
 			ci.weight = parse::ReadAsInt(node.GetValue("weight"));
+			// Атрибут висит на самом <creature>, а не в дочернем <cost> -- читать его надо
+			// здесь, пока node указывает на вид.
+			const char *dc = node.GetValue("damroll_cap");
+			ci.damroll_cap = (dc && *dc) ? parse::ReadAsInt(dc) : 0;
+			const char *ds = node.GetValue("damage_share");
+			ci.damage_share = (ds && *ds) ? parse::ReadAsDouble(ds) : 0.0;
+			const char *sp = node.GetValue("spell");
+			if (sp && *sp) {
+				ci.spell = parse::ReadAsConstant<ESpell>(sp);
+			}
 			if (node.GoToChild("cost")) {
 				ci.corpse_max_level = parse::ReadAsInt(node.GetValue("corpse_max_level"));
+				const char *cmin = node.GetValue("corpse_min_level");
+				ci.corpse_min_level = (cmin && *cmin) ? parse::ReadAsInt(cmin) : 0;
 				const char *mr = node.GetValue("min_rating");
 				ci.min_rating = (mr && *mr) ? parse::ReadAsInt(mr) : 0;
 				const char *pk = node.GetValue("pick");
@@ -104,7 +145,14 @@ void AnimateDeadInfo::Load(DataNode data) {
 				ci.scaling.initiative  = ParseStat(node, "initiative");
 				node.GoToParent();
 			}
-			creatures_.push_back(std::move(ci));
+			// Ярусы чужого заклинания держим отдельно: лестница нежити ходит по индексам своего
+			// вектора (PickTier понижает вид, FitUndeadTier подбирает по бюджету), и посторонний
+			// элемент в нём означал бы, что "поднять труп" может выдать скелета.
+			if (ci.spell == ESpell::kAnimateSkeleton) {
+				skeletons_.push_back(std::move(ci));
+			} else {
+				creatures_.push_back(std::move(ci));
+			}
 		} catch (std::exception &e) {
 			err_log("animate_dead creature parse error: %s", e.what());
 		}
@@ -112,7 +160,14 @@ void AnimateDeadInfo::Load(DataNode data) {
 }
 
 const CreatureInfo *AnimateDeadInfo::ByProtoVnum(int proto_vnum) const {
+	// Ищем в обоих списках: по этому поиску работают масштаб статов (SetupUndeadStats) и потолок
+	// дамролла, а они нужны и скелетам.
 	for (const auto &c : creatures_) {
+		if (c.proto_vnum == proto_vnum) {
+			return &c;
+		}
+	}
+	for (const auto &c : skeletons_) {
 		if (c.proto_vnum == proto_vnum) {
 			return &c;
 		}
@@ -123,6 +178,11 @@ const CreatureInfo *AnimateDeadInfo::ByProtoVnum(int proto_vnum) const {
 int AnimateDeadInfo::WeightOf(int proto_vnum) const {
 	const auto *c = ByProtoVnum(proto_vnum);
 	return c ? c->weight : 0;   // non-tier followers do not consume the budget
+}
+
+int AnimateDeadInfo::DamrollCapOf(int proto_vnum) const {
+	const auto *c = ByProtoVnum(proto_vnum);
+	return c ? c->damroll_cap : 0;
 }
 
 int AnimateDeadInfo::LadderIndex(int proto_vnum) const {
@@ -149,6 +209,9 @@ std::string AnimateDeadLoader::EditableWhat() const {
 std::vector<cfg_manager::EditableElement> AnimateDeadLoader::ListElements() const {
 	std::vector<cfg_manager::EditableElement> out;
 	for (const auto &c : MUD::AnimateDead().Creatures()) {
+		out.push_back({std::to_string(c.vnum), c.id});
+	}
+	for (const auto &c : MUD::AnimateDead().Skeletons()) {
 		out.push_back({std::to_string(c.vnum), c.id});
 	}
 	return out;
@@ -235,12 +298,21 @@ int PickTier(CharData *ch, int corpse_mob_level) {
 		}
 	}
 	// 3) caster-rating gate: demote down the ladder until min_rating is met. The rating is
-	// level + a skill-derived remort-equivalent + 4 -- NOT the actual remort count (issue.animate-dead:
-	// the control skill, not remort, gates tiers). The remort-equivalent inverts CalcSkillCap: a remort
-	// R has skill cap SkillCapStart + R*SkillCapIncrement, so R = (skill - SkillCapStart) / increment.
+	// level + remort + 4. The remort term takes the HIGHER of the actual remort count and a
+	// skill-derived equivalent, which inverts CalcSkillCap: a remort R has skill cap
+	// SkillCapStart + R*SkillCapIncrement, so R = (skill - SkillCapStart) / increment. The equivalent
+	// still matters for a caster whose control skill was pushed past its cap.
+	//
+	// issue #3992: раньше тут стоял только скилл-эквивалент, и фактические перевоплощения не
+	// учитывались вовсе. Для хайморта это выходило так: сразу после сброса умений уровень низкий,
+	// магия тьмы ограничена уровнем и быстро не качается, рейтинг получался 8-10 -- и с любого
+	// трупа поднимался мертвяк. Нежить становилась бесполезной, чернокнижник бил сильнее сам.
+	// Морты набраны игроком, их и считаем: вид теперь открыт по мортам, а СИЛА поднятого
+	// по-прежнему целиком идёт от процента магии тьмы (SetupUndeadStats по компетенции каста),
+	// и бюджет на свиту тоже остаётся скилловым.
 	const int inc = std::max(1, remort::SkillCapIncrement());
-	const int pseudo_remort = std::max(0, (GetSkill(ch, cfg.ControlSkill()) - remort::SkillCapStart()) / inc);
-	const int rating = GetRealLevel(ch) + pseudo_remort + 4;
+	const int skill_remort = std::max(0, (GetSkill(ch, cfg.ControlSkill()) - remort::SkillCapStart()) / inc);
+	const int rating = GetRealLevel(ch) + std::max(remort::GetRealRemort(ch), skill_remort) + 4;
 	int idx = cfg.LadderIndex(chosen->proto_vnum);
 	while (idx > 0 && rating < cr[idx].min_rating) {
 		--idx;
@@ -262,6 +334,96 @@ int FitUndeadTier(CharData *ch, int desired) {
 		}
 	}
 	return 0;   // even the weakest tier does not fit -> caller reports "too many minions"
+}
+
+// Броня, спасы, удача и инициатива живут в add_abils, а affect_total у NPC очищает этот
+// блок до прототипного и заново навешивает аффекты. Значит прямая запись не живёт: её
+// стирает первый же наложенный бафф. Поэтому подъём выдаёт эту группу аффектами -- их
+// affect_total возвращает сам, сколько бы раз ни пересчитывал.
+void ApplyVolatileUndeadStats(CharData *mob, double competence, int duration) {
+	const auto *info = MUD::AnimateDead().ByProtoVnum(GET_MOB_VNUM(mob));
+	if (!info) {
+		return;
+	}
+	const auto rnum = mob->get_rnum();
+	const CharData *base = (rnum >= 0) ? &mob_proto[rnum] : mob;
+	const double c = std::max(0.0, competence);
+	const CreatureScaling &s = info->scaling;
+
+	auto up = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur + RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::min(v, static_cast<int>(sc.cap));
+		}
+		return v;
+	};
+	auto down = [c](const StatScale &sc, int cur) {
+		if (sc.beta == 0.0) {
+			return cur;
+		}
+		int v = cur - RoundC(sc.beta, c);
+		if (sc.has_cap) {
+			v = std::max(v, static_cast<int>(sc.cap));
+		}
+		return v;
+	};
+
+	// Аффект без флага (affect_type kUndefined) -- он ничего не сообщает игроку и не виден
+	// в списке, только несёт прибавку. Нулевые прибавки не навешиваем вовсе.
+	auto grant = [mob, duration](EApply location, int modifier) {
+		if (modifier == 0) {
+			return;
+		}
+		Affect<EApply> af;
+		af.duration = duration;
+		af.modifier = modifier;
+		af.location = location;
+		af.affect_type = EAffect::kUndefined;
+		af.battleflag = {kAfCharmBond};   // issue #3971: прибавки нежити -- часть её пакета, снятию не подлежат
+		affect_to_char(mob, af);
+	};
+
+	const int armour_base = GET_ARMOUR(base);
+	grant(EApply::kArmour, up(s.armor, armour_base) - armour_base);
+	const int morale_base = GET_MORALE(base);
+	grant(EApply::kMorale, up(s.morale, morale_base) - morale_base);
+	const int initiative_base = GET_INITIATIVE(base);
+	grant(EApply::kInitiative, up(s.initiative, initiative_base) - initiative_base);
+	if (s.saving.beta != 0.0) {
+		static const std::pair<ESaving, EApply> kSaves[] = {
+			{ESaving::kWill, EApply::kSavingWill},
+			{ESaving::kCritical, EApply::kSavingCritical},
+			{ESaving::kStability, EApply::kSavingStability},
+			{ESaving::kReflex, EApply::kSavingReflex},
+		};
+		for (const auto &[saving, location] : kSaves) {
+			const int save_base = GetSave(const_cast<CharData *>(base), saving);
+			grant(location, down(s.saving, save_base) - save_base);
+		}
+	}
+}
+
+// issue #4038: костяная свита крепчает вместе с хозяином. Аффекты даровые -- ни маны, ни
+// каста: заклинатель перешагнул порог магии тьмы, и поднятый встаёт уже с ними. Часть пакета
+// нежити (kAfCharmBond), поэтому снятию не подлежат и живут столько же, сколько чары.
+void ApplyGrantedAffects(CharData *ch, CharData *mob, ESpell spell_id, int duration) {
+	const auto &cfg = MUD::AnimateDead();
+	const int skill = GetSkill(ch, cfg.ControlSkill());
+	for (const auto &grant : cfg.Grants()) {
+		if (grant.spell != spell_id || skill < grant.min_skill) {
+			continue;
+		}
+		Affect<EApply> af;
+		af.duration = duration;
+		af.modifier = 0;
+		af.location = EApply::kNone;
+		af.affect_type = grant.affect;
+		af.battleflag = {kAfCharmBond};
+		affect_to_char(mob, af);
+	}
 }
 
 void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
@@ -329,15 +491,7 @@ void SetupUndeadStats(CharData * /*ch*/, CharData *mob, double competence) {
 		GET_DR(mob) = up(s.damage_bonus, GET_DR(mob));
 	}
 	GET_HR(mob)         = up(s.hitroll, GET_HR(mob));
-	GET_ARMOUR(mob)     = up(s.armor, GET_ARMOUR(mob));
-	GET_MORALE(mob)     = up(s.morale, GET_MORALE(mob));
-	GET_INITIATIVE(mob) = up(s.initiative, GET_INITIATIVE(mob));
 	GET_AC(mob)         = down(s.ac, GET_AC(mob));   // lower AC = better
-	if (s.saving.beta != 0.0) {
-		for (auto sv = ESaving::kFirst; sv <= ESaving::kLast; ++sv) {
-			SetSave(mob, sv, down(s.saving, GetSave(mob, sv)));
-		}
-	}
 	if (s.skills.beta != 0.0) {
 		// scale every skill the prototype already has, uniformly.
 		std::vector<ESkill> ids;

@@ -717,7 +717,14 @@ void npc_armor(CharData *ch) {
 			}
 		}
 
-		if (where == EEquipPos::kShield && (GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))) {
+		// Щит -- единственный слот брони с требованием по силе, и его надо спросить здесь же,
+		// как npc_wield спрашивает CanBeTakenInMajorHand для оружия. Иначе моб надевает щит,
+		// который не удержит, affect_total тут же снимает его ("correctize all weapon"), и так
+		// каждый мобный пульс: комната читает "начал использовать", аффекты щита, "прекратил
+		// использовать" -- и по кругу, а щита моб не носит никогда.
+		if (where == EEquipPos::kShield
+			&& (GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold)
+				|| !CanBeWearedAsShield(ch, obj))) {
 			continue;
 		}
 

@@ -43,9 +43,20 @@ TEST(ObjectsFilter_AffectName, PairWithBangIsNotConfusedInEitherDirection) {
 
 TEST(ObjectsFilter_AffectName, WordSkippingAndAbbreviationsStillWork) {
 	// Слова запроса ищутся по порядку с пропуском, каждое -- по префиксу.
-	EXPECT_EQ(ParseAffect("защита.от.огня"), "Азащита.от.стихии.огня");
+	// issue #4113: имя в таблице теперь пишется словами, запрос по-прежнему через точку.
+	EXPECT_EQ(ParseAffect("защита.от.огня"), "Азащита от стихии огня");
 	EXPECT_EQ(ParseAffect("вплавить"), "Аможно вплавить 1 камень");
 	EXPECT_EQ(ParseAffect("стойк"), "Астойкость");
+}
+
+TEST(ObjectsFilter_AffectName, StrictSearchIgnoresSeparatorKind) {
+	// issue #4113: строгий поиск ("!" на конце) сверял строки побайтно, а имя в таблице пишется
+	// словами -- через пробел. Запрос в фильтр приходит одним словом (значение читается до
+	// пробела), поэтому точки в нём должны значить ровно то же, что пробелы в имени.
+	EXPECT_EQ(ParseAffect("защита.от.стихии.огня!"), "Азащита от стихии огня");
+	EXPECT_EQ(ParseAffect("защита_от_стихии_огня!"), "Азащита от стихии огня");
+	// Строгий поиск остаётся строгим: сокращение целым именем не считается.
+	EXPECT_EQ(ParseAffect("защита.от.стихии!"), "");
 }
 
 TEST(ObjectsFilter_AffectName, UnknownNameIsNotParsed) {

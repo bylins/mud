@@ -16,12 +16,39 @@
 #include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/handlers/bone_commander.h"   // issue #4032: пересчёт костяной подати
 #include "engine/entities/obj_data.h"
 
 #include <fmt/format.h>
+#include <array>
 #include <sstream>
 
 namespace follow {
+
+// issue #4001: подчинение, найм и превращение в скакуна снимают мобу несколько флагов на время
+// службы -- kNoGroup/kAgressive/kSpec (spell_charm, do_hire), kWimpy/kSentinel/kHelper/kMounting
+// (mount). По окончании службы их возвращают из прототипа.
+const std::array<EMobFlag, 7> kServiceFlags = {
+	EMobFlag::kNoGroup,
+	EMobFlag::kAgressive,
+	EMobFlag::kSpec,
+	EMobFlag::kWimpy,
+	EMobFlag::kSentinel,
+	EMobFlag::kHelper,
+	EMobFlag::kMounting
+};
+
+// Возвращает мобу прототипные значения флагов службы, не трогая остальные. Раньше тут копировалось
+// слово флагов целиком, и вместе со службой моб терял всё, что движок поставил ему за жизнь:
+// kNoSkillTrain (просвет за него уже выдан), kSummoned/kCompanion (вызванный союзник),
+// kUndead/kResurrected (поднятый), kTutelar, kClone, kMentalShadow. Доставалось и мобам, которых
+// никто не подчинял: StopFollower зовётся на каждого последователя при смерти вожака, в том числе
+// в обычных зонных группах (FOLLOW в резетах зоны).
+void RestoreServiceFlagsFromProto(CharData *ch, const CharData *proto) {
+	for (const auto flag : kServiceFlags) {
+		proto->IsFlagged(flag) ? ch->SetFlag(flag) : ch->UnsetFlag(flag);
+	}
+}
 
 bool MakesLoop(CharData *ch, CharData *master) {
 	while (master) {
@@ -92,20 +119,29 @@ bool IsLeader(CharData *ch) {
 	return false;
 }
 
-void AddFollowerSilently(CharData *leader, CharData *ch) {
+bool AddFollowerSilently(CharData *leader, CharData *ch) {
 	if (ch->has_master()) {
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
 			GET_NAME(ch), leader->get_name().c_str(), GET_NAME(ch->get_master()));
-		return;
+		return false;
 	}
 
 	if (ch == leader) {
-		return;
+		return false;
 	}
 
 	ch->set_master(leader);
+	// issue #4083: set_master молча отказывает, если цепочка лидеров замкнулась бы в кольцо
+	// (CharData::set_master -> MakesLoop -> ReportLoopError -> return). Раньше ведомого всё
+	// равно клали в список, и он оставался там без хозяина. Снять такого нельзя -- StopFollower
+	// на нём сразу выходит с "stop_follower(...) without master", -- а DieFollower, разгоняя
+	// свиту, крутится на нём вечно и вешает сервер. Не взялся хозяин -- в список не кладём.
+	if (ch->get_master() != leader) {
+		return false;
+	}
 
 	leader->followers.push_front(ch);
+	return true;
 }
 
 void AddFollower(CharData *leader, CharData *ch) {
@@ -118,7 +154,9 @@ void AddFollower(CharData *leader, CharData *ch) {
 				leader->get_name(), GET_MOB_VNUM(leader), ch->get_name(), GET_MOB_VNUM(ch)));
 		return;
 	}
-	AddFollowerSilently(leader, ch);
+	if (!AddFollowerSilently(leader, ch)) {
+		return;
+	}
 
 	if (!mount::IsHorse(ch)) {
 		act("Вы начали следовать за $N4.", false, ch, 0, leader, kToChar);
@@ -145,6 +183,14 @@ bool CircleFollow(CharData *ch, CharData *victim) {
 // Called when a character that follows/is followed dies.
 // Detaches ch from its master (if any) and dismisses all of ch's followers.
 void DieFollower(CharData *ch) {
+	// issue #4032: выбыл кто-то из свиты -- костяную подать надо пересчитать, пока лидер ещё
+	// известен. Выбывающего передаём отдельно: в списке последователей он пока числится, а в счёте
+	// участвовать не должен. Пересчитываем и на скелете (меняется сумма долей), и на нежити
+	// (меняется делитель).
+	if (ch->IsNpc() && ch->has_master()) {
+		bone_commander::RefreshLevy(ch->get_master(), ch);
+	}
+
 	if (ch->has_master()) {
 		if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
 			mount::DropFromHorse(ch);
@@ -165,7 +211,22 @@ void DieFollower(CharData *ch) {
 	}
 
 	while (!ch->followers.empty()) {
-		StopFollower(ch->followers.front(), kSfMasterdie);
+		CharData *follower = ch->followers.front();
+		// Имя и внум снимаем до вызова: в части веток StopFollower доводит ведомого до
+		// extract_char, и после возврата читать из него уже нельзя.
+		const std::string follower_name = follower->get_name();
+		const auto follower_vnum = GET_MOB_VNUM(follower);
+		StopFollower(follower, kSfMasterdie);
+		// issue #4083: StopFollower снимает ведомого с того, кого тот САМ считает хозяином.
+		// Если список и указатель разошлись -- у ведомого хозяина нет вовсе или это кто-то
+		// другой, -- из нашего списка он не уйдёт, и цикл крутится вечно, заваливая лог
+		// строками "stop_follower(...) without master". Сервер при этом встаёт колом.
+		// Рассогласование рвём здесь: ведомый всё равно уходит вместе с хозяином.
+		if (!ch->followers.empty() && ch->followers.front() == follower) {
+			log("SYSERR: DieFollower: %s #%d числится в свите %s #%d, а сам того хозяином не считает.",
+				follower_name.c_str(), follower_vnum, GET_NAME(ch), GET_MOB_VNUM(ch));
+			ch->followers.remove(follower);
+		}
 	}
 }
 
@@ -185,6 +246,12 @@ bool StopFollower(CharData *ch, int mode) {
 		log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
 		return (false);
 	}
+
+	// issue #4001: служба бывает только под игроком -- подчинить, нанять и сделать скакуном может
+	// лишь он. В группе мобов (FOLLOW в резетах зоны) никто ничего не снимал, значит и возвращать
+	// нечего: там прототипные флаги только затёрли бы прижитое за жизнь. Лидера запоминаем сейчас,
+	// ниже его уже обнулят.
+	const bool served_player = !ch->get_master()->IsNpc();
 
 	// для смены лидера без лишнего спама
 	if (!IS_SET(mode, kSfSilence)) {
@@ -211,9 +278,21 @@ bool StopFollower(CharData *ch, int mode) {
 		}
 	}
 
+	// issue #4032: тот же пересчёт при отпускании или истечении чар -- лидера надо знать до
+	// обнуления. Сам пересчёт зовём ниже, не здесь: он объявляет "костяная свита убыла, и сила
+	// вернулась", и эта строка должна идти ПОСЛЕ сообщения об уходе скелета, иначе выходило
+	// задом наперёд -- нежить уже расправилась, а скелета ещё не развеяло.
+	CharData *levy_master = ch->IsNpc() ? ch->get_master() : nullptr;
 	ch->set_master(nullptr);
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 	group::RemoveGroupFlags(ch);
+	// Зовётся один раз, какой бы ветвью функция ни ушла.
+	const auto refresh_levy = [&levy_master, ch]() {
+		if (levy_master) {
+			bone_commander::RefreshLevy(levy_master, ch);
+			levy_master = nullptr;
+		}
+	};
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
@@ -231,6 +310,7 @@ bool StopFollower(CharData *ch, int mode) {
 		if (ch->IsNpc()) {
 			if (ch->IsFlagged(EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
+				refresh_levy();   // после строки об уходе, пока персонаж ещё в мире
 				GET_LASTROOM(ch) = ch->in_room;
 				PerformDropGold(ch, currencies::GetHand(*ch, currencies::kGold));
 				currencies::SetHand(*ch, currencies::kGold, 0);
@@ -270,10 +350,11 @@ bool StopFollower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
-		ch->CopyFlagsFrom(mob_proto + i);
+	if (served_player && ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
+		RestoreServiceFlagsFromProto(ch, mob_proto + i);
 	}
 
+	refresh_levy();
 	return (false);
 }
 

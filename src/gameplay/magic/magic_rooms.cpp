@@ -17,6 +17,7 @@
 #include "engine/db/player_index.h"
 #include "engine/db/db.h"           // chardata_by_uid
 #include "gameplay/fight/pk.h"          // pk_agro_action
+#include "gameplay/clans/house.h"     // Clan::GetClanByRoom (свой замок)
 #include "room_affects_loader.h"   // RoomAffectsLoader
 #include "gameplay/affects/affect_contants.h"   // EAffFlag
 #include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
@@ -146,7 +147,7 @@ namespace {
 // the casting source only sets strength + duration. Indexed by to_underlying(ERoomAffect)
 // (1-based; index 0 = kUndefined = no flags).
 constexpr std::size_t kRoomAffectFlagTableSize = to_underlying(ERoomAffect::kCount);
-std::array<Bitvector, kRoomAffectFlagTableSize> g_room_affect_flags{};
+std::array<AffectFlags, kRoomAffectFlagTableSize> g_room_affect_flags{};
 // issue.affect-migration: an affect's own <actions> (same format as a spell's <talent_actions>). Each
 // <action> carries its own <trigger> (EActionTrigger) deciding when it fires; the room affect performs
 // the matching actions directly each tick -- no dedicated tick_spell / tick_handler. A side_spell action
@@ -183,7 +184,7 @@ bool ActionFiresOnPulse(const talents_actions::Action &action, bool combat) {
 }
 
 void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
-	g_room_affect_flags.fill(0);
+	g_room_affect_flags.fill(AffectFlags{});
 	g_room_affect_cap.fill(0);
 	g_room_affect_has_seal.fill(false);
 	for (auto &s : g_room_affect_seal) { s = talents_actions::TalentAffect::Apply{}; }
@@ -210,7 +211,7 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 			auto fnode = node;
 			if (fnode.GoToChild("flags")) {
 				if (const char *flags = fnode.GetValue("val"); flags && *flags) {
-					g_room_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+					g_room_affect_flags[idx] = parse::ReadAsConstantsFlags<EAffFlag>(flags);
 				}
 			}
 		}
@@ -272,10 +273,11 @@ void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
 }  // namespace
 
 // issue.affect-migration: a room affect's intrinsic behavior flags from room_affects.xml, keyed by
-// affect_type. 0 for room affects with no row/flags. Loaded? guards apply-time sourcing (Phase R2).
-Bitvector RoomAffectFlagsByType(ERoomAffect affect_type) {
+// affect_type. Пустой набор, если строки/флагов нет. Loaded? guards apply-time sourcing (Phase R2).
+const AffectFlags &RoomAffectFlagsByType(ERoomAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
-	return idx < kRoomAffectFlagTableSize ? g_room_affect_flags[idx] : Bitvector{0};
+	static const AffectFlags kNone;
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_flags[idx] : kNone;
 }
 bool RoomAffectFlagsLoaded() { return g_room_affect_flags_loaded; }
 
@@ -337,7 +339,7 @@ cfg_manager::ValidationResult RoomAffectsLoader::Validate(parser_wrapper::DataNo
 		if (auto fnode = ra; fnode.GoToChild("flags")) {
 			if (const char *fv = fnode.GetValue("val"); fv && *fv) {
 				try {
-					(void) parse::ReadAsConstantsBitvector<EAffFlag>(fv);
+					(void) parse::ReadAsConstantsFlags<EAffFlag>(fv);
 				} catch (const std::exception &) {
 					return {false, std::string("room affect '") + id + "': unknown flag in '" + fv + "'."};
 				}
@@ -935,6 +937,17 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id) {
 	if (author && group::same_group(ch, author)) {
 		return {true, author};
 	}
+	// Соклановец для комнатных заклятий -- свой: перекрыть печать, наложенную однокланцем,
+	// не нападение. В своём замке это верно и для ушедшего из игры автора -- комната
+	// принадлежит клану, а не тому, кто накладывал.
+	if (!ch->IsNpc() && CLAN(ch)) {
+		if (author && !author->IsNpc() && CLAN(author) == CLAN(ch)) {
+			return {true, author};
+		}
+		if (ch->in_room != kNowhere && Clan::GetClanByRoom(ch->in_room) == CLAN(ch)) {
+			return {true, author};
+		}
+	}
 	return {false, author};
 }
 
@@ -973,7 +986,7 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 		af[0].caster_id = ch->get_uid();
 		// issue.affect-migration: flags come from room_affects.xml by affect_type (so the update-gate
 		// below reads the right kAfUpdateDuration/kAfUpdateMod).
-		af[0].battleflag.set_plane(0, RoomAffectFlagsByType(af[0].affect_type));
+		af[0].battleflag = RoomAffectFlagsByType(af[0].affect_type);
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
 			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
@@ -1171,8 +1184,10 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll) {
 void affect_to_exit(const RoomData::exit_data_ptr &exit, const Affect<ERoomApply> &af) {
 	Affect<ERoomApply>::shared_ptr new_affect(new Affect<ERoomApply>(af));
 	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
-		new_affect->battleflag.set_plane(0, RoomAffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed)));
+		new_affect->battleflag = RoomAffectFlagsByType(af.affect_type);
+		if (af.battleflag.get(kAfFailed)) {
+			new_affect->battleflag.set(kAfFailed);
+		}
 	}
 	exit->affected.push_front(new_affect);
 }
@@ -1215,7 +1230,7 @@ ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll) {
 		af.affect_type = talent.GetRoomAffect();
 		af.caster_id = ch->get_uid();
 		af.location = kNone;
-		af.battleflag.set_plane(0, RoomAffectFlagsByType(af.affect_type));
+		af.battleflag = RoomAffectFlagsByType(af.affect_type);
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
 			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
@@ -1333,8 +1348,10 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	// affect_type; the caller contributes only the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (pre-cfg boot keeps caller flags); kUndefined room affects (no row) keep theirs.
 	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
-		new_affect->battleflag.set_plane(0, RoomAffectFlagsByType(af.affect_type)
-				| (af.battleflag.get_plane(0) & static_cast<Bitvector>(kAfFailed)));
+		new_affect->battleflag = RoomAffectFlagsByType(af.affect_type);
+		if (af.battleflag.get(kAfFailed)) {
+			new_affect->battleflag.set(kAfFailed);
+		}
 	}
 
 	room->affected.push_front(new_affect);

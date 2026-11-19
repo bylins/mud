@@ -9,6 +9,9 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+
+#include <set>
+#include <utility>
 #include "engine/scripting/lua/lua_line_numbers.h"
 #include "gameplay/affects/affect_messages.h"
 #include "gameplay/core/experience.h"
@@ -164,6 +167,42 @@ void trig_log(Trigger *trig, std::string msg, LogMode type) {
 			   type);
 }
 
+// issue #4207: тихий близнец trig_log -- пишет только в файл сислога, без потока богам.
+// Нужен для диагностики, которая выдаёт строку на каждое исполнение: в ERRLOG такое уходит
+// богам на экран и забивает его.
+void trig_log_quiet(Trigger *trig, const std::string &msg) {
+	if (!trig) {
+		return;
+	}
+	std::string text = fmt::format("SCRIPT LOG (Trigger: {}, VNum: {}) : {} [строка: {}]",
+								   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg, last_trig_line_num);
+	// Метки UID -- управляющие байты, в лог их писать нельзя (см. script_log).
+	std::replace_if(text.begin(), text.end(),
+					[](char c) {
+						return c == UID_OBJ || c == UID_ROOM || c == UID_CHAR || c == UID_CHAR_ALL;
+					},
+					' ');
+	log("%s", text.c_str());
+}
+
+// issue #4163: цель в триггере положено указывать UID'ом (%actor%, %self%, %obj%), а не текстом
+// (.%actor.iname%). Текст движок ищет заново и сравнивает по началу слова, поэтому имя игрока
+// совпадает с алиасом моба, который с этого имени начинается, а в списке комнаты чужие и ведомые
+// НПС стоят раньше игрока (#3984) -- команда уходит не туда. Переписать 2287 таких строк мира
+// разом нельзя, поэтому места называет сам движок: по одной строке на место за загрузку. Писать
+// на каждое исполнение нельзя -- те же строки выдают награды постоянно, и лог захлебнется.
+void script_log_text_target(Trigger *trig, std::string_view command, std::string_view target) {
+	if (!trig) {
+		return;
+	}
+	static std::set<std::pair<int, int>> reported;
+	if (!reported.emplace(GET_TRIG_VNUM(trig), last_trig_line_num).second) {
+		return;
+	}
+	trig_log(trig, fmt::format("{}: цель задана текстом ({}) -- нужен UID, см. справку по триггерам",
+							   command, target));
+}
+
 cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr cl);
 cmdlist_element::shared_ptr find_done(Trigger *trig, cmdlist_element::shared_ptr cl);
 cmdlist_element::shared_ptr find_case(Trigger *trig, cmdlist_element::shared_ptr cl, void *go, Script *sc, int type, char *cond);
@@ -214,7 +253,13 @@ void GlobalTriggersStorage::shift_rnums_from(const Rnum rnum) {
 	//       Actually we need to get rid of rnums at all.
 	std::list<Trigger *> to_rebind;
 	for (const auto trigger : m_triggers) {
-		if (trigger->get_rnum() > rnum) {
+		// Граница включающая: прототип, стоявший РОВНО на rnum, тоже уезжает на rnum+1
+		// (см. цикл пересборки trig_index в trigedit_save), а новый триггер занимает его
+		// место. Живой экземпляр с таким же rnum надо сдвинуть вместе с прототипом, иначе
+		// он начинает указывать на чужую строку индекса. Остальные поправки на том же
+		// месте вызова (команды 'T' в зонах, триги в чужих trigedit'ах) давно считают
+		// границу по >=.
+		if (trigger->get_rnum() >= rnum) {
 			to_rebind.push_back(trigger);
 		}
 	}
@@ -797,28 +842,10 @@ EVENT(trig_wait_event) {
 	go = wait_event_obj->go;
 	type = wait_event_obj->type;
 	GET_TRIG_WAIT(trig).time_remaining = 0;
-	// issue #3523: from_current выставляется только при паузе триггера из-за стана
-	// моба. Логируем возобновление лишь когда триггер РЕАЛЬНО продолжится, иначе
-	// лог о "продолжил работу" был бы ложным. Проверять надо ДО script_driver:
-	// после него trig может быть уже удалён (remove_trigger -> ExtractTrigger).
-	//  - цикл script_driver зайдёт только если есть строка (curr_line), триггер
-	//    не свёрнут (GET_TRIG_DEPTH) и не остановлен (is_halted);
-	//  - моб не выведен из мира (in_room != kNowhere: extract_char уже вынул бы
-	//    его из комнаты, а script_driver ничего не выполнит);
-	//  - моб вышел из стана: иначе интерпретатор снова повесит wait и команда
-	//    опять не выполнится.
-	if (wait_event_obj->from_current && type == MOB_TRIGGER && go && trig
-			&& trig->curr_line && GET_TRIG_DEPTH(trig) && !trig->is_halted()) {
-		auto *mob = static_cast<CharData *>(go);
-		if (mob->in_room != kNowhere
-				&& !AFF_FLAGGED(mob, EAffect::kHold)
-				&& !AFF_FLAGGED(mob, EAffect::kStopFight)
-				&& !AFF_FLAGGED(mob, EAffect::kMagicStopFight)) {
-			mudlog(fmt::format("DG: триггер {} #{} продолжил работу после лага моба {} #{}",
-					GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), GET_SHORT(mob), GET_MOB_VNUM(mob)),
-					CMP, kLvlGod, SYSLOG, true);
-		}
-	}
+	// issue #3523: здесь стоял лог "триггер продолжил работу после лага моба" -- он показывал, что
+	// снятый стан действительно возобновляет триггер. Разбор закончен, а в игре это шло богам в
+	// поток и забивало его: возобновление -- рядовое событие, по нескольку раз в минуту. Вместе с
+	// логом убраны и проверки, которые считались только ради него.
 	script_driver(go, trig, type, wait_event_obj->from_current ? TRIG_FROM_LINE : TRIG_CONTINUE);
 	free(wait_event_obj);
 }
@@ -829,8 +856,10 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 		return;
 	}
 
+	// Имя, аргументы и тело печатаем через RawText: иначе proc_color покажет подчеркивания
+	// пробелами, и скопированный из игры скрипт вернется в редактор уже сломанным.
 	SendMsgToChar(fmt::format("Name: '&y{}&n',  VNum: [&g{:7}&n], RNum: [{:7}]\r\n",
-							  trig->get_name(), trig_index[(trig)->get_rnum()]->vnum, trig->get_rnum()),
+							  RawText(trig->get_name()), trig_index[(trig)->get_rnum()]->vnum, trig->get_rnum()),
 				  ch);
 
 	std::string types;
@@ -848,7 +877,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 					  static_cast<int>(trig->get_attach_type()));
 	}
 
-	const std::string arglist = !trig->arglist.empty() ? trig->arglist : "None";
+	const std::string arglist = !trig->arglist.empty() ? RawText(trig->arglist) : "None";
 	std::string out;
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		out = fmt::format("Trigger Type: {}, Numeric Arg: {}, Execute mob command: {}, Arg list: {}\r\n",
@@ -862,9 +891,9 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 		out += "Lua script:\r\n";
 		const auto &lua_source = trig->get_lua_script_source();
 		if (!lua_source.empty()) {
-			out += need_num
-				   ? lua_scripting::FormatNumberedSource(lua_source, 1, std::numeric_limits<int>::max())
-				   : lua_source;
+			out += RawText(need_num
+						   ? lua_scripting::FormatNumberedSource(lua_source, 1, std::numeric_limits<int>::max())
+						   : lua_source);
 			out += "\r\n";
 		}
 		page_string(ch->desc, out);
@@ -878,7 +907,7 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 			if (need_num) {
 				out += fmt::format("{:4}:  ", cmd_list->line_num);
 			}
-			out += cmd_list->cmd;
+			out += RawText(cmd_list->cmd);
 			out += "\r\n";
 		}
 		cmd_list = cmd_list->next;
@@ -1398,30 +1427,27 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 		snprintf(str, str_size, "%s", utils::TrimCopy(vd.value).c_str());
 		return true;
 	} else if (!str_cmp(field, "fullword")) {
-//не работает с русским
-/*			std::string word = subfield;
-			std::string sentence = vd->value;
-			std::regex rgx("\\b" + word + "\\b"); 
-			if (std::regex_search(sentence, rgx))
-*/
+		// Регистра в DG нет, и сравнивать с его учетом нельзя: add_var_cntx понижает
+		// значение у каждого set/eval/global/worlds, а подполе приходит как написано в
+		// скрипте -- %actor.iname% отдает имя падежом, то есть с большой буквы. Побайтовое
+		// сравнение их не сводило никогда: проверка по списку имен была вечно ложной, молча,
+		// без следа в логе. Из-за этого в зоне 780 не работала вся линейка квестов.
+		// Границу слова ищем разбором по пробелам, а не регулярным выражением: \b в
+		// std::regex на кириллице не работает.
 		std::string sentence = vd.value;
-		std::vector<std::string> tmpstr;
+		utils::ConvertToLow(sentence);
+		std::string needle(subfield ? subfield : "");
+		utils::ConvertToLow(needle);
+
+		std::vector<std::string> words;
 		std::istringstream is(sentence);
-		std::string temp;
-		while(is >> temp)
-			tmpstr.push_back(temp); // перенесем фразу в вектор
-		if (std::find(tmpstr.begin(), tmpstr.end(), subfield) != tmpstr.end())
-// вариант номер два
-/*		std::string sentence = vd->value;
-		std::stringstream parser(sentence);
-		std::istream_iterator<std::string> start(parser);
-		std::istream_iterator<std::string> end;
-		std::vector<std::string> words(start, end);
-		if(find(words.begin(), words.end(), subfield) != words.end())
-*/
-			snprintf(str, str_size, "1");
-		else
-			snprintf(str, str_size, "0");
+		std::string word;
+		while (is >> word) {
+			words.push_back(word);
+		}
+
+		const bool found = std::find(words.begin(), words.end(), needle) != words.end();
+		snprintf(str, str_size, "%s", found ? "1" : "0");
 		return true;
 	} else if (!str_cmp(field, "contains")) {
 		if (str_str(vd.value.c_str(), subfield))
@@ -1822,7 +1848,7 @@ void find_replacement(void *go,
 				return;
 			}
 			ZoneRnum zrn = GetZoneRnum(atoi(param[0].c_str()));
-			if (zrn == 0) {
+			if (zrn <= 0) {
 				trig_log(trig, "recalc: нет такой зоны");
 				return;
 			}
@@ -1861,14 +1887,18 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "%s", "0");
 				}
 			} else if (!str_cmp(field, "isdungeon") && num > 0) {
-				snprintf(str, str_size, "%d", zone_table[GetZoneRnum(num)].copy_from_zone);
+				// Номер зоны берется из триггера: для несуществующей GetZoneRnum() вернет
+				// kNoZone (-1), а zone_table[-1] роняет сервер.
+				ZoneRnum zrn = GetZoneRnum(num);
+				snprintf(str, str_size, "%d", zrn < 0 ? 0 : zone_table[zrn].copy_from_zone);
 			} else if (!str_cmp(field, "zoneentrance") && num > 0) {
-				snprintf(str, str_size, "%d", zone_table[GetZoneRnum(num)].entrance);
+				ZoneRnum zrn = GetZoneRnum(num);
+				snprintf(str, str_size, "%d", zrn < 0 ? 0 : zone_table[zrn].entrance);
 			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
 				dungeons::DungeonReset(GetZoneRnum(num));
 			} else if (!str_cmp(field, "zonename") && num > 0) {
 				ZoneRnum zrn = GetZoneRnum(num);
-				if (zrn == 0) {
+				if (zrn <= 0) {
 					snprintf(str, str_size, "0");
 				} else {
 					snprintf(str, str_size, "%s", zone_table[zrn].name.c_str());
@@ -1906,7 +1936,13 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
 				const auto rnum = GetObjRnum(num);
 
-				if (rnum <= 0) {
+				if (rnum == 0) {
+					// rnum 0 -- служебный прототип, из него движок делает трупы и деньги.
+					trig_log(trig, fmt::format("#{} -- служебный прототип, грузить нельзя (canbeloaded)", num).c_str());
+					snprintf(str, str_size, "0");
+					return;
+				}
+				if (rnum < 0) {
 					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в canbeloaded", num).c_str());
 					snprintf(str, str_size, "0");
 					return;
@@ -1927,7 +1963,13 @@ void find_replacement(void *go,
 				// %LoadedUid% (выставляет load-команда).
 				const auto rnum = GetObjRnum(num);
 
-				if (rnum <= 0) {
+				if (rnum == 0) {
+					// rnum 0 -- служебный прототип, из него движок делает трупы и деньги.
+					trig_log(trig, fmt::format("#{} -- служебный прототип, грузить нельзя (loadobj)", num).c_str());
+					snprintf(str, str_size, "0");
+					return;
+				}
+				if (rnum < 0) {
 					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в loadobj", num).c_str());
 					snprintf(str, str_size, "0");
 					return;
@@ -2591,9 +2633,12 @@ void find_replacement(void *go,
 				trig_log(trig, "был произведен вызов DoRestore!");
 			}
 		} else if (!str_cmp(field, "dispel")) {
-			if (!mob->affected.empty()) {
+			// issue #3988: снимаем то же, что снимает магия, а не весь список подряд: иначе
+			// вместе с бафами уходило волшебство надетого (аффекты с kAfFromEquipment заводит
+			// надевание вещи, и affect_total их не воссоздаёт -- браслет оставался без своего
+			// определения невидимости до перенадевания) и привязка призванного существа.
+			if (RemoveDispellableAffects(mob)) {
 				SendMsgToChar("Вы словно заново родились!\r\n", mob);
-				mob->affected.clear();
 				affect_total(mob);
 			}
 		} else if (!str_cmp(field, "Currency")) {
@@ -3065,13 +3110,13 @@ void find_replacement(void *go,
 					}
 				}
 			} else if (!str_cmp(field, "applyvalue")) {
-				int num;
 				int sum  = 0;
-				for (num = 0; num < EApply::kNumberApplies; num++) {
-					if (utils::IsAbbr(subfield, apply_types[num]))
-						break;
-				}
-				if (num == EApply::kNumberApplies) {
+				// Сверяем по словам, как dgaffect после issue #4113. Имена в apply_types
+				// многословные ("*множитель опыта"), а триггеры пишут их через точку:
+				// посимвольный IsAbbr спотыкался на первом же разделителе, подстановка уходила
+				// пустой, и условие вроде "> 2" молча оказывалось ложным.
+				const int num = search_block_by_words(subfield, apply_types);
+				if (num < 0) {
 					trig_log(trig, fmt::format("Не найден апплай '{}' в списке ApplyTypes", subfield));
 					return;
 				}
@@ -3131,11 +3176,9 @@ void find_replacement(void *go,
 						trig_log(trig, fmt::format("Не найден аффект {} в списке AffectedBy", subfield));
 						return;
 					}
-					for (num = 0; num < EApply::kNumberApplies; num++) {
-						if (!str_cmp(p, apply_types[num]))
-						break;
-					}
-					if (num == EApply::kNumberApplies) {
+					// по словам, а не точным str_cmp: см. applyvalue выше
+					num = search_block_by_words(p, apply_types);
+					if (num < 0) {
 						trig_log(trig, fmt::format("Не найден апплай '{}' в списке AffectedBy", p));
 						return;
 					}
@@ -3366,6 +3409,27 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "name")) {
 			snprintf(str, str_size, "%s", obj->get_aliases().c_str());
+		} else if (!str_cmp(field, "alias")) {
+			// Вещь, названная так, чтобы ее можно было подставить аргументом в команду.
+			// %object.name% для этого не годится: там весь список алиасов, а команды
+			// разбирают аргументы по словам -- "дать %object.name% %actor%" на вещи
+			// "шкура волка" уходит как "дать шкура волка <uid>", и получателем
+			// оказывается слово "волка".
+			// Отдаем первое слово, а если их несколько -- первые два через точку:
+			// isname понимает такой запрос ("шкура.волка" находит "шкура волка"), а
+			// get_number нечисловую часть до точки не трогает. Двух слов хватает,
+			// чтобы отличить "шкура волка" от "шкура медведя", и они остаются одним
+			// аргументом команды.
+			std::istringstream is(obj->get_aliases());
+			std::string first;
+			std::string second;
+			is >> first;
+			is >> second;
+			if (second.empty()) {
+				snprintf(str, str_size, "%s", first.c_str());
+			} else {
+				snprintf(str, str_size, "%s.%s", first.c_str(), second.c_str());
+			}
 		} else if (!str_cmp(field, "id")) {
 			snprintf(str, str_size, "%c%ld", UID_OBJ, obj->get_id());
 		} else if (!str_cmp(field, "unique")) {
@@ -3535,12 +3599,10 @@ void find_replacement(void *go,
 			if (p) {
 				*p++ = '\0';
 			}
-			int num, i;
-			for (num = 0; num < EApply::kNumberApplies; num++) {
-				if (!str_cmp(subfield, apply_types[num]))
-				break;
-			}
-			if (num == EApply::kNumberApplies) {
+			int i;
+			// по словам, а не точным str_cmp: см. applyvalue выше
+			const int num = search_block_by_words(subfield, apply_types);
+			if (num < 0) {
 				trig_log(trig, fmt::format("Не найден апплай '{}' в списке apply_types", subfield));
 				return;
 			}
@@ -3565,6 +3627,16 @@ void find_replacement(void *go,
 			char *p = strchr(subfield, ',');
 			if (p) {
 				*p = '\0';
+			}
+			if (!*subfield) {
+				// %obj.skill% без параметра -- умение оружия (в oedit это «Выберите умение»).
+				// Для прочих типов предметов spec_param значит другое, поэтому возвращаем пусто.
+				if (obj->get_type() == EObjType::kWeapon) {
+					snprintf(str, str_size, "%d", obj->get_spec_param());
+				} else {
+					*str = '\0';
+				}
+				return;
 			}
 			ESkill skill_id;
 
@@ -3994,6 +4066,76 @@ void find_replacement(void *go,
 	}
 }
 
+// Строка-одиночка вида "%цель.поле(...)%" -- это вызов поля ради его действия, а не команда.
+// Такие поля ставят ожидание, переносят по комнатам, начисляют куны, грузят предметы, и
+// некоторые при этом еще возвращают значение: world.loadobj отдает "1" или "0". После
+// подстановки в строке остается только это значение, и интерпретатор команд триггера
+// принимает его за команду -- в комнатном триггере получается "Unknown world cmd: '0'".
+// Действие к этому моменту уже сделано внутри var_subst, исполнять нечего.
+//
+// Границу выражения ищем так же, как var_subst: закрывающий процент -- первый, что встретился
+// вне круглых скобок, потому что внутри них живут вложенные подстановки, вида
+// "%world.loadobj(%vnum%, 200)%".
+//
+// Обязательны и точка, и скобки: именно "поле(аргумент)" -- форма действия. Строки без скобок
+// ("%char.dispel%", "%cmd.mudcommand%") и простые переменные ("%dir%", "%purge%", "%echo%")
+// под правило не подпадают -- там подставленное значение как раз и есть команда или слово
+// для нее, и исполнять его надо по-прежнему.
+bool IsFieldCallStatement(const char *line) {
+	const char *p = line;
+	while (*p && a_isspace(*p)) {
+		++p;
+	}
+	if (*p != '%' || p[1] == '%') {
+		return false;
+	}
+	++p;
+	const char *dot = nullptr;
+	int paren = 0;
+	for (; *p; ++p) {
+		if (*p == '.' && !paren && !dot) {
+			dot = p;
+		} else if (*p == '(') {
+			++paren;
+		} else if (*p == ')') {
+			if (paren > 0) {
+				--paren;
+			}
+		} else if (*p == '%' && !paren) {
+			break;
+		}
+	}
+	// Закрывающий процент на месте, перед ним закрытая скобка, а точка была до скобок.
+	if (*p != '%' || !dot || p == line || p[-1] != ')' || dot > p) {
+		return false;
+	}
+	++p;
+	while (*p && a_isspace(*p)) {
+		++p;
+	}
+	return !*p;
+}
+
+// Подстановка может не оставить от строки ничего. Поле без скобок делает свое дело прямо в
+// var_subst и возвращает пустоту: "%pc.dispel%" снимает чары и ничего не печатает (таких строк
+// в мире 11, в зонах 150, 152, 972 и 973). Так же подставляется переменная, которой не
+// оказалось. Исполнять тут нечего, а до сих пор такая строка доезжала до интерпретатора
+// команд, и в сислог на каждое исполнение шло "Unknown mob cmd: ''" -- на одном бое Клеопатры
+// (97235, foreach по комнате) девятнадцать строк за секунду.
+//
+// Правило IsFieldCallStatement выше сюда не дотягивается: оно требует скобок, а форма без них
+// ("%char.dispel%", "%cmd.mudcommand%") под него не подпадает намеренно -- там подставленное
+// значение обычно и есть команда. Проверка #4187 тоже мимо: она смотрит строку триггера до
+// подстановки, а эта строка непустая.
+bool IsBlankAfterSubst(const char *cmd) {
+	for (const char *p = cmd; *p; ++p) {
+		if (!a_isspace(*p)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 // substitutes any variables into line and returns it as buf
 void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, char *buf, size_t buf_size) {
 	char tmp[kMaxTrglineLength], repl_str[kMaxTrglineLength], *var, *field, *p;
@@ -4075,6 +4217,15 @@ void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, 
 			left -= len;
 		}
 	}
+}
+
+// Служебный прототип -- это rnum 0: из него движок делает трупы, кучки кун и прочие
+// безымянные заготовки (WorldObjects::create_blank зовет create_from_prototype_by_rnum(0)).
+// В данных мира это объект #100 с именем "служебный объект". Триггеру его грузить нечего:
+// копия такой заготовки -- мусор, который вдобавок наследует чужой внум, и в логе ее потом
+// не отличить от настоящего трупа или кучки монет.
+bool IsServiceObjVnum(ObjVnum vnum) {
+	return GetObjRnum(vnum) == 0;
 }
 
 // returns 1 if string is all digits, else 0
@@ -4730,6 +4881,58 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	add_var_cntx(trig->var_list, name, result, 0);
 }
 
+// issue #4207: диагностика attach/exec. В бою attach молча не прикреплял триггер, а следом exec
+// сообщал «Не найден триггер», и по логу было не отличить «цель не та» от «прикрепление не
+// состоялось». Эти две функции описывают цель и перечисляют уже висящие на ней триггеры, чтобы
+// обе команды писали в сислог, что именно они видели. Временная диагностика -- см. issue.
+namespace {
+
+std::string DescribeTriggerTarget(CharData *c, ObjData *o, RoomData *r) {
+	if (c) {
+		return fmt::format("{} '{}' #{} uid {}",
+						   c->IsNpc() ? "моб" : "игрок",
+						   GET_NAME(c) ? GET_NAME(c) : "?",
+						   c->IsNpc() ? GET_MOB_VNUM(c) : -1,
+						   c->get_uid());
+	}
+	if (o) {
+		return fmt::format("предмет '{}' #{} uid {}", o->get_short_description(), GET_OBJ_VNUM(o), o->get_id());
+	}
+	if (r) {
+		return fmt::format("комната #{}", r->vnum);
+	}
+	return "цель не определена";
+}
+
+std::string ListAttachedTriggers(Script *sc) {
+	if (!sc) {
+		return "у цели нет script";
+	}
+	std::string out;
+	for (auto t : sc->script_trig_list) {
+		if (!out.empty()) {
+			out += ", ";
+		}
+		out += std::to_string(GET_TRIG_VNUM(t));
+	}
+	return out.empty() ? "список пуст" : out;
+}
+
+Script *ScriptOfTarget(CharData *c, ObjData *o, RoomData *r) {
+	if (c) {
+		return SCRIPT(c).get();
+	}
+	if (o) {
+		return o->get_script().get();
+	}
+	if (r) {
+		return SCRIPT(r).get();
+	}
+	return nullptr;
+}
+
+}  // namespace
+
 // script attaching a trigger to something
 void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/, char *cmd) {
 	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
@@ -4796,7 +4999,15 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (c) {
 		if (add_trigger(SCRIPT(c).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
+									   ListAttachedTriggers(SCRIPT(c).get())));
 		} else {
+			// issue #4207: единственная ветка, которая раньше уходила молча
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(c, nullptr, nullptr),
+									   ListAttachedTriggers(SCRIPT(c).get())));
 			ExtractTrigger(newtrig);
 		}
 
@@ -4807,7 +5018,14 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 		if (add_trigger(o->get_script().get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
 			world_objects.update_obj_indices(o);
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
+									   ListAttachedTriggers(o->get_script().get())));
 		} else {
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, o, nullptr),
+									   ListAttachedTriggers(o->get_script().get())));
 			ExtractTrigger(newtrig);
 		}
 		return;
@@ -4816,7 +5034,14 @@ void process_attach(void * /*go*/, Script * /*sc*/, Trigger *trig, int /*type*/,
 	if (r) {
 		if (add_trigger(SCRIPT(r).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->vnum);
+			// issue #4207: временная диагностика, тихо -- только в файл сислога
+			trig_log_quiet(trig, fmt::format("attach {} прикреплён: {}, теперь на цели: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
+									   ListAttachedTriggers(SCRIPT(r).get())));
 		} else {
+			trig_log_quiet(trig, fmt::format("attach {} НЕ прикреплён (add_trigger отказал): {}, на цели уже: {}",
+									   trignum_s, DescribeTriggerTarget(nullptr, nullptr, r),
+									   ListAttachedTriggers(SCRIPT(r).get())));
 			ExtractTrigger(newtrig);
 		}
 		return;
@@ -4991,6 +5216,10 @@ int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, c
 		trig_log(*trig, fmt::format("run invalid trignum, команда: '{}'", cmd));
 		return (false);
 	}
+	// issue #4207: временная диагностика -- по строке на каждый exec: что за цель и что на ней
+	// висит. Тихо, только в файл сислога: строка на каждое исполнение богам в поток не нужна.
+	trig_log_quiet(*trig, fmt::format("exec {}: цель {}, на цели: {}",
+								num, DescribeTriggerTarget(c, o, r), ListAttachedTriggers(ScriptOfTarget(c, o, r))));
 	if (c && SCRIPT(c)->has_triggers()) {
 		auto tmp = SCRIPT(c)->script_trig_list.find_by_vnum(num);
 		if (tmp) {
@@ -5020,7 +5249,10 @@ int process_run(void * /*go*/, Script ** /*sc*/, Trigger **trig, int /*type*/, c
 		}
 	}
 	if (!runtrig) {
-		trig_log(*trig, fmt::format("Не найден триггер, команда: '{}'", cmd));
+		// issue #4207: к сообщению добавлены цель и её список триггеров -- иначе не отличить
+		// «цель не та» от «attach не прикрепил»
+		trig_log(*trig, fmt::format("Не найден триггер, команда: '{}' (цель {}, на цели: {})",
+									cmd, DescribeTriggerTarget(c, o, r), ListAttachedTriggers(ScriptOfTarget(c, o, r))));
 		return false;
 	}
 	// copy variables
@@ -5807,7 +6039,10 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		}
 		const char *p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && isspace(*p); p++);
-		if (*p == '*' || *p == '/')    // comment
+		// Пустая строка -- не команда. Триггер без тела (в мире такие есть: 75303 "[m03]
+		// родился коварный карлик") дает ровно одну такую строку, и она доезжала до
+		// интерпретатора команд -- в сислог на каждый ресет шло "Unknown mob cmd: ''".
+		if (!*p || *p == '*' || *p == '/')    // empty line or comment
 		{
 			continue;
 		} else if (!strncmp(p, "if ", 3)) {
@@ -5904,7 +6139,12 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			cl = find_done(trig, cl);
 		} else if (!strncmp(p, "continue", 8)) {
 			cl = find_continue_done(trig, cl);
-		} else if (!strncmp(p, "case", 4))    // Do nothing, this allows multiple cases to a single instance
+		} else if (!strncmp(p, "case", 4) || !strncmp(p, "default", 7))
+			// Do nothing, this allows multiple cases to a single instance.
+			// "default" попал сюда вместе с "case": прыжок по switch его понимает
+			// (find_case), но провал из предыдущей ветки без break доводил саму строку
+			// до интерпретатора команд -- в комнатном триггере это "Unknown world cmd:
+			// 'default'". Таких строк в мире 811, и мобий лог ниже закричал бы на каждой.
 		{
 		} else {
 			var_subst(go, sc, trig, type, p, cmd, sizeof(cmd));
@@ -5912,9 +6152,15 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
-			if (!strncmp(cmd, "eval ", 5)) {
+			if (IsFieldCallStatement(p)) {
+				// Поле уже отработало внутри var_subst; возвращенное значение не команда.
+			} else if (IsBlankAfterSubst(cmd)) {
+				// После подстановки от строки ничего не осталось -- исполнять нечего.
+			} else if (!strncmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "nop ", 4)) { ;    // nop: do nothing
+			} else if (!strncmp(cmd, "nop ", 4) || !str_cmp(cmd, "nop")) { ;
+				// nop: do nothing. Пробел в образце требовал аргумента, и одинокий "nop"
+				// (в мире три таких) проваливался в интерпретатор как неизвестная команда.
 			} else if (!strncmp(cmd, "add_stuf_zone ", 14)) {
 				add_stuf_zone(trig, cmd);
 			} else if (!strncmp(cmd, "extract ", 8)) {

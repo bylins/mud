@@ -26,7 +26,7 @@ namespace {
 // renderers agree on the arithmetic.
 int AffectDisplayMod(const Affect<EApply>::shared_ptr &aff) {
 	// Pulse-decayed affects count down in ~1/25.5s pulses; convert to the tick scale used below.
-	if (aff->battleflag.get_plane(0) == static_cast<Bitvector>(kAfPulsedec)) {
+	if (aff->battleflag == AffectFlags{kAfPulsedec}) {
 		return aff->duration / 51;
 	}
 	return aff->duration;
@@ -82,7 +82,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
 	// склеивается через ", " (иначе после метки была бы лишняя запятая).
 	SendMsgToChar(fmt::format("&y{}&w\r\n",
-							  utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "Аффекты: ")),
+							  utils::OutWordsList(out_str, LineWrapWidth(ch), ", ", "Аффекты: ")),
 				  ch);
 
 	if (ch->affected.empty()) {

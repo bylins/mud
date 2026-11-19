@@ -38,7 +38,9 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.location = EApply::kNone;
 	const bool lw_failed = (number(1, 1000) > number(1, GetRealDex(ch) * 50));
 	af.affect_type = EAffect::kLightWalk;
-	af.battleflag.set_plane(0, lw_failed ? static_cast<Bitvector>(kAfFailed) : 0);
+	if (lw_failed) {
+		af.battleflag.set(kAfFailed);
+	}
 	affect_to_char(ch, af);
 	// issue.affect-migration: success/fail narration on the kLightWalk affect (kAfFailed-driven).
 	EmitAffectImpose(ch, nullptr, EAffect::kLightWalk, lw_failed);

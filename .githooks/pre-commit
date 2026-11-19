@@ -97,12 +97,13 @@ for FILE in $FILES; do
         fi
         
         echo "  ✅ Кодировка правильная"
-    elif [[ "$FILE" == src/* || "$FILE" == tests/* ]]; then
+    elif [[ "$FILE" == src/* || "$FILE" == tests/* || "$FILE" == lib.template/* ]]; then
         # Исходники после флипа (issue #3681) обязаны быть валидным UTF-8. Файл, случайно
         # сохранённый редактором в KOI8-R, внешне выглядит нормально, но ломает литералы.
+        # lib.template с тех пор тоже в UTF-8, и попавший туда KOI8-R так же незаметен.
         if ! iconv -f utf-8 -t utf-8 "$FILE" >/dev/null 2>&1; then
             echo "📄 $FILE"
-            echo "  ❌ ОШИБКА: не UTF-8. Исходники должны быть в UTF-8."
+            echo "  ❌ ОШИБКА: не UTF-8. Исходники и lib.template должны быть в UTF-8."
             ERROR_FOUND=1
             continue
         fi

@@ -48,11 +48,14 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	SendMsgToChar("Вы начали усиленно маскироваться.\r\n", ch);
 	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
+	ch->Temporary.unset(ECharExtraFlag::kToldCamouflage);
 	percent = number(1, MUD::Skill(ESkill::kDisguise).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kDisguise, nullptr);
 
 	Affect<EApply> af;
-	af.duration = CalcDuration(ch, ch, ESkill::kDisguise, 0, 15, 0, 2);
+	// Нижняя граница 1 -- та же беда, что у кражи: при навыке ниже делителя срок обнулялся, и
+	// маскировка слетала через пару секунд. Подробности в do_sneak.cpp.
+	af.duration = CalcDuration(ch, ch, ESkill::kDisguise, 0, 15, 1, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = EApply::kNone;
 	af.battleflag.clear();

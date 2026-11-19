@@ -88,12 +88,23 @@ FILE *logfile = nullptr;
 
 static std::string make_timestamp() {
 #if HAS_TIME_ZONE
-    const std::chrono::time_zone* time_zone;
-    try {
-        time_zone = std::chrono::current_zone();
-    }
-    catch(const std::runtime_error&) {
-        puts("SYSERR: failed to get local timezone.");
+    // Зону берём один раз за запуск: current_zone() в libstdc++ на каждый вызов лезет в
+    // tzdb и делает read_symlink по "/etc/localtime", то есть сисколл на КАЖДУЮ строку лога.
+    // В issue #4083 процесс поймали отладчиком ровно там: зациклившийся DieFollower писал
+    // строку за строкой, и весь сервер стоял в чтении симлинка.
+    // Переход на летнее время и обратно это не ломает: смещение считает zoned_time по
+    // правилам зоны для конкретного момента. Не подхватится только смена самой зоны хоста --
+    // тогда нужен рестарт, что для боевого сервера приемлемо.
+    static const std::chrono::time_zone *const time_zone = []() -> const std::chrono::time_zone * {
+        try {
+            return std::chrono::current_zone();
+        }
+        catch (const std::runtime_error &) {
+            puts("SYSERR: failed to get local timezone.");
+            return nullptr;
+        }
+    }();
+    if (!time_zone) {
         return {};
     }
     const auto utc_now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());

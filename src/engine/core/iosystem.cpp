@@ -8,6 +8,7 @@
 
 #include "engine/core/iosystem.h"
 #include "utils/native_text.h"
+#include <array>
 #include <cstring>
 #include <string_view>
 #include "gameplay/core/experience.h"
@@ -19,10 +20,13 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/abilities/timed_abilities.h"
 #include "engine/network/descriptor_data.h"
+#include "engine/ui/cmd/do_mode.h"   // ApplyNawsScreenSize и границы размеров экрана
+#include "engine/network/naws.h"
 #include "engine/network/msdp/msdp.h"
 #include "engine/ui/color.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/utils_string.h"
 #include "engine/db/global_objects.h"
 #include "engine/network/msdp/msdp_constants.h"
 #include "gameplay/classes/pc_classes.h"
@@ -198,6 +202,22 @@ void write_to_output(const char *txt, DescriptorData *t) {
  * ASSUMPTION: There will be no newlines in the raw input buffer when this
  * function is called.  We must maintain that before returning.
  */
+/**
+ * Принимает размер окна от клиента: разбирает подпереговоры и применяет их к персонажу.
+ *
+ * Возвращает длину разобранной последовательности -- её вырезает вызывающий; 0 значит,
+ * что последовательность пришла не целиком и дождётся следующего чтения.
+ */
+static size_t HandleNaws(DescriptorData *t, const char *begin, size_t available) {
+	const auto parsed = naws::Parse(std::string_view(begin, available));
+	if (parsed.complete) {
+		t->naws_width = parsed.width;
+		t->naws_height = parsed.height;
+		ApplyNawsScreenSize(t);
+	}
+	return parsed.consumed;
+}
+
 int process_input(DescriptorData *t) {
 	int failed_subst;
 	ssize_t bytes_read;
@@ -306,6 +326,17 @@ int process_input(DescriptorData *t) {
 				memmove(ptr, ptr + 3, bytes_read - (ptr - read_point) - 3 + 1);
 				bytes_read -= 3;
 				--ptr;
+			} else if (ptr[1] == (char) WILL || ptr[1] == (char) WONT) {
+				// WILL/WONT прежде не разбирались вовсе, и их байты оставались в тексте:
+				// клиент, сообщающий о своих возможностях, подсовывал игроку мусор в ввод
+				if (ptr[1] == (char) WILL && ptr[2] == (char) TELOPT_NAWS) {
+					// Клиент готов сообщать размер окна -- просим сообщать
+					const char do_naws[] = {(char) IAC, (char) DO, (char) TELOPT_NAWS};
+					write_to_descriptor(t->descriptor, do_naws, sizeof(do_naws));
+				}
+				memmove(ptr, ptr + 3, bytes_read - (ptr - read_point) - 3 + 1);
+				bytes_read -= 3;
+				--ptr;
 			} else if (ptr[1] == char(SB)) {
 				size_t sb_length = 0;
 				switch (ptr[2]) {
@@ -313,6 +344,10 @@ int process_input(DescriptorData *t) {
 						if (!runtime_config.msdp_disabled()) {
 							sb_length = msdp::handle_conversation(t, ptr, bytes_read - (ptr - read_point));
 						}
+						break;
+
+					case TELOPT_NAWS:
+						sb_length = HandleNaws(t, ptr, bytes_read - (ptr - read_point));
 						break;
 
 					default: break;
@@ -369,6 +404,16 @@ int process_input(DescriptorData *t) {
 		space_left = kMaxInputLength - 1;
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
+			// ANSI-последовательность целиком, а не один байт ESC. Клиентские триггеры
+			// отдают перехваченную строку вместе с цветом, игрок отправляет её обратно, и
+			// раньше непечатный ESC отбрасывался ниже, а печатный остаток "[1;35m" уходил
+			// в текст и был виден всем в канале (точку с запятой в нём ещё и заменяло на
+			// запятую правило строкой ниже).
+			if (const auto escape = utils::AnsiEscapeLength(ptr, nl_pos); escape > 0) {
+				ptr += escape - 1;
+				continue;
+			}
+
 			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
 			if (*ptr == ';'
 				&&  (t->state == EConState::kPlaying

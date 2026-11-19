@@ -69,6 +69,9 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	af.battleflag = {kAfCharmBond};
 
 	ImposeAffect(ch, af);
+	// issue #4002: вместе с привязкой продлеваем весь её пакет -- прибавки нежити носят тот же флаг
+	// и раньше оставались с прежним сроком, так что истекали, а индикатор «скоро уйдёт» ещё горел.
+	ExtendCharmBond(ch, af.duration);
 	if (ch->IsNpc()) { ch->SetFlag(EMobFlag::kCompanion); }	// any NPC ally
 
 	act("Громко чавкая, $N сожрал$G труп.", true, ch, obj, ch, kToRoom | kToArenaListen);
