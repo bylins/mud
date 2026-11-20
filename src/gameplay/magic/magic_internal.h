@@ -79,6 +79,9 @@ EStageResult SpellAnimateSkeleton(ActionContext &ctx);
 EStageResult SpellAnimateDead(ActionContext &ctx);
 EStageResult SpellResurrection(ActionContext &ctx);
 
+// Object creation stage (action_handlers.cpp): the data-driven <obj_creation> action.
+EStageResult CastCreationAction(ActionContext &ctx);
+
 #endif  // MAGIC_INTERNAL_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
