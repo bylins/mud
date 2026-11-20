@@ -1,9 +1,9 @@
-#ifndef MAGIC_ROOMS_HPP_
-#define MAGIC_ROOMS_HPP_
+#ifndef BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECTS_H_
+#define BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECTS_H_
 
 #include "gameplay/affects/affect_data.h"
-#include "spells.h"
-#include "magic.h"   // ECastResult / ActionContext
+#include "gameplay/magic/spells.h"
+#include "gameplay/magic/magic.h"   // ECastResult / ActionContext
 #include "gameplay/abilities/talents_actions.h"  // TalentAffect::Apply (RoomAffectSeal return type)
 #include "engine/structs/meta_enum.h"   // NAME_BY_ITEM / ITEM_BY_NAME / NAMES_OF
 
@@ -162,7 +162,7 @@ room_spells::ERoomAffect ITEM_BY_NAME<room_spells::ERoomAffect>(const std::strin
 template<>
 const std::map<room_spells::ERoomAffect, std::string> &NAMES_OF<room_spells::ERoomAffect>();
 
-#endif // MAGIC_ROOMS_HPP_
+#endif // BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECTS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 

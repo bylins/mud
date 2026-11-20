@@ -5,7 +5,7 @@
 
 #include "gameplay/mechanics/portal.h"
 
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/room_data.h"
 #include "engine/core/comm.h"

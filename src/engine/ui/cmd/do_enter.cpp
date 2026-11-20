@@ -20,7 +20,7 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/mechanics/sight.h"
-#include "gameplay/magic/magic_rooms.h"   // FindRoomPkPortalUid (issue.affect-flags)
+#include "gameplay/affects/room_affects.h"   // FindRoomPkPortalUid (issue.affect-flags)
 
 void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	RoomRnum door = kNowhere;

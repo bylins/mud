@@ -37,7 +37,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/awake.h"
 #include "gameplay/mechanics/boat.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/cities.h"
 #include "utils/backtrace.h"

@@ -35,7 +35,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/core/remort.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"

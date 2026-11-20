@@ -10,7 +10,7 @@
 #include "engine/scripting/dg_scripts.h"
 #include "entities_constants.h"
 #include "obj_data.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "engine/core/sysdep.h"
 
 class ExitData {

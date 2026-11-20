@@ -7,7 +7,7 @@
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/abilities/abilities_constants.h"
 #include "gameplay/fight/pk.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "gameplay/mechanics/portal.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"

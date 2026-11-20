@@ -23,10 +23,10 @@
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
 #include "gameplay/affects/affect_messages.h"  // EAffectMsgType + NAMES_OF (affect_msg scheme)
-#include "gameplay/magic/magic_rooms.h"       // room_spells::ERoomAffect + NAMES_OF
+#include "gameplay/affects/room_affects.h"       // room_spells::ERoomAffect + NAMES_OF
 #include "gameplay/affects/obj_affects.h"     // obj_affects::EObjAffect + NAMES_OF
 #include "gameplay/affects/equipment_affects.h"  // EEquipmentAffect + NAMES_OF
-#include "gameplay/magic/room_affect_messages.h"  // ERoomAffectMsgType + NAMES_OF (room_affect_msg scheme)
+#include "gameplay/affects/room_affect_messages.h"  // ERoomAffectMsgType + NAMES_OF (room_affect_msg scheme)
 #include "gameplay/skills/skills.h"           // ESkill + NAMES_OF
 #include "engine/core/config.h"               // ECommonMsg + NAMES_OF
 

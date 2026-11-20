@@ -574,7 +574,7 @@ main_sources = files(
   'src/gameplay/magic/action_context.cpp',
   'src/gameplay/magic/affect_triggers.cpp',
   'src/gameplay/magic/magic_items.cpp',
-  'src/gameplay/magic/magic_rooms.cpp',
+  'src/gameplay/affects/room_affects.cpp',
   'src/gameplay/magic/magic_utils.cpp',
   'src/gameplay/magic/spells.cpp',
   'src/gameplay/magic/spells_info.cpp',

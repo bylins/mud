@@ -12,7 +12,7 @@
 #define BYLINS_SRC_GAMEPLAY_HANDLERS_SPELL_HANDLERS_H_
 
 #include "gameplay/magic/magic.h"        // ActionContext, EStageResult
-#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomApply (HandleThunderstormTick sig)
+#include "gameplay/affects/room_affects.h"  // room_spells::ERoomApply (HandleThunderstormTick sig)
 
 enum class ESpellMsg;               // defined in gameplay/magic/spell_messages.h
 class CharData;                     // entities/char_data.h

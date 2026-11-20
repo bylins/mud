@@ -9,7 +9,7 @@
 
 #include "gameplay/affects/obj_affect_messages.h"
 #include "administration/privilege.h"
-#include "room_affect_messages.h"
+#include "gameplay/affects/room_affect_messages.h"
 #include "gameplay/affects/affect_messages.h"
 #include "engine/db/global_objects.h"
 

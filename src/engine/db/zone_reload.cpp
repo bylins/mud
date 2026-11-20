@@ -20,7 +20,7 @@
 #include "gameplay/mechanics/rune_stones.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/clans/house.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 
 #include "utils/utils_time.h"
 

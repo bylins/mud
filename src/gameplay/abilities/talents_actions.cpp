@@ -5,7 +5,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
 #include "gameplay/fight/fight_constants.h"   // issue.damage-change: fight::DmgType + hit-flag values
-#include "gameplay/magic/magic_rooms.h"  // ERoomAffect, ITEM_BY_NAME/NAME_BY_ITEM<ERoomAffect>
+#include "gameplay/affects/room_affects.h"  // ERoomAffect, ITEM_BY_NAME/NAME_BY_ITEM<ERoomAffect>
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
 #include "fmt/format.h"
 #include "utils/random.h"

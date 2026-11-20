@@ -6,7 +6,7 @@
 
 #include "magic_internal.h"
 #include "spell_trace.h"
-#include "room_affect_messages.h"
+#include "gameplay/affects/room_affect_messages.h"
 #include "gameplay/affects/affect_messages.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/affects/affect_handler.h"

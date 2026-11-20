@@ -24,7 +24,7 @@
 #include "gameplay/skills/pick.h"
 #include "administration/privilege.h"
 #include "named_stuff.h"
-#include "gameplay/magic/magic_rooms.h"          // issue.room-affect-trigger-improve: RunDoorTriggers
+#include "gameplay/affects/room_affects.h"          // issue.room-affect-trigger-improve: RunDoorTriggers
 #include "gameplay/abilities/talents_actions.h"  // EActionTrigger::kOpen
 #include "engine/db/player_index.h"
 

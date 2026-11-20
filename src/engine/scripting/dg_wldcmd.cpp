@@ -12,7 +12,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/core/experience.h"
 #include "administration/privilege.h"
-#include "gameplay/magic/magic_rooms.h"   // issue.room-affect-trigger-improve: ClearExitAffects on wexit purge
+#include "gameplay/affects/room_affects.h"   // issue.room-affect-trigger-improve: ClearExitAffects on wexit purge
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"

@@ -22,7 +22,7 @@
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
-#include "gameplay/magic/room_affect_messages.h"
+#include "gameplay/affects/room_affect_messages.h"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>   // fmt::join

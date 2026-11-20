@@ -42,7 +42,7 @@
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/obj_handler.h"
 #include "engine/entities/char_data.h"
-#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
+#include "gameplay/affects/room_affects.h"  // room_spells::ERoomAffect
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"

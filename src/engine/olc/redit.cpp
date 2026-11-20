@@ -18,7 +18,7 @@
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/core/constants.h"
 #include "gameplay/crafting/im.h"
-#include "gameplay/magic/magic_rooms.h"   // issue.room-affect-trigger-improve: ClearExitAffects on exit rebuild
+#include "gameplay/affects/room_affects.h"   // issue.room-affect-trigger-improve: ClearExitAffects on exit rebuild
 #include "engine/db/description.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/deathtrap.h"

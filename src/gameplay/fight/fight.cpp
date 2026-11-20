@@ -40,7 +40,7 @@
 #include "utils/random.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/magic/magic.h"
-#include "gameplay/magic/magic_rooms.h"  // ClassifyRoomAffectAccess
+#include "gameplay/affects/room_affects.h"  // ClassifyRoomAffectAccess
 #include "engine/olc/olc.h"
 #include "engine/network/msdp/msdp_constants.h"
 #include "gameplay/magic/magic_items.h"

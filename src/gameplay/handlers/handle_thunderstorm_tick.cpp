@@ -4,7 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "gameplay/magic/magic_internal.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/entities/char_data.h"

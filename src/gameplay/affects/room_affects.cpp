@@ -1,14 +1,14 @@
-#include "magic_rooms.h"
+#include "room_affects.h"
 #include "utils/utils_string.h"   // str_cmp (Vedun CanonicalElementId)
 #include "administration/privilege.h"
 #include "gameplay/handlers/spell_handlers.h"
 
-#include "spells_info.h"
+#include "gameplay/magic/spells_info.h"
 #include "engine/ui/modify.h"
 #include "engine/entities/char_data.h"
-#include "magic.h" //Включено ради material_component_processing
-#include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom
-#include "magic_internal.h" // BuildActionContext / CastUnaffects / ProcessMatComponents
+#include "gameplay/magic/magic.h" //Включено ради material_component_processing
+#include "gameplay/magic/magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom
+#include "gameplay/magic/magic_internal.h" // BuildActionContext / CastUnaffects / ProcessMatComponents
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"

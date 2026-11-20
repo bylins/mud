@@ -10,7 +10,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/portal.h"
-#include "gameplay/magic/magic_rooms.h"   // issue.room-affect-trigger-improve: ClearExitAffects on dungeon reuse
+#include "gameplay/affects/room_affects.h"   // issue.room-affect-trigger-improve: ClearExitAffects on dungeon reuse
 #include "engine/scripting/dg_db_scripts.h"
 #include "dungeons.h"
 #include "engine/core/char_equip_flags.h"

@@ -6,10 +6,10 @@
 		  listing variants picked by the viewer's kDetectMagic / caster identity / pk_unique.
 */
 
-#ifndef BYLINS_SRC_GAMEPLAY_MAGIC_ROOM_AFFECT_MESSAGES_H_
-#define BYLINS_SRC_GAMEPLAY_MAGIC_ROOM_AFFECT_MESSAGES_H_
+#ifndef BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECT_MESSAGES_H_
+#define BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECT_MESSAGES_H_
 
-#include "magic_rooms.h"            // room_spells::ERoomAffect (+ its NAME_BY_ITEM specializations)
+#include "room_affects.h"            // room_spells::ERoomAffect (+ its NAME_BY_ITEM specializations)
 #include "engine/boot/cfg_manager.h"
 
 #include <map>
@@ -99,6 +99,6 @@ room_spells::ERoomAffectMsgType ITEM_BY_NAME<room_spells::ERoomAffectMsgType>(co
 template<>
 const std::map<room_spells::ERoomAffectMsgType, std::string> &NAMES_OF<room_spells::ERoomAffectMsgType>();
 
-#endif  // BYLINS_SRC_GAMEPLAY_MAGIC_ROOM_AFFECT_MESSAGES_H_
+#endif  // BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECT_MESSAGES_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,7 +1,7 @@
 #include <fmt/format.h>
 
 #include "engine/entities/char_data.h"
-#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
+#include "gameplay/affects/room_affects.h"  // room_spells::ERoomAffect
 #include "administration/privilege.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/groups.h"

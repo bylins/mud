@@ -7,7 +7,7 @@
 #define BYLINS_SRC_GAMEPLAY_MECHANICS_PORTAL_H_
 
 #include "engine/structs/structs.h"      // RoomRnum
-#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
+#include "gameplay/affects/room_affects.h"  // room_spells::ERoomAffect
 
 class CharData;
 struct RoomData;
