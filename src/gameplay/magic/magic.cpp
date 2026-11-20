@@ -262,7 +262,7 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 // spell share a name, so we roll that spell's <potency_roll> for the mob exactly as a real cast would:
 // the stored potency makes dispel a contest, and each apply's modifier uses competence =
 // skill_coeff + stat_coeff. An affect with <apply> children gets one node per apply; an applies-less
-// buff gets a single bare flag carrier (location kNone). Nodes are permanent (duration -1) and
+// buff gets a single bare flag carrier (location kNone). Nodes are permanent and
 // uncredited (caster_id 0). No same-named spell -> zero roll (flat mins, potency 0).
 // Такой узел СНИМАЕТСЯ магией (заклинание «разлом»): снятие идёт состязанием по силе, а при
 // следующем пробуждении зоны материализация вернёт его из флагов прототипа. Неснимаемо только то,
@@ -283,7 +283,7 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 	auto make = [&](EApply loc, int mod) {
 		Affect<EApply> af;
 		af.affect_type = affect_type;
-		af.duration = -1;             // permanent: never ticks or expires
+		af.duration = kPermanentAffectDuration;
 		af.location = loc;
 		af.modifier = mod;
 		af.caster_id = 0;
@@ -842,26 +842,20 @@ static ObjData *FindMatInLocations(CharData *caster, int vnum, Bitvector where) 
 	return nullptr;
 }
 
-// Spend the configured charge cost of a matched material item. The `cost`
-// parameter mirrors Material::cost (see talents_actions.h):
-//   cost  > 0 : subtract `cost` from val[2]; emit `use`; destroy + emit
-//               `exhausted` when val[2] < 1.
-//   cost == 0 : focus/catalyst -- the requirement is checked elsewhere, here
-//               we do nothing (no narration, no charge spent).
-//   cost == -1: destroy the item in this single cast regardless of val[2];
-//               emit `use` then `exhausted`.
+// Spend a matched material item's Material::cost: emit `use`, take the charges, and emit `exhausted`
+// when the item is destroyed. kCostNone does nothing at all (no narration, no charge spent).
 // Unlinking dispatches on where the item actually lives (worn / carried /
 // room) so destruction works in any of the three component locations.
 static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 								const char *use, const char *exhausted) {
-	if (cost == 0) {
+	if (cost == talents_actions::Material::kCostNone) {
 		return;
 	}
 	if (use) {
 		act(use, false, caster, obj, nullptr, kToChar);
 	}
 	bool destroy = false;
-	if (cost == -1) {
+	if (cost == talents_actions::Material::kCostConsumeWhole) {
 		destroy = true;
 	} else {
 		obj->set_val(2, GET_OBJ_VAL(obj, 2) - cost);
@@ -1108,7 +1102,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		const int raw_mod = ComputeApplyModifier(apply, competence, potency);
 		taf.modifier = static_cast<int>(raw_mod * area_coeff);
 		taf.caster_id = ch->get_uid();
-		// Trigger charges (-1 = unlimited), spent when a persisting-affect trigger fires.
+		// Trigger charges, spent when a persisting-affect trigger fires.
 		taf.charges = talent.GetChargesMax();
 		// <affects potency_weight=> (default 1.0) lets big-modifier spells record a weaker potency so they
 		// stay dispellable.
@@ -1880,14 +1874,14 @@ void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 
 // Spend one trigger charge on a character affect after its trigger fired. Decrements every
 // instance of the affect type (one per apply, kept in sync); when any hits 0 the whole affect is
-// removed. charges == -1 = unlimited. Caller must NOT be mid-iteration over `bearer->affected`.
+// removed. Unlimited charges are never spent. Caller must NOT be mid-iteration over `bearer->affected`.
 void SpendCharAffectCharge(CharData *bearer, EAffect affect_type) {
 	if (!bearer) {
 		return;
 	}
 	bool depleted = false;
 	for (const auto &aff : bearer->affected) {
-		if (aff && aff->affect_type == affect_type && aff->charges != -1 && --aff->charges <= 0) {
+		if (aff && aff->affect_type == affect_type && aff->charges != kUnlimitedAffectCharges && --aff->charges <= 0) {
 			depleted = true;
 		}
 	}
@@ -4067,8 +4061,8 @@ bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff) {
 	}
 	// A DoT with <charges max=N> lasts exactly N ticks, in or out of combat, independent of the duration.
 	// When depleted, mark it expired (duration 0) for the caller's normal removal instead of erasing from
-	// ch->affected mid-iteration. charges == -1 (default): duration-bound only.
-	if (!ch->purged() && aff->charges != -1 && --aff->charges <= 0) {
+	// ch->affected mid-iteration. Unlimited charges (the default): duration-bound only.
+	if (!ch->purged() && aff->charges != kUnlimitedAffectCharges && --aff->charges <= 0) {
 		aff->duration = 0;
 	}
 	return true;
@@ -4397,11 +4391,11 @@ constexpr int kEntryTriggerAllow = 1;
 constexpr int kEntryTriggerBlock = 0;
 }
 
-// Spends one trigger charge (charges == -1: unlimited, no-op). At 0 the affect is removed from its host
+// Spends one trigger charge (no-op for unlimited charges). At 0 the affect is removed from its host
 // list (the room's or the exit's) with its kAffExpired line sent to the actor's room.
 static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_ptr &aff, RoomData *room,
 								room_spells::RoomAffects &host, CharData *actor) {
-	if (!aff || aff->charges == -1) {
+	if (!aff || aff->charges == kUnlimitedAffectCharges) {
 		return;
 	}
 	if (--aff->charges <= 0) {

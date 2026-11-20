@@ -1249,7 +1249,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 										"заряды: {}) - {}.\r\n",
 										NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type),
 										aff->duration, aff->modifier, aff->potency,
-										(aff->charges == -1 ? "беск" : std::to_string(aff->charges)),
+										(aff->charges == kUnlimitedAffectCharges ? "беск" : std::to_string(aff->charges)),
 										(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
 		}
 		SendMsgToChar(exit_affects, ch);

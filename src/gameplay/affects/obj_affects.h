@@ -106,7 +106,7 @@ void BuildRegistry(parser_wrapper::DataNode data);
 // registers a timed affect for ticking. Re-imposing an existing affect refreshes it; imposing any
 // poison first clears an existing poison (one poison per weapon).
 void Impose(ObjData *obj, EObjAffect type, int duration, int modifier = 0,
-			long caster_id = 0, float potency = 0.0f, int charges = -1);
+			long caster_id = 0, float potency = 0.0f, int charges = kUnlimitedAffectCharges);
 
 // Remove a specific obj affect. message = emit the wear-off / dispel line to the holder. Clears the
 // affect's owned flag ONLY if the item prototype lacks it (an innate prototype flag survives).

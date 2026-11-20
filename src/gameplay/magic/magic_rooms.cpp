@@ -575,9 +575,9 @@ void ShowAffectedRooms(CharData *ch) {
 			etable << ecount << e.room->vnum << to_vnum
 				   << NAME_BY_ITEM<ERoomAffect>(af->affect_type)
 				   << GetNameById(af->caster_id)
-				   << (af->duration == -1 ? std::string("перм") : std::to_string(af->duration * 2))
+				   << (af->duration == kPermanentAffectDuration ? std::string("перм") : std::to_string(af->duration * 2))
 				   << FmtPotency(af->potency)
-				   << (af->charges == -1 ? std::string("беск") : std::to_string(af->charges))
+				   << (af->charges == kUnlimitedAffectCharges ? std::string("беск") : std::to_string(af->charges))
 				   << table_wrapper::kEndRow;
 			++ecount;
 		}
@@ -772,7 +772,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 }
 
 // issue.room-affect-trigger-improve (door affects): tick the timer on enchanted exits. Mirrors the
-// room loop: duration>=1 decrements, duration==-1 is PERMANENT (stays until removed -- a trap that
+// room loop: duration>=1 decrements, kPermanentAffectDuration is PERMANENT (stays until removed -- a trap that
 // "remains in place"), 0/expired removes the affect (and announces via the host room's sheaf). Walks
 // the affected_exits registry, dropping exits whose affect list empties.
 static void UpdateExitsAffects() {
@@ -790,8 +790,8 @@ static void UpdateExitsAffects() {
 			if (af->duration >= 1) {
 				af->duration--;
 				++ai;
-			} else if (af->duration == -1) {
-				++ai;   // permanent: never decays
+			} else if (af->duration == kPermanentAffectDuration) {
+				++ai;
 			} else {
 				if (af->affect_type != ERoomAffect::kUndefined) {
 					SendRemoveAffectMsgToRoom(af->affect_type, GetRoomRnum(room->vnum));
@@ -855,8 +855,8 @@ void UpdateRoomsAffects() {
 			if (affect->duration >= 1) {
 				affect->duration--;
 				// вот что это такое здесь ?
-			} else if (affect->duration == -1) {
-				affect->duration = -1;
+			} else if (affect->duration == kPermanentAffectDuration) {
+				// permanent: never decays
 			} else {
 				// issue.affect-migration: expiry announcement keys on the room-affect identity
 				// (affect_type), not the legacy Affect::type (ESpell) -- so affects whose ESpell was
@@ -996,7 +996,7 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 		// Stored potency scaled by <affects potency_weight=> (default 1.0).
 		// Symmetric with the char-affect path in TryApplyAffectTalent.
 		af[0].potency = CalcCastPotency(ctx.potency()) * talent.GetPotencyWeight();
-		af[0].charges = talent.GetChargesMax();   // issue.room-affect-trigger-improve: trigger charges (-1 = unlimited)
+		af[0].charges = talent.GetChargesMax();
 		// issue.affects-improve (P1 fix): the seal strength (modifier) is the ROOM AFFECT's own
 		// property (room_affects.xml <seal_strength>), not the casting spell's apply. The spell now
 		// names the affect via a bare <affect id=> ref carrying no coefficients, so reading
@@ -1238,7 +1238,7 @@ ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll) {
 		if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
 		af.duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
 		af.potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
-		af.charges = talent.GetChargesMax();   // trigger charges (-1 = unlimited)
+		af.charges = talent.GetChargesMax();
 		if (RoomAffectHasSeal(af.affect_type)) {
 			af.modifier = ComputeApplyModifier(RoomAffectSeal(af.affect_type), roll.CompetenceBase(), roll.potency());
 		}

@@ -710,7 +710,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			// may fire before it is removed. -1 (or absent) = unlimited. Modelled on <hits max=>; the
 			// count is deterministic (decremented by one per trigger execution), so no prob attr.
 			const char *mx = child.GetValue("max");
-			charges_max_ = (mx && *mx) ? parse::ReadAsInt(mx) : -1;
+			charges_max_ = (mx && *mx) ? parse::ReadAsInt(mx) : kUnlimitedAffectCharges;
 		} else if (strcmp(name, "affect") == 0) {
 			// issue.affects-improve (P3e): a bare affect reference -- the canonical grammar. The affect
 			// OWNS its applies (affects.xml); the spell only names which affect(s) to impose, plus an

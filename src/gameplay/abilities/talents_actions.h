@@ -370,15 +370,13 @@ struct Material {
 	// parser when the attribute is absent; 0 here means "explicitly empty" and
 	// triggers a kBreak at consume time.
 	Bitvector where{0};
-	// Charge cost per cast, applied to each matched item's m_vals[2] (the
-	// "charges remaining" field used by magic ingredients):
-	//   cost  > 0 : val[2] -= cost; destroy the item when val[2] < 1.
-	//   cost == 0 : presence required, but no charge spent (focus/catalyst).
-	//   cost == -1: destroy the matched item in this single cast regardless
-	//               of val[2] ("consumed whole" semantics).
-	// Default 1 preserves the legacy dec_val(2) behaviour (one charge per
-	// cast, destroy at zero). Game designers opt in to other behaviours via
-	// the cost="N" attribute on <material>.
+	// Presence required, but no charge spent (focus/catalyst).
+	static constexpr int kCostNone = 0;
+	// Destroy the matched item in this single cast regardless of its remaining charges.
+	static constexpr int kCostConsumeWhole = -1;
+	// Charge cost per cast (cost="N" on <material>), applied to each matched item's m_vals[2] -- the
+	// "charges remaining" field of magic ingredients. A positive cost is subtracted and the item is
+	// destroyed when val[2] < 1; kCostNone and kCostConsumeWhole are the special values above.
 	int cost{1};
 };
 
@@ -692,7 +690,7 @@ class TalentAffect : public IAction {
 	ESkill dur_skill_{ESkill::kUndefined};
 	int dur_min_{0};
 	int dur_max_{0};
-	int charges_max_{-1};   // issue.room-affect-trigger-improve: trigger charges; -1 = unlimited
+	int charges_max_{kUnlimitedAffectCharges};   // trigger charges
 	std::vector<Apply> applies_;
 	// Battle lag applied to the victim when the affect lands (the <lag> tag,
 	// issue.cast-spell-lag): lag = base + skill_bonus/bonus_divisor battle rounds, or just

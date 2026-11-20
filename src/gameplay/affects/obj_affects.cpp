@@ -352,7 +352,7 @@ void Tick(ObjData *obj, int minutes, bool tick_suppressions) {
 	auto &list = obj->get_obj_affects();
 	for (auto it = list.begin(); it != list.end(); /* advanced in body */) {
 		auto &aff = *it;
-		if (aff->duration == -1) {   // permanent affect: never ticks down
+		if (aff->duration == kPermanentAffectDuration) {
 			++it;
 			continue;
 		}
@@ -380,7 +380,7 @@ void SpendCharge(ObjData *obj, EObjAffect type) {
 	if (it == obj->get_obj_affects().end()) {
 		return;
 	}
-	if ((*it)->charges == -1) {
+	if ((*it)->charges == kUnlimitedAffectCharges) {
 		return;   // unlimited charges (the default): nothing to spend
 	}
 	if (--(*it)->charges <= 0) {
