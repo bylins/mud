@@ -195,11 +195,9 @@ bool IsManualHandlerRegistered(const std::string &name) {
 std::vector<std::string> AlterObjHandlerNames() {
 	std::vector<std::string> v; for (const auto &p : kAlterObjHandlers) v.push_back(p.first); return v;
 }
-
 std::vector<std::string> ObjCreationHandlerNames() {
 	std::vector<std::string> v; for (const auto &p : kCreationHandlers) v.push_back(p.first); return v;
 }
-
 std::vector<std::string> ManualHandlerNames() {
 	std::vector<std::string> v; for (const auto &p : kManualHandlers) v.push_back(p.first); return v;
 }

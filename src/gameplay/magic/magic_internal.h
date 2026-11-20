@@ -87,6 +87,17 @@ EStageResult CastCreationAction(ActionContext &ctx);
 // by spell and affect action chains.
 talents_actions::EFieldModOp ToFieldModOp(feats::TalentPatch::EModOp op);
 
+// Cast-flow helpers (magic.cpp) that the affect-trigger code (affect_triggers.cpp) reuses to run an
+// action chain over its targets.
+bool TargetIsBlocked(CharData *victim, const talents_actions::FlagCondition &cond);
+bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCondition &cond);
+ECastResult RunActionOverTargets(ActionContext &ctx, const std::vector<CharData *> &targets,
+								 ECastTargets scope, bool is_entry);
+ECastTargets ActionTargetScope(talents_actions::EActionTarget sel, ECastTargets prev_scope);
+std::vector<CharData *> ResolveActionTargets(ActionContext &ctx,
+		talents_actions::EActionTarget sel, const std::vector<CharData *> &prev);
+ECastResult RunActionOnRoom(ActionContext &ctx);
+
 #endif  // MAGIC_INTERNAL_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
