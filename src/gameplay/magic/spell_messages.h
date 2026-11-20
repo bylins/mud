@@ -61,6 +61,12 @@ enum class ESpellMsg {
 	// etc. (issue no-effect-msg). Lives in the kDefault sheaf; replaced the old global
 	// NOEFFECT literal.
 	kNoeffect,
+	// issue.unaffect-msg: CastUnaffects, target had nothing matching the <unaffect>
+	// filter (affect_flags/debuff_only) at all -- distinct from kNoeffect, which now
+	// means "something matched but the dispel roll failed". Without this split,
+	// players in combat couldn't tell "nothing to cure" from "cure failed". Lives in
+	// the kDefault sheaf (generic wording); kRemovePoison overrides it.
+	kUnaffectNoMatch,
 	// CastToAlterObjs messages (to the caster).
 	kObjResist,			// object is no-alter (common -> kDefault sheaf).
 	kAlterObjToChar,	// per-spell "object transformed" message.
