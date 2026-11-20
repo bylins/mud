@@ -563,6 +563,7 @@ main_sources = files(
   'src/gameplay/mechanics/liquid.cpp',
   'src/utils/logger.cpp',
   'src/gameplay/magic/magic.cpp',
+  'src/gameplay/magic/material_components.cpp',
   'src/gameplay/magic/magic_items.cpp',
   'src/gameplay/magic/magic_rooms.cpp',
   'src/gameplay/magic/magic_utils.cpp',
