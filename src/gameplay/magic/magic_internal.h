@@ -98,6 +98,15 @@ std::vector<CharData *> ResolveActionTargets(ActionContext &ctx,
 		talents_actions::EActionTarget sel, const std::vector<CharData *> &prev);
 ECastResult RunActionOnRoom(ActionContext &ctx);
 
+// Room-targeted casting (action_room_affect.cpp).
+namespace room_affects {
+ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll);
+// Cast a kMagRoom spell onto the exit in `dir`.
+ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll);
+// Impose the spell's room affect from the current action; callable from the per-action loop.
+ECastResult CastRoomAffect(ActionContext &ctx);
+}  // namespace room_affects
+
 #endif  // MAGIC_INTERNAL_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

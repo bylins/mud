@@ -3,7 +3,6 @@
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/magic/spells.h"
-#include "gameplay/magic/magic.h"   // ECastResult / ActionContext
 #include "gameplay/abilities/talents_actions.h"  // TalentAffect::Apply (RoomAffectSeal return type)
 #include "engine/structs/meta_enum.h"   // NAME_BY_ITEM / ITEM_BY_NAME / NAMES_OF
 
@@ -65,9 +64,6 @@ void ShowAffectedRooms(CharData *ch);
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect);
 bool IsRoomAffected(RoomData *room, ERoomAffect affect);
 bool IsZoneRoomAffected(int zone_vnum, ERoomAffect affect);
-ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll);
-// issue.room-affect-trigger-improve (door affects): cast a kMagRoom spell onto the exit in `dir`.
-ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll);
 int GetUniqueAffectDuration(long caster_id, ERoomAffect affect);
 RoomAffectIt FindAffect(RoomData *room, ERoomAffect affect);
 // issue.affect-migration: the portal room affects (two-way kPortalTimer + one-way kNoPortalExit) keyed
@@ -82,8 +78,14 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
-// Impose the spell's room affect from the current action; callable from the per-action loop.
-ECastResult CastRoomAffect(ActionContext &ctx);
+// Register an enchanted exit so the affect pulse ticks and expires its door affects.
+void AddExitToAffected(RoomData *room, int dir);
+// Remove the `want` room affect cast by `caster_id`, wherever it is in the world.
+void RemoveSingleRoomAffect(long caster_id, ERoomAffect want);
+// The caster's controlled (kAfNeedControl) room affect, without removing it.
+ERoomAffect FindControlledRoomAffect(CharData *ch);
+// Remove the caster's controlled (kAfNeedControl) room affect; returns its type or kUndefined.
+ERoomAffect RemoveControlledRoomAffect(CharData *ch);
 void RemoveSingleAffectFromWorld(CharData *ch, ERoomAffect affect);
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
