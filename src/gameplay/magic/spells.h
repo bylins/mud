@@ -33,7 +33,6 @@ void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
 // issue.spellhandlers: helpers used by the extracted manual handlers (defs stay in spells.cpp).
 void CheckAutoNosummon(CharData *ch);
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-int CalcAntiSavings(CharData *ch);
 int pk_action_type_summon(CharData *agressor, CharData *victim);
 int pk_increment_revenge(CharData *agressor, CharData *victim);
 extern int what_sky;

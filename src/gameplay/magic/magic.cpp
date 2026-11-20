@@ -23,6 +23,7 @@
 #include "magic_internal.h"
 #include "spell_trace.h"
 #include "gameplay/mechanics/saving.h"
+#include "gameplay/mechanics/antisaving.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
@@ -74,7 +75,6 @@
 
 extern int interpolate(int min_value, int pulse);
 
-int GetSavingThrows(ECharClass class_id, ESaving type, int level);    // class.cpp
 void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool IsRoomForbidden(RoomData *room) {
@@ -85,51 +85,6 @@ bool IsRoomForbidden(RoomData *room) {
 	}
 	return false;
 }
-
-/*
- * Negative apply_saving_throw[] values make saving throws better!
- * Then, so do negative modifiers.  Though people may be used to
- * the reverse of that. It's due to the code modifying the target
- * saving throw instead of the random number of the character as
- * in some other systems.
- */
-
-int bonus_antisaving[] ={
-			-9,-8,-7,-6,-5,-4,-3,-2,-1, 0,
-			1, 2, 3 ,4, 5, 6, 7, 8, 9, 10,
-			11,12,13,14,15,16,17,18,19,20,
-			21,21,22,22,23,23,24,24,25,25,
-			26,26,27,27,28,28,29,29,30,30,
-			31,31,32,32,33,33,34,34,35,35,
-			36,36,37,37,38,38,39,39,40,40,
-			41,41,41,42,42,42,43,43,43,44,
-			44,44,45,45,45,46,46,46,47,47,
-			47,48,48,48,49,49,49,50,50,50,
-};
-
-int CalcAntiSavings(CharData *ch) {
-	int modi = 0;
-	if (privilege::IsImmortal(ch))
-		modi = 1000;
-	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
-		modi = 250;
-	else if (GET_GOD_FLAG(ch, EGf::kGodscurse))
-		modi = -250;
-	else
-		modi = ch->add_abils.cast_success;
-	modi += bonus_antisaving[GetRealWis(ch) - 1];
-	if (!ch->IsNpc()) {
-		modi *= condition::GetCondPenalty(ch, condition::kCast);
-	}
-	return modi;
-}
-
-int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
-	auto mod = MUD::Class(ch->GetClass()).spells[spell_id].GetCastMod();
-	auto skill = GetSkill(ch, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill());
-	return static_cast<int>(mod*skill);
-}
-
 
 bool IsAbleToSay(CharData *ch) {
 	if (!ch->IsNpc()) {
@@ -648,8 +603,8 @@ EStageResult CastDamage(ActionContext &ctx) {
 	const bool tc = spell_trace::Active(ch, victim);
 
 	if (ch != victim) {
-		modi = CalcAntiSavings(ch);
-		modi += CalcClassAntiSavingsMod(ch, spell_id);
+		modi = antisaving::CalcAntiSavings(ch);
+		modi += antisaving::CalcClassAntiSavingsMod(ch, spell_id);
 		if (ch->IsFlagged(EPrf::kAwake) && !victim->IsNpc())
 			modi = modi - 50;
 	}
@@ -1306,8 +1261,8 @@ EStageResult CastAffect(ActionContext &ctx) {
 
 	int modi = 0;
 	if (ch != victim) {
-		modi = CalcAntiSavings(ch);
-		modi += CalcClassAntiSavingsMod(ch, spell_id);
+		modi = antisaving::CalcAntiSavings(ch);
+		modi += antisaving::CalcClassAntiSavingsMod(ch, spell_id);
 	}
 
 	if (ch->IsFlagged(EPrf::kAwake) && !victim->IsNpc()) {

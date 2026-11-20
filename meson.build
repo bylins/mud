@@ -615,6 +615,7 @@ main_sources = files(
   'src/gameplay/mechanics/magic_item.cpp',
   'src/gameplay/mechanics/resist.cpp',
   'src/gameplay/mechanics/saving.cpp',
+  'src/gameplay/mechanics/antisaving.cpp',
   'src/gameplay/magic/points_intensity.cpp',
   'src/gameplay/magic/magic_temp_spells.cpp',
   'src/gameplay/communication/mail.cpp',

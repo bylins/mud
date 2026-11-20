@@ -400,7 +400,7 @@ enum class EStageResult {
 // which is rarely what callers want. The two kept here have real external callers:
 // fight_hit.cpp / spells.cpp run a per-target loop (CastDamage), and handler.cpp re-applies
 // gear-borne effects (CastAffect). Everything else that used to live here -- CastUnaffects,
-// CallMagicToArea/Group, BuildActionContext, ProcessMatComponents, CalcClassAntiSavingsMod, and
+// CallMagicToArea/Group, BuildActionContext, ProcessMatComponents, and
 // the CastToPoints/CastToAlterObjs/CastCreation/CastSummon/CastManual/CastToSingleTarget
 // dispatchers -- is module-internal and now lives in magic_internal.h.
 EStageResult CastDamage(ActionContext &ctx);

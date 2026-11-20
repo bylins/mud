@@ -8,6 +8,7 @@
 
 #include "utils/native_text.h"
 #include "engine/ui/color.h"
+#include "gameplay/mechanics/antisaving.h"
 #include "gameplay/affects/affect_messages.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
@@ -47,8 +48,6 @@ std::string GetPositionStr(CharData *ch);
 std::string_view GetShortPositionStr(CharData *ch);
 int CalcHitroll(CharData *ch);
 
-/* extern */
-int CalcAntiSavings(CharData *ch);
 #include "gameplay/mechanics/initiative.h"
 void GetClassWeaponMod(ECharClass class_id, ESkill skill, int *damroll, int *hitroll);
 
@@ -164,7 +163,7 @@ void PrintScoreList(CharData *ch) {
 				  CalcHitroll(ch),
 				  max_dam,
 				  int(GET_MANAREG(ch) * condition::GetCondPenalty(ch, condition::kCast)),
-				  CalcAntiSavings(ch),
+				  antisaving::CalcAntiSavings(ch),
 				  ch->calc_morale(),
 				  calc_initiative(ch, false));
 	SendMsgToChar(ch, "Бонусы в процентах: магический урон: %d, физический урон: %d, опыт: %d\r\n",
@@ -583,7 +582,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	std::size_t row{0};
 	table[row][col] = "Попадание";		table[row][col + 1] = std::to_string(CalcHitroll(ch));
 	table[++row][col] = "Повреждение";	table[row][col + 1] = std::to_string(max_dam);
-	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
+	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(antisaving::CalcAntiSavings(ch));
 	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*condition::GetCondPenalty(ch, condition::kCast)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
 	table[++row][col] = "Сила заклинаний %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_spellpower_add);

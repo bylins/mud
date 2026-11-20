@@ -60,9 +60,8 @@ EStageResult CastToPoints(ActionContext &ctx);
 EStageResult CastToAlterObjs(ActionContext &ctx);
 EStageResult CastManual(ActionContext &ctx);
 
-// Material-component check + class anti-saving modifier: only used inside the module.
+// Material-component check: only used inside the module.
 EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
-int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
 
 #endif  // MAGIC_INTERNAL_H_
 

@@ -9,6 +9,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/magic/magic_internal.h"
+#include "gameplay/mechanics/antisaving.h"
 #include "engine/ui/cmd/do_flee.h"
 
 namespace handlers {
@@ -18,8 +19,8 @@ EStageResult SpellFear(ActionContext &ctx) {
 	CharData *victim = ctx.cvict;
 	int modi = 0;
 	if (ch != victim) {
-		modi = CalcAntiSavings(ch);
-		modi += CalcClassAntiSavingsMod(ch, ESpell::kFear);
+		modi = antisaving::CalcAntiSavings(ch);
+		modi += antisaving::CalcClassAntiSavingsMod(ch, ESpell::kFear);
 		if (!pk_agro_action(ch, victim))
 			return EStageResult::kSuccess;
 	}
