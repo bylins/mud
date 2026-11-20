@@ -232,7 +232,7 @@ gameplay metadata** (PK / agro / damage-type).
 | `kMagAreas` | Area cast — every hostile in the room with decay. |
 | `kMagWarcry` | Marks the spell as a war-cry (skips magic defences). |
 | `kMagNeedControl` | Requires caster's pet to be present. |
-| `kMagRoom` | Room spell, lives in `magic_rooms.cpp`. |
+| `kMagRoom` | Room spell: cast by `magic/action_room_affect.cpp`, the affect itself lives in `affects/room_affects.cpp`. |
 
 | PK / agro / damage class | Effect |
 |---|---|

@@ -717,7 +717,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			// optional `random` flag marking it a member of the spell's random-one-of pool. The id may
 			// resolve as an EAffect (char affect -> applies_) and/or an ERoomAffect (room affect ->
 			// room_affect_); kForbidden is intentionally BOTH, so we try both enums and let each cast
-			// path (magic.cpp / magic_rooms.cpp) consume the kind it understands.
+			// path (action_affect.cpp / action_room_affect.cpp) consume the kind it understands.
 			const char *idv = child.GetValue("id");
 			if (!idv || !*idv) {
 				err_log("talent_actions <affect>: missing id attribute.");

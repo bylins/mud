@@ -1,3 +1,10 @@
+/**
+ \file room_affects.h - a part of the Bylins engine.
+ \brief Room affects: the room-affect identities (ERoomAffect), their storage on rooms and exits, lookups,
+        timers and update loop, the registry and messages loaded from cfg, and per-tick / trigger actions.
+        Casting a spell onto a room or exit lives in magic/action_room_affect.cpp.
+*/
+
 #ifndef BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECTS_H_
 #define BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECTS_H_
 
@@ -149,7 +156,7 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 // timer end, kDispell on forced removal) with `ch` as the caster context and `potency` as the cast
 // strength. No-op (returns false) if the affect has no matching action or `ch` is null -- room affects
 // have no bearer char, so they need a live caster to source the cast (the affect's caster for kExpired;
-// the dispeller for kDispell, which makes the retaliation self-inflicted). Defined in magic_rooms.cpp.
+// the dispeller for kDispell, which makes the retaliation self-inflicted).
 bool RunRoomAffectTrigger(RoomData *room, CharData *ch, ERoomAffect affect_type,
 						  talents_actions::EActionTrigger trig, float potency);
 

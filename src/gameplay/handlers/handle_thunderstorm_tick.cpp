@@ -1,6 +1,6 @@
 /**
  \file handle_thunderstorm_tick.cpp - a part of the Bylins engine.
- \brief issue.spellhandlers: HandleThunderstormTick room-affect tick handler (extracted from magic_rooms.cpp).
+ \brief issue.spellhandlers: HandleThunderstormTick room-affect tick handler (extracted from room_affects.cpp).
 */
 
 #include "gameplay/handlers/spell_handlers.h"

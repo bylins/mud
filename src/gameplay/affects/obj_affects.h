@@ -9,7 +9,7 @@
 // identity enum (EObjAffect), independent of ESpell and of EAffect.
 //
 // The mechanic is materialized like every other affect in the engine (see Affect<> in affect_data.h and
-// the room-affect subsystem in magic_rooms.h): an obj affect is a real Affect<EObjApply> with the full
+// the room-affect subsystem in room_affects.h): an obj affect is a real Affect<EObjApply> with the full
 // parameter set (duration -1 or computed, modifier, caster_id, potency, ...), stored in a per-item list.
 //
 // Each obj affect optionally OWNS an object extra-flag (EObjFlag), declared in cfg/affects/obj_affects.xml. On

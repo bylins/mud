@@ -1,3 +1,10 @@
+/**
+ \file room_affects.cpp - a part of the Bylins engine.
+ \brief Room affects: the room-affect identities (ERoomAffect), their storage on rooms and exits, lookups,
+        timers and update loop, the registry and messages loaded from cfg, and per-tick / trigger actions.
+        Casting a spell onto a room or exit lives in magic/action_room_affect.cpp.
+*/
+
 #include "room_affects.h"
 
 #include "room_affect_messages.h"
@@ -398,7 +405,7 @@ std::list<RoomData *> affected_rooms;
 
 // issue.room-affect-trigger-improve (door affects): registry of enchanted exits so the affect pulse
 // can tick/expire door affects without scanning every room's six exits. Keyed by (room, dir) -- the
-// cast-side host. File-local: only this TU's tick + impose touch it.
+// cast-side host. File-local: reached only through AddExitToAffected / ClearExitAffects and the affect pulse.
 namespace { struct ExitAffectHost { RoomData *room; int dir; }; }
 std::list<ExitAffectHost> affected_exits;
 

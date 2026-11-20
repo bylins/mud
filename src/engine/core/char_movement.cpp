@@ -583,7 +583,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	// on-entry effects (e.g. kHypnoticPattern's sleep) in the destination room. The blocking-capable
 	// actions already ran (and possibly refused the move) before placement, above.
 	// Result is intentionally ignored here: only non-blocking on-entry effects
-	// run (the blocking pass already decided the move above). See magic_rooms.cpp
+	// run (the blocking pass already decided the move above). See room_affects.cpp
 	// for the same (void) pattern.
 	(void) room_affects::RunRoomEntryTriggers(ch, world[ch->in_room],
 			room_affects::EEntryTriggerPhase::kEffectsNonBlocking);

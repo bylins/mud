@@ -634,7 +634,7 @@ spell -> kPlagueBlade (item affect, on the sword, timed)
 > | New id | Enum / name map |
 > |---|---|
 > | `kPlagueTouch`, `kSwampPlague` | `EAffect` — `affect_contants.h` + `affect_contants.cpp` |
-> | `kPlagueMiasma` | `ERoomAffect` — `magic_rooms.h` + name map |
+> | `kPlagueMiasma` | `ERoomAffect` — `affects/room_affects.h` + name map |
 > | `kPlagueBlade` | `EObjAffect` — `obj_affects.h` + `obj_affects.cpp` |
 >
 > Plus one tiny `<alter_obj>` handler (§4.1) that puts a *timed* affect on the
