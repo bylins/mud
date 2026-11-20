@@ -9,73 +9,16 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "magic_internal.h"
 
-#include <fmt/format.h>
-
-#include "gameplay/affects/obj_affects.h"
-#include "gameplay/affects/obj_affect_messages.h"
 #include "administration/privilege.h"
-#include "gameplay/affects/affect_handler.h"
-#include "gameplay/mechanics/condition.h"
+#include "engine/core/target_resolver.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/ai/mobact.h"
+#include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/mechanics/mount.h"
-#include "gameplay/mechanics/resist.h"
-#include "magic_internal.h"
-#include "spell_trace.h"
-#include "gameplay/mechanics/saving.h"
-#include "gameplay/mechanics/antisaving.h"
-#include "gameplay/affects/affect_contants.h"
-#include "gameplay/handlers/spell_handlers.h"
-#include "gameplay/mechanics/summon.h"
-#include "gameplay/mechanics/animate_dead.h"
-#include "gameplay/mechanics/mob_races.h"
-#include "gameplay/handlers/bone_commander.h"
-
-#include <algorithm>
-#include <functional>
-#include <map>
-#include "magic_rooms.h"
-#include "room_affect_messages.h"
-
-#include "gameplay/core/game_limits.h"
-#include "gameplay/mechanics/liquid.h"
-#include "engine/core/target_resolver.h"
-
-#include "gameplay/affects/affect_data.h"
-#include "gameplay/affects/affect_messages.h"
-#include "gameplay/affects/equipment_affects.h"
-#include "utils/grammar/declensions.h"
-#include "gameplay/mechanics/obj_sets.h"
-#include "gameplay/mechanics/poison.h"
-#include "engine/db/world_characters.h"
-#include "gameplay/mechanics/corpse.h"
-#include "gameplay/fight/fight.h"
-#include "gameplay/fight/fight_hit.h"
-#include "gameplay/ai/mobact.h"
-#include "gameplay/fight/pk.h"
-#include "engine/core/char_equip_flags.h"
-#include "engine/core/char_handler.h"
-#include "engine/core/obj_handler.h"
-#include "engine/entities/char_data.h"
-#include "gameplay/mechanics/equipment.h"
-#include "gameplay/mechanics/inventory.h"
-#include "magic_utils.h"
-#include "engine/db/obj_prototypes.h"
-#include "engine/entities/char_player.h"
-#include "utils/random.h"
-#include "engine/db/global_objects.h"
-#include "gameplay/ai/mob_memory.h"
-#include "gameplay/core/base_stats.h"
-#include "gameplay/mechanics/weather.h"
-#include "utils/utils_time.h"
-#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/sight.h"
-#include "gameplay/core/remort.h"
-#include "gameplay/abilities/abilities_rollsystem.h"
-
-extern int interpolate(int min_value, int pulse);
-
-void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool IsRoomForbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
