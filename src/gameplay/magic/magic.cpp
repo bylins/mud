@@ -6,18 +6,14 @@
 *                                                                         *
 *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-* 									  *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                      *
 ************************************************************************ */
 
 #include "magic.h"
 
 #include <fmt/format.h>
 
-#include "gameplay/affects/obj_affects.h"   // issue.obj-affects: RunObjAffectWeaponHit
-#include "gameplay/affects/obj_affect_messages.h"   // issue.obj-affects: obj-affect trigger flavor
+#include "gameplay/affects/obj_affects.h"
+#include "gameplay/affects/obj_affect_messages.h"
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -27,29 +23,29 @@
 #include "magic_internal.h"
 #include "spell_trace.h"
 #include "gameplay/mechanics/saving.h"
-#include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>
+#include "gameplay/affects/affect_contants.h"
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
 #include "gameplay/mechanics/animate_dead.h"
-#include "gameplay/mechanics/mob_races.h"   // issue #4000: ENpcRace::kHuman -- труп человекоподобного
-#include "gameplay/handlers/bone_commander.h"   // issue #4032: пересчёт костяной подати
+#include "gameplay/mechanics/mob_races.h"
+#include "gameplay/handlers/bone_commander.h"
 
 #include <algorithm>
 #include <functional>
 #include <map>
-#include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch
-#include "room_affect_messages.h"  // RoomAffectMsgRaw for room dispel narration
+#include "magic_rooms.h"
+#include "room_affect_messages.h"
 
-#include "gameplay/core/game_limits.h"  // gain_condition
-#include "gameplay/mechanics/liquid.h"   // kMaxCondition
+#include "gameplay/core/game_limits.h"
+#include "gameplay/mechanics/liquid.h"
 #include "engine/core/target_resolver.h"
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
-#include "gameplay/affects/equipment_affects.h"  // kEquipmentAffectBaseStat + power-percent materialization
-#include "utils/grammar/declensions.h"  // GetDeclensionInNumber (suppress-restore hours)
-#include "gameplay/mechanics/obj_sets.h"  // is_set_item (broadcast set-affect suppression)
-#include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage for <damage source="poison">
+#include "gameplay/affects/equipment_affects.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/obj_sets.h"
+#include "gameplay/mechanics/poison.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/fight/fight.h"
@@ -74,7 +70,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/core/remort.h"
-#include "gameplay/abilities/abilities_rollsystem.h"   // issue.instant-death: OppositeLuckTest
+#include "gameplay/abilities/abilities_rollsystem.h"
 
 extern int interpolate(int min_value, int pulse);
 
@@ -83,15 +79,12 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool IsRoomForbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
-		// issue.affect-migration: identify the ward by its room-affect identity, not the casting spell.
 		if (af->affect_type == room_spells::ERoomAffect::kForbidden && (number(1, 100) <= af->modifier)) {
 			return true;
 		}
 	}
 	return false;
 }
-
-// * Saving throws are now in class.cpp as of bpl13.
 
 /*
  * Negative apply_saving_throw[] values make saving throws better!
@@ -138,8 +131,6 @@ int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 }
 
 
-// issue.npc-races: a mob can speak/incant iff its race carries the <vocal/> trait (players always
-// can). Replaces the old per-race switch here and the duplicate IsCasterVerbal in magic_utils.cpp.
 bool IsAbleToSay(CharData *ch) {
 	if (!ch->IsNpc()) {
 		return true;
@@ -152,10 +143,8 @@ void ShowAffExpiredMsg(EAffect affect_type, CharData *ch) {
 		return;
 	}
 
-	// issue.affect-migration: expiry narration belongs to the AFFECT, keyed by its identity. The char
-	// always learns the affect wore off (kDefault generic fallback for affect_type == kUndefined); the
-	// room is told only for affects whose expiry is visible to others (sheaf-direct kAffExpiredToRoom,
-	// silent if unauthored).
+	// The char always learns the affect wore off (generic fallback for kUndefined); the room is
+	// told only if the affect authors a kAffExpiredToRoom message.
 	const std::string &to_char = affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffExpiredToChar);
 	const std::string &to_room = affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kAffExpiredToRoom);
 	if (!to_char.empty()) {
@@ -167,9 +156,6 @@ void ShowAffExpiredMsg(EAffect affect_type, CharData *ch) {
 	}
 }
 
-
-// SetBattleLag(victim, lag) lives inline next to SetWaitState in char_data.h -- it isn't
-// magic-specific. This file keeps only the magic-pipeline-specific skill-scaled overload below.
 
 /*
  * This is a temporary function. It's better to tie the lag value to the success rate of the cast
@@ -231,9 +217,6 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
  *   - no skill / kUndefined: prob% chance of `max`, else 0;
  *   - skill + prob > 0:      prob% chance of `extra` (= min(skill,75)/divisor, capped at max), else 0;
  *   - skill + prob == 0:     random 0..extra (uniform spread of attack count).
- * (issue.perk-action-patching) kMagicArrows is now DATA-DRIVEN: the feat carries a <talent_patch> that
- * replaces kMagicMissile's <damage> with a boosted <hits> block (skill_divisor 12->6, max 2->6),
- * reproducing the old halve-divisor/triple-max at the skill cap. No spell-specific branch here anymore.
  */
 static int CalcExtraHits(CharData *ch, ESkill skill_id,
 				  int skill_divisor = 25, int max = 1, int prob = 20) {
@@ -246,14 +229,9 @@ static int CalcExtraHits(CharData *ch, ESkill skill_id,
 	return ((number(1, 100) <= prob) ? extra : 0);
 }
 
-/**
- * Forces a character to assume a certain position (knocked down, asleep, stunned, etc.)
- * Knocks off horse, checks for afflictions.
- */
-// Knock the victim down to position `pos` (with the spell's kKnockdown* messages) and/or
-// force the fight to stop. Passing EPosition::kUndefined as `pos` changes no position at all
-// -- only the force_stopfight branch runs (in the engine, the "fighting" state is itself part
-// of the position system, so stopping a fight is a position change in that sense).
+// Knock the victim down to `pos` (with the spell's kKnockdown* messages, dropping it from a horse)
+// and/or force the fight to stop. EPosition::kUndefined as `pos` leaves the position alone and only
+// runs the force_stopfight branch.
 static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool force_stopfight = false) {
 	if (privilege::IsImmortal(victim)) {
 		return;
@@ -280,19 +258,15 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 	}
 }
 
-// issue.mob-flag-affect-materialization: build the real affect node(s) for a materialized intrinsic mob
-// buff. The affect and its granting spell share a name (kSanctuary affect <- kSanctuary spell, etc.), so
-// we roll THAT spell's <potency_roll> for the mob -- dice + the mob's skill_coeff + stat_coeff -- exactly
-// as a real cast would, and derive both the stored potency (so dispel is a contest, not a free strip) and
-// each apply's modifier. competence = skill_coeff + stat_coeff, the same value an entry action feeds
-// ComputeApplyModifier (ActionContext::CompetenceBase). An affect with <apply> children (kCloudly ->
-// blink+AC, kBlink -> blink) materializes WITH its stat applies -- one node per apply; an applies-less
-// buff (sanctuary/shields/prism/glass) gets a single bare flag-carrier node (location kNone). Every node
-// is permanent (duration -1) and uncredited (caster_id 0). No same-named spell -> zero roll (flat mins,
-// potency 0). Такой узел СНИМАЕТСЯ магией -- на то и заклинание «разлом»: снятие идёт состязанием по
-// силе (potency роллится по статам моба), а при следующем пробуждении зоны материализация вернёт его
-// из флагов прототипа. Неснимаемо только то, что ставит код: пакет призванного существа
-// (kAfCharmBond) и волшебство надетого.
+// Builds the affect node(s) for a mob's intrinsic (prototype-flag) buff. The affect and its granting
+// spell share a name, so we roll that spell's <potency_roll> for the mob exactly as a real cast would:
+// the stored potency makes dispel a contest, and each apply's modifier uses competence =
+// skill_coeff + stat_coeff. An affect with <apply> children gets one node per apply; an applies-less
+// buff gets a single bare flag carrier (location kNone). Nodes are permanent (duration -1) and
+// uncredited (caster_id 0). No same-named spell -> zero roll (flat mins, potency 0).
+// Такой узел СНИМАЕТСЯ магией (заклинание «разлом»): снятие идёт состязанием по силе, а при
+// следующем пробуждении зоны материализация вернёт его из флагов прототипа. Неснимаемо только то,
+// что ставит код: пакет призванного существа (kAfCharmBond) и волшебство надетого.
 std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type) {
 	RollResult roll;   // stays zero if no same-named spell -> potency 0, competence 0 (flat apply mins)
 	try {
@@ -374,10 +348,8 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 							double noise_z = std::numeric_limits<double>::quiet_NaN()) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
-	// prob: a <damage prob=> spell may simply not fire (default 100).
-	// A miss returns 0 -- which, like a full magic-resist, is still processed downstream (no aggro
-	// change was requested), so behaviour matches today's zero-damage handling. The prob<100 guard
-	// short-circuits the RNG when the result is fixed at "always fires".
+	// A <damage prob=> spell may simply not fire (default 100); a miss deals 0 damage, which is
+	// handled downstream like a full magic resist.
 	if (has_dmg) {
 		const int dmg_prob = action.GetDmg().GetProb();
 		if (dmg_prob < 100 && number(1, 100) > dmg_prob) {
@@ -385,8 +357,7 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 		}
 	}
 	int total_dmg{0};
-	// issue.shadow-cloak-bug: this computes only the base per-hit amount now. Magic-resist is rolled PER
-	// HIT in CastDamage's loop (so a multi-hit spell distributes), not here.
+	// Base per-hit amount only: magic resist is rolled per hit in CastDamage's loop.
 	{
 		const float skill_coeff = potency_roll.CalcSkillCoeff(ch);
 		const float stat_coeff = potency_roll.CalcBaseStatCoeff(ch);
@@ -395,26 +366,17 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 
 		float dmg;
 		if (has_dmg) {
-			// Additive model, mirroring heal: the <amount> weights scale
-			// the roll's dice and competencies (skill+stat); an absent <amount> defaults to min 0
-			// and both weights 1.0.
+			// Additive model: amount = min + beta*C*(1 + weight*d), C = skill_coeff + stat_coeff (for a DoT
+			// tick, the affect's stored potency); noise_z is the realized deviation d. An absent <amount>
+			// means min 0 and weights 1.0.
 			const auto &dmg_act = action.GetDmg();
-			// Option-2 subquadratic: skill/stat scales the dice
-			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
-			// Formula A. C = skill_coeff + stat_coeff.
-			const float C = static_cast<float>(competence);  // base override
-			// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d). For a DoT tick C is the
-				// affect's stored potency (fed as fixed_potency -> skill_coeff); noise_z = realized d.
+			const float C = static_cast<float>(competence);
 				dmg = static_cast<float>(CalcNoisyAmount(dmg_act.GetAmountMin(),
 						dmg_act.GetAmountBeta() * C, dmg_act.GetAmountWeight(), /*cap*/ 0, noise_z));
 		} else {
-			// issue.random-noise-rework: the legacy `dice * (1 + skill + stat)` model is abandoned --
-			// it was dice-dominated (skill barely mattered) and, with the rebalanced competence, both
-			// inflated and inconsistent with every <damage> spell. A kMagDamage spell with no <damage>
-			// manifestation now deals NO direct damage; it stays an aggressive act (CastDamage already
-			// ran pk_agro_action, and a 0-damage hit still sets the victim fighting via Damage::Process),
-			// which is exactly what a taunt like kWarcryOfChallenge wants. Real damage comes from a
-			// <damage> action or a <side_spell> (e.g. kDeadlyFogTick's kAcidArrow/kPoison/...).
+			// A kMagDamage spell without a <damage> action deals no direct damage but stays an aggressive act
+			// (a 0-damage hit still starts the fight) -- what taunts like kWarcryOfChallenge rely on. Real damage
+			// comes from a <damage> action or a <side_spell>.
 			dmg = 0.0f;
 		}
 
@@ -431,10 +393,6 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 	return total_dmg;
 }
 
-// The remaining code-only defense (magic mirror and sonic barrier are gone: the mirror is now a
-// data-driven kWardAttack affect, the barrier was dropped so warcries fizzle on gods like any spell).
-// TryBlockByMagicalShield returns true (and emits the standard ToChar/ToNotVict/ToVict message trio)
-// when the shield swallows the cast; the caller (RunWholeCastWards) then stops the whole cast.
 namespace {
 
 // Build and process one Damage object for a multi-hit damage spell. `count` is the
@@ -446,13 +404,11 @@ int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_
 					 const std::string &aff_msg_char, const std::string &aff_msg_vict,
 					 const std::string &aff_msg_room, long author_uid) {
 	Damage dmg(SpellDmg(spell_id), total_dmg, fight::kMagicDmg);
-	// issue.dot-death-exp: carry the self-damage author (a DoT/affect tick's caster_id) so a kill
-	// dealt by the bearer's OWN tick credits the responsible character, exactly like the poison
-	// branch above. 0 = no author (a normal offensive hit sets nothing; ch != victim credits ch).
+	// Author of a self-inflicted hit (a DoT tick's caster_id), so a kill by the bearer's own tick is
+	// credited to that character. 0 = no author.
 	dmg.author_uid = author_uid;
 	dmg.ch_start_pos = ch_start_pos;
 	dmg.victim_start_pos = victim_start_pos;
-	// issue.character-affect-triggers: affect-owned damage flavor (empty for ordinary spell damage).
 	dmg.aff_msg_char_ = aff_msg_char;
 	dmg.aff_msg_vict_ = aff_msg_vict;
 	dmg.aff_msg_room_ = aff_msg_room;
@@ -472,19 +428,10 @@ int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_
 	return dmg.Process(ch, victim);
 }
 
-// issue.attack-ward: TryReflectByMagicGlass removed -- the Magic Mirror (kMagicGlass) is now a
-// data-driven kWardAttack/reflect affect (its messages live in the affect msg cfg, see RunWholeCastWards).
-// issue.attack-ward: TryReflectBySonicBarrier removed too. It was a bespoke "gods reflect warcries"
-// workaround that existed only because a violent warcry slipped past the general immortal guard. A
-// warcry against a god now simply fails like any other spell -- the IsGod block in CastOnTarget's
-// is_entry gate fizzles it with the standard "no effect", no reflection.
-
 // The Vityaz magical-shield block: a skill+feat+worn-shield absorption. The chance is
 // (kShieldBlock / 20 + shield_weight / 2) percent. Mass/area/warcry casts bypass the shield.
 bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
-	// issue #3554: у каста по объекту/комнате нет char-victim (ctx.cvict == nullptr).
-	// Ниже сразу GetSkill(victim,...) -> разыменование nullptr -> краш. Щита-защитника
-	// без цели-персонажа нет, поэтому просто выходим (как делает WardEligible).
+	// У каста по объекту/комнате нет цели-персонажа: без этой проверки ниже разыменуется nullptr.
 	if (!victim) return false;
 	if (ch == victim) return false;
 	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
@@ -503,8 +450,7 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 	return true;
 }
 
-// issue.attack-ward: the target's current value of the resist apply an <absorption chance=> names.
-// Only kMagicResist is used today (Shadow Cloak); easily extended to the other resist applies.
+// The target's current value of the resist apply named by <absorption chance=>.
 int WardResistStat(CharData *victim, EApply ap) {
 	switch (ap) {
 		case EApply::kMagicResist:  return GET_MR(victim);
@@ -513,8 +459,7 @@ int WardResistStat(CharData *victim, EApply ap) {
 	}
 }
 
-// issue.attack-ward: emit a fired ward's flavor (kWardTo{Char,Vict,Room}). Shared by the whole-cast
-// gate and the per-manifest absorb so both narrate identically.
+// Emits a fired ward's kWardTo{Char,Vict,Room} flavor.
 void EmitWardMsgs(CharData *caster, CharData *victim, EAffect at) {
 	const std::string &mc = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToChar);
 	const std::string &mv = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToVict);
@@ -524,9 +469,9 @@ void EmitWardMsgs(CharData *caster, CharData *victim, EAffect at) {
 	if (!mr.empty()) { act(mr.c_str(), false, caster, nullptr, victim, kToNotVict); }
 }
 
-// issue.attack-ward: a defender ward may react only to a violent, non-warcry MAGIC attack by a
-// non-god on a distinct same-room victim. `is_magic` is true for every cast today (later sourced
-// from the <weave> component so non-magic skills that share this pipeline won't trip wards).
+// A defender ward reacts only to a violent, non-warcry magic attack by a non-god on a distinct
+// same-room victim. `is_magic` is always true for now; it lets non-magic skills sharing this pipeline
+// opt out of wards later.
 bool WardEligible(CharData *caster, CharData *victim, ESpell spell_id, bool is_magic) {
 	return is_magic && caster && victim && caster != victim
 		&& caster->in_room == victim->in_room
@@ -535,12 +480,10 @@ bool WardEligible(CharData *caster, CharData *victim, ESpell spell_id, bool is_m
 		&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim);
 }
 
-// issue.attack-ward (per-manifest wards): WHOLE-CAST defender wards -- reflection (the entire cast
-// bounces to the caster) and scope="all" absorption -- plus the code-only magical shield. Evaluated
-// ONCE at the is_entry gate, and only for the TOP-LEVEL cast (a side-spell sub-cast is part of the
-// same incoming spell, so it must not re-trigger these -- see CastSideSpell / ctx.Nested()). Scoped
-// damage/affect absorbs are NOT handled here; they are per-manifest (TryScopedAbsorb) inside the
-// stages so each attack rolls independently. First firing ward wins. Returns true if a ward fired.
+// Whole-cast defender wards: reflection (the entire cast bounces to the caster), scope="all"
+// absorption and the code-only magical shield. Evaluated once at the is_entry gate, for the top-level
+// cast only -- a side-spell sub-cast is part of the same incoming spell (see ctx.Nested()). Scoped
+// absorbs are per-manifest (TryScopedAbsorb). First firing ward wins; returns true if one fired.
 bool RunWholeCastWards(ActionContext &ctx, bool is_magic) {
 	CharData *caster = ctx.caster();
 	CharData *victim = ctx.cvict;
@@ -548,9 +491,8 @@ bool RunWholeCastWards(ActionContext &ctx, bool is_magic) {
 	if (!is_magic || !caster || !victim || caster == victim || caster->in_room != victim->in_room) {
 		return false;
 	}
-	// Data-driven affect wards: only a violent, non-warcry cast by a non-god triggers them.
-	// Warcries are excluded here and are not otherwise warded -- a warcry against a god just
-	// fizzles at CastOnTarget's IsGod gate, like any spell.
+	// Only a violent, non-warcry cast by a non-god triggers affect wards (a warcry against a god
+	// fizzles at CastOnTarget's IsGod gate instead).
 	if (!privilege::IsGod(caster) && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
 			&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
 		std::vector<EAffect> seen;
@@ -605,8 +547,7 @@ bool RunWholeCastWards(ActionContext &ctx, bool is_magic) {
 			}
 		}
 	}
-	// Code-only defense (not migrated): magical shield (absorb-all). A violent warcry against an
-	// immortal is no longer reflected here -- it fails via the general IsGod block in CastOnTarget.
+	// Code-only defense: the magical shield (absorb-all).
 	if (TryBlockByMagicalShield(caster, victim, spell_id)) {
 		ctx.SetWardStop();
 		return true;
@@ -614,12 +555,10 @@ bool RunWholeCastWards(ActionContext &ctx, bool is_magic) {
 	return false;
 }
 
-// issue.attack-ward (per-manifest wards): a SCOPED absorption ward (e.g. Shadow Cloak, scope="damage")
-// rolls INDEPENDENTLY for each payload delivery. Called from CastDamage (want=kDamage) and CastAffect
-// (want=kAffect) right before the stage applies its effect, so: a multi-attack spell gets one roll per
-// hit; a spell that carries no matching payload never trips the ward; and a side-spell delivery (a
-// nested cast) is warded as the separate attack it is. Returns true if THIS manifest was swallowed
-// (the caller skips just this stage). First matching ward wins.
+// A scoped absorption ward (e.g. Shadow Cloak, scope="damage") rolls independently for each payload
+// delivery: CastDamage/CastAffect call it right before applying the stage's effect, so a multi-hit
+// spell rolls per hit and a nested side-spell is warded as a separate attack. Returns true if this
+// manifest was swallowed (the caller skips just this stage). First matching ward wins.
 bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want) {
 	CharData *caster = ctx.caster();
 	CharData *victim = ctx.cvict;
@@ -644,10 +583,8 @@ bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want) {
 			}
 			int chance;
 			if (absb.chance != EApply::kNone) {
-				// issue.shadow-cloak-bug: GET_MR is a DAMAGE-axis stat (the affect stage gates on GET_AR
-				// instead), so this MR bookkeeping applies only to a damage-scoped ward. It is gated once
-				// per stage: a prior MR ward already spent the roll -> this one doesn't gate again (only
-				// one MR-based ward triggers).
+				// GET_MR is a damage-axis stat (the affect stage uses GET_AR), so MR bookkeeping applies only to
+				// damage-scoped wards, and only one MR-based ward may roll per stage.
 				const bool mr_ward = (want == talents_actions::EWardScope::kDamage
 									  && absb.chance == EApply::kMagicResist);
 				if (mr_ward && ctx.MrApplied()) {
@@ -655,8 +592,7 @@ bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want) {
 				}
 				const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
 				chance = std::min(cap, WardResistStat(victim, absb.chance));
-				// This ward consumes the stage's single MR roll (whether or not it absorbs), so the global
-				// CalcTotalSpellDmg gate will not roll GET_MR again this stage.
+				// Spends the stage's single MR roll whether or not it absorbs, so CastDamage won't roll GET_MR again.
 				if (mr_ward) {
 					ctx.SetMrApplied();
 				}
@@ -688,10 +624,8 @@ EStageResult CastDamage(ActionContext &ctx) {
 	// на входе значение от предыдущей цели утекало бы в проверки по следующей.
 	ctx.result.damage = 0;
 
-	// issue.damage-over-time: a poison-sourced <damage> tick reproduces ProcessPoisonDmg's kPoison branch
-	// exactly and returns before the general damage machinery: GET_POISON-based amount dealt as kPoisonDmg,
-	// no-flee, self-inflicted, credited to the poisoner (the affect's caster). Poison never had MR/area/
-	// saving/wards, so those are intentionally skipped. Affect flavor (empty for kPoisoned) -> generic line.
+	// A poison-sourced <damage> tick: GET_POISON-based kPoisonDmg, no-flee, credited to the poisoner.
+	// Poison ignores MR, area, saving throws and wards, so the general damage path is skipped.
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
 			&& ctx.action_or_default().GetDmg().GetSource() == talents_actions::EDamageSource::kPoison) {
 		// The poison DoT (kPoisoned). Aconite/scopola/belena/datura all contribute to the same GET_POISON
@@ -720,24 +654,20 @@ EStageResult CastDamage(ActionContext &ctx) {
 			modi = modi - 50;
 	}
 
-	// issue.instant-death: roll the damage saving throw ONCE here and stash it in the context, so the
-	// instant-death gate (target must FAIL) and the save-for-half below share a single roll instead of
-	// re-rolling. Only for a modern <damage> action vs another char; kNone saving / self-cast make
-	// CalcGeneralSaving return false (no save = failed = full damage, instant-death not blocked).
+	// Roll the damage saving throw once and keep it in ctx: the instant-death gate below needs a failed
+	// save. kNone saving and self-casts count as a failed save.
 	if (ch != victim && ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
 		ctx.last_saving_result = CalcGeneralSaving(ch, victim,
 				ctx.action_or_default().GetDmg().GetSaving(), modi);
 	}
 
-	// issue.instant-death: a <damage><instant_death prob=.../> spell can kill the target outright.
-	// Gate, in order: the target must FAIL its saving throw; the prob roll must fire (default 100 =
-	// always); the caster must WIN the opposed luck/morale contest. On success the normal damage is
-	// irrelevant -- an NPC takes enough to die (hit + 11, past the -11 death floor); a PC is left at
-	// exactly 1 HP (hit - 1). The lethal hit ignores armour/absorb/sanct/prism so the amount lands exactly.
+	// <instant_death prob=>: the target must fail its save, the prob roll must fire and the caster must
+	// win the opposed luck test. Then an NPC takes hit + 11 (past the -11 death floor) and a PC is left at
+	// 1 HP; the lethal hit ignores armour/absorb/sanct/prism so the amount lands exactly.
 	if (ch != victim && ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
 		const auto &id_act = ctx.action_or_default().GetDmg();
 		if (id_act.HasInstantDeath()
-				&& !victim->get_role(RoleBit(EMobClass::kBoss))   // never on boss monsters
+				&& !victim->get_role(RoleBit(EMobClass::kBoss))
 				&& !ctx.last_saving_result.value_or(false)   // target failed the (already-rolled) save
 				&& number(1, 100) <= id_act.GetInstantDeathProb()
 				&& abilities_roll::AgainstRivalRoll::OppositeLuckTest(ch, victim)) {
@@ -764,11 +694,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 		}
 	}
 
-	// Multi-hit count: a damage spell with a <hits> child gets its extra-hit
-	// number from CalcExtraHits. (kMagicArrows is now a data <talent_patch> boosting kMagicMissile's
-	// <hits>; no spell-specific branch remains in CalcExtraHits.)
-	// Absent <hits> -> count stays at the file-top default of 1 (single hit), which matches the
-	// current behaviour of every non-multi-hit damage spell.
+	// Absent <hits> keeps the single hit (count = 1).
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
 		const auto &dmg = ctx.action_or_default().GetDmg();
 		if (dmg.HasHits()) {
@@ -803,8 +729,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 			&& victim->in_room == ch->in_room
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
-			// issue.shadow-cloak-bug: MR / ward / save roll PER HIT so a multi-hit spell distributes --
-			// each attack is independently absorbed, magic-resisted, or saved, instead of all-or-nothing.
+			// MR, scoped ward and save are rolled per hit, so a multi-hit spell is resisted per attack.
 			ctx.ResetMrApplied();
 			// 1) damage-scoped ward (e.g. Shadow Cloak absorb) -- consumes this hit; it emits its own msg.
 			if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kDamage)) {
@@ -823,7 +748,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 				}
 				ctx.SetMrApplied();
 			}
-			// 3) per-hit saving throw halves this hit (was one per-stage roll; now independent per attack).
+			// 3) a saving throw halves this hit.
 			if (hit_dmg > 0 && ch != victim
 					&& ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
 					&& CalcGeneralSaving(ch, victim, ctx.action_or_default().GetDmg().GetSaving(), modi)) {
@@ -834,9 +759,8 @@ EStageResult CastDamage(ActionContext &ctx) {
 									ch_start_pos, victim_start_pos, count,
 									ctx.AffectDamageMsgChar(), ctx.AffectDamageMsgVict(),
 									ctx.AffectDamageMsgRoom(), ctx.DamageAuthorUid());
-			// accumulate the ACTUAL HP removed this hit (post-resist/save, capped
-			// at the target's HP) so a chained action scales off real damage. On death the victim is
-			// extracted -> count the HP it had; otherwise the HP it actually lost.
+			// Count the HP actually removed (after resist/save, capped at the target's HP) so a chained
+			// action scales off real damage; a dead victim counts the HP it had.
 			const int removed = (rand < 0) ? std::max(0, hp_before)
 									   : std::max(0, hp_before - victim->get_hit());
 			ctx.damage_count += removed;
@@ -865,20 +789,14 @@ EStageResult CastDamage(ActionContext &ctx) {
 	return EStageResult::kSuccess;
 }
 
-// Material-item match: an object qualifies as a component for `vnum` if it is
-// of type kMagicIngredient and its get_val(1) -- the prototype-vnum field of
-// magic ingredients -- equals the listed vnum (match by val(1), not by the
-// object's own vnum). A single material requirement can therefore be satisfied
-// by multiple concrete ingredient prototypes that carry the right val(1).
+// A material component matches by val(1) (the ingredient's prototype-vnum field), not by the
+// object's own vnum, so several ingredient prototypes can satisfy one requirement.
 static inline bool IsMaterialFor(const ObjData *o, int vnum) {
 	return o != nullptr
 		&& o->get_type() == EObjType::kMagicIngredient
 		&& o->get_val(1) == vnum;
 }
 
-// Search caster's equipment for a material ingredient matching `vnum` (see
-// IsMaterialFor for the predicate). Returns the first match (slots scanned
-// 0..kNumEquipPos-1) or nullptr.
 static ObjData *FindMatInEquip(CharData *caster, int vnum) {
 	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		ObjData *o = GET_EQ(caster, i);
@@ -889,7 +807,6 @@ static ObjData *FindMatInEquip(CharData *caster, int vnum) {
 	return nullptr;
 }
 
-// Search caster's inventory list (->carrying) for a material ingredient.
 static ObjData *FindMatInInventory(CharData *caster, int vnum) {
 	for (ObjData *o = caster->carrying; o; o = o->get_next_content()) {
 		if (IsMaterialFor(o, vnum)) {
@@ -899,8 +816,6 @@ static ObjData *FindMatInInventory(CharData *caster, int vnum) {
 	return nullptr;
 }
 
-// Search the caster's room contents for a material ingredient. Returns nullptr
-// if the caster is roomless.
 static ObjData *FindMatInRoom(CharData *caster, int vnum) {
 	if (caster->in_room == kNowhere) {
 		return nullptr;
@@ -913,11 +828,7 @@ static ObjData *FindMatInRoom(CharData *caster, int vnum) {
 	return nullptr;
 }
 
-// Look for a material ingredient by val(1)-vnum across the locations enabled
-// in `where`, in the fixed order equipment -> inventory -> room. Returns the
-// first match from the highest-priority enabled location, or nullptr if none
-// match. The caller is responsible for ensuring `where` carries at least one
-// location bit (we treat 0 as a hard failure in ProcessMatComponents below).
+// Searches the locations enabled in `where`: equipment, then inventory, then room.
 static ObjData *FindMatInLocations(CharData *caster, int vnum, Bitvector where) {
 	if ((where & EFind::kObjEquip) != 0) {
 		if (ObjData *o = FindMatInEquip(caster, vnum)) return o;
@@ -944,7 +855,6 @@ static ObjData *FindMatInLocations(CharData *caster, int vnum, Bitvector where) 
 static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 								const char *use, const char *exhausted) {
 	if (cost == 0) {
-		// Presence-only requirement: nothing to spend, nothing to narrate.
 		return;
 	}
 	if (use) {
@@ -952,10 +862,8 @@ static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 	}
 	bool destroy = false;
 	if (cost == -1) {
-		// Consumed whole in one cast, regardless of remaining charges.
 		destroy = true;
 	} else {
-		// Subtract `cost` from m_vals[2] and destroy when no charges remain.
 		obj->set_val(2, GET_OBJ_VAL(obj, 2) - cost);
 		if (GET_OBJ_VAL(obj, 2) < 1) {
 			destroy = true;
@@ -965,11 +873,7 @@ static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 		if (exhausted) {
 			act(exhausted, false, caster, obj, nullptr, kToChar);
 		}
-		// Unlink the item from wherever it lived before extracting it from
-		// the world. ExtractObjFromWorld also unlinks defensively, but
-		// matching the concrete container first matches the existing
-		// inventory-only path (RemoveObjFromChar+ExtractObjFromWorld) and
-		// avoids dangling equipment / room references in the meantime.
+		// Unlink from wherever the item lives (worn / carried / room) before deferring its free.
 		if (obj->get_worn_by()) {
 			for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 				if (GET_EQ(obj->get_worn_by(), i) == obj) {
@@ -982,22 +886,15 @@ static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 		} else if (obj->get_in_room() != kNowhere) {
 			RemoveObjFromRoom(obj);
 		}
-		// issue.obj-casting: deferred free (unlinked above, freed at heartbeat end) so a target
-		// object that doubled as a consumed component is left flagged purged(), not dangling.
+		// Deferred free (at heartbeat end): a target object that doubled as a consumed component is left
+		// flagged purged(), not dangling.
 		world_objects.AddToExtractedList(obj);
 	}
 }
 
-// Walk the spell's <components>/<material> entries and verify each requirement
-// Returns kBreak if any material's all_of/any_of
-// cannot be satisfied; kSuccess otherwise. Matched items are consumed
-// (val(2)-- and possibly destroyed). Spells with no <components> block
-// return kSuccess immediately -- no requirement, no work.
-// Narration (the use / missing / exhausted prose) is looked up sheaf-directly
-// in spell_msg.xml on the cast spell -- a missing key stays silent, matching
-// the kAffImposed* convention. The kSheaf reference and the message strings
-// stay live for the duration of this call (the SpellMessages container is not
-// mutated mid-cast), so the c_str() pointers can safely be passed downstream.
+// Checks and consumes the spell's <components>/<material> requirements; returns kBreak if any
+// all_of/any_of can't be satisfied. A missing narration key in spell_msg.xml stays silent. The message
+// strings outlive this call (SpellMessages isn't mutated mid-cast), so passing c_str() is safe.
 EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 	const auto &components = MUD::Spell(spell_id).GetComponents();
 	if (components.empty()) {
@@ -1012,9 +909,7 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 	const char *exhausted = exhausted_str.empty() ? nullptr : exhausted_str.c_str();
 
 	for (const auto &mat : components.GetMaterials()) {
-		// Mask `where` down to the three search locations honoured here. If the
-		// XML named only non-search EFind values (or named nothing valid at
-		// all), the cast must abort: there's no way to honour the requirement.
+		// Only eq/inv/room are searchable; a <material> naming none of them can't be honoured.
 		const Bitvector allowed =
 				mat.where & (EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom);
 		if (allowed == 0) {
@@ -1025,9 +920,7 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 			return EStageResult::kBreak;
 		}
 
-		// A material with neither any_of nor all_of is meaningless (the parser
-		// already logged a warning at load time). Skip it silently so the rest
-		// of the components block still gets a chance to run.
+		// The parser already warned about a material with neither any_of nor all_of; skip it.
 		if (mat.any_of.empty() && mat.all_of.empty()) {
 			continue;
 		}
@@ -1036,7 +929,6 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 		// dec_val so a partial match doesn't half-spend the requirement.
 		std::vector<ObjData *> consume;
 
-		// all_of: every listed vnum must be present.
 		for (int vnum : mat.all_of) {
 			ObjData *o = FindMatInLocations(caster, vnum, allowed);
 			if (!o) {
@@ -1047,7 +939,6 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 			}
 			consume.push_back(o);
 		}
-		// any_of: at least one listed vnum must be present.
 		if (!mat.any_of.empty()) {
 			ObjData *found = nullptr;
 			for (int vnum : mat.any_of) {
@@ -1064,9 +955,6 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 			consume.push_back(found);
 		}
 
-		// Requirement satisfied; spend mat.cost charges from each matched item.
-		// The same cost applies to every item in this material -- they all
-		// belong to one <material> tag, with one cost attribute.
 		for (ObjData *o : consume) {
 			ConsumeMatComponent(caster, o, mat.cost, use, exhausted);
 		}
@@ -1081,16 +969,14 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 // caller runs affect_total() afterwards.
 static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks,
 							  const AffectFlags &extra_battleflag = {}) {
-	// issue.affect-migration: stack/update behavior comes from affects.xml by affect_type.
 	const AffectFlags &eff_flags = affects::AffectFlagsByType(af.affect_type);
 	const bool accum_dur = eff_flags.get(EAffFlag::kAfAccumulateDuration);
 	const bool update_dur = eff_flags.get(EAffFlag::kAfUpdateDuration);
 	const bool update_mod = eff_flags.get(EAffFlag::kAfUpdateMod);
 	for (auto it = victim->affected.begin(); it != victim->affected.end(); ++it) {
 		const auto existing = *it;
-		// issue.affect-migration: stacking is keyed on affect_type (the effect identity).
 		const bool same_id = existing->affect_type == af.affect_type;
-		// issue #3971: отдельно живущий экземпляр в слияние не идёт -- накастованный баф ложится
+		// Отдельно живущий экземпляр в слияние не идёт -- накастованный баф ложится
 		// рядом. Перечень видов и причины -- у IsStandaloneAffectInstance. Слияние снимает узел и
 		// заводит новый из данных каста, а per-instance пометки (kAfCharmBond, вещевые) при этом
 		// не переносятся, поэтому пакет призванного и вещевое волшебство после слияния становились
@@ -1117,7 +1003,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stac
 				af.stacks = existing->stacks;
 				af.modifier = existing->modifier;
 			} else {
-				// Non-stacking affect (max_stacks == 1): legacy kAfUpdateMod behaviour.
+				// Non-stacking affect: kAfUpdateMod keeps the larger-magnitude modifier.
 				af.stacks = existing->stacks;
 				if (update_mod && std::abs(existing->modifier) > std::abs(af.modifier)) {
 					af.modifier = existing->modifier;
@@ -1145,7 +1031,6 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	const auto &talent = action.GetAffect();
 	// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
 	// Skipping it suppresses the affect, its lag and its reposition (gated by the caller).
-	// The prob<100 guard short-circuits the RNG when the spell always fires.
 	const int aff_prob = talent.GetProb();
 	if (aff_prob < 100 && number(1, 100) > aff_prob) {
 		spell_trace::Line(ch, victim, "&CAffect %s on %s missed: prob %d%%.&n\r\n",
@@ -1156,9 +1041,8 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
 	// returns false, so no save is taken).
 	if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
-		// issue.spells-hotfix: a reposition spell (knockdown/stun) shows its success via the
-		// "knocked down" line; on a saved cast the absence of that line already signals failure, so
-		// the redundant "no effect" is suppressed for reposition affects.
+		// A reposition spell (knockdown/stun) signals success with its "knocked down" line, so a saved
+		// cast needs no extra "no effect".
 		if (!talent.HasReposition()) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		}
@@ -1166,8 +1050,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
 		return false;
 	}
-	// issue.affect-migration: the re-apply gate reads update/accumulate behavior from affects.xml
-	// (per affect_type); the casting spell no longer carries affect flags.
+	// Re-apply behavior (update/accumulate) comes from affects.xml per affect_type.
 	AffectFlags reapply_flags;
 	bool already_affected = false;
 	for (const auto &apply : talent.GetApplies()) {
@@ -1186,20 +1069,15 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
 		return false;
 	}
-	// skill-based duration. The bonus uses the caster's potency-roll base_skill (kUndefined for
-	// spells without a <potency_roll> -> flat duration). `victim` decides the unit (PC: hours ->
-	// ticks; NPC: raw), preserving today's tick-unit semantics.
-	// issue.drunked-migration (Gap A): an affect-action may name its own duration-scaling skill (<duration
-	// skill=>); otherwise fall back to the casting spell's base_skill (kUndefined for a triggered action).
+	// Duration scales with the action's <duration skill=>, else the spell's potency-roll base_skill
+	// (kUndefined -> flat duration). `victim` decides the unit (PC: hours -> ticks; NPC: raw).
 	ESkill duration_skill = talent.GetDurationSkill();
 	if (duration_skill == ESkill::kUndefined) {
 		duration_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 	}
-	// issue.vampirism-haste: a battle-decrementing grant (battleflag="kAfBattledec") is measured in
-	// combat rounds, so its duration must NOT get the PC hours->ticks conversion.
+	// kAfBattledec grants are measured in combat rounds, so they skip the PC hours->ticks conversion.
 	const bool raw_rounds = talent.GetBattleflags().get(EAffFlag::kAfBattledec);
-	// issue.duration-scale: resistances resist VIOLENT effects only -- a beneficial cast's duration is
-	// never shortened by the target's resistance. Gate ApplyResist on the per-cast violence verdict.
+	// Resistances shorten only violent effects, never a beneficial cast's duration.
 	int duration = CalcDuration(ch, victim, duration_skill,
 					 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
 					 talent.GetDurationMin(), talent.GetDurationMax(), potency.cast_skill, raw_rounds);
@@ -1218,9 +1096,8 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 			duration, talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
 			talent.GetDurationMin(), talent.GetDurationMax(), to_underlying(duration_skill));
 	}
-	// issue.affects-improve (P3b): generic over the apply type -- the affect-owned apply
-	// (affects::AffectApply) or, for not-yet-migrated affects, the spell's TalentAffect::Apply.
-	// The affect id is passed explicitly (AffectApply has no id; the affect IS the id).
+	// `apply` is either an affect-owned affects::AffectApply or, for affects without their own applies,
+	// the spell's TalentAffect::Apply; the affect id is passed explicitly since AffectApply has none.
 	auto apply_one = [&](EAffect aff_id, const auto &apply) {
 		Affect<EApply> taf;
 		taf.affect_type = aff_id;
@@ -1231,13 +1108,10 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		const int raw_mod = ComputeApplyModifier(apply, competence, potency);
 		taf.modifier = static_cast<int>(raw_mod * area_coeff);
 		taf.caster_id = ch->get_uid();
-		// issue.character-affect-triggers: trigger charges (<affects><charges max=N>, -1 = unlimited) --
-		// mirrors the room-affect impose. Spent when a persisting-affect trigger fires (SpendCharAffectCharge).
+		// Trigger charges (-1 = unlimited), spent when a persisting-affect trigger fires.
 		taf.charges = talent.GetChargesMax();
-		// Stored potency is the cast potency scaled by the <affects potency_weight=>
-		// attribute (default 1.0 = no change). Lets
-		// big-modifier spells stay dispellable by recording a deliberately weaker
-		// potency than the raw roll would suggest.
+		// <affects potency_weight=> (default 1.0) lets big-modifier spells record a weaker potency so they
+		// stay dispellable.
 		taf.potency = cast_potency * talent.GetPotencyWeight() * static_cast<float>(area_coeff);
 		// apply.stack is the max stack count: re-applying up to the cap adds a stack and
 		// accumulates the modifier (see ApplyTalentAffect).
@@ -1253,10 +1127,8 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 				raw_mod, area_coeff, taf.modifier, apply.stack);
 		}
 	};
-	// issue.affects-improve (P3b): a spell that random-picks among SEVERAL affects (e.g. kAcidArrow
-	// -> one of blind/poison/silence) keeps its own per-apply content + the global random pool;
-	// affect-sourcing would impose each affect's (non-random) applies unconditionally. Single-id
-	// random (pick one of an affect's own applies, e.g. kFailure) flows through the affect path.
+	// A spell that randomly picks among several affects (e.g. kAcidArrow -> blind/poison/silence) uses
+	// its own per-apply data and one random pool; the affect-owned path would impose every affect's applies.
 	std::vector<EAffect> rnd_ids;
 	for (const auto &a : talent.GetApplies()) {
 		if (a.random && a.id != EAffect::kUndefined
@@ -1276,10 +1148,8 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		}
 		return true;
 	}
-	// issue.affects-improve (P3b): impose each DISTINCT affect the spell references using the
-	// affect's OWN applies (affects.xml). Affects with no applies yet (kPoisoned, P3d) fall back to
-	// the spell's per-apply data. Non-random applies impose immediately; random-flagged ones form
-	// ONE global pool (a single uniformly-chosen winner), preserving the prior cross-apply semantics.
+	// Impose each distinct affect with its own applies from affects.xml, falling back to the spell's
+	// per-apply data for affects that have none. Random-flagged applies form one pool with a single winner.
 	std::vector<EAffect> aff_ids;
 	for (const auto &a : talent.GetApplies()) {
 		if (a.id != EAffect::kUndefined
@@ -1311,14 +1181,10 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	return true;
 }
 
-// On a successfully-landed affect, emit the side effects: battle lag, forced reposition, poison
-// owner tag, and the imposition messages. The lag/reposition pair is gated on the spell having an
-// <affects> talent (where they live); the poison tag and messages apply to any successful cast.
-// issue.affect-migration: shared affect-imposition narration. The affect (not the spell/skill) owns
-// these strings; success vs FAIL is chosen by `failed` (skills pass IS_SET(af.battleflag, kAfFailed)).
-// Perspectives: to the affected (kToChar; $n=affected, $N=applier), the room (same actors), and -- only
-// when applier != affected -- the applier ($n=applier, $N=affected). The wielded weapon is passed as
-// $o and the armed/unarmed split is handled by AffectMsgWeapon. Missing keys stay silent.
+// Shared affect-imposition narration; the affect owns the strings, `failed` picks success vs FAIL.
+// To the affected (kToChar; $n=affected, $N=other), the room, and -- only when other != affected --
+// the other side (kToVict). The wielded weapon is $o (armed/unarmed split by AffectMsgWeapon).
+// Missing keys stay silent.
 void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed) {
 	if (affect_type == EAffect::kUndefined || !affected) {
 		return;
@@ -1353,8 +1219,7 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 								  const talents_actions::Action &action) {
 	if (action.Contains(talents_actions::EAction::kAffect)) {
 		const auto &side = action.GetAffect();
-		// Battle lag: <affects> with <lag> delays the victim once the affect lands. Constant-lag
-		// spells use a non-positive bonus_divisor; skill-scaling ones add
+		// Constant-lag spells use a non-positive bonus_divisor; skill-scaling ones add
 		// potency.low_skill_coeff / bonus_divisor.
 		const bool tc = spell_trace::Active(ch, victim);
 		if (side.HasLag()) {
@@ -1364,9 +1229,8 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 					side.GetLagBase(), side.GetLagBonusDivisor(), potency.low_skill_coeff);
 			}
 		}
-		// Forced reposition / fight-stop: e.g. kSleep knocks to kSleep, kPeaceful stops the fight
-		// (pos kUndefined). Runs after the saving/affect-resist gate, so the position only changes
-		// when the debuff actually lands.
+		// E.g. kSleep knocks to kSleep, kPeaceful stops the fight (pos kUndefined). Runs after the
+		// saving/affect-resist gate, so the position only changes when the debuff actually lands.
 		if (side.HasReposition()) {
 			ForceReposition(victim, spell_id, side.GetRepositionPos(), side.GetRepositionStopFight());
 			if (tc) {
@@ -1375,21 +1239,14 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 			}
 		}
 	}
-	// (issue.chardata-poisoner: автор отравления теперь хранится в caster_id самого аффекта,
-	// который выставляется выше при наложении, отдельная запись в CharData больше не нужна.)
-	// Affect imposition messages: looked up by the cast spell and emitted sheaf-directly, so a
-	// spell with no such message shows nothing.
-	// issue.affect-migration: imposition narration belongs to the AFFECT, not the casting spell.
-	// Use the affect's sheaf for a flagged affect (sheaf-direct: silent if absent), falling back to
-	// the spell's sheaf for unflagged (kUndefined) affects still keyed by spell.
+	// Imposition narration belongs to the affect; an unflagged (kUndefined) affect falls back to
+	// the spell's sheaf. Missing messages stay silent.
 	EAffect imposed_aff = EAffect::kUndefined;
 	if (action.Contains(talents_actions::EAction::kAffect)) {
 		for (const auto &ap : action.GetAffect().GetApplies()) {
 			if (ap.id != EAffect::kUndefined) { imposed_aff = ap.id; break; }
 		}
 	}
-	// issue.affect-migration: a flagged affect routes through the shared affect emitter (success path);
-	// an unflagged (kUndefined) affect keeps the transitional spell-message fallback.
 	if (imposed_aff != EAffect::kUndefined) {
 		EmitAffectImpose(victim, ch, imposed_aff, false);
 	} else {
@@ -1411,24 +1268,19 @@ EStageResult CastAffect(ActionContext &ctx) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
-	// issue #4103: урон и аффект в одном действии -- одно попадание, а не два независимых броска.
-	// Отбили урон в ноль (спасброском, резистом, поглощением, затуханием по площади) -- значит
-	// заклинание по этой цели не прошло, и аффекту взяться не от чего: раньше горение ложилось на
-	// того, кто не потерял ни хита, а ослепление и глухота -- на отбивших удар целиком.
-	// Проверяем только действия, у которых урон вообще есть: чистые бафы и дебафы без <damage>
-	// идут как прежде. Смерть цели (-1) здесь не при чем -- цепочку останавливает is_vict_dead.
+	// Урон и аффект в одном действии -- одно попадание, а не два независимых броска. Отбили урон
+	// в ноль (спасброском, резистом, поглощением, затуханием по площади) -- аффекту взяться не от
+	// чего. Чистые бафы и дебафы без <damage> не затрагиваются. Смерть цели (-1) здесь ни при чём --
+	// цепочку останавливает is_vict_dead.
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
 			&& ctx.result.damage == 0) {
 		return EStageResult::kSuccess;
 	}
-	ctx.ResetArApplied();   // issue.shadow-cloak-bug: affect-resist gates once per affect delivery
+	ctx.ResetArApplied();   // affect-resist gates once per affect delivery
 
-	// Calculate PKILL's affects. issue.spell-ally-aggression: a benign cast is never an
-	// aggressive act -- gate the PK check on the per-target violence verdict. IsViolentAgainst
-	// resolves ambiguous ("A") spells by caster<->target relationship; a static IsViolent()
-	// would wrongly treat A as non-violent and skip the gate for genuinely hostile A-casts.
-	// Without this, an ally-only buff such as kSanctuary / kPrismaticAura (violent="N") cast
-	// on an ally who happens to be in combat tripped pk_agro_action -> clan-castle eviction.
+	// A benign cast is never an aggressive act. IsViolentAgainst (not IsViolent) is needed so that
+	// ambiguous ("A") spells resolve by caster<->target relationship; otherwise an ally buff cast
+	// on an ally in combat would trip pk_agro_action.
 	if (ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
 		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc)) {
 			if (!pk_agro_action(ch, victim)) {
@@ -1439,16 +1291,14 @@ EStageResult CastAffect(ActionContext &ctx) {
 				return EStageResult::kSuccess;
 		}
 	}
-	// issue.attack-ward (per-manifest wards): a scoped affect-absorb rolls HERE, per affect delivery,
-	// so each affect application (incl. a side-spell's) is warded independently and a ward scoped to a
-	// different payload does not react. Whole-cast reflect/absorb ran at the entry gate.
+	// Scoped affect-absorb rolls per affect delivery (incl. a side-spell's); whole-cast
+	// reflect/absorb already ran at the entry gate.
 	if (TryScopedAbsorb(ctx, talents_actions::EWardScope::kAffect)) {
 		return EStageResult::kSuccess;
 	}
 
-	// issue.shadow-cloak-bug: affect-resist (GET_AR) blocks a debuff at most once per delivery. This
-	// pre-roll consumes that single AR roll for a non-warcry violent debuff (whether or not it blocks),
-	// so the blanket AR block below defers instead of rolling GET_AR a second time.
+	// Affect-resist (GET_AR) blocks a debuff at most once per delivery. This pre-roll consumes that
+	// single AR roll for a non-warcry violent debuff, so the blanket AR block below won't roll again.
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim
 		&& MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
 		ctx.SetArApplied();
@@ -1460,7 +1310,6 @@ EStageResult CastAffect(ActionContext &ctx) {
 		}
 	}
 
-	// decrease modi for failing, increese fo success
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
@@ -1471,23 +1320,17 @@ EStageResult CastAffect(ActionContext &ctx) {
 		modi = modi - 50;
 	}
 
-
-	// A violent spell can never touch an immortal target: there is nothing to build or
-	// roll, so stop here. This subsumes the per-case privilege::IsImmortal(victim) guards.
-	// An A spell resolves against the immortal: a mortal casting
-	// kDispellMagic on an immortal outsider is aggressive -> blocked; on a grouped
-	// immortal -> non-violent path, no block here.
+	// A violent spell can never touch an immortal target. An "A" spell resolves against the
+	// immortal: kDispellMagic on an immortal outsider is aggressive -> blocked; on a grouped
+	// immortal -> non-violent, not blocked here.
 	if (privilege::IsImmortal(victim) && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: target is immortal.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
 		return EStageResult::kSuccess;
 	}
-	// Affect-resist (GET_AR): a blanket block on any debuff (a violent spell with an effect),
-	// a historical mechanic -- checked up front, before any saving throw or affect is built,
-	// so it stops the debuff regardless of circumstances.
-	// issue.shadow-cloak-bug: gate on GET_AR only if the pre-roll above didn't already spend this
-	// stage's AR roll (e.g. a warcry, which skips the pre-roll, is gated here instead).
+	// Blanket affect-resist block on any debuff, before any saving throw or affect is built. Skipped
+	// if the pre-roll above already spent this stage's AR roll (warcries skip the pre-roll).
 	if (!ctx.ArApplied() && ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
 		ctx.SetArApplied();
 		if (number(1, 100) <= GET_AR(victim)) {
@@ -1497,14 +1340,9 @@ EStageResult CastAffect(ActionContext &ctx) {
 			return EStageResult::kSuccess;
 		}
 	}
-	// The affect's saving throw is read straight from the talent (GetAffect().GetSaving()) in the
-	// talent-affect block below; the <blocking>/<required> immunity checks moved up to
-	// CastToSingleTarget (action-level, gating the whole cast).
 	const bool has_affect_talent = ctx.action_or_default().Contains(talents_actions::EAction::kAffect);
-	// Every affect this cast lands records the cast's potency (strength) so a later dispel can be
-	// gated by strength (see CastUnaffects/DispelSucceeds). CalcCastPotency lives in magic_utils so
-	// CallMagicToRoom records the same scalar for its room affects. (Buff/debuff classification is
-	// the affect's own affects.xml buff flag now, not a per-cast bit -- see affects::AffectBuffKind.)
+	// Every landed affect records the cast's potency so a later dispel can be strength-gated
+	// (see CastUnaffects/DispelSucceeds).
 	const float cast_potency = CalcCastPotency(potency);
 
 	// A spell without an <affects> block has no affect to apply -- `success` stays true so the
@@ -1520,8 +1358,7 @@ EStageResult CastAffect(ActionContext &ctx) {
 	if (success) {
 		EmitImpositionEffects(ch, victim, spell_id, potency, ctx.action_or_default());
 		if (has_affect_talent) {
-			// accumulate the applied affect's potency (its stored strength =
-			// cast_potency * <affects potency_weight>), matching what a dispel later reads.
+			// Same value a dispel later reads: cast_potency * <affects potency_weight>.
 			ctx.affects_potency += cast_potency * ctx.action_or_default().GetAffect().GetPotencyWeight();
 		}
 	}
@@ -1529,33 +1366,15 @@ EStageResult CastAffect(ActionContext &ctx) {
 }
 
 
-/*
- *  Every spell which summons/gates/conjours a mob comes through here.
- *
- *  None of these spells are currently implemented in Circle 3.0; these
- *  were taken as examples from the JediMUD code.  Summons can be used
- *  for spells like clone, ariel servant, etc.
- *
- * 10/15/97 (gg) - Implemented Animate Dead and Clone.
- */
-
-// * These use act(), don't put the \r\n.
-// Сообщения призыва/оживления вынесены в lib/cfg/spell_msg.xml:
-// kSummonToRoom (по заклинанию), kSummonFail / kSummonNoCorpse и прочие
-// guard-сообщения в ветви kDefault. См. MUD::SpellMessages().
-
-
-// Pick the necro-mob VNUM to spawn for kAnimateDead, given the source corpse's mob level. The
-// upper tier (>34) is a 50/50 between damager/breather. The caster's own (level + remort + 4)
-// then caps the result: very low-level necromancers can never spawn higher-tier undead.
+// The caster's own (level + remort + 4) caps the tier: low-level necromancers can never spawn
+// higher-tier undead.
 static MobVnum PickNecroMobForCorpse(CharData *ch, int corpse_mob_level) {
 	return static_cast<MobVnum>(animate_dead::PickTier(ch, corpse_mob_level));
 }
 
 
-// Rename a freshly-spawned resurrection mob as "умертвие <его_имя>" across all six grammatical
-// cases. Also clears the long-description, sets neutral gender, marks it kResurrected, and
-// optionally boosts dam/hit/HR by 20% for the kFuryOfDarkness feat.
+// Rename a resurrection mob as "умертвие <его_имя>" in all six cases; kFuryOfDarkness adds +20%
+// dam/hit/HR.
 static void RenameAsUndead(CharData *ch, CharData *mob) {
 	ClearMinionTalents(mob);
 	if (mob->IsFlagged(EMobFlag::kNoGroup)) {
@@ -1573,7 +1392,7 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 	mob->player_data.PNames[grammar::ECase::kGen] = fmt::format("умертвия {}", GET_PAD(mob, 1));
 	mob->set_sex(EGender::kNeutral);
 	mob->SetFlag(EMobFlag::kResurrected);
-	mob->SetFlag(EMobFlag::kUndead);	// issue.npc-races: resurrected => undead
+	mob->SetFlag(EMobFlag::kUndead);
 	if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
 		GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
 		mob->set_max_hit(mob->get_max_hit() + mob->get_max_hit() * 0.20);
@@ -1583,14 +1402,11 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 }
 
 
-// kAnimateDead post-spawn: mark undead + per-tier rescue grants for the kLoyalAssist /
-// kHauntingSpirit feats; high-wisdom (75+) casters also gift an ice shield. The wis>=65 magic-
-// glass grant is left commented out as a "if we ever want it back" hook.
+// kAnimateDead post-spawn: undead flag, per-tier rescue for kLoyalAssist / kHauntingSpirit,
+// ice shield for 75+ wisdom.
 static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 							   ESpell spell_id, int charm_duration) {
-	// issue.unstable-hotfixes: animate dead must NOT set kResurrected -- that flag marks a corpse
-	// revived by the kResurrection spell (which reuses the original mob's vnum). Animate-dead
-	// summons are fresh necro mobs: undead, but not "resurrected".
+	// Not kResurrected: that flag marks a corpse revived by kResurrection (original mob's vnum).
 	mob->SetFlag(EMobFlag::kUndead);
 	if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist)) {
 		SetSkill(mob, ESkill::kRescue, 100);
@@ -1612,14 +1428,13 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kIceShield;
-		af.battleflag = {kAfCharmBond};   // issue #3971: щит нежити -- часть её пакета, снятию не подлежит
+		af.battleflag = {kAfCharmBond};   // щит нежити -- часть её пакета, снятию не подлежит
 		affect_to_char(mob, af);
 	}
 }
 
 
-// Spill the source corpse's contents into the caster's room (decay-checking each item) and
-// extract the corpse itself. Used post-spawn whenever SummonParams::handle_corpse is set.
+// Spill the corpse's contents into the caster's room (decay-checking each item) and extract it.
 static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 	for (ObjData *tobj = obj->get_contains(); tobj; ) {
 		ObjData *next_obj = tobj->get_next_content();
@@ -1634,9 +1449,7 @@ static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 }
 
 
-// issue.summon-pipeline: string-named post-spawn handlers (the spell-specific 20%). Signature
-// (ch, spawned mob, ctx). Registered here; named by <summon handler="...">. The keeper's
-// post-spawn customization is SetupKeeperStats.
+// Spell-specific post-spawn handlers, named by <summon handler="...">.
 static const std::map<std::string, std::function<void(CharData *, CharData *, const ActionContext &, int)>>
 		kSummonHandlers = {
 	{"SetupKeeperStats",
@@ -1646,11 +1459,9 @@ static const std::map<std::string, std::function<void(CharData *, CharData *, co
 	{"CloneCascade", handlers::CloneCascade},
 };
 
-// Data-driven summon skeleton (issue.summon-pipeline): the common 80% -- fail roll, charmed
-// guard, charmice cap, read mob, charm (+keeper) affect, place/follow -- then the named handler
-// for the spell-specific 20%. Fail is the unified base_fail - C*competence_weight (floored at
-// min_fail); C = ctx.CompetenceBase() (incl. cast-chain base=). need_fail/GetEnemy/GET_CAST_SUCCESS
-// from the old per-spell fail are intentionally retired here.
+// Data-driven summon: fail roll, charmed guard, charmice cap, read mob, charm (+keeper) affect,
+// place/follow, then the named handler. Fail = base_fail - C*competence_weight, floored at
+// min_fail; C = ctx.CompetenceBase().
 EStageResult CastSummonAction(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
@@ -1673,9 +1484,7 @@ EStageResult CastSummonAction(ActionContext &ctx) {
 		}
 	}
 	// A negative vnum tells ReadMobile to load a *summoned* instance: no trigger assignment, not
-	// counted in mob-index total_online, EMobFlag::kCompanion ally flag set.
-	// The <summon vnum> is the plain positive
-	// prototype, so negate it here (issue.summons-fix).
+	// counted in mob-index total_online, EMobFlag::kCompanion set. <summon vnum> is positive.
 	CharData *mob = ReadMobile(-s.mob_vnum, kVirtual);
 	if (!mob) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
@@ -1703,10 +1512,9 @@ EStageResult CastSummonAction(ActionContext &ctx) {
 	return EStageResult::kSuccess;
 }
 
-// Corpse-based summon (kAnimateDead / kResurrection), a manual-cast handler: the mob is read from
-// the source corpse and the failure chance is the legacy con/level/cast-success/remort roll (not
-// the C-based <summon> fail), so it does not fit the data-driven skeleton. Reuses the shared
-// FinalizeSummonedMob tail + IsSummonTargetProtected / CheckCharmices / SpillCorpseContents.
+// Corpse-based summon (kAnimateDead / kResurrection): the mob comes from the corpse and the fail
+// chance is the con/level/cast-success/remort roll, not the <summon> formula, so it doesn't fit
+// CastSummonAction.
 static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	CharData *const ch = ctx.caster();
 	ObjData *const obj = ctx.ovict;
@@ -1752,9 +1560,8 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 		}
 	}
 	if (!resurrection) {
-		// issue.animate-dead: demote the raised tier to the strongest that fits the caster's
-		// per-type skill-weight budget (min(Dark-Magic,75) minus held-undead weights). 0 means
-		// even a skeleton no longer fits -> the caster is already at their minion limit.
+		// Demote the tier to the strongest that fits the caster's skill-weight budget
+		// (min(Dark-Magic,75) minus held-undead weights). 0 = minion limit reached.
 		mob_num = animate_dead::FitUndeadTier(ch, mob_num);
 		if (mob_num == 0) {
 			SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
@@ -1774,8 +1581,7 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 		return EStageResult::kSuccess;
 	}
 	if (!resurrection) {
-		// issue.animate-dead: scale HP/damage off cast potency C for ALL tiers
-		// (was BoostNecroDamage: top-tier-only, remort HP + charm-budget damage back-solve).
+		// HP/damage scale off cast potency C for all tiers.
 		animate_dead::SetupUndeadStats(ch, mob, ctx.CompetenceBase());
 	}
 	if (!CheckCharmices(ch, mob, spell_id)) {
@@ -1789,11 +1595,10 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 		// Броня, спасы, удача и инициатива выдаются аффектами: прямую запись в бонусы
 		// affect_total стирает при каждом пересчёте, а аффекты возвращает сам.
 		animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
-		// issue #4038: даровые аффекты своего заклинания -- по порогу умения контроля.
+		// Даровые аффекты своего заклинания -- по порогу умения контроля.
 		animate_dead::ApplyGrantedAffects(ch, mob, spell_id, duration);
-		// issue #4032: нежить, поднятая при живой костяной свите, приходит уже ослабленной.
-		// Пересчёт нужен именно здесь: свита не изменилась, зато прибавилась нежить, между
-		// которой делится подать, -- и новая должна встать уже со своей долей.
+		// Нежить, поднятая при живой костяной свите, приходит уже ослабленной: прибавилась нежить,
+		// между которой делится подать, -- и новая должна встать уже со своей долей.
 		bone_commander::RefreshLevy(ch);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
@@ -1802,11 +1607,10 @@ static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	return EStageResult::kSuccess;
 }
 
-// issue #4000: "оживить скелет" -- третье корпусное заклинание чернокнижника. Особые виды скелетов
-// (свирепый, ловкий, зловонный) описаны в animate_dead.xml ярусами spell="kAnimateSkeleton" и
-// открываются способностью "костяной полководец". Без способности, с трупа ниже порога или с
-// нечеловекоподобного встаёт обычный скелет -- то же понижение, что у лестницы нежити.
-// Бюджета свиты у скелетов нет (weight="0"): ограничение другое -- по одному каждого вида.
+// "Оживить скелет". Особые виды скелетов описаны в animate_dead.xml ярусами spell="kAnimateSkeleton"
+// и открываются способностью "костяной полководец". Без способности, с трупа ниже порога или с
+// нечеловекоподобного встаёт обычный скелет. Бюджета свиты у скелетов нет (weight="0"):
+// ограничение другое -- по одному каждого вида.
 static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	ObjData *const obj = ctx.ovict;
@@ -1934,13 +1738,12 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 	mob->SetFlag(EMobFlag::kUndead);
 	// Броня, спасы и инициатива держатся аффектами: affect_total стирает прямую запись.
 	animate_dead::ApplyVolatileUndeadStats(mob, ctx.CompetenceBase(), duration);
-	// issue #4038: даровые аффекты по порогу магии тьмы (видеть невидимых, полёт и прочее).
+	// Даровые аффекты по порогу магии тьмы (видеть невидимых, полёт и прочее).
 	animate_dead::ApplyGrantedAffects(ch, mob, spell_id, duration);
 	if (mob_num != kMobSkeleton) {
-		// issue #4000: метка особого вида. Вешаем именно аффектом, а не флагом в файле моба:
-		// действия на удар (kPostHit) движок ищет в списке аффектов, а флаг из affect_flags
-		// кладёт только бит в affected_by и ничего не запускает. Часть пакета нежити
-		// (kAfCharmBond), поэтому снятию не подлежит.
+		// Метка особого вида -- именно аффектом, а не флагом в файле моба: действия на удар (kPostHit)
+		// движок ищет в списке аффектов, а флаг из affect_flags ничего не запускает. Часть пакета
+		// нежити (kAfCharmBond), поэтому снятию не подлежит.
 		Affect<EApply> mark;
 		mark.affect_type = EAffect::kBoneServant;
 		mark.location = EApply::kNone;
@@ -1948,7 +1751,7 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 		mark.duration = duration;
 		mark.battleflag = {kAfCharmBond};
 		affect_to_char(mob, mark);
-		// issue #4032: свита выросла -- нежить хозяина отдаёт ей часть урона.
+		// Свита выросла -- нежить хозяина отдаёт ей часть урона.
 		bone_commander::RefreshLevy(ch);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
@@ -1960,20 +1763,15 @@ static EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 static EStageResult SpellAnimateDead(ActionContext &ctx) { return CorpseSummon(ctx, false); }
 static EStageResult SpellResurrection(ActionContext &ctx) { return CorpseSummon(ctx, true); }
 
-
-// Helpers driving the per-category CastToPoints refactor.
 namespace {
 
-// One row of the four-category dispatch table. The Amount lives in TalentPoints
-// and gates whether this category fires at all (skip if !present, no calc_amount
-// invocation -- the eager-compute waste).
+// One row of the category dispatch table; a category whose Amount is not present is skipped.
 struct PointsCategory {
 	points_intensity::ECategory cat;
 	ESpellMsg msg_key;
 	const talents_actions::Points::Amount &amount;
 };
 
-// Short category label for the tester trace.
 const char *PointsCatName(points_intensity::ECategory cat) {
 	using points_intensity::ECategory;
 	switch (cat) {
@@ -1985,18 +1783,10 @@ const char *PointsCatName(points_intensity::ECategory cat) {
 	}
 }
 
-// Lambda factored out for clarity: turns a Points::Amount into a signed delta
-// using the shared (dice, competencies, bonus_mod) trio captured by reference.
-// Heal carries an npc_coeff multiplier (legacy default 1.0 ~ +100% for mobs);
-// non-heal categories default to 0 (no NPC boost).
-auto MakeAmountCalculator(const CharData *ch, double competencies, double bonus_mod, double noise_z) {  // issue.potency-noise: dice dropped
+// Turns a Points::Amount into a signed delta: min + beta*C*(1 + weight*d), plus bonus_mod, plus
+// npc_coeff for NPCs (heal defaults to 1.0 ~ +100% for mobs; other categories to 0).
+auto MakeAmountCalculator(const CharData *ch, double competencies, double bonus_mod, double noise_z) {
 	return [ch, competencies, bonus_mod, noise_z](const talents_actions::Points::Amount &a) -> int {
-		// Option-2 subquadratic: dice scaled multiplicatively by
-		// skill/stat (alpha) plus an additive term (beta). alpha=0 -> old Formula A.
-		// issue.random-noise-rework: sigma>0 -> multiplicative truncated-normal spread (heal/moves),
-		// mean = min + beta*competence (beta = per-competence scale k), CV ~ sigma. Else additive.
-		// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d). noise_z carries the cast's
-		// realized deviation d; weight=0 -> deterministic.
 		int v = CalcNoisyAmount(a.min, a.beta * competencies, a.weight, /*cap*/ 0, noise_z);
 		v += static_cast<int>(v * bonus_mod);
 		if (ch->IsNpc()) {
@@ -2026,13 +1816,11 @@ int ComputePointsPercent(points_intensity::ECategory cat, int amount, CharData *
 		case ECategory::kFull: {
 			const unsigned cond_idx = (cat == ECategory::kThirst) ? condition::kThirst : condition::kFull;
 			if (amount >= 0) {
-				// Improve: fraction of current discomfort relieved.
 				const int current = GET_COND(victim, cond_idx);
 				const int removed = (current > 0) ? std::min(amount, current) : 0;
 				return (current > 0) ? (removed * 100) / current : 0;
 			}
-			// Degrade: signed percent of the after-state on the kMaxCondition scale.
-			// gain_condition clamps to [0, kMaxCondition] so we predict the same here.
+			// Degrade: gain_condition clamps to [0, kMaxCondition], so predict the same here.
 			const int before = GET_COND(victim, cond_idx);
 			const int raw_after = before + (-amount);   // amount<0 means XML "make worse"
 			const int after = std::clamp(raw_after, 0, kMaxCondition);
@@ -2046,8 +1834,6 @@ int ComputePointsPercent(points_intensity::ECategory cat, int amount, CharData *
 // Resolve {intensity} and act() the message. Silent when the sheaf has nothing
 // for this category, or when an {intensity} placeholder resolves to empty
 // (would otherwise emit "Вы почувствовали себя ." with a dangling period).
-// Templated on Sheaf to avoid spelling out msg_container::MsgSheaf<ESpell,ESpellMsg>;
-// MUD::SpellMessages()[id] always returns the right type.
 template<typename Sheaf>
 void EmitPointsMessage(CharData *victim, const Sheaf &sheaf,
 					   ESpellMsg key, points_intensity::ECategory cat, int percent) {
@@ -2059,19 +1845,13 @@ void EmitPointsMessage(CharData *victim, const Sheaf &sheaf,
 		if (grade.empty()) return;
 		msg.replace(pos, std::strlen("{intensity}"), grade);
 	}
-	// $h / $r / $g resolve against victim's gender; route through act(). The
-	// vict slot is `victim` itself so the message stays kToChar-only --
-	// designers can add a separate kToRoom variant later if they want bystanders
-	// to witness the effect.
+	// kToChar only; designers can add a separate kToRoom variant later.
 	act(msg.c_str(), false, victim, nullptr, victim, kToChar);
 }
 
-// Apply heal: positive only (the <degrade> heal table is intentionally empty;
-// a negative <heal> amount silently no-ops -- damage paths go through CastDamage).
-// extra_percent: overheal cap above max_hp, in percent (0 = strict cap at max,
-// 33 = up to 133% of max, etc.). Lacerations halves the heal only when no
-// overheal is configured (extra_percent == 0); designer-flagged overheal
-// spells deliberately ignore the wound penalty.
+// Positive only: a negative amount no-ops (damage goes through CastDamage). extra_percent is the
+// overheal cap above max_hp in percent (0 = strict cap). Lacerations halve the heal only without
+// overheal; overheal spells deliberately ignore the wound penalty.
 void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 	if (hit <= 0) return;
 	if (victim->get_hit() >= kMaxHits) return;
@@ -2088,9 +1868,8 @@ void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 		return;
 	}
 	const int cap = max_hp + max_hp * extra_percent / 100;
-	// HP уже выше оверхил-капа (накопилось прошлыми кастами или упал max_hp) -- лечить нечем и
-	// нельзя урезать. Без этой проверки std::clamp получал lo(get_hit) > hi(cap) и падал по
-	// glibc-ассерту (issue #3631).
+	// HP уже выше оверхил-капа -- лечить нечем и урезать нельзя. Без этой проверки std::clamp
+	// получал lo > hi и падал по glibc-ассерту.
 	if (victim->get_hit() >= cap) {
 		return;
 	}
@@ -2099,11 +1878,9 @@ void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 
 }  // namespace
 
-// issue.character-affect-triggers: spend one trigger charge on a CHARACTER affect after its trigger
-// fired (the char-affect analog of the room's ConsumeAffectCharge). Decrements every instance of the
-// affect type (a multi-apply affect has one per apply; they stay in sync since impose gives each the
-// same charges_max); when any hits 0 the WHOLE affect is consumed via RemoveAffectFromChar. charges == -1
-// (the default) is unlimited -> no-op. Caller must NOT be mid-iteration over `bearer->affected`.
+// Spend one trigger charge on a character affect after its trigger fired. Decrements every
+// instance of the affect type (one per apply, kept in sync); when any hits 0 the whole affect is
+// removed. charges == -1 = unlimited. Caller must NOT be mid-iteration over `bearer->affected`.
 void SpendCharAffectCharge(CharData *bearer, EAffect affect_type) {
 	if (!bearer) {
 		return;
@@ -2115,9 +1892,7 @@ void SpendCharAffectCharge(CharData *bearer, EAffect affect_type) {
 		}
 	}
 	if (depleted) {
-		// issue.character-affect-triggers: count expired == timer expired -- fire the affect's kExpired
-		// trigger before it is consumed (so a charge-limited affect gets its "end" reaction, matching the
-		// timer-expiry path). No-op if it carries no kExpired action.
+		// Charges exhausted counts as expiry: fire kExpired before removal, as the timer path does.
 		RunCharAffectTrigger(bearer, affect_type, talents_actions::EActionTrigger::kExpired);
 		if (bearer->purged()) {
 			return;
@@ -2134,9 +1909,7 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		log("MAG_POINTS: Ошибка! Не указана цель, spell_id: %d!\r\n", to_underlying(spell_id));
 		return EStageResult::kSuccess;
 	}
-	// Fully data-driven: every category (heal / moves /
-	// thirst / full) lives in the spell's <points> block. Spells without one
-	// are misconfigured -- log and skip rather than crash.
+	// Every category lives in the spell's <points> block; without one the spell is misconfigured.
 	if (!ctx.action_or_default().Contains(talents_actions::EAction::kPoints)) {
 		mudlog(fmt::format("SYSERR: spell {} ({}) has no <points> block, CastToPoints skipped",
 				to_underlying(spell_id), MUD::Spell(spell_id).GetCName()),
@@ -2145,16 +1918,13 @@ EStageResult CastToPoints(ActionContext &ctx) {
 	}
 	const auto &points = ctx.action_or_default().GetPoints();
 
-	// Single prob roll for the whole action: a failed roll restores nothing.
 	const int prob = points.GetProb();
 	if (prob < 100 && number(1, 100) > prob) {
 		return EStageResult::kSuccess;
 	}
 
-	// Shared roll: dice + competencies are rolled once per cast (not per
-	// category), so heal and moves restored on the same cast scale together
-	// with the same skill check.
-	const double competencies = ctx.CompetenceBase();  // base override
+	// Rolled once per cast (not per category), so heal and moves on the same cast scale together.
+	const double competencies = ctx.CompetenceBase();
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	auto calc_amount = MakeAmountCalculator(ch, competencies, bonus_mod, ctx.potency().noise_dev);
 	const bool tc = spell_trace::Active(ch, victim);
@@ -2163,9 +1933,6 @@ EStageResult CastToPoints(ActionContext &ctx) {
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), competencies, bonus_mod, ctx.area_coeff);
 	}
 
-	// Per-category dispatch: only present categories run
-	// through calc_amount and reach the apply/emit pass; spells with a single
-	// <heal> tag won't touch the moves/thirst/full math at all.
 	const PointsCategory categories[] = {
 		{points_intensity::ECategory::kHeal,   ESpellMsg::kHealToVict,   points.GetHeal()},
 		{points_intensity::ECategory::kMoves,  ESpellMsg::kMovesToVict,  points.GetMoves()},
@@ -2179,8 +1946,7 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		const auto &c = categories[i];
 		if (!c.amount.present) continue;
 		int amt = static_cast<int>(calc_amount(c.amount) * ctx.area_coeff);
-		// Legacy spell-modifier hook only ever applied to heal; keep that
-		// scoped to the heal slot so /gear effects don't suddenly scale moves.
+		// The spell-modifier hook applies to heal only, so gear effects don't scale moves.
 		if (c.cat == points_intensity::ECategory::kHeal) {
 			amt = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, amt);
 		}
@@ -2193,35 +1959,24 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		}
 	}
 
-	// Aggro consequence: buffing (or draining) your fighting buddy is still
-	// PK-relevant. Single check on the aggregate `any_amount`, BEFORE applying
-	// effects so a refused action zeroes nothing.
+	// Buffing (or draining) a fighting char is PK-relevant; checked BEFORE applying anything.
 	if (any_amount && victim->GetEnemy() && ch != victim) {
 		if (!pk_agro_action(ch, victim->GetEnemy())) {
 			return EStageResult::kSuccess;
 		}
 	}
 
-	// Apply + narrate per category (one message per
-	// non-zero amount, emitted in heal/moves/thirst/full order). The percent
-	// formula reads the BEFORE-state for thirst/full degrade, so the message
-	// for each category is emitted right after that category is applied to
-	// keep its "after-state" math accurate when later categories also fire.
 	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
 	for (size_t i = 0; i < std::size(categories); ++i) {
 		const int amt = amounts[i];
 		if (amt == 0) continue;
 		const auto &c = categories[i];
-		// Compute percent for narration BEFORE we mutate the victim's state, so
-		// the thirst/full degrade formula sees the pre-spell condition and
-		// projects the after-state itself (ComputePointsPercent does the same
-		// clamp gain_condition will apply).
+		// BEFORE mutating the victim: the thirst/full degrade formula projects the after-state itself.
 		const int percent = ComputePointsPercent(c.cat, amt, victim);
 		if (tc) {
 			spell_trace::Line(ch, victim, "&C  %s applied: amount %d, intensity %d%%.&n\r\n",
 				PointsCatName(c.cat), amt, percent);
 		}
-		// Apply the actual effect.
 		switch (c.cat) {
 			case points_intensity::ECategory::kHeal:
 				ApplyHeal(victim, amt, points.GetExtraPercent());
@@ -2231,8 +1986,7 @@ EStageResult CastToPoints(ActionContext &ctx) {
 				victim->set_move(std::clamp(victim->get_move() + amt, 0, victim->get_real_max_move()));
 				break;
 			case points_intensity::ECategory::kThirst:
-				// XML positive = relieve thirst -> negate for gain_condition
-				// (engine field is inverted; gain_condition clamps to [0, kMaxCondition]).
+				// XML positive = relieve thirst; the engine field is inverted, hence the negation.
 				gain_condition(victim, condition::kThirst, -amt);
 				break;
 			case points_intensity::ECategory::kFull:
@@ -2244,20 +1998,17 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		EmitPointsMessage(victim, points_sheaf, c.msg_key, c.cat, percent);
 	}
 
-	// accumulate the (computed) points restored across all categories.
 	for (size_t i = 0; i < std::size(categories); ++i) {
 		ctx.points_count += amounts[i];
 	}
 	update_pos(victim);
 
-	// issue.character-affect-triggers: kPoints -- the RESTORED char's affects react to being healed by an
-	// EXTERNAL caster (natural regen never reaches this stage). The reaction is run SELF-INFLICTED on the
-	// caster/healer (ch), so e.g. a vampirism bearer's curse harms whoever heals them with NO PvP against
-	// the bearer -- same model as kDispell. Fired once per applied category (so a <trigger category=>
-	// action reacts only to its category) and deduped by affect type; a lethal self-hit stops the loop.
+	// The restored char's affects react to being healed by an EXTERNAL caster (natural regen never
+	// gets here). The reaction runs self-inflicted on the healer, so e.g. a vampirism curse harms
+	// whoever heals the bearer with no PvP against the bearer. Fired once per applied category
+	// (a <trigger category=> reacts only to its own) and deduped by affect type.
 	if (ch != victim && !ch->purged() && !victim->purged()) {
-		// Snapshot the healed char's unique affect types first: spending a charge may remove an affect,
-		// which would invalidate a live iteration over victim->affected.
+		// Snapshot first: spending a charge may remove an affect and invalidate the iteration.
 		std::vector<EAffect> vtypes;
 		for (const auto &aff : victim->affected) {
 			if (aff && std::find(vtypes.begin(), vtypes.end(), aff->affect_type) == vtypes.end()) {
@@ -2286,33 +2037,24 @@ EStageResult CastToPoints(ActionContext &ctx) {
 }
 
 namespace {
-// Helpers for the data-driven CastUnaffects.
-
-// True if `affect` carries at least one of `flags`. The <unaffect affect_flags=> set lists the
-// EAffFlag bits (kAfCurable / kAfDispellable) an affect must have to be eligible for removal by
-// that unaffect; this is the single source of truth for "can this be removed" (it replaced the old
-// CheckNodispel blacklist). An affect with no matching flag -- charm/quest effects, or anything
-// applied outside <affects> in code -- is irremovable.
+// The <unaffect affect_flags=> set lists the EAffFlag bits (kAfCurable / kAfDispellable) an affect
+// must carry to be removable by that unaffect. No matching flag (charm/quest effects, anything
+// applied in code) = irremovable.
 bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, const AffectFlags &flags) {
 	if (!affect) {
 		return false;
 	}
-	// issue #3971: пакет призванного существа снятию не подлежит вовсе, какие бы флаги снятия у его
-	// узлов ни стояли. kAfCharmBond помечает весь пакет -- и саму привязку, и бафы, которые движок
-	// выдаёт вместе с ней: это не игроцкие чары, а то, с чем существо пришло, и ставит их код.
-	// Разрыв чар работает как раньше -- RemoveCharmBond снимает пакет по флагу напрямую, минуя эту
-	// проверку.
-	// Врождённые бафы моба из флагов прототипа (BuildMaterializedAffect) здесь НЕ исключение: они
-	// снимаются, на то и заклинание «разлом». Решение «снимать» принимается по одному подходящему
-	// экземпляру, а снимаются только прошедшие фильтр (см. ReduceStackOrRemove), так что
-	// накастованный баф и врождённый узел уходят каждый по своему праву.
+	// Пакет призванного существа (kAfCharmBond: привязка и бафы, выданные вместе с ней кодом) снятию
+	// не подлежит вовсе, какие бы флаги снятия у узлов ни стояли. Разрыв чар снимает пакет напрямую
+	// (RemoveCharmBond), минуя эту проверку. Врождённые бафы моба из флагов прототипа
+	// (BuildMaterializedAffect) снимаются -- на то и заклинание «разлом».
 	if (affect->battleflag.get(kAfCharmBond)) {
 		return false;
 	}
 	return affect->battleflag.intersects(flags);
 }
 
-// True if the victim carries a removable affect of the given spell type (one matching `flags`).
+// True if the victim carries a removable affect of the given type (one matching `flags`).
 bool HasDispellableAffect(CharData *victim, EAffect affect_type, const AffectFlags &flags) {
 	for (const auto &aff : victim->affected) {
 		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
@@ -2345,8 +2087,8 @@ bool UnaffectConditionMet(CharData *victim, const talents_actions::TalentUnaffec
 	return false;
 }
 
-// One affect queued for dispel, tagged with its source block's breaking_by_failure flag: if the
-// dispel of a candidate with break_on_fail set is resisted, the whole cast chain breaks.
+// One affect queued for dispel. If the dispel of a candidate with break_on_fail is resisted, the
+// whole cast chain breaks.
 struct RemovalCandidate {
 	bool break_on_fail{false};
 	EAffect affect_type{EAffect::kUndefined};                          // char target: the affect to remove
@@ -2358,21 +2100,16 @@ struct RemovalCandidate {
 //   - all_of (explicit list)   -> every listed affect that is present and matches `flags`
 //   - wildcard_any (any_of="*")-> ONE eligible affect picked uniformly at random
 //   - wildcard_all (all_of="*")-> EVERY eligible affect on the victim
-// Each candidate carries the set's breaking_by_failure. The wildcards replaced the dedicated
-// kDispellMagic code path and enable generic "strip-by-flag" dispels (e.g.
-// future sphere-specific dispels added by tagging affects with kAfXSphere flags).
+// Each candidate carries the set's breaking_by_failure.
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
 					 std::vector<RemovalCandidate> &out, const AffectFlags &flags, bool debuff_only = false) {
-	// issue.affect-migration: candidates are keyed by affect_type (no spell read at all -- the dispel
-	// downstream and the PK classification both work off the affect's own identity/flags).
-	// issue.new-unaffect-spells: debuff_only skips affects that are clearly buffs (EBuff::kYes) so a
-	// friendly wildcard cleanse ("unweave") removes debuffs/ambiguous without stripping real buffs.
+	// debuff_only skips clear buffs (EBuff::kYes), so a friendly wildcard cleanse ("unweave")
+	// removes debuffs/ambiguous affects without stripping real buffs.
 	const auto eligible = [&](const Affect<EApply>::shared_ptr &aff) {
 		return AffectMatchesFlags(aff, flags)
 			&& !(debuff_only && affects::AffectBuffKind(aff->affect_type) == affects::EBuff::kYes);
 	};
 	if (set.wildcard_any) {
-		// Reservoir sample one eligible affect uniformly.
 		EAffect pick_at = EAffect::kUndefined;
 		int seen = 0;
 		for (const auto &aff : victim->affected) {
@@ -2406,17 +2143,12 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 	}
 }
 
-// A successful dispel of a stacked affect peels one stack instead of removing it
-// for every affect of `spell` with stacks > 1, reduce the stack count by 1
-// and the accumulated modifier proportionally (~modifier/stacks), re-applying so the character's
-// stats update. If no affect of the spell has more than one stack, remove it outright.
-// issue #3971: снимаем только те экземпляры, которые подлежат снятию. Решение «снимать» принимается
-// по ОДНОМУ подходящему экземпляру (HasDispellableAffect), а снятие шло по всему типу -- и вместе с
-// накастованным бафом улетали врождённый аффект моба (его battleflag пуст, фильтр снятия он не
-// проходит) и пакет призванного существа (kAfCharmBond). Отсюда жалоба: накастовали групповое
-// освящение, групповая призма сняла заодно и врождённое, и вещевое.
-// Вещевой экземпляр снимается по-прежнему -- он подавляется на предмете (SuppressSourceEquipmentAffect
-// зовётся выше по стеку) и возвращается сам, когда подавление истечёт.
+// A successful dispel peels one stack: every removable affect of the type with stacks > 1 loses a
+// stack and ~modifier/stacks; if none has more than one stack, the removable instances go entirely.
+// Снимаются только экземпляры, прошедшие фильтр снятия: решение «снимать» принимается по одному
+// подходящему экземпляру (HasDispellableAffect), и без фильтра вместе с накастованным бафом улетали
+// бы врождённый аффект моба (battleflag пуст) и пакет призванного (kAfCharmBond). Вещевой экземпляр
+// снимается: он подавляется на предмете (SuppressSourceEquipmentAffect) и вернётся сам.
 static const AffectFlags kDispellableInstance{kAfCurable, kAfDispellable};
 
 void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
@@ -2464,32 +2196,23 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 		}
 	}
 	for (auto &peeled : rebuilt) {
-		affect_to_char(victim, peeled);           // re-add with the reduced modifier (stats recalced)
+		affect_to_char(victim, peeled);
 	}
 	affect_total(victim);
 }
 
-// Remove one affect (or peel a stack of it) and emit its dispel narration. Lookup is keyed by
-// the REMOVED affect's spell with kDefault fallback, so the per-affect sheaf's bespoke flavor
-// fires when authored (kBlindness, kPoison, kCurse, ...) and the kDefault generic
-// (kAffDispelledTo{Char,Room}) fires for every other affect -- no more silent stripping of
-// common buffs.
-// issue.equipment-affects-improve (Phase 3): a dispelled affect that a worn item materialized
-// (kAfFromEquipment) is not lost until re-equip -- it is SUPPRESSED on the source item for a fixed
-// time, and the item re-materializes it when the suppression expires (auto-return). The counter is
-// decremented once per MUD hour (obj_point_update), so this is a duration in GAME HOURS, not minutes.
-// Constant for now; a competence-scaled f(affect_potency - dispel) is the planned follow-up.
+// A dispelled affect that a worn item materialized (kAfFromEquipment) is suppressed on the source
+// item for this long and re-materializes afterwards. Decremented once per MUD hour
+// (obj_point_update), so the unit is GAME HOURS. TODO: scale by f(affect_potency - dispel).
 constexpr int kEquipmentAffectSuppressHours = 10;
 
-// issue.equipment-affect-conflicts: displaced -- аффект не развеяли, а вытеснили надетой вещью
-// с несовместимым волшебством. Срок возврата такому обещать нельзя: подавление истечёт, а место
-// всё ещё будет занято, и аффект вернётся лишь когда вытеснившие чары уйдут. Поэтому сообщение
+// displaced -- аффект не развеяли, а вытеснили надетой вещью с несовместимым волшебством. Срок
+// возврата обещать нельзя: аффект вернётся лишь когда вытеснившие чары уйдут, поэтому сообщение
 // называет причину, а не время.
 void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double competence,
 								   bool displaced = false) {
-	// A set-conferred affect (kAfFromSet) has no single owning item, so the suppression is BROADCAST to
-	// every worn set piece (one shared timer, survives anchor swaps); a single-item affect suppresses on
-	// its own source item.
+	// A set-conferred affect (kAfFromSet) has no single owning item, so the suppression goes to every
+	// worn set piece (one shared timer, survives anchor swaps).
 	long src_id = -1;
 	bool is_set = false;
 	bool found = false;
@@ -2506,8 +2229,7 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double
 	}
 	char msg[kMaxStringLength];
 	if (is_set) {
-		// issue.affect-suppression-dispell: no separate "set magic suppressed" line -- the affect's own
-		// dispel narration already told the wearer the effect was removed (message was redundant).
+		// No extra line: the affect's own dispel narration already told the wearer.
 		for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; ++i) {
 			ObjData *obj = GET_EQ(victim, i);
 			if (obj && obj_sets::is_set_item(obj)) {
@@ -2520,7 +2242,6 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double
 		ObjData *obj = GET_EQ(victim, i);
 		if (obj && obj->get_id() == src_id) {
 			obj_affects::SuppressEquipAffect(obj, affect_type, kEquipmentAffectSuppressHours, static_cast<float>(competence));
-			// The affect's own dispel narration already fired; tell the wearer when the item magic returns.
 			if (displaced) {
 				snprintf(msg, sizeof(msg), "Волшебство $o2 уступило несовместимым чарам.");
 			} else {
@@ -2536,24 +2257,15 @@ void SuppressSourceEquipmentAffect(CharData *victim, EAffect affect_type, double
 
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type, double competence,
 							 bool displaced = false) {
-	// issue.character-affect-triggers: kDispell -- fire the affect's own kDispell <actions> BEFORE it is
-	// stripped, run with the DISPELLER (ch) as BOTH the caster and the actor. This makes the retaliation
-	// SELF-INFLICTED by the dispeller (their choice to dispel, their consequence): a <damage>/<affects>
-	// on kTarFightSelf lands on the dispeller as self-damage -- no pk-aggro, no revenge-rights, and the
-	// bearer (who may not have wanted a fight) is never dragged into PvP. Immortal immunity still applies
-	// to the self-damage normally. This is the announced-dispel path (dispel magic / unaffect) only.
+	// Fire the affect's kDispell <actions> BEFORE stripping it, with the dispeller as both caster and
+	// actor: the retaliation is self-inflicted (no pk-aggro, no revenge rights, the bearer is never
+	// dragged into PvP). Only on the announced-dispel path (dispel magic / unaffect).
 	RunCharAffectTrigger(ch, affect_type, talents_actions::EActionTrigger::kDispell, ch);
-	// issue.affect-migration: a char affect is identified by affect_type; dispel narration belongs to
-	// the AFFECT (its sheaf, with the kDefault generic fallback).
-	// issue.equipment-affects-improve (Phase 3): if a worn item conferred this affect, suppress it on
-	// that item (temporary drop + auto-return) instead of removing it outright until re-equip.
+	// An item-conferred affect is suppressed on the item (auto-returns) instead of being lost.
 	SuppressSourceEquipmentAffect(victim, affect_type, competence, displaced);
 	ReduceStackOrRemove(victim, affect_type);
-	// issue #3971: если экземпляр этого аффекта остался (врождённый, пакет призванного), эффект
-	// никуда не делся -- рассказывать про «угасло» нельзя. Раньше призма на небесную защитницу
-	// снимала накастованное освящение и объявляла, что белая аура угасла, хотя её собственная
-	// оставалась на месте. У истечения по таймеру такая проверка есть с issue #3973
-	// (NoLiveTwinLeft в affect_data.cpp), у снятия заклинанием её не было.
+	// Остался экземпляр этого аффекта (врождённый, пакет призванного) -- эффект никуда не делся,
+	// рассказывать про «угасло» нельзя. Истечение по таймеру проверяет то же (NoLiveTwinLeft).
 	if (IsAffected(victim, affect_type)) {
 		return;
 	}
@@ -2567,28 +2279,16 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type
 	}
 }
 
-// issue: potency-gated dispel. True if `dispel_spell` should remove `affect_spell` from victim.
-// Three cases drive whether a strength check is even rolled:
-//   1. a violent dispel -> always check (any affect);
-//   2. a non-violent dispel of a debuff -> check;
-//   3. a non-violent dispel of a buff -> no check, always removed.
-// The check itself: a flat 5% chance to remove regardless of strength, otherwise the dispel's
-// potency -- competence (skill+stat) * a truncated-normal noise factor * potency_weight -- must exceed the
-// affect's recorded potency (the strength of the cast that imposed it).
-// issue.debuff-decay: ceiling on an affect's potency. A negative <unaffect decay> RAISES an affect's
-// strength on a failed removal; the cap stops repeated failures from growing it without bound (and
-// guards against overflow once the float feeds integer modifiers). Generous vs normal cast potencies
-// (tens) yet finite and well within int range.
+// Ceiling on an affect's potency: a negative <unaffect decay> raises it on each failed removal;
+// the cap stops unbounded growth (and overflow once it feeds integer modifiers).
 constexpr float kMaxAffectPotency = 30000.0f;
 
-// issue.random-noise-rework: weight turning a competence gap (dispeller - affect, in skill+stat
-// points) into dispel win-probability points in the d100 contest below. Larger -> skill matters
-// more; with the rebalanced competence range (~2..12), 4 gives roughly a +/-40-point swing.
+// Turns a competence gap (dispeller - affect, skill+stat points) into d100 win-probability
+// points. With the competence range ~2..12, 4 gives roughly a +/-40-point swing.
 constexpr double kDispelSkillWeight = 4.0;
 
-// issue.debuff-decay: on a FAILED removal, shift the surviving affect's potency by `decay` percent of
-// the dispeller's competence contribution (kDispelSkillWeight * competence) -- positive decay weakens
-// the affect, negative strengthens it. Floored at 0, capped at kMaxAffectPotency.
+// On a FAILED removal, shift the surviving affect's potency by `decay` percent of the dispeller's
+// strength -- positive weakens, negative strengthens. Clamped to [0, kMaxAffectPotency].
 void ApplyDispelDecay(float &affect_potency, float dispel_strength, int decay) {
 	if (decay == 0) {
 		return;
@@ -2597,6 +2297,8 @@ void ApplyDispelDecay(float &affect_potency, float dispel_strength, int decay) {
 	affect_potency = std::clamp(affect_potency - delta, 0.0f, kMaxAffectPotency);
 }
 
+// True if `dispel_spell` removes `affect_type` from victim: a non-violent dispel of a buff always
+// succeeds; anything else is a d100 contest against the affect's stored potency (see below).
 bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect affect_type,
 					int dispel_bonus, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
@@ -2618,9 +2320,9 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect
 				 affects::AffectMsg(affect_type, affects::EAffectMsgType::kShortDesc).c_str(), affect_potency,
 				 threshold, ok ? "Success" : "Fail", kind);
 	};
-	// issue.random-noise-rework: a d100 skill contest. The dispeller's competence advantage over the
-	// affect (scaled by kDispelSkillWeight) plus the per-spell dispel_bonus and the affect's own
-	// dispel_mod set the win threshold; the clamp gives a symmetric 5% upset floor and 5% save ceiling.
+	// A d100 skill contest. The dispeller's competence advantage over the affect (scaled by
+	// kDispelSkillWeight) plus the per-spell dispel_bonus and the affect's own dispel_mod set the
+	// win threshold; the clamp gives a symmetric 5% upset floor and 5% save ceiling.
 	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency)
 			+ dispel_bonus + affects::AffectDispelMod(affect_type);
 	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
@@ -2640,10 +2342,9 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect
 }
 
 // === Room-target overloads ===
-// Mirror the char helpers above for a RoomData target. Room affects share the Affect template
-// (Affect<ERoomApply>) so the potency/debuff/battleflag fields read identically; only the storage
-// (room->affected vs victim->affected) and the apply/remove APIs differ. PK gating is intentionally
-// NOT replicated here -- concurrency rules for room dispel are deferred (no clear policy yet).
+// Mirror the char helpers above for a RoomData target. Room affects share the Affect template, so
+// only the storage and the apply/remove APIs differ. PK gating is intentionally NOT replicated:
+// there is no policy for room dispel concurrency yet.
 
 bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, const AffectFlags &flags) {
 	return affect && affect->battleflag.intersects(flags);
@@ -2689,8 +2390,8 @@ bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect:
 
 void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set &set,
 					 std::vector<RemovalCandidate> &out, const AffectFlags &flags, bool /*debuff_only*/ = false) {
-	// issue.new-unaffect-spells: debuff_only is a no-op for room affects (no buff/debuff notion);
-	// the parameter exists only so RunCastUnaffects can call this from the shared template.
+	// debuff_only is a no-op for room affects (no buff/debuff notion); the parameter exists only so
+	// RunCastUnaffects can call this from the shared template.
 	if (set.wildcard_any) {
 		room_spells::ERoomAffect pick = room_spells::ERoomAffect::kUndefined;
 		int seen = 0;
@@ -2725,22 +2426,18 @@ void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set 
 	}
 }
 
-// Strip every affect of `removed` from the room (room affects don't stack the way char affects do,
-// so peeling has no meaning here) and emit the dispel narration. issue.affect-migration: keyed by
-// the room affect's identity (ERoomAffect); narration comes from the room-affect message system
-// (RoomAffectMsgRaw), the affect's own kAffDispelledTo{Char,Room} sheaf.
+// Strip every affect of `removed` from the room (room affects don't stack, so peeling has no
+// meaning here) and emit the room affect's own kAffDispelledTo{Char,Room} narration.
 void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, room_spells::ERoomAffect removed) {
-	// issue.character-affect-triggers: kDispell -- fire the room affect's kDispell actions BEFORE the
-	// strip, run with the DISPELLER (ch) as the caster so the retaliation is SELF-INFLICTED (a
-	// kTarFightSelf effect lands on the dispeller as self-damage -- no PvP, same model as char affects).
+	// Fire the room affect's kDispell actions BEFORE the strip, with the DISPELLER as the caster, so
+	// the retaliation is self-inflicted (no PvP, same model as char affects).
 	float dispel_potency = 0.0f;
 	for (const auto &aff : room->affected) {
 		if (aff && aff->affect_type == removed) { dispel_potency = aff->potency; break; }
 	}
 	room_spells::RunRoomAffectTrigger(room, ch, removed, talents_actions::EActionTrigger::kDispell, dispel_potency);
-	// Canonical "erase while iterating" over std::list -- list::erase invalidates only the erased
-	// iterator and returns the next one. Bypasses room_spells::RoomRemoveAffect (a thin
-	// empty-list-guarded wrapper) because the guard is redundant inside a live iteration.
+	// Erase directly rather than via room_spells::RoomRemoveAffect: its empty-list guard is redundant
+	// inside a live iteration.
 	for (auto it = room->affected.begin(); it != room->affected.end(); ) {
 		if (*it && (*it)->affect_type == removed) {
 			it = room->affected.erase(it);
@@ -2749,7 +2446,7 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, room_spells::ERoomAff
 		}
 	}
 	// Sheaf-direct (no kDefault fallback): a room dispel shows only the affect's OWN
-	// dispel message, never the char-centric kDefault (issue.dispellbug).
+	// dispel message, never the char-centric kDefault.
 	const auto &to_char = room_spells::RoomAffectMsgRaw(removed, room_spells::ERoomAffectMsgType::kAffDispelledToChar);
 	if (!to_char.empty()) {
 		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
@@ -2780,12 +2477,9 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, room_spel
 				 NAME_BY_ITEM<room_spells::ERoomAffect>(affect_type).c_str(), affect_potency,
 				 threshold, ok ? "Success" : "Fail", kind);
 	};
-	// issue.dispellbug: author/ally-aware room dispel. The affect's author or a live
-	// ally dispels for free; anyone else must win a strength contest, and a player vs a
-	// live author commits an aggressive PK act. (Dispellability is filtered upstream by
-	// the <unaffect affect_flags=> mask, so kAfDispellable is already enforced.)
-	// issue.random-noise-rework: d100 skill contest (see the char overload). kDispelSkillWeight scales
-	// the competence gap, dispel_bonus sets the parity win-rate, clamp gives the 5% floor/ceiling.
+	// Author/ally-aware room dispel: the affect's author or a live ally dispels for free; anyone else
+	// must win the d100 contest (see the char overload), and a player vs a live author commits an
+	// aggressive PK act. Dispellability is already filtered upstream by <unaffect affect_flags=>.
 	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency) + dispel_bonus;
 	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
 	const auto access = room_spells::ClassifyRoomAffectAccess(ch, author_uid);
@@ -2823,9 +2517,8 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	if (!blocking) {
 		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags, unaffect.GetDebuffOnly());
 	}
-	// issue.spells-hotfix: an affect with several instances (e.g. kPoisoned on several locations) must
-	// be removed and announced ONCE. RemoveAffectAndAnnounce strips ALL instances, so dedup the queue
-	// by affect identity -- otherwise the 2nd+ entries re-announce an already-removed affect.
+		// An affect with several instances (e.g. kPoisoned on several locations) must be removed and
+		// announced ONCE: RemoveAffectAndAnnounce strips ALL instances, so dedup by affect identity.
 	{
 		std::vector<RemovalCandidate> deduped;
 		for (const auto &c : to_remove) {
@@ -2840,9 +2533,8 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		to_remove.swap(deduped);
 	}
 
-	// issue.equipment-affects-improve: a non-violent unaffect (ally cleanse or self-cast) must not
-	// touch item-conferred affects -- cleansing a friend's debuffs must not strip the buffs their gear
-	// grants. Only a violent (aggressive) dispel may suppress an equipment affect. Char target only.
+	// A non-violent unaffect (ally cleanse or self-cast) must not touch item-conferred affects --
+	// cleansing a friend's debuffs must not strip the buffs their gear grants. Char target only.
 	if constexpr (std::is_same_v<TTarget, CharData>) {
 		if (!MUD::Spell(spell_id).IsViolentAgainst(ch, target)) {
 			std::vector<RemovalCandidate> kept;
@@ -2865,19 +2557,13 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 
 	if (!to_remove.empty()) {
 		if constexpr (std::is_same_v<TTarget, CharData>) {
-			// PK-action check: keyed on the first dispelled affect; a disallowed action aborts the
-			// removal entirely. Char target only.
-			// issue.spell-ally-aggression (#3455): a benign cast (violent="N") that only
-			// incidentally strips a buff is not an aggressive act. Gate the PK check on the
-			// cast spell's per-target violence verdict, exactly like CastAffect does -- without
-			// it, group prismatic aura stripping an ally's sanctuary tripped pk_agro_action and
-			// evicted the caster from the clan castle. Violent dispels still aggro.
+			// PK-action check, keyed on the first dispelled affect; a disallowed action aborts the removal.
+			// A benign cast (violent="N") that only incidentally strips a buff is not aggression: e.g. a
+			// group prismatic aura stripping an ally's sanctuary must not trip pk_agro_action.
 			if (ch != target && MUD::Spell(spell_id).IsViolentAgainst(ch, target)) {
-				// issue.affect-migration: classify the dispelled affect by its OWN buff flag (the
-				// affect-side analog of a spell's <misc violent>), not by the source spell. Stripping a
-				// buff is aggression against the target itself; stripping a debuff undoes the work of
-				// whoever the target is fighting, so it aggros that enemy; an ambiguous affect triggers
-				// no automatic PK action (direction undetermined).
+				// Classify by the dispelled affect's OWN buff flag. Stripping a buff is aggression against the
+				// target; stripping a debuff undoes the work of whoever the target fights, so it aggros that
+				// enemy; an ambiguous affect triggers no automatic PK action.
 				const auto buff = affects::AffectBuffKind(to_remove.front().affect_type);
 				if (buff == affects::EBuff::kYes) {
 					if (!pk_agro_action(ch, target)) {
@@ -2893,8 +2579,6 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool removed_any = false;
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
-			// issue.affect-migration: dispel is keyed on the affect's identity -- affect_type (EAffect)
-			// for a char target, room_affect_type (ERoomAffect) for a room target.
 			bool ok;
 			double removed_pot = 0.0;
 			if constexpr (std::is_same_v<TTarget, CharData>) {
@@ -2935,8 +2619,8 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	} else if (breaking
 			|| (!MUD::Spell(spell_id).IsFlagged(kMagAffects)
 				&& (!unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()))) {
-		// issue.unaffect-msg: nothing on the target matched the <unaffect> filter at all --
-		// distinct from the kNoeffect above (something matched, the dispel roll failed).
+		// Nothing on the target matched the <unaffect> filter at all -- distinct from the kNoeffect
+		// above (something matched, the dispel roll failed).
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kUnaffectNoMatch) + "\r\n", ch);
 	}
 
@@ -2945,9 +2629,8 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 
 }  // namespace
 
-// issue.equipment-affect-conflicts: правило берём у одноимённого заклинания аффекта, как это делает
-// материализация. Смотрим оба списка запрета: у взаимоисключающих пар они совпадают, но заклинание
-// вправе перечислить в них разное.
+// Правило берём у одноимённого заклинания аффекта, как это делает материализация. Смотрим оба
+// списка запрета: у взаимоисключающих пар они совпадают, но заклинание вправе перечислить в них разное.
 std::vector<EAffect> ConflictingAffects(EAffect incoming) {
 	std::vector<EAffect> out;
 	ESpell spell_id = ESpell::kUndefined;
@@ -3000,17 +2683,16 @@ void DisplaceConflictingAffects(CharData *ch, EAffect incoming, double potency) 
 	}
 }
 
-// issue.affect-suppression-dispell: the standard d100 dispel contest against a potency supplied DIRECTLY
-// (obj-affect suppressions are not on a char's ->affected). Same math as DispelSucceeds but no per-affect
-// dispel_mod and no buff auto-pass -- it always rolls. On failure, erodes `target_potency` in place by
-// `decay`% of the caster's dispel strength (repeated attempts wear a suppression down). Returns success.
+// The standard d100 dispel contest against a potency supplied DIRECTLY (obj-affect suppressions are
+// not on a char's ->affected). Same math as DispelSucceeds but no per-affect dispel_mod and no buff
+// auto-pass. On failure, erodes `target_potency` in place by `decay`% of the caster's dispel strength.
 bool DispelContest(float &target_potency, double competence, int dispel_bonus, int decay,
 				   CharData *trace_ch, ESpell trace_spell, EAffect trace_affect) {
 	const double raw = kDispelSkillWeight * (competence - target_potency) + dispel_bonus;
 	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
 	const int roll = number(1, 100);
 	const bool ok = roll <= threshold;
-	// issue.affect-suppression-dispell: tester/immortal debug, mirrors the DispelSucceeds "Unaffect:" line.
+	// Tester/immortal debug line, same shape as the DispelSucceeds "Unaffect:" line.
 	if (trace_ch) {
 		spell_trace::Line(trace_ch, nullptr,
 				"Weave restore: %s [C: %.1f]. Suppressed: %s [p: %.1f]. threshold %d%%. %s (roll %d).\r\n",
@@ -3024,9 +2706,8 @@ bool DispelContest(float &target_potency, double competence, int dispel_bonus, i
 	return ok;
 }
 
-// Data-driven dispel stage. Dispatches on the non-null target: a CharData strips affects from
-// the victim (the historical path), a RoomData strips affects from the room.
-// Exactly one of {victim, room} should be non-null; passing both is treated as the char path.
+// Data-driven dispel stage: a CharData target strips the victim's affects, a RoomData target the
+// room's. If both are set, the char path wins.
 EStageResult CastUnaffects(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
@@ -3054,10 +2735,9 @@ EStageResult CastUnaffects(ActionContext &ctx) {
 }
 
 
-// issue.obj-casting: alter-obj handlers (the per-spell object transforms migrated out of the old
-// CastToAlterObjs switch). Each runs on ctx.ovict (resolved + kNoalter-guarded by the skeleton),
-// does its OWN messaging, and returns kSuccess when it acted (or chose to stay silent) / kFail to
-// ask the skeleton for the generic "no effect" line.
+// Alter-obj handlers. Each runs on ctx.ovict (resolved + kNoalter-guarded by CastToAlterObjs), does
+// its OWN messaging, and returns kSuccess when it acted (or chose to stay silent) / kFail to ask
+// for the generic "no effect" line.
 namespace handlers {
 EStageResult AlterMsg(ActionContext &ctx, ESpellMsg key) {
 	act(MUD::SpellMessages().GetMessage(ctx.spell_id(), key).c_str(), true, ctx.caster(), ctx.ovict, nullptr, kToChar);
@@ -3084,26 +2764,23 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"AlterWeaveRestore", handlers::AlterWeaveRestore},
 };
 
-// Data-driven object transform (issue.obj-casting): resolve the target object (an explicit ovict,
-// else a random equipped/carried item of the victim), guard kNoalter, then dispatch the per-spell
-// transform handler (kAlterObjHandlers); kFail from the handler => the generic "no effect" line.
+// Data-driven object transform: resolve the target object (an explicit ovict, else a collateral
+// item of the victim), guard kNoalter, then dispatch the per-spell handler (kAlterObjHandlers);
+// kFail from the handler => the generic "no effect" line.
 EStageResult CastToAlterObjs(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;
 	const ESpell spell_id = ctx.spell_id();
-	// issue.obj-casting: a prior action / component consumption may have destroyed the target
-	// (deferred-extracted, flagged purged()); treat a purged target as absent.
+	// A prior action / component consumption may have destroyed the target (deferred-extracted,
+	// flagged purged()); treat a purged target as absent.
 	if (obj && obj->purged()) {
 		obj = nullptr;
 		ctx.ovict = nullptr;
 	}
-	// issue.spells-hotfix: the "collateral random item" fallback -- a cast with no explicit object
-	// target also striking a random item the victim carries -- is now opt-in per spell via
-	// <alter_obj collateral="on_damage"> and fires ONLY when damage was actually dealt this cast
-	// (acid corroding gear; kAcid/kAcidArrow cannot target an object directly and rely on this).
-	// Every other alter_obj spell (curse, poison, bless, fly, ...) leaves this off, so a cast aimed
-	// at a character never alters their items -- cast the spell directly on an object to affect one.
+	// Collateral random item: opt-in per spell via <alter_obj collateral="on_damage">, and only when
+	// damage was actually dealt this cast (acid corroding gear; kAcid/kAcidArrow cannot target an
+	// object directly). Other alter_obj spells never alter the items of a character they hit.
 	if (obj == nullptr && victim != nullptr
 			&& ctx.action_or_default().GetAlterObj().collateral_on_damage
 			&& ctx.result.damage != 0) {
@@ -3115,11 +2792,9 @@ EStageResult CastToAlterObjs(ActionContext &ctx) {
 				 rand--, obj = obj->get_next_content());
 		}
 	}
-	// issue.affect-suppression-dispell: <alter_obj collateral="first_suppressed"> on a CHAR cast (no
-	// explicit object) resolves to the victim's first worn item that carries any suppression (slot order).
+	// <alter_obj collateral="first_suppressed"> on a char cast with no explicit object: pick a random
+	// worn item that carries a suppression.
 	if (obj == nullptr && victim != nullptr && ctx.action_or_default().GetAlterObj().find_suppressed) {
-		// issue.affect-suppression-dispell: pick a RANDOM worn item that carries a suppression (like acid's
-		// random-item collateral), not the first -- the list builder lives in magic_utils.
 		std::vector<ObjData *> suppressed = SuppressedWornItems(victim);
 		if (!suppressed.empty()) {
 			obj = suppressed[number(0, static_cast<int>(suppressed.size()) - 1)];
@@ -3132,7 +2807,7 @@ EStageResult CastToAlterObjs(ActionContext &ctx) {
 		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kObjResist).c_str(), true, ch, obj, nullptr, kToChar);
 		return EStageResult::kSuccess;
 	}
-	ctx.ovict = obj;  // hand the resolved object to the handler
+	ctx.ovict = obj;
 	const auto &a = ctx.action_or_default().GetAlterObj();
 	const auto it = kAlterObjHandlers.find(a.handler);
 	if (it == kAlterObjHandlers.end()) {
@@ -3146,18 +2821,17 @@ EStageResult CastToAlterObjs(ActionContext &ctx) {
 	return EStageResult::kSuccess;
 }
 
-// issue.obj-casting: string-named post-load creation handlers (the spell-specific customization,
-// e.g. shaping a created weapon/armor base). Signature (ch, created obj, ctx). The plain food/light
-// spells need no handler. CreateWeapon/CreateArmor are PLUMBING STUBS: the base vnum is loaded by
-// the skeleton; the stat/type customization goes in these bodies.
+// Post-load creation handlers that customize the created object, signature (ch, created obj, ctx).
+// Plain food/light spells need no handler. CreateWeapon/CreateArmor are stubs: the base vnum is
+// loaded by CastCreationAction; the stat/type customization goes in these bodies.
 static const std::map<std::string, std::function<void(CharData *, ObjData *, const ActionContext &)>>
 		kCreationHandlers = {
 	{"CreateWeapon", handlers::CreateWeapon},
 	{"CreateArmor",  handlers::CreateArmor},
 };
 
-// Data-driven object creation (issue.obj-casting): load <obj_creation vnum>, run the optional
-// post-load handler, narrate, then place in inventory (or drop to the room when over-encumbered).
+// Data-driven object creation: load <obj_creation vnum>, run the optional post-load handler,
+// narrate, then place in inventory (or drop to the room when over-encumbered).
 EStageResult CastCreationAction(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
@@ -3167,8 +2841,7 @@ EStageResult CastCreationAction(ActionContext &ctx) {
 	const auto &s = ctx.action_or_default().GetCreation();
 	const auto tobj = world_objects.create_from_prototype_by_vnum(s.vnum);
 	if (!tobj) {
-		// Prototype lookup failed -- player-facing narration through the cast spell's
-		// sheaf (kDefault fallback), plus a SYSERR for designers/admins
+		// Player-facing narration through the spell's sheaf, plus a SYSERR for builders.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemNoPrototype) + "\r\n", ch);
 		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", to_underlying(spell_id), s.vnum);
 		return EStageResult::kSuccess;
@@ -3185,8 +2858,6 @@ EStageResult CastCreationAction(ActionContext &ctx) {
 		}
 	}
 
-	// Creation narration: act() with $o = the new object; the
-	// kDefault sheaf carries the generic lines, per-spell overrides may flavour them.
 	const auto &item_room_msg =
 			MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemCreatedToRoom);
 	act(item_room_msg.c_str(), false, ch, tobj.get(), nullptr, kToRoom | kToArenaListen);
@@ -3210,14 +2881,8 @@ EStageResult CastCreationAction(ActionContext &ctx) {
 	return EStageResult::kSuccess;
 }
 
-// Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
-// Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
-// issue.damage-over-time: the poison DoT is now a data-driven <damage source="poison"> action (see
-// CastDamage's poison branch), no longer a manual_cast handler -- PoisonDot was retired here.
-
-// name -> hand-coded handler. The <manual_cast><handler val="..."/> on an
-// action selects one by name (which matches the function name), replacing the old spell_id
-// switch. std::function so future Lua/closure handlers can register the same way.
+// Hand-coded handlers in spells.cpp for kMagManual spells, selected by name (= function name) via
+// <manual_cast><handler val="..."/>. std::function so future Lua/closure handlers can register too.
 static const std::map<std::string, std::function<EStageResult(ActionContext &)>> kManualHandlers = {
 	{"SpellControlWeather", handlers::SpellControlWeather},
 	{"SpellCreateWater",    handlers::SpellCreateWater},
@@ -3238,21 +2903,18 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"SpellAnimateDead",    SpellAnimateDead},
 	{"SpellAnimateSkeleton", SpellAnimateSkeleton},
 	{"SpellResurrection",   SpellResurrection},
-	// issue.affect-migration: room-affect per-tick manual handler (was the room_affects tick_handler).
 	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
-	// issue.obj-affects: kWeaponHit obj-affect handler -- a poisoned weapon poisons its strike victim.
+	// kWeaponHit obj-affect handler: a poisoned weapon poisons its strike victim.
 	{"WeaponPoisonHit", handlers::WeaponPoisonHit},
 	{"SkeletonHit", handlers::SkeletonHit},
 };
 
-// load-time validation hook (called from SpellInfoBuilder).
 bool IsManualHandlerRegistered(const std::string &name) {
 	return kManualHandlers.count(name) > 0;
 }
 
-// issue.vedun-hotfix #5: expose the registered handler names (sorted, std::map order) so the Vedun
-// editor can offer a pick-list and reject unknown values for the <summon/alter_obj/obj_creation/
-// manual_cast handler="..."> attributes (registered as enums in enum_registry).
+// Registered handler names (sorted), so the Vedun editor can offer a pick-list and reject unknown
+// values for the <summon/alter_obj/obj_creation/manual_cast handler="..."> attributes.
 std::vector<std::string> SummonHandlerNames() {
 	std::vector<std::string> v; for (const auto &p : kSummonHandlers) v.push_back(p.first); return v;
 }
@@ -3279,10 +2941,6 @@ EStageResult CastManual(ActionContext &ctx) {
 	}
 	return it->second(ctx);
 }
-
-//******************************************************************************
-//******************************************************************************
-//******************************************************************************
 
 int CheckMobList(CharData *ch) {
 	for (const auto &vict: character_list) {
@@ -3320,9 +2978,8 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster == victim)
 		return;
 
-	// An NPC reacts to a cast only when it's actually aggressive
-	// against the NPC itself -- A spells from allies (PC's pet on its master, mob-to-mob)
-	// fall through silently.
+	// An NPC reacts only to a cast that is aggressive against it -- spells from allies (a PC's pet
+	// on its master, mob-to-mob) fall through silently.
 	if (!CheckMobList(victim) || !MUD::Spell(spell_id).IsViolentAgainst(caster, victim))
 		return;
 
@@ -3368,8 +3025,6 @@ static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagConditi
 			return true;
 		}
 	}
-	// align: blocks the cast when the target carries the matching
-	// alignment (IsGood / IsEvil / IsNeutral). kAny means no alignment block.
 	if (cond.align == EAlign::kGood && alignment::IsGood(victim)) {
 		return true;
 	}
@@ -3395,8 +3050,6 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 			return false;
 		}
 	}
-	// align: require the target to carry the matching alignment
-	// (IsGood / IsEvil / IsNeutral). kAny means no alignment requirement.
 	if (cond.align == EAlign::kGood && !alignment::IsGood(victim)) {
 		return false;
 	}
@@ -3416,9 +3069,8 @@ bool CasterBlocked(CharData *caster, const talents_actions::CasterConditions &cc
 	return TargetIsBlocked(caster, cc.blocking) || !TargetMeetsRequired(caster, cc.required);
 }
 
-// True if `victim` matches any of the reflection's affect flags or its alignment.
-// Bare flag/alignment match -- potency-gated reflection isn't possible today (mob/object
-// affects carry no potency value), so flag presence + prob is the best we can do.
+// True if `victim` matches any of the reflection's affect flags or its alignment. Flag presence +
+// prob only: mob/object affects carry no potency, so reflection can't be potency-gated.
 static bool VictimMatchesReflection(CharData *victim, const talents_actions::Reflection &refl) {
 	for (const auto aff : refl.affect_flags) {
 		if (AFF_FLAGGED(victim, aff)) return true;
@@ -3463,7 +3115,7 @@ double ActionContext::CompetenceBase() const {
 		case talents_actions::EActionBase::kPoints:    return points_count;
 		case talents_actions::EActionBase::kAffects:   return affects_potency;
 		case talents_actions::EActionBase::kDispelled: return dispelled_potency;
-		// issue.character-affect-triggers: base="tag" -- the event tag's numeric value (e.g. damage amount).
+		// base="tag": the event tag's numeric value (e.g. damage amount).
 		case talents_actions::EActionBase::kTag:
 			return static_cast<double>(event_.GetTag(action_or_default().GetTagName()));
 		case talents_actions::EActionBase::kCompetence:
@@ -3478,7 +3130,7 @@ const talents_actions::Action &ActionContext::action_or_default() const {
 	if (a) {
 		return *a;
 	}
-	// issue.perk-action-patching: a patched cast whose cursor ran past the end still reads from the view.
+	// A patched cast whose cursor ran past the end still reads from the view.
 	if (patched_ && !action_view_.empty()) {
 		return *action_view_.front();
 	}
@@ -3506,8 +3158,8 @@ void ActionContext::NextAction() {
 }
 
 const talents_actions::Action *ActionContext::action() const {
-	// issue.perk-action-patching: a per-cast patched chain wins over the spell's own list. patched_
-	// (not emptiness) is the selector, so a perk that removed every block still overrides.
+	// A per-cast patched chain wins over the spell's own list. patched_ (not emptiness) is the
+	// selector, so a perk that removed every block still overrides.
 	if (patched_) {
 		return action_idx_ < action_view_.size() ? action_view_[action_idx_] : nullptr;
 	}
@@ -3522,17 +3174,16 @@ bool ActionContext::HasPendingActions() const {
 	return action_idx_ < std::max<size_t>(1, count);
 }
 
-// issue.perk-action-patching: materialize this cast's patched action chain. Runs once per cast in
-// CallMagic. Fast path: a spell with no talent patches (nearly all of them) returns immediately and the
-// cast walks the spell's own const action list -- identical to before this feature. Only when the spell
-// carries patches AND the caster can use the corresponding perk do we build a per-cast view.
+// Materialize this cast's patched action chain (once per cast, in CallMagic). A spell without talent
+// patches (nearly all) returns at once and the cast walks the spell's own action list; a per-cast
+// view is built only when the spell has patches AND the caster can use the matching perk.
 void ActionContext::ApplyTalentPatches() {
 	if (!caster_) {
 		return;
 	}
 	const auto &patches = MUD::Spell(spell_id_).talent_patches;
 	if (patches.empty()) {
-		return;   // fast path
+		return;
 	}
 	const auto &own = MUD::Spell(spell_id_).actions.list();
 	action_view_.clear();
@@ -3556,10 +3207,8 @@ void ActionContext::ApplyTalentPatches() {
 	}
 }
 
-// issue.perk-action-patching: apply an op="modify" field modifier (mul/add/set) to a numeric field.
-// issue.affect-action-patch-improve (Phase B): bridge the patch's mod op to the manifestation-side enum,
-// so op="modify" arithmetic lives on the manifestation types (IAction::ApplyFieldMod) for both spell and
-// affect action chains -- no per-field setters, no duplicated mul/add/set logic here.
+// Bridge the patch's mod op to the manifestation-side enum: op="modify" arithmetic lives in
+// IAction::ApplyFieldMod, shared by spell and affect action chains.
 static talents_actions::EFieldModOp ToFieldModOp(feats::TalentPatch::EModOp op) {
 	switch (op) {
 		case feats::TalentPatch::EModOp::kMul: return talents_actions::EFieldModOp::kMul;
@@ -3683,10 +3332,9 @@ void ActionContext::ApplyOnePatch(const feats::TalentPatch &p) {
 	}
 }
 
-// cast each of the action's <side_spell> spells as a full nested pipeline on
-// the current target. Each side cast gets its OWN rolls (its potency/success, possibly a
-// different base_skill) and a fresh context, so its damage/affect accumulators and reactions
-// are isolated. Loop guard (option 5): a spell already in ctx.casting (this chain) is refused.
+// Cast each of the action's <side_spell> spells as a full nested pipeline on the current target.
+// Each side cast gets its OWN rolls and a fresh context, so its accumulators and reactions are
+// isolated. Loop guard: a spell already in ctx.casting (this chain) is refused.
 EStageResult CastSideSpell(ActionContext &ctx) {
 	const auto &sides = ctx.action_or_default().GetSideSpells();
 	if (sides.empty()) {
@@ -3703,10 +3351,10 @@ EStageResult CastSideSpell(ActionContext &ctx) {
 		ActionContext sub = BuildActionContext(ctx.caster(), side, ctx.level);
 		sub.casting = ctx.casting;   // inherit the ancestry ...
 		sub.casting.insert(side);    // ... plus this side spell (so its own side casts see the chain)
-		sub.SetNested();             // issue.attack-ward: a side-spell delivery must not re-run whole-cast wards
+		sub.SetNested();             // a side-spell delivery must not re-run whole-cast wards
 		sub.cvict = ctx.cvict;       // cast on the current target (this is a per-target stage)
 		sub.area_coeff = ctx.area_coeff;  // inherit the outer per-target falloff (mass spells)
-		sub.SetEvent(ctx.Event());   // issue.character-affect-triggers: a side-spell's handlers see the event too
+		sub.SetEvent(ctx.Event());   // a side spell's handlers see the event too
 		sub.SetAffectDamageMsg(ctx.AffectDamageMsgChar(), ctx.AffectDamageMsgVict(),
 							   ctx.AffectDamageMsgRoom());   // ... and the affect's damage flavor
 		if (CastSpell(sub, ECastTargets::kSingle) == ECastResult::kNotCast) {
@@ -3752,15 +3400,12 @@ ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 		}
 		return ECastResult::kNotCast;
 	}
-	// Whole-cast gates: only for the entry action.
 	if (is_entry) {
 		cvict = MaybeReflectToCaster(caster, cvict, spell_id);
 		ctx.cvict = cvict;
-		// issue.attack-ward: WHOLE-CAST defender wards (Magic Mirror reflect / scope="all" absorb /
-		// magical shield), once for the TOP-LEVEL cast. Reflect redirects ctx.cvict to the caster; a
-		// whole-cast absorb stops here. Scoped damage/affect absorbs are per-manifest (CastDamage/
-		// CastAffect). A side-spell sub-cast (ctx.Nested()) is part of the same incoming spell, so it
-		// must NOT re-run these -- otherwise the whole-cast ward would fire twice (outer + delivery).
+		// Whole-cast defender wards (reflect / scope="all" absorb / magical shield) run once, for the
+		// TOP-LEVEL cast only: a side-spell sub-cast (ctx.Nested()) is part of the same incoming spell,
+		// so re-running them would fire the ward twice. Scoped absorbs are per-manifest.
 		if (!ctx.Nested()) {
 			RunWholeCastWards(ctx, /*is_magic=*/true);
 		}
@@ -3803,8 +3448,6 @@ ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 										: action.Contains(talents_actions::EAction::kManual);
 	// runs whenever the action carries a <side_spell> (entry or not, no flag).
 	const bool run_side      = action.Contains(talents_actions::EAction::kSideSpell);
-	// issue.obj-casting: <alter_obj> runs as a per-target stage (replaces the kMagAlterObjs
-	// one-shot). Pure action-based, so the flag can go in Stage F.
 	const bool run_alter     = action.Contains(talents_actions::EAction::kAlterObj);
 	bool target_died = false;
 	bool stop_stages = false;
@@ -3829,10 +3472,9 @@ ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 	if (run_manual && !stop_stages && CastManual(ctx) != EStageResult::kSuccess) {
 		stop_stages = true;
 	}
-	// issue.obj-casting: the object transform runs here (after manual, as the old one-shot did),
-	// per target -- so an area corrode (kAcidArrow) still hits each target's item. Gated on
-	// !target_died only (NOT stop_stages): the old one-shot ran independently of an affect/unaffect
-	// break, so e.g. remove-curse still cleans the object even if the char-side dispel did nothing.
+	// Per target (after manual), so an area corrode (kAcidArrow) hits each target's item. Gated on
+	// !target_died only, NOT stop_stages: remove-curse still cleans the object even if the
+	// char-side dispel did nothing.
 	if (run_alter && !target_died) {
 		CastToAlterObjs(ctx);
 	}
@@ -3846,10 +3488,6 @@ ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 	// kTargetDied is a status (callers like warcry / mixture check it); it does NOT break the chain.
 	return target_died ? ECastResult::kTargetDied : ECastResult::kSuccess;
 }
-
-// Сообщения массовых/площадных заклинаний вынесены в lib/cfg/spell_msg.xml
-// kAreaToChar / kAreaToRoom / kAreaToVict, доступны через
-// MUD::SpellMessages(). См. CallMagicToArea / CallMagicToGroup.
 
 void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {
 	if (room && world[ch->in_room] == room && IsAbleToSay(ch)) {
@@ -3888,8 +3526,8 @@ static std::vector<CharData *> BuildCastRoster(CharData *caster, CharData *victi
 }
 
 // Run the cursor's current action over its target list, applying the <area> distribution
-// coefficient and the matching cast_success scaling per target. A single-target cast keeps
-// the old path: no roster, no distribution, no cast_success scaling.
+// coefficient and the matching cast_success scaling per target. A single-target cast uses no
+// roster, distribution or cast_success scaling.
 static ECastResult RunActionOverTargets(ActionContext &ctx, const std::vector<CharData *> &targets,
 										ECastTargets scope, bool is_entry) {
 	CharData *caster = ctx.caster();
@@ -3899,23 +3537,18 @@ static ECastResult RunActionOverTargets(ActionContext &ctx, const std::vector<Ch
 		ctx.cvict = targets.empty() ? nullptr : targets.front();
 		return CastOnTarget(ctx, is_entry);
 	}
-	// issue.unstable-hotfixes: a multi-target spell with NO <area> block (e.g. a kMagGroups
-	// heal) must hit the WHOLE roster at full strength -- the historical group-spell default.
-	// GetArea() THROWS when there is no <area>, so guard on Contains() first (an unguarded
-	// GetArea() here aborted the whole cast via CastSpell's catch -> 0 effect).
+	// A multi-target spell without <area> (e.g. a kMagGroups heal) hits the whole roster at full
+	// strength. GetArea() throws when there is no <area>, so check Contains() first.
 	const auto &action = ctx.action_or_default();
 	const talents_actions::Area *area =
 			action.Contains(talents_actions::EAction::kArea) ? &action.GetArea() : nullptr;
-	// N = number of targets actually hit. No <area>, or max <= 0, means "no upper limit" ->
-	// everyone in the roster; else the historical count, capped at the roster size.
+	// N = number of targets hit. No <area>, or max <= 0, means no limit (the whole roster).
 	const int n = (area == nullptr || area->max_targets <= 0)
 			? static_cast<int>(targets.size())
 			: std::min(area->CalcTargetsQuantity(GetSkill(caster, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
 													  ctx.potency().stat_coeff),
 					   static_cast<int>(targets.size()));
-	// issue.perk-action-patching: kMultipleCast is now data-driven (an op="modify" talent patch scales the
-	// <area> decay by 0.6 for holders), so we just read the possibly-patched decay. NPC casters ignore it
-	// anyway (coeff is forced to 1.0 below), which is why the old !IsNpc() guard was redundant.
+	// The decay may be scaled by a talent patch (kMultipleCast); NPC casters ignore it (coeff 1.0 below).
 	const double decay_eff = (area == nullptr) ? 0.0 : area->decay;
 	const int kCasterCastSuccess = GET_CAST_SUCCESS(caster);
 	const auto &sheaf = MUD::SpellMessages()[spell_id];
@@ -3954,13 +3587,12 @@ static ECastResult RunActionOverTargets(ActionContext &ctx, const std::vector<Ch
 	return ECastResult::kSuccess;
 }
 
-// the ECastTargets scope implied by a per-action target selector -- decides
-// single-target vs roster/distribution handling. kTarSame inherits the previous action's scope.
+// Cast scope implied by a per-action target selector; kTarSame inherits the previous action's scope.
 static ECastTargets ActionTargetScope(talents_actions::EActionTarget sel, ECastTargets prev_scope) {
 	switch (sel) {
 		case talents_actions::EActionTarget::kTarFoes:  return ECastTargets::kFoes;
 		case talents_actions::EActionTarget::kTarGroup: return ECastTargets::kFriends;
-		case talents_actions::EActionTarget::kTarMinions: return ECastTargets::kFriends;  // multi (all minions)
+		case talents_actions::EActionTarget::kTarMinions: return ECastTargets::kFriends;
 		case talents_actions::EActionTarget::kTarSame:  return prev_scope;
 		default:                                        return ECastTargets::kSingle;
 	}
@@ -3999,8 +3631,7 @@ static std::vector<CharData *> ResolveActionTargets(ActionContext &ctx,
 			// room-impose path, not through the char roster. No char targets here.
 			return {};
 		case talents_actions::EActionTarget::kTarActor:
-			// issue.room-affect-trigger-improve: the char that triggered an event trigger (the room
-			// enterer), carried on ctx.cvict by the entry dispatcher.
+			// The char that fired an event trigger (e.g. the room enterer), carried on ctx.cvict.
 			return ctx.cvict ? std::vector<CharData *>{ctx.cvict} : std::vector<CharData *>{};
 		case talents_actions::EActionTarget::kTarRandomFoe: {
 			target_resolver::FoesRosterType roster{caster, nullptr,
@@ -4014,7 +3645,7 @@ static std::vector<CharData *> ResolveActionTargets(ActionContext &ctx,
 			return one ? std::vector<CharData *>{one} : std::vector<CharData *>{};
 		}
 		case talents_actions::EActionTarget::kTarMaster: {
-			// issue.soullink-affect-patching: the caster/bearer's charm master (kSoulLink heals the master).
+			// The caster's charm master (kSoulLink heals the master).
 			CharData *mst = caster->has_master() ? caster->get_master() : nullptr;
 			return mst ? std::vector<CharData *>{mst} : std::vector<CharData *>{};
 		}
@@ -4041,11 +3672,9 @@ static ECastResult RunActionOnRoom(ActionContext &ctx) {
 	return room_spells::CastRoomAffect(ctx);
 }
 
-// Main cast entry:
-// walks the spell's <action> list and runs each action over its own target list. Action[0] (the
-// entry) targets the spell's scope (kSingle / kFoes / kFriends); later actions reuse the
-// previous list (the kTarSame default until per-action <target> resolving lands). Entry-only
-// gates (reflection / mtrigger / one-shots) fire on action[0] -- see CastOnTarget's is_entry.
+// Main cast entry: runs each of the spell's <action>s over its own target list. Action[0] (the entry)
+// targets the spell's scope; later actions resolve theirs from <action target=...>. Entry-only gates
+// (reflection / mtrigger / one-shots) fire on action[0] -- see CastOnTarget's is_entry.
 // A flag-only spell (no <action>) still gets one entry iteration so its in-code stages fire.
 ECastResult CastSpell(ActionContext &ctx, ECastTargets scope) {
 	CharData *caster = ctx.caster();
@@ -4092,11 +3721,8 @@ ECastResult CastSpell(ActionContext &ctx, ECastTargets scope) {
 				is_entry = false;
 				continue;
 			}
-			// A <summon> action spawns a mob in the caster's room ONCE (not per target), so -- like
-			// kTarRoomThis -- it runs at the action level, not via the per-target path. Running it here
-			// (entry or later) lets a summon chain off a prior action's result via base= (e.g. a
-			// familiar whose strength scales with the damage just dealt). is_entry_action is set so the
-			// entry summon reads the real potency C while a chained one reads its base= accumulator.
+			// A <summon> spawns once per action, not per target. Running it here lets it chain off a prior
+			// action via base=; is_entry_action selects the entry potency C vs the base= accumulator.
 			if (ctx.action_or_default().Contains(talents_actions::EAction::kSummon)) {
 				ctx.is_entry_action = is_entry;
 				CastSummonAction(ctx);
@@ -4109,9 +3735,7 @@ ECastResult CastSpell(ActionContext &ctx, ECastTargets scope) {
 				is_entry = false;
 				continue;
 			}
-			// An <obj_creation> action creates an object once (not per target) -- like <summon> it
-			// runs at the action level. is_entry_action is set so a future scaling handler can read
-			// the action competence (entry C or base=).
+			// An <obj_creation> likewise runs once per action, not per target.
 			if (ctx.action_or_default().Contains(talents_actions::EAction::kCreation)) {
 				ctx.is_entry_action = is_entry;
 				CastCreationAction(ctx);
@@ -4165,18 +3789,10 @@ ECastResult CastSpell(ActionContext &ctx, ECastTargets scope) {
 	return result;
 }
 
-// Run a single, cycled action of a (kService) tick spell on the room -- the action-cycling room
-// tick. `phase` selects the action: action[phase % N], so a multi-phase room effect (e.g. deadly
-// fog) advances one action per round. The action's own target marker drives whom it hits
-// (kTarRoomThis -> the room; kTarFoes/kTarGroup/... -> the room's occupants).
-// Run one cycled action (action[phase % N]) of an action list on the room. Shared by the kService
-// tick-spell path and the affect-owned-actions path below.
-// issue.character-affect-triggers: shared recursion guard for EVERY trigger-launched action chain
-// (kKill / kExpired / kDispell / kPreHit / kPostHit / room entry+tick) -- they all run through
-// RunRoomCycledAction. A triggered action that itself deals damage can kill -> ProcessDeath -> another
-// trigger -> back here; the single-threaded game loop lets a plain counter bound the nesting. Reaching
-// the cap almost always means a content loop, so at the cap the chain is skipped and logged once.
-// Replaces the kKill-only depth guard that used to live in Damage::ProcessDeath.
+// Recursion guard shared by every trigger-launched action chain (kKill / kExpired / kDispell / kPreHit /
+// kPostHit / room entry+tick) -- they all run through RunRoomCycledAction. A triggered action that deals
+// damage can kill -> ProcessDeath -> another trigger -> back here. Hitting the cap almost always means a
+// content loop, so the chain is skipped and logged.
 namespace {
 constexpr int kMaxTriggerActionDepth = 5;
 int g_trigger_action_depth = 0;
@@ -4191,6 +3807,8 @@ struct TriggerDepthGuard {
 };
 }  // namespace
 
+// Runs one cycled action (action[phase % N]) of `list` on the room; the action's own target marker decides
+// whom it hits. Shared by kService tick spells and affect-owned actions.
 static ECastResult RunRoomCycledAction(ActionContext &ctx, RoomData *room,
 									   const std::vector<talents_actions::Action> &list, int phase) {
 	TriggerDepthGuard depth_guard;
@@ -4208,9 +3826,8 @@ static ECastResult RunRoomCycledAction(ActionContext &ctx, RoomData *room,
 	for (size_t i = 0; i < idx; ++i) {
 		ctx.NextAction();
 	}
-	// issue.affect-migration: a manual_cast action runs its hand-coded handler (the same kManualHandlers
-	// registry spells use), not the per-target / room-impose path. The handler reads its context (e.g.
-	// the tick duration) off ctx. Replaces the old room-affect tick_handler attribute.
+	// A manual_cast action runs its hand-coded handler (the kManualHandlers registry), which reads its
+	// context (e.g. the tick duration) off ctx.
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kManual)) {
 		CastManual(ctx);
 		return ECastResult::kSuccess;
@@ -4224,19 +3841,16 @@ static ECastResult RunRoomCycledAction(ActionContext &ctx, RoomData *room,
 	return RunActionOverTargets(ctx, targets, scope, false);
 }
 
-// issue.affect-action-patch-improve (Phase A): run a bearer's eligible ADDITIVE affect talent-patches
-// (op=append/insert) for one affect type, as EXTRA actions alongside the affect's own action. Shared by all
-// three affect runners (tick / lifecycle / per-hit event). `accept` picks which payload actions fire (those
-// matching the runner's trigger). Gated on the RELATIVE (self/master/group-leader per the patch) holding the
-// feat: CanUseFeat(ResolvePatchRelative(bearer, relative), feat). Mutating ops (replace/remove/modify) are
-// Phase B and skipped here. Returns true if the bearer was purged (caller should stop touching it).
+// Runs a bearer's ADDITIVE affect talent-patches (op=append/insert) for one affect type as extra actions
+// alongside the affect's own. `accept` picks the payload actions matching the runner's trigger. Gated on
+// CanUseFeat(ResolvePatchRelative(bearer, relative), feat). Returns true if the bearer was purged.
 template <typename TriggerPred>
 static bool RunAdditiveAffectPatches(ActionContext &ctx, CharData *ch, RoomData *room,
 									 EAffect type, TriggerPred accept) {
 	std::vector<talents_actions::Action> extra;
 	for (const auto &ref : feats::AffectTalentPatches(type)) {
 		if (ref.patch->op != feats::EPatchOp::kAppend && ref.patch->op != feats::EPatchOp::kInsert) {
-			continue;   // additive ops only in Phase A; mutating ops (replace/remove/modify) are Phase B
+			continue;
 		}
 		CharData *holder = feats::ResolvePatchRelative(ch, ref.patch->relative);
 		if (!holder || !CanUseFeat(holder, ref.feat)) {
@@ -4261,12 +3875,9 @@ static bool RunAdditiveAffectPatches(ActionContext &ctx, CharData *ch, RoomData 
 	return false;
 }
 
-// issue.affect-action-patch-improve (Phase B): apply an affect's MUTATING talent-patches (modify / remove /
-// replace / add_effect / replace_all) IN PLACE to the per-firing COPY of its own matching actions, BEFORE
-// the runner executes them. Because `list` is a copy (never the shared affect config), mutation is safe.
-// Additive ops (append/insert) are handled separately by RunAdditiveAffectPatches. `accept` filters both
-// which of the affect's actions we address and any payload we install, to this trigger occasion. Each patch
-// is gated on CanUseFeat(ResolvePatchRelative(bearer, relative), feat) -- same gate as the additive path.
+// Applies an affect's MUTATING talent-patches (modify / remove / replace / add_effect / replace_all) in
+// place to `list`, the per-firing COPY of its matching actions (never the shared config). `accept` filters
+// the addressed actions and the installed payload to this trigger. Same feat gate as the additive path.
 template <typename TriggerPred>
 static void ApplyMutatingAffectPatches(std::vector<talents_actions::Action> &list, CharData *ch,
 									   EAffect type, TriggerPred accept) {
@@ -4274,7 +3885,7 @@ static void ApplyMutatingAffectPatches(std::vector<talents_actions::Action> &lis
 	for (const auto &ref : feats::AffectTalentPatches(type)) {
 		const auto op = ref.patch->op;
 		if (op == feats::EPatchOp::kAppend || op == feats::EPatchOp::kInsert) {
-			continue;   // additive ops run separately (RunAdditiveAffectPatches)
+			continue;
 		}
 		CharData *holder = feats::ResolvePatchRelative(ch, ref.patch->relative);
 		if (!holder || !CanUseFeat(holder, ref.feat)) {
@@ -4375,10 +3986,9 @@ static void ApplyMutatingAffectPatches(std::vector<talents_actions::Action> &lis
 	}
 }
 
-// issue.affect-migration: run an AFFECT's own actions (room_affects.xml <actions>) on the room each
-// tick. Context (level/potency) comes from the imposing spell (ctx_spell = aff->type); the action list
-// is the affect's, injected via UseExternalActions. `tick_duration` (when non-null) carries the ticking
-// affect's current duration in and back out, so a manual_cast handler can branch on / modify it.
+// Runs an affect's own actions on the room each tick. Context (level/potency) comes from the imposing
+// spell (ctx_spell); the action list is injected via UseExternalActions. `tick_duration` (if non-null)
+// carries the affect's duration in and out, so a manual_cast handler can read or change it.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
 										  const std::vector<talents_actions::Action> &actions, int phase,
 										  int *tick_duration, float fixed_potency,
@@ -4389,10 +3999,9 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 	}
 	ActionContext ctx = BuildActionContext(ch, ctx_spell, GetRealLevel(ch), fixed_potency);
 	ctx.UseExternalActions(&actions);
-	// issue.damage-over-time: author credited for a poison <damage source="poison"> tick (the poisoner).
+	// Credited author of the tick's damage (e.g. the poisoner).
 	ctx.SetDamageAuthorUid(damage_author);
-	// issue.character-affect-triggers: room/exit affect-owned damage flavor for a <damage> action (empty
-	// => the generic combat line, unchanged). Same channel the char runners use (Damage::Process reads it).
+	// Affect-owned damage flavor for <damage> actions (empty -> the generic combat line).
 	ctx.SetAffectDamageMsg(aff_dmg_char, aff_dmg_vict, aff_dmg_room);
 	if (tick_duration) {
 		ctx.SetTickDuration(*tick_duration);
@@ -4404,10 +4013,9 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 	return result;
 }
 
-// issue.character-affect-triggers: run one CHARACTER affect's pulse/battle-pulse <actions> on its bearer
-// (the char-affect analog of RunRoomTick). kPulse fires every tick; kBattlePulse only while the bearer is
-// fighting. The action's effect targets the bearer via kTarSame (caster == bearer here). Threads the
-// affect's duration through so a manual_cast action can end it early. Returns true if any action fired.
+// Runs one character affect's pulse/battle-pulse <actions> on its bearer: kPulse every tick,
+// kBattlePulse only while fighting. The bearer is the caster. The affect's duration is threaded through
+// so a manual_cast action can end it early. Returns true if any action fired.
 bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff) {
 	if (!ch || !aff || ch->in_room == kNowhere) {
 		return false;
@@ -4421,8 +4029,7 @@ bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff) {
 			pulse.push_back(action);
 		}
 	}
-	// issue.affect-action-patch-improve (Phase B): let a perk MUTATE this affect's per-tick actions (e.g.
-	// scale a DoT's damage, strip its effect) before they run -- on the copy, so the affect config is intact.
+	// Let perks mutate the per-tick actions (on the copy; the affect config stays intact).
 	if (!feats::AffectTalentPatches(aff->affect_type).empty()) {
 		ApplyMutatingAffectPatches(pulse, ch, aff->affect_type,
 				[combat](const talents_actions::Action &a) {
@@ -4436,21 +4043,18 @@ bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff) {
 	}
 	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
 	int dur = aff->duration;
-	// issue #3610: автора тика ищем по всем узлам этого типа, см. SelectAffectAuthorUid.
+	// Автора тика ищем по всем узлам этого типа, см. SelectAffectAuthorUid.
 	const long author_uid = SelectAffectAuthorUid(ch->affected, aff);
-	// Spell-free tick on the affect's stored potency (ctx_spell kUndefined); the bearer is the caster, so
-	// a <damage> action targeting kTarFightSelf damages the bearer (a lone action's default kTarSame
-	// resolves to the previous action's targets -- empty -- so it must be explicit). Room = bearer's room.
-	// issue.damage-over-time: give the tick's <damage> the affect's own damage flavor (kDamageTo*), same as
-	// the trigger path (RunCharAffectTrigger) -- without this a DoT deals damage silently (no visible line).
+	// Spell-free tick on the affect's stored potency. The bearer is the caster, so a <damage> action must
+	// target kTarFightSelf explicitly (a lone action's kTarSame resolves to an empty list). The affect's
+	// kDamageTo* flavor is passed, otherwise a DoT deals damage silently.
 	CastRoomTickActionFromActions(ch, world[ch->in_room], ESpell::kUndefined, pulse, phase, &dur, aff->potency,
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToChar),
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToVict),
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom),
-			author_uid);   // issue.damage-over-time: poison <damage> credits the poisoner
+			author_uid);
 	aff->duration = dur;
-	// issue.affect-action-patch-improve: run the affect's ADDITIVE talent-patches this tick (fresh ctx with
-	// the tick's potency/author), matching the pulse triggers -- e.g. a perk that adds an effect each DoT tick.
+	// The affect's additive talent-patches matching the pulse triggers (fresh ctx, tick's potency/author).
 	if (!ch->purged() && !feats::AffectTalentPatches(aff->affect_type).empty()) {
 		ActionContext pctx = BuildActionContext(ch, ESpell::kUndefined, GetRealLevel(ch), aff->potency);
 		pctx.SetDamageAuthorUid(author_uid);
@@ -4461,23 +4065,19 @@ bool RunCharAffectTick(CharData *ch, Affect<EApply>::shared_ptr aff) {
 						|| (combat && tt.test(talents_actions::EActionTrigger::kBattlePulse));
 				});
 	}
-	// issue.damage-over-time: a DoT imposed with <charges max=N> lasts exactly N ticks -- one charge per
-	// tick, in OR out of combat -- independent of the (PC-vs-NPC, *30-scaled) duration. So a burn ticks the
-	// same number of times whether the bearer is fighting or not. When depleted, mark it expired (duration
-	// 0) so the caller's normal duration==0 removal runs next pass, rather than erasing ch->affected here
-	// mid-iteration. charges == -1 (the default) leaves the affect purely duration-bound.
+	// A DoT with <charges max=N> lasts exactly N ticks, in or out of combat, independent of the duration.
+	// When depleted, mark it expired (duration 0) for the caller's normal removal instead of erasing from
+	// ch->affected mid-iteration. charges == -1 (default): duration-bound only.
 	if (!ch->purged() && aff->charges != -1 && --aff->charges <= 0) {
 		aff->duration = 0;
 	}
 	return true;
 }
 
-// issue.character-affect-triggers: run ONE affect type's <actions> matching `trig`, as caster `ch` and
-// with event.actor = `actor`. Unlike RunCharEventTriggers (which scans ALL of ch's affects for a per-hit
-// event), this fires exactly one affect type for a per-affect lifecycle event. The CALLER picks the
-// subject `ch`: for kExpired the bearer (its own timer/charges ran out; actor=null -> self/ally targets);
-// for kDispell the DISPELLER (so the retaliation is self-inflicted -- kTarFightSelf lands on the dispeller
-// as self-damage, no PvP against the bearer). Recursion is bounded inside RunRoomCycledAction.
+// Runs ONE affect type's <actions> matching `trig`, as caster `ch`, with event.actor = `actor` (a
+// per-affect lifecycle event; RunCharEventTriggers handles per-hit events across all affects). The caller
+// picks `ch`: for kExpired the bearer (actor = null); for kDispell the DISPELLER, so a kTarFightSelf
+// retaliation is self-damage, not PvP against the bearer. Recursion is bounded in RunRoomCycledAction.
 bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EActionTrigger trig,
 						  CharData *actor, int event_amount, int event_category) {
 	if (!ch || ch->in_room == kNowhere) {
@@ -4488,17 +4088,15 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EA
 		if (!a.GetTrigger().test(trig)) {
 			continue;
 		}
-		// issue.character-affect-triggers: kPoints category filter -- if this action pins a category
-		// (<trigger category=>) and the restored category doesn't match, skip it. Actions with no
-		// category (and every non-kPoints trigger, where event_category is -1) always pass.
+		// kPoints category filter: an action pinned to a <trigger category=> fires only for that category.
+		// Uncategorized actions and non-kPoints triggers (event_category == -1) always pass.
 		if (event_category >= 0 && a.GetTriggerPointsCategory() >= 0
 				&& a.GetTriggerPointsCategory() != event_category) {
 			continue;
 		}
 		fired.push_back(a);
 	}
-	// issue.affect-action-patch-improve (Phase B): let a perk MUTATE this affect's lifecycle actions before
-	// they run (e.g. change an on-expire retaliation), matching this trigger. On the copy -- config intact.
+	// Let perks mutate the lifecycle actions (on the copy).
 	if (!feats::AffectTalentPatches(affect_type).empty()) {
 		ApplyMutatingAffectPatches(fired, ch, affect_type,
 				[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); });
@@ -4509,10 +4107,8 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EA
 	const int level = ch->IsNpc() ? GetRealLevel(ch) : 1;
 	ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level);
 	ctx.UseExternalActions(&fired);
-	// issue.character-affect-triggers: <action target="kTarActor"> resolves off ctx.cvict (see
-	// ResolveActionTargets), so point cvict at the actor (the dispeller for kDispell, the healer for
-	// kPoints). Without this it would fall back to the bearer/caster and the retaliation would hit the
-	// wrong char. For an actor-less trigger (kExpired) this leaves cvict null -> kTarActor yields nothing.
+	// kTarActor resolves off ctx.cvict, so point it at the actor (the dispeller for kDispell, the healer
+	// for kPoints); otherwise the retaliation would hit the bearer. Actor-less triggers leave it null.
 	ctx.cvict = actor;
 	EventContext ev;
 	ev.trigger = trig;
@@ -4520,26 +4116,21 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EA
 	ev.amount = event_amount;
 	ev.points_category = event_category;
 	ctx.SetEvent(ev);
-	// issue.character-affect-triggers: give any <damage> in this affect's trigger chain the affect's own
-	// damage flavor (kDamageTo* sheaf) instead of the generic combat hit line. Empty slots -> the
-	// generic message still shows (Damage::Process treats "no affect message" as before).
+	// The affect's own damage flavor (kDamageTo*) for any <damage> in the chain; empty -> generic line.
 	ctx.SetAffectDamageMsg(affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToChar),
 						   affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToVict),
 						   affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToRoom));
 	RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
-	// issue.affect-action-patch-improve: also run this affect's additive talent-patches for this lifecycle
-	// trigger (e.g. an on-expire / on-dispel perk effect), matching `trig`.
+	// The affect's additive talent-patches for this trigger.
 	RunAdditiveAffectPatches(ctx, ch, world[ch->in_room], affect_type,
 			[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); });
 	return true;
 }
 
-// issue.character-affect-triggers: fire the DYING char's kDeath actions (from die(), before raw_kill).
-// Scans the char's own affects for kDeath actions and runs each on the char itself (kTarFightSelf ->
-// self-heal), with event.actor = the killer. Returns true if any kDeath action resolved a "block"
-// (<trigger return="0"/> or a handler override): the death is then prevented by die(). A preventing
-// affect must heal the char (a <points><heal>) -- this runner does NOT auto-heal, so an unhealed block
-// just delays death to the next tick (by design). Recursion is bounded inside RunRoomCycledAction.
+// Fires the DYING char's kDeath actions (from die(), before raw_kill) on the char itself, with
+// event.actor = the killer. Returns true if any resolved a block (<trigger return="0"/> or a handler
+// override): die() then prevents the death. The preventing affect must heal the char itself -- an
+// unhealed block just delays death to the next tick (by design).
 bool RunCharDeathTriggers(CharData *ch, CharData *killer) {
 	if (!ch || ch->in_room == kNowhere || ch->affected.empty()) {
 		return false;
@@ -4576,8 +4167,7 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer) {
 		if (ch->purged()) {
 			return prevented;   // a kDeath action purged the char -- can't prevent what's already gone
 		}
-		// issue.character-affect-triggers: the affect's own kDeath flavor (optional -- empty => silent),
-		// shown after the action ran (so a "torn back from death" line follows the heal). $n = the bearer.
+		// Optional kDeath flavor, shown after the action (so it follows the heal). $n = the bearer.
 		const std::string &to_char = affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDeathToChar);
 		if (!to_char.empty()) {
 			act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
@@ -4596,10 +4186,8 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer) {
 		}
 		if (ret && *ret == 0) {
 			prevented = true;
-			// issue.character-affect-triggers: a charge is spent ONLY when the affect actually PREVENTS
-			// death (a non-preventing kDeath -- curse/damage the killer -- burns nothing; and if the char
-			// dies the counter is moot, it's removed with the char). Deferred: spend after the loop so
-			// removing a depleted affect can't invalidate this iteration over ch->affected.
+				// A charge is spent only when death is actually prevented. Deferred until after the loop so removing
+				// a depleted affect can't invalidate the iteration over ch->affected.
 			spend_after.push_back(aff->affect_type);
 		}
 	}
@@ -4609,12 +4197,9 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer) {
 	return prevented;
 }
 
-// issue.character-affect-triggers: run every action on the bearer's affects whose trigger matches
-// event.trigger (e.g. kPreHit / kPostHit), threading `event` onto the context so manual_cast handlers
-// can read its rich data (amount/weapon/skill/actor). Each action targets via its own <target> (e.g.
-// kTarFightVict = the current opponent) and its <side_spell> lands on that target at the proc level (NPCs
-// proc at their real level, matching the old hand-coded kCloudOfArrows bolt; PCs at level 1). Snapshots
-// the affect TYPES first because a fired side-spell may mutate ch->affected. Returns true if any ran.
+// Runs every action on the bearer's affects whose trigger matches event.trigger (e.g. kPreHit/kPostHit),
+// with `event` on the context for manual_cast handlers. NPCs proc at their real level, PCs at level 1.
+// Snapshots the affect TYPES first because a fired side-spell may mutate ch->affected.
 bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 	if (!ch || ch->in_room == kNowhere || ch->affected.empty() || !event.valid()) {
 		return false;
@@ -4643,21 +4228,19 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 				fired.push_back(a);
 			}
 		}
-		// issue.affect-action-patch-improve (Phase B): let a perk MUTATE this affect's per-hit actions before
-		// they run (e.g. scale vampirism's leech, strip an on-hit rider), on the copy -- config intact.
+		// Let perks mutate the per-hit actions (on the copy).
 		if (!feats::AffectTalentPatches(t).empty()) {
 			ApplyMutatingAffectPatches(fired, ch, t,
 					[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); });
 		}
-		// issue.vampirism-haste: a competence-based event action scales with the FIRING affect's stored
-		// potency (e.g. the on-kill kHaste is as strong as the vampirism that produced it). base="tag"
-		// actions (like the leech heal) read the event amount instead, so they are unaffected.
+		// Competence-based event actions scale with the firing affect's stored potency (the on-kill kHaste is
+		// as strong as the vampirism behind it). base="tag" actions read the event amount instead.
 		float aff_potency = 0.0f;
 		for (const auto &a : ch->affected) {
 			if (a && a->affect_type == t) { aff_potency = a->potency; break; }
 		}
 		ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level, -1.0f, aff_potency);
-		ctx.UseExternalActions(&fired);   // inject the action list (RunRoomCycledAction reads it off ctx)
+		ctx.UseExternalActions(&fired);
 		ctx.SetEvent(event);              // handlers (and propagated side-spell sub-ctxs) read this
 		if (!fired.empty()) {   // a remove/replace_all patch may have emptied the affect's own actions
 			RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
@@ -4665,24 +4248,20 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 		if (ch->purged()) {
 			return true;
 		}
-		// issue.affect-action-patch-improve: run this affect's ADDITIVE talent-patch actions (e.g. kSoulLink's
-		// master-heal) matching the event trigger, alongside the affect's own action.
+		// The affect's additive talent-patches (e.g. kSoulLink's master heal).
 		if (RunAdditiveAffectPatches(ctx, ch, world[ch->in_room], t,
 				[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); })) {
 			return true;
 		}
-		// issue.character-affect-triggers: spend a trigger charge -- kPreHit/kPostHit/kKill leave the
-		// affect in place, so charges bound how many times it may fire (no-op when unlimited). Safe here:
-		// we iterate the `types` snapshot, not ch->affected.
+		// kPreHit/kPostHit/kKill keep the affect, so charges bound how often it fires. Safe: we iterate the
+		// `types` snapshot, not ch->affected.
 		SpendCharAffectCharge(ch, t);
 	}
 	return true;
 }
 
-// issue.obj-affects: the obj-affect analog of RunCharEventTriggers -- run a WEAPON's obj-affect actions
-// on kWeaponHit. Iterates the weapon's obj affects (a small list) and mirrors the char dispatcher:
-// snapshot the affect types with a matching action, then per type build a context (cvict = victim so a
-// kTarActor/kTarFightVict action hits the struck char, ovict = the weapon) and run the actions.
+// Obj-affect analog of RunCharEventTriggers: runs a weapon's obj-affect actions on kWeaponHit, with
+// cvict = victim (for kTarActor/kTarFightVict) and ovict = the weapon.
 bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int dam) {
 	if (!weapon || !ch || !victim || dam <= 0 || ch->in_room == kNowhere) {
 		return false;
@@ -4691,7 +4270,7 @@ bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int 
 		return false;
 	}
 	using talents_actions::EActionTrigger;
-	std::vector<obj_affects::EObjAffect> types;   // affect types carrying a kWeaponHit action (linear dedup)
+	std::vector<obj_affects::EObjAffect> types;
 	for (const auto &aff : weapon->get_obj_affects()) {
 		if (!aff || std::find(types.begin(), types.end(), aff->affect_type) != types.end()) {
 			continue;
@@ -4742,9 +4321,8 @@ bool RunObjAffectWeaponHit(ObjData *weapon, CharData *ch, CharData *victim, int 
 	return any;
 }
 
-// issue.obj-affects: run one obj-affect trigger action with the actor as the (self-inflicting) caster.
-// Emits the affect's trigger flavor, runs the action (side_spell / manual / affect) via the shared
-// cycled-action runner, and returns the <trigger return=> verdict (0 = block the actor's action).
+// Runs one obj-affect trigger action with the actor as the (self-inflicting) caster: emits the trigger
+// flavor, runs the action and returns the <trigger return=> verdict (0 = block the actor's action).
 static int CastObjTriggerAction(CharData *caster, ObjData *obj, CharData *actor,
 		obj_affects::EObjAffect affect_type, const talents_actions::Action &action, float potency) {
 	if (actor) {
@@ -4772,10 +4350,9 @@ static int CastObjTriggerAction(CharData *caster, ObjData *obj, CharData *actor,
 	return 1;   // allow
 }
 
-// issue.obj-affects: fire an object's obj-affect actions matching `trig` (a lifecycle/container event).
-// The obj-affect analog of RunDoorTriggers: the actor is the (self-inflicting) caster, so a trap harms
-// whoever triggers it regardless of who set it. Returns true to allow the actor's action, false to
-// refuse it (a <trigger return="0"> action, e.g. kDartTrap blocking pick/open). Spends trigger charges.
+// Fires an object's obj-affect actions matching `trig`. The actor is the (self-inflicting) caster, so a
+// trap harms whoever triggers it. Returns false to refuse the actor's action (a <trigger return="0">
+// action, e.g. kDartTrap blocking pick/open). Spends trigger charges.
 bool RunObjAffectTrigger(ObjData *obj, CharData *actor, talents_actions::EActionTrigger trig) {
 	if (!obj || obj->get_obj_affects().empty()) {
 		return true;
@@ -4813,26 +4390,22 @@ bool RunObjAffectTrigger(ObjData *obj, CharData *actor, talents_actions::EAction
 	return allowed;
 }
 
-// issue.room-affect-trigger-improve: on-entry trigger return values. 0 = block the action that fired
-// the trigger (refuse the room entry); any non-zero = allow. The dispatcher treats "no value set" as
-// allow, so non-blocking affects (e.g. kHypnoticPattern, which only casts sleep) need no return attr.
+// On-entry trigger return values: 0 blocks the action that fired the trigger, anything else allows.
+// "No value set" means allow, so non-blocking affects need no return attr.
 namespace {
 constexpr int kEntryTriggerAllow = 1;
 constexpr int kEntryTriggerBlock = 0;
 }
 
-// issue.room-affect-trigger-improve: spend one trigger charge after a triggered affect's action runs.
-// charges == -1 means unlimited (the default -- no-op). At 0 the affect is consumed: removed from its
-// host list (the room's or the exit's `affected`) with its kAffExpired line sent to the actor's room.
+// Spends one trigger charge (charges == -1: unlimited, no-op). At 0 the affect is removed from its host
+// list (the room's or the exit's) with its kAffExpired line sent to the actor's room.
 static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_ptr &aff, RoomData *room,
 								room_spells::RoomAffects &host, CharData *actor) {
 	if (!aff || aff->charges == -1) {
 		return;
 	}
 	if (--aff->charges <= 0) {
-		// issue.character-affect-triggers: count expired == timer expired -- fire the affect's kExpired
-		// trigger (in its caster's context, like the room/exit timer-expiry path) before it is consumed.
-		// No-op if the caster is gone or the affect has no kExpired action.
+		// Running out of charges counts as expiry: fire kExpired (in the caster's context) before removal.
 		room_spells::RunRoomAffectTrigger(room, find_char(aff->caster_id), aff->affect_type,
 										  talents_actions::EActionTrigger::kExpired, aff->potency);
 		const std::string &msg =
@@ -4857,21 +4430,17 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 			|| !TargetMeetsRequired(actor, action.GetRequired())) {
 		return kEntryTriggerAllow;
 	}
-	// issue.room-affect-trigger-improve: prob gate -- the trigger fires only `prob` percent of the time;
-	// a (100-prob)% miss leaves the event untouched (no effect, no block). The chance is the affect's
-	// own seal strength (the per-cast Affect::modifier, e.g. kForbidden) when it carries a seal_strength
-	// formula, else the static <trigger prob=N>, else always (no roll). So a seal's strength IS its
-	// block chance, exactly as the old IsRoomForbidden roll did.
+	// prob gate: a miss leaves the event untouched (no effect, no block). The chance is the affect's seal
+	// strength (Affect::modifier, e.g. kForbidden) if it has a seal_strength formula, else <trigger prob=N>,
+	// else always.
 	const std::optional<int> prob = room_spells::RoomAffectHasSeal(affect_type)
 			? std::optional<int>(seal_strength)
 			: action.GetTriggerProb();
 	if (prob && number(1, 100) > *prob) {
 		return kEntryTriggerAllow;
 	}
-	// issue.room-affect-trigger-improve: the affect's own "why this happened" flavor, shown to the actor
-	// and the room BEFORE the action's effect runs, keyed by the room affect's sheaf AND by which trigger
-	// fired -- so "walked through" / "opened" / "picked" / "unlocked" read distinctly (sheaf-direct ->
-	// silent for affects that author no such line).
+	// The affect's flavor, shown BEFORE the effect and keyed by which trigger fired, so walking through /
+	// opening / picking / unlocking read distinctly. Silent if not authored.
 	using room_spells::ERoomAffectMsgType;
 	ERoomAffectMsgType char_key = ERoomAffectMsgType::kTriggerOnEntryToChar;
 	ERoomAffectMsgType room_key = ERoomAffectMsgType::kTriggerOnEntryToRoom;
@@ -4908,10 +4477,8 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 	ctx.cvict = actor;
 	ctx.UseExternalActions(&single);
 	const ECastResult eff = RunRoomCycledAction(ctx, room, single, 0);
-	// issue.room-affect-trigger-improve: a trigger that fired but whose side_spell produced no visible
-	// effect would read as a silent no-op. That happens when the cast is refused (kNotCast) OR when a
-	// violent side_spell is suppressed by a peaceful room (a god-sourced trap still "casts" but lands no
-	// damage). In either case emit the affect's room-wide kTriggerNoEffect flash so the trap is felt.
+	// A fired trigger with no visible effect (refused cast, or a violent side_spell suppressed by a peaceful
+	// room) would look like a silent no-op, so emit the affect's kTriggerNoEffect flash.
 	if (action.Contains(talents_actions::EAction::kSideSpell)) {
 		bool no_effect = (eff == ECastResult::kNotCast);
 		if (!no_effect && ROOM_FLAGGED(actor->in_room, ERoomFlag::kPeaceful)) {
@@ -4960,12 +4527,10 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 			const bool can_block = action.GetTriggerReturn().has_value() || !action.GetManualHandler().empty();
 			if (phase == EEntryTriggerPhase::kBlockCheck && !can_block) { continue; }
 			if (phase == EEntryTriggerPhase::kEffectsNonBlocking && can_block) { continue; }
-			// Действию без следствий в проходе за следствиями делать нечего. Печать -- ровно
-			// такая: один вердикт <trigger return="0"/> и больше ничего. А принудительный вход
-			// (перенос скакуна за седоком, телепорт, бегство) вердикта не смотрит -- отменить
-			// его нечем, -- и печать печатала "незримая преграда не пускает коня внутрь" тому,
-			// кто уже вошёл, на каждом шаге. Вердикт никуда не делся: его по-прежнему
-			// спрашивают в kBlockCheck, когда вход ещё можно отменить.
+			// Действию без следствий в проходе за следствиями делать нечего (у печати -- один вердикт
+			// <trigger return="0"/>). Принудительный вход (скакун за седоком, телепорт, бегство) вердикта не
+			// смотрит, и иначе печать на каждом шаге сообщала бы уже вошедшему, что его не пускают. Вердикт
+			// спрашивают в kBlockCheck, пока вход ещё можно отменить.
 			if (phase != EEntryTriggerPhase::kBlockCheck && !action.HasEffects()) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast this entry
@@ -4981,11 +4546,9 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 	return allowed;
 }
 
-// issue.room-affect-trigger-improve (door affects): fire a door affect's triggers when someone
-// pick/unlock/opens the door in direction `dir` from `room`. Mirrors RunRoomEntryTriggers but the
-// host is the EXIT's affect list, and there is a single dispatch point (the door command) so no
-// before/after phase split -- the action runs and a return of 0 refuses the door action. Returns
-// true to allow the door action, false to refuse it.
+// Fires door affects when someone acts on the door in direction `dir` from `room`. Like
+// RunRoomEntryTriggers, but the host is the exit's affect list and there is a single dispatch point
+// (the door command), so no phase split. Returns false to refuse the door action.
 bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, talents_actions::EActionTrigger ev) {
 	if (!actor || !room || dir < 0 || dir >= EDirection::kMaxDirNum || privilege::IsImmortal(actor)) {
 		return true;   // affect triggers never fire on (or block) immortals
@@ -5004,9 +4567,8 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 		}
 	};
 	collect(near_exit);
-	// issue.room-affect-trigger-improve (reverse-exit resolve): a door affect cast from the FAR room
-	// lives on the reverse exit, so resolve the door's other side (one validated hop, like do_doorcmd's
-	// `back`) and fire its affects too -- the trap reacts no matter which side opens the door.
+	// A door affect cast from the far room lives on the reverse exit, so collect that side too (one
+	// validated hop, like do_doorcmd's `back`) -- the trap reacts whichever side opens the door.
 	if (near_exit->to_room() != kNowhere) {
 		static const int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth,
 									   EDirection::kEast, EDirection::kDown, EDirection::kUp};
@@ -5020,9 +4582,8 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 	for (const auto &p : pending) {
 		for (const auto &action : room_spells::RoomAffectActions(p.type).list()) {
 			const auto &trig = action.GetTrigger();
-			// issue.room-affect-trigger-improve: kEnter passed here = the ENTER FAMILY (passage move-through),
-			// expanding by actor kind exactly like RunRoomEntryTriggers; the door verbs (kOpen/kPick/kUnlock)
-			// are matched verbatim.
+			// kEnter here means the enter family (passage move-through), expanded by actor kind like
+			// RunRoomEntryTriggers; door verbs are matched verbatim.
 			bool fires = trig.test(ev);
 			if (ev == talents_actions::EActionTrigger::kEnter) {
 				fires = fires || (actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterPC))
@@ -5041,12 +4602,10 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 	return allowed;
 }
 
-// issue.room-affect-trigger-improve (door affects): dispel dispellable affects on the passage `dir`
-// from `caster` (`развеять магию <dir>`). Reverse-resolved -- a trap cast from either side is reachable.
-// Mirrors the room dispel's access model: the affect's author or a live ally strips it for free; an
-// outsider must out-potency it (5% lucky override); a player vs a live author commits a PK act.
-// Returns true if any affect was dispelled. Validation + the overall no-effect line belong to the
-// caller (CallMagicToExit); this just runs the contest over the passage's (reverse-resolved) affects.
+// Dispels dispellable affects on the passage `dir`, both sides (`развеять магию <dir>`). Same access
+// model as the room dispel: the author or a live ally strips for free; an outsider must out-potency it
+// (5% lucky override); a player vs a live author commits a PK act. Validation and the overall no-effect
+// line belong to the caller (CallMagicToExit). Returns true if anything was dispelled.
 bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) {
 	if (!caster || caster->in_room == kNowhere || dir < 0 || dir >= EDirection::kMaxDirNum) {
 		return false;
@@ -5091,10 +4650,8 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 			if (!to_char.empty()) { act(to_char.c_str(), false, caster, nullptr, nullptr, kToChar); }
 			const auto &to_room = room_spells::RoomAffectMsgRaw(type, room_spells::ERoomAffectMsgType::kAffDispelledToRoom);
 			if (!to_room.empty()) { act(to_room.c_str(), true, caster, nullptr, nullptr, kToRoom | kToArenaListen); }
-			// issue.damage-over-time: fire the affect's kDispell actions (e.g. the fire-trap burning sting)
-			// on the dispeller BEFORE erasing. EXIT affects previously skipped this -- only the ROOM-affect
-			// dispel path (RemoveAffectAndAnnounce) fired kDispell, so a trap set on a passage never stung.
-			// Run with the dispeller as caster in their room; kTarFightSelf lands it on them (no PvP).
+				// Fire the affect's kDispell actions (e.g. the fire trap's sting) on the dispeller before erasing,
+				// with the dispeller as caster so kTarFightSelf lands on them (no PvP).
 			room_spells::RunRoomAffectTrigger(world[caster->in_room], caster, type,
 					talents_actions::EActionTrigger::kDispell, sting_potency);
 			it = ex->affected.erase(it);
@@ -5104,9 +4661,8 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 	return any;
 }
 
-// cast `spell_id` as an area attack on every foe in the caster's room,
-// regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
-// thunderstorm). Replaces the old direct CallMagicToArea callers.
+// Casts `spell_id` as an area attack on every foe in the caster's room, regardless of the spell's own
+// targeting flags. Used by room-affect ticks (deadly fog / thunderstorm).
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level) {
 	auto ctx = BuildActionContext(ch, spell_id, level);
 	return CastSpell(ctx, ECastTargets::kFoes);
