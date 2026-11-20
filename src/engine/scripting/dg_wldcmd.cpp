@@ -217,7 +217,7 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		if (exit) {
 			// issue.room-affect-trigger-improve (door affects): drop any door affect + registry entry
 			// before the exit is purged.
-			room_spells::ClearExitAffects(rm, dir);
+			room_affects::ClearExitAffects(rm, dir);
 			rm->dir_option[dir].reset();
 		}
 	} else {

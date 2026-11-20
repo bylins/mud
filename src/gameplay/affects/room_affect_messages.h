@@ -1,6 +1,6 @@
 /**
  \brief issue.affect-migration: room-affect message system (cfg/messages/ru/room_affect_msg.xml).
- \details Mirrors affects::AffectMsg* for char affects, but keyed by room_spells::ERoomAffect and with
+ \details Mirrors affects::AffectMsg* for char affects, but keyed by room_affects::ERoomAffect and with
 		  a ROOM-only slot set: a room affect has no affected-char/opponent perspective the way a char
 		  affect does -- everything is the caster ("char") or onlookers ("room"), plus the room-aura
 		  listing variants picked by the viewer's kDetectMagic / caster identity / pk_unique.
@@ -9,13 +9,13 @@
 #ifndef BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECT_MESSAGES_H_
 #define BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECT_MESSAGES_H_
 
-#include "room_affects.h"            // room_spells::ERoomAffect (+ its NAME_BY_ITEM specializations)
+#include "room_affects.h"            // room_affects::ERoomAffect (+ its NAME_BY_ITEM specializations)
 #include "engine/boot/cfg_manager.h"
 
 #include <map>
 #include <string>
 
-namespace room_spells {
+namespace room_affects {
 
 // Per-room-affect message slots. (Cast-fizzle messages like kCastForbidden* stay in the SPELL message
 // system: they describe a failed cast, not an affect.)
@@ -90,14 +90,14 @@ class RoomAffectMessagesLoader : public cfg_manager::IEditableCfgLoader {  // cf
 	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
-}  // namespace room_spells
+}  // namespace room_affects
 
 template<>
-const std::string &NAME_BY_ITEM<room_spells::ERoomAffectMsgType>(room_spells::ERoomAffectMsgType item);
+const std::string &NAME_BY_ITEM<room_affects::ERoomAffectMsgType>(room_affects::ERoomAffectMsgType item);
 template<>
-room_spells::ERoomAffectMsgType ITEM_BY_NAME<room_spells::ERoomAffectMsgType>(const std::string &name);
+room_affects::ERoomAffectMsgType ITEM_BY_NAME<room_affects::ERoomAffectMsgType>(const std::string &name);
 template<>
-const std::map<room_spells::ERoomAffectMsgType, std::string> &NAMES_OF<room_spells::ERoomAffectMsgType>();
+const std::map<room_affects::ERoomAffectMsgType, std::string> &NAMES_OF<room_affects::ERoomAffectMsgType>();
 
 #endif  // BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECT_MESSAGES_H_
 

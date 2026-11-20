@@ -77,7 +77,7 @@ void TryOpenTownportal(CharData *ch, const Runestone &stone) {
 		return;
 	}
 
-	if (room_spells::IsRoomAffected(world[ch->in_room], room_spells::ERoomAffect::kRuneLabel)) {
+	if (room_affects::IsRoomAffected(world[ch->in_room], room_affects::ERoomAffect::kRuneLabel)) {
 		SendMsgToChar("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 		return;
 	}
@@ -113,7 +113,7 @@ void TryOpenLabelPortal(CharData *ch, const std::string &argument) {
 }
 
 Runestone GetLabelPortal(CharData *ch) {
-	auto label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+	auto label_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 	if (label_room) {
 		return {ch->get_name(), label_room->vnum, ESkill::kTownportal, 1};
 	} else {
@@ -150,7 +150,7 @@ namespace one_way_portal {
 void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int time) {
 	// Two-way endpoint at from_room, plus a one-way (kNoPortalExit) marker at to_room.
 	AddPortalTimer(ch, world[from_room], to_room, time);
-	AddPortalTimer(ch, world[to_room], from_room, time, 0, room_spells::ERoomAffect::kNoPortalExit);
+	AddPortalTimer(ch, world[to_room], from_room, time, 0, room_affects::ERoomAffect::kNoPortalExit);
 }
 
 } // namespace OneWayPortal

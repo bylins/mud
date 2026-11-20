@@ -218,9 +218,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, condition::kFull) > kNormCondition)? "да" : "нет", condition::GetCondAboveNorm(ch, condition::kThirst)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+	RoomData *label_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+		const int timer_room_label = room_affects::GetUniqueAffectDuration(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 		if (timer_room_label > 0) {
 			const int hours = (timer_room_label + 1) / kSecsPerMudHour;
 			const std::string left = hours
@@ -277,9 +277,9 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+	RoomData *label_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 	if (label_room) {
-		int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+		int timer_room_label = room_affects::GetUniqueAffectDuration(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 		out << InfoStrPrefix(ch) << kColorBoldGrn << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
@@ -831,7 +831,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+	RoomData *label_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 	if (label_room) {
 		body += fmt::format("&G&qВы поставили рунную метку в комнате '{}'.&Q&n\r\n", label_room->name);
 	}

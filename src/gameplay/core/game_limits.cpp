@@ -960,7 +960,7 @@ void check_idling(CharData *ch) {
 				PlaceCharToRoom(ch, kStrangeRoom);
 				d_move = tmr.delta().count();
 				tmr.restart();
-				room_spells::RemoveSingleAffectFromWorld(ch, room_spells::ERoomAffect::kRuneLabel);
+				room_affects::RemoveSingleAffectFromWorld(ch, room_affects::ERoomAffect::kRuneLabel);
 				d_aff = tmr.delta().count();
 				log("idle-void %s: crashsave=%.4f move=%.4f rune_aff=%.4f",
 					GET_NAME(ch), d_crash, d_move, d_aff);

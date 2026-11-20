@@ -22,7 +22,7 @@
 
 bool IsRoomForbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
-		if (af->affect_type == room_spells::ERoomAffect::kForbidden && (number(1, 100) <= af->modifier)) {
+		if (af->affect_type == room_affects::ERoomAffect::kForbidden && (number(1, 100) <= af->modifier)) {
 			return true;
 		}
 	}
@@ -536,7 +536,7 @@ ECastResult RunActionOnRoom(ActionContext &ctx) {
 	if (CastUnaffects(ctx) == EStageResult::kBreak) {
 		return ECastResult::kNotCast;
 	}
-	return room_spells::CastRoomAffect(ctx);
+	return room_affects::CastRoomAffect(ctx);
 }
 
 // Main cast entry: runs each of the spell's <action>s over its own target list. Action[0] (the entry)

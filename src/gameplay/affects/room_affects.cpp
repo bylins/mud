@@ -32,10 +32,10 @@
 // Mirrors the EAffect name maps in affect_contants.cpp. kUndefined (sentinel) and kCount (terminal)
 // are excluded -- only real room affects get a row.
 namespace {
-std::map<room_spells::ERoomAffect, std::string> g_room_affect_name_by_value;
-std::map<std::string, room_spells::ERoomAffect> g_room_affect_value_by_name;
+std::map<room_affects::ERoomAffect, std::string> g_room_affect_name_by_value;
+std::map<std::string, room_affects::ERoomAffect> g_room_affect_value_by_name;
 void init_room_affect_names() {
-	using RA = room_spells::ERoomAffect;
+	using RA = room_affects::ERoomAffect;
 	g_room_affect_name_by_value = {
 		{RA::kNoPortalExit, "kNoPortalExit"},
 		{RA::kForbidden, "kForbidden"},
@@ -56,76 +56,76 @@ void init_room_affect_names() {
 }  // namespace
 
 template<>
-const std::string &NAME_BY_ITEM<room_spells::ERoomAffect>(room_spells::ERoomAffect item) {
+const std::string &NAME_BY_ITEM<room_affects::ERoomAffect>(room_affects::ERoomAffect item) {
 	if (g_room_affect_name_by_value.empty()) { init_room_affect_names(); }
 	return g_room_affect_name_by_value.at(item);
 }
 template<>
-room_spells::ERoomAffect ITEM_BY_NAME<room_spells::ERoomAffect>(const std::string &name) {
+room_affects::ERoomAffect ITEM_BY_NAME<room_affects::ERoomAffect>(const std::string &name) {
 	if (g_room_affect_value_by_name.empty()) { init_room_affect_names(); }
 	return g_room_affect_value_by_name.at(name);
 }
 template<>
-const std::map<room_spells::ERoomAffect, std::string> &NAMES_OF<room_spells::ERoomAffect>() {
+const std::map<room_affects::ERoomAffect, std::string> &NAMES_OF<room_affects::ERoomAffect>() {
 	if (g_room_affect_name_by_value.empty()) { init_room_affect_names(); }
 	return g_room_affect_name_by_value;
 }
 
 // --- ERoomAffectMsgType name map (mirrors kAffectMsgTypeNames) ------------------------------------
 namespace {
-const std::map<room_spells::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeNames{
-		{room_spells::ERoomAffectMsgType::kUndefined, "kUndefined"},
-		{room_spells::ERoomAffectMsgType::kShortDesc, "kShortDesc"},
-		{room_spells::ERoomAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
-		{room_spells::ERoomAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
-		{room_spells::ERoomAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
-		{room_spells::ERoomAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
-		{room_spells::ERoomAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
-		{room_spells::ERoomAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
-		{room_spells::ERoomAffectMsgType::kAffInterruptedToChar, "kAffInterruptedToChar"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnEntryToChar, "kTriggerOnEntryToChar"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnEntryToRoom, "kTriggerOnEntryToRoom"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnOpenToChar, "kTriggerOnOpenToChar"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnOpenToRoom, "kTriggerOnOpenToRoom"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnPickToChar, "kTriggerOnPickToChar"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnPickToRoom, "kTriggerOnPickToRoom"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnUnlockToChar, "kTriggerOnUnlockToChar"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnUnlockToRoom, "kTriggerOnUnlockToRoom"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnCloseToChar, "kTriggerOnCloseToChar"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnCloseToRoom, "kTriggerOnCloseToRoom"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnLockToChar, "kTriggerOnLockToChar"},
-		{room_spells::ERoomAffectMsgType::kTriggerOnLockToRoom, "kTriggerOnLockToRoom"},
-		{room_spells::ERoomAffectMsgType::kTriggerNoEffect, "kTriggerNoEffect"},
-		{room_spells::ERoomAffectMsgType::kTickMsgOne, "kTickMsgOne"},
-		{room_spells::ERoomAffectMsgType::kTickMsgTwo, "kTickMsgTwo"},
-		{room_spells::ERoomAffectMsgType::kTickMsgThree, "kTickMsgThree"},
-		{room_spells::ERoomAffectMsgType::kTickMsgFour, "kTickMsgFour"},
-		{room_spells::ERoomAffectMsgType::kTickMsgFive, "kTickMsgFive"},
-		{room_spells::ERoomAffectMsgType::kTickMsgSix, "kTickMsgSix"},
-		{room_spells::ERoomAffectMsgType::kTickMsgSeven, "kTickMsgSeven"},
-		{room_spells::ERoomAffectMsgType::kTickMsgEight, "kTickMsgEight"},
-		{room_spells::ERoomAffectMsgType::kRoomAffectVisible, "kRoomAffectVisible"},
-		{room_spells::ERoomAffectMsgType::kRoomAffectInvisible, "kRoomAffectInvisible"},
-		{room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible, "kRoomAffectSelfInvisible"},
-		{room_spells::ERoomAffectMsgType::kRoomAffectPkVisible, "kRoomAffectPkVisible"},
-		{room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible, "kRoomAffectPkInvisible"},
-		{room_spells::ERoomAffectMsgType::kDamageToChar, "kDamageToChar"},
-		{room_spells::ERoomAffectMsgType::kDamageToVict, "kDamageToVict"},
-		{room_spells::ERoomAffectMsgType::kDamageToRoom, "kDamageToRoom"},
+const std::map<room_affects::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeNames{
+		{room_affects::ERoomAffectMsgType::kUndefined, "kUndefined"},
+		{room_affects::ERoomAffectMsgType::kShortDesc, "kShortDesc"},
+		{room_affects::ERoomAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
+		{room_affects::ERoomAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
+		{room_affects::ERoomAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
+		{room_affects::ERoomAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
+		{room_affects::ERoomAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
+		{room_affects::ERoomAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
+		{room_affects::ERoomAffectMsgType::kAffInterruptedToChar, "kAffInterruptedToChar"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnEntryToChar, "kTriggerOnEntryToChar"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnEntryToRoom, "kTriggerOnEntryToRoom"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnOpenToChar, "kTriggerOnOpenToChar"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnOpenToRoom, "kTriggerOnOpenToRoom"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnPickToChar, "kTriggerOnPickToChar"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnPickToRoom, "kTriggerOnPickToRoom"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnUnlockToChar, "kTriggerOnUnlockToChar"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnUnlockToRoom, "kTriggerOnUnlockToRoom"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnCloseToChar, "kTriggerOnCloseToChar"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnCloseToRoom, "kTriggerOnCloseToRoom"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnLockToChar, "kTriggerOnLockToChar"},
+		{room_affects::ERoomAffectMsgType::kTriggerOnLockToRoom, "kTriggerOnLockToRoom"},
+		{room_affects::ERoomAffectMsgType::kTriggerNoEffect, "kTriggerNoEffect"},
+		{room_affects::ERoomAffectMsgType::kTickMsgOne, "kTickMsgOne"},
+		{room_affects::ERoomAffectMsgType::kTickMsgTwo, "kTickMsgTwo"},
+		{room_affects::ERoomAffectMsgType::kTickMsgThree, "kTickMsgThree"},
+		{room_affects::ERoomAffectMsgType::kTickMsgFour, "kTickMsgFour"},
+		{room_affects::ERoomAffectMsgType::kTickMsgFive, "kTickMsgFive"},
+		{room_affects::ERoomAffectMsgType::kTickMsgSix, "kTickMsgSix"},
+		{room_affects::ERoomAffectMsgType::kTickMsgSeven, "kTickMsgSeven"},
+		{room_affects::ERoomAffectMsgType::kTickMsgEight, "kTickMsgEight"},
+		{room_affects::ERoomAffectMsgType::kRoomAffectVisible, "kRoomAffectVisible"},
+		{room_affects::ERoomAffectMsgType::kRoomAffectInvisible, "kRoomAffectInvisible"},
+		{room_affects::ERoomAffectMsgType::kRoomAffectSelfInvisible, "kRoomAffectSelfInvisible"},
+		{room_affects::ERoomAffectMsgType::kRoomAffectPkVisible, "kRoomAffectPkVisible"},
+		{room_affects::ERoomAffectMsgType::kRoomAffectPkInvisible, "kRoomAffectPkInvisible"},
+		{room_affects::ERoomAffectMsgType::kDamageToChar, "kDamageToChar"},
+		{room_affects::ERoomAffectMsgType::kDamageToVict, "kDamageToVict"},
+		{room_affects::ERoomAffectMsgType::kDamageToRoom, "kDamageToRoom"},
 	};
 }  // namespace
 
 template<>
-const std::string &NAME_BY_ITEM<room_spells::ERoomAffectMsgType>(room_spells::ERoomAffectMsgType item) {
+const std::string &NAME_BY_ITEM<room_affects::ERoomAffectMsgType>(room_affects::ERoomAffectMsgType item) {
 	return kRoomAffectMsgTypeNames.at(item);
 }
 template<>
-const std::map<room_spells::ERoomAffectMsgType, std::string> &NAMES_OF<room_spells::ERoomAffectMsgType>() {
+const std::map<room_affects::ERoomAffectMsgType, std::string> &NAMES_OF<room_affects::ERoomAffectMsgType>() {
 	return kRoomAffectMsgTypeNames;
 }
 template<>
-room_spells::ERoomAffectMsgType ITEM_BY_NAME<room_spells::ERoomAffectMsgType>(const std::string &name) {
-	static std::map<std::string, room_spells::ERoomAffectMsgType> by_name;
+room_affects::ERoomAffectMsgType ITEM_BY_NAME<room_affects::ERoomAffectMsgType>(const std::string &name) {
+	static std::map<std::string, room_affects::ERoomAffectMsgType> by_name;
 	if (by_name.empty()) {
 		for (const auto &[value, token] : kRoomAffectMsgTypeNames) {
 			by_name.emplace(token, value);
@@ -134,7 +134,7 @@ room_spells::ERoomAffectMsgType ITEM_BY_NAME<room_spells::ERoomAffectMsgType>(co
 	return by_name.at(name);
 }
 
-namespace room_spells {
+namespace room_affects {
 
 namespace {
 // room_affects.xml is the room-affect registry (id-only for now; grows per-affect data later).
@@ -1363,11 +1363,11 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
  * @param affect - the room affect to remove.
  */
 void RemoveSingleAffectFromWorld(CharData *ch, ERoomAffect affect) {
-	auto affected_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), affect);
+	auto affected_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), affect);
 	if (affected_room) {
-		const auto aff = room_spells::FindAffect(affected_room, affect);
+		const auto aff = room_affects::FindAffect(affected_room, affect);
 		if (aff != affected_room->affected.end()) {
-			room_spells::RoomRemoveAffect(affected_room, aff);
+			room_affects::RoomRemoveAffect(affected_room, aff);
 			// issue.affects-improve: owner notice from the room-affect message system, keyed by the
 			// affect itself (no spell lookup). kDefault = "Ваша магия была развеяна."; kRuneLabel
 			// overrides with "Ваша рунная метка удалена.".
@@ -1387,6 +1387,6 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 	(void) RunRoomEntryTriggers(ch, world[room], EEntryTriggerPhase::kEffectsAll);
 }
 
-} // namespace room_spells
+} // namespace room_affects
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -14,23 +14,23 @@
 #include "gameplay/magic/spell_messages.h"
 
 void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time, long pk_unique,
-					room_spells::ERoomAffect affect_type) {
+					room_affects::ERoomAffect affect_type) {
 
-	Affect<room_spells::ERoomApply> af;
+	Affect<room_affects::ERoomApply> af;
 	af.affect_type = affect_type;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag.clear();
-	af.location = room_spells::ERoomApply::kNone;
+	af.location = room_affects::ERoomApply::kNone;
 	af.caster_id = ch? ch->get_uid() : 0;
 	af.apply_time = 0;
 	af.pk_unique = pk_unique;
-	room_spells::affect_to_room(from_room, af);
-	room_spells::AddRoomToAffected(from_room);
+	room_affects::affect_to_room(from_room, af);
+	room_affects::AddRoomToAffected(from_room);
 }
 
 void RemovePortalGate(RoomRnum rnum) {
-	auto aff = room_spells::FindPortalAffect(world[rnum]);
+	auto aff = room_affects::FindPortalAffect(world[rnum]);
 	const RoomRnum to_room = (*aff)->modifier;
 	// kPortal sheaf kCustomMsgThree holds "Пентаграмма была
 	// разрушена." -- emitted to both char and room of each affected portal endpoint.
@@ -38,13 +38,13 @@ void RemovePortalGate(RoomRnum rnum) {
 			ESpell::kPortal, ESpellMsg::kCustomMsgThree);
 
 	if (aff != world[rnum]->affected.end()) {
-		room_spells::RoomRemoveAffect(world[rnum], aff);
+		room_affects::RoomRemoveAffect(world[rnum], aff);
 		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToRoom);
 		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToChar);
 	}
-	aff = room_spells::FindPortalAffect(world[to_room]);
+	aff = room_affects::FindPortalAffect(world[to_room]);
 	if (aff != world[to_room]->affected.end()) {
-		room_spells::RoomRemoveAffect(world[to_room], aff);
+		room_affects::RoomRemoveAffect(world[to_room], aff);
 		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToRoom);
 		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToChar);
 	}

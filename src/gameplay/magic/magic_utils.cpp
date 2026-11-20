@@ -631,7 +631,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		profiler.next_step("exit");
 		ActionContext exit_ctx = ctx;
 		exit_ctx.level = abs(level);
-		return room_spells::CallMagicToExit(caster, dir, exit_ctx);
+		return room_affects::CallMagicToExit(caster, dir, exit_ctx);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
@@ -649,7 +649,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		profiler.next_step("room");
 		ActionContext room_ctx = ctx;
 		room_ctx.level = abs(level);
-		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
+		return room_affects::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
 	// issue.dispellbug: dispel magic cast with no character/object target dispels the

@@ -11,7 +11,7 @@
 
 class CharData;
 
-namespace room_spells {
+namespace room_affects {
 
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerRoomAffect = 2;
@@ -45,15 +45,15 @@ enum ERoomApply {
 	kNone = 0
 };
 
-} // namespace room_spells
+} // namespace room_affects
 
 // Room affects store an ERoomAffect flag in Affect::affect_type (see affect_data.h).
 template<>
-struct AffectFlagType<room_spells::ERoomApply> {
-	using type = room_spells::ERoomAffect;
+struct AffectFlagType<room_affects::ERoomApply> {
+	using type = room_affects::ERoomAffect;
 };
 
-namespace room_spells {
+namespace room_affects {
 
 using RoomAffects = std::list<Affect<ERoomApply>::shared_ptr>;
 using RoomAffectIt = RoomAffects::iterator;
@@ -151,16 +151,16 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 bool RunRoomAffectTrigger(RoomData *room, CharData *ch, ERoomAffect affect_type,
 						  talents_actions::EActionTrigger trig, float potency);
 
-} // namespace room_spells
+} // namespace room_affects
 
 // Room-affect registry name maps (cfg/affects/room_affects.xml validates these). Global scope, mirroring
 // the EAffect specializations in affect_contants.h.
 template<>
-const std::string &NAME_BY_ITEM<room_spells::ERoomAffect>(room_spells::ERoomAffect item);
+const std::string &NAME_BY_ITEM<room_affects::ERoomAffect>(room_affects::ERoomAffect item);
 template<>
-room_spells::ERoomAffect ITEM_BY_NAME<room_spells::ERoomAffect>(const std::string &name);
+room_affects::ERoomAffect ITEM_BY_NAME<room_affects::ERoomAffect>(const std::string &name);
 template<>
-const std::map<room_spells::ERoomAffect, std::string> &NAMES_OF<room_spells::ERoomAffect>();
+const std::map<room_affects::ERoomAffect, std::string> &NAMES_OF<room_affects::ERoomAffect>();
 
 #endif // BYLINS_SRC_GAMEPLAY_AFFECTS_ROOM_AFFECTS_H_
 

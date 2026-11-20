@@ -42,7 +42,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			int i = 0;
 			for (const auto &aff : world[ch->in_room]->affected) {
-				if (aff->affect_type == room_spells::ERoomAffect::kPortalTimer && ++i == fnum) {
+				if (aff->affect_type == room_affects::ERoomAffect::kPortalTimer && ++i == fnum) {
 					door = aff->modifier;
 				}
 			}
@@ -90,7 +90,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& ((!ch->IsNpc() && !Clan::MayEnter(ch, door, kHousePortal))
 						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
-						|| (room_spells::FindRoomPkPortalUid(world[door]) != 0
+						|| (room_affects::FindRoomPkPortalUid(world[door]) != 0
 							&& (ROOM_FLAGGED(door, ERoomFlag::kArena) || ROOM_FLAGGED(door, ERoomFlag::kHouse))))) {
 					// Сообщение писалось в smallBuf поверх аргумента команды -- а ниже по
 					// функции этот же аргумент ещё нужен для приказа спутникам (#3814).
@@ -113,7 +113,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// поле pkPenterUnique уехало на аффект; helper отдаёт чужой pk_unique,
 				// исключая ch's собственный, чтобы вход в свою же пенту не штрафовался).
 				if (!privilege::IsImmortal(ch)
-					&& room_spells::FindRoomPkPortalUid(world[from_room], ch->get_uid()) != 0) {
+					&& room_affects::FindRoomPkPortalUid(world[from_room], ch->get_uid()) != 0) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 								  kColorBoldRed, kColorBoldBlk);
 					pkPortal(ch);

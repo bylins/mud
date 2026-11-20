@@ -3443,7 +3443,7 @@ void ZoneReset::ResetZoneEssential() {
 			if (!(sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim || sect == ESector::kOnlyFlying)) {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
-			while (room_spells::RoomHasPortal(world[rnum])) {
+			while (room_affects::RoomHasPortal(world[rnum])) {
 				RemovePortalGate(rnum);
 			}
 			paste_on_reset(room);
@@ -3534,7 +3534,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 		return false;
 	}
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, room_spells::ERoomAffect::kRuneLabel)) {
+	if (room_affects::IsZoneRoomAffected(zone_nr, room_affects::ERoomAffect::kRuneLabel)) {
 		return false;
 	}
 	if (debug) {

@@ -1,7 +1,7 @@
 #include <fmt/format.h>
 
 #include "engine/entities/char_data.h"
-#include "gameplay/affects/room_affects.h"  // room_spells::ERoomAffect
+#include "gameplay/affects/room_affects.h"  // room_affects::ERoomAffect
 #include "administration/privilege.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/groups.h"
@@ -63,7 +63,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			//Find own rune label or first run label in room
 			for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-				if (affect_it->get()->affect_type == room_spells::ERoomAffect::kRuneLabel) {
+				if (affect_it->get()->affect_type == room_affects::ERoomAffect::kRuneLabel) {
 					if (affect_it->get()->caster_id == ch->get_uid()) {
 						aff_i = affect_it;
 						break;
@@ -98,7 +98,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 												  GET_PAD(ch, 1)), caster);
 					}
 				}
-				room_spells::RoomRemoveAffect(world[ch->in_room], aff_i);
+				room_affects::RoomRemoveAffect(world[ch->in_room], aff_i);
 				lag = 3;
 			} else {
 				SendMsgToChar("А тут топтать и нечего :)\r\n", ch);

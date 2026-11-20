@@ -20,7 +20,7 @@
 
 class CharData;
 enum class ESpell;
-namespace room_spells { enum class ERoomAffect : Bitvector; }
+namespace room_affects { enum class ERoomAffect : Bitvector; }
 
 namespace talents_actions {
 
@@ -644,7 +644,7 @@ class TalentAffect : public IAction {
 	// issue.affects-improve: the room affect this block imposes (room-target spells only),
 	// declared by <affects id=...>; kUndefined for char-affect spells. The room cast path uses
 	// this instead of deriving the affect from the spell id.
-	[[nodiscard]] room_spells::ERoomAffect GetRoomAffect() const { return room_affect_; }
+	[[nodiscard]] room_affects::ERoomAffect GetRoomAffect() const { return room_affect_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
 	// Duration parameters (issue.calc-duration): base (flat duration in hours, PC unit-converted to
 	// ticks) plus a skill-scaled bonus = min(skill, kNoviceSkillThreshold)/skill_divisor, optionally
@@ -683,7 +683,7 @@ class TalentAffect : public IAction {
  private:
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
-	room_spells::ERoomAffect room_affect_{};  // issue.affects-improve: see GetRoomAffect()
+	room_affects::ERoomAffect room_affect_{};  // issue.affects-improve: see GetRoomAffect()
 	int prob_{100};                         // percent chance the affect block fires (default always)
 	int dur_base_{0};
 	int dur_skill_divisor_{0};
@@ -726,7 +726,7 @@ class TalentUnaffect : public IAction {
 	// the list for their target type.
 	struct AffectRefs {
 		std::vector<EAffect> chars;
-		std::vector<room_spells::ERoomAffect> rooms;
+		std::vector<room_affects::ERoomAffect> rooms;
 		[[nodiscard]] bool empty() const { return chars.empty() && rooms.empty(); }
 	};
 	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of affect lists.

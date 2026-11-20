@@ -646,17 +646,17 @@ constexpr int kEntryTriggerBlock = 0;
 
 // Spends one trigger charge (no-op for unlimited charges). At 0 the affect is removed from its host
 // list (the room's or the exit's) with its kAffExpired line sent to the actor's room.
-static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_ptr &aff, RoomData *room,
-								room_spells::RoomAffects &host, CharData *actor) {
+static void ConsumeAffectCharge(const Affect<room_affects::ERoomApply>::shared_ptr &aff, RoomData *room,
+								room_affects::RoomAffects &host, CharData *actor) {
 	if (!aff || aff->charges == kUnlimitedAffectCharges) {
 		return;
 	}
 	if (--aff->charges <= 0) {
 		// Running out of charges counts as expiry: fire kExpired (in the caster's context) before removal.
-		room_spells::RunRoomAffectTrigger(room, find_char(aff->caster_id), aff->affect_type,
+		room_affects::RunRoomAffectTrigger(room, find_char(aff->caster_id), aff->affect_type,
 										  talents_actions::EActionTrigger::kExpired, aff->potency);
 		const std::string &msg =
-				room_spells::RoomAffectMsgRaw(aff->affect_type, room_spells::ERoomAffectMsgType::kAffExpiredToRoom);
+				room_affects::RoomAffectMsgRaw(aff->affect_type, room_affects::ERoomAffectMsgType::kAffExpiredToRoom);
 		if (!msg.empty() && actor && actor->in_room != kNowhere) {
 			SendMsgToRoom(msg.c_str(), actor->in_room, 0);
 		}
@@ -670,7 +670,7 @@ static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_pt
 // action's <trigger return=> tag, else "allow". Returns allow without acting if the actor fails the
 // action's <target_conditions> (so a filtered-out actor neither gets the effect nor blocks).
 static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor,
-							   room_spells::ERoomAffect affect_type,
+							   room_affects::ERoomAffect affect_type,
 							   const talents_actions::Action &action, float potency, int seal_strength,
 							   talents_actions::EActionTrigger ev) {
 	if (TargetIsBlocked(actor, action.GetBlocking())
@@ -680,7 +680,7 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 	// prob gate: a miss leaves the event untouched (no effect, no block). The chance is the affect's seal
 	// strength (Affect::modifier, e.g. kForbidden) if it has a seal_strength formula, else <trigger prob=N>,
 	// else always.
-	const std::optional<int> prob = room_spells::RoomAffectHasSeal(affect_type)
+	const std::optional<int> prob = room_affects::RoomAffectHasSeal(affect_type)
 			? std::optional<int>(seal_strength)
 			: action.GetTriggerProb();
 	if (prob && number(1, 100) > *prob) {
@@ -688,7 +688,7 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 	}
 	// The affect's flavor, shown BEFORE the effect and keyed by which trigger fired, so walking through /
 	// opening / picking / unlocking read distinctly. Silent if not authored.
-	using room_spells::ERoomAffectMsgType;
+	using room_affects::ERoomAffectMsgType;
 	ERoomAffectMsgType char_key = ERoomAffectMsgType::kTriggerOnEntryToChar;
 	ERoomAffectMsgType room_key = ERoomAffectMsgType::kTriggerOnEntryToRoom;
 	switch (ev) {
@@ -715,9 +715,9 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 		default:  // kEnter family (move-through) and pulse
 			break;
 	}
-	const std::string &to_char = room_spells::RoomAffectMsgRaw(affect_type, char_key);
+	const std::string &to_char = room_affects::RoomAffectMsgRaw(affect_type, char_key);
 	if (!to_char.empty()) { act(to_char.c_str(), false, actor, nullptr, nullptr, kToChar); }
-	const std::string &to_room = room_spells::RoomAffectMsgRaw(affect_type, room_key);
+	const std::string &to_room = room_affects::RoomAffectMsgRaw(affect_type, room_key);
 	if (!to_room.empty()) { act(to_room.c_str(), true, actor, nullptr, actor, kToRoom | kToArenaListen); }
 	const std::vector<talents_actions::Action> single{action};
 	ActionContext ctx = BuildActionContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
@@ -734,7 +734,7 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 			}
 		}
 		if (no_effect) {
-			const std::string &flash = room_spells::RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kTriggerNoEffect);
+			const std::string &flash = room_affects::RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kTriggerNoEffect);
 			if (!flash.empty()) { SendMsgToRoom(flash.c_str(), actor->in_room, 0); }
 		}
 	}
@@ -743,9 +743,9 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 	return kEntryTriggerAllow;                                       // else allow
 }
 
-bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
-									   room_spells::EEntryTriggerPhase phase) {
-	using room_spells::EEntryTriggerPhase;
+bool room_affects::RunRoomEntryTriggers(CharData *actor, RoomData *room,
+									   room_affects::EEntryTriggerPhase phase) {
+	using room_affects::EEntryTriggerPhase;
 	if (!actor || !room || privilege::IsImmortal(actor)) {
 		return true;   // affect triggers never fire on (or block) immortals
 	}
@@ -753,15 +753,15 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 	// Snapshot {affect, caster, potency, strength} so running an action (which could alter
 	// room->affected) cannot invalidate the iteration. `strength` is the affect's seal strength
 	// (Affect::modifier) -- the block chance for seal-strength affects (kForbidden).
-	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength;
-					 Affect<room_spells::ERoomApply>::shared_ptr aff; };
+	struct Pending { room_affects::ERoomAffect type; long caster_id; float potency; int strength;
+					 Affect<room_affects::ERoomApply>::shared_ptr aff; };
 	std::vector<Pending> pending;
 	for (const auto &aff : room->affected) {
 		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier, aff}); }
 	}
 	bool allowed = true;
 	for (const auto &p : pending) {
-		for (const auto &action : room_spells::RoomAffectActions(p.type).list()) {
+		for (const auto &action : room_affects::RoomAffectActions(p.type).list()) {
 			const auto &trig = action.GetTrigger();
 			const bool fires = trig.test(talents_actions::EActionTrigger::kEnter)
 					|| (actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterPC))
@@ -796,7 +796,7 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 // Fires door affects when someone acts on the door in direction `dir` from `room`. Like
 // RunRoomEntryTriggers, but the host is the exit's affect list and there is a single dispatch point
 // (the door command), so no phase split. Returns false to refuse the door action.
-bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, talents_actions::EActionTrigger ev) {
+bool room_affects::RunDoorTriggers(CharData *actor, RoomData *room, int dir, talents_actions::EActionTrigger ev) {
 	if (!actor || !room || dir < 0 || dir >= EDirection::kMaxDirNum || privilege::IsImmortal(actor)) {
 		return true;   // affect triggers never fire on (or block) immortals
 	}
@@ -804,8 +804,8 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 	if (!near_exit) { return true; }
 	// Snapshot {affect, caster, potency, strength} so running an action (which could alter the exit's
 	// affect list) cannot invalidate the iteration.
-	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength;
-					 Affect<room_spells::ERoomApply>::shared_ptr aff; RoomData::exit_data_ptr host; };
+	struct Pending { room_affects::ERoomAffect type; long caster_id; float potency; int strength;
+					 Affect<room_affects::ERoomApply>::shared_ptr aff; RoomData::exit_data_ptr host; };
 	std::vector<Pending> pending;
 	auto collect = [&pending](const RoomData::exit_data_ptr &ex) {
 		if (!ex) { return; }
@@ -827,7 +827,7 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 	const bool actor_is_pc = !actor->IsNpc();
 	bool allowed = true;
 	for (const auto &p : pending) {
-		for (const auto &action : room_spells::RoomAffectActions(p.type).list()) {
+		for (const auto &action : room_affects::RoomAffectActions(p.type).list()) {
 			const auto &trig = action.GetTrigger();
 			// kEnter here means the enter family (passage move-through), expanded by actor kind like
 			// RunRoomEntryTriggers; door verbs are matched verbatim.

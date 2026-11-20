@@ -54,7 +54,7 @@ enum class EObjAffect : Bitvector {
 
 // Apply-location placeholder for Affect<EObjApply>. Obj affects do not use EApply-style stat
 // modifiers, but Affect<> is parameterized by a location kind, so provide the minimal one (mirrors
-// room_spells::ERoomApply). kNone == 0 so Affect's default ctor is well-formed.
+// room_affects::ERoomApply). kNone == 0 so Affect's default ctor is well-formed.
 enum EObjApply {
 	kNone = 0
 };
@@ -87,7 +87,7 @@ using ObjAffectIt = ObjAffects::iterator;
 // always visible, e.g. fly/light). Immortals and the god `stat` command bypass the gate.
 [[nodiscard]] EAffect SeeAffect(EObjAffect affect);
 // The affect's own <actions> (each gated by its <trigger>), parsed from cfg/affects/obj_affects.xml; empty when
-// the affect declares none. Mirrors room_spells::RoomAffectActions. Fired by the trigger dispatchers.
+// the affect declares none. Mirrors room_affects::RoomAffectActions. Fired by the trigger dispatchers.
 [[nodiscard]] const talents_actions::Actions &ObjAffectActions(EObjAffect affect);
 // Rebuild the registry from a parsed cfg/affects/obj_affects.xml document (see ObjAffectsLoader).
 void BuildRegistry(parser_wrapper::DataNode data);

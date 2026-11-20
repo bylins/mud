@@ -1,6 +1,6 @@
 /**
  \brief issue.obj-affects: obj-affect message system (cfg/messages/ru/obj_affect_msg.xml).
- \details Mirrors room_spells::RoomAffectMsg* but keyed by obj_affects::EObjAffect and with an
+ \details Mirrors room_affects::RoomAffectMsg* but keyed by obj_affects::EObjAffect and with an
 		  OBJECT-only slot set: an obj affect concerns the item and the character holding/wearing it.
 		  Message templates that name the item carry a single "%s" placeholder; the runtime formats it
 		  with the item's name in the grammatical case the message expects.

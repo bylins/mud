@@ -153,7 +153,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 	} else if (process_entry_affects) {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
-		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+		room_affects::ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
 	// issue.mob-flag-affect-materialization: a mob placed into an ALREADY-AWAKE zone (script mobload,
 	// summon, reset under a present player) materializes its intrinsic buff flags here -- the wake-hook

@@ -1227,9 +1227,9 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		std::string affects_line("&GАффекты на комнате:\r\n&n");
 		for (const auto &aff : rm->affected) {
 			affects_line += fmt::format("       Заклинание \"{}\" (длит: {}, модиф: {}, сила: {:.1f}) - {}.\r\n",
-										NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type),
+										NAME_BY_ITEM<room_affects::ERoomAffect>(aff->affect_type),
 										aff->duration,
-										room_spells::IsPortalAffect(aff->affect_type)
+										room_affects::IsPortalAffect(aff->affect_type)
 											? world[aff->modifier]->vnum : aff->modifier,
 										aff->potency,
 										(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
@@ -1247,7 +1247,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		for (const auto &aff : ex->affected) {
 			exit_affects += fmt::format("       Заклинание \"{}\" (длит: {}, модиф: {}, сила: {:.1f}, "
 										"заряды: {}) - {}.\r\n",
-										NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type),
+										NAME_BY_ITEM<room_affects::ERoomAffect>(aff->affect_type),
 										aff->duration, aff->modifier, aff->potency,
 										(aff->charges == kUnlimitedAffectCharges ? "беск" : std::to_string(aff->charges)),
 										(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");

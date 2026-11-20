@@ -25,7 +25,7 @@ extern std::unordered_set<CharData *> affected_mobs;
 
 // Maps an affect's location enum to the flag enum stored in Affect::affect_type.
 // Character affects (EApply) use EAffect by default; room affects specialize this
-// (see magic_rooms.h) to room_spells::ERoomAffect.
+// (see magic_rooms.h) to room_affects::ERoomAffect.
 template<typename TLocation>
 struct AffectFlagType {
 	using type = EAffect;

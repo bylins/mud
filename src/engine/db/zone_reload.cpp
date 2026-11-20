@@ -469,7 +469,7 @@ Remap RebuildRooms(const ZoneData &zone, DiskZone &disk, Report &report) {
 		dungeons::ClearRoom(room);
 		deathtrap::remove(room);
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			room_spells::ClearExitAffects(room, dir);
+			room_affects::ClearExitAffects(room, dir);
 		}
 		CleanupRoomData(room);
 		delete room;

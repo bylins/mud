@@ -41,7 +41,7 @@ class ExitData {
 	// issue.room-affect-trigger-improve (door affects): a room affect (Affect<ERoomApply>) may be hosted
 	// on the EXIT/door itself, not just the room -- so a door enchantment is reachable from either side
 	// via the reverse exit (see ForEachDoorAffect). Same type as RoomData::affected; runtime-only.
-	room_spells::RoomAffects affected;
+	room_affects::RoomAffects affected;
 
  private:
 	RoomRnum to_room_;    // Where direction leads (kNowhere) //
@@ -101,7 +101,7 @@ struct RoomData {
 	ObjData::obj_list_t contents;    // List of items in room              //
 	people_t people;    // List of NPC / PC in room           //
 
-	room_spells::RoomAffects affected;    // affected by what spells       //
+	room_affects::RoomAffects affected;    // affected by what spells       //
 
 	// Всякие характеристики комнаты
 	ubyte fires;        // Time when fires - костерок    //
@@ -109,7 +109,7 @@ struct RoomData {
 
 	// pkPenterUnique retired (issue.affect-flags): the imposing-caster's uid
 	// for a PK-revenge pentagram moved onto the kPortalTimer affect itself
-	// (Affect::pk_unique). Read via room_spells::FindRoomPkPortalUid.
+	// (Affect::pk_unique). Read via room_affects::FindRoomPkPortalUid.
 	int holes;        // Дырки для камне - копателей //
 	int poison;        // Степень заражения территории в SPELL_DEADLY_FOG //
 	bool get_flag(const Bitvector flag) const { return m_room_flags.get(static_cast<ERoomFlag>(flag)); }

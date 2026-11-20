@@ -41,7 +41,7 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 										  const std::string &aff_dmg_room = "", long damage_author = 0);
 
 // issue.room-affect-trigger-improve: RunRoomEntryTriggers (the on-entry dispatcher) is declared in
-// magic_rooms.h (room_spells), since the movement code calls it. It is defined in magic.cpp because it
+// magic_rooms.h (room_affects), since the movement code calls it. It is defined in magic.cpp because it
 // needs that TU's static action helpers.
 
 // Build a ActionContext for a cast: evaluates the success + potency rolls once. Module-internal

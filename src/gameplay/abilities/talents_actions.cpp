@@ -221,7 +221,7 @@ void ParseAffectRefs(const char *value, TalentUnaffect::AffectRefs &out) {
 			continue;
 		} catch (const std::out_of_range &) {}
 		try {
-			out.rooms.push_back(ITEM_BY_NAME<room_spells::ERoomAffect>(name));
+			out.rooms.push_back(ITEM_BY_NAME<room_affects::ERoomAffect>(name));
 		} catch (const std::out_of_range &) {
 			err_log("TalentUnaffect: unknown affect '%s' in <unaffect>.", name.c_str());
 		}
@@ -733,7 +733,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 					resolved = true;
 				} catch (const std::out_of_range &) {}
 				try {
-					room_affect_ = ITEM_BY_NAME<room_spells::ERoomAffect>(idv);
+					room_affect_ = ITEM_BY_NAME<room_affects::ERoomAffect>(idv);
 					resolved = true;
 				} catch (const std::out_of_range &) {}
 				if (!resolved) {
@@ -866,7 +866,7 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		} else if (!set.any_of.empty()) {
 			buffer << " any_of=" << kColorGrn;
 			for (const auto a: set.any_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
-			for (const auto r: set.any_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
+			for (const auto r: set.any_of.rooms) buffer << NAME_BY_ITEM<room_affects::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.wildcard_all) {
@@ -874,7 +874,7 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		} else if (!set.all_of.empty()) {
 			buffer << " all_of=" << kColorGrn;
 			for (const auto a: set.all_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
-			for (const auto r: set.all_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
+			for (const auto r: set.all_of.rooms) buffer << NAME_BY_ITEM<room_affects::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.breaking_by_failure) {

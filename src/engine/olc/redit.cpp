@@ -878,7 +878,7 @@ void CopyRoom(RoomData *dst, RoomData *src) {
 	// ExitData below), so any door affect on the old exits is gone -- drop their registry entries here
 	// so nothing dangles. Room affects ARE preserved (backed up/restored below); door affects are not.
 	for (i = 0; i < EDirection::kMaxDirNum; ++i) {
-		room_spells::ClearExitAffects(dst, i);
+		room_affects::ClearExitAffects(dst, i);
 	}
 
 	{

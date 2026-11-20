@@ -800,7 +800,7 @@ bool HasHostileRoomWard(CharData *ch) {
 	}
 	for (const auto &aff : world[ch->in_room]->affected) {
 		if (aff && IS_SET(aff->battleflag, kAfDispellable)
-			&& !room_spells::ClassifyRoomAffectAccess(ch, aff->caster_id).free) {
+			&& !room_affects::ClassifyRoomAffectAccess(ch, aff->caster_id).free) {
 			return true;
 		}
 	}

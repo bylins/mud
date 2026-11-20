@@ -68,7 +68,7 @@ bool UnaffectConditionMet(CharData *victim, const talents_actions::TalentUnaffec
 struct RemovalCandidate {
 	bool break_on_fail{false};
 	EAffect affect_type{EAffect::kUndefined};                          // char target: the affect to remove
-	room_spells::ERoomAffect room_affect_type{room_spells::ERoomAffect::kUndefined};  // room target: the affect to remove
+	room_affects::ERoomAffect room_affect_type{room_affects::ERoomAffect::kUndefined};  // room target: the affect to remove
 };
 
 // Build the list of affects to dispel for a <remove>/<remove_anyway> set:
@@ -322,11 +322,11 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect
 // only the storage and the apply/remove APIs differ. PK gating is intentionally NOT replicated:
 // there is no policy for room dispel concurrency yet.
 
-bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, const AffectFlags &flags) {
+bool AffectMatchesFlags(const Affect<room_affects::ERoomApply>::shared_ptr &affect, const AffectFlags &flags) {
 	return affect && affect->battleflag.intersects(flags);
 }
 
-bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, const AffectFlags &flags) {
+bool HasDispellableAffect(RoomData *room, room_affects::ERoomAffect affect_type, const AffectFlags &flags) {
 	for (const auto &aff : room->affected) {
 		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
 			return true;
@@ -336,7 +336,7 @@ bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, 
 }
 
 bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect::Set &set) {
-	auto room_has = [room](room_spells::ERoomAffect ra) {
+	auto room_has = [room](room_affects::ERoomAffect ra) {
 		for (const auto &aff : room->affected) {
 			if (aff && aff->affect_type == ra) {
 				return true;
@@ -369,14 +369,14 @@ void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set 
 	// debuff_only is a no-op for room affects (no buff/debuff notion); the parameter exists only so
 	// RunCastUnaffects can call this from the shared template.
 	if (set.wildcard_any) {
-		room_spells::ERoomAffect pick = room_spells::ERoomAffect::kUndefined;
+		room_affects::ERoomAffect pick = room_affects::ERoomAffect::kUndefined;
 		int seen = 0;
 		for (const auto &aff : room->affected) {
 			if (AffectMatchesFlags(aff, flags) && number(1, ++seen) == 1) {
 				pick = aff->affect_type;
 			}
 		}
-		if (pick != room_spells::ERoomAffect::kUndefined) {
+		if (pick != room_affects::ERoomAffect::kUndefined) {
 			out.push_back({.break_on_fail = set.breaking_by_failure, .room_affect_type = pick});
 		}
 	} else {
@@ -404,15 +404,15 @@ void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set 
 
 // Strip every affect of `removed` from the room (room affects don't stack, so peeling has no
 // meaning here) and emit the room affect's own kAffDispelledTo{Char,Room} narration.
-void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, room_spells::ERoomAffect removed) {
+void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, room_affects::ERoomAffect removed) {
 	// Fire the room affect's kDispell actions BEFORE the strip, with the DISPELLER as the caster, so
 	// the retaliation is self-inflicted (no PvP, same model as char affects).
 	float dispel_potency = 0.0f;
 	for (const auto &aff : room->affected) {
 		if (aff && aff->affect_type == removed) { dispel_potency = aff->potency; break; }
 	}
-	room_spells::RunRoomAffectTrigger(room, ch, removed, talents_actions::EActionTrigger::kDispell, dispel_potency);
-	// Erase directly rather than via room_spells::RoomRemoveAffect: its empty-list guard is redundant
+	room_affects::RunRoomAffectTrigger(room, ch, removed, talents_actions::EActionTrigger::kDispell, dispel_potency);
+	// Erase directly rather than via room_affects::RoomRemoveAffect: its empty-list guard is redundant
 	// inside a live iteration.
 	for (auto it = room->affected.begin(); it != room->affected.end(); ) {
 		if (*it && (*it)->affect_type == removed) {
@@ -423,17 +423,17 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, room_spells::ERoomAff
 	}
 	// Sheaf-direct (no kDefault fallback): a room dispel shows only the affect's OWN
 	// dispel message, never the char-centric kDefault.
-	const auto &to_char = room_spells::RoomAffectMsgRaw(removed, room_spells::ERoomAffectMsgType::kAffDispelledToChar);
+	const auto &to_char = room_affects::RoomAffectMsgRaw(removed, room_affects::ERoomAffectMsgType::kAffDispelledToChar);
 	if (!to_char.empty()) {
 		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
 	}
-	const auto &to_room = room_spells::RoomAffectMsgRaw(removed, room_spells::ERoomAffectMsgType::kAffDispelledToRoom);
+	const auto &to_room = room_affects::RoomAffectMsgRaw(removed, room_affects::ERoomAffectMsgType::kAffDispelledToRoom);
 	if (!to_room.empty()) {
 		act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 }
 
-bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, room_spells::ERoomAffect affect_type,
+bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, room_affects::ERoomAffect affect_type,
 					int dispel_bonus, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
 	long author_uid = 0;
@@ -450,7 +450,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, room_spel
 		spell_trace::Line(ch, nullptr,
 				 "Unaffect: %s [C: %.1f]. Target room: %s [p: %.1f]. threshold %d%%. %s (%s).\r\n",
 				 MUD::Spell(dispel_spell).GetCName(), competence,
-				 NAME_BY_ITEM<room_spells::ERoomAffect>(affect_type).c_str(), affect_potency,
+				 NAME_BY_ITEM<room_affects::ERoomAffect>(affect_type).c_str(), affect_potency,
 				 threshold, ok ? "Success" : "Fail", kind);
 	};
 	// Author/ally-aware room dispel: the affect's author or a live ally dispels for free; anyone else
@@ -458,7 +458,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, room_spel
 	// aggressive PK act. Dispellability is already filtered upstream by <unaffect affect_flags=>.
 	const double raw = kDispelSkillWeight * (area_coeff * competence - affect_potency) + dispel_bonus;
 	const int threshold = std::clamp(static_cast<int>(std::lround(raw)), 5, 95);
-	const auto access = room_spells::ClassifyRoomAffectAccess(ch, author_uid);
+	const auto access = room_affects::ClassifyRoomAffectAccess(ch, author_uid);
 	if (access.free) {
 		emit_debug(threshold, "ally", true);
 		return true;
@@ -714,7 +714,7 @@ EStageResult CastUnaffects(ActionContext &ctx) {
 // model as the room dispel: the author or a live ally strips for free; an outsider must out-potency it
 // (5% lucky override); a player vs a live author commits a PK act. Validation and the overall no-effect
 // line belong to the caller (CallMagicToExit). Returns true if anything was dispelled.
-bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) {
+bool room_affects::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) {
 	if (!caster || caster->in_room == kNowhere || dir < 0 || dir >= EDirection::kMaxDirNum) {
 		return false;
 	}
@@ -739,7 +739,7 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 				continue;
 			}
 			const float spell_potency = static_cast<float>(ctx.CompetenceBase());
-			const auto access = room_spells::ClassifyRoomAffectAccess(caster, af->caster_id);
+			const auto access = room_affects::ClassifyRoomAffectAccess(caster, af->caster_id);
 			bool ok;
 			if (access.free) {
 				ok = true;
@@ -754,13 +754,13 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 			}
 			const auto type = af->affect_type;
 			const float sting_potency = af->potency;
-			const auto &to_char = room_spells::RoomAffectMsgRaw(type, room_spells::ERoomAffectMsgType::kAffDispelledToChar);
+			const auto &to_char = room_affects::RoomAffectMsgRaw(type, room_affects::ERoomAffectMsgType::kAffDispelledToChar);
 			if (!to_char.empty()) { act(to_char.c_str(), false, caster, nullptr, nullptr, kToChar); }
-			const auto &to_room = room_spells::RoomAffectMsgRaw(type, room_spells::ERoomAffectMsgType::kAffDispelledToRoom);
+			const auto &to_room = room_affects::RoomAffectMsgRaw(type, room_affects::ERoomAffectMsgType::kAffDispelledToRoom);
 			if (!to_room.empty()) { act(to_room.c_str(), true, caster, nullptr, nullptr, kToRoom | kToArenaListen); }
 				// Fire the affect's kDispell actions (e.g. the fire trap's sting) on the dispeller before erasing,
 				// with the dispeller as caster so kTarFightSelf lands on them (no PvP).
-			room_spells::RunRoomAffectTrigger(world[caster->in_room], caster, type,
+			room_affects::RunRoomAffectTrigger(world[caster->in_room], caster, type,
 					talents_actions::EActionTrigger::kDispell, sting_potency);
 			it = ex->affected.erase(it);
 			any = true;

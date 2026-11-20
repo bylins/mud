@@ -16,7 +16,7 @@
 
 extern int what_sky;
 
-using namespace room_spells;
+using namespace room_affects;
 
 // EmitThunderstormMsg: single-use helper for HandleThunderstormTick (kept file-local).
 static void EmitThunderstormMsg(CharData *ch, ESpellMsg key) {
