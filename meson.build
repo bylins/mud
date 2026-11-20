@@ -564,6 +564,7 @@ main_sources = files(
   'src/utils/logger.cpp',
   'src/gameplay/magic/magic.cpp',
   'src/gameplay/magic/material_components.cpp',
+  'src/gameplay/magic/affect_wards.cpp',
   'src/gameplay/magic/magic_items.cpp',
   'src/gameplay/magic/magic_rooms.cpp',
   'src/gameplay/magic/magic_utils.cpp',

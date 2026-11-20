@@ -63,6 +63,11 @@ EStageResult CastManual(ActionContext &ctx);
 // Material-component check: only used inside the module.
 EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
 
+// Affect wards (affect_wards.cpp). RunWholeCastWards: reflection / absorb-all wards, evaluated once
+// for the top-level cast. TryScopedAbsorb: a scoped absorb ward, rolled per payload delivery.
+bool RunWholeCastWards(ActionContext &ctx, bool is_magic);
+bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want);
+
 #endif  // MAGIC_INTERNAL_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
