@@ -13,6 +13,7 @@
 #define MAGIC_INTERNAL_H_
 
 #include "magic.h"          // for EStageResult / ECastResult / ActionContext / forward decls
+#include "gameplay/abilities/feats.h"   // feats::TalentPatch::EModOp (ToFieldModOp)
 
 // issue.area-cast: target scope for a cast. kSingle -> ctx.cvict only; kFoes -> every foe in
 // the caster's room (area/mass); kFriends -> the caster's group, caster placed last.
@@ -81,6 +82,10 @@ EStageResult SpellResurrection(ActionContext &ctx);
 
 // Object creation stage (action_handlers.cpp): the data-driven <obj_creation> action.
 EStageResult CastCreationAction(ActionContext &ctx);
+
+// Talent patches (action_context.cpp): maps a patch's mod op to the manifestation-side enum, shared
+// by spell and affect action chains.
+talents_actions::EFieldModOp ToFieldModOp(feats::TalentPatch::EModOp op);
 
 #endif  // MAGIC_INTERNAL_H_
 
