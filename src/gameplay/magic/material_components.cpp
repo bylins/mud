@@ -4,6 +4,7 @@
         equipment, inventory and room.
 */
 
+#include "magic_internal.h"
 
 #include "engine/core/obj_handler.h"
 #include "engine/core/target_resolver.h"

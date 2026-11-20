@@ -4,6 +4,7 @@
         plus the code-only magical shield of the Vityaz.
 */
 
+#include "magic_internal.h"
 
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_messages.h"

@@ -72,6 +72,13 @@ bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want);
 // charges run out (affect_triggers.cpp).
 void SpendCharAffectCharge(CharData *bearer, EAffect affect_type);
 
+// Summon stage (action_summon.cpp): the data-driven <summon> action and the corpse-based manual
+// handlers registered in kManualHandlers.
+EStageResult CastSummonAction(ActionContext &ctx);
+EStageResult SpellAnimateSkeleton(ActionContext &ctx);
+EStageResult SpellAnimateDead(ActionContext &ctx);
+EStageResult SpellResurrection(ActionContext &ctx);
+
 #endif  // MAGIC_INTERNAL_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
