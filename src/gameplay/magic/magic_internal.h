@@ -68,6 +68,10 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 bool RunWholeCastWards(ActionContext &ctx, bool is_magic);
 bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want);
 
+// Spends one trigger charge of the bearer's `affect_type` affect and removes the affect when its
+// charges run out (affect_triggers.cpp).
+void SpendCharAffectCharge(CharData *bearer, EAffect affect_type);
+
 #endif  // MAGIC_INTERNAL_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
