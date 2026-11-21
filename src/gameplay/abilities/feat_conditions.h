@@ -47,10 +47,19 @@ class FeatConditions {
 		bool has_above{false};
 		EBaseStat above{EBaseStat::kStr};
 	};
+	// <level min="20" max="24" remort_divisor="3"/>: level + remorts / remort_divisor is within
+	// [min, max]. At least one of min and max is given; remort_divisor 0 (default) ignores remorts.
+	struct LevelCondition {
+		int min{0};
+		bool has_max{false};
+		int max{0};
+		int remort_divisor{0};
+	};
 	struct Alternative {
 		std::vector<SkillCondition> skills;
 		std::vector<FeatCondition> feats;
 		std::vector<StatCondition> stats;
+		std::vector<LevelCondition> levels;
 	};
 
 	explicit FeatConditions(EKind kind) : kind_{kind} {};
@@ -62,11 +71,12 @@ class FeatConditions {
 	void Build(parser_wrapper::DataNode &node, EFeat owner);
 
 	[[nodiscard]] bool IsMet(const CharData *ch) const {
-		return IsEmpty() || IsMetBy(ch);
+		return IsEmpty() || IsMetByChar(ch);
 	};
-	// The lookups: skill(ESkill) -> int, has_feat(EFeat) -> bool, stat(EBaseStat) -> int.
-	template<typename SkillOf, typename HasFeat, typename StatOf>
-	[[nodiscard]] bool IsMet(const SkillOf &skill, const HasFeat &has_feat, const StatOf &stat) const;
+	// `subject` answers Skill(ESkill) -> int, HasFeat(EFeat) -> bool, Stat(EBaseStat) -> int,
+	// Level() -> int and Remorts() -> int.
+	template<typename Subject>
+	[[nodiscard]] bool IsMetBy(const Subject &subject) const;
 
 	// No conditions at all: the feat is not restricted by this section.
 	[[nodiscard]] bool IsEmpty() const { return alternatives_.empty() && !broken_; };
@@ -74,7 +84,7 @@ class FeatConditions {
 	[[nodiscard]] const std::vector<Alternative> &GetAlternatives() const { return alternatives_; };
 
  private:
-	[[nodiscard]] bool IsMetBy(const CharData *ch) const;
+	[[nodiscard]] bool IsMetByChar(const CharData *ch) const;
 
 	EKind kind_;
 	std::vector<Alternative> alternatives_;
@@ -82,8 +92,8 @@ class FeatConditions {
 	bool broken_{false};
 };
 
-template<typename SkillOf, typename HasFeat, typename StatOf>
-bool FeatConditions::IsMet(const SkillOf &skill, const HasFeat &has_feat, const StatOf &stat) const {
+template<typename Subject>
+bool FeatConditions::IsMetBy(const Subject &subject) const {
 	if (broken_) {
 		return false;
 	}
@@ -93,18 +103,27 @@ bool FeatConditions::IsMet(const SkillOf &skill, const HasFeat &has_feat, const 
 
 	auto is_met = [&](const Alternative &alt) {
 		for (const auto &cond : alt.skills) {
-			if (skill(cond.id) < cond.min) {
+			if (subject.Skill(cond.id) < cond.min) {
 				return false;
 			}
 		}
 		for (const auto &cond : alt.feats) {
-			if (has_feat(cond.id) == cond.absence) {
+			if (subject.HasFeat(cond.id) == cond.absence) {
 				return false;
 			}
 		}
 		for (const auto &cond : alt.stats) {
-			const int value = stat(cond.id);
-			if (value < cond.min || (cond.has_above && value <= stat(cond.above))) {
+			const int value = subject.Stat(cond.id);
+			if (value < cond.min || (cond.has_above && value <= subject.Stat(cond.above))) {
+				return false;
+			}
+		}
+		for (const auto &cond : alt.levels) {
+			int value = subject.Level();
+			if (cond.remort_divisor > 0) {
+				value += subject.Remorts() / cond.remort_divisor;
+			}
+			if (value < cond.min || (cond.has_max && value > cond.max)) {
 				return false;
 			}
 		}

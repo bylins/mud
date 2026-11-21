@@ -48,19 +48,22 @@ struct PrereqChar {
 	std::map<ESkill, int> skills;
 	std::set<EFeat> feats;
 	std::map<EBaseStat, int> stats;
+	int level{0};
+	int remorts{0};
 
-	[[nodiscard]] bool Meets(const FeatConditions &p) const {
-		return p.IsMet(
-			[this](ESkill id) {
-				const auto it = skills.find(id);
-				return it == skills.end() ? 0 : it->second;
-			},
-			[this](EFeat id) { return feats.contains(id); },
-			[this](EBaseStat id) {
-				const auto it = stats.find(id);
-				return it == stats.end() ? 0 : it->second;
-			});
+	[[nodiscard]] int Skill(ESkill id) const {
+		const auto it = skills.find(id);
+		return it == skills.end() ? 0 : it->second;
 	}
+	[[nodiscard]] bool HasFeat(EFeat id) const { return feats.contains(id); }
+	[[nodiscard]] int Stat(EBaseStat id) const {
+		const auto it = stats.find(id);
+		return it == stats.end() ? 0 : it->second;
+	}
+	[[nodiscard]] int Level() const { return level; }
+	[[nodiscard]] int Remorts() const { return remorts; }
+
+	[[nodiscard]] bool Meets(const FeatConditions &p) const { return p.IsMetBy(*this); }
 };
 
 } // namespace
@@ -286,6 +289,80 @@ TEST(FeatConditionsStat, MixedAlternative) {
 	EXPECT_FALSE(low_skill.Meets(p));
 }
 
+namespace {
+
+FeatConditions ParseLevelRequirement(const std::string &level_xml) {
+	return ParsePrereqs(R"(<feat id="kTactician"><requirements><requirement>)" + level_xml +
+						R"(</requirement></requirements></feat>)", EKind::kRequirements);
+}
+
+PrereqChar AtLevel(int level, int remorts = 0) {
+	PrereqChar ch;
+	ch.level = level;
+	ch.remorts = remorts;
+	return ch;
+}
+
+} // namespace
+
+TEST(FeatConditionsLevel, Defaults) {
+	const auto p = ParseLevelRequirement(R"(<level min="20"/>)");
+	ASSERT_EQ(p.GetAlternatives().size(), 1u);
+	const auto &level = p.GetAlternatives().front().levels.front();
+	EXPECT_EQ(level.min, 20);
+	EXPECT_FALSE(level.has_max);
+	EXPECT_EQ(level.remort_divisor, 0);
+}
+
+// The magic user: level below 25.
+TEST(FeatConditionsLevel, MaxIsInclusive) {
+	const auto p = ParseLevelRequirement(R"(<level max="24"/>)");
+	EXPECT_TRUE(AtLevel(1).Meets(p));
+	EXPECT_TRUE(AtLevel(24).Meets(p));
+	EXPECT_FALSE(AtLevel(25).Meets(p));
+	EXPECT_TRUE(AtLevel(24, 60).Meets(p));	// no remort_divisor: remorts do not count
+}
+
+TEST(FeatConditionsLevel, MinAndMax) {
+	const auto p = ParseLevelRequirement(R"(<level min="10" max="20"/>)");
+	EXPECT_FALSE(AtLevel(9).Meets(p));
+	EXPECT_TRUE(AtLevel(10).Meets(p));
+	EXPECT_TRUE(AtLevel(20).Meets(p));
+	EXPECT_FALSE(AtLevel(21).Meets(p));
+}
+
+// The skilled trader: level + remorts / 3 above 19.
+TEST(FeatConditionsLevel, RemortsAddToLevel) {
+	const auto p = ParseLevelRequirement(R"(<level min="20" remort_divisor="3"/>)");
+	EXPECT_FALSE(AtLevel(19).Meets(p));
+	EXPECT_TRUE(AtLevel(20).Meets(p));
+	EXPECT_FALSE(AtLevel(19, 2).Meets(p));
+	EXPECT_TRUE(AtLevel(19, 3).Meets(p));
+	EXPECT_TRUE(AtLevel(10, 30).Meets(p));
+	EXPECT_FALSE(AtLevel(10, 29).Meets(p));
+}
+
+TEST(FeatConditionsLevel, RemortsIgnoredWithoutDivisor) {
+	const auto p = ParseLevelRequirement(R"(<level min="20"/>)");
+	EXPECT_FALSE(AtLevel(19, 100).Meets(p));
+}
+
+TEST(FeatConditionsLevel, InvalidLevelsAreDropped) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><requirements>)"
+								R"(<requirement><level/></requirement>)"
+								R"(<requirement><level remort_divisor="3"/></requirement>)"
+								R"(<requirement><level min="0"/></requirement>)"
+								R"(<requirement><level max="0"/></requirement>)"
+								R"(<requirement><level min="30" max="20"/></requirement>)"
+								R"(<requirement><level min="20" remort_divisor="-1"/></requirement>)"
+								R"(<requirement><level min="high"/></requirement>)"
+								R"(<requirement><level min="5" max="5"/></requirement>)"
+								R"(</requirements></feat>)", EKind::kRequirements);
+	ASSERT_EQ(p.GetAlternatives().size(), 1u);
+	EXPECT_EQ(p.GetAlternatives().front().levels.front().min, 5);
+	EXPECT_EQ(p.GetAlternatives().front().levels.front().max, 5);
+}
+
 // The prerequisites in the shipped cfg/feats.xml must give the same answers as the rules that used to be
 // hard-coded in CanGetFeat (the weapon focus / master counters are feat categories, see feats.categories.cpp).
 namespace {
@@ -293,6 +370,20 @@ namespace {
 using SkillOf = std::function<int(ESkill)>;
 using HasFeat = std::function<bool(EFeat)>;
 using LegacyRule = std::function<bool(const SkillOf &, const HasFeat &)>;
+using StatOf = std::function<int(EBaseStat)>;
+
+// Plain lookups as the subject of the conditions; level and remorts are not part of these rules.
+struct FnSubject {
+	SkillOf skill;
+	std::function<bool(EFeat)> feat;
+	StatOf stat;
+
+	[[nodiscard]] int Skill(ESkill id) const { return skill(id); }
+	[[nodiscard]] bool HasFeat(EFeat id) const { return feat(id); }
+	[[nodiscard]] int Stat(EBaseStat id) const { return stat(id); }
+	[[nodiscard]] int Level() const { return 0; }
+	[[nodiscard]] int Remorts() const { return 0; }
+};
 
 struct LegacyCase {
 	LegacyRule rule;
@@ -435,7 +526,7 @@ TEST(FeatPrerequisites, ShippedFileMatchesLegacyRules) {
 					return found == skill_values.end() ? 0 : found->second;
 				};
 				const HasFeat has_feat = [&owned](EFeat f) { return owned.contains(f); };
-				ASSERT_EQ(legacy_case.rule(skill_of, has_feat), prereqs.IsMet(skill_of, has_feat, [](EBaseStat) { return 0; }))
+				ASSERT_EQ(legacy_case.rule(skill_of, has_feat), prereqs.IsMetBy(FnSubject{skill_of, has_feat, [](EBaseStat) { return 0; }}))
 					<< NAME_BY_ITEM<EFeat>(id) << ": skill combo " << sc << ", feat combo " << fc;
 			}
 		}
@@ -446,7 +537,6 @@ TEST(FeatPrerequisites, ShippedFileMatchesLegacyRules) {
 // hard-coded in CanUseFeat (the feats with specific checks still in code are not part of this).
 namespace {
 
-using StatOf = std::function<int(EBaseStat)>;
 using UseRule = std::function<bool(const SkillOf &, const HasFeat &, const StatOf &)>;
 
 struct LegacyUseCase {
@@ -544,7 +634,7 @@ TEST(FeatRequirements, ShippedFileMatchesLegacyRules) {
 					const auto found = stat_map.find(s);
 					return found == stat_map.end() ? 0 : found->second;
 				};
-				ASSERT_EQ(legacy_case.rule(skill_of, has_feat, stat_of), reqs.IsMet(skill_of, has_feat, stat_of))
+				ASSERT_EQ(legacy_case.rule(skill_of, has_feat, stat_of), reqs.IsMetBy(FnSubject{skill_of, has_feat, stat_of}))
 					<< NAME_BY_ITEM<EFeat>(id) << ": feat combo " << fc;
 			}
 

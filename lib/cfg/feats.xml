@@ -13,6 +13,9 @@
     <stat id="kDex" min="18" above="kStr"/>
                                    — характеристика (с учётом бонусов) не ниже min и больше
                                      характеристики above; нужен хотя бы один из двух атрибутов.
+    <level min="20" max="24" remort_divisor="3"/>
+                                   — уровень плюс реморты / remort_divisor в пределах [min, max]; нужен
+                                     хотя бы один из min и max; без remort_divisor реморты не считаются.
 Неверный <prerequisite> (<requirement>) пишется в лог и отбрасывается целиком. Если не осталось
 ни одного, способность нельзя выучить (использовать).
     <feat id="kDoubleShot" mode="kEnabled">
