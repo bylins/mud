@@ -1,7 +1,7 @@
-// issue #3847: feat prerequisites read from the <prerequisites> section of cfg/feats.xml.
-// Parsing and evaluation are exercised through inline XML and plain skill/feat lookups, no world boot.
+// issue #3847: feat conditions read from cfg/feats.xml -- <prerequisites> to learn a feat, <requirements>
+// to use it. Parsing and evaluation are exercised through inline XML and plain lookups, no world boot.
 
-#include "gameplay/abilities/feat_prerequisites.h"
+#include "gameplay/abilities/feat_conditions.h"
 #include "utils/parser_wrapper.h"
 
 #include <gtest/gtest.h>
@@ -14,22 +14,25 @@
 #include <set>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 namespace {
 
-using feats::FeatPrerequisites;
+using feats::FeatConditions;
+using EKind = FeatConditions::EKind;
 
-const char *kPrereqSrc = "feat_prerequisites_test.xml";
+const char *kPrereqSrc = "feat_conditions_test.xml";
 
-// Builds the prerequisites of the single <feat> in `feat_xml`.
-FeatPrerequisites ParsePrereqs(const std::string &feat_xml, EFeat owner = EFeat::kTactician) {
+// Builds the conditions of the given kind of the single <feat> in `feat_xml`.
+FeatConditions ParsePrereqs(const std::string &feat_xml, EKind kind = EKind::kPrerequisites,
+							EFeat owner = EFeat::kTactician) {
 	{
 		std::ofstream f(kPrereqSrc);
 		f << "<feats>" << feat_xml << "</feats>";
 	}
 	parser_wrapper::DataNode doc(kPrereqSrc);
-	FeatPrerequisites result;
+	FeatConditions result{kind};
 	for (auto &feat : doc.Children()) {
 		result.Build(feat, owner);
 	}
@@ -38,16 +41,25 @@ FeatPrerequisites ParsePrereqs(const std::string &feat_xml, EFeat owner = EFeat:
 }
 
 struct PrereqChar {
+	explicit PrereqChar(std::map<ESkill, int> skills_ = {}, std::set<EFeat> feats_ = {},
+						std::map<EBaseStat, int> stats_ = {})
+		: skills{std::move(skills_)}, feats{std::move(feats_)}, stats{std::move(stats_)} {}
+
 	std::map<ESkill, int> skills;
 	std::set<EFeat> feats;
+	std::map<EBaseStat, int> stats;
 
-	[[nodiscard]] bool Meets(const FeatPrerequisites &p) const {
+	[[nodiscard]] bool Meets(const FeatConditions &p) const {
 		return p.IsMet(
 			[this](ESkill id) {
 				const auto it = skills.find(id);
 				return it == skills.end() ? 0 : it->second;
 			},
-			[this](EFeat id) { return feats.contains(id); });
+			[this](EFeat id) { return feats.contains(id); },
+			[this](EBaseStat id) {
+				const auto it = stats.find(id);
+				return it == stats.end() ? 0 : it->second;
+			});
 	}
 };
 
@@ -167,7 +179,7 @@ TEST(FeatPrerequisites, RebuildResets) {
 						   R"(<prerequisite><skill id="kNoSuchSkill"/></prerequisite>)"
 						   R"(</prerequisites></feat><feat id="kTactician"/></feats>)";
 	parser_wrapper::DataNode doc(kPrereqSrc);
-	FeatPrerequisites p;
+	FeatConditions p{EKind::kPrerequisites};
 	std::vector<bool> empty_after_build;
 	for (auto &feat : doc.Children()) {
 		p.Build(feat, EFeat::kTactician);
@@ -175,6 +187,103 @@ TEST(FeatPrerequisites, RebuildResets) {
 	}
 	EXPECT_EQ(empty_after_build, (std::vector<bool>{false, true}));
 	std::remove(kPrereqSrc);
+}
+
+// <requirements> is read the same way, with its own tags; each kind ignores the other's section.
+TEST(FeatRequirements, OwnSection) {
+	const std::string xml = R"(<feat id="kTactician">)"
+							R"(<prerequisites><prerequisite><skill id="kParry"/></prerequisite></prerequisites>)"
+							R"(<requirements><requirement><skill id="kMultiparry" min="10"/></requirement></requirements>)"
+							R"(</feat>)";
+	const auto prerequisites = ParsePrereqs(xml, EKind::kPrerequisites);
+	const auto requirements = ParsePrereqs(xml, EKind::kRequirements);
+	EXPECT_EQ(requirements.GetKind(), EKind::kRequirements);
+	ASSERT_EQ(prerequisites.GetAlternatives().size(), 1u);
+	EXPECT_EQ(prerequisites.GetAlternatives().front().skills.front().id, ESkill::kParry);
+	ASSERT_EQ(requirements.GetAlternatives().size(), 1u);
+	EXPECT_EQ(requirements.GetAlternatives().front().skills.front().id, ESkill::kMultiparry);
+
+	EXPECT_TRUE(ParsePrereqs(R"(<feat id="kTactician"><prerequisites/></feat>)", EKind::kRequirements).IsEmpty());
+}
+
+TEST(FeatRequirements, WrongAlternativeTag) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><requirements>)"
+								R"(<prerequisite><skill id="kParry"/></prerequisite>)"
+								R"(</requirements></feat>)", EKind::kRequirements);
+	EXPECT_FALSE(p.IsEmpty());
+	EXPECT_FALSE((PrereqChar{{{ESkill::kParry, 200}}, {}, {}}.Meets(p)));
+}
+
+TEST(FeatConditionsStat, MinIsInclusive) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><requirements><requirement>)"
+								R"(<stat id="kStr" min="20"/>)"
+								R"(</requirement></requirements></feat>)", EKind::kRequirements);
+	ASSERT_EQ(p.GetAlternatives().size(), 1u);
+	const auto &stat = p.GetAlternatives().front().stats.front();
+	EXPECT_EQ(stat.id, EBaseStat::kStr);
+	EXPECT_EQ(stat.min, 20);
+	EXPECT_FALSE(stat.has_above);
+	EXPECT_FALSE((PrereqChar{{}, {}, {{EBaseStat::kStr, 19}}}.Meets(p)));
+	EXPECT_TRUE((PrereqChar{{}, {}, {{EBaseStat::kStr, 20}}}.Meets(p)));
+}
+
+TEST(FeatConditionsStat, AboveIsStrict) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><requirements><requirement>)"
+								R"(<stat id="kDex" above="kStr"/>)"
+								R"(</requirement></requirements></feat>)", EKind::kRequirements);
+	ASSERT_EQ(p.GetAlternatives().size(), 1u);
+	EXPECT_FALSE((PrereqChar{{}, {}, {{EBaseStat::kDex, 20}, {EBaseStat::kStr, 20}}}.Meets(p)));
+	EXPECT_TRUE((PrereqChar{{}, {}, {{EBaseStat::kDex, 21}, {EBaseStat::kStr, 20}}}.Meets(p)));
+}
+
+// Weapon finesse: Dex above Str and at least 18.
+TEST(FeatConditionsStat, MinAndAbove) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><requirements><requirement>)"
+								R"(<stat id="kDex" min="18" above="kStr"/>)"
+								R"(</requirement></requirements></feat>)", EKind::kRequirements);
+	EXPECT_FALSE((PrereqChar{{}, {}, {{EBaseStat::kDex, 17}, {EBaseStat::kStr, 10}}}.Meets(p)));
+	EXPECT_FALSE((PrereqChar{{}, {}, {{EBaseStat::kDex, 25}, {EBaseStat::kStr, 25}}}.Meets(p)));
+	EXPECT_TRUE((PrereqChar{{}, {}, {{EBaseStat::kDex, 18}, {EBaseStat::kStr, 17}}}.Meets(p)));
+}
+
+TEST(FeatConditionsStat, AllowedInPrerequisites) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><prerequisites><prerequisite>)"
+								R"(<stat id="kCha" min="15"/>)"
+								R"(</prerequisite></prerequisites></feat>)");
+	EXPECT_FALSE((PrereqChar{{}, {}, {{EBaseStat::kCha, 14}}}.Meets(p)));
+	EXPECT_TRUE((PrereqChar{{}, {}, {{EBaseStat::kCha, 15}}}.Meets(p)));
+}
+
+TEST(FeatConditionsStat, InvalidStatsAreDropped) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><requirements>)"
+								R"(<requirement><stat id="kDex"/></requirement>)"
+								R"(<requirement><stat id="kDex" above="kDex"/></requirement>)"
+								R"(<requirement><stat id="kLuck" min="10"/></requirement>)"
+								R"(<requirement><stat id="kDex" above="kLuck"/></requirement>)"
+								R"(<requirement><stat id="kDex" min="0"/></requirement>)"
+								R"(<requirement><stat min="10"/></requirement>)"
+								R"(<requirement><stat id="kWis" min="12"/></requirement>)"
+								R"(</requirements></feat>)", EKind::kRequirements);
+	ASSERT_EQ(p.GetAlternatives().size(), 1u);
+	EXPECT_EQ(p.GetAlternatives().front().stats.front().id, EBaseStat::kWis);
+}
+
+// Skill, feat and stat conditions in one alternative must all hold.
+TEST(FeatConditionsStat, MixedAlternative) {
+	const auto p = ParsePrereqs(R"(<feat id="kTactician"><requirements><requirement>)"
+								R"(<feat id="kBowsFocus"/><skill id="kBows" min="40"/><stat id="kDex" min="16"/>)"
+								R"(</requirement></requirements></feat>)", EKind::kRequirements);
+	const PrereqChar all{{{ESkill::kBows, 40}}, {EFeat::kBowsFocus}, {{EBaseStat::kDex, 16}}};
+	EXPECT_TRUE(all.Meets(p));
+	auto low_dex = all;
+	low_dex.stats[EBaseStat::kDex] = 15;
+	EXPECT_FALSE(low_dex.Meets(p));
+	auto no_focus = all;
+	no_focus.feats.clear();
+	EXPECT_FALSE(no_focus.Meets(p));
+	auto low_skill = all;
+	low_skill.skills[ESkill::kBows] = 39;
+	EXPECT_FALSE(low_skill.Meets(p));
 }
 
 // The prerequisites in the shipped cfg/feats.xml must give the same answers as the rules that used to be
@@ -269,12 +378,12 @@ std::map<EFeat, LegacyCase> LegacyRules() {
 	return rules;
 }
 
-std::map<EFeat, FeatPrerequisites> LoadShippedPrerequisites() {
-	std::map<EFeat, FeatPrerequisites> result;
+std::map<EFeat, FeatConditions> LoadShipped(EKind kind) {
+	std::map<EFeat, FeatConditions> result;
 	parser_wrapper::DataNode doc(std::filesystem::path("cfg/feats.xml"));
 	for (auto &feat : doc.Children("feat")) {
 		const auto id = ITEM_BY_NAME<EFeat>(feat.GetValue("id"));
-		result[id].Build(feat, id);
+		result.emplace(id, FeatConditions{kind}).first->second.Build(feat, id);
 	}
 	return result;
 }
@@ -282,7 +391,7 @@ std::map<EFeat, FeatPrerequisites> LoadShippedPrerequisites() {
 } // namespace
 
 TEST(FeatPrerequisites, ShippedFileMatchesLegacyRules) {
-	const auto shipped = LoadShippedPrerequisites();
+	const auto shipped = LoadShipped(EKind::kPrerequisites);
 	ASSERT_FALSE(shipped.empty()) << "cfg/feats.xml not found -- run the tests from the build directory";
 	const auto legacy = LegacyRules();
 
@@ -326,7 +435,7 @@ TEST(FeatPrerequisites, ShippedFileMatchesLegacyRules) {
 					return found == skill_values.end() ? 0 : found->second;
 				};
 				const HasFeat has_feat = [&owned](EFeat f) { return owned.contains(f); };
-				ASSERT_EQ(legacy_case.rule(skill_of, has_feat), prereqs.IsMet(skill_of, has_feat))
+				ASSERT_EQ(legacy_case.rule(skill_of, has_feat), prereqs.IsMet(skill_of, has_feat, [](EBaseStat) { return 0; }))
 					<< NAME_BY_ITEM<EFeat>(id) << ": skill combo " << sc << ", feat combo " << fc;
 			}
 		}

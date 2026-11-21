@@ -529,7 +529,7 @@ main_sources = files(
   'src/engine/core/external_trigger.cpp',
   'src/gameplay/abilities/feats.cpp',
   'src/gameplay/abilities/feat_categories.cpp',
-  'src/gameplay/abilities/feat_prerequisites.cpp',
+  'src/gameplay/abilities/feat_conditions.cpp',
   'src/gameplay/abilities/timed_abilities.cpp',
   'src/gameplay/fight/arena.cpp',
   'src/gameplay/mechanics/alignment.cpp',

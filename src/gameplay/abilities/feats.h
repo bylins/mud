@@ -20,7 +20,7 @@
 #include "gameplay/magic/spells_constants.h"   // issue.perk-action-patching: ESpell (patch target)
 #include "talents_actions.h"                    // issue.perk-action-patching: Actions (patch payload)
 #include "feat_categories.h"
-#include "feat_prerequisites.h"
+#include "feat_conditions.h"
 
 #include <array>
 #include <bitset>
@@ -109,7 +109,8 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 		: BaseItem<EFeat>(id, mode) {};
 
 	talents_effects::Effects effects;
-	FeatPrerequisites prerequisites;
+	FeatConditions prerequisites{FeatConditions::EKind::kPrerequisites};	// to learn the feat
+	FeatConditions requirements{FeatConditions::EKind::kRequirements};	// to use it
 
 	// issue.perk-action-patching: this feat's spell-action patches (empty for most feats).
 	std::vector<TalentPatch> talent_patches;

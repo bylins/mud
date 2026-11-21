@@ -18,7 +18,7 @@ test_sources = files(
     'vedun.element_find.cpp',
     'msg_container.cdata.cpp',
     'guilds.loader.cpp',
-    'feats.prerequisites.cpp',
+    'feats.conditions.cpp',
     'feats.categories.cpp',
     'interpreter.command_shadowing.cpp',
     'socials.loader.cpp',
