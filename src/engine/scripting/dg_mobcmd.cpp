@@ -1657,7 +1657,12 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kSleep)
-				|| ch->get_wait() > 0)) {
+				// Лаг без контроля -- повод стряхнуть его только пока бой идет. Иначе
+				// триггер вида "flee / flee" ломает мобу его же лаг побега: первая
+				// команда уводит моба из боя, GoFlee вешает SetBattleLag, а вторая
+				// снова входит сюда и делает zero_wait. Под контролем противника может
+				// не быть вовсе (моб ни разу не ударил в ответ) -- это ветки выше.
+				|| (ch->get_wait() > 0 && ch->GetEnemy()))) {
 		// issue #3658: RemoveAffectFromChar убирает аффект из списка ch->affected, но сводный
 		// битвектор affected_by не трогает -- его пересобирает affect_total (отработает в конце
 		// боевого раунда, гонять его отдельно тут незачем). До пересчета AFF_FLAGGED продолжает
