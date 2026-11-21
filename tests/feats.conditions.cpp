@@ -537,30 +537,42 @@ TEST(FeatPrerequisites, ShippedFileMatchesLegacyRules) {
 // hard-coded in CanUseFeat (the feats with specific checks still in code are not part of this).
 namespace {
 
-using UseRule = std::function<bool(const SkillOf &, const HasFeat &, const StatOf &)>;
+// A subject with every value set explicitly, for the exhaustive comparison below.
+struct UseSubject {
+	std::map<ESkill, int> skills;
+	std::set<EFeat> feats;
+	std::map<EBaseStat, int> stats;
+	int level{0};
+	int remorts{0};
+
+	[[nodiscard]] int Skill(ESkill id) const { return skills.contains(id) ? skills.at(id) : 0; }
+	[[nodiscard]] bool HasFeat(EFeat id) const { return feats.contains(id); }
+	[[nodiscard]] int Stat(EBaseStat id) const { return stats.contains(id) ? stats.at(id) : 0; }
+	[[nodiscard]] int Level() const { return level; }
+	[[nodiscard]] int Remorts() const { return remorts; }
+};
+
+using UseRule = std::function<bool(const UseSubject &)>;
 
 struct LegacyUseCase {
 	UseRule rule;
 	std::vector<ESkill> skills;
 	std::vector<EFeat> feats;
 	std::vector<EBaseStat> stats;
+	bool level{false};		// vary level and remorts too
 };
 
 std::map<EFeat, LegacyUseCase> LegacyUseRules() {
 	std::map<EFeat, LegacyUseCase> rules;
 	auto stat_above = [&rules](EFeat feat, EBaseStat stat, int above) {
-		rules[feat] = {[stat, above](const SkillOf &, const HasFeat &, const StatOf &st) {
-			return st(stat) > above;
-		}, {}, {}, {stat}};
+		rules[feat] = {[stat, above](const UseSubject &s) { return s.Stat(stat) > above; }, {}, {}, {stat}};
 	};
 	auto skill_above = [&rules](EFeat feat, ESkill skill, int above) {
-		rules[feat] = {[skill, above](const SkillOf &sk, const HasFeat &, const StatOf &) {
-			return sk(skill) > above;
-		}, {skill}, {}, {}};
+		rules[feat] = {[skill, above](const UseSubject &s) { return s.Skill(skill) > above; }, {skill}, {}, {}};
 	};
 	auto finesse = [&rules](EFeat feat) {
-		rules[feat] = {[](const SkillOf &, const HasFeat &, const StatOf &st) {
-			return st(EBaseStat::kDex) > st(EBaseStat::kStr) && st(EBaseStat::kDex) > 17;
+		rules[feat] = {[](const UseSubject &s) {
+			return s.Stat(EBaseStat::kDex) > s.Stat(EBaseStat::kStr) && s.Stat(EBaseStat::kDex) > 17;
 		}, {}, {}, {EBaseStat::kDex, EBaseStat::kStr}};
 	};
 
@@ -571,16 +583,17 @@ std::map<EFeat, LegacyUseCase> LegacyUseRules() {
 	stat_above(EFeat::kGreatPowerAttack, EBaseStat::kStr, 21);
 	stat_above(EFeat::kAimingAttack, EBaseStat::kDex, 15);
 	stat_above(EFeat::kGreatAimingAttack, EBaseStat::kDex, 17);
-	rules[EFeat::kDoubleShot] = {[](const SkillOf &sk, const HasFeat &hf, const StatOf &) {
-		return hf(EFeat::kBowsFocus) && sk(ESkill::kBows) > 39;
+	rules[EFeat::kDoubleShot] = {[](const UseSubject &s) {
+		return s.HasFeat(EFeat::kBowsFocus) && s.Skill(ESkill::kBows) > 39;
 	}, {ESkill::kBows}, {EFeat::kBowsFocus}, {}};
-	rules[EFeat::kSlashMaster] = {[](const SkillOf &, const HasFeat &hf, const StatOf &) {
-		return hf(EFeat::kTwohandsFocus);
+	rules[EFeat::kSlashMaster] = {[](const UseSubject &s) {
+		return s.HasFeat(EFeat::kTwohandsFocus);
 	}, {}, {EFeat::kTwohandsFocus}, {}};
 	skill_above(EFeat::kJeweller, ESkill::kJewelry, 59);
 	skill_above(EFeat::kLiveShield, ESkill::kRescue, 124);
 	skill_above(EFeat::kShadowThrower, ESkill::kDarkMagic, 120);
 	skill_above(EFeat::kAnimalMaster, ESkill::kMindMagic, 79);
+	rules[EFeat::kMagicUser] = {[](const UseSubject &s) { return s.Level() < 25; }, {}, {}, {}, true};
 	return rules;
 }
 
@@ -599,55 +612,62 @@ TEST(FeatRequirements, ShippedFileMatchesLegacyRules) {
 
 	const std::vector<int> skill_values = {0, 1, 39, 40, 59, 60, 79, 80, 120, 121, 124, 125, 200};
 	const std::vector<int> stat_values = {1, 10, 15, 16, 17, 18, 19, 20, 21, 22, 25, 50};
+	std::vector<int> level_values;
+	for (int level = 1; level <= 35; ++level) {
+		level_values.push_back(level);
+	}
+	const std::vector<int> remort_values = {0, 1, 2, 3, 5, 6, 9, 14, 15, 30, 31, 60};
 	for (const auto &[id, legacy_case] : legacy) {
 		const auto it = shipped.find(id);
 		ASSERT_NE(it, shipped.end()) << NAME_BY_ITEM<EFeat>(id) << " is missing from cfg/feats.xml";
 		const auto &reqs = it->second;
 		ASSERT_FALSE(reqs.IsEmpty()) << NAME_BY_ITEM<EFeat>(id) << " has no requirements";
 
-		// Odometer over every skill value x stat value x owned-feat subset.
-		const std::size_t dims = legacy_case.skills.size() + legacy_case.stats.size();
-		std::vector<std::size_t> digits(dims, 0);
+		// Odometer over every skill value x stat value [x level x remorts] x owned-feat subset.
+		std::vector<std::size_t> bases;
+		for (std::size_t i = 0; i < legacy_case.skills.size(); ++i) {
+			bases.push_back(skill_values.size());
+		}
+		for (std::size_t i = 0; i < legacy_case.stats.size(); ++i) {
+			bases.push_back(stat_values.size());
+		}
+		if (legacy_case.level) {
+			bases.push_back(level_values.size());
+			bases.push_back(remort_values.size());
+		}
+		std::vector<std::size_t> digits(bases.size(), 0);
 		const std::size_t feat_combos = std::size_t{1} << legacy_case.feats.size();
 		while (true) {
-			std::map<ESkill, int> skill_map;
-			std::map<EBaseStat, int> stat_map;
-			for (std::size_t i = 0; i < legacy_case.skills.size(); ++i) {
-				skill_map[legacy_case.skills[i]] = skill_values[digits[i]];
+			UseSubject subject;
+			std::size_t d = 0;
+			for (const auto skill : legacy_case.skills) {
+				subject.skills[skill] = skill_values[digits[d++]];
 			}
-			for (std::size_t i = 0; i < legacy_case.stats.size(); ++i) {
-				stat_map[legacy_case.stats[i]] = stat_values[digits[legacy_case.skills.size() + i]];
+			for (const auto stat : legacy_case.stats) {
+				subject.stats[stat] = stat_values[digits[d++]];
+			}
+			if (legacy_case.level) {
+				subject.level = level_values[digits[d++]];
+				subject.remorts = remort_values[digits[d++]];
 			}
 			for (std::size_t fc = 0; fc < feat_combos; ++fc) {
-				std::set<EFeat> owned;
+				subject.feats.clear();
 				for (std::size_t f = 0; f < legacy_case.feats.size(); ++f) {
 					if (fc & (std::size_t{1} << f)) {
-						owned.insert(legacy_case.feats[f]);
+						subject.feats.insert(legacy_case.feats[f]);
 					}
 				}
-				const SkillOf skill_of = [&skill_map](ESkill s) {
-					const auto found = skill_map.find(s);
-					return found == skill_map.end() ? 0 : found->second;
-				};
-				const HasFeat has_feat = [&owned](EFeat f) { return owned.contains(f); };
-				const StatOf stat_of = [&stat_map](EBaseStat s) {
-					const auto found = stat_map.find(s);
-					return found == stat_map.end() ? 0 : found->second;
-				};
-				ASSERT_EQ(legacy_case.rule(skill_of, has_feat, stat_of), reqs.IsMetBy(FnSubject{skill_of, has_feat, stat_of}))
-					<< NAME_BY_ITEM<EFeat>(id) << ": feat combo " << fc;
+				ASSERT_EQ(legacy_case.rule(subject), reqs.IsMetBy(subject))
+					<< NAME_BY_ITEM<EFeat>(id) << ": level " << subject.level << ", remorts " << subject.remorts
+					<< ", feat combo " << fc;
 			}
 
 			std::size_t pos = 0;
-			while (pos < dims) {
-				const std::size_t base = pos < legacy_case.skills.size() ? skill_values.size() : stat_values.size();
-				if (++digits[pos] < base) {
-					break;
-				}
+			while (pos < bases.size() && ++digits[pos] == bases[pos]) {
 				digits[pos] = 0;
 				++pos;
 			}
-			if (pos == dims) {
+			if (pos == bases.size()) {
 				break;
 			}
 		}

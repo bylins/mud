@@ -722,6 +722,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
     <feat id="kEmployer" mode="kEnabled">
     </feat>
     <feat id="kMagicUser" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <level max="24"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kGoldTongue" mode="kEnabled">
     </feat>

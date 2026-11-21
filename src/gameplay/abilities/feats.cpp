@@ -43,7 +43,6 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 
 	switch (feat_id) {
 		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + remort::GetRealRemort(ch) / 3) > 19);
-		case EFeat::kMagicUser: return (GetRealLevel(ch) < 25);
 		case EFeat::kScirmisher: return !(AFF_FLAGGED(ch, EAffect::kStopFight) ||
 			AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
 			ch->GetPosition() < EPosition::kFight);
