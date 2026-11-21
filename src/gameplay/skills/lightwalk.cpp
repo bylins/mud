@@ -4,8 +4,6 @@
 #include "gameplay/magic/magic.h"
 
 void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct TimedFeat timed;
-
 	if (ch->IsNpc() || !CanUseFeat(ch, EFeat::kLightWalk)) {
 		SendMsgToChar("Вы не можете этого.\r\n", ch);
 		return;
@@ -27,9 +25,7 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	RemoveAffectFromChar(ch, EAffect::kLightWalk);
 
-	timed.feat = EFeat::kLightWalk;
-	timed.time = 24;
-	ImposeTimedFeat(ch, &timed);
+	ImposeTimedFeat(ch, EFeat::kLightWalk);
 
 	SendMsgToChar("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApply> af;
