@@ -239,7 +239,7 @@ void FeatConditions::Print(std::ostringstream &buffer) const {
 		return;
 	}
 	if (kind_ == EKind::kPrerequisites) {
-		buffer << " Prerequisites (для изучения, умения без учёта снаряжения)";
+		buffer << " Prerequisites (для изучения, умения без учета снаряжения)";
 	} else {
 		buffer << " Requirements (для применения)";
 	}

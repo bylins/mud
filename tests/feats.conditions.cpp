@@ -705,9 +705,9 @@ TEST(FeatConditionsDescribe, PrerequisitesSayWithoutEquipmentOnce) {
 	std::ostringstream out;
 	prereqs.Print(out);
 	const std::string text = out.str();
-	const auto first = text.find("без учёта снаряжения");
+	const auto first = text.find("без учета снаряжения");
 	ASSERT_NE(first, std::string::npos);
-	EXPECT_EQ(text.find("без учёта снаряжения", first + 1), std::string::npos);
+	EXPECT_EQ(text.find("без учета снаряжения", first + 1), std::string::npos);
 	EXPECT_EQ(text.find('\x1B'), std::string::npos);	// colours are &-codes, not raw ANSI
 }
 

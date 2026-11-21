@@ -64,7 +64,7 @@ int FeatTimer::CalcDelay(int remorts) const {
 
 std::string FeatTimer::Describe() const {
 	if (!has_base) {
-		return "задаётся в коде";
+		return "задается в коде";
 	}
 	if (remort_divisor > 0) {
 		return fmt::format("{} - {} ч, не меньше {} ч", base, RemortsShare(remort_divisor), min);

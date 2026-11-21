@@ -614,10 +614,11 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 
 	if (!category_.empty()) {
 		if (const auto *category = FeatCategoriesRegistry().Find(category_)) {
-			buffer << fmt::format(" Category: &g{}&n, предел &g{}&n\r\n", category_, category->DescribeLimit());
+			buffer << fmt::format(" Category: &g{}&n, предел &g{}&n\r\n",
+								  RawText(category_), category->DescribeLimit());
 		} else {
 			buffer << fmt::format(" Category: &g{}&n &R(такой категории нет, способность не выучить)&n\r\n",
-								  category_);
+								  RawText(category_));
 		}
 	}
 	if (GetPrfWithFeatNumber(GetId())) {
@@ -634,7 +635,8 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	if (!talent_patches.empty()) {
 		buffer << " Talent patches:\r\n";
 		for (const auto &patch : talent_patches) {
-			buffer << fmt::format("   &g{}&n\r\n", patch.Describe());
+			// RawText: the attribute names (base_skill, add_effect...) would lose '_' to proc_color.
+			buffer << fmt::format("   &g{}&n\r\n", RawText(patch.Describe()));
 		}
 	}
 }
