@@ -688,17 +688,27 @@ TEST(FeatConditionsDescribe, AllConditionKinds) {
 								   R"(</requirement></requirements></feat>)", EKind::kRequirements);
 	ASSERT_EQ(reqs.GetAlternatives().size(), 1u);
 	EXPECT_EQ(reqs.Describe(reqs.GetAlternatives().front()),
-			  "feat kBowsFocus, no feat kGreatFortitude, skill kBows >= 40, stat kDex >= 18 and > kStr, "
-			  "stat kCon > kWis, level + remorts / 3 >= 20, level + remorts / 3 <= 30");
+			  "feat kBowsFocus, без feat kGreatFortitude, skill kBows >= 40, stat kDex >= 18 и > kStr, "
+			  "stat kCon > kWis, уровень + реморты/3 >= 20, уровень + реморты/3 <= 30");
 }
 
-TEST(FeatConditionsDescribe, PrerequisiteSkillsAreWithoutEquipment) {
+// "Without equipment" is said once, in the section header, not after every skill.
+TEST(FeatConditionsDescribe, PrerequisitesSayWithoutEquipmentOnce) {
 	const auto prereqs = ParsePrereqs(R"(<feat id="kTactician"><prerequisites><prerequisite>)"
-									  R"(<skill id="kLeadership" min="100"/><level max="24"/>)"
+									  R"(<skill id="kLeadership" min="100"/><skill id="kBows" min="1"/>)"
+									  R"(<level max="24" remort_divisor="1"/>)"
 									  R"(</prerequisite></prerequisites></feat>)");
 	ASSERT_EQ(prereqs.GetAlternatives().size(), 1u);
 	EXPECT_EQ(prereqs.Describe(prereqs.GetAlternatives().front()),
-			  "skill kLeadership >= 100 (without equipment), level <= 24");
+			  "skill kLeadership >= 100, skill kBows >= 1, уровень + реморты <= 24");
+
+	std::ostringstream out;
+	prereqs.Print(out);
+	const std::string text = out.str();
+	const auto first = text.find("без учёта снаряжения");
+	ASSERT_NE(first, std::string::npos);
+	EXPECT_EQ(text.find("без учёта снаряжения", first + 1), std::string::npos);
+	EXPECT_EQ(text.find('\x1B'), std::string::npos);	// colours are &-codes, not raw ANSI
 }
 
 TEST(FeatConditionsDescribe, PrintMarksBrokenSection) {
@@ -708,7 +718,7 @@ TEST(FeatConditionsDescribe, PrintMarksBrokenSection) {
 	EXPECT_TRUE(broken.IsBroken());
 	std::ostringstream out;
 	broken.Print(out);
-	EXPECT_NE(out.str().find("never met"), std::string::npos);
+	EXPECT_NE(out.str().find("не выполняются никогда"), std::string::npos);
 
 	std::ostringstream empty_out;
 	ParsePrereqs(R"(<feat id="kTactician"/>)").Print(empty_out);

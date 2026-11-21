@@ -166,8 +166,9 @@ TEST(FeatCategories, ShippedFileMatchesLegacyCounters) {
 
 TEST(FeatCategories, DescribeLimit) {
 	EXPECT_EQ(MakeCategory(3, 0, FeatCategories::kNoCap).DescribeLimit(), "3");
-	EXPECT_EQ(MakeCategory(2, 6, FeatCategories::kNoCap).DescribeLimit(), "2 + remorts / 6");
-	EXPECT_EQ(MakeCategory(1, 2, 5).DescribeLimit(), "1 + remorts / 2, at most 5");
+	EXPECT_EQ(MakeCategory(2, 6, FeatCategories::kNoCap).DescribeLimit(), "2 + реморты/6");
+	EXPECT_EQ(MakeCategory(1, 2, 5).DescribeLimit(), "1 + реморты/2, не больше 5");
+	EXPECT_EQ(MakeCategory(1, 1, FeatCategories::kNoCap).DescribeLimit(), "1 + реморты");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

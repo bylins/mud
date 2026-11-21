@@ -526,63 +526,105 @@ void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 	}
 }
 
-// One talent patch as text for immortals: the op and its selectors.
-static std::string DescribeTalentPatch(const TalentPatch &p) {
-	static const char *kOpNames[] = {"append", "insert", "replace", "remove", "add_effect", "replace_all", "modify"};
-	std::string text = std::string("op=") + kOpNames[static_cast<int>(p.op)];
-	if (p.target_spell != ESpell::kUndefined) {
-		text += " spell=" + NAME_BY_ITEM<ESpell>(p.target_spell);
+// No default: a new EPatchOp must get its name here, or the build warns.
+static const char *PatchOpName(EPatchOp op) {
+	switch (op) {
+		case EPatchOp::kAppend: return "append";
+		case EPatchOp::kInsert: return "insert";
+		case EPatchOp::kReplace: return "replace";
+		case EPatchOp::kRemove: return "remove";
+		case EPatchOp::kAddEffect: return "add_effect";
+		case EPatchOp::kReplaceAll: return "replace_all";
+		case EPatchOp::kModify: return "modify";
 	}
-	if (p.element != EElement::kUndefined) {
-		text += " element=" + NAME_BY_ITEM<EElement>(p.element);
+	return "?";
+}
+
+static const char *PatchModOpName(TalentPatch::EModOp op) {
+	switch (op) {
+		case TalentPatch::EModOp::kMul: return "mul";
+		case TalentPatch::EModOp::kAdd: return "add";
+		case TalentPatch::EModOp::kSet: return "set";
 	}
-	if (p.base_skill != ESkill::kUndefined) {
-		text += " base_skill=" + NAME_BY_ITEM<ESkill>(p.base_skill);
+	return "?";
+}
+
+static const char *PatchRelativeName(TalentPatch::ERelative relative) {
+	switch (relative) {
+		case TalentPatch::ERelative::kSelf: return "self";
+		case TalentPatch::ERelative::kMaster: return "master";
+		case TalentPatch::ERelative::kGroupLeader: return "group_leader";
 	}
-	if (p.flag_sel != 0) {
-		text += " flag=" + NAME_BY_ITEM<EMagic>(static_cast<EMagic>(p.flag_sel));
+	return "?";
+}
+
+std::string TalentPatch::Describe() const {
+	std::string text = fmt::format("op={}", PatchOpName(op));
+	if (target_spell != ESpell::kUndefined) {
+		text += fmt::format(" spell={}", NAME_BY_ITEM<ESpell>(target_spell));
 	}
-	if (p.match_all) {
-		text += " all";
+	if (element != EElement::kUndefined) {
+		text += fmt::format(" element={}", NAME_BY_ITEM<EElement>(element));
 	}
-	if (p.has_has_effect) {
-		text += std::string(" has_effect=") + EActionKindName(p.has_effect_kind);
+	if (base_skill != ESkill::kUndefined) {
+		text += fmt::format(" base_skill={}", NAME_BY_ITEM<ESkill>(base_skill));
 	}
-	if (!p.category.empty()) {
-		text += " category=" + p.category;
+	if (flag_sel != 0) {
+		text += fmt::format(" flag={}", NAME_BY_ITEM<EMagic>(static_cast<EMagic>(flag_sel)));
 	}
-	if (p.target_affect != EAffect::kUndefined) {
-		text += " affect=" + NAME_BY_ITEM<EAffect>(p.target_affect);
+	if (match_all) {
+		text += " all=true";
 	}
-	if (!p.action_id.empty()) {
-		text += " action=" + p.action_id;
+	if (has_has_effect) {
+		text += fmt::format(" has_effect={}", EActionKindName(has_effect_kind));
 	}
-	if (!p.effect_id.empty()) {
-		text += " effect=" + p.effect_id;
+	if (!category.empty()) {
+		text += fmt::format(" category={}", category);
+	}
+	if (target_affect != EAffect::kUndefined) {
+		text += fmt::format(" affect={}", NAME_BY_ITEM<EAffect>(target_affect));
+	}
+	if (scope == EScope::kTarget) {
+		text += " by=target";
+	}
+	if (relative != ERelative::kSelf) {
+		text += fmt::format(" relative={}", PatchRelativeName(relative));
+	}
+	if (!anchor_id.empty()) {
+		text += fmt::format(" {}={}", anchor_before ? "before" : "after", anchor_id);
+	}
+	if (!action_id.empty()) {
+		text += fmt::format(" action={}", action_id);
+	}
+	if (!effect_id.empty()) {
+		text += fmt::format(" effect={}", effect_id);
+	}
+	if (op == EPatchOp::kModify) {
+		text += fmt::format(" modify={}.{} {}={}",
+							EActionKindName(mod_kind), mod_field, PatchModOpName(mod_op), mod_value);
 	}
 	return text;
 }
 
 void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "Print feat:" << "\r\n"
-		   << " Id: " << kColorGrn << NAME_BY_ITEM<EFeat>(GetId()) << kColorNrm << "\r\n"
-		   << " Name: " << kColorGrn << GetName() << kColorNrm << "\r\n"
-		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
+	buffer << "Print feat:\r\n"
+		   << fmt::format(" Id: &g{}&n\r\n", NAME_BY_ITEM<EFeat>(GetId()))
+		   << fmt::format(" Name: &g{}&n\r\n", GetName())
+		   << fmt::format(" Mode: &g{}&n\r\n", NAME_BY_ITEM<EItemMode>(GetMode()));
 
 	if (!category_.empty()) {
-		buffer << " Category: " << kColorGrn << category_ << kColorNrm;
 		if (const auto *category = FeatCategoriesRegistry().Find(category_)) {
-			buffer << ", limit " << kColorGrn << category->DescribeLimit() << kColorNrm;
+			buffer << fmt::format(" Category: &g{}&n, предел &g{}&n\r\n", category_, category->DescribeLimit());
 		} else {
-			buffer << " " << kColorBoldRed << "(unknown, the feat cannot be learned)" << kColorNrm;
+			buffer << fmt::format(" Category: &g{}&n &R(такой категории нет, способность не выучить)&n\r\n",
+								  category_);
 		}
-		buffer << "\r\n";
 	}
 	if (GetPrfWithFeatNumber(GetId())) {
-		buffer << " Toggled: " << kColorGrn << "yes" << kColorNrm << " (switched on and off by the style command)\r\n";
+		buffer << " Toggled: &gда&n (включается и выключается командой 'стиль')\r\n";
 	}
 	if (timer_) {
-		buffer << " Delay: " << kColorGrn << timer_->Describe() << kColorNrm << "\r\n";
+		buffer << fmt::format(" Delay: &g{}&n\r\n", timer_->Describe());
 	}
 	prerequisites.Print(buffer);
 	requirements.Print(buffer);
@@ -590,9 +632,9 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	effects.Print(ch, buffer);
 
 	if (!talent_patches.empty()) {
-		buffer << " Talent patches:" << "\r\n";
+		buffer << " Talent patches:\r\n";
 		for (const auto &patch : talent_patches) {
-			buffer << "   " << kColorGrn << DescribeTalentPatch(patch) << kColorNrm << "\r\n";
+			buffer << fmt::format("   &g{}&n\r\n", patch.Describe());
 		}
 	}
 }

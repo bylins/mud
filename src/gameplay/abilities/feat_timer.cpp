@@ -1,4 +1,5 @@
 #include "feat_timer.h"
+#include "feat_text.h"
 
 #include "utils/logger.h"
 #include "utils/utils_parse.h"
@@ -63,13 +64,12 @@ int FeatTimer::CalcDelay(int remorts) const {
 
 std::string FeatTimer::Describe() const {
 	if (!has_base) {
-		return "set in code";
+		return "задаётся в коде";
 	}
-	std::string text = std::to_string(base) + " h";
 	if (remort_divisor > 0) {
-		text += ", -1 h per " + std::to_string(remort_divisor) + " remorts, at least " + std::to_string(min) + " h";
+		return fmt::format("{} - {} ч, не меньше {} ч", base, RemortsShare(remort_divisor), min);
 	}
-	return text;
+	return fmt::format("{} ч", base);
 }
 
 std::optional<FeatTimer> FeatTimer::Parse(parser_wrapper::DataNode &node, EFeat owner) {
