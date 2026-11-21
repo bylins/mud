@@ -37,16 +37,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 		return false;
 	};
 
-	if (!MUD::Feat(feat_id).requirements.IsMet(ch)) {
-		return false;
-	}
-
-	switch (feat_id) {
-		case EFeat::kScirmisher: return !(AFF_FLAGGED(ch, EAffect::kStopFight) ||
-			AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
-			ch->GetPosition() < EPosition::kFight);
-		default: return true;
-	}
+	return MUD::Feat(feat_id).requirements.IsMet(ch);
 }
 
 // A feat with a category can be learned only while the character holds fewer feats of that category
