@@ -2,20 +2,32 @@
 <!--
 Формат:
 
-<prerequisites> — условия, без которых способность нельзя выучить. Внутри несколько
-<prerequisite>: хватает выполнения любого из них, а внутри одного <prerequisite> должны
-выполняться все условия. Нет раздела — нет и ограничений.
-    <skill id="kParry" min="40"/>  — умение (без бонусов от снаряжения) не ниже min; min по умолчанию 1.
+<prerequisites> — условия, без которых способность нельзя выучить, <requirements> — условия,
+без которых ею нельзя пользоваться. Внутри несколько <prerequisite> (<requirement>): хватает
+выполнения любого из них, а внутри одного должны выполняться все условия. Нет раздела — нет
+и ограничений.
+    <skill id="kParry" min="40"/>  — умение не ниже min; min по умолчанию 1. Для изучения умение
+                                     берётся без бонусов от снаряжения, для использования — полностью.
     <feat id="kPowerAttack"/>      — у персонажа есть способность;
                                      absence="Y" — наоборот, её нет.
-Неверный <prerequisite> пишется в лог и отбрасывается целиком. Если не осталось ни одного,
-способность выучить нельзя.
-    <feat id="kTactician" mode="kEnabled">
+    <stat id="kDex" min="18" above="kStr"/>
+                                   — характеристика (с учётом бонусов) не ниже min и больше
+                                     характеристики above; нужен хотя бы один из двух атрибутов.
+Неверный <prerequisite> (<requirement>) пишется в лог и отбрасывается целиком. Если не осталось
+ни одного, способность нельзя выучить (использовать).
+    <feat id="kDoubleShot" mode="kEnabled">
         <prerequisites>
             <prerequisite>
-                <skill id="kLeadership" min="100"/>
+                <feat id="kBowsFocus"/>
+                <skill id="kBows" min="40"/>
             </prerequisite>
         </prerequisites>
+        <requirements>
+            <requirement>
+                <feat id="kBowsFocus"/>
+                <skill id="kBows" min="40"/>
+            </requirement>
+        </requirements>
     </feat>
 
 <feat_categories> — категории способностей. Способность относится к категории атрибутом
@@ -48,6 +60,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
                 <skill id="kParry" min="1"/>
             </prerequisite>
         </prerequisites>
+        <requirements>
+            <requirement>
+                <stat id="kDex" min="16"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kBlindFight" mode="kEnabled">
     </feat>
@@ -88,6 +105,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
     <feat id="kSpellSubstitute" mode="kEnabled">
     </feat>
     <feat id="kPowerAttack" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <stat id="kStr" min="20"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kWoodenSkin" mode="kEnabled">
         <talent_effects>
@@ -256,6 +278,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
         </talent_effects>
     </feat>
     <feat id="kWeaponFinesse" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <stat id="kDex" min="18" above="kStr"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kCombatCasting" mode="kEnabled">
     </feat>
@@ -439,6 +466,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
                 <feat id="kPowerAttack"/>
             </prerequisite>
         </prerequisites>
+        <requirements>
+            <requirement>
+                <stat id="kStr" min="22"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kStrongImmunity" mode="kEnabled">
         <talent_effects>
@@ -597,6 +629,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
         </prerequisites>
     </feat>
     <feat id="kAimingAttack" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <stat id="kDex" min="16"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kGreatAimingAttack" mode="kEnabled">
         <prerequisites>
@@ -604,6 +641,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
                 <feat id="kAimingAttack"/>
             </prerequisite>
         </prerequisites>
+        <requirements>
+            <requirement>
+                <stat id="kDex" min="18"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kDoubleShot" mode="kEnabled">
         <prerequisites>
@@ -612,6 +654,14 @@ remort_divisor по умолчанию 0 — предел не растёт с �
                 <skill id="kBows" min="40"/>
             </prerequisite>
         </prerequisites>
+        <!-- Как и в справке, нужно парное "любимое оружие": без него способность не работает,
+             даже если оказалась у персонажа. -->
+        <requirements>
+            <requirement>
+                <feat id="kBowsFocus"/>
+                <skill id="kBows" min="40"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kPorter" mode="kEnabled">
     </feat>
@@ -656,6 +706,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
                 <skill id="kJewelry" min="60"/>
             </prerequisite>
         </prerequisites>
+        <requirements>
+            <requirement>
+                <skill id="kJewelry" min="60"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kSkilledTrader" mode="kEnabled">
     </feat>
@@ -762,6 +817,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
         </prerequisites>
     </feat>
     <feat id="kLiveShield" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <skill id="kRescue" min="125"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kSerratedBlade" mode="kEnabled">
         <prerequisites>
@@ -789,6 +849,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
         </prerequisites>
     </feat>
     <feat id="kFInesseShot" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <stat id="kDex" min="18" above="kStr"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kObjectEnchanter" mode="kEnabled">
     </feat>
@@ -803,6 +868,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
                 <skill id="kDarkMagic" min="121"/>
             </prerequisite>
         </prerequisites>
+        <requirements>
+            <requirement>
+                <skill id="kDarkMagic" min="121"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kShadowDagger" mode="kEnabled">
         <prerequisites>
@@ -873,8 +943,19 @@ remort_divisor по умолчанию 0 — предел не растёт с �
     <feat id="kMagicalShield" mode="kEnabled">
     </feat>
     <feat id="kAnimalMaster" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <skill id="kMindMagic" min="80"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kSlashMaster" mode="kEnabled">
+        <!-- Допудар двуручем и так срабатывает только вместе с "любимым оружием" (см. fight.cpp). -->
+        <requirements>
+            <requirement>
+                <feat id="kTwohandsFocus"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kPhysicians" mode="kEnabled">
     </feat>
