@@ -12,6 +12,7 @@
 #include <fstream>
 #include <map>
 #include <set>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -675,6 +676,43 @@ TEST(FeatRequirements, ShippedFileMatchesLegacyRules) {
 			}
 		}
 	}
+}
+
+// The text `show featinfo` prints for an alternative.
+TEST(FeatConditionsDescribe, AllConditionKinds) {
+	const auto reqs = ParsePrereqs(R"(<feat id="kTactician"><requirements><requirement>)"
+								   R"(<feat id="kBowsFocus"/><feat id="kGreatFortitude" absence="Y"/>)"
+								   R"(<skill id="kBows" min="40"/>)"
+								   R"(<stat id="kDex" min="18" above="kStr"/><stat id="kCon" above="kWis"/>)"
+								   R"(<level min="20" max="30" remort_divisor="3"/>)"
+								   R"(</requirement></requirements></feat>)", EKind::kRequirements);
+	ASSERT_EQ(reqs.GetAlternatives().size(), 1u);
+	EXPECT_EQ(reqs.Describe(reqs.GetAlternatives().front()),
+			  "feat kBowsFocus, no feat kGreatFortitude, skill kBows >= 40, stat kDex >= 18 and > kStr, "
+			  "stat kCon > kWis, level + remorts / 3 >= 20, level + remorts / 3 <= 30");
+}
+
+TEST(FeatConditionsDescribe, PrerequisiteSkillsAreWithoutEquipment) {
+	const auto prereqs = ParsePrereqs(R"(<feat id="kTactician"><prerequisites><prerequisite>)"
+									  R"(<skill id="kLeadership" min="100"/><level max="24"/>)"
+									  R"(</prerequisite></prerequisites></feat>)");
+	ASSERT_EQ(prereqs.GetAlternatives().size(), 1u);
+	EXPECT_EQ(prereqs.Describe(prereqs.GetAlternatives().front()),
+			  "skill kLeadership >= 100 (without equipment), level <= 24");
+}
+
+TEST(FeatConditionsDescribe, PrintMarksBrokenSection) {
+	const auto broken = ParsePrereqs(R"(<feat id="kTactician"><requirements>)"
+									 R"(<requirement><skill id="kNoSuchSkill"/></requirement>)"
+									 R"(</requirements></feat>)", EKind::kRequirements);
+	EXPECT_TRUE(broken.IsBroken());
+	std::ostringstream out;
+	broken.Print(out);
+	EXPECT_NE(out.str().find("never met"), std::string::npos);
+
+	std::ostringstream empty_out;
+	ParsePrereqs(R"(<feat id="kTactician"/>)").Print(empty_out);
+	EXPECT_TRUE(empty_out.str().empty());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

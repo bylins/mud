@@ -61,6 +61,17 @@ int FeatTimer::CalcDelay(int remorts) const {
 	return std::max(min, delay);
 }
 
+std::string FeatTimer::Describe() const {
+	if (!has_base) {
+		return "set in code";
+	}
+	std::string text = std::to_string(base) + " h";
+	if (remort_divisor > 0) {
+		text += ", -1 h per " + std::to_string(remort_divisor) + " remorts, at least " + std::to_string(min) + " h";
+	}
+	return text;
+}
+
 std::optional<FeatTimer> FeatTimer::Parse(parser_wrapper::DataNode &node, EFeat owner) {
 	if (!node.GoToChild("timed")) {
 		return std::nullopt;

@@ -14,6 +14,8 @@
 #include "gameplay/skills/skills.h"
 #include "utils/parser_wrapper.h"
 
+#include <sstream>
+#include <string>
 #include <vector>
 
 class CharData;
@@ -81,7 +83,14 @@ class FeatConditions {
 	// No conditions at all: the feat is not restricted by this section.
 	[[nodiscard]] bool IsEmpty() const { return alternatives_.empty() && !broken_; };
 	[[nodiscard]] EKind GetKind() const { return kind_; };
+	// The section failed to load: every alternative was invalid, so it can never be met.
+	[[nodiscard]] bool IsBroken() const { return broken_; };
 	[[nodiscard]] const std::vector<Alternative> &GetAlternatives() const { return alternatives_; };
+
+	// One alternative as text for immortals, e.g. "feat kBowsFocus, skill kBows >= 40".
+	[[nodiscard]] std::string Describe(const Alternative &alt) const;
+	// The section for `show featinfo`; prints nothing if there are no conditions.
+	void Print(std::ostringstream &buffer) const;
 
  private:
 	[[nodiscard]] bool IsMetByChar(const CharData *ch) const;

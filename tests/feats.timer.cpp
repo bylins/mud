@@ -122,4 +122,10 @@ TEST(FeatTimer, ShippedFileMatchesLegacyDelays) {
 	}
 }
 
+TEST(FeatTimer, Describe) {
+	EXPECT_EQ(MakeTimer(24, 1, 0).Describe(), "24 h");
+	EXPECT_EQ(MakeTimer(18, 3, 1).Describe(), "18 h, -1 h per 1 remorts, at least 3 h");
+	EXPECT_EQ(FeatTimer{}.Describe(), "set in code");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

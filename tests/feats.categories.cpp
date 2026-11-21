@@ -164,4 +164,10 @@ TEST(FeatCategories, ShippedFileMatchesLegacyCounters) {
 	EXPECT_EQ(members["weapon_master"], legacy_master);
 }
 
+TEST(FeatCategories, DescribeLimit) {
+	EXPECT_EQ(MakeCategory(3, 0, FeatCategories::kNoCap).DescribeLimit(), "3");
+	EXPECT_EQ(MakeCategory(2, 6, FeatCategories::kNoCap).DescribeLimit(), "2 + remorts / 6");
+	EXPECT_EQ(MakeCategory(1, 2, 5).DescribeLimit(), "1 + remorts / 2, at most 5");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

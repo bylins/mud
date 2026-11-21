@@ -337,17 +337,30 @@ using ItemPtr = FeatInfoBuilder::ItemPtr;
 
 // issue.perk-action-patching: map an effect-kind name ("kArea"/"kDamage"/...) to EAction, for the
 // has_effect= selector and op="modify" effect=. Returns false on an unknown name.
+static const std::pair<const char *, talents_actions::EAction> kEActionKindNames[] = {
+	{"kDamage", talents_actions::EAction::kDamage}, {"kArea", talents_actions::EAction::kArea},
+	{"kPoints", talents_actions::EAction::kPoints}, {"kAffect", talents_actions::EAction::kAffect},
+	{"kUnaffect", talents_actions::EAction::kUnaffect}, {"kSummon", talents_actions::EAction::kSummon},
+	{"kCreation", talents_actions::EAction::kCreation}, {"kAlterObj", talents_actions::EAction::kAlterObj},
+};
+
 static bool ParseEActionKind(const char *name, talents_actions::EAction &out) {
-	using talents_actions::EAction;
-	static const std::unordered_map<std::string, EAction> kByName = {
-		{"kDamage", EAction::kDamage}, {"kArea", EAction::kArea}, {"kPoints", EAction::kPoints},
-		{"kAffect", EAction::kAffect}, {"kUnaffect", EAction::kUnaffect}, {"kSummon", EAction::kSummon},
-		{"kCreation", EAction::kCreation}, {"kAlterObj", EAction::kAlterObj},
-	};
-	const auto it = kByName.find(name);
-	if (it == kByName.end()) { return false; }
-	out = it->second;
-	return true;
+	for (const auto &[kind_name, kind] : kEActionKindNames) {
+		if (strcmp(kind_name, name) == 0) {
+			out = kind;
+			return true;
+		}
+	}
+	return false;
+}
+
+static const char *EActionKindName(talents_actions::EAction kind) {
+	for (const auto &[kind_name, value] : kEActionKindNames) {
+		if (value == kind) {
+			return kind_name;
+		}
+	}
+	return "?";
 }
 
 // issue.perk-action-patching: parse a feat talent_patches block into FeatInfo::talent_patches. Each
@@ -513,13 +526,75 @@ void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 	}
 }
 
+// One talent patch as text for immortals: the op and its selectors.
+static std::string DescribeTalentPatch(const TalentPatch &p) {
+	static const char *kOpNames[] = {"append", "insert", "replace", "remove", "add_effect", "replace_all", "modify"};
+	std::string text = std::string("op=") + kOpNames[static_cast<int>(p.op)];
+	if (p.target_spell != ESpell::kUndefined) {
+		text += " spell=" + NAME_BY_ITEM<ESpell>(p.target_spell);
+	}
+	if (p.element != EElement::kUndefined) {
+		text += " element=" + NAME_BY_ITEM<EElement>(p.element);
+	}
+	if (p.base_skill != ESkill::kUndefined) {
+		text += " base_skill=" + NAME_BY_ITEM<ESkill>(p.base_skill);
+	}
+	if (p.flag_sel != 0) {
+		text += " flag=" + NAME_BY_ITEM<EMagic>(static_cast<EMagic>(p.flag_sel));
+	}
+	if (p.match_all) {
+		text += " all";
+	}
+	if (p.has_has_effect) {
+		text += std::string(" has_effect=") + EActionKindName(p.has_effect_kind);
+	}
+	if (!p.category.empty()) {
+		text += " category=" + p.category;
+	}
+	if (p.target_affect != EAffect::kUndefined) {
+		text += " affect=" + NAME_BY_ITEM<EAffect>(p.target_affect);
+	}
+	if (!p.action_id.empty()) {
+		text += " action=" + p.action_id;
+	}
+	if (!p.effect_id.empty()) {
+		text += " effect=" + p.effect_id;
+	}
+	return text;
+}
+
 void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print feat:" << "\r\n"
 		   << " Id: " << kColorGrn << NAME_BY_ITEM<EFeat>(GetId()) << kColorNrm << "\r\n"
 		   << " Name: " << kColorGrn << GetName() << kColorNrm << "\r\n"
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 
+	if (!category_.empty()) {
+		buffer << " Category: " << kColorGrn << category_ << kColorNrm;
+		if (const auto *category = FeatCategoriesRegistry().Find(category_)) {
+			buffer << ", limit " << kColorGrn << category->DescribeLimit() << kColorNrm;
+		} else {
+			buffer << " " << kColorBoldRed << "(unknown, the feat cannot be learned)" << kColorNrm;
+		}
+		buffer << "\r\n";
+	}
+	if (GetPrfWithFeatNumber(GetId())) {
+		buffer << " Toggled: " << kColorGrn << "yes" << kColorNrm << " (switched on and off by the style command)\r\n";
+	}
+	if (timer_) {
+		buffer << " Delay: " << kColorGrn << timer_->Describe() << kColorNrm << "\r\n";
+	}
+	prerequisites.Print(buffer);
+	requirements.Print(buffer);
+
 	effects.Print(ch, buffer);
+
+	if (!talent_patches.empty()) {
+		buffer << " Talent patches:" << "\r\n";
+		for (const auto &patch : talent_patches) {
+			buffer << "   " << kColorGrn << DescribeTalentPatch(patch) << kColorNrm << "\r\n";
+		}
+	}
 }
 
 // issue.perk-action-patching: validate a patch target/anchor ids against the spell action blocks.

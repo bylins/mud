@@ -12,6 +12,7 @@
 #include "utils/parser_wrapper.h"
 
 #include <optional>
+#include <string>
 
 namespace feats {
 
@@ -25,6 +26,8 @@ struct FeatTimer {
 
 	// The delay for a character with `remorts` remorts; only meaningful with has_base.
 	[[nodiscard]] int CalcDelay(int remorts) const;
+	// The delay as text for immortals, e.g. "18 h, -1 h per 1 remorts, at least 3 h".
+	[[nodiscard]] std::string Describe() const;
 
 	// Reads the <timed> child of the <feat> node `node` points at. No tag -- nullopt; an invalid tag is
 	// logged and also gives nullopt.

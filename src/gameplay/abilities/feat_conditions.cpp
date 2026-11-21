@@ -1,6 +1,7 @@
 #include "feat_conditions.h"
 
 #include "engine/entities/char_data.h"
+#include "engine/ui/color.h"
 #include "gameplay/core/remort.h"
 #include "utils/logger.h"
 #include "utils/utils_parse.h"
@@ -194,6 +195,59 @@ void FeatConditions::Build(parser_wrapper::DataNode &node, EFeat owner) {
 		err_log("Feat [%s]: no valid <%s> left, the conditions can never be met.",
 				NAME_BY_ITEM<EFeat>(owner).c_str(), AlternativeTag(kind_));
 		broken_ = true;
+	}
+}
+
+std::string FeatConditions::Describe(const Alternative &alt) const {
+	std::vector<std::string> parts;
+	const char *skill_kind = kind_ == EKind::kPrerequisites ? " (without equipment)" : "";
+	for (const auto &cond : alt.feats) {
+		parts.push_back((cond.absence ? "no feat " : "feat ") + NAME_BY_ITEM<EFeat>(cond.id));
+	}
+	for (const auto &cond : alt.skills) {
+		parts.push_back("skill " + NAME_BY_ITEM<ESkill>(cond.id) + " >= " + std::to_string(cond.min) + skill_kind);
+	}
+	for (const auto &cond : alt.stats) {
+		std::string text = "stat " + NAME_BY_ITEM<EBaseStat>(cond.id);
+		if (cond.min > 0) {
+			text += " >= " + std::to_string(cond.min);
+		}
+		if (cond.has_above) {
+			text += (cond.min > 0 ? " and > " : " > ") + NAME_BY_ITEM<EBaseStat>(cond.above);
+		}
+		parts.push_back(text);
+	}
+	for (const auto &cond : alt.levels) {
+		std::string value = "level";
+		if (cond.remort_divisor > 0) {
+			value += " + remorts / " + std::to_string(cond.remort_divisor);
+		}
+		if (cond.min > 0) {
+			parts.push_back(value + " >= " + std::to_string(cond.min));
+		}
+		if (cond.has_max) {
+			parts.push_back(value + " <= " + std::to_string(cond.max));
+		}
+	}
+	std::string result;
+	for (const auto &part : parts) {
+		result += result.empty() ? part : ", " + part;
+	}
+	return result;
+}
+
+void FeatConditions::Print(std::ostringstream &buffer) const {
+	if (IsEmpty()) {
+		return;
+	}
+	buffer << " " << (kind_ == EKind::kPrerequisites ? "Prerequisites (to learn)" : "Requirements (to use)");
+	if (broken_) {
+		buffer << ": " << kColorBoldRed << "invalid in feats.xml, never met" << kColorNrm << "\r\n";
+		return;
+	}
+	buffer << (alternatives_.size() > 1 ? ", any of:" : ":") << "\r\n";
+	for (const auto &alt : alternatives_) {
+		buffer << "   " << kColorGrn << Describe(alt) << kColorNrm << "\r\n";
 	}
 }
 

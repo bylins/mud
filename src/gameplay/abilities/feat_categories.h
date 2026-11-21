@@ -27,6 +27,8 @@ class FeatCategories {
 
 		// How many feats of this category a character with `remorts` remorts may hold.
 		[[nodiscard]] int CalcLimit(int remorts) const;
+		// The limit as text for immortals, e.g. "2 + remorts / 6, at most 5".
+		[[nodiscard]] std::string DescribeLimit() const;
 	};
 
 	// Reads the <feat_categories> child of the <feats> node `root` points at, replacing what was there.

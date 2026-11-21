@@ -64,6 +64,17 @@ int FeatCategories::Category::CalcLimit(int remorts) const {
 	return limit;
 }
 
+std::string FeatCategories::Category::DescribeLimit() const {
+	std::string text = std::to_string(base);
+	if (remort_divisor > 0) {
+		text += " + remorts / " + std::to_string(remort_divisor);
+	}
+	if (cap != kNoCap) {
+		text += ", at most " + std::to_string(cap);
+	}
+	return text;
+}
+
 void FeatCategories::Build(parser_wrapper::DataNode &root) {
 	categories_.clear();
 	if (!root.GoToChild("feat_categories")) {

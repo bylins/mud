@@ -423,8 +423,9 @@ manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
    class-wide), an op, and (for affect patches) a `relative`; give the target
    stable `id=`s if you use id-based ops.
 7. **Flip `mode="kEnabled"`** when ready; verify at boot (no patch, condition or
-   timer warnings) and in
-   mud-sim (grant the feat, cast/trigger the affected spell/affect, confirm the
+   timer warnings), with `show featinfo <feat>` (prints the category and its limit,
+   toggle, delay, prerequisites, requirements, effects and patches as loaded) and
+   in mud-sim (grant the feat, cast/trigger the affected spell/affect, confirm the
    effect applies to holders and not to non-holders).
 
 ---
