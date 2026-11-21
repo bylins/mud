@@ -5,16 +5,9 @@
 */
 
 #include "spells_constants.h"
-#include "spell_messages.h"
-#include "engine/db/global_objects.h"
 #include "utils/utils.h"
 
 #include <map>
-
-std::string GetAffExpiredText(ESpell spell_id) {
-	// A spell without its own kAffExpiredToChar in spell_msg.xml falls back to the kDefault sheaf.
-	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAffExpiredToChar);
-}
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
 typedef std::map<const std::string, ESpell> ESpell_value_by_name_t;

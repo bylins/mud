@@ -103,12 +103,10 @@ enum class ESpellMsg {
 	// fallback, so a spell without the key shows nothing.
 	kAffImposedToRoom,
 	kAffImposedToChar,
-	// Not read by the engine: dispel and room-expiry narration now come from
-	// affects::EAffectMsgType, keyed by the affect.
+	// Not read by the engine: dispel narration now comes from affects::EAffectMsgType,
+	// keyed by the affect.
 	kAffDispelledToRoom,
 	kAffDispelledToChar,
-	kAffExpiredToChar,		// affect wore off naturally, to the affected char (GetAffExpiredText).
-	kAffExpiredToRoom,		// not read by the engine (see affects::EAffectMsgType).
 	// Emitted by MaybeReflectToCaster when the original target reflects the spell back
 	// at the caster ($n = caster, $N = original victim).
 	kReflectedToChar,		// to the caster (whose spell bounced back).

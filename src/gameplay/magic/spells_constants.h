@@ -424,10 +424,6 @@ const std::map<ETarget, std::string> &NAMES_OF<ETarget>();
 constexpr Bitvector kMtypeNeutral = 1 << 0;
 constexpr Bitvector kMtypeAggressive = 1 << 1;
 
-// возращает текст выводимый при спадении скила
-std::string GetAffExpiredText(ESpell spell_id);
-
-
 // Extra-attack bit flags (combat; stored in CharData::battle_affects).
 enum EExtraAttackFlag : Bitvector {
 	kEafParry = 1 << 0,

@@ -56,7 +56,6 @@
 		<message type="kAffImposedToChar" val="Вы почувствовали странный холодок в своей душе." />
 		<message type="kAffDispelledToRoom" val="Быстрые тени метнулись вокруг $n3." />
 		<message type="kAffDispelledToChar" val="Волна тепла прошла по вашему телу." />
-		<message type="kAffExpiredToChar" val="Магия, наложенная на вас, рассеялась." />
 		<message type="kCastForbiddenToChar" val="Ваша магия потерпела неудачу и развеялась по воздуху." />
 		<message type="kCastForbiddenToRoom" val="Магия $n1 потерпела неудачу и развеялась по воздуху." />
 		<message type="kNoTarget" val="На {target} Вы хотите ЭТО колдовать?" />
@@ -745,7 +744,6 @@
 		<message type="kAlterObjToChar" val="Вы полностью восстановили $o3." />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
-		<message type="kAffExpiredToChar" val="SPELL_TIMER_REPAIR" />
 	</msg_sheaf>
 	<msg_sheaf id="kRestoration">
 		<name val="реконструкция" />
@@ -940,7 +938,6 @@
 		<message type="kFightGodToRoom" val="$n попытал$u удушить $N3. Не мог$q придумать ничего лучше?" />
 		<message type="kCastPhraseHeathen" val="Сдохни!" />
 		<message type="kCastPhraseChristian" val="... и услышав слова сии - пал бездыханен." />
-		<message type="kAffExpiredToChar" val="Пустота вокруг вас исчезла." />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsEarth">
 		<name val="стрелы земли" />
@@ -2272,7 +2269,6 @@
 		<name val="аура смерти" />
 		<message type="kCastPhraseHeathen" val="Надели силою своею Навь, дабы собрать урожай тебе." />
 		<message type="kCastPhraseChristian" val="...налякай ворогов наших и покарай их немощью." />
-		<message type="kAffExpiredToChar" val="Силы нави покинули вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kRecovery">
 		<name val="темное прикосновение" />
@@ -2288,7 +2284,6 @@
 		<name val="аура зла" />
 		<message type="kCastPhraseHeathen" val="Возьми личину зла для жатвы славной." />
 		<message type="kCastPhraseChristian" val="Надели силой злою во благо." />
-		<message type="kAffExpiredToChar" val="Аура зла больше не помогает вам." />
 	</msg_sheaf>
 	<msg_sheaf id="kMentalShadow">
 		<name val="ментальная тень" />
