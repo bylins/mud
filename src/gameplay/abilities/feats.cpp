@@ -37,98 +37,26 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 		return false;
 	};
 
-	switch (feat_id) {
-		case EFeat::kWeaponFinesse:
-		case EFeat::kFInesseShot: return (GetRealDex(ch) > GetRealStr(ch) && GetRealDex(ch) > 17);
-		case EFeat::kParryArrow: return (GetRealDex(ch) > 15);
-		case EFeat::kPowerAttack: return (GetRealStr(ch) > 19);
-		case EFeat::kGreatPowerAttack: return (GetRealStr(ch) > 21);
-		case EFeat::kAimingAttack: return (GetRealDex(ch) > 15);
-		case EFeat::kGreatAimingAttack: return (GetRealDex(ch) > 17);
-			// Обе способности требуют парного "любимого оружия" -- так написано и в справке,
-			// и так их проверяет CanGetFeat при изучении. Раньше требование жило только на
-			// входе: выучить без "любимого оружия" было нельзя, но если способность всё же
-			// оказалась у персонажа, список способностей красил её жёлтым, как рабочую.
-		case EFeat::kDoubleShot:
-			return ch->HaveFeat(EFeat::kBowsFocus) && GetSkill(ch, ESkill::kBows) > 39;
-			// Допудар двуручем и так срабатывает только вместе с "любимым оружием"
-			// (см. fight.cpp), здесь это условие просто оказывается в одном месте с прочими.
-		case EFeat::kSlashMaster:
-			return ch->HaveFeat(EFeat::kTwohandsFocus);
-		case EFeat::kJeweller: return (GetSkill(ch, ESkill::kJewelry) > 59);
-		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + remort::GetRealRemort(ch) / 3) > 19);
-		case EFeat::kMagicUser: return (GetRealLevel(ch) < 25);
-		case EFeat::kLiveShield: return (GetSkill(ch, ESkill::kRescue) > 124);
-		case EFeat::kShadowThrower: return (GetSkill(ch, ESkill::kDarkMagic) > 120);
-		case EFeat::kAnimalMaster: return (GetSkill(ch, ESkill::kMindMagic) > 79);
-		case EFeat::kScirmisher: return !(AFF_FLAGGED(ch, EAffect::kStopFight) ||
-			AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
-			ch->GetPosition() < EPosition::kFight);
-		default: return true;
-	}
+	return MUD::Feat(feat_id).requirements.IsMet(ch);
 }
 
-bool CanGetFocusFeat(const CharData *ch, const EFeat feat_id) {
-	int count{0};
-	for (auto focus_feat_id = EFeat::kPunchFocus; focus_feat_id <= EFeat::kBowsFocus; ++focus_feat_id) {
-		if (ch->HaveFeat(focus_feat_id)) {
-			count++;
-		}
+// A feat with a category can be learned only while the character holds fewer feats of that category
+// than its limit. A category missing from feats.xml fails closed.
+static bool HasRoomInCategory(const CharData *ch, const feats::FeatInfo &info) {
+	if (info.GetCategory().empty()) {
+		return true;
 	}
-
-	if (count >= 2 + remort::GetRealRemort(ch) / 6) {
+	const auto *category = feats::FeatCategoriesRegistry().Find(info.GetCategory());
+	if (!category) {
 		return false;
 	}
-
-	switch (feat_id) {
-		case EFeat::kPunchFocus: return GetSkillWithoutEquip(ch, ESkill::kPunch);
-		case EFeat::kClubsFocus: return GetSkillWithoutEquip(ch, ESkill::kClubs);
-		case EFeat::kAxesFocus: return GetSkillWithoutEquip(ch, ESkill::kAxes);
-		case EFeat::kLongsFocus: return GetSkillWithoutEquip(ch, ESkill::kLongBlades);
-		case EFeat::kShortsFocus: return GetSkillWithoutEquip(ch, ESkill::kShortBlades);
-		case EFeat::kNonstandartsFocus: return GetSkillWithoutEquip(ch, ESkill::kNonstandart);
-		case EFeat::kTwohandsFocus: return GetSkillWithoutEquip(ch, ESkill::kTwohands);
-		case EFeat::kPicksFocus: return GetSkillWithoutEquip(ch, ESkill::kPicks);
-		case EFeat::kSpadesFocus: return GetSkillWithoutEquip(ch, ESkill::kSpades);
-		case EFeat::kBowsFocus: return GetSkillWithoutEquip(ch, ESkill::kBows);
-		default: return false;
-	}
-}
-
-bool CanGetMasterFeat(const CharData *ch, const EFeat feat_id) {
-	int count{0};
-	for (auto master_feat = EFeat::kPunchMaster; master_feat <= EFeat::kBowsMaster; ++master_feat) {
-		if (ch->HaveFeat(master_feat)) {
-			count++;
+	int owned{0};
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.GetCategory() == info.GetCategory() && ch->HaveFeat(feat.GetId())) {
+			++owned;
 		}
 	}
-	if (count >= 1 + remort::GetRealRemort(ch) / 7) {
-		return false;
-	}
-
-	switch (feat_id) {
-		case EFeat::kPunchMaster:
-			return ch->HaveFeat(EFeat::kPunchFocus) && GetSkillWithoutEquip(ch, ESkill::kPunch);
-		case EFeat::kClubsMaster:
-			return ch->HaveFeat(EFeat::kClubsFocus) && GetSkillWithoutEquip(ch, ESkill::kClubs);
-		case EFeat::kAxesMaster:
-			return ch->HaveFeat(EFeat::kAxesFocus) && GetSkillWithoutEquip(ch, ESkill::kAxes);
-		case EFeat::kLongsMaster:
-			return ch->HaveFeat(EFeat::kLongsFocus) && GetSkillWithoutEquip(ch, ESkill::kLongBlades);
-		case EFeat::kShortsMaster:
-			return ch->HaveFeat(EFeat::kShortsFocus) && GetSkillWithoutEquip(ch, ESkill::kShortBlades);
-		case EFeat::kNonstandartsMaster:
-			return ch->HaveFeat(EFeat::kNonstandartsFocus) && GetSkillWithoutEquip(ch, ESkill::kNonstandart);
-		case EFeat::kTwohandsMaster:
-			return ch->HaveFeat(EFeat::kTwohandsFocus) && GetSkillWithoutEquip(ch, ESkill::kTwohands);
-		case EFeat::kPicksMaster:
-			return ch->HaveFeat(EFeat::kPicksFocus) && GetSkillWithoutEquip(ch, ESkill::kPicks);
-		case EFeat::kSpadesMaster:
-			return ch->HaveFeat(EFeat::kSpadesFocus) && GetSkillWithoutEquip(ch, ESkill::kSpades);
-		case EFeat::kBowsMaster:
-			return ch->HaveFeat(EFeat::kBowsFocus) && GetSkillWithoutEquip(ch, ESkill::kBows);
-		default: return false;
-	}
+	return owned < category->CalcLimit(remort::GetRealRemort(ch));
 }
 
 bool CanGetFeat(CharData *ch, EFeat feat) {
@@ -146,90 +74,11 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 		return false;
 	}
 
-	switch (feat) {
-		case EFeat::kParryArrow:
-			return GetSkillWithoutEquip(ch, ESkill::kMultiparry) ||
-				GetSkillWithoutEquip(ch, ESkill::kParry);
-		case EFeat::kConnoiseur:
-			return GetSkillWithoutEquip(ch, ESkill::kIdentify);
-		case EFeat::kExorcist:
-			return GetSkillWithoutEquip(ch, ESkill::kTurnUndead);
-		case EFeat::kHealer:
-			return GetSkillWithoutEquip(ch, ESkill::kFirstAid);
-		case EFeat::kStealthy:
-			return GetSkillWithoutEquip(ch, ESkill::kHide) ||
-				GetSkillWithoutEquip(ch, ESkill::kSneak) ||
-				GetSkillWithoutEquip(ch, ESkill::kDisguise);
-		case EFeat::kTracker:
-			return (GetSkillWithoutEquip(ch, ESkill::kTrack) ||
-				GetSkillWithoutEquip(ch, ESkill::kSense));
-		case EFeat::kPunchMaster:
-		case EFeat::kClubsMaster:
-		case EFeat::kAxesMaster:
-		case EFeat::kLongsMaster:
-		case EFeat::kShortsMaster:
-		case EFeat::kNonstandartsMaster:
-		case EFeat::kTwohandsMaster:
-		case EFeat::kPicksMaster:
-		case EFeat::kSpadesMaster: [[fallthrough]];
-		case EFeat::kBowsMaster:
-			return CanGetMasterFeat(ch, feat);
-		case EFeat::kWarriorSpirit:
-			return ch->HaveFeat(EFeat::kGreatFortitude);
-		case EFeat::kNimbleFingers:
-			return GetSkillWithoutEquip(ch, ESkill::kSteal) ||
-				GetSkillWithoutEquip(ch, ESkill::kPickLock);
-		case EFeat::kGreatPowerAttack:
-			return ch->HaveFeat(EFeat::kPowerAttack);
-		case EFeat::kPunchFocus:
-		case EFeat::kClubsFocus:
-		case EFeat::kAxesFocus:
-		case EFeat::kLongsFocus:
-		case EFeat::kShortsFocus:
-		case EFeat::kNonstandartsFocus:
-		case EFeat::kTwohandsFocus:
-		case EFeat::kPicksFocus:
-		case EFeat::kSpadesFocus: [[fallthrough]];
-		case EFeat::kBowsFocus:
-			return CanGetFocusFeat(ch, feat);
-		case EFeat::kGreatAimingAttack:
-			return ch->HaveFeat(EFeat::kAimingAttack);
-		case EFeat::kDoubleShot:
-			return ch->HaveFeat(EFeat::kBowsFocus) && GetSkillWithoutEquip(ch, ESkill::kBows) > 39;
-		case EFeat::kJeweller:
-			return GetSkillWithoutEquip(ch, ESkill::kJewelry) > 59;
-		case EFeat::kCutting:
-			return ch->HaveFeat(EFeat::kShortsMaster) ||
-				ch->HaveFeat(EFeat::kPicksMaster) ||
-				ch->HaveFeat(EFeat::kLongsMaster) ||
-				ch->HaveFeat(EFeat::kSpadesMaster);
-		case EFeat::kScirmisher:
-			return GetSkillWithoutEquip(ch, ESkill::kRescue);
-		case EFeat::kTactician:
-			return GetSkillWithoutEquip(ch, ESkill::kLeadership) > 99;
-		case EFeat::kShadowThrower:
-			return ch->HaveFeat(EFeat::kPowerThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kDarkMagic) > 120;
-		case EFeat::kShadowDagger:
-		case EFeat::kShadowSpear: [[fallthrough]];
-		case EFeat::kShadowClub:
-			return ch->HaveFeat(EFeat::kShadowThrower) &&
-				GetSkillWithoutEquip(ch, ESkill::kDarkMagic) > 130;
-		case EFeat::kDoubleThrower:
-			return ch->HaveFeat(EFeat::kPowerThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kThrow) > 100;
-		case EFeat::kTripleThrower:
-			return ch->HaveFeat(EFeat::kDeadlyThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kThrow) > 130;
-		case EFeat::kPowerThrow:
-			return GetSkillWithoutEquip(ch, ESkill::kThrow) > 90;
-		case EFeat::kDeadlyThrow:
-			return ch->HaveFeat(EFeat::kPowerThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kThrow) > 110;
-		case EFeat::kSerratedBlade:
-			return ch->HaveFeat(EFeat::kCutting);
-		default: return true;
+	if (!HasRoomInCategory(ch, MUD::Feat(feat))) {
+		return false;
 	}
+
+	return MUD::Feat(feat).prerequisites.IsMet(ch);
 }
 
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
@@ -327,11 +176,16 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 	if (MUD::Feat(feat_id).IsInvalid()) {
 		return false;
 	}
+	const auto flag = GetPrfWithFeatNumber(feat_id);
+	if (!flag) {
+		SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
+		return true;
+	}
 	if (!CanUseFeat(ch, feat_id)) {
 		SendMsgToChar("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return true;
 	}
-	if (ch->IsFlagged(GetPrfWithFeatNumber(feat_id))) {
+	if (ch->IsFlagged(*flag)) {
 		DeactivateFeature(ch, feat_id);
 	} else {
 		ActivateFeat(ch, feat_id);
@@ -450,7 +304,7 @@ EFeat FindWeaponMasterFeat(ESkill skill) {
 /*
  TODO: при переписывании способностей переделать на композицию или интерфейс
 */
-EPrf GetPrfWithFeatNumber(EFeat feat_id) {
+std::optional<EPrf> GetPrfWithFeatNumber(EFeat feat_id) {
 	switch (feat_id) {
 		case EFeat::kPowerAttack: return EPrf::kPerformPowerAttack;
 		case EFeat::kGreatPowerAttack: return EPrf::kPerformGreatPowerAttack;
@@ -460,10 +314,8 @@ EPrf GetPrfWithFeatNumber(EFeat feat_id) {
 		case EFeat::kScirmisher: return EPrf::kSkirmisher;
 		case EFeat::kDoubleThrower: return EPrf::kDoubleThrow;
 		case EFeat::kTripleThrower: return EPrf::kTripleThrow;
-		default: break;
+		default: return std::nullopt;
 	}
-
-	return EPrf::kPerformPowerAttack;
 }
 
 int CalcMaxFeatSlotPerLvl(const CharData *ch) {
@@ -485,17 +337,30 @@ using ItemPtr = FeatInfoBuilder::ItemPtr;
 
 // issue.perk-action-patching: map an effect-kind name ("kArea"/"kDamage"/...) to EAction, for the
 // has_effect= selector and op="modify" effect=. Returns false on an unknown name.
+static const std::pair<const char *, talents_actions::EAction> kEActionKindNames[] = {
+	{"kDamage", talents_actions::EAction::kDamage}, {"kArea", talents_actions::EAction::kArea},
+	{"kPoints", talents_actions::EAction::kPoints}, {"kAffect", talents_actions::EAction::kAffect},
+	{"kUnaffect", talents_actions::EAction::kUnaffect}, {"kSummon", talents_actions::EAction::kSummon},
+	{"kCreation", talents_actions::EAction::kCreation}, {"kAlterObj", talents_actions::EAction::kAlterObj},
+};
+
 static bool ParseEActionKind(const char *name, talents_actions::EAction &out) {
-	using talents_actions::EAction;
-	static const std::unordered_map<std::string, EAction> kByName = {
-		{"kDamage", EAction::kDamage}, {"kArea", EAction::kArea}, {"kPoints", EAction::kPoints},
-		{"kAffect", EAction::kAffect}, {"kUnaffect", EAction::kUnaffect}, {"kSummon", EAction::kSummon},
-		{"kCreation", EAction::kCreation}, {"kAlterObj", EAction::kAlterObj},
-	};
-	const auto it = kByName.find(name);
-	if (it == kByName.end()) { return false; }
-	out = it->second;
-	return true;
+	for (const auto &[kind_name, kind] : kEActionKindNames) {
+		if (strcmp(kind_name, name) == 0) {
+			out = kind;
+			return true;
+		}
+	}
+	return false;
+}
+
+static const char *EActionKindName(talents_actions::EAction kind) {
+	for (const auto &[kind_name, value] : kEActionKindNames) {
+		if (value == kind) {
+			return kind_name;
+		}
+	}
+	return "?";
 }
 
 // issue.perk-action-patching: parse a feat talent_patches block into FeatInfo::talent_patches. Each
@@ -591,12 +456,26 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 	node.GoToParent();
 }
 
+// Every feat that names a category must find it in <feat_categories>; otherwise it cannot be learned.
+static void CheckFeatCategories() {
+	for (const auto &feat : MUD::Feats()) {
+		if (!feat.GetCategory().empty() && !FeatCategoriesRegistry().Find(feat.GetCategory())) {
+			err_log("Feat [%s]: unknown category [%s], the feat cannot be learned.",
+					NAME_BY_ITEM<EFeat>(feat.GetId()).c_str(), feat.GetCategory().c_str());
+		}
+	}
+}
+
 void FeatsLoader::Load(DataNode data) {
-	MUD::Feats().Init(data.Children());
+	FeatCategoriesRegistry().Build(data);
+	MUD::Feats().Init(data.Children("feat"));
+	CheckFeatCategories();
 }
 
 void FeatsLoader::Reload(DataNode data) {
-	MUD::Feats().Reload(data.Children());
+	FeatCategoriesRegistry().Build(data);
+	MUD::Feats().Reload(data.Children("feat"));
+	CheckFeatCategories();
 	// issue.perk-action-patching: the index holds raw pointers into FeatInfo::talent_patches, and a
 	// reload swaps the whole feat register -- every pointer linked at boot now dangles. Rebuild it
 	// here, so the invariant holds for every caller (reload feats, reload all, the Vedun editor).
@@ -616,6 +495,9 @@ ItemPtr FeatInfoBuilder::ParseFeat(DataNode &node) {
 	auto info = ParseHeader(node);
 
 	ParseEffects(info, node);
+	info->prerequisites.Build(node, info->GetId());
+	info->requirements.Build(node, info->GetId());
+	info->timer_ = FeatTimer::Parse(node, info->GetId());
 	ParseTalentPatches(*info, node);   // issue.perk-action-patching
 	return info;
 }
@@ -632,6 +514,7 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 
 	auto info = std::make_shared<FeatInfo>(id, mode);
 	info->name_ = MUD::FeatMessages().GetName(id);   // issue.thing-names: name from feat_msg.xml
+	info->category_ = parse::AttrStr(node, "category");
 
 	return info;
 }
@@ -643,13 +526,75 @@ void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 	}
 }
 
+// One talent patch as text for immortals: the op and its selectors.
+static std::string DescribeTalentPatch(const TalentPatch &p) {
+	static const char *kOpNames[] = {"append", "insert", "replace", "remove", "add_effect", "replace_all", "modify"};
+	std::string text = std::string("op=") + kOpNames[static_cast<int>(p.op)];
+	if (p.target_spell != ESpell::kUndefined) {
+		text += " spell=" + NAME_BY_ITEM<ESpell>(p.target_spell);
+	}
+	if (p.element != EElement::kUndefined) {
+		text += " element=" + NAME_BY_ITEM<EElement>(p.element);
+	}
+	if (p.base_skill != ESkill::kUndefined) {
+		text += " base_skill=" + NAME_BY_ITEM<ESkill>(p.base_skill);
+	}
+	if (p.flag_sel != 0) {
+		text += " flag=" + NAME_BY_ITEM<EMagic>(static_cast<EMagic>(p.flag_sel));
+	}
+	if (p.match_all) {
+		text += " all";
+	}
+	if (p.has_has_effect) {
+		text += std::string(" has_effect=") + EActionKindName(p.has_effect_kind);
+	}
+	if (!p.category.empty()) {
+		text += " category=" + p.category;
+	}
+	if (p.target_affect != EAffect::kUndefined) {
+		text += " affect=" + NAME_BY_ITEM<EAffect>(p.target_affect);
+	}
+	if (!p.action_id.empty()) {
+		text += " action=" + p.action_id;
+	}
+	if (!p.effect_id.empty()) {
+		text += " effect=" + p.effect_id;
+	}
+	return text;
+}
+
 void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print feat:" << "\r\n"
 		   << " Id: " << kColorGrn << NAME_BY_ITEM<EFeat>(GetId()) << kColorNrm << "\r\n"
 		   << " Name: " << kColorGrn << GetName() << kColorNrm << "\r\n"
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 
+	if (!category_.empty()) {
+		buffer << " Category: " << kColorGrn << category_ << kColorNrm;
+		if (const auto *category = FeatCategoriesRegistry().Find(category_)) {
+			buffer << ", limit " << kColorGrn << category->DescribeLimit() << kColorNrm;
+		} else {
+			buffer << " " << kColorBoldRed << "(unknown, the feat cannot be learned)" << kColorNrm;
+		}
+		buffer << "\r\n";
+	}
+	if (GetPrfWithFeatNumber(GetId())) {
+		buffer << " Toggled: " << kColorGrn << "yes" << kColorNrm << " (switched on and off by the style command)\r\n";
+	}
+	if (timer_) {
+		buffer << " Delay: " << kColorGrn << timer_->Describe() << kColorNrm << "\r\n";
+	}
+	prerequisites.Print(buffer);
+	requirements.Print(buffer);
+
 	effects.Print(ch, buffer);
+
+	if (!talent_patches.empty()) {
+		buffer << " Talent patches:" << "\r\n";
+		for (const auto &patch : talent_patches) {
+			buffer << "   " << kColorGrn << DescribeTalentPatch(patch) << kColorNrm << "\r\n";
+		}
+	}
 }
 
 // issue.perk-action-patching: validate a patch target/anchor ids against the spell action blocks.

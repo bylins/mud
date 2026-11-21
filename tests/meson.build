@@ -18,6 +18,10 @@ test_sources = files(
     'vedun.element_find.cpp',
     'msg_container.cdata.cpp',
     'guilds.loader.cpp',
+    'feats.conditions.cpp',
+    'feats.categories.cpp',
+    'feats.timer.cpp',
+    'feats.toggles.cpp',
     'interpreter.command_shadowing.cpp',
     'socials.loader.cpp',
     'subcmd_resolver.cpp',
@@ -145,6 +149,7 @@ fs = import('fs')
 
 files_to_copy = [
     ['../lib/cfg/mechanics/group_exp_handicap.xml', 'cfg/mechanics/group_exp_handicap.xml'],
+    ['../lib/cfg/feats.xml', 'cfg/feats.xml'],
     ['data/boards/changelog.sample',  'data/boards/changelog.sample'],
     ['data/boards/news.sample',       'data/boards/news.sample'],
     ['data/mob_classes/test_initial.xml', 'data/mob_classes/test_initial.xml'],

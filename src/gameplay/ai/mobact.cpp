@@ -51,6 +51,7 @@
 #include "gameplay/fight/pk.h"
 #include "utils/random.h"
 #include "gameplay/clans/house.h"
+#include "gameplay/fight/common.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/ai/mob_memory.h"
@@ -340,6 +341,8 @@ int npc_track(CharData *ch) {
 	return kBfsError;
 }
 
+// A random group member standing in formation who is able to take the blow. When everyone stands in
+// formation, no one is behind it to cover.
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 	target_resolver::FriendsRosterType roster{leader};
 	auto isSkirmisher = [](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); };
@@ -347,7 +350,7 @@ CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
 		return nullptr;
 	}
-	return roster.getRandomItem(isSkirmisher);
+	return roster.getRandomItem(IsActiveSkirmisher);
 }
 
 CharData *selectVictimDependingOnGroupFormation(CharData *assaulter, CharData *initialVictim) {

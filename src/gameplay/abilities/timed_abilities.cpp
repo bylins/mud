@@ -12,6 +12,8 @@
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"       // MUD::Feats()
 #include "gameplay/abilities/feats.h"
+#include "gameplay/core/remort.h"
+#include "gameplay/mechanics/weather.h"     // kHoursPerDay
 #include "gameplay/skills/skills.h"
 #include "utils/utils.h"
 #include "utils/backtrace.h"
@@ -34,6 +36,20 @@ int GetTalentTimerMod(CharData *ch, TalentId id) {
 
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed) {
 	ch->timed_feat[timed->feat] = std::max(time(0) + 60, time(0) + timed->time * 60 + GetTalentTimerMod(ch, timed->feat) * kSecsPerMudHour / kSecsPerPlayerTimed);
+}
+
+void ImposeTimedFeat(CharData *ch, EFeat feat) {
+	TimedFeat timed;
+	timed.feat = feat;
+	const auto *timer = MUD::Feat(feat).GetTimer();
+	if (timer && timer->has_base) {
+		timed.time = static_cast<ubyte>(timer->CalcDelay(remort::GetRealRemort(ch)));
+	} else {
+		err_log("Feat [%s] has no <timed base> in feats.xml, imposing %d hours.",
+				NAME_BY_ITEM<EFeat>(feat).c_str(), kHoursPerDay);
+		timed.time = kHoursPerDay;
+	}
+	ImposeTimedFeat(ch, &timed);
 }
 
 void ExpireTimedFeat(CharData *ch, EFeat feat) {

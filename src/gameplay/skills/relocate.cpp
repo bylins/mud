@@ -13,13 +13,11 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/magic/magic_utils.h"          // IsRoomBlocked (issue.no-teleport-out)
 #include "engine/db/global_objects.h"            // MUD::Spell
-#include "gameplay/core/remort.h"
 #include "utils/utils_string.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 
 void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct TimedFeat timed;
 
 	if (!CanUseFeat(ch, EFeat::kRelocate)) {
 		SendMsgToChar("Вам это недоступно.\r\n", ch);
@@ -101,7 +99,6 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
-	timed.feat = EFeat::kRelocate;
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 			return;
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
@@ -115,7 +112,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					  kColorBoldRed, kColorBoldBlk);
 		pkPortal(ch);
-		timed.time = 18 - MIN(remort::GetRealRemort(ch), 15);
+		ImposeTimedFeat(ch, EFeat::kRelocate);
 		SetBattleLag(ch, 3);
 		Affect<EApply> af;
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);
@@ -123,10 +120,13 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.battleflag = {kAfPulsedec};
 		affect_to_char(ch, af);
 	} else {
+		// A peaceful move has a short fixed delay; the one from feats.xml is for aggressive moves.
+		TimedFeat timed;
+		timed.feat = EFeat::kRelocate;
 		timed.time = 2;
+		ImposeTimedFeat(ch, &timed);
 		SetBattleLag(ch, 1);
 	}
-	ImposeTimedFeat(ch, &timed);
 	sight::look_at_room(ch, 0);
 	CheckAutoNosummon(victim);
 	greet_mtrigger(ch, -1);
