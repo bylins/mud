@@ -68,26 +68,23 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 	}
 }
 
-// The number of weapon focus and weapon master feats a character may hold grows with remorts. What each
-// of them requires (the weapon skill, the matching focus for a master) is set in feats.xml.
-static bool HasRoomForFocusFeat(const CharData *ch) {
-	int count{0};
-	for (auto focus_feat_id = EFeat::kPunchFocus; focus_feat_id <= EFeat::kBowsFocus; ++focus_feat_id) {
-		if (ch->HaveFeat(focus_feat_id)) {
-			count++;
+// A feat with a category can be learned only while the character holds fewer feats of that category
+// than its limit. A category missing from feats.xml fails closed.
+static bool HasRoomInCategory(const CharData *ch, const feats::FeatInfo &info) {
+	if (info.GetCategory().empty()) {
+		return true;
+	}
+	const auto *category = feats::FeatCategoriesRegistry().Find(info.GetCategory());
+	if (!category) {
+		return false;
+	}
+	int owned{0};
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.GetCategory() == info.GetCategory() && ch->HaveFeat(feat.GetId())) {
+			++owned;
 		}
 	}
-	return count < 2 + remort::GetRealRemort(ch) / 6;
-}
-
-static bool HasRoomForMasterFeat(const CharData *ch) {
-	int count{0};
-	for (auto master_feat = EFeat::kPunchMaster; master_feat <= EFeat::kBowsMaster; ++master_feat) {
-		if (ch->HaveFeat(master_feat)) {
-			count++;
-		}
-	}
-	return count < 1 + remort::GetRealRemort(ch) / 7;
+	return owned < category->CalcLimit(remort::GetRealRemort(ch));
 }
 
 bool CanGetFeat(CharData *ch, EFeat feat) {
@@ -105,10 +102,7 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 		return false;
 	}
 
-	if (feat >= EFeat::kPunchFocus && feat <= EFeat::kBowsFocus && !HasRoomForFocusFeat(ch)) {
-		return false;
-	}
-	if (feat >= EFeat::kPunchMaster && feat <= EFeat::kBowsMaster && !HasRoomForMasterFeat(ch)) {
+	if (!HasRoomInCategory(ch, MUD::Feat(feat))) {
 		return false;
 	}
 
@@ -474,12 +468,26 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 	node.GoToParent();
 }
 
+// Every feat that names a category must find it in <feat_categories>; otherwise it cannot be learned.
+static void CheckFeatCategories() {
+	for (const auto &feat : MUD::Feats()) {
+		if (!feat.GetCategory().empty() && !FeatCategoriesRegistry().Find(feat.GetCategory())) {
+			err_log("Feat [%s]: unknown category [%s], the feat cannot be learned.",
+					NAME_BY_ITEM<EFeat>(feat.GetId()).c_str(), feat.GetCategory().c_str());
+		}
+	}
+}
+
 void FeatsLoader::Load(DataNode data) {
-	MUD::Feats().Init(data.Children());
+	FeatCategoriesRegistry().Build(data);
+	MUD::Feats().Init(data.Children("feat"));
+	CheckFeatCategories();
 }
 
 void FeatsLoader::Reload(DataNode data) {
-	MUD::Feats().Reload(data.Children());
+	FeatCategoriesRegistry().Build(data);
+	MUD::Feats().Reload(data.Children("feat"));
+	CheckFeatCategories();
 	// issue.perk-action-patching: the index holds raw pointers into FeatInfo::talent_patches, and a
 	// reload swaps the whole feat register -- every pointer linked at boot now dangles. Rebuild it
 	// here, so the invariant holds for every caller (reload feats, reload all, the Vedun editor).
@@ -516,6 +524,7 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 
 	auto info = std::make_shared<FeatInfo>(id, mode);
 	info->name_ = MUD::FeatMessages().GetName(id);   // issue.thing-names: name from feat_msg.xml
+	info->category_ = parse::AttrStr(node, "category");
 
 	return info;
 }

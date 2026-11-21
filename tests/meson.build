@@ -19,6 +19,7 @@ test_sources = files(
     'msg_container.cdata.cpp',
     'guilds.loader.cpp',
     'feats.prerequisites.cpp',
+    'feats.categories.cpp',
     'interpreter.command_shadowing.cpp',
     'socials.loader.cpp',
     'subcmd_resolver.cpp',

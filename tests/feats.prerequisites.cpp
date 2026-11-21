@@ -178,7 +178,7 @@ TEST(FeatPrerequisites, RebuildResets) {
 }
 
 // The prerequisites in the shipped cfg/feats.xml must give the same answers as the rules that used to be
-// hard-coded in CanGetFeat (the weapon focus / master counters stay in code and are not part of this).
+// hard-coded in CanGetFeat (the weapon focus / master counters are feat categories, see feats.categories.cpp).
 namespace {
 
 using SkillOf = std::function<int(ESkill)>;
@@ -272,7 +272,7 @@ std::map<EFeat, LegacyCase> LegacyRules() {
 std::map<EFeat, FeatPrerequisites> LoadShippedPrerequisites() {
 	std::map<EFeat, FeatPrerequisites> result;
 	parser_wrapper::DataNode doc(std::filesystem::path("cfg/feats.xml"));
-	for (auto &feat : doc.Children()) {
+	for (auto &feat : doc.Children("feat")) {
 		const auto id = ITEM_BY_NAME<EFeat>(feat.GetValue("id"));
 		result[id].Build(feat, id);
 	}

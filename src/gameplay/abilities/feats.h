@@ -19,6 +19,7 @@
 #include "engine/structs/info_container.h"
 #include "gameplay/magic/spells_constants.h"   // issue.perk-action-patching: ESpell (patch target)
 #include "talents_actions.h"                    // issue.perk-action-patching: Actions (patch payload)
+#include "feat_categories.h"
 #include "feat_prerequisites.h"
 
 #include <array>
@@ -100,6 +101,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	friend class FeatInfoBuilder;
 
 	std::string name_;
+	std::string category_;
 
  public:
 	FeatInfo() = default;
@@ -114,6 +116,8 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
+	// The <feat_categories> entry limiting how many such feats a character may hold; empty -- none.
+	[[nodiscard]] const std::string &GetCategory() const { return category_; };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };

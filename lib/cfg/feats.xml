@@ -10,19 +10,31 @@
                                      absence="Y" — наоборот, её нет.
 Неверный <prerequisite> пишется в лог и отбрасывается целиком. Если не осталось ни одного,
 способность выучить нельзя.
+    <feat id="kTactician" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kLeadership" min="100"/>
+            </prerequisite>
+        </prerequisites>
+    </feat>
+
+<feat_categories> — категории способностей. Способность относится к категории атрибутом
+category="id". Одновременно можно иметь не больше способностей категории, чем
+    base + реморты / remort_divisor, но не больше cap.
+remort_divisor по умолчанию 0 — предел не растёт с ремортами; cap по умолчанию -1 — без потолка.
+Способность с неизвестной или неверно описанной категорией выучить нельзя.
+    <feat_categories>
+        <category id="weapon_focus" base="2" remort_divisor="6"/>
+    </feat_categories>
+    <feat id="kPunchFocus" category="weapon_focus" mode="kEnabled">
 
 Класс, уровень, реморты и слоты задаются в файлах классов, расовые способности — в pc_races.xml.
-Число "любимых оружий" и "мастерств" пока ограничивается в коде.
-
-<feat id="kTactician" mode="kEnabled">
-    <prerequisites>
-        <prerequisite>
-            <skill id="kLeadership" min="100"/>
-        </prerequisite>
-    </prerequisites>
-</feat>
 -->
 <feats>
+    <feat_categories>
+        <category id="weapon_focus" base="2" remort_divisor="6"/>
+        <category id="weapon_master" base="1" remort_divisor="7"/>
+    </feat_categories>
     <feat id="kUndefined" mode="kService">
     </feat>
     <feat id="kBerserker" mode="kEnabled">
@@ -247,7 +259,7 @@
     </feat>
     <feat id="kCombatCasting" mode="kEnabled">
     </feat>
-    <feat id="kPunchMaster" mode="kEnabled">
+    <feat id="kPunchMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kPunchFocus"/>
@@ -255,7 +267,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kClubsMaster" mode="kEnabled">
+    <feat id="kClubsMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kClubsFocus"/>
@@ -263,7 +275,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kAxesMaster" mode="kEnabled">
+    <feat id="kAxesMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kAxesFocus"/>
@@ -271,7 +283,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kLongsMaster" mode="kEnabled">
+    <feat id="kLongsMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kLongsFocus"/>
@@ -279,7 +291,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kShortsMaster" mode="kEnabled">
+    <feat id="kShortsMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kShortsFocus"/>
@@ -287,7 +299,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kNonstandartsMaster" mode="kEnabled">
+    <feat id="kNonstandartsMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kNonstandartsFocus"/>
@@ -295,7 +307,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kTwohandsMaster" mode="kEnabled">
+    <feat id="kTwohandsMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kTwohandsFocus"/>
@@ -303,7 +315,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kPicksMaster" mode="kEnabled">
+    <feat id="kPicksMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kPicksFocus"/>
@@ -311,7 +323,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kSpadesMaster" mode="kEnabled">
+    <feat id="kSpadesMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kSpadesFocus"/>
@@ -319,7 +331,7 @@
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kBowsMaster" mode="kEnabled">
+    <feat id="kBowsMaster" category="weapon_master" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <feat id="kBowsFocus"/>
@@ -514,70 +526,70 @@
     </feat>
     <feat id="kInjure" mode="kEnabled">
     </feat>
-    <feat id="kPunchFocus" mode="kEnabled">
+    <feat id="kPunchFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kPunch" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kClubsFocus" mode="kEnabled">
+    <feat id="kClubsFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kClubs" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kAxesFocus" mode="kEnabled">
+    <feat id="kAxesFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kAxes" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kLongsFocus" mode="kEnabled">
+    <feat id="kLongsFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kLongBlades" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kShortsFocus" mode="kEnabled">
+    <feat id="kShortsFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kShortBlades" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kNonstandartsFocus" mode="kEnabled">
+    <feat id="kNonstandartsFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kNonstandart" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kTwohandsFocus" mode="kEnabled">
+    <feat id="kTwohandsFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kTwohands" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kPicksFocus" mode="kEnabled">
+    <feat id="kPicksFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kPicks" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kSpadesFocus" mode="kEnabled">
+    <feat id="kSpadesFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kSpades" min="1"/>
             </prerequisite>
         </prerequisites>
     </feat>
-    <feat id="kBowsFocus" mode="kEnabled">
+    <feat id="kBowsFocus" category="weapon_focus" mode="kEnabled">
         <prerequisites>
             <prerequisite>
                 <skill id="kBows" min="1"/>
