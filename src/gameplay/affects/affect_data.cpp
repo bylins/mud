@@ -277,7 +277,7 @@ void UpdateAffectOnPulse(CharData *ch, int pulse_number, int count) {
 		const bool battle_scale = IS_SET(affect->battleflag, kAfBattledec);
 		pulse_aff = true;
 
-		if (affect->duration == 0) { //-1 вечный таймер по задумке
+		if (affect->duration == 0) {
 			// issue.character-affect-triggers: kExpired -- timer ran out; fire the affect's kExpired
 			// <actions> on the bearer before the strip (natural end -> no dispeller actor).
 			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
@@ -315,7 +315,7 @@ void ApplyOfflineTimerAging(CharData *ch, time_t now) {
 	const long slow_ticks = elapsed / kSecsPerPlayerAffect;
 
 	for (const auto &aff : ch->affected) {
-		if (aff->duration <= 0) {   // permanent (-1) or already expired -- leave alone
+		if (aff->duration <= 0) {   // permanent or already expired -- leave alone
 			continue;
 		}
 		if (IS_SET(aff->battleflag, kAfPulsedec)) {
@@ -792,11 +792,11 @@ void mobile_affect_update() {
 
 		// issue.mob-flag-affect-materialization: drop the mob from affected_mobs once none of its
 		// surviving affects need per-tick processing (all permanent -1, or none left) -- so a mob left
-		// with only materialized buffs after a timed affect expired stops being scanned. The -1 affects
+		// with only materialized buffs after a timed affect expired stops being scanned. The permanent affects
 		// remain on ch->affected (the damage system reads that), and a future timed affect re-registers it.
 		bool needs_update = false;
 		for (const auto &a : ch->affected) {
-			if (a && a->duration != -1) {
+			if (a && a->duration != kPermanentAffectDuration) {
 				needs_update = true;
 				break;
 			}
@@ -1519,7 +1519,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af, const AffectFlags &e
 	// A permanent (duration -1) affect -- e.g. a materialized intrinsic buff -- never ticks or expires,
 	// so it does not belong in the per-tick affected_mobs set (the damage system reads ch->affected
 	// directly, so the buff still works). A later timed/pulsing affect re-registers the mob here.
-	if (ch->IsNpc() && af.duration != -1) {
+	if (ch->IsNpc() && af.duration != kPermanentAffectDuration) {
 		affected_mobs.insert(ch);
 	}
 	ch->affected.push_front(affected_alloc);
@@ -1548,7 +1548,7 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// A permanent (duration -1) affect -- e.g. a materialized intrinsic buff -- never ticks or expires,
 	// so it does not belong in the per-tick affected_mobs set (the damage system reads ch->affected
 	// directly, so the buff still works). A later timed/pulsing affect re-registers the mob here.
-	if (ch->IsNpc() && af.duration != -1) {
+	if (ch->IsNpc() && af.duration != kPermanentAffectDuration) {
 		affected_mobs.insert(ch);
 	}
 	ch->affected.push_front(affected_alloc);

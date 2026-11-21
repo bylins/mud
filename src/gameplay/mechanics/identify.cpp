@@ -13,6 +13,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/liquid.h"
+#include "gameplay/mechanics/antisaving.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/ui/color.h"
 #include "engine/ui/cmd_god/do_stat.h"
@@ -548,7 +549,7 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 		hit_params.skill_num = ESkill::kAny; 
 		hit_params.Init(victim, victim);
 		ss << fmt::format("Попадание: {}, повреждение: {}, успех колдовства: {}, удача: {}, инициатива: {}\r\n",
-				GET_REAL_HR(victim) + str_bonus(GetRealStr(victim), STR_TO_HIT), hit_params.CalcDmg(victim, false), CalcAntiSavings(victim), victim->calc_morale(), calc_initiative(victim, false));
+				GET_REAL_HR(victim) + str_bonus(GetRealStr(victim), STR_TO_HIT), hit_params.CalcDmg(victim, false), antisaving::CalcAntiSavings(victim), victim->calc_morale(), calc_initiative(victim, false));
 	}
 	if (skill > 99) {
 	ss << fmt::format("Cила: {}({}), ловкость: {}({}), телосложение: {}({}), ум: {}({}), мудрость: {}({}), обаяние: {}({})\r\n",

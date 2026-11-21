@@ -1,13 +1,10 @@
-//#include "spells_info.h"
-
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/minions.h"
-#include "utils/utils_string.h"   // str_cmp
-//#include "spells.h"
+#include "utils/utils_string.h"
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/abilities/feats.h"   // issue.perk-action-patching: BuildTalentPatchIndex
+#include "gameplay/abilities/feats.h"
 
 #include <string_view>
 
@@ -18,7 +15,7 @@
  */
 std::map<ESpell, SpellCreate> spell_create;
 
-// issue.manual-cast: defined in magic.cpp (global scope); validates <manual_cast> handler names.
+// Defined in action_handlers.cpp (global scope); validates <manual_cast> handler names.
 bool IsManualHandlerRegistered(const std::string &name);
 
 namespace spells {
@@ -31,12 +28,12 @@ void SpellsLoader::Load(DataNode data) {
 
 void SpellsLoader::Reload(DataNode data) {
 	MUD::Spells().Reload(data.Children());
-	// issue.perk-action-patching: a reload swaps the whole spell register, so the freshly built
+	// A reload swaps the whole spell register, so the freshly built
 	// SpellInfo carries an empty talent_patches list -- relink the perks' patches onto it.
 	feats::BuildTalentPatchIndex();
 }
 
-// issue.vedun-editor: editor discovery + safe-commit validation.
+// Editor discovery + safe-commit validation.
 std::string SpellsLoader::EditableWhat() const {
 	return "spell";
 }
@@ -106,7 +103,7 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		node.GoToParent();
 	}
 	ParseActions(info, node);
-	// issue.manual-cast: a <manual_cast> handler name must resolve to a registered handler.
+	// A <manual_cast> handler name must resolve to a registered handler.
 	for (const auto &act : info->actions.list()) {
 		const std::string &mh = act.GetManualHandler();
 		if (!mh.empty() && !IsManualHandlerRegistered(mh)) {
@@ -120,7 +117,6 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 	// Cross-validate: kAmbiguous (violent="A") is meaningless for a room paint
 	// because there is no per-target relationship to resolve. Clamp to kYes
 	// conservatively and SYSERR so the misconfiguration is visible.
-	// (issue.ambiguous-spells)
 	if (info->violent_ == EViolent::kAmbiguous && info->IsFlagged(kMagRoom)) {
 		char buf[128];
 		snprintf(buf, sizeof(buf),
@@ -153,8 +149,8 @@ ItemPtr SpellInfoBuilder::ParseHeader(DataNode &node) {
 }
 
 void SpellInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
-	// issue.thing-names: the English name stays in spells.xml as an admin label; the Russian display
-	// name now lives in spell_msg.xml and is read from the message container (loaded just before spells).
+	// The English name stays in spells.xml as an admin label; the Russian display
+	// name lives in spell_msg.xml and is read from the message container (loaded just before spells).
 	if (node.GoToChild("name")) {
 		try {
 			info->name_eng_ = parse::ReadAsStr(node.GetValue("val"));
@@ -168,10 +164,9 @@ void SpellInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
 }
 
 // Parses the <components>...</components> spell-level block placed right after
-// <name> (issue.spellcomponents). Errors bubble up via Components' ctor;
-// material entries with invalid vnums abort spell loading just like Roll/Actions
-// errors do today. Spells without a <components> tag keep the default empty
-// container (cast proceeds without any material requirement).
+// <name>. A malformed block (e.g. a material entry with an invalid vnum) is logged
+// and the spell keeps the default empty container, as do spells without a
+// <components> tag (cast proceeds without any material requirement).
 void SpellInfoBuilder::ParseComponents(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("components")) {
 		try {
@@ -184,8 +179,8 @@ void SpellInfoBuilder::ParseComponents(ItemPtr &info, DataNode &node) {
 	}
 }
 
-// Parses the <misc violent> attribute as the three-state EViolent enum
-// (issue.ambiguous-spells). Accepts "Y"/"1" (kYes), "N"/"0"/empty (kNo),
+// Parses the <misc violent> attribute as the three-state EViolent enum.
+// Accepts "Y"/"1" (kYes), "N"/"0"/empty (kNo),
 // "A" (kAmbiguous); anything else falls back to kNo with a CMP-level mudlog
 // so the misconfiguration is visible without breaking the load.
 static EViolent ParseViolent(const std::string &raw) {
@@ -251,7 +246,7 @@ void SpellInfoBuilder::ParseFlags(ItemPtr &info, DataNode &node) {
 	}
 }
 
-// issue.perk-action-patching (Phase 3): <tags val="curse|shield"/> -> the spell's semantic category set.
+// <tags val="curse|shield"/> -> the spell's semantic category set.
 void SpellInfoBuilder::ParseTags(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("tags")) {
 		if (const char *v = node.GetValue("val"); v && *v) {
@@ -279,7 +274,7 @@ bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 }
 
 // Walks up the charm-chain so a charmed NPC resolves to its PC master for
-// alliance purposes (issue.ambiguous-spells). The loop is bounded at a depth
+// alliance purposes. The loop is bounded at a depth
 // of 4 so a pathological charm cycle can't hang the cast pipeline.
 static const CharData *AllyRoot(const CharData *ch) {
 	if (!ch) return nullptr;

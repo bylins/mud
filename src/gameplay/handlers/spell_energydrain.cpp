@@ -9,6 +9,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/magic/magic_internal.h"
+#include "gameplay/mechanics/antisaving.h"
 
 namespace handlers {
 
@@ -19,8 +20,8 @@ EStageResult SpellEnergydrain(ActionContext &ctx) {
 	// для всех
 	int modi = 0;
 	if (ch != victim) {
-		modi = CalcAntiSavings(ch);
-		modi += CalcClassAntiSavingsMod(ch, ESpell::kEnergyDrain);
+		modi = antisaving::CalcAntiSavings(ch);
+		modi += antisaving::CalcClassAntiSavingsMod(ch, ESpell::kEnergyDrain);
 		if (!pk_agro_action(ch, victim))
 			return EStageResult::kSuccess;
 	}

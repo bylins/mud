@@ -18,7 +18,7 @@
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/core/constants.h"
 #include "gameplay/crafting/im.h"
-#include "gameplay/magic/magic_rooms.h"   // issue.room-affect-trigger-improve: ClearExitAffects on exit rebuild
+#include "gameplay/affects/room_affects.h"   // issue.room-affect-trigger-improve: ClearExitAffects on exit rebuild
 #include "engine/db/description.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/deathtrap.h"
@@ -878,7 +878,7 @@ void CopyRoom(RoomData *dst, RoomData *src) {
 	// ExitData below), so any door affect on the old exits is gone -- drop their registry entries here
 	// so nothing dangles. Room affects ARE preserved (backed up/restored below); door affects are not.
 	for (i = 0; i < EDirection::kMaxDirNum; ++i) {
-		room_spells::ClearExitAffects(dst, i);
+		room_affects::ClearExitAffects(dst, i);
 	}
 
 	{

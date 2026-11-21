@@ -1,10 +1,9 @@
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 /**
 \file points_intensity.h - a part of the Bylins engine.
-\authors Created for issue.mag-points.
 \brief Intensity-grade vocabulary for CastToPoints narration.
-\details Loads lib/cfg/messages/ru/points_intensity.xml at boot. Each of the four
-		 restoration categories (heal / moves / thirst / full) carries
+\details Loads lib/cfg/messages/ru/points_intensity.xml at boot. Each category
+		 (heal / moves / thirst / full / damage) carries
 		 <improve> and <degrade> lists of <grade percent= text="..."/>
 		 entries; given a computed intensity percentage, Resolve() returns
 		 the text of the highest tier whose threshold the percentage has
@@ -12,8 +11,7 @@
 
 		 Lookup pseudo-code: walk grades sorted descending by signed
 		 percent; return the first whose `percent` is <= the input
-		 (issue.point-bugs #5 -- unified for improve and degrade, was
-		 strict < with a special-case reverse for degrade).
+		 (same walk for improve and degrade).
 
 		 The returned text is fed through act() so suffix codes like $h /
 		 $r / $g resolve against the target's gender on emission.
@@ -38,18 +36,13 @@ enum class ECategory {
 	kHeal   = 0,
 	kMoves  = 1,
 	kThirst = 2,
-	kFull   = 3,   // hunger axis (engine COND[FULL]; XML tag <full>, renamed from <cond>
-	               // in issue.point-bugs to free "cond" for the overall-state triplet).
-	kDamage = 4,   // weapon-hit narration (issue.mag-points step 2: hit_msg.xml
-	               // grading retired). Percentage formula = damage * 100 / striker's
-	               // max HP (every viewer sees the same scale). Top tier crosses 150%.
+	kFull   = 3,   // hunger axis (engine COND[FULL]; XML tag <full>).
+	kDamage = 4,   // weapon-hit narration; thresholds are absolute damage (HP), not percent.
 	kCount,
 };
 
 struct Grade {
-	int percent{0};      // lower bound (inclusive) -- tier matches when percent <= input
-	                     // (issue.point-bugs #5: was "strict <", changed to "<=" so input
-	                     // exactly at the threshold maps to that threshold's tier).
+	int percent{0};      // lower bound (inclusive) -- tier matches when percent <= input.
 	std::string text;    // act()-ready string, may contain $h/$r/etc. suffix codes.
 };
 
@@ -78,7 +71,7 @@ class PointsIntensity {
  private:
 	struct CategoryData {
 		std::vector<Grade> improve;  // sorted descending by percent
-		std::vector<Grade> degrade;  // sorted ascending by percent (most negative first)
+		std::vector<Grade> degrade;  // sorted descending by percent (least negative first)
 	};
 	std::array<CategoryData, static_cast<size_t>(ECategory::kCount)> categories_;
 };

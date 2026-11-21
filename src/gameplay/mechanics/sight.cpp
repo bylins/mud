@@ -22,7 +22,7 @@
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
-#include "gameplay/magic/room_affect_messages.h"
+#include "gameplay/affects/room_affect_messages.h"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>   // fmt::join
@@ -443,8 +443,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		bool one_way = false;
 
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (room_spells::IsPortalAffect(aff->affect_type)) {
-				if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+			if (room_affects::IsPortalAffect(aff->affect_type)) {
+				if (aff->affect_type == room_affects::ERoomAffect::kNoPortalExit) {
 					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 					return false;
 				}
@@ -452,8 +452,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 					to_room = aff->modifier;
 				}
 				for (const auto &aff : world[to_room]->affected) {
-					if (room_spells::IsPortalAffect(aff->affect_type)) {
-						if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+					if (room_affects::IsPortalAffect(aff->affect_type)) {
+						if (aff->affect_type == room_affects::ERoomAffect::kNoPortalExit) {
 							one_way = true;
 						}
 					}
@@ -754,12 +754,12 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 // Per-affect filters:
 //   * kPortalTimer with affect_type == kNoPortalExit: silent (one-way side).
 //
-// After each visible description, detect-magic viewers (and immortals) get a
-// one-line star-rating banner [*..*****] showing how close the room-affect's
-// recorded modifier is to its <modifier cap="N"/> ceiling (5/4/3/2/1 stars at
-// >99/>80/>60/>40/>20 percent). Spells whose first <apply> has no cap (cap == 0)
-// or whose affect carries no modifier value emit no banner -- the rating only
-// makes sense relative to a known ceiling. Stars rather than prose because the
+// Each visible description gets, for detect-magic viewers (and immortals), a
+// star rating [*..*****] on the same line showing how close the room affect's
+// recorded modifier (seal strength) is to its ceiling, the room affect's own
+// <seal_strength cap="N"> in room_affects.xml (5/4/3/2/1 stars at
+// >99/>80/>60/>40/>20 percent). Room affects with no cap (cap == 0) get no
+// rating -- it only makes sense relative to a known ceiling. Stars rather than prose because the
 // description hooks (which file, which sheaf, which key) would have to be
 // invented per spell, and the indicator only matters for testers / debuggers.
 //
@@ -778,7 +778,7 @@ void show_room_affects(CharData *ch) {
 	for (const auto &af : world[ch->in_room]->affected) {
 		// One-way portal: side flagged kNoPortalExit shows nothing (mirrors
 		// the old look_at_room behaviour). kPortalTimer-only special case.
-		if (af->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+		if (af->affect_type == room_affects::ERoomAffect::kNoPortalExit) {
 			continue;
 		}
 
@@ -788,8 +788,8 @@ void show_room_affects(CharData *ch) {
 		// issue.affect-migration: room-affect display text comes from the room-affect message system,
 		// keyed by the affect's ERoomAffect identity. (The spell-side room messages were removed in the
 		// room-affect message migration's Phase 4, so the old spell-sheaf fallback is dead.)
-		auto pick = [&](room_spells::ERoomAffectMsgType room_slot) -> const std::string * {
-			const std::string &r = room_spells::RoomAffectMsgRaw(af->affect_type, room_slot);
+		auto pick = [&](room_affects::ERoomAffectMsgType room_slot) -> const std::string * {
+			const std::string &r = room_affects::RoomAffectMsgRaw(af->affect_type, room_slot);
 			return r.empty() ? nullptr : &r;
 		};
 
@@ -797,21 +797,21 @@ void show_room_affects(CharData *ch) {
 		// Pk override chain (issue.affect-flags): tried before the regular keys.
 		if (is_pk) {
 			if (has_detect_magic) {
-				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible);
+				text = pick(room_affects::ERoomAffectMsgType::kRoomAffectPkInvisible);
 			}
 			if (!text) {
-				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkVisible);
+				text = pick(room_affects::ERoomAffectMsgType::kRoomAffectPkVisible);
 			}
 		}
 		// Regular chain (fall-through when no Pk variant).
 		if (!text && has_detect_magic && is_caster) {
-			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible);
+			text = pick(room_affects::ERoomAffectMsgType::kRoomAffectSelfInvisible);
 		}
 		if (!text && has_detect_magic) {
-			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectInvisible);
+			text = pick(room_affects::ERoomAffectMsgType::kRoomAffectInvisible);
 		}
 		if (!text) {
-			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectVisible);
+			text = pick(room_affects::ERoomAffectMsgType::kRoomAffectVisible);
 		}
 		if (text) {
 			// Star-rating marker (seal strength) on the SAME line as the affect text,
@@ -819,7 +819,7 @@ void show_room_affects(CharData *ch) {
 			const char *stars = nullptr;
 			// issue.affects-improve: the seal-strength cap is the affect's own modifier ceiling
 			// (room_affects.xml <seal_strength cap=...>), read by affect identity -- no spell lookup.
-			const int cap = room_spells::RoomAffectSealCap(af->affect_type);
+			const int cap = room_affects::RoomAffectSealCap(af->affect_type);
 			if (has_detect_magic && cap > 0) {
 				const int pct = (af->modifier * 100) / cap;
 				stars =
@@ -838,7 +838,7 @@ void show_room_affects(CharData *ch) {
 			// kPortalTimer debug suffix: timer (room-tick pulses) + destination vnum.
 			// Replaces the immortals-only "(время: %d, куда: %d)" suffix that used to
 			// be inlined into the main description in look_at_room.
-			if (room_spells::IsPortalAffect(af->affect_type) && is_immortal_or_tester) {
+			if (room_affects::IsPortalAffect(af->affect_type) && is_immortal_or_tester) {
 				char debug_buf[128];
 				snprintf(debug_buf, sizeof(debug_buf),
 						 "[timer: %d into: %d]\r\n",
@@ -1062,9 +1062,9 @@ static std::string DoorAffectLook(CharData *viewer, const RoomData::exit_data_pt
 			}
 		}
 	}
-	using room_spells::ERoomAffectMsgType;
+	using room_affects::ERoomAffectMsgType;
 	for (const auto &af : exit->affected) {
-		const std::string &vis = room_spells::RoomAffectMsgRaw(af->affect_type, ERoomAffectMsgType::kRoomAffectVisible);
+		const std::string &vis = room_affects::RoomAffectMsgRaw(af->affect_type, ERoomAffectMsgType::kRoomAffectVisible);
 		if (!vis.empty()) {
 			out += vis;
 			out += "\r\n";
@@ -1072,7 +1072,7 @@ static std::string DoorAffectLook(CharData *viewer, const RoomData::exit_data_pt
 		}
 		if (has_detect && (imm || af->potency <= detect_potency)) {
 			const bool is_caster = (af->caster_id == viewer->get_uid());
-			const std::string &inv = room_spells::RoomAffectMsgRaw(af->affect_type,
+			const std::string &inv = room_affects::RoomAffectMsgRaw(af->affect_type,
 					is_caster ? ERoomAffectMsgType::kRoomAffectSelfInvisible : ERoomAffectMsgType::kRoomAffectInvisible);
 			if (!inv.empty()) {
 				out += inv;

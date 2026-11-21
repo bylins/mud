@@ -15,6 +15,11 @@
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;
 
+// Affect::duration: вечный аффект -- не тикает и не истекает, держится, пока его не снимут.
+constexpr int kPermanentAffectDuration = -1;
+// Affect::charges: число срабатываний триггера не ограничено (аффект живёт только по сроку).
+constexpr int kUnlimitedAffectCharges = -1;
+
 // Типы таймеров аффектов.
 enum EAffFlag : Bitvector {
   kAfBattledec			= 1u << 0,

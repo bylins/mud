@@ -20,7 +20,7 @@
 
 class CharData;
 enum class ESpell;
-namespace room_spells { enum class ERoomAffect : Bitvector; }
+namespace room_affects { enum class ERoomAffect : Bitvector; }
 
 namespace talents_actions {
 
@@ -370,15 +370,13 @@ struct Material {
 	// parser when the attribute is absent; 0 here means "explicitly empty" and
 	// triggers a kBreak at consume time.
 	Bitvector where{0};
-	// Charge cost per cast, applied to each matched item's m_vals[2] (the
-	// "charges remaining" field used by magic ingredients):
-	//   cost  > 0 : val[2] -= cost; destroy the item when val[2] < 1.
-	//   cost == 0 : presence required, but no charge spent (focus/catalyst).
-	//   cost == -1: destroy the matched item in this single cast regardless
-	//               of val[2] ("consumed whole" semantics).
-	// Default 1 preserves the legacy dec_val(2) behaviour (one charge per
-	// cast, destroy at zero). Game designers opt in to other behaviours via
-	// the cost="N" attribute on <material>.
+	// Presence required, but no charge spent (focus/catalyst).
+	static constexpr int kCostNone = 0;
+	// Destroy the matched item in this single cast regardless of its remaining charges.
+	static constexpr int kCostConsumeWhole = -1;
+	// Charge cost per cast (cost="N" on <material>), applied to each matched item's m_vals[2] -- the
+	// "charges remaining" field of magic ingredients. A positive cost is subtracted and the item is
+	// destroyed when val[2] < 1; kCostNone and kCostConsumeWhole are the special values above.
 	int cost{1};
 };
 
@@ -646,7 +644,7 @@ class TalentAffect : public IAction {
 	// issue.affects-improve: the room affect this block imposes (room-target spells only),
 	// declared by <affects id=...>; kUndefined for char-affect spells. The room cast path uses
 	// this instead of deriving the affect from the spell id.
-	[[nodiscard]] room_spells::ERoomAffect GetRoomAffect() const { return room_affect_; }
+	[[nodiscard]] room_affects::ERoomAffect GetRoomAffect() const { return room_affect_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
 	// Duration parameters (issue.calc-duration): base (flat duration in hours, PC unit-converted to
 	// ticks) plus a skill-scaled bonus = min(skill, kNoviceSkillThreshold)/skill_divisor, optionally
@@ -685,14 +683,14 @@ class TalentAffect : public IAction {
  private:
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
-	room_spells::ERoomAffect room_affect_{};  // issue.affects-improve: see GetRoomAffect()
+	room_affects::ERoomAffect room_affect_{};  // issue.affects-improve: see GetRoomAffect()
 	int prob_{100};                         // percent chance the affect block fires (default always)
 	int dur_base_{0};
 	int dur_skill_divisor_{0};
 	ESkill dur_skill_{ESkill::kUndefined};
 	int dur_min_{0};
 	int dur_max_{0};
-	int charges_max_{-1};   // issue.room-affect-trigger-improve: trigger charges; -1 = unlimited
+	int charges_max_{kUnlimitedAffectCharges};   // trigger charges
 	std::vector<Apply> applies_;
 	// Battle lag applied to the victim when the affect lands (the <lag> tag,
 	// issue.cast-spell-lag): lag = base + skill_bonus/bonus_divisor battle rounds, or just
@@ -728,7 +726,7 @@ class TalentUnaffect : public IAction {
 	// the list for their target type.
 	struct AffectRefs {
 		std::vector<EAffect> chars;
-		std::vector<room_spells::ERoomAffect> rooms;
+		std::vector<room_affects::ERoomAffect> rooms;
 		[[nodiscard]] bool empty() const { return chars.empty() && rooms.empty(); }
 	};
 	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of affect lists.

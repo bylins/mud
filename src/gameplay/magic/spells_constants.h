@@ -119,12 +119,12 @@ enum class ESpell {
 	kStunning = 98,
 	kHide = 99,
 	kSneak = 100,
-//	kDrunked = 101,	// UNUSED (issue.affect-migration): the "drunk" state is identified by its EAffect::kDrunked affect; af.type was redundant; value 101 retired.
-//	kAbstinent = 102,	// UNUSED (issue.affect-migration): the "hangover" state is identified by its EAffect::kAbstinent affect; af.type was redundant; value 102 retired.
+//	kDrunked = 101,	// retired: the state is the EAffect::kDrunked affect
+//	kAbstinent = 102,	// retired: the state is the EAffect::kAbstinent affect
 	kFullFeed = 103,
 	kColdWind = 104,
-//	kBattle = 105,	// UNUSED (issue.affect-migration): the generic "battle-applied affect" marker is gone; battle effects are identified by their EAffect affect_type + flags from affects.xml; value 105 retired.
-//	kHaemorrhage = 106,	// UNUSED (issue.affect-migration): the bleeding state is identified by its EAffect::kHaemorrhage affect; af.type was redundant; value 106 retired.
+//	kBattle = 105,	// retired: battle effects are identified by their EAffect + flags from affects.xml
+//	kHaemorrhage = 106,	// retired: the state is the EAffect::kHaemorrhage affect
 	kCourage = 107,
 	kWaterbreath = 108,
 	kSlowdown = 109,
@@ -135,8 +135,7 @@ enum class ESpell {
 	kFever = 114,
 	kCureFever = 115,
 	kAwareness = 116,
-//	kReligion = 117,	// UNUSED (issue.affect-migration): the pray/donate utility "spell" was removed;
-//						// the prayer / sacrifice effects are now the affects kPrayerful / kPietas (value 117 retired).
+//	kReligion = 117,	// retired: prayer / sacrifice are the affects kPrayerful / kPietas
 	kAirShield = 118,
 	kPortal = 119,
 	kDispellMagic = 120,
@@ -182,7 +181,7 @@ enum class ESpell {
 	kBurdenOfTime = 160,
 	kGroupRefresh = 161,
 	kPeaceful = 162,
-//	kMagicBattle = 163,	// UNUSED (issue.affect-migration): the magic-stun marker is gone; the stun is identified by EAffect::kMagicStopFight; value 163 retired.
+//	kMagicBattle = 163,	// retired: the magic stun is the EAffect::kMagicStopFight affect
 	kBerserk = 164,
 	kStoneBones = 165,
 	kRoomLight = 166,
@@ -190,7 +189,7 @@ enum class ESpell {
 	kThunderstorm = 168,
 	kLightWalk = 169,
 	kFailure = 170,
-//	kClanPray = 171,	// UNUSED (issue.affect-migration): dead: no code references; value 171 retired.
+//	kClanPray = 171,	// retired
 	kGlitterDust = 172,
 	kScream = 173,
 	kCatGrace = 174,
@@ -214,13 +213,13 @@ enum class ESpell {
 	kDaturaPoison = 192,
 	kTimerRestore = 193,
 	kCombatLuck = 194,
-//	kBandage = 195,	// UNUSED (issue.affect-migration): the bandage state is identified by its EAffect::kBandage affect; af.type was redundant; value 195 retired.
-//	kNoBandage = 196,	// UNUSED (issue.affect-migration): re-bandage already gated on AFF_FLAGGED(kCannotBeBandaged); value 196 retired.
-//	kCapable = 197,	// UNUSED (issue.affect-migration): the "embedded spell" clone marker is the EAffect::kCapable affect; the kService spell was only an Affect::type marker; value 197 retired.
+//	kBandage = 195,	// retired: the state is the EAffect::kBandage affect
+//	kNoBandage = 196,	// retired: re-bandage is gated on AFF_FLAGGED(kCannotBeBandaged)
+//	kCapable = 197,	// retired: the embedded-spell marker is the EAffect::kCapable affect
 	kStrangle = 198,
-//	kRecallSpells = 199,	// UNUSED (issue.affect-migration): the spell-recall buff is the EAffect::kMemorizeSpells affect; af.type was redundant; value 199 retired.
+//	kRecallSpells = 199,	// retired: the buff is the EAffect::kMemorizeSpells affect
 	kHypnoticPattern = 200,
-//	kSolobonus = 201,	// UNUSED (issue.affect-migration): dead -- no apply site anywhere; the only consumers were two do_affects display checks for an affect nothing created; value 201 retired.
+//	kSolobonus = 201,	// retired
 	kVampirism = 202,
 	kRestoration = 203,
 	kDeathAura = 204,
@@ -234,7 +233,7 @@ enum class ESpell {
 	kAcidArrow = 212,
 	kThunderStone = 213,
 	kClod = 214,
-//	kExpedient = 215,	// UNUSED (issue.affect-migration): the chopoff Evasion buff is the EAffect::kEvade affect; af.type was redundant; value 215 retired.
+//	kExpedient = 215,	// retired: the chopoff evasion buff is the EAffect::kEvade affect
 	kSightOfDarkness = 216,
 	kGroupSincerity = 217,
 	kMagicalGaze = 218,
@@ -267,33 +266,32 @@ enum class ESpell {
 	kFrostBreath = 245,
 	kAcidBreath = 246,
 	kLightingBreath = 247,
-//	kExpedientFail = 248,	// UNUSED (issue.affect-migration): was only an af.type marker, never queried; value 248 retired.
-//	kLowerEffectiveness = 249,	// UNUSED (issue.affect-migration): disarm injure debuff identified by its kInjuredLimb affect; af.type was unused; value 249 retired.
-//	kNoInjure = 250,	// UNUSED (issue.affect-migration): the disarm re-injure cooldown is now the
-//						// kSuspiciousness affect (checked via IsAffectedWithCasterId); value 250 retired.
-//	kConfuse = 251,	// UNUSED (issue.affect-migration): the shield-bash stun is the EAffect::kConfused affect; af.type was redundant; value 251 retired.
+//	kExpedientFail = 248,	// retired
+//	kLowerEffectiveness = 249,	// retired: the disarm injure debuff is the kInjuredLimb affect
+//	kNoInjure = 250,	// retired: the disarm re-injure cooldown is the kSuspiciousness affect
+//	kConfuse = 251,	// retired: the shield-bash stun is the EAffect::kConfused affect
 	// Internal proc spell: the per-hit bolt of the kCloudOfArrows affect. Cast via
 	// CallMagic from fight_hit.cpp (no verbal, weave-only) -- not player-castable.
 	kCloudOfArrowsBolt = 252,
 	kIdentify = 351,
 	kFullIdentify = 352,
-//	kQUest = 353,	// UNUSED (issue.affect-migration): dead: no code references; value 353 retired.
-//	kPortalTimer = 354,	// UNUSED (issue.affect-migration): the portal pair is identified by its ERoomAffect (kPortalTimer two-way / kNoPortalExit one-way); the room af.type was migrated off ESpell; value 354 retired.
-//	kNoCharge = 355,	// UNUSED (issue.affect-migration): effect now checked via the kNoCharge affect (IsAffectedWithCasterId); value 355 retired.
+//	kQUest = 353,	// retired
+//	kPortalTimer = 354,	// retired: portals are the ERoomAffect kPortalTimer (two-way) / kNoPortalExit (one-way)
+//	kNoCharge = 355,	// retired: the state is the kNoCharge affect
 	kDazzle = 356,
 	kGreatHeal = 357,
 	kFrenzy = 358,
 	// Placeholder slots for spell prototyping in test mode (mode="kTesting"
 	// in spells.xml). Pick the next free slot, write the config under that
 	// id, and rename here when the spell graduates to its real name.
-	kFireTrap = 359,	// issue.room-affect-trigger-improve: door-affect test spell (kTarDirection; was kTestOne)
+	kFireTrap = 359,	// door-affect test spell (kTarDirection)
 	kTestTwo = 360,
 	kTestThree = 361,
 	kTestFour = 362,
 	kTestFive = 363,
-//	kDeadlyFogTick = 364,	// UNUSED (issue.affect-migration): the deadly-fog tick is now the kDeadlyFog room affect's own <actions> in room_affects.xml; value 364 retired.
-	kCreateArmor = 365,  // issue.obj-casting: new data-driven <obj_creation> spell (plumbing)
-	// issue.new-unaffect-spells: skill-based dispels (see spells.xml <unaffect>).
+//	kDeadlyFogTick = 364,	// retired: the tick is the kDeadlyFog room affect's <actions> in room_affects.xml
+	kCreateArmor = 365,  // data-driven <obj_creation> spell
+	// Skill-based dispels (see spells.xml <unaffect>).
 	kUnweave = 366,      // "unweave" -- peaceful: strip dispellable debuffs from a char
 	kSuppress = 367,     // "suppress" -- strip the kAfBoon buff class from an enemy
 	kErode = 368,        // "erode" -- strip the kAfWarding buff class from an enemy
@@ -301,7 +299,7 @@ enum class ESpell {
 	kToils = 370,        // "toils" -- strip fly/waterwalk/waterbreath from an enemy
 	kCleanseArea = 371,  // "cleanse area" -- strip dispellable room affects
 	kWeaveRestoration = 372,  // "weave restoration" -- lift a magic-suppression from an item (or a char's first suppressed worn item)
-	// issue #4000: "оживить скелет" -- поднимает из человекоподобного трупа скелета-прислужника.
+	// "оживить скелет" -- поднимает из человекоподобного трупа скелета-прислужника.
 	// Виды скелетов живут в animate_dead.xml как ярусы этого заклинания (spell="kAnimateSkeleton").
 	kAnimateSkeleton = 373,
 	kFirst = kArmor,
@@ -337,7 +335,6 @@ const std::string &NAME_BY_ITEM<EElement>(const EElement element);
 template<>
 const std::map<EElement, std::string> &NAMES_OF<EElement>();
 
-// PLAYER SPELLS TYPES //
 enum ESpellType {
 	kUnknowm = 0,
 	kKnow = 1 << 0,
@@ -361,17 +358,15 @@ enum EMagic : Bitvector {
 	kMagAffects = 1 << 1,
 	kMagUnaffects = 1 << 2,
 	kMagPoints = 1 << 3,
-	// 1 << 4 free (was kMagAlterObjs; now the data-driven <alter_obj> action)
+	// 1 << 4 free
 	kMagGroups = 1 << 5,
 	kMagMasses = 1 << 6,
 	kMagAreas = 1 << 7,
-	// 1 << 8 free (was kMagSummons; summon is now the data-driven <summon> action)
-	// 1 << 9 free (was kMagCreations; now the data-driven <obj_creation> action)
+	// 1 << 8, 1 << 9 free
 	kMagManual = 1 << 10,
 	kMagWarcry = 1 << 11,
 	kMagNeedControl = 1 << 12,
-	// Bit 13 used to be kMagCharRelocate; folded into kMagManual.
-// А чего это тут дырка Ж)
+	// 1 << 14, 1 << 15 free
 	kNpcDamagePc = 1 << 16,
 	kNpcDamagePcMinhp = 1 << 17,
 	kNpcAffectPc = 1 << 18,
@@ -380,9 +375,9 @@ enum EMagic : Bitvector {
 	kNpcUnaffectNpc = 1 << 21,
 	kNpcUnaffectNpcCaster = 1 << 22,
 	kNpcDummy = 1 << 23,
-	// issue.mob-ai-improve: dispel an enemy PLAYER's buffs (offensive unaffect). The NPC
-	// block (bits 16-23) is full, so this reuses free bit 13 (ex-kMagCharRelocate) and is
-	// folded into NPC_CALCULATE below so mob_casting still treats it as an AI-castable spell.
+	// Dispel an enemy PLAYER's buffs (offensive unaffect). The NPC block (bits 16-23) is full,
+	// so this takes bit 13 and is folded into NPC_CALCULATE below so mob casting still treats
+	// it as an AI-castable spell.
 	kNpcUnaffectPc = 1 << 13,
 	kMagRoom = 1 << 24,
 	kMagCasterInroom = 1 << 25, // Аффект от этого спелла действует пока кастер в комнате //
@@ -416,7 +411,7 @@ enum ETarget : Bitvector {
 	kTarRoomWorld = 1 << 13,	// Цель какая-то комната в мире//
 	kTarAllyOnly = 1 << 14,	// Only a check: PC may target only self or a groupmate. Use with kTarCharRoom //
 	kTarMinionsOnly = 1 << 15,	// Only a check: target must be one of the caster's own NPC followers (master == caster) //
-	kTarDirection = 1 << 16	// issue.room-affect-trigger-improve: target a DIRECTION/exit from the caster (door affects). Arg = a RU/EN direction name; resolves to EXIT(caster, dir).
+	kTarDirection = 1 << 16	// Target a DIRECTION/exit from the caster (door affects). Arg = a RU/EN direction name; resolves to EXIT(caster, dir).
 };
 
 template<>
@@ -428,10 +423,6 @@ const std::map<ETarget, std::string> &NAMES_OF<ETarget>();
 
 constexpr Bitvector kMtypeNeutral = 1 << 0;
 constexpr Bitvector kMtypeAggressive = 1 << 1;
-
-// возращает текст выводимый при спадении скила
-std::string GetAffExpiredText(ESpell spell_id);
-
 
 // Extra-attack bit flags (combat; stored in CharData::battle_affects).
 enum EExtraAttackFlag : Bitvector {
@@ -455,13 +446,11 @@ enum EExtraAttackFlag : Bitvector {
 	kEafIronWind = 1 << 18,
 	kEafAutoblock = 1 << 19,	// автоматический блок щитом в осторожном стиле
 	kEafPoisoned = 1 << 20,		// отравление с пушек раз в раунд
-	// kEafFirstPoison = 1 << 21,  // было "отравление цели первый раз за бой": защелка жила
-	// в battle_affects, которые чистятся вместе с боем, и давала гарантированный прок яда
-	// заново после каждой отбежки. Теперь гарантия проверяет сам аффект яда на цели.
+	// 1 << 21 свободен: гарантированный первый прок яда проверяет сам аффект яда на цели, а не
+	// флаг здесь -- battle_affects чистятся вместе с боем, и флаг давал прок заново после отбежки.
 };
 
-// issue.flags-migration P2/battle_affects: transient combat flags -> BitsetFlags<EExtraAttackFlag>
-// (single plane, max kEafPoisoned=1<<20; not persisted). Packed mapping.
+// Transient combat flags (max kEafPoisoned = 1 << 20; not persisted). Packed mapping.
 template<>
 struct flag_traits<EExtraAttackFlag> {
 	static constexpr std::size_t count = 30;
@@ -474,8 +463,7 @@ struct flag_index_mapping<EExtraAttackFlag> {
 };
 
 // Spell-flag mask: the "NPC casting calculation" bits -- the contiguous NPC block (16-23)
-// plus the out-of-band kNpcUnaffectPc at bit 13 (issue.mob-ai-improve; the 16-23 block was
-// full). Was `0xff << 16`.
+// plus the out-of-band kNpcUnaffectPc at bit 13 (the 16-23 block is full).
 constexpr Bitvector NPC_CALCULATE = (0xff << 16) | (1 << 13);
 
 #endif //BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_

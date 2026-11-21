@@ -1,6 +1,6 @@
 /**
  \file spell_trace.cpp - a part of the Bylins engine.
- \brief issue.spell-tc-info: shared tester/coder diagnostic emitter for spell effects.
+ \brief Shared tester/coder diagnostic emitter for spell effects.
 */
 
 #include "spell_trace.h"
@@ -58,7 +58,7 @@ void Line(CharData *caster, CharData *victim, const char *fmt, ...) {
 	if (caster != nullptr) {
 		SendToTC(caster, false, true, true, "%s", buf);
 	}
-	// issue #3971: получателя считаем по хозяину. SendToTC пересылает строку чармиса его хозяину
+	// Получателя считаем по хозяину. SendToTC пересылает строку чармиса его хозяину
 	// (logger.cpp), поэтому для своего же спутника кастер получал одну и ту же строку дважды --
 	// в логе выходило по две строки на каждое наложение, будто аффект лёг два раза.
 	if (victim != nullptr && victim != caster && Recipient(victim) != Recipient(caster)) {

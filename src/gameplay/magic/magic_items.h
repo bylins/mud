@@ -6,4 +6,4 @@ class ObjData;
 
 void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument);
 
-#endif //BYLINS_CREATE_H
+#endif // __MAGIC_ITEMS_H__

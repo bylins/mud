@@ -232,7 +232,7 @@ gameplay metadata** (PK / agro / damage-type).
 | `kMagAreas` | Area cast — every hostile in the room with decay. |
 | `kMagWarcry` | Marks the spell as a war-cry (skips magic defences). |
 | `kMagNeedControl` | Requires caster's pet to be present. |
-| `kMagRoom` | Room spell, lives in `magic_rooms.cpp`. |
+| `kMagRoom` | Room spell: cast by `magic/action_room_affect.cpp`, the affect itself lives in `affects/room_affects.cpp`. |
 
 | PK / agro / damage class | Effect |
 |---|---|
@@ -1261,15 +1261,12 @@ specific spell hasn't overridden.
 <spell_msg>
     <sheaf id="kDefault">
         <message type="kNoeffect" val="Заклинание не оказало никакого эффекта."/>
-        <message type="kAffExpired" val="Магия, наложенная на вас, рассеялась."/>
         <message type="kCantCastPosition" val="Вам нужно встать."/>
         …
     </sheaf>
     <sheaf id="kFireball">
         <message type="kAffImposedToChar" val="Огонь обжигает вас!"/>
         <message type="kAffImposedToRoom" val="$n окутывает $N3 пламенем!"/>
-        <message type="kAffDispelledToChar" val="Пламя гаснет."/>
-        <message type="kAffExpired" val="Жар, охвативший вас, утихает."/>
     </sheaf>
     …
 </spell_msg>
@@ -1282,10 +1279,6 @@ specific spell hasn't overridden.
 | `kNoeffect` | Generic "no effect" outcome. | Caster |
 | `kAffImposedToChar` | An affect from this spell landed. | Affected char |
 | `kAffImposedToRoom` | Same, to onlookers. | Room |
-| `kAffDispelledToChar` | An affect of this **affect type** was dispelled. Sheaf is keyed on the **removed** affect, not the dispel spell. | Cured char |
-| `kAffDispelledToRoom` | Same, to onlookers. | Room |
-| `kAffExpired` | An affect timed out naturally on the target. | Affected char |
-| `kAffDispelledToOwner` | An affect of yours was dispelled from someone you cast it on. | Original caster |
 | `kHealToVict` | `<heal>` produced a non-zero amount in a `<points>` cast. | Target |
 | `kMovesToVict` | `<moves>` produced a non-zero amount in a `<points>` cast. | Target |
 | `kThirstToVict` | `<thirst>` produced a non-zero amount in a `<points>` cast. | Target |
@@ -1301,7 +1294,7 @@ specific spell hasn't overridden.
 | `kAreaToChar`, `kAreaToRoom`, `kAreaToVict` | Area cast announcement. | Various |
 | `kCastIncantToChar`, `kCastDisappearToRoom`, `kCastAppearToRoom` | Magic-word incantation banner + appearance/disappearance of the spell name in the room (`SaySpell`). | Various |
 | `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation. | Room / victim |
-| `kCastInterruptedToChar`, `kCastPreparedToChar` | Concentration-broken / spell-ready announcements. | Caster |
+| `kCastPreparedToChar` | Spell-ready announcement when a controlled spell replaces the previous one. | Caster |
 | `kNoTarget`, `kWrongTarget` | The caster's target argument missed (no such target / target type rejected by `<targets val>`). | Caster |
 | `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `<obj_creation>` outcomes. | Various |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
@@ -1319,14 +1312,10 @@ A message lookup tries the spell's own sheaf first, then falls back to
   (`kReflectedToChar` / `kReflectedToVict` / `kReflectedToRoom`) are looked
   up sheaf-directly with **no kDefault fallback** — a missing key stays
   silent rather than leaking a wrong default.
-* **Dispel narration** (`kAffDispelledToChar` / `kAffDispelledToRoom`) was
-  originally also sheaf-direct, but *(issue.dispel-default-msg)* now goes
-  through the kDefault-aware lookup. The kDefault sheaf carries a generic
-  fallback so every dispel emits *something* — previously most affects
-  (kSanctuary / kBless / kArmor / kFly / etc.) were stripped silently
-  because their own sheaves never authored these keys. Per-affect overrides
-  (kCurse, kPoison, kBlindness, kHold, kSilence, kFever, kDeafness, the
-  4 poison variants, kPatronage) still win where present.
+* **Dispel and expiry narration** is not a spell message: it belongs to the
+  affect and lives in `affect_msg.xml` (character affects) or
+  `room_affect_msg.xml` (room affects), keyed by the affect id. See the
+  Affect Manual.
 * `kCastForbiddenToChar` falls back to `kDefault` (every spell shares the
   generic "Ваша магия потерпела неудачу…" line by default), and
   `kCastForbiddenToRoom` is treated as optional — an empty result means
