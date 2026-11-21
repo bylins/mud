@@ -160,8 +160,9 @@ void ExtractedCharacterInfo::PrintReport(std::ostringstream &report) {
 
 void ExtractedCharacterInfo::PrintBaseInfo(std::ostringstream &report) {
 	// Почту печатаем через RawText, как это делает tstat для текста триггера: иначе proc_color
-	// превратит '_' в пробел и адрес c_nostra@inbox.ru уедет к богу как "c nostra@inbox.ru" --
-	// чужой адрес, по которому уже не найти ни владельца, ни его остальных персонажей.
+	// превратит '_' в пробел и адрес вида some_name@example.com уедет к богу как
+	// "some name@example.com" -- чужой адрес, по которому уже не найти ни владельца, ни его
+	// остальных персонажей.
 	report << fmt::format(
 		"Name: {color_on}{name:<12}{color_off} Mail: {mail} Last: {time:%e-%b-%Y} from {ip}, Lvl {level}, Rmt {remort}, Cls: {class}, Clan: {clan}.\r\n",
 		fmt::arg("color_on", (online_ ? kColorBoldGrn : kColorBoldWht)),
