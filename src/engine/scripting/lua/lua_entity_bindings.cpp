@@ -11,6 +11,7 @@
 #include "engine/db/world_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
+#include "engine/entities/room_data.h"
 #include "engine/scripting/dg_scripts.h"
 #include "engine/structs/flag_data.h"
 #include "engine/ui/cmd/do_follow.h"
@@ -49,44 +50,80 @@ namespace {
 
 constexpr int kLuaHandleTypeChar = 1;
 constexpr int kLuaHandleTypeObj = 2;
-char kLuaEntityHandleKey;
+constexpr int kLuaHandleTypeRoom = 3;
+char kLuaViewHandleRegistryKey;
 
-bool GetEntityHandleTable(sol::table entity_table)
+struct LuaViewHandle {
+	int type = 0;
+	long identity = 0;
+	RoomRnum required_room = kNowhere;
+};
+
+void PushViewHandleRegistry(lua_State *state)
 {
-	lua_State *state = entity_table.lua_state();
-	entity_table.push();
-	lua_pushlightuserdata(state, &kLuaEntityHandleKey);
+	lua_pushlightuserdata(state, &kLuaViewHandleRegistryKey);
+	lua_rawget(state, LUA_REGISTRYINDEX);
+	if (lua_istable(state, -1))
+	{
+		return;
+	}
+
+	lua_pop(state, 1);
+	lua_newtable(state);
+	lua_newtable(state);
+	lua_pushliteral(state, "__mode");
+	lua_pushliteral(state, "k");
+	lua_rawset(state, -3);
+	lua_setmetatable(state, -2);
+
+	lua_pushlightuserdata(state, &kLuaViewHandleRegistryKey);
+	lua_pushvalue(state, -2);
+	lua_rawset(state, LUA_REGISTRYINDEX);
+}
+
+long GetHandleIntegerField(lua_State *state, const char *field, long default_value = 0)
+{
+	lua_getfield(state, -1, field);
+	const auto result = lua_isnumber(state, -1) ? static_cast<long>(lua_tointeger(state, -1)) : default_value;
+	lua_pop(state, 1);
+	return result;
+}
+
+void RegisterViewHandle(sol::table view, const LuaViewHandle &handle)
+{
+	lua_State *state = view.lua_state();
+	const auto stack_top = lua_gettop(state);
+	PushViewHandleRegistry(state);
+	view.push();
+	lua_newtable(state);
+	lua_pushinteger(state, handle.type);
+	lua_setfield(state, -2, "type");
+	lua_pushinteger(state, handle.identity);
+	lua_setfield(state, -2, "identity");
+	lua_pushinteger(state, handle.required_room);
+	lua_setfield(state, -2, "required_room");
+	lua_rawset(state, -3);
+	lua_settop(state, stack_top);
+}
+
+std::optional<LuaViewHandle> GetViewHandle(sol::table view)
+{
+	lua_State *state = view.lua_state();
+	const auto stack_top = lua_gettop(state);
+	PushViewHandleRegistry(state);
+	view.push();
 	lua_rawget(state, -2);
-	lua_remove(state, -2);
-	return lua_istable(state, -1);
-}
+	if (!lua_istable(state, -1))
+	{
+		lua_settop(state, stack_top);
+		return std::nullopt;
+	}
 
-void PopEntityHandleTable(lua_State *state)
-{
-	lua_pop(state, 1);
-}
-
-int GetEntityHandleIntField(lua_State *state, const char *field)
-{
-	lua_getfield(state, -1, field);
-	const auto result = lua_isnumber(state, -1) ? static_cast<int>(lua_tointeger(state, -1)) : 0;
-	lua_pop(state, 1);
-	return result;
-}
-
-long GetEntityHandleLongField(lua_State *state, const char *field)
-{
-	lua_getfield(state, -1, field);
-	const auto result = lua_isnumber(state, -1) ? static_cast<long>(lua_tointeger(state, -1)) : 0;
-	lua_pop(state, 1);
-	return result;
-}
-
-RoomRnum GetEntityHandleRoomField(lua_State *state, const char *field)
-{
-	lua_getfield(state, -1, field);
-	const auto result = lua_isnumber(state, -1) ? static_cast<RoomRnum>(lua_tointeger(state, -1)) : kNowhere;
-	lua_pop(state, 1);
+	LuaViewHandle result;
+	result.type = static_cast<int>(GetHandleIntegerField(state, "type"));
+	result.identity = GetHandleIntegerField(state, "identity");
+	result.required_room = static_cast<RoomRnum>(GetHandleIntegerField(state, "required_room", kNowhere));
+	lua_settop(state, stack_top);
 	return result;
 }
 
@@ -98,55 +135,31 @@ CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext)
 	}
 
 	sol::table entity_table = entity;
-	if (!GetEntityHandleTable(entity_table))
-	{
-		return nullptr;
-	}
-
-	lua_State *state = entity_table.lua_state();
-	const auto type = GetEntityHandleIntField(state, "type");
-	const auto uid = GetEntityHandleLongField(state, "uid");
-	const auto required_room = GetEntityHandleRoomField(state, "required_room");
-	PopEntityHandleTable(state);
-	if (type != kLuaHandleTypeChar || uid == 0)
+	const auto stored_handle = GetViewHandle(entity_table);
+	if (!stored_handle || stored_handle->type != kLuaHandleTypeChar || stored_handle->identity == 0)
 	{
 		return nullptr;
 	}
 
 	LuaEntityHandle char_handle(LuaEntityHandle::LuaEntityType::Char);
-	char_handle.char_uid = uid;
-	char_handle.required_room = required_room;
+	char_handle.char_uid = stored_handle->identity;
+	char_handle.required_room = stored_handle->required_room;
 	return ResolveChar(char_handle);
 }
 
 void RegisterCharView(sol::state &, sol::table view, CharData *ch, RoomRnum required_room)
 {
-	lua_State *state = view.lua_state();
-	view.push();
-	lua_pushlightuserdata(state, &kLuaEntityHandleKey);
-	lua_newtable(state);
-	lua_pushinteger(state, kLuaHandleTypeChar);
-	lua_setfield(state, -2, "type");
-	lua_pushinteger(state, ch ? ch->get_uid() : 0);
-	lua_setfield(state, -2, "uid");
-	lua_pushinteger(state, required_room);
-	lua_setfield(state, -2, "required_room");
-	lua_rawset(state, -3);
-	lua_pop(state, 1);
+	RegisterViewHandle(view, LuaViewHandle{kLuaHandleTypeChar, ch ? ch->get_uid() : 0, required_room});
 }
 
 void RegisterObjView(sol::state &, sol::table view, ObjData *obj)
 {
-	lua_State *state = view.lua_state();
-	view.push();
-	lua_pushlightuserdata(state, &kLuaEntityHandleKey);
-	lua_newtable(state);
-	lua_pushinteger(state, kLuaHandleTypeObj);
-	lua_setfield(state, -2, "type");
-	lua_pushinteger(state, obj ? static_cast<lua_Integer>(obj->get_id()) : 0);
-	lua_setfield(state, -2, "id");
-	lua_rawset(state, -3);
-	lua_pop(state, 1);
+	RegisterViewHandle(view, LuaViewHandle{kLuaHandleTypeObj, obj ? obj->get_id() : 0, kNowhere});
+}
+
+void RegisterRoomView(sol::state &, sol::table view, RoomVnum room_vnum)
+{
+	RegisterViewHandle(view, LuaViewHandle{kLuaHandleTypeRoom, room_vnum, kNowhere});
 }
 
 bool GetLuaSkillId(const sol::object &value, ESkill &skill_id)
@@ -2472,6 +2485,7 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 	}
 
 	sol::table view = lua.create_table();
+	RegisterRoomView(lua, view, world[room.room]->vnum);
 	sol::table metatable = lua.create_table();
 	metatable[sol::meta_function::index] = [&lua, room, allow_echo, runtime](sol::object, const std::string &key) -> sol::object {
 		if (key == "vnum")
@@ -2601,6 +2615,85 @@ RoomRnum GetRoomFromLua(const sol::object &room)
 	sol::table room_table = room;
 	const sol::object vnum = room_table["vnum"];
 	return vnum.is<int>() ? GetRoomRnum(vnum.as<int>()) : kNowhere;
+}
+
+std::optional<LuaTriggerTarget> ResolveLuaTriggerTarget(const sol::object &target)
+{
+	if (!target.is<sol::table>())
+	{
+		return std::nullopt;
+	}
+
+	sol::table target_table = target;
+	const auto stored_handle = GetViewHandle(target_table);
+	if (!stored_handle)
+	{
+		return std::nullopt;
+	}
+
+	if (stored_handle->type == kLuaHandleTypeChar)
+	{
+		LuaEntityHandle handle(LuaEntityHandle::LuaEntityType::Char);
+		handle.char_uid = stored_handle->identity;
+		handle.required_room = stored_handle->required_room;
+
+		auto *mob = ResolveChar(handle);
+		auto *script = mob && mob->script ? mob->script.get() : nullptr;
+		if (!mob || !script || script->is_purged())
+		{
+			return std::nullopt;
+		}
+
+		LuaTriggerTarget result;
+		result.type = LuaTriggerOwnerType::Mob;
+		result.mob = mob;
+		result.script = script;
+		result.mob_uid = mob->get_uid();
+		return result;
+	}
+	if (stored_handle->type == kLuaHandleTypeObj)
+	{
+		LuaEntityHandle handle(LuaEntityHandle::LuaEntityType::Obj);
+		handle.obj_id = stored_handle->identity;
+
+		auto *object = ResolveObj(handle);
+		auto *script = object && object->get_script() ? object->get_script().get() : nullptr;
+		if (!object || !script || script->is_purged())
+		{
+			return std::nullopt;
+		}
+
+		LuaTriggerTarget result;
+		result.type = LuaTriggerOwnerType::Object;
+		result.object = object;
+		result.script = script;
+		result.object_id = object->get_id();
+		return result;
+	}
+	if (stored_handle->type == kLuaHandleTypeRoom)
+	{
+		const auto room_vnum = static_cast<RoomVnum>(stored_handle->identity);
+		const auto room = GetRoomRnum(room_vnum);
+		if (!IsValidRoom(LuaRoomView{room}))
+		{
+			return std::nullopt;
+		}
+
+		auto *script = world[room]->script ? world[room]->script.get() : nullptr;
+		if (!script || script->is_purged())
+		{
+			return std::nullopt;
+		}
+
+		LuaTriggerTarget result;
+		result.type = LuaTriggerOwnerType::Room;
+		result.room = room;
+		result.script = script;
+		result.room_vnum = room_vnum;
+		return result;
+	}
+
+	return std::nullopt;
 }
 
 } // namespace lua_scripting

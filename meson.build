@@ -518,6 +518,7 @@ main_sources = files(
   'src/engine/scripting/lua/lua_mud_api.cpp',
   'src/engine/scripting/lua/lua_script_engine.cpp',
   'src/engine/scripting/lua/lua_trigger_context.cpp',
+  'src/engine/scripting/lua/lua_trigger_exec.cpp',
   'src/engine/scripting/lua/lua_utils.cpp',
   'src/engine/ui/cmd_god/do_luainfo.cpp',
   'src/gameplay/economics/dictionary.cpp',

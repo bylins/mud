@@ -33,7 +33,7 @@ struct LuaTriggerContext {
 
 class LuaScriptEngine {
  public:
-	static int RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx);
+	static int RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx, int exec_depth = 1);
 	static void CancelWaitsForOwner(CharData *owner);
 	static void CancelWaitsForObject(ObjData *obj);
 	static void CancelWaitsForTrigger(Trigger *trigger);
