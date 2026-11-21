@@ -1,19 +1,15 @@
 /* ************************************************************************
-*   File: spell_parser.cpp                              Part of Bylins    *
+*   File: magic_utils.cpp                               Part of Bylins    *
 *  Usage: top-level magic routines; outside points of entry to magic sys. *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
 *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-* 									  *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                      *
 ************************************************************************ */
 
 #include "magic_utils.h"
-#include "utils/random.h"   // issue.random-noise-rework: GaussIntNumber
+#include "utils/random.h"
 
 #include <algorithm>
 #include <cmath>
@@ -45,14 +41,9 @@
 
 char cast_argument[kMaxInputLength];
 
-// True if `ch`'s race counts as "verbal": the cast is narrated as articulated speech
-// (PC always, plus the five humanoid NPC races that historically had their own narration
-// set). Non-humanoid NPC races default to "sound" -- a single collapsed narration line.
-// Caster-side "Вы произнесли заклинание ..." / "Вы выкрикнули ..." banner.
-// The kCastIncantToChar sheaf carries the line; {color}/{name}/{nrm}
-// placeholders are filled in with bold-red / bold-green by IsViolentAgainst
-// or bold-yellow for an ambiguous spell whose
-// target wasn't resolved (e.g. an area cast where the banner can't pick a side).
+// Caster-side "Вы произнесли заклинание ..." / "Вы выкрикнули ..." banner from the
+// kCastIncantToChar sheaf. {color} is bold-red / bold-green by IsViolentAgainst, or bold-yellow
+// for an ambiguous spell with no resolved target (e.g. an area cast, no side to pick).
 static void EmitCastIncantBanner(CharData *ch, ESpell spell_id, const CharData *tch) {
 	std::string incant = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
 	const auto &spell = MUD::Spell(spell_id);
@@ -85,15 +76,13 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		return;
 	}
 
-	std::string cast_phrase; // роль старого buf -- фраза для тех, кто заклинание не знает
+	std::string cast_phrase; // фраза для тех, кто заклинание не знает
 	const auto &cast_phrase_sheaf = MUD::SpellMessages()[spell_id];
 	if (!cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseHeathen)
 		&& !cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseChristian)) {
 		// A non-verbal spell may legitimately ship no cast phrase -- the
 		// caster simply makes no sound here. A verbal spell with no phrase
-		// IS a content gap, so keep the CMP-level mudlog for that case.
-		// (cast phrase is decorative for non-verbal
-		// spells. Speak it if present; stay silent otherwise.)
+		// IS a content gap, so log it.
 		if (MUD::Spell(spell_id).IsVerbal()) {
 			mudlog(fmt::format("[ERROR]: SaySpell: для спелла {} не объявлена cast_phrase", to_underlying(spell_id)),
 				   CMP, kLvlGod, SYSLOG, true);
@@ -228,8 +217,7 @@ ESpell FindSpellId(const char *name) {
 }
 
 ESpell FindSpellIdWithName(const std::string &name) {
-	// issue.thing-names: search the string container (where the display names now live) and return
-	// the spell id, instead of scanning gameplay records.
+	// Display names live in the spell message container, not in the spell records.
 	return MUD::SpellMessages().FindByName(name);
 }
 
@@ -286,12 +274,8 @@ bool MayCastInForbiddenRoom(CharData *caster) {
 	return false;
 }
 
-// Data-driven room-flag block: true if `room` carries any of the flags listed in
-// the spell's <blocking><room_flags val="..."/></blocking>. Mirrors the per-target
-// blocking helper in magic.cpp but examines the caster's room instead of the victim.
-// Together with MayCastInForbiddenRoom() this replaces the hard-coded
-// ROOM_FLAGGED(..., kNoMagic) check that used to live at the top of CallMagic, and
-// drives the kRuneLabel fizzle that used to live in CallMagicToRoom's switch.
+// True if `room` carries any of the flags listed in the spell's
+// <blocking><room_flags val="..."/></blocking>. Callers pair it with MayCastInForbiddenRoom().
 bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
 	if (!room) {
 		return false;
@@ -308,9 +292,9 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, doub
 	const double mean = floor_val + scaled;
 	const double sd = sigma * scaled;
 	const int lo = std::max(0, static_cast<int>(std::floor(floor_val)));
-	// issue #3631: cap ниже пола дал бы std::clamp lo>hi -- держим hi>=lo
+	// cap ниже пола дал бы std::clamp lo>hi -- держим hi>=lo
 	const int hi = (cap > 0) ? std::max(lo, cap) : std::numeric_limits<int>::max();
-	// issue.potion-hotfix: a brewed potion replays its FROZEN brew-luck z (a standard normal) instead
+	// A brewed potion replays its FROZEN brew-luck z (a standard normal) instead
 	// of drawing -- amount = mean + z*sd -- so every quaff of the potion is identical, yet each of its
 	// spells still applies its OWN sigma (via sd) to the one z. NaN = no fixed noise, draw as usual.
 	if (!std::isnan(fixed_z)) {
@@ -325,15 +309,15 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap, doub
 	return GaussIntNumber(mean, sd, lo, hi);
 }
 
-// issue.potion-hotfix P3: a non-crafted potion casts as if brewed by a potion-maker with this skill
-// and key-stat (kvirund's decision). A crafted potion carries its own brewed kPotionPotency instead.
+// A non-crafted potion casts as if brewed by a potion-maker with this skill and key-stat.
+// A crafted potion carries its own maker skill/stat instead.
 constexpr int kAuthoredPotionSkill = 80;
 constexpr int kAuthoredPotionKeyStat = 25;
 
 float MagicItemPotency(const ObjData *item, ESpell spell_id) {
 	const int skill = item->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill);
 	if (skill < 0) {   // < 0 == key ABSENT; a stored 0 is a spoiled-to-nothing potion, not legacy
-		// Legacy: a pre-P3b migrated instance carries a pre-computed potency but no maker skill/stat.
+		// Legacy instance: carries a pre-computed potency but no maker skill/stat.
 		const int legacy = item->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency);
 		if (legacy > 0) {
 			return static_cast<float>(legacy);
@@ -353,7 +337,7 @@ float MagicItemPotency(const ObjData *item, ESpell spell_id) {
 			+ roll.CalcBaseStatCoeffForValue(use_stat));
 }
 
-// issue.potion-hotfix: the MAKER's skill, used to scale a potion buff's DURATION (the drinker's own
+// The MAKER's skill, used to scale a potion buff's DURATION (the drinker's own
 // skill is irrelevant). A crafted potion carries its brew skill (kMakerSkill); a non-crafted one has
 // none, so it falls back to the authored maker's skill.
 int MagicItemSkill(const ObjData *item) {
@@ -361,16 +345,13 @@ int MagicItemSkill(const ObjData *item) {
 	return (stored >= 0) ? stored : kAuthoredPotionSkill;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
-// issue.potion-hotfix: the maker's key stat (crafted: brewer Intelligence; else the authored default).
+// The maker's key stat (crafted: brewer Intelligence; else the authored default).
 // Needed alongside MagicItemSkill to blend two potions' stats when they are poured together.
 int MagicItemStat(const ObjData *item) {
 	const int stored = item->GetPotionValueKey(ObjVal::EValueKey::kMakerStat);
 	return (stored >= 0) ? stored : kAuthoredPotionKeyStat;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
-// issue.magic-items: перечень заклинаний предмета с их силой -- один формат для stat и опознания.
-// Заклинания лежат в extra_values (сырые val[] у свитков, зелий, посохов и жезлов нулевые).
-// issue #3611: см. описание в magic_utils.h.
 bool IsPotencyFromProto(const CObjectPrototype *item) {
 	return item->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill) < 0
 			&& item->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency) <= 0;
@@ -398,10 +379,10 @@ std::vector<std::string> SpellItemSpellsWithPotency(const ObjData *item) {
 }
 
 float CalcCastPotency(const RollResult &potency) {
-	// issue.random-noise-rework (P3): stored potency is DETERMINISTIC competence (skill+stat),
-	// NOT the rolled dice. The affect's recorded strength (used by dispel contests, first-aid
-	// cure priority, and re-apply "keep stronger") must reflect the caster's skill/stat, not the
-	// randomness of the delivered amount. Equals CastContext::CompetenceBase() for the entry action.
+	// Stored potency is DETERMINISTIC competence (skill+stat), NOT the rolled dice. The affect's
+	// recorded strength (used by dispel contests, first-aid cure priority, and re-apply "keep
+	// stronger") must reflect the caster's skill/stat, not the randomness of the delivered amount.
+	// Equals ActionContext::CompetenceBase() for the entry action.
 	return static_cast<float>(potency.skill_coeff + potency.stat_coeff);
 }
 
@@ -487,43 +468,34 @@ private:
 	observability::ScopedMetric m_duration;
 };
 
-/*
- * This function is the very heart of the entire magic system.  All
- * invocations of all types of magic -- objects, spoken and unspoken PC
- * and NPC spells, the works -- all come through this function eventually.
- * This is also the entry point for non-spoken or unrestricted spells.
- * Spellnum 0 is legal but silently ignored here, to make callers simpler.
- */
-// Evaluates the spell's potency roll against the caster once, so the result can be
-// threaded to the cast-dispatch functions. The roll values do not depend on level;
-// level is carried only to replace that parameter.
+// Rolls the spell's potency against the caster once, so the result can be threaded to the
+// cast-dispatch functions; a non-negative fixed_competence / fixed_potency replaces the roll.
+// The roll does not depend on level; level is only stored in the context.
 ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, float fixed_potency,
 								 float fixed_competence, double fixed_noise_z, int fixed_skill) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		RollResult rr{roll.CalcSkillCoeff(caster),
 					  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
-		// issue.potency-noise: draw the spell's ONE shared truncated-normal z; realize d = sigma*z once,
+		// Draw the spell's ONE shared truncated-normal z; realize d = sigma*z once,
 		// shared by every manifestation (each scales it by its own weight).
 		const double z = GaussDoubleNumber(0.0, 1.0, -roll.GetNoiseTrunc(), roll.GetNoiseTrunc());
 		rr.noise_z = z;
 		rr.noise_dev = roll.GetNoiseSigma() * z;
 		return rr;
 	};
-	// issue.vampirism-haste: an affect-action grant (e.g. kVampirism's on-kill kHaste) has no skill roll,
-	// so it scales with the FIRING affect's stored potency, fed here as competence (skill_coeff).
-	// issue.potion-potency + issue.random-noise-rework (P3): a brewed-in fixed potency (>=0) from an
-	// item/potion ALSO flows as COMPETENCE (skill_coeff, not dices), so CalcCastPotency (skill+stat,
-	// deterministic) and the beta*C effect amounts scale with it (under P2 dices_weight=0, a dices-only
-	// value would no longer scale the amount). Negative -> roll from the caster as usual.
-	// issue.potion-hotfix: a brewed potion also carries a frozen brew-luck z (fixed_noise_z) and the
-	// MAKER's skill (fixed_skill) for deterministic amount + maker-driven buff duration.
+	// An affect-action grant (e.g. kVampirism's on-kill kHaste) has no skill roll, so it scales with
+	// the FIRING affect's stored potency, fed here as competence (skill_coeff).
+	// A fixed potency (>=0) from an item/potion ALSO flows as COMPETENCE (skill_coeff, not dices), so
+	// CalcCastPotency and the effect amounts scale with it. Negative -> roll from the caster as usual.
+	// A brewed potion also carries a frozen brew-luck z (fixed_noise_z) and the MAKER's skill
+	// (fixed_skill) for deterministic amount + maker-driven buff duration.
 	RollResult bcc_roll;
 	if (fixed_competence >= 0.0f) {
 		bcc_roll = RollResult{static_cast<double>(fixed_competence), 0.0, 0.0};
 	} else if (fixed_potency >= 0.0f) {
 		bcc_roll = RollResult{static_cast<double>(fixed_potency), 0.0, 0.0, fixed_noise_z, fixed_skill};
-		// issue.potency-noise: a brewed potion replays its frozen z; realize d with THIS spell's sigma.
+		// A brewed potion replays its frozen z; realize d with THIS spell's sigma.
 		if (!std::isnan(fixed_noise_z)) {
 			bcc_roll.noise_dev = spell.GetPotencyRoll().GetNoiseSigma() * fixed_noise_z;
 		}
@@ -535,6 +507,12 @@ ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, f
 	return ctx;
 }
 
+/*
+ * This function is the very heart of the entire magic system.  All
+ * invocations of all types of magic -- objects, spoken and unspoken PC
+ * and NPC spells, the works -- all come through this function eventually.
+ * This is also the entry point for non-spoken or unrestricted spells.
+ */
 ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir, const std::string &cast_extra) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
@@ -542,15 +520,11 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return ECastResult::kNotCast;
 
-	// Data-driven room block: any spell whose XML
-	// <talent_actions><action><blocking><room_flags val="..."/></blocking></action>
-	// matches the caster's room fizzles here, AND any spell carrying <components><weave/>
-	// fizzles in a kNoMagic room (weave is the single source of
-	// truth for "is this magic", replacing the data-driven kNoMagic blocking that used
-	// to be duplicated across 228 spells). MayCastInForbiddenRoom() is the per-caster
-	// bypass (greater gods, uncharmed NPCs). The fizzle messages live in spell_msg.xml --
-	// the default sheaf carries the generic narration; spells like kRuneLabel override
-	// with their own kCastForbidden* keys.
+	// A spell fizzles if the caster's room matches its <blocking><room_flags>, or if it carries
+	// <components><weave/> (weave is the single source of truth for "is this magic") and the room
+	// is kNoMagic. MayCastInForbiddenRoom() is the per-caster bypass (greater gods, uncharmed
+	// non-tutelar NPCs). Fizzle messages: the default sheaf carries the generic narration; spells
+	// like kRuneLabel override with their own kCastForbidden* keys.
 	const bool weave_blocked =
 			MUD::Spell(spell_id).GetComponents().HasWeaveComponent()
 			&& ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoMagic);
@@ -565,7 +539,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return ECastResult::kNotCast;
 	}
 
-	// issue.sight-component: a spell carrying <components><sight/> requires the caster to see -- a
+	// A spell carrying <components><sight/> requires the caster to see -- a
 	// blind caster cannot cast it. The "blinded" notice is inline for now; the generic no-effect
 	// line comes from the spell's message sheaf (kNoeffect).
 	if (MUD::Spell(spell_id).GetComponents().HasSightComponent() && AFF_FLAGGED(caster, EAffect::kBlind)) {
@@ -575,9 +549,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	}
 
 	if (!MayCastHere(caster, cvict, spell_id)) {
-		// MayCastHere fizzle: per-spell sheaf with kDefault
-		// fallback supplies the narration. Warcry spells override with their louder
-		// variant; the default is the magic-flash line.
+		// Warcry spells override with their louder variant; the default is the magic-flash line.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastHereToChar) + "\r\n", caster);
 		const auto &cant_here_room =
 				MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastHereToRoom);
@@ -587,7 +559,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return ECastResult::kNotCast;
 	}
 
-	// kTarAllyOnly (issue cast-to-ally-only): a PC may cast such spells only on self
+	// kTarAllyOnly: a PC may cast such spells only on self
 	// or a groupmate, whatever the cast source (command, scroll, wand, staff, ...).
 	// NPCs are unrestricted; self/groupmates pass via same_group; a null/non-char
 	// target falls through to the spell's normal handling.
@@ -597,10 +569,9 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return ECastResult::kNotCast;
 	}
 
-	// Spell-level caster gate: a spell is castable by the caster
-	// or not, so this is checked ONCE here -- before per-target dispatch -- not per target.
+	// Spell-level caster gate, checked ONCE here -- before per-target dispatch -- not per target.
 	// e.g. kDispelEvil carries <caster_conditions><blocking><align val="kEvil"/></blocking>
-	// so an evil caster simply can't fire it. Always emits kNoeffect to the one caster.
+	// so an evil caster simply can't fire it.
 	if (CasterBlocked(caster, MUD::Spell(spell_id).GetCasterConditions())) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		return ECastResult::kNotCast;
@@ -612,21 +583,19 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 
 	metrics.send();
 
-	// Compute both rolls once, now that we know the spell is actually being cast.
+	// Roll the potency once, now that we know the spell is actually being cast.
 	ActionContext ctx = BuildActionContext(caster, spell_id, level, fixed_potency, -1.0f, fixed_noise_z, fixed_skill);
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
 	ctx.cast_extra = cast_extra;
-	// issue.perk-action-patching: if the caster holds a perk that patches this spell, build the per-cast
-	// modified action chain now, before dispatch. No-op for every other caster / every unpatched spell.
+	// If the caster holds a perk that patches this spell, build the per-cast modified action chain
+	// now, before dispatch.
 	ctx.ApplyTalentPatches();
 
-	// issue.room-affect-trigger-improve: a cast aimed at a DIRECTION targets that passage/exit -- general,
-	// not tied to any spell id. CallMagicToExit runs only the passage-meaningful stages of the spell
-	// (impose an affect on the door, dispel affects already there); char-targeted stages (damage / heal /
-	// summon / ...) are pointless on a doorway and are silently skipped. So `развеять магию <dir>`,
-	// `огненная ловушка <dir>`, etc. all flow through here without per-spell branching.
+	// A cast aimed at a DIRECTION targets that passage/exit. CallMagicToExit runs only the
+	// passage-meaningful stages of the spell (impose an affect on the door, dispel affects already
+	// there); char-targeted stages are pointless on a doorway and are skipped.
 	if (dir >= 0) {
 		profiler.next_step("exit");
 		ActionContext exit_ctx = ctx;
@@ -652,13 +621,13 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return room_affects::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
-	// issue.dispellbug: dispel magic cast with no character/object target dispels the
+	// Dispel magic cast with no character/object target dispels the
 	// caster's current room (room wards like kForbidden) via CastUnaffects' room branch
 	// (author/ally + strength contest). Bypasses CallMagicToRoom so the ward itself
 	// cannot block its own removal.
 	if (spell_id == ESpell::kDispellMagic && !cvict && !ovict) {
 		profiler.next_step("room-dispel");
-		// issue.affects-improve (P2): a no-target dispel goes to the ROOM, not the caster -- tell the
+		// A no-target dispel goes to the ROOM, not the caster -- tell the
 		// caster so the empty "no effect" result on their own buffs is not mistaken for a bug. To strip
 		// your own affects, target yourself by name. The clarifier is kDispellMagic's kCustomMsgOne.
 		if (const std::string &m = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCustomMsgOne);
@@ -694,11 +663,9 @@ const char *what_weapon[] = {"плеть",
 							 "\n"
 };
 
-// Sends the kNoTarget message to `ch` keyed on the cast spell with the {target}
-// placeholder resolved against the spell's accepted target classes
-// Object-accepting spells get "ЧТО" ("what"); char-only
-// spells get "КОГО" ("whom"). Per-spell sheafs with no {target} (e.g. the
-// kControlWeather "тип погоды" override) just pass through.
+// Sends the spell's kNoTarget message with {target} resolved: object-accepting spells get
+// "ЧТО" ("what"), char-only spells get "КОГО" ("whom"). Per-spell sheaves with no {target}
+// (e.g. the kControlWeather "тип погоды" override) just pass through.
 static void SendNoTargetMsg(ESpell spell_id, CharData *ch) {
 	std::string msg = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoTarget);
 	const auto pos = msg.find("{target}");
@@ -716,15 +683,11 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
 
-	// kControlWeather / kCreateWeapon used to parse their argument here (weather / weapon type);
-	// that moved into the respective handlers (issue.spell-pipeline-cleaning #2/#3), so the generic
-	// resolver no longer special-cases spell ids.
 	strcpy(cast_argument, t);
-	// issue.room-affect-trigger-improve: a kTarDirection spell targets a direction/exit. Parse the arg
-	// as a RU or EN direction name; *troom stays the caster's room and *dir carries the direction.
-	// issue.room-affect-trigger-improve: a kTarDirection spell whose argument is a RU/EN direction targets
-	// that exit. If the arg is NOT a direction we fall through so a spell that ALSO allows other targets
-	// (e.g. kDispellMagic on a char, or its no-arg room form) still resolves normally.
+	// A kTarDirection spell whose argument is a RU/EN direction targets that exit; *troom stays the
+	// caster's room and *dir carries the direction. If the arg is NOT a direction we fall through so a
+	// spell that ALSO allows other targets (e.g. kDispellMagic on a char, or its no-arg room form)
+	// still resolves normally.
 	if (MUD::Spell(spell_id).AllowTarget(kTarDirection) && *t) {
 		int d = search_block(t, dirs_rus, false);
 		if (d < 0) { d = search_block(t, dirs, false); }
@@ -790,7 +753,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			// Локейт ищет сам, по строке запроса: предварительный поиск цели гонял
 			// список предметов мира второй раз и отбирал по другим правилам, чем
 			// обработчик, из-за чего одни предметы терялись, а другие показывались
-			// вопреки отказу (issue #3924).
+			// вопреки отказу.
 			if (spell_id == ESpell::kLocateObject) {
 				return true;
 			}
@@ -810,7 +773,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 				*tch = ch->GetEnemy();
 				return true;
 			}
-		// issue.dispellbug: dispel magic (kDispellMagic) with no character target (out
+		// Dispel magic (kDispellMagic) with no character target (out
 		// of combat) dispels the caster's current room (room wards) instead of defaulting
 		// to self. tch stays null -> CallMagic routes to the room-dispel path. In combat
 		// the kTarFightSelf branch above already targets self (cleanse convenience).
@@ -825,9 +788,8 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		}
 	}
 	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
-	// Warcry vs regular phrasing is data-driven through the per-spell kNoTarget
-	// override: warcry sheaves carry the "так громко
-	// крикнуть" variant; the kDefault sheaf has the regular line.
+	// Warcry sheaves override kNoTarget with the "так громко крикнуть" variant;
+	// the kDefault sheaf has the regular line.
 	SendNoTargetMsg(spell_id, ch);
 	return false;
 }
@@ -877,19 +839,17 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		return ECastResult::kNotCast;
 	}
 
-	// Verbal-component gate: CastSpell is the
-	// universal entry point for "spoken" casts (PC do_cast, NPC specprocs,
-	// queued combat casts via process_player_attack, ...). Refuse only
-	// verbal spells under kSilence; non-verbal spells fall through.
+	// CastSpell is the universal entry point for "spoken" casts (PC do_cast, NPC specprocs,
+	// queued combat casts via process_player_attack, ...). Refuse only verbal spells under
+	// kSilence; non-verbal spells fall through.
 	if (MUD::Spell(spell_id).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
 		return ECastResult::kNotCast;
 	}
 
-	// Material-component gate: a spoken cast consumes its material component(s)
-	// here, at launch -- alongside the verbal gate -- NOT inside CastAffect. CastAffect also runs
-	// for casts from equipment / scrolls / procs (which reach CallMagic directly, bypassing this
-	// function) and those must not require components. A missing component refuses the cast.
+	// A spoken cast consumes its material component(s) here, at launch -- alongside the verbal
+	// gate -- NOT inside CastAffect. CastAffect also runs for casts from equipment / scrolls / procs
+	// (which reach CallMagic directly, bypassing this function) and those must not require components. A missing component refuses the cast.
 	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
 		return ECastResult::kNotCast;
 	}
@@ -922,7 +882,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		auto ignore = MUD::Spell(spell_id).AllowTarget(kTarIgnore) ||
 			MUD::Spell(spell_id).IsFlagged(kMagMasses) ||
 			MUD::Spell(spell_id).IsFlagged(kMagGroups);
-		if (ignore) { // индивидуальная цель
+		if (ignore) { // массовое, групповое или без цели
 			// Peaceful blocks anything that *could* be aggressive,
 			// including kAmbiguous, because mass/area/no-target casts have no single victim
 			// to resolve the relationship against -- the conservative read is "this might
@@ -998,8 +958,8 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	prob = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_SUCCESS, prob);
-	// God-flag prob modifiers: the violent vs helpful question
-	// is per-target, so victim's relationship to the caster picks the side for an A spell.
+	// God-flag prob modifiers: violent vs helpful is per-target, so the victim's relationship
+	// to the caster picks the side for an ambiguous spell.
 	const bool aggressive_cast = victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim);
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		(aggressive_cast && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
@@ -1024,16 +984,13 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	return (prob > number(0, 100));
 }
 
-
-// issue.handler-cleaning (Bucket 3): weapon cast-affect helper (was file-local in handler).
 void CastEquipmentAffect(CharData *ch, ESpell spell_id) {
 	ActionContext ctx(ch, spell_id, GetRealLevel(ch), {});
 	ctx.cvict = ch;
 	CastAffect(ctx);
 }
 
-
-// issue.affect-suppression-dispell: worn items carrying any obj-affect suppression, in slot order.
+// Worn items carrying any obj-affect suppression, in slot order.
 std::vector<ObjData *> SuppressedWornItems(CharData *ch) {
 	std::vector<ObjData *> items;
 	if (!ch) {

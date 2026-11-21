@@ -9,7 +9,6 @@
 
 class CharData;
 
-// issue.chardata-cleaning: a temporary spell record (was TemporarySpell in char_data.h).
 struct TemporarySpell {
 	ESpell spell{ESpell::kUndefined};
 	time_t set_time{0};

@@ -15,8 +15,7 @@ namespace room_affects {
 
 namespace {
 // Look up `key` in `spell`'s sheaf (with kDefault fallback) and send to `ch`,
-// substituting any {name} placeholder with `spell`'s canonical name. Trailing
-// "\r\n" matches the SendMsgToChar convention.
+// substituting any {name} placeholder with `spell`'s canonical name.
 void SendSpellNameMsg(CharData *ch, ESpell spell, ESpellMsg key) {
 	std::string msg = MUD::SpellMessages().GetMessage(spell, key);
 	const auto pos = msg.find("{name}");
@@ -27,28 +26,18 @@ void SendSpellNameMsg(CharData *ch, ESpell spell, ESpellMsg key) {
 }
 }  // namespace
 
-// Apply a room-targeted spell to ch's current room. Pure data-driven: every
-// affect parameter -- duration, modifier, potency, debuff flag, refresh /
-// dedup policy, imposition narration -- comes from the spell's XML
-// <talent_actions>/<affects> block and spell_msg.xml. No per-spell switch or
-// code-set messages remain. New room spells need only their XML rows; this
-// function is unchanged.
-// Three universal gates run before any affect data is computed:
-//   1. Material component (ProcessMatComponents). Missing -> abort silently.
-//   2. <blocking><room_flags val>. Room carries a blocking flag and the caster
-//      is not exempt (MayCastInForbiddenRoom) -> emit kCastForbidden* and
-//      abort. This is the kRuneLabel/kForbidden/kNoMagic fizzle path.
-//   3. (no third gate -- everything else is data-driven inside the impose loop)
-// Duration unit: room-affect durations are in RAW ROOM-TICK PULSES, NOT the
-// hours used by char affects. The reader uses base + skill_bonus directly,
-// without the kSecsPerMudHour multiplier that CalcDuration applies for PCs.
-// This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
-// kMeteorStorm (3 pulses), etc. -- sub-hour values that hours-based duration
-// can't express in integers.
-// Impose the spell's room affect on ctx.rvict from the CURRENT action's <affects> block.
-// Reads ctx.action_or_default(): action[0] for the legacy CallMagicToRoom entry, or the cursor
-// action when driven from the per-action loop -- so a kTarRoomThis action can scale the room
-// affect off a prior action's result via ctx.CompetenceBase(). kSuccess on impose, kNotCast on no-effect.
+// Impose the spell's room affect on ctx.rvict from the CURRENT action's <affects> block. Pure
+// data-driven, no per-spell switch: duration, potency and charges come from the spell's <affects>;
+// behaviour flags and seal strength (modifier) from the room affect's own room_affects.xml entry;
+// narration from the room affect's messages, falling back to the spell's sheaf.
+// Material-component and room-flag gates are NOT checked here -- CallMagicToRoom does that.
+// Reads ctx.action_or_default(): action[0] for the CallMagicToRoom entry, or the cursor action
+// when driven from the per-action loop -- so a kTarRoomThis action can scale the room affect off a
+// prior action's result via ctx.CompetenceBase(). kSuccess on impose, kNotCast on no-effect.
+// Duration unit: room-affect durations are in RAW ROOM-TICK PULSES, NOT the hours used by char
+// affects: base + skill_bonus is used directly, without the kSecsPerMudHour multiplier that
+// CalcDuration applies for PCs, so sub-hour values (kDeadlyFog 8 pulses, kMeteorStorm 3) fit in
+// integers.
 ECastResult CastRoomAffect(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	RoomData *const room = ctx.rvict;
@@ -56,7 +45,7 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 	if (ch == nullptr || room == nullptr) {
 		return ECastResult::kNotCast;
 	}
-	// issue.affects-improve: the affect this spell imposes is exactly what its <affects id=...> declares.
+	// The affect this spell imposes is exactly what its <affects id=...> declares.
 	const ERoomAffect room_affect = ctx.action_or_default().Contains(talents_actions::EAction::kAffect)
 		? ctx.action_or_default().GetAffect().GetRoomAffect() : ERoomAffect::kUndefined;
 	// Default-init the affect array. kMaxSpellAffects slots; only slot 0 is
@@ -73,17 +62,15 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 		af[i].duration = 0;
 	}
 
-	// Data-driven defaults from the spell's <talent_actions>/<affects> block.
-	// Fills af[0] with duration, battleflag, modifier, potency, debuff -- the
-	// same fields CastAffect populates on a per-target affect (the helpers
-	// CalcCastPotency / ComputeApplyModifier are shared with CastAffect's
-	// apply_one path so both record the same values for the same cast roll).
+	// Fills af[0] with type, caster, battleflag, duration, potency, charges and modifier. The
+	// helpers CalcCastPotency / ComputeApplyModifier are shared with CastAffect so both record
+	// the same values for the same cast roll.
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kAffect)) {
 		const auto &talent = ctx.action_or_default().GetAffect();
 		af[0].affect_type = room_affect;
 		af[0].caster_id = ch->get_uid();
-		// issue.affect-migration: flags come from room_affects.xml by affect_type (so the update-gate
-		// below reads the right kAfUpdateDuration/kAfUpdateMod).
+		// Flags come from room_affects.xml by affect_type (so the update-gate below reads the right
+		// kAfUpdateDuration/kAfUpdateMod).
 		af[0].battleflag = RoomAffectFlagsByType(af[0].affect_type);
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
@@ -95,11 +82,10 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 		// Symmetric with the char-affect path in TryApplyAffectTalent.
 		af[0].potency = CalcCastPotency(ctx.potency()) * talent.GetPotencyWeight();
 		af[0].charges = talent.GetChargesMax();
-		// issue.affects-improve (P1 fix): the seal strength (modifier) is the ROOM AFFECT's own
-		// property (room_affects.xml <seal_strength>), not the casting spell's apply. The spell now
-		// names the affect via a bare <affect id=> ref carrying no coefficients, so reading
-		// talent.GetApplies()[0] here yielded modifier 0 -- which silently disabled the kForbidden
-		// ward (gated on number(1,100) <= af->modifier) and zeroed the sight.cpp star rating.
+		// The seal strength (modifier) is the ROOM AFFECT's own property (room_affects.xml
+		// <seal_strength>), not the casting spell's apply: the spell names the affect via a bare
+		// <affect id=> ref carrying no coefficients. The kForbidden ward (number(1,100) <= modifier)
+		// and the sight.cpp star rating read it.
 		if (RoomAffectHasSeal(af[0].affect_type)) {
 			af[0].modifier = ComputeApplyModifier(RoomAffectSeal(af[0].affect_type),
 												  ctx.CompetenceBase(), ctx.potency());
@@ -122,14 +108,13 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 	}
 	*/
 
-	// Refresh / dedup policy. kMagNeedControl spells cancel any other
-	// controlled affect; otherwise a duplicate cast is allowed iff the
-	// affect's first slot carries kAfUpdateDuration. kAfUnique drops any
-	// prior copy from this caster.
+	// Refresh / dedup policy. kMagNeedControl spells cancel the caster's previous controlled
+	// affect. kAfUnique drops any prior copy from this caster. Otherwise an existing copy is
+	// updated in place if af[0] carries kAfUpdateDuration and/or kAfUpdateMod, else the cast fails.
 	bool success = true;
 	bool handled_update = false;   // existing room affect updated in place -> skip impose loop
 	if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
-		// issue.affects-improve: show the caster's interrupt notice FIRST (keyed on the OLD affect),
+		// Show the caster's interrupt notice FIRST (keyed on the OLD affect),
 		// THEN remove it (which narrates the effect ceasing), THEN the new spell announces itself.
 		const ERoomAffect controlled = FindControlledRoomAffect(ch);
 		if (controlled != ERoomAffect::kUndefined) {
@@ -144,20 +129,19 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 	} else {
 		auto RoomAffect_i = FindAffect(room, room_affect);
 		if (RoomAffect_i != room->affected.end() && !IS_SET(af[0].battleflag, kAfUnique)) {
-			// issue.dispellbug: re-cast over an existing (non per-caster-unique) room affect.
+			// Re-cast over an existing (non per-caster-unique) room affect.
 			// Per-field gating: kAfUpdateDuration -> duration, kAfUpdateMod -> modifier;
-			// neither -> not updatable. Author/live-ally update for free (buff OR weaken);
-			// an outsider must win a strength contest, and a player outsider vs a live
-			// author commits an aggressive PK act.
+			// neither -> not updatable.
 			const auto &existing = *RoomAffect_i;
 			const bool can_dur = IS_SET(af[0].battleflag, kAfUpdateDuration);
 			const bool can_mod = IS_SET(af[0].battleflag, kAfUpdateMod);
 			if (!can_dur && !can_mod) {
 				success = false;
 			} else {
-				// Only dispellable wards (e.g. kForbidden) require an author/ally + strength
-				// contest to update; non-dispellable room buffs (e.g. room light) update
-				// freely for now (issue.dispellbug).
+				// Non-dispellable room buffs (e.g. room light) update freely. A dispellable ward
+				// (e.g. kForbidden) is updated for free by its author/live ally (buff OR weaken);
+				// an outsider must win a strength contest (5% luck or higher potency), and a
+				// player outsider vs a live author commits an aggressive PK act.
 				bool may = true;
 				if (IS_SET(af[0].battleflag, kAfDispellable)) {
 					const auto access = ClassifyRoomAffectAccess(ch, existing->caster_id);
@@ -190,9 +174,9 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 		}
 	}
 
-	// Impose loop. Each affect's battleflag drives the join policy: kAfUpdate
-	// Duration -> affect_room_join_fspell (replace by spell id); otherwise
-	// affect_room_join with kAfAccumulateDuration deciding whether durations
+	// Impose loop. Each affect's battleflag drives the join policy: kAfUpdateDuration ->
+	// affect_room_join_fspell (merge into an existing copy, keeping the larger modifier and
+	// duration); otherwise affect_room_join with kAfAccumulateDuration deciding whether durations
 	// stack. Empty slots (no duration, no location) are skipped.
 	for (int i = 0; !handled_update && success && i < kMaxSpellAffects; i++) {
 		if (af[i].duration
@@ -209,11 +193,8 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 	}
 
 	if (success) {
-		// Imposition narration: pure spell_msg.xml lookup, sheaf-direct so a
-		// missing key stays silent (same convention as CastAffect's
-		// EmitImpositionEffects).
-		// Prefer the room-affect message system (keyed by the affect's ERoomAffect identity);
-		// fall back to the spell sheaf for anything not yet migrated.
+		// Imposition narration: the room affect's own messages, falling back to the spell's sheaf.
+		// Both lookups skip the kDefault fallback, so a missing key stays silent.
 		const ERoomAffect ra = room_affect;
 		const auto &sheaf = MUD::SpellMessages()[spell_id];
 		const std::string &room_to_room = RoomAffectMsgRaw(ra, ERoomAffectMsgType::kAffImposedToRoom);
@@ -250,9 +231,8 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll) {
 		return ECastResult::kNotCast;
 	}
 
-	// Data-driven room block: same mechanism as in
-	// CallMagic. Fizzle narration lives in spell_msg.xml; the kDefault
-	// sheaf covers the generic case, per-spell sheaves override.
+	// Room block, same mechanism as in CallMagic. The kDefault sheaf covers the generic
+	// fizzle narration, per-spell sheaves override.
 	if (IsRoomBlocked(world[ch->in_room], MUD::Spell(spell_id).actions.GetBlocking())
 			&& !MayCastInForbiddenRoom(ch)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", ch);
@@ -263,10 +243,9 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll) {
 		return ECastResult::kNotCast;
 	}
 
-	// Data-driven dispel. A kTarRoomThis spell carrying an <unaffect>
-	// block strips room affects here, mirroring CastToSingleTarget's "Damage -> Unaffect ->
-	// Affect" ordering. CastUnaffects emits its own dispel / no-effect narration via the
-	// kAffDispelledTo{Char,Room} sheaves. For a pure-dispel spell (no <affects>) the impose
+	// A kTarRoomThis spell carrying an <unaffect> block strips room affects here, mirroring
+	// CastOnTarget's "Damage -> Unaffect -> Affect" ordering. CastUnaffects emits its own dispel /
+	// no-effect narration. For a pure-dispel spell (no <affects>) the impose
 	// loop below then runs as a no-op; for a dual spell (kMagAffects + <unaffect>) the affect
 	// imposition continues normally.
 	if (CastUnaffects(roll) == EStageResult::kBreak) {
@@ -276,7 +255,7 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll) {
 	return CastRoomAffect(roll);
 }
 
-// issue.room-affect-trigger-improve (door affects): host a room affect on an EXIT instead of the room.
+// Host a room affect on an EXIT instead of the room.
 // Same Affect<ERoomApply> type, same impose -- only the host list differs. Behaviour flags come from
 // room_affects.xml by affect_type, exactly like affect_to_room.
 void affect_to_exit(const RoomData::exit_data_ptr &exit, const Affect<ERoomApply> &af) {
@@ -291,8 +270,8 @@ void affect_to_exit(const RoomData::exit_data_ptr &exit, const Affect<ERoomApply
 }
 
 // Cast a kMagRoom spell onto the exit in direction `dir` from the caster's room (a kTarDirection cast).
-// Mirrors CallMagicToRoom's affect build but imposes on the exit/door. NOTE (first cut): no dedup/PK
-// contest and no expiry tick yet -- a door affect persists until dispelled; both are follow-ups.
+// Mirrors CastRoomAffect's affect build but imposes on the exit/door. No dedup/PK contest yet:
+// a repeat cast adds another copy. Expiry is ticked by UpdateExitsAffects.
 ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll) {
 	const ESpell spell_id = roll.spell_id();
 	roll.cvict = nullptr;
@@ -315,7 +294,7 @@ ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll) {
 	bool did = false;
 
 	// Dispel stage: strip dispellable affects on the passage. This is how `развеять магию <dir>` works
-	// (kDispellMagic's <unaffect> block) -- it is no longer a kDispellMagic special-case in CallMagic.
+	// (kDispellMagic's <unaffect> block).
 	if (action.Contains(talents_actions::EAction::kUnaffect)) {
 		if (DispelExitAffects(ch, dir, spell_id)) { did = true; }
 	}

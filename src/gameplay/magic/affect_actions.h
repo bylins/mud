@@ -7,8 +7,8 @@
 #ifndef BYLINS_SRC_GAMEPLAY_MAGIC_AFFECT_ACTIONS_H_
 #define BYLINS_SRC_GAMEPLAY_MAGIC_AFFECT_ACTIONS_H_
 
-#include "gameplay/magic/magic.h"   // ECastResult
-#include "gameplay/abilities/talents_actions.h"   // talents_actions::Action
+#include "gameplay/magic/magic.h"
+#include "gameplay/abilities/talents_actions.h"
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@
 class CharData;
 class RoomData;
 
-// issue.affect-migration: run an affect's own (trigger-filtered) actions on the room each tick, cycled
+// Run an affect's own (trigger-filtered) actions on the room each tick, cycled
 // by phase. Context from ctx_spell; tick_duration (when non-null) carries the affect's current duration
 // in/out so a manual_cast handler can branch on / modify it. Defined in affect_triggers.cpp.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,

@@ -8,11 +8,11 @@
 #include "gameplay/abilities/talents_actions.h"
 #include "engine/structs/structs.h"
 #include "engine/structs/info_container.h"
-#include "gameplay/abilities/feats_constants.h"   // issue.perk-action-patching: EFeat
+#include "gameplay/abilities/feats_constants.h"
 
 #include <set>
 
-namespace feats { struct TalentPatch; }   // issue.perk-action-patching (avoid feats.h<->spells_info.h cycle)
+namespace feats { struct TalentPatch; }   // avoids a feats.h<->spells_info.h include cycle
 
 class CharData;
 
@@ -21,16 +21,15 @@ namespace spells {
 using DataNode = parser_wrapper::DataNode;
 
 // Three-state aggression flag for a spell, parsed from the <misc violent> attribute.
-// (issue.ambiguous-spells)
 //   kNo        -- a purely helpful spell ("N" / "0"), can be cast freely on anyone.
 //   kYes       -- always violent ("Y" / "1"), triggers PK / retaliation / saving-shield logic.
 //   kAmbiguous -- "A": helpful when cast on self / charmed pets / groupmates, but treated as
 //                 fully aggressive (including PK liability) when cast on outsiders. NPC<->NPC
 //                 mob casts always resolve to the helpful side; charmed pets resolve to their
 //                 PC master's relationship.
-// Backwards-compat note: IsViolent() returns true ONLY for kYes -- A is conservatively reported
-// as "not always violent" for the call sites that still ask the static question. Sites that
-// need the per-target answer call IsViolentAgainst(caster, target).
+// IsViolent() returns true ONLY for kYes -- A is conservatively reported as "not always
+// violent" for the call sites that ask the static question. Sites that need the per-target
+// answer call IsViolentAgainst(caster, target).
 enum class EViolent : uint8_t { kNo, kYes, kAmbiguous };
 
 /**
@@ -40,7 +39,6 @@ class SpellsLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
-	// issue.vedun-editor:
 	[[nodiscard]] std::string EditableWhat() const final;
 	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
 	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
@@ -48,53 +46,51 @@ class SpellsLoader : virtual public cfg_manager::IEditableCfgLoader {
 	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
-/**
- * Класс-описание конкретного заклинания.
- */
-// issue.perk-action-patching: one talent patch that targets a spell (which feat + the patch payload).
+// One talent patch that targets a spell (which feat + the patch payload).
 struct TalentPatchRef {
 	EFeat feat{EFeat::kUndefined};
 	const feats::TalentPatch *patch{nullptr};
 };
 
+/**
+ * Класс-описание конкретного заклинания.
+ */
 class SpellInfo : public info_container::BaseItem<ESpell> {
 	std::string name_{"!undefined!"};
 	std::string name_eng_{"!undefined!"};
-	EPosition min_position_{EPosition::kLast};    // Position for caster   //
+	EPosition min_position_{EPosition::kLast};    // Position for caster
 	Bitvector flags_{0};
 	Bitvector targets_{0};
 	long danger_{0};
 	EElement element_{EElement::kUndefined};
-	// issue.perk-action-patching (Phase 3 selectors): semantic category tags (e.g. "curse", "shield"),
-	// an open content taxonomy authored in <tags val="a|b"/>. A talent_patch category= selector matches
-	// spells carrying the tag. Free strings (not a typed enum) so authors add categories without a recompile;
-	// a selector typo is caught by BuildTalentPatchIndex's "matched no spell" warning.
+	// Semantic category tags (e.g. "curse", "shield"), an open content taxonomy authored in
+	// <tags val="a|b"/>. A talent_patch category= selector matches spells carrying the tag. Free
+	// strings (not a typed enum) so authors add categories without a recompile; a selector typo
+	// is caught by BuildTalentPatchIndex's "matched no spell" warning.
 	std::set<std::string> tags_;
 	EViolent violent_{EViolent::kNo};
 
-	int min_mana_{100};        // Min amount of mana used by a spell (highest lev) //
-	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
-	int mana_change_{1};    // Change in mana used by spell from lev to lev //
+	int min_mana_{100};        // Min amount of mana used by a spell (highest lev)
+	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev)
+	int mana_change_{1};    // Change in mana used by spell from lev to lev
 
 	// Potency roll parameters of the spell (dice + skill/stat bonuses), shared by
-	// all of the spell's effects (issue #3332). Filled from the <potency_roll>
-	// section; spells without one keep the default-constructed roll.
+	// all of the spell's effects. Filled from the <potency_roll> section; spells
+	// without one keep the default-constructed roll.
 	talents_actions::Roll potency_roll_;
-	// Success roll parameters, filled from the <success_roll> section (issue.success-roll).
+	// Success roll parameters, filled from the <success_roll> section.
 	// Dice-less; base_skill/base_stat mirror potency_roll, plus optional <bonus>/<thresholds>.
-	// Parsed and stored only for now; not yet consumed (the success mechanic is future work).
+	// Only base_skill is consumed so far (the spell's magic skill); the success mechanic
+	// itself is future work.
 	talents_actions::SuccessRoll success_roll_;
-	// Spell-level caster gate (issue.spell-unification): a spell is castable by the
-	// caster or not. Filled from the optional <caster_conditions> block (after
-	// success_roll); empty by default. Checked once in CallMagic.
+	// Spell-level caster gate: a spell is castable by the caster or not. Filled from
+	// the optional <caster_conditions> block (after success_roll); empty by default.
+	// Checked once in CallMagic.
 	talents_actions::CasterConditions caster_conditions_;
-	// Material component requirements (issue.spellcomponents). Filled from the
-	// optional <components>...</components> block; spells without one keep an
-	// empty container, which ProcessMatComponents treats as "no component
-	// required, cast proceeds".
+	// Material component requirements, filled from the optional <components> block;
+	// spells without one keep an empty container, which ProcessMatComponents treats
+	// as "no component required, cast proceeds".
 	talents_actions::Components components_;
-
-	//std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
 
  public:
 	SpellInfo() = default;
@@ -105,7 +101,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 
 	talents_actions::Actions actions;
 
-	// issue.perk-action-patching: talent patches targeting this spell, filled once at boot by
+	// Talent patches targeting this spell, filled once at boot by
 	// feats::BuildTalentPatchIndex(). Empty for nearly every spell -> the cast fast-path skips patching.
 	// mutable: a post-load index on an otherwise const-at-runtime object.
 	mutable std::vector<TalentPatchRef> talent_patches;
@@ -125,7 +121,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] bool AllowTarget(Bitvector target_type) const;
 	// Strict / static accessor: returns true only for spells declared <misc violent="Y">.
 	// kAmbiguous reports false here -- call sites that need the per-target verdict use
-	// IsViolentAgainst() below. (issue.ambiguous-spells)
+	// IsViolentAgainst() below.
 	[[nodiscard]] bool IsViolent() const { return violent_ == EViolent::kYes; };
 	[[nodiscard]] EViolent GetViolent() const { return violent_; };
 	// Resolves an A (kAmbiguous) spell against a concrete caster<->target relationship.
@@ -133,7 +129,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	// (PK rules apply, NPCs retaliate, saving-shields fire, dispel needs a strength
 	// contest, etc.). For kYes always true; for kNo always false. For kAmbiguous:
 	// allies (self / charmed-pet chain / same group, with NPC<->NPC mob casts defaulting
-	// to allied) -> false; outsiders -> true. (issue.ambiguous-spells)
+	// to allied) -> false; outsiders -> true.
 	[[nodiscard]] bool IsViolentAgainst(const CharData *caster, const CharData *target) const;
 
 	[[nodiscard]] long GetDanger() const { return danger_; };

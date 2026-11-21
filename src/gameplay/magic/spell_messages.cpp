@@ -1,11 +1,11 @@
 /**
 \file spell_messages.cpp - a part of the Bylins engine.
-\authors Created by Claude (issue #3304).
+\authors Created by Claude.
 \brief In-game message container for spells: loader + ESpellMsg name registration.
 */
 
 #include "spell_messages.h"
-#include "utils/utils_string.h"   // str_cmp
+#include "utils/utils_string.h"
 
 #include "engine/db/global_objects.h"
 
@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace {
-// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it for the editor pick-list.
+// File-scope so NAMES_OF can expose it for the editor pick-list.
 const std::map<ESpellMsg, std::string> kESpellMsgNames{
 		{ESpellMsg::kUndefined, "kUndefined"},
 		{ESpellMsg::kHealToVict, "kHealToVict"},
@@ -270,7 +270,7 @@ void SpellMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	MUD::SpellMessages().Reload(data.Children());
 }
 
-// issue.vedun-msg-editor: editor discovery + safe-commit validation (mirrors SpellsLoader).
+// Editor discovery + safe-commit validation (mirrors SpellsLoader).
 std::string SpellMessagesLoader::EditableWhat() const {
 	return "spellmsg";
 }

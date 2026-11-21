@@ -12,17 +12,9 @@
 #include <map>
 
 std::string GetAffExpiredText(ESpell spell_id) {
-	// The map of per-spell expiration messages used to live here. The texts moved to
-	// lib/cfg/spell_msg.xml under the kAffExpiredToChar key; a generic default lives in the
-	// kDefault sheaf, so a spell without its own kAffExpiredToChar falls back to it. The
-	// callers (ShowAffExpiredMsg, SendRemoveAffectMsgToRoom) still gate on !msg.empty()
-	// in case the lookup ever returns the fallback error string.
+	// A spell without its own kAffExpiredToChar in spell_msg.xml falls back to the kDefault sheaf.
 	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAffExpiredToChar);
 }
-
-// GetCastPhrase удалён (issue #3304): фразы заклинаний перенесены в
-// lib/cfg/spell_msg.xml (kCastPhraseHeathen/kCastPhraseChristian),
-// выбор фразы - через MUD::SpellMessages() в SaySpell().
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
 typedef std::map<const std::string, ESpell> ESpell_value_by_name_t;
@@ -280,7 +272,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kTestFour] = "kTestFour";
 	ESpell_name_by_value[ESpell::kTestFive] = "kTestFive";
 	ESpell_name_by_value[ESpell::kCreateArmor] = "kCreateArmor";
-	// issue.new-unaffect-spells
 	ESpell_name_by_value[ESpell::kUnweave] = "kUnweave";
 	ESpell_name_by_value[ESpell::kSuppress] = "kSuppress";
 	ESpell_name_by_value[ESpell::kErode] = "kErode";
@@ -294,8 +285,8 @@ void init_ESpell_ITEM_NAMES() {
 		ESpell_value_by_name[i.second] = i.first;
 	}
 
-	// "kDefault" is an alias for kUndefined: the default sheaf id in spell_msg.xml
-	// (issue #3304). kUndefined keeps its canonical name "kUndefined" for NAME_BY_ITEM.
+	// "kDefault" is an alias for kUndefined: the default sheaf id in spell_msg.xml.
+	// kUndefined keeps its canonical name "kUndefined" for NAME_BY_ITEM.
 	ESpell_value_by_name["kDefault"] = ESpell::kUndefined;
 }
 
