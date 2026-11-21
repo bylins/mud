@@ -5,9 +5,10 @@
 A **feat** (`EFeat`) is a passive character trait: it can grant stat bonuses and
 status affects, tune skill/feat cooldowns, and — the newer capability — **modify
 the behaviour of spells and affects** the character casts or carries. Everything
-in this manual is data; the feat's *availability* (which class gets it, at what
-cost) lives with the classes, and a handful of feats still have hard-coded bodies
-(noted in §6).
+in this manual is data. Which class gets a feat, at what slot and remort cost,
+lives with the classes; what else a character needs to **learn** and to **use** a
+feat, how many feats of a kind they may hold, and the feat's **reuse delay** are
+described here (§2). A handful of feats still have hard-coded bodies (noted in §6).
 
 Two independent data layers:
 
@@ -28,11 +29,16 @@ targets and edits it.
 ## 1. The `<feat>` element
 
 ```xml
-<feat id="kDodger" mode="kEnabled">
-    <talent_effects> … </talent_effects>     <!-- passive layer, §3 -->
-    <talent_patches> … </talent_patches>     <!-- active layer,  §4 -->
+<feat id="kDoubleShot" category="…" mode="kEnabled">
+    <prerequisites> … </prerequisites>      <!-- to learn it,       §2.2 -->
+    <requirements> … </requirements>        <!-- to use it,         §2.2 -->
+    <timed base="…"/>                       <!-- reuse delay,       §2.5 -->
+    <talent_effects> … </talent_effects>    <!-- passive layer,     §3 -->
+    <talent_patches> … </talent_patches>    <!-- active layer,      §4 -->
 </feat>
 ```
+
+All children are optional and may come in any order.
 
 ### 1.1 Header attributes
 
@@ -40,6 +46,7 @@ targets and edits it.
 |---|---|
 | `id` | the `EFeat` enum name. Required. |
 | `mode` | lifecycle state (`EItemMode`): `kEnabled` (live), `kTesting` (dev/prototyping only), `kDisabled`, `kFrozen`, `kService` (engine-internal). Only `kEnabled` feats are generally usable in play; `kTesting` is for iterating on new perks without shipping them. |
+| `category` | optional: the id of a `<feat_categories>` entry limiting how many feats of that kind a character may hold (§2.4). |
 
 A feat may have an **empty body** (`<feat id="kBerserker" mode="kEnabled"/>`) — a
 pure marker the combat/skill code tests via `CanUseFeat`. Adding data later never
@@ -47,12 +54,22 @@ breaks that.
 
 ---
 
-## 2. Availability & gating (how a character "has" a feat)
+## 2. Availability, conditions & delays
 
-Feat data does **not** declare its own requirements. The commented
-`<requirements>` block at the top of `feats.xml` is an aspirational format and is
-**not parsed**. Availability is decided elsewhere, and `CanUseFeat(ch, feat)`
-(the single gate all game code uses) checks, in order:
+### 2.1 The two gates
+
+**Learning** a feat goes through `CanGetFeat(ch, feat)`, used by the learn command,
+guild trainers, identify, immortal `set` and scripts. In order:
+
+1. the feat exists and is not disabled;
+2. the character's **class** offers it (`pc_*.xml`) or their **race** grants it
+   (`pc_races.xml`), and the class's **min-remort** for it is met;
+3. a **feat slot** is free at the feat's slot level (inborn and race feats need none);
+4. the feat's **category** has room (§2.4);
+5. the feat's **`<prerequisites>`** are met (§2.2).
+
+**Using** a feat goes through `CanUseFeat(ch, feat)`, the single gate all game code
+uses. In order:
 
 1. the feat exists and the character **has** it (`HaveFeat`);
 2. NPCs pass immediately (mobs use any feat they're given);
@@ -60,13 +77,114 @@ Feat data does **not** declare its own requirements. The commented
    `CalcMaxFeatSlotPerLvl(ch) ≥ MUD::Class(class).feats[feat].GetSlot()`;
 4. the character's **remort** meets the feat's minimum —
    `remort ≥ …feats[feat].GetMinRemort()`;
-5. a few feats add a **hard-coded stat gate** (e.g. `kWeaponFinesse`/`kFInesseShot`
-   need `dex > str` and `dex > 17`; `kPowerAttack` needs `str > 19`).
+5. the feat's **`<requirements>`** are met (§2.2).
 
 The per-class **slot cost** and **min-remort** live in the class configs
-(`pc_*.xml`), not here. So to make a feat available you (a) add its `EFeat`,
-(b) give it data here, and (c) grant it to the relevant class(es) with a slot/
-remort cost in the class config.
+(`pc_*.xml`), race feats in `pc_races.xml` — not here. So to make a feat
+available you (a) add its `EFeat`, (b) give it data here, and (c) grant it to the
+relevant class(es) with a slot/remort cost in the class config.
+
+### 2.2 `<prerequisites>` and `<requirements>`
+
+Both sections share one grammar. `<prerequisites>` holds the conditions to
+**learn** the feat, `<requirements>` the conditions to **use** it. A section lists
+one or more alternatives — `<prerequisite>` or `<requirement>` respectively:
+**any** alternative is enough, and **all** conditions inside one must hold. A feat
+without a section is not restricted by it.
+
+```xml
+<feat id="kDoubleShot" mode="kEnabled">
+    <prerequisites>                       <!-- to learn: bow focus and bows 40+ -->
+        <prerequisite>
+            <feat id="kBowsFocus"/>
+            <skill id="kBows" min="40"/>
+        </prerequisite>
+    </prerequisites>
+    <requirements>                        <!-- to use: the same, at the moment of use -->
+        <requirement>
+            <feat id="kBowsFocus"/>
+            <skill id="kBows" min="40"/>
+        </requirement>
+    </requirements>
+</feat>
+
+<feat id="kParryArrow" mode="kEnabled">
+    <prerequisites>                       <!-- multiparry OR parry -->
+        <prerequisite><skill id="kMultiparry" min="1"/></prerequisite>
+        <prerequisite><skill id="kParry" min="1"/></prerequisite>
+    </prerequisites>
+</feat>
+```
+
+### 2.3 Conditions
+
+| condition | met when |
+|---|---|
+| `<skill id="kParry" min="40"/>` | the skill is at least `min` (default 1). For **prerequisites** the skill is read *without* equipment bonuses (`GetSkillWithoutEquip`); for **requirements** — the full skill the fight code uses (`GetSkill`: equipment, skill-reduce affects). |
+| `<feat id="kPowerAttack"/>` | the character has the feat; `absence="Y"` — does **not** have it. A feat may not require itself. |
+| `<stat id="kDex" min="18" above="kStr"/>` | the base stat with all bonuses (`GetRealDex` etc.) is at least `min` **and** strictly greater than the `above` stat. At least one of the two is required. Ids: `kStr`, `kDex`, `kCon`, `kWis`, `kInt`, `kCha`. |
+| `<level min="20" max="24" remort_divisor="3"/>` | `level + remorts / remort_divisor` lies within `[min, max]`. At least one of `min`/`max` is required; without `remort_divisor` (default 0) remorts do not count. The level is `GetRealLevel`. |
+
+Thresholds are inclusive: a hard-coded `skill > 39` became `min="40"`.
+
+**Mistakes fail closed.** An alternative with an unknown id or tag, a missing or
+bad `min`, a feat requiring itself, an empty alternative and so on is logged at
+load and dropped **as a whole**. If no alternative of a section survives, its
+conditions can never be met — the feat cannot be learned (or used). A typo can
+make a feat harder to get, never easier.
+
+### 2.4 `<feat_categories>` — how many feats of a kind
+
+Some feats are limited as a group: a character may hold only so many weapon focus
+feats. Categories are defined once, at the top of `<feats>`, and a feat joins one
+with the `category` attribute:
+
+```xml
+<feats>
+    <feat_categories>
+        <category id="weapon_focus"  base="2" remort_divisor="6"/>
+        <category id="weapon_master" base="1" remort_divisor="7"/>
+    </feat_categories>
+    <feat id="kPunchFocus" category="weapon_focus" mode="kEnabled"> … </feat>
+```
+
+| `<category>` attr | meaning |
+|---|---|
+| `id` | free text, referenced by the feats' `category=`. Required. |
+| `base` | how many feats of the category a character may hold at once. Required, ≥ 0. |
+| `remort_divisor` | each `remorts / remort_divisor` adds one more. Default 0 — remorts do not raise the limit. |
+| `cap` | the ceiling. Default -1 — none. Must not be below `base`. |
+
+**Limit** = `min(cap, base + remorts / remort_divisor)`. Every feat of the
+category the character has counts, inborn ones included. A feat belongs to at most
+one category.
+
+An invalid category is logged and dropped; one defined twice is dropped entirely.
+A feat naming a missing category cannot be learned (logged at load).
+
+### 2.5 `<timed>` — the reuse delay
+
+A feat with a delay before it can be used again carries `<timed>`:
+
+```xml
+<feat id="kRelocate" mode="kEnabled">
+    <timed base="18" min="3" remort_divisor="1"/>
+</feat>
+```
+
+| attr | meaning |
+|---|---|
+| `base` | the delay in game hours. 1–255. |
+| `min` | the delay never drops below it. Default 1; must not exceed `base`. |
+| `remort_divisor` | each `remorts / remort_divisor` shortens the delay by one hour. Default 0 — remorts do not shorten it. |
+
+**Delay** = `max(min, base - remorts / remort_divisor)`. The holder's other feats can
+still adjust it with `<feat_timer_mods>` (§3.3).
+
+A bare `<timed/>` only marks the feat as timed — the feat list shows its timer —
+while the delay itself is computed in code (see §6). An invalid `<timed>` is
+logged and dropped. If code imposes a feat's delay from the file but the feat has
+no `<timed base>`, the error is logged and a full day (24 hours) is imposed.
 
 ---
 
@@ -130,7 +248,7 @@ Adds `val` to the character's effective skill (`SetAddSkill`).
 <feat_timer_mods><mod id="kRelocate" val="-1"/></feat_timer_mods>
 ```
 Adjust the cooldown timer of a named skill / feat while the feat is held (read via
-`GetTimerMod`).
+`GetTimerMod`). A feat's own base delay is its `<timed>` (§2.5).
 
 ---
 
@@ -257,6 +375,14 @@ manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
   (combat maneuvers, movement/perception, trade/craft gates, summon buffs). These
   are effectively separate abilities and need the ability pipeline before they can
   be data-driven — they are **not** `talent_effects`/`talent_patch` candidates.
+* **Parts of feat checks and delays.** Two delays stay in code: `kSpellCapabler`'s
+  depends on the spell circle (its `<timed/>` is a bare marker), and `kRelocate`'s
+  2 hours after a peaceful move (its `<timed>` covers an aggressive one). The
+  situational check of the formation feat `kScirmisher` (stunned, sitting, held…)
+  lives in the mob AI that picks the covering member, not in a condition.
+* **Toggled feats** (`kPowerAttack`, `kDoubleThrower`, `kScirmisher`, …) switch a
+  preference flag (`EPrf`) that the fight code reads; which flags a toggle sets and
+  clears is deliberately code, since any change there needs new fight code anyway.
 * **A few spell modifiers** (e.g. `kPowerMagic`'s ignore-absorb-vs-NPC flag,
   summon-buff feats like `kFuryOfDarkness`) touch spell *flags* / *summoned mobs* —
   shapes the current `talent_patch` grammar (numeric field edits + action-chain
@@ -268,6 +394,10 @@ manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
 ## 7. Reference
 
 * **`EItemMode`** — `kEnabled`/`kTesting`/`kDisabled`/`kFrozen`/`kService`.
+* **Conditions** (`<prerequisite>`/`<requirement>`) — `<skill id min>`, `<feat id absence>`,
+  `<stat id min above>`, `<level min max remort_divisor>`.
+* **`<category>`** — `id`, `base`, `remort_divisor`, `cap`; the feat's `category=`.
+* **`<timed>`** — `base`, `min`, `remort_divisor`.
 * **`EApply`** (apply `location=`) — `entities_constants.h`; shared with spells/affects.
 * **`EAffect`** (apply `affect=`) — [Affect Manual](AFFECT_MANUAL.md).
 * **Patch ops** — `append`/`insert`/`replace`/`remove`/`add_effect`/`replace_all`/`modify`.
@@ -282,14 +412,18 @@ manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
    iterating).
 2. **Grant it to a class** in `pc_*.xml` with a slot cost + min-remort (this is
    what makes it obtainable).
-3. **Passive stat/affect?** → `<talent_effects><applies>` (`val` + `lvl_bonus`/
+3. **Needs a skill, a feat, a stat or a level?** → `<prerequisites>` to learn it,
+   `<requirements>` to use it (§2.2). **One of a limited group?** → `category=` (§2.4).
+   **Reuse delay?** → `<timed>` (§2.5).
+4. **Passive stat/affect?** → `<talent_effects><applies>` (`val` + `lvl_bonus`/
    `remort_bonus`, `cap`, optional `affect=`).
-4. **Skill/feat cooldown or skill bonus?** → `<skill_mods>` / `<skill_timer_mods>`
+5. **Skill/feat cooldown or skill bonus?** → `<skill_mods>` / `<skill_timer_mods>`
    / `<feat_timer_mods>`.
-5. **Modifies a spell/affect?** → `<talent_patches>`: pick a selector (specific or
+6. **Modifies a spell/affect?** → `<talent_patches>`: pick a selector (specific or
    class-wide), an op, and (for affect patches) a `relative`; give the target
    stable `id=`s if you use id-based ops.
-6. **Flip `mode="kEnabled"`** when ready; verify at boot (no patch warnings) and in
+7. **Flip `mode="kEnabled"`** when ready; verify at boot (no patch, condition or
+   timer warnings) and in
    mud-sim (grant the feat, cast/trigger the affected spell/affect, confirm the
    effect applies to holders and not to non-holders).
 
