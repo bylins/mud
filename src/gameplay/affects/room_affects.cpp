@@ -12,7 +12,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/modify.h"
 #include "gameplay/clans/house.h"     // Clan::GetClanByRoom (свой замок)
-#include "gameplay/magic/magic_internal.h"   // CastRoomTickActionFromActions (room-affect ticks and triggers)
+#include "gameplay/magic/affect_actions.h"   // CastRoomTickActionFromActions (room-affect ticks and triggers)
 #include "gameplay/mechanics/groups.h"
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты

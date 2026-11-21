@@ -14,6 +14,7 @@
 
 #include "magic.h"          // for EStageResult / ECastResult / ActionContext / forward decls
 #include "gameplay/abilities/feats.h"   // feats::TalentPatch::EModOp (ToFieldModOp)
+#include "affect_actions.h"   // CastRoomTickActionFromActions (public, for affects/)
 
 // issue.area-cast: target scope for a cast. kSingle -> ctx.cvict only; kFoes -> every foe in
 // the caster's room (area/mass); kFriends -> the caster's group, caster placed last.
@@ -31,14 +32,6 @@ ECastResult CastSpell(ActionContext &ctx, ECastTargets scope);
 
 // Forced area-fanout of a spell over the caster's room (room-affect ticks); see magic.cpp.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
-// issue.affect-migration: run an affect's own (trigger-filtered) actions on the room each tick, cycled
-// by phase. Context from ctx_spell; tick_duration (when non-null) carries the affect's current duration
-// in/out so a manual_cast handler can branch on / modify it.
-ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
-										  const std::vector<talents_actions::Action> &actions, int phase,
-										  int *tick_duration = nullptr, float fixed_potency = -1.0f,
-										  const std::string &aff_dmg_char = "", const std::string &aff_dmg_vict = "",
-										  const std::string &aff_dmg_room = "", long damage_author = 0);
 
 // RunRoomEntryTriggers (the on-entry dispatcher) is declared in room_affects.h, since the movement code
 // calls it; it is defined in affect_triggers.cpp with the other affect-owned actions.
