@@ -451,12 +451,6 @@ const char *preference_bits[] = {"краткий",
 								 "\n"
 };
 
-// Room-affect description arrays retired (issue.sight-fmt): per-spell sheaves in
-// lib/cfg/spell_msg.xml now carry kRoomAffectVisible / kRoomAffectInvisible /
-// kRoomAffectSelfInvisible. show_room_affects() in sight.cpp picks the variant
-// from the viewer's kDetectMagic flag and caster id. The previously-unused
-// `int xdfa = 11;` companion symbol is gone with them.
-
 /*
  * WEAR_x - for eq list
  * Not use in sprinttype() so no \n.

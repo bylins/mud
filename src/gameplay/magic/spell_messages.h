@@ -84,8 +84,6 @@ enum class ESpellMsg {
 	kResurrectConsecrated,	// resurrection: mob is consecrated/protected.
 	kResurrectNoPower,		// resurrection: mob cannot be controlled.
 	kResurrectProtected,	// resurrection: mob has gods' shield.
-	kLaggedToRoom,
-	kLaggedToChar,
 	kKnockdownToRoom,		// shared knockdown -> kDefault (to the room).
 	kKnockdownToChar,		// shared knockdown -> kDefault (to the victim).
 	kAcidCorrodeObj,		// kAcid: corrodes the victim's object.
@@ -103,10 +101,6 @@ enum class ESpellMsg {
 	// fallback, so a spell without the key shows nothing.
 	kAffImposedToRoom,
 	kAffImposedToChar,
-	// Not read by the engine: dispel narration now comes from affects::EAffectMsgType,
-	// keyed by the affect.
-	kAffDispelledToRoom,
-	kAffDispelledToChar,
 	// Emitted by MaybeReflectToCaster when the original target reflects the spell back
 	// at the caster ($n = caster, $N = original victim).
 	kReflectedToChar,		// to the caster (whose spell bounced back).
@@ -117,13 +111,6 @@ enum class ESpellMsg {
 	// for kRuneLabel). Looked up in the cast spell's sheaf with kDefault fallback.
 	kCastForbiddenToChar,
 	kCastForbiddenToRoom,
-	// Not read by the engine: room-aura descriptions now come from
-	// room_affects::ERoomAffectMsgType, keyed by the room affect.
-	kRoomAffectVisible,
-	kRoomAffectInvisible,
-	kRoomAffectSelfInvisible,
-	kRoomAffectPkVisible,
-	kRoomAffectPkInvisible,
 	// Material-component narration, emitted by ProcessMatComponents around the
 	// <components>/<material> requirement check. Looked up sheaf-directly on the cast
 	// spell -- a missing key stays silent (no kDefault fallback).
@@ -167,14 +154,9 @@ enum class ESpellMsg {
 	kCastSayDamageeToVict,
 	kCastSayHelpeeToVict,
 	kCastSaySound,
-	// Controlled-cast swap: kCastPreparedToChar is looked up on the NEW spell's sheaf
-	// with its name in {name}, falling back to kDefault. kCastInterruptedToChar is not
-	// read by the engine (the interruption line is room_affects' kAffInterruptedToChar).
-	kCastInterruptedToChar,
+	// Controlled-cast swap: looked up on the NEW spell's sheaf with its name in {name},
+	// falling back to kDefault. (The interruption line is room_affects' kAffInterruptedToChar.)
 	kCastPreparedToChar,
-	// Not read by the engine: the owner notice on RemoveSingleAffectFromWorld comes from
-	// room_affects' kAffDispelledToChar.
-	kAfDispelledToOwner,
 	// Generic "creation failed" notice; kCreateWater overrides it for the non-empty
 	// non-water container case.
 	kItemCreationFailToChar,
