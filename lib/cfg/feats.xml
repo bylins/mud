@@ -716,6 +716,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
         </requirements>
     </feat>
     <feat id="kSkilledTrader" mode="kEnabled">
+        <requirements>
+            <requirement>
+                <level min="20" remort_divisor="3"/>
+            </requirement>
+        </requirements>
     </feat>
     <feat id="kZombieDrover" mode="kEnabled">
     </feat>

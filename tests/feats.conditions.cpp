@@ -594,6 +594,9 @@ std::map<EFeat, LegacyUseCase> LegacyUseRules() {
 	skill_above(EFeat::kShadowThrower, ESkill::kDarkMagic, 120);
 	skill_above(EFeat::kAnimalMaster, ESkill::kMindMagic, 79);
 	rules[EFeat::kMagicUser] = {[](const UseSubject &s) { return s.Level() < 25; }, {}, {}, {}, true};
+	rules[EFeat::kSkilledTrader] = {[](const UseSubject &s) {
+		return (s.Level() + s.Remorts() / 3) > 19;
+	}, {}, {}, {}, true};
 	return rules;
 }
 
