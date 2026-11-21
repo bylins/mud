@@ -71,6 +71,12 @@ jobs:
         env:
           CC: clang-cl
           CXX: clang-cl
+          # Образ раннера приехал с Visual Studio 18 (MSVC 14.52), а clang-cl на нем 20.1.8.
+          # STL от 14.52 требует Clang 22+ и валит сборку на static_assert (STL1000) еще при
+          # компиляции pch, до нашего кода. Макрос снимает эту проверку версии; убрать, когда
+          # в образе появится Clang 22.
+          CFLAGS: -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH
+          CXXFLAGS: -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH
         run: meson setup build --wipe -Dbuild_profile=release -Dunity_size=45
 
       - name: Build
