@@ -120,24 +120,10 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			if (MUD::Feat(feat.GetId()).IsTimed()) {
 				const int timer = IsTimedByFeat(ch, feat.GetId());
 				line = timer ? fmt::format("[{:3}] ", timer) : "[-!-] ";
+			} else if (const auto flag = GetPrfWithFeatNumber(feat.GetId())) {
+				line = ch->IsFlagged(*flag) ? "[-&G*&w-] " : "[-:-] ";
 			} else {
-				switch (feat.GetId()) {
-					case EFeat::kPowerAttack:
-					case EFeat::kGreatPowerAttack:
-					case EFeat::kAimingAttack:
-					case EFeat::kGreatAimingAttack:
-					case EFeat::kScirmisher:
-					case EFeat::kDoubleThrower:
-					case EFeat::kTripleThrower:
-					case EFeat::kSerratedBlade:
-						if (ch->IsFlagged(GetPrfWithFeatNumber(feat.GetId()))) {
-							line = "[-&G*&w-] ";
-						} else {
-							line = "[-:-] ";
-						}
-						break;
-					default: line = "      ";
-				}
+				line = "      ";
 			}
 			if (CanUseFeat(ch, feat.GetId())) {
 				line += fmt::format("&Y{}&w\r\n", MUD::Feat(feat.GetId()).GetCName());

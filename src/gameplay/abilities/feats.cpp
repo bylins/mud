@@ -176,11 +176,16 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 	if (MUD::Feat(feat_id).IsInvalid()) {
 		return false;
 	}
+	const auto flag = GetPrfWithFeatNumber(feat_id);
+	if (!flag) {
+		SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
+		return true;
+	}
 	if (!CanUseFeat(ch, feat_id)) {
 		SendMsgToChar("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return true;
 	}
-	if (ch->IsFlagged(GetPrfWithFeatNumber(feat_id))) {
+	if (ch->IsFlagged(*flag)) {
 		DeactivateFeature(ch, feat_id);
 	} else {
 		ActivateFeat(ch, feat_id);
@@ -299,7 +304,7 @@ EFeat FindWeaponMasterFeat(ESkill skill) {
 /*
  TODO: при переписывании способностей переделать на композицию или интерфейс
 */
-EPrf GetPrfWithFeatNumber(EFeat feat_id) {
+std::optional<EPrf> GetPrfWithFeatNumber(EFeat feat_id) {
 	switch (feat_id) {
 		case EFeat::kPowerAttack: return EPrf::kPerformPowerAttack;
 		case EFeat::kGreatPowerAttack: return EPrf::kPerformGreatPowerAttack;
@@ -309,10 +314,8 @@ EPrf GetPrfWithFeatNumber(EFeat feat_id) {
 		case EFeat::kScirmisher: return EPrf::kSkirmisher;
 		case EFeat::kDoubleThrower: return EPrf::kDoubleThrow;
 		case EFeat::kTripleThrower: return EPrf::kTripleThrow;
-		default: break;
+		default: return std::nullopt;
 	}
-
-	return EPrf::kPerformPowerAttack;
 }
 
 int CalcMaxFeatSlotPerLvl(const CharData *ch) {

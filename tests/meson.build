@@ -21,6 +21,7 @@ test_sources = files(
     'feats.conditions.cpp',
     'feats.categories.cpp',
     'feats.timer.cpp',
+    'feats.toggles.cpp',
     'interpreter.command_shadowing.cpp',
     'socials.loader.cpp',
     'subcmd_resolver.cpp',

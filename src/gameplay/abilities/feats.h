@@ -43,7 +43,9 @@ void SetInbornAndRaceFeats(CharData *ch);
 bool CanUseFeat(const CharData *ch, EFeat feat_id);
 bool CanGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
-EPrf GetPrfWithFeatNumber(EFeat feat_id);
+// The preference flag a toggled feat (power attack, formation...) is switched on with; nullopt for a
+// feat that is not toggled.
+std::optional<EPrf> GetPrfWithFeatNumber(EFeat feat_id);
 
 namespace feats {
 
