@@ -1,4 +1,5 @@
 #include "feat_categories.h"
+#include "feat_text.h"
 
 #include "utils/logger.h"
 #include "utils/utils_parse.h"
@@ -65,12 +66,12 @@ int FeatCategories::Category::CalcLimit(int remorts) const {
 }
 
 std::string FeatCategories::Category::DescribeLimit() const {
-	std::string text = std::to_string(base);
+	std::string text = fmt::format("{}", base);
 	if (remort_divisor > 0) {
-		text += " + remorts / " + std::to_string(remort_divisor);
+		text += fmt::format(" + {}", RemortsShare(remort_divisor));
 	}
 	if (cap != kNoCap) {
-		text += ", at most " + std::to_string(cap);
+		text += fmt::format(", capped at {}", cap);
 	}
 	return text;
 }

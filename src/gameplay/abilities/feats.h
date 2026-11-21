@@ -93,6 +93,10 @@ struct TalentPatch {
 	enum class EModOp { kMul, kAdd, kSet } mod_op{EModOp::kMul};
 	double mod_value{1.0};
 	talents_actions::Actions payload;   // perk-provided <action> block(s) (unused for op="modify")
+
+	// The patch as text for immortals, in the attribute names of feats.xml:
+	// "op=modify has_effect=kArea effect=kArea modify=kArea.decay mul=0.6".
+	[[nodiscard]] std::string Describe() const;
 };
 
 class FeatsLoader : virtual public cfg_manager::ICfgLoader {

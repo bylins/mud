@@ -123,8 +123,9 @@ TEST(FeatTimer, ShippedFileMatchesLegacyDelays) {
 }
 
 TEST(FeatTimer, Describe) {
-	EXPECT_EQ(MakeTimer(24, 1, 0).Describe(), "24 h");
-	EXPECT_EQ(MakeTimer(18, 3, 1).Describe(), "18 h, -1 h per 1 remorts, at least 3 h");
+	EXPECT_EQ(MakeTimer(24, 1, 0).Describe(), "24 hours");
+	EXPECT_EQ(MakeTimer(18, 3, 1).Describe(), "18 - remorts hours, at least 3");
+	EXPECT_EQ(MakeTimer(20, 5, 2).Describe(), "20 - remorts/2 hours, at least 5");
 	EXPECT_EQ(FeatTimer{}.Describe(), "set in code");
 }
 
