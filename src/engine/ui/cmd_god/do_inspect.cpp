@@ -96,7 +96,6 @@ class ExtractedCharacterInfo {
   void PrintBaseInfo(std::ostringstream &report);
   void PrintPunishmentsInfo(std::ostringstream &report) const;
   void PrintExtraInfo(std::ostringstream &report) const;
-  static void PrintSeparator(std::ostringstream &report);
 };
 
 void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
@@ -154,23 +153,21 @@ void ExtractedCharacterInfo::ExtractPunishmentInfo(std::string_view punish_text,
 }
 
 void ExtractedCharacterInfo::PrintReport(std::ostringstream &report) {
-	PrintSeparator(report);
 	PrintBaseInfo(report);
 	PrintPunishmentsInfo(report);
 	PrintExtraInfo(report);
 }
 
-void ExtractedCharacterInfo::PrintSeparator(std::ostringstream &report) {
-	report << fmt::format("{:-^132}\r\n", "");
-}
-
 void ExtractedCharacterInfo::PrintBaseInfo(std::ostringstream &report) {
+	// Почту печатаем через RawText, как это делает tstat для текста триггера: иначе proc_color
+	// превратит '_' в пробел и адрес c_nostra@inbox.ru уедет к богу как "c nostra@inbox.ru" --
+	// чужой адрес, по которому уже не найти ни владельца, ни его остальных персонажей.
 	report << fmt::format(
-		"Name: {color_on}{name:<12}{color_off} Mail: {mail:<30} Last: {time:%e-%b-%Y} from {ip}, Lvl {level}, Rmt {remort}, Cls: {class}, Clan: {clan}.\r\n",
+		"Name: {color_on}{name:<12}{color_off} Mail: {mail} Last: {time:%e-%b-%Y} from {ip}, Lvl {level}, Rmt {remort}, Cls: {class}, Clan: {clan}.\r\n",
 		fmt::arg("color_on", (online_ ? kColorBoldGrn : kColorBoldWht)),
 		fmt::arg("name", name_),
 		fmt::arg("color_off", kColorNrm),
-		fmt::arg("mail", mail_),
+		fmt::arg("mail", RawText(fmt::format("{:<30}", mail_))),
 		fmt::arg("time", std::chrono::system_clock::from_time_t(last_logon_time_)),
 		fmt::arg("ip", last_ip_),
 		fmt::arg("level", level_),
@@ -420,7 +417,8 @@ class InspectRequestMail : public InspectRequest {
 
 InspectRequestMail::InspectRequestMail(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	report_generator_.SetReportHeader(fmt::format("Inspecting e-mail: {}{}{}\r\n", kColorWht, GetRequestText(), kColorNrm));
+	report_generator_.SetReportHeader(
+		fmt::format("Inspecting e-mail: {}{}{}\r\n", kColorWht, RawText(GetRequestText()), kColorNrm));
 	if ((args.size() > kMinArgsNumber) && (args.back() == "send_mail")) {
 		report_generator_.SetDestinationEmail(GetRequestText());
 	}
@@ -461,9 +459,9 @@ void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
 	report_generator_.SetReportHeader(fmt::format(
 		"Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
 		kColorWht,
-		GetRequestText(),
+		RawText(GetRequestText()),
 		kColorNrm,
-		mail_,
+		RawText(mail_),
 		last_ip_));
 }
 
