@@ -9,7 +9,12 @@ AbstractSender::buffer_t AbstractSender::build(const AbstractReporter::shared_pt
 	Variable::shared_ptr response;
 	reporter->get(response);
 	if (!response) {
-		log("SYSERR: MSDP response was not set.");
+		// Репортер намеренно промолчал, и это не ошибка: RoomReporter не шлет карту слепому, в
+		// темноте, в комнате с kMoMapper и скриптеру (см. blockReport), а также когда комната не
+		// менялась. Раньше тут стоял SYSERR, и один играющий скриптер давал 700 с лишним строк за
+		// два часа -- в них тонули настоящие ошибки. Если репортер забыл положить ответ по ошибке,
+		// это видно в debug-логе рядом с остальным разбором MSDP.
+		debug_log("Report skipped: reporter left the response unset.");
 		return buffer_t();
 	}
 
