@@ -92,22 +92,6 @@ ECastResult CastRoomAffect(ActionContext &ctx) {
 		}
 	}
 
-	/*
-	// The hack for displaying the sealing level has been removed. The code is
-	// left in case we need to quickly revert it.
-	if (spell_id == ESpell::kForbidden) {
-		if (af[0].modifier > 99) {
-			// top tier -> spell_msg.xml kForbidden/kAffImposed*
-		} else if (af[0].modifier > 79) {
-			to_char = "Вы почти полностью запечатали магией все входы.";
-			to_room = "$n почти полностью запечатал$g магией все входы.";
-		} else {
-			to_char = "Вы очень плохо запечатали магией все входы.";
-			to_room = "$n очень плохо запечатал$g магией все входы.";
-		}
-	}
-	*/
-
 	// Refresh / dedup policy. kMagNeedControl spells cancel the caster's previous controlled
 	// affect. kAfUnique drops any prior copy from this caster. Otherwise an existing copy is
 	// updated in place if af[0] carries kAfUpdateDuration and/or kAfUpdateMod, else the cast fails.
