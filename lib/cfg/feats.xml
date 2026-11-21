@@ -43,6 +43,11 @@ remort_divisor по умолчанию 0 — предел не растёт с �
     </feat_categories>
     <feat id="kPunchFocus" category="weapon_focus" mode="kEnabled">
 
+<timed base="18" min="3" remort_divisor="1"/> — задержка (в часах) перед повторным применением:
+base минус реморты / remort_divisor, но не меньше min. min по умолчанию 1; remort_divisor по
+умолчанию 0 — реморты задержку не сокращают. <timed/> без атрибутов лишь помечает способность
+как имеющую задержку, а саму задержку считает код. Неверный <timed> пишется в лог и отбрасывается.
+
 Класс, уровень, реморты и слоты задаются в файлах классов, расовые способности — в pc_races.xml.
 -->
 <feats>
@@ -53,6 +58,7 @@ remort_divisor по умолчанию 0 — предел не растёт с �
     <feat id="kUndefined" mode="kService">
     </feat>
     <feat id="kBerserker" mode="kEnabled">
+        <timed base="4"/>
     </feat>
     <feat id="kParryArrow" mode="kEnabled">
         <prerequisites>
@@ -97,6 +103,7 @@ remort_divisor по умолчанию 0 — предел не растёт с �
         </talent_effects>
     </feat>
     <feat id="kLightWalk" mode="kEnabled">
+        <timed base="24"/>
     </feat>
     <feat id="kWriggler" mode="kEnabled">
         <talent_effects>
@@ -684,6 +691,8 @@ remort_divisor по умолчанию 0 — предел не растёт с �
         </talent_effects>
     </feat>
     <feat id="kSpellCapabler" mode="kEnabled">
+        <!-- Задержка зависит от круга заклинания и пока задаётся в коде. -->
+        <timed/>
     </feat>
     <feat id="kWearingLightArmor" mode="kEnabled">
     </feat>
@@ -696,6 +705,8 @@ remort_divisor по умолчанию 0 — предел не растёт с �
     <feat id="kWarriorStrength" mode="kEnabled">
     </feat>
     <feat id="kRelocate" mode="kEnabled">
+        <!-- Задержка после перемещения, расценённого как агрессивное; после мирного — 2 часа (в коде). -->
+        <timed base="18" min="3" remort_divisor="1"/>
     </feat>
     <feat id="kSilverTongue" mode="kEnabled">
     </feat>
@@ -886,6 +897,7 @@ remort_divisor по умолчанию 0 — предел не растёт с �
                 <skill id="kDarkMagic" min="121"/>
             </requirement>
         </requirements>
+        <timed base="6"/>
     </feat>
     <feat id="kShadowDagger" mode="kEnabled">
         <prerequisites>

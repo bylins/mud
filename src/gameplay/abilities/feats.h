@@ -21,8 +21,10 @@
 #include "talents_actions.h"                    // issue.perk-action-patching: Actions (patch payload)
 #include "feat_categories.h"
 #include "feat_conditions.h"
+#include "feat_timer.h"
 
 #include <array>
+#include <optional>
 #include <bitset>
 
 struct TimedFeat {
@@ -102,6 +104,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 
 	std::string name_;
 	std::string category_;
+	std::optional<FeatTimer> timer_;
 
  public:
 	FeatInfo() = default;
@@ -119,6 +122,10 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
 	// The <feat_categories> entry limiting how many such feats a character may hold; empty -- none.
 	[[nodiscard]] const std::string &GetCategory() const { return category_; };
+	// The feat has a delay before it can be used again (<timed>).
+	[[nodiscard]] bool IsTimed() const { return timer_.has_value(); };
+	// nullptr if the feat is not timed.
+	[[nodiscard]] const FeatTimer *GetTimer() const { return timer_ ? &*timer_ : nullptr; };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };

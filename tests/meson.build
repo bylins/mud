@@ -20,6 +20,7 @@ test_sources = files(
     'guilds.loader.cpp',
     'feats.conditions.cpp',
     'feats.categories.cpp',
+    'feats.timer.cpp',
     'interpreter.command_shadowing.cpp',
     'socials.loader.cpp',
     'subcmd_resolver.cpp',

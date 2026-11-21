@@ -481,6 +481,7 @@ ItemPtr FeatInfoBuilder::ParseFeat(DataNode &node) {
 	ParseEffects(info, node);
 	info->prerequisites.Build(node, info->GetId());
 	info->requirements.Build(node, info->GetId());
+	info->timer_ = FeatTimer::Parse(node, info->GetId());
 	ParseTalentPatches(*info, node);   // issue.perk-action-patching
 	return info;
 }

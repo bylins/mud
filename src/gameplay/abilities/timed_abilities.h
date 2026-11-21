@@ -17,6 +17,9 @@ class CharData;
 const int kSecsPerPlayerTimed = 1;
 
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
+// The delay comes from the feat's <timed base> in feats.xml. Without one it is a mistake in the file:
+// logged, and the longest delay (kHoursPerDay) is imposed so the feat cannot be spammed.
+void ImposeTimedFeat(CharData *ch, EFeat feat);
 int IsTimedByFeat(CharData *ch, EFeat feat);
 void ImposeTimedSkill(CharData *ch, TimedSkill *timed);
 int IsTimedBySkill(CharData *ch, ESkill id);

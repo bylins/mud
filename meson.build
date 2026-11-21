@@ -530,6 +530,7 @@ main_sources = files(
   'src/gameplay/abilities/feats.cpp',
   'src/gameplay/abilities/feat_categories.cpp',
   'src/gameplay/abilities/feat_conditions.cpp',
+  'src/gameplay/abilities/feat_timer.cpp',
   'src/gameplay/abilities/timed_abilities.cpp',
   'src/gameplay/fight/arena.cpp',
   'src/gameplay/mechanics/alignment.cpp',
