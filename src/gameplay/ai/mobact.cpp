@@ -350,9 +350,7 @@ CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
 		return nullptr;
 	}
-	return roster.getRandomItem([](CharData *ch) {
-		return ch->IsFlagged(EPrf::kSkirmisher) && !IsUnableToAct(ch) && ch->GetPosition() >= EPosition::kFight;
-	});
+	return roster.getRandomItem(IsActiveSkirmisher);
 }
 
 CharData *selectVictimDependingOnGroupFormation(CharData *assaulter, CharData *initialVictim) {

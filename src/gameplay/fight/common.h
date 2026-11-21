@@ -9,6 +9,12 @@ inline bool IsUnableToAct(CharData *ch) {
 	AFF_FLAGGED(ch, EAffect::kHold));
 }
 
+// A group member standing in formation (kSkirmisher) who can actually cover the group right now: able
+// to act and on their feet.
+inline bool IsActiveSkirmisher(CharData *ch) {
+	return ch->IsFlagged(EPrf::kSkirmisher) && !IsUnableToAct(ch) && ch->GetPosition() >= EPosition::kFight;
+}
+
 // Урон после частичной защиты, которую игра называет "немного" (уклонился, отклонил, отразил):
 // две трети. Держим одной названной функцией, а не выражением на месте: четыре умения считали
 // это каждое у себя, и один рефакторинг разом превратил все четыре в полный промах (#2764 ->
