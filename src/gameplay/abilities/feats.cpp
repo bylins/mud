@@ -616,6 +616,7 @@ ItemPtr FeatInfoBuilder::ParseFeat(DataNode &node) {
 	auto info = ParseHeader(node);
 
 	ParseEffects(info, node);
+	info->prerequisites.Build(node, info->GetId());
 	ParseTalentPatches(*info, node);   // issue.perk-action-patching
 	return info;
 }

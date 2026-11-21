@@ -19,6 +19,7 @@
 #include "engine/structs/info_container.h"
 #include "gameplay/magic/spells_constants.h"   // issue.perk-action-patching: ESpell (patch target)
 #include "talents_actions.h"                    // issue.perk-action-patching: Actions (patch payload)
+#include "feat_prerequisites.h"
 
 #include <array>
 #include <bitset>
@@ -106,6 +107,7 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 		: BaseItem<EFeat>(id, mode) {};
 
 	talents_effects::Effects effects;
+	FeatPrerequisites prerequisites;
 
 	// issue.perk-action-patching: this feat's spell-action patches (empty for most feats).
 	std::vector<TalentPatch> talent_patches;
