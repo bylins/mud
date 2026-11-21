@@ -27,7 +27,7 @@ class FeatCategories {
 
 		// How many feats of this category a character with `remorts` remorts may hold.
 		[[nodiscard]] int CalcLimit(int remorts) const;
-		// The limit as text for immortals, e.g. "2 + реморты/6, не больше 5".
+		// The limit as text for immortals, e.g. "2 + remorts/6, capped at 5".
 		[[nodiscard]] std::string DescribeLimit() const;
 	};
 

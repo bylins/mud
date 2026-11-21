@@ -12,9 +12,9 @@
 
 namespace feats {
 
-// The remorts term of a formula: "реморты" for a divisor of 1, otherwise "реморты/N".
+// The remorts term of a formula: "remorts" for a divisor of 1, otherwise "remorts/N".
 inline std::string RemortsShare(int divisor) {
-	return divisor == 1 ? std::string("реморты") : fmt::format("реморты/{}", divisor);
+	return divisor == 1 ? std::string("remorts") : fmt::format("remorts/{}", divisor);
 }
 
 } // namespace feats

@@ -71,7 +71,7 @@ std::string FeatCategories::Category::DescribeLimit() const {
 		text += fmt::format(" + {}", RemortsShare(remort_divisor));
 	}
 	if (cap != kNoCap) {
-		text += fmt::format(", не больше {}", cap);
+		text += fmt::format(", capped at {}", cap);
 	}
 	return text;
 }

@@ -64,12 +64,12 @@ int FeatTimer::CalcDelay(int remorts) const {
 
 std::string FeatTimer::Describe() const {
 	if (!has_base) {
-		return "задается в коде";
+		return "set in code";
 	}
 	if (remort_divisor > 0) {
-		return fmt::format("{} - {} ч, не меньше {} ч", base, RemortsShare(remort_divisor), min);
+		return fmt::format("{} - {} hours, at least {}", base, RemortsShare(remort_divisor), min);
 	}
-	return fmt::format("{} ч", base);
+	return fmt::format("{} hours", base);
 }
 
 std::optional<FeatTimer> FeatTimer::Parse(parser_wrapper::DataNode &node, EFeat owner) {

@@ -204,7 +204,7 @@ void FeatConditions::Build(parser_wrapper::DataNode &node, EFeat owner) {
 std::string FeatConditions::Describe(const Alternative &alt) const {
 	std::vector<std::string> parts;
 	for (const auto &cond : alt.feats) {
-		parts.push_back(fmt::format("{}feat {}", cond.absence ? "без " : "", NAME_BY_ITEM<EFeat>(cond.id)));
+		parts.push_back(fmt::format("{}feat {}", cond.absence ? "no " : "", NAME_BY_ITEM<EFeat>(cond.id)));
 	}
 	for (const auto &cond : alt.skills) {
 		parts.push_back(fmt::format("skill {} >= {}", NAME_BY_ITEM<ESkill>(cond.id), cond.min));
@@ -215,12 +215,12 @@ std::string FeatConditions::Describe(const Alternative &alt) const {
 			text += fmt::format(" >= {}", cond.min);
 		}
 		if (cond.has_above) {
-			text += fmt::format("{} > {}", cond.min > 0 ? " и" : "", NAME_BY_ITEM<EBaseStat>(cond.above));
+			text += fmt::format("{} > {}", cond.min > 0 ? " and" : "", NAME_BY_ITEM<EBaseStat>(cond.above));
 		}
 		parts.push_back(text);
 	}
 	for (const auto &cond : alt.levels) {
-		std::string value = "уровень";
+		std::string value = "level";
 		if (cond.remort_divisor > 0) {
 			value += " + " + RemortsShare(cond.remort_divisor);
 		}
@@ -239,15 +239,15 @@ void FeatConditions::Print(std::ostringstream &buffer) const {
 		return;
 	}
 	if (kind_ == EKind::kPrerequisites) {
-		buffer << " Prerequisites (для изучения, умения без учета снаряжения)";
+		buffer << " Prerequisites (to learn; skills without equipment bonuses)";
 	} else {
-		buffer << " Requirements (для применения)";
+		buffer << " Requirements (to use)";
 	}
 	if (broken_) {
-		buffer << ": &Rошибка в feats.xml, не выполняются никогда&n\r\n";
+		buffer << ": &Rinvalid in feats.xml, never met&n\r\n";
 		return;
 	}
-	buffer << (alternatives_.size() > 1 ? ", любое из:" : ":") << "\r\n";
+	buffer << (alternatives_.size() > 1 ? ", any of:" : ":") << "\r\n";
 	for (const auto &alt : alternatives_) {
 		buffer << fmt::format("   &g{}&n\r\n", Describe(alt));
 	}

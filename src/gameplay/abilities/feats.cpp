@@ -614,15 +614,15 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 
 	if (!category_.empty()) {
 		if (const auto *category = FeatCategoriesRegistry().Find(category_)) {
-			buffer << fmt::format(" Category: &g{}&n, предел &g{}&n\r\n",
+			buffer << fmt::format(" Category: &g{}&n, max feats of this category: &g{}&n\r\n",
 								  RawText(category_), category->DescribeLimit());
 		} else {
-			buffer << fmt::format(" Category: &g{}&n &R(такой категории нет, способность не выучить)&n\r\n",
+			buffer << fmt::format(" Category: &g{}&n &R(no such category, the feat cannot be learned)&n\r\n",
 								  RawText(category_));
 		}
 	}
 	if (GetPrfWithFeatNumber(GetId())) {
-		buffer << " Toggled: &gда&n (включается и выключается командой 'стиль')\r\n";
+		buffer << " Toggled: &gyes&n (switched on and off with the 'стиль' command)\r\n";
 	}
 	if (timer_) {
 		buffer << fmt::format(" Delay: &g{}&n\r\n", timer_->Describe());
