@@ -20,7 +20,7 @@
 #include "gameplay/mechanics/rune_stones.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/clans/house.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 
 #include "utils/utils_time.h"
 
@@ -469,7 +469,7 @@ Remap RebuildRooms(const ZoneData &zone, DiskZone &disk, Report &report) {
 		dungeons::ClearRoom(room);
 		deathtrap::remove(room);
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			room_spells::ClearExitAffects(room, dir);
+			room_affects::ClearExitAffects(room, dir);
 		}
 		CleanupRoomData(room);
 		delete room;

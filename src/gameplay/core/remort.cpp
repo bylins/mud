@@ -388,7 +388,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	PlaceCharToRoom(ch, load_room);
 	sight::look_at_room(ch, 0);
 	ch->SetFlag(EPlrFlag::kNoDelete);
-	room_spells::RemoveSingleAffectFromWorld(ch, room_spells::ERoomAffect::kRuneLabel);
+	room_affects::RemoveSingleAffectFromWorld(ch, room_affects::ERoomAffect::kRuneLabel);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	ch->UnsetFlag(EPrf::kCanRemort);

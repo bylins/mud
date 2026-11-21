@@ -568,7 +568,7 @@ kSoulLink), `kTarRoomThis` (сама комната).
 * **`EApply`** (`location=` у apply) — общий с заклинаниями; §14.3 Руководства по
   заклинаниям / `entities_constants.h`.
 * **`EAffect` / `ERoomAffect`** — id эффектов; `affect_contants.h` / перечисления
-  `magic_rooms`.
+  `room_affects.h`.
 * **`EEquipmentAffect`** — эффекты надетого предмета (§8.1); `equipment_affects.{h,cpp}`.
 * **`EObjAffect`** — эффекты на предмете (§8.2); `obj_affects.h`.
 

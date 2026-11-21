@@ -5,7 +5,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
 #include "gameplay/fight/fight_constants.h"   // issue.damage-change: fight::DmgType + hit-flag values
-#include "gameplay/magic/magic_rooms.h"  // ERoomAffect, ITEM_BY_NAME/NAME_BY_ITEM<ERoomAffect>
+#include "gameplay/affects/room_affects.h"  // ERoomAffect, ITEM_BY_NAME/NAME_BY_ITEM<ERoomAffect>
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
 #include "fmt/format.h"
 #include "utils/random.h"
@@ -221,7 +221,7 @@ void ParseAffectRefs(const char *value, TalentUnaffect::AffectRefs &out) {
 			continue;
 		} catch (const std::out_of_range &) {}
 		try {
-			out.rooms.push_back(ITEM_BY_NAME<room_spells::ERoomAffect>(name));
+			out.rooms.push_back(ITEM_BY_NAME<room_affects::ERoomAffect>(name));
 		} catch (const std::out_of_range &) {
 			err_log("TalentUnaffect: unknown affect '%s' in <unaffect>.", name.c_str());
 		}
@@ -710,14 +710,14 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			// may fire before it is removed. -1 (or absent) = unlimited. Modelled on <hits max=>; the
 			// count is deterministic (decremented by one per trigger execution), so no prob attr.
 			const char *mx = child.GetValue("max");
-			charges_max_ = (mx && *mx) ? parse::ReadAsInt(mx) : -1;
+			charges_max_ = (mx && *mx) ? parse::ReadAsInt(mx) : kUnlimitedAffectCharges;
 		} else if (strcmp(name, "affect") == 0) {
 			// issue.affects-improve (P3e): a bare affect reference -- the canonical grammar. The affect
 			// OWNS its applies (affects.xml); the spell only names which affect(s) to impose, plus an
 			// optional `random` flag marking it a member of the spell's random-one-of pool. The id may
 			// resolve as an EAffect (char affect -> applies_) and/or an ERoomAffect (room affect ->
 			// room_affect_); kForbidden is intentionally BOTH, so we try both enums and let each cast
-			// path (magic.cpp / magic_rooms.cpp) consume the kind it understands.
+			// path (action_affect.cpp / action_room_affect.cpp) consume the kind it understands.
 			const char *idv = child.GetValue("id");
 			if (!idv || !*idv) {
 				err_log("talent_actions <affect>: missing id attribute.");
@@ -733,7 +733,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 					resolved = true;
 				} catch (const std::out_of_range &) {}
 				try {
-					room_affect_ = ITEM_BY_NAME<room_spells::ERoomAffect>(idv);
+					room_affect_ = ITEM_BY_NAME<room_affects::ERoomAffect>(idv);
 					resolved = true;
 				} catch (const std::out_of_range &) {}
 				if (!resolved) {
@@ -866,7 +866,7 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		} else if (!set.any_of.empty()) {
 			buffer << " any_of=" << kColorGrn;
 			for (const auto a: set.any_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
-			for (const auto r: set.any_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
+			for (const auto r: set.any_of.rooms) buffer << NAME_BY_ITEM<room_affects::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.wildcard_all) {
@@ -874,7 +874,7 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		} else if (!set.all_of.empty()) {
 			buffer << " all_of=" << kColorGrn;
 			for (const auto a: set.all_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
-			for (const auto r: set.all_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
+			for (const auto r: set.all_of.rooms) buffer << NAME_BY_ITEM<room_affects::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.breaking_by_failure) {

@@ -1,10 +1,10 @@
 /**
  \file handle_thunderstorm_tick.cpp - a part of the Bylins engine.
- \brief issue.spellhandlers: HandleThunderstormTick room-affect tick handler (extracted from magic_rooms.cpp).
+ \brief issue.spellhandlers: HandleThunderstormTick room-affect tick handler (extracted from room_affects.cpp).
 */
 
 #include "gameplay/handlers/spell_handlers.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "gameplay/magic/magic_internal.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/entities/char_data.h"
@@ -16,7 +16,7 @@
 
 extern int what_sky;
 
-using namespace room_spells;
+using namespace room_affects;
 
 // EmitThunderstormMsg: single-use helper for HandleThunderstormTick (kept file-local).
 static void EmitThunderstormMsg(CharData *ch, ESpellMsg key) {

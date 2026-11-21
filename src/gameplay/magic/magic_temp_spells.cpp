@@ -56,7 +56,6 @@ void update_char_times(CharData *ch, time_t now) {
 
 			//Если заклинание за это время не стало постоянным, то удалим из мема
 			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), ESpellType::kKnow)) {
-				//Удаляем из мема
 				for (i = &ch->mem_queue.queue; *i;) {
 					if (i[0]->spell_id == it->first) {
 						if (i == &ch->mem_queue.queue)

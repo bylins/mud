@@ -8,6 +8,7 @@
 
 #include "utils/native_text.h"
 #include "engine/ui/color.h"
+#include "gameplay/mechanics/antisaving.h"
 #include "gameplay/affects/affect_messages.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
@@ -47,8 +48,6 @@ std::string GetPositionStr(CharData *ch);
 std::string_view GetShortPositionStr(CharData *ch);
 int CalcHitroll(CharData *ch);
 
-/* extern */
-int CalcAntiSavings(CharData *ch);
 #include "gameplay/mechanics/initiative.h"
 void GetClassWeaponMod(ECharClass class_id, ESkill skill, int *damroll, int *hitroll);
 
@@ -164,7 +163,7 @@ void PrintScoreList(CharData *ch) {
 				  CalcHitroll(ch),
 				  max_dam,
 				  int(GET_MANAREG(ch) * condition::GetCondPenalty(ch, condition::kCast)),
-				  CalcAntiSavings(ch),
+				  antisaving::CalcAntiSavings(ch),
 				  ch->calc_morale(),
 				  calc_initiative(ch, false));
 	SendMsgToChar(ch, "Бонусы в процентах: магический урон: %d, физический урон: %d, опыт: %d\r\n",
@@ -219,9 +218,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, condition::kFull) > kNormCondition)? "да" : "нет", condition::GetCondAboveNorm(ch, condition::kThirst)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+	RoomData *label_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+		const int timer_room_label = room_affects::GetUniqueAffectDuration(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 		if (timer_room_label > 0) {
 			const int hours = (timer_room_label + 1) / kSecsPerMudHour;
 			const std::string left = hours
@@ -278,9 +277,9 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+	RoomData *label_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 	if (label_room) {
-		int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+		int timer_room_label = room_affects::GetUniqueAffectDuration(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 		out << InfoStrPrefix(ch) << kColorBoldGrn << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
@@ -583,7 +582,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	std::size_t row{0};
 	table[row][col] = "Попадание";		table[row][col + 1] = std::to_string(CalcHitroll(ch));
 	table[++row][col] = "Повреждение";	table[row][col + 1] = std::to_string(max_dam);
-	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
+	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(antisaving::CalcAntiSavings(ch));
 	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*condition::GetCondPenalty(ch, condition::kCast)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
 	table[++row][col] = "Сила заклинаний %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_spellpower_add);
@@ -832,7 +831,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
+	RoomData *label_room = room_affects::FindAffectedRoomByCasterID(ch->get_uid(), room_affects::ERoomAffect::kRuneLabel);
 	if (label_room) {
 		body += fmt::format("&G&qВы поставили рунную метку в комнате '{}'.&Q&n\r\n", label_room->name);
 	}

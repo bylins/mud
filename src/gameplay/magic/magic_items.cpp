@@ -10,7 +10,7 @@
 #include "magic_utils.h"
 #include "engine/db/global_objects.h"
 
-// issue.magic-items: map a scroll spell slot (1..3) to its shared ObjVal key.
+// Map a scroll spell slot (1..3) to its ObjVal key.
 static ObjVal::EValueKey spell_item_slot_key(int slot) {
 	switch (slot) {
 		case 2: return ObjVal::EValueKey::kSpell2Num;
@@ -28,9 +28,9 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	RoomData *troom = nullptr;
 
 	one_argument(argument, cast_argument);
-	// issue.magic-items: scroll/wand/staff no longer cast at a stored caster-level -- their strength
-	// is the maker competence (MagicItemPotency), like a potion. A kTimedLvl item still "wears out":
-	// the fraction of its timer remaining scales the effective potency/skill down as it ages.
+	// Scroll/wand/staff strength is the maker competence (MagicItemPotency), like a potion. A
+	// kTimedLvl item "wears out": the fraction of its timer remaining scales the effective
+	// potency/skill down as it ages.
 	double timed_factor = 1.0;
 	if (obj->has_flag(EObjFlag::kTimedLvl)) {
 		const int proto_timer = obj_proto[obj->get_rnum()]->get_timer();
@@ -43,7 +43,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	auto cast_item_spell = [&](CharData *tgt_ch, ObjData *tgt_obj, ESpell sp) -> ECastResult {
 		const float potency = MagicItemPotency(obj, sp) * static_cast<float>(timed_factor);
 		const int skill = static_cast<int>(MagicItemSkill(obj) * timed_factor);
-		// issue.magic-items: pass a real 0.0 (deterministic -- no noise spread), never NaN. Under the
+		// Pass a real 0.0 (deterministic -- no noise spread), never NaN. Under the
 		// fasttest -Ofast (-ffast-math) build std::isnan() folds to false, so a NaN sentinel would leak
 		// into the affect <apply> modifier (noise_dev) and yield INT_MIN. Authored items cast at their
 		// exact maker potency.
@@ -180,9 +180,6 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				}
 			}
 
-			/*if (obj != nullptr) {
-				extract_obj(obj);
-			}*/
 			ExtractObjFromWorld(obj);
 			break;
 
@@ -202,11 +199,10 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			SetBattleLag(ch, 1);
 			{
-				// issue.potion-hotfix P3: strength is BREWED IN -- the crafted kPotionPotency, or (non-
-				// crafted) the value a fixed-skill potion-maker would brew (MagicItemPotency). Spells,
-				// potency and the frozen noise roll all live in the ObjVal keys (the boot/load converter
-				// migrated every potion off m_vals), so we read keys ONLY. brew_roll absent (non-crafted)
-				// -> NaN -> the noise is drawn at cast, like a fresh cast.
+				// Strength is BREWED IN -- the crafted kPotionPotency, or (non-crafted) the value a
+				// fixed-skill potion-maker would brew (MagicItemPotency). Spells, potency and the frozen
+				// noise roll live in the ObjVal keys. brew_roll absent (non-crafted) -> NaN -> the noise
+				// is drawn at cast, like a fresh cast.
 				const int brew_roll = obj->GetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll);
 				const double noise_z = (brew_roll > 0)
 					? static_cast<double>(brew_roll) / ObjVal::kBrewRollScale - ObjVal::kBrewRollBias
@@ -226,9 +222,6 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				}
 			}
 
-			/*if (obj != nullptr) {
-				extract_obj(obj);
-			}*/
 			ExtractObjFromWorld(obj);
 			break;
 

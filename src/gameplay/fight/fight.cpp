@@ -40,7 +40,7 @@
 #include "utils/random.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/magic/magic.h"
-#include "gameplay/magic/magic_rooms.h"  // ClassifyRoomAffectAccess
+#include "gameplay/affects/room_affects.h"  // ClassifyRoomAffectAccess
 #include "engine/olc/olc.h"
 #include "engine/network/msdp/msdp_constants.h"
 #include "gameplay/magic/magic_items.h"
@@ -800,7 +800,7 @@ bool HasHostileRoomWard(CharData *ch) {
 	}
 	for (const auto &aff : world[ch->in_room]->affected) {
 		if (aff && IS_SET(aff->battleflag, kAfDispellable)
-			&& !room_spells::ClassifyRoomAffectAccess(ch, aff->caster_id).free) {
+			&& !room_affects::ClassifyRoomAffectAccess(ch, aff->caster_id).free) {
 			return true;
 		}
 	}

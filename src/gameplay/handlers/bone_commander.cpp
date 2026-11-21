@@ -219,7 +219,7 @@ void RefreshLevy(CharData *master, const CharData *leaving) {
 			// Срок не тикает: подать держится кодом и живёт, пока жива свита.
 			Affect<EApply> af;
 			af.affect_type = EAffect::kBoneLevy;
-			af.duration = -1;
+			af.duration = kPermanentAffectDuration;
 			af.caster_id = master->get_uid();
 			af.battleflag = {kAfDeadkeep};
 			af.modifier = -levy;

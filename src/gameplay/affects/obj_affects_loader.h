@@ -1,6 +1,6 @@
 /**
  \brief issue.obj-affects: cfg loader for the obj-affect registry (cfg/affects/obj_affects.xml).
- \details Mirrors room_spells::RoomAffectsLoader. The obj-affect identity is the
+ \details Mirrors room_affects::RoomAffectsLoader. The obj-affect identity is the
 		  obj_affects::EObjAffect enumerator (kept in C++). This validates that every <obj_affect id>
 		  resolves to a known enumerator and that every enumerator has a row, then builds the runtime
 		  registry (which EObjFlag each affect owns + whether it is player-dispellable) via

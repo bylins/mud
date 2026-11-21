@@ -9,7 +9,7 @@
 // identity enum (EObjAffect), independent of ESpell and of EAffect.
 //
 // The mechanic is materialized like every other affect in the engine (see Affect<> in affect_data.h and
-// the room-affect subsystem in magic_rooms.h): an obj affect is a real Affect<EObjApply> with the full
+// the room-affect subsystem in room_affects.h): an obj affect is a real Affect<EObjApply> with the full
 // parameter set (duration -1 or computed, modifier, caster_id, potency, ...), stored in a per-item list.
 //
 // Each obj affect optionally OWNS an object extra-flag (EObjFlag), declared in cfg/affects/obj_affects.xml. On
@@ -54,7 +54,7 @@ enum class EObjAffect : Bitvector {
 
 // Apply-location placeholder for Affect<EObjApply>. Obj affects do not use EApply-style stat
 // modifiers, but Affect<> is parameterized by a location kind, so provide the minimal one (mirrors
-// room_spells::ERoomApply). kNone == 0 so Affect's default ctor is well-formed.
+// room_affects::ERoomApply). kNone == 0 so Affect's default ctor is well-formed.
 enum EObjApply {
 	kNone = 0
 };
@@ -87,7 +87,7 @@ using ObjAffectIt = ObjAffects::iterator;
 // always visible, e.g. fly/light). Immortals and the god `stat` command bypass the gate.
 [[nodiscard]] EAffect SeeAffect(EObjAffect affect);
 // The affect's own <actions> (each gated by its <trigger>), parsed from cfg/affects/obj_affects.xml; empty when
-// the affect declares none. Mirrors room_spells::RoomAffectActions. Fired by the trigger dispatchers.
+// the affect declares none. Mirrors room_affects::RoomAffectActions. Fired by the trigger dispatchers.
 [[nodiscard]] const talents_actions::Actions &ObjAffectActions(EObjAffect affect);
 // Rebuild the registry from a parsed cfg/affects/obj_affects.xml document (see ObjAffectsLoader).
 void BuildRegistry(parser_wrapper::DataNode data);
@@ -106,7 +106,7 @@ void BuildRegistry(parser_wrapper::DataNode data);
 // registers a timed affect for ticking. Re-imposing an existing affect refreshes it; imposing any
 // poison first clears an existing poison (one poison per weapon).
 void Impose(ObjData *obj, EObjAffect type, int duration, int modifier = 0,
-			long caster_id = 0, float potency = 0.0f, int charges = -1);
+			long caster_id = 0, float potency = 0.0f, int charges = kUnlimitedAffectCharges);
 
 // Remove a specific obj affect. message = emit the wear-off / dispel line to the holder. Clears the
 // affect's owned flag ONLY if the item prototype lacks it (an innate prototype flag survives).

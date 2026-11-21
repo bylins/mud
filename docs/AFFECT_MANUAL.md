@@ -547,7 +547,7 @@ permanent affect (`duration < 0`) renders as "(permanent)" in `affects`.
 * **`EApply`** (apply `location=`) — shared with spells; Spell Manual §14.3 /
   `entities_constants.h`.
 * **`EAffect` / `ERoomAffect`** — the affect ids; `affect_contants.h` /
-  `magic_rooms` enums.
+  `room_affects.h` enums.
 * **`EEquipmentAffect`** — worn-item affects (§8.1); `equipment_affects.{h,cpp}`.
 * **`EObjAffect`** — on-item affects (§8.2); `obj_affects.h`.
 

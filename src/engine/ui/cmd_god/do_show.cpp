@@ -873,7 +873,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 18:        // show crc
 			FileCRC::show(ch);
 			break;
-		case 19: room_spells::ShowAffectedRooms(ch);
+		case 19: room_affects::ShowAffectedRooms(ch);
 			break;
 		case 20: // money
 			MoneyDropStat::print(ch);
