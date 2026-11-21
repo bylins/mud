@@ -2,25 +2,40 @@
 <!--
 Формат:
 
+<prerequisites> — условия, без которых способность нельзя выучить. Внутри несколько
+<prerequisite>: хватает выполнения любого из них, а внутри одного <prerequisite> должны
+выполняться все условия. Нет раздела — нет и ограничений.
+    <skill id="kParry" min="40"/>  — умение (без бонусов от снаряжения) не ниже min; min по умолчанию 1.
+    <feat id="kPowerAttack"/>      — у персонажа есть способность;
+                                     absence="Y" — наоборот, её нет.
+Неверный <prerequisite> пишется в лог и отбрасывается целиком. Если не осталось ни одного,
+способность выучить нельзя.
+
+Класс, уровень, реморты и слоты задаются в файлах классов, расовые способности — в pc_races.xml.
+Число "любимых оружий" и "мастерств" пока ограничивается в коде.
+
+<feat id="kTactician" mode="kEnabled">
+    <prerequisites>
+        <prerequisite>
+            <skill id="kLeadership" min="100"/>
+        </prerequisite>
+    </prerequisites>
+</feat>
 -->
 <feats>
-    <!--
-    <feat id="kBerserker" name="предсмертна ярость" mode="kDisabled">
-        <requirements>
-            <requirement>
-                <skill id="kHide" value="1"/>
-                <skill id="kSneak" value="1"/>
-                <skill id="kDisguise" value="1"/>
-                <feat id="kPowerAttack"/>
-            </requirement>
-        </requirements>>
-    </feat>
-    -->
     <feat id="kUndefined" mode="kService">
     </feat>
     <feat id="kBerserker" mode="kEnabled">
     </feat>
     <feat id="kParryArrow" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kMultiparry" min="1"/>
+            </prerequisite>
+            <prerequisite>
+                <skill id="kParry" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kBlindFight" mode="kEnabled">
     </feat>
@@ -86,6 +101,11 @@
         </talent_effects>
     </feat>
     <feat id="kConnoiseur" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kIdentify" min="1"/>
+            </prerequisite>
+        </prerequisites>
         <talent_effects>
             <skill_timer_mods>
                 <skill_timer id="kIdentify" val="-6"/>
@@ -96,6 +116,11 @@
         </talent_effects>
     </feat>
     <feat id="kExorcist" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kTurnUndead" min="1"/>
+            </prerequisite>
+        </prerequisites>
         <talent_effects>
 <!-- Это пришлось убрать, потому что "гашетки" скиллов сделаны на костылях
             <skill_timer_mods>
@@ -107,6 +132,11 @@
         </talent_effects>
     </feat>
     <feat id="kHealer" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kFirstAid" min="1"/>
+            </prerequisite>
+        </prerequisites>
         <talent_effects>
             <skill_mods>
                 <skill id="kFirstAid" val="10"/>
@@ -161,6 +191,17 @@
         </talent_effects>
     </feat>
     <feat id="kStealthy" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kHide" min="1"/>
+            </prerequisite>
+            <prerequisite>
+                <skill id="kSneak" min="1"/>
+            </prerequisite>
+            <prerequisite>
+                <skill id="kDisguise" min="1"/>
+            </prerequisite>
+        </prerequisites>
         <talent_effects>
             <skill_mods>
                 <skill id="kHideTrack" val="5"/>
@@ -187,6 +228,14 @@
         </talent_effects>
     </feat>
     <feat id="kTracker" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kTrack" min="1"/>
+            </prerequisite>
+            <prerequisite>
+                <skill id="kSense" min="1"/>
+            </prerequisite>
+        </prerequisites>
         <talent_effects>
             <skill_mods>
                 <skill id="kTrack" val="10"/>
@@ -199,24 +248,84 @@
     <feat id="kCombatCasting" mode="kEnabled">
     </feat>
     <feat id="kPunchMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kPunchFocus"/>
+                <skill id="kPunch" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kClubsMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kClubsFocus"/>
+                <skill id="kClubs" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kAxesMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kAxesFocus"/>
+                <skill id="kAxes" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kLongsMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kLongsFocus"/>
+                <skill id="kLongBlades" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kShortsMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kShortsFocus"/>
+                <skill id="kShortBlades" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kNonstandartsMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kNonstandartsFocus"/>
+                <skill id="kNonstandart" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kTwohandsMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kTwohandsFocus"/>
+                <skill id="kTwohands" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kPicksMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kPicksFocus"/>
+                <skill id="kPicks" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kSpadesMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kSpadesFocus"/>
+                <skill id="kSpades" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kBowsMaster" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kBowsFocus"/>
+                <skill id="kBows" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kForestPath" mode="kEnabled">
     </feat>
@@ -230,6 +339,11 @@
         </talent_effects>
     </feat>
     <feat id="kWarriorSpirit" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kGreatFortitude"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kReliableHealth" mode="kEnabled">
         <talent_effects>
@@ -292,6 +406,14 @@
     <feat id="kJuggler" mode="kEnabled">
     </feat>
     <feat id="kNimbleFingers" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kSteal" min="1"/>
+            </prerequisite>
+            <prerequisite>
+                <skill id="kPickLock" min="1"/>
+            </prerequisite>
+        </prerequisites>
         <talent_effects>
             <skill_mods>
                 <skill id="kPickLock" val="10"/>
@@ -300,6 +422,11 @@
         </talent_effects>
     </feat>
     <feat id="kGreatPowerAttack" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kPowerAttack"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kStrongImmunity" mode="kEnabled">
         <talent_effects>
@@ -388,30 +515,91 @@
     <feat id="kInjure" mode="kEnabled">
     </feat>
     <feat id="kPunchFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kPunch" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kClubsFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kClubs" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kAxesFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kAxes" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kLongsFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kLongBlades" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kShortsFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kShortBlades" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kNonstandartsFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kNonstandart" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kTwohandsFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kTwohands" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kPicksFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kPicks" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kSpadesFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kSpades" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kBowsFocus" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kBows" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kAimingAttack" mode="kEnabled">
     </feat>
     <feat id="kGreatAimingAttack" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kAimingAttack"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kDoubleShot" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kBowsFocus"/>
+                <skill id="kBows" min="40"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kPorter" mode="kEnabled">
     </feat>
@@ -451,6 +639,11 @@
     <feat id="kThieveStrike" mode="kEnabled">
     </feat>
     <feat id="kJeweller" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kJewelry" min="60"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kSkilledTrader" mode="kEnabled">
     </feat>
@@ -543,16 +736,45 @@
     <feat id="kTeamsterOfUndead" mode="kEnabled">
     </feat>
     <feat id="kScirmisher" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kRescue" min="1"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kTactician" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kLeadership" min="100"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kLiveShield" mode="kEnabled">
     </feat>
     <feat id="kSerratedBlade" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kCutting"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kEvasion" mode="kEnabled">
     </feat>
     <feat id="kCutting" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kShortsMaster"/>
+            </prerequisite>
+            <prerequisite>
+                <feat id="kPicksMaster"/>
+            </prerequisite>
+            <prerequisite>
+                <feat id="kLongsMaster"/>
+            </prerequisite>
+            <prerequisite>
+                <feat id="kSpadesMaster"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kFInesseShot" mode="kEnabled">
     </feat>
@@ -563,20 +785,67 @@
     <feat id="kMagicShooter" mode="kEnabled">
     </feat>
     <feat id="kShadowThrower" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kPowerThrow"/>
+                <skill id="kDarkMagic" min="121"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kShadowDagger" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kShadowThrower"/>
+                <skill id="kDarkMagic" min="131"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kShadowSpear" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kShadowThrower"/>
+                <skill id="kDarkMagic" min="131"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kShadowClub" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kShadowThrower"/>
+                <skill id="kDarkMagic" min="131"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kDoubleThrower" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kPowerThrow"/>
+                <skill id="kThrow" min="101"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kTripleThrower" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kDeadlyThrow"/>
+                <skill id="kThrow" min="131"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kPowerThrow" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <skill id="kThrow" min="91"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kDeadlyThrow" mode="kEnabled">
+        <prerequisites>
+            <prerequisite>
+                <feat id="kPowerThrow"/>
+                <skill id="kThrow" min="111"/>
+            </prerequisite>
+        </prerequisites>
     </feat>
     <feat id="kMultipleCast" mode="kEnabled">
         <!-- issue.perk-action-patching Phase 2: migrated from the hardcoded area-decay branch in

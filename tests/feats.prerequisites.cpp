@@ -7,10 +7,13 @@
 #include <gtest/gtest.h>
 
 #include <cstdio>
+#include <filesystem>
+#include <functional>
 #include <fstream>
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace {
@@ -172,6 +175,162 @@ TEST(FeatPrerequisites, RebuildResets) {
 	}
 	EXPECT_EQ(empty_after_build, (std::vector<bool>{false, true}));
 	std::remove(kPrereqSrc);
+}
+
+// The prerequisites in the shipped cfg/feats.xml must give the same answers as the rules that used to be
+// hard-coded in CanGetFeat (the weapon focus / master counters stay in code and are not part of this).
+namespace {
+
+using SkillOf = std::function<int(ESkill)>;
+using HasFeat = std::function<bool(EFeat)>;
+using LegacyRule = std::function<bool(const SkillOf &, const HasFeat &)>;
+
+struct LegacyCase {
+	LegacyRule rule;
+	std::vector<ESkill> skills;
+	std::vector<EFeat> feats;
+};
+
+std::map<EFeat, LegacyCase> LegacyRules() {
+	std::map<EFeat, LegacyCase> rules;
+	auto any_skill = [&rules](EFeat feat, std::vector<ESkill> skills) {
+		rules[feat] = {[skills](const SkillOf &sk, const HasFeat &) {
+			for (const auto id : skills) {
+				if (sk(id)) {
+					return true;
+				}
+			}
+			return false;
+		}, skills, {}};
+	};
+	auto any_feat = [&rules](EFeat feat, std::vector<EFeat> feats) {
+		rules[feat] = {[feats](const SkillOf &, const HasFeat &hf) {
+			for (const auto id : feats) {
+				if (hf(id)) {
+					return true;
+				}
+			}
+			return false;
+		}, {}, feats};
+	};
+	// feat + skill above `above` (the old code compared with '>').
+	auto feat_and_skill = [&rules](EFeat feat, EFeat need, ESkill skill, int above) {
+		rules[feat] = {[need, skill, above](const SkillOf &sk, const HasFeat &hf) {
+			return hf(need) && sk(skill) > above;
+		}, {skill}, {need}};
+	};
+	auto skill_above = [&rules](EFeat feat, ESkill skill, int above) {
+		rules[feat] = {[skill, above](const SkillOf &sk, const HasFeat &) {
+			return sk(skill) > above;
+		}, {skill}, {}};
+	};
+
+	any_skill(EFeat::kParryArrow, {ESkill::kMultiparry, ESkill::kParry});
+	any_skill(EFeat::kConnoiseur, {ESkill::kIdentify});
+	any_skill(EFeat::kExorcist, {ESkill::kTurnUndead});
+	any_skill(EFeat::kHealer, {ESkill::kFirstAid});
+	any_skill(EFeat::kStealthy, {ESkill::kHide, ESkill::kSneak, ESkill::kDisguise});
+	any_skill(EFeat::kTracker, {ESkill::kTrack, ESkill::kSense});
+	any_skill(EFeat::kNimbleFingers, {ESkill::kSteal, ESkill::kPickLock});
+	any_skill(EFeat::kScirmisher, {ESkill::kRescue});
+	any_feat(EFeat::kWarriorSpirit, {EFeat::kGreatFortitude});
+	any_feat(EFeat::kGreatPowerAttack, {EFeat::kPowerAttack});
+	any_feat(EFeat::kGreatAimingAttack, {EFeat::kAimingAttack});
+	any_feat(EFeat::kSerratedBlade, {EFeat::kCutting});
+	any_feat(EFeat::kCutting, {EFeat::kShortsMaster, EFeat::kPicksMaster, EFeat::kLongsMaster, EFeat::kSpadesMaster});
+	feat_and_skill(EFeat::kDoubleShot, EFeat::kBowsFocus, ESkill::kBows, 39);
+	feat_and_skill(EFeat::kShadowThrower, EFeat::kPowerThrow, ESkill::kDarkMagic, 120);
+	feat_and_skill(EFeat::kShadowDagger, EFeat::kShadowThrower, ESkill::kDarkMagic, 130);
+	feat_and_skill(EFeat::kShadowSpear, EFeat::kShadowThrower, ESkill::kDarkMagic, 130);
+	feat_and_skill(EFeat::kShadowClub, EFeat::kShadowThrower, ESkill::kDarkMagic, 130);
+	feat_and_skill(EFeat::kDoubleThrower, EFeat::kPowerThrow, ESkill::kThrow, 100);
+	feat_and_skill(EFeat::kTripleThrower, EFeat::kDeadlyThrow, ESkill::kThrow, 130);
+	feat_and_skill(EFeat::kDeadlyThrow, EFeat::kPowerThrow, ESkill::kThrow, 110);
+	skill_above(EFeat::kJeweller, ESkill::kJewelry, 59);
+	skill_above(EFeat::kTactician, ESkill::kLeadership, 99);
+	skill_above(EFeat::kPowerThrow, ESkill::kThrow, 90);
+
+	const std::vector<std::tuple<EFeat, EFeat, ESkill>> weapons = {
+		{EFeat::kPunchFocus, EFeat::kPunchMaster, ESkill::kPunch},
+		{EFeat::kClubsFocus, EFeat::kClubsMaster, ESkill::kClubs},
+		{EFeat::kAxesFocus, EFeat::kAxesMaster, ESkill::kAxes},
+		{EFeat::kLongsFocus, EFeat::kLongsMaster, ESkill::kLongBlades},
+		{EFeat::kShortsFocus, EFeat::kShortsMaster, ESkill::kShortBlades},
+		{EFeat::kNonstandartsFocus, EFeat::kNonstandartsMaster, ESkill::kNonstandart},
+		{EFeat::kTwohandsFocus, EFeat::kTwohandsMaster, ESkill::kTwohands},
+		{EFeat::kPicksFocus, EFeat::kPicksMaster, ESkill::kPicks},
+		{EFeat::kSpadesFocus, EFeat::kSpadesMaster, ESkill::kSpades},
+		{EFeat::kBowsFocus, EFeat::kBowsMaster, ESkill::kBows},
+	};
+	for (const auto &[focus, master, skill] : weapons) {
+		any_skill(focus, {skill});
+		feat_and_skill(master, focus, skill, 0);
+	}
+	return rules;
+}
+
+std::map<EFeat, FeatPrerequisites> LoadShippedPrerequisites() {
+	std::map<EFeat, FeatPrerequisites> result;
+	parser_wrapper::DataNode doc(std::filesystem::path("cfg/feats.xml"));
+	for (auto &feat : doc.Children()) {
+		const auto id = ITEM_BY_NAME<EFeat>(feat.GetValue("id"));
+		result[id].Build(feat, id);
+	}
+	return result;
+}
+
+} // namespace
+
+TEST(FeatPrerequisites, ShippedFileMatchesLegacyRules) {
+	const auto shipped = LoadShippedPrerequisites();
+	ASSERT_FALSE(shipped.empty()) << "cfg/feats.xml not found -- run the tests from the build directory";
+	const auto legacy = LegacyRules();
+
+	// Every feat with prerequisites in the file is one of the converted ones, and vice versa.
+	for (const auto &[id, prereqs] : shipped) {
+		if (!prereqs.IsEmpty()) {
+			EXPECT_TRUE(legacy.contains(id)) << NAME_BY_ITEM<EFeat>(id) << " has prerequisites, but had no rule";
+		}
+	}
+
+	const std::vector<int> values = {0, 1, 39, 40, 59, 60, 90, 91, 99, 100, 101, 110, 111, 120, 121, 130, 131, 200};
+	for (const auto &[id, legacy_case] : legacy) {
+		const auto it = shipped.find(id);
+		ASSERT_NE(it, shipped.end()) << NAME_BY_ITEM<EFeat>(id) << " is missing from cfg/feats.xml";
+		const auto &prereqs = it->second;
+		ASSERT_FALSE(prereqs.IsEmpty()) << NAME_BY_ITEM<EFeat>(id) << " has no prerequisites";
+
+		const auto &skills = legacy_case.skills;
+		const auto &feats = legacy_case.feats;
+		std::size_t skill_combos = 1;
+		for (std::size_t i = 0; i < skills.size(); ++i) {
+			skill_combos *= values.size();
+		}
+		const std::size_t feat_combos = std::size_t{1} << feats.size();
+		for (std::size_t sc = 0; sc < skill_combos; ++sc) {
+			std::map<ESkill, int> skill_values;
+			auto rest = sc;
+			for (const auto skill : skills) {
+				skill_values[skill] = values[rest % values.size()];
+				rest /= values.size();
+			}
+			for (std::size_t fc = 0; fc < feat_combos; ++fc) {
+				std::set<EFeat> owned;
+				for (std::size_t f = 0; f < feats.size(); ++f) {
+					if (fc & (std::size_t{1} << f)) {
+						owned.insert(feats[f]);
+					}
+				}
+				const SkillOf skill_of = [&skill_values](ESkill s) {
+					const auto found = skill_values.find(s);
+					return found == skill_values.end() ? 0 : found->second;
+				};
+				const HasFeat has_feat = [&owned](EFeat f) { return owned.contains(f); };
+				ASSERT_EQ(legacy_case.rule(skill_of, has_feat), prereqs.IsMet(skill_of, has_feat))
+					<< NAME_BY_ITEM<EFeat>(id) << ": skill combo " << sc << ", feat combo " << fc;
+			}
+		}
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

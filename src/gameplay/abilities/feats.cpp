@@ -68,67 +68,26 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 	}
 }
 
-bool CanGetFocusFeat(const CharData *ch, const EFeat feat_id) {
+// The number of weapon focus and weapon master feats a character may hold grows with remorts. What each
+// of them requires (the weapon skill, the matching focus for a master) is set in feats.xml.
+static bool HasRoomForFocusFeat(const CharData *ch) {
 	int count{0};
 	for (auto focus_feat_id = EFeat::kPunchFocus; focus_feat_id <= EFeat::kBowsFocus; ++focus_feat_id) {
 		if (ch->HaveFeat(focus_feat_id)) {
 			count++;
 		}
 	}
-
-	if (count >= 2 + remort::GetRealRemort(ch) / 6) {
-		return false;
-	}
-
-	switch (feat_id) {
-		case EFeat::kPunchFocus: return GetSkillWithoutEquip(ch, ESkill::kPunch);
-		case EFeat::kClubsFocus: return GetSkillWithoutEquip(ch, ESkill::kClubs);
-		case EFeat::kAxesFocus: return GetSkillWithoutEquip(ch, ESkill::kAxes);
-		case EFeat::kLongsFocus: return GetSkillWithoutEquip(ch, ESkill::kLongBlades);
-		case EFeat::kShortsFocus: return GetSkillWithoutEquip(ch, ESkill::kShortBlades);
-		case EFeat::kNonstandartsFocus: return GetSkillWithoutEquip(ch, ESkill::kNonstandart);
-		case EFeat::kTwohandsFocus: return GetSkillWithoutEquip(ch, ESkill::kTwohands);
-		case EFeat::kPicksFocus: return GetSkillWithoutEquip(ch, ESkill::kPicks);
-		case EFeat::kSpadesFocus: return GetSkillWithoutEquip(ch, ESkill::kSpades);
-		case EFeat::kBowsFocus: return GetSkillWithoutEquip(ch, ESkill::kBows);
-		default: return false;
-	}
+	return count < 2 + remort::GetRealRemort(ch) / 6;
 }
 
-bool CanGetMasterFeat(const CharData *ch, const EFeat feat_id) {
+static bool HasRoomForMasterFeat(const CharData *ch) {
 	int count{0};
 	for (auto master_feat = EFeat::kPunchMaster; master_feat <= EFeat::kBowsMaster; ++master_feat) {
 		if (ch->HaveFeat(master_feat)) {
 			count++;
 		}
 	}
-	if (count >= 1 + remort::GetRealRemort(ch) / 7) {
-		return false;
-	}
-
-	switch (feat_id) {
-		case EFeat::kPunchMaster:
-			return ch->HaveFeat(EFeat::kPunchFocus) && GetSkillWithoutEquip(ch, ESkill::kPunch);
-		case EFeat::kClubsMaster:
-			return ch->HaveFeat(EFeat::kClubsFocus) && GetSkillWithoutEquip(ch, ESkill::kClubs);
-		case EFeat::kAxesMaster:
-			return ch->HaveFeat(EFeat::kAxesFocus) && GetSkillWithoutEquip(ch, ESkill::kAxes);
-		case EFeat::kLongsMaster:
-			return ch->HaveFeat(EFeat::kLongsFocus) && GetSkillWithoutEquip(ch, ESkill::kLongBlades);
-		case EFeat::kShortsMaster:
-			return ch->HaveFeat(EFeat::kShortsFocus) && GetSkillWithoutEquip(ch, ESkill::kShortBlades);
-		case EFeat::kNonstandartsMaster:
-			return ch->HaveFeat(EFeat::kNonstandartsFocus) && GetSkillWithoutEquip(ch, ESkill::kNonstandart);
-		case EFeat::kTwohandsMaster:
-			return ch->HaveFeat(EFeat::kTwohandsFocus) && GetSkillWithoutEquip(ch, ESkill::kTwohands);
-		case EFeat::kPicksMaster:
-			return ch->HaveFeat(EFeat::kPicksFocus) && GetSkillWithoutEquip(ch, ESkill::kPicks);
-		case EFeat::kSpadesMaster:
-			return ch->HaveFeat(EFeat::kSpadesFocus) && GetSkillWithoutEquip(ch, ESkill::kSpades);
-		case EFeat::kBowsMaster:
-			return ch->HaveFeat(EFeat::kBowsFocus) && GetSkillWithoutEquip(ch, ESkill::kBows);
-		default: return false;
-	}
+	return count < 1 + remort::GetRealRemort(ch) / 7;
 }
 
 bool CanGetFeat(CharData *ch, EFeat feat) {
@@ -146,90 +105,14 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 		return false;
 	}
 
-	switch (feat) {
-		case EFeat::kParryArrow:
-			return GetSkillWithoutEquip(ch, ESkill::kMultiparry) ||
-				GetSkillWithoutEquip(ch, ESkill::kParry);
-		case EFeat::kConnoiseur:
-			return GetSkillWithoutEquip(ch, ESkill::kIdentify);
-		case EFeat::kExorcist:
-			return GetSkillWithoutEquip(ch, ESkill::kTurnUndead);
-		case EFeat::kHealer:
-			return GetSkillWithoutEquip(ch, ESkill::kFirstAid);
-		case EFeat::kStealthy:
-			return GetSkillWithoutEquip(ch, ESkill::kHide) ||
-				GetSkillWithoutEquip(ch, ESkill::kSneak) ||
-				GetSkillWithoutEquip(ch, ESkill::kDisguise);
-		case EFeat::kTracker:
-			return (GetSkillWithoutEquip(ch, ESkill::kTrack) ||
-				GetSkillWithoutEquip(ch, ESkill::kSense));
-		case EFeat::kPunchMaster:
-		case EFeat::kClubsMaster:
-		case EFeat::kAxesMaster:
-		case EFeat::kLongsMaster:
-		case EFeat::kShortsMaster:
-		case EFeat::kNonstandartsMaster:
-		case EFeat::kTwohandsMaster:
-		case EFeat::kPicksMaster:
-		case EFeat::kSpadesMaster: [[fallthrough]];
-		case EFeat::kBowsMaster:
-			return CanGetMasterFeat(ch, feat);
-		case EFeat::kWarriorSpirit:
-			return ch->HaveFeat(EFeat::kGreatFortitude);
-		case EFeat::kNimbleFingers:
-			return GetSkillWithoutEquip(ch, ESkill::kSteal) ||
-				GetSkillWithoutEquip(ch, ESkill::kPickLock);
-		case EFeat::kGreatPowerAttack:
-			return ch->HaveFeat(EFeat::kPowerAttack);
-		case EFeat::kPunchFocus:
-		case EFeat::kClubsFocus:
-		case EFeat::kAxesFocus:
-		case EFeat::kLongsFocus:
-		case EFeat::kShortsFocus:
-		case EFeat::kNonstandartsFocus:
-		case EFeat::kTwohandsFocus:
-		case EFeat::kPicksFocus:
-		case EFeat::kSpadesFocus: [[fallthrough]];
-		case EFeat::kBowsFocus:
-			return CanGetFocusFeat(ch, feat);
-		case EFeat::kGreatAimingAttack:
-			return ch->HaveFeat(EFeat::kAimingAttack);
-		case EFeat::kDoubleShot:
-			return ch->HaveFeat(EFeat::kBowsFocus) && GetSkillWithoutEquip(ch, ESkill::kBows) > 39;
-		case EFeat::kJeweller:
-			return GetSkillWithoutEquip(ch, ESkill::kJewelry) > 59;
-		case EFeat::kCutting:
-			return ch->HaveFeat(EFeat::kShortsMaster) ||
-				ch->HaveFeat(EFeat::kPicksMaster) ||
-				ch->HaveFeat(EFeat::kLongsMaster) ||
-				ch->HaveFeat(EFeat::kSpadesMaster);
-		case EFeat::kScirmisher:
-			return GetSkillWithoutEquip(ch, ESkill::kRescue);
-		case EFeat::kTactician:
-			return GetSkillWithoutEquip(ch, ESkill::kLeadership) > 99;
-		case EFeat::kShadowThrower:
-			return ch->HaveFeat(EFeat::kPowerThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kDarkMagic) > 120;
-		case EFeat::kShadowDagger:
-		case EFeat::kShadowSpear: [[fallthrough]];
-		case EFeat::kShadowClub:
-			return ch->HaveFeat(EFeat::kShadowThrower) &&
-				GetSkillWithoutEquip(ch, ESkill::kDarkMagic) > 130;
-		case EFeat::kDoubleThrower:
-			return ch->HaveFeat(EFeat::kPowerThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kThrow) > 100;
-		case EFeat::kTripleThrower:
-			return ch->HaveFeat(EFeat::kDeadlyThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kThrow) > 130;
-		case EFeat::kPowerThrow:
-			return GetSkillWithoutEquip(ch, ESkill::kThrow) > 90;
-		case EFeat::kDeadlyThrow:
-			return ch->HaveFeat(EFeat::kPowerThrow) &&
-				GetSkillWithoutEquip(ch, ESkill::kThrow) > 110;
-		case EFeat::kSerratedBlade:
-			return ch->HaveFeat(EFeat::kCutting);
-		default: return true;
+	if (feat >= EFeat::kPunchFocus && feat <= EFeat::kBowsFocus && !HasRoomForFocusFeat(ch)) {
+		return false;
 	}
+	if (feat >= EFeat::kPunchMaster && feat <= EFeat::kBowsMaster && !HasRoomForMasterFeat(ch)) {
+		return false;
+	}
+
+	return MUD::Feat(feat).prerequisites.IsMet(ch);
 }
 
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
