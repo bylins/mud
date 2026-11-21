@@ -2,6 +2,7 @@
 
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
+#include "engine/db/obj_prototypes.h"
 #include "engine/db/world_data_source.h"
 #include "engine/db/world_data_source_base.h"
 #include "engine/db/world_data_source_manager.h"
