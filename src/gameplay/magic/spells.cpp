@@ -1,15 +1,11 @@
 /* ************************************************************************
 *   File: spells.cpp                                    Part of Bylins    *
-*  Usage: Implementation of "manual spells".  Circle 2.2 spell compat.    *
+*  Usage: spell learning level checks.                                    *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
 *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-* 									  *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                      *
 ************************************************************************ */
 
 #include "spells.h"
@@ -43,7 +39,6 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 
 int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id) {
 	int min_lvl;
-	// Read from the new rune_spells registry.
 	const auto &runes = MUD::RuneSpells();
 	if (auto it = runes.find(spell_id); it != runes.end()) {
 		min_lvl = it->second.min_caster_level - remort::GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSpellLvlDecrement();

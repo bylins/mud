@@ -42,7 +42,7 @@
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/obj_handler.h"
 #include "engine/entities/char_data.h"
-#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
+#include "gameplay/affects/room_affects.h"  // room_affects::ERoomAffect
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"
@@ -51,6 +51,7 @@
 #include "gameplay/fight/pk.h"
 #include "utils/random.h"
 #include "gameplay/clans/house.h"
+#include "gameplay/fight/common.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/ai/mob_memory.h"
@@ -340,6 +341,8 @@ int npc_track(CharData *ch) {
 	return kBfsError;
 }
 
+// A random group member standing in formation who is able to take the blow. When everyone stands in
+// formation, no one is behind it to cover.
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 	target_resolver::FriendsRosterType roster{leader};
 	auto isSkirmisher = [](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); };
@@ -347,7 +350,7 @@ CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
 		return nullptr;
 	}
-	return roster.getRandomItem(isSkirmisher);
+	return roster.getRandomItem(IsActiveSkirmisher);
 }
 
 CharData *selectVictimDependingOnGroupFormation(CharData *assaulter, CharData *initialVictim) {
@@ -843,14 +846,14 @@ void do_aggressive_mob(CharData *ch, bool respect_sneak, bool respect_hide_and_c
 	if (extra_aggressive(ch, nullptr)) {
 		const auto &room = world[ch->in_room];
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-			if (affect_it->get()->affect_type == room_spells::ERoomAffect::kRuneLabel && (affect_it != room->affected.end())) {
+			if (affect_it->get()->affect_type == room_affects::ERoomAffect::kRuneLabel && (affect_it != room->affected.end())) {
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
 					ch,
 					nullptr,
 					nullptr,
 					kToRoom | kToArenaListen);
-				room_spells::RoomRemoveAffect(world[ch->in_room], affect_it);
+				room_affects::RoomRemoveAffect(world[ch->in_room], affect_it);
 				break;
 			}
 		}

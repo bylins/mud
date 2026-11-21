@@ -1,11 +1,11 @@
 /**
 \file spell_messages.cpp - a part of the Bylins engine.
-\authors Created by Claude (issue #3304).
+\authors Created by Claude.
 \brief In-game message container for spells: loader + ESpellMsg name registration.
 */
 
 #include "spell_messages.h"
-#include "utils/utils_string.h"   // str_cmp
+#include "utils/utils_string.h"
 
 #include "engine/db/global_objects.h"
 
@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace {
-// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it for the editor pick-list.
+// File-scope so NAMES_OF can expose it for the editor pick-list.
 const std::map<ESpellMsg, std::string> kESpellMsgNames{
 		{ESpellMsg::kUndefined, "kUndefined"},
 		{ESpellMsg::kHealToVict, "kHealToVict"},
@@ -58,8 +58,6 @@ const std::map<ESpellMsg, std::string> kESpellMsgNames{
 		{ESpellMsg::kResurrectConsecrated, "kResurrectConsecrated"},
 		{ESpellMsg::kResurrectNoPower, "kResurrectNoPower"},
 		{ESpellMsg::kResurrectProtected, "kResurrectProtected"},
-		{ESpellMsg::kLaggedToRoom, "kLaggedToRoom"},
-		{ESpellMsg::kLaggedToChar, "kLaggedToChar"},
 		{ESpellMsg::kKnockdownToRoom, "kKnockdownToRoom"},
 		{ESpellMsg::kKnockdownToChar, "kKnockdownToChar"},
 		{ESpellMsg::kAcidCorrodeObj, "kAcidCorrodeObj"},
@@ -79,20 +77,11 @@ const std::map<ESpellMsg, std::string> kESpellMsgNames{
 		{ESpellMsg::kFightGodToRoom, "kFightGodToRoom"},
 		{ESpellMsg::kAffImposedToRoom, "kAffImposedToRoom"},
 		{ESpellMsg::kAffImposedToChar, "kAffImposedToChar"},
-		{ESpellMsg::kAffDispelledToRoom, "kAffDispelledToRoom"},
-		{ESpellMsg::kAffDispelledToChar, "kAffDispelledToChar"},
 		{ESpellMsg::kReflectedToChar, "kReflectedToChar"},
 		{ESpellMsg::kReflectedToVict, "kReflectedToVict"},
 		{ESpellMsg::kReflectedToRoom, "kReflectedToRoom"},
-		{ESpellMsg::kAffExpiredToChar, "kAffExpiredToChar"},
-		{ESpellMsg::kAffExpiredToRoom, "kAffExpiredToRoom"},
 		{ESpellMsg::kCastForbiddenToChar, "kCastForbiddenToChar"},
 		{ESpellMsg::kCastForbiddenToRoom, "kCastForbiddenToRoom"},
-		{ESpellMsg::kRoomAffectVisible, "kRoomAffectVisible"},
-		{ESpellMsg::kRoomAffectInvisible, "kRoomAffectInvisible"},
-		{ESpellMsg::kRoomAffectSelfInvisible, "kRoomAffectSelfInvisible"},
-		{ESpellMsg::kRoomAffectPkVisible, "kRoomAffectPkVisible"},
-		{ESpellMsg::kRoomAffectPkInvisible, "kRoomAffectPkInvisible"},
 		{ESpellMsg::kComponentUse, "kComponentUse"},
 		{ESpellMsg::kComponentMissing, "kComponentMissing"},
 		{ESpellMsg::kComponentExhausted, "kComponentExhausted"},
@@ -111,9 +100,7 @@ const std::map<ESpellMsg, std::string> kESpellMsgNames{
 		{ESpellMsg::kCastSayDamageeToVict, "kCastSayDamageeToVict"},
 		{ESpellMsg::kCastSayHelpeeToVict, "kCastSayHelpeeToVict"},
 		{ESpellMsg::kCastSaySound, "kCastSaySound"},
-		{ESpellMsg::kCastInterruptedToChar, "kCastInterruptedToChar"},
 		{ESpellMsg::kCastPreparedToChar, "kCastPreparedToChar"},
-		{ESpellMsg::kAfDispelledToOwner, "kAfDispelledToOwner"},
 		{ESpellMsg::kItemCreationFailToChar, "kItemCreationFailToChar"},
 		{ESpellMsg::kWrongTarget, "kWrongTarget"},
 		{ESpellMsg::kCustomMsgOne, "kCustomMsgOne"},
@@ -186,8 +173,6 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kResurrectConsecrated", ESpellMsg::kResurrectConsecrated},
 		{"kResurrectNoPower", ESpellMsg::kResurrectNoPower},
 		{"kResurrectProtected", ESpellMsg::kResurrectProtected},
-		{"kLaggedToRoom", ESpellMsg::kLaggedToRoom},
-		{"kLaggedToChar", ESpellMsg::kLaggedToChar},
 		{"kKnockdownToRoom", ESpellMsg::kKnockdownToRoom},
 		{"kKnockdownToChar", ESpellMsg::kKnockdownToChar},
 		{"kAcidCorrodeObj", ESpellMsg::kAcidCorrodeObj},
@@ -207,20 +192,11 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kFightGodToRoom", ESpellMsg::kFightGodToRoom},
 		{"kAffImposedToRoom", ESpellMsg::kAffImposedToRoom},
 		{"kAffImposedToChar", ESpellMsg::kAffImposedToChar},
-		{"kAffDispelledToRoom", ESpellMsg::kAffDispelledToRoom},
-		{"kAffDispelledToChar", ESpellMsg::kAffDispelledToChar},
 		{"kReflectedToChar", ESpellMsg::kReflectedToChar},
 		{"kReflectedToVict", ESpellMsg::kReflectedToVict},
 		{"kReflectedToRoom", ESpellMsg::kReflectedToRoom},
-		{"kAffExpiredToChar", ESpellMsg::kAffExpiredToChar},
-		{"kAffExpiredToRoom", ESpellMsg::kAffExpiredToRoom},
 		{"kCastForbiddenToChar", ESpellMsg::kCastForbiddenToChar},
 		{"kCastForbiddenToRoom", ESpellMsg::kCastForbiddenToRoom},
-		{"kRoomAffectVisible", ESpellMsg::kRoomAffectVisible},
-		{"kRoomAffectInvisible", ESpellMsg::kRoomAffectInvisible},
-		{"kRoomAffectSelfInvisible", ESpellMsg::kRoomAffectSelfInvisible},
-		{"kRoomAffectPkVisible", ESpellMsg::kRoomAffectPkVisible},
-		{"kRoomAffectPkInvisible", ESpellMsg::kRoomAffectPkInvisible},
 		{"kComponentUse", ESpellMsg::kComponentUse},
 		{"kComponentMissing", ESpellMsg::kComponentMissing},
 		{"kComponentExhausted", ESpellMsg::kComponentExhausted},
@@ -239,9 +215,7 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kCastSayDamageeToVict", ESpellMsg::kCastSayDamageeToVict},
 		{"kCastSayHelpeeToVict", ESpellMsg::kCastSayHelpeeToVict},
 		{"kCastSaySound", ESpellMsg::kCastSaySound},
-		{"kCastInterruptedToChar", ESpellMsg::kCastInterruptedToChar},
 		{"kCastPreparedToChar", ESpellMsg::kCastPreparedToChar},
-		{"kAfDispelledToOwner", ESpellMsg::kAfDispelledToOwner},
 		{"kItemCreationFailToChar", ESpellMsg::kItemCreationFailToChar},
 		{"kWrongTarget", ESpellMsg::kWrongTarget},
 		{"kCustomMsgOne", ESpellMsg::kCustomMsgOne},
@@ -270,7 +244,7 @@ void SpellMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	MUD::SpellMessages().Reload(data.Children());
 }
 
-// issue.vedun-msg-editor: editor discovery + safe-commit validation (mirrors SpellsLoader).
+// Editor discovery + safe-commit validation (mirrors SpellsLoader).
 std::string SpellMessagesLoader::EditableWhat() const {
 	return "spellmsg";
 }

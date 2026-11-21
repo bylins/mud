@@ -232,7 +232,7 @@ SYSERR «incorrect constant» от старых значений.
 | `kMagAreas` | Площадная атака — каждый враждебный в комнате с ослаблением. |
 | `kMagWarcry` | Помечает заклинание как боевой клич (игнорирует магическую защиту). |
 | `kMagNeedControl` | Требует присутствия питомца кастера. |
-| `kMagRoom` | Комнатное заклинание, описано в `magic_rooms.cpp`. |
+| `kMagRoom` | Комнатное заклинание: накладывается в `magic/action_room_affect.cpp`, сам эффект живёт в `affects/room_affects.cpp`. |
 
 | ПК / агро / класс урона | Эффект |
 |---|---|
@@ -1199,14 +1199,11 @@ lifted    = number(1,100) ≤ threshold
 <spell_msg>
     <sheaf id="kDefault">
         <message type="kNoeffect" val="Заклинание не оказало никакого эффекта."/>
-        <message type="kAffExpired" val="Магия, наложенная на вас, рассеялась."/>
         …
     </sheaf>
     <sheaf id="kFireball">
         <message type="kAffImposedToChar" val="Огонь обжигает вас!"/>
         <message type="kAffImposedToRoom" val="$n окутывает $N3 пламенем!"/>
-        <message type="kAffDispelledToChar" val="Пламя гаснет."/>
-        <message type="kAffExpired" val="Жар, охвативший вас, утихает."/>
     </sheaf>
     …
 </spell_msg>
@@ -1219,10 +1216,6 @@ lifted    = number(1,100) ≤ threshold
 | `kNoeffect` | Универсальный исход «нет эффекта». | Кастер |
 | `kAffImposedToChar` | Эффект от заклинания был наложен. | Цель |
 | `kAffImposedToRoom` | То же, для свидетелей. | Комната |
-| `kAffDispelledToChar` | Эффект данного **типа** был рассеян. Пучок привязан к **снятому** эффекту, а не к заклинанию снятия. | Цель |
-| `kAffDispelledToRoom` | То же, для свидетелей. | Комната |
-| `kAffExpired` | Эффект истёк естественно. | Цель |
-| `kAffDispelledToOwner` | Ваш эффект был рассеян с того, на кого вы его наложили. | Исходный кастер |
 | `kHealToVict` | `<heal>` дало ненулевое количество. | Цель |
 | `kMovesToVict` | `<moves>` дало ненулевое количество. | Цель |
 | `kThirstToVict` | `<thirst>` дало ненулевое количество. | Цель |
@@ -1237,7 +1230,7 @@ lifted    = number(1,100) ≤ threshold
 | `kAreaToChar`, `kAreaToRoom`, `kAreaToVict` | Объявление площадного применения. | Различные |
 | `kCastIncantToChar`, `kCastDisappearToRoom`, `kCastAppearToRoom` | Баннер произнесения + появление/исчезновение названия заклинания в комнате. | Различные |
 | `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, … | Строки «$n смотрит на $N3 и произносит…» при произнесении заклинания. | Комната / жертва |
-| `kCastInterruptedToChar`, `kCastPreparedToChar` | Концентрация прервана / заклинание готово. | Кастер |
+| `kCastPreparedToChar` | Заклинание готово, когда контролируемое заклинание заменяет прежнее. | Кастер |
 | `kNoTarget`, `kWrongTarget` | Аргумент цели не найден или тип цели отклонён. | Кастер |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, … | Исходы призыва/воскрешения. | Различные |
 | `kFightDeathToChar`, `kFightHitToChar`, `kFightMissToChar` (+ToVict, +ToRoom) | Боевые сообщения об уроне. | Различные |
@@ -1252,10 +1245,10 @@ lifted    = number(1,100) ≤ threshold
 * **Наложение** (`kAffImposedToChar` / `kAffImposedToRoom`) и **отражение**
   (`kReflectedToChar` / …) ищутся напрямую **без запасного kDefault** —
   отсутствующий ключ остаётся молчаливым.
-* **Повествование снятия** (`kAffDispelledToChar` / `kAffDispelledToRoom`)
-  теперь *(issue.dispel-default-msg)* проходит через поиск с запасным kDefault.
-  Пучок kDefault содержит универсальный запасной вариант — раньше большинство
-  эффектов (kSanctuary / kBless / kArmor / kFly и т.д.) снимались молча.
+* **Сообщения о снятии и спадении** — не сообщения заклинания: они принадлежат
+  эффекту и лежат в `affect_msg.xml` (эффекты персонажа) или
+  `room_affect_msg.xml` (комнатные эффекты), по id эффекта. См. Руководство по
+  эффектам.
 
 ---
 

@@ -13,7 +13,7 @@ class CObjectPrototype;
 #include "gameplay/skills/skills.h"
 #include "gameplay/abilities/talents_actions.h"
 
-#include "magic.h"  // RollResult -- used by CalcCastPotency / ComputeApplyModifier
+#include "magic.h"
 #include <cmath>
 #include <algorithm>
 
@@ -22,8 +22,7 @@ struct RoomData;
 class ObjData;
 
 /**
- * Проверяется что первая строка является эквивалентом второй, например
- * строка 'ог ша' является эквивалентом строки 'огненный шар'.
+ * Имена ищутся по сокращению: строка 'ог ша' находит 'огненный шар'.
  */
 ESkill FindSkillId(const char *name);
 ESkill FixNameAndFindSkillId(char *name);
@@ -42,14 +41,12 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name);
 ESpell FindSpellIdWithName(const std::string &name);
 
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
-		int *dir = nullptr);  // issue.room-affect-trigger-improve: kTarDirection -> *dir = parsed direction
+		int *dir = nullptr);  // kTarDirection -> *dir = parsed direction
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
 
 // True if `caster` bypasses the spell's room-level <blocking> (kNoMagic etc.).
 // Greater gods always bypass; uncharmed NPCs (other than tutelars) bypass too -- they
-// ignore the room block when ticking their own affects. (issue.room-affects: renamed
-// from MayCastInNomagic; the kMagWarcry exception was removed because warcry spells
-// simply do not list kNoMagic as a blocking flag.)
+// ignore the room block when ticking their own affects.
 bool MayCastInForbiddenRoom(CharData *caster);
 
 // True if `room` carries any of the room flags listed in the spell's
@@ -59,24 +56,20 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond);
 
 // Cast-recorded potency: the scalar strength stored on every imposed affect
 // (Affect::potency) for later dispel comparisons (DispelSucceeds). It is the
-// straight sum of the cast's potency-roll components -- dice + skill + stat --
-// captured at the moment of imposition. Shared by CastAffect and
-// CallMagicToRoom so both record the same value for the same cast.
+// deterministic competence skill_coeff + stat_coeff (no noise), captured at the
+// moment of imposition, so every imposition path records the same value for the same cast.
 float CalcCastPotency(const RollResult &potency);
 
 // Apply-side modifier value used by every affect imposition path:
-//     raw = min + ceil(dices·dices_weight·(1 + alpha·C) + beta·C)   C = skill_coeff+stat_coeff
+//     raw = min + ceil(beta·C·(1 + weight·d))   C = competence, d = potency.noise_dev
 //     raw = min(raw, cap)        if cap > 0
 //     return static_cast<int>(factor · raw)
-// Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's
-// first-apply default. cap == 0 disables the clamp; factor is allowed to be
-// negative (debuffs), with the clamp acting on the pre-factor magnitude.
-// issue.affects-improve: templated so it serves a spell apply (TalentAffect::Apply) AND an
-// affect-owned apply (affects::AffectApply) -- both carry min/dices_weight/alpha/beta/factor/cap.
+// cap == 0 disables the clamp; factor is allowed to be negative (debuffs), with the clamp
+// acting on the pre-factor magnitude. Templated so it serves a spell apply
+// (TalentAffect::Apply) and an affect-owned apply (affects::AffectApply).
 template<class ApplyT>
 int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResult &potency) {
 	const double competencies = competence;
-	// issue.potency-noise: one formula -- min + beta*C*(1 + weight*d), d = the cast's shared noise_dev.
 	double raw = apply.min + std::ceil(
 			apply.beta * competencies * (1.0 + apply.weight * potency.noise_dev));
 	if (apply.cap > 0) {
@@ -85,43 +78,41 @@ int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResul
 	return static_cast<int>(apply.factor * raw);
 }
 
-// issue.random-noise-rework (P1): multiplicative truncated-normal amount. mean = floor + scaled,
+// Multiplicative truncated-normal amount. mean = floor + scaled,
 // std = sigma*scaled, so the coefficient of variation is ~sigma -- CONSTANT as `scaled` (= k*competence)
 // grows, unlike additive dice noise (whose relative spread shrinks). Truncated to [floor, cap]; cap<=0 =
 // no upper bound. Uses the seeded global RNG (GaussIntNumber), so simulator runs stay reproducible.
 int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 		double fixed_z = std::numeric_limits<double>::quiet_NaN());
 
-// issue.magic-items: a magic item's casting potency (competence C) -- SHARED by potions, scrolls, wands
+// A magic item's casting potency (competence C) -- SHARED by potions, scrolls, wands
 // and staves. From the item's stored maker skill+stat (kMakerSkill/kMakerStat; absent -> the authored
 // maker default), through the spell's potency_roll. A crafted potion may carry a brewed-in kPotionPotency
-// (legacy pre-P3b saves), used when no maker skill is stored. Returns <=0 if the spell is undefined.
+// (legacy saves), used when no maker skill is stored. Returns <=0 if the spell is undefined.
 [[nodiscard]] float MagicItemPotency(const ObjData *item, ESpell spell_id);
 
-// issue.magic-items: the maker's skill for a magic item's buff DURATION (brew skill for a crafted potion,
+// The maker's skill for a magic item's buff DURATION (brew skill for a crafted potion,
 // else the authored maker). MagicItemStat is the paired key-stat. The user's own skill never matters --
 // the item acts on its own.
 [[nodiscard]] int MagicItemSkill(const ObjData *item);
 [[nodiscard]] int MagicItemStat(const ObjData *item);
 
-// issue #3611: сила вещи, которую сделал игрок, посчитана по его умению (kMakerSkill/kMakerStat) и
+// Сила вещи, которую сделал игрок, посчитана по его умению (kMakerSkill/kMakerStat) и
 // записана в самой вещи. У вещи из прототипа этих ключей нет, MagicItemPotency берет зашитые
 // умолчания, и число выходит одинаковым у всех вещей с этим заклинанием -- свойством конкретной
 // вещи оно не является. Такую силу помечаем в выводе, чтобы ее не принимали за настоящую.
 [[nodiscard]] bool IsPotencyFromProto(const CObjectPrototype *item);
 
-// issue.magic-items: заклинания свитка/зелья/посоха с их силой, по одному на элемент,
+// Заклинания свитка/зелья/посоха с их силой, по одному на элемент,
 // вида "исцеление (сила 42)" -- на выход в utils::OutWordsList. Пустой список, если
 // заклинаний нет. Берутся из extra_values -- сырые val[] у этих типов нулевые.
 [[nodiscard]] std::vector<std::string> SpellItemSpellsWithPotency(const ObjData *item);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 
-// Resistance calculate //
-
 void CastEquipmentAffect(CharData *ch, ESpell spell_id);
 
-// issue.affect-suppression-dispell: the worn items (equipment slots) that carry any obj-affect
+// The worn items (equipment slots) that carry any obj-affect
 // suppression, in slot order. Used by the weave-restoration cast to choose a target item (it picks one
 // at random). Never contains null; may be empty.
 [[nodiscard]] std::vector<ObjData *> SuppressedWornItems(CharData *ch);

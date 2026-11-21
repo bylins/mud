@@ -581,7 +581,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 > | Новый id | Перечисление / карта имён |
 > |---|---|
 > | `kPlagueTouch`, `kSwampPlague` | `EAffect` — `affect_contants.h` + `affect_contants.cpp` |
-> | `kPlagueMiasma` | `ERoomAffect` — `magic_rooms.h` + карта имён |
+> | `kPlagueMiasma` | `ERoomAffect` — `affects/room_affects.h` + карта имён |
 > | `kPlagueBlade` | `EObjAffect` — `obj_affects.h` + `obj_affects.cpp` |
 >
 > Плюс один маленький обработчик `<alter_obj>` (§4.1), который вешает *временный*

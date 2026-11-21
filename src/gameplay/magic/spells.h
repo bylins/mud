@@ -17,39 +17,31 @@
 #include "spells_constants.h"
 #include "engine/structs/structs.h"
 
-class ActionContext;   // defined in magic.h (issue.spell-pipeline)
-enum class EStageResult;  // defined in magic.h; manual handlers return it (issue.manual-cast)
+class ActionContext;   // defined in magic.h
+enum class EStageResult;  // defined in magic.h; manual handlers return it
 
 #include <optional>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
-// Бывшие kTypeHit/kTypeMagic/kType*-константы удалены (issue #3316): источник боевого
-// урона теперь типизирован через fight::EDamageSource, выбор сообщения - по типу.
-
 void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
-// issue.spellhandlers: helpers used by the extracted manual handlers (defs stay in spells.cpp).
+// Helpers used by the manual spell handlers.
 void CheckAutoNosummon(CharData *ch);
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-int CalcAntiSavings(CharData *ch);
 int pk_action_type_summon(CharData *agressor, CharData *victim);
 int pk_increment_revenge(CharData *agressor, CharData *victim);
 extern int what_sky;
 extern char cast_argument[];
-// basic magic calling functions
 
 ESpell FixNameAndFindSpellId(char *name);
 
-// other prototypes //
 bool CanGetSpell(CharData *ch, ESpell spell_id);
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id);
 int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id);
-
-//#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 
 const int kHoursPerWarcry = 4;
 const int kHoursPerTurnUndead = 8;

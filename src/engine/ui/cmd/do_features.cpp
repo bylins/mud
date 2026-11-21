@@ -117,33 +117,13 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			}
 
 			std::string line;
-			switch (feat.GetId()) {
-				case EFeat::kBerserker:
-				case EFeat::kLightWalk:
-				case EFeat::kSpellCapabler:
-				case EFeat::kRelocate:
-				case EFeat::kShadowThrower:
-					if (IsTimedByFeat(ch, feat.GetId())) {
-						line = fmt::format("[{:3}] ", IsTimedByFeat(ch, feat.GetId()));
-					} else {
-						line = "[-!-] ";
-					}
-					break;
-				case EFeat::kPowerAttack:
-				case EFeat::kGreatPowerAttack:
-				case EFeat::kAimingAttack:
-				case EFeat::kGreatAimingAttack:
-				case EFeat::kScirmisher:
-				case EFeat::kDoubleThrower:
-				case EFeat::kTripleThrower:
-				case EFeat::kSerratedBlade:
-					if (ch->IsFlagged(GetPrfWithFeatNumber(feat.GetId()))) {
-						line = "[-&G*&w-] ";
-					} else {
-						line = "[-:-] ";
-					}
-					break;
-				default: line = "      ";
+			if (MUD::Feat(feat.GetId()).IsTimed()) {
+				const int timer = IsTimedByFeat(ch, feat.GetId());
+				line = timer ? fmt::format("[{:3}] ", timer) : "[-!-] ";
+			} else if (const auto flag = GetPrfWithFeatNumber(feat.GetId())) {
+				line = ch->IsFlagged(*flag) ? "[-&G*&w-] " : "[-:-] ";
+			} else {
+				line = "      ";
 			}
 			if (CanUseFeat(ch, feat.GetId())) {
 				line += fmt::format("&Y{}&w\r\n", MUD::Feat(feat.GetId()).GetCName());

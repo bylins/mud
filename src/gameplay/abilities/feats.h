@@ -19,8 +19,12 @@
 #include "engine/structs/info_container.h"
 #include "gameplay/magic/spells_constants.h"   // issue.perk-action-patching: ESpell (patch target)
 #include "talents_actions.h"                    // issue.perk-action-patching: Actions (patch payload)
+#include "feat_categories.h"
+#include "feat_conditions.h"
+#include "feat_timer.h"
 
 #include <array>
+#include <optional>
 #include <bitset>
 
 struct TimedFeat {
@@ -39,7 +43,9 @@ void SetInbornAndRaceFeats(CharData *ch);
 bool CanUseFeat(const CharData *ch, EFeat feat_id);
 bool CanGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
-EPrf GetPrfWithFeatNumber(EFeat feat_id);
+// The preference flag a toggled feat (power attack, formation...) is switched on with; nullopt for a
+// feat that is not toggled.
+std::optional<EPrf> GetPrfWithFeatNumber(EFeat feat_id);
 
 namespace feats {
 
@@ -99,6 +105,8 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 	friend class FeatInfoBuilder;
 
 	std::string name_;
+	std::string category_;
+	std::optional<FeatTimer> timer_;
 
  public:
 	FeatInfo() = default;
@@ -106,12 +114,20 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 		: BaseItem<EFeat>(id, mode) {};
 
 	talents_effects::Effects effects;
+	FeatConditions prerequisites{FeatConditions::EKind::kPrerequisites};	// to learn the feat
+	FeatConditions requirements{FeatConditions::EKind::kRequirements};	// to use it
 
 	// issue.perk-action-patching: this feat's spell-action patches (empty for most feats).
 	std::vector<TalentPatch> talent_patches;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
+	// The <feat_categories> entry limiting how many such feats a character may hold; empty -- none.
+	[[nodiscard]] const std::string &GetCategory() const { return category_; };
+	// The feat has a delay before it can be used again (<timed>).
+	[[nodiscard]] bool IsTimed() const { return timer_.has_value(); };
+	// nullptr if the feat is not timed.
+	[[nodiscard]] const FeatTimer *GetTimer() const { return timer_ ? &*timer_ : nullptr; };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };

@@ -1,5 +1,4 @@
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-// issue.mag-points: intensity-grade vocabulary loader.
 
 #include "points_intensity.h"
 
@@ -19,7 +18,7 @@ constexpr std::array<const char *, static_cast<size_t>(ECategory::kCount)>
 		kCategoryNames{"heal", "moves", "thirst", "full", "damage"};
 
 // Parse a <grade percent= text=/> element into a Grade. Skips entries with
-// no text -- the table only stores actionable rows.
+// no percent.
 bool ParseGrade(parser_wrapper::DataNode &node, Grade &out) {
 	const char *percent = node.GetValue("percent");
 	const char *text = node.GetValue("text");
@@ -51,8 +50,7 @@ void ParseDirection(parser_wrapper::DataNode direction_node, std::vector<Grade> 
 	// first; degrade thresholds are negative so descending puts the LEAST
 	// negative (weakest) first. Resolve walks this order and returns the first
 	// tier the input has reached (largest T such that T <= input), which yields
-	// the strongest crossed threshold in either direction. (issue.point-bugs #5
-	// retired the separate std::reverse for degrade.)
+	// the strongest crossed threshold in either direction.
 	std::sort(grades.begin(), grades.end(),
 		[](const Grade &a, const Grade &b) { return a.percent > b.percent; });
 }
@@ -78,9 +76,6 @@ void PointsIntensity::Reload(const parser_wrapper::DataNode &node_in) {
 			node.GoToParent();
 		}
 		if (node.GoToChild("degrade")) {
-			// issue.point-bugs #5: keep the descending sort produced by
-			// ParseDirection. Resolve uses the same "largest T such that
-			// T <= input" walk for both improve and degrade.
 			ParseDirection(node, cat.degrade);
 			node.GoToParent();
 		}
@@ -113,7 +108,7 @@ const std::string &PointsIntensity::Resolve(ECategory category, int percent) con
 		return kEmpty;
 	}
 	const auto &cat = categories_[static_cast<size_t>(category)];
-	// Unified algorithm (issue.point-bugs #5): walk descending and return the
+	// Walk descending and return the
 	// first tier T such that T <= input. That picks the largest signed
 	// threshold the input has reached, which is the strongest crossed tier
 	// in both directions:
@@ -152,9 +147,6 @@ void PointsIntensityLoader::Load(parser_wrapper::DataNode data) {
 }
 
 void PointsIntensityLoader::Reload(parser_wrapper::DataNode data) {
-	// The user explicitly noted hot-reload is not needed, but registering a
-	// Reload that does the same as Load lets a god still trigger a refresh
-	// via `/reload points_intensity` if desired.
 	MUD::PointsIntensity().Reload(data);
 }
 

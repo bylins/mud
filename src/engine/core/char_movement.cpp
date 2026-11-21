@@ -37,7 +37,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/awake.h"
 #include "gameplay/mechanics/boat.h"
-#include "gameplay/magic/magic_rooms.h"
+#include "gameplay/affects/room_affects.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/cities.h"
 #include "utils/backtrace.h"
@@ -389,15 +389,15 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	// return=0) can refuse this voluntary move, like a DGScript ENTER trigger. Only blocking-capable
 	// actions run here (before placement); the rest fire after arrival (kEffectsNonBlocking, below) so
 	// non-blocking effects keep their destination-room context.
-	if (!room_spells::RunRoomEntryTriggers(ch, world[EXIT(ch, dir)->to_room()],
-			room_spells::EEntryTriggerPhase::kBlockCheck)) {
+	if (!room_affects::RunRoomEntryTriggers(ch, world[EXIT(ch, dir)->to_room()],
+			room_affects::EEntryTriggerPhase::kBlockCheck)) {
 		return false;
 	}
 	// issue.room-affect-trigger-improve (door affects): a PASSAGE affect can also react to simply moving
 	// through this exit -- its kEnter/kEnterPC/kEnterNPC action fires now (actor still in the source room,
 	// so the effect plays out in the doorway), and return=0 refuses the move. Reverse-resolved, so a trap
 	// on either side of the passage triggers.
-	if (!room_spells::RunDoorTriggers(ch, world[ch->in_room], dir, talents_actions::EActionTrigger::kEnter)) {
+	if (!room_affects::RunDoorTriggers(ch, world[ch->in_room], dir, talents_actions::EActionTrigger::kEnter)) {
 		return false;
 	}
 
@@ -583,10 +583,10 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	// on-entry effects (e.g. kHypnoticPattern's sleep) in the destination room. The blocking-capable
 	// actions already ran (and possibly refused the move) before placement, above.
 	// Result is intentionally ignored here: only non-blocking on-entry effects
-	// run (the blocking pass already decided the move above). See magic_rooms.cpp
+	// run (the blocking pass already decided the move above). See room_affects.cpp
 	// for the same (void) pattern.
-	(void) room_spells::RunRoomEntryTriggers(ch, world[ch->in_room],
-			room_spells::EEntryTriggerPhase::kEffectsNonBlocking);
+	(void) room_affects::RunRoomEntryTriggers(ch, world[ch->in_room],
+			room_affects::EEntryTriggerPhase::kEffectsNonBlocking);
 
 	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {
@@ -828,7 +828,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		zone_table[world[room]->zone_rn].activity++;
 	} else {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
-		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+		room_affects::ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
 
 	cities::CheckCityVisit(ch, room);

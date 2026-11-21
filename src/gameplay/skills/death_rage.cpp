@@ -3,7 +3,6 @@
 #include "gameplay/magic/magic.h"
 
 void CheckDeathRage(CharData *ch) {
-	struct TimedFeat timed;
 	int prob;
 
 	if (IsAffected(ch, EAffect::kBerserk) &&
@@ -16,9 +15,7 @@ void CheckDeathRage(CharData *ch) {
 		!IsTimedByFeat(ch, EFeat::kBerserker) && !AFF_FLAGGED(ch, EAffect::kBerserk)
 		&& (ch->get_hit() < ch->get_real_max_hit() / 4)) {
 		CharData *vict = ch->GetEnemy();
-		timed.feat = EFeat::kBerserker;
-		timed.time = 4;
-		ImposeTimedFeat(ch, &timed);
+		ImposeTimedFeat(ch, EFeat::kBerserker);
 
 		Affect<EApply> af;
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);

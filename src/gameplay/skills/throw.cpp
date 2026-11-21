@@ -160,10 +160,7 @@ void GoThrow(CharData *ch, CharData *victim) {
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		technique_id = abilities::EAbility::kShadowThrower;
 		dmg_type = fight::kMagicDmg;
-		TimedFeat timed;
-		timed.feat = EFeat::kShadowThrower;
-		timed.time = 6;
-		ImposeTimedFeat(ch, &timed);
+		ImposeTimedFeat(ch, EFeat::kShadowThrower);
 		ch->UnsetFlag(EPrf::kShadowThrow);
 	}
 	abilities_roll::TechniqueRoll roll;

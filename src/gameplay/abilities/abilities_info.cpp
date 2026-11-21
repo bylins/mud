@@ -9,6 +9,7 @@
 #include "engine/ui/color.h"
 //#include "utils/parser_wrapper.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/fight/common.h"
 //#include "gameplay/mechanics/weather.h"
 
 
@@ -222,11 +223,12 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 * Ситуативный бонус броска для "tactician feat" и "skirmisher feat":
 * Каждый персонаж в строю прикрывает двух, третий дает штраф.
 * Избыток "строевиков" повышает шанс на удачное срабатывание.
+* Считаются только те, кто сейчас способен прикрыть (IsActiveSkirmisher); остальные идут в непокрытые.
 * Svent TODO: Придумать более универсальный механизм бонусов/штрафов в зависимости от данных абилки
 */
 int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	target_resolver::FriendsRosterType roster{ch};
-	int skirmishers = roster.count([](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); });
+	int skirmishers = roster.count(IsActiveSkirmisher);
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return (skirmishers * 5 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
