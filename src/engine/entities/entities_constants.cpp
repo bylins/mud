@@ -758,6 +758,35 @@ EWearFlag WearFlagByEquipPos(const std::string &equip_pos) {
 	return it != kWearByEquipPos.end() ? it->second : EWearFlag::kUndefined;
 }
 
+EWearFlag WearFlagByEquipPos(EEquipPos pos) {
+	// switch без default: добавят слот в EEquipPos -- не соберётся, пока не скажут, какой флаг
+	// надевания ему нужен (или что никакой).
+	switch (pos) {
+		case EEquipPos::kLight:      return EWearFlag::kUndefined;
+		case EEquipPos::kFingerR:
+		case EEquipPos::kFingerL:    return EWearFlag::kFinger;
+		case EEquipPos::kNeck:       return EWearFlag::kNeck;
+		case EEquipPos::kChest:      return EWearFlag::kUndefined;
+		case EEquipPos::kBody:       return EWearFlag::kBody;
+		case EEquipPos::kHead:       return EWearFlag::kHead;
+		case EEquipPos::kLegs:       return EWearFlag::kLegs;
+		case EEquipPos::kFeet:       return EWearFlag::kFeet;
+		case EEquipPos::kHands:      return EWearFlag::kHands;
+		case EEquipPos::kArms:       return EWearFlag::kArms;
+		case EEquipPos::kShield:     return EWearFlag::kShield;
+		case EEquipPos::kShoulders:  return EWearFlag::kShoulders;
+		case EEquipPos::kWaist:      return EWearFlag::kWaist;
+		case EEquipPos::kWristR:
+		case EEquipPos::kWristL:     return EWearFlag::kWrist;
+		case EEquipPos::kWield:      return EWearFlag::kWield;
+		case EEquipPos::kHold:       return EWearFlag::kHold;
+		case EEquipPos::kBoths:      return EWearFlag::kBoth;
+		case EEquipPos::kQuiver:     return EWearFlag::kQuiver;
+		case EEquipPos::kNumEquipPos: break;
+	}
+	return EWearFlag::kUndefined;
+}
+
 std::vector<EWearFlag> ParseWearPositions(const std::string &val) {
 	std::vector<EWearFlag> out;
 	std::stringstream ss(val);

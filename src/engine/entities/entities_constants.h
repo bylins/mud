@@ -818,6 +818,10 @@ EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string &name);
 // TODO: these describe the equipment mechanic, not objects per se -- move them into
 //       gameplay/mechanics/equipment together with EEquipPos/EWearFlag when that module owns them.
 [[nodiscard]] EWearFlag WearFlagByEquipPos(const std::string &equip_pos);
+
+// То же по номеру слота. kUndefined означает «проверять нечем»: у kLight и kChest флага
+// надевания нет, предмет попадает туда не по wear_flags.
+[[nodiscard]] EWearFlag WearFlagByEquipPos(EEquipPos pos);
 // Parse a '|'-separated list of equipment-position tokens (e.g. "kFingerR|kFingerL") into the
 // distinct wear flags they map to. Unknown tokens are logged and skipped.
 [[nodiscard]] std::vector<EWearFlag> ParseWearPositions(const std::string &val);
