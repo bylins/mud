@@ -353,7 +353,7 @@ enum EGf : Bitvector {
  * Mobile flags: used by char_data.char_specials.act
  */
 enum EMobFlag : Bitvector {
-	kSpec = 1 << 0,            // Mob has a callable spec-proc  //
+	kSpec = 1 << 0,            // Legacy: specials come from cfg/specials.xml, nothing reads this //
 	kSentinel = 1 << 1,        // Mob should not move     //
 	kScavenger = 1 << 2,    // Mob picks up stuff on the ground //
 	kNpc = 1 << 3,            // (R) Automatically set on all Mobs   //
