@@ -66,8 +66,6 @@
 #include <vector>
 
 // external structs
-extern int no_specials;
-
 int npc_scavenge(CharData *ch);
 int npc_loot(CharData *ch);
 int npc_move(CharData *ch, int dir, int need_specials_check);
@@ -1116,19 +1114,6 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  ++processed_mobs;
 	  character_list.mark_active(ch.get());    // #3414: запомнить активного моба для point_update
 
-	  // Examine call for special procedure
-	  if (ch->IsFlagged(EMobFlag::kSpec) && !no_specials) {
-		  if (mob_index[ch->get_rnum()].func == nullptr) {
-			  log("SYSERR: %s (#%d): Attempting to call non-existing mob function.",
-				  GET_NAME(ch), GET_MOB_VNUM(ch));
-			  ch->UnsetFlag(EMobFlag::kSpec);
-		  } else {
-			  char empty_arg[kMaxStringLength] = "";
-			  if ((mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, empty_arg)) {
-				  continue;    // go to next char
-			  }
-		  }
-	  }
 	  // Extract free horses
 	if (AFF_FLAGGED(ch, EAffect::kHorse) && ch->IsFlagged(EMobFlag::kMounting) && !ch->has_master()) {
 		act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
