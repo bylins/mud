@@ -23,6 +23,11 @@ void ProcessDoubleShotHits(CharData *ch, ESkill type, fight::AttackType weapon);
 void ProcessAddshotHits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 
 void ProcessMultyShotHits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
+	// Цель мог добить железный ветер, отработавший до залпа: по выбывшему из мира бойцу
+	// стрелять некуда, и hit() на нем только пишет SYSERROR.
+	if (!victim || victim->in_room == kNowhere) {
+		return;
+	}
 	if (IsArmedWithBow(ch, weapon)) {
 		if (GetSkill(ch, ESkill::kAddshot)) {
 			ProcessAddshotHits(ch, victim, type, weapon);
@@ -60,15 +65,15 @@ void ProcessAddshotHits(CharData *ch, CharData *victim, ESkill type, fight::Atta
 		hit(ch, victim, type, weapon);
 	}
 	percent = number(1, difficulty);
-	if (percent <= (prob * 6 + dex_mod) && ch->GetEnemy()) {
+	if (percent <= (prob * 6 + dex_mod) && ch->GetEnemy() && victim->in_room != kNowhere) {
 		hit(ch, victim, type, weapon);
 	}
 	percent = number(1, difficulty);
-	if (percent <= (prob * 4 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
+	if (percent <= (prob * 4 + dex_mod / 2) * pc_mod && ch->GetEnemy() && victim->in_room != kNowhere) {
 		hit(ch, victim, type, weapon);
 	}
 	percent = number(1, difficulty);
-	if (percent <= (prob * 19 / 8 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
+	if (percent <= (prob * 19 / 8 + dex_mod / 2) * pc_mod && ch->GetEnemy() && victim->in_room != kNowhere) {
 		hit(ch, victim, type, weapon);
 	}
 }
