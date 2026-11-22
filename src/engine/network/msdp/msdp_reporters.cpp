@@ -202,10 +202,9 @@ void ServerIdReporter::get(Variable::shared_ptr &response) {
 void ServerTimeReporter::get(Variable::shared_ptr &response) {
 	const auto now = time(nullptr);
 	char value[8] = {0};
-	struct tm local{};
-	if (localtime_r(&now, &local)) {
-		snprintf(value, sizeof(value), "%d:%02d", local.tm_hour, local.tm_min);
-	}
+	// localtime + strftime -- так время форматируют и в остальном коде (glory_misc.cpp). Через
+	// localtime_r нельзя: это POSIX, и windows-сборки CI на нем падают.
+	strftime(value, sizeof(value), "%H:%M", localtime(&now));
 	response = std::make_shared<Variable>(constants::SERVER_TIME, std::make_shared<StringValue>(value));
 }
 
