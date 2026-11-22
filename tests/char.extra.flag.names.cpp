@@ -1,16 +1,16 @@
-// Имена рантаймовых меток персонажа (ECharExtraFlag) лежат в char_extra_bits[] отдельным
-// массивом, и индекс имени считается от начала массива -- ровно как у action_bits[] для
-// EMobFlag. Значит та же грабля: стоит завести новую метку в середине перечисления и не
-// вписать имя на то же место, как все имена после нее съедут, а "stat" начнет печатать
-// соседа или UNDEF. Эти тесты держат соответствие метка <-> имя.
+// Имена рантаймовых меток персонажа (ECharExtraFlag) для вывода в "stat".
+//
+// Имена привязаны к enum switch'ем без default, а не плоским массивом const char* с индексом
+// по значению: такой массив живет ровно до первого добавленного значения -- имена после него
+// съезжают молча, и в "stat" печатается сосед. Так уже было с action_bits[] и битами 14-19
+// второй плоскости EMobFlag (issue.mob-flag-names). Эти тесты держат соответствие метка <->
+// имя, а компилятор ловит метку, которой имя забыли дать.
 //
 // kResurrected -- последняя метка и единственная, которую ставит заклинание, а не умение;
-// в stat она и нужна прежде всего, потому что из MOB-флагов она ушла (issue: флаг стал
-// рантаймовым).
+// в stat она и нужна прежде всего, потому что из MOB-флагов она ушла.
 
 #include "engine/entities/entities_constants.h"
 #include "engine/structs/bitset_flags.h"
-#include "gameplay/core/constants.h"
 
 #include <gtest/gtest.h>
 
@@ -18,11 +18,8 @@
 
 namespace {
 
-// Имя с префиксом: юнити-сборка кладет этот файл и mob.flag.great.helper.cpp в одну единицу
-// трансляции, и два одноименных помощника в анонимных пространствах стали бы перегрузками.
 std::string ExtraNamesOf(std::initializer_list<ECharExtraFlag> flags) {
-	const BitsetFlags<ECharExtraFlag> bits{flags};
-	return bits.sprintbits(char_extra_bits, ",", 4);
+	return NamesOfCharExtraFlags(BitsetFlags<ECharExtraFlag>{flags});
 }
 
 }  // namespace
@@ -39,22 +36,15 @@ TEST(CharExtraFlagNames, EveryFlagHasItsOwnName) {
 	EXPECT_EQ(ExtraNamesOf({ECharExtraFlag::kResurrected}), "оживлен");
 }
 
-// Если в перечисление допишут метку, не вписав имя, последнее имя станет "\n" и тест упадет
-// именно здесь -- раньше, чем это увидят в игре.
-TEST(CharExtraFlagNames, LastFlagIsStillNamed) {
-	EXPECT_EQ(static_cast<int>(ECharExtraFlag::kCount), 9);
-	EXPECT_EQ(ExtraNamesOf({static_cast<ECharExtraFlag>(static_cast<int>(ECharExtraFlag::kCount) - 1)}),
-			  "оживлен");
+// Порядок в строке -- по значениям enum, а не по порядку в наборе.
+TEST(CharExtraFlagNames, SeveralMarksGoInEnumOrder) {
+	EXPECT_EQ(ExtraNamesOf({ECharExtraFlag::kResurrected, ECharExtraFlag::kFailSneak}),
+			  "!подкрался,оживлен");
 }
 
-// На пустом наборе строковая форма подставляет общее слово "ничего" из каталога сообщений,
-// которого в юнит-тестах нет, поэтому проверяем буферную форму: она отдает признак "флаги
-// были" отдельно от текста. Заодно это сторожит обход всех четырех плоскостей -- без
-// разделителей "\n" на каждую он уходил за край массива имен.
-TEST(CharExtraFlagNames, EmptySetReportsNoFlags) {
-	const BitsetFlags<ECharExtraFlag> empty;
-	char buffer[256];
-	EXPECT_FALSE(empty.sprintbits(char_extra_bits, buffer, sizeof(buffer), ",", 4));
+// Слово "ничего" подставляет stat, а не сама функция: тут пустая строка.
+TEST(CharExtraFlagNames, EmptySetGivesEmptyString) {
+	EXPECT_TRUE(NamesOfCharExtraFlags(BitsetFlags<ECharExtraFlag>{}).empty());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

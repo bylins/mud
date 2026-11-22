@@ -312,8 +312,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	// Рантаймовые метки (CharData::Temporary): в MOB-флагах их нет и в файл они не попадают,
 	// так что иначе их не увидеть вовсе. Строка идёт и на игроке -- половина меток про него
 	// (скрытность, подкрадывание, маскировка).
+	const auto extra_marks = NamesOfCharExtraFlags(k->Temporary);
 	SendMsgToChar(fmt::format("Рантайм-метки: &y{}&n\r\n",
-							  k->Temporary.sprintbits(char_extra_bits, ",", 4)), ch);
+							  extra_marks.empty() ? "ничего" : extra_marks), ch);
 
 	if (k->IsNpc()) {
 		SendMsgToChar(fmt::format("MOB флаги: &c{}&n\r\n",
