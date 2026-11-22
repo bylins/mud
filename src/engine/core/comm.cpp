@@ -1439,7 +1439,10 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		d = (DescriptorData *) events[i].data.ptr;
 		if (d == nullptr)
 			continue;
-		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output))) {
+		// Хвост от прошлого захода тоже надо дослать, даже если нового вывода нет и промпт
+		// уже выведен, -- иначе он залежится до следующей порции (см. pending_output).
+		if ((events[i].events & EPOLLOUT)
+			&& (!d->has_prompt || *(d->output) || !d->pending_output.empty())) {
 			if (iosystem::process_output(d) < 0) // сокет умер
 				close_socket(d, false, epoll, events, n);
 			else
@@ -1452,7 +1455,9 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
-		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
+		// То же и в ветке без epoll: хвост досылаем, даже когда нового вывода нет.
+		if ((!d->has_prompt || *(d->output) || !d->pending_output.empty())
+			&& FD_ISSET(d->descriptor, &output_set))
 		{
 			if (iosystem::process_output(d) < 0)
 				close_socket(d, false);	// закрыл соединение

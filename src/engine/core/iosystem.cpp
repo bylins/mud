@@ -41,6 +41,8 @@ namespace iosystem {
 int buf_largecount = 0;        // # of large buffers which exist
 int buf_overflows = 0;        // # of overflows of output
 int buf_switches = 0;        // # of switches from small to large buf
+int buf_deferred = 0;        // # of times the socket left a tail behind
+int buf_stalled = 0;        // # of connections closed by the pending-tail cap
 struct TextBlock *bufpool = nullptr;    // pool of large output buffers
 unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
@@ -727,55 +729,98 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left) 
 	return (-1);
 }
 
+// Предел неотправленного хвоста. Клиент, который перестал читать совсем, иначе копил бы его
+// без конца; на этом рубеже считаем связь оборванной. Полмегабайта -- это десяток полных
+// подушек вывода, то есть заведомо не рядовая задержка канала.
+constexpr size_t kMaxPendingOutput = 512 * 1024;
+
+ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length);
+
+// Как write_to_descriptor, но отличает «сокет занят» от «сокет умер»: первое для нас не
+// ошибка, а повод отложить остаток. sent -- сколько байт ядро забрало.
+static bool write_some(socket_t desc, const char *txt, size_t total, size_t &sent) {
+	sent = 0;
+	while (sent < total) {
+		const ssize_t bytes_written = perform_socket_write(desc, txt + sent, total - sent);
+		if (bytes_written < 0) {
+			perror("SYSERR: write_to_descriptor");
+			return false;
+		}
+		if (bytes_written == 0) {
+			// Буфер сокета полон. Раньше тут игрока отключали (или молча теряли остаток);
+			// теперь остаток остаётся в pending_output и уйдёт следующим заходом.
+			return true;
+		}
+		sent += static_cast<size_t>(bytes_written);
+	}
+	return true;
+}
+
+// Сумма неотправленных хвостов по всем дескрипторам: показывается в "показать статистика",
+// чтобы было видно, сливаются хвосты или копятся.
+size_t PendingOutputTotal() {
+	size_t total = 0;
+	for (auto *d = descriptor_list; d; d = d->next) {
+		total += d->pending_output.size();
+	}
+	return total;
+}
+
+// Отдаёт сокету накопленный хвост с начала. Что не взяли -- остаётся на следующий раз.
+static bool flush_pending_output(DescriptorData *t) {
+	if (t->pending_output.empty()) {
+		return true;
+	}
+	const size_t was = t->pending_output.size();
+	size_t sent = 0;
+	const bool alive = write_some(t->descriptor, t->pending_output.data(), was, sent);
+	t->pending_output.erase(0, sent);
+
+	if (alive && !t->pending_output.empty()) {
+		// Сокет взял не всё. Строка заменяет прежнюю "socket write would block" и говорит
+		// не только о факте, но и о размере: по ней видно, сливается хвост или растёт.
+		buf_deferred++;
+		log("WARNING: output deferred: %s [%s], ушло %zu из %zu б, в хвосте %zu б",
+			t->character ? GET_NAME(t->character) : "<без персонажа>",
+			*t->host ? t->host : "?",
+			sent, was, t->pending_output.size());
+	}
+	return alive;
+}
+
+// Кладёт готовый текст в хвост дескриптора. Сам в сокет не пишет: отправкой занимается
+// flush_pending_output, и только она решает, сколько ядро взяло.
 bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t buffer_size, int &written) {
+	written = static_cast<int>(buffer_size);
 #if defined(HAVE_ZLIB)
-	Bytef compressed[kSmallBufsize];
-
-	if (t->deflate)    // Complex case, compression, write it out.
+	if (t->deflate)    // Complex case: compress first, the stream must stay continuous.
 	{
-		written = 0;
+		Bytef compressed[kSmallBufsize];
 
-		// First we set up our input data.
 		t->deflate->avail_in = static_cast<uInt>(buffer_size);
 		t->deflate->next_in = (Bytef *) (buffer);
-		t->deflate->next_out = compressed;
-		t->deflate->avail_out = kSmallBufsize;
-
-		int counter = 0;
 		do {
-			++counter;
-			int df, prevsize = kSmallBufsize - t->deflate->avail_out;
+			t->deflate->next_out = compressed;
+			t->deflate->avail_out = kSmallBufsize;
 
-			// If there is input or the output has reset from being previously full, run compression again.
-			if (t->deflate->avail_in
-				|| t->deflate->avail_out == kSmallBufsize) {
-				if ((df = deflate(t->deflate, Z_SYNC_FLUSH)) != Z_OK) {
-					log("SYSERR: process_output: deflate() returned %d.", df);
-				}
-			}
-
-			// There should always be something new to write out.
-			written = write_to_descriptor(t->descriptor, (char *) compressed + prevsize,
-										  kSmallBufsize - t->deflate->avail_out - prevsize);
-
-			// Wrap the buffer when we've run out of buffer space for the output.
-			if (t->deflate->avail_out == 0) {
-				t->deflate->avail_out = kSmallBufsize;
-				t->deflate->next_out = compressed;
-			}
-
-			// Oops. This shouldn't happen, I hope. -gg 2/19/99
-			if (written <= 0) {
+			const int df = deflate(t->deflate, Z_SYNC_FLUSH);
+			if (df != Z_OK) {
+				log("SYSERR: process_output: deflate() returned %d.", df);
 				return false;
 			}
 
-			// Need to loop while we still have input or when the output buffer was previously full.
-		} while (t->deflate->avail_out == kSmallBufsize || t->deflate->avail_in);
+			const size_t produced = kSmallBufsize - t->deflate->avail_out;
+			if (produced > 0) {
+				t->pending_output.append(reinterpret_cast<const char *>(compressed), produced);
+			}
+			// Пока есть вход или пока очередной проход заполнил выход целиком -- может быть
+			// ещё, крутим дальше.
+		} while (t->deflate->avail_in || t->deflate->avail_out == 0);
 	} else {
-		written = write_to_descriptor(t->descriptor, buffer, buffer_size);
+		t->pending_output.append(buffer, buffer_size);
 	}
 #else
-	written = write_to_descriptor(t->descriptor, buffer, buffer_size);
+	t->pending_output.append(buffer, buffer_size);
 #endif
 
 	return true;
@@ -884,6 +929,20 @@ int process_output(DescriptorData *t) {
 	}
 
 	written = result >= 0 ? result : -result;
+
+	if (!flush_pending_output(t)) {
+		return -1;    // сокет умер
+	}
+	if (t->pending_output.size() > kMaxPendingOutput) {
+		// Клиент не забирает так долго, что хвост перестал быть задержкой канала. Дальше
+		// копить нечестно: это чужая память и вывод, которого игрок всё равно не увидит.
+		buf_stalled++;
+		log("SYSERR: output stalled: %s [%s], неотправленный хвост %zu б -- закрываю соединение",
+			t->character ? GET_NAME(t->character) : "<без персонажа>",
+			*t->host ? t->host : "?",
+			t->pending_output.size());
+		return -1;
+	}
 
 	/*
 	 * if we were using a large buffer, put the large buffer on the buffer pool
