@@ -74,6 +74,7 @@ extern const char *position_types[];
 extern const char *resistance_types[];
 extern const char *player_bits[];
 extern const char *action_bits[];
+extern const char *char_extra_bits[];
 extern const char *preference_bits[];
 extern const char *where[];
 extern const char *item_types[];

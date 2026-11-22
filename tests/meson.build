@@ -79,6 +79,7 @@ test_sources = files(
     'quested.cpp',
     'top.chart.gods.cpp',
     'mob.flag.great.helper.cpp',
+    'char.extra.flag.names.cpp',
     'feat.inborn_skill_base.cpp',
     'mob.give.intercept.cpp',
     'target_resolver.pet_master.cpp',
