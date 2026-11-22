@@ -41,6 +41,8 @@ namespace iosystem {
 int buf_largecount = 0;        // # of large buffers which exist
 int buf_overflows = 0;        // # of overflows of output
 int buf_switches = 0;        // # of switches from small to large buf
+int buf_deferred = 0;        // # of times the socket left a tail behind
+int buf_stalled = 0;        // # of connections closed by the pending-tail cap
 struct TextBlock *bufpool = nullptr;    // pool of large output buffers
 unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
@@ -754,14 +756,35 @@ static bool write_some(socket_t desc, const char *txt, size_t total, size_t &sen
 	return true;
 }
 
+// Сумма неотправленных хвостов по всем дескрипторам: показывается в "показать статистика",
+// чтобы было видно, сливаются хвосты или копятся.
+size_t PendingOutputTotal() {
+	size_t total = 0;
+	for (auto *d = descriptor_list; d; d = d->next) {
+		total += d->pending_output.size();
+	}
+	return total;
+}
+
 // Отдаёт сокету накопленный хвост с начала. Что не взяли -- остаётся на следующий раз.
 static bool flush_pending_output(DescriptorData *t) {
 	if (t->pending_output.empty()) {
 		return true;
 	}
+	const size_t was = t->pending_output.size();
 	size_t sent = 0;
-	const bool alive = write_some(t->descriptor, t->pending_output.data(), t->pending_output.size(), sent);
+	const bool alive = write_some(t->descriptor, t->pending_output.data(), was, sent);
 	t->pending_output.erase(0, sent);
+
+	if (alive && !t->pending_output.empty()) {
+		// Сокет взял не всё. Строка заменяет прежнюю "socket write would block" и говорит
+		// не только о факте, но и о размере: по ней видно, сливается хвост или растёт.
+		buf_deferred++;
+		log("WARNING: output deferred: %s [%s], ушло %zu из %zu б, в хвосте %zu б",
+			t->character ? GET_NAME(t->character) : "<без персонажа>",
+			*t->host ? t->host : "?",
+			sent, was, t->pending_output.size());
+	}
 	return alive;
 }
 
@@ -913,6 +936,7 @@ int process_output(DescriptorData *t) {
 	if (t->pending_output.size() > kMaxPendingOutput) {
 		// Клиент не забирает так долго, что хвост перестал быть задержкой канала. Дальше
 		// копить нечестно: это чужая память и вывод, которого игрок всё равно не увидит.
+		buf_stalled++;
 		log("SYSERR: output stalled: %s [%s], неотправленный хвост %zu б -- закрываю соединение",
 			t->character ? GET_NAME(t->character) : "<без персонажа>",
 			*t->host ? t->host : "?",

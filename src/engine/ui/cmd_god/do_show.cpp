@@ -665,6 +665,11 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			out += fmt::format("  Больших буферов - {:5}\r\n", iosystem::buf_largecount);
 			out += fmt::format("  Переключенных буферов - {:5}, переполненных - {:5}\r\n",
 							   iosystem::buf_switches, iosystem::buf_overflows);
+			// Хвосты вывода: отложено -- сколько раз сокет не взял всё сразу, оборвано --
+			// сколько связей закрыто по пределу хвоста (должно оставаться нулём), и сколько
+			// байт лежит неотправленным прямо сейчас.
+			out += fmt::format("  Хвостов вывода отложено - {:5}, оборвано - {:5}, сейчас в хвостах {} б\r\n",
+							   iosystem::buf_deferred, iosystem::buf_stalled, iosystem::PendingOutputTotal());
 			const auto mem = TotalMemUse();
 			out += fmt::format("  PID процесса: {}, память: {} МБ, пик {} МБ (адресное пространство {} МБ)\r\n",
 							   getpid(), mem.rss_kb / 1024, mem.peak_rss_kb / 1024, mem.virt_kb / 1024);
