@@ -143,6 +143,10 @@ struct DescriptorData {
 	size_t bufptr;            // ptr to end of current output  //
 	size_t bufspace;        // space left in the output buffer  //
 	struct iosystem::TextBlock *large_outbuf;    // ptr to large buffer, if we need it //
+	// Байты, уже готовые к отправке, которые сокет не взял: ядро ответило «занято». Уходят
+	// первыми, когда сокет снова готов. При включённом MCCP тут лежат УЖЕ СЖАТЫЕ байты --
+	// пересжать их нельзя, поток deflate продолжается с того места, где остановился.
+	std::string pending_output;
 	struct iosystem::TextBlocksQueue input;            // q of unprocessed input     //
 
 	std::shared_ptr<CharData> character;    // linked to char       //
