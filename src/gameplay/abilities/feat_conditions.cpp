@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <algorithm>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -239,7 +240,14 @@ void FeatConditions::Print(std::ostringstream &buffer) const {
 		return;
 	}
 	if (kind_ == EKind::kPrerequisites) {
-		buffer << " Prerequisites (to learn; skills without equipment bonuses)";
+		// Оговорка про экипировку осмысленна только когда в условиях есть умения: без вещевых
+		// бонусов считают именно их (GetSkillWithoutEquip в CharSubject::Skill). Если условия
+		// из одних способностей, статов и уровня, она сбивает с толку -- там нечего считать.
+		const bool has_skills = std::any_of(alternatives_.begin(), alternatives_.end(),
+											[](const Alternative &alt) { return !alt.skills.empty(); });
+		buffer << (has_skills
+				   ? " Prerequisites (to learn; skills without equipment bonuses)"
+				   : " Prerequisites (to learn)");
 	} else {
 		buffer << " Requirements (to use)";
 	}
