@@ -72,12 +72,18 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kNoSummon", EMobFlag::kNoSummon},
 	{"kNoFear", EMobFlag::kNoFear},
 	{"kCorpse", EMobFlag::kCorpse},
-	{"kResurrected", EMobFlag::kResurrected},
 	{"kMounting", EMobFlag::kMounting},
 	{"kHelper", EMobFlag::kHelper},
 	{"kClone", EMobFlag::kClone},
 	{"kIgnoreForbidden", EMobFlag::kIgnoreForbidden},   // issue.room-affect-trigger-improve: kForbidden seal exempts these
 	{"kCompanion", EMobFlag::kCompanion},   // any NPC ally (charm/summon/clone/keeper); kForbidden lets minions follow
+};
+
+// Runtime character marks (ECharExtraFlag, kept in CharData::Temporary, never saved) that a
+// gate may ask about. Only code sets these, so a world prototype can never carry one --
+// kResurrected is what tells a corpse revived by kResurrection from an ordinary animated one.
+const std::map<std::string, ECharExtraFlag> kBlockingExtraFlagByName{
+	{"kResurrected", ECharExtraFlag::kResurrected},
 };
 
 // issue.room-affect-trigger-improve: <trigger val=...> token -> event flag. Single source of truth for
@@ -894,7 +900,7 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 }
 
 namespace {
-// Print one FlagCondition (mob flags by their kBlockingFlagByName name, affect flags by NAME_BY_ITEM).
+// Print one FlagCondition (mob and extra flags by their kBlocking*ByName name, affect flags by NAME_BY_ITEM).
 void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostringstream &buffer) {
 	if (cond.empty()) {
 		return;
@@ -903,6 +909,16 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 	for (const auto flag : cond.mob_flags) {
 		std::string flag_name = "?";
 		for (const auto &[name, value] : kBlockingFlagByName) {
+			if (value == flag) {
+				flag_name = name;
+				break;
+			}
+		}
+		buffer << " " << kColorGrn << flag_name << kColorNrm;
+	}
+	for (const auto flag : cond.extra_flags) {
+		std::string flag_name = "?";
+		for (const auto &[name, value] : kBlockingExtraFlagByName) {
 			if (value == flag) {
 				flag_name = name;
 				break;
@@ -994,7 +1010,7 @@ void Actions::Build(parser_wrapper::DataNode &node) {
  */
 
 // Parse a <blocking>/<required>/<caster_blocking> tag. Schema: child tags <mob_flags val=>,
-// <affect_flags val=>, <room_flags val=>, <align val=>, each with a `|`-separated value
+// <extra_flags val=>, <affect_flags val=>, <room_flags val=>, <align val=>, each with a `|`-separated value
 // (or a single token for <align>). Accumulates into the given condition. The child-tag
 // form replaced the previous attribute-list form so the line
 // stays readable when several axes are combined (kNoMagic blocking now lives on most spells).
@@ -1012,6 +1028,16 @@ void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &
 					cond.mob_flags.push_back(it->second);
 				} else {
 					err_log("Actions: unknown EMobFlag '%s' in <mob_flags>.", flag_name.c_str());
+				}
+			}
+		} else if (strcmp(name, "extra_flags") == 0) {
+			// ECharExtraFlag: рантаймовая метка, поставленная кодом (CharData::Temporary).
+			for (const auto &flag_name : utils::Split(val, '|')) {
+				const auto it = kBlockingExtraFlagByName.find(flag_name);
+				if (it != kBlockingExtraFlagByName.end()) {
+					cond.extra_flags.push_back(it->second);
+				} else {
+					err_log("Actions: unknown ECharExtraFlag '%s' in <extra_flags>.", flag_name.c_str());
 				}
 			}
 		} else if (strcmp(name, "affect_flags") == 0) {

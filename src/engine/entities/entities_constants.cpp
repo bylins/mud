@@ -626,7 +626,6 @@ void init_EMobFlag_ITEM_NAMES() {
 	EMobFlag_name_by_value[EMobFlag::kOpensDoor] = "kOpensDoor";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresNoMob] = "kIgnoresNoMob";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresPeaceRoom] = "kIgnoresPeaceRoom";
-	EMobFlag_name_by_value[EMobFlag::kResurrected] = "kResurrected";
 	EMobFlag_name_by_value[EMobFlag::kNoResurrection] = "kNoResurrection";
 	EMobFlag_name_by_value[EMobFlag::kMobAwake] = "kMobAwake";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresFormation] = "kIgnoresFormation";

@@ -136,13 +136,18 @@ enum class EActionBase { kCompetence, kDamage, kPoints, kAffects, kDispelled, kT
 // cast; for <required> the target must have ALL of them. Mob flags are meaningful only on
 // NPCs. align kAny means "no alignment check on this side". The room_flags check examines
 // the CASTER's current room and is what drives the kNoMagic blocking for non-warcry spells.
+// extra_flags -- рантаймовые метки персонажа (ECharExtraFlag, живут в CharData::Temporary и
+// не сохраняются). Отдельная ось нужна потому, что такую метку ставит только код: прототип
+// мира ее нести не может, а гейту она при этом нужна (kResurrected отличает оживленный труп
+// от обычного умертвия, см. <extra_flags> у kStoneBones).
 struct FlagCondition {
 	std::vector<EMobFlag> mob_flags;
+	std::vector<ECharExtraFlag> extra_flags;
 	std::vector<EAffect> affect_flags;
 	std::vector<ERoomFlag> room_flags;
 	EAlign align{EAlign::kAny};
 	[[nodiscard]] bool empty() const {
-		return mob_flags.empty() && affect_flags.empty() && room_flags.empty()
+		return mob_flags.empty() && extra_flags.empty() && affect_flags.empty() && room_flags.empty()
 				&& align == EAlign::kAny;
 	}
 };
