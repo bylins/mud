@@ -311,7 +311,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kArmoring)
-			|| ch->IsFlagged(EMobFlag::kResurrected))) {
+			|| ch->Temporary.get(ECharExtraFlag::kResurrected))) {
 		return;
 	}
 
@@ -382,7 +382,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength];
 
 	if (ch->IsNpc() && (AFF_FLAGGED(ch, EAffect::kCharmed)
-		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || ch->IsFlagged(EMobFlag::kResurrected))))
+		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || ch->Temporary.get(ECharExtraFlag::kResurrected))))
 		return;
 
 	argument = one_argument(argument, name);

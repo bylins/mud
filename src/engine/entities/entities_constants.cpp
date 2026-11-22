@@ -626,7 +626,6 @@ void init_EMobFlag_ITEM_NAMES() {
 	EMobFlag_name_by_value[EMobFlag::kOpensDoor] = "kOpensDoor";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresNoMob] = "kIgnoresNoMob";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresPeaceRoom] = "kIgnoresPeaceRoom";
-	EMobFlag_name_by_value[EMobFlag::kResurrected] = "kResurrected";
 	EMobFlag_name_by_value[EMobFlag::kNoResurrection] = "kNoResurrection";
 	EMobFlag_name_by_value[EMobFlag::kMobAwake] = "kMobAwake";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresFormation] = "kIgnoresFormation";
@@ -799,5 +798,40 @@ const char *GetIngredientClassName(EIngredientClass type) {
 	return "";
 }
 
+namespace {
+
+// switch без default: допишут значение в ECharExtraFlag -- не соберётся, пока не допишут имя.
+const char *NameOfCharExtraFlag(ECharExtraFlag flag) {
+	switch (flag) {
+		case ECharExtraFlag::kFailHide:        return "!спрятался";
+		case ECharExtraFlag::kFailSneak:       return "!подкрался";
+		case ECharExtraFlag::kFailCamouflage:  return "!замаскировался";
+		case ECharExtraFlag::kGrpKillCount:    return "учтен в добивании";
+		case ECharExtraFlag::kToldHide:        return "сказано:скрытность";
+		case ECharExtraFlag::kToldSneak:       return "сказано:подкрадывание";
+		case ECharExtraFlag::kToldCamouflage:  return "сказано:маскировка";
+		case ECharExtraFlag::kGoesToHelp:      return "идет на помощь";
+		case ECharExtraFlag::kResurrected:     return "оживлен";
+		case ECharExtraFlag::kCount:           break;
+	}
+	return "UNDEF";
+}
+
+}  // namespace
+
+std::string NamesOfCharExtraFlags(const BitsetFlags<ECharExtraFlag> &flags) {
+	std::string result;
+	for (int i = 0; i < static_cast<int>(ECharExtraFlag::kCount); ++i) {
+		const auto flag = static_cast<ECharExtraFlag>(i);
+		if (!flags.get(flag)) {
+			continue;
+		}
+		if (!result.empty()) {
+			result += ",";
+		}
+		result += NameOfCharExtraFlag(flag);
+	}
+	return result;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

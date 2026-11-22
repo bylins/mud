@@ -42,7 +42,9 @@ TEST(MobFlagGreatHelper, HasItsOwnName) {
 // именно здесь.
 TEST(MobFlagGreatHelper, NeighbourNamesDidNotShift) {
 	EXPECT_EQ(NamesOf({EMobFlag::kHelper}), "помогает");
-	EXPECT_EQ(NamesOf({EMobFlag::kResurrected}), "оживлен");
+	// Последний флаг перед прогоном заполнителей: за ним бит 13 (его освободил уехавший в
+	// ECharExtraFlag kResurrected) и биты 14-19, у которых имени нет.
+	EXPECT_EQ(NamesOf({EMobFlag::kIgnoresPeaceRoom}), "игнорирует мирные");
 	EXPECT_EQ(NamesOf({EMobFlag::kNoResurrection}), "!оживить");
 	EXPECT_EQ(NamesOf({EMobFlag::kIgnoresFormation}), "игн.строй");
 }

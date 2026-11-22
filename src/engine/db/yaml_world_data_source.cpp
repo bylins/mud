@@ -1907,6 +1907,15 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 			{
 				mob.SetFlag(static_cast<EMobFlag>(flag_data_by_num(flag_val)));
 			}
+			else
+			{
+				// Имени нет в словаре -- флаг теряется молча, и правка в зоне не работает.
+				// Так всплывают и снятые флаги: kResurrected стал рантаймовым
+				// (ECharExtraFlag), а в прототипах мира имя осталось. Внум тут еще не
+				// присвоен (его ставит вызывающий), поэтому моба называем по имени.
+				log("SYSERR: mob '%s': unknown action flag '%s' -- the flag is lost.",
+					mob.get_npc_name().c_str(), flag_name.c_str());
+			}
 		}
 	}
 

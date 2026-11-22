@@ -2986,7 +2986,7 @@ bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 
 	utils::CExecutionTimer extract_timer;
 	for (const auto &mob : mobs) {
-		if (!mob->IsFlagged(EMobFlag::kResurrected)) {
+		if (!mob->Temporary.get(ECharExtraFlag::kResurrected)) {
 			ExtractCharFromWorld(mob.get(), false, true);
 			extracted = true;
 		}
@@ -3549,7 +3549,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 
 	for (const auto &ch : world[r_num]->people) {
 		if (m_num == ch->get_rnum()
-			&& !ch->IsFlagged(EMobFlag::kResurrected)) {
+			&& !ch->Temporary.get(ECharExtraFlag::kResurrected)) {
 			count++;
 		}
 	}
