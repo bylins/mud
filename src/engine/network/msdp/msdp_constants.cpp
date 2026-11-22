@@ -10,6 +10,12 @@ const std::string MAX_HIT = "MAX_HIT";
 const std::string MAX_MOVE = "MAX_MOVE";
 const std::string STATE = "STATE";
 const std::string GROUP = "GROUP";
+const std::string HEALTH = "HEALTH";
+const std::string HEALTH_MAX = "HEALTH_MAX";
+const std::string MOVEMENT = "MOVEMENT";
+const std::string MOVEMENT_MAX = "MOVEMENT_MAX";
+const std::string MANA = "MANA";
+const std::string MANA_MAX = "MANA_MAX";
 }
 
 

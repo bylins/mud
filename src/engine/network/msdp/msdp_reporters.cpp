@@ -145,6 +145,47 @@ void MaxManaReporter::get(Variable::shared_ptr &response) {
 										  std::make_shared<StringValue>(max_mana));
 }
 
+// Принятые в MSDP имена. Источники данных те же, что у STATE, MAX_HIT и MAX_MOVE --
+// расходятся только имена, под которыми их спрашивают.
+void HealthReporter::get(Variable::shared_ptr &response) {
+	const auto value = std::to_string(descriptor()->character->get_hit());
+	response = std::make_shared<Variable>(constants::HEALTH, std::make_shared<StringValue>(value));
+}
+
+void HealthMaxReporter::get(Variable::shared_ptr &response) {
+	const auto value = std::to_string(descriptor()->character->get_real_max_hit());
+	response = std::make_shared<Variable>(constants::HEALTH_MAX, std::make_shared<StringValue>(value));
+}
+
+void MovementReporter::get(Variable::shared_ptr &response) {
+	const auto value = std::to_string(descriptor()->character->get_move());
+	response = std::make_shared<Variable>(constants::MOVEMENT, std::make_shared<StringValue>(value));
+}
+
+void MovementMaxReporter::get(Variable::shared_ptr &response) {
+	const auto value = std::to_string(descriptor()->character->get_real_max_move());
+	response = std::make_shared<Variable>(constants::MOVEMENT_MAX, std::make_shared<StringValue>(value));
+}
+
+void ManaReporter::get(Variable::shared_ptr &response) {
+	// Тому, кто маной не колдует, отвечать нечем: пустого ответа клиент и ждёт, это не ошибка
+	// (см. molchanie репортёра в msdp_senders.cpp). Так же поступает и STATE -- он просто не
+	// кладёт в таблицу поле CURRENT_MANA.
+	if (!IS_MANA_CASTER(descriptor()->character)) {
+		return;
+	}
+	const auto value = std::to_string(descriptor()->character->mem_queue.stored);
+	response = std::make_shared<Variable>(constants::MANA, std::make_shared<StringValue>(value));
+}
+
+void ManaMaxReporter::get(Variable::shared_ptr &response) {
+	if (!IS_MANA_CASTER(descriptor()->character)) {
+		return;
+	}
+	const auto value = std::to_string(Mana(GetRealWis((descriptor()->character).get())));
+	response = std::make_shared<Variable>(constants::MANA_MAX, std::make_shared<StringValue>(value));
+}
+
 void LevelReporter::get(Variable::shared_ptr &response) {
 	const auto level = std::to_string(GetRealLevel(descriptor()->character));
 	response = std::make_shared<Variable>(constants::LEVEL,

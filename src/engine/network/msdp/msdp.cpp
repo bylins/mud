@@ -38,7 +38,15 @@ const Variable::shared_ptr &ReporterFactory::reportable_variables() {
 		std::make_shared<StringValue>(constants::MAX_HIT),
 		std::make_shared<StringValue>(constants::MAX_MOVE),
 		std::make_shared<StringValue>(constants::STATE),
-		std::make_shared<StringValue>(constants::GROUP)
+		std::make_shared<StringValue>(constants::GROUP),
+		// Клиент, который читает этот список, увидит и принятые имена -- иначе он про них не
+		// узнает и будет просить вслепую, как сейчас.
+		std::make_shared<StringValue>(constants::HEALTH),
+		std::make_shared<StringValue>(constants::HEALTH_MAX),
+		std::make_shared<StringValue>(constants::MOVEMENT),
+		std::make_shared<StringValue>(constants::MOVEMENT_MAX),
+		std::make_shared<StringValue>(constants::MANA),
+		std::make_shared<StringValue>(constants::MANA_MAX)
 	};
 
 	const static Value::shared_ptr
@@ -68,7 +76,22 @@ const ReporterFactory::handlers_t &ReporterFactory::handlers() {
 														   {constants::STATE,
 															std::bind(StateReporter::create, std::placeholders::_1)},
 														   {constants::GROUP,
-															std::bind(GroupReporter::create, std::placeholders::_1)}};
+															std::bind(GroupReporter::create, std::placeholders::_1)},
+														   // Принятые в MSDP имена рядом с нашими
+														   // историческими: по старым уже работают клиенты
+														   // игроков, новые знает сторонний клиент.
+														   {constants::HEALTH,
+															std::bind(HealthReporter::create, std::placeholders::_1)},
+														   {constants::HEALTH_MAX,
+															std::bind(HealthMaxReporter::create, std::placeholders::_1)},
+														   {constants::MOVEMENT,
+															std::bind(MovementReporter::create, std::placeholders::_1)},
+														   {constants::MOVEMENT_MAX,
+															std::bind(MovementMaxReporter::create, std::placeholders::_1)},
+														   {constants::MANA,
+															std::bind(ManaReporter::create, std::placeholders::_1)},
+														   {constants::MANA_MAX,
+															std::bind(ManaMaxReporter::create, std::placeholders::_1)}};
 
 	return s_handlers;
 }
