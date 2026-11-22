@@ -46,7 +46,17 @@ const Variable::shared_ptr &ReporterFactory::reportable_variables() {
 		std::make_shared<StringValue>(constants::MOVEMENT),
 		std::make_shared<StringValue>(constants::MOVEMENT_MAX),
 		std::make_shared<StringValue>(constants::MANA),
-		std::make_shared<StringValue>(constants::MANA_MAX)
+		std::make_shared<StringValue>(constants::MANA_MAX),
+		std::make_shared<StringValue>(constants::CHARACTER_NAME),
+		std::make_shared<StringValue>(constants::SERVER_ID),
+		std::make_shared<StringValue>(constants::SERVER_TIME),
+		std::make_shared<StringValue>(constants::WORLD_TIME),
+		std::make_shared<StringValue>(constants::ALIGNMENT),
+		std::make_shared<StringValue>(constants::EXPERIENCE_TNL),
+		std::make_shared<StringValue>(constants::OPPONENT_NAME),
+		std::make_shared<StringValue>(constants::OPPONENT_LEVEL),
+		std::make_shared<StringValue>(constants::OPPONENT_HEALTH),
+		std::make_shared<StringValue>(constants::OPPONENT_HEALTH_MAX)
 	};
 
 	const static Value::shared_ptr
@@ -91,7 +101,27 @@ const ReporterFactory::handlers_t &ReporterFactory::handlers() {
 														   {constants::MANA,
 															std::bind(ManaReporter::create, std::placeholders::_1)},
 														   {constants::MANA_MAX,
-															std::bind(ManaMaxReporter::create, std::placeholders::_1)}};
+															std::bind(ManaMaxReporter::create, std::placeholders::_1)},
+														   {constants::CHARACTER_NAME,
+															std::bind(CharacterNameReporter::create, std::placeholders::_1)},
+														   {constants::SERVER_ID,
+															std::bind(ServerIdReporter::create, std::placeholders::_1)},
+														   {constants::SERVER_TIME,
+															std::bind(ServerTimeReporter::create, std::placeholders::_1)},
+														   {constants::WORLD_TIME,
+															std::bind(WorldTimeReporter::create, std::placeholders::_1)},
+														   {constants::ALIGNMENT,
+															std::bind(AlignmentReporter::create, std::placeholders::_1)},
+														   {constants::EXPERIENCE_TNL,
+															std::bind(ExperienceTnlReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_NAME,
+															std::bind(OpponentNameReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_LEVEL,
+															std::bind(OpponentLevelReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_HEALTH,
+															std::bind(OpponentHealthReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_HEALTH_MAX,
+															std::bind(OpponentHealthMaxReporter::create, std::placeholders::_1)}};
 
 	return s_handlers;
 }

@@ -136,6 +136,98 @@ class ManaMaxReporter : public DescriptorBasedReporter {
 	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<ManaMaxReporter>(descriptor); }
 };
 
+// Остальные принятые имена. Репортёры про противника молчат, когда боя нет: промолчавший
+// репортёр не ошибка, а обычный ответ «сообщать нечего».
+class CharacterNameReporter : public DescriptorBasedReporter {
+ public:
+	CharacterNameReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<CharacterNameReporter>(descriptor); }
+};
+
+class ServerIdReporter : public DescriptorBasedReporter {
+ public:
+	ServerIdReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<ServerIdReporter>(descriptor); }
+};
+
+class ServerTimeReporter : public DescriptorBasedReporter {
+ public:
+	ServerTimeReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<ServerTimeReporter>(descriptor); }
+};
+
+class WorldTimeReporter : public DescriptorBasedReporter {
+ public:
+	WorldTimeReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<WorldTimeReporter>(descriptor); }
+};
+
+class AlignmentReporter : public DescriptorBasedReporter {
+ public:
+	AlignmentReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<AlignmentReporter>(descriptor); }
+};
+
+class ExperienceTnlReporter : public DescriptorBasedReporter {
+ public:
+	ExperienceTnlReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<ExperienceTnlReporter>(descriptor); }
+};
+
+class OpponentNameReporter : public DescriptorBasedReporter {
+ public:
+	OpponentNameReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<OpponentNameReporter>(descriptor); }
+};
+
+class OpponentLevelReporter : public DescriptorBasedReporter {
+ public:
+	OpponentLevelReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<OpponentLevelReporter>(descriptor); }
+};
+
+class OpponentHealthReporter : public DescriptorBasedReporter {
+ public:
+	OpponentHealthReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<OpponentHealthReporter>(descriptor); }
+};
+
+class OpponentHealthMaxReporter : public DescriptorBasedReporter {
+ public:
+	OpponentHealthMaxReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
+
+	virtual void get(Variable::shared_ptr &response) override;
+
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<OpponentHealthMaxReporter>(descriptor); }
+};
+
 class LevelReporter : public DescriptorBasedReporter {
  public:
 	LevelReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}

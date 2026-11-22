@@ -9,6 +9,7 @@
 #include "msdp_constants.h"
 #include "engine/entities/zone.h"
 #include "gameplay/core/game_limits.h"
+#include "gameplay/core/experience.h"
 #include "gameplay/mechanics/illumination.h"
 
 namespace msdp {
@@ -184,6 +185,84 @@ void ManaMaxReporter::get(Variable::shared_ptr &response) {
 	}
 	const auto value = std::to_string(Mana(GetRealWis((descriptor()->character).get())));
 	response = std::make_shared<Variable>(constants::MANA_MAX, std::make_shared<StringValue>(value));
+}
+
+void CharacterNameReporter::get(Variable::shared_ptr &response) {
+	char buffer[kMaxInputLength] = {0};
+	descriptor()->string_to_client_encoding(GET_NAME(descriptor()->character), buffer);
+	response = std::make_shared<Variable>(constants::CHARACTER_NAME, std::make_shared<StringValue>(buffer));
+}
+
+void ServerIdReporter::get(Variable::shared_ptr &response) {
+	// Имя мада латиницей: по нему клиентские скрипты отличают сервер, и перекодировать тут
+	// нечего.
+	response = std::make_shared<Variable>(constants::SERVER_ID, std::make_shared<StringValue>("Bylins"));
+}
+
+void ServerTimeReporter::get(Variable::shared_ptr &response) {
+	const auto now = time(nullptr);
+	char value[8] = {0};
+	struct tm local{};
+	if (localtime_r(&now, &local)) {
+		snprintf(value, sizeof(value), "%d:%02d", local.tm_hour, local.tm_min);
+	}
+	response = std::make_shared<Variable>(constants::SERVER_TIME, std::make_shared<StringValue>(value));
+}
+
+void WorldTimeReporter::get(Variable::shared_ptr &response) {
+	// Игровое время: у нас из суток значимы только часы.
+	const auto value = std::to_string(time_info.hours);
+	response = std::make_shared<Variable>(constants::WORLD_TIME, std::make_shared<StringValue>(value));
+}
+
+void AlignmentReporter::get(Variable::shared_ptr &response) {
+	const auto value = std::to_string(alignment::GetAlignment(descriptor()->character.get()));
+	response = std::make_shared<Variable>(constants::ALIGNMENT, std::make_shared<StringValue>(value));
+}
+
+void ExperienceTnlReporter::get(Variable::shared_ptr &response) {
+	const auto ch = descriptor()->character.get();
+	const auto value = std::to_string(experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1));
+	response = std::make_shared<Variable>(constants::EXPERIENCE_TNL, std::make_shared<StringValue>(value));
+}
+
+void OpponentNameReporter::get(Variable::shared_ptr &response) {
+	const auto enemy = descriptor()->character->GetEnemy();
+	if (!enemy) {
+		return;
+	}
+	char buffer[kMaxInputLength] = {0};
+	descriptor()->string_to_client_encoding(GET_NAME(enemy), buffer);
+	response = std::make_shared<Variable>(constants::OPPONENT_NAME, std::make_shared<StringValue>(buffer));
+}
+
+void OpponentLevelReporter::get(Variable::shared_ptr &response) {
+	const auto enemy = descriptor()->character->GetEnemy();
+	if (!enemy) {
+		return;
+	}
+	const auto value = std::to_string(GetRealLevel(enemy));
+	response = std::make_shared<Variable>(constants::OPPONENT_LEVEL, std::make_shared<StringValue>(value));
+}
+
+void OpponentHealthReporter::get(Variable::shared_ptr &response) {
+	const auto enemy = descriptor()->character->GetEnemy();
+	if (!enemy) {
+		return;
+	}
+	// Процентами, а не в точных хитах, -- так же, как GROUP отдаёт жизнь согруппников. Точное
+	// число было бы осведомлённостью, которой у игрока в бою нет.
+	const auto value = std::to_string(posi_value(enemy->get_hit(), enemy->get_real_max_hit()) * 10);
+	response = std::make_shared<Variable>(constants::OPPONENT_HEALTH, std::make_shared<StringValue>(value));
+}
+
+void OpponentHealthMaxReporter::get(Variable::shared_ptr &response) {
+	const auto enemy = descriptor()->character->GetEnemy();
+	if (!enemy) {
+		return;
+	}
+	// Раз OPPONENT_HEALTH в процентах, максимум по договорённости -- сотня.
+	response = std::make_shared<Variable>(constants::OPPONENT_HEALTH_MAX, std::make_shared<StringValue>("100"));
 }
 
 void LevelReporter::get(Variable::shared_ptr &response) {

@@ -27,6 +27,16 @@ extern const std::string MOVEMENT;
 extern const std::string MOVEMENT_MAX;
 extern const std::string MANA;
 extern const std::string MANA_MAX;
+extern const std::string CHARACTER_NAME;
+extern const std::string SERVER_ID;
+extern const std::string SERVER_TIME;
+extern const std::string ALIGNMENT;
+extern const std::string EXPERIENCE_TNL;
+extern const std::string WORLD_TIME;
+extern const std::string OPPONENT_NAME;
+extern const std::string OPPONENT_LEVEL;
+extern const std::string OPPONENT_HEALTH;
+extern const std::string OPPONENT_HEALTH_MAX;
 
 constexpr char TELOPT_MSDP = 69;
 }
