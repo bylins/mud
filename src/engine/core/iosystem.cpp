@@ -168,7 +168,10 @@ void write_to_output(const char *txt, DescriptorData *t) {
 			|| t->state == EConState::kChpwdGetNew
 			|| t->state == EConState::kChpwdVrfy
 			|| t->state == EConState::kDelcnf1;
-		log("SYSERR: output overflow: %s [%s], команда '%s', в буфере %zu б, отброшено %zu б",
+		// bufspace -- это остаток СВОБОДНОГО места (в обычной ветке он уменьшается по мере
+		// записи), поэтому подпись и говорит «свободно». Печатать занятое нечем: bufptr, по
+		// которому его считают, строкой выше затёрт в ~0ull.
+		log("SYSERR: output overflow: %s [%s], команда '%s', свободно %zu б, отброшено %zu б",
 			t->character ? GET_NAME(t->character) : "<без персонажа>",
 			*t->host ? t->host : "?",
 			secret_input ? "<ввод скрыт>" : t->last_input,
