@@ -122,7 +122,11 @@ ObjData::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 		rnum = obj_proto.zone(rnum);
 		if (rnum != -1 && zone_table[rnum].under_construction) {
 			// модификация объектов тестовой зоны
-			constexpr int TEST_OBJECT_TIMER = 30;
+			// Единица таймера -- один проход obj_point_update, а он заведен на kSecsPerMudHour
+			// (60 реальных секунд), то есть таймер считается реальными минутами. Было 30 минут:
+			// билдер не успевал посмотреть на свою вещь, она рассыпалась прямо посреди проверки.
+			// Два часа реального времени хватает на сеанс работы в зоне.
+			constexpr int TEST_OBJECT_TIMER = 120;
 			new_object->set_timer(TEST_OBJECT_TIMER);
 			new_object->set_extra_flag(EObjFlag::kNolocate);
 			new_object->set_extra_flag(EObjFlag::kLimitedTimer);
