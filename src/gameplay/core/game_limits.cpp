@@ -713,7 +713,14 @@ void beat_points_update(int pulse) {
 //			return;
 
 		if (d->character->in_room == kNowhere) {
-			log("SYSERR: Pulse character in kNowhere.");
+			// Смерть вынимает чара из комнаты и ставит в очередь на удаление, а дескриптор до конца
+			// пульса остается kPlaying -- так что сюда попадает каждый утопленник, и это не ошибка.
+			// Ругаться надо на чара вне комнаты, которого никто не удаляет: вот он действительно
+			// потерялся, и без имени в строке его не найти.
+			if (!d->character->purged()) {
+				log("SYSERR: Pulse character %s in kNowhere, nobody is extracting him.",
+					GET_NAME(d->character.get()));
+			}
 			continue;
 		}
 		
