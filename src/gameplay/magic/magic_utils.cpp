@@ -352,6 +352,11 @@ int MagicItemStat(const ObjData *item) {
 	return (stored >= 0) ? stored : kAuthoredPotionKeyStat;   // absent (-1) -> authored; a stored 0 stays 0
 }
 
+int RollPotionBrewLuck() {
+	return GaussIntNumber(ObjVal::kBrewRollBias * ObjVal::kBrewRollScale, ObjVal::kBrewRollScale,
+						  1, 2 * ObjVal::kBrewRollBias * ObjVal::kBrewRollScale);
+}
+
 bool IsPotencyFromProto(const CObjectPrototype *item) {
 	return item->GetPotionValueKey(ObjVal::EValueKey::kMakerSkill) < 0
 			&& item->GetPotionValueKey(ObjVal::EValueKey::kPotionPotency) <= 0;

@@ -21,6 +21,7 @@
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/fight/fight_constants.h"
 #include "utils/random.h"
+#include "gameplay/magic/magic_utils.h"
 #include "administration/privilege.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/abilities/talents_actions.h"
@@ -1313,16 +1314,19 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
+	// issue #3638: уровня заклинания у магпредметов больше нет (сила -- умение мастера), поэтому
+	// уровень прототипа всегда 0; вес этого члена задается k0 рецепта. Заряды жезла/посоха лежат
+	// в kMaxCharges, сырой val[] после миграции обнулен.
 	switch (obj_proto[tgt]->get_type()) {
 		case EObjType::kScroll:
-		case EObjType::kPotion: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
+		case EObjType::kPotion: param[0] = 0;    // уровень
 			param[1] = 1;    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
 
 		case EObjType::kWand:
-		case EObjType::kStaff: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
-			param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);    // количество
+		case EObjType::kStaff: param[0] = 0;    // уровень
+			param[1] = std::max(0, obj_proto[tgt]->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
 
@@ -1484,12 +1488,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
 							result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 													  GetRealBaseStat(ch, EBaseStat::kInt));
-							// One standard-normal draw (mean z=0, sd z=1), encoded with the bias so it
-							// stores positive. sigma-independent: every spell scales it by its own sigma.
-							const int brew_roll = GaussIntNumber(
-									ObjVal::kBrewRollBias * ObjVal::kBrewRollScale, ObjVal::kBrewRollScale,
-									1, 2 * ObjVal::kBrewRollBias * ObjVal::kBrewRollScale);
-							result->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, brew_roll);
+							result->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, RollPotionBrewLuck());
 						}
 					}
 					break;

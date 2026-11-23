@@ -28,6 +28,7 @@
 #include "gameplay/core/constants.h"
 #include "engine/observability/metrics.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/magic/magic_utils.h"
 
 #include <cmath>
 #include <set>
@@ -1702,11 +1703,18 @@ int MakeRecept::make(CharData *ch) {
 			break;
 		case EObjType::kWand:
 		case EObjType::kStaff:
-			// Считаем уровень закла
-			// issue.magic-items: the maker's competence (make-staff skill + Int) becomes the casting
-			// potency (kSpellItem* keys), replacing the legacy val[0] = caster level.
-			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, std::max(1, GetSkill(ch, ESkill::kMakeStaff)));
+		case EObjType::kPotion:
+			// issue #3638: the maker's competence (the recipe's skill + Int) becomes the casting
+			// potency, replacing the legacy val[0] = caster level.
+			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, std::max(1, GetSkill(ch, skill)));
 			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
+			// Like a potion brewed by an im-recipe: the brew luck is drawn once and frozen, so every
+			// quaff is the same, and the item is marked transformed, so an olc edit of the prototype
+			// does not overwrite the maker's values.
+			if (obj->get_type() == EObjType::kPotion) {
+				obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, RollPotionBrewLuck());
+			}
+			obj->set_extra_flag(EObjFlag::kTransformed);
 			break;
 		case EObjType::kWeapon:
 			// Считаем число xdy
@@ -1725,10 +1733,6 @@ int MakeRecept::make(CharData *ch) {
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			// Считаем поглощение.
 			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
-			break;
-		case EObjType::kPotion:
-			// Считаем уровень итоговый напитка
-			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
 		case EObjType::kContainer:
 			// Считаем объем контейнера.

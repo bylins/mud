@@ -97,6 +97,11 @@ int CalcNoisyAmount(double floor_val, double scaled, double sigma, int cap,
 [[nodiscard]] int MagicItemSkill(const ObjData *item);
 [[nodiscard]] int MagicItemStat(const ObjData *item);
 
+// One brew-luck draw for a crafted potion, encoded for kPotionBrewRoll. It is a standard-normal z,
+// frozen at brewing so every quaff is identical; each of the potion's spells scales it by its own
+// sigma at cast. Stored as (z + kBrewRollBias) * kBrewRollScale, always > 0.
+[[nodiscard]] int RollPotionBrewLuck();
+
 // Сила вещи, которую сделал игрок, посчитана по его умению (kMakerSkill/kMakerStat) и
 // записана в самой вещи. У вещи из прототипа этих ключей нет, MagicItemPotency берет зашитые
 // умолчания, и число выходит одинаковым у всех вещей с этим заклинанием -- свойством конкретной
