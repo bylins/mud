@@ -2022,8 +2022,16 @@ void process_player_attack(CharData *ch, int min_init) {
 			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
 			&& CanUseFeat(ch, EFeat::kSlashMaster)
 			&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kTwohands)) {
-			if (GetSkill(ch, ESkill::kTwohands) > (number(1, 500)))
-				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
+			// Цель могли добить доп.атаки, отработавшие строкой выше: ProcessExtrahits
+			// проверяет это перед своим главным ударом, ProcessMultyShotHits -- перед залпом,
+			// а здесь проверки не было. Враг у бойца остается прежним: raw_kill зовет
+			// stop_fighting только если убитый сам с кем-то дрался, а чистит чужие указатели
+			// на покойника именно stop_fighting. Так что удар двуручем уходил по бойцу, уже
+			// выбывшему из мира, и hit() писал на каждое такое добивание SYSERROR.
+			auto *enemy = ch->GetEnemy();
+			if (enemy && enemy->in_room != kNowhere
+				&& GetSkill(ch, ESkill::kTwohands) > (number(1, 500)))
+				hit(ch, enemy, ESkill::kUndefined, fight::AttackType::kMainHand);
 		}
 		ch->battle_affects.unset(kEafFirst);
 		ch->battle_affects.set(kEafSecond);
