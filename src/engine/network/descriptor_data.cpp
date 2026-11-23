@@ -7,8 +7,10 @@
 
 #include "descriptor_data.h"
 
+#include <algorithm>
 #include <atomic>
 #include <cstdio>
+#include <string_view>
 #include "utils/logger.h"
 #include "utils/utf8.h"
 #include <string>
@@ -198,19 +200,31 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 	// 436 нс на строку в 208 байт, около 477 МБ/с. Для легаси-клиентов это заметно дешевле
 	// того, что тут и так делается (to_koi8 разбирает ту же строку, дальше побайтная таблица),
 	// а объёмы вывода мада от такой скорости далеки.
-	if (!utf8::is_valid(in_str)) {
+	// Первая редакция этой строки печатала шестнадцать байт от начала буфера, и за неделю на
+	// боевом не дала ни одного пригодного следа: начало у битой строки целое, а испорченный
+	// байт лежит дальше -- в выводе было видно только "Online: NN" и приглашение выбрать
+	// кодировку. Поэтому теперь дамп берется ВОКРУГ испорченного байта, со смещением и длиной
+	// буфера, и к нему добавлено, в каком состоянии дескриптор и какая у него кодировка: без
+	// этого нельзя отличить вывод до входа в игру от вывода играющему.
+	const std::size_t bad = utf8::find_invalid(in_str);
+	if (bad != std::string_view::npos) {
 		static std::atomic<unsigned long> seen{0};
 		const unsigned long n = seen.fetch_add(1);
 		if (n < 10 || n % 10000 == 0) {
-			std::string head;
-			char byte[4];
-			for (std::size_t i = 0; in_str[i] && i < 16; ++i) {
-				std::snprintf(byte, sizeof(byte), "%02x", static_cast<unsigned char>(in_str[i]));
-				head += byte;
-				head += ' ';
+			const std::size_t len = std::strlen(in_str);
+			const std::size_t from = bad > 12 ? bad - 12 : 0;
+			const std::size_t to = std::min(len, bad + 13);
+			std::string dump;
+			char byte[8];
+			for (std::size_t i = from; i < to; ++i) {
+				// Испорченный байт помечен звездочкой, чтобы его не искать глазами по смещению.
+				std::snprintf(byte, sizeof(byte), "%s%02x ",
+							  i == bad ? "*" : "", static_cast<unsigned char>(in_str[i]));
+				dump += byte;
 			}
 			log("SYSERR: клиенту уходит не-UTF-8 (#%lu) -- где-то пропущена граница чтения. "
-				"Первые байты: %s", n + 1, head.c_str());
+				"Байт %zu из %zu, состояние '%s', кодировка %d, байты вокруг: %s",
+				n + 1, bad, len, GetConDescription(state), static_cast<int>(keytable), dump.c_str());
 		}
 	}
 

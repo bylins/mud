@@ -45,6 +45,11 @@ std::size_t encode(char32_t cp, char *out);
 // (rejects overlong forms, surrogates, code points above U+10FFFF and stray continuation bytes).
 bool is_valid(std::string_view s);
 
+// Byte offset of the first ill-formed byte per the same grammar, or `std::string_view::npos`
+// when `s` is well-formed. For a diagnostic this is what is actually needed: the head of a
+// broken string is usually intact, and only the offset says where to look.
+std::size_t find_invalid(std::string_view s);
+
 // Number of code points. Malformed bytes count as one code point each; never throws.
 std::size_t length(std::string_view s);
 
