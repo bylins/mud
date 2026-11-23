@@ -21,6 +21,7 @@
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/fight/fight_constants.h"
 #include "utils/random.h"
+#include "gameplay/magic/magic_utils.h"
 #include "administration/privilege.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/abilities/talents_actions.h"
@@ -1487,12 +1488,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							result->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, rs->perc);
 							result->SetPotionValueKey(ObjVal::EValueKey::kMakerStat,
 													  GetRealBaseStat(ch, EBaseStat::kInt));
-							// One standard-normal draw (mean z=0, sd z=1), encoded with the bias so it
-							// stores positive. sigma-independent: every spell scales it by its own sigma.
-							const int brew_roll = GaussIntNumber(
-									ObjVal::kBrewRollBias * ObjVal::kBrewRollScale, ObjVal::kBrewRollScale,
-									1, 2 * ObjVal::kBrewRollBias * ObjVal::kBrewRollScale);
-							result->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, brew_roll);
+							result->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, RollPotionBrewLuck());
 						}
 					}
 					break;

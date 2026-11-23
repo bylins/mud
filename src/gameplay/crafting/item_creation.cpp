@@ -28,6 +28,7 @@
 #include "gameplay/core/constants.h"
 #include "engine/observability/metrics.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/magic/magic_utils.h"
 
 #include <cmath>
 #include <set>
@@ -1707,6 +1708,13 @@ int MakeRecept::make(CharData *ch) {
 			// potency, replacing the legacy val[0] = caster level.
 			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerSkill, std::max(1, GetSkill(ch, skill)));
 			obj->SetPotionValueKey(ObjVal::EValueKey::kMakerStat, GetRealBaseStat(ch, EBaseStat::kInt));
+			// Like a potion brewed by an im-recipe: the brew luck is drawn once and frozen, so every
+			// quaff is the same, and the item is marked transformed, so an olc edit of the prototype
+			// does not overwrite the maker's values.
+			if (obj->get_type() == EObjType::kPotion) {
+				obj->SetPotionValueKey(ObjVal::EValueKey::kPotionBrewRoll, RollPotionBrewLuck());
+			}
+			obj->set_extra_flag(EObjFlag::kTransformed);
 			break;
 		case EObjType::kWeapon:
 			// Считаем число xdy
