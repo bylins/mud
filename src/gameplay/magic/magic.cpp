@@ -105,13 +105,19 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 }
 
 // <blocking>: true if the target carries ANY of the listed flags/affects
-// (NPC mob flags matter only for NPCs; affect flags via AFF_FLAGGED for any target).
+// (NPC mob flags matter only for NPCs; extra flags are runtime marks from CharData::Temporary;
+// affect flags via AFF_FLAGGED for any target).
 bool TargetIsBlocked(CharData *victim, const talents_actions::FlagCondition &cond) {
 	if (victim->IsNpc()) {
 		for (const auto flag : cond.mob_flags) {
 			if (victim->IsFlagged(flag)) {
 				return true;
 			}
+		}
+	}
+	for (const auto flag : cond.extra_flags) {
+		if (victim->Temporary.get(flag)) {
+			return true;
 		}
 	}
 	for (const auto aff : cond.affect_flags) {
@@ -132,10 +138,16 @@ bool TargetIsBlocked(CharData *victim, const talents_actions::FlagCondition &con
 }
 
 // <required>: true only if the target has ALL the listed flags/affects
-// (a required mob flag implies the target is an NPC carrying it).
+// (a required mob flag implies the target is an NPC carrying it; extra flags come from
+// CharData::Temporary and are set by code only).
 bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCondition &cond) {
 	for (const auto flag : cond.mob_flags) {
 		if (!victim->IsNpc() || !victim->IsFlagged(flag)) {
+			return false;
+		}
+	}
+	for (const auto flag : cond.extra_flags) {
+		if (!victim->Temporary.get(flag)) {
 			return false;
 		}
 	}

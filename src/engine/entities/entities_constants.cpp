@@ -626,7 +626,6 @@ void init_EMobFlag_ITEM_NAMES() {
 	EMobFlag_name_by_value[EMobFlag::kOpensDoor] = "kOpensDoor";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresNoMob] = "kIgnoresNoMob";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresPeaceRoom] = "kIgnoresPeaceRoom";
-	EMobFlag_name_by_value[EMobFlag::kResurrected] = "kResurrected";
 	EMobFlag_name_by_value[EMobFlag::kNoResurrection] = "kNoResurrection";
 	EMobFlag_name_by_value[EMobFlag::kMobAwake] = "kMobAwake";
 	EMobFlag_name_by_value[EMobFlag::kIgnoresFormation] = "kIgnoresFormation";
@@ -758,6 +757,35 @@ EWearFlag WearFlagByEquipPos(const std::string &equip_pos) {
 	return it != kWearByEquipPos.end() ? it->second : EWearFlag::kUndefined;
 }
 
+EWearFlag WearFlagByEquipPos(EEquipPos pos) {
+	// switch без default: добавят слот в EEquipPos -- не соберётся, пока не скажут, какой флаг
+	// надевания ему нужен (или что никакой).
+	switch (pos) {
+		case EEquipPos::kLight:      return EWearFlag::kUndefined;
+		case EEquipPos::kFingerR:
+		case EEquipPos::kFingerL:    return EWearFlag::kFinger;
+		case EEquipPos::kNeck:       return EWearFlag::kNeck;
+		case EEquipPos::kChest:      return EWearFlag::kUndefined;
+		case EEquipPos::kBody:       return EWearFlag::kBody;
+		case EEquipPos::kHead:       return EWearFlag::kHead;
+		case EEquipPos::kLegs:       return EWearFlag::kLegs;
+		case EEquipPos::kFeet:       return EWearFlag::kFeet;
+		case EEquipPos::kHands:      return EWearFlag::kHands;
+		case EEquipPos::kArms:       return EWearFlag::kArms;
+		case EEquipPos::kShield:     return EWearFlag::kShield;
+		case EEquipPos::kShoulders:  return EWearFlag::kShoulders;
+		case EEquipPos::kWaist:      return EWearFlag::kWaist;
+		case EEquipPos::kWristR:
+		case EEquipPos::kWristL:     return EWearFlag::kWrist;
+		case EEquipPos::kWield:      return EWearFlag::kWield;
+		case EEquipPos::kHold:       return EWearFlag::kHold;
+		case EEquipPos::kBoths:      return EWearFlag::kBoth;
+		case EEquipPos::kQuiver:     return EWearFlag::kQuiver;
+		case EEquipPos::kNumEquipPos: break;
+	}
+	return EWearFlag::kUndefined;
+}
+
 std::vector<EWearFlag> ParseWearPositions(const std::string &val) {
 	std::vector<EWearFlag> out;
 	std::stringstream ss(val);
@@ -799,5 +827,40 @@ const char *GetIngredientClassName(EIngredientClass type) {
 	return "";
 }
 
+namespace {
+
+// switch без default: допишут значение в ECharExtraFlag -- не соберётся, пока не допишут имя.
+const char *NameOfCharExtraFlag(ECharExtraFlag flag) {
+	switch (flag) {
+		case ECharExtraFlag::kFailHide:        return "!спрятался";
+		case ECharExtraFlag::kFailSneak:       return "!подкрался";
+		case ECharExtraFlag::kFailCamouflage:  return "!замаскировался";
+		case ECharExtraFlag::kGrpKillCount:    return "учтен в добивании";
+		case ECharExtraFlag::kToldHide:        return "сказано:скрытность";
+		case ECharExtraFlag::kToldSneak:       return "сказано:подкрадывание";
+		case ECharExtraFlag::kToldCamouflage:  return "сказано:маскировка";
+		case ECharExtraFlag::kGoesToHelp:      return "идет на помощь";
+		case ECharExtraFlag::kResurrected:     return "оживлен";
+		case ECharExtraFlag::kCount:           break;
+	}
+	return "UNDEF";
+}
+
+}  // namespace
+
+std::string NamesOfCharExtraFlags(const BitsetFlags<ECharExtraFlag> &flags) {
+	std::string result;
+	for (int i = 0; i < static_cast<int>(ECharExtraFlag::kCount); ++i) {
+		const auto flag = static_cast<ECharExtraFlag>(i);
+		if (!flags.get(flag)) {
+			continue;
+		}
+		if (!result.empty()) {
+			result += ",";
+		}
+		result += NameOfCharExtraFlag(flag);
+	}
+	return result;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1423,7 +1423,6 @@
     - kNoHelp
     - kIgnoresNoMob
     - kIgnoresPeaceRoom
-    - kResurrected
     - UNUSED_76
   affect_flags:
     - kDetectAlign

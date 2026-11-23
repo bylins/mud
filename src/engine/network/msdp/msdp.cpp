@@ -6,7 +6,32 @@
 #include "msdp_constants.h"
 #include "msdp_senders.h"
 
+#include <algorithm>
+#include <cctype>
+#include <string>
+
 namespace msdp {
+namespace {
+// Имя переменной приходит от клиента, и в лог его класть как есть нельзя: там может оказаться
+// что угодно вплоть до управляющих байтов и килобайта мусора. Оставляем печатные знаки, остальное
+// заменяем точкой, длину режем -- в лог нужно ровно столько, чтобы узнать имя.
+std::string SafeVariableName(const std::string &name) {
+	const static size_t kMaxLoggedLength = 32;
+
+	std::string result;
+	result.reserve(std::min(name.length(), kMaxLoggedLength));
+	for (const auto c : name) {
+		if (result.length() >= kMaxLoggedLength) {
+			result += "...";
+			break;
+		}
+		result += (isprint(static_cast<unsigned char>(c)) ? c : '.');
+	}
+
+	return result;
+}
+}   // namespace
+
 class ReporterFactory {
  public:
 	static AbstractReporter::shared_ptr create(const DescriptorData *descriptor, const std::string &name);
@@ -25,7 +50,11 @@ AbstractReporter::shared_ptr ReporterFactory::create(const DescriptorData *descr
 		return reporter->second(descriptor);
 	}
 
-	log("SYSERR: Undefined MSDP report requested.");
+	// Это не наша ошибка, а клиент, спросивший имя, которого мы не отдаем: свой список мы
+	// публикуем в REPORTABLE_VARIABLES, но универсальные плагины спрашивают и вслепую. Раньше
+	// строка шла как SYSERR и не называла имени -- по ней нельзя было ни понять, чего просят,
+	// ни решить, стоит ли это имя заводить.
+	log("WARNING: MSDP report requested for unknown variable '%s'.", SafeVariableName(name).c_str());
 	return nullptr;
 }
 
@@ -38,7 +67,25 @@ const Variable::shared_ptr &ReporterFactory::reportable_variables() {
 		std::make_shared<StringValue>(constants::MAX_HIT),
 		std::make_shared<StringValue>(constants::MAX_MOVE),
 		std::make_shared<StringValue>(constants::STATE),
-		std::make_shared<StringValue>(constants::GROUP)
+		std::make_shared<StringValue>(constants::GROUP),
+		// Клиент, который читает этот список, увидит и принятые имена -- иначе он про них не
+		// узнает и будет просить вслепую, как сейчас.
+		std::make_shared<StringValue>(constants::HEALTH),
+		std::make_shared<StringValue>(constants::HEALTH_MAX),
+		std::make_shared<StringValue>(constants::MOVEMENT),
+		std::make_shared<StringValue>(constants::MOVEMENT_MAX),
+		std::make_shared<StringValue>(constants::MANA),
+		std::make_shared<StringValue>(constants::MANA_MAX),
+		std::make_shared<StringValue>(constants::CHARACTER_NAME),
+		std::make_shared<StringValue>(constants::SERVER_ID),
+		std::make_shared<StringValue>(constants::SERVER_TIME),
+		std::make_shared<StringValue>(constants::WORLD_TIME),
+		std::make_shared<StringValue>(constants::ALIGNMENT),
+		std::make_shared<StringValue>(constants::EXPERIENCE_TNL),
+		std::make_shared<StringValue>(constants::OPPONENT_NAME),
+		std::make_shared<StringValue>(constants::OPPONENT_LEVEL),
+		std::make_shared<StringValue>(constants::OPPONENT_HEALTH),
+		std::make_shared<StringValue>(constants::OPPONENT_HEALTH_MAX)
 	};
 
 	const static Value::shared_ptr
@@ -68,7 +115,42 @@ const ReporterFactory::handlers_t &ReporterFactory::handlers() {
 														   {constants::STATE,
 															std::bind(StateReporter::create, std::placeholders::_1)},
 														   {constants::GROUP,
-															std::bind(GroupReporter::create, std::placeholders::_1)}};
+															std::bind(GroupReporter::create, std::placeholders::_1)},
+														   // Принятые в MSDP имена рядом с нашими
+														   // историческими: по старым уже работают клиенты
+														   // игроков, новые знает сторонний клиент.
+														   {constants::HEALTH,
+															std::bind(HealthReporter::create, std::placeholders::_1)},
+														   {constants::HEALTH_MAX,
+															std::bind(HealthMaxReporter::create, std::placeholders::_1)},
+														   {constants::MOVEMENT,
+															std::bind(MovementReporter::create, std::placeholders::_1)},
+														   {constants::MOVEMENT_MAX,
+															std::bind(MovementMaxReporter::create, std::placeholders::_1)},
+														   {constants::MANA,
+															std::bind(ManaReporter::create, std::placeholders::_1)},
+														   {constants::MANA_MAX,
+															std::bind(ManaMaxReporter::create, std::placeholders::_1)},
+														   {constants::CHARACTER_NAME,
+															std::bind(CharacterNameReporter::create, std::placeholders::_1)},
+														   {constants::SERVER_ID,
+															std::bind(ServerIdReporter::create, std::placeholders::_1)},
+														   {constants::SERVER_TIME,
+															std::bind(ServerTimeReporter::create, std::placeholders::_1)},
+														   {constants::WORLD_TIME,
+															std::bind(WorldTimeReporter::create, std::placeholders::_1)},
+														   {constants::ALIGNMENT,
+															std::bind(AlignmentReporter::create, std::placeholders::_1)},
+														   {constants::EXPERIENCE_TNL,
+															std::bind(ExperienceTnlReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_NAME,
+															std::bind(OpponentNameReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_LEVEL,
+															std::bind(OpponentLevelReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_HEALTH,
+															std::bind(OpponentHealthReporter::create, std::placeholders::_1)},
+														   {constants::OPPONENT_HEALTH_MAX,
+															std::bind(OpponentHealthMaxReporter::create, std::placeholders::_1)}};
 
 	return s_handlers;
 }

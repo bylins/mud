@@ -1113,8 +1113,6 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 			(obj->get_affected(k).location != EApply::kSavingStability) &&
 			(obj->get_affected(k).location != EApply::kSavingReflex))) {
 			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
-			log("SYSERROR: negative weight=%f, ObjVnum=%d",
-				weight, GET_OBJ_VNUM(obj));
 			total_weight += pow(weight, SQRT_MOD);
 		}
 			// савесы которые с минусом должны тогда понижать вес если в +

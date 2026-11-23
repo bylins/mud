@@ -629,7 +629,6 @@
     - kSentinel
     - kNpc
     - kCorpse
-    - kResurrected
   affect_flags:
     - kDetectLife
     - kInfravision

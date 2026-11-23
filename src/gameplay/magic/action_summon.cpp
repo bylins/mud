@@ -39,7 +39,7 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 	mob->player_data.PNames[grammar::ECase::kPre] = fmt::format("умертвии {}", GET_PAD(mob, 1));
 	mob->player_data.PNames[grammar::ECase::kGen] = fmt::format("умертвия {}", GET_PAD(mob, 1));
 	mob->set_sex(EGender::kNeutral);
-	mob->SetFlag(EMobFlag::kResurrected);
+	mob->Temporary.set(ECharExtraFlag::kResurrected);
 	mob->SetFlag(EMobFlag::kUndead);
 	if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
 		GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;

@@ -4582,7 +4582,8 @@
 			<action>
 				<target_conditions>
 					<blocking>
-						<mob_flags val="kHelper|kMounting|kClone|kResurrected" />
+						<mob_flags val="kHelper|kMounting|kClone" />
+						<extra_flags val="kResurrected" />
 					</blocking>
 					<required>
 						<mob_flags val="kCorpse" />

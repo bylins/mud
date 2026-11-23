@@ -189,7 +189,8 @@ static std::unordered_map<std::string, Bitvector> mob_action_flag_map = {
 	{"kOpensDoor", EMobFlag::kOpensDoor},
 	{"kIgnoresNoMob", EMobFlag::kIgnoresNoMob},
 	{"kIgnoresPeaceRoom", EMobFlag::kIgnoresPeaceRoom},
-	{"kResurrected", EMobFlag::kResurrected},
+	// kResurrected здесь нет намеренно: метка рантаймовая (ECharExtraFlag), из данных мира
+	// не читается. Старое имя в базе мира просто игнорируется.
 	{"kGreatHelper", EMobFlag::kGreatHelper},
 	{"kNoResurrection", EMobFlag::kNoResurrection},
 	{"kMobAwake", EMobFlag::kMobAwake},

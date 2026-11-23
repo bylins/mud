@@ -204,7 +204,13 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	}
 
 	if (GET_EQ(ch, pos)) {
-		log("SYSERR: Char is already equipped: %s, %s", GET_NAME(ch), obj->get_short_description().c_str());
+		// Раньше строка называла только бойца и вещь, которую не удалось надеть. По такой записи
+		// нельзя ни понять, какой слот занят, ни узнать, что в нем уже лежит, -- а именно это и
+		// отличает ошибку в ресете зоны от ошибки в самой вещи. Слот и занявшую его вещь пишем
+		// рядом, иначе разбор каждого такого случая начинается с чтения исходников.
+		log("SYSERR: Char is already equipped: %s, %s (слот %d занят: %s)",
+			GET_NAME(ch), obj->get_short_description().c_str(),
+			pos, GET_EQ(ch, pos)->get_short_description().c_str());
 		return;
 	}
 	//if (obj->carried_by) {

@@ -2093,8 +2093,13 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 	if (!zone_data.cmd) {
 		return;
 	}
+	// Номер команды нужен уже здесь: LogZoneError печатает его как line, а заполнялся он
+	// раньше только в ZoneReset::Reset -- поэтому все жалобы этого прохода уходили в лог
+	// с "line 0" и найти команду по ним было нельзя.
+	MobVnum last_mob = -1;
 	for (cmd_no = 0; zone_data.cmd[cmd_no].command != 'S'; cmd_no++) {
 		auto &reset_cmd = zone_data.cmd[cmd_no];
+		reset_cmd.line = cmd_no + 1;
 		a = b = c = 0;
 		olda = reset_cmd.arg1;
 		oldb = reset_cmd.arg2;
@@ -2114,6 +2119,10 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 						mob_index[reset_cmd.arg1].stored = reset_cmd.arg2;
 					}
 					c = reset_cmd.arg3 = GetRoomRnum(reset_cmd.arg3);
+					// Команды G и E своей цели не называют -- они грузят последнему
+					// загруженному мобу. Запоминаем его внум, чтобы жалоба по E говорила,
+					// на кого вещь надевали. olda -- внум до перевода в рнум.
+					last_mob = olda;
 				}
 				break;
 			case 'F': a = reset_cmd.arg1 = GetRoomRnum(reset_cmd.arg1);
@@ -2154,6 +2163,22 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 			sprintf(local_buf, "Invalid vnum %d, cmd disabled", (a < 0) ? olda : ((b < 0) ? oldb : oldc));
 			LogZoneError(zone_data, cmd_no, local_buf);
 			reset_cmd.command = '*';
+		} else if (reset_cmd.command == 'E') {
+			// Слот у команды E задан числом, и указать не тот легко: EquipObj флаги надевания не
+			// смотрит вовсе, поэтому платье молча оказывается на плечах. Видно это становится
+			// только когда два предмета попадают в один слот и сталкиваются там
+			// ("Char is already equipped"), как было у сестрицы-мавки в 422. Говорим о таком
+			// один раз на буте; надевать продолжаем как раньше -- правка данных за автором зоны.
+			const auto &proto = obj_proto[reset_cmd.arg1];
+			const bool pos_in_range = reset_cmd.arg3 >= 0 && reset_cmd.arg3 < EEquipPos::kNumEquipPos;
+			const auto required = pos_in_range
+								  ? WearFlagByEquipPos(static_cast<EEquipPos>(reset_cmd.arg3))
+								  : EWearFlag::kUndefined;
+			if (proto && required != EWearFlag::kUndefined && !CAN_WEAR(proto.get(), required)) {
+				sprintf(local_buf, "obj #%d on mob #%d is not worn in slot %d, its wear flags forbid it",
+						proto->get_vnum(), last_mob, reset_cmd.arg3);
+				LogZoneError(zone_data, cmd_no, local_buf);
+			}
 		}
 	}
 }
@@ -2986,7 +3011,7 @@ bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 
 	utils::CExecutionTimer extract_timer;
 	for (const auto &mob : mobs) {
-		if (!mob->IsFlagged(EMobFlag::kResurrected)) {
+		if (!mob->Temporary.get(ECharExtraFlag::kResurrected)) {
 			ExtractCharFromWorld(mob.get(), false, true);
 			extracted = true;
 		}
@@ -3549,7 +3574,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 
 	for (const auto &ch : world[r_num]->people) {
 		if (m_num == ch->get_rnum()
-			&& !ch->IsFlagged(EMobFlag::kResurrected)) {
+			&& !ch->Temporary.get(ECharExtraFlag::kResurrected)) {
 			count++;
 		}
 	}

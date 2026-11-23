@@ -1189,6 +1189,11 @@ void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::Attack
 	}
 	ProcessIronWindHits(ch, weapon);
 	ProcessMultyShotHits(ch, victim, type, weapon);
+	// Цель могли добить доп.атаки выше: victim тут -- указатель, взятый до них, и по
+	// выбывшему из мира бойцу главный удар уже некому нанести.
+	if (!victim || victim->in_room == kNowhere) {
+		return;
+	}
 	hit(ch, victim, type, weapon);
 }
 

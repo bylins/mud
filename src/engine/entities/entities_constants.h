@@ -161,8 +161,18 @@ enum class ECharExtraFlag {
 	// на три клетки уходит полминуты -- дольше самой драки. Снимается, когда помогать
 	// стало некому или когда драка уже в его клетке.
 	kGoesToHelp = 7,
+	// Труп, поднятый заклинанием оживления (kResurrection): моб грузится по внуму исходного
+	// и потому отличим от обычного умертвия только этой меткой. Ставит её исключительно код
+	// (action_summon.cpp), в прототипе мира её быть не может -- поэтому флаг и рантаймовый.
+	kResurrected = 8,
 	kCount               // число флагов (терминальный счётчик для BitsetFlags)
 };
+
+// Русские имена рантаймовых меток для вывода богу (stat), через запятую; на пустом наборе --
+// пустая строка, слово подставляет вызывающий. Привязаны к enum switch'ем без default:
+// новая метка без имени не соберётся. Плоского массива const char* с индексом по значению тут
+// намеренно нет -- такой массив живёт до первого добавленного значения (CONTRIBUTING.md).
+[[nodiscard]] std::string NamesOfCharExtraFlags(const BitsetFlags<ECharExtraFlag> &flags);
 
 /*
  * ========================================================================================
@@ -353,7 +363,7 @@ enum EGf : Bitvector {
  * Mobile flags: used by char_data.char_specials.act
  */
 enum EMobFlag : Bitvector {
-	kSpec = 1 << 0,            // Mob has a callable spec-proc  //
+	kSpec = 1 << 0,            // Legacy: specials come from cfg/specials.xml, nothing reads this //
 	kSentinel = 1 << 1,        // Mob should not move     //
 	kScavenger = 1 << 2,    // Mob picks up stuff on the ground //
 	kNpc = 1 << 3,            // (R) Automatically set on all Mobs   //
@@ -427,7 +437,9 @@ enum EMobFlag : Bitvector {
 	kOpensDoor = kIntTwo | (1 << 10),
 	kIgnoresNoMob = kIntTwo | (1 << 11),
 	kIgnoresPeaceRoom = kIntTwo | (1 << 12),
-	kResurrected = kIntTwo | (1 << 13), // !поднять труп! или !оживить труп! только програмно//
+// Бит 13 освободился: kResurrected переехал в ECharExtraFlag, потому что ставит его только
+// код (оживление трупа) и в прототипе мира ему места нет. Занимать бит нельзя по той же
+// причине, что и соседние: в мире он выставлен на 17 мобах, пока их не вычистят.
 // Биты 14-19 этой плоскости не свободны, хотя имени за ними нет: они выставлены на живых
 // мобах (от 6 до 128 мобов на бит), остались от снятых когда-то флагов и ждут чистки в
 // мире. Пока не вычищены -- занимать их нельзя, флаг заработает сам собой на чужих мобах.
@@ -818,6 +830,10 @@ EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string &name);
 // TODO: these describe the equipment mechanic, not objects per se -- move them into
 //       gameplay/mechanics/equipment together with EEquipPos/EWearFlag when that module owns them.
 [[nodiscard]] EWearFlag WearFlagByEquipPos(const std::string &equip_pos);
+
+// То же по номеру слота. kUndefined означает «проверять нечем»: у kLight и kChest флага
+// надевания нет, предмет попадает туда не по wear_flags.
+[[nodiscard]] EWearFlag WearFlagByEquipPos(EEquipPos pos);
 // Parse a '|'-separated list of equipment-position tokens (e.g. "kFingerR|kFingerL") into the
 // distinct wear flags they map to. Unknown tokens are logged and skipped.
 [[nodiscard]] std::vector<EWearFlag> ParseWearPositions(const std::string &val);

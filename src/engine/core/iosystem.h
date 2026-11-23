@@ -31,6 +31,13 @@ struct TextBlocksQueue {
 extern int buf_switches;
 extern int buf_largecount;
 extern int buf_overflows;
+// Сколько раз сокет не взял вывод целиком и остаток лёг в хвост дескриптора, и сколько раз
+// хвост дорос до предела и связь закрыли. Первое -- мера того, как часто клиенты тормозят,
+// второе должно оставаться нулём: ненулевое значит, что хвосты не сливаются.
+extern int buf_deferred;
+extern int buf_stalled;
+// Сумма неотправленных хвостов по всем дескрипторам сейчас.
+size_t PendingOutputTotal();
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
 

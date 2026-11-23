@@ -226,13 +226,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		return;
 	}
 
-	// issue.npc-races: every resurrected mob must also be marked undead (kResurrected => kUndead).
-	// A kResurrected mob without kUndead means a game designer set the flag by mistake -- log it.
-	if (ch->IsFlagged(EMobFlag::kResurrected) && !ch->IsFlagged(EMobFlag::kUndead)) {
-		log("SYSERR: mob VNUM %d has kResurrected without kUndead (designer error: resurrected mobs must be undead).",
-			GET_MOB_VNUM(ch));
-	}
-
 	std::string name = GET_NAME(ch);
 	DescriptorData *t_desc;
 	utils::CExecutionTimer timer;
@@ -317,7 +310,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		// а на нём держатся резеты зон: оживление того же зонного босса ломало бы его респаун.
 		if ((ch->get_rnum() >= 0)
 			&& !ch->IsUncountedInstance()
-			&& !ch->IsFlagged(EMobFlag::kResurrected)) {
+			&& !ch->Temporary.get(ECharExtraFlag::kResurrected)) {
 			mob_index[ch->get_rnum()].total_online--;
 		}
 	}
