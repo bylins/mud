@@ -1,4 +1,7 @@
 #include "fight_hit.h"
+
+#include <fmt/format.h>
+
 #include "utils/logger.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
@@ -925,6 +928,20 @@ void EmitMissEvent(CharData *ch, CharData *victim, const char *reason) {
 	observability::EmitToAllSinks(ev);
 }
 
+// "имя #внум" для моба и просто имя для игрока. Номер читается только у NPC: GET_MOB_VNUM на
+// игроке лезет в mob_index по отрицательному индексу (то же предостережение стоит ниже, в расчете
+// предела damroll для поднятых).
+std::string DescribeFighter(CharData *ch) {
+	if (!ch) {
+		return "отсутствует";
+	}
+	const char *name = GET_NAME(ch) ? GET_NAME(ch) : "безымянный";
+	if (ch->IsNpc()) {
+		return fmt::format("{} #{}", name, GET_MOB_VNUM(ch));
+	}
+	return name;
+}
+
 }  // namespace
 
 void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
@@ -932,9 +949,18 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 	if (!ch || ch->purged() || victim->purged()) {
-		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+		// Удаленный бьющий и жертва, умершая в этом же пульсе, -- разные беды, а строка была на
+		// обе одна и не называла никого. Жертва тут обычное дело: в групповом бою первый удар
+		// убивает, остальные замахи того же пульса приходят в пустоту, и возврат правильный.
+		// Удаленный бьющий -- настоящая ошибка, кто-то держит указатель на мертвого. Пока в
+		// строке не было ни имен, ни умения, одно пряталось за потоком другого: замах двуручника
+		// по убитому давал под две с половиной тысячи строк в сутки и перекрывал все остальное
+		// (#4242). Начало строки оставлено прежним, чтобы не ломать уже настроенные выборки.
+		log("SYSERROR: ch = %s, victim = %s, бьющий %s, жертва %s, умение %s (%s:%d)",
 			ch ? (ch->purged() ? "purged" : "true") : "false",
-			victim->purged() ? "purged" : "true", __FILE__, __LINE__);
+			victim->purged() ? "purged" : "true",
+			DescribeFighter(ch).c_str(), DescribeFighter(victim).c_str(),
+			MUD::Skill(type).GetName(), __FILE__, __LINE__);
 		return;
 	}
 
