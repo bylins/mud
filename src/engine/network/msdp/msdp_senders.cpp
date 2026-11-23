@@ -1,5 +1,6 @@
 #include "msdp_senders.h"
 
+#include "engine/network/descriptor_data.h"
 #include "engine/network/telnet.h"
 #include "msdp_parser.h"
 #include "msdp_constants.h"
@@ -38,7 +39,11 @@ ReportSender::ReportSender(DescriptorData *descriptor) : m_descriptor(descriptor
 
 void ReportSender::send(const AbstractReporter::shared_ptr &reporter) {
 	if (!m_descriptor->character) {
-		log("SYSERR: Requested MSDP report for descriptor without character.");
+		// Клиент спросил переменную до того, как игрок выбрал персонажа: MSDP он согласовывает
+		// сразу после коннекта, а по SEND мы отвечаем без оглядки на состояние соединения. Наш
+		// собственный код сюда с пустым персонажем не приходит -- msdp_report_changed_vars
+		// выходит раньше. Так что это не ошибка сервера, а ранний вопрос клиента.
+		log("WARNING: MSDP report requested for descriptor %d without character.", m_descriptor->desc_num);
 		return;
 	}
 
