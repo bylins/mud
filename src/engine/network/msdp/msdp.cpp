@@ -6,7 +6,32 @@
 #include "msdp_constants.h"
 #include "msdp_senders.h"
 
+#include <algorithm>
+#include <cctype>
+#include <string>
+
 namespace msdp {
+namespace {
+// Имя переменной приходит от клиента, и в лог его класть как есть нельзя: там может оказаться
+// что угодно вплоть до управляющих байтов и килобайта мусора. Оставляем печатные знаки, остальное
+// заменяем точкой, длину режем -- в лог нужно ровно столько, чтобы узнать имя.
+std::string SafeVariableName(const std::string &name) {
+	const static size_t kMaxLoggedLength = 32;
+
+	std::string result;
+	result.reserve(std::min(name.length(), kMaxLoggedLength));
+	for (const auto c : name) {
+		if (result.length() >= kMaxLoggedLength) {
+			result += "...";
+			break;
+		}
+		result += (isprint(static_cast<unsigned char>(c)) ? c : '.');
+	}
+
+	return result;
+}
+}   // namespace
+
 class ReporterFactory {
  public:
 	static AbstractReporter::shared_ptr create(const DescriptorData *descriptor, const std::string &name);
@@ -25,7 +50,11 @@ AbstractReporter::shared_ptr ReporterFactory::create(const DescriptorData *descr
 		return reporter->second(descriptor);
 	}
 
-	log("SYSERR: Undefined MSDP report requested.");
+	// Это не наша ошибка, а клиент, спросивший имя, которого мы не отдаем: свой список мы
+	// публикуем в REPORTABLE_VARIABLES, но универсальные плагины спрашивают и вслепую. Раньше
+	// строка шла как SYSERR и не называла имени -- по ней нельзя было ни понять, чего просят,
+	// ни решить, стоит ли это имя заводить.
+	log("WARNING: MSDP report requested for unknown variable '%s'.", SafeVariableName(name).c_str());
 	return nullptr;
 }
 
