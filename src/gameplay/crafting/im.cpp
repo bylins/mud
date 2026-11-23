@@ -1313,16 +1313,19 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
+	// issue #3638: уровня заклинания у магпредметов больше нет (сила -- умение мастера), поэтому
+	// уровень прототипа всегда 0; вес этого члена задается k0 рецепта. Заряды жезла/посоха лежат
+	// в kMaxCharges, сырой val[] после миграции обнулен.
 	switch (obj_proto[tgt]->get_type()) {
 		case EObjType::kScroll:
-		case EObjType::kPotion: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
+		case EObjType::kPotion: param[0] = 0;    // уровень
 			param[1] = 1;    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
 
 		case EObjType::kWand:
-		case EObjType::kStaff: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
-			param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);    // количество
+		case EObjType::kStaff: param[0] = 0;    // уровень
+			param[1] = std::max(0, obj_proto[tgt]->GetPotionValueKey(ObjVal::EValueKey::kMaxCharges));    // количество
 			param[2] = obj_proto[tgt]->get_timer();    // таймер
 			break;
 
