@@ -904,43 +904,43 @@
 	<affect id="kPietas" />
 	<!-- issue #2689: милость того, кому принесена жертва или вознесена молитва. Снять ее нельзя (нет
 	     kAfDispellable). Сила C = набожность (kReligion) и обаяние, см. заклинания kOffering/kPrayer
-	     в spells.xml: новичок с набожностью 10 и средним обаянием получает C около 0.5, то есть столько
-	     же, сколько давала прежняя таблица (сила +1, попадание +2, восстановление +50% и т.п.); дальше
-	     растет до потолка cap. Ярило дает инфразрение -- его кладет само заклинание (kInfravision). -->
+	     в spells.xml: C = набожность/100 + (обаяние - 10) * 0.03. Новичок (набожность 10, обаяние 14)
+	     получает C около 0.2 (сила +1, попадание +1, восстановление +22%); каждые 100 набожности дают
+	     еще +1 к C. Потолка cap нет: милость растет вместе с набожностью, в том числе с перевоплощениями. Ярило дает инфразрение -- его кладет само заклинание (kInfravision). -->
 	<affect id="kYariloFavor" buff="Y" />
 	<affect id="kMakoshFavor" buff="Y">
 		<apply location="kHpRegen">
-			<modifier min="0" beta="100" factor="1" cap="150" />
+			<modifier min="0" beta="100" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kPerunFavor" buff="Y">
 		<apply location="kStr">
-			<modifier min="0" beta="2" factor="1" cap="3" />
+			<modifier min="0" beta="2" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kVelesFavor" buff="Y">
 		<apply location="kDex">
-			<modifier min="0" beta="2" factor="1" cap="3" />
+			<modifier min="0" beta="2" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kTheotokosGrace" buff="Y">
 		<apply location="kMorale">
-			<modifier min="0" beta="10" factor="1" cap="15" />
+			<modifier min="0" beta="10" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kNicholasGrace" buff="Y">
 		<apply location="kInt">
-			<modifier min="0" beta="2" factor="1" cap="3" />
+			<modifier min="0" beta="2" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kElijahGrace" buff="Y">
 		<apply location="kHitroll">
-			<modifier min="0" beta="4" factor="1" cap="6" />
+			<modifier min="0" beta="4" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kGeorgeGrace" buff="Y">
 		<apply location="kDamroll">
-			<modifier min="0" beta="2" factor="1" cap="3" />
+			<modifier min="0" beta="2" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kEvade">

@@ -13,6 +13,7 @@ const std::string &NAME_BY_ITEM<ESkillFlag>(const ESkillFlag item) {
 	static const std::string kTrainInPeaceful{"kTrainInPeaceful"};
 	static const std::string kTrainInHouse{"kTrainInHouse"};
 	static const std::string kObligatory{"kObligatory"};
+	static const std::string kKeepOnRemort{"kKeepOnRemort"};
 	static const std::string kUnknown{"kUndefined"};
 	switch (item) {
 		case ESkillFlag::kSelfTrain: return kSelfTrain;
@@ -20,6 +21,7 @@ const std::string &NAME_BY_ITEM<ESkillFlag>(const ESkillFlag item) {
 		case ESkillFlag::kTrainInPeaceful: return kTrainInPeaceful;
 		case ESkillFlag::kTrainInHouse: return kTrainInHouse;
 		case ESkillFlag::kObligatory: return kObligatory;
+		case ESkillFlag::kKeepOnRemort: return kKeepOnRemort;
 		case ESkillFlag::kCount: break;
 	}
 	return kUnknown;

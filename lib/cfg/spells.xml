@@ -6804,8 +6804,9 @@
 	     Первое действие без выбора кладет метку kPietas/kPrayerful: пока она висит, снова молиться
 	     нельзя. Остальные действия -- те, кому молятся; choice -- их имена в дательном падеже, первое
 	     из них показывается игроку. Из них срабатывает одно -- то, кого назвал игрок; оно кладет
-	     милость (что она дает -- в affects.xml). Сила C -- от набожности (kReligion, растет от молитв
-	     и жертв) и обаяния; срок -- 12 часов, как и откат молитвы. -->
+	     милость (что она дает -- в affects.xml). Сила C -- в основном от набожности (kReligion, растет
+	     от молитв и жертв, при перевоплощении не сбрасывается), обаяние добавляет немного; срок --
+	     12 часов, как и откат молитвы. -->
 	<spell id="kOffering" element="kUndefined" mode="kService">
 		<name val="offering" />
 		<misc pos="kStand" violent="N" danger="0" />
@@ -6814,7 +6815,7 @@
 		<flags val="kMagAffects" />
 		<potency_roll>
 			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
-			<base_stat id="kCha" threshold="10" weight="10" />
+			<base_stat id="kCha" threshold="10" weight="3" />
 		</potency_roll>
 		<talent_actions>
 			<action>
@@ -6858,7 +6859,7 @@
 		<flags val="kMagAffects" />
 		<potency_roll>
 			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
-			<base_stat id="kCha" threshold="10" weight="10" />
+			<base_stat id="kCha" threshold="10" weight="3" />
 		</potency_roll>
 		<talent_actions>
 			<action>

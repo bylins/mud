@@ -183,7 +183,8 @@ TEST(ActionChoice, ShippedOfferingAndPrayer) {
 	EXPECT_EQ(names.size(), 8u);
 }
 
-// The favours and the markers cannot be dispelled.
+// The favours and the markers cannot be dispelled, and the favours have no cap: they keep growing with
+// piety and charisma.
 TEST(ActionChoice, ShippedFavoursUndispellable) {
 	const char *kFavours[] = {"kYariloFavor", "kMakoshFavor", "kPerunFavor", "kVelesFavor",
 							  "kTheotokosGrace", "kNicholasGrace", "kElijahGrace", "kGeorgeGrace",
@@ -196,8 +197,13 @@ TEST(ActionChoice, ShippedFavoursUndispellable) {
 				continue;
 			}
 			found = true;
-			if (affect.GoToChild("flags")) {
-				EXPECT_EQ(std::string(affect.GetValue("val")).find("kAfDispellable"), std::string::npos) << favour;
+			auto flags = affect;
+			if (flags.GoToChild("flags")) {
+				EXPECT_EQ(std::string(flags.GetValue("val")).find("kAfDispellable"), std::string::npos) << favour;
+			}
+			if (affect.GoToChild("apply") && affect.GoToChild("modifier")) {
+				const char *cap = affect.GetValue("cap");
+				EXPECT_TRUE(!cap || !*cap || std::string(cap) == "0") << favour;
 			}
 		}
 		EXPECT_TRUE(found) << favour;

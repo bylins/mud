@@ -54,7 +54,7 @@ RoomData MakeRoom(std::initializer_list<ERoomFlag> flags) {
 } // namespace
 
 const ESkillFlag kAllFlags[] = {ESkillFlag::kSelfTrain, ESkillFlag::kHidden, ESkillFlag::kTrainInPeaceful,
-								  ESkillFlag::kTrainInHouse, ESkillFlag::kObligatory};
+								  ESkillFlag::kTrainInHouse, ESkillFlag::kObligatory, ESkillFlag::kKeepOnRemort};
 
 TEST(SkillFlags, OffByDefault) {
 	const auto skill = ParseSkill("");
@@ -72,7 +72,7 @@ TEST(SkillFlags, NamesRoundTrip) {
 }
 
 TEST(SkillFlags, ParsedFromList) {
-	const auto skill = ParseSkill(R"(flags="kSelfTrain|kHidden|kTrainInPeaceful|kTrainInHouse|kObligatory")");
+	const auto skill = ParseSkill(R"(flags="kSelfTrain|kHidden|kTrainInPeaceful|kTrainInHouse|kObligatory|kKeepOnRemort")");
 	ASSERT_TRUE(skill);
 	for (const auto flag : kAllFlags) {
 		EXPECT_TRUE(skill->IsFlagged(flag)) << NAME_BY_ITEM<ESkillFlag>(flag);
@@ -144,8 +144,9 @@ TEST(SkillTrainableInRoom, PeacefulHouseNeedsBothFlags) {
 	EXPECT_TRUE(IsSkillTrainableInRoom(MakeSkill(true, true), &room));
 }
 
-// The shipped config: piety (kReligion) is hidden, grows in temples (peaceful rooms) and is obligatory,
-// so every class must list it -- otherwise it is not saved for that class's characters.
+// The shipped config: piety (kReligion) is hidden, grows in temples (peaceful rooms), is obligatory (so
+// every class must list it -- otherwise it is not saved for that class's characters) and survives the
+// remort skill reset.
 TEST(SkillFlags, ShippedReligionSkill) {
 	parser_wrapper::DataNode doc(std::string("cfg/skills.xml"));
 	bool found = false;
@@ -160,6 +161,7 @@ TEST(SkillFlags, ShippedReligionSkill) {
 		EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kHidden));
 		EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kTrainInPeaceful));
 		EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kObligatory));
+		EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kKeepOnRemort));
 		found = true;
 	}
 	EXPECT_TRUE(found);
