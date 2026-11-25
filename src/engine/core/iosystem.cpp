@@ -788,6 +788,34 @@ static bool flush_pending_output(DescriptorData *t) {
 	return alive;
 }
 
+// Досылает один хвост и ничего больше: ни вывода, ни промпта. Нужна там, где нового вывода нет,
+// а хвост остался, -- полный process_output в этом случае печатал бы промпт заново.
+// Возвращает -1, если дескриптор дальше не жилец, и 0 иначе.
+int flush_output_tail(DescriptorData *t) {
+	if (t == nullptr) {
+		log("%s", fmt::format("SYSERR: NULL descriptor in {}() at {}:{}",
+							  __func__, __FILE__, __LINE__).c_str());
+		return -1;
+	}
+
+	if (!flush_pending_output(t)) {
+		return -1;    // сокет умер
+	}
+
+	if (t->pending_output.size() > kMaxPendingOutput) {
+		// Клиент не забирает так долго, что хвост перестал быть задержкой канала. Дальше
+		// копить нечестно: это чужая память и вывод, которого игрок всё равно не увидит.
+		buf_stalled++;
+		log("SYSERR: output stalled: %s [%s], неотправленный хвост %zu б -- закрываю соединение",
+			t->character ? GET_NAME(t->character) : "<без персонажа>",
+			*t->host ? t->host : "?",
+			t->pending_output.size());
+		return -1;
+	}
+
+	return 0;
+}
+
 // Кладёт готовый текст в хвост дескриптора. Сам в сокет не пишет: отправкой занимается
 // flush_pending_output, и только она решает, сколько ядро взяло.
 bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t buffer_size, int &written) {
@@ -930,18 +958,8 @@ int process_output(DescriptorData *t) {
 
 	written = result >= 0 ? result : -result;
 
-	if (!flush_pending_output(t)) {
-		return -1;    // сокет умер
-	}
-	if (t->pending_output.size() > kMaxPendingOutput) {
-		// Клиент не забирает так долго, что хвост перестал быть задержкой канала. Дальше
-		// копить нечестно: это чужая память и вывод, которого игрок всё равно не увидит.
-		buf_stalled++;
-		log("SYSERR: output stalled: %s [%s], неотправленный хвост %zu б -- закрываю соединение",
-			t->character ? GET_NAME(t->character) : "<без персонажа>",
-			*t->host ? t->host : "?",
-			t->pending_output.size());
-		return -1;
+	if (flush_output_tail(t) < 0) {
+		return -1;    // сокет умер или хвост перестал сливаться
 	}
 
 	/*

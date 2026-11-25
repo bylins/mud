@@ -52,6 +52,8 @@ void string_add(DescriptorData *d, char *str);
 int toggle_compression(DescriptorData *d);
 int process_input(DescriptorData *t);
 int process_output(DescriptorData *t);
+// Досылает только неотправленный хвост (pending_output), не трогая вывод и промпт.
+int flush_output_tail(DescriptorData *t);
 
 // Telnet options
 #define TELOPT_COMPRESS     85
