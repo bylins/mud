@@ -2169,12 +2169,25 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 			// только когда два предмета попадают в один слот и сталкиваются там
 			// ("Char is already equipped"), как было у сестрицы-мавки в 422. Говорим о таком
 			// один раз на буте; надевать продолжаем как раньше -- правка данных за автором зоны.
+			// У двух слотов своего флага надевания нет (WearFlagByEquipPos отдает на них
+			// kUndefined), и проверка молчала как раз там, куда можно засунуть что угодно:
+			// в нулевой слот зоны кладут ключи, воду и еду. Правила берем те же, по которым
+			// предмет туда попадает у игрока: в kLight пускают только kLightSource
+			// (do_equip.cpp, perform_wear), в kChest -- как и в kNeck, по флагу kNeck
+			// (auto_equip, obj_save.cpp).
 			const auto &proto = obj_proto[reset_cmd.arg1];
 			const bool pos_in_range = reset_cmd.arg3 >= 0 && reset_cmd.arg3 < EEquipPos::kNumEquipPos;
-			const auto required = pos_in_range
-								  ? WearFlagByEquipPos(static_cast<EEquipPos>(reset_cmd.arg3))
-								  : EWearFlag::kUndefined;
-			if (proto && required != EWearFlag::kUndefined && !CAN_WEAR(proto.get(), required)) {
+			const auto pos = pos_in_range
+							 ? static_cast<EEquipPos>(reset_cmd.arg3)
+							 : EEquipPos::kNumEquipPos;
+			const auto required = (pos == EEquipPos::kChest)
+								  ? EWearFlag::kNeck
+								  : (pos_in_range ? WearFlagByEquipPos(pos) : EWearFlag::kUndefined);
+			if (proto && pos == EEquipPos::kLight && proto->get_type() != EObjType::kLightSource) {
+				sprintf(local_buf, "obj #%d on mob #%d is not worn in slot %d, it is not a light source",
+						proto->get_vnum(), last_mob, reset_cmd.arg3);
+				LogZoneError(zone_data, cmd_no, local_buf);
+			} else if (proto && required != EWearFlag::kUndefined && !CAN_WEAR(proto.get(), required)) {
 				sprintf(local_buf, "obj #%d on mob #%d is not worn in slot %d, its wear flags forbid it",
 						proto->get_vnum(), last_mob, reset_cmd.arg3);
 				LogZoneError(zone_data, cmd_no, local_buf);
