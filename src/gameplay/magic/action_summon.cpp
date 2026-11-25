@@ -310,7 +310,7 @@ EStageResult SpellAnimateSkeleton(ActionContext &ctx) {
 	if (CanUseFeat(ch, EFeat::kBoneCommander) && !usable.empty()) {
 		// Вид называет игрок: это слово, дописанное после трупа. Сверяем со всеми падежными
 		// формами прототипа -- игрок пишет "свирепого", а в именительном стоит "свирепый".
-		const std::string &arg = ctx.cast_extra;
+		const std::string arg = ctx.cast_args.AfterTargetText();
 		std::string names;
 		const animate_dead::CreatureInfo *chosen = nullptr;
 		for (const auto *tier : usable) {

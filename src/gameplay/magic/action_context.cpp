@@ -143,7 +143,7 @@ bool ActionContext::SelectChoice() {
 	if (!has_choices) {
 		return true;
 	}
-	const auto *chosen = talents_actions::FindChoice(chain, cast_extra);
+	const auto *chosen = talents_actions::FindChoice(chain, cast_args.AfterTargetText());
 	if (!chosen) {
 		return false;
 	}

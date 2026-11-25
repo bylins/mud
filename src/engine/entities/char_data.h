@@ -15,6 +15,7 @@
 #include "entities_constants.h"
 #include "engine/structs/bitset_flags.h"
 #include "gameplay/magic/spells_constants.h"  // issue.flags-migration: EExtraAttackFlag for battle_affects
+#include "gameplay/magic/cast_args.h"
 #include "room_data.h"
 #include "obj_data.h"
 #include "engine/scripting/dg_scripts.h"
@@ -191,9 +192,9 @@ struct CastAttack {
 	CharData *tch{nullptr};
 	ObjData *tobj{nullptr};
 	RoomData *troom{nullptr};
-	// issue #4000: остаток строки каста. Каст в бою откладывается до своего раунда, и дописанное
-	// игроком слово (вид скелета) должно дожить до него, иначе заклинание сработает как без него.
-	std::string extra;
+	// issue #4000: слова каста после имени заклинания. Каст в бою откладывается до своего раунда, и
+	// дописанное игроком слово (вид скелета) должно дожить до него, иначе заклинание сработает как без него.
+	CastArgs args;
 };
 
 struct player_special_data_saved {
@@ -359,12 +360,12 @@ class CharData : public ProtectedCharData {
 	void SetEnemy(CharData *enemy);
 
 	void SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom,
-				 const std::string &extra = {});
+				 const CastArgs &args = {});
 	ESpell GetCastSpell() const;
 	ESpell GetCastSubst() const;
 	CharData *GetCastChar() const;
 	ObjData *GetCastObj() const;
-	[[nodiscard]] const std::string &GetCastExtra() const;
+	[[nodiscard]] const CastArgs &GetCastArgs() const;
 
 	bool purged() const;
 

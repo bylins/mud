@@ -568,9 +568,10 @@ the hit dealt damage. The object branch otherwise runs only when an object was e
 ```
 
 A spell whose actions carry `choice` lets the caster pick **one** of them by a
-word typed after the target (`ActionContext::cast_extra`; for `колдовать` that is
-the rest of the line after the target's name, a command such as `жертвовать`
-passes it itself). The cast runs every action **without** `choice` plus exactly
+word typed after the target (`ActionContext::cast_args`, a `CastArgs`: every
+word after the spell's name plus how many of them named the target; the choice is
+the words after the target, joined by spaces. A spell that ignores targets gets all
+of its words. A command such as `жертвовать` passes them itself). The cast runs every action **without** `choice` plus exactly
 the chosen one, in list order; the chain is narrowed in `CallMagic` right after
 the perk patches, so a patched chain is narrowed too, and the first remaining
 action is the entry action.

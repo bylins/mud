@@ -150,7 +150,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// action is selected by the recipient's name. Their strength comes from piety and charisma. Every
 	// offering trains piety, in temples too.
 	const auto result = CallMagic(ch, ch, nullptr, world[ch->in_room], spell, GetRealLevel(ch), -1.0f,
-		std::numeric_limits<double>::quiet_NaN(), -1, -1, recipient_name);
+		std::numeric_limits<double>::quiet_NaN(), -1, -1, CastArgs{{recipient_name}, 0});
 	ImproveSkill(ch, ESkill::kReligion, CastTookEffect(result), nullptr);
 }
 

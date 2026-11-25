@@ -13,6 +13,7 @@
 #include "spells_info.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/abilities/talents_actions.h"
+#include "gameplay/magic/cast_args.h"
 
 #include <cstdlib>
 #include <limits>
@@ -163,10 +164,10 @@ class ActionContext {
 	CharData *cvict{nullptr};
 	ObjData  *ovict{nullptr};
 	RoomData *rvict{nullptr};
-	// Остаток строки каста после цели -- то, что игрок дописал сверх имени цели
-	// ("оживить скелет труп свирепого" -> "свирепого"). Нужен заклинаниям, у которых цель не
-	// определяет результат; пустая строка у всех остальных.
-	std::string cast_extra;
+	// The words the caster typed after the spell's name and how many of them named the target
+	// ("оживить скелет труп свирепого" -> {"труп", "свирепого"}, 1). Read by spells whose result the
+	// target alone does not define (the skeleton kind, a selectable action); empty for item/mob casts.
+	CastArgs cast_args;
 
 	// --- Action cursor ---
 	// The context owns the walk over the spell's <action> list so a stage cannot
@@ -242,9 +243,10 @@ class ActionContext {
 	// the action walk; every other cast (and everyone without the perk) walks the spell unchanged.
 	void ApplyTalentPatches();
 	// issue #2689: narrow this cast's action chain to the actions without a choice plus the one
-	// cast_extra selects (<action choice=>). Call once in CallMagic, after ApplyTalentPatches, so a
+	// the words after the target select (cast_args, <action choice=>). Call once in CallMagic, after
+	// ApplyTalentPatches, so a
 	// perk-patched chain is narrowed too. True when there is nothing to choose or the choice matched;
-	// false when the chain has selectable actions and cast_extra selects none of them.
+	// false when the chain has selectable actions and those words select none of them.
 	[[nodiscard]] bool SelectChoice();
 	// The canonical words of this cast's selectable actions, in order (for the "choose one" message).
 	[[nodiscard]] std::vector<std::string> ChoiceNames() const;
@@ -349,10 +351,10 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		double fixed_noise_z = std::numeric_limits<double>::quiet_NaN(),  // not-NaN (brewed potion): frozen brew-luck z replayed at cast
 		int fixed_skill = -1,  // >=0 (potion): the MAKER skill used for buff DURATION
 		int dir = -1,  // dir>=0 + kMagRoom -> cast on EXIT(caster,dir) (door affect)
-		const std::string &cast_extra = {});   // остаток строки каста после цели
+		const CastArgs &cast_args = {});   // слова каста после имени заклинания
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst,
 		int dir = -1,  // dir>=0: kTarDirection cast on the exit in that direction
-		const std::string &cast_extra = {});   // остаток строки каста после цели
+		const CastArgs &cast_args = {});   // слова каста после имени заклинания
 // Run the bearer's affect actions whose trigger matches event.trigger, threading `event` onto the
 // context so manual_cast handlers can read its rich data. Called from the trigger fire-sites (hits in
 // fight_hit.cpp, kills in Damage::ProcessDeath, restorations). True if any ran.

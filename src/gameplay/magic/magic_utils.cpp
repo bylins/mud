@@ -520,7 +520,7 @@ ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, f
  * and NPC spells, the works -- all come through this function eventually.
  * This is also the entry point for non-spoken or unrestricted spells.
  */
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir, const std::string &cast_extra) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, double fixed_noise_z, int fixed_skill, int dir, const CastArgs &cast_args) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -595,7 +595,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
-	ctx.cast_extra = cast_extra;
+	ctx.cast_args = cast_args;
 	// If the caster holds a perk that patches this spell, build the per-cast modified action chain
 	// now, before dispatch.
 	ctx.ApplyTalentPatches();
@@ -694,10 +694,13 @@ static void SendNoTargetMsg(ESpell spell_id, CharData *ch) {
 }
 
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
-		int *dir) {
+		int *dir, bool *target_word_used) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
+	if (target_word_used) {
+		*target_word_used = false;
+	}
 
 	strcpy(cast_argument, t);
 	// A kTarDirection spell whose argument is a RU/EN direction targets that exit; *troom stays the
@@ -709,6 +712,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		if (d < 0) { d = search_block(t, dirs, false); }
 		if (d >= 0) {
 			if (dir) { *dir = d; }
+			if (target_word_used) { *target_word_used = true; }
 			return true;
 		}
 	}
@@ -717,6 +721,10 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	if (MUD::Spell(spell_id).AllowTarget(kTarIgnore))
 		return true;
 	else if (*t) {
+		// Every way out of this branch but the failure at the end has the word naming the target.
+		if (target_word_used) {
+			*target_word_used = true;
+		}
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
 			*tch = target_resolver::FindCharInRoom(ch, t);
 			if ((*tch != nullptr)) {
@@ -818,7 +826,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir, const std::string &cast_extra) {
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir, const CastArgs &cast_args) {
 	if (spell_id == ESpell::kUndefined) {
 		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
 		return ECastResult::kNotCast;
@@ -944,7 +952,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, std::numeric_limits<double>::quiet_NaN(), -1, dir, cast_extra));
+	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, std::numeric_limits<double>::quiet_NaN(), -1, dir, cast_args));
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {

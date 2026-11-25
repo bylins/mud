@@ -803,7 +803,7 @@ class Action {
 	std::string id_;
 	// issue #2689: <action choice="Перуну|Перун"> -- the words that select this action. A spell whose
 	// actions carry choices runs every action WITHOUT one plus exactly the one whose choice matches
-	// the cast's extra argument (ActionContext::cast_extra). The first word is the canonical one
+	// the caster's words after the target (ActionContext::cast_args). The first word is the canonical one
 	// ({choice} in messages, the list shown when nothing matched). Empty = always runs.
 	std::vector<std::string> choices_;
 	// Target gates (issue.cast-affect): the cast is refused on this action unless the target has

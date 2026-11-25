@@ -2,6 +2,7 @@
 // on them (kOffering, kPrayer).
 
 #include "gameplay/abilities/talents_actions.h"
+#include "gameplay/magic/cast_args.h"
 #include "utils/parser_wrapper.h"
 
 #include <gtest/gtest.h>
@@ -107,6 +108,30 @@ TEST(ActionChoice, FreeFindChoiceSkipsUnconditionalActions) {
 	}
 	EXPECT_EQ(talents_actions::FindChoice(chain, "велес"), &actions.list()[3]);
 	EXPECT_EQ(talents_actions::FindChoice({chain[0]}, "велес"), nullptr);
+}
+
+// CastArgs: the words after the spell's name; the ones after the target are the spell's own.
+TEST(CastArgs, WordsAfterTarget) {
+	const CastArgs skeleton{{"труп", "яростный"}, 1};
+	EXPECT_EQ(skeleton.AfterTarget(), (std::vector<std::string>{"яростный"}));
+	EXPECT_EQ(skeleton.AfterTargetText(), "яростный");
+
+	const CastArgs no_target{{"пресвятой", "богородице"}, 0};
+	EXPECT_EQ(no_target.AfterTarget().size(), 2u);
+	EXPECT_EQ(no_target.AfterTargetText(), "пресвятой богородице");
+
+	const CastArgs only_target{{"труп"}, 1};
+	EXPECT_TRUE(only_target.AfterTarget().empty());
+	EXPECT_TRUE(only_target.AfterTargetText().empty());
+	EXPECT_TRUE(CastArgs{}.AfterTargetText().empty());
+}
+
+// The text a cast's words give selects the action the same way a single name does.
+TEST(CastArgs, SelectsChoiceAfterTarget) {
+	const auto actions = ParseActions(kGods);
+	EXPECT_EQ(actions.FindChoice(CastArgs({{"пресвятой", "богородице"}, 0}).AfterTargetText()), &actions.list()[2]);
+	EXPECT_EQ(actions.FindChoice(CastArgs({{"я", "перун"}, 1}).AfterTargetText()), &actions.list()[1]);
+	EXPECT_EQ(actions.FindChoice(CastArgs({{"перун"}, 1}).AfterTargetText()), nullptr);
 }
 
 // The shipped prayer and sacrifice: the first action, without a choice, lays the marker (kPietas or

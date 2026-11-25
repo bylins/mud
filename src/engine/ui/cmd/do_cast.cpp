@@ -123,22 +123,29 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 
+	// issue #4000, #2689: every word after the spell's name goes to the spell; the first one is also
+	// tried as the target, and FindCastTarget tells whether it was one (CastArgs::target_words).
+	CastArgs cast_args;
 	std::string target_arg;
-	// issue #4000: остаток строки после имени цели отдаём заклинанию. "Оживить скелет" читает из
-	// него вид скелета; остальным заклинаниям он не нужен и просто пустой.
-	std::string cast_extra;
 	if (quote2 != std::string::npos && quote2 + 1 < arg_str.size()) {
 		std::string target_str = arg_str.substr(quote2 + 1);
 		utils::TrimLeft(target_str);
-		target_arg = utils::ExtractFirstArgumentLower(target_str, cast_extra);
-		utils::TrimLeft(cast_extra);
+		std::string rest;
+		target_arg = utils::ExtractFirstArgumentLower(target_str, rest);
+		for (const auto &word : utils::Split(target_str, ' ')) {
+			if (!word.empty()) {
+				cast_args.words.push_back(word);
+			}
+		}
 	}
 
 	CharData *tch;
 	ObjData *tobj;
 	RoomData *troom;
 	int dir = -1;   // issue.room-affect-trigger-improve: kTarDirection casts carry the parsed direction
-	auto target = FindCastTarget(spell_id, target_arg.c_str(), ch, &tch, &tobj, &troom, &dir);
+	bool target_word_used = false;
+	auto target = FindCastTarget(spell_id, target_arg.c_str(), ch, &tch, &tobj, &troom, &dir, &target_word_used);
+	cast_args.target_words = target_word_used ? 1 : 0;
 	if (target && (tch == ch) && MUD::Spell(spell_id).IsViolent()) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
@@ -169,12 +176,12 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	} else {
 		if (ch->GetEnemy() && !privilege::IsImpl(ch)) {
-			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom, cast_extra);
+			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom, cast_args);
 			act(fmt::format("Вы приготовились применить заклинание {}'{}'{}{}.\r\n",
 							kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
 							tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : ""),
 				false, ch, tobj, tch, kToChar);
-		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id, dir, cast_extra)
+		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id, dir, cast_args)
 			!= ECastResult::kTargetDied) {
 			if (!(privilege::IsImmortal(ch) || ch->get_wait() > 0))
 				SetBattleLag(ch, 1);
