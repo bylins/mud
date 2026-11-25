@@ -11,6 +11,7 @@
 
 #include <cstring>
 #include <string>
+#include <string_view>
 
 namespace {
 
@@ -146,6 +147,21 @@ TEST(Utf8, RejectsMalformed) {
 	EXPECT_FALSE(utf8::is_valid("\xED\xA0\x80"));      // U+D800 surrogate
 	EXPECT_FALSE(utf8::is_valid("\xF4\x90\x80\x80"));  // U+110000, above range
 	EXPECT_FALSE(utf8::is_valid("\xF5\x80\x80\x80"));  // 0xF5 lead
+}
+
+TEST(Utf8, FindInvalidPointsAtTheOffendingByte) {
+	EXPECT_EQ(utf8::find_invalid(""), std::string_view::npos);
+	EXPECT_EQ(utf8::find_invalid("Hello, world!"), std::string_view::npos);
+	EXPECT_EQ(utf8::find_invalid(kPrivet), std::string_view::npos);
+
+	// Смещение, а не просто факт поломки: ровно это и нужно диагностике в сислоге.
+	EXPECT_EQ(utf8::find_invalid("\x80"), 0u);
+	EXPECT_EQ(utf8::find_invalid("Hi\xD0"), 2u);
+	EXPECT_EQ(utf8::find_invalid("Online: 102\r\n\x80"), 13u);
+	// Целое начало, обрезанный хвост -- случай с боевого: голова буфера ни о чем не говорит.
+	EXPECT_EQ(utf8::find_invalid("\xD0\x9F\xD1\x80\xD0"), 4u);
+	// Первая поломка, а не последняя.
+	EXPECT_EQ(utf8::find_invalid("a\xC0\x80\xFF"), 1u);
 }
 
 TEST(Utf8, AcceptsRangeEdges) {

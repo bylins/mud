@@ -172,17 +172,21 @@ std::size_t encode(char32_t cp, char *out) {
 	return 0;
 }
 
-bool is_valid(std::string_view s) {
+std::size_t find_invalid(std::string_view s) {
 	std::size_t pos = 0;
 	const std::size_t n = s.size();
 	while (pos < n) {
 		const Decoded d = decode_core(s, pos);
 		if (!d.valid) {
-			return false;
+			return pos;
 		}
 		pos += d.len;
 	}
-	return true;
+	return std::string_view::npos;
+}
+
+bool is_valid(std::string_view s) {
+	return find_invalid(s) == std::string_view::npos;
 }
 
 std::size_t length(std::string_view s) {
