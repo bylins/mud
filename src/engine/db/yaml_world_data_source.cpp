@@ -1868,6 +1868,15 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 	mob.player_data.Race = std::clamp(static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic)),
 									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 
+	// Профессия. Легаси-разборщик ставит её рядом с расой и безусловно
+	// (boot_data_files.cpp, parse_simple_mob), а здесь её не было вовсе -- мобы оставались
+	// с kUndefined из конструктора, и спасброски считались по строке kUndefined вместо
+	// kNpcBase (#4248). Поле mob_class в мире есть (конвертер пишет его из легаси-строки
+	// "Class:"), но читать его нечего: диапазон NPC-профессий сжался до одного значения,
+	// kNpcLast == kNpcBase, а значения 102/103 в зонах 881 и 889 остались с тех времён,
+	// когда NPC_CLASS_LAST был 107.
+	mob.set_class(ECharClass::kNpcBase);
+
 	// Physical attributes -- bounds mirror legacy interpret_espec.
 	GET_SIZE(&mob) = std::clamp<int>(GetInt(root, "size", 0), 0, 100);
 	GET_HEIGHT(&mob) = std::clamp(GetInt(root, "height", 0), 0, 200);
