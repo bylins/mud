@@ -110,6 +110,7 @@ test_sources = files(
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
     'naws.parse.cpp',
+    'output.pass.cpp',
     'yaml_error_context.cpp',
     'map.sign.cpp',
     'mob_classes.loader.cpp',

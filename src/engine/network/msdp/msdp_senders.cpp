@@ -59,8 +59,7 @@ void ReportSender::send(const AbstractReporter::shared_ptr &reporter) {
 
 	hexdump(buffer.ptr.get(), buffer.size, "Response buffer:");
 
-	int written = 0;
-	iosystem::write_to_descriptor_with_options(m_descriptor, buffer.ptr.get(), buffer.size, written);
+	iosystem::write_to_descriptor_with_options(m_descriptor, buffer.ptr.get(), buffer.size);
 }
 
 StreamSender::StreamSender(std::ostream &stream) : m_stream(stream) {

@@ -1440,20 +1440,27 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d == nullptr)
 			continue;
 		if (events[i].events & EPOLLOUT) {
-			if (!d->has_prompt || *(d->output)) {
-				if (iosystem::process_output(d) < 0) // сокет умер
-					close_socket(d, false, epoll, events, n);
-				else
-					d->has_prompt = 1;   // признак того, что промпт уже выводил
-				// следующий после команды или очередной
-				// порции вывода
-			} else if (!d->pending_output.empty()) {
-				// Хвост от прошлого захода надо дослать, иначе он залежится до следующей
-				// порции вывода (см. pending_output). Но только дослать: полный проход
-				// печатает промпт заново, а хвост оставляет за собой каждый MSDP-отчёт --
-				// и игрок получал промпт на пустом месте каждый боевой раунд.
-				if (iosystem::flush_output_tail(d) < 0)
-					close_socket(d, false, epoll, events, n);
+			switch (iosystem::ChooseOutputPass(d->has_prompt, *(d->output) != '\0',
+											   !d->pending_output.empty())) {
+				case iosystem::EOutputPass::kFull:
+					if (iosystem::process_output(d) < 0) // сокет умер
+						close_socket(d, false, epoll, events, n);
+					else
+						d->has_prompt = 1;   // признак того, что промпт уже выводил
+					// следующий после команды или очередной
+					// порции вывода
+					break;
+
+				case iosystem::EOutputPass::kTailOnly:
+					// Хвост от прошлого захода надо дослать, иначе он залежится до следующей
+					// порции вывода (см. pending_output). Но только дослать -- промпт при
+					// этом не печатается и has_prompt не меняется.
+					if (iosystem::FlushOutputTail(d) < 0)
+						close_socket(d, false, epoll, events, n);
+					break;
+
+				case iosystem::EOutputPass::kNothing:
+					break;
 			}
 		}
 	}
@@ -1461,23 +1468,28 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
-		// То же и в ветке без epoll: хвост досылаем, даже когда нового вывода нет, но
-		// отдельно от полного прохода -- чтобы не печатать промпт заново.
+		// То же и в ветке без epoll -- решение об этом принимает та же ChooseOutputPass.
 		if (FD_ISSET(d->descriptor, &output_set))
 		{
-			if (!d->has_prompt || *(d->output))
+			switch (iosystem::ChooseOutputPass(d->has_prompt, *(d->output) != '\0',
+											   !d->pending_output.empty()))
 			{
-				if (iosystem::process_output(d) < 0)
-					close_socket(d, false);	// закрыл соединение
-				else
-					d->has_prompt = 1;	// признак того, что промпт уже выводил
-				// следующий после команды или очередной
-				// порции вывода
-			}
-			else if (!d->pending_output.empty())
-			{
-				if (iosystem::flush_output_tail(d) < 0)
-					close_socket(d, false);	// закрыл соединение
+				case iosystem::EOutputPass::kFull:
+					if (iosystem::process_output(d) < 0)
+						close_socket(d, false);	// закрыл соединение
+					else
+						d->has_prompt = 1;	// признак того, что промпт уже выводил
+					// следующий после команды или очередной
+					// порции вывода
+					break;
+
+				case iosystem::EOutputPass::kTailOnly:
+					if (iosystem::FlushOutputTail(d) < 0)
+						close_socket(d, false);	// закрыл соединение
+					break;
+
+				case iosystem::EOutputPass::kNothing:
+					break;
 			}
 		}
 	}

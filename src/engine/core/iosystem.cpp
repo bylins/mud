@@ -788,10 +788,20 @@ static bool flush_pending_output(DescriptorData *t) {
 	return alive;
 }
 
+EOutputPass ChooseOutputPass(bool prompt_shown, bool has_output, bool has_tail) {
+	if (!prompt_shown || has_output) {
+		return EOutputPass::kFull;
+	}
+	if (has_tail) {
+		return EOutputPass::kTailOnly;
+	}
+	return EOutputPass::kNothing;
+}
+
 // Досылает один хвост и ничего больше: ни вывода, ни промпта. Нужна там, где нового вывода нет,
 // а хвост остался, -- полный process_output в этом случае печатал бы промпт заново.
 // Возвращает -1, если дескриптор дальше не жилец, и 0 иначе.
-int flush_output_tail(DescriptorData *t) {
+int FlushOutputTail(DescriptorData *t) {
 	if (t == nullptr) {
 		log("%s", fmt::format("SYSERR: NULL descriptor in {}() at {}:{}",
 							  __func__, __FILE__, __LINE__).c_str());
@@ -817,9 +827,9 @@ int flush_output_tail(DescriptorData *t) {
 }
 
 // Кладёт готовый текст в хвост дескриптора. Сам в сокет не пишет: отправкой занимается
-// flush_pending_output, и только она решает, сколько ядро взяло.
-bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t buffer_size, int &written) {
-	written = static_cast<int>(buffer_size);
+// flush_pending_output, и только она решает, сколько ядро взяло. Поэтому и сказать, сколько
+// байт ушло, тут нечем -- прежний выходной параметр written всегда повторял длину буфера.
+bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t buffer_size) {
 #if defined(HAVE_ZLIB)
 	if (t->deflate)    // Complex case: compress first, the stream must stay continuous.
 	{
@@ -862,7 +872,7 @@ bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, siz
 // \TODO Никакой чардаты тут быть не должно. Нужно сделать флаги/режимы для аккаунта или дескриптора
 int process_output(DescriptorData *t) {
 	char i[kMaxSockBuf * 2], o[kMaxSockBuf * 2 * 3], *pi, *po;
-	int written = 0, offset, result;
+	int offset;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
 	if (t == nullptr) {
@@ -952,13 +962,15 @@ int process_output(DescriptorData *t) {
 	if (t->character && t->character->IsFlagged(EPrf::kGoAhead))
 		strncat(o, str_goahead, kMaxPromptLength);
 
-	if (!write_to_descriptor_with_options(t, o + offset, strlen(o + offset), result)) {
-		return -1;
+	// Пустой проход бывает: промпт ещё не выведен, а показать нечего (меню, где приглашение
+	// пустое). Отправлять нечего -- но и дескриптор это не хоронит: прежний код звал запись
+	// с нулевой длиной, получал от неё ноль и трактовал его как мёртвый сокет.
+	const auto text_length = strlen(o + offset);
+	if (text_length > 0 && !write_to_descriptor_with_options(t, o + offset, text_length)) {
+		return -1;    // deflate сломался -- дальше поток всё равно не собрать
 	}
 
-	written = result >= 0 ? result : -result;
-
-	if (flush_output_tail(t) < 0) {
+	if (FlushOutputTail(t) < 0) {
 		return -1;    // сокет умер или хвост перестал сливаться
 	}
 
@@ -977,21 +989,11 @@ int process_output(DescriptorData *t) {
 	t->bufptr = 0;
 	*(t->output) = '\0';
 
-	// Error, cut off.
-	if (result == 0)
-		return (-1);
-
-	// Normal case, wrote ok.
-	if (result > 0)
-		return (1);
-
-	/*
-	 * We blocked, restore the unwritten output. IsKnown
-	 * bug in that the snooping immortal will see it twice
-	 * but details...
-	 */
-iosystem::write_to_output(o + written + offset, t);
-	return (0);
+	// Частичной записи тут больше не бывает: вывод кладётся в хвост целиком, а сколько из него
+	// взял сокет -- дело FlushOutputTail. Поэтому и ветки "восстановить неотправленное" не
+	// осталось: она возвращала остаток в буфер вывода, а теперь это был бы второй экземпляр
+	// тех же байтов (и у снупера -- третий).
+	return 1;
 }
 
 /*
