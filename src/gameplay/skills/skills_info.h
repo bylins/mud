@@ -35,6 +35,14 @@ class SkillInfo : public info_container::BaseItem<ESkill> {
 	// issue.self-train: умение качается и при применении на себя, когда цели-моба нет вовсе.
 	// Без флага самокаст прока не даёт: TrainSkill пропускает только моба или пустую цель.
 	bool self_train{false};
+	// issue #2689: игрок умения не видит -- ни в списке умений, ни в сообщении о росте. Боги видят.
+	bool hidden{false};
+	// issue #2689: умение растет и в мирной комнате (храмы почти все мирные) и в замке; обычные нет.
+	bool train_in_peaceful{false};
+	bool train_in_house{false};
+	// issue #2689: умение есть у каждого персонажа. Кому его не хватает, получает при входе в игру
+	// с уровнем kObligatorySkillStartLevel; класс должен его перечислять, иначе оно не сохранится.
+	bool obligatory{false};
 
 	/*
 	 * Имя скилла в виде C-строки. По возможности используйте std::string

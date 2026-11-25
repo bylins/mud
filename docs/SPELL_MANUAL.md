@@ -1296,6 +1296,7 @@ specific spell hasn't overridden.
 | `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation. | Room / victim |
 | `kCastPreparedToChar` | Spell-ready announcement when a controlled spell replaces the previous one. | Caster |
 | `kNoTarget`, `kWrongTarget` | The caster's target argument missed (no such target / target type rejected by `<targets val>`). | Caster |
+| `kOfferingToChar`, `kOfferingToRoom` | Prayer / sacrifice spells only (`kPrayer*`, `kSacrifice*`): what the praying character and the room see when the offering is made; `$o` is the sacrificed item. Printed by the "молиться"/"жертвовать" command, not by the cast. | Caster / Room |
 | `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `<obj_creation>` outcomes. | Various |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
 | `kEnchantNotWeapon`, `kEnchantMagic`, `kEnchantSetItem`, `kEnchantMono`, `kEnchantPoly`, `kEnchantOther` | Enchant-weapon outcomes. | Caster |

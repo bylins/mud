@@ -1,6 +1,7 @@
 #include "do_skills.h"
 #include <fmt/format.h>
 
+#include "administration/privilege.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/abilities/timed_abilities.h"
@@ -44,6 +45,10 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 	for (const auto &skill : MUD::Skills()) {
 		if (GetSkill(ch, skill.GetId())) {
 			if (skill.IsInvalid()) {
+				continue;
+			}
+			// issue #2689: скрытое умение (набожность) игроку не показываем, богу -- да.
+			if (skill.hidden && !privilege::IsImmortal(vict)) {
 				continue;
 			}
 			// filter out skill that does not correspond to filter condition

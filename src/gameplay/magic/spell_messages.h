@@ -163,6 +163,10 @@ enum class ESpellMsg {
 	// "Wrong target type for this spell"; kIdentify / kFullIdentify override with the
 	// "magic can't identify another creature" variant.
 	kWrongTarget,
+	// issue #2689: what the character and the room see when a prayer or a sacrifice is offered
+	// ($o = the sacrificed item; a prayer has none). Only the prayer/sacrifice spells carry them.
+	kOfferingToChar,
+	kOfferingToRoom,
 	// Custom one-off slots for manual spells. These keys carry NO fixed semantic --
 	// each per-spell sheaf assigns its own meaning. Use ONLY for messages that:
 	//   1. are unique to a single manual spell (do_ManualSpell-style function),

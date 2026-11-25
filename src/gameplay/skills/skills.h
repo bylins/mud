@@ -24,6 +24,8 @@
 extern const int kMinTalentLevelDecrement;
 extern const long kMinImprove;
 
+class SkillInfo;
+struct RoomData;
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 enum EExtraAttack {
@@ -44,7 +46,6 @@ enum EExtraAttack {
  * скилл с таким id и не находит его).
  */
 enum class ESkill : int {
-	kReligion = -3,			// Таймер молитвы тикает за счет TimedSkill. Нужно придумать, как от этого избавиться
 	kAny = -2,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
 	kUndefined = -1,		// Неопределенный или некорректный скилл.
 	kGlobalCooldown = 0,	// Internal - ID for global ability cooldown //
@@ -140,10 +141,15 @@ enum class ESkill : int {
 	kLifeMagic = 189,
 	kStun = 190,
 	kMakeAmulet = 191,
+	kReligion = 192,		// Набожность: растет от молитв и жертв, игроку не видна. Ее таймер -- откат молитвы.
 
 	kFirst = kProtect,
-	kLast = kMakeAmulet	// не забываем указывать максимальный номер скилла
+	kLast = kReligion	// не забываем указывать максимальный номер скилла
 };
+
+// Под этим номером набожность (тогда служебное умение) лежала в сохранениях до issue #2689 --
+// это таймер молитвы в разделе SkTm. При загрузке он переносится на ESkill::kReligion.
+constexpr int kLegacyReligionSkillId{-3};
 
 const ESkill& operator++(ESkill &s);
 std::ostream& operator<<(std::ostream & os, ESkill &s);
@@ -182,6 +188,16 @@ char *how_good(int skill_level, int skill_cap);
 int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict, bool need_log = true);
 void RemoveAllSkills(CharData *ch);
 void ImproveSkill(CharData *ch, ESkill skill, int success, CharData *victim);
+// Растет ли умение в этой комнате: на арене никогда, в мирной комнате и в замке -- только если
+// умение это разрешает (train_in_peaceful, train_in_house).
+[[nodiscard]] bool IsSkillTrainableInRoom(const SkillInfo &skill, const RoomData *room);
+// Обязательные умения (obligatory), которых нет у персонажа, ставятся на этот уровень.
+constexpr int kObligatorySkillStartLevel{10};
+// Ставит персонажу недостающие обязательные умения, которые перечисляет его класс.
+void SetObligatorySkills(CharData *ch);
+// Пишет в лог обязательные умения, которых не перечисляет какой-нибудь класс: у персонажей этого
+// класса такое умение не сохранится. Зовется после загрузки классов и умений.
+void CheckObligatorySkillsInClasses();
 void TrainSkill(CharData *ch, ESkill skill, bool success, CharData *vict);
 
 int GetSkillMinLevel(CharData *ch, ESkill skill);

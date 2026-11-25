@@ -6798,4 +6798,171 @@
 			</action>
 		</talent_actions>
 	</spell>
+	<!-- issue #2689: молитвы и жертвы. Служебные (kService): их не учат и не колдуют, их творит команда
+	     "молиться" (христиане, kPrayer*) или "жертвовать" (язычники, kSacrifice*); кому из них какое
+	     заклинание, записано в cfg/mechanics/religion.xml. Маны и плетения нет, поэтому комната без
+	     магии их не гасит. Каждое кладет метку kPrayerful/kPietas (пока она висит, снова молиться
+	     нельзя) и милость того, кому молились (что она дает -- в affects.xml). Сила C -- от набожности
+	     (kReligion, растет от молитв и жертв) и обаяния; срок -- 12 часов, как и откат молитвы. -->
+	<spell id="kSacrificeYarilo" element="kUndefined" mode="kService">
+		<name val="sacrifice to Yarilo" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPietas" />
+					<affect id="kYariloFavor" />
+					<affect id="kInfravision" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kSacrificeMakosh" element="kUndefined" mode="kService">
+		<name val="sacrifice to Makosh" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPietas" />
+					<affect id="kMakoshFavor" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kSacrificePerun" element="kUndefined" mode="kService">
+		<name val="sacrifice to Perun" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPietas" />
+					<affect id="kPerunFavor" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kSacrificeVeles" element="kUndefined" mode="kService">
+		<name val="sacrifice to Veles" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPietas" />
+					<affect id="kVelesFavor" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kPrayerTheotokos" element="kUndefined" mode="kService">
+		<name val="prayer to the Theotokos" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPrayerful" />
+					<affect id="kTheotokosGrace" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kPrayerNicholas" element="kUndefined" mode="kService">
+		<name val="prayer to St. Nicholas" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPrayerful" />
+					<affect id="kNicholasGrace" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kPrayerElijah" element="kUndefined" mode="kService">
+		<name val="prayer to St. Elijah" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPrayerful" />
+					<affect id="kElijahGrace" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kPrayerGeorge" element="kUndefined" mode="kService">
+		<name val="prayer to St. George" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="10" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPrayerful" />
+					<affect id="kGeorgeGrace" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
 </spells>

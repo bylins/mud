@@ -1009,42 +1009,6 @@ const char *month_name_o[] = {"месяц Зимы",
 							  "месяц Великого Зла"
 };
 
-
-const char *pray_metter[] = {"- Яриле",
-							 "- Макоши",
-							 "- Перуну",
-							 "- Велесу",
-							 "* Пресвятой-Богородице",
-							 "* Николе-Угоднику",
-							 "* Илие-Пророку",
-							 "* Георгию-Победоносцу",
-							 "\n"
-};
-
-const char *pray_whom[] = {"Яриле",
-						   "Макоши",
-						   "Перуну",
-						   "Велесу",
-						   "Пресвятой-Богородице",
-						   "Николе-Угоднику",
-						   "Илие-Пророку",
-						   "Георгию-Победоносцу",
-						   "\n"
-};
-
-// Fields : whom location modifier bitvector battleflag
-std::vector<PrayAffect> pray_affect =
-	{
-		{0, EApply::kNone, 0, to_underlying(EAffect::kInfravision), 0},    // Ярило
-		{1, EApply::kHpRegen, 50, 0, 0},    // Мокошь
-		{2, EApply::kStr, 1, 0, 0},    // Перун
-		{3, EApply::kDex, 1, 0, 0},    // Велес
-		{4, EApply::kMorale, 5, 0, 0},    // Дева Мария
-		{5, EApply::kInt, 1, 0, 0},    // Никола Угодник
-		{6, EApply::kHitroll, 2, 0, 0},    // Илия Пророк
-		{7, EApply::kDamroll, 1, 0, 0}    // Григорий Победоносец
-	};
-
 // Количество маны волхва
 int mana[kBaseStatTableSize] = {};
 

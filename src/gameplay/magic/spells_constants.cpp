@@ -273,6 +273,14 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kCleanseArea] = "kCleanseArea";
 	ESpell_name_by_value[ESpell::kWeaveRestoration] = "kWeaveRestoration";
 	ESpell_name_by_value[ESpell::kAnimateSkeleton] = "kAnimateSkeleton";
+	ESpell_name_by_value[ESpell::kSacrificeYarilo] = "kSacrificeYarilo";
+	ESpell_name_by_value[ESpell::kSacrificeMakosh] = "kSacrificeMakosh";
+	ESpell_name_by_value[ESpell::kSacrificePerun] = "kSacrificePerun";
+	ESpell_name_by_value[ESpell::kSacrificeVeles] = "kSacrificeVeles";
+	ESpell_name_by_value[ESpell::kPrayerTheotokos] = "kPrayerTheotokos";
+	ESpell_name_by_value[ESpell::kPrayerNicholas] = "kPrayerNicholas";
+	ESpell_name_by_value[ESpell::kPrayerElijah] = "kPrayerElijah";
+	ESpell_name_by_value[ESpell::kPrayerGeorge] = "kPrayerGeorge";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;

@@ -1759,6 +1759,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						long int num3;
 						fbgetline(fl, line);
 						sscanf(line, "%d %ld", &num, &num3);
+						if (num == kLegacyReligionSkillId) {
+							num = to_underlying(ESkill::kReligion);
+						}
 						if (num != 0) {
 							this->timed_skill[static_cast<ESkill>(num)] = time(0) + num3;
 						}

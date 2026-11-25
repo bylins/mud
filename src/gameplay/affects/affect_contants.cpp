@@ -116,6 +116,14 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCorrodedArmor] = "kCorrodedArmor";
 	EAffectFlag_name_by_value[EAffect::kCorrodedWard] = "kCorrodedWard";
 	EAffectFlag_name_by_value[EAffect::kBoneLevy] = "kBoneLevy";
+	EAffectFlag_name_by_value[EAffect::kYariloFavor] = "kYariloFavor";
+	EAffectFlag_name_by_value[EAffect::kMakoshFavor] = "kMakoshFavor";
+	EAffectFlag_name_by_value[EAffect::kPerunFavor] = "kPerunFavor";
+	EAffectFlag_name_by_value[EAffect::kVelesFavor] = "kVelesFavor";
+	EAffectFlag_name_by_value[EAffect::kTheotokosGrace] = "kTheotokosGrace";
+	EAffectFlag_name_by_value[EAffect::kNicholasGrace] = "kNicholasGrace";
+	EAffectFlag_name_by_value[EAffect::kElijahGrace] = "kElijahGrace";
+	EAffectFlag_name_by_value[EAffect::kGeorgeGrace] = "kGeorgeGrace";
 	EAffectFlag_name_by_value[EAffect::kBelenaPoison] = "kBelenaPoison";
 	EAffectFlag_name_by_value[EAffect::kNoTeleport] = "kNoTeleport";
 	EAffectFlag_name_by_value[EAffect::kCombatLuck] = "kCombatLuck";
@@ -573,7 +581,7 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
 // source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
-constexpr std::size_t kAffectFlagTableSize = 142;  // EAffect max (kBoneLevy=141) + 1
+constexpr std::size_t kAffectFlagTableSize = flag_traits<EAffect>::count;
 std::array<AffectFlags, kAffectFlagTableSize> g_affect_flags{};
 std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
 // issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from

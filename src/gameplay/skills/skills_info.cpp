@@ -10,6 +10,7 @@ void SkillsLoader::Load(DataNode data) {
 
 void SkillsLoader::Reload(DataNode data) {
 	MUD::Skills().Reload(data.Children());
+	CheckObligatorySkillsInClasses();
 }
 
 ItemPtr SkillInfoBuilder::Build(DataNode &node) {
@@ -32,6 +33,19 @@ void SkillInfoBuilder::ParseDispensableValues(ItemPtr &item_ptr, DataNode &node)
 		// issue.self-train: необязательный, по умолчанию умение на себе не качается.
 		if (const char *v = node.GetValue("self_train"); v && *v) {
 			item_ptr->self_train = parse::ReadAsBool(v);
+		}
+		// issue #2689: необязательные флаги, по умолчанию выключены.
+		if (const char *v = node.GetValue("hidden"); v && *v) {
+			item_ptr->hidden = parse::ReadAsBool(v);
+		}
+		if (const char *v = node.GetValue("train_in_peaceful"); v && *v) {
+			item_ptr->train_in_peaceful = parse::ReadAsBool(v);
+		}
+		if (const char *v = node.GetValue("train_in_house"); v && *v) {
+			item_ptr->train_in_house = parse::ReadAsBool(v);
+		}
+		if (const char *v = node.GetValue("obligatory"); v && *v) {
+			item_ptr->obligatory = parse::ReadAsBool(v);
 		}
 	} catch (std::exception &e) {
 		err_log("invalid skill description (incorrect value: %s). Setted by default;", e.what());
@@ -61,6 +75,10 @@ void SkillInfo::Print(std::ostringstream &buffer) const {
 		   << " Difficulty: " << kColorGrn << difficulty << kColorNrm << "\r\n"
 		   << " Skill cap: " << kColorGrn << cap << kColorNrm << "\r\n"
 		   << " Trains on self: " << kColorGrn << (self_train ? "yes" : "no") << kColorNrm << "\r\n"
+		   << " Hidden from players: " << kColorGrn << (hidden ? "yes" : "no") << kColorNrm << "\r\n"
+		   << " Trains in peaceful rooms: " << kColorGrn << (train_in_peaceful ? "yes" : "no") << kColorNrm << "\r\n"
+		   << " Trains in houses: " << kColorGrn << (train_in_house ? "yes" : "no") << kColorNrm << "\r\n"
+		   << " Obligatory: " << kColorGrn << (obligatory ? "yes" : "no") << kColorNrm << "\r\n"
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 }
 

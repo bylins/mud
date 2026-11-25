@@ -2,8 +2,11 @@
 \file do_pray.cpp - a part of the Bylins engine.
 \authors Created by Sventovit.
 \date 18.09.2024.
-\brief Brief description.
-\detail Detail description.
+\brief The "молиться" and "жертвовать" commands.
+\details issue #2689: the command only checks and takes the offering; the effect is the recipient's
+		 service spell (cfg/mechanics/religion.xml -> spells.xml). A Christian prays to a saint and lights
+		 a candle, a heathen sacrifices food or treasure to a god. Piety (kReligion) sets the effect's
+		 strength and grows with every offering; its timer is the prayer cooldown.
 */
 
 #include <fmt/format.h>
@@ -12,93 +15,106 @@
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 
+#include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/obj_handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/abilities/timed_abilities.h"
+#include "gameplay/magic/magic.h"
+#include "gameplay/magic/spell_messages.h"
 #include "gameplay/mechanics/inventory.h"
+#include "gameplay/mechanics/religion.h"
+#include "gameplay/skills/skills.h"
+
+namespace {
+
+constexpr int kCandlePrice{10};
+constexpr int kPrayerCooldownHours{12};
+
+bool IsSacrifice(int subcmd) {
+	return subcmd == SCMD_DONATE;
+}
+
+// Who may use the command: heathens sacrifice, Christians pray.
+int CommandReligion(int subcmd) {
+	return IsSacrifice(subcmd) ? kReligionPoly : kReligionMono;
+}
+
+void ListRecipients(CharData *ch, int subcmd) {
+	std::string out = IsSacrifice(subcmd) ? "Вы можете принести жертву:\r\n" : "Вы можете вознести молитву:\r\n";
+	for (const auto &recipient : religion::RecipientsRegistry().All()) {
+		if (recipient.religion == CommandReligion(subcmd)) {
+			out += fmt::format("  {}\r\n", recipient.name);
+		}
+	}
+	out += IsSacrifice(subcmd) ? "Укажите, кому и что вы хотите жертвовать.\r\n"
+							   : "Укажите, кому вы хотите вознести молитву.\r\n";
+	SendMsgToChar(out, ch);
+}
+
+void SendOfferingMessages(CharData *ch, ESpell spell, ObjData *gift) {
+	const auto &to_char = MUD::SpellMessages().GetMessage(spell, ESpellMsg::kOfferingToChar);
+	if (!to_char.empty()) {
+		act(to_char.c_str(), false, ch, gift, nullptr, kToChar);
+	}
+	const auto &to_room = MUD::SpellMessages().GetMessage(spell, ESpellMsg::kOfferingToRoom);
+	if (!to_room.empty()) {
+		act(to_room.c_str(), false, ch, gift, nullptr, kToRoom | kToArenaListen);
+	}
+}
+
+} // namespace
 
 void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	int metter = -1;
-	ObjData *obj = nullptr;
-	struct TimedSkill timed;
-
-	if (ch->IsNpc()) {
+	if (ch->IsNpc() || (subcmd != SCMD_PRAY && subcmd != SCMD_DONATE)) {
 		return;
 	}
 
-	if (!privilege::IsImmortal(ch)
-		&& ((subcmd == SCMD_DONATE
-			&& GET_RELIGION(ch) != kReligionPoly)
-			|| (subcmd == SCMD_PRAY
-				&& GET_RELIGION(ch) != kReligionMono))) {
+	if (!privilege::IsImmortal(ch) && GET_RELIGION(ch) != CommandReligion(subcmd)) {
 		SendMsgToChar("Не кощунствуйте!\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_DONATE && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
+	if (IsSacrifice(subcmd) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
 		SendMsgToChar("Найдите подходящее место для вашей жертвы.\r\n", ch);
 		return;
 	}
-	if (subcmd == SCMD_PRAY && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)) {
+	if (!IsSacrifice(subcmd) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)) {
 		SendMsgToChar("Это место не обладает необходимой святостью.\r\n", ch);
 		return;
 	}
 
 	char whom[kMaxInputLength];
-	char gift[kMaxStringLength];
-	half_chop(argument, whom, gift);
+	char gift_name[kMaxStringLength];
+	half_chop(argument, whom, gift_name);
 
-	if (!*whom || (metter = search_block(whom, pray_whom, false)) < 0) {
-		if (subcmd == SCMD_DONATE) {
-			SendMsgToChar("Вы можете принести жертву :\r\n", ch);
-			for (metter = 0; *(pray_metter[metter]) != '\n'; metter++) {
-				if (*(pray_metter[metter]) == '-') {
-					SendMsgToChar(pray_metter[metter], ch);
-					SendMsgToChar("\r\n", ch);
-				}
-			}
-			SendMsgToChar("Укажите, кому и что вы хотите жертвовать.\r\n", ch);
-		} else if (subcmd == SCMD_PRAY) {
-			SendMsgToChar("Вы можете вознести молитву :\r\n", ch);
-			for (metter = 0; *(pray_metter[metter]) != '\n'; metter++)
-				if (*(pray_metter[metter]) == '*') {
-					SendMsgToChar(pray_metter[metter], ch);
-					SendMsgToChar("\r\n", ch);
-				}
-			SendMsgToChar("Укажите, кому вы хотите вознести молитву.\r\n", ch);
-		}
+	const auto *recipient = religion::RecipientsRegistry().Find(whom);
+	if (!recipient) {
+		ListRecipients(ch, subcmd);
 		return;
 	}
 
-	if (subcmd == SCMD_DONATE && *(pray_metter[metter]) != '-') {
-		SendMsgToChar("Приносите жертвы только своим Богам.\r\n", ch);
+	if (recipient->religion != CommandReligion(subcmd)) {
+		SendMsgToChar(IsSacrifice(subcmd) ? "Приносите жертвы только своим Богам.\r\n"
+										  : "Возносите молитвы только своим Богам.\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_PRAY && *(pray_metter[metter]) != '*') {
-		SendMsgToChar("Возносите молитвы только своим Богам.\r\n", ch);
-		return;
-	}
-
-	if (subcmd == SCMD_DONATE) {
-		if (!*gift || !(obj = get_obj_in_list_vis(ch, gift, ch->carrying))) {
+	ObjData *gift = nullptr;
+	if (IsSacrifice(subcmd)) {
+		if (!*gift_name || !(gift = get_obj_in_list_vis(ch, gift_name, ch->carrying))) {
 			SendMsgToChar("Вы должны пожертвовать что-то стоящее.\r\n", ch);
 			return;
 		}
-		if (obj->get_type() != EObjType::kFood
-			&& obj->get_type() != EObjType::kTreasure) {
+		if (gift->get_type() != EObjType::kFood && gift->get_type() != EObjType::kTreasure) {
 			SendMsgToChar("Богам неугодна эта жертва.\r\n", ch);
 			return;
 		}
-	} else if (subcmd == SCMD_PRAY) {
-		if (currencies::GetHand(*ch, currencies::kGold) < 10) {
-			SendMsgToChar("У вас не хватит денег на свечку.\r\n", ch);
-			return;
-		}
-	} else
+	} else if (currencies::GetHand(*ch, currencies::kGold) < kCandlePrice) {
+		SendMsgToChar("У вас не хватит денег на свечку.\r\n", ch);
 		return;
+	}
 
 	if (!privilege::IsImmortal(ch) && (IsTimedBySkill(ch, ESkill::kReligion)
 		|| IsAffected(ch, EAffect::kPrayerful) || IsAffected(ch, EAffect::kPietas))) {
@@ -106,47 +122,23 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
+	TimedSkill timed;
 	timed.skill = ESkill::kReligion;
-	timed.time = 12;
+	timed.time = kPrayerCooldownHours;
 	ImposeTimedSkill(ch, &timed);
 
-	// The "blessed" marker effect checked above (separate from the stat blessings below, which keep
-	// their own affect_type -- e.g. Yarilo grants kInfravision). kPrayerful for prayer, kPietas for sacrifice.
-	Affect<EApply> blessing;
-	blessing.duration = CalcDuration(ch, ch, ESkill::kUndefined, 12, 0, 0, 0);
-	blessing.modifier = 0;
-	blessing.location = EApply::kNone;
-	blessing.affect_type = (subcmd == SCMD_PRAY) ? EAffect::kPrayerful : EAffect::kPietas;
-	blessing.battleflag.clear();
-	ImposeAffect(ch, blessing, false, false, false, false);
-
-	for (const auto &i : pray_affect) {
-		if (i.metter == metter) {
-			Affect<EApply> af;
-			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 12, 0, 0, 0);
-			af.modifier = i.modifier;
-			af.location = i.location;
-			af.affect_type = static_cast<EAffect>(i.bitvector);
-			// issue #4005: поле battleflag таблицы pray_affect всюду нулевое, а свойства аффекта
-			// воронка всё равно берёт из affects.xml по affect_type -- писать тут нечего.
-			ImposeAffect(ch, af, false, false, false, false);
-		}
+	SendOfferingMessages(ch, recipient->spell, gift);
+	if (gift) {
+		RemoveObjFromChar(gift);
+		ExtractObjFromWorld(gift);
+	} else {
+		currencies::RemoveHand(*ch, currencies::kGold, kCandlePrice);
 	}
 
-	if (subcmd == SCMD_PRAY) {
-		act(fmt::format("$n затеплил$g свечку и вознес$q молитву {}.", pray_whom[metter]),
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		act(fmt::format("Вы затеплили свечку и вознесли молитву {}.", pray_whom[metter]),
-			false, ch, nullptr, nullptr, kToChar);
-		currencies::RemoveHand(*ch, currencies::kGold, 10);
-	} else if (subcmd == SCMD_DONATE && obj) {
-		act(fmt::format("$n принес$q $o3 в жертву {}.", pray_whom[metter]),
-			false, ch, obj, nullptr, kToRoom | kToArenaListen);
-		act(fmt::format("Вы принесли $o3 в жертву {}.", pray_whom[metter]),
-			false, ch, obj, nullptr, kToChar);
-		RemoveObjFromChar(obj);
-		ExtractObjFromWorld(obj);
-	}
+	// The marker (kPrayerful/kPietas) and the recipient's favour are the spell's affects; their
+	// strength comes from piety and charisma. Every offering trains piety, in temples too.
+	const auto result = CallMagic(ch, ch, nullptr, world[ch->in_room], recipient->spell, GetRealLevel(ch));
+	ImproveSkill(ch, ESkill::kReligion, CastTookEffect(result), nullptr);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -302,8 +302,18 @@ enum class ESpell {
 	// "оживить скелет" -- поднимает из человекоподобного трупа скелета-прислужника.
 	// Виды скелетов живут в animate_dead.xml как ярусы этого заклинания (spell="kAnimateSkeleton").
 	kAnimateSkeleton = 373,
+	// issue #2689: молитвы и жертвы. Служебные заклинания (mode="kService"): их не учат и не колдуют,
+	// их творит команда "молиться"/"жертвовать" -- по одному на каждого, кому молятся или жертвуют.
+	kSacrificeYarilo = 374,
+	kSacrificeMakosh = 375,
+	kSacrificePerun = 376,
+	kSacrificeVeles = 377,
+	kPrayerTheotokos = 378,
+	kPrayerNicholas = 379,
+	kPrayerElijah = 380,
+	kPrayerGeorge = 381,
 	kFirst = kArmor,
-	kLast = 373	// Не забываем менять
+	kLast = 381	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);

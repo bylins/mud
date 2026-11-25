@@ -44,6 +44,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/regions.h"
 #include "gameplay/mechanics/animate_dead.h"
+#include "gameplay/mechanics/religion.h"
 #include "gameplay/mechanics/region_messages.h"
 #include "engine/ui/system_messages.h"
 #include "gameplay/mechanics/stable_objs.h"
@@ -169,6 +170,7 @@ CfgManager::CfgManager() {
 		{"system_msg", CfgDir::kMessagesRu, [] { return MakeLoader<system_messages::SystemMessagesLoader>(); }},
 		{"regions", CfgDir::kMechanics, [] { return MakeLoader<regions::RegionsLoader>(); }},
 		{"animate_dead", CfgDir::kMechanics, [] { return MakeLoader<animate_dead::AnimateDeadLoader>(); }},
+		{"religion", CfgDir::kMechanics, [] { return MakeLoader<religion::RecipientsLoader>(); }},
 		{"stable_objs", CfgDir::kMechanics, [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
 		{"global_drop", CfgDir::kMechanics, [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
 		{"group_exp_handicap", CfgDir::kMechanics, [] { return MakeLoader<GroupPenaltiesLoader>(); }},

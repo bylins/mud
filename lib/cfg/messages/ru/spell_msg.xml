@@ -2417,4 +2417,46 @@
 		<message type="kCastPhraseHeathen" val="очистися место сие" />
 		<message type="kCastPhraseChristian" val="... да сгинет скверна с места сего." />
 	</msg_sheaf>
+	<!-- issue #2689: молитвы и жертвы. kOfferingToChar/kOfferingToRoom -- что видят молящийся и комната;
+	     в жертве $o -- принесенный предмет. -->
+	<msg_sheaf id="kSacrificeYarilo">
+		<name val="жертва Яриле" />
+		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Яриле." />
+		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Яриле." />
+	</msg_sheaf>
+	<msg_sheaf id="kSacrificeMakosh">
+		<name val="жертва Макоши" />
+		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Макоши." />
+		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Макоши." />
+	</msg_sheaf>
+	<msg_sheaf id="kSacrificePerun">
+		<name val="жертва Перуну" />
+		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Перуну." />
+		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Перуну." />
+	</msg_sheaf>
+	<msg_sheaf id="kSacrificeVeles">
+		<name val="жертва Велесу" />
+		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Велесу." />
+		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Велесу." />
+	</msg_sheaf>
+	<msg_sheaf id="kPrayerTheotokos">
+		<name val="молитва Пресвятой Богородице" />
+		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Пресвятой Богородице." />
+		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Пресвятой Богородице." />
+	</msg_sheaf>
+	<msg_sheaf id="kPrayerNicholas">
+		<name val="молитва Николе-Угоднику" />
+		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Николе-Угоднику." />
+		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Николе-Угоднику." />
+	</msg_sheaf>
+	<msg_sheaf id="kPrayerElijah">
+		<name val="молитва Илие-Пророку" />
+		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Илие-Пророку." />
+		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Илие-Пророку." />
+	</msg_sheaf>
+	<msg_sheaf id="kPrayerGeorge">
+		<name val="молитва Георгию-Победоносцу" />
+		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Георгию-Победоносцу." />
+		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Георгию-Победоносцу." />
+	</msg_sheaf>
 </spell_msg>

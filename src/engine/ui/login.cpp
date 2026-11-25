@@ -647,6 +647,7 @@ void do_entergame(DescriptorData *d) {
 				SetSkill(d->character.get(), skill.GetId(), 0);
 			}
 		}
+		SetObligatorySkills(d->character.get());
 
 		for (const auto &spell : MUD::Spells()) {
 			if (IS_SPELL_SET(d->character, spell.GetId(), ESpellType::kKnow)) {
