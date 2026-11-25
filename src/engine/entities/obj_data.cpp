@@ -31,7 +31,6 @@
 
 extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 extern void ExtractTrigger(Trigger *trig);
-extern double CalcRemortRequirements(const CObjectPrototype *obj);
 
 id_to_set_info_map ObjData::set_table;
 

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	issue #2689: набожность (kReligion) -- что можно жертвовать и молиться с даром, и какой дар
+	поднимает набожность.
+
+	Милость бога или святого кладет любой принятый дар, сила ее -- от текущей набожности. Сама
+	набожность растет на 1 только от дара не дешевле порога для ее текущего уровня (<growth>).
+
+	<sacrifice> -- команда "жертвовать" (язычник), <prayer> -- "молиться" (христианин):
+	  <items types="EObjType|..." value="..."/> -- какие предметы принимаются и как оцениваются:
+	      none -- принимается, но набожность не поднимает (еда);
+	      ilvl -- уровень предмета: его параметры, взвешенные и сложенные (как для требования
+	              перевоплощений; у вещей мобов и вещей наборов он 0);
+	      cost -- цена предмета (сокровища).
+	  <currency id="text_id" min="N"/> -- валюта (text_id из economics/currencies.xml), которой
+	      можно жертвовать, и наименьшая сумма.
+	  default_currency / default_amount -- сколько стоит молитва без дара (свечка); без них дар
+	      обязателен.
+	Предмет с флагом kNodrop или kNodonate и непустой контейнер не принимаются.
+
+	<growth fresh_timer="80"> -- пороги роста набожности:
+	  fresh_timer -- доля таймера прототипа в процентах, начиная с которой предмет считается
+	      неношеным. Ниже нее ilvl и cost уменьшаются пропорционально: при половине fresh_timer --
+	      вдвое. У нерушимых вещей и вещей без таймера оценка не уменьшается.
+	  <tier piety="P" ilvl="I" cost="C"> <currency id="..." min="M"/> </tier> -- от набожности P
+	      (до следующего tier) дар поднимает набожность, если его ilvl не меньше I, цена не меньше
+	      C или сумма валюты не меньше M. Мера, которой в tier нет, набожность не поднимает.
+
+	Пороги -- начальные, под настройку.
+-->
+<piety>
+	<sacrifice>
+		<items types="kFood" value="none"/>
+		<items types="kTreasure" value="cost"/>
+		<items types="kArmor|kLightArmor|kMediumArmor|kHeavyArmor|kWeapon|kWorm" value="ilvl"/>
+		<currency id="kKuna" min="10"/>
+	</sacrifice>
+	<prayer default_currency="kKuna" default_amount="10">
+		<items types="kTreasure" value="cost"/>
+		<items types="kArmor|kLightArmor|kMediumArmor|kHeavyArmor|kWeapon|kWorm" value="ilvl"/>
+		<currency id="kKuna" min="10"/>
+	</prayer>
+	<growth fresh_timer="80">
+		<!-- Другую валюту добавляют так же, например <currency id="kSilverGrivna" min="1"/>, и в
+		     <sacrifice>/<prayer>, и в нужные tier. -->
+		<tier piety="0" ilvl="5" cost="100">
+			<currency id="kKuna" min="100"/>
+		</tier>
+		<tier piety="50" ilvl="10" cost="500">
+			<currency id="kKuna" min="500"/>
+		</tier>
+		<tier piety="80" ilvl="15" cost="2000">
+			<currency id="kKuna" min="2000"/>
+		</tier>
+		<tier piety="100" ilvl="20" cost="5000">
+			<currency id="kKuna" min="5000"/>
+		</tier>
+		<tier piety="130" ilvl="25" cost="15000">
+			<currency id="kKuna" min="15000"/>
+		</tier>
+		<tier piety="160" ilvl="30" cost="40000">
+			<currency id="kKuna" min="40000"/>
+		</tier>
+		<tier piety="200" ilvl="35" cost="100000">
+			<currency id="kKuna" min="100000"/>
+		</tier>
+		<tier piety="230" ilvl="40" cost="200000">
+			<currency id="kKuna" min="200000"/>
+		</tier>
+	</growth>
+</piety>

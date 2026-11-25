@@ -23,6 +23,7 @@ What it does:
   messages/ru/skill_msg.xml   kReligion is named "набожность".
   messages/ru/affect_msg.xml  the favours' short descriptions.
   messages/ru/spell_msg.xml   kUnknownChoice in kDefault, the kOffering and kPrayer sheaves.
+  mechanics/piety.xml  new: what may be offered and which gift raises piety (copied if missing).
 """
 
 import argparse
@@ -114,6 +115,19 @@ class Migrator:
         if not self.dry_run:
             shutil.copy2(path, path.with_name(path.name + ".bak-2689"))
             path.write_bytes(after.encode("utf-8"))
+
+    def add(self, rel):
+        """Copy a file the branch added, unless the server already has one."""
+        path = self.cfg / rel
+        if path.exists():
+            print(f"  = {rel}: already present")
+            return
+        read(self.src / rel)   # the source must be there and UTF-8
+        print(f"  + {rel}: new file")
+        self.changed.append(rel)
+        if not self.dry_run:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(self.src / rel, path)
 
     # --- skills.xml -------------------------------------------------------------------------------
     def skills(self, text, notes):
@@ -309,6 +323,7 @@ class Migrator:
         self.patch("messages/ru/skill_msg.xml", self.skill_msg)
         self.patch("messages/ru/affect_msg.xml", self.affect_msg)
         self.patch("messages/ru/spell_msg.xml", self.spell_msg)
+        self.add("mechanics/piety.xml")
 
 
 def main():

@@ -46,6 +46,7 @@
 #include "gameplay/mechanics/animate_dead.h"
 #include "gameplay/mechanics/region_messages.h"
 #include "engine/ui/system_messages.h"
+#include "gameplay/mechanics/piety.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/classes/pc_classes.h"
@@ -170,6 +171,7 @@ CfgManager::CfgManager() {
 		{"regions", CfgDir::kMechanics, [] { return MakeLoader<regions::RegionsLoader>(); }},
 		{"animate_dead", CfgDir::kMechanics, [] { return MakeLoader<animate_dead::AnimateDeadLoader>(); }},
 		{"stable_objs", CfgDir::kMechanics, [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
+		{"piety", CfgDir::kMechanics, [] { return MakeLoader<piety::PietyLoader>(); }},
 		{"global_drop", CfgDir::kMechanics, [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
 		{"group_exp_handicap", CfgDir::kMechanics, [] { return MakeLoader<GroupPenaltiesLoader>(); }},
 		{"reset_stats", CfgDir::kMechanics, [] { return MakeLoader<stats_reset::ResetStatsLoader>(); }},

@@ -1334,7 +1334,8 @@ specific spell hasn't overridden.
 | `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation. | Room / victim |
 | `kCastPreparedToChar` | Spell-ready announcement when a controlled spell replaces the previous one. | Caster |
 | `kNoTarget`, `kWrongTarget` | The caster's target argument missed (no such target / target type rejected by `<targets val>`). | Caster |
-| `kOfferingToChar`, `kOfferingToRoom` | Prayer / sacrifice spells only (`kPrayer`, `kOffering`): what the praying character and the room see when the offering is made; `$o` is the sacrificed item, `{choice}` the god or saint (the chosen action's canonical word). Printed by the "молиться"/"жертвовать" command, not by the cast. | Caster / Room |
+| `kOfferingToChar`, `kOfferingToRoom` | Prayer / sacrifice spells only (`kPrayer`, `kOffering`): what the praying character and the room see when the offering is made; `{gift}` is what was offered (an item or an amount of a currency, accusative), `{choice}` the god or saint (the chosen action's canonical word). Printed by the "молиться"/"жертвовать" command, not by the cast. | Caster / Room |
+| `kDefaultOfferingToChar`, `kDefaultOfferingToRoom` | The same for an offering without a gift, paid by the default amount from `mechanics/piety.xml` (a Christian's candle). | Caster / Room |
 | `kUnknownChoice` | A spell with selectable actions (§3.8.8) was cast without naming one, or with an unknown word; `{choices}` is the list of canonical words. `kDefault` carries the generic line. | Caster |
 | `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `<obj_creation>` outcomes. | Various |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
