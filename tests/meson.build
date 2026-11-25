@@ -110,6 +110,7 @@ test_sources = files(
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
     'naws.parse.cpp',
+    'output.pass.cpp',
     'yaml_error_context.cpp',
     'map.sign.cpp',
     'mob_classes.loader.cpp',
@@ -137,6 +138,13 @@ test_sources = files(
     # binary (it is not in circle_lib -- it is part of mud-sim).
     '../src/simulator/character_builder.cpp',
 )
+
+# output.tail.cpp говорит с настоящим сокетом через socketpair(2) и <sys/socket.h>; в
+# Windows-сборках (MSVC, Clang, MinGW) этого нет, и проверять там нечего -- сервер под
+# нативной Windows не поднимается. Cygwin meson считает отдельной системой, и там всё есть.
+if host_machine.system() != 'windows'
+    test_sources += files('output.tail.cpp')
+endif
 
 # scenario_loader parses YAML -- test + source only when yaml is enabled.
 if yaml_opt != 'disabled'
