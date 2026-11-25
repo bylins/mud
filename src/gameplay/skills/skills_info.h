@@ -7,6 +7,28 @@
 #include "engine/entities/entities_constants.h"
 #include "gameplay/classes/classes_constants.h"
 #include "engine/structs/info_container.h"
+#include "engine/structs/bitset_flags.h"
+
+// Флаги умения: <skill flags="kHidden|kObligatory">. Имена -- NAME_BY_ITEM/ITEM_BY_NAME<ESkillFlag>.
+enum class ESkillFlag {
+	// issue.self-train: умение качается и при применении на себя, когда цели-моба нет вовсе.
+	// Без флага самокаст прока не дает: TrainSkill пропускает только моба или пустую цель.
+	kSelfTrain,
+	// issue #2689: игрок умения не видит -- ни в списке умений, ни в сообщении о росте. Боги видят.
+	kHidden,
+	// issue #2689: умение растет и в мирной комнате (храмы почти все мирные) и в замке; обычные нет.
+	kTrainInPeaceful,
+	kTrainInHouse,
+	// issue #2689: умение есть у каждого персонажа. Кому его не хватает, получает при входе в игру
+	// с уровнем kObligatorySkillStartLevel; класс должен его перечислять, иначе оно не сохранится.
+	kObligatory,
+	kCount
+};
+
+template<>
+const std::string &NAME_BY_ITEM<ESkillFlag>(ESkillFlag item);
+template<>
+ESkillFlag ITEM_BY_NAME<ESkillFlag>(const std::string &name);
 
 /*
  * Загрузчик конфига умений.
@@ -32,17 +54,9 @@ class SkillInfo : public info_container::BaseItem<ESkill> {
 	int difficulty{200};
 	int cap{1000};
 	bool autosuccess{false};
-	// issue.self-train: умение качается и при применении на себя, когда цели-моба нет вовсе.
-	// Без флага самокаст прока не даёт: TrainSkill пропускает только моба или пустую цель.
-	bool self_train{false};
-	// issue #2689: игрок умения не видит -- ни в списке умений, ни в сообщении о росте. Боги видят.
-	bool hidden{false};
-	// issue #2689: умение растет и в мирной комнате (храмы почти все мирные) и в замке; обычные нет.
-	bool train_in_peaceful{false};
-	bool train_in_house{false};
-	// issue #2689: умение есть у каждого персонажа. Кому его не хватает, получает при входе в игру
-	// с уровнем kObligatorySkillStartLevel; класс должен его перечислять, иначе оно не сохранится.
-	bool obligatory{false};
+	BitsetFlags<ESkillFlag> flags;
+
+	[[nodiscard]] bool IsFlagged(ESkillFlag flag) const { return flags.get(flag); }
 
 	/*
 	 * Имя скилла в виде C-строки. По возможности используйте std::string

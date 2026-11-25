@@ -613,7 +613,7 @@ std::string OutAllSkillsHelp() {
 
 	out << "Список возможных умений:\r\n";
 	for (const auto &skill : MUD::Skills()) {
-		if (skill.IsInvalid() || skill.hidden) {
+		if (skill.IsInvalid() || skill.IsFlagged(ESkillFlag::kHidden)) {
 			continue;
 		}
 		skills_list.push_back(skill.GetName());
@@ -704,7 +704,7 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 
 	out2 << "\r\n&GУникальные умения:&n\r\n";
 	for (const auto &skill : MUD::Skills()) {
-		if (MUD::Class(ch_class).skills[skill.GetId()].IsInvalid() || skill.hidden) {
+		if (MUD::Class(ch_class).skills[skill.GetId()].IsInvalid() || skill.IsFlagged(ESkillFlag::kHidden)) {
 			continue;
 		}
 		int num = 0;

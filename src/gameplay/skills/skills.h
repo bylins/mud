@@ -189,9 +189,9 @@ int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict, bool need_lo
 void RemoveAllSkills(CharData *ch);
 void ImproveSkill(CharData *ch, ESkill skill, int success, CharData *victim);
 // Растет ли умение в этой комнате: на арене никогда, в мирной комнате и в замке -- только если
-// умение это разрешает (train_in_peaceful, train_in_house).
+// умение это разрешает (kTrainInPeaceful, kTrainInHouse).
 [[nodiscard]] bool IsSkillTrainableInRoom(const SkillInfo &skill, const RoomData *room);
-// Обязательные умения (obligatory), которых нет у персонажа, ставятся на этот уровень.
+// Обязательные умения (kObligatory), которых нет у персонажа, ставятся на этот уровень.
 constexpr int kObligatorySkillStartLevel{10};
 // Ставит персонажу недостающие обязательные умения, которые перечисляет его класс.
 void SetObligatorySkills(CharData *ch);

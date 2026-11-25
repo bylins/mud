@@ -1,5 +1,5 @@
-// issue #2689: skill flags from cfg/skills.xml -- hidden, train_in_peaceful, train_in_house, obligatory --
-// and the room check ImproveSkill makes with them.
+// issue #2689: skill flags from cfg/skills.xml (flags="kHidden|kObligatory|..."), the deprecated
+// self_train attribute, and the room check ImproveSkill makes with the flags.
 
 #include "gameplay/skills/skills.h"
 #include "gameplay/skills/skills_info.h"
@@ -11,6 +11,7 @@
 #include <array>
 #include <cstdio>
 #include <fstream>
+#include <stdexcept>
 #include <string>
 
 namespace {
@@ -33,8 +34,12 @@ SkillInfoBuilder::ItemPtr ParseSkill(const std::string &attributes) {
 
 SkillInfo MakeSkill(bool train_in_peaceful, bool train_in_house) {
 	SkillInfo skill(ESkill::kBash, EItemMode::kEnabled);
-	skill.train_in_peaceful = train_in_peaceful;
-	skill.train_in_house = train_in_house;
+	if (train_in_peaceful) {
+		skill.flags.set(ESkillFlag::kTrainInPeaceful);
+	}
+	if (train_in_house) {
+		skill.flags.set(ESkillFlag::kTrainInHouse);
+	}
 	return skill;
 }
 
@@ -48,31 +53,57 @@ RoomData MakeRoom(std::initializer_list<ERoomFlag> flags) {
 
 } // namespace
 
+const ESkillFlag kAllFlags[] = {ESkillFlag::kSelfTrain, ESkillFlag::kHidden, ESkillFlag::kTrainInPeaceful,
+								  ESkillFlag::kTrainInHouse, ESkillFlag::kObligatory};
+
 TEST(SkillFlags, OffByDefault) {
 	const auto skill = ParseSkill("");
 	ASSERT_TRUE(skill);
-	EXPECT_FALSE(skill->hidden);
-	EXPECT_FALSE(skill->train_in_peaceful);
-	EXPECT_FALSE(skill->train_in_house);
-	EXPECT_FALSE(skill->obligatory);
+	for (const auto flag : kAllFlags) {
+		EXPECT_FALSE(skill->IsFlagged(flag)) << NAME_BY_ITEM<ESkillFlag>(flag);
+	}
 }
 
-TEST(SkillFlags, ParsedFromAttributes) {
-	const auto skill = ParseSkill(R"(hidden="1" train_in_peaceful="Y" train_in_house="true" obligatory="1")");
+TEST(SkillFlags, NamesRoundTrip) {
+	for (const auto flag : kAllFlags) {
+		EXPECT_EQ(ITEM_BY_NAME<ESkillFlag>(NAME_BY_ITEM<ESkillFlag>(flag)), flag);
+	}
+	EXPECT_THROW(ITEM_BY_NAME<ESkillFlag>("kNoSuchFlag"), std::out_of_range);
+}
+
+TEST(SkillFlags, ParsedFromList) {
+	const auto skill = ParseSkill(R"(flags="kSelfTrain|kHidden|kTrainInPeaceful|kTrainInHouse|kObligatory")");
 	ASSERT_TRUE(skill);
-	EXPECT_TRUE(skill->hidden);
-	EXPECT_TRUE(skill->train_in_peaceful);
-	EXPECT_TRUE(skill->train_in_house);
-	EXPECT_TRUE(skill->obligatory);
+	for (const auto flag : kAllFlags) {
+		EXPECT_TRUE(skill->IsFlagged(flag)) << NAME_BY_ITEM<ESkillFlag>(flag);
+	}
 }
 
 TEST(SkillFlags, ParsedSeparately) {
-	const auto skill = ParseSkill(R"(hidden="1" obligatory="0")");
+	const auto skill = ParseSkill(R"(flags="kHidden|kObligatory")");
 	ASSERT_TRUE(skill);
-	EXPECT_TRUE(skill->hidden);
-	EXPECT_FALSE(skill->train_in_peaceful);
-	EXPECT_FALSE(skill->train_in_house);
-	EXPECT_FALSE(skill->obligatory);
+	EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kHidden));
+	EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kObligatory));
+	EXPECT_FALSE(skill->IsFlagged(ESkillFlag::kSelfTrain));
+	EXPECT_FALSE(skill->IsFlagged(ESkillFlag::kTrainInPeaceful));
+	EXPECT_FALSE(skill->IsFlagged(ESkillFlag::kTrainInHouse));
+}
+
+// A misspelled flag is dropped (and logged); the rest of the list still counts.
+TEST(SkillFlags, UnknownFlagSkipped) {
+	const auto skill = ParseSkill(R"(flags="kHidden|kObligatroy")");
+	ASSERT_TRUE(skill);
+	EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kHidden));
+	EXPECT_FALSE(skill->IsFlagged(ESkillFlag::kObligatory));
+}
+
+// The deprecated self_train attribute still works, alone or next to the list.
+TEST(SkillFlags, DeprecatedSelfTrain) {
+	EXPECT_TRUE(ParseSkill(R"(self_train="1")")->IsFlagged(ESkillFlag::kSelfTrain));
+	EXPECT_FALSE(ParseSkill(R"(self_train="0")")->IsFlagged(ESkillFlag::kSelfTrain));
+	const auto both = ParseSkill(R"(flags="kHidden" self_train="1")");
+	EXPECT_TRUE(both->IsFlagged(ESkillFlag::kHidden));
+	EXPECT_TRUE(both->IsFlagged(ESkillFlag::kSelfTrain));
 }
 
 TEST(SkillTrainableInRoom, NoRoomNever) {
@@ -126,12 +157,29 @@ TEST(SkillFlags, ShippedReligionSkill) {
 		const auto skill = builder.Build(node);
 		ASSERT_TRUE(skill);
 		EXPECT_TRUE(skill->IsAvailable());
-		EXPECT_TRUE(skill->hidden);
-		EXPECT_TRUE(skill->train_in_peaceful);
-		EXPECT_TRUE(skill->obligatory);
+		EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kHidden));
+		EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kTrainInPeaceful));
+		EXPECT_TRUE(skill->IsFlagged(ESkillFlag::kObligatory));
 		found = true;
 	}
 	EXPECT_TRUE(found);
+}
+
+// The shipped config uses only the flag list: no skill keeps the deprecated self_train attribute, and
+// the eight magic skills train on self.
+TEST(SkillFlags, ShippedSelfTrain) {
+	parser_wrapper::DataNode doc(std::string("cfg/skills.xml"));
+	int self_train = 0;
+	for (auto node : doc.Children("skill")) {
+		const char *legacy = node.GetValue("self_train");
+		EXPECT_TRUE(!legacy || !*legacy) << node.GetValue("id");
+		SkillInfoBuilder builder;
+		const auto skill = builder.Build(node);
+		if (skill && skill->IsFlagged(ESkillFlag::kSelfTrain)) {
+			++self_train;
+		}
+	}
+	EXPECT_EQ(self_train, 8);
 }
 
 TEST(SkillFlags, EveryClassListsReligion) {

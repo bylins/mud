@@ -48,7 +48,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 				continue;
 			}
 			// issue #2689: скрытое умение (набожность) игроку не показываем, богу -- да.
-			if (skill.hidden && !privilege::IsImmortal(vict)) {
+			if (skill.IsFlagged(ESkillFlag::kHidden) && !privilege::IsImmortal(vict)) {
 				continue;
 			}
 			// filter out skill that does not correspond to filter condition

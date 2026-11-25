@@ -8,16 +8,17 @@ abbr - аббревиатура (показывается в строке ста
 saving - тип используемого спас-броска.
 difficulty - сложность, используется при расчете успеха/провала умения.
 cap - планка развития умения.
-self_train - умение качается и при применении на себя (когда цели-моба нет вовсе).
-    По умолчанию 0: самокаст прока не даёт. Применение совсем без цели качает всегда,
-    независимо от этого флага.
-hidden - игрок умения не видит: ни в списке умений, ни в справке, ни в сообщении о его росте.
-    Боги видят. По умолчанию 0.
-train_in_peaceful - умение растет и в мирной комнате. По умолчанию 0: в мирной не растет.
-train_in_house - умение растет и в замке (kHouse, kHouseEntry). По умолчанию 0.
-obligatory - умение есть у каждого персонажа: кому его не хватает, получает его при входе в игру
-    на уровне 10. Умение должно быть указано у каждого класса (cfg/classes), иначе оно у персонажей
-    этого класса не сохранится -- об этом пишется ошибка при загрузке. По умолчанию 0.
+flags - флаги умения через "|", по умолчанию ни одного:
+    kSelfTrain - умение качается и при применении на себя (когда цели-моба нет вовсе). Без него
+        самокаст прока не дает. Применение совсем без цели качает всегда, независимо от флага.
+        (Устаревшая запись self_train="1" пока читается, но при загрузке пишется ошибка.)
+    kHidden - игрок умения не видит: ни в списке умений, ни в справке, ни в сообщении о его росте.
+        Боги видят.
+    kTrainInPeaceful - умение растет и в мирной комнате. Без него в мирной не растет.
+    kTrainInHouse - умение растет и в замке (kHouse, kHouseEntry).
+    kObligatory - умение есть у каждого персонажа: кому его не хватает, получает его при входе в
+        игру на уровне 10. Умение должно быть указано у каждого класса (cfg/classes), иначе оно у
+        персонажей этого класса не сохранится -- об этом пишется ошибка при загрузке.
 mode - режим умения.
     kDisabled - элемент отключен полностью. При обнаружении у персонажа - удаляется.
     kService - элемент служебный. Не показывается через команды игрока, не должно быть возможно поставить вручную.
@@ -100,14 +101,14 @@ mode - режим умения.
     <skill id="kTurnUndead"	saving="kStability"	difficulty="100"	cap="1000"/>
     <skill id="kIronwind"	saving="kReflex"	difficulty="150"	cap="1000"/>
     <skill id="kStrangle"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kAirMagic"	saving="kReflex"	difficulty="200"	cap="1000"	self_train="1"/>
-    <skill id="kFireMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
-    <skill id="kWaterMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
-    <skill id="kEarthMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
-    <skill id="kLightMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
-    <skill id="kDarkMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	self_train="1"/>
-    <skill id="kMindMagic"	saving="kWill"		difficulty="1000"	cap="1000"	self_train="1"/>
-    <skill id="kLifeMagic"	saving="kStability"	difficulty="1000"	cap="1000"	self_train="1"/>
+    <skill id="kAirMagic"	saving="kReflex"	difficulty="200"	cap="1000"	flags="kSelfTrain"/>
+    <skill id="kFireMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	flags="kSelfTrain"/>
+    <skill id="kWaterMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	flags="kSelfTrain"/>
+    <skill id="kEarthMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	flags="kSelfTrain"/>
+    <skill id="kLightMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	flags="kSelfTrain"/>
+    <skill id="kDarkMagic"	saving="kReflex"	difficulty="1000"	cap="1000"	flags="kSelfTrain"/>
+    <skill id="kMindMagic"	saving="kWill"		difficulty="1000"	cap="1000"	flags="kSelfTrain"/>
+    <skill id="kLifeMagic"	saving="kStability"	difficulty="1000"	cap="1000"	flags="kSelfTrain"/>
     <skill id="kStun"	saving="kStability"	difficulty="200"	cap="200"/>
     <skill id="kSlay"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kCharge"	saving="kReflex"	difficulty="200"	cap="1000"/>
@@ -115,7 +116,7 @@ mode - режим умения.
     <skill id="kThrowout"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kFrenzy"	saving="kWill"  	difficulty="200"	cap="1000"/>
     <skill id="kMakeAmulet"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kReligion"	saving="kWill"		difficulty="200"	cap="1000"	hidden="1"	train_in_peaceful="1"	obligatory="1"/>
+    <skill id="kReligion"	saving="kWill"		difficulty="200"	cap="1000"	flags="kHidden|kTrainInPeaceful|kObligatory"/>
     <skill id="kCutting"	saving="kStability"	difficulty="200"	cap="200"	mode="kTesting"/>
     <skill id="kCreateBow"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
     <skill id="kCreatePotion"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
