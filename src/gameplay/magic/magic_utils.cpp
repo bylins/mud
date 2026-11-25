@@ -35,9 +35,11 @@
 
 #include <fmt/format.h>
 #include <fmt/printf.h>
+#include <fmt/ranges.h>
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/utils_time.h"
+#include "utils/utils_string.h"
 
 char cast_argument[kMaxInputLength];
 
@@ -597,6 +599,15 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	// If the caster holds a perk that patches this spell, build the per-cast modified action chain
 	// now, before dispatch.
 	ctx.ApplyTalentPatches();
+	// issue #2689: a spell with selectable actions (<action choice=>) runs the one the caster named
+	// after the target. Named nothing or something unknown -- the cast does not happen, the caster
+	// is told what there is to choose from.
+	if (!ctx.SelectChoice()) {
+		std::string msg = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kUnknownChoice);
+		utils::ReplaceAll(msg, "{choices}", fmt::format("{}", fmt::join(ctx.ChoiceNames(), ", ")));
+		SendMsgToChar(msg + "\r\n", caster);
+		return ECastResult::kNotCast;
+	}
 
 	// A cast aimed at a DIRECTION targets that passage/exit. CallMagicToExit runs only the
 	// passage-meaningful stages of the spell (impose an affect on the door, dispel affects already

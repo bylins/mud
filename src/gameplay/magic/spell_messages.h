@@ -167,6 +167,9 @@ enum class ESpellMsg {
 	// ($o = the sacrificed item; a prayer has none). Only the prayer/sacrifice spells carry them.
 	kOfferingToChar,
 	kOfferingToRoom,
+	// issue #2689: a spell with selectable actions (<action choice=>) was cast without naming one, or
+	// with an unknown word; {choices} = the words it knows. kDefault carries the generic line.
+	kUnknownChoice,
 	// Custom one-off slots for manual spells. These keys carry NO fixed semantic --
 	// each per-spell sheaf assigns its own meaning. Use ONLY for messages that:
 	//   1. are unique to a single manual spell (do_ManualSpell-style function),

@@ -129,6 +129,7 @@
 		<attr name="target" type="enum" enum="EActionTarget" desc="Per-action target selector (default kTarSame)"/>
 		<attr name="base" type="enum" enum="EActionBase" desc="Formula base (default kCompetence)"/>
 		<attr name="reset" type="bool" desc="Reset the roll for this action"/>
+		<attr name="choice" type="string" desc="Words that select this action (word|word); without it the action always runs"/>
 		<child tag="affects"/>
 		<child tag="unaffect"/>
 		<child tag="damage"/>

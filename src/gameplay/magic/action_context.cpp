@@ -7,6 +7,8 @@
 
 #include "engine/db/global_objects.h"
 
+#include <algorithm>
+
 double ActionContext::CompetenceBase() const {
 	const double real = potency_.skill_coeff + potency_.stat_coeff;
 	if (is_entry_action) {
@@ -107,6 +109,52 @@ void ActionContext::ApplyTalentPatches() {
 		}
 		ApplyOnePatch(p);
 	}
+}
+
+std::vector<const talents_actions::Action *> ActionContext::CurrentChain() const {
+	if (patched_) {
+		return action_view_;
+	}
+	std::vector<const talents_actions::Action *> chain;
+	const auto &own = MUD::Spell(spell_id_).actions.list();
+	chain.reserve(own.size());
+	for (const auto &action : own) {
+		chain.push_back(&action);
+	}
+	return chain;
+}
+
+std::vector<std::string> ActionContext::ChoiceNames() const {
+	std::vector<std::string> names;
+	for (const auto *action : CurrentChain()) {
+		if (action->IsChoice()) {
+			names.push_back(action->GetChoiceName());
+		}
+	}
+	return names;
+}
+
+// The narrowed chain replaces the walk the way a perk patch does (patched_), so the cursor, the entry
+// action and the stages see only what was chosen.
+bool ActionContext::SelectChoice() {
+	const auto chain = CurrentChain();
+	const bool has_choices = std::any_of(chain.begin(), chain.end(),
+		[](const talents_actions::Action *action) { return action->IsChoice(); });
+	if (!has_choices) {
+		return true;
+	}
+	const auto *chosen = talents_actions::FindChoice(chain, cast_extra);
+	if (!chosen) {
+		return false;
+	}
+	action_view_.clear();
+	for (const auto *action : chain) {
+		if (!action->IsChoice() || action == chosen) {
+			action_view_.push_back(action);
+		}
+	}
+	patched_ = true;
+	return true;
 }
 
 // Bridge the patch's mod op to the manifestation-side enum: op="modify" arithmetic lives in

@@ -801,6 +801,11 @@ class Action {
 	// issue.perk-action-patching: optional stable id (<action id=>) -- the action's "vnum" within the
 	// spell; lets a perk patch address this block (insert/replace/remove). Empty = append/replace_all only.
 	std::string id_;
+	// issue #2689: <action choice="Перуну|Перун"> -- the words that select this action. A spell whose
+	// actions carry choices runs every action WITHOUT one plus exactly the one whose choice matches
+	// the cast's extra argument (ActionContext::cast_extra). The first word is the canonical one
+	// ({choice} in messages, the list shown when nothing matched). Empty = always runs.
+	std::vector<std::string> choices_;
 	// Target gates (issue.cast-affect): the cast is refused on this action unless the target has
 	// none of blocking_ and all of required_. Checked in CastToSingleTarget, not inside a stage.
 	FlagCondition blocking_;
@@ -866,6 +871,10 @@ class Action {
 	[[nodiscard]] const DamageChange &GetDamageChange() const { return damage_change_; }
 	[[nodiscard]] const Retaliation &GetRetaliation() const { return retaliation_; }
 	[[nodiscard]] const std::string &GetId() const { return id_; }
+	[[nodiscard]] const std::vector<std::string> &GetChoices() const { return choices_; }
+	[[nodiscard]] bool IsChoice() const { return !choices_.empty(); }
+	// The canonical choice word (the first one), or an empty string for an unconditional action.
+	[[nodiscard]] const std::string &GetChoiceName() const;
 	// issue.perk-action-patching: manifestation-level patch helpers, applied ONLY to per-cast scratch
 	// COPIES of a block (the shared spell blocks stay const). They copy the shared_ptr leaves, so no
 	// deep copy of the manifestation objects happens.
@@ -910,6 +919,11 @@ struct CasterConditions {
 	[[nodiscard]] bool empty() const { return blocking.empty() && required.empty(); }
 };
 
+// issue #2689: the action among `actions` that `arg` selects -- an exact (case-insensitive) match of
+// one of its choice words first, then the first action (in order) one of whose words starts with
+// `arg`. nullptr if `arg` is empty or selects nothing. Actions without choices are never returned.
+[[nodiscard]] const Action *FindChoice(const std::vector<const Action *> &actions, const std::string &arg);
+
 class Actions {
 	// Ordered list of <action> blocks, in XML order. Empty for spells with no
 	// <talent_actions> (flag-only spells: summon / creation / manual / ...).
@@ -950,6 +964,11 @@ class Actions {
 	// Ordered access to the action list (issue.spell-pipeline). The cast loop
 	// walks this in order.
 	[[nodiscard]] const std::vector<Action> &list() const { return list_; }
+	// issue #2689: selectable actions (<action choice=>). HasChoices -- whether there are any;
+	// FindChoice -- see the free FindChoice above; ChoiceNames -- the canonical word of each, in order.
+	[[nodiscard]] bool HasChoices() const;
+	[[nodiscard]] const Action *FindChoice(const std::string &arg) const;
+	[[nodiscard]] std::vector<std::string> ChoiceNames() const;
 
 	// The action a single-action (or bypass / room) caller should use: the first
 	// action, or a static empty one when the spell has none. Underpins the

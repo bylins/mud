@@ -241,6 +241,13 @@ class ActionContext {
 	// (SpellInfo::talent_patches). Fast no-op when the spell has no patches. Call once in CallMagic before
 	// the action walk; every other cast (and everyone without the perk) walks the spell unchanged.
 	void ApplyTalentPatches();
+	// issue #2689: narrow this cast's action chain to the actions without a choice plus the one
+	// cast_extra selects (<action choice=>). Call once in CallMagic, after ApplyTalentPatches, so a
+	// perk-patched chain is narrowed too. True when there is nothing to choose or the choice matched;
+	// false when the chain has selectable actions and cast_extra selects none of them.
+	[[nodiscard]] bool SelectChoice();
+	// The canonical words of this cast's selectable actions, in order (for the "choose one" message).
+	[[nodiscard]] std::vector<std::string> ChoiceNames() const;
 	// The action the current stage should read its block from: the cursor's
 	// current action when the per-action loop is driving (CastSpell),
 	// or the spell's primary action otherwise (bypass callers / rooms that call
@@ -254,6 +261,8 @@ class ActionContext {
 	[[nodiscard]] double CompetenceBase() const;
 
  private:
+	// The chain this cast walks: the patched view, or the spell's own actions.
+	[[nodiscard]] std::vector<const talents_actions::Action *> CurrentChain() const;
 	// Apply one resolved patch to action_view_/patch_scratch_.
 	void ApplyOnePatch(const feats::TalentPatch &p);
 	CharData *caster_{nullptr};

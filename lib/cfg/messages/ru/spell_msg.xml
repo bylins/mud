@@ -82,6 +82,7 @@
 		     so the key always resolves to something readable. -->
 		<message type="kItemCreationFailToChar" val="Создание не удалось." />
 		<message type="kWrongTarget" val="Это не подходящая цель для заклинания." />
+		<message type="kUnknownChoice" val="Уточните, что именно вы хотите: {choices}." />
 		<!-- Teleport-style "actor moved" generics (issue.spell-msg-improve). $n is the
 		     actor moving; the room sees them leave or arrive. Per-spell sheaves override
 		     with flavour for kWorldOfRecall, kTeleport, kRelocate, kSummon, etc. -->
@@ -2417,46 +2418,19 @@
 		<message type="kCastPhraseHeathen" val="очистися место сие" />
 		<message type="kCastPhraseChristian" val="... да сгинет скверна с места сего." />
 	</msg_sheaf>
-	<!-- issue #2689: молитвы и жертвы. kOfferingToChar/kOfferingToRoom -- что видят молящийся и комната;
-	     в жертве $o -- принесенный предмет. -->
-	<msg_sheaf id="kSacrificeYarilo">
-		<name val="жертва Яриле" />
-		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Яриле." />
-		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Яриле." />
+	<!-- issue #2689: жертва и молитва. kOfferingToChar/kOfferingToRoom -- что видят молящийся и комната;
+	     $o -- принесенный в жертву предмет, {choice} -- кому (первое имя из choice выбранного действия).
+	     kUnknownChoice -- игрок не назвал, кому, или назвал неизвестного; {choices} -- кому можно. -->
+	<msg_sheaf id="kOffering">
+		<name val="жертва" />
+		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву {choice}." />
+		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву {choice}." />
+		<message type="kUnknownChoice" val="Вы можете принести жертву: {choices}." />
 	</msg_sheaf>
-	<msg_sheaf id="kSacrificeMakosh">
-		<name val="жертва Макоши" />
-		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Макоши." />
-		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Макоши." />
-	</msg_sheaf>
-	<msg_sheaf id="kSacrificePerun">
-		<name val="жертва Перуну" />
-		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Перуну." />
-		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Перуну." />
-	</msg_sheaf>
-	<msg_sheaf id="kSacrificeVeles">
-		<name val="жертва Велесу" />
-		<message type="kOfferingToChar" val="Вы принесли $o3 в жертву Велесу." />
-		<message type="kOfferingToRoom" val="$n принес$q $o3 в жертву Велесу." />
-	</msg_sheaf>
-	<msg_sheaf id="kPrayerTheotokos">
-		<name val="молитва Пресвятой Богородице" />
-		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Пресвятой Богородице." />
-		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Пресвятой Богородице." />
-	</msg_sheaf>
-	<msg_sheaf id="kPrayerNicholas">
-		<name val="молитва Николе-Угоднику" />
-		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Николе-Угоднику." />
-		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Николе-Угоднику." />
-	</msg_sheaf>
-	<msg_sheaf id="kPrayerElijah">
-		<name val="молитва Илие-Пророку" />
-		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Илие-Пророку." />
-		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Илие-Пророку." />
-	</msg_sheaf>
-	<msg_sheaf id="kPrayerGeorge">
-		<name val="молитва Георгию-Победоносцу" />
-		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву Георгию-Победоносцу." />
-		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву Георгию-Победоносцу." />
+	<msg_sheaf id="kPrayer">
+		<name val="молитва" />
+		<message type="kOfferingToChar" val="Вы затеплили свечку и вознесли молитву {choice}." />
+		<message type="kOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву {choice}." />
+		<message type="kUnknownChoice" val="Вы можете вознести молитву: {choices}." />
 	</msg_sheaf>
 </spell_msg>
