@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <fstream>
 #include <string>
 
 // Досылка хвоста против полного прохода -- на настоящем сокете. MSDP-отчёт не пишет в сокет
@@ -63,6 +64,17 @@ void SetUpDescriptor(DescriptorData &d, const SocketPair &sockets) {
 	d.bufptr = 0;
 	*d.output = '\0';
 	d.has_prompt = 1;
+}
+
+// WSL не соблюдает O_NONBLOCK на сокетах AF_UNIX: send() там ждёт читателя вместо того, чтобы
+// вернуть «буфер полон». Проверка с полным буфером на такой платформе подвисает насмерть и
+// уносит с собой весь прогон (в CI -- до таймаута в 180 с), а проверять там нечего: движок под
+// Windows и WSL не держат. Остальные проверки файла буфер не переполняют и идут везде.
+bool NonBlockingSocketsAreHonoured() {
+	std::ifstream version("/proc/version");
+	std::string line;
+	std::getline(version, line);
+	return line.find("Microsoft") == std::string::npos && line.find("WSL") == std::string::npos;
 }
 
 // Правдоподобный MSDP-отчёт: IAC SB MSDP VAR "GROUP" VAL IAC SE.
@@ -122,6 +134,10 @@ TEST(OutputTail, FullPassAppendsItsOwnLineToTheTail) {
 // Хвост, который сокет взял не целиком, остаётся с начала и уходит следующей досылкой --
 // порядок байтов при этом не рвётся.
 TEST(OutputTail, WhatTheSocketDidNotTakeStaysInOrder) {
+	if (!NonBlockingSocketsAreHonoured()) {
+		GTEST_SKIP() << "здесь O_NONBLOCK на сокете не работает: переполнять буфер нельзя";
+	}
+
 	SocketPair sockets;
 	DescriptorData d;
 	SetUpDescriptor(d, sockets);
@@ -132,12 +148,13 @@ TEST(OutputTail, WhatTheSocketDidNotTakeStaysInOrder) {
 	ASSERT_TRUE(iosystem::write_to_descriptor_with_options(&d, lump.data(), lump.size()));
 
 	std::string received;
-	for (int round = 0; round < 10000; ++round) {
+	while (!d.pending_output.empty()) {
+		const auto left = d.pending_output.size();
 		ASSERT_EQ(0, iosystem::FlushOutputTail(&d));
 		received += sockets.Drain();
-		if (d.pending_output.empty()) {
-			break;
-		}
+		// Читателя мы опорожняем каждый заход, так что хвост обязан убывать. Если он замер --
+		// дальше крутиться незачем: это уже не задержка канала, а поломка досылки.
+		ASSERT_LT(d.pending_output.size(), left) << "хвост не убывает: осталось " << left << " б";
 	}
 
 	EXPECT_TRUE(d.pending_output.empty());
