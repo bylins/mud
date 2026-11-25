@@ -73,7 +73,9 @@ struct GrowthTier {
 
 class Rules {
  public:
-	void Load(parser_wrapper::DataNode data);
+	// Problems that do not stop loading (an unknown item type, ...) go to `errors` if it is given,
+	// else to the error log. A malformed number throws std::runtime_error.
+	void Load(parser_wrapper::DataNode data, std::vector<std::string> *errors = nullptr);
 
 	[[nodiscard]] const OfferingRules &Sacrifice() const { return sacrifice_; }
 	[[nodiscard]] const OfferingRules &Prayer() const { return prayer_; }
@@ -101,10 +103,18 @@ double TimerFactor(int timer, int proto_timer, double fresh_share);
 // valued at all (its stats are broken, see CalcRemortRequirements).
 std::optional<double> ItemValue(const ObjData *obj, EMeasure measure, double fresh_share);
 
-class PietyLoader : public cfg_manager::ICfgLoader {
+// Also the Vedun data set "piety": its elements are the three sections, <sacrifice>, <prayer> and
+// <growth>, keyed by their tag names.
+class PietyLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] parser_wrapper::DataNode FindElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 } // namespace piety

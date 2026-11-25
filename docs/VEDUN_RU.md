@@ -190,6 +190,7 @@ Vedun scheme lint [affects]: 0 enum error(s), 0 undeclared tag type(s), 0 undecl
 | `obj_affects` | `cfg/affects/obj_affects.xml` |
 | `pcrace` | `cfg/mechanics/pc_races.xml` |
 | `pcracemsg` | `cfg/messages/ru/pc_race_msg.xml` |
+| `piety` | `cfg/mechanics/piety.xml` (элементы `sacrifice`, `prayer`, `growth`) |
 | `region` | `cfg/mechanics/regions.xml` |
 | `regionmsg` | `cfg/messages/ru/region_msg.xml` |
 | `rentmsg` | `cfg/messages/ru/rent_msg.xml` |

@@ -28,6 +28,15 @@ constexpr double kBrokenItemLevel{1000000.0};
 
 Rules rules;
 
+// A problem that does not stop loading: logged at boot, collected when the editor validates.
+void Report(std::vector<std::string> *errors, const std::string &message) {
+	if (errors) {
+		errors->push_back(message);
+	} else {
+		err_log("piety.xml: %s", message.c_str());
+	}
+}
+
 bool HasAttr(const parser_wrapper::DataNode &node, const char *key) {
 	const char *value = node.GetValue(key);
 	return value && *value;
@@ -63,7 +72,7 @@ EMeasure ReadMeasure(const char *value) {
 	throw std::runtime_error(fmt::format("unknown value=\"{}\" (none, ilvl or cost)", value));
 }
 
-OfferingRules ReadOfferings(parser_wrapper::DataNode node, const char *what) {
+OfferingRules ReadOfferings(parser_wrapper::DataNode node, const char *what, std::vector<std::string> *errors) {
 	OfferingRules result;
 	if (HasAttr(node, "default_currency")) {
 		result.default_currency = node.GetValue("default_currency");
@@ -75,7 +84,7 @@ OfferingRules ReadOfferings(parser_wrapper::DataNode node, const char *what) {
 			try {
 				result.items[ITEM_BY_NAME<EObjType>(type_name)] = measure;
 			} catch (const std::out_of_range &) {
-				err_log("piety.xml, <%s>: unknown item type '%s'.", what, type_name.c_str());
+				Report(errors, fmt::format("<{}>: unknown item type '{}'.", what, type_name));
 			}
 		}
 	}
@@ -84,8 +93,8 @@ OfferingRules ReadOfferings(parser_wrapper::DataNode node, const char *what) {
 		result.currencies[currency.GetValue("id")] = std::max(1L, min);
 	}
 	if (!result.default_currency.empty() && !result.CurrencyMinimum(result.default_currency)) {
-		err_log("piety.xml, <%s>: default_currency '%s' is not among the accepted currencies.",
-				what, result.default_currency.c_str());
+		Report(errors, fmt::format("<{}>: default_currency '{}' is not among the accepted currencies.",
+								   what, result.default_currency));
 	}
 	return result;
 }
@@ -124,15 +133,15 @@ std::optional<double> GrowthTier::Threshold(const Gift &gift) const {
 	}
 }
 
-void Rules::Load(parser_wrapper::DataNode data) {
+void Rules::Load(parser_wrapper::DataNode data, std::vector<std::string> *errors) {
 	Rules loaded;
 	auto node = data;
 	if (node.GoToChild("sacrifice")) {
-		loaded.sacrifice_ = ReadOfferings(node, "sacrifice");
+		loaded.sacrifice_ = ReadOfferings(node, "sacrifice", errors);
 	}
 	node = data;
 	if (node.GoToChild("prayer")) {
-		loaded.prayer_ = ReadOfferings(node, "prayer");
+		loaded.prayer_ = ReadOfferings(node, "prayer", errors);
 	}
 	node = data;
 	if (node.GoToChild("growth")) {
@@ -223,6 +232,55 @@ void PietyLoader::Load(parser_wrapper::DataNode data) {
 
 void PietyLoader::Reload(parser_wrapper::DataNode data) {
 	Load(std::move(data));
+}
+
+std::string PietyLoader::EditableWhat() const {
+	return "piety";
+}
+
+std::vector<cfg_manager::EditableElement> PietyLoader::ListElements() const {
+	return {{"sacrifice", "жертвовать: что принимается"},
+			{"prayer", "молиться: что принимается, свечка"},
+			{"growth", "пороги роста набожности"}};
+}
+
+cfg_manager::ValidationResult PietyLoader::Validate(parser_wrapper::DataNode &doc) const {
+	Rules trial;
+	std::vector<std::string> errors;
+	try {
+		trial.Load(doc, &errors);
+	} catch (const std::exception &e) {
+		return {false, fmt::format("piety: {}", e.what())};
+	}
+	if (!errors.empty()) {
+		return {false, fmt::format("piety: {}", errors.front())};
+	}
+	return {true, ""};
+}
+
+parser_wrapper::DataNode PietyLoader::FindElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// The three sections are keyed by their tag name, not by an id attribute.
+	for (auto &child : root.Children()) {
+		if (id == child.GetName()) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string PietyLoader::CanonicalElementId(const std::string &id) const {
+	for (const char *section : {"sacrifice", "prayer", "growth"}) {
+		if (id == section) {
+			return section;
+		}
+	}
+	return "";
+}
+
+parser_wrapper::DataNode PietyLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// A missing section is recreated empty: an empty <sacrifice>/<prayer> accepts nothing, an empty
+	// <growth> raises piety from nothing.
+	return root.AddChild(id.c_str());
 }
 
 } // namespace piety

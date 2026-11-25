@@ -184,6 +184,16 @@ void RegisterEditorEnums() {
 	}
 	registry.RegisterNames("EGender", {"kNeutral", "kMale", "kFemale", "kPoly"});
 	registry.RegisterNames("ECase", {"kNom", "kGen", "kDat", "kAcc", "kIns", "kPre"});
+	// issue #2689: item types (no NAMES_OF map) for piety.xml <items types=>, and how a gift is valued
+	// (keep in sync with ReadMeasure in piety.cpp).
+	{
+		std::vector<std::string> obj_types;
+		for (int type = EObjType::kLightSource; type <= EObjType::kCraftMaterial2; ++type) {
+			obj_types.push_back(NAME_BY_ITEM<EObjType>(static_cast<EObjType>(type)));
+		}
+		registry.RegisterNames("EObjType", obj_types);
+	}
+	registry.RegisterNames("EPietyMeasure", {"none", "ilvl", "cost"});
 }
 
 } // namespace vedun

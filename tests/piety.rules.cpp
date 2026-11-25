@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <fstream>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -145,6 +146,47 @@ TEST(PietyRules, Shipped) {
 	}
 	// The candle lays the favour but does not raise piety even at the start.
 	EXPECT_FALSE(rules.IsWorthy(10, Gift{EMeasure::kCurrency, "kKuna", 10.0}));
+}
+
+// Problems that do not stop loading go to the caller's list instead of the log (the editor's dry run).
+TEST(PietyRules, CollectsErrors) {
+	{
+		std::ofstream f(kRulesSrc);
+		f << R"(<piety><sacrifice default_currency="kGlory" default_amount="1">)"
+			 R"(<items types="kArmor|kNoSuchType" value="ilvl"/><currency id="kKuna"/></sacrifice></piety>)";
+	}
+	parser_wrapper::DataNode doc(kRulesSrc);
+	std::remove(kRulesSrc);
+	piety::Rules rules;
+	std::vector<std::string> errors;
+	rules.Load(doc, &errors);
+	ASSERT_EQ(errors.size(), 2u);
+	EXPECT_NE(errors[0].find("kNoSuchType"), std::string::npos);
+	EXPECT_NE(errors[1].find("kGlory"), std::string::npos);
+	EXPECT_EQ(rules.Sacrifice().ItemMeasure(EObjType::kArmor), EMeasure::kIlvl);   // the rest still loads
+}
+
+// The Vedun data set: three sections keyed by tag name; the editor's dry run accepts the shipped file
+// and refuses a broken tier.
+TEST(PietyRules, VedunDataSet) {
+	piety::PietyLoader loader;
+	EXPECT_EQ(loader.EditableWhat(), "piety");
+	EXPECT_EQ(loader.ListElements().size(), 3u);
+	EXPECT_EQ(loader.CanonicalElementId("growth"), "growth");
+	EXPECT_EQ(loader.CanonicalElementId("tier"), "");
+
+	parser_wrapper::DataNode doc(std::string("cfg/mechanics/piety.xml"));
+	EXPECT_TRUE(loader.Validate(doc).ok) << loader.Validate(doc).error;
+	auto growth = loader.FindElementNode(doc, "growth");
+	ASSERT_FALSE(growth.IsEmpty());
+	EXPECT_STREQ(growth.GetName(), "growth");
+	EXPECT_TRUE(loader.FindElementNode(doc, "tier").IsEmpty());
+
+	auto tier = growth.AddChild("tier");   // no piety= -> refused
+	(void) tier;
+	const auto result = loader.Validate(doc);
+	EXPECT_FALSE(result.ok);
+	EXPECT_NE(result.error.find("piety"), std::string::npos);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

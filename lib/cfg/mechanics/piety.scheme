@@ -1,0 +1,42 @@
+<!--
+  issue #2689: Vedun editor scheme for cfg/mechanics/piety.xml (the "piety" data set). The elements
+  are the three sections, keyed by their tag names: sacrifice, prayer, growth. The meaning of every
+  field is described in the header of piety.xml.
+-->
+<scheme>
+	<tag name="piety" desc="Piety: what may be offered and which gift raises piety">
+		<child tag="sacrifice"/>
+		<child tag="prayer"/>
+		<child tag="growth"/>
+	</tag>
+	<tag name="sacrifice" desc="What the heathen's sacrifice (жертвовать) accepts">
+		<attr name="default_currency" type="enum" enum="ECurrencyId" desc="An offering without a gift costs this currency (empty: a gift is required)"/>
+		<attr name="default_amount" type="int" min="1" desc="How much an offering without a gift costs"/>
+		<child tag="items" multiple="Y"/>
+		<child tag="currency" multiple="Y"/>
+	</tag>
+	<tag name="prayer" desc="What the Christian's prayer (молиться) accepts">
+		<attr name="default_currency" type="enum" enum="ECurrencyId" desc="A prayer without a gift costs this currency (the candle)"/>
+		<attr name="default_amount" type="int" min="1" desc="The candle's price"/>
+		<child tag="items" multiple="Y"/>
+		<child tag="currency" multiple="Y"/>
+	</tag>
+	<tag name="items" desc="Accepted item types and how they are valued">
+		<attr name="types" type="flagset" enum="EObjType" desc="Item types, e.g. kArmor|kWeapon"/>
+		<attr name="value" type="enum" enum="EPietyMeasure" desc="none: only the favour; ilvl: item level; cost: item cost"/>
+	</tag>
+	<tag name="currency" desc="An accepted currency (in a section) or its growth threshold (in a tier)">
+		<attr name="id" type="enum" enum="ECurrencyId" desc="Currency text_id, e.g. kKuna"/>
+		<attr name="min" type="int" min="1" desc="Section: the least amount accepted; tier: the least amount that raises piety"/>
+	</tag>
+	<tag name="growth" desc="Piety growth thresholds">
+		<attr name="fresh_timer" type="int" min="1" max="100" desc="Percent of the prototype's timer below which an item loses value proportionally"/>
+		<child tag="tier" multiple="Y"/>
+	</tag>
+	<tag name="tier" desc="From this piety up to the next tier: the least gift that raises piety by 1">
+		<attr name="piety" type="int" min="0" desc="Piety this tier starts at"/>
+		<attr name="ilvl" type="double" min="0" desc="Least item level (absent: equipment does not raise piety here)"/>
+		<attr name="cost" type="double" min="0" desc="Least treasure cost (absent: treasure does not raise piety here)"/>
+		<child tag="currency" multiple="Y"/>
+	</tag>
+</scheme>

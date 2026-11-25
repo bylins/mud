@@ -24,6 +24,7 @@ What it does:
   messages/ru/affect_msg.xml  the favours' short descriptions.
   messages/ru/spell_msg.xml   kUnknownChoice in kDefault, the kOffering and kPrayer sheaves.
   mechanics/piety.xml  new: what may be offered and which gift raises piety (copied if missing).
+  mechanics/piety.scheme  new: its Vedun scheme (copied if missing).
 """
 
 import argparse
@@ -324,6 +325,7 @@ class Migrator:
         self.patch("messages/ru/affect_msg.xml", self.affect_msg)
         self.patch("messages/ru/spell_msg.xml", self.spell_msg)
         self.add("mechanics/piety.xml")
+        self.add("mechanics/piety.scheme")
 
 
 def main():
