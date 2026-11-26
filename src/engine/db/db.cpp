@@ -85,6 +85,7 @@
 #include "gameplay/communication/social.h"
 #include "player_index.h"
 #include "world_checksum.h"
+#include "world_revision.h"
 #include "legacy_world_data_source.h"
 #include "world_data_source_base.h"
 #ifdef HAVE_SQLITE
@@ -814,6 +815,17 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 #endif
 	}
 	log("Using data source: %s", data_source->GetName().c_str());
+
+	// Ревизия мира читается здесь, а не впечатывается в бинарь: мир -- отдельный
+	// репозиторий, он выкладывается независимо от сборки, и один бинарь за свою
+	// жизнь видит несколько ревизий мира (см. world_revision.h). К этому месту
+	// каталог мира уже известен.
+	world_revision::Load(LIB_WORLD);
+	if (world_revision::Get().empty()) {
+		log("World revision: unknown (neither %s.git nor %sREVISION)", LIB_WORLD, LIB_WORLD);
+	} else {
+		log("World revision: %s", world_revision::Get().c_str());
+	}
 
 	// Register data source in manager for OLC access
 	auto* ds_ptr = data_source.get();
