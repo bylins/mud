@@ -1206,8 +1206,6 @@ int mccp_end(DescriptorData *t, int ver) {
 	t->deflate->next_in = tmp;
 	prevsize = kSmallBufsize - t->deflate->avail_out;
 
-	log("SYSERR: about to deflate Z_FINISH.");
-
 	if ((derr = deflate(t->deflate, Z_FINISH)) != Z_STREAM_END) {
 		log("SYSERR: deflate returned %d upon Z_FINISH. (in: %d, out: %d)",
 			derr, t->deflate->avail_in, t->deflate->avail_out);
