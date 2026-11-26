@@ -79,6 +79,7 @@
 #endif
 #include "engine/db/world_data_source_manager.h"
 #include "utils/utils.h"
+#include "utils/utils_string.h"
 #include <cstring>
 #include <cerrno>
 #ifndef _WIN32
@@ -1247,11 +1248,20 @@ int shutting_down(void) {
 
 	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0) {
 		remove("../.crash");
-		const char *what = shutdown_parameters.reboot_after_shutdown() ? "ПЕРЕЗАГРУЗКА" : "ОСТАНОВКА";
+		const bool reboot = shutdown_parameters.reboot_after_shutdown();
 		const std::string left = wait < 60
 			? fmt::format("{} {}", wait, grammar::GetDeclensionInNumber(wait, grammar::EWhat::kSec))
 			: fmt::format("{} {}", wait / 60, grammar::GetDeclensionInNumber(wait / 60, grammar::EWhat::kMinU));
-		SendMsgToAll(fmt::format("{} через {}.\r\n", what, left).c_str());
+		std::string countdown = CommonMsg(reboot ? ECommonMsg::kRebootCountdown : ECommonMsg::kShutdownCountdown);
+		utils::ReplaceAll(countdown, "{left}", left);
+		SendMsgToAll((countdown + "\r\n").c_str());
+		// issue #3467: one random flavor line at the last mark of a reboot.
+		if (reboot && wait == 10) {
+			const auto &flavor = CommonMsg(ECommonMsg::kRebootFlavor);
+			if (!flavor.empty()) {
+				SendMsgToAll(fmt::format("&W{}&n\r\n", flavor).c_str());
+			}
+		}
 		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог
 		if (wait == 10)

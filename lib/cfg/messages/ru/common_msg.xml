@@ -4,6 +4,10 @@
     constants.cpp). kDefault sheaf, keyed by ECommonMsg. Stored WITHOUT a trailing \r\n (XML
     attributes cannot hold newlines); the line messages get "\r\n" appended at the call site,
     kNothing is an inline fragment (no newline).
+
+    issue #3467: kRebootCountdown / kShutdownCountdown -- the countdown line, {left} is "N секунд" /
+    "N минут". kRebootFlavor is a pool: several messages of one type, one is picked at random and
+    shown once, at the 10-second reboot mark (not on a plain shutdown). Add a line -- add a message.
 -->
 <common_msg>
 	<msg_sheaf id="kDefault">
@@ -23,5 +27,19 @@
 		<message type="kMenuBlind" val="Включить/выключить режим слепого игрока."/>
 		<message type="kMenuEmailList" val="Посмотреть всех персонажей на данном email'e."/>
 		<message type="kMenuPrompt" val="Чего ваша душа желает?"/>
+		<message type="kRebootCountdown" val="ПЕРЕЗАГРУЗКА через {left}."/>
+		<message type="kShutdownCountdown" val="ОСТАНОВКА через {left}."/>
+		<message type="kRebootFlavor" val="С небес падает звёздочка! Загадайте поскорее желание - вдруг после ребута станете сильнее всех в своей профессии!"/>
+		<message type="kRebootFlavor" val="Перун начищает молнии до блеска - загадайте, чтоб после ребута и ваш удар бил поярче!"/>
+		<message type="kRebootFlavor" val="Велес пересчитывает стада - замрите тихонько, вдруг зачтёт вам лишнюю жизнь."/>
+		<message type="kRebootFlavor" val="Домовой прибирает мир перед гостями - Авось и в вашей котомке порядок наведёт."/>
+		<message type="kRebootFlavor" val="Баба-яга поворачивает избушку к лесу задом - попроситесь, вдруг подвезёт поближе к добыче."/>
+		<message type="kRebootFlavor" val="Кощей перепрятывает свою смерть - приберитесь и вы, глядишь, отыщется что-то забытое."/>
+		<message type="kRebootFlavor" val="Леший переставляет деревья по-своему - может, после ребута и тропку к кладу подскажет."/>
+		<message type="kRebootFlavor" val="Водяной меняет воду в реках - кто первым зачерпнёт свежей, тому, бают, удача на весь день."/>
+		<message type="kRebootFlavor" val="Боги ненадолго отлучились - замолвите словечко, глядишь, вернутся к вам подобрее."/>
+		<message type="kRebootFlavor" val="Мир свернётся в свиток и развернётся вновь - держитесь за шапку да загадайте местечко потеплее!"/>
+		<message type="kRebootFlavor" val="Сейчас всё на миг померкнет - это не порча, это боги моргнули; моргните и вы - на удачу."/>
+		<message type="kRebootFlavor" val="Грянет гром, сверкнёт молния - и мир народится заново. Загадайте, кем вернуться!"/>
 	</msg_sheaf>
 </common_msg>
