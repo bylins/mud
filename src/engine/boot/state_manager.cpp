@@ -46,6 +46,7 @@ StateManager::StateManager() {
 	put(EStateFile::kSpellStat, "statistics/spellstat.txt");
 	put(EStateFile::kUniqueMobs, "unique_mobs.xml");
 	put(EStateFile::kDropTable, "sets_drop_generated_table.lst");
+	put(EStateFile::kWorldEdits, "world_edits.lst");
 }
 
 const std::string &StateManager::Path(EStateFile file) const {

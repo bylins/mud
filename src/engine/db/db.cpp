@@ -820,11 +820,16 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// репозиторий, он выкладывается независимо от сборки, и один бинарь за свою
 	// жизнь видит несколько ревизий мира (см. world_revision.h). К этому месту
 	// каталог мира уже известен.
-	world_revision::Load(LIB_WORLD);
+	world_revision::Load(LIB_WORLD, MUD::StateManager().Path(state::EStateFile::kWorldEdits));
 	if (world_revision::Get().empty()) {
 		log("World revision: unknown (neither %s.git nor %sREVISION)", LIB_WORLD, LIB_WORLD);
-	} else {
+	} else if (world_revision::Date().empty()) {
 		log("World revision: %s", world_revision::Get().c_str());
+	} else {
+		log("World revision: %s, deployed %s", world_revision::Get().c_str(), world_revision::Date().c_str());
+	}
+	if (const std::string world_edits = world_revision::FormatEdits(); !world_edits.empty()) {
+		log("World changed on disk since that revision: %s", world_edits.c_str());
 	}
 
 	// Register data source in manager for OLC access

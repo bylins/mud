@@ -41,6 +41,7 @@ enum class EStateFile {
 	kSpellStat,        // statistics/spellstat.txt      : spell-usage stats (append log)
 	kUniqueMobs,       // unique_mobs.xml               : unique-mob registry (regenerable cache)
 	kDropTable,        // sets_drop_generated_table.lst : generated set-drop table (timer-reset cache)
+	kWorldEdits,       // world_edits.lst               : zones written to disk since the world's revision
 	kLast_
 };
 
