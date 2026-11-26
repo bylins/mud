@@ -248,13 +248,22 @@ void LuaInstructionHook(lua_State *state, lua_Debug *)
 
 } // namespace
 
-void InstallLuaRuntimeLimits(sol::state &lua, LuaExecutionBudget &budget)
+LuaRuntimeLimitsScope::LuaRuntimeLimitsScope(sol::state &lua, LuaExecutionBudget &budget) :
+	LuaRuntimeLimitsScope(lua.lua_state(), budget)
 {
-	InstallLuaRuntimeLimits(lua.lua_state(), budget);
 }
 
-void InstallLuaRuntimeLimits(lua_State *state, LuaExecutionBudget &budget)
+LuaRuntimeLimitsScope::LuaRuntimeLimitsScope(lua_State *state, LuaExecutionBudget &budget) :
+	m_state(state),
+	m_previous_hook(lua_gethook(state)),
+	m_previous_hook_mask(lua_gethookmask(state)),
+	m_previous_hook_count(lua_gethookcount(state))
 {
+	lua_pushlightuserdata(state, &kLuaExecutionBudgetRegistryKey);
+	lua_rawget(state, LUA_REGISTRYINDEX);
+	m_previous_budget = static_cast<LuaExecutionBudget *>(lua_touserdata(state, -1));
+	lua_pop(state, 1);
+
 	budget.instructions_left = kLuaInstructionBudget;
 	budget.exhausted = false;
 	lua_pushlightuserdata(state, &kLuaExecutionBudgetRegistryKey);
@@ -263,17 +272,24 @@ void InstallLuaRuntimeLimits(lua_State *state, LuaExecutionBudget &budget)
 	lua_sethook(state, LuaInstructionHook, LUA_MASKCOUNT, kLuaInstructionHookStep);
 }
 
-void ClearLuaRuntimeLimits(sol::state &lua)
+LuaRuntimeLimitsScope::~LuaRuntimeLimitsScope()
 {
-	ClearLuaRuntimeLimits(lua.lua_state());
-}
+	if (!m_state)
+	{
+		return;
+	}
 
-void ClearLuaRuntimeLimits(lua_State *state)
-{
-	lua_sethook(state, nullptr, 0, 0);
-	lua_pushlightuserdata(state, &kLuaExecutionBudgetRegistryKey);
-	lua_pushnil(state);
-	lua_rawset(state, LUA_REGISTRYINDEX);
+	lua_sethook(m_state, m_previous_hook, m_previous_hook_mask, m_previous_hook_count);
+	lua_pushlightuserdata(m_state, &kLuaExecutionBudgetRegistryKey);
+	if (m_previous_budget)
+	{
+		lua_pushlightuserdata(m_state, m_previous_budget);
+	}
+	else
+	{
+		lua_pushnil(m_state);
+	}
+	lua_rawset(m_state, LUA_REGISTRYINDEX);
 }
 
 } // namespace lua_scripting

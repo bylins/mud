@@ -109,6 +109,7 @@ test_sources = files(
     'jewelry.effect_lookup.cpp',
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
+    'lua.trigger.exec.cpp',
     'naws.parse.cpp',
     'output.pass.cpp',
     'yaml_error_context.cpp',
