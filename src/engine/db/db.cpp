@@ -1389,6 +1389,15 @@ void BootMudDataBase() {
 	ban = new BanList();
 	ReadCharacterInvalidNamesList();
 
+	// Названия племен нужны раньше самих племен: сейв игрока пишет в .player строку
+	// "Race: <номер> <название>" (char_player.cpp, SaveChar), а на буте игроки
+	// сохраняются уже здесь -- роспуск клана ниже удаляет из него участников и пишет
+	// их файлы. Пока RaceMessages пуст, в файл уезжает "Race: 2 ERROR: message not
+	// found": движку это не мешает (обратно читается номер), но строка остается в
+	// файле игрока до следующего сейва уже в игре. Сам реестр племен (pc_races)
+	// грузится позже, там, где для него уже готовы города и области.
+	MUD::CfgManager().LoadCfg("pc_race_msg");   // issue.player-races-rework: names before races
+
 	boot_profiler.next_step("Loading rented objects info");
 	log("Booting rented objects info");
 	for (std::size_t i = 0; i < player_table.size(); i++) {
@@ -1454,7 +1463,8 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("region_msg");   // issue.regions: messages before regions
 	MUD::CfgManager().LoadCfg("regions");
 	MUD::CfgManager().LoadCfg("animate_dead");   // issue.animate-dead: cfg/mechanics/animate_dead.xml
-	MUD::CfgManager().LoadCfg("pc_race_msg");   // issue.player-races-rework: names before races
+	// pc_race_msg прочитан выше, перед загрузкой кланов -- названия племен нужны сейву
+	// игрока, а он случается до этого места.
 	MUD::CfgManager().LoadCfg("pc_races");
 
 	boot_profiler.next_step("Loading runestones for 'town portal' spell");
