@@ -21,6 +21,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/crafting/item_creation.h"
 #include "gameplay/crafting/im.h"
+#include "gameplay/mechanics/dungeons.h"   // kZoneStartDungeons: эти зоны на диск не пишутся
 #include "administration/privilege.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/room_data.h"
@@ -132,7 +133,19 @@ static void olc_save_all(CharData *ch, int subcmd) {
 	// и делают return), поэтому try/catch тут не нужен. Один switch по subcmd
 	// прямо в цикле пишет зону и заодно запоминает type для лога/сообщения.
 	const char *type = "";
+	int written = 0;
+	int skipped = 0;
 	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		// Зоны подземелий (CreateBlankZoneDungeon, vnum >= kZoneStartDungeons) живут
+		// только в памяти, каталога на диске у них нет, и писать их некуда: попытка
+		// давала по SYSERR "Failed to open .../zones/300NN/<тип>.yaml.tmp for writing"
+		// на каждую из пятидесяти при каждом "save all". Тот же пропуск стоит в
+		// GameLoader::ResaveWorld (db.cpp) и в легаси medit_save_to_disk.
+		if (zone_table[zrn].vnum >= dungeons::kZoneStartDungeons) {
+			++skipped;
+			continue;
+		}
+		++written;
 		switch (subcmd) {
 			case kScmdOlcRedit: data_source->SaveRooms(zrn);   type = "room";   break;
 			case kScmdOlcZedit: data_source->SaveZone(zrn);    type = "zone";   break;
@@ -144,10 +157,12 @@ static void olc_save_all(CharData *ch, int subcmd) {
 				return;
 		}
 	}
-	const int count = static_cast<int>(zone_table.size());
-	mudlog(fmt::format("OLC: {} saves all {}s ({} zones).", GET_NAME(ch), type, count), LGH, std::max(kLvlImplementator, GET_INVIS_LEV(ch)), SYSLOG, true);
-	olc_log("%s save all %s (%d zones)", GET_NAME(ch), type, count);
-	SendMsgToChar(fmt::format("Записаны на диск все зоны ({}): {}.\r\n", type, count), ch);
+	mudlog(fmt::format("OLC: {} saves all {}s ({} zones, {} dungeon zones skipped).",
+					   GET_NAME(ch), type, written, skipped),
+		   LGH, std::max(kLvlImplementator, GET_INVIS_LEV(ch)), SYSLOG, true);
+	olc_log("%s save all %s (%d zones, %d dungeons skipped)", GET_NAME(ch), type, written, skipped);
+	SendMsgToChar(fmt::format("Записаны на диск все зоны ({}): {}. Подземелья пропущены: {}.\r\n",
+							  type, written, skipped), ch);
 }
 
 /*
