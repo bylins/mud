@@ -4,10 +4,20 @@
 #include "boards_types.h"
 
 #include <sstream>
+#include <string>
+#include <string_view>
 
 class CharData;    // to avoid inclusion of "char.hpp"
 
 namespace Boards {
+// Предел темы сообщения -- в ЗНАКАХ, не в байтах.
+constexpr std::size_t kSubjectMaxChars = 40;
+
+// Тема, укороченная до kSubjectMaxChars знаков, с резом по границе знака. Под UTF-8 рез по
+// длине строки и укорачивал тему вдвое, и оставлял в конце один ведущий байт -- такая тема
+// уходила и автору, и всем читающим доску (issue #3681).
+std::string CutSubject(std::string_view subject);
+
 void special_message_format(std::ostringstream &out,
 							const Message::shared_ptr message,
 							size_t max_length = 0);    // TODO: Get rid of this special case.
