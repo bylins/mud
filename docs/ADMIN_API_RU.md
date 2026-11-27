@@ -22,15 +22,17 @@ Admin API предоставляет JSON-интерфейс через Unix Dom
 
 ## Подключение
 
-**Путь к сокету:** Настраивается в `lib/misc/configuration.xml`:
+**Путь к сокету:** Настраивается в `cfg/configuration.xml` каталога данных (`lib/cfg/configuration.xml`):
 ```xml
 <admin_api>
-    <socket_path>admin_api.sock</socket_path>
     <enabled>true</enabled>
+    <socket_path>run/admin_api.sock</socket_path>
+    <!-- <require_auth>false</require_auth> -->
+    <!-- <max_connections>5</max_connections> -->
 </admin_api>
 ```
 
-Расположение по умолчанию: `admin_api.sock` (относительно игровой директории)
+Путь отсчитывается от каталога данных (того, что передан в `-d`); недостающий родительский каталог сервер создаёт сам. В поставляемом конфиге — `run/admin_api.sock`, то есть `lib/run/admin_api.sock`; без `<socket_path>` — `admin_api.sock` в корне каталога данных. `require_auth` по умолчанию `true`, `max_connections` — 1.
 
 **Протокол:**
 - JSON с разделением строками (каждый запрос/ответ заканчивается `\n`)
@@ -82,7 +84,7 @@ COPY-слоя — тогда `build --no-cache web-admin`.
 
 ## Аутентификация
 
-**Все операции API (кроме `ping`) требуют аутентификации.**
+**Все команды, кроме `auth`, требуют аутентификации.** Без неё сервер отвечает `{"status":"error","error":"Not authenticated. Use 'auth' command first."}`. При `require_auth=false` команду `auth` всё равно нужно послать (с любым именем): она пропускает проверку пароля.
 
 ### Команда: `auth`
 
@@ -934,7 +936,7 @@ import json
 
 # Подключение к сокету
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-sock.connect('lib/admin_api.sock')
+sock.connect('lib/run/admin_api.sock')
 
 def send_command(cmd):
     """Отправить JSON команду и получить ответ."""
@@ -983,10 +985,10 @@ sock.close()
 
 ```bash
 # Одиночная команда (требуется повторная аутентификация)
-echo '{"command":"auth","username":"ВашеИмя","password":"пароль"}' | nc -U lib/admin_api.sock
+echo '{"command":"auth","username":"ВашеИмя","password":"пароль"}' | nc -U lib/run/admin_api.sock
 
 # Интерактивная сессия (постоянное соединение)
-nc -U lib/admin_api.sock << 'EOF'
+nc -U lib/run/admin_api.sock << 'EOF'
 {"command":"auth","username":"ВашеИмя","password":"пароль"}
 {"command":"list_mobs","zone":"1"}
 {"command":"get_mob","vnum":100}
@@ -997,20 +999,16 @@ EOF
     echo '{"command":"auth","username":"ВашеИмя","password":"пароль"}'
     sleep 0.1
     echo '{"command":"get_mob","vnum":100}'
-) | nc -U lib/admin_api.sock
+) | nc -U lib/run/admin_api.sock
 ```
 
 ### Использование curl (через прокси socat)
 
 ```bash
 # Запустить HTTP→Unix socket прокси
-socat TCP-LISTEN:8888,reuseaddr,fork UNIX-CONNECT:lib/admin_api.sock &
+socat TCP-LISTEN:8888,reuseaddr,fork UNIX-CONNECT:lib/run/admin_api.sock &
 
 # Использовать curl
-curl -X POST http://localhost:8888 \
-     -H "Content-Type: application/json" \
-     -d '{"command":"ping"}'
-
 curl -X POST http://localhost:8888 \
      -H "Content-Type: application/json" \
      -d '{"command":"auth","username":"ВашеИмя","password":"пароль"}'
@@ -1033,27 +1031,23 @@ Admin API опциональный и отключен по умолчанию.
 
 **Включить:**
 ```bash
-cmake -DENABLE_ADMIN_API=ON ..
-make
+meson setup build -Dbuild_profile=release -Dadmin_api=true
+ninja -C build -j$(($(nproc)/2))
 ```
 
+Сборка с Admin API определяет `ENABLE_ADMIN_API`; в строке `Enabled features` при старте сервера появляется `admin_api`.
+
 **Конфигурация:**
-Отредактировать `lib/misc/configuration.xml`:
-```xml
-<admin_api>
-    <socket_path>admin_api.sock</socket_path>
-    <enabled>true</enabled>
-</admin_api>
-```
+В `lib/cfg/configuration.xml` поставить `<enabled>true</enabled>` в секции `<admin_api>` (см. «Подключение»).
 
 **Проверка:**
 ```bash
 # Проверить существование сокета
-ls -la lib/admin_api.sock
+ls -la lib/run/admin_api.sock
 
-# Тестовое подключение
-echo '{"command":"ping"}' | nc -U lib/admin_api.sock
-# Ожидается: {"status":"pong"}
+# Тестовое подключение: сервер сразу присылает приветствие
+nc -U lib/run/admin_api.sock
+# Ожидается: {"status":"ready","version":"1.0"}
 ```
 
 ## Безопасность
@@ -1061,7 +1055,7 @@ echo '{"command":"ping"}' | nc -U lib/admin_api.sock
 **Контроль доступа:**
 - Unix Domain Socket = только локальный доступ (нет сетевой экспозиции)
 - Права файла: 0600 (чтение/запись только владельцем)
-- Аутентификация требуется для всех операций кроме `ping`
+- Аутентификация требуется для всех команд, кроме самой `auth`
 - Минимальный уровень привилегий: Строитель (kLvlBuilder)
 
 **Рекомендации:**
@@ -1079,8 +1073,8 @@ nc: unix connect failed: Connection refused
 ```
 **Решения:**
 - Проверьте что `admin_api.enabled` установлено в `true` в configuration.xml
-- Убедитесь что сервер скомпилирован с `-DENABLE_ADMIN_API=ON`
-- Подтвердите что файл сокета существует: `ls -la lib/admin_api.sock`
+- Убедитесь что сервер собран с `-Dadmin_api=true` (в логе старта: `Admin API enabled, socket_path: …`)
+- Подтвердите что файл сокета существует: `ls -la lib/run/admin_api.sock`
 - Проверьте логи сервера на ошибки инициализации
 
 ### Достигнуто максимум подключений
@@ -1089,7 +1083,7 @@ nc: unix connect failed: Connection refused
 ```
 **Решения:**
 - Закройте существующее admin-подключение
-- Проверьте устаревшие подключения: `lsof lib/admin_api.sock`
+- Проверьте устаревшие подключения: `lsof lib/run/admin_api.sock`
 - Перезапустите сервер для очистки подключений
 
 ### Ошибка аутентификации
