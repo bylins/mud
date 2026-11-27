@@ -43,7 +43,7 @@ On top of the shared schema, the engine creates a few extra tables on demand (se
 
 - The engine opens `worlddata/world.db`, relative to the world data directory passed with `-d` (`src/engine/db/db.cpp`).
 - With no `<world_loader>` section in `cfg/configuration.xml`, the compile-time default is used: YAML if compiled in, otherwise SQLite, otherwise Legacy.
-- With a `<world_loader><sources>` section listing more than one backend (for example `<sqlite/>` and `<yaml/>`), the engine builds a composite source. For each zone it loads from whichever source is freshest and writes the loaded zones back into the stale sources. In practice `world.db` then works as a cache of the YAML world. Freshness is tracked in `zone_sync` and `world_meta`.
+- With a `<world_loader><sources>` section listing more than one backend, the engine builds a composite source. The order is an authority ranking (`SelectByHierarchy` in `src/engine/db/composite_world_data_source.cpp`): the first source wins every disagreement, whichever is numerically fresher, and a later source wins a zone only when its freshness matches every source before it. Loaded zones are written back into the sources that disagree with the winner. The recommended order is `<yaml/>` then `<sqlite/>`: YAML stays the source of truth and `world.db` is a cache that wins once it is in sync. With `<sqlite/>` first, an empty or stale `world.db` would outrank the YAML world. Freshness is tracked in `zone_sync` and `world_meta`.
 - `-F <kind>` forces one source of a composite configuration, which is useful when a `world.db` copied from another machine should rebuild the YAML tree regardless of mtimes.
 - Rows with `enabled = 0` in `zones`, `rooms`, `mobs`, `objects` and `triggers` are skipped by the loader.
 

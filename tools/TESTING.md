@@ -28,7 +28,7 @@ No converter runs. The small world is the checked-in YAML from `lib.template/wor
 
 | Variable | Default | Meaning |
 |----------|---------|---------|
-| `FULL_WORLD_DIR` | (unset) | Path to a full **YAML** world directory. Required for full-world tests. If it is unset or missing, the full world is dropped from scope with a warning before any build starts. Small-world runs ignore it. |
+| `FULL_WORLD_DIR` | (unset) | The full **YAML** world. Required for full-world tests. If it is unset or missing, the full world is dropped from scope with a warning before any build starts. Small-world runs ignore it. Two layouts are accepted: a world tree (`world_config.yaml` and `zones/` at the top, e.g. the world repository) or a complete data dir (`cfg/` and `worlddata/world/`). |
 | `BOOT_TIMEOUT` | `900` | Maximum seconds to wait for one boot (or for a cold SQLite resync). |
 
 Example:
@@ -71,7 +71,9 @@ The checksum filters apply only to plain boot tests. Round-trip tests and Admin 
 | World | Location | Source |
 |-------|----------|--------|
 | small | `build_yaml/small/`, `build_multi/small/` | `tools/meson/setup_world.py`: copies `cfg/`, `help/`, `state/`, `worlddata/` from `lib/`, then `worlddata/world` from `lib.template/` |
-| full | `build_yaml/full/`, `build_multi/full/` | Copy of `$FULL_WORLD_DIR` |
+| full | `build_yaml/full/`, `build_multi/full/` | A world tree in `$FULL_WORLD_DIR`: `cfg/`, `help/`, `state/` and `worlddata/` (without its world) from `lib/`, the tree copied to `worlddata/world` (its `.git` dropped). A complete data dir: copied as is. |
+
+Inside every data dir the engine reads the world from `worlddata/world` and `worlddata/world.db` (`CreateWorldSourceByName` in `src/engine/db/db.cpp`); all stages work on those paths.
 
 Worlds are recreated from scratch on every run.
 
@@ -83,13 +85,13 @@ For each world in scope (`Small_*`, then `Full_*`):
 |------|--------|--------------|
 | `<World>_YAML_checksums` | `build_yaml` | Boot with `-W`, report boot time and checksums. This is the baseline. |
 | `<World>_YAML_no_checksums` | `build_yaml` | Boot without `-W` (boot time only). |
-| `<World>_YAML_RoundTrip` | `build_yaml` | `circle -d . -S world_v2` resaves the world, `world_v2` replaces `world`, then a `-W` boot computes checksums of the re-emitted world. |
-| `<World>_YAML_FlatRoundTrip` | `build_yaml` | Sets `layout: flat` in `world_config.yaml`, resaves with `-S world_flat`, checks that the output really is flat (`zones/<n>/mobs.yaml` exists, no `mobs/` directory), boots it with `-W`, then restores the original world and config. |
-| `<World>_SQLite_RoundTrip` | `build_multi` | Adds a composite `<world_loader><sources><sqlite/><yaml/></sources></world_loader>` to `cfg/configuration.xml` if none exists, deletes the old `world.db`. Boot 1 loads YAML and the engine writes `world.db`. Boot 2 loads from SQLite (now fresher) with `-W`. |
+| `<World>_YAML_RoundTrip` | `build_yaml` | `circle -d . -S worlddata/world_v2` resaves the world, `world_v2` replaces `worlddata/world`, then a `-W` boot computes checksums of the re-emitted world. |
+| `<World>_YAML_FlatRoundTrip` | `build_yaml` | Sets `layout: flat` in `world_config.yaml`, resaves with `-S worlddata/world_flat`, checks that the output really is flat (`zones/<n>/mobs.yaml` exists, no `mobs/` directory), boots it with `-W`, then restores the original world and config. |
+| `<World>_SQLite_RoundTrip` | `build_multi` | Writes a composite `<world_loader><sources><yaml/><sqlite/></sources></world_loader>` into `cfg/configuration.xml` (replacing any existing one) and deletes the old `worlddata/world.db`. Source order is an authority ranking: the first source wins every disagreement, a later one wins a zone only when it agrees with all before it. Boot 1 loads YAML and the engine writes `world.db`. Boot 2 loads from SQLite (now in sync, so the cache wins) with `-W`. |
 | `<World>_SQLite_SingleZoneStale` | `build_multi` | Repeats boots 1-2, then touches one zone's `rooms.yaml` and boots a third time with `-W`. That boot must load one zone from YAML and the rest from SQLite. The script prints the syslog `World source '...': won` lines and warns if it cannot confirm YAML won at least one zone. |
-| `<World>_YAML_AdminAPI` | `build_yaml` | Recreates the world, enables `<admin_api>` in `cfg/configuration.xml` with `require_auth=false`, starts the server on port 4001 and runs `tests/test_admin_api.py full_crud_test` against the socket. Runs last because it mutates the world. |
+| `<World>_YAML_AdminAPI` | `build_yaml` | Recreates the world, enables `<admin_api>` in `cfg/configuration.xml` with `require_auth=false`, points `socket_path` at `admin_api.sock` in the data dir, starts the server on the aux port and runs `tests/test_admin_api.py full_crud_test` against the socket. Runs last because it mutates the world. |
 
-Plain boot tests use port 4000. Resaves, the SQLite boot 1 and the Admin API test use port 4001.
+Plain boot tests use `TEST_PORT` (default 4000). Resaves, the SQLite boot 1 and the Admin API test use `AUX_PORT` (default 4001). Set both when something else holds the defaults: `TEST_PORT=4100 AUX_PORT=4101 ./tools/run_load_tests.sh --quick`.
 
 ### Quick mode vs full run
 
@@ -160,14 +162,11 @@ Small_YAML_checksums vs Small_YAML_FlatRoundTrip: MATCH
 
 ## Known Issues
 
-The script was last rewritten before the world tree moved into `worlddata/` (commit c638e3a47). The engine now reads `worlddata/world` and `worlddata/world.db` (`src/engine/db/db.cpp`), but several stages still use the old paths:
+Expected failures on the current tree (checked on the small world):
 
-- `run_roundtrip_test`, `run_flat_roundtrip_test` and `run_sqlite_roundtrip_test` check for `<world>/world`, and `run_sqlite_single_zone_stale_test` looks in `<world>/world/zones`. In a world built by `setup_world.py` the tree is at `<world>/worlddata/world`, so these stages fail with "world not present". The swap after `-S` (`mv world_v2 world`) also targets the old location.
-- The SQLite round-trip deletes `<world>/world.db` before boot 1 and then checks for it, while the engine writes `<world>/worlddata/world.db`.
-- The Admin API test waits for `<world>/admin_api.sock`, but `lib/cfg/configuration.xml` already has an `<admin_api>` section with `socket_path` `run/admin_api.sock`. The script only adds its own section when none exists, so it waits for the wrong path.
-- `--help` prints only the first 57 lines of the script, which cuts off the `FULL_WORLD_DIR` description.
-
-Until the script is fixed, only the plain boot tests (`*_YAML_checksums`, `*_YAML_no_checksums`) are expected to pass.
+- **`*_YAML_RoundTrip`, `*_YAML_FlatRoundTrip`: checksums differ from the baseline** (small world: zones 1, 11, 40, 46, 50, 60 and a few dozen objects). The checked-in `lib.template` world is in an older form than the saver writes: liquid containers keep `values:` instead of `extra_values:` (`LIQUID_*`), some objects carry an empty extra description or `values: [-1, -1]`. The first resave converts them, and the loader reads the two forms into different in-memory state. A second resave is byte-identical to the first, so it is a one-time conversion, not a loss on every save.
+- **`*_SQLite_RoundTrip`, `*_SQLite_SingleZoneStale`: checksums differ from the baseline in every zone, and in rooms, mobs, objects and triggers.** Not investigated yet.
+- **`*_YAML_AdminAPI`: mob, object and trigger tests fail** with `invalid UTF-8 byte`. The Admin API still converts incoming strings with `Utf8ToKoi8r` (`src/engine/network/admin_api/`), while the engine holds UTF-8, so the next read of an edited entity cannot be serialised to JSON. `tests/test_admin_api.py` also opens YAML files as `koi8-r`.
 
 ## Troubleshooting
 
