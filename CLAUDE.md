@@ -52,7 +52,7 @@ ninja -C build -j$(($(nproc)/2))
 
 **Important:** Always use `-Dbuild_profile=release` for development builds. The `dev` and `fasttest` profiles are legacy — do not use them. Never build without tests first and then rebuild with tests — pass `-Dbuild_tests=true` to `meson setup` from the start to avoid double compilation.
 
-**Important:** YAML is the **default world format** now (`yaml=builtin`), so a plain build expects a YAML world (`world/world_config.yaml` + `zones/`). To boot a legacy-format world, configure with `-Dyaml=disabled` (and `-Dsqlite=disabled`). See "World Data Formats and Testing" below.
+**Important:** YAML is the **default world format** now (`yaml=builtin`), so a plain build expects a YAML world (`worlddata/world/world_config.yaml` + `zones/`). To boot a legacy-format world, configure with `-Dyaml=disabled` (and `-Dsqlite=disabled`). See "World Data Formats and Testing" below.
 
 ### Build Profiles (`-Dbuild_profile=`)
 - **release** - Optimized production build (-Og with debug symbols, ggdb3, -Wall)
@@ -468,20 +468,21 @@ world dir in place:
 
 **Automated Testing & Conversion:**
 ```bash
-# Run world loading tests (automatically prepares and converts worlds)
+# Run world loading tests (builds the binaries and prepares the worlds)
 ./tools/run_load_tests.sh              # Full test suite
+FULL_WORLD_DIR=<yaml_world> ./tools/run_load_tests.sh --world=full
 ./tools/run_load_tests.sh --quick      # Quick smoke (small YAML world)
 ./tools/run_load_tests.sh --help       # Show all options
 ```
 
 The `run_load_tests.sh` script:
-- Small world is **YAML-only** (boots the checked-in `lib.template` YAML directly, no conversion)
-- Builds the YAML variant for the small world; the Legacy/SQLite variants are built only when the full world is in scope
-- Full world is extracted from a legacy archive (`FULL_WORLD_ARCHIVE`) and converted to YAML/SQLite on the fly
-- Runs boot tests with configurable timeout (default 5 minutes)
+- Builds `build_yaml/` (YAML) and, when SQLite headers are present, `build_multi/` (YAML + SQLite composite loader)
+- Small world is **YAML-only**: the checked-in `lib.template` YAML, booted directly, no conversion
+- Full world is a YAML world given in `FULL_WORLD_DIR` (a world tree or a complete data dir); without it the full-world tests are skipped. No legacy archive, no conversion
+- Runs boot tests with a configurable timeout (`BOOT_TIMEOUT`, default 15 minutes); ports via `TEST_PORT`/`AUX_PORT` (default 4000/4001)
 - Calculates checksums (zones, rooms, mobs, objects, triggers) to verify correctness
-- Compares checksums between formats (full world) and across YAML round-trips
-- Generates detailed reports with boot times and performance comparison
+- Compares the checksums of the YAML round-trip, flat round-trip and SQLite round-trip against the plain YAML boot, then runs the Admin API CRUD test
+- Prints boot times and the checksum comparison; details are in `tools/TESTING.md`
 
 **Important:**
 - Schema/format changes should be tested with `run_load_tests.sh`
