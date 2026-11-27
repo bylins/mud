@@ -75,6 +75,7 @@ test_sources = files(
     'parser_wrapper.comments.cpp',
     'alias.encoding.cpp',
     'state_manager.encoding.cpp',
+    'legacy_files.cpp',
     'utf8.cpp',
     'native_text.cpp',
     'text_semantics.cpp',

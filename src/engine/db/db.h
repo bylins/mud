@@ -36,6 +36,7 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class LegacyFiles;
 
 // public procedures in db.cpp
 RoomRnum GetRoomRnum(RoomVnum vnum);
@@ -243,7 +244,8 @@ class GameLoader {
 	GameLoader() = default;
 
 	static void BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source = nullptr);
-	static void BootIndex(EBootType mode);
+	// Legacy-загрузка файлов типа mode; где они лежат, знает files (#3301).
+	static void BootIndex(EBootType mode, const LegacyFiles &files);
 
 	// Diagnostic: re-emit loaded world via the current backend's Save* APIs
 	// into a fresh directory. Used by `circle -S <out_dir>` for the

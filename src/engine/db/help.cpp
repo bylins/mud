@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "help.h"
+#include "engine/boot/legacy_files.h"
 
 #include <algorithm>
 #include <fmt/format.h>
@@ -1326,7 +1327,7 @@ void check_update_dynamic() {
 void reload(Flags flag) {
 	switch (flag) {
 		case STATIC: static_help.clear();
-			game_loader.BootIndex(DB_BOOT_HLP);
+			game_loader.BootIndex(DB_BOOT_HLP, LegacyFiles::Help(LIB_HELP));
 			init_group_zones();
 			init_zone_all();
 			ClassRecipiesHelp();

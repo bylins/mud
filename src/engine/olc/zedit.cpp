@@ -11,6 +11,7 @@
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
 #include "olc.h"
+#include "engine/boot/legacy_files.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/scripting/dg_scripts.h"
 #include "engine/entities/char_data.h"
@@ -52,7 +53,6 @@ void zedit_disp_arg2(DescriptorData *d);
 void zedit_disp_arg3(DescriptorData *d);
 void zedit_disp_arg4(DescriptorData *d);
 void zedit_save_internally(DescriptorData *d);
-void zedit_save_to_disk(int zone_num);
 void zedit_create_index(int znum, char *type);
 
 void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data);
@@ -434,9 +434,8 @@ void zedit_save_internally(DescriptorData *d) {
  */
 #undef  ZCMD
 #define ZCMD    (zone_table[zone_num].cmd[subcmd])
-void zedit_save_to_disk(ZoneRnum zone_num) {
+void zedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 	int subcmd, arg1 = -1, arg2 = -1, arg3 = -1, arg4 = -1, i;
-	char fname[64];
 	std::string comment;
 	FILE *zfile;
 
@@ -445,8 +444,8 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 				   CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].vnum);
-	if (!(zfile = fopen(fname, "w"))) {
+	const std::string fname = files.TempFile(DB_BOOT_ZON, zone_table[zone_num].vnum).string();
+	if (!(zfile = fopen(fname.c_str(), "w"))) {
 		mudlog(fmt::format("SYSERR: OLC: zedit_save_to_disk:  Can't write zone {}.",
 						   zone_table[zone_num].vnum), BRF, kLvlBuilder, SYSLOG, true);
 		return;
@@ -566,7 +565,10 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 				break;
 
 			case 'T': arg1 = ZCMD.arg1;    // trigger type
-				arg2 = ZCMD.arg2;
+				// В памяти arg2 -- rnum триггера (загрузчик переводит vnum в rnum), на диск
+				// пишется vnum. Раньше писался rnum: при перезагрузке команда отключалась или
+				// цепляла чужой триггер.
+				arg2 = (ZCMD.arg2 >= 0 && ZCMD.arg2 < top_of_trigt) ? trig_index[ZCMD.arg2]->vnum : -1;
 				if (arg1 == WLD_TRIGGER) {
 					arg3 = world[ZCMD.arg3]->vnum;
 					comment = world[ZCMD.arg3]->name;
@@ -575,6 +577,10 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 
 			case 'V': arg1 = ZCMD.arg1;    // trigger type
 				arg2 = ZCMD.arg2;    // context
+				// Для триггера комнаты загрузчик держит в arg2 rnum комнаты; на диск -- vnum.
+				if (arg1 == WLD_TRIGGER && ZCMD.arg2 >= 0 && ZCMD.arg2 <= top_of_world) {
+					arg2 = world[ZCMD.arg2]->vnum;
+				}
 				break;
 
 			case '*':
@@ -597,10 +603,7 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	}
 	fprintf(zfile, "S\n$\n");
 	fclose(zfile);
-	const std::string final_name = fmt::format("{}/{}.zon", ZON_PREFIX, zone_table[zone_num].vnum);
-	// * We're fubar'd if we crash between the two lines below.
-	remove(final_name.c_str());
-	rename(fname, final_name.c_str());
+	files.CommitZoneFile(DB_BOOT_ZON, zone_table[zone_num].vnum);
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ZONE);
 }
 

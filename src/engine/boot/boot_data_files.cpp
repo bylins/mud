@@ -13,22 +13,31 @@
 
 #include <fmt/format.h>
 
+#include <filesystem>
+
 extern int scheck;                        // TODO: get rid of this line
 CharData *mob_proto;                    // TODO: get rid of this global variable
 
 extern void ExtractTrigger(Trigger *trig);
 
+// Путь к файлу дают снаружи целиком (LegacyFiles::Entry): сам файл каталогов не знает (#3301).
 class DataFile : public BaseDataFile {
  protected:
-	DataFile(const std::string &file_name) : m_file(nullptr), m_file_name(file_name) {}
+	DataFile(const std::string &path)
+		: m_file(nullptr),
+		m_path(path),
+		m_file_name(std::filesystem::path(path).filename().string()) {}
 	bool open() override;
 	void close() override;
+	std::string full_file_name() const override { return m_path; }
+	// Имя файла без каталога -- как оно записано в index.
 	[[nodiscard]] const std::string &file_name() const { return m_file_name; }
 	[[nodiscard]] const auto &file() const { return m_file; }
 	void get_one_line(char *buf, std::size_t buf_size);
 
  private:
 	FILE *m_file;
+	std::string m_path;
 	std::string m_file_name;
 };
 
@@ -72,7 +81,6 @@ class DiscreteFile : public DataFile {
 	DiscreteFile(const std::string &file_name) : DataFile(file_name) {}
 
 	virtual bool load() override { return discrete_load(mode()); }
-	virtual std::string full_file_name() const override { return prefixes(mode()) + file_name(); }
 
  protected:
 	bool discrete_load(const EBootType mode);
@@ -1437,7 +1445,6 @@ class ZoneFile : public DataFile {
 	ZoneFile(const std::string &file_name) : DataFile(file_name) {}
 
 	virtual bool load() override { return load_zone(); }
-	virtual std::string full_file_name() const override { return prefixes(DB_BOOT_ZON) + file_name(); }
 
 	static shared_ptr create(const std::string &file_name) { return shared_ptr(new ZoneFile(file_name)); }
 
@@ -1484,9 +1491,11 @@ bool ZoneFile::load_zone() {
 		if (count < 1) {
 			fatal_log("SYSERR: Format error in %s, line 1", full_file_name().c_str());
 		}
-		size_t digits = full_file_name().find_first_of("1234567890");
-		if (digits <= full_file_name().size()) {
-			if (zone.vnum != atoi(full_file_name().c_str() + digits)) {
+		// Номер зоны берётся из имени файла, а не из полного пути: цифры в каталоге
+		// (например, /srv/mud4000/...) иначе приняли бы за номер зоны (#3301).
+		size_t digits = file_name().find_first_of("1234567890");
+		if (digits <= file_name().size()) {
+			if (zone.vnum != atoi(file_name().c_str() + digits)) {
 				fatal_log("SYSERR: файл %s содержит неверный номер зоны %d", full_file_name().c_str(), zone.vnum);
 			}
 		}
@@ -1729,7 +1738,6 @@ class HelpFile : public DataFile {
 	HelpFile(const std::string &file_name) : DataFile(file_name) {}
 
 	virtual bool load() override { return load_help(); }
-	virtual std::string full_file_name() const override { return prefixes(DB_BOOT_HLP) + file_name(); }
 
 	static shared_ptr create(const std::string &file_name) { return shared_ptr(new HelpFile(file_name)); }
 

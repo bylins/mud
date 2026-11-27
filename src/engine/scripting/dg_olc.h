@@ -24,6 +24,9 @@ struct DescriptorData;
 // prototype exported functions from trigedit.cpp
 //void script_copy(void *dst, void *src, int type);
 void script_save_to_disk(FILE *fp, const void *item, int type);
+// Запись триггеров зоны в legacy-формате; куда писать, знает files (#3301).
+class LegacyFiles;
+bool trigedit_save_to_disk(int zone_rnum, int notify_level, const LegacyFiles &files);
 //void dg_olc_script_free(DescriptorData *d);
 void dg_olc_script_copy(DescriptorData *d);
 void dg_script_menu(DescriptorData *d);

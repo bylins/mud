@@ -570,10 +570,6 @@ sigfunc *my_signal(int signo, sigfunc *func);
 #endif
 
 void show_string(DescriptorData *d, char *input);
-void redit_save_to_disk(int zone_num);
-void oedit_save_to_disk(int zone_num);
-void medit_save_to_disk(int zone_num);
-void zedit_save_to_disk(int zone_num);
 void Crash_ldsave(CharData *ch);
 void Crash_save_all_rent();
 unsigned long TxtToIp(const char *text);

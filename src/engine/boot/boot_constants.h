@@ -95,12 +95,6 @@ enum SetStuffMode {
 // names of various files and directories
 #define INDEX_FILE    "index"    // index of world files
 #define MINDEX_FILE    "index.mini"    // ... and for mini-mud-mode
-#define WLD_PREFIX    LIB_WORLD "wld" SLASH    // room definitions
-#define MOB_PREFIX    LIB_WORLD "mob" SLASH    // monster prototypes
-#define OBJ_PREFIX    LIB_WORLD "obj" SLASH    // object prototypes
-#define ZON_PREFIX    LIB_WORLD "zon" SLASH    // zon defs & command tables
-#define TRG_PREFIX    LIB_WORLD "trg" SLASH    // shop definitions
-#define HLP_PREFIX    LIB_HELP    // for HELP <keyword>
 #define PLAYER_F_PREFIX LIB_PLRS "" LIB_F
 #define PLAYER_K_PREFIX LIB_PLRS "" LIB_K
 #define PLAYER_P_PREFIX LIB_PLRS "" LIB_P
@@ -121,17 +115,6 @@ enum EBootType : int {
 	DB_BOOT_HLP = 4,
 	DB_BOOT_TRG = 5
 };
-
-class FilesPrefixes : private std::unordered_map<int, std::string> {
- public:
-	FilesPrefixes();
-	const std::string &operator()(const EBootType mode) const;
-
- private:
-	static std::string s_empty_prefix;
-};
-
-extern FilesPrefixes prefixes;
 
 const char *boot_mode_name(EBootType mode);
 

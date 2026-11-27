@@ -37,7 +37,6 @@ extern void redit_save_internally(DescriptorData *d);
 extern void trigedit_save(DescriptorData *d);
 extern void CopyRoom(RoomData *to, RoomData *from);
 extern void medit_mobile_init(CharData *mob);
-extern void zedit_save_to_disk(int zone_num);
 extern void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data);
 
 // External admin_api helpers (from admin_api.cpp)

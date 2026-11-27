@@ -25,7 +25,7 @@
 # mismatch instead would indicate a semantic loss across the pipeline.
 #
 # Pre-requisites:
-#   - A legacy world data_dir at <v1_dir> with world/{wld,mob,obj,zon,trg}/
+#   - A legacy world data_dir at <v1_dir> with worlddata/world/{wld,mob,obj,zon,trg}/
 #     index + per-zone files and cfg/configuration.xml.
 #   - convert_to_yaml.py deps installed
 #     (pip install -r tools/converter/requirements.txt).
@@ -82,8 +82,8 @@ for f in "$V1_DIR" "$LEGACY_BIN" "$YAML_BIN"; do
         exit 2
     fi
 done
-if [[ ! -d "$V1_DIR/world/wld" ]]; then
-    echo "ERROR: $V1_DIR is not a legacy data dir (no world/wld/)." >&2
+if [[ ! -d "$V1_DIR/worlddata/world/wld" ]]; then
+    echo "ERROR: $V1_DIR is not a legacy data dir (no worlddata/world/wld/)." >&2
     exit 2
 fi
 if [[ ! -x "$LEGACY_BIN" || ! -x "$YAML_BIN" ]]; then
@@ -158,10 +158,12 @@ yaml_resave_to_legacy() {
     local src_yaml="$1" dst_legacy="$2"
     (
         cd "$(dirname "$YAML_BIN_ABS")"
-        "$YAML_BIN_ABS" -d "$src_yaml" -S "$dst_legacy" -T legacy 4001 >/dev/null
+        # -S -T legacy writes <dir>/{wld,mob,obj,zon,trg}/ (#3301): point it at
+        # the world dir of the data dir being built.
+        "$YAML_BIN_ABS" -d "$src_yaml" -S "$dst_legacy/worlddata/world" -T legacy 4001 >/dev/null
     )
-    if [[ ! -d "$dst_legacy/world/wld" ]]; then
-        echo "ERROR: $dst_legacy/world/wld not produced" >&2
+    if [[ ! -d "$dst_legacy/worlddata/world/wld" ]]; then
+        echo "ERROR: $dst_legacy/worlddata/world/wld not produced" >&2
         return 1
     fi
     copy_data_dir_skeleton "$src_yaml" "$dst_legacy"

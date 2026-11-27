@@ -21,6 +21,7 @@
 #include "gameplay/communication/boards/boards.h"
 #include "engine/boot/boot_data_files.h"
 #include "engine/boot/boot_index.h"
+#include "engine/boot/legacy_files.h"
 #include "gameplay/communication/social.h"
 #include "gameplay/crafting/jewelry.h"
 #include "gameplay/crafting/mining.h"
@@ -521,7 +522,7 @@ std::unique_ptr<world_loader::IWorldDataSource> CreateWorldSourceByName(const st
 #endif
 	}
 	if (name == "legacy") {
-		return world_loader::CreateLegacyDataSource();
+		return world_loader::CreateLegacyDataSource(LIB_WORLD);
 	}
 	log("SYSERR: unknown world source '%s' in <world_loader><sources>", name.c_str());
 	return nullptr;
@@ -770,6 +771,15 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// конфиг спеллов грузит BootMudDataBase для боевого сервера, но путь `-S`
 	// resave / scheck его пропускает -- иначе имена спеллов остаются "!undefined!".
 	// Guarded, чтобы обычный boot не перезагружал уже загруженное.
+	// Способности мобов (строки Feat:): legacy-загрузчик отбрасывает неизвестные
+	// способности, а medit пишет их, обходя реестр. Без конфига -S терял все способности
+	// мобов. Тот же случай, что со skills/spells выше.
+	if (!MUD::Feats().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("feat_msg");   // issue.thing-names: names before feats
+		MUD::CfgManager().LoadCfg("feats");
+	}
+
 	if (!MUD::Spells().IsInitizalized())
 	{
 		MUD::CfgManager().LoadCfg("spell_msg");   // имена спеллов (spell_msg.xml), читаются при загрузке spells
@@ -835,7 +845,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 #elif defined(HAVE_SQLITE)
 		data_source = world_loader::CreateSqliteDataSource("worlddata/world.db");
 #else
-		data_source = world_loader::CreateLegacyDataSource();
+		data_source = world_loader::CreateLegacyDataSource(LIB_WORLD);
 #endif
 	}
 	log("Using data source: %s", data_source->GetName().c_str());
@@ -1340,7 +1350,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading help entries");
 	log("Loading help entries.");
-	GameLoader::BootIndex(DB_BOOT_HLP);
+	GameLoader::BootIndex(DB_BOOT_HLP, LegacyFiles::Help(LIB_HELP));
 
 	boot_profiler.next_step("Loading socials");
 	log("Loading socials.");
@@ -1791,12 +1801,11 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 		return 1;
 #endif
 	} else if (fmt == "legacy") {
-		// Legacy save uses OLC functions that write to "world/{wld,mob,...}/"
-		// relative to cwd. LegacyWorldDataSource owns its world_dir and
-		// chdir's into it for each Save* call (creating the layout first), so
-		// the saved tree lands under <target_dir>/world/. Symmetric with the
-		// YAML/SQLite factories below.
-		saver = world_loader::CreateLegacyDataSource(target_dir);
+		// The tree lands in <target_dir>/{wld,mob,obj,zon,trg}/, like the YAML
+		// export puts <target_dir>/zones/ (#3301). rebuild_indexes: the OLC
+		// save routines don't maintain the boot indexes, FinalizeResave()
+		// regenerates them for the fresh tree.
+		saver = world_loader::CreateLegacyDataSource(target_dir, true);
 	} else {
 		log("SYSERR: ResaveWorld: unknown target format '%s'", fmt.c_str());
 		return 1;
@@ -1836,10 +1845,10 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 	return errors;
 }
 
-void GameLoader::BootIndex(const EBootType mode) {
+void GameLoader::BootIndex(const EBootType mode, const LegacyFiles &files) {
 	log("Index booting %d", mode);
 
-	auto index = IndexFileFactory::get_index(mode);
+	auto index = IndexFileFactory::get_index(mode, files);
 	if (!index->open()) {
 		fatal_log("Failed to open index file (mode=%d)", static_cast<int>(mode));
 	}
@@ -1849,7 +1858,7 @@ void GameLoader::BootIndex(const EBootType mode) {
 
 	const auto data_file_factory = DataFileFactory::create();
 	for (const auto &entry : *index) {
-		auto data_file = data_file_factory->get_file(mode, entry);
+		auto data_file = data_file_factory->get_file(mode, files.Entry(mode, entry).string());
 		if (!data_file->open()) {
 			continue;    // TODO: we need to react somehow.
 		}
