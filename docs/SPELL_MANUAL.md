@@ -1,7 +1,7 @@
 # Bylins MUD — Data-Driven Spell Manual
 
 *For game designers authoring spells in `lib/cfg/spells.xml` and the companion
-`lib/cfg/spell_msg.xml`.*
+`lib/cfg/messages/ru/spell_msg.xml`.*
 
 This manual catalogues every tag, attribute, and value the data-driven spell
 system recognises today. After reading it you should be able to add a new
@@ -41,28 +41,34 @@ order** for each target. Any stage can short-circuit the whole cast.
    a spell can dispel an existing affect and then apply its own.
 6. **`CastAffect`** — if `kMagAffects` flag set.
 7. **`CastToPoints`** — if `kMagPoints` flag set (HP/MV restore).
-8. **Alter object** — if the action carries an `<alter_obj>` (§3.8.7: bless,
-   curse, enchant, repair, acid, …); a per-target stage.
-9. **Summon** — if the action carries a `<summon>` (§3.8.5: summon keeper /
-   fire keeper / clone); runs once per action, not per target.
-10. **Create object** — if the action carries an `<obj_creation>` (§3.8.6:
-    conjure food / light / weapon / armor); runs once per action.
-11. **`CastManual`** — if `kMagManual` flag set (hand-coded handler in
-    `spells.cpp`).
+8. **Side spells** — if the action carries `<side_spell>` (§3.8.3); a full
+   nested cast on the current target.
+9. **`CastManual`** — if `kMagManual` flag set (the hand-coded handler named by
+   the action's `<manual_cast>`, §3.8.4).
+10. **Alter object** — if the action carries an `<alter_obj>` (§3.8.7: bless,
+    curse, enchant, repair, acid, …); a per-target stage that runs after the
+    manual stage and is skipped only when the target died.
+11. **Summon / Create object** — an action carrying a `<summon>` (§3.8.5: summon
+    keeper / fire keeper / clone) or an `<obj_creation>` (§3.8.6: conjure food /
+    light / weapon / armor) runs it **once per action, instead of** the
+    per-target stages 2–10.
 12. **Victim reaction** — NPC hostility / auto-cast of detection.
 
-Stages 4–11 are gated by the spell's `<flags val="kMag…">` bitset, so a single
-spell can run any subset of them in the order above. Each stage may return a
-"break" code that ends the chain.
+For the **entry** action, stages 4, 5, 6, 7 and 9 are gated by the spell's
+`<flags val="kMag…">` bitset; later actions run the stages whose blocks they carry.
+Side spells, alter-object, summon and create-object are never flag-gated — the
+presence of the block is enough. A stage that returns "break" (a dispel chain break,
+or the target dying) skips only **this action's** remaining stages on **this**
+target; other targets and later actions continue.
 
 The list above is what runs for **one `<action>`** of the spell. A spell's
 `<talent_actions>` is an **ordered list** of actions, each with its own target
 set and its own stages; the engine runs them top to bottom (action-outer,
 target-inner), and the victim reaction (stage 12) fires once, after the **last**
 action. A single-action spell behaves exactly as the list above. See §3.8 for the
-multi-action model and §13.8 for a worked example (`kSacrifice`).
+multi-action model and [Cookbook](COOKBOOK.md) §3.8 for a worked example (`kSacrifice`).
 
-> **Beyond the cast.** Stages 6/8 impose *affects*. Once on the target, an affect
+> **Beyond the cast.** Stage 6 imposes *affects*. Once on the target, an affect
 > runs its **own** trigger-driven actions — every tick (`kPulse`), on a hit
 > (`kPreHit`/`kPostHit`), on a kill (`kKill`), on expiry (`kExpired`), on an
 > incoming attack (`kWard*`), etc. That whole layer is the
@@ -82,17 +88,21 @@ one `<spell>` child. Spell IDs come from the `ESpell` enum
 ```xml
 <spells>
     <spell id="kFireball" element="kFire" mode="kEnabled">
-        <name rus="огненный шар" eng="fireball"/>
-        <misc pos="kFight" violent="Y" danger="1"/>
-        <mana max="80" min="60" change="1"/>
+        <name val="fireball"/>
+        <components> <verbal/> <weave/> </components>
+        <misc pos="kFight" violent="Y" danger="2"/>
+        <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kNpcDamagePc"/>
+        <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <tags val="…"/>                            <!-- optional -->
         <potency_roll> … </potency_roll>
         <success_roll> … </success_roll>          <!-- optional -->
+        <caster_conditions> … </caster_conditions> <!-- optional -->
         <talent_actions>
             <action>
                 <!-- gates: target_conditions (blocking/required) / reflection -->
-                <!-- effects: damage / heal / area / affects / unaffect -->
+                <!-- effects: damage / points / area / affects / unaffect /
+                     side_spell / manual_cast / alter_obj / summon / obj_creation -->
             </action>
         </talent_actions>
     </spell>
@@ -100,32 +110,33 @@ one `<spell>` child. Spell IDs come from the `ESpell` enum
 </spells>
 ```
 
-Encoding is **KOI8-R**. Edit through `iconv` if your editor doesn't speak it
-natively.
+Encoding is **UTF-8** (`<?xml version="1.0" encoding="utf-8"?>`); edit it
+directly.
 
 > **Note on the XML reader.** The Bylins `DataNode` parser has *no inner-text
 > support*. Every value must live in an attribute (`val="…"`, `min="…"`,
 > etc.). Whitespace inside a tag is ignored.
 
-### 2.2 `lib/cfg/spell_msg.xml`
+### 2.2 `lib/cfg/messages/ru/spell_msg.xml`
 
 Per-spell message strings, keyed by spell id and message type (`ESpellMsg`).
-See §13.
+Each spell's sheaf also carries its **Russian display name** (`<name val="…"/>`).
+See §12.
 
 ### 2.3 Small-world snapshot caveat
 
-`./circle -d small` reads from `build/<dir>/small/cfg/`, which is a
-**snapshot** of `lib/cfg/` taken once at `meson setup` time. After editing
-`lib/cfg/*.xml`, refresh the snapshot before booting:
+A build configured with `-Dsmall_world=true` gets a `build/<dir>/small/` world
+whose `cfg/` is a **snapshot** of `lib/cfg/`, copied once at `meson setup` time
+(`tools/meson/setup_world.py`). `./circle -d small` reads that snapshot, so after
+editing anything under `lib/cfg/` refresh it before booting:
 
 ```bash
-for f in spells.xml spell_msg.xml hit_msg.xml; do
-  cp "lib/cfg/$f" "build/<your-build>/small/cfg/$f"
-done
+cp -r lib/cfg/. build/<your-build>/small/cfg/
 ```
 
 Otherwise your edits won't be loaded and you may see ghost "incorrect
-constant" SYSERRs from old values.
+constant" SYSERRs from old values. On a running server an immortal can re-read the
+files without a reboot: `reload spells` and `reload spellmsg`.
 
 ---
 
@@ -137,18 +148,21 @@ constant" SYSERRs from old values.
 |---|---|---|
 | `id` | yes | `ESpell` enum value, e.g. `kFireball`. |
 | `element` | no | `EElement`: `kFire`, `kAir`, `kWater`, `kEarth`, `kLife`, `kDark`, `kLight`, `kMind`, `kUndefined`. Used for resist/element-coefficient calcs. |
-| `mode` | no | `EItemMode`: `kEnabled` (default), `kDisabled`, `kService` (engine-only stub). |
+| `mode` | no | `EItemMode`: `kEnabled` (default), `kDisabled`, `kService` (engine-only stub), `kFrozen` (temporarily off — event/holiday content), `kTesting` (hidden by default, can be granted by an immortal; §17). An unknown value silently falls back to `kEnabled`. |
 
 ### 3.2 `<name>`
 
 ```xml
-<name rus="огненный шар" eng="fireball"/>
+<name val="fireball"/>
 ```
 
 | Attribute | Description |
 |---|---|
-| `rus` | Russian display name. Used in-game. |
-| `eng` | English name. Used for admin tools and logs. |
+| `val` | English name — the admin label used in admin tools and logs. |
+
+The **Russian display name** shown in-game is not here: it lives in the spell's
+sheaf in `spell_msg.xml` (`<msg_sheaf id="kFireball"><name val="огненный шар"/>`,
+§12). A spell without such a sheaf gets an empty display name.
 
 ### 3.3 `<misc>`
 
@@ -188,7 +202,7 @@ room paints have no per-target relationship to resolve.
 |---|---|
 | `min` | Mana cost at the highest practical level. |
 | `max` | Mana cost at the lowest practical level. |
-| `change` | Per-level decrease as the caster levels up. |
+| `change` | Per-level decrease as the caster levels up. For a war-cry (`kMagWarcry`) it doubles as the minimum `kWarcry` skill needed to use the cry. |
 
 ### 3.5 `<targets val="…">`
 
@@ -197,6 +211,7 @@ look" flags plus any check flags.
 
 | Flag | Meaning |
 |---|---|
+| `kTarNone` | No target at all (service / stub spells). |
 | `kTarIgnore` | No target argument — area/mass cast, world spells. |
 | `kTarCharRoom` | A character in the same room. |
 | `kTarCharWorld` | A character anywhere in the world (summon/teleport). |
@@ -213,6 +228,7 @@ look" flags plus any check flags.
 | `kTarRoomWorld` | An arbitrary world room. |
 | `kTarAllyOnly` | *Check only:* only self or a groupmate. Used with `kTarCharRoom`. |
 | `kTarMinionsOnly` | *Check only:* only one of the caster's own NPC followers (master == caster). |
+| `kTarDirection` | A direction / exit from the caster (door affects); the argument is a Russian or English direction name. |
 
 ### 3.6 `<flags val="…">`
 
@@ -226,61 +242,78 @@ gameplay metadata** (PK / agro / damage-type).
 | `kMagAffects` | Run `CastAffect`. |
 | `kMagUnaffects` | Run `CastUnaffects`. |
 | `kMagPoints` | Run `CastToPoints` (HP/MV restore). |
-| `kMagManual` | Run hand-coded handler in `spells.cpp` (also covers movement spells like teleport, recall, portal, relocate). |
+| `kMagManual` | Run the hand-coded handler named by the entry action's `<manual_cast>` (§3.8.4; also covers movement spells like teleport, recall, portal, relocate). |
 | `kMagGroups` | Spell targets a group. |
 | `kMagMasses` | Mass cast — every NPC in the room (excluding allies). |
 | `kMagAreas` | Area cast — every hostile in the room with decay. |
 | `kMagWarcry` | Marks the spell as a war-cry (skips magic defences). |
 | `kMagNeedControl` | Requires caster's pet to be present. |
 | `kMagRoom` | Room spell: cast by `magic/action_room_affect.cpp`, the affect itself lives in `affects/room_affects.cpp`. |
+| `kMagCasterInroom`, `kMagCasterInworld`, `kMagCasterAnywhere`, `kMagCasterInworldDelay` | Declared lifetime markers for room affects (while the caster is in the room / in the world / until it expires / in the world plus a delay). Accepted by the loader, but the engine does not consult them today. |
 
-| PK / agro / damage class | Effect |
+The `kNpc…` flags are read mainly by the **mob AI**: when an NPC picks a combat spell,
+the flag decides whether it casts it at all (`NPC_CALCULATE`) and how it chooses the
+target (`fight.cpp`). Two of them also gate PK in `CastAffect`.
+
+| Mob-AI / PK class | Effect |
 |---|---|
-| `kNpcDamagePc` | PvE-direction damage: NPC may damage PC. |
-| `kNpcDamagePcMinhp` | Damage capped to leave the PC with some HP (no kill). |
-| `kNpcAffectPc` | NPC may apply an affect to a PC (PK gate). |
-| `kNpcAffectNpc` | NPC may apply an affect to another NPC. |
-| `kNpcUnaffectNpc` | Mirror for dispels. |
+| `kNpcDamagePc` | Offensive spell: the NPC aims it at a hostile target (`find_target`). |
+| `kNpcDamagePcMinhp` | Same targeting as `kNpcDamagePc` (checked first). No HP-floor logic is attached to it in code today. |
+| `kNpcAffectPc` | Debuff for an opponent (`find_opp_affectee`). On a violent cast it is also the PK gate: imposing it on a player runs `pk_agro_action`. |
+| `kNpcAffectPcCaster` | Debuff aimed at an opposing caster (`find_opp_caster`). |
+| `kNpcUnaffectPc` | Offensive dispel: strip an enemy player's buffs (`find_opp_dispellable`). |
+| `kNpcAffectNpc` | Buff for an ally (`find_affectee`). On a violent cast against a fighting target it runs `pk_agro_action` against that target's enemy. |
+| `kNpcUnaffectNpc` | Cure for an ally (`find_friend`). |
+| `kNpcUnaffectNpcCaster` | Cure aimed at an allied caster (`find_caster`). |
+| `kNpcDummy` | Heal-type spell for an ally (`find_friend_cure`). |
+
+A spell may also carry `<tags val="curse|…"/>` (spell level, after `<flags>`): a free-form,
+`|`-separated set of semantic categories. Tags change nothing by themselves; a feat's
+`<talent_patch category="…">` uses them to select the spells it patches (see the
+[Feat Manual](FEAT_MANUAL.md)).
 
 ### 3.7 `<potency_roll>` and `<success_roll>`
 
-Both share the same shape (`talents_actions::Roll`). Each spell has **one
-potency roll** that all of its effects share (damage amount, affect modifier,
-duration bonus, extra-hits bonus, dispel strength).
+Both blocks have the same skill/stat shape (`talents_actions::Roll` /
+`talents_actions::SuccessRoll`). Each spell has **one potency roll** that all of its
+effects share (damage amount, points, affect modifier, duration bonus, extra-hits
+bonus, dispel strength).
 
 ```xml
 <potency_roll>
-    <dices ndice="6" sdice="4" adice="10"/>
-    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
-    <base_stat id="kWis" threshold="22" weight="5"/>
+    <noise sigma="0.25" trunc="2"/>
+    <base_skill id="kFireMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+    <base_stat id="kWis" threshold="32" weight="18"/>
 </potency_roll>
 ```
 
 | Child / attr | Description |
 |---|---|
-| `<dices ndice= sdice= adice=>` | The dice expression: `ndice` dice of `sdice` sides plus `adice` flat. Any zero attribute means "no contribution from that part" — `ndice="0" sdice="0" adice="N"` reliably returns `N`, and an absent `<dices>` block is equivalent to `0,0,0` (returns 0). Negative values are also treated as zero. |
-| `<base_skill id= low_skill_bonus= hi_skill_bonus=>` | Adds a skill-based coefficient. Below the novice threshold (skill 75), each point grants `low_skill_bonus`; above 75, each point grants `hi_skill_bonus`. Final coefficient = `(low_skill·low_bonus + hi_skill·hi_bonus) / 100`. Omit the child to skip skill contribution. |
-| `<base_stat id= threshold= weight=>` | Adds a stat-based coefficient. Contribution = `max(0, stat − threshold) · weight / 100`. Omit the child to skip stat contribution. |
+| `<noise sigma= trunc=>` | The spell's **one shared random draw** (replaced the old `<dices>`, which is no longer read). At cast time one `z ~ N(0,1)` is drawn and clamped to `±trunc` (default `2`); the realised deviation `d = sigma · z` is shared by every effect of the cast, each scaling it by its own `weight`. `sigma` defaults to `0`; an absent `<noise>` makes the spell deterministic. |
+| `<base_skill id= low_skill_bonus= hi_skill_bonus=>` | Adds a skill-based coefficient. Below the novice threshold (skill 75), each point grants `low_skill_bonus`; above 75, each point grants `hi_skill_bonus`. Final coefficient = `(low_skill·low_bonus + hi_skill·hi_bonus) / 100`. Attribute defaults when the child is present: `low_skill_bonus=1`, `hi_skill_bonus=7`. Omit the child to skip skill contribution. |
+| `<base_stat id= threshold= weight=>` | Adds a stat-based coefficient. Contribution = `max(0, stat − threshold) · weight / 100`. Defaults when present: `threshold=0`, `weight=18`. Omit the child to skip stat contribution. |
 
-`<success_roll>` is parsed and evaluated but **not yet consumed** by any game
-mechanic — it's a forward-looking hook. Use the same shape when you want a
-spell to carry a success/landing roll separate from its potency.
+`<success_roll>` takes `<base_skill>` / `<base_stat>` (no noise; attribute defaults
+`0`) plus the optional `<bonus roll= pvp= pve= evp= eve=>` (flat and per-matchup
+bonuses; P = player, E = NPC) and `<thresholds critsuccess= critfail=>` (defaults 6 /
+95). Today only its **`base_skill` id** is consumed: it is the skill trained on a cast,
+it adds `skill / 20` to the `CalcCastSuccess` percentage, and it is the skill that
+scales the `<area>` target count (§7). The weights, `<bonus>` and `<thresholds>` are
+parsed and stored but not yet used.
 
-The `base_skill` from `<potency_roll>` also drives the affect duration and
-multi-hit count (see §7 and §6.1).
+The `base_skill` from `<potency_roll>` drives the affect duration and the
+multi-hit count (see §8.2 and §5).
 
 #### Competence `C`, effect magnitude, and the `cast_potency` scalar
 
-The roll produces three numbers — `RollSkillDices` (the random dice sample),
-`skill_coeff`, and `stat_coeff`. Two **different** quantities are built from them;
-do not conflate them.
+The roll produces three numbers — `skill_coeff`, `stat_coeff` and the shared noise
+deviation `d`. Two **different** quantities are built from them; do not conflate them.
 
-* `RollSkillDices` = result of the `<dices>` roll (one `ndice × sdice + adice`
-  sample per cast).
 * `skill_coeff` = `(low_skill · low_skill_bonus + hi_skill · hi_skill_bonus) / 100`
   from `<base_skill>` (skill is capped at `kNoviceSkillThreshold = 75` for the
   low part; everything above goes into the hi part).
 * `stat_coeff` = `max(0, stat − threshold) · weight / 100` from `<base_stat>`.
+* `d` = `sigma · z` from `<noise>` (one draw per cast).
 
 **Competence** is the skill+stat part, written `C` throughout the manual:
 
@@ -288,30 +321,31 @@ do not conflate them.
 C = skill_coeff + stat_coeff
 ```
 
-**Effect magnitude** (damage, heal/points, affect modifier) is *not* a plain sum of
-the roll and `C`. It uses the option-2 formula (§5, §6, §8.4):
+**Effect magnitude** (damage, heal/points, affect modifier) scales with `C` and
+carries the shared noise multiplicatively (§5, §6, §8.4):
 
 ```
-amount = min + dice · dices_weight · (1 + alpha · C) + beta · C
+amount = min + beta · C · (1 + weight · d)
 ```
 
-The dice (the random roll) are **multiplied** by `(1 + alpha · C)`, so the roll's
-weight *grows* with competence instead of shrinking to a negligible fraction of a
-large additive total. `beta · C` is a separate flat competence term. This is the whole
-point of the option-2 rework: a purely additive `roll + C` would make the roll
-meaningless at high skill/stat — option-2 avoids that. (Set `alpha=0` only when you
-deliberately want the legacy flat behaviour, e.g. flat affect modifiers.)
+`beta · C` is the competence term; `weight` says how strongly this particular effect
+follows the cast's shared draw (`weight="1"` takes the full `±sigma` spread,
+`weight="0"` is deterministic). Because the noise multiplies `beta · C`, its relative
+spread stays constant as competence grows instead of fading into a large additive
+total. Damage and points round the result and never go below `max(0, floor(min))`;
+an affect modifier uses `min + ceil(beta · C · (1 + weight · d))`, then its `cap` and
+`factor` (Affect Manual).
 
 **`cast_potency`** is a *separate* scalar — the caster's **deterministic competence**
 (`CalcCastPotency`, issue.random-noise-rework):
 
 ```
-cast_potency = skill_coeff + stat_coeff        (no dice)
+cast_potency = skill_coeff + stat_coeff        (no noise)
 ```
 
 It is used **only as a relative-strength number**, never as an effect's magnitude: the
 potency stored on an affect (`cast_potency × <affects potency_weight>`) and the dispel
-contest that later tries to remove it (§9.3). Dropping the dice makes the stored strength
+contest that later tries to remove it (§9.3). Dropping the noise makes the stored strength
 reflect the caster's **skill**, not the randomness of the delivered amount — so the dispel
 contest is a clean skill comparison (§9.3). Extra-hit counts are a third, separate thing:
 they scale on `min(skill, 75) / skill_divisor`, not on `cast_potency` (§5).
@@ -335,15 +369,25 @@ mix of:
 * Gates: `<target_conditions>` (wraps per-action `<blocking>`/`<required>`),
   `<reflection>`. (Caster-side gating is the spell-level `<caster_conditions>` — §4.3.)
 * Effects: `<damage>`, `<points>`, `<area>`, `<affects>`, `<unaffect>`,
-  `<side_spell>`, `<manual_cast>`.
+  `<side_spell>`, `<manual_cast>`, `<alter_obj>`, `<summon>`, `<obj_creation>`.
 
-Within a single action the effect stages always run in this fixed order:
+An `<action>` may also carry `id="Name"` — a stable name that feat patches use to
+address it (`<talent_patch action="…">`, see the [Feat Manual](FEAT_MANUAL.md)). The
+`<trigger>`, `<absorption>`, `<damage_change>` and `<retaliation>` children belong to
+the affect-side `<actions>` list and are documented in the
+[Affect Manual](AFFECT_MANUAL.md).
 
-> **Damage → Unaffect → Affect → Points → SideSpell → Manual**
+Within a single action the per-target effect stages always run in this fixed order:
+
+> **Damage → Unaffect → Affect → Points → SideSpell → Manual → AlterObj**
+
+`<summon>` and `<obj_creation>` are action-level: an action carrying one runs it once
+and skips the per-target stages (§3.8.5, §3.8.6).
 
 Most spells still use a single `<action>`, but a spell can now chain several —
 each aimed at a different target set and able to scale off what an earlier action
-did. See **§3.8.1–3.8.4** below and the worked example in **§13.8 (`kSacrifice`)**.
+did. See **§3.8.1–3.8.4** below and the worked example in
+**[Cookbook](COOKBOOK.md) §3.8 (`kSacrifice`)**.
 
 #### How the action list is executed (action-outer, target-inner)
 
@@ -371,7 +415,7 @@ mechanism is backward-compatible.
 A non-entry `<action>` may carry a `target` attribute (an `EActionTarget`, default
 `kTarSame`) selecting **which** characters it affects:
 
-| value | resolves to | needs `<area>`? |
+| value | resolves to | uses `<area>`? |
 |---|---|---|
 | `kTarSame` *(default)* | the **previous** action's resolved target list | inherits |
 | `kTarFightSelf` | the caster | no |
@@ -381,10 +425,13 @@ A non-entry `<action>` may carry a `target` attribute (an `EActionTarget`, defau
 | `kTarRandomFoe` | one random foe in the room | no |
 | `kTarRandomAlly` | one random ally in the room | no |
 | `kTarMinions` | the caster's charmed NPC followers (minions) in the room | yes (for >1) |
+| `kTarActor` | the character that fired an event trigger (e.g. the one entering the room); for affect-side actions | no |
 | `kTarRoomThis` | the room itself (`ctx.rvict`); the action imposes its effect on the room | no |
+| `kTarMaster` | the caster's charm master (used by patches acting on a minion's master, e.g. `kSoulLink`) | no |
 
-`kTarGroup`/`kTarFoes`/`kTarMinions` fan out over several characters, so they need
-an `<area>` block (§7) to say how many and with what falloff.
+`kTarGroup`/`kTarFoes`/`kTarMinions` fan out over several characters; an `<area>`
+block (§7) says how many and with what falloff. Without `<area>` the action hits the
+whole roster at full strength.
 
 #### 3.8.2 `base="…"` and `reset` — chain off a prior action's result *(cast-chain)*
 
@@ -399,13 +446,14 @@ scale off **what an earlier action produced**, via `base` (an `EActionBase`):
 | `kPoints` | total points (HP/moves/…) restored so far |
 | `kAffects` | total **potency** of affects applied so far |
 | `kDispelled` | total **potency** of affects removed so far |
+| `tag` (with `tag="NAME"`) | the numeric value of event tag `NAME` (affect-side trigger actions; see the Affect Manual) |
 
 The accumulators **aggregate across an action's targets** (they sum). `base` only
-replaces the competence scalar in the formula — the action's own dice and weights
-still apply, so for a clean 1:1 transfer the designer sets `dices_weight="0"` and
-`beta="1.0"` (see `kSacrifice` A2/A3 in §13.8). `reset="true"` zeroes the chosen
-base accumulator **after** this action runs, so a later action starts the tally
-fresh.
+replaces the competence scalar `C` in the formula — the action's own `min`, `beta`
+and `weight` still apply, so for a clean 1:1 transfer the designer sets `weight="0"`
+and `beta="1.0"` (see `kSacrifice` A2/A3 in [Cookbook](COOKBOOK.md) §3.8).
+`reset="true"` (also `Y` / `1`) zeroes the chosen base accumulator **after** this
+action runs, so a later action starts the tally fresh.
 
 #### 3.8.3 `<side_spell id="…"/>` — trigger a full nested cast
 
@@ -429,10 +477,13 @@ delegated effect.
 <manual_cast handler="SpellMentalShadow"/>
 ```
 
-Names a hand-coded handler registered in `spells.cpp` (the handler name must match
-the registry, or boot logs `unknown <manual_cast> handler`). It runs as the
-**Manual** stage of the action, so a manual handler is now gated and ordered like
-any other stage instead of being dispatched only by the old `kMagManual` flag.
+Names a hand-coded handler from the `kManualHandlers` registry
+(`src/gameplay/magic/action_handlers.cpp`; the handler bodies live in
+`src/gameplay/handlers/`). The name must match the registry, or boot logs
+`Spell …: unknown <manual_cast> handler '…'`. It runs as the **Manual** stage of the
+action, so a manual handler is gated and ordered like any other stage. On the entry
+action the stage still requires the `kMagManual` flag; a later action runs it
+whenever it names a handler.
 
 #### 3.8.5 `<summon>` — spawn a charmed minion *(issue.summon-pipeline)*
 
@@ -444,7 +495,8 @@ any other stage instead of being dispatched only by the old `kMagManual` flag.
 
 Spawns a mob in the **caster's room** and charms it to the caster. Like a room
 action (§3.8.1 `kTarRoomThis`), a `<summon>` runs **once per action — not once per
-target** — so it is dispatched at the action level (before the per-target path) and
+target** — so it is dispatched at the action level (instead of the per-target path:
+the same action's other effect blocks do not run) and
 can chain off a prior action via `base=` (§3.8.2): the entry summon reads the real
 potency `C`, a chained one reads its `base=` accumulator (e.g. a familiar whose
 strength scales with the damage just dealt). It replaced the old `kMagSummons` flag,
@@ -461,28 +513,30 @@ which no longer exists.
 The failure chance is `pfail = clamp(min_fail, base_fail − C·competence_weight, 100)`,
 where `C` is the action's competence (§3.7). So a competent caster drives the fail
 toward `min_fail`; a weak one approaches `base_fail`. The `kFavorOfDarkness` feat
-re-rolls a failure at ¼ (only 1 in 4 sticks). Immortals never fail.
+re-rolls a failure at ¼ (only 1 in 4 sticks). Immortals never fail. A charmed
+caster cannot summon (`kSummonCharmed`); a missing prototype emits `kSummonNoProto`.
 
 `<mob>` attributes:
 
 | Attr | Meaning |
 |---|---|
-| `vnum` | The mob prototype vnum (plain positive, e.g. `3021`). It is loaded as a *summoned* instance — no triggers / online count, `EMobFlag::kSummoned` set (`ReadMobile` negates internally). |
-| `competence_weight` | How strongly `C` reduces the fail (the `k` above). Author it against whatever scale `base=` feeds the action. |
+| `vnum` | The mob prototype vnum (plain positive, e.g. `3021`). It is loaded as a *summoned* instance — no triggers / online count, `EMobFlag::kCompanion` set (`ReadMobile` negates internally). The current handlers additionally set `EMobFlag::kSummoned` (a true conjuration, banishable). |
+| `competence_weight` | How strongly `C` reduces the fail (the `k` above; a real number). Author it against whatever scale `base=` feeds the action. |
 | `keeper` | `Y` → the minion gets `EAffect::kHelper` + `ESkill::kRescue=100` (a guardian that rescues its master). |
 
 The minion is charmed (`ESpell::kCharm`) for a wisdom + moon-phase duration, its
 gold/exp are zeroed, and it is placed and made a follower. `handler` then runs the
 spell-specific post-spawn work — it must match an entry in the `kSummonHandlers`
-registry in `magic.cpp` (signature `(ch, mob, ctx, duration)`) or boot logs
-`unknown summon handler`. Current handlers: `SetupKeeperStats`,
-`SetupFirekeeperStats`, `CloneCascade`.
+registry in `src/gameplay/magic/action_summon.cpp` (signature
+`(ch, mob, ctx, duration)`); an unknown name logs `unknown summon handler` at cast
+time. Current handlers: `SetupKeeperStats`, `SetupFirekeeperStats`, `CloneCascade`.
 
 Use `<summon>` for **vnum-based** summons whose failure scales with `C`
 (summon keeper / fire keeper / clone). Corpse-based summons (animate dead,
 resurrection — the mob and a con/level-based fail come from the source corpse) and
 the non-mob summons (guardian angel, mental shadow) don't fit this data model and
-live in `<manual_cast>` handlers instead (§3.8.4).
+live in `<manual_cast>` handlers instead (§3.8.4): `SpellAnimateDead`,
+`SpellAnimateSkeleton`, `SpellResurrection`, `SummonTutelar`, `SpellMentalShadow`.
 
 #### 3.8.6 `<obj_creation>` — conjure an object *(issue.obj-casting)*
 
@@ -491,9 +545,10 @@ live in `<manual_cast>` handlers instead (§3.8.4).
 ```
 
 Creates an object in the caster's room/inventory. Runs **once per action** (like `<summon>`), at the
-action level. `vnum` (required) is the prototype to load; the skeleton narrates and places it
+action level. `vnum` (required) is the prototype to load; the skeleton narrates it (`kItemCreatedToChar` /
+`kItemCreatedToRoom`; a missing prototype emits `kItemNoPrototype` and a SYSERR) and places it
 (inventory, or dropped to the room when the caster is over-encumbered). `handler` (optional) names a
-post-load customizer in the `kCreationHandlers` registry (`magic.cpp`) — it runs **before** the
+post-load customizer in the `kCreationHandlers` registry (`src/gameplay/magic/action_handlers.cpp`) — it runs **before** the
 narration/placement so it can shape the freshly-loaded base object. An unregistered name logs
 `unknown creation handler` at cast time (same as `<manual_cast>` / `<alter_obj>`).
 
@@ -516,8 +571,8 @@ Transforms a target object, running as a **per-target stage** (so an area corrod
 item). The skeleton resolves the object (an explicit `ovict`, else — **only when the `<alter_obj>`
 opts in with `collateral="on_damage"` and the cast dealt damage this stage** (`ctx.result.damage != 0`)
 — a random equipped/carried item of the victim; issue.spells-hotfix), guards
-the `kNoalter` flag, then dispatches the named handler from the
-`kAlterObjHandlers` registry (`magic.cpp`). The transform itself is irreducibly per-spell, so the
+the `kNoalter` flag (a no-alter item emits `kObjResist`), then dispatches the named handler from the
+`kAlterObjHandlers` registry (`src/gameplay/magic/action_handlers.cpp`). The transform itself is irreducibly per-spell, so
 the main attribute is `handler`, plus the optional `collateral` / `dispel_bonus` / `decay` / `bypass_noalter` (mirroring `<manual_cast>`, but with the
 shared object-resolution + guard skeleton around it):
 
@@ -653,38 +708,42 @@ job is now done by `<caster_conditions>`.)
 ```
 
 The cast is refused if **any one** of the listed conditions matches: a
-mob flag (NPC only), an affect flag (any target), the alignment selector
-(target alignment), or a room flag (CASTER's current room). Each axis is
-optional; combine as many as the spell needs.
+mob flag (NPC only), a runtime character mark, an affect flag (any target),
+the alignment selector (target alignment), or a room flag (CASTER's current
+room). Each axis is optional; combine as many as the spell needs.
 
 The child-tag form is used because lines get long when several axes
-combine (e.g. `kNoMagic` blocking now lives on almost every spell). The
-older attribute form (`<blocking mob_flags="..."/>`) has been retired.
+combine. The older attribute form (`<blocking mob_flags="..."/>`) has been
+retired. (The `kNoMagic` room block that once sat on almost every spell is now
+expressed by `<weave/>`, §3.9.)
 
 | Child tag | Values |
 |---|---|
-| `<mob_flags val="…"/>` | `\|`-separated `EMobFlag` names. Recognised: `kNoBlind`, `kNoSleep`, `kNoSilence`, `kNoHold`, `kNoBash`, `kNoCharm`, `kNoSummon`, `kNoFear`, `kCorpse`, `kResurrected`, `kMounting`, `kHelper`, `kClone`. |
+| `<mob_flags val="…"/>` | `\|`-separated `EMobFlag` names. Recognised: `kNoBlind`, `kNoSleep`, `kNoSilence`, `kNoHold`, `kNoBash`, `kNoCharm`, `kNoSummon`, `kNoFear`, `kCorpse`, `kMounting`, `kHelper`, `kClone`, `kIgnoreForbidden`, `kCompanion`. |
+| `<extra_flags val="…"/>` | `\|`-separated `ECharExtraFlag` names — runtime marks set only by code, never saved. Recognised: `kResurrected` (a corpse revived by `kResurrection`; used by `kStoneBones`). |
 | `<affect_flags val="…"/>` | `\|`-separated `EAffect` names (any affect flag the engine recognises). |
-| `<room_flags val="…"/>` | `\|`-separated `ERoomFlag` names. Recognised: `kNoMagic`, `kPeaceful`, `kTunnel`, `kNoTeleportIn`, `kNoBattle`, `kGodsRoom`, `kForMono`, `kForPoly`. Matches against the caster's room. |
+| `<room_flags val="…"/>` | `\|`-separated `ERoomFlag` names. Recognised: `kNoMagic`, `kPeaceful`, `kTunnel`, `kNoTeleportIn`, `kNoTeleportOut`, `kNoBattle`, `kGodsRoom`, `kForMono`, `kForPoly`. Matches against the caster's room. |
 | `<align val="…"/>` | `kGood`, `kEvil`, `kNeutral` — block if the target carries this alignment. |
 
 On a single-target spell, a target-side block emits `kNoeffect` to the
 caster. On a group/mass cast, a target-side block is silent for that
 target (no per-target spam). A **room-flag block** is different: it
 fizzles the *whole* cast before any per-target dispatch and emits
-`kCastForbiddenToChar` / `kCastForbiddenToRoom` (see §15). Greater gods
+`kCastForbiddenToChar` / `kCastForbiddenToRoom` (see §12). Greater gods
 and uncharmed/non-tutelar NPCs bypass the room-flag block
-(`MayCastInForbiddenRoom`); warcry spells simply do not list `kNoMagic`
-as a blocking flag, so the same bypass isn't needed for them.
+(`MayCastInForbiddenRoom`); warcry spells carry no `<weave/>` and list no
+`kNoMagic` block, so the same bypass isn't needed for them.
 
 ### 4.2 `<required>`
 
 ```xml
-<required>
-    <mob_flags val="kCorpse"/>
-    <affect_flags val="kCharmed"/>
-    <align val="kEvil"/>
-</required>
+<target_conditions>
+    <required>
+        <mob_flags val="kCorpse"/>
+        <affect_flags val="kCharmed"/>
+        <align val="kEvil"/>
+    </required>
+</target_conditions>
 ```
 
 Same child-tag shape as `<blocking>` but the cast is refused unless the
@@ -740,6 +799,9 @@ against `prob`. Self-casts never bounce.
 | `align` | `kAny` | `kGood`/`kEvil`/`kNeutral`. Target's matching alignment also triggers the roll. |
 | `prob` | `20` | Percent chance the spell actually reflects when the flag/align match. |
 
+(`min` / `max` are also parsed: they turn a *defender's* magic-mirror ward into a
+potency contest — an affect-side feature, see the Affect Manual.)
+
 When reflection fires, three messages from `spell_msg.xml` are emitted:
 `kReflectedToChar` (to the caster), `kReflectedToVict` (to the original
 target), `kReflectedToRoom` (to onlookers). After reflection, the spell
@@ -756,7 +818,7 @@ reflection rates per spell.
 
 ```xml
 <damage saving="kReflex" prob="100">
-    <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
+    <amount min="0" beta="111.2" weight="1"/>
     <hits skill_divisor="12" max="2" prob="100"/>
     <instant_death prob="100"/>
 </damage>
@@ -764,16 +826,19 @@ reflection rates per spell.
 
 | Attr / child | Default | Description |
 |---|---|---|
-| `saving` | `kReflex` | `ESaving`: `kReflex`, `kStability`, `kWill`, `kCritical`, `kNone`. The save is rolled **once** per cast (cached on the context as `last_saving_result`) and a **success halves** the final damage; `kNone` or a self-cast = no save (full damage). The same single roll also gates `<instant_death>` below. |
+| `saving` | **required** | `ESaving`: `kReflex`, `kStability`, `kWill`, `kCritical`, `kNone`. An absent `saving` fails to parse and drops the spell's whole action list, so always write it (`kNone` opts out). The save is rolled once up front and cached on the context as `last_saving_result` to gate `<instant_death>`; then **each hit** rolls magic resist (a resisted hit deals 0) and its own saving throw (a **success halves** that hit). `kNone` or a self-cast = no save (full damage). |
 | `prob` | `100` | Percent chance the damage actually happens (silent miss otherwise). `prob<100` short-circuits the RNG. |
-| `<amount min= dices_weight= alpha= beta=>` | min=0, dices_weight=1.0, alpha=0, beta=1.0 | Final amount (issue.potency-formula) = `min + dice · dices_weight · (1 + alpha · C) + beta · C`, where `C = skill_coeff + stat_coeff`. `alpha` scales the dice multiplicatively with competence, so the random spread keeps growing with the output instead of going flat (sub-quadratic). `beta` is the additive competence term. `alpha=0` reduces to the legacy additive Formula A. Omit the tag to keep the defaults. |
+| `<amount min= beta= weight=>` | min=0, beta=1.0, weight=0 | Per-hit amount = `min + beta · C · (1 + weight · d)` (§3.7), where `C = skill_coeff + stat_coeff` and `d` is the cast's shared noise deviation. `weight` says how much of the spread this damage takes (`0` = deterministic). The result is then multiplied by the element coefficient, the caster's spell-power bonus, gear modifiers and the area coefficient. Omit the tag to keep the defaults. |
 | `<hits skill_divisor= max= prob=>` | divisor=25, max=1, prob=20 | Multi-hit support: `count = 1 + CalcExtraHits(...)`. The extra-hit bonus uses the caster's potency-roll `base_skill`, scaled by `min(skill, 75) / skill_divisor`, capped at `max`, fired at `prob`%. `prob=0` means a uniform random pick between 0 and `extra`. Absent tag means a single hit. |
 | `<instant_death prob=>` *(new mechanic)* | absent; `prob=100` | Marks the spell as able to **kill outright**; the `prob` percent is the chance the attempt is even rolled. See the note below. |
 
 > **Saving throw — now live (issue.instant-death).** Regular spell damage used to be gated only by
-> magic resist (`GET_MR`); the `<damage saving>` throw is now actually rolled (once, cached on the
-> context) and a **successful save halves** the final `total_dmg`. Set `saving="kNone"` to exempt a
+> magic resist (`GET_MR`); the `<damage saving>` throw is now actually rolled, and a **successful save
+> halves** the hit (rolled per hit, alongside magic resist). Set `saving="kNone"` to exempt a
 > spell (no save → always full damage, and `<instant_death>` is not blocked).
+>
+> `<damage source="poison">` is an affect-side variant (damage-over-time ticks that skip magic resist,
+> saves and wards) — see the Affect Manual.
 
 > **`<instant_death prob="N"/>` *(new mechanic, issue.instant-death)*.** After the save is rolled, an
 > instant-death attempt fires only when, in order: (1) the victim is **not a boss** (`EMobClass::kBoss`
@@ -790,10 +855,10 @@ reflection rates per spell.
 
 ```xml
 <points extra="0" prob="100">
-    <heal   npc_coeff="3" min="0" dices_weight="1.0" alpha="0.5" beta="45"/>
-    <moves                min="0" dices_weight="0.0" alpha="0" beta="20"/>
-    <thirst               min="0" dices_weight="0.0" alpha="0" beta="0"/>
-    <full                 min="0" dices_weight="0.0" alpha="0" beta="0"/>
+    <heal   npc_coeff="3" min="0"  beta="47.5" weight="1"/>
+    <moves                min="20" beta="65.8" weight="1"/>
+    <thirst               min="0"  beta="0"    weight="0"/>
+    <full                 min="0"  beta="0"    weight="0"/>
 </points>
 ```
 
@@ -821,11 +886,10 @@ restores (or drains) one category from the same potency roll:
 
 | Inner amount attr | Default | Description |
 |---|---|---|
-| `min` | `0` | Flat amount. May be **negative** — negative numbers drain instead of restore (`<moves min="-30">` drains 30 movement points). |
-| `dices_weight` | `0` | Base scale on the potency roll's dice. |
-| `alpha` | `0` | Multiplicative: how much competence `C` amplifies the dice (sub-quadratic spread growth). `0` = legacy additive behaviour. |
-| `beta` | `0` | Additive weight on `C = (skill_coeff + stat_coeff)` (the old `competencies_weight`). |
-| `npc_coeff` (`<heal>` only) | `1.0` | Extra multiplicative boost when the caster is an NPC. Default `1.0` reproduces the legacy `*2` effective heal for mob casters; set to `0` to disable. |
+| `min` | `0` | Flat amount. The shared amount formula never returns less than `max(0, floor(min))`, so a **negative** `min` yields 0 today — it no longer drains. |
+| `beta` | `0` | Weight on `C = (skill_coeff + stat_coeff)` (the old `competencies_weight`). |
+| `weight` | `0` | How much of the cast's shared noise `d` this amount takes (§3.7); `0` = deterministic. |
+| `npc_coeff` (`<heal>` only) | `1.0` | Extra multiplicative boost when the caster is an NPC. Default `1.0` reproduces the legacy `*2` effective heal for mob casters; set to `0` to disable. (The loader parses it for `<heal>` only.) |
 
 ### Sign convention for thirst / full
 
@@ -833,7 +897,9 @@ In the engine the thirst/full fields are inverted — `0` is fully sated,
 `kMaxCondition` (48) is "starving". The XML uses the gameplay-natural sign:
 
 * **Positive XML value** = restore (less thirsty / less hungry).
-* **Negative XML value** = make worse (more thirsty / more hungry).
+* **Negative XML value** = make worse (more thirsty / more hungry) — but see the
+  `min` note above: the amount formula currently clamps at 0, so this direction is
+  unreachable from data today.
 
 `CastToPoints` negates the computed amount before calling
 `gain_condition`, so designers can read `<thirst min="50"/>` as
@@ -845,12 +911,13 @@ mind.
 Each amount, before clamps:
 
 ```
-amount = ceil(min + dice · dices_weight · (1 + alpha · C) + beta · C)   // C = skill_coeff + stat_coeff
+amount = round(min + beta · C · (1 + weight · d)), at least max(0, floor(min))   // C = skill_coeff + stat_coeff
 amount += amount · (caster's spellpower bonus / 100)
 if caster is NPC: amount += amount · npc_coeff   // 0 for non-heal categories
+amount *= area coefficient;  heal only: gear spell-effect modifiers
 ```
 
-The dice / competencies are rolled **once per cast** from the spell's
+Competence and the noise draw are computed **once per cast** from the spell's
 `<potency_roll>` and shared across all four amounts — a single skill
 check drives every category on the same cast.
 
@@ -871,7 +938,7 @@ specifies whichever per-category keys it wants (most heal spells just
 override `kHealToVict`; drain spells like a future "exhaust" would
 override `kMovesToVict`; etc.).
 
-The intensity table (`lib/cfg/mechanics/points.xml`) carries `<improve>`
+The intensity table (`lib/cfg/messages/ru/points_intensity.xml`) carries `<improve>`
 and `<degrade>` grades for each category. Resolution walks the table
 descending and returns the first tier `T` such that `T ≤ percent` —
 unified for both directions. `<heal><degrade>` is intentionally empty
@@ -895,16 +962,17 @@ percent formula is signed.
 </area>
 ```
 
-An `<area>` block is needed by any action whose target selector fans out over more
+An `<area>` block tunes any action whose target selector fans out over more
 than one character — the entry action of a `kMagAreas`/`kMagMasses`/`kMagGroups`
 spell, or a later action with `target="kTarFoes"` / `kTarGroup` / `kTarMinions`
-(§3.8.1).
+(§3.8.1). Without it (or with `max ≤ 0`) such an action hits the whole roster at full
+strength.
 
 ### `<targets>` — the count
 
 | attr | default | meaning |
 |---|---|---|
-| `skill_divisor` | 1 | caster-skill divisor that scales the count (clamped ≥1) |
+| `skill_divisor` | 1 | divisor of the caster's skill — the **`<success_roll>` `base_skill`** — that scales the count (clamped ≥1) |
 | `dice_size` | 1 | sides per random target-count die |
 | `min` | 1 | floor for the count |
 | `max` | 1 | cap on the **bonus** (total ∈ `[min, min+max]`); **`max ≤ 0` means "no limit"** — hit the whole roster |
@@ -933,7 +1001,8 @@ target #1 = the primary victim / first ally, hit first) of `N`, the coefficient
 
 `decay` and `free_targets` are read **only** for `kStepped`. `f_j` is always in
 `[0, 1]` and never amplifies. **NPC casters bypass** the falloff (`f_j = 1`
-everywhere). The `kMultipleCast` feat softens `kStepped` decay (`decay ×= 0.6`).
+everywhere). The `kMultipleCast` feat softens the decay (`decay ×= 0.6`) through a
+`<talent_patch has_effect="kArea" op="modify">` in `feats.xml` — data, not code.
 
 ---
 
@@ -943,7 +1012,7 @@ The `<affects>` block imposes one or more **affects** on the action's targets. A
 affect's *behaviour* — its `<flags>`, its stat `<apply>` list (and their
 competence-scaling), stacking, random pools, and everything it *does* while it
 lasts (damage-over-time, on-hit/on-kill/on-expire triggers, wards) — is defined on
-the affect itself in `lib/cfg/affects.xml` and documented in the
+the affect itself in `lib/cfg/affects/affects.xml` and documented in the
 **[Affect Manual](AFFECT_MANUAL.md)**. This section covers only the **imposition**:
 which affect, for how long, against what save.
 
@@ -956,8 +1025,10 @@ which affect, for how long, against what save.
 </affects>
 ```
 
-Each `<affect id="…">` child names an `EAffect` to impose — a block may name
-several (e.g. the `slow` spell imposes `kSlow` **and** `kSlowdown`). The engine
+Each `<affect id="…">` child names an `EAffect` (or, for a room spell, an
+`ERoomAffect`) to impose — a block may name several (e.g. the `slow` spell imposes
+`kSlow` **and** `kSlowdown`); `random="Y"` marks it a member of the spell's
+random-one-of pool. The engine
 reads that affect's flags and `<apply>` list from `affects.xml`; the spell
 contributes only the imposition fields below plus the cast's stored potency
 (which the affect's competence-scaled applies then read).
@@ -977,8 +1048,14 @@ contributes only the imposition fields below plus the cast's stored potency
 | `resist` | `kFire` | `EResist` — the resist channel applied to the affect's duration. |
 | `prob` | `100` | Percent chance the block fires at all (silent miss otherwise). `<lag>`/`<reposition>` are gated by this same prob. |
 | `potency_weight` | `1.0` | *Multiplier* on the stored `Affect::potency` (not the modifier) that `DispelSucceeds` reads as `affect_potency`. Lets a big-modifier affect stay dispellable: keep the modifier strong, scale only the stored potency down. Complements the **additive** dispel knobs — `<unaffect dispel_bonus=>` and the affect's own `<affect dispel_mod=>` (§9.3). |
-| `tick_spell` | *(none)* | *Room affects only.* `ESpell` of a `kService` spell whose actions the room-affect tick handler runs each pulse (see the Affect Manual §7). |
-| `tick_handler` | *(none)* | *Room affects only.* Name of a C++ tick handler for ticks the data can't express (e.g. `kThunderstorm` weather). Takes precedence over `tick_spell`. |
+| `battleflag` | *(none)* | `\|`-separated `EAffFlag` bits OR'd onto each imposed affect instance. With `kAfBattledec` the `<duration>` is read as raw combat rounds (no PC hour→tick scaling). |
+
+The `tick_spell` / `tick_handler` attributes are **retired** (no longer read): a room
+affect's per-tick behaviour is now its own `<actions>` in `room_affects.xml` with a
+`<trigger val="kPulse">` — a `<side_spell>` action replaces `tick_spell`, a
+`<manual_cast>` action replaces `tick_handler` (Affect Manual §7). An `<affects>`
+block may also carry `<charges max="N"/>`: how many times a *triggered* affect fires
+before it is removed (`-1` / absent = unlimited).
 
 ### 8.2 `<duration>` (skill-scaled)
 
@@ -991,9 +1068,12 @@ contributes only the imposition fields below plus the cast's stored potency
 | `base` | Flat base duration (hours; PC unit-converted to ticks). |
 | `skill_divisor` | Per-`min(skill,75) / skill_divisor` hour bonus, using the spell's potency-roll `base_skill`. `0` = no skill scaling. |
 | `min` / `max` | Clamps in hours. `0` on a side = no clamp there. |
-| `skill` | *(affect-action only)* Names the duration-scaling skill when there is no casting spell (e.g. a triggered hangover scaling with `kHangovering`). For a spell cast the base_skill comes from `<potency_roll>`, so this is omitted. See Affect Manual §5.6. |
+| `skill` | *(affect-action only)* Names the duration-scaling skill when there is no casting spell (e.g. a triggered hangover scaling with `kHangovering`). For a spell cast the base_skill comes from `<potency_roll>`, so this is omitted. A triggered action without `skill` gets a flat duration. See Affect Manual §5.6. |
 
-The skill bonus is capped at the novice threshold (75) / `skill_divisor`.
+The skill bonus is capped at the novice threshold (75) / `skill_divisor`. `base`,
+`skill_divisor`, `min` and `max` are all read unconditionally — write all four (a
+missing one fails to parse and drops the spell's action list). The same holds for
+`<lag base= bonus_divisor=>`.
 
 ### 8.3 `<reposition>` and `<lag>` — landing side-effects
 
@@ -1023,8 +1103,8 @@ stacking, random apply pools, and the affect's trigger-driven `<actions>`
 <unaffect affect_flags="kAfCurable" dispel_bonus="50" prob="100" decay="0">
     <blocking      any_of="kGodsShield" all_of=""/>
     <breaking      any_of="kSanctuary"/>
-    <remove_anyway any_of="kQuestMark"/>
-    <remove        all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
+    <remove_anyway any_of="kGlitterDust"/>
+    <remove        all_of="kInvisible|kDisguise|kHide" breaking_by_failure="true"/>
 </unaffect>
 ```
 
@@ -1036,27 +1116,30 @@ stacking, random apply pools, and the affect's trigger-driven `<actions>`
 | `dispel_bonus` *(issue.random-noise-rework)* | `50` | **Base dispel win-chance, in percentage points, at competence parity** — a flat, level-independent probability offset (replaces the old `potency_weight` multiplier). The dispeller's competence advantage and the affect's own `dispel_mod` shift it from there. See §9.3. Debuff cures set ~80; leave 50 for a neutral dispel. |
 | `prob` | `100` | Percent chance the unaffect block fires at all (silent skip otherwise). |
 | `decay` *(issue.debuff-decay)* | `0` | On a **failed** removal, shift the surviving affect's potency by this percent of **the dispeller's competence contribution** (`kDispelSkillWeight · competence`): positive **weakens** the affect (easier next time), negative **strengthens** it. Result is clamped to `[0, 30000]` (floor 0 per design; the cap guards a negative `decay` from growing potency without bound / overflowing). `0` = no change. Applied only on the contest-fail path in `DispelSucceeds`. |
+| `debuff_only` *(issue.new-unaffect-spells)* | `N` | `Y` restricts removal to non-buffs: affects marked as clear buffs are skipped, so a friendly wildcard cleanse never strips the target's own buffs. No effect on room targets. |
 
 ### 9.2 The four sub-blocks
 
-Each of the four children carries two `ESpell` lists:
+Each of the four children carries two lists of **affect** names (issue.affect-migration:
+the tags name the affect, not the casting spell) — `EAffect` names for a character
+target, `ERoomAffect` names for a room target:
 
 | Block | When checked | Effect |
 |---|---|---|
 | `<blocking>` | First | If any listed affect is present, **all `<remove>` entries are skipped** (but `<remove_anyway>` still runs). The chain is *not* broken. |
-| `<breaking>` | First | If any listed affect is present, the cast **chain breaks** after this stage (no later stages run). |
-| `<remove_anyway>` | Second | Affects to dispel **regardless of blocking**. Useful for "always strip the quest mark even if shielded". |
+| `<breaking>` | First | If any listed affect is present, the cast **chain breaks** after this stage (this action's later stages on this target don't run, §9.4). |
+| `<remove_anyway>` | Second | Affects to dispel **regardless of blocking**. Useful for "always strip the glitter dust even if shielded". |
 | `<remove>` | Third (only if not blocked) | Normal removal list — these are dispelled when `<blocking>` didn't fire. |
 
 Within each block:
 
 | Attribute | Meaning |
 |---|---|
-| `any_of` | `\|`-separated `ESpell` list. The block fires if **any one** is present (for blocking/breaking) or dispels the **first one present** (for remove blocks). The single-token value `"*"` is the **wildcard** — see §9.5. |
-| `all_of` | `\|`-separated `ESpell` list. For blocking/breaking, fires only when **all** are simultaneously present. For remove blocks, dispels **every** listed affect that is present. The single-token value `"*"` is the **wildcard** — see §9.5. |
-| `breaking_by_failure` *(remove / remove_anyway only)* | If `true`, a **failed potency check** on any dispel from this block breaks the cast chain (no later stages run). The default is `false` (a failed check is silent). |
+| `any_of` | `\|`-separated affect list. The block fires if **any one** is present (for blocking/breaking) or dispels the **first one present** (for remove blocks). The single-token value `"*"` is the **wildcard** — see §9.5. |
+| `all_of` | `\|`-separated affect list. For blocking/breaking, fires only when **all** are simultaneously present. For remove blocks, dispels **every** listed affect that is present. The single-token value `"*"` is the **wildcard** — see §9.5. |
+| `breaking_by_failure` *(remove / remove_anyway only)* | If `true`, a **failed potency check** on any dispel from this block breaks the cast chain (§9.4). The default is `false` (a failed check is silent). |
 
-Mixing `"*"` with explicit names (e.g. `any_of="*\|kPoison"`) is rejected
+Mixing `"*"` with explicit names (e.g. `any_of="*\|kPoisoned"`) is rejected
 at parse time with a warning — the explicit names are redundant when the
 wildcard is present, and the semantic is ambiguous. Use one or the other.
 
@@ -1064,7 +1147,7 @@ wildcard is present, and the semantic is ambiguous. Use one or the other.
 
 Each affect imposed by `CastAffect` **records the cast's competence** — the caster's
 **deterministic** skill+stat potency at the moment of imposition (`CalcCastPotency`, §3.7;
-no dice roll leaks in). When `CastUnaffects` tries to remove it, the removal is a **d100
+no noise leaks in). When `CastUnaffects` tries to remove it, the removal is a **d100
 skill check**, not the old dice-vs-dice roll:
 
 ```
@@ -1113,7 +1196,9 @@ threshold of `50` → 50 %. Vs sanctuary (`dispel_mod=-35`) the threshold is `50
 `80` → ~80 %, and a curer 10 competence points stronger hits the 95 % ceiling.
 
 A failed contest emits `kNoeffect` to the caster (for a pure dispel spell — a `kMagAffects`
-spell that also dispels remains silent on failure and still applies its own affect).
+spell that also dispels remains silent on failure and still applies its own affect). When
+nothing on the target matched the filter at all, a pure dispel emits `kUnaffectNoMatch`
+instead, so players can tell "nothing to cure" from "the cure failed".
 
 ### 9.3.1 The contest for on-item suppressions — `DispelContest` *(issue.affect-suppression-dispell)*
 
@@ -1153,15 +1238,17 @@ Two ways to break the cast chain from an unaffect stage:
 2. **Failed-removal breaking** — `<remove … breaking_by_failure="true">`
    tries to dispel and the potency check fails on any candidate.
 
-A broken chain means later stages — affect, damage, points, alter, etc. —
-**don't run**. Use this for "reveal first, then debuff" patterns: if the
-victim resists having their invisibility stripped, the follow-up debuff
-should also miss.
+A broken chain means this action's later stages on this target — affect,
+points, side spells, manual — **don't run** (damage has already run before the
+dispel; `<alter_obj>` still runs, it stops only when the target died). Other
+targets and later actions are not affected. Use this for "reveal first, then
+debuff" patterns: if the victim resists having their invisibility stripped, the
+follow-up debuff should also miss.
 
 ### 9.5 The `"*"` wildcard *(new mechanic)*
 
 `any_of="*"` and `all_of="*"` extend `<remove>` / `<remove_anyway>` from
-"fixed list of spell names" to "everything matching the unaffect's
+"fixed list of affect names" to "everything matching the unaffect's
 `affect_flags` filter". The two wildcards have different semantics —
 matching the explicit-list semantics extended:
 
@@ -1170,9 +1257,10 @@ matching the explicit-list semantics extended:
 | `any_of="*"` | Pick **one** eligible affect, uniformly at random. (Reservoir-sampled across the victim's affect list.) |
 | `all_of="*"` | Queue **every** eligible affect on the victim for removal. |
 
-"Eligible" means `affect_matches(victim->aff, unaffect.affect_flags)` —
+"Eligible" means `AffectMatchesFlags(aff, unaffect.affect_flags)` —
 i.e. the affect carries at least one of the `EAffFlag` bits listed in
-the surrounding `<unaffect affect_flags=…>` attribute. Each candidate
+the surrounding `<unaffect affect_flags=…>` attribute (and, with
+`debuff_only="Y"`, is not a clear buff). Each candidate
 the wildcard selects then goes through the same potency-gated
 `DispelSucceeds` rule (§9.3), and `breaking_by_failure` works the same
 way as for explicit lists.
@@ -1193,7 +1281,7 @@ way as for explicit lists.
     <flags val="kMagUnaffects"/>
     <talent_actions>
         <action>
-            <unaffect affect_flags="kAfDispellable">
+            <unaffect affect_flags="kAfDispellable" decay="25">
                 <remove any_of="*"/>
             </unaffect>
         </action>
@@ -1215,7 +1303,7 @@ spell list.
     <flags val="kMagUnaffects"/>
     <talent_actions>
         <action>
-            <unaffect affect_flags="kAfCurable">
+            <unaffect affect_flags="kAfPoison">
                 <remove all_of="*"/>
             </unaffect>
         </action>
@@ -1223,9 +1311,9 @@ spell list.
 </spell>
 ```
 
-Every affect carrying `kAfCurable` (poisons currently, plus any future
-"curable" affect) gets a potency check; each is stripped or resisted
-independently.
+Every affect carrying the `kAfPoison` category flag (set in `affects.xml` on every
+poison affect) gets a potency check; each is stripped or resisted independently.
+(`kAfCurable` would be far wider: it marks every affliction a cure may touch.)
 
 ### 9.6 Cross-reference: the dispel pipeline at a glance
 
@@ -1234,12 +1322,16 @@ For each cast that runs `<unaffect>`:
 1. Apply the `prob` gate (silent skip if missed).
 2. Evaluate `<blocking>` and `<breaking>` (with wildcard support).
 3. Collect candidates from `<remove_anyway>` (always) and `<remove>`
-   (only when not blocked) — explicit lists or wildcards.
+   (only when not blocked) — explicit lists or wildcards. Duplicates of the
+   same affect are merged (one removal, one message). A non-violent cast
+   (ally cleanse, self-cast) drops affects conferred by equipment.
 4. If candidates exist, run the optional PK-action check, then per
    candidate: `DispelSucceeds` → `RemoveAffectAndAnnounce` or
-   record a resisted attempt.
+   record a resisted attempt. If nothing matched at all, a pure dispel
+   emits `kUnaffectNoMatch`.
 5. If a `breaking_by_failure` candidate resisted, or a `<breaking>`
-   condition was present, return `kBreak` to stop the cast chain.
+   condition was present, return `kBreak` to stop this action's remaining
+   stages on this target (§9.4).
 6. Otherwise return `kSuccess` and the cast continues to the next stage.
 
 ---
@@ -1250,7 +1342,8 @@ For each cast that runs `<unaffect>`:
 
 ## 11. `CastToPoints`, `CastManual` (and the object stages)
 
-These stages run dedicated logic in `magic.cpp`. They are **partly data-driven**:
+These stages run dedicated logic in `src/gameplay/magic/` (`action_points.cpp`,
+`action_handlers.cpp`, `action_summon.cpp`). They are **partly data-driven**:
 
 * `CastToPoints` (HP / MV / thirst / full restore) is fully data-driven
   via the spell's `<points>` block (issue.mag-points). All four inner
@@ -1274,47 +1367,57 @@ These stages run dedicated logic in `magic.cpp`. They are **partly data-driven**
   `kSummonNoCorpse`, etc.). The old `kMagSummons` flag is gone.
 * `CastManual` runs a hand-coded handler, but **which** handler is now data-driven:
   name it with `<manual_cast handler="SpellX"/>` inside the action (§3.8.4). The
-  handler still lives in `spells.cpp`; the XML just selects and stage-gates it.
+  handler body lives in `src/gameplay/handlers/`; the XML just selects and
+  stage-gates it.
 
-The data-driven parts you can tune for these stages are: `<flags>`,
-`<targets>`, `<misc>`, `<mana>`, and the spell's messages.
+Besides the action blocks above, the data-driven parts you can tune for these
+stages are: `<flags>`, `<targets>`, `<misc>`, `<mana>`, and the spell's messages.
 
 ### 11.5 Room affects (`kMagRoom`)
 
 Room spells (the `kMagRoom` flag, dispatched through `CallMagicToRoom`) impose
-**room affects** (`ERoomAffect`, defined in `lib/cfg/room_affects.xml`) rather than
+**room affects** (`ERoomAffect`, defined in `lib/cfg/affects/room_affects.xml`) rather than
 char affects. They reuse the `<affects>` imposition grammar of §8, but room affects
 have their own trigger set (on-entry `kEnter`/`kEnterPC`/`kEnterNPC`, door triggers
 `kPick`/`kOpen`/…) and **raw-pulse durations** (no hours→ticks conversion). The
-per-tick effect is usually a `<side_spell>` to a linked `kService` spell. See the
+per-tick effect is the room affect's own `<actions>` fired by `<trigger val="kPulse">`
+— typically a `<side_spell>` to a linked `kService` spell or a `<manual_cast>`. See the
 **[Affect Manual](AFFECT_MANUAL.md) §7** for the full room/exit affect grammar.
 
-## 12. Messages (`lib/cfg/spell_msg.xml`)
+## 12. Messages (`lib/cfg/messages/ru/spell_msg.xml`)
 
 Per-spell message strings, keyed by spell id (the sheaf) and `ESpellMsg`
-type. `id="kDefault"` is the shared sheaf — fallback for messages a
-specific spell hasn't overridden.
+type (`src/gameplay/magic/spell_messages.h`). `id="kDefault"` is the shared
+sheaf — fallback for messages a specific spell hasn't overridden. Each sheaf
+also carries the spell's Russian display name in `<name val="…"/>`.
 
 ```xml
 <spell_msg>
-    <sheaf id="kDefault">
-        <message type="kNoeffect" val="Заклинание не оказало никакого эффекта."/>
-        <message type="kCantCastPosition" val="Вам нужно встать."/>
+    <msg_sheaf id="kDefault">
+        <name val="!undefined!"/>
+        <message type="kNoeffect" val="Ваши потуги оказались напрасными."/>
+        <message type="kCantCastPosition" val="Вам вряд ли это удастся."/>
         …
-    </sheaf>
-    <sheaf id="kFireball">
-        <message type="kAffImposedToChar" val="Огонь обжигает вас!"/>
-        <message type="kAffImposedToRoom" val="$n окутывает $N3 пламенем!"/>
-    </sheaf>
+    </msg_sheaf>
+    <msg_sheaf id="kFireball">
+        <name val="огненный шар"/>
+        <message type="kFightDeathToChar" val="Ваш огненный шар испепелил $N3 дотла."/>
+        <message type="kFightDeathToChar" val="Огненный шар окутал и скрыл в себе $N3."/>
+        …
+    </msg_sheaf>
     …
 </spell_msg>
 ```
+
+A sheaf may hold several messages of the same type; one of them is picked at
+random on each emission.
 
 ### Common message keys
 
 | Key | When emitted | Audience |
 |---|---|---|
-| `kNoeffect` | Generic "no effect" outcome. | Caster |
+| `kNoeffect` | Generic "no effect" outcome (also: a dispel that matched something but lost the contest). | Caster |
+| `kUnaffectNoMatch` | A dispel/cure found nothing matching its `<unaffect>` filter (§9.3). | Caster |
 | `kAffImposedToChar` | An affect from this spell landed. | Affected char |
 | `kAffImposedToRoom` | Same, to onlookers. | Room |
 | `kHealToVict` | `<heal>` produced a non-zero amount in a `<points>` cast. | Target |
@@ -1324,23 +1427,34 @@ specific spell hasn't overridden.
 | `kReflectedToChar` | Reflection: spell bounced back. | Caster |
 | `kReflectedToVict` | Reflection: target who reflected. | Original victim |
 | `kReflectedToRoom` | Reflection: onlookers. | Room |
-| `kCastForbiddenToChar` | Room-block fizzle: caster's room carries a `<blocking><room_flags val>` flag (`kNoMagic` etc.). | Caster |
+| `kCastForbiddenToChar` | Room-block fizzle: a `<weave/>` spell in a `kNoMagic` room, or the caster's room carries a `<blocking><room_flags val>` flag. | Caster |
 | `kCastForbiddenToRoom` | Room-block fizzle: announcement to onlookers. Empty means stay silent. | Room |
-| `kCantCastPosition`, `kCantCastSleeping`, … | Cast-precondition failures. | Caster |
+| `kCantCastHereToChar`, `kCantCastHereToRoom` | `MayCastHere` refused (e.g. a violent spell in a peaceful room); warcries override with a louder variant. Empty room-side message stays silent. | Caster / Room |
+| `kCantCastSleeping`, `kCantCastResting`, `kCantCastSitting`, `kCantCastFighting`, `kCantCastPosition` | Cast-position preconditions. | Caster |
+| `kCantCastMaster`, `kCantCastSelfOnly`, `kCantCastNotSelf` | Target preconditions (the caster's charmer; `kTarSelfOnly`; `kTarNotSelf`). | Caster |
 | `kCantCastNotAlly` | `kTarAllyOnly` target gate (§3.5) — victim isn't self / groupmate. | Caster |
-| `kCastHereForbiddenToChar`, `kCastHereForbiddenToRoom` | `<blocking><room_flags>` fizzle (caster's room carries the blocking flag, e.g. `kNoMagic`). Empty room-side message stays silent. | Caster / Room |
+| `kCantCastNotMinion` | `kTarMinionsOnly` target gate (§3.5) — victim isn't the caster's own NPC follower. | Caster |
+| `kTargetUnavailable`, `kCantCastPeaceful` | The target is unavailable; a peaceful caster refuses to do harm. | Caster |
+| `kCantCastSilenced` | `<verbal/>` spell while the caster is under `kSilence` (§3.9). | Caster |
+| `kComponentUse`, `kComponentMissing`, `kComponentExhausted` | `<material>` component used / missing (cast aborts) / used up and destroyed. Sheaf-direct, no `kDefault` fallback. | Caster |
 | `kAreaToChar`, `kAreaToRoom`, `kAreaToVict` | Area cast announcement. | Various |
-| `kCastIncantToChar`, `kCastDisappearToRoom`, `kCastAppearToRoom` | Magic-word incantation banner + appearance/disappearance of the spell name in the room (`SaySpell`). | Various |
-| `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation. | Room / victim |
+| `kCastIncantToChar` | The "you uttered the spell …" line `SaySpell` prints to the caster (`{color}`/`{name}`/`{nrm}` placeholders); warcries override with the shouting variant. | Caster |
+| `kCastPhraseHeathen`, `kCastPhraseChristian` | The incantation phrase spoken while casting, chosen by the caster's religion (poly / mono). | Room |
+| `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation (`kCastSaySound` replaces them all when the caster can't speak). | Room / victim |
+| `kCastDisappearToRoom`, `kCastAppearToRoom` | Teleport-style relocation: the actor leaves one room and appears in another (recall, teleport, relocate, summon, …). | Room |
 | `kCastPreparedToChar` | Spell-ready announcement when a controlled spell replaces the previous one. | Caster |
 | `kNoTarget`, `kWrongTarget` | The caster's target argument missed (no such target / target type rejected by `<targets val>`). | Caster |
 | `kOfferingToChar`, `kOfferingToRoom` | Prayer / sacrifice spells only (`kPrayer`, `kOffering`): what the praying character and the room see when the offering is made; `{gift}` is what was offered (an item or an amount of a currency, accusative), `{choice}` the god or saint (the chosen action's canonical word). Printed by the "молиться"/"жертвовать" command, not by the cast. | Caster / Room |
 | `kDefaultOfferingToChar`, `kDefaultOfferingToRoom` | The same for an offering without a gift, paid by the default amount from `mechanics/piety.xml` (a Christian's candle). | Caster / Room |
 | `kUnknownChoice` | A spell with selectable actions (§3.8.8) was cast without naming one, or with an unknown word; `{choices}` is the list of canonical words. `kDefault` carries the generic line. | Caster |
 | `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `<obj_creation>` outcomes. | Various |
-| `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
+| `kObjResist`, `kAlterObjToChar` | `<alter_obj>`: the item is no-alter / the per-spell "object transformed" line. | Caster |
+| `kAcidCorrodeObj`, `kRemovePoisonUnknown`, `kRemovePoisonRotten` | Per-spell object outcomes (acid corrodes an item; remove-poison on an item without a prototype / with rotten contents). | Caster |
 | `kEnchantNotWeapon`, `kEnchantMagic`, `kEnchantSetItem`, `kEnchantMono`, `kEnchantPoly`, `kEnchantOther` | Enchant-weapon outcomes. | Caster |
-| `kFightDeathToChar`, `kFightHitToChar`, `kFightMissToChar` (+ `ToVict`, `ToRoom`) | Combat-damage messages keyed by `ESpell`. | Various |
+| `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kSummonCharmed`, `kSummonNoProto`, `kSummonWarhorse` | Summon outcomes. | Various |
+| `kResurrectBadCorpse`, `kResurrectConsecrated`, `kResurrectNoPower`, `kResurrectProtected` | Resurrection outcomes. | Caster |
+| `kKnockdownToChar`, `kKnockdownToRoom` | Shared knockdown narration. | Victim / Room |
+| `kFightDeathToChar`, `kFightHitToChar`, `kFightMissToChar`, `kFightGodToChar` (+ `ToVict`, `ToRoom`) | Combat-damage messages keyed by `ESpell`. | Various |
 | `kCustomMsgOne` … `kCustomMsgTen` | Generic per-spell slots for one-off lines without their own enum constant (e.g. kSummon's secondary failure narration). Also carry room-affect per-tick narration, cycled by `Affect::apply_time` — one slot per tick phase (kDeadlyFog uses 8). | Various |
 
 Messages are stored **without** the trailing `\r\n` — `act()` and
@@ -1349,14 +1463,15 @@ Messages are stored **without** the trailing `\r\n` — `act()` and
 A message lookup tries the spell's own sheaf first, then falls back to
 `kDefault`. The exceptions worth knowing:
 
-* **Imposition** (`kAffImposedToChar` / `kAffImposedToRoom`) and **reflection**
-  (`kReflectedToChar` / `kReflectedToVict` / `kReflectedToRoom`) are looked
-  up sheaf-directly with **no kDefault fallback** — a missing key stays
-  silent rather than leaking a wrong default.
+* **Imposition** (`kAffImposedToChar` / `kAffImposedToRoom`), **reflection**
+  (`kReflectedToChar` / `kReflectedToVict` / `kReflectedToRoom`) and the
+  **material-component** keys (`kComponent*`) are looked up sheaf-directly
+  with **no kDefault fallback** — a missing key stays silent rather than
+  leaking a wrong default.
 * **Dispel and expiry narration** is not a spell message: it belongs to the
-  affect and lives in `affect_msg.xml` (character affects) or
-  `room_affect_msg.xml` (room affects), keyed by the affect id. See the
-  Affect Manual.
+  affect and lives in `lib/cfg/messages/ru/affect_msg.xml` (character affects) or
+  `lib/cfg/messages/ru/room_affect_msg.xml` (room affects), keyed by the affect id.
+  See the Affect Manual.
 * `kCastForbiddenToChar` falls back to `kDefault` (every spell shares the
   generic "Ваша магия потерпела неудачу…" line by default), and
   `kCastForbiddenToRoom` is treated as optional — an empty result means
@@ -1382,20 +1497,20 @@ The full enums live in C++ headers; the most-used values are listed here.
 
 ### 14.2 `EResist`
 
-`kFire` · `kAir` · `kWater` · `kEarth` · `kDark` · `kLight` · `kMind` ·
-`kLife` · `kVitality` · `kImmunity`
+`kFire` · `kAir` · `kWater` · `kEarth` · `kVitality` · `kMind` ·
+`kImmunity` · `kDark` (`src/gameplay/mechanics/resist.h`)
 
-### 14.3 `EApply` (a curated subset — the full list is in `entities_constants.h`)
+### 14.3 `EApply` (a curated subset — the full list is in `src/gameplay/affects/affect_contants.h`)
 
 `kNone` · `kStr`/`kDex`/`kCon`/`kInt`/`kWis`/`kCha` · `kHitroll` · `kDamroll`
-· `kAc` · `kMorale` · `kPoison` · `kManaRegen` · `kHitRegen` · `kMoveRegen` ·
+· `kAc` · `kMorale` · `kPoison` · `kManaRegen` · `kHpRegen` · `kMoveRegen` ·
 `kCastSuccess` · `kSavingReflex`/`kSavingStability`/`kSavingWill`/
 `kSavingCritical` · `kResistFire`/`kResistAir`/`kResistWater`/`kResistEarth`/
-`kResistDark`/`kResistLight`/`kResistMind`/`kResistLife`
+`kResistDark`/`kResistVitality`/`kResistMind`/`kResistImmunity`
 
 ### 14.4 `EPosition`
 
-`kDead` · `kMortal` · `kIncap` · `kStun` · `kSleep` · `kRest` · `kSit` ·
+`kDead` · `kPerish` · `kIncap` · `kStun` · `kSleep` · `kRest` · `kSit` ·
 `kFight` · `kStand` · `kUndefined` (used by `<reposition>` to mean "no
 position change, only `stop_fight`").
 
@@ -1403,8 +1518,8 @@ position change, only `stop_fight`").
 
 `kAny` (default — no alignment check) · `kGood` · `kEvil` · `kNeutral`.
 The thresholds for "good / evil / neutral" come from
-`alignment ≤ kAligEvilLess` and `alignment ≥ kAligGoodMore` in
-`entities_constants.h`.
+`alignment ≤ kAligEvilLess` (−300) and `alignment ≥ kAligGoodMore` (300) in
+`src/gameplay/mechanics/alignment.h`.
 
 ### 14.6 `EAffFlag` (affect behaviour flags)
 
@@ -1415,16 +1530,18 @@ decrement-timing rules (`kAfBattledec`/`kAfPulsedec`/`kAfSameTime`).
 ### 14.7 `EMobFlag` allowed in `<blocking><mob_flags val>` / `<required><mob_flags val>`
 
 `kNoBlind` · `kNoSleep` · `kNoSilence` · `kNoHold` · `kNoBash` · `kNoCharm`
-· `kNoSummon` · `kNoFear` · `kCorpse` · `kResurrected` · `kMounting` ·
-`kHelper` · `kClone`. Add new ones to the `kBlockingFlagByName` table in
-`src/gameplay/abilities/talents_actions.cpp` to expose more.
+· `kNoSummon` · `kNoFear` · `kCorpse` · `kMounting` · `kHelper` · `kClone` ·
+`kIgnoreForbidden` · `kCompanion`. Add new ones to the `kBlockingFlagByName` table in
+`src/gameplay/abilities/talents_actions.cpp` to expose more. (`kResurrected` is not a
+mob flag any more: it is the runtime mark `<extra_flags val="kResurrected"/>`,
+table `kBlockingExtraFlagByName`.)
 
 ### 14.7b `ERoomFlag` allowed in `<blocking><room_flags val>`
 
-`kNoMagic` · `kPeaceful` · `kTunnel` · `kNoTeleportIn` · `kNoBattle` ·
-`kGodsRoom` · `kForMono` · `kForPoly`. The room check matches against the
+`kNoMagic` · `kPeaceful` · `kTunnel` · `kNoTeleportIn` · `kNoTeleportOut` ·
+`kNoBattle` · `kGodsRoom` · `kForMono` · `kForPoly`. The room check matches against the
 **caster's** current room, fires *before* per-target dispatch, and emits
-`kCastForbiddenToChar` / `kCastForbiddenToRoom` (see §15). Add new ones
+`kCastForbiddenToChar` / `kCastForbiddenToRoom` (see §12). Add new ones
 to the `kBlockingRoomFlagByName` table in
 `src/gameplay/abilities/talents_actions.cpp` to expose more.
 
@@ -1434,16 +1551,16 @@ The full catalogue and each affect's behaviour is the
 **[Affect Manual](AFFECT_MANUAL.md)**; enum source in
 `src/gameplay/affects/affect_contants.h`. Some commonly referenced ids:
 
-`kCharmed` · `kPoisoned` · `kInvisible` · `kCamouflage` · `kHide` ·
-`kBlind` · `kSleep` · `kHold` · `kSanctuary` · `kPrismaticAura` ·
-`kMagicGlass` · `kSonicBarrier` · `kMagicShield` · `kShadowCloak` ·
+`kCharmed` · `kPoisoned` · `kInvisible` · `kDisguise` · `kHide` ·
+`kBlind` · `kSleep` · `kHold` · `kSilence` · `kSanctuary` · `kPrismaticAura` ·
+`kMagicGlass` · `kMagicShield` · `kShadowCloak` · `kAirShield` ·
 `kFireShield` · `kFireAura` · `kIceShield` · `kGodsShield` · `kPeaceful` ·
 `kStopFight` · `kMagicStopFight` · `kInfravision` · `kDetectInvisible` ·
-`kDetectLife` · `kGlitterDust` · `kCurse` · `kProtectFromEvil` ·
-`kCharmed` · `kHelper` · `kQuestMark`.
+`kDetectLife` · `kGlitterDust` · `kCurse` · `kProtectFromDark` ·
+`kHelper`.
 
-Use `kUndefinded` (sic — preserved spelling in the enum) when an `<apply>`
-should change a stat *without* imposing an affect flag.
+Use `kUndefined` (the legacy data spelling `kUndefinded` is still accepted) when an
+`<apply>` should change a stat *without* imposing an affect flag.
 
 ---
 
@@ -1451,27 +1568,28 @@ should change a stat *without* imposing an affect flag.
 
 1. **Pick an `ESpell` id.** Add it to `spells_constants.h` if it's truly
    new (engineer task). **Prototyping?** Use one of the reserved
-   `kTestOne … kTestFive` slots instead — see §17 — to iterate on the
+   `kTestTwo … kTestFive` slots instead — see §17 — to iterate on the
    XML alone without touching code.
 2. **Add the `<spell>` element** to `lib/cfg/spells.xml`. Required:
-   header, `<name>`, `<misc>`, `<mana>`, `<targets>`, `<flags>`.
+   header, `<name val>`, `<misc>`, `<mana>`, `<targets>`, `<flags>`.
 3. **Pick the stages** you want by listing the `kMag…` flags in
    `<flags val>`. Multiple stages allowed.
-4. **Author `<potency_roll>`** — at least one of `<dices>`, `<base_skill>`,
-   `<base_stat>`. Without a roll, the spell deals zero/no-magnitude
-   effects.
+4. **Author `<potency_roll>`** — `<base_skill>` and/or `<base_stat>`, plus
+   `<noise>` if the effects should vary. Without them `C = 0` and the spell
+   delivers only its flat `min` amounts.
 5. **Write the `<talent_actions>` block** — gates first, then effects. For a
    multi-action spell, list the actions in execution order; give actions 2+ a
    `target=` (and `base=` if they should chain off an earlier result), and an
-   `<area>` for any action that fans out (§3.8, §7, §13.8).
-6. **Add per-spell messages** to `lib/cfg/spell_msg.xml`: at minimum the
-   imposition / dispel / expiration messages if the spell adds affects, or
-   the damage description messages if it deals damage.
+   `<area>` for any action that fans out (§3.8, §7, [Cookbook](COOKBOOK.md) §3.8).
+6. **Add a `<msg_sheaf>`** to `lib/cfg/messages/ru/spell_msg.xml`: at minimum the
+   Russian `<name val>` and the imposition messages if the spell adds affects, or
+   the damage description messages if it deals damage. Dispel/expiry lines belong
+   to the affect (`affect_msg.xml`, §12).
 7. **Refresh the build snapshot** (see §2.3) and boot-test:
    `./circle -d small <port>`. **Read the right log:** boot SYSERR goes to
    `build/syslog` (append-mode) and `build/log/errlog.txt`, **not** to stdout
    (stdout only has the startup banner). Truncate `build/syslog` first, boot, then
-   `grep SYSERR build/syslog` — a malformed `<action>` is swallowed-and-logged
+   `grep SYSERR build/syslog` (or use `reload spells` on a running server) — a malformed `<action>` is swallowed-and-logged
    (the whole action list is dropped) rather than crashing, so syslog is the only
    place the error appears. Look for `Incorrect value '' in 'talent_actions'`
    (a required attribute read as empty) and lines mentioning your spell's tags.
@@ -1482,17 +1600,19 @@ should change a stat *without* imposing an affect flag.
 
 * **Hand-coded handler *bodies*** (the `<alter_obj>` / `<obj_creation>` / `<summon>`
   post-spawn handlers, and the `<manual_cast>` handlers themselves) — those still
-  live in `spells.cpp` and `magic.cpp`. Their *selection and ordering* are now
+  live in code (`src/gameplay/handlers/`, registries in
+  `src/gameplay/magic/action_handlers.cpp` and `action_summon.cpp`). Their *selection and ordering* are now
   data-driven (§3.8.4–§3.8.7), but the logic inside is still code. Migrating it
   piece by piece into the data-driven system is ongoing work.
-* **Success roll consumption** — `<success_roll>` is parsed and evaluated
-  at cast time but is not yet wired into the cast-success decision. The
-  classical percent-based `CalcCastSuccess` still gates landing.
-* **Skill-interference modifiers** — feats like `kMagicArrows` that boost
-  specific spells (e.g. doubles `kMagicMissile` extra-hits) are still
-  hard-coded in `CalcExtraHits` and similar helpers. Data-driven perk→spell
-  modification (`talent_patch`) now exists — see the [Feat Manual](FEAT_MANUAL.md) —
-  but these specific feats have not been migrated onto it yet.
+* **Success roll consumption** — of `<success_roll>` only the `base_skill`
+  id is used (skill training, a `skill / 20` bonus in `CalcCastSuccess`, the
+  `<area>` count, §3.7). Its weights, `<bonus>` and `<thresholds>` are not yet
+  wired into the cast-success decision; the classical percent-based
+  `CalcCastSuccess` still gates landing.
+
+Perk→spell modifiers are **no longer** hard-coded: feats such as `kMagicArrows`
+(doubled `kMagicMissile` extra hits) and `kMultipleCast` (softer area decay) are
+`<talent_patch>` entries in `feats.xml` — see the [Feat Manual](FEAT_MANUAL.md).
 
 Affects and their triggers, and feats, are **no longer** in the "not covered" list —
 they have their own companion manuals ([Affect](AFFECT_MANUAL.md) / [Feat](FEAT_MANUAL.md)).
@@ -1504,11 +1624,12 @@ If you need any of these, open an issue and the work can be scoped.
 ## 17. Test spell constants for prototyping
 
 To let designers iterate on a new spell's XML **without recompiling
-the engine**, five placeholder `ESpell` slots are permanently reserved:
+the engine**, placeholder `ESpell` slots are reserved. The first one (359, formerly
+`kTestOne`) has graduated into `kFireTrap` (a door-affect spell still in
+`kTesting`); four remain free:
 
 | Constant | id | Russian display name |
 |---|---|---|
-| `kTestOne`   | 359 | "тест 1" |
 | `kTestTwo`   | 360 | "тест 2" |
 | `kTestThree` | 361 | "тест 3" |
 | `kTestFour`  | 362 | "тест 4" |
@@ -1517,10 +1638,12 @@ the engine**, five placeholder `ESpell` slots are permanently reserved:
 Each slot ships in `lib/cfg/spells.xml` as a minimal stub:
 
 ```xml
-<spell id="kTestOne" mode="kTesting">
-    <name rus="тест 1" eng="test 1"/>
+<spell id="kTestTwo" mode="kTesting">
+    <name val="test 2"/>
 </spell>
 ```
+
+plus its sheaf in `spell_msg.xml`: `<msg_sheaf id="kTestTwo"><name val="тест 2"/></msg_sheaf>`.
 
 `mode="kTesting"` keeps the slot out of class spell-lists in production
 (it's loaded but not granted) while still letting an immortal force-cast
@@ -1528,20 +1651,21 @@ it for verification.
 
 **Workflow:**
 
-1. Pick a free slot (`kTestOne` … `kTestFive`).
+1. Pick a free slot (`kTestTwo` … `kTestFive`).
 2. Edit its `<spell>` element in `spells.xml` — give it real
    `<misc>`, `<mana>`, `<targets>`, `<flags>`, `<potency_roll>`, and
-   the `<talent_actions>` block you want to try. Optionally override
-   the Russian name with your prototype's working title (keep
+   the `<talent_actions>` block you want to try (keep
    `mode="kTesting"`).
-3. Add per-spell messages to `spell_msg.xml` under the same id.
+3. Add per-spell messages to the slot's sheaf in `spell_msg.xml`; optionally
+   replace its Russian `<name val>` with your prototype's working title.
 4. Refresh the build snapshot (see §2.3) and boot-test:
    `./circle -d small <port>`, log in as an immortal, force-cast it
    on a dummy.
 5. Iterate on the XML alone — no rebuilds needed beyond the snapshot
-   refresh.
+   refresh (or `reload spells` / `reload spellmsg` on a running server).
 6. When the prototype graduates, an engineer renames the constant +
-   the XML `id=` to its final name (e.g. `kTestOne` → `kFrostshield`),
+   the XML `id=` in both `spells.xml` and `spell_msg.xml` to its final name
+   (e.g. `kTestOne` → `kFireTrap`),
    flips the mode to `kEnabled`, and adds it to the appropriate class
    spell-lists. That's a single rename pass — all the design work
    already done against the test slot transfers verbatim.
@@ -1606,7 +1730,8 @@ shape as the target side (§4.3), replacing the old single-tag
 out via `<align>`/`<affect_flags>`); a new
 `<affects potency_weight="0.4">` attribute (§8.1) scales the stored
 Affect potency at impose time so big-modifier spells stay dispellable
-(symmetric with `<unaffect potency_weight=>` on the dispel side); and
+(complementing the additive `<unaffect dispel_bonus=>` and `<affect dispel_mod=>`
+levers on the dispel side); and
 the `kAffDispelledToChar` / `kAffDispelledToRoom` keys now fall back
 to the kDefault sheaf so every dispel emits *something* — previously
 most affects (kSanctuary / kBless / kArmor / kFly / etc.) were stripped

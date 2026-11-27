@@ -4,13 +4,14 @@ This document describes the **data-driven** game mechanics of the engine: where 
 lives, how to edit and hot-reload it, and what each parameter means.
 
 Engine rule: a configurable mechanic is described by a config under `cfg/mechanics/…`, loaded through
-`CfgManager`, hot-reloaded with `reload …`, and (if it has a scheme) edited with the `vedun` editor.
-Logic that is kept in code (for example, the effect of ability feats) is not moved into the config —
+`CfgManager`, hot-reloaded with `reload …`, and (if it has a scheme) edited with the `vedun` editor —
+the editor has its own manual, [VEDUN_RU.md](VEDUN_RU.md) (Russian only). Logic that is kept in code (for example, the effect of ability feats) is not moved into the config —
 such places are called out separately.
 
 Contents:
 
 - [Animate Dead](#animate-dead)
+- [Animate Skeleton (the warlock's bone retinue)](#animate-skeleton-the-warlocks-bone-retinue)
 - [Piety: prayer, sacrifice and gifts](#piety-prayer-sacrifice-and-gifts)
 
 ---
@@ -51,15 +52,17 @@ in game. Changes take effect immediately for **newly** raised undead.
     <creature vnum="0" id="kSkeleton" proto_vnum="3001" weight="8">
         <cost corpse_max_level="5" min_rating="0" />
         <scaling>
-            <hp          beta="0.25" mode="mult" />
-            <damage_dice beta="1.5"  mode="add"  cap="100" />
-            <hitroll     beta="0"    mode="add" />
-            <ac          beta="0"    mode="add" />        <!-- lower AC = better; set cap= for a lower bound -->
-            <skills      beta="0"    mode="add"  cap="200" />
-            <saving      beta="0"    mode="add" />        <!-- all 4 saves; lower = better -->
-            <armor       beta="0"    mode="add" />
-            <morale      beta="0"    mode="add" />
-            <initiative  beta="0"    mode="add" />
+            <hp           beta="0.25" mode="mult" cap="2.0" />
+            <damage_dice  beta="1.5"  mode="add"  cap="25" />
+            <damage_size  beta="0"    mode="add" />       <!-- die size (dN); 0 = off -->
+            <damage_bonus beta="0"    mode="add" />       <!-- flat +B added to every hit (damroll) -->
+            <hitroll      beta="0"    mode="add" />
+            <ac           beta="0"    mode="add" />       <!-- lower AC = better; set cap= for a lower bound -->
+            <skills       beta="0"    mode="add"  cap="200" />
+            <saving       beta="0"    mode="add" />       <!-- all 4 saves; lower = better -->
+            <armor        beta="0"    mode="add" />
+            <morale       beta="0"    mode="add" />
+            <initiative   beta="0"    mode="add" />
         </scaling>
     </creature>
 
@@ -68,7 +71,9 @@ in game. Changes take effect immediately for **newly** raised undead.
 ```
 
 Tiers (`<creature>`) are listed **weakest to strongest** — this order is the "ladder" down which the
-mechanic demotes the choice when a stronger tier is unavailable.
+mechanic demotes the choice when a stronger tier is unavailable. The ladder is the order of the
+records in the file, not their `vnum` numbers. Tiers with `spell="kAnimateSkeleton"` are not part of
+the ladder — they are the "animate skeleton" kinds (next section).
 
 ### 3. The `<control>` block — the control budget
 
@@ -94,10 +99,14 @@ raised; if there is no room even for the weakest tier, the raise fails with
 
 | Attribute | Meaning |
 |---|---|
-| `vnum` | The tier's index in the config (the `vedun` key); sets the ladder order. |
+| `vnum` | The tier's number in the config — the `vedun` key. It does not set the ladder order: the order of the records in the file does. |
 | `id` | Symbolic tier name, e.g. `kSkeleton` (for lists and logs). |
 | `proto_vnum` | VNUM of the mob prototype that gets raised. |
 | `weight` | Cost of one such creature against the control budget. |
+| `damroll_cap` | Optional. This kind's damroll ceiling in auto-attack. Absent or `0` — the generic minion ceiling: 50, or 100 for a resurrected corpse. |
+
+The `spell`, `damage_share` and `corpse_min_level` (in `<cost>`) attributes are for the "animate
+skeleton" kinds — they are covered in the next section.
 
 The `<cost>` block — a tier's availability conditions:
 
@@ -122,16 +131,19 @@ When a player raises a corpse, the tier is determined in three steps (`PickTier`
    the tier's `min_rating`:
 
    ```
-   rating = level + pseudo-remort + 4
+   rating = level + max(remorts, pseudo-remort) + 4
    pseudo-remort = max(0, (skill − SkillCapStart) / SkillCapIncrement)
    ```
 
-   where `SkillCapStart` (the skill cap at 0 remorts, usually **80**) and `SkillCapIncrement` (the
-   skill-cap increase per remort, usually **5**) are engine constants. So the rating grows off the
-   **skill**, not the remort count: skill 80 → +0, skill 85 → +1, skill 90 → +2, and so on.
+   where `SkillCapStart` (the skill cap at 0 remorts) and `SkillCapIncrement` (the skill-cap increase
+   per remort) come from `cfg/remort.xml`, `<skill_cap start_cap="80" increment="5"/>`. The
+   pseudo-remort grows off the skill: skill 80 → 0, skill 85 → 1, skill 90 → 2, and so on. The rating
+   takes the larger of the two — the actual remort count and the pseudo-remort (issue #3992: before,
+   only the pseudo-remort counted, and a high-remort character right after a skill reset raised only
+   weak undead from any corpse).
 
-   Example: a level-30 character with skill 80 → rating = 30 + 0 + 4 = 34; with `min_rating=32` he
-   passes the gate and can raise the top tiers.
+   Example: a level-30 character with no remorts and skill 80 → rating = 30 + max(0, 0) + 4 = 34; with
+   `min_rating=32` he passes the gate and can raise the top tiers.
 
 After the tier is chosen, the budget check fires (`FitUndeadTier`, the step from section 3): if the
 chosen tier does not fit the budget, it is **demoted** to the nearest tier that does; if even the
@@ -142,7 +154,8 @@ weakest does not fit, the raise fails.
 Character "Чернок", level 10, skill `kDarkMagic` = 10, raising a level-4 corpse:
 
 1. Band: a level-4 corpse ≤ the skeleton's `corpse_max_level=5` → **skeleton** chosen.
-2. Gate: rating = 10 + max(0, (10−80)/5) + 4 = 10 + 0 + 4 = 14 ≥ `min_rating=0` → skeleton stays.
+2. Gate (no remorts): rating = 10 + max(0, max(0, (10−80)/5)) + 4 = 10 + 0 + 4 = 14 ≥
+   `min_rating=0` → skeleton stays.
 3. Budget: `min(10, 75) − 0 = 10`; skeleton weight `8 ≤ 10` → the skeleton is raised.
 
 Чернок cannot hold a second skeleton: the remaining budget `10 − 8 = 2 < 8` → "Вы не сможете управлять
@@ -174,6 +187,11 @@ Scaled stats:
 
 There is no `luck` on purpose — mobs do not have it.
 
+`hp`, damage, `hitroll`, `ac` and `skills` are written straight into the raised mob
+(`SetupUndeadStats`), while `armor`, `morale`, `initiative` and `saving` are granted as affects
+(`ApplyVolatileUndeadStats`): a direct write to those fields is wiped by the first affect recalculation.
+These affects are invisible to the player, cannot be removed, and last as long as the charm.
+
 **Formulas.** Let `C` be the competence (see section 8):
 
 - "Growing" stats (`hitroll`, `armor`, `morale`, `initiative`, `skills`, `damage_dice`, `damage_size`,
@@ -200,20 +218,26 @@ skill_coeff = ( min(skill, 75)·low_bonus + max(0, skill−75)·hi_bonus ) / 100
 stat_coeff  = max(0, wisdom − threshold) · stat_weight / 100
 ```
 
-The coefficients `low_bonus`, `hi_bonus`, `threshold` and `stat_weight` come from the `<potency_roll>`
-block of the `kAnimateDead` spell in `cfg/…/spells.xml` — i.e. the "steepness" of the scaling is tuned
-there, while `beta` in `animate_dead.xml` only sets how strongly a given stat reacts to `C`.
+The coefficients come from the spell's `<potency_roll>` block in `cfg/spells.xml`: `low_bonus` and
+`hi_bonus` are the `low_skill_bonus` and `hi_skill_bonus` attributes of `<base_skill>`, `threshold`
+and `stat_weight` are the `threshold` and `weight` attributes of `<base_stat>`. For "raise corpse"
+that is `kAnimateDead`; "animate skeleton" has its own `<potency_roll>` under `kAnimateSkeleton`. The
+"steepness" of the scaling is tuned there, while `beta` in `animate_dead.xml` only sets how strongly a
+given stat reacts to `C`.
 
-In practice: `C` grows with the Dark Magic skill and Wisdom, and for an experienced necromancer it is
-on the order of single digits. Because the exact value depends on `<potency_roll>`, tune `beta`
+In practice: `C` grows with the Dark Magic skill and Wisdom. With what both spells currently have in
+`spells.xml` (`low_skill_bonus="0" hi_skill_bonus="8"`, Wisdom `threshold="14" weight="1"`),
+`C ≈ 0.08 · (skill − 75) + 0.01 · (wisdom − 14)`: skill 100 gives about 2, skill 200 about 10.
+Because the exact value depends on `<potency_roll>`, tune `beta`
 **empirically**: set a value, raise a creature with casters of differing power, and inspect the
 resulting stats (`vstat`/`stat` on the mob).
 
 ### 9. Practical recipes
 
-- **Add a new tier.** `vedun creature new` creates a record with the first free `vnum`; fill in `id`,
-  `proto_vnum`, `weight`, the `<cost>` block and `<scaling>`. Mind the ladder order: the tier must sit
-  between its neighbours by strength.
+- **Add a new tier.** `vedun creature <free vnum>` (e.g. `vedun creature 11`) creates a record; fill
+  in `id`, `proto_vnum`, `weight`, the `<cost>` block and `<scaling>`. Mind the ladder order: `vedun`
+  appends the record at the end of the file, so the new tier becomes the strongest. If it must sit
+  between its neighbours by strength, move the record in the file by hand.
 - **Allow an earlier raise of a strong tier.** Lower its `min_rating` and/or `weight`.
 - **Limit the "crowd".** Raise the tiers' `weight` or lower `budget_cap` — fewer creatures can be
   controlled. Keep the strongest tier's `weight` equal to `budget_cap` if you want "max skill = exactly
@@ -232,15 +256,284 @@ resulting stats (`vstat`/`stat` on the mob).
 - **A broken ladder order** (`<creature>` not in ascending strength) → gate/budget demotion picks the
   "wrong" tier. List them weakest to strongest.
 - **`--` inside an XML comment** → a strict parser rejects the file; use a single dash.
-- **Editing `min_rating` for remorts** — unnecessary: the gate derives a pseudo-remort from the skill,
-  remorts do not participate directly.
+- **Computing `min_rating` from the skill alone** — wrong: the gate takes the larger of the actual
+  remort count and the skill-derived pseudo-remort, so a character with remorts passes the gate even
+  with a low skill.
 
 ### 11. What stays in code (not in the config)
 
-- The effect of ability feats (for example, "Fury of Darkness" / `kFuryOfDarkness`, which adds to
-  undead stats) is applied in code on top of the config-driven scaling.
+- The effect of feats on raised undead: `kLoyalAssist` gives the skeleton the rescue skill at 100,
+  `kHauntingSpirit` gives the bone spirit rescue at 120, `kFavorOfDarkness` cancels a failed raise
+  three times out of four. "Fury of Darkness" (`kFuryOfDarkness`, +20% damroll, hitroll and HP)
+  applies only to the corpse revived by "оживить труп" (resurrection), which the config does not
+  scale.
+- The undead's ice shield at effective Wisdom 75+ (`EnhanceAnimateDead` in
+  `src/gameplay/magic/action_summon.cpp`).
 - The three-step selection itself (band → lot → gate) and the scaling formulas live in code
   (`src/gameplay/mechanics/animate_dead.cpp`); the config only supplies their **data**.
+
+---
+
+## Animate Skeleton (the warlock's bone retinue)
+
+The warlock's third corpse spell (after "raise corpse" and "оживить труп"/resurrection): **"animate
+skeleton"** ("оживить скелет") raises a bone servant from a corpse. With the **"bone commander"**
+feat ("костяной полководец") three special kinds become available, and the player names the kind:
+`колдовать 'оживить скелет' труп свирепого` ("cast 'animate skeleton' corpse fierce"). Without the
+feat, from a corpse below the threshold, or from a non-humanoid corpse, an ordinary skeleton rises.
+
+The kinds are described in the same `animate_dead.xml`, but as **a separate list**: they carry
+`spell="kAnimateSkeleton"`, and the "raise corpse" ladder never picks them.
+
+### 1. Where things live
+
+| What is tuned | File |
+|---|---|
+| Skeleton kinds: dice, HP, corpse threshold | `cfg/mechanics/animate_dead.xml` (tiers with `spell="kAnimateSkeleton"`) |
+| The retinue's gift affects and their thresholds | `cfg/mechanics/animate_dead.xml`, the `<grants>` block |
+| The spell itself: mana, element, target, handler | `cfg/spells.xml`, `<spell id="kAnimateSkeleton">` |
+| Spell circle and level, feat circle | `cfg/classes/pc_necromancer.xml` |
+| The "bone commander" feat | `cfg/feats.xml`, `<feat id="kBoneCommander">` |
+| Russian names and messages | `cfg/messages/ru/spell_msg.xml`, `feat_msg.xml`, `affect_msg.xml` |
+| The marker and the debuffs (affect types) | `cfg/affects/affects.xml` |
+| Mob prototypes 3011–3013 | the world repository, `zones/30/mobs.yaml` |
+
+Hot reload: `reload animatedead` picks up the kinds' numbers for **newly** raised skeletons. The other
+files are reloaded by their own targets: `reload spells`, `reload classes`, `reload feats`,
+`reload affects`, messages — `reload spellmsg` and `reload affectmsg`; `feat_msg.xml` has no target of
+its own and is reloaded only by `reload all`.
+
+### 2. A kind's tier — what each attribute means
+
+```xml
+<creature vnum="8" id="kFierceSkeleton" spell="kAnimateSkeleton" proto_vnum="3011"
+          weight="0" damroll_cap="50">
+    <cost corpse_min_level="26" corpse_max_level="127" min_rating="0" />
+    <scaling>
+        <hp          beta="0.12"  mode="mult" cap="4.0" />
+        <damage_dice beta="0.624" mode="add"  cap="33" />
+        <hitroll     beta="0.3"   mode="add"  cap="30" />
+        <!-- everything else beta="0" -->
+    </scaling>
+</creature>
+```
+
+| Attribute | Meaning for skeletons |
+|---|---|
+| `spell` | Whose tier this is. `kAnimateSkeleton` takes the kind out of the "raise corpse" ladder; without the attribute the tier counts as undead (`kAnimateDead`). |
+| `id` | The tier name. **Important:** the hit handler tells the kinds apart by it — `kFierceSkeleton` (claws), `kNimbleSkeleton` (lacerations), `kFetidSkeleton` (breath). Rename it and the kind loses its debuff. |
+| `proto_vnum` | The mob prototype from the world. If it is missing from the world, an ordinary skeleton rises and the syslog gets `SYSERR: 'оживить скелет': в мире нет прототипов …`. |
+| `weight` | **Keep it zero.** Skeletons do not spend the retinue budget: their number is limited differently — one of each kind. |
+| `damroll_cap` | The kind's damroll ceiling in auto-attack (prototype + raise + "forces of evil" buffs). |
+| `cost corpse_min_level` | Lower bound on the corpse level. A weaker corpse gives an ordinary skeleton. The attribute was introduced for skeletons: the undead ladder has only an upper bound. |
+| `cost corpse_max_level` | Not checked for skeletons — keep `127`, i.e. no upper bound. |
+| `cost min_rating` | Not checked for skeletons — keep `0`: the real limiter is the feat circle (see section 5). |
+| `scaling` | Stat scaling off the competence `C` — the formulas and the meaning of `beta`/`mode`/`cap` are the same as for undead (sections 7 and 8 above). |
+
+### 3. How to recompute a kind's damage
+
+The shares are designed off the **black basilisk's total damage per round**. The basilisk has three
+attacks (`extra_attack: 2` in the prototype) of `60d40` at the cap, i.e. on average
+
+```
+3 × 60 × 20.5 ≈ 3690 per round
+```
+
+Skeletons have two attacks per round (`extra_attack: 1`) and a `d6` die (average 3.5). So the needed
+number of dice **per hit** is:
+
+```
+cap = share × 3690 / (2 × 3.5)
+```
+
+`beta` is chosen so that the kind reaches its `cap` at the same competence as the basilisk
+(about 51):
+
+```
+beta = (cap − 1) / 51
+```
+
+Current values:
+
+| kind | dice per hit | share of the basilisk | `beta` / `cap` |
+|---|---|---|---|
+| fierce | 33d6 | 6.3% | 0.624 / 33 |
+| nimble | 26d6 | 4.9% | 0.487 / 26 |
+| fetid | 20d6 | 3.8% | 0.370 / 20 |
+| **together** | **79d6** | **15%** | |
+
+The share does not depend on competence: all three `beta` values are proportional to the basilisk's
+(`1.15`), so the ratio holds midway through the growth too, not only at the cap. A handy check: raise
+the kind and look at `stat <kind> скелет` — the "NPC сила удара" line shows the current dice.
+
+### 4. What the mob prototype must have
+
+| Field | Why |
+|---|---|
+| `extra_attack: 1` | Two attacks per round. Change it and recompute `cap` with the formula above. |
+| `damage: 1d6` | The base the dice grow from. The die size can be changed, but then `cap` changes too. |
+| `bare_hand_attack` | The hit type in messages: `8` claws ("оцарапал"), `3` slash ("рубанул"), `4` bite. |
+| `kGasBreath` in `action_flags` | Fetid only: its hit becomes a breath (magic damage instead of physical). |
+| `race: 110` | Race `kZombie` (undead). Resistances and part of the mechanics depend on the race. |
+| `kNoSkillTrain` | So that the retinue does not award skill-ups. The code also sets this flag itself on raise, so in the prototype it is a safety net. |
+
+The `kBoneServant` marker does **not** go into the prototype — the code puts it on at raise. A flag in
+`affect_flags` will not replace it: the engine looks for on-hit actions in the affect list, and the
+flag only sets a bit and triggers nothing.
+
+### 5. Availability: spell circle and feat circle
+
+In `cfg/classes/pc_necromancer.xml`:
+
+```xml
+<spell id="kAnimateSkeleton" level="26" remort="0" circle="8" mem="0" cast="0.0"/>
+<feat  id="kBoneCommander"   level="1"  remort="0" slot="6"  inborn="0"/>
+```
+
+- `circle` and `level` — when the spell becomes available by circles.
+- A feat's `slot` is **the feat circle minus one**: `slot="6"` is shown as "Круг 7" (circle 7). The
+  engine computes when it opens: `slot = level × (5 + remorts / remorts_for_slot) / 28`, where
+  `remorts_for_slot` comes from `<feats remorts_for_slot="…">` in the same file. For the warlock it is
+  `6`, so circle 7 opens at the sixth remort and level 28.
+
+The player gets the spell itself not by circle but from the world — from a guild, a book or a trigger
+(`mspellturn`). The feat is granted by the `mfeatturn` trigger.
+
+### 6. The kinds' debuffs
+
+What is in the config (`cfg/affects/affects.xml` and `messages/ru/affect_msg.xml`):
+
+- `kBoneServant` — the kind marker. Its `<actions>` declare `<trigger val="kPostHit"/>` and the
+  `SkeletonHit` handler. Remove the action and skeletons stop applying anything.
+- `kCorrodedArmor` ("разъеденный доспех", corroded armor) and `kCorrodedWard` ("разъеденный оберег",
+  corroded ward) — the debuffs themselves, flags `kAfBattledec|kAfCurable` (duration in combat rounds,
+  curable).
+- Lacerations reuse the existing `kLacerations`, the switch ban — the existing `kNoBattleSwitch`.
+
+What is still **in code** (`src/gameplay/handlers/bone_commander.cpp`):
+
+| Value | Setting |
+|---|---|
+| Resist shred step | 1% per hit |
+| Shred ceiling | 12% / 10% / 8% with one, two and three living skeletons |
+| Laceration threshold for the switch ban | 4 / 6 / 8 lacerations with one, two and three skeletons |
+| Debuff duration | 10 combat rounds, renewed by every hit |
+| Against players | debuffs are not applied |
+
+The strength is computed at the moment of application from the master's number of living skeletons:
+if one dies, the others' debuff is stronger at once, the raised ones need no recalculation. If these
+numbers ever need tuning without a rebuild, they can easily be moved into the same `animate_dead.xml`
+as a separate block — for now they stay in code on purpose, until they settle.
+
+### 7. The bone levy: undead weaken for the retinue
+
+issue #4032: while the warlock has at least one special skeleton alive, his "raise corpse" undead lose
+part of their damage — both physical and magic. The price is paid **once for the whole retinue**: the
+sum of the living skeletons' shares is divided among all of the master's undead rather than taken from
+each in full. Three skeletons with one undead — the same 15%, with two — 8% each, with three — 5%
+each.
+
+A kind's share is set on its tier with the `damage_share` attribute (percent):
+
+| kind | `damage_share` |
+|---|---|
+| fierce | 6.3 |
+| nimble | 4.9 |
+| fetid | 3.8 |
+| **all three** | **15** |
+
+This is a separate number, not derived from the dice: the dice are computed from the cast competence
+and the prototype's die, and a reverse calculation would be fragile. Change the dice — change the share
+too, or the price will drift away from the strength.
+
+The penalty is held by the **"bone levy"** affect ("костяная подать", `kBoneLevy`) on the undead
+itself: one line each on `kPhysicDamagePercent` and `kMagicDamagePercent`, the duration does not tick
+(`kAfDeadkeep`) — the code sets and removes it. Recalculation happens at three points: a skeleton was
+raised, an undead was raised (it arrives already weakened), and someone left the retinue — died, was
+released, or the charm ran out. An undead leaving counts too: the divisor changes and the levy on the
+rest grows. On a change the room gets the line "$n поник$q, отдав часть своей силы костяной свите."
+("$n droops, giving part of its strength to the bone retinue.") or "$n расправил$u: костяная свита
+убыла, и сила вернулась." ("$n straightens: the bone retinue has shrunk, and the strength has
+returned.").
+
+The resurrected corpse from "оживить труп" is not affected: the levy falls only on tiers with
+`spell="kAnimateDead"`, and the resurrected corpse is raised by the corpse's vnum and is not among the
+tiers.
+
+### 8. Gift affects: the retinue grows stronger with its master
+
+issue #4038: the higher the Dark Magic skill, the larger the set of affects a skeleton rises with. The
+affects are gifts — no mana, no separate cast: once the caster crosses the threshold, the raised one
+arrives already carrying them. They are part of the undead package (`kAfCharmBond`), so they cannot be
+removed and last as long as the charm.
+
+The thresholds live in `cfg/mechanics/animate_dead.xml` as a separate block:
+
+```xml
+<grants>
+    <grant spell="kAnimateSkeleton" min_skill="100" affect="kDetectInvisible" />
+    <grant spell="kAnimateSkeleton" min_skill="100" affect="kInfravision" />
+    <grant spell="kAnimateSkeleton" min_skill="120" affect="kFly" />
+    <grant spell="kAnimateSkeleton" min_skill="140" affect="kDetectLife" />
+    <grant spell="kAnimateSkeleton" min_skill="200" affect="kIceShield" />
+</grants>
+```
+
+| Attribute | Meaning |
+|---|---|
+| `spell` | Whose gift this is. The threshold names the spell, not the tier, so "animate skeleton" gives the affect to an ordinary skeleton too. |
+| `min_skill` | The threshold, in percent, of the skill from `<control>` (Dark Magic). Without the attribute the affect goes to any caster. |
+| `affect` | The affect type as named in `cfg/affects/affects.xml`. |
+
+Current values:
+
+| Dark Magic | What the skeleton gets |
+|---|---|
+| 100% | detect invisible, infravision |
+| 120% | fly |
+| 140% | detect life |
+| 200% | ice shield |
+
+A line without `spell` or without `affect`, as well as one with an unknown name, is logged to the
+syslog as `animate_dead grant …` and skipped — the others keep working. No block at all means no gift
+affects, and that is not an error. Picked up by `reload animatedead` for **newly** raised ones.
+
+The block is shared by both corpse spells: write `spell="kAnimateDead"` and the same gift goes to the
+undead from "raise corpse". There are no lines for it now — its ice shield still comes from Wisdom
+(75+) and lives in code.
+
+### 9. How to check it as a god
+
+```
+featset <name> 'костяной полководец' 1      # otherwise an ordinary skeleton rises
+skillset <name> 'магия тьмы' 300            # cast competence: dice and HP grow from it
+load mob 10000                              # Solovei the Robber: level 29, humanoid
+slay соловей
+колдовать 'оживить скелет' труп             # a prompt listing the kinds
+колдовать 'оживить скелет' труп свирепого   # the kind, in any grammatical case
+stat свирепый скелет                        # dice, attacks, hit type, marker and gift affects
+```
+
+Pick a dry room with no aggressive mobs: the spell requires standing, and in combat you get
+"Невозможно! Вы сражаетесь!" ("Impossible! You are fighting!"). To watch the debuffs: `приказ все
+убить <target>` ("order all kill <target>") and wait for the lines "Ядовитые когти … разъедают
+доспехи …", "Смрадное дыхание … разъедает оберег …", "… затих, не в силах оторваться …".
+
+### 10. Pitfalls
+
+- **`purge` in the room kills your own skeletons too**, and `goto` moves the god **without the
+  retinue** — raise them where you will fight.
+- `stat <name>` searches the whole world: take a victim mob with a unique name, or you will see
+  someone else's stats.
+- Raising the same kind again is refused: "У вас уже служит …" ("You already have … serving"). First
+  release the old one: `приказать <name> следовать я` ("order <name> follow me"; with `все`
+  instead of a name, every follower goes), outside combat. A skeleton that stops serving crumbles
+  away.
+- Renaming a tier's `id` silently disables that kind's debuff — the handler tells the kinds apart by
+  `id`.
+- A `weight` above zero makes skeletons spend the retinue budget on a par with undead, and the player
+  starts hitting the unrelated message "Вы не сможете управлять столькими последователями" ("You cannot
+  control that many followers").
 
 ---
 

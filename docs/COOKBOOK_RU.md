@@ -1,8 +1,8 @@
 # Bylins MUD — Сборник примеров (cookbook)
 
 *Полные, перекрёстно связанные примеры для авторов `spells.xml`, `affects.xml`,
-`room_affects.xml` и `feats.xml`. Сначала прочтите три справочных руководства —
-[Заклинания](SPELL_MANUAL_RU.md) · [Эффекты](AFFECT_MANUAL_RU.md) ·
+`obj_affects.xml`, `room_affects.xml` и `feats.xml`. Сначала прочтите три справочных
+руководства — [Заклинания](SPELL_MANUAL_RU.md) · [Эффекты](AFFECT_MANUAL_RU.md) ·
 [Способности](FEAT_MANUAL_RU.md) — затем используйте это как шаблоны.*
 
 > **Ссылки на разделы.** Голые номера `§N` указывают на **Руководство по
@@ -23,6 +23,13 @@
 * несколько **способностей**, перекраивающих заклинание и оба эффекта через
   `talent_patch`.
 
+> **Новые id.** Заклинание `kHexOfDecay`, эффекты `kDecayHex`/`kBlightCurse` и пять
+> способностей — всё новое. Любой id — это C++-перечисление, поэтому каждому нужно
+> значение перечисления и строка в карте имён, иначе данные не разрешатся (см.
+> таблицу в §4; способности идут в `EFeat` — `feats_constants.h` +
+> `feats_constants.cpp`). Заклинание можно вместо этого обкатать в свободном тестовом
+> слоте (`kTestTwo` … `kTestFive`, Руководство по заклинаниям §17).
+
 ### 1.1 Заклинание — `spells.xml`
 
 `kHexOfDecay` — тёмное одноцелевое проклятие, единственная задача которого —
@@ -30,19 +37,19 @@
 
 ```xml
 <spell id="kHexOfDecay" element="kDark" mode="kEnabled">
-    <name rus="порча увядания" eng="hex of decay"/>
+    <name val="hex of decay"/>
     <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="1"/>
     <mana max="60" min="45" change="1"/>
     <targets val="kTarCharRoom|kTarFightVict"/>
     <flags val="kMagAffects|kNpcAffectPc"/>
     <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
-        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-        <base_stat id="kInt" threshold="22" weight="0.5"/>
+        <base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kInt" threshold="22" weight="18"/>
     </potency_roll>
     <success_roll>
         <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+        <base_stat id="kInt" threshold="22" weight="0.5"/>
     </success_roll>
     <talent_actions>
         <action>
@@ -56,7 +63,9 @@
 ```
 
 Всё, что проклятие *делает*, — на `kDecayHex`; заклинание лишь доставляет его (§8)
-со спасброском Воли и масштабируемой по навыку длительностью.
+со спасброском Воли и масштабируемой по навыку длительностью. `<name val>` — только
+английская админская метка: русское имя для игры и сообщения каста живут в
+`cfg/messages/ru/spell_msg.xml` (sheaf `kHexOfDecay`, `<name val="порча увядания"/>`).
 
 ### 1.2 Эффект — `affects.xml`, **несколько триггеров**
 
@@ -97,9 +106,10 @@
   potency ([Руководство по эффектам](AFFECT_MANUAL_RU.md) §4.2). Дайте ему
   сообщение `kDamageToChar/Room`, чтобы он не молчал.
 * **`kExpired` (b)** — подвох. При естественном истечении бьёт по `kTarGroup`
-  (соратники носителя), а `<area>` ограничивает удар **тремя-пятью** из них
-  (`min=3` + небольшой бонус от навыка, `max=2`). Каждый ловит `kBlightCurse`
-  (§1.3) на 4 часа.
+  (соратники носителя), а `<area>` задаёт, по скольким: `min=3` плюс бонус от
+  навыка, ограниченный `max=2`. Бонус читает навык *кастующего заклинания*, а у
+  действия, запущенного эффектом, его нет (оно идёт без заклинания), поэтому на деле
+  задевает ровно **трёх** соратников. Каждый ловит `kBlightCurse` (§1.3) на 4 часа.
 * **Развеивание без последствий.** Поскольку действия **`kDispell` нет**, раннее
   снятие порчи (развеивание/лечение) ничего не запускает — нагрузка срабатывает
   только на *естественном* пути `kExpired`. Этот контраст `kExpired`-против-`kDispell`
@@ -134,11 +144,12 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 
 ### 1.4 Как это играется
 
-1. Кастер накладывает `kHexOfDecay` → жертва получает `kDecayHex` (спасбросок Воли, ~5–15 ч).
+1. Кастер накладывает `kHexOfDecay` → жертва получает `kDecayHex` (спасбросок Воли,
+   6–10 ч до учёта сопротивлений).
 2. Каждый тик `kDecayHex` слегка грызёт жертву (`kPulse`).
 3. Жертва (или союзник) может **развеять/вылечить** `kDecayHex` в любой момент —
    ничего плохого (действия `kDispell` нет).
-4. Если никто не снял — таймер истекает → срабатывает `kExpired` → 3–5 соратников
+4. Если никто не снял — таймер истекает → срабатывает `kExpired` → трое соратников
    жертвы ловят `kBlightCurse` на 4 ч (сильный удар по статам + жёсткий DoT).
 
 ---
@@ -226,26 +237,37 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 ## 3. Галерея рецептов
 
 Более короткие узконаправленные примеры (перенесены из Руководства по заклинаниям).
+Примеры с настоящим заклинанием повторяют его текущее определение из
+`lib/cfg/spells.xml` и `lib/cfg/affects/affects.xml`; гипотетические помечены.
 
+> **Два файла.** Примеры, накладывающие эффект, показывают *и* блок заклинания
+> (который называет эффект через `<affect id="…"/>` и владеет длительностью и
+> спасброском), **и** блок эффекта в `affects.xml` (который владеет флагами, apply и
+> действиями). См. §8 и [Руководство по эффектам](AFFECT_MANUAL_RU.md).
 
 ### 3.1 Простое заклинание урона с дополнительными ударами
 
 ```xml
 <spell id="kMagicMissile" element="kAir" mode="kEnabled">
-    <name rus="волшебная стрела" eng="magic missile"/>
+    <name val="magic missle"/>
+    <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="1"/>
     <mana max="40" min="30" change="1"/>
     <targets val="kTarCharRoom|kTarFightVict"/>
     <flags val="kMagDamage|kNpcDamagePc"/>
     <potency_roll>
-        <dices ndice="6" sdice="4" adice="10"/>
-        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
-        <base_stat id="kWis" threshold="22" weight="5"/>
+        <noise sigma="0.25"/>
+        <base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
     </potency_roll>
+    <success_roll>
+        <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
+        <base_stat id="kWis" threshold="22" weight="5"/>
+    </success_roll>
     <talent_actions>
-        <action>
-            <damage saving="kReflex">
-                <amount min="0" beta="12.5"/>
+        <action id="Main">
+            <damage id="Bolt" saving="kReflex">
+                <amount min="0" beta="15.3468" weight="1"/>
                 <hits skill_divisor="12" max="2" prob="100"/>
             </damage>
         </action>
@@ -254,30 +276,43 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 ```
 
 * Спасбросок `kReflex`, успех вдвое уменьшает урон.
-* Количество = `кубики · 1.0 + компетенции · 25`.
-* До 2 дополнительных ударов, срабатывающих каждый раз (`prob=100`), масштабируемых `min(kFireMagic, 75) / 12`.
+* Количество = `min + beta·C·(1 + weight·d)` = `15.3468·C`, где `C` —
+  компетентность кастера из `<potency_roll>` (навык + стат, §3.7), а `d` — один общий
+  на каст бросок шума (`<noise sigma="0.25"/>`); `weight="1"` берёт полный разброс,
+  `weight="0"` сделал бы количество детерминированным.
+* До 2 дополнительных ударов, срабатывающих каждый каст (`prob=100`); число
+  дополнительных ударов — `min(kAirMagic, 75) / 12` (`base_skill` из броска силы),
+  но не больше `max=2`.
+* `id="Main"` / `id="Bolt"` — устойчивые id блоков, к которым может обратиться патч
+  способности (`feats.xml` заменяет именно этот урон через `action="Main"
+  effect="Bolt"`; см. [Руководство по способностям](FEAT_MANUAL_RU.md) §4).
 
 ### 3.2 Дебаф со спасброском, перепозиционированием и задержкой
 
 ```xml
 <spell id="kSleep" element="kMind" mode="kEnabled">
-    <name rus="сон" eng="sleep"/>
+    <name val="sleep"/>
+    <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="0"/>
     <mana max="70" min="55" change="1"/>
     <targets val="kTarCharRoom|kTarFightVict"/>
     <flags val="kMagAffects|kNpcAffectPc"/>
     <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
+        <base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kInt" threshold="22" weight="18"/>
+    </potency_roll>
+    <success_roll>
         <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
         <base_stat id="kInt" threshold="22" weight="0.5"/>
-    </potency_roll>
+    </success_roll>
     <talent_actions>
         <action>
-            <blocking>
-                <mob_flags val="kNoSleep"/>
-                <affect_flags val="kHold"/>
-                <room_flags val="kNoMagic"/>
-            </blocking>
+            <target_conditions>
+                <blocking>
+                    <mob_flags val="kNoSleep"/>
+                    <affect_flags val="kHold"/>
+                </blocking>
+            </target_conditions>
             <affects saving="kWill" resist="kMind">
                 <reposition pos="kSleep"/>
                 <duration base="1" skill_divisor="15" min="1" max="6"/>
@@ -295,29 +330,39 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 </affect>
 ```
 
-* NPC с флагом `kNoSleep` или цели с эффектом `kHold` невосприимчивы.
+* NPC с флагом `kNoSleep` или цели с эффектом `kHold` невосприимчивы (шлюз
+  `<target_conditions>` срабатывает до любых бросков). Голый `<blocking>` прямо под
+  `<action>` больше не принимается — всегда оборачивайте его (§4).
 * Успешный спасбросок `kWill` предотвращает сон.
 * При успешном наложении жертва переводится в позицию `kSleep`.
 * Длительность: `1 + min(kMindMagic, 75) / 15` часов, ограничение `[1..6]`.
+* `kAfDispellable|kAfCurable` означает, что снять эффект могут пытаться и
+  `kDispellMagic`, и лечения вроде `kRemovePoison` (через состязание сил).
+* Задержки (`<lag>`) у этого заклинания нет; боевая задержка была бы ещё одним
+  потомком того же блока `<affects>` (`<lag base="…" bonus_divisor="…"/>`, §8.3).
 
 ### 3.3 Чистое лечение (с проверкой силы)
 
 ```xml
 <spell id="kRemovePoison" element="kLife" mode="kEnabled">
-    <name rus="лечить яд" eng="remove poison"/>
+    <name val="remove poison"/>
+    <components><verbal/><weave/></components>
     <misc pos="kFight" violent="N" danger="0"/>
     <mana max="60" min="45" change="2"/>
     <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
     <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
     <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
+        <base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
+    </potency_roll>
+    <success_roll>
         <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
         <base_stat id="kWis" threshold="22" weight="0.5"/>
-    </potency_roll>
+    </success_roll>
     <talent_actions>
         <action>
-            <unaffect affect_flags="kAfCurable">
-                <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
+            <unaffect dispel_bonus="80" affect_flags="kAfCurable" decay="25">
+                <remove all_of="kPoisoned|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison|kSkillReduce|kNoBattleSwitch"/>
             </unaffect>
             <alter_obj handler="AlterRemovePoison"/>
         </action>
@@ -325,26 +370,50 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 </spell>
 ```
 
-* `affect_flags="kAfCurable"` — не трогает только `kAfDispellable` эффекты.
-* `<remove all_of="…">` — пробует снять каждый перечисленный яд, если он есть.
-* Каждое снятие — проверка d100 по навыку (§9.3). Лечения ставят `dispel_bonus="80"` (≈80 % при равном навыке); пол/потолок 5 %.
+* `affect_flags="kAfCurable"` — не трогает эффекты, у которых есть только
+  `kAfDispellable` (например, благословения).
+* `<remove all_of="…">` — пробует снять каждый перечисленный эффект, который есть на
+  цели (снимает те, что найдёт, а не требует всех сразу). В списке семейство ядов плюс
+  `kSkillReduce` и `kNoBattleSwitch`: яд наёмника — связка из нескольких типов
+  эффектов, и без двух последних лечение снимало бы только строчку с ядом, а минус к
+  умениям и запрет переключения оставались бы. Все они помечены `kAfPoison` в
+  `affects.xml`, так что посторонних дебафов список не касается.
 * `<alter_obj handler="AlterRemovePoison"/>` — то же заклинание на отравленной
   еде/питье очищает предмет (§3.8.7); обе ветви живут в одном действии.
+* Каждое снятие — проверка d100 по навыку (Руководство по заклинаниям §9.3). Лечение
+  ставит `dispel_bonus="80"`, поэтому жрец надёжно снимает яд равного по навыку
+  отравителя; более сильный яд мастера-убийцы (выше записанная компетентность)
+  снижает порог — сильно уступающий жрец скатывается к полу 5 %, превосходящий
+  упирается в потолок 95 %.
+* `decay="25"` — при **неудачном** снятии оставшийся яд ослабевает на 25 % от вклада
+  компетентности лекаря, так что повторные касты постепенно его подтачивают (§9.1).
 
 ### 3.4 Раскрытие с разрывом цепочки
 
 ```xml
 <spell id="kGlitterDust" element="kEarth" mode="kEnabled">
-    <name rus="блестящая пыль" eng="glitterdust"/>
-    …
+    <name val="glitterdust"/>
+    <components><weave/></components>
+    <misc pos="kFight" violent="Y" danger="5"/>
+    <mana max="120" min="100" change="3"/>
+    <targets val="kTarIgnore"/>
+    <flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc"/>
+    <potency_roll>
+        <base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
+    </potency_roll>
+    <success_roll>
+        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+        <base_stat id="kWis" threshold="22" weight="0.5"/>
+    </success_roll>
     <talent_actions>
         <action>
             <area>
                 <targets skill_divisor="15" dice_size="3" min="5" max="20"/>
                 <distribution type="kStepped" decay="0.05" free_targets="5"/>
             </area>
-            <unaffect>
-                <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
+            <unaffect decay="25">
+                <remove all_of="kInvisible|kDisguise|kHide" breaking_by_failure="true"/>
             </unaffect>
             <affects saving="kReflex" resist="kEarth">
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
@@ -356,27 +425,51 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 ```
 
 ```xml
-<!-- affects.xml: эффект владеет своими флагами и штрафом к спасброску -->
+<!-- affects.xml: эффект владеет своим штрафом к спасброску -->
 <affect id="kGlitterDust" buff="N">
-    <flags val="kAfDispellable|kAfCurable"/>
     <apply location="kSavingReflex">
-        <modifier min="0.0" beta="4.4" factor="1"/>
+        <modifier min="0" beta="2.0254" factor="1"/>
     </apply>
 </affect>
 ```
 
-* `<unaffect>` выполняется первым: пытается снять `kInvisible|kCamouflage|kHide`.
-* Если состязание сил **проваливается** для любого эффекта на данной цели,
-  `breaking_by_failure="true"` прерывает цепочку — дебаф не накладывается.
-* Если снятие успешно (или эффекты отсутствовали), дебаф применяется нормально.
-* Штраф к спасброску масштабируется с компетентностью кастера.
+* `<unaffect>` выполняется первым (порядок цепочки): пытается снять
+  `kInvisible|kDisguise|kHide`. Без `affect_flags` берётся значение по умолчанию
+  `kAfCurable|kAfDispellable`.
+* Если состязание сил **проваливается** для любого из них на данной цели,
+  `breaking_by_failure="true"` прерывает цепочку каста **для этой цели** — дебаф
+  блестящей пыли не накладывается. `decay="25"` всё равно ослабляет уцелевший эффект,
+  так что следующий каст имеет больше шансов.
+* Если снятие успешно (или эффектов не было), дебаф применяется нормально — штраф к
+  спасброску на 4 часа.
+* У эффекта нет `<flags>`: он не развеивается и не лечится, а просто держится свои
+  4 часа (убывая раз в игровой час).
+* Штраф масштабируется с компетентностью кастера: при навыке 140 / мудрости 34
+  (типичный кастер R=12) компетентность `C = (75·1 + 65·7)/100 + (34−22)·18/100 = 7.46`,
+  и модификатор спасброска равен `+ceil(7.46·2.0254) = +16`; необученный кастер
+  (навык 0, стат на пороге) получает `+ceil(0·2.0254) = 0` — правила масштабирования
+  см. в [Руководстве по эффектам](AFFECT_MANUAL_RU.md) §4.2.1. (Это значение в полную
+  силу; цели после `free_targets="5"` получают его уменьшенным ступенчатым спадом, §7.)
 
 ### 3.5 Заклинание с ограничением по мировоззрению
 
 ```xml
 <spell id="kDispelEvil" element="kLight" mode="kEnabled">
-    <name rus="рассеять зло" eng="dispel evil"/>
-    …
+    <name val="dispel evil"/>
+    <components><verbal/><weave/></components>
+    <misc pos="kFight" violent="N" danger="1"/>
+    <mana max="100" min="90" change="1"/>
+    <targets val="kTarCharRoom|kTarFightVict"/>
+    <flags val="kMagDamage"/>
+    <potency_roll>
+        <noise sigma="0.15"/>
+        <base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
+    </potency_roll>
+    <success_roll>
+        <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
+        <base_stat id="kWis" threshold="22" weight="0.5"/>
+    </success_roll>
     <caster_conditions>
         <blocking>
             <align val="kEvil"/>
@@ -384,33 +477,41 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
     </caster_conditions>
     <talent_actions>
         <action>
+            <damage saving="kStability">
+                <amount min="0" beta="63.6246" weight="1"/>
+            </damage>
             <target_conditions>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <required>
                     <align val="kEvil"/>
                 </required>
             </target_conditions>
-            <damage saving="kStability">
-                <amount min="0" beta="61"/>
-            </damage>
         </action>
     </talent_actions>
 </spell>
 ```
 
 * `<caster_conditions><blocking><align val="kEvil"/></blocking></caster_conditions>` —
-  *кастер* не должен быть злым (на уровне заклинания, проверяется один раз до целей).
+  *кастер* не должен быть злым, иначе `kNoeffect` (старое поведение «гнева света»,
+  теперь заданное данными). Уровень заклинания, проверяется один раз до любых целей.
 * `<target_conditions><required><align val="kEvil"/></required></target_conditions>` —
   *цель* должна быть злой, иначе `kNoeffect`.
-* `<target_conditions><blocking><room_flags val="kNoMagic"/></blocking></target_conditions>` —
-  универсальный срыв в комнате с NOMAGIC.
+* `<components><weave/></components>` — помечает заклинание как настоящую магию: в
+  комнате с `kNoMagic` оно срывается и выдаёт `kCastForbiddenToChar` /
+  `kCastForbiddenToRoom` (§3.9). Это заменило поштучный
+  `<blocking><room_flags val="kNoMagic"/></blocking>`, который раньше носило каждое
+  заклинание, кроме боевых кличей.
 
 ### 3.6 Шаблон отражения
 
+Сейчас ни одно заклинание в продакшене не использует `<reflection>` на стороне
+заклинания (механика подключена и готова). Магическое зеркало `kMagicGlass`
+пользуется другой формой — `<reflection min="…" max="…"/>` на стороне эффекта, под
+триггером `kWardAttack` ([Руководство по эффектам](AFFECT_MANUAL_RU.md) §5.4). Вот как
+ледяная стрела, обкатываемая в свободном тестовом слоте (Руководство по заклинаниям
+§17), могла бы отскакивать от существ под огненным щитом:
+
 ```xml
-<spell id="kIceBolt" element="kWater" mode="kEnabled">
+<spell id="kTestTwo" element="kWater" mode="kTesting">
     <!-- … обычные поля … -->
     <talent_actions>
         <action>
@@ -423,21 +524,33 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 </spell>
 ```
 
-* Цели с `kFireShield` или `kFireAura` имеют **35 %** шанс отразить заклинание.
-* При срабатывании отражения кастер получает урон сам. Выдаются три сообщения
+* Цели с `kFireShield` или `kFireAura` с шансом **35 %** за каст отражают заклинание
+  обратно в кастера (без `prob` шанс 20 %).
+* При срабатывании отражения урон получает сам кастер (с учётом всех его
+  собственных защит). Отскок описывают три сообщения
   (`kReflectedToChar`/`Vict`/`Room`).
+* Мировоззрение: добавьте `align="kEvil"` в тот же тег, чтобы нежить врождённо
+  отражала святые заклинания, и т. п.
 
 ### 3.7 Стакирующийся яд (гипотетический)
+
+Настоящий `kPoison` сегодня не стакается — пример лишь иллюстрирует механику.
+Реальное заклинание накладывает эффект `kPoisoned` со своими `<apply>` на стороне
+заклинания (плоский `kStr` −2 и уровень `kPoison` с `beta="18.4125"`), а DoT несёт
+сам эффект `kPoisoned`. Здесь мы переносим apply на эффект и добавляем `stack="3"`,
+чтобы показать, как записывался бы стакающийся вариант.
 
 ```xml
 <spell id="kPoison" element="kDark" mode="kEnabled">
     <!-- … обычные поля … -->
     <talent_actions>
         <action>
-            <blocking><affect_flags val="kGodsShield"/></blocking>
+            <target_conditions>
+                <blocking><affect_flags val="kGodsShield"/></blocking>
+            </target_conditions>
             <affects saving="kCritical" resist="kDark">
                 <duration base="0" skill_divisor="3" min="0" max="0"/>
-                <affect id="kPoison"/>
+                <affect id="kPoisoned"/>
             </affects>
         </action>
     </talent_actions>
@@ -445,68 +558,81 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 ```
 
 ```xml
-<!-- affects.xml: эффект владеет стакающимися apply (штраф к силе + тик яда) -->
-<affect id="kPoison" buff="N">
-    <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
+<!-- affects.xml: эффект владеет стакающимися apply (штраф к силе + уровень яда) -->
+<affect id="kPoisoned" buff="N">
+    <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable|kAfPoison"/>
     <apply location="kStr">
-        <modifier min="2.0" beta="0.0" factor="-1" stack="3"/>
+        <modifier min="2" beta="0" factor="-1" stack="3"/>
     </apply>
     <apply location="kPoison">
-        <modifier min="0.0" beta="11.5" factor="1" stack="3"/>
+        <modifier min="0" beta="18.4125" factor="1" stack="3"/>
     </apply>
+    <actions>
+        <!-- DoT настоящего kPoisoned: каждый тик наносит суммарный уровень kPoison -->
+        <action target="kTarFightSelf">
+            <trigger val="kPulse"/>
+            <damage source="poison" saving="kNone"/>
+        </action>
+    </actions>
 </affect>
 ```
 
-*(Реальный DoT яда брал бы урон из действия `kPulse` `<damage>` — см.
-[Руководство по эффектам](AFFECT_MANUAL_RU.md) §5; форма на apply иллюстрирует
-стакирование.)*
-
-* Повторное применение на той же жертве **стакируется до 3 раз**.
-* `kAfCurable` без `kAfDispellable` — работает `kRemovePoison`, но не `kDispellMagic`.
-* `kRemovePoison` **снимает один стак** — нужно три лечения для полного снятия тройного яда.
+* Повторное применение на той же жертве **стакается до 3 раз**: штраф к силе растёт
+  `-2`, `-4`, `-6` (плоско за стак), а уровень яда — и вместе с ним тик `kPulse`,
+  который этот уровень читает, — растёт как `1×`, `2×`, `3×` от значения за каст (оно
+  равно `ceil(C·18.4125)` — у типичного кастера R=12, `C ≈ 7.46`, ≈ 138 за стак).
+* Длительность накапливается (`kAfAccumulateDuration`).
+* `kAfCurable` без `kAfDispellable` — `kRemovePoison` работает, а простой
+  `kDispellMagic` (он трогает только `kAfDispellable`) — нет.
+* Снятие от `kRemovePoison` **снимает один стак**, а не весь эффект — для полного
+  снятия тройного яда нужно три лечения (если каждое состязание сил успешно).
 
 ---
 
 ### 3.8 Мультидейственное заклинание: `kSacrifice` *(пер-действенные цели + cast-chain)*
 
 `kSacrifice` («высосать жизнь») — эталонное мультидейственное заклинание: оно
-наносит урон врагу, затем лечит кастера на величину нанесённого урона, затем лечит
+наносит урон врагу, затем лечит кастера из нанесённого урона, затем лечит
 **нежить**-миньонов кастера на ту же величину. Три блока `<action>`, у каждого своя
 цель.
 
 ```xml
 <spell id="kSacrifice" element="kDark" mode="kEnabled">
-    <name rus="высосать жизнь" eng="sacrifice"/>
+    <name val="sacrifice"/>
     <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="10"/>
     <mana max="140" min="75" change="3"/>
     <targets val="kTarCharRoom|kTarFightVict|kTarNotSelf"/>
     <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
     <potency_roll>
-        <dices ndice="8" sdice="15" adice="60"/>
+        <noise sigma="0.25"/>
+        <base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="32" weight="18"/>
+    </potency_roll>
+    <success_roll>
         <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
         <base_stat id="kWis" threshold="32" weight="4.5"/>
-    </potency_roll>
+    </success_roll>
     <talent_actions>
         <!-- A1 — урон по ОДНОМУ врагу (входное действие; цель уровня заклинания). -->
         <action>
             <damage saving="kWill">
-                <amount min="0" beta="62"/>
+                <amount min="0" beta="82.5134" weight="1"/>
             </damage>
             <target_conditions>
                 <blocking><affect_flags val="kCharmed"/></blocking>   <!-- никогда по своему питомцу -->
             </target_conditions>
         </action>
-        <!-- A2 — лечит КАСТЕРА на только что нанесённый урон (base=kDamage). -->
+        <!-- A2 — лечит КАСТЕРА из только что нанесённого урона (base=kDamage). -->
         <action target="kTarFightSelf" base="kDamage">
             <points extra="300">
-                <heal min="0" beta="1.0" npc_coeff="0"/>
+                <heal npc_coeff="0" min="0" beta="0.5171" weight="1"/>
             </points>
         </action>
         <!-- A3 — лечит НЕЖИТЬ-миньонов кастера на ту же величину. -->
         <action target="kTarMinions" base="kDamage">
             <points extra="300">
-                <heal min="0" beta="1.0" npc_coeff="0"/>
+                <heal npc_coeff="0" min="0" beta="0.5171" weight="1"/>
             </points>
             <area>
                 <targets max="-1"/>             <!-- все миньоны, без масштабирования -->
@@ -529,8 +655,10 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
   реакцию жертвы (отложенную до конца).
 * **A2 (`target="kTarFightSelf"`, `base="kDamage"`)** перенацеливается на кастера и
   **лечит**. `base="kDamage"` заменяет скаляр компетентности на *фактически снятые
-  A1 HP*; при `beta="1.0"` (и `base="kDamage"`) лечение равно урону (чистый перенос
-  1:1). `<points extra="300">` позволяет перелечить до 4× от максимума.
+  A1 HP*; при `beta="0.5171"` лечение составляет примерно половину урона, а
+  `weight="1"` даёт общему броску шума заклинания разбросать и его. Для чистого
+  переноса 1:1 ставьте `beta="1.0"` и `weight="0"`. `<points extra="300">` позволяет
+  перелечить до 4× от максимума.
 * **A3 (`target="kTarMinions"`, `base="kDamage"`)** повторяет это лечение на
   очарованных NPC-последователях кастера, но `<required><mob_flags val="kCorpse"/>`
   ограничивает его **нежитью**, а `<area><targets max="-1"/>` раздаёт лечение
@@ -543,7 +671,8 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
   перенацеливается по ходу применения (§3.8.1).
 * **Cast-chain** — A2 и A3 читают накопленный **урон** вместо повторного броска
   компетентности (§3.8.2). Аккумулятор фиксирует *фактически снятые HP* (с уже
-  учтённым оверкиллом и сопротивлениями), поэтому лечение не может превысить урон.
+  учтённым оверкиллом и сопротивлениями), поэтому лечение — доля того, что A1
+  действительно нанесло.
 * **Пер-действенная область** — охватывает несколько целей только A3; A1/A2
   одноцелевые.
 * **Одна реакция** — враг отвечает один раз, после A3, а не между действиями.
@@ -574,15 +703,16 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
             вход  -> kPlagueTouch входящему                       (комната -> персонаж)
 ```
 
-> **Что здесь код, а что данные.** Идентификаторы эффектов — это фиксированные
-> C++-перечисления, поэтому **новый id нельзя объявить только в XML**. Перед данными
-> добавьте по одному значению перечисления **и** строке в карту имён:
+> **Что здесь код, а что данные.** Идентификаторы эффектов и заклинаний — это
+> фиксированные C++-перечисления, поэтому **новый id нельзя объявить только в XML**.
+> Перед данными добавьте по одному значению перечисления **и** строке в карту имён:
 >
 > | Новый id | Перечисление / карта имён |
 > |---|---|
 > | `kPlagueTouch`, `kSwampPlague` | `EAffect` — `affect_contants.h` + `affect_contants.cpp` |
-> | `kPlagueMiasma` | `ERoomAffect` — `affects/room_affects.h` + карта имён |
+> | `kPlagueMiasma` | `ERoomAffect` — `affects/room_affects.h` + `affects/room_affects.cpp` |
 > | `kPlagueBlade` | `EObjAffect` — `obj_affects.h` + `obj_affects.cpp` |
+> | `kInfectBlade` | `ESpell` — `magic/spells_constants.h` + `magic/spells_constants.cpp` |
 >
 > Плюс один маленький обработчик `<alter_obj>` (§4.1), который вешает *временный*
 > эффект на оружие. **Всё остальное ниже — чистые данные** (флаги, apply, DoT,
@@ -595,8 +725,8 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 
 ```xml
 <spell id="kInfectBlade" element="kDark" mode="kEnabled">
-    <name val="заразить клинок"/>
-    <components><verbal/><weave/><material/></components>
+    <name val="infect blade"/>
+    <components><verbal/><weave/></components>
     <misc pos="kStand" violent="N" danger="1"/>
     <mana max="50" min="35" change="1"/>
     <targets val="kTarObjInv"/>
@@ -615,7 +745,11 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 </spell>
 ```
 
-Готовые обработчики `<alter_obj>` (`AlterBless`/`AlterCurse`) вешают **постоянный**
+(Чтобы требовать реагент, добавьте в `<components>` `<material any_of="…"/>` с vnum
+предмета-реагента — голый `<material/>` без `any_of` и `all_of` при загрузке
+пропускается с ошибкой, §3.9.)
+
+Готовые обработчики `<alter_obj>` `AlterBless`/`AlterCurse` вешают **постоянный**
 эффект (`obj_affects::Impose(obj, …, -1)`). Для *временного* нужен свой обработчик —
 копия `AlterCurse`, где вместо `-1` передан положительный таймер (схематично):
 
@@ -623,7 +757,7 @@ DoT (`0.9`) кусает более чем вдвое сильнее порчи 
 // src/gameplay/handlers/alter_infect_blade.cpp — временно заражает оружие чумой.
 EStageResult AlterInfectBlade(ActionContext &ctx) {
     ObjData *obj = ctx.ovict;
-    if (!obj || GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
+    if (!obj || obj->get_type() != EObjType::kWeapon) {
         return EStageResult::kFail;                 // -> общая строка «нет эффекта»
     }
     const int timer = 24;                           // игровых часов; -1 было бы «навсегда»
@@ -635,7 +769,8 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
 }
 ```
 
-Зарегистрируйте в реестре `kAlterObjHandlers` (`magic.cpp`):
+Объявите его в `handlers/spell_handlers.h` и зарегистрируйте в реестре
+`kAlterObjHandlers` (`magic/action_handlers.cpp`):
 `{"AlterInfectBlade", handlers::AlterInfectBlade}`. Таймер — это аргумент
 `duration` у `Impose`; `obj_affects::Tick` убавляет его раз в игровой час.
 
@@ -652,7 +787,7 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
         <action target="kTarActor">
             <trigger val="kWeaponHit" prob="15"/>
             <affects saving="kCritical" resist="kDark">
-                <duration base="4" skill_divisor="20" min="3" max="8"/>
+                <duration base="4" skill_divisor="0" min="0" max="0"/>
                 <affect id="kPlagueTouch"/>
             </affects>
         </action>
@@ -661,8 +796,15 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
 ```
 
 * `kWeaponHit` срабатывает, когда заражённое оружие наносит удар; `prob="15"` = 15 %
-  ударов. Обязателен `saving=` (иначе действие отбраковывается).
+  ударов. `saving=` у `<affects>` можно опустить, но тогда по умолчанию будет
+  `kReflex`, а не «без спасброска» — для этого пишите `saving="kNone"`. (У `<damage>`
+  `saving=` действительно обязателен: без него при загрузке отбрасывается весь список
+  действий.)
 * `target="kTarActor"` — тот, кого ударили.
+* Плоские 4 часа: действие по триггеру идёт без кастующего заклинания, поэтому
+  `skill_divisor` ничего бы не добавил (навык для длительности берётся из броска силы
+  заклинания либо из явного `skill="kX"` у `<duration>` —
+  [Руководство по эффектам](AFFECT_MANUAL_RU.md) §5.6).
 * `msg_case="kIns"` — имя предмета склоняется в творительном («клинком») в
   сообщениях эффекта.
 
@@ -710,7 +852,7 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
 * `buff="N"` = **дебаф** — на это гейтится лечение (одного `kAfCurable` мало).
   `kAfCurable` + `kAfDispellable` → снять можно и лечением, и развеиванием.
 * Плоские `-2` к Силе/Уму (`beta="0"` → без зависимости от компетентности).
-* **(b) и (c)** — оба на `kExpired`: жертва и трое из её группы. Диспел-дедуп
+* **(b) и (c)** — оба на `kExpired`: жертва и трое из её группы. Дедуп «раз на тип»
   срабатывает раз на тип эффекта за проход, но **все** действия с `kExpired`
   выполняются, поэтому оба наложения проходят.
 * **Нет `kDispell`** → раннее снятие ничего не запускает; нагрузка только на пути
@@ -796,17 +938,20 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
 
 Каждому новому id нужны свои сообщения (иначе он молчит):
 
+* `cfg/messages/ru/spell_msg.xml` — sheaf `kInfectBlade`: русское имя для игры
+  (`<name val="заразить клинок"/>`) и `kAlterObjToChar` (строка, которую шлёт
+  обработчик).
 * `cfg/messages/ru/obj_affect_msg.xml` — sheaf `kPlagueBlade`: `kShortDesc`
   («налёт чумы»), `kDiagToChar` (строка при осмотре).
 * `cfg/messages/ru/affect_msg.xml` — sheaves `kPlagueTouch` / `kSwampPlague`:
   наложение/спадение + `kDamageToChar`/`kDamageToRoom` для DoT (иначе тик молчит).
 * `cfg/messages/ru/room_affect_msg.xml` — sheaf `kPlagueMiasma`: описание миазмов в
-  комнате.
+  комнате (`kRoomAffectVisible`).
 
 ### 4.7 Как это играется
 
 1. Маг кастует `kInfectBlade` на меч → меч на 24 ч несёт `kPlagueBlade`.
-2. Каждый удар: 15 % → жертва получает `kPlagueTouch` (3–8 ч).
+2. Каждый удар: 15 % → жертва получает `kPlagueTouch` (4 ч).
 3. `kPlagueTouch`: слабый DoT + −2 Сила/Ум. Развейте или вылечите — и всё, безопасно.
 4. Если проигнорировать → таймер истёк → жертва **и 3 союзника** получают
    `kSwampPlague` на 6 ч.
@@ -900,6 +1045,6 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
 | `kPlagueWard` | эффект `kSwampPlague` | `modify` + `relative="group_leader"` | гейт патча по способности *родственника* |
 
 Все под гейтом `CanUseFeat(holder, feat)` и ничего не стоят при касте/тике тем, у кого
-их нет. Способности — чистые данные (`feats.xml`), поверх идентификаторов из §4;
-нового кода они не требуют.
-
+их нет. Способности — данные (`feats.xml`) поверх идентификаторов из §4; новой
+логики они не требуют — только своих значений перечисления `EFeat` и строк в карте
+имён (`feats_constants.h` + `feats_constants.cpp`), как и любой id.

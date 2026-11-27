@@ -6,8 +6,8 @@
 #
 # PREREQUISITES:
 #   - lib.template/ directory with small world data (from repository)
-#   - (Optional) Full YAML world directory at ~/repos/world_yaml
-#     Override with: FULL_WORLD_DIR=/path/to/yaml_world ./tools/run_load_tests.sh
+#   - (Optional) a full YAML world for the full-world tests:
+#     FULL_WORLD_DIR=/path/to/world ./tools/run_load_tests.sh
 #
 # USAGE:
 #   # Run all tests (default)
@@ -34,12 +34,15 @@
 #
 # NOTE:
 #   The small world is YAML-only as primary source: it boots the checked-in
-#   flat YAML in lib.template/world directly. The SQLite round-trip test
+#   YAML in lib.template/worlddata/world directly. The SQLite round-trip test
 #   (--loader=sqlite) runs after the YAML boot and uses the engine-written
-#   world.db -- no converter involved.
+#   worlddata/world.db -- no converter involved.
 #
-#   The full world is a YAML directory (FULL_WORLD_DIR env var). No legacy
+#   The full world is a YAML world (FULL_WORLD_DIR env var). No legacy
 #   archive extraction or conversion is performed.
+#
+#   Inside a data directory the engine reads the world from worlddata/world
+#   and worlddata/world.db; every stage below works on those paths.
 #
 # OPTIONS:
 #   --loader=TYPE     Run only tests for specific loader (yaml|sqlite).
@@ -54,12 +57,29 @@
 #   --help            Show this help
 #
 # ENVIRONMENT VARIABLES:
-#   FULL_WORLD_DIR   Path to full YAML world directory. REQUIRED for full-world
-#                    tests; small-world-only runs (e.g. --quick or --world=small)
-#                    ignore it.
+#   FULL_WORLD_DIR   The full YAML world. REQUIRED for full-world tests;
+#                    small-world-only runs (e.g. --quick or --world=small)
+#                    ignore it. Either of:
+#                      - a world tree (world_config.yaml + zones/, e.g. the
+#                        world repository): the data dir is built from lib/
+#                        and the tree goes to worlddata/world;
+#                      - a complete data dir (cfg/ + worlddata/world/),
+#                        copied as is.
+#   BOOT_TIMEOUT     Seconds to wait for a boot (default 900).
+#   TEST_PORT        Port of the main boots (default 4000).
+#   AUX_PORT         Port of the resave, SQLite-resync and Admin API boots
+#                    (default 4001).
 #
 
 MUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+# Where the engine reads the world inside a data dir (src/engine/db/db.cpp,
+# CreateWorldSourceByName).
+WORLD_SUBDIR="worlddata/world"
+WORLD_DB="worlddata/world.db"
+# Ports: the main boots listen on TEST_PORT; -S resaves, the SQLite resync boot
+# and the Admin API server use AUX_PORT.
+TEST_PORT="${TEST_PORT:-4000}"
+AUX_PORT="${AUX_PORT:-4001}"
 YAML_BIN="$MUD_DIR/build_yaml/circle"
 MULTI_BIN="$MUD_DIR/build_multi/circle"
 
@@ -99,7 +119,8 @@ for arg in "$@"; do
             RECREATE_BUILDS=1
             ;;
         --help)
-            head -n 57 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
+            # The whole leading comment block, however long it grows.
+            sed -n '2,/^[^#]/p' "$0" | grep "^#" | sed 's/^# \?//'
             exit 0
             ;;
         *)
@@ -332,10 +353,36 @@ setup_full_world() {
 
     rm -rf "$dest_dir"
     mkdir -p "$dest_dir"
-    cp -r "$FULL_WORLD_DIR/." "$dest_dir/" || {
-        echo "X ERROR: Failed to copy world from $FULL_WORLD_DIR"
+    if [ -f "$FULL_WORLD_DIR/world_config.yaml" ]; then
+        # A bare world tree: the rest of the data dir comes from lib/, as for
+        # the small world, and the tree goes where the engine reads it.
+        echo "  Layout: world tree -> $WORLD_SUBDIR (rest of the data dir from lib/)"
+        local d
+        for d in cfg help state; do
+            cp -r "$MUD_DIR/lib/$d" "$dest_dir/" || {
+                echo "X ERROR: Failed to copy lib/$d"
+                return 1
+            }
+        done
+        mkdir -p "$dest_dir/worlddata"
+        find "$MUD_DIR/lib/worlddata" -mindepth 1 -maxdepth 1 ! -name world ! -name 'world.db*' \
+            -exec cp -r {} "$dest_dir/worlddata/" \;
+        cp -r "$FULL_WORLD_DIR" "$dest_dir/$WORLD_SUBDIR" || {
+            echo "X ERROR: Failed to copy world from $FULL_WORLD_DIR"
+            return 1
+        }
+        rm -rf "$dest_dir/$WORLD_SUBDIR/.git"
+    elif [ -d "$FULL_WORLD_DIR/$WORLD_SUBDIR" ]; then
+        echo "  Layout: complete data dir"
+        cp -r "$FULL_WORLD_DIR/." "$dest_dir/" || {
+            echo "X ERROR: Failed to copy world from $FULL_WORLD_DIR"
+            return 1
+        }
+    else
+        echo "X ERROR: $FULL_WORLD_DIR is neither a world tree (world_config.yaml)"
+        echo "  nor a data dir with $WORLD_SUBDIR"
         return 1
-    }
+    fi
     echo " Full YAML world ready at $dest_dir"
     echo ""
     return 0
@@ -491,6 +538,9 @@ enable_admin_api() {
         # Section exists - ensure enabled=true and require_auth=false
         sed -i 's|<enabled>false</enabled>|<enabled>true</enabled>|g' "$config_file"
         sed -i 's|<require_auth>true</require_auth>|<require_auth>false</require_auth>|g' "$config_file"
+        # The test waits for admin_api.sock in the data dir; the shipped config
+        # puts it elsewhere (run/admin_api.sock).
+        sed -i 's|<socket_path>[^<]*</socket_path>|<socket_path>admin_api.sock</socket_path>|' "$config_file"
         # Add require_auth if missing
         if ! grep -q "<require_auth>" "$config_file"; then
             sed -i 's|</admin_api>|\t<require_auth>false</require_auth>\n\t</admin_api>|' "$config_file"
@@ -509,20 +559,22 @@ enable_admin_api() {
     return 0
 }
 
-# Ensure configuration.xml has a composite world_loader with both sqlite and
-# yaml sources. Idempotent: if the section already exists it is left as-is.
+# Ensure configuration.xml has a composite world_loader: yaml first, sqlite
+# second. Source order is an authority ranking (composite_world_data_source.cpp,
+# SelectByHierarchy): the first source wins every disagreement, a later one
+# wins a zone only when it agrees with all sources before it. So yaml stays the
+# source of truth and world.db is the cache that wins once it is in sync.
+# Listing sqlite first would make an empty world.db outrank the YAML world.
+# Idempotent: an existing section is replaced, not duplicated.
 enable_sqlite_composite_loader() {
     local config_file="$1"
 
-    if grep -q "<world_loader>" "$config_file"; then
-        return 0
-    fi
-
+    sed -i '/<world_loader>/,/<\/world_loader>/d' "$config_file"
     sed -i '/<\/configuration>/i\
 \t<world_loader>\
 \t\t<sources>\
-\t\t\t<sqlite/>\
 \t\t\t<yaml/>\
+\t\t\t<sqlite/>\
 \t\t</sources>\
 \t</world_loader>' "$config_file"
 }
@@ -561,15 +613,15 @@ run_admin_api_test() {
     # Enable admin_api in configuration
     enable_admin_api "$data_dir/cfg/configuration.xml"
 
-    # Clean previous run; also kill any stale process on port 4001
+    # Clean previous run; also kill any stale process on the aux port
     rm -rf "$data_dir/syslog" "$data_dir/admin_api.sock" 2>/dev/null || true
-    fuser -k 4001/tcp 2>/dev/null || true
+    fuser -k ${AUX_PORT}/tcp 2>/dev/null || true
     sleep 0.5
 
     # Start server in background with admin API enabled (cd into data_dir so syslog/log/ land there)
     # exec replaces the subshell so $! captures the binary's PID, not the shell's
     echo "  Starting server with Admin API..."
-    (cd "$data_dir" && exec "$binary" -d . 4001 > "stdout_admin.log" 2>&1) &
+    (cd "$data_dir" && exec "$binary" -d . "$AUX_PORT" > "stdout_admin.log" 2>&1) &
     local server_pid=$!
 
     # Wait for socket to appear (max 30 seconds)
@@ -619,8 +671,8 @@ run_admin_api_test() {
     cd "$MUD_DIR"
 }
 
-# Round-trip diagnostic: resave the world via `circle -S world_v2`, swap
-# `world_v2` over `world`, then reuse run_test() to boot the re-emitted world
+# Round-trip diagnostic: resave the world via `circle -S worlddata/world_v2`,
+# swap it over worlddata/world, then reuse run_test() to boot the re-emitted world
 # and compute its checksum (cs3). The cs3 file (/tmp/${name}_checksums.txt)
 # is later compared with cs2 in the CHECKSUM COMPARISON section.
 #
@@ -637,28 +689,31 @@ run_roundtrip_test() {
 
     echo "--- $name ---"
 
-    if [ ! -d "$test_dir/world" ]; then
-        echo "  X ERROR: $test_dir/world not present (cs2 stage didn't run?)"
+    local world="$test_dir/$WORLD_SUBDIR"
+    local world_v2="${world}_v2"
+    if [ ! -d "$world" ]; then
+        echo "  X ERROR: $world not present (cs2 stage didn't run?)"
         return 1
     fi
 
-    (cd "$test_dir" && rm -rf world_v2 stdout_rt.log)
+    rm -rf "$world_v2" "$test_dir/stdout_rt.log"
 
-    fuser -k 4001/tcp 2>/dev/null || true
+    fuser -k ${AUX_PORT}/tcp 2>/dev/null || true
     sleep 0.3
 
-    echo "  Resaving world via '-S world_v2' ..."
-    (cd "$test_dir" && exec "$binary" -d . -S world_v2 4001 > stdout_rt.log 2>&1)
+    # -S takes its target relative to the data dir.
+    echo "  Resaving world via '-S ${WORLD_SUBDIR}_v2' ..."
+    (cd "$test_dir" && exec "$binary" -d . -S "${WORLD_SUBDIR}_v2" "$AUX_PORT" > stdout_rt.log 2>&1)
     local rc=$?
-    if [ $rc -ne 0 ] || [ ! -d "$test_dir/world_v2" ]; then
-        echo "  X ERROR: circle -S exited rc=$rc, world_v2 present: $([ -d "$test_dir/world_v2" ] && echo yes || echo no)"
+    if [ $rc -ne 0 ] || [ ! -d "$world_v2" ]; then
+        echo "  X ERROR: circle -S exited rc=$rc, ${WORLD_SUBDIR}_v2 present: $([ -d "$world_v2" ] && echo yes || echo no)"
         echo "  Last 30 lines of stdout_rt.log:"
         tail -30 "$test_dir/stdout_rt.log" 2>/dev/null || true
         return 1
     fi
 
-    echo "  Swapping world <- world_v2 ..."
-    (cd "$test_dir" && rm -rf world && mv world_v2 world)
+    echo "  Swapping $WORLD_SUBDIR <- ${WORLD_SUBDIR}_v2 ..."
+    rm -rf "$world" && mv "$world_v2" "$world"
 
     # Re-boot the re-emitted world with -W to compute cs3. run_test handles
     # syslog parsing, boot timing, checksum capture, and copy to /tmp.
@@ -682,13 +737,16 @@ run_flat_roundtrip_test() {
 
     echo "--- $name ---"
 
-    local cfg="$test_dir/world/world_config.yaml"
-    if [ ! -d "$test_dir/world" ] || [ ! -f "$cfg" ]; then
-        echo "  X ERROR: $test_dir/world (with world_config.yaml) not present"
+    local world="$test_dir/$WORLD_SUBDIR"
+    local world_flat="${world}_flat"
+    local world_keep="${world}_pf_keep"
+    local cfg="$world/world_config.yaml"
+    if [ ! -d "$world" ] || [ ! -f "$cfg" ]; then
+        echo "  X ERROR: $world (with world_config.yaml) not present"
         return 1
     fi
 
-    (cd "$test_dir" && rm -rf world_flat world_pf_keep stdout_flat.log)
+    rm -rf "$world_flat" "$world_keep" "$test_dir/stdout_flat.log"
     cp "$cfg" "$cfg.flatbak"
 
     # Switch the source world to flat-save.
@@ -698,14 +756,14 @@ run_flat_roundtrip_test() {
         printf 'layout: flat\n' >> "$cfg"
     fi
 
-    fuser -k 4001/tcp 2>/dev/null || true
+    fuser -k ${AUX_PORT}/tcp 2>/dev/null || true
     sleep 0.3
 
-    echo "  Resaving world (layout=flat) via '-S world_flat' ..."
-    (cd "$test_dir" && exec "$binary" -d . -S world_flat 4001 > stdout_flat.log 2>&1)
+    echo "  Resaving world (layout=flat) via '-S ${WORLD_SUBDIR}_flat' ..."
+    (cd "$test_dir" && exec "$binary" -d . -S "${WORLD_SUBDIR}_flat" "$AUX_PORT" > stdout_flat.log 2>&1)
     local rc=$?
-    if [ $rc -ne 0 ] || [ ! -d "$test_dir/world_flat" ]; then
-        echo "  X ERROR: circle -S (flat) exited rc=$rc, world_flat present: $([ -d "$test_dir/world_flat" ] && echo yes || echo no)"
+    if [ $rc -ne 0 ] || [ ! -d "$world_flat" ]; then
+        echo "  X ERROR: circle -S (flat) exited rc=$rc, ${WORLD_SUBDIR}_flat present: $([ -d "$world_flat" ] && echo yes || echo no)"
         tail -30 "$test_dir/stdout_flat.log" 2>/dev/null || true
         mv "$cfg.flatbak" "$cfg"
         return 1
@@ -714,21 +772,21 @@ run_flat_roundtrip_test() {
     # Sanity: the re-emitted world must actually be flat -- a flat <sub>.yaml
     # present and no per-file entity directory left behind in the same zone.
     local zdir
-    zdir=$(find "$test_dir/world_flat/zones" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)
+    zdir=$(find "$world_flat/zones" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)
     if [ -z "$zdir" ] || [ ! -f "$zdir/mobs.yaml" ] || [ -d "$zdir/mobs" ]; then
         echo "  X ERROR: -S did not produce a clean flat layout in '$zdir'"
         ls "$zdir" 2>/dev/null
-        (cd "$test_dir" && rm -rf world_flat)
+        rm -rf "$world_flat"
         mv "$cfg.flatbak" "$cfg"
         return 1
     fi
 
     # Boot the flat world under -W and capture checksums.
-    (cd "$test_dir" && mv world world_pf_keep && mv world_flat world)
+    mv "$world" "$world_keep" && mv "$world_flat" "$world"
     run_test "$name" "$binary" "$test_dir" "-W"
 
     # Restore the pristine per-file world + config for later tests.
-    (cd "$test_dir" && rm -rf world && mv world_pf_keep world)
+    rm -rf "$world" && mv "$world_keep" "$world"
     mv "$cfg.flatbak" "$cfg"
 }
 
@@ -752,8 +810,8 @@ run_sqlite_roundtrip_test() {
 
     echo "--- $name ---"
 
-    if [ ! -d "$test_dir/world" ]; then
-        echo "  X ERROR: $test_dir/world not present"
+    if [ ! -d "$test_dir/$WORLD_SUBDIR" ]; then
+        echo "  X ERROR: $test_dir/$WORLD_SUBDIR not present"
         return 1
     fi
 
@@ -767,42 +825,48 @@ run_sqlite_roundtrip_test() {
     enable_sqlite_composite_loader "$cfg"
 
     # Remove stale world.db so boot 1 always loads from YAML.
-    rm -f "$test_dir/world.db"
+    rm -f "$test_dir/$WORLD_DB"
     rm -rf "$test_dir/syslog" 2>/dev/null || true
 
-    # Kill any stale process on 4001.
-    fuser -k 4001/tcp 2>/dev/null || true
+    # Kill any stale process on the aux port.
+    fuser -k ${AUX_PORT}/tcp 2>/dev/null || true
     sleep 0.5
 
     # Boot 1: YAML wins (SQLite empty) -> engine resyncs to world.db.
     echo "  Boot 1: YAML-load + SQLite resync ..."
-    (cd "$test_dir" && exec "$binary" -d . 4001 > "stdout_sqlt1.log" 2>&1) &
+    (cd "$test_dir" && exec "$binary" -d . "$AUX_PORT" > "stdout_sqlt1.log" 2>&1) &
+    local boot1_pid=$!
 
     local waited=0
     while [ $waited -lt $BOOT_TIMEOUT ]; do
         if LANG=C grep -qa "Boot db -- DONE" "$test_dir/syslog" 2>/dev/null; then
             break
         fi
+        # A server that died (e.g. could not bind the port) will never finish.
+        if ! kill -0 "$boot1_pid" 2>/dev/null; then
+            break
+        fi
         sleep 1
         waited=$((waited + 1))
     done
 
-    fuser -k 4001/tcp 2>/dev/null || true
+    fuser -k ${AUX_PORT}/tcp 2>/dev/null || true
     sleep 1
 
     if ! LANG=C grep -qa "Boot db -- DONE" "$test_dir/syslog" 2>/dev/null; then
-        echo "  X ERROR: Boot 1 timed out (${BOOT_TIMEOUT}s)"
+        echo "  X ERROR: Boot 1 did not finish (server exited or ${BOOT_TIMEOUT}s timeout)"
         tail -20 "$test_dir/syslog" 2>/dev/null || echo "  (no syslog)"
         return 1
     fi
 
-    if [ ! -f "$test_dir/world.db" ]; then
-        echo "  X ERROR: world.db not created after boot 1"
+    if [ ! -f "$test_dir/$WORLD_DB" ]; then
+        echo "  X ERROR: $WORLD_DB not created after boot 1"
         return 1
     fi
     echo "  Boot 1 complete (world.db populated)"
 
-    # Boot 2: SQLite wins (freshness > YAML mtime) -> load from SQLite -> checksums.
+    # Boot 2: SQLite now agrees with YAML for every zone -> the cache wins -> load
+    # from SQLite -> checksums.
     rm -rf "$test_dir/syslog" "$test_dir/checksums_detailed.txt" "$test_dir/checksums_buffers" 2>/dev/null || true
     run_test "$name" "$binary" "$test_dir" "-W"
 }
@@ -834,9 +898,9 @@ run_sqlite_single_zone_stale_test() {
     echo "--- $name ---"
 
     local first_zone_dir
-    first_zone_dir=$(find "$test_dir/world/zones" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort | head -1)
+    first_zone_dir=$(find "$test_dir/$WORLD_SUBDIR/zones" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort | head -1)
     if [ -z "$first_zone_dir" ] || [ ! -f "$first_zone_dir/rooms.yaml" ]; then
-        echo "  X ERROR: could not find a zone directory with rooms.yaml under $test_dir/world/zones"
+        echo "  X ERROR: could not find a zone directory with rooms.yaml under $test_dir/$WORLD_SUBDIR/zones"
         return 1
     fi
     touch "$first_zone_dir/rooms.yaml"
@@ -876,17 +940,17 @@ run_test() {
     cd "$work_dir"
     rm -rf "$data_dir/syslog" "$data_dir/checksums_detailed.txt" "$data_dir/checksums_buffers" 2>/dev/null || true
 
-    # Proactively free port 4000 -- a leftover process here (from a prior stage
+    # Proactively free the test port -- a leftover process here (from a prior stage
     # that failed to shut down cleanly, or a stray manual test run) makes the
     # new binary fail to bind immediately, and the wait loop below then blindly
     # waits out its full timeout for a syslog pattern that will never appear.
-    fuser -k 4000/tcp 2>/dev/null || true
+    fuser -k ${TEST_PORT}/tcp 2>/dev/null || true
     sleep 0.3
 
     # Start server in background (cd into data_dir so syslog/log/ land there)
     # exec replaces the subshell so $! captures the binary's PID, not the shell's
-    echo "  Running: $binary -d . $extra_flags 4000 (from $data_dir)"
-    (cd "$data_dir" && exec "$binary" -d . $extra_flags 4000 > "stdout.log" 2>&1) &
+    echo "  Running: $binary -d . $extra_flags $TEST_PORT (from $data_dir)"
+    (cd "$data_dir" && exec "$binary" -d . $extra_flags "$TEST_PORT" > "stdout.log" 2>&1) &
 
     # Wait for syslog to appear (max 10 seconds)
     local waited=0
@@ -903,11 +967,11 @@ run_test() {
     fi
 
     # Fail fast on a bind error instead of waiting out the full 300s pattern
-    # timeout below for a boot that already died (e.g. port 4000 still held by
+    # timeout below for a boot that already died (e.g. the test port still held by
     # a process that appeared between the fuser -k above and the exec).
     sleep 0.3
     if LANG=C grep -qa "Failed to bind to port" "$data_dir/syslog" 2>/dev/null; then
-        echo "  X ERROR: Server failed to bind to port 4000 (still in use?)"
+        echo "  X ERROR: Server failed to bind to port $TEST_PORT (still in use?)"
         tail -10 "$data_dir/syslog" 2>/dev/null
         cd "$MUD_DIR"
         return 1
@@ -940,7 +1004,7 @@ run_test() {
     done
 
     # Kill server - find by port
-    local server_pid=$(lsof -t -i:4000 2>/dev/null)
+    local server_pid=$(lsof -t -i:"$TEST_PORT" 2>/dev/null)
     if [ -n "$server_pid" ]; then
         kill $server_pid 2>/dev/null
         sleep 1

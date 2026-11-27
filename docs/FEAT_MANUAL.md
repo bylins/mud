@@ -48,7 +48,7 @@ All children are optional and may come in any order.
 | `mode` | lifecycle state (`EItemMode`): `kEnabled` (live), `kTesting` (dev/prototyping only), `kDisabled`, `kFrozen`, `kService` (engine-internal). Only `kEnabled` feats are generally usable in play; `kTesting` is for iterating on new perks without shipping them. |
 | `category` | optional: the id of a `<feat_categories>` entry limiting how many feats of that kind a character may hold (§2.4). |
 
-A feat may have an **empty body** (`<feat id="kBerserker" mode="kEnabled"/>`) — a
+A feat may have an **empty body** (`<feat id="kBoneCommander" mode="kEnabled"/>`) — a
 pure marker the combat/skill code tests via `CanUseFeat`. Adding data later never
 breaks that.
 
@@ -284,7 +284,7 @@ All present selectors are **AND-combined**; an absent one is vacuously true.
 | `spell="kX"` | one specific spell |
 | `element="kFire"` | every spell with that `EElement` |
 | `base_skill="kFireMagic"` | every spell whose potency/success base skill matches |
-| `flag="kMagDamage"` | every spell with that `ESpellFlag` |
+| `flag="kMagDamage"` | every spell with that `EMagic` flag (the spell's `<flags val=…>`) |
 | `category="curse"` | every spell carrying that semantic tag |
 | `has_effect="kArea"` | every spell whose action chain contains that manifestation kind |
 | `all="true"` | every spell (guarded — use sparingly) |
@@ -328,8 +328,8 @@ them.
 </talent_patch>
 ```
 Fields are the manifestation's numeric members (`Area`: `decay`/`free_targets`/
-`max_targets`/…; `Damage`: `dices_weight`/`beta`/`min`/…). `mul`/`add`/`set` pick
-the arithmetic.
+`max_targets`/`min_targets`/`skill_divisor`; `Damage`: `beta`/`min`/`prob`/`hits_max`).
+An unknown field is logged and ignored. `mul`/`add`/`set` pick the arithmetic.
 
 ### 4.4 The `<action>` payload
 
@@ -339,11 +339,11 @@ is an ordinary action block — same grammar as a spell's `<talent_actions>`
 `<trigger>` (for affect patches), a `target=` (incl. `kTarMaster`), and any
 manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
 
-> **New on `unstable`:** the shared action-trigger vocabulary gained **item** triggers —
+> **Item triggers.** The shared action-trigger vocabulary includes **item** triggers —
 > `kWeaponHit` (a weapon strike) and the item lifecycle
 > `kGet`/`kDrop`/`kEquip`/`kUnequip`/`kDecay` (used by on-item affects, Affect Manual §8.2).
-> A feat patch inherits the same `<trigger>`/`<action>` set, so these are available here too.
-> The feat grammar itself did not change between `master` and `unstable`.
+> A feat patch inherits the same `<trigger>`/`<action>` set, so these are available here too;
+> the feat grammar itself has no item-specific additions.
 
 ---
 
@@ -363,7 +363,7 @@ manifestation (`<damage>`, `<points><heal>`, `<affects>`, `<side_spell>`, …).
   op="replace" action="Main" effect="MainDamage">` — swap a spell's damage block.
 * **Class selector append, `kPyromancer`:** `<talent_patch element="kFire"
   flag="kMagDamage" op="append">` — add an effect to every fire damage spell.
-* **Modify, area feat:** `<talent_patch has_effect="kArea" op="modify"
+* **Modify, area feat `kMultipleCast`:** `<talent_patch has_effect="kArea" op="modify"
   effect="kArea"><modify field="decay" mul="0.6"/>` — soften area falloff on every
   area spell.
 
