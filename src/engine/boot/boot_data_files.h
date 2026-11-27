@@ -26,7 +26,8 @@ class DataFileFactory {
 
 	static shared_ptr create();
 
-	virtual BaseDataFile::shared_ptr get_file(const EBootType mode, const std::string &file_name) = 0;
+	// path -- полный путь к файлу (LegacyFiles::Entry).
+	virtual BaseDataFile::shared_ptr get_file(const EBootType mode, const std::string &path) = 0;
 };
 
 #endif    // BOOT_FATA_FILES_HPP_

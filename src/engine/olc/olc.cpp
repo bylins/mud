@@ -41,13 +41,9 @@ extern DescriptorData *descriptor_list;
 
 // * External functions.
 void zedit_setup(DescriptorData *d, int room_num);
-void zedit_save_to_disk(int zone);
 void medit_setup(DescriptorData *d, int rmob_num);
-void medit_save_to_disk(int zone);
 void redit_setup(DescriptorData *d, int rroom_num);
-void redit_save_to_disk(int zone);
 void oedit_setup(DescriptorData *d, int robj_num);
-void oedit_save_to_disk(int zone);
 void sedit_setup_new(DescriptorData *d);
 void sedit_setup_existing(DescriptorData *d, int robj_num);
 void medit_mobile_free(CharData *mob);

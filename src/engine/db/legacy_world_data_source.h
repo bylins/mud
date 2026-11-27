@@ -5,6 +5,9 @@
 #define LEGACY_WORLD_DATA_SOURCE_H_
 
 #include "world_data_source.h"
+#include "engine/boot/legacy_files.h"
+
+#include <filesystem>
 
 namespace world_loader
 {
@@ -14,13 +17,12 @@ namespace world_loader
 class LegacyWorldDataSource : public IWorldDataSource
 {
 public:
-	// world_dir is the directory the world lives in: Load* read from it and
-	// Save* write to it (both via "world/{wld,mob,obj,zon,trg}/" relative to
-	// it). Empty (the default) means the current working directory -- the
-	// running server's mode, where cwd is the data dir after the main
-	// chdir(-d). A non-empty value is used by GameLoader::ResaveWorld to
-	// point a save-only instance at an export directory.
-	explicit LegacyWorldDataSource(std::string world_dir = "");
+	// world_dir is the world root: Load* read from and Save* write to
+	// <world_dir>/{wld,mob,obj,zon,trg}/ (layout known only to LegacyFiles).
+	// The server passes LIB_WORLD; GameLoader::ResaveWorld passes the export
+	// directory and rebuild_indexes=true so FinalizeResave() regenerates the
+	// boot indexes of the fresh tree. No chdir is involved (#3301).
+	LegacyWorldDataSource(std::filesystem::path world_dir, bool rebuild_indexes);
 	~LegacyWorldDataSource() override = default;
 
 	std::string GetName() const override { return "Legacy file-based loader"; }
@@ -44,21 +46,22 @@ public:
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
 
-	// Regenerate the per-subdir "index" files under world_dir/world/*. The
-	// OLC save_to_disk routines write individual <vnum>.<ext> files but do
-	// not maintain the boot indexes, so a freshly resaved tree is not
-	// bootable without this step. No-op for the in-place (empty world_dir)
-	// server mode.
+	// Regenerate the per-subdir "index" files under world_dir. The OLC
+	// save_to_disk routines write individual <vnum>.<ext> files but do not
+	// maintain the boot indexes, so a freshly resaved tree is not bootable
+	// without this step. No-op unless rebuild_indexes was set (the server's
+	// in-place saves must not rewrite the live indexes).
 	void FinalizeResave() override;
 
 private:
-	std::string m_world_dir;
+	LegacyFiles m_files;
+	bool m_rebuild_indexes;
 };
 
-// Factory for the legacy data source. world_dir defaults to the current
-// working directory (the running server's mode); ResaveWorld passes an
-// explicit export directory, symmetric with the YAML/SQLite factories.
-std::unique_ptr<IWorldDataSource> CreateLegacyDataSource(std::string world_dir = "");
+// Factory for the legacy data source; world_dir is required, symmetric with
+// the YAML/SQLite factories.
+std::unique_ptr<IWorldDataSource> CreateLegacyDataSource(std::filesystem::path world_dir,
+	bool rebuild_indexes = false);
 
 } // namespace world_loader
 

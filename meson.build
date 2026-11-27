@@ -482,6 +482,7 @@ main_sources = files(
   'src/engine/boot/boot_constants.cpp',
   'src/engine/boot/boot_data_files.cpp',
   'src/engine/boot/boot_index.cpp',
+  'src/engine/boot/legacy_files.cpp',
   'src/utils/cache.cpp',
   'src/gameplay/mechanics/celebrates.cpp',
   'src/engine/entities/char_data.cpp',

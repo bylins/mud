@@ -2,6 +2,7 @@
 #define __BOOT_INDEX_HPP__
 
 #include "engine/db/db.h"
+#include "legacy_files.h"
 
 #include <list>
 #include <unordered_map>
@@ -27,7 +28,8 @@ class IndexFile : private std::list<std::string> {
 
 class IndexFileFactory {
  public:
-	static IndexFile::shared_ptr get_index(const EBootType mode);
+	// Индекс типа mode; пути -- из files, которые должны пережить возвращённый объект.
+	static IndexFile::shared_ptr get_index(const EBootType mode, const LegacyFiles &files);
 };
 
 #endif // __BOOT_INDEX_HPP__

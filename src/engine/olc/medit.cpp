@@ -18,6 +18,7 @@
 #include "engine/db/db.h"
 #include "engine/db/world_data_source_manager.h"
 #include "olc.h"
+#include "engine/boot/legacy_files.h"
 #include "utils/utils_parse.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/core/constants.h"
@@ -92,7 +93,6 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 void medit_mobile_free(CharData *mob);
 
 void medit_save_internally(DescriptorData *d);
-void medit_save_to_disk(int zone_num);
 
 void medit_parse(DescriptorData *d, char *arg);
 void medit_disp_menu(DescriptorData *d);
@@ -529,10 +529,9 @@ void medit_save_internally(DescriptorData *d) {
  * saved in Extended format, regardless of whether they have any
  * extended fields.  Thanks to Sammy for ideas on this bit of code.
  */
-void medit_save_to_disk(ZoneRnum zone_num) {
+void medit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 	int j, c, rmob_num, sum;
 	FILE *mob_file;
-	char fname[64];
 	CharData *mob;
 
 	ZoneVnum zone = zone_table[zone_num].vnum;
@@ -542,8 +541,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 				   CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-	snprintf(fname, sizeof(fname), "%s/%d.new", MOB_PREFIX, zone);
-	if (!(mob_file = fopen(fname, "w"))) {
+	const std::string fname = files.TempFile(DB_BOOT_MOB, zone).string();
+	if (!(mob_file = fopen(fname.c_str(), "w"))) {
 		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
 	}
@@ -686,10 +685,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	}
 	fprintf(mob_file, "$\n");
 	fclose(mob_file);
-	const std::string final_path = fmt::format("{}/{}.mob", MOB_PREFIX, zone);
-	// * We're fubar'd if we crash between the two lines below.
-	remove(final_path.c_str());
-	rename(fname, final_path.c_str());
+	files.CommitZoneFile(DB_BOOT_MOB, zone);
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_MOB);
 }
 

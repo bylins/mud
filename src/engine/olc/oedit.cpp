@@ -24,6 +24,7 @@
 #include "engine/db/db.h"
 #include "engine/db/world_data_source_manager.h"
 #include "olc.h"
+#include "engine/boot/legacy_files.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/mechanics/depot.h"
@@ -68,7 +69,6 @@ extern int top_imrecipes;
 void oedit_setup(DescriptorData *d, int real_num);
 void oedit_object_copy(ObjData *dst, CObjectPrototype *src);
 void oedit_save_internally(DescriptorData *d);
-void oedit_save_to_disk(int zone);
 void oedit_parse(DescriptorData *d, char *arg);
 void oedit_disp_spells_menu(DescriptorData *d);
 void oedit_liquid_type(DescriptorData *d);
@@ -289,7 +289,7 @@ void oedit_save_internally(DescriptorData *d) {
 
 //------------------------------------------------------------------------
 
-void oedit_save_to_disk(ZoneRnum zone_num) {
+void oedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 	int counter, counter2, realcounter;
 	FILE *fp;
 
@@ -299,7 +299,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 			return;
 	}
 	// Локальные буферы: запись legacy-файла шла через глобальные buf/buf1/buf2 (#3814).
-	const std::string tmp_path = fmt::format("{}/{}.new", OBJ_PREFIX, zone_table[zone_num].vnum);
+	const std::string tmp_path = files.TempFile(DB_BOOT_OBJ, zone_table[zone_num].vnum).string();
 	char flags[kMaxStringLength];   // приёмник tascii, ему нужен char *
 	if (!(fp = fopen(tmp_path.c_str(), "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, kLvlBuilder, SYSLOG, true);
@@ -405,10 +405,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	// * Write the final line, close the file.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
-	const std::string final_path = fmt::format("{}/{}.obj", OBJ_PREFIX, zone_table[zone_num].vnum);
-	// * We're fubar'd if we crash between the two lines below.
-	remove(final_path.c_str());
-	rename(tmp_path.c_str(), final_path.c_str());
+	files.CommitZoneFile(DB_BOOT_OBJ, zone_table[zone_num].vnum);
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_OBJ);
 }
 

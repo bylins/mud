@@ -73,6 +73,14 @@ void disp_planes_values(DescriptorData *d, const char *names[], short num_column
 void olc_add_to_save_list(int zone, int type);
 void olc_remove_from_save_list(int zone, int type);
 
+// Запись зоны в legacy-формате. Куда писать, знает files (#3301); зовёт их только
+// LegacyWorldDataSource.
+class LegacyFiles;
+void zedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files);
+void medit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files);
+void redit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files);
+void oedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files);
+
 // * OLC structures.
 
 typedef struct t_zcmd {

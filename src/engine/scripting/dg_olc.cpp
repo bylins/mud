@@ -16,6 +16,7 @@
 
 #include "utils/native_text.h"
 #include "dg_olc.h"
+#include "engine/boot/legacy_files.h"
 #include <fmt/format.h>
 
 #include <memory>
@@ -49,8 +50,6 @@ void free_varlist(struct TriggerVar *vd);
 
 void trigedit_disp_menu(DescriptorData *d);
 void trigedit_save(DescriptorData *d);
-bool trigedit_save_to_disk(int zone_rnum, int notify_level);
-void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 
 namespace {
@@ -840,14 +839,12 @@ void trigedit_save(DescriptorData *d) {
 }
 
 // Save all triggers for a zone to disk (without requiring DescriptorData)
-bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
+bool trigedit_save_to_disk(int zone_rnum, int notify_level, const LegacyFiles &files) {
 	FILE *trig_file;
 	int trig_rnum, i;
 	Trigger *trig;
 	int zone, top;
 	char bitBuf[kMaxInputLength];
-	char fname[kMaxInputLength];
-	char logbuf[kMaxInputLength];
 
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size())) {
 		log("SYSERR: trigedit_save_to_disk: Invalid zone rnum %d", zone_rnum);
@@ -862,10 +859,9 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 		return false;
 	}
 
-	snprintf(fname, sizeof(fname), "%s/%i.new", TRG_PREFIX, zone);
-	if (!(trig_file = fopen(fname, "w"))) {
-		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
-		mudlog(logbuf, BRF, notify_level, SYSLOG, true);
+	const std::string fname = files.TempFile(DB_BOOT_TRG, zone).string();
+	if (!(trig_file = fopen(fname.c_str(), "w"))) {
+		mudlog(fmt::format("SYSERR: OLC: Can't open trig file \"{}\"", fname), BRF, notify_level, SYSLOG, true);
 		return false;
 	}
 
@@ -874,8 +870,7 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 			trig = trig_index[trig_rnum]->proto;
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
-				snprintf(logbuf, sizeof(logbuf), "SYSERR: OLC: Can't write trig file!");
-				mudlog(logbuf, BRF, notify_level, SYSLOG, true);
+				mudlog("SYSERR: OLC: Can't write trig file!", BRF, notify_level, SYSLOG, true);
 				fclose(trig_file);
 				return false;
 			}
@@ -914,64 +909,16 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 	fprintf(trig_file, "$\n$\n");
 	fclose(trig_file);
 
-	const std::string trg_name = fmt::format("{}/{}.trg", TRG_PREFIX, zone);
-	remove(trg_name.c_str());
-	rename(fname, trg_name.c_str());
-	trigedit_create_index(zone, "trg");
+	if (!files.CommitZoneFile(DB_BOOT_TRG, zone)) {
+		mudlog(fmt::format("SYSERR: OLC: Can't replace trig file of zone {}", zone), BRF, notify_level, SYSLOG, true);
+		return false;
+	}
+	if (!files.AddToIndex(DB_BOOT_TRG, zone)) {
+		mudlog(fmt::format("SYSERR: TRIGEDIT: Failed to update {}", files.Index(DB_BOOT_TRG).string()),
+			   BRF, kLvlImplementator, SYSLOG, true);
+	}
 	return true;
 }
-
-void trigedit_create_index(int znum, const char *type) {
-	FILE *newfile, *oldfile;
-	char new_name[32], old_name[32];
-	int num, found = false;
-
-	const char *prefix = TRG_PREFIX;
-
-	snprintf(old_name, sizeof(old_name), "%s/index", prefix);
-	snprintf(new_name, sizeof(new_name), "%s/newindex", prefix);
-
-	// В сообщении об ошибке стоял общий буфер buf -- в него писал кто угодно до нас,
-	// так что имя нераскрывшегося файла в лог не попадало ни разу. Печатаем его.
-	if (!(oldfile = fopen(old_name, "r"))) {
-		mudlog(fmt::format("SYSERR: TRIGEDIT: Failed to open {}", old_name),
-			   BRF, kLvlImplementator, SYSLOG, true);
-		return;
-	} else if (!(newfile = fopen(new_name, "w"))) {
-		mudlog(fmt::format("SYSERR: TRIGEDIT: Failed to open {}", new_name),
-			   BRF, kLvlImplementator, SYSLOG, true);
-		fclose(oldfile);
-		return;
-	}
-
-	// Index contents must be in order: search through the old file for the
-	// right place, insert the new file, then copy the rest over.
-	const std::string entry = fmt::format("{}.{}", znum, type);
-	char line[kMaxStringLength];
-	while (get_line(oldfile, line)) {
-		if (*line == '$') {
-			fprintf(newfile, "%s\n$\n", (!found ? entry.c_str() : "$"));
-			break;
-		} else if (!found) {
-			sscanf(line, "%d", &num);
-			if (num == znum)
-				found = true;
-			else if (num > znum) {
-				found = true;
-				fprintf(newfile, "%s\n", entry.c_str());
-			}
-		}
-		fprintf(newfile, "%s\n", line);
-	}
-
-	fclose(newfile);
-	fclose(oldfile);
-
-	// * Out with the old, in with the new.
-	remove(old_name);
-	rename(new_name, old_name);
-}
-
 
 //****************************************************************
 

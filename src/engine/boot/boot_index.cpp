@@ -5,14 +5,17 @@
 
 class IndexFileImplementation : public IndexFile {
  public:
+	using impl_ptr = std::shared_ptr<IndexFileImplementation>;
+
 	IndexFileImplementation();
 
 	virtual bool open();
 	virtual int load();
+	void set_files(const LegacyFiles &files) { m_files = &files; }
 
  protected:
 	virtual EBootType mode() const = 0;
-	const auto &get_file_prefix() const { return prefixes(mode()); }
+	const LegacyFiles &files() const { return *m_files; }
 	const auto &file() const { return m_file; }
 	const auto &line() const { return m_buffer; }
 	void getline();
@@ -20,6 +23,7 @@ class IndexFileImplementation : public IndexFile {
  private:
 	virtual int process_line() = 0;
 
+	const LegacyFiles *m_files{nullptr};
 	std::ifstream m_file;
 	std::string m_buffer;
 };
@@ -36,24 +40,15 @@ IndexFileImplementation::IndexFileImplementation() {
 }
 
 bool IndexFileImplementation::open() {
-	constexpr int BUFFER_SIZE = 1024;
-	char filename[BUFFER_SIZE];
-
-	const auto &prefix = get_file_prefix();
-	if (prefix.empty()) {
+	const auto filename = files().Index(mode());
+	if (filename.empty()) {
 		log("SYSERR: Unknown subcommand %d to BootIndex!", mode());
-		return false;
-	}
-
-	const auto written = snprintf(filename, BUFFER_SIZE, "%s%s", prefix.c_str(), INDEX_FILE);
-	if (written >= BUFFER_SIZE) {
-		log("SYSERR: buffer size for index file name is not enough.");
 		return false;
 	}
 
 	m_file.open(filename, std::ios::in);
 	if (!m_file.good()) {
-		log("SYSERR: opening index file '%s': %s", filename, strerror(errno));
+		log("SYSERR: opening index file '%s': %s", filename.c_str(), strerror(errno));
 		return false;
 	}
 
@@ -62,8 +57,6 @@ bool IndexFileImplementation::open() {
 
 int IndexFileImplementation::load() {
 	int rec_count = 0;
-
-	const auto &prefix = get_file_prefix();
 
 	getline();
 	clear();
@@ -76,7 +69,7 @@ int IndexFileImplementation::load() {
 
 	// Exit if 0 records, unless this is shops
 	if (!rec_count) {
-		fatal_log("SYSERR: boot error - 0 records counted in %s/%s.", prefix.c_str(), INDEX_FILE);
+		fatal_log("SYSERR: boot error - 0 records counted in %s.", files().Index(mode()).c_str());
 	}
 
 	return rec_count;
@@ -84,7 +77,7 @@ int IndexFileImplementation::load() {
 
 class ZoneIndexFile : public IndexFileImplementation {
  public:
-	static shared_ptr create() { return shared_ptr(new ZoneIndexFile()); }
+	static impl_ptr create() { return impl_ptr(new ZoneIndexFile()); }
 
  private:
 	virtual EBootType mode() const { return DB_BOOT_ZON; }
@@ -106,14 +99,12 @@ class FilesIndexFile : public IndexFileImplementation {
 };
 
 int FilesIndexFile::process_line() {
-	const auto &prefix = get_file_prefix();
-	const std::string filename = prefix + line();
+	const auto filename = files().Entry(mode(), line());
 	m_entry_file.open(filename, std::ios::in);
 	if (!m_entry_file.good()) {
-		log("SYSERR: File '%s' listed in '%s/%s' (will be skipped): %s",
+		log("SYSERR: File '%s' listed in '%s' (will be skipped): %s",
 			filename.c_str(),
-			prefix.c_str(),
-			INDEX_FILE,
+			files().Index(mode()).c_str(),
 			strerror(errno));
 		return 0;
 	}
@@ -127,7 +118,7 @@ int FilesIndexFile::process_line() {
 class HelpIndexFile : public FilesIndexFile {
  public:
 	HelpIndexFile() : m_messages(0), m_keywords(0), m_unexpected_eof(false) {}
-	static shared_ptr create() { return shared_ptr(new HelpIndexFile()); }
+	static impl_ptr create() { return impl_ptr(new HelpIndexFile()); }
 
  protected:
 	virtual int process_file();
@@ -234,7 +225,7 @@ int HashSeparatedIndexFile::count_hash_records() {
 
 class MobileIndexFile : public HashSeparatedIndexFile {
  public:
-	static shared_ptr create() { return shared_ptr(new MobileIndexFile()); }
+	static impl_ptr create() { return impl_ptr(new MobileIndexFile()); }
 
  private:
 	virtual EBootType mode() const { return DB_BOOT_MOB; }
@@ -242,7 +233,7 @@ class MobileIndexFile : public HashSeparatedIndexFile {
 
 class ObjectIndexFile : public HashSeparatedIndexFile {
  public:
-	static shared_ptr create() { return shared_ptr(new ObjectIndexFile()); }
+	static impl_ptr create() { return impl_ptr(new ObjectIndexFile()); }
 
  private:
 	virtual EBootType mode() const { return DB_BOOT_OBJ; }
@@ -250,7 +241,7 @@ class ObjectIndexFile : public HashSeparatedIndexFile {
 
 class TriggerIndexFile : public HashSeparatedIndexFile {
  public:
-	static shared_ptr create() { return shared_ptr(new TriggerIndexFile()); }
+	static impl_ptr create() { return impl_ptr(new TriggerIndexFile()); }
 
  private:
 	virtual EBootType mode() const { return DB_BOOT_TRG; }
@@ -258,30 +249,38 @@ class TriggerIndexFile : public HashSeparatedIndexFile {
 
 class WorldIndexFile : public IndexFileImplementation {
  public:
-	static shared_ptr create() { return shared_ptr(new WorldIndexFile()); }
+	static impl_ptr create() { return impl_ptr(new WorldIndexFile()); }
 
  private:
 	virtual EBootType mode() const { return DB_BOOT_WLD; }
 	virtual int process_line() { return 1; }
 };
 
-IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode) {
+IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode, const LegacyFiles &files) {
+	IndexFileImplementation::impl_ptr index;
 	switch (mode) {
-		case DB_BOOT_MOB: return MobileIndexFile::create();
+		case DB_BOOT_MOB: index = MobileIndexFile::create();
+			break;
 
-		case DB_BOOT_OBJ: return ObjectIndexFile::create();
+		case DB_BOOT_OBJ: index = ObjectIndexFile::create();
+			break;
 
-		case DB_BOOT_TRG: return TriggerIndexFile::create();
+		case DB_BOOT_TRG: index = TriggerIndexFile::create();
+			break;
 
-		case DB_BOOT_WLD: return WorldIndexFile::create();
+		case DB_BOOT_WLD: index = WorldIndexFile::create();
+			break;
 
-		case DB_BOOT_ZON: return ZoneIndexFile::create();
+		case DB_BOOT_ZON: index = ZoneIndexFile::create();
+			break;
 
-		case DB_BOOT_HLP: return HelpIndexFile::create();
-
+		case DB_BOOT_HLP: index = HelpIndexFile::create();
+			break;
 
 		default: return nullptr;
 	}
+	index->set_files(files);
+	return index;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

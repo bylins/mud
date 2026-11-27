@@ -15,6 +15,7 @@
 #include "engine/db/db.h"
 #include "engine/db/world_data_source_manager.h"
 #include "olc.h"
+#include "engine/boot/legacy_files.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/core/constants.h"
 #include "gameplay/crafting/im.h"
@@ -62,7 +63,6 @@ void CopyRoom(RoomData *dst, RoomData *src);
 void CleanupRoomData(RoomData *room);
 
 void redit_save_internally(DescriptorData *d);
-void redit_save_to_disk(int zone);
 
 void redit_parse(DescriptorData *d, char *arg);
 void redit_disp_extradesc_menu(DescriptorData *d);
@@ -274,7 +274,7 @@ void redit_save_internally(DescriptorData *d) {
 
 //------------------------------------------------------------------------
 
-void redit_save_to_disk(ZoneRnum zone_num) {
+void redit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 	int counter, counter2, realcounter;
 	FILE *fp;
 	RoomData *room;
@@ -290,7 +290,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 	}
 
 	// Пишем во временный файл, потом переименовываем поверх боевого.
-	const std::string tmp_name = fmt::format("{}/{}.new", WLD_PREFIX, zone_table[zone_num].vnum);
+	const std::string tmp_name = files.TempFile(DB_BOOT_WLD, zone_table[zone_num].vnum).string();
 	if (!(fp = fopen(tmp_name.c_str(), "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open room file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
@@ -361,10 +361,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 	// * Write final line and close.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
-	const std::string final_name = fmt::format("{}/{}.wld", WLD_PREFIX, zone_table[zone_num].vnum);
-	// * We're fubar'd if we crash between the two lines below.
-	remove(final_name.c_str());
-	rename(tmp_name.c_str(), final_name.c_str());
+	files.CommitZoneFile(DB_BOOT_WLD, zone_table[zone_num].vnum);
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ROOM);
 }
 
