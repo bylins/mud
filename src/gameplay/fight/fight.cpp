@@ -1351,6 +1351,34 @@ void summon_mob_helpers(CharData *ch) {
 	ch->summon_helpers.clear();
 }
 
+// issue #2648: the enemy has left the room -- turn to someone here who is still fighting ch. Whatever was
+// aimed at the old enemy (a queued skill or spell, the touch) is dropped. false: nobody is fighting ch.
+static bool SwitchToRemainingAttacker(CharData *ch) {
+	if (ch->in_room == kNowhere) {
+		return false;
+	}
+	for (const auto attacker : world[ch->in_room]->people) {
+		if (attacker == ch || attacker->purged() || attacker->GetEnemy() != ch) {
+			continue;
+		}
+		const auto *old_enemy = ch->GetEnemy();
+		if (ch->GetExtraVictim() == old_enemy) {
+			ch->SetExtraAttack(kExtraAttackUnused, nullptr);
+		}
+		if (ch->GetCastChar() == old_enemy) {
+			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
+		}
+		if (ch->get_touching() == old_enemy) {
+			ch->set_touching(nullptr);
+			ch->battle_affects.unset(kEafTouch);
+		}
+		act("Вы переключили внимание на $N3.", false, ch, nullptr, attacker, kToChar);
+		ch->SetEnemy(attacker);
+		return true;
+	}
+	return false;
+}
+
 void check_mob_helpers() {
 	for (auto &it : combat_list) {
 		if (it.deleted)
@@ -1359,7 +1387,9 @@ void check_mob_helpers() {
 		if (it.ch->GetEnemy() == nullptr
 			|| it.ch->in_room != it.ch->GetEnemy()->in_room
 			|| it.ch->in_room == kNowhere) {
-			stop_fighting(it.ch, true);
+			if (!SwitchToRemainingAttacker(it.ch)) {
+				stop_fighting(it.ch, true);
+			}
 			continue;
 		}
 		if (AFF_FLAGGED(it.ch, EAffect::kHold)

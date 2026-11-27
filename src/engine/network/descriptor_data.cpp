@@ -206,7 +206,15 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 	// кодировку. Поэтому теперь дамп берется ВОКРУГ испорченного байта, со смещением и длиной
 	// буфера, и к нему добавлено, в каком состоянии дескриптор и какая у него кодировка: без
 	// этого нельзя отличить вывод до входа в игру от вывода играющему.
-	const std::size_t bad = utf8::find_invalid(in_str);
+	//
+	// В состоянии выбора кодировки проверять нечего: меню не-UTF-8 ПО ЗАМЫСЛУ. Это одна и та же
+	// фраза "Русская азбука..." сразу в KOI8-R, альтернативной, виндовой и двух ее zMUD-овских
+	// вариантах (ENC_HINT_* в login.cpp) -- иначе человеку не на что смотреть, выбирая кодировку.
+	// Ни одна из этих строк валидным UTF-8 быть и не должна, а предохранитель обвинял их в
+	// пропущенной границе чтения.
+	const std::size_t bad = (state == EConState::kGetKeytable)
+							? std::string_view::npos
+							: utf8::find_invalid(in_str);
 	if (bad != std::string_view::npos) {
 		static std::atomic<unsigned long> seen{0};
 		const unsigned long n = seen.fetch_add(1);

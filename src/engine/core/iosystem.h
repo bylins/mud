@@ -45,13 +45,28 @@ void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased);
 int get_from_q(struct TextBlocksQueue *queue, char *dest, int *aliased);
 void flush_queues(DescriptorData *d);
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
-bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t byffer_size, int &written);
+bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t buffer_size);
 void write_to_output(const char *txt, DescriptorData *d);
 inline void write_to_output(const std::string &txt, DescriptorData *d) { write_to_output(txt.c_str(), d); }
 void string_add(DescriptorData *d, char *str);
 int toggle_compression(DescriptorData *d);
 int process_input(DescriptorData *t);
 int process_output(DescriptorData *t);
+// Досылает только неотправленный хвост (pending_output), не трогая вывод и промпт.
+int FlushOutputTail(DescriptorData *t);
+
+// Что фазе вывода делать с дескриптором.
+enum class EOutputPass {
+	kNothing,	// ждать нечего
+	kFull,		// есть новый вывод или промпт ещё не выведен -- полный проход
+	kTailOnly	// нового нет, но остался хвост: дослать его, не печатая промпт заново
+};
+
+// Решение вынесено из обоих циклов вывода (epoll и select) в одну функцию: условие у них
+// разошлось бы, а ошибиться тут дорого. Полный проход всегда дописывает промпт, а хвост за
+// собой оставляет каждый MSDP-отчёт -- стоит спутать kTailOnly с kFull, и игрок получает
+// промпт на пустом месте каждый боевой раунд.
+EOutputPass ChooseOutputPass(bool prompt_shown, bool has_output, bool has_tail);
 
 // Telnet options
 #define TELOPT_COMPRESS     85

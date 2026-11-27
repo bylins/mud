@@ -4,6 +4,8 @@
 #ifdef HAVE_YAML
 
 #include "yaml_world_data_source.h"
+
+#include "world_revision.h"
 #include "utils/native_text.h"
 #include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
@@ -1868,6 +1870,15 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 	mob.player_data.Race = std::clamp(static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic)),
 									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 
+	// Профессия. Легаси-разборщик ставит её рядом с расой и безусловно
+	// (boot_data_files.cpp, parse_simple_mob), а здесь её не было вовсе -- мобы оставались
+	// с kUndefined из конструктора, и спасброски считались по строке kUndefined вместо
+	// kNpcBase (#4248). Поле mob_class в мире есть (конвертер пишет его из легаси-строки
+	// "Class:"), но читать его нечего: диапазон NPC-профессий сжался до одного значения,
+	// kNpcLast == kNpcBase, а значения 102/103 в зонах 881 и 889 остались с тех времён,
+	// когда NPC_CLASS_LAST был 107.
+	mob.set_class(ECharClass::kNpcBase);
+
 	// Physical attributes -- bounds mirror legacy interpret_espec.
 	GET_SIZE(&mob) = std::clamp<int>(GetInt(root, "size", 0), 0, 100);
 	GET_HEIGHT(&mob) = std::clamp(GetInt(root, "height", 0), 0, 200);
@@ -2924,6 +2935,11 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
+
+	// Файлы мира разошлись с выложенной ревизией -- запоминаем зону для "ver"
+	// (см. world_revision.h). Отмечаем на входе, а не по успеху: неудачная
+	// запись логирует SYSERR и всё равно могла оставить файл переписанным.
+	world_revision::NoteZoneSaved(zone.vnum, "зона");
 	std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum);
 	std::string zone_file = zone_dir + "/zone.yaml";
 	std::string temp_file = zone_file + ".tmp";
@@ -3406,6 +3422,8 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 
 	const ZoneData &zone = zone_table[zone_rnum];
 
+	world_revision::NoteZoneSaved(zone.vnum, "триггеры");
+
 	// Collect this zone's triggers, sorted by vnum.
 	std::vector<std::pair<int, Trigger *>> entries;  // (vnum, proto)
 	for (TrgRnum trig_rnum = 0; trig_rnum < top_of_trigt; ++trig_rnum)
@@ -3711,6 +3729,8 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
+
+	world_revision::NoteZoneSaved(zone.vnum, "комнаты");
 
 	// Collect this zone's rooms, sorted by vnum. The cached RnumRoomsLocation
 	// range misses rooms added via OLC/Admin API, so scan the whole world.
@@ -4363,6 +4383,8 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 
 	const ZoneData &zone = zone_table[zone_rnum];
 
+	world_revision::NoteZoneSaved(zone.vnum, "мобы");
+
 	// Collect this zone's mobs, sorted by vnum.
 	std::vector<std::pair<int, CharData *>> entries;
 	for (MobRnum mob_rnum = 0; mob_rnum <= top_of_mobt; ++mob_rnum)
@@ -4837,6 +4859,8 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
+
+	world_revision::NoteZoneSaved(zone.vnum, "предметы");
 
 	// Collect this zone's objects, sorted by vnum.
 	std::vector<std::pair<int, CObjectPrototype *>> entries;

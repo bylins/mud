@@ -44,6 +44,7 @@ test_sources = files(
     'affect.flag.planes.cpp',
     'affect.duration.cpp',
     'appear.equipment.stealth.cpp',
+    'fight.switch_on_leave.cpp',
     'register.by_email.cpp',
     'charm.bond.extend.cpp',
     'char.offline_timer.cpp',
@@ -106,6 +107,7 @@ test_sources = files(
     'trigger_obj_load_index.cpp',
     'yaml_mob_saves_resistances.cpp',
     'world_checksum_serialization.cpp',
+    'world_revision.cpp',
     'dg_string_matching.cpp',
     'dg_apply_names.cpp',
     'affect_short_desc_lookup.cpp',
@@ -113,6 +115,7 @@ test_sources = files(
     'dg_var_context.cpp',
     'trigger_type_names.cpp',
     'naws.parse.cpp',
+    'output.pass.cpp',
     'yaml_error_context.cpp',
     'map.sign.cpp',
     'mob_classes.loader.cpp',
@@ -125,6 +128,7 @@ test_sources = files(
     'exit_is_empty.cpp',
     'msg_container.cpp',
     'spell_messages.cpp',
+    'common_messages.cpp',
     'skill_messages.cpp',
     'fight_messages.cpp',
     'file_crc.cpp',
@@ -140,6 +144,13 @@ test_sources = files(
     # binary (it is not in circle_lib -- it is part of mud-sim).
     '../src/simulator/character_builder.cpp',
 )
+
+# output.tail.cpp говорит с настоящим сокетом через socketpair(2) и <sys/socket.h>; в
+# Windows-сборках (MSVC, Clang, MinGW) этого нет, и проверять там нечего -- сервер под
+# нативной Windows не поднимается. Cygwin meson считает отдельной системой, и там всё есть.
+if host_machine.system() != 'windows'
+    test_sources += files('output.tail.cpp')
+endif
 
 # scenario_loader parses YAML -- test + source only when yaml is enabled.
 if yaml_opt != 'disabled'
@@ -172,6 +183,7 @@ files_to_copy = [
     ['../lib/cfg/classes/pc_vigilant.xml', 'cfg/classes/pc_vigilant.xml'],
     ['../lib/cfg/classes/pc_warrior.xml', 'cfg/classes/pc_warrior.xml'],
     ['../lib/cfg/classes/pc_wizard.xml', 'cfg/classes/pc_wizard.xml'],
+    ['../lib/cfg/messages/ru/common_msg.xml', 'cfg/messages/ru/common_msg.xml'],
     ['data/boards/changelog.sample',  'data/boards/changelog.sample'],
     ['data/boards/news.sample',       'data/boards/news.sample'],
     ['data/mob_classes/test_initial.xml', 'data/mob_classes/test_initial.xml'],

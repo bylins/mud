@@ -85,6 +85,7 @@
 #include "gameplay/communication/social.h"
 #include "player_index.h"
 #include "world_checksum.h"
+#include "world_revision.h"
 #include "legacy_world_data_source.h"
 #include "world_data_source_base.h"
 #ifdef HAVE_SQLITE
@@ -814,6 +815,22 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 #endif
 	}
 	log("Using data source: %s", data_source->GetName().c_str());
+
+	// Ревизия мира читается здесь, а не впечатывается в бинарь: мир -- отдельный
+	// репозиторий, он выкладывается независимо от сборки, и один бинарь за свою
+	// жизнь видит несколько ревизий мира (см. world_revision.h). К этому месту
+	// каталог мира уже известен.
+	world_revision::Load(LIB_WORLD, MUD::StateManager().Path(state::EStateFile::kWorldEdits));
+	if (world_revision::Get().empty()) {
+		log("World revision: unknown (neither %s.git nor %sREVISION)", LIB_WORLD, LIB_WORLD);
+	} else if (world_revision::Date().empty()) {
+		log("World revision: %s", world_revision::Get().c_str());
+	} else {
+		log("World revision: %s, deployed %s", world_revision::Get().c_str(), world_revision::Date().c_str());
+	}
+	if (const std::string world_edits = world_revision::FormatEdits(); !world_edits.empty()) {
+		log("World changed on disk since that revision: %s", world_edits.c_str());
+	}
 
 	// Register data source in manager for OLC access
 	auto* ds_ptr = data_source.get();
@@ -2173,12 +2190,25 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 			// только когда два предмета попадают в один слот и сталкиваются там
 			// ("Char is already equipped"), как было у сестрицы-мавки в 422. Говорим о таком
 			// один раз на буте; надевать продолжаем как раньше -- правка данных за автором зоны.
+			// У двух слотов своего флага надевания нет (WearFlagByEquipPos отдает на них
+			// kUndefined), и проверка молчала как раз там, куда можно засунуть что угодно:
+			// в нулевой слот зоны кладут ключи, воду и еду. Правила берем те же, по которым
+			// предмет туда попадает у игрока: в kLight пускают только kLightSource
+			// (do_equip.cpp, perform_wear), в kChest -- как и в kNeck, по флагу kNeck
+			// (auto_equip, obj_save.cpp).
 			const auto &proto = obj_proto[reset_cmd.arg1];
 			const bool pos_in_range = reset_cmd.arg3 >= 0 && reset_cmd.arg3 < EEquipPos::kNumEquipPos;
-			const auto required = pos_in_range
-								  ? WearFlagByEquipPos(static_cast<EEquipPos>(reset_cmd.arg3))
-								  : EWearFlag::kUndefined;
-			if (proto && required != EWearFlag::kUndefined && !CAN_WEAR(proto.get(), required)) {
+			const auto pos = pos_in_range
+							 ? static_cast<EEquipPos>(reset_cmd.arg3)
+							 : EEquipPos::kNumEquipPos;
+			const auto required = (pos == EEquipPos::kChest)
+								  ? EWearFlag::kNeck
+								  : (pos_in_range ? WearFlagByEquipPos(pos) : EWearFlag::kUndefined);
+			if (proto && pos == EEquipPos::kLight && proto->get_type() != EObjType::kLightSource) {
+				sprintf(local_buf, "obj #%d on mob #%d is not worn in slot %d, it is not a light source",
+						proto->get_vnum(), last_mob, reset_cmd.arg3);
+				LogZoneError(zone_data, cmd_no, local_buf);
+			} else if (proto && required != EWearFlag::kUndefined && !CAN_WEAR(proto.get(), required)) {
 				sprintf(local_buf, "obj #%d on mob #%d is not worn in slot %d, its wear flags forbid it",
 						proto->get_vnum(), last_mob, reset_cmd.arg3);
 				LogZoneError(zone_data, cmd_no, local_buf);

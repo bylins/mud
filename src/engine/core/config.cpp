@@ -977,6 +977,9 @@ const std::map<ECommonMsg, std::string> kCommonMsgNames{
 		{ECommonMsg::kMenuBlind, "kMenuBlind"},
 		{ECommonMsg::kMenuEmailList, "kMenuEmailList"},
 		{ECommonMsg::kMenuPrompt, "kMenuPrompt"},
+		{ECommonMsg::kRebootCountdown, "kRebootCountdown"},
+		{ECommonMsg::kShutdownCountdown, "kShutdownCountdown"},
+		{ECommonMsg::kRebootFlavor, "kRebootFlavor"},
 	};
 
 msg_container::MsgContainer<int, ECommonMsg> &CommonMsgContainer() {

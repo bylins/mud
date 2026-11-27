@@ -295,6 +295,11 @@ enum class ECommonMsg {
 	kMenuBlind,
 	kMenuEmailList,
 	kMenuPrompt,
+	// issue #3467: the shutdown countdown. {left} is "N секунд" / "N минут".
+	kRebootCountdown,
+	kShutdownCountdown,
+	// A pool: one random line is shown at the last reboot countdown mark (not on a plain shutdown).
+	kRebootFlavor,
 };
 
 [[nodiscard]] const std::string &CommonMsg(ECommonMsg id);

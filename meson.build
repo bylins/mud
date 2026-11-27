@@ -1018,6 +1018,7 @@ main_sources = files(
   'src/engine/observability/file_event_sink.cpp',
   # World Data Sources
   'src/engine/db/world_checksum.cpp',
+  'src/engine/db/world_revision.cpp',
   'src/engine/db/world_data_source_manager.cpp',
   'src/engine/db/zone_reload.cpp',
   'src/engine/db/legacy_world_data_source.cpp',
