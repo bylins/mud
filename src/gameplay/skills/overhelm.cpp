@@ -44,6 +44,11 @@ void GoOverhelm(CharData *ch, CharData *victim) {
 			SetFighting(ch, victim);
 			//set_wait(ch, 2, true);
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
+			// issue #2648: the new target joins the fight at once. Before, it stayed out of the fight until
+			// the stun landed, could wander off meanwhile, and the whole fight fell apart with it.
+			if (!victim->GetEnemy() && victim->in_room == ch->in_room) {
+				SetFighting(victim, ch);
+			}
 		}
 		ch->battle_affects.set(kEafOverwhelm);
 	}

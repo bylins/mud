@@ -15,6 +15,9 @@ inline void set_fighting(const CharData::shared_ptr &ch, CharData *victim) { Set
 
 void stop_fighting(CharData *ch, int switch_others);
 void perform_violence();
+// Start of a combat round: drops fighters left without an enemy (or switches them to one still
+// fighting them, issue #2648) and lets mobs call for help.
+void check_mob_helpers();
 
 int CalcBaseAc(CharData *ch);
 void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
