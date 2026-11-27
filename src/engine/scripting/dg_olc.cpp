@@ -625,12 +625,19 @@ void sprintbyts(int data, char *dest) {
 
 	for (i = 0; i < 32; i++) {
 		if (data & (1 << i)) {
-			*p = ((i <= 25) ? ('a' + i) : ('A' + i));
+			// Биты 26+ -- заглавные с 'A' (так их читает asciiflag_conv).
+			*p = static_cast<char>((i <= 25) ? ('a' + i) : ('A' + (i - 26)));
 			p++;
 		}
 	}
+	// Пустой набор флагов пишем как "0": пустая строка сдвигает поля заголовка триггера,
+	// и при чтении narg уезжает в тип.
+	if (p == dest) {
+		*p++ = '0';
+	}
 	*p = '\0';
 }
+
 void TriggerDistribution(DescriptorData *d) {
 	switch (OLC_TRIG(d)->get_attach_type()) {
 		case WLD_TRIGGER: // в комнатах ссылка на прототип

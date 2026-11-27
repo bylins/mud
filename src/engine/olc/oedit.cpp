@@ -344,7 +344,9 @@ void oedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 					!obj->get_PName(grammar::ECase::kAcc).empty() ? obj->get_PName(grammar::ECase::kAcc).c_str() : "что-то",
 					!obj->get_PName(grammar::ECase::kIns).empty() ? obj->get_PName(grammar::ECase::kIns).c_str() : "чем-то",
 					!obj->get_PName(grammar::ECase::kPre).empty() ? obj->get_PName(grammar::ECase::kPre).c_str() : "о чем-то",
-					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
+					// Пустое описание -- предмет не виден в списке комнаты; подставлять сюда
+					// "undefined" нельзя, это делает его видимым.
+					obj->get_description().c_str(),
 					action_desc.c_str(),
 					obj->get_spec_param(), obj->get_maximum_durability(), obj->get_current_durability(),
 					obj->get_material(), to_underlying(GET_OBJ_SEX(obj)),
@@ -356,7 +358,9 @@ void oedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 
 			script_save_to_disk(fp, obj.get(), OBJ_TRIGGER);
 
-			if (obj->get_max_in_world()) {
+			// 0 -- "в мир не загружается", его тоже пишем: без строки M при загрузке
+			// встанет значение по умолчанию (без ограничения).
+			if (obj->get_max_in_world() != ObjData::DEFAULT_MAX_IN_WORLD) {
 				fprintf(fp, "M %d\n", obj->get_max_in_world());
 			}
 

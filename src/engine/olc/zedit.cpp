@@ -565,7 +565,10 @@ void zedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 				break;
 
 			case 'T': arg1 = ZCMD.arg1;    // trigger type
-				arg2 = ZCMD.arg2;
+				// В памяти arg2 -- rnum триггера (загрузчик переводит vnum в rnum), на диск
+				// пишется vnum. Раньше писался rnum: при перезагрузке команда отключалась или
+				// цепляла чужой триггер.
+				arg2 = (ZCMD.arg2 >= 0 && ZCMD.arg2 < top_of_trigt) ? trig_index[ZCMD.arg2]->vnum : -1;
 				if (arg1 == WLD_TRIGGER) {
 					arg3 = world[ZCMD.arg3]->vnum;
 					comment = world[ZCMD.arg3]->name;
@@ -574,6 +577,10 @@ void zedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 
 			case 'V': arg1 = ZCMD.arg1;    // trigger type
 				arg2 = ZCMD.arg2;    // context
+				// Для триггера комнаты загрузчик держит в arg2 rnum комнаты; на диск -- vnum.
+				if (arg1 == WLD_TRIGGER && ZCMD.arg2 >= 0 && ZCMD.arg2 <= top_of_world) {
+					arg2 = world[ZCMD.arg2]->vnum;
+				}
 				break;
 
 			case '*':

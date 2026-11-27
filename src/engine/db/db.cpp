@@ -771,6 +771,15 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// конфиг спеллов грузит BootMudDataBase для боевого сервера, но путь `-S`
 	// resave / scheck его пропускает -- иначе имена спеллов остаются "!undefined!".
 	// Guarded, чтобы обычный boot не перезагружал уже загруженное.
+	// Способности мобов (строки Feat:): legacy-загрузчик отбрасывает неизвестные
+	// способности, а medit пишет их, обходя реестр. Без конфига -S терял все способности
+	// мобов. Тот же случай, что со skills/spells выше.
+	if (!MUD::Feats().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("feat_msg");   // issue.thing-names: names before feats
+		MUD::CfgManager().LoadCfg("feats");
+	}
+
 	if (!MUD::Spells().IsInitizalized())
 	{
 		MUD::CfgManager().LoadCfg("spell_msg");   // имена спеллов (spell_msg.xml), читаются при загрузке spells
