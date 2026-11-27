@@ -198,27 +198,6 @@ inline std::optional<json> ParseNested(const json& j, const char* key)
 	return j[key];
 }
 
-// ============================================================================
-// String Conversion Helpers (KOI8-R ? UTF-8)
-// ============================================================================
-
-/**
- * \brief Convert KOI8-R string to UTF-8 for JSON
- * \param koi8r KOI8-R encoded string
- * \return UTF-8 encoded string
- *
- * Used when serializing entity data to JSON (which requires UTF-8)
- */
-
-/**
- * \brief Convert UTF-8 string to KOI8-R for game data
- * \param utf8 UTF-8 encoded string (from JSON)
- * \return KOI8-R encoded string
- *
- * Used when parsing JSON data to apply to game entities
- */
-std::string Utf8ToKoi8r(const std::string& utf8);
-
 }  // namespace admin_api::json
 
 #endif  // BYLINS_SRC_ENGINE_NETWORK_ADMIN_API_JSON_HELPERS_H_

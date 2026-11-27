@@ -71,7 +71,10 @@ static TrgRnum find_trig_rnum(TrgVnum vnum)
 
 void SendJsonResponse(DescriptorData* d, const json& response)
 {
-	admin_api_send_json(d, response.dump().c_str());
+	// Невалидный UTF-8 в мире (например, строки, сохранённые старым API как KOI8-R)
+	// становится U+FFFD, а не исключением: иначе сущность нельзя ни прочитать, ни
+	// исправить через API.
+	admin_api_send_json(d, response.dump(-1, ' ', false, json::error_handler_t::replace).c_str());
 }
 
 void SendErrorResponse(DescriptorData* d, const char* error_message)
@@ -744,8 +747,6 @@ void HandleUpdateRoom(DescriptorData* d, int room_vnum, const char* json_data)
 
 void HandleCreateRoom(DescriptorData* d, int zone_vnum, const char* json_data)
 {
-	using admin_api::json::Utf8ToKoi8r;
-
 	try
 	{
 		json data = json::parse(json_data);
@@ -907,8 +908,6 @@ void HandleGetTrigger(DescriptorData* d, int trig_vnum)
 
 void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data)
 {
-	using admin_api::json::Utf8ToKoi8r;
-
 	int rnum = find_trig_rnum(trig_vnum);
 	if (rnum < 0 || !trig_index[rnum] || !trig_index[rnum]->proto)
 	{
@@ -952,7 +951,7 @@ void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data
 		// Script (OLC format: single text block with \n separators)
 		if (data.contains("script"))
 		{
-			std::string script = Utf8ToKoi8r(data["script"].get<std::string>());
+			std::string script = data["script"].get<std::string>();
 			temp_d->olc->storage = str_dup(script.c_str());
 		}
 		else
@@ -998,8 +997,6 @@ void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data
 
 void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data)
 {
-	using admin_api::json::Utf8ToKoi8r;
-
 	try
 	{
 		// Parse data directly (zone comes as parameter)
@@ -1070,11 +1067,11 @@ void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data
 		// Apply JSON fields
 		if (data.contains("name"))
 		{
-			trig->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
+			trig->set_name(data["name"].get<std::string>());
 		}
 		if (data.contains("arglist"))
 		{
-			trig->arglist = Utf8ToKoi8r(data["arglist"].get<std::string>());
+			trig->arglist = data["arglist"].get<std::string>();
 		}
 		if (data.contains("narg"))
 		{
@@ -1093,7 +1090,7 @@ void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data
 		std::string script;
 		if (data.contains("script"))
 		{
-			script = Utf8ToKoi8r(data["script"].get<std::string>());
+			script = data["script"].get<std::string>();
 		}
 		else
 		{
@@ -1332,8 +1329,6 @@ void HandleListZoneCommands(DescriptorData* d, int zone_vnum)
 
 void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_data)
 {
-	using admin_api::json::Utf8ToKoi8r;
-
 	try
 	{
 		json data = json::parse(json_data);
@@ -1455,8 +1450,8 @@ void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_dat
 					SendErrorResponse(d, "V command requires var_name");
 					return;
 				}
-				sarg1 = str_dup(Utf8ToKoi8r(vname).c_str());
-				sarg2 = str_dup(Utf8ToKoi8r(vvalue).c_str());
+				sarg1 = str_dup(vname.c_str());
+				sarg2 = str_dup(vvalue.c_str());
 				break;
 			}
 			case 'F':

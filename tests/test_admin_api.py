@@ -8,7 +8,7 @@ import sys
 import os
 
 SOCKET_PATH = os.getenv("SOCKET_PATH", "admin_api.sock")
-WORLD_FORMAT = os.getenv("WORLD_FORMAT", "legacy")  # legacy, yaml, sqlite
+WORLD_FORMAT = os.getenv("WORLD_FORMAT", "yaml")  # legacy, yaml, sqlite
 
 def send_command(sock, command, **kwargs):
     """Send JSON command and receive response."""
@@ -53,7 +53,7 @@ def send_command(sock, command, **kwargs):
 
 def verify_legacy_file(entity_type, vnum, expected_fields):
     """Verify that legacy file contains the vnum (basic check)."""
-    world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/mud/build_test/small'))
+    world_dir = os.environ.get('WORLD_DIR', '.') + '/worlddata'
 
     # Determine zone file based on vnum
     zone_num = vnum // 100
@@ -71,7 +71,7 @@ def verify_legacy_file(entity_type, vnum, expected_fields):
         return False, f"Legacy file not found: {file_path}"
 
     try:
-        with open(file_path, 'r', encoding='koi8-r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
             # Check if vnum exists in file
             vnum_marker = f"#{vnum}\n"
@@ -81,6 +81,35 @@ def verify_legacy_file(entity_type, vnum, expected_fields):
                 return False, f"Vnum #{vnum} not found in {file_path}"
     except Exception as e:
         return False, f"Error reading legacy file: {e}"
+
+def world_zone_dir(zone_vnum):
+    """Zone directory of the YAML world inside the data dir (WORLD_DIR)."""
+    world_dir = os.environ.get('WORLD_DIR', '.')
+    return f"{world_dir}/worlddata/world/zones/{zone_vnum}"
+
+def load_entity_yaml(kind, vnum):
+    """Read one entity from the YAML world, either layout.
+
+    kind is the file stem: mobs, objects, rooms, triggers. The flat layout keeps the
+    whole zone in <kind>.yaml keyed by vnum % 100; the per-file layout keeps one
+    <kind>/NN.yaml per entity. Files are UTF-8: a file that is not fails here.
+    Returns (data, path) or (None, error message).
+    """
+    import yaml
+    zone_dir = world_zone_dir(vnum // 100)
+    rel_num = vnum % 100
+    per_file = f"{zone_dir}/{kind}/{rel_num:02d}.yaml"
+    flat = f"{zone_dir}/{kind}.yaml"
+    if os.path.exists(per_file):
+        with open(per_file, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f), per_file
+    if os.path.exists(flat):
+        with open(flat, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f) or {}
+        if rel_num not in data:
+            return None, f"vnum {vnum} not found in {flat}"
+        return data[rel_num], flat
+    return None, f"YAML not found: {per_file} or {flat}"
 
 def verify_yaml_file(entity_type, vnum, expected_fields):
     """Verify that YAML file was actually saved with expected values."""
@@ -120,29 +149,14 @@ def verify_yaml_file(entity_type, vnum, expected_fields):
             yaml_expected[key] = value
     
     expected_fields = yaml_expected
-    world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
-
-    if entity_type == 'mob':
-        zone_vnum = vnum // 100
-        rel_num = vnum % 100
-        yaml_path = f"{world_dir}/world/zones/{zone_vnum}/mobs/{rel_num:02d}.yaml"
-    elif entity_type == 'object':
-        zone_vnum = vnum // 100
-        rel_num = vnum % 100
-        yaml_path = f"{world_dir}/world/zones/{zone_vnum}/objects/{rel_num:02d}.yaml"
-    elif entity_type == 'room':
-        zone = vnum // 100
-        rel_num = vnum % 100
-        yaml_path = f"{world_dir}/world/zones/{zone}/rooms/{rel_num:02d}.yaml"
-    else:
+    kinds = {'mob': 'mobs', 'object': 'objects', 'room': 'rooms'}
+    if entity_type not in kinds:
         return False, "Unknown entity type"
 
-    if not os.path.exists(yaml_path):
-        return False, f"YAML file not found: {yaml_path}"
-
     try:
-        with open(yaml_path, 'r', encoding='koi8-r') as f:
-            data = yaml.safe_load(f)
+        data, where = load_entity_yaml(kinds[entity_type], vnum)
+        if data is None:
+            return False, where
 
         def check_fields(expected, actual, prefix=""):
             """Recursively check that expected fields are in actual data."""
@@ -791,11 +805,13 @@ def test_comprehensive_trigger(sock, zone_vnum=1):
         print(f"  ✓ Name correct (Russian encoding preserved)")
     else:
         print(f"  ✗ Name mismatch: got '{created.get('name')}', expected '{create_data['name']}'")
+        return False
 
     if created.get('arglist') == create_data['arglist']:
         print(f"  ✓ Arglist correct (Russian encoding preserved)")
     else:
         print(f"  ✗ Arglist mismatch: got '{created.get('arglist')}', expected '{create_data['arglist']}'")
+        return False
 
     # PART 3: Update with comprehensive data
     print(f"  → Updating trigger with comprehensive data...")
@@ -858,17 +874,9 @@ def test_comprehensive_trigger(sock, zone_vnum=1):
     # Verify file (format-dependent)
     if WORLD_FORMAT == "yaml":
         print(f"  → Verifying YAML file was saved...")
-        world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
-        zone_vnum = vnum // 100
-        rel_num = vnum % 100
-        yaml_path = f"{world_dir}/world/zones/{zone_vnum}/triggers/{rel_num:02d}.yaml"
-
-        if os.path.exists(yaml_path):
+        yaml_data, where = load_entity_yaml('triggers', vnum)
+        if yaml_data is not None:
             try:
-                import yaml
-                with open(yaml_path, 'r', encoding='koi8-r') as f:
-                    yaml_data = yaml.safe_load(f)
-
                 if yaml_data.get('name') == update_data['name']:
                     print(f"  ✓ YAML file saved with correct name")
                 else:
@@ -885,7 +893,7 @@ def test_comprehensive_trigger(sock, zone_vnum=1):
                 print(f"  ✗ Failed to read YAML: {e}")
                 all_ok = False
         else:
-            print(f"  ✗ YAML file not found: {yaml_path}")
+            print(f"  ✗ {where}")
             all_ok = False
     else:
         print(f"  → Skipping file verification for {WORLD_FORMAT} format")
@@ -905,6 +913,98 @@ def test_comprehensive_trigger(sock, zone_vnum=1):
         print(f"  ❌ TRIGGER TEST FAILED")
 
     return all_ok
+
+def test_utf8_roundtrip(sock, mob_vnum=100, zone_vnum=1):
+    """Cyrillic text goes in and comes back unchanged, in memory and in the zone file (#3102).
+
+    The API used to store incoming strings as KOI8-R: the next get_* failed with
+    "invalid UTF-8 byte" and the world file stopped being UTF-8.
+    """
+    ok = True
+    text = "проверка ёжика"
+
+    response = send_command(sock, "get_mob", vnum=mob_vnum)
+    if response.get('status') != 'ok':
+        print(f"  ✗ get_mob {mob_vnum} failed: {response.get('error')}")
+        return False
+    original = response['mob'].get('names', {}).get('nominative', '')
+
+    response = send_command(sock, "update_mob", vnum=mob_vnum, data={"names": {"nominative": text}})
+    if response.get('status') != 'ok':
+        print(f"  ✗ update_mob failed: {response.get('error')}")
+        return False
+    response = send_command(sock, "get_mob", vnum=mob_vnum)
+    got = response.get('mob', {}).get('names', {}).get('nominative') if response.get('status') == 'ok' else None
+    if got == text:
+        print(f"  ✓ get_mob returns the Cyrillic name unchanged")
+    else:
+        print(f"  ✗ get_mob: {response.get('error') or got!r}, expected {text!r}")
+        ok = False
+    if WORLD_FORMAT == "yaml":
+        try:
+            data, where = load_entity_yaml('mobs', mob_vnum)
+            saved = (data or {}).get('names', {}).get('nominative')
+            if saved == text:
+                print(f"  ✓ Zone file is UTF-8 and holds the name")
+            else:
+                print(f"  ✗ Zone file: {where if data is None else repr(saved)}")
+                ok = False
+        except UnicodeDecodeError as e:
+            print(f"  ✗ Zone file is not UTF-8: {e}")
+            ok = False
+    send_command(sock, "update_mob", vnum=mob_vnum, data={"names": {"nominative": original}})
+
+    script = "say привет, ёж"
+    response = send_command(sock, "create_trigger", zone=zone_vnum,
+                            data={"name": "проверка кодировки", "attach_type": 0,
+                                  "trigger_type": 1, "narg": 100, "script": script})
+    if response.get('status') != 'ok':
+        print(f"  ✗ create_trigger failed: {response.get('error')}")
+        return False
+    vnum = response['vnum']
+    response = send_command(sock, "get_trigger", vnum=vnum)
+    if response.get('status') == 'ok' and response['trigger'].get('commands') == [script] \
+            and response['trigger'].get('name') == "проверка кодировки":
+        print(f"  ✓ get_trigger returns the Cyrillic name and script unchanged")
+    else:
+        print(f"  ✗ get_trigger: {response.get('error') or response.get('trigger')}")
+        ok = False
+    send_command(sock, "delete_trigger", vnum=vnum)
+    return ok
+
+def test_fields_outside_data(sock, trig_vnum=None, zone_vnum=1):
+    """Entity fields outside "data" are an error, not a silent ok that changes nothing (#3102)."""
+    ok = True
+    response = send_command(sock, "list_triggers", zone=str(zone_vnum))
+    triggers = response.get('triggers', [])
+    if not triggers:
+        print(f"  ✗ No triggers in zone {zone_vnum}")
+        return False
+    vnum = trig_vnum or triggers[0]['vnum']
+    before = send_command(sock, "get_trigger", vnum=vnum).get('trigger', {}).get('trigger_type')
+
+    response = send_command(sock, "update_trigger", vnum=vnum, trigger_type=(before or 0) ^ 1)
+    after = send_command(sock, "get_trigger", vnum=vnum).get('trigger', {}).get('trigger_type')
+    if response.get('status') == 'error' and 'data' in response.get('error', '') and after == before:
+        print(f"  ✓ update_trigger with a top-level field: error, trigger unchanged")
+    else:
+        print(f"  ✗ update_trigger with a top-level field: {response}, trigger_type {before} -> {after}")
+        ok = False
+
+    response = send_command(sock, "update_mob", vnum=100, triggers=[vnum])
+    if response.get('status') == 'error':
+        print(f"  ✓ update_mob with a top-level field: error")
+    else:
+        print(f"  ✗ update_mob with a top-level field: {response.get('status')}")
+        ok = False
+
+    response = send_command(sock, "update_mob", vnum=100)
+    if response.get('status') == 'error':
+        print(f"  ✓ update_mob without data: error")
+    else:
+        print(f"  ✗ update_mob without data: {response.get('status')}")
+        ok = False
+    return ok
 
 def test_mob_flags(sock, vnum):
     """Test mob flags - read, update, and verify."""
@@ -1400,6 +1500,18 @@ def main():
             print("TESTING TRIGGER COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
             if not test_comprehensive_trigger(sock, zone_vnum=1):
+                all_tests_passed = False
+
+            print("\n" + "="*60)
+            print("TESTING UTF-8 ROUND-TRIP (#3102)")
+            print("="*60)
+            if not test_utf8_roundtrip(sock):
+                all_tests_passed = False
+
+            print("\n" + "="*60)
+            print("TESTING FIELDS OUTSIDE DATA (#3102)")
+            print("="*60)
+            if not test_fields_outside_data(sock):
                 all_tests_passed = False
 
             print("\n" + "="*60)

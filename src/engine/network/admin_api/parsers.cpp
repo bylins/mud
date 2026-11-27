@@ -32,33 +32,33 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		const auto& names = data["names"];
 		if (HasString(names, "aliases"))
 		{
-			auto aliases = Utf8ToKoi8r(names["aliases"].get<std::string>());
+			auto aliases = names["aliases"].get<std::string>();
 			mob->set_npc_name(aliases);
 			mob->SetCharAliases(aliases);
 		}
 		if (HasString(names, "nominative"))
 		{
-			mob->player_data.PNames[grammar::ECase::kNom] = Utf8ToKoi8r(names["nominative"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kNom] = names["nominative"].get<std::string>();
 		}
 		if (HasString(names, "genitive"))
 		{
-			mob->player_data.PNames[grammar::ECase::kGen] = Utf8ToKoi8r(names["genitive"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kGen] = names["genitive"].get<std::string>();
 		}
 		if (HasString(names, "dative"))
 		{
-			mob->player_data.PNames[grammar::ECase::kDat] = Utf8ToKoi8r(names["dative"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kDat] = names["dative"].get<std::string>();
 		}
 		if (HasString(names, "accusative"))
 		{
-			mob->player_data.PNames[grammar::ECase::kAcc] = Utf8ToKoi8r(names["accusative"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kAcc] = names["accusative"].get<std::string>();
 		}
 		if (HasString(names, "instrumental"))
 		{
-			mob->player_data.PNames[grammar::ECase::kIns] = Utf8ToKoi8r(names["instrumental"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kIns] = names["instrumental"].get<std::string>();
 		}
 		if (HasString(names, "prepositional"))
 		{
-			mob->player_data.PNames[grammar::ECase::kPre] = Utf8ToKoi8r(names["prepositional"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kPre] = names["prepositional"].get<std::string>();
 		}
 	}
 
@@ -72,7 +72,7 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 			// relies on a trailing newline (legacy data and convert_to_yaml.py both
 			// honour this). Enforce the invariant so API-created mobs don't run their
 			// room lines together when several stand in the same room.
-			std::string ldesc = Utf8ToKoi8r(descriptions["short_desc"].get<std::string>());
+			std::string ldesc = descriptions["short_desc"].get<std::string>();
 			if (!ldesc.empty() && ldesc.back() != '\n')
 			{
 				ldesc += '\n';
@@ -81,7 +81,7 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		}
 		if (HasString(descriptions, "long_desc"))
 		{
-			mob->player_data.description = Utf8ToKoi8r(descriptions["long_desc"].get<std::string>());
+			mob->player_data.description = descriptions["long_desc"].get<std::string>();
 		}
 	}
 
@@ -421,19 +421,19 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	// Basic text fields
 	if (HasString(data, "aliases"))
 	{
-		obj->set_aliases(Utf8ToKoi8r(data["aliases"].get<std::string>()));
+		obj->set_aliases(data["aliases"].get<std::string>());
 	}
 	if (HasString(data, "short_desc"))
 	{
-		obj->set_short_description(Utf8ToKoi8r(data["short_desc"].get<std::string>()));
+		obj->set_short_description(data["short_desc"].get<std::string>());
 	}
 	if (HasString(data, "description"))
 	{
-		obj->set_description(Utf8ToKoi8r(data["description"].get<std::string>()));
+		obj->set_description(data["description"].get<std::string>());
 	}
 	if (HasString(data, "action_desc"))
 	{
-		obj->set_action_description(Utf8ToKoi8r(data["action_desc"].get<std::string>()));
+		obj->set_action_description(data["action_desc"].get<std::string>());
 	}
 
 	// Grammatical cases (support both "pnames" and "names" keys)
@@ -442,27 +442,27 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	{
 		if (names_data.contains("nominative"))
 		{
-			obj->set_PName(grammar::ECase::kNom, Utf8ToKoi8r(names_data["nominative"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kNom, names_data["nominative"].get<std::string>());
 		}
 		if (names_data.contains("genitive"))
 		{
-			obj->set_PName(grammar::ECase::kGen, Utf8ToKoi8r(names_data["genitive"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kGen, names_data["genitive"].get<std::string>());
 		}
 		if (names_data.contains("dative"))
 		{
-			obj->set_PName(grammar::ECase::kDat, Utf8ToKoi8r(names_data["dative"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kDat, names_data["dative"].get<std::string>());
 		}
 		if (names_data.contains("accusative"))
 		{
-			obj->set_PName(grammar::ECase::kAcc, Utf8ToKoi8r(names_data["accusative"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kAcc, names_data["accusative"].get<std::string>());
 		}
 		if (names_data.contains("instrumental"))
 		{
-			obj->set_PName(grammar::ECase::kIns, Utf8ToKoi8r(names_data["instrumental"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kIns, names_data["instrumental"].get<std::string>());
 		}
 		if (names_data.contains("prepositional"))
 		{
-			obj->set_PName(grammar::ECase::kPre, Utf8ToKoi8r(names_data["prepositional"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kPre, names_data["prepositional"].get<std::string>());
 		}
 	}
 
@@ -649,8 +649,8 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 			}
 
 			ExtraDescription ed;
-			ed.set_keyword(Utf8ToKoi8r(ed_data["keywords"].get<std::string>()));
-			ed.set_description(Utf8ToKoi8r(ed_data["description"].get<std::string>()));
+			ed.set_keyword(ed_data["keywords"].get<std::string>());
+			ed.set_description(ed_data["description"].get<std::string>());
 			obj->ex_descriptions().push_back(std::move(ed));
 		}
 	}
@@ -683,7 +683,7 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 
 	if (HasString(data, "name"))
 	{
-		room->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
+		room->set_name(data["name"].get<std::string>());
 	}
 	if (data.contains("sector_type"))
 	{
@@ -706,7 +706,7 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 		{
 			free(room->temp_description);
 		}
-		room->temp_description = str_dup(Utf8ToKoi8r(data["description"].get<std::string>()).c_str());
+		room->temp_description = str_dup(data["description"].get<std::string>().c_str());
 	}
 
 	// Exits (array format: [{direction: 0, to_room: 101, ...}, ...])
@@ -739,7 +739,7 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 			}
 			if (exit_json.contains("general_description"))
 			{
-				exit->general_description = Utf8ToKoi8r(exit_json["general_description"].get<std::string>());
+				exit->general_description = exit_json["general_description"].get<std::string>();
 			}
 			if (exit_json.contains("keyword"))
 			{
@@ -749,7 +749,7 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 				// so plain set_keyword left vkeyword null and the door became
 				// unopenable by name until the next reload (which uses
 				// set_keywords). Mirrors the YAML loader.
-				exit->set_keywords(Utf8ToKoi8r(exit_json["keyword"].get<std::string>()));
+				exit->set_keywords(exit_json["keyword"].get<std::string>());
 			}
 			if (exit_json.contains("exit_info"))
 			{
@@ -794,23 +794,23 @@ void ParseZoneUpdate(ZoneData* zone, const nlohmann::json& data)
 
 	if (HasString(data, "name"))
 	{
-		zone->name = Utf8ToKoi8r(data["name"].get<std::string>());
+		zone->name = data["name"].get<std::string>();
 	}
 	if (HasString(data, "comment"))
 	{
-		zone->comment = Utf8ToKoi8r(data["comment"].get<std::string>());
+		zone->comment = data["comment"].get<std::string>();
 	}
 	if (HasString(data, "author"))
 	{
-		zone->author = Utf8ToKoi8r(data["author"].get<std::string>());
+		zone->author = data["author"].get<std::string>();
 	}
 	if (HasString(data, "location"))
 	{
-		zone->location = Utf8ToKoi8r(data["location"].get<std::string>());
+		zone->location = data["location"].get<std::string>();
 	}
 	if (HasString(data, "description"))
 	{
-		zone->description = Utf8ToKoi8r(data["description"].get<std::string>());
+		zone->description = data["description"].get<std::string>();
 	}
 	if (data.contains("level"))
 	{
@@ -868,11 +868,11 @@ void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
 	// Basic text fields
 	if (HasString(data, "name"))
 	{
-		trig->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
+		trig->set_name(data["name"].get<std::string>());
 	}
 	if (HasString(data, "arglist"))
 	{
-		trig->arglist = Utf8ToKoi8r(data["arglist"].get<std::string>());
+		trig->arglist = data["arglist"].get<std::string>();
 	}
 
 	// Numeric fields
