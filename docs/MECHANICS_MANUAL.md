@@ -526,7 +526,9 @@ Pick a dry room with no aggressive mobs: the spell requires standing, and in com
 - `stat <name>` searches the whole world: take a victim mob with a unique name, or you will see
   someone else's stats.
 - Raising the same kind again is refused: "У вас уже служит …" ("You already have … serving"). First
-  `отпустить все` ("release all").
+  release the old one: `приказать <name> следовать я` ("order <name> follow me"; with `все`
+  instead of a name, every follower goes), outside combat. A skeleton that stops serving crumbles
+  away.
 - Renaming a tier's `id` silently disables that kind's debuff — the handler tells the kinds apart by
   `id`.
 - A `weight` above zero makes skeletons spend the retinue budget on a par with undead, and the player
