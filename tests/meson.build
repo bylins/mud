@@ -123,6 +123,7 @@ test_sources = files(
     'exit_is_empty.cpp',
     'msg_container.cpp',
     'spell_messages.cpp',
+    'common_messages.cpp',
     'skill_messages.cpp',
     'fight_messages.cpp',
     'file_crc.cpp',
@@ -159,6 +160,7 @@ fs = import('fs')
 files_to_copy = [
     ['../lib/cfg/mechanics/group_exp_handicap.xml', 'cfg/mechanics/group_exp_handicap.xml'],
     ['../lib/cfg/feats.xml', 'cfg/feats.xml'],
+    ['../lib/cfg/messages/ru/common_msg.xml', 'cfg/messages/ru/common_msg.xml'],
     ['data/boards/changelog.sample',  'data/boards/changelog.sample'],
     ['data/boards/news.sample',       'data/boards/news.sample'],
     ['data/mob_classes/test_initial.xml', 'data/mob_classes/test_initial.xml'],
