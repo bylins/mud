@@ -3,6 +3,7 @@
 
 #include "utils/logger.h"
 #include "boards_constants.h"
+#include "boards_formatters.h"   // CutSubject: предел темы один для всех досок
 
 #include <sstream>
 
@@ -43,7 +44,7 @@ void ChangeLogLoaderImplementation::add_message(const std::string &author,
 	std::string subj(message->text.begin(), std::find(message->text.begin(), message->text.end(), '\n'));
 /*		if (subj.size() > 40)
 		{
-			subj = subj.substr(0, native_text::char_offset(subj, 40));
+			subj = CutSubject(subj);
 		} */
 	utils::Trim(subj);
 	message->subject = subj;

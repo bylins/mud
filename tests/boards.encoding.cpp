@@ -4,6 +4,7 @@
 // компилируются в той же кодировке, в какой работает движок.
 
 #include "gameplay/communication/boards/boards_types.h"
+#include "gameplay/communication/boards/boards_formatters.h"
 #include "utils/native_text.h"
 #include "utils/utf8.h"
 
@@ -71,3 +72,24 @@ TEST(BoardsEncoding, AuthorNameSurvivesTheBoundary) {
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
+// issue #3681: тема сообщения на доске режется по ЗНАКАМ. Рез по длине строки под UTF-8
+// укорачивал русскую тему вдвое и оставлял в конце один ведущий байт -- такая тема уезжала
+// автору в "Тема сообщения укорочена до ..." и всем читающим доску в оповещении о новом
+// сообщении, а клиенту уходил невалидный UTF-8.
+TEST(BoardsEncoding, SubjectCutKeepsWholeCharacters) {
+	// 45 русских знаков: под UTF-8 это 90 байт.
+	std::string subject;
+	for (int i = 0; i < 45; ++i) {
+		subject += "я";
+	}
+	ASSERT_EQ(native_text::char_count(subject), 45u);
+
+	const std::string cut = Boards::CutSubject(subject);
+	EXPECT_EQ(native_text::char_count(cut), Boards::kSubjectMaxChars);
+	EXPECT_EQ(utf8::find_invalid(cut), std::string_view::npos) << "тема обрезана посередине знака";
+
+	// Тема короче предела не меняется -- вызывающий по этому и понимает, что резать не пришлось.
+	const std::string short_subject = "короткая тема";
+	EXPECT_EQ(Boards::CutSubject(short_subject), short_subject);
+}

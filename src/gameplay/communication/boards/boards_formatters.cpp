@@ -1,10 +1,15 @@
 #include "boards_formatters.h"
 #include "utils/utils_string.h"
+#include "utils/native_text.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 
 namespace Boards {
+std::string CutSubject(std::string_view subject) {
+	return std::string(subject.substr(0, native_text::char_offset(subject, kSubjectMaxChars)));
+}
+
 class CommonBoardFormatter : public Board::Formatter {
  public:
 	CommonBoardFormatter(CharData *character, const time_t &date) : m_date(date), m_character(character) {}

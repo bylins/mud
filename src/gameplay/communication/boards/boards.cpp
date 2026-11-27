@@ -299,8 +299,9 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		// обработка сабжа
 		utils::Trim(buffer2);
-		if (buffer2.length() > 40) {
-			buffer2.erase(40, std::string::npos);
+		const std::string cut_subject = CutSubject(buffer2);
+		if (cut_subject != buffer2) {
+			buffer2 = cut_subject;
 			SendMsgToChar(fmt::format(fmt::runtime(BoardMsg(EBM::kSubjectTruncated)),
 					fmt::arg("subject", buffer2)) + "\r\n", ch);
 		}
