@@ -172,7 +172,8 @@ void LegacyFiles::RebuildIndex(EBootType kind) const
 		});
 	const auto tmp = dir / "index.new";
 	{
-		std::ofstream os(tmp, std::ios::trunc);
+		// Двоичный режим: index -- с LF на любой платформе, как в репозитории мира.
+		std::ofstream os(tmp, std::ios::binary | std::ios::trunc);
 		if (!os)
 		{
 			throw std::runtime_error("cannot open " + tmp.string());
@@ -202,7 +203,8 @@ bool LegacyFiles::AddToIndex(EBootType kind, int zone_vnum) const
 		log("SYSERR: AddToIndex: failed to open %s", old_name.string().c_str());
 		return false;
 	}
-	FILE* newfile = fopen(new_name.string().c_str(), "w");
+	// "wb": на Windows текстовый режим писал бы CRLF.
+	FILE* newfile = fopen(new_name.string().c_str(), "wb");
 	if (!newfile)
 	{
 		log("SYSERR: AddToIndex: failed to open %s", new_name.string().c_str());
