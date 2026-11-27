@@ -535,6 +535,8 @@ Pick a dry room with no aggressive mobs: the spell requires standing, and in com
   starts hitting the unrelated message "Вы не сможете управлять столькими последователями" ("You cannot
   control that many followers").
 
+---
+
 ## Piety: prayer, sacrifice and gifts
 
 A heathen **sacrifices** to the gods, a Christian **prays** to the saints. Every accepted offering
