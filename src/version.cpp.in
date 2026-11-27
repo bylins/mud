@@ -8,6 +8,7 @@
 #include "engine/core/comm.h"
 #include "engine/entities/char_data.h"
 #include "engine/structs/structs.h"
+#include "engine/db/world_revision.h"
 #include "utils/logger.h"
 
 const char* REVISION = "$ Build revision: ${REVISION} $";
@@ -23,10 +24,27 @@ const char* build_features = "${BUILD_FEATURES}";
 
 void ShowBuildInfo(CharData *ch) {
   SendMsgToChar(ch, "%s %s, build from %s, revision %s\n", engine_name, engine_version, build_datetime, revision);
+  // Ревизия мира -- не из бинаря, ее читают при старте из каталога мира
+  // (см. engine/db/world_revision.h). Пусто = узнать не удалось, тогда молчим.
+  if (!world_revision::Get().empty()) {
+    if (world_revision::Date().empty()) {
+      SendMsgToChar(ch, "Мир: %s\n", world_revision::Get().c_str());
+    } else {
+      SendMsgToChar(ch, "Мир: %s, выложен %s\n",
+                    world_revision::Get().c_str(), world_revision::Date().c_str());
+    }
+  }
   SendMsgToChar(ch, "Based on CircleMUD, version 3.00 beta patchlevel 16\n");
   if (privilege::IsImmortal(ch)) {
     SendMsgToChar(ch, "Compiler: %s; internal encoding: %s\nEnabled features: %s\n",
                   build_compiler, "UTF-8", build_features);
+    // Ревизия выше говорит, что выложили, а это -- что с тех пор разошлось:
+    // правка из OLC меняет мир на диске без всякого коммита. Список лежит в
+    // state/ и переживает перезагрузки, обнуляясь на новой ревизии мира.
+    const std::string world_edits = world_revision::FormatEdits();
+    if (!world_edits.empty()) {
+      SendMsgToChar(ch, "Правлено после выкладки: %s\n", world_edits.c_str());
+    }
   }
 }
 

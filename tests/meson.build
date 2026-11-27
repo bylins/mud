@@ -104,6 +104,7 @@ test_sources = files(
     'trigger_obj_load_index.cpp',
     'yaml_mob_saves_resistances.cpp',
     'world_checksum_serialization.cpp',
+    'world_revision.cpp',
     'dg_string_matching.cpp',
     'dg_apply_names.cpp',
     'affect_short_desc_lookup.cpp',
