@@ -48,7 +48,7 @@ bool IndexFileImplementation::open() {
 
 	m_file.open(filename, std::ios::in);
 	if (!m_file.good()) {
-		log("SYSERR: opening index file '%s': %s", filename.c_str(), strerror(errno));
+		log("SYSERR: opening index file '%s': %s", filename.string().c_str(), strerror(errno));
 		return false;
 	}
 
@@ -69,7 +69,7 @@ int IndexFileImplementation::load() {
 
 	// Exit if 0 records, unless this is shops
 	if (!rec_count) {
-		fatal_log("SYSERR: boot error - 0 records counted in %s.", files().Index(mode()).c_str());
+		fatal_log("SYSERR: boot error - 0 records counted in %s.", files().Index(mode()).string().c_str());
 	}
 
 	return rec_count;
@@ -103,8 +103,8 @@ int FilesIndexFile::process_line() {
 	m_entry_file.open(filename, std::ios::in);
 	if (!m_entry_file.good()) {
 		log("SYSERR: File '%s' listed in '%s' (will be skipped): %s",
-			filename.c_str(),
-			files().Index(mode()).c_str(),
+			filename.string().c_str(),
+			files().Index(mode()).string().c_str(),
 			strerror(errno));
 		return 0;
 	}

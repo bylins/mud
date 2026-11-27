@@ -116,7 +116,7 @@ void LegacyFiles::EnsureLayout() const
 		std::filesystem::create_directories(Dir(kind), ec);
 		if (ec)
 		{
-			log("SYSERR: cannot create %s: %s", Dir(kind).c_str(), ec.message().c_str());
+			log("SYSERR: cannot create %s: %s", Dir(kind).string().c_str(), ec.message().c_str());
 		}
 	}
 }
@@ -135,7 +135,7 @@ bool LegacyFiles::CommitZoneFile(EBootType kind, int zone_vnum) const
 	std::filesystem::rename(tmp, final_path, ec);
 	if (ec)
 	{
-		log("SYSERR: cannot rename %s to %s: %s", tmp.c_str(), final_path.c_str(), ec.message().c_str());
+		log("SYSERR: cannot rename %s to %s: %s", tmp.string().c_str(), final_path.string().c_str(), ec.message().c_str());
 		return false;
 	}
 	return true;
@@ -196,16 +196,16 @@ bool LegacyFiles::AddToIndex(EBootType kind, int zone_vnum) const
 	}
 	const auto old_name = Index(kind);
 	const auto new_name = Dir(kind) / "newindex";
-	FILE* oldfile = fopen(old_name.c_str(), "r");
+	FILE* oldfile = fopen(old_name.string().c_str(), "r");
 	if (!oldfile)
 	{
-		log("SYSERR: AddToIndex: failed to open %s", old_name.c_str());
+		log("SYSERR: AddToIndex: failed to open %s", old_name.string().c_str());
 		return false;
 	}
-	FILE* newfile = fopen(new_name.c_str(), "w");
+	FILE* newfile = fopen(new_name.string().c_str(), "w");
 	if (!newfile)
 	{
-		log("SYSERR: AddToIndex: failed to open %s", new_name.c_str());
+		log("SYSERR: AddToIndex: failed to open %s", new_name.string().c_str());
 		fclose(oldfile);
 		return false;
 	}
@@ -250,7 +250,7 @@ bool LegacyFiles::AddToIndex(EBootType kind, int zone_vnum) const
 	std::filesystem::rename(new_name, old_name, ec);
 	if (ec)
 	{
-		log("SYSERR: AddToIndex: cannot rename %s to %s: %s", new_name.c_str(), old_name.c_str(),
+		log("SYSERR: AddToIndex: cannot rename %s to %s: %s", new_name.string().c_str(), old_name.string().c_str(),
 			ec.message().c_str());
 		return false;
 	}
