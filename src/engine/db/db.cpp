@@ -776,6 +776,30 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		MUD::CfgManager().LoadCfg("spells");
 	}
 
+	// То же, что со спеллами выше, но для трех оставшихся источников подписей:
+	// тип атаки оружия (GetAttackTypeDescription -> hit_msg.xml), название валюты
+	// (MUD::Currency().GetName()) и названия способностей мобов (MUD::Feat().GetName()).
+	// Без них `circle -S` писал "ERROR: message not found", "тип валюты" и пустую
+	// подпись вместо слова -- на весь мир это 2841, 192 и больше 14 тысяч подписей,
+	// то есть любая конвертация мира стирала их начисто. Данные при этом не страдают:
+	// теряется только читаемая подпись рядом со значением.
+	if (!MUD::FightMessages().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("hit_msg");
+	}
+	if (!MUD::Feats().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("feat_msg");   // issue.thing-names: названия до самих способностей
+		MUD::CfgManager().LoadCfg("feats");
+	}
+	if (!MUD::Currencies().IsInitizalized())
+	{
+		// issue.thing-names: название валюты лежит в currency_msg.xml, и читают его
+		// при загрузке currencies.xml -- порядок тот же, что в BootMudDataBase.
+		MUD::CfgManager().LoadCfg("currency_msg");
+		MUD::CfgManager().LoadCfg("currencies");
+	}
+
 	// Create data source if none provided. Runtime selection comes from
 	// <world_loader><sources> (ordered = priority); several sources combine into
 	// a CompositeWorldDataSource. An empty/absent block falls back to the
