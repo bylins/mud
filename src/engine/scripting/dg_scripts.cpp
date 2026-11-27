@@ -6034,10 +6034,12 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		last_trig_line_num = cl->line_num;
 		trig->curr_line = cl;
 		// Скрипт тронул игрока, ушедшего в ЛД (флаг ставит разбор его UID, см.
-		// find_replacement) -- дальше не идем. Молча: условие штатное и частое,
-		// любой случайный триггер на вещи такого игрока дает его на каждом ходу
-		// DG, а errlog -- место для беды. Понадобится отладка -- вернем строку.
+		// find_replacement) -- дальше не идем. Записи об этом нет намеренно: условие
+		// штатное и частое, любой случайный триггер на вещи такого игрока дает его на
+		// каждом ходу DG, а errlog -- место для беды. Прежние строки оставлены ниже
+		// закомментированными во всех семи проверках: нужна отладка -- раскомментировать.
 		if (CharacterLinkDrop) {
+			//mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop in 'Drive go'.", last_trig_vnum), BRF, -1, ERRLOG, true);
 			break;
 		}
 		const char *p = nullptr;
@@ -6055,12 +6057,14 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				cl = find_else_end(trig, cl, go, sc, type);
 			}
 			if (CharacterLinkDrop) {
+				//mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "elseif ", 7) || !strncmp(p, "else", 4)) {
 			cl = find_end(trig, cl);
 			GET_TRIG_DEPTH(trig)--;
 			if (CharacterLinkDrop) {
+				//mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "while ", 6)) {
@@ -6073,6 +6077,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				cl = temp;
 			}
 			if (CharacterLinkDrop) {
+				//mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "foreach ", 8)) {
@@ -6085,11 +6090,13 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				cl = temp;
 			}
 			if (CharacterLinkDrop) {
+				//mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "switch ", 7)) {
 			cl = find_case(trig, cl, go, sc, type, p + 7);
 			if (CharacterLinkDrop) {
+				//mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 		} else if (!strncmp(p, "end", 3)) {
@@ -6147,6 +6154,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		} else {
 			var_subst(go, sc, trig, type, p, cmd, sizeof(cmd));
 			if (CharacterLinkDrop) {
+				//mudlog(fmt::format("[TrigVnum: {}] Character in LinkDrop.\r\n", last_trig_vnum), BRF, -1, ERRLOG, true);
 				break;
 			}
 			if (IsFieldCallStatement(p)) {
