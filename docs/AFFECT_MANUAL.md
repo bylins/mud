@@ -1,7 +1,8 @@
 # Bylins MUD — Data-Driven Affect Manual
 
-*For game designers authoring affects in `lib/cfg/affects.xml` (character affects)
-and `lib/cfg/room_affects.xml` (room / exit affects), plus their message files.*
+*For game designers authoring affects in `lib/cfg/affects/affects.xml` (character
+affects) and `lib/cfg/affects/room_affects.xml` (room / exit affects), plus their
+message files.*
 
 An **affect** is a persistent effect on a character, room, or exit — a buff, a
 debuff, a damage-over-time, a shield, a summon marker, a status flag. Where the
@@ -35,20 +36,25 @@ the `cfg/` root); message files stay under `lib/cfg/messages/<lang>/`:
 | `lib/cfg/affects/equipment_affects.xml` | affects a **worn** item confers (`EEquipmentAffect`) — §8.1 | `lib/cfg/messages/<lang>/equipment_affect_msg.xml` |
 | `lib/cfg/affects/obj_affects.xml` | affects that live **on an item** (`EObjAffect`) — §8.2 | `lib/cfg/messages/<lang>/obj_affect_msg.xml` |
 
-Each `*.xml` has its `*.scheme` sidecar next to it (for Vedun editing). As with
-spells, the small-world/test snapshot is a copy — edit the tracked files under
-`lib.template/cfg/affects` (or the live `lib/cfg/affects`); do not hand-edit a
-build's `small/` copy.
+Each `*.xml` has its `*.scheme` sidecar next to it (for Vedun editing). Edit the
+tracked files under `lib/cfg/affects` (and `lib/cfg/messages/ru`). The small-world
+test snapshot is a copy that `tools/meson/setup_world.py` makes from `lib/cfg` into a
+build's `small/` directory — do not hand-edit that copy.
 
 > **Message-file roots** were retagged to match the filename (the loader requires
 > `root == name == id`): `affect_msg.xml` → root `<affect_msg>`, `room_affect_msg.xml`
 > → `<room_affect_msg>` (both previously shared a generic `<msg_container>`). A custom
 > copy with the old root **silently fails to load** — rename the root element.
 
-**Reload.** Only `obj_affects` reloads live — `reload objaffects` (and `reload all`).
-The other affect configs (`affects`, `room_affects`, `equipment_affects`) and their
-message files load **at server startup** — restart to apply edits. (`reload spells` /
-`reload spellmsg` / `reload feats` are separate commands.)
+**Reload.** Live reload targets: `reload affects` (`affects.xml`), `reload objaffects`
+(`obj_affects.xml`), `reload affectmsg` (`affect_msg.xml`), `reload roomaffectmsg`
+(`room_affect_msg.xml`). `room_affects.xml`, `equipment_affects.xml` and the
+`equipment_affect_msg.xml` / `obj_affect_msg.xml` message files have no dedicated
+target — they are reloaded only by `reload all`, which re-reads every registered
+config. A reload changes what **new** impositions get; modifiers and flags already
+stamped on live affect instances keep their old values until the affect is
+re-imposed. (`reload spells` / `reload spellmsg` / `reload feats` are separate
+commands.)
 
 ---
 
@@ -60,9 +66,9 @@ builds one `Affect` instance **per apply** and hands ownership to the affect:
 | Owned by the **affect** (`affects.xml`) | Owned by the **imposition** (the spell's / action's `<affects>` block) |
 |---|---|
 | `<flags>` — behaviour flags (`EAffFlag`) | `<duration>` — how long it lasts |
-| `<apply>` — the stat/status changes | the stored **potency** (from the cast's potency roll) |
-| `<shield>` — magic-shield weight | `saving=` / `resist=` — the landing contest |
-| `<actions>` — everything it does over its life | `battleflag=` — per-instance decrement-timing override (§5.6) |
+| `<apply>` — the stat/status changes | the stored **potency** (from the cast's potency roll, scaled by `potency_weight=`) |
+| `<shield>` — magic-shield weight | `saving=` / `resist=` / `prob=` — the landing contest and chance |
+| `<actions>` — everything it does over its life | `battleflag=` — per-instance decrement-timing override (§5.6); `<charges>` — firing cap (§5.5) |
 
 So two spells can impose the *same* affect with different durations and
 strengths, but the affect's **behaviour** is defined once, in `affects.xml`.
@@ -88,9 +94,9 @@ strengths, but the affect's **behaviour** is defined once, in `affects.xml`.
 
 | attr | meaning |
 |---|---|
-| `id` | the `EAffect` (char) or `ERoomAffect` (room) enum name. Required. |
-| `buff` | `Y` = beneficial, `N` = harmful. Drives dispel/cure classification (a "dispel magic" strips debuffs, a "cancellation" strips buffs) and the violent/friendly nature of anything that re-applies it. Default: treated as harmful. |
-| `dispel_mod` *(issue.random-noise-rework)* | Additive per-affect modifier to the **dispel-contest threshold**, in percentage points (Spell Manual §9.3). Negative = **harder** to remove, positive = easier. Default `0`. Critical buffs (fire/ice/air shield, sanctuary, prismatic aura, fly, water-breath) ship `dispel_mod="-35"` → ~15 % to dispel at competence parity, vs the ~50 % of an ordinary buff. |
+| `id` | the `EAffect` enum name. Required. (Room affects use a separate `<room_affect id=>` element with an `ERoomAffect` name — §7.) |
+| `buff` | `Y` = beneficial, `N` = harmful. Drives dispel/cure classification (a "dispel magic" strips debuffs, a "cancellation" strips buffs) and the violent/friendly nature of anything that re-applies it. Absent (or `A`) = ambiguous; the engine checks test for `Y`, so an ambiguous affect is handled as not-a-buff. The Vedun editor only accepts `Y`/`N`. |
+| `dispel_mod` *(issue.random-noise-rework)* | Additive per-affect modifier to the **dispel-contest threshold**, in percentage points (Spell Manual §9.3). Negative = **harder** to remove, positive = easier. Default `0`. Critical buffs (fire/ice/air shield, magic glass, the elemental auras, sanctuary, prismatic aura, fly, water-breath and a few others) ship `dispel_mod="-35"` → ~15 % to dispel at competence parity, vs the ~50 % of an ordinary buff. |
 
 An affect id may exist with an **empty body** (`<affect id="kCommander"/>`) — a
 pure marker flag other code tests for. Adding data to it never breaks that.
@@ -110,7 +116,7 @@ trigger loops see the affect:
 | *(none)* | once per **mud-hour** (the out-of-combat point-update). |
 | `kAfBattledec` | once per **combat round** while the bearer is fighting (battle-update). |
 | `kAfPulsedec` | once per **affect pulse** (the faster mob/short-buff loop). |
-| `kAfSameTime` | ticks in step with combat DoT processing (used by damage-over-time affects). |
+| `kAfSameTime` | every 2 s for a PC, once a minute for an NPC, or in step with the combat round while fighting (used by damage-over-time affects). |
 
 Other common bits:
 
@@ -121,8 +127,19 @@ Other common bits:
 | `kAfUpdateDuration` | re-imposing refreshes to the **longer** duration (instead of a 2nd instance). |
 | `kAfAccumulateDuration` | re-imposing **adds** durations. |
 | `kAfUpdateMod` | re-imposing keeps the **stronger** modifier. |
+| `kAfDeadkeep` | the affect survives the bearer's death. |
 | `kAfMaterialize` | the affect can be *materialised* as an intrinsic mob buff (rolled from the same-named spell). |
 | `kAfEntanglement` | movement-restriction category (footwork skills test this, not a specific spell). |
+| `kAfPoison` | poison category ("all poisons" mechanics test this flag). |
+| `kAfBoon` / `kAfWarding` / `kAfAegis` | buff classes for the class-targeted dispels (`<unaffect affect_flags="kAfBoon">` etc.): minor utility / ordinary combat buffs / strong defensive magic. |
+| `kAfFullAbsorb` | total damage immunity (the magic cocoon, `kGodsShield`). |
+| `kAfNoPositionBonus` / `kAfNoCritBonus` | while this is the active shield, the attacker gets no low-position / crit damage bonus (air / ice shield). |
+
+The full list is in `src/gameplay/affects/affect_contants.h`. Some bits are **not**
+for `affects.xml`: `kAfFromEquipment`, `kAfFromSet`, `kAfCharmBond`, `kAfFailed` are
+set by the engine on individual instances, and `kAfNeedControl`,
+`kAfCasterInRoom`/`kAfCasterInWorld`/`kAfCasterInWorldDelay`, `kAfUnique`,
+`kAfMustBeHandled` belong to room affects (§7).
 
 > **Multi-instance caveat.** A spell that imposes an affect with several `<apply>`
 > children creates **several instances** (one per apply) that share a duration and
@@ -132,24 +149,34 @@ Other common bits:
 
 ```xml
 <apply location="kInitiative">
-    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="1" cap="0"/>
+    <modifier min="0" beta="0.4143" factor="1"/>
 </apply>
 ```
 
 `location` is an `EApply` (`kHitroll`, `kAc`, `kInitiative`, `kSavingReflex`, …).
-The `<modifier>` is the **same option-2 formula** the Spell Manual §8.9 documents:
+The `<modifier>` formula (`ComputeApplyModifier`, shared by spell-side and
+affect-side applies):
 
 ```
-raw = min + ceil(dices·dices_weight·(1 + alpha·C) + beta·C)      C = skill_coeff + stat_coeff
-raw = min(raw, cap)                                              (cap > 0 only)
-modifier = factor · raw                                          (factor = -1 for debuffs)
+raw = min + ceil(beta·C·(1 + weight·d))      C = skill_coeff + stat_coeff, d = the cast's noise draw
+raw = min(raw, cap)                          (cap > 0 only)
+modifier = factor · raw                      (factor = -1 for debuffs)
 ```
 
-**`C` (competence) is supplied by whatever imposes the affect.** A real spell
-cast fills `C` from its potency roll (skill + stat). A *triggered affect-action*
-(§5) supplies `C` from the **firing affect's stored potency** — so an affect can
-impose another affect that scales with the first one's strength (this is how the
-vampirism-kill haste scales, §7). A flat effect uses `min` only (`beta=0`).
+| `<modifier>` attr | default | meaning |
+|---|---|---|
+| `min` | `0` | flat base. |
+| `beta` | `0` | competence weight. |
+| `weight` | `0` | weight on the cast's random noise draw; `0` = deterministic (every shipped affect). |
+| `factor` | `1` | sign/multiplier; `-1` for debuffs. |
+| `cap` | `0` | clamp on the pre-factor magnitude; `0` = no clamp. |
+| `stack` | `1` | stack cap (§4.2.2). |
+
+**`C` (competence) is supplied by whatever imposes the affect** (Spell Manual §3.7).
+A real spell cast fills `C` from its potency roll (skill + stat). A *triggered
+affect-action* (§5) supplies `C` from the **firing affect's stored potency** — so an
+affect can impose another affect that scales with the first one's strength (this is
+how the vampirism-kill haste scales, §9). A flat effect uses `min` only (`beta=0`).
 
 > **Affect owns its applies.** If an affect defines `<apply>` children, every
 > spell that imposes it uses *those* (the spell's own per-apply data is ignored).
@@ -159,28 +186,29 @@ vampirism-kill haste scales, §7). A flat effect uses `min` only (`beta=0`).
 #### 4.2.1 Tuning modifiers with competence *(the `beta` rules)*
 
 Modifier magnitude should grow with **caster competence (skill + stat)**, not with
-level/remort directly. Modifiers are almost always flat (`dices_weight=0`), so the
-formula reduces to `min + ceil(beta·C)` and `beta` is the additive competence
-weight (`alpha` only matters when `dices_weight≠0`).
+level/remort directly. Modifiers are deterministic (`weight=0`), so the formula
+reduces to `min + ceil(beta·C)` and `beta` is the additive competence weight.
 
 Conversion from an OLD level/remort formula:
 
-> **1 remort ≈ +5 skill cap + +1 base stat.** For the cookie-cutter potency roll
-> (`low=3 hi=1.25`, stat `threshold=22 weight=0.5`), competence grows
-> `(5·1.25 + 1·0.5)/100 = 0.0675` per remort. So a modifier meant to grow by `k`
-> per remort needs `beta ≈ k / 0.0675`.
+> **1 remort ≈ +5 skill cap + +1 base stat** (`lib/cfg/remort.xml`: skill cap
+> `increment="5"`). Above the novice threshold every skill point is worth
+> `hi_skill_bonus`, so competence grows `(5·hi_skill_bonus + 1·stat_weight)/100` per
+> remort. For the standard potency roll (`low_skill_bonus=1 hi_skill_bonus=7`, stat
+> `threshold=22 weight=18`) that is `(5·7 + 1·18)/100 = 0.53` per remort. So a
+> modifier meant to grow by `k` per remort needs `beta ≈ k / 0.53`.
 
 Two rules:
 
 * **`min ≥ 0`.** Pick `min`/`beta` so an untrained caster (`C=0`) gets
   `min·factor` (0 or a clean baseline) — never let a `factor="-1"` debuff invert
-  into a buff for a low-skill caster. If aggressive potency rolls force `min<0`,
-  lower `beta` or normalise the roll (a few spells — kPatronage/kEviless/kCurse —
-  stay on flat `min` without `beta` until their rolls are normalised).
+  into a buff for a low-skill caster. If an aggressive potency roll forces `min<0`,
+  lower `beta` or normalise the roll; some affects deliberately stay flat
+  (`beta=0`, e.g. `kPatronage`).
 * **Anchor a typical caster.** Set `beta ≈ |target at R12 max-skill| / C_at_R12`
   (round *down* to keep `min≥0`), then `min = |target at R12| − ceil(C_R12·beta)`.
-  Example — `kBless` (old `-5 - R/3` on kSavingStability): `beta=2.8`, `min=0`,
-  `factor=-1` → −7 at R0, **−9 at R12** (exact), −11 at R24.
+  Example — `kBless` ships `min=0 beta=1.2889 factor=-1` on `kSavingStability`
+  (plus `beta=1.1508` on `kSavingWill`).
 
 #### 4.2.2 Stacking
 
@@ -194,7 +222,7 @@ removed — the affect vanishes only when the last stack goes. This makes
 
 #### 4.2.3 Random apply pools
 
-Among sibling applies flagged `<apply … random="true">`, **exactly one** is chosen
+Among sibling applies flagged `<apply … random="Y">`, **exactly one** is chosen
 per imposition (uniform). Unconditional applies always fire; the random ones share
 one pool. E.g. `kFailure`: one guaranteed morale penalty + one random stat penalty
 of six.
@@ -203,7 +231,8 @@ of six.
 
 For the magic-shield family (fire/ice/air): the relative weight with which this
 shield is chosen to intercept an incoming hit when the bearer has several. Only
-meaningful alongside a `kWardDamage` retaliation action (§5.4).
+meaningful alongside the shield's `kWardDamage` actions (`<retaliation>` /
+`<damage_change>`, §5.4).
 
 ---
 
@@ -213,14 +242,15 @@ An affect's `<actions>` is an ordered list of `<action>` blocks. Each carries a
 `<trigger>` naming **when** it fires and one or more **effect manifestations**
 describing **what** it does. This is the same action vocabulary as a spell's
 `<talent_actions>` (Spell Manual §3.8) — `<damage>`, `<points>`, `<affects>`,
-`<unaffect>`, `<side_spell>`, `<manual>`, `<area>` — plus one affect-only
-manifestation, `<damage_change>` (§5.4).
+`<unaffect>`, `<side_spell>`, `<manual_cast>`, `<area>` — plus the ward
+manifestations `<damage_change>`, `<retaliation>`, `<reflection>`, `<absorption>`
+consumed by the `kWardDamage` / `kWardAttack` triggers (§5.4).
 
 ```xml
 <actions>
     <action target="kTarFightSelf" base="tag" tag="amount">
         <trigger val="kPostHit"/>
-        <points extra="100"><heal min="1" beta="0.10" .../></points>
+        <points extra="100"><heal npc_coeff="0" min="1" beta="0.1" weight="0"/></points>
     </action>
 </actions>
 ```
@@ -243,17 +273,21 @@ manifestation, `<damage_change>` (§5.4).
 | `kEnter` / `kEnterPC` / `kEnterNPC` | a char / PC / NPC enters (room affects) | on-entry effect / seal | actor = the entrant (`kTarActor`); `return="0"` refuses entry |
 | `kPick`/`kUnlock`/`kOpen`/`kClose`/`kLock` | door commands (exit affects) | trapped / sealed doors | `return="0"` refuses the action |
 
+Obj-affects add their own triggers (`kWeaponHit`, `kGet`/`kDrop`/`kEquip`/`kUnequip`/`kDecay`) — §8.2.
+
 ### 5.2 `<action>` attributes
 
 | attr | meaning |
 |---|---|
 | `target` | an `EActionTarget` (§5.3), default `kTarSame`. Who the action's effect lands on. |
-| `base` | how the action's magnitude scales: default `kCompetence` (potency); `tag` = an event value. |
+| `base` | how the action's magnitude scales: default `kCompetence` (potency); `tag` = an event value; `kDamage`/`kPoints`/`kAffects`/`kDispelled` = a prior action's result (Spell Manual §3.8.2). |
 | `tag` | with `base="tag"`, the event field to read (e.g. `amount` = damage dealt / restored). |
+| `reset` | `Y`/`true` — chain-reset flag (Spell Manual §3.8.2). |
+| `id` | the block's stable name, used by feat patches (§9, `kSoulLink`). |
 
-`<trigger>` sub-attributes: `val` (required), `category` (kPoints filter),
-`return` (`"0"` = block the triggering action — for `kDeath`, `kEnter*`, door
-triggers).
+`<trigger>` sub-attributes: `val` (required; several `|`-separated values allowed),
+`category` (kPoints filter), `return` (`"0"` = block the triggering action — for
+`kDeath`, `kEnter*`, door triggers), `prob` (firing chance).
 
 ### 5.3 Targets (`EActionTarget`)
 
@@ -268,38 +302,46 @@ triggers).
 
 Inside an `<action>`, the same stages as a spell (Spell Manual §5–8), plus:
 
-* `<damage>` — deal damage (a `kPulse`/`kBattlePulse` `<damage>` is a **DoT**; a
-  `kWardAttack` reflect deals it back to the attacker). Give the affect its own
-  `kDamageToChar/Vict/Room` messages (§6) so a DoT isn't silent.
+* `<damage>` — deal damage (`<amount min= beta= weight=>`; a `kPulse`/`kBattlePulse`
+  `<damage>` is a **DoT**, scaled off the stored potency via `beta`). Give the affect
+  its own `kDamageToChar/Vict/Room` messages (§6) so a DoT isn't silent.
 * `<points><heal>` — restore HP/moves (a `kPulse` heal is a **HoT**; a `kPostHit`
   heal is a leech, scaled off `base="tag" tag="amount"`).
 * `<affects>` — impose another affect (see §5.6 for the duration/flag controls).
 * `<unaffect>` — dispel/cure (Spell Manual §9 grammar).
 * `<side_spell id="…">` — cast a whole spell as a nested effect.
-* `<manual name="…">` — hand-coded handler (selection is data; body is C++).
-* `<damage_change>` — **affect-only, `kWardDamage`**: passively scale/edit an
-  incoming damage instance. Structure:
+* `<manual_cast handler="…">` — hand-coded handler (selection is data; body is C++).
+* `<damage_change>` — **`kWardDamage`**: passively scale/edit an incoming damage
+  instance. Structure:
   ```xml
-  <damage_change>
+  <damage_change>                             <!-- optional: prob=, stage="late", msg="crit|none" -->
       <conditions>
-          <type val="kPhysDmg"/>              <!-- kPhysDmg / kMagicDmg -->
-          <flags missing="kIgnoreSanct"/>     <!-- skip if the hit ignores this ward -->
+          <type val="kPhysDmg"/>              <!-- kPhysDmg / kMagicDmg / kPoisonDmg / kPureDmg / kUndefDmg -->
+          <flags missing="kIgnoreSanct"/>     <!-- skip if the hit ignores this ward; also present= -->
       </conditions>
       <variation min="50" max="50" factor="-1"/>   <!-- -50% here -->
+      <flags add="kShieldApplied"/>                <!-- optional: edit the hit's flags (add= / remove=) -->
   </damage_change>
   ```
-  Sub-forms used by the shield/ward family: `<retaliation>` (reflect a % back to
-  the attacker), `<reflection>` / `<absorption>` (bounce / soak a cast),
-  `<percent>`, `<element>`. These migrated the old hard-coded sanctuary / prism /
-  fire-shield logic; copy an existing shield affect as a template.
+* `<retaliation>` — **`kWardDamage`**: reflect a percent of the hit back to the
+  attacker (`<conditions>`, `<percent min= max= npc_bonus= boss_bonus=>`,
+  `<element type=>`; optional `passive=`, `prob=`).
+* `<reflection>` / `<absorption>` — **`kWardAttack`**: bounce / soak an incoming cast
+  (`<reflection min= max=>` contest; `<absorption scope="all|damage|affect" chance=
+  prob=>`).
+
+These migrated the old hard-coded sanctuary / prism / fire-shield logic; copy an
+existing shield affect as a template.
 
 ### 5.5 `<charges max="N"/>` — bounded firings
 
-A **triggered** affect can carry `<charges max="N"/>` inside its `<affects>`
-imposition or its own block: the affect is stripped after firing `N` times,
+A **triggered** affect can carry `<charges max="N"/>` inside the `<affects>` block
+that imposes it (in `spells.xml`, `room_affects.xml`, or another action — not on the
+affect's own `<affect>` entry): the affect is stripped after firing `N` times,
 independent of its duration. `-1` (default) = unlimited (duration-bound only). A
-DoT imposed with `<charges max="6"/>` ticks exactly 6 times. Combine with a
-`kExpired` action to react when the charges run out.
+DoT imposed with `<charges max="7"/>` ticks exactly 7 times (`kFireBlast` imposes
+`kBurning` that way). Combine with a `kExpired` action to react when the charges run
+out.
 
 > **Dedup.** `kPulse` DoTs and `kExpired`/lifecycle triggers each fire **once per
 > affect type per pass**, even when the affect has several instances (multi-apply
@@ -311,7 +353,7 @@ When an affect-action imposes another affect, its `<affects>` block controls the
 new instance:
 
 * `<duration base="…" skill_divisor="…" min="…" max="…" skill="kX"/>` — the
-  duration formula (Spell Manual §8.3). The **`skill="kX"`** attribute is
+  duration formula (Spell Manual §8.2). The **`skill="kX"`** attribute is
   affect-action–specific: a triggered action has no casting spell, so it names the
   skill whose novice-bonus scales the duration (e.g. a hangover scaling with
   `kHangovering`). Without `skill=`, a triggered action gets no skill scaling.
@@ -319,24 +361,27 @@ new instance:
   instance. This lets an action grant a normally hours-long affect as a short,
   **combat-round-measured** one: with `kAfBattledec` set, the `<duration>` is read
   as **raw combat rounds** (no PC hours→ticks conversion). This is how the
-  vampirism-kill haste (§7) grants a 5–6-round battle-haste.
+  vampirism-kill haste (§9) grants a 5–6-round battle-haste.
 
 ---
 
 ## 6. Messages
 
 Affect narration lives in `lib/cfg/messages/<lang>/affect_msg.xml` (and
-`room_affect_msg.xml`), keyed per affect id. The engine reads these keys:
+`room_affect_msg.xml`), keyed per affect id (`<msg_sheaf id="kX">`, plus a shared
+`kDefault` sheaf). The engine reads these keys:
 
 | key family | shown when |
 |---|---|
 | `kAffImposedToChar/Vict/Room`, `kAffImposeFailToChar/Vict/Room` | the affect lands / fails to land |
 | `kAffExpiredToChar/Room` | it wears off (kExpired) |
+| `kAffExpireSoon` | to the room on an NPC's last tick before the affect ends |
 | `kAffDispelledToChar/Room` | it is dispelled (kDispell) |
 | `kDamageToChar/Vict/Room` | a `<damage>` action fires (give DoTs these, else they're silent) |
 | `kWardToChar/Vict/Room` | a ward intercepts (kWardDamage/kWardAttack) |
 | `kDeathToChar/Room` | a `kDeath` action fires |
 | `kTransformToChar/Vict/Room`, `kTransformCrit…` | transform/polymorph flavour |
+| `kShortDesc`, `kLook`/`kLookPoly`, `kShieldFrame`/`kShieldNoun…`, `kAuraFrame`/`kAuraNoun…` | display: the affect's short name (affect lists, identify), the look line on its bearer, and the merged shield/aura line |
 
 An empty key = the generic engine line (or silence, for damage). Populate at
 least the impose/expire and any damage keys.
@@ -345,16 +390,23 @@ least the impose/expire and any damage keys.
 
 ## 7. Room & exit affects (`room_affects.xml`)
 
-Room/exit affects share the `<affect>`/`<flags>`/`<actions>` grammar but add:
+Room/exit affects are `<room_affect id="…">` entries (an `ERoomAffect` name) under the
+`<room_affects>` root. They share the `<flags>`/`<actions>` grammar but add:
 
 * **On-entry & door triggers** — `kEnter`/`kEnterPC`/`kEnterNPC` and
   `kPick`/`kUnlock`/`kOpen`/`kClose`/`kLock`. A `<trigger return="0"/>` **refuses**
   the entry/door action (a sealed room, a trapped lock). `kTarActor` = the entrant.
 * **`<area>` + `<targets>` + `<distribution>`** — a room action can hit everyone
   in the room with per-target falloff (Spell Manual §7 grammar).
-* **`kService` side-spell** — a room affect's per-tick effect is often expressed
-  as a `<side_spell>` to a linked service spell (`kTarRoomThis`).
+* **Per-tick effect as an action** — a `kPulse` action carries either a
+  `<side_spell>` (an ordinary spell, usually on `kTarFoes` with `<area>`) or a
+  `<manual_cast>` (a hand-coded handler, e.g. `kThunderstorm`). This replaced the
+  old dedicated tick spell / tick handler.
 * **`<target_conditions>`** — gate the action on the entrant/room (blocking/required).
+* **`<seal_strength min= beta= factor= cap=>`** — the seal-strength formula of a
+  sealing affect (`kForbidden`), shown as stars on look.
+* **Room-affect flags** — `kAfNeedControl`, `kAfCasterInRoom`, `kAfCasterInWorld`,
+  `kAfCasterInWorldDelay`, `kAfUnique` (§4.1).
 
 ---
 
@@ -395,22 +447,22 @@ identity) with one `<impose>` child:
 | `flag` | the `EAffect` bit set on the wearer (`kUndefined` = none, i.e. spell-driven). |
 | `spell` | an `ESpell` cast on equip (`kUndefined` = none). |
 | `timer` | duration in ticks; **`-1` = permanent while worn**; **absent = temporary / spell-driven** (the blind/sleep/hold/poison debuffs stay only while worn and drop the instant the item is removed — a permanent worn "sleep" must be impossible). |
-| `power_percent` | power-scaling percent fed to the potency pipeline (below). |
+| `power_percent` | power-scaling percent fed to the potency pipeline (below). Default `100`. |
 
 Two idioms: a **persistent buff** (`flag="kX" spell="kUndefined" timer="-1"`) and a
 **cursed-item debuff** (`flag="kUndefined" spell="kBlindness"` with no `timer`).
 
 **Materialization & potency.** Equipment affects used to be flags re-derived on every
 `affect_total` (no potency, undispellable). Now, on equip, `MaterializeEquipmentAffects`
-adds one **real `Affect`** per timer-bearing entry, tagged with **`kAfFromEquipment`**
-and `caster_id` = the item's id; `RemoveEquipmentAffects` strips them on unequip (these
-affects are **not written** to the player file — they re-materialize on wear). Strength
-no longer comes from a hardcoded table (`GetApplyByEquipmentAffect` is gone): the
-affect's `<apply>`/`<modifier>` live in `affects.xml`, and the magnitude is derived from
-the item (item level → skill and stat, scaled by `power_percent`) and run through the
-**same potency pipeline a cast uses** — deterministically (noise 0: an item bonus is
-fixed). This finally gives an equipment affect a meaningful **dispel-contest strength**
-(was 0).
+adds one **real `Affect`** per entry that has both a `timer` and a `flag`, tagged with
+**`kAfFromEquipment`** and `caster_id` = the item's id; `RemoveEquipmentAffects` strips
+them on unequip (these affects are **not written** to the player file — they
+re-materialize on wear). Strength no longer comes from a hardcoded table
+(`GetApplyByEquipmentAffect` is gone): the affect's `<apply>`/`<modifier>` live in
+`affects.xml`, and the magnitude is derived from the item (item level → skill and stat,
+scaled by `power_percent`) and run through the **same potency pipeline a cast uses** —
+deterministically (noise 0: an item bonus is fixed). This finally gives an equipment
+affect a meaningful **dispel-contest strength** (was 0).
 
 **Set** affects are unified under the same mechanism: **`kAfFromSet`** marks an affect
 materialized by the active set (`reconcile_set_affects`); it belongs to the set, not any
@@ -440,6 +492,9 @@ An affect that lives **on the item** (not the character), with its own identity
             </action>
         </actions>
     </obj_affect>
+    <obj_affect id="kBless" flag="kBless"   msg_case="kAcc" see_affect="kDetectMagic"/>
+    <obj_affect id="kFly"   flag="kFlying"  msg_case="kGen" see_affect="kUndefined"/>
+    <obj_affect id="kLight" flag="kGlow"    msg_case="kGen" see_affect="kUndefined"/>
     <obj_affect id="kDartTrap" see_affect="kDetectMagic">
         <actions>
             <action target="kTarActor">
@@ -469,9 +524,10 @@ An affect that lives **on the item** (not the character), with its own identity
 `kPick|kOpen` with `return="0"` (**blocks** the open), dealing `<damage>` (impersonal —
 no attacker) and a `<side_spell id="kPoison">` to the actor who tripped it.
 
-Serialization: an `OAff: <token> <timer> <modifier> [<potency>]` line (the 4th field,
-potency, is for suppressions; old 3-field lines load potency 0). A legacy `TSpl:`
-(timed-spell) line is read and mapped onto `EObjAffect` (the 4 poisons → `kPoisoned`).
+Serialization: an `OAff:` block, one `<token> <timer> <modifier> <potency>` line per
+affect, closed by `~` (the 4th field, potency, is for suppressions; old 3-field lines
+load potency 0). A legacy `TSpl:` (timed-spell) line is read and mapped onto
+`EObjAffect` (the 4 poisons → `kPoisoned`; bless/fly/light → `kBless`/`kFly`/`kLight`).
 **The world is not converted** — this is the player-object file format, backward
 compatible.
 
@@ -481,9 +537,11 @@ Dispelling an equipment affect used to lose it until re-equip. Now the affect is
 **suppressed on its source item** for a while and **auto-returns** when the suppression
 expires:
 
-* Dispelling a `kAfFromEquipment` affect calls `SuppressSourceItemAffect`: it finds the
-  source item (by `caster_id`) among the worn equipment and suppresses the affect on it;
-  the real affect is then removed (the buff drops **now**).
+* Dispelling a `kAfFromEquipment` affect calls `SuppressSourceEquipmentAffect`: it finds
+  the source item (by `caster_id`) among the worn equipment and suppresses the affect on
+  it for **10 game hours**; the real affect is then removed (the buff drops **now**) and
+  the wearer is told when the magic will return. A set-conferred affect (`kAfFromSet`)
+  has no single owner, so every worn piece of the set gets the suppression.
 * Suppression is a **`kSuppressed` obj-affect** (one per suppressed `EAffect`), so it
   serializes and ticks like any other obj-affect. It **stores a potency** = the
   competence of the suppressing dispel (the resistance a later un-suppress must beat; a
@@ -496,38 +554,50 @@ expires:
 
 **Lifting it early — the weave-restoration spell (`kWeaveRestoration`).** A new wizard
 spell (circle 4) that **contests** to lift a suppression and return the affect early. It
-is cast directly on an item, or on a character (then it hits a **random** suppressed worn
-item of the wearer). The `DispelContest` mechanic is documented in Spell Manual §9.3.1
-(the suppression potency is taken directly, no `dispel_mod`; it always rolls; a miss
-erodes the suppression by `decay`%). Its action grammar is
+is cast on an item (in inventory or on the ground), or on a character (then it hits a
+**random** suppressed worn item of the wearer). The `DispelContest` mechanic is
+documented in Spell Manual §9.3.1 (the suppression potency is taken directly, no
+`dispel_mod`; it always rolls; a miss erodes the suppression by `decay`%). Its action
+grammar is
 `<alter_obj handler="AlterWeaveRestore" collateral="first_suppressed" dispel_bonus= decay= bypass_noalter=>` (ibid).
 
-**Suppression display** — four inspect surfaces: the `equipment` listing shows a compact
-suppressed-magic marker on the item (shipped Russian `<магия подавлена>`); `examine` and
-`identify` show a header line (`Временно подавлено волшебство:`) then one indented affect
-per line, `    <affect> (N hours)`. Times are in **game hours** (the counter decrements
-once per MUD hour).
+**Suppression display** — four inspect surfaces:
+
+* Item listings (`экипировка` / equipment and the like) show a compact marker
+  ` <магия подавлена>` after the item.
+* `осмотреть` (examine) shows a header and an indented column:
+  ```
+  Временно подавлено волшебство:
+      летит (8 часов)
+      доблесть (6 часов)
+  ```
+* `опознать` (identify) shows the same column under the header `Временно подавлены     :`.
+* God `stat` shows one line: `Подавленные аффекты   : летит (8 часов), …`.
+* Times are in **game hours** (the counter decrements once per MUD hour).
 
 Related fixes: dispelled buffs now use **their own** removal message (chain
 `kAffDispelled` → `kAffExpired` → `kDefault`, not the generic "heat washes over you"); a
-permanent affect (`duration < 0`) renders as "(permanent)" in `affects`.
+permanent affect (`duration < 0`) renders as "(постоянно)" (permanent) in `аффекты`
+(affects).
 
 ---
 
 ## 9. Worked examples (all shipping)
 
 * **DoT — `kBurning`:** `kAfSameTime` + a `kPulse` `<action target="kTarFightSelf">`
-  with `<damage>` scaled by `dices_weight` off the stored potency, plus
-  `kDamageTo*` messages. Ticks in and out of combat; bound by `<charges>`.
+  with `<damage saving="kNone"><amount min="1" beta="6" weight="0"/>`, scaled off the
+  stored potency, plus `kDamageTo*` messages. Ticks in and out of combat; bound by the
+  imposer's `<charges max="7"/>` (`kFireBlast`, the `kFireTrap` dispel sting).
 * **Leech + on-kill — `kVampirism`:** a `kPostHit` `<points><heal base="tag"
-  tag="amount" beta="0.10">` (heal 10% of damage dealt) **and** a `kKill`
+  tag="amount" min="1" beta="0.1">` (heal 10% of damage dealt) **and** a `kKill`
   `<affects battleflag="kAfBattledec"><duration base="6"><affect id="kHaste"/>` —
   a short battle-haste reward on a kill.
 * **Stat buff/debuff — `kHaste`/`kSlowdown`:** a single `<apply location="kInitiative">`
-  (`beta=0.9`, `factor=+1`/`-1`) — scales with the caster's skill; the pair stacks
+  (`beta=0.4143`, `factor=+1`/`-1`) — scales with the caster's skill; the pair stacks
   (net = sum) because both write the same `EApply`.
 * **Ward — `kSanctuary`/`kFireShield`:** `kWardDamage` `<damage_change>` blocks
-  (`-50%` phys / `+100%` magic for sanctuary; a fire shield adds a `<retaliation>`).
+  (`-50%` phys / `+100%` magic for sanctuary); a fire shield adds a `<retaliation>`
+  action (15 % reflected) and `stage="late"` reductions of 30–50 %.
 * **On-expire chain — `kDrunked` → `kAbstinent`:** a `kExpired`
   `<action target="kTarFightSelf"><affects><duration … skill="kHangovering"/>
   <affect id="kAbstinent"/>` — natural sober-up leaves a skill-scaled hangover
@@ -545,11 +615,14 @@ permanent affect (`duration < 0`) renders as "(permanent)" in `affects`.
 * **`EActionTrigger`** — see §5.1; canonical names in `talents_actions.cpp`.
 * **`EActionTarget`** — see §5.3.
 * **`EApply`** (apply `location=`) — shared with spells; Spell Manual §14.3 /
-  `entities_constants.h`.
+  `affect_contants.h`.
 * **`EAffect` / `ERoomAffect`** — the affect ids; `affect_contants.h` /
   `room_affects.h` enums.
 * **`EEquipmentAffect`** — worn-item affects (§8.1); `equipment_affects.{h,cpp}`.
 * **`EObjAffect`** — on-item affects (§8.2); `obj_affects.h`.
+
+All of these headers live in `src/gameplay/affects/`, except `talents_actions.cpp`
+(`src/gameplay/abilities/`).
 
 ---
 
@@ -563,7 +636,8 @@ permanent affect (`duration < 0`) renders as "(permanent)" in `affects`.
    the manifestation (`<damage>` DoT / `<points>` HoT / `<affects>` impose /
    `<damage_change>` ward). Scale with `base="tag"` or the potency (`beta`).
 5. **Messages** — at least impose/expire, plus `kDamageTo*` for any DoT.
-6. **Room affect?** put it in `room_affects.xml` and consider entry/door triggers.
+6. **Room affect?** put it in `room_affects.xml` as a `<room_affect>` and consider
+   entry/door triggers.
 7. **Retire the hard-coded C++** the affect replaces (leave the id as a marker if
    other code still tests the flag).
 8. **Verify** in mud-sim: impose it, tick/trigger it, confirm the effect + messages

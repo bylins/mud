@@ -1,9 +1,9 @@
 # Bylins MUD — Cookbook (worked examples)
 
 *Complete, cross-referenced examples for authors of `spells.xml`, `affects.xml`,
-`room_affects.xml`, and `feats.xml`. Read the three reference manuals first —
-[Spell](SPELL_MANUAL.md) · [Affect](AFFECT_MANUAL.md) · [Feat](FEAT_MANUAL.md) —
-then use these as templates.*
+`obj_affects.xml`, `room_affects.xml`, and `feats.xml`. Read the three reference
+manuals first — [Spell](SPELL_MANUAL.md) · [Affect](AFFECT_MANUAL.md) ·
+[Feat](FEAT_MANUAL.md) — then use these as templates.*
 
 > **Section references.** Bare `§N` numbers point to the **Spell Manual** unless a
 > link says otherwise (e.g. "[Affect Manual](AFFECT_MANUAL.md) §5").
@@ -21,25 +21,31 @@ One scenario that touches every system at once. It demonstrates:
   letting it run out backfires onto the bearer's allies;
 * several **feats** that reshape the spell and both affects via `talent_patch`.
 
+> **New ids.** The spell `kHexOfDecay`, the affects `kDecayHex`/`kBlightCurse` and
+> the five feats are all new. Every id is a C++ enum, so each one needs an enumerator
+> and a name-map string before the data resolves (see the table in §4; feats go into
+> `EFeat` — `feats_constants.h` + `feats_constants.cpp`). A spell can instead be
+> prototyped in a free test slot (`kTestTwo` … `kTestFive`, Spell Manual §17).
+
 ### 1.1 The spell — `spells.xml`
 
 `kHexOfDecay` is a dark single-target curse whose only job is to impose the affect.
 
 ```xml
 <spell id="kHexOfDecay" element="kDark" mode="kEnabled">
-    <name rus="порча увядания" eng="hex of decay"/>
+    <name val="hex of decay"/>
     <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="1"/>
     <mana max="60" min="45" change="1"/>
     <targets val="kTarCharRoom|kTarFightVict"/>
     <flags val="kMagAffects|kNpcAffectPc"/>
     <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
-        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-        <base_stat id="kInt" threshold="22" weight="0.5"/>
+        <base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kInt" threshold="22" weight="18"/>
     </potency_roll>
     <success_roll>
         <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+        <base_stat id="kInt" threshold="22" weight="0.5"/>
     </success_roll>
     <talent_actions>
         <action>
@@ -53,7 +59,9 @@ One scenario that touches every system at once. It demonstrates:
 ```
 
 Everything the curse *does* is on `kDecayHex`; the spell just delivers it (§8) with
-a Will save and a skill-scaled duration.
+a Will save and a skill-scaled duration. `<name val>` is only the English admin
+label: the Russian display name and the cast messages live in
+`cfg/messages/ru/spell_msg.xml` (sheaf `kHexOfDecay`, `<name val="порча увядания"/>`).
 
 ### 1.2 The affect — `affects.xml`, **multiple triggers**
 
@@ -94,9 +102,10 @@ trigger actions — a DoT while active, and the payload on natural expiry.
   potency ([Affect Manual](AFFECT_MANUAL.md) §4.2). Give it a `kDamageToChar/Room`
   message so it isn't silent.
 * **`kExpired` (b)** is the twist. On natural timeout it hits `kTarGroup` (the
-  bearer's groupmates), with `<area>` capping the hit at **three-to-five** of them
-  (`min=3` + a small skill-scaled bonus, `max=2`). Each catches `kBlightCurse`
-  (§1.3) for 4 hours.
+  bearer's groupmates), and `<area>` sets how many: `min=3` plus a skill-scaled
+  bonus capped at `max=2`. The bonus reads the skill of the *casting spell*, and an
+  affect-triggered action has none (it runs with no spell), so in practice exactly
+  **three** groupmates are hit. Each catches `kBlightCurse` (§1.3) for 4 hours.
 * **Dispel with impunity.** Because there is **no `kDispell` action**, removing the
   hex early (dispel magic / cure) fires *nothing* — the payload triggers only on
   the *natural* `kExpired` path. That `kExpired`-vs-`kDispell` contrast is the whole
@@ -131,11 +140,12 @@ even though the imposer is an *affect* (the on-expiry action), not a live cast.
 
 ### 1.4 How it plays out
 
-1. Caster lands `kHexOfDecay` → victim gets `kDecayHex` (Will save, ~5–15 h).
+1. Caster lands `kHexOfDecay` → victim gets `kDecayHex` (Will save, 6–10 h before
+   resists).
 2. Each tick, `kDecayHex` gnaws the victim a little (`kPulse`).
 3. The victim (or an ally) can **dispel/cure** `kDecayHex` at any time — nothing
    bad happens (no `kDispell` action).
-4. If nobody removes it, the timer runs out → `kExpired` fires → 3–5 of the
+4. If nobody removes it, the timer runs out → `kExpired` fires → three of the
    victim's groupmates catch `kBlightCurse` for 4 h (big stat hit + a hard DoT).
 
 ---
@@ -222,8 +232,9 @@ characters without them.
 
 ## 3. Recipe gallery
 
-Shorter single-purpose examples (relocated from the Spell Manual).
-
+Shorter single-purpose examples (relocated from the Spell Manual). Examples that
+name a real spell reproduce its current definition from `lib/cfg/spells.xml` and
+`lib/cfg/affects/affects.xml`; hypothetical ones say so.
 
 > **Two files.** Examples that impose an affect show *both* the spell block (which
 > names the affect via `<affect id="…"/>` and owns duration/save) **and** the affect
@@ -234,20 +245,25 @@ Shorter single-purpose examples (relocated from the Spell Manual).
 
 ```xml
 <spell id="kMagicMissile" element="kAir" mode="kEnabled">
-    <name rus="волшебная стрела" eng="magic missile"/>
+    <name val="magic missle"/>
+    <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="1"/>
     <mana max="40" min="30" change="1"/>
     <targets val="kTarCharRoom|kTarFightVict"/>
     <flags val="kMagDamage|kNpcDamagePc"/>
     <potency_roll>
-        <dices ndice="6" sdice="4" adice="10"/>
-        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
-        <base_stat id="kWis" threshold="22" weight="5"/>
+        <noise sigma="0.25"/>
+        <base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
     </potency_roll>
+    <success_roll>
+        <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
+        <base_stat id="kWis" threshold="22" weight="5"/>
+    </success_roll>
     <talent_actions>
-        <action>
-            <damage saving="kReflex">
-                <amount min="0" beta="12.5"/>
+        <action id="Main">
+            <damage id="Bolt" saving="kReflex">
+                <amount min="0" beta="15.3468" weight="1"/>
                 <hits skill_divisor="12" max="2" prob="100"/>
             </damage>
         </action>
@@ -256,31 +272,42 @@ Shorter single-purpose examples (relocated from the Spell Manual).
 ```
 
 * Saving throw `kReflex`, halves on save.
-* Amount = `dices · 1.0 + competencies · 25`.
-* Up to 2 extra hits, fired every cast (`prob=100`), with the extra-hit
-  bonus scaled by `min(kFireMagic, 75) / 12`.
+* Amount = `min + beta·C·(1 + weight·d)` = `15.3468·C`, where `C` is the caster's
+  competence from `<potency_roll>` (skill + stat, §3.7) and `d` is the spell's one
+  shared noise draw (`<noise sigma="0.25"/>`); `weight="1"` takes the full spread,
+  `weight="0"` would make the amount deterministic.
+* Up to 2 extra hits, fired every cast (`prob=100`); the number of extra hits is
+  `min(kAirMagic, 75) / 12` (the potency roll's `base_skill`), capped at `max=2`.
+* `id="Main"` / `id="Bolt"` are stable block ids a feat patch can address
+  (`feats.xml` replaces exactly this damage via `action="Main" effect="Bolt"`; see the
+  [Feat Manual](FEAT_MANUAL.md) §4).
 
 ### 3.2 A debuff with saving throw, reposition, and lag
 
 ```xml
 <spell id="kSleep" element="kMind" mode="kEnabled">
-    <name rus="сон" eng="sleep"/>
+    <name val="sleep"/>
+    <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="0"/>
     <mana max="70" min="55" change="1"/>
     <targets val="kTarCharRoom|kTarFightVict"/>
     <flags val="kMagAffects|kNpcAffectPc"/>
     <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
+        <base_skill id="kMindMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kInt" threshold="22" weight="18"/>
+    </potency_roll>
+    <success_roll>
         <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
         <base_stat id="kInt" threshold="22" weight="0.5"/>
-    </potency_roll>
+    </success_roll>
     <talent_actions>
         <action>
-            <blocking>
-                <mob_flags val="kNoSleep"/>
-                <affect_flags val="kHold"/>
-                <room_flags val="kNoMagic"/>
-            </blocking>
+            <target_conditions>
+                <blocking>
+                    <mob_flags val="kNoSleep"/>
+                    <affect_flags val="kHold"/>
+                </blocking>
+            </target_conditions>
             <affects saving="kWill" resist="kMind">
                 <reposition pos="kSleep"/>
                 <duration base="1" skill_divisor="15" min="1" max="6"/>
@@ -298,33 +325,40 @@ Shorter single-purpose examples (relocated from the Spell Manual).
 </affect>
 ```
 
-* Targets are NPCs flagged `kNoSleep` or anyone holding the `kHold` affect
-  are immune (the gate fires before any roll).
+* NPCs flagged `kNoSleep` or anyone holding the `kHold` affect are immune (the
+  `<target_conditions>` gate fires before any roll). A bare `<blocking>` directly
+  under `<action>` is no longer accepted — always wrap it (§4).
 * A successful `kWill` save averts the sleep.
 * On a successful imposition, the victim drops to `kSleep` position.
 * Duration: `1 + min(kMindMagic, 75) / 15` hours, clamped `[1..6]`.
 * `kAfDispellable|kAfCurable` means both `kDispellMagic` and
   `kRemovePoison`-style cures can attempt removal (subject to potency
   contest).
+* This spell carries no `<lag>`; battle-lag would be one more child of the same
+  `<affects>` block (`<lag base="…" bonus_divisor="…"/>`, §8.3).
 
 ### 3.3 A pure cure (potency-gated)
 
 ```xml
 <spell id="kRemovePoison" element="kLife" mode="kEnabled">
-    <name rus="лечить яд" eng="remove poison"/>
+    <name val="remove poison"/>
+    <components><verbal/><weave/></components>
     <misc pos="kFight" violent="N" danger="0"/>
     <mana max="60" min="45" change="2"/>
     <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
     <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
     <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
+        <base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
+    </potency_roll>
+    <success_roll>
         <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
         <base_stat id="kWis" threshold="22" weight="0.5"/>
-    </potency_roll>
+    </success_roll>
     <talent_actions>
         <action>
-            <unaffect affect_flags="kAfCurable">
-                <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
+            <unaffect dispel_bonus="80" affect_flags="kAfCurable" decay="25">
+                <remove all_of="kPoisoned|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison|kSkillReduce|kNoBattleSwitch"/>
             </unaffect>
             <alter_obj handler="AlterRemovePoison"/>
         </action>
@@ -334,37 +368,48 @@ Shorter single-purpose examples (relocated from the Spell Manual).
 
 * `affect_flags="kAfCurable"` — won't touch affects that are only
   `kAfDispellable` (e.g. blessings).
-* `<remove all_of="…">` — tries every listed poison present on the target.
+* `<remove all_of="…">` — tries every listed affect present on the target (it
+  removes whichever it finds, it does not require all of them). The list is the
+  poison family plus `kSkillReduce` and `kNoBattleSwitch`: a mercenary's poison is a
+  bundle of several affect types, so without the last two a cure would strip only the
+  poison line and leave the skill penalty and the no-switch lock in place. All of
+  them carry `kAfPoison` in `affects.xml`, so no unrelated debuff is touched.
 * `<alter_obj handler="AlterRemovePoison"/>` — the same spell cast on a poisoned
   food/drink cleans the object instead (§3.8.7); both manifestations live in the
   one action.
 * Each removal is a d100 skill contest (Spell Manual §9.3). A cure ships
   `dispel_bonus="80"`, so a priest reliably clears a same-skill poison; a master
-  assassin's stronger `poison` (higher recorded competence) lowers the threshold —
+  assassin's stronger poison (higher recorded competence) lowers the threshold —
   a much weaker priest falls toward the 5 % floor, a stronger one reaches the 95 % ceiling.
+* `decay="25"` — on a **failed** removal the surviving poison is weakened by 25 % of
+  the curer's competence contribution, so repeated casts wear it down (§9.1).
 
 ### 3.4 Reveal with chain-break
 
 ```xml
 <spell id="kGlitterDust" element="kEarth" mode="kEnabled">
-    <name rus="блестящая пыль" eng="glitterdust"/>
+    <name val="glitterdust"/>
+    <components><weave/></components>
     <misc pos="kFight" violent="Y" danger="5"/>
     <mana max="120" min="100" change="3"/>
     <targets val="kTarIgnore"/>
     <flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc"/>
     <potency_roll>
-        <dices ndice="5" sdice="9" adice="12"/>
+        <base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
+    </potency_roll>
+    <success_roll>
         <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
         <base_stat id="kWis" threshold="22" weight="0.5"/>
-    </potency_roll>
+    </success_roll>
     <talent_actions>
         <action>
             <area>
                 <targets skill_divisor="15" dice_size="3" min="5" max="20"/>
                 <distribution type="kStepped" decay="0.05" free_targets="5"/>
             </area>
-            <unaffect>
-                <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
+            <unaffect decay="25">
+                <remove all_of="kInvisible|kDisguise|kHide" breaking_by_failure="true"/>
             </unaffect>
             <affects saving="kReflex" resist="kEarth">
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
@@ -376,41 +421,52 @@ Shorter single-purpose examples (relocated from the Spell Manual).
 ```
 
 ```xml
-<!-- affects.xml: the affect owns its flags and the saving-throw penalty -->
+<!-- affects.xml: the affect owns its saving-throw penalty -->
 <affect id="kGlitterDust" buff="N">
-    <flags val="kAfDispellable|kAfCurable"/>
     <apply location="kSavingReflex">
-        <modifier min="0.0" beta="4.4" factor="1"/>
+        <modifier min="0" beta="2.0254" factor="1"/>
     </apply>
 </affect>
 ```
 
 * `<unaffect>` runs first (chain order): tries to strip
-  `kInvisible|kCamouflage|kHide`.
+  `kInvisible|kDisguise|kHide`. With no `affect_flags` it uses the default
+  `kAfCurable|kAfDispellable`.
 * If the potency contest **fails** for any of them on a given target,
   `breaking_by_failure="true"` makes the cast chain break **for that
-  target** — the glitterdust debuff doesn't land.
+  target** — the glitterdust debuff doesn't land. `decay="25"` still weakens the
+  surviving affect, so the next cast has better odds.
 * If the dispels succeed (or the affects weren't present), the debuff
   applies normally — a saving-throw penalty for 4 hours.
-* The penalty scales with caster competence: at competencies ≈ 3.12
-  (skill 140 / wis 34, the R=12 typical caster) the saving-throw
-  modifier is `+ceil(3.12·4.4) = +14`; an untrained caster (skill 0,
-  stat at threshold) gets `+ceil(0·4.4) = 0` — see the [Affect Manual](AFFECT_MANUAL.md) §4.2.1 for the competence-scaling rules.
+* The affect has no `<flags>`: it is neither dispellable nor curable and simply
+  runs its 4 hours (decrementing once per mud-hour).
+* The penalty scales with caster competence: at skill 140 / wis 34 (the R=12
+  typical caster) the competence is `C = (75·1 + 65·7)/100 + (34−22)·18/100 = 7.46`
+  and the saving-throw modifier is `+ceil(7.46·2.0254) = +16`; an untrained caster
+  (skill 0, stat at threshold) gets `+ceil(0·2.0254) = 0` — see the
+  [Affect Manual](AFFECT_MANUAL.md) §4.2.1 for the competence-scaling rules. (That is
+  the full-strength value; targets beyond `free_targets="5"` get it reduced by the
+  stepped falloff, §7.)
 
 ### 3.5 Alignment-restricted spell
 
 ```xml
 <spell id="kDispelEvil" element="kLight" mode="kEnabled">
-    <name rus="рассеять зло" eng="dispel evil"/>
-    <misc pos="kFight" violent="Y" danger="2"/>
-    <mana max="120" min="100" change="2"/>
+    <name val="dispel evil"/>
+    <components><verbal/><weave/></components>
+    <misc pos="kFight" violent="N" danger="1"/>
+    <mana max="100" min="90" change="1"/>
     <targets val="kTarCharRoom|kTarFightVict"/>
-    <flags val="kMagDamage|kNpcDamagePc"/>
+    <flags val="kMagDamage"/>
     <potency_roll>
-        <dices ndice="6" sdice="9" adice="20"/>
-        <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-        <base_stat id="kWis" threshold="22" weight="0.5"/>
+        <noise sigma="0.15"/>
+        <base_skill id="kLightMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="22" weight="18"/>
     </potency_roll>
+    <success_roll>
+        <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
+        <base_stat id="kWis" threshold="22" weight="0.5"/>
+    </success_roll>
     <caster_conditions>
         <blocking>
             <align val="kEvil"/>
@@ -418,17 +474,14 @@ Shorter single-purpose examples (relocated from the Spell Manual).
     </caster_conditions>
     <talent_actions>
         <action>
+            <damage saving="kStability">
+                <amount min="0" beta="63.6246" weight="1"/>
+            </damage>
             <target_conditions>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <required>
                     <align val="kEvil"/>
                 </required>
             </target_conditions>
-            <damage saving="kStability">
-                <amount min="0" beta="61"/>
-            </damage>
         </action>
     </talent_actions>
 </spell>
@@ -439,17 +492,21 @@ Shorter single-purpose examples (relocated from the Spell Manual).
   now data-driven). Spell-level, checked once before any target.
 * `<target_conditions><required><align val="kEvil"/></required></target_conditions>` —
   the *target* must be evil, else `kNoeffect`.
-* `<target_conditions><blocking><room_flags val="kNoMagic"/></blocking></target_conditions>` —
-  universal NOMAGIC-room fizzle added to all non-warcry spells; emits `kCastForbidden*`
-  (see §15).
+* `<components><weave/></components>` — marks the spell as actual magic, so it fizzles
+  in a `kNoMagic` room and emits `kCastForbiddenToChar` / `kCastForbiddenToRoom` (§3.9).
+  This replaced the per-spell `<blocking><room_flags val="kNoMagic"/></blocking>` that
+  every non-warcry spell used to carry.
 
 ### 3.6 A reflection template
 
-No spell currently uses `<reflection>` in production (it's plumbed and
-ready). Here's how a fire-shielded creature might reflect cold spells:
+No spell currently uses the spell-side `<reflection>` in production (it's plumbed
+and ready). The magic mirror `kMagicGlass` uses a different, affect-side
+`<reflection min="…" max="…"/>` under a `kWardAttack` trigger
+([Affect Manual](AFFECT_MANUAL.md) §5.4). Here's how a cold bolt, prototyped in a
+free test slot (Spell Manual §17), might bounce off fire-shielded creatures:
 
 ```xml
-<spell id="kIceBolt" element="kWater" mode="kEnabled">
+<spell id="kTestTwo" element="kWater" mode="kTesting">
     <!-- … usual fields … -->
     <talent_actions>
         <action>
@@ -463,7 +520,7 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
 ```
 
 * Targets carrying `kFireShield` or `kFireAura` have a **35 %** chance per
-  cast to reflect the spell back at the caster.
+  cast to reflect the spell back at the caster (without `prob` the chance is 20 %).
 * Once reflection fires, the caster takes the damage themselves (subject
   to all of their own defences). Three messages
   (`kReflectedToChar`/`Vict`/`Room`) describe the bounce.
@@ -473,19 +530,22 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
 ### 3.7 Stacking poison (hypothetical)
 
 The real `kPoison` doesn't stack today — this example illustrates the
-mechanic. The actual `kPoison` uses `beta` to scale the
-poison-damage tick (no stacking); here we re-add `stack="3"` to show
-how a stacking variant would be authored.
+mechanic. The actual spell imposes the `kPoisoned` affect with spell-side
+`<apply>`s (a flat `kStr` −2 and a `kPoison` level with `beta="18.4125"`); the
+`kPoisoned` affect itself carries the DoT. Here we move the applies onto the affect
+and add `stack="3"` to show how a stacking variant would be authored.
 
 ```xml
 <spell id="kPoison" element="kDark" mode="kEnabled">
     <!-- … usual fields … -->
     <talent_actions>
         <action>
-            <blocking><affect_flags val="kGodsShield"/></blocking>
+            <target_conditions>
+                <blocking><affect_flags val="kGodsShield"/></blocking>
+            </target_conditions>
             <affects saving="kCritical" resist="kDark">
                 <duration base="0" skill_divisor="3" min="0" max="0"/>
-                <affect id="kPoison"/>
+                <affect id="kPoisoned"/>
             </affects>
         </action>
     </talent_actions>
@@ -493,30 +553,33 @@ how a stacking variant would be authored.
 ```
 
 ```xml
-<!-- affects.xml: the affect owns the stacking applies (str penalty + poison tick) -->
-<affect id="kPoison" buff="N">
-    <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
+<!-- affects.xml: the affect owns the stacking applies (str penalty + poison level) -->
+<affect id="kPoisoned" buff="N">
+    <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable|kAfPoison"/>
     <apply location="kStr">
-        <modifier min="2.0" beta="0" factor="-1" stack="3"/>
+        <modifier min="2" beta="0" factor="-1" stack="3"/>
     </apply>
     <apply location="kPoison">
-        <modifier min="0.0" beta="11.5" factor="1" stack="3"/>
+        <modifier min="0" beta="18.4125" factor="1" stack="3"/>
     </apply>
+    <actions>
+        <!-- the real kPoisoned's DoT: each tick deals the summed kPoison level -->
+        <action target="kTarFightSelf">
+            <trigger val="kPulse"/>
+            <damage source="poison" saving="kNone"/>
+        </action>
+    </actions>
 </affect>
 ```
 
-*(A real poison DoT would drive its damage from a `kPulse` `<damage>` action — see
-the [Affect Manual](AFFECT_MANUAL.md) §5; this apply-based form illustrates
-stacking.)*
-
 * Re-casting on the same victim **stacks up to 3 times**: the strength
   penalty scales `-2`, `-4`, `-6` (flat per stack) and the
-  poison-damage tick scales as `1×`, `2×`, `3×` the per-cast value
-  (where the per-cast value is `ceil(competencies·11.5)` — at the R=12
-  typical caster ≈ 36 per stack).
+  poison level — and with it the `kPulse` tick, which reads that level — scales as
+  `1×`, `2×`, `3×` the per-cast value (where the per-cast value is
+  `ceil(C·18.4125)` — at the R=12 typical caster, `C ≈ 7.46`, ≈ 138 per stack).
 * Duration accumulates (`kAfAccumulateDuration`).
 * `kAfCurable` (without `kAfDispellable`) — `kRemovePoison` works, plain
-  `kDispellMagic` does not.
+  `kDispellMagic` (which only touches `kAfDispellable`) does not.
 * `kRemovePoison`'s dispel **peels one stack** rather than removing the
   whole thing — three cures to fully clear a triply-stacked poison
   (assuming each potency contest succeeds).
@@ -526,42 +589,46 @@ stacking.)*
 ### 3.8 A multi-action spell: `kSacrifice` *(per-action targets + cast-chain)*
 
 `kSacrifice` ("высосать жизнь") is the reference multi-action spell: it damages a
-foe, then heals the caster by the damage dealt, then heals the caster's **undead**
+foe, then heals the caster from the damage dealt, then heals the caster's **undead**
 minions by the same amount. Three `<action>` blocks, each with a different target.
 
 ```xml
 <spell id="kSacrifice" element="kDark" mode="kEnabled">
-    <name rus="высосать жизнь" eng="sacrifice"/>
+    <name val="sacrifice"/>
     <components><verbal/><weave/></components>
     <misc pos="kFight" violent="Y" danger="10"/>
     <mana max="140" min="75" change="3"/>
     <targets val="kTarCharRoom|kTarFightVict|kTarNotSelf"/>
     <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
     <potency_roll>
-        <dices ndice="8" sdice="15" adice="60"/>
+        <noise sigma="0.25"/>
+        <base_skill id="kDarkMagic" low_skill_bonus="1" hi_skill_bonus="7"/>
+        <base_stat id="kWis" threshold="32" weight="18"/>
+    </potency_roll>
+    <success_roll>
         <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
         <base_stat id="kWis" threshold="32" weight="4.5"/>
-    </potency_roll>
+    </success_roll>
     <talent_actions>
         <!-- A1 — damage ONE foe (the entry action; uses the spell-level target). -->
         <action>
             <damage saving="kWill">
-                <amount min="0" beta="62"/>
+                <amount min="0" beta="82.5134" weight="1"/>
             </damage>
             <target_conditions>
                 <blocking><affect_flags val="kCharmed"/></blocking>   <!-- never your own charmed pet -->
             </target_conditions>
         </action>
-        <!-- A2 — heal the CASTER by the damage just dealt (base=kDamage). -->
+        <!-- A2 — heal the CASTER from the damage just dealt (base=kDamage). -->
         <action target="kTarFightSelf" base="kDamage">
             <points extra="300">
-                <heal min="0" beta="1.0" npc_coeff="0"/>
+                <heal npc_coeff="0" min="0" beta="0.5171" weight="1"/>
             </points>
         </action>
         <!-- A3 — heal the caster's UNDEAD minions by the same amount. -->
         <action target="kTarMinions" base="kDamage">
             <points extra="300">
-                <heal min="0" beta="1.0" npc_coeff="0"/>
+                <heal npc_coeff="0" min="0" beta="0.5171" weight="1"/>
             </points>
             <area>
                 <targets max="-1"/>             <!-- all minions, no scaling -->
@@ -583,8 +650,10 @@ What each piece does:
   carries the spell's gates and the victim reaction (deferred to the end).
 * **A2 (`target="kTarFightSelf"`, `base="kDamage"`)** re-aims at the caster and
   **heals**. `base="kDamage"` swaps the competence scalar for *the HP A1 actually
-  removed*; with `beta="1.0"` (and `base="kDamage"`) the heal equals the damage
-  (a clean 1:1 transfer). `<points extra="300">` lets the heal overheal to 4× max.
+  removed*; with `beta="0.5171"` the heal is about half the damage, and `weight="1"`
+  lets the spell's shared noise draw spread it as well. For a clean 1:1 transfer use
+  `beta="1.0"` with `weight="0"`. `<points extra="300">` lets the heal overheal to
+  4× max.
 * **A3 (`target="kTarMinions"`, `base="kDamage"`)** repeats that heal on the
   caster's charmed NPC followers, but its `<required><mob_flags val="kCorpse"/>`
   limits it to **undead** minions, and its `<area><targets max="-1"/>` fans the
@@ -597,7 +666,8 @@ Things this example illustrates:
   spell re-aims mid-cast (§3.8.1).
 * **Cast-chain** — A2 and A3 read the running **damage** accumulator instead of
   re-rolling competence (§3.8.2). The accumulator captures *actual HP removed*
-  (overkill and resists already applied), so the heal can never exceed the damage.
+  (overkill and resists already applied), so the heal is a fraction of what A1
+  really dealt.
 * **Per-action area** — only A3 fans out; A1/A2 are single-target.
 * **One reaction** — the foe retaliates once, after A3, not between actions.
 
@@ -627,15 +697,16 @@ spell -> kPlagueBlade (item affect, on the sword, timed)
             entry  -> kPlagueTouch on the entrant                (room -> char)
 ```
 
-> **What is code vs. data.** Affect ids are fixed C++ enums, so a **new id cannot be
-> declared in XML alone**. Before the data resolves, add one enumerator **and** one
-> name-map string per id:
+> **What is code vs. data.** Affect and spell ids are fixed C++ enums, so a **new id
+> cannot be declared in XML alone**. Before the data resolves, add one enumerator
+> **and** one name-map string per id:
 >
 > | New id | Enum / name map |
 > |---|---|
 > | `kPlagueTouch`, `kSwampPlague` | `EAffect` — `affect_contants.h` + `affect_contants.cpp` |
-> | `kPlagueMiasma` | `ERoomAffect` — `affects/room_affects.h` + name map |
+> | `kPlagueMiasma` | `ERoomAffect` — `affects/room_affects.h` + `affects/room_affects.cpp` |
 > | `kPlagueBlade` | `EObjAffect` — `obj_affects.h` + `obj_affects.cpp` |
+> | `kInfectBlade` | `ESpell` — `magic/spells_constants.h` + `magic/spells_constants.cpp` |
 >
 > Plus one tiny `<alter_obj>` handler (§4.1) that puts a *timed* affect on the
 > weapon. **Everything else below is pure data** (flags, applies, DoT, triggers,
@@ -649,7 +720,7 @@ spell -> kPlagueBlade (item affect, on the sword, timed)
 ```xml
 <spell id="kInfectBlade" element="kDark" mode="kEnabled">
     <name val="infect blade"/>
-    <components><verbal/><weave/><material/></components>
+    <components><verbal/><weave/></components>
     <misc pos="kStand" violent="N" danger="1"/>
     <mana max="50" min="35" change="1"/>
     <targets val="kTarObjInv"/>
@@ -668,7 +739,11 @@ spell -> kPlagueBlade (item affect, on the sword, timed)
 </spell>
 ```
 
-The shipped `<alter_obj>` handlers (`AlterBless`/`AlterCurse`) impose a **permanent**
+(To require a reagent, add `<material any_of="…"/>` with the reagent's object vnum(s)
+to `<components>` — a bare `<material/>` with neither `any_of` nor `all_of` is
+skipped with an error at boot, §3.9.)
+
+The shipped `<alter_obj>` handlers `AlterBless`/`AlterCurse` impose a **permanent**
 affect (`obj_affects::Impose(obj, …, -1)`). A *timed* one needs its own handler — a
 copy of `AlterCurse` that passes a positive timer instead of `-1` (sketch):
 
@@ -676,7 +751,7 @@ copy of `AlterCurse` that passes a positive timer instead of `-1` (sketch):
 // src/gameplay/handlers/alter_infect_blade.cpp — temporarily taints a weapon with plague.
 EStageResult AlterInfectBlade(ActionContext &ctx) {
     ObjData *obj = ctx.ovict;
-    if (!obj || GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
+    if (!obj || obj->get_type() != EObjType::kWeapon) {
         return EStageResult::kFail;                 // -> generic "no effect"
     }
     const int timer = 24;                           // game-hours; -1 would be permanent
@@ -688,9 +763,10 @@ EStageResult AlterInfectBlade(ActionContext &ctx) {
 }
 ```
 
-Register it in the `kAlterObjHandlers` registry (`magic.cpp`):
-`{"AlterInfectBlade", handlers::AlterInfectBlade}`. The timer is `Impose`'s `duration`
-argument; `obj_affects::Tick` decrements it once per game hour.
+Declare it in `handlers/spell_handlers.h` and register it in the `kAlterObjHandlers`
+registry (`magic/action_handlers.cpp`): `{"AlterInfectBlade", handlers::AlterInfectBlade}`.
+The timer is `Impose`'s `duration` argument; `obj_affects::Tick` decrements it once
+per game hour.
 
 ### 4.2 The item affect — `obj_affects.xml`
 
@@ -705,7 +781,7 @@ poison subtype and skill roll).
         <action target="kTarActor">
             <trigger val="kWeaponHit" prob="15"/>
             <affects saving="kCritical" resist="kDark">
-                <duration base="4" skill_divisor="20" min="3" max="8"/>
+                <duration base="4" skill_divisor="0" min="0" max="0"/>
                 <affect id="kPlagueTouch"/>
             </affects>
         </action>
@@ -714,8 +790,13 @@ poison subtype and skill roll).
 ```
 
 * `kWeaponHit` fires when the tainted weapon lands a blow; `prob="15"` = 15% of hits.
-  A `saving=` is mandatory (else the action is dropped).
+  `saving=` may be omitted on `<affects>`, but then it defaults to `kReflex`, not to
+  "no save" — write `saving="kNone"` for that. (On `<damage>` `saving=` is genuinely
+  required: without it the whole action list is dropped at load.)
 * `target="kTarActor"` = the struck character.
+* A flat 4 hours: a triggered action runs with no casting spell, so a `skill_divisor`
+  would add nothing (the duration-scaling skill comes from the spell's potency roll, or
+  from an explicit `skill="kX"` on `<duration>` — [Affect Manual](AFFECT_MANUAL.md) §5.6).
 * `msg_case="kIns"` — the item name declines in the instrumental case in the affect's
   messages.
 
@@ -847,17 +928,19 @@ spreads through the location even with no carrier present.
 
 Each new id needs its own messages (or it renders silent):
 
+* `cfg/messages/ru/spell_msg.xml` — sheaf `kInfectBlade`: the Russian display name
+  (`<name val="заразить клинок"/>`) and `kAlterObjToChar` (the line the handler sends).
 * `cfg/messages/ru/obj_affect_msg.xml` — sheaf `kPlagueBlade`: `kShortDesc` (a plague
   film), `kDiagToChar` (the examine line).
 * `cfg/messages/ru/affect_msg.xml` — sheaves `kPlagueTouch` / `kSwampPlague`:
   impose/expire + `kDamageToChar`/`kDamageToRoom` for the DoT (else the tick is silent).
 * `cfg/messages/ru/room_affect_msg.xml` — sheaf `kPlagueMiasma`: the room's miasma
-  description.
+  description (`kRoomAffectVisible`).
 
 ### 4.7 How it plays
 
 1. A mage casts `kInfectBlade` on a sword → the sword carries `kPlagueBlade` for 24h.
-2. Each hit: 15% → the victim gets `kPlagueTouch` (3–8h).
+2. Each hit: 15% → the victim gets `kPlagueTouch` (4h).
 3. `kPlagueTouch`: a weak DoT + −2 Str/Int. Dispel or cure it and you're safe.
 4. If ignored → the timer runs out → the victim **and 3 allies** get `kSwampPlague`
    for 6h.
@@ -950,6 +1033,6 @@ What each shows:
 | `kPlagueWard` | affect `kSwampPlague` | `modify` + `relative="group_leader"` | gate the patch on a *relative's* feat |
 
 All are gated by `CanUseFeat(holder, feat)` and cost nothing on cast/tick for anyone
-without them. The feats are pure data (`feats.xml`) layered over the §4 ids; they need
-no new code.
-
+without them. The feats are data (`feats.xml`) layered over the §4 ids; they need no
+new logic — only their `EFeat` enumerators and name-map strings
+(`feats_constants.h` + `feats_constants.cpp`), as with every id.
