@@ -40,8 +40,12 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name);
 
 ESpell FindSpellIdWithName(const std::string &name);
 
+// target_word_used (if given) -- whether `t` named the target (a character, an object, a direction):
+// false when the spell ignores targets (kTarIgnore, kTarRoomThis) or `t` is empty, so the word is
+// left to the spell (CastArgs::target_words).
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
-		int *dir = nullptr);  // kTarDirection -> *dir = parsed direction
+		int *dir = nullptr,  // kTarDirection -> *dir = parsed direction
+		bool *target_word_used = nullptr);
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
 
 // True if `caster` bypasses the spell's room-level <blocking> (kNoMagic etc.).

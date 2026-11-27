@@ -395,7 +395,7 @@
 		<message type="kFightGodToRoom" val="$n рискнул$g сразить $N3 наповал ударом щита, но $s удар пролетел мимо." />
 	</msg_sheaf>
 	<msg_sheaf id="kReligion">
-		<name val="!молитва или жертва!" abbr="Error" />
+		<name val="набожность" abbr="Нб" />
 	</msg_sheaf>
 	<msg_sheaf id="kAny">
 		<name val="!any" abbr="Any" />

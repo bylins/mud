@@ -467,17 +467,17 @@ CharData *CharData::GetExtraVictim() const {
 }
 
 void CharData::SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom,
-					   const std::string &extra) {
+					   const CastArgs &args) {
 	cast_attack_.spell_id = spell_id;
 	cast_attack_.spell_subst = spell_subst;
 	cast_attack_.tch = tch;
 	cast_attack_.tobj = tobj;
 	cast_attack_.troom = troom;
-	cast_attack_.extra = extra;
+	cast_attack_.args = args;
 }
 
-const std::string &CharData::GetCastExtra() const {
-	return cast_attack_.extra;
+const CastArgs &CharData::GetCastArgs() const {
+	return cast_attack_.args;
 }
 
 ESpell CharData::GetCastSpell() const {

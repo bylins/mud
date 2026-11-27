@@ -82,6 +82,7 @@
 		     so the key always resolves to something readable. -->
 		<message type="kItemCreationFailToChar" val="Создание не удалось." />
 		<message type="kWrongTarget" val="Это не подходящая цель для заклинания." />
+		<message type="kUnknownChoice" val="Уточните, что именно вы хотите: {choices}." />
 		<!-- Teleport-style "actor moved" generics (issue.spell-msg-improve). $n is the
 		     actor moving; the room sees them leave or arrive. Per-spell sheaves override
 		     with flavour for kWorldOfRecall, kTeleport, kRelocate, kSummon, etc. -->
@@ -2416,5 +2417,24 @@
 		<name val="очищение" />
 		<message type="kCastPhraseHeathen" val="очистися место сие" />
 		<message type="kCastPhraseChristian" val="... да сгинет скверна с места сего." />
+	</msg_sheaf>
+	<!-- issue #2689: жертва и молитва. kOfferingToChar/kOfferingToRoom -- что видят молящийся и комната;
+	     {gift} -- что пожертвовано (предмет или сумма в винительном падеже), {choice} -- кому (первое
+	     имя из choice выбранного действия). kDefaultOfferingToChar/kDefaultOfferingToRoom -- молитва
+	     без дара, за свечку (default_currency/default_amount в mechanics/piety.xml).
+	     kUnknownChoice -- игрок не назвал, кому, или назвал неизвестного; {choices} -- кому можно. -->
+	<msg_sheaf id="kOffering">
+		<name val="жертва" />
+		<message type="kOfferingToChar" val="Вы принесли {gift} в жертву {choice}." />
+		<message type="kOfferingToRoom" val="$n принес$q {gift} в жертву {choice}." />
+		<message type="kUnknownChoice" val="Вы можете принести жертву: {choices}." />
+	</msg_sheaf>
+	<msg_sheaf id="kPrayer">
+		<name val="молитва" />
+		<message type="kOfferingToChar" val="Вы пожертвовали {gift} на храм и вознесли молитву {choice}." />
+		<message type="kOfferingToRoom" val="$n пожертвовал$g {gift} на храм и вознес$q молитву {choice}." />
+		<message type="kDefaultOfferingToChar" val="Вы затеплили свечку и вознесли молитву {choice}." />
+		<message type="kDefaultOfferingToRoom" val="$n затеплил$g свечку и вознес$q молитву {choice}." />
+		<message type="kUnknownChoice" val="Вы можете вознести молитву: {choices}." />
 	</msg_sheaf>
 </spell_msg>

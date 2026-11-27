@@ -42,6 +42,8 @@
         <skill id="kCharge"		level="20"	remort="0"	improve="4000"/>
         <skill id="kWarcry"		level="10"	remort="6"	improve="14000"/>
         <skill id="kStun"		level="28"	remort="0"	improve="40000"/>
+        <!-- issue #2689: набожность -- скрытое обязательное умение, растет от молитв и жертв. -->
+        <skill id="kReligion"		level="1"	remort="0"	improve="10000"/>
     </skills>
     <spells level_decrement="3">
         <!-- This class has no spells. -->

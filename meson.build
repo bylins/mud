@@ -837,6 +837,7 @@ main_sources = files(
   'src/engine/ui/cmd_god/do_reload.cpp',
   'src/gameplay/mechanics/mob_races.cpp',
   'src/engine/ui/cmd_god/do_set.cpp',
+  'src/gameplay/mechanics/piety.cpp',
   'src/gameplay/mechanics/stable_objs.cpp',
   'src/gameplay/mechanics/treasure_cases.cpp',
   'src/gameplay/mechanics/cities.cpp',

@@ -922,6 +922,10 @@ bool is_mob_item(const CObjectPrototype *obj);
 
 std::string char_get_custom_label(ObjData *obj, CharData *ch);
 
+// The item level: the item's stats weighed and summed (0 for mob and set items). 1000000 marks an item
+// with the same stat listed twice.
+double CalcRemortRequirements(const CObjectPrototype *obj);
+
 namespace system_obj {
 /// кошелек для кун с игрока
 extern int PURSE_RNUM;

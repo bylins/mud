@@ -6798,4 +6798,100 @@
 			</action>
 		</talent_actions>
 	</spell>
+	<!-- issue #2689: жертва (язычники) и молитва (христиане). Служебные (kService): их не учат и не
+	     колдуют, их творит команда "жертвовать" (kOffering) или "молиться" (kPrayer). Маны и плетения
+	     нет, поэтому комната без магии их не гасит.
+	     Первое действие без выбора кладет метку kPietas/kPrayerful: пока она висит, снова молиться
+	     нельзя. Остальные действия -- те, кому молятся; choice -- их имена в дательном падеже, первое
+	     из них показывается игроку. Из них срабатывает одно -- то, кого назвал игрок; оно кладет
+	     милость (что она дает -- в affects.xml). Сила C -- в основном от набожности (kReligion, растет
+	     от молитв и жертв, при перевоплощении не сбрасывается), обаяние добавляет немного; срок --
+	     12 часов, как и откат молитвы. -->
+	<spell id="kOffering" element="kUndefined" mode="kService">
+		<name val="offering" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="3" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPietas" />
+				</affects>
+			</action>
+			<action choice="Яриле|Ярило">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kYariloFavor" />
+					<affect id="kInfravision" />
+				</affects>
+			</action>
+			<action choice="Макоши|Макошь">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kMakoshFavor" />
+				</affects>
+			</action>
+			<action choice="Перуну|Перун">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPerunFavor" />
+				</affects>
+			</action>
+			<action choice="Велесу|Велес">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kVelesFavor" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
+	<spell id="kPrayer" element="kUndefined" mode="kService">
+		<name val="prayer" />
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="0" min="0" change="0" />
+		<targets val="kTarCharRoom|kTarSelfOnly" />
+		<flags val="kMagAffects" />
+		<potency_roll>
+			<base_skill id="kReligion" low_skill_bonus="1" hi_skill_bonus="1" />
+			<base_stat id="kCha" threshold="10" weight="3" />
+		</potency_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kPrayerful" />
+				</affects>
+			</action>
+			<action choice="Пресвятой Богородице|Богородице|Богородица">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kTheotokosGrace" />
+				</affects>
+			</action>
+			<action choice="Николе-Угоднику|Николе|Никола">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kNicholasGrace" />
+				</affects>
+			</action>
+			<action choice="Илие-Пророку|Илие|Илия|Илье">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kElijahGrace" />
+				</affects>
+			</action>
+			<action choice="Георгию-Победоносцу|Георгию|Георгий">
+				<affects saving="kNone" resist="kImmunity">
+					<duration base="12" skill_divisor="0" min="0" max="0" />
+					<affect id="kGeorgeGrace" />
+				</affects>
+			</action>
+		</talent_actions>
+	</spell>
 </spells>

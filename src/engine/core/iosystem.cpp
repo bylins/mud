@@ -1319,7 +1319,7 @@ std::string MakePrompt(DescriptorData *d) {
 					  ch->Skills().GetCooldownInPulses(ESkill::kGlobalCooldown));
 
 			for (const auto &skill : MUD::Skills()) {
-				if (skill.IsAvailable()) {
+				if (skill.IsAvailable() && !skill.IsFlagged(ESkillFlag::kHidden)) {
 					int cooldown = ch->Skills().GetCooldownInPulses(skill.GetId());
 					if (cooldown > 0) {
 						fmt::format_to(std::back_inserter(out), "{}:{} ", skill.GetAbbr(), cooldown);
@@ -1333,7 +1333,7 @@ std::string MakePrompt(DescriptorData *d) {
 				int display_time = (timed.second - time(0) - 1) / 60 + 1;
 
 				if (display_time > 0 && timed.first != ESkill::kWarcry && timed.first != ESkill::kTurnUndead
-					&& timed.first != ESkill::kReligion) {
+					&& !MUD::Skill(timed.first).IsFlagged(ESkillFlag::kHidden)) {
 					fmt::format_to(std::back_inserter(out), "{}:{} ",
 							  MUD::Skill(timed.first).GetAbbr(), +display_time);
 				}

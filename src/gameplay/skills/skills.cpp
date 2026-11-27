@@ -1937,6 +1937,50 @@ void RemoveAllSkills(CharData *ch) {
 	}
 }
 
+void SetObligatorySkills(CharData *ch) {
+	if (ch->IsNpc()) {
+		return;
+	}
+	for (const auto &skill : MUD::Skills()) {
+		if (!skill.IsAvailable() || !skill.IsFlagged(ESkillFlag::kObligatory)) {
+			continue;
+		}
+		if (MUD::Class(ch->GetClass()).skills[skill.GetId()].IsAvailable()
+			&& GetTrainedSkill(ch, skill.GetId()) <= 0) {
+			SetSkill(ch, skill.GetId(), kObligatorySkillStartLevel);
+		}
+	}
+}
+
+void CheckObligatorySkillsInClasses() {
+	for (const auto &skill : MUD::Skills()) {
+		if (!skill.IsAvailable() || !skill.IsFlagged(ESkillFlag::kObligatory)) {
+			continue;
+		}
+		for (const auto &char_class : MUD::Classes()) {
+			if (char_class.IsAvailable() && !char_class.skills[skill.GetId()].IsAvailable()) {
+				err_log("Обязательное умение %s не указано у класса %s, у его персонажей оно не сохранится.",
+						NAME_BY_ITEM<ESkill>(skill.GetId()).c_str(),
+						NAME_BY_ITEM<ECharClass>(char_class.GetId()).c_str());
+			}
+		}
+	}
+}
+
+bool IsSkillTrainableInRoom(const SkillInfo &skill, const RoomData *room) {
+	if (!room || room->get_flag(ERoomFlag::kArena)) {
+		return false;
+	}
+	if (room->get_flag(ERoomFlag::kPeaceful) && !skill.IsFlagged(ESkillFlag::kTrainInPeaceful)) {
+		return false;
+	}
+	if ((room->get_flag(ERoomFlag::kHouse) || room->get_flag(ERoomFlag::kHouseEntry))
+		&& !skill.IsFlagged(ESkillFlag::kTrainInHouse)) {
+		return false;
+	}
+	return true;
+}
+
 void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victim) {
 	const int trained_skill = GetTrainedSkill(ch, skill);
 
@@ -1960,11 +2004,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		return;
 	}
 
-	if (ch->in_room == kNowhere
-		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
-		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)
-		|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouseEntry)) {
+	if (!IsSkillTrainableInRoom(MUD::Skill(skill), ch->in_room == kNowhere ? nullptr : world[ch->in_room])) {
 		return;
 	}
 
@@ -1987,7 +2027,9 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	SendToTC(ch, true, true, true,"ImprooveSkill: prob=%d, div=%ld, skill_is=%d, success=%d", prob, div, skill_is, success);
 	if ((victim && skill_is <= GetRealInt(ch) * GetRealLevel(victim) / GetRealLevel(ch))
 		|| (!victim && skill_is <= GetRealInt(ch))) {
-		if (success) {
+		if (MUD::Skill(skill).IsFlagged(ESkillFlag::kHidden)) {
+			// issue #2689: о росте скрытого умения игроку не сообщаем.
+		} else if (success) {
 			SendMsgToChar(fmt::format("&CВы повысили уровень умения \"{}\".&n\r\n",
 									  MUD::Skill(skill).GetName()), ch);
 		} else {
@@ -2013,9 +2055,9 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 	if (!ch->IsNpc()) {
 		// issue.self-train: применение на себя -- это та же "цели-моба нет", что и пустая цель, но
 		// раньше оно отсекалось правилом "цель-игрок не качает" (писавшимся против накрутки об
-		// напарника) и не качало вовсе. Теперь решает конфиг умения: с self_train самокаст идёт
+		// напарника) и не качало вовсе. Теперь решает конфиг умения: с kSelfTrain самокаст идёт
 		// по той же ветке, что и применение без цели.
-		const bool self_cast = (vict == ch) && MUD::Skill(skill).self_train;
+		const bool self_cast = (vict == ch) && MUD::Skill(skill).IsFlagged(ESkillFlag::kSelfTrain);
 		if (skill != ESkill::kSideAttack
 			&& GetSkillBonus(ch, skill) > 0
 			&& (!vict

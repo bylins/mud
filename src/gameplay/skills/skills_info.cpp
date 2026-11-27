@@ -1,8 +1,58 @@
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 
+#include <stdexcept>
+
 using DataNode = parser_wrapper::DataNode;
 using ItemPtr = SkillInfoBuilder::ItemPtr;
+
+template<>
+const std::string &NAME_BY_ITEM<ESkillFlag>(const ESkillFlag item) {
+	static const std::string kSelfTrain{"kSelfTrain"};
+	static const std::string kHidden{"kHidden"};
+	static const std::string kTrainInPeaceful{"kTrainInPeaceful"};
+	static const std::string kTrainInHouse{"kTrainInHouse"};
+	static const std::string kObligatory{"kObligatory"};
+	static const std::string kKeepOnRemort{"kKeepOnRemort"};
+	static const std::string kUnknown{"kUndefined"};
+	switch (item) {
+		case ESkillFlag::kSelfTrain: return kSelfTrain;
+		case ESkillFlag::kHidden: return kHidden;
+		case ESkillFlag::kTrainInPeaceful: return kTrainInPeaceful;
+		case ESkillFlag::kTrainInHouse: return kTrainInHouse;
+		case ESkillFlag::kObligatory: return kObligatory;
+		case ESkillFlag::kKeepOnRemort: return kKeepOnRemort;
+		case ESkillFlag::kCount: break;
+	}
+	return kUnknown;
+}
+
+template<>
+ESkillFlag ITEM_BY_NAME<ESkillFlag>(const std::string &name) {
+	for (int i = 0; i < static_cast<int>(ESkillFlag::kCount); ++i) {
+		const auto flag = static_cast<ESkillFlag>(i);
+		if (NAME_BY_ITEM<ESkillFlag>(flag) == name) {
+			return flag;
+		}
+	}
+	throw std::out_of_range(name);
+}
+
+namespace {
+
+// " kHidden kObligatory", or " -" when no flag is set.
+std::string SkillFlagsString(const BitsetFlags<ESkillFlag> &flags) {
+	std::string out;
+	for (int i = 0; i < static_cast<int>(ESkillFlag::kCount); ++i) {
+		const auto flag = static_cast<ESkillFlag>(i);
+		if (flags.get(flag)) {
+			out += " " + NAME_BY_ITEM<ESkillFlag>(flag);
+		}
+	}
+	return out.empty() ? " -" : out;
+}
+
+} // namespace
 
 void SkillsLoader::Load(DataNode data) {
 	MUD::Skills().Init(data.Children());
@@ -10,6 +60,7 @@ void SkillsLoader::Load(DataNode data) {
 
 void SkillsLoader::Reload(DataNode data) {
 	MUD::Skills().Reload(data.Children());
+	CheckObligatorySkillsInClasses();
 }
 
 ItemPtr SkillInfoBuilder::Build(DataNode &node) {
@@ -29,9 +80,16 @@ void SkillInfoBuilder::ParseDispensableValues(ItemPtr &item_ptr, DataNode &node)
 		item_ptr->save_type = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 		item_ptr->difficulty = parse::ReadAsInt(node.GetValue("difficulty"));
 		item_ptr->cap = parse::ReadAsInt(node.GetValue("cap"));
-		// issue.self-train: необязательный, по умолчанию умение на себе не качается.
+		if (const char *v = node.GetValue("flags"); v && *v) {
+			item_ptr->flags = parse::ReadAsConstantsFlags<ESkillFlag>(v);
+		}
+		// Устаревший вид флага kSelfTrain: пока читаем, но просим заменить.
 		if (const char *v = node.GetValue("self_train"); v && *v) {
-			item_ptr->self_train = parse::ReadAsBool(v);
+			err_log("skills.xml: у умения %s устаревший атрибут self_train, замените его на flags=\"kSelfTrain\".",
+					NAME_BY_ITEM<ESkill>(item_ptr->GetId()).c_str());
+			if (parse::ReadAsBool(v)) {
+				item_ptr->flags.set(ESkillFlag::kSelfTrain);
+			}
 		}
 	} catch (std::exception &e) {
 		err_log("invalid skill description (incorrect value: %s). Setted by default;", e.what());
@@ -60,7 +118,7 @@ void SkillInfo::Print(std::ostringstream &buffer) const {
 		   << " Save type: " << kColorGrn << NAME_BY_ITEM<ESaving>(save_type) << kColorNrm << "\r\n"
 		   << " Difficulty: " << kColorGrn << difficulty << kColorNrm << "\r\n"
 		   << " Skill cap: " << kColorGrn << cap << kColorNrm << "\r\n"
-		   << " Trains on self: " << kColorGrn << (self_train ? "yes" : "no") << kColorNrm << "\r\n"
+		   << " Flags:" << kColorGrn << SkillFlagsString(flags) << kColorNrm << "\r\n"
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 }
 

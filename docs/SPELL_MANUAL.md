@@ -553,6 +553,44 @@ the hit dealt damage. The object branch otherwise runs only when an object was e
 > next heartbeat, never dangling. The skeleton treats a `purged()` target as absent. See §3.8.7's
 > handlers and `DamageObj` / `ProcessMatComponents`.
 
+#### 3.8.8 `choice="…"` — selectable actions *(issue #2689)*
+
+```xml
+<action>                                   <!-- no choice: always runs -->
+	<affects …><affect id="kPietas"/></affects>
+</action>
+<action choice="Перуну|Перун">             <!-- runs only when chosen -->
+	<affects …><affect id="kPerunFavor"/></affects>
+</action>
+<action choice="Велесу|Велес">
+	<affects …><affect id="kVelesFavor"/></affects>
+</action>
+```
+
+A spell whose actions carry `choice` lets the caster pick **one** of them by a
+word typed after the target (`ActionContext::cast_args`, a `CastArgs`: every
+word after the spell's name plus how many of them named the target; the choice is
+the words after the target, joined by spaces. A spell that ignores targets gets all
+of its words. A command such as `жертвовать` passes them itself). The cast runs every action **without** `choice` plus exactly
+the chosen one, in list order; the chain is narrowed in `CallMagic` right after
+the perk patches, so a patched chain is narrowed too, and the first remaining
+action is the entry action.
+
+- `choice` is a `|`-separated list of words; the **first** one is canonical — it
+  is shown in the list of options and substituted for `{choice}` in messages.
+- Matching: an exact (case-insensitive) word first, then the first action (in
+  order) one of whose words **starts with** what was typed. A mere substring does
+  not match.
+- Nothing typed or nothing matched: the cast does not happen
+  (`ECastResult::kNotCast`); the caster gets `kUnknownChoice` with `{choices}`
+  replaced by the canonical words.
+- `choice` is not `id`: `id` is the stable address perk patches use, `choice` is
+  what the player types.
+
+The prayer and the sacrifice (`kPrayer`, `kOffering`) are built this way: the
+marker action has no choice, and each god or saint is a selectable action with its
+own favour.
+
 ### 3.9 `<components>` — casting requirements
 
 ```xml
@@ -1296,6 +1334,9 @@ specific spell hasn't overridden.
 | `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation. | Room / victim |
 | `kCastPreparedToChar` | Spell-ready announcement when a controlled spell replaces the previous one. | Caster |
 | `kNoTarget`, `kWrongTarget` | The caster's target argument missed (no such target / target type rejected by `<targets val>`). | Caster |
+| `kOfferingToChar`, `kOfferingToRoom` | Prayer / sacrifice spells only (`kPrayer`, `kOffering`): what the praying character and the room see when the offering is made; `{gift}` is what was offered (an item or an amount of a currency, accusative), `{choice}` the god or saint (the chosen action's canonical word). Printed by the "молиться"/"жертвовать" command, not by the cast. | Caster / Room |
+| `kDefaultOfferingToChar`, `kDefaultOfferingToRoom` | The same for an offering without a gift, paid by the default amount from `mechanics/piety.xml` (a Christian's candle). | Caster / Room |
+| `kUnknownChoice` | A spell with selectable actions (§3.8.8) was cast without naming one, or with an unknown word; `{choices}` is the list of canonical words. `kDefault` carries the generic line. | Caster |
 | `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `<obj_creation>` outcomes. | Various |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
 | `kEnchantNotWeapon`, `kEnchantMagic`, `kEnchantSetItem`, `kEnchantMono`, `kEnchantPoly`, `kEnchantOther` | Enchant-weapon outcomes. | Caster |

@@ -2004,7 +2004,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {
 			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, queued_spell, ch->GetCastSubst(), -1,
-					  ch->GetCastExtra());
+					  ch->GetCastArgs());
 			if (!(privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
 				SetBattleLag(ch, 1);
 			}

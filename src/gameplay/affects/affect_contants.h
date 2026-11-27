@@ -250,6 +250,16 @@ enum class EAffect : Bitvector {
 	kCorrodedWard = 140,
 	// issue #4032: нежить "поднять труп" слабеет, пока у хозяина жива костяная свита.
 	kBoneLevy = 141,
+	// issue #2689: милость того, кому принесена жертва или вознесена молитва. Что она дает, описано
+	// в affects.xml; накладывает ее заклинание молитвы или жертвы вместе с меткой kPrayerful/kPietas.
+	kYariloFavor = 142,
+	kMakoshFavor = 143,
+	kPerunFavor = 144,
+	kVelesFavor = 145,
+	kTheotokosGrace = 146,
+	kNicholasGrace = 147,
+	kElijahGrace = 148,
+	kGeorgeGrace = 149,
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -259,7 +269,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 142;   // kBoneLevy=141 + 1
+	static constexpr std::size_t count = 150;   // kGeorgeGrace=149 + 1
 };
 template<>
 struct flag_index_mapping<EAffect> {

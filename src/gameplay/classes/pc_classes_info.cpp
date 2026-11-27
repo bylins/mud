@@ -59,10 +59,12 @@ const ClassName *FindClassName(const std::string &id) {
 
 void ClassesLoader::Load(DataNode data) {
 	MUD::Classes().Init(data.Children());
+	CheckObligatorySkillsInClasses();
 }
 
 void ClassesLoader::Reload(DataNode data) {
 	MUD::Classes().Reload(data.Children());
+	CheckObligatorySkillsInClasses();
 }
 
 ItemPtr CharClassInfoBuilder::Build(DataNode &node) {

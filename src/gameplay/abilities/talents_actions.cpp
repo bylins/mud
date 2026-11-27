@@ -9,6 +9,7 @@
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
 #include "fmt/format.h"
 #include "utils/random.h"
+#include "utils/utils_string.h"
 
 #include <algorithm>
 #include <cmath>
@@ -960,6 +961,13 @@ void Action::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "  Target: " << kColorGrn << ActionTargetName(target_) << kColorNrm
 		   << " Base: " << kColorGrn << ActionBaseName(base_) << kColorNrm
 		   << " Reset: " << kColorGrn << (reset_ ? "Y" : "N") << kColorNrm << "\r\n";
+	if (!choices_.empty()) {
+		buffer << "  Choice:";
+		for (const auto &choice : choices_) {
+			buffer << " " << kColorGrn << choice << kColorNrm;
+		}
+		buffer << "\r\n";
+	}
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
 	if (!reflection_.empty()) {
@@ -979,6 +987,55 @@ void Action::Print(CharData *ch, std::ostringstream &buffer) const {
 	for (const auto &effect: manifestations_) {
 		effect.second->Print(ch, buffer);
 	}
+}
+
+const std::string &Action::GetChoiceName() const {
+	static const std::string kNoChoice;
+	return choices_.empty() ? kNoChoice : choices_.front();
+}
+
+const Action *FindChoice(const std::vector<const Action *> &actions, const std::string &arg) {
+	if (arg.empty()) {
+		return nullptr;
+	}
+	for (const auto *action : actions) {
+		for (const auto &choice : action->GetChoices()) {
+			if (str_cmp(arg, choice.c_str()) == 0) {
+				return action;
+			}
+		}
+	}
+	for (const auto *action : actions) {
+		for (const auto &choice : action->GetChoices()) {
+			if (utils::IsAbbr(arg, choice)) {
+				return action;
+			}
+		}
+	}
+	return nullptr;
+}
+
+bool Actions::HasChoices() const {
+	return std::any_of(list_.begin(), list_.end(), [](const Action &action) { return action.IsChoice(); });
+}
+
+const Action *Actions::FindChoice(const std::string &arg) const {
+	std::vector<const Action *> actions;
+	actions.reserve(list_.size());
+	for (const auto &action : list_) {
+		actions.push_back(&action);
+	}
+	return talents_actions::FindChoice(actions, arg);
+}
+
+std::vector<std::string> Actions::ChoiceNames() const {
+	std::vector<std::string> names;
+	for (const auto &action : list_) {
+		if (action.IsChoice()) {
+			names.push_back(action.GetChoiceName());
+		}
+	}
+	return names;
 }
 
 void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -1131,6 +1188,14 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 	out.reset_ = (rs && (strcmp(rs, "true") == 0 || strcmp(rs, "Y") == 0 || strcmp(rs, "1") == 0));
 	// issue.perk-action-patching: optional <action id="Name"> -- the block's stable id for perk patches.
 	if (const char *idv = node.GetValue("id"); idv && *idv) { out.id_ = idv; }
+	// issue #2689: optional <action choice="word|word"> -- the words that select this action.
+	if (const char *choice = node.GetValue("choice"); choice && *choice) {
+		for (const auto &word : utils::SplitAny(choice, "|")) {
+			if (!word.empty()) {
+				out.choices_.push_back(word);
+			}
+		}
+	}
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
 			ParseDamage(out, manifestation);

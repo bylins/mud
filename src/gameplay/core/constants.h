@@ -53,14 +53,6 @@ struct WeaponApplies {
 	int parrying;
 };
 
-struct PrayAffect {
-	int metter;
-	EApply location;
-	int modifier;
-	Bitvector bitvector;
-	int battleflag;
-};
-
 extern const char *circlemud_version;
 extern const char *dirs_rus[];
 extern const char *dirs[];
@@ -93,8 +85,6 @@ extern const char *month_name_poly[];
 extern const char *ingradient_bits[];
 extern const char *magic_container_bits[];
 extern const char *function_bits[];
-extern const char *pray_metter[];
-extern const char *pray_whom[];
 // room_aff_*_bits arrays retired (issue.sight-fmt): room-affect descriptions
 // live in lib/cfg/spell_msg.xml under the kRoomAffect{Visible,Invisible,
 // SelfInvisible} keys per spell. See show_room_affects in sight.cpp.
@@ -115,7 +105,6 @@ const ChaApplies &ChaApp(int index);
 const SizeApplies &SizeApp(int index);
 const WeaponApplies &WeaponApp(int index);
 int Mana(int wis);
-extern std::vector<PrayAffect> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
 extern int mana[];

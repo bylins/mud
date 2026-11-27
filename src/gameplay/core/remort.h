@@ -22,6 +22,8 @@ int GetRealRemort(const CharData *ch);
 int GetRealRemort(const std::shared_ptr<CharData> &ch);
 
 void SetSkillAfterRemort(CharData *ch);
+// The obligatory skill reset: clears every skill except those flagged kKeepOnRemort.
+void ClearSkillsOnRemort(CharData *ch);
 
 // --- issue.remort-system: parameters from cfg/remort.xml ---
 

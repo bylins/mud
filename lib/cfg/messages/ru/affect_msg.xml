@@ -780,6 +780,30 @@
 		<message type="kAffExpiredToChar" val="Вы утратили расположение Богов." />
 		<message type="kShortDesc" val="принесены жертвы" />
 	</msg_sheaf>
+	<msg_sheaf id="kYariloFavor">
+		<message type="kShortDesc" val="милость Ярилы" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakoshFavor">
+		<message type="kShortDesc" val="милость Макоши" />
+	</msg_sheaf>
+	<msg_sheaf id="kPerunFavor">
+		<message type="kShortDesc" val="милость Перуна" />
+	</msg_sheaf>
+	<msg_sheaf id="kVelesFavor">
+		<message type="kShortDesc" val="милость Велеса" />
+	</msg_sheaf>
+	<msg_sheaf id="kTheotokosGrace">
+		<message type="kShortDesc" val="покров Богородицы" />
+	</msg_sheaf>
+	<msg_sheaf id="kNicholasGrace">
+		<message type="kShortDesc" val="заступничество Николы-Угодника" />
+	</msg_sheaf>
+	<msg_sheaf id="kElijahGrace">
+		<message type="kShortDesc" val="заступничество Илии-Пророка" />
+	</msg_sheaf>
+	<msg_sheaf id="kGeorgeGrace">
+		<message type="kShortDesc" val="заступничество Георгия-Победоносца" />
+	</msg_sheaf>
 	<msg_sheaf id="kEvade">
 		<message type="kShortDesc" val="уклонение" />
 	</msg_sheaf>

@@ -1272,6 +1272,10 @@ void BootMudDataBase() {
 	log("Loading undecayable object criterions.");
 	MUD::CfgManager().LoadCfg("stable_objs");
 
+	boot_profiler.next_step("Loading piety rules");
+	log("Loading piety rules.");
+	MUD::CfgManager().LoadCfg("piety");   // issue #2689: cfg/mechanics/piety.xml
+
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
 	initIngredientsMagic();

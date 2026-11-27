@@ -80,6 +80,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(target, "stableobjs")) {
 		MUD::CfgManager().ReloadCfg("stable_objs");
+	} else if (!str_cmp(target, "piety")) {
+		MUD::CfgManager().ReloadCfg("piety");   // issue #2689
 	} else if (!str_cmp(target, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(target, "spells")) {

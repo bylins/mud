@@ -20,6 +20,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/skills/skills_info.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/db.h"                  // world[] for ROOM_FLAGGED
 
@@ -29,6 +30,8 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
+#include <utility>
+#include <vector>
 
 extern RoomRnum r_frozen_start_room;
 
@@ -304,7 +307,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	}
 
 	if (IsObligatoryResetDue(ch->get_remort())) {
-		ch->clear_skills();
+		ClearSkillsOnRemort(ch);
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(ch, spell_id) = (IS_MANA_CASTER(ch) ? ESpellType::kRunes : 0);
 		}
@@ -407,6 +410,21 @@ int GetRealRemort(const CharData *ch) {
 
 int GetRealRemort(const std::shared_ptr<CharData> &ch) {
 	return GetRealRemort(ch.get());
+}
+
+// The obligatory reset wipes every skill but those flagged kKeepOnRemort (piety), which keep their
+// trained value.
+void ClearSkillsOnRemort(CharData *ch) {
+	std::vector<std::pair<ESkill, int>> kept;
+	for (const auto &it : ch->GetCharSkills()) {
+		if (MUD::Skill(it.first).IsFlagged(ESkillFlag::kKeepOnRemort)) {
+			kept.emplace_back(it.first, GetTrainedSkill(ch, it.first));
+		}
+	}
+	ch->clear_skills();
+	for (const auto &[skill_id, value] : kept) {
+		SetSkill(ch, skill_id, value);
+	}
 }
 
 void SetSkillAfterRemort(CharData *ch) {
