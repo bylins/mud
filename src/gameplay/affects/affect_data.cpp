@@ -9,6 +9,7 @@
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
+#include "gameplay/mechanics/resist.h"
 #include "engine/observability/event_sink.h"
 #include "gameplay/affects/mobile_affect_update_profiler.h"
 #include "gameplay/affects/player_affect_update_profiler.h"
@@ -1398,8 +1399,10 @@ void affect_total(CharData *ch) {
 	}
 
 	//капы
-	ch->add_abils.mresist = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, ch->add_abils.mresist);
-	ch->add_abils.presist = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, ch->add_abils.presist);
+	ch->add_abils.mresist = CapResist(ch, ch->add_abils.mresist);
+	ch->add_abils.presist = CapResist(ch, ch->add_abils.presist);
+	// #3644: AR капается так же -- без капа игрок с AR >= 100 неуязвим для любых дебаффов.
+	ch->add_abils.aresist = CapResist(ch, ch->add_abils.aresist);
 
 	{
 		// Calculate CASTER value
