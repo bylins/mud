@@ -1023,8 +1023,8 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.command = 'V';
 			std::string trig_type = GetText(stmt, 13);
 			cmd.arg1 = !trig_type.empty() ? SafeStoi(trig_type) : 0;
-			cmd.arg2 = sqlite3_column_int(stmt, 14); // context
-			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 4);  // room_vnum (only for a room trigger)
+			cmd.arg3 = sqlite3_column_int(stmt, 14); // context
 			std::string var_name = GetText(stmt, 15);
 			std::string var_value = GetText(stmt, 16);
 			if (!var_name.empty()) cmd.sarg1 = str_dup(var_name.c_str());
@@ -2801,7 +2801,12 @@ void SqliteWorldDataSource::SaveZoneCommands(int zone_vnum, const struct reset_c
 			roomv = (c.arg1 == WLD_TRIGGER && c.arg3 != -1) ? room_v(c.arg3) : c.arg3;
 			snprintf(trig_type_buf, sizeof(trig_type_buf), "%d", c.arg1); trig_type = trig_type_buf;
 			break;
-		case 'V': cmd_type = "VARIABLE"; ctx = c.arg2; roomv = c.arg3; vname = c.sarg1; vval = c.sarg2;
+		case 'V': cmd_type = "VARIABLE";
+			// arg2 -- комната (только у триггера комнаты: в памяти rnum, на диск vnum), arg3 --
+			// контекст переменной. Раньше rnum комнаты писался как есть, да ещё в колонку
+			// arg_context, а контекст -- в arg_room_vnum (#4267).
+			roomv = (c.arg1 == WLD_TRIGGER) ? room_v(c.arg2) : c.arg2;
+			ctx = c.arg3; vname = c.sarg1; vval = c.sarg2;
 			snprintf(trig_type_buf, sizeof(trig_type_buf), "%d", c.arg1); trig_type = trig_type_buf;
 			break;
 		case 'Q': cmd_type = "EXTRACT_MOB"; mobv = mob_v(c.arg1); break;

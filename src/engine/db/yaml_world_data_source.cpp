@@ -1157,12 +1157,14 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 	else if (keyword == "VAR" || keyword == "V")
 	{
 		cmd.command = 'V';
-		int if_flag, trigger_type, context, room_vnum;
-		iss >> if_flag >> trigger_type >> context >> room_vnum;
+		// VAR <if_flag> <trigger_type> <room_vnum> <context> <name> <value>; room_vnum нужен только
+		// триггеру комнаты.
+		int if_flag, trigger_type, room_vnum, context;
+		iss >> if_flag >> trigger_type >> room_vnum >> context;
 		cmd.if_flag = if_flag;
 		cmd.arg1 = trigger_type;
-		cmd.arg2 = context;
-		cmd.arg3 = room_vnum;
+		cmd.arg2 = room_vnum;
+		cmd.arg3 = context;
 		std::string var_name, var_value;
 		iss >> var_name;
 		std::getline(iss, var_value);

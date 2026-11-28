@@ -108,6 +108,7 @@ test_sources = files(
     'trigger_script_parser.cpp',
     'trigger_obj_load_index.cpp',
     'yaml_mob_saves_resistances.cpp',
+    'sqlite_zone_cmd_var.cpp',
     'world_checksum_serialization.cpp',
     'world_revision.cpp',
     'dg_string_matching.cpp',

@@ -1266,7 +1266,9 @@ static json SerializeZoneCommand(const reset_com &cmd, int index)
 			break;
 		case 'T':
 			obj["trigger_type"] = cmd.arg1;
-			obj["trigger_vnum"] = cmd.arg2;
+			// В памяти arg2 -- rnum триггера; наружу отдаём vnum, его же ждёт запись (#4267).
+			obj["trigger_vnum"] = (cmd.arg2 >= 0 && cmd.arg2 < top_of_trigt && trig_index[cmd.arg2])
+				? trig_index[cmd.arg2]->vnum : cmd.arg2;
 			if (cmd.arg1 == WLD_TRIGGER)
 			{
 				obj["room_vnum"] = world[cmd.arg3]->vnum;
@@ -1274,7 +1276,13 @@ static json SerializeZoneCommand(const reset_com &cmd, int index)
 			break;
 		case 'V':
 			obj["trigger_type"] = cmd.arg1;
-			obj["context"] = cmd.arg2;
+			// arg2 -- комната (только у триггера комнаты, в памяти rnum), arg3 -- контекст. Раньше
+			// rnum комнаты уходил наружу как "context", а настоящий контекст не отдавался (#4267).
+			if (cmd.arg1 == WLD_TRIGGER)
+			{
+				obj["room_vnum"] = world[cmd.arg2]->vnum;
+			}
+			obj["context"] = cmd.arg3;
 			if (cmd.sarg1) obj["var_name"] = cmd.sarg1;
 			if (cmd.sarg2) obj["var_value"] = cmd.sarg2;
 			break;
@@ -1441,7 +1449,9 @@ void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_dat
 			case 'V':
 			{
 				arg1 = data.value("trigger_type", -1);
-				arg2 = data.value("context", 0);
+				// arg2 -- комната (нужна только триггеру комнаты), arg3 -- контекст переменной.
+				arg2 = data.value("room_vnum", 0);
+				arg3 = data.value("context", 0);
 				std::string vname = data.value("var_name", "");
 				std::string vvalue = data.value("var_value", "");
 				if (vname.empty())
@@ -1585,6 +1595,14 @@ void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_dat
 				if (arg1 == WLD_TRIGGER)
 				{
 					new_cmds[count].arg2 = GetRoomRnum(arg2);
+					if (new_cmds[count].arg2 == kNowhere)
+					{
+						free(new_cmds);
+						free(sarg1);
+						free(sarg2);
+						SendErrorResponse(d, "V command for a room trigger requires a valid room_vnum");
+						return;
+					}
 				}
 				break;
 			case 'F':

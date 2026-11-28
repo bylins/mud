@@ -3774,12 +3774,14 @@ def parse_zon_file(filepath):
                 if len(parts) > 4 and parts[4].lstrip('-').isdigit():
                     cmd['room_vnum'] = int(parts[4])
             elif cmd_type == 'V' and len(parts) >= 6:
-                # V if_flag trigger_type id context var_name var_value
+                # V if_flag trigger_type room_vnum context var_name var_value
+                # room_vnum matters only for a room trigger. It used to be stored as 'context' and
+                # the real context as 'var_vnum', which no writer reads, so the context was lost (#4267).
                 cmd['type'] = 'VARIABLE'
                 cmd['if_flag'] = int(parts[1]) if parts[1].isdigit() else 0
                 cmd['trigger_type'] = int(parts[2]) if parts[2].isdigit() else 0
-                cmd['context'] = int(parts[3]) if parts[3].isdigit() else 0
-                cmd['var_vnum'] = int(parts[4]) if parts[4].isdigit() else 0
+                cmd['room_vnum'] = int(parts[3]) if parts[3].lstrip('-').isdigit() else 0
+                cmd['context'] = int(parts[4]) if parts[4].lstrip('-').isdigit() else 0
                 cmd['var_name'] = parts[5] if len(parts) > 5 else ''
                 cmd['var_value'] = ' '.join(parts[6:]) if len(parts) > 6 else ''
             elif cmd_type == 'Q' and len(parts) >= 4:
@@ -4004,7 +4006,7 @@ def zon_to_yaml(zone):
                 room_vnum = cmd.get('room_vnum', 0)
                 var_name = cmd.get('var_name', '')
                 var_value = cmd.get('var_value', '')
-                parts = ['VAR', if_flag, trigger_type, context, room_vnum, var_name, var_value]
+                parts = ['VAR', if_flag, trigger_type, room_vnum, context, var_name, var_value]
                 comment = f"{var_name} = {var_value}" if var_name else None
             elif cmd_type == 'EXTRACT_MOB':
                 mob_vnum = cmd.get('mob_vnum', 0)
