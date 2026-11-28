@@ -8,6 +8,7 @@
 #include "spell_trace.h"
 #include "gameplay/mechanics/antisaving.h"
 #include "gameplay/mechanics/poison.h"
+#include "gameplay/fight/common.h"
 #include "magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
@@ -103,7 +104,7 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 		}
 
 		total_dmg = static_cast<int>(dmg * elem_coeff);
-		total_dmg += static_cast<int>(total_dmg * bonus_mod);
+		total_dmg = RollDamagePercent(total_dmg, ch->add_abils.percent_spellpower_add);
 		int complex_mod = total_dmg;
 		total_dmg = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, total_dmg);
 		complex_mod = total_dmg - complex_mod;

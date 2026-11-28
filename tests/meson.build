@@ -65,6 +65,7 @@ test_sources = files(
     'charmice.damroll.cpp',
     'shop.sale_price.cpp',
     'slight_defence.damage.cpp',
+    'damage_percent.cpp',
     'utils.editor.cpp',
     'utils.string.cpp',
     'utils.parse.search_block_by_words.cpp',

@@ -9,6 +9,7 @@
 #include "gameplay/mechanics/animate_dead.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
+#include "gameplay/fight/common.h"
 
 #include "engine/observability/event_sink.h"
 #include "engine/ui/color.h"
@@ -816,17 +817,13 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 
 	mount::ApplyRiderDamageMult(ch, dam);
 
-	if (ch->add_abils.percent_physdam_add > 0) {
-		int tmp;
-		if (need_dice) {
-			tmp = dam * (number(1, ch->add_abils.percent_physdam_add * 2) / 100.0); 
-			dam += tmp;
-		} else {
-			tmp = dam * (ch->add_abils.percent_physdam_add / 100.0);
-			dam += tmp;
-		}
+	if (ch->add_abils.percent_physdam_add != 0) {
+		dam = need_dice
+			? RollDamagePercent(dam, ch->add_abils.percent_physdam_add)
+			: AverageDamagePercent(dam, ch->add_abils.percent_physdam_add);
 		if (ch->IsFlagged(EPrf::kExecutor))
-			SendMsgToChar(ch, "&YДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, tmp);
+			SendMsgToChar(ch, "&YДамага c процентами дамаги == %d, процент = %d&n\r\n",
+				dam, ch->add_abils.percent_physdam_add);
 	}
 	//режем дамаг от голода
 	dam *= condition::GetCondPenalty(ch, condition::kDamroll);
