@@ -1054,7 +1054,6 @@ if admin_api_opt
         'src/engine/network/admin_api/serializers.cpp',
         'src/engine/network/admin_api/parsers.cpp',
         'src/engine/network/admin_api/crud_handlers.cpp',
-        'src/engine/network/admin_api/command_registry.cpp',
     )
 endif
 
