@@ -460,6 +460,8 @@ Zone reset commands.
 
 `cmd_type` values: `LOAD_MOB`, `LOAD_OBJ`, `GIVE_OBJ`, `EQUIP_MOB`, `PUT_OBJ`, `DOOR`, `REMOVE_OBJ`, `FOLLOW`, `TRIGGER`, `VARIABLE`, `EXTRACT_MOB`. The engine also writes and reads `DISABLED` for a disabled command.
 
+`VARIABLE` (zone command `V`) keeps the room vnum in `arg_room_vnum` (only for a room trigger, `arg_trigger_type` = 2) and the variable context in `arg_context`.
+
 ### mob_flags
 
 Mob action and affect flags.

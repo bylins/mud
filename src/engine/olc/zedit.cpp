@@ -576,11 +576,14 @@ void zedit_save_to_disk(ZoneRnum zone_num, const LegacyFiles &files) {
 				break;
 
 			case 'V': arg1 = ZCMD.arg1;    // trigger type
-				arg2 = ZCMD.arg2;    // context
+				arg2 = ZCMD.arg2;    // room (only for a room trigger)
 				// Для триггера комнаты загрузчик держит в arg2 rnum комнаты; на диск -- vnum.
 				if (arg1 == WLD_TRIGGER && ZCMD.arg2 >= 0 && ZCMD.arg2 <= top_of_world) {
 					arg2 = world[ZCMD.arg2]->vnum;
 				}
+				// Контекст переменной. Без этой строки arg3 оставался -1 из сброса выше, и
+				// контекст на диск не попадал (#4267).
+				arg3 = ZCMD.arg3;
 				break;
 
 			case '*':
