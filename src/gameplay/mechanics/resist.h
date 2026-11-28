@@ -41,6 +41,11 @@ const std::map<EResist, std::string> &NAMES_OF<EResist>();  // issue.vedun-edito
 
 const int kMaxPcResist = 75;
 
+// Cap a resistance by the type of the character who resists (#3644): a player at kMaxPcResist,
+// a mob at kMaxNpcResist. The cap belongs to the victim, never to the attacker -- a mob's MR of
+// 100 is how a zone author makes it immune to magic, and a player's caster cap must not cut it.
+int CapResist(const CharData *resister, int value);
+
 // Map a damage element to its resistance type.
 EResist GetResisTypeWithElement(EElement element);
 // The resistance type for a spell's element.

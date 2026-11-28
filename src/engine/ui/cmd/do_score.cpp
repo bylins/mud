@@ -49,6 +49,7 @@ std::string_view GetShortPositionStr(CharData *ch);
 int CalcHitroll(CharData *ch);
 
 #include "gameplay/mechanics/initiative.h"
+#include "gameplay/mechanics/resist.h"
 void GetClassWeaponMod(ECharClass class_id, ESkill skill, int *damroll, int *hitroll);
 
 const char *ac_text[] =
@@ -171,14 +172,14 @@ void PrintScoreList(CharData *ch) {
 				  ch->add_abils.percent_physdam_add,
 				  ch->add_abils.percent_exp_add);
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
-				  MIN(GET_RESIST(ch, EResist::kFire), 75),
-				  MIN(GET_RESIST(ch, EResist::kAir), 75),
-				  MIN(GET_RESIST(ch, EResist::kWater), 75),
-				  MIN(GET_RESIST(ch, EResist::kEarth), 75),
-				  MIN(GET_RESIST(ch, EResist::kDark), 75),
-				  MIN(GET_RESIST(ch, EResist::kVitality), 75),
-				  MIN(GET_RESIST(ch, EResist::kMind), 75),
-				  MIN(GET_RESIST(ch, EResist::kImmunity), 75));
+				  CapResist(ch, GET_RESIST(ch, EResist::kFire)),
+				  CapResist(ch, GET_RESIST(ch, EResist::kAir)),
+				  CapResist(ch, GET_RESIST(ch, EResist::kWater)),
+				  CapResist(ch, GET_RESIST(ch, EResist::kEarth)),
+				  CapResist(ch, GET_RESIST(ch, EResist::kDark)),
+				  CapResist(ch, GET_RESIST(ch, EResist::kVitality)),
+				  CapResist(ch, GET_RESIST(ch, EResist::kMind)),
+				  CapResist(ch, GET_RESIST(ch, EResist::kImmunity)));
 	SendMsgToChar(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
 			-CalcSaving(ch, ch, ESaving::kWill, false),
 			-CalcSaving(ch, ch, ESaving::kCritical, false),
@@ -618,14 +619,14 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 	table[++row][col] = "Сопротивления: ";	table[row][col + 1] = " ";
 	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_PR(ch));
 	table[++row][col] = "Заклинаниям";		table[row][col + 1] = std::to_string(GET_MR(ch));
-	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kFire), kMaxPcResist));
-	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kWater), kMaxPcResist));
-	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kEarth), kMaxPcResist));
-	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kAir), kMaxPcResist));
-	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kDark), kMaxPcResist));
-	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kMind), kMaxPcResist));
-	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kVitality), kMaxPcResist));
-	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kImmunity), kMaxPcResist));
+	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kFire)));
+	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kWater)));
+	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kEarth)));
+	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kAir)));
+	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kDark)));
+	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kMind)));
+	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kVitality)));
+	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(CapResist(ch, GET_RESIST(ch, EResist::kImmunity)));
 
 	return 2; // заполнено столбцов
 }

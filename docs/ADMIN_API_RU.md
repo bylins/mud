@@ -8,7 +8,7 @@ Admin API предоставляет JSON-интерфейс через Unix Dom
 - Коммуникация через Unix Domain Socket (только локальный доступ)
 - Протокол запрос/ответ на основе JSON
 - Аутентификация через учетные данные игрового аккаунта (иммортале/строители)
-- Автоматическая конвертация UTF-8 ↔ KOI8-R
+- Текст в UTF-8 без перекодировки: движок держит его в UTF-8
 - Ограничение на одно одновременное подключение
 - Прямая интеграция с внутренними методами OLC
 
@@ -22,19 +22,22 @@ Admin API предоставляет JSON-интерфейс через Unix Dom
 
 ## Подключение
 
-**Путь к сокету:** Настраивается в `lib/misc/configuration.xml`:
+**Путь к сокету:** Настраивается в `cfg/configuration.xml` каталога данных (`lib/cfg/configuration.xml`):
 ```xml
 <admin_api>
-    <socket_path>admin_api.sock</socket_path>
     <enabled>true</enabled>
+    <socket_path>run/admin_api.sock</socket_path>
+    <!-- <require_auth>false</require_auth> -->
+    <!-- <max_connections>5</max_connections> -->
 </admin_api>
 ```
 
-Расположение по умолчанию: `admin_api.sock` (относительно игровой директории)
+Путь отсчитывается от каталога данных (того, что передан в `-d`); недостающий родительский каталог сервер создаёт сам. В поставляемом конфиге — `run/admin_api.sock`, то есть `lib/run/admin_api.sock`; без `<socket_path>` — `admin_api.sock` в корне каталога данных. `require_auth` по умолчанию `true`, `max_connections` — 1.
 
 **Протокол:**
 - JSON с разделением строками (каждый запрос/ответ заканчивается `\n`)
-- Кодировка UTF-8 (автоматическая конвертация в/из KOI8-R)
+- Кодировка UTF-8. Строки сохраняются ровно в том виде, в каком пришли, и так же возвращаются; невалидный UTF-8 отвергается ещё при разборе JSON
+- Поля сущности в `update_*`, `create_*` и `add_zone_command` передаются только внутри объекта `"data"`; на верхнем уровне допустимы лишь `command`, `vnum`, `zone` и `data`. Любое другое поле на верхнем уровне, а у `update_*` — и отсутствие `data`, дают ошибку (раньше такой запрос молча ничего не менял и отвечал `ok`)
 - Одно постоянное соединение (рекомендуется переиспользование)
 
 **Ограничение подключений:** Максимум 1 одновременное admin-подключение (для
@@ -81,7 +84,7 @@ COPY-слоя — тогда `build --no-cache web-admin`.
 
 ## Аутентификация
 
-**Все операции API (кроме `ping`) требуют аутентификации.**
+**Все команды, кроме `auth`, требуют аутентификации.** Без неё сервер отвечает `{"status":"error","error":"Not authenticated. Use 'auth' command first."}`. При `require_auth=false` команду `auth` всё равно нужно послать (с любым именем): она пропускает проверку пароля.
 
 ### Команда: `auth`
 
@@ -933,7 +936,7 @@ import json
 
 # Подключение к сокету
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-sock.connect('lib/admin_api.sock')
+sock.connect('lib/run/admin_api.sock')
 
 def send_command(cmd):
     """Отправить JSON команду и получить ответ."""
@@ -982,10 +985,10 @@ sock.close()
 
 ```bash
 # Одиночная команда (требуется повторная аутентификация)
-echo '{"command":"auth","username":"ВашеИмя","password":"пароль"}' | nc -U lib/admin_api.sock
+echo '{"command":"auth","username":"ВашеИмя","password":"пароль"}' | nc -U lib/run/admin_api.sock
 
 # Интерактивная сессия (постоянное соединение)
-nc -U lib/admin_api.sock << 'EOF'
+nc -U lib/run/admin_api.sock << 'EOF'
 {"command":"auth","username":"ВашеИмя","password":"пароль"}
 {"command":"list_mobs","zone":"1"}
 {"command":"get_mob","vnum":100}
@@ -996,20 +999,16 @@ EOF
     echo '{"command":"auth","username":"ВашеИмя","password":"пароль"}'
     sleep 0.1
     echo '{"command":"get_mob","vnum":100}'
-) | nc -U lib/admin_api.sock
+) | nc -U lib/run/admin_api.sock
 ```
 
 ### Использование curl (через прокси socat)
 
 ```bash
 # Запустить HTTP→Unix socket прокси
-socat TCP-LISTEN:8888,reuseaddr,fork UNIX-CONNECT:lib/admin_api.sock &
+socat TCP-LISTEN:8888,reuseaddr,fork UNIX-CONNECT:lib/run/admin_api.sock &
 
 # Использовать curl
-curl -X POST http://localhost:8888 \
-     -H "Content-Type: application/json" \
-     -d '{"command":"ping"}'
-
 curl -X POST http://localhost:8888 \
      -H "Content-Type: application/json" \
      -d '{"command":"auth","username":"ВашеИмя","password":"пароль"}'
@@ -1024,7 +1023,7 @@ curl -X POST http://localhost:8888 \
 5. **Только живые данные:** API работает с данными в памяти; сервер должен сохранить для сохранения изменений
 6. **Нет валидации:** Ограниченная валидация входных данных; неправильные данные могут привести к падению сервера
 7. **Нет транзакций:** Изменения немедленные; нет поддержки отката
-8. **Кодировка:** Весь текст должен быть в валидном UTF-8 (автоматическая конвертация в/из KOI8-R)
+8. **Кодировка:** Весь текст должен быть в валидном UTF-8; он хранится без перекодировки. Если в мире уже лежит невалидная строка, в ответе она приходит с символами замены (U+FFFD), и сущность можно исправить тем же API
 
 ## Компиляция
 
@@ -1032,27 +1031,23 @@ Admin API опциональный и отключен по умолчанию.
 
 **Включить:**
 ```bash
-cmake -DENABLE_ADMIN_API=ON ..
-make
+meson setup build -Dbuild_profile=release -Dadmin_api=true
+ninja -C build -j$(($(nproc)/2))
 ```
 
+Сборка с Admin API определяет `ENABLE_ADMIN_API`; в строке `Enabled features` при старте сервера появляется `admin_api`.
+
 **Конфигурация:**
-Отредактировать `lib/misc/configuration.xml`:
-```xml
-<admin_api>
-    <socket_path>admin_api.sock</socket_path>
-    <enabled>true</enabled>
-</admin_api>
-```
+В `lib/cfg/configuration.xml` поставить `<enabled>true</enabled>` в секции `<admin_api>` (см. «Подключение»).
 
 **Проверка:**
 ```bash
 # Проверить существование сокета
-ls -la lib/admin_api.sock
+ls -la lib/run/admin_api.sock
 
-# Тестовое подключение
-echo '{"command":"ping"}' | nc -U lib/admin_api.sock
-# Ожидается: {"status":"pong"}
+# Тестовое подключение: сервер сразу присылает приветствие
+nc -U lib/run/admin_api.sock
+# Ожидается: {"status":"ready","version":"1.0"}
 ```
 
 ## Безопасность
@@ -1060,7 +1055,7 @@ echo '{"command":"ping"}' | nc -U lib/admin_api.sock
 **Контроль доступа:**
 - Unix Domain Socket = только локальный доступ (нет сетевой экспозиции)
 - Права файла: 0600 (чтение/запись только владельцем)
-- Аутентификация требуется для всех операций кроме `ping`
+- Аутентификация требуется для всех команд, кроме самой `auth`
 - Минимальный уровень привилегий: Строитель (kLvlBuilder)
 
 **Рекомендации:**
@@ -1078,8 +1073,8 @@ nc: unix connect failed: Connection refused
 ```
 **Решения:**
 - Проверьте что `admin_api.enabled` установлено в `true` в configuration.xml
-- Убедитесь что сервер скомпилирован с `-DENABLE_ADMIN_API=ON`
-- Подтвердите что файл сокета существует: `ls -la lib/admin_api.sock`
+- Убедитесь что сервер собран с `-Dadmin_api=true` (в логе старта: `Admin API enabled, socket_path: …`)
+- Подтвердите что файл сокета существует: `ls -la lib/run/admin_api.sock`
 - Проверьте логи сервера на ошибки инициализации
 
 ### Достигнуто максимум подключений
@@ -1088,7 +1083,7 @@ nc: unix connect failed: Connection refused
 ```
 **Решения:**
 - Закройте существующее admin-подключение
-- Проверьте устаревшие подключения: `lsof lib/admin_api.sock`
+- Проверьте устаревшие подключения: `lsof lib/run/admin_api.sock`
 - Перезапустите сервер для очистки подключений
 
 ### Ошибка аутентификации
@@ -1110,6 +1105,16 @@ nc: unix connect failed: Connection refused
 - Убедитесь в правильной кодировке UTF-8
 - Проверьте отсутствующие кавычки, запятые, скобки
 - Проверьте завершение строки с `\n`
+
+### Поле вне `data`
+```
+{"status":"error","error":"Unknown top-level field 'triggers': entity fields go inside \"data\""}
+{"status":"error","error":"\"data\" must be an object with the fields to set"}
+```
+**Решение:** перенесите поля сущности внутрь `"data"`:
+```json
+{"command": "update_mob", "vnum": 2400, "data": {"triggers": [2410]}}
+```
 
 ### Моб/Объект/Комната не найдены
 ```
@@ -1134,9 +1139,8 @@ nc: unix connect failed: Connection refused
 **Симптом:** Команды обрываются посреди символа (особенно с кириллическим текстом)
 
 **Решение:**
-- Убедитесь что сервер собран с исправлениями process_input() для UTF-8
 - Проверьте что флаг `admin_api_mode` правильно установлен на дескрипторе
-- Проверьте что автоматическая конвертация UTF-8 ↔ KOI8-R включена
+- Убедитесь, что клиент отправляет UTF-8 и не режет запрос по байтам посреди символа
 
 ### Пустые ответы
 **Симптом:** Поля отсутствуют или пусты в ответах get_*

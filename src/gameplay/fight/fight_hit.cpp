@@ -879,8 +879,7 @@ int DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath,
 		return 0;
 	}
 	int dam = 0;
-	const int max_resist = ch->IsNpc() ? kMaxNpcResist : kMaxPcResist;
-	if (number(1, 100) > std::min(max_resist, GET_MR(victim))) {
+	if (number(1, 100) > CapResist(victim, GET_MR(victim))) {
 		dam = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice)
 			+ GetRealDamroll(ch) + str_bonus(GetRealStr(ch), STR_TO_DAM);
 		dam = std::clamp(dam, 0, kMaxHits);

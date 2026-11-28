@@ -63,6 +63,7 @@ test_sources = files(
     'password.encoding.cpp',
     'act.makefood.cpp',
     'charmice.damroll.cpp',
+    'resist.cap.cpp',
     'shop.sale_price.cpp',
     'slight_defence.damage.cpp',
     'damage_percent.cpp',

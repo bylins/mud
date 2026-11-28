@@ -81,6 +81,10 @@ EResist GetResistType(ESpell spell_id) {
 	return GetResisTypeWithElement(MUD::Spell(spell_id).GetElement());
 }
 
+int CapResist(const CharData *resister, int value) {
+	return std::min(resister->IsNpc() ? kMaxNpcResist : kMaxPcResist, value);
+}
+
 int ApplyResist(CharData *ch, EResist resist_type, int value) {
 	int resistance = GET_RESIST(ch, resist_type);
 	if (resistance <= 0) {

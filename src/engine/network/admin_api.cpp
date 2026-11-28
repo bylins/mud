@@ -25,6 +25,7 @@
 #include "gameplay/core/constants.h"
 #include "third_party_libs/nlohmann/json.hpp"
 
+#include <set>
 #include <string>
 #include <sstream>
 
@@ -195,8 +196,38 @@ void admin_api_send_error(DescriptorData *d, const char *error_msg) {
 	json response;
 	response["status"] = "error";
 	response["error"] = error_msg;
-	admin_api_send_json(d, response.dump().c_str());
+	admin_api_send_json(d, response.dump(-1, ' ', false, json::error_handler_t::replace).c_str());
 }
+
+namespace {
+
+// Поля сущности передаются только внутри "data". Раньше поле на верхнем уровне
+// диспетчер молча выбрасывал, обработчик получал null, ничего не менял -- и
+// отвечал ok (#3102). Теперь такой запрос -- ошибка клиента.
+bool CheckRequestShape(DescriptorData *d, const json &request, bool data_required) {
+	static const std::set<std::string> kTopLevelFields = {"command", "vnum", "zone", "data"};
+	for (const auto &item : request.items()) {
+		if (!kTopLevelFields.contains(item.key())) {
+			admin_api_send_error(d, fmt::format(
+				"Unknown top-level field '{}': entity fields go inside \"data\"", item.key()).c_str());
+			return false;
+		}
+	}
+	const auto it = request.find("data");
+	if (it == request.end() ? data_required : !it->is_object()) {
+		admin_api_send_error(d, "\"data\" must be an object with the fields to set");
+		return false;
+	}
+	return true;
+}
+
+// Поля сущности; для create_* и add_zone_command "data" необязателен (всё по умолчанию).
+json RequestData(const json &request) {
+	const auto it = request.find("data");
+	return it == request.end() ? json::object() : *it;
+}
+
+}  // namespace
 
 // ============================================================================
 // Command dispatcher
@@ -263,8 +294,11 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleGetZone(d, vnum);
 		}
 		else if (command == "update_zone") {
+			if (!CheckRequestShape(d, request, true)) {
+				return;
+			}
 			int vnum = request.value("vnum", -1);
-			json data = request["data"];
+			json data = RequestData(request);
 			HandleUpdateZone(d, vnum, data.dump().c_str());
 		}
 		// Mob commands
@@ -277,13 +311,19 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleGetMob(d, vnum);
 		}
 		else if (command == "update_mob") {
+			if (!CheckRequestShape(d, request, true)) {
+				return;
+			}
 			int vnum = request.value("vnum", -1);
-			json data = request["data"];
+			json data = RequestData(request);
 			HandleUpdateMob(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_mob") {
+			if (!CheckRequestShape(d, request, false)) {
+				return;
+			}
 			int zone = request.value("zone", -1);
-			json data = request.value("data", json::object());
+			json data = RequestData(request);
 			HandleCreateMob(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_mob") {
@@ -300,13 +340,19 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleGetObject(d, vnum);
 		}
 		else if (command == "update_object") {
+			if (!CheckRequestShape(d, request, true)) {
+				return;
+			}
 			int vnum = request.value("vnum", -1);
-			json data = request["data"];
+			json data = RequestData(request);
 			HandleUpdateObject(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_object") {
+			if (!CheckRequestShape(d, request, false)) {
+				return;
+			}
 			int zone = request.value("zone", -1);
-			json data = request.value("data", json::object());
+			json data = RequestData(request);
 			HandleCreateObject(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_object") {
@@ -323,13 +369,19 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleGetRoom(d, vnum);
 		}
 		else if (command == "update_room") {
+			if (!CheckRequestShape(d, request, true)) {
+				return;
+			}
 			int vnum = request.value("vnum", -1);
-			json data = request["data"];
+			json data = RequestData(request);
 			HandleUpdateRoom(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_room") {
+			if (!CheckRequestShape(d, request, false)) {
+				return;
+			}
 			int zone = request.value("zone", -1);
-			json data = request.value("data", json::object());
+			json data = RequestData(request);
 			HandleCreateRoom(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_room") {
@@ -346,13 +398,19 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleGetTrigger(d, vnum);
 		}
 		else if (command == "update_trigger") {
+			if (!CheckRequestShape(d, request, true)) {
+				return;
+			}
 			int vnum = request.value("vnum", -1);
-			json data = request["data"];
+			json data = RequestData(request);
 			HandleUpdateTrigger(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_trigger") {
+			if (!CheckRequestShape(d, request, false)) {
+				return;
+			}
 			int zone = request.value("zone", -1);
-			json data = request.value("data", json::object());
+			json data = RequestData(request);
 			HandleCreateTrigger(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_trigger") {
@@ -365,8 +423,11 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleListZoneCommands(d, zone);
 		}
 		else if (command == "add_zone_command") {
+			if (!CheckRequestShape(d, request, false)) {
+				return;
+			}
 			int zone = request.value("zone", -1);
-			json data = request.value("data", json::object());
+			json data = RequestData(request);
 			HandleAddZoneCommand(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_zone_command") {

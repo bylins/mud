@@ -166,7 +166,6 @@ Expected failures on the current tree (checked on the small world):
 
 - **`*_YAML_RoundTrip`, `*_YAML_FlatRoundTrip`: checksums differ from the baseline** (small world: zones 1, 11, 40, 46, 50, 60 and a few dozen objects). The checked-in `lib.template` world is in an older form than the saver writes: liquid containers keep `values:` instead of `extra_values:` (`LIQUID_*`), some objects carry an empty extra description or `values: [-1, -1]`. The first resave converts them, and the loader reads the two forms into different in-memory state. A second resave is byte-identical to the first, so it is a one-time conversion, not a loss on every save.
 - **`*_SQLite_RoundTrip`, `*_SQLite_SingleZoneStale`: checksums differ from the baseline in every zone, and in rooms, mobs, objects and triggers.** Not investigated yet.
-- **`*_YAML_AdminAPI`: mob, object and trigger tests fail** with `invalid UTF-8 byte`. The Admin API still converts incoming strings with `Utf8ToKoi8r` (`src/engine/network/admin_api/`), while the engine holds UTF-8, so the next read of an edited entity cannot be serialised to JSON. `tests/test_admin_api.py` also opens YAML files as `koi8-r`.
 
 ## Troubleshooting
 

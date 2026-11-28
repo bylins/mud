@@ -9,6 +9,7 @@
 #include "gameplay/mechanics/antisaving.h"
 #include "gameplay/mechanics/poison.h"
 #include "gameplay/fight/common.h"
+#include "gameplay/mechanics/resist.h"
 #include "magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
@@ -279,7 +280,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 			int hit_dmg = total_dmg;
 			// 2) global magic-resist gate (skipped if an MR ward already spent this hit's MR roll).
 			if (!ctx.MrApplied()) {
-				const int mr = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim));
+				const int mr = CapResist(victim, GET_MR(victim));
 				if (number(1, 100) <= mr) {
 					hit_dmg = 0;
 					if (tc) {

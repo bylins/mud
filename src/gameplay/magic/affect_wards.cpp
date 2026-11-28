@@ -8,6 +8,7 @@
 
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_messages.h"
+#include "gameplay/mechanics/resist.h"
 #include "magic_utils.h"
 #include "engine/db/global_objects.h"
 
@@ -108,9 +109,8 @@ bool RunWholeCastWards(ActionContext &ctx, bool is_magic) {
 									 refl.min, std::max(refl.min, refl.max))
 						: refl.prob;
 				} else if (absb.chance != EApply::kNone) {
-					// stat-driven: capped GET_<apply>(victim), same clamp as the elemental-resist path.
-					const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
-					chance = std::min(cap, WardResistStat(victim, absb.chance));
+					// stat-driven: GET_<apply>(victim), capped by the ward holder's type.
+					chance = CapResist(victim, WardResistStat(victim, absb.chance));
 				} else {
 					chance = absb.prob;
 				}
@@ -176,8 +176,7 @@ bool TryScopedAbsorb(ActionContext &ctx, talents_actions::EWardScope want) {
 				if (mr_ward && ctx.MrApplied()) {
 					continue;
 				}
-				const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
-				chance = std::min(cap, WardResistStat(victim, absb.chance));
+				chance = CapResist(victim, WardResistStat(victim, absb.chance));
 				// Spends the stage's single MR roll whether or not it absorbs, so CastDamage won't roll GET_MR again.
 				if (mr_ward) {
 					ctx.SetMrApplied();
