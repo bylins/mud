@@ -24,6 +24,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/initiative.h"
+#include "gameplay/mechanics/resist.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/core/remort.h"
@@ -562,14 +563,14 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 	}
 	if (skill > 149) {
 		ss << fmt::format("Защита от чар : {}, Защита от магических повреждений : {}, Защита от физических повреждений : {}\r\n",
-				std::min(GET_AR(victim), 100), std::min(GET_MR(victim), 100), std::min(GET_PR(victim), 100));
+				CapResist(victim, GET_AR(victim)), CapResist(victim, GET_MR(victim)), CapResist(victim, GET_PR(victim)));
 	}
 	if (skill > 179) {
 	ss << fmt::format("Сопротивление: огню: {}, воздуху: {}, воде: {}, земле: {}, тьме: {}, тяжелым ранам: {}, разум: {}, ядам и болезням: {}\r\n",
-			std::min(GET_RESIST(victim, EResist::kFire), 75), std::min(GET_RESIST(victim, EResist::kAir), 75),
-			std::min(GET_RESIST(victim, EResist::kWater), 75), std::min(GET_RESIST(victim, EResist::kEarth), 75),
-			std::min(GET_RESIST(victim, EResist::kDark), 75), std::min(GET_RESIST(victim, EResist::kVitality), 75),
-			std::min(GET_RESIST(victim, EResist::kMind), 75), std::min(GET_RESIST(victim, EResist::kImmunity), 75));
+			CapResist(victim, GET_RESIST(victim, EResist::kFire)), CapResist(victim, GET_RESIST(victim, EResist::kAir)),
+			CapResist(victim, GET_RESIST(victim, EResist::kWater)), CapResist(victim, GET_RESIST(victim, EResist::kEarth)),
+			CapResist(victim, GET_RESIST(victim, EResist::kDark)), CapResist(victim, GET_RESIST(victim, EResist::kVitality)),
+			CapResist(victim, GET_RESIST(victim, EResist::kMind)), CapResist(victim, GET_RESIST(victim, EResist::kImmunity)));
 	}
 	if (skill > 199) {
 		ss << fmt::format("Спас броски: воля: {}, здоровье: {}, стойкость: {}, реакция: {}\r\n",
